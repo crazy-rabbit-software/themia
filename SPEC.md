@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Opening a widget's app (R7-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
@@ -4036,78 +4036,24 @@ gallery ([S-1863]).
 Needs a manual pass: the button on the live desktop outside edit mode (opens Settings on the right
 page, from a closed and from an open window), and the button going away when an account is added.
 
-## Opening a widget's app (R7-OPEN)
+## Opening a widget's app (R7-OPEN, retired)
 
-Owning files: `Themia.Core/Widgets/WidgetLaunch.cs`, `Themia.App/Shell/WidgetCard.Launch.cs`,
-`Themia.App/Services/WidgetLauncher.cs`, `ShellLauncher.OpenWidgetTarget`.
+Removed again by the user's decision, with its table, launcher, hover affordance, strings and tests.
+Outside edit mode a click on a widget's body or header does nothing at the card level; the widget's
+own buttons, rows, links and controls keep their clicks, and a double-click enters edit mode at once
+([S-65]). The tags are not reused.
 
-- **[S-1920]** Outside edit mode a click on a widget opens the app it stands for, where one makes
-  sense, decided by one table (`WidgetLaunch`). **Body** widgets open from anywhere on the card except
-  their own controls: CPU, memory, disk, GPU, network, ping, battery, volume, Bluetooth, music, clock,
-  weather now and forecast, stocks, video stream. **Header** widgets open from the header (icon and
-  title) only, because their body is a list or a canvas of their own: mixer, mail, calendar, contacts,
-  tasks, feed, folder, pictures. With the header hidden they open nothing. **None**: notes,
-  scratchpad, clipboard, shortcuts, quote, sun & moon, habits, screen time (Windows has no page for
-  it), countdown and pomodoro (Clock has no documented timer link), and power (its buttons are the
-  widget).
-- **[S-1921]** The targets: CPU, memory, disk, GPU → Task Manager (`Taskmgr.exe` from the system
-  folder; it opens on the tab it last showed, as Windows has no supported switch for Performance).
-  Network and ping → `ms-settings:network-status`; battery → `ms-settings:powersleep` (Power &
-  battery); volume → `ms-settings:sound`; mixer → `ms-settings:apps-volume`; Bluetooth →
-  `ms-settings:bluetooth`; clock → Windows Clock (`ms-clock:`). A widget that needs setting up
-  ([S-1860]) opens nothing; its body is the Set up button.
-- **[S-1922]** The click area shows it opens something: a hand cursor and a faint wash
-  (`SubtleFillColorSecondary`) over the whole card or the header band while the pointer is on it and
-  not on a control, and a tooltip saying what opens ("Open Task Manager", "Open Spotify", "Open your
-  inbox"), which stays shut over a control. The same words are the header's accessible name (header
-  widgets) or the card's help text (body widgets). In nine languages, `shell.launch.*`.
-- **[S-1923]** What only the running widget knows reaches the table through `IWidgetLaunchFacts`:
-  the playing app (music), the folder on screen (folder, after navigating), the feed's site (feed).
-  Each value is checked again by the table.
-- **[S-1924]** One gate, re-applied by the launcher to the literal target (`WidgetLaunch.IsLaunchable`):
-  a program is only `Taskmgr.exe`, launched by its full path in the system folder; a Settings page or
-  protocol is one of the fixed strings above; a web page is https, accepted by `LaunchTargets`
-  (no credentials, no control characters, normalised) and built only from the widget's own config or
-  fetched data; a folder is a local path or shell name `LaunchTargets` accepts; an app id passes
-  `MediaApps`. Everything goes through `ShellLauncher` (ShellExecute, no arguments). A target that
-  fails to open is logged and shown as a notice ("Nothing opened"). Debug renders open nothing.
-- **[S-1925]** A plain left click opens; a click on a button, toggle, slider, text box, list item,
-  combo box, a row that handles its own tap, or an element marked `IOwnsClicks` (the seek bar) keeps
-  doing what it does. The open waits out the system double-click time, so a double-click (edit mode,
-  [S-65]) opens nothing. In edit mode a click selects and follows settings ([S-1745]) and never opens.
-  Enter on a widget that holds the keyboard lease ([S-800]) opens it when its view does not use Enter.
-- **[S-1926]** Music opens the app of the current media session, from its `SourceAppUserModelId`, while
-  a track is loaded (playing or paused); nothing is loaded, nothing opens. Only a plain id passes
-  (ASCII letters, digits, `. - _`, one `!` for a packaged app, at most 128 characters). A desktop
-  player that is running (`Spotify.exe` → process `Spotify`, `Chrome` → `chrome`) has its main window
-  restored and brought to the front; otherwise, and for a packaged app (Media Player, Store Spotify),
-  its Start menu entry `shell:AppsFolder\{id}` is activated, which brings a running packaged app
-  forward.
-- **[S-1927]** Weather opens MSN Weather's forecast for the widget's own coordinates, in the UI
-  language's market and the widget's unit:
-  `https://www.msn.com/{market}/weather/forecast/in-{place}?loc={base64 {l,x,y}}&weadegreetype={C|F}`
-  (the `loc` carries the coordinates; a name alone lands on whichever town MSN guesses). Stocks open
-  the symbol's page: Yahoo Finance (`/quote/{SYMBOL}/`) for a listed symbol, CoinGecko
-  (`/en/coins/{id}`) for a coin. The video stream opens its own address when it is https.
-- **[S-1928]** Account widgets open the service of the first account they read that has a web page
-  (all accounts with the feature when they name none): mail → Outlook on the web
-  (`outlook.office.com/mail/`) or Gmail; calendar → Outlook calendar on the web or Google Calendar,
-  and for CalDAV alone the registered calendar app (`outlookcal:`); contacts → Outlook People or Google
-  Contacts; tasks → Microsoft To Do (`ms-todo:` when registered, else `to-do.office.com`) or Google
-  Tasks. IMAP, CardDAV and a task list on this PC open nothing.
-- **[S-1929]** Folder opens the folder on screen in File Explorer (the configured one, or where the
-  widget has navigated to); pictures opens its folder (folder source only).
-- **[S-1930]** A feed remembers its site: an RSS channel's first `link` with text, or an Atom feed's
-  `rel="alternate"` link (never `self`), checked like an item link and kept in the saved feed cache.
-  The feed widget's header opens it when the widget has exactly one feed and the site is https.
-
-Needs a manual pass on the live desktop: every target above opening from a click (and Settings pages
-landing on the right page on Windows 11); a double-click still entering edit mode without opening
-anything; the controls (meter process rows, music transport and seek bar, volume slider and mute,
-stocks range chips, stream overlay buttons, Bluetooth device rows, header buttons) still doing their
-own thing; music with Spotify desktop, Spotify from the Store, a browser tab (Chrome, Edge, Firefox)
-and Media Player; Task Manager's elevation for a standard user; the MSN, Outlook-on-the-web
-(personal and work accounts) and To Do pages; the hover wash and tooltip; Enter under the lease.
+- **[S-1920]** *(Retired: a click on a widget opens nothing.)*
+- **[S-1921]** *(Retired: no click targets.)*
+- **[S-1922]** *(Retired: no hand cursor, hover wash or tooltip on the card.)*
+- **[S-1923]** *(Retired: views report nothing to open.)*
+- **[S-1924]** *(Retired: no widget-click launcher or its gate.)*
+- **[S-1925]** *(Retired: a click is not delayed by the double-click time; Enter under the lease goes to the view only.)*
+- **[S-1926]** *(Retired: music opens no app.)*
+- **[S-1927]** *(Retired: weather, stocks and the stream open no page.)*
+- **[S-1928]** *(Retired: account widgets open no service.)*
+- **[S-1929]** *(Retired: folder and pictures open no folder.)*
+- **[S-1930]** *(Retired: a feed does not keep its site.)*
 
 ## Removed widgets (R7-REMOVE)
 

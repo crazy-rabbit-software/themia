@@ -28,7 +28,6 @@ public enum MediaTransport
 /// <param name="Album">[S-1469] The album alone; empty when it repeats the artist.</param>
 /// <param name="Source">[S-1469] The playing app's name, e.g. "Spotify".</param>
 /// <param name="Origin">The session's own start time, which a seek is expressed against.</param>
-/// <param name="SourceAppId">[S-1926] The playing app's app user model id, raw, for a click to open it.</param>
 public readonly record struct NowPlaying(
     MusicState State,
     string Title,
@@ -43,8 +42,7 @@ public readonly record struct NowPlaying(
     string Artist = "",
     string Album = "",
     string Source = "",
-    TimeSpan Origin = default,
-    string SourceAppId = "")
+    TimeSpan Origin = default)
 {
     /// <summary>A state with nothing in it. Used for loading and for every flavour of idle.</summary>
     public static NowPlaying Of(MusicState state) => new(
@@ -274,8 +272,6 @@ internal sealed class MediaSession : IDisposable
                 ? raw.LastUpdatedTime
                 : DateTimeOffset.UtcNow;
 
-            var appId = SourceId(session);
-
             return new NowPlaying(
                 state,
                 title,
@@ -289,9 +285,8 @@ internal sealed class MediaSession : IDisposable
                 CanSeek: (controls?.IsPlaybackPositionEnabled ?? false) && timeline.Duration > TimeSpan.Zero,
                 Artist: MusicRules.Artist(properties?.Artist),
                 Album: MusicRules.Album(properties?.Artist, properties?.AlbumTitle),
-                Source: MusicRules.SourceName(appId),
-                Origin: raw?.StartTime ?? TimeSpan.Zero,
-                SourceAppId: appId ?? string.Empty);
+                Source: MusicRules.SourceName(SourceId(session)),
+                Origin: raw?.StartTime ?? TimeSpan.Zero);
         }
         catch (OperationCanceledException)
         {

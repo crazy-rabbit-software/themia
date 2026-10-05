@@ -157,7 +157,6 @@ public static class NetworkCacheStore
                 Key = entry.Key,
                 At = entry.At,
                 Title = entry.Value.Title,
-                Site = entry.Value.Site,
                 Items = [.. entry.Value.Entries.Take(MaxItems).Select(item => (ItemDto?)new ItemDto
                 {
                     Title = item.Title,
@@ -242,9 +241,7 @@ public static class NetworkCacheStore
             items.Add(new FeedEntry(Clip(item.Title), link, item.Published, Clip(item.Summary)));
         }
 
-        // [S-1930] The site is checked again too: it is opened on a click.
-        var site = dto.Site is { Length: > 0 } rawSite && WebInput.Url(rawSite) is { IsValid: true } siteUrl ? siteUrl.Url : string.Empty;
-        return items.Count == 0 ? null : new FeedDocument(Clip(dto.Title), items, site);
+        return items.Count == 0 ? null : new FeedDocument(Clip(dto.Title), items);
     }
 
     private static TickerQuote? ToQuote(QuoteEntryDto dto)
@@ -359,8 +356,6 @@ internal sealed class FeedEntryDto
     public DateTimeOffset? At { get; set; }
 
     public string? Title { get; set; }
-
-    public string? Site { get; set; }
 
     public List<ItemDto?>? Items { get; set; }
 }

@@ -13,8 +13,7 @@ namespace Themia.Core.Widgets;
 public sealed record FeedEntry(string Title, string Link, DateTimeOffset? Published, string Summary);
 
 /// <summary>A parsed feed: the channel's own title and its items, newest first.</summary>
-/// <param name="Site">[S-1930] The site the feed belongs to (RSS channel <c>link</c>, Atom <c>rel="alternate"</c>), checked by <see cref="WebInput.Url"/>, or empty.</param>
-public sealed record FeedDocument(string Title, IReadOnlyList<FeedEntry> Entries, string Site = "")
+public sealed record FeedDocument(string Title, IReadOnlyList<FeedEntry> Entries)
 {
     public static FeedDocument Empty { get; } = new(string.Empty, []);
 }
@@ -140,7 +139,6 @@ public static class FeedParser
         {
             return Build(
                 ChildText(channel, "title"),
-                RssSite(channel),
                 Children(channel, "item"),
                 ReadRssItem,
                 cap);
@@ -150,7 +148,6 @@ public static class FeedParser
         {
             return Build(
                 ChildText(root, "title"),
-                LinkOf(AtomLink(root, alternateOnly: true)),
                 Children(root, "entry"),
                 ReadAtomEntry,
                 cap);
@@ -163,7 +160,6 @@ public static class FeedParser
 
     private static FeedParseResult Build(
         string title,
-        string site,
         IEnumerable<XElement> items,
         Func<XElement, FeedEntry?> read,
         int cap)
@@ -185,7 +181,7 @@ public static class FeedParser
             }
         }
 
-        var document = new FeedDocument(FeedText.Plain(title, MaxTitle), entries, site);
+        var document = new FeedDocument(FeedText.Plain(title, MaxTitle), entries);
 
         return entries.Count == 0
             ? new FeedParseResult(FeedParseStatus.Empty, document)
@@ -233,30 +229,11 @@ public static class FeedParser
     }
 
     /// <summary>
-    /// [S-1930] An RSS channel's own <c>link</c>: the first one with text. A channel often carries an
-    /// Atom <c>link rel="self"</c> beside it, which is empty text and names the feed, not the site.
-    /// </summary>
-    private static string RssSite(XElement channel)
-    {
-        foreach (var link in Children(channel, "link"))
-        {
-            var site = LinkOf(link.Value.Trim());
-            if (site.Length > 0)
-            {
-                return site;
-            }
-        }
-
-        return string.Empty;
-    }
-
-    /// <summary>
     /// Atom's link is an attribute, and an entry usually has several: the article, a comments feed,
     /// an enclosure. The one worth opening is <c>rel="alternate"</c>, or the first with no rel at
     /// all, which the spec says means alternate.
     /// </summary>
-    /// <param name="alternateOnly">[S-1930] For the feed's own site: a <c>self</c> link names the feed, never the site.</param>
-    private static string AtomLink(XElement entry, bool alternateOnly = false)
+    private static string AtomLink(XElement entry)
     {
         string? fallback = null;
 
@@ -279,7 +256,7 @@ public static class FeedParser
             fallback ??= href;
         }
 
-        return alternateOnly ? string.Empty : fallback ?? string.Empty;
+        return fallback ?? string.Empty;
     }
 
     /// <summary>

@@ -358,9 +358,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         // [S-800] Handled presses too: a click on a row's button or a list item is still a click in
         // this widget, and the controls inside mark their presses handled.
         AddHandler(PointerPressedEvent, new PointerEventHandler(OnLeasePointerPressed), handledEventsToo: true);
-
-        // [S-1920] A click opens the widget's app, where one makes sense.
-        AttachLaunch();
     }
 
     public WidgetInstance Model { get; }
@@ -663,9 +660,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         ProtectedCursor = editing
             ? InputSystemCursor.Create(InputSystemCursorShape.SizeAll)
             : InputSystemCursor.Create(InputSystemCursorShape.Arrow);
-
-        // [S-1925] Edit mode takes the click from the open action.
-        EndLaunchHover();
     }
 
     public void ApplyConfig()
@@ -687,7 +681,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
 
     public void Detach()
     {
-        DetachLaunch();
         DetachSetup();
         StopView();
     }
@@ -1021,8 +1014,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     {
         // Ctrl+Alt+W is the documented way in, but a double-click on a widget is the one people
         // actually try — and it is the fallback when another program already owns the hotkey.
-        // [S-1925] The first click of it opens nothing.
-        CancelLaunch();
         _host.RequestEditMode(!_host.EditMode);
         e.Handled = true;
     }
@@ -1150,8 +1141,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
 
         try
         {
-            // [S-1925] Enter the view does not use opens the widget's app.
-            return keys.HandleKey(key) || (key == WidgetKey.Enter && LaunchFromKey());
+            return keys.HandleKey(key);
         }
         catch (Exception ex)
         {

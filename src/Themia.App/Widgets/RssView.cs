@@ -29,7 +29,7 @@ namespace Themia.App.Widgets;
 /// </para>
 /// </summary>
 internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys, IWidgetLaunchFacts
+    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
 {
     private const string Scope = "rss";
 
@@ -331,11 +331,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     }
 
     /// <summary>The feeds in the order the user listed them, each with whatever is held for it.</summary>
-    /// <summary>[S-1930] The header opens the feed's site; several feeds have no one site, so nothing.</summary>
-    public WidgetLiveLaunch LaunchFacts => _config.FeedUrls is [var url] && _parts.TryGetValue(url, out var part)
-        ? new WidgetLiveLaunch(Site: part.Value?.Site ?? string.Empty)
-        : WidgetLiveLaunch.None;
-
     private List<FeedPart> Parts()
         => [.. _config.FeedUrls.Select(url => _parts.TryGetValue(url, out var part)
             ? new FeedPart(url, part.Value, part.Status, part.Detail)
