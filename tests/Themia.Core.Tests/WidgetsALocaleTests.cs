@@ -1,4 +1,3 @@
-using Themia.Core.Developer;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
@@ -98,29 +97,6 @@ public sealed class WidgetsALocaleTests
     }
 
     [Fact]
-    public void S1106_github_ages_and_comment_counts_follow_the_language()
-    {
-        var now = new DateTimeOffset(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
-
-        Assert.Equal("5 Min.", GitHubRules.Ago(now.AddMinutes(-5), now, Locale.De));
-        Assert.Equal("4. März", GitHubRules.Ago(new DateTimeOffset(2026, 3, 4, 9, 0, 0, TimeSpan.Zero), now, Locale.De));
-        Assert.Equal("2025年3月", GitHubRules.Ago(new DateTimeOffset(2025, 3, 4, 9, 0, 0, TimeSpan.Zero), now, Locale.Ja));
-        Assert.Equal("rosa · 3 komentarze", GitHubRules.ItemDetail("rosa", 3, Locale.Pl));
-        Assert.Equal("rosa · 5 komentarzy", GitHubRules.ItemDetail("rosa", 5, Locale.Pl));
-        Assert.Equal("erfolgreich", GitHubRules.RunLabel(RunState.Success, Locale.De));
-    }
-
-    [Fact]
-    public void S1106_a_developer_widget_explains_itself_in_german()
-    {
-        var now = new DateTimeOffset(2026, 10, 4, 12, 0, 0, TimeSpan.FromHours(2));
-        var limited = new DevOutcome("gh:work", FetchStatus.RateLimited, null, new DateTimeOffset(2026, 10, 4, 10, 45, 0, TimeSpan.Zero));
-
-        Assert.Equal("GitHub hat Themia gebremst; neuer Versuch um 12:45", DevScreens.Explain("GitHub", limited, now, Locale.De));
-        Assert.Equal("Melde dich unter „Konten“ bei GitHub an.", DevScreens.Decide("GitHub", [], ["gh:gone"], true, [], false, string.Empty, now, Locale.De, anonymous: true).Text);
-    }
-
-    [Fact]
     public void S1106_calendar_titles_and_problems_are_translated()
     {
         var sunday = new DateOnly(2026, 10, 4);
@@ -139,17 +115,6 @@ public sealed class WidgetsALocaleTests
         Assert.Equal("Bluetooth ist ausgeschaltet", BluetoothRules.StatusMessage(BluetoothStatus.RadioOff, Locale.De));
         Assert.Equal("5 znaków", ClipboardFormatting.Describe("hello", Locale.Pl));
         Assert.Equal("2 Zeilen", ClipboardFormatting.Describe("a\nb", Locale.De));
-        Assert.Equal("Sonstige", InstalledAppRules.CategoryTitle(string.Empty, Locale.De));
-        Assert.Equal("Klammer auf", CalculatorKeypad.Name(KeypadKey.OpenParen, Locale.De));
     }
 
-    [Fact]
-    public void S1106_claude_usage_resets_are_worded_per_language()
-    {
-        var now = new DateTimeOffset(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
-
-        Assert.Equal("Reset in 3 h 20 min", ClaudeUsageRules.ResetLabel(now.AddHours(3).AddMinutes(20), now, Locale.De));
-        Assert.Equal("über dem Tempo", ClaudeUsageRules.PaceText(UsagePace.Ahead, Locale.De));
-        Assert.Equal("Sitzung (5 Std.)", ClaudeUsageRules.BuildBars(new ClaudeUsageReport(UsageWindow.Unused, UsageWindow.Unused, null, null), false, false, Locale.De)[0].Label);
-    }
 }

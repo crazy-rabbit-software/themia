@@ -40,7 +40,7 @@ internal sealed partial class DesktopWindow
     private bool _lassoing;
     private List<string> _lassoBase = [];
 
-    /// <summary>The ids of the cards on this surface that draw nothing (a collapsed group's members).</summary>
+    /// <summary>The ids of the cards on this surface that are collapsed, so draw nothing.</summary>
     private HashSet<string> HiddenIds()
         => [.. _cards.Where(c => c.Visibility == Visibility.Collapsed).Select(c => c.Model.Id)];
 
@@ -50,7 +50,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-1584] A move starts on <paramref name="card"/>: it moves, and so does every other selected
-    /// widget the grid places on this display. A card outside the selection moves alone (pressing it
+    /// widget on this display. A card outside the selection moves alone (pressing it
     /// selected it alone).
     /// </summary>
     public void BeginMove(WidgetCard card)
@@ -59,7 +59,7 @@ internal sealed partial class DesktopWindow
 
         var view = ViewForThisMonitor(_host.State);
         var ids = _host.Selection.Contains(card.Model.Id) && string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal)
-            ? SelectionRules.Movable(view, _host.Selection.Ids)
+            ? SelectionRules.InView(view, _host.Selection.Ids)
             : [];
         if (!ids.Contains(card.Model.Id))
         {
@@ -116,8 +116,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-1584]/[S-1591] The move ended. Over another display showing another view, the widgets go
-    /// there ([S-76]); a single widget dropped on a container joins it ([S-875]); otherwise every
-    /// moved card keeps the rect it was dragged to.
+    /// there ([S-76]); otherwise every moved card keeps the rect it was dragged to.
     /// </summary>
     public void CommitMove(WidgetCard card)
     {
@@ -142,12 +141,6 @@ internal sealed partial class DesktopWindow
         foreach (var (moving, _) in move.Cards)
         {
             moving.Model.Rect = moving.LiveRect;
-        }
-
-        // [S-875] Joining a container is about one widget; a block is only moved.
-        if (move.Cards.Count == 1 && TryDropIntoContainer(card))
-        {
-            return;
         }
 
         foreach (var (moving, _) in move.Cards)

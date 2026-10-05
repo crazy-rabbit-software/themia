@@ -19,7 +19,8 @@ public partial class App : Application
         // The settings render's --theme: the application theme can only be chosen before the
         // resources load, and the pages' brushes come from it.
         if ((Shell.Gallery.SettingsRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.IconPickerRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
+            ?? Shell.Gallery.IconPickerRender.RequestedTheme(Environment.GetCommandLineArgs())
+            ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
         {
             RequestedTheme = theme;
         }
@@ -104,6 +105,12 @@ public partial class App : Application
 
         // And for the app-layout editor ([S-1411]).
         if (Shell.Gallery.LayoutEditorRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
+        // And for one widget at every size tier, or one size ([S-1917]).
+        if (Shell.Gallery.WidgetRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;
         }

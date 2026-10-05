@@ -33,9 +33,14 @@ namespace Themia.App.Widgets;
 /// places the parts is in <c>MusicView.Layout.cs</c>.
 /// </para>
 /// </summary>
-internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetLaunchFacts
 {
     private const string Scope = "music";
+
+    /// <summary>[S-1926] The playing app, while a track is loaded; nothing to open otherwise.</summary>
+    public WidgetLiveLaunch LaunchFacts => _now.HasTrack
+        ? new WidgetLiveLaunch(MediaAppId: _now.SourceAppId, MediaAppName: _now.Source)
+        : WidgetLiveLaunch.None;
 
     private readonly Canvas _canvas = new();
 

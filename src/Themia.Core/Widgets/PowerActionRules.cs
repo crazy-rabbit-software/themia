@@ -58,9 +58,9 @@ public readonly record struct PowerOutcome(PowerFailure Failure, int Win32Error)
 }
 
 /// <summary>
-/// The power tile's rules: which actions exist and in what default order, which need a second click,
-/// what each one calls, and how a failure reads. Pure, so the decisions are tested here and the
-/// Win32 seam stays a few lines of calls.
+/// The power widgets' rules: which kind runs which action, which actions need a second click, what
+/// each one calls, and how a failure reads. Pure, so the decisions are tested here and the Win32
+/// seam stays a few lines of calls.
 /// </summary>
 public static class PowerActionRules
 {
@@ -88,57 +88,59 @@ public static class PowerActionRules
     /// <summary><c>ERROR_SHUTDOWN_IN_PROGRESS</c>.</summary>
     public const int ShutdownInProgress = 1115;
 
-    /// <summary>Every action, in the order the settings page lists the ones not yet chosen.</summary>
+    /// <summary>[S-1910] Every action, in the order the picker lists their widgets.</summary>
     public static IReadOnlyList<PowerAction> All { get; } =
     [
         PowerAction.Shutdown,
         PowerAction.Restart,
         PowerAction.Sleep,
-        PowerAction.Lock,
         PowerAction.Hibernate,
+        PowerAction.Lock,
         PowerAction.SignOut,
         PowerAction.ScreenOff,
     ];
 
-    /// <summary>[S-1242] The original's default four: shut down, restart, sleep, lock.</summary>
-    public static IReadOnlyList<PowerAction> Defaults { get; } =
-        [PowerAction.Shutdown, PowerAction.Restart, PowerAction.Sleep, PowerAction.Lock];
-
-    /// <summary>
-    /// [S-1241] The list as drawn: defined values only, first occurrence wins, order kept. A null
-    /// list is no buttons (the placeholder), not the defaults — the defaults are a new widget's.
-    /// </summary>
-    public static IReadOnlyList<PowerAction> Visible(IEnumerable<PowerAction>? raw)
+    /// <summary>[S-1910] The action a widget kind stands for, or null for a kind that is not a power widget.</summary>
+    public static PowerAction? ForKind(WidgetKind kind) => kind switch
     {
-        var shown = new List<PowerAction>();
+        WidgetKind.Shutdown => PowerAction.Shutdown,
+        WidgetKind.Restart => PowerAction.Restart,
+        WidgetKind.Sleep => PowerAction.Sleep,
+        WidgetKind.Hibernate => PowerAction.Hibernate,
+        WidgetKind.Lock => PowerAction.Lock,
+        WidgetKind.SignOut => PowerAction.SignOut,
+        WidgetKind.ScreenOff => PowerAction.ScreenOff,
+        _ => null,
+    };
 
-        if (raw is null)
-        {
-            return shown;
-        }
-
-        foreach (var action in raw)
-        {
-            if (Enum.IsDefined(action) && !shown.Contains(action))
-            {
-                shown.Add(action);
-            }
-        }
-
-        return shown;
-    }
+    /// <summary>[S-1910] The widget kind of an action: the inverse of <see cref="ForKind"/>.</summary>
+    public static WidgetKind KindOf(PowerAction action) => action switch
+    {
+        PowerAction.Shutdown => WidgetKind.Shutdown,
+        PowerAction.Restart => WidgetKind.Restart,
+        PowerAction.Sleep => WidgetKind.Sleep,
+        PowerAction.Hibernate => WidgetKind.Hibernate,
+        PowerAction.Lock => WidgetKind.Lock,
+        PowerAction.SignOut => WidgetKind.SignOut,
+        PowerAction.ScreenOff => WidgetKind.ScreenOff,
+        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "not a power action"),
+    };
 
     /// <summary>
-    /// [S-1245] The actions that end the session. They close every app, so unsaved work can be lost.
-    /// Sleep, hibernate, lock and display-off come back to the same desktop: a mis-click costs a
-    /// keypress, so they never arm.
+    /// [S-1913] The actions a stray click must not run: shut down, restart and sign out close every
+    /// app, so unsaved work can be lost; hibernate powers the machine off. They arm on the first
+    /// click and run on the second. Sleep, lock and display-off come back to the same desktop with a
+    /// keypress, so they run at once.
     /// </summary>
-    public static bool EndsSession(PowerAction action)
-        => action is PowerAction.Shutdown or PowerAction.Restart or PowerAction.SignOut;
+    public static bool NeedsArming(PowerAction action)
+        => action is PowerAction.Shutdown or PowerAction.Restart or PowerAction.SignOut or PowerAction.Hibernate;
 
-    /// <summary>[S-1245] Whether a press arms the tile rather than running the action.</summary>
-    public static bool NeedsConfirm(PowerAction action, bool confirmEnabled)
-        => confirmEnabled && EndsSession(action);
+    /// <summary>
+    /// [S-1914] Whether the action can run on this machine. Only hibernation depends on the machine:
+    /// it is off when Windows has no hibernation file (<c>powercfg /h off</c>) or policy forbids it.
+    /// </summary>
+    public static bool Available(PowerAction action, bool canHibernate)
+        => action != PowerAction.Hibernate || canHibernate;
 
     /// <summary>[S-1243] The call behind an action. Mirrors the original backend exactly.</summary>
     public static PowerCall Plan(PowerAction action) => action switch
@@ -181,7 +183,7 @@ public static class PowerActionRules
         => succeeded ? PowerOutcome.Ok
             : new PowerOutcome(hibernate ? PowerFailure.HibernateUnavailable : PowerFailure.SleepRefused, 0);
 
-    /// <summary>The button's name.</summary>
+    /// <summary>The widget's name, and the label under its icon.</summary>
     public static string Label(PowerAction action) => Label(Strings.Current, action);
 
     /// <summary><see cref="Label(PowerAction)"/> in an explicit language (the original's own action names).</summary>
@@ -197,28 +199,15 @@ public static class PowerActionRules
         _ => action.ToString(),
     };
 
-    /// <summary>What the settings page says each action does.</summary>
-    public static string Description(PowerAction action) => action switch
-    {
-        PowerAction.Shutdown => Str.WidgetsC_Power_Desc_Shutdown.Text(),
-        PowerAction.Restart => Str.WidgetsC_Power_Desc_Restart.Text(),
-        PowerAction.Sleep => Str.WidgetsC_Power_Desc_Sleep.Text(),
-        PowerAction.Hibernate => Str.WidgetsC_Power_Desc_Hibernate.Text(),
-        PowerAction.Lock => Str.WidgetsC_Power_Desc_Lock.Text(),
-        PowerAction.SignOut => Str.WidgetsC_Power_Desc_SignOut.Text(),
-        PowerAction.ScreenOff => Str.WidgetsC_Power_Desc_ScreenOff.Text(),
-        _ => string.Empty,
-    };
+    /// <summary>[S-1913] What an armed widget says in place of its name: "Click again to shut down".</summary>
+    public static string ArmedLabel(PowerAction action) => ArmedLabel(Strings.Current, action);
 
-    /// <summary>The words an armed tile shows in place of its name.</summary>
-    public static string ConfirmLabel => Str.Power_ConfirmTile.Text();
-
-    /// <summary>The tooltip of an armed tile.</summary>
-    public static string ConfirmHint(PowerAction action) => ConfirmHint(Strings.Current, action);
-
-    /// <summary><see cref="ConfirmHint(PowerAction)"/> in an explicit language.</summary>
-    public static string ConfirmHint(Locale locale, PowerAction action)
+    /// <summary><see cref="ArmedLabel(PowerAction)"/> in an explicit language.</summary>
+    public static string ArmedLabel(Locale locale, PowerAction action)
         => Strings.Format(locale, Str.WidgetsC_Power_ConfirmHint, ("action", Verb(locale, action)));
+
+    /// <summary>[S-1914] The tooltip of a hibernate widget on a machine that cannot hibernate.</summary>
+    public static string UnavailableHint => Str.WidgetsC_Power_HibernateUnavailable.Text();
 
     /// <summary>
     /// The verb used in sentences: "Could not <i>sleep</i>". Each language words it to fit its own
@@ -263,46 +252,5 @@ public static class PowerActionRules
         };
 
         return reason is null ? null : Strings.Format(locale, Str.WidgetsC_Power_CouldNot, ("action", Verb(locale, action)), ("reason", reason));
-    }
-
-    /// <summary>
-    /// [S-1242] Turn one action on or off in an ordered list. On appends to the end (the user then
-    /// moves it); off removes it. Returns whether the list changed.
-    /// </summary>
-    public static bool Toggle(List<PowerAction> actions, PowerAction action, bool on)
-    {
-        ArgumentNullException.ThrowIfNull(actions);
-
-        if (on)
-        {
-            if (actions.Contains(action))
-            {
-                return false;
-            }
-
-            actions.Add(action);
-            return true;
-        }
-
-        return actions.RemoveAll(existing => existing == action) > 0;
-    }
-
-    /// <summary>
-    /// [S-1242] The settings page's order: the chosen actions in their order, then the rest in
-    /// <see cref="All"/>'s order, so every action has exactly one row.
-    /// </summary>
-    public static IReadOnlyList<PowerAction> SettingsOrder(IEnumerable<PowerAction>? chosen)
-    {
-        var order = new List<PowerAction>(Visible(chosen));
-
-        foreach (var action in All)
-        {
-            if (!order.Contains(action))
-            {
-                order.Add(action);
-            }
-        }
-
-        return order;
     }
 }

@@ -257,9 +257,9 @@ public static class ViewBarRules
     }
 
     /// <summary>
-    /// [S-908] The display's whitelist after ticking or unticking one view on its page. Same rules
-    /// as the switcher widget's ([S-490]): the last view cannot be unticked, and ticking every view
-    /// collapses back to "all", which keeps following views added later.
+    /// [S-908] The display's whitelist after ticking or unticking one view on its page: the last view
+    /// cannot be unticked, and ticking every view collapses back to "all", which keeps following views
+    /// added later.
     /// </summary>
     public static List<string> ToggleVisible(IReadOnlyList<ViewState> views, ViewBarSettings settings, string viewId, bool on)
     {
@@ -267,6 +267,6 @@ public static class ViewBarRules
         ArgumentNullException.ThrowIfNull(settings);
 
         var summaries = views.Select(v => new ViewSummary(v.Id, v.Name)).ToList();
-        return ViewSwitcherRules.Toggle(summaries, settings.VisibleViews, viewId, on);
+        return ViewListRules.Toggle(summaries, settings.VisibleViews, viewId, on);
     }
 }

@@ -22,7 +22,7 @@ public sealed record Account
 
     public required AccountProvider Provider { get; init; }
 
-    /// <summary>What the account is known by: an email address, a login, or "Claude".</summary>
+    /// <summary>What the account is known by: an email address or a login.</summary>
     public required string Address { get; init; }
 
     /// <summary>The person's name as the provider gave it; may be empty.</summary>
@@ -37,19 +37,16 @@ public sealed record Account
     /// <summary>IMAP server port.</summary>
     public int? Port { get; init; }
 
-    /// <summary>Login for IMAP and DAV; the GitHub login for GitHub.</summary>
+    /// <summary>Login for IMAP and DAV.</summary>
     public string? Username { get; init; }
 
     /// <summary>The resolved CalDAV / CardDAV collection URL.</summary>
     public string? ServerUrl { get; init; }
 
-    /// <summary>The GitHub REST API root, <c>https://api.github.com</c> unless Enterprise.</summary>
-    public string? ApiBaseUrl { get; init; }
-
-    /// <summary>Sealed access token (OAuth providers and GitHub).</summary>
+    /// <summary>Sealed access token (OAuth providers).</summary>
     public string? SealedAccessToken { get; init; }
 
-    /// <summary>Sealed refresh token (Microsoft, Google, Claude).</summary>
+    /// <summary>Sealed refresh token (Microsoft, Google).</summary>
     public string? SealedRefreshToken { get; init; }
 
     /// <summary>Sealed password (IMAP, CalDAV, CardDAV).</summary>
@@ -106,8 +103,6 @@ public sealed class StoredAccount
 
     public string? ServerUrl { get; set; }
 
-    public string? ApiBaseUrl { get; set; }
-
     public string? AccessToken { get; set; }
 
     public string? RefreshToken { get; set; }
@@ -133,7 +128,6 @@ public sealed class StoredAccount
             Port = account.Port,
             Username = account.Username,
             ServerUrl = account.ServerUrl,
-            ApiBaseUrl = account.ApiBaseUrl,
             AccessToken = account.SealedAccessToken,
             RefreshToken = account.SealedRefreshToken,
             Password = account.SealedPassword,

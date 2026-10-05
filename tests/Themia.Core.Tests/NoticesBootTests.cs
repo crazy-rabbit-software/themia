@@ -171,7 +171,7 @@ public sealed class NoticesBootTests : IDisposable
 
         Assert.True(state.Design.RunAtStartup);
         Assert.Equal(new DesignState().WidgetGapPx, state.Design.WidgetGapPx);
-        Assert.Equal(4, Assert.Single(state.Views).Widgets.Count);
+        Assert.Equal(3, Assert.Single(state.Views).Widgets.Count);
     }
 
     // ---------------------------------------------------------------------------------------
@@ -185,10 +185,10 @@ public sealed class NoticesBootTests : IDisposable
         var widgets = Assert.Single(state.Views).Widgets;
 
         Assert.Equal(
-            [WidgetKind.Clock, WidgetKind.Help, WidgetKind.Folder, WidgetKind.Shortcuts],
+            [WidgetKind.Clock, WidgetKind.Folder, WidgetKind.Shortcuts],
             widgets.Select(w => w.Kind));
 
-        var places = Assert.IsType<ShortcutsConfig>(widgets[3].Config);
+        var places = Assert.IsType<ShortcutsConfig>(widgets[2].Config);
         Assert.Equal(AppState.FirstRunPlaces.Select(p => "shell:" + p), places.Items.Select(i => i.Target));
         Assert.All(places.Items, i => Assert.Equal(string.Empty, i.Label));
 
@@ -224,7 +224,7 @@ public sealed class NoticesBootTests : IDisposable
 
         var loaded = new AppStateStore(path).Load();
         Assert.Equal(LoadOutcome.Loaded, loaded.Outcome);
-        Assert.Equal(4, loaded.State.Views[0].Widgets.Count);
-        Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[3].Config).Items.Count);
+        Assert.Equal(3, loaded.State.Views[0].Widgets.Count);
+        Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[2].Config).Items.Count);
     }
 }

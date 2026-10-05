@@ -134,63 +134,6 @@ public sealed class DeskSketchConfigTests : IDisposable
     }
 
     // -----------------------------------------------------------------------------------------
-    // Colour swatch
-    // -----------------------------------------------------------------------------------------
-
-    [Fact]
-    public async Task A_new_palette_is_the_bundled_one_and_does_not_double_on_load()
-    {
-        var reloaded = await RoundTrip(WidgetKind.ColorSwatch, new ColorSwatchConfig());
-
-        Assert.Equal(SwatchPalette.Default.Count, reloaded.Swatches.Count);
-        Assert.Equal(SwatchPalette.Default[0].Name, reloaded.Swatches[0].Name);
-    }
-
-    [Fact]
-    public async Task A_palette_the_user_emptied_comes_back_empty()
-    {
-        var reloaded = await RoundTrip(WidgetKind.ColorSwatch, new ColorSwatchConfig { Swatches = [] });
-
-        Assert.Empty(reloaded.Swatches);
-        Assert.Empty(reloaded.EffectiveSwatches);
-    }
-
-    [Fact]
-    public async Task A_palette_keeps_its_order_its_names_and_its_notation()
-    {
-        var config = new ColorSwatchConfig
-        {
-            CopyAs = ColorNotation.Hsl,
-            ShowNames = false,
-            Swatches =
-            [
-                new SwatchItem { Value = "#0078D4", Name = "Brand" },
-                new SwatchItem { Value = "rgb(16, 185, 129)", Name = "Go" },
-            ],
-        };
-
-        var reloaded = await RoundTrip(WidgetKind.ColorSwatch, config);
-
-        Assert.Equal(ColorNotation.Hsl, reloaded.CopyAs);
-        Assert.False(reloaded.ShowNames);
-        Assert.Equal(["Brand", "Go"], reloaded.Swatches.Select(s => s.Name).ToArray());
-        Assert.Equal(new RgbColor(16, 185, 129), reloaded.EffectiveSwatches[1].Color);
-    }
-
-    [Fact]
-    public void Duplicating_a_palette_copies_it_rather_than_appending_to_the_defaults()
-    {
-        var original = new ColorSwatchConfig { Swatches = [new SwatchItem { Value = "#0078D4", Name = "Only" }] };
-
-        var copy = Assert.IsType<ColorSwatchConfig>(original.Clone());
-        copy.Swatches[0].Name = "Renamed";
-        copy.Swatches.Add(new SwatchItem { Value = "#000000" });
-
-        Assert.Single(original.Swatches);
-        Assert.Equal("Only", original.Swatches[0].Name);
-    }
-
-    // -----------------------------------------------------------------------------------------
     // Quote
     // -----------------------------------------------------------------------------------------
 

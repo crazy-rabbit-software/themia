@@ -220,7 +220,7 @@ internal static partial class ConfigPages
                 });
                 changed?.Invoke();
             },
-            defaultText: ViewSwitcherRules.Initials(view.Name),
+            defaultText: ViewListRules.Initials(view.Name),
             defaultName: Str.Shell_View_Initials.Text());
     }
 

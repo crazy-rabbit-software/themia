@@ -53,10 +53,7 @@ internal sealed partial class AppHost
         }
     }
 
-    /// <summary>
-    /// Delete every selected widget in one write. A container gives up its children rather than
-    /// taking them with it ([S-417], <see cref="WidgetTree.Dissolve"/>) — unless they are selected too.
-    /// </summary>
+    /// <summary>Delete every selected widget in one write.</summary>
     public void DeleteSelected()
     {
         if (SelectionView is not { } view)
@@ -67,11 +64,7 @@ internal sealed partial class AppHost
         var ids = Selection.Ids.ToList();
         Mutate(_ =>
         {
-            foreach (var id in ids)
-            {
-                view.Dissolve(id);
-                view.Widgets.RemoveAll(w => w.Id == id);
-            }
+            view.Widgets.RemoveAll(w => ids.Contains(w.Id));
         }, undo: UndoAction.Delete);
         Select(null);
 
@@ -90,7 +83,7 @@ internal sealed partial class AppHost
             return;
         }
 
-        var ids = SelectionRules.TopLevel(view, Selection.Ids);
+        var ids = SelectionRules.InView(view, Selection.Ids);
         if (!front)
         {
             ids.Reverse();

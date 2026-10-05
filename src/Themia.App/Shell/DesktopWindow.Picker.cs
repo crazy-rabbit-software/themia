@@ -27,27 +27,19 @@ namespace Themia.App.Shell;
 internal sealed partial class DesktopWindow
 {
     /// <summary>
-    /// Room a group keeps free at the top of its area for its own header when a widget is created
-    /// inside it, so the new member does not cover the group's title and collapse button.
-    /// </summary>
-    private const double GroupHeaderAllowancePx = 40;
-
-    /// <summary>
     /// [S-420] The widget picker: a flyout rather than a page in the settings window, because
     /// choosing a widget is a moment's decision made while looking at the desktop, and the settings
     /// window covers the desktop.
     /// <para>
-    /// [S-955] Its content is rebuilt every time it opens, because what it offers depends on things
-    /// that change while it is closed: which containers this display shows and which widget is
-    /// selected.
+    /// Its content is rebuilt every time it opens, so the names follow a language switch ([S-1109]).
     /// </para>
     /// </summary>
     private Flyout BuildAddFlyout()
     {
         var flyout = new Flyout
         {
-            // [S-1749] Centred under what opened it: the toolbar's Add button, the right-click point
-            // or the container. It flips above only when there is no room below.
+            // [S-1749] Centred under what opened it: the toolbar's Add button or the right-click
+            // point. It flips above only when there is no room below.
             Placement = FlyoutPlacementMode.Bottom,
 
             // The presenter caps itself at 456px by default, sized for a menu of one column. Left at
@@ -64,11 +56,8 @@ internal sealed partial class DesktopWindow
 
         flyout.Opening += (_, _) =>
         {
-            var (targets, initial) = PickerTargets();
             flyout.Content = new WidgetPicker(
-                targets,
-                initial,
-                (definition, target) => OnPicked(flyout, definition, target),
+                definition => OnPicked(flyout, definition),
                 flyout.Hide);
         };
 
@@ -77,102 +66,11 @@ internal sealed partial class DesktopWindow
         return flyout;
     }
 
-    /// <summary>
-    /// [S-955] The desktop, then every container on this display that will take one more widget,
-    /// in view order. A container that is selected when the picker opens is where it starts: the
-    /// user pointed at it before asking to add something.
-    /// </summary>
-    private (List<PickerTarget> Targets, int Initial) PickerTargets()
-    {
-        var targets = new List<PickerTarget> { new(null, Str.Shell_Picker_TargetDesktop.Text()) };
-        var initial = 0;
-        var view = ViewForThisMonitor(_host.State);
-        var seen = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
-
-        foreach (var widget in view.Widgets)
-        {
-            if (!WidgetTree.IsContainer(widget.Kind) || !view.CanAddInto(widget.Id))
-            {
-                continue;
-            }
-
-            // Two untitled groups would otherwise both read "Group".
-            var name = string.IsNullOrWhiteSpace(widget.Label) ? WidgetCatalog.Definition(widget.Kind).Label : widget.Label.Trim();
-            seen[name] = seen.TryGetValue(name, out var count) ? count + 1 : 1;
-            if (seen[name] > 1)
-            {
-                name = Str.Shell_Picker_NumberedName.Format(("name", name), ("n", seen[name]));
-            }
-
-            if (string.Equals(widget.Id, _host.SelectedWidgetId, StringComparison.Ordinal))
-            {
-                initial = targets.Count;
-            }
-
-            targets.Add(new PickerTarget(widget.Id, name));
-        }
-
-        return (targets, initial);
-    }
-
-    /// <summary>
-    /// [S-421, S-956] A widget was chosen. For the desktop that starts click-to-place; for a
-    /// container it is created inside it at once, since the container decides where it goes.
-    /// </summary>
-    private void OnPicked(Flyout flyout, WidgetDefinition definition, PickerTarget target)
+    /// <summary>[S-421] A widget was chosen: click-to-place starts.</summary>
+    private void OnPicked(Flyout flyout, WidgetDefinition definition)
     {
         flyout.Hide();
-
-        if (target.ContainerId is not { } containerId)
-        {
-            _host.BeginPlacement(definition.Kind);
-            return;
-        }
-
-        AddIntoContainer(containerId, definition);
-    }
-
-    /// <summary>
-    /// [S-956] Create a widget inside a container in one write, then select it. The settings window
-    /// is not opened, for the reason [S-421] gives: adding and configuring are two decisions.
-    /// </summary>
-    private void AddIntoContainer(string containerId, WidgetDefinition definition)
-    {
-        // [S-1065] The free-tier widget limit.
-        if (!_host.AllowCreate(1))
-        {
-            return;
-        }
-
-        var metrics = Metrics;
-
-        // The default size is in pixels; a group member keeps its own rect on this display's grid,
-        // so it is converted against this display, as a placement would be.
-        var size = metrics.IsUsable
-            ? FracRect.FromPixels(0, 0, definition.DefaultWidthPx, definition.DefaultHeightPx, metrics)
-            : new FracRect(0, 0, 0.2, 0.2);
-        var headerRoom = metrics.IsUsable ? GroupHeaderAllowancePx / metrics.Height : 0;
-
-        if (!ViewForThisMonitor(_host.State).CanAddInto(containerId))
-        {
-            // The tree changed between opening the picker and choosing (another display, a paste).
-            Log.Warn(Scope, $"refused to add a {definition.Kind} into '{containerId}'");
-            return;
-        }
-
-        string? addedId = null;
-        _host.Mutate(state =>
-            addedId = ViewForThisMonitor(state).AddInto(containerId, definition.Kind, size.W, size.H, headerRoom)?.Id,
-            undo: UndoAction.Add);
-
-        if (addedId is null)
-        {
-            Log.Warn(Scope, $"could not add a {definition.Kind} into '{containerId}'");
-            return;
-        }
-
-        _host.Select(addedId);
-        Log.Info(Scope, $"added a {definition.Kind} into '{containerId}'");
+        _host.BeginPlacement(definition.Kind);
     }
 
     private static Border BuildPlacementHint(TextBlock text) => new()

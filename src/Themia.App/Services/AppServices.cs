@@ -17,7 +17,7 @@ internal static class AppServices
 {
     /// <summary>
     /// Themia's own accounts and every authorized request made for them — the seam mail, calendar,
-    /// contacts, tasks, OneDrive, GitHub and Claude usage are built on. Null before the host has
+    /// contacts and tasks are built on. Null before the host has
     /// started (and in a debug render). See <see cref="Accounts.AccountService"/>.
     /// </summary>
     public static Accounts.AccountService? Accounts { get; internal set; }
@@ -40,15 +40,6 @@ internal static class AppServices
     public static Action? ShowAccounts { get; internal set; }
 
     /// <summary>
-    /// [S-1531]/[S-1533] Open Settings, and turn edit mode on: the two buttons the Help and Themia
-    /// widgets offer on a large tile. Null where there is nothing to open (a debug render).
-    /// </summary>
-    public static Action? ShowSettings { get; internal set; }
-
-    /// <inheritdoc cref="ShowSettings"/>
-    public static Action? EditLayout { get; internal set; }
-
-    /// <summary>
     /// [S-1411] Open the app-layout editor on the Shortcuts item with this id (item ids are unique
     /// across widgets). Null where there is no host (a debug render).
     /// </summary>
@@ -59,9 +50,6 @@ internal static class AppServices
     /// The host's one <see cref="Tasks.TaskService"/>.
     /// </summary>
     public static Tasks.TaskService? Tasks { get; internal set; }
-
-    /// <summary>[S-607] Where OneDrive widgets list files: the host's one service.</summary>
-    public static Files.DriveService? Drive { get; internal set; }
 
     /// <summary>
     /// [S-1420] The habit lists kept on this PC, shared by every Habits widget and its settings: the
@@ -74,13 +62,4 @@ internal static class AppServices
     /// one pool over <c>notes\</c> beside the state file.
     /// </summary>
     public static Notes.NotePool? Notes { get; internal set; }
-
-    /// <summary>
-    /// [S-624] Where the GitHub widgets read from: the host's one <see cref="Developer.GitHubService"/>.
-    /// Null before the host has started.
-    /// </summary>
-    public static Developer.IGitHubSource? GitHub { get; internal set; }
-
-    /// <summary>[S-630] Where Claude usage widgets read from: the host's one service.</summary>
-    public static Developer.IClaudeUsageSource? ClaudeUsage { get; internal set; }
 }

@@ -64,12 +64,11 @@ public sealed record LicenseStatus(LicenseTier Tier, LicenseBasis Basis, DateTim
     public bool IsLimited => Tier == LicenseTier.Free;
 }
 
-/// <summary>How much of the free allowance is in use: every widget in every view (container members included), and the views.</summary>
+/// <summary>How much of the free allowance is in use: every widget in every view, and the views.</summary>
 public readonly record struct LicenseUsage(int Widgets, int Views)
 {
     /// <summary>
-    /// [S-1065] Counted across ALL views, as the original's <c>totalWidgetCount</c>: a container and each
-    /// of its members are widgets of their own, so a group cannot be a side door past the limit.
+    /// [S-1065] Counted across ALL views, as the original's <c>totalWidgetCount</c>.
     /// </summary>
     public static LicenseUsage Of(AppState state)
     {
@@ -87,7 +86,7 @@ public readonly record struct LicenseUsage(int Widgets, int Views)
     /// <summary>
     /// [S-1065] How many widgets a placement (paste, duplicate, move, new widget) adds on balance:
     /// what it adds, less what it only moves (<see cref="PastePlan.NetAdded"/>). A cut-paste or a move
-    /// therefore adds nothing and is allowed even at the limit; a copy-paste of a group counts whole.
+    /// therefore adds nothing and is allowed even at the limit; a copy-paste counts every widget.
     /// </summary>
     public static int AddedByPaste(AppState state, PastePlan plan)
     {
@@ -177,7 +176,7 @@ public static class LicenseRules
     /// <summary>
     /// [S-1065] Whether creating <paramref name="addWidgets"/> widgets and <paramref name="addViews"/>
     /// views would take a limited copy past the free limits. Parameterised because a paste brings
-    /// several widgets at once, and a half-pasted group is worse than a refusal. Adding nothing never
+    /// several widgets at once, and a half-pasted selection is worse than a refusal. Adding nothing never
     /// exceeds — so a copy already over the limit can still move, edit and delete.
     /// </summary>
     public static bool WouldExceed(LicenseTier tier, LicenseUsage usage, int addWidgets, int addViews = 0)

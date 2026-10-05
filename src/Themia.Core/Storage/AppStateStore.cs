@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
@@ -184,10 +185,22 @@ public sealed class AppStateStore : IAsyncDisposable
             return ParseResult.Refused(ParseRefusal.Empty, "state file is empty");
         }
 
+        JsonNode? document;
+        try
+        {
+            document = JsonNode.Parse(json);
+        }
+        catch (JsonException ex)
+        {
+            return ParseResult.Refused(ParseRefusal.NotJson, "state file is not valid JSON", ex);
+        }
+
+        var dropped = DropUnknownKinds(document);
+
         AppState? parsed;
         try
         {
-            parsed = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.AppState);
+            parsed = document is null ? null : document.Deserialize(AppStateJsonContext.Default.AppState);
         }
         catch (JsonException ex)
         {
@@ -219,9 +232,57 @@ public sealed class AppStateStore : IAsyncDisposable
                 $"state schema v{parsed.SchemaVersion} is not supported (this build reads v{AppState.CurrentSchemaVersion})");
         }
 
-        var repairs = Validate(parsed);
-        return new ParseResult(parsed, ParseRefusal.None, null, null, repairs);
+        dropped.AddRange(Validate(parsed));
+        return new ParseResult(parsed, ParseRefusal.None, null, null, dropped);
     }
+
+    /// <summary>
+    /// [S-1900] Take out, before the typed read, every widget whose kind this build does not have —
+    /// a widget that was removed from the app, or a hand edit — and say which. The typed read would
+    /// otherwise refuse the whole document over one widget it cannot name, and the user would lose
+    /// every other widget with it. What such a widget held goes with it; nothing else is touched.
+    /// </summary>
+    private static List<string> DropUnknownKinds(JsonNode? document)
+    {
+        var dropped = new List<string>();
+        if (document is not JsonObject root || root["views"] is not JsonArray views)
+        {
+            return dropped;
+        }
+
+        foreach (var view in views)
+        {
+            if (view is not JsonObject { } entry || entry["widgets"] is not JsonArray widgets)
+            {
+                continue;
+            }
+
+            var unknown = new List<JsonNode>();
+            foreach (var widget in widgets)
+            {
+                // Only a kind given by name can be unknown here; a number is checked after the read.
+                if (widget is JsonObject fields
+                    && fields["kind"] is JsonValue kind
+                    && kind.TryGetValue<string>(out var name)
+                    && !IsKindName(name))
+                {
+                    unknown.Add(widget);
+                    var id = fields["id"] is JsonValue idValue && idValue.TryGetValue<string>(out var text) ? text : "?";
+                    dropped.Add($"dropped widget '{id}' of unknown kind '{name}'");
+                }
+            }
+
+            foreach (var widget in unknown)
+            {
+                widgets.Remove(widget);
+            }
+        }
+
+        return dropped;
+    }
+
+    private static bool IsKindName(string name)
+        => Array.Exists(Enum.GetNames<WidgetKind>(), known => string.Equals(known, name, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Bring a deserialised document back inside its invariants, reporting what had to change.
@@ -525,12 +586,6 @@ public sealed class AppStateStore : IAsyncDisposable
                 widget.Header = HeaderPlacement.Top;
                 repairs.Add($"widget '{widget.Id}' had an unknown header placement");
             }
-            else if (!HeaderRules.Allows(widget.Kind, widget.Header))
-            {
-                // [S-862] A side header on anything but a group: a hand edit, never the settings.
-                repairs.Add($"widget '{widget.Id}' ({widget.Kind}) cannot have a {widget.Header} header");
-                widget.Header = HeaderPlacement.Top;
-            }
 
             var settled = GridGeometry.Clamp(widget.Rect, unit);
             if (settled != widget.Rect)
@@ -538,16 +593,6 @@ public sealed class AppStateStore : IAsyncDisposable
                 widget.Rect = settled;
                 repairs.Add($"widget '{widget.Id}' was off-screen or below the size floor");
             }
-        }
-
-        // Membership last, and only once every widget above is known good: the tree is walked by
-        // id, so it has to be walked over ids that exist and are unique. A hand-edited file can
-        // name a parent that is gone, a parent that is not a container, or a cycle - none of
-        // which the UI can produce and all of which would otherwise reach a layout pass.
-        var reparented = view.RepairTree();
-        if (reparented > 0)
-        {
-            repairs.Add($"{reparented} widget(s) named a container that could not hold them");
         }
 
         return repairs;

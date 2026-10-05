@@ -30,9 +30,10 @@ Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI 
 
 ```
 Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search t] [--open first|name]   # Page incl. Displays, Views
-Themia.exe --picker-png <out.png> [--search t] [--into]      Themia.exe --viewbar-png <outDir>
+Themia.exe --picker-png <out.png> [--search t]      Themia.exe --viewbar-png <outDir>
 Themia.exe --notices-png <outDir>
 Themia.exe --menu-png <outDir>                               Themia.exe --iconpicker-png <out.png> [--search t]
+Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name]   # one card at the 7 tiers (or w×h)
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
 ```
 

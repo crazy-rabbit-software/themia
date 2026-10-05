@@ -9,11 +9,10 @@ public sealed class MultiSelectPlacementTests
 {
     private static readonly ScreenMetrics Screen = new(1000, 1000);
 
-    private static WidgetInstance At(WidgetKind kind, string id, double x, double y, double w, double h, string? parent = null)
+    private static WidgetInstance At(WidgetKind kind, string id, double x, double y, double w, double h)
     {
         var widget = WidgetInstance.Create(kind, new FracRect(x, y, w, h));
         widget.Id = id;
-        widget.ParentId = parent;
         return widget;
     }
 
@@ -118,19 +117,15 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1581_the_band_skips_widgets_a_stack_lays_out_and_hidden_ones()
+    public void S1581_the_band_skips_hidden_widgets()
     {
         var view = View(
-            At(WidgetKind.Stack, "s", 0.5, 0.5, 0.3, 0.3),
-            At(WidgetKind.Clock, "child", 0.1, 0.1, 0.1, 0.1, "s"),
-            At(WidgetKind.Group, "g", 0, 0, 0.4, 0.4),
-            At(WidgetKind.Cpu, "member", 0.2, 0.2, 0.1, 0.1, "g"),
-            At(WidgetKind.Memory, "hidden", 0.05, 0.05, 0.05, 0.05, "g"));
+            At(WidgetKind.Cpu, "shown", 0.2, 0.2, 0.1, 0.1),
+            At(WidgetKind.Memory, "hidden", 0.05, 0.05, 0.05, 0.05));
 
         var hits = SelectionRules.Lasso(view, new FracRect(0, 0, 0.45, 0.45), new HashSet<string> { "hidden" });
 
-        // The stack's child keeps a return rect under the band, but the stack draws it elsewhere.
-        Assert.Equal(["g", "member"], hits);
+        Assert.Equal(["shown"], hits);
     }
 
     [Fact]
@@ -143,38 +138,25 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1582_select_all_takes_every_grid_placed_widget()
+    public void S1582_select_all_takes_every_widget_but_the_hidden_ones()
     {
         var view = View(
-            At(WidgetKind.Tabs, "t", 0.5, 0.5, 0.3, 0.3),
-            At(WidgetKind.Clock, "tab", 0.1, 0.1, 0.1, 0.1, "t"),
+            At(WidgetKind.Clock, "t", 0.5, 0.5, 0.3, 0.3),
+            At(WidgetKind.Memory, "hidden", 0.1, 0.1, 0.1, 0.1),
             At(WidgetKind.Cpu, "c", 0, 0, 0.1, 0.1));
 
-        Assert.Equal(["t", "c"], SelectionRules.All(view));
+        Assert.Equal(["t", "c"], SelectionRules.All(view, new HashSet<string> { "hidden" }));
     }
 
     [Fact]
-    public void S1588_top_level_drops_selected_members_of_a_selected_container()
+    public void S1588_the_picked_widgets_come_in_view_order_and_unknown_ids_are_ignored()
     {
         var view = View(
-            At(WidgetKind.Group, "g", 0, 0, 0.5, 0.5),
-            At(WidgetKind.Stack, "s", 0.1, 0.1, 0.2, 0.2, "g"),
-            At(WidgetKind.Clock, "deep", 0.1, 0.1, 0.1, 0.1, "s"),
-            At(WidgetKind.Cpu, "free", 0.7, 0.7, 0.1, 0.1));
+            At(WidgetKind.Clock, "a", 0, 0, 0.1, 0.1),
+            At(WidgetKind.Cpu, "b", 0.3, 0.3, 0.1, 0.1),
+            At(WidgetKind.Memory, "c", 0.7, 0.7, 0.1, 0.1));
 
-        Assert.Equal(["g", "free"], SelectionRules.TopLevel(view, ["deep", "free", "g", "missing"]));
-    }
-
-    [Fact]
-    public void S1584_a_drag_moves_a_group_and_its_selected_members_but_not_stack_children()
-    {
-        var view = View(
-            At(WidgetKind.Group, "g", 0, 0, 0.5, 0.5),
-            At(WidgetKind.Cpu, "member", 0.1, 0.1, 0.1, 0.1, "g"),
-            At(WidgetKind.Stack, "s", 0.6, 0.6, 0.2, 0.2),
-            At(WidgetKind.Clock, "child", 0.6, 0.6, 0.1, 0.1, "s"));
-
-        Assert.Equal(["g", "member", "s"], SelectionRules.Movable(view, ["s", "child", "member", "g"]));
+        Assert.Equal(["a", "c"], SelectionRules.InView(view, ["c", "missing", "a"]));
     }
 
     // ---- [S-1584] block geometry ------------------------------------------------------------------
@@ -284,19 +266,18 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1585_the_ghost_is_exactly_where_the_plan_lands_and_skips_what_a_stack_draws()
+    public void S1585_the_ghost_is_exactly_where_the_plan_lands()
     {
         var view = View(
-            At(WidgetKind.Stack, "s", 0.1, 0.1, 0.3, 0.3),
-            At(WidgetKind.Clock, "child", 0.1, 0.1, 0.1, 0.1, "s"),
+            At(WidgetKind.Clock, "a", 0.1, 0.1, 0.3, 0.3),
             At(WidgetKind.Cpu, "c", 0.5, 0.1, 0.1, 0.1));
-        var payload = PlacementPayload.FromView(view, ["s", "c"], PlacementMode.Copy)!;
+        var payload = PlacementPayload.FromView(view, ["a", "c"], PlacementMode.Copy)!;
 
         var outlines = payload.Outlines(0.6, 0.7, Screen, snapEnabled: true);
         var plan = payload.Plan(0.6, 0.7, Screen, snapEnabled: true);
 
-        Assert.Equal([WidgetKind.Stack, WidgetKind.Cpu], outlines.Select(o => o.Kind));
-        Assert.Equal(plan.Added.Single(w => w.Kind == WidgetKind.Stack).Rect, outlines[0].Rect);
+        Assert.Equal([WidgetKind.Clock, WidgetKind.Cpu], outlines.Select(o => o.Kind));
+        Assert.Equal(plan.Added.Single(w => w.Kind == WidgetKind.Clock).Rect, outlines[0].Rect);
         Assert.Equal(plan.Added.Single(w => w.Kind == WidgetKind.Cpu).Rect, outlines[1].Rect);
     }
 
@@ -329,36 +310,34 @@ public sealed class MultiSelectPlacementTests
     [Fact]
     public void S1587_only_creating_payloads_count_against_the_limit_before_the_ghost_appears()
     {
-        var view = View(At(WidgetKind.Group, "g", 0, 0, 0.5, 0.5), At(WidgetKind.Clock, "m", 0.1, 0.1, 0.1, 0.1, "g"));
+        var view = View(At(WidgetKind.Cpu, "g", 0, 0, 0.5, 0.5), At(WidgetKind.Clock, "m", 0.6, 0.6, 0.1, 0.1));
 
-        Assert.Equal(2, PlacementPayload.FromView(view, ["g"], PlacementMode.Copy)!.Creates);
-        Assert.Equal(0, PlacementPayload.FromView(view, ["g"], PlacementMode.Move)!.Creates);
+        Assert.Equal(2, PlacementPayload.FromView(view, ["g", "m"], PlacementMode.Copy)!.Creates);
+        Assert.Equal(0, PlacementPayload.FromView(view, ["g", "m"], PlacementMode.Move)!.Creates);
     }
 
     [Fact]
-    public void S1588_a_payload_holds_the_picked_containers_with_everything_inside_them()
+    public void S1588_a_payload_holds_the_picked_widgets_in_view_order()
     {
         var view = View(
-            At(WidgetKind.Group, "g", 0, 0, 0.5, 0.5),
-            At(WidgetKind.Clock, "m", 0.1, 0.1, 0.1, 0.1, "g"),
-            At(WidgetKind.Cpu, "other", 0.7, 0.7, 0.1, 0.1));
+            At(WidgetKind.Cpu, "g", 0, 0, 0.5, 0.5),
+            At(WidgetKind.Clock, "m", 0.6, 0.1, 0.1, 0.1),
+            At(WidgetKind.Memory, "other", 0.7, 0.7, 0.1, 0.1));
 
         var payload = PlacementPayload.FromView(view, ["m", "g"], PlacementMode.Copy)!;
 
-        Assert.Equal(["g"], payload.RootIds);
+        Assert.Equal(["g", "m"], payload.RootIds);
         Assert.Equal(["g", "m"], payload.Widgets.Select(w => w.Id));
-        Assert.Equal(1, payload.Count);
+        Assert.Equal(2, payload.Count);
         Assert.True(payload.Holds("m"));
         Assert.False(payload.Holds("other"));
         Assert.Null(PlacementPayload.FromView(view, ["missing"], PlacementMode.Copy));
     }
 
     [Fact]
-    public void S1589_every_landing_of_a_copy_gets_fresh_ids_and_a_root_lands_on_the_desktop()
+    public void S1589_every_landing_of_a_copy_gets_fresh_ids()
     {
-        var view = View(
-            At(WidgetKind.Group, "g", 0, 0, 0.5, 0.5),
-            At(WidgetKind.Clock, "m", 0.1, 0.1, 0.1, 0.1, "g"));
+        var view = View(At(WidgetKind.Clock, "m", 0.1, 0.1, 0.1, 0.1));
         var payload = PlacementPayload.FromView(view, ["m"], PlacementMode.Copy)!;
 
         var first = payload.Plan(0.5, 0.5, Screen, snapEnabled: false).Added.Single();
@@ -366,21 +345,19 @@ public sealed class MultiSelectPlacementTests
 
         Assert.NotEqual("m", first.Id);
         Assert.NotEqual(first.Id, second.Id);
-        Assert.Null(first.ParentId);
     }
 
     [Fact]
-    public void S1590_a_move_keeps_ids_and_remaps_nothing()
+    public void S1590_a_move_keeps_ids()
     {
         var view = View(
-            At(WidgetKind.Stack, "s", 0.1, 0.1, 0.3, 0.3),
-            At(WidgetKind.Clock, "child", 0.1, 0.1, 0.1, 0.1, "s"));
-        var plan = PlacementPayload.FromView(view, ["s"], PlacementMode.Move)!.Plan(0.5, 0.5, Screen, snapEnabled: false);
+            At(WidgetKind.Cpu, "s", 0.1, 0.1, 0.3, 0.3),
+            At(WidgetKind.Clock, "c", 0.5, 0.1, 0.1, 0.1));
+        var plan = PlacementPayload.FromView(view, ["s", "c"], PlacementMode.Move)!.Plan(0.5, 0.5, Screen, snapEnabled: false);
 
-        Assert.Equal(["s", "child"], plan.Added.Select(w => w.Id));
-        Assert.Equal("s", plan.Added[1].ParentId);
-        Assert.Equal(["s"], plan.RemoveIds);
-        Assert.Equal(["s"], plan.Roots);
+        Assert.Equal(["s", "c"], plan.Added.Select(w => w.Id));
+        Assert.Equal(["s", "c"], plan.RemoveIds);
+        Assert.Equal(["s", "c"], plan.Roots);
     }
 
     [Fact]

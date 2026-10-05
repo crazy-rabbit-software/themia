@@ -290,22 +290,6 @@ public sealed class UndoLogTests
     }
 
     [Fact]
-    public void S885_undo_a_container_change_puts_the_widget_back_on_the_desktop()
-    {
-        var (state, view, clock) = Desk();
-        var stack = WidgetInstance.Create(WidgetKind.Stack, new FracRect(0.1, 0.5, 0.3, 0.4));
-        view.Widgets.Add(stack);
-        var history = new LayoutHistory(state);
-
-        Assert.True(view.Reparent(clock.Id, stack.Id));
-        Assert.True(history.Commit(state, UndoAction.Container));
-
-        history.Undo(state);
-
-        Assert.Null(clock.ParentId);
-    }
-
-    [Fact]
     public void S885_undo_z_order_restores_the_order()
     {
         var (state, view, clock) = Desk();

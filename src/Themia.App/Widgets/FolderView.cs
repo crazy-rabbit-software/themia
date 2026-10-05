@@ -26,7 +26,7 @@ namespace Themia.App.Widgets;
 /// </para>
 /// </summary>
 internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
+    IWidgetSizeAware, IWidgetKeys, IWidgetContextActions, IWidgetLaunchFacts
 {
     private const string Scope = "folder";
 
@@ -191,6 +191,9 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         : _resolved.Path;
 
     private bool Navigates => _config.Navigation == FolderNavigation.Navigate;
+
+    /// <summary>[S-1929] The header opens the folder on screen, wherever the widget has navigated to.</summary>
+    public WidgetLiveLaunch LaunchFacts => new(Folder: CurrentPath);
 
     /// <summary>[S-1326] Go to <paramref name="path"/> inside the widget (navigate mode).</summary>
     private void NavigateTo(string path)

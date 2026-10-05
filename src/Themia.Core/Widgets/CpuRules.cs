@@ -37,13 +37,4 @@ public static class CpuRules
 
     /// <summary>A count with thousands grouped: "4,210".</summary>
     public static string Count(long value) => LocaleFormat.Integer(value);
-
-    /// <summary>[S-1144] "312 processes · 4,210 threads", the footer of a process list.</summary>
-    public static string Totals(int processes, long threads) => Totals(Strings.Current, processes, threads);
-
-    /// <summary><see cref="Totals(int, long)"/> in <paramref name="locale"/>.</summary>
-    public static string Totals(Locale locale, int processes, long threads)
-        => Strings.Format(locale, Str.WidgetsB_Cpu_Totals,
-            ("processes", Strings.Plural(locale, Str.WidgetsB_Cpu_ProcessCount, processes)),
-            ("threads", Strings.Plural(locale, Str.WidgetsB_Cpu_ThreadCount, threads)));
 }

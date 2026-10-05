@@ -27,15 +27,13 @@ public static class WidgetTransfer
 
     /// <summary>
     /// [S-75]/[S-1586] Land a placement: for a move, take the originals out of whatever view they are
-    /// in (each with everything it holds), then add the planned widgets to the target view — all in
-    /// one go, so a move across views can neither duplicate a widget nor drop it, and a move back
-    /// into its own view leaves exactly one of each.
+    /// in, then add the planned widgets to the target view — all in one go, so a move across views
+    /// can neither duplicate a widget nor drop it, and a move back into its own view leaves exactly
+    /// one of each.
     /// <para>
     /// A moved widget that still exists lands as <b>itself</b>: the live instance, with whatever its
-    /// config became since the snapshot, takes the planned rect and parent. Only an original deleted
-    /// meanwhile is put back from the snapshot. Anything the removal took that the plan does not carry
-    /// (a member added to a moved container after the snapshot) goes along unchanged, so a move never
-    /// loses a widget.
+    /// config became since the snapshot, takes the planned rect. Only an original deleted meanwhile
+    /// is put back from the snapshot.
     /// </para>
     /// </summary>
     public static void ApplyPlacement(this AppState state, PastePlan plan, string targetViewId)
@@ -44,18 +42,17 @@ public static class WidgetTransfer
         ArgumentNullException.ThrowIfNull(plan);
 
         var removed = new List<WidgetInstance>();
-        foreach (var rootId in plan.RemoveIds)
+        foreach (var id in plan.RemoveIds)
         {
             foreach (var view in state.Views)
             {
-                if (view.Find(rootId) is null)
+                if (view.Find(id) is not { } widget)
                 {
                     continue;
                 }
 
-                var block = view.Widgets.FindAll(w => view.IsSelfOrDescendant(rootId, w.Id));
-                view.Widgets.RemoveAll(block.Contains);
-                removed.AddRange(block);
+                view.Widgets.Remove(widget);
+                removed.Add(widget);
                 break;
             }
         }
@@ -73,7 +70,6 @@ public static class WidgetTransfer
 
             removed.Remove(original);
             original.Rect = planned.Rect;
-            original.ParentId = planned.ParentId;
             target.Widgets.Add(original);
         }
 
@@ -81,26 +77,13 @@ public static class WidgetTransfer
     }
 
     /// <summary>
-    /// The ids a move would take out of the state: each root that exists, with everything it holds,
-    /// in the first view that has it.
+    /// The ids a move would take out of the state: each one that still exists in some view.
     /// </summary>
-    public static HashSet<string> RemovalBlock(AppState state, IEnumerable<string> rootIds)
+    public static HashSet<string> RemovalBlock(AppState state, IEnumerable<string> ids)
     {
         ArgumentNullException.ThrowIfNull(state);
-        ArgumentNullException.ThrowIfNull(rootIds);
+        ArgumentNullException.ThrowIfNull(ids);
 
-        var ids = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var rootId in rootIds)
-        {
-            if (state.Views.Find(v => v.Find(rootId) is not null) is { } view)
-            {
-                foreach (var w in view.Widgets.Where(w => view.IsSelfOrDescendant(rootId, w.Id)))
-                {
-                    ids.Add(w.Id);
-                }
-            }
-        }
-
-        return ids;
+        return new HashSet<string>(ids.Where(id => state.Views.Exists(v => v.Find(id) is not null)), StringComparer.Ordinal);
     }
 }

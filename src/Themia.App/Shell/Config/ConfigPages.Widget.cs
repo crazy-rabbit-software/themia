@@ -92,10 +92,6 @@ internal static partial class ConfigPages
                 WidgetSettings.Email(rows, email, Save, navigate);
                 break;
 
-            case ProcessesConfig processes:
-                WidgetSettings.Processes(rows, processes, Save);
-                break;
-
             case MixerConfig mixer:
                 WidgetSettings.Mixer(rows, mixer, Save);
                 break;
@@ -116,30 +112,6 @@ internal static partial class ConfigPages
                 WidgetSettings.Tasks(rows, tasks, Save, navigate);
                 break;
 
-            case OneDriveConfig oneDrive:
-                WidgetSettings.OneDrive(rows, oneDrive, Save, navigate);
-                break;
-
-            case GitHubConfig gitHub:
-                WidgetSettings.GitHub(rows, gitHub, Save, navigate);
-                break;
-
-            case GitHubIssuesConfig gitHubIssues:
-                WidgetSettings.GitHubIssues(rows, gitHubIssues, Save, navigate);
-                break;
-
-            case GitHubReviewsConfig gitHubReviews:
-                WidgetSettings.GitHubReviews(rows, gitHubReviews, Save, navigate);
-                break;
-
-            case GitHubNotificationsConfig gitHubNotifications:
-                WidgetSettings.GitHubNotifications(rows, gitHubNotifications, Save, navigate);
-                break;
-
-            case ClaudeUsageConfig claudeUsage:
-                WidgetSettings.ClaudeUsage(rows, claudeUsage, Save, navigate);
-                break;
-
             case NotesConfig notes:
                 WidgetSettings.Notes(rows, notes, Save);
                 break;
@@ -152,10 +124,6 @@ internal static partial class ConfigPages
                 WidgetSettings.Pomodoro(rows, pomodoro, Save);
                 break;
 
-            case CalculatorConfig calculator:
-                WidgetSettings.Calculator(rows, calculator, Save);
-                break;
-
             case SunMoonConfig sunMoon:
                 WidgetSettings.SunMoon(rows, sunMoon, Save);
                 break;
@@ -166,10 +134,6 @@ internal static partial class ConfigPages
 
             case VolumeConfig volume:
                 WidgetSettings.Volume(rows, volume, Save);
-                break;
-
-            case PowerConfig power:
-                WidgetSettings.Power(rows, power, Save);
                 break;
 
             case BluetoothConfig bluetooth:
@@ -200,16 +164,8 @@ internal static partial class ConfigPages
                 WidgetSettings.VideoStream(rows, videoStream, Save);
                 break;
 
-            case AppsConfig apps:
-                WidgetSettings.Apps(rows, apps, Save);
-                break;
-
             case ShortcutsConfig shortcuts:
                 WidgetSettings.Shortcuts(rows, shortcuts, Save);
-                break;
-
-            case WebSearchConfig webSearch:
-                WidgetSettings.WebSearch(rows, webSearch, Save);
                 break;
 
             case ClipboardConfig clipboard:
@@ -218,10 +174,6 @@ internal static partial class ConfigPages
 
             case ScratchpadConfig scratchpad:
                 WidgetSettings.Scratchpad(rows, scratchpad, Save);
-                break;
-
-            case ColorSwatchConfig colorSwatch:
-                WidgetSettings.ColorSwatch(rows, colorSwatch, Save);
                 break;
 
             case QuoteConfig quote:
@@ -235,35 +187,6 @@ internal static partial class ConfigPages
             case HabitTrackerConfig habitTracker:
                 WidgetSettings.HabitTracker(rows, habitTracker, Save);
                 break;
-
-            case MoodTrackerConfig moodTracker:
-                WidgetSettings.MoodTracker(rows, moodTracker, Save);
-                break;
-
-            case GroupConfig group:
-                WidgetSettings.Group(rows, group, Save);
-                ContainerChildrenRows.Add(rows, host, view, widget);
-                break;
-
-            case StackConfig stack:
-                WidgetSettings.Stack(rows, stack, Save);
-                ContainerChildrenRows.Add(rows, host, view, widget);
-                break;
-
-            case TabsConfig tabs:
-                WidgetSettings.Tabs(rows, tabs, Save);
-                ContainerChildrenRows.Add(rows, host, view, widget);
-                break;
-
-            case ViewSwitcherConfig viewSwitcher:
-                WidgetSettings.ViewSwitcher(
-                    rows,
-                    viewSwitcher,
-                    [.. host.State.Views.Select(v => new ViewSummary(v.Id, v.Name))],
-                    Save);
-                break;
-
-            // Help and Themia have nothing to set: their pages carry the shared appearance rows only.
 
             default:
                 break;
@@ -280,16 +203,12 @@ internal static partial class ConfigPages
         rows.Add(FluentLayout.Header(Str.Settings_Section_Appearance.Text()));
 
         rows.Add(FluentLayout.Row(Glyphs.View, Str.App_ConfigHeaderLabel.Text(), Str.Shell_Widget_HeaderDesc.Text(),
-            // [S-862] Left and right (a turned header) are a group's alone.
             FluentLayout.Choice(
-                [.. HeaderRules.Choices(widget.Kind).Select(p => (p, p switch
-                {
-                    HeaderPlacement.Top => Str.Group_HeaderSide_Top.Text(),
-                    HeaderPlacement.Bottom => Str.Group_HeaderSide_Bottom.Text(),
-                    HeaderPlacement.Left => Str.Shell_Widget_LeftEdge.Text(),
-                    HeaderPlacement.Right => Str.Shell_Widget_RightEdge.Text(),
-                    _ => Str.Toggle_Hidden.Text(),
-                }))],
+                [
+                    (HeaderPlacement.Top, Str.Group_HeaderSide_Top.Text()),
+                    (HeaderPlacement.Bottom, Str.Group_HeaderSide_Bottom.Text()),
+                    (HeaderPlacement.Hidden, Str.Toggle_Hidden.Text()),
+                ],
                 widget.Header,
                 value => host.Mutate(_ => widget.Header = value))));
 

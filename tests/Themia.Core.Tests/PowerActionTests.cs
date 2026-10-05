@@ -1,3 +1,4 @@
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
@@ -7,116 +8,375 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// The power tile's decisions: which actions confirm, the arm state machine, what each action calls,
-/// how failures read, and the ladder arithmetic. [S-1240..S-1253]
+/// The power widgets' decisions: which kind runs which action, which actions arm, the arm state
+/// machine, what each action calls, how failures read, and the face ladder. [S-1240..S-1251],
+/// [S-1910..S-1916]
 /// <para>
-/// Nothing here touches the machine: the Win32 seam only executes <see cref="PowerActionRules.Plan"/>.
+/// Nothing here touches the machine: <see cref="PowerButton"/> runs a <see cref="FakeBackend"/>
+/// that only counts, and the Win32 seam only executes <see cref="PowerActionRules.Plan"/>.
 /// </para>
 /// </summary>
 public class PowerActionTests
 {
     private static readonly DateTimeOffset T0 = new(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
 
-    // ---- confirm set -----------------------------------------------------------------------
+    private static readonly WidgetKind[] PowerKinds =
+        [WidgetKind.Shutdown, WidgetKind.Restart, WidgetKind.Sleep, WidgetKind.Hibernate, WidgetKind.Lock, WidgetKind.SignOut, WidgetKind.ScreenOff];
+
+    /// <summary>A backend that records what it was asked to run and answers what the test says.</summary>
+    private sealed class FakeBackend(bool canHibernate = true) : IPowerBackend
+    {
+        public List<PowerAction> Ran { get; } = [];
+
+        public PowerOutcome Outcome { get; set; } = PowerOutcome.Ok;
+
+        /// <summary>When set, <see cref="Run"/> waits for it: a run in flight (sleep, until resume).</summary>
+        public ManualResetEventSlim? Gate { get; set; }
+
+        public bool CanHibernate { get; set; } = canHibernate;
+
+        public PowerOutcome Run(PowerAction action)
+        {
+            lock (Ran)
+            {
+                Ran.Add(action);
+            }
+
+            Gate?.Wait(TimeSpan.FromSeconds(10));
+            return Outcome;
+        }
+    }
+
+    // ---- kinds -----------------------------------------------------------------------------
+
+    [Fact]
+    public void S1910_every_power_kind_maps_to_its_own_action_and_back()
+    {
+        var actions = PowerKinds.Select(k => PowerActionRules.ForKind(k)).ToList();
+
+        Assert.All(actions, a => Assert.NotNull(a));
+        Assert.Equal(PowerKinds.Length, actions.Distinct().Count());
+        Assert.Equal(Enum.GetValues<PowerAction>().Order(), actions.Select(a => a!.Value).Order());
+        Assert.Equal(PowerActionRules.All, actions.Select(a => a!.Value));
+
+        foreach (var kind in PowerKinds)
+        {
+            Assert.Equal(kind, PowerActionRules.KindOf(PowerActionRules.ForKind(kind)!.Value));
+        }
+    }
+
+    [Fact]
+    public void S1910_no_other_kind_is_a_power_widget()
+    {
+        foreach (var kind in Enum.GetValues<WidgetKind>().Except(PowerKinds))
+        {
+            Assert.Null(PowerActionRules.ForKind(kind));
+        }
+    }
+
+    [Fact]
+    public void S1910_each_kind_has_a_config_of_its_own_that_names_its_action()
+    {
+        foreach (var kind in PowerKinds)
+        {
+            var config = Assert.IsAssignableFrom<PowerButtonConfig>(WidgetConfig.CreateDefault(kind));
+            Assert.Equal(kind, config.Kind);
+            Assert.Equal(PowerActionRules.ForKind(kind), config.Action);
+            Assert.Equal(config.GetType(), config.Clone().GetType());
+        }
+    }
+
+    [Fact]
+    public async Task S1910_a_power_widget_round_trips_as_its_own_kind()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "themia-tests", Guid.NewGuid().ToString("n"));
+        Directory.CreateDirectory(dir);
+        var path = Path.Combine(dir, "state.json");
+
+        try
+        {
+            var state = AppState.CreateDefault();
+            var widget = state.ActiveView().Widgets[0];
+            widget.Kind = WidgetKind.SignOut;
+            widget.Config = new SignOutConfig();
+
+            var store = new AppStateStore(path, TimeSpan.Zero);
+            store.SaveSoon(state);
+            await store.FlushAsync();
+
+            var loaded = new AppStateStore(path, TimeSpan.Zero).Load();
+            var config = Assert.IsType<SignOutConfig>(loaded.State.ActiveView().Widgets[0].Config);
+            Assert.Equal(PowerAction.SignOut, config.Action);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void S1911_power_widgets_start_without_a_header()
+    {
+        foreach (var kind in PowerKinds)
+        {
+            Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(kind));
+        }
+    }
+
+    [Fact]
+    public void S1910_power_widgets_need_no_setting_up()
+    {
+        foreach (var kind in PowerKinds)
+        {
+            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), AccountFeatures.None), kind.ToString());
+        }
+    }
+
+    // ---- arming ----------------------------------------------------------------------------
 
     [Theory]
     [InlineData(PowerAction.Shutdown, true)]
     [InlineData(PowerAction.Restart, true)]
     [InlineData(PowerAction.SignOut, true)]
+    [InlineData(PowerAction.Hibernate, true)]
     [InlineData(PowerAction.Sleep, false)]
-    [InlineData(PowerAction.Hibernate, false)]
     [InlineData(PowerAction.Lock, false)]
     [InlineData(PowerAction.ScreenOff, false)]
-    public void S1245_Only_session_ending_actions_need_confirm(PowerAction action, bool confirms)
+    public void S1913_destructive_actions_arm_and_the_rest_run_at_once(PowerAction action, bool arms)
+        => Assert.Equal(arms, PowerActionRules.NeedsArming(action));
+
+    [Theory]
+    [InlineData(PowerAction.Sleep)]
+    [InlineData(PowerAction.Lock)]
+    [InlineData(PowerAction.ScreenOff)]
+    public async Task S1913_lock_sleep_and_display_off_run_on_one_click(PowerAction action)
     {
-        Assert.Equal(confirms, PowerActionRules.NeedsConfirm(action, confirmEnabled: true));
-        Assert.False(PowerActionRules.NeedsConfirm(action, confirmEnabled: false));
+        var backend = new FakeBackend();
+        var button = new PowerButton(action, backend);
+
+        Assert.Equal(PowerPress.Ran, await button.PressAsync(T0));
+        Assert.Equal([action], backend.Ran);
+        Assert.False(button.IsArmed(T0));
     }
 
-    // ---- arm state machine -----------------------------------------------------------------
-
-    [Fact]
-    public void S1245_First_press_on_shutdown_arms_and_second_runs()
+    [Theory]
+    [InlineData(PowerAction.Shutdown)]
+    [InlineData(PowerAction.Restart)]
+    [InlineData(PowerAction.SignOut)]
+    [InlineData(PowerAction.Hibernate)]
+    public async Task S1913_a_destructive_action_arms_on_the_first_click_and_runs_on_the_second(PowerAction action)
     {
-        var arm = new PowerArm();
+        var backend = new FakeBackend();
+        var button = new PowerButton(action, backend);
 
-        Assert.Equal(PowerPress.Armed, arm.Press(PowerAction.Shutdown, true, T0));
-        Assert.True(arm.IsArmed(PowerAction.Shutdown, T0.AddSeconds(1)));
-        Assert.Equal(PowerPress.Run, arm.Press(PowerAction.Shutdown, true, T0.AddSeconds(1)));
-        Assert.Null(arm.Armed);
-    }
+        Assert.Equal(PowerPress.Armed, await button.PressAsync(T0));
+        Assert.Empty(backend.Ran);
+        Assert.True(button.IsArmed(T0.AddSeconds(1)));
 
-    [Fact]
-    public void S1245_Confirm_off_runs_shutdown_on_one_press()
-        => Assert.Equal(PowerPress.Run, new PowerArm().Press(PowerAction.Shutdown, false, T0));
-
-    [Fact]
-    public void S1245_Sleep_runs_on_one_press_and_disarms_an_armed_tile()
-    {
-        var arm = new PowerArm();
-        arm.Press(PowerAction.Restart, true, T0);
-
-        Assert.Equal(PowerPress.Run, arm.Press(PowerAction.Sleep, true, T0.AddSeconds(1)));
-        Assert.Null(arm.Armed);
-    }
-
-    [Fact]
-    public void S1247_A_double_click_is_one_intent_not_two()
-    {
-        var arm = new PowerArm();
-        arm.Press(PowerAction.Shutdown, true, T0);
-
-        Assert.Equal(PowerPress.Ignored, arm.Press(PowerAction.Shutdown, true, T0.AddMilliseconds(150)));
-        Assert.True(arm.IsArmed(PowerAction.Shutdown, T0.AddMilliseconds(150)));
-        Assert.Equal(PowerPress.Run, arm.Press(PowerAction.Shutdown, true, T0 + PowerArm.MinimumDelay));
+        Assert.Equal(PowerPress.Ran, await button.PressAsync(T0.AddSeconds(1)));
+        Assert.Equal([action], backend.Ran);
+        Assert.False(button.IsArmed(T0.AddSeconds(1)));
     }
 
     [Fact]
-    public void S1247_An_armed_tile_expires_after_five_seconds_without_its_timer()
+    public async Task S1913_a_double_click_is_one_click()
     {
-        var arm = new PowerArm();
-        arm.Press(PowerAction.Shutdown, true, T0);
+        var backend = new FakeBackend();
+        var button = new PowerButton(PowerAction.Shutdown, backend);
 
-        // The timer never fired; the press after the window must arm again, not run.
-        var late = T0 + PowerArm.Window;
-        Assert.False(arm.IsArmed(PowerAction.Shutdown, late));
-        Assert.Equal(PowerPress.Armed, arm.Press(PowerAction.Shutdown, true, late));
+        await button.PressAsync(T0);
+        Assert.Equal(PowerPress.Ignored, await button.PressAsync(T0.AddMilliseconds(150)));
+        Assert.Empty(backend.Ran);
+        Assert.True(button.IsArmed(T0.AddMilliseconds(150)));
+
+        Assert.Equal(PowerPress.Ran, await button.PressAsync(T0 + PowerButton.MinimumDelay));
+        Assert.Single(backend.Ran);
     }
 
     [Fact]
-    public void S1247_Arming_another_tile_disarms_the_first()
+    public async Task S1913_the_arm_runs_out_and_the_next_click_arms_again()
     {
-        var arm = new PowerArm();
-        arm.Press(PowerAction.Shutdown, true, T0);
+        var backend = new FakeBackend();
+        var button = new PowerButton(PowerAction.Restart, backend);
 
-        Assert.Equal(PowerPress.Armed, arm.Press(PowerAction.Restart, true, T0.AddSeconds(1)));
-        Assert.Equal(PowerAction.Restart, arm.Armed);
+        await button.PressAsync(T0);
+        var late = T0 + PowerButton.ArmWindow;
 
-        // The first tile's second press is now a first press again.
-        Assert.Equal(PowerPress.Armed, arm.Press(PowerAction.Shutdown, true, T0.AddSeconds(2)));
+        Assert.False(button.IsArmed(late));
+        Assert.Equal(0, button.ArmRemaining(late));
+        Assert.True(button.Expire(late));
+        Assert.False(button.Expire(late));
+
+        Assert.Equal(PowerPress.Armed, await button.PressAsync(late));
+        Assert.Empty(backend.Ran);
     }
 
     [Fact]
-    public void S1247_Disarm_and_a_clock_jumping_back_both_cancel_the_arm()
+    public async Task S1913_the_ring_drains_with_the_window()
     {
-        var arm = new PowerArm();
-        arm.Press(PowerAction.SignOut, true, T0);
-        arm.Disarm();
-        Assert.Equal(PowerPress.Armed, arm.Press(PowerAction.SignOut, true, T0.AddSeconds(1)));
+        var button = new PowerButton(PowerAction.SignOut, new FakeBackend());
 
-        // A clock that went backwards cannot say how long ago the arm was: treat it as too long.
-        Assert.Equal(PowerPress.Armed, arm.Press(PowerAction.SignOut, true, T0));
+        Assert.Equal(0, button.ArmRemaining(T0));
+        await button.PressAsync(T0);
+
+        Assert.Equal(1, button.ArmRemaining(T0));
+        Assert.Equal(0.5, button.ArmRemaining(T0 + (PowerButton.ArmWindow / 2)), 3);
     }
 
     [Fact]
-    public void S1247_Expire_reports_a_change_only_once()
+    public async Task S1913_a_clock_that_went_backwards_is_not_a_second_click()
     {
-        var arm = new PowerArm();
-        arm.Press(PowerAction.Shutdown, true, T0);
+        var backend = new FakeBackend();
+        var button = new PowerButton(PowerAction.Shutdown, backend);
 
-        Assert.False(arm.Expire(T0.AddSeconds(1)));
-        Assert.True(arm.Expire(T0.AddSeconds(6)));
-        Assert.False(arm.Expire(T0.AddSeconds(7)));
+        await button.PressAsync(T0);
+
+        Assert.False(button.IsArmed(T0.AddSeconds(-30)));
+        Assert.Equal(PowerPress.Armed, await button.PressAsync(T0.AddSeconds(-30)));
+        Assert.Empty(backend.Ran);
+    }
+
+    [Fact]
+    public async Task S1913_leaving_the_widget_disarms_it()
+    {
+        var backend = new FakeBackend();
+        var button = new PowerButton(PowerAction.SignOut, backend);
+
+        await button.PressAsync(T0);
+        button.Disarm();
+
+        Assert.Equal(PowerPress.Armed, await button.PressAsync(T0.AddSeconds(1)));
+        Assert.Empty(backend.Ran);
+    }
+
+    // ---- availability, busy, failure -------------------------------------------------------
+
+    [Fact]
+    public async Task S1914_hibernate_on_a_machine_that_cannot_is_unavailable_and_never_runs()
+    {
+        var backend = new FakeBackend(canHibernate: false);
+        var button = new PowerButton(PowerAction.Hibernate, backend);
+
+        Assert.False(button.Available);
+        Assert.Equal(PowerPress.Unavailable, await button.PressAsync(T0));
+        Assert.Equal(PowerPress.Unavailable, await button.PressAsync(T0.AddSeconds(1)));
+        Assert.Empty(backend.Ran);
+        Assert.False(button.IsArmed(T0.AddSeconds(1)));
+    }
+
+    [Fact]
+    public async Task S1914_turning_hibernation_on_shows_on_refresh()
+    {
+        var backend = new FakeBackend(canHibernate: false);
+        var button = new PowerButton(PowerAction.Hibernate, backend);
+
+        backend.CanHibernate = true;
+        button.Refresh();
+
+        Assert.True(button.Available);
+        Assert.Equal(PowerPress.Armed, await button.PressAsync(T0));
+    }
+
+    [Fact]
+    public void S1914_only_hibernate_depends_on_the_machine()
+    {
+        foreach (var action in Enum.GetValues<PowerAction>())
+        {
+            Assert.Equal(action != PowerAction.Hibernate, PowerActionRules.Available(action, canHibernate: false));
+            Assert.True(new PowerButton(action, new FakeBackend(canHibernate: false)).Available == (action != PowerAction.Hibernate));
+        }
+    }
+
+    [Fact]
+    public async Task S1916_a_press_while_the_action_runs_runs_nothing_more()
+    {
+        using var gate = new ManualResetEventSlim(false);
+        var backend = new FakeBackend { Gate = gate };
+        var button = new PowerButton(PowerAction.Sleep, backend);
+
+        var first = button.PressAsync(T0);
+        Assert.True(button.Running);
+        Assert.Equal(PowerPress.Busy, await button.PressAsync(T0.AddSeconds(1)));
+
+        gate.Set();
+        Assert.Equal(PowerPress.Ran, await first);
+        Assert.False(button.Running);
+        Assert.Single(backend.Ran);
+    }
+
+    [Fact]
+    public async Task S1915_a_failed_run_says_why_until_the_next_press()
+    {
+        var backend = new FakeBackend { Outcome = PowerActionRules.SuspendOutcome(false, hibernate: false) };
+        var button = new PowerButton(PowerAction.Sleep, backend);
+
+        await button.PressAsync(T0);
+        Assert.Equal("Could not sleep: Windows refused to sleep", button.Failure);
+
+        backend.Outcome = PowerOutcome.Ok;
+        await button.PressAsync(T0.AddSeconds(1));
+        Assert.Null(button.Failure);
+    }
+
+    [Fact]
+    public void S1913_the_armed_label_says_what_the_next_click_does()
+    {
+        Assert.Equal("Click again to shut down", PowerActionRules.ArmedLabel(Locale.En, PowerAction.Shutdown));
+        Assert.Equal("Click again to sign out", PowerActionRules.ArmedLabel(Locale.En, PowerAction.SignOut));
+        Assert.Equal("Erneut klicken: Herunterfahren", PowerActionRules.ArmedLabel(Locale.De, PowerAction.Shutdown));
+    }
+
+    // ---- face ladder -----------------------------------------------------------------------
+
+    [Fact]
+    public void S1912_xs_is_the_icon_alone()
+    {
+        var plan = PowerFace.Plan(new WidgetArea(120, 120), 104, 104, "Shut down".Length, "Click again to shut down".Length);
+
+        Assert.Null(plan.Label);
+        Assert.Equal(0, plan.LabelSlot);
+        Assert.InRange(plan.IconBox, PowerFace.MinBox, 104);
+    }
+
+    [Fact]
+    public void S1912_from_s_up_the_name_sits_under_the_icon_and_both_grow()
+    {
+        var s = PowerFace.Plan(new WidgetArea(200, 150), 176, 126, 9, 24);
+        var m = PowerFace.Plan(new WidgetArea(320, 240), 296, 216, 9, 24);
+        var xl = PowerFace.Plan(new WidgetArea(800, 560), 776, 536, 9, 24);
+
+        Assert.NotNull(s.Label);
+        Assert.NotNull(m.Label);
+        Assert.NotNull(xl.Label);
+        Assert.True(s.IconBox < m.IconBox && m.IconBox <= xl.IconBox);
+        Assert.True(s.Label!.Value.FontSize <= m.Label!.Value.FontSize);
+
+        // Everything fits: the icon square, the gap and the label slot.
+        foreach (var (plan, height) in new[] { (s, 126.0), (m, 216.0), (xl, 536.0) })
+        {
+            Assert.True(plan.IconBox + PowerFace.LabelGap + plan.LabelSlot <= height);
+            Assert.True(plan.IconSize < plan.IconBox);
+        }
+    }
+
+    [Fact]
+    public void S1912_the_armed_sentence_keeps_the_face_still()
+    {
+        // The slot is planned for the longer of the two, so arming does not move the icon.
+        var plan = PowerFace.Plan(new WidgetArea(200, 150), 176, 126, "Herunterfahren".Length, "Erneut klicken: Herunterfahren".Length);
+
+        Assert.NotNull(plan.Label);
+        Assert.True(plan.LabelSlot >= plan.Label!.Value.LineHeight);
+        Assert.True(plan.LabelSlot >= plan.Armed.LineHeight * plan.ArmedLines || plan.ArmedLines == 1);
+    }
+
+    [Fact]
+    public void S1912_an_unmeasured_box_is_the_icon_alone()
+    {
+        var plan = PowerFace.Plan(default, double.NaN, 0, 9, 0);
+
+        Assert.Null(plan.Label);
+        Assert.Equal(PowerFace.MinBox, plan.IconBox);
     }
 
     // ---- call plan -------------------------------------------------------------------------
@@ -154,7 +414,7 @@ public class PowerActionTests
     }
 
     [Fact]
-    public void S1243_Every_action_has_a_plan_label_and_verb()
+    public void S1243_Every_action_has_a_plan_label_and_verb_in_every_language()
     {
         foreach (var action in Enum.GetValues<PowerAction>())
         {
@@ -164,8 +424,8 @@ public class PowerActionTests
             {
                 Assert.False(string.IsNullOrWhiteSpace(PowerActionRules.Verb(locale, action)));
                 Assert.False(string.IsNullOrWhiteSpace(PowerActionRules.Label(locale, action)));
+                Assert.False(string.IsNullOrWhiteSpace(PowerActionRules.ArmedLabel(locale, action)));
             }
-            Assert.Contains(action, PowerActionRules.All);
         }
     }
 
@@ -208,173 +468,5 @@ public class PowerActionTests
             PowerActionRules.FailureMessage(Locale.De, PowerAction.Hibernate, PowerActionRules.SuspendOutcome(false, hibernate: true)));
         Assert.Equal("Could not restart: Windows error 12345",
             PowerActionRules.FailureMessage(Locale.En, PowerAction.Restart, PowerOutcome.Error(12345)));
-        Assert.Equal("Erneut klicken: Herunterfahren", PowerActionRules.ConfirmHint(Locale.De, PowerAction.Shutdown));
-    }
-
-    // ---- config and settings order ----------------------------------------------------------
-
-    [Fact]
-    public void S1242_Defaults_are_the_original_four()
-        => Assert.Equal([PowerAction.Shutdown, PowerAction.Restart, PowerAction.Sleep, PowerAction.Lock], new PowerConfig().Actions);
-
-    [Fact]
-    public async Task S1241_Action_list_round_trips_as_names_in_order()
-    {
-        var dir = Path.Combine(Path.GetTempPath(), "themia-tests", Guid.NewGuid().ToString("n"));
-        Directory.CreateDirectory(dir);
-        var path = Path.Combine(dir, "state.json");
-
-        try
-        {
-            var state = AppState.CreateDefault();
-            var widget = state.ActiveView().Widgets[0];
-            widget.Kind = WidgetKind.Power;
-            widget.Config = new PowerConfig { Actions = [PowerAction.Lock, PowerAction.ScreenOff, PowerAction.Shutdown] };
-
-            var store = new AppStateStore(path, TimeSpan.Zero);
-            store.SaveSoon(state);
-            await store.FlushAsync();
-
-            Assert.Contains("screenOff", File.ReadAllText(path), StringComparison.OrdinalIgnoreCase);
-
-            var loaded = new AppStateStore(path, TimeSpan.Zero).Load();
-            var config = Assert.IsType<PowerConfig>(loaded.State.ActiveView().Widgets[0].Config);
-            Assert.Equal([PowerAction.Lock, PowerAction.ScreenOff, PowerAction.Shutdown], config.Actions);
-        }
-        finally
-        {
-            Directory.Delete(dir, recursive: true);
-        }
-    }
-
-    [Fact]
-    public void S1241_Repair_drops_unknown_and_repeated_actions_loudly()
-    {
-        var config = new PowerConfig { Actions = [PowerAction.Sleep, (PowerAction)42, PowerAction.Sleep, PowerAction.Lock] };
-
-        var notes = config.Repair();
-
-        Assert.Single(notes);
-        Assert.Equal([PowerAction.Sleep, PowerAction.Lock], config.Actions);
-        Assert.Empty(config.Repair());
-    }
-
-    [Fact]
-    public void S1242_Toggle_appends_and_removes_and_settings_lists_every_action_once()
-    {
-        var actions = new List<PowerAction> { PowerAction.Lock };
-
-        Assert.True(PowerActionRules.Toggle(actions, PowerAction.Hibernate, on: true));
-        Assert.False(PowerActionRules.Toggle(actions, PowerAction.Hibernate, on: true));
-        Assert.Equal([PowerAction.Lock, PowerAction.Hibernate], actions);
-
-        var order = PowerActionRules.SettingsOrder(actions);
-        Assert.Equal(PowerAction.Lock, order[0]);
-        Assert.Equal(PowerAction.Hibernate, order[1]);
-        Assert.Equal(7, order.Distinct().Count());
-
-        Assert.True(PowerActionRules.Toggle(actions, PowerAction.Lock, on: false));
-        Assert.Equal([PowerAction.Hibernate], actions);
-    }
-
-    // ---- ladder ------------------------------------------------------------------------------
-
-    [Fact]
-    public void S1248_XS_shows_the_four_defaults_as_a_two_by_two_of_icons()
-    {
-        // XS slot 120x76, compact inset 8 and gap 4.
-        var grid = PowerTileLayout.FitGrid(4, 104, 68, labelsWanted: true, gap: 4);
-
-        Assert.Equal(4, grid.Shown);
-        Assert.False(grid.Labels);
-        Assert.Equal((2, 2), (grid.Columns, grid.Rows));
-    }
-
-    [Fact]
-    public void S1248_A_wide_strip_puts_one_labelled_row_beside_the_status()
-    {
-        // Wide slot 480x116, compact inset 8.
-        var plan = PowerTileLayout.Plan(4, 464, 108, true, stripWanted: 2, allowStrip: true, allowBeside: true, allowPanel: false, gap: 8);
-
-        Assert.Equal(PowerStripPlacement.Beside, plan.Strip);
-        Assert.True(plan.Grid.Labels);
-        Assert.Equal((4, 1), (plan.Grid.Columns, plan.Grid.Rows));
-        Assert.Equal(2, plan.StripLines);
-    }
-
-    [Fact]
-    public void S1248_M_keeps_labels_and_adds_the_strip_below()
-    {
-        // M slot 320x196, inset 12.
-        var plan = PowerTileLayout.Plan(4, 296, 184, true, stripWanted: 2, allowStrip: true, allowBeside: false, allowPanel: false, gap: 8);
-
-        Assert.Equal(PowerStripPlacement.Below, plan.Strip);
-        Assert.Equal(2, plan.StripLines);
-        Assert.True(plan.Grid.Labels);
-        Assert.Equal(4, plan.Grid.Shown);
-    }
-
-    [Fact]
-    public void S1248_The_strip_never_costs_a_label_or_a_button()
-    {
-        // A box where labels fit alone but not with even one strip line under them.
-        var alone = PowerTileLayout.FitGrid(4, 340, 64, true, 8);
-        var plan = PowerTileLayout.Plan(4, 340, 64, true, stripWanted: 3, allowStrip: true, allowBeside: false, allowPanel: false, gap: 8);
-
-        Assert.True(alone.Labels);
-        Assert.Equal(PowerStripPlacement.None, plan.Strip);
-        Assert.True(plan.Grid.Labels);
-    }
-
-    [Fact]
-    public void S1248_Too_small_for_every_icon_shows_the_first_ones()
-    {
-        var grid = PowerTileLayout.FitGrid(7, 70, 30, labelsWanted: true, gap: 4);
-
-        Assert.Equal(2, grid.Shown);
-        Assert.False(grid.Labels);
-    }
-
-    [Fact]
-    public void S1249_The_largest_tile_gets_a_side_panel()
-    {
-        // XL slot 800x516, inset 12.
-        var plan = PowerTileLayout.Plan(7, 776, 504, true, stripWanted: 4, allowStrip: true, allowBeside: false, allowPanel: true, gap: 8);
-
-        Assert.Equal(PowerStripPlacement.Panel, plan.Strip);
-        Assert.Equal(7, plan.Grid.Shown);
-        Assert.True(plan.Grid.Labels);
-        Assert.InRange(plan.StripWidth, PowerTileLayout.PanelMinWidth, PowerTileLayout.PanelMaxWidth);
-    }
-
-    // ---- status strip --------------------------------------------------------------------------
-
-    [Fact]
-    public void S1250_A_desktop_strip_is_source_then_plan_and_no_saver()
-    {
-        var desktop = PowerRules.Read(1, 128, 255, 0, uint.MaxValue, "Balanced");
-        var facts = PowerStrip.Facts(desktop, showPlan: true, showTimeRemaining: true, showSaver: true);
-
-        Assert.Equal([PowerFactKind.Source, PowerFactKind.Plan], facts.Select(f => f.Kind));
-        Assert.Equal("Plugged in", facts[0].Line);
-        Assert.Equal("Balanced plan", facts[1].Line);
-    }
-
-    [Fact]
-    public void S1250_A_laptop_on_battery_shows_charge_time_left_and_saver()
-    {
-        var laptop = PowerRules.Read(0, 0, 64, 1, 7800, "Balanced");
-        var facts = PowerStrip.Facts(laptop, showPlan: false, showTimeRemaining: true, showSaver: true);
-
-        Assert.Equal([PowerFactKind.Source, PowerFactKind.Remaining, PowerFactKind.Saver], facts.Select(f => f.Kind));
-        Assert.Equal("On battery · 64%", facts[0].Line);
-        Assert.Equal("Battery saver on", facts[2].Line);
-    }
-
-    [Fact]
-    public void S1250_An_unreadable_state_is_one_line_that_says_so()
-    {
-        var facts = PowerStrip.Facts(PowerSnapshot.Unreadable, true, true, true);
-        Assert.Equal(PowerFactKind.Unreadable, Assert.Single(facts).Kind);
     }
 }

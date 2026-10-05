@@ -46,6 +46,8 @@ public sealed class AccountModelTests : IDisposable
     [InlineData("")]
     [InlineData(null)]
     [InlineData("exchange")]
+    [InlineData("github")] // [S-1901] the GitHub and Claude accounts went with their widgets
+    [InlineData("claude")]
     public void S500_an_unknown_provider_is_not_guessed(string? wire)
         => Assert.Null(AccountProviders.TryParse(wire));
 
@@ -57,20 +59,17 @@ public sealed class AccountModelTests : IDisposable
         Assert.Equal("imap", AccountProvider.Imap.WireName());
         Assert.Equal("caldav", AccountProvider.CalDav.WireName());
         Assert.Equal("carddav", AccountProvider.CardDav.WireName());
-        Assert.Equal("github", AccountProvider.GitHub.WireName());
-        Assert.Equal("claude", AccountProvider.Claude.WireName());
     }
 
     [Fact]
     public void S502_features_follow_from_the_provider()
     {
-        Assert.True(AccountProvider.Microsoft.Features().HasFlag(AccountFeatures.Files));
-        Assert.False(AccountProvider.Google.Features().HasFlag(AccountFeatures.Files));
+        Assert.True(AccountProvider.Microsoft.Features().HasFlag(AccountFeatures.Tasks));
+        Assert.True(AccountProvider.Google.Features().HasFlag(AccountFeatures.Tasks));
         Assert.Equal(AccountFeatures.Mail, AccountProvider.Imap.Features());
         Assert.Equal(AccountFeatures.Calendar, AccountProvider.CalDav.Features());
         Assert.Equal(AccountFeatures.Contacts, AccountProvider.CardDav.Features());
-        Assert.Equal(AccountAuth.BearerToken, AccountProvider.GitHub.Auth());
-        Assert.Equal(AccountAuth.OAuthRefresh, AccountProvider.Claude.Auth());
+        Assert.Equal(AccountAuth.OAuthRefresh, AccountProvider.Google.Auth());
         Assert.Equal(AccountAuth.Password, AccountProvider.CardDav.Auth());
     }
 
@@ -154,31 +153,6 @@ public sealed class AccountModelTests : IDisposable
     }
 
     [Fact]
-    public void S504_a_github_account_with_a_plain_http_api_is_dropped_not_pointed_at_github_com()
-    {
-        var repairs = new List<string>();
-        var account = AccountRules.Validate(new StoredAccount
-        {
-            Id = "github:me@ghe.corp",
-            Provider = "github",
-            Address = "me",
-            ApiBaseUrl = "http://ghe.corp/api/v3",
-        }, Now, repairs);
-
-        Assert.Null(account);
-    }
-
-    [Fact]
-    public void S504_a_github_account_without_an_api_root_gets_github_com()
-    {
-        var repairs = new List<string>();
-        var account = AccountRules.Validate(new StoredAccount { Id = "github:me@api.github.com", Provider = "github", Address = "me" }, Now, repairs);
-
-        Assert.Equal("https://api.github.com", account?.ApiBaseUrl);
-        Assert.Single(repairs);
-    }
-
-    [Fact]
     public void S504_an_oauth_account_without_a_refresh_token_is_kept_for_sign_in_again()
     {
         var repairs = new List<string>();
@@ -213,15 +187,6 @@ public sealed class AccountModelTests : IDisposable
     }
 
     [Fact]
-    public void S504_a_claude_account_without_an_address_is_named_not_dropped()
-    {
-        var repairs = new List<string>();
-        var account = AccountRules.Validate(new StoredAccount { Id = AccountIds.Claude, Provider = "claude" }, Now, repairs);
-
-        Assert.Equal(AccountRules.ClaudeAddress, account?.Address);
-    }
-
-    [Fact]
     public void S504_account_tostring_never_prints_sealed_fields()
     {
         var account = new Account
@@ -251,8 +216,6 @@ public sealed class AccountModelTests : IDisposable
         Assert.Equal("imap:bob@mail.example", AccountIds.Imap("bob", "mail.example"));
         Assert.Equal("caldav:al@cloud.example:8443", AccountIds.Dav(AccountProvider.CalDav, "al", new Uri("https://cloud.example:8443/dav/")));
         Assert.Equal("carddav:al@cloud.example", AccountIds.Dav(AccountProvider.CardDav, "al", new Uri("https://cloud.example/dav/")));
-        Assert.Equal("github:octo@api.github.com", AccountIds.GitHub("octo", new Uri("https://api.github.com")));
-        Assert.Equal("claude:default", AccountIds.Claude);
     }
 
     [Fact]

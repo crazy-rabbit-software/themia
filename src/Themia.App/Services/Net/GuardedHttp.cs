@@ -13,7 +13,7 @@ namespace Themia.App.Services.Net;
 /// <summary>
 /// [S-960] The one way this app builds an HTTP client. <c>WebFetch</c> (feeds, favicons, weather,
 /// quotes, the photo of the day, the public address, the hardware monitor) and <c>AccountHttp</c>
-/// (sign-in, token refresh, Graph, Google, GitHub, Claude, DAV, OneDrive) each hold a client from
+/// (sign-in, token refresh, Graph, Google, DAV) each hold a client from
 /// here, so every request they make connects through the same guarded callback, carries the same
 /// user agent and meets the same TLS floor.
 /// <para>

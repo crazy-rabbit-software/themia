@@ -31,6 +31,33 @@ public sealed class BatteryNetworkTests
         Assert.Null(desktop.Percent);
     }
 
+    [Fact]
+    public void S1180_a_machine_windows_will_not_answer_about_keeps_its_battery()
+    {
+        // 255 in the flag is "I do not know", a different claim from "there is none".
+        var unknown = BatteryRules.Read(255, 255, 255, uint.MaxValue);
+        Assert.True(unknown.HasBattery);
+        Assert.Null(unknown.Percent);
+        Assert.False(unknown.OnMains);
+    }
+
+    [Fact]
+    public void S1180_a_real_percentage_outranks_a_flag_that_says_there_is_no_battery()
+    {
+        var detachable = BatteryRules.Read(0, 128, 80, uint.MaxValue);
+        Assert.True(detachable.HasBattery);
+        Assert.Equal(80, detachable.Percent);
+    }
+
+    [Fact]
+    public void S1180_time_left_is_only_a_real_estimate_while_discharging()
+    {
+        // 0xFFFFFFFF seconds is 136 years; plugged in, the field holds a stale estimate.
+        Assert.Null(BatteryRules.Read(0, 4, 50, uint.MaxValue).Remaining);
+        Assert.Null(BatteryRules.Read(1, 4, 50, 7200).Remaining);
+        Assert.Equal(TimeSpan.FromHours(2), BatteryRules.Read(0, 4, 64, 7200).Remaining);
+    }
+
     [Theory]
     [InlineData(null, 0)]
     [InlineData(0, 0)]

@@ -254,8 +254,8 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     }
 
     /// <summary>
-    /// [S-1020] What the drag is over: the widget card under it (the innermost one, so a stack's
-    /// child rather than the stack), the surface's own controls, or bare surface.
+    /// [S-1020] What the drag is over: the widget card under it, the surface's own controls, or bare
+    /// surface.
     /// </summary>
     private (SurfaceHit Hit, WidgetCard? Card) DropHitAt(Point point)
     {

@@ -33,8 +33,7 @@ public sealed class WidgetClipboard
     public event Action? Changed;
 
     /// <summary>
-    /// [S-72]/[S-1588] Snapshot the picked widgets of one view (a container with everything inside
-    /// it, [S-876]). Returns false, leaving the clipboard as it was, when none of them is in the view.
+    /// [S-72]/[S-1588] Snapshot the picked widgets of one view. Returns false, leaving the clipboard as it was, when none of them is in the view.
     /// </summary>
     public bool Copy(ViewState view, IEnumerable<string> ids) => Set(view, ids, ClipboardMode.Copy);
 

@@ -62,18 +62,6 @@ public class LocalizationStragglerTests
     }
 
     [Fact]
-    public void S1100_the_default_palette_is_named_in_the_language_it_is_created_in()
-    {
-        Assert.Equal("Slate", SwatchPalette.DefaultIn(Locale.En)[1].Name);
-        Assert.Equal("Schiefer", SwatchPalette.DefaultIn(Locale.De)[1].Name);
-
-        // Same colours in every language: only the names are translated.
-        Assert.Equal(
-            SwatchPalette.DefaultIn(Locale.En).Select(s => s.Value),
-            SwatchPalette.DefaultIn(Locale.Ja).Select(s => s.Value));
-    }
-
-    [Fact]
     public void S1100_an_unnamed_output_device_follows_the_language()
     {
         Assert.Equal("Output device", AudioRules.DeviceName("{gone}", [], null, Locale.En));

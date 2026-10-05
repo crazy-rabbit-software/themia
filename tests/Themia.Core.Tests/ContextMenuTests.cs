@@ -96,14 +96,11 @@ public sealed class ContextMenuTests
 
     private static CardMenuFacts Card(
         bool edit = true,
-        bool addInside = false,
-        bool moveTargets = false,
-        bool grid = true,
         bool front = true,
         bool back = true,
         int count = 1,
         bool paste = false)
-        => new(edit, addInside, moveTargets, grid, front, back, count, paste);
+        => new(edit, front, back, count, paste);
 
     private static List<ShellCommand> Commands(IReadOnlyList<ShellMenuItem> items) => [.. items.Select(i => i.Command)];
 
@@ -126,22 +123,8 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S1743_container_commands_only_where_they_apply()
+    public void S1743_layering_is_disabled_where_it_changes_nothing()
     {
-        var plain = Commands(ShellMenus.ForCard(Card()));
-        Assert.DoesNotContain(ShellCommand.AddInside, plain);
-        Assert.DoesNotContain(ShellCommand.MoveInto, plain);
-
-        var container = Commands(ShellMenus.ForCard(Card(addInside: true, moveTargets: true)));
-        Assert.Contains(ShellCommand.AddInside, container);
-        Assert.Contains(ShellCommand.MoveInto, container);
-    }
-
-    [Fact]
-    public void S1743_layering_only_for_a_widget_the_grid_places()
-    {
-        Assert.DoesNotContain(ShellCommand.BringToFront, Commands(ShellMenus.ForCard(Card(grid: false))));
-
         var front = ShellMenus.ForCard(Card(front: false, back: true)).Single(i => i.Command == ShellCommand.BringToFront);
         Assert.False(front.Enabled);
 
@@ -154,12 +137,12 @@ public sealed class ContextMenuTests
     [Fact]
     public void S1743_the_list_keeps_view_actions_move_and_edit_mode()
     {
-        var items = ShellMenus.ForCard(Card(addInside: true, moveTargets: true));
+        var items = ShellMenus.ForCard(Card());
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
         var list = split.List.Where(i => i >= 0).Select(i => items[i].Command).ToList();
 
         Assert.Equal(
-            [ShellCommand.AddInside, ShellCommand.WidgetActions, ShellCommand.MoveInto, ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.Move, ShellCommand.ToggleEditMode],
+            [ShellCommand.WidgetActions, ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.Move, ShellCommand.ToggleEditMode],
             list);
     }
 
@@ -202,14 +185,13 @@ public sealed class ContextMenuTests
     // ---- [S-1745] click versus drag versus select ---------------------------------------------------
 
     [Fact]
-    public void S1745_a_press_is_classified_by_mode_button_container_ctrl_and_handle()
+    public void S1745_a_press_is_classified_by_mode_button_ctrl_and_handle()
     {
-        Assert.Equal(CardPress.None, CardGestures.Press(editMode: false, leftButton: true, laidOutByContainer: false, ctrl: false, onHandle: false));
-        Assert.Equal(CardPress.None, CardGestures.Press(editMode: true, leftButton: false, laidOutByContainer: false, ctrl: false, onHandle: false));
-        Assert.Equal(CardPress.None, CardGestures.Press(editMode: true, leftButton: true, laidOutByContainer: true, ctrl: false, onHandle: false));
-        Assert.Equal(CardPress.ToggleSelect, CardGestures.Press(editMode: true, leftButton: true, laidOutByContainer: false, ctrl: true, onHandle: true));
-        Assert.Equal(CardPress.Resize, CardGestures.Press(editMode: true, leftButton: true, laidOutByContainer: false, ctrl: false, onHandle: true));
-        Assert.Equal(CardPress.Move, CardGestures.Press(editMode: true, leftButton: true, laidOutByContainer: false, ctrl: false, onHandle: false));
+        Assert.Equal(CardPress.None, CardGestures.Press(editMode: false, leftButton: true, ctrl: false, onHandle: false));
+        Assert.Equal(CardPress.None, CardGestures.Press(editMode: true, leftButton: false, ctrl: false, onHandle: false));
+        Assert.Equal(CardPress.ToggleSelect, CardGestures.Press(editMode: true, leftButton: true, ctrl: true, onHandle: true));
+        Assert.Equal(CardPress.Resize, CardGestures.Press(editMode: true, leftButton: true, ctrl: false, onHandle: true));
+        Assert.Equal(CardPress.Move, CardGestures.Press(editMode: true, leftButton: true, ctrl: false, onHandle: false));
     }
 
     [Theory]

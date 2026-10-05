@@ -90,75 +90,16 @@ public class AccountOAuthTests
     public void S513_a_request_that_is_not_a_redirect_keeps_the_listener_waiting(string? line)
         => Assert.Equal(RedirectKind.Unrelated, OAuthRedirect.Parse(line, "xyz").Kind);
 
-    [Theory]
-    [InlineData("authorization_pending", false, DevicePoll.Pending)]
-    [InlineData("slow_down", false, DevicePoll.SlowDown)]
-    [InlineData("expired_token", false, DevicePoll.Expired)]
-    [InlineData("access_denied", false, DevicePoll.Denied)]
-    [InlineData("authorization_declined", false, DevicePoll.Denied)]
-    [InlineData("bad_verification_code", false, DevicePoll.Failed)]
-    [InlineData(null, true, DevicePoll.Success)]
-    [InlineData(null, false, DevicePoll.Failed)]
-    public void S514_token_endpoint_answers_are_classified(string? error, bool hasToken, DevicePoll expected)
-        => Assert.Equal(expected, DeviceCodeSession.Classify(error, hasToken));
-
-    [Fact]
-    public void S514_pending_waits_the_server_interval_and_slow_down_adds_five_seconds_for_good()
-    {
-        var session = new DeviceCodeSession("ABCD-1234", new Uri("https://github.com/login/device"), 5, 900, Now);
-
-        var pending = session.Next(DevicePoll.Pending, Now);
-        Assert.False(pending.Done);
-        Assert.Equal(TimeSpan.FromSeconds(5), pending.Delay);
-
-        var slow = session.Next(DevicePoll.SlowDown, Now);
-        Assert.Equal(TimeSpan.FromSeconds(10), slow.Delay);
-
-        // The longer interval sticks: RFC 8628 says "for all subsequent requests".
-        Assert.Equal(TimeSpan.FromSeconds(10), session.Next(DevicePoll.Pending, Now).Delay);
-    }
-
-    [Fact]
-    public void S514_polling_stops_when_the_code_has_expired()
-    {
-        var session = new DeviceCodeSession("A", new Uri("https://github.com/login/device"), 5, 900, Now);
-
-        var step = session.Next(DevicePoll.Pending, Now.AddSeconds(900));
-
-        Assert.True(step.Done);
-        Assert.Equal(DevicePoll.Expired, step.Poll);
-    }
-
-    [Theory]
-    [InlineData(DevicePoll.Success)]
-    [InlineData(DevicePoll.Expired)]
-    [InlineData(DevicePoll.Denied)]
-    [InlineData(DevicePoll.Failed)]
-    public void S514_terminal_outcomes_end_the_flow(DevicePoll poll)
-    {
-        var session = new DeviceCodeSession("A", new Uri("https://x.example"), 5, 900, Now);
-        var step = session.Next(poll, Now, "bad_verification_code");
-
-        Assert.True(step.Done);
-        Assert.Equal(TimeSpan.Zero, step.Delay);
-        Assert.Equal(poll == DevicePoll.Success, step.Message is null);
-    }
-
-    [Theory]
-    [InlineData(null, 5)]
-    [InlineData(0L, 5)]
-    [InlineData(100_000L, 5)]
-    [InlineData(8L, 8)]
-    public void S514_a_missing_or_absurd_interval_falls_back_to_five_seconds(long? interval, int expected)
-        => Assert.Equal(TimeSpan.FromSeconds(expected), new DeviceCodeSession("A", new Uri("https://x.example"), interval, null, Now).Interval);
-
     [Fact]
     public void S509_microsoft_scopes_are_the_classic_ones()
     {
-        foreach (var scope in new[] { "User.Read", "Mail.ReadWrite", "Calendars.Read", "Contacts.Read", "Tasks.ReadWrite", "Files.Read", "offline_access" })
+        foreach (var scope in new[] { "User.Read", "Mail.ReadWrite", "Calendars.Read", "Contacts.Read", "Tasks.ReadWrite", "offline_access" })
         {
             Assert.Contains(scope, OAuthClients.Microsoft.Scope.Split(' '));
         }
+
+        // [S-1901] No widget reads OneDrive any more, so no file access is asked for.
+        Assert.DoesNotContain("Files.Read", OAuthClients.Microsoft.Scope.Split(' '));
 
         Assert.Equal("6cf22c0f-103a-4f8a-ae35-178d62575897", OAuthClients.Microsoft.ClientId);
         Assert.Equal("https://login.microsoftonline.com/common/oauth2/v2.0/token", OAuthClients.Microsoft.TokenUrl.AbsoluteUri);
@@ -310,63 +251,4 @@ public class AccountOAuthTests
         Assert.Contains("state=STATE", url, StringComparison.Ordinal);
         Assert.Contains("gmail.readonly", url, StringComparison.Ordinal);
     }
-
-    [Fact]
-    public void S511_claude_authorize_url_requests_user_profile_with_pkce()
-    {
-        var url = OAuthClients.Claude.AuthorizeUrl("CHAL", "STATE").AbsoluteUri;
-
-        Assert.StartsWith("https://claude.ai/oauth/authorize?code=true&", url, StringComparison.Ordinal);
-        Assert.Contains("client_id=9d1c250a-e61b-44d9-88ed-5944d1962f5e", url, StringComparison.Ordinal);
-        Assert.Contains("code_challenge=CHAL", url, StringComparison.Ordinal);
-        Assert.Contains("code_challenge_method=S256", url, StringComparison.Ordinal);
-        Assert.Contains("state=STATE", url, StringComparison.Ordinal);
-        Assert.Contains("user%3Aprofile", url, StringComparison.Ordinal);
-        Assert.Contains("platform.claude.com%2Foauth%2Fcode%2Fcallback", url, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void S510_github_scopes_match_the_token_path()
-    {
-        foreach (var scope in new[] { "repo", "read:user", "notifications" })
-        {
-            Assert.Contains(scope, OAuthClients.GitHub.Scope.Split(' '));
-        }
-    }
-
-    [Theory]
-    [InlineData(null, "https://api.github.com")]
-    [InlineData("  ", "https://api.github.com")]
-    [InlineData("https://ghe.corp/api/v3/", "https://ghe.corp/api/v3")]
-    [InlineData("http://ghe.corp/api/v3", null)]
-    [InlineData("ghe.corp", null)]
-    [InlineData("https://ghe.corp/api?x=1", null)]
-    public void S510_the_api_root_is_https_or_refused(string? typed, string? expected)
-        => Assert.Equal(expected, OAuthClients.GitHub.NormaliseApiBase(typed));
-
-    [Fact]
-    public void S512_paste_splits_code_and_state()
-    {
-        var pasted = PastedCode.Parse("  abc123#xyz789  ");
-
-        Assert.Null(pasted.Error);
-        Assert.Equal("abc123", pasted.Code);
-        Assert.Equal("xyz789", pasted.State);
-    }
-
-    [Fact]
-    public void S512_paste_without_a_hash_is_the_code_alone()
-    {
-        var pasted = PastedCode.Parse("justcode");
-
-        Assert.Equal("justcode", pasted.Code);
-        Assert.Null(pasted.State);
-    }
-
-    [Theory]
-    [InlineData("   ")]
-    [InlineData(null)]
-    [InlineData("#state-only")]
-    public void S512_an_empty_or_incomplete_paste_says_why(string? text)
-        => Assert.NotNull(PastedCode.Parse(text).Error);
 }

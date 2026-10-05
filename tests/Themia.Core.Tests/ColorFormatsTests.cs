@@ -90,10 +90,10 @@ public class ColorFormatsTests
     public void Everything_this_writes_it_can_read_back(ColorNotation notation)
     {
         // Not every colour survives the hsl rounding exactly, so this pins the weaker but real
-        // guarantee: a value the palette copies is one the palette accepts.
-        foreach (var seed in SwatchPalette.Default)
+        // guarantee: a value this writes is one it accepts.
+        foreach (var seed in new[] { "#0078D4", "#64748B", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#000000", "#FFFFFF" })
         {
-            Assert.True(ColorFormats.TryParse(seed.Value, out var color));
+            Assert.True(ColorFormats.TryParse(seed, out var color));
             var written = ColorFormats.Format(color, notation);
 
             Assert.True(ColorFormats.TryParse(written, out _), $"could not read back {written}");

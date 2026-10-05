@@ -213,6 +213,58 @@ internal static class ShellLauncher
     }
 
     /// <summary>
+    /// [S-1924] Open what a click on a widget names (<see cref="WidgetLaunch"/>): Task Manager from
+    /// the system folder, a fixed Settings page or protocol, an https page, a folder, or an app's Start
+    /// menu entry. Its own allow list, like mail links: <see cref="WidgetLaunch.IsLaunchable"/> is
+    /// re-applied to the literal target here.
+    /// </summary>
+    public static LaunchOutcome OpenWidgetTarget(WidgetLaunchTarget target)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+
+        if (!WidgetLaunch.IsLaunchable(target))
+        {
+            Log.Warn(Scope, $"refused to open a widget's {target.Method} target '{Excerpt(target.Value)}'");
+            return LaunchOutcome.Refused;
+        }
+
+        return target.Method switch
+        {
+            // Through the path rule and the existence check, from the real system folder, never a
+            // bare name the shell would look up on PATH.
+            WidgetLaunchMethod.Program => Open(Path.Combine(Environment.SystemDirectory, target.Value)),
+            WidgetLaunchMethod.Folder => Open(target.Value),
+            WidgetLaunchMethod.MediaApp when MediaApps.AppsFolderTarget(target.Value) is { } entry => Launch(entry),
+            WidgetLaunchMethod.MediaApp => LaunchOutcome.Refused,
+            _ => Launch(target.Value),
+        };
+    }
+
+    /// <summary>
+    /// [S-1928] Whether an app has registered a protocol (<c>ms-todo</c>, <c>outlookcal</c>). Read
+    /// from the registry on each ask: it is one key, asked on a hover, and an app installed mid-run
+    /// is then found.
+    /// </summary>
+    public static bool ProtocolRegistered(string scheme)
+    {
+        if (string.IsNullOrEmpty(scheme) || !scheme.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '.'))
+        {
+            return false;
+        }
+
+        try
+        {
+            using var key = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(scheme);
+            return key?.GetValue("URL Protocol") is not null;
+        }
+        catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or IOException)
+        {
+            Log.Warn(Scope, $"could not tell whether '{scheme}:' is registered", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
     /// The shell call itself, and the only one in the app.
     /// </summary>
     private static LaunchOutcome Launch(string value) => Launch(value, out _);

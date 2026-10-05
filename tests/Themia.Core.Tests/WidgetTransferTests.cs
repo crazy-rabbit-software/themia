@@ -122,23 +122,6 @@ public class WidgetTransferTests
         Assert.Same(widget, Assert.Single(left.Widgets));
     }
 
-    [Fact]
-    public void S1590_a_member_added_to_a_moved_container_after_the_snapshot_is_not_lost()
-    {
-        var (state, left, right, _) = TwoViews();
-        var group = WidgetInstance.Create(WidgetKind.Group, new FracRect(0.1, 0.1, 0.4, 0.4));
-        left.Widgets.Add(group);
-        var plan = MovePlan(left, group.Id);
-
-        var late = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.2, 0.2, 0.1, 0.1));
-        late.ParentId = group.Id;
-        left.Widgets.Add(late);
-        state.ApplyPlacement(plan, right.Id);
-
-        Assert.Contains(late, right.Widgets);
-        Assert.Equal(group.Id, late.ParentId);
-    }
-
     // ---- paste across views -----------------------------------------------------------------
 
     [Fact]

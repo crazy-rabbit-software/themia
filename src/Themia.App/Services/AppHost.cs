@@ -28,8 +28,6 @@ internal sealed partial class AppHost : IDisposable
 
     private ConfigWindow? _config;
     private readonly Mail.MailService _mail;
-    private readonly Developer.GitHubService _gitHub;
-    private readonly Developer.ClaudeUsageService _claudeUsage;
     private bool _editMode;
     private bool _disposed;
 
@@ -59,29 +57,19 @@ internal sealed partial class AppHost : IDisposable
         _mail = new Mail.MailService(Accounts, Ticker);
         AppServices.Mail = _mail;
         AppServices.ShowAccounts = () => ShowConfig(new ConfigTarget.App(AppPage.Accounts));
-        AppServices.ShowSettings = ShowSettings;
-        AppServices.EditLayout = () => SetEditMode(true);
         AppServices.EditAppLayout = ShowLayoutEditor;
 
-        // [S-591]/[S-607] One task service and one drive service for every widget. The task lists
-        // kept on this PC live beside the state file, as the accounts do.
+        // [S-591] One task service for every widget. The task lists kept on this PC live beside the
+        // state file, as the accounts do.
         AppServices.Tasks = new Tasks.TaskService(
             new Tasks.AccountTaskRemote(Accounts),
             new Tasks.LocalTaskPool(new Themia.Core.Tasks.LocalTaskStore(Themia.Core.Tasks.LocalTaskStore.PathBeside(store.Path))));
-        AppServices.Drive = new Files.DriveService(new Files.AccountDriveRemote(Accounts));
 
         // [S-1420] The habit lists every Habits widget shares, beside the state file like the tasks.
         AppServices.Habits = new Habits.HabitPool(new Themia.Core.Habits.HabitListStore(Themia.Core.Habits.HabitListStore.PathBeside(store.Path)));
 
         // [S-1340] The notes every Notes widget shares, in notes\ beside the state file.
         AppServices.Notes = new Notes.NotePool(new Themia.Core.Notes.NoteStore(Themia.Core.Notes.NoteStore.DirectoryBeside(store.Path)));
-
-        // [S-624] One GitHub client (one cache, one rate-limit gate per account) and one Claude
-        // usage reader for every developer widget, on the shared ticker.
-        _gitHub = new Developer.GitHubService(Accounts, Ticker);
-        AppServices.GitHub = _gitHub;
-        _claudeUsage = new Developer.ClaudeUsageService(Accounts, Ticker);
-        AppServices.ClaudeUsage = _claudeUsage;
     }
 
     public AppState State { get; }
@@ -321,21 +309,13 @@ internal sealed partial class AppHost : IDisposable
         Clipboard.Clear();
         AppServices.Mail = null;
         AppServices.ShowAccounts = null;
-        AppServices.ShowSettings = null;
-        AppServices.EditLayout = null;
         AppServices.EditAppLayout = null;
         CloseLayoutEditor();
         _mail.Dispose();
         AppServices.Tasks?.Dispose();
         AppServices.Tasks = null;
-        AppServices.Drive?.Dispose();
-        AppServices.Drive = null;
         AppServices.Habits = null;
         AppServices.Notes = null;
-        AppServices.GitHub = null;
-        _gitHub.Dispose();
-        AppServices.ClaudeUsage = null;
-        _claudeUsage.Dispose();
         AppServices.Accounts = null;
         Accounts.Dispose();
         License.Dispose();

@@ -100,19 +100,13 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1002] The cards the grid places, in the view's widget order — the cascade's order. A child a
-    /// stack or a tab strip draws moves with its container; a collapsed group member draws nothing.
+    /// [S-1002] The cards, in the view's widget order — the cascade's order.
     /// </summary>
     private List<MotionActor> Actors(ViewState view)
     {
         var actors = new List<MotionActor>(_cards.Count);
         foreach (var model in view.Widgets)
         {
-            if (IsArrangedByContainer(view, model))
-            {
-                continue;
-            }
-
             if (_cards.Find(c => ReferenceEquals(c.Model, model)) is { Visibility: Visibility.Visible } card)
             {
                 actors.Add(new MotionActor(card, model.Rect));

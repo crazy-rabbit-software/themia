@@ -12,11 +12,11 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug only: draw the open Add-widget picker to a PNG, off-screen, like the other debug
-/// renders. <c>Themia.exe --picker-png &lt;out.png&gt; [--search text] [--into] [--theme light|dark]</c>.
+/// renders. <c>Themia.exe --picker-png &lt;out.png&gt; [--search text] [--theme light|dark]</c>.
 /// <para>
 /// The picker lives in a flyout on a desktop surface, which a render cannot open without the user's
 /// desktop; <see cref="WidgetPicker"/> is drawn here inside a stand-in for the flyout's presenter
-/// instead. <c>--into</c> adds two sample containers to the "Add to" choice.
+/// instead.
 /// </para>
 /// </summary>
 internal static class PickerRender
@@ -33,14 +33,13 @@ internal static class PickerRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, "usage: --picker-png <out.png> [--search text] [--into] [--theme light|dark]");
+            Log.Error(Scope, "usage: --picker-png <out.png> [--search text] [--theme light|dark]");
             app.Exit();
             return true;
         }
 
         var outPath = System.IO.Path.GetFullPath(args[at + 1]);
         var search = Option(args, "--search");
-        var into = args.Contains("--into");
 
         _ = dispatcher.TryEnqueue(async () =>
         {
@@ -48,11 +47,7 @@ internal static class PickerRender
 
             try
             {
-                List<PickerTarget> targets = into
-                    ? [new(null, "Desktop"), new("g", "Sidebar"), new("s", "Stack")]
-                    : [new(null, "Desktop")];
-
-                var picker = new WidgetPicker(targets, into ? 1 : 0, (_, _) => { }, () => { });
+                var picker = new WidgetPicker(_ => { }, () => { });
 
                 // A stand-in for the flyout presenter: the same acrylic fill, stroke and padding.
                 var presenter = new Border

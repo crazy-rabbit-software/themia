@@ -20,7 +20,6 @@ internal sealed record AccountInfo(
     string DisplayName,
     string? Nickname,
     string? ServerUrl,
-    string? ApiBaseUrl,
     string? Problem)
 {
     /// <summary>The nickname, else the person's name, else the address.</summary>
@@ -36,8 +35,7 @@ internal sealed record AccountInfo(
 /// on their behalf. One instance, owned by <see cref="AppHost"/> and reached through
 /// <see cref="AppServices.Accounts"/>.
 /// <para>
-/// <b>The seam, for a widget's data service</b> (mail, calendar, contacts, tasks, OneDrive, GitHub,
-/// Claude usage). Pick accounts with <see cref="Accounts"/> / <see cref="WithFeature"/>, listen to
+/// <b>The seam, for a widget's data service</b> (mail, calendar, contacts, tasks). Pick accounts with <see cref="Accounts"/> / <see cref="WithFeature"/>, listen to
 /// <see cref="AccountsChanged"/> (raised on the UI thread), and make requests through the methods
 /// in <c>AccountService.Requests.cs</c>:
 /// </para>
@@ -51,8 +49,8 @@ internal sealed record AccountInfo(
 /// <item><c>GetAccessTokenAsync(id)</c> — the raw bearer token, for the rare caller that needs it.</item>
 /// </list>
 /// <para>
-/// Every request carries the right proof for its provider (a bearer token refreshed when stale, a
-/// GitHub token, DAV basic auth, Anthropic's headers), retries 429/503 as the server directs, answers
+/// Every request carries the right proof for its provider (a bearer token refreshed when stale, DAV
+/// basic auth), retries 429/503 as the server directs, answers
 /// a 401 with exactly one refresh, and fails with a typed <see cref="AccountException"/> — map it to
 /// a widget state with <see cref="AccountException.ToFetchStatus"/>. A sign-in that only the user can
 /// mend marks the account (<see cref="AccountInfo.Problem"/>); it never deletes it.
@@ -193,7 +191,6 @@ internal sealed partial class AccountService : IDisposable
         account.DisplayName,
         account.Nickname,
         account.ServerUrl,
-        account.ApiBaseUrl,
         _problems.TryGetValue(account.Id, out var problem) ? problem : null);
 
     /// <summary>
@@ -206,7 +203,6 @@ internal sealed partial class AccountService : IDisposable
         var (sealedSecret, what) = account.Provider.Auth() switch
         {
             AccountAuth.OAuthRefresh => (account.SealedRefreshToken ?? account.SealedAccessToken, SecretKind.SignIn),
-            AccountAuth.BearerToken => (account.SealedAccessToken, SecretKind.Token),
             _ => (account.SealedPassword, SecretKind.Password),
         };
 

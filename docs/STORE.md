@@ -56,7 +56,7 @@ never do it, because it means trusting a certificate on the machine.
    - Settings › General › Start with Windows toggles the `ThemiaStartup` task (also visible in
      Settings › Apps › Startup), and a sign-in starts Themia.
    - Settings › License says **Themia Free** (a sideloaded package has no Store licence), shows the
-     usage of 10 widgets and 2 views, and the 11th widget (place, paste, duplicate, add to group)
+     usage of 10 widgets and 2 views, and the 11th widget (place, paste, duplicate)
      or the 3rd view is refused and opens the License page. Nothing already there is removed.
    - The Bluetooth widget lists devices (radios/bluetooth capabilities).
    - Volume/Mixer device picks switch the Windows default output.

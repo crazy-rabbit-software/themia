@@ -9,7 +9,7 @@ namespace Themia.App.Services;
 
 /// <summary>
 /// [S-1065] The free-tier gate, at every place a widget or a view is created: placement (when it
-/// starts and when it lands), paste, duplicate, adding into a container, a new view, and the view a
+/// starts and when it lands), paste, duplicate, a new view, and the view a
 /// new display would get. A refusal creates nothing, deletes nothing, and says why in a notice
 /// ([S-881]) whose button opens Settings on the License page, which offers the upgrade. A notice
 /// rather than the settings window: a refusal is news, and a whole window thrown up over the

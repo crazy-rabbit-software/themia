@@ -113,50 +113,6 @@ public class InstalledAppRulesTests
         Assert.Empty(InstalledAppRules.Arrange([], 100));
     }
 
-    // ---- the filter box ---------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void A_blank_filter_is_not_a_filter(string? query)
-    {
-        var apps = new[] { App("Alpha"), App("Beta") };
-
-        Assert.Equal(2, InstalledAppRules.Filter(apps, query).Count);
-    }
-
-    [Theory]
-    [InlineData("code", 1)]
-    [InlineData("CODE", 1)]
-    [InlineData("o", 2)]
-    [InlineData("nothing here", 0)]
-    public void The_filter_is_a_case_insensitive_substring_of_the_name(string query, int expected)
-    {
-        var apps = new[] { App("Visual Studio Code"), App("Notepad"), App("Alpha") };
-
-        Assert.Equal(expected, InstalledAppRules.Filter(apps, query).Count);
-    }
-
-    [Fact]
-    public void The_filter_also_matches_the_start_menu_folder()
-    {
-        var apps = new[] { App("Terminal", "Windows Tools"), App("Alpha", "Games") };
-
-        var matched = InstalledAppRules.Filter(apps, "games");
-
-        Assert.Single(matched);
-        Assert.Equal("Alpha", matched[0].Name);
-    }
-
-    [Fact]
-    public void A_filter_is_trimmed_before_it_is_matched()
-    {
-        var apps = new[] { App("Notepad") };
-
-        Assert.Single(InstalledAppRules.Filter(apps, "  note  "));
-    }
-
     [Fact]
     public void Every_shortcut_the_scan_keeps_is_a_target_the_launcher_would_accept()
     {

@@ -19,7 +19,7 @@ internal sealed partial class AccountService
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-530] A bearer token for an OAuth account (Microsoft, Google, Claude) or GitHub: the stored
+    /// [S-530] A bearer token for an OAuth account (Microsoft, Google): the stored
     /// one while it has more than five minutes to live, else a fresh one. Refresh is single-flight per
     /// account. A password account has no token and is refused.
     /// </summary>
@@ -32,13 +32,9 @@ internal sealed partial class AccountService
     /// <summary>The token and the sealed form it came from, so a 401 can say which token it rejected.</summary>
     private async Task<(string Token, string? Sealed)> TokenAsync(Account account, CancellationToken cancellation)
     {
-        switch (account.Provider.Auth())
+        if (account.Provider.Auth() == AccountAuth.Password)
         {
-            case AccountAuth.Password:
-                throw new AccountException(AccountError.Refused, $"{account.Label} signs in with a password, not a token.");
-
-            case AccountAuth.BearerToken:
-                return (OpenOrThrow(account, account.SealedAccessToken, SecretKind.Token), account.SealedAccessToken);
+            throw new AccountException(AccountError.Refused, $"{account.Label} signs in with a password, not a token.");
         }
 
         if (TokenExpiry.IsUsable(account.ExpiresAt, Now)
@@ -140,12 +136,6 @@ internal sealed partial class AccountService
             new("grant_type", "refresh_token"),
             new("refresh_token", refreshToken),
         ]),
-        AccountProvider.Claude => RequestTemplate.Form(OAuthClients.Claude.TokenUrl,
-        [
-            new("client_id", OAuthClients.Claude.ClientId),
-            new("grant_type", "refresh_token"),
-            new("refresh_token", refreshToken),
-        ]),
         _ => throw new AccountException(AccountError.Refused, $"{account.Provider.Label()} has no sign-in to renew."),
     };
 
@@ -219,8 +209,8 @@ internal sealed partial class AccountService
         var error = AccountException.FromStatus(reply.Status);
         var said = ErrorBody.Message(reply.Body);
 
-        // [S-625] A spent budget is a throttle with a known end, whatever status carried it —
-        // GitHub sends 403 — and nothing should ask again before that end.
+        // [S-625] A spent budget is a throttle with a known end, whatever status carried it, and
+        // nothing should ask again before that end.
         var budget = RateLimitRules.Read(reply.Headers, Now);
         if (RateLimitRules.IsThrottle(reply.Status, budget))
         {
@@ -378,20 +368,6 @@ internal sealed partial class AccountService
                 var pair = Encoding.UTF8.GetBytes($"{account.Username}:{secret}");
                 request.Headers.Authorization = new("Basic", Convert.ToBase64String(pair));
                 return;
-
-            case AccountProvider.GitHub:
-                if (request.Headers.Accept.Count == 0)
-                {
-                    request.Headers.Accept.ParseAdd("application/vnd.github+json");
-                }
-
-                break;
-
-            case AccountProvider.Claude:
-                request.Headers.UserAgent.Clear();
-                request.Headers.TryAddWithoutValidation("User-Agent", OAuthClients.Claude.UserAgent);
-                request.Headers.TryAddWithoutValidation(OAuthClients.Claude.BetaHeader, OAuthClients.Claude.BetaValue);
-                break;
         }
 
         request.Headers.Authorization = new("Bearer", secret);

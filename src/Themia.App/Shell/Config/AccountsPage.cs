@@ -21,7 +21,7 @@ namespace Themia.App.Shell.Config;
 /// rename and sign out of an account.
 /// <para>
 /// One flow at a time, drawn in place under the Add account row rather than in a second window: a
-/// device code, a browser wait, a paste box or a short form. Everything that can go wrong is said on
+/// browser wait or a short form. Everything that can go wrong is said on
 /// the page, in the line under the flow, never left to a log — a sign-in that fails silently is one
 /// the user tries five times. Leaving the page cancels a flow in progress.
 /// </para>
@@ -34,7 +34,6 @@ internal sealed class AccountsPage
 {
     private const string Scope = "config.accounts";
 
-    private static readonly string OpenGlyph = char.ConvertFromUtf32(0xE8A7);
     private static readonly string KeyGlyph = char.ConvertFromUtf32(0xE8D7);
 
     private readonly AccountService _service;
@@ -88,8 +87,6 @@ internal sealed class AccountsPage
             case "google": ShowBrowserFlow(AccountProvider.Google); break;
             case "imap": StartImap(); break;
             case "caldav": StartDav(AccountProvider.CalDav); break;
-            case "github-token": StartGitHubToken(); break;
-            case "claude": StartClaude(); break;
         }
 #endif
 
@@ -297,10 +294,6 @@ internal sealed class AccountsPage
         Add(Str.Shell_Accounts_MenuImap.Text(), AccountProvider.Imap, StartImap);
         Add(Str.Shell_Accounts_MenuCalDav.Text(), AccountProvider.CalDav, () => StartDav(AccountProvider.CalDav));
         Add(Str.Shell_Accounts_MenuCardDav.Text(), AccountProvider.CardDav, () => StartDav(AccountProvider.CardDav));
-        menu.Items.Add(new MenuFlyoutSeparator());
-        Add("GitHub", AccountProvider.GitHub, StartGitHubDevice);
-        Add(Str.Shell_Accounts_MenuGitHubToken.Text(), AccountProvider.GitHub, StartGitHubToken);
-        Add("Claude", AccountProvider.Claude, StartClaude);
 
         return new DropDownButton { Content = Str.Account_AddAccount.Text(), Flyout = menu };
     }
@@ -349,86 +342,6 @@ internal sealed class AccountsPage
         if (message is not null)
         {
             _flow.Children.Add(Message(message, critical: false));
-        }
-    }
-
-    // ---- device code: GitHub --------------------------------------------------------------
-
-    private void StartGitHubDevice()
-    {
-        const AccountProvider provider = AccountProvider.GitHub;
-
-        var code = Fluent.Text(FluentType.TitleLarge);
-        code.Text = "········";
-        code.FontFamily = new FontFamily("Cascadia Mono, Consolas");
-        code.IsTextSelectionEnabled = true;
-
-        var where = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        where.TextWrapping = TextWrapping.Wrap;
-        where.Text = Str.Shell_Accounts_AskingCode.Format(("provider", provider.Label()));
-
-        var copy = new Button { Content = Labelled(Glyphs.Copy, Str.Shell_Accounts_CopyCode.Text()), IsEnabled = false };
-        var open = new Button { Content = Labelled(OpenGlyph, Str.Shell_Accounts_OpenSignIn.Text()), IsEnabled = false, Style = AccentStyle() };
-        var cancel = new Button { Content = Str.Common_Cancel.Text() };
-        cancel.Click += (_, _) => CloseFlow();
-
-        var (status, ring, line) = StatusLine(Str.Shell_Accounts_Starting.Text());
-
-        var body = new StackPanel
-        {
-            Spacing = Fluent.Space3,
-            Children =
-            {
-                where,
-                code,
-                new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, Children = { open, copy, cancel } },
-                status,
-            },
-        };
-
-        var token = ShowFlow(Str.Shell_Accounts_SignInTo.Format(("provider", provider.Label())), FluentLayout.Card(body));
-        _ = RunGitHubDeviceAsync(code, where, copy, open, ring, line, token);
-    }
-
-    private async Task RunGitHubDeviceAsync(
-        TextBlock code,
-        TextBlock where,
-        Button copy,
-        Button open,
-        ProgressRing ring,
-        TextBlock line,
-        CancellationToken cancellation)
-    {
-        try
-        {
-            var signIn = await _service.BeginGitHubSignInAsync(cancellation).ConfigureAwait(true);
-            var session = signIn.Session;
-
-            code.Text = session.UserCode;
-            where.Text = Str.Shell_Accounts_EnterCode.Format(("site", $"{session.VerificationUri.Host}{session.VerificationUri.AbsolutePath.TrimEnd('/')}"));
-
-            copy.IsEnabled = true;
-            open.IsEnabled = true;
-            copy.Click += (_, _) => Copy(session.UserCode, line);
-            open.Click += (_, _) => Open(session.VerificationUri, line);
-
-            Say(line, Str.Shell_Accounts_WaitingApproval.Format(("time", LocaleFormat.Time(Strings.Current, session.ExpiresAt.ToLocalTime().DateTime))), critical: false);
-
-            var account = await _service.CompleteGitHubSignInAsync(signIn, cancellation).ConfigureAwait(true);
-            CloseFlow(Str.Shell_Accounts_SignedInAs.Format(("provider", "GitHub"), ("address", account.Address)));
-        }
-        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
-        {
-            // ignore: the user cancelled or left the page; nothing to say.
-        }
-        catch (AccountException ex)
-        {
-            Fail(ring, line, ex.Message, copy, open);
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "GitHub sign-in failed unexpectedly", ex);
-            Fail(ring, line, Str.Shell_Accounts_FlowFailed.Format(("reason", ex.Message)), copy, open);
         }
     }
 
@@ -500,45 +413,7 @@ internal sealed class AccountsPage
         }
     }
 
-    // ---- Claude ----------------------------------------------------------------------------
-
-    private void StartClaude()
-    {
-        var signIn = AccountService.BeginClaudeSignIn();
-
-        var steps = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        steps.TextWrapping = TextWrapping.Wrap;
-        steps.Text = Str.Shell_Accounts_ClaudeSteps.Text();
-
-        var open = new Button { Content = Labelled(OpenGlyph, Str.Shell_Accounts_OpenClaude.Text()), Style = AccentStyle() };
-
-        var code = new TextBox { PlaceholderText = Str.Shell_Accounts_PasteHere.Text(), Width = 360 };
-        var nickname = new TextBox { PlaceholderText = Str.Shell_Accounts_Optional.Text(), Width = 360 };
-        var connect = new Button { Content = Str.Connect_Connect.Text(), Style = AccentStyle() };
-        var cancel = new Button { Content = Str.Common_Cancel.Text() };
-
-        var (status, ring, line) = StatusLine(string.Empty);
-        status.Visibility = Visibility.Collapsed;
-
-        open.Click += (_, _) => Open(signIn.AuthorizeUrl, line, status);
-        cancel.Click += (_, _) => CloseFlow();
-
-        var token = ShowFlow(
-            Str.Shell_Accounts_ConnectClaude.Text(),
-            FluentLayout.Card(new StackPanel { Spacing = Fluent.Space3, Children = { steps, open } }),
-            FluentLayout.Row(KeyGlyph, Str.Shell_Accounts_Code.Text(), Str.Shell_Accounts_CodeDesc.Text(), code),
-            FluentLayout.Row(Glyphs.Rename, Str.Connect_Field_Nickname.Text(), null, nickname),
-            Buttons(connect, cancel),
-            status);
-
-        connect.Click += (_, _) => _ = RunFormAsync(connect, status, ring, line,
-            () => _service.CompleteClaudeSignInAsync(signIn, code.Text, nickname.Text, token),
-            account => account.Nickname is null
-                ? Str.Shell_Accounts_ConnectedClaude.Text()
-                : Str.Shell_Accounts_ConnectedClaudeAs.Format(("name", account.Nickname)));
-    }
-
-    // ---- forms: IMAP, CalDAV, CardDAV, GitHub token ----------------------------------------
+    // ---- forms: IMAP, CalDAV, CardDAV ------------------------------------------------------
 
     private void StartImap()
     {
@@ -663,36 +538,6 @@ internal sealed class AccountsPage
                 : Str.Shell_Accounts_ConnectedContacts.Format(("address", account.Address)));
     }
 
-    private void StartGitHubToken()
-    {
-        var tokenBox = new PasswordBox { Width = 280 };
-        var api = new TextBox { PlaceholderText = Str.Shell_Accounts_ApiEmpty.Text(), Width = 280 };
-        var nickname = new TextBox { PlaceholderText = Str.Shell_Accounts_Optional.Text(), Width = 280 };
-
-        var create = new HyperlinkButton { Content = Str.Shell_Accounts_CreateToken.Text() };
-
-        var connect = new Button { Content = Str.Connect_Connect.Text(), Style = AccentStyle() };
-        var cancel = new Button { Content = Str.Common_Cancel.Text() };
-        cancel.Click += (_, _) => CloseFlow();
-
-        var (status, ring, line) = StatusLine(string.Empty);
-        status.Visibility = Visibility.Collapsed;
-        create.Click += (_, _) => Open(OAuthClients.GitHub.NewTokenPage, line, status);
-
-        var token = ShowFlow(
-            Str.Shell_Accounts_AddGitHubToken.Text(),
-            FluentLayout.Note(Str.Shell_Accounts_GitHubTokenNote.Text()),
-            FluentLayout.Row(KeyGlyph, Str.Shell_Accounts_Token.Text(), null, tokenBox),
-            FluentLayout.Row(Glyphs.Link, Str.Shell_Accounts_ApiAddress.Text(), Str.Shell_Accounts_ApiAddressDesc.Text(), api),
-            FluentLayout.Row(Glyphs.Rename, Str.Connect_Field_Nickname.Text(), null, nickname),
-            Buttons(connect, cancel, create),
-            status);
-
-        connect.Click += (_, _) => _ = RunFormAsync(connect, status, ring, line,
-            () => _service.AddGitHubTokenAsync(tokenBox.Password, api.Text, nickname.Text, token),
-            account => Str.Shell_Accounts_ConnectedGitHub.Format(("name", account.DisplayName)));
-    }
-
     /// <summary>
     /// The one way a form's Connect button runs: busy while the check is out, the verdict on the
     /// line underneath, the flow closed with a confirmation when it worked.
@@ -744,16 +589,7 @@ internal sealed class AccountsPage
         AccountProvider.Imap => Glyphs.Mail,
         AccountProvider.CalDav => Glyphs.Calendar,
         AccountProvider.CardDav => Glyphs.Contact,
-        AccountProvider.GitHub => char.ConvertFromUtf32(0xE943),
-        AccountProvider.Claude => char.ConvertFromUtf32(0xE99A),
         _ => Glyphs.Info,
-    };
-
-    private static StackPanel Labelled(string glyph, string text) => new()
-    {
-        Orientation = Orientation.Horizontal,
-        Spacing = Fluent.Space2,
-        Children = { new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize }, new TextBlock { Text = text } },
     };
 
     private static StackPanel Buttons(params FrameworkElement[] buttons)
@@ -816,36 +652,6 @@ internal sealed class AccountsPage
         foreach (var button in disable)
         {
             button.IsEnabled = false;
-        }
-    }
-
-    private static void Copy(string text, TextBlock line)
-    {
-        try
-        {
-            var package = new DataPackage { RequestedOperation = DataPackageOperation.Copy };
-            package.SetText(text);
-            Clipboard.SetContent(package);
-            Say(line, Str.Shell_Accounts_CodeCopied.Text(), critical: false);
-        }
-        catch (Exception ex)
-        {
-            // Another process can hold the clipboard open; say so rather than claim it copied.
-            Log.Warn(Scope, "could not copy the sign-in code", ex);
-            Say(line, Str.Shell_Accounts_ClipboardBusy.Text(), critical: true);
-        }
-    }
-
-    private static void Open(Uri url, TextBlock line, FrameworkElement? status = null)
-    {
-        if (ShellLauncher.Open(url.AbsoluteUri) != LaunchOutcome.Opened)
-        {
-            if (status is not null)
-            {
-                status.Visibility = Visibility.Visible;
-            }
-
-            Say(line, Str.Shell_Accounts_BrowserFailed.Format(("site", url.Host)), critical: true);
         }
     }
 

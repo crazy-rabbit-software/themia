@@ -63,7 +63,7 @@ internal sealed class NetRefusedException : IOException
 /// slip through. It also asks the system proxy and reads the user's "local network access" switch.
 /// <para>
 /// Every HTTP client the app makes comes from <c>GuardedHttp</c> (web, feeds, favicons, weather,
-/// quotes, accounts, Graph, Google, GitHub, Claude, DAV, OneDrive), and every raw mail connection
+/// quotes, accounts, Graph, Google, DAV), and every raw mail connection
 /// from <c>GuardedTcp</c>; both connect through <see cref="OpenSocketAsync"/>. Not guarded, as in
 /// the original: the camera stream (a LAN camera is its point).
 /// </para>

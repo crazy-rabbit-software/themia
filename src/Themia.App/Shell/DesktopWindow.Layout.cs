@@ -22,8 +22,8 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// Layout: which view this display shows, positioning the cards in it, containers, the hit region
-/// and the snap grid overlay.
+/// Layout: which view this display shows, positioning the cards in it, the hit region and the snap
+/// grid overlay.
 /// </summary>
 internal sealed partial class DesktopWindow
 {
@@ -109,76 +109,16 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// Hand every container the cards it holds, and take those cards off the grid.
-    /// <para>
-    /// Containers are handled after the cards exist and before anything is positioned, because a
-    /// container needs its children as finished cards and the grid needs to know which children it
-    /// is no longer responsible for. The container does not create them: a widget inside a stack is
-    /// the same object with the same lifetime as one on the desktop, so nothing has to be
-    /// special-cased to keep it ticking.
-    /// </para>
-    /// </summary>
-    private void ArrangeContainers(ViewState view)
-    {
-        // Cleared first: a widget that has just left a stack would otherwise keep the suppressed
-        // header the stack gave it, and nothing would ever give it back.
-        foreach (var card in _cards)
-        {
-            card.SuppressHeader(false);
-        }
-
-        foreach (var card in _cards)
-        {
-            if (card.View is not IWidgetContainerView container)
-            {
-                continue;
-            }
-
-            var owns = WidgetTree.OwnsChildGeometry(WidgetTree.ContainerOf(card.Model.Kind));
-            var children = new List<FrameworkElement>();
-
-            foreach (var child in view.ChildrenOf(card.Model.Id))
-            {
-                var childCard = _cards.Find(c => ReferenceEquals(c.Model, child));
-                if (childCard is null)
-                {
-                    continue;
-                }
-
-                // An element has one parent in the visual tree, so a child a container is about to
-                // draw has to leave the widget layer first.
-                if (owns)
-                {
-                    _widgetLayer.Children.Remove(childCard);
-                }
-
-                // [S-867] A stack row is the child's header (the original drew the open child as a
-                // bare body), so the card must not repeat it. A tab strip shows the active child's
-                // own live header under the tabs, as the original did, and a group does not name
-                // its children at all, so theirs stays.
-                childCard.SuppressHeader(WidgetTree.ContainerOf(card.Model.Kind) == ContainerKind.Stack);
-
-                children.Add(childCard);
-            }
-
-            container.SetChildren(children);
-        }
-
-        ApplyPaintOrder(view);
-    }
-
-    /// <summary>
-    /// [S-874] Stack the cards the grid places in the view's paint order: the user's "bring to front"
-    /// and "send to back", with every group directly under its lowest member ([S-415]). Through
-    /// <c>Canvas.ZIndex</c>, never by moving elements in the tree, so nothing is unloaded and
-    /// reloaded — a view that reacts to Unloaded would otherwise restart.
+    /// [S-874] Stack the cards in the view's paint order: the view's widget list, which "bring to
+    /// front" and "send to back" rearrange. Through <c>Canvas.ZIndex</c>, never by moving elements in
+    /// the tree, so nothing is unloaded and reloaded — a view that reacts to Unloaded would otherwise
+    /// restart.
     /// </summary>
     private void ApplyPaintOrder(ViewState view)
     {
-        var order = view.PaintOrder();
-        for (var i = 0; i < order.Count; i++)
+        for (var i = 0; i < view.Widgets.Count; i++)
         {
-            var model = order[i];
+            var model = view.Widgets[i];
             if (_cards.Find(c => ReferenceEquals(c.Model, model)) is { } card)
             {
                 Canvas.SetZIndex(card, i);
@@ -186,8 +126,26 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>Whether a container draws this widget, rather than the grid placing it.</summary>
-    private static bool IsArrangedByContainer(ViewState view, WidgetInstance widget) => !view.IsGridPlaced(widget);
+    /// <summary>The card showing widget <paramref name="widgetId"/> on this surface, if any.</summary>
+    internal WidgetCard? CardFor(string widgetId)
+        => _closed ? null : _cards.Find(c => string.Equals(c.Model.Id, widgetId, StringComparison.Ordinal));
+
+    /// <inheritdoc />
+    public void OnCardFrameChanged(WidgetCard card)
+    {
+        // A card still being built (its view hiding itself during Attach) is positioned by the
+        // relayout that is building it.
+        if (_closed || !_cards.Contains(card))
+        {
+            return;
+        }
+
+        PositionCard(card, card.Model.Rect);
+        ApplyHitRegion();
+    }
+
+    /// <inheritdoc />
+    public void RequestZOrder(WidgetCard card, bool front) => _host.ZOrderSelected(front);
 
     /// <summary>Rebuild the cards for this monitor's view and position them.</summary>
     private void Relayout()
@@ -242,7 +200,7 @@ internal sealed partial class DesktopWindow
         _cards.Clear();
         _cards.AddRange(kept);
 
-        ArrangeContainers(view);
+        ApplyPaintOrder(view);
 
         var contentScale = ContentScale;
 
@@ -251,14 +209,7 @@ internal sealed partial class DesktopWindow
             card.ApplyEditMode(EditMode);
             card.ApplySelection();
             card.ApplyContentScale(contentScale);
-
-            // A widget a stack or a tab strip has taken over is drawn by that container, inside
-            // its rect. Positioning it on the grid as well would leave a second copy somewhere
-            // else on the desktop.
-            if (!IsArrangedByContainer(view, card.Model))
-            {
-                PositionCard(card, card.Model.Rect);
-            }
+            PositionCard(card, card.Model.Rect);
         }
 
         Log.Debug(Scope, $"relayout {_monitor.GdiName}: view='{view.Name}' widgets={wanted.Count} " +
@@ -313,7 +264,7 @@ internal sealed partial class DesktopWindow
         // The card occupies the whole CELL. The gap is applied inside it, so the edit outline and
         // handles trace the cell rather than the painted surface, and changing the gap does not
         // move or resize anything.
-        var cell = DrawnCell(card, rect, metrics);
+        var cell = GridGeometry.ToPixels(rect, metrics);
         Canvas.SetLeft(card, cell.X);
         Canvas.SetTop(card, cell.Y);
         card.Width = cell.Width;
@@ -358,23 +309,19 @@ internal sealed partial class DesktopWindow
         }
 
         var rects = new List<Win32.Rect>(_cards.Count);
-        var view = ViewForThisMonitor(_host.State);
 
         foreach (var card in _cards)
         {
-            // [S-872] A child a stack or tab strip draws is inside its container's rect already —
-            // its own stored rect is only where it returns to, and masking it left a dead patch of
-            // desktop there. A member of a collapsed group draws nothing.
-            if (IsArrangedByContainer(view, card.Model) || card.Visibility == Visibility.Collapsed)
+            if (card.Visibility == Visibility.Collapsed)
             {
                 continue;
             }
 
             // The mask traces the PAINTED surface, not the cell: the gap is empty desktop, so a
             // click there should reach the desktop rather than an invisible widget edge. And it
-            // follows paint ([S-872]): a hidden widget takes nothing, a see-through group its bar.
-            var painted = GridGeometry.Inset(DrawnCell(card, card.Model.Rect, metrics), Design.WidgetGapPx);
-            if (CardFrame.Hit(painted, card.HitInfo(EditMode)) is not { } box)
+            // follows paint ([S-872]): a hidden widget takes nothing.
+            var painted = GridGeometry.Inset(GridGeometry.ToPixels(card.Model.Rect, metrics), Design.WidgetGapPx);
+            if (CardFrame.Hit(painted, card.IsShown(EditMode)) is not { } box)
             {
                 continue;
             }

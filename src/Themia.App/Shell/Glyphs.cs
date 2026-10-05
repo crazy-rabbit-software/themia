@@ -51,7 +51,6 @@ internal static class Glyphs
     public static readonly string Memory = From(0xE964);
     public static readonly string Disk = From(0xEDA2);
     public static readonly string Battery = From(0xE83F);
-    public static readonly string Processes = From(0xE9D9);
     public static readonly string Network = From(0xE968);
     public static readonly string Volume = From(0xE767);
     public static readonly string Gpu = From(0xF211);
@@ -81,10 +80,11 @@ internal static class Glyphs
     public static readonly string Open = From(0xE8E5);
     public static readonly string Power = From(0xE7E8);
 
-    // [S-1242] Power tile actions beyond the shared ones (Power, Reset, Moon, Display).
+    // [S-1910] Power widget glyphs beyond the shared ones (Power, Reset, Moon, Display).
     public static readonly string Lock = From(0xE72E);
     public static readonly string SignOut = From(0xF3B1);
-    public static readonly string Hibernate = From(0xEA38);
+    /// <summary>[S-1910] "Save to this PC": hibernation writes the session to disk. Fluent has no hibernate glyph.</summary>
+    public static readonly string Hibernate = From(0xE78C);
     public static readonly string Signal = From(0xE870);
     public static readonly string Shortcut = From(0xE71B);
     public static readonly string Warning = From(0xE7BA);
@@ -111,8 +111,6 @@ internal static class Glyphs
     public static readonly string Phone = From(0xE8EA);
     public static readonly string Game = From(0xE7FC);
     public static readonly string Pen = From(0xE929);
-    public static readonly string Lightning = From(0xE945);
-    public static readonly string BatterySaver = From(0xEBC0);
     public static readonly string Bluetooth = From(0xE702);
     public static readonly string Weather = From(0xE753);
     public static readonly string Forecast = From(0xE9CA);
@@ -144,15 +142,11 @@ internal static class Glyphs
     public static readonly string Search = From(0xE721);
     public static readonly string Clipboard = From(0xE77F);
     public static readonly string Scratchpad = From(0xE70F);
-    public static readonly string Color = From(0xE790);
     public static readonly string Quote = From(0xE9B2); // [S-652] E9E5 is not in the font: an opening quote mark
     public static readonly string Gallery = From(0xE91B);
     public static readonly string Habit = From(0xE73E);
-    public static readonly string Mood = From(0xE76E);
     public static readonly string Music = From(0xE8D6);
     public static readonly string Group = From(0xF168);
-    public static readonly string Stack = From(0xE81E);
-    public static readonly string Tabs = From(0xE737);
 
     // The system widgets: mixer and screen time (the GPU glyph sits with the other meters).
     public static readonly string Mixer = From(0xE9E9);
@@ -174,8 +168,7 @@ internal static class Glyphs
     // The language row on the General page ([S-1109]): Fluent's LocaleLanguage.
     public static readonly string Language = From(0xF2B7);
 
-    // The app widgets and the About page.
-    public static readonly string Help = From(0xE897);
+    // The About page.
     public static readonly string Themia = From(0xE8A9);
     public static readonly string Home = From(0xE80F);
     public static readonly string Export = From(0xEDE1);
@@ -190,21 +183,14 @@ internal static class Glyphs
     public static readonly string Junk = From(0xE8F8);
     public static readonly string Send = From(0xE724);
 
-    // The Tasks and OneDrive widgets.
-    public static readonly string OneDrive = From(0xE753);
+    // The Tasks widget.
     public static readonly string Back = From(0xE72B);
     public static readonly string Today = From(0xE8BF);
     public static readonly string Important = From(0xE8C9);
-    public static readonly string Document = From(0xE8A5);
-    public static readonly string Spreadsheet = From(0xE80A);
-    public static readonly string Presentation = From(0xE7F4);
-    public static readonly string Audio = From(0xE8D6);
 
-    // The developer widgets (GitHub, Claude usage). Checked against SegoeIcons.ttf's cmap and a
-    // rendered sheet: three joined nodes (a branch), a circled "!", a star, a gauge, a tag.
+    // Checked against SegoeIcons.ttf's cmap and a rendered sheet: three joined nodes (a branch, the
+    // folder's git badge), a gauge (pressure), a tag, a dot.
     public static readonly string PullRequest = From(0xF003);
-    public static readonly string Issue = From(0xE783);
-    public static readonly string Star = From(0xE734);
     public static readonly string Gauge = From(0xEC4A);
     public static readonly string Tag = From(0xE8EC);
     public static readonly string Dot = From(0xE91F);
@@ -219,9 +205,6 @@ internal static class Glyphs
     public static readonly string Checklist = From(0xE9D5);
     public static readonly string ChevronDown = From(0xE70D);
     public static readonly string ChevronUp = From(0xE70E);
-
-    /// <summary>[S-866] Take a widget out of its container.</summary>
-    public static readonly string TakeOut = From(0xE8A7);
 
     /// <summary>[S-913] The view bar's drag handle: upright bars on a row, flat bars on a column.</summary>
     public static readonly string GripperVertical = From(0xE784);

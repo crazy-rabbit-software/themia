@@ -11,21 +11,18 @@ changed. The original Tauri version is on the `main` branch.
 
 ## What is in it
 
-**53 widget types**, in these groups of the Add widget picker:
+**40 widget types**, in these groups of the Add widget picker:
 
 | Group | Widgets |
 |---|---|
 | Time | Clock, Countdown, Pomodoro, Sun & Moon |
-| System | CPU, Memory, Disk, GPU, Network, Ping, Battery, Processes, Volume, Mixer, Power, Bluetooth, Screen time |
+| System | CPU, Memory, Disk, GPU, Network, Ping, Battery, Volume, Mixer, Power, Bluetooth, Screen time |
 | Mail & calendar | Mail, Calendar, Tasks, Contacts (Microsoft, Google, IMAP, CalDAV/CardDAV, a local task list) |
 | Information | Weather, Forecast, Stocks, Feed (RSS/Atom) |
 | Media | Now playing, Gallery, Video stream |
-| Launch | Apps, Shortcuts, Folder, OneDrive, Search |
-| Desk | Notes, Calculator, Clipboard, Scratchpad, Colour, Quote |
-| Trackers | Habits, Mood |
-| Layout | Group, Stack, Tabs (containers), View switcher |
-| Developer | GitHub, Assigned issues, Notifications, Review requests, Claude usage |
-| Themia | Help, Themia |
+| Launch | Shortcuts, Folder |
+| Desk | Notes, Clipboard, Scratchpad, Quote |
+| Trackers | Habits |
 
 Every widget fills the space it is given: it shows more as you make it bigger and sheds detail
 gracefully as you make it smaller.
@@ -54,8 +51,6 @@ Themia has no main window and no notification-area icon. It is wallpaper with wi
   In edit mode **Ctrl+1..9** shows the n-th view. Dragging a widget onto another display moves it there.
 - **Settings:** the toolbar's Settings button, or a widget's menu. Type in *Find a setting* in the title
   bar to jump to any row, including a widget's. Colours are always picked, never typed.
-- **Containers:** drop widgets into a Group, Stack (rolled up to their headers) or Tabs from the picker's
-  "Add to" choice.
 - Keys inside a widget (arrows, Enter, F2, Delete in lists, the calendar, tasks and so on) work after you
   click it; **Escape** gives the keyboard back to the app you were in.
 
@@ -130,7 +125,7 @@ Show Desktop is the one moment the surface is lifted, so the widgets do not vani
   ja, pl, pt, zh) and the language picker are in; replacing the remaining literals is the open step.
 - **Time zones use a mapping table.** The app runs without ICU (`InvariantGlobalization`), so IANA city
   names are mapped to Windows zones from a frozen table; a zone Windows lacks falls back to local time.
-- **Google sign-in** works only in builds made with Google's client secret (Microsoft, GitHub and Claude need none).
+- **Google sign-in** works only in builds made with Google's client secret (Microsoft needs none).
 - **No browser engine.** The Video stream widget plays MJPEG, snapshots, MP4 and HLS through Windows'
   own media stack.
 - **Out of scope on purpose:** a tray icon, an always-on-top pin, pop-out widget windows, an in-app

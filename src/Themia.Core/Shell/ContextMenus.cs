@@ -110,17 +110,11 @@ public enum ShellCommand
     /// <summary>A divider.</summary>
     Separator,
 
-    /// <summary>[S-870] Open the picker with this container as the target.</summary>
-    AddInside,
-
     /// <summary>The widget's settings page.</summary>
     Configure,
 
     /// <summary>Where the widget view's own commands go (refresh, pause); the view supplies them.</summary>
     WidgetActions,
-
-    /// <summary>The "Move into" submenu of containers that will take the widget.</summary>
-    MoveInto,
 
     BringToFront,
     SendToBack,
@@ -140,7 +134,7 @@ public enum ShellCommand
     /// <summary>[S-1744] The picker, opened where the right-click was.</summary>
     AddWidget,
 
-    /// <summary>[S-1582] Every widget the grid places on this display.</summary>
+    /// <summary>[S-1582] Every widget on this display.</summary>
     SelectAll,
 
     /// <summary>[S-06] The grid snap aid, as on the toolbar.</summary>
@@ -174,18 +168,12 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
 
 /// <summary>What a widget card's menu depends on, read when it opens.</summary>
 /// <param name="EditMode">Whether the desktop is in edit mode.</param>
-/// <param name="CanAddInside">The widget is a container that will take one more widget.</param>
-/// <param name="HasMoveTargets">"Move into" has somewhere to offer (a container, or out to the desktop).</param>
-/// <param name="PlacedByGrid">The grid places it (a stack's or tab strip's child is laid out by its container).</param>
 /// <param name="CanBringToFront">It is not already in front of everything it overlaps.</param>
 /// <param name="CanSendToBack">It is not already behind everything it overlaps.</param>
 /// <param name="SelectionCount">How many widgets the commands act on ([S-1592]).</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
 public readonly record struct CardMenuFacts(
     bool EditMode,
-    bool CanAddInside,
-    bool HasMoveTargets,
-    bool PlacedByGrid,
     bool CanBringToFront,
     bool CanSendToBack,
     int SelectionCount,
@@ -195,7 +183,7 @@ public readonly record struct CardMenuFacts(
 /// <param name="EditMode">Whether the desktop is in edit mode; outside it empty surface is click-through.</param>
 /// <param name="Placing">A placement is under way: then a right-click cancels it ([S-1587]) and opens nothing.</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
-/// <param name="HasWidgets">The display shows at least one widget the grid places.</param>
+/// <param name="HasWidgets">The display shows at least one widget.</param>
 /// <param name="GridSnap">The grid snap aid is on.</param>
 public readonly record struct SurfaceMenuFacts(bool EditMode, bool Placing, bool CanPaste, bool HasWidgets, bool GridSnap);
 
@@ -204,8 +192,8 @@ public static class ShellMenus
 {
     /// <summary>
     /// [S-1743] A widget card's menu. The icon row is Cut, Copy, Paste, Duplicate, Settings and
-    /// Delete ([S-1740]); the list holds Add inside (containers), the view's own commands, Move into,
-    /// the layering pair, Move, and entering or leaving edit mode. Nothing on it changes how the
+    /// Delete ([S-1740]); the list holds the view's own commands, the layering pair, Move, and
+    /// entering or leaving edit mode. Nothing on it changes how the
     /// widget looks: that lives in its settings ([S-1746]).
     /// </summary>
     public static IReadOnlyList<ShellMenuItem> ForCard(CardMenuFacts facts)
@@ -221,25 +209,10 @@ public static class ShellMenus
             new(ShellCommand.Delete),
         };
 
-        if (facts.CanAddInside)
-        {
-            items.Add(new(ShellCommand.AddInside));
-        }
-
         items.Add(new(ShellCommand.WidgetActions));
         items.Add(ShellMenuItem.Divider);
-
-        if (facts.HasMoveTargets)
-        {
-            items.Add(new(ShellCommand.MoveInto));
-        }
-
-        if (facts.PlacedByGrid)
-        {
-            items.Add(new(ShellCommand.BringToFront, Enabled: many || facts.CanBringToFront));
-            items.Add(new(ShellCommand.SendToBack, Enabled: many || facts.CanSendToBack));
-        }
-
+        items.Add(new(ShellCommand.BringToFront, Enabled: many || facts.CanBringToFront));
+        items.Add(new(ShellCommand.SendToBack, Enabled: many || facts.CanSendToBack));
         items.Add(new(ShellCommand.Move));
         items.Add(ShellMenuItem.Divider);
         items.Add(new(ShellCommand.ToggleEditMode));
@@ -275,7 +248,7 @@ public static class ShellMenus
 /// <summary>What a left-button press on a widget card in edit mode starts.</summary>
 public enum CardPress
 {
-    /// <summary>Nothing: not edit mode, not the left button, or a container lays the widget out.</summary>
+    /// <summary>Nothing: not edit mode, or not the left button.</summary>
     None,
 
     /// <summary>[S-1580] Ctrl+click: in or out of the selection, and nothing else.</summary>
@@ -295,9 +268,9 @@ public static class CardGestures
     public const double DragThreshold = 3;
 
     /// <summary>What a press starts.</summary>
-    public static CardPress Press(bool editMode, bool leftButton, bool laidOutByContainer, bool ctrl, bool onHandle)
+    public static CardPress Press(bool editMode, bool leftButton, bool ctrl, bool onHandle)
     {
-        if (!editMode || !leftButton || laidOutByContainer)
+        if (!editMode || !leftButton)
         {
             return CardPress.None;
         }

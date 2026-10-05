@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 /// inside the widget (outside edit mode the card does not drag).
 /// </para>
 /// </summary>
-internal sealed partial class MusicSeekBar : Grid
+internal sealed partial class MusicSeekBar : Grid, IOwnsClicks
 {
     /// <summary>The visible line.</summary>
     private const double TrackHeight = 4;

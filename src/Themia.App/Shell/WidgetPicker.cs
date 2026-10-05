@@ -12,21 +12,13 @@ using Windows.System;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-955] Where a picked widget goes: onto the desktop through click-to-place (no container), or
-/// straight into a container on this display.
-/// </summary>
-/// <param name="ContainerId">The container, or null for the desktop.</param>
-/// <param name="Name">What the "Add to" box shows.</param>
-internal sealed record PickerTarget(string? ContainerId, string Name);
-
-/// <summary>
-/// [S-420, S-948, S-949] The body of the Add-widget picker: a search box, an "Add to" choice when
-/// this display has containers, and the widgets — in category columns while the box is empty, as
-/// one flat list ranked by <see cref="WidgetSearch"/> while it is not.
+/// [S-420, S-948, S-949] The body of the Add-widget picker: a search box and the widgets — in
+/// category columns while the box is empty, as one flat list ranked by <see cref="WidgetSearch"/>
+/// while it is not.
 /// <para>
 /// Its own control rather than code inside the surface, so the debug render can draw the open
 /// picker off-screen without a desktop window, and so the flyout can rebuild it on every open with
-/// the targets and the developer-mode gate as they are now.
+/// the names in the current language.
 /// </para>
 /// <para>
 /// Keyboard: the search box has focus as soon as the picker opens, so typing searches. Up and Down
@@ -65,8 +57,7 @@ internal sealed partial class WidgetPicker : Grid
     }
 
     private readonly IReadOnlyList<WidgetDefinition> _offered;
-    private readonly IReadOnlyList<PickerTarget> _targets;
-    private readonly Action<WidgetDefinition, PickerTarget> _pick;
+    private readonly Action<WidgetDefinition> _pick;
     private readonly Action _close;
 
     private readonly TextBox _search;
@@ -78,27 +69,12 @@ internal sealed partial class WidgetPicker : Grid
     private readonly List<(Button Button, WidgetDefinition Definition)> _cursorItems = [];
     private readonly List<(Button Button, WidgetDefinition Definition)> _columnItems = [];
 
-    private PickerTarget _target;
     private int _cursor = -1;
 
-    /// <param name="targets">The desktop first, then the containers on this display that will take a widget.</param>
-    /// <param name="initialTarget">Index into <paramref name="targets"/> to start on.</param>
-    /// <param name="pick">Runs when a widget is chosen, with where it should go.</param>
+    /// <param name="pick">Runs when a widget is chosen.</param>
     /// <param name="close">Runs on Escape.</param>
-    public WidgetPicker(
-        IReadOnlyList<PickerTarget> targets,
-        int initialTarget,
-        Action<WidgetDefinition, PickerTarget> pick,
-        Action close)
+    public WidgetPicker(Action<WidgetDefinition> pick, Action close)
     {
-        ArgumentNullException.ThrowIfNull(targets);
-        if (targets.Count == 0)
-        {
-            throw new ArgumentException("the picker needs at least the desktop as a target", nameof(targets));
-        }
-
-        _targets = targets;
-        _target = targets[Math.Clamp(initialTarget, 0, targets.Count - 1)];
         _pick = pick;
         _close = close;
         _offered = [.. WidgetCatalog.All];
@@ -118,19 +94,7 @@ internal sealed partial class WidgetPicker : Grid
         _search.TextChanged += (_, _) => Refresh();
         _search.PreviewKeyDown += OnSearchKeyDown;
 
-        var header = new Grid { ColumnSpacing = Fluent.Space4 };
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        header.Children.Add(_search);
-
-        if (targets.Count > 1)
-        {
-            var into = BuildTargetChoice();
-            SetColumn(into, 1);
-            header.Children.Add(into);
-        }
-
-        Children.Add(header);
+        Children.Add(_search);
 
         _columns = BuildColumns();
         _results = new StackPanel();
@@ -158,50 +122,6 @@ internal sealed partial class WidgetPicker : Grid
 
     private static (IndexedWidget, WidgetDefinition)[] BuildIndex()
         => [.. WidgetCatalog.All.Select(d => (WidgetSearch.Index(WidgetCatalog.SearchDoc(d)), d))];
-
-    private FrameworkElement BuildTargetChoice()
-    {
-        var label = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        label.Text = Str.Shell_Picker_AddTo.Text();
-        label.VerticalAlignment = VerticalAlignment.Center;
-
-        var choice = new ComboBox { MinWidth = 160, VerticalAlignment = VerticalAlignment.Center };
-        AutomationProperties.SetName(choice, Str.Shell_Picker_AddTo.Text());
-
-        foreach (var target in _targets)
-        {
-            choice.Items.Add(target.Name);
-        }
-
-        choice.SelectedIndex = IndexOfTarget(_target);
-        choice.SelectionChanged += (_, _) =>
-        {
-            if (choice.SelectedIndex >= 0 && choice.SelectedIndex < _targets.Count)
-            {
-                _target = _targets[choice.SelectedIndex];
-            }
-        };
-
-        return new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            Children = { label, choice },
-        };
-    }
-
-    private int IndexOfTarget(PickerTarget target)
-    {
-        for (var i = 0; i < _targets.Count; i++)
-        {
-            if (ReferenceEquals(_targets[i], target))
-            {
-                return i;
-            }
-        }
-
-        return 0;
-    }
 
     /// <summary>[S-420] Every offered widget in category sections, balanced across columns.</summary>
     private Grid BuildColumns()
@@ -366,7 +286,7 @@ internal sealed partial class WidgetPicker : Grid
     {
         try
         {
-            _pick(definition, _target);
+            _pick(definition);
         }
         catch (Exception ex)
         {

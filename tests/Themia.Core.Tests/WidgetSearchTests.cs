@@ -25,7 +25,8 @@ public sealed class WidgetSearchTests
             ["Live upload and download speeds"], ["System"]),
         new("cpu", ["CPU Monitor"], WidgetKeywords.For(WidgetKind.Cpu),
             ["Live CPU usage and per-core load"], ["System"]),
-        new("githubNotifications", ["GitHub Notifications"], WidgetKeywords.For(WidgetKind.GitHubNotifications),
+        // Not a widget any more: a document with a camel-case key and a provider, for the matcher alone.
+        new("githubNotifications", ["GitHub Notifications"], ["git", "repo", "inbox", "mentions", "alerts"],
             ["Your GitHub notifications across all selected accounts"], ["Online"], ["GitHub"]),
         new("pomodoro", ["Pomodoro"], WidgetKeywords.For(WidgetKind.Pomodoro),
             ["Focus timer with work and break cycles"], ["Others"]),

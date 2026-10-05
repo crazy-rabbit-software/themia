@@ -10,7 +10,6 @@ public sealed record WidgetShape(
     double H,
     string? Label,
     WidgetSurface Surface,
-    string? ParentId,
     HeaderPlacement Header,
     WidgetConfig Config)
 {
@@ -18,7 +17,7 @@ public sealed record WidgetShape(
     {
         ArgumentNullException.ThrowIfNull(widget);
         return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Surface, widget.ParentId, widget.Header, widget.Config);
+            widget.Surface, widget.Header, widget.Config);
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -27,7 +26,7 @@ public sealed record WidgetShape(
         ArgumentNullException.ThrowIfNull(other);
         return Id == other.Id && Kind == other.Kind
             && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
-            && Label == other.Label && Surface == other.Surface && ParentId == other.ParentId && Header == other.Header;
+            && Label == other.Label && Surface == other.Surface && Header == other.Header;
     }
 }
 
@@ -36,10 +35,10 @@ public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyLi
 
 /// <summary>
 /// [S-886] The part of the state an undo restores: the views, their names, icons and order, and every
-/// widget's kind, geometry, z-order, container, header, surface and title.
+/// widget's kind, geometry, z-order, header, surface and title.
 /// <para>
-/// <b>Not</b> the widgets' content. A config is the widget's own data — the text of a note, a tab
-/// a stack has open, a timer's state — and is changed by using the widget, not by arranging the
+/// <b>Not</b> the widgets' content. A config is the widget's own data — the text of a note, a
+/// timer's state — and is changed by using the widget, not by arranging the
 /// desktop. Undoing a move must not also take back the sentence typed into a note since, so a
 /// restore keeps every surviving widget's <i>current</i> config. A snapshot still holds each config
 /// by reference (no copy), which is exactly what a widget that the undo brings back needs: a
@@ -162,7 +161,6 @@ public sealed class LayoutShape
                     widget.H = w.H;
                     widget.Label = w.Label;
                     widget.Surface = w.Surface;
-                    widget.ParentId = w.ParentId;
                     widget.Header = w.Header;
                 }
                 else
@@ -177,7 +175,6 @@ public sealed class LayoutShape
                         H = w.H,
                         Label = w.Label,
                         Surface = w.Surface,
-                        ParentId = w.ParentId,
                         Header = w.Header,
                         Config = w.Config,
                     };

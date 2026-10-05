@@ -111,53 +111,6 @@ public sealed class LauncherPersistenceTests : IDisposable
     }
 
     [Fact]
-    public async Task A_search_engine_survives_a_round_trip_as_a_name_rather_than_a_number()
-    {
-        var config = new WebSearchConfig
-        {
-            Engine = SearchEngine.Custom,
-            CustomTemplate = "https://example.com/find?q=%s",
-            ClearAfterSearch = false,
-        };
-
-        var reloaded = Assert.IsType<WebSearchConfig>(await RoundTripAsync(config));
-
-        Assert.Equal(SearchEngine.Custom, reloaded.Engine);
-        Assert.Equal("https://example.com/find?q=%s", reloaded.CustomTemplate);
-        Assert.False(reloaded.ClearAfterSearch);
-
-        // Written as a name, so a later reordering of the enum cannot silently change which engine
-        // a saved config means.
-        Assert.Contains("\"Custom\"", File.ReadAllText(_path), StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public async Task The_apps_settings_survive_a_round_trip()
-    {
-        var config = new AppsConfig
-        {
-            View = AppsViewMode.Compact,
-            ShowFilter = false,
-            GroupByFolder = false,
-            ClickMode = ItemClickMode.Single,
-            MaxCount = 50,
-            HiddenCategories = ["", "Games"],
-            HiddenApps = [@"C:\Menu\Chess.lnk"],
-        };
-
-        var reloaded = Assert.IsType<AppsConfig>(await RoundTripAsync(config));
-
-        Assert.Equal(AppsViewMode.Compact, reloaded.View);
-        Assert.False(reloaded.ShowFilter);
-        Assert.False(reloaded.GroupByFolder);
-        Assert.Equal(ItemClickMode.Single, reloaded.ClickMode);
-        Assert.Equal(50, reloaded.MaxCount);
-        Assert.Equal(["", "Games"], reloaded.HiddenCategories);
-        Assert.Equal([@"C:\Menu\Chess.lnk"], reloaded.HiddenApps);
-        Assert.Contains("\"Compact\"", File.ReadAllText(_path), StringComparison.Ordinal);
-    }
-
-    [Fact]
     public async Task The_clipboard_settings_survive_a_round_trip_and_carry_no_history()
     {
         var config = new ClipboardConfig { Capacity = 40, ShowTimestamp = false };

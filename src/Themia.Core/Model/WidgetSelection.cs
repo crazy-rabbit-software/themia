@@ -139,22 +139,9 @@ public sealed class WidgetSelection
 public static class SelectionRules
 {
     /// <summary>
-    /// Whether the grid places this widget: everything except a child a stack or tab strip lays out,
-    /// whose stored rect is only where it returns to ([S-411]).
-    /// </summary>
-    public static bool IsGridPlaced(this ViewState view, WidgetInstance widget)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        ArgumentNullException.ThrowIfNull(widget);
-
-        var parent = view.Find(widget.ParentId);
-        return parent is null || !WidgetTree.OwnsChildGeometry(WidgetTree.ContainerOf(parent.Kind));
-    }
-
-    /// <summary>
-    /// [S-1581] The widgets a rubber band touches: every grid-placed widget whose cell overlaps it
-    /// by any area, in view order. <paramref name="hidden"/> are left out (a collapsed group's members,
-    /// which draw nothing). A band of no area touches nothing.
+    /// [S-1581] The widgets a rubber band touches: every widget whose cell overlaps it by any area,
+    /// in view order. <paramref name="hidden"/> are left out (cards that draw nothing). A band of no
+    /// area touches nothing.
     /// </summary>
     public static List<string> Lasso(ViewState view, FracRect band, IReadOnlySet<string>? hidden = null)
     {
@@ -168,7 +155,7 @@ public static class SelectionRules
 
         foreach (var widget in view.Widgets)
         {
-            if (hidden?.Contains(widget.Id) == true || !view.IsGridPlaced(widget))
+            if (hidden?.Contains(widget.Id) == true)
             {
                 continue;
             }
@@ -183,67 +170,23 @@ public static class SelectionRules
         return hits;
     }
 
-    /// <summary>[S-1582] Ctrl+A: every grid-placed widget of the view, less the hidden ones.</summary>
+    /// <summary>[S-1582] Ctrl+A: every widget of the view, less the hidden ones.</summary>
     public static List<string> All(ViewState view, IReadOnlySet<string>? hidden = null)
     {
         ArgumentNullException.ThrowIfNull(view);
-        return [.. view.Widgets.Where(w => hidden?.Contains(w.Id) != true && view.IsGridPlaced(w)).Select(w => w.Id)];
+        return [.. view.Widgets.Where(w => hidden?.Contains(w.Id) != true).Select(w => w.Id)];
     }
 
     /// <summary>
-    /// [S-1588] The selected widgets with no selected ancestor, in view order: a container in the
-    /// selection already carries what it holds ([S-876]), so its selected members are not taken twice.
-    /// Ids not in the view are ignored.
+    /// [S-1584]/[S-1588] The selected widgets that are in the view, in view order: what a drag moves
+    /// and what a copy or move takes. Ids not in the view are ignored.
     /// </summary>
-    public static List<string> TopLevel(ViewState view, IEnumerable<string> ids)
+    public static List<string> InView(ViewState view, IEnumerable<string> ids)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(ids);
 
         var picked = new HashSet<string>(ids, StringComparer.Ordinal);
-        var result = new List<string>();
-
-        foreach (var widget in view.Widgets)
-        {
-            if (!picked.Contains(widget.Id))
-            {
-                continue;
-            }
-
-            var covered = false;
-
-            // Bounded by the view's size: a cycle the load-time repair has not seen yet stops
-            // rather than spins.
-            var steps = 0;
-            for (var parent = view.Find(widget.ParentId); parent is not null && steps++ < view.Widgets.Count; parent = view.Find(parent.ParentId))
-            {
-                if (picked.Contains(parent.Id) && !string.Equals(parent.Id, widget.Id, StringComparison.Ordinal))
-                {
-                    covered = true;
-                    break;
-                }
-            }
-
-            if (!covered)
-            {
-                result.Add(widget.Id);
-            }
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// [S-1584] What a drag of the selection moves: the selected widgets the grid places, in view
-    /// order. Not reduced to the top level — a group does not move its members ([S-411]), so a
-    /// member the user selected along with its group has to be moved in its own right.
-    /// </summary>
-    public static List<string> Movable(ViewState view, IEnumerable<string> ids)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        ArgumentNullException.ThrowIfNull(ids);
-
-        var picked = new HashSet<string>(ids, StringComparer.Ordinal);
-        return [.. view.Widgets.Where(w => picked.Contains(w.Id) && view.IsGridPlaced(w)).Select(w => w.Id)];
+        return [.. view.Widgets.Where(w => picked.Contains(w.Id)).Select(w => w.Id)];
     }
 }

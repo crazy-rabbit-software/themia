@@ -1,0 +1,271 @@
+#if DEBUG
+using Microsoft.UI;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Themia.App.Interop;
+using Themia.App.Services;
+using Themia.App.Widgets;
+using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
+using Themia.Core.Model;
+using Themia.Core.Widgets;
+using Windows.Graphics;
+
+namespace Themia.App.Shell.Gallery;
+
+/// <summary>
+/// Debug renders only: a view that can show a state a render cannot click or hover its way into
+/// (an armed button, a hovered row). Optional; <c>--widget-png --state</c> uses it.
+/// </summary>
+internal interface IWidgetPreviewState
+{
+    /// <summary>The state names this view understands.</summary>
+    IReadOnlyList<string> PreviewStates { get; }
+
+    /// <summary>Show <paramref name="state"/>; an unknown name changes nothing.</summary>
+    Task ShowPreviewStateAsync(string state);
+}
+
+/// <summary>
+/// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
+/// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
+/// [--state name]</c>. Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
+/// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
+/// </summary>
+internal static class WidgetRender
+{
+    private const string Scope = "widget-render";
+    private const string Flag = "--widget-png";
+
+    /// <summary>Space between frames and around the page, in DIPs.</summary>
+    private const double Gap = 24;
+
+    /// <summary>Height reserved above each frame for its size label.</summary>
+    private const double LabelHeight = 22;
+
+    /// <summary>Which row each tier sits on: four across the top, Tall and L under them, XL alone.</summary>
+    private static readonly int[] RowOf = [0, 0, 0, 0, 1, 1, 2];
+
+    /// <summary>The application theme can only be chosen before the resources load: read by <c>App</c>.</summary>
+    public static ApplicationTheme? RequestedTheme(string[] args)
+    {
+        if (Array.IndexOf(args, Flag) < 0)
+        {
+            return null;
+        }
+
+        return Option(args, "--theme")?.ToLowerInvariant() switch
+        {
+            "light" => ApplicationTheme.Light,
+            "dark" => ApplicationTheme.Dark,
+            _ => null,
+        };
+    }
+
+    public static bool TryRunFromCommandLine(Application app, string[] args)
+    {
+        var at = Array.IndexOf(args, Flag);
+        if (at < 0)
+        {
+            return false;
+        }
+
+        if (at + 2 >= args.Length
+            || !Enum.TryParse<WidgetKind>(args[at + 1], ignoreCase: true, out var kind)
+            || !Enum.IsDefined(kind)
+            || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
+        {
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name]");
+            app.Exit();
+            return true;
+        }
+
+        var outPath = System.IO.Path.GetFullPath(args[at + 2]);
+        var state = Option(args, "--state");
+        List<WidgetTier> tiers = Size(args, at + 3) is { } size
+            ? [new WidgetTier($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
+            : [.. WidgetTiers.All];
+
+        _ = dispatcher.TryEnqueue(async () =>
+        {
+            Window? window = null;
+            Ticker? ticker = null;
+            var cards = new List<WidgetCard>();
+
+            try
+            {
+                // The themed brushes follow the design's theme, not the application's: set both.
+                DesignApplier.Apply(new DesignState
+                {
+                    Theme = RequestedTheme(args) switch
+                    {
+                        ApplicationTheme.Light => AppTheme.Light,
+                        ApplicationTheme.Dark => AppTheme.Dark,
+                        _ => AppTheme.System,
+                    },
+                });
+
+                var (width, height) = PageSize(tiers);
+                var page = new Canvas
+                {
+                    Width = width,
+                    Height = height,
+                    Background = DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
+                };
+
+                window = new Window { Content = new Grid { Children = { page } }, Title = "Themia widget render" };
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                var dpi = Win32.GetDpiForWindow(hwnd);
+                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
+
+                // Off-screen and never activated: it must not appear on the user's desktop.
+                window.AppWindow.Move(new PointInt32(-32000, -32000));
+                window.AppWindow.Resize(new SizeInt32((int)((width + 40) * scale), (int)((height + 80) * scale)));
+                window.AppWindow.Show(activateWindow: false);
+
+                ticker = new Ticker(dispatcher);
+                var host = new NoticeRender.RenderCardHost(ticker);
+                Place(page, host, kind, tiers, cards);
+                await Task.Delay(800).ConfigureAwait(true);
+
+                if (state is not null)
+                {
+                    foreach (var card in cards)
+                    {
+                        if (card.View is IWidgetPreviewState preview)
+                        {
+                            if (!preview.PreviewStates.Contains(state, StringComparer.Ordinal))
+                            {
+                                Console.WriteLine($"widget: {kind} has no state '{state}' (has: {string.Join(", ", preview.PreviewStates)})");
+                            }
+
+                            await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"widget: {kind} has no preview states");
+                        }
+                    }
+
+                    await Task.Delay(400).ConfigureAwait(true);
+                }
+
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
+                await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
+                Console.WriteLine($"widget: wrote {outPath}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, "rendering the widget failed", ex);
+                Console.WriteLine($"widget: failed: {ex.Message}");
+            }
+            finally
+            {
+                foreach (var card in cards)
+                {
+                    card.Detach();
+                }
+
+                ticker?.Dispose();
+                window?.Close();
+                app.Exit();
+            }
+        });
+
+        return true;
+    }
+
+    /// <summary>One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).</summary>
+    private static void Place(Canvas page, IWidgetCardHost host, WidgetKind kind, List<WidgetTier> tiers, List<WidgetCard> cards)
+    {
+        var rows = Rows(tiers);
+        var x = new double[rows.Count];
+        var top = new double[rows.Count];
+
+        for (var row = 0; row < rows.Count; row++)
+        {
+            x[row] = Gap;
+            top[row] = row == 0 ? Gap : top[row - 1] + LabelHeight + rows[row - 1].Max(t => t.Height) + Gap;
+        }
+
+        for (var row = 0; row < rows.Count; row++)
+        {
+            foreach (var tier in rows[row])
+            {
+                var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+                label.Text = $"{tier.Name}  {tier.Width:0} x {tier.Height:0}";
+                Canvas.SetLeft(label, x[row]);
+                Canvas.SetTop(label, top[row]);
+                page.Children.Add(label);
+
+                var card = new WidgetCard(host, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)))
+                {
+                    Width = tier.Width,
+                    Height = tier.Height,
+                };
+
+                // The size is the painted card: there is no neighbour for the gap to separate.
+                card.ApplyGap(0);
+                Canvas.SetLeft(card, x[row]);
+                Canvas.SetTop(card, top[row] + LabelHeight);
+                page.Children.Add(card);
+                cards.Add(card);
+
+                x[row] += tier.Width + Gap;
+            }
+        }
+    }
+
+    private static List<List<WidgetTier>> Rows(List<WidgetTier> tiers)
+    {
+        if (tiers.Count != RowOf.Length)
+        {
+            return [tiers];
+        }
+
+        var rows = new List<List<WidgetTier>>();
+        for (var i = 0; i < tiers.Count; i++)
+        {
+            while (rows.Count <= RowOf[i])
+            {
+                rows.Add([]);
+            }
+
+            rows[RowOf[i]].Add(tiers[i]);
+        }
+
+        return rows;
+    }
+
+    private static (double Width, double Height) PageSize(List<WidgetTier> tiers)
+    {
+        var rows = Rows(tiers);
+        var width = rows.Max(r => r.Sum(t => t.Width + Gap)) + Gap;
+        var height = Gap + rows.Sum(r => LabelHeight + r.Max(t => t.Height) + Gap);
+        return (width, height);
+    }
+
+    /// <summary>An optional "w h" pair right after the output path.</summary>
+    private static (double Width, double Height)? Size(string[] args, int at)
+    {
+        if (at + 1 < args.Length
+            && double.TryParse(args[at], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var w)
+            && double.TryParse(args[at + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var h)
+            && w >= 40 && h >= 40 && w <= 2000 && h <= 2000)
+        {
+            return (w, h);
+        }
+
+        return null;
+    }
+
+    private static string? Option(string[] args, string name)
+    {
+        var at = Array.IndexOf(args, name);
+        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
+    }
+}
+#endif

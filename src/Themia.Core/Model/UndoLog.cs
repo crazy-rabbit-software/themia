@@ -11,7 +11,7 @@ public enum UndoAction
     /// <summary>Anything without a more specific name: a settings-page edit to a widget's header, surface or title, a view's name or icon.</summary>
     Change = 0,
 
-    /// <summary>A widget placed from the picker or added into a container.</summary>
+    /// <summary>A widget placed from the picker.</summary>
     Add = 1,
 
     /// <summary>Widgets removed.</summary>
@@ -31,9 +31,6 @@ public enum UndoAction
 
     /// <summary>Bring to front / send to back.</summary>
     Arrange = 7,
-
-    /// <summary>A widget moved into or out of a container, or a container's own arrangement changed.</summary>
-    Container = 8,
 
     /// <summary>A view created.</summary>
     AddView = 9,
@@ -64,7 +61,6 @@ public static class UndoText
         UndoAction.Paste => Str.Shell_Undo_Paste,
         UndoAction.Duplicate => Str.Shell_Undo_Duplicate,
         UndoAction.Arrange => Str.Shell_Undo_Arrange,
-        UndoAction.Container => Str.Shell_Undo_Container,
         UndoAction.AddView => Str.Shell_Undo_AddView,
         UndoAction.DeleteView => Str.Shell_Undo_DeleteView,
         UndoAction.DuplicateView => Str.Shell_Undo_DuplicateView,

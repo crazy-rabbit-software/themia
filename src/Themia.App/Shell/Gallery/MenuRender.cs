@@ -78,13 +78,12 @@ internal static class MenuRender
 
                 ticker = new Ticker(dispatcher);
 
-                // A view with a group, so "Move into" has somewhere to go.
+                // A view with a second widget, so the layering commands have something to act on.
                 var view = ViewState.Create("Render");
                 var clock = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.1, 0.1, 0.2, 0.2));
-                var group = WidgetInstance.Create(WidgetKind.Group, new FracRect(0.5, 0.1, 0.3, 0.4));
-                group.Label = "Sidebar";
+                var notes = WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.5, 0.1, 0.3, 0.4));
                 view.Widgets.Add(clock);
-                view.Widgets.Add(group);
+                view.Widgets.Add(notes);
 
                 var host = new MenuRenderHost(ticker, view);
                 var card = new WidgetCard(host, clock) { Width = 200, Height = 160 };
@@ -218,8 +217,6 @@ internal static class MenuRender
 
         public int SelectionCount => _selection;
 
-        public IWidgetDisplay? Display => null;
-
         public bool IsPreview => true;
 
         public bool IsSelected(WidgetCard card) => true;
@@ -270,11 +267,6 @@ internal static class MenuRender
         }
 
         public void RequestPaste()
-        {
-            // ignore: as above
-        }
-
-        public void RequestReparent(WidgetCard card, string? containerId)
         {
             // ignore: as above
         }

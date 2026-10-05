@@ -108,7 +108,7 @@ internal sealed class RequestTemplate
 
 /// <summary>
 /// [S-526] The one HTTP path every account request takes: sign-in endpoints, token refresh, Graph,
-/// Google, GitHub, Anthropic and DAV.
+/// Google and DAV.
 /// <para>
 /// One client for all of it (pooled connections, a real user agent, a connect timeout well short of
 /// the request deadline), and redirects followed by hand: the framework's own following drops the
@@ -133,8 +133,8 @@ internal static class AccountHttp
     private const int MaxBytes = 16 * 1024 * 1024;
 
     /// <summary>
-    /// [S-960]/[S-965] The guarded client: every connection — Microsoft, Google, GitHub, Anthropic,
-    /// and the DAV and GitHub servers a user typed in — resolves, is judged and connects through
+    /// [S-960]/[S-965] The guarded client: every connection — Microsoft, Google, and the DAV
+    /// servers a user typed in — resolves, is judged and connects through
     /// <see cref="Web.NetGuard"/>, so a server on this machine or the local network (a NAS) is reached
     /// exactly when the user's "local network access" switch is on. The deadline is per request (a
     /// linked token), so the client itself never times a request out on its own schedule. A DAV

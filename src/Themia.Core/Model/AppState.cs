@@ -24,17 +24,6 @@ public sealed class WidgetInstance
 
     public WidgetSurface Surface { get; set; } = WidgetSurface.Card;
 
-    /// <summary>
-    /// The container this widget belongs to, or null for one sitting directly on the desktop.
-    /// <para>
-    /// A parent id rather than a list of children on the container: membership is then stated in
-    /// exactly one place, so a widget cannot be in two containers at once and a container cannot
-    /// list a widget that no longer exists. The cost is that finding a container's children is a
-    /// scan of the view, which at a desktop's worth of widgets is nothing.
-    /// </para>
-    /// </summary>
-    public string? ParentId { get; set; }
-
     /// <summary>Where the widget's header sits. A per-widget choice, like the surface.</summary>
     public HeaderPlacement Header { get; set; } = HeaderPlacement.Top;
 
@@ -67,25 +56,19 @@ public sealed class WidgetInstance
     };
 
     /// <summary>
-    /// [S-485] Where a new widget's header goes. Top for everything except the two widgets that are
-    /// themselves a piece of chrome: the Themia mark is its own label, and a view switcher is a row
-    /// of buttons whose names already say what it is. A header on either is the same word twice.
-    /// Only the default: the user can still give either one a header.
+    /// [S-700] Where a new widget's header goes. Top for everything except the clock, which starts
+    /// headerless as it did in the original: a single readout says what it is, and at the small
+    /// sizes it is usually placed at, a header would take a third of the card. Only the default:
+    /// the user can still give it a header, and a saved widget keeps the placement it was saved with.
     /// <para>
-    /// [S-700] Calculator, Clock, Colour swatch and Web search start headerless too, as they did in
-    /// the original: each is a single readout or field whose content says what it is, and at the
-    /// small sizes they are usually placed at, a header would take a third of the card. Widgets
-    /// already saved keep the placement they were saved with; this is only read on creation.
+    /// [S-1911] The power widgets start headerless too: the whole tile is the button, and its name
+    /// is already under the icon.
     /// </para>
     /// </summary>
     public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
     {
-        WidgetKind.Themia or WidgetKind.ViewSwitcher => HeaderPlacement.Hidden,
-        WidgetKind.Calculator or WidgetKind.Clock or WidgetKind.ColorSwatch or WidgetKind.WebSearch => HeaderPlacement.Hidden,
-
-        // [S-867] A stack's rows and a tab strip are their own chrome (the original drew them with
-        // no widget header): a "Stack" title over a list of names is a header over headers.
-        WidgetKind.Stack or WidgetKind.Tabs => HeaderPlacement.Hidden,
+        WidgetKind.Clock => HeaderPlacement.Hidden,
+        _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
         _ => HeaderPlacement.Top,
     };
 
@@ -95,7 +78,6 @@ public sealed class WidgetInstance
         Kind = Kind,
         Label = Label,
         Surface = Surface,
-        ParentId = ParentId,
         Header = Header,
         Config = Config.Clone(),
         X = X,
@@ -119,6 +101,10 @@ public sealed class ViewState
     public string? Icon { get; set; }
 
     public List<WidgetInstance> Widgets { get; set; } = [];
+
+    /// <summary>Find a widget in this view by id, or null.</summary>
+    public WidgetInstance? Find(string? id)
+        => string.IsNullOrEmpty(id) ? null : Widgets.Find(w => string.Equals(w.Id, id, StringComparison.Ordinal));
 
     public static ViewState Create(string name) => new()
     {
@@ -271,18 +257,16 @@ public sealed class AppState
     public Dictionary<string, ViewBarSettings> ViewBars { get; set; } = [];
 
     /// <summary>
-    /// [S-893] A fresh profile, laid out as the original's first run: a clock top right, Help top
-    /// left (it teaches the shortcuts), the Desktop folder under it, and the everyday Windows places
-    /// bottom right. The clock stays first, so it is the one a reset or a recovery shows on top.
+    /// [S-893] A fresh profile, laid out as the original's first run: a clock top right, the Desktop
+    /// folder top left, and the everyday Windows places bottom right. The clock stays first, so it is the one a reset or a recovery shows on top.
     /// Shortcut labels are left empty so the names come from the target, translated with the app.
     /// </summary>
     public static AppState CreateDefault()
     {
         var view = ViewState.Create(Str.Shell_View_DefaultName.Text());
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.78, 0.04, 0.20, 0.16)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Help, new FracRect(0.02, 0.04, 0.24, 0.34)));
 
-        var folder = WidgetInstance.Create(WidgetKind.Folder, new FracRect(0.02, 0.42, 0.24, 0.50));
+        var folder = WidgetInstance.Create(WidgetKind.Folder, new FracRect(0.02, 0.04, 0.24, 0.50));
         if (folder.Config is FolderConfig listing)
         {
             // Empty means the profile folder; the original's first-run folder is the Desktop.

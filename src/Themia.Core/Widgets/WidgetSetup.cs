@@ -31,13 +31,11 @@ public static class WidgetSetup
         {
             CountdownConfig countdown => countdown.Timers.Count == 0,
             QuoteConfig quote => quote.EffectiveQuotes.Count == 0,
-            ColorSwatchConfig swatch => swatch.Mode == SwatchMode.Palette && swatch.EffectiveSwatches.Count == 0,
             RssConfig rss => rss.ResolvedFeeds.Count == 0,
             StocksConfig stocks => string.IsNullOrWhiteSpace(stocks.Symbol),
             WeatherConfig weather => !weather.HasLocation,
             VideoStreamConfig stream => stream.ResolvedUrl.Problem == WebUrlProblem.Empty,
             ShortcutsConfig shortcuts => shortcuts.Items.Count == 0,
-            PowerConfig power => power.VisibleActions.Count == 0,
             GalleryConfig gallery => gallery.Source switch
             {
                 GallerySource.Folder => string.IsNullOrWhiteSpace(gallery.Path),
@@ -45,17 +43,12 @@ public static class WidgetSetup
                 _ => false,
             },
 
-            // The repository widget reads public repositories without an account ([S-614]).
-            GitHubConfig gitHub => string.IsNullOrWhiteSpace(gitHub.Repo),
             EmailConfig => Lacks(signedIn, AccountFeatures.Mail),
             CalendarConfig => Lacks(signedIn, AccountFeatures.Calendar),
             ContactsConfig => Lacks(signedIn, AccountFeatures.Contacts),
 
             // A list kept on this PC needs no account; it starts from the widget itself ([S-604]).
             TasksConfig tasks => tasks.Source == TaskSource.Account && Lacks(signedIn, AccountFeatures.Tasks),
-            OneDriveConfig => Lacks(signedIn, AccountFeatures.Files),
-            GitHubAccountsConfig => Lacks(signedIn, AccountFeatures.GitHub),
-            ClaudeUsageConfig => Lacks(signedIn, AccountFeatures.ClaudeUsage),
             _ => false,
         };
     }

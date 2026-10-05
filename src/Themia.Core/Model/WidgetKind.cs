@@ -26,9 +26,6 @@ public enum WidgetKind
     /// <summary>Recent mail from the signed-in accounts.</summary>
     Email = 5,
 
-    /// <summary>The busiest running processes, ranked.</summary>
-    Processes = 6,
-
     /// <summary>Bytes per second across the active adapters.</summary>
     Network = 7,
 
@@ -53,9 +50,6 @@ public enum WidgetKind
     /// <summary>A focus/break timer.</summary>
     Pomodoro = 14,
 
-    /// <summary>An arithmetic scratchpad with a short history.</summary>
-    Calculator = 15,
-
     /// <summary>Sunrise, sunset and the moon phase, computed offline.</summary>
     SunMoon = 16,
 
@@ -64,9 +58,6 @@ public enum WidgetKind
 
     /// <summary>Master output level and mute.</summary>
     Volume = 18,
-
-    /// <summary>Power plan and mains status.</summary>
-    Power = 19,
 
     /// <summary>Paired devices and their battery.</summary>
     Bluetooth = 20,
@@ -86,23 +77,14 @@ public enum WidgetKind
     /// <summary>Headlines from a feed you choose.</summary>
     Rss = 25,
 
-    /// <summary>Launch an installed application.</summary>
-    Apps = 26,
-
     /// <summary>Links, files and folders you keep to hand.</summary>
     Shortcuts = 27,
-
-    /// <summary>Type a query, open it in your browser.</summary>
-    WebSearch = 28,
 
     /// <summary>What you have copied recently.</summary>
     Clipboard = 29,
 
     /// <summary>A place to draw.</summary>
     Scratchpad = 30,
-
-    /// <summary>A palette you can copy from.</summary>
-    ColorSwatch = 31,
 
     /// <summary>A line worth rereading.</summary>
     Quote = 32,
@@ -112,18 +94,6 @@ public enum WidgetKind
 
     /// <summary>Daily check-offs and streaks.</summary>
     HabitTracker = 34,
-
-    /// <summary>How you felt, as a heatmap.</summary>
-    MoodTracker = 35,
-
-    /// <summary>An area that holds other widgets.</summary>
-    Group = 36,
-
-    /// <summary>Widgets rolled up to their headers.</summary>
-    Stack = 37,
-
-    /// <summary>Several widgets, one at a time.</summary>
-    Tabs = 38,
 
     /// <summary>A live camera picture: MJPEG, a polled snapshot, or a stream Windows can play.</summary>
     VideoStream = 42,
@@ -137,40 +107,26 @@ public enum WidgetKind
     /// <summary>Which apps had the foreground today, and for how long.</summary>
     ScreenTime = 41,
 
-    /// <summary>How this app works, in four short tabs.</summary>
-    Help = 44,
+    /// <summary>[S-1910] One button: shut down. Each power action is its own widget.</summary>
+    Shutdown = 53,
 
-    /// <summary>The Themia mark, its name and the version.</summary>
-    Themia = 45,
+    /// <summary>[S-1910] One button: restart.</summary>
+    Restart = 54,
 
-    /// <summary>Switch the view of the display the widget is on.</summary>
-    ViewSwitcher = 46,
+    /// <summary>[S-1910] One button: sleep.</summary>
+    Sleep = 55,
 
-    /// <summary>Recent files, or a folder, on a Microsoft account's OneDrive.</summary>
-    OneDrive = 47,
+    /// <summary>[S-1910] One button: hibernate.</summary>
+    Hibernate = 56,
 
-    /// <summary>One repository: its numbers, commits, pull requests, issues and workflow runs.</summary>
-    GitHub = 48,
+    /// <summary>[S-1910] One button: lock.</summary>
+    Lock = 57,
 
-    /// <summary>Open GitHub issues assigned to you.</summary>
-    GitHubIssues = 49,
+    /// <summary>[S-1910] One button: sign out.</summary>
+    SignOut = 58,
 
-    /// <summary>Your GitHub notifications.</summary>
-    GitHubNotifications = 50,
-
-    /// <summary>Pull requests waiting for your review.</summary>
-    GitHubReviews = 51,
-
-    /// <summary>How much of a Claude subscription's limits is used.</summary>
-    ClaudeUsage = 52,
-}
-
-/// <summary>Which column a process list is ranked on.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ProcessSort>))]
-public enum ProcessSort
-{
-    Cpu = 0,
-    Memory = 1,
+    /// <summary>[S-1910] One button: turn off the display.</summary>
+    ScreenOff = 59,
 }
 
 /// <summary>How a countdown renders the time it has left. [C-11]</summary>
@@ -213,35 +169,6 @@ public enum HeaderPlacement
 
     /// <summary>No header. The widget is the content and nothing else.</summary>
     Hidden = 2,
-
-    /// <summary>[S-862] Along the left edge, turned to read bottom to top. Groups only (<see cref="HeaderRules"/>).</summary>
-    Left = 3,
-
-    /// <summary>[S-862] Along the right edge, turned like <see cref="Left"/>. Groups only.</summary>
-    Right = 4,
-}
-
-/// <summary>
-/// The container kinds. Kept as a set rather than a flag on the definition because what a
-/// container does with its children differs per kind, and the layout has to branch on it.
-/// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ContainerKind>))]
-public enum ContainerKind
-{
-    /// <summary>Not a container.</summary>
-    None = 0,
-
-    /// <summary>
-    /// A labelled area. Children keep their own place on the grid and are laid out normally; the
-    /// group draws behind them and hides them when it is collapsed.
-    /// </summary>
-    Group = 1,
-
-    /// <summary>Children are rolled up to their header rows inside the container's rect.</summary>
-    Stack = 2,
-
-    /// <summary>Children share the container's rect and exactly one is shown at a time.</summary>
-    Tabs = 3,
 }
 
 /// <summary>How the clock renders its face.</summary>

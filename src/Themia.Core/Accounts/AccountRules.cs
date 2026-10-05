@@ -5,7 +5,7 @@ namespace Themia.Core.Accounts;
 /// <see cref="Account"/> or nothing.
 /// <para>
 /// What is repaired and what is dropped follows one rule. A field the account can live without — a
-/// nickname of spaces, a missing IMAP port, a missing GitHub API root — is repaired to the value the
+/// nickname of spaces, a missing IMAP port — is repaired to the value the
 /// provider would have used. A field that names <i>where</i> the account is — the IMAP host, the DAV
 /// collection, the provider itself — cannot be guessed, and an account without it is dropped. Either
 /// way it is said out loud in the repair list, never silently.
@@ -19,9 +19,6 @@ public static class AccountRules
 {
     /// <summary>The IMAP port the classic app assumed: implicit TLS.</summary>
     public const int DefaultImapPort = 993;
-
-    /// <summary>What a Claude account is listed as: it has no address of its own.</summary>
-    public const string ClaudeAddress = "Claude Code";
 
     /// <summary>Validate a whole document, dropping and repairing per entry.</summary>
     public static IReadOnlyList<Account> Validate(AccountDocument document, DateTimeOffset now, List<string> repairs)
@@ -81,16 +78,8 @@ public static class AccountRules
         var address = Clean(stored.Address) ?? Clean(stored.Username);
         if (address is null)
         {
-            if (provider != AccountProvider.Claude)
-            {
-                repairs.Add($"dropped account '{id}': no address");
-                return null;
-            }
-
-            // A Claude account is one per machine and has no address of its own; the classic app
-            // wrote a fixed label here, so a missing one is a label to restore, not a lost account.
-            address = ClaudeAddress;
-            repairs.Add($"account '{id}' had no address; named it {ClaudeAddress}");
+            repairs.Add($"dropped account '{id}': no address");
+            return null;
         }
 
         var account = new Account
@@ -141,24 +130,6 @@ public static class AccountRules
                 }
 
                 return account with { ServerUrl = url, Username = user };
-            }
-
-            case AccountProvider.GitHub:
-            {
-                var raw = Clean(stored.ApiBaseUrl);
-                if (OAuthClients.GitHub.NormaliseApiBase(raw) is not { } api)
-                {
-                    // Pointing an Enterprise token at github.com would send it to the wrong company.
-                    repairs.Add($"dropped GitHub account '{id}': API address '{raw}' is not an https URL");
-                    return null;
-                }
-
-                if (raw is null)
-                {
-                    repairs.Add($"GitHub account '{id}' had no API address; using {api}");
-                }
-
-                return account with { ApiBaseUrl = api, Username = Clean(stored.Username) };
             }
 
             default:
@@ -216,13 +187,4 @@ public static class AccountIds
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "not a DAV provider"),
         };
     }
-
-    public static string GitHub(string login, Uri apiBase)
-    {
-        ArgumentNullException.ThrowIfNull(apiBase);
-        return $"github:{login}@{apiBase.Authority}";
-    }
-
-    /// <summary>One Claude account per machine, as in the classic app.</summary>
-    public const string Claude = "claude:default";
 }

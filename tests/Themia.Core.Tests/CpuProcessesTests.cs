@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>The processor meter's extras and the process list's ladder (S-1140..S-1159).</summary>
+/// <summary>The processor meter's extras (S-1140..S-1150).</summary>
 public sealed class CpuProcessesTests
 {
     // ---- S-1142 per-core load ----------------------------------------------------------------
@@ -28,12 +28,6 @@ public sealed class CpuProcessesTests
     public void S1143_a_negative_span_reads_zero()
         => Assert.Equal("0m", CpuRules.Uptime(TimeSpan.FromMinutes(-5)));
 
-    // ---- S-1144 totals ------------------------------------------------------------------------
-
-    [Fact]
-    public void S1144_totals_group_thousands()
-        => Assert.Equal("312 processes · 4,210 threads", CpuRules.Totals(312, 4210));
-
     // ---- S-1146 / S-1147 sensors --------------------------------------------------------------
 
     private const string MonitorTree = """
@@ -56,48 +50,4 @@ public sealed class CpuProcessesTests
     // ---- S-1149 config ------------------------------------------------------------------------
 
     // ---- S-1150 per-core strip ----------------------------------------------------------------
-
-    // ---- S-1151 / S-1152 processes ------------------------------------------------------------
-
-    private static readonly ProcessColumnOptions All = new(ProcessSort.Cpu, Memory: true, Threads: true, Pid: true);
-
-    [Theory]
-    [InlineData(88, ProcessColumn.Cpu)] // XS: the ranked figure even when the name is short
-    [InlineData(231, ProcessColumn.Cpu)] // the [S-648] boundary, one short
-    [InlineData(232, ProcessColumn.Cpu | ProcessColumn.Memory)] // the [S-648] boundary
-    [InlineData(292, ProcessColumn.Cpu | ProcessColumn.Memory | ProcessColumn.Threads)]
-    [InlineData(352, ProcessColumn.Cpu | ProcessColumn.Memory | ProcessColumn.Threads | ProcessColumn.Pid)]
-    public void S1152_columns_join_in_order_as_the_width_allows(double width, ProcessColumn expected)
-        => Assert.Equal(expected, ProcessTable.Columns(width, All));
-
-    [Fact]
-    public void S1152_ranked_by_memory_the_memory_column_comes_first()
-        => Assert.Equal(ProcessColumn.Memory, ProcessTable.Columns(120, All with { Sort = ProcessSort.Memory }));
-
-    [Fact]
-    public void S1152_a_column_turned_off_is_skipped_and_the_ladder_goes_on()
-        => Assert.Equal(
-            ProcessColumn.Cpu | ProcessColumn.Pid,
-            ProcessTable.Columns(800, new ProcessColumnOptions(ProcessSort.Cpu, Memory: false, Threads: false, Pid: true)));
-
-    [Fact]
-    public void S1151_row_ceiling_defaults_above_what_any_tile_fits_and_is_repaired()
-    {
-        Assert.Equal(20, new ProcessesConfig().MaxCount);
-
-        var config = new ProcessesConfig { MaxCount = 0 };
-        Assert.Single(config.Repair());
-        Assert.Equal(1, config.MaxCount);
-        Assert.Empty(new ProcessesConfig().Repair());
-
-        var copy = (ProcessesConfig)new ProcessesConfig { ShowThreads = false, ShowPid = false, ShowTotals = false }.Clone();
-        Assert.False(copy.ShowThreads || copy.ShowPid || copy.ShowTotals);
-    }
-
-    [Theory]
-    [InlineData(76, 2)] // XS slot
-    [InlineData(356, 11)] // Tall slot
-    [InlineData(516, 16)] // XL slot
-    public void S1151_rows_are_whole_rows_of_the_slot(double height, int rows)
-        => Assert.Equal(rows, Disclosure.WholeRows(height, 32));
 }

@@ -6,15 +6,15 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Whether a view can actually be seen: in the tree, and neither it nor anything above it collapsed.
 /// <para>
-/// A closed stack row, an unselected tab and a folded group all hide a widget by collapsing its
-/// <i>card</i>, not the view, so a view that wants to stop working while hidden has to watch its
-/// ancestors. Most views do not care — a hidden clock costs nothing — but a video stream holds a
-/// socket and decodes every frame, so for it "not visible" has to mean "not running".
+/// Whatever hides a widget collapses an element above the view (its card, the layer), not the view
+/// itself, so a view that wants to stop working while hidden has to watch its ancestors. Most views
+/// do not care — a hidden clock costs nothing — but a video stream holds a socket and decodes every
+/// frame, so for it "not visible" has to mean "not running".
 /// </para>
 /// <para>
 /// The ancestor chain is captured on <c>Loaded</c> and released on <c>Unloaded</c> and on
-/// <see cref="Dispose"/>: a container rebuild re-parents cards, and a callback left registered on
-/// the old parent would keep both alive and report a visibility that no longer applies.
+/// <see cref="Dispose"/>: a card can be re-parented, and a callback left registered on the old
+/// parent would keep both alive and report a visibility that no longer applies.
 /// </para>
 /// </summary>
 internal sealed class ShownWatch : IDisposable

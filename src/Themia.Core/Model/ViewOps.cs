@@ -9,13 +9,8 @@ public static class ViewOps
 {
     /// <summary>
     /// [S-900] A copy of a view, inserted right after it: the same name with " (Copy)", the same
-    /// icon, and a deep copy of every widget under a fresh id.
-    /// <para>
-    /// Containers keep their members: each copy's <see cref="WidgetInstance.ParentId"/> points at its
-    /// container's copy, and a stack's open child or a tab strip's selected tab names the copy too,
-    /// so the duplicate opens exactly as the original does. Shared data a widget only refers to —
+    /// icon, and a deep copy of every widget under a fresh id. Shared data a widget only refers to —
     /// a note, an account, a habit list — stays shared, as in the original.
-    /// </para>
     /// </summary>
     /// <returns>The new view, or null when <paramref name="viewId"/> names no view.</returns>
     public static ViewState? Duplicate(AppState state, string viewId)
@@ -32,28 +27,9 @@ public static class ViewOps
         var copy = ViewState.Create($"{source.Name} (Copy)");
         copy.Icon = source.Icon;
 
-        var ids = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var widget in source.Widgets)
         {
-            var clone = widget.Clone();
-            ids[widget.Id] = clone.Id;
-            copy.Widgets.Add(clone);
-        }
-
-        foreach (var clone in copy.Widgets)
-        {
-            clone.ParentId = clone.ParentId is { } parent && ids.TryGetValue(parent, out var mapped) ? mapped : null;
-
-            switch (clone.Config)
-            {
-                case StackConfig stack when stack.OpenChildId is { } open:
-                    stack.OpenChildId = ids.GetValueOrDefault(open);
-                    break;
-
-                case TabsConfig tabs when tabs.SelectedChildId is { } selected:
-                    tabs.SelectedChildId = ids.GetValueOrDefault(selected);
-                    break;
-            }
+            copy.Widgets.Add(widget.Clone());
         }
 
         state.Views.Insert(index + 1, copy);

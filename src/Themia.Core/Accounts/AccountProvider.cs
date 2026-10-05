@@ -22,12 +22,6 @@ public enum AccountProvider
 
     /// <summary>A CardDAV address book with a user name and password.</summary>
     CardDav,
-
-    /// <summary>A GitHub (or GitHub Enterprise) token.</summary>
-    GitHub,
-
-    /// <summary>Claude subscription usage, through Themia's own OAuth grant.</summary>
-    Claude,
 }
 
 /// <summary>What an account can feed. A widget asks for one of these, never for a provider name.</summary>
@@ -39,19 +33,13 @@ public enum AccountFeatures
     Calendar = 2,
     Contacts = 4,
     Tasks = 8,
-    Files = 16,
-    GitHub = 32,
-    ClaudeUsage = 64,
 }
 
 /// <summary>How an account proves itself on every request.</summary>
 public enum AccountAuth
 {
-    /// <summary>A short-lived bearer token renewed from a refresh token (Microsoft, Google, Claude).</summary>
+    /// <summary>A short-lived bearer token renewed from a refresh token (Microsoft, Google).</summary>
     OAuthRefresh,
-
-    /// <summary>A long-lived bearer token with nothing to renew it (GitHub).</summary>
-    BearerToken,
 
     /// <summary>A user name and password sent with each connection (IMAP, CalDAV, CardDAV).</summary>
     Password,
@@ -68,8 +56,6 @@ public static class AccountProviders
         AccountProvider.Imap,
         AccountProvider.CalDav,
         AccountProvider.CardDav,
-        AccountProvider.GitHub,
-        AccountProvider.Claude,
     ];
 
     /// <summary>
@@ -82,8 +68,6 @@ public static class AccountProviders
         AccountProvider.Imap => "imap",
         AccountProvider.CalDav => "caldav",
         AccountProvider.CardDav => "carddav",
-        AccountProvider.GitHub => "github",
-        AccountProvider.Claude => "claude",
         _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "unknown provider"),
     };
 
@@ -109,8 +93,6 @@ public static class AccountProviders
         AccountProvider.Imap => Str.Shell_Accounts_Provider_Imap.Text(),
         AccountProvider.CalDav => Str.Shell_Accounts_Provider_CalDav.Text(),
         AccountProvider.CardDav => Str.Shell_Accounts_Provider_CardDav.Text(),
-        AccountProvider.GitHub => "GitHub",
-        AccountProvider.Claude => "Claude",
         _ => provider.ToString(),
     };
 
@@ -118,21 +100,18 @@ public static class AccountProviders
     public static AccountFeatures Features(this AccountProvider provider) => provider switch
     {
         AccountProvider.Microsoft => AccountFeatures.Mail | AccountFeatures.Calendar | AccountFeatures.Contacts
-            | AccountFeatures.Tasks | AccountFeatures.Files,
+            | AccountFeatures.Tasks,
         AccountProvider.Google => AccountFeatures.Mail | AccountFeatures.Calendar | AccountFeatures.Contacts
             | AccountFeatures.Tasks,
         AccountProvider.Imap => AccountFeatures.Mail,
         AccountProvider.CalDav => AccountFeatures.Calendar,
         AccountProvider.CardDav => AccountFeatures.Contacts,
-        AccountProvider.GitHub => AccountFeatures.GitHub,
-        AccountProvider.Claude => AccountFeatures.ClaudeUsage,
         _ => AccountFeatures.None,
     };
 
     public static AccountAuth Auth(this AccountProvider provider) => provider switch
     {
-        AccountProvider.Microsoft or AccountProvider.Google or AccountProvider.Claude => AccountAuth.OAuthRefresh,
-        AccountProvider.GitHub => AccountAuth.BearerToken,
+        AccountProvider.Microsoft or AccountProvider.Google => AccountAuth.OAuthRefresh,
         _ => AccountAuth.Password,
     };
 }

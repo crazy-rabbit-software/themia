@@ -145,11 +145,6 @@ public sealed class MailDriveLayoutTests
         Assert.Equal(10, config.FetchCount(4));
         Assert.Equal(16, config.FetchCount(16));
         Assert.Equal(50, config.FetchCount(80));
-
-        var drive = new OneDriveConfig { FileCount = 15 };
-        Assert.Equal(15, drive.FetchCount(3));
-        Assert.Equal(17, drive.FetchCount(17));
-        Assert.Equal(OneDriveConfig.MaxFiles, drive.FetchCount(90));
     }
 
     [Fact]
@@ -182,101 +177,5 @@ public sealed class MailDriveLayoutTests
         Assert.Equal(own, MailLayout.Columns(own, 760, 8).Select(c => c.Column));
         MailColumn[] noSubject = [MailColumn.From, MailColumn.Date];
         Assert.Equal(noSubject, MailLayout.Columns(noSubject, 760, 8).Select(c => c.Column));
-    }
-
-    // ---- [S-1290]..[S-1294] OneDrive ---------------------------------------------------------------
-
-    [Fact]
-    public void S1290_details_join_the_name_as_the_tile_widens()
-    {
-        // Text widths: the tile less 32 of row padding and 28 of icon.
-        Assert.Equal(DriveRowMode.NameOnly, DriveLayout.Fit(60, 76, compact: true, showLocation: true).Mode);   // XS
-        Assert.Equal(DriveRowMode.NameOnly, DriveLayout.Fit(140, 106, compact: true, showLocation: true).Mode); // S
-        Assert.Equal(DriveRowMode.TwoLine, DriveLayout.Fit(140, 356, compact: false, showLocation: true).Mode); // Tall
-
-        var medium = DriveLayout.Fit(260, 196, compact: true, showLocation: true);
-        Assert.Equal(DriveRowMode.Columns, medium.Mode);
-        Assert.Equal([DriveColumn.Modified], medium.Columns.Select(c => c.Column));
-        Assert.False(medium.ColumnHeader);
-
-        var wide = DriveLayout.Fit(420, 116, compact: true, showLocation: true);
-        Assert.Equal([DriveColumn.Modified, DriveColumn.Size], wide.Columns.Select(c => c.Column));
-
-        var large = DriveLayout.Fit(500, 376, compact: false, showLocation: true);
-        Assert.Equal([DriveColumn.Modified, DriveColumn.ModifiedBy, DriveColumn.Size], large.Columns.Select(c => c.Column));
-        Assert.True(large.ColumnHeader);
-
-        var huge = DriveLayout.Fit(740, 516, compact: false, showLocation: true);
-        Assert.Equal([DriveColumn.Modified, DriveColumn.ModifiedBy, DriveColumn.Location, DriveColumn.Size], huge.Columns.Select(c => c.Column));
-
-        // Inside one folder every item is in the same place: no location column.
-        Assert.DoesNotContain(DriveLayout.Fit(740, 516, compact: false, showLocation: false).Columns, c => c.Column == DriveColumn.Location);
-    }
-
-    [Fact]
-    public void S1290_the_name_keeps_its_minimum_width()
-    {
-        foreach (var width in new[] { 216.0, 300, 389, 460, 560, 700, 900 })
-        {
-            var fit = DriveLayout.Fit(width, 300, compact: false, showLocation: true);
-            var details = fit.Columns.Sum(c => c.Width + DriveLayout.Gap);
-            Assert.True(width - details >= DriveLayout.NameMinWidth - Disclosure.Tolerance, $"{width}: {width - details}");
-        }
-    }
-
-    [Fact]
-    public void S1293_maps_who_changed_an_item_where_it_is_and_what_a_folder_holds()
-    {
-        var item = JsonSerializer.Deserialize(
-            """
-            {"id":"F1","name":"Reports","folder":{"childCount":12},"lastModifiedDateTime":"2026-10-04T09:00:00Z",
-             "lastModifiedBy":{"user":{"displayName":"Dana Ruiz"}},"parentReference":{"path":"/drive/root:/Work/Q%203"}}
-            """,
-            DriveWireContext.Default.GraphDriveItem)!;
-
-        var mapped = DriveRules.FromGraph(item)!;
-        Assert.Equal("Dana Ruiz", mapped.ModifiedBy);
-        Assert.Equal("Work › Q 3", mapped.Location);
-        Assert.Equal(12, mapped.ChildCount);
-
-        Assert.Equal(DriveRules.RootName, DriveRules.Location("/drive/root:"));
-        Assert.Null(DriveRules.Location(null));
-        Assert.Null(DriveRules.Location("/sites/x"));
-
-        Assert.Equal("1 item", DriveRules.ChildCountText(Themia.Core.Localization.Locale.En, 1));
-        Assert.Equal("0 items", DriveRules.ChildCountText(Themia.Core.Localization.Locale.En, 0));
-        Assert.Equal("3 elementy", DriveRules.ChildCountText(Themia.Core.Localization.Locale.Pl, 3));
-        Assert.Equal(string.Empty, DriveRules.ChildCountText(Themia.Core.Localization.Locale.En, null));
-    }
-
-    [Fact]
-    public void S1294_reads_the_quota_and_drops_one_that_says_too_little()
-    {
-        var drive = JsonSerializer.Deserialize("""{"quota":{"used":13314398618,"total":1099511627776}}""", DriveWireContext.Default.GraphDrive)!;
-        var quota = DriveRules.FromGraph(drive)!.Value;
-        Assert.Equal("12 GB of 1.0 TB used", DriveRules.QuotaText(Themia.Core.Localization.Locale.En, quota));
-
-        Assert.Null(DriveRules.FromGraph(new GraphDrive()));
-        Assert.Null(DriveRules.FromGraph(new GraphDrive { Quota = new GraphQuota { Used = 5, Total = 0 } }));
-    }
-
-    [Fact]
-    public void S1291_click_mode_round_trips_and_an_unknown_one_is_repaired()
-    {
-        var state = AppState.CreateDefault();
-        var widget = WidgetInstance.Create(WidgetKind.OneDrive, new FracRect(0.1, 0.1, 0.2, 0.2));
-        widget.Config = new OneDriveConfig { ClickMode = ItemClickMode.Single };
-        state.Views[0].Widgets.Add(widget);
-
-        var json = SettingsTransfer.Serialize(state);
-        Assert.Contains("\"clickMode\": \"Single\"", json, StringComparison.Ordinal);
-
-        var back = AppStateStore.Parse(json).State!.Views[0].Widgets.Single(w => w.Kind == WidgetKind.OneDrive).Config;
-        Assert.Equal(ItemClickMode.Single, Assert.IsType<OneDriveConfig>(back).ClickMode);
-
-        var broken = new OneDriveConfig { ClickMode = (ItemClickMode)9, FileCount = 400 };
-        Assert.Equal(2, broken.Repair().Count);
-        Assert.Equal(ItemClickMode.Double, broken.ClickMode);
-        Assert.Equal(OneDriveConfig.MaxFiles, broken.FileCount);
     }
 }

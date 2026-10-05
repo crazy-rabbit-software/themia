@@ -120,21 +120,20 @@ public sealed class LicensingTests
     }
 
     [Fact]
-    public void S1065_paste_counts_a_copied_group_whole_and_a_cut_as_nothing()
+    public void S1065_paste_counts_every_copied_widget_and_a_cut_as_nothing()
     {
         var state = StateWith(widgets: 0, views: 1);
         var view = state.Views[0];
-        var group = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.3, 0.3));
-        var member = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.1, 0.1));
-        member.ParentId = group.Id;
-        view.Widgets.Add(group);
-        view.Widgets.Add(member);
+        var first = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.3, 0.3));
+        var second = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.5, 0, 0.1, 0.1));
+        view.Widgets.Add(first);
+        view.Widgets.Add(second);
 
         var screen = new ScreenMetrics(1920, 1080);
-        var copyPaste = PlacementPayload.FromView(view, [group.Id], PlacementMode.Copy)!.Plan(0.5, 0.5, screen, snapEnabled: false);
+        var copyPaste = PlacementPayload.FromView(view, [first.Id, second.Id], PlacementMode.Copy)!.Plan(0.5, 0.5, screen, snapEnabled: false);
         Assert.Equal(2, LicenseUsage.AddedByPaste(state, copyPaste));
 
-        var move = PlacementPayload.FromView(view, [group.Id], PlacementMode.Move)!;
+        var move = PlacementPayload.FromView(view, [first.Id, second.Id], PlacementMode.Move)!;
         Assert.Equal(0, LicenseUsage.AddedByPaste(state, move.Plan(0.5, 0.5, screen, snapEnabled: false)));
 
         // The cut original was deleted meanwhile: the paste adds it back, and counts.

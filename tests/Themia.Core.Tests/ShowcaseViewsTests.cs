@@ -108,21 +108,20 @@ public sealed class ShowcaseViewsTests
     }
 
     [Fact]
-    public void S1810_widgets_are_default_instances_and_containers_start_empty()
+    public void S1810_widgets_are_default_instances_and_each_view_holds_only_its_kind()
     {
         var views = ShowcaseViews.Build(AllKinds(), FullHd, Gap);
 
         foreach (var widget in views.SelectMany(v => v.Widgets))
         {
-            Assert.Null(widget.ParentId);
             Assert.Equal(WidgetConfig.CreateDefault(widget.Kind).GetType(), widget.Config.GetType());
             Assert.Equal(WidgetInstance.DefaultHeader(widget.Kind), widget.Header);
         }
 
-        foreach (var container in new[] { WidgetKind.Group, WidgetKind.Stack, WidgetKind.Tabs })
+        foreach (var kind in Enum.GetValues<WidgetKind>())
         {
-            var view = views.Single(v => v.Id == ShowcaseViews.ViewId(container));
-            Assert.All(view.Widgets, w => Assert.Equal(container, w.Kind));
+            var view = views.Single(v => v.Id == ShowcaseViews.ViewId(kind));
+            Assert.All(view.Widgets, w => Assert.Equal(kind, w.Kind));
         }
     }
 

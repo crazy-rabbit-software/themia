@@ -1,12 +1,10 @@
-using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Xunit;
 
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-1622] The ladder's "first size that fits"; [S-1623] the
-/// power tile's screen and sleep section.
+/// [S-1622] The ladder's "first size that fits"; [S-1624] the mixer's fill.
 /// </summary>
 public class Polish2LayoutTests
 {
@@ -47,59 +45,6 @@ public class Polish2LayoutTests
         Assert.True(room.Fits(32));
         Assert.Equal(40, room.Remaining);
         Assert.True(room.Take(32));
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // [S-1623] the power tile's screen and sleep section
-    // -----------------------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(0u, "Never")]
-    [InlineData(45u, "45 s")]
-    [InlineData(60u, "1 min")]
-    [InlineData(300u, "5 min")]
-    [InlineData(3599u, "59 min")]
-    [InlineData(3600u, "1 h")]
-    [InlineData(5400u, "1 h 30 min")]
-    [InlineData(18000u, "5 h")]
-    public void S1623_a_timeout_reads_as_settings_shows_it(uint seconds, string expected)
-        => Assert.Equal(expected, PowerTimeoutRules.Duration(seconds));
-
-    [Fact]
-    public void S1623_the_section_lists_screen_sleep_and_hibernate_in_settings_order()
-    {
-        var facts = PowerTimeoutRules.Facts(new PowerTimeouts(300, 900, 0));
-
-        Assert.Equal([PowerFactKind.ScreenOff, PowerFactKind.Sleep, PowerFactKind.Hibernate], facts.Select(f => f.Kind));
-        Assert.Equal(["5 min", "15 min", "Never"], facts.Select(f => f.Value));
-        Assert.Equal("Screen off after 5 min", facts[0].Line);
-    }
-
-    [Theory]
-    [InlineData(Locale.En, 5400u, "1 h 30 min")]
-    [InlineData(Locale.De, 5400u, "1 Std. 30 Min.")]
-    [InlineData(Locale.De, 0u, "Nie")]
-    [InlineData(Locale.Ja, 300u, "5 分")]
-    public void S1623_timeouts_are_worded_per_language(Locale locale, uint seconds, string expected)
-        => Assert.Equal(expected, PowerTimeoutRules.Duration(locale, seconds));
-
-    [Fact]
-    public void S1623_an_unreadable_timeout_has_no_row_rather_than_reading_never()
-    {
-        Assert.Empty(PowerTimeoutRules.Facts(PowerTimeouts.Unknown));
-
-        var facts = PowerTimeoutRules.Facts(new PowerTimeouts(null, 600, null));
-        Assert.Equal(PowerFactKind.Sleep, Assert.Single(facts).Kind);
-    }
-
-    [Fact]
-    public void S1623_uptime_uses_the_cpu_meters_two_largest_units()
-    {
-        var up = PowerTimeoutRules.Uptime(new TimeSpan(6, 11, 5, 0));
-
-        Assert.Equal(PowerFactKind.Uptime, up.Kind);
-        Assert.Equal("6d 11h", up.Value);
-        Assert.Equal("Up for 6d 11h", up.Line);
     }
 
     // -----------------------------------------------------------------------------------------

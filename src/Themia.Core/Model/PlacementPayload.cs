@@ -26,10 +26,9 @@ public readonly record struct GhostOutline(FracRect Rect, WidgetKind Kind);
 /// for a move, snapshots carrying the originals' ids — <see cref="WidgetTransfer.ApplyPlacement"/>
 /// moves the live original in their place when it still exists.
 /// </param>
-/// <param name="Roots">The ids of the placed widgets that hold the rest: what is selected afterwards.</param>
+/// <param name="Roots">The ids of the placed widgets: what is selected afterwards.</param>
 /// <param name="RemoveIds">
-/// For a move, the originals to take out of whatever view they are in, each with everything it holds;
-/// empty for a copy or a new widget.
+/// For a move, the originals to take out of whatever view they are in; empty for a copy or a new widget.
 /// </param>
 public sealed record PastePlan(
     IReadOnlyList<WidgetInstance> Added,
@@ -64,7 +63,7 @@ public sealed record PastePlan(
 /// </summary>
 public sealed class PlacementPayload
 {
-    /// <summary>Snapshots with their original ids, in view order: the roots and everything they hold.</summary>
+    /// <summary>Snapshots with their original ids, in view order.</summary>
     private readonly List<WidgetInstance> _widgets;
 
     private readonly List<string> _roots;
@@ -96,10 +95,10 @@ public sealed class PlacementPayload
     /// <summary>The snapshots (empty for a new widget).</summary>
     public IReadOnlyList<WidgetInstance> Widgets => _widgets;
 
-    /// <summary>The ids of the snapshots that hold the rest (empty for a new widget).</summary>
+    /// <summary>The ids of the snapshots, in view order (empty for a new widget).</summary>
     public IReadOnlyList<string> RootIds => _roots;
 
-    /// <summary>How many widgets the user picked: one for a new widget, otherwise the roots.</summary>
+    /// <summary>How many widgets the user picked: one for a new widget, otherwise the snapshots.</summary>
     public int Count => Mode == PlacementMode.Create ? 1 : _roots.Count;
 
     /// <summary>[S-1065] How many widgets starting this session would create, for the gate before the ghost appears.</summary>
@@ -121,9 +120,8 @@ public sealed class PlacementPayload
         => new(PlacementMode.Create, kind, [], [], widthPx, heightPx);
 
     /// <summary>
-    /// [S-1588] A snapshot of the picked widgets of one view: the top-level ones ([S-876] — a
-    /// container carries what it holds) and everything inside them, in view order, with their
-    /// original ids. Null when none of the ids is in the view.
+    /// [S-1588] A snapshot of the picked widgets of one view, in view order, with their original ids.
+    /// Null when none of the ids is in the view.
     /// </summary>
     public static PlacementPayload? FromView(ViewState view, IEnumerable<string> ids, PlacementMode mode, string? anchorId = null)
     {
@@ -135,14 +133,14 @@ public sealed class PlacementPayload
             throw new ArgumentException("a payload taken from a view copies or moves; it does not create", nameof(mode));
         }
 
-        var roots = SelectionRules.TopLevel(view, ids);
+        var roots = SelectionRules.InView(view, ids);
         if (roots.Count == 0)
         {
             return null;
         }
 
-        var widgets = view.Widgets
-            .Where(w => roots.Exists(root => view.IsSelfOrDescendant(root, w.Id)))
+        var widgets = roots
+            .Select(id => view.Find(id)!)
             .Select(w =>
             {
                 var snapshot = w.Clone();
@@ -197,12 +195,6 @@ public sealed class PlacementPayload
         {
             var copy = w.Clone();
             copy.Id = ids[w.Id];
-
-            // A root lands on the desktop; whatever held it stays where it was. A member keeps its
-            // place in the block, under its own container's copy.
-            copy.ParentId = _roots.Contains(w.Id) || w.ParentId is null || !ids.TryGetValue(w.ParentId, out var parent)
-                ? null
-                : parent;
             copy.Rect = BlockGeometry.Apply(w.Rect, at, screen);
             return copy;
         }).ToList();
@@ -210,17 +202,12 @@ public sealed class PlacementPayload
         return new PastePlan(added, [.. _roots.Select(r => ids[r])], move ? [.. _roots] : []);
     }
 
-    /// <summary>
-    /// The widgets the grid will draw (roots, and members of a container that does not lay its
-    /// members out) and the block's translation. The whole payload moves by that one translation,
-    /// members a stack lays out included, so each one's stored return rect stays inside its stack.
-    /// </summary>
+    /// <summary>The widgets the ghost draws and the block's translation: the whole payload moves by that one translation.</summary>
     private (List<WidgetInstance> Drawn, BlockGeometry.Delta At) Layout(double xFrac, double yFrac, ScreenMetrics screen, bool snapEnabled)
     {
-        var drawn = _widgets.Where(IsDrawnOnGrid).ToList();
-        var rects = drawn.Select(w => w.Rect).ToList();
+        var rects = _widgets.Select(w => w.Rect).ToList();
         var anchor = AnchorId is not null && Find(AnchorId) is { } held ? held.Rect : BlockGeometry.Bounds(rects);
-        return (drawn, BlockGeometry.PlaceAt(rects, anchor, xFrac, yFrac, screen, snapEnabled));
+        return (_widgets, BlockGeometry.PlaceAt(rects, anchor, xFrac, yFrac, screen, snapEnabled));
     }
 
     /// <summary>[S-11] A new widget: its default size on this display (snapped when the aid is on), centred on the point.</summary>
@@ -234,16 +221,6 @@ public sealed class PlacementPayload
         }
 
         return (rect, BlockGeometry.PlaceAt([rect], rect, xFrac, yFrac, screen, snapEnabled));
-    }
-
-    private bool IsDrawnOnGrid(WidgetInstance widget)
-    {
-        if (_roots.Contains(widget.Id) || Find(widget.ParentId) is not { } parent)
-        {
-            return true;
-        }
-
-        return !WidgetTree.OwnsChildGeometry(WidgetTree.ContainerOf(parent.Kind));
     }
 
     private WidgetInstance? Find(string? id)

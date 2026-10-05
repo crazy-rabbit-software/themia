@@ -7,24 +7,14 @@ using Themia.Core.Widgets;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-1243] The seam between the power tile and the machine. The tile decides <i>whether</i> to run
-/// an action (<see cref="PowerArm"/>); this only runs it. Two implementations: the real one, and an
-/// inert one preview cards get ([S-1251]), so a widget drawn as a preview can never shut the
-/// PC down.
+/// [S-1251] A preview card's power backend: logs the action it was asked for and does nothing. It
+/// answers the capability probe truthfully, so a preview shows what this machine can do.
 /// </summary>
-internal interface IPowerActions
-{
-    /// <summary>
-    /// Run <paramref name="action"/> and say how it went. Blocking — sleep blocks until the machine
-    /// resumes — so callers run it on a worker thread, never the UI thread. Never throws.
-    /// </summary>
-    PowerOutcome Run(PowerAction action);
-}
-
-/// <summary>[S-1251] A preview card's power backend: logs the action it was asked for and does nothing.</summary>
-internal sealed class InertPowerActions : IPowerActions
+internal sealed class InertPowerActions : IPowerBackend
 {
     public static InertPowerActions Instance { get; } = new();
+
+    public bool CanHibernate => Win32PowerActions.Instance.CanHibernate;
 
     public PowerOutcome Run(PowerAction action)
     {
@@ -41,7 +31,7 @@ internal sealed class InertPowerActions : IPowerActions
 /// executes that plan. The process token is a <see cref="SafeHandle"/>, closed on every path.
 /// </para>
 /// </summary>
-internal sealed partial class Win32PowerActions : IPowerActions
+internal sealed partial class Win32PowerActions : IPowerBackend
 {
     private const string Scope = "power";
 
@@ -59,6 +49,27 @@ internal sealed partial class Win32PowerActions : IPowerActions
     private const uint SmtoAbortIfHung = 0x0002;
 
     public static Win32PowerActions Instance { get; } = new();
+
+    /// <summary>
+    /// [S-1914] <c>IsPwrHibernateAllowed</c>: false when hibernation is off (<c>powercfg /h off</c>,
+    /// no hibernation file) or the hardware or policy does not allow it. Read-only and cheap.
+    /// </summary>
+    public bool CanHibernate
+    {
+        get
+        {
+            try
+            {
+                return IsPwrHibernateAllowed() != 0;
+            }
+            catch (Exception ex)
+            {
+                // A missing export would be a broken Windows; say so and offer nothing that cannot run.
+                Log.Warn(Scope, "IsPwrHibernateAllowed failed", ex);
+                return false;
+            }
+        }
+    }
 
     public PowerOutcome Run(PowerAction action)
     {
@@ -98,7 +109,7 @@ internal sealed partial class Win32PowerActions : IPowerActions
         }
         catch (Exception ex)
         {
-            // Never let a failure escape a worker thread unobserved: the tile shows the error.
+            // Never let a failure escape a worker thread unobserved: the widget shows the error.
             Log.Error(Scope, $"{action} threw", ex);
             return PowerOutcome.Error(0);
         }
@@ -206,6 +217,9 @@ internal sealed partial class Win32PowerActions : IPowerActions
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool LockWorkStation();
+
+    [LibraryImport("powrprof.dll")]
+    private static partial byte IsPwrHibernateAllowed();
 
     [LibraryImport("powrprof.dll")]
     private static partial byte SetSuspendState(byte hibernate, byte force, byte wakeupEventsDisabled);

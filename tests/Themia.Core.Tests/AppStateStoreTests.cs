@@ -241,4 +241,53 @@ public sealed class AppStateStoreTests : IDisposable
         Assert.Equal(second.Id, state.ViewForMonitor("\\\\.\\DISPLAY2").Id);
         Assert.Equal(state.ActiveViewId, state.ViewForMonitor("\\\\.\\DISPLAY1").Id);
     }
+
+    /// <summary>
+    /// A hand-written state file from before the calculator and the containers were removed: one
+    /// widget whose kind this build does not have, a group, and a clock that was inside the group.
+    /// </summary>
+    private const string RemovedKindsDocument = """
+        {
+          "schemaVersion": 1,
+          "activeViewId": "v",
+          "views": [
+            {
+              "id": "v",
+              "name": "Desk",
+              "widgets": [
+                { "id": "calc", "kind": "Calculator", "x": 0.1, "y": 0.1, "w": 0.2, "h": 0.2, "config": { "kind": "calculator", "decimals": 4 } },
+                { "id": "g", "kind": "Group", "x": 0.4, "y": 0.1, "w": 0.4, "h": 0.5, "header": "Left", "config": { "kind": "group", "collapsed": true } },
+                { "id": "member", "kind": "Clock", "parentId": "g", "x": 0.45, "y": 0.2, "w": 0.2, "h": 0.15, "config": { "kind": "clock" } }
+              ]
+            }
+          ]
+        }
+        """;
+
+    [Fact]
+    public void S1900_a_widget_of_a_kind_this_build_lacks_is_dropped_loudly_and_the_rest_is_kept()
+    {
+        var result = AppStateStore.Parse(RemovedKindsDocument);
+
+        Assert.Equal(ParseRefusal.None, result.Refusal);
+        var kept = Assert.Single(result.State!.Views[0].Widgets);
+        Assert.Equal("member", kept.Id);
+        Assert.Equal(WidgetKind.Clock, kept.Kind);
+        Assert.Equal(new FracRect(0.45, 0.2, 0.2, 0.15), kept.Rect);
+
+        Assert.Contains(result.Repairs, r => r.Contains("'calc'", StringComparison.Ordinal) && r.Contains("Calculator", StringComparison.Ordinal));
+        Assert.Contains(result.Repairs, r => r.Contains("'g'", StringComparison.Ordinal) && r.Contains("Group", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void S1900_a_file_with_a_removed_kind_loads_rather_than_being_set_aside()
+    {
+        File.WriteAllText(_path, RemovedKindsDocument);
+
+        var result = new AppStateStore(_path).Load();
+
+        Assert.Equal(LoadOutcome.Loaded, result.Outcome);
+        Assert.Contains("Calculator", result.Detail, StringComparison.Ordinal);
+        Assert.True(File.Exists(_path));
+    }
 }

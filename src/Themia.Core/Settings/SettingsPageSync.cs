@@ -114,7 +114,7 @@ public static class SettingsPageSync
         var text = new StringBuilder().Append(view.Name).Append('\n').Append(view.Icon);
         foreach (var widget in view.Widgets)
         {
-            text.Append('\n').Append(widget.Id).Append('=').Append(widget.Kind).Append('=').Append(widget.Label).Append('=').Append(widget.ParentId);
+            text.Append('\n').Append(widget.Id).Append('=').Append(widget.Kind).Append('=').Append(widget.Label);
         }
 
         foreach (var (monitor, shown) in state.MonitorViews.OrderBy(p => p.Key, StringComparer.Ordinal))
@@ -168,7 +168,6 @@ public static class SettingsPageSync
                         .Append(widget.Label).Append('\n')
                         .Append(widget.Surface).Append('\n')
                         .Append(widget.Header).Append('\n')
-                        .Append(widget.ParentId).Append('\n')
                         .Append(JsonSerializer.Serialize(widget.Config, AppStateJsonContext.Default.WidgetConfig))
                         .ToString();
                 }

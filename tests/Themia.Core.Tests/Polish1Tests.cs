@@ -8,61 +8,6 @@ namespace Themia.Core.Tests;
 /// <summary>[S-1560]..[S-1579] The widget polish pass: keyboard lease in the remaining lists, layout gaps.</summary>
 public sealed class Polish1Tests
 {
-    private static readonly string[] Ranking = ["412", "88", "1290", "7"];
-
-    // ---- [S-1565] a cursor that follows its item ---------------------------------------------------
-
-    [Theory]
-    [InlineData(null, WidgetKey.Down, "412")]
-    [InlineData(null, WidgetKey.Home, "412")]
-    [InlineData(null, WidgetKey.Up, "7")]
-    [InlineData(null, WidgetKey.End, "7")]
-    [InlineData("88", WidgetKey.Down, "1290")]
-    [InlineData("88", WidgetKey.Up, "412")]
-    [InlineData("412", WidgetKey.Up, "412")]
-    [InlineData("7", WidgetKey.Down, "7")]
-    [InlineData("1290", WidgetKey.Home, "412")]
-    public void S1565_keys_move_the_cursor_and_clamp_at_the_ends(string? current, WidgetKey key, string expected)
-        => Assert.Equal(new KeyedCursorResult(expected, true), KeyedCursor.Move(Ranking, current, key));
-
-    [Fact]
-    public void S1565_the_cursor_rides_with_its_item_when_the_list_reshuffles()
-    {
-        // 88 was second; after a re-rank it is last, and Up moves from where it is now.
-        string[] reranked = ["1290", "412", "7", "88"];
-
-        Assert.Equal(3, KeyedCursor.IndexOf(reranked, "88"));
-        Assert.Equal(new KeyedCursorResult("7", true), KeyedCursor.Move(reranked, "88", WidgetKey.Up));
-    }
-
-    [Fact]
-    public void S1565_an_item_that_left_the_list_marks_no_row_and_the_next_step_starts_from_an_end()
-    {
-        Assert.Null(KeyedCursor.IndexOf(Ranking, "999"));
-        Assert.Equal(new KeyedCursorResult("412", true), KeyedCursor.Move(Ranking, "999", WidgetKey.Down));
-        Assert.Equal(new KeyedCursorResult("7", true), KeyedCursor.Move(Ranking, "999", WidgetKey.Up));
-    }
-
-    [Fact]
-    public void S1565_escape_clears_and_says_whether_there_was_anything_to_clear()
-    {
-        Assert.Equal(new KeyedCursorResult(null, true), KeyedCursor.Move(Ranking, "88", WidgetKey.Escape));
-        Assert.Equal(new KeyedCursorResult(null, false), KeyedCursor.Move(Ranking, null, WidgetKey.Escape));
-    }
-
-    [Theory]
-    [InlineData(WidgetKey.Left)]
-    [InlineData(WidgetKey.Right)]
-    [InlineData(WidgetKey.Enter)]
-    [InlineData(WidgetKey.Tab)]
-    [InlineData(WidgetKey.PageDown)]
-    public void S1565_keys_that_are_not_a_lists_go_on_and_leave_the_cursor(WidgetKey key)
-        => Assert.Equal(new KeyedCursorResult("88", false), KeyedCursor.Move(Ranking, "88", key));
-
-    [Fact]
-    public void S1565_an_empty_list_has_no_cursor_to_move()
-        => Assert.Equal(new KeyedCursorResult(null, false), KeyedCursor.Move([], null, WidgetKey.Down));
-
     // ---- [S-1569] Bluetooth detail panel -----------------------------------------------------------
 
     private static BluetoothRowPlan Bluetooth(double width, double height, int count)

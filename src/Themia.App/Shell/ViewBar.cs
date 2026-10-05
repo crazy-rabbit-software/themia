@@ -219,7 +219,7 @@ internal sealed partial class ViewBar : Grid
         else
         {
             var initials = Fluent.Text(FluentType.Strong(metrics.Type), item.Shown ? "AccentTextFillColorPrimaryBrush" : brush);
-            initials.Text = ViewSwitcherRules.Initials(item.Name);
+            initials.Text = ViewListRules.Initials(item.Name);
             initials.TextTrimming = TextTrimming.None;
             initials.VerticalAlignment = VerticalAlignment.Center;
             mark = initials;

@@ -217,11 +217,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>The id of the view this surface is currently showing.</summary>
     public string CurrentViewId => ViewForThisMonitor(_host.State).Id;
 
-    /// <summary>This display, as the view switcher sees it. Built on first ask.</summary>
-    public IWidgetDisplay? Display => _closed ? null : (_display ??= new SurfaceDisplay(_host, this));
-
-    private SurfaceDisplay? _display;
-
     public bool IsUnderCursor
     {
         get
@@ -277,26 +272,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     /// <inheritdoc />
     public ViewState? ViewForCards => _closed ? null : ViewForThisMonitor(_host.State);
-
-    /// <inheritdoc />
-    public void RequestReparent(WidgetCard card, string? containerId)
-    {
-        ArgumentNullException.ThrowIfNull(card);
-
-        var id = card.Model.Id;
-
-        _host.Mutate(state =>
-        {
-            var view = ViewForThisMonitor(state);
-
-            // Refused rather than forced: the tree decides what may hold what, and a move it will
-            // not accept leaves the widget exactly where it was.
-            if (!view.Reparent(id, containerId))
-            {
-                Log.Warn(Scope, $"refused to move widget '{id}' into '{containerId ?? "the desktop"}'");
-            }
-        }, undo: UndoAction.Container);
-    }
 
     /// <summary>A widget edited its own config. Persist it, but do not re-lay-out: see [S-128].</summary>
     public void RequestSaveConfig() => _host.SaveGeometryOnly();

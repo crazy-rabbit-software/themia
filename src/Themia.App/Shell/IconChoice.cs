@@ -5,9 +5,9 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-863] A glyph setting: a button showing the current icon that opens the icon picker
+/// [S-903] A glyph setting: a button showing the current icon that opens the icon picker
 /// (<see cref="IconPicker"/>: every Segoe Fluent glyph, searchable, [S-1803]). Stores the glyph
-/// itself (one character), or null for the default. Used for a group's icon and a view's icon.
+/// itself (one character), or null for the default. Used for a view's icon.
 /// </summary>
 internal static class IconChoice
 {

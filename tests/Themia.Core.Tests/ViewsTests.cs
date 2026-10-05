@@ -49,37 +49,6 @@ public sealed class ViewsTests
     }
 
     [Fact]
-    public void S900_duplicate_keeps_container_membership_and_the_open_child_on_the_copies()
-    {
-        var state = ThreeViews();
-        var source = state.Views[0];
-        var stack = WidgetInstance.Create(WidgetKind.Stack, new FracRect(0, 0, 0.3, 0.5));
-        var child = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.3, 0.2));
-        child.ParentId = stack.Id;
-        ((StackConfig)stack.Config).OpenChildId = child.Id;
-        var tabs = WidgetInstance.Create(WidgetKind.Tabs, new FracRect(0.5, 0, 0.3, 0.5));
-        var tab = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.5, 0, 0.3, 0.2));
-        tab.ParentId = tabs.Id;
-        ((TabsConfig)tabs.Config).SelectedChildId = tab.Id;
-        source.Widgets.AddRange([stack, child, tabs, tab]);
-
-        var copy = ViewOps.Duplicate(state, "a")!;
-
-        var stackCopy = copy.Widgets.Single(w => w.Kind == WidgetKind.Stack);
-        var tabsCopy = copy.Widgets.Single(w => w.Kind == WidgetKind.Tabs);
-        var children = copy.Widgets.Where(w => w.Kind == WidgetKind.Clock).ToList();
-
-        Assert.Contains(children, c => c.ParentId == stackCopy.Id);
-        Assert.Contains(children, c => c.ParentId == tabsCopy.Id);
-        Assert.Equal(children.Single(c => c.ParentId == stackCopy.Id).Id, ((StackConfig)stackCopy.Config).OpenChildId);
-        Assert.Equal(children.Single(c => c.ParentId == tabsCopy.Id).Id, ((TabsConfig)tabsCopy.Config).SelectedChildId);
-
-        // The source is untouched.
-        Assert.Equal(stack.Id, child.ParentId);
-        Assert.Equal(child.Id, ((StackConfig)stack.Config).OpenChildId);
-    }
-
-    [Fact]
     public void S900_duplicating_an_unknown_view_changes_nothing()
     {
         var state = ThreeViews();

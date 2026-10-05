@@ -16,12 +16,12 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search and adding into containers (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Containers; Containers and shell hooks (PA); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Opening a widget's app (R7-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** System meters; Meter framework and memory; CPU and processes; Disk and ping; Battery and network; Processes, network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
-- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Sun and moon; Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes and calculator; Notes: note store and markdown editor; Calculator keypad and colour swatch modes (PK); Clipboard, Countdown and Mood: the whole tile; Habits; Apps, Search, Help and Themia: parity and the whole tile (PI-A); Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); View switcher: item menu, keys and the whole tile (PI-B); App widgets and About.
-- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks and OneDrive; Mail and OneDrive: the whole tile; Calendar and contacts: the whole tile; Tasks and Claude usage: using the whole tile, and the rest of the original; Developer widgets: GitHub and Claude usage; GitHub widgets: filling the tile, detail, saved copies; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay.
+- **System widgets.** System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
+- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Sun and moon; Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
+- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay.
 
 ---
 
@@ -236,8 +236,8 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   display shows (`WidgetLiveness.ShownViews`, each display's own view or the active one, a view on two
   displays once) that runs ([S-1881]). A view no display shows costs its JSON and nothing else: no
   card, no ticker subscription, no service subscriber. Shared services start with their first
-  subscriber and stop with their last (the mail, GitHub and Claude usage services subscribe to the
-  ticker only while a feed is open), so a service whose widgets are all hidden does no work. The one
+  subscriber and stop with their last (the mail service subscribes to the ticker only while a feed
+  is open), so a service whose widgets are all hidden does no work. The one
   exception by design is the screen-time tracker ([S-459]).
 - **[S-1881]** A widget that needs setting up ([S-1860], [S-1861]) does not run: its view is built but
   **parked** under the Set up button, never attached, so it polls nothing, ticks nothing and logs
@@ -267,7 +267,7 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 - **[S-1885]** Baseline (switch check `--ordinary`, Debug build, one 1920x1080 stand-in display at
   100%): the empty surface is about 155 MB working set; eight everyday widgets (clock, CPU, memory,
   folder, shortcuts, notes, now playing, volume) add about 40 MB. Per view of seven showcase widgets,
-  while shown: Apps about 185 MB (every app's cell built), Processes about 23 MB, Folder about 13 MB
+  while shown: Folder about 13 MB
   (was about 175 MB before [S-1887]), everything else under 7 MB.
 - **[S-1886]** "Not set up yet" is a state, not a fault: a fetch status change to it is logged at debug
   level, never as a warning (`FetchState.LogLevelFor`); real failures stay warnings, an answer after
@@ -296,7 +296,14 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 - **[S-45]** Closed sets are enums, not strings (`WidgetKind`, `WidgetSurface`, `AppTheme`,
   `ClockFace`). Widget config is a discriminated union with the discriminator written into the JSON,
   so a config can never be silently read as the wrong widget's shape. An unknown widget kind is
-  dropped with a report, because this build cannot render it at all.
+  dropped with a report, because this build cannot render it at all ([S-1900]).
+- **[S-1900]** A widget whose kind is a name this build does not have (a removed widget, a hand edit)
+  is taken out of the document **before** the typed read (`AppStateStore.Parse`, by the `kind`
+  string), and each one is reported ("dropped widget 'id' of unknown kind 'Calculator'"); the rest
+  of the document loads. The typed read would otherwise refuse the whole file over one widget and
+  set it aside. A property the model no longer has (a widget's old `parentId`) is ignored like any
+  unknown JSON, so a widget that sat in a removed container loads on the desktop at its own rect.
+  Validation, not migration ([S-1050]).
 
 ## Clock
 
@@ -349,9 +356,8 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   from a widget. Escape backs out one step: placing, then the selection, then edit mode ([S-1583]).
 - **[S-71]** The clipboard is **in-process**, not the system clipboard: the payload is a live widget
   configuration, and putting it on the system clipboard would clobber the user's actual clipboard.
-- **[S-72]** A clipboard entry is a **snapshot** of the selection — every selected widget, a
-  container with everything inside it ([S-876], [S-1588]) — with configs and relative layout. It
-  survives the originals being moved, reconfigured or deleted.
+- **[S-72]** A clipboard entry is a **snapshot** of the selection — every selected widget ([S-1588])
+  — with configs and relative layout. It survives the originals being moved, reconfigured or deleted.
 - **[S-73]** A **cut is a mark**, not an immediate removal: the originals stay until a paste
   **lands**, so changing your mind — or cancelling the paste's placement — costs nothing. A cut is
   consumed by the one paste that lands (landing it twice would mean moving the same widgets to two
@@ -404,36 +410,14 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 
 ## Where account data comes from
 
-- **[S-89]** Mail, calendar, contacts, tasks, OneDrive, GitHub and Claude usage are synced by Themia
+- **[S-89]** Mail, calendar, contacts and tasks are synced by Themia
   itself, from accounts it signs in to and stores on this PC ([S-500]..[S-539]). There is no external
   hub. The earlier design, which read them from a separate hub program ([S-90]..[S-99], [S-180]..[S-187]), is retired: a widget
   that depended on another program running and granting consent showed nothing whenever it was not,
   and the user wanted Themia to own its data. Nothing of that build's data is read ([S-1050]).
 
-## Processes, network and ping
+## Network and ping
 
-- **[S-100]** Process CPU comes from one `NtQuerySystemInformation(SystemProcessInformation)`
-  snapshot, not from per-process handles. Windows refuses a handle to anything elevated, protected
-  or in another session — about a third of an ordinary desktop, including Defender, Search and the
-  service hosts — so a handle-based list structurally cannot contain the actual CPU hogs. The handle
-  path survives as the documented degradation when the call fails, and either way a row whose value
-  is genuinely unknown says `--` rather than `0%`.
-- **[S-101]** The snapshot is parsed defensively: every entry offset, thread-array span and chain
-  link is bounds-checked against the buffer, and a chain that does not parse stops the walk rather
-  than reading arbitrary memory as a process. A layout change therefore degrades to the fallback
-  instead of misreporting.
-- **[S-102]** The snapshot buffer is pinned and reused. The kernel writes image names *into* it and
-  hands back pointers into it, so a moving collector would invalidate the names mid-read, and
-  reallocating it per tick would be the most expensive thing the widget does.
-- **[S-103]** An image name is materialised once per process, not once per sample: a pid whose start
-  time still matches is the same process with the same name.
-- **[S-104]** Process identity is (pid, start time as `FILETIME`) on both paths, so switching paths
-  does not look like a recycled pid.
-- **[S-105]** The list fills its tile with **correctly sized rows**, not stretched ones: the row
-  height is Fluent's, and the configured count is clamped to how many of them the tile can actually
-  draw. A bigger tile shows more rows, never taller ones — a list whose rows grow with the window is
-  a web idea, and next to Explorer it reads as the wrong application. Row visuals are rewritten in
-  place; rebuilding the list each sample made it blink twice a second.
 - **[S-106]** Ping is sampled asynchronously and never blocked on from the tick. One probe is in
   flight at a time; a probe that overruns its interval delays the next reading rather than stacking
   up.
@@ -455,25 +439,8 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   its own recent minimum and maximum turns a steady 47% into a dramatic zigzag of noise, which is the
   opposite of what a glanceable readout is for.
 
-## Notes and calculator
+## Notes
 
-- **[S-120]** The calculator's arithmetic is a hand-written recursive-descent parser in
-  `Themia.Core`. The original could not use `eval` because the webview CSP blocked it; here the
-  reason differs and the conclusion is the same — a Native AOT binary has no scripting engine and
-  must not grow one.
-- **[S-121]** Grammar: `+ - * /`, `^` right-associative, unary sign, parentheses, decimals.
-  Precedence low to high: `+ -`, `* /`, unary, `^`.
-- **[S-122]** Input is sanitised to `0-9 + - * / ( ) . , % ^` and space; every comma is dropped as a
-  thousands separator, so `1,5` is fifteen and never one-and-a-half, and `%` becomes `/100`.
-- **[S-123]** Evaluation is **total**: any input returns empty, a finite value, or an error. Nesting
-  is capped at 64, because parentheses and unary signs recurse and a `StackOverflowException` cannot
-  be caught — it takes the process with it.
-- **[S-124]** Numbers are parsed and written invariant. The app builds with `InvariantGlobalization`,
-  and a result written with a decimal comma could not be typed back into the box it came from.
-- **[S-125]** Calculator history is in-memory only, newest first, capped at 8. It is never persisted:
-  a scratchpad is not a record, and typed text does not belong in the state file.
-- **[S-126]** The decimal-places setting applies to the live preview and to every history row already
-  on screen; trailing zeros are dropped and a value that rounds to zero is never written `-0`.
 - **[S-128]** The note is handed to the note pool on a 400 ms debounce and flushed on blur, on
   switching note and on detach; the debounce is a write-rate limit, not a correctness path. A change
   from elsewhere never overwrites an unflushed local edit ([S-1348]).
@@ -484,9 +451,6 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 - **[S-130]** "Clear note" confirms in a dialog. The text is unrecoverable, so one click is not
   enough, and failing to show the dialog leaves the note alone. It empties the note's body (for every
   widget showing it); the note and its title stay.
-- **[S-131]** The calculator drops its history under 120 DIPs of height, so a small tile shows the
-  sum being typed rather than two clipped rows above it. The header rule that used to live here is
-  the card's now ([S-402]) — every widget had reached the same conclusion with its own threshold.
 
 ## Countdown and pomodoro
 
@@ -575,8 +539,7 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   itself back out of a padding that no longer exists would now hang over the edge.
 - **[S-190b]** A list has **no separators at all**. Windows 11 separates rows with space and with
   the fill under the pointer — Settings, Explorer and the Widgets board all do — and a rule between
-  every row is the single clearest tell of a web table. The one rule that survives anywhere is the
-  calculator's, which divides a scrolling region from a fixed command area the way a dialog does.
+  every row is the single clearest tell of a web table.
 - **[S-191]** Headers, footers, empty states and readouts keep the inset — they are labels, not rows.
   A day heading in the calendar is a label and lines up with the header above it.
 
@@ -631,39 +594,6 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 - **[S-403]** The title is the user's own when they set one, otherwise the catalogue's. A widget has
   no say in it: a view that wants to label itself differently is a view that has drifted.
 
-## Containers
-
-- **[S-410]** Group, Stack and Tabs hold other widgets. Membership is a `ParentId` on the child, never
-  a list of children on the container, so a widget cannot be in two containers at once and a
-  container cannot name a child that has been deleted.
-- **[S-411]** A **group** does not lay its children out. They keep the place on the grid the user
-  chose and the group draws behind them, which is why dropping a widget into a group does not move
-  it. A **stack** and a **tab strip** own their children's geometry outright.
-- **[S-411a]** Neither ever writes back to a child's stored rect, so a widget taken out of one
-  returns to exactly the place it had before it went in.
-- **[S-412]** A container does not create its children — the surface does, exactly as it creates
-  every other card. A widget inside a stack is the same object with the same lifetime as one on the
-  desktop, so nothing has to be special-cased to keep it ticking, and nothing restarts when it moves.
-- **[S-413]** A group collapses by **hiding** its children, never by rearranging them, so expanding
-  puts every one back where it was.
-- **[S-414]** A closed stack row and an unselected tab **collapse** their child rather than merely
-  covering it: a widget nobody can see should not be measuring itself on every layout pass.
-- **[S-415]** (Now by paint order, [S-874].) A group is moved to the back of the widget layer, because the layer paints in child
-  order and a group added after its members would cover them.
-- **[S-416]** "Move into" is built from what the tree will actually accept, not from every container
-  on the desktop. An option that refuses itself when clicked is worse than no option.
-- **[S-417]** Deleting a container **keeps** its children and hands them to whatever held it.
-  Removing the box is not removing the things in it, and the alternative is a dozen widgets gone on
-  one click on a surface with no undo.
-- **[S-418]** A container cannot be put inside itself or inside its own descendant — that detaches a
-  branch into a ring nothing can reach and no layout pass terminates on — and a branch is measured by
-  its own height when it moves, because it moves as a whole. Nesting stops at a depth.
-- **[S-419]** The state file can name a parent that is gone, a parent that is not a container, or a
-  cycle: none of which the UI can produce, all of which a hand edit or a partial write can leave
-  behind. Loading repairs each to a widget on the desktop — a state the layout can always draw — and
-  says how many rather than repairing silently. Membership is repaired **last**, after ids are known
-  unique, because the tree is walked by id.
-
 ## Adding a widget
 
 - **[S-420]** Widgets are added from **Add widget** on the edit toolbar: a picker listing every
@@ -684,56 +614,11 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   radius — one outline per widget at its offset in the block ([S-1585]): it shows what the user will
   see once the widgets are there, not the cells they own.
 
-## App widgets and About
+## About and the settings file
 
-Help, Themia and the view switcher, ported from `widgets/others/{help,themia,view-switcher}` on
-`main`, and the settings window's About page. Owning files: `Widgets/HelpView.cs`,
-`Widgets/ThemiaView.cs`, `Widgets/ViewSwitcherView.cs`, `Shell/SurfaceDisplay.cs`,
-`Shell/Config/ConfigPages.About.cs`, `Shell/Gallery/SettingsRender.cs`,
-`Themia.Core/Widgets/{HelpGuide,RichText,ViewSwitcherRules}.cs`,
-`Themia.Core/Storage/SettingsTransfer.cs`.
+The settings window's About page. Owning files: `Shell/Config/ConfigPages.About.cs`,
+`Shell/Gallery/SettingsRender.cs`, `Themia.Core/Storage/SettingsTransfer.cs`.
 
-- **[S-480]** Help has nothing to configure (was [S-13]). Its header is on, as on any widget; the
-  open tab is not saved, because the guide is read, not set up.
-- **[S-481]** Four tabs in order — Basics, Widgets, Views, Customize — on a `SelectorBar`, Basics
-  first (was [S-06]/[S-07]). How they are drawn for the room there is — no tabs, icon tabs, or a
-  page list beside the page — is [S-1531].
-- **[S-482]** The guide is data (`HelpGuide`), not controls. Emphasis is `*strong*` / `_emphasis_`,
-  split by `RichText` into plain runs — never parsed as markup; markers do not nest or cross a line,
-  and an unpaired marker stays literal (was [S-14]). Every marker in the shipped guide is paired.
-- **[S-483]** The guide describes **this** app, and so — unlike the original's [S-05] — it teaches the
-  keys: Ctrl+Alt+W, double-clicking a widget and launching Themia again as the ways into edit mode,
-  Add widget and click-to-place, Alt to bypass the snap, Ctrl+C/X/V, Delete, Esc, dragging between
-  displays, per-display views. The original could point at a tray icon; this app has none, so a
-  guide without the keys would leave no way to change anything. What else it describes is [S-1532].
-- **[S-484]** Themia draws the mark (`Assets/themia-logo.png`, from `src-tauri/icons` on `main`), the
-  name and `v` + the running version (was [S-01]/[S-03]; arranged by [S-1533]). The version is known before the
-  first frame, so there is no empty "v". The mark is decoded logically at its drawn size, in 32-DIP
-  steps; the version, then the name, give way on a tile too short for them.
-- **[S-485]** Themia and the view switcher start with their header **hidden** (`WidgetInstance.
-  DefaultHeader`; was the original's `noHeader` / `defaultHeaderMode: 'none'`). Only a default: the
-  user can turn either header on.
-- **[S-486]** Neither Help nor Themia ticks, polls or fetches.
-- **[S-487]** The view switcher switches the view of **the display it is on**, never the app-wide one:
-  the card host hands the widget an `IWidgetDisplay` for its display (`SurfaceDisplay`), and a click
-  goes through `AppHost.ShowView` ([S-19]), the same mutation as the toolbar's View menu. Where there
-  is no display it shows an empty state.
-- **[S-488]** It offers the views in the user's view order, filtered by the widget's selection; an
-  empty selection means every view, so views added later appear; a selection naming only deleted
-  views also means every view. The shown view is the raised button with its initials in the accent.
-- **[S-489]** A button falls back to initials: the first letters of the first two words, or the first
-  two letters of a single word, upper-cased; "?" for a blank name. Counted in text elements, so a
-  composed character is never split.
-- **[S-490]** Settings: one switch per view and "Initials only". The last view cannot be switched off;
-  switching every view on stores the empty "all" selection again.
-- **[S-491]** The buttons fill the card as one row, or one per row — whichever makes each button
-  closer to a 3:1 button shape (compared on a log scale), and a stack only when every button gets
-  32px. The original only drew a row, which on anything but a strip made tall columns with clipped
-  names. Names show when a button is at least 88px wide and "Initials only" is off; otherwise
-  initials, with the name in the tooltip. Default size 320×56: one row with names. The ladder that
-  replaced this rule — grids, faces, overflow — is [S-1653]..[S-1655].
-- **[S-492]** *(Retired by [S-1746].)* "Initials only" / "Show names" is a setting only; the card
-  menu no longer carries it.
 - **[S-493]** About is the **last** item of the settings navigation, in its footer under everything
   else. The page follows karpo's About section for section: the name card (64-DIP mark, "Themia",
   "Version x.y.z", ".NET x · Windows App SDK y"), **Made by** Lometics (lometics.com) with its mark and a
@@ -759,11 +644,8 @@ Help, Themia and the view switcher, ported from `widgets/others/{help,themia,vie
   [waitMs]`, over a demo state and an `AppStateStore.Detached` store that accepts saves and writes
   nothing, so the render never touches `%APPDATA%`.
 
-Not ported, on purpose: ignoring clicks in edit mode — no widget here does, and the buttons are not
-where a drag starts. (The switcher's per-view menu and view icons are ported: [S-1650], [S-903].) Help's localisation ([S-14]'s
-locale files) — the guide's text is still English; the string layer and the nine tables exist
-([S-1100]). Karpo's "isn't running / Start" card — the settings
-window here runs inside the app, so it is never open while the app is not.
+Not ported, on purpose: Karpo's "isn't running / Start" card — the settings window here runs
+inside the app, so it is never open while the app is not.
 
 ## Web widgets: video stream
 
@@ -774,9 +656,9 @@ Ported from `widgets/online/video-stream` on `main`. Owning files: `Widgets/Vide
 `Themia.Core/Model/Configs/WebWidgetConfigs.cs`. The original's web element widget is not part of
 this app ([S-1724]).
 
-The widget runs only while it can be seen. A paused camera, or one folded into a closed stack row,
-an unselected tab or a collapsed group (`ShownWatch` follows the card's ancestors), holds no socket
-and no decoder; `Detach` releases everything.
+The widget runs only while it can be seen. A paused camera, or one whose card is not in the tree or is
+collapsed (`ShownWatch` follows the card's ancestors), holds no socket and no decoder; `Detach`
+releases everything.
 
 - **[S-460]** Video stream title: the user's label, else the stream's `host:port` (`Uri.Authority`,
   so a non-default port is kept), else the widget name (was [S-01]).
@@ -823,14 +705,13 @@ credentials in the address are refused ([U-03]).
 
 ## Accounts and sign-in
 
-Themia's own accounts, the source of mail, calendar, contacts, tasks,
-OneDrive, GitHub and Claude usage. Ported from the classic app's `widgets/office/email/src/lib.rs`
+Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported from the classic app's `widgets/office/email/src/lib.rs`
 (storage, DPAPI, the four OAuth flows, IMAP/DAV verification, retry) and its Email SPEC [S-45],
 [S-47], [S-51], [S-53]; code in `src/Themia.Core/Accounts/` (pure) and
 `src/Themia.App/Services/Accounts/` + `Shell/Config/AccountsPage.cs`.
 
-- **[S-500]** A closed `AccountProvider` set: Microsoft, Google, IMAP, CalDAV, CardDAV, GitHub, Claude.
-  A provider this build does not know is dropped on load and reported, never carried as a string.
+- **[S-500]** A closed `AccountProvider` set: Microsoft, Google, IMAP, CalDAV, CardDAV. A provider
+  this build does not know is dropped on load and reported, never carried as a string ([S-1901]).
 - **[S-501]** Providers are written under lower-case names (as the original wrote them), so the
   file stays readable and a hand edit is easy to validate.
 - **[S-502]** What an account feeds (`AccountFeatures`) and how it proves itself (`AccountAuth`) follow
@@ -838,34 +719,26 @@ OneDrive, GitHub and Claude usage. Ported from the classic app's `widgets/office
 - **[S-503]** `accounts.json` lives beside `state.json` and carries a `schemaVersion`; a newer schema is
   set aside rather than half-read.
 - **[S-504]** Every stored entry becomes a whole `Account` or nothing. A field that says *where* the
-  account is (provider, IMAP host, DAV address, a non-https GitHub API root) cannot be guessed and its
-  entry is dropped; a field it can live without (nickname, IMAP port, GitHub API root) is repaired; a
-  missing secret is kept as "sign in again". Every drop and repair is logged. Duplicates keep the first.
+  account is (provider, IMAP host, DAV address) cannot be guessed and its entry is dropped; a field it
+  can live without (nickname, IMAP port) is repaired; a missing secret is kept as "sign in again".
+  Every drop and repair is logged. Duplicates keep the first.
 - **[S-505]** Ids are built exactly as the classic app built them (`google:<sub>`, `imap:user@host`,
-  `caldav:user@authority`, `github:login@apihost`, `claude:default`, the Graph id for Microsoft), so
-  signing in again replaces the account (keeping its nickname).
+  `caldav:user@authority`, the Graph id for Microsoft), so signing in again replaces the account
+  (keeping its nickname).
 - **[S-506]** A secret is stored as `dpapi:v1:` + base64 of a DPAPI blob — the classic envelope byte
   for byte. Untagged text and a damaged payload are told apart from a good blob.
 - **[S-507]** An access token within five minutes of expiry is treated as expired; a missing or absurd
   `expires_in` becomes an hour (ceiling 30 days).
 - **[S-508]** PKCE S256 (RFC 7636 test vector pinned) with a 43-character unreserved verifier, and a
   random state compared in fixed time.
-- **[S-509]** Microsoft signs in against `common` with the classic client id and scopes (incl.
-  `offline_access`), by the browser flow of [S-1780] (was: device code); Google's consent URL asks for
-  `access_type=offline` and `prompt=consent` so a refresh token always comes back.
-- **[S-510]** GitHub: one OAuth device flow for github.com (same scopes as the token path), and a
-  personal-access-token form whose API root must be https — the only way in for GitHub Enterprise.
-- **[S-511]** Claude: Themia's own authorization-code + PKCE grant on the CLI's client (the usage
-  endpoint demands `user:profile`), a hosted `code#state` callback the user pastes back, and the CLI's
-  user agent plus `anthropic-beta: oauth-2025-04-20` on every usage request.
-- **[S-512]** The pasted Claude value splits into code and optional state; an echoed state must be the
-  one issued; an empty or code-less paste says why.
+- **[S-509]** Microsoft signs in against `common` with the classic client id and the scopes the
+  widgets need (`User.Read Mail.ReadWrite Calendars.Read Contacts.Read Tasks.ReadWrite
+  offline_access`; no file scope, [S-1901]), by the browser flow of [S-1780] (was: device code);
+  Google's consent URL asks for `access_type=offline` and `prompt=consent` so a refresh token always
+  comes back.
 - **[S-513]** The loopback redirect is read from the request line; the state is checked before anything
   else is believed (error included); malformed pairs are skipped; a request that is not a redirect
   (favicon) is answered 404 and the listener keeps waiting.
-- **[S-514]** Device-code polling is a pure state machine: pending waits the server's interval,
-  `slow_down` adds five seconds for good, expiry/denial/other errors end the flow with a sentence,
-  and nothing is polled past the code's lifetime. Only GitHub uses it ([S-1780]).
 - **[S-515]** DAV multistatus is read by local name (any prefix), properties under a non-2xx propstat
   are absent, a body that is not XML reads as nothing, DTDs are refused.
 - **[S-516]** DAV hrefs resolve against the URL the answer came from after redirects; the `.well-known`
@@ -915,18 +788,18 @@ OneDrive, GitHub and Claude usage. Ported from the classic app's `widgets/office
 - **[S-533]** DAV requests go as the account with basic auth, `Depth`, and the method and body kept
   across redirects.
 - **[S-534]** IMAP credentials are opened only when a session asks for them.
-- **[S-535]** OAuth sign-ins verify who signed in (Graph `/me`, Google userinfo, GitHub `/user`) before
-  saving.
+- **[S-535]** OAuth sign-ins verify who signed in (Graph `/me`, Google userinfo) before saving.
 - **[S-536]** Google's Desktop client secret is never in source: it is compiled in from
   `THEMIA_GOOGLE_CLIENT_SECRET` (a generated constant, validated to look like a secret); without it,
   Google sign-in refuses before the browser opens and token refresh fails with the same sentence.
-- **[S-537]** A Claude sign-in is saved only after the fresh token has read the usage endpoint; 401 and
-  403 get different guidance, 403 with Anthropic's own reason.
 - **[S-539]** Settings → Accounts lists each account (provider icon, name, address, problem), renames
   in a flyout, signs out after a confirmation, and adds through one flow at a time drawn in place:
-  GitHub's device code shown large with copy and open buttons and a live status line; Microsoft and
-  Google waiting on the browser ([S-1783]); forms for IMAP, CalDAV, CardDAV and a GitHub token;
-  Claude's open-then-paste. Errors appear on the page; leaving it cancels a flow.
+  Microsoft and Google waiting on the browser ([S-1783]); forms for IMAP, CalDAV and CardDAV. Errors
+  appear on the page; leaving it cancels a flow.
+- **[S-1901]** No GitHub or Claude account and no OneDrive access: they went with the widgets that
+  used them ([S-1902]), with the GitHub device-code and token sign-ins, Claude's paste-back sign-in
+  and Microsoft's `Files.Read` scope. A stored `github` or `claude` entry in `accounts.json` is an
+  unknown provider: dropped on load and reported ([S-500]).
 - **[S-1780]** Microsoft signs in with the authorization-code grant + PKCE (S256) in the system
   browser: `…/common/oauth2/v2.0/authorize` with `response_type=code`, `response_mode=query`,
   `prompt=select_account`, a fresh state and challenge, and redirect `http://localhost:<port>/`; the
@@ -942,7 +815,7 @@ OneDrive, GitHub and Claude usage. Ported from the classic app's `widgets/office
 - **[S-1782]** A token exchange answer is a grant only when it is a 2xx with a non-empty string
   `access_token`; `expires_in` is read as a number or numeric string; anything else fails with the
   provider's `error_description` cut to its first line (Microsoft appends trace ids), else its
-  `error`, else the HTTP status. Microsoft, Google and Claude exchanges share it.
+  `error`, else the HTTP status. Microsoft and Google exchanges share it.
 - **[S-1783]** Settings → Accounts: Microsoft and Google share one browser card ("Your browser opens
   *provider*'s sign-in page…", a live status line, Cancel). There is no code to copy for Microsoft any
   more.
@@ -953,8 +826,8 @@ OneDrive, GitHub and Claude usage. Ported from the classic app's `widgets/office
 Not ported: the anonymous endpoint probe and its preset health badges ([S-46], [S-48]) — the presets
 here are a fill-in table and the add itself is the check; the two-page preset picker and brand icons
 ([S-47]) — one form with auto-fill instead; STARTTLS on port 143 — the classic app spoke implicit TLS
-only; RSS "accounts" — feeds are a widget setting here; the `devOnly` gate on Google and GitHub OAuth
-— a release decision, not wired. Digest auth for DAV is not supported (basic only, as before).
+only; RSS "accounts" — feeds are a widget setting here; the `devOnly` gate on Google OAuth — a
+release decision, not wired. Digest auth for DAV is not supported (basic only, as before).
 
 ## System widgets: GPU, mixer and screen time
 
@@ -1107,8 +980,8 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   small and, once it holds TitleLarge, that step scaled to fill it, keeping its line-height ratio.
   It used to wait for Display to fit, so every box between the two drew a 40px readout.
 - **[S-642]** An empty state sheds to fit: the glyph goes first, then the sentence is held to the
-  lines the box has and ends in an ellipsis. Every empty state is `Fluent.EmptyState`; the stack, tabs
-  and countdown views no longer draw a text block of their own. The panel never touches the glyph's
+  lines the box has and ends in an ellipsis. Every empty state is `Fluent.EmptyState`; the countdown
+  view no longer draws a text block of its own. The panel never touches the glyph's
   `Visibility`, which several views own.
 - **[S-643]** CPU load and network throughput are deltas against a process-wide baseline, so a read
   within 250ms of the last real one is answered from that one. Two CPU tiles used to show 31% and
@@ -1118,8 +991,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - **[S-645]** The clock insets its readout fully at the sides and by half above and below.
 - **[S-646]** A reading's caption (meters, power, weather's condition) moves under the reading when
   it would be trimmed beside it, or when its own line lets the reading be drawn larger.
-- **[S-647]** The power headline's Subtitle floor applies only where Subtitle fits across the tile;
-  below that the widest step that fits, semibold, down to Body.
+- **[S-647]** *(Retired: the power tile is gone, [S-1910].)*
 - **[S-648]** A process row shows both numbers only from 232px of content; below that only the
   ranked one, and on a narrow tile the columns stop holding open their widest value. The "by CPU"
   label leaves a tile too narrow for it and the title both.
@@ -1135,8 +1007,6 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   condition→glyph map.
 - **[S-653]** The quote may grow to TitleLarge, is held to the lines that fit with an ellipsis, and
   gives up its attribution line on a tile too small for the quote itself.
-- **[S-654]** The colour swatch rebuilds when whether values fit changes, not only when the column
-  count or density does; the first build before layout had hidden values for good on some sizes.
 - **[S-655]** An informational header label ("Just now", "by CPU") gives the title at least 64px and
   is not drawn when less than 40px would be left for it. Through `MaxWidth`, never `Visibility`.
   Commands in the header are not touched; their views shed them.
@@ -1149,7 +1019,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - **[S-658]** A forecast row narrower than 160px is the day and its high; the icon and the low go.
 
 Known and left: sparklines grow in from the right for their first minute by design ([Sparkline]);
-the scrolling lists (feed, folder, apps, colour swatch on a tall tile) show a partial last row at
+the scrolling lists (feed, folder) show a partial last row at
 the bottom edge as any scrolling list does.
 
 ## Mail
@@ -1238,16 +1108,15 @@ placement and label do this for every widget), the "unread only" filter, and the
 `account:id` message ids (the account travels separately). Keyboard navigation, the header sort
 button, the scroll fade and the envelope icons are ported in [S-1281]..[S-1289].
 
-## Tasks and OneDrive
+## Tasks
 
-Ported from `widgets/office/todo` and `widgets/office/onedrive` on `main` and their Graph / Google
+Ported from `widgets/office/todo` on `main` and its Graph / Google
 calls in `widgets/office/email/src/lib.rs`, off the earlier hub program and onto Themia's own accounts. Owning
 files: `Themia.Core/Tasks/*` (model, due dates, list rules, wire, optimistic edits, Today fan-out,
-local store), `Themia.Core/Widgets/DriveRules.cs`, `Themia.Core/Model/Configs/{TasksConfig,OneDriveConfig}.cs`,
-`Themia.App/Services/Tasks/*`, `Themia.App/Services/Files/DriveService.cs`,
-`Widgets/{TasksView,TasksView.Rows,OneDriveView}.cs`, `Shell/Config/WidgetSettings.{Tasks,OneDrive}.cs`,
-Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`,
-`DriveRulesTests`.
+local store), `Themia.Core/Model/Configs/TasksConfig.cs`,
+`Themia.App/Services/Tasks/*`,
+`Widgets/{TasksView,TasksView.Rows}.cs`, `Shell/Config/WidgetSettings.Tasks.cs`.
+Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
 
 - **[S-590]** A Tasks widget reads Microsoft To Do (Graph) or Google Tasks through an account
   with the Tasks feature, or a list kept on this PC (`TaskSource`, a closed set). An empty account
@@ -1315,30 +1184,14 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`,
   or start a list", never on another list's tasks.
 - **[S-605]** Retired (the app is unreleased: no hearth-era config is read). Nulls a hand edit leaves in
   a Tasks config's strings, an unknown source or layout, and a broken row order are repaired on load.
-- **[S-606]** OneDrive (`WidgetKind.OneDrive = 47`, Launch) lists a Microsoft account's recent files or
-  a folder: a kind icon (folder, picture, video, audio, spreadsheet, presentation, document, file —
-  from the MIME type, then the extension), the name, and under it `size · 3h ago` for a file or the
-  age alone for a folder (Just now / m / h / d ago, then the date). A double-click opens a file's
-  OneDrive page through `ShellLauncher`'s allow list; nothing is downloaded.
-- **[S-607]** It starts in Recent files or My files (`DriveStart`) and lists 5–50 items (default 15),
-  newest first in a folder. One `DriveService` per app serves a listing younger than the caller's
-  allowance from memory and joins a request already out for the same address.
-- **[S-608]** It refreshes every five minutes on the shared ticker; a changed item count is fetched
-  once the slider settles; an account change clears the cache.
-- **[S-609]** A single click walks into a folder (only one on this drive — a shared folder from
-  another drive opens on the web like a file); a back row above the list returns one level, and past
-  the first folder to the configured start; a reply for a place the widget has since left is dropped.
-  Changing the account or the start throws the trail away.
 
 Not ported, deliberately: the pop-out window [S-39] (out of scope by user decision), the per-widget
-header hide and label [S-02, S-20] and OneDrive's [S-15] (the card's own header does this for every
-widget), the 600 ms delay before a completed task leaves the list [S-26] (no wall-clock timing in the
+header hide and label [S-02, S-20] (the card's own header does this for every widget), the 600 ms delay before a completed task leaves the list [S-26] (no wall-clock timing in the
 list; it leaves at once), the one-shot `localTasks` config-bag migration [S-59] (the app is
 unreleased: no compatibility code), and the single click on a title that renames with the caret at
 the click point [S-50] (a click focuses the row for the keyboard; double-click or F2 renames).
 Drag-to-reorder, keyboard navigation, Tab between editors, the scroll fade and the "!" badge are
-ported in [S-781]..[S-788]. OneDrive's scroll fade and single-click open are ported in [S-1281] and
-[S-1291].
+ported in [S-781]..[S-788].
 
 ## Calendar and contacts
 
@@ -1446,125 +1299,6 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
 (the classic app had none either). Keyboard navigation goes through the shell's keyboard lease: see
 [S-1269] / [S-1277] and [S-806] / [S-807].
 
-## Developer widgets: GitHub and Claude usage
-
-Five widgets in the picker's **Developer** section, on Themia's own accounts (Accounts page): the
-repository widget (`GitHub`), assigned issues (`GitHubIssues`), notifications
-(`GitHubNotifications`), review requests (`GitHubReviews`) and Claude usage (`ClaudeUsage`). Ported
-from the classic `widgets/online/github*` (tags `[S-NN]`, `[A-NN]`, `[N-NN]`, `[R-NN]`) and
-`widgets/online/claude-usage` plus the Rust `fetch_claude_usage`. Rules live in
-`Themia.Core/Developer` with tests in `GitHubRulesTests`, `GitHubPollingTests`, `DevScreensTests`,
-`ClaudeUsageTests` and `DeveloperConfigTests` (`S6xx_`).
-
-- **[S-610]** The repository widget shows the repository's name in the card header (the user's own
-  label still wins), the newest workflow run's verdict beside it (a coloured dot; the word —
-  passing, failing, running, queued — from 300px), stars, forks and open issues (k/M), the latest
-  release tag, language · last push · default branch, then Commits, Pull requests, Issues and
-  Workflow runs as one-line rows (short hash; `#n` coloured open/merged/closed/draft; `#n`; a
-  run's dot, name and branch). Under 180 wide the numbers stack; how the rest shares the tile is
-  [S-741]..[S-745]. (classic S-04..S-11)
-- **[S-611]** A repository is `owner/name`, a web address of one (github.com, Enterprise, `.git`,
-  deeper paths) or `github.com/owner/name` without a scheme; anything else is refused in settings
-  with the reason. The host of a pasted address is ignored: requests go to the account's own API
-  root, so a token is only ever sent where the user signed in. (classic S-12, S-39)
-- **[S-612]** Addresses as the classic app: `/repos/o/r`, `actions/runs?per_page=max(n,1)`,
-  `commits?per_page=n`, `pulls?state=all&sort=created&direction=desc&per_page=min(3n+5,100)`,
-  `issues?state=open&per_page=n+5` with pull requests dropped, `releases/latest` (a 404 there is
-  "no release"). Counts 0–10 (commits 3, pulls 3, issues 3, runs 5); 0 hides a list. Only the
-  repository itself is required: a failed side request is logged and drawn as absent, except a
-  rate limit or a lost sign-in, which stop the lot. A 404 on the repository reads "not found, or
-  this account cannot see it". (classic S-14..S-17, S-24..S-29)
-- **[S-613]** Pull requests: filter Open / Closed (merged included) / All, order Newest / Oldest by
-  creation, applied to the over-fetched list (classic issue #42, S-40, S-41).
-- **[S-614]** No repository set: the Set up button ([S-1862]); an invalid one
-  names itself. Account states come first. (classic S-01)
-- **[S-615]** Assigned issues: `search/issues?q=is:open is:issue archived:false assignee:@me`
-  (`(assignee:@me OR mentions:@me)` with mentions on), `sort=updated&order=desc&per_page=count`,
-  per account; repository from `repository_url`; count 1–25, default 8. (A-15, A-17, A-18)
-- **[S-616]** Review requests: `is:open is:pr review-requested:@me archived:false`; drafts dropped
-  unless asked for (twice the count fetched then, so drafts do not starve the list), drawn muted
-  with "draft" on the number. Rows add the author. (R-06, R-07, R-16, R-20)
-- **[S-617]** Notifications: `notifications?all={showRead}&participating={participatingOnly}&per_page=count`
-  per account, count 1–20 (default 5); each item keeps its account. Subject types read as words
-  ("Pull request", "CI").
-- **[S-618]** A row leads with its reason, a closed set: security critical; review, mention, team,
-  assigned and approval caution; author accent; the rest neutral. Read threads are drawn in the
-  secondary colour with a tertiary reason; the unread count is in the header. (N-06..N-08)
-- **[S-619]** A thread opens its issue or pull request from `subject.url` (`api.github.com` →
-  `github.com`, Enterprise `/api/v3` dropped, `pulls` → `pull`); any other shape, including a
-  comment URL, opens the repository instead of a page that 404s. (N-22)
-- **[S-620]** New: notifications are grouped under their repository (by web address, so the same
-  name on two hosts is two groups), groups ordered by their newest thread, each heading with its
-  unread count — when the list spans more than one repository and the body is at least 160px tall.
-- **[S-621]** Right-click a thread: Open in browser, Mark as read (`PATCH notifications/threads/{id}`,
-  disabled when read), Mark all in the repository as read (`PUT repos/{o}/{r}/notifications`),
-  through the thread's own account. The change shows at once; a failure puts it back and says why
-  in the header warning; success drops that account's cached notification validators and refetches.
-  (N-17, N-27)
-- **[S-622]** Several accounts merge newest first, cut to the count, the same issue seen by two
-  accounts listed once. One account failing still shows the others (with a header warning); every
-  account failing is a failure, never "nothing here". (A-17, R-03, R-18, N-21)
-- **[S-623]** Accounts: list widgets read the chosen GitHub accounts, or every one when none is
-  chosen ("Every GitHub account" in settings, so accounts added later join); the repository widget
-  and Claude usage read one (the first when none is chosen). Only ids are stored. (A-07, R-08, N-09,
-  S-13, S-37)
-- **[S-624]** One `GitHubService` per app (`AppServices.GitHub`): widgets open shared feeds keyed by
-  everything that changes the answer (never the token), so equal widgets cost one request; one
-  cache of answers keyed by account and address serves every feed; the last widget to let go stops
-  a feed. Polling rides the shared ticker. (S-35, A-21, R-23, N-25)
-- **[S-625]** Polite polling: every repeat GET is conditional (`If-None-Match` with the last ETag,
-  `If-Modified-Since` with the last `Last-Modified`), and a `304` — free against the budget — is
-  answered from the cache. Notifications follow `X-Poll-Interval` when it asks for longer than the
-  widget's cadence. A 403/429 with `X-RateLimit-Remaining: 0` or `Retry-After` is a rate limit, not
-  a refusal (`RateLimitRules`); it, or a success that spent the last request, holds every request
-  for that account until `Retry-After` / the reset (at most 2h), and the widget says when it will
-  ask again. The account service gained `AccountReply.Headers` and `IsNotModified`, and
-  `AccountException.ProviderMessage` / `RetryAt`, for this.
-- **[S-626]** Refresh every 5, 15, 30 or 60 minutes (5 by default; Claude 15); a stored value outside
-  5–60 is clamped on load. Each widget's right-click menu has Refresh. (S-20, S-23, A-10, A-14, N-13,
-  N-18, R-11, R-15)
-- **[S-627]** Double-click a row (or the release tag) to open it, through the launcher's allow list;
-  the row's tooltip carries its whole title and repository. (S-33, A-19, N-23, R-21)
-- **[S-628]** States, each its own sentence: no account at all is the Set up button ([S-1862]); a
-  signed-out chosen account (and, for the anonymous repository widget, a chosen account that is
-  gone: "Sign in to GitHub in Accounts.") offers an "Open Accounts settings" link (`AppServices.ShowAccounts`); an
-  account the service found refused says who needs to sign in again; loading; offline; rate limited
-  with the time; the provider's own reason for other refusals; and per-widget empty sentences.
-- **[S-629]** Counts as GitHub writes them (999, 1.2k, 12k, 3.4M); ages now / 5m / 3h / 2d, then
-  "4 Mar" (with the year when not this one).
-- **[S-630]** Claude usage: a bar per window — "Session (5h)" and "Weekly (all models)" always,
-  "Weekly (Opus)" / "Weekly (Sonnet)" when toggled (a null window is a 0% bar). Each bar has the
-  rounded percentage and, at the loosest density, a "resets in …" line that keeps its slot. (S-04,
-  S-05)
-- **[S-631]** `utilization` is already a percentage: clamped to 0–100, never rescaled (classic U-01).
-  Accent under 70%, caution 70–89%, critical from 90%. (S-06)
-- **[S-632]** "resets in 3d 4h" / "3h 20m" / "45m"; nothing for a null, past or unreadable time; the
-  prefix goes when the labels are shortened.
-- **[S-633]** `GET api.anthropic.com/api/oauth/usage` through the Claude account (the account service
-  renews the token, retries one 401, sends the CLI user agent and `anthropic-beta`). The body is
-  parsed strictly for the four windows; unknown buckets are ignored; a non-object body is a loud
-  error, never all zeros. (S-07, U-02)
-- **[S-634]** A 401 the service could not mend is "sign in again" (the account is marked, never
-  removed); a 403 is "lacks a permission: {Anthropic's reason}"; anything else names the status and
-  Anthropic's words. (classic `map_usage_error`)
-- **[S-635]** The widget never scrolls: rows draw at the loosest density that fits (label and % over
-  bar over reset; without the reset line; one line; one line sharing the leftover height), and the
-  labels shorten with the width ("Weekly (all models)" → "Weekly" → "7d"), estimated on the type
-  ramp. One-line rows are centred on a wide, short tile. (S-17, S-18)
-- **[S-636]** Settings: the Claude account (the first by default), the Opus and Sonnet toggles,
-  refresh. (S-09..S-12)
-- **[S-637]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-638]** Content stays through a failed refresh; the header shows a caution glyph whose tooltip
-  says what failed (and opens Accounts when the fix is there). (S-36)
-- **[S-639]** Lists show whole rows only: the scroll viewer is given the height of the rows that fit
-  (never ending on a section heading); the rest is a scroll away.
-
-Not ported: the legacy `config.token` migration (S-38; nothing is imported from the classic app, [S-523]),
-the per-widget `label` and `hideHeader` (the card's own title and header placement cover both), demo
-mode (S-32, S-15), and the single-click open (double-click, as every
-list on this desktop). The cache across restarts and anonymous public access are ported in
-[S-746]/[S-747] below.
-
 ## Responsive layout (shared foundation)
 
 - **[S-660]** A widget's content area (the card less its header) is classified per axis into
@@ -1590,9 +1324,9 @@ list on this desktop). The cache across restarts and anonymous public access are
 Prep for the parallel shell and widget packages (S-700..S-719). Mostly file layout; the behaviour
 rules are these.
 
-- **[S-700]** Calculator, Clock, Colour swatch and Web search start with their header **hidden**, as
-  in the original (extends [S-485]; `WidgetInstance.DefaultHeader`). Only creation reads the default;
-  a loaded widget keeps the placement it was saved with.
+- **[S-700]** The clock starts with its header **hidden**, as in the original
+  (`WidgetInstance.DefaultHeader`). Only creation reads the default; a loaded widget keeps the
+  placement it was saved with.
 - **[S-701]** The app pages of the settings window come from one table, `ConfigPages.AppPages`
   (page, title, glyph, main or footer slot, builder). The navigation and the body both read it, so a
   page is added with one line plus its own `ConfigPages.<Page>.cs`. A reserved `AppPage` value with
@@ -1665,62 +1399,6 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   ([S-811]). Not ported: a file or folder caption
   of date taken. The slide minimum is 1 s, as in the original ([S-1620]).
 
-## GitHub widgets: filling the tile, detail, saved copies
-
-Round 3 of the four GitHub widgets (`GitHub`, `GitHubIssues`, `GitHubNotifications`,
-`GitHubReviews`). Rules in `Themia.Core/Developer` (`DevLayout`, `DevSavedCopy`, `GitHubRules`,
-`DevScreens`, `GitHubPolling`), tests in `DevLayoutTests`, `DevSavedCopyTests`, `GitHubDetailTests`,
-`DeveloperConfigTests` (`S74x_`).
-
-- **[S-740]** "Fill the tile" (`FillTile`, on by default) on every GitHub widget: the feed asks for
-  the most a list may hold (search 25, notifications 20, each repository list 10; a repository list
-  at 0 stays hidden) and the view shows the whole rows that fit, so a bigger tile shows more. Off,
-  the counts are exact. Settings: a toggle over the count, which hides while filling.
-- **[S-741]** The repository widget's lists share their height by quota (`DevLayout.Quota`): every
-  list that has something gets its heading and one row first (priority commits, pull requests, runs,
-  issues), then rows are dealt one at a time; a heading over the only list shown gives its room to a
-  row. A wide strip (Wide shape, at least 400 wide) puts the numbers in a 170 column and the newest of
-  each list beside them, without headings.
-- **[S-742]** From 520 wide the repository's lists sit in two columns (commits and runs | pull
-  requests and issues), and grouped notifications put their repositories in two columns, a group
-  starting the second column when it would not fit whole under the first (`DevColumns`, each column
-  a whole-rows host).
-- **[S-743]** Rows grow sideways: a two-line row adds its detail at the right of its second line from
-  400 wide and label chips from 480 (one-line rows: 640 / 720). Issues and reviews: "author · N
-  comments" and labels; notifications ungrouped: the subject type; repository rows at a Huge height
-  are two-line with the commit author, the pull request's author and state word, the issue's author,
-  comments and labels, the run's branch and "trigger · actor". Search lists go two-line from 168 of
-  body (other lists 200). The tooltip carries everything a row trims.
-- **[S-744]** New fields from payloads already fetched: commit author (name, else login), pull request
-  author, issue author / comment count / labels (named only, at most five, colour kept only as six hex
-  digits; chips draw a dot in that colour on the theme's subtle fill, two at most, then "+N"), run
-  event ("pull request") and actor, search items' comments and labels.
-- **[S-745]** The repository's description (first line) shows from an Expanded height (one or two
-  lines by estimate), or fills the room a tile too short for any list has left. From 400 wide the
-  release tag sits in the header beside the verdict (double-click opens it); at Huge × Huge the
-  summary adds "tag · release name · released 3d".
-- **[S-746]** Anonymous public access (classic S-13): with no GitHub account signed in and none
-  chosen, the repository widget reads as `github:anonymous` — no token, github.com, its own
-  rate-limit gate and cache — never faster than every 15 minutes (60 requests an hour per address;
-  a repository costs six, a `304` none). A 401 there is a refusal, not a broken sign-in; a 404 says a
-  private repository needs an account. A chosen account that left still says so. Settings call the
-  account optional. List widgets still need an account.
-- **[S-747]** Saved copies (classic S-34, A-22, R-24, N-26): each feed's last good answer per
-  account is written atomically to `%LOCALAPPDATA%\Themia\Cache\GitHub\<hash>.json` (an
-  envelope: `schemaVersion`, key, account, fetch time, value; the name a hash of key and account; no
-  token). On start it is shown at once, flagged by the header caution "Showing what was saved 3 h ago;
-  refreshing." until the first answer lands (a failed refresh's own warning outranks it). A file of
-  another version, feed or account, older than a week, or that does not parse is ignored with a log
-  line. A signed-out account's copies are deleted; copies untouched for a week are pruned.
-- **[S-748]** Notifications: an accent dot before an unread title wherever read and unread are both
-  listed (not colour alone); the widget menu's "Mark all as read" sends `PUT notifications` per
-  account read, optimistic with rollback as [S-621].
-- **[S-749]** Row menus: Open in browser, Copy link, Open repository (from the item's own page,
-  `GitHubRules.RepoPageOf`); reviews add "Open changed files"; notifications keep their mark-read
-  items. The repository widget's menu adds "Open repository".
-
-Keyboard navigation of rows is ported through the keyboard lease ([S-810]). Not ported: the search total ("8 of 23") and grouping issues by repository (extras, not classic).
-
 ## Weather: current conditions and forecast
 
 Round 3 of `WeatherNow` and `WeatherForecast` (originals `weather-current`, `weather-forecast`).
@@ -1787,7 +1465,7 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
 Not ported: wind in mph for °F (the original had none either); a gradient fill on the range bar
 (solid accent, as every other bar in the app); the refresh stepper (fixed choices app-wide).
 
-## Tasks and Claude usage: using the whole tile, and the rest of the original
+## Tasks: using the whole tile, and the rest of the original
 
 - **[S-780]** Tasks ladder (`TaskLayout.Plan`, from the card's `WidgetArea`): one task always; the add
   row from Regular height; the summary strip on an Expanded × Expanded panel; the list takes the rest.
@@ -1823,22 +1501,6 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 - **[S-788]** Tab in a rename box commits and opens the next task's box (none past the last); in the
   add box it commits and keeps it open; Shift+Tab commits and closes (classic S-56).
 - **[S-789]** Under Today on a panel each row names its list (the account's lists, cached).
-- **[S-790]** Claude usage spends the height stacked rows leave: thicker bar (6 → 12), then the
-  percentage at Subtitle, then gaps up to 24; what is left centres the rows.
-- **[S-791]** One-line rows on a strip at least 360 wide carry a reset column ("2h 9m"); labels
-  shorten to make room for it.
-- **[S-792]** An XS tile with one or two bars shows the session percentage as a hero in its severity
-  colour over its bar, and "7d 73%" under it.
-- **[S-793]** On an Expanded-wide tile each stacked row adds the reset's clock time and the pace
-  ("resets in 3d 4h · Wed 16:00 · ahead of pace") and a tick on the bar at the share of the window
-  gone; windows are 5 h and 7 d; within 5 points is "on pace".
-- **[S-794]** A session gauge (270° arc, percentage and countdown inside, pace tick across the ring,
-  label and pace under it): beside the weekly bars on a Huge-wide panel, or on any Expanded panel with
-  one or two bars; above the week in a tall column with one or two bars.
-- **[S-795]** "Updated 3m ago" under the rows from Regular height, with the account's name when the
-  gauge is beside the bars.
-- **[S-796]** Refresh is a 5–60 minute slider in steps of five (the classic stepper); a stored 10 or
-  45 is kept, not snapped to a preset.
 
 ## No backwards compatibility
 
@@ -2025,50 +1687,77 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
 
 ## Power and Bluetooth
 
-Port of `main`'s Power (`widgets/system/power`, [S-01]..[S-11]) and Bluetooth (`widgets/system/bluetooth`,
-[S-01]..[S-16]) plus the round-3 ladder. Core: `PowerActionRules`, `PowerArm`, `PowerTileLayout`,
-`PowerStrip`, `BluetoothRules`, `BluetoothLayout`; tests `PowerActionTests`, `BluetoothLadderTests`.
+Power: one widget per action (R7-POWER), replacing the port of `main`'s Power tile
+(`widgets/system/power`, [S-01]..[S-11]). Bluetooth: port of `main`'s Bluetooth
+(`widgets/system/bluetooth`, [S-01]..[S-16]) plus the round-3 ladder. Core: `PowerActionRules`,
+`PowerButton`, `PowerFace`, `BluetoothRules`, `BluetoothLayout`; App: `PowerButtonView`,
+`Win32PowerActions`; tests `PowerActionTests`, `BluetoothLadderTests`.
 
-- **[S-1240]** Power is the original's **actions tile** (shut down, restart, sleep, hibernate, lock,
-  sign out, display off), not a status readout. The former status facts live on as a strip
-  ([S-1250]). One widget, no flag.
-- **[S-1241]** `PowerAction` is a closed enum at every boundary, stored by name. On load
-  `PowerConfig.Repair` drops undefined numbers and duplicates and says so; an unknown name fails
-  the state load like every other enum.
-- **[S-1242]** `Actions` is the ordered list of buttons; default shut down, restart, sleep, lock
-  (orig. [S-02]). Settings list every action once — chosen ones first in tile order, each with a
-  switch and move up/down.
+- **[S-1910]** Each power action is its own widget kind and picker entry, with its own glyph, name and
+  description: **Shut down** (`Shutdown`), **Restart**, **Sleep**, **Hibernate**, **Lock**, **Sign
+  out** (`SignOut`) and **Turn off display** (`ScreenOff`), in the System section, default size
+  120×120. The kind maps to its `PowerAction` in Core (`PowerActionRules.ForKind`/`KindOf`); one
+  view (`PowerButtonView`) serves all seven. Each kind has an empty config of its own
+  (`ShutdownConfig` … `ScreenOffConfig`, base `PowerButtonConfig`): nothing to set beyond the card's
+  common settings, so the settings page shows only those, and a power widget never needs setting up.
+  There is no combined power tile, no power-state strip (source, plan, battery saver, time left), no
+  power plans or timeouts, and no power-state sampling. A state file with the old `power` kind fails
+  load validation like any unknown kind ([S-1050]).
+- **[S-1911]** The whole widget is the button. A new power widget has no header ([S-700]); the icon is
+  centred with the name under it. Hover and pressed paint Windows 11's subtle fills
+  (`SubtleFillColorSecondary`/`Tertiary`) across the whole content area, inside the card's own fill,
+  border and corners; a click is press and release on the tile (sliding off cancels). It is not a
+  `Button`: in edit mode the press is left to the card, which selects and moves the widget, so a
+  click there never runs anything (`IWidgetSurface.EditMode`).
+- **[S-1912]** Ladder (`PowerFace`): Compact width (XS) is the icon alone; from Regular width the name
+  sits under it on a ramp step fitted to the width (Body to Title, about a sixth of the height). The
+  icon's square (icon plus the arm ring) takes the rest, 24–192 DIPs, the icon two thirds of it. The
+  label slot is planned for the taller of the name and the armed sentence, so arming moves nothing.
+- **[S-1913]** Shut down, restart, sign out and hibernate arm on the first click: the tile turns to
+  the critical background, the icon and a draining ring in the critical colour, and the name becomes
+  "Click again to shut down" (wrapping to two Caption lines where one does not fit; the tooltip
+  carries it at XS). The second click within 5 s runs it; a second click within 400 ms of arming is
+  ignored (a double-click is one intent); the arm ends after 5 s, on pointer exit, on a config change
+  or when the widget goes away. Sleep, lock and display-off run on one click. The window is checked by
+  `PowerButton` against the press time; the ring's 50 ms repaint is cosmetic.
+- **[S-1914]** Hibernate is offered only where the machine can (`IsPwrHibernateAllowed`): elsewhere
+  the widget is drawn in the disabled text colour, takes no hover or press, and its tooltip says
+  "Hibernation is turned off on this PC". The probe runs when the widget attaches and when the
+  pointer comes onto it, so turning hibernation on shows up without polling.
+- **[S-1915]** A failed action shows the warning glyph and "Could not <verb>: <reason>" in the
+  critical colour in the label's place (tooltip at XS) until the next press, and logs a warning
+  ([S-1246]).
+- **[S-1916]** One run at a time per widget: a press while the action is still running (sleep runs
+  until the machine resumes) does nothing.
+- **[S-1917]** Debug: `--widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name]`
+  draws one widget in a real card on a preview host ([S-1251]), off-screen, at the seven tiers of
+  `WidgetTiers` (or once at `w h`), labelled. `--state` asks a view that implements
+  `IWidgetPreviewState` for an interaction state a render cannot click into — for the power widgets
+  `hover`, `pressed`, `armed`, `failed`, `unavailable`. States, not sample data ([S-1863]).
+- **[S-1918]** The seven power widgets are their own picker section, Power, after System.
+- **[S-1240]** *(Retired: one widget per action, [S-1910].)*
+- **[S-1241]** *(Retired: `PowerAction` is no longer persisted; the kind is the action, [S-1910].)*
+- **[S-1242]** *(Retired: no action list, [S-1910].)*
 - **[S-1243]** Win32 only, no `shutdown.exe` (orig. [S-03]/[S-09]): `ExitWindowsEx`
   (`EWX_POWEROFF`/`EWX_REBOOT`/`EWX_LOGOFF` | `EWX_FORCEIFHUNG`, planned reason), `SetSuspendState(h, 0, 0)`,
   `LockWorkStation`, `SC_MONITORPOWER` broadcast via `SendMessageTimeout`. `SeShutdownPrivilege` is
   enabled per call for shut down, restart, sleep and hibernate; `ERROR_NOT_ALL_ASSIGNED` after a
   "successful" `AdjustTokenPrivileges` is "not allowed". The token is a `SafeHandle`. The plan per
-  action is decided in Core (`PowerActionRules.Plan`); `Win32PowerActions` only executes it, on a
-  worker thread (sleep blocks until resume, orig. [S-04]); one action at a time.
-- **[S-1244]** `ShowLabels` (default on) puts names under icons where the tile has room; set in the
-  settings only ([S-1746]; the original's context toggle is gone).
-- **[S-1245]** With `Confirm` on (default), shut down, restart and sign out arm on the first press
-  ("Confirm" in the critical colour) and run on the second; sleep, hibernate, lock and display-off
-  never arm (orig. [S-05]). `Confirm` off runs everything on one press.
-- **[S-1246]** A failed action shows "Could not <verb>: <reason>" as the tile's first status line in
-  the critical colour and logs a warning (WinUI has no toast pipeline; orig. [S-07]).
-- **[S-1247]** One armed tile at a time; it disarms after 5 s, on pointer exit, on a config change,
-  or when another arms (orig. [S-06]). The 5 s window is checked by `PowerArm` against the press
-  time, so safety does not depend on the repaint timer. **New:** a second press within 400 ms of
-  arming is ignored — an accidental double-click cannot end the session.
-- **[S-1248]** Ladder (`PowerTileLayout`): every button labelled (cell ≥ 64×56), else every button as
-  an icon (≥ 32×28), else the first ones that fit; the grid picks the squarest cells (cell height
-  capped at 132). The status strip only takes room that keeps the buttons on the same rung. XS/S:
-  icons only (2×2 for four). M/Tall/L: strip under the buttons. Wide: strip beside.
-- **[S-1249]** Huge×Expanded (XL): buttons left, a side panel right with every status fact as a row
-  and the machine's power plans (`PowerEnumerate`), the active one marked. Read-only.
-- **[S-1250]** Status strip facts, in drop order: source (with charge on a laptop), plan
-  (`ShowPlan`), time left while discharging (`ShowTimeRemaining`), battery saver (`ShowBatterySaver`,
-  battery only). Unreadable power state is one line saying so.
+  action is decided in Core (`PowerActionRules.Plan`); `Win32PowerActions` (an `IPowerBackend`) only
+  executes it, on a worker thread (sleep blocks until resume, orig. [S-04]).
+- **[S-1244]** *(Retired: the name shows by the ladder, [S-1912].)*
+- **[S-1245]** *(Retired: which actions arm, and that they always do, is [S-1913].)*
+- **[S-1246]** A failed action says "Could not <verb>: <reason>" on the widget in the critical colour
+  ([S-1915]) and logs a warning (WinUI has no toast pipeline; orig. [S-07]).
+- **[S-1247]** *(Retired: one widget, one arm, [S-1913].)*
+- **[S-1248]** *(Retired: one button per widget, [S-1912].)*
+- **[S-1249]** *(Retired: no status panel, [S-1910].)*
+- **[S-1250]** *(Retired: no status strip, [S-1910].)*
 - **[S-1251]** A debug render's cards are previews (`IWidgetSurface.IsPreview`, from the render's
-  card host): the power view's backend is `InertPowerActions` there. The view starts inert and switches to
-  the real backend only when bound to a non-preview surface (orig. [S-08] demo mode).
-- **[S-1252]** No actions chosen is the Set up button ([S-1862], orig. [S-11]).
+  card host): a power widget's backend is `InertPowerActions` there, which logs and runs nothing (it
+  still answers the hibernate probe truthfully). Only a card on a non-preview surface gets
+  `Win32PowerActions` (orig. [S-08] demo mode).
+- **[S-1252]** *(Retired: a power widget always has its action, [S-1910].)*
 - **[S-1253]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1254]** Bluetooth ladder (`BluetoothLayout`): the list takes every whole row the tile has
   (snapped, the rest scrolls); `MaxCount` is a ceiling (1–30, default 20), not a target. Status word
@@ -2220,7 +1909,7 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
   `TYPE` (so `TEL;CELL;PREF` is preferred). Lenient: a stray `=` stays.
 - **[S-1279]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
-## Mail and OneDrive: the whole tile
+## Mail: the whole tile
 
 - **[S-1280]** Mail's ladder (`EmailView.Lay`, rules in `MailLayout`): the first row always; the row
   view's column titles from 140px of height; then as many whole rows as fit. Stacked rows shed account
@@ -2231,7 +1920,7 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
   continues below the viewport, rows within 48px of its bottom edge fade to 0.35 opacity (the Tasks
   depth and floor, [S-781]); scrolled to the end every row is whole. Opacity per row, never a
   gradient over the list (the card can be transparent). Event-driven: scroll, size, one layout pass
-  after a rebuild. Used by Mail and OneDrive.
+  after a rebuild. Used by Mail.
 - **[S-1282]** Envelope: a closed envelope (accent) in front of unread mail, an open one (tertiary)
   in front of read mail, from 300px wide, in every view; the unread accent bar stays.
 - **[S-1283]** One-line rows (list and compact views) from 640px wide, or from 420px on a strip under
@@ -2261,34 +1950,16 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
   or on app blur is the lease's job.
 - **[S-1289]** Mail's header carries a sort button (from 200px wide) that turns the list round and
   saves `SortOrder`, like the menu's toggle; its tooltip says the current order.
-- **[S-1290]** OneDrive's ladder (`OneDriveView.Lay`, rules in `DriveLayout`): the back row inside a
-  folder; then, where the text has 216px, one line per item with detail columns beside the name —
-  Modified, then Size (a folder's item count), then Modified by, then Location (recent files only) —
-  each added while the name keeps 120px, a column that misses closing the ladder, and shown in
-  Explorer's order with Size last at the right edge; column titles from
-  280px of height; a narrow tile with height keeps the details as a second line; a narrow short one
-  shows names only. Then as many whole rows as fit.
-- **[S-1291]** `ClickMode` (`ItemClickMode`, shared with the file explorer): files open on a double
-  click (default) or a single click; folders always open on a single click. In double-click mode a
-  single click focuses the row. Item menu: Open / Open in browser, Copy link.
-- **[S-1292]** OneDrive's item count is a floor too: `max(FileCount, rows that fit)`, 5 to 50.
-- **[S-1293]** Graph `$select` adds `lastModifiedBy` and `parentReference`: who changed an item, the
-  folder it is in (`/drive/root:/Work/Q%203` reads "Work › Q 3", the top "My files", any other path
-  nothing) and a folder's child count ("1 item", "12 items").
-- **[S-1294]** On a tile ≥ 480px of content height the drive's quota sits under the list ("12 GB of
-  1.0 TB used", `GET /me/drive?$select=quota`), cached 30 min per account and single-flight in
-  `DriveService`; a failure is logged and means no footer, never an error on the widget.
 - **[S-1295]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
-Not ported, deliberately: OneDrive image thumbnails (an XL-only extra, not in the original; every
-row would cost a download). Main's low-level keyboard hook for list focus (the lease replaces it).
+Not ported, deliberately: main's low-level keyboard hook for list focus (the lease replaces it).
 
-## Clipboard, Countdown and Mood: the whole tile
+## Clipboard and Countdown: the whole tile
 
-Code: `Widgets/ClipboardView.cs`, `Widgets/CountdownView.cs`, `Widgets/MoodTrackerView*.cs`,
+Code: `Widgets/ClipboardView.cs`, `Widgets/CountdownView.cs`,
 `Widgets/ItemMenu.cs` (submenus), `Shell/Config/WidgetSettings.{Clipboard,Countdown}.cs`,
 Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
-`CountdownLayout.cs`, `MoodLayout.cs`, `MoodInsights.cs`, `ItemCursor.cs`,
+`CountdownLayout.cs`, `ItemCursor.cs`,
 `Model/Configs/CountdownConfig.cs`. Tests: `TrackersLayoutTests` (S1440..S1457).
 
 - **[S-1440]** Clipboard keeps 1–200 entries, default 50 (original `maxItems`); the slider steps by 1.
@@ -2318,59 +1989,21 @@ Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
   Short or narrow tiles use compact rows; a compact list ≥260 wide shows the date as a column.
 - **[S-1448]** `CountdownTimer.Created` (set when added in settings): L/XL draw a progress bar under
   the hero, XL under each row too. Unknown (unset) or not before the target: no bar.
-- **[S-1449]** Mood faces (original S-01): five drawn faces (circle, eyes, mouth from frown to smile)
-  on the heatmap's wash; the number and name are the tooltip and accessible name.
-- **[S-1450]** A day's tooltip is its sentence plus one line per entry, oldest first, with the
-  thought ("21:40 · Good: long walk") — the original S-12 hover.
-- **[S-1451]** Right-click a logged day: its date, then each entry, with "Delete this entry" one
-  submenu down (original S-12); an empty day opens no menu (the card's opens).
-- **[S-1452]** Mood stacked ladder (`MoodLayout.Plan`, width < Expanded): faces always → one map row
-  → thought box (H ≥ Regular) → footer (H ≥ Regular) → the map takes the rest, preferring three weeks
-  to bigger squares (fixes M never showing the thought box); labels and digits from 18px squares.
-- **[S-1453]** Wide tiles (W ≥ Expanded) split: a left pane (faces, thought, footer, insights) and the
-  map beside it with weeks as columns, weekdays as rows, weekday names down the left and month names
-  on top; weeks = what fits, capped by the setting; the left pane takes the rest of the width. A
-  month span is always shown whole (squares shrink; [S-1573]).
-- **[S-1454]** Insights (split, H ≥ Regular): "How it went" (count per level) and "By weekday"
-  (average per weekday), both over the map's window, then (when the pane still has room, XL)
-  "In this window": days logged of days elapsed, best run, thoughts written; L/XL list recent
-  thoughts under the map
-  ("Tue 29 Sep · Good: …"), as many whole rows as fit.
-- **[S-1455]** Mood `HandleKey`: Left/Right/Home/End move a cursor over the faces (focus stroke),
-  Enter logs that face, Escape drops it. For the keyboard lease; not live-verified.
 - **[S-1456]** `ItemMenuEntry.Children` makes an entry a submenu (`MenuFlyoutSubItem`), separators
   collapse inside it as at the top level.
 - **[S-1457]** `ItemCursor.Move`: the shared list cursor (Up/Left back, Down/Right forward, clamped;
   Home/End; Escape clears; no cursor + forward = first, + back = last).
 
 Not ported, deliberately: clipboard pin (an optional extra the audit listed, not in the original);
-Countdown keyboard (the original had none); Countdown C-61 keep-open (above). Mood `storageMode` stays
-gone (one source). A Month span on an XS/S tile can need more height than it has (six rows at the
-minimum square); it then clips at the bottom.
+Countdown keyboard (the original had none); Countdown C-61 keep-open (above).
 
-## CPU and processes
+## CPU
 
 - **[S-1140]** CPU: percent of all cores (`GetSystemTimes` delta, shared per tick [S-643]); the reading
   and its history only ([S-1762]). The clock, per-core strip, sensors, totals and top processes of the
-  earlier ladder ([S-1141], [S-1142], [S-1145]..[S-1150]) are removed with their settings.
+  earlier ladder ([S-1141], [S-1142], [S-1146]..[S-1150]) are removed with their settings.
 - **[S-1143]** Uptime wording (`CpuRules.Uptime`, used by the power tile), two largest units:
   `3d 4h`, `2h 5m`, `7m`.
-- **[S-1144]** Process and thread totals (`CpuRules.Totals`), the process list's footer:
-  "312 processes · 4,210 threads".
-- **[S-1145]** Process names in the process list are friendly (`ProcessLabels`: the version-info
-  description, resolved off the UI thread once per pid + image; the image name until then or when
-  there is none). One process walk per 2 s is shared by every reader (`ProcessList.Recent`).
-- **[S-1151]** Processes: whole rows (`Disclosure.TakeRows`) up to a ceiling 1–30 (default 20), so a bigger
-  tile shows more. Laid out from `IWidgetSizeAware`, no private `SizeChanged`.
-- **[S-1152]** Processes columns (`ProcessTable.Columns`): the ranked figure always, then the other figure,
-  threads, pid, each while the name keeps 96 px; a step that does not fit ends the ladder. Keeps [S-648]'s
-  232 px boundary for the second figure; under 160 px figures drop their reserved width and the "by CPU" label goes.
-- **[S-1153]** Processes at H ≥ Expanded: column headers (ranked one stronger) and a footer
-  "312 processes · 4,210 threads" (ShowTotals); at Expanded × Expanded a hairline share bar per row
-  (CPU share, or working set over physical memory).
-- **[S-1154]** Re-rank in place: clicking the CPU / Memory heading (or the setting); persisted
-  through `RequestSave`. No card-menu entry ([S-1746]).
-- **[S-1155]** Processes settings: Rank by, Most processes (1–30), Columns: Memory, Threads, Process ID, Totals.
 - Not ported: the original's per-core grid ([S-1762]: the meter is its reading and history).
 
 ## Displays (WP2)
@@ -2618,7 +2251,7 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
 `KeyboardLeaseTests`), carried out by `AppHost.Keyboard.cs` and `DesktopWindow.Input.cs`.
 
 - **[S-800]** One lease, app-wide, one holder. Outside edit mode a press anywhere in a card (handled
-  presses too; the innermost card of a container) asks for it: a view implementing `IWidgetKeys`
+  presses too) asks for it: a view implementing `IWidgetKeys`
   takes it, any other press ends the current holder's lease, on any display. The holder's surface
   drops `WS_EX_NOACTIVATE` and becomes the foreground window; the z-order controller keeps it on the
   desktop. If Windows refuses the foreground the lease is dropped at once (logged), so the surface is
@@ -2649,17 +2282,13 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
 - **[S-808]** Tasks ([S-787]) and **[S-809]** Habits ([S-1428]): keys arrive through `HandleKey`
   (the per-row `KeyDown` / `PreviewKeyDown` handlers are gone); `UpdateKeyboard` asks only for an
   open editor. The lease ending while an editor is open forgets the row; the box's blur commits it.
-- **[S-810]** GitHub (repository, issues, reviews, notifications; `RowCursor`): a click on a row
-  focuses it (XAML focus, system focus rect: no layout cost), Up/Down/Home/End move (clamped,
-  `ItemCursor`), Enter opens the row's page, the Menu key opens its menu, Escape lets go; the focus
-  follows its row's link across redraws and is dropped when the row leaves.
 - **[S-811]** Pictures (Gallery widget) slideshow: Left / Right step, Space pauses (the original's S-29). Other
   layouts take no keys.
 - **[S-812]** Tasks and Habits with the lease but no row focused: a movement key lands on an end
   (Up/Down/Home/Tab the first, End/Shift+Tab the last); Enter, Delete and F2 do nothing.
 
-Not wired here (lanes still running; see the WP11 report): Mail, OneDrive (`ListKey` handlers),
-Clipboard and Mood (`HandleKey(WidgetKey)` ready), Notes' list, CPU/Processes and Network drives.
+Not wired here (lanes still running; see the WP11 report): Mail (`ListKey` handlers), Clipboard
+(`HandleKey(WidgetKey)` ready), Notes' list and Network drives.
 Not live-verified: focus taking, Alt+Tab, deactivation timing, IME (see the report).
 
 Key routing was fixed after this section was written: the holder now gets its keys in the tunnelling
@@ -2673,8 +2302,8 @@ Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMete
 ([S-1762]).
 
 - **[S-1180]** Battery: charge from `GetSystemPowerStatus`; charging is the `BatteryFlag` charging bit,
-  not the plug. The no-battery decision is `PowerRules.Read`'s, so the meter and the power tile
-  agree; a machine with no battery shows an empty state.
+  not the plug. The no-battery decision is `BatteryRules.Read`'s (bit 7 of a known flag with no
+  usable percentage; 255 is "unknown", not "none"); a machine with no battery shows an empty state.
 - **[S-1186]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1187]** The battery reading leads with the Segoe Fluent battery glyph filled to the nearest
   tenth, with a bolt while charging, in the pressure colour (`MeterPart.Badge`).
@@ -2774,7 +2403,7 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   ([S-1301]), 64 KB cap, the bytes must be ICO/PNG/GIF/JPEG/BMP (not HTML, not SVG), one request per
   origin per session shared by every row and widget, a missing icon retried after 6 h; decoded at
   2× the 16px drawn size. A globe stands in until it arrives or when there is none.
-- **[S-1305]** Rss ladder (`FeedLayout.Plan`, rows shown whole per [S-639], measured since rows are
+- **[S-1305]** Rss ladder (`FeedLayout.Plan`, rows shown whole, measured since rows are
   as tall as their headlines, the rest a scroll away with the shared fade [S-1281]): rung 0 the
   newest headline, two lines (one if even that does not fit); its age; its site icon from 180px of
   row width (inline at the start of the age line); the site's name on its own line from 240px; two
@@ -2986,8 +2615,7 @@ Not ported, on purpose: the original's Developer section and Logs page — devel
 logging, the session list of records ([S-1724]); DevTools (no web view), demo mode and dev views (the
 showcase views, [S-1810], play that role), the per-window webview log forwarding gate and console-noise
 filter ([LOG-02], [LOG-03]; no webview), the dependency DEBUG cap ([LOG-06]; .NET libraries do not
-log into `Log`). Not done here: the original's pre-release gate on the Google and GitHub sign-in
-providers (a launch decision, not a developer feature).
+log into `Log`). Not done here: the original's pre-release gate on the Google sign-in provider (a launch decision, not a developer feature).
 
 ## Mixer and Volume (SYS-P5)
 
@@ -3054,13 +2682,12 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
 - **[S-1560]** One key vocabulary: `ListKeys.Decide` takes the lease's `WidgetKey` (the separate
   `ListKey` enum and `RowFocus.Key(VirtualKey)` are gone). Keys a list has no use for (Left/Right,
   Tab, Space) decide `None` and go on to the surface; the Menu key (or Shift+F10) is
-  `ListCommand.Menu`, the focused row's menu. Mail and OneDrive implement `IWidgetKeys` (no view
+  `ListCommand.Menu`, the focused row's menu. Mail implements `IWidgetKeys` (no view
   `KeyDown`): Up/Down, Page Up/Down, Home/End, Enter opens, Delete deletes (Mail, where the account
   allows), Menu, Escape (also every lease end) clears the row focus.
 - **[S-1561]** Clipboard takes the lease: Up/Down/PgUp/PgDn/Home/End move a cursor, Enter copies the
   entry back, Delete removes it from the history (cursor stays on the row that moved up), Menu opens
   its menu, Escape drops the cursor.
-- **[S-1562]** Mood takes the lease: arrows/Home/End over the five faces, Enter logs the face.
 - **[S-1563]** Notes: the XL note list answers the lease (Up/Down/PgUp/PgDn/Home/End, Enter opens,
   F2 renames, Delete deletes after asking, Menu, Escape). Only the editor and a rename box request
   the keyboard for typing; a click on a list row parks focus on the list host (outside the
@@ -3068,11 +2695,6 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
 - **[S-1564]** `IWidgetKeys.WantsKeys` (default true): a view whose keys belong to a part shown only
   at some sizes says no while it is off screen, so the click does not take the keyboard. The card's
   `TakesKeys` honours it.
-- **[S-1565]** `KeyedCursor`: a cursor over a list that re-sorts under it remembers its item (a
-  pid), not its row; Up/Down clamp, Home/End jump, Escape clears, Left/Right/Enter/PgUp/PgDn are
-  not its keys. An item that left the list marks no row.
-- **[S-1566]** Processes: Up/Down/Home/End move a ring over the processes shown; it follows its
-  process through re-rankings. Rows carry the inset ring; the column headings step in by as much.
 - **[S-1568]** RSS: the Menu key opens the focused item's menu.
 - **[S-1569]** Bluetooth detail panel: on a tile Regular+ wide and Expanded+ tall with one column of
   rows that leaves at least 128 DIPs (`BluetoothLayout.DetailMinHeight`), the height under the rows
@@ -3081,20 +2703,6 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   (`BluetoothRules.AddressText`, "A4:C3:…"). The device is the last clicked row while it is listed,
   else the first (`BluetoothRules.Selected`); its row stays lit. Narrow columns stack the facts and
   let the name wrap to two lines.
-- **[S-1570]** (superseded by S-1573) Mood Month on a short tile used to shed weeks of the month.
-- **[S-1573]** Mood Month is whole or it is the recent weeks, never a partial month and never clipped.
-  Invariant (`MoodLayout.Plan`, test `S1453_a_month_view_is_whole_or_...`): `plan.Recent == false`
-  means every week of the month is drawn; `Recent == true` means the month was replaced by a
-  rolling map of fewer weeks. Stacked, the month's floor (all its weeks at the smallest legible
-  square, 9 DIPs) is reserved right after the faces, before the thought box and the footer; so on a
-  short tile the box, the footer and the weekday labels (squares < 18) give way first, and squares
-  shrink toward 9. If even the floor does not fit (XS, S: 4 to 6 weeks need 49 to 74 DIPs under
-  the faces), the map shows the weeks that fit at 9 DIPs ending with this one (`MoodGrid.Rolling`,
-  1 to month-weeks minus 1) and the header says so (`MoodLayout.Caption`): "This week" / "Last N
-  weeks"; a whole month is captioned with its name. The caption is also the map's tooltip and
-  accessible name, because a header too narrow for a label (XS, `HeaderFit`) draws none. The footer's
-  average covers the weeks shown. Split tiles (width at Expanded) always hold the whole month
-  (squares shrink to 9). `MoodGrid.Window` is gone.
 - **[S-1571]** Habits one height class down (Regular, e.g. M): the height no whole row can use
   carries the summary's line ("3 of 5 done today · 71%") without its bar; the full strip with bar
   stays at Expanded height.
@@ -3176,8 +2784,8 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
 
 - **[S-960]** One guard, one connect path. Every HTTP client is built by `GuardedHttp.Create` — the
   shared `WebFetch` client (feeds, favicons, weather, quotes and symbol search, the photo of the day,
-  the public address) and the `AccountHttp` client (sign-in, token refresh, Microsoft Graph incl.
-  OneDrive, Google, GitHub incl. a user-typed server, Claude usage, CalDAV/CardDAV) — and every
+  the public address) and the `AccountHttp` client (sign-in, token refresh, Microsoft Graph,
+  Google, CalDAV/CardDAV) — and every
   connection it opens goes through one `ConnectCallback`. IMAP (account check and every sync) opens
   through `GuardedTcp.OpenTlsAsync`. Both end in `NetGuard.OpenSocketAsync`. A refusal is a
   `NetRefusedException` carrying the sentence ("x is on the local network. Turn on local network
@@ -3205,8 +2813,8 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
   one byte at a time to the blank line (16 KB cap), and only a 2xx opens the tunnel. A 407 says the
   proxy requires authentication; another status is shown with the proxy's own status line; a SOCKS
   proxy is refused out loud rather than bypassed. Bounded by the IMAP job's deadline.
-- **[S-965]** Account servers follow the switch. A user-typed CalDAV/CardDAV, IMAP or GitHub server
-  on this computer or the local network (a NAS) is refused while **Local network access** is off and
+- **[S-965]** Account servers follow the switch. A user-typed CalDAV/CardDAV or IMAP server on this
+  computer or the local network (a NAS) is refused while **Local network access** is off and
   reached when it is on, as in the classic app (NG-04). This reverses the earlier "a NAS is always
   legitimate" exemption. The settings row says so.
 - **[S-966]** Redirects: both clients follow them by hand, never the stack, so every hop is a new
@@ -3228,7 +2836,7 @@ Not ported: proxy authentication (classic known limit; Windows stores no proxy c
 proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX-04) — .NET's
 `DefaultProxy` owns caching and notices setting changes itself; the updater path (PX-09; no updater).
 
-## Widget picker: search and adding into containers (WP5)
+## Widget picker: search (WP5)
 
 Search is `Core/Widgets/WidgetSearch.cs` + `WidgetKeywords.cs` (ported from `widgetSearch.ts`,
 `searchKeywords.ts`, WidgetPicker.SPEC S-01..S-11; tests `WidgetSearchTests`, the original's cases);
@@ -3256,29 +2864,10 @@ the picker body is `Shell/WidgetPicker.cs`, opened from `DesktopWindow.Picker.cs
   highlight through what is shown (the columns in reading order, or the results); a search starts on
   the best match so Enter takes it; Enter picks; Escape closes. The highlight is drawn, not focused,
   so the caret stays in the box.
-- **[S-951]** A widget can be created directly inside a container: the target must exist on this
-  display's view, be a container, and leave room under `WidgetTree.MaxDepth`. The rule is the same
-  for every kind, containers included (the original allowed no nesting; this app allows it to the
-  depth limit, as "Move into" does).
-- **[S-952]** In a group it gets its default size (converted against this display), inset 3% from the
-  area's edges below a 40 DIP allowance for the group's header, stepped 6% down and right per member
-  already there (restarting after five) and always held inside the area (`areaChildRect`, S-36).
-- **[S-953]** In a stack or a tab strip its stored rect is the container's own (where it returns to if
-  taken out, S-33) and it goes last. One write with the parent already set, never add-then-reparent.
-- **[S-955]** The picker is rebuilt on every open. When this display has containers that can take a
-  widget, an "Add to" choice sits beside the search: Desktop, then each container by its title
-  (duplicates numbered). A container that is selected when the picker opens is preselected.
-- **[S-956]** Picking with Desktop starts click-to-place ([S-421]); picking with a container adds the
-  widget at once and selects it. The settings window is not opened (the original opened it; [S-421]
-  keeps adding and configuring as two decisions).
-- **[S-957]** Debug builds render the open picker: `Themia.exe --picker-png <out.png> [--search text] [--into]`.
+- **[S-957]** Debug builds render the open picker: `Themia.exe --picker-png <out.png> [--search text]`.
 
 Not ported: picker row previews (`WidgetRowPreview`) and the group-by choice (`pickerGroups.ts`) — the
-columns are the grouping; the pro lock (licensing is out of scope). Pending other lanes: an "Add
-widget inside…" entry on a container's own menu and empty state, which needs a hook in
-`WidgetCard`'s menu or the container views (PA/WP1 files) to open this picker preset to that
-container; drop-to-join, child reorder by drag, group header side and members in the clipboard
-(B13/B14) live in `WidgetCard`/`DesktopWindow` drag code and the group files (PA).
+columns are the grouping; the pro lock (licensing is out of scope).
 
 ## Desktop integration and suspend (WP3)
 
@@ -3384,13 +2973,11 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
   draws) and the 20-DIP view box; a test rejects one with filters, masks or other features that
   would silently drop out.
 
-## Containers and shell hooks (PA)
+## Shell hooks (PA)
 
-Group, stack and tabs brought to the original, plus the card hooks other widgets use. Rules in Core
-`LeaseKeyRouting`, `HeaderRules`, `ContainerRules`, `WidgetZOrder`, `CardFrame`, `GroupRules`,
-`ContainerLayout`, `WidgetClipboard`/`WidgetTransfer` (tests `ContainersShellTests`); carried out by
-`WidgetCard`, `DesktopWindow.Containers.cs` / `.Layout.cs` / `.Input.cs`, the three views and
-`ContainerChildrenRows`.
+The card hooks widgets use. Rules in Core `LeaseKeyRouting`, `WidgetZOrder`, `CardFrame`,
+`WidgetClipboard`/`WidgetTransfer`; carried out by `WidgetCard` and `DesktopWindow.Layout.cs` /
+`.Input.cs`.
 
 - **[S-860]** Lease keys reach the holder **first**: the surface listens to the tunnelling
   `PreviewKeyDown` and offers the key to the leased view before any control inside its card. A
@@ -3399,74 +2986,17 @@ Group, stack and tabs brought to the original, plus the card hooks other widgets
   view does not use carries on to the focused control. While a text editor has focus every key but
   Escape is still the box's ([S-804]); Escape ends the lease in the bubble, after a box that clears
   on Escape had it.
-- **[S-861]** A group's title bar toggles it: the whole band at rest, the chevron button in both
-  modes (edit mode is where the user needs hidden members back). The chevron points at the space the
-  area opens into while closed and back at the bar while open.
-- **[S-862]** `HeaderPlacement.Left` / `Right`: the card's one header turned a quarter to run up the
-  side edge (reads bottom to top, icon at the bottom, `SidewaysPanel`). Groups only (`HeaderRules`);
-  a side header on another widget is repaired to Top on load. The settings offer it only for groups.
-- **[S-863]** A group paints its **area** itself: a faint wash (`SubtleFillColorSecondary`), or the
-  user's fill at its opacity; Background "None" clears the wash. The card paints its surface behind
-  the bar only (`IWidgetArea`). Settings: icon (`IconChoice`), fill (colour picker, default = the
-  wash), fill opacity, then the member list. No member count (the original's group [S-05]).
-  Collapse is not mirrored in the settings — the bar owns it.
-- **[S-864]** A stack has at most one child open and **every child starts closed**; a row click
-  opens that child and closes the open one, a click on the open row closes it. A stale open id is
-  "nothing open" and is not rewritten.
-- **[S-865]** Stack ladder (`ContainerLayout.Plan`): rows of 40 — name only at XS, icon + name from
-  S; the open child takes what the rows leave; under 100 DIPs on a wide tile the rows become a strip
-  along the top; under 40 the open child is not drawn. Rows that do not fit are clipped only below
-  the open child. Keys (lease): Up/Down/Home/End move the row cursor, Enter/Space toggle, Menu opens
-  the row menu.
-- **[S-866]** Container children: a row's (tab's) menu has Configure, Move up/down (left/right;
-  disabled at the ends) and Take out (back on the desktop at the rect it had, [S-411a]); in edit mode
-  rows and tabs reorder by drag (`ChildReorder`, slot = `ContainerLayout.DropSlot`, one
-  `MoveChildTo`). The settings page lists the members (`ContainerChildrenRows`): settings, move
-  (stack/tabs only — a group's members have places, not an order), "Remove from group"/"Take out",
-  then "Add a widget inside". Order is the view's widget list ([S-410]); a move swaps neighbours in it.
-- **[S-867]** Stack and Tabs start headerless (their rows and tabs are their chrome). A stack's open
-  child is drawn without its own header (the stack row names it); a tab strip's shown child keeps its
-  own live header, as in the original.
-- **[S-868]** Tabs: the selected child, else the first; a stale id is ignored, not rewritten. Taps
-  are inert in edit mode. Keys: Left/Right/Home/End switch tabs.
-- **[S-869]** Tabs ladder: icon + name at W ≥ Expanded when all fit, names when they fit, icons alone
-  otherwise (the strip scrolls if even those do not fit).
-- **[S-870]** An empty container shows a dashed placeholder with **Add widget** in both modes and
-  "or drag widgets in here" in edit mode. Add widget — there, in the container's card menu ("Add
-  widget inside…", first) and on its settings page — opens the widget picker with the container
-  chosen in its "Add to" box ([S-955]).
-- **[S-871]** Collapsing a group shrinks the **card** to its header bar on the header's edge
-  (`CardFrame.Collapsed`, bar = `WidgetCard.BarThickness` + gap), in both modes; the stored rect is
-  untouched, so expanding restores it exactly. A collapsed group with a hidden header shows a top
-  bar. The header does not shed on a collapsed card.
-- **[S-872]** The hit region follows **paint** (`CardFrame.Hit`): a hidden widget takes nothing; a
-  group whose area paints nothing (Background None, or a fill at 0 opacity) and has members takes only
-  its bar; an empty one keeps its rect (the placeholder is the way to fill it). A child a stack or tab
-  strip draws is never masked at its own stored rect (it used to leave a dead patch of desktop there),
-  and members of a collapsed group are not masked.
+- **[S-872]** The hit region follows **paint** (`CardFrame.Hit`): a hidden widget ([S-873]) takes
+  nothing; every other card takes its painted rect, inside the gap.
 - **[S-873]** `IWidgetSurface.SetHidden(bool)`: the card stops drawing its fill, border and content
   and leaves the hit region; the view stays attached so it can show itself again. Edit mode always
   draws it, at half opacity. Not persisted. (For Music's hide-when-idle.)
-- **[S-874]** Bring to front / Send to back on every grid-placed widget's card menu (disabled when it
-  already is). The order is the view's widget list, persisted with it; a container moves with
-  everything inside it. Paint order (`WidgetZOrder.PaintOrder`) is view order with each group directly
-  under its lowest member ([S-415], nested groups outermost first), applied through `Canvas.ZIndex`
-  — nothing is removed and re-inserted in the tree any more.
-- **[S-875]** Drop to join: a move in edit mode that ends with the pointer over a container puts the
-  widget in the topmost one that will take it (not itself or its own descendant, not a collapsed
-  group); dropped outside the group it was in, it leaves that group. Membership only — the widget
-  stays where it was dropped. A widget a stack or tab strip lays out does not drag on its own: the
-  press goes to the container's card.
-- **[S-876]** A container is copied, cut and pasted **with its members** (a copy: fresh ids per
-  paste, parents remapped; every rect shifted by the block's one translation, [S-1584]); a pasted cut
-  moves the original with everything inside it, ids kept ([S-1590]). Dragging a container to another display's view takes its members too; the
-  moved widget leaves a container that stays behind.
+- **[S-874]** Bring to front / Send to back on every widget's card menu (disabled when it already
+  is). The order is the view's widget list, persisted with it, and it is the paint order, applied
+  through `Canvas.ZIndex` — nothing is removed and re-inserted in the tree.
 - **[S-877]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
-Not ported: the group's open/close animation (original group [S-16]); a container drop highlight
-while dragging (the drop works, the target is not lit); pop-out of a child (out of scope). Not
-live-verified: lease key routing in the real surface, drag-reorder and drop-to-join with the pointer,
-the collapsed bar's hit region, the picker opening from a card menu outside edit mode.
+Not live-verified: lease key routing in the real surface.
 
 ## Microsoft Store package and licensing
 
@@ -3500,10 +3030,9 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1064]** Tier: no package identity: **Unrestricted** ("Developer build"); the Store's "owned":
   Pro; "not owned": Free; no answer: Pro only inside the offline grace, else Free. An unknown or
   corrupt state never unlocks Pro.
-- **[S-1065]** Free tier: every widget type, at most **10 widgets** (all views, containers and their
-  members each count) and **2 views**, as the original. Gates at every create: placement start and
-  landing, paste (net of a cut's original; a group pastes whole or not at all), duplicate, add into a
-  container (picker) and new view. A newly seen display creates nothing ([S-1705]), so it needs no gate. A refusal creates nothing and says why in a notice ([S-881]) whose "See plans"
+- **[S-1065]** Free tier: every widget type, at most **10 widgets** (all views) and **2 views**, as
+  the original. Gates at every create: placement start and landing, paste (net of a cut's original;
+  a selection pastes whole or not at all), duplicate and new view. A newly seen display creates nothing ([S-1705]), so it needs no gate. A refusal creates nothing and says why in a notice ([S-881]) whose "See plans"
   opens Settings › License, which repeats it once. Nothing
   is ever deleted or hidden for being over the limit; moving, editing and deleting are never gated.
   Import is a replacement, not a create, and is not gated.
@@ -3533,54 +3062,6 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   dialog, price, licence events, offline grace with a real Store), and the sideloaded package itself
   (no certificate may be made on this machine) — see `docs/STORE.md`.
 
-## Calculator keypad and colour swatch modes (PK)
-
-- **[S-1500]** The colour swatch is one kind with `Mode {Solid, Gradient, Palette}`, default **Solid**
-  — the original widget: the whole tile in one colour. Palette is the copy-from list the port had
-  built. It starts headerless ([S-700]) at 120×120, as the original's 110×110 block.
-- **[S-1501]** Solid: `Color` + `Alpha` (0..1). Gradient: `StartColor`/`StartAlpha`,
-  `EndColor`/`EndAlpha` (default `#34D399`), `Angle` (default 135). Colours are `#RRGGBB` from the
-  shared colour picker ([S-1549]), never typed; empty means the accent (the original's default was
-  the app accent). Opacities are sliders in percent.
-- **[S-1502]** Load repair: an unknown mode is Solid, an unreadable colour its slot's default,
-  opacities clamp to 0..1 (NaN = opaque), the angle is brought into 0..360 — each logged.
-- **[S-1503]** The gradient follows CSS `linear-gradient(<angle>deg)`: 0° up, 90° right, clockwise;
-  the axis runs through the centre and is long enough that the two corners furthest along it sit
-  exactly on the stops, on any box shape (`GradientAxis.For`, absolute mapping recomputed per size —
-  XAML's relative mapping skews non-right angles on a non-square box).
-- **[S-1504]** The block fills the whole slot with no inset; the card clips its corners. A solid
-  default paints the theme's accent brush itself (follows an accent change in place), with the
-  opacity on the element, not the shared brush.
-- **[S-1505]** The original's "layer: in front / behind" is the shell's Bring to front / Send to back
-  ([S-415] family) on every widget; the swatch's settings point there instead of duplicating it. Not
-  ported: "edit mode ignores the layer" (the shell's order is the same in and out of edit mode).
-- **[S-1506]** Palette ladder (`SwatchLayout.Plan`): under 180 wide a centred grid of chips sized to
-  show every colour (min 16, then it scrolls); otherwise rows (chip, name, value) in up to 4 columns
-  of ≥210, growing from 40 to 56 tall to fill the height; once even 56-tall rows would leave over a
-  fifth empty, a grid of big tiles (block over name and value), column count chosen for the largest
-  block (≥64).
-- **[S-1507]** Palette keys through the lease: arrows move a focus ring, Enter copies, Escape lets go;
-  a click copies (with "Copied" in place of the value until the pointer leaves).
-- **[S-1510]** The calculator has an optional keypad (`ShowKeypad`, on): C ( ) ÷ / 7 8 9 × / 4 5 6 −
-  / 1 2 3 + / ⌫ 0 . =, plus an Ans % xʸ x² row when tall. Keys are not focusable: they edit the line
-  at the caret (replacing a selection) without taking the keyboard, and = files it through the same
-  commit as Enter ([S-10]).
-- **[S-1511]** A binary operator or x² on an empty line continues from the newest result; Ans types
-  it; a negative answer is bracketed so a power squares the answer, not its magnitude.
-- **[S-1512]** One decimal point per number; a point that starts a number gets its leading zero.
-- **[S-1513]** In the line, Up/Down recall history expressions newest first (a focus ring marks the
-  row); Down past the newest restores the draft. Escape clears a non-empty line and keeps the
-  keyboard; on an empty line it ends the lease. Typing is through the text box's lease ([S-801]).
-- **[S-1514]** Calculator ladder (`CalculatorLayout.Plan`): the line and its result always; then the
-  newest history row; a keypad under the line where it fits (tall tiles, ≥172 wide); more whole
-  rows; leftover grows the keys (to 56) then the live result (Body → Display, 12-character budget).
-  A Wide strip puts the history beside the line; Expanded width with room for 5 keys puts a
-  full-height keypad on the right half (6 rows when keys stay ≥44).
-- **[S-1515]** Calculator defaults as the original: 4 decimal places, header hidden ([S-700]).
-- **[S-1517]** With nothing typed, the result line shows the newest answer (`= 42`, tertiary) — what
-  an operator or Ans continues from — so the display is never a blank box once a sum was done.
-- **[S-1516]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-
 ## Multi-select and the placement session (MULTISELECT-PLACEMENT)
 
 Owning files: `Themia.Core/Model/WidgetSelection.cs` (`WidgetSelection`, `SelectionRules`),
@@ -3594,42 +3075,38 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   on a display that shows another view starts a new selection there. The last widget picked is the
   primary one, which single-widget commands (the picker's "Add to") mean.
 - **[S-1581]** A left-button drag on empty surface draws a **rubber band** on that display; every
-  widget the grid places whose cell it touches is selected, live, as the band changes. With Ctrl or
+  widget whose cell it touches is selected, live, as the band changes. With Ctrl or
   Shift held at the press it adds to the selection on that display; without, it starts from nothing
-  (a click on empty surface clears the selection). A widget a stack or tab strip lays out, and a
-  collapsed group's hidden members, are not picked.
-- **[S-1582]** **Ctrl+A** selects every widget the grid places on the display under the pointer.
+  (a click on empty surface clears the selection). A card that draws nothing is not picked.
+- **[S-1582]** **Ctrl+A** selects every widget on the display under the pointer.
 - **[S-1583]** Every selected card shows it (2-px outline, full-strength handles). A widget that is
   deleted or leaves the view leaves the selection with the change. Escape clears the selection
   before a second Escape leaves edit mode.
-- **[S-1584]** Dragging a selected card moves **every selected widget the grid places on that
-  display** by one translation: the block's bounding box is moved, its top-left snapped to the grid
+- **[S-1584]** Dragging a selected card moves **every selected widget on that display** by one
+  translation: the block's bounding box is moved, its top-left snapped to the grid
   ([S-06], Alt suspends it) and the box slid into the work area ([S-841]) — never resized — and each
-  rect is then kept on screen ([S-09]). Offsets between the widgets never change. A group does not
-  carry its members ([S-411]); members selected with it move in their own right. Resizing is per
+  rect is then kept on screen ([S-09]). Offsets between the widgets never change. Resizing is per
   card and narrows the selection to it.
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
-  block; a stack's or tab strip's children are drawn by their container and get no outline. An
-  outline too small for the icon and name shows the frame alone.
+  block. An outline too small for the icon and name shows the frame alone.
 - **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste, Duplicate,
   Move), or with the held widget centred on it (a drag handed to another display), then snapped and
   clamped as a block on the display under the pointer. The ghost and the landing come from the same
   calculation, so the widgets land exactly where the ghost was.
 - **[S-1587]** One **placement session** for everything that produces or moves widgets: Add widget
   (a new widget of one kind), Paste (Ctrl+V and menu), Duplicate (Ctrl+D and menu), Move (menu: to
-  this display or any other), and container copy/paste. No command drops a widget at a computed spot
+  this display or any other). No command drops a widget at a computed spot
   any more. Click lands; Escape, a right-click or leaving edit mode cancels and changes nothing. The
   licence gate ([S-1065]) runs before the ghost appears (what the session would create: a copy of N
   widgets counts N, a move 0) and again on landing.
-- **[S-1588]** A payload taken from the selection holds the selected widgets with no selected
-  ancestor, each with everything it holds ([S-876]), as a snapshot with original ids.
-- **[S-1589]** A **copy** (paste of a copy, Duplicate) lands fresh widgets with fresh ids every time,
-  members re-parented to their container's copy; the picked widgets land on the desktop (out of the
-  group they were in). The clipboard is not touched by Duplicate.
+- **[S-1588]** A payload taken from the selection holds the selected widgets of that view, in view
+  order, as a snapshot with original ids.
+- **[S-1589]** A **copy** (paste of a copy, Duplicate) lands fresh widgets with fresh ids every
+  time. The clipboard is not touched by Duplicate.
 - **[S-1590]** A **move** (paste of a cut, Move) lands the **same** widgets: the originals are taken
   out of whatever view they are in now and the live instances — with any config change since the
-  snapshot — take the planned rects. An original deleted meanwhile is put back from the snapshot; a
-  member added to a moved container after the snapshot goes along. Until the click lands the
+  snapshot — take the planned rects. An original deleted meanwhile is put back from the snapshot.
+  Until the click lands the
   originals stay where they are, faded; cancel leaves them and the cut as they were.
 - **[S-1591]** Dragging a selection onto a display that shows another view hands **all** of it over
   in one landing ([S-76], [S-77]) and selects it there.
@@ -3640,10 +3117,9 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
 - **[S-1593]** A press on a card of a multi-selection keeps the selection so the drag that may follow
   carries all of it; released without moving (3 DIPs), it narrows the selection to that card.
 
-Not done: dropping a placement or a dragged block **into** a container (only a single dragged widget
-joins one, [S-875]); a debug render of the multi-widget ghost (the outlines are pinned by
+Not done: a debug render of the multi-widget ghost (the outlines are pinned by
 `S1585_*` instead). Not live-verified: everything pointer- and multi-monitor-driven here — the
-rubber band, Ctrl+click, group drag clamping at the taskbar, hand-off of a selection across
+rubber band, Ctrl+click, block drag clamping at the taskbar, hand-off of a selection across
 displays, the ghost following the pointer across displays, Ctrl+A/Ctrl+D/Escape order.
 
 ## Music and Pomodoro: parity and the whole tile (PF)
@@ -3774,7 +3250,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Ctrl+D/Escape 
   translations of `settings.theme.system`). Dropped as out of scope: tray, updater, telemetry consent,
   Lemon Squeezy key activation, newsletter, pop-out, always-on-top, YouTube. Not built yet (with the
   extraction round): replacing the literals, rich text (`tm`), the literal scanner (`i18nScan`), the
-  widget picker's translated + English search names, Help localisation. Polish plural keys have only
+  widget picker's translated + English search names. Polish plural keys have only
   one/other until translated (few/many fall back to other). The CLDR tables want a native-speaker
   review in the translation wave. Not verified live: the language switch in the running app (no app
   run here); the General row was checked with `--settings-png General`.
@@ -3877,19 +3353,18 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 
 - **[S-900]** Duplicate a view (its group on the Views page and that group's menu, the toolbar's View menu, a view bar chip's menu in edit
   mode): the copy goes right after the source, named "<name> (Copy)", with its icon and a deep copy
-  of every widget under fresh ids. Container members point at their container's copy, and a stack's
-  open child / a tab strip's selected tab name the copy. Data a widget only refers to (a note, an
+  of every widget under fresh ids. Data a widget only refers to (a note, an
   account) stays shared, as in the original. The copy is shown on the display asked from; it counts
   against the licence as one view plus its widgets.
 - **[S-901]** Reorder views by dragging a chip on the view bar (edit mode), by dragging a view's group
-  on the Views page ([S-1703]), or Move up / Move down in a view's menu (Views page, switcher). By id, never by bar index, so a bar showing a filtered subset moves the right view.
-  The order is the bar's, the switchers', the Views page's and Ctrl+n's.
+  on the Views page ([S-1703]), or Move up / Move down in a view's menu (Views page). By id, never by bar index, so a bar showing a filtered subset moves the right view.
+  The order is the bar's, the Views page's and Ctrl+n's.
 - **[S-902]** Deleting a view (never the last) repairs everything naming it in the same change:
   display assignments (the display then gets an existing view again, [S-1705]), the active view, the view for
   new displays (back to null) and every bar whitelist (one left empty means all views again).
 - **[S-903]** A view's icon is picked in its group on the Views page from the shared glyph grid
   (`IconChoice`), whose default cell shows the view's initials — what a view without an icon shows.
-  The icon is drawn by the view bar, the switcher widget, the toolbar's View menu and the group's
+  The icon is drawn by the view bar, the toolbar's View menu and the group's
   header on the Views page (a view without one shows the shared view glyph there).
 - **[S-904]** In edit mode only, Ctrl+1..Ctrl+9 (and the keypad digits) show the n-th view on the
   display under the pointer (the one a paste lands on, [S-74]), or this one. Outside edit mode
@@ -3904,15 +3379,17 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   view or the user picked the views on purpose (a deliberate single-view whitelist still shows). In
   edit mode it is always drawn, with a drag handle; a hidden one is drawn faded with a dashed edge.
 - **[S-908]** The whitelist filters in the user's view order; empty, or naming no view that exists,
-  offers all. On the display page the last view cannot be switched off, and switching every view
-  on goes back to "all", so later views appear by themselves (same rules as [S-490]).
+  offers all (`ViewListRules`). On the display page the last view cannot be switched off, and
+  switching every view on goes back to "all", so later views appear by themselves.
 - **[S-909]** The bar sits at its anchor inside the display's work area, 16 DIP from its edges,
   never over the taskbar. In edit mode a bar that would overlap the edit toolbar (top centre) moves
   below it; one beside it stays. A bar larger than the area is pinned to its top-left.
 - **[S-910]** The left and right middle anchors stack the chips vertically; the other six lay them
   in a row.
 - **[S-911]** Sizes M, L and XL are the original's (Caption/Body/Body Large type, 14/16/20 icons,
-  28/34/40 icon-only squares). A chip shows the view's icon or initials and its name (bold for the
+  28/34/40 icon-only squares). A chip shows the view's icon or initials (the first letters of the
+  first two words, or the first two letters of one word, upper-cased, counted in text elements; "?"
+  for a blank name) and its name (bold for the
   view new displays start on); the shown view is a raised control, the rest subtle until hovered.
   The bar's fill and stroke are the widget card's (colour, opacity, border colour).
 - **[S-912]** Outside edit mode the bar's box is added to the surface's hit region, cut to the work
@@ -3931,8 +3408,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   box per view). Its Shows drop-down assigns through `ShowViewOn`.
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
-tooltip on the bar (licensing refuses through `AllowCreate`). The help guide now describes the bar
-([S-1532]). Debug render:
+tooltip on the bar (licensing refuses through `AllowCreate`). Debug render:
 `Themia.exe --viewbar-png <outDir>` draws the real bar, placed by the real rule, at nine
 anchor/size/mode combinations on a stand-in display with a taskbar strip.
 
@@ -3982,7 +3458,7 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   menus and no dragging in the pane.
 - **[S-1831]** A page target is a page plus, on Displays or Views, the item whose group to open
   (`ConfigTarget.App(Page, Item)`; `ConfigTarget.ForView`). Everything that used to open one view's
-  page (a view bar chip's View settings, the view switcher's menu, a widget page's Delete) opens
+  page (a view bar chip's View settings, a widget page's Delete) opens
   the Views page with that group opened and scrolled to the top; the reader's other groups stay as
   they were. While a widget's page is open the Views entry stays selected, and the title is the
   breadcrumb "Views › Desktop › Clock": Views opens the page, the view's crumb opens it on that
@@ -4010,89 +3486,8 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
 
 Needs a manual pass: dragging a view's group onto another on the Views page; each "…" menu action
 (Show on this display, Move up/down, Duplicate, Delete) and the right-click menu; View settings from
-a view bar chip and the view switcher landing on the opened group; Edit layout from a group; the
+a view bar chip landing on the opened group; Edit layout from a group; the
 breadcrumb's crumbs and Back from a widget's page.
-
-## Apps, Search, Help and Themia: parity and the whole tile (PI-A)
-
-Owning files: `Widgets/AppsView.cs` (+ `.Cells.cs`), `Widgets/WebSearchView.cs`, `Widgets/HelpView.cs`,
-`Widgets/ThemiaView.cs`, `Widgets/AppActions.cs`, `Shell/Config/WidgetSettings.Apps.cs`,
-Core `Model/Configs/AppsConfig.cs`,
-`Widgets/{InstalledAppRules,AppsLayout,SectionCursor,RecentSearches,WebSearchLayout,HelpLayout,ThemiaLayout,HelpGuide}.cs`.
-Tests: `AppWidgetsTests` (S1520..S1533), `HelpGuideTests`, `LauncherPersistenceTests`.
-
-- **[S-1520]** Apps draws as **tiles** (default; icon over name), **rows** (icon, name) or **compact
-  rows** (name only, no grouping) — original S-04/S-10. Tiles and rows come from the Shortcuts
-  planner (`ShortcutLayout.Grid/Rows`, [S-1382]/[S-1383]) at Medium, so a wide tile shows more
-  columns, L/XL step the tiles up once and the widest list runs in two columns (a grouped list from
-  an Expanded width, its rows the plain 40 DIPs since the headings carry the folder).
-- **[S-1521]** Grouped by Start-menu folder (`GroupByFolder`, default on): named folders A–Z, then
-  the top-level apps as "Other"; headings only with more than one section, from a Regular height,
-  never in compact rows (original S-01/S-05). A large ungrouped list says the folder as a caption
-  line; compact rows (and ungrouped one-column lists without one) show it as a right column from a
-  320-DIP slot.
-- **[S-1522]** Every app shows the icon Explorer shows for its shortcut (`AppIcons.GetAsync`, at
-  twice the drawn DIPs, extracted one at a time and cached app-wide; never for a share). Until it
-  arrives, or when there is none, a tile of its initials (first letter of up to two words) on a
-  dark colour hashed from the name exactly as the original did (`h*31+c`, `|h| % 360`), so an app
-  keeps its colour (original S-06/S-07/S-17).
-- **[S-1523]** `HiddenApps` (shortcut paths) and `HiddenCategories` (folder names; empty is the top
-  level) are left out **before** the filter and the folder chips, so a search never brings a hidden
-  app back (original S-22/S-23). The item menu's "Hide from list" / "Hide the folder …" add to them
-  and save (S-24). Load repairs null, blank and doubled entries and unknown enums, loudly.
-- **[S-1524]** Settings: view, group by folder, filter box, count, open with (double/single, the
-  shared `ItemClickMode`); **Folders** — one switch per folder found by a Start-menu scan made off the
-  UI thread when the page opens (plus hidden folders the scan no longer finds); **Hidden apps** —
-  each with "Show again" (original S-25).
-- **[S-1525]** Opening is a double click by default (desktop-layer safety, as Shortcuts and
-  OneDrive); single click is the option. Every open goes through `ShellLauncher`; preview cards (a
-  debug render) never open anything.
-- **[S-1526]** Keys ([S-800] lease): a click puts the cursor on an app; Left/Right step one,
-  Up/Down one visual row keeping the column (a section's short last row lands on its last app),
-  PgUp/PgDn a screenful, Home/End the ends (`SectionCursor`); Enter opens, the Menu key opens the
-  app's menu, Escape (and every lease end) drops the cursor. Enter in the filter box opens the
-  cursor's app or the first match. A widget with nothing listed does not take the keyboard.
-- **[S-1527]** Ladder (`AppsLayout`): apps always (XS: a row of icon tiles); filter box from a
-  Regular height (M, Tall, L, XL; never a strip); "N apps · N hidden" line at L/XL; at XL a row of
-  folder chips (All + each folder) narrows the list to one folder (not saved). The filter only
-  narrows while its box is on screen.
-- **[S-1528]** Item menu (right-click, or the Menu key): Open, Open file location, Copy path, Hide
-  from list, Hide the folder (original S-15/S-24). Card menu: Refresh (reads the Start menu now,
-  S-13) and open on single / double click; the view and grouping are settings only ([S-1746]).
-- **[S-1529]** Search ladder (`WebSearchLayout`): the box always (one ramp step larger at XL);
-  engine chips (Google … Ecosia, Custom only when its template is usable) from an Expanded width —
-  a click switches this widget's engine and saves it; the "Enter to search with …" hint when a line
-  is left; recent searches as whole rows of the rest (5; 8 from an Expanded height; 10 at XL, titled
-  "Recent searches" from Expanded, in 40-DIP rows at XL). With nothing
-  under it the box is centred. Default size 320×56, header hidden ([S-485] list), as the original.
-- **[S-1530]** Recent searches are this session's only, shared by every Search widget, never
-  persisted (`RecentSearches`: trimmed, blank ignored, a repeat moves to the front, at most 10). A
-  click puts one back in the box, a double-click runs it again, its menu has Search again / Copy /
-  Remove; the card menu has "Clear recent searches". Up/Down in the box walk them like a shell
-  history. With none yet, a tile with room says where they will appear.
-- **[S-1531]** Help ladder (`HelpLayout`): page only below a Regular width; icon tabs (`SelectorBar`)
-  from Regular; from Expanded a labelled page list beside the page (Settings' shape, accent pill on
-  the open page; 28-DIP rows on a short strip), which keeps lines readable on wide tiles. L adds
-  "Edit widgets" and "Settings" under the list (`AppServices.EditLayout/ShowSettings`); XL adds a
-  card of the keys (`HelpGuide.Keys`). Prose is Body where the page keeps 240 DIPs, else Caption.
-- **[S-1532]** The guide describes the app as it is: edit mode (Ctrl+Alt+W, double-click, "Edit
-  layout", starting Themia again), the keyboard a clicked widget borrows and Esc giving it back, the
-  picker's search, new/pasted/duplicated/moved widgets following the pointer until a click,
-  Ctrl+click / rubber band / Ctrl+A selection, bring to front / send to back, containers (drop to
-  join, Move into, Add widget inside, delete keeps members), the view bar (per display, drag,
-  reorder, chip menu in edit mode, display-page settings), Ctrl+1–9, view icons, and Find a setting.
-- **[S-1533]** Themia ladder (`ThemiaLayout`): the mark keeps a 56-DIP floor; then name, version;
-  from an Expanded height (Tall, L, XL) a tagline and "Made by Lometics"; at L/XL "Edit widgets" /
-  "Settings"; at XL links to release notes,
-  feedback and the source (all through `ShellLauncher`, nothing fetched). The mark takes what is
-  left, up to 160 DIPs. A wide strip and the XL tile put the mark beside the words (up to 240 at
-  XL, with the name a step larger), so XL is a mark and a column, not a stack with empty sides.
-- **[S-1534]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-
-Not ported: the original Apps' max-6-parallel icon queue (the shell answers E_PENDING to parallel
-first requests, so `AppIcons` extracts one at a time) and the search bar's own ✕ button (the stock
-box has one). Not live-verified: launching from a tile/row, the keyboard lease on Apps, Enter in the
-filter, the Help/Themia buttons entering edit mode and opening Settings, the links opening the browser.
 
 ## Notices, resilience and undo (WP4)
 
@@ -4125,8 +3520,7 @@ filter, the Help/Themia buttons entering edit mode and opening Settings, the lin
   A commit records a step only when the arrangement changed, so design, widget settings and view
   switches record nothing. Steps: Change (settings-page header/surface/title, view name/icon), Add,
   Delete, Move (drag, cut-paste, Move, hand-off to another display), Resize, Paste (copies,
-  Duplicate), Arrange (front/back), Container (reparent, drop into/out of, child order, take out),
-  AddView, DeleteView, DuplicateView, ReorderView.
+  Duplicate), Arrange (front/back), AddView, DeleteView, DuplicateView, ReorderView.
 - **[S-885]** Ctrl+Z undoes, Ctrl+Y and Ctrl+Shift+Z redo, in edit mode only. Ctrl+Z during a
   placement cancels the placement. Each step shows a keyed "Undid …"/"Redid …" notice offering the
   opposite; with nothing to do, "Nothing to undo"/"Nothing to redo". Deleting widgets or a view
@@ -4134,7 +3528,7 @@ filter, the Help/Themia buttons entering edit mode and opening Settings, the lin
   the history's `Version` is the one it was offered at; otherwise it says the desktop changed and
   points to Ctrl+Z.
 - **[S-886]** A step restores the arrangement (`LayoutShape`): views (id, name, icon, order) and every
-  widget's kind, geometry, z-order, container, header, surface and title. Not content: a widget that
+  widget's kind, geometry, z-order, header, surface and title. Not content: a widget that
   survives keeps its current config (text typed after a move is not taken back) and its instance
   (its card stays). A widget brought back gets the config it had (held by reference, never copied).
   A view brought back returns to the displays that showed it; every reference to a view that goes is
@@ -4167,10 +3561,10 @@ filter, the Help/Themia buttons entering edit mode and opening Settings, the lin
   with Windows is kept, as on import); the undo history is cleared; a Success notice. Accounts,
   notes, tasks and habits are separate files and are kept.
 - **[S-893]** First-run desktop (`AppState.CreateDefault`, also what a reset and a corrupt-state
-  recovery show), as the original's: Clock (0.78, 0.04, 0.20×0.16) first, Help (0.02, 0.04,
-  0.24×0.34), Folder on the user's Desktop folder (0.02, 0.42, 0.24×0.50), Shortcuts (0.80, 0.80,
-  0.18×0.16) with Recycle Bin, This PC, Downloads, Documents, Pictures and Home (shell targets,
-  labels empty so the names are the translated target names).
+  recovery show), as the original's less its guide: Clock (0.78, 0.04, 0.20×0.16) first, Folder on the
+  user's Desktop folder (0.02, 0.04, 0.24×0.50), Shortcuts (0.80, 0.80, 0.18×0.16) with Recycle Bin,
+  This PC, Downloads, Documents, Pictures and Home (shell targets, labels empty so the names are the
+  translated target names).
 - Not ported: the original's pending-operation framework (an operation that resolves later; nothing
   here records one yet, and file operations will add their own step when they need it), and
   per-window boot counters (one process here, so one counter).
@@ -4194,13 +3588,7 @@ the original had is ported, what it never had is recorded here and not built.
   In edit mode the card takes the press and the widget moves instead.
 - **[S-1622]** `Disclosure.Fits` / `Disclosure.TakeFirst`: a rung offered in several sizes takes the
   richest that fits, and only a total miss closes the ladder.
-- **[S-1623]** Power at XL fills its side panel: on a tile Huge in height the panel rows are the
-  standard 40-px list height, the facts end with **"Up for 6d 11h"** (the CPU meter's uptime form),
-  and after the power plans a **"Screen and sleep"** section lists the active plan's
-  "Screen off after", "Sleep after" and "Hibernate after" for the power source in use
-  (`PowerStatus.Timeouts`: `PowerReadACValueIndex`/`PowerReadDCValueIndex` on the active scheme;
-  `PowerTimeoutRules.Duration`: "Never", "45 s", "5 min", "1 h 30 min"). An unreadable value has no
-  row (never shown as "Never"). Read with the plan list, only while the panel shows. Read-only.
+- **[S-1623]** *(Retired: the power tile and its side panel are gone, [S-1910].)*
 - **[S-1624]** Mixer at XL: when every app row fits, the rows share the list's height
   (`MixerFill.RowHeight`, at most 64 px) instead of stopping a third of the way down, and a row of
   56 px or more has a caption under the name (`MixerFill.Detail`: "Playing · 3 sessions", "Silent",
@@ -4213,10 +3601,8 @@ the original had is ported, what it never had is recorded here and not built.
   Sun & moon 7-day table and moonrise/moonset (original: sunrise/sunset + phase only); Scratchpad
   export as PNG (the original only persisted its canvas as a PNG data URL); Clock world-clock rows
   (one zone per clock); Video stream save-frame button and fps for MP4/HLS (the original was an
-  `<img>` over MJPEG/snapshot URLs, no such controls); Colour swatch hex caption (the original drew
-  the colour only); Tasks Overdue/Today group headings (the original's Today list was one list,
-  oldest first); GitHub "8 of 23" header total (the original showed the shown count, as here);
-  Clipboard pin (the original had no pin).
+  `<img>` over MJPEG/snapshot URLs, no such controls); Tasks Overdue/Today group headings (the
+  original's Today list was one list, oldest first); Clipboard pin (the original had no pin).
 - **[S-1626]** Item menus: the original's menu kept itself open for `keepOpen` items (Countdown's
   format choices, C-61; Folder's and Shortcuts' item-size choices), so formats could be tried in a row.
   WinUI's `MenuFlyout` closes on every pick; this stays a known difference (the choice is still one
@@ -4299,50 +3685,6 @@ menu); image-item inline toggles (orig. S-29). Needs live verification: drag in/
 Explorer and Outlook, Show more options submenus, clipboard interop both ways, Recycle Bin and the nuke warning on a share,
 OneDrive pin states, lease delivery of Ctrl chords, multi-monitor.
 
-## View switcher: item menu, keys and the whole tile (PI-B)
-
-Owning files: `Widgets/ViewSwitcherView.cs`, Core `Widgets/ViewSwitcherLayout.cs` (+ `ViewSwitcherRules`),
-`Shell/SurfaceDisplay.cs`; `IWidgetDisplay` (in
-`WidgetCatalog.cs`) gained the per-view commands. Tests `ViewSwitcherLayoutTests`, `ViewSwitcherRulesTests`.
-
-- **[S-1650]** Each view button has its own right-click menu (an item menu, so the card's own menu
-  still opens on the card): Show on this display (off for the shown view), Move earlier / Move later
-  (off at the ends; [S-901]), Duplicate view (the copy is shown on this display; [S-900]), View
-  settings (name and icon; [S-903]), Delete view (danger, off when only one view is left; no
-  question, the undo notice is the way back, [S-881]/[S-902]). Every command goes through the
-  `AppHost` view mutations via `IWidgetDisplay`; switching is always `AppHost.ShowView` →
-  `AppState.ShowViewOn` for the widget's own display ([S-19], [S-487]).
-- **[S-1651]** A view's icon ([S-903]) stands where its initials would on every face, at the face's
-  size, and in the "+N" menu.
-- **[S-1652]** Keys (`IWidgetKeys`, the WP11 lease): a click takes the keyboard. The first arrow lands
-  on the shown view's cell; Left/Right step in reading order, Up/Down a row in a grid (one cell in a
-  single row or column, into the shorter last row's last cell), all clamped; Home/End jump; Enter or
-  Space shows the view under the cursor (or opens the "+N" menu); the Menu key opens its menu;
-  Escape, or the lease ending, drops the cursor. The cursor is the button's own keyboard focus and
-  follows its view across rebuilds. Rules in `ViewSwitcherLayout.Step`.
-- **[S-1653]** The ladder (`ViewSwitcherLayout.Plan`, from the view's `WidgetArea` via
-  `IWidgetSizeAware`): faces Mark (icon/initials, cell ≥ 32×32) → Named (≥ 88 wide) → Detailed (name
-  over "N widgets", ≥ 120 × two lines + padding) → Card (sketch + name + count; sketch over the text
-  in cells ≥ 140 × (Detailed + 64-DIP sketch), beside it in cells ≥ 240 × (64 + padding)). Every grid
-  from one row to one column is tried; the richest face every row can carry wins, then the cells
-  closest to that face's shape (log scale: 1:1 marks, 3:1 buttons, 1.3:1 or 3:1 cards). The last row
-  holds what is left and its cells widen, so no cell is left empty. "Initials only" caps the face at
-  Mark. With three views: XS/S a named column, M a detailed column, Wide a row of cards, Tall a column
-  of cards, L/XL two cards over one wide one.
-- **[S-1654]** The shown view is the raised button with its mark in the accent; Detailed and Card
-  faces add the Windows 11 selection pill on the left edge, and a card's sketch draws its widgets in
-  the accent.
-- **[S-1655]** When not even 32-DIP cells fit every view, the cells that fit (`Disclosure.WholeRows`)
-  hold the first views in order and the last is "+N": a menu of the rest, the shown one ticked. A box
-  smaller than one cell still has the "+N" cell.
-- **[S-1656]** A card's sketch is the display (its whole-monitor shape, [S-840]; 16:9 when unknown) as
-  large as fits, with each top-level widget's stored rect inside it, cut to the screen; off-screen,
-  empty and non-finite rects are left out. Drawn from state only (`IWidgetDisplay.Tiles`), never by
-  rendering the view; a rebuild happens only when a sketch's rects or the display shape change.
-- **[S-1657]** The count line reads "No widgets", "1 widget", "N widgets" (every widget in the view,
-  container members included, as the licence counts them).
-- **[S-1658]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-
 ## Motion: intros, hyperspace, hacker (WP9-MOTION)
 
 Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26], [S-27], [S-28]
@@ -4371,8 +3713,8 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   plays View change. Every other rebuild is silent: a rename, a widget placed, pasted, restored or
   synced in, a settings change, a game-mode resume. A widget added to a live desktop never animates.
 - **[S-1002]** Widgets cascade in the view's widget order: widget *i* starts `min(i·45, 540)` ms after
-  the first, squeezed when the length has no room for that ([S-1760]). Only grid-placed widgets animate; a stack's or tab strip's children move with their
-  container, a collapsed group's members draw nothing.
+  the first, squeezed when the length has no room for that ([S-1760]). A card that draws nothing
+  does not animate.
 - **[S-1003]** The keyframe styles are the original's keyframes as data (`IntroTracks`), with its
   curve `cubic-bezier(0.22, 1, 0.36, 1)`: Fade (opacity), Scale (opacity, 0.94→1, 16 DIP rise), Slide
   (opacity, 40 DIP rise), Flip (−32° about the top edge with a 900-DIP perspective), Blur (opacity and
@@ -4434,8 +3776,8 @@ shortcut S-28..S-34.
   `IWidgetDropTarget` (Folder, Shortcuts), that view, **outside edit mode only**; over any other widget or
   the surface's own controls (toolbar, view bar, notices), nobody: the no-drop cursor, never a hand-on
   to the desktop behind the widget. Bare surface is the desktop. A drag carrying nothing droppable (no
-  paths, virtual files, links or shell items) is refused everywhere. The view hit is the innermost card
-  under the pointer (a stack's or tab strip's child, not the container).
+  paths, virtual files, links or shell items) is refused everywhere. The view hit is the card under
+  the pointer.
 - **[S-1021]** Where a drop can land follows the hit region ([S-851]). Outside edit mode the surface
   exists only on widgets, the view bar and notices, so a drag between widgets is over Explorer's own
   desktop and Explorer takes it; in edit mode the whole work area is the surface. One OLE drop target
@@ -4564,9 +3906,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 - **[S-1742]** The list keeps its callers' order; separators collapse (none leading, trailing or
   doubled), including where moving commands to the row emptied a group.
 - **[S-1743]** A widget card's menu: the row is Cut, Copy, Paste (disabled with nothing to paste),
-  Duplicate, Settings and Delete, acting on the selection ([S-1592]); the list is Add widget inside
-  (containers), the view's own commands, Move into (submenu, when there is a target), Bring to front /
-  Send to back (grid-placed widgets only), Move, and Edit layout / Done editing.
+  Duplicate, Settings and Delete, acting on the selection ([S-1592]); the list is the view's own
+  commands, Bring to front / Send to back, Move, and Edit layout / Done editing.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu: Paste and Settings in the row; Add widget (opens the picker at the
   click, whose choice then follows the pointer to be placed, [S-1587]), Select all ([S-1582], off
@@ -4589,7 +3930,7 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   pointer), as Explorer's does, and flips only to stay on screen. A menu opened from the keyboard sits
   under its anchor's left edge.
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
-  the point of a right-click on the surface, or the container it adds into — and flips above only
+  or the point of a right-click on the surface — and flips above only
   when there is no room below.
 
 Needs a live pass (pointer and focus on the real desktop): the surface menu opening only on empty
@@ -4601,7 +3942,7 @@ second display with another DPI.
 
 ## Icon picker and showcase views (R4-ICONS)
 
-The icon a view or a group is given, chosen from the whole Segoe Fluent Icons set, and a Debug tool
+The icon a view is given, chosen from the whole Segoe Fluent Icons set, and a Debug tool
 that puts every widget on the real desktop at every size tier. Owning files: Core
 `Icons/FluentIcons.cs` (+ the generated `FluentIconData.g.cs`, from `scripts/fluent-icons.py`),
 `Icons/IconSearch.cs`, `Widgets/WidgetTiers.cs`, `Model/ShowcaseViews.cs`; App `Shell/IconChoice.cs`,
@@ -4633,7 +3974,7 @@ that puts every widget on the real desktop at every size tier. Owning files: Cor
   DIPs). Each cell is the tier times the display's content
   scale ([S-850]) plus the widget gap, so the content lays out at exactly the tier.
   The cells are packed tallest first, lowest-then-leftmost, inside the work area less 16 DIP, without
-  overlap, on whole DIPs. Containers are empty instances.
+  overlap, on whole DIPs.
 - **[S-1811]** Ids are derived, not random: `showcase-<kind>` for a view, `showcase-<kind>-<tier>` for
   a widget, so a rerun produces the same ids.
 - **[S-1812]** When the seven do not fit one work area (1920×1080 at 125 %, for one), the rest go on
@@ -4663,18 +4004,17 @@ gallery ([S-1863]).
 
 - **[S-1860]** A widget that can show nothing useful until it is configured needs setting up, decided
   for every kind by one pure rule, `WidgetSetup.Needed(config, signed-in features)`: Countdown with no
-  timer; Quote with no quote left; Colour swatch in palette mode with no colour; Feed with no feed
+  timer; Quote with no quote left; Feed with no feed
   address; Stocks with no symbol; Weather (now and forecast) with no place; Video stream with no
-  address; Shortcuts with no item; Power with no action; Pictures with no folder (folder source) or no
-  file (file source); the GitHub repository widget with no repository. "Nothing right now" (no unread
+  address; Shortcuts with no item; Pictures with no folder (folder source) or no
+  file (file source). "Nothing right now" (no unread
   mail, no events today, an empty folder) is not setup, and neither is set-up-but-wrong (a symbol
   that is not one, a folder that is gone): those keep the widget's own sentence. Widgets that start
-  with seeded content (quotes, colours, shortcuts, power actions, Sun & moon's place, the folder
+  with seeded content (quotes, shortcuts, Sun & moon's place, the folder
   widget's profile folder) never ask until it is emptied. Habits and a local task list are started
   from the widget itself and do not ask.
 - **[S-1861]** An account widget needs setting up while no signed-in account offers its feature: Mail,
-  Calendar, Contacts, Tasks (account source only), OneDrive (files), the three GitHub list widgets,
-  Claude usage. The features are the union of the signed-in providers' (`WidgetSetup.Offered`); an
+  Calendar, Contacts, Tasks (account source only). The features are the union of the signed-in providers' (`WidgetSetup.Offered`); an
   account that needs signing in again still counts (the widget says so itself, with the Accounts link).
 - **[S-1862]** Such a widget's body is the Set up button and nothing else: the widget's glyph over one
   accent button ("Set up"; tooltip "Open this widget's settings"), centred, no sentence. The glyph is
@@ -4689,9 +4029,103 @@ gallery ([S-1863]).
 - **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
   toolbar entry, and no `#if DEBUG` sample data inside widget views or services. A widget's layout at
   the seven size tiers (`WidgetTiers`) is checked on the showcase views ([S-1810]) on the live
-  desktop; the other debug render flags (`--settings-png`, `--picker-png`, `--viewbar-png`,
+  desktop, or off-screen with `--widget-png` (one card at every tier, default config, [S-1917]); the other debug render flags (`--settings-png`, `--picker-png`, `--viewbar-png`,
   `--notices-png`, `--menu-png`, `--iconpicker-png`, `--motion-png`, `--layout-editor-png`) stay and
   draw widgets with their default config. The tags that described the gallery's fixtures are retired.
 
 Needs a manual pass: the button on the live desktop outside edit mode (opens Settings on the right
 page, from a closed and from an open window), and the button going away when an account is added.
+
+## Opening a widget's app (R7-OPEN)
+
+Owning files: `Themia.Core/Widgets/WidgetLaunch.cs`, `Themia.App/Shell/WidgetCard.Launch.cs`,
+`Themia.App/Services/WidgetLauncher.cs`, `ShellLauncher.OpenWidgetTarget`.
+
+- **[S-1920]** Outside edit mode a click on a widget opens the app it stands for, where one makes
+  sense, decided by one table (`WidgetLaunch`). **Body** widgets open from anywhere on the card except
+  their own controls: CPU, memory, disk, GPU, network, ping, battery, volume, Bluetooth, music, clock,
+  weather now and forecast, stocks, video stream. **Header** widgets open from the header (icon and
+  title) only, because their body is a list or a canvas of their own: mixer, mail, calendar, contacts,
+  tasks, feed, folder, pictures. With the header hidden they open nothing. **None**: notes,
+  scratchpad, clipboard, shortcuts, quote, sun & moon, habits, screen time (Windows has no page for
+  it), countdown and pomodoro (Clock has no documented timer link), and power (its buttons are the
+  widget).
+- **[S-1921]** The targets: CPU, memory, disk, GPU → Task Manager (`Taskmgr.exe` from the system
+  folder; it opens on the tab it last showed, as Windows has no supported switch for Performance).
+  Network and ping → `ms-settings:network-status`; battery → `ms-settings:powersleep` (Power &
+  battery); volume → `ms-settings:sound`; mixer → `ms-settings:apps-volume`; Bluetooth →
+  `ms-settings:bluetooth`; clock → Windows Clock (`ms-clock:`). A widget that needs setting up
+  ([S-1860]) opens nothing; its body is the Set up button.
+- **[S-1922]** The click area shows it opens something: a hand cursor and a faint wash
+  (`SubtleFillColorSecondary`) over the whole card or the header band while the pointer is on it and
+  not on a control, and a tooltip saying what opens ("Open Task Manager", "Open Spotify", "Open your
+  inbox"), which stays shut over a control. The same words are the header's accessible name (header
+  widgets) or the card's help text (body widgets). In nine languages, `shell.launch.*`.
+- **[S-1923]** What only the running widget knows reaches the table through `IWidgetLaunchFacts`:
+  the playing app (music), the folder on screen (folder, after navigating), the feed's site (feed).
+  Each value is checked again by the table.
+- **[S-1924]** One gate, re-applied by the launcher to the literal target (`WidgetLaunch.IsLaunchable`):
+  a program is only `Taskmgr.exe`, launched by its full path in the system folder; a Settings page or
+  protocol is one of the fixed strings above; a web page is https, accepted by `LaunchTargets`
+  (no credentials, no control characters, normalised) and built only from the widget's own config or
+  fetched data; a folder is a local path or shell name `LaunchTargets` accepts; an app id passes
+  `MediaApps`. Everything goes through `ShellLauncher` (ShellExecute, no arguments). A target that
+  fails to open is logged and shown as a notice ("Nothing opened"). Debug renders open nothing.
+- **[S-1925]** A plain left click opens; a click on a button, toggle, slider, text box, list item,
+  combo box, a row that handles its own tap, or an element marked `IOwnsClicks` (the seek bar) keeps
+  doing what it does. The open waits out the system double-click time, so a double-click (edit mode,
+  [S-65]) opens nothing. In edit mode a click selects and follows settings ([S-1745]) and never opens.
+  Enter on a widget that holds the keyboard lease ([S-800]) opens it when its view does not use Enter.
+- **[S-1926]** Music opens the app of the current media session, from its `SourceAppUserModelId`, while
+  a track is loaded (playing or paused); nothing is loaded, nothing opens. Only a plain id passes
+  (ASCII letters, digits, `. - _`, one `!` for a packaged app, at most 128 characters). A desktop
+  player that is running (`Spotify.exe` → process `Spotify`, `Chrome` → `chrome`) has its main window
+  restored and brought to the front; otherwise, and for a packaged app (Media Player, Store Spotify),
+  its Start menu entry `shell:AppsFolder\{id}` is activated, which brings a running packaged app
+  forward.
+- **[S-1927]** Weather opens MSN Weather's forecast for the widget's own coordinates, in the UI
+  language's market and the widget's unit:
+  `https://www.msn.com/{market}/weather/forecast/in-{place}?loc={base64 {l,x,y}}&weadegreetype={C|F}`
+  (the `loc` carries the coordinates; a name alone lands on whichever town MSN guesses). Stocks open
+  the symbol's page: Yahoo Finance (`/quote/{SYMBOL}/`) for a listed symbol, CoinGecko
+  (`/en/coins/{id}`) for a coin. The video stream opens its own address when it is https.
+- **[S-1928]** Account widgets open the service of the first account they read that has a web page
+  (all accounts with the feature when they name none): mail → Outlook on the web
+  (`outlook.office.com/mail/`) or Gmail; calendar → Outlook calendar on the web or Google Calendar,
+  and for CalDAV alone the registered calendar app (`outlookcal:`); contacts → Outlook People or Google
+  Contacts; tasks → Microsoft To Do (`ms-todo:` when registered, else `to-do.office.com`) or Google
+  Tasks. IMAP, CardDAV and a task list on this PC open nothing.
+- **[S-1929]** Folder opens the folder on screen in File Explorer (the configured one, or where the
+  widget has navigated to); pictures opens its folder (folder source only).
+- **[S-1930]** A feed remembers its site: an RSS channel's first `link` with text, or an Atom feed's
+  `rel="alternate"` link (never `self`), checked like an item link and kept in the saved feed cache.
+  The feed widget's header opens it when the widget has exactly one feed and the site is https.
+
+Needs a manual pass on the live desktop: every target above opening from a click (and Settings pages
+landing on the right page on Windows 11); a double-click still entering edit mode without opening
+anything; the controls (meter process rows, music transport and seek bar, volume slider and mute,
+stocks range chips, stream overlay buttons, Bluetooth device rows, header buttons) still doing their
+own thing; music with Spotify desktop, Spotify from the Store, a browser tab (Chrome, Edge, Firefox)
+and Media Player; Task Manager's elevation for a standard user; the MSN, Outlook-on-the-web
+(personal and work accounts) and To Do pages; the hover wash and tooltip; Enter under the lease.
+
+## Removed widgets (R7-REMOVE)
+
+Taken out of the app by the user's decision, with everything that existed only for them (views,
+settings pages, services, Core rules, glyphs, strings in all nine languages, tests). Their tags are
+retired with them and are not reused.
+
+- **[S-1902]** Removed: Themia (the mark), Help (getting started), Claude usage, GitHub (repository,
+  issues, notifications, reviews), the view switcher (the view **bar** stays, [S-906]..[S-916]),
+  Group, Stack and Tabs, the mood tracker, the colour swatch, web search, OneDrive, Apps, the
+  calculator and the process list. `WidgetKind` keeps the numbers of the kinds that remain. Retired
+  with them: [S-100]..[S-105], [S-639], [S-120]..[S-126], [S-131], [S-410]..[S-419], [S-480]..[S-492],
+  [S-510]..[S-512], [S-514], [S-537], [S-606]..[S-609], [S-654], [S-790]..[S-796], [S-810],
+  [S-861]..[S-871], [S-875], [S-876], [S-951]..[S-956], [S-1144], [S-1145], [S-1151]..[S-1155],
+  [S-1290]..[S-1294], [S-1449]..[S-1455], [S-1562], [S-1565], [S-1566], [S-1570], [S-1573], and the
+  sections on the developer widgets, the GitHub widgets, the calculator keypad and colour swatch
+  modes (PK), Apps/Search/Help/Themia (PI-A) and the view switcher (PI-B).
+- **[S-1903]** The model is flat: a widget has no parent, and nothing holds other widgets. There is no
+  "Move into", no dropping a widget into another, no picker target but the desktop, and no side
+  header (`HeaderPlacement` is Top, Bottom or Hidden). A selection is copied, moved, layered and
+  deleted widget by widget.

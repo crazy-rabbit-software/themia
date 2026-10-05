@@ -64,13 +64,9 @@ public sealed class ShellSettingsTests : IDisposable
     // [S-700] Header defaults
     // -----------------------------------------------------------------------------------------
 
-    [Theory]
-    [InlineData(WidgetKind.Calculator)]
-    [InlineData(WidgetKind.Clock)]
-    [InlineData(WidgetKind.ColorSwatch)]
-    [InlineData(WidgetKind.WebSearch)]
-    public void S700_single_readout_widgets_start_without_a_header(WidgetKind kind)
-        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
+    [Fact]
+    public void S700_the_clock_starts_without_a_header()
+        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.1, 0.1)).Header);
 
     [Theory]
     [InlineData(WidgetKind.Cpu)]

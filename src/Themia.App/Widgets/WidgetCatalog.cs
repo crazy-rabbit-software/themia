@@ -10,9 +10,8 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// What a widget view is allowed to ask of the surface it is drawn on.
 /// <para>
-/// Almost no widget needs this: the settings window is the writer, and the card owns input. The two
-/// that do — a note, whose text <i>is</i> its config, and the calculator, which is typed into — get
-/// it through <see cref="IWidgetSurfaceAware"/> rather than through a static hook or a widened
+/// The settings window is the writer, and the card owns input. A view that needs more — a note,
+/// whose text <i>is</i> its config, a list that is typed into — gets it through <see cref="IWidgetSurfaceAware"/> rather than through a static hook or a widened
 /// <see cref="IWidgetView.Attach"/>, so nothing that does not need it has to know it exists.
 /// </para>
 /// </summary>
@@ -57,16 +56,16 @@ public interface IWidgetSurface
     void RequestTextInput(bool wanted);
 
     /// <summary>
-    /// The display this widget is drawn on, or null where there is none — a debug render has no
-    /// display, and neither does a card that has not been placed. See <see cref="IWidgetDisplay"/>.
-    /// </summary>
-    IWidgetDisplay? Display { get; }
-
-    /// <summary>
     /// [S-1251] True when the card is a preview (a debug render) rather than a widget on the
     /// desktop. A view whose buttons act on the machine — the power tile — must be inert there.
     /// </summary>
     bool IsPreview => false;
+
+    /// <summary>
+    /// [S-1911] Whether the desktop is in edit mode right now. There a click on a widget selects and
+    /// moves it; a view whose whole tile is a button (the power widgets) leaves the press to the card.
+    /// </summary>
+    bool EditMode => false;
 
     /// <summary>
     /// [S-873] Paint nothing, or paint again: the card drops its fill, border and content and leaves
@@ -75,48 +74,6 @@ public interface IWidgetSurface
     /// can still be found, moved and configured. Not persisted: the view decides it from its state.
     /// </summary>
     void SetHidden(bool hidden);
-}
-
-/// <summary>
-/// What a widget may know about, and do to, the display it sits on: the views there are, which one
-/// this display shows, and a way to show another.
-/// <para>
-/// Only the view switcher asks. It is a surface-level fact rather than widget config — the same
-/// widget copied to another screen switches <i>that</i> screen — so it comes from the card host,
-/// which is the one thing that knows which display a card is on.
-/// </para>
-/// </summary>
-public interface IWidgetDisplay
-{
-    /// <summary>Every view, in the user's order.</summary>
-    IReadOnlyList<Themia.Core.Widgets.ViewSummary> Views { get; }
-
-    /// <summary>The view this display is showing now.</summary>
-    string ShownViewId { get; }
-
-    /// <summary>[S-19] Put a view on this display, and only this one.</summary>
-    void ShowView(string viewId);
-
-    /// <summary>
-    /// [S-1656] The rects of a view's widgets on the desktop, for a sketch of its layout: top-level
-    /// widgets only (a container's members sit inside it). Empty for a view that does not exist.
-    /// </summary>
-    IReadOnlyList<Themia.Core.Geometry.FracRect> Tiles(string viewId);
-
-    /// <summary>[S-1656] This display's width over its height, the shape of a sketch; 0 when not known.</summary>
-    double Aspect { get; }
-
-    /// <summary>[S-1650] Duplicate a view and show the copy on this display ([S-900]).</summary>
-    void DuplicateView(string viewId);
-
-    /// <summary>[S-1650] Move a view one place earlier (-1) or later (+1) in the order ([S-901]).</summary>
-    void MoveView(string viewId, int delta);
-
-    /// <summary>[S-1650] Delete a view (never the last), with the undo notice ([S-881], [S-902]).</summary>
-    void DeleteView(string viewId);
-
-    /// <summary>[S-1650] Open the view's settings page: its name and icon ([S-903]).</summary>
-    void OpenViewSettings(string viewId);
 }
 
 /// <summary>Implemented by the few views that edit their own config or take typing.</summary>
@@ -140,24 +97,6 @@ public interface IWidgetHeaderContent
 {
     /// <summary>The trailing element, or null. Read once when the card builds its header.</summary>
     FrameworkElement? HeaderTrailing { get; }
-}
-
-/// <summary>
-/// A view that holds other widgets.
-/// <para>
-/// The container does not create its children — the surface does, exactly as it creates every other
-/// card, so a widget inside a stack is the same object with the same lifetime as one on the desktop
-/// and nothing has to be special-cased to keep it ticking. What a container gets is the finished
-/// cards and the job of arranging them.
-/// </para>
-/// </summary>
-public interface IWidgetContainerView
-{
-    /// <summary>
-    /// Take the children this container now holds, in view order. Called on every layout pass, so
-    /// it must be cheap when nothing changed and must not restart anything the children are doing.
-    /// </summary>
-    void SetChildren(IReadOnlyList<FrameworkElement> children);
 }
 
 /// <summary>What every widget view can do. Kept tiny on purpose: the card owns chrome and input.</summary>
@@ -205,18 +144,12 @@ internal enum WidgetCategory
     Time,
     Accounts,
     System,
+    Power,
     Information,
     Media,
     Launch,
     Desk,
     Trackers,
-    Layout,
-
-    /// <summary>GitHub and Claude usage: the widgets for people who write code.</summary>
-    Developer,
-
-    /// <summary>About the app itself: the guide and the mark.</summary>
-    App,
 }
 
 /// <summary>
@@ -234,7 +167,6 @@ internal static class WidgetCatalog
         new(WidgetKind.Battery, Str.Widget_Battery_Label, Str.Shell_Meters_BatteryDescription, Glyphs.Battery, 200, 150, WidgetCategory.System),
         new(WidgetKind.Network, Str.WidgetsA_Catalog_Network_Label, Str.WidgetsA_Catalog_Network_Description, Glyphs.Network, 200, 150, WidgetCategory.System),
         new(WidgetKind.Ping, Str.Widget_Ping_Label, Str.WidgetsA_Catalog_Ping_Description, Glyphs.Ping, 200, 150, WidgetCategory.System),
-        new(WidgetKind.Processes, Str.WidgetsA_Catalog_Processes_Label, Str.WidgetsA_Catalog_Processes_Description, Glyphs.Processes, 320, 240, WidgetCategory.System),
         new(WidgetKind.Gpu, Str.WidgetsA_Catalog_Gpu_Label, Str.Shell_Meters_GpuDescription, Glyphs.Gpu, 220, 220, WidgetCategory.System),
         new(WidgetKind.Mixer, Str.WidgetsA_Catalog_Mixer_Label, Str.WidgetsA_Catalog_Mixer_Description, Glyphs.Mixer, 300, 260, WidgetCategory.System),
         new(WidgetKind.ScreenTime, Str.WidgetsA_Catalog_ScreenTime_Label, Str.WidgetsA_Catalog_ScreenTime_Description, Glyphs.ScreenTime, 260, 300, WidgetCategory.System),
@@ -245,40 +177,30 @@ internal static class WidgetCatalog
         new(WidgetKind.Notes, Str.Widget_Notes_Label, Str.WidgetsA_Catalog_Notes_Description, Glyphs.Note, 300, 220, WidgetCategory.Desk),
         new(WidgetKind.Countdown, Str.Widget_Countdown_Label, Str.WidgetsA_Catalog_Countdown_Description, Glyphs.Countdown, 300, 200, WidgetCategory.Time),
         new(WidgetKind.Pomodoro, Str.Widget_Pomodoro_Label, Str.WidgetsA_Catalog_Pomodoro_Description, Glyphs.Pomodoro, 240, 200, WidgetCategory.Time),
-        new(WidgetKind.Calculator, Str.Widget_Calculator_Label, Str.WidgetsA_Catalog_Calculator_Description, Glyphs.Calculator, 260, 260, WidgetCategory.Desk),
         new(WidgetKind.SunMoon, Str.Widget_SunMoon_Label, Str.WidgetsA_Catalog_SunMoon_Description, Glyphs.Sun, 320, 240, WidgetCategory.Time),
         new(WidgetKind.Folder, Str.Widget_Folder_Label, Str.WidgetsA_Catalog_Folder_Description, Glyphs.Folder, 340, 280, WidgetCategory.Launch),
         new(WidgetKind.Volume, Str.Widget_Volume_Label, Str.WidgetsA_Catalog_Volume_Description, Glyphs.Volume, 200, 150, WidgetCategory.System),
-        new(WidgetKind.Power, Str.Widget_Power_Label, Str.WidgetsA_Catalog_Power_Description, Glyphs.Power, 260, 120, WidgetCategory.System),
+        // [S-1910] One widget per power action, each a single button.
+        new(WidgetKind.Shutdown, Str.Power_Action_Shutdown, Str.WidgetsC_Power_Desc_Shutdown, Glyphs.Power, 120, 120, WidgetCategory.Power),
+        new(WidgetKind.Restart, Str.Power_Action_Restart, Str.WidgetsC_Power_Desc_Restart, Glyphs.Reset, 120, 120, WidgetCategory.Power),
+        new(WidgetKind.Sleep, Str.Power_Action_Sleep, Str.WidgetsC_Power_Desc_Sleep, Glyphs.Moon, 120, 120, WidgetCategory.Power),
+        new(WidgetKind.Hibernate, Str.Power_Action_Hibernate, Str.WidgetsC_Power_Desc_Hibernate, Glyphs.Hibernate, 120, 120, WidgetCategory.Power),
+        new(WidgetKind.Lock, Str.Power_Action_Lock, Str.WidgetsC_Power_Desc_Lock, Glyphs.Lock, 120, 120, WidgetCategory.Power),
+        new(WidgetKind.SignOut, Str.Power_Action_SignOut, Str.WidgetsC_Power_Desc_SignOut, Glyphs.SignOut, 120, 120, WidgetCategory.Power),
+        new(WidgetKind.ScreenOff, Str.Power_Action_ScreenOff, Str.WidgetsC_Power_Desc_ScreenOff, Glyphs.Display, 120, 120, WidgetCategory.Power),
         new(WidgetKind.Bluetooth, Str.Widget_Bluetooth_Label, Str.WidgetsA_Catalog_Bluetooth_Description, Glyphs.Bluetooth, 300, 240, WidgetCategory.System),
         new(WidgetKind.Music, Str.WidgetsA_Catalog_Music_Label, Str.WidgetsA_Catalog_Music_Description, Glyphs.Music, 340, 160, WidgetCategory.Media),
         new(WidgetKind.WeatherNow, Str.Widget_WeatherCurrent_Label, Str.WidgetsA_Catalog_Weather_Description, Glyphs.Weather, 260, 200, WidgetCategory.Information),
         new(WidgetKind.WeatherForecast, Str.WidgetsA_Catalog_Forecast_Label, Str.WidgetsA_Catalog_Forecast_Description, Glyphs.Forecast, 380, 220, WidgetCategory.Information),
         new(WidgetKind.Stocks, Str.Widget_Stocks_Label, Str.WidgetsA_Catalog_Stocks_Description, Glyphs.Stocks, 320, 240, WidgetCategory.Information),
         new(WidgetKind.Rss, Str.WidgetsA_Catalog_Feed_Label, Str.WidgetsA_Catalog_Feed_Description, Glyphs.Rss, 360, 280, WidgetCategory.Information),
-        new(WidgetKind.Apps, Str.Widget_Apps_Label, Str.WidgetsA_Catalog_Apps_Description, Glyphs.Apps, 320, 240, WidgetCategory.Launch),
         new(WidgetKind.Shortcuts, Str.WidgetsA_Catalog_Shortcuts_Label, Str.WidgetsA_Catalog_Shortcuts_Description, Glyphs.Shortcut, 320, 220, WidgetCategory.Launch),
-        new(WidgetKind.OneDrive, Str.Widget_Onedrive_Label, Str.WidgetsA_Catalog_OneDrive_Description, Glyphs.OneDrive, 330, 320, WidgetCategory.Launch),
-        new(WidgetKind.WebSearch, Str.WidgetsA_Catalog_Search_Label, Str.WidgetsA_Catalog_Search_Description, Glyphs.Search, 320, 56, WidgetCategory.Launch),
         new(WidgetKind.Clipboard, Str.WidgetsA_Catalog_Clipboard_Label, Str.WidgetsA_Catalog_Clipboard_Description, Glyphs.Clipboard, 320, 260, WidgetCategory.Desk),
         new(WidgetKind.Scratchpad, Str.Widget_Scratchpad_Label, Str.WidgetsA_Catalog_Scratchpad_Description, Glyphs.Scratchpad, 300, 260, WidgetCategory.Desk),
-        new(WidgetKind.ColorSwatch, Str.Widget_ColorSwatch_Label, Str.WidgetsA_Catalog_Colour_Description, Glyphs.Color, 120, 120, WidgetCategory.Desk),
         new(WidgetKind.Quote, Str.WidgetsA_Catalog_Quote_Label, Str.WidgetsA_Catalog_Quote_Description, Glyphs.Quote, 320, 180, WidgetCategory.Desk),
         new(WidgetKind.Gallery, Str.Widget_Gallery_Label, Str.WidgetsA_Catalog_Gallery_Description, Glyphs.Gallery, 320, 240, WidgetCategory.Media),
         new(WidgetKind.VideoStream, Str.WidgetsA_Catalog_VideoStream_Label, Str.WidgetsA_Catalog_VideoStream_Description, Glyphs.Video, 320, 240, WidgetCategory.Media),
         new(WidgetKind.HabitTracker, Str.WidgetsA_Catalog_Habits_Label, Str.WidgetsA_Catalog_Habits_Description, Glyphs.Habit, 320, 240, WidgetCategory.Trackers),
-        new(WidgetKind.MoodTracker, Str.WidgetsA_Catalog_Mood_Label, Str.WidgetsA_Catalog_Mood_Description, Glyphs.Mood, 320, 240, WidgetCategory.Trackers),
-        new(WidgetKind.Group, Str.Widget_Group_Label, Str.WidgetsA_Catalog_Group_Description, Glyphs.Group, 400, 300, WidgetCategory.Layout),
-        new(WidgetKind.Stack, Str.Widget_Stack_Label, Str.WidgetsA_Catalog_Stack_Description, Glyphs.Stack, 360, 320, WidgetCategory.Layout),
-        new(WidgetKind.Tabs, Str.Widget_Tabs_Label, Str.WidgetsA_Catalog_Tabs_Description, Glyphs.Tabs, 360, 320, WidgetCategory.Layout),
-        new(WidgetKind.ViewSwitcher, Str.WidgetsA_Catalog_ViewSwitcher_Label, Str.WidgetsA_Catalog_ViewSwitcher_Description, Glyphs.View, 320, 56, WidgetCategory.Layout),
-        new(WidgetKind.GitHub, Str.Widget_Github_Label, Str.WidgetsA_Catalog_Github_Description, Glyphs.Code, 320, 320, WidgetCategory.Developer),
-        new(WidgetKind.GitHubIssues, Str.WidgetsA_Catalog_GithubIssues_Label, Str.WidgetsA_Catalog_GithubIssues_Description, Glyphs.Issue, 320, 260, WidgetCategory.Developer),
-        new(WidgetKind.GitHubNotifications, Str.WidgetsA_Catalog_GithubNotifications_Label, Str.WidgetsA_Catalog_GithubNotifications_Description, Glyphs.Bell, 320, 340, WidgetCategory.Developer),
-        new(WidgetKind.GitHubReviews, Str.WidgetsA_Catalog_GithubReviews_Label, Str.WidgetsA_Catalog_GithubReviews_Description, Glyphs.PullRequest, 320, 260, WidgetCategory.Developer),
-        new(WidgetKind.ClaudeUsage, Str.WidgetsA_Catalog_ClaudeUsage_Label, Str.WidgetsA_Catalog_ClaudeUsage_Description, Glyphs.Gauge, 260, 180, WidgetCategory.Developer),
-        new(WidgetKind.Help, Str.WidgetsA_Catalog_Help_Label, Str.WidgetsA_Catalog_Help_Description, Glyphs.Help, 440, 440, WidgetCategory.App),
-        new(WidgetKind.Themia, Str.Widget_Themia_Label, Str.WidgetsA_Catalog_Themia_Description, Glyphs.Themia, 120, 120, WidgetCategory.App),
     ];
 
     /// <summary>The heading a picker section is shown under, in the current language.</summary>
@@ -289,14 +211,12 @@ internal static class WidgetCatalog
         WidgetCategory.Time => Str.WidgetsA_Catalog_Category_Time,
         WidgetCategory.Accounts => Str.WidgetsA_Catalog_Category_Accounts,
         WidgetCategory.System => Str.Category_System,
+        WidgetCategory.Power => Str.WidgetsA_Catalog_Category_Power,
         WidgetCategory.Information => Str.WidgetsA_Catalog_Category_Information,
         WidgetCategory.Media => Str.WidgetsA_Catalog_Category_Media,
         WidgetCategory.Launch => Str.WidgetsA_Catalog_Category_Launch,
         WidgetCategory.Desk => Str.WidgetsA_Catalog_Category_Desk,
-        WidgetCategory.Trackers => Str.WidgetsA_Catalog_Category_Trackers,
-        WidgetCategory.Layout => Str.Category_Layout,
-        WidgetCategory.Developer => Str.WidgetsA_Catalog_Category_Developer,
-        _ => Str.Category_Themia,
+        _ => Str.WidgetsA_Catalog_Category_Trackers,
     };
 
     /// <summary>
@@ -346,7 +266,6 @@ internal static class WidgetCatalog
         WidgetKind.Clock => new ClockView(),
         WidgetKind.Cpu or WidgetKind.Memory or WidgetKind.Disk
             or WidgetKind.Battery or WidgetKind.Network or WidgetKind.Ping => new MeterView(kind),
-        WidgetKind.Processes => new ProcessesView(),
         WidgetKind.Gpu => new GpuView(),
         WidgetKind.Mixer => new MixerView(),
         WidgetKind.ScreenTime => new ScreenTimeView(),
@@ -357,39 +276,24 @@ internal static class WidgetCatalog
         WidgetKind.Notes => new NotesView(),
         WidgetKind.Countdown => new CountdownView(),
         WidgetKind.Pomodoro => new PomodoroView(),
-        WidgetKind.Calculator => new CalculatorView(),
         WidgetKind.SunMoon => new SunMoonView(),
         WidgetKind.Folder => new FolderView(),
         WidgetKind.Volume => new VolumeView(),
-        WidgetKind.Power => new PowerView(),
+        WidgetKind.Shutdown or WidgetKind.Restart or WidgetKind.Sleep or WidgetKind.Hibernate
+            or WidgetKind.Lock or WidgetKind.SignOut or WidgetKind.ScreenOff => new PowerButtonView(kind),
         WidgetKind.Bluetooth => new BluetoothView(),
         WidgetKind.Music => new MusicView(),
         WidgetKind.WeatherNow => new WeatherNowView(),
         WidgetKind.WeatherForecast => new WeatherForecastView(),
         WidgetKind.Stocks => new StocksView(),
         WidgetKind.Rss => new RssView(),
-        WidgetKind.Apps => new AppsView(),
         WidgetKind.Shortcuts => new ShortcutsView(),
-        WidgetKind.OneDrive => new OneDriveView(),
-        WidgetKind.WebSearch => new WebSearchView(),
         WidgetKind.Clipboard => new ClipboardView(),
         WidgetKind.Scratchpad => new ScratchpadView(),
-        WidgetKind.ColorSwatch => new ColorSwatchView(),
         WidgetKind.Quote => new QuoteView(),
         WidgetKind.Gallery => new GalleryView(),
         WidgetKind.VideoStream => new VideoStreamView(),
         WidgetKind.HabitTracker => new HabitTrackerView(),
-        WidgetKind.MoodTracker => new MoodTrackerView(),
-        WidgetKind.Group => new GroupView(),
-        WidgetKind.Stack => new StackView(),
-        WidgetKind.Tabs => new TabsView(),
-        WidgetKind.Help => new HelpView(),
-        WidgetKind.Themia => new ThemiaView(),
-        WidgetKind.GitHub => new GitHubView(),
-        WidgetKind.GitHubIssues or WidgetKind.GitHubReviews => new GitHubSearchView(kind),
-        WidgetKind.GitHubNotifications => new GitHubNotificationsView(),
-        WidgetKind.ClaudeUsage => new ClaudeUsageView(),
-        WidgetKind.ViewSwitcher => new ViewSwitcherView(),
         _ => new ClockView(),
     };
 }

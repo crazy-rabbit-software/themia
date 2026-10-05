@@ -241,8 +241,6 @@ internal static class NoticeRender
 
         public bool CanPaste => false;
 
-        public IWidgetDisplay? Display => null;
-
         public bool IsPreview => true;
 
         public void OnGeometryPreview(WidgetCard card)
@@ -295,11 +293,6 @@ internal static class NoticeRender
         public void RequestPaste()
         {
             // ignore: as above
-        }
-
-        public void RequestReparent(WidgetCard card, string? containerId)
-        {
-            // ignore: no containers
         }
 
         public void RequestSaveConfig()
