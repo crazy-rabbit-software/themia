@@ -33,29 +33,31 @@ internal static partial class ConfigPages
     /// </summary>
     public static IReadOnlyList<AppPageEntry> AppPages { get; } =
     [
-        new(AppPage.General, Str.Settings_Nav_General, Glyphs.Settings, NavIcon.Settings, AppPageSlot.Main, BuildGeneral),
-        new(AppPage.Appearance, Str.Settings_Section_Appearance, Glyphs.Palette, NavIcon.PaintBrush, AppPageSlot.Main, BuildAppearance),
+        new(AppPage.General, Str.Settings_Nav_General, Glyphs.Settings, NavIcon.Settings, AppPageSlot.Main, c => BuildGeneral(c.Host)),
+        new(AppPage.Appearance, Str.Settings_Section_Appearance, Glyphs.Palette, NavIcon.PaintBrush, AppPageSlot.Main, c => BuildAppearance(c.Host)),
         new(AppPage.Accounts, Str.Shell_Settings_Nav_Accounts, Glyphs.Contact, NavIcon.Person, AppPageSlot.Main, _ => AccountsPage.Build()),
-        new(AppPage.License, Str.Settings_Nav_License, Glyphs.Certificate, NavIcon.Premium, AppPageSlot.Footer, BuildLicense),
-        new(AppPage.About, Str.Settings_Section_About, Glyphs.Info, NavIcon.QuestionCircle, AppPageSlot.Footer, BuildAbout),
+
+        // [S-1830] Displays before Views, after the app pages: one entry each, never one per item.
+        new(AppPage.Displays, Str.App_Displays, Glyphs.Display, NavIcon.Laptop, AppPageSlot.Main, BuildDisplays),
+        new(AppPage.Views, Str.App_Views, Glyphs.View, NavIcon.ContentView, AppPageSlot.Main, BuildViews),
+        new(AppPage.License, Str.Settings_Nav_License, Glyphs.Certificate, NavIcon.Premium, AppPageSlot.Footer, c => BuildLicense(c.Host)),
+        new(AppPage.About, Str.Settings_Section_About, Glyphs.Info, NavIcon.QuestionCircle, AppPageSlot.Footer, c => BuildAbout(c.Host)),
     ];
 
-    public static FrameworkElement Build(AppHost host, ConfigTarget target, Action<ConfigTarget> navigate) => target switch
+    public static FrameworkElement Build(PageContext context, ConfigTarget target) => target switch
     {
-        ConfigTarget.App app => BuildApp(host, app.Page),
-        ConfigTarget.View view => BuildView(host, view.ViewId, navigate),
-        ConfigTarget.Display display => BuildDisplay(host, display.MonitorId),
-        ConfigTarget.Widget widget => BuildWidget(host, widget.WidgetId, navigate),
+        ConfigTarget.App app => BuildApp(context, app.Page),
+        ConfigTarget.Widget widget => BuildWidget(context.Host, widget.WidgetId, context.Navigate),
         _ => Page(Str.Common_Settings.Text(), []),
     };
 
-    private static FrameworkElement BuildApp(AppHost host, AppPage page)
+    private static FrameworkElement BuildApp(PageContext context, AppPage page)
     {
         foreach (var entry in AppPages)
         {
             if (entry.Page == page)
             {
-                return entry.Build(host);
+                return entry.Build(context);
             }
         }
 

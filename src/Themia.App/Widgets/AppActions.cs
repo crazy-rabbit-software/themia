@@ -12,7 +12,7 @@ namespace Themia.App.Widgets;
 /// edit mode on, open Settings, and open one of the app's own pages in the browser. One place, so
 /// both widgets say and do the same thing.
 /// <para>
-/// The buttons call through <see cref="AppServices"/>, which the host fills; in the gallery there is
+/// The buttons call through <see cref="AppServices"/>, which the host fills; in a debug render there is
 /// no host, so they draw and do nothing. Links go through <see cref="ShellLauncher"/>, the app's one
 /// launch path, not a <see cref="HyperlinkButton.NavigateUri"/> that would bypass it.
 /// </para>

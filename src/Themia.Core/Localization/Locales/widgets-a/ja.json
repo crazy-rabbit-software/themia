@@ -275,7 +275,6 @@
   "widgetsA.clock.weekAndDay": "第 {week} 週 · {day} 日目",
   "widgetsA.colorSwatch.copyNamed": "{name} · {value} をコピー",
   "widgetsA.colorSwatch.copyValue": "{value} をコピー",
-  "widgetsA.colorSwatch.empty": "色がありません。設定で追加してください。",
   "widgetsA.colorSwatch.palette": "パレット",
   "widgetsA.colorSwatch.settings.accent": "アクセント カラー",
   "widgetsA.colorSwatch.settings.add.desc": "色を選び、必要なら名前を付けます",
@@ -330,7 +329,6 @@
   "widgetsA.countdown.daysIn": {
     "other": "{count}日後"
   },
-  "widgetsA.countdown.empty": "タイマーがありません。\nウィジェットの設定で追加してください。",
   "widgetsA.countdown.format.auto": "自動",
   "widgetsA.countdown.format.days": "日数のみ",
   "widgetsA.countdown.format.dhm": "日 · 時間 · 分",
@@ -414,7 +412,6 @@
   "widgetsA.github.agoHours": "{count}時間",
   "widgetsA.github.agoMinutes": "{count}分",
   "widgetsA.github.agoNow": "今",
-  "widgetsA.github.chooseRepo": "リポジトリを選んでください: 右クリックして [構成] を選びます。",
   "widgetsA.github.closed": "クローズ",
   "widgetsA.github.comments": {
     "other": "コメント {count} 件"

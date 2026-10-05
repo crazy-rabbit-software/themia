@@ -21,8 +21,8 @@ namespace Themia.App.Widgets;
 /// <b>Safety first.</b> Session-ending actions arm on the first click and run on the second
 /// (<see cref="PowerArm"/>: one armed tile at a time, 5 s window, a double-click is not two clicks,
 /// pointer-leave disarms). The machine is touched only through <see cref="IPowerActions"/>, which
-/// starts inert and becomes the real backend only once the card says this is not a preview — so the
-/// gallery's buttons never run anything ([S-1251]). Actions run on a worker thread, one at a time.
+/// starts inert and becomes the real backend only once the card says this is not a preview — so a
+/// preview's buttons never run anything ([S-1251]). Actions run on a worker thread, one at a time.
 /// </para>
 /// <para>
 /// <b>Ladder</b> ([S-1248]): every button labelled, then every button as an icon, then as many icons
@@ -40,8 +40,6 @@ internal sealed partial class PowerView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly Grid _buttons = new();
     private readonly StackPanel _strip = new() { Spacing = 0 };
     private readonly StackPanel _panel = new() { Spacing = 0 };
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
     private readonly List<IDisposable> _hovers = [];
     private readonly Dictionary<PowerAction, Tile> _tiles = [];
     private readonly DispatcherQueueTimer? _disarmTimer;
@@ -80,15 +78,9 @@ internal sealed partial class PowerView : Grid, IWidgetView, IWidgetSizeAware, I
         _panel.VerticalAlignment = VerticalAlignment.Top;
         _panel.HorizontalAlignment = HorizontalAlignment.Right;
 
-        var message = _emptyText;
-        message.Text = Str.Power_Empty.Text();
-        _empty = Fluent.EmptyState(Glyphs.Power, message, out _);
-        _empty.Visibility = Visibility.Collapsed;
-
         Children.Add(_buttons);
         Children.Add(_strip);
         Children.Add(_panel);
-        Children.Add(_empty);
 
         // [S-1247] The confirm step catches a mis-click; a tile left armed under the cursor would
         // defeat it on the user's next visit.
@@ -130,7 +122,6 @@ internal sealed partial class PowerView : Grid, IWidgetView, IWidgetSizeAware, I
     /// <summary>[S-1110] The fixed texts and every tile's name again, then the facts redrawn.</summary>
     private void OnLanguage(Locale locale)
     {
-        _emptyText.Text = Str.Power_Empty.Text();
         foreach (var tile in _tiles.Values)
         {
             AutomationProperties.SetName(tile.Button, PowerActionRules.Label(tile.Action));
@@ -201,34 +192,16 @@ internal sealed partial class PowerView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private PowerSnapshot ReadSnapshot()
     {
-#if DEBUG
-        if (_preview && Shell.Gallery.PowerFixture.Snapshot is { } fixture)
-        {
-            return fixture;
-        }
-#endif
         return PowerStatus.Read();
     }
 
     private IReadOnlyList<PowerPlanEntry> ReadPlans()
     {
-#if DEBUG
-        if (_preview && Shell.Gallery.PowerFixture.Plans is { } fixture)
-        {
-            return fixture;
-        }
-#endif
         return PowerStatus.Plans();
     }
 
     private PowerTimeouts ReadTimeouts()
     {
-#if DEBUG
-        if (_preview && Shell.Gallery.PowerFixture.Timeouts is { } fixture)
-        {
-            return fixture;
-        }
-#endif
         return PowerStatus.Timeouts(_snapshot.Source);
     }
 
@@ -246,15 +219,13 @@ internal sealed partial class PowerView : Grid, IWidgetView, IWidgetSizeAware, I
 
         if (actions.Count == 0)
         {
-            // [S-1252] An empty selection says so rather than drawing an empty card.
-            _empty.Visibility = Visibility.Visible;
+            // [S-1252] An empty selection is the card's Set up button ([S-1862]), not an empty card.
             _buttons.Visibility = Visibility.Collapsed;
             _strip.Visibility = Visibility.Collapsed;
             _panel.Visibility = Visibility.Collapsed;
             return;
         }
 
-        _empty.Visibility = Visibility.Collapsed;
         _buttons.Visibility = Visibility.Visible;
 
         var compact = _area.WidthClass == SizeClass.Compact || _area.HeightClass == SizeClass.Compact;

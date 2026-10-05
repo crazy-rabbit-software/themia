@@ -24,17 +24,4 @@ internal sealed class MemoryMeter : MeterPart
         host.Present(new MeterReading(fraction, Formatting.Percent(fraction), true));
     }
 
-#if DEBUG
-    public override bool SampleFixture(IMeterHost host, double seconds)
-    {
-        if (!Preview || !Shell.Gallery.MeterFixture.Has(Kind))
-        {
-            return false;
-        }
-
-        var used = Shell.Gallery.MeterFixture.Memory(seconds);
-        host.Present(new MeterReading(used, Formatting.Percent(used), true));
-        return true;
-    }
-#endif
 }

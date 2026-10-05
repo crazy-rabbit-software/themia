@@ -66,7 +66,7 @@ internal sealed partial class DesktopWindow
             ToggleSnap: ToggleSnap,
             Done: () => _host.SetEditMode(false)));
 
-    /// <summary>[S-1744] The surface menu's entries, worded; what each does is the caller's (the gallery renders it too).</summary>
+    /// <summary>[S-1744] The surface menu's entries, worded; what each does is the caller's (the menu render draws it too).</summary>
     internal static List<ItemMenuEntry> SurfaceEntries(SurfaceMenuFacts facts, SurfaceMenuActions actions)
     {
         var entries = new List<ItemMenuEntry>();
@@ -102,7 +102,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        BuildAddFlyout().ShowAt(_root, new FlyoutShowOptions { Position = at, ShowMode = FlyoutShowMode.Standard });
+        BuildAddFlyout().ShowAt(_root, new FlyoutShowOptions { Position = at, Placement = FlyoutPlacementMode.Bottom, ShowMode = FlyoutShowMode.Standard });
     }
 
     /// <summary>[S-06] The grid snap aid, flipped as the toolbar's switch does; <see cref="SyncToolbar"/> follows.</summary>

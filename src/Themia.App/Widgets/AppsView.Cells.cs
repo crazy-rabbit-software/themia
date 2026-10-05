@@ -437,7 +437,7 @@ internal sealed partial class AppsView
 
     /// <summary>
     /// The one launch path: the shortcut is classified again by <see cref="ShellLauncher"/> at the
-    /// moment it opens. Inert in the gallery, whose cards are previews.
+    /// moment it opens. Inert in a preview card.
     /// </summary>
     private void Open(Cell cell)
     {

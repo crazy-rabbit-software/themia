@@ -127,7 +127,11 @@ public static class DevScreens
 
         if (accounts.Count == 0)
         {
-            return new DevScreen(DevScreenKind.NoAccounts, Strings.Format(locale, Str.WidgetsA_Dev_SignInTo, ("service", service)), true, null);
+            // [S-1862] No account at all is the card's Set up button, which says nothing here. A
+            // widget that reads anonymously gets here only when the account it was given has gone.
+            return anonymous
+                ? new DevScreen(DevScreenKind.NoAccounts, Strings.Format(locale, Str.WidgetsA_Dev_SignInTo, ("service", service)), true, null)
+                : new DevScreen(DevScreenKind.NoAccounts, string.Empty, false, null);
         }
 
         var targets = Targets(accounts, chosen, single);

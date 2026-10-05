@@ -370,9 +370,10 @@ internal sealed partial class OneDriveView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (_account is null)
         {
+            // No account at all: the card's Set up button covers this ([S-1862]).
             _blocked = named && accounts.Count > 0
                 ? Str.WidgetsC_OneDrive_AccountGone.Text()
-                : Str.WidgetsC_OneDrive_SignIn.Text();
+                : string.Empty;
             Render();
             return;
         }
@@ -489,7 +490,7 @@ internal sealed partial class OneDriveView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (_blocked is { } blocked)
         {
-            ShowEmpty(blocked, _service is null ? null : EmptyAction.Accounts);
+            ShowEmpty(blocked, _service is null || blocked.Length == 0 ? null : EmptyAction.Accounts);
             return;
         }
 

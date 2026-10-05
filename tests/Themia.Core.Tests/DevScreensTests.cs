@@ -31,9 +31,19 @@ public sealed class DevScreensTests
     }
 
     [Fact]
-    public void S628_no_account_offers_the_accounts_page()
+    public void S1862_no_account_is_left_to_the_set_up_button()
     {
         var screen = Decide([]);
+
+        Assert.Equal(DevScreenKind.NoAccounts, screen.Kind);
+        Assert.False(screen.OfferAccounts);
+        Assert.Equal(string.Empty, screen.Text);
+    }
+
+    [Fact]
+    public void S628_an_anonymous_widget_whose_chosen_account_left_asks_for_a_sign_in()
+    {
+        var screen = DevScreens.Decide("GitHub", [], ["gh:gone"], true, [], false, string.Empty, Now, Locale.En, anonymous: true);
 
         Assert.Equal(DevScreenKind.NoAccounts, screen.Kind);
         Assert.True(screen.OfferAccounts);

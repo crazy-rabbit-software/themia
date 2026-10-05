@@ -97,9 +97,4 @@ internal static class FeedService
         };
     }
 
-#if DEBUG
-    /// <summary>[S-1305] The gallery's fixture: fixed feeds seeded as fresh answers, offline and the same every run.</summary>
-    internal static void SeedGallery(string url, int maxItems, FeedDocument document)
-        => Cache.Seed(Key(url, maxItems), new Fetched<FeedDocument>(FetchStatus.Ok, document, null, DateTimeOffset.Now.AddMinutes(-3)));
-#endif
 }

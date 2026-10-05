@@ -377,8 +377,9 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     {
         if (_config.FeedUrls.Count == 0)
         {
+            // No feed at all is the card's Set up button ([S-1862]); refused ones say why.
             var refused = _config.ResolvedFeeds.FirstOrDefault(r => !r.IsValid);
-            return _config.ResolvedFeeds.Count == 0 ? Str.WidgetsC_Rss_AddFeedFirst.Text() : WebInput.Explain(refused.Problem);
+            return _config.ResolvedFeeds.Count == 0 ? string.Empty : WebInput.Explain(refused.Problem);
         }
 
         if (_merged.Failures.Count > 0 && _parts.Count >= _config.FeedUrls.Count)

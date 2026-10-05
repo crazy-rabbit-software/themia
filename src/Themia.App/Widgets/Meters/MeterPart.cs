@@ -54,24 +54,6 @@ internal abstract class MeterPart
     public virtual string? Badge(MeterReading reading) => null;
 
     /// <summary>
-    /// [S-1186] Whether this meter is a gallery preview, told before the first config arrives. A
-    /// part reads its debug fixture only in a preview, never on the desktop.
-    /// </summary>
-    public void Bind(bool preview) => Preview = preview;
-
-    /// <summary>[S-1186] Set by <see cref="Bind"/>: the card is a gallery preview.</summary>
-    protected bool Preview { get; private set; }
-
-#if DEBUG
-    /// <summary>
-    /// [S-1823] In a gallery preview with this kind's fixture installed, hand <paramref name="host"/>
-    /// the fixture's reading at <paramref name="seconds"/> on the fixture's clock (negative: before
-    /// the page was drawn, to fill the history) and return true. False reads the machine instead.
-    /// </summary>
-    public virtual bool SampleFixture(IMeterHost host, double seconds) => false;
-#endif
-
-    /// <summary>
     /// Take a new config (it is already the right kind). True when the part needs a sample now —
     /// a ping host changed and waiting out the interval would read as a broken widget.
     /// </summary>

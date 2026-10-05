@@ -11,8 +11,8 @@ using Windows.Graphics;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// Debug only: draw the open Add-widget picker to a PNG, off-screen, the way the gallery draws
-/// widgets. <c>Themia.exe --picker-png &lt;out.png&gt; [--search text] [--into] [--theme light|dark]</c>.
+/// Debug only: draw the open Add-widget picker to a PNG, off-screen, like the other debug
+/// renders. <c>Themia.exe --picker-png &lt;out.png&gt; [--search text] [--into] [--theme light|dark]</c>.
 /// <para>
 /// The picker lives in a flyout on a desktop surface, which a render cannot open without the user's
 /// desktop; <see cref="WidgetPicker"/> is drawn here inside a stand-in for the flyout's presenter
@@ -93,7 +93,7 @@ internal static class PickerRender
                 }
 
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
-                await WidgetGallery.SavePngAsync(presenter, outPath).ConfigureAwait(true);
+                await RenderPng.SaveAsync(presenter, outPath).ConfigureAwait(true);
                 Console.WriteLine($"picker: wrote {outPath}");
             }
             catch (Exception ex)

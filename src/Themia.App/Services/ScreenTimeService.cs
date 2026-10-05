@@ -7,7 +7,7 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services;
 
-/// <summary>Where a screen-time widget reads from. The app has one tracker; the debug gallery has a fixture.</summary>
+/// <summary>Where a screen-time widget reads from. The app has one tracker.</summary>
 internal interface IScreenTimeSource
 {
     /// <summary>The source's own idea of today, so a widget and the tracker never disagree about midnight.</summary>
@@ -41,7 +41,7 @@ internal interface IScreenTimeSource
 /// pool, one write after another, so there is only ever one writer.
 /// </para>
 /// <para>
-/// Started by the app host and nowhere else: the debug gallery never creates one, so rendering a
+/// Started by the app host and nowhere else: a debug render never creates one, so rendering a
 /// widget there neither installs a hook nor writes a file beside the user's state.
 /// </para>
 /// </summary>

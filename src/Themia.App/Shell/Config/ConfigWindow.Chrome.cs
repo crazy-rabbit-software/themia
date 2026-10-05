@@ -59,7 +59,7 @@ internal sealed partial class ConfigWindow
         _nav.IsPaneToggleButtonVisible = false;
         _nav.IsTitleBarAutoPaddingEnabled = false;
         _nav.OpenPaneLength = 300;
-        _nav.SelectionChanged += OnSelectionChanged;
+        _nav.ItemInvoked += OnItemInvoked;
         _nav.DisplayModeChanged += (_, args) => OnPaneModeChanged(args.DisplayMode);
 
         // One surface, as Settings is: the page sits on the same Mica as the pane, not on the
@@ -292,21 +292,26 @@ internal sealed partial class ConfigWindow
         _crumbs.Children.Add(current);
     }
 
-    /// <summary>The pages above this one: a widget sits under its view.</summary>
+    /// <summary>
+    /// [S-1831] The pages above this one: a widget sits under Views and its view, "Views › Desktop ›
+    /// Clock". Views opens the page; the view's crumb opens it with that view's group open.
+    /// </summary>
     private IEnumerable<(string Name, ConfigTarget Target)> Parents(ConfigTarget target)
     {
         if (target is ConfigTarget.Widget widget && _host.Find(widget.WidgetId) is var (view, _) && view is not null)
         {
-            yield return (view.Name, new ConfigTarget.View(view.Id));
+            yield return (Str.App_Views.Text(), new ConfigTarget.App(AppPage.Views));
+            yield return (view.Name, ConfigTarget.ForView(view.Id));
         }
     }
 
     /// <summary>A page's name as the navigation shows it, for a page that did not name itself.</summary>
     private string NavTitle(ConfigTarget target)
     {
-        foreach (var item in Walk(_nav.MenuItems).Concat(Walk(_nav.FooterMenuItems)))
+        var entry = target.NavEntry();
+        foreach (var item in Entries())
         {
-            if (item.Tag is ConfigTarget tag && tag == target && item.Content is string text)
+            if (item.Tag is ConfigTarget tag && tag == entry && item.Content is string text)
             {
                 return text;
             }
@@ -330,11 +335,7 @@ internal sealed partial class ConfigWindow
         var scale = dpi > 0 ? dpi / 96.0 : 1.0;
         appWindow.Resize(new SizeInt32((int)Math.Round(1100 * scale), (int)Math.Round(780 * scale)));
 
-        var icon = Path.Combine(AppContext.BaseDirectory, "Assets", "themia.ico");
-        if (File.Exists(icon))
-        {
-            appWindow.SetIcon(icon);
-        }
+        AppIcon.Apply(appWindow);
 
         _window.SystemBackdrop = new MicaBackdrop();
         _window.ExtendsContentIntoTitleBar = true;
@@ -380,6 +381,22 @@ internal sealed partial class ConfigWindow
 
     public void Close() => _window.Close();
 
+    /// <summary>
+    /// The centre of this window in physical screen pixels, or null when it is closed or hidden. A
+    /// minimised window reports a position off every display, which then matches none. [S-1702]
+    /// </summary>
+    public (int X, int Y)? Centre()
+    {
+        if (_closed || _window.AppWindow is not { IsVisible: true } appWindow)
+        {
+            return null;
+        }
+
+        var position = appWindow.Position;
+        var size = appWindow.Size;
+        return (position.X + (size.Width / 2), position.Y + (size.Height / 2));
+    }
+
     /// <summary>Show a particular page, bringing the window forward. A step in the back history.</summary>
     public void Navigate(ConfigTarget target)
     {
@@ -405,6 +422,12 @@ internal sealed partial class ConfigWindow
     private FrameworkElement Show(ConfigTarget target, bool record)
     {
         _target = target;
+
+        // [S-1831] A link to one display or view opens its group; the reader's other groups stay as they were.
+        if (target is ConfigTarget.App { Item: { } item } app && ConfigTarget.ListOf(app.Page) is { } list)
+        {
+            _expansion.Set(list, item, true);
+        }
 
         if (record)
         {

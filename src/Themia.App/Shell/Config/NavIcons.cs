@@ -31,10 +31,10 @@ internal enum NavIcon
     /// <summary>A question mark in a circle: About.</summary>
     QuestionCircle,
 
-    /// <summary>A window laid out in panels: every view.</summary>
+    /// <summary>A window laid out in panels: Views.</summary>
     ContentView,
 
-    /// <summary>A screen, as Windows Settings' System: every display.</summary>
+    /// <summary>A screen, as Windows Settings' System: Displays.</summary>
     Laptop,
 
     /// <summary>A diamond: License ([S-1068]).</summary>
@@ -53,17 +53,11 @@ internal static class NavIcons
     /// </summary>
     public const double Size = 20;
 
-    /// <summary>NavigationView's own icon box, which the glyph entries nested under a view keep.</summary>
-    public const double GlyphSize = 16;
-
     /// <summary>The theme resource NavigationViewItem sizes its icon box from.</summary>
     private const string IconBoxKey = "NavigationViewItemOnLeftIconBoxHeight";
 
-    /// <summary>
-    /// Size an entry's icon box. Set per entry rather than on the whole pane, and set on the glyph
-    /// entries too: a nested entry would otherwise inherit its parent view's box through the tree.
-    /// </summary>
-    public static void SizeIconBox(NavigationViewItem item, bool coloured) => item.Resources[IconBoxKey] = coloured ? Size : GlyphSize;
+    /// <summary>Give an entry the colour icons' 20-DIP box (set per entry, not on the whole pane).</summary>
+    public static void SizeIconBox(NavigationViewItem item) => item.Resources[IconBoxKey] = Size;
 
     /// <summary>The bundled file for an icon, under <c>Assets/NavIcons</c>.</summary>
     public static string FileName(NavIcon icon) => icon switch

@@ -7,6 +7,8 @@
     <RootNamespace>Themia.App</RootNamespace>
     <AssemblyName>Themia</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- [S-1850] The exe's own icon (Explorer, Start, uninstall entry); windows set the same file at run time. -->
+    <ApplicationIcon>Assets\themia.ico</ApplicationIcon>
     <UseWinUI>true</UseWinUI>
     <!-- Needed for the function-pointer Win32 callbacks (EnumDisplayMonitors, WndProc). -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

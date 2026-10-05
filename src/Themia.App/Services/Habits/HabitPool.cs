@@ -25,7 +25,7 @@ internal sealed class HabitPool
     private Task _saving = Task.CompletedTask;
     private bool _saveQueued;
 
-    /// <param name="store">Where the pool lives, or null to keep it in memory only (the gallery).</param>
+    /// <param name="store">Where the pool lives, or null to keep it in memory only (a debug render).</param>
     public HabitPool(HabitListStore? store, IReadOnlyList<HabitList>? seed = null)
     {
         _store = store;

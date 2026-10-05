@@ -104,13 +104,14 @@ public static class SettingsSearch
 
         var whole = string.Join(' ', tokens);
         var matches = new List<SettingMatch>();
-        var seen = new HashSet<(string, string, string?)>();
+        var seen = new HashSet<(string, string, string, string?)>();
 
         foreach (var entry in entries)
         {
             // The same row reached twice (a page built twice, a row registered under two names) is
-            // one suggestion, not two identical lines.
-            if (!seen.Add((entry.PageKey, entry.Title, entry.Section)))
+            // one suggestion, not two identical lines. The same title in two groups of a list page
+            // ("Views › Desktop", "Views › Work") is two rows, told apart by the path ([S-1832]).
+            if (!seen.Add((entry.PageKey, entry.PagePath, entry.Title, entry.Section)))
             {
                 continue;
             }

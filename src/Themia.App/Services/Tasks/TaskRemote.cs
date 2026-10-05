@@ -11,8 +11,7 @@ namespace Themia.App.Services.Tasks;
 internal sealed record TaskAccount(string Id, AccountProvider Provider, string Label, string? Problem);
 
 /// <summary>
-/// Where account tasks come from. One real implementation over Themia's own accounts; the debug
-/// gallery installs a fixture so the populated layout can be drawn without signing in to anything.
+/// Where account tasks come from. One implementation, over Themia's own accounts.
 /// </summary>
 internal interface ITaskRemote
 {

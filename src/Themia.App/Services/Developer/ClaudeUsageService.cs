@@ -7,8 +7,8 @@ using Themia.Core.Developer;
 namespace Themia.App.Services.Developer;
 
 /// <summary>
-/// Where Claude usage widgets read from: the app's one <see cref="ClaudeUsageService"/>, or the debug
-/// gallery's fixture. Everything here is on the UI thread.
+/// Where Claude usage widgets read from: the app's one <see cref="ClaudeUsageService"/>.
+/// Everything here is on the UI thread.
 /// </summary>
 internal interface IClaudeUsageSource
 {

@@ -46,7 +46,9 @@ internal sealed partial class DesktopWindow
     {
         var flyout = new Flyout
         {
-            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+            // [S-1749] Centred under what opened it: the toolbar's Add button, the right-click point
+            // or the container. It flips above only when there is no room below.
+            Placement = FlyoutPlacementMode.Bottom,
 
             // The presenter caps itself at 456px by default, sized for a menu of one column. Left at
             // that, the picker showed two and a half of its four columns and clipped the rest.

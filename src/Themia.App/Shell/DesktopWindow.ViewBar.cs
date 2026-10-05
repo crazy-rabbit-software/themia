@@ -133,7 +133,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         ItemMenu.Show(chip, args,
         [
             new ItemMenuEntry(Glyphs.Duplicate, Str.App_DuplicateView.Text(), () => _host.DuplicateView(viewId, monitorId), Quick: QuickCommand.Duplicate),
-            new ItemMenuEntry(Glyphs.Settings, Str.App_ViewSettingsBtn.Text(), () => _host.ShowConfig(new ConfigTarget.View(viewId)), Quick: QuickCommand.Settings),
+            new ItemMenuEntry(Glyphs.Settings, Str.App_ViewSettingsBtn.Text(), () => _host.ShowConfig(ConfigTarget.ForView(viewId)), Quick: QuickCommand.Settings),
         ]);
     }
 

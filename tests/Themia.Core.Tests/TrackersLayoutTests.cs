@@ -7,7 +7,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// Package PH: Clipboard, Countdown and Mood ladders and rules ([S-1440]..[S-1457]). Areas are the
-/// gallery tiers' slots (card less a 44px header).
+/// size tiers' slots (card less a 44px header).
 /// </summary>
 public class TrackersLayoutTests
 {

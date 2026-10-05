@@ -54,7 +54,7 @@ public partial class App : Application
             return;
         }
 
-        // The debugger only: the gallery and the settings render below must
+        // The debugger only: the debug renders below must
         // never write into the user's log folder while the user's own copy is running ([S-980]).
         LogFiles.InstallBasics();
 
@@ -70,14 +70,9 @@ public partial class App : Application
         // [S-1109] --lang <code> draws any render below in that language.
         Shell.Gallery.RenderLanguage.Apply(Environment.GetCommandLineArgs());
 
-        // The widget gallery runs instead of the app, never alongside it: no state file, no
-        // single-instance hand-off, so it can render while the user's own copy keeps running.
-        if (Shell.Gallery.WidgetGallery.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // The same for one settings page: built over a demo state that is never saved.
+        // Each render runs instead of the app, never alongside it: no state file, no single-instance
+        // hand-off, so it can draw while the user's own copy keeps running. One settings page is
+        // built over a demo state that is never saved.
         if (Shell.Gallery.SettingsRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;

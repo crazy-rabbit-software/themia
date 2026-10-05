@@ -231,14 +231,15 @@ internal sealed partial class GitHubView : Grid, IWidgetView, IWidgetHeaderConte
             "GitHub", _source?.Accounts ?? [], _config.AccountIds, single: true, snapshot.Outcomes, activity is not null, string.Empty, now, Strings.Current,
             anonymous: true, savedAt: snapshot.SavedAt);
 
-        // [S-614] A repository to show comes after an account to show it with.
+        // [S-614] A repository to show comes after an account to show it with. None at all is the
+        // card's Set up button ([S-1862]); one that is not a repository says so.
         if (GitHubRules.ParseRepo(_config.Repo) is null
             && screen.Kind is not (DevScreenKind.NoAccounts or DevScreenKind.AccountsGone or DevScreenKind.SignInRequired))
         {
             screen = new DevScreen(
                 DevScreenKind.NeedsSetup,
                 string.IsNullOrWhiteSpace(_config.Repo)
-                    ? Str.WidgetsA_Github_ChooseRepo.Text()
+                    ? string.Empty
                     : Str.WidgetsA_Github_NotARepo.Format(("repo", _config.Repo.Trim())),
                 false,
                 null);

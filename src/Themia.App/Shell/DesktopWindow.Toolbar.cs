@@ -142,16 +142,6 @@ internal sealed partial class DesktopWindow
     {
         var flyout = new MenuFlyout();
 
-#if DEBUG
-        // [S-957] Debug builds only: the gallery's sample data and its PNG command line are
-        // debug-only and live in the same files, and a release gallery without them would show
-        // nothing but empty states.
-        var gallery = new MenuFlyoutItem { Text = "Widget gallery", Icon = new FontIcon { Glyph = Glyphs.Apps } };
-        gallery.Click += (_, _) => Gallery.WidgetGallery.Open(WidgetKind.Clock);
-        flyout.Items.Add(gallery);
-        flyout.Items.Add(new MenuFlyoutSeparator());
-#endif
-
         var exit = new MenuFlyoutItem { Text = Str.Shell_Toolbar_Exit.Text(), Icon = new FontIcon { Glyph = "\uE7E8" } };
         exit.Click += (_, _) => _host.RequestExit();
         flyout.Items.Add(exit);
@@ -184,21 +174,8 @@ internal sealed partial class DesktopWindow
         flyout.Items.Add(new MenuFlyoutSeparator());
 
         var add = new MenuFlyoutItem { Text = Str.Shell_View_New.Text(), Icon = new FontIcon { Glyph = "" } };
-        add.Click += (_, _) =>
-        {
-            // [S-1065] The free-tier view limit; a refusal says why in a notice ([S-881]).
-            if (!_host.AllowCreate(0, 1))
-            {
-                return;
-            }
-
-            _host.Mutate(state =>
-            {
-                var created = ViewState.Create(Str.App_ViewN.Format(("n", state.Views.Count + 1)));
-                state.Views.Add(created);
-                state.ShowViewOn(_monitor.Id, created.Id);
-            }, undo: UndoAction.AddView);
-        };
+        // [S-1065] The free-tier view limit; a refusal says why in a notice ([S-881]).
+        add.Click += (_, _) => _host.AddView(_monitor.Id);
 
         flyout.Items.Add(add);
 

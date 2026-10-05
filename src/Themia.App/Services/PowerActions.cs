@@ -9,7 +9,7 @@ namespace Themia.App.Services;
 /// <summary>
 /// [S-1243] The seam between the power tile and the machine. The tile decides <i>whether</i> to run
 /// an action (<see cref="PowerArm"/>); this only runs it. Two implementations: the real one, and an
-/// inert one the gallery's cards get ([S-1251]), so a widget drawn as a preview can never shut the
+/// inert one preview cards get ([S-1251]), so a widget drawn as a preview can never shut the
 /// PC down.
 /// </summary>
 internal interface IPowerActions
@@ -21,7 +21,7 @@ internal interface IPowerActions
     PowerOutcome Run(PowerAction action);
 }
 
-/// <summary>[S-1251] The gallery's power backend: logs the action it was asked for and does nothing.</summary>
+/// <summary>[S-1251] A preview card's power backend: logs the action it was asked for and does nothing.</summary>
 internal sealed class InertPowerActions : IPowerActions
 {
     public static InertPowerActions Instance { get; } = new();

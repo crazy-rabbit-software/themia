@@ -375,8 +375,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         {
             var status = _schedule.Status;
 
+            // No place yet: the card's Set up button covers this ([S-1862]).
             _emptyMessage.Text = status == FetchStatus.NotConfigured
-                ? Str.WidgetsC_Weather_ChoosePlace.Text()
+                ? string.Empty
                 : FetchState.Message(status);
 
             _emptyIcon.Glyph = Glyphs.Weather;

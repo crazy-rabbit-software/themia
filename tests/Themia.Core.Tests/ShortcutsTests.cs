@@ -296,7 +296,7 @@ public sealed class ShortcutsTests
 
     // ---- the grid ladder ---------------------------------------------------------------------------
 
-    /// <summary>The gallery tiers' slots (card less the ~44 header), less the grid inset (8 / 4+8).</summary>
+    /// <summary>The size tiers' slots (card less the ~44 header), less the grid inset (8 / 4+8).</summary>
     public static TheoryData<string, double, double> Tiers => new()
     {
         { "XS", 120 - 16, 76 - 12 },

@@ -29,10 +29,9 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified.
 
 ```
-Themia.exe --gallery-png <Kind|Kind1,Kind2|Kind+fixture|all> <outDir> [waitMs]   # 7 sizes: XS S M Wide Tall L XL
-Themia.exe --settings-png <Page|Widget:<Kind>|View|Display> <out.png> [waitMs] [--theme light|dark] [--search t]
+Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search t] [--open first|name]   # Page incl. Displays, Views
 Themia.exe --picker-png <out.png> [--search t] [--into]      Themia.exe --viewbar-png <outDir>
-Themia.exe --notices-png <outDir>                            Themia.exe --gallery <Kind>   (interactive)
+Themia.exe --notices-png <outDir>
 Themia.exe --menu-png <outDir>                               Themia.exe --iconpicker-png <out.png> [--search t]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
 ```
@@ -42,7 +41,7 @@ Build output (`artifacts/`, `bin/`, `obj/`) cannot be read by agents; write rend
 **Never start `Themia.exe` without a render flag as the first argument.** A bare start hands off to
 the copy that is already running and toggles its edit mode. Do not drive the user's running
 windows, and do not touch `%APPDATA%\Themia` or `%LOCALAPPDATA%\Themia`: the renders use a detached
-state store. A `+fixture` gallery entry shows a widget populated by its `#if DEBUG` fixture.
+state store.
 
 ## Layout
 
@@ -69,7 +68,7 @@ click-through surface clipped with `SetWindowRgn`. Geometry is stored as fractio
 
 Adding a widget touches: `WidgetKind`, the config class + `AppStateJsonContext`, `WidgetCatalog`, the
 view, a `WidgetSettings.<Name>.cs` page (+ dispatch in `WidgetSettings.cs`), `Glyphs`, the locale keys,
-a gallery fixture, and a SPEC section. Settings pages register one line in `ConfigPages.AppPages`.
+a `WidgetSetup.Needed` rule if it shows nothing unconfigured, and a SPEC section. Settings pages register one line in `ConfigPages.AppPages`.
 
 ## Engineering principles (non-negotiable)
 
@@ -123,7 +122,7 @@ a gallery fixture, and a SPEC section. Settings pages register one line in `Conf
   128/280/480 DIPs), measure on the deflated box, spend height through one `Disclosure`
   (`Reserve` for the must-show part, `Take` for optional rungs in priority order, `TakeRows` for the
   list). Costs are line heights, not font sizes; use worst-case text lengths. Empty space at L/XL
-  means a missing rung. Clock and the meters are the reference. Check every gallery size.
+  means a missing rung. Clock and the meters are the reference. Check every size tier on the showcase views.
 - **Keyboard lease** ([S-800..812]): outside edit mode the surface is `WS_EX_NOACTIVATE`, so no widget
   receives keys by default. A widget that navigates with keys implements `IWidgetKeys.HandleKey(WidgetKey)`
   and gets the lease on a click; a widget with a text box calls `IWidgetSurface.RequestTextInput`
@@ -145,7 +144,8 @@ a gallery fixture, and a SPEC section. Settings pages register one line in `Conf
 
 1. `dotnet build` (Debug) is green with warnings as errors, and the scoped tests pass.
 2. New behaviour has a test; a fixed bug has a regression test.
-3. UI work: rendered through the gallery / `--settings-png` and looked at, at every size.
+3. UI work: rendered through `--settings-png` (and the other render flags) and looked at. Widget layout is
+   checked on the showcase views (`--add-showcase-views`) on the live desktop: a manual pass, say so.
 4. Touched interop, focus, z-order, displays, autostart, Store or sign-in code that cannot run in CI:
    say exactly what still needs a manual pass (multi-monitor, mixed DPI, a live account, the
    packaged build). Never imply it was verified.

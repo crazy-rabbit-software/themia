@@ -12,7 +12,7 @@ namespace Themia.App.Services;
 /// Static, like <see cref="AppServices"/>, because the callers are widget views and services built
 /// with nothing injected. Callable from any thread: the notice is handed to the UI thread, where
 /// the host picks the display to show it on (the one under the pointer). Before the host has
-/// started, and in the debug gallery, there is no surface — the notice is logged and dropped.
+/// started, and in a debug render, there is no surface — the notice is logged and dropped.
 /// </para>
 /// </summary>
 internal static class Notices

@@ -18,10 +18,11 @@ internal sealed record SettingHit(SettingEntry Entry, ConfigTarget Target, strin
 /// <para>
 /// The index is the rows the pages build, collected through <see cref="SettingsIndex"/> — never a
 /// list written beside them. It is filled the first time the search box is used (every app page,
-/// view and display page, and one page per widget kind in use, built off-screen and thrown away),
+/// Displays and Views included, and one page per widget kind in use, built off-screen and thrown away),
 /// refreshed with the live page each time a page is shown, and dropped when the navigation changes
 /// shape. A widget kind's rows are indexed once and offered for every widget of that kind, under
-/// "View › Widget", because the rows of a kind's page are the same for each of its widgets.
+/// "View › Widget", because the rows of a kind's page are the same for each of its widgets. A row in
+/// a group of the Displays or Views page is offered as "Views › Desktop" and opens that group ([S-1832]).
 /// </para>
 /// </summary>
 internal sealed class SettingsSearchIndex(AppHost host)
@@ -46,7 +47,9 @@ internal sealed class SettingsSearchIndex(AppHost host)
             return; // the full build will read it with the rest
         }
 
-        Index(target, page, PathOf(target), Glyph(target));
+        // A list page opened on one of its groups is still the one page.
+        var key = target is ConfigTarget.App ? target.NavEntry() : target;
+        Index(key, page, PathOf(key), Glyph(key));
     }
 
     /// <summary>The best suggestions for what was typed, best first.</summary>
@@ -80,16 +83,6 @@ internal sealed class SettingsSearchIndex(AppHost host)
             Build(new ConfigTarget.App(entry.Page));
         }
 
-        foreach (var view in host.State.Views)
-        {
-            Build(new ConfigTarget.View(view.Id));
-        }
-
-        foreach (var display in host.Displays)
-        {
-            Build(new ConfigTarget.Display(display.Id));
-        }
-
         // One page per kind in use, offered for every widget of that kind.
         foreach (var group in host.State.Views
                      .SelectMany(v => v.Widgets.Select(w => (View: v, Widget: w)))
@@ -118,7 +111,7 @@ internal sealed class SettingsSearchIndex(AppHost host)
     {
         try
         {
-            Index(target, ConfigPages.Build(host, target, _ => { }), PathOf(target), Glyph(target));
+            Index(target, ConfigPages.Build(new PageContext(host, _ => { }, new SettingsExpansion()), target), PathOf(target), Glyph(target));
         }
         catch (Exception ex)
         {
@@ -136,10 +129,34 @@ internal sealed class SettingsSearchIndex(AppHost host)
             new(new SettingEntry(key, path, null, LastCrumb(path), null, [], IsPage: true), target, pageGlyph),
         };
 
-        foreach (var (row, section) in SettingsIndex.Collect(page))
+        var rows = SettingsIndex.Collect(page);
+
+        // [S-1832] The groups of a list page by item: a row inside one is offered under its name.
+        var groups = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (row, _) in rows)
         {
-            var entry = new SettingEntry(key, path, section, row.Title, row.Description, row.AllKeywords());
-            hits.Add(new SettingHit(entry, target, GlyphOf(row) ?? pageGlyph));
+            if (row.Item is { } item && row.Parent is null)
+            {
+                groups.TryAdd(item, row.Title);
+            }
+        }
+
+        foreach (var (row, section) in rows)
+        {
+            var rowTarget = target;
+            var rowPath = path;
+
+            if (row.Item is { } item && target is ConfigTarget.App app)
+            {
+                rowTarget = app with { Item = item };
+                if (row.Parent is not null && groups.TryGetValue(item, out var group))
+                {
+                    rowPath = $"{path} › {group}";
+                }
+            }
+
+            var entry = new SettingEntry(key, rowPath, section, row.Title, row.Description, row.AllKeywords());
+            hits.Add(new SettingHit(entry, rowTarget, GlyphOf(row) ?? pageGlyph));
         }
 
         _pages[key] = hits;
@@ -151,22 +168,18 @@ internal sealed class SettingsSearchIndex(AppHost host)
         return at < 0 ? path : path[(at + 3)..];
     }
 
-    /// <summary>Where a page is, as a suggestion shows it: "Appearance", "Desktop › Clock".</summary>
+    /// <summary>Where a page is, as a suggestion shows it: "Appearance", "Views › Desktop › Clock".</summary>
     public string PathOf(ConfigTarget target) => target switch
     {
         ConfigTarget.App app => ConfigPages.AppPages.FirstOrDefault(p => p.Page == app.Page)?.Title ?? app.Page.ToString(),
-        ConfigTarget.View view => host.State.FindView(view.ViewId)?.Name ?? Str.CtxMenu_View.Text(),
-        ConfigTarget.Display display => host.FindDisplay(display.MonitorId)?.ShortName ?? Str.App_MonitorLabelUnknown.Text(),
         ConfigTarget.Widget widget when host.Find(widget.WidgetId) is var (view, instance) && instance is not null =>
-            $"{view.Name} › {Label(instance)}",
+            $"{Str.App_Views.Text()} › {view.Name} › {Label(instance)}",
         _ => Str.Common_Settings.Text(),
     };
 
     private string Glyph(ConfigTarget target) => target switch
     {
         ConfigTarget.App app => ConfigPages.AppPages.FirstOrDefault(p => p.Page == app.Page)?.Glyph ?? Glyphs.Settings,
-        ConfigTarget.View => Glyphs.View,
-        ConfigTarget.Display => Glyphs.Display,
         ConfigTarget.Widget widget when host.Find(widget.WidgetId) is var (_, instance) && instance is not null =>
             WidgetCatalog.Definition(instance.Kind).Glyph,
         _ => Glyphs.Settings,

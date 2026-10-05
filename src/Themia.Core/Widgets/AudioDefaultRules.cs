@@ -93,7 +93,7 @@ public static class AudioDefaultRules
     /// and picking the device that already is the default both mean following it — Windows is not
     /// asked to set what it already has. Any other device is made the default.
     /// </summary>
-    /// <param name="preview">The widget is a gallery or settings preview.</param>
+    /// <param name="preview">The widget is a preview card (a debug render).</param>
     /// <param name="picked">The picked device, or null for "Follow the default output".</param>
     /// <param name="boundId">The widget's own device id, or null when it follows the default.</param>
     /// <param name="defaultId">Windows' default output now, or null when there is none.</param>

@@ -318,8 +318,8 @@ internal static class WeatherService
     /// <summary>
     /// [S-729] Keep the last good answers in <paramref name="path"/> across restarts: read them back
     /// now (marked restored, so they draw at once as stale and are fetched again), and save after
-    /// every fetch that brings a new one. Called once, by the app; the gallery never calls it, so a
-    /// gallery run neither reads nor writes the user's file.
+    /// every fetch that brings a new one. Called once, by the app; a debug render never calls it, so a
+    /// render neither reads nor writes the user's file.
     /// </summary>
     public static void Persist(string path)
     {
@@ -384,28 +384,6 @@ internal static class WeatherService
                 TaskScheduler.Default);
         }
     }
-
-#if DEBUG
-    /// <summary>
-    /// [S-731] The gallery's fixture: a fixed reading and week for one point, seeded as fresh
-    /// answers so the populated layouts render offline and the same on every run. Debug only.
-    /// </summary>
-    internal static void SeedGallery(double latitude, double longitude, CurrentWeather reading, Forecast forecast)
-    {
-        var now = DateTimeOffset.Now;
-
-        foreach (var unit in Enum.GetValues<TemperatureUnit>())
-        {
-            CurrentCache.Seed(CurrentKey(latitude, longitude, unit), new Fetched<CurrentWeather>(FetchStatus.Ok, reading, null, now));
-
-            for (var days = 1; days <= 14; days++)
-            {
-                var slice = new Forecast([.. forecast.Days.Take(days)]);
-                ForecastCache.Seed(ForecastKey(latitude, longitude, unit, days), new Fetched<Forecast>(FetchStatus.Ok, slice, null, now));
-            }
-        }
-    }
-#endif
 
     /// <summary>
     /// Look a place up by name. Used only from the settings page, on a keystroke the user made, so

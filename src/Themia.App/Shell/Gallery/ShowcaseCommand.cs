@@ -11,7 +11,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1814] Debug only: <c>Themia.exe --add-showcase-views [&lt;statePath&gt;]</c> puts one view per
-/// widget kind into a state file, each holding the widget at every gallery tier
+/// widget kind into a state file, each holding the widget at every size tier
 /// (<see cref="ShowcaseViews"/>), laid out for the primary display, and exits. No window, no desktop.
 /// <para>
 /// The state file is read with the app's own trust boundary (<see cref="AppStateStore.Parse"/>); a

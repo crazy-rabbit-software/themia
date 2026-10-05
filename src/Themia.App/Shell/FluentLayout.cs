@@ -113,13 +113,20 @@ internal static class FluentLayout
     /// its friends. The header row may carry its own control (a master switch); the folded rows are
     /// built with <see cref="Row"/> as usual and are searched like any other row.
     /// </summary>
+    /// <param name="item">
+    /// [S-1832] On a list page (Displays, Views), the display or view this group is: search offers
+    /// its rows under the item's name and opens this group when it lands on one.
+    /// </param>
+    /// <param name="expandedChanged">Told when the reader opens or closes the group ([S-1833]).</param>
     public static Border Expander(
         string glyph,
         string title,
         string? description,
         FrameworkElement? control,
         IReadOnlyList<Border> rows,
-        bool expanded = false)
+        bool expanded = false,
+        string? item = null,
+        Action<bool>? expandedChanged = null)
     {
         ArgumentNullException.ThrowIfNull(rows);
 
@@ -129,6 +136,22 @@ internal static class FluentLayout
             HeaderIcon = GlyphIcon(glyph),
             IsExpanded = expanded,
         };
+
+        if (expandedChanged is not null)
+        {
+            expander.RegisterPropertyChangedCallback(SettingsExpander.IsExpandedProperty, (sender, _) =>
+            {
+                try
+                {
+                    expandedChanged(((SettingsExpander)sender).IsExpanded);
+                }
+                catch (Exception ex)
+                {
+                    // A XAML callback must not throw; the group still opens or closes.
+                    Log.Error(Scope, $"'{title}' could not record its open state", ex);
+                }
+            });
+        }
 
         if (!string.IsNullOrWhiteSpace(description))
         {
@@ -150,6 +173,7 @@ internal static class FluentLayout
             {
                 row.Child = null;
                 setting.Parent = expander;
+                setting.Item = item;
                 nested.Add(setting);
                 expander.Items.Add(card);
             }
@@ -159,7 +183,19 @@ internal static class FluentLayout
             }
         }
 
-        return new Border { Child = expander, Tag = new SettingRow(title, description, control) { Card = expander, Nested = nested } };
+        return new Border { Child = expander, Tag = new SettingRow(title, description, control) { Card = expander, Nested = nested, Item = item } };
+    }
+
+    /// <summary>
+    /// [S-1832] The button of a row that destroys something (Delete view): its label in the theme's
+    /// critical colour, so it reads as the one to be careful with. Always the last row of its group.
+    /// </summary>
+    public static Button DangerButton(string text)
+    {
+        var label = new TextBlock { Text = text, Foreground = Themed("SystemFillColorCriticalBrush", Colors.Red) };
+        var button = new Button { Content = label };
+        AutomationProperties.SetName(button, text);
+        return button;
     }
 
     /// <summary>

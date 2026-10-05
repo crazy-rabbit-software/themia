@@ -10,8 +10,8 @@ namespace Themia.App.Services.Web;
 /// as stale and are fetched again, and saved after every fetch that brings a new answer.
 /// <para>
 /// One writer: each save runs after the one before it, off the UI thread, with the snapshot taken
-/// when it was queued. Only the app calls <see cref="Persist"/>; the gallery never does, so a
-/// gallery run neither reads nor writes the user's file.
+/// when it was queued. Only the app calls <see cref="Persist"/>; a debug render never does, so a
+/// render neither reads nor writes the user's file.
 /// </para>
 /// </summary>
 internal static class NetworkCache

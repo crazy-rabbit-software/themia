@@ -57,13 +57,13 @@ public interface IWidgetSurface
     void RequestTextInput(bool wanted);
 
     /// <summary>
-    /// The display this widget is drawn on, or null where there is none — the gallery has no
+    /// The display this widget is drawn on, or null where there is none — a debug render has no
     /// display, and neither does a card that has not been placed. See <see cref="IWidgetDisplay"/>.
     /// </summary>
     IWidgetDisplay? Display { get; }
 
     /// <summary>
-    /// [S-1251] True when the card is a preview (the widget gallery) rather than a widget on the
+    /// [S-1251] True when the card is a preview (a debug render) rather than a widget on the
     /// desktop. A view whose buttons act on the machine — the power tile — must be inert there.
     /// </summary>
     bool IsPreview => false;

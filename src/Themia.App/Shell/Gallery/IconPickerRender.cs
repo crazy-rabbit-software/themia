@@ -108,7 +108,7 @@ internal static class IconPickerRender
                 }
 
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
-                await WidgetGallery.SavePngAsync(presenter, outPath).ConfigureAwait(true);
+                await RenderPng.SaveAsync(presenter, outPath).ConfigureAwait(true);
                 Console.WriteLine($"iconpicker: wrote {outPath}");
             }
             catch (Exception ex)

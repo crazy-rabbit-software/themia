@@ -290,7 +290,6 @@
   "widgetsA.clock.weekAndDay": "Tydzień {week} · Dzień {day}",
   "widgetsA.colorSwatch.copyNamed": "{name} · kopiuj {value}",
   "widgetsA.colorSwatch.copyValue": "Kopiuj {value}",
-  "widgetsA.colorSwatch.empty": "Brak kolorów. Dodaj je w ustawieniach.",
   "widgetsA.colorSwatch.palette": "Paleta",
   "widgetsA.colorSwatch.settings.accent": "Kolor akcentu",
   "widgetsA.colorSwatch.settings.add.desc": "Wybierz kolor i opcjonalnie nadaj mu nazwę",
@@ -354,7 +353,6 @@
     "many": "za {count} dni",
     "other": "za {count} dnia"
   },
-  "widgetsA.countdown.empty": "Brak minutników.\nDodaj go w ustawieniach widżetu.",
   "widgetsA.countdown.format.auto": "Automatycznie",
   "widgetsA.countdown.format.days": "Tylko dni",
   "widgetsA.countdown.format.dhm": "Dni · Godz. · Min",
@@ -444,7 +442,6 @@
   "widgetsA.github.agoHours": "{count} godz.",
   "widgetsA.github.agoMinutes": "{count} min",
   "widgetsA.github.agoNow": "teraz",
-  "widgetsA.github.chooseRepo": "Wybierz repozytorium: kliknij prawym przyciskiem myszy, a potem Konfiguruj.",
   "widgetsA.github.closed": "zamknięty",
   "widgetsA.github.comments": {
     "one": "{count} komentarz",

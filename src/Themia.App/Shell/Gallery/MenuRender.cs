@@ -182,7 +182,7 @@ internal static class MenuRender
             }
 
             var target = i == 0 ? path : System.IO.Path.ChangeExtension(path, null) + $"-{i}.png";
-            await WidgetGallery.SavePngAsync(content, target).ConfigureAwait(true);
+            await RenderPng.SaveAsync(content, target).ConfigureAwait(true);
             Console.WriteLine($"menu: wrote {target}");
         }
 

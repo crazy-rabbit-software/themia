@@ -6,14 +6,14 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// The gallery's layouts and its disclosure ladder: the scatter and mosaic generators (seeded, so
-/// a resize re-derives the same arrangement), the grid's shape, the ladder at the seven gallery
+/// a resize re-derives the same arrangement), the grid's shape, the ladder at the seven size
 /// tiers, the photo of the day's trust boundary, and the config's closed sets.
 /// </summary>
 public class GalleryLayoutTests
 {
     private const double Gap = 4;
 
-    /// <summary>The gallery's seven card sizes, less a 44-DIP header: the slots the view is given.</summary>
+    /// <summary>The seven size tiers, less a 44-DIP header: the slots the view is given.</summary>
     public static TheoryData<string, double, double> Tiers => new()
     {
         { "XS", 120, 76 },
@@ -357,12 +357,17 @@ public class GalleryLayoutTests
     [Theory]
     [InlineData(GalleryStatus.NotFound, GallerySource.File, "picture")]
     [InlineData(GalleryStatus.NotFound, GallerySource.Folder, "folder")]
-    [InlineData(GalleryStatus.NoFile, GallerySource.File, "No picture chosen")]
     [InlineData(GalleryStatus.Offline, GallerySource.Bing, "Offline")]
     [InlineData(GalleryStatus.Unavailable, GallerySource.Bing, "today's photo")]
     [InlineData(GalleryStatus.Loading, GallerySource.Bing, "today's photo")]
     public void S761_each_source_names_its_own_empty_state(GalleryStatus status, GallerySource source, string expected)
         => Assert.Contains(expected, GalleryFormatting.StatusMessage(status, FolderPathProblem.None, source), StringComparison.Ordinal);
+
+    [Theory]
+    [InlineData(GalleryStatus.NoFolder, GallerySource.Folder)]
+    [InlineData(GalleryStatus.NoFile, GallerySource.File)]
+    public void S1862_nothing_chosen_is_the_set_up_button_not_a_sentence(GalleryStatus status, GallerySource source)
+        => Assert.Equal(string.Empty, GalleryFormatting.StatusMessage(status, FolderPathProblem.None, source));
 
     [Theory]
     [InlineData(0, 1)]

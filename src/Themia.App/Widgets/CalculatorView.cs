@@ -158,16 +158,6 @@ internal sealed partial class CalculatorView : Grid, IWidgetView, IWidgetSurface
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         // No ticker: this widget changes when it is typed in.
-#if DEBUG
-        // [S-1516] The gallery's populated page: a history to show at every size.
-        if (Shell.Gallery.DeskToolFixtures.CalculatorHistory is { } seeded)
-        {
-            for (var i = seeded.Count - 1; i >= 0; i--)
-            {
-                _history.Add(seeded[i].Expression, seeded[i].Result);
-            }
-        }
-#endif
 
         Strings.Changed += OnLanguage;
         ApplyConfig(config);

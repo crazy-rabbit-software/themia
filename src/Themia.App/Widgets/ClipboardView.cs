@@ -121,23 +121,12 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
         // The listener is shared by every Clipboard widget on every display: subscribers are
         // counted and the message window is created with the first and destroyed with the last.
-        // [S-1443] Never for a preview (the widget gallery): a gallery page or its PNG must not
+        // [S-1443] Never for a preview (a debug render): a render's PNG must not
         // carry whatever happens to be on the user's clipboard.
         if (_surface?.IsPreview != true)
         {
             _watch ??= ClipboardWatcher.Subscribe(OnClipboardText);
         }
-
-#if DEBUG
-        // [S-1443] The gallery's +fixture page: a made-up history, never the real clipboard's.
-        if (Shell.Gallery.ClipboardFixture.Entries is { } seeded)
-        {
-            foreach (var (text, ago) in seeded)
-            {
-                _history.Add(text, DateTimeOffset.Now - ago);
-            }
-        }
-#endif
 
         // The tick does not fetch anything. It only keeps the relative times ("4m", "2h") honest,
         // which is the one thing in this widget that goes stale on its own.

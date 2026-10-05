@@ -38,10 +38,12 @@ internal sealed partial class ConfigWindow
     private readonly NavHistory<ConfigTarget> _history = new();
     private readonly SettingsSearchIndex _index;
 
+    /// <summary>[S-1833] The open groups of the Displays and Views pages, for as long as the window is open.</summary>
+    private readonly SettingsExpansion _expansion = new();
+
     private nint _hwnd;
     private ConfigTarget _target = new ConfigTarget.App();
     private string _structure = string.Empty;
-    private bool _rebuilding;
     private bool _closed;
 
     /// <summary>[S-1720] Whether this window has the focus: while it does, a state change is the user's own.</summary>
@@ -49,6 +51,9 @@ internal sealed partial class ConfigWindow
 
     /// <summary>[S-1720] What the page on screen shows (<see cref="SettingsPageSync.Signature"/>).</summary>
     private string? _shown;
+
+    /// <summary>[S-1834] The groups the list page on screen was built with (<see cref="SettingsPageSync.Shape"/>).</summary>
+    private string _shownShape = string.Empty;
 
     /// <summary>A catch-up is queued; the state changes before it runs fold into it.</summary>
     private bool _syncQueued;
@@ -93,14 +98,13 @@ internal sealed partial class ConfigWindow
 
         ApplyTheme();
 
-        // Only when the tree would actually look different. Rebuilding on every state change meant
-        // that dragging a slider tore down and rebuilt the page under the pointer many times a
-        // second, which is what made the settings stutter and drop focus mid-drag.
+        // Only when a page came or went. Doing this on every state change meant that dragging a
+        // slider re-indexed many times a second; the navigation itself lists pages, not views or
+        // displays, so it never changes with the state ([S-1830]).
         var structure = StructureSignature();
         if (structure != _structure)
         {
             _structure = structure;
-            RebuildNavigation();
 
             // A page that is gone leaves the back history, and search forgets what it had of it.
             _history.RemoveWhere(t => !Exists(t));
@@ -116,6 +120,14 @@ internal sealed partial class ConfigWindow
             _target = _history.Current ?? new ConfigTarget.App();
             SelectForTarget();
             RenderBody();
+            return;
+        }
+
+        // [S-1834] A list page that gained, lost or reordered a group is built again at once, even
+        // under the user's own hand: the change came from the page itself, and it has to show it.
+        if (Shape(_target) != _shownShape)
+        {
+            RenderBody(keepScroll: true);
             return;
         }
 
@@ -169,18 +181,25 @@ internal sealed partial class ConfigWindow
     }
 
     /// <summary>[S-1721] The signature of what a target's page shows.</summary>
-    private string Signature(ConfigTarget target) => target switch
+    private string Signature(ConfigTarget target)
+        => SettingsPageSync.Signature(_host.State, ScopeOf(target), (target as ConfigTarget.Widget)?.WidgetId, DisplayIds());
+
+    /// <summary>[S-1834] The groups of a target's page; empty for a page that is not a list.</summary>
+    private string Shape(ConfigTarget target) => SettingsPageSync.Shape(_host.State, ScopeOf(target), DisplayIds());
+
+    private static SettingsScope ScopeOf(ConfigTarget target) => target switch
     {
-        ConfigTarget.App => SettingsPageSync.Signature(_host.State, SettingsScope.App, null),
-        ConfigTarget.View view => SettingsPageSync.Signature(_host.State, SettingsScope.View, view.ViewId),
-        ConfigTarget.Display display => SettingsPageSync.Signature(_host.State, SettingsScope.Display, display.MonitorId),
-        ConfigTarget.Widget widget => SettingsPageSync.Signature(_host.State, SettingsScope.Widget, widget.WidgetId),
-        _ => string.Empty,
+        ConfigTarget.App { Page: AppPage.Views } => SettingsScope.Views,
+        ConfigTarget.App { Page: AppPage.Displays } => SettingsScope.Displays,
+        ConfigTarget.Widget => SettingsScope.Widget,
+        _ => SettingsScope.App,
     };
 
+    private string[] DisplayIds() => [.. _host.Displays.Select(d => d.Id)];
+
     /// <summary>
-    /// Everything the navigation tree draws, so a change to any of it rebuilds the tree and a
-    /// change to anything else does not.
+    /// The pages that can come and go and what search shows of them (views, widgets, displays by
+    /// name): a change to any of it drops pages from the history and the search index.
     /// </summary>
     private string StructureSignature()
     {
@@ -196,8 +215,6 @@ internal sealed partial class ConfigWindow
     private bool Exists(ConfigTarget target) => target switch
     {
         ConfigTarget.Widget widget => _host.Find(widget.WidgetId) is not null,
-        ConfigTarget.View view => _host.State.FindView(view.ViewId) is not null,
-        ConfigTarget.Display display => _host.FindDisplay(display.MonitorId) is not null,
         ConfigTarget.App app => ConfigPages.AppPages.Any(p => p.Page == app.Page),
         _ => true,
     };
@@ -221,7 +238,7 @@ internal sealed partial class ConfigWindow
 
         try
         {
-            page = ConfigPages.Build(_host, _target, Navigate);
+            page = ConfigPages.Build(new PageContext(_host, Navigate, _expansion), _target);
         }
         catch (Exception ex)
         {
@@ -232,6 +249,7 @@ internal sealed partial class ConfigWindow
 
         _pageColumn.Child = page;
         _shown = Signature(_target);
+        _shownShape = Shape(_target);
         RenderCrumbs(page is SettingsPage settings ? settings.Title : NavTitle(_target));
 
         if (keepScroll)
@@ -241,7 +259,50 @@ internal sealed partial class ConfigWindow
         }
 
         _bodyHost.ChangeView(null, keepScroll ? offset : 0, null, disableAnimation: true);
+
+        // [S-1831] A link to one display or view lands on its group, opened. Not when the page is
+        // only being caught up: the reader stays where they were.
+        if (!keepScroll && _target is ConfigTarget.App { Item: { } item })
+        {
+            Reveal(page, item);
+        }
+
         _index.Update(_target, page);
         return page;
+    }
+
+    /// <summary>Bring the group of <paramref name="item"/> to the top of the page once it is laid out.</summary>
+    private static void Reveal(FrameworkElement page, string item)
+    {
+        Control? group = null;
+        foreach (var (row, _) in SettingsIndex.Collect(page))
+        {
+            if (row.Item == item && row.Parent is null && row.Card is { } card)
+            {
+                group = card;
+                break;
+            }
+        }
+
+        if (group is null)
+        {
+            return; // ignore: the display or view is gone; the page opens at the top
+        }
+
+        void Bring() => group.StartBringIntoView(new BringIntoViewOptions { VerticalAlignmentRatio = 0, AnimationDesired = false });
+
+        if (page.IsLoaded)
+        {
+            Bring();
+            return;
+        }
+
+        void OnLoaded(object sender, RoutedEventArgs args)
+        {
+            page.Loaded -= OnLoaded;
+            Bring();
+        }
+
+        page.Loaded += OnLoaded;
     }
 }

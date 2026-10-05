@@ -3,8 +3,8 @@ using Themia.Core.Mail;
 namespace Themia.App.Services.Mail;
 
 /// <summary>
-/// Where Mail widgets read from: the app's one <see cref="MailService"/>, or the debug gallery's
-/// fixture. Everything here is on the UI thread.
+/// Where Mail widgets read from: the app's one <see cref="MailService"/>.
+/// Everything here is on the UI thread.
 /// </summary>
 internal interface IMailSource
 {

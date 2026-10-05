@@ -173,15 +173,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         ArgumentNullException.ThrowIfNull(surface);
         _preview = surface.IsPreview;
 
-#if DEBUG
-        // [S-1466] The gallery's populated page: a focus phase part-way through, three sessions in.
-        if (_preview && Shell.Gallery.MediaFixture.Pomodoro is { } sample)
-        {
-            _state = sample.State;
-            _completed = sample.Completed;
-        }
-#endif
-
         Render();
     }
 
@@ -208,7 +199,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         // While the timer is stopped the clock follows the configured length, so changing it in
         // settings moves the digits and the bar together. While it is running the countdown owns
         // the remaining seconds and reloads them itself at the next flip.
-        if (!_running && !IsFixture())
+        if (!_running)
         {
             _state = new PomodoroState(_state.Phase, PomodoroCycle.PhaseSeconds(_state.Phase, _config));
         }
@@ -286,7 +277,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _completed = PomodoroCycle.CountSession(_completed, tick);
 
         // [S-152] The flip is the only thing that sounds, and it announces the phase being ENTERED.
-        // Never from the gallery: a preview makes no sound ([S-1251]).
+        // Never from a preview card: it makes no sound ([S-1251]).
         if (tick.Flipped && !_preview)
         {
             CuePlayer.Play(PomodoroSounds.Wave(_config.Sound, tick.Phase, _config.EffectiveVolume));
@@ -728,15 +719,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         {
             element.Visibility = Visibility.Collapsed;
         }
-    }
-
-    private bool IsFixture()
-    {
-#if DEBUG
-        return _preview && Shell.Gallery.MediaFixture.Pomodoro is not null;
-#else
-        return false;
-#endif
     }
 
     public void Detach()

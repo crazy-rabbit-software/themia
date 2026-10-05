@@ -80,7 +80,7 @@ internal interface IWidgetCardHost
     /// <summary>The display these cards are on, for a widget that switches it; null where there is none.</summary>
     IWidgetDisplay? Display { get; }
 
-    /// <summary>[S-1251] True for the gallery's host: its cards are previews and must not act on the machine.</summary>
+    /// <summary>[S-1251] True for a debug render's host: its cards are previews and must not act on the machine.</summary>
     bool IsPreview => false;
 
     /// <summary>
@@ -89,13 +89,13 @@ internal interface IWidgetCardHost
     /// </summary>
     void OnCardFrameChanged(WidgetCard card)
     {
-        // ignore: a host with no hit region (the gallery) has nothing to redo
+        // ignore: a host with no hit region (a debug render) has nothing to redo
     }
 
     /// <summary>[S-874] Bring the widget to the front of the view, or send it to the back.</summary>
     void RequestZOrder(WidgetCard card, bool front)
     {
-        // ignore: a host with no view (the gallery) has no order to change
+        // ignore: a host with no view (a debug render) has no order to change
     }
 
     /// <summary>[S-866] A container's row (or tab) asked to act on one of its children.</summary>
@@ -113,7 +113,7 @@ internal interface IWidgetCardHost
     /// <summary>[S-870] Open the widget picker with <paramref name="container"/> chosen as where the new widget goes.</summary>
     void RequestAddInside(WidgetCard container)
     {
-        // ignore: the gallery has no picker
+        // ignore: a debug render has no picker
     }
 
     /// <summary>[S-1580] Ctrl+click: add the card to the selection, or take it out.</summary>
@@ -125,7 +125,7 @@ internal interface IWidgetCardHost
     /// <summary>[S-1745] A plain click on the card in edit mode: show its page in the open settings window.</summary>
     void RequestFollowInSettings(WidgetCard card)
     {
-        // ignore: a host with no settings window (the gallery) has nothing to follow
+        // ignore: a host with no settings window (a debug render) has nothing to follow
     }
 
     /// <summary>How many widgets are selected, so the card menu can say what its commands act on.</summary>
@@ -134,7 +134,7 @@ internal interface IWidgetCardHost
     /// <summary>[S-1584] A move of this card starts: it and every other selected card move together.</summary>
     void BeginMove(WidgetCard card)
     {
-        // ignore: the gallery's cards do not move
+        // ignore: a debug render's cards do not move
     }
 
     /// <summary>[S-1584] The pointer moved by a fraction of the screen since the move began.</summary>
@@ -331,6 +331,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
         content.Children.Add(_view);
 
         _content = content;
+
+        // [S-1862] Over the view, once the content grid exists to hold it.
+        AttachSetup();
+
         _fontScope = new ContentPresenter
         {
             Content = content,
@@ -765,6 +769,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
         // [S-891] Guarded like Attach: a view that throws on its new settings becomes its error card.
         ApplyViewConfig();
 
+        // [S-1862] The config may have supplied what was missing, or taken it away.
+        ApplySetup();
+
         // The title and the placement live on the instance, not the config, so a rename or a
         // move to the bottom arrives here too.
         ApplyHeader();
@@ -773,6 +780,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
 
     public void Detach()
     {
+        DetachSetup();
+
         if (_view is IWidgetView widgetView)
         {
             widgetView.Detach();
@@ -1331,7 +1340,12 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
     string? IWidgetSurface.Label => Model.Label;
 
     /// <inheritdoc />
-    void IWidgetSurface.RequestSave() => _host.RequestSaveConfig();
+    void IWidgetSurface.RequestSave()
+    {
+        // [S-1862] A view that changed its own config (a shortcut dropped on it) may now be set up.
+        ApplySetup();
+        _host.RequestSaveConfig();
+    }
 
     /// <inheritdoc />
     void IWidgetSurface.RequestTextInput(bool wanted) => _host.RequestTextInput(this, wanted);

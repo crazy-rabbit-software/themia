@@ -126,11 +126,12 @@ public class MailFeedTests
     private static MailAccountOutcome Failed(string id, FetchStatus status) => new(id, MailAccountState.Failed, status, "detail");
 
     [Fact]
-    public void S549_no_account_at_all_offers_the_accounts_page()
+    public void S1862_no_account_at_all_is_left_to_the_set_up_button()
     {
         var screen = MailScreens.Decide([], [], [], 0, MailFolder.Inbox);
         Assert.Equal(MailScreenKind.NoAccounts, screen.Kind);
-        Assert.True(screen.OffersAccounts);
+        Assert.False(screen.OffersAccounts);
+        Assert.Equal(string.Empty, screen.Text);
     }
 
     [Fact]
@@ -228,9 +229,6 @@ public class MailFeedTests
     {
         var empty = MailScreens.Decide(Locale.De, [Work], [], [new MailAccountOutcome("w", MailAccountState.Ok, FetchStatus.Ok, null)], 0, MailFolder.Junk);
         Assert.Equal("Keine Nachrichten in Spam.", empty.Text);
-
-        var none = MailScreens.Decide(Locale.De, [], [], [], 0, MailFolder.Inbox);
-        Assert.Equal("Noch kein E-Mail-Konto.", none.Text);
     }
 
     [Fact]

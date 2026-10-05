@@ -177,21 +177,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         _detached = false;
         _queue = DispatcherQueue;
 
-#if DEBUG
-        // [S-1474] The gallery's populated page: a made-up track, art and bars; no session at all.
-        if (_preview && Shell.Gallery.MediaFixture.Music is { } sample)
-        {
-            _now = sample.Now;
-            _art.Source = sample.Art;
-            _art.Visibility = Visibility.Visible;
-            _artPlaceholder.Visibility = Visibility.Collapsed;
-            _spectrum.SetLevels(sample.Bands);
-            _config = config as MusicConfig ?? new MusicConfig();
-            Present();
-            return;
-        }
-#endif
-
         _session ??= new MediaSession(OnSessionChanged);
 
         // Opening the manager is an async WinRT call; the first snapshot lands through the same
@@ -224,7 +209,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         _config = config as MusicConfig ?? new MusicConfig();
 
-        if (!_config.ShowAlbumArt && !IsFixture())
+        if (!_config.ShowAlbumArt)
         {
             ClearArtwork();
         }
@@ -462,7 +447,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     /// <summary>Put the snapshot in hand on screen, hide or show the card, and settle the layout around it.</summary>
     private void Present()
     {
-        // [S-1464] Paint nothing while idle, if asked to. Never in the gallery: a preview always draws.
+        // [S-1464] Paint nothing while idle, if asked to. Never in a preview card: it always draws.
         var hide = !_preview && MusicRules.Hides(_config.HideWhenIdle, _now.State);
         if (hide != _hidden)
         {
@@ -535,7 +520,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     /// <summary>
     /// Ask the session to do something, and let its own change notification draw the result.
     /// Deliberately not optimistic: if the player refuses, the button keeps saying what the machine
-    /// is actually doing. Inert in the gallery: a preview never touches real playback.
+    /// is actually doing. Inert in a preview card: it never touches real playback.
     /// </summary>
     private void Press(MediaTransport command)
     {
@@ -672,10 +657,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
             _loopback.Dispose();
             _loopback = null;
 
-            if (!IsFixture())
-            {
-                _spectrum.Clear();
-            }
+            _spectrum.Clear();
         }
     }
 
@@ -698,15 +680,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         {
             _spectrum.SetLevels(bands);
         }
-    }
-
-    private bool IsFixture()
-    {
-#if DEBUG
-        return _preview && Shell.Gallery.MediaFixture.Music is not null;
-#else
-        return false;
-#endif
     }
 
     public void Detach()

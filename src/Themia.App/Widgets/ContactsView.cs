@@ -545,7 +545,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
                 return;
 
             case Screen.NoAccounts:
-                _state.Show(Str.WidgetsA_Contacts_NoAccount.Text(), offerAccounts: true);
+                // [S-1862] The card shows its Set up button over this.
+                _state.Hide();
                 return;
 
             case Screen.AccountsGone:

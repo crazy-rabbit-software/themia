@@ -10,7 +10,7 @@ public sealed class ViewSwitcherLayoutTests
     private static SwitcherLayout Plan(double width, double height, int count = 3, bool iconOnly = false)
         => ViewSwitcherLayout.Plan(new WidgetArea(width, height), count, iconOnly);
 
-    // ---- the ladder at the gallery's seven sizes (three views, header hidden) -------------------
+    // ---- the ladder at the seven size tiers (three views, header hidden) -------------------
 
     [Fact]
     public void S1653_XS_stacks_named_buttons()

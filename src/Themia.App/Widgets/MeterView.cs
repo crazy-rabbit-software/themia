@@ -71,9 +71,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private bool _graph;
     private bool _absent;
     private bool _detached;
-#if DEBUG
-    private bool _preview;
-#endif
 
     public MeterView(WidgetKind kind)
     {
@@ -222,10 +219,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
         _band.Capacity = gauge?.GraphCapacity ?? 60;
 
-#if DEBUG
-        SeedFixture();
-#endif
-
         var resubscribed = Resubscribe();
         Lay();
 
@@ -265,13 +258,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         try
         {
-#if DEBUG
-            // [S-1823] A gallery preview with its kind's fixture installed reads the fixture.
-            if (_preview && _part.SampleFixture(this, Shell.Gallery.MeterFixture.Now))
-            {
-                return;
-            }
-#endif
             _part.Sample(this);
         }
         catch (Exception ex)
@@ -330,48 +316,8 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
     public void ClearHistory() => _band.Clear();
 
-#if DEBUG
-    private bool _seeded;
-
-    /// <summary>
-    /// [S-1823] A gallery preview with a fixture starts with a full window: the samples the meter
-    /// would have taken over its span, one interval apart, ending one interval before now — so the
-    /// page shows the meter after it has run a while, and the first live tick carries the curve on.
-    /// Once per view; the desktop never gets here (<see cref="_preview"/>).
-    /// </summary>
-    private void SeedFixture()
-    {
-        if (!_preview || _seeded)
-        {
-            return;
-        }
-
-        var interval = ((_config as GaugeConfig)?.TickInterval ?? TimeSpan.FromSeconds(1)).TotalSeconds;
-        var now = Shell.Gallery.MeterFixture.Now;
-
-        for (var back = _band.Capacity - 1; back >= 1; back--)
-        {
-            if (!_part.SampleFixture(this, now - (back * interval)))
-            {
-                return;
-            }
-
-            _seeded = true;
-        }
-    }
-#endif
-
-    /// <summary>[S-1186] A preview's meter part may read its debug fixture instead of the machine.</summary>
-    public void Bind(IWidgetSurface surface)
-    {
-#if DEBUG
-        _preview = surface.IsPreview;
-#endif
-        _part.Bind(surface.IsPreview);
-
-        // [S-1167] And keep the surface for a kind's header title (MeterView.Part.cs).
-        BindTitle(surface);
-    }
+    /// <summary>[S-1167] Keep the surface for a kind's header title (MeterView.Part.cs).</summary>
+    public void Bind(IWidgetSurface surface) => BindTitle(surface);
 
     private Brush Pressure(MeterPressure pressure) => pressure switch
     {

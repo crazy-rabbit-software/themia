@@ -24,7 +24,7 @@ internal sealed class LocalTaskPool
     private Task _saving = Task.CompletedTask;
     private bool _saveQueued;
 
-    /// <param name="store">Where the pool lives, or null to keep it in memory only (the gallery).</param>
+    /// <param name="store">Where the pool lives, or null to keep it in memory only (a debug render).</param>
     public LocalTaskPool(LocalTaskStore? store, IReadOnlyList<LocalTaskList>? seed = null)
     {
         _store = store;

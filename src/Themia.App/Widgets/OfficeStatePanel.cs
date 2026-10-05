@@ -10,9 +10,10 @@ namespace Themia.App.Widgets;
 /// [S-588] The calendar's and contacts' empty states: a glyph over a sentence, and — when the user
 /// is the one who can fix it — a link to Settings › Accounts beneath, centred together.
 /// <para>
-/// "No account yet", "sign in again" and "access not granted" each need the Accounts page; a blank
+/// "Account gone", "sign in again" and "access not granted" each need the Accounts page; a blank
 /// tile or a sentence with no way forward is the failure the original filed bugs about. Loading,
-/// offline and "nothing on" need no link and show none.
+/// offline and "nothing on" need no link and show none. No account at all is the card's Set up
+/// button instead ([S-1862]).
 /// </para>
 /// </summary>
 internal sealed partial class OfficeStatePanel : Grid

@@ -21,7 +21,7 @@ namespace Themia.App.Shell.Gallery;
 /// <para>
 /// The notices are the real <see cref="NoticeCard"/>s, stacked as the surface stacks them in the
 /// bottom-right corner of a stand-in work area above a taskbar strip. The error cards are real
-/// <see cref="WidgetCard"/>s at the gallery's XS, S and M sizes: one failed (with Retry and
+/// <see cref="WidgetCard"/>s at the XS, S and M tiers: one failed (with Retry and
 /// Details), one paused by safe mode.
 /// </para>
 /// </summary>
@@ -81,14 +81,14 @@ internal static class NoticeRender
                 DrawNotices(screen);
                 await Task.Delay(800).ConfigureAwait(true);
                 var notices = System.IO.Path.Combine(outDir, "notices-stack.png");
-                await WidgetGallery.SavePngAsync(screen, notices).ConfigureAwait(true);
+                await RenderPng.SaveAsync(screen, notices).ConfigureAwait(true);
                 Console.WriteLine($"notices: wrote {notices}");
 
                 ticker = new Ticker(dispatcher);
                 var cards = DrawCards(screen, ticker);
                 await Task.Delay(800).ConfigureAwait(true);
                 var errors = System.IO.Path.Combine(outDir, "error-cards.png");
-                await WidgetGallery.SavePngAsync(screen, errors).ConfigureAwait(true);
+                await RenderPng.SaveAsync(screen, errors).ConfigureAwait(true);
                 Console.WriteLine($"notices: wrote {errors}");
 
                 // Retry on a card whose view is fine: the real view comes back in its place.
@@ -99,7 +99,7 @@ internal static class NoticeRender
 
                 await Task.Delay(800).ConfigureAwait(true);
                 var retried = System.IO.Path.Combine(outDir, "error-cards-retried.png");
-                await WidgetGallery.SavePngAsync(screen, retried).ConfigureAwait(true);
+                await RenderPng.SaveAsync(screen, retried).ConfigureAwait(true);
                 Console.WriteLine($"notices: wrote {retried}");
 
                 foreach (var card in cards)

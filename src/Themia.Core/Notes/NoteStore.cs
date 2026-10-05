@@ -104,8 +104,8 @@ public sealed class NoteStore
     private string IndexPath => Path.Combine(Directory, IndexFileName);
 
     /// <summary>
-    /// <c>notes\</c> beside a state file, so a portable or test profile — and the gallery's
-    /// throwaway one — takes its notes with it.
+    /// <c>notes\</c> beside a state file, so a portable or test profile
+    /// takes its notes with it.
     /// </summary>
     public static string DirectoryBeside(string stateFile)
     {

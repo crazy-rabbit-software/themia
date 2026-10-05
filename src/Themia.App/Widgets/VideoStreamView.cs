@@ -498,8 +498,9 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 
         if (!resolved.IsValid)
         {
+            // No address yet: the card's Set up button covers this ([S-1862]).
             message = resolved.Problem == WebUrlProblem.Empty
-                ? Str.WidgetsC_VideoStream_AddAddress.Text()
+                ? string.Empty
                 : Explain(resolved.Problem);
         }
         else if (_config.Paused)

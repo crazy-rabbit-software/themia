@@ -94,7 +94,7 @@ internal sealed partial class DesktopWindow
         try
         {
             var flyout = BuildAddFlyout();
-            flyout.ShowAt(container, new FlyoutShowOptions { Placement = FlyoutPlacementMode.Auto });
+            flyout.ShowAt(container, new FlyoutShowOptions { Placement = FlyoutPlacementMode.Bottom });
         }
         catch (Exception ex)
         {

@@ -238,6 +238,7 @@ internal sealed partial class WidgetCard
         }
 
         HookViewSize();
+        ApplySetup();
         ApplyHeader();
         ApplyDesign();
         ApplyEditMode(_host.EditMode);

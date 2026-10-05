@@ -428,7 +428,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _accountsLink.Tag = screen.OffersAccounts;
         _accountsLink.Content = screen.Kind switch
         {
-            MailScreenKind.NoAccounts => Str.WidgetsB_Email_AddAccount.Text(),
             MailScreenKind.SignInRequired => Str.WidgetsB_Email_SignIn.Text(),
             _ => Str.WidgetsB_Email_ChooseAccount.Text(),
         };

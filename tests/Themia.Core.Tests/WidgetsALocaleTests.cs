@@ -117,7 +117,7 @@ public sealed class WidgetsALocaleTests
         var limited = new DevOutcome("gh:work", FetchStatus.RateLimited, null, new DateTimeOffset(2026, 10, 4, 10, 45, 0, TimeSpan.Zero));
 
         Assert.Equal("GitHub hat Themia gebremst; neuer Versuch um 12:45", DevScreens.Explain("GitHub", limited, now, Locale.De));
-        Assert.Equal("Melde dich unter „Konten“ bei GitHub an.", DevScreens.Decide("GitHub", [], [], true, [], false, string.Empty, now, Locale.De).Text);
+        Assert.Equal("Melde dich unter „Konten“ bei GitHub an.", DevScreens.Decide("GitHub", [], ["gh:gone"], true, [], false, string.Empty, now, Locale.De, anonymous: true).Text);
     }
 
     [Fact]

@@ -18,31 +18,30 @@ internal static class AppServices
     /// <summary>
     /// Themia's own accounts and every authorized request made for them — the seam mail, calendar,
     /// contacts, tasks, OneDrive, GitHub and Claude usage are built on. Null before the host has
-    /// started (and in the gallery). See <see cref="Accounts.AccountService"/>.
+    /// started (and in a debug render). See <see cref="Accounts.AccountService"/>.
     /// </summary>
     public static Accounts.AccountService? Accounts { get; internal set; }
 
     /// <summary>
-    /// [S-459] Where screen-time widgets read from: the host's one tracker, or the debug gallery's
-    /// fixture. Null before the host has started.
+    /// [S-459] Where screen-time widgets read from: the host's one tracker. Null before the host has started.
     /// </summary>
     public static IScreenTimeSource? ScreenTime { get; internal set; }
 
     /// <summary>
-    /// [S-546] Where Mail widgets read from: the host's one <see cref="Mail.MailService"/>, or the
-    /// debug gallery's fixture. Null before the host has started.
+    /// [S-546] Where Mail widgets read from: the host's one <see cref="Mail.MailService"/>.
+    /// Null before the host has started.
     /// </summary>
     public static Mail.IMailSource? Mail { get; internal set; }
 
     /// <summary>
     /// Open Settings on the Accounts page, for a widget whose empty state is "sign in". Null where
-    /// there is no settings window to open (the gallery).
+    /// there is no settings window to open (a debug render).
     /// </summary>
     public static Action? ShowAccounts { get; internal set; }
 
     /// <summary>
     /// [S-1531]/[S-1533] Open Settings, and turn edit mode on: the two buttons the Help and Themia
-    /// widgets offer on a large tile. Null where there is nothing to open (the gallery).
+    /// widgets offer on a large tile. Null where there is nothing to open (a debug render).
     /// </summary>
     public static Action? ShowSettings { get; internal set; }
 
@@ -51,37 +50,37 @@ internal static class AppServices
 
     /// <summary>
     /// [S-1411] Open the app-layout editor on the Shortcuts item with this id (item ids are unique
-    /// across widgets). Null where there is no host (the gallery, a settings render).
+    /// across widgets). Null where there is no host (a debug render).
     /// </summary>
     public static Action<string>? EditAppLayout { get; internal set; }
 
     /// <summary>
     /// [S-591] Where Tasks widgets read and write: account task lists and the lists kept on this PC.
-    /// The host's one <see cref="Tasks.TaskService"/>, or the debug gallery's fixture.
+    /// The host's one <see cref="Tasks.TaskService"/>.
     /// </summary>
     public static Tasks.TaskService? Tasks { get; internal set; }
 
-    /// <summary>[S-607] Where OneDrive widgets list files: the host's one service, or the gallery's fixture.</summary>
+    /// <summary>[S-607] Where OneDrive widgets list files: the host's one service.</summary>
     public static Files.DriveService? Drive { get; internal set; }
 
     /// <summary>
     /// [S-1420] The habit lists kept on this PC, shared by every Habits widget and its settings: the
-    /// host's one pool, or the debug gallery's in-memory fixture.
+    /// host's one pool.
     /// </summary>
     public static Habits.HabitPool? Habits { get; internal set; }
 
     /// <summary>
     /// [S-1348] The notes kept on this PC, shared by every Notes widget and its settings: the host's
-    /// one pool over <c>notes\</c> beside the state file, or the debug gallery's pool over a temp folder.
+    /// one pool over <c>notes\</c> beside the state file.
     /// </summary>
     public static Notes.NotePool? Notes { get; internal set; }
 
     /// <summary>
-    /// [S-624] Where the GitHub widgets read from: the host's one <see cref="Developer.GitHubService"/>,
-    /// or the debug gallery's fixture. Null before the host has started.
+    /// [S-624] Where the GitHub widgets read from: the host's one <see cref="Developer.GitHubService"/>.
+    /// Null before the host has started.
     /// </summary>
     public static Developer.IGitHubSource? GitHub { get; internal set; }
 
-    /// <summary>[S-630] Where Claude usage widgets read from: the host's one service, or the gallery's fixture.</summary>
+    /// <summary>[S-630] Where Claude usage widgets read from: the host's one service.</summary>
     public static Developer.IClaudeUsageSource? ClaudeUsage { get; internal set; }
 }

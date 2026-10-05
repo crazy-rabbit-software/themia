@@ -213,17 +213,6 @@ internal sealed class WebCache<T>(string scope)
         }
     }
 
-#if DEBUG
-    /// <summary>Put a fixed answer in place, for the debug gallery's offline fixtures.</summary>
-    internal void Seed(string key, Fetched<T> value)
-    {
-        lock (_gate)
-        {
-            Remember(key, value);
-        }
-    }
-#endif
-
     /// <summary>Every good answer held, for a service that saves them. A copy; safe to enumerate.</summary>
     public List<(string Key, Fetched<T> Entry)> Snapshot()
     {

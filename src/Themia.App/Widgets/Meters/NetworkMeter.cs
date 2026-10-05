@@ -61,17 +61,4 @@ internal sealed class NetworkMeter : MeterPart
             Second: up));
     }
 
-#if DEBUG
-    public override bool SampleFixture(IMeterHost host, double seconds)
-    {
-        if (!Preview || !Shell.Gallery.MeterFixture.Has(Kind))
-        {
-            return false;
-        }
-
-        var (down, up) = Shell.Gallery.MeterFixture.Network(seconds);
-        Present(host, down, up);
-        return true;
-    }
-#endif
 }

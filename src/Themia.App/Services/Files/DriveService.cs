@@ -10,7 +10,7 @@ namespace Themia.App.Services.Files;
 internal sealed record DriveAccount(string Id, string Label, string? Problem);
 
 /// <summary>
-/// Where drive listings come from: Themia's own Microsoft accounts, or the gallery's fixture.
+/// Where drive listings come from: Themia's own Microsoft accounts.
 /// </summary>
 internal interface IDriveRemote
 {
@@ -111,7 +111,7 @@ internal sealed class DriveService : IDisposable
 
         var load = LoadAsync(key, accountId, address, max);
 
-        // A source that answers synchronously (the gallery's) has already finished, and its own
+        // A source that answers synchronously has already finished, and its own
         // clean-up ran before this line: holding it here would serve that answer forever.
         if (!load.IsCompleted)
         {

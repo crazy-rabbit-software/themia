@@ -11,7 +11,7 @@ public sealed class TaskLayoutTests
     private const double Row = 40;
     private const double CompactRow = 32;
 
-    // The gallery's tiers as content areas (card less the ~44 DIP header).
+    // The size tiers as content areas (card less the ~44 DIP header).
     private static readonly WidgetArea XS = new(120, 76);
     private static readonly WidgetArea S = new(200, 106);
     private static readonly WidgetArea M = new(320, 196);

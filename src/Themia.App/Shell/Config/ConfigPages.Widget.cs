@@ -323,7 +323,7 @@ internal static partial class ConfigPages
         {
             host.Select(widgetId);
             host.DeleteSelected();
-            navigate(new ConfigTarget.View(view.Id));
+            navigate(ConfigTarget.ForView(view.Id));
         };
 
         rows.Add(FluentLayout.Row(Glyphs.Delete, Str.Common_Delete.Text(), Str.Shell_Widget_DeleteDesc.Format(("view", view.Name)), delete));

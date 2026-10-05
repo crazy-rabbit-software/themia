@@ -21,8 +21,9 @@ Report security problems privately to themia@nathaniel-walser.com, not in a publ
 - Build and test before you open the pull request:
   `dotnet build src/Themia.App/Themia.App.csproj -c Debug` (warnings are errors) and
   `dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj`.
-- For UI changes, render the result with the Debug gallery or `--settings-png` flags described in
-  CLAUDE.md and attach the PNG. Widgets must hold up at every gallery size, down to 120 by 120.
+- For UI changes, render the result with the Debug `--settings-png` (and other) render flags described
+  in CLAUDE.md and attach the PNG. Widgets must hold up at every size tier of the showcase views
+  (`--add-showcase-views`), down to 120 by 120; attach a screenshot of the widget's showcase view.
 - Put logic in `Themia.Core` and test it. A bug fix comes with a regression test that fails without the fix.
 - Keep refactors and behaviour changes in separate commits.
 - The app is unreleased, so there is no migration or legacy-format code: change the schema in place.

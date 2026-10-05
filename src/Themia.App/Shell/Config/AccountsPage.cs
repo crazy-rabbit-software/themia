@@ -50,7 +50,7 @@ internal sealed class AccountsPage
 
     private AccountsPage(AccountService service) => _service = service;
 
-    /// <summary>Build the page. Without the service (the gallery, a failed start) it says so.</summary>
+    /// <summary>Build the page. Without the service (a debug render, a failed start) it says so.</summary>
     public static FrameworkElement Build()
     {
         if (AppServices.Accounts is not { } service)

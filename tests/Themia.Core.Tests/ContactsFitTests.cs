@@ -6,7 +6,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// The contacts widget's disclosure ladder and key map ([S-1270]..[S-1277]), and vCard 2.1
-/// quoted-printable values ([S-1278]), at the gallery's slot sizes.
+/// quoted-printable values ([S-1278]), at the size tiers' slots.
 /// </summary>
 public sealed class ContactsFitTests
 {

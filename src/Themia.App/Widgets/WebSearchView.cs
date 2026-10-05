@@ -39,9 +39,8 @@ internal sealed partial class WebSearchView : Grid, IWidgetView, IWidgetSurfaceA
 
     /// <summary>
     /// [S-1530] This session's searches, shared by every Search widget and never written to disk.
-    /// Internal for the gallery fixture.
     /// </summary>
-    internal static RecentSearches History { get; } = new();
+    private static RecentSearches History { get; } = new();
 
     private readonly TextBox _input = new();
     private readonly StackPanel _chips = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };

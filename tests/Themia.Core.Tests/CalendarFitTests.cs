@@ -9,7 +9,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// The calendar's disclosure ladder, Outlook hand-off and key map ([S-1260]..[S-1269]), at the
-/// gallery's slot sizes (card less a ~44 px header).
+/// size tiers' slots (card less a ~44 px header).
 /// </summary>
 public sealed class CalendarFitTests
 {

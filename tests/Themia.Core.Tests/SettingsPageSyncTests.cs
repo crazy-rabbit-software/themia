@@ -78,29 +78,35 @@ public sealed class SettingsPageSyncTests
     }
 
     [Fact]
-    public void S1721_a_display_page_follows_that_display()
+    public void S1721_the_displays_page_follows_the_connected_displays_only()
     {
         var state = AppState.CreateDefault();
-        var before = SettingsPageSync.Signature(state, SettingsScope.Display, "A");
+        string[] connected = ["A"];
+        var before = SettingsPageSync.Signature(state, SettingsScope.Displays, displays: connected);
 
         state.MonitorScales["B"] = 1.5;
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Display, "A"));
+        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Displays, displays: connected));
 
         state.DisabledMonitors.Add("A");
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Display, "A"));
+        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Displays, displays: connected));
+
+        // A display plugged in is a new group on the page.
+        Assert.NotEqual(
+            SettingsPageSync.Signature(state, SettingsScope.Displays, displays: connected),
+            SettingsPageSync.Signature(state, SettingsScope.Displays, displays: ["A", "B"]));
     }
 
     [Fact]
-    public void S1721_a_view_page_follows_its_name_but_not_its_widgets_moving()
+    public void S1721_the_views_page_follows_every_views_name_but_not_widgets_moving()
     {
         var state = AppState.CreateDefault();
         var view = state.Views[0];
-        var before = SettingsPageSync.Signature(state, SettingsScope.View, view.Id);
+        var before = SettingsPageSync.Signature(state, SettingsScope.Views);
 
         view.Widgets[0].Y += 0.1;
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.View, view.Id));
+        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Views));
 
         view.Name = "Work";
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.View, view.Id));
+        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Views));
     }
 }

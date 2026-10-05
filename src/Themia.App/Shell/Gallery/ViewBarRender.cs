@@ -106,7 +106,7 @@ internal static class ViewBarRender
                     await Task.Delay(400).ConfigureAwait(true);
 
                     var path = System.IO.Path.Combine(outDir, $"viewbar-{c.Name}.png");
-                    await WidgetGallery.SavePngAsync(screen, path).ConfigureAwait(true);
+                    await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
                     Console.WriteLine($"viewbar: wrote {path}");
                 }
             }

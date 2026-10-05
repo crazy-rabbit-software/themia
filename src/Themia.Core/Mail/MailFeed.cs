@@ -172,7 +172,8 @@ public static class MailScreens
 
         if (mailAccounts.Count == 0)
         {
-            return new MailScreen(MailScreenKind.NoAccounts, Strings.Get(locale, Str.WidgetsB_Email_NoAccount), true, null);
+            // [S-1862] The card's Set up button stands here; the screen itself says nothing.
+            return new MailScreen(MailScreenKind.NoAccounts, string.Empty, false, null);
         }
 
         var targets = Targets(mailAccounts, chosen);

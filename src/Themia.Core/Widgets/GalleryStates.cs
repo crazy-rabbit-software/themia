@@ -83,15 +83,15 @@ public static class GalleryFormatting
         => StatusMessage(Strings.Current, status, problem, source);
 
     /// <summary><see cref="StatusMessage(GalleryStatus, FolderPathProblem, GallerySource)"/> in <paramref name="locale"/>.</summary>
+    /// <remarks>Nothing chosen yet says nothing: the card shows its Set up button there ([S-1862]).</remarks>
     public static string StatusMessage(Locale locale, GalleryStatus status, FolderPathProblem problem, GallerySource source = GallerySource.Folder)
-        => status == GalleryStatus.InvalidPath
+        => status is GalleryStatus.NoFolder or GalleryStatus.NoFile ? string.Empty
+            : status == GalleryStatus.InvalidPath
             ? FolderFormatting.PathMessage(locale, problem)
             : Strings.Get(locale, status switch
             {
                 GalleryStatus.Loading when source == GallerySource.Bing => Str.WidgetsB_Gallery_Status_LoadingPhoto,
                 GalleryStatus.Loading => Str.WidgetsB_Gallery_Status_Loading,
-                GalleryStatus.NoFolder => Str.WidgetsB_Gallery_Status_NoFolder,
-                GalleryStatus.NoFile => Str.WidgetsB_Gallery_Status_NoFile,
                 GalleryStatus.NotFound when source == GallerySource.File => Str.WidgetsB_Gallery_Status_PictureGone,
                 GalleryStatus.NotFound => Str.WidgetsB_Gallery_Status_FolderGone,
                 GalleryStatus.NotAPicture => Str.WidgetsB_Gallery_Status_NotAPicture,

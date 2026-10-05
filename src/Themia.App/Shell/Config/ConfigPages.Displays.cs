@@ -1,25 +1,56 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Storage;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-853] One display's page: whether Themia is shown there, which view it shows, how much it
-/// magnifies widgets, and what Windows reports about it.
+/// [S-1832] The Displays page: one group per connected display, switched off or not ([S-853]),
+/// each with whether Themia is shown there, which view it shows, how much it magnifies widgets,
+/// what Windows reports about it, and its view bar ([S-916]).
 /// </summary>
 internal static partial class ConfigPages
 {
-    private static FrameworkElement BuildDisplay(AppHost host, string monitorId)
+    private static FrameworkElement BuildDisplays(PageContext context)
     {
-        if (host.FindDisplay(monitorId) is not { } display)
+        var host = context.Host;
+        var displays = host.Displays;
+        context.Expansion.Retain(SettingsList.Displays, displays.Select(d => d.Id));
+
+        if (displays.Count == 0)
         {
-            return Page(Str.App_MonitorLabelUnknown.Text(), [Note(Str.Shell_Display_Gone.Text())]);
+            return Page(Str.App_Displays.Text(), [Note(Str.Shell_Displays_None.Text())]);
         }
 
+        var rows = new List<FrameworkElement>();
+        foreach (var display in displays)
+        {
+            var id = display.Id;
+            var size = Str.Shell_Display_Size.Format(("width", LocaleFormat.Integer(display.Bounds.Width)), ("height", LocaleFormat.Integer(display.Bounds.Height)));
+
+            rows.Add(FluentLayout.Expander(
+                Glyphs.Display,
+                display.ShortName,
+                host.State.DisabledMonitors.Contains(id) ? Str.Shell_Displays_Off.Format(("size", size)) : size,
+                null,
+                DisplayRows(host, display),
+                expanded: context.Expansion.IsOpen(SettingsList.Displays, id, displays.Count),
+                item: id,
+                expandedChanged: open => context.Expansion.Set(SettingsList.Displays, id, open)));
+        }
+
+        return Page(Str.App_Displays.Text(), rows);
+    }
+
+    /// <summary>[S-853] One display's rows: Show Themia here, Shows, Widget scale, Resolution, then its view bar.</summary>
+    private static List<Border> DisplayRows(AppHost host, MonitorTarget display)
+    {
+        var monitorId = display.Id;
         var state = host.State;
         var enabled = !state.DisabledMonitors.Contains(monitorId);
         var connected = host.Displays.Select(d => d.Info).ToList();
@@ -41,7 +72,7 @@ internal static partial class ConfigPages
         });
         show.IsEnabled = canToggle;
 
-        var rows = new List<FrameworkElement>
+        var rows = new List<Border>
         {
             FluentLayout.Row(Glyphs.Display, Str.Shell_Display_Show.Text(),
                 canToggle
@@ -73,25 +104,26 @@ internal static partial class ConfigPages
         };
 
         rows.AddRange(ViewBarRows(host, monitorId));
-        return Page(display.ShortName, rows, display.Describe());
+        return rows;
     }
 
-    /// <summary>[S-916] This display's view bar: shown or not, where, how big, names, and which views it offers.</summary>
-    private static List<FrameworkElement> ViewBarRows(AppHost host, string monitorId)
+    /// <summary>
+    /// [S-916] This display's view bar: shown or not, where, how big, names, and which views it
+    /// offers. Inside the display's group, so each title says it is the view bar's.
+    /// </summary>
+    private static List<Border> ViewBarRows(AppHost host, string monitorId)
     {
         var bar = ViewBarRules.For(host.State, monitorId);
         void Change(Action<ViewBarSettings> change) => host.Mutate(s => ViewBarRules.Update(s, monitorId, change));
 
-        var rows = new List<FrameworkElement>
+        var rows = new List<Border>
         {
-            FluentLayout.Header(Str.Shell_ViewBar_Header.Text()),
-
             FluentLayout.Row(Glyphs.View, Str.Shell_ViewBar_Show.Text(),
                 Str.Shell_ViewBar_ShowDesc.Text(),
                 FluentLayout.Toggle(!bar.Hidden, on => Change(b => b.Hidden = !on)),
                 "views", "switcher", "chips"),
 
-            FluentLayout.Row(Glyphs.Display, Str.ViewBar_Position_Label.Text(),
+            FluentLayout.Row(Glyphs.Display, Str.Shell_ViewBar_Position.Text(),
                 Str.Shell_ViewBar_PositionDesc.Text(),
                 FluentLayout.Choice<ViewBarAnchor>(
                 [
@@ -106,7 +138,7 @@ internal static partial class ConfigPages
                 ], bar.Anchor, value => Change(b => b.Anchor = value)),
                 "anchor", "corner", "vertical"),
 
-            FluentLayout.Row(Glyphs.Scale, Str.ViewBar_Size_Label.Text(), null,
+            FluentLayout.Row(Glyphs.Scale, Str.Shell_ViewBar_Size.Text(), null,
                 FluentLayout.Choice<ViewBarSize>(
                 [
                     (ViewBarSize.Medium, Str.Shell_Size_Medium.Text()),
@@ -121,9 +153,10 @@ internal static partial class ConfigPages
                 "labels", "icons only", "initials"),
         };
 
-        // [S-908] One switch per view. A change can be refused (the last view cannot be switched
-        // off), so after every change all the switches are set back from what was stored.
-        var toggles = new List<(string Id, ToggleSwitch Toggle)>();
+        // [S-908] One check box per view, in a column on the row: a group cannot fold another group
+        // into itself. A change can be refused (the last view cannot be switched off), so after
+        // every change all the boxes are set back from what was stored.
+        var boxes = new List<(string Id, CheckBox Box)>();
         var syncing = false;
 
         void Sync()
@@ -133,9 +166,9 @@ internal static partial class ConfigPages
             syncing = true;
             try
             {
-                foreach (var (id, toggle) in toggles)
+                foreach (var (id, box) in boxes)
                 {
-                    toggle.IsOn = offered.Contains(id);
+                    box.IsChecked = offered.Contains(id);
                 }
             }
             finally
@@ -144,30 +177,32 @@ internal static partial class ConfigPages
             }
         }
 
-        var viewRows = new List<Border>();
+        void Toggled(string id, bool on)
+        {
+            if (syncing)
+            {
+                return;
+            }
+
+            host.Mutate(s => ViewBarRules.Update(s, monitorId, b => b.VisibleViews = ViewBarRules.ToggleVisible(s.Views, b, id, on)));
+            Sync();
+        }
+
+        var column = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left, MinWidth = FluentLayout.ChoiceMinWidth };
         foreach (var view in host.State.Views)
         {
             var id = view.Id;
-            var toggle = FluentLayout.Toggle(false, on =>
-            {
-                if (syncing)
-                {
-                    return;
-                }
-
-                host.Mutate(s => ViewBarRules.Update(s, monitorId, b => b.VisibleViews = ViewBarRules.ToggleVisible(s.Views, b, id, on)));
-                Sync();
-            });
-
-            toggles.Add((id, toggle));
-            viewRows.Add(FluentLayout.Row(string.IsNullOrEmpty(view.Icon) ? Glyphs.View : view.Icon, view.Name, null, toggle));
+            var box = new CheckBox { Content = view.Name };
+            box.Checked += (_, _) => Toggled(id, true);
+            box.Unchecked += (_, _) => Toggled(id, false);
+            boxes.Add((id, box));
+            column.Children.Add(box);
         }
 
         Sync();
 
-        rows.Add(FluentLayout.Expander(Glyphs.View, Str.Shell_ViewBar_Views.Text(),
-            Str.Shell_ViewBar_ViewsDesc.Text(),
-            null, viewRows));
+        rows.Add(FluentLayout.Row(Glyphs.View, Str.Shell_ViewBar_Views.Text(), Str.Shell_ViewBar_ViewsDesc.Text(), column,
+            [.. host.State.Views.Select(v => v.Name)]));
 
         return rows;
     }

@@ -134,7 +134,7 @@ internal static class MotionRender
                 {
                     await Task.Delay(150).ConfigureAwait(true);
                     var path = System.IO.Path.Combine(outDir, name + ".png");
-                    await WidgetGallery.SavePngAsync(screen, path).ConfigureAwait(true);
+                    await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
                     Console.WriteLine($"motion: wrote {path}");
                 }
 

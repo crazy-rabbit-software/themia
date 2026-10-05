@@ -5,7 +5,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-1762] The system meters' face: the reading and its history, the history filling the tile.
-/// The areas are the gallery's seven sizes less the header (the content box a meter is given).
+/// The areas are the seven size tiers less the header (the content box a meter is given).
 /// </summary>
 public sealed class MeterFaceTests
 {

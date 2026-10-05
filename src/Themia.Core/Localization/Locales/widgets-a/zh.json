@@ -275,7 +275,6 @@
   "widgetsA.clock.weekAndDay": "第 {week} 周 · 第 {day} 天",
   "widgetsA.colorSwatch.copyNamed": "{name} · 复制 {value}",
   "widgetsA.colorSwatch.copyValue": "复制 {value}",
-  "widgetsA.colorSwatch.empty": "这里没有颜色。请在设置中添加。",
   "widgetsA.colorSwatch.palette": "调色板",
   "widgetsA.colorSwatch.settings.accent": "主题色",
   "widgetsA.colorSwatch.settings.add.desc": "选择一种颜色，可按需为其命名",
@@ -330,7 +329,6 @@
   "widgetsA.countdown.daysIn": {
     "other": "{count}天后"
   },
-  "widgetsA.countdown.empty": "没有计时器。\n请在此小组件的设置中添加。",
   "widgetsA.countdown.format.auto": "自动",
   "widgetsA.countdown.format.days": "仅天数",
   "widgetsA.countdown.format.dhm": "天 · 小时 · 分",
@@ -414,7 +412,6 @@
   "widgetsA.github.agoHours": "{count}小时",
   "widgetsA.github.agoMinutes": "{count}分钟",
   "widgetsA.github.agoNow": "刚刚",
-  "widgetsA.github.chooseRepo": "请选择仓库：右键单击，然后选择“配置”。",
   "widgetsA.github.closed": "已关闭",
   "widgetsA.github.comments": {
     "other": "{count} 条评论"

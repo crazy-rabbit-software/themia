@@ -696,8 +696,8 @@ internal sealed partial class ViewSwitcherView : Grid, IWidgetView, IWidgetSurfa
 
     /// <summary>
     /// Show a view on this widget's display. On the desktop the switch replaces this card with the
-    /// other view's widgets; the refresh afterwards is for a display that keeps this card — the
-    /// gallery's pretend one, or a view that has a switcher at the same place — and does nothing on
+    /// other view's widgets; the refresh afterwards is for a display that keeps this card — a
+    /// render's pretend one, or a view that has a switcher at the same place — and does nothing on
     /// a card that has gone.
     /// </summary>
     private void Switch(string viewId)

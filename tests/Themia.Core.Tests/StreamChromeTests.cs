@@ -8,7 +8,7 @@ namespace Themia.Core.Tests;
 /// <summary>[S-1312]/[S-1313] The camera's optional chrome: which parts show at which size, and their words.</summary>
 public class StreamChromeTests
 {
-    // The gallery's tiers, as the card's slot (card less a ~44 DIP header).
+    // The size tiers, as the card's slot (card less a ~44 DIP header).
     private static readonly WidgetArea Xs = new(120, 76);
     private static readonly WidgetArea S = new(200, 106);
     private static readonly WidgetArea M = new(320, 196);

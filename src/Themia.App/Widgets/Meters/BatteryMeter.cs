@@ -41,19 +41,6 @@ internal sealed class BatteryMeter : MeterPart
 
     public override void Sample(IMeterHost host) => Present(host, SystemMetrics.Battery());
 
-#if DEBUG
-    public override bool SampleFixture(IMeterHost host, double seconds)
-    {
-        if (!Preview || !Shell.Gallery.BatteryFixture.Installed)
-        {
-            return false;
-        }
-
-        Present(host, Shell.Gallery.BatteryFixture.Power(seconds));
-        return true;
-    }
-#endif
-
     private void Present(IMeterHost host, BatteryPower? reading)
     {
         if (reading is not { } power)

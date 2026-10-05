@@ -92,9 +92,10 @@ powershell -ExecutionPolicy Bypass -File scripts/publish.ps1   # single native b
 powershell -ExecutionPolicy Bypass -File scripts/package.ps1   # unsigned Store package
 ```
 
-Debug builds also carry a **widget gallery** (toolbar `...` menu) that draws any widget at seven
-fixed sizes, and render flags that write PNGs without touching the desktop. They are the way UI
-changes are checked, and are listed in [CLAUDE.md](CLAUDE.md). Google sign-in needs a client secret at
+Debug builds also carry render flags that write PNGs of the settings window, the picker and other
+shell parts without touching the desktop, and `--add-showcase-views`, which puts every widget on the
+desktop at seven fixed sizes. They are the way UI changes are checked, and are listed in
+[CLAUDE.md](CLAUDE.md). Google sign-in needs a client secret at
 build time (`THEMIA_GOOGLE_CLIENT_SECRET`); a build without it refuses Google sign-in up front.
 
 ```

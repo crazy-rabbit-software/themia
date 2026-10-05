@@ -9,14 +9,14 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1411] Debug only: <c>Themia.exe --layout-editor-png &lt;out.png&gt; [waitMs] [--empty]</c> draws
-/// the app-layout editor off-screen over a demo state that is never saved, then exits — the
-/// gallery's counterpart for the editor window. <c>--empty</c> shows a fresh one-pane layout.
+/// the app-layout editor off-screen over a demo state that is never saved, then exits. <c>--empty</c> shows a fresh one-pane layout.
 /// Nothing is launched and no window but its own is touched.
 /// </summary>
 internal static class LayoutEditorRender
@@ -54,7 +54,7 @@ internal static class LayoutEditorRender
 
         try
         {
-            var item = empty ? ShortcutItem.CreateLayout() : LayoutFixtures.DemoAppLayout();
+            var item = empty ? ShortcutItem.CreateLayout() : DemoAppLayout();
             var view = ViewState.Create("Desktop");
             var widget = WidgetInstance.Create(WidgetKind.Shortcuts, new FracRect(0.1, 0.1, 0.2, 0.2));
             widget.Config = new ShortcutsConfig { Items = [item] };
@@ -92,7 +92,7 @@ internal static class LayoutEditorRender
             await Task.Delay(wait).ConfigureAwait(true);
 
             Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-            await WidgetGallery.SavePngAsync(editor.DebugRoot, outPath).ConfigureAwait(true);
+            await RenderPng.SaveAsync(editor.DebugRoot, outPath).ConfigureAwait(true);
             Console.WriteLine($"layout editor: wrote {outPath}");
         }
         catch (Exception ex)
@@ -106,6 +106,24 @@ internal static class LayoutEditorRender
             host?.Dispose();
             app.Exit();
         }
+    }
+
+    /// <summary>
+    /// [S-1405] A demo app layout: three panes (an app, a site, a folder). Never launched: the
+    /// render only draws the editor.
+    /// </summary>
+    private static ShortcutItem DemoAppLayout()
+    {
+        var item = ShortcutItem.CreateLayout("Morning");
+        var root = item.Layout!;
+        (root, _) = LayoutTree.Split(root, root.Id, SplitDirection.Vertical);
+        LayoutTree.SetRatio(root, root.Id, 0.6);
+        (root, _) = LayoutTree.Split(root, root.B!.Id, SplitDirection.Horizontal);
+        LayoutTree.Assign(root, root.A!.Id, new LayoutAssignment { Source = LayoutSource.App, Target = @"C:\Windows\notepad.exe", Label = "Notepad" });
+        LayoutTree.Assign(root, root.B!.A!.Id, new LayoutAssignment { Source = LayoutSource.Url, Target = "https://github.com" });
+        LayoutTree.Assign(root, root.B!.B!.Id, new LayoutAssignment { Source = LayoutSource.Folder, Target = @"C:\Windows" });
+        item.Layout = root;
+        return item;
     }
 }
 #endif

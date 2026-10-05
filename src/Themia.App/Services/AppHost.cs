@@ -195,7 +195,7 @@ internal sealed partial class AppHost : IDisposable
         StartGameMode();
 
         // [S-459] Screen time is recorded whether or not a screen-time widget is on the desktop, so
-        // the history is there the day one is added. Only the app starts it — never the gallery.
+        // the history is there the day one is added. Only the app starts it — never a debug render.
         _screenTime = ScreenTimeService.Start(
             _dispatcher,
             Path.Combine(Path.GetDirectoryName(_store.Path) ?? string.Empty, Themia.Core.Storage.ScreenTimeStore.FileName));

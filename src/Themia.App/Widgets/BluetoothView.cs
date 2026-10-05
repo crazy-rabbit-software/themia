@@ -31,7 +31,7 @@ namespace Themia.App.Widgets;
 /// Every empty list says which empty list it is.
 /// </para>
 /// </summary>
-internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
 {
     private const string Scope = "bluetooth";
 
@@ -88,7 +88,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
     private CancellationTokenSource? _inFlight;
     private WidgetArea _area;
-    private bool _preview;
 
     private BluetoothSnapshot _snapshot = BluetoothSnapshot.Of(BluetoothStatus.Loading);
 
@@ -155,9 +154,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _trailing;
-
-    /// <inheritdoc />
-    public void Bind(IWidgetSurface surface) => _preview = surface.IsPreview;
 
     /// <inheritdoc />
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -242,16 +238,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         {
             return;
         }
-
-#if DEBUG
-        // [S-1258] The gallery's sample list, for preview cards only.
-        if (_preview && Shell.Gallery.BluetoothFixture.Snapshot is { } fixture)
-        {
-            _snapshot = fixture;
-            Render();
-            return;
-        }
-#endif
 
         // The previous pass is now for a configuration nobody is looking at.
         _inFlight?.Cancel();

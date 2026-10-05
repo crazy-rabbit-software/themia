@@ -67,20 +67,6 @@ internal sealed class DiskMeter : MeterPart
     public override void Sample(IMeterHost host)
         => Present(host, DiskMetrics.Volumes(refresh: true), DiskMetrics.Activity()?.Rates);
 
-#if DEBUG
-    /// <summary>[S-1169] A gallery preview with the sample installed reads its made-up drives.</summary>
-    public override bool SampleFixture(IMeterHost host, double seconds)
-    {
-        if (!Preview || Shell.Gallery.DiskPingFixture.Volumes is not { } volumes)
-        {
-            return false;
-        }
-
-        Present(host, volumes, Shell.Gallery.DiskPingFixture.Activity(seconds).Rates);
-        return true;
-    }
-#endif
-
     /// <summary>[S-1820] One sample on screen: the title for what is measured, and its throughput or why there is none.</summary>
     private void Present(IMeterHost host, IReadOnlyList<DiskVolume> volumes, IReadOnlyDictionary<string, DiskRates>? rates)
     {

@@ -209,7 +209,7 @@ public sealed class FeedWidgetTests : IDisposable
 
     // ---- [S-1305] the ladder -----------------------------------------------------------------
 
-    // The gallery's tiers as content slots (the card less a 44px header).
+    // The size tiers as content slots (the card less a 44px header).
     public static TheoryData<string, double, double> Tiers => new()
     {
         { "XS", 120, 76 },

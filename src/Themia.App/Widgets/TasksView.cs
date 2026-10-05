@@ -35,9 +35,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>Below this the link under an empty state is dropped; the sentence is worth more.</summary>
     private const double LinkNeedsHeight = 140;
 
-    /// <summary>Below this the second link is dropped too.</summary>
-    private const double SecondLinkNeedsHeight = 200;
-
     private readonly TextBlock _badge = new();
     private readonly Border _badgeHost;
     private readonly ProgressRing _busy = new();
@@ -55,7 +52,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly HyperlinkButton _emptyAction;
 
     /// <summary>The second way out of the no-account state: a list on this PC needs no account.</summary>
-    private readonly HyperlinkButton _emptyLocal;
 
     private TaskService? _service;
     private Ticker? _ticker;
@@ -80,7 +76,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private AccountException? _listsFailure;
 
     private Screen _screen = Screen.Starting;
-    private bool _offerLocal;
     private BindKey? _bound;
     private int _bindGeneration;
     private bool _detached;
@@ -143,28 +138,15 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         };
         _emptyAction.Click += OnEmptyActionClicked;
 
-        _emptyLocal = new HyperlinkButton
-        {
-            Content = Str.WidgetsC_Tasks_KeepLocal.Text(),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, Fluent.Space1),
-            Visibility = Visibility.Collapsed,
-            Tag = EmptyAction.StartLocalList,
-        };
-        _emptyLocal.Click += OnEmptyActionClicked;
-
-        // The sentence and its links, centred together.
+        // The sentence and its link, centred together.
         _emptyHost.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _emptyHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _emptyHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _emptyHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _emptyHost.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         Grid.SetRow(_empty, 1);
         Grid.SetRow(_emptyAction, 2);
-        Grid.SetRow(_emptyLocal, 3);
         _emptyHost.Children.Add(_empty);
         _emptyHost.Children.Add(_emptyAction);
-        _emptyHost.Children.Add(_emptyLocal);
         _emptyHost.Visibility = Visibility.Collapsed;
 
         _addRow = BuildAddRow();
@@ -226,7 +208,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-1110] The fixed texts again, then the list redrawn from what is in hand (no fetch).</summary>
     private void OnLanguage(Locale locale)
     {
-        _emptyLocal.Content = Str.WidgetsC_Tasks_KeepLocal.Text();
         _addLabel.Text = Str.WidgetsC_Tasks_AddTask.Text();
         PublishTitle();
         Render();
@@ -681,7 +662,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 break;
 
             case Screen.NoAccount:
-                ShowEmpty(Str.WidgetsC_Tasks_SignInOrLocal.Text(), EmptyAction.Accounts, offerLocal: true);
+                // [S-1862] The card's Set up button covers this; its settings page offers a local list.
+                ShowEmpty(string.Empty, null);
                 break;
 
             case Screen.AccountGone:
@@ -736,9 +718,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         StartLocalList,
     }
 
-    private void ShowEmpty(string text, EmptyAction? action, bool offerLocal = false)
+    private void ShowEmpty(string text, EmptyAction? action)
     {
-        _offerLocal = offerLocal;
         _emptyText.Text = text;
         _emptyHost.Visibility = Visibility.Visible;
         _scroll.Visibility = _displayed.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -782,15 +763,13 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         }
     }
 
-    /// <summary>The links show when there are any and room for them; the sentence gets the rest.</summary>
+    /// <summary>The link shows when there is one and room for it; the sentence gets the rest.</summary>
     private void FitEmptyState()
     {
         var height = _area.IsMeasured ? _area.Height : 0;
         var link = _emptyAction.Tag is EmptyAction && (height <= 0 || height >= LinkNeedsHeight);
-        var local = link && _offerLocal && (height <= 0 || height >= SecondLinkNeedsHeight);
         _emptyAction.Visibility = link ? Visibility.Visible : Visibility.Collapsed;
-        _emptyLocal.Visibility = local ? Visibility.Visible : Visibility.Collapsed;
-        _empty.MaxHeight = height > 0 ? Math.Max(0, height - (link ? 36 : 0) - (local ? 32 : 0)) : double.PositiveInfinity;
+        _empty.MaxHeight = height > 0 ? Math.Max(0, height - (link ? 36 : 0)) : double.PositiveInfinity;
     }
 
     public void Detach()
@@ -808,7 +787,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         Strings.Changed -= OnLanguage;
 
         _emptyAction.Click -= OnEmptyActionClicked;
-        _emptyLocal.Click -= OnEmptyActionClicked;
 
         _subscription?.Dispose();
         _subscription = null;

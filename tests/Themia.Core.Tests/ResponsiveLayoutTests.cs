@@ -8,7 +8,7 @@ namespace Themia.Core.Tests;
 /// <summary>[S-660..S-665] The shared responsive-layout foundation: size classes, the disclosure ladder, whole rows.</summary>
 public class ResponsiveLayoutTests
 {
-    /// <summary>The card's header takes about this much of the gallery's card heights.</summary>
+    /// <summary>The card's header takes about this much of the tier cards' heights.</summary>
     private const double Header = 44;
 
     [Theory]
@@ -19,7 +19,7 @@ public class ResponsiveLayoutTests
     [InlineData(200, 400, SizeClass.Regular, SizeClass.Expanded)]   // Tall
     [InlineData(560, 420, SizeClass.Expanded, SizeClass.Expanded)]  // L
     [InlineData(800, 560, SizeClass.Huge, SizeClass.Huge)]          // XL
-    public void S660_each_gallery_tier_lands_in_its_own_class_pair(double cardWidth, double cardHeight, SizeClass width, SizeClass height)
+    public void S660_each_size_tier_lands_in_its_own_class_pair(double cardWidth, double cardHeight, SizeClass width, SizeClass height)
     {
         var area = new WidgetArea(cardWidth, cardHeight - Header);
 

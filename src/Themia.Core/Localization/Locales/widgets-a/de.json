@@ -280,7 +280,6 @@
   "widgetsA.clock.weekAndDay": "KW {week} · Tag {day}",
   "widgetsA.colorSwatch.copyNamed": "{name} · {value} kopieren",
   "widgetsA.colorSwatch.copyValue": "{value} kopieren",
-  "widgetsA.colorSwatch.empty": "Keine Farben vorhanden. Füge in den Einstellungen welche hinzu.",
   "widgetsA.colorSwatch.palette": "Palette",
   "widgetsA.colorSwatch.settings.accent": "Akzentfarbe",
   "widgetsA.colorSwatch.settings.add.desc": "Wähle eine Farbe und gib ihr bei Bedarf einen Namen",
@@ -338,7 +337,6 @@
     "one": "in {count} Tag",
     "other": "in {count} Tagen"
   },
-  "widgetsA.countdown.empty": "Keine Timer.\nFüge in den Einstellungen dieses Widgets einen hinzu.",
   "widgetsA.countdown.format.auto": "Automatisch",
   "widgetsA.countdown.format.days": "Nur Tage",
   "widgetsA.countdown.format.dhm": "Tage · Std. · Min.",
@@ -424,7 +422,6 @@
   "widgetsA.github.agoHours": "{count} Std.",
   "widgetsA.github.agoMinutes": "{count} Min.",
   "widgetsA.github.agoNow": "jetzt",
-  "widgetsA.github.chooseRepo": "Wähle ein Repository: Rechtsklick, dann „Konfigurieren“.",
   "widgetsA.github.closed": "geschlossen",
   "widgetsA.github.comments": {
     "one": "{count} Kommentar",

@@ -137,20 +137,6 @@ internal sealed class PingMeter : MeterPart
         _ = ProbeAsync(_host ?? PingConfig.DefaultHost, probe, host);
     }
 
-#if DEBUG
-    /// <summary>[S-1169] A gallery preview with the sample installed answers from it, with no packet sent.</summary>
-    public override bool SampleFixture(IMeterHost host, double seconds)
-    {
-        if (!Preview || !Shell.Gallery.DiskPingFixture.Ping || _detached)
-        {
-            return false;
-        }
-
-        Record(Shell.Gallery.DiskPingFixture.Probe(seconds), host);
-        return true;
-    }
-#endif
-
     private async Task ProbeAsync(string target, CancellationTokenSource probe, IMeterHost host)
     {
         try

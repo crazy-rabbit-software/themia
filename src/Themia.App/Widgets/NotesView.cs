@@ -45,7 +45,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         /// <summary>The note, editable.</summary>
         Ready,
 
-        /// <summary>A preview card (the gallery) with no note: the empty editor, nothing is created.</summary>
+        /// <summary>A preview card (a debug render) with no note: the empty editor, nothing is created.</summary>
         Unbound,
 
         /// <summary>[S-1347] The note this widget shows was deleted.</summary>
@@ -256,7 +256,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
     /// <summary>
     /// [S-1346] Find the note this widget shows and put it in the editor. With none chosen, a desktop
-    /// widget gets a new note of its own and remembers it; a gallery preview does not, since nothing
+    /// widget gets a new note of its own and remembers it; a preview card does not, since nothing
     /// could ever reach that note again. A note that was deleted is not replaced ([S-1347]).
     /// </summary>
     private void Resolve()

@@ -36,8 +36,6 @@ internal sealed partial class ColorSwatchView : Grid, IWidgetView, IWidgetSizeAw
 
     private readonly Grid _columns = new();
     private readonly ScrollViewer _scroller;
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new() { Text = Str.WidgetsA_ColorSwatch_Empty.Text() };
 
     private readonly List<SwatchItemView> _items = [];
 
@@ -63,16 +61,8 @@ internal sealed partial class ColorSwatchView : Grid, IWidgetView, IWidgetSizeAw
             HorizontalScrollMode = ScrollMode.Disabled,
         };
 
-        _empty = Fluent.EmptyState(
-            WidgetCatalog.Definition(WidgetKind.ColorSwatch).Glyph,
-            _emptyText,
-            out _);
-
-        _empty.Visibility = Visibility.Collapsed;
-
         Children.Add(_fill);
         Children.Add(_scroller);
-        Children.Add(_empty);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -82,12 +72,8 @@ internal sealed partial class ColorSwatchView : Grid, IWidgetView, IWidgetSizeAw
         ApplyConfig(config);
     }
 
-    /// <summary>[S-1109] The empty text and the copy tooltips follow the language.</summary>
-    private void OnLanguage(Locale locale)
-    {
-        _emptyText.Text = Str.WidgetsA_ColorSwatch_Empty.Text();
-        ApplyConfig(_config);
-    }
+    /// <summary>[S-1109] The copy tooltips follow the language.</summary>
+    private void OnLanguage(Locale locale) => ApplyConfig(_config);
 
     public void ApplyConfig(WidgetConfig config)
     {
@@ -118,7 +104,6 @@ internal sealed partial class ColorSwatchView : Grid, IWidgetView, IWidgetSizeAw
         if (!palette)
         {
             _scroller.Visibility = Visibility.Collapsed;
-            _empty.Visibility = Visibility.Collapsed;
             ClearItems();
             _built = null;
             _cursor = null;
@@ -193,15 +178,14 @@ internal sealed partial class ColorSwatchView : Grid, IWidgetView, IWidgetSizeAw
         if (swatches.Count == 0)
         {
             ClearItems();
+            // [S-1862] An empty palette: the card shows its Set up button over this.
             _scroller.Visibility = Visibility.Collapsed;
-            _empty.Visibility = Visibility.Visible;
             _built = null;
             _cursor = null;
             return;
         }
 
         _scroller.Visibility = Visibility.Visible;
-        _empty.Visibility = Visibility.Collapsed;
 
         var listTop = WidgetLayout.ListInset.Top + WidgetLayout.ListInset.Bottom;
         var caption = (_config.ShowNames ? FluentType.Body.LineHeight : 0)

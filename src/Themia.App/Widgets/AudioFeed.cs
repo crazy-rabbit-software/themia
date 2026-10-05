@@ -10,9 +10,8 @@ namespace Themia.App.Widgets;
 /// One audio widget's connection to <see cref="CoreAudio"/>: what it wants, the snapshots and meters
 /// that come back, and the writes it sends — the part the mixer and the volume tile share.
 /// <para>
-/// [S-1233] A preview card (the widget gallery) never writes: its sliders and buttons are inert, so
-/// rendering the gallery can never move the machine's real volume. With a gallery fixture installed
-/// a preview does not touch Core Audio at all and shows the fixture's devices and apps instead.
+/// [S-1233] A preview card (a debug render) never writes: its sliders and buttons are inert, so
+/// rendering one can never move the machine's real volume.
 /// </para>
 /// </summary>
 internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot, Action<AudioPeaks> onPeaks) : IDisposable
@@ -33,15 +32,6 @@ internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot, Action<AudioPe
         }
 
         _want = want;
-
-#if DEBUG
-        if (Preview && Shell.Gallery.AudioFixture.Snapshot(want) is { } fixture)
-        {
-            onSnapshot(fixture);
-            onPeaks(want.Peaks ? Shell.Gallery.AudioFixture.Peaks : AudioPeaks.Silent);
-            return;
-        }
-#endif
 
         if (_subscription is null)
         {

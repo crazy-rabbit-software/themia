@@ -9,7 +9,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public class BluetoothLadderTests
 {
-    // Gallery slots (card less a ~44 px header).
+    // Size-tier slots (card less a ~44 px header).
     private static readonly WidgetArea Xs = new(120, 76);
     private static readonly WidgetArea M = new(320, 196);
     private static readonly WidgetArea Wide = new(480, 116);

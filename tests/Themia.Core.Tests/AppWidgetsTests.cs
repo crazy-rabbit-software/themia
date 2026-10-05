@@ -7,7 +7,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-1520]..[S-1533] Apps, Search, Help and Themia: the rules that shape what they show, and their
-/// ladders at the gallery tiers. Slots are the gallery cards less the 44-DIP header where the widget
+/// ladders at the size tiers. Slots are the tier cards less the 44-DIP header where the widget
 /// has one (Apps, Help) and the whole card where it starts headerless (Search, Themia).
 /// </summary>
 public sealed class AppWidgetsTests

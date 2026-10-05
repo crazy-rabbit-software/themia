@@ -18,11 +18,11 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// The debug-only settings render:
 /// <c>Themia.exe --settings-png &lt;Page&gt; &lt;out.png&gt; [waitMs] [--theme light|dark] [--search text] [--land text]
-/// [--flyout row-title] [--width dips]</c>
+/// [--flyout row-title] [--width dips] [--open first|name]</c>
 /// draws the real settings window — title bar, navigation, breadcrumb and page — off-screen to a
 /// PNG, then exits. [S-499], [S-1548]
 /// <para>
-/// The gallery's counterpart for the settings window, so a page can be looked at without running
+/// The settings window drawn off-screen, so a page can be looked at without running
 /// the app — no state file is read, no single-instance hand-off happens, and nothing is written:
 /// the host is built over a demo state and a <see cref="AppStateStore.Detached"/> store, so a page
 /// that saves as it is built still never touches the user's real state.
@@ -33,7 +33,8 @@ namespace Themia.App.Shell.Gallery;
 /// light or dark (the app's own theme is set from it at start-up, see <c>App</c>);
 /// <c>--search</c> types into "Find a setting" and also writes the open suggestion list to
 /// <c>&lt;out&gt;-search.png</c>; <c>--land</c> goes to the best match and rings it, as choosing a
-/// suggestion does.
+/// suggestion does. <c>--open</c> opens one group of the Displays or Views page, as a link to one
+/// display or view does: <c>first</c>, or the view's or display's name ([S-1835]).
 /// </para>
 /// </summary>
 internal static class SettingsRender
@@ -81,7 +82,7 @@ internal static class SettingsRender
 
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|License|About|Widget:<Kind>|View|Display> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
+            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|Displays|Views|License|About|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name]");
             app.Exit();
             return true;
         }
@@ -96,10 +97,7 @@ internal static class SettingsRender
                 ? kind
                 : (WidgetKind?)null;
 
-        var page = name.Equals("View", StringComparison.OrdinalIgnoreCase) ? PageKind.View
-            : name.Equals("Display", StringComparison.OrdinalIgnoreCase) ? PageKind.Display
-            : widgetKind is not null ? PageKind.Widget
-            : PageKind.App;
+        var page = widgetKind is not null ? PageKind.Widget : PageKind.App;
 
         if (page == PageKind.App && Resolve(name) is null)
         {
@@ -126,7 +124,8 @@ internal static class SettingsRender
                 _ => AppTheme.System,
             },
             Option(args, "--flyout"),
-            double.TryParse(Option(args, "--width"), System.Globalization.CultureInfo.InvariantCulture, out var width) && width >= 320 ? width : WindowWidth);
+            double.TryParse(Option(args, "--width"), System.Globalization.CultureInfo.InvariantCulture, out var width) && width >= 320 ? width : WindowWidth,
+            Option(args, "--open"));
 
         _ = RenderAsync(app, dispatcher, request);
         return true;
@@ -136,8 +135,6 @@ internal static class SettingsRender
     {
         App,
         Widget,
-        View,
-        Display,
     }
 
     private sealed record Request(
@@ -150,7 +147,8 @@ internal static class SettingsRender
         string? Land,
         AppTheme Theme,
         string? Flyout,
-        double Width);
+        double Width,
+        string? Open);
 
     private static string? Option(string[] args, string name)
     {
@@ -196,13 +194,32 @@ internal static class SettingsRender
             : null;
 
     /// <summary>
-    /// [S-853] The first connected display's page. Reading the display list touches no window; no
-    /// surface is built, so the page renders exactly as Settings shows it.
+    /// [S-1835] <c>--open first|name</c> on the Displays or Views page: the page as a link to one
+    /// display or view opens it. Any other page, or no match, renders the page as it opens from the
+    /// navigation (logged when a name matched nothing).
     /// </summary>
-    private static ConfigTarget FirstDisplay(AppHost host)
+    private static ConfigTarget WithOpenGroup(AppHost host, ConfigTarget target, string? open)
     {
-        host.RefreshDisplayList();
-        return new ConfigTarget.Display(host.Displays.Count > 0 ? host.Displays[0].Id : "none");
+        if (open is null || target is not ConfigTarget.App app || ConfigTarget.ListOf(app.Page) is not { } list)
+        {
+            return target;
+        }
+
+        var items = list == Themia.Core.Settings.SettingsList.Views
+            ? host.State.Views.Select(v => (v.Id, v.Name)).ToList()
+            : host.Displays.Select(d => (d.Id, Name: d.ShortName)).ToList();
+
+        var match = open.Equals("first", StringComparison.OrdinalIgnoreCase)
+            ? items.FirstOrDefault()
+            : items.FirstOrDefault(i => i.Name.Equals(open, StringComparison.OrdinalIgnoreCase));
+
+        if (match.Id is null)
+        {
+            Log.Warn(Scope, $"--open '{open}' matched nothing on {app.Page}");
+            return target;
+        }
+
+        return app with { Item = match.Id };
     }
 
     private static async Task RenderAsync(Application app, DispatcherQueue dispatcher, Request request)
@@ -226,18 +243,20 @@ internal static class SettingsRender
             host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
             ApplyLicenseFixture(host);
 
-            ConfigTarget target = request.Page switch
+            // [S-853] The Displays page lists the connected displays. Reading the list touches no
+            // window; no surface is built, so the page renders exactly as Settings shows it.
+            host.RefreshDisplayList();
+
+            var target = WithOpenGroup(host, request.Page switch
             {
-                PageKind.View => new ConfigTarget.View(host.State.Views[0].Id),
-                PageKind.Display => FirstDisplay(host),
                 PageKind.Widget => new ConfigTarget.Widget(DemoWidget(host, request.Kind!.Value).Id),
                 _ => request.App!,
-            };
+            }, request.Open);
 
             settings = new ConfigWindow(host);
             var window = settings.DebugWindow;
 
-            // Off-screen and never activated, like the gallery's render: it must not take the
+            // Off-screen and never activated, like every debug render: it must not take the
             // user's focus or appear on their desktop.
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             var dpi = Win32.GetDpiForWindow(hwnd);
@@ -284,7 +303,7 @@ internal static class SettingsRender
             await Task.Delay(request.WaitMs).ConfigureAwait(true);
 
             Directory.CreateDirectory(Path.GetDirectoryName(request.OutPath)!);
-            await WidgetGallery.SavePngAsync(root, request.OutPath).ConfigureAwait(true);
+            await RenderPng.SaveAsync(root, request.OutPath).ConfigureAwait(true);
             Console.WriteLine($"settings: wrote {request.OutPath}");
 
             if (request.Search is not null || request.Flyout is not null)
@@ -295,7 +314,7 @@ internal static class SettingsRender
                     if (popup.Child is FrameworkElement child)
                     {
                         var path = Path.ChangeExtension(request.OutPath, null) + (request.Search is not null ? "-search.png" : "-flyout.png");
-                        await WidgetGallery.SavePngAsync(child, path).ConfigureAwait(true);
+                        await RenderPng.SaveAsync(child, path).ConfigureAwait(true);
                         Console.WriteLine($"settings: wrote {path}");
                         break;
                     }

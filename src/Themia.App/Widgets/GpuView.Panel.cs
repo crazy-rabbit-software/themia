@@ -38,9 +38,6 @@ internal sealed partial class GpuView
 
         private GpuConfig _config = new();
         private bool _stacked;
-#if DEBUG
-        private bool _seeded;
-#endif
         private TypeStep _heroStep = FluentType.Subtitle;
 
         public Panel(int index)
@@ -164,25 +161,6 @@ internal sealed partial class GpuView
                 ? new Thickness(0, 0, WidgetLayout.ContentInset, WidgetLayout.ContentInset)
                 : new Thickness(WidgetLayout.ContentInset, Fluent.Space2, WidgetLayout.ContentInset, WidgetLayout.ContentInset);
         }
-
-#if DEBUG
-        /// <summary>[S-1823] Once: the fixture's load for <paramref name="adapter"/> over the span, one interval apart, ending one interval before <paramref name="now"/>.</summary>
-        public void SeedFixture(int adapter, double now)
-        {
-            if (_seeded)
-            {
-                return;
-            }
-
-            _seeded = true;
-            var interval = _config.TickInterval.TotalSeconds;
-
-            for (var back = _spark.Capacity - 1; back >= 1; back--)
-            {
-                _spark.Push(Shell.Gallery.MeterFixture.Gpu(adapter, now - (back * interval)));
-            }
-        }
-#endif
 
         private static Brush Pressure(GpuPressure pressure) => pressure switch
         {

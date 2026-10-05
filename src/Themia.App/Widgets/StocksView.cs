@@ -399,7 +399,8 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
             _emptyMessage.Text = status switch
             {
-                FetchStatus.NotConfigured => Str.WidgetsC_Stocks_ChooseSymbol.Text(),
+                // No symbol yet: the card's Set up button covers this ([S-1862]).
+                FetchStatus.NotConfigured => string.Empty,
                 FetchStatus.Refused => Str.WidgetsC_Stocks_NotSymbol.Format(("symbol", _config.Symbol)),
                 FetchStatus.Empty => Str.WidgetsC_Stocks_NoQuote.Text(),
                 _ => FetchState.Message(status),

@@ -48,5 +48,5 @@ internal sealed class SurfaceDisplay(AppHost host, DesktopWindow surface) : IWid
     public void DeleteView(string viewId) => host.DeleteView(viewId);
 
     /// <inheritdoc />
-    public void OpenViewSettings(string viewId) => host.ShowConfig(new ConfigTarget.View(viewId));
+    public void OpenViewSettings(string viewId) => host.ShowConfig(ConfigTarget.ForView(viewId));
 }

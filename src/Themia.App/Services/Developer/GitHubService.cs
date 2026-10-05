@@ -65,8 +65,8 @@ internal sealed record NotificationQuery(
 }
 
 /// <summary>
-/// Where the GitHub widgets read from: the app's one <see cref="GitHubService"/>, or the debug
-/// gallery's fixture. Everything here is on the UI thread.
+/// Where the GitHub widgets read from: the app's one <see cref="GitHubService"/>.
+/// Everything here is on the UI thread.
 /// </summary>
 internal interface IGitHubSource
 {

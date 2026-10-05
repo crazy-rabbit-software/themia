@@ -39,8 +39,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
     private readonly StackPanel _list = new() { Spacing = 0 };
     private readonly ScrollViewer _scroll;
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new() { Text = Str.WidgetsA_Countdown_Empty.Text() };
     private readonly List<Row> _rows = [];
 
     private readonly StackPanel _hero = new() { Spacing = 0 };
@@ -85,16 +83,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
         };
 
-        // [C-02] Says what to do about it, rather than just that there is nothing. [S-642] The
-        // shared empty state — glyph, secondary text, shedding to fit — like every sibling.
-        _empty = Fluent.EmptyState(
-            WidgetCatalog.Definition(WidgetKind.Countdown).Glyph,
-            _emptyText,
-            out _);
-        _empty.Visibility = Visibility.Collapsed;
-        SetRowSpan(_empty, 2);
-        SetColumnSpan(_empty, 2);
-
         // [C-04] Tabular figures, so a ticking duration does not shuffle sideways.
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_heroValue, FontNumeralAlignment.Tabular);
         _heroValue.MaxLines = 1;
@@ -119,7 +107,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
         Children.Add(_hero);
         Children.Add(_scroll);
-        Children.Add(_empty);
     }
 
     /// <inheritdoc />
@@ -133,11 +120,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     }
 
     /// <summary>[S-1109] Every reading and date is worded again in the new language.</summary>
-    private void OnLanguage(Locale locale)
-    {
-        _emptyText.Text = Str.WidgetsA_Countdown_Empty.Text();
-        Rebuild();
-    }
+    private void OnLanguage(Locale locale) => Rebuild();
 
     public void ApplyConfig(WidgetConfig config)
     {
@@ -238,8 +221,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     /// </summary>
     private void Lay()
     {
+        // [S-1862] No timers: the card shows its Set up button over this, so draw nothing.
         var empty = _config.Timers.Count == 0;
-        _empty.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
 
         var hero = empty ? CountdownHero.None : _plan.Hero;
         _hero.Visibility = hero == CountdownHero.None ? Visibility.Collapsed : Visibility.Visible;

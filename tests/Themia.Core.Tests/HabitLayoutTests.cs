@@ -5,7 +5,7 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-1427] The Habits widget's ladder at each gallery tier (the slot is the card less its ~44px
+/// [S-1427] The Habits widget's ladder at each size tier (the slot is the card less its ~44px
 /// header), and [S-1428] its keys.
 /// </summary>
 public class HabitLayoutTests

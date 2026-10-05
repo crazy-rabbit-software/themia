@@ -16,8 +16,8 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search and adding into containers (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); Settings side menu and display views (R4-NAV); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Containers; Containers and shell hooks (PA); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2).
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search and adding into containers (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Containers; Containers and shell hooks (PA); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System meters; Meter framework and memory; CPU and processes; Disk and ping; Battery and network; Processes, network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
 - **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Sun and moon; Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes and calculator; Notes: note store and markdown editor; Calculator keypad and colour swatch modes (PK); Clipboard, Countdown and Mood: the whole tile; Habits; Apps, Search, Help and Themia: parity and the whole tile (PI-A); Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); View switcher: item menu, keys and the whole tile (PI-B); App widgets and About.
@@ -664,7 +664,7 @@ Help, Themia and the view switcher, ported from `widgets/others/{help,themia,vie
 - **[S-487]** The view switcher switches the view of **the display it is on**, never the app-wide one:
   the card host hands the widget an `IWidgetDisplay` for its display (`SurfaceDisplay`), and a click
   goes through `AppHost.ShowView` ([S-19]), the same mutation as the toolbar's View menu. Where there
-  is no display it shows an empty state; the gallery gives it a three-view fixture.
+  is no display it shows an empty state.
 - **[S-488]** It offers the views in the user's view order, filtered by the widget's selection; an
   empty selection means every view, so views added later appear; a selection naming only deleted
   views also means every view. The shown view is the raised button with its initials in the accent.
@@ -717,7 +717,7 @@ window here runs inside the app, so it is never open while the app is not.
 Ported from `widgets/online/video-stream` on `main`. Owning files: `Widgets/VideoStreamView.cs`,
 `Widgets/RotatedBox.cs`, `Widgets/ShownWatch.cs`, `Widgets/IWidgetContextActions.cs`,
 `Services/Web/StreamSession.cs`, `Shell/Config/WidgetSettings.Web.cs`,
-`Shell/Gallery/GalleryFixtures.cs`, `Themia.Core/Widgets/{VideoStreamRules,MjpegFrameReader}.cs`,
+`Themia.Core/Widgets/{VideoStreamRules,MjpegFrameReader}.cs`,
 `Themia.Core/Model/Configs/WebWidgetConfigs.cs`. The original's web element widget is not part of
 this app ([S-1724]).
 
@@ -740,8 +740,8 @@ and no decoder; `Detach` releases everything.
   `Stretch` mapping drives both the decoded-frame `Image` and the video player.
 - **[S-467]** The stream address is checked by `WebInput.Url` on every read — http/https only, no
   credentials, no UNC, refused rather than repaired — and the settings box explains a refusal (was
-  [S-09]). A refused address shows its reason in place of the picture; an empty one shows "Add a camera
-  stream address in settings" (was [S-02]).
+  [S-09]). A refused address shows its reason in place of the picture; an empty one is the Set up button
+  ([S-1862], was [S-02]).
 - **[S-468]** Rotation 0/90/180/270, from settings or cycled by Rotate (was [S-08]). `RotatedBox` lays
   a sideways picture out against the swapped axes before turning it, so it fits instead of clipping.
   A value the enum does not name reads as none.
@@ -764,8 +764,7 @@ and no decoder; `Detach` releases everything.
   empty parts are handled; with no boundary at all, frames are cut at the JPEG start/end markers. A
   frame past 8 MB, or a stream that never delimits, overflows and is reconnected rather than buffered.
   Frames are decoded by WIC at the size drawn; while one decodes, newer frames are dropped, not queued.
-Not ported, on purpose: the `demoVideoFrame` demo fixture — the debug gallery's
-`VideoStream+fixture` page (a loopback MJPEG test card) takes its place. The video stream stays
+Not ported, on purpose: the `demoVideoFrame` demo fixture. The video stream stays
 unguarded, as in the original. RTSP stays unsupported ([U-01]);
 credentials in the address are refused ([U-03]).
 
@@ -1035,8 +1034,7 @@ Not ported: the poll `interval` setting (there is no poll).
   atomically (unique temp file and rename), one writer, in order, at most once a minute while dirty,
   on lock, and synchronously at exit; only the newest 90 dates are kept. A corrupt or
   version-mismatched file is moved to `.corrupt` and an empty history started; junk keys are dropped
-  on load. The tracker is started by the app host only: the debug gallery installs an in-memory
-  fixture (`ScreenTime` is an empty day, `ScreenTime+fixture` a populated month) and never hooks the
+  on load. The tracker is started by the app host only: a debug render never hooks the
   foreground or writes a file.
 
 Not ported: the original's config migrations (`migrateMetrics`, `applyLegacyMetrics`, the pre-period
@@ -1046,8 +1044,8 @@ by the list.
 
 ## Layout pass over the ported widgets
 
-Found by drawing every ported widget at every gallery size (and, with the debug fixtures in
-`Shell/Gallery/LayoutFixtures.cs`, with something in it). Sizing rules live in Core with tests in
+Found by drawing every ported widget at every size tier (with the debug widget gallery, since
+removed, [S-1863]). Sizing rules live in Core with tests in
 `WidgetFitTests` (`S64x_`/`S65x_`).
 
 - **[S-640]** A card header's title ends in an ellipsis. A Grid does not clip a child to its cell,
@@ -1150,7 +1148,7 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
 - **[S-548]** The merged list is the newest N across accounts (undated last); times read now / 5m /
   3h / 2d / Sep 20 in list and compact, a time today / weekday / date in the row view [S-09], and
   re-label every minute without a fetch.
-- **[S-549]** Screens, each with its own sentence: no mail account (link to Accounts), chosen
+- **[S-549]** Screens, each with its own sentence: no mail account (the Set up button, [S-1862]), chosen
   account gone (link), needs sign-in naming the account (link), loading, offline / unreachable /
   timed out / rate limited, empty folder ("No messages in Junk."), and a list with a warning when
   one account failed [S-04, S-05, S-06].
@@ -1180,9 +1178,7 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   under 240px), the time 110px, the header's warning glyph 160px; the row view keeps the most
   essential columns whose minimums fit (From, Subject, Date, Account, Preview — so a narrow tile keeps
   From and Date), in the user's order, never fewer than one; the column header needs 140px.
-- **[S-557]** Debug gallery: the plain page is the no-account state; `Email+fixture` is a made-up
-  two-account inbox (reserved example domains). `THEMIA_MAIL_FIXTURE=signin|offline|loading|empty|partial`
-  picks another state for the fixture page.
+- **[S-557]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 Not ported, deliberately: the per-widget header hide and label [S-03, S-19] (the card's own header
 placement and label do this for every widget), the "unread only" filter, and the composite
@@ -1197,7 +1193,7 @@ files: `Themia.Core/Tasks/*` (model, due dates, list rules, wire, optimistic edi
 local store), `Themia.Core/Widgets/DriveRules.cs`, `Themia.Core/Model/Configs/{TasksConfig,OneDriveConfig}.cs`,
 `Themia.App/Services/Tasks/*`, `Themia.App/Services/Files/DriveService.cs`,
 `Widgets/{TasksView,TasksView.Rows,OneDriveView}.cs`, `Shell/Config/WidgetSettings.{Tasks,OneDrive}.cs`,
-`Shell/Gallery/TasksFixture.cs`. Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`,
+Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`,
 `DriveRulesTests`.
 
 - **[S-590]** A Tasks widget reads Microsoft To Do (Graph) or Google Tasks through an account
@@ -1382,13 +1378,10 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   contacts 10 min, calendar lists 30 min, birthdays 24 h), an identical request in flight is
   joined, a failure keeps the last good data and is held (an hour for sign-in / access refusals, 15
   minutes for a rate limit) unless the user refreshes. Calendar polls every 5 minutes, contacts every
-  15. States: loading; no account; account gone; sign-in or access needed (with the Accounts link);
+  15. States: loading; no account (the Set up button, [S-1862]); account gone; sign-in or access needed (with the Accounts link);
   offline and service errors; nothing on. A failure of some accounts with data from others is a
   header warning that opens Accounts when the user can fix it.
-- **[S-589]** The debug gallery's `Calendar` and `Contacts` pages show the no-account state;
-  `+fixture` installs a fictional work and personal account (a week around today, overlapping
-  meetings, a two-day event, three birthdays, two dozen people). `THEMIA_GALLERY_LAYOUT` picks the
-  fixture's view or layout. Debug builds only.
+- **[S-589]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 *(S-574's fallbacks are now part of the ladder in [S-1260]; S-581's and S-584's size rules are
 refined by [S-1270] and [S-1275]; S-568's 42 cells are still fetched, [S-1264] only stops drawing a
@@ -1430,7 +1423,7 @@ from the classic `widgets/online/github*` (tags `[S-NN]`, `[A-NN]`, `[N-NN]`, `[
   this account cannot see it". (classic S-14..S-17, S-24..S-29)
 - **[S-613]** Pull requests: filter Open / Closed (merged included) / All, order Newest / Oldest by
   creation, applied to the over-fetched list (classic issue #42, S-40, S-41).
-- **[S-614]** No repository set: "Choose a repository: right-click, then Configure."; an invalid one
+- **[S-614]** No repository set: the Set up button ([S-1862]); an invalid one
   names itself. Account states come first. (classic S-01)
 - **[S-615]** Assigned issues: `search/issues?q=is:open is:issue archived:false assignee:@me`
   (`(assignee:@me OR mentions:@me)` with mentions on), `sort=updated&order=desc&per_page=count`,
@@ -1479,8 +1472,9 @@ from the classic `widgets/online/github*` (tags `[S-NN]`, `[A-NN]`, `[N-NN]`, `[
   N-18, R-11, R-15)
 - **[S-627]** Double-click a row (or the release tag) to open it, through the launcher's allow list;
   the row's tooltip carries its whole title and repository. (S-33, A-19, N-23, R-21)
-- **[S-628]** States, each its own sentence: no account ("Sign in to GitHub in Accounts.") and a
-  signed-out chosen account offer an "Open Accounts settings" link (`AppServices.ShowAccounts`); an
+- **[S-628]** States, each its own sentence: no account at all is the Set up button ([S-1862]); a
+  signed-out chosen account (and, for the anonymous repository widget, a chosen account that is
+  gone: "Sign in to GitHub in Accounts.") offers an "Open Accounts settings" link (`AppServices.ShowAccounts`); an
   account the service found refused says who needs to sign in again; loading; offline; rate limited
   with the time; the provider's own reason for other refusals; and per-widget empty sentences.
 - **[S-629]** Counts as GitHub writes them (999, 1.2k, 12k, 3.4M); ages now / 5m / 3h / 2d, then
@@ -1506,10 +1500,7 @@ from the classic `widgets/online/github*` (tags `[S-NN]`, `[A-NN]`, `[N-NN]`, `[
   ramp. One-line rows are centred on a wide, short tile. (S-17, S-18)
 - **[S-636]** Settings: the Claude account (the first by default), the Opus and Sonnet toggles,
   refresh. (S-09..S-12)
-- **[S-637]** Debug gallery fixtures (`DeveloperFixture`): the plain page of each widget is the
-  no-account state, `Kind+fixture` is populated (two GitHub accounts, one Enterprise; a Claude plan),
-  and `THEMIA_DEV_FIXTURE` = `signin`, `gone`, `loading`, `offline`, `ratelimited`, `empty`, `stale`
-  or `norepo` draws that state. Never installed over the running app's real services.
+- **[S-637]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-638]** Content stays through a failed refresh; the header shows a caution glyph whose tooltip
   says what failed (and opens Accounts when the fix is there). (S-36)
 - **[S-639]** Lists show whole rows only: the scroll viewer is given the height of the rows that fit
@@ -1517,7 +1508,7 @@ from the classic `widgets/online/github*` (tags `[S-NN]`, `[A-NN]`, `[N-NN]`, `[
 
 Not ported: the legacy `config.token` migration (S-38; nothing is imported from the classic app, [S-523]),
 the per-widget `label` and `hideHeader` (the card's own title and header placement cover both), demo
-mode (S-32, S-15; the gallery fixtures replace it), and the single-click open (double-click, as every
+mode (S-32, S-15), and the single-click open (double-click, as every
 list on this desktop). The cache across restarts and anonymous public access are ported in
 [S-746]/[S-747] below.
 
@@ -1525,7 +1516,7 @@ list on this desktop). The cache across restarts and anonymous public access are
 
 - **[S-660]** A widget's content area (the card less its header) is classified per axis into
   `SizeClass` Compact / Regular / Expanded / Huge (width breakpoints 180 / 400 / 720, height
-  128 / 280 / 480 DIPs) plus a shape (Wide ≥ 2:1, Tall ≥ 1:1.6). The seven gallery sizes land in
+  128 / 280 / 480 DIPs) plus a shape (Wide ≥ 2:1, Tall ≥ 1:1.6). The seven size tiers (`WidgetTiers`) land in
   seven distinct (width, height) pairs. An unmeasured area is Compact. (`WidgetArea`)
 - **[S-661]** Optional parts are disclosed in priority order from one height budget: a part is shown
   only when it fits whole; once a part misses, no later part is shown (growing a tile only ever adds
@@ -1567,6 +1558,9 @@ rules are these.
   (blank and repeated ids dropped), `MonitorScales` (clamped to 0.5..2), and
   `DefaultViewForNewDisplays` (null = the active view; a deleted view is repaired to null).
 - Not added: the updater's auto-check switch and an Updates page, since the updater is out of scope.
+- **[S-1850]** One app icon everywhere: `Assets/themia.ico` (the original app's tile logo, 16..256 px) is
+  the exe's resource icon (`ApplicationIcon`) and is set on every window through `AppIcon.Apply` —
+  settings, layout editor, each display surface, the Debug render windows. A missing file is logged, not fatal.
 
 ## Gallery
 
@@ -1576,7 +1570,7 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
 - **[S-760]** `Source` is a closed set: `Folder` (default), `File`, `Bing`. Folder uses `Path` +
   `Recursive`; File uses `FilePath`; Bing needs no setup. The settings page shows only the rows the
   chosen source (and, for the slide time and picture size, the layout) uses.
-- **[S-761]** File: one picture full-bleed. An empty box is "No picture chosen", a name that is not
+- **[S-761]** File: one picture full-bleed. An empty box is the Set up button ([S-1862]), as is a folder source with no folder; a name that is not
   a picture is refused in settings and reported by the widget, and a missing file says so. The
   picker offers only the extensions the widget can draw.
 - **[S-762]** Bing: the `HPImageArchive` JSON (today, en-US) through the shared HTTP client and a
@@ -1725,12 +1719,10 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   answer). At launch they are restored marked `Restored`: drawn at once with their real age in the
   caution colour ("Saved reading from 3 h ago; refreshing."), never treated as fresh, fetched again.
   A file of another schema or not JSON is set aside as `.corrupt`; entries older than 3 days, from
-  the future, or without a temperature are dropped. The gallery never reads or writes it.
+  the future, or without a temperature are dropped. A debug render never reads or writes it.
 - **[S-730]** "Refresh" in both widgets' menus resets the back-off and bypasses cache freshness
   (`WebCache.GetAsync(force)`), still joining a request already in flight.
-- **[S-731]** Gallery fixture: a fixed reading, 24 hours and 14 days for Zurich seeded into the
-  caches as fresh answers, so `+fixture` renders offline and the same every run
-  (`THEMIA_WEATHER_LAYOUT=rows|columns|grid` picks the forecast layout).
+- **[S-731]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-732]** City search is one reusable piece, `PlaceSearch` + `PlaceSearchBinding` (Sun & Moon can
   bind its own config): search 400 ms after typing stops once 2+ characters, Enter at once; results
   open as a drop-down over the rows below; "Searching…", "No locations found." (not an error),
@@ -1852,9 +1844,10 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   a moment. "No results" when nothing matches.
 - **[S-1547]** Back in the title bar, Alt+Left/Alt+Right and the mouse's back/forward buttons step
   through the user's navigations (`NavHistory`): pushing from an older entry drops the forward
-  tail, repeats coalesce, pages that disappear (deleted widget/view) leave the history.
-- **[S-1548]** The debug render draws the real window: `--settings-png <Page|Widget:Kind|View> <out.png>
-  [waitMs] [--theme light|dark] [--search text] [--land text]`; the window is as tall as the page,
+  tail, repeats coalesce, pages that disappear (a deleted widget's) leave the history.
+- **[S-1548]** The debug render draws the real window: `--settings-png <Page|Widget:Kind> <out.png>
+  [waitMs] [--theme light|dark] [--search text] [--land text] [--open first|name]` (Page includes
+  Displays and Views, [S-1835]); the window is as tall as the page,
   Mica is painted as its fallback colour; `--search` also writes the open suggestion list to
   `<out>-search.png`.
 - **[S-1549]** Colours are never typed. One control, `ColorChoice` / `FluentLayout.ColorPickerRow`:
@@ -1895,13 +1888,13 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   with the page's controls, which already show it: the page is never rebuilt under the pointer or
   out from under a text box being typed in.
 - **[S-1721]** What a page shows (`SettingsPageSync.Signature`): an app page, the design, the
-  preferences, the default view for new displays and the views by name; a view page, its name,
-  icon, widgets by kind and label and the displays showing it; a display page, its view, on/off,
-  scale, view bar and the views it can pick from; a widget page, its config, label, surface,
+  preferences, the default view for new displays and the views by name; the Views page, for every
+  view its name, icon, widgets by kind and label and the displays showing it; the Displays page,
+  the connected displays and for each its view, on/off, scale, view bar and the views it can pick from; a widget page, its config, label, surface,
   header and parent. Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: General, Appearance and Accounts in the main slot; License and About in
-  the footer. There is no Layout page: its two rows (gap between widgets, snap to grid) are the
+- **[S-1722]** The app pages: General, Appearance, Accounts, Displays and Views in the main slot
+  ([S-1830]); License and About in the footer. There is no Layout page: its two rows (gap between widgets, snap to grid) are the
   Layout section at the end of Appearance's look, before the motion rows. General has no Data
   section (it held only "open the data folder") and no Developer section.
 - **[S-1723]** Every font setting picks through one control, `FontChoice`: the presets, then the
@@ -1911,7 +1904,7 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   preference, no Logs page, no developer banner, no `--dev` render switch, and no Web element
   widget (the original's pre-release widget behind developer mode: its view, picker window,
   off-screen WebView2 renderer, saved renders, settings, keys and fixture are gone). The debug-only
-  render flags (`--gallery-png`, `--settings-png`, `--picker-png`, ...) are build tooling and stay.
+  render flags (`--settings-png`, `--picker-png`, ...) are build tooling and stay.
 - Not ported / different: karpo's status bar (removed by user request). The SDK's `TitleBar` and
   `BreadcrumbBar` controls are not used (the first crashed an earlier build; the second needs a WinRT
   collection) — equivalents are built from a grid and text blocks.
@@ -1960,13 +1953,7 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   stacks the reading over the history, which is promised half the height (never under 24 px), the
   reading growing by ramp step up to Display in what is left, and the history taking every pixel
   the reading does not — no empty space at L or XL. With Show history off the reading fills the tile.
-- **[S-1823]** Every meter's gallery `+fixture` (CPU, memory, disk, network, ping, battery, GPU) is
-  made up, never the machine's (`Shell/Gallery/MeterFixture.cs`, Debug only, preview tiles only):
-  each value is a function of a second on one clock that restarts with the page, and a preview's
-  history is filled with the samples it would have taken over the last window at the kind's own
-  default cadence (`MeterPart.SampleFixture`), so the render shows a meter that has run a while
-  and the live ticks carry the same curve on. The GPU keeps the machine's adapter names. The plain
-  pages read this machine and start empty.
+- **[S-1823]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1824]** The history sits inside the card's padding: the content inset (16) from both sides
   and the bottom, its left edge in line with the reading's; beside the reading on a strip, the
   column's own inset separates them. `MeterFace.Plan` spends that bottom inset before the history.
@@ -2025,12 +2012,11 @@ Port of `main`'s Power (`widgets/system/power`, [S-01]..[S-11]) and Bluetooth (`
 - **[S-1250]** Status strip facts, in drop order: source (with charge on a laptop), plan
   (`ShowPlan`), time left while discharging (`ShowTimeRemaining`), battery saver (`ShowBatterySaver`,
   battery only). Unreadable power state is one line saying so.
-- **[S-1251]** Gallery cards are previews (`IWidgetSurface.IsPreview`, from the gallery's card
-  host): the power view's backend is `InertPowerActions` there. The view starts inert and switches to
+- **[S-1251]** A debug render's cards are previews (`IWidgetSurface.IsPreview`, from the render's
+  card host): the power view's backend is `InertPowerActions` there. The view starts inert and switches to
   the real backend only when bound to a non-preview surface (orig. [S-08] demo mode).
-- **[S-1252]** No actions chosen shows "No actions selected" (orig. [S-11]).
-- **[S-1253]** Gallery `Power+fixture`: a laptop on battery (64%, saver on, 2h 10m left), all seven
-  actions, three plans. Read only by preview cards.
+- **[S-1252]** No actions chosen is the Set up button ([S-1862], orig. [S-11]).
+- **[S-1253]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1254]** Bluetooth ladder (`BluetoothLayout`): the list takes every whole row the tile has
   (snapped, the rest scrolls); `MaxCount` is a ceiling (1–30, default 20), not a target. Status word
   from a 260 px column; battery bar from a 400 px column (critical at ≤ 20%); "2 connected" in the
@@ -2043,8 +2029,7 @@ Port of `main`'s Power (`widgets/system/power`, [S-01]..[S-11]) and Bluetooth (`
   (orig. [S-16]).
 - **[S-1257]** `ShowIcon` and `ShowConnection` (default on) are the original's `type` and
   `connection` metrics; the name is always shown (orig. [S-14]/[S-15]).
-- **[S-1258]** Gallery `Bluetooth+fixture`: fourteen paired devices, three connected with battery
-  and signal. Read only by preview cards.
+- **[S-1258]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1259]** Context menu "Refresh" enumerates now (orig. [S-09]).
 
 Not ported: Bluetooth's 1–30 s refresh choices (kept 5–300 s: enumeration and GATT reads take
@@ -2122,7 +2107,7 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
   whatever the view; else under 160 wide or 88 tall the **next** tile; a month under 154 × 112, a
   week under 280 × 96 and a day under 140 × 112 the **agenda** (S-574); a month at least 300 tall
   and 1.6× as tall as wide puts the **agenda below**; a month at least 720 × 400 the **agenda
-  beside**. Unmeasured: the configured view. Gallery: XS next, S agenda, M month (dots), Wide strip,
+  beside**. Unmeasured: the configured view. By tier: XS next, S agenda, M month (dots), Wide strip,
   Tall month over agenda, L month (chips), XL month beside agenda. Next and agenda do not page.
 - **[S-1261]** Next (XS): the first agenda day's event under way or next (a timed one before an
   all-day one or a birthday), its time ("Now" in the accent, "All day", "Birthday"; prefixed with the
@@ -2180,7 +2165,7 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
 - **[S-1278]** vCard 2.1 quoted-printable: `ENCODING=QUOTED-PRINTABLE` (or the bare parameter) values
   are decoded in UTF-8 or Latin-1 (`CHARSET`), across `=` soft line breaks; bare 2.1 parameters join
   `TYPE` (so `TEL;CELL;PREF` is preferred). Lenient: a stray `=` stays.
-- **[S-1279]** The gallery fixture holds 42 people, some with both address and number, so XL scrolls.
+- **[S-1279]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 ## Mail and OneDrive: the whole tile
 
@@ -2240,8 +2225,7 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
 - **[S-1294]** On a tile ≥ 480px of content height the drive's quota sits under the list ("12 GB of
   1.0 TB used", `GET /me/drive?$select=quota`), cached 30 min per account and single-flight in
   `DriveService`; a failure is logged and means no footer, never an error on the widget.
-- **[S-1295]** Gallery: `Email+fixture` holds 20 messages and folder counts, `OneDrive+fixture` 18
-  items with modifier, location, child counts and a quota, so L and XL fill.
+- **[S-1295]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 Not ported, deliberately: OneDrive image thumbnails (an XL-only extra, not in the original; every
 row would cost a download). Main's low-level keyboard hook for list focus (the lease replaces it).
@@ -2250,7 +2234,7 @@ row would cost a download). Main's low-level keyboard hook for list focus (the l
 
 Code: `Widgets/ClipboardView.cs`, `Widgets/CountdownView.cs`, `Widgets/MoodTrackerView*.cs`,
 `Widgets/ItemMenu.cs` (submenus), `Shell/Config/WidgetSettings.{Clipboard,Countdown}.cs`,
-`Shell/Gallery/ClipboardFixture.cs`, Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
+Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
 `CountdownLayout.cs`, `MoodLayout.cs`, `MoodInsights.cs`, `ItemCursor.cs`,
 `Model/Configs/CountdownConfig.cs`. Tests: `TrackersLayoutTests` (S1440..S1457).
 
@@ -2263,8 +2247,8 @@ Code: `Widgets/ClipboardView.cs`, `Widgets/CountdownView.cs`, `Widgets/MoodTrack
   several lines, else text; the current entry keeps the accent tick. Display only, never opened.
 - **[S-1443]** Clipboard ladder (`ClipboardLayout.Plan`): XS/S one line, compact rows → M + time
   column → Wide 2-line previews + time → Tall 2 lines + detail line ("4m · 32 characters")
-  → L/XL 3 lines + detail + "N of capacity" footer. A gallery preview never subscribes to the
-  real clipboard; `Clipboard+fixture` seeds a made-up history.
+  → L/XL 3 lines + detail + "N of capacity" footer. A preview card never subscribes to the
+  real clipboard.
 - **[S-1444]** Clipboard row menu (shared `ItemMenu`): Copy, Remove from history, Clear history…
   (confirmed through `FluentLayout.ConfirmAsync`, like the header bin). `HandleKey`: Up/Down/Home/End
   cursor, Enter copies, Escape drops it — through the shell's keyboard lease ([S-800]..[S-812]),
@@ -2405,9 +2389,10 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   all that keeps the taskbar clickable.
 - **[S-852]** The edit toolbar and the placement hint sit inside the work area (margins from
   `GridGeometry.AllowedPixels`), so a taskbar on the top edge does not cover them.
-- **[S-853]** Settings lists **every connected display**, switched off or not, and each display's
-  page has: Show Themia on this display, Shows (view), Widget scale, and Resolution (with the work
-  area the taskbar leaves). The page title is the monitor's name; the id is never shown.
+- **[S-853]** The Displays page ([S-1832]) lists **every connected display**, switched off or not,
+  and each display's group has: Show Themia on this display, Shows (view), Widget scale, and
+  Resolution (with the work area the taskbar leaves), then its view bar ([S-916]). The group is
+  headed by the monitor's name ("(primary)" on the primary) over its resolution; the id is never shown.
 
 Not ported, deliberately: the original's legacy ordinal-key migration ([MI-03]/[MI-04]; no
 compatibility, by decision); its ~1 s work-area self-heal sweep ([DW-04]), which polls, replaced by
@@ -2419,7 +2404,7 @@ pass runs synchronously on the UI thread, so there is no await for an older adop
 Code: Core `Notes/NoteStore.cs`, `Notes/NoteMarkdown.cs`, `Notes/NoteEditing.cs`,
 `Notes/NoteHistory.cs`, `Notes/NoteText.cs`, `Notes/NotesLayout.cs`; App `Services/Notes/NotePool.cs`,
 `Widgets/MarkdownEditor.cs`, `Widgets/NotesView.cs` (+ `.List.cs`), `Shell/Config/WidgetSettings.Notes.cs`,
-`Shell/Gallery/NotesFixture.cs`. Tests: `NoteStoreTests`, `NoteMarkdownTests`, `NoteEditingTests`.
+Tests: `NoteStoreTests`, `NoteMarkdownTests`, `NoteEditingTests`.
 Ports the original `widgets/others/notes` (SPEC S-01..S-38, `src/lib.rs`, `markdown.ts`, `editing.ts`,
 `history.ts` and their tests). Replaces the old one-string-in-config note directly (no migration).
 
@@ -2444,7 +2429,7 @@ Ports the original `widgets/others/notes` (SPEC S-01..S-38, `src/lib.rs`, `markd
 - **[S-1345]** Reading tells "missing" from "empty" (`NoteReadStatus`), so emptiness is never saved
   over a note that is gone.
 - **[S-1346]** A desktop widget with no `NoteId` creates a note of its own on first show (named after
-  the widget's label, else "Note") and saves the id. A preview card (the gallery) creates nothing: it
+  the widget's label, else "Note") and saves the id. A preview card (a debug render) creates nothing: it
   shows an empty draft that is never saved (original S-32).
 - **[S-1347]** A widget whose note was deleted (anywhere) says "This note was deleted" and where to
   pick another (settings, or the list at XL); it is never handed another note, and a pending edit to
@@ -2508,8 +2493,7 @@ Ports the original `widgets/others/notes` (SPEC S-01..S-38, `src/lib.rs`, `markd
 - **[S-1367]** XL note list: title and last-written age per row, the shown note lit, "New note" at the
   bottom; click opens, double-click / F2 / menu renames in place, the menu or Delete deletes after a
   confirm; Up/Down/Home/End/Page keys, Enter and Escape via `ListKeys`.
-- **[S-1368]** The gallery uses a throwaway note store in the temp folder, fresh per page (plain page
-  empty, `+fixture` four notes with a markdown sampler); it never touches the user's notes.
+- **[S-1368]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 Not ported, deliberately: the pop-out window (original S-11..S-13, user decision); the selection
 bubble (S-26: the bar and Ctrl+B/I cover it); header-mode placement of the bar (S-29: the card owns the
@@ -2557,11 +2541,7 @@ they show the label, the reading and the history only ([S-1762]).
   not available (a missed ping); every other unavailable reading carries none.
 - **[S-1168]** Disk settings: Drive (system drive / all drives / each drive Windows lists, a removed
   one offered as "not connected"), then the shared meter rows.
-- **[S-1169]** Gallery samples (Debug only, preview tiles only): `Disk+fixture` is three made-up
-  drives (System, Data, a removable stick) with background writes and copies on the system drive;
-  `Ping+fixture` is a labelled router answering in about 12 ms, now and then slower, that misses
-  about one probe in twenty, with no packet sent. Both fill a full window first ([S-1823]). The
-  plain pages read this machine and probe the default host.
+- **[S-1169]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1170]** Ping status: Checking… until the first probe returns, then Online / Offline from the
   last probe. A dot at the right of the header carries it in the success / critical / tertiary
   colour; its tooltip says it in words, and so does a dimmed reading's.
@@ -2589,7 +2569,7 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   takes it, any other press ends the current holder's lease, on any display. The holder's surface
   drops `WS_EX_NOACTIVATE` and becomes the foreground window; the z-order controller keeps it on the
   desktop. If Windows refuses the foreground the lease is dropped at once (logged), so the surface is
-  never left activatable for nothing. Gallery previews never take it.
+  never left activatable for nothing. Preview cards never take it.
 - **[S-801]** Text boxes ride the same lease: `IWidgetSurface.RequestTextInput(true)` on focus grants
   it to the box's widget, `false` on blur ends it — except for a widget with keys, which keeps the
   arrows after its editor closes. Focus moving between two widgets' boxes hands over in either event
@@ -2620,7 +2600,7 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   focuses it (XAML focus, system focus rect: no layout cost), Up/Down/Home/End move (clamped,
   `ItemCursor`), Enter opens the row's page, the Menu key opens its menu, Escape lets go; the focus
   follows its row's link across redraws and is dropped when the row leaves.
-- **[S-811]** Gallery slideshow: Left / Right step, Space pauses (the original's S-29). Other
+- **[S-811]** Pictures (Gallery widget) slideshow: Left / Right step, Space pauses (the original's S-29). Other
   layouts take no keys.
 - **[S-812]** Tasks and Habits with the lease but no row focused: a movement key lands on an end
   (Up/Down/Home/Tab the first, End/Shift+Tab the last); Enter, Delete and F2 do nothing.
@@ -2642,9 +2622,7 @@ Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMete
 - **[S-1180]** Battery: charge from `GetSystemPowerStatus`; charging is the `BatteryFlag` charging bit,
   not the plug. The no-battery decision is `PowerRules.Read`'s, so the meter and the power tile
   agree; a machine with no battery shows an empty state.
-- **[S-1186]** The gallery's `Battery+fixture` is a laptop battery discharging a point a minute
-  (`Shell/Gallery/BatteryFixture.cs`, Debug only, a full window first per [S-1823]); a meter reads it only when its card is a preview
-  (`MeterPart.Bind(preview)` via `IWidgetSurfaceAware`), never on the desktop.
+- **[S-1186]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1187]** The battery reading leads with the Segoe Fluent battery glyph filled to the nearest
   tenth, with a bolt while charging, in the pressure colour (`MeterPart.Badge`).
 - **[S-1190]** Network throughput is per adapter (`ThroughputTracker`): a counter that falls is that
@@ -2694,7 +2672,7 @@ Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core 
 - **[S-1215]** Stats line: under a day "7-day average 1h 34m · busiest Tue 5h 0m"; under a window
   "busiest Tue 29 Sep 5h 0m · 9 apps". Hidden apps are left out of every figure.
 - **[S-1216]** Screen time lays out from the card's `WidgetArea` (`IWidgetSizeAware`), not its own
-  `SizeChanged`; the gallery still installs the in-memory fixture and never hooks or writes ([S-459]).
+  `SizeChanged`; a debug render never hooks or writes ([S-459]).
 - Not ported / different: the original's GPU `visibleMetrics` order (fixed ladder order); per-engine
   history charts (one chart, the load).
 
@@ -2711,7 +2689,7 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   in the header in the caution colour ("Saved 3h ago; refreshing"), never treated as fresh, so a
   fetch follows at once. Entries older than 7 days, from the future, or not a usable feed/quote are
   dropped; feed links are re-checked; a corrupt file is set aside as `.corrupt`. Only the app wires
-  it; the gallery never reads or writes the user's file. This reverses the earlier "in memory, so a
+  it; a debug render never reads or writes the user's file. This reverses the earlier "in memory, so a
   cold start never shows old data as current" note: the age and colour say it is old.
 - **[S-1301]** Network guard (classic `netguard::check_url`, S-08b): an address that comes from a
   user or a stranger and is then fetched by the app — every feed, every feed item's site icon, a
@@ -2749,7 +2727,7 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   row width (inline at the start of the age line); the site's name on its own line from 240px; two
   columns from 400px wide (three from 720px on a short strip), read left to right; the summary where
   it costs no row, or where ≥3 rows still fit on a tile ≥280px high and not a tall column (1–2
-  lines). Gallery: XS one headline; S headline + icon + age; M two rows with names; Wide two
+  lines). By tier: XS one headline; S headline + icon + age; M two rows with names; Wide two
   columns; Tall 5+ headlines; L two columns with summaries; XL the reading pane.
 - **[S-1306]** From 720px wide and 128px high a reading pane sits beside the list (list 40%,
   240–360px; pane ≥240px): the selected item's icon and site, whole headline, date ("Sat 4 Oct
@@ -2793,12 +2771,11 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   tile's smaller class. Pointer over the chart on L/XL reads the bar under it (time · price). The
   session badge and age re-evaluate every minute on the shared ticker (render only), so the badge
   flips at the bell whatever the refresh. **Refresh** in the card menu. Header title: name, else the
-  service's own name (listed), else the symbol. Gallery `Stocks+fixture` / `Rss+fixture` are fixed
-  answers seeded into the caches (offline; only site icons are fetched).
+  service's own name (listed), else the symbol.
 
 Not ported, on purpose: RSS feeds as shared *connections* and the classic "Manage connections" page
 (S-08/S-29 — feeds stay a widget setting, recorded earlier); per-widget `label`/`hideHeader` (card
-title and header placement); demo mode (gallery fixtures); single-click open of a feed item
+title and header placement); demo mode; single-click open of a feed item
 (double-click, recorded); the original's IANA time-zone names in labels (offset + short name
 instead, see [S-1309]).
 
@@ -2835,7 +2812,7 @@ S-10 note), so the camera keeps the Top default; camera credentials ([U-03]) —
 none, so basic-auth streams stay unsupported and an address with a user name or password is
 refused (the settings note says so); a save-current-frame button at XL (an audit suggestion, not
 the original's); frame rate for MP4/HLS (the player exposes no per-frame arrivals); the hover strip
-in the gallery PNGs (the gallery cannot hover; the XL status chip is shown by the fixture instead).
+in a debug render (a render cannot hover).
 
 ## Appearance engine (WP1)
 
@@ -2888,9 +2865,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   times the header opacity (`DesignLook.HeaderFillOpacity`). 100 % looks as before; 0 % leaves the
   strip clear over the desktop. The body's base reaches 1 DIP under the strip, so no anti-aliased seam
   opens between the two where their edge falls between pixels (widget scale, an intro, fractional DPI).
-- **[S-829]** Debug: the gallery renders with `THEMIA_GALLERY_DESIGN` (a `DesignState` as JSON, the
-  state file's shape); its backdrop follows the theme. Opened from the app, it shows the app's own
-  design and applies nothing.
+- **[S-829]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-830]** Design presets (the original's six): Default, Midnight, Daylight, Glass, Terminal, Paper.
   Each owns 13 fields (theme, accent, font, widget fill + opacity, header fill + opacity, border
   style/width/colour/opacity, corner radius, widget gap) and never widget scale, text size or
@@ -2922,7 +2897,7 @@ switch for it ([S-1724]).
   one starts. An empty file is never rotated (one oversized record cannot chain empty archives).
   One writer: a lock around one open stream (shared for read and delete), flushed per record. A
   write that fails with an I/O error turns the file sink off for the session instead of throwing
-  on every record. Only the real app writes files: the gallery and the settings render get the
+  on every record. Only the real app writes files: the debug renders get the
   debugger and session-buffer sinks only, and a second copy that hands its request to the running
   one never opens the file.
 - **[S-981]** Level policy: warnings and errors are always recorded; info and debug only in a debug
@@ -2956,7 +2931,7 @@ switch for it ([S-1724]).
 
 Not ported, on purpose: the original's Developer section and Logs page — developer mode, verbose
 logging, the session list of records ([S-1724]); DevTools (no web view), demo mode and dev views (the
-widget gallery plays that role), the per-window webview log forwarding gate and console-noise
+showcase views, [S-1810], play that role), the per-window webview log forwarding gate and console-noise
 filter ([LOG-02], [LOG-03]; no webview), the dependency DEBUG cap ([LOG-06]; .NET libraries do not
 log into `Log`). Not done here: the original's pre-release gate on the Google and GitHub sign-in
 providers (a launch decision, not a developer feature).
@@ -3013,13 +2988,11 @@ providers (a launch decision, not a developer feature).
   device as read-only level bars, playing ones first in name order; silent ones in the quiet fill.
 - **[S-1232]** The caption beside the number is the device's name (was "Output level"), still "Muted" /
   "Turned down" when those apply.
-- **[S-1233]** Previews never write (sliders, buttons, keys and device picks are inert); the plain
-  gallery page reads the machine, `+fixture` shows `AudioFixture` (3 devices, a microphone, 7 apps,
-  meters) without touching Core Audio. Debug only.
+- **[S-1233]** Previews never write (sliders, buttons, keys and device picks are inert); they read
+  the machine.
 - **[S-1234]** Stepping lands on the whole-percent grid and clamps (`AudioRules.Step`).
 
-Not ported / not done: app icons for fixture rows (fixture apps have no executables; the plain page shows real
-icons). The original Volume had no peak meter, device name or microphone — these are audit additions.
+The original Volume had no peak meter, device name or microphone — these are audit additions.
 
 ## Widget polish 1 (POLISH-1)
 
@@ -3196,7 +3169,7 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
   30 s per request / 16 MB body, IMAP 30 s per job, 1 MB line, literal cap; favicons 64 KB.
 - **[S-969]** The switch is read on every connection (`NetGuard.AllowPrivate`, wired from
   `AppPreferences.AllowPrivateNetwork`), default off, so nothing reaches the LAN before the app has
-  read its settings (NG-04). The gallery turns it on for its loopback fixtures only.
+  read its settings (NG-04).
 
 Not ported: proxy authentication (classic known limit; Windows stores no proxy credentials) and
 proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX-04) — .NET's
@@ -3245,9 +3218,7 @@ the picker body is `Shell/WidgetPicker.cs`, opened from `DesktopWindow.Picker.cs
 - **[S-956]** Picking with Desktop starts click-to-place ([S-421]); picking with a container adds the
   widget at once and selects it. The settings window is not opened (the original opened it; [S-421]
   keeps adding and configuring as two decisions).
-- **[S-957]** The widget gallery stays debug-only: its sample data and PNG command line are
-  debug-only and share its files, and a release gallery without them would show only empty states.
-  Debug builds also render the open picker: `Themia.exe --picker-png <out.png> [--search text] [--into]`.
+- **[S-957]** Debug builds render the open picker: `Themia.exe --picker-png <out.png> [--search text] [--into]`.
 
 Not ported: picker row previews (`WidgetRowPreview`) and the group-by choice (`pickerGroups.ts`) — the
 columns are the grouping; the pro lock (licensing is out of scope). Pending other lanes: an "Add
@@ -3345,24 +3316,20 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
   per entry, echoing the Windows Settings equivalent where there is one: General = gear (`settings`),
   Appearance = Personalization's brush (`paint_brush`), Accounts = Accounts' person (`person`),
   About = `question_circle` (the set has no
-  info icon), every view = `content_view`, every display = System's screen (`laptop`; the set has
+  info icon), Views = `content_view`, Displays = System's screen (`laptop`; the set has
   no desktop monitor). A new app page names its icon in its `AppPages` line.
 - **[S-1601]** Each icon is drawn by `SvgImageSource` in a 20-DIP icon box (NavigationView's default
   16 is sized for font glyphs; the colour icons carry their own padding and read too small there),
   from the icon's 20-DIP design, rasterised at exactly the pixels the box covers on the window's
   display (20 px at 100 %, 40 px at 200 %) and re-rasterised when the window moves to a display
   with another scale. Colours are the icon's own in light and dark, as in Windows Settings.
-- **[S-1602]** Only the pane's pages, views and displays change. A widget nested under its view keeps
-  its monochrome kind glyph (the one its header and the picker show) in the default 16-DIP box; settings-card row icons and
-  "Find a setting" suggestions stay monochrome glyphs, as in Windows Settings.
+- **[S-1602]** Only the pane's entries change (it lists pages only, [S-1830]); settings-card row icons,
+  group headers and "Find a setting" suggestions stay monochrome glyphs, as in Windows Settings.
 - **[S-1603]** The MIT notice for the icons is in `THIRD-PARTY-NOTICES.md` at the repository root,
   listing every bundled file, and ships beside `Themia.exe` in every build.
 - **[S-1604]** A bundled icon uses only shapes, groups and gradients (what Direct2D's SVG renderer
   draws) and the 20-DIP view box; a test rejects one with filters, masks or other features that
   would silently drop out.
-
-A view with its own icon ([S-703]) shows that glyph in the pane instead of the shared colour icon
-([S-903]).
 
 ## Containers and shell hooks (PA)
 
@@ -3441,8 +3408,7 @@ Group, stack and tabs brought to the original, plus the card hooks other widgets
   paste, parents remapped; every rect shifted by the block's one translation, [S-1584]); a pasted cut
   moves the original with everything inside it, ids kept ([S-1590]). Dragging a container to another display's view takes its members too; the
   moved widget leaves a container that stays behind.
-- **[S-877]** Gallery: `Group+fixture`, `Stack+fixture`, `Tabs+fixture` show members (Clock, Memory,
-  CPU); `THEMIA_GALLERY_HEADER=Left|Right|Bottom` and `THEMIA_GALLERY_COLLAPSED=1` vary the group.
+- **[S-877]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 Not ported: the group's open/close animation (original group [S-16]); a container drop highlight
 while dragging (the drop works, the target is not lit); pop-out of a child (out of scope). Not
@@ -3560,8 +3526,7 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1515]** Calculator defaults as the original: 4 decimal places, header hidden ([S-700]).
 - **[S-1517]** With nothing typed, the result line shows the newest answer (`= 42`, tertiary) — what
   an operator or Ans continues from — so the display is never a blank box once a sum was done.
-- **[S-1516]** Gallery fixtures: Calculator seeds eight past sums; ColorSwatch's populated page is
-  Palette mode (the plain page is the Solid block).
+- **[S-1516]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 ## Multi-select and the placement session (MULTISELECT-PLACEMENT)
 
@@ -3623,7 +3588,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   carries all of it; released without moving (3 DIPs), it narrows the selection to that card.
 
 Not done: dropping a placement or a dragged block **into** a container (only a single dragged widget
-joins one, [S-875]); a gallery/debug render of the multi-widget ghost (the outlines are pinned by
+joins one, [S-875]); a debug render of the multi-widget ghost (the outlines are pinned by
 `S1585_*` instead). Not live-verified: everything pointer- and multi-monitor-driven here — the
 rubber band, Ctrl+click, group drag clamping at the taskbar, hand-off of a selection across
 displays, the ghost following the pointer across displays, Ctrl+A/Ctrl+D/Escape order.
@@ -3682,10 +3647,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Ctrl+D/Escape 
   the default render device and the worker re-acquires at once; any capture error retries after
   500 ms (logged once per distinct HRESULT). COM is MTA on the worker; every interface pointer and
   the mix format are released on every path; no exception leaves the thread or a callback.
-- **[S-1474]** Gallery: `Music+fixture` is a made-up playing track with painted art and frozen
-  bars, read instead of the session (no capture, no session); `Pomodoro+fixture` is a paused focus
-  phase at 14:32 with three sessions done. Previews are inert: transport, seek and keys do nothing
-  and a preview pomodoro never sounds.
+- **[S-1474]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1475]** Music ladder: XS title (+ artist) over play/pause; S/Wide lines with the transport
   beside (or under, or play only) and art on a strip, seek bar along the bottom (times beside it
   on a wide one); M art + lines + transport, seek bar with the times under it, bars between when
@@ -3766,7 +3728,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Ctrl+D/Escape 
 
 ## Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ)
 
-Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`. Gallery fixtures: `Shell/Gallery/DeskFixtures.cs`.
+Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
 
 - **[S-1480]** Time zones are IANA ids (`Asia/Tokyo`) resolved through `ZoneCatalog`: an explicit
   IANA → Windows table frozen from Windows' own `timezoneMapping.xml` (CLDR), because under
@@ -3795,8 +3757,7 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`. Gallery fixtures: `Shell/Ga
 - **[S-1488]** The analog dial at every tier, sized by the ladder (40 px floor, rebuilt only when the
   diameter changes): dial alone on XS, text under it on panels and columns, text beside it on a wide
   strip. The second hand still sweeps (S-51, deliberate).
-- **[S-1489]** Gallery fixtures: an analog Tokyo world clock with the local offset; Sun & moon at
-  Buenos Aires; a scratchpad with three strokes.
+- **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1490]** Sun & moon adds civil dawn/dusk (sun's centre at −6°; none in white nights), solar
   noon with the sun's altitude, and the day's change against yesterday ("−3m 22s"; none inside the
   polar circles). Pure in `SolarPosition` / `SkyText`.
@@ -3847,7 +3808,7 @@ network meter's connection line ([S-1762]).
   to the picked device ([S-1221]) and a notice says why ([S-880]).
 - **[S-1617]** The call sits behind `IDefaultOutputSwitch`; all decisions are Core
   (`AudioDefaultRules.Plan/Classify/Continue/Outcome/After/PickAsync`) and tested against a fake. No
-  test, preview or gallery page ever switches a device: previews never reach the seam ([S-1233]).
+  test or preview card ever switches a device: previews never reach the seam ([S-1233]).
 - **[S-1618]** Device tooltips: "(Windows default)" on the default, "Make … the default output" on
   the others.
 
@@ -3861,23 +3822,22 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 `Shell/ViewBar.cs`, wired by `DesktopWindow.ViewBar.cs`. Every switch goes through
 `AppHost.ShowView` → `AppState.ShowViewOn` ([S-19]).
 
-- **[S-900]** Duplicate a view (View page, the toolbar's View menu, a view bar chip's menu in edit
+- **[S-900]** Duplicate a view (its group on the Views page and that group's menu, the toolbar's View menu, a view bar chip's menu in edit
   mode): the copy goes right after the source, named "<name> (Copy)", with its icon and a deep copy
   of every widget under fresh ids. Container members point at their container's copy, and a stack's
   open child / a tab strip's selected tab name the copy. Data a widget only refers to (a note, an
   account) stays shared, as in the original. The copy is shown on the display asked from; it counts
   against the licence as one view plus its widgets.
-- **[S-901]** Reorder views by dragging a chip on the view bar (edit mode), by dragging a view in the
-  settings side menu ([S-1703]), or Move up / Move down in a view's menu (side menu, switcher). By id, never by bar index, so a bar showing a filtered subset moves the right view.
-  The order is the bar's, the switchers', the settings pane's and Ctrl+n's.
+- **[S-901]** Reorder views by dragging a chip on the view bar (edit mode), by dragging a view's group
+  on the Views page ([S-1703]), or Move up / Move down in a view's menu (Views page, switcher). By id, never by bar index, so a bar showing a filtered subset moves the right view.
+  The order is the bar's, the switchers', the Views page's and Ctrl+n's.
 - **[S-902]** Deleting a view (never the last) repairs everything naming it in the same change:
   display assignments (the display then gets an existing view again, [S-1705]), the active view, the view for
   new displays (back to null) and every bar whitelist (one left empty means all views again).
-- **[S-903]** A view's icon is picked on its page from the shared glyph grid (`IconChoice`), whose
-  default cell shows the view's initials — what a view without an icon shows. The icon is drawn by
-  the view bar, the switcher widget, the toolbar's View menu and the settings pane, where a view
-  with an icon shows its glyph in the colour icons' 20-DIP box and one without keeps the shared
-  colour icon ([S-1600]).
+- **[S-903]** A view's icon is picked in its group on the Views page from the shared glyph grid
+  (`IconChoice`), whose default cell shows the view's initials — what a view without an icon shows.
+  The icon is drawn by the view bar, the switcher widget, the toolbar's View menu and the group's
+  header on the Views page (a view without one shows the shared view glyph there).
 - **[S-904]** In edit mode only, Ctrl+1..Ctrl+9 (and the keypad digits) show the n-th view on the
   display under the pointer (the one a paste lands on, [S-74]), or this one. Outside edit mode
   Themia takes no digits: there is no global hotkey (audit B6).
@@ -3913,8 +3873,9 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   the pointer (also past the ends); release commits the move ([S-901]); a lost capture undoes it.
 - **[S-915]** In edit mode a chip's right-click menu offers Duplicate view and View settings; outside
   edit mode it has none. A click always shows the chip's view on this display.
-- **[S-916]** The display page has a View bar section: show, position (8 anchors), size, show names,
-  and "Views on the bar" (one switch per view). Its view drop-down assigns through `ShowViewOn`.
+- **[S-916]** A display's group on the Displays page ends with its view bar rows: Show the view bar,
+  View bar position (8 anchors), View bar size, Show view names, and "Views on the bar" (one check
+  box per view). Its Shows drop-down assigns through `ShowViewOn`.
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
 tooltip on the bar (licensing refuses through `AllowCreate`). The help guide now describes the bar
@@ -3922,53 +3883,88 @@ tooltip on the bar (licensing refuses through `AllowCreate`). The help guide now
 `Themia.exe --viewbar-png <outDir>` draws the real bar, placed by the real rule, at nine
 anchor/size/mode combinations on a stand-in display with a taskbar strip.
 
-## Settings side menu and display views (R4-NAV)
+## The Displays and Views pages (R4-NAV, R5-PAGES)
 
-The settings window's side menu as a place to manage views, the View and Display pages, and how a
-display is given a view. Owning files: `Shell/Config/ConfigWindow.SideMenu.cs` (+ `.Navigation.cs`),
-`ConfigPages.View.cs`, `ConfigPages.Display.cs`, `AppHost.Displays.cs` (`SettingsSurface`, `EditView`);
-rules in Core `DisplayPlan.AssignViews` and `ViewOps.Rename` (tests `DisplayPlanTests`,
-`ViewPerDisplayTests`, `ViewsTests`).
+Every display's and every view's settings, each on one page, and how a display is given a view.
+Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
+`ConfigWindow.Navigation.cs`, `ConfigTarget.cs`, `AppHost.Displays.cs` (`SettingsSurface`,
+`EditView`); rules in Core `DisplayPlan.AssignViews`, `ViewOps.Rename`, `SettingsExpansion`,
+`SettingsPageSync.Shape` (tests `DisplayPlanTests`, `ViewPerDisplayTests`, `ViewsTests`,
+`SettingsListPagesTests`).
 
-- **[S-1700]** The View page: Name, Icon, the view's widgets (each drilling into its page), Add widget
-  (Edit layout, [S-1701]), then under **Danger** Duplicate this view and Delete this view. No "Active
-  view" row (which display shows a view is chosen on the display's page or from the side menu) and no
-  order row (drag in the side menu, [S-1703], or Move up/down in its menu).
-- **[S-1701]** Edit layout from Settings (the View page's Add widget row, a view's or a widget's side
-  menu entry) first shows that view on the settings display ([S-1702]), then enters edit mode; from a
-  widget's entry, that widget is selected. Edit mode alone left the user arranging whatever view that
-  screen happened to show.
+- **[S-1700]** A view's group on the Views page: Name, Icon, the view's widgets (each a card drilling
+  into its page), Add a widget (Edit layout, [S-1701]), then Duplicate this view and Delete this view
+  (its button in the critical colour; off for the last view). No "Active view" row (which display
+  shows a view is chosen in the display's group or from the group's menu) and no order row.
+- **[S-1701]** Edit layout from Settings (a view's Add a widget row) first shows that view on the
+  settings display ([S-1702]), then enters edit mode. Edit mode alone left the user arranging
+  whatever view that screen happened to show.
 - **[S-1702]** "This display", for a command given in Settings (Show on this display, Edit layout,
   Duplicate), is the display holding the centre of the settings window; when the window is hidden,
   minimised or off every display, the one under the pointer; else the first surface.
-- **[S-1703]** A view's side menu entry can be dragged onto another view's entry: it takes that view's
-  place in the order through `AppHost.ReorderView` (the view bar's own path, one undo step), so the
-  pane, the bar, the switchers and Ctrl+n follow. Only a drag that began in the side menu is accepted;
-  the move runs after the drop has finished, since it rebuilds the menu.
-- **[S-1704]** Right-click menus on side menu entries, through the shared `ItemMenu` (so they follow
-  the app's menu style): a **view** has Show on this display (off when it already shows there), Edit
-  layout; Rename (a box beside the entry: Enter or leaving commits, Escape cancels), Change icon (the
-  View page's icon grid); Move up, Move down (off at the ends); Duplicate view (shown on this display,
-  [S-900]), Delete view (danger, off for the last view; the undo notice is the way back). A **display**
-  has Shows (a submenu of the existing views, the shown one checked) and Show Themia on this display
-  (checked when on; off for the last display on, [S-845]). A **widget** has Edit layout and Delete
-  widget (danger). App pages have none. A right-click never navigates.
+- **[S-1703]** A view's group can be dragged (a mouse press on its header travelling 4 DIPs, not on
+  the "…" button or inside its rows) onto another view's group: it takes that view's place in the
+  order through `AppHost.ReorderView` (the view bar's own path, one undo step), so the page, the bar,
+  the switchers and Ctrl+n follow. Only a drag that began on the page is accepted; the move runs
+  after the drop has finished, since it rebuilds the page.
+- **[S-1704]** A view's group has a "…" button on its header (and the same menu on a right-click),
+  through the shared `ItemMenu`: Show on this display (off when it already shows there); Move up,
+  Move down (off at the ends); Duplicate view (shown on this display, [S-900]), Delete view (danger,
+  off for the last view; the undo notice is the way back). A display's group has no menu; its rows
+  hold all it offers. The navigation pane's entries have no menus.
 - **[S-1705]** A display is never given a new view. The display pass (and import, delete and undo,
   which re-run it) gives every display without a valid assignment an **existing** view: the one
   chosen for new displays ([S-847]), else the active view. It is stored, so switching another display
   later does not drag this one along. A display that has a view keeps it. Views are only ever made by
-  the user (New view, Duplicate). Was: each new display got an empty "Display n" view of its own.
-- **[S-1706]** The Display page's "Shows" drop-down lists the existing views and nothing else: no "new
+  the user (Add view, New view, Duplicate). Was: each new display got an empty "Display n" view of its own.
+- **[S-1706]** A display's "Shows" drop-down lists the existing views and nothing else: no "new
   view", no "follow the active view" (every display holds an assignment, so that choice lasted only
   until the next display pass). It shows the display's assignment, or the active view before it has one.
-- **[S-1707]** Renaming a view (its page or the side menu) goes through `ViewOps.Rename`: the name is
-  trimmed; blank, unchanged or an unknown view changes nothing.
+- **[S-1707]** Renaming a view (its Name box, committed when it loses the focus) goes through
+  `ViewOps.Rename`: the name is trimmed; blank, unchanged or an unknown view changes nothing. The
+  group's header follows in place.
+- **[S-1830]** The navigation pane lists pages only: General, Appearance, Accounts, then **Displays**
+  and **Views** (in that order, with Windows Settings' screen and content-view colour icons,
+  [S-1600]), and License and About at the foot. No entry per view, display or widget, so no entry
+  menus and no dragging in the pane.
+- **[S-1831]** A page target is a page plus, on Displays or Views, the item whose group to open
+  (`ConfigTarget.App(Page, Item)`; `ConfigTarget.ForView`). Everything that used to open one view's
+  page (a view bar chip's View settings, the view switcher's menu, a widget page's Delete) opens
+  the Views page with that group opened and scrolled to the top; the reader's other groups stay as
+  they were. While a widget's page is open the Views entry stays selected, and the title is the
+  breadcrumb "Views › Desktop › Clock": Views opens the page, the view's crumb opens it on that
+  view's group. Clicking an entry (not a selection change) navigates, so Views opens its page even
+  while it is already selected under a widget's page; clicking the entry of the page on screen
+  leaves it as it is.
+- **[S-1832]** The Displays page has one `FluentLayout.Expander` group per connected display ([S-853];
+  "· Themia is off here" after the resolution of one switched off); the Views page has Add view at
+  the top (a new, empty view at the end of the order, shown nowhere yet; within the licence,
+  [S-1065]; its group opens), then one group per view in the user's order, headed by its icon and
+  name with its widget count. Search offers a row inside a group as "Views › Desktop" (or the
+  display's name) and lands in that group, opening it; the same row in several groups is one
+  suggestion per group.
+- **[S-1833]** Which groups are open is kept by the window while it is open (`SettingsExpansion`), so
+  rebuilding a page (to catch up with a change made elsewhere, [S-1720]; after a view was added,
+  moved or deleted; on coming back from a widget's page) opens the same groups. A group nobody
+  opened or closed is closed, unless it is the only one on its page. A gone item is forgotten.
+- **[S-1834]** A list page whose shape changed (`SettingsPageSync.Shape`: the views in order; the
+  connected displays and which are on) is rebuilt at once, keeping the scroll position, even while
+  the window is active: the change came from the page itself (Add view, Duplicate, Delete, a move,
+  switching a display off) and it has to show it. A rename or a new icon keeps the shape, so the box
+  being typed in is never torn down; the group's header follows in place.
+- **[S-1835]** Debug render: `--settings-png Displays|Views <out.png> [--open first|name]` draws the
+  page; `--open` opens one group (the first, or the view or display of that name) as a link does.
+
+Needs a manual pass: dragging a view's group onto another on the Views page; each "…" menu action
+(Show on this display, Move up/down, Duplicate, Delete) and the right-click menu; View settings from
+a view bar chip and the view switcher landing on the opened group; Edit layout from a group; the
+breadcrumb's crumbs and Back from a widget's page.
 
 ## Apps, Search, Help and Themia: parity and the whole tile (PI-A)
 
 Owning files: `Widgets/AppsView.cs` (+ `.Cells.cs`), `Widgets/WebSearchView.cs`, `Widgets/HelpView.cs`,
 `Widgets/ThemiaView.cs`, `Widgets/AppActions.cs`, `Shell/Config/WidgetSettings.Apps.cs`,
-`Shell/Gallery/AppWidgetFixtures.cs`; Core `Model/Configs/AppsConfig.cs`,
+Core `Model/Configs/AppsConfig.cs`,
 `Widgets/{InstalledAppRules,AppsLayout,SectionCursor,RecentSearches,WebSearchLayout,HelpLayout,ThemiaLayout,HelpGuide}.cs`.
 Tests: `AppWidgetsTests` (S1520..S1533), `HelpGuideTests`, `LauncherPersistenceTests`.
 
@@ -3996,8 +3992,8 @@ Tests: `AppWidgetsTests` (S1520..S1533), `HelpGuideTests`, `LauncherPersistenceT
   UI thread when the page opens (plus hidden folders the scan no longer finds); **Hidden apps** —
   each with "Show again" (original S-25).
 - **[S-1525]** Opening is a double click by default (desktop-layer safety, as Shortcuts and
-  OneDrive); single click is the option. Every open goes through `ShellLauncher`; previews (the
-  gallery) never open anything.
+  OneDrive); single click is the option. Every open goes through `ShellLauncher`; preview cards (a
+  debug render) never open anything.
 - **[S-1526]** Keys ([S-800] lease): a click puts the cursor on an app; Left/Right step one,
   Up/Down one visual row keeping the column (a section's short last row lands on its last app),
   PgUp/PgDn a screenful, Home/End the ends (`SectionCursor`); Enter opens, the Menu key opens the
@@ -4038,9 +4034,7 @@ Tests: `AppWidgetsTests` (S1520..S1533), `HelpGuideTests`, `LauncherPersistenceT
   feedback and the source (all through `ShellLauncher`, nothing fetched). The mark takes what is
   left, up to 160 DIPs. A wide strip and the XL tile put the mark beside the words (up to 240 at
   XL, with the name a step larger), so XL is a mark and a column, not a stack with empty sides.
-- **[S-1534]** Gallery: `Apps` reads this machine's Start menu (read-only); `Apps+fixture` is the
-  same list as rows. `WebSearch+fixture` seeds ten made-up recent searches; the plain page clears
-  them.
+- **[S-1534]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 Not ported: the original Apps' max-6-parallel icon queue (the shell answers E_PENDING to parallel
 first requests, so `AppIcons` extracts one at a time) and the search bar's own ✕ button (the stock
@@ -4052,7 +4046,7 @@ filter, the Help/Themia buttons entering edit mode and opening Settings, the lin
 - **[S-880]** One notice API (`Services/Notices`: `Show`, `Info`, `Warning`, `Error`) for every
   transient message; callable from any thread, always logged at the matching level. The host draws
   each notice on the display under the pointer (else the first surface). Before the host starts and
-  in the gallery a notice is only logged. The licence refusal ([S-1065]) and the audio "default not
+  in a debug render a notice is only logged. The licence refusal ([S-1065]) and the audio "default not
   changed" ([S-1616]) are notices now (the flyout and the jump to Settings are gone).
 - **[S-880a]** Host (`DesktopWindow.Notices`): a layer on the surface, mounted only while a notice
   shows and removed when the last goes; bottom-right of the work area, 16 DIP in from its edges,
@@ -4133,7 +4127,7 @@ filter, the Help/Themia buttons entering edit mode and opening Settings, the lin
 Items earlier packages left "not done", each checked against the original on `main` first: what
 the original had is ported, what it never had is recorded here and not built.
 
-- **[S-1620]** Gallery: a slide can be held for as little as **1 s** (`GalleryConfig.MinSlideSeconds`;
+- **[S-1620]** Pictures (Gallery widget): a slide can be held for as little as **1 s** (`GalleryConfig.MinSlideSeconds`;
   the settings slider starts there), as the original's S-09/S-18. Stored values are clamped to
   1..3600 s.
 - **[S-1621]** Habits are **reordered by dragging a row** in the widget (original S-13), beside the
@@ -4245,8 +4239,7 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
 - **[S-1335]** Card menu: Open in Explorer, Refresh. The views, row or tile sizes, hidden items and file extensions
   are settings only ([S-1746]).
 - **[S-1336]** Tests use made-up paths and byte buffers only; no test touches a real file.
-- **[S-1339]** `Folder+fixture` (Debug): a made-up project in `%TEMP%\Themia.Gallery\Folder` (pictures, a git repository when
-  git exists, fixed dates); `THEMIA_GALLERY_FOLDER_VIEW` picks the view.
+- **[S-1339]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 Not ported: header double-click opens Explorer (orig. S-07; the card owns the header, so "Open in Explorer" is in the card
 menu); image-item inline toggles (orig. S-29). Needs live verification: drag in/out with
@@ -4256,7 +4249,7 @@ OneDrive pin states, lease delivery of Ctrl chords, multi-monitor.
 ## View switcher: item menu, keys and the whole tile (PI-B)
 
 Owning files: `Widgets/ViewSwitcherView.cs`, Core `Widgets/ViewSwitcherLayout.cs` (+ `ViewSwitcherRules`),
-`Shell/SurfaceDisplay.cs`, `Shell/Gallery/ViewSwitcherFixture.cs`; `IWidgetDisplay` (in
+`Shell/SurfaceDisplay.cs`; `IWidgetDisplay` (in
 `WidgetCatalog.cs`) gained the per-view commands. Tests `ViewSwitcherLayoutTests`, `ViewSwitcherRulesTests`.
 
 - **[S-1650]** Each view button has its own right-click menu (an item menu, so the card's own menu
@@ -4295,9 +4288,7 @@ Owning files: `Widgets/ViewSwitcherView.cs`, Core `Widgets/ViewSwitcherLayout.cs
   rendering the view; a rebuild happens only when a sketch's rects or the display shape change.
 - **[S-1657]** The count line reads "No widgets", "1 widget", "N widgets" (every widget in the view,
   container members included, as the licence counts them).
-- **[S-1658]** Gallery: the plain page has three views with layouts (one with an icon);
-  `ViewSwitcher+fixture` has twelve, so XS shows the overflow and XL a 4×3 grid of cards. The pretend
-  display's commands change nothing.
+- **[S-1658]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 ## Motion: intros, hyperspace, hacker (WP9-MOTION)
 
@@ -4541,6 +4532,12 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 - **[S-1747]** Debug: `--menu-png <outDir>` opens the card menu (edit mode, one
   widget; desktop, three widgets), the surface menu and two sample item menus for real, off-screen,
   and writes each open popup to a PNG.
+- **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the
+  pointer), as Explorer's does, and flips only to stay on screen. A menu opened from the keyboard sits
+  under its anchor's left edge.
+- **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
+  the point of a right-click on the surface, or the container it adds into — and flips above only
+  when there is no room below.
 
 Needs a live pass (pointer and focus on the real desktop): the surface menu opening only on empty
 surface and at the pointer, Add widget's picker at the click then placing, the right-click that
@@ -4552,7 +4549,7 @@ second display with another DPI.
 ## Icon picker and showcase views (R4-ICONS)
 
 The icon a view or a group is given, chosen from the whole Segoe Fluent Icons set, and a Debug tool
-that puts every widget on the real desktop at every gallery size. Owning files: Core
+that puts every widget on the real desktop at every size tier. Owning files: Core
 `Icons/FluentIcons.cs` (+ the generated `FluentIconData.g.cs`, from `scripts/fluent-icons.py`),
 `Icons/IconSearch.cs`, `Widgets/WidgetTiers.cs`, `Model/ShowcaseViews.cs`; App `Shell/IconChoice.cs`,
 `Shell/IconPicker.cs`, `Shell/Gallery/IconPickerRender.cs`, `Shell/Gallery/ShowcaseCommand.cs`. Tests
@@ -4571,18 +4568,17 @@ that puts every widget on the real desktop at every gallery size. Owning files: 
   tag, a word of a tag, a tag prefix, then a substring of the name, then of a tag; ties go to a
   suggested icon, the shorter name, the lower code point. An empty query lists every icon. A query of
   punctuation only ("$") is matched whole against the tags.
-- **[S-1803]** The picker (a flyout from the icon button, also opened by the side menu's Change icon,
-  [S-1704]) is built when it opens: the default cell (initials for a view, [S-903]) beside a search
+- **[S-1803]** The picker (a flyout from the icon button) is built when it opens: the default cell (initials for a view, [S-903]) beside a search
   box, over a virtualised grid of 8 columns of 40-DIP cells, 8 rows high, scrolling. Typing filters at
   once; Enter in the box takes the best match, Down moves into the grid; arrows, Home/End and Page
   keys move in the grid and Enter or Space picks. The current icon is selected and scrolled to. No
   match says so in the grid's place, which keeps its size. Debug render:
   `Themia.exe --iconpicker-png <out.png> [--search text] [--theme light|dark] [--initials]`.
 - **[S-1810]** Showcase views: one view per widget kind in catalogue order, named after the widget
-  and with its glyph as the view icon, holding seven default instances of it, one per gallery tier
+  and with its glyph as the view icon, holding seven default instances of it, one per size tier
   (`WidgetTiers`: XS 120×120, S 200×150, M 320×240, Wide 480×160, Tall 200×400, L 560×420, XL 800×560
-  DIPs; the gallery render reads the same table). Each cell is the tier times the display's content
-  scale ([S-850]) plus the widget gap, so the content lays out at exactly the tier, as in the gallery.
+  DIPs). Each cell is the tier times the display's content
+  scale ([S-850]) plus the widget gap, so the content lays out at exactly the tier.
   The cells are packed tallest first, lowest-then-leftmost, inside the work area less 16 DIP, without
   overlap, on whole DIPs. Containers are empty instances.
 - **[S-1811]** Ids are derived, not random: `showcase-<kind>` for a view, `showcase-<kind>-<tier>` for
@@ -4603,5 +4599,46 @@ that puts every widget on the real desktop at every gallery size. Owning files: 
   unrestricted ([S-1064]), and nothing over a limit is ever hidden or deleted.
 
 Needs a manual pass: the picker's keyboard path inside the real flyout (Down from the box, Enter,
-Escape), the side menu's Change icon, and the showcase views on a real desktop (each tier's size at
+Escape), and the showcase views on a real desktop (each tier's size at
 the display's scale, the second page on a small or scaled display, the refusal while the app runs).
+
+## The Set up button (R5-SETUP)
+
+Owning files: `Themia.Core/Widgets/WidgetSetup.cs`, `Themia.App/Shell/WidgetCard.Setup.cs`,
+`Themia.App/Widgets/SetupPrompt.cs`. The section also records the removal of the debug widget
+gallery ([S-1863]).
+
+- **[S-1860]** A widget that can show nothing useful until it is configured needs setting up, decided
+  for every kind by one pure rule, `WidgetSetup.Needed(config, signed-in features)`: Countdown with no
+  timer; Quote with no quote left; Colour swatch in palette mode with no colour; Feed with no feed
+  address; Stocks with no symbol; Weather (now and forecast) with no place; Video stream with no
+  address; Shortcuts with no item; Power with no action; Pictures with no folder (folder source) or no
+  file (file source); the GitHub repository widget with no repository. "Nothing right now" (no unread
+  mail, no events today, an empty folder) is not setup, and neither is set-up-but-wrong (a symbol
+  that is not one, a folder that is gone): those keep the widget's own sentence. Widgets that start
+  with seeded content (quotes, colours, shortcuts, power actions, Sun & moon's place, the folder
+  widget's profile folder) never ask until it is emptied. Habits and a local task list are started
+  from the widget itself and do not ask.
+- **[S-1861]** An account widget needs setting up while no signed-in account offers its feature: Mail,
+  Calendar, Contacts, Tasks (account source only), OneDrive (files), the three GitHub list widgets,
+  Claude usage. The features are the union of the signed-in providers' (`WidgetSetup.Offered`); an
+  account that needs signing in again still counts (the widget says so itself, with the Accounts link).
+- **[S-1862]** Such a widget's body is the Set up button and nothing else: the widget's glyph over one
+  accent button ("Set up"; tooltip "Open this widget's settings"), centred, no sentence. The glyph is
+  dropped on a body too short for both; the button stays at every size, XS included. A click opens
+  the settings window on the widget's page (opening the window if it is closed), the same request as
+  the card menu's Configure; the button takes no focus, so it works outside edit mode on the
+  `WS_EX_NOACTIVATE` surface. The card owns it, not the view: the view keeps running underneath,
+  invisible and not hit-testable, and the button goes the moment the config (from settings, or a
+  change the view saves itself such as a shortcut dropped onto it) or a newly signed-in account makes
+  the widget useful. The views no longer carry their own "add one in settings" sentences.
+
+- **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
+  toolbar entry, and no `#if DEBUG` sample data inside widget views or services. A widget's layout at
+  the seven size tiers (`WidgetTiers`) is checked on the showcase views ([S-1810]) on the live
+  desktop; the other debug render flags (`--settings-png`, `--picker-png`, `--viewbar-png`,
+  `--notices-png`, `--menu-png`, `--iconpicker-png`, `--motion-png`, `--layout-editor-png`) stay and
+  draw widgets with their default config. The tags that described the gallery's fixtures are retired.
+
+Needs a manual pass: the button on the live desktop outside edit mode (opens Settings on the right
+page, from a closed and from an open window), and the button going away when an account is added.

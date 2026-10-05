@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-1810]..[S-1814] One view per widget kind, holding the widget at every gallery tier.</summary>
+/// <summary>[S-1810]..[S-1814] One view per widget kind, holding the widget at every size tier.</summary>
 public sealed class ShowcaseViewsTests
 {
     private const double Gap = 8;
@@ -89,7 +89,7 @@ public sealed class ShowcaseViewsTests
             {
                 var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(kinds[k].Kind, tier));
 
-                // The painted card is the cell less the gap ([S-04]): exactly the tier, as in the gallery.
+                // The painted card is the cell less the gap ([S-04]): exactly the tier.
                 var painted = GridGeometry.Inset(GridGeometry.ToPixels(widget.Rect, screen), Gap);
                 Assert.Equal(tier.Width, painted.Width, 3);
                 Assert.Equal(tier.Height, painted.Height, 3);

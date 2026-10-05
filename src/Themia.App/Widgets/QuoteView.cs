@@ -35,8 +35,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
     private WidgetArea _area;
 
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
 
     private QuoteConfig _config = new();
     private Ticker? _ticker;
@@ -60,16 +58,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
         _body = BuildBody();
 
-        _emptyText.Text = Str.WidgetsC_Quote_Empty.Text();
-        _empty = Fluent.EmptyState(
-            WidgetCatalog.Definition(WidgetKind.Quote).Glyph,
-            _emptyText,
-            out _);
-
-        _empty.Visibility = Visibility.Collapsed;
-
         Children.Add(_body);
-        Children.Add(_empty);
 
         // The whole card advances the quote, not only the button: the widget is one sentence and a
         // name, and a target that size should not need aiming at.
@@ -172,7 +161,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     private void OnLanguage(Locale locale)
     {
         ToolTipService.SetToolTip(_next, Str.WidgetsC_Quote_ShowAnother.Text());
-        _emptyText.Text = Str.WidgetsC_Quote_Empty.Text();
         Render();
     }
 
@@ -251,9 +239,9 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
         if (index < 0)
         {
-            // An empty list is a real state — the user cleared it — not a failure to load.
+            // An empty list is a real state — the user cleared it — not a failure to load. The card
+            // shows its Set up button over this ([S-1862]).
             _body.Visibility = Visibility.Collapsed;
-            _empty.Visibility = Visibility.Visible;
             _next.IsEnabled = false;
             return;
         }
@@ -261,7 +249,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         var quote = quotes[index];
 
         _body.Visibility = Visibility.Visible;
-        _empty.Visibility = Visibility.Collapsed;
 
         // One quote has nowhere to go, and a button that visibly does nothing is worse than one
         // that says so.

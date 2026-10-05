@@ -51,8 +51,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     private readonly Grid _surface = new();
     private readonly ScrollViewer _scroll;
     private readonly TextBlock _footer;
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new() { Text = Str.WidgetsC_Shortcuts_Empty.Text() };
     private readonly Button _searchButton;
     private readonly ScrollFade _fade;
 
@@ -131,12 +129,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         _footer.TextTrimming = TextTrimming.CharacterEllipsis;
         _footer.Visibility = Visibility.Collapsed;
 
-        _empty = Fluent.EmptyState(
-            Glyphs.Shortcut,
-            _emptyText,
-            out _);
-        _empty.Visibility = Visibility.Collapsed;
-
         _searchButton = new Button
         {
             Content = new FontIcon { Glyph = Glyphs.Search, FontSize = FluentType.Caption.FontSize },
@@ -155,13 +147,11 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         SetRow(_columnHeader, 1);
         SetRow(_scroll, 2);
         SetRow(_footer, 3);
-        SetRowSpan(_empty, 4);
 
         Children.Add(_searchHost);
         Children.Add(_columnHeader);
         Children.Add(_scroll);
         Children.Add(_footer);
-        Children.Add(_empty);
 
         PointerPressed += OnRootPointerPressed;
         PointerMoved += OnRootPointerMoved;
@@ -195,7 +185,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         }
 
         _search.PlaceholderText = Str.WidgetsC_Shortcuts_Search.Text();
-        _emptyText.Text = Str.WidgetsC_Shortcuts_Empty.Text();
         ToolTipService.SetToolTip(_searchButton, Str.WidgetsC_Shortcuts_Search.Text());
         Relayout();
     }
@@ -419,7 +408,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         var visible = Visible();
         var hasItems = _config.Items.Count > 0;
 
-        _empty.Visibility = hasItems ? Visibility.Collapsed : Visibility.Visible;
+        // No items: the card's Set up button covers this ([S-1862]); a drop still lands here.
         _scroll.Visibility = hasItems ? Visibility.Visible : Visibility.Collapsed;
         _searchHost.Visibility = _searchOpen && hasItems ? Visibility.Visible : Visibility.Collapsed;
         _searchButton.Visibility = hasItems ? Visibility.Visible : Visibility.Collapsed;

@@ -16,8 +16,7 @@ internal sealed record Synced<T>(T? Value, SyncProblem Problem, string? Detail, 
     where T : class;
 
 /// <summary>
-/// [S-588] Where the calendar and contacts widgets read from: Themia's own accounts in the app, a
-/// fixed fixture in the debug gallery. One instance is shared by every widget, so four calendars on
+/// [S-588] Where the calendar and contacts widgets read from: Themia's own accounts. One instance is shared by every widget, so four calendars on
 /// a desktop cost one request per calendar, not four.
 /// </summary>
 internal interface IOfficeSource
@@ -46,26 +45,14 @@ internal static class OfficeSources
 {
     private static AccountOfficeSource? _live;
 
-#if DEBUG
-    /// <summary>The debug gallery's fixture, when it has installed one. Never set in a release build.</summary>
-    public static IOfficeSource? Fixture { get; set; }
-#endif
-
     /// <summary>
     /// The source for this moment, or null when there is none: the host has not started (or is
-    /// shutting down), or this is the gallery without its fixture. A widget treats that as "no
-    /// account", which is exactly what the gallery's plain page is meant to show.
+    /// shutting down), or this is a debug render. A widget treats that as "no account".
     /// </summary>
     public static IOfficeSource? Current
     {
         get
         {
-#if DEBUG
-            if (Fixture is not null)
-            {
-                return Fixture;
-            }
-#endif
             if (AppServices.Accounts is not { } accounts)
             {
                 return null;

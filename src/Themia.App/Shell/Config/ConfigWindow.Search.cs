@@ -147,10 +147,13 @@ internal sealed partial class ConfigWindow
             return;
         }
 
+        // [S-1832] On a list page the same row is in every group: the one in the hit's group.
+        var item = (hit.Target as ConfigTarget.App)?.Item;
+
         SettingRow? row = null;
         foreach (var (candidate, section) in SettingsIndex.Collect(page))
         {
-            if (candidate.Title == hit.Entry.Title && section == hit.Entry.Section)
+            if (candidate.Title == hit.Entry.Title && section == hit.Entry.Section && candidate.Item == item)
             {
                 row = candidate;
                 break;

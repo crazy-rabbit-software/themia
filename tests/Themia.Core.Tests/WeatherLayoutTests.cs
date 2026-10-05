@@ -7,8 +7,8 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-722]..[S-728] The weather widgets' disclosure ladders and readings, at the gallery's seven
-/// sizes (each card less its ~44px header).
+/// [S-722]..[S-728] The weather widgets' disclosure ladders and readings, at the seven size
+/// tiers (each card less its ~44px header).
 /// </summary>
 public class WeatherLayoutTests
 {

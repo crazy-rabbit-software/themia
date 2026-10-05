@@ -216,14 +216,17 @@ internal static class ItemMenu
 
         // Standard, not transient: the menu takes the keyboard, so arrows, Enter and Escape work in
         // it whether it was opened by the mouse or by the Menu key.
-        var options = new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard };
+        // [S-1748] Down and to the right of the pointer, as Explorer's menu opens. A CommandBarFlyout
+        // left on Auto treats the point like a text selection and opens above it, centred, which
+        // put the menu away from the pointer. Near a screen edge the flyout still flips to fit.
+        var options = new FlyoutShowOptions
+        {
+            ShowMode = FlyoutShowMode.Standard,
+            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+        };
         if (at is { } point)
         {
             options.Position = point;
-        }
-        else
-        {
-            options.Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft;
         }
 
         menu.ShowAt(target, options);

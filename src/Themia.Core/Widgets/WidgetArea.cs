@@ -41,7 +41,7 @@ public enum AreaShape
 /// <para>
 /// Width and height are judged separately on purpose: a 480×160 strip and a 200×400 column have
 /// about the same area and want opposite things, so a single "small / medium / large" would get
-/// one of them wrong. The breakpoints are chosen so the seven gallery sizes land in seven distinct
+/// one of them wrong. The breakpoints are chosen so the seven size tiers (<see cref="WidgetTiers"/>) land in seven distinct
 /// pairs (content area = card less the header, about 44 DIPs):
 /// </para>
 /// <code>

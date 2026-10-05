@@ -36,8 +36,8 @@ internal static class LogFiles
     public static string CurrentFile => Path.Combine(Folder, LogFileRules.CurrentName);
 
     /// <summary>
-    /// The sink every process gets — the debugger — and the floor. The gallery and the settings
-    /// render stop here: they must never write into the user's log folder while the user's own copy
+    /// The sink every process gets — the debugger — and the floor. The debug renders
+    /// stop here: they must never write into the user's log folder while the user's own copy
     /// is running.
     /// </summary>
     public static void InstallBasics()

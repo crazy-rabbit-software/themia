@@ -46,7 +46,7 @@ public static class ShowcaseViews
     /// <paramref name="screen"/> (the whole monitor in DIPs, with its work area as
     /// <see cref="ScreenMetrics.Allowed"/>). Each widget's cell is its tier times
     /// <paramref name="contentScale"/> plus <paramref name="gap"/>, so after the gap inset ([S-04])
-    /// and the content scale ([S-850]) the widget lays out in exactly the tier's DIPs, as in the gallery.
+    /// and the content scale ([S-850]) the widget lays out in exactly the tier's DIPs.
     /// <para>
     /// [S-1812] When the tiers do not all fit in one work area, the rest go on a second view of the
     /// same kind ("Clock (2)"); a tier larger than the whole work area is shrunk to it.

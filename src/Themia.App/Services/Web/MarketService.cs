@@ -350,12 +350,6 @@ internal static class MarketService
         _ => "1",
     };
 
-#if DEBUG
-    /// <summary>[S-1311] The gallery's fixture: a fixed quote seeded as a fresh answer, offline and the same every run.</summary>
-    internal static void SeedGallery(QuoteMarket market, QuoteRange range, bool prePost, TickerQuote quote)
-        => Cache.Seed(Key(quote.Symbol, market, range, prePost), new Fetched<TickerQuote>(FetchStatus.Ok, quote, null, DateTimeOffset.Now.AddMinutes(-1)));
-#endif
-
     private static double? Sane(double? value)
         => value is { } number && double.IsFinite(number) ? number : null;
 }

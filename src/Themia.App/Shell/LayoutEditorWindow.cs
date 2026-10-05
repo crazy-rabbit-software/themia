@@ -252,11 +252,7 @@ internal sealed class LayoutEditorWindow
         var scale = dpi > 0 ? dpi / 96.0 : 1.0;
         _window.AppWindow.Resize(new SizeInt32((int)Math.Round(1000 * scale), (int)Math.Round(760 * scale)));
 
-        var icon = Path.Combine(AppContext.BaseDirectory, "Assets", "themia.ico");
-        if (File.Exists(icon))
-        {
-            _window.AppWindow.SetIcon(icon);
-        }
+        AppIcon.Apply(_window.AppWindow);
 
         _window.SystemBackdrop = new MicaBackdrop();
         _window.ExtendsContentIntoTitleBar = true;

@@ -39,6 +39,7 @@ internal sealed partial class DesktopWindow
         ApplyChromeless();
 
         appWindow.IsShownInSwitchers = false;
+        AppIcon.Apply(appWindow);
         _ = _appWindow; // retained for placement and future presenter work
 
         ApplyPlacement(appWindow);

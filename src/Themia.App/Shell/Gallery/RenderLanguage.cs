@@ -7,8 +7,8 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1109] The debug renders' language switch: <c>--lang &lt;en|de|es|fr|it|ja|pl|pt|zh&gt;</c> on any
-/// render flag (<c>--gallery-png</c>, <c>--settings-png</c>, …) draws it in that language, so a
-/// translation can be checked against the size tiers without changing anyone's settings.
+/// render flag (<c>--settings-png</c>, <c>--picker-png</c>, …) draws it in that language, so a
+/// translation can be checked without changing anyone's settings.
 /// </summary>
 internal static class RenderLanguage
 {
