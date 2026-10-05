@@ -102,7 +102,6 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
         else
         {
             _slideTimer.IsRepeating = true;
-            _slideTimer.Tick += OnSlideTick;
         }
     }
 
@@ -115,6 +114,15 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _ticker = ticker;
+
+        // [S-1881] Subscribed in Attach, not here: a timer's Tick roots the view from the native
+        // side, and a view parked under the Set up button is built but never attached or detached.
+        if (_slideTimer is not null)
+        {
+            _slideTimer.Tick -= OnSlideTick;
+            _slideTimer.Tick += OnSlideTick;
+        }
+
         ApplyConfig(config);
     }
 

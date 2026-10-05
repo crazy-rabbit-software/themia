@@ -202,27 +202,12 @@ internal sealed partial class DesktopWindow
         var wanted = view.Widgets;
 
         // Reuse the cards that survived the change: rebuilding every card on every state change
-        // would restart each widget's tick subscription and flash the whole surface.
-        var byId = _cards.ToDictionary(c => c.Model.Id, StringComparer.Ordinal);
-        var kept = new List<WidgetCard>(wanted.Count);
+        // would restart each widget's tick subscription and flash the whole surface. [S-1882] The
+        // cards that go are released before any new one is built, so a view switch never holds the
+        // old view and the new one at once.
+        var change = WidgetLiveness.Reconcile(_cards, c => c.Model, wanted);
 
-        foreach (var model in wanted)
-        {
-            if (byId.TryGetValue(model.Id, out var existing) && ReferenceEquals(existing.Model, model))
-            {
-                existing.ApplyConfig();
-                kept.Add(existing);
-                byId.Remove(model.Id);
-                continue;
-            }
-
-            var card = new WidgetCard(this, model);
-            _widgetLayer.Children.Add(card);
-            kept.Add(card);
-            byId.Remove(model.Id);
-        }
-
-        foreach (var stale in byId.Values)
+        foreach (var stale in change.Release)
         {
             // [S-802] A card holding the keyboard and now gone must not keep the surface focusable
             // forever. Before Detach, so its view hears the Escape while it is still whole.
@@ -230,6 +215,28 @@ internal sealed partial class DesktopWindow
 
             stale.Detach();
             _widgetLayer.Children.Remove(stale);
+        }
+
+        // [S-1882] The cards just taken off hold native trees only a collection releases.
+        if (change.Release.Count > 0 && _root.DispatcherQueue is { } queue)
+        {
+            ReleaseSweep.Request(queue);
+        }
+
+        var kept = new List<WidgetCard>(change.Slots.Count);
+
+        foreach (var (model, existing) in change.Slots)
+        {
+            if (existing is not null)
+            {
+                existing.ApplyConfig();
+                kept.Add(existing);
+                continue;
+            }
+
+            var card = new WidgetCard(this, model);
+            _widgetLayer.Children.Add(card);
+            kept.Add(card);
         }
 
         _cards.Clear();

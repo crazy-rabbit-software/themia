@@ -236,6 +236,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
     {
         _host = host;
         Model = model;
+#if DEBUG
+        Gallery.LiveCensus.CardBuilt(this);
+#endif
 
         // [S-891] Guarded: a view that throws while being built becomes an error card, not a hole.
         _view = CreateView(model.Kind);
@@ -781,11 +784,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
     public void Detach()
     {
         DetachSetup();
-
-        if (_view is IWidgetView widgetView)
-        {
-            widgetView.Detach();
-        }
+        StopView();
     }
 
     public void SetLiveRect(FracRect rect) => LiveRect = rect;
@@ -1216,7 +1215,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
                 // The view's own commands — pause a camera, refresh a page — read fresh each time so
                 // their text can follow the state they toggle. [S-1746] None of them changes how the
                 // widget looks: that is its settings' job.
-                if (_view is IWidgetContextActions { ContextActions: { Count: > 0 } actions })
+                if (_running && _view is IWidgetContextActions { ContextActions: { Count: > 0 } actions })
                 {
                     entries.AddRange(actions.Select(action => new ItemMenuEntry(action.Glyph, action.Text, action.Invoke)));
                 }
@@ -1283,7 +1282,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
     // ---- the keyboard lease ([S-800]) --------------------------------------------------------------
 
     /// <summary>[S-800] Whether a click here takes the keyboard: the view navigates with keys, and this is a real desktop card.</summary>
-    public bool TakesKeys => _view is IWidgetKeys { WantsKeys: true } && !_host.IsPreview;
+    public bool TakesKeys => _running && _view is IWidgetKeys { WantsKeys: true } && !_host.IsPreview;
 
     /// <summary>
     /// [S-803] Hand the view a key from the lease. A view that throws is logged, not rethrown: the key
@@ -1291,7 +1290,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IContainerSurfa
     /// </summary>
     public bool SendKey(WidgetKey key)
     {
-        if (_view is not IWidgetKeys keys)
+        if (!_running || _view is not IWidgetKeys keys)
         {
             return false;
         }

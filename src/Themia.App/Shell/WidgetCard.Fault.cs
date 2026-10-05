@@ -34,6 +34,12 @@ internal sealed partial class WidgetCard
     /// <summary>Paused by safe mode rather than failed.</summary>
     public bool IsPaused => _view is FaultCard { Paused: true };
 
+    /// <summary>
+    /// [S-1881] The view is attached (subscribed to the ticker, its services and its events) and not
+    /// yet detached. Detach runs only while this is set, so it runs once however many paths ask.
+    /// </summary>
+    private bool _running;
+
     /// <summary>Set while the view attaches, so a failure on its very first tick counts as an attach failure.</summary>
     private Exception? _attachFault;
     private bool _attaching;
@@ -55,13 +61,25 @@ internal sealed partial class WidgetCard
         }
     }
 
-    /// <summary>Bind the view and attach it to the ticker and its config, catching what either throws.</summary>
+    /// <summary>
+    /// Bind the view and attach it to the ticker and its config, catching what either throws.
+    /// [S-1881] A widget that needs setting up is not attached at all: its view is parked under the
+    /// Set up button until the config or an account makes it useful.
+    /// </summary>
     private void AttachView()
     {
         if (_view is FaultCard)
         {
             return;
         }
+
+        if (!WidgetLiveness.Runs(Model.Config, SignedIn()))
+        {
+            _parked = true;
+            return;
+        }
+
+        _parked = false;
 
         _attaching = true;
         _attachFault = null;
@@ -77,6 +95,12 @@ internal sealed partial class WidgetCard
 
             if (_view is IWidgetView widgetView)
             {
+                // Running before Attach: a view that throws half-way through it has subscribed to
+                // something already, and the failure path's detach must still reach it.
+                _running = true;
+#if DEBUG
+                Gallery.LiveCensus.ViewAttached(_view);
+#endif
                 widgetView.Attach(_host.Ticker, Model.Config);
             }
         }
@@ -91,14 +115,15 @@ internal sealed partial class WidgetCard
 
         if (_attachFault is { } fault)
         {
-            DetachQuietly(_view);
+            DetachQuietly();
             _view = Failed(fault, "starting");
         }
     }
 
     private void ApplyViewConfig()
     {
-        if (_view is not IWidgetView widgetView)
+        // [S-1881] A parked view hears nothing; it is built afresh with the config once it runs.
+        if (!_running || _view is not IWidgetView widgetView)
         {
             return;
         }
@@ -153,7 +178,8 @@ internal sealed partial class WidgetCard
         {
             _view.SizeChanged += (_, e) =>
             {
-                if (e.NewSize.Width > 0 && e.NewSize.Height > 0)
+                // [S-1881] Only a running view: a parked one was never attached and has nothing to fit.
+                if (_running && ReferenceEquals(_view, sizeAware) && e.NewSize.Width > 0 && e.NewSize.Height > 0)
                 {
                     sizeAware.ApplySize(new WidgetArea(e.NewSize.Width, e.NewSize.Height));
                 }
@@ -206,7 +232,7 @@ internal sealed partial class WidgetCard
     private void Replace(FrameworkElement next)
     {
         var old = _view;
-        DetachQuietly(old);
+        DetachQuietly();
         _view = next;
         Swap(old, next);
     }
@@ -245,22 +271,36 @@ internal sealed partial class WidgetCard
         _host.OnCardFrameChanged(this);
     }
 
-    private void DetachQuietly(FrameworkElement view)
+    /// <summary>Detach the running view, if it runs, catching what it throws.</summary>
+    private void DetachQuietly()
     {
-        if (view is not IWidgetView widgetView)
-        {
-            return;
-        }
-
         try
         {
-            widgetView.Detach();
+            StopView();
         }
         catch (Exception ex)
         {
             // It already failed once; its card is what matters now, and the failure is on record.
             Log.Warn(Scope, $"widget '{Model.Id}' threw while being taken out after a failure", ex);
         }
+    }
+
+    /// <summary>
+    /// [S-1881] Detach the view if it is attached, exactly once: a stopped view holds no ticker
+    /// subscription, no service and no event, whoever asks to stop it next.
+    /// </summary>
+    private void StopView()
+    {
+        if (!_running)
+        {
+            return;
+        }
+
+        _running = false;
+#if DEBUG
+        Gallery.LiveCensus.ViewDetached();
+#endif
+        ((IWidgetView)_view).Detach();
     }
 
 #if DEBUG

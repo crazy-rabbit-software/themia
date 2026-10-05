@@ -424,6 +424,9 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
         _keyboardActive = true;
         _selection.Move(move, columns, pageRows, extend);
+
+        // [S-1887] End or Page down may land on an item not built yet.
+        RealizeThrough(_selection.FocusIndex);
         RefreshSelectionVisuals();
 
         if (_selection.FocusIndex is var index and >= 0 && index < _visuals.Count)

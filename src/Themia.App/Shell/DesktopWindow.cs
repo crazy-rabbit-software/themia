@@ -316,4 +316,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public void RequestPaste() => _host.Paste();
 
     public bool CanPaste => _host.Clipboard.HasContent;
+
+#if DEBUG
+    /// <summary>Debug only: the surface's content, for the switch check's picture ([S-1883]).</summary>
+    internal FrameworkElement DebugRoot => _root;
+#endif
 }

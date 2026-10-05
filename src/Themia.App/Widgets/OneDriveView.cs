@@ -178,7 +178,6 @@ internal sealed partial class OneDriveView : Grid, IWidgetView, IWidgetHeaderCon
         {
             _countTimer.Interval = CountDebounce;
             _countTimer.IsRepeating = false;
-            _countTimer.Tick += OnCountSettled;
         }
     }
 
@@ -188,6 +187,15 @@ internal sealed partial class OneDriveView : Grid, IWidgetView, IWidgetHeaderCon
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+
+        // [S-1881] Subscribed in Attach, not here: a timer's Tick roots the view from the native
+        // side, and a view parked under the Set up button is built but never attached or detached.
+        if (_countTimer is not null)
+        {
+            _countTimer.Tick -= OnCountSettled;
+            _countTimer.Tick += OnCountSettled;
+        }
+
         _service = AppServices.Drive;
         _fade = new ScrollFade(_scroll, _list);
 

@@ -107,7 +107,16 @@ internal sealed class RefreshSchedule(string scope, string subject)
             ? $"; next attempt in {(int)Math.Ceiling(wait.TotalMinutes)}m"
             : string.Empty;
 
-        Log.Warn(scope, $"{subject}: {FetchState.Message(status)}{Describe(detail)}{suffix}");
+        // [S-1886] An unconfigured widget is a state, not a fault: never a warning.
+        var line = $"{subject}: {FetchState.Message(status)}{Describe(detail)}{suffix}";
+        if (FetchState.LogLevelFor(status) == LogLevel.Warn)
+        {
+            Log.Warn(scope, line);
+        }
+        else
+        {
+            Log.Debug(scope, line);
+        }
     }
 
     private static string Describe(string? detail)

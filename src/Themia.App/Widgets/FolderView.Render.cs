@@ -197,6 +197,10 @@ internal sealed partial class FolderView
         };
         SetRow(_scroll, 3);
 
+        // [S-1887] Rows are built as the list scrolls toward them, and when the tile grows.
+        _scroll.ViewChanged += (_, _) => RealizeMore();
+        _scroll.SizeChanged += (_, _) => RealizeMore();
+
         _footer = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
         _footer.TextTrimming = TextTrimming.CharacterEllipsis;
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_footer, FontNumeralAlignment.Tabular);
@@ -390,31 +394,20 @@ internal sealed partial class FolderView
 
         var plan = _plan;
         var generation = ++_renderGeneration;
-        var now = DateTimeOffset.Now;
+        _renderedAt = DateTimeOffset.Now;
         var scale = XamlRoot?.RasterizationScale ?? 1.0;
 
-        for (var i = 0; i < _shown.Count; i++)
-        {
-            var visual = plan?.Grid is { } grid
-                ? BuildTile(_shown[i], i, grid)
-                : BuildRow(_shown[i], i, plan, now);
-
-            HookItem(visual);
-            _visuals.Add(visual);
-            _items.Children.Add(visual.Root);
-        }
-
-        if (_total > _shown.Count)
-        {
-            _items.Children.Add(MoreRow(_total - _shown.Count));
-        }
+        // [S-1887] What is in view (or where the scroll is about to be put back) and one viewport
+        // more; the rest is a spacer until the list scrolls toward it.
+        var (extent, columns) = ItemExtent();
+        RealizeTo(FolderRealize.Target(_shown.Count, 0, _restoreScroll ?? 0, Viewport(), extent, columns, _selection.FocusIndex));
 
         _itemsKey = plan is null ? string.Empty : ItemsKey(plan);
         RefreshSelectionVisuals();
         RefreshDims();
         UpdateFooter();
         _fade?.Refresh();
-        LoadImages(generation, scale);
+        LoadImages(generation, scale, 0);
 
         if (_restoreScroll is { } offset)
         {
@@ -423,13 +416,140 @@ internal sealed partial class FolderView
             _scroll.ChangeView(null, offset, null, disableAnimation: true);
         }
 
-        if (_renameAfterLoad is { } renamed && _visuals.FirstOrDefault(v => string.Equals(v.Entry.FullPath, renamed, StringComparison.OrdinalIgnoreCase)) is { } target)
+        if (_renameAfterLoad is { } renamed)
+        {
+            RealizeThrough(IndexOf(renamed));
+        }
+
+        if (_renameAfterLoad is { } renamedNow && _visuals.FirstOrDefault(v => string.Equals(v.Entry.FullPath, renamedNow, StringComparison.OrdinalIgnoreCase)) is { } target)
         {
             _renameAfterLoad = null;
-            _selection.SelectOnly(renamed);
+            _selection.SelectOnly(renamedNow);
             RefreshSelectionVisuals();
             BeginRename(target);
         }
+    }
+
+    /// <summary>When the items on screen were drawn: the clock their "modified" cells read.</summary>
+    private DateTimeOffset _renderedAt;
+
+    /// <summary>[S-1887] The spacer standing for the items not built yet, or the "+N more" row; always last.</summary>
+    private FrameworkElement? _tail;
+
+    /// <summary>[S-1887] One item's height and how many sit side by side, as the plan lays them.</summary>
+    private (double Extent, int Columns) ItemExtent()
+        => _plan?.Grid is { } grid
+            ? (grid.CellHeight, Math.Max(1, grid.Columns))
+            : (_plan?.RowHeight ?? FolderLayout.RowHeight(_config.ItemSize), 1);
+
+    /// <summary>The DIPs of list in view: the scroller's once it is measured, the tile's before.</summary>
+    private double Viewport() => _scroll.ViewportHeight > 0 ? _scroll.ViewportHeight : _area.Height;
+
+    /// <summary>
+    /// [S-1887] Build items, in order, until <paramref name="count"/> are built, then put the tail back:
+    /// the spacer for the rest, or the "+N more" row once everything is built. Returns how many were
+    /// built before, so the caller can finish the new ones.
+    /// </summary>
+    private int RealizeTo(int count)
+    {
+        var from = _visuals.Count;
+        var target = Math.Min(count, _shown.Count);
+
+        if (target <= from && from > 0)
+        {
+            return from;
+        }
+
+        if (_tail is not null)
+        {
+            _items.Children.Remove(_tail);
+            _tail = null;
+        }
+
+        var plan = _plan;
+        for (var i = from; i < target; i++)
+        {
+            var visual = plan?.Grid is { } grid
+                ? BuildTile(_shown[i], i, grid)
+                : BuildRow(_shown[i], i, plan, _renderedAt);
+
+            HookItem(visual);
+            _visuals.Add(visual);
+            _items.Children.Add(visual.Root);
+        }
+
+        var (extent, columns) = ItemExtent();
+        if (_visuals.Count < _shown.Count)
+        {
+            // Not hit-testable, not an item (no int Tag): the tile panel lays it under the tiles.
+            _tail = new Border { Height = FolderRealize.SpacerHeight(_shown.Count, _visuals.Count, extent, columns), IsHitTestVisible = false };
+        }
+        else if (_total > _shown.Count)
+        {
+            _tail = MoreRow(_total - _shown.Count);
+        }
+
+        if (_tail is not null)
+        {
+            _items.Children.Add(_tail);
+        }
+
+        return from;
+    }
+
+    /// <summary>[S-1887] The list scrolled or grew: build what has come within a viewport of the view.</summary>
+    private void RealizeMore()
+    {
+        if (_detached || _visuals.Count >= _shown.Count || _scroll.Visibility != Visibility.Visible)
+        {
+            return;
+        }
+
+        var (extent, columns) = ItemExtent();
+        Finish(RealizeTo(FolderRealize.Target(_shown.Count, _visuals.Count, _scroll.VerticalOffset, Viewport(), extent, columns, _selection.FocusIndex)));
+    }
+
+    /// <summary>[S-1887] Make sure the item at <paramref name="index"/> is built (the keyboard cursor, a rename).</summary>
+    private void RealizeThrough(int index)
+    {
+        if (_detached || index < _visuals.Count || index >= _shown.Count)
+        {
+            return;
+        }
+
+        var (extent, columns) = ItemExtent();
+        Finish(RealizeTo(FolderRealize.Target(_shown.Count, _visuals.Count, _scroll.VerticalOffset, Viewport(), extent, columns, index)));
+    }
+
+    /// <summary>Paint, dim and load the icons of the items built from <paramref name="from"/> on.</summary>
+    private void Finish(int from)
+    {
+        if (from >= _visuals.Count)
+        {
+            return;
+        }
+
+        for (var i = from; i < _visuals.Count; i++)
+        {
+            Paint(_visuals[i]);
+        }
+
+        RefreshDims();
+        _fade?.Refresh();
+        LoadImages(_renderGeneration, XamlRoot?.RasterizationScale ?? 1.0, from);
+    }
+
+    private int IndexOf(string path)
+    {
+        for (var i = 0; i < _shown.Count; i++)
+        {
+            if (string.Equals(_shown[i].FullPath, path, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private void ShowMessage(string text)
@@ -477,6 +597,7 @@ internal sealed partial class FolderView
         _itemHovers.Clear();
         _visuals.Clear();
         _items.Children.Clear();
+        _tail = null;
         _renaming = null;
     }
 
@@ -724,11 +845,11 @@ internal sealed partial class FolderView
     /// Icons, thumbnails (grid views) and item counts, each set when it arrives — on the items of the
     /// render that asked for it, never on a later render's.
     /// </summary>
-    private async void LoadImages(int generation, double scale)
+    private async void LoadImages(int generation, double scale, int from)
     {
         try
         {
-            var visuals = _visuals.ToArray();
+            var visuals = _visuals.Skip(from).ToArray();
             var thumbnails = _plan?.Grid is not null;
             var counts = _plan?.Columns.Contains(FolderColumn.ItemCount) == true;
 

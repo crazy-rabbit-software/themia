@@ -35,6 +35,9 @@ public sealed class Ticker : IDisposable
     /// <summary>The cadence the timer is currently running at. Exposed for diagnostics.</summary>
     public TimeSpan CurrentCadence { get; private set; } = TimeSpan.FromMinutes(1);
 
+    /// <summary>How many subscriptions are live. Exposed for diagnostics: the switch check ([S-1883]).</summary>
+    public int SubscriptionCount => _subscriptions.Count;
+
     /// <summary>Subscribe at a cadence. Dispose the result to unsubscribe; the timer stops when the last one goes.</summary>
     public IDisposable Subscribe(TimeSpan interval, Action onTick)
     {

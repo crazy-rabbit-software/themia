@@ -15,7 +15,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 
 Sections, grouped by area (file order below; search for the heading).
 
-- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
+- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search and adding into containers (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Containers; Containers and shell hooks (PA); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
@@ -224,6 +224,59 @@ Sections, grouped by area (file order below; search for the heading).
   previous second for a whole tick; a late wake must not push the schedule permanently off.
 - **[S-26]** A subscriber fires when its period index changes, so a once-a-minute widget sharing a
   one-second timer still only runs on the minute.
+
+## Live widgets and resource use (R6-RESOURCES)
+
+Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/FolderRealize.cs`,
+`Themia.App/Shell/DesktopWindow.Layout.cs`, `Themia.App/Shell/WidgetCard*.cs`,
+`Themia.App/Services/ReleaseSweep.cs`, `Themia.App/Shell/Gallery/SwitchCheck.cs`. Tests:
+`WidgetLivenessTests`, `FolderRealizeTests`.
+
+- **[S-1880]** Only a **live** widget is attached, ticks, polls or holds anything: one in a view some
+  display shows (`WidgetLiveness.ShownViews`, each display's own view or the active one, a view on two
+  displays once) that runs ([S-1881]). A view no display shows costs its JSON and nothing else: no
+  card, no ticker subscription, no service subscriber. Shared services start with their first
+  subscriber and stop with their last (the mail, GitHub and Claude usage services subscribe to the
+  ticker only while a feed is open), so a service whose widgets are all hidden does no work. The one
+  exception by design is the screen-time tracker ([S-459]).
+- **[S-1881]** A widget that needs setting up ([S-1860], [S-1861]) does not run: its view is built but
+  **parked** under the Set up button, never attached, so it polls nothing, ticks nothing and logs
+  nothing. When the config or a newly signed-in account makes it useful a fresh view is attached in
+  its place; a widget emptied again is detached and parked. A parked view hears no config, no size,
+  no keys and offers no context actions. The one widget set up by using it, an empty Shortcuts widget,
+  keeps running under the button so a file can be dropped onto it. A view acquires nothing in its
+  constructor that only Detach releases (a timer's Tick roots the view from the native side): such
+  subscriptions are made in Attach. A card detaches its view exactly once, whichever path asks first,
+  and a view whose Attach throws half-way is still detached.
+- **[S-1882]** A layout pass matches cards to widgets by the widget object (`WidgetLiveness.Reconcile`);
+  every other card is **released before** any new one is built, so a view switch never holds the old
+  view and the new one together. A pass that released cards asks for one background collection, at
+  low priority after the new view is drawn (`ReleaseSweep`, one per burst): a card's native XAML tree
+  is freed only when its managed wrappers are collected, and a widget layer allocates so little
+  managed memory that, left alone, released views piled up (about +60 MB per pass over the showcase
+  views, 412 MB to 820 MB private in eight passes). With the sweep the figure stays in one band.
+- **[S-1883]** Debug render: `--switch-check <rounds> [<out.txt>] [--ordinary | --show <view>]
+  [--per-view] [--dwell ms]` builds a real host and surface off-screen over a detached state holding
+  the showcase views and an empty view, switches through every view `rounds` times and prints, after
+  each round and a forced collection: working set, private bytes, managed heap, cards alive, views
+  attached against the live widgets, ticker subscriptions, threads and handles, marking a breach LEAK.
+  `--per-view` prints each view's cost while shown; `--show` measures one view and draws it, then
+  with every list scrolled to its end.
+- **[S-1884]** Debug builds keep a weak census of every card and attached view (`LiveCensus`) for the
+  switch check: after a collection, a card of a view no display shows that is still alive is a leak.
+- **[S-1885]** Baseline (switch check `--ordinary`, Debug build, one 1920x1080 stand-in display at
+  100%): the empty surface is about 155 MB working set; eight everyday widgets (clock, CPU, memory,
+  folder, shortcuts, notes, now playing, volume) add about 40 MB. Per view of seven showcase widgets,
+  while shown: Apps about 185 MB (every app's cell built), Processes about 23 MB, Folder about 13 MB
+  (was about 175 MB before [S-1887]), everything else under 7 MB.
+- **[S-1886]** "Not set up yet" is a state, not a fault: a fetch status change to it is logged at debug
+  level, never as a warning (`FetchState.LogLevelFor`); real failures stay warnings, an answer after
+  one is an info line.
+- **[S-1887]** The folder widget builds only the items in view and one viewport below
+  (`FolderRealize.Target`), in order and whole rows at a time; the rest is a spacer of exactly their
+  height (`FolderRealize.SpacerHeight`), so the scroll range is right from the start. Scrolling,
+  growing the tile, the keyboard cursor (End, Page down) and a rename build further; nothing built is
+  taken down before the next full redraw. The "+N more" row comes once everything is built.
 
 ## Persistence
 
@@ -4628,10 +4681,10 @@ gallery ([S-1863]).
   dropped on a body too short for both; the button stays at every size, XS included. A click opens
   the settings window on the widget's page (opening the window if it is closed), the same request as
   the card menu's Configure; the button takes no focus, so it works outside edit mode on the
-  `WS_EX_NOACTIVATE` surface. The card owns it, not the view: the view keeps running underneath,
-  invisible and not hit-testable, and the button goes the moment the config (from settings, or a
-  change the view saves itself such as a shortcut dropped onto it) or a newly signed-in account makes
-  the widget useful. The views no longer carry their own "add one in settings" sentences.
+  `WS_EX_NOACTIVATE` surface. The card owns it, not the view: the view underneath is parked, not
+  running ([S-1881]), invisible and not hit-testable, and the button goes the moment the config (from
+  settings, or a change the view saves itself such as a shortcut dropped onto it) or a newly
+  signed-in account makes the widget useful. The views no longer carry their own "add one in settings" sentences.
 
 - **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
   toolbar entry, and no `#if DEBUG` sample data inside widget views or services. A widget's layout at

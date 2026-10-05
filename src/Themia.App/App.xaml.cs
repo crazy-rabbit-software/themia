@@ -120,6 +120,12 @@ public partial class App : Application
             return;
         }
 
+        // And what a view switch costs, and whether it leaks ([S-1883]).
+        if (Shell.Gallery.SwitchCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And the surface's drop plumbing, exercised off-screen ([S-1026]).
         if (Shell.Gallery.DropCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

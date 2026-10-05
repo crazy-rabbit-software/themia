@@ -92,7 +92,6 @@ internal sealed partial class PowerView : Grid, IWidgetView, IWidgetSizeAware, I
         {
             _disarmTimer.IsRepeating = false;
             _disarmTimer.Interval = PowerArm.Window;
-            _disarmTimer.Tick += OnDisarmTick;
         }
         else
         {
@@ -114,6 +113,15 @@ internal sealed partial class PowerView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         _ticker = ticker;
         _detached = false;
+
+        // [S-1881] Subscribed in Attach, not here: a timer's Tick roots the view from the native
+        // side, and a view parked under the Set up button is built but never attached or detached.
+        if (_disarmTimer is not null)
+        {
+            _disarmTimer.Tick -= OnDisarmTick;
+            _disarmTimer.Tick += OnDisarmTick;
+        }
+
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
         ApplyConfig(config);

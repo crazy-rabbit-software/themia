@@ -1,3 +1,4 @@
+using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 
 namespace Themia.Core.Widgets;
@@ -85,6 +86,19 @@ public static class FetchState
         FetchStatus.NotConfigured => false,
         FetchStatus.Refused => false,
         _ => true,
+    };
+
+    /// <summary>
+    /// [S-1886] How loud a change to <paramref name="status"/> is in the log. "Not set up yet" is the
+    /// ordinary state of a widget nobody has configured (it shows the Set up button, [S-1862]), not a
+    /// fault: a debug line, never a warning. Answering is news worth an info line; every real failure
+    /// is a warning.
+    /// </summary>
+    public static LogLevel LogLevelFor(FetchStatus status) => status switch
+    {
+        FetchStatus.Ok => LogLevel.Info,
+        FetchStatus.NotConfigured or FetchStatus.Loading => LogLevel.Debug,
+        _ => LogLevel.Warn,
     };
 
     /// <summary>Whether the status is one that should replace the data on screen rather than annotate it.</summary>
