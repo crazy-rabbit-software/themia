@@ -24,12 +24,12 @@ internal static partial class ConfigPages
     /// </summary>
     private static FrameworkElement BuildWidget(AppHost host, string widgetId, Action<ConfigTarget> navigate)
     {
-        if (host.Find(widgetId) is not var (view, widget) || widget is null)
+        if (host.Find(widgetId) is not var (_, widget) || widget is null)
         {
             return Page(Str.Settings_Style_Widget.Text(), [Note(Str.Shell_Widget_Gone.Text())]);
         }
 
-        return WidgetPage(host, view, widget, navigate, () => host.Mutate(_ => { }));
+        return WidgetPage(widget, navigate, () => host.Mutate(_ => { }));
     }
 
     /// <summary>
@@ -40,13 +40,52 @@ internal static partial class ConfigPages
     internal static SettingsPage BuildWidgetForIndex(AppHost host, WidgetKind kind)
     {
         var widget = WidgetInstance.Create(kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1));
-        return WidgetPage(host, ViewState.Create(string.Empty), widget, _ => { }, () => { });
+        return WidgetPage(widget, _ => { }, () => { });
     }
 
-    private static SettingsPage WidgetPage(AppHost host, ViewState view, WidgetInstance widget, Action<ConfigTarget> navigate, Action save)
+    /// <summary>
+    /// [S-1750] Whether a kind's page has anything on it. Read off the rows the page builder makes
+    /// for a throwaway widget of that kind (as the search index does), never a list kept beside the
+    /// pages, so a kind that gains or loses its last row cannot disagree with its menus. Built once
+    /// per kind and remembered: the rows of a kind's page are the same for each of its widgets.
+    /// UI thread only, like the pages.
+    /// </summary>
+    internal static bool HasWidgetSettings(WidgetKind kind)
     {
-        var widgetId = widget.Id;
+        if (HasSettingsByKind.TryGetValue(kind, out var known))
+        {
+            return known;
+        }
+
+        bool has;
+        try
+        {
+            var widget = WidgetInstance.Create(kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1));
+            has = WidgetRows(widget, _ => { }, () => { }).Count > 0;
+        }
+        catch (Exception ex)
+        {
+            // Offer the page rather than hide settings that may well exist.
+            Log.Error(Scope, $"could not read the rows of the {kind} settings page", ex);
+            return true;
+        }
+
+        HasSettingsByKind[kind] = has;
+        return has;
+    }
+
+    private static readonly Dictionary<WidgetKind, bool> HasSettingsByKind = [];
+
+    private static SettingsPage WidgetPage(WidgetInstance widget, Action<ConfigTarget> navigate, Action save)
+    {
         var definition = WidgetCatalog.Definition(widget.Kind);
+        var rows = WidgetRows(widget, navigate, save);
+        return Page(string.IsNullOrWhiteSpace(widget.Label) ? definition.Label : widget.Label!, rows, definition.Description);
+    }
+
+    /// <summary>The kind's own rows, in the page's order, the danger section last.</summary>
+    private static List<FrameworkElement> WidgetRows(WidgetInstance widget, Action<ConfigTarget> navigate, Action save)
+    {
         var rows = new List<FrameworkElement>();
 
         void Save() => save();
@@ -96,8 +135,16 @@ internal static partial class ConfigPages
                 WidgetSettings.Mixer(rows, mixer, Save);
                 break;
 
-            case ScreenTimeConfig screenTime:
-                WidgetSettings.ScreenTime(rows, screenTime, Save);
+            case ScreenTimeChartConfig chart:
+                WidgetSettings.ScreenTimeChart(rows, chart, Save);
+                break;
+
+            case ScreenTimeDonutConfig donut:
+                WidgetSettings.ScreenTimeDonut(rows, donut, Save);
+                break;
+
+            case ScreenTimeAppsConfig apps:
+                WidgetSettings.ScreenTimeApps(rows, apps, Save);
                 break;
 
             // [S-2400] Every detail widget: its own rows, then its refresh.
@@ -202,60 +249,20 @@ internal static partial class ConfigPages
         }
 
         // Every widget page is laid out the same way: what it shows, then how it behaves, then how
-        // often it updates, then the card itself, and destructive actions last. The widget's own
-        // rows cover the first three; a row it built with FluentLayout.DangerRow is lifted out of
-        // wherever it sat and into the one danger section below, so nothing that cannot be undone
-        // is left sitting between two switches.
+        // often it updates, and destructive actions last. A row the widget built with
+        // FluentLayout.DangerRow is lifted out of wherever it sat and into the one danger section
+        // below, so nothing that cannot be undone is left sitting between two switches. [S-3705]
+        // The card itself (header, background, title) is set on the edit bar, and the widget is
+        // deleted from its card menu or the Delete key: neither has a row here.
         var danger = rows.FindAll(FluentLayout.IsDanger);
         rows.RemoveAll(FluentLayout.IsDanger);
 
-        rows.Add(FluentLayout.Header(Str.Settings_Section_Appearance.Text()));
-
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.App_ConfigHeaderLabel.Text(), Str.Shell_Widget_HeaderDesc.Text(),
-            FluentLayout.Choice(
-                [
-                    (HeaderPlacement.Top, Str.Group_HeaderSide_Top.Text()),
-                    (HeaderPlacement.Bottom, Str.Group_HeaderSide_Bottom.Text()),
-                    (HeaderPlacement.Hidden, Str.Toggle_Hidden.Text()),
-                ],
-                widget.Header,
-                value => host.Mutate(_ => widget.Header = value))));
-
-        rows.Add(FluentLayout.Row(Glyphs.Surface, Str.Settings_Style_BgLabel.Text(), Str.Shell_Widget_BackgroundDesc.Text(),
-            FluentLayout.Choice(
-                [
-                    (WidgetSurface.Card, Str.Shell_Widget_Card.Text()),
-                    (WidgetSurface.Translucent, Str.Shell_Widget_Translucent.Text()),
-                    (WidgetSurface.Transparent, Str.Settings_Style_None.Text()),
-                ],
-                widget.Surface,
-                value => host.Mutate(_ => widget.Surface = value))));
-
-        var label = new TextBox
+        if (danger.Count > 0)
         {
-            Text = widget.Label ?? string.Empty,
-            MinWidth = 220,
-            PlaceholderText = definition.Label,
-        };
+            rows.Add(FluentLayout.Header(Str.Shell_Settings_Danger.Text()));
+            rows.AddRange(danger);
+        }
 
-        label.LostFocus += (_, _) => host.Mutate(_ =>
-            widget.Label = string.IsNullOrWhiteSpace(label.Text) ? null : label.Text.Trim());
-
-        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.Group_Title_Label.Text(), Str.Shell_Widget_TitleDesc.Text(), label));
-
-        rows.Add(FluentLayout.Header(Str.Shell_Settings_Danger.Text()));
-        rows.AddRange(danger);
-
-        var delete = new Button { Content = Str.CtxMenu_DeleteWidget.Text() };
-        delete.Click += (_, _) =>
-        {
-            host.Select(widgetId);
-            host.DeleteSelected();
-            navigate(ConfigTarget.ForView(view.Id));
-        };
-
-        rows.Add(FluentLayout.Row(Glyphs.Delete, Str.Common_Delete.Text(), Str.Shell_Widget_DeleteDesc.Format(("view", view.Name)), delete));
-
-        return Page(string.IsNullOrWhiteSpace(widget.Label) ? definition.Label : widget.Label!, rows, definition.Description);
+        return rows;
     }
 }

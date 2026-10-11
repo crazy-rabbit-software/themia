@@ -153,7 +153,7 @@ internal sealed partial class GalleryView
     /// Left / Right step, Space pauses the slideshow, Home / End go to the first and last picture,
     /// Enter opens the one shown. The other layouts show every picture at once and have nothing to step.
     /// </summary>
-    public bool WantsKeys => _config.Layout == GalleryLayout.Slideshow && _scan.Paths.Count > 0;
+    public bool WantsKeys => _config.Layout == GalleryLayout.Slideshow && _pictures.Count > 0;
 
     /// <inheritdoc cref="WantsKeys"/>
     public bool HandleKey(WidgetKey key)
@@ -163,7 +163,7 @@ internal sealed partial class GalleryView
             return false;
         }
 
-        switch (ControlKeys.Slideshow(key, _scan.Paths.Count))
+        switch (ControlKeys.Slideshow(key, _pictures.Count))
         {
             case ControlKey.Previous:
                 Previous();
@@ -178,15 +178,15 @@ internal sealed partial class GalleryView
                 return true;
 
             case ControlKey.Last:
-                JumpTo(_scan.Paths.Count - 1);
+                JumpTo(_pictures.Count - 1);
                 return true;
 
             case ControlKey.Toggle:
                 TogglePause();
                 return true;
 
-            case ControlKey.Open when _index >= 0 && _index < _scan.Paths.Count && Picture.IsLocal(_scan.Paths[_index]):
-                ShellLauncher.Open(_scan.Paths[_index]);
+            case ControlKey.Open when _index >= 0 && _index < _pictures.Count && Picture.IsLocal(_pictures[_index]):
+                ShellLauncher.Open(_pictures[_index]);
                 return true;
 
             default:
@@ -201,7 +201,7 @@ internal sealed partial class GalleryView
 
     private void JumpTo(int index)
     {
-        var count = _scan.Paths.Count;
+        var count = _pictures.Count;
 
         if (count == 0)
         {
@@ -223,7 +223,7 @@ internal sealed partial class GalleryView
     }
 
     /// <summary>[S-773] Read the source again now, and deal a fresh scatter or mosaic.</summary>
-    private void RefreshNow() => Rescan(reroll: true);
+    private void RefreshNow() => _watch?.RefreshNow();
 
     /// <summary>
     /// [S-771] The menu of the picture under the pointer — open it, show it in Explorer — followed by

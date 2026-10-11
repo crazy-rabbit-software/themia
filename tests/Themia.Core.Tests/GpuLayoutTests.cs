@@ -35,7 +35,7 @@ public sealed class GpuLayoutTests
     [Fact]
     public void S1200_the_chart_holds_the_span_at_the_refresh()
     {
-        var config = new GpuConfig { GraphSpanSeconds = 300, IntervalSeconds = 2 };
+        var config = new GpuConfig { GraphSpanSeconds = 300 };
 
         Assert.Equal(150, config.GraphCapacity);
     }

@@ -22,16 +22,11 @@ internal static partial class WidgetSettings
             Str.WidgetsA_Bluetooth_Settings_ConnectedOnly_Desc.Text(),
             FluentLayout.Toggle(config.ConnectedOnly, value => { config.ConnectedOnly = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Bluetooth_Settings_Max_Label.Text(),
-            Str.WidgetsA_Bluetooth_Settings_Max_Desc.Text(),
-            FluentLayout.Slider(config.EffectiveMaxCount, 1, 30, 1, string.Empty,
-                value => { config.MaxCount = (int)Math.Round(value); save(); })));
-
         // [S-1257] The original's per-device metrics. The name is always shown.
         rows.Add(FluentLayout.Header(Str.WidgetsA_Bluetooth_Settings_Show.Text()));
 
         rows.Add(FluentLayout.Row(Glyphs.Bluetooth, Str.WidgetsA_Bluetooth_Settings_Icon_Label.Text(),
-            Str.WidgetsA_Bluetooth_Settings_Icon_Desc.Text(),
+            null,
             FluentLayout.Toggle(config.ShowIcon, value => { config.ShowIcon = value; save(); })));
 
         rows.Add(FluentLayout.Row(Glyphs.Link, Str.WidgetsA_Bluetooth_Settings_Connection_Label.Text(),
@@ -48,8 +43,5 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Signal, Str.WidgetsA_Bluetooth_Settings_Signal_Label.Text(),
             Str.WidgetsA_Bluetooth_Settings_Signal_Desc.Text(),
             FluentLayout.Toggle(config.ShowSignal, value => { config.ShowSignal = value; save(); })));
-
-        FluentLayout.RefreshSeconds(rows, Str.WidgetsA_Bluetooth_Settings_Refresh_Desc.Text(), config.IntervalSeconds, 5, 300, 5,
-            value => { config.IntervalSeconds = value; save(); });
     }
 }

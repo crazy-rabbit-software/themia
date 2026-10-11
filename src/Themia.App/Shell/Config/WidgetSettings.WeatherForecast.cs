@@ -40,7 +40,5 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Forecast_DaysLabel.Text(), Str.Forecast_DaysDesc.Text(),
             FluentLayout.Slider(config.EffectiveDays, 1, 14, 1, string.Empty,
                 value => { config.Days = (int)Math.Round(value); save(); })));
-
-        FluentLayout.RefreshChoice(rows, config.RefreshMinutes, value => { config.RefreshMinutes = value; save(); });
     }
 }

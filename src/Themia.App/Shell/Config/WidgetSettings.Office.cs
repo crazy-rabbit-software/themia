@@ -45,7 +45,7 @@ internal static partial class WidgetSettings
         }
 
         rows.Add(FluentLayout.Row(Glyphs.View, Str.WidgetsA_Contacts_Settings_Layout_Label.Text(),
-            Str.WidgetsA_Contacts_Settings_Layout_Desc.Text(),
+            null,
             FluentLayout.Choice<ContactsLayout>(
                 [(ContactsLayout.List, Str.Apps_ViewList.Text()), (ContactsLayout.Compact, Str.Apps_ViewCompact.Text()), (ContactsLayout.Details, Str.CtxMenu_Details.Text()), (ContactsLayout.Grid, Str.Apps_ViewGrid.Text())],
                 config.EffectiveLayout,
@@ -86,13 +86,6 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Contacts_Settings_Count_Label.Text(),
             Str.WidgetsA_Contacts_Settings_Count_Desc.Text(),
             FluentLayout.Stepper(config.EffectiveCount, 5, 5, value => { config.Count = value; save(); })));
-
-        // [S-584] Saved as the user stops typing would be nicer, but each keystroke is one cheap save
-        // and the widget only re-filters what it holds.
-        var search = new TextBox { Text = config.DefaultSearch, PlaceholderText = Str.WidgetsA_Contacts_Settings_Search_Empty.Text(), MinWidth = 220 };
-        search.TextChanged += (_, _) => { config.DefaultSearch = search.Text; save(); };
-        rows.Add(FluentLayout.Row(Glyphs.Search, Str.WidgetsA_Contacts_Settings_Search_Label.Text(),
-            Str.WidgetsA_Contacts_Settings_Search_Desc.Text(), search));
 
         ShowColumns();
     }

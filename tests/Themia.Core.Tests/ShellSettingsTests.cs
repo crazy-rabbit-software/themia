@@ -122,7 +122,7 @@ public sealed class ShellSettingsTests : IDisposable
         state.Preferences.Language = AppLanguage.Japanese;
         state.Preferences.GameModeSuspend = true;
         state.Preferences.DesktopIconsVisible = false;
-        state.Preferences.AllowPrivateNetwork = true;
+        view.Color = "#3366CC";
         state.DefaultViewForNewDisplays = view.Id;
         state.DisabledMonitors.Add(@"\\.\DISPLAY2");
         state.MonitorScales[@"\\.\DISPLAY1"] = 1.5;
@@ -148,7 +148,7 @@ public sealed class ShellSettingsTests : IDisposable
         Assert.Equal(AppLanguage.Japanese, back.Preferences.Language);
         Assert.True(back.Preferences.GameModeSuspend);
         Assert.False(back.Preferences.DesktopIconsVisible);
-        Assert.True(back.Preferences.AllowPrivateNetwork);
+        Assert.Equal("#3366CC", back.Views[0].Color);
         Assert.Equal(view.Id, back.DefaultViewForNewDisplays);
         Assert.Equal([@"\\.\DISPLAY2"], back.DisabledMonitors);
         Assert.Equal(1.5, back.MonitorScales[@"\\.\DISPLAY1"]);
@@ -264,19 +264,19 @@ public sealed class ShellSettingsTests : IDisposable
     {
         var current = AppState.CreateDefault();
         var incoming = AppState.CreateDefault();
-        incoming.Preferences.AllowPrivateNetwork = true;
+        incoming.Preferences.GameModeSuspend = true;
         incoming.Design.UnlockAnimationMs = 900;
         incoming.DisabledMonitors.Add("X");
         incoming.MonitorScales["X"] = 0.75;
 
         var preview = SettingsTransfer.Compare(current, incoming, [], []);
 
-        Assert.Contains(preview.Changes, c => c.StartsWith("Local network access", StringComparison.Ordinal));
+        Assert.Contains(preview.Changes, c => c.StartsWith("Pause widgets during full-screen apps", StringComparison.Ordinal));
         Assert.Contains(preview.Changes, c => c.StartsWith("Unlock animation length", StringComparison.Ordinal));
 
         SettingsTransfer.Apply(current, incoming);
 
-        Assert.True(current.Preferences.AllowPrivateNetwork);
+        Assert.True(current.Preferences.GameModeSuspend);
         Assert.Equal(900, current.Design.UnlockAnimationMs);
         Assert.Equal(["X"], current.DisabledMonitors);
         Assert.Equal(0.75, current.MonitorScales["X"]);

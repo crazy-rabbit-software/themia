@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -33,10 +33,17 @@ public enum ShelfReadOutcome
     Loaded,
 
     /// <summary>
-    /// A file that could not be used (damaged, another key, another schema, another owner, too
+    /// A file that could not be used (damaged, another key, a newer schema, another owner, too
     /// large, unreadable). Logged and set aside; the owner starts empty and resyncs.
     /// </summary>
     Discarded,
+
+    /// <summary>
+    /// [S-2605] A sound shelf an earlier build wrote in an older schema: a cache this build no longer
+    /// trusts, not damage. Logged at Info and left in place for the resync's first save to replace;
+    /// the owner starts empty and resyncs, cursors and all.
+    /// </summary>
+    Stale,
 }
 
 /// <param name="Value">The shelf, or null unless <see cref="Outcome"/> is <see cref="ShelfReadOutcome.Loaded"/>.</param>
@@ -189,6 +196,12 @@ public sealed class SyncVault
         if (value is null)
         {
             return Discard<T>(path, kind, "the shelf holds no document");
+        }
+
+        if (value.SchemaVersion > 0 && value.SchemaVersion < schemaVersion)
+        {
+            Log.Info(Scope, $"the {KindName(kind)} shelf is schema v{value.SchemaVersion} from an earlier build, this build reads v{schemaVersion}; resyncing");
+            return new ShelfRead<T>(null, ShelfReadOutcome.Stale, $"schema v{value.SchemaVersion}");
         }
 
         if (value.SchemaVersion != schemaVersion)

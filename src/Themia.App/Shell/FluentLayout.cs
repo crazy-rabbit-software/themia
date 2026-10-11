@@ -1,4 +1,4 @@
-using CommunityToolkit.WinUI.Controls;
+﻿using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
@@ -670,8 +670,9 @@ internal static class FluentLayout
     // ---------------------------------------------------------------------------------------
 
     /// <summary>
-    /// The refresh row for a widget that reads this machine: seconds, because a local read costs a
-    /// wake-up and nothing else.
+    /// A refresh row in seconds, for the one widget whose cadence is its own (a camera's snapshot
+    /// interval). Online sources share their cadence in Settings › Widgets ([S-3780]); local reads
+    /// use the kind's own fixed cadence ([S-3793]).
     /// </summary>
     /// <param name="description">
     /// The row's description as one whole sentence in the current language — "How often the
@@ -691,50 +692,6 @@ internal static class FluentLayout
 
         rows.Add(Row(Glyphs.Timer, Str.Common_Refresh.Text(), description,
             Slider(current, min, max, step, Str.Shell_Refresh_SecondsUnit.Text(), value => onChanged((int)Math.Round(value)))));
-    }
-
-    /// <summary>
-    /// The refresh row for a widget that asks a service: a fixed set of cadences in minutes, and
-    /// nothing under a minute anywhere.
-    /// <para>
-    /// The other refresh row is a slider in seconds, and the difference is deliberate rather than
-    /// drift. Every service behind these widgets is free, shared and unauthenticated, and a slider
-    /// that goes to "every second" is an invitation to get the whole app blocked. The row reads the
-    /// same either way — same glyph, same title, same place on the page — so only the granularity
-    /// differs, which is the part that is genuinely not the same.
-    /// </para>
-    /// </summary>
-    public static void RefreshChoice(
-        List<FrameworkElement> rows,
-        int current,
-        Action<int> onChanged,
-        bool fast = false)
-    {
-        (int Value, string Label)[] options = fast
-            ? [(1, Str.Shell_Refresh_EveryMinute.Text()), (5, Str.Shell_Refresh_EveryMinutes.Plural(5)), (15, Str.Shell_Refresh_EveryMinutes.Plural(15)), (30, Str.Shell_Refresh_EveryMinutes.Plural(30))]
-            : [(5, Str.Shell_Refresh_EveryMinutes.Plural(5)), (15, Str.Shell_Refresh_EveryMinutes.Plural(15)), (30, Str.Shell_Refresh_EveryMinutes.Plural(30)), (60, Str.Shell_Refresh_EveryHour.Text())];
-
-        // A persisted value outside the set — hand-edited, or left over from an older build —
-        // would otherwise leave the box blank and the setting pointing at nothing visible.
-        var selected = current;
-        var known = false;
-
-        foreach (var (value, _) in options)
-        {
-            known |= value == selected;
-        }
-
-        if (!known)
-        {
-            // The second entry either way: five minutes on a fast widget, fifteen on a slow one.
-            selected = options[1].Value;
-            onChanged(selected);
-        }
-
-        rows.Add(Header(Str.Shell_Refresh_Header.Text()));
-
-        rows.Add(Row(Glyphs.Timer, Str.Common_Refresh.Text(), Str.Shell_Refresh_ServiceDesc.Text(),
-            Choice(options, selected, onChanged)));
     }
 
     // ---------------------------------------------------------------------------------------
@@ -878,8 +835,9 @@ internal static class FluentLayout
 
     /// <summary>
     /// The one editable list on a settings page: a card per item with the item's own editor on the
-    /// left and move-up, move-down and remove on the right, a line saying so when there is nothing
-    /// in it, and an add row underneath.
+    /// left and remove on the right, a line saying so when there is nothing in it, and an add row
+    /// underneath. [S-3802] The order is dragged (a card onto another) or moved with Alt+Shift+Up /
+    /// Down, through <see cref="RowReorder{TKey}"/>; there are no arrow buttons.
     /// <para>
     /// Five widgets — timers, shortcuts, swatches, quotes and habits — had each grown their own
     /// version of this, and no two agreed on where the commands sat, what the empty list said, or
@@ -905,6 +863,7 @@ internal static class FluentLayout
         rows.Add(host);
 
         var add = new Button { Content = options.AddAction };
+        RowReorder<T>? reorder = null;
 
         void Rebuild()
         {
@@ -917,11 +876,36 @@ internal static class FluentLayout
 
             for (var index = 0; index < options.Items.Count; index++)
             {
-                host.Children.Add(ItemCard(options, index, Rebuild));
+                var item = options.Items[index];
+                var card = ItemCard(options, item, Rebuild);
+                reorder!.Attach(card, item);
+                host.Children.Add(card);
+            }
+
+            // Said once, under the list: the drag has no handle to see, the shortcut no button.
+            if (options.Items.Count > 1)
+            {
+                host.Children.Add(Note(Str.Shell_List_ReorderHint.Text()));
             }
 
             add.IsEnabled = options.Items.Count < options.Capacity;
         }
+
+        // Items by identity, never by the index a card was built with: the list may have changed since.
+        bool Reordered(bool moved)
+        {
+            if (moved)
+            {
+                options.Save();
+                Rebuild();
+            }
+
+            return moved;
+        }
+
+        reorder = new RowReorder<T>(
+            (dragged, target) => Reordered(DeskListOrder.MoveTo(options.Items, options.Items.IndexOf(dragged), options.Items.IndexOf(target))),
+            (item, delta) => Reordered(DeskListOrder.Move(options.Items, options.Items.IndexOf(item), delta)));
 
         void Append(T item)
         {
@@ -944,37 +928,17 @@ internal static class FluentLayout
         return new ListEditorHandle<T>(Append, Rebuild);
     }
 
-    private static FrameworkElement ItemCard<T>(ListEditorOptions<T> options, int index, Action rebuild)
+    private static Border ItemCard<T>(ListEditorOptions<T> options, T item, Action rebuild)
         where T : class
     {
-        var item = options.Items[index];
-
         var body = options.Body(item);
         body.VerticalAlignment = VerticalAlignment.Center;
         Grid.SetColumn(body, 0);
 
-        var up = IconCommand(Glyphs.MoveUp, Str.ChildList_MoveUp.Text());
-        var down = IconCommand(Glyphs.MoveDown, Str.ChildList_MoveDown.Text());
         var remove = IconCommand(Glyphs.Delete, options.RemoveTooltip);
-
-        // One swap per click, and the ends cannot move past themselves.
-        up.IsEnabled = index > 0;
-        down.IsEnabled = index < options.Items.Count - 1;
-
-        up.Click += (_, _) => Reorder(options, index, -1, rebuild);
-        down.Click += (_, _) => Reorder(options, index, 1, rebuild);
+        remove.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
         remove.Click += (_, _) => _ = RemoveAsync(options, item, remove, rebuild);
-
-        var commands = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space1,
-            Margin = new Thickness(Fluent.Space3, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { up, down, remove },
-        };
-
-        Grid.SetColumn(commands, 1);
+        Grid.SetColumn(remove, 1);
 
         return Card(new Grid
         {
@@ -983,20 +947,8 @@ internal static class FluentLayout
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
                 new ColumnDefinition { Width = GridLength.Auto },
             },
-            Children = { body, commands },
+            Children = { body, remove },
         });
-    }
-
-    private static void Reorder<T>(ListEditorOptions<T> options, int index, int delta, Action rebuild)
-        where T : class
-    {
-        if (!DeskListOrder.Move(options.Items, index, delta))
-        {
-            return; // ignore: the arrow at the end of the list is pressable and does nothing.
-        }
-
-        options.Save();
-        rebuild();
     }
 
     private static async Task RemoveAsync<T>(
@@ -1048,7 +1000,7 @@ internal sealed class ListEditorOptions<T>
 
     /// <summary>
     /// One item's own editor — the only part of a list that genuinely differs between widgets. The
-    /// move and remove commands are added beside whatever this returns.
+    /// remove command is added beside whatever this returns; the card is dragged to reorder.
     /// </summary>
     public required Func<T, FrameworkElement> Body { get; init; }
 

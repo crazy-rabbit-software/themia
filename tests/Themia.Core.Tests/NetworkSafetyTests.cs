@@ -63,7 +63,7 @@ public sealed class NetworkSafetyTests
         // The addresses judged are the ones connected to: one private address among public ones
         // (the shape of a rebinding answer) refuses the whole connection.
         var (verdict, culprit) = NetworkGuard.Judge("rebind.example", [Ip("93.184.216.34"), Ip("::ffff:127.0.0.1")],
-            proxied: false, allowPrivate: false, NetReach.Internet);
+            proxied: false, grant: null, NetReach.Internet);
 
         Assert.Equal(GuardVerdict.Blocked, verdict);
         Assert.Equal(Ip("::ffff:127.0.0.1"), culprit);
@@ -72,44 +72,44 @@ public sealed class NetworkSafetyTests
     [Fact]
     public void S962_an_address_literal_is_judged_as_written_whatever_a_resolver_says()
         => Assert.Equal(GuardVerdict.Blocked,
-            NetworkGuard.Judge("127.0.0.1", [Ip("93.184.216.34")], proxied: false, allowPrivate: false, NetReach.Internet).Verdict);
+            NetworkGuard.Judge("127.0.0.1", [Ip("93.184.216.34")], proxied: false, grant: null, NetReach.Internet).Verdict);
 
     [Fact]
-    public void S962_S965_the_users_switch_admits_a_nas()
+    public void S962_S3840_a_nas_is_admitted_by_the_grant_its_typed_address_earns()
     {
         Assert.Equal(GuardVerdict.Blocked,
-            NetworkGuard.Judge("nas.local", [Ip("192.168.1.20")], proxied: false, allowPrivate: false, NetReach.Internet).Verdict);
+            NetworkGuard.Judge("nas.local", [Ip("192.168.1.20")], proxied: false, grant: null, NetReach.Internet).Verdict);
         Assert.Equal(GuardVerdict.Allowed,
-            NetworkGuard.Judge("nas.local", [Ip("192.168.1.20")], proxied: false, allowPrivate: true, NetReach.Internet).Verdict);
+            NetworkGuard.Judge("nas.local", [Ip("192.168.1.20")], proxied: false, LocalGrants.ForTypedHost("nas.local"), NetReach.Internet).Verdict);
     }
 
     [Fact]
     public void S962_a_name_that_resolved_to_nothing_is_unresolvable_when_direct()
         => Assert.Equal(GuardVerdict.Unresolvable,
-            NetworkGuard.Judge("empty.example", [], proxied: false, allowPrivate: false, NetReach.Internet).Verdict);
+            NetworkGuard.Judge("empty.example", [], proxied: false, grant: null, NetReach.Internet).Verdict);
 
     // ---- [S-967] this machine only ----------------------------------------------------------
 
     [Fact]
-    public void S967_this_machine_admits_loopback_only_whatever_the_switch_says()
+    public void S967_this_machine_admits_loopback_only_whatever_grant_came_along()
     {
         Assert.Equal(GuardVerdict.Allowed,
-            NetworkGuard.Judge("localhost", [Ip("::1"), Ip("127.0.0.1")], proxied: false, allowPrivate: false, NetReach.ThisMachine).Verdict);
+            NetworkGuard.Judge("localhost", [Ip("::1"), Ip("127.0.0.1")], proxied: false, grant: null, NetReach.ThisMachine).Verdict);
         Assert.Equal(GuardVerdict.Allowed,
-            NetworkGuard.Judge("::ffff:127.0.0.1", null, proxied: false, allowPrivate: false, NetReach.ThisMachine).Verdict);
+            NetworkGuard.Judge("::ffff:127.0.0.1", null, proxied: false, grant: null, NetReach.ThisMachine).Verdict);
 
         Assert.Equal(GuardVerdict.Blocked,
-            NetworkGuard.Judge("localhost", [Ip("127.0.0.1"), Ip("10.0.0.5")], proxied: false, allowPrivate: true, NetReach.ThisMachine).Verdict);
+            NetworkGuard.Judge("localhost", [Ip("127.0.0.1"), Ip("10.0.0.5")], proxied: false, new LocalGrant("localhost"), NetReach.ThisMachine).Verdict);
         Assert.Equal(GuardVerdict.Blocked,
-            NetworkGuard.Judge("192.168.1.1", null, proxied: false, allowPrivate: true, NetReach.ThisMachine).Verdict);
+            NetworkGuard.Judge("192.168.1.1", null, proxied: false, new LocalGrant("192.168.1.1"), NetReach.ThisMachine).Verdict);
         Assert.Equal(GuardVerdict.Blocked,
-            NetworkGuard.Judge("8.8.8.8", null, proxied: false, allowPrivate: false, NetReach.ThisMachine).Verdict);
+            NetworkGuard.Judge("8.8.8.8", null, proxied: false, grant: null, NetReach.ThisMachine).Verdict);
     }
 
     [Fact]
     public void S967_this_machine_is_never_relaxed_by_a_proxy()
         => Assert.Equal(GuardVerdict.Unresolvable,
-            NetworkGuard.Judge("monitor.example", null, proxied: true, allowPrivate: false, NetReach.ThisMachine).Verdict);
+            NetworkGuard.Judge("monitor.example", null, proxied: true, grant: null, NetReach.ThisMachine).Verdict);
 
     // ---- [S-963] which connection is the proxy's --------------------------------------------
 

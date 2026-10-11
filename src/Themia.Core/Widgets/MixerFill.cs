@@ -32,8 +32,8 @@ public static class MixerFill
     }
 
     /// <summary>
-    /// The caption under an app's name: "Playing", "Silent", "Muted"; the master and the
-    /// system-sounds rows say what they are. The session count is the pill beside the name already.
+    /// The caption under an app's name: "Playing", "Silent", "Muted"; the system-sounds row says
+    /// what it is. The session count is the pill beside the name already.
     /// </summary>
     public static string Detail(MixerRow row) => Detail(row, Strings.Current);
 
@@ -42,8 +42,7 @@ public static class MixerFill
     {
         ArgumentNullException.ThrowIfNull(row);
 
-        var id = row.IsMaster ? Str.WidgetsB_Mixer_Detail_Master
-            : row.Muted ? Str.WidgetsB_Mixer_Detail_Muted
+        var id = row.Muted ? Str.WidgetsB_Mixer_Detail_Muted
             : row.IsSystem ? Str.WidgetsB_Mixer_Detail_System
             : row.Active ? Str.WidgetsB_Mixer_Detail_Playing
             : Str.WidgetsB_Mixer_Detail_Silent;

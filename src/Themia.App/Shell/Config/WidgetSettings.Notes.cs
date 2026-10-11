@@ -79,10 +79,6 @@ internal static partial class WidgetSettings
             FluentLayout.Slider(config.EffectiveFontSizePx, 8, 48, 1, "px",
                 value => { config.FontSizePx = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Wrap, Str.WidgetsC_Notes_Settings_Wrap_Label.Text(),
-            Str.WidgetsC_Notes_Settings_Wrap_Desc.Text(),
-            FluentLayout.Toggle(config.WrapText, value => { config.WrapText = value; save(); })));
-
         // [S-130] Empties the note's text for good — there is no undo, no bin, no second copy — so
         // it asks first. The note itself stays, with its title.
         rows.Add(FluentLayout.ConfirmRow(

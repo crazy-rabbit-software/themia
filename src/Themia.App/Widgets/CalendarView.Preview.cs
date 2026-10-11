@@ -7,30 +7,43 @@ using Themia.Core.Office;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2711]): each layout over a fixed set of sample events around
-/// today — two calendars (so colours show), an all-day event, a trip across a week's end, an
-/// overnight event, overlapping meetings, birthdays, and events across the year — through a
-/// fixture <see cref="ICalendarData"/>, so <c>--widget-png Calendar --state month</c> draws what a
-/// signed-in calendar would without an account.
+/// Debug renders only ([S-1917], [S-2711], [S-3606]): every calendar kind over a fixed set of sample
+/// events around today — two calendars (so colours show), all-day events of one day and of several,
+/// a trip across a week's end, an overnight event, overlapping meetings, birthdays, and events across
+/// the year — through a fixture <see cref="ICalendarData"/>, so <c>--widget-png MonthCalendar
+/// --state sample</c> draws what a signed-in calendar would without an account.
 /// </summary>
 internal sealed partial class CalendarView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["month", "week", "day", "year", "agenda"];
+    /// <summary>
+    /// <c>sample</c>: the fixture; <c>selected</c>: the day after tomorrow selected on the view
+    /// ([S-3620]); <c>linked</c>: another widget's pointer on the design review ([S-3623]).
+    /// </summary>
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
-        if (!Enum.TryParse<CalendarLayout>(state, ignoreCase: true, out var layout) || !Enum.IsDefined(layout))
+        if (!PreviewStates.Contains(state, StringComparer.OrdinalIgnoreCase))
         {
             return;
         }
 
-        var config = (CalendarConfig)_config.Clone();
-        config.Layout = layout;
-        _config = config;
         _agendaPage = 0;
+
         UseData(new SampleCalendarData());
         await RefreshAsync(force: true).ConfigureAwait(true);
+
+        if (string.Equals(state, "selected", StringComparison.OrdinalIgnoreCase))
+        {
+            OnSelectedElsewhere(new Themia.Core.Links.DateLink(Today.AddDays(2)));
+        }
+        else if (string.Equals(state, "linked", StringComparison.OrdinalIgnoreCase))
+        {
+            _linkedHover = new Themia.Core.Links.EventLink("sample:work", null, "Design review-0");
+            Render();
+        }
     }
+
 
     /// <summary>The fixture: the same sample week whatever the range, filtered to it.</summary>
     private sealed class SampleCalendarData : ICalendarData

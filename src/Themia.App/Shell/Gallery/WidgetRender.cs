@@ -3,6 +3,7 @@ using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
@@ -33,6 +34,9 @@ internal interface IWidgetPreviewState
 /// [--state name]</c>. Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
+/// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
+/// the framework's own CardBackgroundFillColorDefault / CardStrokeColorDefault over
+/// SolidBackgroundFillColorBase, OverlayCornerRadius) to compare pixels against ([S-836]).
 /// </summary>
 internal static class WidgetRender
 {
@@ -108,7 +112,12 @@ internal static class WidgetRender
                     },
                 });
 
+                var reference = Array.IndexOf(args, "--reference") >= 0;
                 var (width, height) = PageSize(tiers);
+                if (reference)
+                {
+                    width += tiers[0].Width + Gap;
+                }
                 var page = new Canvas
                 {
                     Width = width,
@@ -130,8 +139,14 @@ internal static class WidgetRender
 
                 // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
                 AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
+                AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 var host = new NoticeRender.RenderCardHost(ticker);
                 Place(page, host, kind, tiers, cards);
+                if (reference)
+                {
+                    PlaceReference(page, tiers[0], width - Gap - tiers[0].Width);
+                }
+
                 await Task.Delay(800).ConfigureAwait(true);
 
                 if (state is not null)
@@ -193,6 +208,8 @@ internal static class WidgetRender
 
                 AppServices.System?.Dispose();
                 AppServices.System = null;
+                AppServices.Gallery?.Dispose();
+                AppServices.Gallery = null;
                 ticker?.Dispose();
                 window?.Close();
                 app.Exit();
@@ -262,6 +279,55 @@ internal static class WidgetRender
 
                 x[row] += tier.Width + Gap;
             }
+        }
+    }
+
+    /// <summary>
+    /// [S-836] A stock WinUI card, every brush the framework's own in the application theme (which a
+    /// render sets from <c>--theme</c> before the resources load), and the colours it should composite
+    /// to, printed for the pixel comparison.
+    /// </summary>
+    private static void PlaceReference(Canvas page, WidgetTier tier, double left)
+    {
+        var resources = Application.Current.Resources;
+        var radius = resources["OverlayCornerRadius"] is CornerRadius r ? r : new CornerRadius(Fluent.OverlayRadius);
+
+        var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+        label.Text = "WinUI reference";
+        Canvas.SetLeft(label, left);
+        Canvas.SetTop(label, Gap);
+        page.Children.Add(label);
+
+        var card = new Grid
+        {
+            Width = tier.Width,
+            Height = tier.Height,
+            CornerRadius = radius,
+            Background = (Brush)resources["SolidBackgroundFillColorBaseBrush"],
+            Children =
+            {
+                new Border
+                {
+                    Background = (Brush)resources["CardBackgroundFillColorDefaultBrush"],
+                    BorderBrush = (Brush)resources["CardStrokeColorDefaultBrush"],
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = radius,
+                },
+            },
+        };
+
+        Canvas.SetLeft(card, left);
+        Canvas.SetTop(card, Gap + LabelHeight);
+        page.Children.Add(card);
+
+        if (resources["SolidBackgroundFillColorBase"] is Windows.UI.Color b
+            && resources["CardBackgroundFillColorDefault"] is Windows.UI.Color fill
+            && resources["CardStrokeColorDefault"] is Windows.UI.Color stroke)
+        {
+            var under = new RgbColor(b.R, b.G, b.B);
+            var body = DesignLook.Over(fill.A, new RgbColor(fill.R, fill.G, fill.B), under);
+            var edge = DesignLook.Over(stroke.A, new RgbColor(stroke.R, stroke.G, stroke.B), under);
+            Console.WriteLine($"widget: reference base {HexColor.From(b.R, b.G, b.B)} card {HexColor.From(body.R, body.G, body.B)} edge {HexColor.From(edge.R, edge.G, edge.B)}");
         }
     }
 

@@ -8,9 +8,6 @@ public sealed class PingConfig : GaugeConfig
     /// <summary>A public resolver: reachable without configuration, and not a service this app talks to.</summary>
     public const string DefaultHost = "1.1.1.1";
 
-    /// <summary>The longest name a host may be given; the header has room for less.</summary>
-    public const int MaxLabelLength = 64;
-
     /// <summary>Every ten seconds over twenty minutes: a probe is a packet to someone else's host.</summary>
     public PingConfig()
         : base(intervalSeconds: 10, graphSpanSeconds: 1200)
@@ -23,46 +20,25 @@ public sealed class PingConfig : GaugeConfig
     /// <summary>Host or address to probe. Empty falls back to <see cref="DefaultHost"/>.</summary>
     public string Host { get; set; } = DefaultHost;
 
-    /// <summary>[S-1173] A name for the host ("Router", "Game server"): the header title.</summary>
-    public string HostLabel { get; set; } = string.Empty;
-
-    /// <summary>A probe goes over the network, so it may be slower than a local read: up to five minutes.</summary>
-    [JsonIgnore]
-    public override int MaxIntervalSeconds => 300;
-
     /// <summary>The host actually probed. Never empty, so the widget always has something to show.</summary>
     [JsonIgnore]
     public string EffectiveHost => string.IsNullOrWhiteSpace(Host) ? DefaultHost : Host.Trim();
-
-    /// <summary>[S-1173] The label, trimmed; null when there is none.</summary>
-    [JsonIgnore]
-    public string? EffectiveLabel => string.IsNullOrWhiteSpace(HostLabel) ? null : HostLabel.Trim();
 
     public override WidgetConfig Clone()
     {
         var copy = new PingConfig
         {
             Host = Host,
-            HostLabel = HostLabel,
         };
         CopyTo(copy);
         return copy;
     }
 
-    /// <summary>[S-1173] A label too long for any header is cut to <see cref="MaxLabelLength"/>, loudly.</summary>
+    /// <summary>A hand-edited null host is the default one. [S-1173] The header names the host; a name for it is the card's own title.</summary>
     public override IReadOnlyList<string> Repair()
     {
         var notes = new List<string>(base.Repair());
-
-        HostLabel ??= string.Empty;
         Host ??= DefaultHost;
-
-        if (HostLabel.Length > MaxLabelLength)
-        {
-            notes.Add($"{Kind}: host label is {HostLabel.Length} characters; cut to {MaxLabelLength}");
-            HostLabel = HostLabel[..MaxLabelLength];
-        }
-
         return notes;
     }
 }

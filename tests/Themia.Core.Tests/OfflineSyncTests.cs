@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Mail;
@@ -171,6 +171,65 @@ public sealed class OfflineSyncTests : IDisposable
         File.Copy(vault.ShelfPath(SyncKind.Mail, "b")!, vault.ShelfPath(SyncKind.Mail, "a")!);
 
         Assert.Equal(ShelfReadOutcome.Discarded, vault.Load(SyncKind.Mail, "a", SyncJsonContext.Default.MailShelf, MailShelf.Version).Outcome);
+    }
+
+    [Fact]
+    public async Task S2605_an_older_schema_is_a_stale_cache_resynced_not_set_aside_as_corrupt()
+    {
+        var vault = new SyncVault(_dir, Key());
+        vault.SaveSoon(SyncKind.Calendar, "a", new CalendarShelf { Owner = "a", SchemaVersion = CalendarShelf.Version - 1 }, SyncJsonContext.Default.CalendarShelf);
+        await vault.FlushAsync();
+        var path = vault.ShelfPath(SyncKind.Calendar, "a")!;
+
+        var read = vault.Load(SyncKind.Calendar, "a", SyncJsonContext.Default.CalendarShelf, CalendarShelf.Version);
+
+        Assert.Equal(ShelfReadOutcome.Stale, read.Outcome);
+        Assert.Null(read.Value);
+        Assert.True(File.Exists(path));
+        Assert.False(File.Exists(path + ".corrupt"));
+
+        // The resync's first save replaces it.
+        vault.SaveSoon(SyncKind.Calendar, "a", new CalendarShelf { Owner = "a" }, SyncJsonContext.Default.CalendarShelf);
+        await vault.FlushAsync();
+        Assert.Equal(ShelfReadOutcome.Loaded, vault.Load(SyncKind.Calendar, "a", SyncJsonContext.Default.CalendarShelf, CalendarShelf.Version).Outcome);
+    }
+
+    [Fact]
+    public async Task S2632_a_calendar_shelf_from_before_the_event_fixes_is_dropped_whole_and_resynced()
+    {
+        // Version 1 shelves may hold Graph delta notices stored as untitled events and all-day
+        // events stretched over two days: the bump makes the first sync of this build start over,
+        // events and change cursors alike, while the account's other shelves stay.
+        Assert.True(CalendarShelf.Version >= 2);
+
+        var vault = new SyncVault(_dir, Key());
+        var old = new CalendarShelf
+        {
+            Owner = "a",
+            SchemaVersion = 1,
+            Spans =
+            [
+                new CalendarSpan
+                {
+                    From = Now.AddDays(-1),
+                    To = Now.AddDays(1),
+                    NearAt = Now,
+                    FullAt = Now,
+                    Cursor = new SyncCursor { Kind = CursorKind.GraphDelta, Value = "https://graph.example/delta?token=x" },
+                    Events = [new StoredEvent { Id = "e1", Subject = string.Empty, Start = Now, End = Now.AddDays(2), AllDay = true }],
+                },
+            ],
+        };
+        vault.SaveSoon(SyncKind.Calendar, "a", old, SyncJsonContext.Default.CalendarShelf);
+        vault.SaveSoon(SyncKind.Mail, "a", Mail("a", "1"), SyncJsonContext.Default.MailShelf);
+        await vault.FlushAsync();
+
+        var calendar = vault.Load(SyncKind.Calendar, "a", SyncJsonContext.Default.CalendarShelf, CalendarShelf.Version);
+
+        Assert.Equal(ShelfReadOutcome.Stale, calendar.Outcome);
+        Assert.Null(calendar.Value);
+        Assert.Equal(ShelfReadOutcome.Loaded, vault.Load(SyncKind.Mail, "a", SyncJsonContext.Default.MailShelf, MailShelf.Version).Outcome);
+        Assert.Equal(ShelfReadOutcome.Absent, vault.Load(SyncKind.Contacts, "a", SyncJsonContext.Default.ContactsShelf, ContactsShelf.Version).Outcome);
     }
 
     [Fact]
@@ -712,7 +771,7 @@ public sealed class OfflineSyncTests : IDisposable
                     Name = "Two",
                     Widgets =
                     [
-                        new WidgetInstance { Id = "c", Kind = WidgetKind.Calendar, Config = new CalendarConfig { AccountIds = ["acc"] } },
+                        new WidgetInstance { Id = "c", Kind = WidgetKind.MonthCalendar, Config = new MonthCalendarConfig { AccountIds = ["acc"] } },
                         new WidgetInstance { Id = "p", Kind = WidgetKind.Contacts, Config = new ContactsConfig() },
                     ],
                 },

@@ -67,30 +67,31 @@ public sealed class MeterFrameworkTests
     [Fact]
     public void S1120_repair_clamps_the_refresh_and_snaps_the_span()
     {
-        var cpu = new CpuConfig { IntervalSeconds = 0, GraphSpanSeconds = 7 };
+        var cpu = new CpuConfig { GraphSpanSeconds = 7 };
         var notes = cpu.Repair();
 
-        Assert.Equal(2, notes.Count);
-        Assert.Equal(1, cpu.IntervalSeconds);
+        Assert.Single(notes);
         Assert.Equal(30, cpu.GraphSpanSeconds);
         Assert.Empty(cpu.Repair());
     }
 
     [Fact]
-    public void S1120_ping_may_refresh_slower_than_a_local_meter()
+    public void S3793_a_stored_cadence_is_not_read_the_kind_keeps_its_own()
     {
-        Assert.Equal(300, new PingConfig { IntervalSeconds = 300 }.EffectiveIntervalSeconds);
-        Assert.Equal(60, new CpuConfig { IntervalSeconds = 300 }.EffectiveIntervalSeconds);
+        var cpu = (CpuConfig)ConfigJson.Read("Cpu", """{ "kind": "cpu", "intervalSeconds": 300 }""");
+
+        Assert.Equal(new CpuConfig().IntervalSeconds, cpu.IntervalSeconds);
+        Assert.Empty(cpu.Repair());
     }
 
     [Fact]
     public void S1120_clone_carries_the_shared_settings()
     {
-        var memory = new MemoryConfig { IntervalSeconds = 5, GraphSpanSeconds = 600, ShowGraph = false };
+        var memory = new MemoryConfig { GraphSpanSeconds = 600, ShowGraph = false };
         var copy = (MemoryConfig)memory.Clone();
 
-        Assert.Equal((5, 600, false), (copy.IntervalSeconds, copy.GraphSpanSeconds, copy.ShowGraph));
-        Assert.Equal(120, copy.GraphCapacity);
+        Assert.Equal((600, false), (copy.GraphSpanSeconds, copy.ShowGraph));
+        Assert.Equal(MeterTiming.Capacity(600, memory.IntervalSeconds), copy.GraphCapacity);
     }
 
     // ---- S-1123: pressure ------------------------------------------------------------------------

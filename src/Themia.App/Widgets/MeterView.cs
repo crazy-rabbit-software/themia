@@ -26,8 +26,8 @@ namespace Themia.App.Widgets;
 /// the full height beside it. With the history switched off the reading fills the tile.
 /// </para>
 /// <para>
-/// [S-1824] The history sits inside the card's padding — the reading's inset from both sides and
-/// the bottom — so its newest point and its fill are never cut by the card's edge or rounded corner.
+/// [S-1824] The history is the card's bottom band, edge to edge with no inset at its sides or under
+/// it; the card's rounded corners clip it. Only the reading carries the content inset.
 /// </para>
 /// </summary>
 internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
@@ -77,9 +77,8 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
     public MeterView(WidgetKind kind)
     {
-        // No padding on the view: the reading and the history each carry the content inset
-        // ([S-1824]), the history's on its sides and bottom only, so the gap under the reading is the
-        // ladder's to size.
+        // No padding on the view: the reading carries the content inset and the history none
+        // ([S-1824]), so the gap under the reading is the ladder's to size.
         _kind = kind;
         _part = MeterPart.For(kind);
         _config = WidgetConfig.CreateDefault(kind);
@@ -185,11 +184,8 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         SetRowSpan(_band, side ? 2 : 1);
         SetColumn(_band, side ? 1 : 0);
         // Stacked, the history is the star row: exactly what the reading leaves (plan.GraphHeight).
-        // [S-1824] Inside the card's padding either way; beside the reading its column's own inset
-        // already separates the two.
-        _band.Margin = side
-            ? new Thickness(0, 0, WidgetLayout.ContentInset, WidgetLayout.ContentInset)
-            : new Thickness(WidgetLayout.ContentInset, Fluent.Space2, WidgetLayout.ContentInset, WidgetLayout.ContentInset);
+        // [S-1824] Edge to edge either way; beside the reading its column's own inset separates the two.
+        _band.Margin = side ? new Thickness(0) : new Thickness(0, Fluent.Space2, 0, 0);
 
         if (plan.Reading != _heroStep)
         {

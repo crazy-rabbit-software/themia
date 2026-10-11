@@ -130,6 +130,65 @@ public sealed class DesignEngineTests
         Assert.True(dotted.RoundCaps);
     }
 
+    [Theory]
+    [InlineData(true, 5)]
+    [InlineData(false, 3)]
+    public void S820_attention_fill_is_the_accent_in_both_themes(bool dark, int shade)
+    {
+        // WinUI: SystemFillColorAttentionBrush = SystemAccentColorLight2 (dark), SystemAccentColor (light).
+        Assert.Equal(shade, DesignLook.AccentShade("SystemFillColorAttentionBrush", dark));
+        Assert.Contains("SystemFillColorAttentionBrush", DesignLook.AccentBrushKeys);
+    }
+
+    [Theory]
+    // CardBackgroundFillColorDefault over SolidBackgroundFillColorBase (WinUI 1.8 theme resources).
+    [InlineData(0x0D, 0xFF, 0x20, 0x2B)] // dark:  #0DFFFFFF over #202020 = #2B2B2B
+    [InlineData(0xB3, 0xFF, 0xF3, 0xFB)] // light: #B3FFFFFF over #F3F3F3 = #FBFBFB
+    // CardStrokeColorDefault over the same base: the card's 1px edge.
+    [InlineData(0x19, 0x00, 0x20, 0x1D)] // dark:  #19000000 over #202020 = #1D1D1D
+    [InlineData(0x0F, 0x00, 0xF3, 0xE5)] // light: #0F000000 over #F3F3F3 = #E5E5E5
+    public void S836_a_fluent_overlay_composites_over_its_base(byte alpha, byte top, byte under, byte expected)
+    {
+        var result = DesignLook.Over(alpha, new RgbColor(top, top, top), new RgbColor(under, under, under));
+        Assert.Equal(new RgbColor(expected, expected, expected), result);
+    }
+
+    [Fact]
+    public void S836_the_card_tint_sits_inside_a_solid_stroke_only()
+    {
+        // A Border's background stops at the stroke's inner edge (BackgroundSizing InnerBorderEdge),
+        // so the stroke is drawn over the base alone, as a WinUI card's is over the page.
+        Assert.Equal(1, DesignLook.TintInset(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Solid, 1, 1)));
+        Assert.Equal(3, DesignLook.TintInset(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Solid, 3, 0.5)));
+
+        // Dash gaps would show a ring of bare base: the tint stays full-bleed under a broken line.
+        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Dashed, 1, 1)));
+        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Dotted, 2, 1)));
+        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.None, 1, 1)));
+        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Solid, 1, 0)));
+    }
+
+    [Fact]
+    public void S835_the_default_design_is_windows_11s_card()
+    {
+        var design = new DesignState();
+
+        // OverlayCornerRadius 8, a 1px CardStrokeColorDefault stroke at full strength, the Fluent
+        // fill (no colour of the user's own), opaque, and the Windows accent.
+        Assert.Equal(8, design.CornerRadiusPx);
+        Assert.Equal(WidgetBorderStyle.Solid, design.BorderStyle);
+        Assert.Equal(1, design.BorderWidthPx);
+        Assert.Equal(1, design.BorderOpacity);
+        Assert.Equal(string.Empty, design.BorderColor);
+        Assert.Equal(string.Empty, design.WidgetBackgroundColor);
+        Assert.Equal(string.Empty, design.HeaderBackgroundColor);
+        Assert.Equal(1, design.SurfaceOpacity);
+        Assert.Equal(1, design.HeaderOpacity);
+        Assert.Equal(string.Empty, design.PrimaryColor);
+        Assert.Equal(DesignLook.SystemFont, design.FontFamily);
+        Assert.Equal(AppTheme.System, design.Theme);
+    }
+
     [Fact]
     public void S824_no_border_for_none_zero_width_or_a_transparent_widget()
     {

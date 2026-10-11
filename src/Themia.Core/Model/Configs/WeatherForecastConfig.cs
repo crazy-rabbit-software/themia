@@ -45,13 +45,6 @@ public sealed class WeatherForecastConfig : WeatherConfig
     [JsonIgnore]
     public int EffectiveDays => Math.Clamp(Days, 1, 14);
 
-    public WeatherForecastConfig()
-    {
-        // A forecast for tomorrow does not change every quarter of an hour, and the free endpoint
-        // is shared by everyone who uses it.
-        RefreshMinutes = 60;
-    }
-
     public override WidgetConfig Clone()
     {
         var copy = new WeatherForecastConfig

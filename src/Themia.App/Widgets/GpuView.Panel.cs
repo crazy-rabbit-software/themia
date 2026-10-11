@@ -200,10 +200,8 @@ internal sealed partial class GpuView
             SetRowSpan(_spark, side ? 2 : 1);
             SetColumn(_spark, side ? 1 : 0);
 
-            // [S-1824] Inside the card's padding, as every meter's history.
-            _spark.Margin = side
-                ? new Thickness(0, 0, WidgetLayout.ContentInset, WidgetLayout.ContentInset)
-                : new Thickness(WidgetLayout.ContentInset, Fluent.Space2, WidgetLayout.ContentInset, WidgetLayout.ContentInset);
+            // [S-1824] Edge to edge, as every meter's history.
+            _spark.Margin = side ? new Thickness(0) : new Thickness(0, Fluent.Space2, 0, 0);
         }
 
         private static Brush Pressure(GpuPressure pressure) => pressure switch

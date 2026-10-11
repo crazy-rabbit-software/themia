@@ -178,7 +178,18 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     }
 
     /// <summary>The language changed: every text on the tile is rebuilt from the reading in hand.</summary>
-    private void OnLanguage(Locale locale) => Render();
+    /// <para>
+    /// [S-3770] [S-3780] It is also how a change to the shared temperature scale or cadence arrives:
+    /// the reading is asked for again under the new scale (the sync holds both, keyed apart).
+    /// </para>
+    private void OnLanguage(Locale locale)
+    {
+        Resubscribe();
+        Reload(force: false);
+    }
+
+    /// <summary>[S-3770] The scale of the reading in hand: the one it was asked in.</summary>
+    private TemperatureUnit Unit => _want?.Unit ?? RegionFormat.Current.Temperature;
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface)
@@ -196,8 +207,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         PublishTitle();
 
         var placeChanged = previous.Latitude != next.Latitude
-            || previous.Longitude != next.Longitude
-            || previous.Unit != next.Unit;
+            || previous.Longitude != next.Longitude;
 
         if (placeChanged)
         {
@@ -330,13 +340,13 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         _emptyState.Visibility = Visibility.Collapsed;
         _top.Visibility = Visibility.Visible;
 
-        _temperature.Text = WeatherReport.Temperature(reading.Temperature, _config.Unit);
+        _temperature.Text = WeatherReport.Temperature(reading.Temperature, Unit);
         _condition.Text = WeatherReport.Describe(reading.Code);
         _look.Glyph = LookGlyph(WeatherReport.Look(reading.Code));
         _highLow.Text = reading.Today is { } today ? WeatherReport.HighLow(today.High, today.Low) : string.Empty;
-        _feels.Text = Str.WidgetsC_Weather_FeelsShort.Format(("temperature", WeatherReport.Temperature(reading.FeelsLike, _config.Unit)));
+        _feels.Text = Str.WidgetsC_Weather_FeelsShort.Format(("temperature", WeatherReport.Temperature(reading.FeelsLike, Unit)));
 
-        _facts = WeatherFacts.For(reading, _config.Unit);
+        _facts = WeatherFacts.For(reading, Unit);
 
         // The age of the reading, and — when the last attempt to refresh it failed, or it was read
         // back from disk at launch and not yet replaced — in the caution colour. Said in the

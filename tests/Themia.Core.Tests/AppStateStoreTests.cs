@@ -93,7 +93,9 @@ public sealed class AppStateStoreTests : IDisposable
         widget.Label = "Bedside";
         widget.Surface = WidgetSurface.Transparent;
         ((ClockConfig)widget.Config).ShowSeconds = true;
-        ((ClockConfig)widget.Config).Use24Hour = false;
+        ((ClockConfig)widget.Config).ShowDate = false;
+        state.Preferences.Region.Clock = ClockHours.Twelve;
+        state.Preferences.Refresh.WeatherMinutes = 60;
         state.Design.WidgetGapPx = 12;
         state.Design.GridSnap = false;
 
@@ -110,7 +112,9 @@ public sealed class AppStateStoreTests : IDisposable
         Assert.Equal(WidgetSurface.Transparent, reloaded.Surface);
         var config = Assert.IsType<ClockConfig>(reloaded.Config);
         Assert.True(config.ShowSeconds);
-        Assert.False(config.Use24Hour);
+        Assert.False(config.ShowDate);
+        Assert.Equal(ClockHours.Twelve, loaded.State.Preferences.Region.Clock);
+        Assert.Equal(60, loaded.State.Preferences.Refresh.WeatherMinutes);
         Assert.Equal(12, loaded.State.Design.WidgetGapPx);
         Assert.False(loaded.State.Design.GridSnap);
     }

@@ -175,6 +175,9 @@ internal sealed partial class AppHost
         // with none visible it has nothing to do.
         DesktopZOrder.Stop();
         Ticker.SetPaused(true);
+
+        // [S-3411] The cards have let go: decoded pictures nobody shows are memory a game wants.
+        _gallery.Trim();
     }
 
     /// <summary>[S-929] Bring everything back, then catch up on display changes the game made while it had the screen.</summary>

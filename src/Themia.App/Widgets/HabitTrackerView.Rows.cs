@@ -23,8 +23,7 @@ namespace Themia.App.Widgets;
 internal sealed partial class HabitTrackerView
 {
     private readonly List<HabitRow> _rows = [];
-    private readonly Border _addRow;
-    private IDisposable? _addHover;
+    private readonly AddFooterRow _addRow;
 
     /// <summary>The open text box: renaming the habit with this id, or (null id) adding one.</summary>
     private (TextBox Box, string? HabitId)? _editor;
@@ -160,7 +159,7 @@ internal sealed partial class HabitTrackerView
         }
     }
 
-    /// <summary>[S-1425] A habit's own menu, ahead of the card's: tick, rename, move, delete.</summary>
+    /// <summary>[S-1425] A habit's own menu, ahead of the card's: tick, rename, delete. No moves: a habit is dragged, or moved with Alt+Shift+Up / Down ([S-3802]).</summary>
     private IEnumerable<ItemMenuEntry> MenuFor(string habitId)
     {
         if (!Writable || HabitFor(habitId) is not { } habit)
@@ -168,7 +167,6 @@ internal sealed partial class HabitTrackerView
             return [];
         }
 
-        var index = Habits.ToList().FindIndex(h => h.Id == habitId);
         var done = HabitRules.IsDone(HabitRules.Log(habit.Log), _current);
         var noun = HabitPeriods.CurrentNoun(_config.Cadence.Period);
 
@@ -176,9 +174,6 @@ internal sealed partial class HabitTrackerView
         [
             new(done ? Glyphs.Undo : Glyphs.Done, done ? Str.WidgetsB_Habits_NotDone.Format(("when", noun)) : Str.WidgetsB_Habits_Done.Format(("when", noun)), () => Toggle(habitId)),
             new(Glyphs.Rename, Str.WidgetsB_Folder_Rename.Text(), () => BeginRename(habitId), Quick: QuickCommand.Rename),
-            ItemMenuEntry.Separator,
-            new(Glyphs.MoveUp, Str.ChildList_MoveUp.Text(), () => Move(habitId, -1), Disabled: index <= 0),
-            new(Glyphs.MoveDown, Str.ChildList_MoveDown.Text(), () => Move(habitId, +1), Disabled: index < 0 || index >= Habits.Count - 1),
             ItemMenuEntry.Separator,
             new(Glyphs.Delete, Str.Common_Delete.Text(), () => Delete(habitId), Danger: true, Quick: QuickCommand.Delete),
         ];
@@ -272,6 +267,10 @@ internal sealed partial class HabitTrackerView
                 Delete(row.Id);
                 return true;
 
+            case HabitKeyCommand.MoveUp or HabitKeyCommand.MoveDown when row is not null:
+                Move(row.Id, decision.Command == HabitKeyCommand.MoveUp ? -1 : +1);
+                return true;
+
             case HabitKeyCommand.Rename when row is not null:
                 BeginRename(row.Id);
                 return true;
@@ -333,47 +332,12 @@ internal sealed partial class HabitTrackerView
         StartTyping(box);
     }
 
-    /// <summary>The add row at the foot of the list: a plus and a line of text, then a box.</summary>
-    private Border BuildAddRow()
-    {
-        var plus = Fluent.Icon(Glyphs.Add, "TextFillColorSecondaryBrush");
-        plus.Margin = new Thickness(Fluent.Space1 / 2, 0, Fluent.Space3 + (Fluent.Space1 / 2), 0);
-
-        var label = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        label.Text = Str.WidgetsB_Habits_AddHabit.Text();
-        label.VerticalAlignment = VerticalAlignment.Center;
-        label.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        var body = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            },
-        };
-
-        SetColumn(label, 1);
-        body.Children.Add(plus);
-        body.Children.Add(label);
-
-        var row = Fluent.Row(body);
-        row.Visibility = Visibility.Collapsed;
-        row.Tapped += OnAddTapped;
-        AutomationProperties.SetName(row, Str.WidgetsB_Habits_AddHabit.Text());
-        _addHover = Fluent.Hover(row);
-        return row;
-    }
-
-    private void OnAddTapped(object sender, TappedRoutedEventArgs args)
-    {
-        args.Handled = true;
-        OpenAddEditor();
-    }
+    /// <summary>[S-3850] The shared add footer, under the list.</summary>
+    private AddFooterRow BuildAddRow() => new(Str.WidgetsB_Habits_AddHabit.Text(), OpenAddEditor);
 
     private void OpenAddEditor()
     {
-        if (!Writable || _editor is { HabitId: null } || _addRow.Child is not Grid body)
+        if (!Writable || _editor is { HabitId: null })
         {
             return;
         }
@@ -382,25 +346,17 @@ internal sealed partial class HabitTrackerView
 
         var box = NewEditor(string.Empty);
         box.PlaceholderText = Str.WidgetsB_Habits_NamePlaceholder.Text();
-        SetColumn(box, 1);
-        body.Children[1].Visibility = Visibility.Collapsed;
-        body.Children.Add(box);
+        _addRow.Open(box);
         _editor = (box, null);
-        _addRow.Visibility = Visibility.Visible;
         StartTyping(box);
     }
 
     /// <summary>
-    /// [S-1427] The add row shows where the plan has room for it; while it holds an open editor it
-    /// stays whatever the plan says.
+    /// [S-1427]/[S-3850] The add footer shows where the plan has room for it; while it holds an open
+    /// editor it stays whatever the plan says.
     /// </summary>
     private void FitAddRow(HabitLayoutPlan plan)
-    {
-        var show = plan.AddRow && Writable;
-        _addRow.Visibility = show || _editor is { HabitId: null } ? Visibility.Visible : Visibility.Collapsed;
-        _addRow.Padding = new Thickness(plan.Inset, 0, plan.Inset, 0);
-        Fluent.SetDensity(_addRow, plan.CompactRows);
-    }
+        => _addRow.Fit((plan.AddRow && Writable) || _editor is { HabitId: null }, plan.CompactRows, plan.Inset);
 
     private TextBox NewEditor(string text)
     {
@@ -556,12 +512,7 @@ internal sealed partial class HabitTrackerView
         UpdateKeyboard();
     }
 
-    private void DetachAddRow()
-    {
-        _addRow.Tapped -= OnAddTapped;
-        _addHover?.Dispose();
-        _addHover = null;
-    }
+    private void DetachAddRow() => _addRow.Detach();
 
     /// <summary>
     /// One habit's row: a box, the name, the run, the history dots, and on a wide tile its rate and

@@ -95,6 +95,10 @@ public static class DesignLook
         "AccentTextFillColorSecondaryBrush" => dark ? Light3 : Dark3,
         "AccentTextFillColorTertiaryBrush" => dark ? Light2 : Dark1,
         "AccentFillColorSelectedTextBackgroundBrush" => Base,
+
+        // An accent alias with no colour resource of its own (the informational InfoBar, a notice):
+        // Light2 in dark theme, the accent itself in light.
+        "SystemFillColorAttentionBrush" => dark ? Light2 : Base,
         "SystemControlHighlightAccentBrush" or "SystemControlForegroundAccentBrush" or "SystemControlBackgroundAccentBrush"
             or "SystemControlHighlightAltAccentBrush" or "SystemControlDisabledAccentBrush"
             or "SystemControlHighlightListAccentLowBrush" or "SystemControlHighlightListAccentMediumBrush"
@@ -107,7 +111,7 @@ public static class DesignLook
     [
         "AccentFillColorDefaultBrush", "AccentFillColorSecondaryBrush", "AccentFillColorTertiaryBrush",
         "AccentTextFillColorPrimaryBrush", "AccentTextFillColorSecondaryBrush", "AccentTextFillColorTertiaryBrush",
-        "AccentFillColorSelectedTextBackgroundBrush",
+        "AccentFillColorSelectedTextBackgroundBrush", "SystemFillColorAttentionBrush",
         "SystemControlHighlightAccentBrush", "SystemControlForegroundAccentBrush", "SystemControlBackgroundAccentBrush",
         "SystemControlHighlightAltAccentBrush", "SystemControlDisabledAccentBrush",
         "SystemControlHighlightListAccentLowBrush", "SystemControlHighlightListAccentMediumBrush",
@@ -167,6 +171,27 @@ public static class DesignLook
             WidgetBorderStyle.Dotted => new BorderLook(width, [0, 2], true, alpha),
             _ => new BorderLook(width, [], false, alpha),
         };
+    }
+
+    /// <summary>
+    /// [S-836] How far the card's Fluent tint stops short of the edge: inside a solid stroke, as a
+    /// WinUI <c>Border</c>'s background stops at the stroke's inner edge (<c>BackgroundSizing</c>
+    /// InnerBorderEdge), so the stroke composites over the base alone, exactly as a Windows card's
+    /// stroke does over the page. A dashed or dotted line keeps the tint full-bleed, or its gaps would
+    /// show a ring of bare base.
+    /// </summary>
+    public static double TintInset(BorderLook border)
+        => border.Visible && border.Dashes.Count == 0 ? border.Thickness : 0;
+
+    /// <summary>
+    /// [S-836] Source-over compositing of a colour at <paramref name="alpha"/> on an opaque one, per
+    /// channel and rounded, which is what a Fluent overlay (a card tint, a stroke) draws on its base.
+    /// </summary>
+    public static RgbColor Over(byte alpha, RgbColor top, RgbColor under)
+    {
+        static byte Mix(byte a, byte t, byte u) => (byte)Math.Round(u + ((t - u) * (a / 255.0)), MidpointRounding.AwayFromZero);
+
+        return new RgbColor(Mix(alpha, top.R, under.R), Mix(alpha, top.G, under.G), Mix(alpha, top.B, under.B));
     }
 
     /// <summary>[S-825] A corner radius from the setting: 0..32, not finite is the default 8.</summary>

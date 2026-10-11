@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -83,7 +84,7 @@ internal sealed partial class GalleryView
             return;
         }
 
-        if (_scan.Status != GalleryStatus.Ok || _scan.Paths.Count == 0)
+        if (_scan.Status != GalleryStatus.Ok || _pictures.Count == 0)
         {
             ShowMessage(GalleryFormatting.StatusMessage(_scan.Status, _resolved.Problem, _config.Source));
             return;
@@ -97,10 +98,10 @@ internal sealed partial class GalleryView
             return; // Not arranged yet; ApplySize brings us straight back.
         }
 
-        var plan = GalleryPlan.For(_area, _config.Layout, _config.IsSingleSource, _scan.Paths.Count, Gap);
+        var plan = GalleryPlan.For(_area, _config.Layout, _config.IsSingleSource, _pictures.Count, Gap);
         _plan = plan;
 
-        _index = Math.Clamp(_index, 0, _scan.Paths.Count - 1);
+        _index = Math.Clamp(_index, 0, _pictures.Count - 1);
 
         switch (plan.Mode)
         {
@@ -124,7 +125,7 @@ internal sealed partial class GalleryView
         PlaceControls(plan);
 
         _counter.Text = plan.Counter && plan.Mode == GalleryMode.Slideshow
-            ? Str.WidgetsB_Gallery_Counter.Format(("index", _index + 1), ("count", _scan.Paths.Count))
+            ? Str.WidgetsB_Gallery_Counter.Format(("index", _index + 1), ("count", _pictures.Count))
             : string.Empty;
     }
 
@@ -134,7 +135,7 @@ internal sealed partial class GalleryView
     private void DrawMain(GalleryPlan plan)
     {
         var frames = Frames(_frames, 1);
-        var path = _scan.Paths[_index];
+        var path = _pictures[_index];
         Place(frames[0], new GalleryRect(0, 0, plan.MainWidth, plan.MainHeight), radius: 0, PictureStretch);
         Point(frames[0], path);
     }
@@ -152,7 +153,7 @@ internal sealed partial class GalleryView
             var x = (i % columns) * (width + Gap);
             var y = (i / columns) * (height + Gap);
             Place(frames[i], new GalleryRect(x, y, width, height), Fluent.ControlRadius, PictureStretch);
-            Point(frames[i], _scan.Paths[i]);
+            Point(frames[i], _pictures[i]);
         }
     }
 
@@ -173,7 +174,7 @@ internal sealed partial class GalleryView
             frame.Host.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
             frame.Host.RenderTransform = new RotateTransform { Angle = print.Rotation };
             Canvas.SetZIndex(frame.Host, i);
-            Point(frame, _scan.Paths[i]);
+            Point(frame, _pictures[i]);
         }
     }
 
@@ -186,7 +187,7 @@ internal sealed partial class GalleryView
         for (var i = 0; i < frames.Count; i++)
         {
             Place(frames[i], cells[i], radius: 0, Stretch.UniformToFill);
-            Point(frames[i], _scan.Paths[i]);
+            Point(frames[i], _pictures[i]);
         }
     }
 
@@ -282,8 +283,9 @@ internal sealed partial class GalleryView
         if (!string.Equals(frame.Path, path, StringComparison.Ordinal))
         {
             // A different picture: the old one must not linger while the new one decodes, or a
-            // slide that moved on shows the previous picture under the new counter.
-            frame.Image.Source = null;
+            // slide that moved on shows the previous picture under the new counter. A picture the
+            // shared cache holds ([S-3411]) is put in below in this same pass, so nothing blanks.
+            frame.Show(null);
         }
 
         frame.Cancel();
@@ -306,15 +308,27 @@ internal sealed partial class GalleryView
             // The decode is in physical pixels, so the frame's logical width is multiplied by the
             // monitor's scale. Getting this wrong is a picture that is crisp on one display and
             // soft on the one beside it.
-            var scale = XamlRoot?.RasterizationScale ?? 1;
-            var bitmap = await _loader.LoadAsync(path, logicalWidth * scale, cts.Token).ConfigureAwait(true);
-
-            if (bitmap is null || _detached || cts.IsCancellationRequested || !ReferenceEquals(frame.Pending, cts))
+            if (Service is not { } service)
             {
                 return;
             }
 
-            frame.Image.Source = bitmap;
+            var scale = XamlRoot?.RasterizationScale ?? 1;
+            var handle = await service.Pictures.LoadAsync(path, logicalWidth * scale, cts.Token).ConfigureAwait(true);
+
+            if (handle is null)
+            {
+                return;
+            }
+
+            if (_detached || cts.IsCancellationRequested || !ReferenceEquals(frame.Pending, cts))
+            {
+                // The frame moved on: the picture stays cached for the next ask, but not pinned.
+                handle.Dispose();
+                return;
+            }
+
+            frame.Show(handle);
         }
         catch (OperationCanceledException)
         {
@@ -373,10 +387,22 @@ internal sealed partial class GalleryView
             pending?.Cancel();
         }
 
+        /// <summary>[S-3411] The picture on show, pinned in the shared cache while this frame holds it.</summary>
+        private PictureHandle? Handle { get; set; }
+
+        /// <summary>Show a picture (or none), letting go of the one before.</summary>
+        public void Show(PictureHandle? handle)
+        {
+            var previous = Handle;
+            Handle = handle;
+            Image.Source = handle?.Image;
+            previous?.Dispose();
+        }
+
         public void Release()
         {
             Cancel();
-            Image.Source = null;
+            Show(null);
             Path = null;
             Decoded = 0;
         }

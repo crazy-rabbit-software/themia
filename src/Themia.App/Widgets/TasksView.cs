@@ -53,6 +53,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>The second way out of the no-account state: a list on this PC needs no account.</summary>
 
     private TaskService? _service;
+
+    /// <summary>The lists on this PC the rows are read from: the service's (a debug render's own fixture).</summary>
+    private LocalTaskPool? _local;
     private Ticker? _ticker;
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
@@ -148,11 +151,11 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _listHost = new TaskListHost(_scroll, _rowsPanel);
         Grid.SetRow(_listHost, 1);
         Grid.SetRow(_emptyHost, 1);
-        Grid.SetRow(_addRow, 2);
+        Grid.SetRow(_addRow.Element, 2);
 
         Children.Add(_listHost);
         Children.Add(_emptyHost);
-        Children.Add(_addRow);
+        Children.Add(_addRow.Element);
     }
 
     /// <summary>What the widget is showing instead of, or as well as, a list.</summary>
@@ -186,6 +189,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _detached = false;
         _ticker = ticker;
         _service = AppServices.Tasks;
+        _local = _service?.Local;
 
         if (_service is not null)
         {
@@ -202,7 +206,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-1110] The fixed texts again, then the list redrawn from what is in hand (no fetch).</summary>
     private void OnLanguage(Locale locale)
     {
-        _addLabel.Text = Str.WidgetsC_Tasks_AddTask.Text();
+        _addRow.Label = Str.WidgetsC_Tasks_AddTask.Text();
         PublishTitle();
         Render();
     }
@@ -469,7 +473,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         if (IsLocal)
         {
             // A list deleted, created or renamed from settings or another widget.
-            _localListId = _service?.Local.Find(_config.LocalListId)?.Id;
+            _localListId = _local?.Find(_config.LocalListId)?.Id;
             PublishTitle();
             Render();
         }
@@ -482,7 +486,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
         if (IsLocal)
         {
-            if (_service?.Local.Find(_localListId) is { } list)
+            if (_local?.Find(_localListId) is { } list)
             {
                 title = string.IsNullOrWhiteSpace(list.Name) ? Str.WidgetsC_Tasks_UntitledList.Text() : list.Name;
             }
@@ -508,7 +512,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     {
         if (IsLocal)
         {
-            if (_service?.Local.Find(_localListId) is not { } list)
+            if (_local?.Find(_localListId) is not { } list)
             {
                 return null;
             }
@@ -611,7 +615,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _busy.IsActive = busy;
         _busy.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
 
-        var warning = IsLocal ? _service?.Local.Problem
+        var warning = IsLocal ? _local?.Problem
             : _feed?.WriteProblem
             ?? (_feed is { Loaded: true, Failure: { } failure }
                 ? Str.WidgetUi_RefreshFailedSince.Format(("reason", FetchState.Message(failure.ToFetchStatus())), ("time", FetchState.Freshness(_feed.FetchedAt ?? DateTimeOffset.Now, DateTimeOffset.Now)))
@@ -790,6 +794,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
             _service.Local.Changed -= OnLocalChanged;
             _service = null;
         }
+
+        _local = null;
 
         DetachAddRow();
         _ticker = null;

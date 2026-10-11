@@ -9,8 +9,8 @@ namespace Themia.App.Services.Web;
 /// Whatever addresses the user typed, and nothing else — no discovery, no following a
 /// <c>&lt;link rel="alternate"&gt;</c> out of an HTML page, no guessing at <c>/feed</c>. A widget
 /// that fetches a URL the user did not write is a widget whose settings do not describe what it
-/// does. Every request goes through the network guard ([S-1301]): a feed address is the user's,
-/// but where it redirects to is the host's.
+/// does. Every request goes through the network guard ([S-1301]): a feed address is the user's
+/// (and so may name their own network, [S-3840]), but where it redirects to is the host's.
 /// </para>
 /// </summary>
 internal static class FeedService
@@ -67,8 +67,11 @@ internal static class FeedService
 
         // Asking for XML specifically. A host that sees */* very often serves the human page to a
         // feed reader, which then parses as "not a feed" and gets reported as a broken feed.
+        // [S-3840] The address the user typed may be on their network; where it redirects, and the
+        // links and pictures inside the feed, may not.
+        var feedUri = new Uri(checkedUrl.Url);
         var response = await WebFetch
-            .GetAsync(new Uri(checkedUrl.Url), FeedParser.Accept, token)
+            .GetAsync(feedUri, FeedParser.Accept, token, grant: Themia.Core.Net.LocalGrants.ForTyped(feedUri))
             .ConfigureAwait(false);
 
         if (response.Status != FetchStatus.Ok)

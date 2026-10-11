@@ -185,24 +185,22 @@ public sealed class DiskPingTests
         Assert.Equal(MeterPressure.Normal, PingStats.Pressure(PingStatus.Checking));
     }
 
-    // ---- S-1173: the host's name --------------------------------------------------------------------
+    // ---- S-1173: the host is the title -----------------------------------------------------------
 
     [Fact]
-    public void S1173_a_blank_label_is_none_and_an_overlong_one_is_cut()
+    public void S1173_clone_keeps_the_host()
     {
-        Assert.Null(new PingConfig { HostLabel = "  " }.EffectiveLabel);
-        Assert.Equal("Router", new PingConfig { HostLabel = " Router " }.EffectiveLabel);
+        var copy = (PingConfig)new PingConfig { Host = "8.8.8.8" }.Clone();
 
-        var config = new PingConfig { HostLabel = new string('x', PingConfig.MaxLabelLength + 5) };
-        Assert.Single(config.Repair());
-        Assert.Equal(PingConfig.MaxLabelLength, config.HostLabel.Length);
+        Assert.Equal("8.8.8.8", copy.Host);
     }
 
     [Fact]
-    public void S1173_clone_keeps_the_host_and_its_label()
+    public void S3791_a_stored_host_label_is_ignored_and_the_host_is_the_name()
     {
-        var copy = (PingConfig)new PingConfig { Host = "8.8.8.8", HostLabel = "DNS" }.Clone();
+        var config = (PingConfig)ConfigJson.Read("Ping", """{ "kind": "ping", "host": "8.8.8.8", "hostLabel": "DNS", "intervalSeconds": 300 }""");
 
-        Assert.Equal(("8.8.8.8", "DNS"), (copy.Host, copy.HostLabel));
+        Assert.Equal("8.8.8.8", config.EffectiveHost);
+        Assert.Equal(10, config.IntervalSeconds);
     }
 }

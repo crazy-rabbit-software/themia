@@ -1,11 +1,16 @@
-using Themia.Core.Office;
+﻿using Themia.Core.Office;
 
 namespace Themia.Core.Sync;
 
 /// <summary>[S-2630] One calendar account's shelf: its calendar list, each synced calendar's window of events, and birthdays.</summary>
 public sealed class CalendarShelf : ISyncShelf
 {
-    public const int Version = 1;
+    /// <summary>
+    /// 2: version 1 shelves may hold bare Graph delta notices stored as untitled events and all-day
+    /// events stretched over two days. An older shelf loads as stale ([S-2605]), so the first sync
+    /// of this build fetches every calendar again, cursors included; the other kinds keep theirs.
+    /// </summary>
+    public const int Version = 2;
 
     public int SchemaVersion { get; set; } = Version;
 

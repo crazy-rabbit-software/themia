@@ -1,4 +1,4 @@
-namespace Themia.Core.Model;
+﻿namespace Themia.Core.Model;
 
 /// <summary>
 /// The operations on the list of views: duplicate, reorder, delete, and the Ctrl+number shortcut.
@@ -26,6 +26,7 @@ public static class ViewOps
         var source = state.Views[index];
         var copy = ViewState.Create($"{source.Name} (Copy)");
         copy.Icon = source.Icon;
+        copy.Color = source.Color;
 
         foreach (var widget in source.Widgets)
         {
@@ -48,15 +49,7 @@ public static class ViewOps
 
         var from = views.FindIndex(v => v.Id == draggedId);
         var to = views.FindIndex(v => v.Id == targetId);
-        if (from < 0 || to < 0 || from == to)
-        {
-            return false;
-        }
-
-        var moving = views[from];
-        views.RemoveAt(from);
-        views.Insert(to, moving);
-        return true;
+        return from >= 0 && to >= 0 && Widgets.DeskListOrder.MoveTo(views, from, to);
     }
 
     /// <summary>
@@ -77,6 +70,39 @@ public static class ViewOps
         view.Name = trimmed;
         return true;
     }
+
+    /// <summary>
+    /// [S-3810] Give a view's icon a colour, or none (null or empty) for the theme's text colour. The
+    /// colour is stored as <c>#RRGGBB</c>; anything that does not name a colour is refused and the old
+    /// one kept. False when nothing changed.
+    /// </summary>
+    public static bool SetColor(AppState state, string viewId, string? color)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+
+        if (state.FindView(viewId) is not { } view)
+        {
+            return false;
+        }
+
+        var clean = CleanColor(color);
+        if (clean is null && !string.IsNullOrWhiteSpace(color))
+        {
+            return false;
+        }
+
+        if (clean == view.Color)
+        {
+            return false;
+        }
+
+        view.Color = clean;
+        return true;
+    }
+
+    /// <summary>[S-3811] A stored view colour as <c>#RRGGBB</c>, or null for none and for anything that is not a colour.</summary>
+    public static string? CleanColor(string? color)
+        => Widgets.HexColor.Normalise(color) is { Length: > 0 } hex ? hex : null;
 
     /// <summary>[S-901] Move a view one place up (-1) or down (+1). False at either end.</summary>
     public static bool MoveBy(List<ViewState> views, string viewId, int delta)

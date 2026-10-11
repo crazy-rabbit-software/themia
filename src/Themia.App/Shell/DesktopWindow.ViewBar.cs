@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
@@ -29,6 +30,8 @@ internal sealed partial class DesktopWindow : IViewBarOwner
     /// <summary>Draw the bar for the current state and put it at its anchor.</summary>
     private void RefreshViewBar()
     {
+        CapToolbarViewMenu();
+
         var state = _host.State;
         var settings = ViewBarRules.For(state, _monitor.Id);
         var show = ViewBarRules.Show(EditMode, settings, state.Views);
@@ -48,15 +51,36 @@ internal sealed partial class DesktopWindow : IViewBarOwner
                 v.Name,
                 string.IsNullOrEmpty(v.Icon) ? null : v.Icon,
                 v.Id == shownId,
-                v.Id == state.DefaultViewForNewDisplays))
+                v.Id == state.DefaultViewForNewDisplays,
+                v.Color))
             .ToList();
+
+        // [S-917] The chips that fit along this display's work area at this anchor; the rest go
+        // behind the overflow chip. Refit on every refresh: a resize, a DPI or work-area change, a
+        // drag to another anchor, the toolbar coming and going, a view added.
+        var area = GridGeometry.AllowedPixels(metrics);
+        var room = ViewBarRules.Room(area, anchor, EditMode ? ToolbarRect(area) : null);
 
         _viewBar.Update(
             items,
             new ViewBarLook(settings.Size, settings.IconOnly, ViewBarRules.IsVertical(anchor), EditMode, show == ViewBarShow.HiddenPreview),
-            Design);
+            Design,
+            room);
         _viewBar.Visibility = Visibility.Visible;
         PositionViewBar(anchor);
+    }
+
+    /// <summary>[S-918] The edit bar's View menu scrolls inside the work area below the toolbar rather than running off the display.</summary>
+    private void CapToolbarViewMenu()
+    {
+        var metrics = Metrics;
+        if (!metrics.IsUsable || !EditMode)
+        {
+            return;
+        }
+
+        var area = GridGeometry.AllowedPixels(metrics);
+        _toolbar.CapViewMenu(ViewBarRules.MenuHeight(area, ToolbarRect(area), ViewBarMenuSide.Below));
     }
 
     /// <summary>[S-909] Put the bar at its anchor in the work area, clear of the edit toolbar.</summary>
@@ -135,6 +159,30 @@ internal sealed partial class DesktopWindow : IViewBarOwner
             new ItemMenuEntry(Glyphs.Duplicate, Str.App_DuplicateView.Text(), () => _host.DuplicateView(viewId, monitorId), Quick: QuickCommand.Duplicate),
             new ItemMenuEntry(Glyphs.Settings, Str.App_ViewSettingsBtn.Text(), () => _host.ShowConfig(ConfigTarget.ForView(viewId)), Quick: QuickCommand.Settings),
         ]);
+    }
+
+    /// <summary>[S-918] The views that did not fit, in a menu opening into the display and no taller than the work area there.</summary>
+    public void ShowOverflow(FrameworkElement chip, IReadOnlyList<ViewBarItem> hidden)
+    {
+        var metrics = Metrics;
+        if (!metrics.IsUsable || ViewBarBox() is not { } bar)
+        {
+            return;
+        }
+
+        var side = ViewBarRules.MenuSide(_barDragAnchor ?? ViewBarRules.For(_host.State, _monitor.Id).Anchor);
+        var menu = ViewBar.OverflowMenu(hidden, SwitchTo, ViewBarRules.MenuHeight(GridGeometry.AllowedPixels(metrics), bar, side));
+        menu.ShowAt(chip, new FlyoutShowOptions
+        {
+            ShowMode = FlyoutShowMode.Standard,
+            Placement = side switch
+            {
+                ViewBarMenuSide.Below => FlyoutPlacementMode.Bottom,
+                ViewBarMenuSide.Left => FlyoutPlacementMode.Left,
+                ViewBarMenuSide.Right => FlyoutPlacementMode.Right,
+                _ => FlyoutPlacementMode.Top,
+            },
+        });
     }
 
     /// <inheritdoc />

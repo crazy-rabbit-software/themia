@@ -1,110 +1,121 @@
 using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.Core.Diagnostics;
+using Themia.Core.Widgets;
 using Windows.Storage;
 
 namespace Themia.App.Services;
 
 /// <summary>
-/// Turning a path into pixels, at the size it will actually be drawn, without stopping the desktop.
+/// A decoded picture a frame is showing. Holding it pins the picture in the shared cache
+/// ([S-3411]); disposing lets go, exactly once.
+/// </summary>
+internal sealed class PictureHandle : IDisposable
+{
+    private ImageLoader? _owner;
+
+    public PictureHandle(ImageLoader owner, PictureKey key, BitmapImage image)
+    {
+        _owner = owner;
+        Key = key;
+        Image = image;
+    }
+
+    public PictureKey Key { get; }
+
+    public BitmapImage Image { get; }
+
+    public void Dispose()
+    {
+        var owner = _owner;
+        _owner = null;
+        owner?.Release(Key);
+    }
+}
+
+/// <summary>
+/// Turning a path into pixels, at the size it will actually be drawn, without stopping the desktop,
+/// once for every gallery widget on every display ([S-3411]): owned by <see cref="GalleryService"/>
+/// for the app's lifetime, so a view switch and back finds its pictures decoded.
 /// <para>
 /// Decoding a photograph is the most expensive thing any widget in this app does, and it is
 /// expensive twice: the file has to come off the disk, and the JPEG has to be turned into a bitmap.
-/// Doing either on the UI thread freezes every widget on every monitor, and a folder of phone
-/// photographs will do it for several seconds at a time.
-/// </para>
-/// <para>
-/// Three rules, and they are the whole of this class:
+/// Doing either on the UI thread freezes every widget on every monitor.
 /// </para>
 /// <list type="number">
 /// <item>
 /// <b>Decode to the size shown.</b> <see cref="BitmapImage.DecodePixelWidth"/> makes WIC scale
-/// during decode, so a 24-megapixel photograph in a 300px tile costs a 300px bitmap — under a
-/// megabyte — instead of ninety. Without it the widget holds the full-resolution surface for every
-/// tile and the GPU downsamples it on every frame.
+/// during decode, so a 24-megapixel photograph in a 300px tile costs a 300px bitmap, not ninety
+/// megabytes. Widths are bucketed (<see cref="DecodeWidth"/>), and a larger decode already held
+/// serves a smaller ask.
 /// </item>
 /// <item>
-/// <b>Bound what is held.</b> The cache keeps <see cref="Capacity"/> decoded bitmaps and drops the
-/// oldest, so a slideshow left running for a week over a folder of ten thousand pictures holds the
-/// same amount of memory on the last day as on the first.
+/// <b>Bound what is held</b> by bytes (<see cref="PictureCache{TValue}"/>): what frames show is
+/// pinned, and besides it only <see cref="PictureBudget.IdleAllowance"/>, least recently used out.
 /// </item>
 /// <item>
-/// <b>Bound what is in flight.</b> Two decodes at once. A grid of twenty-four tiles asking at once
-/// would open twenty-four file handles and hand WIC twenty-four jobs, which on a spinning disk or a
-/// share is slower than doing them in turn as well as far heavier.
+/// <b>Bound what is in flight.</b> Two decodes at once, across every widget: a grid of twenty-four
+/// tiles asking at once would otherwise open twenty-four handles at a spinning disk or a share.
 /// </item>
 /// </list>
 /// <para>
-/// Everything here runs on the UI thread and is <i>asynchronous</i> rather than backgrounded:
-/// <see cref="BitmapImage"/> is a dependency object and cannot be created anywhere else, and both
-/// the file open and the decode happen off-thread inside the WinRT calls it awaits.
+/// UI thread, and <i>asynchronous</i> rather than backgrounded: <see cref="BitmapImage"/> is a
+/// dependency object and cannot be created anywhere else, and both the file open and the decode
+/// happen off-thread inside the WinRT calls it awaits.
 /// </para>
 /// </summary>
 internal sealed class ImageLoader
 {
     private const string Scope = "gallery-image";
 
-    /// <summary>
-    /// How many decoded bitmaps are kept. Twenty-four at tile size is a few megabytes, and it is the
-    /// most tiles the gallery will ever show at once, so a full grid never evicts its own contents.
-    /// </summary>
-    private const int Capacity = 24;
-
-    /// <summary>
-    /// Decode widths are rounded to this, so a widget being dragged does not decode the same
-    /// picture again at 301px, 303px, 308px and fill the cache with near-duplicates.
-    /// </summary>
-    private const int WidthStep = 64;
-
-    /// <summary>The largest bitmap worth decoding. Past this the tile is a wall, not a widget.</summary>
-    private const int MaxWidth = 2048;
-
     /// <summary>At most two decodes at a time; the rest wait here rather than at the filesystem.</summary>
     private readonly SemaphoreSlim _gate = new(2, 2);
 
-    private readonly Dictionary<string, BitmapImage> _cache = [];
+    private readonly PictureCache<BitmapImage> _cache = new();
 
-    /// <summary>Insertion order, which is what makes eviction the oldest rather than an arbitrary one.</summary>
-    private readonly Queue<string> _order = new();
+    /// <summary>Pictures held (diagnostics: the switch check).</summary>
+    public int Count => _cache.Count;
+
+    /// <summary>Their estimated decoded size.</summary>
+    public long Bytes => _cache.Bytes;
 
     /// <summary>
-    /// The bitmap for a path at roughly <paramref name="pixelWidth"/>, or null when it could not be
-    /// read or decoded. Never throws: a corrupt file in a folder of good ones must cost that one
-    /// tile, not the widget.
+    /// The picture for a path at roughly <paramref name="pixelWidth"/> physical pixels, pinned until
+    /// the handle is disposed, or null when it could not be read or decoded. A picture already held
+    /// comes back without an await, so a widget built again draws it in the same pass. Never throws
+    /// for one bad file: a corrupt picture costs that one tile, not the widget.
     /// </summary>
-    public async Task<BitmapImage?> LoadAsync(string path, double pixelWidth, CancellationToken token)
+    public async Task<PictureHandle?> LoadAsync(string path, double pixelWidth, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
             return null;
         }
 
-        var width = Bucket(pixelWidth);
-        var key = $"{width}|{path}";
+        var width = DecodeWidth.Bucket(pixelWidth);
 
-        if (_cache.TryGetValue(key, out var cached))
+        if (Hold(path, width) is { } held)
         {
-            return cached;
+            return held;
         }
 
-        // [S-762] The photo of the day is an https address the scan has already pinned to Bing's
-        // host. It is handed to the bitmap as a URI rather than downloaded here: the platform
-        // fetches it off-thread, decodes it at the asked width, and keeps it in the system's HTTP
-        // cache, so a restart while offline still has today's picture. Nothing else is a URI.
+        // [S-762] The photo of the day is an https address the read has already pinned to Bing's
+        // host. It is handed to the bitmap as a URI rather than downloaded here: the platform fetches
+        // it off-thread, decodes it at the asked width, and keeps it in the system's HTTP cache.
         if (Uri.TryCreate(path, UriKind.Absolute, out var remote) && remote.Scheme == Uri.UriSchemeHttps)
         {
-            var image = Remote(remote, width, key);
-            Remember(key, image);
-            return image;
+            var key = new PictureKey(path, width);
+            _cache.Add(key, Remote(remote, key), PictureBudget.Estimate(width, 16, 9));
+            return Hold(path, width);
         }
 
         await _gate.WaitAsync(token).ConfigureAwait(true);
 
         try
         {
-            // Another tile may have asked for the same picture while this one queued.
-            if (_cache.TryGetValue(key, out cached))
+            // Another frame may have asked for the same picture while this one queued.
+            if (Hold(path, width) is { } queued)
             {
-                return cached;
+                return queued;
             }
 
             token.ThrowIfCancellationRequested();
@@ -116,17 +127,46 @@ internal sealed class ImageLoader
                 return null;
             }
 
-            // Checked after the await as well as before: the folder may have changed while this was
-            // decoding, and caching a picture nobody is going to draw only evicts one that is.
-            token.ThrowIfCancellationRequested();
+            _cache.Add(new PictureKey(path, width), bitmap, PictureBudget.Estimate(width, bitmap.PixelWidth, bitmap.PixelHeight));
 
-            Remember(key, bitmap);
-            return bitmap;
+            // Held even when this frame has moved on meanwhile: the decode is done, and the next ask
+            // (the slide coming round again, the widget built again) finds it.
+            token.ThrowIfCancellationRequested();
+            return Hold(path, width);
         }
         finally
         {
             _gate.Release();
         }
+    }
+
+    /// <summary>[S-3411] Drop every picture nobody shows (the desktop was suspended).</summary>
+    public void Trim()
+    {
+        var dropped = _cache.Trim();
+
+        if (dropped > 0)
+        {
+            Log.Debug(Scope, $"released {dropped} decoded pictures nobody shows");
+        }
+    }
+
+    /// <summary>[S-3413] Drop the pictures of a released source that nobody shows.</summary>
+    public void Forget(Func<string, bool> path) => _cache.RemoveUnpinned(path);
+
+    public void Clear() => _cache.Clear();
+
+    internal void Release(PictureKey key) => _cache.Unpin(key);
+
+    private PictureHandle? Hold(string path, int width)
+    {
+        if (!_cache.TryGet(path, width, out var key, out var bitmap))
+        {
+            return null;
+        }
+
+        _cache.Pin(key);
+        return new PictureHandle(this, key, bitmap);
     }
 
     /// <summary>
@@ -142,15 +182,12 @@ internal sealed class ImageLoader
 
             var bitmap = new BitmapImage
             {
-                // Physical, not logical: the caller has already multiplied by the display's scale,
-                // so asking for logical pixels here would scale it a second time and decode a
-                // picture too small for a high-DPI monitor.
+                // Physical, not logical: the caller has already multiplied by the display's scale.
                 DecodePixelType = DecodePixelType.Physical,
                 DecodePixelWidth = width,
             };
 
-            // The decode itself. Awaited rather than fired off, so the stream below is disposed
-            // only once WIC has finished reading it.
+            // Awaited rather than fired off, so the stream is disposed only once WIC has read it.
             await bitmap.SetSourceAsync(stream);
             return bitmap;
         }
@@ -161,20 +198,23 @@ internal sealed class ImageLoader
             or System.Runtime.InteropServices.COMException)
         {
             // A file that went away, one this machine has no codec for, or one that is simply not
-            // the picture its extension claims. One tile's problem, said out loud, and the rest of
-            // the folder is unaffected.
+            // the picture its extension claims. One tile's problem, said out loud.
             Log.Warn(Scope, $"could not decode '{path}'", ex);
             return null;
         }
     }
 
-    private BitmapImage Remote(Uri uri, int width, string key)
+    private BitmapImage Remote(Uri uri, PictureKey key)
     {
         var bitmap = new BitmapImage
         {
             DecodePixelType = DecodePixelType.Physical,
-            DecodePixelWidth = width,
+            DecodePixelWidth = key.Width,
         };
+
+        // The real size, once it is known, so the budget counts it.
+        bitmap.ImageOpened += (_, _) =>
+            _cache.Resize(key, PictureBudget.Estimate(key.Width, bitmap.PixelWidth, bitmap.PixelHeight));
 
         // Logged, not thrown, and forgotten: the frame stays empty and the next refresh asks again
         // rather than finding the failed bitmap in the cache.
@@ -185,45 +225,5 @@ internal sealed class ImageLoader
         };
         bitmap.UriSource = uri;
         return bitmap;
-    }
-
-    private void Remember(string key, BitmapImage bitmap)
-    {
-        _cache[key] = bitmap;
-        _order.Enqueue(key);
-
-        while (_order.Count > Capacity)
-        {
-            var oldest = _order.Dequeue();
-
-            // Only if it is still the entry that was queued: a re-decode at the same key enqueues a
-            // second time, and dropping the live bitmap because its stale queue entry came up would
-            // evict something the grid is drawing right now.
-            if (!_order.Contains(oldest))
-            {
-                _cache.Remove(oldest);
-            }
-        }
-    }
-
-    private static int Bucket(double pixelWidth)
-    {
-        if (!double.IsFinite(pixelWidth) || pixelWidth <= 0)
-        {
-            return WidthStep;
-        }
-
-        var stepped = (int)(Math.Ceiling(pixelWidth / WidthStep) * WidthStep);
-        return Math.Clamp(stepped, WidthStep, MaxWidth);
-    }
-
-    /// <summary>
-    /// Drop everything held. Called when the folder changes and on detach, so a widget that has been
-    /// pointed somewhere else is not still holding the last folder's pictures.
-    /// </summary>
-    public void Clear()
-    {
-        _cache.Clear();
-        _order.Clear();
     }
 }

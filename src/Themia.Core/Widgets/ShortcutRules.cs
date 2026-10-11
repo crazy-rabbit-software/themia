@@ -12,9 +12,6 @@ public enum ShortcutCommand
     CopyUrl,
     CopyPath,
     OpenFileLocation,
-    MoveToStart,
-    MoveUp,
-    MoveDown,
     Rename,
     Remove,
 
@@ -76,19 +73,20 @@ public static class ShortcutRules
 
     /// <summary>
     /// [S-1387] The item menu for a right-click (original S-26): Open first ("Open all" when the
-    /// click landed on a multi-selection), type-specific actions for a single item, moves, then
-    /// Rename and Remove last. Rename is off while several items are selected; a refused target
-    /// cannot be opened but can still be renamed, moved and removed.
+    /// click landed on a multi-selection), type-specific actions for a single item, then Rename and
+    /// Remove last. Rename is off while several items are selected; a refused target cannot be
+    /// opened but can still be renamed and removed. No moves: the order is dragged, or moved with
+    /// Alt+Shift+Up / Down ([S-3802]).
     /// </summary>
-    public static IReadOnlyList<ShortcutMenuEntry> Menu(LaunchTarget target, int selected, int index, int count)
-        => Menu(target, selected, index, count, layout: null);
+    public static IReadOnlyList<ShortcutMenuEntry> Menu(LaunchTarget target, int selected)
+        => Menu(target, selected, layout: null);
 
     /// <summary>
     /// [S-1405] The item menu, for an app layout too (original S-26): "Open" launches it (off while
-    /// no pane opens anything), "Edit layout…" replaces the target-specific actions, and the moves,
-    /// Rename and Remove are as for any item.
+    /// no pane opens anything), "Edit layout…" replaces the target-specific actions, and Rename and
+    /// Remove are as for any item.
     /// </summary>
-    public static IReadOnlyList<ShortcutMenuEntry> Menu(LaunchTarget target, int selected, int index, int count, LayoutNode? layout)
+    public static IReadOnlyList<ShortcutMenuEntry> Menu(LaunchTarget target, int selected, LayoutNode? layout)
     {
         if (selected > 1)
         {
@@ -125,45 +123,19 @@ public static class ShortcutRules
         }
 
         entries.Add(ShortcutMenuEntry.Separator);
-        entries.Add(new(ShortcutCommand.MoveToStart, Disabled: index <= 0));
-        entries.Add(new(ShortcutCommand.MoveUp, Disabled: index <= 0));
-        entries.Add(new(ShortcutCommand.MoveDown, Disabled: index >= count - 1));
-        entries.Add(ShortcutMenuEntry.Separator);
         entries.Add(new(ShortcutCommand.Rename));
         entries.Add(new(ShortcutCommand.Remove));
         return entries;
     }
 
     /// <summary>
-    /// [S-1387] Move one item within the list. Returns whether anything moved: a move to where it
-    /// already is writes nothing.
+    /// [S-3802] Move one item a place up (-1) or down (+1): the keyboard's twin of the drag
+    /// ([S-1410]). Returns whether anything moved: an end, an unknown id or no step writes nothing.
     /// </summary>
-    public static bool Move(List<ShortcutItem> items, string id, ShortcutCommand move)
+    public static bool Move(List<ShortcutItem> items, string id, int delta)
     {
-        var from = items.FindIndex(item => item.Id == id);
-
-        if (from < 0)
-        {
-            return false;
-        }
-
-        var to = move switch
-        {
-            ShortcutCommand.MoveToStart => 0,
-            ShortcutCommand.MoveUp => from - 1,
-            ShortcutCommand.MoveDown => from + 1,
-            _ => from,
-        };
-
-        if (to < 0 || to >= items.Count || to == from)
-        {
-            return false;
-        }
-
-        var item = items[from];
-        items.RemoveAt(from);
-        items.Insert(to, item);
-        return true;
+        ArgumentNullException.ThrowIfNull(items);
+        return DeskListOrder.Move(items, items.FindIndex(item => item.Id == id), delta);
     }
 
     /// <summary>[S-1388] Whether any item points at the Windows location <paramref name="shellName"/>.</summary>

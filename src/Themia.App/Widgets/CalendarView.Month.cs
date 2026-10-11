@@ -84,12 +84,15 @@ internal sealed partial class CalendarView
 
                 var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, fit, showColors, dotLimit);
 
-                // [S-1269] The cursor day keys moved to, marked until the next page.
-                if (_cursorShown && day == _anchor)
+                // [S-3620] The selected day (also the keys' cursor day, [S-3624]) is outlined.
+                if (_selected == day)
                 {
                     cell.BorderThickness = new Thickness(1);
                     cell.BorderBrush = Accent();
                 }
+
+                cell.Tapped += (_, _) => ToggleDay(day);
+
 
                 if (count > 0)
                 {

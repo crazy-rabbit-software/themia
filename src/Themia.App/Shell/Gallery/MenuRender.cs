@@ -1,4 +1,4 @@
-#if DEBUG
+﻿#if DEBUG
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -96,6 +96,14 @@ internal static class MenuRender
                 host.Set(editMode: false, selection: 3, canPaste: false);
                 await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
 
+                // [S-1750] A widget whose page would be empty (a power button): no Settings in the row.
+                var lockButton = WidgetInstance.Create(WidgetKind.Lock, new FracRect(0.1, 0.6, 0.1, 0.1));
+                view.Widgets.Add(lockButton);
+                var bare = new WidgetCard(host, lockButton) { Width = 120, Height = 120 };
+                root.Children.Add(new Canvas { Children = { bare } });
+                host.Set(editMode: true, selection: 1, canPaste: true);
+                await RenderAsync(root, bare.CardMenu(), System.IO.Path.Combine(outDir, "card-no-settings.png")).ConfigureAwait(true);
+
                 var noop = static () => { };
                 var surface = DesktopWindow.SurfaceEntries(
                     new SurfaceMenuFacts(EditMode: true, Placing: false, CanPaste: true, HasWidgets: true, GridSnap: true),
@@ -123,7 +131,7 @@ internal static class MenuRender
                 List<ItemMenuEntry> lone =
                 [
                     new(Glyphs.Open, "Open", noop),
-                    new(Glyphs.MoveUp, "Move up", noop, Disabled: true),
+                    new(Glyphs.Folder, "Show in Explorer", noop, Disabled: true),
                     ItemMenuEntry.Separator,
                     new(Glyphs.Delete, "Delete", noop, Danger: true, Quick: QuickCommand.Delete),
                 ];
@@ -234,11 +242,6 @@ internal static class MenuRender
         public void RequestConfigure(WidgetCard card)
         {
             // ignore: the menu is drawn, never clicked
-        }
-
-        public void RequestDuplicate(WidgetCard card)
-        {
-            // ignore: as above
         }
 
         public void RequestDelete(WidgetCard card)

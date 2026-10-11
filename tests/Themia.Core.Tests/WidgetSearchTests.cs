@@ -15,7 +15,7 @@ public sealed class WidgetSearchTests
     [
         new("clock", ["Clock"], WidgetKeywords.For(WidgetKind.Clock),
             ["Clock for your timezone or any city in the world"], ["Others"]),
-        new("calendar", ["Calendar"], WidgetKeywords.For(WidgetKind.Calendar),
+        new("calendar", ["Calendar"], WidgetKeywords.For(WidgetKind.MonthCalendar),
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),
         new("weatherCurrent", ["Wetter", "Weather"], WidgetKeywords.For(WidgetKind.WeatherNow),
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
@@ -258,7 +258,8 @@ public sealed class WidgetSearchTests
 
         var google = WidgetSearch.Rank(docs, "google");
         Assert.Contains(WidgetKind.Email, google);
-        Assert.Contains(WidgetKind.Calendar, google);
+        Assert.Contains(WidgetKind.MonthCalendar, google);
+        Assert.Contains(WidgetKind.Agenda, google);
         Assert.Contains(WidgetKind.Contacts, google);
         Assert.Contains(WidgetKind.Tasks, google);
     }

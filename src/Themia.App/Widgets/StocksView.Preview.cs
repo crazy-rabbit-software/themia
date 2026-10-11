@@ -32,7 +32,9 @@ internal sealed partial class StocksView : IWidgetPreviewState
             bars.Add(new QuoteBar(start + (i * 300), 412 + wave + drift));
         }
 
-        var quote = new TickerQuote("MSFT", "Microsoft Corporation", bars[^1].Close, rising ? 1.42 : -0.87, "USD", 2, bars, TradingSessions.None);
+        // [S-2775] The change and the line on one baseline, as the service builds them.
+        var trace = MarketQuote.Trace(bars, bars[^1].Close, null);
+        var quote = new TickerQuote("MSFT", "Microsoft Corporation", bars[^1].Close, trace.ChangePercent, "USD", 2, trace.Bars, TradingSessions.None);
 
         _config = new StocksConfig { Symbol = "MSFT", ShowMinMax = true };
         _applied = (StocksConfig)_config.Clone();

@@ -20,7 +20,8 @@ public class WidgetSetupTests
     [
         WidgetKind.Countdown, WidgetKind.Rss, WidgetKind.Stocks, WidgetKind.WeatherNow, WidgetKind.WeatherForecast,
         WidgetKind.VideoStream, WidgetKind.Gallery,
-        WidgetKind.Email, WidgetKind.Calendar, WidgetKind.Contacts, WidgetKind.Tasks,
+        WidgetKind.Email, WidgetKind.MonthCalendar, WidgetKind.WeekCalendar, WidgetKind.DayCalendar, WidgetKind.YearCalendar, WidgetKind.Agenda,
+        WidgetKind.Contacts, WidgetKind.Tasks,
     ];
 
     [Fact]
@@ -81,7 +82,8 @@ public class WidgetSetupTests
 
     [Theory]
     [InlineData(WidgetKind.Email, AccountFeatures.Mail)]
-    [InlineData(WidgetKind.Calendar, AccountFeatures.Calendar)]
+    [InlineData(WidgetKind.MonthCalendar, AccountFeatures.Calendar)]
+    [InlineData(WidgetKind.Agenda, AccountFeatures.Calendar)]
     [InlineData(WidgetKind.Contacts, AccountFeatures.Contacts)]
     [InlineData(WidgetKind.Tasks, AccountFeatures.Tasks)]
     public void S1861_an_account_widget_asks_until_an_account_offering_its_feature_is_signed_in(WidgetKind kind, AccountFeatures feature)

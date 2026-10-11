@@ -1,0 +1,19 @@
+{
+  "widgetPrefs.nav": "小组件",
+  "widgetPrefs.subtitle": "所有小组件的格式和更新",
+  "widgetPrefs.region.header": "区域格式",
+  "widgetPrefs.region.clock": "时间格式",
+  "widgetPrefs.region.clock12": "12 小时制",
+  "widgetPrefs.region.clock24": "24 小时制",
+  "widgetPrefs.followWindows": "Windows 设置 ({value})",
+  "widgetPrefs.updates.header": "更新",
+  "widgetPrefs.updates.note": "小组件查询在线服务的频率。在小组件上点“刷新”会立即查询。",
+  "widgetPrefs.updates.weather": "天气",
+  "widgetPrefs.updates.markets": "股票",
+  "widgetPrefs.updates.feeds": "新闻源",
+  "widgetPrefs.updates.accounts": "邮件、日历和任务",
+  "widgetPrefs.updates.everyHours": {
+    "other": "每 {count} 小时"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows 位置"
+}

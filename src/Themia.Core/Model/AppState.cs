@@ -104,6 +104,12 @@ public sealed class ViewState
     /// </summary>
     public string? Icon { get; set; }
 
+    /// <summary>
+    /// [S-3810] The colour the view's icon (or initials) is drawn in, as <c>#RRGGBB</c>, or null for
+    /// the theme's text colour. Set with <see cref="ViewOps.SetColor"/>.
+    /// </summary>
+    public string? Color { get; set; }
+
     public List<WidgetInstance> Widgets { get; set; } = [];
 
     /// <summary>Find a widget in this view by id, or null.</summary>
@@ -312,7 +318,8 @@ public sealed class AppState
     {
         var view = ViewState.Create(Str.Shell_View_WorkName.Text());
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.78, 0.04, 0.20, 0.16)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.02, 0.04, 0.50, 0.72)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.MonthCalendar, new FracRect(0.02, 0.04, 0.50, 0.72)));
+
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Tasks, new FracRect(0.54, 0.04, 0.20, 0.58)));
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.54, 0.64, 0.20, 0.28)));
         return view;

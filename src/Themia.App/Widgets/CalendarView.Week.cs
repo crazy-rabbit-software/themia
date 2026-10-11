@@ -95,11 +95,15 @@ internal sealed partial class CalendarView
                 ToolTipService.SetToolTip(header, DayTooltip(day, items));
             }
 
-            if (_cursorShown && day == _anchor)
+            // [S-3620] The selected day's head is underlined; a click on a head selects its day.
+            if (_selected == day)
             {
                 header.BorderThickness = new Thickness(0, 0, 0, 2);
                 header.BorderBrush = Accent();
             }
+
+            header.Tapped += (_, _) => ToggleDay(day);
+
 
             SetColumn(header, first + c);
             grid.Children.Add(header);

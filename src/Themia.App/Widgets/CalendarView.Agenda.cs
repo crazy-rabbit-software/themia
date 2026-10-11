@@ -29,7 +29,8 @@ internal sealed partial class CalendarView
     {
         var today = Today;
         var (first, last) = CalendarRules.ViewRange(CalendarLayout.Agenda, _anchor, today, _config.EffectiveWeekStart);
-        var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config.EffectiveAgendaCount, DateTimeOffset.Now);
+        var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config is AgendaConfig agenda ? agenda.EffectiveAgendaCount : AgendaConfig.DefaultCount, DateTimeOffset.Now);
+
         var items = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 
         _agendaFirst = null;
@@ -59,6 +60,17 @@ internal sealed partial class CalendarView
         var firstHeading = CalendarFit.ShowsFirstHeading(days[0], today, height);
         var pages = CalendarFit.AgendaPages(days, columns, box, headingHeight, rowHeight, firstHeading);
         _agendaPages = pages.Count;
+
+        // [S-3622] A day selected on the view turns the agenda to the page that holds it.
+        if (_agendaJump is { } jump)
+        {
+            _agendaJump = null;
+            if (CalendarShare.AgendaPageOf(days, pages, jump) is { } page)
+            {
+                _agendaPage = page;
+            }
+        }
+
         _agendaPage = Math.Clamp(_agendaPage, 0, pages.Count - 1);
 
         var showColors = ShowColors;
@@ -78,8 +90,10 @@ internal sealed partial class CalendarView
                 var (day, item) = items[i];
                 if (i == at ? heading : day != days[i - 1])
                 {
-                    var text = Fluent.Text(FluentType.BodyStrong, "TextFillColorSecondaryBrush");
+                    // [S-3622] The selected day's heading is in the accent.
+                    var text = Fluent.Text(FluentType.BodyStrong, day == _selected ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
                     text.Text = Formatting.DayHeading(day, today);
+
                     stack.Children.Add(new Border { Child = text, Height = headingHeight, Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space1) });
                 }
 

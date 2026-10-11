@@ -122,7 +122,7 @@ internal static partial class WidgetSettings
         }
 
         return FluentLayout.Row(Glyphs.Speakers, Str.WidgetsC_Volume_Settings_Device_Label.Text(),
-            Str.WidgetsC_Volume_Settings_Device_Desc.Text(),
+            null,
             box, "speaker", "headphones", "sound");
     }
 }

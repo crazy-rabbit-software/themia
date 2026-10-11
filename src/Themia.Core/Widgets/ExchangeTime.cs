@@ -81,24 +81,22 @@ public static class ExchangeTime
     }
 
     /// <summary>
-    /// The labels under a chart: start and end, and the middle bar's when <paramref name="withMiddle"/>
-    /// (a wide chart). Empty for fewer than two bars.
+    /// [S-1311] The times on a chart: its start and its end, nothing between. Empty for fewer than
+    /// two bars.
     /// </summary>
     public static IReadOnlyList<string> Labels(
         IReadOnlyList<QuoteBar> bars,
         TimeSpan? offset,
         QuoteRange range,
-        TimeSpan localOffset,
-        bool withMiddle)
-        => Labels(Strings.Current, bars, offset, range, localOffset, withMiddle);
+        TimeSpan localOffset)
+        => Labels(Strings.Current, bars, offset, range, localOffset);
 
     public static IReadOnlyList<string> Labels(
         Locale locale,
         IReadOnlyList<QuoteBar> bars,
         TimeSpan? offset,
         QuoteRange range,
-        TimeSpan localOffset,
-        bool withMiddle)
+        TimeSpan localOffset)
     {
         ArgumentNullException.ThrowIfNull(bars);
 
@@ -110,9 +108,7 @@ public static class ExchangeTime
         var first = Label(locale, bars[0].Time, offset, range, localOffset);
         var last = Label(locale, bars[^1].Time, offset, range, localOffset);
 
-        return withMiddle
-            ? [first, Label(locale, bars[bars.Count / 2].Time, offset, range, localOffset), last]
-            : [first, last];
+        return [first, last];
     }
 
     /// <summary>"Prices in EDT" style suffix for a tooltip, or empty without a zone name.</summary>

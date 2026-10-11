@@ -71,8 +71,13 @@ public sealed class GalleryConfig : WidgetConfig
     /// </summary>
     public const int MaxImageCount = 60;
 
-    /// <summary>[S-772] The rescan cadences offered, in minutes. The original's set.</summary>
-    public static IReadOnlyList<int> RefreshChoices { get; } = [5, 15, 30, 60];
+    /// <summary>
+    /// [S-772] How often the source is read again: hourly, for every gallery. A folder changes when
+    /// something writes to it, which no timer can know, so this is a slow backstop rather than the
+    /// refresh, and Bing's photo changes once a day. Not a setting ([S-3792]): "Refresh images" on
+    /// the widget's menu is the way to see a change now.
+    /// </summary>
+    public static readonly TimeSpan RescanInterval = TimeSpan.FromHours(1);
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Gallery;
@@ -85,13 +90,6 @@ public sealed class GalleryConfig : WidgetConfig
 
     /// <summary>[S-761] The one picture the <see cref="GallerySource.File"/> source shows. Empty means none chosen.</summary>
     public string FilePath { get; set; } = string.Empty;
-
-    /// <summary>
-    /// [S-772] How often the source is read again, in minutes. Snapped to
-    /// <see cref="RefreshChoices"/> by <see cref="TickInterval"/>, so a hand-edited value cannot
-    /// turn a photo library into a once-a-second directory walk.
-    /// </summary>
-    public int RefreshMinutes { get; set; } = 60;
 
     /// <summary>Include pictures in folders below this one.</summary>
     public bool Recursive { get; set; }
@@ -122,34 +120,9 @@ public sealed class GalleryConfig : WidgetConfig
     [JsonIgnore]
     public TimeSpan SlideInterval => TimeSpan.FromSeconds(EffectiveSlideshowSeconds);
 
-    /// <summary>
-    /// The rescan cadence. A folder changes when something writes to it, which no timer can know, so
-    /// this is a slow backstop rather than the refresh: walking a directory tree is disk work and
-    /// doing it often on a photo library is the widget nobody can explain the fan noise about.
-    /// "Refresh images" on the widget's menu is the way to see a change now.
-    /// </summary>
+    /// <summary>The rescan cadence: <see cref="RescanInterval"/>, the same for every gallery.</summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromMinutes(EffectiveRefreshMinutes);
-
-    /// <summary>[S-772] <see cref="RefreshMinutes"/>, or the nearest offered cadence when it is not one.</summary>
-    [JsonIgnore]
-    public int EffectiveRefreshMinutes
-    {
-        get
-        {
-            var best = RefreshChoices[^1];
-
-            foreach (var choice in RefreshChoices)
-            {
-                if (Math.Abs(choice - RefreshMinutes) < Math.Abs(best - RefreshMinutes))
-                {
-                    best = choice;
-                }
-            }
-
-            return best;
-        }
-    }
+    public TimeSpan TickInterval => RescanInterval;
 
     /// <summary>[S-762] File and Bing show one picture full-bleed; the layouts are a folder's.</summary>
     [JsonIgnore]
@@ -160,7 +133,6 @@ public sealed class GalleryConfig : WidgetConfig
         Source = Source,
         Path = Path,
         FilePath = FilePath,
-        RefreshMinutes = RefreshMinutes,
         Recursive = Recursive,
         Layout = Layout,
         Fit = Fit,

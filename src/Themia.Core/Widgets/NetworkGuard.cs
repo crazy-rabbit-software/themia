@@ -10,7 +10,7 @@ public enum GuardVerdict
     /// <summary>A public address, or the guard is off.</summary>
     Allowed = 0,
 
-    /// <summary>Loopback, private, link-local or reserved, and local network access is off.</summary>
+    /// <summary>Loopback, private, link-local or reserved, and no grant for this host opens it ([S-3840]).</summary>
     Blocked,
 
     /// <summary>The host name did not resolve here and no proxy will resolve it instead.</summary>
@@ -20,7 +20,7 @@ public enum GuardVerdict
 /// <summary>[S-967] Where a request is allowed to go.</summary>
 public enum NetReach
 {
-    /// <summary>Anywhere public; the local network only when the user's switch allows it.</summary>
+    /// <summary>Anywhere public; the local network only for the host a request's <see cref="Net.LocalGrant"/> names ([S-3840]).</summary>
     Internet = 0,
 
     /// <summary>This computer only (a loopback service such as the hardware monitor's web server).</summary>
@@ -36,9 +36,9 @@ public enum NetReach
 /// the app request <c>http://127.0.0.1/…</c>, a router's admin page or the cloud metadata endpoint
 /// at <c>169.254.169.254</c>. So by default an address that resolves to loopback, a private range,
 /// link-local, carrier-grade NAT, a documentation range or anything reserved is refused — every
-/// address the name maps to, not the first. The user opts out once, for the whole app, with
-/// <see cref="Model.AppPreferences.AllowPrivateNetwork"/> (self-hosted feeds and dashboards are
-/// legitimate); the default is the secure one.
+/// address the name maps to, not the first. There is no switch: [S-3840] a self-hosted feed, camera
+/// or server is reached through the address the user typed for it, which earns that one host a
+/// <see cref="Net.LocalGrant"/>.
 /// </para>
 /// <para>
 /// Pure: the caller resolves the name and asks the system proxy, and hands both facts in. That is
@@ -68,19 +68,19 @@ public static class NetworkGuard
 
     /// <summary>
     /// The verdict for one host, for a <paramref name="reach"/>: <see cref="NetReach.Internet"/> is
-    /// <see cref="Judge(string, IReadOnlyList{IPAddress}?, bool, bool)"/>; <see cref="NetReach.ThisMachine"/>
-    /// admits loopback only — every address, whatever the user's switch says, and never through a proxy.
+    /// <see cref="Judge(string, IReadOnlyList{IPAddress}?, bool, Net.LocalGrant?)"/>; <see cref="NetReach.ThisMachine"/>
+    /// admits loopback only — every address, whatever grant came along, and never through a proxy.
     /// </summary>
     public static (GuardVerdict Verdict, IPAddress? Culprit) Judge(
         string host,
         IReadOnlyList<IPAddress>? resolved,
         bool proxied,
-        bool allowPrivate,
+        Net.LocalGrant? grant,
         NetReach reach)
     {
         if (reach == NetReach.Internet)
         {
-            return Judge(host, resolved, proxied, allowPrivate);
+            return Judge(host, resolved, proxied, grant);
         }
 
         if (TryLiteral(host, out var literal))
@@ -143,22 +143,24 @@ public static class NetworkGuard
     /// <param name="host">The URI's host (an IPv6 literal may carry its brackets).</param>
     /// <param name="resolved">Every address the name resolved to, or null when it did not resolve.</param>
     /// <param name="proxied">Whether the request goes through a proxy, which resolves the name itself.</param>
-    /// <param name="allowPrivate">The user's "local network access" switch.</param>
+    /// <param name="grant">
+    /// [S-3840] The leave the request carries, or null. It opens the local addresses a grant may open
+    /// (<see cref="Net.LocalGrants.Grantable"/>) for its own host only; for any other host it is no grant.
+    /// </param>
     public static (GuardVerdict Verdict, IPAddress? Culprit) Judge(
         string host,
         IReadOnlyList<IPAddress>? resolved,
         bool proxied,
-        bool allowPrivate)
+        Net.LocalGrant? grant)
     {
-        if (allowPrivate)
-        {
-            return (GuardVerdict.Allowed, null);
-        }
+        var granted = Net.LocalGrants.Covers(grant, host);
+
+        bool Refused(IPAddress address) => IsBlocked(address) && !(granted && Net.LocalGrants.Grantable(address));
 
         // An IP literal needs no resolver and is checked as written.
         if (TryLiteral(host, out var literal))
         {
-            return IsBlocked(literal) ? (GuardVerdict.Blocked, literal) : (GuardVerdict.Allowed, null);
+            return Refused(literal) ? (GuardVerdict.Blocked, literal) : (GuardVerdict.Allowed, null);
         }
 
         if (resolved is null || resolved.Count == 0)
@@ -166,9 +168,10 @@ public static class NetworkGuard
             return proxied ? (GuardVerdict.Allowed, null) : (GuardVerdict.Unresolvable, null);
         }
 
+        // [S-962] Every address the name maps to, not the first.
         foreach (var address in resolved)
         {
-            if (IsBlocked(address))
+            if (Refused(address))
             {
                 return (GuardVerdict.Blocked, address);
             }
@@ -201,7 +204,7 @@ public static class NetworkGuard
     /// <summary><see cref="Explain(GuardVerdict, string)"/> in <paramref name="locale"/>.</summary>
     public static string Explain(Locale locale, GuardVerdict verdict, string host) => verdict switch
     {
-        GuardVerdict.Blocked => Strings.Format(locale, Str.Shell_Net_Blocked, ("host", host)),
+        GuardVerdict.Blocked => Strings.Format(locale, Str.Shell_Net_BlockedLocal, ("host", host)),
         GuardVerdict.Unresolvable => Strings.Format(locale, Str.Shell_Net_NotFound, ("host", host)),
         _ => string.Empty,
     };

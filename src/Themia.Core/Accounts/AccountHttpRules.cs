@@ -259,14 +259,14 @@ public static class RedirectRules
 
     /// <summary>
     /// [S-966] A literal address the network guard classes as local (loopback, private, link-local,
-    /// reserved — <see cref="NetworkGuard.IsBlocked"/>, the one table of address classes), or
-    /// <c>localhost</c>.
+    /// reserved — <see cref="NetworkGuard.IsBlocked"/>, the one table of address classes), or a name
+    /// that says it is local ([S-3841]: <c>localhost</c>, <c>nas</c>, <c>nas.local</c>).
     /// </summary>
     public static bool IsLocal(Uri uri)
     {
         ArgumentNullException.ThrowIfNull(uri);
 
-        if (uri.IsLoopback || uri.Host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase))
+        if (uri.IsLoopback || Net.LocalGrants.IsLocalName(uri.IdnHost))
         {
             return true;
         }

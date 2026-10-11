@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Dispatching;
+using Themia.App.Services.Net;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -88,10 +89,12 @@ internal sealed class StreamSession : IDisposable
     private const int MaxImageBytes = MjpegFrameReader.DefaultMaxFrameBytes;
 
     /// <summary>
-    /// Its own client, not <see cref="WebFetch"/>'s: that one has a whole-request deadline, and a live
-    /// stream is a request that is meant never to finish.
+    /// Its own clients, not <see cref="WebFetch"/>'s: those have a whole-request deadline, and a live
+    /// stream is a request that is meant never to finish. [S-3840] Guarded like every other request:
+    /// a camera on the local network is reached through the address typed for it, and nothing it
+    /// redirects to elsewhere on the network is.
     /// </summary>
-    private static readonly HttpClient Client = CreateClient();
+    private static readonly GuardedClients Clients = GuardedHttp.CreatePair(TimeSpan.FromSeconds(8), Timeout.InfiniteTimeSpan, decompress: false);
 
     private readonly Uri _uri;
     private readonly int _refreshSeconds;
@@ -116,25 +119,6 @@ internal sealed class StreamSession : IDisposable
     }
 
     private bool Interval => _refreshSeconds > 0;
-
-    private static HttpClient CreateClient()
-    {
-        var handler = new SocketsHttpHandler
-        {
-            ConnectTimeout = TimeSpan.FromSeconds(8),
-            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-            PooledConnectionIdleTimeout = TimeSpan.FromSeconds(30),
-            AllowAutoRedirect = true,
-            MaxAutomaticRedirections = 5,
-
-            // A JPEG does not compress; asking for gzip only makes some cameras buffer the stream.
-            AutomaticDecompression = DecompressionMethods.None,
-        };
-
-        var client = new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Themia/1.0 (Windows desktop widgets; +https://themia.app)");
-        return client;
-    }
 
     public void Start() => _ = RunAsync(_cts.Token);
 
@@ -221,26 +205,60 @@ internal sealed class StreamSession : IDisposable
 
     private async Task<(Outcome Outcome, string? Detail)> AttemptAsync(CancellationToken token)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, _uri);
-
-        // An intermediate cache serving yesterday's snapshot would freeze an interval-mode picture.
-        request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
-
+        // [S-3840] The address the user typed may be on their network; a redirect elsewhere may not.
+        var grant = Themia.Core.Net.LocalGrants.ForTyped(_uri);
+        var current = _uri;
         HttpResponseMessage response;
 
-        try
+        for (var hop = 0; ; hop++)
         {
-            using var headers = CancellationTokenSource.CreateLinkedTokenSource(token);
-            headers.CancelAfter(HeaderTimeout);
-            response = await Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, headers.Token).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException) when (!token.IsCancellationRequested)
-        {
-            return (Outcome.Failed, Str.Shell_Stream_NoAnswer.Text());
-        }
-        catch (HttpRequestException ex)
-        {
-            return (Outcome.Failed, ex.InnerException is System.Net.Sockets.SocketException socket ? Str.Shell_Stream_UnreachableCode.Format(("code", socket.SocketErrorCode.ToString())) : Str.Shell_Stream_Unreachable.Text());
+            using var request = new HttpRequestMessage(HttpMethod.Get, current);
+
+            // An intermediate cache serving yesterday's snapshot would freeze an interval-mode picture.
+            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+
+            try
+            {
+                using var headers = CancellationTokenSource.CreateLinkedTokenSource(token);
+                headers.CancelAfter(HeaderTimeout);
+                response = await Clients.SendAsync(request, grant, HttpCompletionOption.ResponseHeadersRead, headers.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested)
+            {
+                return (Outcome.Failed, Str.Shell_Stream_NoAnswer.Text());
+            }
+            catch (HttpRequestException ex) when (NetRefusedException.Find(ex) is { } refused)
+            {
+                // The guard's answer will not change on a timer: said, not retried.
+                return (Outcome.Unsupported, refused.Message);
+            }
+            catch (HttpRequestException ex)
+            {
+                return (Outcome.Failed, ex.InnerException is System.Net.Sockets.SocketException socket ? Str.Shell_Stream_UnreachableCode.Format(("code", socket.SocketErrorCode.ToString())) : Str.Shell_Stream_Unreachable.Text());
+            }
+
+            // [S-966] Followed here, hop by hop, so every hop meets the guard.
+            if (!Themia.Core.Accounts.RedirectRules.IsRedirect((int)response.StatusCode))
+            {
+                break;
+            }
+
+            var location = response.Headers.Location;
+            var line = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}".TrimEnd();
+            response.Dispose();
+
+            if (hop >= Themia.Core.Accounts.RedirectRules.MaxHops || location is null)
+            {
+                return (Outcome.Unsupported, Str.Shell_Stream_Refused.Format(("status", line)));
+            }
+
+            var next = location.IsAbsoluteUri ? location : new Uri(current, location);
+            if (!Themia.Core.Accounts.RedirectRules.MayFollow(current, next))
+            {
+                return (Outcome.Unsupported, Str.Shell_Net_HostRefused.Format(("host", next.IdnHost)));
+            }
+
+            current = next;
         }
 
         using (response)

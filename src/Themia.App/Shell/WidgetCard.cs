@@ -1,4 +1,4 @@
-using Microsoft.UI;
+﻿using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -37,8 +37,6 @@ internal interface IWidgetCardHost
 
     void RequestConfigure(WidgetCard card);
 
-    void RequestDuplicate(WidgetCard card);
-
     void RequestDelete(WidgetCard card);
 
     void RequestEditMode(bool enabled);
@@ -76,6 +74,9 @@ internal interface IWidgetCardHost
 
     /// <summary>[S-1251] True for a debug render's host: its cards are previews and must not act on the machine.</summary>
     bool IsPreview => false;
+
+    /// <summary>[S-3300] The links of the view these cards belong to: one board per view id, whichever display shows it.</summary>
+    Themia.Core.Links.LinkBoard? Links => ViewForCards is { } view ? AppServices.Links?.For(view.Id) : null;
 
     /// <summary>
     /// [S-873] The card's drawn frame changed — hidden or shown — so it is positioned again and the
@@ -526,7 +527,20 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             : null;
         _headerTint.Opacity = opacity;
         _headerBase.CornerRadius = radius;
-        _headerTint.CornerRadius = radius;
+
+        // [S-836] Inside a solid stroke on the card's three outer edges, as the body's tint is.
+        var t = TintInset();
+        var ri = Math.Max(0, r - t);
+        (_headerTint.Margin, _headerTint.CornerRadius) = Model.Header == HeaderPlacement.Bottom
+            ? (new Thickness(t, 0, t, t), new CornerRadius(0, 0, ri, ri))
+            : (new Thickness(t, t, t, 0), new CornerRadius(ri, ri, 0, 0));
+    }
+
+    /// <summary>[S-836] How far the Fluent tint stops short of the card's edge for the current border.</summary>
+    private double TintInset()
+    {
+        var design = _host.Design;
+        return DesignLook.TintInset(DesignLook.Border(Model.Surface, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity));
     }
 
     /// <summary>
@@ -558,6 +572,17 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             Grid.SetRowSpan(layer, rowSpan);
             layer.CornerRadius = radius;
         }
+
+        // [S-836] The Fluent tint stops at a solid stroke's inner edge, as a WinUI card's background
+        // does, so the stroke composites over the base alone; its corners are the inner radius.
+        var t = TintInset();
+        var ri = Math.Max(0, r - t);
+        (_tint.Margin, _tint.CornerRadius) = edge switch
+        {
+            HeaderPlacement.Top => (new Thickness(t, 0, t, t), new CornerRadius(0, 0, ri, ri)),
+            HeaderPlacement.Bottom => (new Thickness(t, t, t, 0), new CornerRadius(ri, ri, 0, 0)),
+            _ => (new Thickness(t), new CornerRadius(ri)),
+        };
 
         // The base reaches one DIP under the header strip, which is painted over it: two fills that
         // only meet at an edge leave an anti-aliased seam of desktop between them wherever that edge
@@ -1019,7 +1044,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     }
 
     /// <summary>
-    /// [S-1743] The card's menu, Windows 11 style: Cut, Copy, Paste, Duplicate, Settings and Delete
+    /// [S-1743] The card's menu, Windows 11 style: Cut, Copy, Paste, Settings and Delete
     /// as a row of icons, the rest as a list. Which commands apply is <see cref="ShellMenus.ForCard"/>'s;
     /// this only words them and wires them up.
     /// </summary>
@@ -1052,7 +1077,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             CanBringToFront: cards?.CanBringToFront(Model.Id) == true,
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
             SelectionCount: _host.SelectionCount,
-            CanPaste: _host.CanPaste);
+            CanPaste: _host.CanPaste,
+            HasSettings: Themia.App.Shell.Config.ConfigPages.HasWidgetSettings(Model.Kind));
 
         var entries = new List<ItemMenuEntry>();
         foreach (var item in ShellMenus.ForCard(facts))
@@ -1092,7 +1118,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             ShellCommand.Cut => new(Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), () => _host.RequestCut(this), Quick: item.Quick, Shortcut: Ctrl("X")),
             ShellCommand.Copy => new(Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), () => _host.RequestCopy(this), Quick: item.Quick, Shortcut: Ctrl("C")),
             ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), _host.RequestPaste, Disabled: disabled, Quick: item.Quick, Shortcut: Ctrl("V")),
-            ShellCommand.Duplicate => new(Glyphs.Duplicate, Verb(Str.CtxMenu_Duplicate, Str.Shell_Card_DuplicateMany), () => _host.RequestDuplicate(this), Quick: item.Quick, Shortcut: Ctrl("D")),
             ShellCommand.Configure => new(Glyphs.Settings, Str.CtxMenu_Configure.Text(), () => _host.RequestConfigure(this), Quick: item.Quick),
             ShellCommand.Delete => new(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: Str.Shell_Key_Delete.Text()),
             ShellCommand.BringToFront => new(Glyphs.MoveUp, Str.Shell_Card_BringToFront.Text(), () => _host.RequestZOrder(this, front: true), Disabled: disabled),
@@ -1198,6 +1223,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     bool IWidgetSurface.IsPreview => _host.IsPreview;
 
     bool IWidgetSurface.EditMode => _host.EditMode;
+
+    string? IWidgetSurface.WidgetId => _host.IsPreview ? null : Model.Id;
+
+    Themia.Core.Links.LinkBoard? IWidgetSurface.Links => _host.Links;
 
     /// <inheritdoc />
     void IWidgetSurface.SetHeaderTitle(string? title)

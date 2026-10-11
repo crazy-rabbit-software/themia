@@ -49,6 +49,6 @@ internal static partial class WidgetSettings
         }
 
         // [S-1200] The history toggle, its span and the refresh: the rows every meter ends with.
-        MeterRows(rows, config, save, Str.WidgetsB_Settings_Gpu_Refresh.Text());
+        MeterRows(rows, config, save);
     }
 }

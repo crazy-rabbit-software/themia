@@ -55,7 +55,7 @@ public sealed class DeskParityTests
     public void S1480_a_chosen_zone_drives_the_reading()
     {
         var config = new ClockConfig { TimeZoneId = "Asia/Tokyo" };
-        var reading = ClockFormatter.Read(new DateTimeOffset(2026, 1, 15, 12, 0, 0, TimeSpan.Zero), config, Locale.En);
+        var reading = ClockFormatter.Read(new DateTimeOffset(2026, 1, 15, 12, 0, 0, TimeSpan.Zero), config, Locale.En, use24Hour: true);
 
         Assert.Equal("21:00", reading.Time);
     }

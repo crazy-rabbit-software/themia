@@ -26,8 +26,6 @@ public readonly record struct StockPlan(
     bool Chart,
     double ChartHeight,
     bool Labels,
-    bool MiddleLabel,
-    bool Axis,
     bool MinMax);
 
 /// <summary>
@@ -37,9 +35,10 @@ public readonly record struct StockPlan(
 /// <item>Rung 0 at every size: the price and its signed, coloured change.</item>
 /// <item>The currency and the session glyph from 180px wide; the session's words from 300px.</item>
 /// <item>The extended-hours print under the price, when there is one and a line for it.</item>
-/// <item>The chart, at least 24px, full-bleed; start and end times under it from 128px of height,
-/// the middle one from 400px wide; the high/low markers (if on) from 48px of chart; a price axis
-/// from 400px wide and 120px of chart.</item>
+/// <item>The chart, at least 24px, full-bleed: edge to edge and down to the card's bottom edge. The
+/// start and end times (only those) from 128px of height, drawn inside the chart's bottom band;
+/// the high/low markers (if on) from 48px of chart. No price axis: the markers carry the range's
+/// prices, and an axis would need an inset of its own.</item>
 /// <item>A wide strip puts the readout <i>beside</i> the chart, which then has the strip's whole
 /// height, instead of a 50px band under a readout.</item>
 /// </list>
@@ -63,7 +62,7 @@ public static class StockLayout
         if (!area.IsMeasured)
         {
             return new StockPlan(FluentType.Subtitle, FluentType.Body, false, true, true, false, 0, input.Extended,
-                input.Chart, MinChart, false, false, false, false);
+                input.Chart, MinChart, false, false);
         }
 
         var text = Math.Max(0, area.Width - (2 * Inset));
@@ -80,12 +79,12 @@ public static class StockLayout
             var extendedBeside = input.Extended && room.Take(LabelLine);
 
             var price = FluentType.Fit(readout, FluentType.Subtitle.LineHeight + room.Remaining, chars, FluentType.Subtitle, Cap(area));
+            // The strip's whole height; the times are drawn inside it.
             var chart = Math.Max(MinChart, area.Height);
             var labels = area.Height >= 96;
-            var stripChart = labels ? chart - LabelLine - Gap : chart;
 
             return new StockPlan(price, ChangeStep(price), true, currency, true, true, readout, extendedBeside,
-                true, stripChart, labels, area.Width - readout >= 360, false, input.MinMax && stripChart >= 48);
+                true, chart, labels, input.MinMax && chart >= 48);
         }
 
         var budget = new Disclosure(area.Width, Math.Max(0, area.Height - Gap), Gap);
@@ -105,6 +104,8 @@ public static class StockLayout
         var extended = input.Extended && budget.Take(LabelLine);
 
         var chartWanted = input.Chart && budget.Take(MinChart);
+
+        // The times are drawn inside the chart's bottom band, so their line is the chart's height.
         var labelsLine = chartWanted && area.HeightClass >= SizeClass.Regular && budget.Take(LabelLine);
 
         // What is left: the price grows to its cap, the chart takes the rest.
@@ -127,6 +128,7 @@ public static class StockLayout
 
         var chartHeight = chartWanted
             ? Math.Max(MinChart, MinChart + leftover - (priceStep.LineHeight - FluentType.Subtitle.LineHeight))
+                + (labelsLine ? LabelLine + Gap : 0)
             : 0;
 
         return new StockPlan(
@@ -141,8 +143,6 @@ public static class StockLayout
             chartWanted,
             chartHeight,
             labelsLine,
-            labelsLine && area.Width >= 400,
-            chartWanted && area.Width >= 400 && chartHeight >= 120,
             input.MinMax && chartWanted && chartHeight >= 48);
     }
 

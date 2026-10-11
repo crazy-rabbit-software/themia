@@ -185,6 +185,18 @@ internal sealed partial class AccountService
     /// retry, and anything but a 2xx throws a typed <see cref="AccountException"/> carrying the
     /// provider's own message.
     /// </summary>
+    /// <summary>
+    /// [S-3843] The leave an account's own server earned when the user typed it: a CalDAV/CardDAV
+    /// collection's host, an IMAP server. Microsoft and Google are public services and earn none.
+    /// </summary>
+    internal static Themia.Core.Net.LocalGrant? ServerGrant(Account account) => account.Provider switch
+    {
+        AccountProvider.CalDav or AccountProvider.CardDav when Uri.TryCreate(account.ServerUrl, UriKind.Absolute, out var server)
+            => Themia.Core.Net.LocalGrants.ForTyped(server),
+        AccountProvider.Imap => Themia.Core.Net.LocalGrants.ForTypedHost(account.Host),
+        _ => null,
+    };
+
     public async Task<AccountReply> SendAsync(string accountId, RequestTemplate request, CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -192,13 +204,13 @@ internal sealed partial class AccountService
         var account = Require(accountId);
         var (kind, token, sealedToken) = await ProofAsync(account, cancellation).ConfigureAwait(false);
 
-        var reply = await AccountHttp.SendAsync(request, kind, r => Authorize(r, account, token), cancellation).ConfigureAwait(false);
+        var reply = await AccountHttp.SendAsync(request, kind, r => Authorize(r, account, token), cancellation, ServerGrant(account)).ConfigureAwait(false);
 
         if (reply.Status == 401 && account.Provider.Auth() == AccountAuth.OAuthRefresh)
         {
             // Rejected before its stored expiry (revoked, rotated elsewhere): renew once and retry once.
             var (renewed, _) = await RefreshAsync(account.Id, sealedToken, cancellation).ConfigureAwait(false);
-            reply = await AccountHttp.SendAsync(request, kind, r => Authorize(r, account, renewed), cancellation).ConfigureAwait(false);
+            reply = await AccountHttp.SendAsync(request, kind, r => Authorize(r, account, renewed), cancellation, ServerGrant(account)).ConfigureAwait(false);
         }
 
         // A 304 answers the caller's own conditional request: its copy is current. [S-625]

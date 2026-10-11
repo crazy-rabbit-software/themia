@@ -24,8 +24,8 @@ public readonly record struct BluetoothRowPlan(
     bool Summary);
 
 /// <summary>
-/// [S-1254] The Bluetooth list's disclosure ladder. XS/S: icon, name, dot in as many rows as fit;
-/// from 260 px a column carries the status word and battery %; from 400 px the signal and a battery
+/// [S-1254] The Bluetooth list's disclosure ladder. XS: icon, name, dot in as many rows as fit;
+/// from 180 px a row carries the battery % ([S-3253]); from 260 px the status word; from 400 px the signal and a battery
 /// bar; from Regular×Expanded rows grow a second line; the largest tiles split a long list into two
 /// columns. The
 /// list itself takes every whole row the tile has — the row cap is a ceiling, not a target. A
@@ -48,10 +48,11 @@ public static class BluetoothLayout
     public const double StatusWordMinWidth = 260;
 
     /// <summary>
-    /// A column at least this wide has room for the battery percentage beside the name. Narrower,
-    /// the name keeps the row: a list of "15%" with no device names says nothing.
+    /// [S-3253] A column at least this wide (the Regular width breakpoint) has room for the battery
+    /// percentage beside the name. Narrower, the name keeps the row: a list of "15%" with no device
+    /// names says nothing, and the tooltip still carries it.
     /// </summary>
-    public const double BatteryColumnMinWidth = 260;
+    public const double BatteryColumnMinWidth = 180;
 
     /// <summary>A column at least this wide also has room for the signal reading.</summary>
     public const double SignalColumnMinWidth = 400;

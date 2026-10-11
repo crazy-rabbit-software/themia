@@ -26,7 +26,11 @@ internal sealed partial class AccountOfficeSource
     /// <summary>A ceiling on events from one calendar over one window, whatever the provider keeps paging ([S-2630]).</summary>
     private const int MaxEvents = OfficeShelves.MaxEvents;
 
+    /// <summary>The event fields every Graph read asks for, so a calendar view and a re-read by id ([S-3610]) agree.</summary>
+    private const string GraphEventFields = "id,subject,start,end,isAllDay,isCancelled,location,organizer,webLink";
+
     /// <summary>A ceiling on contacts read for birthdays: the whole address book, within reason.</summary>
+
     private const int MaxBirthdayContacts = 5000;
 
     // -----------------------------------------------------------------------------------------
@@ -45,7 +49,7 @@ internal sealed partial class AccountOfficeSource
                 // the account's default calendar view.
                 var path = target.CalendarId is { } id ? $"me/calendars/{Uri.EscapeDataString(id)}/calendarView" : "me/calendarView";
                 var url = new Uri($"{Graph}{path}?startDateTime={Uri.EscapeDataString(Iso(from))}&endDateTime={Uri.EscapeDataString(Iso(to))}"
-                    + "&$select=id,subject,start,end,isAllDay,isCancelled,location,organizer,webLink&$orderby=start/dateTime&$top=100");
+                    + $"&$select={GraphEventFields}&$orderby=start/dateTime&$top=100");
 
                 var items = await _accounts.GetGraphPagesAsync(account.Id, url, OfficeJsonContext.Default.GraphEvent, MaxEvents, ct,
                     ("Prefer", "outlook.timezone=\"UTC\"")).ConfigureAwait(false);

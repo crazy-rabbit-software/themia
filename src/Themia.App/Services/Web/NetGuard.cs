@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Net;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Web;
@@ -60,12 +61,13 @@ internal sealed class NetRefusedException : IOException
 /// outbound connection: it resolves the name, judges every address, and connects only to the
 /// addresses it judged — so the address that was checked is the address that is connected to, and a
 /// name that re-resolves to 127.0.0.1 between a check and a connect (DNS rebinding) has nothing to
-/// slip through. It also asks the system proxy and reads the user's "local network access" switch.
+/// slip through. It also asks the system proxy. The local network is reached only through a
+/// <see cref="LocalGrant"/> the caller hands in for an address the user typed ([S-3840]).
 /// <para>
 /// Every HTTP client the app makes comes from <c>GuardedHttp</c> (web, feeds, favicons, weather,
 /// quotes, accounts, Graph, Google, DAV), and every raw mail connection
-/// from <c>GuardedTcp</c>; both connect through <see cref="OpenSocketAsync"/>. Not guarded, as in
-/// the original: the camera stream (a LAN camera is its point).
+/// from <c>GuardedTcp</c>; both connect through <see cref="OpenSocketAsync"/>. The camera stream
+/// is guarded too ([S-3840]): a LAN camera is reached through the address typed for it.
 /// </para>
 /// </summary>
 internal static class NetGuard
@@ -73,28 +75,18 @@ internal static class NetGuard
     private const string Scope = "netguard";
 
     /// <summary>
-    /// The user's switch, read on every check so a change applies at once. Set by the app at
-    /// start; the default is the secure one, so nothing reaches the LAN before the app has spoken.
-    /// </summary>
-    public static Func<bool> AllowPrivate { get; set; } = static () => false;
-
-    /// <summary>
     /// [S-963] The destination check for a request whose connection the app does not make to the
     /// destination itself: through a proxy (classic NG-07 — an IP literal, or a name that resolves
     /// here, is checked; a name only the proxy can resolve is the proxy's call).
     /// </summary>
-    public static async Task<GuardResult> CheckDestinationAsync(Uri uri, bool proxied, CancellationToken token)
+    /// <param name="grant">[S-3840] The request's leave for its own typed LAN host, or null.</param>
+    public static async Task<GuardResult> CheckDestinationAsync(Uri uri, bool proxied, LocalGrant? grant, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(uri);
 
         if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
         {
             return new GuardResult(false, FetchStatus.Refused, Str.Shell_Net_HttpOnly.Text());
-        }
-
-        if (AllowPrivate())
-        {
-            return GuardResult.Pass;
         }
 
         var host = uri.IdnHost;
@@ -117,7 +109,7 @@ internal static class NetGuard
             }
         }
 
-        var (verdict, culprit) = NetworkGuard.Judge(host, resolved, proxied, allowPrivate: false);
+        var (verdict, culprit) = NetworkGuard.Judge(host, resolved, proxied, grant);
 
         switch (verdict)
         {
@@ -139,7 +131,8 @@ internal static class NetGuard
     /// addresses. A name that does not resolve throws the resolver's <see cref="SocketException"/>
     /// (HostNotFound), as a plain connect would; a refused one throws <see cref="NetRefusedException"/>.
     /// </summary>
-    public static async Task<Socket> OpenSocketAsync(string host, int port, NetReach reach, CancellationToken token)
+    /// <param name="grant">[S-3840] The connection's leave for its own typed LAN host, or null.</param>
+    public static async Task<Socket> OpenSocketAsync(string host, int port, NetReach reach, LocalGrant? grant, CancellationToken token)
     {
         var bare = (host ?? string.Empty).Trim().TrimStart('[').TrimEnd(']');
 
@@ -147,8 +140,7 @@ internal static class NetGuard
             ? [literal]
             : await Dns.GetHostAddressesAsync(bare, token).ConfigureAwait(false);
 
-        var allowPrivate = reach == NetReach.Internet && AllowPrivate();
-        var (verdict, culprit) = NetworkGuard.Judge(bare, addresses, proxied: false, allowPrivate, reach);
+        var (verdict, culprit) = NetworkGuard.Judge(bare, addresses, proxied: false, grant, reach);
 
         if (verdict == GuardVerdict.Unresolvable)
         {

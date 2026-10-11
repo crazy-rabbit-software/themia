@@ -358,19 +358,11 @@ public class GalleryLayoutTests
     // [S-760]/[S-772] config
     // -----------------------------------------------------------------------------------------
 
-    [Theory]
-    [InlineData(5, 5)]
-    [InlineData(15, 15)]
-    [InlineData(60, 60)]
-    [InlineData(0, 5)]
-    [InlineData(-30, 5)]
-    [InlineData(20, 15)]
-    [InlineData(100000, 60)]
-    public void S772_refresh_snaps_a_corrupt_value_to_an_offered_cadence(int stored, int expected)
+    [Fact]
+    public void S3792_every_gallery_rescans_hourly()
     {
-        var config = new GalleryConfig { RefreshMinutes = stored };
-        Assert.Equal(expected, config.EffectiveRefreshMinutes);
-        Assert.Equal(TimeSpan.FromMinutes(expected), config.TickInterval);
+        Assert.Equal(TimeSpan.FromHours(1), new GalleryConfig().TickInterval);
+        Assert.Equal(GalleryConfig.RescanInterval, new GalleryConfig { Source = GallerySource.Bing }.TickInterval);
     }
 
     [Fact]
@@ -380,7 +372,6 @@ public class GalleryLayoutTests
         {
             Source = GallerySource.File,
             FilePath = @"C:\Pictures\a.jpg",
-            RefreshMinutes = 15,
             Layout = GalleryLayout.Mosaic,
         };
 
@@ -388,7 +379,6 @@ public class GalleryLayoutTests
 
         Assert.Equal(GallerySource.File, clone.Source);
         Assert.Equal(@"C:\Pictures\a.jpg", clone.FilePath);
-        Assert.Equal(15, clone.RefreshMinutes);
         Assert.Equal(GalleryLayout.Mosaic, clone.Layout);
         Assert.True(clone.IsSingleSource);
     }

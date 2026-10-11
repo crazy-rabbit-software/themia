@@ -59,8 +59,9 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 
     public HabitTrackerView()
     {
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // rows / empty hint
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add row
+        // [S-3850] The rows take the tile and the add footer is pinned under them, at the bottom.
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / empty hint
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add footer
 
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_done, FontNumeralAlignment.Tabular);
 
@@ -70,6 +71,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            VerticalAlignment = VerticalAlignment.Top,
         };
 
         _emptyText = Fluent.Text(FluentType.Body);
@@ -84,11 +86,11 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 
         SetRow(_scroll, 0);
         SetRow(_emptyHost, 0);
-        SetRow(_addRow, 1);
+        SetRow(_addRow.Element, 1);
 
         Children.Add(_scroll);
         Children.Add(_emptyHost);
-        Children.Add(_addRow);
+        Children.Add(_addRow.Element);
     }
 
     /// <summary>The "3/5" count, in the card's header.</summary>
@@ -293,11 +295,9 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         _emptyHost.Visibility = count == 0 ? Visibility.Visible : Visibility.Collapsed;
         _scroll.Visibility = count == 0 ? Visibility.Collapsed : Visibility.Visible;
 
-        // An empty list's hint takes the room the rows would have, so it can shed its glyph on a
-        // small tile instead of being measured at its full height. Under a list that all fits the
-        // rest of the tile stays empty: nothing but the habits fills it.
-        RowDefinitions[0].Height = count == 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-
+        // The rows sit at the top of the tile and the add footer at its bottom ([S-3850]); under a
+        // list that all fits, the room between stays empty: nothing but the habits fills it. An
+        // empty list's hint takes that room, so it can shed its glyph on a small tile.
         // Whole rows in the viewport: the rest scroll, and the last visible row is never cut in half.
         _scroll.Height = plan.Rows < count ? plan.Rows * plan.RowHeight : double.NaN;
         _scroll.Padding = plan.AddRow ? new Thickness(0) : Fluent.ListPadding;

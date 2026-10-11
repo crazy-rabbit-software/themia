@@ -111,7 +111,7 @@ public static class SettingsPageSync
             return "-";
         }
 
-        var text = new StringBuilder().Append(view.Name).Append('\n').Append(view.Icon);
+        var text = new StringBuilder().Append(view.Name).Append('\n').Append(view.Icon).Append('\n').Append(view.Color);
         foreach (var widget in view.Widgets)
         {
             text.Append('\n').Append(widget.Id).Append('=').Append(widget.Kind).Append('=').Append(widget.Label);
@@ -147,12 +147,14 @@ public static class SettingsPageSync
                 .Append('|').Append(string.Join(",", bar.VisibleViews));
         }
 
+        // [S-3812] The Shows drop-down draws each view's icon in its colour; [S-3832] the page also
+        // offers the view new displays start on.
         foreach (var view in state.Views)
         {
-            text.Append('\n').Append(view.Id).Append('=').Append(view.Name);
+            text.Append('\n').Append(view.Id).Append('=').Append(view.Name).Append('=').Append(view.Icon).Append('=').Append(view.Color);
         }
 
-        return text.ToString();
+        return text.Append("\nnew ").Append(state.DefaultViewForNewDisplays).ToString();
     }
 
     /// <summary>The widget's config, label, surface and header — not its position or size.</summary>

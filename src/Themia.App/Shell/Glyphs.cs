@@ -45,6 +45,16 @@ internal static class Glyphs
     public static readonly string Timer = From(0xE916);
     public static readonly string Hours = From(0xE917);
     public static readonly string Calendar = From(0xE787);
+
+    /// <summary>[S-3600] The week, day and year calendars and the agenda, beside the month's <see cref="Calendar"/>.</summary>
+    public static readonly string CalendarWeek = From(0xE8C0);
+
+    public static readonly string CalendarDay = From(0xE8BF);
+
+    public static readonly string CalendarYear = From(0xEA89);
+
+    public static readonly string Agenda = From(0xE8FD);
+
     public static readonly string Mail = From(0xE715);
     public static readonly string Unread = From(0xE8BD);
     public static readonly string Count = From(0xE8FD);
@@ -147,8 +157,18 @@ internal static class Glyphs
     // The system widgets: mixer and screen time (the GPU glyph sits with the other meters).
     public static readonly string Mixer = From(0xE9E9);
     public static readonly string ScreenTime = From(0xEC92);
+
+    /// <summary>[S-3320] The screen-time chart (AreaChart) and donut (PieSingle); the app list keeps <see cref="ScreenTime"/>.</summary>
+    public static readonly string ScreenTimeChart = From(0xE9D2);
+    public static readonly string ScreenTimeDonut = From(0xEB05);
     public static readonly string Bell = From(0xEA8F);
     public static readonly string Hide = From(0xED1A);
+
+    /// <summary>
+    /// [S-3702] Header placement on the edit bar: Segoe "DockBottom"; the top is the same glyph
+    /// turned over (Segoe has no "DockTop"), hidden is <see cref="Hide"/>.
+    /// </summary>
+    public static readonly string HeaderBottom = From(0xE90E);
 
     // The camera widget, and a web address wherever one is shown.
     public static readonly string Video = From(0xE714);

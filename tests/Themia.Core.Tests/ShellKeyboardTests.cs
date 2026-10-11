@@ -40,7 +40,6 @@ public sealed class ShellKeyboardTests
     [InlineData(0x43, false, true, false, EditCommand.Copy)]
     [InlineData(0x58, false, true, false, EditCommand.Cut)]
     [InlineData(0x56, false, true, false, EditCommand.Paste)]
-    [InlineData(0x44, false, true, false, EditCommand.Duplicate)]
     [InlineData(0x41, false, true, false, EditCommand.SelectAll)]
     [InlineData(0x5A, false, true, false, EditCommand.Undo)]
     [InlineData(0x5A, true, true, false, EditCommand.Redo)]
@@ -63,6 +62,7 @@ public sealed class ShellKeyboardTests
     [InlineData(0x79, false, false, false)] // F10 alone is the system's
     [InlineData(0x2E, true, false, false)] // Shift+Delete
     [InlineData(0x09, false, false, true)] // Alt+Tab
+    [InlineData(0x44, false, true, false)] // Ctrl+D: no Duplicate, Copy then Paste does it
     public void S1976_other_chords_are_not_edit_keys(int vk, bool shift, bool ctrl, bool alt)
         => Assert.Equal(EditCommand.None, EditKeys.Decide(vk, shift, ctrl, alt).Command);
 

@@ -39,8 +39,6 @@ internal static partial class WidgetSettings
         var sourceRows = new StackPanel { Spacing = Fluent.Space1 };
         rows.Add(sourceRows);
 
-        var updating = new List<FrameworkElement>();
-
         void Rebuild()
         {
             sourceRows.Children.Clear();
@@ -48,11 +46,6 @@ internal static partial class WidgetSettings
             foreach (var row in TaskSourceRows(service, config, save, navigate, Rebuild))
             {
                 sourceRows.Children.Add(row);
-            }
-
-            foreach (var row in updating)
-            {
-                row.Visibility = config.Source == TaskSource.Local ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 
@@ -73,15 +66,6 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Wrap, Str.Todo_TitleLines_Label.Text(), Str.WidgetsC_Tasks_Settings_TitleLines_Desc.Text(),
             FluentLayout.Slider(config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1, string.Empty,
                 value => { config.TitleLines = (int)Math.Round(value); save(); })));
-
-        var header = FluentLayout.Header(Str.WidgetsC_Tasks_Settings_Updating.Text());
-        var refresh = FluentLayout.Row(Glyphs.Timer, Str.Common_Refresh.Text(), Str.WidgetsC_Tasks_Settings_Refresh_Desc.Text(),
-            FluentLayout.Slider(config.RefreshInterval.TotalSeconds, 30, 600, 30, Str.WidgetsC_Tasks_Settings_SecondsUnit.Text(),
-                value => { config.RefreshSeconds = (int)Math.Round(value); save(); }));
-        updating.Add(header);
-        updating.Add(refresh);
-        rows.Add(header);
-        rows.Add(refresh);
 
         Rebuild();
     }

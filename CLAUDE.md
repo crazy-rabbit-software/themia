@@ -36,6 +36,7 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
+Themia.exe --editbar-png <outDir> [--theme light|dark]   # edit bar: snap on/off, add menu open, placing; --picker-png takes --theme too
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
 Any render: [--lang en|de|es|fr|it|ja|pl|pt|zh]

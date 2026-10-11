@@ -8,6 +8,7 @@ using Themia.App.Services.Office;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
@@ -18,12 +19,13 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-560] Events from the user's Microsoft, Google and CalDAV calendars, through Themia's own
-/// accounts, as a month, a week, a day, a year or an agenda ([S-2700]) — the classic Calendar
-/// widget, with contacts' birthdays beside the events ([S-575]).
+/// accounts, with contacts' birthdays beside the events ([S-575]). [S-3600] One view for the five
+/// calendar widgets — month, week, day, year and agenda — each a kind of its own, so the layout is
+/// fixed when the view is made and never read from the config.
 /// <para>
-/// [S-2700] The widget draws only the layout it is configured for, at every size: a small month is
-/// a small month (dots, then bare numbers), never an agenda or a single event in its place. Each
-/// layout's fit is Core (<see cref="CalendarFit"/>); the drawing is in the partial files.
+/// [S-2700] The widget draws only its layout, at every size: a small month is a small month (dots,
+/// then bare numbers), never an agenda or a single event in its place. Each layout's fit is Core
+/// (<see cref="CalendarFit"/>); the drawing is in the partial files.
 /// </para>
 /// <para>
 /// [S-2701] The view owns no connection and no cache: everything comes through one
@@ -53,15 +55,14 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly List<IDisposable> _hovers = [];
     private readonly Dictionary<string, Brush> _colorBrushes = new(StringComparer.Ordinal);
 
+    private readonly CalendarLayout _layout;
+
     private IWidgetSurface? _surface;
     private ICalendarData? _data;
     private IDisposable? _poll;
-    private CalendarConfig _config = new();
+    private CalendarConfig _config;
     private DateOnly _anchor = Today;
     private bool _followToday = true;
-
-    /// <summary>[S-1269] Whether keys have moved the cursor day, so the month marks it until the next page.</summary>
-    private bool _cursorShown;
 
     /// <summary>[S-2709] The agenda page on screen, and how many the last draw had.</summary>
     private int _agendaPage;
@@ -88,8 +89,11 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private bool _againForced;
     private bool _detached;
 
-    public CalendarView()
+    public CalendarView(CalendarLayout layout)
     {
+        _layout = layout;
+        _config = CalendarConfig.For(layout);
+
         _busy.Width = Fluent.IconSize;
         _busy.Height = Fluent.IconSize;
         _busy.IsActive = false;
@@ -130,7 +134,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     private static DateOnly Today => DateOnly.FromDateTime(DateTime.Now);
 
-    private CalendarLayout Layout => _config.EffectiveLayout;
+    private CalendarLayout Layout => _layout;
 
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _trailing;
@@ -144,10 +148,13 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-        _config = config as CalendarConfig ?? new CalendarConfig();
+        _config = config as CalendarConfig ?? CalendarConfig.For(_layout);
         UseData(OfficeSources.Current is { } source ? new OfficeCalendarData(source) : null);
 
         Strings.Changed += OnLanguage;
+
+        // [S-3620] The view's links: a day selected there already is shown at once.
+        JoinLinks(_surface?.Links);
 
         // [S-588] The ticker fires once on subscribing, which is the first load.
         _poll = ticker.Subscribe(Poll, () => _ = RefreshAsync(force: false));
@@ -180,14 +187,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     public void ApplyConfig(WidgetConfig config)
     {
-        var before = Layout;
-        _config = config as CalendarConfig ?? new CalendarConfig();
-
-        if (Layout != before)
-        {
-            _agendaPage = 0;
-            _cursorShown = false;
-        }
+        _config = config as CalendarConfig ?? CalendarConfig.For(_layout);
 
         // Only a change to what is asked for is worth a round trip; a colour or the agenda count
         // re-draws what is in hand.
@@ -199,7 +199,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         Render();
     }
 
-    /// <summary>[S-561] Refresh. [S-1746] The layout is how the widget looks: it is chosen in its settings only.</summary>
+    /// <summary>[S-561] Refresh. [S-3600] The layout is the widget's kind: another layout is another widget.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
 
     public void Detach()
@@ -214,6 +214,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         _poll?.Dispose();
         _poll = null;
         UseData(null);
+        LeaveLinks();
 
         _warning.Tapped -= OnWarningTapped;
         _state.Detach();
@@ -376,8 +377,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     /// <summary>[S-569] / [S-2709] One unit back or forward: the layout's period, or an agenda page.</summary>
     private void Navigate(int direction)
     {
-        _cursorShown = false;
-
         if (Layout == CalendarLayout.Agenda)
         {
             _agendaPage = Math.Clamp(_agendaPage + Math.Sign(direction), 0, Math.Max(0, _agendaPages - 1));
@@ -389,13 +388,15 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         // Paging back to the period holding today picks following it up again.
         _followToday = InView(Today);
+        PublishRange();
         Render();
         _ = RefreshAsync(force: false);
     }
 
     /// <summary>
     /// [S-2710]/[S-806] A key from the shell's keyboard lease (the classic S-31..34), which the
-    /// calendar holds once it is clicked. Escape (also the lease ending) hides the cursor day.
+    /// calendar holds once it is clicked. [S-3624] The cursor day is the selected day: Up / Down move
+    /// it (and the other calendars on the view with it); Escape (also the lease ending) lets it go.
     /// Returns whether the key was used.
     /// </summary>
     public bool HandleKey(WidgetKey key)
@@ -407,13 +408,12 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (key == WidgetKey.Escape)
         {
-            if (!_cursorShown)
+            if (_selected is null)
             {
                 return false;
             }
 
-            _cursorShown = false;
-            Render();
+            Select(null);
             return true;
         }
 
@@ -429,20 +429,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
                 return true;
 
             case CalendarKeyCommand.WeekBack or CalendarKeyCommand.WeekForward:
-                var before = Range();
-                _anchor = _anchor.AddDays(command == CalendarKeyCommand.WeekBack ? -7 : 7);
-                _followToday = _anchor == Today;
-                _cursorShown = true;
-                Render();
-                if (Range() != before)
-                {
-                    _ = RefreshAsync(force: false);
-                }
-
+                Select(CalendarShare.Step(_selected, SelectedInView, _anchor, command == CalendarKeyCommand.WeekBack ? -7 : 7));
                 return true;
 
             case CalendarKeyCommand.Today:
-                _cursorShown = false;
                 GoToday();
                 return true;
 
@@ -454,12 +444,13 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         }
     }
 
-    /// <summary>[S-2710] Enter: the cursor day's first event, or the agenda page's first.</summary>
+    /// <summary>[S-2710] Enter: the selected day's first event (the anchor's when none is on screen), or the agenda page's first.</summary>
     private bool OpenFirst()
     {
+        var day = SelectedInView ? _selected!.Value : _anchor;
         var first = Layout == CalendarLayout.Agenda
             ? _agendaFirst
-            : CalendarRules.DayItems(_events, [], _anchor, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
+            : CalendarRules.DayItems(_events, [], day, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
 
         if (first is null)
         {
@@ -475,6 +466,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         _anchor = Today;
         _followToday = true;
         _agendaPage = 0;
+        PublishRange();
         Render();
         _ = RefreshAsync(force: false);
     }
@@ -512,7 +504,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         _warning.Visibility = ready && _warningText is not null ? Visibility.Visible : Visibility.Collapsed;
         ToolTipService.SetToolTip(_warning, _warningText?.Invoke());
 
-        // [S-568] The period is the header's title; the agenda's is just "Calendar".
+        // [S-568] The period is the header's title; the agenda's is its widget name.
         var title = ready ? CalendarRules.Title(Layout, _anchor, _config.EffectiveWeekStart, Strings.Current) : string.Empty;
         _surface?.SetHeaderTitle(title.Length > 0 ? title : null);
 
@@ -595,6 +587,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         }
 
         _hovers.Clear();
+
+        // [S-3623] A chip redrawn under the pointer never hears it leave: its hover goes with it.
+        _eventElements.Clear();
+        _member?.Clear(LinkTopics.HoveredEvent);
         _content.Children.Clear();
         _content.RowDefinitions.Clear();
         _content.ColumnDefinitions.Clear();
@@ -644,6 +640,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private void MakeOpenable(FrameworkElement element, CalendarEvent item)
     {
         ToolTipService.SetToolTip(element, Describe(item));
+        LinkEvent(element, item);
 
         if (item.WebLink is not null || (_providers.TryGetValue(item.AccountId, out var provider) && provider == AccountProvider.Microsoft))
         {

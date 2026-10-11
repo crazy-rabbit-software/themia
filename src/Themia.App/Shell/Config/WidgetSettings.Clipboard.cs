@@ -31,7 +31,7 @@ internal static partial class WidgetSettings
             Str.WidgetsA_Clipboard_Settings_PrivacyNote.Text()));
 
         rows.Add(FluentLayout.Row(Glyphs.Clock, Str.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(),
-            Str.WidgetsA_Clipboard_Settings_Timestamp_Desc.Text(),
+            null,
             FluentLayout.Toggle(config.ShowTimestamp, value => { config.ShowTimestamp = value; save(); })));
 
         // The one setting here that genuinely changes exposure, so it says so: fewer entries kept

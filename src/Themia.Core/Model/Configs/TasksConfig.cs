@@ -46,9 +46,6 @@ public sealed class TasksConfig : WidgetConfig
     /// <summary>[S-601] Lines a title wraps to before it is cut. Clamped on read.</summary>
     public int TitleLines { get; set; } = TaskRules.TitleLinesDefault;
 
-    /// <summary>[S-591] Seconds between refreshes of an account list, 30 to 600.</summary>
-    public int RefreshSeconds { get; set; } = 60;
-
     /// <summary>
     /// [S-598] The user's own row order for an account list, as task ids. Neither provider stores a
     /// hand-sorted order, so it lives here. A list on this PC keeps its order in the list itself.
@@ -64,8 +61,9 @@ public sealed class TasksConfig : WidgetConfig
     [JsonIgnore]
     public int EffectiveTitleLines => TaskRules.ClampTitleLines(TitleLines);
 
+    /// <summary>[S-591] [S-3780] How often an account list is asked: the shared accounts cadence (Settings › Widgets).</summary>
     [JsonIgnore]
-    public TimeSpan RefreshInterval => TimeSpan.FromSeconds(Math.Clamp(RefreshSeconds, 30, 600));
+    public TimeSpan RefreshInterval => Sync.UpdateCadence.Interval(Sync.UpdateSource.Accounts);
 
     /// <summary>
     /// Fold a hand-edited or corrupt config back inside the invariants: nulls a hand edit can put
@@ -113,7 +111,6 @@ public sealed class TasksConfig : WidgetConfig
         ShowDueDate = ShowDueDate,
         ViewMode = ViewMode,
         TitleLines = TitleLines,
-        RefreshSeconds = RefreshSeconds,
         TaskOrder = [.. TaskOrder],
     };
 }

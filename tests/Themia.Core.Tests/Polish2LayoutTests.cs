@@ -62,15 +62,14 @@ public class Polish2LayoutTests
         => Assert.Equal(expected, MixerFill.RowHeight(height, count, baseHeight));
 
     [Theory]
-    [InlineData(false, false, true, false, 1, "Playing")]
-    [InlineData(false, false, true, false, 3, "Playing")]
-    [InlineData(false, false, false, false, 1, "Silent")]
-    [InlineData(true, false, true, false, 2, "Muted")]
-    [InlineData(false, true, true, false, 1, "Windows sounds")]
-    [InlineData(false, false, true, true, 0, "All apps on this device")]
-    public void S1624_the_caption_says_what_the_app_is_doing(bool muted, bool system, bool active, bool master, int sessions, string expected)
+    [InlineData(false, false, true, 1, "Playing")]
+    [InlineData(false, false, true, 3, "Playing")]
+    [InlineData(false, false, false, 1, "Silent")]
+    [InlineData(true, false, true, 2, "Muted")]
+    [InlineData(false, true, true, 1, "Windows sounds")]
+    public void S1624_the_caption_says_what_the_app_is_doing(bool muted, bool system, bool active, int sessions, string expected)
     {
-        var row = new MixerRow(master ? MixerRules.MasterKey : "app", "App", null, 0.5, muted, active, system, sessions);
+        var row = new MixerRow("app", "App", null, 0.5, muted, active, system, sessions);
 
         Assert.Equal(expected, MixerFill.Detail(row));
     }

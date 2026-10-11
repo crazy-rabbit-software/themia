@@ -39,9 +39,9 @@ public sealed class MeterFaceTests
 
         Assert.Equal(MeterFaceArrangement.Stacked, plan.Arrangement);
 
-        // No empty space: the reading's line, the gap, the history and its inset from the card's
-        // bottom edge ([S-1824]) are the whole tile.
-        Assert.Equal(height, plan.Reading.LineHeight + Gap + plan.GraphHeight + Inset, 6);
+        // No empty space: the reading's line, the gap and the history, which reaches the card's
+        // bottom edge ([S-1824]), are the whole tile.
+        Assert.Equal(height, plan.Reading.LineHeight + Gap + plan.GraphHeight, 6);
 
         // The history is never a sliver: at least the floor, and half the tile once there is room.
         Assert.True(plan.GraphHeight >= Floor);
@@ -67,7 +67,7 @@ public sealed class MeterFaceTests
         var plan = Plan(480, 116);
 
         Assert.Equal(MeterFaceArrangement.Side, plan.Arrangement);
-        Assert.Equal(116 - Inset, plan.GraphHeight);
+        Assert.Equal(116, plan.GraphHeight);
         Assert.InRange(plan.ReadingColumn, 480 * MeterFace.SideColumnShare, 480 * MeterFace.SideColumnCap);
         Assert.True(plan.Reading.LineHeight <= 116);
     }
@@ -91,7 +91,7 @@ public sealed class MeterFaceTests
         var plan = Plan(380, 250, fixedStep: FluentType.Subtitle);
 
         Assert.Equal(FluentType.Subtitle, plan.Reading);
-        Assert.Equal(250 - FluentType.Subtitle.LineHeight - Gap - Inset, plan.GraphHeight, 6);
+        Assert.Equal(250 - FluentType.Subtitle.LineHeight - Gap, plan.GraphHeight, 6);
     }
 
     [Fact]
@@ -104,14 +104,10 @@ public sealed class MeterFaceTests
     }
 
     [Fact]
-    public void S1824_the_history_keeps_the_texts_inset_from_the_bottom_edge()
+    public void S1824_the_history_is_the_cards_bottom_band_with_no_inset_under_it()
     {
-        // Room for the reading, the gap and the least history — but not for its inset as well.
-        var plan = Plan(300, FluentType.Subtitle.LineHeight + Gap + Floor + Inset - 1);
-
-        Assert.Equal(MeterFaceArrangement.ReadingOnly, plan.Arrangement);
-
-        var fits = Plan(300, FluentType.Subtitle.LineHeight + Gap + Floor + Inset);
+        // Room for the reading, the gap and the least history is enough: no bottom inset is spent.
+        var fits = Plan(300, FluentType.Subtitle.LineHeight + Gap + Floor);
 
         Assert.Equal(MeterFaceArrangement.Stacked, fits.Arrangement);
         Assert.Equal(Floor, fits.GraphHeight, 6);

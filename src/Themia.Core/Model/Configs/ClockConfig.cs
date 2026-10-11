@@ -33,8 +33,6 @@ public sealed class ClockConfig : WidgetConfig
 
     public bool ShowSeconds { get; set; }
 
-    public bool Use24Hour { get; set; } = true;
-
     public bool ShowDate { get; set; } = true;
 
     /// <summary>
@@ -54,7 +52,6 @@ public sealed class ClockConfig : WidgetConfig
     {
         Face = Face,
         ShowSeconds = ShowSeconds,
-        Use24Hour = Use24Hour,
         ShowDate = ShowDate,
         TimeZoneId = TimeZoneId,
         CustomLabel = CustomLabel,

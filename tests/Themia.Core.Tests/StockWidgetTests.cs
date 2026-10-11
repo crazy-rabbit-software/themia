@@ -150,13 +150,12 @@ public sealed class StockWidgetTests
     }
 
     [Fact]
-    public void S1309_LabelsAreStartAndEnd_PlusTheMiddleOnAWideChart()
+    public void S1309_LabelsAreTheStartAndTheEndOnly()
     {
         IReadOnlyList<QuoteBar> bars = [new(0, 1), new(3600, 2), new(7200, 3)];
 
-        Assert.Equal(["00:00", "02:00"], ExchangeTime.Labels(Locale.De, bars, TimeSpan.Zero, QuoteRange.Day, TimeSpan.Zero, withMiddle: false));
-        Assert.Equal(["00:00", "01:00", "02:00"], ExchangeTime.Labels(Locale.De, bars, TimeSpan.Zero, QuoteRange.Day, TimeSpan.Zero, withMiddle: true));
-        Assert.Empty(ExchangeTime.Labels(Locale.De, [new(0, 1)], null, QuoteRange.Day, TimeSpan.Zero, withMiddle: true));
+        Assert.Equal(["00:00", "02:00"], ExchangeTime.Labels(Locale.De, bars, TimeSpan.Zero, QuoteRange.Day, TimeSpan.Zero));
+        Assert.Empty(ExchangeTime.Labels(Locale.De, [new(0, 1)], null, QuoteRange.Day, TimeSpan.Zero));
     }
 
     [Theory]
@@ -229,13 +228,14 @@ public sealed class StockWidgetTests
         var plan = Plan(560, 376);
 
         Assert.True(plan.ChartHeight > 120, $"chart {plan.ChartHeight}");
-        Assert.True(plan.Labels && plan.MiddleLabel && plan.Axis && plan.MinMax);
+        Assert.True(plan.Labels && plan.MinMax);
         Assert.True(plan.Price.FontSize <= FluentType.TitleLarge.FontSize);
     }
 
     /// <summary>
     /// [S-2770] No facts and no range chips at any size: what the readout does not use is the
     /// chart's, so the parts add up to the tile (less the gaps), from the tall column to the largest.
+    /// [S-1311] The time labels sit inside the chart, so the chart itself reaches the bottom edge.
     /// </summary>
     [Theory]
     [InlineData(200, 356)]
@@ -246,8 +246,7 @@ public sealed class StockWidgetTests
     {
         var plan = Plan(width, height);
 
-        var used = plan.Price.LineHeight + (plan.ExtrasUnder ? plan.Change.LineHeight : 0)
-            + plan.ChartHeight + (plan.Labels ? FluentType.Caption.LineHeight : 0);
+        var used = plan.Price.LineHeight + (plan.ExtrasUnder ? plan.Change.LineHeight : 0) + plan.ChartHeight;
 
         Assert.True(plan.Chart);
         Assert.True(used >= height - (4 * StockLayout.Gap) - 1, $"{width}x{height}: {used} of {height}");
@@ -277,69 +276,112 @@ public sealed class StockWidgetTests
         var used = plan.Beside
             ? Math.Max(plan.Price.LineHeight + plan.Change.LineHeight, plan.ChartHeight)
             : plan.Price.LineHeight + (plan.ExtrasUnder ? plan.Change.LineHeight : 0)
-                + (plan.Chart ? plan.ChartHeight : 0)
-                + (plan.Labels ? FluentType.Caption.LineHeight : 0);
+                + (plan.Chart ? plan.ChartHeight : 0);
 
         Assert.True(used <= height + 1, $"{width}x{height}: {used}");
     }
 
-    // ---- [S-1310] markers against the price axis ---------------------------------------------
+    // ---- [S-1310] [S-1311] captions on the chart ----------------------------------------------
 
     private const double ChartWidth = 560;
     private const double ChartHeight = 220;
-    private static readonly double Pad = FluentType.Caption.LineHeight;
-    private static readonly double Usable = ChartHeight - (2 * Pad);
-    private static readonly string[] AxisPrices = ["412.30", "410.15", "408.00"];
 
     [Fact]
-    public void S1310_AHighMarkerNearTheEndHidesTheAxisTopLabel_NotDrawnOverIt()
+    public void S1311_TheTimesSitInsideTheChart_UnderTheLowestPointAndItsPrice()
     {
-        // The period's high is the last bar: its price sits at the top right, where the axis's top is.
-        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable,
-            [new ChartMarker(ChartWidth, Pad, "412.30", Above: true), new ChartMarker(ChartWidth * 0.3, Pad + Usable, "408.00", Above: false)],
-            AxisPrices);
+        var band = StockChartLabels.Band(ChartHeight, markers: true, times: true);
+        var line = FluentType.Caption.LineHeight;
 
-        Assert.Null(plan.Axis[0]);
-        Assert.NotNull(plan.Axis[1]);
-        Assert.NotNull(plan.Axis[2]);
-        foreach (var label in plan.Axis.OfType<LabelBox>())
-        {
-            Assert.All(plan.Markers, marker => Assert.False(marker.Collides(label, StockChartLabels.Clearance)));
-        }
+        // The high's price fits above the trace, the low's under it, and the times under that.
+        Assert.Equal(line, band.Top, 6);
+        Assert.True(band.Top + band.Usable + line <= StockChartLabels.TimesTop(ChartHeight) + 0.001);
+        Assert.True(StockChartLabels.TimesTop(ChartHeight) + line <= ChartHeight);
     }
 
     [Fact]
-    public void S1310_ALowMarkerNearTheEndHidesTheAxisBottomLabel()
+    public void S1311_WithoutCaptionsTheTraceUsesTheWholeHeightLessItsStroke()
     {
-        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable,
-            [new ChartMarker(ChartWidth * 0.1, Pad, "412.30", Above: true), new ChartMarker(ChartWidth - 20, Pad + Usable, "408.00", Above: false)],
-            AxisPrices);
+        var band = StockChartLabels.Band(ChartHeight, markers: false, times: false);
 
-        Assert.NotNull(plan.Axis[0]);
-        Assert.Null(plan.Axis[2]);
+        Assert.True(band.Top > 0 && band.Top < 4);
+        Assert.Equal(ChartHeight - (2 * band.Top), band.Usable, 6);
     }
 
     [Fact]
-    public void S1310_MarkersAwayFromTheAxisLeaveEveryAxisLabel()
+    public void S1310_MarkerPricesStayInsideTheChart_AtBothEdges()
     {
-        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable,
-            [new ChartMarker(40, Pad, "412.30", Above: true), new ChartMarker(120, Pad + Usable, "408.00", Above: false)],
-            AxisPrices);
+        var placed = StockChartLabels.Place(ChartWidth,
+            [new ChartMarker(ChartWidth, 20, "412.30", Above: true), new ChartMarker(0, 200, "408.00", Above: false)]);
 
-        Assert.All(plan.Axis, label => Assert.NotNull(label));
-        Assert.Equal(2, plan.Markers.Count);
+        Assert.All(placed, box => Assert.True(box.Left >= 0 && box.Right <= ChartWidth));
+        Assert.True(placed[0].Bottom <= 20);
+        Assert.True(placed[1].Top >= 200);
+    }
+
+    // ---- [S-2775] one baseline for the colour, the change and the line ---------------------------
+
+    /// <summary>
+    /// [S-2775] Regression (AAPL red over a rising line): the change was measured from the previous
+    /// close while the line started at the first bar of the day. A day that opened below the close
+    /// and climbed back, but not all the way, drew a rising line in the falling colour. The line now
+    /// starts at the same baseline the change is measured from.
+    /// </summary>
+    [Fact]
+    public void S2775_AGapDownDayThatClimbsBackDrawsFromThePreviousClose()
+    {
+        IReadOnlyList<QuoteBar> bars = [new(1000, 226.0), new(1300, 227.4), new(1600, 228.9), new(1900, 229.5)];
+        var baseline = MarketQuote.ListedBaseline(QuoteRange.Day, chartPreviousClose: 230.0, previousClose: 230.0);
+
+        var trace = MarketQuote.Trace(bars, price: 229.5, baseline);
+
+        Assert.True(trace.ChangePercent < 0);
+        Assert.Equal(230.0, trace.Bars[0].Close);
+        Assert.Equal(Math.Sign(trace.ChangePercent!.Value), Math.Sign(trace.Bars[^1].Close - trace.Bars[0].Close));
+        Assert.Equal(bars.Count + 1, trace.Bars.Count);
     }
 
     [Fact]
-    public void S1311_WithoutMarkersTheAxisIsWhole_AndInsideTheChart()
+    public void S2775_WithoutABaselineTheLinesFirstPointIsIt()
     {
-        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable, [], AxisPrices);
+        IReadOnlyList<QuoteBar> bars = [new(1000, 100.0), new(2000, 110.0)];
 
-        Assert.All(plan.Axis, label =>
-        {
-            Assert.NotNull(label);
-            Assert.True(label.Value.Top >= 0 && label.Value.Bottom <= ChartHeight);
-            Assert.True(label.Value.Right <= ChartWidth - StockLayout.Inset + 0.001);
-        });
+        var trace = MarketQuote.Trace(bars, price: 110.0, baseline: null);
+
+        Assert.Equal(10.0, trace.ChangePercent!.Value, 6);
+        Assert.Equal(bars, trace.Bars);
     }
+
+    [Fact]
+    public void S2775_ThePreviousDaysCloseIsTheBaselineOnlyForOneDay()
+    {
+        Assert.Equal(230.0, MarketQuote.ListedBaseline(QuoteRange.Day, null, 230.0));
+        Assert.Null(MarketQuote.ListedBaseline(QuoteRange.Year, null, 230.0));
+        Assert.Equal(180.0, MarketQuote.ListedBaseline(QuoteRange.Year, 180.0, 230.0));
+        Assert.Null(MarketQuote.ListedBaseline(QuoteRange.Day, double.NaN, null));
+    }
+
+    [Fact]
+    public void S2775_ABaselineEqualToTheFirstBarAddsNoPoint()
+    {
+        IReadOnlyList<QuoteBar> bars = [new(1000, 100.0), new(2000, 95.0)];
+
+        var trace = MarketQuote.Trace(bars, price: 95.0, baseline: 100.0);
+
+        Assert.Equal(bars, trace.Bars);
+        Assert.Equal(-5.0, trace.ChangePercent!.Value, 6);
+    }
+
+    [Fact]
+    public void S2775_ACoinsChangeIsOverItsChart_NotAlwaysTheLast24Hours()
+    {
+        IReadOnlyList<QuoteBar> fiveDays = [new(1000, 100.0), new(2000, 104.0), new(3000, 110.0)];
+
+        Assert.Equal(10.0, MarketQuote.CoinTrace(QuoteRange.FiveDays, fiveDays, 110.0, change24H: -2.0).ChangePercent!.Value, 6);
+        Assert.Equal(-2.0, MarketQuote.CoinTrace(QuoteRange.Day, [], 110.0, change24H: -2.0).ChangePercent);
+        Assert.Null(MarketQuote.CoinTrace(QuoteRange.FiveDays, [], 110.0, change24H: -2.0).ChangePercent);
+    }
+
+    [Fact]
+    public void S2775_NoBarsAndNoBaselineIsNoChange()
+        => Assert.Null(MarketQuote.Trace([], price: 100.0, baseline: null).ChangePercent);
 }

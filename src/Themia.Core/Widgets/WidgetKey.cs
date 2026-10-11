@@ -71,4 +71,10 @@ public enum WidgetKey
 
     /// <summary>[S-1327] Backspace: back through the widget's own history.</summary>
     Back,
+
+    /// <summary>[S-3802] Alt+Shift+Up: move the focused item one place up (the drag's keyboard twin).</summary>
+    MoveUp,
+
+    /// <summary>[S-3802] Alt+Shift+Down: move the focused item one place down.</summary>
+    MoveDown,
 }

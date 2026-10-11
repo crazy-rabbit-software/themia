@@ -3,7 +3,8 @@ namespace Themia.Core.Shell;
 /// <summary>
 /// [S-1740] The commands Windows 11 draws as a row of icons above a context menu's list, in the
 /// order the row shows them. File Explorer's row is Cut, Copy, (Paste), Rename, Share, Delete;
-/// Themia has no Share and adds Duplicate and Settings, which its widgets and items use as often.
+/// Themia has no Share and adds Duplicate (views and items, not widgets) and Settings, which its
+/// items use as often.
 /// </summary>
 public enum QuickCommand
 {
@@ -121,7 +122,6 @@ public enum ShellCommand
     Cut,
     Copy,
     Paste,
-    Duplicate,
 
     /// <summary>[S-1587] The selection follows the pointer to wherever the next click puts it.</summary>
     Move,
@@ -155,7 +155,6 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
         ShellCommand.Cut => QuickCommand.Cut,
         ShellCommand.Copy => QuickCommand.Copy,
         ShellCommand.Paste => QuickCommand.Paste,
-        ShellCommand.Duplicate => QuickCommand.Duplicate,
         ShellCommand.Configure or ShellCommand.Settings => QuickCommand.Settings,
         ShellCommand.Delete => QuickCommand.Delete,
         _ => null,
@@ -172,12 +171,14 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
 /// <param name="CanSendToBack">It is not already behind everything it overlaps.</param>
 /// <param name="SelectionCount">How many widgets the commands act on ([S-1592]).</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
+/// <param name="HasSettings">[S-1750] The widget's settings page has at least one row.</param>
 public readonly record struct CardMenuFacts(
     bool EditMode,
     bool CanBringToFront,
     bool CanSendToBack,
     int SelectionCount,
-    bool CanPaste);
+    bool CanPaste,
+    bool HasSettings);
 
 /// <summary>What the empty-surface menu depends on.</summary>
 /// <param name="EditMode">Whether the desktop is in edit mode; outside it empty surface is click-through.</param>
@@ -191,10 +192,11 @@ public readonly record struct SurfaceMenuFacts(bool EditMode, bool Placing, bool
 public static class ShellMenus
 {
     /// <summary>
-    /// [S-1743] A widget card's menu. The icon row is Cut, Copy, Paste, Duplicate, Settings and
-    /// Delete ([S-1740]); the list holds the view's own commands, the layering pair, Move, and
-    /// entering or leaving edit mode. Nothing on it changes how the
-    /// widget looks: that lives in its settings ([S-1746]).
+    /// [S-1743] A widget card's menu. The icon row is Cut, Copy, Paste, Settings and Delete
+    /// ([S-1740]); there is no Duplicate, Copy then Paste does that. The list holds the view's own
+    /// commands, the layering pair, Move, and entering or leaving edit mode. Nothing on it changes how the
+    /// widget looks: that lives in its settings ([S-1746]). A widget whose page would be empty has no
+    /// Settings at all ([S-1750]).
     /// </summary>
     public static IReadOnlyList<ShellMenuItem> ForCard(CardMenuFacts facts)
     {
@@ -204,10 +206,14 @@ public static class ShellMenus
             new(ShellCommand.Cut),
             new(ShellCommand.Copy),
             new(ShellCommand.Paste, Enabled: facts.CanPaste),
-            new(ShellCommand.Duplicate),
-            new(ShellCommand.Configure),
-            new(ShellCommand.Delete),
         };
+
+        if (facts.HasSettings)
+        {
+            items.Add(new(ShellCommand.Configure));
+        }
+
+        items.Add(new(ShellCommand.Delete));
 
         items.Add(new(ShellCommand.WidgetActions));
         items.Add(ShellMenuItem.Divider);

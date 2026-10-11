@@ -468,12 +468,12 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     }
 
     /// <summary>
-    /// The header title (S-04): the user's own, else the single feed's <c>&lt;title&gt;</c>, else
-    /// several feeds' names joined, else the catalogue's name.
+    /// The header title (S-04): the single feed's <c>&lt;title&gt;</c>, else several feeds' names
+    /// joined, else the catalogue's name. A title the user typed is the card's own ([S-3791]).
     /// </summary>
     private void PublishTitle()
     {
-        var title = string.IsNullOrWhiteSpace(_config.Title) ? FeedAggregate.Title(Parts()) : _config.Title;
+        var title = FeedAggregate.Title(Parts());
         _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
     }
 }

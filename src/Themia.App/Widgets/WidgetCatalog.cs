@@ -68,6 +68,20 @@ public interface IWidgetSurface
     bool EditMode => false;
 
     /// <summary>
+    /// [S-3412] The placed widget's id, for state a view keeps across being built again (a view
+    /// switch): the gallery's slide. Null where there is no placed widget (a debug render).
+    /// </summary>
+    string? WidgetId => null;
+
+    /// <summary>
+    /// [S-3300] The view links of the view this widget is on: what the widgets there hover and
+    /// select, shared. Read in Attach (a card can move to another view between attaches), join with
+    /// <see cref="Themia.Core.Links.LinkBoard.Join"/>, dispose the member in Detach. Null where there
+    /// is no view (a host without one).
+    /// </summary>
+    Themia.Core.Links.LinkBoard? Links => null;
+
+    /// <summary>
     /// [S-873] Paint nothing, or paint again: the card drops its fill, border and content and leaves
     /// the window's hit region, so the desktop under it is clickable. For a widget that has nothing
     /// to show right now (music with nothing playing). Edit mode always shows it, so a hidden widget
@@ -178,9 +192,17 @@ internal static class WidgetCatalog
         new(WidgetKind.PingDetails, Str.Details_Catalog_Ping_Label, Str.Details_Catalog_Ping_Desc, Glyphs.Ping, 260, 240, WidgetCategory.System),
         new(WidgetKind.GpuDetails, Str.Details_Catalog_Gpu_Label, Str.Details_Catalog_Gpu_Desc, Glyphs.Gpu, 280, 240, WidgetCategory.System),
         new(WidgetKind.Mixer, Str.WidgetsA_Catalog_Mixer_Label, Str.WidgetsA_Catalog_Mixer_Description, Glyphs.Mixer, 300, 260, WidgetCategory.System),
-        new(WidgetKind.ScreenTime, Str.WidgetsA_Catalog_ScreenTime_Label, Str.WidgetsA_Catalog_ScreenTime_Description, Glyphs.ScreenTime, 260, 300, WidgetCategory.System),
+        // [S-3320] Screen time is three widgets that light the same app together on a view ([S-3310]).
+        new(WidgetKind.ScreenTimeChart, Str.WidgetsC_ScreenTime_Chart_Label, Str.WidgetsC_ScreenTime_Chart_Desc, Glyphs.ScreenTimeChart, 320, 220, WidgetCategory.System),
+        new(WidgetKind.ScreenTimeDonut, Str.WidgetsC_ScreenTime_Donut_Label, Str.WidgetsC_ScreenTime_Donut_Desc, Glyphs.ScreenTimeDonut, 240, 260, WidgetCategory.System),
+        new(WidgetKind.ScreenTimeApps, Str.WidgetsC_ScreenTime_Apps_Label, Str.WidgetsC_ScreenTime_Apps_Desc, Glyphs.ScreenTime, 280, 300, WidgetCategory.System),
         new(WidgetKind.Email, Str.WidgetsA_Catalog_Mail_Label, Str.WidgetsA_Catalog_Mail_Description, Glyphs.Mail, 380, 260, WidgetCategory.Accounts),
-        new(WidgetKind.Calendar, Str.Widget_Calendar_Label, Str.WidgetsA_Catalog_Calendar_Description, Glyphs.Calendar, 340, 260, WidgetCategory.Accounts),
+        // [S-3600] The five calendars, one per layout, together in the Accounts section.
+        new(WidgetKind.MonthCalendar, Str.WidgetsC_CalMonth_Label, Str.WidgetsC_CalMonth_Desc, Glyphs.Calendar, 340, 260, WidgetCategory.Accounts),
+        new(WidgetKind.WeekCalendar, Str.WidgetsC_CalWeek_Label, Str.WidgetsC_CalWeek_Desc, Glyphs.CalendarWeek, 480, 300, WidgetCategory.Accounts),
+        new(WidgetKind.DayCalendar, Str.WidgetsC_CalDay_Label, Str.WidgetsC_CalDay_Desc, Glyphs.CalendarDay, 280, 340, WidgetCategory.Accounts),
+        new(WidgetKind.YearCalendar, Str.WidgetsC_CalYear_Label, Str.WidgetsC_CalYear_Desc, Glyphs.CalendarYear, 420, 300, WidgetCategory.Accounts),
+        new(WidgetKind.Agenda, Str.WidgetsC_Agenda_Label, Str.WidgetsC_Agenda_Desc, Glyphs.Agenda, 320, 300, WidgetCategory.Accounts),
         new(WidgetKind.Tasks, Str.WidgetsA_Catalog_Tasks_Label, Str.WidgetsA_Catalog_Tasks_Description, Glyphs.Task, 320, 320, WidgetCategory.Accounts),
         new(WidgetKind.Contacts, Str.Widget_Contacts_Label, Str.WidgetsA_Catalog_Contacts_Description, Glyphs.Contact, 320, 260, WidgetCategory.Accounts),
         new(WidgetKind.Notes, Str.Widget_Notes_Label, Str.WidgetsA_Catalog_Notes_Description, Glyphs.Note, 300, 220, WidgetCategory.Desk),
@@ -283,10 +305,17 @@ internal static class WidgetCatalog
         WidgetKind.CpuDetails or WidgetKind.MemoryDetails or WidgetKind.TopProcesses or WidgetKind.NetworkDetails
             or WidgetKind.DiskSpace or WidgetKind.BatteryDetails or WidgetKind.PingDetails or WidgetKind.GpuDetails => new DetailView(kind),
         WidgetKind.Mixer => new MixerView(),
-        WidgetKind.ScreenTime => new ScreenTimeView(),
+        WidgetKind.ScreenTimeChart => new ScreenTimeChartView(),
+        WidgetKind.ScreenTimeDonut => new ScreenTimeDonutView(),
+        WidgetKind.ScreenTimeApps => new ScreenTimeAppsView(),
         WidgetKind.Email => new EmailView(),
         WidgetKind.Contacts => new ContactsView(),
-        WidgetKind.Calendar => new CalendarView(),
+        WidgetKind.MonthCalendar => new CalendarView(CalendarLayout.Month),
+        WidgetKind.WeekCalendar => new CalendarView(CalendarLayout.Week),
+        WidgetKind.DayCalendar => new CalendarView(CalendarLayout.Day),
+        WidgetKind.YearCalendar => new CalendarView(CalendarLayout.Year),
+        WidgetKind.Agenda => new CalendarView(CalendarLayout.Agenda),
+
         WidgetKind.Tasks => new TasksView(),
         WidgetKind.Notes => new NotesView(),
         WidgetKind.Countdown => new CountdownView(),

@@ -13,22 +13,16 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Pictures from a folder on this PC, one picture file, or Bing's photo of the day. [S-300]
 /// <para>
-/// Built on the same shape as the folder widget, because it has the same hazards: the path is
-/// validated in Core before anything opens a handle, the walk happens on the thread pool because a
-/// disconnected share can sit for the better part of a minute, a reply that arrives after the source
-/// changed is discarded rather than drawn, and every outcome with no picture in it says <i>which</i>
-/// outcome it is.
+/// A thin subscriber ([S-3410]): the path is validated in Core before anything opens a handle, and
+/// then the shared <see cref="GalleryService"/> does the rest. It reads the source (on the pool, once
+/// however many widgets show it, kept current by a folder watcher and the refresh interval, never
+/// because this view was built again), decodes the pictures at the size they are drawn and keeps
+/// them ([S-3411]), and remembers this widget's slide, deal and pause by widget id ([S-3412]). So a
+/// view switch and back draws the same picture in the same pass, and the slideshow continues.
 /// </para>
 /// <para>
-/// It also has one the folder widget does not: decoding. A folder of phone photographs is tens of
-/// megapixels each, and drawing one into a 300px tile at full resolution costs a second of UI thread
-/// and ninety megabytes of surface. So nothing is ever decoded at more than the size it is drawn
-/// at, and <see cref="ImageLoader"/> bounds both how many are held and how many are decoding at
-/// once. [S-302]
-/// </para>
-/// <para>
-/// This file is the lifecycle: config, scans and the slideshow's timer. The ladder and the drawing
-/// are in <c>GalleryView.Layout.cs</c>; the hover bar, menus and commands in
+/// This file is the lifecycle: config, the source and the slideshow's timer. The ladder and the
+/// drawing are in <c>GalleryView.Layout.cs</c>; the hover bar, menus and commands in
 /// <c>GalleryView.Commands.cs</c>.
 /// </para>
 /// </summary>
@@ -37,17 +31,13 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
 {
     private const string Scope = "gallery-view";
 
-    private readonly ImageLoader _loader = new();
     private readonly DispatcherQueueTimer? _slideTimer;
 
-    private Ticker? _ticker;
     private GalleryConfig _config = new();
 
     /// <summary>
     /// [S-13a] A copy of the settings this view last acted on, which is what a change is measured
-    /// against. Not <c>_config</c>: the settings page edits the live config object in place, so by
-    /// the time a change arrives the "previous" config already holds the new values, and comparing
-    /// the two found no difference — a new address or place stayed unfetched until the next tick.
+    /// against. Not <c>_config</c>: the settings page edits the live config object in place.
     /// </summary>
     private GalleryConfig _applied = new();
 
@@ -57,32 +47,32 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     /// <summary>The validated path of whichever local source is configured (the folder or the file).</summary>
     private FolderPathResult _resolved;
 
-    private GalleryScan _scan = GalleryScan.Of(GalleryStatus.Loading);
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private CancellationTokenSource? _inFlight;
+    /// <summary>The shared source this widget shows, or null for a configuration with none to read.</summary>
+    private GallerySourceKey? _key;
 
-    /// <summary>
-    /// Which scan is current. A reply carrying an older number is a source the widget has stopped
-    /// pointing at, and a share that took thirty seconds to answer must not overwrite the folder the
-    /// user has since chosen.
-    /// </summary>
-    private int _generation;
+    private GalleryWatch? _watch;
+
+    /// <summary>What the source read: every picture found, or the state with none.</summary>
+    private GalleryScan _scan = GalleryScan.Of(GalleryStatus.Loading);
+
+    /// <summary>[S-3412] This widget's selection from <see cref="_scan"/>: shuffled or not, capped.</summary>
+    private IReadOnlyList<string> _pictures = [];
 
     /// <summary>The slide on show.</summary>
     private int _index;
 
     /// <summary>
-    /// [S-764]/[S-765] The seed the scatter and mosaic are dealt from. Rolled when the set of
-    /// pictures changes and on "Refresh images", never on a resize, so a card being dragged bigger
-    /// moves its prints rather than dealing a new hand.
+    /// [S-764]/[S-765]/[S-3412] The seed the selection, the scatter and the mosaic are dealt from.
+    /// Kept by widget id across view switches; dealt again only by "Refresh images" and, for a
+    /// shuffled folder larger than the widget shows, the refresh interval. Never on a resize.
     /// </summary>
     private int _seed = Environment.TickCount;
 
-    /// <summary>[S-769] The user paused the slideshow from the hover bar or a menu. Not persisted, as in the original.</summary>
+    /// <summary>[S-769] The user paused the slideshow. Kept for the session by widget id, never persisted.</summary>
     private bool _paused;
 
-    private bool _everScanned;
+    private bool _attached;
+    private bool _everApplied;
     private bool _detached;
 
     public GalleryView()
@@ -111,10 +101,10 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     /// </summary>
     public FrameworkElement? HeaderTrailing => _counter;
 
+    private static GalleryService? Service => AppServices.Gallery;
+
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
-
         // [S-1881] Subscribed in Attach, not here: a timer's Tick roots the view from the native
         // side, and a view parked under the Set up button is built but never attached or detached.
         if (_slideTimer is not null)
@@ -123,6 +113,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
             _slideTimer.Tick += OnSlideTick;
         }
 
+        _attached = true;
         ApplyConfig(config);
     }
 
@@ -137,10 +128,14 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     {
         var next = config as GalleryConfig ?? new GalleryConfig();
         var previous = _applied;
-        var previouslyResolved = _resolved;
         _config = next;
         _applied = (GalleryConfig)next.Clone();
         PublishTitle();
+
+        if (!_attached || _detached)
+        {
+            return;
+        }
 
         // [S-300] The trust boundary, before anything opens a handle. An empty path is not an error
         // here and not a fallback either: it is "nothing chosen", which is its own state.
@@ -155,64 +150,125 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
             ? new FolderPathResult(FolderPathProblem.Empty, string.Empty, false)
             : FolderPath.Validate(configured);
 
-        // Only the fields that change what comes back are worth a rescan. Dragging the count slider
-        // must not fire a directory walk per frame.
-        var sourceChanged = previous.Source != next.Source
-            || _resolved.Path != previouslyResolved.Path
-            || _resolved.Problem != previouslyResolved.Problem;
+        GallerySourceKey? key = next.Source == GallerySource.Bing || _resolved.IsValid
+            ? GallerySourceKey.For(next.Source, _resolved.Path, next.Recursive)
+            : null;
 
-        var needsScan = !_everScanned
-            || sourceChanged
-            || previous.Recursive != next.Recursive
-            || previous.Shuffle != next.Shuffle
-            || previous.EffectiveMaxImages != next.EffectiveMaxImages;
+        var first = !_everApplied;
+        _everApplied = true;
 
-        if (sourceChanged)
+        // A configuration with nothing to read says which nothing it is, again on every change.
+        if (first || key is null || key.Id != _key?.Id)
         {
-            // Pictures from the source the widget has left are dead weight, and holding them would
-            // only evict the ones it is about to want. The old scan goes too, so its pictures are
-            // not drawn under the new source's name while the new one loads.
-            _loader.Clear();
-            _index = 0;
-            _scan = GalleryScan.Of(GalleryStatus.Loading);
+            Watch(key, restore: first);
+        }
+        else if (_watch is not null && _watch.Refresh != next.TickInterval)
+        {
+            // A new cadence for the same source: a new hold, never a new read.
+            _watch.Dispose();
+            _watch = Service?.Watch(key!, next.TickInterval, OnSourceUpdated);
+        }
+
+        // Shuffle and the count are this widget's own: a new selection from the list in hand, no I/O.
+        if (previous.Shuffle != next.Shuffle || previous.EffectiveMaxImages != next.EffectiveMaxImages)
+        {
+            Select(keepPath: CurrentPath);
         }
 
         ApplySlideCadence();
+        Lay();
+    }
 
-        // Subscribing fires a tick of its own, and that tick rescans with the config already in
-        // place above; rescanning here as well would read the source twice.
-        if (Resubscribe())
+    /// <summary>
+    /// Show a source: let go of the one before (it lingers for whoever else shows it, [S-3413]) and
+    /// hold this one. <paramref name="restore"/> is the widget's first attach: it comes back to the
+    /// slide, deal and pause it had when it was last built ([S-3412]).
+    /// </summary>
+    private void Watch(GallerySourceKey? key, bool restore)
+    {
+        _watch?.Dispose();
+        _watch = null;
+        _key = key;
+        _index = 0;
+
+        var remembered = restore ? Service?.Positions.Recall(_surface?.WidgetId) : null;
+
+        if (remembered is not null)
+        {
+            _seed = remembered.Seed;
+            _paused = remembered.Paused;
+        }
+
+        if (key is null)
+        {
+            var empty = _resolved.Problem != FolderPathProblem.Empty ? GalleryStatus.InvalidPath
+                : _config.Source == GallerySource.File ? GalleryStatus.NoFile
+                : GalleryStatus.NoFolder;
+
+            _scan = GalleryScan.Of(empty);
+            _pictures = [];
+            return;
+        }
+
+        if (Service is not { } service)
+        {
+            Log.Warn(Scope, "no gallery service; the widget has nothing to read through");
+            _scan = GalleryScan.Of(GalleryStatus.Loading);
+            _pictures = [];
+            return;
+        }
+
+        _watch = service.Watch(key, _config.TickInterval, OnSourceUpdated);
+        _scan = _watch.Scan;
+        var same = remembered is not null && remembered.SourceId == key.Id;
+        Select(keepPath: same ? remembered!.Path : null, index: same ? remembered!.Index : 0);
+    }
+
+    /// <summary>
+    /// [S-3412] This widget's selection from the source's list, and the slide kept on the picture it
+    /// showed (wherever that is now), else at the same position.
+    /// </summary>
+    private void Select(string? keepPath, int? index = null)
+    {
+        _pictures = _scan.Status == GalleryStatus.Ok
+            ? (_config.IsSingleSource ? _scan.Paths : ImageFiles.Choose(_scan.Paths, _config.Shuffle, _seed, _config.EffectiveMaxImages))
+            : [];
+        _index = GalleryDeal.Resume(_pictures, keepPath, index ?? _index);
+    }
+
+    private string? CurrentPath => _index >= 0 && _index < _pictures.Count ? _pictures[_index] : null;
+
+    /// <summary>The source read again: deal again only when the rule says so, and redraw only what changed.</summary>
+    private void OnSourceUpdated(GalleryRefresh reason)
+    {
+        if (_detached || _watch is null)
         {
             return;
         }
 
-        if (needsScan)
+        var scan = _watch.Scan;
+        var reroll = GalleryDeal.ShouldReroll(reason, _config.Shuffle, scan.Paths.Count, _config.EffectiveMaxImages);
+        var before = _pictures;
+        var beforeScan = _scan;
+
+        if (reroll)
         {
-            Rescan();
+            _seed = Environment.TickCount;
         }
-        else
+
+        _scan = scan;
+        Select(keepPath: CurrentPath);
+        ApplySlideCadence();
+
+        // A read that left this widget's selection as it was must not redraw: it would deal the
+        // scatter again. "Refresh images" asked for that.
+        if (reroll
+            || scan.Status != beforeScan.Status
+            || scan.Credit != beforeScan.Credit
+            || !before.SequenceEqual(_pictures, StringComparer.Ordinal))
         {
             Lay();
         }
-    }
-
-    /// <summary>
-    /// Rebuild the ticker subscription only when the cadence actually changed, and say whether it
-    /// did — a new subscription ticks immediately, so the caller has nothing left to do.
-    /// </summary>
-    private bool Resubscribe()
-    {
-        var interval = _config.TickInterval;
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return false;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, Rescan);
-        return _subscription is not null;
     }
 
     /// <summary>
@@ -246,142 +302,17 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     private bool IsSlideshow => !_config.IsSingleSource
         && _config.Layout == GalleryLayout.Slideshow
         && _scan.Status == GalleryStatus.Ok
-        && _scan.Paths.Count > 1;
+        && _pictures.Count > 1;
 
     private void OnSlideTick(DispatcherQueueTimer sender, object args)
     {
-        if (_detached || _scan.Paths.Count == 0)
+        if (_detached || _pictures.Count == 0)
         {
             return;
         }
 
-        _index = (_index + 1) % _scan.Paths.Count;
+        _index = (_index + 1) % _pictures.Count;
         Lay();
-    }
-
-    private void Rescan() => Rescan(reroll: false);
-
-    /// <summary>
-    /// Start a read of the source. The work itself happens on the thread pool: a mapped drive whose
-    /// server has gone away can leave a single directory call sitting for most of a minute, and on
-    /// the UI thread that is every widget on the desktop frozen with it.
-    /// </summary>
-    /// <param name="reroll">"Refresh images": deal a new scatter / mosaic even if the set is the same.</param>
-    private void Rescan(bool reroll)
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        _everScanned = true;
-
-        if (_config.Source != GallerySource.Bing && !_resolved.IsValid)
-        {
-            var empty = _resolved.Problem != FolderPathProblem.Empty ? GalleryStatus.InvalidPath
-                : _config.Source == GallerySource.File ? GalleryStatus.NoFile
-                : GalleryStatus.NoFolder;
-
-            _scan = GalleryScan.Of(empty);
-            ApplySlideCadence();
-            Lay();
-            return;
-        }
-
-        _inFlight?.Cancel();
-
-        var cts = new CancellationTokenSource();
-        _inFlight = cts;
-        var generation = ++_generation;
-
-        // Say something immediately, but only when there is nothing on screen to keep: a backstop
-        // rescan of the same folder should not blank the picture it is about to redraw.
-        if (_scan.Paths.Count == 0)
-        {
-            _scan = GalleryScan.Of(GalleryStatus.Loading);
-            Lay();
-        }
-
-        _ = ScanAsync(Read(cts.Token), generation, reroll, cts);
-    }
-
-    /// <summary>The read for the configured source, already started on the thread pool.</summary>
-    private Task<GalleryScan> Read(CancellationToken token)
-    {
-        switch (_config.Source)
-        {
-            case GallerySource.Bing:
-                return Task.Run(() => ImageGallery.ReadBingAsync(token), token);
-
-            case GallerySource.File:
-                var file = _resolved.Path;
-                return Task.Run(() => ImageGallery.ReadFile(file), token);
-
-            default:
-                var request = new GalleryRequest(
-                    _resolved.Path,
-                    _config.Recursive,
-                    _config.Shuffle,
-
-                    // Re-rolled per scan, so a folder larger than the cap eventually shows all of it
-                    // rather than the same two dozen pictures for ever.
-                    Environment.TickCount,
-                    _config.EffectiveMaxImages);
-
-                return Task.Run(() => ImageGallery.Read(request, token), token);
-        }
-    }
-
-    private async Task ScanAsync(Task<GalleryScan> reading, int generation, bool reroll, CancellationTokenSource cts)
-    {
-        try
-        {
-            var scan = await reading.ConfigureAwait(true);
-
-            // A late reply from a source the widget has since left. Discarded rather than drawn.
-            if (_detached || generation != _generation)
-            {
-                return;
-            }
-
-            var sameSet = scan.Status == _scan.Status
-                && scan.Paths.SequenceEqual(_scan.Paths, StringComparer.Ordinal)
-                && scan.Credit == _scan.Credit;
-
-            _scan = scan;
-
-            if (_index >= scan.Paths.Count)
-            {
-                _index = 0;
-            }
-
-            if (!sameSet || reroll)
-            {
-                _seed = Environment.TickCount;
-            }
-
-            ApplySlideCadence();
-
-            // A backstop rescan that found exactly what the last one found must not redraw: it
-            // would deal the scatter again and re-decode the grid. "Refresh images" asked for that.
-            if (!sameSet || reroll)
-            {
-                Lay();
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // ignore: superseded by a newer scan, which will draw in this one's place.
-        }
-        finally
-        {
-            if (ReferenceEquals(_inFlight, cts))
-            {
-                _inFlight = null;
-            }
-
-            cts.Dispose();
-        }
     }
 
     public void Detach()
@@ -399,17 +330,17 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
             _slideTimer.Tick -= OnSlideTick;
         }
 
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = TimeSpan.Zero;
+        // [S-3412] Where this widget was, so it comes back there when it is built again.
+        if (_key is not null && _surface?.WidgetId is { Length: > 0 } id)
+        {
+            Service?.Positions.Remember(id, new GalleryPosition(_key.Id, CurrentPath, _index, _seed, _paused));
+        }
 
-        // Cancel but do not dispose: the in-flight scan owns its source and frees it on the way out.
-        _inFlight?.Cancel();
-        _inFlight = null;
+        // [S-3413] The source lingers for a view switch back; the pictures this view pinned are let go.
+        _watch?.Dispose();
+        _watch = null;
 
         DetachParts();
-        _loader.Clear();
-        _ticker = null;
     }
 
     /// <summary>

@@ -23,12 +23,16 @@ internal static partial class ConfigPages
         var displays = host.Displays;
         context.Expansion.Retain(SettingsList.Displays, displays.Select(d => d.Id));
 
+        // [S-3832] What a display Themia has not seen before shows: a setting of every display to
+        // come, so it heads the page rather than sitting in one display's group.
+        var rows = new List<FrameworkElement> { NewDisplaysRow(host) };
+
         if (displays.Count == 0)
         {
-            return Page(Str.App_Displays.Text(), [Note(Str.Shell_Displays_None.Text())]);
+            rows.Add(Note(Str.Shell_Displays_None.Text()));
+            return Page(Str.App_Displays.Text(), rows);
         }
 
-        var rows = new List<FrameworkElement>();
         foreach (var display in displays)
         {
             var id = display.Id;
@@ -81,7 +85,8 @@ internal static partial class ConfigPages
                     : Str.Shell_Display_ShowLast.Text(),
                 show, "enable", "disable", "hide", "monitor"),
 
-            FluentLayout.Row(Glyphs.View, Str.Shell_Display_Shows.Text(), Str.Shell_Display_ShowsDesc.Text(), ViewChoice(host, monitorId), "view"),
+            FluentLayout.Row(Glyphs.View, Str.Shell_Display_Shows.Text(), Str.Shell_Display_ShowsDesc.Text(), ViewChoice(host, monitorId),
+                ["view", .. state.Views.Select(v => v.Name)]),
 
             FluentLayout.Row(Glyphs.Scale, Str.Display_WidgetScale_Label.Text(),
                 Str.Shell_Display_ScaleDesc.Text(),
@@ -151,8 +156,7 @@ internal static partial class ConfigPages
         // button's text are always read back from what was stored.
         var views = FluentLayout.MultiChoice(
             Str.Shell_ViewBar_AllViews.Text(),
-            () => [.. host.State.Views.Select(v => new MultiChoiceItem(v.Id, v.Name,
-                () => new IconLook(Glyphs.View, ViewListRules.Initials(v.Name)).For(string.IsNullOrEmpty(v.Icon) ? null : v.Icon)))],
+            () => [.. host.State.Views.Select(v => new MultiChoiceItem(v.Id, v.Name, () => ViewMark.Mark(v)))],
             () =>
             {
                 var settings = ViewBarRules.For(host.State, monitorId);
@@ -179,13 +183,14 @@ internal static partial class ConfigPages
     /// </summary>
     private static ComboBox ViewChoice(AppHost host, string monitorId)
     {
-        var views = host.State.Views.Select(v => (v.Id, v.Name)).ToList();
+        var views = host.State.Views;
         var shown = ShownViewId(host.State, monitorId);
 
-        var combo = new ComboBox { MinWidth = 220 };
-        foreach (var (id, name) in views)
+        // [S-3812] Each view with its icon in its colour.
+        var combo = new ComboBox { MinWidth = FluentLayout.ChoiceMinWidth };
+        foreach (var view in views)
         {
-            combo.Items.Add(new ComboBoxItem { Content = name, Tag = id });
+            combo.Items.Add(new ComboBoxItem { Content = ViewMark.Labelled(view), Tag = view.Id });
         }
 
         combo.SelectedIndex = Math.Max(0, views.FindIndex(v => v.Id == shown));
@@ -199,5 +204,35 @@ internal static partial class ConfigPages
         };
 
         return combo;
+    }
+
+    /// <summary>
+    /// [S-847] / [S-3832] The view a display Themia has not seen before shows, or the last view shown
+    /// ([S-1705]). Each view with its icon in its colour.
+    /// </summary>
+    private static Border NewDisplaysRow(AppHost host)
+    {
+        var views = host.State.Views;
+        var combo = new ComboBox { MinWidth = FluentLayout.ChoiceMinWidth };
+        combo.Items.Add(new ComboBoxItem { Content = Str.Shell_Settings_General_NewDisplayLastView.Text(), Tag = string.Empty });
+
+        foreach (var view in views)
+        {
+            combo.Items.Add(new ComboBoxItem { Content = ViewMark.Labelled(view), Tag = view.Id });
+        }
+
+        var chosen = host.State.DefaultViewForNewDisplays;
+        combo.SelectedIndex = chosen is null ? 0 : Math.Max(0, views.FindIndex(v => v.Id == chosen) + 1);
+        combo.SelectionChanged += (_, _) =>
+        {
+            if (combo.SelectedItem is ComboBoxItem { Tag: string id })
+            {
+                host.Mutate(s => s.DefaultViewForNewDisplays = string.IsNullOrEmpty(id) ? null : id, relayout: false);
+            }
+        };
+
+        return FluentLayout.Row(Glyphs.Display, Str.Shell_Settings_General_NewDisplays.Text(),
+            Str.Shell_Settings_General_NewDisplaysDesc.Text(), combo,
+            ["monitor", "default view", .. views.Select(v => v.Name)]);
     }
 }

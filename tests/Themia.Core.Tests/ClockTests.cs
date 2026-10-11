@@ -107,7 +107,7 @@ public class ClockFormatterTests
     [Fact]
     public void Twenty_four_hour_time_is_zero_padded()
     {
-        var reading = ClockFormatter.Read(At(9, 5), Utc(c => c.Use24Hour = true), Locale.En);
+        var reading = ClockFormatter.Read(At(9, 5), Utc(), Locale.En, use24Hour: true);
 
         Assert.Equal("09:05", reading.Time);
         Assert.Null(reading.Meridiem);
@@ -116,7 +116,7 @@ public class ClockFormatterTests
     [Fact]
     public void Twelve_hour_time_is_not_padded_and_carries_a_meridiem()
     {
-        var reading = ClockFormatter.Read(At(9, 5), Utc(c => c.Use24Hour = false), Locale.En);
+        var reading = ClockFormatter.Read(At(9, 5), Utc(), Locale.En, use24Hour: false);
 
         Assert.Equal("9:05", reading.Time);
         Assert.Equal("AM", reading.Meridiem);
@@ -130,7 +130,7 @@ public class ClockFormatterTests
     [InlineData(11, 11, "AM")]
     public void Midnight_and_noon_read_as_twelve_not_zero(int hour24, int expectedHour, string expectedMeridiem)
     {
-        var reading = ClockFormatter.Read(At(hour24, 30), Utc(c => c.Use24Hour = false), Locale.En);
+        var reading = ClockFormatter.Read(At(hour24, 30), Utc(), Locale.En, use24Hour: false);
 
         Assert.Equal($"{expectedHour}:30", reading.Time);
         Assert.Equal(expectedMeridiem, reading.Meridiem);
@@ -140,22 +140,22 @@ public class ClockFormatterTests
     [Fact]
     public void Seconds_appear_only_when_asked_for()
     {
-        Assert.Equal("14:07", ClockFormatter.Read(At(14, 7, 42), Utc(c => c.ShowSeconds = false), Locale.En).Time);
-        Assert.Equal("14:07:42", ClockFormatter.Read(At(14, 7, 42), Utc(c => c.ShowSeconds = true), Locale.En).Time);
+        Assert.Equal("14:07", ClockFormatter.Read(At(14, 7, 42), Utc(c => c.ShowSeconds = false), Locale.En, use24Hour: true).Time);
+        Assert.Equal("14:07:42", ClockFormatter.Read(At(14, 7, 42), Utc(c => c.ShowSeconds = true), Locale.En, use24Hour: true).Time);
     }
 
     [Fact]
     public void The_date_is_omitted_unless_enabled()
     {
-        Assert.Null(ClockFormatter.Read(At(14, 7), Utc(c => c.ShowDate = false), Locale.En).Date);
-        Assert.Equal("Monday, March 9", ClockFormatter.Read(At(14, 7), Utc(c => c.ShowDate = true), Locale.En).Date);
+        Assert.Null(ClockFormatter.Read(At(14, 7), Utc(c => c.ShowDate = false), Locale.En, use24Hour: true).Date);
+        Assert.Equal("Monday, March 9", ClockFormatter.Read(At(14, 7), Utc(c => c.ShowDate = true), Locale.En, use24Hour: true).Date);
     }
 
     [Fact]
     public void Hands_sweep_between_ticks_rather_than_stepping()
     {
-        var onTheHour = ClockFormatter.Read(At(3, 0), Utc(), Locale.En);
-        var halfPast = ClockFormatter.Read(At(3, 30), Utc(), Locale.En);
+        var onTheHour = ClockFormatter.Read(At(3, 0), Utc(), Locale.En, use24Hour: true);
+        var halfPast = ClockFormatter.Read(At(3, 30), Utc(), Locale.En, use24Hour: true);
 
         Assert.Equal(90, onTheHour.HourAngle, 3);
         Assert.Equal(105, halfPast.HourAngle, 3); // the hour hand has moved half a division
@@ -169,7 +169,7 @@ public class ClockFormatterTests
         {
             for (var minute = 0; minute < 60; minute += 7)
             {
-                var reading = ClockFormatter.Read(At(hour, minute, 33), Utc(), Locale.En);
+                var reading = ClockFormatter.Read(At(hour, minute, 33), Utc(), Locale.En, use24Hour: true);
 
                 Assert.InRange(reading.HourAngle, 0, 360);
                 Assert.InRange(reading.MinuteAngle, 0, 360);
@@ -186,7 +186,7 @@ public class ClockFormatterTests
         var zone = config.ResolveTimeZone();
 
         Assert.Equal(TimeZoneInfo.Local.Id, zone.Id);
-        _ = ClockFormatter.Read(DateTimeOffset.UtcNow, config, Locale.En);
+        _ = ClockFormatter.Read(DateTimeOffset.UtcNow, config, Locale.En, use24Hour: true);
     }
 
     [Fact]

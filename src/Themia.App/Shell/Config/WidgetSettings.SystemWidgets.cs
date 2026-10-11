@@ -9,71 +9,64 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// Settings rows for screen time (the GPU meter's are in <c>WidgetSettings.Gpu.cs</c>, the mixer's in
-/// <c>WidgetSettings.Mixer.cs</c>).
+/// Settings rows for the three screen-time widgets (the GPU meter's are in <c>WidgetSettings.Gpu.cs</c>,
+/// the mixer's in <c>WidgetSettings.Mixer.cs</c>).
 /// <para>
 /// Same shape as the rest of <see cref="WidgetSettings"/>: each control writes straight to the live
 /// config and saves, because the widget is on the desktop behind the window and watching it change
-/// is the point. What it shows first, then how it behaves, then how often it updates.
+/// is the point. Each page has its own widget's rows, then the limits and hidden apps every
+/// screen-time widget shares ([S-3322]), which write through the tracker rather than the config.
 /// </para>
 /// </summary>
 internal static partial class WidgetSettings
 {
-    public static void ScreenTime(List<FrameworkElement> rows, ScreenTimeConfig config, Action save)
+    /// <summary>[S-3330] The chart: a week or a month, as bars or a calendar; then the shared rows.</summary>
+    public static void ScreenTimeChart(List<FrameworkElement> rows, ScreenTimeChartConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.Widget_Screentime_Label.Text()));
+        rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Chart_Label.Text()));
 
-        // [S-451] Two axes: what is covered, and how it is drawn. Changing the period writes both,
-        // with the style clamped into the new period, so the pair stored is always drawable.
-        var style = new ComboBox { MinWidth = 150 };
-
-        void FillStyles()
-        {
-            style.Items.Clear();
-            var period = ScreenTimeRules.ClampPeriod(config.Period);
-            var current = ScreenTimeRules.ClampStyle(period, config.Style);
-
-            foreach (var option in ScreenTimeRules.StylesFor(period))
-            {
-                style.Items.Add(new ComboBoxItem { Content = StyleName(option), Tag = option });
-            }
-
-            style.SelectedIndex = ScreenTimeRules.StylesFor(period).ToList().IndexOf(current);
-        }
-
-        FillStyles();
-        style.SelectionChanged += (_, _) =>
-        {
-            if (style.SelectedItem is ComboBoxItem { Tag: ScreenTimeStyle chosen } && chosen != config.Style)
-            {
-                config.Style = chosen;
-                save();
-            }
-        };
-
-        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(), Str.WidgetsC_ScreenTime_Settings_Period_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(), Str.WidgetsC_ScreenTime_Settings_ChartPeriod_Desc.Text(),
             FluentLayout.Choice(
-                [(ScreenTimePeriod.Day, Str.Screentime_Cfg_PeriodDay.Text()), (ScreenTimePeriod.Week, Str.Screentime_Last7Days.Text()), (ScreenTimePeriod.Month, Str.Screentime_Last30Days.Text())],
-                ScreenTimeRules.ClampPeriod(config.Period),
-                value =>
-                {
-                    config.Period = value;
-                    config.Style = ScreenTimeRules.ClampStyle(value, config.Style);
-                    save();
-                    FillStyles();
-                })));
+                [(ScreenTimePeriod.Week, Str.Screentime_Last7Days.Text()), (ScreenTimePeriod.Month, Str.Screentime_Last30Days.Text())],
+                ScreenTimeRules.ChartPeriod(config.Period),
+                value => { config.Period = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Palette, Str.Screentime_Cfg_Style.Text(), Str.WidgetsC_ScreenTime_Settings_Style_Desc.Text(), style));
+        rows.Add(FluentLayout.Row(Glyphs.Palette, Str.Screentime_Cfg_Style.Text(), Str.WidgetsC_ScreenTime_Settings_ChartStyle_Desc.Text(),
+            FluentLayout.Choice(
+                [(ScreenTimeChartStyle.Bars, Str.Screentime_Cfg_StyleBars.Text()), (ScreenTimeChartStyle.Heatmap, Str.WidgetsC_ScreenTime_Settings_StyleCalendar.Text())],
+                ScreenTimeRules.ClampChartStyle(config.Style),
+                value => { config.Style = value; save(); })));
 
-        // [S-1211] The list is a switch; its length is a ceiling over what the tile has room for.
-        rows.Add(FluentLayout.Row(Glyphs.Apps, Str.WidgetsC_ScreenTime_Settings_List_Label.Text(), Str.WidgetsC_ScreenTime_Settings_List_Desc.Text(),
-            FluentLayout.Toggle(config.ShowList, value => { config.ShowList = value; save(); }),
-            "legend"));
+        AddShared(rows);
+    }
 
+    /// <summary>[S-3340] The donut: the period; then the shared rows.</summary>
+    public static void ScreenTimeDonut(List<FrameworkElement> rows, ScreenTimeDonutConfig config, Action save)
+    {
+        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(save);
+
+        rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Donut_Label.Text()));
+        rows.Add(PeriodRow(config.Period, value => { config.Period = value; save(); }));
+        AddShared(rows);
+    }
+
+    /// <summary>[S-3350] The app list: the period, how many apps, the figures beside each; then the shared rows.</summary>
+    public static void ScreenTimeApps(List<FrameworkElement> rows, ScreenTimeAppsConfig config, Action save)
+    {
+        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(save);
+
+        rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Apps_Label.Text()));
+        rows.Add(PeriodRow(config.Period, value => { config.Period = value; save(); }));
+
+        // [S-1211] A ceiling over what the tile has room for.
         rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsC_ScreenTime_Settings_Most_Label.Text(),
             Str.WidgetsC_ScreenTime_Settings_Most_Desc.Text(),
             FluentLayout.Slider(ScreenTimeRules.EffectiveMaxApps(config.MaxApps), 0, ScreenTimeRules.MaxAppsLimit, 1, string.Empty,
@@ -85,51 +78,83 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Hours, Str.Screentime_Metric_Average.Text(), Str.WidgetsC_ScreenTime_Settings_Average_Desc.Text(),
             FluentLayout.Toggle(config.ShowAverage, value => { config.ShowAverage = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Shuffle, Str.Screentime_Metric_Switches.Text(), Str.WidgetsC_ScreenTime_Settings_Switches_Desc.Text(),
-            FluentLayout.Toggle(config.ShowSwitches, value => { config.ShowSwitches = value; save(); })));
-
         rows.Add(FluentLayout.Row(Glyphs.Count, Str.Screentime_Metric_Percent.Text(), Str.WidgetsC_ScreenTime_Settings_Share_Desc.Text(),
             FluentLayout.Toggle(config.ShowPercent, value => { config.ShowPercent = value; save(); })));
 
-        AddLimits(rows, config, save);
-        AddHiddenApps(rows, config, save);
-
-        rows.Add(FluentLayout.Note(
-            Str.WidgetsC_ScreenTime_Settings_Privacy.Text()));
+        AddShared(rows);
     }
 
-    private static string StyleName(ScreenTimeStyle style) => style switch
+    /// <summary>[S-3321] One day, or a rolling window that ends today.</summary>
+    private static Border PeriodRow(ScreenTimePeriod period, Action<ScreenTimePeriod> changed)
+        => FluentLayout.Row(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(), Str.WidgetsC_ScreenTime_Settings_Period_Desc.Text(),
+            FluentLayout.Choice(
+                [(ScreenTimePeriod.Day, Str.Screentime_Cfg_PeriodDay.Text()), (ScreenTimePeriod.Week, Str.Screentime_Last7Days.Text()), (ScreenTimePeriod.Month, Str.Screentime_Last30Days.Text())],
+                ScreenTimeRules.ClampPeriod(period),
+                changed));
+
+    /// <summary>
+    /// [S-3322] The limits and the hidden apps, on every screen-time widget's page: one set for the
+    /// machine, edited from whichever page is open, saved with the history by the tracker.
+    /// </summary>
+    private static void AddShared(List<FrameworkElement> rows)
     {
-        ScreenTimeStyle.Doughnut => Str.Screentime_Cfg_StyleDoughnut.Text(),
-        ScreenTimeStyle.Bars => Str.Screentime_Cfg_StyleBars.Text(),
-        ScreenTimeStyle.Heatmap => Str.WidgetsC_ScreenTime_Settings_StyleCalendar.Text(),
-        _ => Str.Screentime_Cfg_StyleNone.Text(),
-    };
+        rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Settings_Limits.Text()));
+
+        if (AppServices.ScreenTime is not { } source)
+        {
+            rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_NotRecording.Text()));
+            rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_Settings_Privacy.Text()));
+            return;
+        }
+
+        rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_Settings_Shared.Text()));
+        AddLimits(rows, source);
+        AddHiddenApps(rows, source);
+        rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_Settings_Privacy.Text()));
+    }
 
     /// <summary>
     /// [S-457] Daily limits, edited in quarter hours and stored in seconds. A limit of zero is no
     /// limit at all, never one that everything instantly exceeds.
     /// </summary>
-    private static void AddLimits(List<FrameworkElement> rows, ScreenTimeConfig config, Action save)
+    private static void AddLimits(List<FrameworkElement> rows, IScreenTimeSource source)
     {
-        rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Settings_Limits.Text()));
-
         rows.Add(FluentLayout.Row(Glyphs.Timer, Str.WidgetsC_ScreenTime_DailyLimit.Text(), Str.WidgetsC_ScreenTime_Settings_DailyLimit_Desc.Text(),
-            FluentLayout.Slider(Math.Clamp(config.GoalSeconds / 60, 0, 1440), 0, 1440, 15, Str.WidgetsC_Pomodoro_MinutesUnit.Text(),
-                value => { config.GoalSeconds = (int)Math.Round(value) * 60; save(); })));
+            FluentLayout.Slider(Math.Clamp(source.Preferences.GoalSeconds / 60, 0, 1440), 0, 1440, 15, Str.WidgetsC_Pomodoro_MinutesUnit.Text(),
+                value =>
+                {
+                    var next = source.Preferences.Copy();
+                    next.GoalSeconds = (long)Math.Round(value) * 60;
+                    source.SetPreferences(next);
+                })));
 
         // The apps the history knows, so a limit is picked rather than typed and mistyped.
         var known = KnownApps();
 
+        // The editor works on rows; every change writes the whole set back through the tracker.
+        var limits = source.Preferences.AppLimits
+            .OrderBy(limit => limit.Key, StringComparer.Ordinal)
+            .Select(limit => new ScreenTimeAppLimit { App = limit.Key, Seconds = (int)Math.Min(int.MaxValue, limit.Value) })
+            .ToList();
+
+        void Save()
+        {
+            var current = source.Preferences;
+            source.SetPreferences(ScreenTimePreferences.From(
+                current.Hidden,
+                current.GoalSeconds,
+                limits.Select(limit => new KeyValuePair<string, long>(limit.App, limit.Seconds))));
+        }
+
         FluentLayout.ListEditor(rows, new ListEditorOptions<ScreenTimeAppLimit>
         {
-            Items = config.AppLimits,
-            Save = save,
+            Items = limits,
+            Save = Save,
             EmptyText = Str.WidgetsC_ScreenTime_Settings_NoAppLimits.Text(),
             AddTitle = Str.WidgetsC_ScreenTime_Settings_LimitApp.Text(),
             AddAction = Str.Common_Add.Text(),
             Create = () => new ScreenTimeAppLimit { App = known.Count > 0 ? known[0].App : string.Empty, Seconds = 3600 },
-            Body = limit => LimitEditor(limit, known, save),
+            Body = limit => LimitEditor(limit, known, Save),
         });
     }
 
@@ -166,10 +191,10 @@ internal static partial class WidgetSettings
     }
 
     /// <summary>
-    /// [S-455] The apps hidden from this widget, each with a way back. The keys are all the config
-    /// holds — no durations, no dates.
+    /// [S-455] [S-3322] The apps hidden from every screen-time widget, each with a way back. Keys
+    /// only: no durations, no dates.
     /// </summary>
-    private static void AddHiddenApps(List<FrameworkElement> rows, ScreenTimeConfig config, Action save)
+    private static void AddHiddenApps(List<FrameworkElement> rows, IScreenTimeSource source)
     {
         rows.Add(FluentLayout.Header(Str.Screentime_Cfg_Hidden.Text()));
 
@@ -182,19 +207,20 @@ internal static partial class WidgetSettings
         {
             host.Children.Clear();
 
-            if (config.HiddenApps.Count == 0)
+            if (source.Preferences.Hidden.Count == 0)
             {
                 host.Children.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_Settings_NoHidden.Text()));
                 return;
             }
 
-            foreach (var key in config.HiddenApps.ToList())
+            foreach (var key in source.Preferences.Hidden.Order(StringComparer.Ordinal).ToList())
             {
                 var show = FluentLayout.IconCommand(Glyphs.View, Str.WidgetsC_ScreenTime_Settings_ShowAgain.Text());
                 show.Click += (_, _) =>
                 {
-                    config.HiddenApps.Remove(key);
-                    save();
+                    var next = source.Preferences.Copy();
+                    next.Hidden.Remove(key);
+                    source.SetPreferences(next);
                     Rebuild();
                 };
 

@@ -117,7 +117,15 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     }
 
     /// <summary>The language changed: the days are rebuilt from the forecast in hand.</summary>
-    private void OnLanguage(Locale locale) => Render();
+    /// <para>
+    /// [S-3770] [S-3780] It is also how a change to the shared temperature scale or cadence arrives:
+    /// the reading is asked for again under the new scale (the sync holds both, keyed apart).
+    /// </para>
+    private void OnLanguage(Locale locale)
+    {
+        Resubscribe();
+        Reload(force: false);
+    }
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface)
@@ -138,7 +146,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         // precipitation column or the layout redraws the days already in hand.
         var placeChanged = previous.Latitude != next.Latitude
             || previous.Longitude != next.Longitude
-            || previous.Unit != next.Unit
             || previous.EffectiveDays != next.EffectiveDays;
 
         if (placeChanged)

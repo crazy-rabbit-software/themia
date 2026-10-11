@@ -14,9 +14,10 @@ using Windows.Foundation;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The chart and what sits around it: the trace (solid in session, dashed outside it [S-1308]),
-/// the optional fill and high/low markers [S-1310], the price axis, the times under it in the
-/// exchange's zone [S-1309] and the pointer readout [S-1311].
+/// The chart and what is written on it: the trace (solid in session, dashed outside it [S-1308]),
+/// the optional fill and high/low markers [S-1310], the start and end times in the exchange's zone
+/// [S-1309] inside its bottom band, and the pointer readout [S-1311]. Full-bleed: edge to edge and
+/// down to the card's bottom edge, whose rounded corners clip it.
 /// </summary>
 internal sealed partial class StocksView
 {
@@ -28,12 +29,9 @@ internal sealed partial class StocksView
     private readonly Border _probe = new() { Visibility = Visibility.Collapsed, Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0) };
     private readonly TextBlock _probeText = Fluent.Text(FluentType.Caption);
 
-    private readonly Grid _labels = new();
-    private readonly TextBlock[] _labelTexts = [
-        Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush"),
-        Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush"),
-        Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush"),
-    ];
+    private readonly Grid _labels = new() { IsHitTestVisible = false, VerticalAlignment = VerticalAlignment.Bottom };
+    private readonly TextBlock _startTime = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+    private readonly TextBlock _endTime = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
 
     /// <summary>Where each bar was drawn, for the pointer readout.</summary>
     private readonly List<Point> _drawn = [];
@@ -52,6 +50,7 @@ internal sealed partial class StocksView
         _overlay.Children.Add(_probe);
 
         _chart.Children.Add(_canvas);
+        _chart.Children.Add(_labels);
         _chart.Children.Add(_overlay);
 
         // The chart's own surface takes the pointer for the readout; the rest of the card is still
@@ -62,28 +61,24 @@ internal sealed partial class StocksView
         _chart.PointerExited += OnChartPointerGone;
         _chart.PointerCanceled += OnChartPointerGone;
 
-        for (var i = 0; i < 3; i++)
-        {
-            _labels.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            SetColumn(_labelTexts[i], i);
-            _labels.Children.Add(_labelTexts[i]);
-        }
-
-        _labelTexts[1].HorizontalAlignment = HorizontalAlignment.Center;
-        _labelTexts[2].HorizontalAlignment = HorizontalAlignment.Right;
-        _labels.Margin = new Thickness(StockLayout.Inset, StockLayout.Gap, StockLayout.Inset, Fluent.Space1);
+        // [S-1311] The start and end times, over the fill in the chart's bottom band, lined up with
+        // the text above; the trace's band keeps clear of them (StockChartLabels.Band).
+        _endTime.HorizontalAlignment = HorizontalAlignment.Right;
+        _labels.Children.Add(_startTime);
+        _labels.Children.Add(_endTime);
+        _labels.Margin = new Thickness(StockLayout.Inset, 0, StockLayout.Inset, StockChartLabels.TimesBottom);
     }
 
-    /// <summary>[S-1309] Start and end (and middle) times under the chart, in the exchange's zone.</summary>
-    private void UpdateLabels(TickerQuote quote, StockPlan plan)
+    /// <summary>[S-1309] [S-1311] The start and end times, only those, in the exchange's zone.</summary>
+    private void UpdateLabels(TickerQuote quote)
     {
-        var labels = ExchangeTime.Labels(quote.Bars, quote.ExchangeOffset, _config.Range, DateTimeOffset.Now.Offset, plan.MiddleLabel);
+        var labels = ExchangeTime.Labels(quote.Bars, quote.ExchangeOffset, _config.Range, DateTimeOffset.Now.Offset);
 
-        _labelTexts[0].Text = labels.Count > 0 ? labels[0] : string.Empty;
-        _labelTexts[1].Text = labels.Count == 3 ? labels[1] : string.Empty;
-        _labelTexts[2].Text = labels.Count > 0 ? labels[^1] : string.Empty;
+        _startTime.Text = labels.Count > 0 ? labels[0] : string.Empty;
+        _endTime.Text = labels.Count > 0 ? labels[^1] : string.Empty;
 
-        ToolTipService.SetToolTip(_labels, ExchangeTime.ZoneNote(quote.ZoneName));
+        // The labels take no pointer (the chart's readout does), so the zone is the chart's tooltip.
+        ToolTipService.SetToolTip(_chart, ExchangeTime.ZoneNote(quote.ZoneName));
     }
 
     private void OnChartSizeChanged(object sender, SizeChangedEventArgs args) => RedrawChart();
@@ -113,11 +108,12 @@ internal sealed partial class StocksView
 
         var scaled = MarketQuote.Normalise(MarketQuote.Closes(bars));
 
-        // Inset by the stroke width so the period's high and low are not clipped in half at the
-        // edges, and by a caption line when the high/low labels need room above and below.
+        // [S-1310] [S-1311] The trace keeps clear of what is written on the chart: the high/low
+        // prices above and below it, the times under that. The fill still reaches the bottom edge.
         var markers = _plan.MinMax;
-        var pad = markers ? FluentType.Caption.LineHeight : Fluent.ChartStroke;
-        var usable = Math.Max(1, height - (2 * pad));
+        var band = StockChartLabels.Band(height, markers, _plan.Labels);
+        var pad = band.Top;
+        var usable = band.Usable;
 
         for (var i = 0; i < scaled.Count; i++)
         {
@@ -127,20 +123,18 @@ internal sealed partial class StocksView
             _drawn.Add(new Point(x, y));
         }
 
-        if (_config.ShowAreaFill)
+        // [S-1310] The area under the trace is always filled: the trend reads at a glance.
+        var fill = new PointCollection { new(_drawn[0].X, height) };
+
+        foreach (var point in _drawn)
         {
-            var fill = new PointCollection { new(_drawn[0].X, height) };
-
-            foreach (var point in _drawn)
-            {
-                fill.Add(point);
-            }
-
-            fill.Add(new Point(_drawn[^1].X, height));
-            _fill.Points = fill;
-            _fill.Fill = _direction;
-            _canvas.Children.Add(_fill);
+            fill.Add(point);
         }
+
+        fill.Add(new Point(_drawn[^1].X, height));
+        _fill.Points = fill;
+        _fill.Fill = _direction;
+        _canvas.Children.Add(_fill);
 
         // [S-1308] Solid inside the regular session, dashed and fainter outside it.
         foreach (var (from, to, extended) in MarketQuote.Segments(bars, quote.HasPrePost ? quote.Sessions : null))
@@ -176,30 +170,11 @@ internal sealed partial class StocksView
             marked.Add(new ChartMarker(_drawn[extremes.Low].X, _drawn[extremes.Low].Y, MarketQuote.Price(bars[extremes.Low].Close, quote.PriceHint), Above: false));
         }
 
-        string[] axis = [];
-
-        if (_plan.Axis)
-        {
-            var closes = MarketQuote.Closes(bars);
-            var low = closes.Min();
-            var high = closes.Max();
-            axis = [MarketQuote.Price(high, quote.PriceHint), MarketQuote.Price((high + low) / 2, quote.PriceHint), MarketQuote.Price(low, quote.PriceHint)];
-        }
-
-        // [S-1310] An axis label a marker's price would overlap is left out ([S-1311]).
-        var labels = StockChartLabels.Place(width, height, pad, usable, marked, axis);
+        var boxes = StockChartLabels.Place(width, marked);
 
         for (var i = 0; i < marked.Count; i++)
         {
-            Marker(marked[i], labels.Markers[i]);
-        }
-
-        for (var i = 0; i < axis.Length; i++)
-        {
-            if (labels.Axis[i] is { } box)
-            {
-                AxisLabel(axis[i], box, width);
-            }
+            Marker(marked[i], boxes[i]);
         }
     }
 
@@ -217,19 +192,6 @@ internal sealed partial class StocksView
         Canvas.SetLeft(label, box.Left);
         Canvas.SetTop(label, box.Top);
         _canvas.Children.Add(label);
-    }
-
-    /// <summary>[S-1311] One price of the axis (high, middle or low) at the chart's right edge.</summary>
-    private void AxisLabel(string value, LabelBox box, double width)
-    {
-        const double Box = 96;
-        var text = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        text.Text = value;
-        text.TextAlignment = TextAlignment.Right;
-        text.Width = Box;
-        Canvas.SetLeft(text, width - Box - StockLayout.Inset);
-        Canvas.SetTop(text, box.Top);
-        _canvas.Children.Add(text);
     }
 
     /// <summary>[S-1311] On a large tile, the pointer over the chart reads the bar under it: time and price.</summary>

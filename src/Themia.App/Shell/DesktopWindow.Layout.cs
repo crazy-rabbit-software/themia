@@ -27,8 +27,8 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>Top margin of the edit toolbar and the placement hint, below the top of the work area.</summary>
-    private const double ChromeTopMargin = 24;
+    /// <summary>[S-3500] The edit bar's and the placement line's gap under the top of the work area: 8 DIPs, as Karpo's edit bar.</summary>
+    private const double ChromeTopMargin = Fluent.Space2;
 
     /// <summary>The rasterization scale the last layout ran at, to tell a DPI change from any other root change.</summary>
     private double _laidOutScale;
@@ -68,6 +68,8 @@ internal sealed partial class DesktopWindow
         {
             card.ApplySelection();
         }
+
+        SyncSelectionGroup();
     }
 
     private void OnStateChanged()

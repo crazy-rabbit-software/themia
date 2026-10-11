@@ -63,7 +63,7 @@ public sealed class IcsEventsTests
 
         var bare = Assert.Single(Read(Wrap("BEGIN:VEVENT\r\nUID:c\r\nDTSTART;VALUE=DATE:20260605\r\nEND:VEVENT\r\n")));
         Assert.Equal(new DateOnly(2026, 6, 6), bare.EndDay);
-        Assert.Equal("(no title)", bare.Subject);
+        Assert.Equal(string.Empty, bare.Subject); // [S-3612] untitled: the widget words it
     }
 
     [Fact]

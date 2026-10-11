@@ -5,6 +5,11 @@ namespace Themia.Core.Widgets;
 /// <summary>One sample of the chart: when (epoch seconds) and the price then.</summary>
 public readonly record struct QuoteBar(long Time, double Close);
 
+/// <summary>[S-2775] The chart series and the change, on one baseline (<see cref="MarketQuote.Trace"/>).</summary>
+/// <param name="Bars">The series, starting at the baseline.</param>
+/// <param name="ChangePercent">The price against that baseline, or null without one.</param>
+public readonly record struct QuoteTrace(IReadOnlyList<QuoteBar> Bars, double? ChangePercent);
+
 /// <summary>[S-1308] The last pre-market or after-hours print, against the regular close.</summary>
 /// <param name="Price">The extended-session price.</param>
 /// <param name="ChangePercent">Its move against the regular session's close.</param>
@@ -20,10 +25,10 @@ public readonly record struct ExtendedPrints(ExtendedPrint? Pre, ExtendedPrint? 
 /// <param name="Symbol">The symbol as asked for.</param>
 /// <param name="Name">The service's own name for it, or empty.</param>
 /// <param name="Price">The last regular-session price, in <paramref name="Currency"/>.</param>
-/// <param name="ChangePercent">The move against the previous close, or null when there is no baseline.</param>
+/// <param name="ChangePercent">The move against the range's baseline, where the chart starts ([S-2775]), or null without one.</param>
 /// <param name="Currency">ISO code; USD for crypto, since that is what is asked for.</param>
 /// <param name="PriceHint">The venue's tick precision, when it sent one.</param>
-/// <param name="Bars">The chart series, oldest first, every unusable sample dropped, times kept.</param>
+/// <param name="Bars">The chart series, oldest first, every unusable sample dropped, times kept; its first point is the baseline ([S-2775]).</param>
 /// <param name="Sessions">Today's trading windows, when the service sent a usable schedule.</param>
 public sealed record TickerQuote(
     string Symbol,

@@ -384,6 +384,17 @@ public sealed class AppStateStore : IAsyncDisposable
                 repairs.Add($"view '{view.Id}' had an icon that is not a single glyph");
             }
 
+            // [S-3811] A colour that does not parse draws the icon in the theme's colour, loudly.
+            if (ViewOps.CleanColor(view.Color) is var color && color != view.Color)
+            {
+                if (color is null && !string.IsNullOrWhiteSpace(view.Color))
+                {
+                    repairs.Add($"view '{view.Id}' had a colour that is not #RRGGBB; it uses the theme's");
+                }
+
+                view.Color = color;
+            }
+
             view.Widgets ??= [];
             repairs.AddRange(ValidateWidgets(view));
         }
@@ -409,7 +420,7 @@ public sealed class AppStateStore : IAsyncDisposable
         return repairs;
     }
 
-    /// <summary>[S-702] The behaviour switches: only the language is a closed set that can be out of range.</summary>
+    /// <summary>[S-702] The behaviour switches: the language, the regional formats and the update cadences can be out of range.</summary>
     private static List<string> ValidatePreferences(AppState state)
     {
         var repairs = new List<string>();
@@ -428,6 +439,21 @@ public sealed class AppStateStore : IAsyncDisposable
             repairs.Add("unknown language; following Windows");
         }
 
+        // [S-3772] [S-3781] The shared formats and cadences: a hand-edited null is the defaults.
+        if (state.Preferences.Region is null)
+        {
+            state.Preferences.Region = new RegionPreferences();
+            repairs.Add("region formats were null; following Windows");
+        }
+
+        if (state.Preferences.Refresh is null)
+        {
+            state.Preferences.Refresh = new RefreshPreferences();
+            repairs.Add("refresh cadences were null; reset to defaults");
+        }
+
+        repairs.AddRange(state.Preferences.Region.Repair());
+        repairs.AddRange(Sync.UpdateCadence.Repair(state.Preferences.Refresh));
         return repairs;
     }
 

@@ -9,7 +9,6 @@ public enum EditCommand
     Copy,
     Cut,
     Paste,
-    Duplicate,
     Undo,
     Redo,
 
@@ -108,7 +107,6 @@ public static class EditKeys
     private const int Vk9 = 0x39;
     private const int VkA = 0x41;
     private const int VkC = 0x43;
-    private const int VkD = 0x44;
     private const int VkV = 0x56;
     private const int VkX = 0x58;
     private const int VkY = 0x59;
@@ -139,7 +137,6 @@ public static class EditKeys
                 VkC when !shift => new(EditCommand.Copy),
                 VkX when !shift => new(EditCommand.Cut),
                 VkV when !shift => new(EditCommand.Paste),
-                VkD when !shift => new(EditCommand.Duplicate),
                 VkA when !shift => new(EditCommand.SelectAll),
                 VkZ => new(shift ? EditCommand.Redo : EditCommand.Undo),
                 VkY when !shift => new(EditCommand.Redo),

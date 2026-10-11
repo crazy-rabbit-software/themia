@@ -7,12 +7,12 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-2400] The detail widgets' pages: each kind's own rows, then the refresh every detail widget
-/// has. No "which facts" switches: the tile shows more as it grows ([S-2402]), as the meters do.
+/// [S-2400] The detail widgets' pages: each kind's own rows. No refresh ([S-3793]: each kind reads
+/// at its own cadence) and no "which facts" switches: the tile shows more as it grows ([S-2402]).
 /// </summary>
 internal static partial class WidgetSettings
 {
-    /// <summary>The CPU, memory and battery details have nothing to choose but how often they read.</summary>
+    /// <summary>The CPU, memory and battery details have nothing to choose: their page is the card's own rows.</summary>
     public static void Details(List<FrameworkElement> rows, DetailConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
@@ -42,11 +42,6 @@ internal static partial class WidgetSettings
             default:
                 break;
         }
-
-        // [S-2401] The refresh, in seconds, within the kind's own range.
-        FluentLayout.RefreshSeconds(rows, Str.Details_Settings_Refresh.Text(), config.EffectiveIntervalSeconds,
-            config.MinIntervalSeconds, config.MaxIntervalSeconds, 1,
-            value => { config.IntervalSeconds = value; save(); });
     }
 
     /// <summary>[S-2411]..[S-2413] Rank by, how many rows, and whether a program's processes are one row.</summary>
@@ -54,7 +49,7 @@ internal static partial class WidgetSettings
     {
         rows.Add(FluentLayout.Header(Str.Details_Catalog_Processes_Label.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Sort, Str.Details_Settings_Processes_Sort_Label.Text(), Str.Details_Settings_Processes_Sort_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Sort, Str.Details_Settings_Processes_Sort_Label.Text(), null,
             FluentLayout.Choice(
                 [(ProcessSort.Cpu, Str.Details_Settings_Processes_Sort_Cpu.Text()), (ProcessSort.Memory, Str.Details_Settings_Processes_Sort_Memory.Text())],
                 config.SortBy,
@@ -127,12 +122,11 @@ internal static partial class WidgetSettings
         }
     }
 
-    /// <summary>[S-2426] [S-2427] The host and its name, as the ping meter's page has them, then the window.</summary>
+    /// <summary>[S-2426] [S-2427] The host, as the ping meter's page has it, then the window.</summary>
     private static void PingDetailRows(List<FrameworkElement> rows, PingDetailsConfig config, Action save)
     {
         rows.Add(FluentLayout.Header(Str.Details_Catalog_Ping_Label.Text()));
         AddHostRow(rows, () => config.Host, value => config.Host = value, save);
-        AddLabelRow(rows, () => config.HostLabel, value => config.HostLabel = value, save);
 
         int[] windows = [10, 30, 60, 120, 300];
         var current = windows.Contains(config.EffectiveWindow) ? config.EffectiveWindow : 60;

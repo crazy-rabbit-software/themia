@@ -50,9 +50,24 @@ internal static class BluetoothInventory
     /// <summary>[S-1256] The device's address, to match an LE advertisement to a paired device.</summary>
     private const string AddressProperty = "System.Devices.Aep.DeviceAddress";
 
-    private static readonly string[] RequestedProperties = [ConnectedProperty];
+    /// <summary>[S-3252] The association endpoint's device container: where its battery is found.</summary>
+    private const string AepContainerProperty = "System.Devices.Aep.ContainerId";
 
-    private static readonly string[] SignalProperties = [ConnectedProperty, SignalProperty, AddressProperty];
+    /// <summary>[S-3252] A device node's container, to match it back to the paired device.</summary>
+    private const string NodeContainerProperty = "System.Devices.ContainerId";
+
+    /// <summary>
+    /// [S-3252] <c>DEVPKEY_Bluetooth_Battery</c>: the level Windows itself shows in Settings, set on a
+    /// device node of the container for hands-free (HFP) headsets and the LE devices Windows reads
+    /// itself. Requested by GUID and property id: it has no canonical name.
+    /// </summary>
+    private const string BatteryProperty = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
+
+    private static readonly string[] RequestedProperties = [ConnectedProperty, AepContainerProperty];
+
+    private static readonly string[] SignalProperties = [ConnectedProperty, AepContainerProperty, SignalProperty, AddressProperty];
+
+    private static readonly string[] NodeProperties = [BatteryProperty, NodeContainerProperty];
 
     /// <summary>
     /// [S-1256] How long the LE scan for signal readings listens. Bounded, and run only while the
@@ -86,17 +101,20 @@ internal static class BluetoothInventory
         {
             var found = new List<BluetoothDeviceEntry>();
 
+            // [S-3252] Each entry's device container, by index, for the battery pass.
+            var containers = new List<Guid?>();
+
             var addresses = new Dictionary<int, ulong>();
 
             found.AddRange(await EnumerateAsync(
-                BluetoothDevice.GetDeviceSelectorFromPairingState(true), withSignal, null, token).ConfigureAwait(false));
+                BluetoothDevice.GetDeviceSelectorFromPairingState(true), withSignal, null, containers, token).ConfigureAwait(false));
 
             found.AddRange(await EnumerateAsync(
-                BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), withSignal, (found.Count, addresses), token).ConfigureAwait(false));
+                BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), withSignal, (found.Count, addresses), containers, token).ConfigureAwait(false));
 
             if (withBattery)
             {
-                await AddBatteryLevelsAsync(found, token).ConfigureAwait(false);
+                found = await AddBatteryLevelsAsync(found, containers, token).ConfigureAwait(false);
             }
 
             if (withSignal && addresses.Count > 0)
@@ -167,12 +185,14 @@ internal static class BluetoothInventory
     /// <summary>
     /// One selector's worth of devices, with no battery levels yet. With <paramref name="le"/>, the
     /// LE entries' addresses are noted by their index in the combined list (offset by the entries
-    /// already found) for the advertisement scan.
+    /// already found) for the advertisement scan. Each entry's device container is appended to
+    /// <paramref name="containers"/>, in step with the entries.
     /// </summary>
     private static async Task<List<BluetoothDeviceEntry>> EnumerateAsync(
         string selector,
         bool withSignal,
         (int Offset, Dictionary<int, ulong> Addresses)? le,
+        List<Guid?> containers,
         CancellationToken token)
     {
         var devices = new List<BluetoothDeviceEntry>();
@@ -189,6 +209,8 @@ internal static class BluetoothInventory
             var connected = info.Properties.TryGetValue(ConnectedProperty, out var value)
                 && value is bool flag
                 && flag;
+
+            containers.Add(info.Properties.TryGetValue(AepContainerProperty, out var box) && box is Guid container ? container : null);
 
             int? signal = null;
 
@@ -290,22 +312,36 @@ internal static class BluetoothInventory
     }
 
     /// <summary>
-    /// Fill in the battery level for the connected devices, within a budget.
+    /// [S-3252] Fill in the battery level for the connected devices: first the level Windows already
+    /// holds (<see cref="BatteryProperty"/>, one local query, no radio traffic), then, within a
+    /// budget, a GATT read for a connected LE device the property left without one.
     /// <para>
     /// Connected only. A disconnected device's GATT read does not fail — it waits for the radio to
     /// find the device, which takes the better part of ten seconds per device and would turn a
     /// refresh into a minute of blocked background work for a list nobody can act on anyway.
     /// </para>
     /// </summary>
-    private static async Task AddBatteryLevelsAsync(List<BluetoothDeviceEntry> devices, CancellationToken token)
+    private static async Task<List<BluetoothDeviceEntry>> AddBatteryLevelsAsync(List<BluetoothDeviceEntry> found, List<Guid?> containers, CancellationToken token)
     {
+        var wanted = new HashSet<Guid>();
+        for (var i = 0; i < found.Count && i < containers.Count; i++)
+        {
+            if (found[i].Connected && containers[i] is { } container && container != Guid.Empty)
+            {
+                wanted.Add(container);
+            }
+        }
+
+        var batteries = await BatteryByContainerAsync(wanted, token).ConfigureAwait(false);
+        var devices = BluetoothRules.WithBattery(found, containers, batteries);
+
         var deadline = DateTimeOffset.UtcNow + BatteryBudget;
 
         for (var i = 0; i < devices.Count; i++)
         {
             token.ThrowIfCancellationRequested();
 
-            if (!devices[i].Connected)
+            if (!devices[i].Connected || devices[i].BatteryPercent is not null)
             {
                 continue;
             }
@@ -313,15 +349,54 @@ internal static class BluetoothInventory
             if (DateTimeOffset.UtcNow >= deadline)
             {
                 Log.Debug(Scope, "battery pass ran out of budget; the rest of the list shows no battery");
-                return;
+                return devices;
             }
 
             var percent = await BatteryPercentAsync(devices[i].Id, token).ConfigureAwait(false);
 
-            if (percent is not null)
+            if (BluetoothRules.ParseBattery(percent) is { } valid)
             {
-                devices[i] = devices[i] with { BatteryPercent = percent };
+                devices[i] = devices[i] with { BatteryPercent = valid };
             }
+        }
+
+        return devices;
+    }
+
+    /// <summary>
+    /// [S-3252] The battery Windows holds for each of <paramref name="containers"/>, read from the
+    /// device nodes of those containers in one query. A failed query is no batteries (logged), never
+    /// a failed list: the devices are still there.
+    /// </summary>
+    private static async Task<Dictionary<Guid, int>> BatteryByContainerAsync(HashSet<Guid> containers, CancellationToken token)
+    {
+        if (containers.Count == 0)
+        {
+            return [];
+        }
+
+        // Ids come from Windows as Guids and are formatted here, so nothing outside reaches the query.
+        var aqs = string.Join(" OR ", containers.Select(id => $"{NodeContainerProperty}:=\"{id:B}\""));
+
+        try
+        {
+            var nodes = await DeviceInformation
+                .FindAllAsync(aqs, NodeProperties, DeviceInformationKind.Device)
+                .AsTask(token)
+                .ConfigureAwait(false);
+
+            return BluetoothRules.BatteryByContainer(nodes.Select(node => (
+                node.Properties.TryGetValue(NodeContainerProperty, out var box) && box is Guid container ? container : (Guid?)null,
+                node.Properties.TryGetValue(BatteryProperty, out var raw) ? raw : null)));
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(Scope, "could not read the battery property of the paired devices", ex);
+            return [];
         }
     }
 
@@ -344,8 +419,8 @@ internal static class BluetoothInventory
 
             if (device is null)
             {
-                // Not an LE device. Classic devices report battery over HFP, which Windows does not
-                // expose, so there is genuinely nothing to read.
+                // Not an LE device. A Classic device's battery (HFP) is the device property's, read
+                // before this; there is no GATT to ask.
                 return null;
             }
 

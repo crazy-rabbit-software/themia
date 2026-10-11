@@ -12,8 +12,9 @@ using Glyphs = Themia.App.Shell.Glyphs;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-440] Per-application volume, as the Windows volume mixer lays it out: the device's master level
-/// on top, then one row per app with its icon, its name, a slider, a live meter and a mute button.
+/// [S-440] Per-application volume, as the Windows volume mixer lays it out: one row per app with its
+/// icon, its name, a slider, a live meter and a mute button. No master row and no device name
+/// ([S-3251]): the device's own level is the volume tile's.
 /// <para>
 /// [S-1227]..[S-1229] A ladder, not one layout scaled: rows are compact (icon, mute), two
 /// lines or one line by width, and the list takes the whole rows that fit — the rest scroll, never
@@ -192,19 +193,15 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             return;
         }
 
-        var options = new MixerRowOptions(_config.ShowMaster, _config.ShowSystemSounds, _config.OnlyActive);
+        var options = new MixerRowOptions(_config.ShowSystemSounds, _config.OnlyActive);
         var grouped = MixerRules.Group(snapshot.Sessions, _config.GroupByApp);
-        var main = MixerRules.BuildRows(grouped, snapshot.Master, options);
+        var main = MixerRules.BuildRows(grouped, options);
         var quiet = MixerRules.QuietRows(grouped, options);
 
         // [S-446] Keep each dragged level until a snapshot confirms it or its row is gone.
-        var all = new List<MixerRow>(main.Count + quiet.Count + 1);
+        var all = new List<MixerRow>(main.Count + quiet.Count);
         all.AddRange(main);
         all.AddRange(quiet);
-        if (snapshot.Master is { } master)
-        {
-            all.Add(new MixerRow(MixerRules.MasterKey, string.Empty, null, master.Level, master.Muted, true, false, 0));
-        }
 
         _overrides = MixerRules.ReconcileOverrides(_overrides, all);
         main = MixerRules.ApplyOverrides(main, _overrides);
@@ -277,7 +274,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
                 // [S-1228] An app holding a session but silent reads as such, and the quiet rows
                 // under the list always do.
-                visual.Show(row, _config.ShowIcons, dimmed: i >= mainCount || (!row.Active && !row.IsMaster && !row.IsSystem), _peaksOn);
+                visual.Show(row, _config.ShowIcons, dimmed: i >= mainCount || (!row.Active && !row.IsSystem), _peaksOn);
                 visual.ShowPeak(_peaksOn ? _peaks : AudioPeaks.Silent);
             }
             else
@@ -446,8 +443,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         _focused = null;
     }
 
-    private static string RowName(MixerRow row) => row.IsMaster ? Str.WidgetsB_Mixer_Master.Text()
-        : row.IsSystem ? Str.Mixer_SystemSounds.Text()
+    private static string RowName(MixerRow row) => row.IsSystem ? Str.Mixer_SystemSounds.Text()
         : row.Name.Length > 0 ? row.Name
         : Str.Mixer_UnknownApp.Text();
 

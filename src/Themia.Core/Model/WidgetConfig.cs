@@ -17,7 +17,11 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(NetworkConfig), typeDiscriminator: "network")]
 [JsonDerivedType(typeof(PingConfig), typeDiscriminator: "ping")]
 [JsonDerivedType(typeof(ContactsConfig), typeDiscriminator: "contacts")]
-[JsonDerivedType(typeof(CalendarConfig), typeDiscriminator: "calendar")]
+[JsonDerivedType(typeof(MonthCalendarConfig), typeDiscriminator: "monthCalendar")]
+[JsonDerivedType(typeof(WeekCalendarConfig), typeDiscriminator: "weekCalendar")]
+[JsonDerivedType(typeof(DayCalendarConfig), typeDiscriminator: "dayCalendar")]
+[JsonDerivedType(typeof(YearCalendarConfig), typeDiscriminator: "yearCalendar")]
+[JsonDerivedType(typeof(AgendaConfig), typeDiscriminator: "agenda")]
 [JsonDerivedType(typeof(TasksConfig), typeDiscriminator: "tasks")]
 [JsonDerivedType(typeof(NotesConfig), typeDiscriminator: "notes")]
 [JsonDerivedType(typeof(CountdownConfig), typeDiscriminator: "countdown")]
@@ -49,7 +53,9 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(VideoStreamConfig), typeDiscriminator: "videoStream")]
 [JsonDerivedType(typeof(GpuConfig), typeDiscriminator: "gpu")]
 [JsonDerivedType(typeof(MixerConfig), typeDiscriminator: "mixer")]
-[JsonDerivedType(typeof(ScreenTimeConfig), typeDiscriminator: "screenTime")]
+[JsonDerivedType(typeof(ScreenTimeChartConfig), typeDiscriminator: "screenTimeChart")]
+[JsonDerivedType(typeof(ScreenTimeDonutConfig), typeDiscriminator: "screenTimeDonut")]
+[JsonDerivedType(typeof(ScreenTimeAppsConfig), typeDiscriminator: "screenTimeApps")]
 [JsonDerivedType(typeof(CpuDetailsConfig), typeDiscriminator: "cpuDetails")]
 [JsonDerivedType(typeof(MemoryDetailsConfig), typeDiscriminator: "memoryDetails")]
 [JsonDerivedType(typeof(TopProcessesConfig), typeDiscriminator: "topProcesses")]
@@ -76,7 +82,12 @@ public abstract class WidgetConfig
         WidgetKind.Network => new NetworkConfig(),
         WidgetKind.Ping => new PingConfig(),
         WidgetKind.Contacts => new ContactsConfig(),
-        WidgetKind.Calendar => new CalendarConfig(),
+        WidgetKind.MonthCalendar => new MonthCalendarConfig(),
+        WidgetKind.WeekCalendar => new WeekCalendarConfig(),
+        WidgetKind.DayCalendar => new DayCalendarConfig(),
+        WidgetKind.YearCalendar => new YearCalendarConfig(),
+        WidgetKind.Agenda => new AgendaConfig(),
+
         WidgetKind.Tasks => new TasksConfig(),
         WidgetKind.Notes => new NotesConfig(),
         WidgetKind.Countdown => new CountdownConfig(),
@@ -108,7 +119,9 @@ public abstract class WidgetConfig
         WidgetKind.VideoStream => new VideoStreamConfig(),
         WidgetKind.Gpu => new GpuConfig(),
         WidgetKind.Mixer => new MixerConfig(),
-        WidgetKind.ScreenTime => new ScreenTimeConfig(),
+        WidgetKind.ScreenTimeChart => new ScreenTimeChartConfig(),
+        WidgetKind.ScreenTimeDonut => new ScreenTimeDonutConfig(),
+        WidgetKind.ScreenTimeApps => new ScreenTimeAppsConfig(),
         WidgetKind.CpuDetails => new CpuDetailsConfig(),
         WidgetKind.MemoryDetails => new MemoryDetailsConfig(),
         WidgetKind.TopProcesses => new TopProcessesConfig(),

@@ -184,9 +184,9 @@ public sealed class ShortcutsTests
     [Fact]
     public void S1387_a_web_item_offers_copy_url_and_a_file_its_location()
     {
-        var web = Commands(ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 1, 0, 3));
-        var file = Commands(ShortcutRules.Menu(LaunchTargets.Classify(@"C:\a.txt"), 1, 1, 3));
-        var shell = Commands(ShortcutRules.Menu(LaunchTargets.Classify("shell:Desktop"), 1, 2, 3));
+        var web = Commands(ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 1));
+        var file = Commands(ShortcutRules.Menu(LaunchTargets.Classify(@"C:\a.txt"), 1));
+        var shell = Commands(ShortcutRules.Menu(LaunchTargets.Classify("shell:Desktop"), 1));
 
         Assert.Equal(ShortcutCommand.Open, web[0]);
         Assert.Contains(ShortcutCommand.CopyUrl, web);
@@ -199,15 +199,13 @@ public sealed class ShortcutsTests
     }
 
     [Fact]
-    public void S1387_moves_are_off_at_the_ends_and_open_is_off_for_a_refused_target()
+    public void S1387_the_menu_has_no_moves_and_open_is_off_for_a_refused_target()
     {
-        var first = ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 1, 0, 2);
-        var last = ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 1, 1, 2);
-        var refused = ShortcutRules.Menu(LaunchTargets.Classify("javascript:x"), 1, 0, 1);
+        var middle = ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 1);
+        var refused = ShortcutRules.Menu(LaunchTargets.Classify("javascript:x"), 1);
 
-        Assert.True(first.Single(e => e.Command == ShortcutCommand.MoveUp).Disabled);
-        Assert.False(first.Single(e => e.Command == ShortcutCommand.MoveDown).Disabled);
-        Assert.True(last.Single(e => e.Command == ShortcutCommand.MoveDown).Disabled);
+        // [S-3802] The order is dragged, or moved with Alt+Shift+Up / Down: no menu has arrows.
+        Assert.Equal([ShortcutCommand.Open, ShortcutCommand.CopyUrl, ShortcutCommand.Rename, ShortcutCommand.Remove], Commands(middle));
         Assert.True(refused.Single(e => e.Command == ShortcutCommand.Open).Disabled);
         Assert.False(refused.Single(e => e.Command == ShortcutCommand.Remove).Disabled);
     }
@@ -215,27 +213,29 @@ public sealed class ShortcutsTests
     [Fact]
     public void S1387_a_multi_selection_gets_open_all_and_no_rename()
     {
-        var menu = ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 3, 0, 5);
+        var menu = ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 3);
 
         Assert.Equal([ShortcutCommand.OpenAll, ShortcutCommand.Rename, ShortcutCommand.Remove], Commands(menu));
         Assert.True(menu.Single(e => e.Command == ShortcutCommand.Rename).Disabled);
     }
 
     [Fact]
-    public void S1387_move_reorders_by_id_and_a_no_op_changes_nothing()
+    public void S3802_move_reorders_by_id_one_place_and_a_no_op_changes_nothing()
     {
         var items = new List<ShortcutItem>
         {
             new() { Id = "a" }, new() { Id = "b" }, new() { Id = "c" },
         };
 
-        Assert.True(ShortcutRules.Move(items, "c", ShortcutCommand.MoveToStart));
+        Assert.True(ShortcutRules.Move(items, "c", -1));
+        Assert.Equal(["a", "c", "b"], items.Select(i => i.Id));
+        Assert.True(ShortcutRules.Move(items, "a", +1));
         Assert.Equal(["c", "a", "b"], items.Select(i => i.Id));
-        Assert.True(ShortcutRules.Move(items, "a", ShortcutCommand.MoveDown));
-        Assert.Equal(["c", "b", "a"], items.Select(i => i.Id));
-        Assert.False(ShortcutRules.Move(items, "c", ShortcutCommand.MoveUp));
-        Assert.False(ShortcutRules.Move(items, "a", ShortcutCommand.MoveDown));
-        Assert.False(ShortcutRules.Move(items, "zz", ShortcutCommand.MoveUp));
+        Assert.False(ShortcutRules.Move(items, "c", -1));
+        Assert.False(ShortcutRules.Move(items, "b", +1));
+        Assert.False(ShortcutRules.Move(items, "zz", -1));
+        Assert.False(ShortcutRules.Move(items, "a", 0));
+        Assert.Equal(["c", "a", "b"], items.Select(i => i.Id));
     }
 
     // ---- Windows-location switches -----------------------------------------------------------------

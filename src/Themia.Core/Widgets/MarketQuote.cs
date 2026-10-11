@@ -184,6 +184,66 @@ public static class MarketQuote
     }
 
     /// <summary>
+    /// [S-2775] The baseline of a listed symbol's range: Yahoo's <c>chartPreviousClose</c>, the close
+    /// just before the range's first bar (for one day, the previous session's close). The plain
+    /// <c>previousClose</c> is yesterday's close, so it may stand in only on the one-day chart; a longer
+    /// range without its own baseline falls back to its first bar (<see cref="Trace"/>).
+    /// </summary>
+    public static double? ListedBaseline(QuoteRange range, double? chartPreviousClose, double? previousClose)
+    {
+        if (Positive(chartPreviousClose) is { } chart)
+        {
+            return chart;
+        }
+
+        return range == QuoteRange.Day ? Positive(previousClose) : null;
+    }
+
+    /// <summary>
+    /// [S-2775] The line and the change on one baseline, so the colour, the signed figure and the
+    /// drawn line always agree. The change is <paramref name="price"/> against
+    /// <paramref name="baseline"/> (the first bar without one), and the line starts at that baseline:
+    /// a point at the baseline is put before the first bar (at its time) when the two differ. Without
+    /// it a day that opened below the previous close and climbed back part of the way drew a rising
+    /// line in the falling colour.
+    /// </summary>
+    public static QuoteTrace Trace(IReadOnlyList<QuoteBar> bars, double? price, double? baseline)
+    {
+        ArgumentNullException.ThrowIfNull(bars);
+
+        var from = Positive(baseline) ?? (bars.Count > 0 ? Positive(bars[0].Close) : null);
+
+        if (from is not { } start || bars.Count == 0 || bars[0].Close == start)
+        {
+            return new QuoteTrace(bars, PercentChange(price, from));
+        }
+
+        var anchored = new List<QuoteBar>(bars.Count + 1) { new(bars[0].Time, start) };
+        anchored.AddRange(bars);
+        return new QuoteTrace(anchored, PercentChange(price, start));
+    }
+
+    /// <summary>
+    /// [S-2775] A coin's change over the chart it draws: from the series' first price. CoinGecko's
+    /// 24-hour change is the stand-in only on the one-day range and only without a series.
+    /// </summary>
+    public static QuoteTrace CoinTrace(QuoteRange range, IReadOnlyList<QuoteBar> bars, double? price, double? change24H)
+    {
+        ArgumentNullException.ThrowIfNull(bars);
+
+        if (bars.Count >= 2)
+        {
+            return Trace(bars, price, null);
+        }
+
+        var change = range == QuoteRange.Day && change24H is { } c && double.IsFinite(c) ? c : (double?)null;
+        return new QuoteTrace(bars, change);
+    }
+
+    private static double? Positive(double? value)
+        => value is { } v && double.IsFinite(v) && v > 0 ? v : null;
+
+    /// <summary>
     /// A trading window, if the two numbers describe one.
     /// <para>
     /// Both bounds finite, and the end strictly after the start. Windows are validated

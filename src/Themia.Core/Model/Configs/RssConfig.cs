@@ -35,9 +35,6 @@ public sealed class RssConfig : WidgetConfig
     /// <summary>The feeds, in the order the user listed them.</summary>
     public List<RssFeed> Feeds { get; set; } = [];
 
-    /// <summary>A name to show in the header instead of the feeds' own titles.</summary>
-    public string Title { get; set; } = string.Empty;
-
     /// <summary>
     /// How many items to show, 5 to 50, across all the feeds together.
     /// <para>
@@ -56,8 +53,6 @@ public sealed class RssConfig : WidgetConfig
 
     /// <summary>Show how long ago the item was published.</summary>
     public bool ShowDate { get; set; } = true;
-
-    public int RefreshMinutes { get; set; } = 15;
 
     [JsonIgnore]
     public int EffectiveMaxItems => Math.Clamp(MaxItems, 5, 50);
@@ -99,9 +94,9 @@ public sealed class RssConfig : WidgetConfig
     [JsonIgnore]
     public IReadOnlyList<string> FeedUrls => [.. ResolvedFeeds.Where(r => r.IsValid).Select(r => r.Url)];
 
-    /// <summary>The cadence, clamped. Five minutes is the floor; no feed publishes faster than that.</summary>
+    /// <summary>[S-3780] The shared feeds cadence (Settings › Widgets).</summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromMinutes(Math.Clamp(RefreshMinutes, 5, 240));
+    public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.UpdateSource.Feeds);
 
     /// <summary>A hand-edited list with nulls in it, or more feeds than the cap, is put back in shape.</summary>
     public override IReadOnlyList<string> Repair()
@@ -133,11 +128,9 @@ public sealed class RssConfig : WidgetConfig
     public override WidgetConfig Clone() => new RssConfig
     {
         Feeds = [.. Feeds.Select(feed => feed.Clone())],
-        Title = Title,
         MaxItems = MaxItems,
         ShowSource = ShowSource,
         ShowPreview = ShowPreview,
         ShowDate = ShowDate,
-        RefreshMinutes = RefreshMinutes,
     };
 }

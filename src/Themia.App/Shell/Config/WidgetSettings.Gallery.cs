@@ -95,6 +95,12 @@ internal static partial class WidgetSettings
         rows.Add(layout);
         folderOnly.Add(layout);
 
+        var slide = FluentLayout.Row(Glyphs.Timer, Str.WidgetsB_Settings_Gallery_Slide_Label.Text(), Str.WidgetsB_Settings_Gallery_Slide_Desc.Text(),
+            FluentLayout.Slider(config.EffectiveSlideshowSeconds, GalleryConfig.MinSlideSeconds, 120, 1, "s",
+                value => { config.SlideshowSeconds = (int)Math.Round(value); save(); }));
+        rows.Add(slide);
+        slideshowOnly.Add(slide);
+
         fitRow = FluentLayout.Row(Glyphs.Scale, Str.WidgetsB_Settings_Gallery_Fit_Label.Text(),
             Str.WidgetsB_Settings_Gallery_Fit_Desc.Text(),
             FluentLayout.Choice(
@@ -137,24 +143,6 @@ internal static partial class WidgetSettings
         var files = FluentLayout.Row(Glyphs.Open, Str.WidgetsB_Settings_Gallery_Files_Label.Text(), Str.WidgetsB_Settings_Gallery_Files_Desc.Text(), open);
         rows.Add(files);
         folderOnly.Add(files);
-
-        rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Gallery_Updating.Text()));
-
-        var slide = FluentLayout.Row(Glyphs.Timer, Str.WidgetsB_Settings_Gallery_Slide_Label.Text(), Str.WidgetsB_Settings_Gallery_Slide_Desc.Text(),
-            FluentLayout.Slider(config.EffectiveSlideshowSeconds, GalleryConfig.MinSlideSeconds, 120, 1, "s",
-                value => { config.SlideshowSeconds = (int)Math.Round(value); save(); }));
-        rows.Add(slide);
-        slideshowOnly.Add(slide);
-
-        // [S-772] The original's cadences. A folder changes when something writes to it, which no
-        // timer can know; this is the backstop, and "Refresh images" on the widget is the way now.
-        var refreshOptions = GalleryConfig.RefreshChoices
-            .Select(minutes => (minutes, minutes == 60 ? Str.WidgetsB_Settings_Gallery_EveryHour.Text() : Str.WidgetsB_Settings_Gallery_EveryMinutes.Plural(minutes)))
-            .ToArray();
-
-        rows.Add(FluentLayout.Row(Glyphs.Refresh, Str.Common_Refresh.Text(), Str.WidgetsB_Settings_Gallery_Refresh_Desc.Text(),
-            FluentLayout.Choice(refreshOptions, config.EffectiveRefreshMinutes,
-                value => { config.RefreshMinutes = value; save(); })));
 
         Update();
     }

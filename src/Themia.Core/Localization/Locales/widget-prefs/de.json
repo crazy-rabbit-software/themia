@@ -1,0 +1,20 @@
+{
+  "widgetPrefs.nav": "Widgets",
+  "widgetPrefs.subtitle": "Formate und Aktualisierung für alle Widgets",
+  "widgetPrefs.region.header": "Regionales Format",
+  "widgetPrefs.region.clock": "Zeitformat",
+  "widgetPrefs.region.clock12": "12 Stunden",
+  "widgetPrefs.region.clock24": "24 Stunden",
+  "widgetPrefs.followWindows": "Windows-Einstellung ({value})",
+  "widgetPrefs.updates.header": "Aktualisierung",
+  "widgetPrefs.updates.note": "Wie oft Widgets Onlinedienste abfragen. „Aktualisieren“ am Widget fragt sofort.",
+  "widgetPrefs.updates.weather": "Wetter",
+  "widgetPrefs.updates.markets": "Aktien",
+  "widgetPrefs.updates.feeds": "Newsfeeds",
+  "widgetPrefs.updates.accounts": "Mail, Kalender und Aufgaben",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Alle {count} Stunde",
+    "other": "Alle {count} Stunden"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows-Orte"
+}

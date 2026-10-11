@@ -1,4 +1,4 @@
-using Microsoft.UI.Input;
+﻿using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -329,6 +329,15 @@ internal sealed partial class ShortcutsView
                 BeginRename(renamed);
                 return true;
 
+            case WidgetKey.MoveUp or WidgetKey.MoveDown:
+                if (_renaming is not null || CursorCell() is not { } moved)
+                {
+                    return false;
+                }
+
+                Move(moved, key == WidgetKey.MoveUp ? -1 : +1);
+                return true;
+
             case WidgetKey.Menu:
                 if (CursorCell() is not { } target)
                 {
@@ -420,9 +429,8 @@ internal sealed partial class ShortcutsView
     {
         var selected = Selected();
         var many = selected.Count > 1 && selected.Contains(cell);
-        var index = _config.Items.IndexOf(cell.Item);
 
-        foreach (var entry in ShortcutRules.Menu(cell.Target, many ? selected.Count : 1, index, _config.Items.Count, cell.Item.Layout))
+        foreach (var entry in ShortcutRules.Menu(cell.Target, many ? selected.Count : 1, cell.Item.Layout))
         {
             if (entry.Command is not { } command)
             {
@@ -441,9 +449,6 @@ internal sealed partial class ShortcutsView
                 ShortcutCommand.CopyUrl => new(Glyphs.Copy, Str.Shortcut_CopyUrl.Text(), () => Copy(cell.Target.Value)),
                 ShortcutCommand.CopyPath => new(Glyphs.Copy, Str.Shortcut_CopyPath.Text(), () => Copy(cell.Target.Value)),
                 ShortcutCommand.OpenFileLocation => new(Glyphs.Folder, Str.Shortcut_OpenFileLocation.Text(), () => Reveal(cell)),
-                ShortcutCommand.MoveToStart => new(Glyphs.MoveUp, Str.WidgetsC_Shortcuts_Menu_MoveToStart.Text(), () => Move(cell, command), Disabled: entry.Disabled),
-                ShortcutCommand.MoveUp => new(Glyphs.MoveUp, Str.ChildList_MoveUp.Text(), () => Move(cell, command), Disabled: entry.Disabled),
-                ShortcutCommand.MoveDown => new(Glyphs.MoveDown, Str.ChildList_MoveDown.Text(), () => Move(cell, command), Disabled: entry.Disabled),
                 ShortcutCommand.Rename => new(Glyphs.Rename, Str.Common_Rename.Text(), () => BeginRename(cell), Disabled: entry.Disabled, Quick: QuickCommand.Rename),
                 _ => new(Glyphs.Delete,
                     many ? Str.WidgetsC_Shortcuts_Menu_RemoveMany.Plural(selected.Count) : Str.Common_Remove.Text(),
@@ -493,9 +498,10 @@ internal sealed partial class ShortcutsView
         }
     }
 
-    private void Move(Cell cell, ShortcutCommand move)
+    /// <summary>[S-3802] Alt+Shift+Up / Down: the cursor's item one place earlier or later.</summary>
+    private void Move(Cell cell, int delta)
     {
-        if (ShortcutRules.Move(_config.Items, cell.Item.Id, move))
+        if (ShortcutRules.Move(_config.Items, cell.Item.Id, delta))
         {
             Save();
             Changed(rebuild: true);

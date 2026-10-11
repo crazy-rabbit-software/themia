@@ -61,6 +61,8 @@ public sealed class ScreenTimeTracker
 
     private string? _openApp;
     private LocalStamp _anchor;
+    private ScreenTimePreferences _preferences = new();
+    private bool _preferencesSet;
 
     /// <summary>date → app → seconds.</summary>
     public SortedDictionary<string, SortedDictionary<string, long>> Days { get; } = new(StringComparer.Ordinal);
@@ -75,6 +77,22 @@ public sealed class ScreenTimeTracker
     public SortedDictionary<string, long> Switches { get; } = new(StringComparer.Ordinal);
 
     public ScreenTimePause Paused { get; private set; }
+
+    /// <summary>
+    /// [S-3322] What every widget hides and judges against. Replaced whole, never edited in place,
+    /// so a reader holding the old set never sees half a change.
+    /// </summary>
+    public ScreenTimePreferences Preferences
+    {
+        get => _preferences;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            _preferences = value.Copy();
+            _preferencesSet = true;
+            Dirty = true;
+        }
+    }
 
     /// <summary>True when something changed that the file does not have yet.</summary>
     public bool Dirty { get; set; }
@@ -375,7 +393,16 @@ public sealed class ScreenTimeTracker
         {
             Switches[date] = Switches.GetValueOrDefault(date) + count;
         }
+
+        // [S-3322] The file's preferences, unless the user changed them before it was read.
+        if (!_preferencesSet)
+        {
+            _preferences = loaded._preferences.Copy();
+        }
     }
+
+    /// <summary>[S-3322] Load-time only: the preferences as read, without marking the history dirty.</summary>
+    internal void LoadPreferences(ScreenTimePreferences preferences) => _preferences = preferences.Copy();
 
     /// <summary>Add seconds to a bucket. Zero is not a change.</summary>
     public void Add(string date, string app, long seconds)

@@ -40,6 +40,7 @@ internal static partial class ConfigPages
         // [S-1830] Displays before Views, after the app pages: one entry each, never one per item.
         new(AppPage.Displays, Str.App_Displays, Glyphs.Display, NavIcon.Laptop, AppPageSlot.Main, BuildDisplays),
         new(AppPage.Views, Str.App_Views, Glyphs.View, NavIcon.ContentView, AppPageSlot.Main, BuildViews),
+        new(AppPage.Widgets, Str.WidgetPrefs_Nav, Glyphs.Apps, NavIcon.Apps, AppPageSlot.Main, c => BuildWidgets(c.Host)),
         new(AppPage.License, Str.Settings_Nav_License, Glyphs.Certificate, NavIcon.Premium, AppPageSlot.Footer, c => BuildLicense(c.Host)),
         new(AppPage.About, Str.Settings_Section_About, Glyphs.Info, NavIcon.QuestionCircle, AppPageSlot.Footer, c => BuildAbout(c.Host)),
     ];

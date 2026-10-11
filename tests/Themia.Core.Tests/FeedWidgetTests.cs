@@ -1,6 +1,7 @@
 using System.Net;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Net;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Xunit;
@@ -63,28 +64,29 @@ public sealed class FeedWidgetTests : IDisposable
     [Fact]
     public void S1301_EveryResolvedAddressIsChecked_NotJustTheFirst()
     {
-        var (verdict, culprit) = NetworkGuard.Judge("mixed.example", [IPAddress.Parse("8.8.8.8"), IPAddress.Parse("10.1.1.1")], proxied: false, allowPrivate: false);
+        var (verdict, culprit) = NetworkGuard.Judge("mixed.example", [IPAddress.Parse("8.8.8.8"), IPAddress.Parse("10.1.1.1")], proxied: false, grant: null);
 
         Assert.Equal(GuardVerdict.Blocked, verdict);
         Assert.Equal(IPAddress.Parse("10.1.1.1"), culprit);
     }
 
     [Fact]
-    public void S1301_TheUsersSwitchAllowsTheLocalNetwork()
-        => Assert.Equal(GuardVerdict.Allowed, NetworkGuard.Judge("192.168.1.1", null, proxied: false, allowPrivate: true).Verdict);
+    public void S3840_AFeedAddressTypedOnTheLocalNetworkIsAllowed()
+        => Assert.Equal(GuardVerdict.Allowed,
+            NetworkGuard.Judge("192.168.1.1", null, proxied: false, LocalGrants.ForTyped(new Uri("http://192.168.1.1/feed.xml"))).Verdict);
 
     [Fact]
     public void S1301_AnUnresolvableNameIsRefusedUnlessAProxyResolvesIt()
     {
-        Assert.Equal(GuardVerdict.Unresolvable, NetworkGuard.Judge("nowhere.example", null, proxied: false, allowPrivate: false).Verdict);
-        Assert.Equal(GuardVerdict.Allowed, NetworkGuard.Judge("nowhere.example", null, proxied: true, allowPrivate: false).Verdict);
+        Assert.Equal(GuardVerdict.Unresolvable, NetworkGuard.Judge("nowhere.example", null, proxied: false, grant: null).Verdict);
+        Assert.Equal(GuardVerdict.Allowed, NetworkGuard.Judge("nowhere.example", null, proxied: true, grant: null).Verdict);
     }
 
     [Fact]
     public void S1301_BeingProxiedIsNotABypassForAnAddressLiteral()
     {
-        Assert.Equal(GuardVerdict.Blocked, NetworkGuard.Judge("127.0.0.1", null, proxied: true, allowPrivate: false).Verdict);
-        Assert.Equal(GuardVerdict.Blocked, NetworkGuard.Judge("[::1]", null, proxied: true, allowPrivate: false).Verdict);
+        Assert.Equal(GuardVerdict.Blocked, NetworkGuard.Judge("127.0.0.1", null, proxied: true, grant: null).Verdict);
+        Assert.Equal(GuardVerdict.Blocked, NetworkGuard.Judge("[::1]", null, proxied: true, grant: null).Verdict);
     }
 
     [Fact]

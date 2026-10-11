@@ -53,10 +53,14 @@ public sealed class StocksConfig : WidgetConfig
     /// <summary>The Yahoo symbol or CoinGecko id. Empty until the user sets one.</summary>
     public string Symbol { get; set; } = string.Empty;
 
-    /// <summary>Which service quotes it.</summary>
+    /// <summary>
+    /// [S-3790] Which service quotes it. Never chosen by hand: a search pick sets it from what the
+    /// hit is (<see cref="Choose(SymbolHit)"/>), and a symbol typed in full is a listed one
+    /// (<see cref="ChooseTyped"/>) — Yahoo quotes coins too, as <c>BTC-USD</c>.
+    /// </summary>
     public QuoteMarket Market { get; set; } = QuoteMarket.Listed;
 
-    /// <summary>A name to show instead of the symbol. Empty means show the symbol.</summary>
+    /// <summary>[S-3790] The instrument's name from the search pick: the header's title. Empty shows the symbol.</summary>
     public string DisplayName { get; set; } = string.Empty;
 
     public QuoteRange Range { get; set; } = QuoteRange.Day;
@@ -75,17 +79,11 @@ public sealed class StocksConfig : WidgetConfig
     /// <summary>[S-1310] Mark the period's high and low on the chart.</summary>
     public bool ShowMinMax { get; set; }
 
-    /// <summary>[S-1310] Fill the area under the trace. On by default: the trend reads at a glance.</summary>
-    public bool ShowAreaFill { get; set; } = true;
-
     /// <summary>[S-1310] The colour of a rise, <c>#RRGGBB</c>; empty = the theme's success green.</summary>
     public string UpColor { get; set; } = string.Empty;
 
     /// <summary>[S-1310] The colour of a fall, <c>#RRGGBB</c>; empty = the theme's critical red.</summary>
     public string DownColor { get; set; } = string.Empty;
-
-    /// <summary>How often to ask, in minutes.</summary>
-    public int RefreshMinutes { get; set; } = 5;
 
     /// <summary>
     /// Whether the request asks for extended-hours bars: only where they exist (a listed symbol)
@@ -100,12 +98,37 @@ public sealed class StocksConfig : WidgetConfig
         ? WebInput.NormaliseSymbol(Symbol, Market == QuoteMarket.Crypto)
         : string.Empty;
 
-    /// <summary>
-    /// The cadence, clamped. One minute is the floor: both quote services are free and
-    /// unauthenticated, and a desktop of widgets asking every second is how an app gets blocked.
-    /// </summary>
+    /// <summary>[S-3780] The shared markets cadence (Settings › Widgets); a minute is its floor.</summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromMinutes(Math.Clamp(RefreshMinutes, 1, 120));
+    public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.UpdateSource.Markets);
+
+    /// <summary>[S-3790] A search pick: its symbol, its service and its name, in one go.</summary>
+    public void Choose(SymbolHit hit)
+    {
+        ArgumentNullException.ThrowIfNull(hit);
+
+        Symbol = hit.Symbol;
+        Market = hit.Market;
+        DisplayName = hit.Name;
+    }
+
+    /// <summary>
+    /// [S-3790] A symbol typed in full and committed: a listed symbol, with no name of its own (the
+    /// header shows the service's name for it). Unchanged text changes nothing.
+    /// </summary>
+    public void ChooseTyped(string symbol)
+    {
+        var typed = (symbol ?? string.Empty).Trim();
+
+        if (typed == Symbol)
+        {
+            return;
+        }
+
+        Symbol = typed;
+        Market = QuoteMarket.Listed;
+        DisplayName = string.Empty;
+    }
 
     /// <summary>A hand-edited colour that is not <c>#RRGGBB</c> goes back to the theme's.</summary>
     public override IReadOnlyList<string> Repair()
@@ -141,9 +164,7 @@ public sealed class StocksConfig : WidgetConfig
         ShowMarketState = ShowMarketState,
         ShowExtendedHours = ShowExtendedHours,
         ShowMinMax = ShowMinMax,
-        ShowAreaFill = ShowAreaFill,
         UpColor = UpColor,
         DownColor = DownColor,
-        RefreshMinutes = RefreshMinutes,
     };
 }

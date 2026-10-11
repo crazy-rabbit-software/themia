@@ -55,6 +55,13 @@ public static class Strings
         Changed?.Invoke(locale);
     }
 
+    /// <summary>
+    /// [S-3770] The regional formats changed (<see cref="RegionFormat"/>): the language did not, but
+    /// every time on screen may read differently, so everything that redraws on a language change
+    /// redraws now.
+    /// </summary>
+    internal static void NotifyFormatsChanged() => Changed?.Invoke(_current);
+
     // -----------------------------------------------------------------------------------------
     // Lookup
     // -----------------------------------------------------------------------------------------

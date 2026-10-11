@@ -26,9 +26,6 @@ public sealed class MixerConfig : WidgetConfig
     /// <summary>[S-442] One row per application rather than one per audio session.</summary>
     public bool GroupByApp { get; set; } = true;
 
-    /// <summary>[S-444] Pin the device's master level as the first row.</summary>
-    public bool ShowMaster { get; set; } = true;
-
     /// <summary>[S-445] Include the Windows system-sounds row.</summary>
     public bool ShowSystemSounds { get; set; }
 
@@ -46,7 +43,6 @@ public sealed class MixerConfig : WidgetConfig
         DeviceId = DeviceId,
         DeviceName = DeviceName,
         GroupByApp = GroupByApp,
-        ShowMaster = ShowMaster,
         ShowSystemSounds = ShowSystemSounds,
         OnlyActive = OnlyActive,
         ShowIcons = ShowIcons,

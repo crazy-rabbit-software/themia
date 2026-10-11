@@ -1,0 +1,88 @@
+{
+  "$comment": "[S-3800]..[S-3843] The app settings pages: views as rows with a colour, accounts with what they synced, the grouped Appearance page, and the local network rule. English only until the translation round.",
+  "$englishOnly": [
+    "shell.views.reorderHint",
+    "shell.list.reorderHint",
+    "shell.view.colour",
+    "shell.view.colourDesc",
+    "shell.view.colourDefault",
+    "shell.appearance.themeColours",
+    "shell.appearance.cards",
+    "shell.appearance.cardsDesc",
+    "shell.appearance.textAndSize",
+    "shell.appearance.textAndSizeDesc",
+    "shell.appearance.layoutDesc",
+    "shell.net.blockedLocal",
+    "shell.accounts.stats.mail",
+    "shell.accounts.stats.calendar",
+    "shell.accounts.stats.contacts",
+    "shell.accounts.stats.tasks",
+    "shell.accounts.stats.messages",
+    "shell.accounts.stats.events",
+    "shell.accounts.stats.people",
+    "shell.accounts.stats.taskCount",
+    "shell.accounts.stats.folders",
+    "shell.accounts.stats.calendars",
+    "shell.accounts.stats.lists",
+    "shell.accounts.stats.synced",
+    "shell.accounts.stats.neverSynced",
+    "shell.accounts.stats.nothing",
+    "shell.accounts.nicknameDesc",
+    "shell.accounts.reconnect",
+    "shell.accounts.reconnectButton",
+    "shell.accounts.signOutDesc",
+    "shell.accounts.needsSignIn"
+  ],
+  "shell.views.reorderHint": "Drag a view onto another to move it, or press Alt+Shift+Up or Down on a view.",
+  "shell.list.reorderHint": "Drag an item onto another to move it, or press Alt+Shift+Up or Down on an item.",
+  "shell.view.colour": "Colour",
+  "shell.view.colourDesc": "The icon's colour in the view bar and in this window",
+  "shell.view.colourDefault": "Text colour",
+  "shell.appearance.themeColours": "Theme and colours",
+  "shell.appearance.cards": "Widget cards",
+  "shell.appearance.cardsDesc": "Border, corners and outline",
+  "shell.appearance.textAndSize": "Text and size",
+  "shell.appearance.textAndSizeDesc": "Font, text size and widget scale",
+  "shell.appearance.layoutDesc": "Gap between widgets and snapping to the grid",
+  "shell.net.blockedLocal": "{host} is on the local network. Themia goes there only for an address you typed yourself",
+  "shell.accounts.stats.mail": "Mail",
+  "shell.accounts.stats.calendar": "Calendar",
+  "shell.accounts.stats.contacts": "Contacts",
+  "shell.accounts.stats.tasks": "Tasks",
+  "shell.accounts.stats.messages": {
+    "one": "{count} message",
+    "other": "{count} messages"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} event",
+    "other": "{count} events"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} contact",
+    "other": "{count} contacts"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} task",
+    "other": "{count} tasks"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "in {count} folder",
+    "other": "in {count} folders"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "in {count} calendar",
+    "other": "in {count} calendars"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "in {count} list",
+    "other": "in {count} lists"
+  },
+  "shell.accounts.stats.synced": "synced {time}",
+  "shell.accounts.stats.neverSynced": "not synced yet",
+  "shell.accounts.stats.nothing": "Nothing stored on this PC yet",
+  "shell.accounts.nicknameDesc": "The name widgets show for this account",
+  "shell.accounts.reconnect": "Sign in again",
+  "shell.accounts.reconnectButton": "Sign in",
+  "shell.accounts.signOutDesc": "Forgets the account and everything synced from it on this PC",
+  "shell.accounts.needsSignIn": "Needs you to sign in again"
+}

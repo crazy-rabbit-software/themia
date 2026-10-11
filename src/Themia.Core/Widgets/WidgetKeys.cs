@@ -57,6 +57,27 @@ public static class WidgetKeys
             };
         }
 
+        // [S-3802] Alt+Shift+Up / Down is the reorder shortcut of every list that is dragged into
+        // order, the widgets' included; one rule, ReorderKeys, decides it for all of them.
+        if (alt && shift && !ctrl)
+        {
+            var arrow = virtualKey switch
+            {
+                VkUp => Settings.ReorderArrow.Up,
+                VkDown => Settings.ReorderArrow.Down,
+                _ => (Settings.ReorderArrow?)null,
+            };
+
+            return arrow is { } pressed
+                ? Settings.ReorderKeys.Delta(pressed, alt, shift, ctrl) switch
+                {
+                    < 0 => WidgetKey.MoveUp,
+                    > 0 => WidgetKey.MoveDown,
+                    _ => null,
+                }
+                : null;
+        }
+
         if (ctrl || alt)
         {
             return null;

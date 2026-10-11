@@ -17,36 +17,8 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.Widget_Ping_Label.Text()));
 
         AddHostRow(rows, () => config.Host, value => config.Host = value, save);
-        AddLabelRow(rows, () => config.HostLabel, value => config.HostLabel = value, save);
 
-        MeterRows(rows, config, save, Str.WidgetsB_Settings_Ping_Refresh.Text());
-    }
-
-    /// <summary>
-    /// [S-1173] A name for the host. Stored as typed (a label may have spaces in it) and trimmed where
-    /// it is shown; empty means the header shows the address.
-    /// </summary>
-    private static void AddLabelRow(List<FrameworkElement> rows, Func<string> get, Action<string> set, Action save)
-    {
-        var box = new TextBox
-        {
-            Text = get(),
-            PlaceholderText = Str.WidgetsB_Settings_Ping_Name_Placeholder.Text(),
-            MaxLength = PingConfig.MaxLabelLength,
-            MinWidth = 200,
-        };
-
-        box.TextChanged += (_, _) =>
-        {
-            if (get() != box.Text)
-            {
-                set(box.Text);
-                save();
-            }
-        };
-
-        rows.Add(FluentLayout.Row(Glyphs.Tag, Str.WidgetsB_Settings_Ping_Name_Label.Text(),
-            Str.WidgetsB_Settings_Ping_Name_Desc.Text(), box, "label"));
+        MeterRows(rows, config, save);
     }
 
     /// <summary>

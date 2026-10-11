@@ -27,11 +27,12 @@ namespace Themia.App.Shell;
 internal sealed partial class DesktopWindow
 {
     /// <summary>
-    /// [S-420] The widget picker: a flyout rather than a page in the settings window, because
-    /// choosing a widget is a moment's decision made while looking at the desktop, and the settings
-    /// window covers the desktop.
+    /// [S-3501] The add menu: a flyout under the edit bar's Add widget rather than a page in the
+    /// settings window, because choosing a widget is a moment's decision made while looking at the
+    /// desktop, and the settings window covers the desktop.
     /// <para>
-    /// Its content is rebuilt every time it opens, so the names follow a language switch ([S-1109]).
+    /// Its content is rebuilt every time it opens, so the names follow a language switch ([S-1109]),
+    /// new kinds in the catalogue appear, and the columns fit this display's work area ([S-3503]).
     /// </para>
     /// </summary>
     private Flyout BuildAddFlyout()
@@ -43,7 +44,7 @@ internal sealed partial class DesktopWindow
             Placement = FlyoutPlacementMode.Bottom,
 
             // The presenter caps itself at 456px by default, sized for a menu of one column. Left at
-            // that, the picker showed two and a half of its four columns and clipped the rest.
+            // that, the menu showed two and a half of its columns and clipped the rest.
             FlyoutPresenterStyle = new Style(typeof(FlyoutPresenter))
             {
                 Setters =
@@ -56,12 +57,15 @@ internal sealed partial class DesktopWindow
 
         flyout.Opening += (_, _) =>
         {
+            var area = Metrics.IsUsable ? GridGeometry.AllowedPixels(Metrics) : new PixelRect(0, 0, 1280, 720);
             flyout.Content = new WidgetPicker(
                 definition => OnPicked(flyout, definition),
-                flyout.Hide);
+                flyout.Hide,
+                area.Width,
+                area.Height);
         };
 
-        // [S-949] Typing searches at once: the caret is in the box as soon as the picker is open.
+        // [S-3505] Typing searches at once: the caret is in the box as soon as the picker is open.
         flyout.Opened += (_, _) => (flyout.Content as WidgetPicker)?.FocusSearch();
         return flyout;
     }
@@ -73,23 +77,29 @@ internal sealed partial class DesktopWindow
         _host.BeginPlacement(definition.Kind);
     }
 
-    private static Border BuildPlacementHint(TextBlock text) => new()
+    /// <summary>
+    /// [S-3500] The line that takes the edit bar's place while placing: the bar's own frame and
+    /// height, so the one swaps for the other where it stood.
+    /// </summary>
+    private static Border BuildPlacementHint(TextBlock text)
     {
-        Child = text,
-        Padding = new Thickness(Fluent.Space4, Fluent.Space3, Fluent.Space4, Fluent.Space3),
-        Margin = new Thickness(0, 24, 0, 0),
-        HorizontalAlignment = HorizontalAlignment.Center,
-        VerticalAlignment = VerticalAlignment.Top,
-        CornerRadius = new CornerRadius(8),
-        Background = Brush("AcrylicBackgroundFillColorDefaultBrush", Colors.Black),
-        BorderBrush = Brush("SurfaceStrokeColorDefaultBrush", Colors.Gray),
-        BorderThickness = new Thickness(1),
+        var hint = new Border
+        {
+            Child = text,
+            MinHeight = EditBar.ButtonSize + (2 * Fluent.Space1),
+            Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Top,
 
-        // Words, not a control: anything clickable here would have to be told apart from a click
-        // meant to place the widget underneath it.
-        IsHitTestVisible = false,
-        Visibility = Visibility.Collapsed,
-    };
+            // Words, not a control: anything clickable here would have to be told apart from a click
+            // meant to place the widget underneath it.
+            IsHitTestVisible = false,
+            Visibility = Visibility.Collapsed,
+        };
+
+        EditBar.Frame(hint);
+        return hint;
+    }
 
     /// <summary>One outline of the ghost: a dashed accent frame with the widget's icon and name.</summary>
     private sealed class GhostCard

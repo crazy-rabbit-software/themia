@@ -22,7 +22,7 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Disk_Disk.Text()));
         AddDriveRow(rows, disk, save);
 
-        MeterRows(rows, disk, save, Str.WidgetsB_Settings_Disk_Refresh.Text());
+        MeterRows(rows, disk, save);
     }
 
     /// <summary>

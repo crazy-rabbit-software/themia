@@ -44,7 +44,10 @@ public enum BluetoothStatus
 /// <param name="Id">The Windows device-interface id. Used to re-read battery, never shown.</param>
 /// <param name="Connected">Whether it is connected right now.</param>
 /// <param name="Kind">Which glyph it gets.</param>
-/// <param name="BatteryPercent">0..100 where the device reports it over GATT, else null.</param>
+/// <param name="BatteryPercent">
+/// 0..100 where Windows reports it for a connected device ([S-3252]: the device property, else the
+/// GATT Battery Service), else null.
+/// </param>
 /// <param name="SignalDbm">
 /// [S-1256] Received signal strength in dBm where the radio reported one (an LE device seen
 /// advertising, or the association endpoint's own reading), else null. Most paired Classic devices
@@ -175,6 +178,98 @@ public static class BluetoothRules
     /// </summary>
     public static string? BatteryLabel(int? percent, Locale locale)
         => percent is >= 0 and <= 100 ? LocaleFormat.Percent(locale, percent.Value) : null;
+
+    /// <summary>[S-3254] At or below this the battery is drawn in the critical colour, as the tray does.</summary>
+    public const int LowBattery = 20;
+
+    /// <summary>[S-3254] Whether a reported battery is low. No reading is never low.</summary>
+    public static bool IsLowBattery(int? percent) => percent is >= 0 and <= LowBattery;
+
+    /// <summary>
+    /// [S-3252] The Windows battery property (<c>DEVPKEY_Bluetooth_Battery</c>,
+    /// <c>{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2</c>) as a percentage. A <c>DEVPROP_TYPE_BYTE</c>
+    /// on the wire; any whole-number box is accepted, and anything that is not a whole number in
+    /// 0..100 (255 is "unknown") is no reading rather than a guess.
+    /// </summary>
+    public static int? ParseBattery(object? raw)
+    {
+        long? value = raw switch
+        {
+            byte b => b,
+            sbyte sb => sb,
+            short s => s,
+            ushort us => us,
+            int i => i,
+            uint ui => ui,
+            long l => l,
+            ulong ul => ul <= long.MaxValue ? (long)ul : null,
+            _ => null,
+        };
+
+        return value is >= 0 and <= 100 ? (int)value.Value : null;
+    }
+
+    /// <summary>
+    /// [S-3252] One battery per device container from the device nodes that carry the property. A
+    /// headset's container holds several nodes (the device, its hands-free and audio services), and
+    /// more than one may report; the highest valid reading is the device's. Nodes without a
+    /// container or a valid reading say nothing.
+    /// </summary>
+    public static Dictionary<Guid, int> BatteryByContainer(IEnumerable<(Guid? Container, object? Raw)> nodes)
+    {
+        ArgumentNullException.ThrowIfNull(nodes);
+
+        var map = new Dictionary<Guid, int>();
+
+        foreach (var (container, raw) in nodes)
+        {
+            if (container is not { } id || id == Guid.Empty || ParseBattery(raw) is not { } percent)
+            {
+                continue;
+            }
+
+            map[id] = map.TryGetValue(id, out var known) ? Math.Max(known, percent) : percent;
+        }
+
+        return map;
+    }
+
+    /// <summary>
+    /// [S-3252] Give each connected device its container's battery. A paired but disconnected device
+    /// keeps none: the property holds the last value Windows saw, and a headset in its case at "80%"
+    /// from yesterday is a number nobody should act on. Where the property has nothing, a reading the
+    /// entry already holds stays.
+    /// </summary>
+    /// <param name="containers">The device container of each entry, by index; null where unknown.</param>
+    public static List<BluetoothDeviceEntry> WithBattery(
+        IReadOnlyList<BluetoothDeviceEntry> devices,
+        IReadOnlyList<Guid?> containers,
+        IReadOnlyDictionary<Guid, int> batteries)
+    {
+        ArgumentNullException.ThrowIfNull(devices);
+        ArgumentNullException.ThrowIfNull(containers);
+        ArgumentNullException.ThrowIfNull(batteries);
+
+        var result = new List<BluetoothDeviceEntry>(devices.Count);
+
+        for (var i = 0; i < devices.Count; i++)
+        {
+            var device = devices[i];
+
+            if (!device.Connected)
+            {
+                result.Add(device with { BatteryPercent = null });
+                continue;
+            }
+
+            var container = i < containers.Count ? containers[i] : null;
+            result.Add(container is { } id && batteries.TryGetValue(id, out var percent)
+                ? device with { BatteryPercent = percent }
+                : device);
+        }
+
+        return result;
+    }
 
     /// <summary>
     /// [S-1256] The signal column, or null. Real RSSI sits between about -100 and -20 dBm; zero is

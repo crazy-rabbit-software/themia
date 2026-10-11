@@ -20,6 +20,7 @@ public partial class App : Application
         // resources load, and the pages' brushes come from it.
         if ((Shell.Gallery.SettingsRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.IconPickerRender.RequestedTheme(Environment.GetCommandLineArgs())
+            ?? Shell.Gallery.EditBarRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
         {
             RequestedTheme = theme;
@@ -79,8 +80,14 @@ public partial class App : Application
             return;
         }
 
-        // And for the open Add-widget picker.
+        // And for the edit bar's open add menu ([S-3506]).
         if (Shell.Gallery.PickerRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
+        // And for the edit bar ([S-3506]).
+        if (Shell.Gallery.EditBarRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;
         }

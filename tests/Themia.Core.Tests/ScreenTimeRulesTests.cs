@@ -46,8 +46,7 @@ public sealed class ScreenTimeRulesTests
         Assert.Equal(3, ScreenTimeRules.Ceiling(3));
         Assert.Equal(ScreenTimeRules.MaxAppsLimit, ScreenTimeRules.Ceiling(500));
         Assert.Equal(0, ScreenTimeRules.EffectiveMaxApps(-4));
-        Assert.Equal(0, new ScreenTimeConfig().MaxApps);
-        Assert.True(new ScreenTimeConfig().ShowList);
+        Assert.Equal(0, new ScreenTimeAppsConfig().MaxApps);
     }
 
     [Theory]
@@ -55,21 +54,20 @@ public sealed class ScreenTimeRulesTests
     [InlineData(5, 12, 6)]    // ceiling 5 + an "Other" row
     [InlineData(5, 5, 5)]     // exactly the ceiling: no "Other"
     [InlineData(0, 0, 0)]
-    public void S1211_legend_wants_every_app_up_to_the_ceiling_plus_other(int maxApps, int apps, int wanted)
+    public void S1211_the_list_wants_every_app_up_to_the_ceiling_plus_other(int maxApps, int apps, int wanted)
     {
-        Assert.Equal(wanted, ScreenTimeRules.LegendWanted(maxApps, apps));
+        Assert.Equal(wanted, ScreenTimeRules.ListWanted(maxApps, apps));
     }
 
     [Theory]
-    [InlineData(0, 12, 12, 12)]  // room for all: all named, no "Other"
-    [InlineData(0, 10, 12, 9)]   // ten rows for twelve apps: nine named, the tenth is "Other"
-    [InlineData(0, 3, 12, 7)]    // a short legend never shrinks the ring below seven names
-    [InlineData(0, 0, 12, 7)]    // legend off
-    [InlineData(3, 10, 12, 3)]   // the setting caps the drawing too
-    [InlineData(0, 4, 2, 7)]     // fewer apps than names: Segments takes what there is
-    public void S1212_the_drawing_names_what_the_legend_can_list(int maxApps, int rows, int apps, int cap)
+    [InlineData(12, 12, 12)]  // room for all: all named, no "Other"
+    [InlineData(10, 12, 9)]   // ten rows for twelve apps: nine named, the tenth is "Other"
+    [InlineData(1, 12, 0)]    // one row: "Other" alone
+    [InlineData(0, 12, 0)]
+    [InlineData(4, 2, 2)]
+    public void S3351_a_short_list_leaves_its_last_row_to_other(int rows, int apps, int named)
     {
-        Assert.Equal(cap, ScreenTimeRules.DrawingCap(maxApps, rows, apps));
+        Assert.Equal(named, ScreenTimeRules.ListNamed(rows, apps));
     }
 
     [Theory]
@@ -98,18 +96,6 @@ public sealed class ScreenTimeRulesTests
         var (small, smallStep) = ScreenTimeRules.RingText(seconds, 40, 20);
         Assert.Equal("4.6h", small);
         Assert.True(FluentType.EstimateWidth(smallStep, small.Length) <= 40);
-    }
-
-    [Fact]
-    public void S1214_the_week_strip_is_the_seven_days_ending_on_the_shown_day()
-    {
-        Assert.True(LocalDay.TryParse("2026-10-04", out var sunday));
-
-        var days = ScreenTimeRules.DaysEnding(sunday, 7);
-
-        Assert.Equal(7, days.Count);
-        Assert.Equal("2026-09-28", days[0].Key);
-        Assert.Equal("2026-10-04", days[^1].Key);
     }
 
     [Fact]
@@ -177,17 +163,10 @@ public sealed class ScreenTimeRulesTests
     // ---- [S-455] hidden apps ----------------------------------------------------------------------
 
     [Fact]
-    public void S455_the_hidden_list_is_cleaned()
-    {
-        Assert.Equal(["a", "b"], ScreenTimeRules.Hidden(["a", string.Empty, " ", "b", "a"]).Order());
-        Assert.Empty(ScreenTimeRules.Hidden(null));
-    }
-
-    [Fact]
     public void S455_hiding_an_app_rebases_the_total_and_the_ring()
     {
         var apps = new[] { App("code", 100), App("chrome", 60), App("explorer", 20) };
-        var shown = ScreenTimeRules.Visible(apps, ScreenTimeRules.Hidden(["explorer"]));
+        var shown = ScreenTimeRules.Visible(apps, new HashSet<string> { "explorer" });
 
         Assert.Equal(180, ScreenTimeRules.Sum(apps));
         Assert.Equal(160, ScreenTimeRules.Sum(shown));
@@ -198,26 +177,22 @@ public sealed class ScreenTimeRulesTests
         Assert.Equal(100.0 / 160, segments[0].Fraction, 6);
     }
 
-    // ---- [S-451] period and style -------------------------------------------------------------------
+    // ---- [S-3321] [S-3330] period and style -----------------------------------------------------------
 
     [Fact]
-    public void S451_a_period_offers_only_the_styles_that_can_draw_it()
+    public void S3330_the_chart_draws_a_week_or_a_month()
     {
-        Assert.Equal([ScreenTimeStyle.Doughnut, ScreenTimeStyle.Bars, ScreenTimeStyle.None], ScreenTimeRules.StylesFor(ScreenTimePeriod.Day));
-        Assert.Equal([ScreenTimeStyle.Bars, ScreenTimeStyle.Heatmap, ScreenTimeStyle.None], ScreenTimeRules.StylesFor(ScreenTimePeriod.Week));
-        Assert.Equal([ScreenTimeStyle.Bars, ScreenTimeStyle.Heatmap, ScreenTimeStyle.None], ScreenTimeRules.StylesFor(ScreenTimePeriod.Month));
+        Assert.Equal(ScreenTimePeriod.Week, ScreenTimeRules.ChartPeriod(ScreenTimePeriod.Day));
+        Assert.Equal(ScreenTimePeriod.Week, ScreenTimeRules.ChartPeriod(ScreenTimePeriod.Week));
+        Assert.Equal(ScreenTimePeriod.Month, ScreenTimeRules.ChartPeriod(ScreenTimePeriod.Month));
+        Assert.Equal(ScreenTimePeriod.Week, ScreenTimeRules.ChartPeriod((ScreenTimePeriod)42));
+        Assert.Equal(ScreenTimeChartStyle.Bars, ScreenTimeRules.ClampChartStyle((ScreenTimeChartStyle)42));
+        Assert.Equal(ScreenTimeChartStyle.Heatmap, ScreenTimeRules.ClampChartStyle(ScreenTimeChartStyle.Heatmap));
     }
 
     [Fact]
-    public void S451_an_impossible_pair_is_repaired_inside_the_period()
-    {
-        Assert.Equal(ScreenTimeStyle.Doughnut, ScreenTimeRules.ClampStyle(ScreenTimePeriod.Day, ScreenTimeStyle.Heatmap));
-        Assert.Equal(ScreenTimeStyle.Bars, ScreenTimeRules.ClampStyle(ScreenTimePeriod.Week, ScreenTimeStyle.Doughnut));
-        Assert.Equal(ScreenTimeStyle.Bars, ScreenTimeRules.ClampStyle(ScreenTimePeriod.Month, ScreenTimeStyle.Bars));
-        Assert.Equal(ScreenTimeStyle.None, ScreenTimeRules.ClampStyle(ScreenTimePeriod.Week, ScreenTimeStyle.None));
-        Assert.Equal(ScreenTimeStyle.Doughnut, ScreenTimeRules.ClampStyle(ScreenTimePeriod.Day, (ScreenTimeStyle)42));
-        Assert.Equal(ScreenTimePeriod.Day, ScreenTimeRules.ClampPeriod((ScreenTimePeriod)42));
-    }
+    public void S3321_an_unknown_period_reads_as_a_day()
+        => Assert.Equal(ScreenTimePeriod.Day, ScreenTimeRules.ClampPeriod((ScreenTimePeriod)42));
 
     [Fact]
     public void S451_windows_are_seven_and_thirty_days()
@@ -243,7 +218,7 @@ public sealed class ScreenTimeRulesTests
         Assert.Equal([5400L, 600L, 1500L], all.Select(d => d.Seconds));
         Assert.Equal(5400, ScreenTimeRules.Busiest(all));
 
-        var noCode = ScreenTimeRules.DayTotals(Window, ScreenTimeRules.Hidden(["code"]));
+        var noCode = ScreenTimeRules.DayTotals(Window, new HashSet<string> { "code" });
         Assert.Equal([1800L, 600L, 300L], noCode.Select(d => d.Seconds));
         Assert.Equal(0, ScreenTimeRules.Busiest([]));
     }
@@ -254,7 +229,7 @@ public sealed class ScreenTimeRulesTests
         var apps = ScreenTimeRules.Aggregate(Window, None);
         Assert.Equal(["code", "chrome", "spotify"], apps.Select(a => a.App));
         Assert.Equal([4800L, 2400L, 300L], apps.Select(a => a.Seconds));
-        Assert.Equal(["chrome", "spotify"], ScreenTimeRules.Aggregate(Window, ScreenTimeRules.Hidden(["code"])).Select(a => a.App));
+        Assert.Equal(["chrome", "spotify"], ScreenTimeRules.Aggregate(Window, new HashSet<string> { "code" }).Select(a => a.App));
     }
 
     [Fact]
@@ -376,18 +351,65 @@ public sealed class ScreenTimeRulesTests
     }
 
     [Fact]
-    public void S457_app_limits_drop_entries_without_a_key_or_a_limit()
+    public void S3322_preferences_drop_entries_without_a_key_or_a_limit()
     {
-        var limits = ScreenTimeRules.AppLimits(
-        [
-            new ScreenTimeAppLimit { App = "chrome", Seconds = 3600 },
-            new ScreenTimeAppLimit { App = "code", Seconds = 0 },
-            new ScreenTimeAppLimit { App = " ", Seconds = 60 },
-            new ScreenTimeAppLimit { App = "spotify", Seconds = -5 },
-        ]);
+        var preferences = ScreenTimePreferences.From(
+            ["a", string.Empty, " ", " b ", "a"],
+            -60,
+            [new("chrome", 3600), new("code", 0), new(" ", 60), new("spotify", -5)]);
 
-        Assert.Equal(["chrome"], limits.Keys);
-        Assert.Empty(ScreenTimeRules.AppLimits(null));
+        Assert.Equal(["a", "b"], preferences.Hidden.Order());
+        Assert.Equal(0, preferences.GoalSeconds);
+        Assert.Equal(["chrome"], preferences.AppLimits.Keys);
+        Assert.True(ScreenTimePreferences.From(null, 0, null).IsEmpty);
+    }
+
+    [Fact]
+    public void S3322_a_copy_is_its_own()
+    {
+        var original = ScreenTimePreferences.From(["a"], 3600, [new("chrome", 60)]);
+        var copy = original.Copy();
+        copy.Hidden.Add("b");
+        copy.AppLimits["code"] = 120;
+
+        Assert.Equal(["a"], original.Hidden);
+        Assert.Equal(["chrome"], original.AppLimits.Keys);
+        Assert.Equal(3600, copy.GoalSeconds);
+    }
+
+    // ---- [S-3310] [S-3312] the linked focus -------------------------------------------------------------
+
+    [Fact]
+    public void S3310_the_hover_wins_over_the_selection()
+    {
+        Assert.Equal("code", ScreenTimeRules.Focus("code", "chrome"));
+        Assert.Equal("chrome", ScreenTimeRules.Focus(null, "chrome"));
+        Assert.Null(ScreenTimeRules.Focus(null, null));
+    }
+
+    [Fact]
+    public void S3312_an_app_folded_into_other_lights_other()
+    {
+        ScreenTimeApp[] apps = [App("code", 100), App("chrome", 60), App("slack", 20)];
+        var parts = ScreenTimeRules.Segments(apps, 180, 1, "Other");
+
+        Assert.Equal("code", ScreenTimeRules.FocusPart("code", parts, apps));
+        Assert.Equal(ScreenTimeRules.OtherKey, ScreenTimeRules.FocusPart("slack", parts, apps));
+        Assert.Equal(ScreenTimeRules.OtherKey, ScreenTimeRules.FocusPart(ScreenTimeRules.OtherKey, parts, apps));
+        Assert.Null(ScreenTimeRules.FocusPart(null, parts, apps));
+
+        // Hidden, or not used in this period: nothing lights, not even Other.
+        Assert.Null(ScreenTimeRules.FocusPart("spotify", parts, apps));
+        var all = ScreenTimeRules.Segments([App("code", 100)], 100, 7, "Other");
+        Assert.Null(ScreenTimeRules.FocusPart("slack", all, [App("code", 100)]));
+    }
+
+    [Fact]
+    public void S3312_the_focused_part_is_lit_and_the_rest_dim()
+    {
+        Assert.Equal(ScreenTimeEmphasis.Normal, ScreenTimeRules.Emphasis("code", null));
+        Assert.Equal(ScreenTimeEmphasis.Lit, ScreenTimeRules.Emphasis("code", "code"));
+        Assert.Equal(ScreenTimeEmphasis.Dimmed, ScreenTimeRules.Emphasis("chrome", "code"));
     }
 
     [Fact]

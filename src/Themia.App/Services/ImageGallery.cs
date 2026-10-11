@@ -4,18 +4,10 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services;
 
-/// <summary>What one scan was asked for. A value, so a background task can capture it.</summary>
+/// <summary>What one folder read was asked for. A value, so a background task can capture it.</summary>
 /// <param name="Path">An already-validated, fully qualified folder path.</param>
 /// <param name="Recursive">Walk the folders below it too.</param>
-/// <param name="Shuffle">Take a random selection rather than the first by name.</param>
-/// <param name="Seed">The shuffle's seed, rolled by the caller so the choice is reproducible here.</param>
-/// <param name="MaxImages">How many to keep, already clamped by the config.</param>
-internal readonly record struct GalleryRequest(
-    string Path,
-    bool Recursive,
-    bool Shuffle,
-    int Seed,
-    int MaxImages);
+internal readonly record struct GalleryRequest(string Path, bool Recursive);
 
 /// <summary>
 /// Finding the pictures in a folder.
@@ -26,8 +18,9 @@ internal readonly record struct GalleryRequest(
 /// frozen behind a picture frame.
 /// </para>
 /// <para>
-/// Nothing here decodes anything. This produces paths; turning one into pixels is
-/// <see cref="ImageLoader"/>'s job and happens per tile, at the size the tile actually is.
+/// Nothing here decodes anything, and nothing here chooses: a read hands back every picture found
+/// (in a stable order), the shared <see cref="GalleryService"/> keeps it per source, and each widget
+/// takes its own selection from it ([S-3410], [S-3412]).
 /// </para>
 /// </summary>
 internal static class ImageGallery
@@ -68,16 +61,17 @@ internal static class ImageGallery
                     : GalleryStatus.NotFound);
             }
 
+            // In a stable order, so two reads of an unchanged folder compare equal and nothing redraws.
             var found = Scan(request, token);
-            var chosen = ImageFiles.Choose(found, request.Shuffle, request.Seed, request.MaxImages);
+            found.Sort(StringComparer.OrdinalIgnoreCase);
 
-            return chosen.Count == 0
+            return found.Count == 0
                 ? GalleryScan.Of(GalleryStatus.NoImages)
-                : new GalleryScan(GalleryStatus.Ok, chosen);
+                : new GalleryScan(GalleryStatus.Ok, found);
         }
         catch (OperationCanceledException)
         {
-            // The view moved on. Not a failure, and nothing will look at this result.
+            // The source was released. Not a failure, and nothing will look at this result.
             return GalleryScan.Of(GalleryStatus.Loading);
         }
         catch (UnauthorizedAccessException ex)
@@ -136,34 +130,54 @@ internal static class ImageGallery
     }
 
     /// <summary>
-    /// [S-762] Ask Bing for today's photo. The reply is parsed through the source-generated contract
-    /// and its one path checked to be on Bing's own host before anything decodes it. Never throws for
-    /// a network reason; cancellation propagates.
+    /// [S-762] [S-3410] The photo of the day, through the shared web cache: one request however many
+    /// widgets show it, an answer younger than <paramref name="freshFor"/> handed straight back, and a
+    /// failed ask that still has an earlier photo keeps showing it. Never throws for a network reason;
+    /// cancellation propagates.
     /// </summary>
-    public static async Task<GalleryScan> ReadBingAsync(CancellationToken token)
+    public static async Task<GalleryScan> ReadBingAsync(TimeSpan freshFor, bool force, CancellationToken token)
+    {
+        var fetched = await BingCache.GetAsync(BingKey, freshFor, LoadBingAsync, token, force).ConfigureAwait(false);
+
+        if ((fetched.Value ?? BingCache.Peek(BingKey)?.Value) is { } photo)
+        {
+            return new GalleryScan(GalleryStatus.Ok, [photo.Image.AbsoluteUri], photo.Credit);
+        }
+
+        return GalleryScan.Of(fetched.Status == FetchStatus.Offline ? GalleryStatus.Offline : GalleryStatus.Unavailable);
+    }
+
+    private const string BingKey = "today";
+
+    private static readonly WebCache<BingPhoto> BingCache = new("gallery-bing");
+
+    /// <summary>
+    /// The request itself. The reply is parsed through the source-generated contract and its one path
+    /// checked to be on Bing's own host before anything decodes it.
+    /// </summary>
+    private static async Task<Fetched<BingPhoto>> LoadBingAsync(CancellationToken token)
     {
         var (status, wire, detail) = await WebFetch
             .GetJsonAsync(BingPhoto.Endpoint, BingWireContext.Default.BingArchiveWire, token)
             .ConfigureAwait(false);
 
-        if (status == FetchStatus.Offline)
-        {
-            return GalleryScan.Of(GalleryStatus.Offline);
-        }
-
         if (status != FetchStatus.Ok)
         {
-            Log.Warn(Scope, $"photo of the day: {status} {detail}");
-            return GalleryScan.Of(GalleryStatus.Unavailable);
+            if (status != FetchStatus.Offline)
+            {
+                Log.Warn(Scope, $"photo of the day: {status} {detail}");
+            }
+
+            return Fetched<BingPhoto>.Failed(status, detail, DateTimeOffset.Now);
         }
 
         if (BingPhoto.From(wire) is not { } photo)
         {
             Log.Warn(Scope, "photo of the day: the reply held no usable photo");
-            return GalleryScan.Of(GalleryStatus.Unavailable);
+            return Fetched<BingPhoto>.Failed(FetchStatus.BadResponse, "no usable photo", DateTimeOffset.Now);
         }
 
-        return new GalleryScan(GalleryStatus.Ok, [photo.Image.AbsoluteUri], photo.Credit);
+        return new Fetched<BingPhoto>(FetchStatus.Ok, photo, null, DateTimeOffset.Now);
     }
 
     private static List<string> Scan(GalleryRequest request, CancellationToken token)

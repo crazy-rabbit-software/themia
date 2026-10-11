@@ -130,16 +130,16 @@ public sealed class SystemDetailsTests
     // ---- [S-2401] configs ----------------------------------------------------------------------
 
     [Fact]
-    public void S2401_an_out_of_range_refresh_is_clamped_loudly()
+    public void S3793_each_detail_kind_reads_at_its_own_fixed_cadence()
     {
-        var config = new CpuDetailsConfig { IntervalSeconds = 0 };
+        Assert.Equal(2, new CpuDetailsConfig().IntervalSeconds);
+        Assert.Equal(30, new DiskSpaceConfig().IntervalSeconds);
+        Assert.Equal(10, new PingDetailsConfig().IntervalSeconds);
 
-        Assert.NotEmpty(config.Repair());
-        Assert.Equal(1, config.IntervalSeconds);
-
-        var disk = new DiskSpaceConfig { IntervalSeconds = 9999 };
-        disk.Repair();
-        Assert.Equal(300, disk.IntervalSeconds);
+        // A stored cadence (an older file, a hand edit) is not read: the kind's own wins, quietly.
+        var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "intervalSeconds": 0 }""");
+        Assert.Equal(new TopProcessesConfig().IntervalSeconds, processes.IntervalSeconds);
+        Assert.Empty(processes.Repair());
     }
 
     [Fact]
@@ -164,18 +164,17 @@ public sealed class SystemDetailsTests
     [Fact]
     public void S2427_the_ping_window_is_clamped()
     {
-        var config = new PingDetailsConfig { Window = 1, HostLabel = new string('x', 100) };
+        var config = new PingDetailsConfig { Window = 1 };
 
-        Assert.Equal(2, config.Repair().Count);
+        Assert.Single(config.Repair());
         Assert.Equal(PingDetailsConfig.MinWindow, config.Window);
-        Assert.Equal(PingConfig.MaxLabelLength, config.HostLabel.Length);
     }
 
     [Fact]
     public void S2400_every_detail_config_round_trips_through_the_state_file()
     {
-        var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "intervalSeconds": 5, "sortBy": "Memory", "maxRows": 10, "groupByName": false }""");
-        Assert.Equal((5, ProcessSort.Memory, 10, false), (processes.IntervalSeconds, processes.SortBy, processes.MaxRows, processes.GroupByName));
+        var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "sortBy": "Memory", "maxRows": 10, "groupByName": false }""");
+        Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.MaxRows, processes.GroupByName));
 
         var network = (NetworkDetailsConfig)ConfigJson.Read("NetworkDetails", """{ "kind": "networkDetails", "showPublicAddress": true }""");
         Assert.True(network.ShowPublicAddress);

@@ -103,6 +103,15 @@ public sealed class TaskLayoutTests
     }
 
     [Fact]
+    public void S3850_an_empty_list_has_its_add_row_even_at_XS()
+    {
+        Assert.True(Plan(XS, count: 0).AddRow);
+        Assert.True(Plan(Wide, count: 0).AddRow);
+        var readOnly = TaskLayout.Plan(XS, new TaskLayoutInput(0, Writable: false, false, true, TaskViewMode.List, 2), Row, CompactRow);
+        Assert.False(readOnly.AddRow);
+    }
+
+    [Fact]
     public void S780_an_unmeasured_area_starts_minimal()
     {
         var plan = Plan(default);

@@ -19,7 +19,7 @@ public sealed class MixerRulesTests
     private static MixerRow Row(string key, double level = 0.5, bool muted = false, bool active = true, bool system = false)
         => new(key, key, null, level, muted, active, system, 1);
 
-    private static readonly MixerRowOptions All = new(ShowMaster: true, ShowSystemSounds: true, OnlyActive: false);
+    private static readonly MixerRowOptions All = new(ShowSystemSounds: true, OnlyActive: false);
 
     // ---- [S-442] grouping ---------------------------------------------------------------------
 
@@ -126,34 +126,26 @@ public sealed class MixerRulesTests
     public void S441_an_entry_point_description_reads_as_the_app()
         => Assert.Equal("WhatsApp", MixerRules.SessionName("WhatsApp.Root", @"C:\x\WhatsApp.exe", string.Empty));
 
-    // ---- [S-444] / [S-445] which rows are shown -----------------------------------------------
+    // ---- [S-445] / [S-3251] which rows are shown ----------------------------------------------
 
     [Fact]
-    public void S444_pins_the_master_row_first()
+    public void S3251_the_list_is_the_apps_alone_with_no_master_row()
     {
-        var rows = MixerRules.BuildRows([Row("chrome")], (0.8, false), All);
-        Assert.Equal([MixerRules.MasterKey, "chrome"], rows.Select(r => r.Key));
-        Assert.Equal(0.8, rows[0].Level);
-        Assert.True(rows[0].IsMaster);
-    }
-
-    [Fact]
-    public void S444_omits_the_master_row_when_off_or_unknown()
-    {
-        Assert.Single(MixerRules.BuildRows([Row("chrome")], (0.8, false), All with { ShowMaster = false }));
-        Assert.Single(MixerRules.BuildRows([Row("chrome")], null, All));
+        var rows = MixerRules.BuildRows([Row("chrome"), Row("spotify")], All);
+        Assert.Equal(["chrome", "spotify"], rows.Select(r => r.Key));
+        Assert.DoesNotContain(rows, r => r.Key == MixerRules.MasterKey);
     }
 
     [Fact]
     public void S445_drops_system_sounds_unless_switched_on()
     {
         var rows = new[] { Row("chrome"), Row(MixerRules.SystemSoundsKey, system: true) };
-        Assert.Equal(["chrome"], MixerRules.BuildRows(rows, null, All with { ShowSystemSounds = false }).Select(r => r.Key));
-        Assert.Equal(2, MixerRules.BuildRows(rows, null, All).Count);
+        Assert.Equal(["chrome"], MixerRules.BuildRows(rows, All with { ShowSystemSounds = false }).Select(r => r.Key));
+        Assert.Equal(2, MixerRules.BuildRows(rows, All).Count);
     }
 
     [Fact]
-    public void S445_only_active_hides_idle_apps_but_never_system_sounds_or_master()
+    public void S445_only_active_hides_idle_apps_but_never_system_sounds()
     {
         var rows = new[]
         {
@@ -162,14 +154,14 @@ public sealed class MixerRulesTests
             Row(MixerRules.SystemSoundsKey, active: false, system: true),
         };
 
-        var shown = MixerRules.BuildRows(rows, (0.3, true), All with { OnlyActive = true });
-        Assert.Equal([MixerRules.MasterKey, "a", MixerRules.SystemSoundsKey], shown.Select(r => r.Key));
+        var shown = MixerRules.BuildRows(rows, All with { OnlyActive = true });
+        Assert.Equal(["a", MixerRules.SystemSoundsKey], shown.Select(r => r.Key));
     }
 
     [Fact]
     public void S445_keeps_the_grouped_order()
     {
-        var shown = MixerRules.BuildRows([Row("z"), Row("a")], null, All);
+        var shown = MixerRules.BuildRows([Row("z"), Row("a")], All);
         Assert.Equal(["z", "a"], shown.Select(r => r.Key));
     }
 
@@ -259,15 +251,14 @@ public sealed class MixerRulesTests
     }
 
     [Theory]
-    [InlineData(Locale.En, false, false, true, false, "Playing")]
-    [InlineData(Locale.En, true, false, true, false, "Muted")]
-    [InlineData(Locale.De, false, false, true, false, "Spielt")]
-    [InlineData(Locale.De, false, false, false, false, "Still")]
-    [InlineData(Locale.De, false, true, true, false, "Windows-Klänge")]
-    [InlineData(Locale.De, false, false, true, true, "Alle Apps auf diesem Gerät")]
-    public void S1624_the_caption_speaks_the_language(Locale locale, bool muted, bool system, bool active, bool master, string expected)
+    [InlineData(Locale.En, false, false, true, "Playing")]
+    [InlineData(Locale.En, true, false, true, "Muted")]
+    [InlineData(Locale.De, false, false, true, "Spielt")]
+    [InlineData(Locale.De, false, false, false, "Still")]
+    [InlineData(Locale.De, false, true, true, "Windows-Klänge")]
+    public void S1624_the_caption_speaks_the_language(Locale locale, bool muted, bool system, bool active, string expected)
     {
-        var row = new MixerRow(master ? MixerRules.MasterKey : "app", "App", null, 0.5, muted, active, system, 1);
+        var row = new MixerRow("app", "App", null, 0.5, muted, active, system, 1);
 
         Assert.Equal(expected, MixerFill.Detail(row, locale));
     }

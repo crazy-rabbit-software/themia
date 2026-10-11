@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Widgets;
@@ -6,6 +6,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -44,12 +45,6 @@ internal static partial class WidgetSettings
             Str.WidgetsB_Settings_Email_Count_Desc.Text(),
             FluentLayout.Slider(email.EffectiveMaxCount, 1, 50, 1, string.Empty,
                 value => { email.MaxCount = (int)Math.Round(value); save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Sort, Str.WidgetsB_Settings_Email_Order.Text(), null,
-            FluentLayout.Choice<MailSortOrder>(
-                [(MailSortOrder.NewestFirst, Str.CtxMenu_NewestFirst.Text()), (MailSortOrder.OldestFirst, Str.CtxMenu_OldestFirst.Text())],
-                email.SortOrder,
-                value => { email.SortOrder = value; save(); })));
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Email_Display.Text()));
 
@@ -228,9 +223,39 @@ internal static partial class WidgetSettings
         ShowChoice();
     }
 
-    /// <summary>[S-543] The row view's columns: on or off, and in which order. One always stays on.</summary>
+    /// <summary>
+    /// [S-543] The row view's columns: on or off, and in which order. One always stays on. The
+    /// columns that are on are put in order by dragging one onto another or with Alt+Shift+Up / Down
+    /// ([S-3802]); the ones that are off follow them and do not move.
+    /// </summary>
     private static void MailColumnRows(StackPanel host, EmailConfig email, Action save)
     {
+        RowReorder<MailColumn>? reorder = null;
+
+        bool Commit(List<MailColumn> next, bool moved)
+        {
+            if (moved)
+            {
+                email.RowColumns = next;
+                save();
+                Rebuild();
+            }
+
+            return moved;
+        }
+
+        reorder = new RowReorder<MailColumn>(
+            (dragged, target) =>
+            {
+                var next = email.EffectiveColumns.ToList();
+                Commit(next, DeskListOrder.MoveTo(next, next.IndexOf(dragged), next.IndexOf(target)));
+            },
+            (column, delta) =>
+            {
+                var next = email.EffectiveColumns.ToList();
+                return Commit(next, DeskListOrder.Move(next, next.IndexOf(column), delta));
+            });
+
         void Rebuild()
         {
             host.Children.Clear();
@@ -238,13 +263,9 @@ internal static partial class WidgetSettings
             var chosen = email.EffectiveColumns.ToList();
             var all = chosen.Concat(Enum.GetValues<MailColumn>().Where(c => !chosen.Contains(c))).ToList();
 
-            for (var i = 0; i < all.Count; i++)
+            foreach (var column in all)
             {
-                var column = all[i];
-                var on = chosen.Contains(column);
-                var index = chosen.IndexOf(column);
-
-                var toggle = FluentLayout.Toggle(on, value =>
+                var toggle = FluentLayout.Toggle(chosen.Contains(column), value =>
                 {
                     var next = email.EffectiveColumns.ToList();
                     if (value)
@@ -261,37 +282,18 @@ internal static partial class WidgetSettings
                     Rebuild();
                 });
 
-                var up = FluentLayout.IconCommand(Glyphs.MoveUp, Str.ChildList_MoveUp.Text());
-                up.IsEnabled = on && index > 0;
-                up.Click += (_, _) => Move(-1);
-
-                var down = FluentLayout.IconCommand(Glyphs.MoveDown, Str.ChildList_MoveDown.Text());
-                down.IsEnabled = on && index >= 0 && index < chosen.Count - 1;
-                down.Click += (_, _) => Move(+1);
-
-                void Move(int by)
+                var row = FluentLayout.Row(ColumnGlyph(column), column.Label(), null, toggle);
+                if (chosen.Contains(column))
                 {
-                    var next = email.EffectiveColumns.ToList();
-                    var at = next.IndexOf(column);
-                    if (at < 0 || at + by < 0 || at + by >= next.Count)
-                    {
-                        return;
-                    }
-
-                    (next[at], next[at + by]) = (next[at + by], next[at]);
-                    email.RowColumns = next;
-                    save();
-                    Rebuild();
+                    reorder!.Attach(row, column);
                 }
 
-                var controls = new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    Spacing = Fluent.Space1,
-                    Children = { up, down, toggle },
-                };
+                host.Children.Add(row);
+            }
 
-                host.Children.Add(FluentLayout.Row(ColumnGlyph(column), column.Label(), null, controls));
+            if (chosen.Count > 1)
+            {
+                host.Children.Add(FluentLayout.Note(Str.Shell_List_ReorderHint.Text()));
             }
         }
 

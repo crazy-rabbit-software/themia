@@ -8,7 +8,7 @@ namespace Themia.Core.Model;
 /// </summary>
 public enum UndoAction
 {
-    /// <summary>Anything without a more specific name: a settings-page edit to a widget's header, surface or title, a view's name or icon.</summary>
+    /// <summary>Anything without a more specific name: an edit-bar change to widgets' header, background or title ([S-3703]), a view's name or icon.</summary>
     Change = 0,
 
     /// <summary>A widget placed from the picker.</summary>
@@ -25,9 +25,6 @@ public enum UndoAction
 
     /// <summary>Copies dropped by a paste.</summary>
     Paste = 5,
-
-    /// <summary>Copies dropped by Duplicate.</summary>
-    Duplicate = 6,
 
     /// <summary>Bring to front / send to back.</summary>
     Arrange = 7,
@@ -59,7 +56,6 @@ public static class UndoText
         UndoAction.Move => Str.Shell_Undo_Move,
         UndoAction.Resize => Str.Shell_Undo_Resize,
         UndoAction.Paste => Str.Shell_Undo_Paste,
-        UndoAction.Duplicate => Str.Shell_Undo_Duplicate,
         UndoAction.Arrange => Str.Shell_Undo_Arrange,
         UndoAction.AddView => Str.Shell_Undo_AddView,
         UndoAction.DeleteView => Str.Shell_Undo_DeleteView,

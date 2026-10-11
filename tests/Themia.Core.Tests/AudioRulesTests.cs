@@ -195,10 +195,9 @@ public class AudioRulesTests
         var silent = new Dictionary<string, double> { ["a"] = 0 };
         var loud = new Dictionary<string, double> { ["a"] = 0.3 };
 
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: false, 0, silent));
-        Assert.False(AudioRules.PeaksWorthSending(previousSilent: true, 0, silent));
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, 0, loud));
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, 0.1, silent));
+        Assert.True(AudioRules.PeaksWorthSending(previousSilent: false, silent));
+        Assert.False(AudioRules.PeaksWorthSending(previousSilent: true, silent));
+        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, loud));
     }
 
     // ---- [S-1227] [S-1228] [S-1231] the mixer's rows ---------------------------------------------
@@ -227,8 +226,8 @@ public class AudioRulesTests
             Row("c", "Gamma", active: false),
         ];
 
-        Assert.Equal(["b", "c"], MixerRules.QuietRows(rows, new MixerRowOptions(true, true, OnlyActive: true)).Select(r => r.Key));
-        Assert.Empty(MixerRules.QuietRows(rows, new MixerRowOptions(true, true, OnlyActive: false)));
+        Assert.Equal(["b", "c"], MixerRules.QuietRows(rows, new MixerRowOptions(true, OnlyActive: true)).Select(r => r.Key));
+        Assert.Empty(MixerRules.QuietRows(rows, new MixerRowOptions(true, OnlyActive: false)));
     }
 
     // ---- [S-2732] the wheel ----------------------------------------------------------------------

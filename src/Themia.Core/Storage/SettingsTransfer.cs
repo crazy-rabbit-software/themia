@@ -472,7 +472,32 @@ public static class SettingsTransfer
 
         Toggle(Str.Shell_Settings_General_GameMode, old.GameModeSuspend, @new.GameModeSuspend);
         Toggle(Str.Settings_DesktopIcons_Label, old.DesktopIconsVisible, @new.DesktopIconsVisible);
-        Toggle(Str.Shell_Settings_General_LocalNetwork, old.AllowPrivateNetwork, @new.AllowPrivateNetwork);
+
+        // [S-3770] [S-3780] The formats and cadences every widget shares.
+        void Value(Str label, string before, string after)
+        {
+            if (before != after)
+            {
+                changes.Add(Strings.Format(locale, Str.Shell_Transfer_Change,
+                    ("label", Strings.Get(locale, label)), ("before", before), ("after", after)));
+            }
+        }
+
+        Value(Str.WidgetPrefs_Region_Clock, old.Region.Clock.ToString(), @new.Region.Clock.ToString());
+        Value(Str.Calendar_WeekStart_Label, old.Region.WeekStart.ToString(), @new.Region.WeekStart.ToString());
+        Value(Str.Weather_UnitLabel, old.Region.Temperature.ToString(), @new.Region.Temperature.ToString());
+
+        foreach (var (source, label) in new[]
+        {
+            (Sync.UpdateSource.Weather, Str.WidgetPrefs_Updates_Weather),
+            (Sync.UpdateSource.Markets, Str.WidgetPrefs_Updates_Markets),
+            (Sync.UpdateSource.Feeds, Str.WidgetPrefs_Updates_Feeds),
+            (Sync.UpdateSource.Accounts, Str.WidgetPrefs_Updates_Accounts),
+        })
+        {
+            Value(label, Strings.Plural(locale, Str.Shell_Refresh_EveryMinutes, Sync.UpdateCadence.Minutes(old.Refresh, source)),
+                Strings.Plural(locale, Str.Shell_Refresh_EveryMinutes, Sync.UpdateCadence.Minutes(@new.Refresh, source)));
+        }
     }
 
 }

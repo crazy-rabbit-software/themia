@@ -243,6 +243,7 @@ internal static class SettingsRender
 
             host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
             ApplyLicenseFixture(host);
+            DemoAccounts(host, Array.IndexOf(Environment.GetCommandLineArgs(), "--demo-accounts") >= 0);
 
             // [S-853] The Displays page lists the connected displays. Reading the list touches no
             // window; no surface is built, so the page renders exactly as Settings shows it.
@@ -351,6 +352,34 @@ internal static class SettingsRender
         }
     }
 
+    /// <summary>
+    /// [S-3824] <c>--demo-accounts</c>: two stand-in accounts on the Accounts page, one healthy with
+    /// numbers for every kind, one that needs signing in again with mail only. The numbers go into
+    /// the render host's own ledger; no account is stored and nothing reaches a provider.
+    /// </summary>
+    private static void DemoAccounts(AppHost host, bool on)
+    {
+        AccountsPage.DebugAccounts = null;
+        if (!on)
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.Now;
+        var microsoft = new Services.Accounts.AccountInfo("demo-ms", Themia.Core.Accounts.AccountProvider.Microsoft,
+            "alex@contoso.com", "Alex Wilber", null, null, null);
+        var imap = new Services.Accounts.AccountInfo("demo-imap", Themia.Core.Accounts.AccountProvider.Imap,
+            "alex@fabrikam.example", "alex@fabrikam.example", "Fabrikam mail", null,
+            "The server refused the password. Sign in again to keep this account syncing.");
+
+        AccountsPage.DebugAccounts = [microsoft, imap];
+
+        host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Mail, 1240, 3, now.AddMinutes(-4), 2));
+        host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Calendar, 386, 2, now.AddMinutes(-12), 0));
+        host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Contacts, 214, 0, now.AddHours(-3), 0));
+        host.Sync.Report(imap.Id, new(Themia.Core.Sync.SyncKind.Mail, 50, 1, now.AddDays(-2), 0));
+    }
+
     private static WidgetInstance DemoWidget(AppHost host, WidgetKind kind)
     {
         var demo = host.State.Views.SelectMany(v => v.Widgets).FirstOrDefault(w => w.Kind == kind);
@@ -378,12 +407,20 @@ internal static class SettingsRender
         ];
         string[] icons = [Glyphs.Calendar, Glyphs.Mail, Glyphs.Sun, Glyphs.Moon, Glyphs.Play];
 
+        // [S-3810] Some views coloured, so the coloured icons can be looked at on every list.
+        string[] colours = ["#E74856", "#0099BC", "#FFB900", "#8764B8", "#10893E"];
+
         for (var i = state.Views.Count; i < Math.Min(total, 60); i++)
         {
             var view = ViewState.Create(names[i % names.Length]);
             if (i % 3 == 0)
             {
                 view.Icon = icons[i / 3 % icons.Length];
+            }
+
+            if (i % 2 == 0)
+            {
+                view.Color = colours[i / 2 % colours.Length];
             }
 
             for (var w = 0; w < i % 4; w++)
@@ -405,7 +442,8 @@ internal static class SettingsRender
         // [S-903] One view with an icon of its own, so the pane shows a view glyph beside the shared colour icon.
         var work = ViewState.Create("Work");
         work.Icon = "";
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.05, 0.08, 0.20, 0.30)));
+        work.Color = "#0099BC";
+        work.Widgets.Add(WidgetInstance.Create(WidgetKind.MonthCalendar, new FracRect(0.05, 0.08, 0.20, 0.30)));
         work.Widgets.Add(WidgetInstance.Create(WidgetKind.Email, new FracRect(0.30, 0.08, 0.25, 0.30)));
 
         var evening = ViewState.Create("Evening");

@@ -39,7 +39,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly Window _window;
     private readonly Canvas _widgetLayer;
     private readonly Path _gridOverlay;
-    private readonly Border _toolbar;
+    private readonly EditBar _toolbar;
     private readonly Border _placementHint;
     private readonly TextBlock _placementHintText;
     private readonly Canvas _ghostLayer;
@@ -262,9 +262,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <inheritdoc />
     public void RequestFollowInSettings(WidgetCard card)
         => _host.FollowConfig(new ConfigTarget.Widget(card.Model.Id));
-
-    /// <summary>[S-1589] Copies of the selection follow the pointer until a click drops them.</summary>
-    public void RequestDuplicate(WidgetCard card) => _host.DuplicateSelected();
 
     /// <summary>[S-1592] Delete the selection (the right-clicked card is in it).</summary>
     public void RequestDelete(WidgetCard card) => _host.DeleteSelected();

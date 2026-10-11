@@ -1,0 +1,20 @@
+{
+  "widgetPrefs.nav": "Widgets",
+  "widgetPrefs.subtitle": "Formats et mises à jour de tous les widgets",
+  "widgetPrefs.region.header": "Format régional",
+  "widgetPrefs.region.clock": "Format de l'heure",
+  "widgetPrefs.region.clock12": "12 heures",
+  "widgetPrefs.region.clock24": "24 heures",
+  "widgetPrefs.followWindows": "Paramètre Windows ({value})",
+  "widgetPrefs.updates.header": "Mises à jour",
+  "widgetPrefs.updates.note": "Fréquence à laquelle les widgets interrogent les services en ligne. « Actualiser » sur un widget interroge aussitôt.",
+  "widgetPrefs.updates.weather": "Météo",
+  "widgetPrefs.updates.markets": "Bourse",
+  "widgetPrefs.updates.feeds": "Flux d'actualités",
+  "widgetPrefs.updates.accounts": "Courrier, calendriers et tâches",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Toutes les {count} heure",
+    "other": "Toutes les {count} heures"
+  },
+  "widgetsC.shortcuts.settings.locations": "Emplacements Windows"
+}

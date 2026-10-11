@@ -117,12 +117,61 @@ internal sealed partial class AccountOfficeSource
         var round = await _accounts.GetDeltaAsync(account.Id, first, DeltaDialect.Graph, OfficeJsonContext.Default.GraphEvent, MaxEvents, ct,
             ("Prefer", "outlook.timezone=\"UTC\""), ("Prefer", "odata.maxpagesize=200")).ConfigureAwait(true);
 
-        // A cancelled occurrence is not an event ([S-185]): it leaves like a deleted one.
-        var changed = round.Items.Select(OfficeWire.FromGraph).OfType<CalendarEvent>().ToList();
-        var removed = round.Removed.Concat(round.Items.Where(e => e.IsCancelled && !string.IsNullOrEmpty(e.Id)).Select(e => e.Id!)).ToList();
+        // A cancelled occurrence is not an event ([S-185]): it leaves like a deleted one. [S-3610] A
+        // bare change notice is read again by id, or, when there are many, the window is read whole.
+        var changes = OfficeWire.SortGraphChanges(round.Items, round.Removed);
+
+        if (changes.ReadWindowInstead)
+        {
+            Log.Debug(Scope, $"{account.Id}: {changes.Reread.Count} calendar change notices; reading the window in full");
+            var events = await LoadEventsAsync(target, from, to, ct).ConfigureAwait(true);
+            var whole = CalendarSync.Merge(held, target.CalendarId, events, from, to, now, full: true);
+            whole.Cursor = round.Cursor is not { } next || whole.Events.Count >= MaxEvents
+                ? null
+                : cursor is not null ? SyncCursors.Advance(cursor, next, now) : SyncCursors.Start(CursorKind.GraphDelta, next, scope, now);
+            return whole;
+        }
+
+        var changed = changes.Changed.ToList();
+        var removed = changes.Removed.ToList();
+
+        foreach (var id in changes.Reread)
+        {
+            if (await RereadGraphEventAsync(account, id, ct).ConfigureAwait(true) is { } fresh)
+            {
+                changed.Add(fresh);
+            }
+            else
+            {
+                removed.Add(id);
+            }
+        }
 
         return Fold(held, cursor, target.CalendarId, changed, removed, round.Cursor, CursorKind.GraphDelta, from, to, scope, now);
     }
+
+    /// <summary>
+    /// [S-3610] One event a change round only named, read whole by id with the calendar view's fields.
+    /// Null when it is gone (404) or is no event now (cancelled). Any other failure fails the round,
+    /// so its cursor does not move past a change that was never read.
+    /// </summary>
+    private async Task<CalendarEvent?> RereadGraphEventAsync(AccountInfo account, string id, CancellationToken ct)
+    {
+        var url = new Uri($"{Graph}me/events/{Uri.EscapeDataString(id)}?$select={GraphEventFields}");
+
+        try
+        {
+            var item = await _accounts.GetJsonAsync(account.Id, url, OfficeJsonContext.Default.GraphEvent, ct,
+                ("Prefer", "outlook.timezone=\"UTC\"")).ConfigureAwait(true);
+            return OfficeWire.FromGraph(item);
+        }
+        catch (AccountException ex) when (ex.Error == AccountError.NotFound)
+        {
+            // Gone since the round named it: it leaves like a removed one.
+            return null;
+        }
+    }
+
 
     /// <summary>A Google events round: the window in full (no order, so Google can hand out a sync token), or from the token.</summary>
     private async Task<CalendarSpan> GoogleWindowAsync(

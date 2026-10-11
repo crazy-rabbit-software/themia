@@ -42,9 +42,10 @@ internal static class GuardedTcp
     /// <see cref="NetRefusedException"/> for a guard refusal, <see cref="ProxyTunnelException"/> for a
     /// proxy that would not tunnel, and the usual socket / IO / authentication exceptions otherwise.
     /// </summary>
-    public static async Task<SslStream> OpenTlsAsync(string host, int port, CancellationToken token)
+    /// <param name="grant">[S-3843] The leave the typed server earned (<see cref="LocalGrants.ForTypedHost"/>), or null.</param>
+    public static async Task<SslStream> OpenTlsAsync(string host, int port, LocalGrant? grant, CancellationToken token)
     {
-        var stream = await OpenAsync(host, port, token).ConfigureAwait(false);
+        var stream = await OpenAsync(host, port, grant, token).ConfigureAwait(false);
         var tls = new SslStream(stream, leaveInnerStreamOpen: false);
 
         try
@@ -65,7 +66,7 @@ internal static class GuardedTcp
         }
     }
 
-    private static async Task<Stream> OpenAsync(string host, int port, CancellationToken token)
+    private static async Task<Stream> OpenAsync(string host, int port, LocalGrant? grant, CancellationToken token)
     {
         var question = ConnectRules.TunnelQuestion(host, port)
             ?? throw new NetRefusedException(host, $"{host}:{port} is not a server address");
@@ -75,7 +76,7 @@ internal static class GuardedTcp
         switch (ConnectRules.Classify(proxy, question))
         {
             case ProxyRoute.Direct:
-                var direct = await NetGuard.OpenSocketAsync(host, port, NetReach.Internet, token).ConfigureAwait(false);
+                var direct = await NetGuard.OpenSocketAsync(host, port, NetReach.Internet, grant, token).ConfigureAwait(false);
                 return new NetworkStream(direct, ownsSocket: true);
 
             case ProxyRoute.Unsupported:
@@ -83,7 +84,7 @@ internal static class GuardedTcp
                 throw new ProxyTunnelException($"The system proxy ({proxy!.Scheme}://{proxy.Authority}) cannot carry mail; only an HTTP proxy can.");
         }
 
-        var verdict = await NetGuard.CheckDestinationAsync(question, proxied: true, token).ConfigureAwait(false);
+        var verdict = await NetGuard.CheckDestinationAsync(question, proxied: true, grant, token).ConfigureAwait(false);
         if (!verdict.Allowed)
         {
             throw new NetRefusedException(host, verdict.Reason ?? Str.Shell_Net_HostRefused.Format(("host", host)));

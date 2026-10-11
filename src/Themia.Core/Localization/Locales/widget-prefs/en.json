@@ -1,0 +1,22 @@
+{
+  "$comment": "[S-3770] [S-3780] Settings › Widgets: the regional formats and update cadences every widget shares.",
+  "$englishOnly": [],
+  "widgetPrefs.nav": "Widgets",
+  "widgetPrefs.subtitle": "Formats and updates every widget shares",
+  "widgetPrefs.region.header": "Regional format",
+  "widgetPrefs.region.clock": "Time format",
+  "widgetPrefs.region.clock12": "12-hour",
+  "widgetPrefs.region.clock24": "24-hour",
+  "widgetPrefs.followWindows": "Windows setting ({value})",
+  "widgetPrefs.updates.header": "Updates",
+  "widgetPrefs.updates.note": "How often widgets ask online services. Refresh on a widget asks at once.",
+  "widgetPrefs.updates.weather": "Weather",
+  "widgetPrefs.updates.markets": "Stocks",
+  "widgetPrefs.updates.feeds": "News feeds",
+  "widgetPrefs.updates.accounts": "Mail, calendars and tasks",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Every {count} hour",
+    "other": "Every {count} hours"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows locations"
+}

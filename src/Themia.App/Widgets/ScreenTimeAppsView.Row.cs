@@ -13,21 +13,23 @@ using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
 
-/// <summary>The legend: one row per app, reused by position as the data changes.</summary>
-internal sealed partial class ScreenTimeView
+/// <summary>The list's rows, reused by position as the data changes.</summary>
+internal sealed partial class ScreenTimeAppsView
 {
     /// <summary>
-    /// [S-452] One legend row: the app's icon, its name with its colour dot right after it, and the
-    /// figures on the right — average, share, then the time, which is always the last column.
+    /// [S-3350] One row: the app's icon (or an initial chip in its colour), its name, then the
+    /// figures — average, share, and the time, always the last column. [S-3353] The row is lit,
+    /// dimmed, marked selected and ringed for the keyboard from the view's links, never from its own
+    /// pointer alone, so a hover in the chart lights it here.
     /// </summary>
-    private sealed class LegendRow
+    private sealed class AppRow
     {
         private const double IconSize = Fluent.IconSize;
-        private const double Dot = 6;
 
         private static readonly Brush TimeBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        private static readonly Brush SelectedBrush = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Gray);
 
-        private readonly ScreenTimeView _owner;
+        private readonly ScreenTimeAppsView _owner;
         private readonly Grid _icon = new() { Width = IconSize, Height = IconSize, VerticalAlignment = VerticalAlignment.Center };
         private readonly Image _image = new() { Width = IconSize, Height = IconSize, Stretch = Stretch.Uniform };
         private readonly Border _chip = new() { Width = IconSize, Height = IconSize, CornerRadius = new CornerRadius(Fluent.ControlRadius) };
@@ -40,16 +42,26 @@ internal sealed partial class ScreenTimeView
         };
 
         private readonly TextBlock _name = Fluent.Text(FluentType.Body);
-        private readonly Microsoft.UI.Xaml.Shapes.Ellipse _dot = new() { Width = Dot, Height = Dot, VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _average = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
         private readonly TextBlock _percent = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
         private readonly TextBlock _time = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        private readonly IDisposable _hover;
+
+        /// <summary>Fluent's list selection pill, in the row's left padding.</summary>
+        private readonly Border _pill = new()
+        {
+            Width = 3,
+            Height = Fluent.IconSize,
+            CornerRadius = new CornerRadius(1.5),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(-Fluent.Space3, 0, 0, 0),
+            Visibility = Visibility.Collapsed,
+        };
 
         private ScreenTimeSegment? _segment;
         private string? _iconPath;
 
-        public LegendRow(ScreenTimeView owner)
+        public AppRow(ScreenTimeAppsView owner)
         {
             _owner = owner;
 
@@ -57,23 +69,18 @@ internal sealed partial class ScreenTimeView
             _chip.Child = _initial;
             _icon.Children.Add(_chip);
             _icon.Children.Add(_image);
+            _pill.Background = ScreenTimeLook.Accent;
 
-            _average.VerticalAlignment = VerticalAlignment.Center;
-            _percent.VerticalAlignment = VerticalAlignment.Center;
-            _time.VerticalAlignment = VerticalAlignment.Center;
+            foreach (var figure in new[] { _average, _percent, _time })
+            {
+                figure.VerticalAlignment = VerticalAlignment.Center;
+                figure.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
+                Typography.SetNumeralAlignment(figure, FontNumeralAlignment.Tabular);
+            }
+
             _time.TextAlignment = TextAlignment.Right;
-            Typography.SetNumeralAlignment(_time, FontNumeralAlignment.Tabular);
-            Typography.SetNumeralAlignment(_average, FontNumeralAlignment.Tabular);
-            Typography.SetNumeralAlignment(_percent, FontNumeralAlignment.Tabular);
-
-            // [S-452] The name takes only what its text needs and ellipsises when the row runs out,
-            // so the dot always sits right after it; the spare width goes after the dot and the
-            // figures stay right-aligned.
-            var name = new HugRow(_name, _dot, Fluent.Space2) { HorizontalAlignment = HorizontalAlignment.Left };
-            _average.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-            _percent.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-            _time.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-            name.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
+            _name.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
+            _name.TextTrimming = TextTrimming.CharacterEllipsis;
 
             var grid = new Grid
             {
@@ -88,47 +95,45 @@ internal sealed partial class ScreenTimeView
             };
 
             SetColumn(_icon, 0);
-            SetColumn(name, 1);
+            SetColumn(_name, 1);
             SetColumn(_average, 2);
             SetColumn(_percent, 3);
             SetColumn(_time, 4);
-
+            grid.Children.Add(_pill);
             grid.Children.Add(_icon);
-            grid.Children.Add(name);
+            grid.Children.Add(_name);
             grid.Children.Add(_average);
             grid.Children.Add(_percent);
             grid.Children.Add(_time);
 
             Host = Fluent.Row(grid, compact: true);
+            RowFocus.Prepare(Host);
             Host.PointerEntered += OnEntered;
             Host.PointerExited += OnLeft;
             Host.PointerCanceled += OnLeft;
             Host.PointerCaptureLost += OnLeft;
+            Host.Tapped += OnTapped;
             Host.RightTapped += OnRightTapped;
-            _hover = Fluent.Hover(Host);
         }
 
         public Border Host { get; }
 
         public string? Key => _segment?.Key;
 
-        public void Show(ScreenTimeSegment segment, Brush colour, bool dot, string? average, string? percent, ScreenTimeGoal? goal)
+        public void Show(ScreenTimeSegment segment, string? average, string? percent, ScreenTimeGoal? goal)
         {
             _segment = segment;
+            var colour = ScreenTimeLook.For(segment.Key);
 
             _name.Text = segment.Name;
-            _dot.Fill = colour;
-            _dot.Visibility = dot ? Visibility.Visible : Visibility.Collapsed;
-
             _average.Text = average ?? string.Empty;
             _average.Visibility = average is null ? Visibility.Collapsed : Visibility.Visible;
             _percent.Text = percent ?? string.Empty;
             _percent.Visibility = percent is null ? Visibility.Collapsed : Visibility.Visible;
-
             _time.Text = ScreenTimeRules.FormatDuration(segment.Seconds);
 
             // [S-457] Over its own daily limit, the app's time says so in the critical colour.
-            _time.Foreground = goal is { Over: true } ? CriticalBrush : TimeBrush;
+            _time.Foreground = goal is { Over: true } ? ScreenTimeLook.Critical : TimeBrush;
 
             var tip = $"{segment.Name} — {_time.Text}";
             if (average is not null)
@@ -142,11 +147,19 @@ internal sealed partial class ScreenTimeView
             }
 
             ToolTipService.SetToolTip(Host, tip);
-
             ShowIcon(segment, colour);
         }
 
-        public void Dim(bool dimmed) => Host.Opacity = dimmed ? 0.45 : 1;
+        /// <summary>[S-3353] The row against the view's links.</summary>
+        public void Mark(ScreenTimeEmphasis emphasis, bool selected, bool cursor)
+        {
+            Host.Opacity = emphasis == ScreenTimeEmphasis.Dimmed ? 0.45 : 1;
+            Host.Background = emphasis == ScreenTimeEmphasis.Lit ? Fluent.RowHover()
+                : selected ? SelectedBrush
+                : Fluent.RowRest();
+            _pill.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
+            RowFocus.Mark(Host, cursor);
+        }
 
         /// <summary>The app's icon; while it loads, or when it has none, a chip of its colour with its initial.</summary>
         private void ShowIcon(ScreenTimeSegment segment, Brush colour)
@@ -190,11 +203,21 @@ internal sealed partial class ScreenTimeView
         {
             if (_segment is { } segment)
             {
-                _owner.SetFocus(segment.Key);
+                _owner.Hover(segment.Key);
             }
         }
 
-        private void OnLeft(object sender, PointerRoutedEventArgs args) => _owner.SetFocus(null);
+        private void OnLeft(object sender, PointerRoutedEventArgs args) => _owner.Hover(null);
+
+        private void OnTapped(object sender, TappedRoutedEventArgs args)
+        {
+            args.Handled = true;
+
+            if (_segment is { } segment)
+            {
+                _owner.Select(segment.Key);
+            }
+        }
 
         private void OnRightTapped(object sender, RightTappedRoutedEventArgs args)
         {
@@ -203,16 +226,16 @@ internal sealed partial class ScreenTimeView
                 return;
             }
 
-            ItemMenu.Show(Host, args, [new ItemMenuEntry(Glyphs.Hide, Str.Screentime_HideApp.Text(), () => _owner.Hide(segment.Key))]);
+            ItemMenu.Show(Host, args, [new ItemMenuEntry(Glyphs.Hide, Str.Screentime_HideApp.Text(), () => ScreenTimeLook.Hide(_owner._source, segment.Key))]);
         }
 
         public void Detach()
         {
-            _hover.Dispose();
             Host.PointerEntered -= OnEntered;
             Host.PointerExited -= OnLeft;
             Host.PointerCanceled -= OnLeft;
             Host.PointerCaptureLost -= OnLeft;
+            Host.Tapped -= OnTapped;
             Host.RightTapped -= OnRightTapped;
         }
     }

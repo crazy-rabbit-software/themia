@@ -9,6 +9,7 @@ using System.Text.Json.Serialization.Metadata;
 using Themia.App.Services.Net;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
+using Themia.Core.Net;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Web;
@@ -56,10 +57,10 @@ internal static class WebFetch
     private const int MaxBytes = 4 * 1024 * 1024;
 
     /// <summary>
-    /// [S-960] The client for everything on the internet: every connection through the guard, the
-    /// local network only when the user's switch allows it.
+    /// [S-960] The clients for everything on the internet: every connection through the guard, the
+    /// local network only for the host of an address the user typed ([S-3840]).
     /// </summary>
-    private static readonly HttpClient Client = GuardedHttp.Create(NetReach.Internet, ConnectTimeout, RequestTimeout);
+    private static readonly GuardedClients Clients = GuardedHttp.CreatePair(ConnectTimeout, RequestTimeout);
 
     /// <summary>[S-967] The client for a service on this computer (the hardware monitor): loopback only, never proxied.</summary>
     private static readonly HttpClient LocalClient = GuardedHttp.Create(NetReach.ThisMachine, ConnectTimeout, RequestTimeout);
@@ -79,9 +80,13 @@ internal static class WebFetch
     /// redirect, connects through <see cref="NetGuard"/> — and a refusal comes back as
     /// <see cref="FetchStatus.Refused"/> with the sentence to show as the detail.
     /// </param>
-    public static async Task<WebResponse> GetAsync(Uri uri, string accept, CancellationToken token, NetReach reach = NetReach.Internet)
+    /// <param name="grant">
+    /// [S-3840] For an address the user typed: <see cref="LocalGrants.ForTyped(Uri)"/> of it, which lets
+    /// that one host be on the local network. Never for an address read out of fetched content.
+    /// </param>
+    public static async Task<WebResponse> GetAsync(Uri uri, string accept, CancellationToken token, NetReach reach = NetReach.Internet, LocalGrant? grant = null)
     {
-        var (status, body, detail) = await FetchAsync(uri, accept, reach, MaxBytes, token).ConfigureAwait(false);
+        var (status, body, detail) = await FetchAsync(uri, accept, reach, grant, MaxBytes, token).ConfigureAwait(false);
 
         // UTF-8 with replacement, not with an exception: a feed declaring one encoding and serving
         // another is common, the app builds with InvariantGlobalization so most legacy code pages
@@ -101,12 +106,13 @@ internal static class WebFetch
         string accept,
         int maxBytes,
         CancellationToken token)
-        => FetchAsync(uri, accept, NetReach.Internet, Math.Clamp(maxBytes, 1, MaxBytes), token);
+        => FetchAsync(uri, accept, NetReach.Internet, grant: null, Math.Clamp(maxBytes, 1, MaxBytes), token);
 
     private static async Task<(FetchStatus Status, byte[]? Body, string? Detail)> FetchAsync(
         Uri uri,
         string accept,
         NetReach reach,
+        LocalGrant? grant,
         int maxBytes,
         CancellationToken token)
     {
@@ -134,8 +140,10 @@ internal static class WebFetch
                     request.Headers.Accept.ParseAdd(accept);
                 }
 
-                using var response = await (reach == NetReach.ThisMachine ? LocalClient : Client)
-                    .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token)
+                // [S-3840] The grant goes along only while the hop stays on the host it was given for.
+                using var response = await (reach == NetReach.ThisMachine
+                        ? LocalClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token)
+                        : Clients.SendAsync(request, grant, HttpCompletionOption.ResponseHeadersRead, token))
                     .ConfigureAwait(false);
 
                 // [S-966] Redirects are followed here, never by the stack, so each hop is a new

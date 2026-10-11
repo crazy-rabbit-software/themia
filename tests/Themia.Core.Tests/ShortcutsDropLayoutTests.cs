@@ -440,7 +440,7 @@ public sealed class ShortcutsDropLayoutTests
     public void S1405_the_layout_menu_launches_edits_moves_renames_and_removes()
     {
         var layout = SideBySide(@"C:\a.lnk", "https://b.example");
-        var menu = ShortcutRules.Menu(LaunchTargets.Classify(string.Empty), 1, 0, 3, layout);
+        var menu = ShortcutRules.Menu(LaunchTargets.Classify(string.Empty), 1, layout);
         var commands = menu.Where(e => e.Command is not null).Select(e => e.Command!.Value).ToList();
 
         Assert.Equal(ShortcutCommand.Open, commands[0]);
@@ -449,7 +449,7 @@ public sealed class ShortcutsDropLayoutTests
         Assert.DoesNotContain(ShortcutCommand.CopyPath, commands);
         Assert.Contains(ShortcutCommand.Rename, commands);
 
-        var empty = ShortcutRules.Menu(LaunchTargets.Classify(string.Empty), 1, 0, 3, LayoutNode.NewPane());
+        var empty = ShortcutRules.Menu(LaunchTargets.Classify(string.Empty), 1, LayoutNode.NewPane());
         Assert.True(empty[0].Disabled);
     }
 

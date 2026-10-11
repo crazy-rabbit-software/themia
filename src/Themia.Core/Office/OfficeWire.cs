@@ -52,8 +52,12 @@ public sealed class GraphEvent
     [JsonPropertyName("end")]
     public GraphDateTime? End { get; set; }
 
+    /// <summary>
+    /// [S-3610] Null when the item did not say: a change round may send a bare notice that an event
+    /// changed (its id and times, no <c>isAllDay</c>, no <c>subject</c>). Every full event says.
+    /// </summary>
     [JsonPropertyName("isAllDay")]
-    public bool IsAllDay { get; set; }
+    public bool? IsAllDay { get; set; }
 
     [JsonPropertyName("isCancelled")]
     public bool IsCancelled { get; set; }
@@ -260,26 +264,28 @@ public static class OfficeWire
 {
     /// <summary>
     /// A Graph event. Times arrive zoneless in UTC (the request asks for
-    /// <c>outlook.timezone="UTC"</c>); an all-day event's date is the date part, kept as a date.
-    /// Cancelled occurrences are not events ([S-185]).
+    /// <c>outlook.timezone="UTC"</c>); an all-day event's dates are read as dates, never through a
+    /// zone ([S-3611]). Cancelled occurrences are not events ([S-185]). [S-3610] An item that does not
+    /// say whether it is all-day is a change notice, not an event: null, so it is read again by id
+    /// rather than folded in as a timed event with no title.
     /// </summary>
     public static CalendarEvent? FromGraph(GraphEvent item)
     {
-        if (item.IsCancelled || string.IsNullOrWhiteSpace(item.Id))
+        if (item.IsCancelled || string.IsNullOrWhiteSpace(item.Id) || item.IsAllDay is not { } allDay)
         {
             return null;
         }
 
         CalendarEvent? result;
 
-        if (item.IsAllDay)
+        if (allDay)
         {
-            if (CalendarRules.ParseDate(item.Start?.DateTime) is not { } first)
+            if (CalendarRules.ParseAllDayDate(item.Start?.DateTime) is not { } first)
             {
                 return null;
             }
 
-            var end = CalendarRules.ParseDate(item.End?.DateTime) ?? first.AddDays(1);
+            var end = CalendarRules.ParseAllDayDate(item.End?.DateTime) ?? first.AddDays(1);
             result = CalendarEvent.AllDayEvent(item.Id, item.Subject ?? string.Empty, first, end);
         }
         else
@@ -314,9 +320,9 @@ public static class OfficeWire
 
         CalendarEvent result;
 
-        if (CalendarRules.ParseDate(item.Start?.Date) is { } first && item.Start?.DateTime is null)
+        if (CalendarRules.ParseAllDayDate(item.Start?.Date) is { } first && item.Start?.DateTime is null)
         {
-            var end = CalendarRules.ParseDate(item.End?.Date) ?? first.AddDays(1);
+            var end = CalendarRules.ParseAllDayDate(item.End?.Date) ?? first.AddDays(1);
             result = CalendarEvent.AllDayEvent(item.Id, item.Summary ?? string.Empty, first, end);
         }
         else if (CalendarRules.ParseDateTime(item.Start?.DateTime) is { } start)
@@ -337,7 +343,47 @@ public static class OfficeWire
         };
     }
 
+    /// <summary>
+    /// [S-3610] One Graph change round, sorted: the events to fold in, the ids that left (removed,
+    /// or cancelled), and the ids that came as bare change notices and must be read again by id
+    /// before anything of them is shown — folding a notice in would blank the title and turn an
+    /// all-day event into a timed one across two local days.
+    /// </summary>
+    public static GraphChanges SortGraphChanges(IReadOnlyList<GraphEvent> items, IReadOnlyList<string> removed)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(removed);
+
+        var changed = new List<CalendarEvent>();
+        var gone = new List<string>(removed);
+        var reread = new List<string>();
+
+        foreach (var item in items)
+        {
+            if (string.IsNullOrWhiteSpace(item.Id))
+            {
+                continue;
+            }
+
+            if (item.IsCancelled)
+            {
+                gone.Add(item.Id);
+            }
+            else if (item.IsAllDay is null)
+            {
+                reread.Add(item.Id);
+            }
+            else if (FromGraph(item) is { } e)
+            {
+                changed.Add(e);
+            }
+        }
+
+        return new GraphChanges(changed, gone, [.. reread.Distinct(StringComparer.Ordinal)]);
+    }
+
     public static CalendarInfo? FromGraph(GraphCalendar item)
+
         => string.IsNullOrWhiteSpace(item.Id)
             ? null
             : new CalendarInfo(item.Id, Blank(item.Name) ?? "Calendar", item.IsDefaultCalendar, CalendarRules.NormalizeColor(item.HexColor));
@@ -408,4 +454,17 @@ public static class OfficeWire
     private static string? FirstOf(List<string?>? values) => values?.Select(Blank).FirstOrDefault(v => v is not null);
 
     private static string? Blank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+}
+
+/// <summary>[S-3610] A Graph change round, sorted by <see cref="OfficeWire.SortGraphChanges"/>.</summary>
+/// <param name="Changed">Whole events, to fold in by id.</param>
+/// <param name="Removed">Ids that left the calendar view: removed, or cancelled.</param>
+/// <param name="Reread">Ids that came as bare change notices: read each again by id first.</param>
+public sealed record GraphChanges(IReadOnlyList<CalendarEvent> Changed, IReadOnlyList<string> Removed, IReadOnlyList<string> Reread)
+{
+    /// <summary>More notices than this are cheaper read as the whole window than one request each.</summary>
+    public const int MaxReread = 25;
+
+    /// <summary>Whether to read the window in full rather than each notice by id.</summary>
+    public bool ReadWindowInstead => Reread.Count > MaxReread;
 }

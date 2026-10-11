@@ -44,7 +44,7 @@ public sealed class SyncHousekeepingTests : IDisposable
     [Fact]
     public void S2663_weather_and_stocks_widgets_of_every_view_are_synced_and_unset_ones_ask_nothing()
     {
-        var now = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54, RefreshMinutes = 15 };
+        var now = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54 };
         var days = new WeatherForecastConfig { Latitude = 47.37, Longitude = 8.54, Days = 30 };
         var stock = new StocksConfig { Symbol = "aapl", Range = QuoteRange.FiveDays };
         var state = State(
@@ -55,7 +55,7 @@ public sealed class SyncHousekeepingTests : IDisposable
 
         Assert.Equal(2, interests.Weather.Count);
         var reading = Assert.Single(interests.Weather, w => w.ForecastDays is null);
-        Assert.Equal((47.37, 8.54, TemperatureUnit.Celsius, TimeSpan.FromMinutes(15)), (reading.Latitude, reading.Longitude, reading.Unit, reading.Interval));
+        Assert.Equal((47.37, 8.54, TemperatureUnit.Celsius, TimeSpan.FromMinutes(30)), (reading.Latitude, reading.Longitude, reading.Unit, reading.Interval));
         Assert.Equal(14, Assert.Single(interests.Weather, w => w.ForecastDays is not null).ForecastDays);
 
         var quote = Assert.Single(interests.Quotes);
@@ -76,8 +76,9 @@ public sealed class SyncHousekeepingTests : IDisposable
         Assert.Null(SyncInterests.For(new StocksConfig { Symbol = "   " }));
 
         var key = interests.Key();
-        now.Unit = TemperatureUnit.Fahrenheit;
+        state.Preferences.Region.Temperature = TemperatureScale.Fahrenheit;
         Assert.NotEqual(key, SyncInterests.From(state).Key());
+        Assert.Equal(TemperatureUnit.Fahrenheit, Assert.Single(SyncInterests.From(state).Weather).Unit);
 
         key = SyncInterests.From(state).Key();
         stock.Range = QuoteRange.Year;
@@ -87,6 +88,23 @@ public sealed class SyncHousekeepingTests : IDisposable
         key = SyncInterests.From(state).Key();
         stock.UpColor = "#00FF00";
         Assert.Equal(key, SyncInterests.From(state).Key());
+    }
+
+    [Fact]
+    public void S3780_the_shared_cadences_reach_every_interest_and_a_change_is_heard()
+    {
+        var state = State([new WeatherNowConfig { Latitude = 1, Longitude = 2 }, new StocksConfig { Symbol = "MSFT" }, new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed.xml" }] }]);
+        state.Preferences.Refresh = new RefreshPreferences { WeatherMinutes = 60, MarketsMinutes = 15, FeedsMinutes = 120, AccountsMinutes = 5 };
+
+        var interests = SyncInterests.From(state);
+        Assert.Equal(TimeSpan.FromMinutes(60), Assert.Single(interests.Weather).Interval);
+        Assert.Equal(TimeSpan.FromMinutes(15), Assert.Single(interests.Quotes).Interval);
+        Assert.Equal(TimeSpan.FromMinutes(120), Assert.Single(interests.Feeds).Interval);
+        Assert.Equal(TimeSpan.FromMinutes(5), interests.AccountInterval);
+
+        var key = interests.Key();
+        state.Preferences.Refresh.AccountsMinutes = 15;
+        Assert.NotEqual(key, SyncInterests.From(state).Key());
     }
 
     // ---- [S-2664] the calendar's stored copies -------------------------------------------------

@@ -16,12 +16,12 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
+- **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
 - **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Sun and moon (two widgets, SKY-SPLIT); Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
-- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC).
+- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar widgets: five kinds and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC).
 
 ---
 
@@ -50,7 +50,8 @@ Sections, grouped by area (file order below; search for the heading).
   hold a stale pre-DPI value; trusting it rendered every widget 1.5x too far out on a 150% display.
 - **[S-32]** A widget instance can drop its card: `WidgetSurface.Transparent` removes the fill and
   the border. `Translucent` keeps a tinted, partly see-through card. Neither is acrylic per widget —
-  acrylic is a window backdrop, so per-widget acrylic would cost one window per widget.
+  acrylic is a window backdrop, so per-widget acrylic would cost one window per widget. Chosen on the
+  edit bar ([S-3702]).
 
 ## Grid snap aid
 
@@ -232,7 +233,7 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 `Themia.App/Services/ReleaseSweep.cs`, `Themia.App/Shell/Gallery/SwitchCheck.cs`. Tests:
 `WidgetLivenessTests`, `FolderRealizeTests`.
 
-- **[S-1880]** Only a **live** widget is attached, ticks, polls or holds anything (system feeds linger 2 min after their last widget, [S-2505]): one in a view some
+- **[S-1880]** Only a **live** widget is attached, ticks, polls or holds anything (system feeds and gallery sources linger 2 min after their last widget, [S-2505], [S-3413]): one in a view some
   display shows (`WidgetLiveness.ShownViews`, each display's own view or the active one, a view on two
   displays once) that runs ([S-1881]). A view no display shows costs its JSON and nothing else: no
   card, no ticker subscription, no service subscriber. Shared services start with their first
@@ -349,7 +350,7 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 
 ## Clipboard & transfer between displays
 
-- **[S-70]** In edit mode the surface handles **Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+D / Ctrl+A**,
+- **[S-70]** In edit mode the surface handles **Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+A**,
   **Delete** and **Escape**, each acting on the whole selection ([S-1592]). The cards are focusable,
   because with nothing focusable in the tree no `KeyDown` is raised at all and the shortcuts never
   fire. Clicking empty surface also takes focus, so the shortcuts keep working after clicking away
@@ -603,9 +604,9 @@ tests `SkyWidgetsTests` (`S310x_`).
 - **[S-214]** A card is a tint **on** something, not a flat fill: the opaque surface colour Fluent
   expects, with the real `CardBackgroundFillColor` overlay on top. That overlay is the lift that makes
   a Windows card look raised, and on its own — over a transparent window — it is nearly invisible.
-- **[S-215]** *Superseded by [S-1824] for the meters:* a meter's chart sits inside the card's
-  padding. Bled to the edges, its newest point and its fill were cut by the card's edge and rounded
-  corner.
+- **[S-215]** A chart is the card's bottom band, edge to edge with no padding at its sides or under
+  it ([S-1824] for the meters, [S-1311] for Stocks; user decision 2026-10-11, reversing the inset
+  of 2026-10-05). The card's rounded corners clip it; only the text above keeps the content inset.
 - **[S-215b]** The graph and the bar share one grid row rather than taking one each. They are
   alternatives — one shows exactly when the other does not — and as separate rows the grid's row
   spacing still sat between them, leaving a gap under a chart that is supposed to touch the
@@ -627,24 +628,24 @@ tests `SkyWidgetsTests` (`S310x_`).
   The only thing it cannot know is what goes on the right — a badge, a count, a busy ring — so that
   is the whole of what a view contributes, through `IWidgetHeaderContent`. It is read **once**, when
   the header is built, so the element has to exist by then.
-- **[S-401]** Header placement is per widget: top, bottom, or hidden. Switching it moves a row index,
-  not a rebuild, so it costs nothing and cannot restart what the widget is doing.
+- **[S-401]** Header placement is per widget: top, bottom, or hidden, set on the edit bar ([S-3702]).
+  Switching it moves a row index, not a rebuild, so it costs nothing and cannot restart what the
+  widget is doing.
 - **[S-402]** The header sheds on a tile too short to carry it, **once**, in the card. Every widget
   had independently drawn that conclusion with a slightly different threshold.
-- **[S-403]** The title is the user's own when they set one, otherwise the catalogue's. A widget has
+- **[S-403]** The title is the user's own when they set one (on the edit bar, [S-3704]), otherwise the catalogue's. A widget has
   no say in it: a view that wants to label itself differently is a view that has drifted.
 
 ## Adding a widget
 
-- **[S-420]** Widgets are added from **Add widget** on the edit toolbar: a picker listing every
-  widget in sections, the sections split into columns by `ColumnLayout` — reading order kept, no
-  section torn from its heading, the tallest column as short as a contiguous split allows. There is
-  no second way in from the settings window.
+- **[S-420]** *(Retired: the picker whose sections were never split across columns (`ColumnLayout`)
+  is the edit bar's add menu, [S-3501]; its sections flow on through the columns, [S-3502].)* There
+  is still no second way in from the settings window.
 - **[S-421]** Picking a widget does **not** add it and does not open its settings. It starts the
   placement session ([S-1587]): a ghost of the widget at its default size follows the pointer across
   every display, the cards stop taking input so a click over one places the new widget rather than
   grabbing the old, and a line in place of the toolbar says what the click will do. Escape or a
-  right-click cancels; leaving edit mode cancels. Paste, Duplicate and Move start the same session
+  right-click cancels; leaving edit mode cancels. Paste and Move start the same session
   with one or many existing widgets.
 - **[S-422]** A left click lands the payload on the display it is on, in that display's view, at the
   rects computed from the click itself — not from the last pointer move — centred as a block,
@@ -653,6 +654,97 @@ tests `SkyWidgetsTests` (`S310x_`).
 - **[S-423]** A ghost traces the **painted** cards, inside the gap, with the card's own corner
   radius — one outline per widget at its offset in the block ([S-1585]): it shows what the user will
   see once the widgets are there, not the cells they own.
+
+### The edit bar and its add menu (EDITBAR)
+
+After Karpo's edit bar (`karpo-app`, `docs/widgets.md` §43 and §50, `Dock.EditDeck.cs`). Owning
+files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker.cs`,
+`Shell/DesktopWindow.Picker.cs`; rules in Core `Widgets/AddMenu.cs` (tests `AddMenuTests`).
+
+- **[S-3500]** In edit mode each display's surface shows the **edit bar** at the top centre of its
+  work area, 8 DIPs under the work area's top ([S-852]): a compact Windows 11 command bar, 40 DIPs
+  tall — 32-DIP buttons in a 4-DIP padding, 4 DIPs between them — on the flyouts' acrylic, stroke,
+  8-DIP corners and shadow. Buttons have no fill at rest and the subtle fills under the pointer and
+  pressed. In order: **Add widget** (its "+" in the accent), **View** (the display's views, New view,
+  Duplicate this view, [S-900]), **Snap** (lit with the accent while on, [S-905]), the selection
+  group behind its own hairline while widgets are selected on this display ([S-3700]), a 20-DIP hairline,
+  then three icon-only square buttons whose words are their tooltips and names: **More** (Exit,
+  [S-67]), **Settings**, **Done**. Each display has its own bar; the bar is inside the edit-mode hit
+  region (the whole work area). While placing, a line in the bar's frame and height stands in its
+  place ([S-421]).
+- **[S-3501]** **Add widget** opens the **add menu** under it ([S-1749]; the surface menu's Add widget
+  opens the same menu at the click, [S-1744]): a search box over every widget kind in the catalogue
+  (`WidgetCatalog.All`, so a new kind is listed with no other change), in the catalogue's sections,
+  each entry the widget's icon and name on a 32-DIP line, its description the tooltip. No previews.
+  Choosing one starts the placement session of [S-421] unchanged.
+- **[S-3502]** The sections flow through columns as a newspaper's (`AddMenuLayout.Flow`): a heading
+  line, then the entries, down a 216-DIP column and on at the top of the next, a section carrying on
+  where its column ends; a heading is never the last line of a column, and a section with no entries
+  is left out. The column height is the fewest lines that fit the menu in its columns
+  (`AddMenuLayout.RowsFor`).
+- **[S-3503]** The columns fit the display's work area (`AddMenuLayout.Fit`): the fewest that keep
+  the lines within 70 % of its height, up to six and as many as 75 % of its width holds; where even
+  those do not, it takes them and the menu scrolls. A 1080p work area gets three columns of 20 lines.
+- **[S-3504]** Typing **filters** across the columns (`AddMenuLayout.Filter`, the search of [S-940]):
+  only matches stay, in their sections, best first — the section with the best match first, the
+  entries inside each by rank — so the first entry in reading order is the best match. The menu keeps
+  its full size and column count while searching, so it does not jump. No match says so.
+- **[S-3505]** Keys (`AddMenuKeys`, after Karpo's add list): the search box keeps the focus, so
+  typing searches at any time, and the highlight is drawn, not focused. Down from the box goes to the
+  first entry; Up and Down walk reading order, on into the next column at a column's foot and back to
+  the box above the first entry; Left and Right go to the nearest row of the column beside; Home and
+  End to the first and last entry. In the box, Left, Right, Home and End move the caret. Enter places
+  the highlighted widget, or during a search with no highlight its best match (drawn highlighted);
+  Escape empties the box and, empty, closes the menu.
+- **[S-3506]** Debug renders: `--editbar-png <outDir> [--theme light|dark]` draws the real bar on a
+  stand-in display (snap on and off, the add menu open under Add widget, the placement line, the
+  selection group for one widget and for several, [S-3706]), and
+  `--picker-png <out.png> [--search text] [--theme light|dark]` the open menu for a 1920 × 1032-DIP
+  work area.
+
+Needs a live pass: the bar on every display at mixed DPI and with a top taskbar, the menu opening
+under Add widget and at a right-click, the keys in the menu, and a pick starting the placement.
+
+### The selection group on the edit bar (QUICKSET)
+
+How a widget's card looks — its header, its background, its title — is set where the widget is, in
+edit mode, not on its settings page. Owning files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`,
+`Services/AppHost.QuickSet.cs`; rules in Core `Model/QuickSet.cs` (tests `QuickSetTests`).
+
+- **[S-3700]** The controls live **on the edit bar**, as a contextual group after Snap behind a
+  hairline (Karpo's edit deck, File Explorer's command bar growing selection commands), not in a
+  mini-toolbar floating by the selection: the bar already has a place on every display, its look,
+  its hit region and its key handling ([S-1975] F6 reaches it), and a floating bar would cover the
+  widgets being arranged and need placing at every edge and across displays. The bar re-centres as
+  the group comes and goes. Header and Background are the bar's labelled drop-downs; their menus tick
+  the current value (Header: Top, Bottom, Hidden with their icons; Background: Card, Translucent,
+  None) and are built as they open. A press on the bar's padding or words stays on the bar, so it
+  never starts a rubber band or clears the selection.
+- **[S-3701]** The group shows on a display only while the selection ([S-1580]) has widgets in the
+  view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
+  selection change and every state change (an undo, a change from another display).
+- **[S-3702]** One widget: a title box (168 DIPs, 32 tall, the kind's name as its placeholder), then
+  Header and Background. Several: the words "N selected", then Header and Background and **no title**:
+  a title names one widget, so one typed for many would make them indistinguishable.
+- **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
+  (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
+  `SetSurface`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
+- **[S-3704]** The title commits on Enter or when the box loses the focus, and Escape puts back what
+  it held; Enter and Escape hand the keyboard back to the surface. While the box has the focus the
+  edit keys do not fire ([S-804]): Delete, arrows and Ctrl+Z are the box's. What is stored
+  (`QuickSet.Title`): trimmed, and nothing (the kind's name, in the current language) for a blank
+  title or the kind's name itself. A commit that changes nothing records no step; one cut off by a
+  click on another widget still lands, on the widget it was typed for. A change made elsewhere
+  never replaces text half typed in the box.
+- **[S-3705]** The widget settings page has no Header, Background or Title row and no Delete row:
+  it holds the widget's own options, then a Danger section only when the widget has a danger row
+  (`FluentLayout.DangerRow`, e.g. clearing the clipboard history). Delete stays on the card menu, the Delete key and
+  the undo notice ([S-1743]).
+- **[S-3706]** Debug: `--editbar-png` writes `editbar-<theme>-selected.png` (one clock, header hidden,
+  placeholder title) and `editbar-<theme>-selected-many.png` (three widgets, mixed headers).
+
+Needs a live pass: typing a title on the desktop (focus, IME, Enter / Escape / a click on another
+card), a pick from the Header and Background menus on a multi-selection, and undo of each.
 
 ## About and the settings file
 
@@ -834,10 +926,27 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
 - **[S-536]** Google's Desktop client secret is never in source: it is compiled in from
   `THEMIA_GOOGLE_CLIENT_SECRET` (a generated constant, validated to look like a secret); without it,
   Google sign-in refuses before the browser opens and token refresh fails with the same sentence.
-- **[S-539]** Settings → Accounts lists each account (provider icon, name, address, problem), renames
-  in a flyout, signs out after a confirmation, and adds through one flow at a time drawn in place:
+- **[S-539]** Settings → Accounts lists each account as a group ([S-3821]: provider icon, name, address
+  and provider, or that it needs signing in again), renames in a flyout, signs out after a confirmation, and adds through one flow at a time drawn in place:
   Microsoft and Google waiting on the browser ([S-1783]); forms for IMAP, CalDAV and CardDAV. Errors
   appear on the page; leaving it cancels a flow.
+- **[S-3820]** What an account has on this PC is counted from the shelf a sync service just loaded or
+  saved (`SyncStats.Of`: mail messages over folders, calendar events over windows (birthdays aside),
+  contacts, tasks over lists; the newest successful read; the queued changes), never by opening a
+  file for it.
+- **[S-3821]** Each account is a group on the Accounts page: header name, then address and provider
+  (or "Needs you to sign in again"); inside, a row per kind its provider feeds, in the order mail,
+  calendar, contacts, tasks (`SyncStats.Summarize`), with the count on the right and "in 3 folders ·
+  synced 5 min. ago · 2 changes waiting to sync" under it, or "Nothing stored on this PC yet"; then
+  Nickname (Rename) and Sign out (danger). Open groups stay open across the list's rebuilds.
+- **[S-3822]** An account that needs signing in starts its group with Sign in again (the problem as
+  the description): Microsoft and Google run the browser flow, IMAP and DAV open their form.
+- **[S-3823]** `SyncHost.Ledger` holds every shelf's latest numbers this run (`SyncLedger`, per owner
+  and kind, thread-safe); `SyncHost.Report` raises `StatsChanged` on the UI thread when they change,
+  and the page rebuilds its list while on screen. A sign-out purges the shelves and forgets the numbers.
+  A kind whose service has not loaded its shelf this run (no widget reads it) shows nothing yet.
+- **[S-3824]** Debug render: `--settings-png Accounts --demo-accounts` draws two stand-in accounts
+  (one healthy with numbers, one needing a sign-in) from the render host's own ledger, groups open.
 - **[S-1901]** No GitHub or Claude account and no OneDrive access: they went with the widgets that
   used them ([S-1902]), with the GitHub device-code and token sign-ins, Claude's paste-back sign-in
   and Microsoft's `Files.Read` scope. A stored `github` or `claude` entry in `accounts.json` is an
@@ -883,7 +992,7 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
 ### GPU
 
 - **[S-430]** The GPU tile reads like the other meters ([S-1762]): the load as the number and the
-  history as a `SparkBand` inside the card's padding ([S-1824]). One adapter names the card after itself, without vendor and
+  history as a `SparkBand` edge to edge at the bottom of its panel ([S-1824]). One adapter names the card after itself, without vendor and
   trademark noise (`GpuRules.ShortName`: "RTX 4060 Ti"). Load reads `--` for the first sample: it is
   a rate and needs two readings.
 - **[S-431]** Data comes from DXGI (which adapters exist: name, LUID) and the PDH GPU counters
@@ -908,7 +1017,7 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
   counters (a borderless full-screen game collapses the 3D counter). Matched to the DXGI adapter by
   name (the n-th of identical cards), never guessed among several. Loaded once per sampler session;
   any failure leaves the counters' figure.
-- **[S-436]** Samples every `IntervalSeconds` (1 to 60, default 2). Changing the selection rebuilds
+- **[S-436]** Samples every 2 s (`IntervalSeconds`, fixed per kind, [S-3793]). Changing the selection rebuilds
   the panels, so a new adapter's history starts fresh.
 
 Not ported: the widget's own `label` (the card's label is the instance's); video memory, the
@@ -928,16 +1037,16 @@ driver's sensors, the engines and the processes ([S-1762]).
 - **[S-441]** A row's name: the executable's description (cleaned per [S-458]), then its file name,
   then the session's display name unless it is an unexpanded `@...` resource. Names are read from
   disk once per path; icons are extracted once per path off the UI thread (`AppIcons`), with a glyph
-  fallback (speaker for master, bell for system sounds, a window for an app).
+  fallback (bell for system sounds, a window for an app).
 - **[S-442]** `GroupByApp` (default on) makes every session of one executable one row: the loudest
   level, muted only when all are, active when any is, and a session-count pill. Off: one row per
   session, keyed by its instance identifier.
 - **[S-443]** Rows are ordered by name, case-insensitively, system sounds last; never by activity, so
   a row never slides out from under a dragged slider.
-- **[S-444]** `ShowMaster` (default on) pins the device's master level first, under the `__master__`
-  key, which no session key can equal.
+- **[S-444]** *(Retired: the mixer has no master row and no `ShowMaster` setting, [S-3251]. The
+  `__master__` key stays as the volume tile's write key, which no session key can equal.)*
 - **[S-445]** `ShowSystemSounds` (default off) adds the system-sounds row; `OnlyActive` (default off)
-  hides apps that hold a session but are silent, never system sounds or the master row.
+  hides apps that hold a session but are silent, never system sounds.
 - **[S-446]** Writes go through a newest-value-per-key queue drained by the worker when it is free:
   single-flight, no throttle interval. A dragged level is held on screen until a snapshot reports it
   or its row is gone. A write whose key matches nothing is a no-op; a session failing
@@ -955,24 +1064,31 @@ Not ported: the poll `interval` setting (there is no poll).
 
 ### Screen time
 
+Since [S-3320] screen time is three widgets (chart, donut, apps); the rules below that still hold
+are cited from there, the ones it replaced are marked.
+
 - **[S-450]** The widget draws the app's one tracker ([S-458]) through `AppServices.ScreenTime`; it
   has no timer of its own and redraws when the tracker says something changed.
-- **[S-451]** `Period` (Day, Week = last 7 days, Month = last 30 days; rolling windows ending today)
+- **[S-451]** *(Retired by [S-3321]/[S-3330]: the period is per widget and only the chart has a
+  style.)* `Period` (Day, Week = last 7 days, Month = last 30 days; rolling windows ending today)
   and `Style` are separate. A day draws Doughnut, Bars or None; a window Bars, Heatmap or None. An
   impossible pair (or an unknown value) becomes the period's first style. Changing the period in
   settings writes both fields.
-- **[S-452]** The ring's wedges are the busiest apps up to the cap plus one "Other" wedge, offsets
+- **[S-452]** *(The legend, the day bar and the shared readout are retired by [S-3341]/[S-3351]; durations,
+  colours and "Other" stand.)* The ring's wedges are the busiest apps up to the cap plus one "Other" wedge, offsets
   from cumulative seconds; the total sits in the hole. A day of Bars is one bar split the same way.
   Durations read `3h 24m`, `12m`, `<1m`. How many apps the legend and the drawing name is
   [S-1211]/[S-1212] (`MaxApps` is a ceiling over what fits, `ShowList` hides the legend). Each app's colour is a stable hash of its key; a legend row
   carries the icon (or an initial chip in that colour), the name with the colour dot right after it,
   and the time as its last column. Hovering a wedge, segment or row lights it, dims the rest and
   names it in the readout.
-- **[S-1989]** Screen time keys: Up/Down, Page Up/Down, Home/End light one legend app the way
+- **[S-1989]** *(Superseded by [S-3307]/[S-3334]/[S-3344]/[S-3354]: the same keys in each of the three,
+  Enter/Space select, and the cursor is the linked hover.)* Screen time keys: Up/Down, Page Up/Down, Home/End light one legend app the way
   hovering does (the rest dim, the headline names it); the Menu key opens its Hide menu (not on
   Other); Left / Right step the day as the header arrows do, Day period only and never past today;
   Escape lets the app go. Hiding is never a bare key: it has no undo.
-- **[S-453]** `ShowAverage` (on): in a window, the per-day average (divided by the window length, so
+- **[S-453]** *(`ShowSwitches` retired with the stats, [S-666]; average and share are the app list's, [S-3352].)*
+  `ShowAverage` (on): in a window, the per-day average (divided by the window length, so
   idle days count) beside the total and on each row. `ShowSwitches` (off): how often the foreground
   app changed. `ShowPercent` (off): each app's share of the shown total.
 - **[S-454]** Day navigation in the header (back, label, forward, and a today button when away from
@@ -982,12 +1098,14 @@ Not ported: the poll `interval` setting (there is no poll).
   calendar day, oldest first, gap days as zeros, clamped to retention. Executable paths are kept per
   app so past days have icons; at start, apps in the history with no path or name are filled from
   running processes.
-- **[S-455]** Right-click "Hide from list" adds an app key to `HiddenApps`; hidden apps leave every
+- **[S-455]** *(The list moved out of the config into the shared preferences, [S-3322].)*
+  Right-click "Hide from list" adds an app key to `HiddenApps`; hidden apps leave every
   view and the totals re-base. Settings list them with a way back.
 - **[S-456]** A window of Bars: one bar per day, stacked by app in the legend's order, scaled to the
   busiest day, weekday labels for a week. Heatmap: seven columns, padded so the window ends on the
   last cell, shaded in quartiles of the busiest day (any use is at least level 1), today outlined.
-- **[S-457]** Limits are daily, in seconds: `GoalSeconds` for the whole and `AppLimits` per app; zero
+- **[S-457]** *(Stored in the shared preferences since [S-3322].)* Limits are daily, in seconds:
+  `GoalSeconds` for the whole and `AppLimits` per app; zero
   or less is no limit. Shown as "of 4h" beside the figure (a window judges its daily average, "of
   4h/day"); over the limit, the figure turns critical. Edited in quarter hours.
 - **[S-458]** Tracking: `SetWinEventHook(EVENT_SYSTEM_FOREGROUND)` (out of context, skipping
@@ -1002,7 +1120,7 @@ Not ported: the poll `interval` setting (there is no poll).
   preferred when the description is identifier-shaped. A loaded history is merged into the live one.
 - **[S-459]** The history lives in `usage_stats.json` beside the state file, never in a widget's
   config, so it is never copied, pasted or exported. `{schemaVersion, days, names, paths?,
-  switches?}`, the optional maps omitted when empty (bytes pinned by a characterization test). Saved
+  switches?, hidden?, goalSeconds?, appLimits?}` ([S-3322]), the optional parts omitted when empty (bytes pinned by a characterization test). Saved
   atomically (unique temp file and rename), one writer, in order, at most once a minute while dirty,
   on lock, and synchronously at exit; only the newest 90 dates are kept. A corrupt or
   version-mismatched file is moved to `.corrupt` and an empty history started; junk keys are dropped
@@ -1013,6 +1131,88 @@ Not ported: the original's config migrations (`migrateMetrics`, `applyLegacyMetr
 `displayStyle` values; [S-1050]); the retired `list` style; invisible
 filler rows under a short legend, since the drawing here is sized from the tile rather than pushed
 by the list.
+
+## Screen time: chart, donut and apps (SCREENTIME-SPLIT)
+
+Screen time is three widgets on the one tracker, so a view can put the week, the share and the list
+side by side and they light the same app together. Owning files: Core
+`Model/Configs/ScreenTimeConfigs.cs`, `Widgets/{ScreenTimeRules,ScreenTimeLayout,ScreenTimePreferences}.cs`,
+`Storage/ScreenTimeStore.cs`; App `Widgets/ScreenTime{Chart,Donut,Apps}View*.cs`,
+`Widgets/ScreenTimeShared.cs` (data, links, look, day navigation), `Widgets/ScreenTimePreview.cs`
+(debug fixture), `Services/ScreenTimeService.cs`, `Shell/Config/WidgetSettings.SystemWidgets.cs`.
+Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`S33xx_`).
+
+- **[S-3320]** Three kinds replace Screen time (41, gone; load validation drops unknown kinds):
+  `ScreenTimeChart` (80), `ScreenTimeDonut` (81), `ScreenTimeApps` (82), each with its own config
+  (`screenTimeChart`, `screenTimeDonut`, `screenTimeApps`) and picker entry in System. They read the
+  one tracker ([S-450], [S-458]); none has a timer or polls.
+- **[S-3321]** Each widget has its own `Period` (Day, Week = last 7 days, Month = last 30 days, rolling
+  and ending today; an unknown value reads as Day). A day period has the day navigation of [S-454]
+  in the header (the donut and the list, each its own pinned day); a window shows its name there.
+- **[S-3322]** The hidden apps ([S-455]) and the limits ([S-457]) are **shared**: one set for the
+  machine, `ScreenTimePreferences`, kept in `usage_stats.json` with the history (`hidden`,
+  `goalSeconds`, `appLimits`, omitted when empty) and saved by the tracker on its flush ([S-459]). So
+  the three always add up to the same figures, and app keys never travel with a layout or an
+  export. Every screen-time settings page shows them (with a note that they apply to all) and
+  writes them through `IScreenTimeSource.SetPreferences`, which replaces the whole set and redraws
+  every widget. On load, blank keys and limits of zero or less are dropped; preferences changed
+  before the file was read win the merge. Right-click "Hide from list" works in all three, never
+  on Other.
+
+### Chart
+
+- **[S-3330]** `ScreenTimeChartConfig`: `Period` Week (default) or Month (a day reads as the week)
+  and `Style` Bars (default) or Heatmap (shown as "Calendar"; unknown reads as Bars).
+- **[S-3331]** Bars: one bar per day, oldest left, stacked by app in the ring's order (the busiest
+  seven, `ScreenTimeRules.DrawingApps`, then Other), scaled to the busiest day, today's weekday in the
+  accent. Heatmap: [S-456]'s calendar.
+- **[S-3332]** Ladder (`ScreenTimeLayout.Chart`): the drawing (never dropped, at least 32), then the
+  figure over it (Subtitle from Expanded height at Regular width, else BodyStrong), the weekday row
+  under a week's bars (when each column has 16 DIPs), the detail line; the drawing takes the rest.
+  The figure is the window's total and the line its per-day average and the "of 4h/day" limit
+  ([S-457]); a hovered day (pointer, or Left / Right) shows that day.
+- **[S-3333]** Linked focus ([S-3310]): the focused app's part of every bar is lit and every other
+  part dimmed; the calendar shades by that app's seconds per day; the figure is that app's time over
+  the window (or on the hovered day) with its share. Hovering a part hovers its app; clicking it
+  selects (again: lets go); clicking empty space clears the selection.
+- **[S-3334]** Keys: Up/Down, PgUp/PgDn, Home/End step through the apps in the ring's order (the
+  linked cursor, [S-3307]); Enter/Space select; Left / Right step the day the figure speaks of; Menu
+  hides; Escape lets the cursor and the day go.
+
+### Donut
+
+- **[S-3340]** `ScreenTimeDonutConfig`: `Period` only. One ring, the total in its hole.
+- **[S-3341]** The wedges: the busiest seven apps and one Other, from cumulative seconds ([S-452]).
+  No legend: the list is its own widget ([S-666]); a wedge's tooltip names it.
+- **[S-3342]** Ladder (`ScreenTimeLayout.Donut`): the ring as large as the tile allows (at least 56,
+  the 16 DIP inset at the sides), a seventh of it the stroke; the hole's figure is [S-1210]'s fit,
+  and its second line (the day's "of 4h", a window's "2h 10m/day", or the focused app's share)
+  appears once the hole is 72 DIPs wide.
+- **[S-3343]** Linked focus: the focused wedge is lifted (its stroke 1.3 times as thick), the others
+  dimmed, and the hole names it ("Code · 41%"). An app folded into Other lights Other
+  (`ScreenTimeRules.FocusPart`); a hidden one lights nothing. Click selects, empty space clears.
+- **[S-3344]** Keys: Up/Down, PgUp/PgDn, Home/End step through the wedges clockwise from twelve;
+  Enter/Space select; Left / Right step the day (a day period); Menu hides; Escape lets the cursor go.
+
+### Apps
+
+- **[S-3350]** `ScreenTimeAppsConfig`: `Period`, `MaxApps` ([S-1211]), `ShowAverage` (on),
+  `ShowPercent` (off). A row: icon (or initial chip in the app's colour), name, the average and the
+  share when shown, the time last; over its own limit the time is critical, and the tooltip says the limit.
+- **[S-3351]** As many whole rows as fit, up to the ceiling; when apps are left over the last row is
+  Other, so the rows add up to the total (`ScreenTimeRules.ListNamed`). Rows are reused by position.
+- **[S-3352]** Ladder (`ScreenTimeLayout.Apps`): whole compact rows; the share from 200 DIPs wide, a
+  window's average from 300. No headline, no footer ([S-666]): the total is the donut's and the chart's.
+- **[S-3353]** Linked focus: the focused row has the hover fill, the others dim; the selected row
+  keeps Fluent's selection pill and fill; the keyboard cursor has the focus ring ([S-1288]). Hover a
+  row hovers the app; click selects (again: lets go); the space under the rows clears.
+- **[S-3354]** Keys: Up/Down, PgUp/PgDn, Home/End move the cursor down the list; Enter/Space select;
+  Left / Right step the day (a day period); Menu hides; Escape lets the cursor go and keeps the
+  selection (Escape also arrives when the lease ends).
+- **[S-3355]** Debug renders: `--widget-png <ScreenTimeChart|ScreenTimeDonut|ScreenTimeApps>
+  --state sample|hovered|selected` draw a fixed month of sample use (ten apps, quieter weekends, a
+  6 h day limit, Chrome over its 1 h) through `SampleScreenTime`; `hovered` lights Code and
+  `selected` selects Chrome through the render's one board, so every card on the page shows it.
 
 ## Layout pass over the ported widgets
 
@@ -1207,8 +1407,9 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
 - **[S-598]** Neither provider stores a hand-made order, so an account list's order is task ids in the
   widget's config (`ApplyOrder`: known ids first, unknown ones — new tasks — after; a gone id leaves no
   hole, a duplicate cannot double a row). A list on this PC is its own order, and a move leaves hidden
-  completed tasks in their slots. Rows move with Move up / Move down in the row's menu.
-- **[S-599]** A new task is added from the row at the foot of the list (Enter adds and keeps the box
+  completed tasks in their slots. Rows move by dragging ([S-786]) or with Alt+Shift+Up / Down on the
+  focused row ([S-3802]); the row's menu has no Move up / Move down.
+- **[S-599]** A new task is added from the add footer pinned at the bottom of the widget ([S-3850]; Enter adds and keeps the box
   open for the next; leaving it adds and closes) and appears at the bottom: optimistically under a
   temporary id that is never written to, then under the provider's id, with the order on screen pinned
   into the config so the next refresh cannot re-sort it to the top.
@@ -1254,9 +1455,10 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   calendar-query`) accounts. An all-day event is held as two dates (first day, exclusive end) and is
   never converted between zones; a timed one as two instants. Clicking an event opens its provider
   page (CalDAV has none: tooltip only).
-- **[S-561]** Config: `accountIds`, `calendars`, `calendarColors`, `layout` (month | week | day | year |
-  agenda, default month, [S-2700]), `weekStart`, `showBirthdays` (on), `agendaCount` (1–100, 20). The
-  context menu offers Refresh; the layout is chosen in the settings only ([S-1746]).
+- **[S-561]** Config, shared by the five calendar kinds ([S-3601]): `accountIds`, `calendars`,
+  `calendarColors`, `showBirthdays` (on); the month, week and year add `weekStart`, the agenda
+  `agendaCount` (1–100, 20). No `layout`: the kind is the layout ([S-3600]). The context menu offers
+  Refresh.
 - **[S-562]** An empty `accountIds` means every calendar account (later ones too — the Mail
   pattern); settings offer "Every calendar account" or a choice where the last cannot be turned off.
   Chosen accounts that were signed out are skipped; when none are left the widget says so with a
@@ -1264,7 +1466,10 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
 - **[S-563]** Every value is read leniently: a wrong type or unknown name becomes the default
   instead of refusing the state. *(The hearth-era config fold-in that shared this tag is retired,
   [S-1050].)*
-- **[S-564]** Week start Monday or Sunday drives the month grid, the week view and the weekday header.
+- **[S-564]** Week start Monday or Sunday drives the month grid, the week view, the year's small
+  months and the weekday header; the day and the agenda have none. It is the shared regional
+  setting ([S-3770]), not a calendar's own: no calendar stores `weekStart`.
+
 - **[S-565]** Provider datetimes: a zone (`Z`, `±HH:MM`, `±HHMM`, negative offsets included) is kept;
   a zoneless one is UTC. Cancelled events (Graph `isCancelled`, Google `status: cancelled`, iCal
   `STATUS:CANCELLED`) are not listed.
@@ -1315,7 +1520,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   first; `mailto:`/`tel:` values stripped), ORG's first part, TITLE, UID, BDAY (incl. `--MMDD`).
 - **[S-580]** Contacts lists people from Microsoft (`/me/contacts`), Google (People connections) and
   CardDAV (`addressbook-query`) accounts in one list by name; the same person in two accounts once.
-  Config: `accountIds` (empty = every contacts account), `layout`, `columns`, `count`, `defaultSearch`.
+  Config: `accountIds` (empty = every contacts account), `layout`, `columns`, `count`.
   Clicking selects (an accent pill), clicking the background clears.
 - **[S-581]** Layouts: list (avatar, name, role, address/number), compact (small avatar, name, one
   field), details (table), grid (avatar cards). Details narrower than 88 px a column fall back to the
@@ -1324,8 +1529,8 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   one cannot be turned off.
 - **[S-583]** `count` is at least 5 (steps of 5, no upper bound); each account is asked for
   clamp(count, 500, 1000) so a search spans the address book; search filters before the cap.
-- **[S-584]** A search box (from 150 px tall) asks for the keyboard while focused (Esc clears) and
-  starts with `defaultSearch`.
+- **[S-584]** A search box (from 150 px tall) asks for the keyboard while focused (Esc clears). It
+  starts empty: the `defaultSearch` setting is gone ([S-3796]).
 - **[S-585]** Search matches name, email, company or job title, case-insensitively.
 - **[S-586]** Avatars: one or two initials on `hsl(hash(name), 38%, 34%)`, white text.
 - **[S-587]** Right-click a person: their name and role, Send email / Copy email, Call / Message /
@@ -1381,6 +1586,18 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   [S-1624], [S-723], [S-725], [S-763], [S-767], [S-768], [S-783], [S-1213], [S-1274], [S-1285],
   [S-665], [S-1571], [S-1323], [S-1284], [S-1469], [S-1475]; the stock
   facts and range chips, [S-2770]; the mixer's percent, [S-2771]).
+- **[S-3850]** **The add footer** (every widget that adds an item in place: Habits [S-1427], Tasks
+  [S-780]). One full-width list row, built only by `AddFooterRow`: a plus glyph and the secondary
+  Body line ("Add a habit", "Add a task"), the list's own row height (compact with the rows) and
+  side inset, the row hover; a tap swaps the line for the widget's text box (Enter adds and keeps it
+  open, leaving it adds and closes, Escape cancels). It is **pinned to the bottom of the content
+  box**: the list sits at the top and scrolls or pages above it, and the room a short list leaves is
+  between them, never under the footer (the Windows 11 list-ends-in-its-add-row pattern, held in
+  place). Whether it shows is one rule (`AddFooter.Show`): only where an add is possible; always
+  under an empty list, at any size (it is then the way to begin); otherwise a rung right after the
+  first row, from Regular height, when a whole row is left for it. Where it hides, the widget's
+  settings still add. It takes no keys of its own; the editor in it keeps the widget's lease
+  ([S-809]) while it is open.
 
 ## Shell skeleton and shared settings
 
@@ -1398,7 +1615,8 @@ rules are these.
   warning and shows an empty page. About stays the last footer entry ([S-493]).
 - **[S-702]** Behaviour switches live in `AppState.Preferences` (`AppPreferences`), apart from the
   look (`DesignState`): language (`AppLanguage`, default follow Windows), hide in full-screen apps
-  (off), desktop icons (on), local network access (off).
+  (off), desktop icons (on), the regional formats and the update cadences every widget shares
+  ([S-3770], [S-3780]). There is no local-network switch ([S-3840]).
   Nothing reads them yet; each is wired by its package. Import brings them over and lists changes.
 - **[S-703]** A view may carry an icon (`ViewState.Icon`, one glyph, null = initials). Anything but
   a single glyph is repaired to null at load.
@@ -1426,7 +1644,9 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   picker offers only the extensions the widget can draw.
 - **[S-762]** Bing: the `HPImageArchive` JSON (today, en-US) through the shared HTTP client and a
   source-generated contract. Only a path on `www.bing.com` is accepted (protocol-relative, absolute,
-  backslashed and non-rooted paths are refused). Offline and "could not load" are separate states.
+  backslashed and non-rooted paths are refused). Offline and "could not load" are separate states;
+  the reply goes through a shared web cache (one request for every widget showing it, fresh for half
+  the refresh interval), and a failed ask with an earlier photo in hand keeps showing it ([S-3410]).
   The picture is decoded at the size shown and cached by the system's HTTP cache; a failed load is
   dropped from the decoder cache so the next refresh asks again.
 - **[S-763]** *(Retired: the photo of the day's title and credit caption and its `ShowCaption`
@@ -1445,7 +1665,7 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   full-bleed with nothing on it (XS). Slideshow: counter in the header and the hover bar from
   Regular width; the picture is the whole slot at every size (no "up next" thumbnails beside or
   under it, retired [S-666]; the L file-name line and the XL "N of M · folder" line are retired, [S-2760]). Grid / scatter / mosaic take more pictures as the card grows. Scatter and
-  mosaic are dealt from one seed per scan, so a resize moves pictures rather than reshuffling them.
+  mosaic are dealt from the widget's own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
 - **[S-768]** *(Retired: no "up next" thumbnails to tap, [S-767]. Home / End and the arrows still
   jump, [S-1992].)*
 - **[S-1992]** Slideshow keys (`ControlKeys.Slideshow`) beyond [S-811]: Home / End jump to the first
@@ -1457,8 +1677,7 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   picture and not paused.
 - **[S-771]** Double-click a picture opens it; right-click a picture: Open, Show in Explorer,
   Pause / Resume, Refresh images (no layout switch, [S-1746]).
-- **[S-772]** `RefreshMinutes` is one of 5 / 15 / 30 / 60 (default 60, the original's); a corrupt
-  value snaps to the nearest.
+- **[S-772]** *(Retired by [S-3792]: no `RefreshMinutes`; every gallery re-reads its source hourly.)*
 - **[S-773]** The card's menu adds Pause / Resume and Refresh images (re-reads now and deals a new
   scatter / mosaic); the layout is a setting only ([S-1746]).
 - Left / Right / Space keys ([S-29] of the original) are ported through the keyboard lease
@@ -1479,6 +1698,40 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   only the "© …" part kept when there is one (Bing's field leads with the place), capped at 200
   characters without splitting a surrogate pair. A missing, blank or bare "©" field is no tooltip;
   the photo still shows. Local pictures (folder, file) have no tooltip. (Tests `S3112_`.)
+- **[S-3410]** One shared source per folder (with or without its subfolders), picture file or photo
+  of the day (`GallerySourceKey`: the path compared as Windows compares paths), owned by the app for
+  its lifetime (`GalleryService`); the view is a thin subscriber that holds its source in Attach and
+  lets go in Detach. A source is read once when its first widget joins, again when its folder's
+  watcher sees a picture arrive, go or be renamed (names only: a file being written wakes nothing),
+  hourly ([S-3792]), and at once on "Refresh images";
+  **never because a widget was built again**, so a view switch, edit mode or a display change
+  re-reads nothing. One read is out at a time; asks while it is out are one more read after it. A
+  read hands back every picture found in a stable order; each widget takes its own selection
+  (shuffle, count) from it, so changing the shuffle or the count reads nothing. A read that found
+  what was there already redraws nothing. (Tests `S3410_`.)
+- **[S-3411]** Decoded pictures are shared by every gallery widget (`PictureCache`): decoded at the
+  size drawn (physical pixels, widths rounded up to 64 and capped at 3840, `DecodeWidth`; a larger
+  decode already held serves a smaller ask), two decodes at a time across all widgets. A frame on
+  screen pins its picture and a pinned picture is never evicted; besides them the cache keeps, least
+  recently used out, as many bytes again as are on screen, at least 48 MB and at most 192 MB
+  (`PictureBudget`, four bytes a pixel). So a widget built again finds its pictures decoded and draws
+  them in the same pass, with no blank or loading state. Suspending the desktop ([S-928]) drops
+  every picture nobody shows. (Tests `S3411_`.)
+- **[S-3412]** Each widget keeps its place by widget id for the session, never persisted
+  (`GalleryPositions`, at most 256 widgets): the picture on show, its position, the seed its
+  selection and scatter / mosaic are dealt from, and whether it was paused. Built again, it comes back
+  on that picture (found by path wherever it is now, else the same position kept inside the list)
+  and the slideshow continues from it. The seed is dealt again only by "Refresh images" and, for a
+  shuffled folder larger than the widget shows, by the refresh interval (so in time it shows all of
+  it, [S-304]); a folder change, a first read and a widget built again never deal
+  (`GalleryDeal`). The shuffle ranks each path by a hash mixed with the seed (`ImageFiles.Choose`), so
+  a picture arriving or going moves no other one, and the order does not depend on how the disk
+  listed the files. (Tests `S3412_`.)
+- **[S-3413]** A source nobody shows lingers 2 minutes (the system feeds' linger, [S-2505]; the
+  shared `LingerTable`), with its list and its watcher but no ticker subscription, so a view switch
+  and back within it finds everything in hand; then it is released: watcher closed, read cancelled,
+  and the decoded pictures only it showed dropped. A widget coming back later reads its source again
+  but still returns to its picture ([S-3412]). (Tests `S3413_`.)
 
 ## Weather: current conditions and forecast
 
@@ -1580,7 +1833,7 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 ## Tasks: using the whole tile, and the rest of the original
 
 - **[S-780]** Tasks ladder (`TaskLayout.Plan`, from the card's `WidgetArea`): one task always; the add
-  row from Regular height; the list takes the rest (no summary strip, [S-783]).
+  footer ([S-3850]) from Regular height, and at any size under an empty list; the list takes the rest (no summary strip, [S-783]).
   Compact rows below Expanded height; one-line titles at Compact height, at most two below Expanded.
   Due text by width: none on an XS tile (both axes Compact), only Overdue/Today in a Compact-wide
   column, the short label otherwise, label plus date ("Overdue · 2 Oct", "Thu 8 Oct") on a panel;
@@ -1602,7 +1855,7 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 - **[S-786]** Drag a row to reorder it (classic S-54): a press arms a drag after 5px (never on the
   marker, never while an editor is open); the lifted row follows the pointer and the rows it passes
   make way (into a slot over its middle half, within its own section); the list scrolls a little when
-  the pointer nears an edge; letting go commits once through the Move up / Move down path; a lost
+  the pointer nears an edge; letting go commits once through the same write as Alt+Shift+Up / Down; a lost
   capture puts the rows back. In edit mode the card captures the press and moves the widget instead.
   Redraws wait for the drop.
 - **[S-787]** Keyboard (classic S-33..S-37, S-50 F2): a click in the widget takes the shell's
@@ -1768,16 +2021,15 @@ The six meters (CPU, memory, disk, battery, network, ping) share one view, `Mete
 only in a `MeterPart` per kind (`Widgets/Meters/<Kind>Meter.cs`): where the number comes from, what
 the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `MeterFaceTests`).
 
-- **[S-1120]** Every meter has a refresh interval (`GaugeConfig.IntervalSeconds`, 1–60 s; ping
-  1–300 s). Defaults: CPU, memory, network 1 s; disk 5 s; battery 15 s; ping 10 s; GPU 2 s. Load
-  clamps an out-of-range value and logs it. A new cadence is another hub series with its own history ([S-2504]), so the
+- **[S-1120]** Every meter samples at its kind's own cadence (`GaugeConfig.IntervalSeconds`, fixed,
+  not a setting, [S-3793]): CPU, memory, network 1 s; disk 5 s; battery 15 s; ping 10 s; GPU 2 s. A new cadence is another hub series with its own history ([S-2504]), so the
   fixed-slot x-axis never mixes two spacings.
 - **[S-1121]** Every meter has a graph span (`GraphSpanSeconds`, one of 30 s, 1, 2, 3, 5, 10, 20,
   30 min, 1 h; load snaps anything else to the nearest). The chart holds span / interval samples,
   2–600 (`MeterTiming.Capacity`), and a chart too narrow for that many 2-DIP slots draws the
   newest it has room for (`MeterTiming.Window`). Defaults: CPU, memory, network, GPU 1 min; disk
   3 min; battery 5 min; ping 20 min (the original's).
-- **[S-1122]** A meter's settings page ends with the shared rows: Show history, Chart span, Refresh.
+- **[S-1122]** A meter's settings page ends with the shared rows: Show history, Chart span (no Refresh, [S-3793]).
   The kind's own rows (a drive, a host, adapters) come first; CPU, memory, battery and network
   have none.
 - **[S-1123]** Pressure colours, as the original: usage accent < 70 %, caution 70–89 %, critical
@@ -1807,12 +2059,13 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   reading growing by ramp step up to Display in what is left, and the history taking every pixel
   the reading does not — no empty space at L or XL. With Show history off the reading fills the tile.
 - **[S-1823]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-1824]** The history sits inside the card's padding: the content inset (16) from both sides
-  and the bottom, its left edge in line with the reading's; beside the reading on a strip, the
-  column's own inset separates them. `MeterFace.Plan` spends that bottom inset before the history.
-  The trace is inset by half its stroke at both ends (`Sparkline.PlotX`), so the newest sample is
-  never cut by the chart's edge (it was, at the card's edge and rounded corner, when the chart
-  bled). Every meter and every GPU panel draws it this way.
+- **[S-1824]** The history is the card's bottom band, edge to edge (user decision 2026-10-11): no
+  inset at its left, right or under it; beside the reading on a strip it fills the rest of the
+  width and the whole height, the reading column's own inset separating the two. `MeterFace.Plan`
+  spends no inset on the history; only the reading keeps the content inset (16). The card's
+  rounded corners clip the band. The trace is still kept half a stroke inside the chart's width
+  (`Sparkline.PlotX`), so the newest sample's stroke is not cut in half at the right edge. Every
+  meter and every GPU panel draws it this way.
 - **[S-1825]** A window still filling stays right-aligned, as Task Manager draws it: the trace grows
   in from the right, one slot per sample, over a hairline baseline that spans the whole chart from
   the first frame, so a young meter reads as a chart with little history, not an empty hole. The
@@ -1898,8 +2151,9 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
 - **[S-1252]** *(Retired: a power widget always has its action, [S-1910].)*
 - **[S-1253]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1254]** Bluetooth ladder (`BluetoothLayout`): the list takes every whole row the tile has
-  (snapped, the rest scrolls); `MaxCount` is a ceiling (1–30, default 20), not a target. Status word
-  from a 260 px column; battery bar from a 400 px column (critical at ≤ 20%); "2 connected" in the
+  (snapped, the rest scrolls); `BluetoothConfig.MaxDevices` (30) is a ceiling, not a target and not a setting ([S-3794]). Battery %
+  from a 180 px column ([S-3253]); status word from a 260 px column; battery bar from a 400 px column
+  (critical at ≤ 20%, [S-3254]); "2 connected" in the
   header from Expanded width; two columns at Huge width when one cannot hold the list.
 - **[S-1255]** Regular×Expanded and up: two-line rows — name, then kind · connection · battery ·
   signal (each only when enabled and reported; a wide row keeps battery and signal in columns).
@@ -1911,6 +2165,21 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
   `connection` metrics; the name is always shown (orig. [S-14]/[S-15]).
 - **[S-1258]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1259]** Context menu "Refresh" enumerates now (orig. [S-09]).
+- **[S-3252]** `ShowBattery` (default on): each **connected** device's battery, refreshed with the
+  list on its interval. First the level Windows itself holds (`DEVPKEY_Bluetooth_Battery`,
+  `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2`, a byte): the paired endpoints are enumerated with
+  `System.Devices.Aep.ContainerId`, and one `DeviceInformation` query over the device nodes of those
+  containers reads the property (the highest valid reading per container; hands-free headsets carry
+  it on a service node). This is what was missing: only a GATT read was tried, which Classic headsets
+  never answer. Then, within the 8 s budget, a GATT Battery Service read for a connected LE device the
+  property left without one. A disconnected device shows none (the property keeps a stale value);
+  255, out-of-range or a non-integer value is no reading. No reading is no column and nothing in the
+  second line, never "–" or 0%. A failed property query is logged and the list still shows.
+- **[S-3253]** The battery % rides on every one-line row from a 180 px column (was 260): the name
+  ellipsises first. Narrower (XS) only the tooltip carries it.
+- **[S-3254]** 20% and below is low: the battery number (and the bar, where shown) takes the theme's
+  critical fill (`SystemFillColorCriticalBrush`), as the tray does (`BluetoothRules.IsLowBattery`).
+  Debug renders: `--widget-png Bluetooth <out> --state devices` draws a fixed set of devices.
 
 Not ported: Bluetooth's 1–30 s refresh choices (kept 5–300 s: enumeration and GATT reads take
 seconds); per-metric `visibleMetrics` ordering (fixed ladder order).
@@ -1952,15 +2221,16 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
   an "Add a habit" row at the foot (always shown for an empty list; Enter keeps it open for the
   next habit); rename by double-clicking the name, F2 or the row menu (Enter/leaving commits, Escape
   cancels, blank or unchanged commits nothing, the id and log never change); the row menu (shared
-  `ItemMenu`) has Done/Not done, Rename, Move up/Move down (disabled at the ends), Delete (danger,
-  no dialog). Drag-to-reorder is ported in [S-1621]; Move up/down stay for the keyboard.
+  `ItemMenu`) has Done/Not done, Rename, Delete (danger,
+  no dialog). A habit is moved by dragging ([S-1621]) or with Alt+Shift+Up / Down on the focused row
+  ([S-3802]); no menu has Move up / Move down.
   The settings page holds no habit editor (original S-23).
 - **[S-1426]** History dots (0–31, default 7): oldest left, the current period right, from the same
   step as the streak; each dot's tooltip names its period in the cadence's units ("Week of Monday
   28 Sep 2026", "14:00, …", "September 2026"). A narrow tile shows fewer, dropping the oldest; the
   name never yields to them.
 - **[S-1427]** Ladder (`HabitLayout.Plan`): XS box + name, two rows → S + run (number) → M + dots
-  and add row → Wide + run in words and a 7-period rate per row → L all of that → XL + best run
+  and the add footer ([S-3850], pinned at the bottom; always under an empty list) → Wide + run in words and a 7-period rate per row → L all of that → XL + best run
   per row. Rows are 40px (32 on a Compact side); the viewport holds whole rows and the rest scroll.
   The height a short list leaves stays empty: no summary strip or line ("3 of 5 done today · 71%",
   bar) and no completion chart fills it (user decision, concise widgets [S-666]; both retired).
@@ -2006,10 +2276,11 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   `CalendarLinks.IsLaunchable`, re-checked by `ShellLauncher.OpenCalendarLink`.
 - **[S-1269]** Keys (classic S-31..34) reach `CalendarView.HandleKey(WidgetKey)` through the lease
   ([S-806]); the map is [S-2710]. Up/Down move the cursor day a week in the month (outlined) and the
-  week (its column head underlined); Escape hides it.
+  week (its column head underlined); Escape lets it go. The cursor day is the selected day, shared
+  with the view's other calendars and kept across pages ([S-3624]).
 - **[S-1984]** *(Retired: Page Up / Page Down page every layout, [S-2710].)*
-- **[S-2700]** The calendar draws only its configured `layout` (month, week, day, year or agenda),
-  at every size, chosen in its settings. No size swaps it for another layout, adds an agenda beside a
+- **[S-2700]** A calendar widget draws only its own layout (month, week, day, year or agenda: its
+  kind, [S-3600]), at every size. No size swaps it for another layout, adds an agenda beside a
   month, or shows a single "next event" instead: each layout sheds detail within itself
   (`CalendarFit`). Unmeasured, it draws the layout at its smallest.
 - **[S-2701]** The view reads its data through one seam, `ICalendarData.LoadAsync(config, first,
@@ -2052,10 +2323,8 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   the layout's unit (month, week, day, year, agenda page); Up / Down the cursor day a week (month,
   week); Home today; Enter the cursor day's first event (the agenda page's first; none in the year).
   The header's arrows hide on a Compact-width tile (the keys still page).
-- **[S-2711]** Debug renders: `--widget-png Calendar <out> --state month|week|day|year|agenda` draws
-  that layout over a fixed sample (two calendars, an all-day event, a multi-day trip, an overnight
-  event, overlaps, birthdays, a year of meetings) through a fixture `ICalendarData`; a card that
-  needs setting up runs its view for the preview (`WidgetCard.RunForPreview`).- **[S-1270]** Contacts list rows say what the list's area allows (`ContactRules.ListDetail`, on the
+- **[S-2711]** *(Retired: one widget with five layout states; each calendar kind has its own renders, [S-3606].)*
+- **[S-1270]** Contacts list rows say what the list's area allows (`ContactRules.ListDetail`, on the
   tile less its search box): width Compact → the name only (32 px rows, no avatar); height Compact →
   the role, else the address/number; Regular → the role plus the address (else number) when three
   such rows fit, else the role; Expanded+ → role, address and number, each address/number with its
@@ -2083,6 +2352,80 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   are decoded in UTF-8 or Latin-1 (`CHARSET`), across `=` soft line breaks; bare 2.1 parameters join
   `TYPE` (so `TEL;CELL;PREF` is preferred). Lenient: a stray `=` stays.
 - **[S-1279]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
+
+## Calendar widgets: five kinds and shared dates (CAL-SPLIT)
+
+The calendar's layouts are five widgets, and the calendars on one view share the day selected and
+the event pointed at. Kinds and configs in Core `Model/WidgetKind.cs`, `Model/Configs/OfficeConfigs.cs`;
+the sharing rules in `Office/CalendarShare.cs`; provider reading in `Office/OfficeWire.cs`,
+`Office/CalendarRules.cs`, `Office/IcsEvents.cs`. One view, `CalendarView*.cs` (`CalendarView.Links.cs`
+for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `OfficeConfigTests`
+(`S36xx_`), `CalendarShareTests`, `CalendarProviderTests`.
+
+- **[S-3600]** Five widget kinds, each one layout: **Month calendar** (`MonthCalendar`, 340×260),
+  **Week calendar** (`WeekCalendar`, 480×300), **Day calendar** (`DayCalendar`, 280×340), **Year
+  calendar** (`YearCalendar`, 420×300) and **Agenda** (`Agenda`, 320×300), side by side in the
+  picker's Accounts section, each with its own glyph. They replace Calendar (10), whose `layout`
+  setting is gone: a state file holding one drops that widget at load like any unknown kind
+  ([S-1900], [S-1050]). The kind fixes the layout (`CalendarConfig.Layout`, never stored), and each
+  keeps its size ladder ([S-2702]..[S-2709]).
+- **[S-3601]** One settings builder for all five: accounts and their calendars with colours
+  ([S-562], [S-566], [S-567]) and birthdays, plus only what the kind uses: the week start for month,
+  week and year (`CalendarGridConfig`), the agenda length for the agenda. A day or agenda config
+  stores no week start, a month no agenda length.
+- **[S-3602]** One data seam and one sync for all five ([S-2701], [S-588]): two calendar widgets on
+  a desktop ask the same shared source and store, never their own.
+- **[S-3606]** Debug renders: `--widget-png <Kind> <out> --state sample|selected|linked` for each
+  kind: the fixed sample (two calendars, a one-day and a four-day all-day event, a trip across a
+  week's end, an overnight event, overlaps, birthdays, a year of meetings) through a fixture
+  `ICalendarData`; `selected` selects the day after tomorrow as another widget would ([S-3620]);
+  `linked` puts another widget's pointer on one event ([S-3623]). A card that needs setting up runs
+  its view for the preview (`WidgetCard.RunForPreview`).
+
+Provider events ([S-560], [S-565]), as real calendars send them:
+
+- **[S-3610]** A Graph change round (`calendarView/delta`) can name an event without sending it: an
+  item without `isAllDay` (and so without its subject) is a change notice, not an event
+  (`OfficeWire.FromGraph` gives none). `OfficeWire.SortGraphChanges` sorts a round into whole events,
+  ids that left (removed, or cancelled) and notices; each notice is read again by id
+  (`me/events/{id}` with the calendar view's `$select` and `Prefer: outlook.timezone="UTC"`; a 404
+  leaves), and more than 25 read the window whole instead. A failure there fails the round, so its
+  cursor never moves past an unread change. Folding a notice in had blanked the title ("No title")
+  and made an all-day event a timed one from UTC midnight to UTC midnight: two local days east of UTC.
+- **[S-3611]** All-day events are dates, never instants: Graph's `isAllDay` dates and Google's
+  `start.date` / `end.date` are read by `CalendarRules.ParseAllDayDate` — a bare date or a midnight as
+  written; a date-time that is not a midnight (the event's own midnight written in UTC, "30 Sep
+  22:00" for 1 Oct in Zurich) is the nearest midnight. The end is exclusive: a one-day event covers
+  exactly its day in every zone, and a stored one still does.
+- **[S-3612]** iCalendar: a `VALUE=DATE` event covers [DTSTART, DTEND); Outlook's
+  `X-MICROSOFT-CDO-ALLDAYEVENT:TRUE` (or `-MSNCALENDAR-`) on wall-clock midnights is a date too, never
+  read through its TZID; a folded, escaped SUMMARY reads whole. An event with no title is untitled
+  (empty), for the widget to word in the user's language ("No title"), never an English placeholder.
+
+Shared dates and events on a view ([S-3300], [S-3311]):
+
+- **[S-3620]** A click on a day in the month (its cell), the week (its column head) or the year (its
+  day) selects it on the view (`SelectedDate`); a click on the selected day lets it go
+  (`CalendarShare.Toggle`), and so does Escape. The selected day is outlined in the month, underlined
+  in the week, ringed in the year, its heading in the accent in the agenda. A selection stays when the
+  widget pages and when the view is switched away and back; nothing is persisted.
+- **[S-3621]** Every calendar on the view follows the selected day: the month, week, day and year
+  anchor on it (`CalendarShare.AnchorFor`), paging only when it is in another period, so the day
+  calendar shows the day picked in the month or the year. A widget that joins a view reads the
+  selection there at once.
+- **[S-3622]** The agenda keeps its own range (today and the next 30 days) and turns to the page
+  holding the selected day: the page with the first row on or after it (`CalendarShare.AgendaPageOf`);
+  a day after every row moves nothing.
+- **[S-3623]** The event under the pointer is shared (`HoveredEvent`, `EventLink(account, calendar,
+  id)`, a hover): while it is pointed at in one calendar, every other calendar on the view dims its
+  other events to 35 % (`CalendarShare.Dimmed`), without a redraw; the same provider id in another
+  account or calendar is another event. The hover goes when the pointer leaves, the chip is redrawn
+  or its widget leaves ([S-3304]).
+- **[S-3624]** The keys' cursor day is the selected day: Up / Down move it a week (from the selection
+  when it is on screen, else from the anchor, `CalendarShare.Step`) and publish it, so the other
+  calendars follow as for a click; Enter opens its first event.
+- **[S-3625]** Paging (back, forward, today) publishes the days now on screen (`VisibleRange`) and moves
+  no other widget: two months on a view can show two months, and only a selection is followed.
 
 ## Mail: the whole tile
 
@@ -2232,7 +2575,7 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   unplugged), the primary is shown without changing the setting.
 - **[S-846]** An empty monitor enumeration builds nothing and closes nothing: it is a driver
   mid-change, and the next display message runs the pass again. No phantom fallback surface.
-- **[S-847]** `DefaultViewForNewDisplays` (General page, "New displays show"): a display without a
+- **[S-847]** `DefaultViewForNewDisplays` (Displays page, "New displays show", [S-3832]): a display without a
   view shows that view, shared rather than claimed. Unset ("The last view shown"), it shows the
   active view: the last one the user showed anywhere ([S-19]). Was: unset gave each new display an
   empty view of its own.
@@ -2253,7 +2596,7 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   over is clipped there (`SetWindowRgn` clips painting as well as input) rather than moved. This
   matters while Show Desktop lifts the surface above the topmost band ([S-33]), when the region is
   all that keeps the taskbar clickable.
-- **[S-852]** The edit toolbar and the placement hint sit inside the work area (margins from
+- **[S-852]** The edit bar ([S-3500]) and the placement hint sit inside the work area (margins from
   `GridGeometry.AllowedPixels`), so a taskbar on the top edge does not cover them.
 - **[S-853]** The Displays page ([S-1832]) lists **every connected display**, switched off or not,
   and each display's group has: Show Themia on this display, Shows (view) and Widget scale, then
@@ -2414,11 +2757,11 @@ they show the label, the reading and the history only ([S-1762]).
 - **[S-1172]** The ping chart is latency against the window's slowest answer (floor 1 ms); an
   unanswered probe is a dimmed "--" that plots on the baseline. Online colours the chart success,
   offline critical.
-- **[S-1173]** `HostLabel` (≤ 64 characters, stored as typed, trimmed when shown): the header title is
-  the label, else the host.
+- **[S-1173]** *(Retired by [S-3791]: no `HostLabel`. The header title is the host; a name for it is
+  the card's own title.)*
 - **[S-1174]** Ping "Refresh" on the card's menu probes now; a probe already out is the answer
   coming, so it is not doubled ([S-106]).
-- **[S-1175]** Ping settings: Host, Name, then the shared meter rows.
+- **[S-1175]** Ping settings: Host, then the shared meter rows.
 
 Not ported / different: several ping hosts (the original had one); several drives in one tile, the
 drives list, IOPS, the volume line and ping's jitter / loss / range ([S-1762]); a coloured latency
@@ -2498,7 +2841,7 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 | Widget | Keys |
 |---|---|
 | Mail | Up/Down, PgUp/PgDn, Home/End move; Enter opens; Delete (where allowed); Menu; Esc ([S-1288]) |
-| Calendar | Left/Right and PgUp/PgDn page by the layout's unit (month, week, day, year, agenda page); Up/Down a week (month, week); Home today; Enter first event ([S-1269], [S-2710]) |
+| Calendars (month, week, day, year, agenda) | Left/Right and PgUp/PgDn page by the layout's unit (month, week, day, year, agenda page); Up/Down move the selected day a week (month, week); Escape lets it go; Home today; Enter first event ([S-1269], [S-2710], [S-3624]) |
 | Contacts | Up/Down, PgUp/PgDn, Home/End; Enter writes or calls; type-ahead ([S-1277], [S-1983]) |
 | Tasks | Up/Down, PgUp/PgDn, Home/End; Enter/Space tick; Delete; F2; Esc ([S-787], [S-1981]) |
 | Habits | as Tasks, plus Tab/Shift+Tab wrap ([S-1428], [S-1982]) |
@@ -2512,9 +2855,61 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 | Volume | arrows, +/- step; PgUp/PgDn step 10; Home/End 0/100; M/Space mute ([S-1226], [S-2733]) |
 | Music | Space/Enter play-pause; Left/Right track; Shift+Left/Right seek 5 s ([S-1468]) |
 | Pomodoro | Space/Enter start-pause; Right skip; Home reset ([S-1987]) |
-| Screen time | Up/Down, PgUp/PgDn, Home/End light an app; Menu; Left/Right day ([S-1989]) |
+| Screen time chart, donut, apps | Up/Down, PgUp/PgDn, Home/End move the linked cursor; Enter/Space select; Menu hides; Left/Right a day ([S-3307], [S-3334], [S-3344], [S-3354]) |
 | Quote | Right/Space/Enter next; Left previous ([S-1990]) |
 | Video stream | Space pause ([S-1991]) |
+
+## View links (VIEW-LINKS)
+
+Widgets on one view share what the user is pointing at and what they picked, so a hover in one
+lights the same thing in the others. Owning files: Core `Themia.Core/Links/ViewLinks.cs`
+(`LinkTopicId`, `LinkTopics`, `LinkBoard`, `LinkMember`, `LinkRegistry`); App
+`AppServices.Links`, `IWidgetSurface.Links`, `IWidgetCardHost.Links`. Tests `ViewLinksTests` (`S33xx_`).
+
+- **[S-3300]** Each view has one **board** (`LinkBoard`), keyed by the view id in the host's one
+  `LinkRegistry` (`AppServices.Links`), so every display showing a view shares it and two views never
+  do. A widget reads its board from `IWidgetSurface.Links` in Attach (null where a host has no view),
+  joins it (`board.Join()` gives a `LinkMember`) and disposes the member in Detach. A debug render's
+  host has one board for all its cards.
+- **[S-3301]** Topics are typed and closed: `LinkTopics.X` is a `LinkTopic<T>` with a `LinkTopicId`
+  member and a lifetime; the value is a record (`AppLink`, `DateLink`, `RangeLink`), so setting the
+  same value again is no change. A topic is added in `LinkTopics` with its enum member, nowhere else.
+- **[S-3302]** Two lifetimes. **Hover** is ephemeral: set on pointer enter (or a keyboard cursor
+  move, [S-3307]), cleared on leave. **Sticky** (selection) stays until a member changes or clears it:
+  `Toggle` selects a value, or clears it when it is already the selection (a second click on it);
+  Escape and a click on the widget's empty space clear it. Nothing is persisted: a restart starts with
+  nothing selected (it is a pointer gesture, not a setting).
+- **[S-3303]** A member never hears its own change; it applies its own state first, then publishes.
+  `member.Watch(topic, handler)` hears every other member's change with the topic's value as it is
+  then (null when cleared). One handler per topic per member.
+- **[S-3304]** A hover belongs to the member that set it: only that member's clear takes it away (a
+  late "pointer left" in one widget never clears what another lit since), and a member that leaves
+  (Detach) takes its hovers with it, telling the rest. A selection can be cleared by any member and
+  survives its setter leaving. A disposed member is inert: every call is a no-op.
+- **[S-3305]** A view switch detaches the old view's widgets, so its hovers clear; its selections stay
+  on its board, in memory, and the widgets read them again when the view is shown. Deleting a view
+  drops its board (`Retain` on every state change).
+- **[S-3306]** UI thread only, no lock: every member is a widget view. Handlers run in member order
+  over a copy, so a handler may join, leave or publish another topic; a handler that throws is logged
+  and the others still hear the change.
+- **[S-3307]** A widget holding the keyboard lease ([S-800]) that moves a cursor over linked items
+  publishes the cursor as the hover, and Enter / Space as the selection, exactly as the pointer does.
+
+Topics:
+
+| Topic | Value | Lifetime | Published by | Shown by |
+|---|---|---|---|---|
+| `HoveredApp` | `AppLink(app key)` | Hover | Screen time chart, donut, apps ([S-3310]) | the same three |
+| `SelectedApp` | `AppLink(app key)` | Sticky | the same three | the same three |
+| `SelectedDate` | `DateLink(DateOnly)` | Sticky | date widgets (calendar) ([S-3311]) | date widgets |
+| `VisibleRange` | `RangeLink(first, last)` inclusive, ordered | Sticky | date widgets (calendar) ([S-3311]) | date widgets |
+| `HoveredEvent` | `EventLink(account, calendar, id)` | Hover | the calendar widgets ([S-3623]) | the calendar widgets |
+
+- **[S-3310]** The screen-time widgets ([S-3320]) share `HoveredApp` and `SelectedApp` by app key
+  (`ScreenTimeRules.OtherKey` for the "Other" remainder). What a widget emphasises is the hover when
+  there is one, else the selection (`ScreenTimeRules.Focus`).
+- **[S-3311]** `SelectedDate` and `VisibleRange` are defined for the date widgets; what they publish
+  and how they show it is their section's: the calendars' is [S-3620]..[S-3625].
 
 ## Keyboard in the shell (SHELL-KEYS)
 
@@ -2550,7 +2945,7 @@ there: Themia never takes a key from the app the user is typing in.
 | Settings | Ctrl+W | Close the window ([S-1977]) |
 | Settings navigation | Up / Down, Enter / Space | Move, open (NavigationView's own) |
 | Settings navigation | Home / End, letters | First / last entry, type-ahead ([S-1978]) |
-| Widget picker | Up / Down, Enter, Escape | Move the highlight, pick, close ([S-949]) |
+| Add menu | Arrows, Home / End, Enter, Escape | Move the highlight through the columns, place, empty the search then close ([S-3505]) |
 | Menus, flyouts, dialogs | Arrows, Enter, Escape | WinUI's own: Escape closes the innermost |
 
 - **[S-1970]** In edit mode an arrow moves **every selected widget on this display** one snap cell
@@ -2571,7 +2966,7 @@ there: Themia never takes a key from the app the user is typing in.
   selection Tab lands on the first and Shift+Tab on the last. The card takes the keyboard focus, so
   the selection outline is the focus indicator. With focus on the toolbar, the view bar or a notice,
   Tab, the arrows, Enter and the Menu key are those controls' own.
-- **[S-1974]** **Enter** opens the selected (primary) widget's settings page; the **Menu key** or
+- **[S-1974]** **Enter** opens the selected (primary) widget's settings page (nothing for a widget with none, [S-1750]); the **Menu key** or
   **Shift+F10** opens the selection's card menu on its card ([S-1743]), or the surface menu
   ([S-1744]) at the work area's centre when nothing is selected.
 - **[S-1975]** **F6 / Shift+F6** moves the keyboard round the surface's panes: the widgets (the
@@ -2579,7 +2974,8 @@ there: Themia never takes a key from the app the user is typing in.
   notices (while one has a button). This is how the toolbar is reached without the mouse.
 - **[S-1976]** One key map: `EditKeys.Decide` turns a key and its modifiers into a command and the
   surface only carries it out; the old per-key switch is gone. Ctrl+Shift letters, Shift+Delete,
-  plain letters and F10 alone are not edit keys. While a text box has the focus (the picker's
+  plain letters and F10 alone are not edit keys. Ctrl+D is not one either: widgets have no
+  Duplicate, Copy then Paste does that (one way to do it). While a text box has the focus (the picker's
   search) no key is an edit key: Delete or Ctrl+V there edits the text, not the desktop.
 - **[S-1977]** Settings window: **Ctrl+F** (and Ctrl+E, as in Explorer) focuses "Find a setting";
   **Escape** there closes the suggestion list (the box's own), then empties the text; **F6 /
@@ -2639,7 +3035,7 @@ Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core 
 
 - **[S-1200]** The GPU chart is the meters' `SparkBand` holding `GraphSpanSeconds / IntervalSeconds`
   samples (`GaugeConfig.GraphCapacity`, default 60 s at 2 s); the page is the adapter picker and the
-  shared history rows (show history, chart span, refresh). Supersedes the fixed 60-sample band of [S-430].
+  shared history rows (show history, chart span). Supersedes the fixed 60-sample band of [S-430].
 - **[S-1201]** Each adapter panel is a meter face ([S-1762], `MeterFace.Plan`): the load alone on a
   tiny panel, else the history under it (beside it on a strip) filling the panel. With several
   adapters each panel keeps its name beside the load at Subtitle and gives the rest to its history.
@@ -2648,19 +3044,20 @@ Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core 
   strip puts two side by side and a column stacks them.
 - **[S-1210]** The ring's total takes the largest step that fits its hole; when even Caption cannot
   hold `4h 37m` it shows the compact form (`4.6h`, `13h` from ten hours, `37m`, `<1m`). Never clipped.
-- **[S-1211]** `MaxApps` is a ceiling over what fits: 0 (the default) lists as many apps as the tile has
+- **[S-1211]** *(The app list's since [S-3352]; `ShowList` retired with the legend.)* `MaxApps` is a ceiling over what fits: 0 (the default) lists as many apps as the tile has
   whole rows for, 1–50 at most that many; an "Other" row joins when apps are left over. `ShowList`
   (on) switches the legend off. Supersedes the fixed default of 7 and "0 lists none" in [S-452].
-- **[S-1212]** The drawing names the apps the legend lists: all of them when they fit (no "Other"),
+- **[S-1212]** *(Retired by [S-3341]/[S-3351]: the drawings split out seven apps, the list names what fits.)*
+  The drawing names the apps the legend lists: all of them when they fit (no "Other"),
   else all but the last row, which is "Other" — but never fewer than 7 unless `MaxApps` says fewer.
-- **[S-1213]** On a tile Expanded both ways, with the drawing keeping at least 200 px, a footer
+- **[S-1213]** *(Retired: no footer in any of the three, [S-666].)* On a tile Expanded both ways, with the drawing keeping at least 200 px, a footer
   appears from the bottom: for a day, the week strip. Nothing else (the stats line and the daily
   limit bar are retired: the limit is the headline's "of 4h" already, [S-457]; concise widgets).
-- **[S-1214]** Week strip (Day period, not style None): the seven days ending on the shown day, one
+- **[S-1214]** *(Retired with the footer: the chart is the week, [S-3330].)* Week strip (Day period, not style None): the seven days ending on the shown day, one
   bar each scaled to the busiest, the shown day in the accent, weekday under each; a click shows that
   day (today unpins) within the navigation's reach.
 - **[S-1215]** *(Retired with the stats line, [S-1213].)*
-- **[S-1216]** Screen time lays out from the card's `WidgetArea` (`IWidgetSizeAware`), not its own
+- **[S-1216]** *(Holds for each of the three, [S-3332]/[S-3342]/[S-3352].)* Screen time lays out from the card's `WidgetArea` (`IWidgetSizeAware`), not its own
   `SizeChanged`; a debug render never hooks or writes ([S-459]).
 - Not ported / different: the original's GPU `visibleMetrics` order (fixed ladder order); per-engine
   history charts (one chart, the load).
@@ -2719,7 +3116,7 @@ Tests `SystemDataHubTests` (`S25xx_`).
   These reads update the reading and add no chart point.
 - **[S-2510]** Refresh (ping, disk space) reads the source now for every feed of it and adds a point
   to the asking feed's history: a probe asked for is a probe made.
-- **[S-2511]** The switch check ([S-1883]) prints the hub's feeds, lingering feeds and open sources;
+- **[S-2511]** The switch check ([S-1883]) prints the hub's feeds, lingering feeds and open sources (and the gallery's sources, lingering sources and decoded pictures, [S-3413]);
   the hub's one ticker subscription does not count against the live widgets while it holds feeds.
 
 ## System details (SYS-DETAILS)
@@ -2739,8 +3136,8 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
   Every source is Win32, PDH, `NtQuerySystemInformation`, DXGI, D3DKMT or a battery IOCTL: no WMI, no
   `PerformanceCounter`, no driver, no admin rights. Every figure is a hub feed ([S-2500]), watched in `Attach` and let go in
   `Detach` ([S-1881]); a parked widget holds none.
-- **[S-2401]** `DetailConfig.IntervalSeconds`, 1–60 s (disk space and ping up to 300). Defaults: CPU,
-  memory, processes, GPU 2 s; network 1 s; battery 15 s; ping 10 s; disk space 30 s. Load clamps it, loudly.
+- **[S-2401]** `DetailConfig.IntervalSeconds` is the kind's own, fixed ([S-3793]): CPU, memory,
+  processes, GPU 2 s; network 1 s; battery 15 s; ping 10 s; disk space 30 s. A stored value is ignored.
 - **[S-2402]** The ladder (`DetailFace.Plan`): Compact both ways is the hero alone, filling the tile (a
   list kind: its rows). A Wide strip at least Expanded wide puts the hero in a left column (40 %) and the
   facts in lines beside it. Otherwise hero, caption and facts stack; when every fact fits, the richest
@@ -2853,12 +3250,11 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   (incl. 169.254.169.254), CGNAT 100.64/10, 0/8, 240/4, a documentation range, ::1, ::, fe80::/10,
   fc00::/7 or 2001:db8::/32 (IPv4-mapped judged as IPv4). Feed requests follow redirects themselves
   and check every hop; https→http is refused. An unresolvable name is refused unless a proxy will
-  resolve it (classic NG-07), but an IP literal is checked even then. One switch for the whole app,
-  Settings › General › **Local network access** (`AppPreferences.AllowPrivateNetwork`, off), read on
-  every check. A refused feed says so in the widget ("x is on the local network. Turn on local
-  network access…"). The camera stream stays unguarded, as in the original; every other request,
-  the fixed public services included, now connects through the guard ([S-960]), and the loopback
-  hardware monitor is reached as "this machine only" ([S-967]).
+  resolve it (classic NG-07), but an IP literal is checked even then. No switch: the local network
+  is reached only for the host of an address the user typed ([S-3840]). A refused feed says so in the
+  widget ("x is on the local network. Themia goes there only for an address you typed yourself").
+  Every request, the camera stream and the fixed public services included, connects through the
+  guard ([S-960]), and the loopback hardware monitor is reached as "this machine only" ([S-967]).
 - **[S-1302]** Rss reads several feeds (`RssConfig.Feeds`, up to 12, a list editor in settings, each
   address checked on commit), fetched in parallel through the shared cache and merged
   (`FeedAggregate.Merge`, classic S-30): newest first, undated last in arrival order, capped at
@@ -2907,18 +3303,22 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
 - **[S-1309]** Times on the chart are the exchange's (classic S-36): Yahoo's `gmtoffset` and
   `timezone` ("EDT") — not an IANA lookup, which needs ICU the app does not ship — "09:30" for 1 day,
   "Tue 15:00" for 5 days, "Mar 4" beyond, with the year from 2 years; local time when the reply has
-  no offset. The badge and the time labels say which zone in their tooltip.
+  no offset. The badge and the chart (whose times are drawn on it) say which zone in their tooltip.
 - **[S-1310]** Chart options: **High and low** markers (dot and price at the period's first highest
-  and lowest bar, kept inside the chart; an axis price a marker's price would overlap is left out,
-  the marker says the same price, `StockChartLabels.Place`); **Fill under the line** (`ShowAreaFill`, on — WinUI's
-  look; the original defaulted off); **Rising/Falling colour** through the shared colour picker
+  and lowest bar, the price above the high and under the low, kept inside the chart's width,
+  `StockChartLabels.Place`); the area under the line is always filled (WinUI's look; no setting,
+  [S-3795]); **Rising/Falling colour** through the shared colour picker
   (`ColorPickerRow`, never hex; empty = the theme's green/red; a hand-edited non-colour is repaired
   to empty at load).
 - **[S-1311]** Stocks ladder (`StockLayout.Plan`, replacing the 34%/120px chart band): rung 0 price +
   signed change (change under the price where it does not fit beside); currency and session glyph
-  from 180px, the session's words from 300px; the extended line; the chart (≥24px, full-bleed) with
-  start/end times from 128px high and the middle one from 400px wide, a price axis (high/mid/low) from
-  400px wide and 120px of chart. A strip (≥400px, 2:1) puts the readout beside a full-height
+  from 180px, the session's words from 300px; the extended line; the chart (≥24px), full-bleed: edge
+  to edge and down to the card's bottom edge, no inset, the card's rounded corners clipping it
+  ([S-215]). Its times are the start and the end of the range only, from 128px high, written inside
+  the chart's bottom band over the fill, in line with the text's inset; the trace keeps clear of them
+  and of the markers' prices (`StockChartLabels.Band`), the fill does not. No price axis (user
+  decision 2026-10-11): the high/low markers carry the period's prices, and an axis at the edge
+  would need an inset of its own. A strip (≥400px, 2:1) puts the readout beside a full-height
   chart. The chart takes what is left; the price grows only to Title / TitleLarge / Display by the
   tile's smaller class. Pointer over the chart on L/XL reads the bar under it (time · price). The
   session badge and age re-evaluate every minute on the shared ticker (render only), so the badge
@@ -2930,7 +3330,19 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   exchange; `MarketQuote.Facts`/`Volume` are gone) and no range chips on the widget: the period is
   the **Timeframe** row in the widget's settings (`Range`, default 1 day). What they took goes to the
   chart. Those facts are not parsed or cached either (`QuoteStats` is gone; the previous close is
-  read only to compute the change).
+  read only as the change's baseline, [S-2775]).
+- **[S-2775]** One baseline for the colour, the change and the line (`MarketQuote.Trace`): the
+  change is the price against the start of the shown range, and the line starts at that same
+  point, so a falling colour never sits over a rising line. A listed symbol's baseline is Yahoo's
+  `chartPreviousClose`, the close just before the range's first bar (the previous session's close
+  on 1 day); `previousClose` may stand in on 1 day only (`ListedBaseline`); without either, the
+  first bar. The baseline is drawn as the line's first point (at the first bar's time) when it
+  differs from it. A coin's change is over its chart's series, from its first price; CoinGecko's
+  24-hour change stands in only on 1 day without a series (`CoinTrace`). Fixed bug: the change was
+  measured from the previous close while the line began at the day's first bar, so a day that
+  opened below the close and climbed back part of the way (AAPL) drew a rising line in red; coins
+  showed a 24-hour change over any range. The colour follows the regular-session price; a dashed
+  extended-hours tail has its own line and colour ([S-1308]).
 
 Not ported, on purpose: RSS feeds as shared *connections* and the classic "Manage connections" page
 (S-08/S-29 — feeds stay a widget setting, recorded earlier); per-widget `label`/`hideHeader` (card
@@ -2988,7 +3400,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   before anything is recoloured (every `AccentFill…`/`AccentTextFill…`/`SystemControl…Accent…`
   brush is one of the seven shades at some alpha) and recoloured in place, alpha kept; the
   `SystemAccentColor*` resources are set for later lookups. So template `{ThemeResource}` uses
-  follow, in widgets and in the settings window.
+  follow, in widgets and in the settings window. `SystemFillColorAttentionBrush` is an accent alias with no colour
+  resource of its own (Light2 in dark theme, the accent itself in light) and is mapped like the others.
 - **[S-821]** Text size (`FontScale`, 0.5..2) scales the whole `FluentType` ramp (size and line
   height together), so `Fit`/`Hero` still pick real steps and a layout sheds rather than
   overflows. Live: before a card's view re-lays out on the state change, text already on the card
@@ -3033,6 +3446,36 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-832]** Applying a preset writes its fields in one mutation and leaves every other field alone.
 - **[S-833]** The picker shows the matching preset, or Custom; only owned fields are compared, colours
   case-insensitively, numbers within 0.001.
+- **[S-835]** The default look is Windows 11's, value for value, with the framework's own theme
+  resources (WinUI 1.8 `generic.xaml`, read by key through `FluentLayout.Themed`, never copied):
+  card = `CardBackgroundFillColorDefault` (#0DFFFFFF dark / #B3FFFFFF light) over
+  `SolidBackgroundFillColorBase` (#202020 / #F3F3F3), i.e. #2B2B2B / #FBFBFB; a 1px
+  `CardStrokeColorDefault` (#19000000 / #0F000000); `OverlayCornerRadius` 8 for the card, 4
+  (`ControlCornerRadius`) for controls and row highlights; text `TextFillColorPrimary/Secondary/
+  Tertiary`; accent `AccentFillColorDefault` (Light2 dark / Dark1 light); status
+  `SystemFillColorSuccess/Caution/Critical` (#6CCB5F/#FCE100/#FF99A4 dark, #0F7B0F/#9D5D00/#C42B1C
+  light), which are also Stocks' rising/falling colours unless the user picks their own. Type ramp
+  and 16px inset as the Windows widget guidance (Caption 12/16 … Title 28/36, 16px margins). The
+  references: [Color](https://learn.microsoft.com/windows/apps/design/style/color),
+  [Geometry](https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry),
+  [Layering](https://learn.microsoft.com/windows/apps/design/signature-experiences/layering),
+  [Typography](https://learn.microsoft.com/windows/apps/design/signature-experiences/typography),
+  [Widget design fundamentals](https://learn.microsoft.com/windows/apps/design/widgets/widgets-design-fundamentals),
+  and the Adaptive Cards designer's Widgets Board host
+  ([widget-dark.json](https://github.com/microsoft/AdaptiveCards/blob/main/samples/HostConfig/widget-dark.json)),
+  whose card (#2C2C2C / #F6F6F6, 1px #19000000 / #0F000000, radius 8) is a CSS approximation of
+  the same tokens; the theme resources win where the two differ. Deliberate differences: no card
+  shadow (the surface is clipped to the cards by `SetWindowRgn`, so a shadow outside them cannot
+  show), and the header is Body Strong in the secondary colour ending 44px down rather than the
+  board's own 48px attribution strip (the board draws that strip itself; it is not a widget's).
+- **[S-836]** The card composites as a WinUI card does: the Fluent tint stops at a solid stroke's
+  inner edge (`DesignLook.TintInset`; a `Border`'s background is `InnerBorderEdge`), so the stroke
+  lies over the base alone (#1D1D1D / #E5E5E5 at 1px); dashed and dotted lines keep the tint
+  full-bleed so their gaps do not show bare base. `DesignLook.Over` is the source-over rule.
+  `--widget-png … --reference` draws a stock WinUI card (framework brushes, application theme) beside
+  the first tier and prints the colours it should composite to, for a pixel comparison.
+- **[S-837]** Tracks follow the control they stand for: a seek bar is a slider
+  (`SliderTrackFill` = `ControlStrongFillColorDefault`, value `AccentFillColorDefault`, 4px).
 - **[S-834]** Appearance page: Style (presets + Custom), theme, accent, widget background + opacity,
   header background + opacity, corner radius, border group, font (presets + installed), text size,
   widget scale, then Layout ([S-1722]: gap between widgets, snap to grid). Picking a preset rebuilds
@@ -3136,7 +3579,7 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   `OnlyActive`, the silent apps it hid follow the list dimmed when all playing rows fit. The mixer is
   its rows and nothing else at any size: no device line (was: name, "N playing", chevron).
 - **[S-1229]** *(Retired: the XL mixer has no side panel — no device name, master level beside the
-  list, microphone or device list. The master stays a row of the list, as at every size.)*
+  list, microphone or device list. Nor is the master a row of the list any more, [S-3251].)*
 - **[S-1230]** *(Retired: the volume tile has no ladder. The number, the level meter and its
   `ShowPeaks` setting, and the `ShowSlider` setting are gone; see [S-2730].)*
 - **[S-1231]** *(Retired: the volume tile lists no apps; that is the mixer's job.)*
@@ -3160,8 +3603,13 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   Home/End for its row cursor.
 - **[S-2771]** The mixer shows no volume number (user decision, [S-666]): a row is its icon, name
   (and session pill), slider, meter and mute button; the level is the slider's position and the mute
-  glyph's band (crossed out when muted). No percent beside a row at any width, the master row
-  included. The slider's own drag tooltip is the only number, while dragging.
+  glyph's band (crossed out when muted). No percent beside a row at any width. The slider's own
+  drag tooltip is the only number, while dragging.
+- **[S-3251]** The mixer lists apps and nothing else (user decision): no master / current-volume
+  row, no output device name or line, at any size, and no `ShowMaster` setting. The device's own
+  level is the volume tile's job. The mixer still follows the default output (or the device chosen in
+  its settings, [S-1221]) to find the apps; the worker no longer opens the endpoint's own meter,
+  since no widget draws it (`AudioPeaks` is per session only).
 
 The original Volume had no peak meter or device name; the audit added them and [S-2730] took them
 out again.
@@ -3228,7 +3676,8 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   and its refusal in the tooltip, and cannot be opened.
 - **[S-1387]** Item menu (original S-26): Open (disabled when refused) or "Open N" on a right-click
   inside a multi-selection; web: Copy URL; file: Open file location, Copy path; shell: Copy path;
-  Move to start / up / down; Rename (off for several); Remove / Remove N (danger). Remove keeps one
+  Rename (off for several; no moves: an item is dragged, [S-1410], or moved with Alt+Shift+Up /
+  Down on the cursor, [S-3802]); Remove / Remove N (danger). Remove keeps one
   step of "Undo remove" on the card menu. Rename edits in place (Enter / losing focus commits,
   Escape cancels); a name equal to the derived one clears the label.
 - **[S-1388]** Settings (original S-16, S-45, S-61): Display first, then Add (file / folder pickers
@@ -3277,10 +3726,10 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
   Google, CalDAV/CardDAV) — and every
   connection it opens goes through one `ConnectCallback`. IMAP (account check and every sync) opens
   through `GuardedTcp.OpenTlsAsync`. Both end in `NetGuard.OpenSocketAsync`. A refusal is a
-  `NetRefusedException` carrying the sentence ("x is on the local network. Turn on local network
-  access in Settings › General to reach it"): `FetchStatus.Refused` in a widget,
-  `AccountError.Refused` for an account. Not guarded, as in the original: the camera stream (a LAN
-  camera is its point).
+  `NetRefusedException` carrying the sentence ("x is on the local network. Themia goes there only
+  for an address you typed yourself"): `FetchStatus.Refused` in a widget, `AccountError.Refused`
+  for an account. The camera stream is guarded too ([S-3840]); only the Windows media player it hands a
+  real video to opens its own connection, to the address the guard just let through.
 - **[S-961]** Address classes (NG-01), one table for the whole app (`NetworkGuard.IsBlocked`):
   [S-1301]'s list plus site-local fec0::/10, and an IPv6 address carrying an IPv4 one — mapped
   ::ffff:a.b.c.d, IPv4-compatible ::a.b.c.d, NAT64 64:ff9b::/96 — is judged as that IPv4 address.
@@ -3302,10 +3751,8 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
   one byte at a time to the blank line (16 KB cap), and only a 2xx opens the tunnel. A 407 says the
   proxy requires authentication; another status is shown with the proxy's own status line; a SOCKS
   proxy is refused out loud rather than bypassed. Bounded by the IMAP job's deadline.
-- **[S-965]** Account servers follow the switch. A user-typed CalDAV/CardDAV or IMAP server on this
-  computer or the local network (a NAS) is refused while **Local network access** is off and
-  reached when it is on, as in the classic app (NG-04). This reverses the earlier "a NAS is always
-  legitimate" exemption. The settings row says so.
+- **[S-965]** Retired: account servers followed the local-network switch, which is gone. A typed
+  CalDAV/CardDAV or IMAP server on the local network is reached by [S-3843].
 - **[S-966]** Redirects: both clients follow them by hand, never the stack, so every hop is a new
   request through the guard. One rule for which hops to follow (`RedirectRules.MayFollow`, [S-519]):
   http(s) only, never https→http, never from a public host into local space; at most 5 hops.
@@ -3313,13 +3760,32 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
   now count as local).
 - **[S-967]** "This machine only" (`NetReach.ThisMachine`): the loopback hardware monitor's
   `localhost:8085` is fetched by a second client from the same factory whose connections admit
-  loopback addresses only, whatever the switch says, and are never proxied.
+  loopback addresses only, whatever grant came along, and are never proxied.
 - **[S-968]** One user agent for every HTTP and CONNECT request (PX-10); TLS 1.2 or newer for HTTP
   and IMAP; timeouts and caps: web 8 s connect / 20 s request / 4 MB body, accounts 10 s connect /
   30 s per request / 16 MB body, IMAP 30 s per job, 1 MB line, literal cap; favicons 64 KB.
-- **[S-969]** The switch is read on every connection (`NetGuard.AllowPrivate`, wired from
-  `AppPreferences.AllowPrivateNetwork`), default off, so nothing reaches the LAN before the app has
-  read its settings (NG-04).
+- **[S-969]** Retired with the switch ([S-3840]). Nothing reaches the LAN without a grant, from the
+  first request on.
+- **[S-3840]** The local network without a switch (`Core/Net/LocalGrant.cs`, tests `LocalGrantTests`):
+  a private, loopback or CGNAT address is reached only as the host of an address the user typed into
+  a setting (a feed, a camera stream, an account's mail or DAV server), through a `LocalGrant` for that
+  host the caller hands in. The grant is bound to its host: a redirect to another host, and every
+  address read out of fetched content (feed links, pictures, favicons, DAV hrefs to elsewhere) carry
+  none and meet the guard as before. A redirect from a public host into local space is refused
+  outright ([S-966]). Granted requests ride their own client and pool (`GuardedHttp.CreatePair`), so a
+  connection opened under a grant is never lent to a request without one.
+- **[S-3841]** DNS rebinding: only an address that names the local network as typed earns a grant
+  — an IP literal, a single-label name (`nas`, `localhost`), or a name under .local, .lan, .home,
+  .home.arpa, .internal, .localdomain or .localhost. A typed public name (`rss.example.com`,
+  `nas.mydomain.com`) earns none even when the local DNS points it at 192.168.x: the user cannot see
+  where a public name resolves. Split-DNS setups type the address or the local name instead.
+- **[S-3842]** What a grant can open: loopback, 10/8, 172.16/12, 192.168/16, 100.64/10, fc00::/7,
+  fec0::/10. Never, whatever was typed: link-local (169.254/16 with the cloud metadata address,
+  fe80::/10), 0/8 and ::, 240/4, the documentation ranges. A granted name that also resolves to one of
+  those is refused whole ([S-962]). A proxy is no bypass: an ungranted literal is judged as before.
+- **[S-3843]** Account servers: an IMAP server's host and a CalDAV/CardDAV collection's host (and,
+  while adding, the address typed) earn a grant on every request of that account; Microsoft and Google
+  never do. Discovery that redirects to another host goes on without one.
 
 Not ported: proxy authentication (classic known limit; Windows stores no proxy credentials) and
 proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX-04) — .NET's
@@ -3329,7 +3795,7 @@ proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX
 
 Search is `Core/Widgets/WidgetSearch.cs` + `WidgetKeywords.cs` (ported from `widgetSearch.ts`,
 `searchKeywords.ts`, WidgetPicker.SPEC S-01..S-11; tests `WidgetSearchTests`, the original's cases);
-the picker body is `Shell/WidgetPicker.cs`, opened from `DesktopWindow.Picker.cs`.
+the menu it searches is the edit bar's add menu ([S-3501]), `Shell/WidgetPicker.cs`.
 
 - **[S-940]** A query matches six weighted fields: label 1.0, curated keywords 0.9, the kind's name
   split on camel case 0.8, category title 0.55, account providers 0.55, description 0.45 (S-01).
@@ -3346,14 +3812,10 @@ the picker body is `Shell/WidgetPicker.cs`, opened from `DesktopWindow.Picker.cs
 - **[S-946]** Results are best first, ties by label; a score of 0 drops the widget (S-05, S-10).
 - **[S-947]** Exact > word > prefix > word prefix > substring > typo, plus a bonus when the whole
   query is a prefix of the label (S-09).
-- **[S-948]** The picker opens on a search box above the category columns. Typing replaces the columns
-  with one flat ranked list (name, description, category) in the columns' place and size, so the
-  flyout does not jump; clearing the box brings the columns back (S-05). No match says so.
-- **[S-949]** Keyboard: the box has focus when the picker opens, so typing searches; Up / Down move a
-  highlight through what is shown (the columns in reading order, or the results); a search starts on
-  the best match so Enter takes it; Enter picks; Escape closes. The highlight is drawn, not focused,
-  so the caret stays in the box.
-- **[S-957]** Debug builds render the open picker: `Themia.exe --picker-png <out.png> [--search text]`.
+- **[S-948]** *(Retired: a search no longer swaps the columns for a flat list; it filters across
+  them, [S-3504].)*
+- **[S-949]** *(Retired: the keys walk the columns as a grid, [S-3505].)*
+- **[S-957]** *(Retired: the render flag is [S-3506].)*
 
 Not ported: picker row previews (`WidgetRowPreview`) and the group-by choice (`pickerGroups.ts`) — the
 columns are the grouping; the pro lock (licensing is out of scope).
@@ -3578,20 +4040,21 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   card and narrows the selection to it.
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
-- **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste, Duplicate,
+- **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste, a
   Move), or with the held widget centred on it (a drag handed to another display), then snapped and
   clamped as a block on the display under the pointer. The ghost and the landing come from the same
   calculation, so the widgets land exactly where the ghost was.
 - **[S-1587]** One **placement session** for everything that produces or moves widgets: Add widget
-  (a new widget of one kind), Paste (Ctrl+V and menu), Duplicate (Ctrl+D and menu), Move (menu: to
+  (a new widget of one kind), Paste (Ctrl+V and menu), Move (menu: to
   this display or any other). No command drops a widget at a computed spot
   any more. Click lands; Escape, a right-click or leaving edit mode cancels and changes nothing. The
   licence gate ([S-1065]) runs before the ghost appears (what the session would create: a copy of N
   widgets counts N, a move 0) and again on landing.
 - **[S-1588]** A payload taken from the selection holds the selected widgets of that view, in view
   order, as a snapshot with original ids.
-- **[S-1589]** A **copy** (paste of a copy, Duplicate) lands fresh widgets with fresh ids every
-  time. The clipboard is not touched by Duplicate.
+- **[S-1589]** A **copy** (paste of a copy) lands fresh widgets with fresh ids every time, so
+  pasting one copy twice gives two sets. There is no separate Duplicate for widgets: Copy then Paste
+  is that command.
 - **[S-1590]** A **move** (paste of a cut, Move) lands the **same** widgets: the originals are taken
   out of whatever view they are in now and the live instances — with any config change since the
   snapshot — take the planned rects. An original deleted meanwhile is put back from the snapshot.
@@ -3599,7 +4062,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   originals stay where they are, faded; cancel leaves them and the cut as they were.
 - **[S-1591]** Dragging a selection onto a display that shows another view hands **all** of it over
   in one landing ([S-76], [S-77]) and selects it there.
-- **[S-1592]** Delete, Copy, Cut, Duplicate, Move, Bring to front and Send to back act on the whole
+- **[S-1592]** Delete, Copy, Cut, Move, Bring to front and Send to back act on the whole
   selection; the card menu says how many ("Delete 3 widgets"). A right-click on a selected card keeps
   the selection; on any other card it selects that card alone first. Layering keeps the order the
   selected widgets had among themselves.
@@ -3609,7 +4072,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
 Not done: a debug render of the multi-widget ghost (the outlines are pinned by
 `S1585_*` instead). Not live-verified: everything pointer- and multi-monitor-driven here — the
 rubber band, Ctrl+click, block drag clamping at the taskbar, hand-off of a selection across
-displays, the ghost following the pointer across displays, Ctrl+A/Ctrl+D/Escape order.
+displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 
 ## Music and Pomodoro: parity and the whole tile (PF)
 
@@ -3879,16 +4342,17 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   of every widget under fresh ids. Data a widget only refers to (a note, an
   account) stays shared, as in the original. The copy is shown on the display asked from; it counts
   against the licence as one view plus its widgets.
-- **[S-901]** Reorder views by dragging a chip on the view bar (edit mode), by dragging a view's group
-  on the Views page ([S-1703]), or Move up / Move down in a view's menu (Views page). By id, never by bar index, so a bar showing a filtered subset moves the right view.
+- **[S-901]** Reorder views by dragging a chip on the view bar (edit mode), by dragging a view's row
+  on the Views page ([S-1703]), or Alt+Shift+Up / Down on a focused row there ([S-3802]). No menu has Move up / Move down. By id, never by bar index, so a bar showing a filtered subset moves the right view.
   The order is the bar's, the Views page's and Ctrl+n's.
 - **[S-902]** Deleting a view (never the last) repairs everything naming it in the same change:
   display assignments (the display then gets an existing view again, [S-1705]), the active view, the view for
   new displays (back to null) and every bar whitelist (one left empty means all views again).
 - **[S-903]** A view's icon is picked in its group on the Views page from the shared glyph grid
   (`IconChoice`), whose default cell shows the view's initials — what a view without an icon shows.
-  The icon is drawn by the view bar, the toolbar's View menu and the group's
-  header on the Views page (a view without one shows the shared view glyph there).
+  The icon is drawn by the view bar, the toolbar's View menu and the row's
+  header on the Views page (a view without one shows the shared view glyph there), in the view's
+  colour ([S-3810]).
 - **[S-904]** In edit mode only, Ctrl+1..Ctrl+9 (and the keypad digits) show the n-th view on the
   display under the pointer (the one a paste lands on, [S-74]), or this one. Outside edit mode
   Themia takes no digits: there is no global hotkey (audit B6).
@@ -3929,11 +4393,37 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 - **[S-916]** A display's group on the Displays page ends with its view bar rows: Show the view bar,
   View bar position (8 anchors), View bar size, Show view names, and "Views on the bar" (one
   drop-down button, [S-1708]). Its Shows drop-down assigns through `ShowViewOn`.
+- **[S-917]** The bar never runs off its display (user bug: with many views it ran past the edge).
+  Its room along its axis (`ViewBarRules.Room`) is the work area's width (a row) or height (a
+  column) less the 16-DIP margin at both ends; a column in edit mode also gives up the toolbar's
+  strip, so pushed below it ([S-909]) it still ends a margin above the bottom. When the chips do not
+  fit (`ViewBarRules.Fit`, on their measured lengths, the bar's padding and the grip), the bar draws
+  the chips from the start of the user's order, as many as fit beside a final overflow chip, and
+  the shown view's chip always (it takes the place of the last one that would have fit); order is
+  kept. Refitted on every refresh: a resize, a DPI or work-area change, another anchor (also live
+  while dragging), the toolbar showing, views added or renamed. There is no free position to clamp:
+  a dragged bar drops on an anchor ([S-913]) and is placed inside the area by [S-909].
+- **[S-918]** The overflow chip is the Windows command bar's: "…" in one icon-only square, tooltip and
+  name "n more views". A click (or Enter / Space; in edit mode the arrows, Home and End reach it last)
+  opens a menu of the views left off the bar in bar order, each with its icon in its colour (the
+  default view's name semi-bold); a pick shows that view here, which brings its chip onto the bar.
+  The menu opens into the display (below a top bar, above a bottom one, beside a column,
+  `ViewBarRules.MenuSide`) and is no taller than the work area on that side (`MenuHeight`), so a
+  long list scrolls inside it; the edit bar's View menu is capped the same way below the toolbar.
+  The overflow chip is part of the bar's box, so it is in the hit region ([S-912]); it is never
+  dragged, and chips are reordered among the chips drawn ([S-914]). Chosen over a scrolling strip
+  with chevrons: a strip hides the shown view as easily as any other and needs a scroll position
+  per display; the overflow keeps every drawn chip one click away and is how Windows overflows a
+  command bar.
+- **[S-919]** Debug render: `Themia.exe --viewbar-png <outDir> [--views n] [--theme light|dark]`.
+  With `--views n` (1..60) it draws n views, the shown one two thirds along, at all eight anchors
+  with names and icon-only (the sizes in turn) and two edit-mode shots, and the overflow menu of the
+  bottom-left shot; it prints each bar's box and flags one outside the work area.
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
 tooltip on the bar (licensing refuses through `AllowCreate`). Debug render:
 `Themia.exe --viewbar-png <outDir>` draws the real bar, placed by the real rule, at nine
-anchor/size/mode combinations on a stand-in display with a taskbar strip.
+anchor/size/mode combinations on a stand-in display with a taskbar strip ([S-919] for many views).
 
 ## The Displays and Views pages (R4-NAV, R5-PAGES)
 
@@ -3944,10 +4434,8 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
 `SettingsPageSync.Shape` (tests `DisplayPlanTests`, `ViewPerDisplayTests`, `ViewsTests`,
 `SettingsListPagesTests`).
 
-- **[S-1700]** A view's group on the Views page: Name, Icon, the view's widgets (each a card drilling
-  into its page), Add a widget (Edit layout, [S-1701]), then Duplicate this view and Delete this view
-  (its button in the critical colour; off for the last view). No "Active view" row (which display
-  shows a view is chosen in the display's group or from the group's menu) and no order row.
+- **[S-1700]** Retired by [S-3800]: a view's group listed its widgets and held Add a widget,
+  Duplicate and Delete rows.
 - **[S-1701]** Edit layout from Settings (a view's Add a widget row) first shows that view on the
   settings display ([S-1702]), then enters edit mode. Edit mode alone left the user arranging
   whatever view that screen happened to show.
@@ -3960,8 +4448,8 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   the switchers and Ctrl+n follow. Only a drag that began on the page is accepted; the move runs
   after the drop has finished, since it rebuilds the page.
 - **[S-1704]** A view's group has a "…" button on its header (and the same menu on a right-click),
-  through the shared `ItemMenu`: Show on this display (off when it already shows there); Move up,
-  Move down (off at the ends); Duplicate view (shown on this display, [S-900]), Delete view (danger,
+  through the shared `ItemMenu`: Show on this display (off when it already shows there); Edit layout;
+  Duplicate view (shown on this display, [S-900]), Delete view (danger,
   off for the last view; the undo notice is the way back). A display's group has no menu; its rows
   hold all it offers. The navigation pane's entries have no menus.
 - **[S-1705]** A display is never given a new view. The display pass (and import, delete and undo,
@@ -3991,7 +4479,7 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   menus and no dragging in the pane.
 - **[S-1831]** A page target is a page plus, on Displays or Views, the item whose group to open
   (`ConfigTarget.App(Page, Item)`; `ConfigTarget.ForView`). Everything that used to open one view's
-  page (a view bar chip's View settings, a widget page's Delete) opens
+  page (a view bar chip's View settings) opens
   the Views page with that group opened and scrolled to the top; the reader's other groups stay as
   they were. While a widget's page is open the Views entry stays selected, and the title is the
   breadcrumb "Views › Desktop › Clock": Views opens the page, the view's crumb opens it on that
@@ -4001,8 +4489,7 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
 - **[S-1832]** The Displays page has one `FluentLayout.Expander` group per connected display ([S-853];
   "· Themia is off here" after the resolution of one switched off); the Views page has Add view at
   the top (a new, empty view at the end of the order, shown nowhere yet; within the licence,
-  [S-1065]; its group opens), then one group per view in the user's order, headed by its icon and
-  name with its widget count. Search offers a row inside a group as "Views › Desktop" (or the
+  [S-1065]; its group opens), then one row per view in the user's order ([S-3800]). Search offers a row inside a group as "Views › Desktop" (or the
   display's name) and lands in that group, opening it; the same row in several groups is one
   suggestion per group.
 - **[S-1833]** Which groups are open is kept by the window while it is open (`SettingsExpansion`), so
@@ -4019,8 +4506,46 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   `--views n` grows the demo profile to n views (long and short names, some with icons);
   `--flyout "Views on the bar"` draws that row's flyout panel under the group.
 
+- **[S-3800]** The Views page lists each view as one row (a `FluentLayout.Expander`): its icon in its
+  colour ([S-3810]), its name, its widget count, and the "…" button. Opened, it holds the view's own
+  settings only: Name, Icon, Colour. Its widgets are not listed (they are arranged on the desktop);
+  Edit layout, Duplicate and Delete are in its menu. A note under the list says how to reorder.
+- **[S-3801]** No menu reorders by arrows where dragging exists: the view's menu ([S-1704]) and the
+  view bar chip's menu ([S-915]) have no Move up / Move down.
+- **[S-3802]** Keyboard reordering, the Windows way (the Start menu's pins): Alt+Shift+Up / Down on a
+  focused view row moves it one place (`ReorderKeys.Delta`: exactly Alt and Shift; with Ctrl, or an
+  arrow alone, nothing). At either end nothing happens. The move runs after the key, through
+  `AppHost.MoveView` (one undo step), and the moved row has the focus again after the rebuild.
+  The same drag and shortcut (`RowReorder`, one implementation) order every settings list: the list
+  editors (countdown timers, quotes, feeds, shortcuts, screen-time limits) and the mail row view's
+  columns (the ones switched on). A row is dragged onto another (it takes that one's place,
+  `DeskListOrder.MoveTo`); a press in one of its controls never starts a drag. A hint under a list of
+  two or more says so. No list, settings page or widget menu has arrow buttons or Move up / Move
+  down / Move to start: in the Tasks, Habits and Shortcuts widgets the keyboard lease carries the
+  shortcut as `WidgetKey.MoveUp` / `MoveDown` (`WidgetKeys`), moving the focused task, habit or the
+  cursor's shortcut.
+- **[S-3810]** A view may have a colour (`ViewState.Color`, `#RRGGBB`, null = the theme's text colour),
+  set on its row with the shared colour picker (`ViewOps.SetColor`: normalised, anything else refused,
+  empty clears). Its icon or initials are drawn in it on the view bar chips (shown or not), the Views
+  page, the Shows and New displays drop-downs, "Views on the bar" and the edit bar's View menu (where
+  a coloured view without an icon shows the view glyph). Duplicate and undo carry it.
+- **[S-3811]** On load a colour is normalised (`#abc` → `#AABBCC`); one that is not a colour is
+  dropped (the theme's), with a repair line.
+- **[S-3812]** The Views and Displays pages' signatures include each view's icon and colour, so a
+  change made elsewhere catches them up; a colour keeps the Views page's shape (no rebuild under the picker).
+- **[S-3832]** "New displays show" ([S-847]) heads the Displays page: a setting of every display to
+  come, not of one display's group. Each view in it carries its coloured mark.
+- **[S-3833]** The General page holds language, start with Windows, desktop icons and game mode. No
+  Edit layout switch (edit mode starts on the desktop or from a view's menu) and no local-network
+  switch ([S-3840]).
+- **[S-3834]** The navigation pane has no "Themia" heading; the title bar keeps the app's mark and name.
+- **[S-3830]** The Appearance page: Style, then four groups, each a `FluentLayout.Expander` whose
+  headline setting is the header's own control: Theme and colours (theme; accent, widget fill and
+  opacity, header fill and opacity), Widget cards (border style; corner radius, border width, colour
+  and opacity), Text and size (font, text size, widget scale), Layout (gap, snap to grid); then Motion.
+- **[S-3831]** App page descriptions are one line where the words allow it.
 Needs a manual pass: dragging a view's group onto another on the Views page; each "…" menu action
-(Show on this display, Move up/down, Duplicate, Delete) and the right-click menu; View settings from
+(Show on this display, Edit layout, Duplicate, Delete); Alt+Shift+Up / Down on a row, focus kept and the right-click menu; View settings from
 a view bar chip landing on the opened group; Edit layout from a group; the
 breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout opened live
 (ticking, the "All views" box, scrolling, keyboard).
@@ -4119,7 +4644,7 @@ the original had is ported, what it never had is recorded here and not built.
   the settings slider starts there), as the original's S-09/S-18. Stored values are clamped to
   1..3600 s.
 - **[S-1621]** Habits are **reordered by dragging a row** in the widget (original S-13), beside the
-  row menu's Move up / Move down. A press arms nothing until the pointer has moved 5 px
+  keyboard's Alt+Shift+Up / Down ([S-3802]). A press arms nothing until the pointer has moved 5 px
   (`HabitDrag.Threshold`), so a click still focuses and a double-click still renames; a press on the
   tick box or in the rename box never arms. The lifted row follows the pointer (clamped to the list),
   the rows it passes step one pitch aside (`HabitDrag.Shift`), the landing slot is the one the row is
@@ -4437,7 +4962,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 
 - **[S-1740]** One menu, Windows 11 File Explorer style: a `CommandBarFlyout`, always expanded, with
   the common commands as a **row of icons** on top and the labelled list below. The row's commands
-  and order: Cut, Copy, Paste, Rename, Duplicate, Settings, Delete. Each icon has its label as tooltip
+  and order: Cut, Copy, Paste, Rename, Duplicate (items and views only, never a widget, [S-1743]),
+  Settings, Delete. Each icon has its label as tooltip
   (with the shortcut, "Copy (Ctrl+C)") and as its accessible name. A disabled command stays in its
   place, greyed, so the row never shifts. A second entry claiming the same command, a toggle and a
   submenu stay in the list. `ItemMenu` is the only code that builds a context menu; no view builds a
@@ -4448,8 +4974,9 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 - **[S-1742]** The list keeps its callers' order; separators collapse (none leading, trailing or
   doubled), including where moving commands to the row emptied a group.
 - **[S-1743]** A widget card's menu: the row is Cut, Copy, Paste (disabled with nothing to paste),
-  Duplicate, Settings and Delete, acting on the selection ([S-1592]); the list is the view's own
-  commands, Bring to front / Send to back, Move, and Edit layout / Done editing.
+  Settings and Delete, acting on the selection ([S-1592]); the list is the view's own
+  commands, Bring to front / Send to back, Move, and Edit layout / Done editing. There is no
+  Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu: Paste and Settings in the row; Add widget (opens the picker at the
   click, whose choice then follows the pointer to be placed, [S-1587]), Select all ([S-1582], off
@@ -4463,7 +4990,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   click; a drag, a resize, Ctrl+click and a gesture lost to capture are not clicks.
 - **[S-1746]** A widget's menus never change how it looks: no view, layout, sort, size, label,
   column, format or "show X" switches on the card menu or an item menu. Those are settings and live on
-  the widget's settings page only (each one already has a row there). The menus keep commands the user
+  the widget's settings page only (each one already has a row there); the card's own header,
+  background and title are set on the edit bar's selection group ([S-3700]). The menus keep commands the user
   runs while looking at the widget: refresh, pause, open, which folder, the click mode, search.
 - **[S-1747]** Debug: `--menu-png <outDir>` opens the card menu (edit mode, one
   widget; desktop, three widgets), the surface menu and two sample item menus for real, off-screen,
@@ -4474,6 +5002,12 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
   or the point of a right-click on the surface — and flips above only
   when there is no room below.
+- **[S-1750]** A widget whose settings page would have no rows (the CPU, memory and battery details,
+  the audio visualizer, the seven power buttons; the GPU details on a PC with one adapter) has no
+  Settings: the card menu leaves it out of the row, and Enter ([S-1974]), a click while the settings
+  window is open ([S-1745]) and every other way in do nothing for it. Whether a page has rows is read
+  off the page builder itself (a throwaway widget of the kind, once per kind), never a list kept
+  beside the pages, so the two cannot drift. The edit bar has no per-widget Settings button.
 
 Needs a live pass (pointer and focus on the real desktop): the surface menu opening only on empty
 surface and at the pointer, Add widget's picker at the click then placing, the right-click that
@@ -4652,8 +5186,13 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   so no address appears in a file name. Each document carries `schemaVersion` and `owner` and is
   source-generated JSON (`SyncJsonContext`).
 - **[S-2605]** Load tells absent from unusable: no file is a fresh owner, synced on first need; a
-  file over 64 MB, not sealed, not opening with this key and context, not JSON, of another schema or
-  another owner is logged, moved aside as `.corrupt` (one copy kept) and the owner resyncs. A file
+  file over 64 MB, not sealed, not opening with this key and context, not JSON, of a newer schema or
+  another owner is logged, moved aside as `.corrupt` (one copy kept) and the owner resyncs. A sound
+  shelf of an **older** schema is a stale cache, not damage: logged at Info (no notice), left for the
+  resync's first save to replace, and the owner starts empty and resyncs, change cursors included.
+  A kind's schema is bumped when what earlier builds stored cannot be trusted: the calendar shelf is
+  v2 because v1 could hold Graph delta notices stored as untitled events and all-day events stretched
+  over two days ([S-2632]); only the calendar shelves start over. A file
   that cannot be read (locked) is left in place and the owner starts empty for the run. Every shelf
   that opens is validated by its kind's rules ([S-2621], [S-2632], [S-2641], [S-2651]); what is
   dropped is counted in one log line.
@@ -4786,7 +5325,8 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   `nextSyncToken`. A body that is not a JSON object is a bad answer; non-object items and removals
   without an id are skipped; a cursor beside a next page is not the end of the round.
 - **[S-2684]** Calendar: a changed event replaces the one held under its id when it still overlaps
-  the window and leaves when it moved out; a removed or cancelled one leaves; the window stays and
+  the window and leaves when it moved out; a removed or cancelled one leaves; a bare change notice is
+  read again first ([S-3610]); the window stays and
   both refresh stamps move on; at most 5000 events, and a window at the bound keeps no cursor.
 - **[S-2685]** Contacts: changes upserted by id, removals out, name order, at most 1000; a book at
   the bound keeps no cursor, so a book larger than the widget can show is read in full each time.
@@ -4861,3 +5401,65 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 - **[S-2666]** No sweep unless the account list loaded whole (`ShelfSweep.MayRun`): no accounts file
   (perhaps unreachable, not gone), a file set aside as unreadable or damaged, a read-only store, or
   a load that repaired the file (a dropped damaged account is not a signed-out one) sweeps nothing.
+
+## Shared widget settings: region and updates (SETTINGS-AUDIT)
+
+What every widget shares instead of carrying its own copy, and the audit of every widget page that
+moved it there. Core: `RegionFormat` (`Localization/RegionFormat.cs`), `UpdateCadence`
+(`Sync/UpdateCadence.cs`), `RegionPreferences` / `RefreshPreferences` (`Model/AppPreferences.cs`).
+App: `ConfigPages.Widgets.cs` (Settings › Widgets), `AppHost.Region.cs`, `Interop/SystemRegion.cs`.
+Strings in `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
+
+- **[S-3770]** The regional formats (12- or 24-hour clock, first day of the week, temperature scale)
+  are `AppPreferences.Region`, one set for every widget: no widget stores `use24Hour`, `unit` or
+  `weekStart` any more, and a stored one is ignored like any unknown JSON. `RegionFormat.Current` is
+  what is in force; a change raises `Strings.Changed`, so every widget redraws its text as it does for
+  a language change (the weather widgets ask again under the new scale).
+- **[S-3771]** Each format offers "Windows setting (…)" first, naming the value Windows has, then the
+  fixed choices: 12-hour / 24-hour; Monday / Sunday; Celsius (°C) / Fahrenheit (°F).
+- **[S-3772]** "Windows setting" reads the user's regional format through `GetLocaleInfoEx`
+  (`LOCALE_SSHORTTIME`: an `H` is the 24-hour clock; `LOCALE_IFIRSTDAYOFWEEK`: 6 is Sunday, any other
+  day Monday; `LOCALE_IMEASURE`: 1 is Fahrenheit), never `CultureInfo` (`InvariantGlobalization`). It
+  is read again on every state change. An unreadable value falls back to the app language's habit
+  (`RegionFormat.Language`). An unknown stored value follows Windows again, loudly; a null block is
+  the defaults.
+- **[S-3773]** `HourCycle.Locale` in `LocaleFormat.Time` is the clock setting once the app has read it,
+  so every time a widget prints (clock, agenda, mail, countdown, sun, freshness lines) follows one
+  switch. Before that (and in the tests) it is the language's habit.
+- **[S-3780]** How often online sources are asked is `AppPreferences.Refresh`, one cadence per kind of
+  source, set in Settings › Widgets › Updates: Weather (now and forecast), Stocks, News feeds, and
+  Mail, calendars and tasks. No widget has a refresh setting for an online source.
+- **[S-3781]** The choices, in minutes: weather 15, 30, 60, 120 (default 30; open-meteo publishes every
+  15); stocks 1, 5, 15, 30, 60 (default 5); feeds 15, 30, 60, 120 (default 30); accounts 1, 2, 5, 15,
+  30 (default 2). A stored value off the list snaps to the nearest choice, a tie to the slower one,
+  and says so.
+- **[S-3782]** The accounts cadence probes every mail folder, asks the calendars' near window and
+  every task list (`SyncInterests.AccountInterval`); contacts stay at 15 minutes and the calendar's
+  whole window at 6 hours. The sync reads the cadences from the state itself
+  (`SyncInterests.From`), so a change is heard on the same state change.
+- **[S-3790]** Stocks has no market choice. A search pick sets the symbol, its service (Yahoo or
+  CoinGecko) and its name together (`StocksConfig.Choose`); a symbol typed in full is a listed one
+  (`ChooseTyped`: Yahoo quotes coins too, as `BTC-USD`) and drops the old name. The name row is gone:
+  the pick's name is the header title, and the card's own title overrides it.
+- **[S-3791]** A field that only renamed the header is gone where the card's own title does the same:
+  the feed's `title`, the ping host's `hostLabel` (meter and statistics).
+- **[S-3792]** Every gallery re-reads its folder or Bing's photo hourly (`GalleryConfig.RescanInterval`);
+  "Refresh images" reads now. No refresh setting.
+- **[S-3793]** Local readings keep their kind's own fixed cadence, not a setting: meters
+  ([S-1120]) and system details ([S-2401]); a stored `intervalSeconds` is ignored. Bluetooth
+  enumerates every 30 seconds ([S-3794]). The camera's snapshot interval stays the stream's own
+  ([S-470]): it is how a camera is read, not how often a service is asked.
+- **[S-3794]** Bluetooth: no device-count and no refresh setting; the list holds at most 30 devices
+  and fills the tile.
+- **[S-3795]** Long widget pages fold related rows into `FluentLayout.Expander` groups: Stocks' chart
+  (timeframe, high and low, colours, under the Show chart switch); the clock's zone (label, offset);
+  Shortcuts' view (tile and row size, icon only, stretch) and the Windows locations; Folder's sort
+  (reverse, folders first) and filter (hidden items, extensions). Descriptions are one short line,
+  or none where the title says it. Repeated actions are not repeated: Folder's "Open in File
+  Explorer" is on the widget's menu only.
+- **[S-3796]** Removed outright, with the behaviour that replaced them: the clock's 24-hour switch, the
+  weather unit, the calendars' week start ([S-3770]); every online refresh row ([S-3780]); Stocks'
+  market and name rows and the fill-under-the-line switch (always filled); the feed title and the
+  ping name ([S-3791]); the gallery, meter, detail and Bluetooth refresh rows ([S-3792]–[S-3794]);
+  Bluetooth's device count; Notes' word wrap (always wraps); the contacts' starting search
+  ([S-584]); the mail page's sort row (the widget's own sort button stays).

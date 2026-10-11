@@ -260,7 +260,7 @@ internal sealed partial class MixerView
             ShowIcon(row, showIcons);
         }
 
-        /// <summary>[S-1223] The row's meter: the device for the master row, else its session (or loudest of its group).</summary>
+        /// <summary>[S-1223] The row's meter: its session, or the loudest of its group.</summary>
         public void ShowPeak(AudioPeaks peaks)
         {
             if (!_meterOn || _row is not { } row)
@@ -269,7 +269,7 @@ internal sealed partial class MixerView
                 return;
             }
 
-            var peak = row.IsMaster ? peaks.Output : peaks.ByKey.GetValueOrDefault(row.Key);
+            var peak = peaks.ByKey.GetValueOrDefault(row.Key);
             _meterScale.ScaleX = row.Muted ? 0 : AudioRules.Peak(peak);
         }
 
@@ -283,7 +283,7 @@ internal sealed partial class MixerView
                 return;
             }
 
-            _glyph.Glyph = row.IsMaster ? Glyphs.Volume : row.IsSystem ? Glyphs.Bell : Glyphs.Apps;
+            _glyph.Glyph = row.IsSystem ? Glyphs.Bell : Glyphs.Apps;
 
             if (row.Path is not { } path)
             {

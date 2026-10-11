@@ -12,72 +12,64 @@ using Windows.System;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-420, S-948, S-949] The body of the Add-widget picker: a search box and the widgets — in
-/// category columns while the box is empty, as one flat list ranked by <see cref="WidgetSearch"/>
-/// while it is not.
+/// [S-3501..S-3505] The body of the edit bar's add menu: a search box over every widget kind, in its
+/// catalogue sections flowing through columns as a newspaper's do ([S-3502]). Each entry is the
+/// widget's icon and name — no preview. Built from <see cref="WidgetCatalog.All"/> each time it opens,
+/// so a new kind is listed without touching this, and in the current language ([S-1109]).
 /// <para>
-/// Its own control rather than code inside the surface, so the debug render can draw the open
-/// picker off-screen without a desktop window, and so the flyout can rebuild it on every open with
-/// the names in the current language.
+/// Its own control rather than code inside the surface, so the debug render can draw it off-screen
+/// without a desktop window.
 /// </para>
 /// <para>
-/// Keyboard: the search box has focus as soon as the picker opens, so typing searches. Up and Down
-/// move a highlight through what is shown, in reading order; Enter picks the highlighted widget;
-/// Escape closes. The highlight is drawn, not focused, so the caret stays in the box and the next
-/// letter typed still goes to the search.
+/// Keyboard ([S-3505]): the search box keeps the focus, so typing always searches; the highlight is
+/// drawn, not focused. Arrows move it through the columns (<see cref="AddMenuKeys"/>), Enter places
+/// the highlighted widget (or, while a search has no highlight, its best match), Escape empties the
+/// box and, empty, closes the menu.
 /// </para>
 /// </summary>
 internal sealed partial class WidgetPicker : Grid
 {
     private const string Scope = "picker";
 
-    /// <summary>How many columns the categories spread across while nothing is typed.</summary>
-    private const int PickerColumns = 4;
+    /// <summary>[S-3502] One column's width: the longest catalogue name with its icon fits, as in Karpo's 216-DIP columns.</summary>
+    private const double ColumnWidth = 216;
 
-    /// <summary>Width of a name in the search results: the longest catalogue label, with room.</summary>
-    private const double ResultNameWidth = 150;
+    /// <summary>The gap between two columns.</summary>
+    private const double ColumnGap = Fluent.Space2;
+
+    /// <summary>[S-3502] One line, heading or entry: Fluent's compact list row.</summary>
+    private const double LineHeight = Fluent.RowHeightCompact;
 
     /// <summary>
     /// The search index, built once per language: the catalogue does not change while the app runs,
     /// but its names do when the language does ([S-1109]). UI thread only.
     /// </summary>
-    private static (Locale Locale, (IndexedWidget Index, WidgetDefinition Definition)[] Entries)? _searchIndex;
+    private static (Locale Locale, (IndexedWidget Index, WidgetDefinition Definition, WidgetCategory Category)[] Entries)? _searchIndex;
 
-    private static (IndexedWidget Index, WidgetDefinition Definition)[] SearchIndex()
-    {
-        var locale = Strings.Current;
-        if (_searchIndex is { } built && built.Locale == locale)
-        {
-            return built.Entries;
-        }
-
-        var entries = BuildIndex();
-        _searchIndex = (locale, entries);
-        return entries;
-    }
-
-    private readonly IReadOnlyList<WidgetDefinition> _offered;
     private readonly Action<WidgetDefinition> _pick;
     private readonly Action _close;
 
     private readonly TextBox _search;
     private readonly Grid _columns;
-    private readonly ScrollViewer _resultsHost;
-    private readonly StackPanel _results;
 
-    /// <summary>What Up, Down and Enter walk: the visible items, in reading order.</summary>
-    private readonly List<(Button Button, WidgetDefinition Definition)> _cursorItems = [];
-    private readonly List<(Button Button, WidgetDefinition Definition)> _columnItems = [];
+    /// <summary>[S-3503] The column count and height of the full menu; a search keeps them, so the menu does not jump.</summary>
+    private readonly int _columnCount;
+    private readonly int _rows;
+
+    /// <summary>What the arrows walk: the shown entries in reading order, and how they stand.</summary>
+    private readonly List<(Button Button, WidgetDefinition Definition)> _entries = [];
+    private AddMenuGrid _grid = AddMenuLayout.Flow([], 2);
 
     private int _cursor = -1;
 
     /// <param name="pick">Runs when a widget is chosen.</param>
-    /// <param name="close">Runs on Escape.</param>
-    public WidgetPicker(Action<WidgetDefinition> pick, Action close)
+    /// <param name="close">Runs on Escape from an empty search box.</param>
+    /// <param name="areaWidth">The work area's width in DIPs, which decides the columns ([S-3503]).</param>
+    /// <param name="areaHeight">The work area's height in DIPs.</param>
+    public WidgetPicker(Action<WidgetDefinition> pick, Action close, double areaWidth, double areaHeight)
     {
         _pick = pick;
         _close = close;
-        _offered = [.. WidgetCatalog.All];
 
         RowSpacing = Fluent.Space3;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -86,28 +78,35 @@ internal sealed partial class WidgetPicker : Grid
         _search = new TextBox
         {
             PlaceholderText = Str.Shell_Picker_Search.Text(),
-            MinWidth = 240,
             IsSpellCheckEnabled = false,
             IsTextPredictionEnabled = false,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
         };
         AutomationProperties.SetName(_search, Str.Shell_Picker_Search.Text());
         _search.TextChanged += (_, _) => Refresh();
         _search.PreviewKeyDown += OnSearchKeyDown;
-
         Children.Add(_search);
 
-        _columns = BuildColumns();
-        _results = new StackPanel();
-        _resultsHost = new ScrollViewer
+        var all = AddMenuLayout.Filter(SearchIndex(), null);
+        (_columnCount, _rows) = AddMenuLayout.Fit([.. all.Select(s => s.Items.Count)], areaWidth, areaHeight, ColumnWidth, ColumnGap, LineHeight);
+
+        _columns = new Grid
         {
-            Content = _results,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            ColumnSpacing = ColumnGap,
+            HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
-            Visibility = Visibility.Collapsed,
+            Width = Math.Max(1, (_columnCount * ColumnWidth) + (Math.Max(0, _columnCount - 1) * ColumnGap)),
+            Height = _rows * LineHeight,
         };
 
-        var body = new Grid { Children = { _columns, _resultsHost } };
+        // [S-3503] Past the most the screen allows the menu scrolls rather than leaving the screen.
+        var body = new ScrollViewer
+        {
+            Content = _columns,
+            MaxHeight = Math.Max(2 * LineHeight, areaHeight * AddMenuLayout.MostHeightShare),
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        };
         SetRow(body, 1);
         Children.Add(body);
 
@@ -120,164 +119,113 @@ internal sealed partial class WidgetPicker : Grid
     /// <summary>Type into the search box, for the debug render.</summary>
     internal void SetQuery(string text) => _search.Text = text;
 
-    private static (IndexedWidget, WidgetDefinition)[] BuildIndex()
-        => [.. WidgetCatalog.All.Select(d => (WidgetSearch.Index(WidgetCatalog.SearchDoc(d)), d))];
-
-    /// <summary>[S-420] Every offered widget in category sections, balanced across columns.</summary>
-    private Grid BuildColumns()
+    private static (IndexedWidget Index, WidgetDefinition Definition, WidgetCategory Category)[] SearchIndex()
     {
-        var sections = _offered
-            .GroupBy(d => d.Category)
-            .OrderBy(g => g.Key)
-            .Select(g => (Category: g.Key, Items: g.ToList()))
-            .ToList();
-
-        // A heading costs about one row, so it counts as one when balancing the columns.
-        var columnOf = ColumnLayout.Partition([.. sections.Select(s => s.Items.Count + 1)], PickerColumns);
-        var columnCount = columnOf.Length == 0 ? 0 : columnOf.Max() + 1;
-
-        var grid = new Grid { ColumnSpacing = Fluent.Space4 };
-        var columns = new StackPanel[columnCount];
-
-        for (var c = 0; c < columnCount; c++)
+        var locale = Strings.Current;
+        if (_searchIndex is { } built && built.Locale == locale)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            columns[c] = new StackPanel { MinWidth = 176 };
-            SetColumn(columns[c], c);
-            grid.Children.Add(columns[c]);
+            return built.Entries;
         }
 
-        // Sections fill the columns in reading order, so walking the sections in order is walking
-        // the columns top to bottom, left to right — the order Up and Down follow.
-        for (var i = 0; i < sections.Count; i++)
-        {
-            var column = columns[columnOf[i]];
-
-            var heading = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            heading.Text = WidgetCatalog.Title(sections[i].Category);
-            heading.Margin = new Thickness(Fluent.Space3, column.Children.Count == 0 ? 0 : Fluent.Space4, 0, Fluent.Space1);
-            column.Children.Add(heading);
-
-            foreach (var definition in sections[i].Items)
-            {
-                var button = Item(definition, detail: false);
-                column.Children.Add(button);
-                _columnItems.Add((button, definition));
-            }
-        }
-
-        return grid;
+        // In section order, the catalogue's order inside each: what an empty search lists.
+        (IndexedWidget, WidgetDefinition, WidgetCategory)[] entries =
+            [.. WidgetCatalog.All.OrderBy(d => d.Category).Select(d => (WidgetSearch.Index(WidgetCatalog.SearchDoc(d)), d, d.Category))];
+        _searchIndex = (locale, entries);
+        return entries;
     }
 
     /// <summary>
-    /// [S-948] Show the columns for an empty query, or the ranked flat list for any other, and put
-    /// the highlight on the first item of a search so Enter takes the best match.
+    /// [S-3504] Lay out what the query leaves through the columns. A search keeps the full menu's
+    /// size and column count and starts the reading order on its best match.
     /// </summary>
     private void Refresh()
     {
         var query = _search.Text;
-        _cursorItems.Clear();
+        var sections = AddMenuLayout.Filter(SearchIndex(), query);
+        var sizes = sections.Select(s => s.Items.Count).ToArray();
 
-        if (string.IsNullOrWhiteSpace(query))
-        {
-            _resultsHost.Visibility = Visibility.Collapsed;
-            _columns.Visibility = Visibility.Visible;
-            _cursorItems.AddRange(_columnItems);
-            MoveCursor(-1);
-            return;
-        }
+        _grid = AddMenuLayout.Flow(sizes, Math.Max(_rows, AddMenuLayout.RowsFor(sizes, _columnCount)));
+        _entries.Clear();
+        _columns.Children.Clear();
+        _columns.ColumnDefinitions.Clear();
 
-        // The list takes the columns' place at the columns' size, so the flyout does not jump about
-        // while the user types.
-        if (_columns.Visibility == Visibility.Visible && _columns.ActualWidth > 0)
-        {
-            _resultsHost.Width = _columns.ActualWidth;
-            _resultsHost.Height = _columns.ActualHeight;
-        }
-
-        _columns.Visibility = Visibility.Collapsed;
-        _resultsHost.Visibility = Visibility.Visible;
-        _results.Children.Clear();
-
-        var offered = SearchIndex().Where(entry => _offered.Contains(entry.Definition));
-        var ranked = WidgetSearch.Rank(offered.Select(entry => (entry.Index, entry.Definition)), query);
-
-        if (ranked.Count == 0)
+        if (_grid.Columns.Count == 0)
         {
             var none = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
             none.Text = Str.Shell_Picker_NoMatch.Format(("query", query.Trim()));
             none.Margin = new Thickness(Fluent.Space3, Fluent.Space2, Fluent.Space3, Fluent.Space2);
-            _results.Children.Add(none);
+            _columns.Children.Add(none);
             MoveCursor(-1);
             return;
         }
 
-        foreach (var definition in ranked)
+        for (var c = 0; c < _grid.Columns.Count; c++)
         {
-            var button = Item(definition, detail: true);
-            _results.Children.Add(button);
-            _cursorItems.Add((button, definition));
+            _columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(ColumnWidth) });
+            var column = new StackPanel { Width = ColumnWidth };
+            SetColumn(column, c);
+            _columns.Children.Add(column);
+
+            foreach (var line in _grid.Columns[c])
+            {
+                var (category, items) = sections[line.Section];
+                if (line.IsHeading)
+                {
+                    column.Children.Add(Heading(category));
+                    continue;
+                }
+
+                var definition = items[line.Entry];
+                var button = Entry(definition);
+                column.Children.Add(button);
+                _entries.Add((button, definition));
+            }
         }
 
-        MoveCursor(0);
+        MoveCursor(-1);
     }
 
-    /// <summary>
-    /// One widget. In the flat list it also says what the widget is and where it would be in the
-    /// columns, because a search result has lost the section heading that said so.
-    /// </summary>
-    private Button Item(WidgetDefinition definition, bool detail)
+    private static TextBlock Heading(WidgetCategory category)
+    {
+        var heading = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+        heading.Text = WidgetCatalog.Title(category);
+        heading.Height = LineHeight;
+        heading.Padding = new Thickness(Fluent.Space3, Fluent.Space3, Fluent.Space3, 0);
+        return heading;
+    }
+
+    /// <summary>One widget: its icon and its name. No preview ([S-3501]); the description is the tooltip.</summary>
+    private Button Entry(WidgetDefinition definition)
     {
         var name = Fluent.Text(FluentType.Body);
         name.Text = definition.Label;
         name.VerticalAlignment = VerticalAlignment.Center;
 
-        // In the flat list the names share one width, so the descriptions start in one column.
-        if (detail)
+        var row = new StackPanel
         {
-            name.Width = ResultNameWidth;
-        }
-
-        var row = new Grid { ColumnSpacing = Fluent.Space3 };
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        row.Children.Add(new FontIcon { Glyph = definition.Glyph, FontSize = 16 });
-        SetColumn(name, 1);
-        row.Children.Add(name);
-
-        if (detail)
-        {
-            var description = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-            description.Text = definition.Description;
-            description.VerticalAlignment = VerticalAlignment.Center;
-            SetColumn(description, 2);
-            row.Children.Add(description);
-
-            var category = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            category.Text = WidgetCatalog.Title(definition.Category);
-            category.VerticalAlignment = VerticalAlignment.Center;
-            SetColumn(category, 3);
-            row.Children.Add(category);
-        }
+            Orientation = Orientation.Horizontal,
+            Spacing = Fluent.Space3,
+            Children = { Fluent.Icon(definition.Glyph, "TextFillColorPrimaryBrush"), name },
+        };
 
         var button = new Button
         {
             Content = row,
+            Height = LineHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            HorizontalContentAlignment = HorizontalAlignment.Stretch,
-            Background = DesignApplier.Brush("SubtleFillColorTransparentBrush", Colors.Transparent),
+            HorizontalContentAlignment = HorizontalAlignment.Left,
+            Background = Rest(),
             BorderThickness = new Thickness(0),
-            Padding = new Thickness(Fluent.Space3, 6, Fluent.Space3, 6),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            Padding = new Thickness(Fluent.Space3, 0, Fluent.Space3, 0),
 
-            // The search box keeps the keyboard; the list is walked with Up and Down from there.
+            // The search box keeps the keyboard; the menu is walked with the arrows from there.
             IsTabStop = false,
         };
 
         ToolTipService.SetToolTip(button, definition.Description);
         AutomationProperties.SetName(button, definition.Label);
+        AutomationProperties.SetHelpText(button, definition.Description);
         button.Click += (_, _) => Pick(definition);
         return button;
     }
@@ -294,27 +242,44 @@ internal sealed partial class WidgetPicker : Grid
         }
     }
 
-    /// <summary>[S-949] Up and Down move the highlight, Enter picks, Escape closes.</summary>
+    /// <summary>[S-3505] The arrows, Home and End move the highlight; Enter places; Escape empties, then closes.</summary>
     private void OnSearchKeyDown(object sender, KeyRoutedEventArgs e)
     {
+        WidgetKey? key = e.Key switch
+        {
+            VirtualKey.Up => WidgetKey.Up,
+            VirtualKey.Down => WidgetKey.Down,
+            VirtualKey.Left => WidgetKey.Left,
+            VirtualKey.Right => WidgetKey.Right,
+            VirtualKey.Home => WidgetKey.Home,
+            VirtualKey.End => WidgetKey.End,
+            _ => null,
+        };
+
+        if (key is { } move)
+        {
+            if (AddMenuKeys.Move(_grid, _cursor, move) is not { } next)
+            {
+                return; // the caret's
+            }
+
+            MoveCursor(next);
+            e.Handled = true;
+            return;
+        }
+
         switch (e.Key)
         {
-            case VirtualKey.Down:
-            case VirtualKey.Up:
-                var step = ListKeys.Decide(e.Key == VirtualKey.Down ? WidgetKey.Down : WidgetKey.Up, _cursor, _cursorItems.Count);
-                if (step.Command == ListCommand.Focus)
+            case VirtualKey.Enter:
+                if (Target() is { } target)
                 {
-                    MoveCursor(step.Index);
+                    Pick(_entries[target].Definition);
                 }
 
                 break;
 
-            case VirtualKey.Enter:
-                if (_cursor >= 0 && _cursor < _cursorItems.Count)
-                {
-                    Pick(_cursorItems[_cursor].Definition);
-                }
-
+            case VirtualKey.Escape when _search.Text.Length > 0:
+                _search.Text = string.Empty;
                 break;
 
             case VirtualKey.Escape:
@@ -328,29 +293,34 @@ internal sealed partial class WidgetPicker : Grid
         e.Handled = true;
     }
 
+    /// <summary>What Enter places: the highlight, else during a search its best match (the first entry).</summary>
+    private int? Target()
+    {
+        if (_cursor >= 0 && _cursor < _entries.Count)
+        {
+            return _cursor;
+        }
+
+        return !string.IsNullOrWhiteSpace(_search.Text) && _entries.Count > 0 ? 0 : null;
+    }
+
     private void MoveCursor(int index)
     {
-        for (var i = 0; i < _cursorItems.Count; i++)
+        _cursor = index >= 0 && index < _entries.Count ? index : -1;
+        var target = Target();
+
+        for (var i = 0; i < _entries.Count; i++)
         {
-            _cursorItems[i].Button.Background = i == index
-                ? DesignApplier.Brush("SubtleFillColorSecondaryBrush", Colors.Transparent)
-                : DesignApplier.Brush("SubtleFillColorTransparentBrush", Colors.Transparent);
+            _entries[i].Button.Background = i == target
+                ? FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Transparent)
+                : Rest();
         }
 
-        // Clear a highlight left on a column item from before a search.
-        if (index < 0)
+        if (target is { } shown)
         {
-            foreach (var (button, _) in _columnItems)
-            {
-                button.Background = DesignApplier.Brush("SubtleFillColorTransparentBrush", Colors.Transparent);
-            }
-        }
-
-        _cursor = index >= 0 && index < _cursorItems.Count ? index : -1;
-
-        if (_cursor >= 0)
-        {
-            _cursorItems[_cursor].Button.StartBringIntoView();
+            _entries[shown].Button.StartBringIntoView();
         }
     }
+
+    private static Microsoft.UI.Xaml.Media.Brush Rest() => FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
 }

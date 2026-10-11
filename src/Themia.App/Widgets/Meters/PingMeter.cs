@@ -54,14 +54,14 @@ internal sealed class PingMeter : MeterPart
     public override MeterSeries Series(WidgetConfig config)
     {
         var ping = config as PingConfig ?? new PingConfig();
-        return MeterSeries.Of(Sources.Ping, TimeSpan.FromSeconds(ping.EffectiveIntervalSeconds), target: ping.EffectiveHost);
+        return MeterSeries.Of(Sources.Ping, TimeSpan.FromSeconds(ping.IntervalSeconds), target: ping.EffectiveHost);
     }
 
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {
         // [S-1173] The header names the host as the user does: its label, else its address.
         var ping = config as PingConfig ?? new PingConfig();
-        host.SetTitle(ping.EffectiveLabel ?? ping.EffectiveHost);
+        host.SetTitle(ping.EffectiveHost);
     }
 
     /// <summary>[S-1170] The header dot: success, critical, or quiet while checking.</summary>

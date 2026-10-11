@@ -128,13 +128,16 @@ internal sealed partial class CalendarView
 
             var items = byDay.TryGetValue(day, out var list) ? list : [];
             var element = fit.Numbers
-                ? YearNumber(day, day == today, items, cell, showColors)
-                : YearSquare(day == today, items, cell, showColors);
+                ? YearNumber(day, day == today, day == _selected, items, cell, showColors)
+                : YearSquare(day == today, day == _selected, items, cell, showColors);
 
             if (items.Count > 0)
             {
                 ToolTipService.SetToolTip(element, DayTooltip(day, items));
             }
+
+            // [S-3620] A click on a day selects it for the calendars on the view.
+            element.Tapped += (_, _) => ToggleDay(day);
 
             SetRow(element, row0 + (i / 7));
             SetColumn(element, i % 7);
@@ -146,7 +149,7 @@ internal sealed partial class CalendarView
     }
 
     /// <summary>A day with its number: today the accent disc, a day with something a strong number over a stripe of its first item's colour.</summary>
-    private Border YearNumber(DateOnly day, bool isToday, IReadOnlyList<DayItem> items, double cell, bool showColors)
+    private Border YearNumber(DateOnly day, bool isToday, bool isSelected, IReadOnlyList<DayItem> items, double cell, bool showColors)
     {
         var number = Fluent.Text(FluentType.Caption, isToday ? "TextOnAccentFillColorPrimaryBrush" : "TextFillColorPrimaryBrush");
         number.Text = day.Day.ToString(CultureInfo.InvariantCulture);
@@ -158,6 +161,21 @@ internal sealed partial class CalendarView
         if (items.Count > 0)
         {
             number.FontWeight = FontWeights.SemiBold;
+        }
+
+        // [S-3620] The selected day is ringed: in the accent, or the text colour round today's disc.
+        if (isSelected)
+        {
+            return new Border
+            {
+                Child = number,
+                Width = cell - 1,
+                Height = cell - 1,
+                CornerRadius = new CornerRadius((cell - 1) / 2),
+                Background = isToday ? Accent() : FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+                BorderThickness = new Thickness(1),
+                BorderBrush = isToday ? FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White) : Accent(),
+            };
         }
 
         return new Border
@@ -173,9 +191,10 @@ internal sealed partial class CalendarView
     }
 
     /// <summary>A day too small for its number: a square, filled with its first item's colour when it has something, today ringed.</summary>
-    private Border YearSquare(bool isToday, IReadOnlyList<DayItem> items, double cell, bool showColors)
+    private Border YearSquare(bool isToday, bool isSelected, IReadOnlyList<DayItem> items, double cell, bool showColors)
     {
         var side = Math.Max(2, cell - 1);
+        var ring = isToday || isSelected;
         return new Border
         {
             Width = side,
@@ -184,8 +203,9 @@ internal sealed partial class CalendarView
             Background = items.Count > 0
                 ? MarkOf(items[0], showColors)
                 : FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray),
-            BorderThickness = new Thickness(isToday ? Math.Max(1, Math.Floor(side / 5)) : 0),
-            BorderBrush = isToday ? FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White) : null,
+            BorderThickness = new Thickness(ring ? Math.Max(1, Math.Floor(side / 5)) : 0),
+            BorderBrush = isSelected ? Accent() : isToday ? FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White) : null,
+
         };
     }
 }

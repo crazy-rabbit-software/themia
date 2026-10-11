@@ -154,7 +154,7 @@ internal static class MarketService
         }
 
         var price = Sane(meta.RegularMarketPrice);
-        var previous = Sane(meta.ChartPreviousClose) ?? Sane(meta.PreviousClose);
+        var baseline = MarketQuote.ListedBaseline(range, Sane(meta.ChartPreviousClose), Sane(meta.PreviousClose));
         var bars = MarketQuote.Bars(result.Timestamp, result.Indicators?.Quote is { Count: > 0 } series ? series[0].Close : null);
 
         // A quote with no price at all is not a quote. Falling back to the last bar is the
@@ -166,14 +166,17 @@ internal static class MarketService
             return Fetched<TickerQuote>.Failed(FetchStatus.Empty, "the reply carried no price", now);
         }
 
+        // [S-2775] The change and the line on one baseline: the line starts where the change is measured from.
+        var trace = MarketQuote.Trace(bars, price, baseline);
+
         var quote = new TickerQuote(
             symbol,
             Name(meta),
             price,
-            MarketQuote.PercentChange(price, previous),
+            trace.ChangePercent,
             (meta.Currency ?? "USD").Trim().ToUpperInvariant(),
             meta.PriceHint,
-            bars,
+            trace.Bars,
             Sessions(meta.CurrentTradingPeriod))
         {
             ExchangeOffset = ExchangeTime.Offset(meta.GmtOffset),
@@ -222,14 +225,17 @@ internal static class MarketService
         // something better to show and the missing chart is visible on its own.
         var bars = await CoinBarsAsync(escaped, range, token).ConfigureAwait(false);
 
+        // [S-2775] The change over the range the chart shows, not always the last 24 hours.
+        var trace = MarketQuote.CoinTrace(range, bars, price, Sane(coin.Change24H));
+
         var quote = new TickerQuote(
             id,
             id,
             price,
-            Sane(coin.Change24H),
+            trace.ChangePercent,
             "USD",
             null,
-            bars,
+            trace.Bars,
 
             // Crypto has no exchange calendar: it trades every minute of every day, so there is no
             // session to be outside of and no "market closed" to report.

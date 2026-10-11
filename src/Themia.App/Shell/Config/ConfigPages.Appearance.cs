@@ -15,8 +15,8 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The Appearance page: a style preset, theme, colours, shape, border, type, scale, the layout
-/// of the widgets on the desktop (gap, snap to grid) and the motion. Every setting here takes effect live through the appearance engine
+/// The Appearance page: a style preset, then four groups ([S-3830]: theme and colours, cards,
+/// text and size, layout) and the motion. Every setting here takes effect live through the appearance engine
 /// (<see cref="DesignApplier"/>, <see cref="WidgetCard.ApplyDesign"/>). [S-820]..[S-834]
 /// </summary>
 internal static partial class ConfigPages
@@ -43,50 +43,42 @@ internal static partial class ConfigPages
 
         var rows = new List<FrameworkElement>
         {
-            FluentLayout.Header(Str.Settings_Nav_Style.Text()),
-
             // [S-834] One pick sets the look; changing anything it owns afterwards reads as Custom.
             FluentLayout.Row(Glyphs.Palette, Str.Settings_Nav_Style.Text(), Str.Shell_Appearance_StyleDesc.Text(),
                 PresetChoice(page, host)),
 
-            FluentLayout.Row(Glyphs.Theme, Str.Settings_Theme_Label.Text(), Str.Shell_Appearance_ThemeDesc.Text(),
+            // [S-3830] Four groups, each folded under one card as Settings folds related options: the
+            // group's headline setting is the header's own control where it has one.
+            FluentLayout.Expander(Glyphs.Theme, Str.Shell_Appearance_ThemeColours.Text(), Str.Shell_Appearance_ThemeDesc.Text(),
                 FluentLayout.Choice(
                     [(AppTheme.System, Str.Shell_Appearance_UseSystem.Text()), (AppTheme.Light, Str.Settings_Theme_Light.Text()), (AppTheme.Dark, Str.Settings_Theme_Dark.Text())],
                     design.Theme,
-                    value => host.Mutate(s => s.Design.Theme = value))),
+                    value => host.Mutate(s => s.Design.Theme = value)),
+                [
+                    FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Shell_Appearance_Accent.Text(), Str.Shell_Appearance_AccentDesc.Text(),
+                        design.PrimaryColor, value => host.Mutate(s => s.Design.PrimaryColor = value),
+                        new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_WindowsAccent.Text(), DefaultColor = ColorChoice.WindowsAccent }),
 
-            FluentLayout.Header(Str.Shell_Appearance_Colours.Text()),
+                    FluentLayout.ColorPickerRow(Glyphs.Surface, Str.Settings_Style_WidgetBg_Label.Text(), Str.Shell_Appearance_WidgetBgDesc.Text(),
+                        design.WidgetBackgroundColor, value => host.Mutate(s => s.Design.WidgetBackgroundColor = value),
+                        new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text(), Presets = ColorPresets.Surfaces }),
 
-            FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Shell_Appearance_Accent.Text(), Str.Shell_Appearance_AccentDesc.Text(),
-                design.PrimaryColor, value => host.Mutate(s => s.Design.PrimaryColor = value),
-                new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_WindowsAccent.Text(), DefaultColor = ColorChoice.WindowsAccent }),
+                    FluentLayout.Row(Glyphs.Opacity, Str.Settings_Style_WidgetOpacity_Label.Text(), null,
+                        FluentLayout.Slider(design.SurfaceOpacity * 100, 20, 100, 5, "%",
+                            value => host.Mutate(s => s.Design.SurfaceOpacity = value / 100))),
 
-            FluentLayout.ColorPickerRow(Glyphs.Surface, Str.Settings_Style_WidgetBg_Label.Text(), Str.Shell_Appearance_WidgetBgDesc.Text(),
-                design.WidgetBackgroundColor, value => host.Mutate(s => s.Design.WidgetBackgroundColor = value),
-                new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text(), Presets = ColorPresets.Surfaces }),
+                    // [S-828] The header strip, on its own terms, as in the original.
+                    FluentLayout.ColorPickerRow(Glyphs.Surface, Str.Settings_Style_HeaderBg_Label.Text(), Str.Shell_Appearance_HeaderBgDesc.Text(),
+                        design.HeaderBackgroundColor, value => host.Mutate(s => s.Design.HeaderBackgroundColor = value),
+                        new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_SameAsWidget.Text(), Presets = ColorPresets.Surfaces }),
 
-            FluentLayout.Row(Glyphs.Opacity, Str.Settings_Style_WidgetOpacity_Label.Text(), null,
-                FluentLayout.Slider(design.SurfaceOpacity * 100, 20, 100, 5, "%",
-                    value => host.Mutate(s => s.Design.SurfaceOpacity = value / 100))),
+                    FluentLayout.Row(Glyphs.Opacity, Str.Settings_Style_HeaderOpacity_Label.Text(), Str.Shell_Appearance_HeaderFade.Text(),
+                        FluentLayout.Slider(design.HeaderOpacity * 100, 0, 100, 5, "%",
+                            value => host.Mutate(s => s.Design.HeaderOpacity = value / 100))),
+                ]),
 
-            // [S-828] The header strip, on its own terms, as in the original.
-            FluentLayout.ColorPickerRow(Glyphs.Surface, Str.Settings_Style_HeaderBg_Label.Text(), Str.Shell_Appearance_HeaderBgDesc.Text(),
-                design.HeaderBackgroundColor, value => host.Mutate(s => s.Design.HeaderBackgroundColor = value),
-                new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_SameAsWidget.Text(), Presets = ColorPresets.Surfaces }),
-
-            FluentLayout.Row(Glyphs.Opacity, Str.Settings_Style_HeaderOpacity_Label.Text(), Str.Shell_Appearance_HeaderFade.Text(),
-                FluentLayout.Slider(design.HeaderOpacity * 100, 0, 100, 5, "%",
-                    value => host.Mutate(s => s.Design.HeaderOpacity = value / 100))),
-
-            FluentLayout.Header(Str.Shell_Appearance_Shape.Text()),
-
-            FluentLayout.Row(Glyphs.Surface, Str.Settings_Style_CornerRadius_Label.Text(), null,
-                FluentLayout.Slider(design.CornerRadiusPx, 0, 32, 1, "px",
-                    value => host.Mutate(s => s.Design.CornerRadiusPx = value))),
-
-            // [S-1540] One group, as Settings folds related options under one card: the style is
-            // the header's own control, its width, colour and opacity fold under it.
-            FluentLayout.Expander(Glyphs.Grid, Str.Settings_Style_Border.Text(), Str.Shell_Appearance_BorderDesc.Text(),
+            // The card's shape and its border: the border style is the group's headline.
+            FluentLayout.Expander(Glyphs.Grid, Str.Shell_Appearance_Cards.Text(), Str.Shell_Appearance_CardsDesc.Text(),
                 FluentLayout.Choice(
                     [
                         (WidgetBorderStyle.None, Str.Settings_Style_None.Text()),
@@ -97,6 +89,10 @@ internal static partial class ConfigPages
                     design.BorderStyle,
                     value => host.Mutate(s => s.Design.BorderStyle = value)),
                 [
+                    FluentLayout.Row(Glyphs.Surface, Str.Settings_Style_CornerRadius_Label.Text(), null,
+                        FluentLayout.Slider(design.CornerRadiusPx, 0, 32, 1, "px",
+                            value => host.Mutate(s => s.Design.CornerRadiusPx = value))),
+
                     FluentLayout.Row(Glyphs.Grid, Str.Settings_Style_BorderWidth_Label.Text(), null,
                         FluentLayout.Slider(design.BorderWidthPx, 0, 8, 1, "px",
                             value => host.Mutate(s => s.Design.BorderWidthPx = value))),
@@ -110,36 +106,37 @@ internal static partial class ConfigPages
                             value => host.Mutate(s => s.Design.BorderOpacity = value / 100))),
                 ]),
 
-            FluentLayout.Header(Str.Shell_Appearance_Text.Text()),
+            FluentLayout.Expander(Glyphs.Font, Str.Shell_Appearance_TextAndSize.Text(), Str.Shell_Appearance_TextAndSizeDesc.Text(), null,
+                [
+                    FluentLayout.Row(Glyphs.Font, Str.Settings_Font_FamilyLabel.Text(), Str.Shell_Appearance_FontDesc.Text(),
+                        FontChoice.Create(design.FontFamily, family => host.Mutate(s => s.Design.FontFamily = family)),
+                        "typeface", "font"),
 
-            FluentLayout.Row(Glyphs.Font, Str.Settings_Font_FamilyLabel.Text(), Str.Shell_Appearance_FontDesc.Text(),
-                FontChoice.Create(design.FontFamily, family => host.Mutate(s => s.Design.FontFamily = family)),
-                "typeface", "font"),
+                    FluentLayout.Row(Glyphs.TextSize, Str.Shell_Appearance_TextSize.Text(), Str.Shell_Appearance_TextSizeDesc.Text(),
+                        FluentLayout.Slider(design.FontScale * 100, FluentType.MinTextScale * 100, FluentType.MaxTextScale * 100, 5, "%",
+                            value => host.Mutate(s => s.Design.FontScale = value / 100))),
 
-            FluentLayout.Row(Glyphs.TextSize, Str.Shell_Appearance_TextSize.Text(), Str.Shell_Appearance_TextSizeDesc.Text(),
-                FluentLayout.Slider(design.FontScale * 100, FluentType.MinTextScale * 100, FluentType.MaxTextScale * 100, 5, "%",
-                    value => host.Mutate(s => s.Design.FontScale = value / 100))),
-
-            FluentLayout.Row(Glyphs.Scale, Str.Display_WidgetScale_Label.Text(), Str.Shell_Appearance_WidgetScaleDesc.Text(),
-                FluentLayout.Slider(design.UiScale * 100, 50, 300, 5, "%",
-                    value => host.Mutate(s => s.Design.UiScale = value / 100))),
+                    FluentLayout.Row(Glyphs.Scale, Str.Display_WidgetScale_Label.Text(), Str.Shell_Appearance_WidgetScaleDesc.Text(),
+                        FluentLayout.Slider(design.UiScale * 100, 50, 300, 5, "%",
+                            value => host.Mutate(s => s.Design.UiScale = value / 100))),
+                ]),
 
             // [S-1722] Where the widgets sit on the desktop: the gap between them and snapping to the grid.
-            FluentLayout.Header(Str.Shell_Appearance_Layout.Text()),
+            FluentLayout.Expander(Glyphs.GridLayout, Str.Shell_Appearance_Layout.Text(), Str.Shell_Appearance_LayoutDesc.Text(), null,
+                [
+                    FluentLayout.Row(Glyphs.Grid, Str.Shell_Layout_Gap.Text(), null,
+                        FluentLayout.Slider(design.WidgetGapPx, 0, 48, 2, "px",
+                            value => host.Mutate(s => s.Design.WidgetGapPx = value)),
+                        "spacing", "margin"),
 
-            FluentLayout.Row(Glyphs.Grid, Str.Shell_Layout_Gap.Text(), null,
-                FluentLayout.Slider(design.WidgetGapPx, 0, 48, 2, "px",
-                    value => host.Mutate(s => s.Design.WidgetGapPx = value)),
-                "spacing", "margin"),
-
-            FluentLayout.Row(Glyphs.Grid, Str.Settings_Style_GridSnap_Label.Text(), Str.Shell_Layout_SnapDesc.Text(),
-                FluentLayout.Toggle(design.GridSnap, value => host.Mutate(s => s.Design.GridSnap = value)),
-                "grid", "snap", "align"),
+                    FluentLayout.Row(Glyphs.Grid, Str.Settings_Style_GridSnap_Label.Text(), Str.Shell_Layout_SnapDesc.Text(),
+                        FluentLayout.Toggle(design.GridSnap, value => host.Mutate(s => s.Design.GridSnap = value)),
+                        "grid", "snap", "align"),
+                ]),
         };
 
         // [S-1014] The intros.
         rows.AddRange(MotionRows(host));
-
         page.With(rows);
     }
 

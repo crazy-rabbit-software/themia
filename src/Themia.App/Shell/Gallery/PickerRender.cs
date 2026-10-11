@@ -11,12 +11,12 @@ using Windows.Graphics;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// Debug only: draw the open Add-widget picker to a PNG, off-screen, like the other debug
+/// [S-3506] Debug only: draw the edit bar's open add menu to a PNG, off-screen, like the other debug
 /// renders. <c>Themia.exe --picker-png &lt;out.png&gt; [--search text] [--theme light|dark]</c>.
 /// <para>
-/// The picker lives in a flyout on a desktop surface, which a render cannot open without the user's
+/// The menu lives in a flyout on a desktop surface, which a render cannot open without the user's
 /// desktop; <see cref="WidgetPicker"/> is drawn here inside a stand-in for the flyout's presenter
-/// instead.
+/// instead, for a 1920 × 1032-DIP work area (a 1080p display at 100 % with its taskbar).
 /// </para>
 /// </summary>
 internal static class PickerRender
@@ -47,20 +47,9 @@ internal static class PickerRender
 
             try
             {
-                var picker = new WidgetPicker(_ => { }, () => { });
-
-                // A stand-in for the flyout presenter: the same acrylic fill, stroke and padding.
-                var presenter = new Border
-                {
-                    Child = picker,
-                    Padding = new Thickness(Fluent.Space4),
-                    CornerRadius = new CornerRadius(8),
-                    BorderThickness = new Thickness(1),
-                    BorderBrush = DesignApplier.Brush("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
-                    Background = DesignApplier.Brush("AcrylicBackgroundFillColorDefaultBrush", Colors.Black),
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                };
+                EditBarRender.ApplyDesignTheme(app);
+                var picker = new WidgetPicker(_ => { }, () => { }, WorkWidth, WorkHeight);
+                var presenter = Presenter(picker);
 
                 var root = new Grid
                 {
@@ -76,7 +65,7 @@ internal static class PickerRender
 
                 // Off-screen and never activated: it must not appear on the user's desktop.
                 window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)(1100 * scale), (int)(820 * scale)));
+                window.AppWindow.Resize(new SizeInt32((int)(1500 * scale), (int)(960 * scale)));
                 window.AppWindow.Show(activateWindow: false);
 
                 await Task.Delay(500).ConfigureAwait(true);
@@ -104,6 +93,24 @@ internal static class PickerRender
 
         return true;
     }
+
+    /// <summary>The work area the render's menu is fitted to ([S-3503]).</summary>
+    internal const double WorkWidth = 1920;
+
+    internal const double WorkHeight = 1032;
+
+    /// <summary>A stand-in for the flyout presenter: the same acrylic fill, stroke, corners and padding.</summary>
+    internal static Border Presenter(UIElement content) => new()
+    {
+        Child = content,
+        Padding = new Thickness(Fluent.Space4),
+        CornerRadius = new CornerRadius(Fluent.OverlayRadius),
+        BorderThickness = new Thickness(Fluent.Hairline),
+        BorderBrush = DesignApplier.Brush("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
+        Background = DesignApplier.Brush("AcrylicBackgroundFillColorDefaultBrush", Colors.Black),
+        HorizontalAlignment = HorizontalAlignment.Left,
+        VerticalAlignment = VerticalAlignment.Top,
+    };
 
     private static string? Option(string[] args, string name)
     {

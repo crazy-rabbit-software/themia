@@ -118,7 +118,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var analog = _config.Face == ClockFace.Analog;
         TimeRow.Visibility = analog ? Visibility.Collapsed : Visibility.Visible;
         AnalogFace.Visibility = analog ? Visibility.Visible : Visibility.Collapsed;
-        MeridiemText.Visibility = _config.Use24Hour ? Visibility.Collapsed : Visibility.Visible;
+        MeridiemText.Visibility = RegionFormat.Current.Use24Hour ? Visibility.Collapsed : Visibility.Visible;
 
         if (_secondHand is not null)
         {
@@ -264,7 +264,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     private void SizeDigits(double width, double timeHeight)
     {
         // "12:34:56" plus " PM" — the meridiem sits on the same line, so it counts towards the width.
-        var meridiem = _config.Use24Hour ? 0 : 3;
+        var meridiem = RegionFormat.Current.Use24Hour ? 0 : 3;
         var characters = (_config.ShowSeconds ? 8 : 5) + meridiem;
         var timeStep = FluentType.Hero(width, timeHeight, characters);
 
@@ -274,7 +274,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // the original set them. Stacked digits are set solid (StackedLeading) rather than at the
         // ramp's 1.3 leading: two lines of figures with a ramp line's air between them read as two
         // separate numbers.
-        var tail = _config.ShowSeconds || !_config.Use24Hour ? 1.2 : 0;
+        var tail = _config.ShowSeconds || !RegionFormat.Current.Use24Hour ? 1.2 : 0;
         var perLine = timeHeight / 2;
         var byWidth = FluentType.Hero(width, perLine * 2, 2 + tail);
         var stackedSize = Math.Min(byWidth.FontSize, perLine / StackedLeading);
@@ -531,7 +531,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     {
         var now = DateTimeOffset.UtcNow;
         var locale = Strings.Current;
-        var reading = ClockFormatter.Read(now, _config, locale);
+        var reading = ClockFormatter.Read(now, _config, locale, RegionFormat.Current.Use24Hour);
         var offset = _showOffset || _offsetOnDate ? ClockFormatter.OffsetLine(now, _config, locale) : null;
         OffsetText.Text = offset ?? string.Empty;
 

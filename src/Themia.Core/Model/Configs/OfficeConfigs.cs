@@ -4,10 +4,10 @@ using Themia.Core.Office;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-2700] The five ways the calendar widget lays out time. The widget draws only the configured
-/// one, at every size: each layout sheds detail within itself, never turning into another.
+/// [S-3600] The five ways a calendar widget lays out time, one widget kind each
+/// (<see cref="CalendarConfig.Layout"/>). Never stored: the kind says it. Each sheds detail within
+/// itself at every size, never turning into another ([S-2700]).
 /// </summary>
-[JsonConverter(typeof(LenientEnumConverter<CalendarLayout>))]
 public enum CalendarLayout
 {
     /// <summary>The weeks of a month, the original's default.</summary>
@@ -63,14 +63,26 @@ public enum ContactColumn
 }
 
 /// <summary>
-/// [S-561] The calendar widget's settings: which accounts and calendars, how time is laid out, and
-/// whether birthdays are shown. Data comes from Themia's own accounts ([S-529]). Every value is
+/// [S-561] [S-3601] What every calendar widget shares: which accounts and calendars, their colours,
+/// and whether birthdays are shown. Data comes from Themia's own accounts ([S-529]). Every value is
 /// read leniently ([S-563]): a wrong one becomes its default rather than refusing the state file.
+/// Each of the five calendar kinds adds only what it uses.
 /// </summary>
-public sealed class CalendarConfig : WidgetConfig
+public abstract class CalendarConfig : WidgetConfig
 {
+    /// <summary>[S-3600] The layout this kind draws: fixed by the kind, never stored.</summary>
     [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Calendar;
+    public abstract CalendarLayout Layout { get; }
+
+    /// <summary>[S-3600] A fresh config of the kind that draws <paramref name="layout"/>.</summary>
+    public static CalendarConfig For(CalendarLayout layout) => layout switch
+    {
+        CalendarLayout.Week => new WeekCalendarConfig(),
+        CalendarLayout.Day => new DayCalendarConfig(),
+        CalendarLayout.Year => new YearCalendarConfig(),
+        CalendarLayout.Agenda => new AgendaConfig(),
+        _ => new MonthCalendarConfig(),
+    };
 
     /// <summary>[S-562] The accounts to show; empty means every calendar account.</summary>
     [JsonConverter(typeof(LenientIdListConverter))]
@@ -87,29 +99,18 @@ public sealed class CalendarConfig : WidgetConfig
     [JsonConverter(typeof(LenientStringMapConverter))]
     public Dictionary<string, string> CalendarColors { get; set; } = [];
 
-    /// <summary>[S-2700] The layout the widget draws, whatever its size.</summary>
-    public CalendarLayout Layout { get; set; } = CalendarLayout.Month;
-
-    public WeekStartDay WeekStart { get; set; } = WeekStartDay.Monday;
-
     /// <summary>[S-575] Show contacts' birthdays beside the events.</summary>
     public bool ShowBirthdays { get; set; } = true;
 
-    /// <summary>How many entries the agenda lists, 1 to 100.</summary>
-    public int AgendaCount { get; set; } = 20;
-
+    /// <summary>
+    /// [S-564] [S-3770] The week start the layout draws by: the shared regional setting
+    /// (Settings › Widgets, else Windows'), never the widget's own.
+    /// </summary>
     [JsonIgnore]
-    public int EffectiveAgendaCount => Math.Clamp(AgendaCount, 1, 100);
-
-    /// <summary>The layout, narrowed to the closed set.</summary>
-    [JsonIgnore]
-    public CalendarLayout EffectiveLayout => Enum.IsDefined(Layout) ? Layout : CalendarLayout.Month;
-
-    [JsonIgnore]
-    public WeekStartDay EffectiveWeekStart => Enum.IsDefined(WeekStart) ? WeekStart : WeekStartDay.Monday;
+    public WeekStartDay EffectiveWeekStart => Localization.RegionFormat.Current.WeekStart;
 
     /// <summary>[S-563] Bring every value back inside its range.</summary>
-    public override IReadOnlyList<string> Repair()
+    public sealed override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
 
@@ -122,33 +123,115 @@ public sealed class CalendarConfig : WidgetConfig
         AccountIds = ids;
         Calendars ??= [];
         CalendarColors ??= [];
-
-        if (AgendaCount != EffectiveAgendaCount)
-        {
-            repairs.Add($"calendar widget agenda count {AgendaCount} was out of range");
-            AgendaCount = EffectiveAgendaCount;
-        }
-
-        if (!Enum.IsDefined(Layout) || !Enum.IsDefined(WeekStart))
-        {
-            repairs.Add("calendar widget had an unknown layout or week start");
-            Layout = EffectiveLayout;
-            WeekStart = EffectiveWeekStart;
-        }
-
+        RepairOwn(repairs);
         return repairs;
     }
 
-    public override WidgetConfig Clone() => new CalendarConfig
+    /// <summary>The kind's own fields, after the shared ones.</summary>
+    protected virtual void RepairOwn(List<string> repairs)
     {
-        AccountIds = [.. AccountIds],
-        Calendars = Calendars.ToDictionary(kv => kv.Key, kv => kv.Value.ToList(), StringComparer.Ordinal),
-        CalendarColors = new Dictionary<string, string>(CalendarColors, StringComparer.Ordinal),
-        Layout = Layout,
-        WeekStart = WeekStart,
-        ShowBirthdays = ShowBirthdays,
-        AgendaCount = AgendaCount,
-    };
+    }
+
+    /// <summary>Copy the shared fields onto <paramref name="target"/>.</summary>
+    protected T CopySharedTo<T>(T target) where T : CalendarConfig
+    {
+        target.AccountIds = [.. AccountIds];
+        target.Calendars = Calendars.ToDictionary(kv => kv.Key, kv => kv.Value.ToList(), StringComparer.Ordinal);
+        target.CalendarColors = new Dictionary<string, string>(CalendarColors, StringComparer.Ordinal);
+        target.ShowBirthdays = ShowBirthdays;
+        return target;
+    }
+}
+
+/// <summary>
+/// [S-3601] A calendar that draws weeks (month, week, year). Its week start is the shared regional
+/// setting ([S-3770]), so it adds no field of its own.
+/// </summary>
+public abstract class CalendarGridConfig : CalendarConfig
+{
+}
+
+/// <summary>[S-3600] The month calendar.</summary>
+public sealed class MonthCalendarConfig : CalendarGridConfig
+{
+    [JsonIgnore]
+    public override WidgetKind Kind => WidgetKind.MonthCalendar;
+
+    [JsonIgnore]
+    public override CalendarLayout Layout => CalendarLayout.Month;
+
+    public override WidgetConfig Clone() => CopySharedTo(new MonthCalendarConfig());
+}
+
+/// <summary>[S-3600] The week calendar.</summary>
+public sealed class WeekCalendarConfig : CalendarGridConfig
+{
+    [JsonIgnore]
+    public override WidgetKind Kind => WidgetKind.WeekCalendar;
+
+    [JsonIgnore]
+    public override CalendarLayout Layout => CalendarLayout.Week;
+
+    public override WidgetConfig Clone() => CopySharedTo(new WeekCalendarConfig());
+}
+
+/// <summary>[S-3600] The year calendar.</summary>
+public sealed class YearCalendarConfig : CalendarGridConfig
+{
+    [JsonIgnore]
+    public override WidgetKind Kind => WidgetKind.YearCalendar;
+
+    [JsonIgnore]
+    public override CalendarLayout Layout => CalendarLayout.Year;
+
+    public override WidgetConfig Clone() => CopySharedTo(new YearCalendarConfig());
+}
+
+/// <summary>[S-3600] The day calendar: one day, no week, so no week start.</summary>
+public sealed class DayCalendarConfig : CalendarConfig
+{
+    [JsonIgnore]
+    public override WidgetKind Kind => WidgetKind.DayCalendar;
+
+    [JsonIgnore]
+    public override CalendarLayout Layout => CalendarLayout.Day;
+
+    public override WidgetConfig Clone() => CopySharedTo(new DayCalendarConfig());
+}
+
+/// <summary>[S-3600] The agenda: a list, so a length instead of a week start.</summary>
+public sealed class AgendaConfig : CalendarConfig
+{
+    [JsonIgnore]
+    public override WidgetKind Kind => WidgetKind.Agenda;
+
+    [JsonIgnore]
+    public override CalendarLayout Layout => CalendarLayout.Agenda;
+
+    public const int DefaultCount = 20;
+
+    /// <summary>[S-571] How many entries the agenda lists, 1 to 100.</summary>
+    public int AgendaCount { get; set; } = DefaultCount;
+
+
+    [JsonIgnore]
+    public int EffectiveAgendaCount => Math.Clamp(AgendaCount, 1, 100);
+
+    protected override void RepairOwn(List<string> repairs)
+    {
+        if (AgendaCount != EffectiveAgendaCount)
+        {
+            repairs.Add($"agenda count {AgendaCount} was out of range");
+            AgendaCount = EffectiveAgendaCount;
+        }
+    }
+
+    public override WidgetConfig Clone()
+    {
+        var copy = CopySharedTo(new AgendaConfig());
+        copy.AgendaCount = AgendaCount;
+        return copy;
+    }
 }
 
 /// <summary>
@@ -176,9 +259,6 @@ public sealed class ContactsConfig : WidgetConfig
 
     /// <summary>[S-583] How many people to list: at least five, in steps of five, no upper bound.</summary>
     public int Count { get; set; } = 20;
-
-    /// <summary>[S-584] A search the widget starts with.</summary>
-    public string DefaultSearch { get; set; } = string.Empty;
 
     [JsonIgnore]
     public int EffectiveCount => Math.Max(5, Count);
@@ -210,7 +290,6 @@ public sealed class ContactsConfig : WidgetConfig
 
         AccountIds = ids;
         Columns ??= [.. AllColumns];
-        DefaultSearch ??= string.Empty;
 
         if (Count != EffectiveCount)
         {
@@ -233,6 +312,5 @@ public sealed class ContactsConfig : WidgetConfig
         Layout = Layout,
         Columns = [.. Columns],
         Count = Count,
-        DefaultSearch = DefaultSearch,
     };
 }

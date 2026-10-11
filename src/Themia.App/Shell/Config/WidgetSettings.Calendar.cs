@@ -17,9 +17,10 @@ using Themia.App.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-561] The calendar widget's settings: accounts, and under each one its calendars — shown or
-/// hidden, and a colour each ([S-566], [S-567]) — then the layout, the week start, the agenda length
-/// and birthdays. The classic widget's Source and Display tabs, on one page.
+/// [S-561] [S-3601] Every calendar widget's settings, one builder for all five kinds: accounts, and
+/// under each one its calendars — shown or hidden, and a colour each ([S-566], [S-567]) — then only
+/// what the kind uses: the agenda length (agenda), and birthdays. The week start is every widget's
+/// regional setting ([S-3770]).
 /// </summary>
 internal static partial class WidgetSettings
 {
@@ -56,30 +57,14 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
-        // [S-2700] The one layout the widget draws, at every size.
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.Calendar_View_Label.Text(),
-            Str.WidgetsA_Calendar_Settings_Layout_Desc.Text(),
-            FluentLayout.Choice<CalendarLayout>(
-                [
-                    (CalendarLayout.Month, Str.CtxMenu_Month.Text()),
-                    (CalendarLayout.Week, Str.CtxMenu_Week.Text()),
-                    (CalendarLayout.Day, Str.CtxMenu_Day.Text()),
-                    (CalendarLayout.Year, Str.WidgetsA_Calendar_Layout_Year.Text()),
-                    (CalendarLayout.Agenda, Str.CtxMenu_Agenda.Text()),
-                ],
-                config.EffectiveLayout,
-                value => { config.Layout = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Calendar_WeekStart_Label.Text(), null,
-            FluentLayout.Choice<WeekStartDay>(
-                [(WeekStartDay.Monday, Str.Calendar_WeekStart_Monday.Text()), (WeekStartDay.Sunday, Str.Calendar_WeekStart_Sunday.Text())],
-                config.EffectiveWeekStart,
-                value => { config.WeekStart = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.Calendar_AgendaEvents_Label.Text(),
-            Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Text(),
-            FluentLayout.Slider(config.EffectiveAgendaCount, 1, 100, 1, string.Empty,
-                value => { config.AgendaCount = (int)Math.Round(value); save(); })));
+        // [S-3601] Only what this kind uses. The week start is every calendar's ([S-3770]).
+        if (config is AgendaConfig agenda)
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Count, Str.Calendar_AgendaEvents_Label.Text(),
+                Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Text(),
+                FluentLayout.Slider(agenda.EffectiveAgendaCount, 1, 100, 1, string.Empty,
+                    value => { agenda.AgendaCount = (int)Math.Round(value); save(); })));
+        }
 
         rows.Add(FluentLayout.Row(Glyphs.Contact, Str.Calendar_ShowBirthdays_Label.Text(),
             Str.WidgetsA_Calendar_Settings_Birthdays_Desc.Text(),

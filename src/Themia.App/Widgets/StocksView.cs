@@ -91,11 +91,10 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
     public StocksView()
     {
-        // Rows: the readout (price, change, extended print), the chart (the rest), its time labels.
+        // Rows: the readout (price, change, extended print), the chart (the rest, its times inside it).
         // Columns: one, or readout | chart on a strip.
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
@@ -106,12 +105,11 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
         _emptyState = Fluent.EmptyState(Glyphs.Stocks, _emptyMessage, out _);
         _emptyState.Visibility = Visibility.Collapsed;
-        SetRowSpan(_emptyState, 3);
+        SetRowSpan(_emptyState, 2);
         SetColumnSpan(_emptyState, 2);
 
         Children.Add(_readoutColumn);
         Children.Add(_chart);
-        Children.Add(_labels);
         Children.Add(_emptyState);
     }
 
@@ -332,7 +330,6 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             _emptyState.Visibility = Visibility.Visible;
             _readoutColumn.Visibility = Visibility.Collapsed;
             _chart.Visibility = Visibility.Collapsed;
-            _labels.Visibility = Visibility.Collapsed;
             _freshness.Text = string.Empty;
             return;
         }
@@ -391,29 +388,27 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             // A strip: the readout is a column on the left, the chart has the strip's height.
             ColumnDefinitions[0].Width = new GridLength(plan.ReadoutWidth + (2 * StockLayout.Inset));
             ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
-            Place(_readoutColumn, 0, 0, 3, 1);
+            Place(_readoutColumn, 0, 0, 2, 1);
             _readoutColumn.VerticalAlignment = VerticalAlignment.Center;
-            Place(_chart, 0, 1, plan.Labels ? 2 : 3, 1);
-            Place(_labels, 2, 1, 1, 1);
+            Place(_chart, 0, 1, 2, 1);
         }
         else
         {
             ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
             ColumnDefinitions[1].Width = GridLength.Auto;
-            Place(_readoutColumn, 0, 0, plan.Chart ? 1 : 3, 2);
+            Place(_readoutColumn, 0, 0, plan.Chart ? 1 : 2, 2);
 
             // Without a chart the price is the tile: centred in it rather than stranded at the top.
             _readoutColumn.VerticalAlignment = plan.Chart ? VerticalAlignment.Top : VerticalAlignment.Center;
             Place(_chart, 1, 0, 1, 2);
-            Place(_labels, 2, 0, 1, 2);
         }
 
         _chart.Visibility = plan.Chart ? Visibility.Visible : Visibility.Collapsed;
-        _labels.Visibility = plan.Chart && plan.Labels ? Visibility.Visible : Visibility.Collapsed;
+        _labels.Visibility = plan.Labels ? Visibility.Visible : Visibility.Collapsed;
 
         if (plan.Chart)
         {
-            UpdateLabels(quote, plan);
+            UpdateLabels(quote);
             RedrawChart();
         }
     }

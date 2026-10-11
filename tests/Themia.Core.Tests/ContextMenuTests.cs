@@ -99,19 +99,33 @@ public sealed class ContextMenuTests
         bool front = true,
         bool back = true,
         int count = 1,
-        bool paste = false)
-        => new(edit, front, back, count, paste);
+        bool paste = false,
+        bool settings = true)
+        => new(edit, front, back, count, paste, settings);
 
     private static List<ShellCommand> Commands(IReadOnlyList<ShellMenuItem> items) => [.. items.Select(i => i.Command)];
 
     [Fact]
-    public void S1743_the_card_row_is_cut_copy_paste_duplicate_settings_delete()
+    public void S1743_the_card_row_is_cut_copy_paste_settings_delete()
     {
         var items = ShellMenus.ForCard(Card());
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
+        // No Duplicate: Copy then Paste does that, one way to do it.
         Assert.Equal(
-            [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Duplicate, ShellCommand.Configure, ShellCommand.Delete],
+            [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Configure, ShellCommand.Delete],
+            split.Row.Select(i => items[i].Command));
+    }
+
+    [Fact]
+    public void S1750_a_widget_with_an_empty_settings_page_has_no_settings_command()
+    {
+        var items = ShellMenus.ForCard(Card(settings: false));
+        var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
+
+        Assert.DoesNotContain(items, i => i.Command == ShellCommand.Configure);
+        Assert.Equal(
+            [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Delete],
             split.Row.Select(i => items[i].Command));
     }
 

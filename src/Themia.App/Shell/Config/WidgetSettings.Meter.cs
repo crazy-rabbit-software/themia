@@ -9,11 +9,10 @@ namespace Themia.App.Shell.Config;
 internal static partial class WidgetSettings
 {
     /// <summary>
-    /// [S-1122] What every meter's page ends with: whether it draws its history and how much of it,
-    /// then how often it samples. A kind's own rows go above these.
+    /// [S-1122] What every meter's page ends with: whether it draws its history and how much of it.
+    /// How often it samples is the kind's own ([S-3793]). A kind's own rows go above these.
     /// </summary>
-    /// <param name="refresh">The refresh row's whole sentence: "How often the load is read".</param>
-    private static void MeterRows(List<FrameworkElement> rows, GaugeConfig gauge, Action save, string refresh)
+    private static void MeterRows(List<FrameworkElement> rows, GaugeConfig gauge, Action save)
     {
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Meters_History.Text()));
         AddGraphToggle(rows, gauge, save);
@@ -25,13 +24,9 @@ internal static partial class WidgetSettings
             FluentLayout.Choice(spans, MeterTiming.NearestSpan(gauge.GraphSpanSeconds),
                 value => { gauge.GraphSpanSeconds = value; save(); }),
             "graph span", "time span"));
-
-        FluentLayout.RefreshSeconds(rows, refresh, gauge.EffectiveIntervalSeconds,
-            MeterTiming.MinIntervalSeconds, gauge.MaxIntervalSeconds, 1,
-            value => { gauge.IntervalSeconds = value; save(); });
     }
 
-    /// <summary>The history switch alone, for a gauge whose page lays out its own refresh (the GPU).</summary>
+    /// <summary>The history switch.</summary>
     private static void AddGraphToggle(List<FrameworkElement> rows, GaugeConfig gauge, Action save)
         => rows.Add(FluentLayout.Row(Glyphs.Motion, Str.WidgetsB_Settings_Meters_ShowHistory_Label.Text(),
             Str.WidgetsB_Settings_Meters_ShowHistory_Desc.Text(),

@@ -30,6 +30,7 @@ internal sealed partial class AppHost : IDisposable
     private readonly Mail.MailService _mail;
     private readonly Office.AccountOfficeSource _office;
     private readonly SystemData.SystemHub _system;
+    private readonly GalleryService _gallery;
     private bool _editMode;
     private bool _disposed;
 
@@ -44,8 +45,20 @@ internal sealed partial class AppHost : IDisposable
         _system = new SystemData.SystemHub(Ticker, dispatcher);
         AppServices.System = _system;
 
+        // [S-3410] One gallery service: shared picture sources, decoded pictures and each widget's slide.
+        _gallery = new GalleryService(Ticker, dispatcher);
+        AppServices.Gallery = _gallery;
+
+        // [S-3300] The views' links, before any surface builds a card that joins one. A deleted view's
+        // board goes with it ([S-3305]).
+        AppServices.Links = new Themia.Core.Links.LinkRegistry();
+        StateChanged += () => AppServices.Links?.Retain(State.Views.Select(view => view.Id));
+
         // [S-1109] The language before anything with text is built, and before the surfaces subscribe.
         StartLanguage();
+
+        // [S-3770] [S-3780] The shared regional formats and update cadences, before any widget or sync reads them.
+        StartRegion();
 
         // [S-820] The appearance engine runs before anything is built from a brush, and first on
         // every state change — subscribed before any surface — so the surfaces relayout against the
@@ -67,7 +80,7 @@ internal sealed partial class AppHost : IDisposable
         StateChanged += () => Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(State));
 
         // [S-2607] Signing out takes the account's synced data with it.
-        Accounts.SignedOut += Sync.Vault.Purge;
+        Accounts.SignedOut += Sync.Purge;
 
         // [S-546] One mail service for every Mail widget, on the shared ticker.
         _mail = new Mail.MailService(Accounts, Ticker, Sync);
@@ -221,10 +234,6 @@ internal sealed partial class AppHost : IDisposable
         // its purge) go, only when the account list loaded whole.
         Sync.Vault.Sweep(() => Accounts.TrustedAccountIds);
 
-        // [S-1301] The request-forgery guard reads the user's "local network access" switch on
-        // every check, so flipping it applies at once without a restart.
-        Services.Web.NetGuard.AllowPrivate = () => State.Preferences.AllowPrivateNetwork;
-
         // [S-1300] [S-729] [S-2660] The feed, quote and weather widgets' last answers, from the sealed
         // store, drawn at once on a cold launch instead of "Loading". Before the syncs, so an answer
         // fresh for its real age is not asked again ([S-2662]), and before the windows, so the first
@@ -361,7 +370,7 @@ internal sealed partial class AppHost : IDisposable
         AppServices.Habits = null;
         AppServices.Notes = null;
         AppServices.Accounts = null;
-        Accounts.SignedOut -= Sync.Vault.Purge;
+        Accounts.SignedOut -= Sync.Purge;
         Accounts.Dispose();
         AppServices.Sync = null;
         Sync.Dispose();
@@ -376,9 +385,14 @@ internal sealed partial class AppHost : IDisposable
 
         _windows.Clear();
 
+        // After the surfaces: every card has left its board.
+        AppServices.Links = null;
+
         // After the surfaces: their views have let go, so this closes whatever is still lingering.
         AppServices.System = null;
         _system.Dispose();
+        AppServices.Gallery = null;
+        _gallery.Dispose();
 
         _config?.Close();
         Ticker.Dispose();

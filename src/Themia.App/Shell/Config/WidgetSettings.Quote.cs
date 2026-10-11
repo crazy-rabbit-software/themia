@@ -44,7 +44,7 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.WidgetsC_Quote_Settings_Behaviour.Text()));
 
         rows.Add(FluentLayout.Row(Glyphs.Shuffle, Str.Quote_Shuffle.Text(),
-            Str.WidgetsC_Quote_Settings_Shuffle_Desc.Text(),
+            null,
             FluentLayout.Toggle(config.Shuffle, value => { config.Shuffle = value; save(); })));
 
         // The shuffle is a pure function of a seed, so "reshuffle" is a new seed and nothing else.

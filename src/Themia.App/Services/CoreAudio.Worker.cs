@@ -20,8 +20,9 @@ internal static unsafe partial class CoreAudio
     }
 
     /// <summary>
-    /// One endpoint the worker has bound: its volume (and the callback on it), its meter, and — when
-    /// a widget wants them — its session manager and the sessions it tracks. Every pointer here is
+    /// One endpoint the worker has bound: its volume (and the callback on it) and — when a widget
+    /// wants them — its session manager and the sessions it tracks, each with its own meter. The
+    /// endpoint's own meter is not read: no widget shows the device's level as a meter ([S-3251]). Every pointer here is
     /// owned and released by <see cref="Worker.Unbind"/>.
     /// </summary>
     private sealed class Endpoint(string id, string name)
@@ -31,7 +32,6 @@ internal static unsafe partial class CoreAudio
         public string Name { get; set; } = name;
 
         public nint Volume;
-        public nint Meter;
         public nint Manager;
         public bool Failed;
         public readonly Dictionary<string, Tracked> Tracked = new(StringComparer.Ordinal);
@@ -308,8 +308,6 @@ internal static unsafe partial class CoreAudio
 
                 Call(endpoint.Volume, Slots.EndpointRegisterNotify, Callbacks.EndpointVolume);
 
-                // [S-1223] The meter is optional: a device without one still has a level.
-                endpoint.Meter = Activate(device, Iids.MeterInformation);
                 Note(0, null);
                 return endpoint;
             }
@@ -369,12 +367,6 @@ internal static unsafe partial class CoreAudio
                 Call(endpoint.Volume, Slots.EndpointUnregisterNotify, Callbacks.EndpointVolume);
                 ReleaseRaw(endpoint.Volume);
                 endpoint.Volume = 0;
-            }
-
-            if (endpoint.Meter != 0)
-            {
-                ReleaseRaw(endpoint.Meter);
-                endpoint.Meter = 0;
             }
         }
 
@@ -667,11 +659,11 @@ internal static unsafe partial class CoreAudio
 
             _lastPeaks = now;
 
-            var byDevice = new Dictionary<string, (double Output, Dictionary<string, double> ByKey)>(StringComparer.OrdinalIgnoreCase);
+            var byDevice = new Dictionary<string, Dictionary<string, double>>(StringComparer.OrdinalIgnoreCase);
             foreach (var (id, output) in _outputs)
             {
                 var sessions = output.Tracked.Select(pair => (pair.Key, pair.Value.GroupKey, PeakOf(pair.Value.Meter)));
-                byDevice[id] = (PeakOf(output.Meter), AudioRules.PeaksByKey(sessions));
+                byDevice[id] = AudioRules.PeaksByKey(sessions);
             }
 
             foreach (var subscriber in subscribers)
@@ -683,17 +675,17 @@ internal static unsafe partial class CoreAudio
                 }
 
                 var device = AudioRules.Resolve(want.DeviceId, _devices, _defaultOutput).Id;
-                var (output, byKey) = device is not null && byDevice.TryGetValue(device, out var found)
+                var byKey = device is not null && byDevice.TryGetValue(device, out var found)
                     ? found
-                    : (0, new Dictionary<string, double>(StringComparer.Ordinal));
+                    : new Dictionary<string, double>(StringComparer.Ordinal);
 
-                if (!AudioRules.PeaksWorthSending(subscriber.PeaksSilent, output, byKey))
+                if (!AudioRules.PeaksWorthSending(subscriber.PeaksSilent, byKey))
                 {
                     continue;
                 }
 
-                subscriber.PeaksSilent = output <= 0 && byKey.Values.All(static peak => peak <= 0);
-                subscriber.DeliverPeaks(new AudioPeaks(output, byKey));
+                subscriber.PeaksSilent = byKey.Values.All(static peak => peak <= 0);
+                subscriber.DeliverPeaks(new AudioPeaks(byKey));
             }
         }
 

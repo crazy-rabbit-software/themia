@@ -16,8 +16,7 @@ namespace Themia.App.Widgets;
 /// <summary>The rows, and everything the user does to one.</summary>
 internal sealed partial class TasksView
 {
-    private readonly Border _addRow;
-    private TextBlock _addLabel = null!;
+    private readonly AddFooterRow _addRow;
 
     // One per row, so the handlers come off with the row they belong to. A leaked one keeps the row
     // alive and re-lights it after the list has moved on.
@@ -385,32 +384,15 @@ internal sealed partial class TasksView
             return;
         }
 
-        var index = IndexOf(task.Id);
-
+        // [S-3802] No moves: a task is dragged, or moved with Alt+Shift+Up / Down.
         ItemMenu.Show(row, args,
         [
             new(task.Completed ? Glyphs.Undo : Glyphs.Done, (task.Completed ? Str.WidgetsC_Tasks_MarkNotDone : Str.WidgetsC_Tasks_MarkDone).Text(),
                 () => SetCompleted(task, !task.Completed)),
             new(Glyphs.Rename, Str.Common_Rename.Text(), () => BeginRename(row, task), Quick: QuickCommand.Rename),
             ItemMenuEntry.Separator,
-            new(Glyphs.MoveUp, Str.WidgetsC_Tasks_MoveUp.Text(), () => Move(task, -1), Disabled: index <= 0),
-            new(Glyphs.MoveDown, Str.WidgetsC_Tasks_MoveDown.Text(), () => Move(task, +1), Disabled: index < 0 || index >= _displayed.Count - 1),
-            ItemMenuEntry.Separator,
             new(Glyphs.Delete, Str.Common_Delete.Text(), () => Delete(task), Danger: true, Quick: QuickCommand.Delete),
         ]);
-    }
-
-    private int IndexOf(string id)
-    {
-        for (var i = 0; i < _displayed.Count; i++)
-        {
-            if (_displayed[i].Id == id)
-            {
-                return i;
-            }
-        }
-
-        return -1;
     }
 
     // ---- the keyboard ([S-787]) ----------------------------------------------------------------------
@@ -502,6 +484,10 @@ internal sealed partial class TasksView
             case TaskKeyCommand.Delete when task is not null:
                 _focusIndex = decision.Index;
                 Delete(task);
+                return true;
+
+            case TaskKeyCommand.MoveUp or TaskKeyCommand.MoveDown when task is not null:
+                Move(task, decision.Command == TaskKeyCommand.MoveUp ? -1 : +1);
                 return true;
 
             case TaskKeyCommand.Rename when task is not null:
@@ -730,48 +716,12 @@ internal sealed partial class TasksView
         StartTyping(box);
     }
 
-    /// <summary>[S-599] The add row at the foot of the list: a plus and a line of text, then a box.</summary>
-    private Border BuildAddRow()
-    {
-        var plus = Fluent.Icon(Glyphs.Add, "TextFillColorSecondaryBrush");
-        plus.Margin = new Thickness(Fluent.Space1 / 2, 0, Fluent.Space3 + (Fluent.Space1 / 2), 0);
-
-        var label = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        label.Text = Str.WidgetsC_Tasks_AddTask.Text();
-        _addLabel = label;
-        label.VerticalAlignment = VerticalAlignment.Center;
-
-        var body = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            },
-        };
-
-        Grid.SetColumn(label, 1);
-        body.Children.Add(plus);
-        body.Children.Add(label);
-
-        var row = Fluent.Row(body);
-        row.Visibility = Visibility.Collapsed;
-        row.Tapped += OnAddTapped;
-        _addHover = Fluent.Hover(row);
-        return row;
-    }
-
-    private IDisposable? _addHover;
-
-    private void OnAddTapped(object sender, TappedRoutedEventArgs args)
-    {
-        args.Handled = true;
-        OpenAddEditor();
-    }
+    /// <summary>[S-599]/[S-3850] The shared add footer, under the list.</summary>
+    private AddFooterRow BuildAddRow() => new(Str.WidgetsC_Tasks_AddTask.Text(), OpenAddEditor);
 
     private void OpenAddEditor()
     {
-        if (_editor is { TaskId: null } || _addRow.Child is not Grid body)
+        if (_editor is { TaskId: null })
         {
             return;
         }
@@ -780,25 +730,22 @@ internal sealed partial class TasksView
 
         var box = NewEditor(string.Empty);
         box.PlaceholderText = Str.WidgetsC_Tasks_TaskName.Text();
-        Grid.SetColumn(box, 1);
-        body.Children[1].Visibility = Visibility.Collapsed;
-        body.Children.Add(box);
+        _addRow.Open(box);
         _editor = (box, null);
         StartTyping(box);
     }
 
     /// <summary>
-    /// The add row shows when the plan has room for it and there is a list to add to: on a small tile
-    /// every row is worth more as a task ([S-780]).
+    /// [S-3850] The add footer shows when the plan has room for it and there is a list to add to: on a
+    /// small tile every row is worth more as a task ([S-780]).
     /// </summary>
     private void FitAddRow(TaskLayoutPlan plan)
-    {
-        var show = plan.AddRow && _screen == Screen.Ready && Writable;
-        _addRow.Visibility = show || _editor is { TaskId: null } ? Visibility.Visible : Visibility.Collapsed;
-        Fluent.SetDensity(_addRow, plan.CompactRows);
-    }
+        => _addRow.Fit(
+            (plan.AddRow && _screen == Screen.Ready && Writable) || _editor is { TaskId: null },
+            plan.CompactRows,
+            plan.NarrowInset ? Fluent.Space2 : Fluent.Space4);
 
-    private bool Writable => IsLocal ? _service?.Local.Writable == true && _localListId is not null : _feed is { Loaded: true };
+    private bool Writable => IsLocal ? _local?.Writable == true && _localListId is not null : _feed is { Loaded: true };
 
     private TextBox NewEditor(string text)
     {
@@ -946,8 +893,6 @@ internal sealed partial class TasksView
 
     private void DetachAddRow()
     {
-        _addRow.Tapped -= OnAddTapped;
-        _addHover?.Dispose();
-        _addHover = null;
+        _addRow.Detach();
     }
 }

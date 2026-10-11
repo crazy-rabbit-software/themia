@@ -71,6 +71,51 @@ public sealed class ScreenTimeStoreTests : IDisposable
     }
 
     [Fact]
+    public void S3322_the_preferences_are_saved_beside_the_history()
+    {
+        var t = ThirtySecondsOfChrome();
+        t.Preferences = ScreenTimePreferences.From(["spotify", "explorer"], 4 * 3600, [new("chrome", 3600)]);
+
+        Assert.True(t.Dirty);
+        Assert.Equal(
+            "{\"schemaVersion\":1,\"days\":{\"2026-07-01\":{\"chrome\":30}},\"names\":{\"chrome\":\"Google Chrome\"},"
+            + "\"hidden\":[\"explorer\",\"spotify\"],\"goalSeconds\":14400,\"appLimits\":{\"chrome\":3600}}",
+            ScreenTimeStore.Serialize(t));
+
+        var loaded = ScreenTimeStore.Parse(ScreenTimeStore.Serialize(t))!;
+        Assert.Equal(["explorer", "spotify"], loaded.Preferences.Hidden.Order());
+        Assert.Equal(4 * 3600, loaded.Preferences.GoalSeconds);
+        Assert.Equal(3600, loaded.Preferences.AppLimits["chrome"]);
+        Assert.False(loaded.Dirty);
+    }
+
+    [Fact]
+    public void S3322_junk_preferences_are_repaired_on_load()
+    {
+        var json = "{\"schemaVersion\":1,\"days\":{},\"names\":{},\"hidden\":[\"\",\" a \"],\"goalSeconds\":-5,\"appLimits\":{\"code\":0,\"chrome\":60}}";
+
+        var loaded = ScreenTimeStore.Parse(json)!;
+
+        Assert.Equal(["a"], loaded.Preferences.Hidden);
+        Assert.Equal(0, loaded.Preferences.GoalSeconds);
+        Assert.Equal(["chrome"], loaded.Preferences.AppLimits.Keys);
+    }
+
+    [Fact]
+    public void S3322_preferences_set_before_the_file_was_read_win_the_merge()
+    {
+        var file = new ScreenTimeTracker { Preferences = ScreenTimePreferences.From(["from-file"], 0, null) };
+
+        var untouched = new ScreenTimeTracker();
+        untouched.Merge(file);
+        Assert.Equal(["from-file"], untouched.Preferences.Hidden);
+
+        var touched = new ScreenTimeTracker { Preferences = ScreenTimePreferences.From(["live"], 0, null) };
+        touched.Merge(file);
+        Assert.Equal(["live"], touched.Preferences.Hidden);
+    }
+
+    [Fact]
     public void S459_corrupt_or_mismatched_files_are_refused()
     {
         Assert.Null(ScreenTimeStore.Parse("{not json"));

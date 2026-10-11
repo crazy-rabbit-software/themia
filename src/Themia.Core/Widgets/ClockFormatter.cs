@@ -16,13 +16,13 @@ public readonly record struct ClockReading(string Time, string? Meridiem, string
 /// </para>
 /// <para>
 /// [S-1106] Names, dates and the meridiem come from the locale the caller passes (<see cref="LocaleFormat"/>),
-/// not from <see cref="Strings.Current"/>, so a test pins the language. The
-/// digits stay the clock's own: its 12/24-hour switch is a widget setting, not the language's.
+/// not from <see cref="Strings.Current"/>, so a test pins the language. [S-3773] The 12/24-hour
+/// choice is the shared regional setting (<see cref="RegionFormat"/>), passed in for the same reason.
 /// </para>
 /// </summary>
 public static class ClockFormatter
 {
-    public static ClockReading Read(DateTimeOffset utcNow, ClockConfig config, Locale locale)
+    public static ClockReading Read(DateTimeOffset utcNow, ClockConfig config, Locale locale, bool use24Hour)
     {
         ArgumentNullException.ThrowIfNull(config);
 
@@ -30,14 +30,14 @@ public static class ClockFormatter
         var local = TimeZoneInfo.ConvertTime(utcNow, zone);
 
         var hour24 = local.Hour;
-        var hour = config.Use24Hour ? hour24 : ToTwelveHour(hour24);
+        var hour = use24Hour ? hour24 : ToTwelveHour(hour24);
 
         var time = config.ShowSeconds
-            ? $"{Pad(hour, config.Use24Hour)}:{local.Minute:D2}:{local.Second:D2}"
-            : $"{Pad(hour, config.Use24Hour)}:{local.Minute:D2}";
+            ? $"{Pad(hour, use24Hour)}:{local.Minute:D2}:{local.Second:D2}"
+            : $"{Pad(hour, use24Hour)}:{local.Minute:D2}";
 
         var data = LocaleData.For(locale);
-        var meridiem = config.Use24Hour ? null : (hour24 < 12 ? data.Am : data.Pm);
+        var meridiem = use24Hour ? null : (hour24 < 12 ? data.Am : data.Pm);
         var date = config.ShowDate ? FormatDate(local, locale) : null;
 
         // Hands sweep rather than step, so an analog face reads correctly between ticks.

@@ -42,6 +42,59 @@ internal sealed class SyncHost : IDisposable
     /// <summary>[S-2609] Raised on the UI thread when Windows reports a network again after none.</summary>
     public event Action? NetworkAvailable;
 
+    /// <summary>[S-3823] Every shelf's latest numbers this run, as the services report them.</summary>
+    public SyncLedger Ledger { get; } = new();
+
+    /// <summary>[S-3823] Raised on the UI thread when a shelf's numbers changed, or an owner's were forgotten.</summary>
+    public event Action? StatsChanged;
+
+    /// <summary>
+    /// [S-3823] A service loaded or saved <paramref name="owner"/>'s shelf: its numbers, for the
+    /// Accounts page. From any thread; the page hears of it on the UI thread.
+    /// </summary>
+    public void Report(string owner, ShelfStats stats)
+    {
+        if (Ledger.Record(owner, stats))
+        {
+            RaiseStats();
+        }
+    }
+
+    /// <summary>[S-2607] Forget everything synced for a signed-out owner: its shelves and its numbers.</summary>
+    public void Purge(string owner)
+    {
+        Vault.Purge(owner);
+        if (Ledger.Forget(owner))
+        {
+            RaiseStats();
+        }
+    }
+
+    private void RaiseStats()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (_dispatcher is null || _dispatcher.HasThreadAccess)
+        {
+            Raise(StatsChanged, "stats");
+            return;
+        }
+
+        if (!_dispatcher.TryEnqueue(() =>
+        {
+            if (!_disposed)
+            {
+                Raise(StatsChanged, "stats");
+            }
+        }))
+        {
+            Log.Warn(Scope, "could not hand a sync count change to the UI thread");
+        }
+    }
+
     /// <summary>
     /// [S-2601] Where the shelves live for a state file: under <c>%LOCALAPPDATA%\Themia\sync</c> for the
     /// app's own state, beside any other state file (a portable or test profile takes its synced data
@@ -125,6 +178,7 @@ internal sealed class SyncHost : IDisposable
 
         InterestsChanged = null;
         NetworkAvailable = null;
+        StatsChanged = null;
     }
 
     // Both run on a system thread pool thread: they hand over to the UI thread and return.

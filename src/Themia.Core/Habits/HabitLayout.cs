@@ -16,7 +16,7 @@ public readonly record struct HabitLayoutInput(int Count, bool Writable, bool Sh
 /// <param name="CompactRows">32px rows rather than 40.</param>
 /// <param name="Inset">The rows' side padding: halved on a Compact-wide tile, so a name has room.</param>
 /// <param name="Rows">Rows the viewport shows whole; the rest scroll.</param>
-/// <param name="AddRow">The "Add a habit" row at the foot of the list.</param>
+/// <param name="AddRow">The "Add a habit" footer pinned under the list ([S-3850]).</param>
 /// <param name="Streak">The current run beside each name.</param>
 /// <param name="StreakWords">The run with its unit ("12 days") rather than a bare number.</param>
 /// <param name="Dots">History dots per row (0 for none): the configured count, or fewer when narrow.</param>
@@ -51,6 +51,12 @@ public enum HabitKeyCommand
 
     /// <summary>Clear the highlight and give the keyboard back.</summary>
     Release,
+
+    /// <summary>[S-3802] Move the row's habit one place up; the focus goes with it.</summary>
+    MoveUp,
+
+    /// <summary>[S-3802] Move the row's habit one place down.</summary>
+    MoveDown,
 }
 
 public readonly record struct HabitKeyResult(HabitKeyCommand Command, int Index);
@@ -62,7 +68,7 @@ public readonly record struct HabitKeyResult(HabitKeyCommand Command, int Index)
 /// The ladder, from what XS must show to what only XL has room for: the habits (box + name) →
 /// the run beside each (from Regular width; spelled out from Expanded) → the history dots (from
 /// Regular width, the configured count or as many as fit, oldest dropped first — the dots yield
-/// width, never the name) → the add row (from Regular height; always when the list is empty) →
+/// width, never the name) → the add footer ([S-3850]: from Regular height; always when the list is empty) →
 /// a per-row rate (Expanded width) → a per-row best run (Huge width). Nothing else: no summary
 /// strip, and height the rows do not use stays empty rather than filled with a chart (user
 /// decision: a large tile shows more of the widget's own rows, not new parts).
@@ -125,7 +131,7 @@ public static class HabitLayout
         var room = new Disclosure(area.Width, area.Height - ListBottomPadding);
         room.Reserve(row);
 
-        var addRow = input.Writable && (count == 0 || (area.HeightClass >= SizeClass.Regular && room.Take(row)));
+        var addRow = AddFooter.Show(room, area, input.Writable, count == 0, row);
         var rows = count == 0 ? 0 : 1 + room.TakeRows(row, count - 1);
 
         return new HabitLayoutPlan(compact, row, inset, rows, addRow, streak, words, dots, rate, best);
@@ -134,7 +140,8 @@ public static class HabitLayout
     /// <summary>
     /// [S-1428] A key on the row at <paramref name="index"/> of <paramref name="count"/>. The arrows
     /// clamp at the ends; Tab and Shift+Tab wrap ("next one", not a direction); Enter ticks, as the
-    /// box does; F2 renames; Delete removes; Escape gives the keyboard back.
+    /// box does; F2 renames; Delete removes; Escape gives the keyboard back; Alt+Shift+Up / Down moves
+    /// the habit ([S-3802]).
     /// [S-1982] Space ticks too, and Page Up / Page Down jump <see cref="ListKeys.PageStep"/> rows.
     /// </summary>
     /// <remarks>
@@ -171,6 +178,10 @@ public static class HabitLayout
             WidgetKey.Rename => new(HabitKeyCommand.Rename, at),
             WidgetKey.Delete => new(HabitKeyCommand.Delete, at),
             WidgetKey.Escape => new(HabitKeyCommand.Release, at),
+
+            // [S-3802] The ends have nowhere further to go.
+            WidgetKey.MoveUp when at > 0 => new(HabitKeyCommand.MoveUp, at),
+            WidgetKey.MoveDown when at < count - 1 => new(HabitKeyCommand.MoveDown, at),
             _ => new(HabitKeyCommand.None, at),
         };
     }

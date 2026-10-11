@@ -6,68 +6,63 @@ public readonly record struct LabelBox(double Left, double Top, double Width, do
     public double Right => Left + Width;
 
     public double Bottom => Top + Height;
-
-    /// <summary>Whether the two boxes come closer than <paramref name="gap"/> on both axes.</summary>
-    public bool Collides(LabelBox other, double gap)
-        => Left < other.Right + gap && other.Left < Right + gap
-        && Top < other.Bottom + gap && other.Top < Bottom + gap;
 }
 
 /// <summary>A high or low marker: the dot's centre and the price written beside it.</summary>
 public readonly record struct ChartMarker(double X, double Y, string Text, bool Above);
 
-/// <summary>Where the chart's captions go. An axis label that would collide with a marker's is null (not drawn).</summary>
-public sealed record ChartLabelPlan(IReadOnlyList<LabelBox> Markers, IReadOnlyList<LabelBox?> Axis);
+/// <summary>The band the trace is drawn in: <see cref="Top"/> from the chart's top, <see cref="Usable"/> tall.</summary>
+public readonly record struct ChartBand(double Top, double Usable);
 
 /// <summary>
-/// [S-1310] [S-1311] The high/low markers' prices and the price axis share the chart's right edge:
-/// the period's high is both the top of the axis and, when it falls near the end of the period,
-/// the high marker. The marker wins, because it says the same price and also says where; the axis
-/// label it would overlap is left out, never drawn on top of it.
+/// [S-1310] [S-1311] What is written on the stock chart, which is full-bleed (edge to edge and down to
+/// the card's bottom edge): the high/low markers' prices and the start and end times. Everything sits
+/// inside the chart, so none of it costs the chart an inset; the fill still reaches the bottom edge
+/// under the times. There is no price axis: the markers already say the period's high and low.
 /// </summary>
 public static class StockChartLabels
 {
-    /// <summary>Space kept between a marker's price and the dot, and between any two captions.</summary>
+    /// <summary>Space kept between a marker's price and the dot.</summary>
     public const double Clearance = 2;
 
+    /// <summary>The thickness the trace is kept in by when nothing is written above or below it.</summary>
+    public const double Stroke = 2;
+
+    /// <summary>The time labels' distance from the chart's bottom edge.</summary>
+    public const double TimesBottom = 4;
+
+    private static double Line => FluentType.Caption.LineHeight;
+
     /// <summary>
-    /// Place the marker captions and the axis captions (top to bottom, spread evenly over the
-    /// plotted band from <paramref name="pad"/> down <paramref name="usable"/>).
+    /// The trace's band in a chart <paramref name="height"/> tall: a caption line above for the high's
+    /// price and below for the low's when <paramref name="markers"/>, and the times' line under that
+    /// when <paramref name="times"/>, so the lowest point and its price never sit on a time.
     /// </summary>
-    public static ChartLabelPlan Place(
-        double width,
-        double height,
-        double pad,
-        double usable,
-        IReadOnlyList<ChartMarker> markers,
-        IReadOnlyList<string> axis)
+    public static ChartBand Band(double height, bool markers, bool times)
+    {
+        var top = markers ? Line : Stroke;
+        var bottom = (markers ? Line : Stroke) + (times ? Line + TimesBottom : 0);
+        return new ChartBand(top, Math.Max(1, height - top - bottom));
+    }
+
+    /// <summary>Where the start and end times' line starts, from the chart's top.</summary>
+    public static double TimesTop(double height) => Math.Max(0, height - TimesBottom - Line);
+
+    /// <summary>The marker captions: centred on the dot, above or under it, kept inside the chart's width.</summary>
+    public static IReadOnlyList<LabelBox> Place(double width, IReadOnlyList<ChartMarker> markers)
     {
         ArgumentNullException.ThrowIfNull(markers);
-        ArgumentNullException.ThrowIfNull(axis);
 
-        var line = FluentType.Caption.LineHeight;
         var placed = new List<LabelBox>(markers.Count);
 
         foreach (var marker in markers)
         {
             var estimate = FluentType.EstimateWidth(FluentType.Caption, marker.Text.Length);
             var left = Math.Clamp(marker.X - (estimate / 2), StockLayout.Gap, Math.Max(StockLayout.Gap, width - estimate - StockLayout.Gap));
-            var top = marker.Above ? marker.Y - line - Clearance : marker.Y + Clearance;
-            placed.Add(new LabelBox(left, top, estimate, line));
+            var top = marker.Above ? marker.Y - Line - Clearance : marker.Y + Clearance;
+            placed.Add(new LabelBox(left, top, estimate, Line));
         }
 
-        var labels = new List<LabelBox?>(axis.Count);
-
-        for (var i = 0; i < axis.Count; i++)
-        {
-            var fraction = axis.Count == 1 ? 0 : (double)i / (axis.Count - 1);
-            var estimate = FluentType.EstimateWidth(FluentType.Caption, axis[i].Length);
-            var top = Math.Clamp(pad + (fraction * usable) - (line / 2), 0, Math.Max(0, height - line));
-            var box = new LabelBox(width - StockLayout.Inset - estimate, top, estimate, line);
-
-            labels.Add(placed.Any(marker => marker.Collides(box, Clearance)) ? null : box);
-        }
-
-        return new ChartLabelPlan(placed, labels);
+        return placed;
     }
 }

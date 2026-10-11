@@ -158,7 +158,7 @@ internal sealed class MailService : IMailSource, IDisposable
             }
 
             box.Usable = account.Problem is null;
-            box.Want(folders);
+            box.Want(folders, _sync.Interests.AccountInterval);
         }
 
         if (_boxes.Count > 0)
@@ -635,13 +635,19 @@ internal sealed class MailService : IMailSource, IDisposable
                 }
 
                 box._pending = shelf.Pending;
+
+                // [S-3823] What is stored, for the Accounts page.
+                owner._sync.Report(account.Id, SyncStats.Of(shelf));
             }
 
             return box;
         }
 
-        /// <summary>The folders widgets read now; a stored folder nobody reads stays stored but is not synced.</summary>
-        public void Want(Dictionary<MailFolder, int> folders)
+        /// <summary>
+        /// The folders widgets read now; a stored folder nobody reads stays stored but is not synced.
+        /// [S-3782] Each is probed at the shared accounts cadence.
+        /// </summary>
+        public void Want(Dictionary<MailFolder, int> folders, TimeSpan interval)
         {
             foreach (var sync in _folders.Values)
             {
@@ -658,6 +664,7 @@ internal sealed class MailService : IMailSource, IDisposable
 
                 sync.Wanted = Math.Max(sync.Wanted, count);
                 sync.Active = true;
+                sync.Schedule.Interval = interval;
             }
         }
 
@@ -990,6 +997,7 @@ internal sealed class MailService : IMailSource, IDisposable
             };
 
             _owner._sync.Vault.SaveSoon(SyncKind.Mail, AccountId, shelf, SyncJsonContext.Default.MailShelf);
+            _owner._sync.Report(AccountId, SyncStats.Of(shelf));
         }
 
         public void Cancel()

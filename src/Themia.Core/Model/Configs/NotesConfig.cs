@@ -21,9 +21,6 @@ public sealed class NotesConfig : WidgetConfig
     /// <summary>[S-03] Base text size in device-independent pixels, before the global text scale.</summary>
     public double FontSizePx { get; set; } = 13;
 
-    /// <summary>Wrap long lines rather than scrolling sideways.</summary>
-    public bool WrapText { get; set; } = true;
-
     /// <summary>Clamped on read: a persisted 0 or a NaN would render nothing at all. [S-05]</summary>
     [JsonIgnore]
     public double EffectiveFontSizePx => double.IsFinite(FontSizePx) ? Math.Clamp(FontSizePx, 8, 48) : 13;
@@ -36,6 +33,5 @@ public sealed class NotesConfig : WidgetConfig
     {
         NoteId = NoteId,
         FontSizePx = FontSizePx,
-        WrapText = WrapText,
     };
 }

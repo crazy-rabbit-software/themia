@@ -35,9 +35,6 @@ internal static partial class WidgetSettings
             Str.WidgetsB_Settings_Mixer_GroupByApp_Desc.Text(),
             FluentLayout.Toggle(config.GroupByApp, value => { config.GroupByApp = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Volume, Str.WidgetsB_Settings_Mixer_Master_Label.Text(), Str.WidgetsB_Settings_Mixer_Master_Desc.Text(),
-            FluentLayout.Toggle(config.ShowMaster, value => { config.ShowMaster = value; save(); })));
-
         rows.Add(FluentLayout.Row(Glyphs.Play, Str.Mixer_Cfg_ActiveLabel.Text(),
             Str.WidgetsB_Settings_Mixer_OnlyActive_Desc.Text(),
             FluentLayout.Toggle(config.OnlyActive, value => { config.OnlyActive = value; save(); })));

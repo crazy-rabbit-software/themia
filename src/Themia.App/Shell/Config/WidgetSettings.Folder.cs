@@ -93,7 +93,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Folder_View_Label.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.WidgetsB_Settings_Folder_Layout_Label.Text(), Str.WidgetsB_Settings_Folder_Layout_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.View, Str.WidgetsB_Settings_Folder_Layout_Label.Text(), null,
             FluentLayout.Choice(
                 [(FolderViewMode.List, Str.CtxMenu_List.Text()), (FolderViewMode.Details, Str.CtxMenu_Details.Text()), (FolderViewMode.Grid, Str.CtxMenu_Grid.Text()), (FolderViewMode.Icons, Str.WidgetsB_Settings_Folder_Icons.Text())],
                 config.View,
@@ -133,18 +133,18 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Folder_Contents.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Sort, Str.WidgetsB_Settings_Folder_SortBy_Label.Text(), Str.WidgetsB_Settings_Folder_SortBy_Desc.Text(),
+        // [S-3795] The order folds under its key; the filters under one group.
+        rows.Add(FluentLayout.Expander(Glyphs.Sort, Str.WidgetsB_Settings_Folder_SortBy_Label.Text(), null,
             FluentLayout.Choice(
                 [(FolderSort.Name, Str.Folder_ColName.Text()), (FolderSort.Modified, Str.WidgetsB_Settings_Folder_DateModified.Text()), (FolderSort.Size, Str.Folder_ColSize.Text())],
                 config.Sort,
-                value => { config.Sort = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.MoveDown, Str.WidgetsB_Settings_Folder_Reverse_Label.Text(),
-            Str.WidgetsB_Settings_Folder_Reverse_Desc.Text(),
-            FluentLayout.Toggle(config.Descending, value => { config.Descending = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Folder, Str.WidgetsB_Settings_Folder_FoldersFirst_Label.Text(), Str.WidgetsB_Settings_Folder_FoldersFirst_Desc.Text(),
-            FluentLayout.Toggle(config.FoldersFirst, value => { config.FoldersFirst = value; save(); })));
+                value => { config.Sort = value; save(); }),
+            [
+                FluentLayout.Row(Glyphs.MoveDown, Str.WidgetsB_Settings_Folder_Reverse_Label.Text(), null,
+                    FluentLayout.Toggle(config.Descending, value => { config.Descending = value; save(); })),
+                FluentLayout.Row(Glyphs.Folder, Str.WidgetsB_Settings_Folder_FoldersFirst_Label.Text(), null,
+                    FluentLayout.Toggle(config.FoldersFirst, value => { config.FoldersFirst = value; save(); })),
+            ]));
 
         var filter = new TextBox { Text = config.Filter, Width = 260, PlaceholderText = Str.Folder_FilterPlaceholder.Text() };
         filter.LostFocus += (_, _) =>
@@ -156,49 +156,30 @@ internal static partial class WidgetSettings
             }
         };
 
-        rows.Add(FluentLayout.Row(Glyphs.Search, Str.Folder_Filter_Label.Text(),
-            Str.WidgetsB_Settings_Folder_Filter_Desc.Text(),
-            filter, "keywords", "match"));
-
-        rows.Add(FluentLayout.Row(Glyphs.Hidden, Str.WidgetsB_Folder_ShowHiddenItems.Text(),
-            Str.WidgetsB_Settings_Folder_Hidden_Desc.Text(),
-            FluentLayout.Toggle(config.ShowHidden, value => { config.ShowHidden = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(),
-            Str.WidgetsB_Settings_Folder_Extensions_Desc.Text(),
-            FluentLayout.Toggle(config.ShowExtensions, value => { config.ShowExtensions = value; save(); })));
+        rows.Add(FluentLayout.Expander(Glyphs.Search, Str.Folder_Filter_Label.Text(), Str.WidgetsB_Settings_Folder_Filter_Desc.Text(), filter,
+            [
+                FluentLayout.Row(Glyphs.Hidden, Str.WidgetsB_Folder_ShowHiddenItems.Text(), null,
+                    FluentLayout.Toggle(config.ShowHidden, value => { config.ShowHidden = value; save(); })),
+                FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(), null,
+                    FluentLayout.Toggle(config.ShowExtensions, value => { config.ShowExtensions = value; save(); })),
+            ]));
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Folder_Opening.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Open, Str.WidgetsB_Settings_Folder_OpenWith_Label.Text(),
-            Str.WidgetsB_Settings_Folder_OpenWith_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Open, Str.WidgetsB_Settings_Folder_OpenWith_Label.Text(), null,
             FluentLayout.Choice(
                 [(ItemClickMode.Double, Str.WidgetsB_Settings_Folder_DoubleClick.Text()), (ItemClickMode.Single, Str.WidgetsB_Settings_Folder_SingleClick.Text())],
                 config.ClickMode,
                 value => { config.ClickMode = value; save(); }),
             "click mode"));
 
-        rows.Add(FluentLayout.Row(Glyphs.Back, Str.WidgetsB_Settings_Folder_OpenFolders_Label.Text(),
-            Str.WidgetsB_Settings_Folder_OpenFolders_Desc.Text(),
+        // "Open in File Explorer" is on the widget's own menu; the page does not repeat it ([S-3795]).
+        rows.Add(FluentLayout.Row(Glyphs.Back, Str.WidgetsB_Settings_Folder_OpenFolders_Label.Text(), null,
             FluentLayout.Choice(
                 [(FolderNavigation.Explorer, Str.WidgetsB_Settings_Folder_InExplorer.Text()), (FolderNavigation.Navigate, Str.WidgetsB_Settings_Folder_InsideWidget.Text())],
                 config.Navigation,
                 value => { config.Navigation = value; save(); }),
             "navigation", "browse"));
-
-        var open = new Button { Content = Str.Folder_OpenInExplorer.Text() };
-        open.Click += (_, _) =>
-        {
-            var result = FolderPath.Resolve(config.Path, ProfilePlaceholder());
-
-            if (result.IsValid)
-            {
-                ShellFileOps.Open(result.Path);
-            }
-        };
-
-        rows.Add(FluentLayout.Row(Glyphs.OpenExternal, Str.Folder_NavExplorer.Text(),
-            Str.WidgetsB_Settings_Folder_Explorer_Desc.Text(), open));
     }
 
     private static string ColumnHint(FolderColumn column) => column switch

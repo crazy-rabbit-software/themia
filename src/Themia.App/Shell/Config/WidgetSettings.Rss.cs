@@ -41,24 +41,6 @@ internal static partial class WidgetSettings
             RemoveTooltip = Str.WidgetsC_Rss_Settings_Remove.Text(),
         });
 
-        var title = new TextBox { Text = config.Title, Width = 200, PlaceholderText = Str.WidgetsC_Rss_Settings_Optional.Text() };
-
-        title.LostFocus += (_, _) =>
-        {
-            var typed = title.Text.Trim();
-
-            if (typed == config.Title)
-            {
-                return;
-            }
-
-            config.Title = typed;
-            save();
-        };
-
-        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.WidgetsC_Rss_Settings_Title_Label.Text(),
-            Str.WidgetsC_Rss_Settings_Title_Desc.Text(), title));
-
         rows.Add(FluentLayout.Header(Str.WidgetsC_Rss_Settings_Articles.Text()));
 
         rows.Add(FluentLayout.Row(Glyphs.Link, Str.WidgetsC_Rss_Settings_Source_Label.Text(),
@@ -72,11 +54,9 @@ internal static partial class WidgetSettings
             FluentLayout.Toggle(config.ShowDate, value => { config.ShowDate = value; save(); })));
 
         rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsC_Rss_Settings_Articles.Text(),
-            Str.WidgetsC_Rss_Settings_Count_Desc.Text(),
+            null,
             FluentLayout.Slider(config.EffectiveMaxItems, 5, 50, 1, string.Empty,
                 value => { config.MaxItems = (int)Math.Round(value); save(); })));
-
-        FluentLayout.RefreshChoice(rows, config.RefreshMinutes, value => { config.RefreshMinutes = value; save(); });
     }
 
     /// <summary>

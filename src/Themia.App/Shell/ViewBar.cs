@@ -16,7 +16,8 @@ namespace Themia.App.Shell;
 
 /// <summary>One chip on the view bar.</summary>
 /// <param name="IsDefault">The view new displays start on ([S-847]); its name is drawn bold, as in the original.</param>
-internal sealed record ViewBarItem(string Id, string Name, string? Icon, bool Shown, bool IsDefault);
+/// <param name="Color">[S-3812] The view's own colour for its icon or initials (<c>#RRGGBB</c>), or null for the theme's.</param>
+internal sealed record ViewBarItem(string Id, string Name, string? Icon, bool Shown, bool IsDefault, string? Color = null);
 
 /// <summary>How the view bar is drawn: its size, labels, direction and edit-mode state.</summary>
 internal sealed record ViewBarLook(ViewBarSize Size, bool IconOnly, bool Vertical, bool Editing, bool Preview);
@@ -38,6 +39,9 @@ internal interface IViewBarOwner
 
     /// <summary>[S-913] The grip was let go, after a real drag or not.</summary>
     void BarDragEnded(Point at, bool moved);
+
+    /// <summary>[S-918] The overflow chip was clicked: list the views that did not fit.</summary>
+    void ShowOverflow(FrameworkElement chip, IReadOnlyList<ViewBarItem> hidden);
 }
 
 /// <summary>
@@ -62,6 +66,23 @@ internal sealed partial class ViewBar : Grid
     private IReadOnlyList<ViewBarItem> _items = [];
     private ViewBarLook? _look;
     private string _built = string.Empty;
+
+    /// <summary>[S-917] The bar's length budget along its axis, in DIPs; infinite until the surface knows its work area.</summary>
+    private double _room = double.PositiveInfinity;
+
+    /// <summary>[S-918] The views whose chips did not fit, in bar order; listed by the overflow chip.</summary>
+    private IReadOnlyList<ViewBarItem> _hidden = [];
+
+    /// <summary>[S-918] The overflow chip while the bar has one.</summary>
+    private Border? _overflow;
+
+    private bool _overflowPressed;
+
+    /// <summary>[S-918] The overflow chip, or null when every chip fits.</summary>
+    internal FrameworkElement? OverflowChip => _overflow;
+
+    /// <summary>[S-918] The views behind the overflow chip, in bar order.</summary>
+    internal IReadOnlyList<ViewBarItem> Hidden => _hidden;
 
     // A press in progress: on a chip (the view's id) or on the grip (null id).
     private bool _pressing;
@@ -96,7 +117,8 @@ internal sealed partial class ViewBar : Grid
     /// state change, and rebuilding would drop the pointer-over state under the cursor. A drag in
     /// progress is never rebuilt under the pointer.
     /// </summary>
-    public void Update(IReadOnlyList<ViewBarItem> items, ViewBarLook look, DesignState design)
+    /// <param name="room">[S-917] The longest the whole bar may be along its axis (<see cref="ViewBarRules.Room"/>).</param>
+    public void Update(IReadOnlyList<ViewBarItem> items, ViewBarLook look, DesignState design, double room)
     {
         ArgumentNullException.ThrowIfNull(items);
         ArgumentNullException.ThrowIfNull(look);
@@ -105,7 +127,8 @@ internal sealed partial class ViewBar : Grid
         PaintSurface(look, design);
 
         // The language is part of what was built: a switch redraws the tooltips and names ([S-1110]).
-        var signature = $"{look}|{string.Join("|", items)}|{FluentType.Body.FontSize}|{Strings.Current}";
+        // [S-917] So is the room: a resize, a DPI change or the toolbar appearing refits the chips.
+        var signature = $"{look}|{string.Join("|", items)}|{FluentType.Body.FontSize}|{Strings.Current}|{Math.Floor(room)}";
         if ((_dragging && _pressedId is not null) || signature == _built)
         {
             return;
@@ -114,6 +137,7 @@ internal sealed partial class ViewBar : Grid
         _built = signature;
         _items = items;
         _look = look;
+        _room = room;
         Rebuild();
     }
 
@@ -171,14 +195,40 @@ internal sealed partial class ViewBar : Grid
         _panel.Spacing = Fluent.Space1;
         _panel.Margin = new Thickness(metrics.BarPad);
 
+        // [S-917] What the bar spends besides chips: its padding at both ends, and the grip with its gap.
+        var fixedLength = 2 * metrics.BarPad;
         if (look.Editing)
         {
-            _panel.Children.Add(BuildGrip(look, metrics));
+            var grip = BuildGrip(look, metrics);
+            _panel.Children.Add(grip);
+            fixedLength += Length(grip, look.Vertical) + _panel.Spacing;
         }
 
-        foreach (var item in _items)
+        var chips = _items.Select(item => BuildChip(item, look, metrics)).ToList();
+        var overflow = BuildOverflowChip(look, metrics);
+        var fit = ViewBarRules.Fit(
+            [.. chips.Select(c => Length(c, look.Vertical))],
+            _items.ToList().FindIndex(i => i.Shown),
+            _room,
+            fixedLength,
+            _panel.Spacing,
+            Length(overflow, look.Vertical));
+
+        foreach (var index in fit.Shown)
         {
-            _panel.Children.Add(BuildChip(item, look, metrics));
+            _panel.Children.Add(chips[index]);
+        }
+
+        var drawn = new HashSet<int>(fit.Shown);
+        _hidden = [.. _items.Where((_, i) => !drawn.Contains(i))];
+        _overflow = null;
+        if (fit.Overflow)
+        {
+            var more = Str.Shell_ViewBar_More.Format(("count", _hidden.Count));
+            ToolTipService.SetToolTip(overflow, more);
+            AutomationProperties.SetName(overflow, more);
+            _panel.Children.Add(overflow);
+            _overflow = overflow;
         }
 
         // [S-1979] Enter on a chip rebuilds the bar under the focus: give it back to the same view's chip.
@@ -220,11 +270,19 @@ internal sealed partial class ViewBar : Grid
     {
         var brush = item.Shown ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush";
 
-        // [S-903] The view's own icon, or its initials, at the step's icon size.
+        // [S-903] The view's own icon, or its initials, at the step's icon size. [S-3812] In the
+        // view's colour where it has one, shown or not: the raised chip already says which is shown.
+        var tint = DesignApplier.UserBrush(item.Color);
         FrameworkElement mark;
         if (item.Icon is { } glyph)
         {
-            mark = Fluent.Icon(glyph, item.Shown ? "AccentTextFillColorPrimaryBrush" : brush, metrics.Icon);
+            var icon = Fluent.Icon(glyph, item.Shown ? "AccentTextFillColorPrimaryBrush" : brush, metrics.Icon);
+            if (tint is not null)
+            {
+                icon.Foreground = tint;
+            }
+
+            mark = icon;
         }
         else
         {
@@ -232,6 +290,11 @@ internal sealed partial class ViewBar : Grid
             initials.Text = ViewListRules.Initials(item.Name);
             initials.TextTrimming = TextTrimming.None;
             initials.VerticalAlignment = VerticalAlignment.Center;
+            if (tint is not null)
+            {
+                initials.Foreground = tint;
+            }
+
             mark = initials;
         }
 
@@ -284,7 +347,7 @@ internal sealed partial class ViewBar : Grid
         {
             chip.IsTabStop = true;
             chip.UseSystemFocusVisuals = true;
-            chip.KeyDown += (_, e) => e.Handled = OnChipKey(item.Id, e.Key);
+            chip.KeyDown += (_, e) => e.Handled = OnKey(chip, item.Id, e.Key);
         }
 
         chip.PointerPressed += (_, e) => OnPressed(e, item.Id);
@@ -299,6 +362,110 @@ internal sealed partial class ViewBar : Grid
 
         return chip;
     }
+
+    /// <summary>[S-917] An element's length along the bar's axis, measured unconstrained as the bar is.</summary>
+    private static double Length(FrameworkElement element, bool vertical)
+    {
+        element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        return vertical ? element.DesiredSize.Height : element.DesiredSize.Width;
+    }
+
+    /// <summary>
+    /// [S-918] The last chip when the views do not all fit: "…", one icon-only square, opening a menu
+    /// of the views left out — the overflow button of a Windows command bar. It takes the keyboard
+    /// like a chip in edit mode, and is never dragged.
+    /// </summary>
+    private Border BuildOverflowChip(ViewBarLook look, Metrics metrics)
+    {
+        var chip = new Border
+        {
+            Child = Fluent.Icon(Glyphs.More, "TextFillColorSecondaryBrush", metrics.Icon),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            BorderThickness = new Thickness(Fluent.Hairline),
+            MinWidth = metrics.Square,
+            Height = metrics.Square,
+            HorizontalAlignment = look.Vertical ? HorizontalAlignment.Stretch : HorizontalAlignment.Left,
+        };
+
+        HoverFill(chip, shown: false);
+
+        if (look.Editing)
+        {
+            chip.IsTabStop = true;
+            chip.UseSystemFocusVisuals = true;
+            chip.KeyDown += (_, e) => e.Handled = OnKey(chip, null, e.Key);
+        }
+
+        // Its own press and release, not the bar's capture: it is never dragged, and the surface
+        // underneath must not start a rubber band from it.
+        chip.PointerPressed += (_, e) =>
+        {
+            if (e.GetCurrentPoint(chip).Properties.IsLeftButtonPressed)
+            {
+                _overflowPressed = true;
+                e.Handled = true;
+            }
+        };
+        chip.PointerReleased += (_, e) =>
+        {
+            if (_overflowPressed)
+            {
+                _overflowPressed = false;
+                e.Handled = true;
+                OpenOverflow(chip);
+            }
+        };
+        chip.PointerExited += (_, _) => _overflowPressed = false;
+
+        return chip;
+    }
+
+    private void OpenOverflow(Border chip)
+    {
+        if (_hidden.Count > 0)
+        {
+            _owner.ShowOverflow(chip, _hidden);
+        }
+    }
+
+    /// <summary>
+    /// [S-918] The overflow chip's menu: each view left off the bar, its icon in its colour, in bar
+    /// order; a click shows it here, which brings its chip onto the bar ([S-917]). Capped at
+    /// <paramref name="maxHeight"/> so a long list scrolls inside it.
+    /// </summary>
+    internal static MenuFlyout OverflowMenu(IReadOnlyList<ViewBarItem> hidden, Action<string> show, double maxHeight)
+    {
+        ArgumentNullException.ThrowIfNull(hidden);
+        ArgumentNullException.ThrowIfNull(show);
+
+        var menu = new MenuFlyout { MenuFlyoutPresenterStyle = MenuStyle(maxHeight) };
+        foreach (var view in hidden)
+        {
+            var item = new MenuFlyoutItem { Text = view.Name, Icon = ViewMark.Icon(view.Icon, view.Color) };
+            if (view.IsDefault)
+            {
+                item.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+            }
+
+            var id = view.Id;
+            item.Click += (_, _) => show(id);
+            menu.Items.Add(item);
+        }
+
+        return menu;
+    }
+
+    /// <summary>
+    /// [S-918] A menu presenter no taller than <paramref name="maxHeight"/>: its list scrolls past that.
+    /// Never below a few lines, so a cramped display still gets a usable menu (which then flips to fit).
+    /// </summary>
+    internal static Style MenuStyle(double maxHeight) => new(typeof(MenuFlyoutPresenter))
+    {
+        Setters =
+        {
+            new Setter(FrameworkElement.MaxHeightProperty, double.IsFinite(maxHeight) ? Math.Max(4 * Fluent.Space6, maxHeight) : double.PositiveInfinity),
+        },
+    };
 
     /// <summary>
     /// The shown view is a raised control on the bar, the rest are subtle until the pointer is over
@@ -332,7 +499,8 @@ internal sealed partial class ViewBar : Grid
         _pressedId = viewId;
         _pressedAt = point.Position;
         _dragging = false;
-        _orderAtPress = [.. _items.Select(i => i.Id)];
+        // [S-917] The chips drawn, in their slots: a chip only ever lands on a slot it can see.
+        _orderAtPress = [.. Chips().Select(c => (string)c.Tag)];
 
         CapturePointer(e.Pointer);
 
@@ -397,8 +565,8 @@ internal sealed partial class ViewBar : Grid
             return;
         }
 
-        var offset = _panel.Children.Count - chips.Count; // the grip, when there is one
-        _panel.Children.Move((uint)(from + offset), (uint)(to + offset));
+        // The chips sit together between the grip (edit mode) and the overflow chip ([S-918]).
+        _panel.Children.Move((uint)_panel.Children.IndexOf(chips[from]), (uint)_panel.Children.IndexOf(chips[to]));
     }
 
     private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
@@ -471,11 +639,20 @@ internal sealed partial class ViewBar : Grid
         Rebuild();
     }
 
-    /// <summary>[S-1979] A key on a focused chip in edit mode.</summary>
-    private bool OnChipKey(string viewId, Windows.System.VirtualKey key)
+    /// <summary>
+    /// [S-1979] A key on a focused chip in edit mode; <paramref name="viewId"/> is null on the
+    /// overflow chip ([S-918]), which the arrows reach last and Enter opens.
+    /// </summary>
+    private bool OnKey(Border self, string? viewId, Windows.System.VirtualKey key)
     {
         if (key is Windows.System.VirtualKey.Enter or Windows.System.VirtualKey.Space)
         {
+            if (viewId is null)
+            {
+                OpenOverflow(self);
+                return true;
+            }
+
             if (!_items.Any(i => i.Shown && i.Id == viewId))
             {
                 _refocusId = viewId;
@@ -499,11 +676,16 @@ internal sealed partial class ViewBar : Grid
             return false;
         }
 
-        var chips = Chips().ToList();
-        var step = ListKeys.Decide(widgetKey, chips.FindIndex(c => (string)c.Tag == viewId), chips.Count);
+        var stops = Chips().ToList();
+        if (_overflow is { } overflow)
+        {
+            stops.Add(overflow);
+        }
+
+        var step = ListKeys.Decide(widgetKey, stops.IndexOf(self), stops.Count);
         if (step.Command == ListCommand.Focus && step.Index >= 0)
         {
-            chips[step.Index].Focus(FocusState.Keyboard);
+            stops[step.Index].Focus(FocusState.Keyboard);
         }
 
         return true;

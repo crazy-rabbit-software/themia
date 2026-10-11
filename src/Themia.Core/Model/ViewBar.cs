@@ -201,6 +201,112 @@ public static class ViewBarRules
     }
 
     /// <summary>
+    /// [S-917] How long the bar may be along its axis at <paramref name="anchor"/>: the work area's
+    /// width (a row) or height (a column), less the margin at both ends. A column in edit mode also
+    /// gives up the strip the edit toolbar takes at the top, so a column pushed below the toolbar
+    /// ([S-909]) still ends a margin above the bottom.
+    /// </summary>
+    public static double Room(PixelRect area, ViewBarAnchor anchor, PixelRect? avoid = null)
+    {
+        var m = EdgeMargin;
+        if (!IsVertical(anchor))
+        {
+            return Math.Max(0, area.Width - (2 * m));
+        }
+
+        var room = area.Height - (2 * m);
+        if (avoid is { } chrome)
+        {
+            room -= Math.Max(0, chrome.Y + chrome.Height + (m / 2) - (area.Y + m));
+        }
+
+        return Math.Max(0, room);
+    }
+
+    /// <summary>
+    /// [S-917] Which chips the bar draws when they do not all fit in <paramref name="room"/>, the way a
+    /// Windows command bar overflows: the chips in the user's order from the start, as many as fit
+    /// beside a final overflow chip, and the shown view's chip always among them (it takes the place
+    /// of the last chip that would have fit). Every chip that fits is drawn; nothing is reordered.
+    /// </summary>
+    /// <param name="lengths">Each chip's length along the bar's axis, in bar order.</param>
+    /// <param name="shown">The index of the shown view's chip, or -1 when the bar does not offer it.</param>
+    /// <param name="room">The bar's whole length budget ([S-917] <see cref="Room"/>).</param>
+    /// <param name="fixedLength">What the bar spends besides chips: its padding at both ends, and the grip with its gap in edit mode.</param>
+    /// <param name="spacing">The gap between two chips (and between the last chip and the overflow chip).</param>
+    /// <param name="overflowLength">The overflow chip's length.</param>
+    public static ViewBarFit Fit(IReadOnlyList<double> lengths, int shown, double room, double fixedLength, double spacing, double overflowLength)
+    {
+        ArgumentNullException.ThrowIfNull(lengths);
+
+        var count = lengths.Count;
+        var whole = fixedLength + lengths.Sum() + (spacing * Math.Max(0, count - 1));
+        if (count == 0 || whole <= room || !double.IsFinite(room))
+        {
+            return new ViewBarFit([.. Enumerable.Range(0, count)], Overflow: false);
+        }
+
+        var budget = room - fixedLength - overflowLength - spacing;
+        var keep = new SortedSet<int>();
+        var used = 0.0;
+
+        if (shown >= 0 && shown < count)
+        {
+            // The shown view is drawn even when it alone overruns the budget: the bar says which view
+            // this is, and placement pins it inside the area ([S-909]).
+            keep.Add(shown);
+            used = lengths[shown];
+        }
+
+        for (var i = 0; i < count; i++)
+        {
+            if (i == shown)
+            {
+                continue;
+            }
+
+            var need = lengths[i] + (keep.Count > 0 ? spacing : 0);
+            if (used + need > budget)
+            {
+                break;
+            }
+
+            keep.Add(i);
+            used += need;
+        }
+
+        return new ViewBarFit([.. keep], Overflow: keep.Count < count);
+    }
+
+    /// <summary>[S-918] Which way a menu hanging from the bar opens: into the display, away from the edge the bar sits on.</summary>
+    public static ViewBarMenuSide MenuSide(ViewBarAnchor anchor) => anchor switch
+    {
+        ViewBarAnchor.TopLeft or ViewBarAnchor.TopCenter or ViewBarAnchor.TopRight => ViewBarMenuSide.Below,
+        ViewBarAnchor.LeftCenter => ViewBarMenuSide.Right,
+        ViewBarAnchor.RightCenter => ViewBarMenuSide.Left,
+        _ => ViewBarMenuSide.Above,
+    };
+
+    /// <summary>
+    /// [S-918] The tallest a menu opened from <paramref name="from"/> (the bar, or the edit toolbar) may
+    /// be: the work area on that side of it, a margin short of the edge, so a long list scrolls inside
+    /// the menu instead of running under the taskbar or off the display. A menu beside a column may use
+    /// the area's whole height.
+    /// </summary>
+    public static double MenuHeight(PixelRect area, PixelRect from, ViewBarMenuSide side)
+    {
+        var m = EdgeMargin;
+        var height = side switch
+        {
+            ViewBarMenuSide.Above => from.Y - area.Y - m,
+            ViewBarMenuSide.Below => area.Y + area.Height - (from.Y + from.Height) - m,
+            _ => area.Height - (2 * m),
+        };
+
+        return Math.Max(0, height);
+    }
+
+    /// <summary>
     /// [S-913] The anchor a dragged bar drops on: the area is cut into thirds each way; the middle
     /// band of the left and right thirds is the vertical anchors, the dead centre goes to the top
     /// or bottom middle by which half the pointer is in. As in the original.
@@ -301,6 +407,18 @@ public static class ViewBarRules
             views.Count,
             offered.Count == 1 && views.Count > 1 ? offered[0].Name : null);
     }
+}
+
+/// <summary>[S-917] The chips a view bar draws: their indexes in bar order, and whether the rest go behind an overflow chip.</summary>
+public sealed record ViewBarFit(IReadOnlyList<int> Shown, bool Overflow);
+
+/// <summary>[S-918] The side of the bar a menu opens on.</summary>
+public enum ViewBarMenuSide
+{
+    Above,
+    Below,
+    Left,
+    Right,
 }
 
 /// <summary>[S-1708] A display's view bar choice, summed up for its settings button.</summary>

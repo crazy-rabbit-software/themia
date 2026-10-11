@@ -11,9 +11,9 @@ public sealed class BluetoothConfig : WidgetConfig
     public override WidgetKind Kind => WidgetKind.Bluetooth;
 
     /// <summary>
-    /// Read each connected device's battery over GATT.
+    /// [S-3252] Show each connected device's battery: the level Windows holds for it, else a GATT read.
     /// <para>
-    /// Off-by-choice is a real option: the read opens a BLE connection per device and is by far the
+    /// Off-by-choice is a real option: the GATT read opens a BLE connection per device and is by far the
     /// slowest part of a refresh, so a desktop that only wants to know what is connected should not
     /// have to pay for it.
     /// </para>
@@ -36,25 +36,17 @@ public sealed class BluetoothConfig : WidgetConfig
     public bool ConnectedOnly { get; set; }
 
     /// <summary>
-    /// [S-1254] The most devices the list holds, 1 to 30. A ceiling, not a target: the tile shows as
-    /// many whole rows as it has room for, and scrolls to the rest.
+    /// [S-1254] [S-3794] The most devices the list holds: a ceiling, not a target, and not a
+    /// setting. The tile shows as many whole rows as it has room for, and scrolls to the rest.
     /// </summary>
-    public int MaxCount { get; set; } = 20;
+    public const int MaxDevices = 30;
 
     /// <summary>
-    /// Seconds between enumerations, 5 to 300. Slow by default: enumerating the radios and reading
-    /// GATT batteries is seconds of work, not microseconds, and a headset does not connect twice a
-    /// minute.
+    /// [S-3794] How often the radios are enumerated: every 30 seconds, not a setting. Enumerating
+    /// and reading GATT batteries is seconds of work, and a headset does not connect twice a minute.
     /// </summary>
-    public int IntervalSeconds { get; set; } = 30;
-
-    /// <summary>Clamped on read: a persisted zero would draw an empty list.</summary>
     [JsonIgnore]
-    public int EffectiveMaxCount => Math.Clamp(MaxCount, 1, 30);
-
-    /// <summary>Clamped on read, so a persisted zero cannot turn the shared ticker into a spin.</summary>
-    [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromSeconds(Math.Clamp(IntervalSeconds, 5, 300));
+    public TimeSpan TickInterval => TimeSpan.FromSeconds(30);
 
     public override WidgetConfig Clone() => new BluetoothConfig
     {
@@ -63,7 +55,5 @@ public sealed class BluetoothConfig : WidgetConfig
         ShowConnection = ShowConnection,
         ShowSignal = ShowSignal,
         ConnectedOnly = ConnectedOnly,
-        MaxCount = MaxCount,
-        IntervalSeconds = IntervalSeconds,
     };
 }

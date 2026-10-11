@@ -40,11 +40,25 @@ internal static class AppServices
     public static IScreenTimeSource? ScreenTime { get; internal set; }
 
     /// <summary>
+    /// [S-3300] Every view's links: what the widgets on one view hover and select, shared between
+    /// them. In memory only, UI thread only. Null before the host has started (a debug render's host
+    /// has a board of its own).
+    /// </summary>
+    public static Themia.Core.Links.LinkRegistry? Links { get; internal set; }
+
+    /// <summary>
     /// [S-2500] Where every system widget (meters, GPU, the detail widgets) gets its figures: the
     /// host's one <see cref="SystemData.SystemHub"/>, on the shared ticker. A debug render sets its own.
     /// Null before the host has started.
     /// </summary>
     public static SystemData.SystemHub? System { get; internal set; }
+
+    /// <summary>
+    /// [S-3410] Where every gallery widget gets its pictures: the host's one <see cref="GalleryService"/>
+    /// (shared sources, decoded pictures, each widget's slide). A debug render sets its own. Null
+    /// before the host has started.
+    /// </summary>
+    public static GalleryService? Gallery { get; internal set; }
 
     /// <summary>
     /// [S-546] Where Mail widgets read from: the host's one <see cref="Mail.MailService"/>.

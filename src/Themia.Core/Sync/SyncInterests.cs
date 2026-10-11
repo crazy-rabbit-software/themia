@@ -1,4 +1,5 @@
 using System.Globalization;
+using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
@@ -47,12 +48,19 @@ public sealed record SyncInterests(
     public static SyncInterests None { get; } = new([], [], [], [], [], [], []);
 
     /// <summary>
+    /// [S-3782] How often the signed-in accounts' mail, calendars and task lists are asked: one
+    /// cadence for all of them, from Settings › Widgets.
+    /// </summary>
+    public TimeSpan AccountInterval { get; init; } = UpdateCadence.Interval(new RefreshPreferences(), UpdateSource.Accounts);
+
+    /// <summary>
     /// Everything that changes what is synced, as one string: the state changes sixty times a second
     /// during a drag, and the services only need to hear when this does.
     /// </summary>
     public string Key()
     {
         var text = new System.Text.StringBuilder();
+        text.Append("a|").Append(AccountInterval.Ticks).Append('#');
 
         foreach (var m in Mail)
         {
@@ -112,6 +120,13 @@ public sealed record SyncInterests(
         var weather = new List<WeatherInterest>();
         var quotes = new List<QuoteInterest>();
 
+        // [S-3770] [S-3780] The shared unit and cadences, from the state itself rather than from what
+        // the app last put in force, so the sync follows a change on the same state change.
+        var refresh = state.Preferences.Refresh;
+        var unit = RegionFormat.For(state.Preferences.Region).Temperature;
+        var accounts = UpdateCadence.Interval(refresh, UpdateSource.Accounts);
+        var feedEvery = UpdateCadence.Interval(refresh, UpdateSource.Feeds);
+
         foreach (var widget in state.Views.SelectMany(v => v.Widgets))
         {
             switch (widget.Config)
@@ -129,28 +144,28 @@ public sealed record SyncInterests(
                     break;
 
                 case TasksConfig list when list.Source == TaskSource.Account:
-                    tasks.Add(new TaskInterest(list.AccountId ?? string.Empty, list.ListId ?? string.Empty, list.ShowCompleted, list.RefreshInterval));
+                    tasks.Add(new TaskInterest(list.AccountId ?? string.Empty, list.ListId ?? string.Empty, list.ShowCompleted, accounts));
                     break;
 
                 case RssConfig rss:
                     foreach (var url in rss.FeedUrls)
                     {
-                        feeds.Add(new FeedInterest(url, rss.EffectiveMaxItems, rss.TickInterval));
+                        feeds.Add(new FeedInterest(url, rss.EffectiveMaxItems, feedEvery));
                     }
 
                     break;
 
-                case WeatherConfig place when For(place) is { } wants:
+                case WeatherConfig place when For(place, unit, UpdateCadence.Interval(refresh, UpdateSource.Weather)) is { } wants:
                     weather.Add(wants);
                     break;
 
-                case StocksConfig stock when For(stock) is { } wants:
+                case StocksConfig stock when For(stock, UpdateCadence.Interval(refresh, UpdateSource.Markets)) is { } wants:
                     quotes.Add(wants);
                     break;
             }
         }
 
-        return new SyncInterests(mail, calendar, contacts, tasks, feeds, weather, quotes);
+        return new SyncInterests(mail, calendar, contacts, tasks, feeds, weather, quotes) { AccountInterval = accounts };
     }
 
     /// <summary>
@@ -158,6 +173,10 @@ public sealed record SyncInterests(
     /// widget's own "set up" state, never a request). The widget and the sync use this one rule.
     /// </summary>
     public static WeatherInterest? For(WeatherConfig config)
+        => For(config, RegionFormat.Current.Temperature, UpdateCadence.Interval(UpdateSource.Weather));
+
+    /// <summary>[S-2663] <see cref="For(WeatherConfig)"/> for a given scale and cadence ([S-3770], [S-3780]).</summary>
+    public static WeatherInterest? For(WeatherConfig config, TemperatureUnit unit, TimeSpan interval)
     {
         ArgumentNullException.ThrowIfNull(config);
 
@@ -167,16 +186,19 @@ public sealed record SyncInterests(
         }
 
         int? days = config is WeatherForecastConfig forecast ? forecast.EffectiveDays : null;
-        return new WeatherInterest(config.Latitude!.Value, config.Longitude!.Value, config.Unit, days, config.TickInterval);
+        return new WeatherInterest(config.Latitude!.Value, config.Longitude!.Value, unit, days, interval);
     }
 
     /// <summary>[S-2663] What a Stocks widget asks for, or null without a usable symbol.</summary>
-    public static QuoteInterest? For(StocksConfig config)
+    public static QuoteInterest? For(StocksConfig config) => For(config, UpdateCadence.Interval(UpdateSource.Markets));
+
+    /// <summary>[S-2663] <see cref="For(StocksConfig)"/> at a given cadence ([S-3780]).</summary>
+    public static QuoteInterest? For(StocksConfig config, TimeSpan interval)
     {
         ArgumentNullException.ThrowIfNull(config);
 
         return config.EffectiveSymbol is { Length: > 0 } symbol
-            ? new QuoteInterest(symbol, config.Market, config.Range, config.WantsPrePost, config.TickInterval)
+            ? new QuoteInterest(symbol, config.Market, config.Range, config.WantsPrePost, interval)
             : null;
     }
 }

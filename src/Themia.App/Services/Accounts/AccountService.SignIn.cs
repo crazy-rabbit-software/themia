@@ -256,10 +256,14 @@ internal sealed partial class AccountService
         var basic = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{user}:{password}"));
         var kind = provider == AccountProvider.CalDav ? DavKind.Calendar : DavKind.Contacts;
 
+        // [S-3843] The server the user typed may be on their network (a NAS); discovery's redirects to
+        // another host may not.
+        var typedServer = Themia.Core.Net.LocalGrants.ForTyped(entered);
+
         var found = await DavDiscovery.DiscoverAsync(entered, kind, async (target, body, depth, token) =>
         {
             var reply = await AccountHttp.SendAsync(DavRequest("PROPFIND", target, body, depth), CredentialKind.Basic,
-                r => r.Headers.Authorization = new("Basic", basic), token).ConfigureAwait(false);
+                r => r.Headers.Authorization = new("Basic", basic), token, typedServer).ConfigureAwait(false);
             return new DavReply(reply.Status, reply.Body, reply.FinalUrl);
         }, cancellation).ConfigureAwait(false);
 

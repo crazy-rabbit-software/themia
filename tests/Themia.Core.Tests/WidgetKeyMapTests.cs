@@ -203,4 +203,29 @@ public sealed class WidgetKeyMapTests
     [InlineData(WidgetKey.Right, 0, ControlKey.None)]
     public void S1992_slideshow_keys(WidgetKey key, int pictures, ControlKey expected)
         => Assert.Equal(expected, ControlKeys.Slideshow(key, pictures));
+
+    [Fact]
+    public void S3802_alt_shift_up_and_down_are_the_reorder_keys_and_nothing_else_is()
+    {
+        Assert.Equal(WidgetKey.MoveUp, WidgetKeys.FromVirtualKey(0x26, shift: true, ctrl: false, alt: true));
+        Assert.Equal(WidgetKey.MoveDown, WidgetKeys.FromVirtualKey(0x28, shift: true, ctrl: false, alt: true));
+        Assert.Null(WidgetKeys.FromVirtualKey(0x26, shift: true, ctrl: true, alt: true));
+        Assert.Null(WidgetKeys.FromVirtualKey(0x26, shift: false, ctrl: false, alt: true));
+        Assert.Null(WidgetKeys.FromVirtualKey(0x25, shift: true, ctrl: false, alt: true));
+        Assert.Equal(WidgetKey.Up, WidgetKeys.FromVirtualKey(0x26, shift: true, ctrl: false, alt: false));
+    }
+
+    [Fact]
+    public void S3802_a_focused_task_or_habit_moves_one_place_and_not_past_an_end()
+    {
+        Assert.Equal(new TaskKeyResult(TaskKeyCommand.MoveUp, 1), TaskLayout.Decide(WidgetKey.MoveUp, 1, 3));
+        Assert.Equal(new TaskKeyResult(TaskKeyCommand.MoveDown, 1), TaskLayout.Decide(WidgetKey.MoveDown, 1, 3));
+        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveUp, 0, 3).Command);
+        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveDown, 2, 3).Command);
+        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveDown, -1, 3).Command);
+
+        Assert.Equal(new HabitKeyResult(HabitKeyCommand.MoveUp, 2), HabitLayout.Decide(WidgetKey.MoveUp, 2, 3));
+        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.MoveDown, 2, 3).Command);
+        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.MoveUp, 0, 3).Command);
+    }
 }

@@ -1,0 +1,22 @@
+{
+  "widgetPrefs.nav": "Widżety",
+  "widgetPrefs.subtitle": "Formaty i aktualizacje wszystkich widżetów",
+  "widgetPrefs.region.header": "Format regionalny",
+  "widgetPrefs.region.clock": "Format godziny",
+  "widgetPrefs.region.clock12": "12-godzinny",
+  "widgetPrefs.region.clock24": "24-godzinny",
+  "widgetPrefs.followWindows": "Ustawienie systemu Windows ({value})",
+  "widgetPrefs.updates.header": "Aktualizacje",
+  "widgetPrefs.updates.note": "Jak często widżety pytają usługi online. „Odśwież” na widżecie pyta od razu.",
+  "widgetPrefs.updates.weather": "Pogoda",
+  "widgetPrefs.updates.markets": "Giełda",
+  "widgetPrefs.updates.feeds": "Kanały wiadomości",
+  "widgetPrefs.updates.accounts": "Poczta, kalendarze i zadania",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Co {count} godzinę",
+    "few": "Co {count} godziny",
+    "many": "Co {count} godzin",
+    "other": "Co {count} godziny"
+  },
+  "widgetsC.shortcuts.settings.locations": "Lokalizacje systemu Windows"
+}

@@ -72,7 +72,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private ContactsConfig _config = new();
     private WidgetArea _area;
     private string _query = string.Empty;
-    private string? _appliedDefaultSearch;
     private string? _selectedId;
     private bool _searchOpen;
     private IReadOnlyList<Contact> _contacts = [];
@@ -195,7 +194,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-        ApplyDefaultSearch(config as ContactsConfig ?? new ContactsConfig());
+        _config = config as ContactsConfig ?? new ContactsConfig();
         _source = OfficeSources.Current;
 
         if (_source is not null)
@@ -217,7 +216,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
     public void ApplyConfig(WidgetConfig config)
     {
-        ApplyDefaultSearch(config as ContactsConfig ?? new ContactsConfig());
+        _config = config as ContactsConfig ?? new ContactsConfig();
 
         if (RequestKey() != _requestKey)
         {
@@ -232,22 +231,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     {
         _area = area;
         Render();
-    }
-
-    /// <summary>
-    /// [S-584] The configured search is where the box starts, and where it goes back to when the
-    /// setting changes; what the user types in between is theirs until then.
-    /// </summary>
-    private void ApplyDefaultSearch(ContactsConfig next)
-    {
-        _config = next;
-
-        if (_appliedDefaultSearch != next.DefaultSearch)
-        {
-            _appliedDefaultSearch = next.DefaultSearch;
-            _query = next.DefaultSearch;
-            _search.Text = next.DefaultSearch;
-        }
     }
 
     /// <summary>[S-581] Refresh. [S-1746] The layout is how the widget looks: it is chosen in its settings only.</summary>

@@ -11,14 +11,15 @@ using Themia.App.Widgets;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-539] The Accounts page of the settings window: who Themia is signed in to, and the way to add,
-/// rename and sign out of an account.
+/// [S-539] The Accounts page of the settings window: who Themia is signed in to, what each account
+/// has synced to this PC ([S-3821]), and the way to add, rename and sign out of an account.
 /// <para>
 /// One flow at a time, drawn in place under the Add account row rather than in a second window: a
 /// browser wait or a short form. Everything that can go wrong is said on
@@ -43,6 +44,9 @@ internal sealed class AccountsPage
         Str.Shell_Accounts_Subtitle.Text());
     private readonly StackPanel _list = new() { Spacing = Fluent.Space1 };
     private readonly StackPanel _flow = new() { Spacing = Fluent.Space1 };
+
+    /// <summary>[S-3821] The accounts whose groups the reader opened, kept across the list's rebuilds.</summary>
+    private readonly HashSet<string> _open = new(StringComparer.Ordinal);
 
     private CancellationTokenSource? _flowCancel;
     private bool _subscribed;
@@ -97,6 +101,13 @@ internal sealed class AccountsPage
             if (!_subscribed)
             {
                 _service.AccountsChanged += OnAccountsChanged;
+
+                // [S-3823] The numbers follow every sync that lands while the page is open.
+                if (AppServices.Sync is { } sync)
+                {
+                    sync.StatsChanged += OnAccountsChanged;
+                }
+
                 _subscribed = true;
             }
         };
@@ -106,6 +117,11 @@ internal sealed class AccountsPage
             if (_subscribed)
             {
                 _service.AccountsChanged -= OnAccountsChanged;
+                if (AppServices.Sync is { } sync)
+                {
+                    sync.StatsChanged -= OnAccountsChanged;
+                }
+
                 _subscribed = false;
             }
 
@@ -128,79 +144,133 @@ internal sealed class AccountsPage
     {
         _list.Children.Clear();
 
-        var accounts = _service.Accounts;
+        var accounts = Listed();
         if (accounts.Count == 0)
         {
             _list.Children.Add(FluentLayout.Note(Str.Shell_Accounts_None.Text()));
             return;
         }
 
+        var now = DateTimeOffset.Now;
         foreach (var account in accounts)
         {
-            _list.Children.Add(AccountCard(account));
+            _list.Children.Add(AccountGroup(account, now));
         }
     }
 
-    private FrameworkElement AccountCard(AccountInfo account)
+    /// <summary>The accounts the list shows: the service's, or a debug render's stand-ins.</summary>
+    private IReadOnlyList<AccountInfo> Listed()
     {
-        var icon = new FontIcon
+#if DEBUG
+        if (DebugAccounts is { } stand)
         {
-            Glyph = ProviderGlyph(account.Provider),
-            FontSize = Fluent.IconSize,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(0, 0, Fluent.Space4, 0),
-        };
+            // The render looks at the groups opened: that is where the numbers are.
+            foreach (var account in stand)
+            {
+                _open.Add(account.Id);
+            }
 
-        var name = Fluent.Text(FluentType.BodyStrong);
-        name.Text = account.Label;
+            return stand;
+        }
+#endif
+        return _service.Accounts;
+    }
 
-        var detail = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        detail.Text = account.Label == account.Address
+#if DEBUG
+    /// <summary>
+    /// [S-3824] <c>--settings-png Accounts --demo-accounts</c>: two stand-in accounts, so the groups and
+    /// their numbers can be looked at without signing in to anything. Their numbers come from the
+    /// render host's own ledger, filled by the render; nothing here reaches a provider.
+    /// </summary>
+    internal static IReadOnlyList<AccountInfo>? DebugAccounts { get; set; }
+#endif
+
+    /// <summary>
+    /// [S-3821] One account's group: its name, address and provider on the header; inside, a row per
+    /// kind its provider feeds with what is stored on this PC and when it last synced, then its
+    /// nickname, a way back in when it needs signing in again, and Sign out.
+    /// </summary>
+    private Border AccountGroup(AccountInfo account, DateTimeOffset now)
+    {
+        var id = account.Id;
+        var detail = account.Label == account.Address
             ? account.Provider.Label()
             : Str.Shell_Accounts_Detail.Format(("address", account.Address), ("provider", account.Provider.Label()));
 
-        var text = new StackPanel { Spacing = 2, VerticalAlignment = VerticalAlignment.Center, Children = { name, detail } };
+        var rows = new List<Border>();
 
+        // [S-3822] Sign in again first: it is the one thing on the group that needs doing.
         if (account.Problem is { } problem)
         {
-            var warning = Fluent.Text(FluentType.Caption, "SystemFillColorCriticalBrush");
-            warning.Text = problem;
-            warning.TextWrapping = TextWrapping.Wrap;
-            warning.TextTrimming = TextTrimming.None;
-            text.Children.Add(warning);
+            var again = new Button { Content = Str.Shell_Accounts_ReconnectButton.Text(), Style = AccentStyle() };
+            again.Click += (_, _) => SignInAgain(account);
+            rows.Add(FluentLayout.Row(Glyphs.Warning, Str.Shell_Accounts_Reconnect.Text(), problem, again));
         }
 
-        var rename = FluentLayout.IconCommand(Glyphs.Rename, Str.Common_Rename.Text());
-        rename.Flyout = RenameFlyout(account);
+        var stats = AppServices.Sync?.Ledger.For(id) ?? [];
+        foreach (var kind in SyncStats.Summarize(account.Features, stats))
+        {
+            var count = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+            count.Text = SyncStats.Count(kind);
+            rows.Add(FluentLayout.Row(KindGlyph(kind.Kind), SyncStats.Label(kind.Kind), SyncStats.Detail(kind, now), count));
+        }
 
-        var signOut = new Button { Content = Str.Account_SignOut.Text(), VerticalAlignment = VerticalAlignment.Center };
+        var rename = new Button { Content = Str.Common_Rename.Text(), Flyout = RenameFlyout(account) };
+        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.Connect_Field_Nickname.Text(), Str.Shell_Accounts_NicknameDesc.Text(), rename));
+
+        var signOut = FluentLayout.DangerButton(Str.Account_SignOut.Text());
         signOut.Click += (_, _) => _ = SignOutAsync(account, signOut);
+        rows.Add(FluentLayout.DangerRow(Glyphs.SignOut, Str.Account_SignOut.Text(), Str.Shell_Accounts_SignOutDesc.Text(), signOut));
 
-        var commands = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            Margin = new Thickness(Fluent.Space3, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { rename, signOut },
-        };
-
-        Grid.SetColumn(icon, 0);
-        Grid.SetColumn(text, 1);
-        Grid.SetColumn(commands, 2);
-
-        return FluentLayout.Card(new Grid
-        {
-            ColumnDefinitions =
+        var frame = FluentLayout.Expander(
+            ProviderGlyph(account.Provider),
+            account.Label,
+            account.Problem is null ? detail : Str.Shell_Accounts_NeedsSignIn.Text(),
+            null,
+            rows,
+            expanded: _open.Contains(id),
+            expandedChanged: open =>
             {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-            Children = { icon, text, commands },
-        });
+                if (open)
+                {
+                    _open.Add(id);
+                }
+                else
+                {
+                    _open.Remove(id);
+                }
+            });
+
+        return frame;
     }
 
+    /// <summary>[S-3822] A way back in: the same flow that added the account, which replaces its sign-in in place.</summary>
+    private void SignInAgain(AccountInfo account)
+    {
+        switch (account.Provider)
+        {
+            case AccountProvider.Microsoft:
+            case AccountProvider.Google:
+                StartBrowser(account.Provider);
+                break;
+
+            case AccountProvider.Imap:
+                StartImap();
+                break;
+
+            default:
+                StartDav(account.Provider);
+                break;
+        }
+    }
+
+    private static string KindGlyph(SyncKind kind) => kind switch
+    {
+        SyncKind.Mail => Glyphs.Mail,
+        SyncKind.Calendar => Glyphs.Calendar,
+        SyncKind.Contacts => Glyphs.Contact,
+        _ => Glyphs.Task,
+    };
     private Flyout RenameFlyout(AccountInfo account)
     {
         var box = new TextBox

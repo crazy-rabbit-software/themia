@@ -25,6 +25,19 @@ public sealed record ScreenTimeStackPart(string Key, long Seconds, double Fracti
 /// <param name="Ratio">Share of the limit, uncapped: 1.4 is 40% over.</param>
 public readonly record struct ScreenTimeGoal(long Limit, double Used, double Ratio, bool Over);
 
+/// <summary>[S-3312] How a ring wedge, a bar segment or a list row is drawn against the linked focus.</summary>
+public enum ScreenTimeEmphasis
+{
+    /// <summary>Nothing is focused: every part as it is.</summary>
+    Normal = 0,
+
+    /// <summary>The focused part: lifted, full strength.</summary>
+    Lit = 1,
+
+    /// <summary>Every other part while one is focused.</summary>
+    Dimmed = 2,
+}
+
 /// <summary>Whether a pinned day is today, yesterday, or just a date.</summary>
 public enum ScreenTimeDayKind
 {
@@ -40,8 +53,8 @@ public enum ScreenTimeDayKind
 public static class ScreenTimeRules
 {
     /// <summary>
-    /// [S-1212] The fewest apps the drawing splits out by name when the legend lists fewer (or none):
-    /// a ring of one app and a grey "Other" says less than the busiest few in their colours.
+    /// [S-3331] [S-3341] How many apps the chart's stacks and the donut's ring split out by name; the
+    /// rest is one "Other". Past seven colours a ring or a stack stops telling apps apart.
     /// </summary>
     public const int DrawingApps = 7;
 
@@ -94,10 +107,10 @@ public static class ScreenTimeRules
     public static int Ceiling(int maxApps) => maxApps > 0 ? EffectiveMaxApps(maxApps) : MaxAppsLimit;
 
     /// <summary>
-    /// [S-1211] Rows the legend would like: every app up to the ceiling, plus an "Other" row when
-    /// apps are left over. What the tile has room for is decided by the layout, in whole rows.
+    /// [S-1211] Rows the list would like: every app up to the ceiling, plus an "Other" row when apps
+    /// are left over. What the tile has room for is decided by the layout, in whole rows.
     /// </summary>
-    public static int LegendWanted(int maxApps, int appCount)
+    public static int ListWanted(int maxApps, int appCount)
     {
         var apps = Math.Max(0, appCount);
         var ceiling = Ceiling(maxApps);
@@ -105,20 +118,14 @@ public static class ScreenTimeRules
     }
 
     /// <summary>
-    /// [S-1212] How many apps the drawing names, given the legend rows the tile could show. A legend
-    /// with room for every app names them all (no "Other"); a shorter one leaves its last row to
-    /// "Other". The drawing never names fewer than <see cref="DrawingApps"/> unless the setting
-    /// says fewer — the list can be cut short by the tile, the ring should not be.
+    /// [S-3351] How many apps a list of <paramref name="rows"/> rows names: all of them when they fit,
+    /// else all but the last row, which is "Other" — so the rows always add up to the total.
     /// </summary>
-    /// <param name="maxApps">The setting: 0 for as many as fit, else a ceiling.</param>
-    /// <param name="legendRows">Rows the legend actually shows (0 when it is off or nothing fits).</param>
-    /// <param name="appCount">Apps there are to draw.</param>
-    public static int DrawingCap(int maxApps, int legendRows, int appCount)
+    public static int ListNamed(int rows, int appCount)
     {
         var apps = Math.Max(0, appCount);
-        var rows = Math.Max(0, legendRows);
-        var named = apps <= rows ? apps : Math.Max(0, rows - 1);
-        return Math.Min(Ceiling(maxApps), Math.Max(DrawingApps, named));
+        var shown = Math.Max(0, rows);
+        return apps <= shown ? apps : Math.Max(0, shown - 1);
     }
 
     /// <summary>
@@ -168,37 +175,17 @@ public static class ScreenTimeRules
         return (compact, FluentType.Fit(width, height, compact.Length + 1, FluentType.Caption, FluentType.Title));
     }
 
-    /// <summary>[S-1214] The <paramref name="count"/> dates ending at <paramref name="last"/>, oldest first: the week strip under a day.</summary>
-    public static List<LocalDay> DaysEnding(LocalDay last, int count)
-    {
-        var days = new List<LocalDay>(Math.Max(0, count));
-
-        for (var i = count - 1; i >= 0; i--)
-        {
-            days.Add(last.AddDays(-i));
-        }
-
-        return days;
-    }
-
-    /// <summary>[S-451] The styles that can draw a period: apps for a day, days for a window.</summary>
-    public static IReadOnlyList<ScreenTimeStyle> StylesFor(ScreenTimePeriod period) => period == ScreenTimePeriod.Day
-        ? [ScreenTimeStyle.Doughnut, ScreenTimeStyle.Bars, ScreenTimeStyle.None]
-        : [ScreenTimeStyle.Bars, ScreenTimeStyle.Heatmap, ScreenTimeStyle.None];
-
-    /// <summary>
-    /// [S-451] A style the period can draw: an impossible pair — or an unknown value from a hand-edited
-    /// file — becomes the period's first style, never an empty body.
-    /// </summary>
-    public static ScreenTimeStyle ClampStyle(ScreenTimePeriod period, ScreenTimeStyle style)
-    {
-        var allowed = StylesFor(period);
-        return allowed.Contains(style) ? style : allowed[0];
-    }
-
-    /// <summary>[S-451] An unknown period from a hand-edited file reads as a day.</summary>
+    /// <summary>[S-3321] An unknown period from a hand-edited file reads as a day.</summary>
     public static ScreenTimePeriod ClampPeriod(ScreenTimePeriod period)
         => Enum.IsDefined(period) ? period : ScreenTimePeriod.Day;
+
+    /// <summary>[S-3330] The chart draws days: a day period, or an unknown one, reads as the week.</summary>
+    public static ScreenTimePeriod ChartPeriod(ScreenTimePeriod period)
+        => period == ScreenTimePeriod.Month ? ScreenTimePeriod.Month : ScreenTimePeriod.Week;
+
+    /// <summary>[S-3330] An unknown style from a hand-edited file reads as bars.</summary>
+    public static ScreenTimeChartStyle ClampChartStyle(ScreenTimeChartStyle style)
+        => Enum.IsDefined(style) ? style : ScreenTimeChartStyle.Bars;
 
     /// <summary>[S-451] Days a period covers: 1, 7 or 30.</summary>
     public static int RangeLength(ScreenTimePeriod period) => period switch
@@ -207,22 +194,6 @@ public static class ScreenTimeRules
         ScreenTimePeriod.Month => 30,
         _ => 1,
     };
-
-    /// <summary>[S-455] The hidden-app list, cleaned: no empties, no repeats.</summary>
-    public static HashSet<string> Hidden(IEnumerable<string>? raw)
-    {
-        var set = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var key in raw ?? [])
-        {
-            if (!string.IsNullOrWhiteSpace(key))
-            {
-                set.Add(key);
-            }
-        }
-
-        return set;
-    }
 
     /// <summary>[S-455] The apps that are not hidden.</summary>
     public static List<ScreenTimeApp> Visible(IEnumerable<ScreenTimeApp> apps, IReadOnlySet<string> hidden)
@@ -423,22 +394,6 @@ public static class ScreenTimeRules
     /// <summary>[S-457] A limit is a positive number of seconds; anything else is "no limit", never a zero-second one.</summary>
     public static long? Limit(long seconds) => seconds > 0 ? seconds : null;
 
-    /// <summary>[S-457] Per-app limits by key. Entries without a key or a positive limit are dropped; a repeated key keeps its last.</summary>
-    public static Dictionary<string, long> AppLimits(IEnumerable<ScreenTimeAppLimit>? raw)
-    {
-        var limits = new Dictionary<string, long>(StringComparer.Ordinal);
-
-        foreach (var limit in raw ?? [])
-        {
-            if (limit is not null && !string.IsNullOrWhiteSpace(limit.App) && limit.Seconds > 0)
-            {
-                limits[limit.App.Trim()] = limit.Seconds;
-            }
-        }
-
-        return limits;
-    }
-
     /// <summary>[S-457] A figure against its limit; null when no limit is set, so nothing is drawn.</summary>
     public static ScreenTimeGoal? Goal(double used, long? limit)
     {
@@ -503,6 +458,36 @@ public static class ScreenTimeRules
         ScreenTimePeriod.Month => Str.Screentime_Last30Days,
         _ => Str.Common_Today,
     }).Text();
+
+    /// <summary>[S-3310] What a screen-time widget emphasises: the hover when there is one, else the selection.</summary>
+    public static string? Focus(string? hovered, string? selected) => hovered ?? selected;
+
+    /// <summary>
+    /// [S-3312] Where a focused app lands among the parts a widget draws: on its own part, else —
+    /// when it is one of the period's <paramref name="apps"/> folded into "Other" — on the Other
+    /// part, else nowhere (hidden, or not used in this period). An app linked from a longer list
+    /// still lights something in a ring of seven.
+    /// </summary>
+    public static string? FocusPart(string? focus, IReadOnlyList<ScreenTimeSegment> parts, IEnumerable<ScreenTimeApp> apps)
+    {
+        if (focus is null)
+        {
+            return null;
+        }
+
+        if (parts.Any(part => part.Key == focus))
+        {
+            return focus;
+        }
+
+        return parts.Any(part => part.IsOther) && apps.Any(app => app.App == focus) ? OtherKey : null;
+    }
+
+    /// <summary>[S-3312] How one part is drawn against the focus: lit, dimmed, or as it is when nothing is focused.</summary>
+    public static ScreenTimeEmphasis Emphasis(string key, string? focusPart)
+        => focusPart is null ? ScreenTimeEmphasis.Normal
+            : key == focusPart ? ScreenTimeEmphasis.Lit
+            : ScreenTimeEmphasis.Dimmed;
 
     /// <summary>[S-452] A colour per app, stable across days: a hash of its key picks the hue.</summary>
     /// <returns>The hue in degrees, 0..359.</returns>

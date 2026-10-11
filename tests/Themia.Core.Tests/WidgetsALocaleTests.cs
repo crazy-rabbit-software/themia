@@ -26,16 +26,16 @@ public sealed class WidgetsALocaleTests
     [Fact]
     public void S1106_the_clock_date_is_written_in_the_language_order()
     {
-        Assert.Equal("Monday, March 9", ClockFormatter.Read(Monday, Utc(), Locale.En).Date);
-        Assert.Equal("Montag, 9. März", ClockFormatter.Read(Monday, Utc(), Locale.De).Date);
+        Assert.Equal("Monday, March 9", ClockFormatter.Read(Monday, Utc(), Locale.En, use24Hour: true).Date);
+        Assert.Equal("Montag, 9. März", ClockFormatter.Read(Monday, Utc(), Locale.De, use24Hour: true).Date);
     }
 
     [Fact]
     public void S1106_the_meridiem_comes_from_the_language()
     {
-        Assert.Equal("PM", ClockFormatter.Read(Monday, Utc(c => c.Use24Hour = false), Locale.En).Meridiem);
-        Assert.Equal("午後", ClockFormatter.Read(Monday, Utc(c => c.Use24Hour = false), Locale.Ja).Meridiem);
-        Assert.Null(ClockFormatter.Read(Monday, Utc(c => c.Use24Hour = true), Locale.De).Meridiem);
+        Assert.Equal("PM", ClockFormatter.Read(Monday, Utc(), Locale.En, use24Hour: false).Meridiem);
+        Assert.Equal("午後", ClockFormatter.Read(Monday, Utc(), Locale.Ja, use24Hour: false).Meridiem);
+        Assert.Null(ClockFormatter.Read(Monday, Utc(), Locale.De, use24Hour: true).Meridiem);
     }
 
     [Fact]

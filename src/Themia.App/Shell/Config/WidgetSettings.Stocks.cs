@@ -17,6 +17,7 @@ namespace Themia.App.Shell.Config;
 /// box rather than swallowed. It is never repaired into something that works. [S-1307] It is also a
 /// search, as the original's: typing asks Yahoo and CoinGecko together and a pick sets the symbol,
 /// its market and its name in one go; a symbol typed in full and committed with Enter still works.
+/// [S-3790] There is no market choice: the pick knows it, and a typed symbol is a listed one.
 /// </para>
 /// </summary>
 internal static partial class WidgetSettings
@@ -32,36 +33,12 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_Stocks_Settings_Instrument.Text()));
 
+        // [S-3790] The symbol is the whole choice: its service and its name come with the pick.
         var verdict = FluentLayout.Verdict();
         var search = SymbolSearch(config, save, verdict);
 
         rows.Add(FluentLayout.FieldRow(Glyphs.Search, Str.Stocks_Tab_Symbols.Text(),
             Str.WidgetsC_Stocks_Settings_Symbol_Desc.Text(), search, verdict));
-
-        var market = FluentLayout.Choice(
-            [(QuoteMarket.Listed, Str.WidgetsC_Stocks_Settings_Market_Listed.Text()), (QuoteMarket.Crypto, Str.WidgetsC_Stocks_Asset_Crypto.Text())],
-            config.Market,
-            value => { config.Market = value; save(); });
-
-        rows.Add(FluentLayout.Row(Glyphs.Stocks, Str.WidgetsC_Stocks_Settings_Market_Label.Text(),
-            Str.WidgetsC_Stocks_Settings_Market_Desc.Text(), market));
-
-        var name = new TextBox { Text = config.DisplayName, Width = 200, PlaceholderText = Str.WidgetsC_Stocks_Settings_Optional.Text() };
-
-        name.LostFocus += (_, _) =>
-        {
-            var typed = name.Text.Trim();
-
-            if (typed == config.DisplayName)
-            {
-                return;
-            }
-
-            config.DisplayName = typed;
-            save();
-        };
-
-        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.Stocks_DisplayNamePlaceholder.Text(), Str.WidgetsC_Stocks_Settings_Name_Desc.Text(), name));
 
         rows.Add(FluentLayout.Row(Glyphs.Moon, Str.Stocks_DimWhenClosed.Text(),
             Str.WidgetsC_Stocks_Settings_MarketState_Desc.Text(),
@@ -71,50 +48,42 @@ internal static partial class WidgetSettings
             Str.Stocks_ExtendedHoursDesc.Text(),
             FluentLayout.Toggle(config.ShowExtendedHours, value => { config.ShowExtendedHours = value; save(); })));
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Stocks_Settings_Chart.Text()));
-
-        rows.Add(FluentLayout.Row(Glyphs.Motion, Str.WidgetsC_Stocks_Settings_ShowChart_Label.Text(), Str.WidgetsC_Stocks_Settings_ShowChart_Desc.Text(),
-            FluentLayout.Toggle(config.ShowSparkline, value => { config.ShowSparkline = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Hours, Str.Stocks_Timeframe.Text(), Str.Stocks_TimeframeDesc.Text(),
-            FluentLayout.Choice(
-                [
-                    (QuoteRange.Day, Str.WidgetsC_Stocks_Period_Days.Plural(1)),
-                    (QuoteRange.FiveDays, Str.WidgetsC_Stocks_Period_Days.Plural(5)),
-                    (QuoteRange.Month, Str.WidgetsC_Stocks_Period_Months.Plural(1)),
-                    (QuoteRange.ThreeMonths, Str.WidgetsC_Stocks_Period_Months.Plural(3)),
-                    (QuoteRange.SixMonths, Str.WidgetsC_Stocks_Period_Months.Plural(6)),
-                    (QuoteRange.Year, Str.WidgetsC_Stocks_Period_Years.Plural(1)),
-                    (QuoteRange.TwoYears, Str.WidgetsC_Stocks_Period_Years.Plural(2)),
-                    (QuoteRange.FiveYears, Str.WidgetsC_Stocks_Period_Years.Plural(5)),
-                    (QuoteRange.TenYears, Str.WidgetsC_Stocks_Period_Years.Plural(10)),
-                ],
-                config.Range,
-                value => { config.Range = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Fit, Str.Stocks_AreaFill.Text(), Str.Stocks_AreaFillDesc.Text(),
-            FluentLayout.Toggle(config.ShowAreaFill, value => { config.ShowAreaFill = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.Stocks_ShowMinMax.Text(), Str.Stocks_ShowMinMaxDesc.Text(),
-            FluentLayout.Toggle(config.ShowMinMax, value => { config.ShowMinMax = value; save(); })));
-
-        rows.Add(FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_UpColor.Text(), Str.WidgetsC_Stocks_Settings_Rising_Desc.Text(),
-            config.UpColor,
-            value => { config.UpColor = value; save(); },
-            new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsGreen.Text(), DefaultColor = () => ThemeColor("SystemFillColorSuccessBrush") }));
-
-        rows.Add(FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_DownColor.Text(), Str.WidgetsC_Stocks_Settings_Falling_Desc.Text(),
-            config.DownColor,
-            value => { config.DownColor = value; save(); },
-            new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsRed.Text(), DefaultColor = () => ThemeColor("SystemFillColorCriticalBrush") }));
-
-        FluentLayout.RefreshChoice(rows, config.RefreshMinutes, value => { config.RefreshMinutes = value; save(); }, fast: true);
+        // [S-3795] The chart's rows fold under its own switch.
+        rows.Add(FluentLayout.Expander(Glyphs.Motion, Str.WidgetsC_Stocks_Settings_ShowChart_Label.Text(), Str.WidgetsC_Stocks_Settings_ShowChart_Desc.Text(),
+            FluentLayout.Toggle(config.ShowSparkline, value => { config.ShowSparkline = value; save(); }),
+            [
+                FluentLayout.Row(Glyphs.Hours, Str.Stocks_Timeframe.Text(), null,
+                    FluentLayout.Choice(
+                        [
+                            (QuoteRange.Day, Str.WidgetsC_Stocks_Period_Days.Plural(1)),
+                            (QuoteRange.FiveDays, Str.WidgetsC_Stocks_Period_Days.Plural(5)),
+                            (QuoteRange.Month, Str.WidgetsC_Stocks_Period_Months.Plural(1)),
+                            (QuoteRange.ThreeMonths, Str.WidgetsC_Stocks_Period_Months.Plural(3)),
+                            (QuoteRange.SixMonths, Str.WidgetsC_Stocks_Period_Months.Plural(6)),
+                            (QuoteRange.Year, Str.WidgetsC_Stocks_Period_Years.Plural(1)),
+                            (QuoteRange.TwoYears, Str.WidgetsC_Stocks_Period_Years.Plural(2)),
+                            (QuoteRange.FiveYears, Str.WidgetsC_Stocks_Period_Years.Plural(5)),
+                            (QuoteRange.TenYears, Str.WidgetsC_Stocks_Period_Years.Plural(10)),
+                        ],
+                        config.Range,
+                        value => { config.Range = value; save(); })),
+                FluentLayout.Row(Glyphs.Count, Str.Stocks_ShowMinMax.Text(), null,
+                    FluentLayout.Toggle(config.ShowMinMax, value => { config.ShowMinMax = value; save(); })),
+                FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_UpColor.Text(), null,
+                    config.UpColor,
+                    value => { config.UpColor = value; save(); },
+                    new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsGreen.Text(), DefaultColor = () => ThemeColor("SystemFillColorSuccessBrush") }),
+                FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_DownColor.Text(), null,
+                    config.DownColor,
+                    value => { config.DownColor = value; save(); },
+                    new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsRed.Text(), DefaultColor = () => ThemeColor("SystemFillColorCriticalBrush") }),
+            ]));
     }
 
     /// <summary>
     /// [S-1307] The symbol box with search: suggestions as the user types (after a short pause, the
     /// previous search abandoned), a pick sets symbol, market and name; Enter on typed text commits
-    /// it as a raw symbol under the current market, through the same check as before.
+    /// it as a listed symbol ([S-3790]), through the same check as before.
     /// </summary>
     private static AutoSuggestBox SymbolSearch(StocksConfig config, Action save, TextBlock verdict)
     {
@@ -122,7 +91,7 @@ internal static partial class WidgetSettings
         {
             Text = config.Symbol,
             MinWidth = 260,
-            PlaceholderText = config.Market == QuoteMarket.Crypto ? "bitcoin" : "AAPL, ^GSPC, EURUSD=X, GC=F",
+            PlaceholderText = "AAPL, ^GSPC, EURUSD=X, BTC-USD",
             QueryIcon = new SymbolIcon(Symbol.Find),
         };
 
@@ -196,9 +165,7 @@ internal static partial class WidgetSettings
             pause?.Stop();
             asking?.Cancel();
 
-            config.Symbol = hit.Symbol;
-            config.Market = hit.Market;
-            config.DisplayName = hit.Name;
+            config.Choose(hit);
             box.Text = hit.Symbol;
             box.ItemsSource = null;
             FluentLayout.Confirm(verdict, string.Empty);
@@ -238,7 +205,7 @@ internal static partial class WidgetSettings
                 return;
             }
 
-            config.Symbol = typed;
+            config.ChooseTyped(typed);
             FluentLayout.Confirm(verdict, string.Empty);
             ShowClass(verdict, config);
             save();

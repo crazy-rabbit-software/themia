@@ -27,7 +27,7 @@ internal sealed class FolderWatch : IDisposable
     private int _pending;
     private int _disposed;
 
-    private FolderWatch(string path, Action changed, DispatcherQueue queue)
+    private FolderWatch(string path, Action changed, DispatcherQueue queue, bool subfolders, bool namesOnly)
     {
         _path = path;
         _changed = changed;
@@ -39,9 +39,13 @@ internal sealed class FolderWatch : IDisposable
         {
             _watcher = new FileSystemWatcher(path)
             {
-                IncludeSubdirectories = false,
-                NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.Size
-                    | NotifyFilters.LastWrite | NotifyFilters.Attributes,
+                IncludeSubdirectories = subfolders,
+                // [S-3410] A reader that only lists names (the gallery) is not woken by a file
+                // being written, only by one arriving, going or being renamed.
+                NotifyFilter = namesOnly
+                    ? NotifyFilters.FileName | NotifyFilters.DirectoryName
+                    : NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.Size
+                        | NotifyFilters.LastWrite | NotifyFilters.Attributes,
                 InternalBufferSize = 64 * 1024,
             };
 
@@ -65,12 +69,14 @@ internal sealed class FolderWatch : IDisposable
     public bool Watching { get; }
 
     /// <summary>Watch <paramref name="path"/>; <paramref name="changed"/> runs on the calling (UI) thread.</summary>
-    public static FolderWatch Start(string path, Action changed)
+    /// <param name="subfolders">The folders below it too.</param>
+    /// <param name="namesOnly">Only files and folders arriving, going or renamed; not one being written.</param>
+    public static FolderWatch Start(string path, Action changed, bool subfolders = false, bool namesOnly = false)
     {
         ArgumentNullException.ThrowIfNull(changed);
         var queue = DispatcherQueue.GetForCurrentThread()
             ?? throw new InvalidOperationException("FolderWatch must start on a thread with a dispatcher queue");
-        return new FolderWatch(path, changed, queue);
+        return new FolderWatch(path, changed, queue, subfolders, namesOnly);
     }
 
     private void OnEvent(object sender, FileSystemEventArgs e) => Post();

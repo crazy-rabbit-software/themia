@@ -264,6 +264,7 @@ internal static class SwitchCheck
             $"managed {GC.GetTotalMemory(forceFullCollection: false) / mb,6:0.0} MB  cards alive {cards,4} (shown {expected})  " +
             $"views attached {LiveCensus.Attached,4} (live {live})  ticks {host.Ticker.SubscriptionCount,3}  " +
             $"system feeds {system?.FeedCount ?? 0,3} (lingering {system?.LingeringCount ?? 0}, sources {system?.SourceCount ?? 0})  " +
+            $"gallery sources {AppServices.Gallery?.SourceCount ?? 0,2} (lingering {AppServices.Gallery?.LingeringCount ?? 0}, pictures {AppServices.Gallery?.Pictures.Count ?? 0}, {(AppServices.Gallery?.Pictures.Bytes ?? 0) / mb:0.0} MB)  " +
             $"threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
     }
 

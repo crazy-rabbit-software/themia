@@ -69,7 +69,7 @@ public static class ImageFiles
     /// <param name="shuffle">Take a random selection rather than the first by name.</param>
     /// <param name="seed">
     /// The shuffle's seed, passed in rather than taken from the clock so the choice is reproducible:
-    /// the view re-rolls it per scan, and a test can pin it.
+    /// each widget keeps its own ([S-3412]), and a test can pin it.
     /// </param>
     /// <param name="max">How many to keep. Always at least one.</param>
     public static List<string> Choose(IReadOnlyList<string>? found, bool shuffle, int seed, int max)
@@ -93,16 +93,16 @@ public static class ImageFiles
 
         if (shuffle)
         {
-            // Fisher-Yates over the whole list, then take the front: every picture in the folder has
-            // the same chance of being one of the ones shown, which "take the first N and shuffle
-            // those" would not give.
-            var random = new Random(seed);
-
-            for (var i = chosen.Count - 1; i > 0; i--)
+            // [S-3412] Ranked by a hash of each path mixed with the seed, then the front taken: every
+            // picture in the folder has the same chance of being one of the ones shown (the whole
+            // list is ranked, not only its first N), and the order is stable under change: a picture
+            // added to or taken from the folder moves no other one, so a slideshow or grid on show
+            // does not reshuffle because a file arrived.
+            chosen.Sort((a, b) =>
             {
-                var j = random.Next(i + 1);
-                (chosen[i], chosen[j]) = (chosen[j], chosen[i]);
-            }
+                var order = Rank(a, seed).CompareTo(Rank(b, seed));
+                return order != 0 ? order : StringComparer.Ordinal.Compare(a, b);
+            });
         }
         else
         {
@@ -117,5 +117,22 @@ public static class ImageFiles
         }
 
         return chosen;
+    }
+
+    /// <summary>A path's place in a shuffle: FNV-1a over the path, case folded, mixed with the seed (SplitMix64).</summary>
+    private static ulong Rank(string path, int seed)
+    {
+        var hash = 14695981039346656037UL;
+
+        foreach (var c in path)
+        {
+            hash ^= char.ToUpperInvariant(c);
+            hash *= 1099511628211UL;
+        }
+
+        var z = hash ^ ((ulong)(uint)seed * 0x9E3779B97F4A7C15UL);
+        z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9UL;
+        z = (z ^ (z >> 27)) * 0x94D049BB133111EBUL;
+        return z ^ (z >> 31);
     }
 }

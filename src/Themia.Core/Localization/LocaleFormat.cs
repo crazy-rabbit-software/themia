@@ -34,7 +34,10 @@ public enum DateStyle
 /// <summary>Whether a time is shown on the 12- or 24-hour clock.</summary>
 public enum HourCycle
 {
-    /// <summary>What the language normally uses (12 h for English, 24 h for the others).</summary>
+    /// <summary>
+    /// [S-3773] The user's clock setting (Settings › Widgets, else Windows'); before either is known,
+    /// what the language normally uses (12 h for English, 24 h for the others).
+    /// </summary>
     Locale = 0,
     H12 = 1,
     H24 = 2,
@@ -137,7 +140,7 @@ public static class LocaleFormat
         {
             HourCycle.H12 => false,
             HourCycle.H24 => true,
-            _ => data.Uses24Hour,
+            _ => RegionFormat.Uses24Hour(locale),
         };
 
         var pattern = use24 ? data.Time24 : data.Time12;

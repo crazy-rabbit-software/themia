@@ -35,9 +35,6 @@ public enum WidgetKind
     /// <summary>People from the signed-in address books.</summary>
     Contacts = 9,
 
-    /// <summary>Upcoming events from the signed-in calendars.</summary>
-    Calendar = 10,
-
     /// <summary>Open tasks from the signed-in accounts, or a list on this PC.</summary>
     Tasks = 11,
 
@@ -102,9 +99,6 @@ public enum WidgetKind
     /// <summary>Per-application volume for the default output device.</summary>
     Mixer = 40,
 
-    /// <summary>Which apps had the foreground today, and for how long.</summary>
-    ScreenTime = 41,
-
     /// <summary>[S-1910] One button: shut down. Each power action is its own widget.</summary>
     Shutdown = 53,
 
@@ -158,6 +152,30 @@ public enum WidgetKind
 
     /// <summary>[S-3200] The spectrum of whatever the PC plays, split out of Music.</summary>
     AudioVisualizer = 70,
+
+    /// <summary>[S-3600] The weeks of a month with their events. The five calendar widgets replace Calendar (10).</summary>
+    MonthCalendar = 71,
+
+    /// <summary>[S-3600] Seven day columns of events.</summary>
+    WeekCalendar = 72,
+
+    /// <summary>[S-3600] One day on an hour timeline.</summary>
+    DayCalendar = 73,
+
+    /// <summary>[S-3600] The twelve months of a year as small grids.</summary>
+    YearCalendar = 74,
+
+    /// <summary>[S-3600] What is coming up, grouped by day.</summary>
+    Agenda = 75,
+
+    /// <summary>[S-3320] Screen time over the last week or month, one bar (or calendar cell) per day. Replaces Screen time (41).</summary>
+    ScreenTimeChart = 80,
+
+    /// <summary>[S-3320] Each app's share of the day (or week, or month), as a ring.</summary>
+    ScreenTimeDonut = 81,
+
+    /// <summary>[S-3320] The apps used, busiest first, with their time and limits.</summary>
+    ScreenTimeApps = 82,
 }
 
 /// <summary>How a countdown renders the time it has left. [C-11]</summary>

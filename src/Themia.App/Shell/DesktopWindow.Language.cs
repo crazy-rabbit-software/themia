@@ -59,12 +59,6 @@ internal sealed partial class DesktopWindow
         Log.Info(Scope, $"redrew {_monitor.GdiName} in {LanguageResolver.Code(Strings.Current)}");
     }
 
-    /// <summary>The toolbar's buttons and its Add-widget picker, built again in the current language.</summary>
-    private void RebuildToolbar()
-    {
-        var fresh = BuildToolbar();
-        var content = fresh.Child;
-        fresh.Child = null;
-        _toolbar.Child = content;
-    }
+    /// <summary>The edit bar's buttons and its add menu, built again in the current language.</summary>
+    private void RebuildToolbar() => _toolbar.Fill(ToolbarCommands());
 }

@@ -16,8 +16,11 @@ public sealed record AudioSessionInfo(
     bool Active,
     bool IsSystem);
 
-/// <summary>One row of the mixer: the master level, an application, or a single session.</summary>
-/// <param name="Sessions">How many sessions the row drives; 0 for the master row.</param>
+/// <summary>
+/// One row of the mixer: an application or a single session ([S-3251]: never the device's own
+/// level). The volume tile reuses the shape for its one level, keyed <see cref="MixerRules.MasterKey"/>.
+/// </summary>
+/// <param name="Sessions">How many sessions the row drives.</param>
 public sealed record MixerRow(
     string Key,
     string Name,
@@ -26,10 +29,7 @@ public sealed record MixerRow(
     bool Muted,
     bool Active,
     bool IsSystem,
-    int Sessions)
-{
-    public bool IsMaster => Key == MixerRules.MasterKey;
-}
+    int Sessions);
 
 /// <summary>[S-1227] How a mixer row is laid out, by the width it has.</summary>
 public enum MixerRowStyle
@@ -45,7 +45,7 @@ public enum MixerRowStyle
 }
 
 /// <summary>Which rows the mixer admits, straight from its config.</summary>
-public readonly record struct MixerRowOptions(bool ShowMaster, bool ShowSystemSounds, bool OnlyActive);
+public readonly record struct MixerRowOptions(bool ShowSystemSounds, bool OnlyActive);
 
 /// <summary>
 /// The mixer's rules: how sessions become rows, which rows are shown, and how a level the user has
@@ -64,7 +64,10 @@ public static class MixerRules
     /// </summary>
     public const string SystemSoundsKey = "system-sounds";
 
-    /// <summary>The master row's key, disjoint from every session key, so writes dispatch on it.</summary>
+    /// <summary>
+    /// The device's own level as a write key (the volume tile's), disjoint from every session key,
+    /// so writes dispatch on it. The mixer never shows it ([S-3251]).
+    /// </summary>
     public const string MasterKey = "__master__";
 
     /// <summary>[S-1227] From this row width a row is one line.</summary>
@@ -166,24 +169,16 @@ public static class MixerRules
     }
 
     /// <summary>
-    /// [S-444]/[S-445] The rows on screen: the master row first when wanted and known, then the app
-    /// rows the options admit, in the order <see cref="Group"/> gave them. Only-active never hides
-    /// system sounds, whose session is idle between chimes and would blink in and out.
+    /// [S-445]/[S-3251] The rows on screen: the app rows the options admit, in the order
+    /// <see cref="Group"/> gave them, and nothing else (no master row: the device's level is the
+    /// volume tile's). Only-active never hides system sounds, whose session is idle between chimes
+    /// and would blink in and out.
     /// </summary>
-    public static List<MixerRow> BuildRows(
-        IReadOnlyList<MixerRow> rows,
-        (double Level, bool Muted)? master,
-        MixerRowOptions options)
+    public static List<MixerRow> BuildRows(IReadOnlyList<MixerRow> rows, MixerRowOptions options)
     {
         ArgumentNullException.ThrowIfNull(rows);
 
-        var shown = new List<MixerRow>(rows.Count + 1);
-
-        if (options.ShowMaster && master is { } m)
-        {
-            // The endpoint is never idle the way a session is; active keeps it out of the filter.
-            shown.Add(new MixerRow(MasterKey, string.Empty, null, ClampLevel(m.Level), m.Muted, true, false, 0));
-        }
+        var shown = new List<MixerRow>(rows.Count);
 
         foreach (var row in rows)
         {
@@ -213,7 +208,7 @@ public static class MixerRules
         ArgumentNullException.ThrowIfNull(rows);
 
         return options.OnlyActive
-            ? [.. rows.Where(static row => !row.Active && !row.IsSystem && !row.IsMaster)]
+            ? [.. rows.Where(static row => !row.Active && !row.IsSystem)]
             : [];
     }
 

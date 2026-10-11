@@ -19,6 +19,15 @@ internal interface IScreenTimeSource
     /// <summary>[S-454] The rolling window ending today, oldest first, gap days as zeros.</summary>
     IReadOnlyList<ScreenTimeDay> Range(int days);
 
+    /// <summary>
+    /// [S-3322] The hidden apps and limits every screen-time widget shares. Read-only: change them
+    /// through <see cref="SetPreferences"/>, which replaces the whole set.
+    /// </summary>
+    ScreenTimePreferences Preferences { get; }
+
+    /// <summary>[S-3322] Replace the shared preferences, save them and tell every widget. UI thread.</summary>
+    void SetPreferences(ScreenTimePreferences preferences);
+
     /// <summary>Raised on the UI thread when there is something new to draw.</summary>
     event Action? Changed;
 }
@@ -120,6 +129,26 @@ internal sealed unsafe partial class ScreenTimeService : IScreenTimeSource, IDis
     }
 
     public IReadOnlyList<ScreenTimeDay> Range(int days) => _tracker.Range(LocalStamp.From(DateTimeOffset.Now), days);
+
+    public ScreenTimePreferences Preferences => _tracker.Preferences;
+
+    /// <summary>
+    /// [S-3322] Saved the way the history is ([S-459]): the change marks it dirty and goes with the
+    /// next flush (within a minute, on lock, at exit), so a dragged limit slider is one write, not one
+    /// per step.
+    /// </summary>
+    public void SetPreferences(ScreenTimePreferences preferences)
+    {
+        ArgumentNullException.ThrowIfNull(preferences);
+
+        if (_disposed)
+        {
+            return;
+        }
+
+        _tracker.Preferences = preferences;
+        Raise();
+    }
 
     private void OnLoaded(Task<(ScreenTimeTracker Tracker, ScreenTimeLoadOutcome Outcome)> loaded)
     {

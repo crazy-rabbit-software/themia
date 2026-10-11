@@ -19,7 +19,7 @@ public enum MeterFaceArrangement
 /// <param name="Arrangement">Where the history goes.</param>
 /// <param name="Reading">The reading's step.</param>
 /// <param name="ReadingColumn">The outer width of the reading's column (the whole box unless <see cref="MeterFaceArrangement.Side"/>).</param>
-/// <param name="GraphHeight">The history's height: everything the reading and the bottom inset leave when stacked, the box less that inset beside it; 0 with none.</param>
+/// <param name="GraphHeight">The history's height: everything the reading and the gap leave when stacked, the box's whole height beside it; 0 with none.</param>
 public readonly record struct MeterFacePlan(MeterFaceArrangement Arrangement, TypeStep Reading, double ReadingColumn, double GraphHeight)
 {
     public bool Graph => Arrangement != MeterFaceArrangement.ReadingOnly;
@@ -36,9 +36,8 @@ public readonly record struct MeterFacePlan(MeterFaceArrangement Arrangement, Ty
 /// it. Without a history the reading fills the tile.
 /// </para>
 /// <para>
-/// [S-1824] The history keeps the text's inset from the card's sides and bottom: inside the card's
-/// padding, a chart's newest point and its fill are never cut by the edge or the rounded corner,
-/// and its left edge lines up with the reading's.
+/// [S-1824] The history is the card's bottom band, edge to edge: no inset at its sides or under it
+/// (the card's rounded corners clip it). Only the reading keeps the text's inset.
 /// </para>
 /// </summary>
 public static class MeterFace
@@ -54,7 +53,7 @@ public static class MeterFace
 
     /// <summary>
     /// The plan for a box of <paramref name="area"/>. <paramref name="inset"/> is the content inset:
-    /// the reading's from both sides, the history's from the sides and the bottom ([S-1824]); <paramref name="gap"/> the space between
+    /// the reading's from both sides (the history has none, [S-1824]); <paramref name="gap"/> the space between
     /// the reading and the history under it, <paramref name="graphFloor"/> the least history worth
     /// drawing. A <paramref name="fixedStep"/> keeps the reading at one step (a panel that names its
     /// adapter beside the number); the history still takes the rest.
@@ -89,17 +88,17 @@ public static class MeterFace
                 0,
                 width * SideColumnCap));
             var step = fixedStep ?? Reading(Math.Max(0, column - (2 * inset)), Math.Min(height, FluentType.Display.LineHeight), characters);
-            return new MeterFacePlan(MeterFaceArrangement.Side, step, column, Math.Max(0, height - inset));
+            return new MeterFacePlan(MeterFaceArrangement.Side, step, column, height);
         }
 
         var floor = fixedStep ?? FluentType.Subtitle;
 
-        if (graphOn && !tiny && height - floor.LineHeight - gap - inset >= graphFloor)
+        if (graphOn && !tiny && height - floor.LineHeight - gap >= graphFloor)
         {
             var promised = Math.Max(graphFloor, Math.Round(height * GraphShare));
-            var box = Math.Min(height - gap - inset - promised, FluentType.Display.LineHeight);
+            var box = Math.Min(height - gap - promised, FluentType.Display.LineHeight);
             var step = fixedStep ?? Reading(textWidth, box, characters);
-            return new MeterFacePlan(MeterFaceArrangement.Stacked, step, width, Math.Max(0, height - step.LineHeight - gap - inset));
+            return new MeterFacePlan(MeterFaceArrangement.Stacked, step, width, Math.Max(0, height - step.LineHeight - gap));
         }
 
         return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, fixedStep ?? Reading(textWidth, height, characters), width, 0);

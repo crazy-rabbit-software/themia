@@ -45,16 +45,13 @@ internal sealed record AudioSnapshot(
     AudioTarget Target)
 {
     public static AudioSnapshot Unavailable { get; } = new(AudioStatus.Unavailable, null, [], [], null, AudioTarget.Default);
-
-    /// <summary>The bound device's master as a mixer row's level, or null when unknown.</summary>
-    public (double Level, bool Muted)? Master => Output is { } output ? (output.Level, output.Muted) : null;
 }
 
 /// <summary>[S-1223] One sample of the level meters, 0..1 each.</summary>
 /// <param name="ByKey">Per session, keyed by session key and by group key (the loudest of the group).</param>
-internal sealed record AudioPeaks(double Output, IReadOnlyDictionary<string, double> ByKey)
+internal sealed record AudioPeaks(IReadOnlyDictionary<string, double> ByKey)
 {
-    public static AudioPeaks Silent { get; } = new(0, new Dictionary<string, double>(StringComparer.Ordinal));
+    public static AudioPeaks Silent { get; } = new(new Dictionary<string, double>(StringComparer.Ordinal));
 }
 
 /// <summary>A live subscription to <see cref="CoreAudio"/>. Change what it wants, or dispose it to stop.</summary>

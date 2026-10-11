@@ -4,47 +4,23 @@ using Themia.Core.Widgets;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-2400] What every system detail widget shares: how often it reads. A detail widget draws no
-/// history (that is the meter's, [S-1762]), so it has no chart settings, only a refresh.
+/// [S-2400] What every system detail widget shares: how often it reads, fixed per kind ([S-3793]).
+/// A detail widget draws no history (that is the meter's, [S-1762]), so it has no chart settings.
 /// </summary>
 public abstract class DetailConfig : WidgetConfig
 {
-    /// <param name="intervalSeconds">This kind's default: how fast its figures actually move.</param>
+    /// <param name="intervalSeconds">This kind's cadence: how fast its figures actually move.</param>
     protected DetailConfig(int intervalSeconds) => IntervalSeconds = intervalSeconds;
 
-    /// <summary>[S-2401] Seconds between reads, <see cref="MinIntervalSeconds"/> to <see cref="MaxIntervalSeconds"/>.</summary>
-    public int IntervalSeconds { get; set; }
-
-    /// <summary>The fastest refresh this kind offers.</summary>
+    /// <summary>[S-2401] [S-3793] Seconds between reads: the kind's own, fixed.</summary>
     [JsonIgnore]
-    public virtual int MinIntervalSeconds => MeterTiming.MinIntervalSeconds;
-
-    /// <summary>The slowest refresh this kind offers. A local read tops out at a minute.</summary>
-    [JsonIgnore]
-    public virtual int MaxIntervalSeconds => MeterTiming.MaxIntervalSeconds;
-
-    /// <summary>The refresh actually used: clamped on read too, so a value set in code cannot spin the tick.</summary>
-    [JsonIgnore]
-    public int EffectiveIntervalSeconds => Math.Clamp(IntervalSeconds, MinIntervalSeconds, MaxIntervalSeconds);
+    public int IntervalSeconds { get; }
 
     [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromSeconds(EffectiveIntervalSeconds);
+    public TimeSpan TickInterval => TimeSpan.FromSeconds(IntervalSeconds);
 
-    protected void CopyTo(DetailConfig other) => other.IntervalSeconds = IntervalSeconds;
-
-    /// <summary>[S-2401] An out-of-range refresh is clamped, loudly. Kinds append their own repairs.</summary>
-    public override IReadOnlyList<string> Repair()
-    {
-        var notes = new List<string>();
-
-        if (EffectiveIntervalSeconds != IntervalSeconds)
-        {
-            notes.Add($"{Kind}: refresh {IntervalSeconds} s is outside {MinIntervalSeconds}..{MaxIntervalSeconds}; using {EffectiveIntervalSeconds}");
-            IntervalSeconds = EffectiveIntervalSeconds;
-        }
-
-        return notes;
-    }
+    /// <summary>Nothing shared can be out of range. Kinds append their own repairs.</summary>
+    public override IReadOnlyList<string> Repair() => [];
 }
 
 /// <summary>[S-2405] The processor's figures beside its load: speed, cores, processes, uptime.</summary>
@@ -62,7 +38,6 @@ public sealed class CpuDetailsConfig : DetailConfig
     public override WidgetConfig Clone()
     {
         var copy = new CpuDetailsConfig();
-        CopyTo(copy);
         return copy;
     }
 }
@@ -81,7 +56,6 @@ public sealed class MemoryDetailsConfig : DetailConfig
     public override WidgetConfig Clone()
     {
         var copy = new MemoryDetailsConfig();
-        CopyTo(copy);
         return copy;
     }
 }
@@ -129,7 +103,6 @@ public sealed class TopProcessesConfig : DetailConfig
             GroupByName = GroupByName,
         };
 
-        CopyTo(copy);
         return copy;
     }
 
@@ -174,7 +147,6 @@ public sealed class NetworkDetailsConfig : DetailConfig
     public override WidgetConfig Clone()
     {
         var copy = new NetworkDetailsConfig { ShowPublicAddress = ShowPublicAddress };
-        CopyTo(copy);
         return copy;
     }
 }
@@ -191,17 +163,12 @@ public sealed class DiskSpaceConfig : DetailConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.DiskSpace;
 
-    /// <summary>A free-space read is cheap but space barely moves: up to five minutes.</summary>
-    [JsonIgnore]
-    public override int MaxIntervalSeconds => 300;
-
     /// <summary>[S-2421] The drives to list, as roots (<c>C:\</c>), in this order. Empty lists every drive.</summary>
     public List<string> Drives { get; set; } = [];
 
     public override WidgetConfig Clone()
     {
         var copy = new DiskSpaceConfig { Drives = [.. Drives ?? []] };
-        CopyTo(copy);
         return copy;
     }
 
@@ -236,7 +203,6 @@ public sealed class BatteryDetailsConfig : DetailConfig
     public override WidgetConfig Clone()
     {
         var copy = new BatteryDetailsConfig();
-        CopyTo(copy);
         return copy;
     }
 }
@@ -256,24 +222,14 @@ public sealed class PingDetailsConfig : DetailConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.PingDetails;
 
-    /// <summary>A probe goes over the network: up to five minutes, as the ping meter allows.</summary>
-    [JsonIgnore]
-    public override int MaxIntervalSeconds => 300;
-
     /// <summary>Host or address to probe. Empty falls back to <see cref="PingConfig.DefaultHost"/>.</summary>
     public string Host { get; set; } = PingConfig.DefaultHost;
-
-    /// <summary>[S-1173] A name for the host: the header title.</summary>
-    public string HostLabel { get; set; } = string.Empty;
 
     /// <summary>[S-2427] How many of the latest probes the statistics cover.</summary>
     public int Window { get; set; } = 60;
 
     [JsonIgnore]
     public string EffectiveHost => string.IsNullOrWhiteSpace(Host) ? PingConfig.DefaultHost : Host.Trim();
-
-    [JsonIgnore]
-    public string? EffectiveLabel => string.IsNullOrWhiteSpace(HostLabel) ? null : HostLabel.Trim();
 
     [JsonIgnore]
     public int EffectiveWindow => Math.Clamp(Window, MinWindow, MaxWindow);
@@ -283,11 +239,9 @@ public sealed class PingDetailsConfig : DetailConfig
         var copy = new PingDetailsConfig
         {
             Host = Host,
-            HostLabel = HostLabel,
             Window = Window,
         };
 
-        CopyTo(copy);
         return copy;
     }
 
@@ -296,13 +250,6 @@ public sealed class PingDetailsConfig : DetailConfig
         var notes = new List<string>(base.Repair());
 
         Host ??= PingConfig.DefaultHost;
-        HostLabel ??= string.Empty;
-
-        if (HostLabel.Length > PingConfig.MaxLabelLength)
-        {
-            notes.Add($"{Kind}: host label is {HostLabel.Length} characters; cut to {PingConfig.MaxLabelLength}");
-            HostLabel = HostLabel[..PingConfig.MaxLabelLength];
-        }
 
         if (EffectiveWindow != Window)
         {
@@ -331,7 +278,6 @@ public sealed class GpuDetailsConfig : DetailConfig
     public override WidgetConfig Clone()
     {
         var copy = new GpuDetailsConfig { Adapter = Adapter };
-        CopyTo(copy);
         return copy;
     }
 

@@ -1,0 +1,168 @@
+namespace Themia.Core.Model;
+
+/// <summary>
+/// [S-3701] What the edit bar's selection group offers for the selection on one display: how many
+/// widgets it acts on, their header and background (null where they differ), and for exactly one
+/// widget its title. <see cref="None"/> hides the group.
+/// </summary>
+/// <param name="Count">The selected widgets in the view the display shows.</param>
+/// <param name="Header">Their header placement, or null when they differ.</param>
+/// <param name="Surface">Their background, or null when they differ.</param>
+/// <param name="TitleWidgetId">The one widget whose title the group edits; null with several.</param>
+/// <param name="TitleKind">That widget's kind, whose name is the title's placeholder.</param>
+/// <param name="Label">That widget's own title, null for the kind's name.</param>
+public sealed record QuickSetOffer(
+    int Count,
+    HeaderPlacement? Header,
+    WidgetSurface? Surface,
+    string? TitleWidgetId,
+    WidgetKind? TitleKind,
+    string? Label)
+{
+    public static readonly QuickSetOffer None = new(0, null, null, null, null, null);
+
+    /// <summary>Whether the group shows at all.</summary>
+    public bool Shows => Count > 0;
+
+    /// <summary>[S-3702] The title box: one widget only.</summary>
+    public bool HasTitle => TitleWidgetId is not null;
+}
+
+/// <summary>
+/// [S-3700]..[S-3705] The rules behind the edit bar's selection group: which controls show for a
+/// selection, what a mixed selection reads as, what a typed title stores, and applying a choice to
+/// every selected widget. Pure; the host runs the writes through its one mutation path.
+/// </summary>
+public static class QuickSet
+{
+    /// <summary>
+    /// [S-3701]/[S-3702] The offer for the display showing <paramref name="shownViewId"/>: nothing
+    /// unless the selection is in that view; with one widget, header, background and title; with
+    /// several, header and background only (a title is the widget's own name, so one typed for
+    /// many would make them indistinguishable).
+    /// </summary>
+    public static QuickSetOffer For(AppState state, WidgetSelection selection, string? shownViewId)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(selection);
+
+        if (selection.IsEmpty || shownViewId is null
+            || !string.Equals(selection.ViewId, shownViewId, StringComparison.Ordinal)
+            || state.FindView(shownViewId) is not { } view)
+        {
+            return QuickSetOffer.None;
+        }
+
+        var widgets = Selected(view, selection.Ids);
+        if (widgets.Count == 0)
+        {
+            return QuickSetOffer.None;
+        }
+
+        var header = Common(widgets.Select(w => w.Header));
+        var surface = Common(widgets.Select(w => w.Surface));
+
+        if (widgets.Count == 1)
+        {
+            var only = widgets[0];
+            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label);
+        }
+
+        return new QuickSetOffer(widgets.Count, header, surface, null, null, null);
+    }
+
+    /// <summary>[S-3703] The one value all of <paramref name="values"/> share; null when they differ or there are none.</summary>
+    public static T? Common<T>(IEnumerable<T> values)
+        where T : struct
+    {
+        ArgumentNullException.ThrowIfNull(values);
+
+        T? common = null;
+        foreach (var value in values)
+        {
+            if (common is null)
+            {
+                common = value;
+            }
+            else if (!EqualityComparer<T>.Default.Equals(common.Value, value))
+            {
+                return null;
+            }
+        }
+
+        return common;
+    }
+
+    /// <summary>
+    /// [S-3704] What a typed title stores: trimmed, and null (the kind's name, in whatever language
+    /// is current) when it is blank or the kind's name itself, so typing the default back never
+    /// freezes it in one language.
+    /// </summary>
+    public static string? Title(string? typed, string defaultTitle)
+    {
+        var text = typed?.Trim();
+        if (string.IsNullOrEmpty(text) || string.Equals(text, defaultTitle?.Trim(), StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return text;
+    }
+
+    /// <summary>[S-3703] Set the header of every selected widget of <paramref name="view"/>. Returns how many changed.</summary>
+    public static int SetHeader(ViewState view, IEnumerable<string> ids, HeaderPlacement header)
+        => Apply(view, ids, w => w.Header == header ? false : Set(() => w.Header = header));
+
+    /// <summary>[S-3703] Set the background of every selected widget of <paramref name="view"/>. Returns how many changed.</summary>
+    public static int SetSurface(ViewState view, IEnumerable<string> ids, WidgetSurface surface)
+        => Apply(view, ids, w => w.Surface == surface ? false : Set(() => w.Surface = surface));
+
+    /// <summary>[S-3704] Set one widget's title from what was typed. False when nothing changed or the widget is gone.</summary>
+    public static bool SetTitle(ViewState view, string widgetId, string? typed, string defaultTitle)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+
+        if (view.Find(widgetId) is not { } widget)
+        {
+            return false;
+        }
+
+        var label = Title(typed, defaultTitle);
+        if (string.Equals(widget.Label, label, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        widget.Label = label;
+        return true;
+    }
+
+    private static List<WidgetInstance> Selected(ViewState view, IEnumerable<string> ids)
+    {
+        var picked = new HashSet<string>(ids, StringComparer.Ordinal);
+        return [.. view.Widgets.Where(w => picked.Contains(w.Id))];
+    }
+
+    private static int Apply(ViewState view, IEnumerable<string> ids, Func<WidgetInstance, bool> change)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(ids);
+
+        var changed = 0;
+        foreach (var widget in Selected(view, ids))
+        {
+            if (change(widget))
+            {
+                changed++;
+            }
+        }
+
+        return changed;
+    }
+
+    private static bool Set(Action write)
+    {
+        write();
+        return true;
+    }
+}

@@ -11,7 +11,8 @@ public enum TemperatureUnit
 }
 
 /// <summary>
-/// Settings shared by the two weather widgets: where, in what unit, and how often.
+/// Settings shared by the two weather widgets: where. The unit and the cadence are every widget's
+/// ([S-3770], [S-3780]), not one widget's.
 /// <para>
 /// The place is stored as <b>coordinates plus the name they resolved to</b>, not as the text the
 /// user typed. Re-geocoding a free-text place on every refresh would mean two requests instead of
@@ -29,11 +30,6 @@ public abstract class WeatherConfig : WidgetConfig
 
     /// <summary>The chosen place's label ([S-2842]), e.g. "Zürich, Zurich, Switzerland".</summary>
     public string LocationName { get; set; } = string.Empty;
-
-    public TemperatureUnit Unit { get; set; } = TemperatureUnit.Celsius;
-
-    /// <summary>How often to ask open-meteo, in minutes.</summary>
-    public int RefreshMinutes { get; set; } = 15;
 
     /// <summary>
     /// [S-728] Keep the place's name out of the card header, which then reads as the widget's own
@@ -75,21 +71,15 @@ public abstract class WeatherConfig : WidgetConfig
         && double.IsFinite(lat)
         && double.IsFinite(lon);
 
-    /// <summary>
-    /// The cadence, clamped. Five minutes is the floor: open-meteo publishes on a 15-minute cycle
-    /// and is free and unauthenticated, so asking faster gets the same answer at somebody else's
-    /// expense.
-    /// </summary>
+    /// <summary>[S-3780] The shared weather cadence (Settings › Widgets), never faster than open-meteo's own cycle.</summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromMinutes(Math.Clamp(RefreshMinutes, 5, 240));
+    public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.UpdateSource.Weather);
 
     protected void CopyTo(WeatherConfig other)
     {
         other.Latitude = Latitude;
         other.Longitude = Longitude;
         other.LocationName = LocationName;
-        other.Unit = Unit;
-        other.RefreshMinutes = RefreshMinutes;
         other.HideLocation = HideLocation;
     }
 }

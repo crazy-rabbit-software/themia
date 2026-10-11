@@ -63,10 +63,6 @@ internal sealed partial class DesktopWindow
                 _host.Paste();
                 return true;
 
-            case EditCommand.Duplicate:
-                _host.DuplicateSelected();
-                return true;
-
             case EditCommand.Undo:
                 _host.Undo();
                 return true;

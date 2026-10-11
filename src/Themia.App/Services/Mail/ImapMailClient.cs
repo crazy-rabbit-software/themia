@@ -146,9 +146,9 @@ internal static class ImapMailClient
 
         try
         {
-            // [S-960] The one guarded connect path: the resolved address is checked at connect (the
-            // user's "local network access" switch decides a NAS), a proxy is tunnelled through.
-            await using var tls = await GuardedTcp.OpenTlsAsync(login.Host, login.Port, token).ConfigureAwait(false);
+            // [S-960] The one guarded connect path: the resolved address is checked at connect (a NAS is
+            // reached because the user typed its address, [S-3843]), a proxy is tunnelled through.
+            await using var tls = await GuardedTcp.OpenTlsAsync(login.Host, login.Port, Themia.Core.Net.LocalGrants.ForTypedHost(login.Host), token).ConfigureAwait(false);
 
             var session = new Session(tls, login.Host, token);
             await session.GreetAndLoginAsync(login).ConfigureAwait(false);

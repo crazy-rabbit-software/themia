@@ -574,7 +574,31 @@ public static class CalendarRules
             : null;
     }
 
+    /// <summary>
+    /// [S-3611] An all-day event's date as the provider wrote it, never through a zone: a bare date,
+    /// or the date of a midnight. A date-time that is not a midnight is the event's zone's midnight
+    /// written in another zone (Graph does so when asked for UTC and the event was made elsewhere:
+    /// 1 Oct in Zurich arrives as 30 Sep 22:00): it means the nearest midnight, so the clock is
+    /// rounded to its nearest whole day. Null when it is not a date at all.
+    /// </summary>
+    public static DateOnly? ParseAllDayDate(string? text)
+    {
+        if (ParseDate(text) is not { } day)
+        {
+            return null;
+        }
+
+        var s = text!.Trim();
+        if (s.Length <= 10 || ParseDateTime(s) is not { } at || at.TimeOfDay == TimeSpan.Zero)
+        {
+            return day;
+        }
+
+        return DateOnly.FromDateTime(at.DateTime.AddHours(12));
+    }
+
     /// <summary>A <c>yyyy-MM-dd</c> date (or the date part of a longer string), or null.</summary>
+
     public static DateOnly? ParseDate(string? text)
     {
         var s = text?.Trim();

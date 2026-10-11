@@ -9,6 +9,7 @@ using Themia.App.Services.Net;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Net;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Accounts;
@@ -136,11 +137,11 @@ internal static class AccountHttp
     /// [S-960]/[S-965] The guarded client: every connection — Microsoft, Google, and the DAV
     /// servers a user typed in — resolves, is judged and connects through
     /// <see cref="Web.NetGuard"/>, so a server on this machine or the local network (a NAS) is reached
-    /// exactly when the user's "local network access" switch is on. The deadline is per request (a
+    /// exactly when the user typed that server's address ([S-3843]). The deadline is per request (a
     /// linked token), so the client itself never times a request out on its own schedule. A DAV
     /// server's digest challenge is not answered; basic auth is what the classic app sent.
     /// </summary>
-    private static readonly HttpClient Client = GuardedHttp.Create(NetReach.Internet, TimeSpan.FromSeconds(10), Timeout.InfiniteTimeSpan);
+    private static readonly GuardedClients Clients = GuardedHttp.CreatePair(TimeSpan.FromSeconds(10), Timeout.InfiniteTimeSpan);
 
     /// <summary>
     /// Send a request, following redirects and retrying throttles, and return whatever status it
@@ -149,11 +150,13 @@ internal static class AccountHttp
     /// <param name="template">The request.</param>
     /// <param name="credentials">What kind of proof <paramref name="authorize"/> adds, for the redirect rule.</param>
     /// <param name="authorize">Adds the proof to a request; called again for every send.</param>
+    /// <param name="grant">[S-3843] The leave the account's typed server earned, or null.</param>
     public static async Task<AccountReply> SendAsync(
         RequestTemplate template,
         CredentialKind credentials,
         Action<HttpRequestMessage>? authorize,
-        CancellationToken cancellation)
+        CancellationToken cancellation,
+        LocalGrant? grant = null)
     {
         ArgumentNullException.ThrowIfNull(template);
 
@@ -166,7 +169,7 @@ internal static class AccountHttp
 
         while (true)
         {
-            var reply = await FollowAsync(template, credentials, authorize, cancellation).ConfigureAwait(false);
+            var reply = await FollowAsync(template, credentials, authorize, grant, cancellation).ConfigureAwait(false);
 
             if (!RetryRules.ShouldRetry(reply.Reply.Status, retries, template.IsIdempotent))
             {
@@ -184,6 +187,7 @@ internal static class AccountHttp
         RequestTemplate template,
         CredentialKind credentials,
         Action<HttpRequestMessage>? authorize,
+        LocalGrant? grant,
         CancellationToken cancellation)
     {
         var url = template.Url;
@@ -202,8 +206,8 @@ internal static class AccountHttp
 
             try
             {
-                using var response = await Client
-                    .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, deadline.Token)
+                using var response = await Clients
+                    .SendAsync(request, grant, HttpCompletionOption.ResponseHeadersRead, deadline.Token)
                     .ConfigureAwait(false);
 
                 var status = (int)response.StatusCode;
@@ -313,7 +317,7 @@ internal static class AccountHttp
     {
         if (Web.NetRefusedException.Find(ex) is { } refused)
         {
-            // The guard said no; its sentence says why and where the switch is.
+            // The guard said no; its sentence says why.
             return new AccountException(AccountError.Refused, refused.Message, 0, ex);
         }
 

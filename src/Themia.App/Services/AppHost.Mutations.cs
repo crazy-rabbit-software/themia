@@ -139,6 +139,11 @@ internal sealed partial class AppHost
     /// </summary>
     public void ShowConfig(ConfigTarget target)
     {
+        if (!HasSettings(target))
+        {
+            return;
+        }
+
         if (_config is null)
         {
             _config = new ConfigWindow(this);
@@ -158,7 +163,23 @@ internal sealed partial class AppHost
     /// [S-1745] Show <paramref name="target"/> in the settings window if it is open, without bringing
     /// it to the front; when it is closed nothing happens (a click never opens it).
     /// </summary>
-    public void FollowConfig(ConfigTarget target) => _config?.Follow(target);
+    public void FollowConfig(ConfigTarget target)
+    {
+        if (HasSettings(target))
+        {
+            _config?.Follow(target);
+        }
+    }
+
+    /// <summary>
+    /// [S-1750] Whether <paramref name="target"/> has a page worth opening: a widget whose page would
+    /// be empty has none, so every way in (Enter, a click while the window is open, any caller)
+    /// leaves the window as it is. Everything else, a vanished widget included, opens as before.
+    /// </summary>
+    public bool HasSettings(ConfigTarget target)
+        => target is not ConfigTarget.Widget { WidgetId: var id }
+            || Find(id) is not { Widget: var widget }
+            || ConfigPages.HasWidgetSettings(widget.Kind);
 
     /// <summary>Delete a view and everything in it, repairing anything that pointed at it.</summary>
     public void DeleteView(string viewId)

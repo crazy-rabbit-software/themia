@@ -67,6 +67,12 @@ public enum TaskKeyCommand
 
     /// <summary>Give the keyboard back to the window the user was in.</summary>
     Release,
+
+    /// <summary>[S-3802] Move the focused task one place up; the focus goes with it.</summary>
+    MoveUp,
+
+    /// <summary>[S-3802] Move the focused task one place down.</summary>
+    MoveDown,
 }
 
 public readonly record struct TaskKeyResult(TaskKeyCommand Command, int Index);
@@ -96,8 +102,8 @@ public static class TaskLayout
     public const double FadeFloor = 0.35;
 
     /// <summary>
-    /// [S-780] The ladder. Rung 0 is one task (what is next); then the add row from Regular height;
-    /// the list takes the rest (no summary strip: a larger tile shows more tasks, not counts of them), in two
+    /// [S-780] The ladder. Rung 0 is one task (what is next); then the add footer
+    /// ([S-3850]: from Regular height, always under an empty list); the list takes the rest (no summary strip: a larger tile shows more tasks, not counts of them), in two
     /// columns on a Huge-wide tile when one column would not hold it. Width decides how much of a
     /// due date is said and where; height decides row density and title lines.
     /// </summary>
@@ -112,7 +118,7 @@ public static class TaskLayout
 
         var room = new Disclosure(area);
         room.Reserve(row);
-        var addRow = input.Writable && area.HeightClass >= SizeClass.Regular && room.Take(row);
+        var addRow = AddFooter.Show(room, area, input.Writable, input.Count == 0, row);
 
         var listHeight = area.Height - (addRow ? row : 0) - ListBottomPadding;
         var columns = Columns(area, listHeight, row, input.Count);
@@ -276,6 +282,10 @@ public static class TaskLayout
             WidgetKey.Delete => new(TaskKeyCommand.Delete, at),
             WidgetKey.Rename => new(TaskKeyCommand.Rename, at),
             WidgetKey.Escape => new(TaskKeyCommand.Release, at),
+
+            // [S-3802] The ends have nowhere further to go.
+            WidgetKey.MoveUp when at > 0 => new(TaskKeyCommand.MoveUp, at),
+            WidgetKey.MoveDown when at < count - 1 => new(TaskKeyCommand.MoveDown, at),
             _ => new(TaskKeyCommand.None, at),
         };
     }

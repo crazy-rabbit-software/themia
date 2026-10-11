@@ -25,7 +25,11 @@ public static class WidgetKeywords
         [WidgetKind.Folder] = ["files", "explorer", "directory", "file browser", "documents", "downloads"],
         [WidgetKind.Email] = ["email", "inbox", "outlook", "gmail", "imap", "messages", "unread"],
         [WidgetKind.Contacts] = ["address book", "people", "phone numbers", "directory"],
-        [WidgetKind.Calendar] = ["events", "meetings", "appointments", "agenda", "schedule", "outlook", "google calendar", "birthdays"],
+        [WidgetKind.MonthCalendar] = ["calendar", "events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays"],
+        [WidgetKind.WeekCalendar] = ["calendar", "events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays"],
+        [WidgetKind.DayCalendar] = ["calendar", "events", "meetings", "appointments", "schedule", "today", "timeline", "outlook", "google calendar"],
+        [WidgetKind.YearCalendar] = ["calendar", "events", "holidays", "overview", "outlook", "google calendar", "birthdays"],
+        [WidgetKind.Agenda] = ["calendar", "events", "meetings", "appointments", "schedule", "upcoming", "next", "outlook", "google calendar", "birthdays"],
         [WidgetKind.Tasks] = ["todo", "to-do", "checklist", "reminders", "microsoft to do", "google tasks"],
 
         [WidgetKind.WeatherNow] = ["temperature", "forecast", "rain", "wind", "humidity", "climate", "degrees"],
@@ -44,7 +48,9 @@ public static class WidgetKeywords
         [WidgetKind.Ping] = ["latency", "network", "internet", "connection", "packet loss", "ms"],
         [WidgetKind.Battery] = ["power", "charge", "laptop", "percent", "energy"],
         [WidgetKind.Bluetooth] = ["devices", "headphones", "wireless", "pairing"],
-        [WidgetKind.ScreenTime] = ["usage", "productivity", "time tracking", "app usage", "statistics"],
+        [WidgetKind.ScreenTimeChart] = ["usage", "productivity", "time tracking", "screen time", "history", "week", "chart", "statistics"],
+        [WidgetKind.ScreenTimeDonut] = ["usage", "productivity", "time tracking", "screen time", "share", "pie", "ring", "statistics"],
+        [WidgetKind.ScreenTimeApps] = ["usage", "productivity", "time tracking", "screen time", "app usage", "list", "limits"],
         [WidgetKind.CpuDetails] = ["processor", "clock speed", "frequency", "ghz", "cores", "threads", "uptime", "temperature", "task manager"],
         [WidgetKind.MemoryDetails] = ["ram", "committed", "cached", "page file", "swap", "paged pool", "task manager"],
         [WidgetKind.TopProcesses] = ["processes", "task manager", "apps", "cpu hog", "memory usage", "running"],
@@ -84,7 +90,12 @@ public static class WidgetKeywords
     private static readonly Dictionary<WidgetKind, string[]> ProviderNames = new()
     {
         [WidgetKind.Email] = ["Microsoft", "Google", "IMAP"],
-        [WidgetKind.Calendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.MonthCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.WeekCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.DayCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.YearCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.Agenda] = ["Microsoft", "Google", "CalDAV"],
+
         [WidgetKind.Contacts] = ["Microsoft", "Google", "CardDAV"],
         [WidgetKind.Tasks] = ["Microsoft", "Google"],
     };

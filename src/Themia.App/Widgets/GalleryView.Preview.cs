@@ -49,10 +49,15 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             paths = [.. paths.Take(1)];
         }
 
-        _config = new GalleryConfig { Source = chosen, Layout = layout, Path = PreviewFolder, FilePath = paths.FirstOrDefault() ?? string.Empty };
+        // Unshuffled, so a render is the same picture every time. No source is held: the scan is
+        // handed in, and only the decoding goes through the shared cache.
+        _watch?.Dispose();
+        _watch = null;
+        _config = new GalleryConfig { Source = chosen, Layout = layout, Path = PreviewFolder, FilePath = paths.FirstOrDefault() ?? string.Empty, Shuffle = false };
         PublishTitle();
-        _index = 0;
         _scan = new GalleryScan(paths.Count == 0 ? GalleryStatus.NoImages : GalleryStatus.Ok, paths);
+        Select(keepPath: null, index: 0);
+        _slideTimer?.Stop();
         Lay();
 
         // The decodes are asynchronous; give them a moment before the render is taken.

@@ -20,14 +20,11 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Widget_Clock_Label.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Clock, Str.Clock_StyleLabel.Text(), Str.WidgetsA_Clock_Settings_Style_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Clock, Str.Clock_StyleLabel.Text(), null,
             FluentLayout.Choice(
                 [(ClockFace.Digital, Str.Clock_StyleDigital.Text()), (ClockFace.Analog, Str.Clock_StyleAnalog.Text()), (ClockFace.Stacked, Str.Clock_StyleStacked.Text())],
                 clock.Face,
                 value => { clock.Face = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Hours, Str.WidgetsA_Clock_Settings_Use24Hour_Label.Text(), null,
-            FluentLayout.Toggle(clock.Use24Hour, value => { clock.Use24Hour = value; save(); })));
 
         rows.Add(FluentLayout.Row(Glyphs.Timer, Str.Clock_SecondsLabel.Text(),
             Str.WidgetsA_Clock_Settings_Seconds_Desc.Text(),
@@ -36,32 +33,31 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Clock_DateLabel.Text(), null,
             FluentLayout.Toggle(clock.ShowDate, value => { clock.ShowDate = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.Clock_AlignLabel.Text(), Str.WidgetsA_Clock_Settings_Align_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.View, Str.Clock_AlignLabel.Text(), null,
             FluentLayout.Choice(
                 [(ClockAlign.Left, Str.Clock_AlignLeft.Text()), (ClockAlign.Center, Str.Clock_AlignCenter.Text()), (ClockAlign.Right, Str.Clock_AlignRight.Text())],
                 clock.Align,
                 value => { clock.Align = value; save(); })));
 
-        rows.Add(FluentLayout.Header(Str.Clock_TimezoneLabel.Text()));
-
         // The label box is built first so the zone search can update its placeholder: an empty label
         // shows the chosen city, and the placeholder says which.
         var label = LabelBox(clock, save);
 
-        rows.Add(FluentLayout.Row(Glyphs.Place, Str.Clock_TimezoneLabel.Text(), Str.WidgetsA_Clock_Settings_Zone_Desc.Text(),
-            ZoneSearch(clock, save, () => label.PlaceholderText = LabelPlaceholder(clock))));
-
-        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.Clock_LabelLabel.Text(), Str.WidgetsA_Clock_Settings_Label_Desc.Text(), label));
-
-        rows.Add(FluentLayout.Row(Glyphs.Hours, Str.Clock_OffsetLabel.Text(), Str.WidgetsA_Clock_Settings_Offset_Desc.Text(),
-            FluentLayout.Choice(
-                [
-                    (ClockOffsetMode.None, Str.Common_None.Text()),
-                    (ClockOffsetMode.Utc, Str.WidgetsA_Clock_Settings_Offset_Utc.Text()),
-                    (ClockOffsetMode.Local, Str.WidgetsA_Clock_Settings_Offset_Local.Text()),
-                ],
-                clock.OffsetMode,
-                value => { clock.OffsetMode = value; save(); })));
+        // [S-3795] The label and the offset line fold under the zone they describe.
+        rows.Add(FluentLayout.Expander(Glyphs.Place, Str.Clock_TimezoneLabel.Text(), Str.WidgetsA_Clock_Settings_Zone_Desc.Text(),
+            ZoneSearch(clock, save, () => label.PlaceholderText = LabelPlaceholder(clock)),
+            [
+                FluentLayout.Row(Glyphs.Rename, Str.Clock_LabelLabel.Text(), Str.WidgetsA_Clock_Settings_Label_Desc.Text(), label),
+                FluentLayout.Row(Glyphs.Hours, Str.Clock_OffsetLabel.Text(), Str.WidgetsA_Clock_Settings_Offset_Desc.Text(),
+                    FluentLayout.Choice(
+                        [
+                            (ClockOffsetMode.None, Str.Common_None.Text()),
+                            (ClockOffsetMode.Utc, Str.WidgetsA_Clock_Settings_Offset_Utc.Text()),
+                            (ClockOffsetMode.Local, Str.WidgetsA_Clock_Settings_Offset_Local.Text()),
+                        ],
+                        clock.OffsetMode,
+                        value => { clock.OffsetMode = value; save(); })),
+            ]));
     }
 
     /// <summary>

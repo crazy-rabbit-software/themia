@@ -55,25 +55,23 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.GridLayout, Str.Apps_ViewLabel.Text(),
-            Str.WidgetsC_Shortcuts_Settings_View_Desc.Text(),
-            FluentLayout.Choice(ShortcutViews(), config.View, value => { config.View = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Scale, Str.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
-            Str.WidgetsC_Shortcuts_Settings_TileSize_Desc.Text(),
-            FluentLayout.Choice(ShortcutSizes(), config.GridSize, value => { config.GridSize = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.TextSize, Str.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(),
-            Str.WidgetsC_Shortcuts_Settings_RowSize_Desc.Text(),
-            FluentLayout.Choice(ShortcutSizes(), config.ListSize, value => { config.ListSize = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Preview, Str.CtxMenu_IconOnly.Text(),
-            Str.WidgetsC_Shortcuts_Settings_IconsOnly_Desc.Text(),
-            FluentLayout.Toggle(config.GridIconOnly, value => { config.GridIconOnly = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Fit, Str.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
-            Str.WidgetsC_Shortcuts_Settings_Stretch_Desc.Text(),
-            FluentLayout.Toggle(config.GridStretchHeight, value => { config.GridStretchHeight = value; save(); })));
+        // [S-3795] The view, with what sizes it, folded under it.
+        rows.Add(FluentLayout.Expander(Glyphs.GridLayout, Str.Apps_ViewLabel.Text(), null,
+            FluentLayout.Choice(ShortcutViews(), config.View, value => { config.View = value; save(); }),
+            [
+                FluentLayout.Row(Glyphs.Scale, Str.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
+                    Str.WidgetsC_Shortcuts_Settings_TileSize_Desc.Text(),
+                    FluentLayout.Choice(ShortcutSizes(), config.GridSize, value => { config.GridSize = value; save(); })),
+                FluentLayout.Row(Glyphs.TextSize, Str.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(),
+                    Str.WidgetsC_Shortcuts_Settings_RowSize_Desc.Text(),
+                    FluentLayout.Choice(ShortcutSizes(), config.ListSize, value => { config.ListSize = value; save(); })),
+                FluentLayout.Row(Glyphs.Preview, Str.CtxMenu_IconOnly.Text(),
+                    Str.WidgetsC_Shortcuts_Settings_IconsOnly_Desc.Text(),
+                    FluentLayout.Toggle(config.GridIconOnly, value => { config.GridIconOnly = value; save(); })),
+                FluentLayout.Row(Glyphs.Fit, Str.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
+                    Str.WidgetsC_Shortcuts_Settings_Stretch_Desc.Text(),
+                    FluentLayout.Toggle(config.GridStretchHeight, value => { config.GridStretchHeight = value; save(); })),
+            ]));
 
         rows.Add(FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(),
             Str.WidgetsC_Shortcuts_Settings_ShowExtensions_Desc.Text(),
@@ -139,7 +137,9 @@ internal static partial class WidgetSettings
 
         // [S-1388] One switch per Windows location, with the icon Explorer shows for it: on adds it,
         // off removes every shortcut that points there, so the switch always says what the widget
-        // holds (original S-16). The shell: URI is the tooltip, never the text.
+        // holds (original S-16). The shell: URI is the tooltip, never the text. [S-3795] Folded
+        // under one group: a dozen switches would otherwise bury the list below them.
+        var locations = new List<Border>();
         foreach (var name in LaunchTargets.WellKnownShellNames)
         {
             var uri = LaunchTargets.ShellTarget(name);
@@ -155,9 +155,11 @@ internal static partial class WidgetSettings
             switches.Add((name, toggle));
 
             var row = FluentLayout.Row(ShellIcon(uri), LaunchTargets.ShellDisplayName(uri), null, toggle);
-            ToolTipService.SetToolTip(row, uri);
-            rows.Add(row);
+            ToolTipService.SetToolTip(row.Child, uri);
+            locations.Add(row);
         }
+
+        rows.Add(FluentLayout.Expander(Glyphs.Folder, Str.WidgetsC_Shortcuts_Settings_Locations.Text(), null, null, locations));
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_Shortcuts_Settings_List_Header.Text()));
 

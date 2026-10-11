@@ -31,7 +31,11 @@ public sealed record WidgetShape(
 }
 
 /// <summary>One view as an undo snapshot sees it, its widgets in z-order.</summary>
-public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyList<WidgetShape> Widgets);
+public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyList<WidgetShape> Widgets)
+{
+    /// <summary>[S-3810] The icon's colour, or null for the theme's.</summary>
+    public string? Color { get; init; }
+}
 
 /// <summary>
 /// [S-886] The part of the state an undo restores: the views, their names, icons and order, and every
@@ -77,7 +81,7 @@ public sealed class LayoutShape
                 widgets[i] = WidgetShape.Of(view.Widgets[i]);
             }
 
-            views.Add(new ViewShape(view.Id, view.Name, view.Icon, widgets));
+            views.Add(new ViewShape(view.Id, view.Name, view.Icon, widgets) { Color = view.Color });
         }
 
         return new LayoutShape(views, new Dictionary<string, string>(state.MonitorViews, StringComparer.Ordinal));
@@ -97,7 +101,7 @@ public sealed class LayoutShape
         {
             var mine = Views[v];
             var theirs = other.Views[v];
-            if (mine.Id != theirs.Id || mine.Name != theirs.Name || mine.Icon != theirs.Icon
+            if (mine.Id != theirs.Id || mine.Name != theirs.Name || mine.Icon != theirs.Icon || mine.Color != theirs.Color
                 || mine.Widgets.Count != theirs.Widgets.Count)
             {
                 return false;
@@ -149,6 +153,7 @@ public sealed class LayoutShape
 
             view.Name = shape.Name;
             view.Icon = shape.Icon;
+            view.Color = shape.Color;
 
             var widgets = new List<WidgetInstance>(shape.Widgets.Count);
             foreach (var w in shape.Widgets)

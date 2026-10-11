@@ -241,6 +241,8 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             {
                 if (Calendar(target.AccountId) is { } box)
                 {
+                    // [S-3782] The near window follows the shared accounts cadence.
+                    box.Item(target.CalendarId).Near.Interval = _sync.Interests.AccountInterval;
                     box.Item(target.CalendarId).Wanted = true;
                     box.WantsBirthdays |= interest.Birthdays;
                 }
@@ -683,6 +685,9 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
                 box.BirthdaysSchedule.Seed(shelf.BirthdaysAt, now);
             }
 
+            // [S-3823] What is stored, for the Accounts page.
+            owner._sync.Report(accountId, SyncStats.Of(shelf));
+
             return box;
         }
 
@@ -705,6 +710,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             };
 
             owner._sync.Vault.SaveSoon(SyncKind.Calendar, AccountId, shelf, SyncJsonContext.Default.CalendarShelf);
+            owner._sync.Report(AccountId, SyncStats.Of(shelf));
         }
     }
 
@@ -750,6 +756,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
                 box.Cursor = shelf.Cursor;
                 box.At = at;
                 box.Schedule.Seed(at, DateTimeOffset.UtcNow);
+                owner._sync.Report(accountId, SyncStats.Of(shelf));
             }
 
             return box;
@@ -771,6 +778,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             };
 
             owner._sync.Vault.SaveSoon(SyncKind.Contacts, AccountId, shelf, SyncJsonContext.Default.ContactsShelf);
+            owner._sync.Report(AccountId, SyncStats.Of(shelf));
         }
     }
 }

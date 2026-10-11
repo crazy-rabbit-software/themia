@@ -31,6 +31,15 @@ internal sealed class ScreenTimeFile
 
     /// <summary>Omitted when empty, on the same terms as <see cref="Paths"/>.</summary>
     public SortedDictionary<string, long>? Switches { get; set; }
+
+    /// <summary>[S-3322] App keys every widget leaves out. Omitted when empty.</summary>
+    public List<string>? Hidden { get; set; }
+
+    /// <summary>[S-3322] The daily limit on the whole, seconds. Omitted when there is none.</summary>
+    public long? GoalSeconds { get; set; }
+
+    /// <summary>[S-3322] Daily limits per app key, seconds. Omitted when empty.</summary>
+    public SortedDictionary<string, long>? AppLimits { get; set; }
 }
 
 [JsonSourceGenerationOptions(
@@ -163,6 +172,9 @@ public static class ScreenTimeStore
             }
         }
 
+        // [S-3322] Repaired on the way in: blank keys and limits of zero or less are dropped.
+        tracker.LoadPreferences(ScreenTimePreferences.From(file.Hidden, file.GoalSeconds ?? 0, file.AppLimits));
+
         tracker.Dirty = false;
         return tracker;
     }
@@ -185,6 +197,22 @@ public static class ScreenTimeStore
             Paths = tracker.Paths.Count > 0 ? new SortedDictionary<string, string>(tracker.Paths, StringComparer.Ordinal) : null,
             Switches = tracker.Switches.Count > 0 ? new SortedDictionary<string, long>(tracker.Switches, StringComparer.Ordinal) : null,
         };
+
+        var preferences = tracker.Preferences;
+        if (preferences.Hidden.Count > 0)
+        {
+            file.Hidden = [.. preferences.Hidden.Order(StringComparer.Ordinal)];
+        }
+
+        if (preferences.GoalSeconds > 0)
+        {
+            file.GoalSeconds = preferences.GoalSeconds;
+        }
+
+        if (preferences.AppLimits.Count > 0)
+        {
+            file.AppLimits = new SortedDictionary<string, long>(preferences.AppLimits, StringComparer.Ordinal);
+        }
 
         foreach (var (date, per) in tracker.Days)
         {

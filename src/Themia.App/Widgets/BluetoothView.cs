@@ -1,4 +1,4 @@
-using Microsoft.UI;
+﻿using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -26,8 +26,8 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>
 /// <b>Ladder</b> ([S-1254], <see cref="BluetoothLayout"/>): every whole row the tile has, up to the
-/// ceiling; the status word from 260 px; a second line (kind · state · battery · signal) on tall
-/// tiles; a battery bar from 400 px; "2 connected" in the header and two columns on the largest.
+/// ceiling; the battery % from 180 px; the status word from 260 px; a second line (kind · state ·
+/// battery · signal) on tall tiles; a battery bar from 400 px; "2 connected" in the header and two columns on the largest.
 /// A short list on a large tile stays a short list: no detail panel under it ([S-1569] retired).
 /// Every empty list says which empty list it is.
 /// </para>
@@ -73,7 +73,9 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
     private readonly Brush _connectedBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly Brush _pairedBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _trackBrush = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
+    // [S-837] The battery bar stands for a progress bar, whose track is a control's strong rest fill;
+    // the disabled fill read as a bar that was switched off.
+    private readonly Brush _trackBrush = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
     private readonly Brush _lowBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
 
     private Ticker? _ticker;
@@ -317,7 +319,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         ClearRows();
 
         List<BluetoothDeviceEntry> devices = _snapshot.Status == BluetoothStatus.Ok
-            ? BluetoothRules.Arrange(_snapshot.Devices, _config.ConnectedOnly, _config.EffectiveMaxCount, Strings.Current)
+            ? BluetoothRules.Arrange(_snapshot.Devices, _config.ConnectedOnly, BluetoothConfig.MaxDevices, Strings.Current)
             : [];
 
         var connected = devices.Count(device => device.Connected);
@@ -428,7 +430,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         // than no column, and "--" would read as a battery at zero.
         if (batteryColumn && BluetoothRules.BatteryLabel(device.BatteryPercent, Strings.Current) is { } battery && device.BatteryPercent is { } percent)
         {
-            FrameworkElement level = plan.BatteryBar ? BatteryWithBar(percent, battery) : Detail(battery);
+            FrameworkElement level = plan.BatteryBar ? BatteryWithBar(percent, battery) : BatteryText(percent, battery);
             SetColumn(level, 2);
             grid.Children.Add(level);
         }
@@ -478,7 +480,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
     /// <summary>
     /// [S-1254] The battery as a short level bar beside its percentage, on a row wide enough to
-    /// carry both. The bar turns critical at 20% and below, like the system tray's.
+    /// carry both. Bar and number turn critical at 20% and below, like the system tray's ([S-3254]).
     /// </summary>
     private StackPanel BatteryWithBar(int percent, string label)
     {
@@ -488,7 +490,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
             Height = BarHeight,
             RadiusX = BarHeight / 2,
             RadiusY = BarHeight / 2,
-            Fill = percent <= 20 ? _lowBrush : _connectedBrush,
+            Fill = BluetoothRules.IsLowBattery(percent) ? _lowBrush : _connectedBrush,
             HorizontalAlignment = HorizontalAlignment.Left,
         };
 
@@ -502,7 +504,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
             Children = { fill },
         };
 
-        var text = Detail(label);
+        var text = BatteryText(percent, label);
         text.MinWidth = 32;
 
         return new StackPanel
@@ -512,6 +514,19 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
             Margin = new Thickness(Fluent.Space2, 0, 0, 0),
             Children = { track, text },
         };
+    }
+
+    /// <summary>[S-3254] The battery percentage as a detail column, in the critical colour when low.</summary>
+    private TextBlock BatteryText(int percent, string label)
+    {
+        var text = Detail(label);
+
+        if (BluetoothRules.IsLowBattery(percent))
+        {
+            text.Foreground = _lowBrush;
+        }
+
+        return text;
     }
 
     /// <summary>

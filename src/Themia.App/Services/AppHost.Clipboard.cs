@@ -39,9 +39,6 @@ internal sealed partial class AppHost
         }
     }
 
-    /// <summary>[S-1589] Duplicate: copies of the selection follow the pointer until a click drops them.</summary>
-    public void DuplicateSelected() => PlaceSelection(PlacementMode.Copy);
-
     /// <summary>[S-1590] Move: the selection itself follows the pointer, to this display or any other.</summary>
     public void MoveSelected() => PlaceSelection(PlacementMode.Move);
 

@@ -451,9 +451,19 @@ public static class IcsEvents
 
             var end = IcalTime.From(vevent.First("DTEND"));
 
+            // [S-3612] Outlook and Exchange write an all-day event as zoned midnights with a flag
+            // beside them. It is a date all the same: read as one, never through the zone.
+            if (!start.IsDate && IsFlaggedAllDay(vevent, start, end))
+            {
+                start = new IcalTime(start.Clock.Date, IcalTimeKind.Date, null);
+                end = end is { } e ? new IcalTime(e.Clock.Date, IcalTimeKind.Date, null) : null;
+            }
+
             return new RawEvent(
                 vevent.First("UID")?.Value.Trim() is { Length: > 0 } uid ? uid : $"caldav:{ordinal}",
-                vevent.Text("SUMMARY") ?? "(no title)",
+
+                // [S-3612] No SUMMARY is an untitled event: the widget words that in the user's language.
+                vevent.Text("SUMMARY") ?? string.Empty,
                 start,
                 end,
                 Ical.ParseDuration(vevent.First("DURATION")?.Value),
@@ -466,7 +476,22 @@ public static class IcsEvents
                 IcalTime.From(vevent.First("RECURRENCE-ID")));
         }
 
+        /// <summary>
+        /// <c>X-MICROSOFT-CDO-ALLDAYEVENT:TRUE</c> (or <c>X-MICROSOFT-MSNCALENDAR-ALLDAYEVENT</c>) on
+        /// wall-clock midnights — never on UTC ones, whose date depends on the zone they were made in.
+        /// </summary>
+        private static bool IsFlaggedAllDay(IcalComponent vevent, IcalTime start, IcalTime? end)
+        {
+            var flagged = new[] { "X-MICROSOFT-CDO-ALLDAYEVENT", "X-MICROSOFT-MSNCALENDAR-ALLDAYEVENT" }
+                .Any(name => string.Equals(vevent.First(name)?.Value.Trim(), "TRUE", StringComparison.OrdinalIgnoreCase));
+
+            return flagged
+                && start.Kind != IcalTimeKind.Utc && start.Clock.TimeOfDay == TimeSpan.Zero
+                && (end is not { } e || (e.Kind != IcalTimeKind.Utc && e.Clock.TimeOfDay == TimeSpan.Zero));
+        }
+
         /// <summary>A timed event's length: DTEND − DTSTART as instants, else DURATION, else zero.</summary>
+
         public TimeSpan Length(IcalZones zones)
         {
             if (End is { IsDate: false } end)

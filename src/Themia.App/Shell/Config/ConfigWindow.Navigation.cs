@@ -3,16 +3,16 @@ using Microsoft.UI.Xaml.Controls;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The navigation pane: the app pages under "Themia" — General, Appearance, Accounts, Displays,
-/// Views — and License and About at the foot. [S-1830] One entry per page, never one per view,
-/// display or widget: those are groups and rows on the Displays and Views pages.
+/// The navigation pane: the app pages — General, Appearance, Accounts, Displays, Views — and License
+/// and About at the foot. [S-1830] One entry per page, never one per view, display or widget: those
+/// are groups and rows on the Displays and Views pages. [S-3834] No heading over the entries: the
+/// title bar already names the app, as Windows Settings' pane names nothing.
 /// </summary>
 internal sealed partial class ConfigWindow
 {
     private void RebuildNavigation()
     {
         _nav.MenuItems.Clear();
-        _nav.MenuItems.Add(new NavigationViewItemHeader { Content = "Themia" });
         AddAppPages(_nav.MenuItems, AppPageSlot.Main);
 
         // [S-493] About is the very last entry, pinned to the foot of the menu under everything
