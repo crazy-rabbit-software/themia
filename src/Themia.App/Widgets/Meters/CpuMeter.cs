@@ -1,4 +1,5 @@
 using Themia.App.Services;
+using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 
@@ -12,6 +13,5 @@ internal sealed class CpuMeter : MeterPart
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Usage, reading.Available ? reading.Fraction : null);
 
-    public override void Sample(IMeterHost host) => host.Present(SystemMetrics.Cpu());
-
+    public override MeterSeries Series(WidgetConfig config) => MeterSeries.Of(Sources.Cpu, Interval(config));
 }

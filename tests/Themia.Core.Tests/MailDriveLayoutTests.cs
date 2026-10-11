@@ -148,21 +148,6 @@ public sealed class MailDriveLayoutTests
     }
 
     [Fact]
-    public void S1285_the_footer_sums_folder_counts_and_refuses_a_partial_total()
-    {
-        MailAccountOutcome Ok(string id, long total, long unread) => new(id, MailAccountState.Ok, FetchStatus.Ok, null, new MailFolderStatus(total, unread));
-
-        Assert.Equal("4 unread of 128 in Inbox", MailLayout.Footer([Ok("a", 100, 3), Ok("b", 28, 1)], MailFolder.Inbox));
-        Assert.Equal("28 in Inbox, all read", MailLayout.Footer([Ok("b", 28, 0)], MailFolder.Inbox));
-
-        // A failed account is left out; an answered one with no counts makes the total unknowable.
-        var failed = new MailAccountOutcome("c", MailAccountState.Failed, FetchStatus.Offline, null);
-        Assert.Equal("1 unread of 28 in Inbox", MailLayout.Footer([Ok("b", 28, 1), failed], MailFolder.Inbox));
-        Assert.Null(MailLayout.Footer([Ok("b", 28, 1), new MailAccountOutcome("d", MailAccountState.Ok, FetchStatus.Ok, null)], MailFolder.Inbox));
-        Assert.Null(MailLayout.Footer([failed], MailFolder.Inbox));
-    }
-
-    [Fact]
     public void S1287_a_wide_row_view_adds_the_preview_after_a_lone_subject()
     {
         var chosen = EmailConfig.DefaultColumns; // From, Subject, Date

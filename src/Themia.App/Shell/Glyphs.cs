@@ -100,10 +100,6 @@ internal static class Glyphs
     public static readonly string Volume2 = From(0xE994);
     public static readonly string Volume3 = From(0xE995);
 
-    // [S-1224] The microphone row of the audio widgets, and its muted state.
-    public static readonly string Microphone = From(0xE720);
-    public static readonly string MicrophoneOff = From(0xEC54);
-
     // [S-1222] An output device in the audio widgets' device picker.
     public static readonly string Speakers = From(0xE7F5);
     public static readonly string Previous = From(0xE892);

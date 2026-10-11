@@ -26,7 +26,7 @@ public readonly record struct TaskLayoutInput(int Count, bool Writable, bool IsT
 
 /// <summary>
 /// [S-780] One layout pass's decisions for the Tasks widget: everything that depends on the size of
-/// the tile, decided together so the rows, the add row and the summary never disagree.
+/// the tile, decided together so the rows and the add row never disagree.
 /// <see cref="NarrowInset"/>: on a Compact-wide tile the rows' side inset halves, so a title has
 /// more than a few characters.
 /// </summary>
@@ -38,7 +38,6 @@ public sealed record TaskLayoutPlan(
     bool DueBeside,
     bool PriorityGlyph,
     bool ListNames,
-    bool Summary,
     bool AddRow,
     int Columns,
     bool CompletedHeading,
@@ -87,9 +86,6 @@ public static class TaskLayout
     /// <summary>The space between two columns of rows, so two hover fills never read as one row.</summary>
     public const double ColumnGap = 8;
 
-    /// <summary>The summary strip: one caption line and the space under it.</summary>
-    public static double SummaryHeight => FluentType.Caption.LineHeight + 8;
-
     /// <summary>The list's own padding under its last row.</summary>
     public const double ListBottomPadding = 8;
 
@@ -101,7 +97,7 @@ public static class TaskLayout
 
     /// <summary>
     /// [S-780] The ladder. Rung 0 is one task (what is next); then the add row from Regular height;
-    /// then the summary strip on a panel (Expanded both ways); the list takes the rest, in two
+    /// the list takes the rest (no summary strip: a larger tile shows more tasks, not counts of them), in two
     /// columns on a Huge-wide tile when one column would not hold it. Width decides how much of a
     /// due date is said and where; height decides row density and title lines.
     /// </summary>
@@ -117,9 +113,8 @@ public static class TaskLayout
         var room = new Disclosure(area);
         room.Reserve(row);
         var addRow = input.Writable && area.HeightClass >= SizeClass.Regular && room.Take(row);
-        var summary = input.Count > 0 && area.AtLeast(SizeClass.Expanded, SizeClass.Expanded) && room.Take(SummaryHeight);
 
-        var listHeight = area.Height - (addRow ? row : 0) - (summary ? SummaryHeight : 0) - ListBottomPadding;
+        var listHeight = area.Height - (addRow ? row : 0) - ListBottomPadding;
         var columns = Columns(area, listHeight, row, input.Count);
         var columnWidth = ColumnWidth(area.Width, columns);
 
@@ -140,7 +135,6 @@ public static class TaskLayout
             DueBeside: beside,
             PriorityGlyph: columnWidth >= PriorityNeedsWidth,
             ListNames: input.IsToday && area.AtLeast(SizeClass.Expanded, SizeClass.Expanded),
-            Summary: summary,
             AddRow: addRow,
             Columns: columns,
             CompletedHeading: area.HeightClass >= SizeClass.Expanded,

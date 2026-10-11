@@ -9,7 +9,8 @@ namespace Themia.App.Services;
 /// <para>
 /// Addresses change when a network does, not every second, so the walk (one
 /// <c>GetIPProperties</c> per adapter) is made at most every <see cref="RefreshMs"/> and at once
-/// after Windows says the addresses changed. Read on the UI thread's tick.
+/// after Windows says the addresses changed (the system hub listens and calls <see cref="Invalidate"/>,
+/// [S-2509]). Read by the hub on the UI thread's tick.
 /// </para>
 /// </summary>
 internal static class LocalAddresses
@@ -21,20 +22,20 @@ internal static class LocalAddresses
     private static IReadOnlyDictionary<string, string> _addresses = new Dictionary<string, string>();
     private static long? _readAt;
     private static int _leases;
-
-    // Set on the system's thread pool; read on the tick.
-    private static volatile bool _changed;
+    private static bool _changed;
 
     public static IDisposable Acquire()
     {
         if (_leases++ == 0)
         {
-            NetworkChange.NetworkAddressChanged += OnChanged;
             _readAt = null;
         }
 
         return new SharedLease(Release);
     }
+
+    /// <summary>[S-2509] The machine's addresses changed: the next read walks again. UI thread.</summary>
+    public static void Invalidate() => _changed = true;
 
     /// <summary>The addresses as of the last walk; walks again when that is stale.</summary>
     public static IReadOnlyDictionary<string, string> Current()
@@ -84,15 +85,12 @@ internal static class LocalAddresses
         return result;
     }
 
-    private static void OnChanged(object? sender, EventArgs args) => _changed = true;
-
     private static void Release()
     {
         _leases = Math.Max(0, _leases - 1);
 
         if (_leases == 0)
         {
-            NetworkChange.NetworkAddressChanged -= OnChanged;
             _addresses = new Dictionary<string, string>();
         }
     }

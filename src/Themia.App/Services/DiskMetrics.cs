@@ -16,8 +16,8 @@ internal readonly record struct DiskActivity(IReadOnlyDictionary<string, DiskRat
 /// <para>
 /// Reads and writes come from one <see cref="PdhQuery"/> shared by every disk widget, opened by the
 /// first widget and closed when the last one lets go (<see cref="Acquire"/>), so a desktop without a
-/// disk widget holds no counters. Every read happens on the UI thread's tick, so
-/// the state below needs no lock; widgets reading in the same tick share one collection.
+/// disk widget holds no counters. The system hub is the only reader, once per due tick for every
+/// disk widget ([S-2501]); every read happens on the UI thread's tick, so the state below needs no lock.
 /// </para>
 /// </summary>
 internal static class DiskMetrics
@@ -26,8 +26,6 @@ internal static class DiskMetrics
 
     /// <summary>How stale the list of volumes may get: a newly plugged drive appears within this.</summary>
     private const long VolumeRefreshMs = 30_000;
-
-    private static readonly SampleCache<DiskActivity> Cache = new();
 
     private static IReadOnlyList<DiskVolume> _volumes = [];
     private static long? _volumesAt;
@@ -72,13 +70,6 @@ internal static class DiskMetrics
     /// </summary>
     public static DiskActivity? Activity()
     {
-        var now = Environment.TickCount64;
-
-        if (Cache.TryReuse(now, out var recent))
-        {
-            return recent;
-        }
-
         if (Open() is not { } query)
         {
             return null;
@@ -90,10 +81,7 @@ internal static class DiskMetrics
             ? DiskRules.Pair(query.Doubles(r), query.Doubles(w))
             : new Dictionary<string, DiskRates>();
 
-        var activity = new DiskActivity(rates);
-
-        Cache.Store(now, activity);
-        return activity;
+        return new DiskActivity(rates);
     }
 
     private static List<DiskVolume> Walk()
@@ -182,7 +170,6 @@ internal static class DiskMetrics
         _query = null;
         _queryFailed = false;
         _readBytes = _writeBytes = null;
-        Cache.Clear();
     }
 
     /// <summary>One widget's hold on the counters. Disposing twice releases once.</summary>

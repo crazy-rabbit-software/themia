@@ -101,8 +101,8 @@ public sealed class WidgetsALocaleTests
     {
         var sunday = new DateOnly(2026, 10, 4);
 
-        Assert.Equal("Oktober 2026", CalendarRules.Title(CalendarViewMode.Month, sunday, WeekStartDay.Monday, Locale.De));
-        Assert.Equal("28. Sept. – 4. Okt.", CalendarRules.Title(CalendarViewMode.Week, sunday, WeekStartDay.Monday, Locale.De));
+        Assert.Equal("Oktober 2026", CalendarRules.Title(CalendarLayout.Month, sunday, WeekStartDay.Monday, Locale.De));
+        Assert.Equal("28. Sept. – 4. Okt.", CalendarRules.Title(CalendarLayout.Week, sunday, WeekStartDay.Monday, Locale.De));
         Assert.Equal("Der Zugriff auf die Kontakte wurde nicht gewährt.", SyncProblems.Message(SyncProblem.Forbidden, SyncSubject.Contacts, Locale.De));
         Assert.Equal(["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"], CalendarText.WeekdayHeaders(DayOfWeek.Monday, Locale.De));
         Assert.Equal("Telefon", ContactRules.ColumnTitle(ContactColumn.Phone, Locale.De));

@@ -305,7 +305,6 @@ public sealed class NoteStoreTests : IDisposable
         {
             Assert.False(plan.Toolbar);
             Assert.False(plan.Status);
-            Assert.False(plan.List);
             Assert.True(plan.TextLines >= NotesLayout.MinTextLines);
         }
     }
@@ -332,17 +331,26 @@ public sealed class NoteStoreTests : IDisposable
     }
 
     [Fact]
-    public void S1363_l_adds_the_detailed_status_and_xl_the_note_list()
+    public void S1363_l_and_xl_add_the_detailed_status_and_give_the_rest_to_the_text()
     {
         var l = Plan(560, 420);
         var xl = Plan(800, 560);
 
         Assert.True(l.StatusDetail);
-        Assert.False(l.List);
-        Assert.True(xl.List);
         Assert.True(xl.StatusDetail);
         Assert.Equal(NotesLayout.AllButtons, xl.ToolbarButtons);
         Assert.True(xl.TextLines > l.TextLines);
+    }
+
+    /// <summary>
+    /// [S-1363] The widget is the one note at every size: the text takes the whole width even at
+    /// XL, where a note list used to sit beside it (user decision: never a list on the left).
+    /// </summary>
+    [Fact]
+    public void S1363_xl_never_gives_width_to_a_note_list()
+    {
+        var xl = NotesLayout.Plan(new WidgetArea(800, 516), inset: 16, gap: 8, lineHeight: 18, statusHeight: 16);
+        Assert.Equal(800 - 32, xl.TextWidth);
     }
 
     [Fact]

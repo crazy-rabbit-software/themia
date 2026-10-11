@@ -67,9 +67,6 @@ public static class MixerRules
     /// <summary>The master row's key, disjoint from every session key, so writes dispatch on it.</summary>
     public const string MasterKey = "__master__";
 
-    /// <summary>[S-1224] The default input device's row key, disjoint from every other key space.</summary>
-    public const string MicrophoneKey = "__microphone__";
-
     /// <summary>[S-1227] From this row width a row is one line.</summary>
     public const double OneLineWidth = 360;
 
@@ -218,29 +215,6 @@ public static class MixerRules
         return options.OnlyActive
             ? [.. rows.Where(static row => !row.Active && !row.IsSystem && !row.IsMaster)]
             : [];
-    }
-
-    /// <summary>
-    /// [S-1231] The few apps the volume tile lists at its largest: playing ones first, each half in
-    /// the [S-443] name order it already has, never system sounds or the master — so a list that
-    /// refreshes on every volume change does not reshuffle.
-    /// </summary>
-    public static List<MixerRow> TopApps(IReadOnlyList<MixerRow> rows, int count)
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-
-        if (count <= 0)
-        {
-            return [];
-        }
-
-        // OrderBy is stable, so the name order survives within the playing and the quiet half.
-        return
-        [
-            .. rows.Where(static row => !row.IsSystem && !row.IsMaster)
-                .OrderBy(static row => row.Active ? 0 : 1)
-                .Take(count),
-        ];
     }
 
     /// <summary>[S-447] Whole percent for display. A muted row reads 0 but keeps its level, so unmuting restores it.</summary>

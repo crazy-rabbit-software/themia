@@ -8,7 +8,7 @@ namespace Themia.App.Services;
 /// [S-2408] [S-2409] The machine-wide counts and memory figures behind the CPU and memory details:
 /// one <c>GetPerformanceInfo</c> call (commit, cache, kernel pools, processes, threads, handles) and,
 /// for the page file, <c>NtQuerySystemInformation(SystemPageFileInformation)</c>. Both answer at once
-/// and need no rights, so they run on the tick; widgets reading in the same tick share one read.
+/// and need no rights, so they run on the tick, read by the system hub once per due tick ([S-2501]).
 /// </summary>
 internal static unsafe partial class PerformanceInfo
 {
@@ -19,24 +19,14 @@ internal static unsafe partial class PerformanceInfo
 
     private const int StatusInfoLengthMismatch = unchecked((int)0xC0000004);
 
-    private static readonly SampleCache<Snapshot> Cache = new();
     private static string? _fault;
 
-    /// <summary>The counts and memory figures, or null when Windows would not say.</summary>
-    public static PerformanceFigures? Read() => Take().Figures;
-
-    /// <summary>[S-2409] The page files, or null when they could not be read (no page file is zeros).</summary>
-    public static PagefileUsage? Pagefile() => Take().Pagefile;
-
-    private static Snapshot Take()
+    /// <summary>
+    /// The counts and memory figures (null when Windows would not say) and, [S-2409], the page files
+    /// (null when they could not be read; no page file is zeros).
+    /// </summary>
+    public static SystemData.PerformanceSnapshot Read()
     {
-        var now = Environment.TickCount64;
-
-        if (Cache.TryReuse(now, out var recent))
-        {
-            return recent;
-        }
-
         var info = new PerformanceInformation { Size = (uint)sizeof(PerformanceInformation) };
         PerformanceFigures? figures = null;
         ulong pageSize = 4096;
@@ -62,9 +52,7 @@ internal static unsafe partial class PerformanceInfo
             Note($"GetPerformanceInfo failed: {Marshal.GetLastPInvokeError()}");
         }
 
-        var snapshot = new Snapshot(figures, ReadPagefile(pageSize));
-        Cache.Store(now, snapshot);
-        return snapshot;
+        return new SystemData.PerformanceSnapshot(figures, ReadPagefile(pageSize));
     }
 
     private static PagefileUsage? ReadPagefile(ulong pageSize)
@@ -111,7 +99,6 @@ internal static unsafe partial class PerformanceInfo
         Log.Warn(Scope, fault);
     }
 
-    private readonly record struct Snapshot(PerformanceFigures? Figures, PagefileUsage? Pagefile);
 
     [LibraryImport("kernel32.dll", EntryPoint = "K32GetPerformanceInfo", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

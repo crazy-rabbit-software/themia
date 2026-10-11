@@ -161,11 +161,11 @@ public sealed class CalendarRulesTests
     [Fact]
     public void S568_MonthCoversWholeWeeksAroundTheMonth()
     {
-        var (first, last) = CalendarRules.ViewRange(CalendarViewMode.Month, Today, Today, WeekStartDay.Monday);
+        var (first, last) = CalendarRules.ViewRange(CalendarLayout.Month, Today, Today, WeekStartDay.Monday);
         Assert.Equal(new DateOnly(2026, 9, 28), first);
         Assert.Equal(new DateOnly(2026, 11, 1), last);
 
-        var (sFirst, sLast) = CalendarRules.ViewRange(CalendarViewMode.Month, Today, Today, WeekStartDay.Sunday);
+        var (sFirst, sLast) = CalendarRules.ViewRange(CalendarLayout.Month, Today, Today, WeekStartDay.Sunday);
         Assert.Equal(new DateOnly(2026, 9, 27), sFirst);
         Assert.Equal(new DateOnly(2026, 10, 31), sLast);
 
@@ -175,9 +175,28 @@ public sealed class CalendarRulesTests
     [Fact]
     public void S568_WeekDayAndAgendaRanges()
     {
-        Assert.Equal((new DateOnly(2026, 9, 28), new DateOnly(2026, 10, 4)), CalendarRules.ViewRange(CalendarViewMode.Week, Today, Today, WeekStartDay.Monday));
-        Assert.Equal((Today, Today), CalendarRules.ViewRange(CalendarViewMode.Day, Today, Today, WeekStartDay.Monday));
-        Assert.Equal((Today, Today.AddDays(30)), CalendarRules.ViewRange(CalendarViewMode.Agenda, Today.AddDays(-90), Today, WeekStartDay.Monday));
+        Assert.Equal((new DateOnly(2026, 9, 28), new DateOnly(2026, 10, 4)), CalendarRules.ViewRange(CalendarLayout.Week, Today, Today, WeekStartDay.Monday));
+        Assert.Equal((Today, Today), CalendarRules.ViewRange(CalendarLayout.Day, Today, Today, WeekStartDay.Monday));
+        Assert.Equal((Today, Today.AddDays(30)), CalendarRules.ViewRange(CalendarLayout.Agenda, Today.AddDays(-90), Today, WeekStartDay.Monday));
+    }
+
+    [Fact]
+    public void S2707_AYearFetchesAndTitlesItsWholeYearAndPagesByYear()
+    {
+        Assert.Equal((new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31)), CalendarRules.ViewRange(CalendarLayout.Year, Today, Today, WeekStartDay.Monday));
+        Assert.Equal("2026", CalendarRules.Title(CalendarLayout.Year, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal(new DateOnly(2027, 2, 28), CalendarRules.Step(CalendarLayout.Year, new DateOnly(2028, 2, 29), -1));
+        Assert.Equal(new DateOnly(2025, 10, 4), CalendarRules.Step(CalendarLayout.Year, Today, -1));
+        Assert.True(CalendarRules.InView(CalendarLayout.Year, Today.AddMonths(-3), Today, WeekStartDay.Monday, Today));
+        Assert.False(CalendarRules.InView(CalendarLayout.Year, Today.AddYears(1), Today, WeekStartDay.Monday, Today));
+    }
+
+    [Fact]
+    public void S569_AMonthIsInViewOnlyForItsOwnDaysAndTheAgendaAlwaysHoldsToday()
+    {
+        Assert.False(CalendarRules.InView(CalendarLayout.Month, Today, Today, WeekStartDay.Monday, new DateOnly(2026, 9, 30)));
+        Assert.True(CalendarRules.InView(CalendarLayout.Week, Today, Today, WeekStartDay.Monday, new DateOnly(2026, 9, 30)));
+        Assert.True(CalendarRules.InView(CalendarLayout.Agenda, Today.AddDays(-90), Today, WeekStartDay.Monday, Today));
     }
 
     [Fact]
@@ -191,10 +210,10 @@ public sealed class CalendarRulesTests
     [Fact]
     public void S568_Titles()
     {
-        Assert.Equal("October 2026", CalendarRules.Title(CalendarViewMode.Month, Today, WeekStartDay.Monday, Locale.En));
-        Assert.Equal("Sep 28 – Oct 4", CalendarRules.Title(CalendarViewMode.Week, Today, WeekStartDay.Monday, Locale.En));
-        Assert.Equal("Sun, Oct 4", CalendarRules.Title(CalendarViewMode.Day, Today, WeekStartDay.Monday, Locale.En));
-        Assert.Equal(string.Empty, CalendarRules.Title(CalendarViewMode.Agenda, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal("October 2026", CalendarRules.Title(CalendarLayout.Month, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal("Sep 28 – Oct 4", CalendarRules.Title(CalendarLayout.Week, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal("Sun, Oct 4", CalendarRules.Title(CalendarLayout.Day, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal(string.Empty, CalendarRules.Title(CalendarLayout.Agenda, Today, WeekStartDay.Monday, Locale.En));
     }
 
     // ---- [S-569] navigation ----------------------------------------------------------------------
@@ -202,10 +221,10 @@ public sealed class CalendarRulesTests
     [Fact]
     public void S569_StepsByMonthWeekDayAndTheAgendaStaysPut()
     {
-        Assert.Equal(new DateOnly(2026, 2, 28), CalendarRules.Step(CalendarViewMode.Month, new DateOnly(2026, 1, 31), 1));
-        Assert.Equal(Today.AddDays(-7), CalendarRules.Step(CalendarViewMode.Week, Today, -1));
-        Assert.Equal(Today.AddDays(1), CalendarRules.Step(CalendarViewMode.Day, Today, 1));
-        Assert.Equal(Today, CalendarRules.Step(CalendarViewMode.Agenda, Today, 1));
+        Assert.Equal(new DateOnly(2026, 2, 28), CalendarRules.Step(CalendarLayout.Month, new DateOnly(2026, 1, 31), 1));
+        Assert.Equal(Today.AddDays(-7), CalendarRules.Step(CalendarLayout.Week, Today, -1));
+        Assert.Equal(Today.AddDays(1), CalendarRules.Step(CalendarLayout.Day, Today, 1));
+        Assert.Equal(Today, CalendarRules.Step(CalendarLayout.Agenda, Today, 1));
     }
 
     // ---- [S-570] what falls on a day -------------------------------------------------------------
@@ -322,19 +341,6 @@ public sealed class CalendarRulesTests
         Assert.Equal([0, 1, 2], three.Select(l => l.Column).Order());
     }
 
-    [Fact]
-    public void S573_TimelineSpanClampsToTheDrawnHours()
-    {
-        var day = Today;
-        var nine = new DateTimeOffset(2026, 10, 4, 9, 0, 0, TimeSpan.FromHours(2));
-        var (top, height) = CalendarRules.TimelineSpan(nine, nine.AddHours(1), day, Plus2);
-        Assert.Equal(2.0 / 15, top, 6);
-        Assert.Equal(1.0 / 15, height, 6);
-
-        var early = new DateTimeOffset(2026, 10, 4, 5, 0, 0, TimeSpan.FromHours(2));
-        var (earlyTop, _) = CalendarRules.TimelineSpan(early, early.AddMinutes(10), day, Plus2);
-        Assert.Equal(0, earlyTop);
-    }
 
     private static CalendarEvent Timed(string id, DateTimeOffset start, TimeSpan length)
         => new() { Id = id, Subject = id, Start = start, End = start + length };

@@ -8,15 +8,12 @@ public enum FeedArrangement
 
     /// <summary>Two or three columns of rows, read left to right then down.</summary>
     Columns,
-
-    /// <summary>A list of headlines beside a reading pane for the selected item.</summary>
-    Reading,
 }
 
 /// <summary>What one layout of a feed widget shows.</summary>
-/// <param name="Arrangement">List, columns, or list plus reading pane.</param>
+/// <param name="Arrangement">List or columns.</param>
 /// <param name="Columns">How many columns of rows.</param>
-/// <param name="ListWidth">The width the rows are laid out in (one column, or the list beside the pane).</param>
+/// <param name="ListWidth">The width one column of rows is laid out in.</param>
 /// <param name="Favicon">Each row carries its site's icon.</param>
 /// <param name="Host">The site's name beside the icon, on its own line over the headline.</param>
 /// <param name="HeadlineLines">How many lines a headline may wrap to.</param>
@@ -46,16 +43,15 @@ public readonly record struct FeedPlan(
 /// single item fills.</item>
 /// <item>A summary where it costs no row, or where at least three rows still fit on a tall-enough
 /// tile — more headlines beat previews; never on a narrow tall column, which is for headlines.</item>
-/// <item>From 720px wide and 128px of height, a reading pane beside the list: the selected item's
-/// site, whole headline, whole summary, date and an Open button.</item>
 /// </list>
+/// The feed is its headlines at every size: no reading pane beside the list (user decision).
 /// Row counts are never decided here: rows are as tall as their headlines, so the view measures
 /// them and shows only those that fit whole ([S-639]); the estimate below only chooses the rungs.
 /// </summary>
 public static class FeedLayout
 {
     /// <summary>
-    /// The space between columns, and between the list and the pane. None: rows carry their own side
+    /// The space between columns. None: rows carry their own side
     /// padding, so their hover fills meet edge to edge and the text still has a 32px gutter.
     /// </summary>
     public const double Gutter = 0;
@@ -68,9 +64,6 @@ public static class FeedLayout
 
     /// <summary>From here a row carries its site's icon.</summary>
     public const double FaviconNeedsWidth = 180;
-
-    /// <summary>The reading pane is never narrower than this; under it the tile keeps its columns.</summary>
-    public const double MinPane = 240;
 
     /// <summary>A row's padding above and below its text.</summary>
     public const double RowPadding = 4;
@@ -92,18 +85,6 @@ public static class FeedLayout
         }
 
         var height = Math.Max(0, area.Height - ListInset);
-
-        // The reading pane: a big tile reads one item at a time instead of six previews at once.
-        if (area.WidthClass >= SizeClass.Huge && area.HeightClass >= SizeClass.Regular)
-        {
-            var list = Math.Clamp(area.Width * 0.4, MinPane, 360);
-
-            if (area.Width - list - Gutter >= MinPane)
-            {
-                var reading = new FeedPlan(FeedArrangement.Reading, 1, list, showSource, false, 2, 0, showDate);
-                return Fit(reading, height);
-            }
-        }
 
         var columns = area.Width >= 720 ? 3 : area.Width >= 400 ? 2 : 1;
 

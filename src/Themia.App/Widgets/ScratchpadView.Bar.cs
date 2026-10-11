@@ -16,8 +16,8 @@ namespace Themia.App.Widgets;
 /// no longer means opening settings. Picking an ink also leaves the eraser, as the original did.
 /// <para>
 /// Its ladder: nothing on a tile Compact either way (the pad is the widget); the six inks from a
-/// Regular × Regular tile; the three nibs beside them when the width holds both; the stroke count at
-/// the far end on a tile Expanded in width.
+/// Regular × Regular tile; the three nibs beside them when the width holds both. Nothing more on a
+/// larger tile (no stroke count): the rest is pad.
 /// </para>
 /// </summary>
 internal sealed partial class ScratchpadView
@@ -31,7 +31,6 @@ internal sealed partial class ScratchpadView
     private readonly StackPanel _bar = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
     private readonly StackPanel _inks = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
     private readonly StackPanel _nibs = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
-    private readonly TextBlock _count = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly Grid _barRow = new();
     private readonly List<(Ink Ink, Ellipse Ring)> _inkRings = [];
     private readonly List<(double Width, Ellipse Ring)> _nibRings = [];
@@ -75,13 +74,9 @@ internal sealed partial class ScratchpadView
         _bar.Children.Add(new Border { Width = Fluent.Space2 });
         _bar.Children.Add(_nibs);
 
-        _count.VerticalAlignment = VerticalAlignment.Center;
-        _count.HorizontalAlignment = HorizontalAlignment.Right;
-
         _barRow.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space3, Fluent.Space2);
         _barRow.Visibility = Visibility.Collapsed;
         _barRow.Children.Add(_bar);
-        _barRow.Children.Add(_count);
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         SetRow(_barRow, 1);
@@ -170,9 +165,7 @@ internal sealed partial class ScratchpadView
             && _area.AtLeast(SizeClass.Regular, SizeClass.Regular)
             && room.Take(BarButton, inksWidth);
 
-        var countWidth = FluentType.EstimateWidth(FluentType.Caption, 12);
         _nibs.Visibility = Shown(room.Width >= inksWidth + nibsWidth);
-        _count.Visibility = Shown(_area.WidthClass >= SizeClass.Expanded && room.Width >= inksWidth + nibsWidth + countWidth);
         _barRow.Visibility = Shown(show);
 
         UpdateBar();
@@ -191,9 +184,6 @@ internal sealed partial class ScratchpadView
         {
             ring.Visibility = Shown(width == nearest);
         }
-
-        var strokes = _config.Strokes.Count;
-        _count.Text = Str.WidgetsC_Scratchpad_Strokes.Plural(strokes);
     }
 
     private static Visibility Shown(bool shown)

@@ -29,8 +29,9 @@ internal sealed record Fetched<T>(FetchStatus Status, T? Value, string? Detail, 
     public Fetched<T> Stale(FetchStatus status, string? detail) => this with { Status = status, Detail = detail };
 
     /// <summary>
-    /// [S-729] Read back from disk at launch rather than fetched by this run. Shown as stale until a
-    /// fetch replaces it, however young it is: the app was not running to watch it age.
+    /// [S-729] Read back from the store at launch rather than fetched by this run. Drawn with its real
+    /// age in the caution colour until a fetch replaces it; fresh for its real age ([S-2662]), so a
+    /// restart a minute after the last fetch asks nothing.
     /// </summary>
     public bool Restored { get; init; }
 }
@@ -55,8 +56,8 @@ internal sealed record Fetched<T>(FetchStatus Status, T? Value, string? Detail, 
 /// In memory. A service that wants its answers to survive a restart (weather, [S-729]) seeds the
 /// cache with <see cref="Restore"/> at launch and saves <see cref="Snapshot"/> itself, to its own
 /// file — never the state file, which is not the place for somebody else's data. A restored
-/// answer is marked <see cref="Fetched{T}.Restored"/>: drawn at once, with its real age, and
-/// never treated as fresh.
+/// answer is marked <see cref="Fetched{T}.Restored"/>: drawn at once, with its real age, and fresh
+/// only for that age ([S-2662]).
 /// </para>
 /// </summary>
 internal sealed class WebCache<T>(string scope)
@@ -106,13 +107,13 @@ internal sealed class WebCache<T>(string scope)
         {
             // A fresh answer, and no request in flight to join: nothing to do. An entry is only
             // ever stored on success, so this can never hand back a cached failure. A restored
-            // answer is never fresh.
+            // answer is judged by when it was really fetched ([S-2662]).
             if (!force
                 && !_inFlight.ContainsKey(key)
                 && _entries.TryGetValue(key, out var hit)
                 && hit.Status == FetchStatus.Ok
-                && !hit.Restored
-                && now - hit.At < freshFor)
+                && now - hit.At < freshFor
+                && hit.At <= now)
             {
                 return hit;
             }

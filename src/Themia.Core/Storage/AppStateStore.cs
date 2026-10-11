@@ -112,6 +112,9 @@ public sealed class AppStateStore : IAsyncDisposable
 
     public string Path => _path;
 
+    /// <summary>False for a <see cref="Detached"/> store: whatever is built over it must not touch the disk either ([S-2601]).</summary>
+    public bool Persists => _persists;
+
     /// <summary>
     /// The folder name the app keeps its files under, in both %APPDATA% (settings, accounts) and
     /// %LOCALAPPDATA% (caches, the browser profile). One name for every place, so they cannot drift

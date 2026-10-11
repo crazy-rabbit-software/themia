@@ -28,6 +28,8 @@ internal sealed partial class AppHost : IDisposable
 
     private ConfigWindow? _config;
     private readonly Mail.MailService _mail;
+    private readonly Office.AccountOfficeSource _office;
+    private readonly SystemData.SystemHub _system;
     private bool _editMode;
     private bool _disposed;
 
@@ -37,6 +39,10 @@ internal sealed partial class AppHost : IDisposable
         _store = store;
         State = state;
         Ticker = new Ticker(dispatcher);
+
+        // [S-2500] One hub for every system widget, for the app's lifetime, on the shared ticker.
+        _system = new SystemData.SystemHub(Ticker, dispatcher);
+        AppServices.System = _system;
 
         // [S-1109] The language before anything with text is built, and before the surfaces subscribe.
         StartLanguage();
@@ -53,9 +59,26 @@ internal sealed partial class AppHost : IDisposable
         Accounts = new Accounts.AccountService(dispatcher, Themia.Core.Accounts.AccountStore.PathBeside(store.Path));
         AppServices.Accounts = Accounts;
 
+        // [S-2600] The offline store every sync service reads and writes, and what every view's
+        // widgets need from it ([S-2608]). A detached state (a debug render) gets a detached store.
+        Sync = Services.Sync.SyncHost.Open(dispatcher, store.Persists ? Services.Sync.SyncHost.DirectoryFor(store.Path) : null);
+        AppServices.Sync = Sync;
+        Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(state));
+        StateChanged += () => Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(State));
+
+        // [S-2607] Signing out takes the account's synced data with it.
+        Accounts.SignedOut += Sync.Vault.Purge;
+
         // [S-546] One mail service for every Mail widget, on the shared ticker.
-        _mail = new Mail.MailService(Accounts, Ticker);
+        _mail = new Mail.MailService(Accounts, Ticker, Sync);
         AppServices.Mail = _mail;
+
+        // [S-2661] The feeds of every Rss widget, kept fresh in the background.
+        AppServices.Feeds = new Web.FeedSync(Sync, Ticker);
+
+        // [S-588] [S-2630] One calendar and contacts source for every widget, synced through the store.
+        _office = new Office.AccountOfficeSource(Accounts, Sync, Ticker);
+        Office.OfficeSources.Current = _office;
         AppServices.ShowAccounts = () => ShowConfig(new ConfigTarget.App(AppPage.Accounts));
         AppServices.EditAppLayout = ShowLayoutEditor;
 
@@ -63,7 +86,9 @@ internal sealed partial class AppHost : IDisposable
         // state file, as the accounts do.
         AppServices.Tasks = new Tasks.TaskService(
             new Tasks.AccountTaskRemote(Accounts),
-            new Tasks.LocalTaskPool(new Themia.Core.Tasks.LocalTaskStore(Themia.Core.Tasks.LocalTaskStore.PathBeside(store.Path))));
+            new Tasks.LocalTaskPool(new Themia.Core.Tasks.LocalTaskStore(Themia.Core.Tasks.LocalTaskStore.PathBeside(store.Path))),
+            Ticker,
+            Sync);
 
         // [S-1420] The habit lists every Habits widget shares, beside the state file like the tasks.
         AppServices.Habits = new Habits.HabitPool(new Themia.Core.Habits.HabitListStore(Themia.Core.Habits.HabitListStore.PathBeside(store.Path)));
@@ -78,6 +103,9 @@ internal sealed partial class AppHost : IDisposable
 
     /// <summary>Themia's own accounts, shared by every widget that reads from one.</summary>
     public Accounts.AccountService Accounts { get; }
+
+    /// <summary>[S-2600] The offline sync store and what the widgets need from it.</summary>
+    public Services.Sync.SyncHost Sync { get; }
 
     /// <summary>Raised when anything that affects rendering changed. Windows re-read <see cref="State"/>.</summary>
     public event Action? StateChanged;
@@ -189,19 +217,18 @@ internal sealed partial class AppHost : IDisposable
             Path.Combine(Path.GetDirectoryName(_store.Path) ?? string.Empty, Themia.Core.Storage.ScreenTimeStore.FileName));
         AppServices.ScreenTime = _screenTime;
 
+        // [S-2609] Syncs that waited for the network go as soon as it is back.
+        Sync.Start();
+
         // [S-1301] The request-forgery guard reads the user's "local network access" switch on
         // every check, so flipping it applies at once without a restart.
         Services.Web.NetGuard.AllowPrivate = () => State.Preferences.AllowPrivateNetwork;
 
-        // [S-1300] The feed and stock widgets' last answers, drawn at once (marked stale) on a cold
-        // launch instead of "Loading". Before the windows, so the first render finds them.
-        Services.Web.NetworkCache.Persist(
-            Path.Combine(Path.GetDirectoryName(_store.Path) ?? string.Empty, Themia.Core.Storage.NetworkCacheStore.FileName));
-
-        // [S-729] The weather widgets' last answers, so a cold launch draws them at once (marked
-        // stale) instead of "Loading". Before the windows, so the first render finds them.
-        Services.Web.WeatherService.Persist(
-            Path.Combine(Path.GetDirectoryName(_store.Path) ?? string.Empty, Themia.Core.Storage.WeatherCacheStore.FileName));
+        // [S-1300] [S-729] [S-2660] The feed, quote and weather widgets' last answers, from the sealed
+        // store, drawn at once on a cold launch instead of "Loading". Before the windows, so the
+        // first render finds them.
+        Services.Web.NetworkCache.Persist(Sync.Vault);
+        Services.Web.WeatherService.Persist(Sync.Vault);
 
         // [S-890] Counted before the surfaces exist: a start that dies building them leaves its count.
         BeginStartGuard();
@@ -259,6 +286,9 @@ internal sealed partial class AppHost : IDisposable
                 {
                     await notes.FlushAsync().ConfigureAwait(true);
                 }
+
+                // [S-2606] A change queued a moment before exit, and the last sync's shelves.
+                await Sync.FlushAsync().ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -312,12 +342,19 @@ internal sealed partial class AppHost : IDisposable
         AppServices.EditAppLayout = null;
         CloseLayoutEditor();
         _mail.Dispose();
+        Office.OfficeSources.Current = null;
+        _office.Dispose();
+        AppServices.Feeds?.Dispose();
+        AppServices.Feeds = null;
         AppServices.Tasks?.Dispose();
         AppServices.Tasks = null;
         AppServices.Habits = null;
         AppServices.Notes = null;
         AppServices.Accounts = null;
+        Accounts.SignedOut -= Sync.Vault.Purge;
         Accounts.Dispose();
+        AppServices.Sync = null;
+        Sync.Dispose();
         License.Dispose();
 
         // [S-459] Accrues up to now and writes the history synchronously: the process is ending.
@@ -328,6 +365,10 @@ internal sealed partial class AppHost : IDisposable
         CloseSurfaces();
 
         _windows.Clear();
+
+        // After the surfaces: their views have let go, so this closes whatever is still lingering.
+        AppServices.System = null;
+        _system.Dispose();
 
         _config?.Close();
         Ticker.Dispose();

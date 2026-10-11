@@ -41,9 +41,6 @@ public sealed class MixerConfig : WidgetConfig
     /// <summary>[S-1223] A live level meter under each slider, where the card has room for sliders.</summary>
     public bool ShowPeaks { get; set; } = true;
 
-    /// <summary>[S-1224] The default microphone's level and mute in the large layout's side panel.</summary>
-    public bool ShowMicrophone { get; set; } = true;
-
     public override WidgetConfig Clone() => new MixerConfig
     {
         DeviceId = DeviceId,
@@ -54,7 +51,6 @@ public sealed class MixerConfig : WidgetConfig
         OnlyActive = OnlyActive,
         ShowIcons = ShowIcons,
         ShowPeaks = ShowPeaks,
-        ShowMicrophone = ShowMicrophone,
     };
 
     /// <summary>A blank id is "follow the default", stored as null so there is one way to say it.</summary>

@@ -16,12 +16,13 @@ internal sealed record Synced<T>(T? Value, SyncProblem Problem, string? Detail, 
     where T : class;
 
 /// <summary>
-/// [S-588] Where the calendar and contacts widgets read from: Themia's own accounts. One instance is shared by every widget, so four calendars on
-/// a desktop cost one request per calendar, not four.
+/// [S-588] [S-2630] Where the calendar and contacts widgets read from: Themia's own accounts, through
+/// the offline store. One instance is shared by every widget, so four calendars on a desktop cost one
+/// sync per calendar, not four, and a view switch costs none.
 /// </summary>
 internal interface IOfficeSource
 {
-    /// <summary>Raised on the UI thread when an account is added, removed, renamed or changes health.</summary>
+    /// <summary>Raised on the UI thread when an account is added, removed, renamed or changes health, and when a sync brought new data.</summary>
     event Action? Changed;
 
     /// <summary>The accounts that can feed <paramref name="feature"/>, in the order they were added.</summary>
@@ -43,28 +44,9 @@ internal interface IOfficeSource
 /// <summary>Which <see cref="IOfficeSource"/> widgets use right now.</summary>
 internal static class OfficeSources
 {
-    private static AccountOfficeSource? _live;
-
     /// <summary>
-    /// The source for this moment, or null when there is none: the host has not started (or is
-    /// shutting down), or this is a debug render. A widget treats that as "no account".
+    /// The host's source, or null when there is none: the host has not started (or is shutting
+    /// down). A widget treats that as "no account". Set by the host, which owns its lifetime.
     /// </summary>
-    public static IOfficeSource? Current
-    {
-        get
-        {
-            if (AppServices.Accounts is not { } accounts)
-            {
-                return null;
-            }
-
-            // One live source per account service, so the caches survive as long as the accounts do.
-            if (_live is null || !ReferenceEquals(_live.Service, accounts))
-            {
-                _live = new AccountOfficeSource(accounts);
-            }
-
-            return _live;
-        }
-    }
+    public static IOfficeSource? Current { get; internal set; }
 }

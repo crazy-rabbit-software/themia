@@ -113,20 +113,6 @@ public sealed class ScreenTimeRulesTests
     }
 
     [Fact]
-    public void S1215_stats_line_under_a_day_and_under_a_window()
-    {
-        Assert.True(LocalDay.TryParse("2026-09-28", out var monday));
-        var week = ScreenTimeRules.DaysEnding(monday.AddDays(6), 7)
-            .Select((day, i) => (day, i == 1 ? 5L * 3600 : 3600L))
-            .ToList();
-
-        Assert.Equal("7-day average 1h 34m · busiest Tue 5h 0m", ScreenTimeRules.StatsLine(week, 9, ScreenTimePeriod.Day));
-        Assert.Equal("busiest Tue, Sep 29 5h 0m · 9 apps", ScreenTimeRules.StatsLine(week, 9, ScreenTimePeriod.Week));
-        Assert.Equal("Spitze Di., 29. Sept. 5 h 0 min · 9 Apps", ScreenTimeRules.StatsLine(Locale.De, week, 9, ScreenTimePeriod.Week));
-        Assert.Equal(string.Empty, ScreenTimeRules.StatsLine([(monday, 0L)], 0, ScreenTimePeriod.Day));
-    }
-
-    [Fact]
     public void S452_segments_are_shares_with_cumulative_offsets()
     {
         var segments = ScreenTimeRules.Segments([App("a", 60), App("b", 30), App("c", 10)], 100, 5, "Other");

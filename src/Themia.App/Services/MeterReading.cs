@@ -23,6 +23,9 @@ namespace Themia.App.Services;
 /// [S-1762] Why a reading is unavailable ("Drive C: is not answering"), shown on hover over the
 /// dimmed reading — the tile itself carries no text but the number. Null when there is nothing to say.
 /// </param>
+/// <param name="Charging">
+/// [S-1187] A battery reading taken while it charges: the bolt in the glyph and the charging colour.
+/// </param>
 public readonly record struct MeterReading(
     double? Fraction,
     string Primary,
@@ -30,7 +33,8 @@ public readonly record struct MeterReading(
     bool Absent = false,
     double? Value = null,
     double? Second = null,
-    string? Reason = null)
+    string? Reason = null,
+    bool Charging = false)
 {
     public static MeterReading Unavailable(string reason) => new(null, "--", false, Reason: reason);
 

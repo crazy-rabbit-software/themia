@@ -16,7 +16,6 @@
   "widgetsC.notes.notSaved": "Non salvato",
   "widgetsC.notes.saved": "Salvato",
   "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
-  "widgetsC.notes.deletedPickInList": "Questa nota è stata eliminata.\nScegline un'altra nell'elenco.",
   "widgetsC.notes.unreadable": "Impossibile leggere questa nota.",
   "widgetsC.notes.unavailable": "Le note non sono disponibili.",
   "widgetsC.notes.chooseNote": "Scegli una nota",
@@ -24,7 +23,6 @@
   "widgetsC.notes.deleteNoteEllipsis": "Elimina nota…",
   "widgetsC.notes.deleteConfirmTitle": "Eliminare questa nota?",
   "widgetsC.notes.deleteConfirmBody": "«{name}» verrà eliminata da questo PC, per ogni widget che la mostra. Il testo non potrà essere recuperato.",
-  "widgetsC.notes.noNotes": "Ancora nessuna nota.",
   "widgetsC.notes.settings.note": "Nota",
   "widgetsC.notes.settings.wrap.label": "A capo automatico",
   "widgetsC.notes.settings.wrap.desc": "Disattivato: le righe lunghe scorrono in orizzontale invece di andare a capo",
@@ -75,10 +73,6 @@
   "widgetsC.power.reason.refused": "Windows ha rifiutato",
   "widgetsC.power.reason.windowsError": "errore di Windows {code}",
   "widgetsC.quote.showAnother": "Mostra un'altra citazione",
-  "widgetsC.quote.ofTheDay": "Citazione del giorno",
-  "widgetsC.quote.ofTheHour": "Citazione dell'ora",
-  "widgetsC.quote.quote": "Citazione",
-  "widgetsC.quote.captionPosition": "{name} · {position} di {count}",
   "widgetsC.quote.quoted": "«{text}»",
   "widgetsC.quote.settings.quotes": "Citazioni",
   "widgetsC.quote.settings.emptyList": "Non ci sono più citazioni. Il widget lo segnalerà finché non ne aggiungi una.",
@@ -99,9 +93,7 @@
   "widgetsC.quote.settings.textPlaceholder": "Qualcosa che valga la pena rileggere",
   "widgetsC.quote.settings.authorPlaceholder": "Chi l'ha detto",
   "widgetsC.rss.failure": "{name}: {reason}",
-  "widgetsC.rss.openArticle": "Apri articolo",
   "widgetsC.rss.untitled": "(senza titolo)",
-  "widgetsC.rss.paneDate": "{date}, {time} · {age}",
   "widgetsC.rss.copyLink": "Copia collegamento",
   "widgetsC.rss.noArticles": "Questo feed non contiene articoli",
   "widgetsC.rss.savedRefreshing": "Salvato {age}; aggiornamento in corso",
@@ -129,10 +121,6 @@
   "widgetsC.scratchpad.clearDrawing": "Cancella il disegno",
   "widgetsC.scratchpad.clearConfirm": "Cancellare tutto il disegno?",
   "widgetsC.scratchpad.penSizeTip": "Dimensione penna {size} px",
-  "widgetsC.scratchpad.strokes": {
-    "one": "{count} tratto",
-    "other": "{count} tratti"
-  },
   "widgetsC.scratchpad.settings.inks": "Inchiostri",
   "widgetsC.scratchpad.settings.tools": "Strumenti",
   "widgetsC.scratchpad.settings.showTools.label": "Mostra strumenti",
@@ -151,17 +139,9 @@
     "one": "{count} cambio",
     "other": "{count} cambi"
   },
-  "widgetsC.screenTime.apps": {
-    "one": "{count} app",
-    "other": "{count} app"
-  },
-  "widgetsC.screenTime.statsDay": "Media di {days} giorni {average} · picco {day} {busiest}",
-  "widgetsC.screenTime.statsWindow": "picco {day} {busiest} · {apps}",
   "widgetsC.screenTime.notRecording": "Il tempo di utilizzo viene registrato mentre Themia è in esecuzione",
   "widgetsC.screenTime.noActivityPeriod": "Nessuna attività in questo periodo",
   "widgetsC.screenTime.dailyLimit": "Limite giornaliero",
-  "widgetsC.screenTime.usedOf": "{used} di {limit}",
-  "widgetsC.screenTime.usedPerDayOf": "{used}/giorno di {limit}",
   "widgetsC.screenTime.limitTip": "limite {limit}",
   "widgetsC.screenTime.limitOverTip": "limite {limit} (superato)",
   "widgetsC.screenTime.settings.period.desc": "Un giorno o un periodo mobile che termina oggi",
@@ -186,23 +166,6 @@
   "widgetsC.tasks.overdueOn": "Scaduta · {date}",
   "widgetsC.tasks.untitledTask": "(attività senza titolo)",
   "widgetsC.tasks.untitledList": "Elenco senza titolo",
-  "widgetsC.tasks.summary.nothingOpen": "Niente in sospeso",
-  "widgetsC.tasks.summary.open": {
-    "one": "{count} in sospeso",
-    "other": "{count} in sospeso"
-  },
-  "widgetsC.tasks.summary.overdue": {
-    "one": "{count} scaduta",
-    "other": "{count} scadute"
-  },
-  "widgetsC.tasks.summary.dueToday": {
-    "one": "{count} in scadenza oggi",
-    "other": "{count} in scadenza oggi"
-  },
-  "widgetsC.tasks.summary.done": {
-    "one": "{count} completata",
-    "other": "{count} completate"
-  },
   "widgetsC.tasks.completedHeading": "Completate · {count}",
   "widgetsC.tasks.markDone": "Segna come completata",
   "widgetsC.tasks.markNotDone": "Segna come non completata",
@@ -291,13 +254,7 @@
   "widgetsC.volume.noDevice": "Nessun dispositivo di output",
   "widgetsC.volume.notConnected": "{device} non è connesso",
   "widgetsC.volume.unavailable": "L'audio non è disponibile",
-  "widgetsC.volume.appsOnDevice": "App su questo dispositivo",
   "widgetsC.volume.followDefault": "Segui l'output predefinito",
-  "widgetsC.volume.microphone": "Microfono",
-  "widgetsC.volume.muteMic": "Disattiva il microfono",
-  "widgetsC.volume.unmuteMic": "Riattiva il microfono",
-  "widgetsC.volume.chooseDevice": "Scegli il dispositivo di output",
-  "widgetsC.volume.notPlaying": "{name} (non in riproduzione)",
   "widgetsC.volume.defaultNotChanged": "Output predefinito non modificato",
   "widgetsC.volume.muted": "Disattivato",
   "widgetsC.volume.turnedDown": "Abbassato al minimo",
@@ -306,9 +263,6 @@
   "widgetsC.volume.settings.showSlider.desc": "Senza, il riquadro mostra solo il valore",
   "widgetsC.volume.settings.meter.label": "Indicatore di livello",
   "widgetsC.volume.settings.meter.desc": "Un indicatore in tempo reale sopra il cursore, da un riquadro medio in su",
-  "widgetsC.volume.settings.mic.desc": "Livello e disattivazione del microfono predefinito su un riquadro grande",
-  "widgetsC.volume.settings.apps.label": "App",
-  "widgetsC.volume.settings.apps.desc": "Le app in riproduzione sul dispositivo, su un riquadro grande con spazio",
   "widgetsC.volume.settings.behaviour": "Comportamento",
   "widgetsC.volume.settings.allow.label": "Consenti modifiche",
   "widgetsC.volume.settings.allow.desc": "Consenti a questo riquadro di modificare il volume di sistema",
@@ -334,19 +288,6 @@
   "widgetsC.videoStream.settings.note": "Puoi anche mettere in pausa, ruotare e riconnettere dal menu contestuale del widget. Una videocamera in pausa resta in pausa dopo un riavvio e non usa la rete. Le videocamere che richiedono nome utente e password non sono supportate.",
   "widgetsC.videoStream.settings.refresh.desc": "Ogni quanto viene acquisito un fotogramma. 0 mantiene lo stream aperto alla frequenza della videocamera; qualsiasi altro valore ne acquisisce uno e si disconnette fino al successivo",
   "widgetsC.shortcuts.search": "Cerca collegamenti",
-  "widgetsC.shortcuts.footer.total": {
-    "one": "{count} collegamento",
-    "other": "{count} collegamenti"
-  },
-  "widgetsC.shortcuts.footer.shown": "{shown} di {total} mostrati",
-  "widgetsC.shortcuts.footer.selected": {
-    "one": "{count} selezionato",
-    "other": "{count} selezionati"
-  },
-  "widgetsC.shortcuts.footer.missing": {
-    "one": "{count} mancante",
-    "other": "{count} mancanti"
-  },
   "widgetsC.shortcuts.menu.closeSearch": "Chiudi ricerca",
   "widgetsC.shortcuts.menu.undoRemove": "Annulla rimozione",
   "widgetsC.shortcuts.menu.undoRemoveCount": {

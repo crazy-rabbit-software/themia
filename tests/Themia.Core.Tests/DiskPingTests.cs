@@ -168,29 +168,6 @@ public sealed class DiskPingTests
 
     // ---- S-1166: the drives list -------------------------------------------------------------------
 
-    // ---- S-1171: ping statistics -------------------------------------------------------------------
-
-    [Fact]
-    public void S1171_the_history_holds_the_span_and_forgets_the_oldest()
-    {
-        var history = new PingHistory(3);
-        history.Add(1);
-        history.Add(null);
-        history.Add(3);
-        history.Add(4);
-
-        Assert.Equal(3, history.Count);
-        Assert.Equal(4.0, history.Last);
-
-        history.Capacity = 1;
-        Assert.Equal(1, history.Count);
-        Assert.Equal(4.0, history.Last);
-
-        history.Clear();
-        Assert.False(history.Any);
-        Assert.Null(history.Last);
-    }
-
     // ---- S-1170 / S-1172: status -------------------------------------------------------------------
 
     [Theory]

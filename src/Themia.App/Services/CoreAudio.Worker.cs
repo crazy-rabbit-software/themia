@@ -50,11 +50,9 @@ internal static unsafe partial class CoreAudio
 
         private nint _enumerator;
         private bool _clientRegistered;
-        private Endpoint? _microphone;
 
         private IReadOnlyList<AudioDevice> _devices = [];
         private string? _defaultOutput;
-        private string? _defaultInput;
         private long _lastPeaks;
 
         public void Start()
@@ -177,12 +175,6 @@ internal static unsafe partial class CoreAudio
 
                 _outputs.Clear();
 
-                if (_microphone is not null)
-                {
-                    Unbind(_microphone);
-                    _microphone = null;
-                }
-
                 ReleaseEnumerator();
                 CoUninitialize();
                 _wake.Dispose();
@@ -216,7 +208,6 @@ internal static unsafe partial class CoreAudio
             if (changes.HasFlag(Change.Devices) || changes.HasFlag(Change.Default))
             {
                 _defaultOutput = DefaultId(_enumerator, DataFlowRender);
-                _defaultInput = DefaultId(_enumerator, DataFlowCapture);
             }
 
             if (changes.HasFlag(Change.Devices) || changes.HasFlag(Change.Default) || changes.HasFlag(Change.Wants))
@@ -236,11 +227,6 @@ internal static unsafe partial class CoreAudio
                 ReadEndpoint(output);
             }
 
-            if (_microphone is not null)
-            {
-                ReadEndpoint(_microphone);
-            }
-
             foreach (var subscriber in subscribers)
             {
                 subscriber.Deliver(SnapshotFor(subscriber.Current));
@@ -257,12 +243,10 @@ internal static unsafe partial class CoreAudio
         private void Rebind(Subscriber[] subscribers)
         {
             var needed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            var microphone = false;
 
             foreach (var subscriber in subscribers)
             {
                 var want = subscriber.Current;
-                microphone |= want.Microphone;
 
                 if (AudioRules.Resolve(want.DeviceId, _devices, _defaultOutput).Id is { } id)
                 {
@@ -297,40 +281,9 @@ internal static unsafe partial class CoreAudio
                     CloseSessions(output);
                 }
             }
-
-            var input = microphone ? _defaultInput : null;
-
-            if (_microphone is not null && (_microphone.Failed || !string.Equals(_microphone.Id, input, StringComparison.OrdinalIgnoreCase)))
-            {
-                Unbind(_microphone);
-                _microphone = null;
-            }
-
-            if (input is not null && _microphone is null)
-            {
-                _microphone = Bind(input, InputName(input));
-            }
         }
 
         private string Name(string id) => AudioRules.DeviceName(id, _devices, null);
-
-        private string InputName(string id)
-        {
-            var device = OpenDevice(_enumerator, id);
-            if (device == 0)
-            {
-                return string.Empty;
-            }
-
-            try
-            {
-                return FriendlyName(device);
-            }
-            finally
-            {
-                ReleaseRaw(device);
-            }
-        }
 
         private Endpoint Bind(string id, string name)
         {
@@ -469,29 +422,24 @@ internal static unsafe partial class CoreAudio
         {
             var (id, target) = AudioRules.Resolve(want.DeviceId, _devices, _defaultOutput);
 
-            AudioLevel? microphone = want.Microphone && _microphone is { Failed: false } mic && ReadLevel(mic) is { } level
-                ? level
-                : null;
-
             if (id is null)
             {
                 var status = target == AudioTarget.Missing && !string.IsNullOrEmpty(want.DeviceId)
                     ? AudioStatus.DeviceMissing
                     : AudioStatus.NoDevice;
 
-                return new AudioSnapshot(status, null, [], microphone, _devices, _defaultOutput, target);
+                return new AudioSnapshot(status, null, [], _devices, _defaultOutput, target);
             }
 
             if (!_outputs.TryGetValue(id, out var output) || output.Failed || ReadLevel(output) is not { } master)
             {
-                return new AudioSnapshot(AudioStatus.Unavailable, null, [], microphone, _devices, _defaultOutput, target);
+                return new AudioSnapshot(AudioStatus.Unavailable, null, [], _devices, _defaultOutput, target);
             }
 
             return new AudioSnapshot(
                 AudioStatus.Ready,
                 master,
                 want.Sessions ? output.Sessions : [],
-                microphone,
                 _devices,
                 _defaultOutput,
                 target);
@@ -726,8 +674,6 @@ internal static unsafe partial class CoreAudio
                 byDevice[id] = (PeakOf(output.Meter), AudioRules.PeaksByKey(sessions));
             }
 
-            var microphone = _microphone is null ? 0 : PeakOf(_microphone.Meter);
-
             foreach (var subscriber in subscribers)
             {
                 var want = subscriber.Current;
@@ -741,15 +687,13 @@ internal static unsafe partial class CoreAudio
                     ? found
                     : (0, new Dictionary<string, double>(StringComparer.Ordinal));
 
-                var mic = want.Microphone ? microphone : 0;
-
-                if (!AudioRules.PeaksWorthSending(subscriber.PeaksSilent, output, mic, byKey))
+                if (!AudioRules.PeaksWorthSending(subscriber.PeaksSilent, output, byKey))
                 {
                     continue;
                 }
 
-                subscriber.PeaksSilent = output <= 0 && mic <= 0 && byKey.Values.All(static peak => peak <= 0);
-                subscriber.DeliverPeaks(new AudioPeaks(output, mic, byKey));
+                subscriber.PeaksSilent = output <= 0 && byKey.Values.All(static peak => peak <= 0);
+                subscriber.DeliverPeaks(new AudioPeaks(output, byKey));
             }
         }
 
@@ -817,22 +761,12 @@ internal static unsafe partial class CoreAudio
         }
 
         /// <summary>
-        /// [S-446] What a write names: the microphone, a device's own master, or every session of the
+        /// [S-446] What a write names: a device's own master, or every session of the
         /// device whose own key or group key matches — the two key spaces are disjoint, so one write
         /// serves the grouped row and the ungrouped one without being told which.
         /// </summary>
         private IEnumerable<(nint Pointer, bool Endpoint)> Targets(string selector, string key)
         {
-            if (key == MixerRules.MicrophoneKey)
-            {
-                if (_microphone is { Volume: not 0 } mic)
-                {
-                    yield return (mic.Volume, true);
-                }
-
-                yield break;
-            }
-
             var id = AudioRules.Resolve(selector.Length == 0 ? null : selector, _devices, _defaultOutput).Id;
 
             if (id is null || !_outputs.TryGetValue(id, out var output))

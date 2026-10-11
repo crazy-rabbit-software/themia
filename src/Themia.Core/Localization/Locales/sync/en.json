@@ -1,0 +1,20 @@
+{
+  "$comment": "[S-2612] Offline sync: what a widget says about the stored copy it shows and the changes waiting to reach the provider. English only until the translation round.",
+  "$englishOnly": [
+    "sync.updated",
+    "sync.stateUpdated",
+    "sync.pending",
+    "sync.queueFull",
+    "sync.writeRefused",
+    "sync.withUpdated"
+  ],
+  "sync.updated": "Updated {time}",
+  "sync.stateUpdated": "{state} · updated {time}",
+  "sync.pending": {
+    "one": "{count} change waiting to sync",
+    "other": "{count} changes waiting to sync"
+  },
+  "sync.queueFull": "Too many changes are waiting to sync; this one was not kept.",
+  "sync.writeRefused": "{problem}: {reason}",
+  "sync.withUpdated": "{sentence} Updated {time}."
+}

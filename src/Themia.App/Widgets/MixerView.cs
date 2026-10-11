@@ -17,9 +17,9 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-1227]..[S-1229] A ladder, not one layout scaled: rows are compact (icon, percent, mute), two
 /// lines or one line by width, and the list takes the whole rows that fit — the rest scroll, never
-/// half a row. Room left over goes to the device line (which device, how many apps are playing, and
-/// the device picker), then to the quiet apps only-active left out; the largest card adds a side
-/// panel with the device's own level, the microphone and every output device.
+/// half a row. Room left over goes to the quiet apps only-active left out, then to the rows
+/// themselves ([S-1624]). The mixer is the apps' levels and nothing else: no device line or picker,
+/// no microphone, no side panel at any size (choosing the output is Windows' job).
 /// </para>
 /// <para>
 /// The rows are reused by position, never rebuilt. Each snapshot produces fresh row data, and
@@ -35,28 +35,12 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     private const double TwoLineRowHeight = 48;
     private const double OneLineRowHeight = Fluent.RowHeight;
 
-    /// <summary>[S-1228] The device line's height.</summary>
-    private const double DeviceLineHeight = Fluent.RowHeightCompact;
-
-    /// <summary>[S-1229] The side panel's share of an extra-large card, and its bounds.</summary>
-    private const double PanelShare = 0.4;
-
-    private const double PanelMaxWidth = 320;
-
     private readonly AudioFeed _feed;
-    private readonly Grid _listColumn = new();
-
-    /// <summary>[S-1624] Under a short list beside the panel: where the other apps will appear, and Windows' own mixer.</summary>
-    private readonly StackPanel _footer;
-    private readonly Button _device = new();
-    private readonly TextBlock _deviceName = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _playing = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroller;
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
     private readonly List<RowVisual> _rows = [];
-    private readonly SidePanel _panel;
 
     private MixerConfig _config = new();
     private IWidgetSurface? _surface;
@@ -72,7 +56,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     private string? _focused;
 
     private bool _peaksOn;
-    private bool _panelOn;
     private bool _loaded;
     private bool _detached;
 
@@ -88,32 +71,10 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        BuildDeviceLine();
-
-        _listColumn.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _listColumn.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        SetRow(_scroller, 1);
-        _listColumn.Children.Add(_device);
-        _listColumn.Children.Add(_scroller);
-
-        _listColumn.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0) });
-        _footer = BuildFooter();
-        SetRow(_footer, 2);
-        _listColumn.Children.Add(_footer);
-
-        _panel = new SidePanel(this);
-        _panel.Root.Visibility = Visibility.Collapsed;
-        SetColumn(_panel.Root, 1);
-
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
         _empty = Fluent.EmptyState(Glyphs.Mixer, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
-        SetColumnSpan(_empty, 2);
 
-        Children.Add(_listColumn);
-        Children.Add(_panel.Root);
+        Children.Add(_scroller);
         Children.Add(_empty);
 
         Loaded += OnLoaded;
@@ -191,12 +152,10 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         {
             row.ShowPeak(peaks);
         }
-
-        _panel.ShowPeaks(peaks);
     }
 
     /// <summary>
-    /// [S-1227]..[S-1229] The ladder: everything the mixer shows, decided for the area it has and the
+    /// [S-1227]..[S-1229] The ladder: the rows the mixer shows, decided for the area it has and the
     /// rows the snapshot holds. Runs on a new area, a new config and a new snapshot.
     /// </summary>
     private void Lay()
@@ -206,20 +165,15 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             return;
         }
 
-        // [S-1229] The side panel: only an extra-large card, where the list cannot use the width.
-        var panel = _area.IsMeasured && _area.WidthClass >= SizeClass.Huge && _area.HeightClass >= SizeClass.Expanded;
-        var panelWidth = panel ? Math.Min(PanelMaxWidth, Math.Round(_area.Width * PanelShare)) : 0;
-        var listWidth = _area.Width - panelWidth;
-        var style = MixerRules.RowStyle(listWidth);
+        var style = MixerRules.RowStyle(_area.Width);
 
         // [S-1223] Meters only beside a slider, and only on a card with room for one per row.
         var peaks = _config.ShowPeaks && _loaded && style != MixerRowStyle.Compact
             && (style == MixerRowStyle.OneLine || _area.Least >= SizeClass.Regular);
 
         _peaksOn = peaks;
-        _panelOn = panel;
 
-        _feed.Want(new AudioWant(_config.DeviceId, Sessions: true, Peaks: peaks, Microphone: panel && _config.ShowMicrophone));
+        _feed.Want(new AudioWant(_config.DeviceId, Sessions: true, Peaks: peaks));
 
         if (_snapshot is not { } snapshot || !_area.IsMeasured)
         {
@@ -238,7 +192,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             return;
         }
 
-        var options = new MixerRowOptions(_config.ShowMaster && !panel, _config.ShowSystemSounds, _config.OnlyActive);
+        var options = new MixerRowOptions(_config.ShowMaster, _config.ShowSystemSounds, _config.OnlyActive);
         var grouped = MixerRules.Group(snapshot.Sessions, _config.GroupByApp);
         var main = MixerRules.BuildRows(grouped, snapshot.Master, options);
         var quiet = MixerRules.QuietRows(grouped, options);
@@ -252,23 +206,18 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             all.Add(new MixerRow(MixerRules.MasterKey, string.Empty, null, master.Level, master.Muted, true, false, 0));
         }
 
-        if (snapshot.Microphone is { } mic)
-        {
-            all.Add(new MixerRow(MixerRules.MicrophoneKey, mic.Name, null, mic.Level, mic.Muted, true, false, 0));
-        }
-
         _overrides = MixerRules.ReconcileOverrides(_overrides, all);
         main = MixerRules.ApplyOverrides(main, _overrides);
         quiet = MixerRules.ApplyOverrides(quiet, _overrides);
 
-        if (main.Count == 0 && !panel)
+        if (main.Count == 0)
         {
             ShowEmpty(Str.Mixer_Empty.Text());
             return;
         }
 
         _empty.Visibility = Visibility.Collapsed;
-        _listColumn.Visibility = Visibility.Visible;
+        _scroller.Visibility = Visibility.Visible;
 
         // ---- the height ladder ----------------------------------------------------------------
         var rowHeight = style switch
@@ -278,90 +227,33 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             _ => OneLineRowHeight,
         };
 
-        var room = new Disclosure(listWidth, _area.Height - Fluent.Space1);
-
-        // A tall card always names its device first; a shorter one only when every row still fits.
-        var device = !panel && _area.HeightClass >= SizeClass.Expanded && room.Take(DeviceLineHeight);
+        var room = new Disclosure(_area.Width, _area.Height - Fluent.Space1);
         var rows = Math.Max(1, room.TakeRows(rowHeight, main.Count));
-
-        if (!device && !panel && rows == main.Count && _area.HeightClass >= SizeClass.Regular)
-        {
-            device = room.Take(DeviceLineHeight);
-        }
 
         // [S-1228] The quiet apps only when the playing ones all fit: they never push one off.
         var quietRows = rows == main.Count ? room.TakeRows(rowHeight, quiet.Count) : 0;
 
         _shown = [.. main, .. quiet.Take(quietRows)];
 
-        // [S-1624] Beside the panel, a list that all fits shares the column's height rather than
-        // stopping short; rows tall enough say what each app is doing under its name.
-        var baseRowHeight = rowHeight;
-
-        if (panel && style == MixerRowStyle.OneLine && rows == main.Count && quietRows == quiet.Count)
+        // [S-1624] On a tall card a one-line list that all fits shares the height rather than stopping
+        // short; rows tall enough say what each app is doing under its name. The rest stays empty:
+        // the mixer does not fill a large card with things that are not its rows.
+        if (_area.HeightClass >= SizeClass.Expanded && style == MixerRowStyle.OneLine && rows == main.Count && quietRows == quiet.Count)
         {
             rowHeight = MixerFill.RowHeight(_area.Height - Fluent.Space1, _shown.Count, rowHeight);
         }
 
-        ShowDeviceLine(device, snapshot, main);
         ShowRows(style, rowHeight, main.Count);
         _scroller.Height = Math.Min(rows, main.Count) * rowHeight + (quietRows * rowHeight);
 
-        // [S-1624] What a short list leaves (beside the panel, after the rows were shared out, or
-        // under a tall card's list) is not left blank: it says where the other apps will appear and
-        // offers Windows' own volume mixer.
-        var footer = room.Remaining - ((rowHeight - baseRowHeight) * _shown.Count) >= FooterMinHeight;
-        _footer.Visibility = footer ? Visibility.Visible : Visibility.Collapsed;
-        _listColumn.RowDefinitions[1].Height = footer ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
-        _listColumn.RowDefinitions[2].Height = footer ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-
-        _panel.Root.Width = panelWidth;
-        _panel.Root.Visibility = panel ? Visibility.Visible : Visibility.Collapsed;
-
-        if (panel)
-        {
-            _panel.Show(snapshot, _config, _overrides, _area.Height);
-        }
-
         RestoreFocus();
-    }
-
-    /// <summary>The room the footer needs before it is shown: its glyph, two lines and the link.</summary>
-    private const double FooterMinHeight = 128;
-
-    private StackPanel BuildFooter()
-    {
-        var text = new TextBlock { Text = Str.WidgetsB_Mixer_FooterHint.Text() };
-        var hint = Fluent.EmptyState(Glyphs.Speakers, text, out _);
-
-        var link = new HyperlinkButton
-        {
-            // Wrapped rather than clipped: in the longer languages the link is wider than a tall, narrow card.
-            Content = new TextBlock { Text = Str.WidgetsB_Mixer_WindowsMixer.Text(), TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center },
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, Fluent.Space1, 0, 0),
-        };
-        link.Click += (_, _) =>
-        {
-            if (_surface is { IsPreview: false })
-            {
-                ShellLauncher.OpenWindowsSettings(new Uri("ms-settings:apps-volume"));
-            }
-        };
-        return new StackPanel
-        {
-            Children = { hint, link },
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
     }
 
     private void ShowEmpty(string message)
     {
         _emptyText.Text = message;
         _empty.Visibility = Visibility.Visible;
-        _listColumn.Visibility = Visibility.Collapsed;
-        _panel.Root.Visibility = Visibility.Collapsed;
+        _scroller.Visibility = Visibility.Collapsed;
         _shown = [];
     }
 
@@ -395,71 +287,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         }
     }
 
-    // ---- the device line ([S-1228]) -----------------------------------------------------------
-
-    private void BuildDeviceLine()
-    {
-        var line = new Grid { ColumnSpacing = Fluent.Space2 };
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        var glyph = Fluent.Icon(Glyphs.Speakers, "TextFillColorSecondaryBrush", Fluent.IconSize - 2);
-        var chevron = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorTertiaryBrush", Fluent.IconSize - 6);
-
-        _deviceName.TextTrimming = TextTrimming.CharacterEllipsis;
-        _deviceName.VerticalAlignment = VerticalAlignment.Center;
-        _playing.VerticalAlignment = VerticalAlignment.Center;
-        chevron.VerticalAlignment = VerticalAlignment.Center;
-
-        SetColumn(_deviceName, 1);
-        SetColumn(_playing, 2);
-        SetColumn(chevron, 3);
-        line.Children.Add(glyph);
-        line.Children.Add(_deviceName);
-        line.Children.Add(_playing);
-        line.Children.Add(chevron);
-
-        _device.Content = line;
-        _device.Height = DeviceLineHeight;
-        _device.HorizontalAlignment = HorizontalAlignment.Stretch;
-        _device.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-        _device.Padding = new Thickness(Fluent.Space4, 0, Fluent.Space3, 0);
-        _device.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        _device.BorderThickness = new Thickness(0);
-        _device.CornerRadius = new CornerRadius(0);
-        _device.Click += OnDeviceClicked;
-        ToolTipService.SetToolTip(_device, Str.WidgetsB_Mixer_ChooseDevice.Text());
-    }
-
-    private void ShowDeviceLine(bool shown, AudioSnapshot snapshot, IReadOnlyList<MixerRow> rows)
-    {
-        _device.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-
-        if (!shown)
-        {
-            return;
-        }
-
-        _deviceName.Text = snapshot.Output?.Name is { Length: > 0 } name ? name : Str.WidgetsB_Mixer_OutputDevice.Text();
-
-        var playing = rows.Count(static row => row.Active && !row.IsMaster && !row.IsSystem);
-        _playing.Text = playing == 0 ? Str.WidgetsB_Mixer_Silent.Text() : Str.WidgetsB_Mixer_PlayingCount.Plural(playing);
-    }
-
-    private void OnDeviceClicked(object sender, RoutedEventArgs args) => OpenDeviceMenu(_device);
-
-    /// <summary>[S-1222] The device picker. Inert in a preview, like every other control.</summary>
-    private void OpenDeviceMenu(FrameworkElement anchor)
-    {
-        if (_snapshot is not { } snapshot || _surface is not { IsPreview: false })
-        {
-            return;
-        }
-
-        AudioDeviceMenu.Build(snapshot, _config.DeviceId, PickDevice).ShowAt(anchor);
-    }
+    // ---- following the default ([S-1222]) ----------------------------------------------------
 
     /// <summary>
     /// [S-1614] A pick makes the device Windows' default and the mixer keeps following the default;
@@ -606,9 +434,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         _detached = true;
         Loaded -= OnLoaded;
         Unloaded -= OnUnloaded;
-        _device.Click -= OnDeviceClicked;
         _feed.Dispose();
-        _panel.Detach();
 
         foreach (var row in _rows)
         {
@@ -622,7 +448,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private static string RowName(MixerRow row) => row.IsMaster ? Str.WidgetsB_Mixer_Master.Text()
         : row.IsSystem ? Str.Mixer_SystemSounds.Text()
-        : row.Key == MixerRules.MicrophoneKey ? (row.Name.Length > 0 ? row.Name : Str.WidgetsB_Mixer_Microphone.Text())
         : row.Name.Length > 0 ? row.Name
         : Str.Mixer_UnknownApp.Text();
 

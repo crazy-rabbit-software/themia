@@ -1,32 +1,34 @@
-using Themia.App.Services.Web;
+using Themia.App.Services.Sync;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Tasks;
 
 /// <summary>
-/// One account task list as every widget showing it shares it: what the provider last said, the
-/// changes not yet confirmed on top ([S-597]), and how the last attempt went.
+/// One widget's view of an account's tasks: one list, or Today across all of them ([S-596]).
 /// <para>
-/// Two widgets on the same list, account and filter hold the same feed, so they make one request
-/// between them and show the same ticks. Lives on the UI thread; <see cref="Changed"/> is raised
-/// there.
+/// A view, not a store: the tasks, the pending changes ([S-597]) and how the last sync went live in
+/// the account's box ([S-2650]), so every widget on the account — a list and Today — shows the same
+/// ticks, and a widget that comes back (a view switch) finds them at once. Lives on the UI thread;
+/// <see cref="Changed"/> is raised there.
 /// </para>
 /// </summary>
 internal sealed class TaskFeed
 {
-    internal TaskFeed(string accountId, string listId, bool showCompleted)
+    internal TaskFeed(TaskService.Box box, string listId, bool showCompleted)
     {
-        AccountId = accountId;
+        Owner = box;
         ListId = listId;
         ShowCompleted = showCompleted;
-        Schedule = new RefreshSchedule("tasks", $"task list {listId}");
     }
 
-    public string AccountId { get; }
+    internal TaskService.Box Owner { get; }
+
+    public string AccountId => Owner.AccountId;
 
     /// <summary>A real list id, or <see cref="TaskRules.TodayListId"/>.</summary>
     public string ListId { get; }
@@ -35,33 +37,37 @@ internal sealed class TaskFeed
 
     public bool IsToday => TaskRules.IsToday(ListId);
 
-    public TaskEdits Edits { get; } = new();
+    /// <summary>The account's changes: shared by every feed on it.</summary>
+    public TaskEdits Edits => Owner.Edits;
 
-    /// <summary>What the widget draws: the provider's answer with the pending changes applied.</summary>
-    public IReadOnlyList<TaskItem> Tasks => Edits.Current;
+    /// <summary>What the widget draws: the stored tasks with the pending changes applied, this list's or every list's for Today.</summary>
+    public IReadOnlyList<TaskItem> Tasks
+    {
+        get
+        {
+            var all = Owner.Edits.Current;
+            return IsToday ? all : [.. all.Where(t => t.ListId == ListId)];
+        }
+    }
 
-    /// <summary>Whether a fetch has ever landed. Before that there is nothing to draw but "loading".</summary>
-    public bool Loaded { get; internal set; }
+    /// <summary>Whether there is anything to draw: this list (or, for Today, the account) has been synced at least once.</summary>
+    public bool Loaded => IsToday ? Owner.HeldAny : Owner.Holds(ListId);
 
-    /// <summary>A fetch is out.</summary>
-    public bool Busy { get; internal set; }
+    /// <summary>A sync is out.</summary>
+    public bool Busy => Owner.Busy;
 
-    /// <summary>How the last fetch failed, or null when it worked.</summary>
-    public AccountException? Failure { get; internal set; }
+    /// <summary>How the last sync failed, or null when it worked.</summary>
+    public AccountException? Failure => Owner.Failure;
 
-    /// <summary>The last change the provider refused, in words, or null. Cleared by the next one that works.</summary>
-    public string? WriteProblem { get; internal set; }
+    /// <summary>[S-2653] The last change the provider refused, or the changes still waiting, in words; else null.</summary>
+    public string? WriteProblem => Owner.WriteNote;
 
-    public DateTimeOffset? FetchedAt { get; internal set; }
+    /// <summary>When what is drawn was synced.</summary>
+    public DateTimeOffset? FetchedAt => IsToday ? Owner.LastSync : Owner.At(ListId);
 
     public event Action? Changed;
 
-    internal RefreshSchedule Schedule { get; }
-
     internal int Holders { get; set; }
-
-    /// <summary>A forced refresh arrived while one was out: run once more when it lands.</summary>
-    internal bool Again { get; set; }
 
     internal string Key => Of(AccountId, ListId, ShowCompleted);
 
@@ -90,36 +96,47 @@ internal sealed class TaskFeed
 }
 
 /// <summary>
-/// [S-591] Tasks for every widget, from one place: Themia's own accounts through
-/// <see cref="ITaskRemote"/>, and the lists kept on this PC through <see cref="Local"/>. One
-/// instance, owned by the host and reached through <see cref="AppServices.Tasks"/>.
+/// [S-591] [S-2650] Tasks for every widget, from one place: Themia's own accounts through
+/// <see cref="ITaskRemote"/> and the offline store, and the lists kept on this PC through
+/// <see cref="Local"/>. One instance, owned by the host and reached through <see cref="AppServices.Tasks"/>.
 /// <para>
-/// <b>Refreshing</b> rides out trouble rather than adding to it: a refresh never stacks on one that
-/// is still out ([S-596], the classic app's [S-63]); a widget's tick is skipped when another widget
-/// on the same feed refreshed it moments ago; and a failing feed backs off through
-/// <see cref="Backoff"/>, a rate limit far longer than anything else.
+/// <b>Sync owns the network.</b> Each task account a widget in any view reads ([S-2608]) has a
+/// <see cref="Box"/>: its lists and the tasks of every list a widget shows (all of them once Today is
+/// shown, [S-2652]), loaded from the account's shelf at start and saved after every change. One sync
+/// per account reads the lists, then each wanted list in turn, at the fastest refresh any of its
+/// widgets asks for; a refresh never stacks on one still out; failures back off through
+/// <see cref="Backoff"/>. A widget's own tick asks nothing.
 /// </para>
 /// <para>
-/// <b>Writing</b> is optimistic and single-flight ([S-597]): the change shows at once, writes to one
-/// account go out one at a time and in order, a refusal takes the change back and says so, and a
-/// confirmed write nudges the account's other feeds to catch up.
+/// <b>Writing</b> is optimistic, queued and in order ([S-597], [S-2653]): the change shows at once and
+/// waits in the account's persisted queue until the provider confirms it; offline or throttled it
+/// waits and retries, still shown; a refusal takes it back and says why.
 /// </para>
 /// </summary>
 internal sealed class TaskService : IDisposable
 {
     private const string Scope = "tasks";
 
+    private static readonly TimeSpan DefaultInterval = TimeSpan.FromSeconds(60);
+
     private readonly ITaskRemote _remote;
+    private readonly Ticker _ticker;
+    private readonly SyncHost _sync;
+    private readonly Dictionary<string, Box> _boxes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, TaskFeed> _feeds = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, Task<IReadOnlyList<TaskListInfo>>> _lists = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, SemaphoreSlim> _writeGates = new(StringComparer.Ordinal);
+    private IDisposable? _tick;
     private bool _disposed;
 
-    public TaskService(ITaskRemote remote, LocalTaskPool local)
+    public TaskService(ITaskRemote remote, LocalTaskPool local, Ticker ticker, SyncHost sync)
     {
         _remote = remote;
+        _ticker = ticker;
+        _sync = sync;
         Local = local;
         _remote.AccountsChanged += OnAccountsChanged;
+        _sync.InterestsChanged += Reconcile;
+        _sync.NetworkAvailable += OnNetworkAvailable;
+        Reconcile();
     }
 
     /// <summary>Raised on the UI thread when the accounts that can feed tasks changed.</summary>
@@ -134,19 +151,27 @@ internal sealed class TaskService : IDisposable
         => string.IsNullOrEmpty(accountId) ? null : Accounts.FirstOrDefault(a => a.Id == accountId);
 
     /// <summary>
-    /// An account's lists. Single-flight and cached: every widget and the settings page asking at
-    /// once cause one request; a failure is not cached, so the next ask tries again.
+    /// An account's lists: the stored ones when there are, else read now (single-flight). A failure
+    /// with nothing stored throws, so the caller can say why.
     /// </summary>
-    public Task<IReadOnlyList<TaskListInfo>> ListsAsync(string accountId, bool fresh = false)
+    public async Task<IReadOnlyList<TaskListInfo>> ListsAsync(string accountId, bool fresh = false)
     {
-        if (!fresh && _lists.TryGetValue(accountId, out var cached) && !cached.IsFaulted && !cached.IsCanceled)
+        var box = BoxFor(accountId) ?? throw new AccountException(AccountError.UnknownAccount, Str.Shell_Accounts_NotSignedIn.Text());
+
+        if (!fresh && box.Lists is { } held)
         {
-            return cached;
+            return held;
         }
 
-        var load = LoadListsAsync(accountId);
-        _lists[accountId] = load;
-        return load;
+        box.ListsFlight ??= box.LoadListsAsync();
+        try
+        {
+            return await box.ListsFlight.ConfigureAwait(true);
+        }
+        finally
+        {
+            box.ListsFlight = null;
+        }
     }
 
     /// <summary>Hold a feed. Every <see cref="Acquire"/> is matched by one <see cref="Release"/>.</summary>
@@ -156,8 +181,11 @@ internal sealed class TaskService : IDisposable
 
         if (!_feeds.TryGetValue(key, out var feed))
         {
-            feed = new TaskFeed(accountId, listId, showCompleted);
+            var box = BoxFor(accountId) ?? Box.Load(this, accountId);
+            _boxes.TryAdd(accountId, box);
+            feed = new TaskFeed(box, listId, showCompleted);
             _feeds[key] = feed;
+            EnsureTicking();
         }
 
         feed.Holders++;
@@ -170,45 +198,26 @@ internal sealed class TaskService : IDisposable
 
         if (--feed.Holders <= 0 && _feeds.TryGetValue(feed.Key, out var held) && ReferenceEquals(held, feed))
         {
+            // The list stays synced while a widget in any view shows it; only the view goes.
             _feeds.Remove(feed.Key);
         }
     }
 
     /// <summary>
-    /// Ask the provider again. <paramref name="force"/> is a user action or a changed setting, which
-    /// goes now (or straight after the fetch that is out); a tick goes only when the back-off allows
-    /// and nobody else refreshed this feed within half the interval.
+    /// [S-2609] Sync the feed's account. Only <paramref name="force"/> asks (a user action, a changed
+    /// setting, a list never synced): the timer is the service's, not the widget's.
     /// </summary>
     public void Refresh(TaskFeed feed, TimeSpan interval, bool force)
     {
         ArgumentNullException.ThrowIfNull(feed);
 
-        if (_disposed)
+        if (_disposed || !force)
         {
             return;
         }
 
-        if (feed.Busy)
-        {
-            // [S-596] Never a second request on top of one still out: that is how a throttled
-            // provider is kept throttled. A forced refresh is remembered, not dropped.
-            feed.Again |= force;
-            return;
-        }
-
-        var now = DateTimeOffset.Now;
-
-        if (!force && (!feed.Schedule.MayFetch(now) || feed.FetchedAt is { } at && now - at < interval / 2))
-        {
-            return;
-        }
-
-        if (force)
-        {
-            feed.Schedule.Reset();
-        }
-
-        _ = FetchAsync(feed, interval);
+        feed.Owner.Schedule.Force(DateTimeOffset.UtcNow);
+        _ = feed.Owner.SyncAsync(force: true);
     }
 
     // ---- writes ----------------------------------------------------------------------------------
@@ -224,14 +233,7 @@ internal sealed class TaskService : IDisposable
             return Task.CompletedTask; // no real id to write to yet
         }
 
-        var ticket = feed.Edits.Begin(TaskEdit.Complete(task.Id, completed));
-        feed.Raise();
-
-        return WriteAsync(feed, ticket, completed ? "complete the task" : "reopen the task", completed ? Str.Shell_Tasks_CompleteFailed : Str.Shell_Tasks_ReopenFailed, async cancellation =>
-        {
-            await _remote.SetCompletedAsync(feed.AccountId, task.ListId, task.Id, completed, cancellation).ConfigureAwait(true);
-            return null;
-        });
+        return feed.Owner.Enqueue(completed ? PendingKind.TaskComplete : PendingKind.TaskReopen, task.Id, task.ListId, null, null, TaskEdit.Complete(task.Id, completed));
     }
 
     /// <summary>[S-600] Rename a task. A blank or unchanged title writes nothing.</summary>
@@ -246,14 +248,7 @@ internal sealed class TaskService : IDisposable
             return Task.CompletedTask;
         }
 
-        var ticket = feed.Edits.Begin(TaskEdit.Rename(task.Id, clean));
-        feed.Raise();
-
-        return WriteAsync(feed, ticket, "rename the task", Str.Shell_Tasks_RenameFailed, async cancellation =>
-        {
-            await _remote.RenameAsync(feed.AccountId, task.ListId, task.Id, clean, cancellation).ConfigureAwait(true);
-            return null;
-        });
+        return feed.Owner.Enqueue(PendingKind.TaskRename, task.Id, task.ListId, clean, null, TaskEdit.Rename(task.Id, clean));
     }
 
     /// <summary>[S-597] Delete a task; a refusal puts it back where it was.</summary>
@@ -267,20 +262,14 @@ internal sealed class TaskService : IDisposable
             return Task.CompletedTask;
         }
 
-        var ticket = feed.Edits.Begin(TaskEdit.Delete(task.Id));
-        feed.Raise();
-
-        return WriteAsync(feed, ticket, "delete the task", Str.Shell_Tasks_DeleteFailed, async cancellation =>
-        {
-            await _remote.DeleteAsync(feed.AccountId, task.ListId, task.Id, cancellation).ConfigureAwait(true);
-            return null;
-        });
+        return feed.Owner.Enqueue(PendingKind.TaskDelete, task.Id, task.ListId, null, null, TaskEdit.Delete(task.Id));
     }
 
     /// <summary>
     /// [S-599] Create a task at the bottom of the list it was typed into. From Today it is created due
     /// today in the account's default list ([S-596]), or it would vanish from the view it was typed
-    /// into. Returns the provider's task, or null when nothing was created.
+    /// into. Returns the provider's task once it confirmed, the temporary one while it waits to sync,
+    /// or null when nothing was created.
     /// </summary>
     public async Task<TaskItem?> CreateAsync(TaskFeed feed, string title)
     {
@@ -292,6 +281,7 @@ internal sealed class TaskService : IDisposable
             return null;
         }
 
+        var box = feed.Owner;
         string listId;
         DateOnly? due = null;
 
@@ -304,16 +294,14 @@ internal sealed class TaskService : IDisposable
             }
             catch (AccountException ex)
             {
-                feed.WriteProblem = Str.Shell_Common_ProblemReason.Format(("problem", Str.Shell_Tasks_AddFailed.Text()), ("reason", ex.Message));
+                box.Refuse(Str.Shell_Common_ProblemReason.Format(("problem", Str.Shell_Tasks_AddFailed.Text()), ("reason", ex.Message)));
                 Log.Warn(Scope, "could not read the lists to add a task to", ex);
-                feed.Raise();
                 return null;
             }
 
             if (TaskRules.CreateTarget(lists) is not { } target)
             {
-                feed.WriteProblem = Str.Shell_Tasks_NoList.Text();
-                feed.Raise();
+                box.Refuse(Str.Shell_Tasks_NoList.Text());
                 return null;
             }
 
@@ -325,25 +313,8 @@ internal sealed class TaskService : IDisposable
             listId = feed.ListId;
         }
 
-        var optimistic = new TaskItem(
-            $"pending-{Guid.NewGuid():n}",
-            listId,
-            clean,
-            false,
-            false,
-            due is { } day ? $"{TaskDue.Wire(day)}T00:00:00.0000000" : null);
-
-        var ticket = feed.Edits.Begin(TaskEdit.Create(optimistic));
-        feed.Raise();
-
-        TaskItem? created = null;
-        await WriteAsync(feed, ticket, "add the task", Str.Shell_Tasks_AddFailed, async cancellation =>
-        {
-            created = await _remote.CreateAsync(feed.AccountId, listId, clean, due, cancellation).ConfigureAwait(true);
-            return created;
-        }).ConfigureAwait(true);
-
-        return created;
+        var optimistic = Box.Optimistic($"pending-{Guid.NewGuid():n}", listId, clean, due);
+        return await box.EnqueueCreateAsync(optimistic, due).ConfigureAwait(true);
     }
 
     public void Dispose()
@@ -355,139 +326,126 @@ internal sealed class TaskService : IDisposable
 
         _disposed = true;
         _remote.AccountsChanged -= OnAccountsChanged;
+        _sync.InterestsChanged -= Reconcile;
+        _sync.NetworkAvailable -= OnNetworkAvailable;
+        _tick?.Dispose();
+        _tick = null;
         AccountsChanged = null;
         _feeds.Clear();
+        _boxes.Clear();
     }
 
-    // ---- plumbing --------------------------------------------------------------------------------
+    // ---- what to sync ----------------------------------------------------------------------------
 
-    private async Task<IReadOnlyList<TaskListInfo>> LoadListsAsync(string accountId)
+    private Box? BoxFor(string accountId)
     {
-        var lists = await _remote.ListsAsync(accountId, CancellationToken.None).ConfigureAwait(true);
-        Log.Debug(Scope, $"{lists.Count} task list(s) on {accountId}");
-        return lists;
+        if (_boxes.TryGetValue(accountId, out var box))
+        {
+            return box;
+        }
+
+        if (Find(accountId) is null)
+        {
+            return null;
+        }
+
+        box = Box.Load(this, accountId);
+        _boxes[accountId] = box;
+        EnsureTicking();
+        return box;
     }
 
-    private async Task FetchAsync(TaskFeed feed, TimeSpan interval)
+    /// <summary>The account a widget's interest names: its own, else the first task account ([S-590]).</summary>
+    private string? Resolve(string accountId)
+        => accountId.Length > 0 ? Find(accountId)?.Id : Accounts.FirstOrDefault()?.Id;
+
+    /// <summary>Follow the accounts and the widgets of every view.</summary>
+    private void Reconcile()
     {
-        feed.Busy = true;
-        feed.Raise();
-
-        var stamp = feed.Edits.FetchStarted();
-
-        try
+        if (_disposed)
         {
-            IReadOnlyList<TaskItem> tasks;
+            return;
+        }
 
-            if (feed.IsToday)
+        var known = new HashSet<string>(Accounts.Select(a => a.Id), StringComparer.Ordinal);
+        foreach (var id in _boxes.Keys.Where(id => !known.Contains(id)).ToList())
+        {
+            _boxes.Remove(id);
+        }
+
+        foreach (var box in _boxes.Values)
+        {
+            box.Interests.Clear();
+        }
+
+        foreach (var interest in _sync.Interests.Tasks)
+        {
+            if (Resolve(interest.AccountId) is { } id && BoxFor(id) is { } box)
             {
-                // [S-596] Today reads the lists afresh, then each one in turn.
-                var lists = await ListsAsync(feed.AccountId, fresh: true).ConfigureAwait(true);
-                tasks = await TaskFanOut.AcrossListsAsync(
-                    lists,
-                    (listId, cancellation) => _remote.TasksAsync(feed.AccountId, listId, feed.ShowCompleted, cancellation),
-                    CancellationToken.None,
-                    (list, ex) => Log.Warn(Scope, $"Today skipped list {list.Id}: {ex.Message}")).ConfigureAwait(true);
+                box.Interests.Add((interest.ListId, interest.ShowCompleted, interest.Interval));
             }
-            else
-            {
-                tasks = await _remote.TasksAsync(feed.AccountId, feed.ListId, feed.ShowCompleted, CancellationToken.None).ConfigureAwait(true);
-            }
-
-            var now = DateTimeOffset.Now;
-            feed.Edits.Landed(tasks, stamp);
-            feed.Loaded = true;
-            feed.Failure = null;
-            feed.FetchedAt = now;
-            feed.Schedule.Record(tasks.Count == 0 ? FetchStatus.Empty : FetchStatus.Ok, interval, null, now);
-        }
-        catch (AccountException ex)
-        {
-            feed.Failure = ex;
-            feed.Schedule.Record(ex.ToFetchStatus(), interval, ex.Message, DateTimeOffset.Now);
-        }
-        catch (Exception ex)
-        {
-            // Anything the account layer did not already type is a bug or a provider oddity; the
-            // widget says the service answered unexpectedly and the log says what it was.
-            Log.Error(Scope, $"reading task list {feed.ListId} failed unexpectedly", ex);
-            feed.Failure = new AccountException(AccountError.BadResponse, Str.Shell_Tasks_Unreadable.Text(), 0, ex);
-            feed.Schedule.Record(FetchStatus.BadResponse, interval, ex.Message, DateTimeOffset.Now);
-        }
-        finally
-        {
-            feed.Busy = false;
-            feed.Raise();
         }
 
-        if (feed.Again && feed.Holders > 0 && !_disposed)
+        foreach (var box in _boxes.Values)
         {
-            feed.Again = false;
-            _ = FetchAsync(feed, interval);
+            var interval = box.Interests.Count == 0 ? DefaultInterval : box.Interests.Min(i => i.Interval);
+            box.Schedule.Interval = interval;
+        }
+
+        EnsureTicking();
+        OnTick();
+    }
+
+    private void EnsureTicking()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (_boxes.Count > 0)
+        {
+            _tick ??= _ticker.Subscribe(TimeSpan.FromMinutes(1), OnTick);
+        }
+        else
+        {
+            _tick?.Dispose();
+            _tick = null;
         }
     }
 
-    /// <summary>
-    /// [S-597] One write, through the account's gate: writes to an account go out one at a time and
-    /// in the order they were made, so "complete, then reopen" can never arrive reopened-first.
-    /// </summary>
-    /// <param name="what">The step, for the log (English).</param>
-    /// <param name="failed">The step's failure, as the widget says it.</param>
-    private async Task WriteAsync(TaskFeed feed, long ticket, string what, Str failed, Func<CancellationToken, Task<TaskItem?>> write)
+    private void OnTick()
     {
-        if (!_writeGates.TryGetValue(feed.AccountId, out var gate))
+        if (_disposed)
         {
-            gate = new SemaphoreSlim(1, 1);
-            _writeGates[feed.AccountId] = gate;
+            return;
         }
 
-        await gate.WaitAsync().ConfigureAwait(true);
-
-        var succeeded = false;
-        try
+        var now = DateTimeOffset.UtcNow;
+        foreach (var box in _boxes.Values.ToArray())
         {
-            var created = await write(CancellationToken.None).ConfigureAwait(true);
-            feed.Edits.Succeeded(ticket, created);
-            feed.WriteProblem = null;
-            succeeded = true;
-        }
-        catch (AccountException ex)
-        {
-            feed.Edits.Failed(ticket);
-            feed.WriteProblem = Str.Shell_Common_ProblemReason.Format(("problem", failed.Text()), ("reason", ex.Message));
-            Log.Warn(Scope, $"could not {what} on {feed.AccountId}", ex);
-        }
-        catch (Exception ex)
-        {
-            feed.Edits.Failed(ticket);
-            feed.WriteProblem = Str.Shell_Common_ProblemSentence.Format(("problem", failed.Text()));
-            Log.Error(Scope, $"could not {what} on {feed.AccountId}", ex);
-        }
-        finally
-        {
-            gate.Release();
-        }
-
-        feed.Raise();
-
-        if (succeeded)
-        {
-            // Another widget may show this task on another feed (a list and Today); it catches up
-            // now rather than on its next tick.
-            foreach (var other in _feeds.Values.ToList())
+            if (box.Usable && (box.Interests.Count > 0 || box.Feeds.Any()) && box.Schedule.IsDue(now))
             {
-                if (!ReferenceEquals(other, feed) && other.AccountId == feed.AccountId)
-                {
-                    Refresh(other, TimeSpan.FromMinutes(1), force: true);
-                }
+                _ = box.SyncAsync(force: false);
             }
+
+            _ = box.DrainAsync();
         }
+    }
+
+    private void OnNetworkAvailable()
+    {
+        foreach (var box in _boxes.Values)
+        {
+            box.Wake();
+        }
+
+        OnTick();
     }
 
     private void OnAccountsChanged()
     {
-        // A signed-out account's lists must not be offered; a new one's are not known yet.
-        _lists.Clear();
+        Reconcile();
 
         if (AccountsChanged is not { } changed)
         {
@@ -504,6 +462,439 @@ internal sealed class TaskService : IDisposable
             {
                 Log.Error(Scope, "an accounts listener threw", ex);
             }
+        }
+    }
+
+    // ---- one account -----------------------------------------------------------------------------
+
+    /// <summary>[S-2650] One task account: its lists, its held tasks, its queue, its shelf.</summary>
+    internal sealed class Box
+    {
+        private readonly TaskService _owner;
+        private readonly Dictionary<string, (DateTimeOffset At, bool IncludesCompleted, IReadOnlyList<TaskItem> Tasks)> _held = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, long> _tickets = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, TaskCompletionSource<TaskItem?>> _creates = new(StringComparer.Ordinal);
+        private List<PendingWrite> _pending = [];
+        private DateTimeOffset? _listsAt;
+        private bool _writing;
+        private bool _again;
+        private string? _refused;
+
+        private Box(TaskService owner, string accountId)
+        {
+            _owner = owner;
+            AccountId = accountId;
+        }
+
+        public string AccountId { get; }
+
+        public TaskEdits Edits { get; } = new();
+
+        public SyncSchedule Schedule { get; } = new(DefaultInterval);
+
+        public IReadOnlyList<TaskListInfo>? Lists { get; private set; }
+
+        public Task<IReadOnlyList<TaskListInfo>>? ListsFlight { get; set; }
+
+        /// <summary>(list, show completed, refresh) of every widget on this account in any view.</summary>
+        public List<(string ListId, bool ShowCompleted, TimeSpan Interval)> Interests { get; } = [];
+
+        public IEnumerable<TaskFeed> Feeds => _owner._feeds.Values.Where(f => ReferenceEquals(f.Owner, this));
+
+        public bool Busy => Schedule.Busy;
+
+        public AccountException? Failure { get; private set; }
+
+        public bool HeldAny => _held.Count > 0 || Lists is { Count: 0 };
+
+        public DateTimeOffset? LastSync => Schedule.LastSuccess;
+
+        public bool Usable => _owner.Find(AccountId) is { Problem: null };
+
+        /// <summary>
+        /// The last refusal, else — once the head has had to wait (offline, throttled, sign-in) — how
+        /// many changes are queued. A change on its way out normally says nothing.
+        /// </summary>
+        public string? WriteNote => _refused
+            ?? (_pending.Any(w => w.Attempts > 0) ? Str.Sync_Pending.Plural(_pending.Count, ("count", _pending.Count)) : null);
+
+        public bool Holds(string listId) => _held.ContainsKey(listId);
+
+        public DateTimeOffset? At(string listId) => _held.TryGetValue(listId, out var held) ? held.At : null;
+
+        public static TaskItem Optimistic(string id, string listId, string title, DateOnly? due)
+            => new(id, listId, title, false, false, due is { } day ? $"{TaskDue.Wire(day)}T00:00:00.0000000" : null);
+
+        public static Box Load(TaskService owner, string accountId)
+        {
+            var box = new Box(owner, accountId);
+            var read = owner._sync.Vault.Load(SyncKind.Tasks, accountId, SyncJsonContext.Default.TasksShelf, TasksShelf.Version);
+            if (read.Value is not { } stored)
+            {
+                return box;
+            }
+
+            var dropped = 0;
+            var shelf = TaskShelves.Validate(stored, ref dropped);
+            if (dropped > 0)
+            {
+                Log.Warn(Scope, $"{accountId}: {dropped} unusable task entries dropped from the store");
+            }
+
+            if (shelf.Lists is { } lists)
+            {
+                box.Lists = [.. lists.Select(TaskShelves.Restore)];
+                box._listsAt = shelf.ListsAt;
+            }
+
+            foreach (var list in shelf.Held)
+            {
+                box._held[list.ListId] = (list.At, list.IncludesCompleted, [.. list.Tasks.Select(t => TaskShelves.Restore(t, list.ListId))]);
+            }
+
+            box.Edits.Landed(box.Base(), box.Edits.FetchStarted());
+            box.Schedule.Seed(shelf.Held.Count > 0 ? shelf.Held.Min(l => l.At) : shelf.ListsAt, DateTimeOffset.UtcNow);
+
+            // [S-2653] Changes that were waiting when the app last closed are shown again and resent.
+            foreach (var write in shelf.Pending)
+            {
+                box._tickets[write.Id] = box.Edits.Begin(Edit(write));
+            }
+
+            box._pending = shelf.Pending;
+            return box;
+        }
+
+        private static TaskEdit Edit(PendingWrite write) => write.Kind switch
+        {
+            PendingKind.TaskComplete => TaskEdit.Complete(write.Target, true),
+            PendingKind.TaskReopen => TaskEdit.Complete(write.Target, false),
+            PendingKind.TaskRename => TaskEdit.Rename(write.Target, write.Text ?? string.Empty),
+            PendingKind.TaskDelete => TaskEdit.Delete(write.Target),
+            _ => TaskEdit.Create(Optimistic(write.Target, write.Container, write.Text ?? string.Empty, write.Due)),
+        };
+
+        private List<TaskItem> Base() => [.. _held.Values.SelectMany(h => h.Tasks)];
+
+        public void Wake()
+        {
+            Schedule.Wake();
+            _pending = WriteQueue.Wake(_pending);
+        }
+
+        public async Task<IReadOnlyList<TaskListInfo>> LoadListsAsync()
+        {
+            var lists = await _owner._remote.ListsAsync(AccountId, CancellationToken.None).ConfigureAwait(true);
+            Log.Debug(Scope, $"{lists.Count} task list(s) on {AccountId}");
+            Lists = [.. lists.Take(TaskShelves.MaxLists)];
+            _listsAt = DateTimeOffset.UtcNow;
+            Save();
+            return Lists;
+        }
+
+        /// <summary>[S-2652] One sync of the account: the lists, then each wanted list in turn.</summary>
+        public async Task SyncAsync(bool force)
+        {
+            if (Schedule.Busy)
+            {
+                _again |= force;
+                return;
+            }
+
+            if (!Usable)
+            {
+                return;
+            }
+
+            Schedule.Busy = true;
+            Raise();
+            var stamp = Edits.FetchStarted();
+
+            try
+            {
+                var lists = await LoadListsAsync().ConfigureAwait(true);
+                var interests = Interests.Select(i => (i.ListId, i.ShowCompleted))
+                    .Concat(Feeds.Select(f => (f.ListId, f.ShowCompleted)));
+                var wanted = TaskShelves.Wanted(lists, interests);
+
+                var failures = 0;
+                AccountException? first = null;
+
+                foreach (var (listId, includeCompleted) in wanted)
+                {
+                    try
+                    {
+                        var tasks = await _owner._remote.TasksAsync(AccountId, listId, includeCompleted, CancellationToken.None).ConfigureAwait(true);
+                        _held[listId] = (DateTimeOffset.UtcNow, includeCompleted, [.. tasks.Take(TaskShelves.MaxTasksPerList)]);
+                    }
+                    catch (AccountException ex)
+                    {
+                        // [S-596] One list failing costs that list, not the account; the held copy stays.
+                        failures++;
+                        first ??= ex;
+                        Log.Warn(Scope, $"list {listId} of {AccountId} skipped: {ex.Message}");
+                    }
+                }
+
+                // A list that is gone at the provider is gone here too.
+                var present = new HashSet<string>(lists.Select(l => l.Id), StringComparer.Ordinal);
+                foreach (var gone in _held.Keys.Where(id => !present.Contains(id)).ToList())
+                {
+                    _held.Remove(gone);
+                }
+
+                if (first is not null && failures == wanted.Count)
+                {
+                    throw first;
+                }
+
+                Edits.Landed(Base(), stamp);
+                Failure = null;
+                Schedule.Succeeded(DateTimeOffset.UtcNow);
+                Save();
+            }
+            catch (AccountException ex)
+            {
+                Failure = ex;
+                Schedule.Failed(ex.ToFetchStatus(), ex.Message, DateTimeOffset.UtcNow);
+                Log.Warn(Scope, $"{AccountId}: {FetchState.Message(ex.ToFetchStatus())} ({ex.Message})");
+            }
+            catch (Exception ex)
+            {
+                // Anything the account layer did not already type is a bug or a provider oddity; the
+                // widget says the service answered unexpectedly and the log says what it was.
+                Log.Error(Scope, $"syncing the tasks of {AccountId} failed unexpectedly", ex);
+                Failure = new AccountException(AccountError.BadResponse, Str.Shell_Tasks_Unreadable.Text(), 0, ex);
+                Schedule.Failed(FetchStatus.BadResponse, ex.Message, DateTimeOffset.UtcNow);
+            }
+            finally
+            {
+                Schedule.Busy = false;
+            }
+
+            Raise();
+
+            if (_again && !_owner._disposed)
+            {
+                _again = false;
+                _ = SyncAsync(force: true);
+            }
+        }
+
+        // ---- the queue ----------------------------------------------------------------------------
+
+        public Task Enqueue(PendingKind kind, string taskId, string listId, string? text, DateOnly? due, TaskEdit edit)
+        {
+            var write = new PendingWrite(Guid.NewGuid().ToString("n"), kind, taskId, listId, text, due, DateTimeOffset.UtcNow);
+            return Add(write, edit) ? DrainAsync() : Task.CompletedTask;
+        }
+
+        public async Task<TaskItem?> EnqueueCreateAsync(TaskItem optimistic, DateOnly? due)
+        {
+            var write = new PendingWrite(Guid.NewGuid().ToString("n"), PendingKind.TaskCreate, optimistic.Id, optimistic.ListId, optimistic.Title, due, DateTimeOffset.UtcNow);
+            if (!Add(write, TaskEdit.Create(optimistic)))
+            {
+                return null;
+            }
+
+            var created = new TaskCompletionSource<TaskItem?>();
+            _creates[write.Id] = created;
+            _ = DrainAsync();
+
+            // The provider's task once it answers; while it waits (offline) the temporary row, which
+            // the widget pins at the bottom like any other ([S-599]).
+            if (_pending.Count == 0 || _pending[0].Id != write.Id)
+            {
+                _creates.Remove(write.Id);
+                return optimistic;
+            }
+
+            return await created.Task.ConfigureAwait(true);
+        }
+
+        public void Refuse(string sentence)
+        {
+            _refused = sentence;
+            Raise();
+        }
+
+        /// <summary>Queue a write and show its edit; queued writes it folds away lose theirs ([S-2611]).</summary>
+        private bool Add(PendingWrite write, TaskEdit edit)
+        {
+            if (WriteQueue.Add(_pending, write, headInFlight: _writing) is not { } next)
+            {
+                Refuse(Str.Sync_QueueFull.Text());
+                return false;
+            }
+
+            var kept = new HashSet<string>(next.Select(w => w.Id), StringComparer.Ordinal);
+            foreach (var folded in _pending.Where(w => !kept.Contains(w.Id)))
+            {
+                if (_tickets.Remove(folded.Id, out var ticket))
+                {
+                    Edits.Failed(ticket);
+                }
+            }
+
+            _pending = next;
+            _refused = null;
+
+            if (kept.Contains(write.Id))
+            {
+                _tickets[write.Id] = Edits.Begin(edit);
+            }
+
+            Save();
+            Raise();
+            return kept.Contains(write.Id);
+        }
+
+        /// <summary>Send what is ready, head first, until the queue is empty or the head has to wait.</summary>
+        public async Task DrainAsync()
+        {
+            if (_writing || !Usable)
+            {
+                return;
+            }
+
+            _writing = true;
+            try
+            {
+                while (WriteQueue.Ready(_pending, DateTimeOffset.UtcNow) is { } write)
+                {
+                    var (result, problem, created) = await SendAsync(write).ConfigureAwait(true);
+                    _pending = WriteQueue.Settle(_pending, write.Id, result, DateTimeOffset.UtcNow, problem);
+
+                    var ticket = _tickets.GetValueOrDefault(write.Id);
+                    switch (result)
+                    {
+                        case WriteResult.Done:
+                            _tickets.Remove(write.Id);
+                            Edits.Succeeded(ticket, created);
+                            if (created is not null)
+                            {
+                                _pending = WriteQueue.Retarget(_pending, write.Target, created.Id);
+                            }
+
+                            break;
+
+                        case WriteResult.Refused:
+                            _tickets.Remove(write.Id);
+                            Edits.Failed(ticket);
+                            _refused = Str.Shell_Common_ProblemReason.Format(("problem", Failed(write.Kind).Text()), ("reason", problem ?? string.Empty));
+                            break;
+                    }
+
+                    Save();
+                    Raise();
+
+                    if (_creates.Remove(write.Id, out var answer))
+                    {
+                        answer.TrySetResult(result == WriteResult.Done ? created : result == WriteResult.Retry ? CreatedRow(write) : null);
+                    }
+
+                    if (result == WriteResult.Retry)
+                    {
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                _writing = false;
+
+                foreach (var (id, answer) in _creates.ToList())
+                {
+                    answer.TrySetResult(_pending.FirstOrDefault(w => w.Id == id) is { } waiting ? CreatedRow(waiting) : null);
+                }
+
+                _creates.Clear();
+            }
+        }
+
+        private static TaskItem CreatedRow(PendingWrite write) => Optimistic(write.Target, write.Container, write.Text ?? string.Empty, write.Due);
+
+        private static Str Failed(PendingKind kind) => kind switch
+        {
+            PendingKind.TaskComplete => Str.Shell_Tasks_CompleteFailed,
+            PendingKind.TaskReopen => Str.Shell_Tasks_ReopenFailed,
+            PendingKind.TaskRename => Str.Shell_Tasks_RenameFailed,
+            PendingKind.TaskDelete => Str.Shell_Tasks_DeleteFailed,
+            _ => Str.Shell_Tasks_AddFailed,
+        };
+
+        private async Task<(WriteResult Result, string? Problem, TaskItem? Created)> SendAsync(PendingWrite write)
+        {
+            var remote = _owner._remote;
+
+            try
+            {
+                TaskItem? created = null;
+                switch (write.Kind)
+                {
+                    case PendingKind.TaskComplete or PendingKind.TaskReopen:
+                        await remote.SetCompletedAsync(AccountId, write.Container, write.Target, write.Kind == PendingKind.TaskComplete, CancellationToken.None).ConfigureAwait(true);
+                        break;
+                    case PendingKind.TaskRename:
+                        await remote.RenameAsync(AccountId, write.Container, write.Target, write.Text ?? string.Empty, CancellationToken.None).ConfigureAwait(true);
+                        break;
+                    case PendingKind.TaskDelete:
+                        await remote.DeleteAsync(AccountId, write.Container, write.Target, CancellationToken.None).ConfigureAwait(true);
+                        break;
+                    default:
+                        created = await remote.CreateAsync(AccountId, write.Container, write.Text ?? string.Empty, write.Due, CancellationToken.None).ConfigureAwait(true);
+                        break;
+                }
+
+                return (WriteResult.Done, null, created);
+            }
+            catch (AccountException ex)
+            {
+                var result = WriteQueue.Classify(ex.Error);
+                Log.Warn(Scope, $"{write.Kind} on {AccountId} {(result == WriteResult.Retry ? "is waiting to sync" : "was refused")}: {ex.Message}");
+                return (result, ex.Message, null);
+            }
+            catch (Exception ex)
+            {
+                // Not typed by the account layer: a bug or a provider oddity. Kept, not dropped: the
+                // user's change is retried on the queue's back-off and the log says what happened.
+                Log.Error(Scope, $"{write.Kind} on {AccountId} failed unexpectedly", ex);
+                return (WriteResult.Retry, ex.Message, null);
+            }
+        }
+
+        private void Raise()
+        {
+            foreach (var feed in Feeds.ToList())
+            {
+                feed.Raise();
+            }
+        }
+
+        private void Save()
+        {
+            // An account signed out mid-sync must not be written back after its purge.
+            if (_owner.Find(AccountId) is null)
+            {
+                return;
+            }
+
+            var shelf = new TasksShelf
+            {
+                Owner = AccountId,
+                Lists = Lists is { } lists ? [.. lists.Select(TaskShelves.Store)] : null,
+                ListsAt = Lists is null ? null : _listsAt,
+                Held = [.. _held.Select(pair => new TaskListShelf
+                {
+                    ListId = pair.Key,
+                    At = pair.Value.At,
+                    IncludesCompleted = pair.Value.IncludesCompleted,
+                    Tasks = [.. pair.Value.Tasks.Select(TaskShelves.Store)],
+                })],
+                Pending = [.. _pending],
+            };
+
+            _owner._sync.Vault.SaveSoon(SyncKind.Tasks, AccountId, shelf, SyncJsonContext.Default.TasksShelf);
         }
     }
 }

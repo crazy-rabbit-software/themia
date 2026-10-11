@@ -11,15 +11,13 @@ public readonly record struct HabitLayoutInput(int Count, bool Writable, bool Sh
 
 /// <summary>
 /// [S-1427] One layout pass's decisions for the Habits widget, made together so the rows, the add
-/// row, the summary and the chart never disagree.
+/// row and the summary never disagree.
 /// </summary>
 /// <param name="CompactRows">32px rows rather than 40.</param>
 /// <param name="Inset">The rows' side padding: halved on a Compact-wide tile, so a name has room.</param>
 /// <param name="Rows">Rows the viewport shows whole; the rest scroll.</param>
 /// <param name="AddRow">The "Add a habit" row at the foot of the list.</param>
 /// <param name="Summary">The strip above the list: done this period, the rate, a progress bar.</param>
-/// <param name="ChartHeight">The completion chart under the list, or 0 for none.</param>
-/// <param name="ChartBars">How many past periods the chart shows.</param>
 /// <param name="Streak">The current run beside each name.</param>
 /// <param name="StreakWords">The run with its unit ("12 days") rather than a bare number.</param>
 /// <param name="Dots">History dots per row (0 for none): the configured count, or fewer when narrow.</param>
@@ -36,8 +34,6 @@ public sealed record HabitLayoutPlan(
     int Rows,
     bool AddRow,
     bool Summary,
-    double ChartHeight,
-    int ChartBars,
     bool Streak,
     bool StreakWords,
     int Dots,
@@ -75,7 +71,8 @@ public readonly record struct HabitKeyResult(HabitKeyCommand Command, int Index)
 /// Regular width, the configured count or as many as fit, oldest dropped first — the dots yield
 /// width, never the name) → the add row (from Regular height; always when the list is empty) →
 /// a per-row rate (Expanded width) → a per-row best run (Huge width) → the summary strip (Expanded
-/// height) → a completion chart in whatever height the rows leave (Expanded height, every row shown).
+/// height). Nothing else: height the rows do not use stays empty rather than filled with a chart
+/// (user decision: a large tile shows more of the widget's own rows, not new parts).
 /// </para>
 /// </summary>
 public static class HabitLayout
@@ -107,12 +104,6 @@ public static class HabitLayout
 
     /// <summary>[S-1571] The summary as its line alone: a caption line and the space under it.</summary>
     public const double SummaryLineHeight = 16 + 12;
-
-    /// <summary>Under this a chart is a smear, not a chart.</summary>
-    public const double ChartMinHeight = 64;
-
-    /// <summary>One bar and its gap.</summary>
-    public const double BarPitch = 14;
 
     /// <summary>The list's own padding under its last row.</summary>
     public const double ListBottomPadding = 8;
@@ -155,16 +146,7 @@ public static class HabitLayout
         // use (about a row's worth on an M tile) carries the summary's line, without its bar.
         var summaryLine = !summary && count > 0 && area.HeightClass >= SizeClass.Regular && room.Take(SummaryLineHeight);
 
-        var chart = 0.0;
-        var bars = 0;
-        if (count > 0 && rows == count && area.HeightClass >= SizeClass.Expanded && area.WidthClass >= SizeClass.Regular
-            && room.Remaining + Disclosure.Tolerance >= ChartMinHeight)
-        {
-            chart = room.Remaining;
-            bars = Math.Clamp((int)Math.Floor((area.Width - (2 * inset) + (BarPitch / 2)) / BarPitch), 7, HabitRules.MaxHistory);
-        }
-
-        return new HabitLayoutPlan(compact, row, inset, rows, addRow, summary || summaryLine, chart, bars, streak, words, dots, rate, best, SummaryBar: summary);
+        return new HabitLayoutPlan(compact, row, inset, rows, addRow, summary || summaryLine, streak, words, dots, rate, best, SummaryBar: summary);
     }
 
     /// <summary>

@@ -9,22 +9,16 @@ namespace Themia.App.Services;
 /// from the BCL's interface statistics (the same counters as <c>GetIfTable2</c>, with no P/Invoke
 /// surface to keep AOT-safe).
 /// <para>
-/// One shared reader for every network tile: a second tile in the same tick gets this tick's sample
-/// rather than a rate over a few milliseconds ([S-643]), and the session totals are the process's,
-/// not a tile's. Single-threaded: every read happens on the UI thread's tick.
+/// Read by the system hub alone, once per due tick for every network widget ([S-2501]), so no tile
+/// measures a rate over the few milliseconds since another one's read, and the session totals are the
+/// process's, not a tile's. Single-threaded: every read happens on the UI thread's tick.
 /// </para>
 /// </summary>
 internal static class NetworkThroughput
 {
     private const string Scope = "metrics";
 
-    /// <summary>[S-643] A second tile within this window reuses the first one's sample.</summary>
-    private const long ReuseMs = SampleCache<int>.MinimumWindowMs;
-
     private static readonly ThroughputTracker Tracker = new();
-
-    private static ThroughputSample? _last;
-    private static long? _lastAt;
 
     /// <summary>
     /// This tick's sample: totals, each counted adapter busiest first, and the session totals. Null
@@ -33,19 +27,6 @@ internal static class NetworkThroughput
     public static ThroughputSample? Read()
     {
         var now = Environment.TickCount64;
-
-        if (_lastAt is { } at && now - at >= 0 && now - at < ReuseMs)
-        {
-            return _last;
-        }
-
-        _last = ReadNow(now);
-        _lastAt = now;
-        return _last;
-    }
-
-    private static ThroughputSample? ReadNow(long now)
-    {
         var counters = new List<InterfaceCounters>(4);
 
         try

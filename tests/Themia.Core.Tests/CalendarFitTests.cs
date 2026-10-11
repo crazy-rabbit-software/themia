@@ -1,5 +1,4 @@
 using Themia.Core.Accounts;
-using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
@@ -8,8 +7,8 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// The calendar's disclosure ladder, Outlook hand-off and key map ([S-1260]..[S-1269]), at the
-/// size tiers' slots (card less a ~44 px header).
+/// The calendar's layouts fitted to their boxes ([S-2700]..[S-2710]), the Outlook hand-off
+/// ([S-1268]), at the size tiers' slots (card less a ~44 px header).
 /// </summary>
 public sealed class CalendarFitTests
 {
@@ -17,110 +16,39 @@ public sealed class CalendarFitTests
 
     private static readonly DateOnly Today = new(2026, 10, 4); // a Sunday
 
-    // ---- [S-1260] the ladder -----------------------------------------------------------------------
+    private static readonly DateOnly Monday = new(2026, 9, 28);
+
+    // ---- [S-2702] month ----------------------------------------------------------------------------
 
     [Theory]
-    [InlineData(CalendarViewMode.Month, 120, 76, CalendarLayout.Next)]            // XS
-    [InlineData(CalendarViewMode.Month, 200, 106, CalendarLayout.Agenda)]         // S
-    [InlineData(CalendarViewMode.Month, 320, 196, CalendarLayout.Month)]          // M
-    [InlineData(CalendarViewMode.Month, 480, 116, CalendarLayout.Strip)]          // Wide
-    [InlineData(CalendarViewMode.Month, 200, 356, CalendarLayout.MonthAgendaBelow)] // Tall
-    [InlineData(CalendarViewMode.Month, 560, 376, CalendarLayout.Month)]          // L
-    [InlineData(CalendarViewMode.Month, 800, 516, CalendarLayout.MonthAgendaBeside)] // XL
-    [InlineData(CalendarViewMode.Week, 480, 116, CalendarLayout.Strip)]
-    [InlineData(CalendarViewMode.Week, 200, 356, CalendarLayout.Agenda)]
-    [InlineData(CalendarViewMode.Week, 320, 196, CalendarLayout.Week)]
-    [InlineData(CalendarViewMode.Day, 200, 356, CalendarLayout.Day)]
-    [InlineData(CalendarViewMode.Day, 200, 106, CalendarLayout.Agenda)]
-    [InlineData(CalendarViewMode.Agenda, 480, 116, CalendarLayout.Strip)]
-    [InlineData(CalendarViewMode.Agenda, 800, 516, CalendarLayout.Agenda)]
-    [InlineData(CalendarViewMode.Agenda, 120, 76, CalendarLayout.Next)]
-    [InlineData(CalendarViewMode.Week, 0, 0, CalendarLayout.Week)]               // unmeasured: as configured
-    [InlineData(CalendarViewMode.Month, 400, 50, CalendarLayout.Next)]           // too short even for a strip
-    public void S1260_EveryTierGetsALayoutThatFits(CalendarViewMode wanted, double width, double height, CalendarLayout expected)
-        => Assert.Equal(expected, CalendarFit.Layout(wanted, width, height));
-
-    [Fact]
-    public void S1260_OnlyCalendarsThatPageHaveNavigation()
+    [InlineData(120, 76, WeekdayLabel.None, MonthDensity.Number, 0)]     // XS: the numbers are the month
+    [InlineData(200, 106, WeekdayLabel.Initials, MonthDensity.Number, 0)] // S
+    [InlineData(320, 196, WeekdayLabel.Initials, MonthDensity.Chips, 1)]  // M
+    [InlineData(200, 356, WeekdayLabel.Initials, MonthDensity.Dots, 0)]   // Tall: cells too narrow for words
+    [InlineData(560, 376, WeekdayLabel.Short, MonthDensity.Chips, 3)]     // L
+    [InlineData(800, 516, WeekdayLabel.Short, MonthDensity.Chips, 4)]     // XL: roomy chip lines
+    public void S2702_AMonthShedsWithinItself(double width, double height, WeekdayLabel weekdays, MonthDensity density, int chips)
     {
-        Assert.False(CalendarFit.Pages(CalendarLayout.Next));
-        Assert.False(CalendarFit.Pages(CalendarLayout.Agenda));
-        Assert.True(CalendarFit.Pages(CalendarLayout.Strip));
-        Assert.True(CalendarFit.Pages(CalendarLayout.MonthAgendaBeside));
-    }
+        var fit = CalendarFit.Month(width, height, rows: 5);
 
-    // ---- [S-1261] the next thing -------------------------------------------------------------------
-
-    [Fact]
-    public void S1261_NextPrefersTheMeetingUnderWayOverTheAllDayEventAndCountsTheRest()
-    {
-        var now = new DateTimeOffset(2026, 10, 4, 8, 0, 0, TimeSpan.Zero); // 10:00 local
-        var allDay = CalendarEvent.AllDayEvent("holiday", "Holiday", Today, Today.AddDays(1));
-        var over = Timed("over", new DateTimeOffset(2026, 10, 4, 6, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(1));
-        var running = Timed("running", new DateTimeOffset(2026, 10, 4, 7, 30, 0, TimeSpan.Zero), TimeSpan.FromHours(1));
-        var later = Timed("later", new DateTimeOffset(2026, 10, 4, 12, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(1));
-
-        var next = CalendarFit.Next([later, over, allDay, running], [], Today, Plus2, now);
-
-        Assert.NotNull(next);
-        Assert.Equal("running", next.Item.Event!.Id);
-        Assert.Equal(Today, next.Day);
-        Assert.Equal(2, next.MoreThatDay); // the holiday and the later meeting; the one over is gone
+        Assert.Equal(5, fit.Rows);
+        Assert.Equal(weekdays, fit.Weekdays);
+        Assert.Equal(density, fit.Density);
+        Assert.Equal(chips, fit.ChipLines);
+        Assert.Equal(height, fit.HeaderHeight + (fit.Rows * fit.CellHeight), 6);
     }
 
     [Fact]
-    public void S1261_NextFallsToALaterDayAndToABirthdayAndIsNullWhenNothingIsOn()
+    public void S2702_ChipTimesFromWideCellsAndWeekdayLettersByColumn()
     {
-        var now = new DateTimeOffset(2026, 10, 4, 8, 0, 0, TimeSpan.Zero);
-        var tuesday = Timed("tue", new DateTimeOffset(2026, 10, 6, 7, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(1));
-
-        var later = CalendarFit.Next([tuesday], [], Today, Plus2, now);
-        Assert.Equal(Today.AddDays(2), later!.Day);
-        Assert.Equal(0, later.MoreThatDay);
-
-        var birthday = CalendarFit.Next([], [new Birthday("Mia Chen", 10, 4, 1994)], Today, Plus2, now);
-        Assert.True(birthday!.Item.IsBirthday);
-
-        Assert.Null(CalendarFit.Next([], [], Today, Plus2, now));
+        Assert.True(CalendarFit.Month(800, 516, 5).Times);
+        Assert.False(CalendarFit.Month(560, 376, 5).Times);
+        Assert.Equal(WeekdayLabel.Narrow, CalendarFit.Weekdays(15));
+        Assert.Equal(WeekdayLabel.None, CalendarFit.Weekdays(8));
+        Assert.True(CalendarFit.Month(480, 116, 5).InlineDots);  // Wide: dots beside the numbers
+        Assert.False(CalendarFit.Month(200, 106, 5).InlineDots); // S: too narrow
+        Assert.False(CalendarFit.Month(320, 196, 5).InlineDots);
     }
-
-    // ---- [S-1262] the strip ------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(CalendarViewMode.Month, 480, 4)]
-    [InlineData(CalendarViewMode.Month, 360, 3)]
-    [InlineData(CalendarViewMode.Day, 1200, 5)]
-    [InlineData(CalendarViewMode.Agenda, 100, 3)]
-    [InlineData(CalendarViewMode.Week, 480, 7)]
-    public void S1262_StripDaysByWidthAndAWeekIsSeven(CalendarViewMode wanted, double width, int expected)
-        => Assert.Equal(expected, CalendarFit.StripDays(wanted, width));
-
-    [Fact]
-    public void S1262_AStripRangesStepsAndTitlesByItsOwnDays()
-    {
-        Assert.Equal((Today, Today.AddDays(3)), CalendarFit.Range(CalendarLayout.Strip, CalendarViewMode.Month, Today, Today, WeekStartDay.Monday, 4));
-        Assert.Equal(Today.AddDays(4), CalendarFit.Step(CalendarLayout.Strip, Today, 1, 4));
-        Assert.Equal("Oct 4 – Oct 7", CalendarFit.Title(CalendarLayout.Strip, CalendarViewMode.Month, Today, WeekStartDay.Monday, 4, Locale.En));
-
-        // A week strip is the week holding the anchor, Monday first.
-        Assert.Equal((new DateOnly(2026, 9, 28), Today), CalendarFit.Range(CalendarLayout.Strip, CalendarViewMode.Week, Today, Today, WeekStartDay.Monday, 7));
-        Assert.True(CalendarFit.InView(CalendarLayout.Strip, CalendarViewMode.Month, Today.AddDays(-4), Today, WeekStartDay.Monday, 4, Today.AddDays(-1)));
-        Assert.False(CalendarFit.InView(CalendarLayout.Strip, CalendarViewMode.Month, Today.AddDays(-4), Today, WeekStartDay.Monday, 4, Today));
-    }
-
-    [Fact]
-    public void S1263_TheSplitMonthsFetchAndPageAsTheMonth()
-    {
-        var month = CalendarRules.ViewRange(CalendarViewMode.Month, Today, Today, WeekStartDay.Monday);
-        Assert.Equal(month, CalendarFit.Range(CalendarLayout.MonthAgendaBelow, CalendarViewMode.Month, Today, Today, WeekStartDay.Monday, 0));
-        Assert.Equal(new DateOnly(2026, 11, 4), CalendarFit.Step(CalendarLayout.MonthAgendaBeside, Today, 1, 0));
-        Assert.Equal("October 2026", CalendarFit.Title(CalendarLayout.MonthAgendaBelow, CalendarViewMode.Month, Today, WeekStartDay.Monday, 0, Locale.En));
-        Assert.Equal(24, CalendarFit.SquareCell(120));
-        Assert.Equal(28, CalendarFit.SquareCell(196));
-        Assert.Equal(32, CalendarFit.SquareCell(800));
-    }
-
-    // ---- [S-1264] month rows ----------------------------------------------------------------------
 
     [Theory]
     [InlineData(2026, 10, WeekStartDay.Monday, 5)]  // Thu 1st .. Sat 31st
@@ -130,23 +58,206 @@ public sealed class CalendarFitTests
     public void S1264_AMonthNeedsOnlyTheWeeksHoldingItsDays(int year, int month, WeekStartDay start, int rows)
         => Assert.Equal(rows, CalendarFit.MonthRows(new DateOnly(year, month, 15), start));
 
-    // ---- [S-1266] / [S-1267] ----------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(300, 40)]
-    [InlineData(480, 32)]
-    [InlineData(560, 32)]
-    [InlineData(600, 40)]
-    public void S1266_HoursCompactOnlyWhenThatShowsTheWholeDay(double available, double hour)
-        => Assert.Equal(hour, CalendarFit.HourHeight(available));
+    // ---- [S-2703] bars -----------------------------------------------------------------------------
 
     [Fact]
-    public void S1267_OnlyAShortTilesFirstTodayLosesItsHeading()
+    public void S2703_AMultiDayEventIsOneBarAndSinglesFillTheFreeLines()
     {
-        Assert.False(CalendarFit.ShowsHeading(Today, Today, first: true, height: 106));
-        Assert.True(CalendarFit.ShowsHeading(Today.AddDays(1), Today, first: true, height: 106));
-        Assert.True(CalendarFit.ShowsHeading(Today, Today, first: true, height: 200));
-        Assert.True(CalendarFit.ShowsHeading(Today, Today, first: false, height: 106));
+        var monday = Timed("mon", At(Monday, 9), TimeSpan.FromHours(1));
+        var trip = CalendarEvent.AllDayEvent("trip", "Trip", Monday.AddDays(1), Monday.AddDays(4)); // Tue..Thu
+        var wednesday = Timed("wed", At(Monday.AddDays(2), 9), TimeSpan.FromHours(1));
+
+        var bars = CalendarFit.Bars([wednesday, trip, monday], [], Monday, 7, Plus2, singleTimed: true);
+
+        var t = bars.Single(b => b.Item.Event!.Id == "trip");
+        Assert.Equal((1, 3, 0), (t.First, t.Last, t.Lane));
+        Assert.False(t.ContinuesBefore || t.ContinuesAfter);
+        Assert.Equal(0, bars.Single(b => b.Item.Event!.Id == "mon").Lane);
+        Assert.Equal(1, bars.Single(b => b.Item.Event!.Id == "wed").Lane);
+        Assert.Equal(2, CalendarFit.LaneCount(bars));
+        Assert.Equal(1, CalendarFit.Hidden(bars, column: 2, lines: 1));
+        Assert.Equal(0, CalendarFit.Hidden(bars, column: 1, lines: 1));
+    }
+
+    [Fact]
+    public void S2703_BarsClipToTheRowAndTheWeekKeepsItsTimedSinglesOut()
+    {
+        var long_ = CalendarEvent.AllDayEvent("long", "Holiday", Monday.AddDays(-3), Monday.AddDays(2)); // Fri..Tue
+        var overnight = Timed("night", At(Monday.AddDays(4), 22), TimeSpan.FromHours(4));                 // Fri 22:00 – Sat 02:00
+        var toMidnight = Timed("late", At(Monday.AddDays(5), 20), TimeSpan.FromHours(4));                 // Sat 20:00 – 24:00
+        var single = Timed("single", At(Monday, 9), TimeSpan.FromHours(1));
+        var birthday = new Birthday("Mia Chen", 10, 1, 1994);
+
+        var bars = CalendarFit.Bars([long_, overnight, toMidnight, single], [birthday], Monday, 7, Plus2, singleTimed: false);
+
+        var l = bars.Single(b => b.Item.Event?.Id == "long");
+        Assert.Equal((0, 1), (l.First, l.Last));
+        Assert.True(l.ContinuesBefore);
+        Assert.False(l.ContinuesAfter);
+
+        var n = bars.Single(b => b.Item.Event?.Id == "night");
+        Assert.Equal((4, 5), (n.First, n.Last));
+
+        Assert.DoesNotContain(bars, b => b.Item.Event?.Id is "single" or "late");
+        Assert.Equal(3, bars.Single(b => b.Item.IsBirthday).First);
+        Assert.Equal(Monday.AddDays(5), CalendarFit.LastDay(toMidnight, Plus2));
+    }
+
+    // ---- [S-2704] week -----------------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(800, 516, true, false, WeekdayLabel.Short)]
+    [InlineData(560, 376, true, false, WeekdayLabel.Short)]
+    [InlineData(320, 196, false, false, WeekdayLabel.Initials)]
+    [InlineData(200, 356, false, true, WeekdayLabel.Initials)]
+    [InlineData(120, 76, false, true, WeekdayLabel.Narrow)]
+    [InlineData(40, 76, false, true, WeekdayLabel.Narrow)]  // never without its day
+    public void S2704_AWeekIsAnHourGridOnALargeTileElseColumns(double width, double height, bool timeline, bool dots, WeekdayLabel weekdays)
+    {
+        var fit = CalendarFit.Week(width, height);
+        Assert.Equal(timeline, fit.Timeline);
+        Assert.Equal(dots, fit.Dots);
+        Assert.Equal(weekdays, fit.Weekdays);
+    }
+
+    // ---- [S-2705] hours ----------------------------------------------------------------------------
+
+    [Fact]
+    public void S2705_TheWholeDayFillsTheBoxAndATallOneShowsMoreHours()
+    {
+        Assert.Equal(new HourWindow(7, 15, 40), CalendarFit.Hours(600, 24, 0, 9));
+
+        var tall = CalendarFit.Hours(900, 24, 0, 9);
+        Assert.Equal((3, 19), (tall.First, tall.Count));
+        Assert.True(tall.HourHeight <= CalendarFit.MaxHour);
+        Assert.Equal(900, tall.HourHeight * tall.Count, 6);
+    }
+
+    [Fact]
+    public void S2705_AShortBoxShowsFewerHoursAroundTheFocus()
+    {
+        Assert.Equal(new HourWindow(13, 5, 20), CalendarFit.Hours(100, 24, 0, 14));
+        Assert.Equal(7, CalendarFit.Hours(100, 24, 0, 6).First);   // never before the day it wants
+        Assert.Equal(17, CalendarFit.Hours(100, 24, 0, 23).First); // nor past it
+        Assert.Equal(5, CalendarFit.Hours(600, 5, 7, 6).First);    // an early meeting widens the day
+    }
+
+    [Fact]
+    public void S2705_EventHoursAndTheFocusFollowTheDaysEvents()
+    {
+        var early = Timed("early", At(Today, 5, 30), TimeSpan.FromHours(1));
+        var night = Timed("night", At(Today, 21), TimeSpan.FromHours(4));
+        Assert.Equal((5, 24), CalendarFit.EventHours([early, night], Today, Plus2));
+
+        var over = Timed("over", At(Today, 8), TimeSpan.FromHours(1));
+        var later = Timed("later", At(Today, 13), TimeSpan.FromHours(1));
+        var now = At(Today, 10);
+        Assert.Equal(13, CalendarFit.FocusHour([over, later], Today, Today, now, Plus2));
+        Assert.Equal(8, CalendarFit.FocusHour([later, over], Today, Today.AddDays(-1), now, Plus2));
+        Assert.Equal(10, CalendarFit.FocusHour([], Today, Today, now, Plus2));
+        Assert.Equal(10, CalendarFit.FocusHour([over], Today, Today, now, Plus2)); // all behind: now
+        Assert.Equal(0, CalendarFit.FocusHour([Timed("x", At(Today.AddDays(-1), 22), TimeSpan.FromHours(4))], Today, Today.AddDays(5), now, Plus2));
+    }
+
+    [Fact]
+    public void S2705_PlaceClipsToTheWindowAndDropsWhatIsOutside()
+    {
+        var window = new HourWindow(7, 15, 40);
+        var (top, height) = CalendarFit.Place(At(Today, 9), At(Today, 10), Today, Plus2, window)!.Value;
+        Assert.Equal(2.0 / 15, top, 6);
+        Assert.Equal(1.0 / 15, height, 6);
+
+        Assert.Null(CalendarFit.Place(At(Today, 5), At(Today, 5, 10), Today, Plus2, window));
+
+        var (clippedTop, clipped) = CalendarFit.Place(At(Today, 6, 30), At(Today, 8), Today, Plus2, window)!.Value;
+        Assert.Equal(0, clippedTop);
+        Assert.Equal(1.0 / 15, clipped, 6);
+    }
+
+    // ---- [S-2707] year -----------------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(800, 516, 12, 4, 3, true, true)]   // XL
+    [InlineData(560, 376, 12, 4, 3, true, false)]  // L
+    [InlineData(320, 196, 12, 4, 3, false, false)] // M: squares
+    [InlineData(480, 116, 12, 6, 2, false, false)] // Wide
+    [InlineData(200, 356, 12, 3, 4, false, false)] // Tall
+    [InlineData(200, 106, 6, 3, 2, false, false)]  // S: half a year
+    [InlineData(120, 76, 3, 3, 1, false, false)]   // XS: three months
+    public void S2707_AYearReflowsByShapeAndShowsFewerMonthsWhenTiny(double width, double height, int months, int columns, int rows, bool numbers, bool weekdays)
+    {
+        var fit = CalendarFit.Year(width, height, gap: 8);
+        Assert.Equal((months, columns, rows, numbers, weekdays), (fit.Months, fit.Columns, fit.Rows, fit.Numbers, fit.Weekdays));
+        Assert.True(fit.DayCell >= CalendarFit.MinYearCell);
+    }
+
+    [Theory]
+    [InlineData(10, 12, 1)]
+    [InlineData(10, 3, 9)]
+    [InlineData(12, 3, 10)]
+    [InlineData(1, 6, 1)]
+    [InlineData(10, 6, 7)]
+    [InlineData(10, 2, 10)]
+    [InlineData(10, 1, 10)]
+    public void S2707_FewerMonthsSitAroundTheCurrentOneInsideItsYear(int month, int months, int first)
+        => Assert.Equal(first, CalendarFit.FirstMonth(new DateOnly(2026, month, 4), months));
+
+    [Fact]
+    public void S2707_AMiniMonthHasItsOwnDaysOnly()
+    {
+        var cells = CalendarFit.MiniMonth(2026, 10, WeekStartDay.Monday);
+        Assert.Equal(42, cells.Count);
+        Assert.Null(cells[2]);
+        Assert.Equal(new DateOnly(2026, 10, 1), cells[3]);
+        Assert.Equal(new DateOnly(2026, 10, 31), cells[33]);
+        Assert.Null(cells[34]);
+        Assert.Equal(new DateOnly(2026, 10, 1), CalendarFit.MiniMonth(2026, 10, WeekStartDay.Sunday)[4]);
+    }
+
+    [Fact]
+    public void S2707_ByDayFilesEveryDayAnEventCoversInADaysOrder()
+    {
+        var trip = CalendarEvent.AllDayEvent("trip", "Trip", new DateOnly(2026, 12, 30), new DateOnly(2027, 1, 3));
+        var meeting = Timed("meet", At(new DateOnly(2026, 12, 31), 9), TimeSpan.FromHours(1));
+        var birthday = new Birthday("Mia Chen", 12, 31, 1994);
+
+        var days = CalendarFit.ByDay([meeting, trip], [birthday], new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31), Plus2);
+
+        Assert.Equal(2, days.Count); // the trip's January days are outside the year
+        var eve = days[new DateOnly(2026, 12, 31)];
+        Assert.True(eve[0].IsBirthday);
+        Assert.Equal("trip", eve[1].Event!.Id);
+        Assert.Equal("meet", eve[2].Event!.Id);
+    }
+
+    // ---- [S-2709] agenda ---------------------------------------------------------------------------
+
+    private static readonly DateOnly[] AgendaDays = [Today, Today, Today.AddDays(1), Today.AddDays(1), Today.AddDays(3)];
+
+    [Fact]
+    public void S2709_AgendaFitsWholeRowsAndRepeatsTheHeadingOfADaySplitByAPage()
+    {
+        Assert.Equal(2, CalendarFit.AgendaFit(AgendaDays, 0, 150, 32, 40, firstHeading: true));
+        Assert.Equal(2, CalendarFit.AgendaFit(AgendaDays, 2, 150, 32, 40, firstHeading: true));
+        Assert.Equal(2, CalendarFit.AgendaFit(AgendaDays, 0, 106, 32, 40, firstHeading: false));
+        Assert.Equal(1, CalendarFit.AgendaFit(AgendaDays, 0, 20, 32, 40, firstHeading: true)); // paging must move
+        Assert.Equal(0, CalendarFit.AgendaFit(AgendaDays, 5, 500, 32, 40, firstHeading: true));
+    }
+
+    [Fact]
+    public void S2709_AgendaPagesFillEveryColumnInTurn()
+    {
+        Assert.Equal([0, 2, 4], CalendarFit.AgendaPages(AgendaDays, 1, 150, 32, 40, firstHeading: true));
+        Assert.Equal([0, 4], CalendarFit.AgendaPages(AgendaDays, 2, 150, 32, 40, firstHeading: true));
+        Assert.Equal([0], CalendarFit.AgendaPages([], 1, 150, 32, 40, firstHeading: true));
+    }
+
+    [Fact]
+    public void S1267_OnlyAShortTilesTodayLosesItsHeading()
+    {
+        Assert.False(CalendarFit.ShowsFirstHeading(Today, Today, height: 106));
+        Assert.True(CalendarFit.ShowsFirstHeading(Today.AddDays(1), Today, height: 106));
+        Assert.True(CalendarFit.ShowsFirstHeading(Today, Today, height: 200));
     }
 
     // ---- [S-1268] Outlook hand-off ----------------------------------------------------------------
@@ -178,21 +289,27 @@ public sealed class CalendarFitTests
     public void S1268_OnlyTheTwoShapesAreLaunchable(string? link, bool expected)
         => Assert.Equal(expected, CalendarLinks.IsLaunchable(link));
 
-    // ---- [S-1269] keys -----------------------------------------------------------------------------
+    // ---- [S-2710] keys -----------------------------------------------------------------------------
 
     [Fact]
-    public void S1269_KeysFollowTheClassicMap()
+    public void S2710_EveryLayoutPagesByItsOwnUnit()
     {
         Assert.Equal(CalendarKeyCommand.Back, CalendarFit.Key(WidgetKey.Left, CalendarLayout.Month));
-        Assert.Equal(CalendarKeyCommand.Forward, CalendarFit.Key(WidgetKey.Right, CalendarLayout.Strip));
-        Assert.Equal(CalendarKeyCommand.WeekBack, CalendarFit.Key(WidgetKey.Up, CalendarLayout.MonthAgendaBelow));
+        Assert.Equal(CalendarKeyCommand.Forward, CalendarFit.Key(WidgetKey.Right, CalendarLayout.Year));
+        Assert.Equal(CalendarKeyCommand.Back, CalendarFit.Key(WidgetKey.PageUp, CalendarLayout.Agenda));
+        Assert.Equal(CalendarKeyCommand.WeekBack, CalendarFit.Key(WidgetKey.Up, CalendarLayout.Month));
         Assert.Equal(CalendarKeyCommand.WeekForward, CalendarFit.Key(WidgetKey.Down, CalendarLayout.Week));
         Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Down, CalendarLayout.Day));
-        Assert.Equal(CalendarKeyCommand.Today, CalendarFit.Key(WidgetKey.Home, CalendarLayout.Day));
+        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Up, CalendarLayout.Year));
+        Assert.Equal(CalendarKeyCommand.Today, CalendarFit.Key(WidgetKey.Home, CalendarLayout.Agenda));
         Assert.Equal(CalendarKeyCommand.OpenFirst, CalendarFit.Key(WidgetKey.Enter, CalendarLayout.Agenda));
-        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Left, CalendarLayout.Agenda));
+        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Enter, CalendarLayout.Year));
         Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Escape, CalendarLayout.Month));
     }
+
+    /// <summary>A wall-clock time on a day in the test zone.</summary>
+    private static DateTimeOffset At(DateOnly day, int hour, int minute = 0)
+        => new(day.ToDateTime(new TimeOnly(hour, minute)), TimeSpan.FromHours(2));
 
     private static CalendarEvent Timed(string id, DateTimeOffset start, TimeSpan length)
         => new() { Id = id, Subject = id, Start = start, End = start + length };

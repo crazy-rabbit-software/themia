@@ -37,12 +37,12 @@ internal sealed partial class MeterView : IWidgetContextActions, IWidgetHeaderCo
         _surface?.SetHeaderTitle(title);
     }
 
-    /// <summary>A sample outside the cadence. Not while detached or before the first subscription.</summary>
+    /// <summary>[S-2510] A read outside the cadence (Refresh). Not while detached.</summary>
     public void SampleNow()
     {
-        if (!_detached && _subscription is not null)
+        if (!_detached)
         {
-            Sample();
+            _watch?.Refresh();
         }
     }
 

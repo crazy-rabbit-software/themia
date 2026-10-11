@@ -50,7 +50,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     private readonly Microsoft.UI.Xaml.Shapes.Rectangle _band;
     private readonly Grid _surface = new();
     private readonly ScrollViewer _scroll;
-    private readonly TextBlock _footer;
     private readonly Button _searchButton;
     private readonly ScrollFade _fade;
 
@@ -80,7 +79,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
         _search.PlaceholderText = Str.WidgetsC_Shortcuts_Search.Text();
         _search.IsSpellCheckEnabled = false;
@@ -124,11 +122,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         _fade = new ScrollFade(_scroll, _panel);
 
-        _footer = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        _footer.Margin = new Thickness(Fluent.Space4, ShortcutLayout.Gap, Fluent.Space4, Fluent.Space2);
-        _footer.TextTrimming = TextTrimming.CharacterEllipsis;
-        _footer.Visibility = Visibility.Collapsed;
-
         _searchButton = new Button
         {
             Content = new FontIcon { Glyph = Glyphs.Search, FontSize = FluentType.Caption.FontSize },
@@ -146,12 +139,10 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         SetRow(_searchHost, 0);
         SetRow(_columnHeader, 1);
         SetRow(_scroll, 2);
-        SetRow(_footer, 3);
 
         Children.Add(_searchHost);
         Children.Add(_columnHeader);
         Children.Add(_scroll);
-        Children.Add(_footer);
 
         PointerPressed += OnRootPointerPressed;
         PointerMoved += OnRootPointerMoved;
@@ -353,8 +344,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             {
                 PaintHealth(cell);
             }
-
-            UpdateFooter();
         }
     }
 
@@ -394,8 +383,8 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     }
 
     /// <summary>
-    /// The ladder ([S-1382]..[S-1384]): search box (when open) and footer (XL) take their lines
-    /// first; the items take the rest, laid out by the view's plan. A change of plan rebuilds the
+    /// The ladder ([S-1382]..[S-1384]): the search box (when open) takes its line first; the items
+    /// take the rest (no status footer at any size), laid out by the view's plan. A change of plan rebuilds the
     /// cells; anything else repaints them.
     /// </summary>
     private void Lay()
@@ -415,7 +404,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         if (!hasItems)
         {
-            _footer.Visibility = Visibility.Collapsed;
             _columnHeader.Visibility = Visibility.Collapsed;
             ClearCells();
             return;
@@ -428,9 +416,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         {
             room.Reserve(Fluent.RowHeightCompact + Fluent.Space1);
         }
-
-        var footer = ShortcutLayout.Footer(area) && room.Take(FluentType.Caption.LineHeight + Fluent.Space2);
-        _footer.Visibility = footer ? Visibility.Visible : Visibility.Collapsed;
 
         var inset = Inset();
         var width = Math.Max(0, area.Width - inset.Left - inset.Right);
@@ -469,8 +454,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         {
             PaintAll();
         }
-
-        UpdateFooter();
     }
 
     /// <summary>The padding around the items: tiles keep a margin from the card edge, rows go edge to edge.</summary>
@@ -497,35 +480,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
     /// <summary>The visible ids, in order: what selection ranges, select-all and arrows walk.</summary>
     private List<string> Order() => _cells.Select(cell => cell.Item.Id).ToList();
-
-    private void UpdateFooter()
-    {
-        if (_footer.Visibility != Visibility.Visible)
-        {
-            return;
-        }
-
-        var total = _config.Items.Count;
-        var shown = _cells.Count;
-        var missing = _cells.Count(cell => cell.Health == TargetHealth.Missing);
-        var parts = new List<string>();
-
-        parts.Add(shown == total
-            ? Str.WidgetsC_Shortcuts_Footer_Total.Plural(total)
-            : Str.WidgetsC_Shortcuts_Footer_Shown.Format(("shown", LocaleFormat.Integer(shown)), ("total", LocaleFormat.Integer(total))));
-
-        if (_selection.Count > 0)
-        {
-            parts.Add(Str.WidgetsC_Shortcuts_Footer_Selected.Plural(_selection.Count));
-        }
-
-        if (missing > 0)
-        {
-            parts.Add(Str.WidgetsC_Shortcuts_Footer_Missing.Plural(missing));
-        }
-
-        _footer.Text = string.Join(" · ", parts);
-    }
 
     /// <summary>Persist an edit the widget made to its own config.</summary>
     private void Save() => _surfaceHost?.RequestSave();

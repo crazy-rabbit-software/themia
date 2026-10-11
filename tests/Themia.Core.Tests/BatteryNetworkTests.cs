@@ -121,39 +121,6 @@ public sealed class BatteryNetworkTests
 
     // ---- S-1191: bar scale ----------------------------------------------------------------------
 
-    [Fact]
-    public void S1191_the_bar_is_scaled_to_the_window_not_the_session()
-    {
-        var window = new RateWindow(3);
-        window.Push(1_000_000, 0);
-        Assert.Equal(1, window.Fraction(1_000_000, 1024));
-
-        window.Push(10_000, 0);
-        window.Push(10_000, 0);
-        window.Push(10_000, 5_000);
-
-        // The burst has left the window: the top is now the busiest of the last three.
-        Assert.Equal(1, window.Fraction(10_000, 1024));
-        Assert.Equal(10_000, window.PeakDown);
-        Assert.Equal(5_000, window.PeakUp);
-    }
-
-    [Fact]
-    public void S1191_idle_stays_flat_against_the_floor()
-    {
-        var window = new RateWindow(10);
-        window.Push(100, 50);
-        Assert.Equal(100 / 1024.0, window.Fraction(100, 1024), 6);
-    }
-
-    [Fact]
-    public void S1191_upload_shares_the_top()
-    {
-        var window = new RateWindow(10);
-        window.Push(1_000, 4_000);
-        Assert.Equal(0.25, window.Fraction(1_000, 1024), 6);
-    }
-
     // ---- S-1192: what counts --------------------------------------------------------------------
 
     [Theory]

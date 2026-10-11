@@ -452,14 +452,6 @@ public sealed class ShortcutsTests
         Assert.False(xl.SecondLine);
     }
 
-    [Fact]
-    public void S1384_footer_only_on_the_tallest_tiles()
-    {
-        Assert.False(ShortcutLayout.Footer(new WidgetArea(560, 376)));
-        Assert.True(ShortcutLayout.Footer(new WidgetArea(800, 516)));
-        Assert.False(ShortcutLayout.Footer(new WidgetArea(200, 516)));
-    }
-
     // ---- selection ---------------------------------------------------------------------------------
 
     private static readonly string[] Order = ["a", "b", "c", "d", "e", "f", "g"];

@@ -98,31 +98,6 @@ public static class MailLayout
             Provider: tag && width >= ProviderNeedsWidth);
     }
 
-    /// <summary>
-    /// [S-1285] The footer of a big tile: "4 unread of 128 in Inbox", summed over the accounts. Null
-    /// when any account that answered has not said its folder's counts — a total missing one
-    /// account's mail would be a wrong number, not a smaller one.
-    /// </summary>
-    public static string? Footer(IReadOnlyList<MailAccountOutcome> outcomes, MailFolder folder) => Footer(Strings.Current, outcomes, folder);
-
-    /// <summary><see cref="Footer(IReadOnlyList{MailAccountOutcome}, MailFolder)"/> in <paramref name="locale"/>.</summary>
-    public static string? Footer(Locale locale, IReadOnlyList<MailAccountOutcome> outcomes, MailFolder folder)
-    {
-        ArgumentNullException.ThrowIfNull(outcomes);
-
-        var answered = outcomes.Where(o => o.State == MailAccountState.Ok).ToList();
-        if (answered.Count == 0 || answered.Any(o => o.Folder is null))
-        {
-            return null;
-        }
-
-        var total = answered.Sum(o => o.Folder!.Value.Total);
-        var unread = answered.Sum(o => o.Folder!.Value.Unread);
-        return unread > 0
-            ? Strings.Format(locale, Str.WidgetsB_Email_FooterUnread, ("unread", unread), ("total", total), ("folder", folder.Label(locale)))
-            : Strings.Format(locale, Str.WidgetsB_Email_FooterAllRead, ("total", total), ("folder", folder.Label(locale)));
-    }
-
     /// <summary>The narrowest each column can be and still say anything.</summary>
     public static double MinWidth(MailColumn column) => column switch
     {

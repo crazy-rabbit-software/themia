@@ -159,47 +159,4 @@ public sealed class WidgetFitTests
         Assert.True(double.IsPositiveInfinity(HeaderFit.TrailingLabelWidth(0, 24)));
         Assert.True(double.IsPositiveInfinity(HeaderFit.TrailingLabelWidth(double.NaN, 24)));
     }
-
-    // ---- [S-643] shared delta readings ----------------------------------------------------------
-
-    [Fact]
-    public void S643_a_second_read_in_the_same_moment_gets_the_first_reading()
-    {
-        var cache = new SampleCache<double>();
-
-        Assert.False(cache.TryReuse(1000, out _));
-        cache.Store(1000, 0.31);
-
-        Assert.True(cache.TryReuse(1003, out var reused));
-        Assert.Equal(0.31, reused);
-    }
-
-    [Fact]
-    public void S643_a_read_a_whole_window_later_is_a_new_measurement()
-    {
-        var cache = new SampleCache<double>();
-        cache.Store(1000, 0.31);
-
-        Assert.False(cache.TryReuse(1000 + SampleCache<double>.MinimumWindowMs, out _));
-        Assert.False(cache.TryReuse(2000, out _));
-    }
-
-    [Fact]
-    public void S643_a_clock_that_went_backwards_is_not_trusted_to_say_recent()
-    {
-        var cache = new SampleCache<double>();
-        cache.Store(1000, 0.31);
-
-        Assert.False(cache.TryReuse(900, out _));
-    }
-
-    [Fact]
-    public void S643_a_cleared_cache_reuses_nothing()
-    {
-        var cache = new SampleCache<double>();
-        cache.Store(1000, 0.31);
-        cache.Clear();
-
-        Assert.False(cache.TryReuse(1001, out _));
-    }
 }

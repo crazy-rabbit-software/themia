@@ -200,25 +200,29 @@ public static class CalendarRules
     // ---- ranges and navigation -----------------------------------------------------------------
 
     /// <summary>
-    /// [S-568] The days a view covers, both inclusive. Month: whole weeks from the week holding the
-    /// 1st to the week holding the last day. Week: the week holding the anchor. Day: the anchor.
+    /// [S-568] The days a layout covers, both inclusive, which is what is fetched. Month: whole weeks
+    /// from the week holding the 1st to the week holding the last day. Week: the week holding the
+    /// anchor. Day: the anchor. Year ([S-2707]): 1 January to 31 December of the anchor's year.
     /// Agenda: today and the next <see cref="AgendaDays"/> days, wherever the anchor is.
     /// </summary>
-    public static (DateOnly First, DateOnly Last) ViewRange(CalendarViewMode view, DateOnly anchor, DateOnly today, WeekStartDay start)
+    public static (DateOnly First, DateOnly Last) ViewRange(CalendarLayout view, DateOnly anchor, DateOnly today, WeekStartDay start)
     {
         switch (view)
         {
-            case CalendarViewMode.Month:
+            case CalendarLayout.Month:
                 var firstOfMonth = new DateOnly(anchor.Year, anchor.Month, 1);
                 var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
                 return (StartOfWeek(firstOfMonth, start), StartOfWeek(lastOfMonth, start).AddDays(6));
 
-            case CalendarViewMode.Week:
+            case CalendarLayout.Week:
                 var weekStart = StartOfWeek(anchor, start);
                 return (weekStart, weekStart.AddDays(6));
 
-            case CalendarViewMode.Day:
+            case CalendarLayout.Day:
                 return (anchor, anchor);
+
+            case CalendarLayout.Year:
+                return (new DateOnly(anchor.Year, 1, 1), new DateOnly(anchor.Year, 12, 31));
 
             default:
                 return (today, today.AddDays(AgendaDays));
@@ -234,15 +238,33 @@ public static class CalendarRules
 
     /// <summary>
     /// [S-569] The anchor one step back or forward: a month (the day clamped to the shorter month),
-    /// a week, or a day. The agenda has no period to page through, so it does not move.
+    /// a week, a day or a year (29 February clamped to the 28th). The agenda pages through its rows
+    /// ([S-2709]), not its dates, so its anchor does not move.
     /// </summary>
-    public static DateOnly Step(CalendarViewMode view, DateOnly anchor, int direction) => view switch
+    public static DateOnly Step(CalendarLayout view, DateOnly anchor, int direction) => view switch
     {
-        CalendarViewMode.Month => anchor.AddMonths(Math.Sign(direction)),
-        CalendarViewMode.Week => anchor.AddDays(7 * Math.Sign(direction)),
-        CalendarViewMode.Day => anchor.AddDays(Math.Sign(direction)),
+        CalendarLayout.Month => anchor.AddMonths(Math.Sign(direction)),
+        CalendarLayout.Week => anchor.AddDays(7 * Math.Sign(direction)),
+        CalendarLayout.Day => anchor.AddDays(Math.Sign(direction)),
+        CalendarLayout.Year => anchor.AddYears(Math.Sign(direction)),
         _ => anchor,
     };
+
+    /// <summary>
+    /// [S-569] Whether a day is in the period on screen, so the today button hides when it would do
+    /// nothing. A month counts only its own days, not the neighbours' that pad its weeks; the agenda
+    /// always holds today (its paging is by rows, [S-2709]).
+    /// </summary>
+    public static bool InView(CalendarLayout view, DateOnly anchor, DateOnly today, WeekStartDay start, DateOnly day)
+    {
+        if (view == CalendarLayout.Month)
+        {
+            return day.Year == anchor.Year && day.Month == anchor.Month;
+        }
+
+        var (first, last) = ViewRange(view, anchor, today, start);
+        return day >= first && day <= last;
+    }
 
     /// <summary>
     /// [S-568] The instants to ask the provider for: local midnight of the first day to local
@@ -260,22 +282,26 @@ public static class CalendarRules
     }
 
     /// <summary>
-    /// [S-568] The period's title: <c>October 2026</c>, <c>Sep 28 – Oct 4</c>, <c>Sun, Oct 4</c>. Agenda
-    /// has none. Names and order from <see cref="LocaleFormat"/> for <paramref name="locale"/> ([S-1106]).
+    /// [S-568] The period's title: <c>October 2026</c>, <c>Sep 28 – Oct 4</c>, <c>Sun, Oct 4</c>,
+    /// <c>2026</c>. Agenda has none. Names and order from <see cref="LocaleFormat"/> for
+    /// <paramref name="locale"/> ([S-1106]).
     /// </summary>
-    public static string Title(CalendarViewMode view, DateOnly anchor, WeekStartDay start, Locale locale)
+    public static string Title(CalendarLayout view, DateOnly anchor, WeekStartDay start, Locale locale)
     {
         switch (view)
         {
-            case CalendarViewMode.Month:
+            case CalendarLayout.Month:
                 return LocaleFormat.Date(locale, anchor, DateStyle.MonthYear);
 
-            case CalendarViewMode.Week:
+            case CalendarLayout.Week:
                 var first = StartOfWeek(anchor, start);
                 return Range(first, first.AddDays(6), locale);
 
-            case CalendarViewMode.Day:
+            case CalendarLayout.Day:
                 return LocaleFormat.Date(locale, anchor, DateStyle.WeekdayMonthDayShort);
+
+            case CalendarLayout.Year:
+                return Strings.Format(locale, Str.WidgetsA_Calendar_YearTitle, ("year", anchor.Year.ToString(CultureInfo.InvariantCulture)));
 
             default:
                 return string.Empty;
@@ -505,24 +531,6 @@ public static class CalendarRules
     public const int TimelineFirstHour = 7;
 
     public const int TimelineEndHour = 22;
-
-    /// <summary>
-    /// [S-573] Where a timed event sits on the day timeline, as fractions of its height: the top, and
-    /// the height — at least half an hour, and clipped to the timeline. An event entirely outside the
-    /// drawn hours is pinned to the nearer edge rather than dropped.
-    /// </summary>
-    public static (double Top, double Height) TimelineSpan(DateTimeOffset start, DateTimeOffset end, DateOnly day, TimeZoneInfo zone)
-    {
-        var span = (TimelineEndHour - TimelineFirstHour) * 60.0;
-        var origin = LocalMidnight(day, zone).AddHours(TimelineFirstHour);
-
-        var startMinutes = (start - origin).TotalMinutes;
-        var length = Math.Max(30, (end - start).TotalMinutes);
-
-        var top = Math.Clamp(startMinutes / span, 0, 1 - (30 / span));
-        var height = Math.Min(length / span, 1 - top);
-        return (top, height);
-    }
 
     /// <summary>[S-572] How a month cell draws its events at a given cell size.</summary>
     public static MonthDensity MonthCellDensity(double cellWidth, double cellHeight)

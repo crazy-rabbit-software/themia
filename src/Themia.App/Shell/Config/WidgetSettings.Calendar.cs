@@ -18,7 +18,7 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-561] The calendar widget's settings: accounts, and under each one its calendars — shown or
-/// hidden, and a colour each ([S-566], [S-567]) — then the view, the week start, the agenda length
+/// hidden, and a colour each ([S-566], [S-567]) — then the layout, the week start, the agenda length
 /// and birthdays. The classic widget's Source and Display tabs, on one page.
 /// </summary>
 internal static partial class WidgetSettings
@@ -56,12 +56,19 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
+        // [S-2700] The one layout the widget draws, at every size.
         rows.Add(FluentLayout.Row(Glyphs.View, Str.Calendar_View_Label.Text(),
-            Str.WidgetsA_Calendar_Settings_View_Desc.Text(),
-            FluentLayout.Choice<CalendarViewMode>(
-                [(CalendarViewMode.Month, Str.CtxMenu_Month.Text()), (CalendarViewMode.Week, Str.CtxMenu_Week.Text()), (CalendarViewMode.Day, Str.CtxMenu_Day.Text()), (CalendarViewMode.Agenda, Str.CtxMenu_Agenda.Text())],
-                config.EffectiveView,
-                value => { config.View = value; save(); })));
+            Str.WidgetsA_Calendar_Settings_Layout_Desc.Text(),
+            FluentLayout.Choice<CalendarLayout>(
+                [
+                    (CalendarLayout.Month, Str.CtxMenu_Month.Text()),
+                    (CalendarLayout.Week, Str.CtxMenu_Week.Text()),
+                    (CalendarLayout.Day, Str.CtxMenu_Day.Text()),
+                    (CalendarLayout.Year, Str.WidgetsA_Calendar_Layout_Year.Text()),
+                    (CalendarLayout.Agenda, Str.CtxMenu_Agenda.Text()),
+                ],
+                config.EffectiveLayout,
+                value => { config.Layout = value; save(); })));
 
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Calendar_WeekStart_Label.Text(), null,
             FluentLayout.Choice<WeekStartDay>(

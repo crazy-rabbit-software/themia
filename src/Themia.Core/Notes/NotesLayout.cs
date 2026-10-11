@@ -6,9 +6,9 @@ namespace Themia.Core.Notes;
 /// <param name="ToolbarButtons">How many formatting buttons fit, in priority order; 0 hides the bar.</param>
 /// <param name="Status">The status line under the text: word count.</param>
 /// <param name="StatusDetail">The status line also gives characters and the save state.</param>
-/// <param name="List">The note list beside the text.</param>
+/// <param name="TextWidth">The width the text has: the whole box at every size, never shared with a note list.</param>
 /// <param name="TextLines">Whole lines of text the editor shows at least (for tests; the editor scrolls).</param>
-public sealed record NotesLayoutPlan(int ToolbarButtons, bool Status, bool StatusDetail, bool List, int TextLines)
+public sealed record NotesLayoutPlan(int ToolbarButtons, bool Status, bool StatusDetail, double TextWidth, int TextLines)
 {
     public bool Toolbar => ToolbarButtons > 0;
 }
@@ -21,9 +21,9 @@ public sealed record NotesLayoutPlan(int ToolbarButtons, bool Status, bool Statu
 /// buttons as fit, the most used first.</item>
 /// <item>A status line (words) once the height is expanded; with characters and the save state once
 /// the width is too.</item>
-/// <item>The note list beside the text, at a huge width: switching notes without opening
-/// settings.</item>
 /// </list>
+/// The widget is the one note at every size: a larger tile gives the text more room, never a note
+/// list beside it (switching notes is the header's picker, [S-1364]).
 /// </summary>
 public static class NotesLayout
 {
@@ -41,12 +41,6 @@ public static class NotesLayout
     /// <summary>Fewer buttons than this is not a toolbar worth its band.</summary>
     public const int MinButtons = 4;
 
-    /// <summary>The note list's width at XL, about the length of a long title in Caption.</summary>
-    public const double ListWidth = 180;
-
-    /// <summary>The text keeps at least this much beside the list.</summary>
-    public const double MinEditorWidth = 320;
-
     /// <summary>Lines of text the editor reserves before anything else is shown.</summary>
     public const int MinTextLines = 2;
 
@@ -59,14 +53,11 @@ public static class NotesLayout
     {
         if (!area.IsMeasured)
         {
-            return new NotesLayoutPlan(0, false, false, false, MinTextLines);
+            return new NotesLayoutPlan(0, false, false, 0, MinTextLines);
         }
 
         var box = area.Deflate(inset, inset);
-        var list = area.WidthClass >= SizeClass.Huge
-            && area.HeightClass >= SizeClass.Regular
-            && box.Width - ListWidth - gap >= MinEditorWidth;
-        var width = list ? box.Width - ListWidth - gap : box.Width;
+        var width = box.Width;
 
         var room = new Disclosure(width, box.Height, gap);
         room.Reserve(lineHeight * MinTextLines);
@@ -81,7 +72,7 @@ public static class NotesLayout
         var detail = status && area.WidthClass >= SizeClass.Expanded;
 
         var lines = MinTextLines + Disclosure.WholeRows(room.Remaining, lineHeight);
-        return new NotesLayoutPlan(toolbar ? buttons : 0, status, detail, list, lines);
+        return new NotesLayoutPlan(toolbar ? buttons : 0, status, detail, width, lines);
     }
 
     /// <summary>How many buttons a row of <paramref name="width"/> holds, up to <see cref="AllButtons"/>.</summary>

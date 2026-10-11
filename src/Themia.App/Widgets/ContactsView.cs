@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// It discloses by size ([S-1270]): names alone on an XS tile, then avatars and roles, a way to
 /// reach each person, both address and number on a tall tile, rows flowed into columns on a wide
-/// one, and on an XL tile the selected person's detail pane beside the list ([S-1274]).
+/// one. No detail pane beside the list at any size ([S-1274] retired).
 /// </para>
 /// </summary>
 internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
@@ -55,7 +55,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly TextBox _search = new();
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
-    private readonly Border _detailPane = new();
     private readonly OfficeStatePanel _state = new(Glyphs.Contact);
     private readonly ProgressRing _busy = new();
     private readonly FontIcon _warning;
@@ -164,14 +163,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         };
         SetRow(_scroll, 2);
 
-        // [S-1274] The selected person, beside the list on an XL tile.
-        _detailPane.Width = ContactRules.DetailPaneWidth;
-        _detailPane.Visibility = Visibility.Collapsed;
-        _detailPane.BorderThickness = new Thickness(Fluent.Hairline, 0, 0, 0);
-        _detailPane.BorderBrush = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray);
-        SetColumn(_detailPane, 1);
-        SetRowSpan(_detailPane, 3);
-
         SetRow(_state, 0);
         SetRowSpan(_state, 3);
         SetColumnSpan(_state, 2);
@@ -179,7 +170,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         Children.Add(_search);
         Children.Add(_columnHeader);
         Children.Add(_scroll);
-        Children.Add(_detailPane);
         Children.Add(_state);
 
         // [S-580] Clicking the background clears the selection, as the classic widget did. A click
@@ -351,7 +341,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             }
 
             var results = tasks.Select(t => t.Result).ToList();
-            var problems = results.Select((r, i) => (Account: selected[i], r.Problem)).Where(p => p.Problem != SyncProblem.None).ToList();
+            var problems = results.Select((r, i) => (Account: selected[i], r.Problem, r.At)).Where(p => p.Problem != SyncProblem.None).ToList();
             var anyData = results.Any(r => r.Value is not null);
 
             _contacts = ContactRules.Merge(results.Select(r => r.Value ?? []));
@@ -373,7 +363,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
                     : () => string.Join(Environment.NewLine, problems.Select(p =>
                         Str.WidgetsA_Office_AccountProblem.Format(
                             ("account", labels.TryGetValue(p.Account, out var label) ? label : p.Account),
-                            ("problem", SyncProblems.Message(p.Problem, SyncSubject.Contacts, Strings.Current)))));
+                            ("problem", Themia.Core.Sync.SyncFreshness.Stamp(Strings.Current, SyncProblems.Message(p.Problem, SyncSubject.Contacts, Strings.Current), p.At?.ToLocalTime(), DateTimeOffset.Now)))));
                 _warningOpensAccounts = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
             }
         }
@@ -615,16 +605,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
         var layout = ContactRules.Effective(_config.EffectiveLayout, width, _config.EffectiveColumns.Count);
 
-        // [S-1274] On an XL tile the selected person gets a pane; the list keeps the rest of the width.
-        var selected = _selectedId is null ? null : visible.FirstOrDefault(c => c.Id == _selectedId);
-        var pane = layout != ContactsLayout.Grid && ContactRules.ShowsDetailPane(_area, selected is not null);
-        var listWidth = pane ? width - ContactRules.DetailPaneWidth : width;
-
-        if (pane)
-        {
-            _detailPane.Child = DetailPane(selected!);
-            _detailPane.Visibility = Visibility.Visible;
-        }
+        // The list has the whole width at every size: no detail pane beside it ([S-1274] retired);
+        // a person's actions are the row menu's.
+        var listWidth = width;
 
         var listHeight = height - (showSearch ? SearchHeight : 0) - Fluent.ListPadding.Bottom;
 
@@ -656,8 +639,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         _rows.Clear();
         _scroll.Content = null;
         _scroll.MaxHeight = double.PositiveInfinity;
-        _detailPane.Child = null;
-        _detailPane.Visibility = Visibility.Collapsed;
         _columnHeader.Children.Clear();
         _columnHeader.ColumnDefinitions.Clear();
         _columnHeader.Visibility = Visibility.Collapsed;
@@ -956,88 +937,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         _scroll.Content = grid;
     }
 
-    /// <summary>
-    /// [S-1274] The selected person in full: a large avatar, the name, the role, then their address
-    /// and number, and what can be done with them — the item menu's actions, one click away.
-    /// </summary>
-    private StackPanel DetailPane(Contact contact)
-    {
-        var pane = new StackPanel { Spacing = Fluent.Space1, Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space3, Fluent.Space2) };
-
-        var avatar = Avatar(contact, 64);
-        avatar.HorizontalAlignment = HorizontalAlignment.Left;
-        avatar.Margin = new Thickness(0, 0, 0, Fluent.Space2);
-        pane.Children.Add(avatar);
-
-        var name = Fluent.Text(FluentType.Subtitle);
-        name.Text = contact.Name;
-        pane.Children.Add(name);
-
-        if (ContactRules.Role(contact) is { Length: > 0 } role)
-        {
-            var line = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-            line.Text = role;
-            pane.Children.Add(line);
-        }
-
-        var actions = new StackPanel { Spacing = 0, Margin = new Thickness(-Fluent.Space2, Fluent.Space3, 0, 0) };
-
-        if (ContactLinks.Build(ContactLinkKind.Email, contact.Email) is not null)
-        {
-            actions.Children.Add(Action(Glyphs.Mail, contact.Email!, Str.CtxMenu_SendEmail.Text(), () => ShellLauncher.OpenContactLink(ContactLinkKind.Email, contact.Email)));
-            actions.Children.Add(Action(Glyphs.Copy, Str.CtxMenu_CopyEmail.Text(), null, () => Copy(contact.Email!)));
-        }
-
-        if (ContactLinks.Build(ContactLinkKind.Call, contact.Phone) is not null)
-        {
-            actions.Children.Add(Action(PhoneGlyph, contact.Phone!, Str.CtxMenu_Call.Text(), () => ShellLauncher.OpenContactLink(ContactLinkKind.Call, contact.Phone)));
-            actions.Children.Add(Action(MessageGlyph, Str.CtxMenu_Message.Text(), null, () => ShellLauncher.OpenContactLink(ContactLinkKind.Message, contact.Phone)));
-        }
-
-        if (!string.IsNullOrWhiteSpace(contact.Phone))
-        {
-            actions.Children.Add(Action(Glyphs.Copy, Str.CtxMenu_CopyPhone.Text(), null, () => Copy(contact.Phone!)));
-        }
-
-        actions.Children.Add(Action(Glyphs.Copy, Str.CtxMenu_CopyName.Text(), null, () => Copy(contact.Name)));
-        pane.Children.Add(actions);
-        return pane;
-
-        Border Action(string glyph, string text, string? hint, Action click)
-        {
-            var label = Fluent.Text(FluentType.Body);
-            label.Text = text;
-            label.VerticalAlignment = VerticalAlignment.Center;
-
-            var icon = Fluent.Icon(glyph);
-            icon.Margin = new Thickness(0, 0, Fluent.Space3, 0);
-
-            var content = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                },
-            };
-            SetColumn(label, 1);
-            content.Children.Add(icon);
-            content.Children.Add(label);
-
-            var row = Fluent.Row(content, compact: true);
-            row.Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
-            row.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-            ToolTipService.SetToolTip(row, hint ?? text);
-            _hovers.Add(Fluent.Hover(row));
-            row.Tapped += (_, args) =>
-            {
-                args.Handled = true;
-                click();
-            };
-            return row;
-        }
-    }
-
     /// <summary>A row's content: the selection mark, the avatar when there is one, and the text.</summary>
     private Grid RowBody(Contact contact, FrameworkElement? avatar, FrameworkElement text)
     {
@@ -1127,14 +1026,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     {
         if (id == _selectedId)
         {
-            return;
-        }
-
-        // [S-1274] Where a selection opens or changes the detail pane, the list is laid out again.
-        if (ContactRules.ShowsDetailPane(_area, selected: true) && _config.EffectiveLayout != ContactsLayout.Grid)
-        {
-            _selectedId = id;
-            Render();
             return;
         }
 

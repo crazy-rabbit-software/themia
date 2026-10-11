@@ -130,7 +130,7 @@ internal sealed partial class ShortcutsView
             return;
         }
 
-        // Only a press on the items' own area: the search box and the footer are not background.
+        // Only a press on the items' own area: the search box is not background.
         var point = args.GetCurrentPoint(_surface).Position;
         var scroll = args.GetCurrentPoint(_scroll).Position;
 

@@ -32,7 +32,6 @@ public sealed class TaskLayoutTests
         Assert.Equal(DueDetail.None, plan.Due);
         Assert.Equal(DueDetail.Urgent, Plan(new WidgetArea(120, 356)).Due);
         Assert.False(plan.AddRow);
-        Assert.False(plan.Summary);
         Assert.False(plan.PriorityGlyph);
     }
 
@@ -73,15 +72,13 @@ public sealed class TaskLayoutTests
         Assert.Equal(4, plan.TitleLines);
         Assert.False(plan.DueBeside);
         Assert.True(plan.AddRow);
-        Assert.False(plan.Summary);
         Assert.True(plan.CompletedHeading);
     }
 
     [Fact]
-    public void S783_S789_a_panel_adds_the_summary_a_long_due_column_and_list_names_under_Today()
+    public void S789_a_panel_adds_a_long_due_column_and_list_names_under_Today()
     {
         var plan = Plan(L, today: true);
-        Assert.True(plan.Summary);
         Assert.Equal(DueDetail.Long, plan.Due);
         Assert.True(plan.DueBeside);
         Assert.True(plan.ListNames);
@@ -99,9 +96,8 @@ public sealed class TaskLayoutTests
     }
 
     [Fact]
-    public void S780_an_empty_list_has_no_summary_and_an_unwritable_one_no_add_row()
+    public void S780_an_unwritable_list_has_no_add_row()
     {
-        Assert.False(Plan(L, count: 0).Summary);
         var readOnly = TaskLayout.Plan(L, new TaskLayoutInput(5, Writable: false, false, true, TaskViewMode.List, 2), Row, CompactRow);
         Assert.False(readOnly.AddRow);
     }
@@ -216,22 +212,6 @@ public sealed class TaskLayoutTests
     private static readonly DateOnly Today = new(2026, 10, 4);
 
     private static string Due(int days) => $"{TaskDue.Wire(Today.AddDays(days))}T00:00:00.0000000";
-
-    [Fact]
-    public void S783_the_summary_counts_open_overdue_due_today_and_done()
-    {
-        TaskItem[] rows =
-        [
-            new("1", "l", "a", false, false, Due(-2)),
-            new("2", "l", "b", false, false, Due(0)),
-            new("3", "l", "c", false),
-            new("4", "l", "d", true, false, Due(-1)),
-        ];
-
-        Assert.Equal("3 open · 1 overdue · 1 due today · 1 done", TaskRules.Summary(Locale.En, rows, Today, TimeZoneInfo.Utc));
-        Assert.Equal("Nothing open", TaskRules.Summary(Locale.En, [], Today, TimeZoneInfo.Utc));
-        Assert.Equal("3 offen · 1 überfällig · 1 heute fällig · 1 erledigt", TaskRules.Summary(Locale.De, rows, Today, TimeZoneInfo.Utc));
-    }
 
     [Fact]
     public void S784_completed_tasks_follow_the_open_ones_each_in_its_own_order()

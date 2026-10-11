@@ -254,11 +254,16 @@ internal static class SwitchCheck
         var expected = shown?.Widgets.Count ?? 0;
         var live = WidgetLiveness.Live(host.State, [DisplayId], AccountFeatures.None).Count;
         var cards = LiveCensus.LiveCards();
-        var verdict = cards == expected && LiveCensus.Attached == live && host.Ticker.SubscriptionCount <= live ? string.Empty : "  LEAK";
+
+        // [S-2511] The system hub's one subscription is its lingering feeds' ([S-2505]), not a widget's.
+        var system = AppServices.System;
+        var hubTicks = system is { HoldsTicker: true } ? 1 : 0;
+        var verdict = cards == expected && LiveCensus.Attached == live && host.Ticker.SubscriptionCount - hubTicks <= live ? string.Empty : "  LEAK";
 
         return $"{label,-40} ws {process.WorkingSet64 / mb,7:0.0} MB  private {process.PrivateMemorySize64 / mb,7:0.0} MB  " +
             $"managed {GC.GetTotalMemory(forceFullCollection: false) / mb,6:0.0} MB  cards alive {cards,4} (shown {expected})  " +
             $"views attached {LiveCensus.Attached,4} (live {live})  ticks {host.Ticker.SubscriptionCount,3}  " +
+            $"system feeds {system?.FeedCount ?? 0,3} (lingering {system?.LingeringCount ?? 0}, sources {system?.SourceCount ?? 0})  " +
             $"threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
     }
 

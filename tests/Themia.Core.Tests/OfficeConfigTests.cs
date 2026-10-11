@@ -32,7 +32,7 @@ public sealed class OfficeConfigTests
     public void S563_GarbledValuesFallBackInsteadOfRefusingTheFile()
     {
         var calendar = AppStateStore.Parse(StateWith(WidgetKind.Calendar,
-            """{"kind":"calendar","accountIds":"nope","calendars":{"a":"x","b":["c1",7]},"calendarColors":{"k":5,"j":"#123456"},"view":"sideways","weekStart":3,"agendaCount":900}""").ToJsonString());
+            """{"kind":"calendar","accountIds":"nope","calendars":{"a":"x","b":["c1",7]},"calendarColors":{"k":5,"j":"#123456"},"layout":"sideways","weekStart":3,"agendaCount":900}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, calendar.Refusal);
         var c = ConfigOf<CalendarConfig>(calendar, WidgetKind.Calendar);
@@ -40,7 +40,7 @@ public sealed class OfficeConfigTests
         Assert.Equal(["c1"], c.Calendars["b"]);
         Assert.Empty(c.Calendars["a"]);
         Assert.Equal("#123456", Assert.Single(c.CalendarColors).Value);
-        Assert.Equal(CalendarViewMode.Month, c.View);
+        Assert.Equal(CalendarLayout.Month, c.Layout);
         Assert.Equal(WeekStartDay.Monday, c.WeekStart);
         Assert.Equal(100, c.AgendaCount);
 
@@ -64,7 +64,7 @@ public sealed class OfficeConfigTests
             AccountIds = ["google:1"],
             Calendars = new() { ["google:1"] = ["work@group.calendar.google.com"] },
             CalendarColors = new() { ["work@group.calendar.google.com"] = "#ff9660" },
-            View = CalendarViewMode.Week,
+            Layout = CalendarLayout.Year,
             WeekStart = WeekStartDay.Sunday,
             ShowBirthdays = false,
             AgendaCount = 7,
@@ -72,7 +72,7 @@ public sealed class OfficeConfigTests
         state.Views[0].Widgets.Add(widget);
 
         var json = SettingsTransfer.Serialize(state);
-        Assert.Contains("\"view\": \"week\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"layout\": \"year\"", json, StringComparison.Ordinal);
         Assert.Contains("\"weekStart\": \"sunday\"", json, StringComparison.Ordinal);
 
         var parsed = AppStateStore.Parse(json);
@@ -80,7 +80,7 @@ public sealed class OfficeConfigTests
         Assert.Equal(["google:1"], back.AccountIds);
         Assert.Equal(["work@group.calendar.google.com"], back.Calendars["google:1"]);
         Assert.Equal("#ff9660", back.CalendarColors["work@group.calendar.google.com"]);
-        Assert.Equal(CalendarViewMode.Week, back.View);
+        Assert.Equal(CalendarLayout.Year, back.Layout);
         Assert.Equal(WeekStartDay.Sunday, back.WeekStart);
         Assert.False(back.ShowBirthdays);
         Assert.Equal(7, back.AgendaCount);

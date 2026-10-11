@@ -1,9 +1,5 @@
 {
   "$comment": "Machine-written translations (LOC-WIDGETS-A): every non-English string in this file needs native review.",
-  "widgetsA.audio.followDefault": "跟随默认输出",
-  "widgetsA.audio.isDefault": "{name}（Windows 默认）",
-  "widgetsA.audio.makeDefault": "将 {name} 设为默认输出",
-  "widgetsA.bluetooth.address": "地址",
   "widgetsA.bluetooth.connected": "已连接",
   "widgetsA.bluetooth.connectedCount": {
     "other": "已连接 {count} 个"
@@ -16,8 +12,6 @@
   "widgetsA.bluetooth.kind.pen": "笔",
   "widgetsA.bluetooth.kind.phone": "手机",
   "widgetsA.bluetooth.kind.watch": "手表",
-  "widgetsA.bluetooth.notHeard": "未收到",
-  "widgetsA.bluetooth.notReported": "未报告",
   "widgetsA.bluetooth.paired": "已配对",
   "widgetsA.bluetooth.settings.battery.desc": "会连接每个已连接的设备，刷新会变慢",
   "widgetsA.bluetooth.settings.connectedOnly.desc": "隐藏已配对但未连接的设备",
@@ -33,7 +27,6 @@
   "widgetsA.bluetooth.settings.show": "显示",
   "widgetsA.bluetooth.settings.signal.desc": "每次刷新时侦听蓝牙 LE 设备 3 秒；大多数其他设备从不报告",
   "widgetsA.bluetooth.settings.signal.label": "信号强度",
-  "widgetsA.bluetooth.signal": "信号",
   "widgetsA.bluetooth.status.failed": "无法读取已配对设备",
   "widgetsA.bluetooth.status.loading": "正在读取已配对设备",
   "widgetsA.bluetooth.status.noRadio": "此电脑没有蓝牙",
@@ -50,12 +43,8 @@
   "widgetsA.calendar.color.pink": "粉色",
   "widgetsA.calendar.color.purple": "紫色",
   "widgetsA.calendar.color.yellow": "黄色",
-  "widgetsA.calendar.more": "还有 +{count} 项",
-  "widgetsA.calendar.moreToday": "今天还有 +{count} 项",
   "widgetsA.calendar.noAccount": "还没有日历帐户",
   "widgetsA.calendar.noEvents": "没有日程",
-  "widgetsA.calendar.nothingComingUp": "近期没有安排",
-  "widgetsA.calendar.nothingElseThisMonth": "本月没有其他安排",
   "widgetsA.calendar.now": "现在",
   "widgetsA.calendar.previous": "上一个",
   "widgetsA.calendar.range": "{from} – {to}",
@@ -72,9 +61,7 @@
   "widgetsA.calendar.settings.listFailed": "无法列出日历。将显示默认日历。",
   "widgetsA.calendar.settings.listFailedWhy": "无法列出日历：{problem} 将显示默认日历。",
   "widgetsA.calendar.settings.listing": "正在查找此帐户的日历…",
-  "widgetsA.calendar.settings.view.desc": "视图放不下时，小组件会显示日程列表",
   "widgetsA.calendar.spanWithLength": "{from}–{to}（{length}）",
-  "widgetsA.calendar.weekdayDay": "{day}日 {weekday}",
   "widgetsA.calendar.weekdayInitials": "日,一,二,三,四,五,六",
   "widgetsA.catalog.bluetooth.description": "已配对设备及其电量",
   "widgetsA.catalog.calendar.description": "你的 Microsoft、Google 和 CalDAV 日历，含生日",
@@ -138,7 +125,6 @@
   "widgetsA.clipboard.clearConfirm.body": "此列表中的所有内容都将被清除。此操作无法撤消，也不会改变剪贴板当前的内容。",
   "widgetsA.clipboard.clearConfirm.title": "清除剪贴板历史记录？",
   "widgetsA.clipboard.clearEllipsis": "清除历史记录…",
-  "widgetsA.clipboard.countOf": "{count} / {capacity}",
   "widgetsA.clipboard.empty": "尚未复制任何内容。复制内容后会显示在这里。",
   "widgetsA.clipboard.lines": {
     "other": "{count} 行"

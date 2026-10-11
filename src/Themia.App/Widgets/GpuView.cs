@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
+using Themia.App.Services.SystemData;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -24,6 +25,11 @@ namespace Themia.App.Widgets;
 /// [S-1201] Each panel climbs the meters' ladder (<see cref="MeterFace"/>): the load alone on a tiny
 /// panel, else the history under it (beside it on a strip) growing to fill the panel.
 /// </para>
+/// <para>
+/// [S-2500] [S-2504] The samples are the system hub's GPU feed: the adapters' names from its
+/// snapshots, each panel's load and history from its adapter's series, so a tile built again shows
+/// the history the hub kept.
+/// </para>
 /// </summary>
 internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware
 {
@@ -34,16 +40,15 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
     private readonly TextBlock _emptyText = new();
     private readonly List<Panel> _shown = [];
 
-    private Ticker? _ticker;
     private IWidgetSurface? _surface;
     private GpuConfig _config = new();
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval;
+    private FeedWatch<GpuSnapshot>? _snapshots;
+    private TimeSpan _interval;
     private List<int> _selection = [];
-    private GpuSnapshot? _latest;
     private WidgetArea _area;
-    private bool _acquired;
-    private bool _detached;
+
+    // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
+    private bool _detached = true;
 
     public GpuView()
     {
@@ -62,15 +67,7 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
         _detached = false;
-
-        if (!_acquired)
-        {
-            GpuSampler.Acquire();
-            _acquired = true;
-        }
-
         ApplyConfig(config);
     }
 
@@ -80,9 +77,11 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
         var selection = GpuRules.ResolveAdapters(_config.Adapters);
 
-        // [S-436] A different adapter is a different measurement: its panels — and their history —
-        // start fresh. Anything else only changes what the existing panels show.
-        if (!selection.SequenceEqual(_selection))
+        // [S-436] A different adapter is a different measurement: its panel shows that adapter's own
+        // series. Anything else only changes what the existing panels show.
+        var rebuilt = !selection.SequenceEqual(_selection);
+
+        if (rebuilt)
         {
             _selection = selection;
             BuildPanels();
@@ -93,9 +92,11 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
             panel.Configure(_config, stacked: GpuRules.Stacked(_selection.Count));
         }
 
-        if (!Resubscribe() && _latest is not null)
+        Rewatch(rebuilt);
+
+        if (_snapshots is { HasValue: true } watch)
         {
-            Present(_latest, addSample: false);
+            Present(watch.Value);
         }
 
         Arrange();
@@ -109,6 +110,11 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
     private void BuildPanels()
     {
+        foreach (var panel in _shown)
+        {
+            panel.Unwatch();
+        }
+
         _panels.Children.Clear();
         _shown.Clear();
 
@@ -120,50 +126,54 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
         }
     }
 
-    private bool Resubscribe()
+    /// <summary>
+    /// [S-2504] Watch the GPU feed at the configured cadence, and each panel its adapter's series — only
+    /// when the cadence or the panels changed, so a settings slider does not drop the watches.
+    /// </summary>
+    private void Rewatch(bool panelsChanged)
     {
+        if (_detached)
+        {
+            return;
+        }
+
         var interval = _config.TickInterval;
+        var cadenceChanged = _snapshots is null || interval != _interval;
 
-        if (_subscription is not null && interval == _subscribedInterval)
+        if (!cadenceChanged && !panelsChanged)
         {
-            return false;
+            return;
         }
 
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, () => _ = SampleAsync());
-        return _subscription is not null;
+        if (AppServices.System is not { } hub)
+        {
+            Log.Warn(Scope, "no system hub for the GPU widget");
+            return;
+        }
+
+        if (cadenceChanged)
+        {
+            _snapshots?.Dispose();
+            _interval = interval;
+            _snapshots = hub.Watch(Sources.Gpu, interval, OnSnapshot);
+        }
+
+        foreach (var panel in _shown)
+        {
+            panel.Watch(hub, interval, cadenceChanged);
+        }
     }
 
-    private async Task SampleAsync()
+    private void OnSnapshot(GpuSnapshot snapshot)
     {
-        if (_detached)
-        {
-            return;
-        }
-
-        GpuSnapshot snapshot;
-        try
-        {
-            snapshot = await GpuSampler.SampleAsync().ConfigureAwait(true);
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "could not read the graphics adapters", ex);
-            return;
-        }
-
         // A sample that lands after the widget was torn down belongs to nobody.
-        if (_detached)
+        if (!_detached)
         {
-            return;
+            Present(snapshot);
         }
-
-        _latest = snapshot;
-        Present(snapshot, addSample: true);
     }
 
-    private void Present(GpuSnapshot snapshot, bool addSample)
+    private void Present(GpuSnapshot snapshot)
     {
         // [S-433] No adapter at all, or none of the chosen ones present (an eGPU unplugged): said
         // as a state, not as a tile of dashes.
@@ -182,9 +192,7 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
         for (var i = 0; i < _shown.Count; i++)
         {
             var index = _selection[i];
-            var reading = index < snapshot.Readings.Count ? snapshot.Readings[index] : null;
-
-            _shown[i].Show(reading, addSample);
+            _shown[i].Name(index < snapshot.Readings.Count ? snapshot.Readings[index] : null);
         }
 
         // [S-430] One adapter names the card; several keep the catalogue's "GPU" and name each panel.
@@ -238,14 +246,15 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
     public void Detach()
     {
         _detached = true;
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = TimeSpan.Zero;
 
-        if (_acquired)
+        // [S-2505] The adapters' histories stay in the hub for the tile built in this one's place.
+        _snapshots?.Dispose();
+        _snapshots = null;
+        _interval = TimeSpan.Zero;
+
+        foreach (var panel in _shown)
         {
-            _acquired = false;
-            GpuSampler.Release();
+            panel.Unwatch();
         }
     }
 }

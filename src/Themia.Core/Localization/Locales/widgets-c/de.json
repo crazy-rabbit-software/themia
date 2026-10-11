@@ -16,7 +16,6 @@
   "widgetsC.notes.notSaved": "Nicht gespeichert",
   "widgetsC.notes.saved": "Gespeichert",
   "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
-  "widgetsC.notes.deletedPickInList": "Diese Notiz wurde gelöscht.\nWähle in der Liste eine andere aus.",
   "widgetsC.notes.unreadable": "Diese Notiz konnte nicht gelesen werden.",
   "widgetsC.notes.unavailable": "Notizen sind nicht verfügbar.",
   "widgetsC.notes.chooseNote": "Notiz auswählen",
@@ -24,7 +23,6 @@
   "widgetsC.notes.deleteNoteEllipsis": "Notiz löschen…",
   "widgetsC.notes.deleteConfirmTitle": "Diese Notiz löschen?",
   "widgetsC.notes.deleteConfirmBody": "„{name}“ wird von diesem PC gelöscht, für jedes Widget, das sie anzeigt. Der Text kann nicht wiederhergestellt werden.",
-  "widgetsC.notes.noNotes": "Noch keine Notizen.",
   "widgetsC.notes.settings.note": "Notiz",
   "widgetsC.notes.settings.wrap.label": "Zeilen umbrechen",
   "widgetsC.notes.settings.wrap.desc": "Aus: Lange Zeilen werden nicht umbrochen, sondern seitlich gescrollt",
@@ -75,10 +73,6 @@
   "widgetsC.power.reason.refused": "Windows hat abgelehnt",
   "widgetsC.power.reason.windowsError": "Windows-Fehler {code}",
   "widgetsC.quote.showAnother": "Anderes Zitat anzeigen",
-  "widgetsC.quote.ofTheDay": "Zitat des Tages",
-  "widgetsC.quote.ofTheHour": "Zitat der Stunde",
-  "widgetsC.quote.quote": "Zitat",
-  "widgetsC.quote.captionPosition": "{name} · {position} von {count}",
   "widgetsC.quote.quoted": "„{text}“",
   "widgetsC.quote.settings.quotes": "Zitate",
   "widgetsC.quote.settings.emptyList": "Es sind keine Zitate mehr vorhanden. Das Widget weist darauf hin, bis eines hinzugefügt wird.",
@@ -99,9 +93,7 @@
   "widgetsC.quote.settings.textPlaceholder": "Etwas, das man gern wieder liest",
   "widgetsC.quote.settings.authorPlaceholder": "Wer hat es gesagt?",
   "widgetsC.rss.failure": "{name}: {reason}",
-  "widgetsC.rss.openArticle": "Artikel öffnen",
   "widgetsC.rss.untitled": "(ohne Titel)",
-  "widgetsC.rss.paneDate": "{date}, {time} · {age}",
   "widgetsC.rss.copyLink": "Link kopieren",
   "widgetsC.rss.noArticles": "Dieser Feed enthält keine Artikel",
   "widgetsC.rss.savedRefreshing": "Gespeichert {age}; wird aktualisiert",
@@ -129,10 +121,6 @@
   "widgetsC.scratchpad.clearDrawing": "Zeichnung löschen",
   "widgetsC.scratchpad.clearConfirm": "Die ganze Zeichnung löschen?",
   "widgetsC.scratchpad.penSizeTip": "Stiftbreite {size} px",
-  "widgetsC.scratchpad.strokes": {
-    "one": "{count} Strich",
-    "other": "{count} Striche"
-  },
   "widgetsC.scratchpad.settings.inks": "Tinten",
   "widgetsC.scratchpad.settings.tools": "Werkzeuge",
   "widgetsC.scratchpad.settings.showTools.label": "Werkzeuge anzeigen",
@@ -151,17 +139,9 @@
     "one": "{count} Wechsel",
     "other": "{count} Wechsel"
   },
-  "widgetsC.screenTime.apps": {
-    "one": "{count} App",
-    "other": "{count} Apps"
-  },
-  "widgetsC.screenTime.statsDay": "{days}-Tage-Schnitt {average} · Spitze {day} {busiest}",
-  "widgetsC.screenTime.statsWindow": "Spitze {day} {busiest} · {apps}",
   "widgetsC.screenTime.notRecording": "Die Bildschirmzeit wird aufgezeichnet, während Themia läuft",
   "widgetsC.screenTime.noActivityPeriod": "Keine Aktivität in diesem Zeitraum",
   "widgetsC.screenTime.dailyLimit": "Tageslimit",
-  "widgetsC.screenTime.usedOf": "{used} von {limit}",
-  "widgetsC.screenTime.usedPerDayOf": "{used}/Tag von {limit}",
   "widgetsC.screenTime.limitTip": "Limit {limit}",
   "widgetsC.screenTime.limitOverTip": "Limit {limit} (überschritten)",
   "widgetsC.screenTime.settings.period.desc": "Ein Tag oder ein gleitender Zeitraum bis heute",
@@ -186,23 +166,6 @@
   "widgetsC.tasks.overdueOn": "Überfällig · {date}",
   "widgetsC.tasks.untitledTask": "(Aufgabe ohne Titel)",
   "widgetsC.tasks.untitledList": "Liste ohne Titel",
-  "widgetsC.tasks.summary.nothingOpen": "Nichts offen",
-  "widgetsC.tasks.summary.open": {
-    "one": "{count} offen",
-    "other": "{count} offen"
-  },
-  "widgetsC.tasks.summary.overdue": {
-    "one": "{count} überfällig",
-    "other": "{count} überfällig"
-  },
-  "widgetsC.tasks.summary.dueToday": {
-    "one": "{count} heute fällig",
-    "other": "{count} heute fällig"
-  },
-  "widgetsC.tasks.summary.done": {
-    "one": "{count} erledigt",
-    "other": "{count} erledigt"
-  },
   "widgetsC.tasks.completedHeading": "Erledigt · {count}",
   "widgetsC.tasks.markDone": "Als erledigt markieren",
   "widgetsC.tasks.markNotDone": "Als nicht erledigt markieren",
@@ -291,13 +254,7 @@
   "widgetsC.volume.noDevice": "Kein Ausgabegerät",
   "widgetsC.volume.notConnected": "{device} ist nicht verbunden",
   "widgetsC.volume.unavailable": "Sound ist nicht verfügbar",
-  "widgetsC.volume.appsOnDevice": "Apps auf diesem Gerät",
   "widgetsC.volume.followDefault": "Standardausgabe folgen",
-  "widgetsC.volume.microphone": "Mikrofon",
-  "widgetsC.volume.muteMic": "Mikrofon stummschalten",
-  "widgetsC.volume.unmuteMic": "Stummschaltung des Mikrofons aufheben",
-  "widgetsC.volume.chooseDevice": "Ausgabegerät auswählen",
-  "widgetsC.volume.notPlaying": "{name} (keine Wiedergabe)",
   "widgetsC.volume.defaultNotChanged": "Standardausgabe nicht geändert",
   "widgetsC.volume.muted": "Stumm",
   "widgetsC.volume.turnedDown": "Leise gestellt",
@@ -306,9 +263,6 @@
   "widgetsC.volume.settings.showSlider.desc": "Ohne ihn zeigt die Kachel nur den Wert",
   "widgetsC.volume.settings.meter.label": "Pegelanzeige",
   "widgetsC.volume.settings.meter.desc": "Eine Live-Anzeige über dem Regler, ab mittlerer Kachelgröße",
-  "widgetsC.volume.settings.mic.desc": "Pegel und Stummschaltung des Standardmikrofons auf einer großen Kachel",
-  "widgetsC.volume.settings.apps.label": "Apps",
-  "widgetsC.volume.settings.apps.desc": "Die Apps, die auf dem Gerät wiedergeben, auf einer großen Kachel mit Platz",
   "widgetsC.volume.settings.behaviour": "Verhalten",
   "widgetsC.volume.settings.allow.label": "Änderungen zulassen",
   "widgetsC.volume.settings.allow.desc": "Diese Kachel darf die Systemlautstärke ändern",
@@ -334,19 +288,6 @@
   "widgetsC.videoStream.settings.note": "Pause, Drehen und Neuverbinden gibt es auch im Kontextmenü des Widgets. Eine angehaltene Kamera bleibt auch nach einem Neustart angehalten und nutzt kein Netzwerk. Kameras, die Benutzername und Kennwort erfordern, werden nicht unterstützt.",
   "widgetsC.videoStream.settings.refresh.desc": "Wie oft ein Bild abgerufen wird. 0 hält den Stream mit der Bildrate der Kamera offen; jeder andere Wert holt ein Bild und trennt bis zum nächsten",
   "widgetsC.shortcuts.search": "Verknüpfungen durchsuchen",
-  "widgetsC.shortcuts.footer.total": {
-    "one": "{count} Verknüpfung",
-    "other": "{count} Verknüpfungen"
-  },
-  "widgetsC.shortcuts.footer.shown": "{shown} von {total} angezeigt",
-  "widgetsC.shortcuts.footer.selected": {
-    "one": "{count} ausgewählt",
-    "other": "{count} ausgewählt"
-  },
-  "widgetsC.shortcuts.footer.missing": {
-    "one": "{count} fehlt",
-    "other": "{count} fehlen"
-  },
   "widgetsC.shortcuts.menu.closeSearch": "Suche schließen",
   "widgetsC.shortcuts.menu.undoRemove": "Entfernen rückgängig machen",
   "widgetsC.shortcuts.menu.undoRemoveCount": {

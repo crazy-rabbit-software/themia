@@ -50,12 +50,9 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Apps, Str.Mixer_Cfg_IconsLabel.Text(), Str.WidgetsB_Settings_Mixer_Icons_Desc.Text(),
             FluentLayout.Toggle(config.ShowIcons, value => { config.ShowIcons = value; save(); })));
 
-        // [S-1223] [S-1224]
+        // [S-1223]
         rows.Add(FluentLayout.Row(Glyphs.Volume2, Str.WidgetsB_Settings_Mixer_Peaks_Label.Text(), Str.WidgetsB_Settings_Mixer_Peaks_Desc.Text(),
             FluentLayout.Toggle(config.ShowPeaks, value => { config.ShowPeaks = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Microphone, Str.WidgetsB_Mixer_Microphone.Text(), Str.WidgetsB_Settings_Mixer_Microphone_Desc.Text(),
-            FluentLayout.Toggle(config.ShowMicrophone, value => { config.ShowMicrophone = value; save(); })));
 
         rows.Add(FluentLayout.Note(Str.WidgetsB_Settings_Mixer_Note.Text()));
     }

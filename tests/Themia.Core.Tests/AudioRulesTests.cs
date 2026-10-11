@@ -64,11 +64,11 @@ public class AudioRulesTests
     [Fact]
     public void S1221_clone_keeps_the_device_and_the_new_toggles()
     {
-        var clone = (VolumeConfig)new VolumeConfig { DeviceId = "{a}", DeviceName = "S", ShowPeaks = false, ShowMicrophone = false, ShowApps = false }.Clone();
-        Assert.Equal(("{a}", "S", false, false, false), (clone.DeviceId, clone.DeviceName, clone.ShowPeaks, clone.ShowMicrophone, clone.ShowApps));
+        var clone = (VolumeConfig)new VolumeConfig { DeviceId = "{a}", DeviceName = "S", ShowPeaks = false }.Clone();
+        Assert.Equal(("{a}", "S", false), (clone.DeviceId, clone.DeviceName, clone.ShowPeaks));
 
-        var mixer = (MixerConfig)new MixerConfig { DeviceId = "{b}", ShowPeaks = false, ShowMicrophone = false }.Clone();
-        Assert.Equal(("{b}", false, false), (mixer.DeviceId, mixer.ShowPeaks, mixer.ShowMicrophone));
+        var mixer = (MixerConfig)new MixerConfig { DeviceId = "{b}", ShowPeaks = false }.Clone();
+        Assert.Equal(("{b}", false), (mixer.DeviceId, mixer.ShowPeaks));
     }
 
     // ---- [S-1234] stepping ----------------------------------------------------------------------
@@ -193,11 +193,10 @@ public class AudioRulesTests
         var silent = new Dictionary<string, double> { ["a"] = 0 };
         var loud = new Dictionary<string, double> { ["a"] = 0.3 };
 
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: false, 0, 0, silent));
-        Assert.False(AudioRules.PeaksWorthSending(previousSilent: true, 0, 0, silent));
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, 0, 0, loud));
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, 0.1, 0, silent));
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, 0, 0.1, silent));
+        Assert.True(AudioRules.PeaksWorthSending(previousSilent: false, 0, silent));
+        Assert.False(AudioRules.PeaksWorthSending(previousSilent: true, 0, silent));
+        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, 0, loud));
+        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, 0.1, silent));
     }
 
     // ---- [S-1227] [S-1228] [S-1231] the mixer's rows ---------------------------------------------
@@ -228,23 +227,6 @@ public class AudioRulesTests
 
         Assert.Equal(["b", "c"], MixerRules.QuietRows(rows, new MixerRowOptions(true, true, OnlyActive: true)).Select(r => r.Key));
         Assert.Empty(MixerRules.QuietRows(rows, new MixerRowOptions(true, true, OnlyActive: false)));
-    }
-
-    [Fact]
-    public void S1231_top_apps_put_playing_ones_first_and_keep_name_order()
-    {
-        MixerRow[] rows =
-        [
-            new(MixerRules.MasterKey, string.Empty, null, 1, false, true, false, 0),
-            Row("a", "Alpha", active: false),
-            Row("b", "Beta", active: true),
-            Row("c", "Gamma", active: false),
-            Row("d", "Delta", active: true),
-            Row(MixerRules.SystemSoundsKey, string.Empty, active: true, system: true),
-        ];
-
-        Assert.Equal(["b", "d", "a"], MixerRules.TopApps(rows, 3).Select(r => r.Key));
-        Assert.Empty(MixerRules.TopApps(rows, 0));
     }
 
     // ---- [S-1232] the caption --------------------------------------------------------------------

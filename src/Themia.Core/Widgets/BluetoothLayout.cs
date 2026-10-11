@@ -12,7 +12,6 @@ namespace Themia.Core.Widgets;
 /// <param name="SignalColumn">The signal reading in its own column, likewise.</param>
 /// <param name="BatteryBar">A small level bar beside the battery percentage.</param>
 /// <param name="Summary">"2 connected" in the header instead of the bare count.</param>
-/// <param name="Detail">[S-1569] A detail panel for one device under the list, in the height the rows leave.</param>
 public readonly record struct BluetoothRowPlan(
     int Columns,
     bool TwoLine,
@@ -22,17 +21,15 @@ public readonly record struct BluetoothRowPlan(
     bool BatteryColumn,
     bool SignalColumn,
     bool BatteryBar,
-    bool Summary,
-    bool Detail = false);
+    bool Summary);
 
 /// <summary>
 /// [S-1254] The Bluetooth list's disclosure ladder. XS/S: icon, name, dot in as many rows as fit;
 /// from 260 px a column carries the status word and battery %; from 400 px the signal and a battery
 /// bar; from Regular×Expanded rows grow a second line; the largest tiles split a long list into two
 /// columns. The
-/// list itself takes every whole row the tile has — the row cap is a ceiling, not a target.
-/// [S-1569] A short list on a large tile (one headset on an L or XL tile) leaves most of it empty:
-/// there the height under the rows goes to a detail panel for the selected device.
+/// list itself takes every whole row the tile has — the row cap is a ceiling, not a target. A
+/// short list on a large tile stays a short list: the widget lists devices, nothing more.
 /// </summary>
 public static class BluetoothLayout
 {
@@ -62,12 +59,6 @@ public static class BluetoothLayout
     /// <summary>A column at least this wide has room for a battery bar beside the percentage.</summary>
     public const double BatteryBarMinWidth = 400;
 
-    /// <summary>
-    /// [S-1569] The least height worth a detail panel: its icon-and-name line, the facts under it
-    /// and the gaps around them. Under it the rows' own second line already says everything.
-    /// </summary>
-    public const double DetailMinHeight = 128;
-
     /// <param name="area">The view's slot.</param>
     /// <param name="listHeight">The list's height (slot less its own padding).</param>
     /// <param name="count">Devices to show.</param>
@@ -96,9 +87,6 @@ public static class BluetoothLayout
             BatteryColumn: measured && columnWidth >= BatteryColumnMinWidth,
             SignalColumn: measured && columnWidth >= SignalColumnMinWidth,
             BatteryBar: measured && columnWidth >= BatteryBarMinWidth,
-            Summary: measured && area.WidthClass >= SizeClass.Expanded,
-            Detail: measured && columns == 1 && count > 0
-                && area.WidthClass >= SizeClass.Regular && area.HeightClass >= SizeClass.Expanded
-                && listHeight - (Math.Min(count, perColumn) * rowHeight) >= DetailMinHeight);
+            Summary: measured && area.WidthClass >= SizeClass.Expanded);
     }
 }

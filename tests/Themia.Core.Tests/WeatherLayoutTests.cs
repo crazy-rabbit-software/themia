@@ -26,7 +26,7 @@ public class WeatherLayoutTests
     private const double BesideFloor = 28;
 
     private static WeatherNowPlan Now(WidgetArea area, double floor = BesideFloor, bool details = true)
-        => WeatherNowLayout.Plan(area, floor, facts: 10, details, hasToday: true, hours: 24, days: 5);
+        => WeatherNowLayout.Plan(area, floor, facts: 10, details, hasToday: true, hours: 24);
 
     // ---- current conditions [S-723] ------------------------------------------------------
 
@@ -83,18 +83,19 @@ public class WeatherLayoutTests
         Assert.Equal(WeatherDetailMode.Cells, plan.Detail);
         Assert.True(plan.ChartHeight >= WeatherNowLayout.ChartMin);
         Assert.True(plan.HeroRoom <= WeatherNowLayout.HeroCeiling);
-        Assert.False(plan.Daily);
     }
 
     [Fact]
-    public void S723_the_largest_tile_adds_a_second_row_of_cells_and_the_next_days()
+    public void S723_the_largest_tile_adds_a_second_row_of_cells_and_no_next_days()
     {
+        // The next days are the forecast widget's job: the largest tile gives the room to the
+        // readings and the chart instead (user decision, concise widgets).
         var plan = Now(Xl);
 
         Assert.Equal(WeatherDetailMode.Cells, plan.Detail);
         Assert.Equal(10, plan.FactCount);
-        Assert.True(plan.Daily);
         Assert.True(plan.ChartHeight >= WeatherNowLayout.ChartMin);
+        Assert.True(plan.HeroRoom + plan.ChartHeight > Now(L).HeroRoom + Now(L).ChartHeight);
     }
 
     [Fact]
@@ -118,14 +119,13 @@ public class WeatherLayoutTests
             var plan = Now(area, details: false);
             Assert.Equal(WeatherDetailMode.None, plan.Detail);
             Assert.Equal(0, plan.ChartHeight);
-            Assert.False(plan.Daily);
         }
     }
 
     [Fact]
     public void S723_no_hourly_data_means_no_chart_and_the_reading_keeps_the_room()
     {
-        var plan = WeatherNowLayout.Plan(L, BesideFloor, 10, true, true, hours: 0, days: 0);
+        var plan = WeatherNowLayout.Plan(L, BesideFloor, 10, true, true, hours: 0);
 
         Assert.Equal(0, plan.ChartHeight);
         Assert.True(plan.HeroRoom > WeatherNowLayout.HeroCeiling);
@@ -195,22 +195,13 @@ public class WeatherLayoutTests
     }
 
     [Fact]
-    public void S725_the_largest_tile_gets_a_today_panel_beside_the_rows()
+    public void S725_the_largest_tile_gives_the_rows_the_whole_width_and_no_today_panel()
     {
-        Assert.True(WeatherForecastLayout.Rows(Xl, 7).HeroWidth > 0);
-        Assert.Equal(0, WeatherForecastLayout.Rows(L, 7).HeroWidth);
-    }
-
-    [Fact]
-    public void S725_beside_the_today_panel_the_wind_goes_before_the_sky_is_trimmed()
-    {
-        // German skies are long ("Teilweise bewölkt"): the ~510px list beside the panel keeps the
-        // description and the chance but sheds the wind; the full-width large tile keeps all three.
+        // The rows are the forecast; a Today panel beside them repeated the first row (retired).
         var xl = WeatherForecastLayout.Rows(Xl, 7);
         Assert.True(xl.Description);
         Assert.True(xl.Chance);
-        Assert.False(xl.Wind);
-
+        Assert.True(xl.Wind);
         Assert.True(WeatherForecastLayout.Rows(L, 7).Wind);
     }
 

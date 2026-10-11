@@ -52,6 +52,30 @@ public sealed class Ticker : IDisposable
     }
 
     /// <summary>
+    /// [S-2506] Subscribe outside any fault scope: for a shared service (the system hub) that is
+    /// subscribed from inside whichever widget's Attach happens to need it first, and must not report
+    /// its own failures to that widget's card. Such a subscriber catches its own failures.
+    /// </summary>
+    public IDisposable SubscribeUnscoped(TimeSpan interval, Action onTick)
+    {
+        ArgumentNullException.ThrowIfNull(onTick);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        var subscription = new Subscription(this, TickSchedule.Normalise(interval), onTick, null);
+        _subscriptions.Add(subscription);
+        subscription.Fire();
+        Reschedule();
+        return subscription;
+    }
+
+    /// <summary>
+    /// [S-891] [S-2506] Where failures of a subscription made now would be reported: the card whose
+    /// Attach or ApplyConfig is running, or null. The system hub keeps it per watch, so a widget whose
+    /// callback throws gets its own error card.
+    /// </summary>
+    public Action<Exception>? CurrentFaultSink => _faultSink;
+
+    /// <summary>
     /// [S-891] Route tick failures of the subscriptions made while the result is held to
     /// <paramref name="onFault"/>, as well as to the log. A widget card holds one around its view's
     /// Attach and ApplyConfig, which is where views subscribe, so a view that throws on a tick is

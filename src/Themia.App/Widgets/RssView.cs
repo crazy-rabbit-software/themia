@@ -25,7 +25,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// Double-click to open, not single. A widget sits under the pointer's path across the desktop, and
 /// one stray click sending a browser to a stranger's URL is how a glanceable surface becomes a
-/// hazard. On the largest tile a single click selects the item for the reading pane instead.
+/// hazard.
 /// </para>
 /// </summary>
 internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
@@ -67,8 +67,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private CancellationTokenSource? _inFlight;
-    private int _generation;
+    private Services.Web.FeedSync? _feeds;
     private ScrollFade? _fade;
 
     private WidgetArea _area;
@@ -82,9 +81,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
     public RssView()
     {
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
-
         _scroll = new ScrollViewer
         {
             Content = _rows,
@@ -97,16 +93,12 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
         _emptyState = Fluent.EmptyState(Glyphs.Rss, _emptyMessage, out _);
         _emptyState.Visibility = Visibility.Collapsed;
-        SetColumnSpan(_emptyState, 2);
 
         _spinner.VerticalAlignment = VerticalAlignment.Center;
         _trailing.Children.Add(_spinner);
         _trailing.Children.Add(_freshness);
 
-        BuildPane();
-
         Children.Add(_scroll);
-        Children.Add(_pane);
         Children.Add(_emptyState);
     }
 
@@ -127,15 +119,18 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         _fade = new ScrollFade(_scroll, _rows);
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
+
+        _feeds = AppServices.Feeds;
+        if (_feeds is not null)
+        {
+            _feeds.Updated += OnFeedUpdated;
+        }
+
         ApplyConfig(config);
     }
 
-    /// <summary>[S-1110] The fixed button text, then the list redrawn from what is in hand (no fetch).</summary>
-    private void OnLanguage(Locale locale)
-    {
-        _openText.Text = Str.WidgetsC_Rss_OpenArticle.Text();
-        Render();
-    }
+    /// <summary>[S-1110] The list redrawn from what is in hand (no fetch).</summary>
+    private void OnLanguage(Locale locale) => Render();
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface)
@@ -208,16 +203,14 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
             return;
         }
 
-        if (_schedule.MayFetch(DateTimeOffset.Now))
-        {
-            Reload(force: false);
-            return;
-        }
-
-        // Backed off, but "4m ago" has to become "5m ago" whether or not the last fetch worked.
+        // [S-2661] The feeds are kept fresh by the sync service; the tick only moves "4m ago" on.
         Render();
     }
 
+    /// <summary>
+    /// [S-2661] Draw what is held for the feeds and tell the sync service they are on screen. Nothing
+    /// is fetched for a feed already held; <paramref name="force"/> (the user's Refresh) asks now.
+    /// </summary>
     private void Reload(bool force)
     {
         if (_detached)
@@ -238,90 +231,80 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
             return;
         }
 
-        if (force)
-        {
-            // The user asked: the back-off of a failing feed must not swallow the click.
-            _schedule.Reset();
-        }
-
         var cap = _config.EffectiveMaxItems;
 
-        // Restored or shared answers draw at once, before the network has said anything.
-        foreach (var url in urls)
+        if (AppServices.Feeds is { } feeds)
         {
-            if (!_parts.ContainsKey(url) && FeedService.Peek(url, cap) is { } held)
+            if (force)
             {
-                _parts[url] = held;
+                // The user asked: the back-off of a failing feed must not swallow the click.
+                _schedule.Reset();
+                feeds.Refresh(urls, cap, _config.TickInterval);
+            }
+            else
+            {
+                feeds.Show(urls, cap, _config.TickInterval);
             }
         }
 
-        _inFlight?.Cancel();
-        var cts = new CancellationTokenSource();
-        _inFlight = cts;
-        var generation = ++_generation;
-
-        ShowSpinner(true);
-        Render();
-        _ = LoadAsync(urls, cap, force, generation, cts);
+        Take(urls, cap);
     }
 
-    private async Task LoadAsync(IReadOnlyList<string> urls, int cap, bool force, int generation, CancellationTokenSource cts)
+    /// <summary>[S-2661] A feed's answer or state changed in the sync service.</summary>
+    private void OnFeedUpdated(string url)
     {
-        try
+        if (_detached || !_config.FeedUrls.Contains(url, StringComparer.Ordinal))
         {
-            var results = await Task
-                .WhenAll(urls.Select(url => FeedService.LoadAsync(url, cap, _config.TickInterval, cts.Token, force)))
-                .ConfigureAwait(true);
+            return;
+        }
 
-            // A late reply for feeds the widget has since left. Dropped rather than drawn.
-            if (_detached || generation != _generation)
+        Take(_config.FeedUrls, _config.EffectiveMaxItems);
+    }
+
+    /// <summary>Take what the service holds for each feed, keeping the articles through a failure.</summary>
+    private void Take(IReadOnlyList<string> urls, int cap)
+    {
+        var feeds = AppServices.Feeds;
+        var answered = 0;
+
+        foreach (var url in urls)
+        {
+            var last = feeds?.Last(url, cap);
+            var held = FeedSync.Peek(url, cap);
+
+            if (last is { Value: not null })
             {
-                return;
+                _parts[url] = last;
+            }
+            else if (held is not null)
+            {
+                // The articles stay on screen; the header says how old they are and what failed.
+                _parts[url] = last is null ? held : held.Stale(last.Status, last.Detail);
+            }
+            else if (last is not null)
+            {
+                _parts[url] = last;
             }
 
-            for (var i = 0; i < urls.Count; i++)
+            if (last is not null)
             {
-                var result = results[i];
-
-                if (result.Value is not null)
-                {
-                    _parts[urls[i]] = result;
-                }
-                else if (_parts.TryGetValue(urls[i], out var held) && held.Value is not null)
-                {
-                    // The articles stay on screen; the header says how old they are and what failed.
-                    _parts[urls[i]] = held.Stale(result.Status, result.Detail);
-                }
-                else
-                {
-                    _parts[urls[i]] = result;
-                }
+                answered++;
             }
+        }
 
-            // One schedule for the widget: any feed answering is a success (the partial failure is
-            // in the header), all of them failing backs the whole widget off.
+        // One schedule for the widget, recorded once every feed has answered: any feed answering is
+        // a success (the partial failure is in the header), all of them failing is the widget's state.
+        if (answered == urls.Count)
+        {
+            var results = urls.Select(url => feeds!.Last(url, cap)!).ToList();
             var ok = results.Any(r => r.Status == FetchStatus.Ok);
             var first = results.FirstOrDefault(r => r.Status != FetchStatus.Ok);
             _schedule.Record(ok ? FetchStatus.Ok : first?.Status ?? FetchStatus.BadResponse, _config.TickInterval, first?.Detail, DateTimeOffset.Now);
+        }
 
-            ShowSpinner(false);
-            PublishTitle();
-            Render();
-        }
-        catch (OperationCanceledException)
-        {
-            // ignore: superseded by a newer request, which will draw in this one's place.
-        }
-        finally
-        {
-            if (ReferenceEquals(_inFlight, cts))
-            {
-                _inFlight = null;
-                ShowSpinner(false);
-            }
-
-            cts.Dispose();
-        }
+        ShowSpinner(feeds is not null && urls.Any(url => feeds.Busy(url, cap)));
+        PublishTitle();
+        Render();
     }
 
     private void ShowSpinner(bool on)
@@ -351,8 +334,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
             _emptyMessage.Text = EmptyText();
             _emptyState.Visibility = Visibility.Visible;
             _scroll.Visibility = Visibility.Collapsed;
-            _pane.Visibility = Visibility.Collapsed;
-            ColumnDefinitions[1].Width = new GridLength(0);
             _freshness.Text = string.Empty;
             ToolTipService.SetToolTip(_freshness, null);
             return;
@@ -369,7 +350,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         }
 
         BuildRows(DateTimeOffset.Now);
-        UpdatePane();
         UpdateFreshness(DateTimeOffset.Now);
     }
 
@@ -467,7 +447,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         Strings.Changed -= OnLanguage;
 
         ClearRows();
-        ClearPaneHooks();
 
         _fade?.Dispose();
         _fade = null;
@@ -476,8 +455,12 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         _subscription = null;
         _subscribedInterval = TimeSpan.Zero;
 
-        _inFlight?.Cancel();
-        _inFlight = null;
+        if (_feeds is not null)
+        {
+            _feeds.Updated -= OnFeedUpdated;
+            _feeds = null;
+        }
+
         ShowSpinner(false);
 
         _ticker = null;

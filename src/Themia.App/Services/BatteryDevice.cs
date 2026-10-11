@@ -18,8 +18,8 @@ namespace Themia.App.Services;
 /// read runs on the tick.
 /// </para>
 /// <para>
-/// Shared by every battery tile: one read every couple of seconds at most, and the device list is
-/// re-enumerated once a minute (or when a battery stops answering) rather than every sample.
+/// Read by the system hub alone, once per due tick for every battery tile ([S-2501]); the device list
+/// is re-enumerated once a minute (or when a battery stops answering) rather than every sample.
 /// </para>
 /// </summary>
 internal static unsafe partial class BatteryDevice
@@ -48,9 +48,6 @@ internal static unsafe partial class BatteryDevice
     private const int LevelTemperature = 2;
     private const int LevelManufacturer = 6;
 
-    /// <summary>How long one read is shared between tiles and ticks.</summary>
-    private const long ReuseMs = 2_000;
-
     /// <summary>How long the list of battery devices is trusted.</summary>
     private const long DevicesMs = 60_000;
 
@@ -59,8 +56,6 @@ internal static unsafe partial class BatteryDevice
 
     private static IReadOnlyList<string> _paths = [];
     private static long? _pathsAt;
-    private static BatteryPack? _last;
-    private static long? _lastAt;
     private static string? _lastFailure;
 
     /// <summary>
@@ -70,11 +65,6 @@ internal static unsafe partial class BatteryDevice
     public static BatteryPack? Read()
     {
         var now = Environment.TickCount64;
-
-        if (_lastAt is { } at && now - at < ReuseMs && now >= at)
-        {
-            return _last;
-        }
 
         if (_pathsAt is not { } listed || now - listed >= DevicesMs || now < listed)
         {
@@ -103,9 +93,7 @@ internal static unsafe partial class BatteryDevice
             _pathsAt = null;
         }
 
-        _last = batteries.Count == 0 ? null : BatteryDetailRules.Combine(batteries);
-        _lastAt = now;
-        return _last;
+        return batteries.Count == 0 ? null : BatteryDetailRules.Combine(batteries);
     }
 
     /// <summary>Each present battery's device path.</summary>

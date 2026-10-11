@@ -24,6 +24,10 @@ namespace Themia.App.Widgets;
 /// growing from lines into tiles and large tiles when they all fit, and a list takes the rest.
 /// Elements are kept and re-styled between reads, never rebuilt per tick.
 /// </para>
+/// <para>
+/// [S-2500] The figures are the system hub's: the part watches its feeds from Attach and lets go in
+/// Detach, and the view only lays out the sheets it is handed.
+/// </para>
 /// </summary>
 internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IDetailHost
 {
@@ -44,16 +48,15 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     private readonly Brush _secondaryBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
     private readonly Brush _disabledBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
 
-    private Ticker? _ticker;
     private WidgetConfig _config;
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval;
     private IWidgetSurface? _surface;
     private string? _title;
     private WidgetArea _area;
     private DetailSheet _sheet = DetailSheet.Waiting;
     private DetailFacePlan? _plan;
-    private bool _detached;
+
+    // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
+    private bool _detached = true;
 
     // The longest fact value the plan was made for: a longer one re-plans, so no value is ever cut.
     private int _valueChars;
@@ -94,11 +97,8 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
+        // [S-1881] The feeds are watched here, never in the constructor, so a parked view holds nothing.
         _detached = false;
-
-        // [S-1881] Leases are taken here, never in the constructor, so a parked view holds nothing.
-        _part.Attach();
         ApplyConfig(config);
     }
 
@@ -106,55 +106,28 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     {
         _config = config.Kind == _kind ? config : WidgetConfig.CreateDefault(_kind);
 
-        var sampleNow = _part.ApplyConfig(_config, this);
-        var resubscribed = Resubscribe();
-
-        if (sampleNow && !resubscribed)
-        {
-            Sample();
-        }
-    }
-
-    /// <summary>True when the subscription was rebuilt, which fires a tick of its own.</summary>
-    private bool Resubscribe()
-    {
-        var interval = (_config as DetailConfig)?.TickInterval ?? TimeSpan.FromSeconds(2);
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return false;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, Sample);
-        return _subscription is not null;
-    }
-
-    private void Sample()
-    {
         if (_detached)
         {
             return;
         }
 
-        try
+        if (AppServices.System is not { } hub)
         {
-            _part.Sample(this);
+            // Only before the host has started: there is nothing to read from yet.
+            Log.Warn(LogScope, $"no system hub for {_kind}");
+            Present(DetailSheet.Waiting with { Note = Str.WidgetsB_Meters_Unavailable.Text() });
+            return;
         }
-        catch (Exception ex)
-        {
-            // A part that cannot read says so on its tile rather than taking the surface down.
-            Log.Error(LogScope, $"could not read {_kind}", ex);
-            Present(DetailSheet.Waiting with { Note = Str.WidgetsB_Meters_Error.Text() });
-        }
+
+        // [S-2506] The part presents what its feeds already hold at once; later reads call back.
+        _part.Watch(hub, _config, this);
     }
 
     public void Detach()
     {
         _detached = true;
-        _subscription?.Dispose();
-        _subscription = null;
+
+        // [S-2505] The feeds (and a ping window's probes) stay in the hub for the view built in this one's place.
         _part.Detach();
         DetachList();
     }
@@ -200,9 +173,9 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
 
     public void SampleNow()
     {
-        if (!_detached && _subscription is not null)
+        if (!_detached)
         {
-            Sample();
+            _part.Refresh();
         }
     }
 

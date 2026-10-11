@@ -481,8 +481,6 @@ internal sealed partial class ShortcutsView
         {
             Paint(cell);
         }
-
-        UpdateFooter();
     }
 
     /// <summary>

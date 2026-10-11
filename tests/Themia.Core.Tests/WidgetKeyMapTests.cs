@@ -1,4 +1,5 @@
 using Themia.Core.Habits;
+using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
@@ -143,8 +144,9 @@ public sealed class WidgetKeyMapTests
     [InlineData(CalendarLayout.Month, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
     [InlineData(CalendarLayout.Week, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
     [InlineData(CalendarLayout.Day, WidgetKey.PageUp, CalendarKeyCommand.Back)]
-    [InlineData(CalendarLayout.Agenda, WidgetKey.PageUp, CalendarKeyCommand.None)]
-    public void S1984_page_keys_page_the_calendar(CalendarLayout layout, WidgetKey key, CalendarKeyCommand expected)
+    [InlineData(CalendarLayout.Agenda, WidgetKey.PageUp, CalendarKeyCommand.Back)]
+    [InlineData(CalendarLayout.Year, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
+    public void S2710_page_keys_page_every_calendar_layout(CalendarLayout layout, WidgetKey key, CalendarKeyCommand expected)
         => Assert.Equal(expected, CalendarFit.Key(key, layout));
 
     [Theory]

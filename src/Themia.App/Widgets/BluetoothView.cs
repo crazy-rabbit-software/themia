@@ -28,10 +28,11 @@ namespace Themia.App.Widgets;
 /// <b>Ladder</b> ([S-1254], <see cref="BluetoothLayout"/>): every whole row the tile has, up to the
 /// ceiling; the status word from 260 px; a second line (kind · state · battery · signal) on tall
 /// tiles; a battery bar from 400 px; "2 connected" in the header and two columns on the largest.
+/// A short list on a large tile stays a short list: no detail panel under it ([S-1569] retired).
 /// Every empty list says which empty list it is.
 /// </para>
 /// </summary>
-internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
+internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
 {
     private const string Scope = "bluetooth";
 
@@ -149,7 +150,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
         Children.Add(_scroll);
         Children.Add(_messageHost);
-        Children.Add(_detail);
     }
 
     /// <inheritdoc />
@@ -336,19 +336,12 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
         if (devices.Count == 0)
         {
-            _keyDevices = [];
-
             // Ok with no rows is "nothing paired", which StatusMessage already words correctly.
             _message.Text = BluetoothRules.StatusMessage(_snapshot.Status, Strings.Current);
             _messageHost.Visibility = Visibility.Visible;
             _scroll.Visibility = Visibility.Collapsed;
-            ShowDetail(plan, devices, listHeight);
             return;
         }
-
-        // [S-1569] Which device the panel shows, so its row is lit while the panel is up.
-        _detailId = plan.Detail ? BluetoothRules.Selected(devices, _selectedId)?.Id : null;
-        _keyDevices = plan.Detail ? [.. devices.Select(device => device.Id)] : [];
 
         _messageHost.Visibility = Visibility.Collapsed;
         _scroll.Visibility = Visibility.Visible;
@@ -379,8 +372,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         _scroll.Height = _area.IsMeasured && perColumn > plan.VisibleRows
             ? (rows * plan.RowHeight) + inset.Top + inset.Bottom
             : double.NaN;
-
-        ShowDetail(plan, devices, listHeight);
     }
 
     private Border BuildRow(BluetoothDeviceEntry device, BluetoothRowPlan plan)
@@ -477,34 +468,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         row.MinHeight = plan.RowHeight;
         row.Height = plan.RowHeight;
 
-        // [S-1569] The device in the detail panel keeps its row lit (no hover, which would clear it
-        // on the way out); a click on another row puts that one in the panel.
-        if (_detailId is not null && device.Id == _detailId)
-        {
-            row.Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-
-            // [S-1988] A key moved the selection: its row scrolls into view once it is laid out.
-            if (_revealSelected)
-            {
-                _revealSelected = false;
-                row.Loaded += (_, _) => row.StartBringIntoView();
-            }
-        }
-        else
-        {
-            _hovers.Add(Fluent.Hover(row));
-        }
-
-        if (plan.Detail)
-        {
-            var id = device.Id;
-            row.Tapped += (_, args) =>
-            {
-                args.Handled = true;
-                _selectedId = id;
-                Render();
-            };
-        }
+        _hovers.Add(Fluent.Hover(row));
 
         // Everything the row knows, in words, for a reader who cannot see the dot or the bar.
         ToolTipService.SetToolTip(row, $"{device.Name} · {BluetoothRules.DetailLine(device, true, true, true, Strings.Current)}");
@@ -564,41 +528,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(block, FontNumeralAlignment.Tabular);
         return block;
-    }
-
-    // ---- keys ([S-1988]) -------------------------------------------------------------------------
-
-    /// <summary>[S-1988] The devices the arrows step through, in list order: only while the detail panel is up.</summary>
-    private List<string> _keyDevices = [];
-
-    /// <summary>[S-1988] Set by a key, so only the keyboard (not a tick's redraw) scrolls the list.</summary>
-    private bool _revealSelected;
-
-    /// <summary>[S-1988] Only a tile with the detail panel and more than one device takes the keyboard.</summary>
-    public bool WantsKeys => !_detached && _keyDevices.Count > 1;
-
-    /// <summary>
-    /// [S-1988] With the detail panel up the lit row is the selection, so the arrows (and Page Up/Down,
-    /// Home/End, <see cref="ItemCursor"/>) move it and the panel follows, as a click on a row does.
-    /// There is nothing to clear on Escape: the panel always shows a device.
-    /// </summary>
-    public bool HandleKey(WidgetKey key)
-    {
-        if (!WantsKeys || key == WidgetKey.Escape)
-        {
-            return false;
-        }
-
-        var current = _detailId is null ? -1 : _keyDevices.IndexOf(_detailId);
-        if (ItemCursor.Move(_keyDevices.Count, current < 0 ? null : current, key) is not { } next || next == current)
-        {
-            return key is WidgetKey.Up or WidgetKey.Down or WidgetKey.Left or WidgetKey.Right or WidgetKey.Home or WidgetKey.End or WidgetKey.PageUp or WidgetKey.PageDown;
-        }
-
-        _selectedId = _keyDevices[next];
-        _revealSelected = true;
-        Render();
-        return true;
     }
 
     /// <summary>Drop the rows and, with them, their hover handlers.</summary>

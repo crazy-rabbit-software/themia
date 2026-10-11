@@ -104,66 +104,6 @@ public sealed class ThroughputTracker
     private readonly record struct Baseline(long Received, long Sent, long SessionDown, long SessionUp);
 }
 
-/// <summary>
-/// [S-1191] The recent window of down / up rates, for the bar a meter draws with its chart off.
-/// <para>
-/// The bar is scaled like the chart (<see cref="ChartScale.Peak"/>): against the busiest sample in
-/// the window, never below the floor. The first port scaled it to the busiest sample of the whole
-/// session, so one download pinned the bar near zero for the rest of the day.
-/// </para>
-/// </summary>
-public sealed class RateWindow
-{
-    private readonly Queue<(double Down, double Up)> _samples = new();
-    private int _capacity;
-
-    public RateWindow(int capacity) => _capacity = Math.Max(1, capacity);
-
-    /// <summary>How many samples the window holds. Shrinking drops the oldest.</summary>
-    public int Capacity
-    {
-        get => _capacity;
-        set
-        {
-            _capacity = Math.Max(1, value);
-            Trim();
-        }
-    }
-
-    public int Count => _samples.Count;
-
-    public void Push(double down, double up)
-    {
-        _samples.Enqueue((Finite(down), Finite(up)));
-        Trim();
-    }
-
-    public void Clear() => _samples.Clear();
-
-    /// <summary>The busiest download in the window (0 when empty).</summary>
-    public double PeakDown => _samples.Count == 0 ? 0 : _samples.Max(s => s.Down);
-
-    /// <summary>The busiest upload in the window (0 when empty).</summary>
-    public double PeakUp => _samples.Count == 0 ? 0 : _samples.Max(s => s.Up);
-
-    /// <summary>Where <paramref name="value"/> sits under the window's top (both directions share it), 0..1.</summary>
-    public double Fraction(double value, double floor)
-    {
-        var top = Math.Max(floor > 0 && double.IsFinite(floor) ? floor : 1, Math.Max(PeakDown, PeakUp));
-        return ChartScale.Fraction(Finite(value), top);
-    }
-
-    private void Trim()
-    {
-        while (_samples.Count > _capacity)
-        {
-            _samples.Dequeue();
-        }
-    }
-
-    private static double Finite(double value) => double.IsFinite(value) && value > 0 ? value : 0;
-}
-
 /// <summary>[S-1190]..[S-1192] The network meter's rules as pure functions.</summary>
 public static class NetworkRules
 {

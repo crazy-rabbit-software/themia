@@ -115,4 +115,44 @@ internal sealed partial class WidgetCard
         Swap(parked, _view);
         return true;
     }
+
+#if DEBUG
+    /// <summary>
+    /// Debug renders only ([S-2711]): run the view though the widget would need setting up, so a
+    /// preview state can draw it over fixture data. A render has no accounts, so without this every
+    /// account widget is its Set up button.
+    /// </summary>
+    internal void RunForPreview()
+    {
+        if (_setup is not null)
+        {
+            _content.Children.Remove(_setup);
+            _setup = null;
+        }
+
+        _view.Opacity = 1;
+        _view.IsHitTestVisible = true;
+
+        if (_running || _view is not IWidgetView widgetView)
+        {
+            return;
+        }
+
+        _parked = false;
+        if (_view is IWidgetSurfaceAware aware)
+        {
+            aware.Bind(this);
+        }
+
+        _running = true;
+        Gallery.LiveCensus.ViewAttached(_view);
+        widgetView.Attach(_host.Ticker, Model.Config);
+
+        // The slot was measured while the view was parked, which it did not hear ([S-1881]).
+        if (_view is IWidgetSizeAware sizeAware && _view.ActualWidth > 0 && _view.ActualHeight > 0)
+        {
+            sizeAware.ApplySize(new WidgetArea(_view.ActualWidth, _view.ActualHeight));
+        }
+    }
+#endif
 }

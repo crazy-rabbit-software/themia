@@ -1,5 +1,4 @@
 using System.Globalization;
-using Themia.Core.Localization;
 
 namespace Themia.Core.Widgets;
 
@@ -20,15 +19,14 @@ public enum ClipboardContent
 
 /// <summary>
 /// [S-1443] What one Clipboard tile shows, from its area: how many lines a row's preview may take,
-/// whether the row carries a detail line (when · how much) or a time column, and whether a footer
-/// counts the history against its capacity.
+/// whether the row carries a detail line (when · how much) or a time column. Nothing but the
+/// entries: no count footer at any size.
 /// </summary>
 /// <param name="PreviewLines">1 to 3: wrapped lines of the preview per row.</param>
 /// <param name="Detail">A caption under each preview: "4m · 32 characters".</param>
 /// <param name="TimeColumn">The relative time in a right-hand column (only when there is no detail line).</param>
-/// <param name="Footer">"12 of 50" under the list.</param>
 /// <param name="Compact">Rows at the compact 32px height (one-line rows on a short tile).</param>
-public readonly record struct ClipboardPlan(int PreviewLines, bool Detail, bool TimeColumn, bool Footer, bool Compact);
+public readonly record struct ClipboardPlan(int PreviewLines, bool Detail, bool TimeColumn, bool Compact);
 
 /// <summary>
 /// How a clipboard entry reads at different tile sizes. Pure, so the ladder and the content rules
@@ -42,14 +40,13 @@ public static class ClipboardLayout
     /// <summary>
     /// [S-1443] The ladder. One line on the small tiles; a second line once the row is wide (a Wide
     /// strip) or the tile is tall; a third on a large tile. The detail line arrives with height
-    /// (Tall, L, XL) and replaces the time column, which only earns its width on M and Wide. A
-    /// count footer on L/XL.
+    /// (Tall, L, XL) and replaces the time column, which only earns its width on M and Wide.
     /// </summary>
     public static ClipboardPlan Plan(WidgetArea area)
     {
         if (!area.IsMeasured)
         {
-            return new ClipboardPlan(1, Detail: false, TimeColumn: false, Footer: false, Compact: false);
+            return new ClipboardPlan(1, Detail: false, TimeColumn: false, Compact: false);
         }
 
         var lines = 1;
@@ -66,10 +63,9 @@ public static class ClipboardLayout
 
         var detail = area.HeightClass >= SizeClass.Expanded;
         var column = !detail && (area.WidthClass >= SizeClass.Expanded || area.AtLeast(SizeClass.Regular, SizeClass.Regular));
-        var footer = area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
         var compact = lines == 1 && area.HeightClass == SizeClass.Compact;
 
-        return new ClipboardPlan(Math.Min(lines, MaxPreviewLines), detail, column, footer, compact);
+        return new ClipboardPlan(Math.Min(lines, MaxPreviewLines), detail, column, compact);
     }
 
     /// <summary>
@@ -176,10 +172,6 @@ public static class ClipboardLayout
         colour = default;
         return text is not null && IsColour(text.Trim()) && ColorFormats.TryParse(text, out colour);
     }
-
-    /// <summary>"12 of 50": the footer under a large tile's list.</summary>
-    public static string CountLine(int count, int capacity, Locale locale)
-        => Strings.Format(locale, Str.WidgetsA_Clipboard_CountOf, ("count", count), ("capacity", capacity));
 
     private static bool IsColour(string trimmed)
     {

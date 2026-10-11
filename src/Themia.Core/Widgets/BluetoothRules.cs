@@ -244,40 +244,6 @@ public static class BluetoothRules
         return dash < 0 || dash == id.Length - 1 ? null : ParseAddress(id[(dash + 1)..]);
     }
 
-    /// <summary>[S-1569] A device's address as Windows' Bluetooth settings write it ("A4:C3:F0:85:AC:2E"), or null when the id carries none.</summary>
-    public static string? AddressText(string? id)
-    {
-        if (AddressFromId(id) is not { } address)
-        {
-            return null;
-        }
-
-        var text = address.ToString("X12", System.Globalization.CultureInfo.InvariantCulture);
-        return string.Join(':', Enumerable.Range(0, 6).Select(i => text.Substring(i * 2, 2)));
-    }
-
-    /// <summary>
-    /// [S-1569] The device the detail panel shows: the one picked (by id) while it is still listed,
-    /// else the first in the list — connected devices come first, so that is the one in use.
-    /// </summary>
-    public static BluetoothDeviceEntry? Selected(IReadOnlyList<BluetoothDeviceEntry> devices, string? selectedId)
-    {
-        if (devices.Count == 0)
-        {
-            return null;
-        }
-
-        foreach (var device in devices)
-        {
-            if (selectedId is not null && string.Equals(device.Id, selectedId, StringComparison.Ordinal))
-            {
-                return device;
-            }
-        }
-
-        return devices[0];
-    }
-
     /// <summary>[S-1255] What a device is, in words, for a two-line row's second line.</summary>
     public static string KindLabel(BluetoothDeviceKind kind, Locale locale) => Strings.Get(locale, kind switch
     {

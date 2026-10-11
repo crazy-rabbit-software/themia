@@ -26,7 +26,6 @@ public enum WeatherDetailMode
 /// <param name="FactCount">How many facts (in <see cref="WeatherFacts"/> order) are shown.</param>
 /// <param name="FactColumns">Cells per row in <see cref="WeatherDetailMode.Cells"/>, columns of lines in Side.</param>
 /// <param name="HighLow">Today's high and low under the condition.</param>
-/// <param name="Daily">The next days' highs and lows as a strip.</param>
 /// <param name="ChartHeight">The next-24-hours chart's height, 0 when it is not shown.</param>
 /// <param name="HeroRoom">The height the reading and its condition may grow into.</param>
 /// <param name="SideWidth">The width of the Side column, 0 in every other mode.</param>
@@ -35,7 +34,6 @@ public sealed record WeatherNowPlan(
     int FactCount,
     int FactColumns,
     bool HighLow,
-    bool Daily,
     double ChartHeight,
     double HeroRoom,
     double SideWidth);
@@ -49,9 +47,9 @@ public sealed record WeatherNowPlan(
 /// <item>Anything else: a row of cells once the slot is Regular high, else one "Feels" token.</item>
 /// <item>Today's high and low.</item>
 /// <item>A second row of cells, once the slot is Huge both ways.</item>
-/// <item>The next days' strip, Huge both ways.</item>
 /// <item>The next 24 hours as a chart, once the slot is Expanded high; it takes what the reading leaves.</item>
 /// </list>
+/// No next-days strip at any size: the days are the forecast widget's job.
 /// </summary>
 public static class WeatherNowLayout
 {
@@ -85,9 +83,6 @@ public static class WeatherNowLayout
     /// <summary>The most Stack rows: past this the reading is worth more than an eighth fact.</summary>
     public const int StackMax = 8;
 
-    /// <summary>The next-days strip: day caption, glyph, high/low caption.</summary>
-    public const double DailyHeight = 60;
-
     /// <summary>The smallest chart that still reads as a curve, axis captions included.</summary>
     public const double ChartMin = 72;
 
@@ -103,15 +98,13 @@ public static class WeatherNowLayout
     /// <param name="details">The user's "Show detail" switch: off is the reading alone.</param>
     /// <param name="hasToday">Whether today's high/low are known.</param>
     /// <param name="hours">How many hourly points there are for the chart.</param>
-    /// <param name="days">How many days there are for the strip.</param>
     public static WeatherNowPlan Plan(
         WidgetArea slot,
         double heroFloor,
         int facts,
         bool details,
         bool hasToday,
-        int hours,
-        int days)
+        int hours)
     {
         var box = slot.Deflate(Inset, VerticalInset);
         var room = new Disclosure(box, Gap);
@@ -119,7 +112,7 @@ public static class WeatherNowLayout
 
         if (!details || !slot.IsMeasured)
         {
-            return new WeatherNowPlan(WeatherDetailMode.None, 0, 0, false, false, 0, heroFloor + room.Remaining, 0);
+            return new WeatherNowPlan(WeatherDetailMode.None, 0, 0, false, 0, heroFloor + room.Remaining, 0);
         }
 
         var mode = WeatherDetailMode.None;
@@ -191,8 +184,6 @@ public static class WeatherNowLayout
             count = Math.Min(facts, columns * 2);
         }
 
-        var daily = slot.Least >= SizeClass.Huge && days >= 2 && room.Take(DailyHeight);
-
         var chart = mode != WeatherDetailMode.Stack && mode != WeatherDetailMode.Side
             && hours >= 2
             && slot.HeightClass >= SizeClass.Expanded
@@ -210,7 +201,7 @@ public static class WeatherNowLayout
             chartHeight = ChartMin + Math.Max(0, heroFloor + room.Remaining - heroRoom);
         }
 
-        return new WeatherNowPlan(mode, count, columns, highLow, daily, chartHeight, heroRoom, sideWidth);
+        return new WeatherNowPlan(mode, count, columns, highLow, chartHeight, heroRoom, sideWidth);
     }
 }
 
@@ -225,9 +216,7 @@ public sealed record ForecastRowsPlan(
     bool Precipitation,
     bool Chance,
     bool Wind,
-    bool TwoLine,
-    double HeroWidth,
-    double TopHeroHeight);
+    bool TwoLine);
 
 /// <summary>What one forecast column carries at a given height. [S-726]</summary>
 public sealed record ForecastColumnsPlan(
@@ -291,9 +280,6 @@ public static class WeatherForecastLayout
     /// <summary>The narrowest a grid card can be.</summary>
     public const double CardMinWidth = 140;
 
-    /// <summary>The Today panel on a tall column, above the rows.</summary>
-    public const double TopHeroHeight = 120;
-
     /// <summary>
     /// The layout to draw: the user's choice, or for <see cref="ForecastLayout.Auto"/> columns on
     /// a strip (which has the width for a week side by side and the height for three rows) and rows
@@ -311,27 +297,17 @@ public static class WeatherForecastLayout
             : ForecastLayout.Rows;
     }
 
-    /// <summary>The rows ladder: which columns a row carries, how tall rows are, and the Today panel.</summary>
+    /// <summary>
+    /// The rows ladder: which columns a row carries and how tall rows are. The rows are the whole
+    /// widget at every size: no Today panel beside or above them (it repeated the first row).
+    /// </summary>
     public static ForecastRowsPlan Rows(WidgetArea slot, int days)
     {
         days = Math.Max(1, days);
 
-        // Huge both ways: a Today panel on the left, the rows beside it.
-        var heroWidth = slot.Least >= SizeClass.Huge ? Math.Clamp(slot.Width * 0.36, 220, 320) : 0;
-
-        // A tall column with height to spare above the rows: the Today panel on top.
         var listHeight = slot.Height - ListPadding;
-        var topHero = heroWidth == 0
-            && slot.Shape == AreaShape.Tall
-            && slot.HeightClass >= SizeClass.Expanded
-            && listHeight - TopHeroHeight >= days * RowMin
-                ? TopHeroHeight
-                : 0;
-
-        listHeight -= topHero;
-
-        var width = slot.Width - heroWidth;
-        var compact = listHeight < CompactBelow && heroWidth == 0;
+        var width = slot.Width;
+        var compact = listHeight < CompactBelow;
         var floor = compact ? RowMinCompact : RowMin;
         var stretch = days * floor <= listHeight + Disclosure.Tolerance;
         var rowHeight = stretch ? Math.Min(RowMax, listHeight / days) : floor;
@@ -343,15 +319,14 @@ public static class WeatherForecastLayout
         var chance = width >= 500;
 
         // The wind is the first column a narrower list sheds after the chance, so the sky keeps its
-        // words: beside the Today panel the list is ~510px, where "Teilweise bewölkt" was trimmed to
-        // "Teilweise be…" with the wind in. [S-725]
+        // words: at ~510px "Teilweise bewölkt" was trimmed to "Teilweise be…" with the wind in. [S-725]
         var wind = width >= 540;
 
         // A row tall enough for two lines puts the sky under the day and the precipitation under the
         // high, when the width has not already given them columns of their own.
         var twoLine = rowHeight >= TwoLineRow && !description;
 
-        return new ForecastRowsPlan(rowHeight, stretch, compact, iconAndLow, bar, description, precipitation, chance, wind, twoLine, heroWidth, topHero);
+        return new ForecastRowsPlan(rowHeight, stretch, compact, iconAndLow, bar, description, precipitation, chance, wind, twoLine);
     }
 
     /// <summary>The columns ladder: a week side by side, each column shedding from the bottom of its priority.</summary>

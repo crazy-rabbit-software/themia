@@ -17,9 +17,9 @@ namespace Themia.App.Services;
 /// (<see cref="ProcessTable.Parse"/>), the shares are Core's (<see cref="ProcessTracker"/>).
 /// </para>
 /// <para>
-/// Shared: every widget reads through <see cref="Read"/>, and a read younger than the asking widget's
-/// interval is handed out again, so two lists on one desktop cost one walk and do not move each
-/// other's CPU baselines. Single-threaded: every call is on the UI thread's tick. The buffer is
+/// Read by the system hub alone, once per due tick for every list ([S-2501]), so two lists on one
+/// desktop cost one walk and do not move each other's CPU baselines. Single-threaded: every call is
+/// on the UI thread's tick. The buffer is
 /// pinned and kept between reads (a few hundred KB; reallocating it each tick would be the most
 /// expensive thing the widget did) and dropped when the last widget lets go.
 /// </para>
@@ -38,8 +38,6 @@ internal static unsafe partial class ProcessList
 
     private static int _leases;
     private static byte[]? _buffer;
-    private static List<ProcessSample>? _last;
-    private static long _lastAt;
     private static string? _fault;
 
     /// <summary>Hold the reader; the buffer and the baselines go with the last holder.</summary>
@@ -49,20 +47,10 @@ internal static unsafe partial class ProcessList
         return new SharedLease(Release);
     }
 
-    /// <summary>
-    /// Every process with its share and memory: the last read when it is younger than
-    /// <paramref name="maxAge"/>, else a new one. Null when the kernel would not answer.
-    /// </summary>
-    public static IReadOnlyList<ProcessSample>? Read(TimeSpan maxAge)
+    /// <summary>Every process with its share and memory, or null when the kernel would not answer.</summary>
+    public static IReadOnlyList<ProcessSample>? Read()
     {
         var now = Stopwatch.GetTimestamp();
-
-        // Half the interval: a widget ticking every two seconds must not be handed the read it made
-        // itself two seconds ago, but a second widget in the same tick must share it.
-        if (_last is not null && Stopwatch.GetElapsedTime(_lastAt, now) < maxAge / 2)
-        {
-            return _last;
-        }
 
         if (Snapshot() is not { } entries)
         {
@@ -70,9 +58,7 @@ internal static unsafe partial class ProcessList
         }
 
         var ticks = (long)(now * (TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency));
-        _last = _tracker.Update(entries, ticks, Environment.ProcessorCount);
-        _lastAt = now;
-        return _last;
+        return _tracker.Update(entries, ticks, Environment.ProcessorCount);
     }
 
     private static List<ProcessEntry>? Snapshot()
@@ -143,7 +129,6 @@ internal static unsafe partial class ProcessList
 
         _buffer = null;
         _tracker = new ProcessTracker();
-        _last = null;
     }
 
     [LibraryImport("ntdll")]

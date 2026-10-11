@@ -41,14 +41,6 @@ internal static partial class WidgetSettings
             Str.WidgetsC_Volume_Settings_Meter_Desc.Text(),
             FluentLayout.Toggle(config.ShowPeaks, value => { config.ShowPeaks = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Microphone, Str.WidgetsC_Volume_Microphone.Text(),
-            Str.WidgetsC_Volume_Settings_Mic_Desc.Text(),
-            FluentLayout.Toggle(config.ShowMicrophone, value => { config.ShowMicrophone = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Apps, Str.WidgetsC_Volume_Settings_Apps_Label.Text(),
-            Str.WidgetsC_Volume_Settings_Apps_Desc.Text(),
-            FluentLayout.Toggle(config.ShowApps, value => { config.ShowApps = value; save(); })));
-
         rows.Add(FluentLayout.Header(Str.WidgetsC_Volume_Settings_Behaviour.Text()));
 
         // Named for what it does rather than "read-only": a desktop widget sits under the path of

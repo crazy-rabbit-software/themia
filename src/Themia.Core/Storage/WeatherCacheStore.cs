@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Storage;
@@ -18,89 +17,28 @@ public sealed record WeatherCacheSnapshot(
     public static WeatherCacheSnapshot Empty { get; } = new([], []);
 }
 
-/// <summary>How a weather cache came off disk.</summary>
-public enum WeatherCacheLoadOutcome
-{
-    /// <summary>No file yet.</summary>
-    Fresh = 0,
-
-    Loaded = 1,
-
-    /// <summary>The file could not be used; it was set aside (when corrupt) and the cache starts empty.</summary>
-    Recovered = 2,
-}
-
 /// <summary>
-/// [S-729] The weather widgets' last good answers, kept across restarts in <c>weather_cache.json</c>
-/// beside the app state, so a cold launch draws the last known temperature at once instead of
-/// "Loading" — with its real age in the header, in the caution colour, until a fetch replaces it.
+/// [S-729] [S-2660] The weather widgets' last good answers as a document, kept across restarts in the
+/// sealed web shelf of the offline store, so a cold launch draws the last known temperature at once
+/// instead of "Loading" — with its real age in the header, in the caution colour, until a fetch
+/// replaces it.
 /// <para>
-/// Its own file, never the state file: it is somebody else's data, it changes every quarter of an
-/// hour, and it must never ride along in an export. Schema-versioned and validated on the way in:
-/// a file that is not this schema is set aside as <c>.corrupt</c> (never overwritten in place),
-/// and an entry inside a good file that does not hold a usable reading is dropped. Entries older
-/// than <see cref="MaxAge"/> are not restored: a week-old temperature is not worth drawing even
-/// marked stale.
+/// Never the state file: it is somebody else's data, it changes every quarter of an hour, and it
+/// must never ride along in an export. Schema-versioned and validated on the way in: a document that
+/// is not this schema is refused whole, and an entry that does not hold a usable reading is dropped.
+/// Entries older than <see cref="MaxAge"/> are not restored: a week-old temperature is not worth
+/// drawing even marked stale.
 /// </para>
 /// </summary>
 public static class WeatherCacheStore
 {
     public const int SchemaVersion = 1;
 
-    public const string FileName = "weather_cache.json";
-
     /// <summary>The oldest answer worth restoring.</summary>
     public static TimeSpan MaxAge { get; } = TimeSpan.FromDays(3);
 
     /// <summary>A cache key is built by the app; anything longer was not.</summary>
     private const int MaxKeyLength = 200;
-
-    private const string Scope = "weather";
-
-    private static long _tempSequence;
-
-    /// <summary>
-    /// Read the cache. Never throws for bad data: absent is a quiet empty cache; unreadable (locked)
-    /// is an empty cache and a warning, the file left alone; corrupt is set aside and reported.
-    /// </summary>
-    public static (WeatherCacheSnapshot Snapshot, WeatherCacheLoadOutcome Outcome) Load(string path, DateTimeOffset now)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-        string json;
-        try
-        {
-            if (!File.Exists(path))
-            {
-                return (WeatherCacheSnapshot.Empty, WeatherCacheLoadOutcome.Fresh);
-            }
-
-            json = File.ReadAllText(path);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            Log.Warn(Scope, $"could not read {path}; starting without saved weather", ex);
-            return (WeatherCacheSnapshot.Empty, WeatherCacheLoadOutcome.Recovered);
-        }
-
-        if (Parse(json, now) is { } snapshot)
-        {
-            return (snapshot, WeatherCacheLoadOutcome.Loaded);
-        }
-
-        Log.Warn(Scope, $"{path} is corrupt or from another version; starting without saved weather");
-
-        try
-        {
-            File.Move(path, path + ".corrupt", overwrite: true);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            Log.Warn(Scope, "could not set the unreadable weather cache aside", ex);
-        }
-
-        return (WeatherCacheSnapshot.Empty, WeatherCacheLoadOutcome.Recovered);
-    }
 
     /// <summary>
     /// Parse a cache, or null when the envelope is not one this build can trust (not JSON, another
@@ -162,47 +100,6 @@ public static class WeatherCacheStore
         };
 
         return JsonSerializer.Serialize(file, WeatherCacheJsonContext.Default.WeatherCacheFile);
-    }
-
-    /// <summary>
-    /// Write the cache atomically: a temp file with a name no other write shares, then a rename.
-    /// The caller is the single writer.
-    /// </summary>
-    /// <returns>False when the write failed; logged, and the old file is untouched.</returns>
-    public static bool Save(string path, WeatherCacheSnapshot snapshot)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-        var json = Serialize(snapshot);
-        var temp = $"{path}.tmp.{Environment.ProcessId}.{Interlocked.Increment(ref _tempSequence)}";
-
-        try
-        {
-            var directory = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            File.WriteAllText(temp, json);
-            File.Move(temp, path, overwrite: true);
-            return true;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            Log.Error(Scope, $"could not save {path}", ex);
-
-            try
-            {
-                File.Delete(temp);
-            }
-            catch (Exception cleanup) when (cleanup is IOException or UnauthorizedAccessException)
-            {
-                Log.Warn(Scope, "could not remove the temp weather cache", cleanup);
-            }
-
-            return false;
-        }
     }
 
     /// <summary>The entry's timestamp, if the entry has a key and an age worth restoring.</summary>

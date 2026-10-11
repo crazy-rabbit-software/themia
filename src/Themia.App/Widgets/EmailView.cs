@@ -58,7 +58,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly Grid _columnHeader = new();
     private readonly StackPanel _list = new() { Spacing = 0 };
     private readonly ScrollViewer _scroll;
-    private readonly TextBlock _footer;
 
     private readonly Grid _emptyHost = new();
     private readonly StackPanel _empty;
@@ -139,12 +138,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         };
         Grid.SetRow(_scroll, 1);
 
-        // [S-1285] The largest tile's summary line under the list.
-        _footer = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        _footer.Margin = new Thickness(Fluent.Space4, 0, Fluent.Space4, Fluent.Space2);
-        _footer.Visibility = Visibility.Collapsed;
-        Grid.SetRow(_footer, 2);
-
         _empty = Fluent.EmptyState(Glyphs.Mail, _emptyText, out _);
 
         _accountsLink = new HyperlinkButton
@@ -171,7 +164,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
 
         Children.Add(_columnHeader);
         Children.Add(_scroll);
-        Children.Add(_footer);
         Children.Add(_emptyHost);
     }
 
@@ -336,9 +328,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         return lines + (2 * (compact ? Fluent.Space1 : RowPad));
     }
 
-    private string? FooterText()
-        => _feed?.Snapshot is { } snapshot ? MailLayout.Footer(snapshot.Outcomes, _config.Folder) : null;
-
     // -----------------------------------------------------------------------------------------
     // Drawing
     // -----------------------------------------------------------------------------------------
@@ -360,7 +349,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _busy.IsActive = _refreshing;
         _busy.Visibility = _refreshing ? Visibility.Visible : Visibility.Collapsed;
 
-        var warning = _actionProblem ?? screen.Warning;
+        var warning = _actionProblem ?? snapshot.WriteNote ?? screen.Warning;
         _warningOpensAccounts = _actionProblem is null && screen.OffersAccounts;
         // On a tile this narrow the glyph would squeeze the folder name to a letter; the warning waits.
         _warning.Visibility = warning is null || !_shape.Warning ? Visibility.Collapsed : Visibility.Visible;
@@ -383,10 +372,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         ToolTipService.SetToolTip(_sort, _config.SortOrder == MailSortOrder.NewestFirst
             ? Str.WidgetsB_Email_SortNewestTip.Text()
             : Str.WidgetsB_Email_SortOldestTip.Text());
-
-        var footer = _area.HeightClass >= SizeClass.Huge ? FooterText() : null;
-        _footer.Text = footer ?? string.Empty;
-        _footer.Visibility = footer is null ? Visibility.Collapsed : Visibility.Visible;
 
         var labels = accounts.ToDictionary(a => a.Id, a => a.Label, StringComparer.Ordinal);
         var now = DateTimeOffset.Now;
@@ -420,7 +405,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     {
         _scroll.Visibility = Visibility.Collapsed;
         _columnHeader.Visibility = Visibility.Collapsed;
-        _footer.Visibility = Visibility.Collapsed;
         _badgeHost.Visibility = Visibility.Collapsed;
         _sort.Visibility = Visibility.Collapsed;
         _emptyHost.Visibility = Visibility.Visible;

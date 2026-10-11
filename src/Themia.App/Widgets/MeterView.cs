@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
+using Themia.App.Services.SystemData;
 using Themia.App.Shell;
 using Themia.App.Widgets.Meters;
 using Themia.Core.Diagnostics;
@@ -14,9 +15,10 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// The face every system meter shares: the reading and its history, nothing else — the card's
-/// header is the label. Where the number comes from is the kind's <see cref="MeterPart"/>
-/// (<c>Meters/&lt;Kind&gt;Meter.cs</c>); this file is the layout, so the meters grow and shrink the
-/// same way.
+/// header is the label. Which series it shows is the kind's <see cref="MeterPart"/>
+/// (<c>Meters/&lt;Kind&gt;Meter.cs</c>); the readings and the history are the system hub's
+/// ([S-2500], [S-2504]), so a meter built again shows the history its series already has. This file
+/// is the layout, so the meters grow and shrink the same way.
 /// <para>
 /// [S-664] [S-1762] The ladder (<see cref="MeterFace"/>): a tiny tile is the reading alone; from
 /// there the history appears under the reading and grows to fill the tile, the reading growing by
@@ -58,10 +60,9 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly Brush _criticalBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
     private readonly Brush _successBrush = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
 
-    private Ticker? _ticker;
     private WidgetConfig _config;
-    private IDisposable? _subscription;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
+    private SeriesWatch? _watch;
+    private MeterSeries? _series;
 
     // The ramp step currently applied. Kept so a sample that lands on the same step does not touch
     // the text block at all: re-applying a font size is a layout invalidation the tile does not need.
@@ -70,7 +71,9 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private WidgetArea _area;
     private bool _graph;
     private bool _absent;
-    private bool _detached;
+
+    // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
+    private bool _detached = true;
 
     public MeterView(WidgetKind kind)
     {
@@ -201,7 +204,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _ticker = ticker;
         _detached = false;
         ApplyConfig(config);
     }
@@ -213,64 +215,81 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         var gauge = _config as GaugeConfig;
         _graph = gauge is { ShowGraph: true };
 
-        // Before Resubscribe, which fires a tick of its own: a part that changed what it measures
-        // (a ping host) must be pointed at the new thing before that tick reaches it.
-        var sampleNow = _part.ApplyConfig(_config, this);
+        _part.ApplyConfig(_config, this);
 
-        _band.Capacity = gauge?.GraphCapacity ?? 60;
+        var capacity = gauge?.GraphCapacity ?? 60;
+        var grew = capacity > _band.Capacity;
+        _band.Capacity = capacity;
 
-        var resubscribed = Resubscribe();
-        Lay();
-
-        // Only a change the part asked to see at once, at an unchanged cadence, still needs a push.
-        if (sampleNow && !resubscribed)
+        if (!Rewatch() && grew && _watch is not null)
         {
-            Sample();
+            // [S-2504] A longer span shows the longer history the hub already holds, at once.
+            _band.Load(_watch.History(capacity));
         }
+
+        Lay();
     }
 
-    /// <summary>True when the subscription was rebuilt, which also fires an immediate tick.</summary>
-    private bool Resubscribe()
+    /// <summary>
+    /// [S-2504] Watch the series the config names, only when it names a different one: dragging a
+    /// settings slider must not drop and remake the watch. A different series (a new cadence, drive or
+    /// host) is a different history, so the fixed-slot x-axis never mixes two spacings ([S-1120]).
+    /// True when it watched again.
+    /// </summary>
+    private bool Rewatch()
     {
-        var interval = (_config as GaugeConfig)?.TickInterval ?? TimeSpan.FromSeconds(1);
-
-        // Only when the cadence actually changed. Dropping and remaking the subscription on every
-        // config touch made dragging a settings slider stutter.
-        if (_subscription is not null && interval == _subscribedInterval)
+        if (_detached)
         {
             return false;
         }
 
-        // A new cadence makes the samples already held a different spacing from the ones to come,
-        // which a fixed-slot x-axis would draw as a kink in time. Start the history again.
-        if (_subscription is not null)
+        var series = _part.Series(_config);
+
+        if (_watch is not null && series == _series)
         {
-            ClearHistory();
+            return false;
         }
 
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, Sample);
-        return _subscription is not null;
+        _watch?.Dispose();
+        _watch = null;
+        _series = series;
+
+        if (AppServices.System is not { } hub)
+        {
+            // Only before the host has started: there is nothing to read from yet.
+            Log.Warn(Scope, $"no system hub for {_kind}");
+            _band.Clear();
+            Present(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()));
+            return true;
+        }
+
+        _watch = series.Watch(hub, OnUpdate);
+
+        // [S-2506] The watch never calls back from inside Watch: the history so far and the newest
+        // reading are read here, so a meter built again (a view switch, edit mode) shows them at once.
+        _band.Load(_watch.History(_band.Capacity));
+        Present(_watch.Latest ?? _part.Waiting);
+        return true;
     }
 
-    private void Sample()
+    /// <summary>One read of the series: the reading, and the point it added to the history.</summary>
+    private void OnUpdate(SeriesUpdate update)
     {
-        try
+        if (_detached)
         {
-            _part.Sample(this);
+            return;
         }
-        catch (Exception ex)
+
+        Present(update.Reading);
+
+        if (update.Point is { } point)
         {
-            // A meter that cannot read its counter shows that it cannot, rather than taking the
-            // whole surface down from inside a tick.
-            Log.Error(Scope, $"could not sample {_kind}", ex);
-            Present(MeterReading.Unavailable(Str.WidgetsB_Meters_Error.Text()));
+            _band.Push(point.First, double.IsNaN(point.Second) ? null : point.Second);
         }
     }
 
-    /// <summary>Put one reading on screen, wherever it came from.</summary>
-    public void Present(MeterReading reading)
+    /// <summary>Put one reading on screen. The history is the series' and moves only with its points.</summary>
+    private void Present(MeterReading reading)
     {
         if (_detached)
         {
@@ -298,14 +317,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _badge.Foreground = pressure;
         _badge.Visibility = badge is null ? Visibility.Collapsed : Visibility.Visible;
 
-        // [S-1172] A reading with a fraction is a sample even when it is not available: a ping that
-        // went unanswered (dimmed "--") still plots, on the baseline. Every other unavailable
-        // reading carries no fraction, so it is not one.
-        if (reading is { Fraction: { } fraction })
-        {
-            // A window-scaled chart plots the value itself; a share chart plots the fraction.
-            _band.Push(_part.Scale.FollowsWindow ? reading.Value ?? fraction : fraction, reading.Second);
-        }
+        _part.Observe(reading, this);
 
         // Only the absent state swaps the face out; every other reading keeps the layout it has.
         if (wasAbsent != _absent)
@@ -313,8 +325,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
             Lay();
         }
     }
-
-    public void ClearHistory() => _band.Clear();
 
     /// <summary>[S-1167] Keep the surface for a kind's header title (MeterView.Part.cs).</summary>
     public void Bind(IWidgetSurface surface) => BindTitle(surface);
@@ -330,8 +340,11 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     public void Detach()
     {
         _detached = true;
-        _subscription?.Dispose();
-        _subscription = null;
-        _part.Detach();
+
+        // [S-2505] The series and its history stay in the hub (lingering when this was the last
+        // meter showing it), so the meter built in this one's place picks them up.
+        _watch?.Dispose();
+        _watch = null;
+        _series = null;
     }
 }

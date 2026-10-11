@@ -1,5 +1,5 @@
 using Themia.App.Services;
-using Themia.Core.Localization;
+using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 
@@ -13,15 +13,5 @@ internal sealed class MemoryMeter : MeterPart
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Usage, reading.Available ? reading.Fraction : null);
 
-    public override void Sample(IMeterHost host)
-    {
-        if (MemoryCounters.Read() is not { } snapshot || MemoryFigures.UsedFraction(snapshot) is not { } fraction)
-        {
-            host.Present(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()));
-            return;
-        }
-
-        host.Present(new MeterReading(fraction, Formatting.Percent(fraction), true));
-    }
-
+    public override MeterSeries Series(WidgetConfig config) => MeterSeries.Of(Sources.Memory, Interval(config));
 }

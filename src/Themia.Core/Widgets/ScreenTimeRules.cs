@@ -168,58 +168,6 @@ public static class ScreenTimeRules
         return (compact, FluentType.Fit(width, height, compact.Length + 1, FluentType.Caption, FluentType.Title));
     }
 
-    /// <summary>
-    /// [S-1215] The stats line a large tile carries under its drawing. Under a day: the average of the
-    /// week that ends on it and its busiest day ("7-day average 3h 40m · busiest Tue 5h 2m"). Under a
-    /// window: its busiest day and how many apps it saw ("busiest Tue 3 Oct 5h 2m · 9 apps"). Days
-    /// without use count toward the average, as they do everywhere else; empty when nothing was used.
-    /// </summary>
-    public static string StatsLine(IReadOnlyList<(LocalDay Day, long Seconds)> days, int apps, ScreenTimePeriod period)
-        => StatsLine(Strings.Current, days, apps, period);
-
-    /// <summary><see cref="StatsLine(IReadOnlyList{ValueTuple{LocalDay, long}}, int, ScreenTimePeriod)"/> in an explicit language.</summary>
-    public static string StatsLine(Locale locale, IReadOnlyList<(LocalDay Day, long Seconds)> days, int apps, ScreenTimePeriod period)
-    {
-        ArgumentNullException.ThrowIfNull(days);
-
-        if (days.Count == 0 || days.All(day => day.Seconds <= 0))
-        {
-            return string.Empty;
-        }
-
-        var busiest = days[0];
-        long sum = 0;
-
-        foreach (var day in days)
-        {
-            sum += Math.Max(0, day.Seconds);
-
-            if (day.Seconds > busiest.Seconds)
-            {
-                busiest = day;
-            }
-        }
-
-        if (ClampPeriod(period) == ScreenTimePeriod.Day)
-        {
-            var average = DailyAverage(sum, days.Count);
-            return Strings.Format(
-                locale,
-                Str.WidgetsC_ScreenTime_StatsDay,
-                ("days", days.Count),
-                ("average", FormatDuration(locale, average)),
-                ("day", LocaleFormat.WeekdayName(locale, busiest.Day.Date.DayOfWeek, NameWidth.Short)),
-                ("busiest", FormatDuration(locale, busiest.Seconds)));
-        }
-
-        return Strings.Format(
-            locale,
-            Str.WidgetsC_ScreenTime_StatsWindow,
-            ("day", LocaleFormat.Date(locale, busiest.Day.Date, DateStyle.WeekdayMonthDayShort)),
-            ("busiest", FormatDuration(locale, busiest.Seconds)),
-            ("apps", Strings.Plural(locale, Str.WidgetsC_ScreenTime_Apps, Math.Max(0, apps))));
-    }
-
     /// <summary>[S-1214] The <paramref name="count"/> dates ending at <paramref name="last"/>, oldest first: the week strip under a day.</summary>
     public static List<LocalDay> DaysEnding(LocalDay last, int count)
     {

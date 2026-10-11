@@ -10,8 +10,9 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The footer a large tile adds under the drawing and its legend: a stats line, the daily limit as a
-/// bar, and — under a day — the week that day belongs to as seven small bars.
+/// The footer a large tile adds under the drawing and its legend: under a day, the week that day
+/// belongs to as seven small bars (a way through the widget's own days). No stats line and no
+/// limit bar: the limit is the headline's "of 4h" already, and averages are not this tile's job.
 /// </summary>
 internal sealed partial class ScreenTimeView
 {
@@ -27,7 +28,7 @@ internal sealed partial class ScreenTimeView
     private readonly StackPanel _footer = new() { Spacing = Fluent.Space2 };
 
     /// <summary>
-    /// [S-1213]..[S-1215] Build the footer for this size and return the height it takes from the
+    /// [S-1213] [S-1214] Build the footer for this size and return the height it takes from the
     /// body, its gap included; 0 when the tile is not large both ways or the body would be squeezed.
     /// </summary>
     private double LayFooter(double width, double height, ScreenTimeStyle style)
@@ -45,31 +46,10 @@ internal sealed partial class ScreenTimeView
         var today = _source.Today;
         var shown = day && LocalDay.TryParse(_pinned, out var pinned) ? pinned : today;
 
-        // The week the shown day ends, read once for both the line and the strip.
-        var week = day
-            ? [.. ScreenTimeRules.DaysEnding(shown, 7).Select(d => (Day: d, Seconds: DayTotal(d, today)))]
-            : _model.Totals.Select(t => (Day: LocalDay.TryParse(t.Date, out var d) ? d : today, t.Seconds)).ToList();
-
-        // Rung 1: the stats line.
-        var stats = ScreenTimeRules.StatsLine(week, _model.Apps.Count, _config.Period);
-        if (stats.Length > 0 && room.Take(FluentType.Caption.LineHeight))
-        {
-            var line = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            line.Text = stats;
-            line.TextTrimming = TextTrimming.CharacterEllipsis;
-            _footer.Children.Add(line);
-        }
-
-        // Rung 2: the daily limit as a bar — a window judges its daily average, as its headline does.
-        var used = _model.Window ? ScreenTimeRules.DailyAverage(_model.Total, _model.Days) : _model.Total;
-        if (ScreenTimeRules.Goal(used, DayLimit) is { } goal && room.Take(FluentType.Caption.LineHeight + 6))
-        {
-            _footer.Children.Add(GoalBar(goal, _model.Window));
-        }
-
-        // Rung 3: the week strip, under a day only (a window already draws its days).
+        // The week strip, under a day only (a window already draws its days).
         if (day && style != ScreenTimeStyle.None && room.Take(StripBars + FluentType.Caption.LineHeight + 2))
         {
+            List<(LocalDay Day, long Seconds)> week = [.. ScreenTimeRules.DaysEnding(shown, 7).Select(d => (Day: d, Seconds: DayTotal(d, today)))];
             _footer.Children.Add(WeekStrip(week, shown, today));
         }
 
@@ -93,46 +73,6 @@ internal sealed partial class ScreenTimeView
 
         var record = _source.Day(day == today ? null : day.Key);
         return ScreenTimeRules.Sum(ScreenTimeRules.Visible(record.Apps, _model.Hidden));
-    }
-
-    /// <summary>[S-1213] "Daily limit … 2h 10m of 4h", over a bar that turns critical past the limit.</summary>
-    private static Grid GoalBar(ScreenTimeGoal goal, bool perDay)
-    {
-        var label = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        label.Text = Str.WidgetsC_ScreenTime_DailyLimit.Text();
-
-        var value = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        value.Text = perDay
-            ? Str.WidgetsC_ScreenTime_UsedPerDayOf.Format(("used", ScreenTimeRules.FormatDuration(goal.Used)), ("limit", ScreenTimeRules.FormatLimit(goal.Limit)))
-            : Str.WidgetsC_ScreenTime_UsedOf.Format(("used", ScreenTimeRules.FormatDuration(goal.Used)), ("limit", ScreenTimeRules.FormatLimit(goal.Limit)));
-        value.HorizontalAlignment = HorizontalAlignment.Right;
-        Grid.SetColumn(value, 1);
-
-        var bar = new ProgressBar
-        {
-            Minimum = 0,
-            Maximum = 1,
-            Value = Math.Clamp(goal.Ratio, 0, 1),
-            Margin = new Thickness(0, 2, 0, 0),
-            Foreground = goal.Over ? CriticalBrush : StripBrush,
-        };
-        Grid.SetRow(bar, 1);
-        Grid.SetColumnSpan(bar, 2);
-
-        return new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-            RowDefinitions =
-            {
-                new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = GridLength.Auto },
-            },
-            Children = { label, value, bar },
-        };
     }
 
     /// <summary>

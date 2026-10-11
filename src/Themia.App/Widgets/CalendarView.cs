@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
-using Themia.App.Services.Accounts;
 using Themia.App.Services.Office;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
@@ -18,17 +17,18 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-560] Events from the user's Microsoft, Google and CalDAV calendars, through Themia's own
-/// accounts, as a month grid, a week, a day timeline or an agenda ([S-561]) — the classic
-/// Calendar widget, with contacts' birthdays beside the events ([S-575]).
+/// accounts, as a month, a week, a day, a year or an agenda ([S-2700]) — the classic Calendar
+/// widget, with contacts' birthdays beside the events ([S-575]).
 /// <para>
-/// The view owns no connection and no cache: it asks the shared <see cref="IOfficeSource"/>, which
-/// answers every widget from one request per calendar and holds failures sensibly ([S-588]). What
-/// it keeps is the anchor day being looked at, and the events and birthdays of the range it last
-/// asked for. Polls every five minutes; a context-menu Refresh asks past every cache.
+/// [S-2700] The widget draws only the layout it is configured for, at every size: a small month is
+/// a small month (dots, then bare numbers), never an agenda or a single event in its place. Each
+/// layout's fit is Core (<see cref="CalendarFit"/>); the drawing is in the partial files.
 /// </para>
 /// <para>
-/// Times are on a 24-hour clock and names are written out ([S-187]): the app builds with
-/// <c>InvariantGlobalization</c>, so there is no culture to read either from.
+/// [S-2701] The view owns no connection and no cache: everything comes through one
+/// <see cref="ICalendarData"/> load for the range its layout draws. What it keeps is the anchor day
+/// being looked at, the agenda page, and the events and birthdays of the range it last asked for.
+/// Polls every five minutes; a context-menu Refresh asks past every cache.
 /// </para>
 /// </summary>
 internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
@@ -51,10 +51,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly StackPanel _trailing;
     private readonly List<IDisposable> _hovers = [];
     private readonly Dictionary<string, Brush> _colorBrushes = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, AccountProvider> _providers = new(StringComparer.Ordinal);
 
     private IWidgetSurface? _surface;
-    private IOfficeSource? _source;
+    private ICalendarData? _data;
     private IDisposable? _poll;
     private CalendarConfig _config = new();
     private DateOnly _anchor = Today;
@@ -62,6 +61,13 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     /// <summary>[S-1269] Whether keys have moved the cursor day, so the month marks it until the next page.</summary>
     private bool _cursorShown;
+
+    /// <summary>[S-2709] The agenda page on screen, and how many the last draw had.</summary>
+    private int _agendaPage;
+    private int _agendaPages = 1;
+
+    /// <summary>[S-2709] The first event of the agenda page on screen, for Enter.</summary>
+    private CalendarEvent? _agendaFirst;
 
     /// <summary>The view's slot, from the card ([S-663]); unmeasured until the first layout pass.</summary>
     private WidgetArea _area;
@@ -74,7 +80,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private IReadOnlyList<CalendarEvent> _events = [];
     private IReadOnlyList<Birthday> _birthdays = [];
     private IReadOnlyList<CalendarTarget> _targets = [];
-    private (DateOnly First, DateOnly Last)? _fetched;
+    private IReadOnlyDictionary<string, AccountProvider> _providers = new Dictionary<string, AccountProvider>();
     private string _requestKey = string.Empty;
     private bool _refreshing;
     private bool _again;
@@ -123,6 +129,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     private static DateOnly Today => DateOnly.FromDateTime(DateTime.Now);
 
+    private CalendarLayout Layout => _config.EffectiveLayout;
+
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _trailing;
 
@@ -136,17 +144,28 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     {
         _detached = false;
         _config = config as CalendarConfig ?? new CalendarConfig();
-        _source = OfficeSources.Current;
-
-        if (_source is not null)
-        {
-            _source.Changed += OnAccountsChanged;
-        }
+        UseData(OfficeSources.Current is { } source ? new OfficeCalendarData(source) : null);
 
         Strings.Changed += OnLanguage;
 
         // [S-588] The ticker fires once on subscribing, which is the first load.
         _poll = ticker.Subscribe(Poll, () => _ = RefreshAsync(force: false));
+    }
+
+    /// <summary>[S-2701] Put a data seam in place, moving the change subscription with it.</summary>
+    private void UseData(ICalendarData? data)
+    {
+        if (_data is not null)
+        {
+            _data.Changed -= OnAccountsChanged;
+        }
+
+        _data = data;
+
+        if (_data is not null)
+        {
+            _data.Changed += OnAccountsChanged;
+        }
     }
 
     /// <summary>[S-1109] Names, dates and states are worded again from what is in hand; nothing is refetched.</summary>
@@ -160,7 +179,14 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     public void ApplyConfig(WidgetConfig config)
     {
+        var before = Layout;
         _config = config as CalendarConfig ?? new CalendarConfig();
+
+        if (Layout != before)
+        {
+            _agendaPage = 0;
+            _cursorShown = false;
+        }
 
         // Only a change to what is asked for is worth a round trip; a colour or the agenda count
         // re-draws what is in hand.
@@ -172,7 +198,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         Render();
     }
 
-    /// <summary>[S-561] Refresh. [S-1746] The view is how the widget looks: it is chosen in its settings only.</summary>
+    /// <summary>[S-561] Refresh. [S-1746] The layout is how the widget looks: it is chosen in its settings only.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
 
     public void Detach()
@@ -186,12 +212,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         Strings.Changed -= OnLanguage;
         _poll?.Dispose();
         _poll = null;
-
-        if (_source is not null)
-        {
-            _source.Changed -= OnAccountsChanged;
-            _source = null;
-        }
+        UseData(null);
 
         _warning.Tapped -= OnWarningTapped;
         _state.Detach();
@@ -236,111 +257,30 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
             _anchor = Today;
         }
 
-        var source = _source;
-        var accounts = source?.Accounts(AccountFeatures.Calendar) ?? [];
+        var data = _data;
         _requestKey = RequestKey();
 
-        if (source is null || accounts.Count == 0)
+        if (data is null)
         {
             _screen = Screen.NoAccounts;
             Render();
             return;
         }
 
-        var selected = CalendarRules.SelectAccounts(_config.AccountIds, [.. accounts.Select(a => a.Id)]);
-        if (selected.Count == 0)
-        {
-            _screen = Screen.AccountsGone;
-            Render();
-            return;
-        }
-
-        var labels = accounts.ToDictionary(a => a.Id, a => a.Label, StringComparer.Ordinal);
-        foreach (var account in accounts)
-        {
-            _providers[account.Id] = account.Provider;
-        }
-
-        var targets = CalendarRules.Targets(selected, _config.Calendars);
         var range = Range();
-        var (from, to) = CalendarRules.FetchWindow(range.First, range.Last, TimeZoneInfo.Local);
-
         _refreshing = true;
         SetBusy(true);
 
         try
         {
-            var eventTasks = targets.Select(t => source.EventsAsync(t, from, to, force, CancellationToken.None)).ToList();
-            var birthdayTasks = _config.ShowBirthdays
-                ? selected.Select(a => source.BirthdaysAsync(a, force, CancellationToken.None)).ToList()
-                : [];
-
-            await Task.WhenAll(eventTasks.Cast<Task>().Concat(birthdayTasks)).ConfigureAwait(true);
+            var slice = await data.LoadAsync(_config, range.First, range.Last, force, CancellationToken.None).ConfigureAwait(true);
 
             if (_detached)
             {
                 return;
             }
 
-            var events = new List<CalendarEvent>();
-            var problems = new List<(string Account, SyncProblem Problem)>();
-            var anyData = false;
-
-            for (var i = 0; i < targets.Count; i++)
-            {
-                var result = eventTasks[i].Result;
-                if (result.Value is { } list)
-                {
-                    anyData = true;
-                    events.AddRange(list.Select(e => e with { AccountId = targets[i].AccountId, CalendarId = targets[i].CalendarId, SourceIndex = i }));
-                }
-
-                if (result.Problem != SyncProblem.None)
-                {
-                    problems.Add((targets[i].AccountId, result.Problem));
-                }
-            }
-
-            var birthdays = new List<Birthday>();
-            for (var i = 0; i < birthdayTasks.Count; i++)
-            {
-                var result = birthdayTasks[i].Result;
-                birthdays.AddRange(result.Value ?? []);
-
-                // [S-575] A refused address book costs the birthdays, never the calendar: it is a
-                // warning on the header, not an error over the events.
-                if (result.Problem != SyncProblem.None)
-                {
-                    problems.Add((selected[i], result.Problem));
-                }
-            }
-
-            _events = events;
-            _birthdays = BirthdayRules.Distinct(birthdays);
-            _targets = targets;
-            _fetched = range;
-
-            var worst = problems.OrderByDescending(p => SyncProblems.NeedsUser(p.Problem)).Select(p => (p.Account, p.Problem)).FirstOrDefault();
-
-            if (!anyData && problems.Count > 0)
-            {
-                _screen = Screen.Problem;
-                var problem = worst.Problem;
-                _problemText = () => SyncProblems.Message(problem, SyncSubject.Calendar, Strings.Current);
-                _problemOffersAccounts = SyncProblems.NeedsUser(worst.Problem);
-                _warningText = null;
-            }
-            else
-            {
-                _screen = Screen.Ready;
-                _warningText = problems.Count == 0
-                    ? null
-                    : () => string.Join(Environment.NewLine, problems.Distinct().Select(p =>
-                        Str.WidgetsA_Office_AccountProblem.Format(
-                            ("account", labels.TryGetValue(p.Account, out var label) ? label : p.Account),
-                            ("problem", SyncProblems.Message(p.Problem, SyncSubject.Calendar, Strings.Current)))));
-                _warningOpensAccounts = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
-            }
+            Take(slice);
         }
         catch (Exception ex)
         {
@@ -367,6 +307,49 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         }
     }
 
+    /// <summary>What a load said: the screen it calls for, and the data when there is any.</summary>
+    private void Take(CalendarSlice slice)
+    {
+        switch (slice.State)
+        {
+            case CalendarSliceState.NoAccounts:
+                _screen = Screen.NoAccounts;
+                return;
+
+            case CalendarSliceState.AccountsGone:
+                _screen = Screen.AccountsGone;
+                return;
+        }
+
+        _events = slice.Events;
+        _birthdays = slice.Birthdays;
+        _targets = slice.Targets;
+        _providers = slice.Providers;
+
+        var problems = slice.Problems;
+        var labels = slice.Labels;
+        var worst = problems.OrderByDescending(p => SyncProblems.NeedsUser(p.Problem)).FirstOrDefault();
+
+        if (!slice.AnyData && problems.Count > 0)
+        {
+            _screen = Screen.Problem;
+            var problem = worst.Problem;
+            _problemText = () => SyncProblems.Message(problem, SyncSubject.Calendar, Strings.Current);
+            _problemOffersAccounts = SyncProblems.NeedsUser(worst.Problem);
+            _warningText = null;
+            return;
+        }
+
+        _screen = Screen.Ready;
+        _warningText = problems.Count == 0
+            ? null
+            : () => string.Join(Environment.NewLine, problems.Distinct().Select(p =>
+                Str.WidgetsA_Office_AccountProblem.Format(
+                    ("account", labels.TryGetValue(p.Account, out var label) ? label : p.Account),
+                    ("problem", SyncProblems.Message(p.Problem, SyncSubject.Calendar, Strings.Current)))));
+        _warningOpensAccounts = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
+    }
+
     private void SetBusy(bool busy)
     {
         _busy.IsActive = busy;
@@ -374,32 +357,40 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     }
 
     // -----------------------------------------------------------------------------------------
-    // Navigation and views
+    // Navigation
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>[S-1260] What the tile draws of the configured view at its size.</summary>
-    private CalendarLayout Layout() => CalendarFit.Layout(_config.EffectiveView, _area.Width, _area.Height);
+    /// <summary>[S-568] The days the layout covers, which is what is fetched.</summary>
+    private (DateOnly First, DateOnly Last) Range() => CalendarRules.ViewRange(Layout, _anchor, Today, _config.EffectiveWeekStart);
 
-    /// <summary>[S-1262] How many days a strip of this width holds.</summary>
-    private int StripDays() => CalendarFit.StripDays(_config.EffectiveView, _area.Width);
+    /// <summary>Whether a day is in the period on screen, so the today button can hide when it would do nothing.</summary>
+    private bool InView(DateOnly day) => CalendarRules.InView(Layout, _anchor, Today, _config.EffectiveWeekStart, day);
 
-    /// <summary>[S-568] The days the current layout covers, which is what is fetched.</summary>
-    private (DateOnly First, DateOnly Last) Range()
-        => CalendarFit.Range(Layout(), _config.EffectiveView, _anchor, Today, _config.EffectiveWeekStart, StripDays());
+    /// <summary>Whether the today button would do anything: today is off screen, or the agenda is past its first page.</summary>
+    private bool AwayFromToday => Layout == CalendarLayout.Agenda ? _agendaPage > 0 : !InView(Today);
 
+    /// <summary>[S-569] / [S-2709] One unit back or forward: the layout's period, or an agenda page.</summary>
     private void Navigate(int direction)
     {
-        _anchor = CalendarFit.Step(Layout(), _anchor, direction, StripDays());
+        _cursorShown = false;
+
+        if (Layout == CalendarLayout.Agenda)
+        {
+            _agendaPage = Math.Clamp(_agendaPage + Math.Sign(direction), 0, Math.Max(0, _agendaPages - 1));
+            Render();
+            return;
+        }
+
+        _anchor = CalendarRules.Step(Layout, _anchor, direction);
 
         // Paging back to the period holding today picks following it up again.
         _followToday = InView(Today);
-        _cursorShown = false;
         Render();
         _ = RefreshAsync(force: false);
     }
 
     /// <summary>
-    /// [S-1269]/[S-806] A key from the shell's keyboard lease (the classic S-31..34), which the
+    /// [S-2710]/[S-806] A key from the shell's keyboard lease (the classic S-31..34), which the
     /// calendar holds once it is clicked. Escape (also the lease ending) hides the cursor day.
     /// Returns whether the key was used.
     /// </summary>
@@ -422,8 +413,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
             return true;
         }
 
-        var layout = Layout();
-        var command = CalendarFit.Key(key, layout);
+        var command = CalendarFit.Key(key, Layout);
         switch (command)
         {
             case CalendarKeyCommand.Back:
@@ -453,19 +443,19 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
                 return true;
 
             case CalendarKeyCommand.OpenFirst:
-                return OpenFirst(layout);
+                return OpenFirst();
 
             default:
                 return false;
         }
     }
 
-    /// <summary>[S-1269] Enter: the cursor day's first event, or the next one where the layout has no cursor.</summary>
-    private bool OpenFirst(CalendarLayout layout)
+    /// <summary>[S-2710] Enter: the cursor day's first event, or the agenda page's first.</summary>
+    private bool OpenFirst()
     {
-        var first = CalendarFit.Pages(layout)
-            ? CalendarRules.DayItems(_events, [], _anchor, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault()
-            : CalendarFit.Next(_events, [], Today, TimeZoneInfo.Local, DateTimeOffset.Now)?.Item.Event;
+        var first = Layout == CalendarLayout.Agenda
+            ? _agendaFirst
+            : CalendarRules.DayItems(_events, [], _anchor, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
 
         if (first is null)
         {
@@ -480,6 +470,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     {
         _anchor = Today;
         _followToday = true;
+        _agendaPage = 0;
         Render();
         _ = RefreshAsync(force: false);
     }
@@ -489,12 +480,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     {
         _area = area;
         Render();
-
-        // A resize can turn the month into the agenda or a strip ([S-1260]), which cover other days.
-        if (_screen == Screen.Ready && RequestKey() != _requestKey)
-        {
-            _ = RefreshAsync(force: false);
-        }
     }
 
     private void OnWarningTapped(object sender, TappedRoutedEventArgs args)
@@ -519,37 +504,35 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         ClearDrawing();
 
-        var layout = Layout();
         var ready = _screen == Screen.Ready;
-        var paged = ready && CalendarFit.Pages(layout);
-
-        _back.Visibility = paged ? Visibility.Visible : Visibility.Collapsed;
-        _forward.Visibility = paged ? Visibility.Visible : Visibility.Collapsed;
-        _todayButton.Visibility = paged && !InView(Today) ? Visibility.Visible : Visibility.Collapsed;
-
         _warning.Visibility = ready && _warningText is not null ? Visibility.Visible : Visibility.Collapsed;
         ToolTipService.SetToolTip(_warning, _warningText?.Invoke());
 
-        // [S-568] The period is the header's title while paging; the agenda is just "Calendar".
-        _surface?.SetHeaderTitle(paged ? CalendarFit.Title(layout, _config.EffectiveView, _anchor, _config.EffectiveWeekStart, StripDays(), Strings.Current) : null);
+        // [S-568] The period is the header's title; the agenda's is just "Calendar".
+        var title = ready ? CalendarRules.Title(Layout, _anchor, _config.EffectiveWeekStart, Strings.Current) : string.Empty;
+        _surface?.SetHeaderTitle(title.Length > 0 ? title : null);
 
         switch (_screen)
         {
             case Screen.Loading:
                 _state.Show(Str.Common_Loading.Text(), offerAccounts: false);
+                ShowNavigation(false);
                 return;
 
             case Screen.NoAccounts:
                 // [S-1862] The card shows its Set up button over this.
                 _state.Hide();
+                ShowNavigation(false);
                 return;
 
             case Screen.AccountsGone:
                 _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
+                ShowNavigation(false);
                 return;
 
             case Screen.Problem:
                 _state.Show(_problemText(), _problemOffersAccounts);
+                ShowNavigation(false);
                 return;
         }
 
@@ -558,28 +541,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         var width = _area.Width;
         var height = _area.Height;
 
-        switch (layout)
+        switch (Layout)
         {
-            case CalendarLayout.Next:
-                DrawNext(width, height);
-                break;
-
-            case CalendarLayout.Strip:
-                DrawStrip(width, height);
-                break;
-
-            case CalendarLayout.Month:
-                DrawMonth(width, height);
-                break;
-
-            case CalendarLayout.MonthAgendaBelow:
-                DrawMonthWithAgenda(width, height, beside: false);
-                break;
-
-            case CalendarLayout.MonthAgendaBeside:
-                DrawMonthWithAgenda(width, height, beside: true);
-                break;
-
             case CalendarLayout.Week:
                 DrawWeek(width, height);
                 break;
@@ -588,15 +551,37 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
                 DrawDay(width, height);
                 break;
 
-            default:
+            case CalendarLayout.Year:
+                DrawYear(width, height);
+                break;
+
+            case CalendarLayout.Agenda:
                 DrawAgenda(width, height);
                 break;
+
+            default:
+                DrawMonth(width, height);
+                break;
         }
+
+        // After drawing: the agenda only knows its pages once it has fitted them.
+        ShowNavigation(true);
     }
 
-    /// <summary>Whether a day is in the period on screen, so the today button can hide when it would do nothing.</summary>
-    private bool InView(DateOnly day)
-        => CalendarFit.InView(Layout(), _config.EffectiveView, _anchor, Today, _config.EffectiveWeekStart, StripDays(), day);
+    /// <summary>
+    /// [S-569] The header's back, forward and today buttons. A tile narrower than the Compact width
+    /// keeps its header for the title alone (the keys still page); the agenda shows back and
+    /// forward only where there is a page to go to.
+    /// </summary>
+    private void ShowNavigation(bool ready)
+    {
+        var room = ready && (!_area.IsMeasured || _area.WidthClass > SizeClass.Compact);
+        var agenda = Layout == CalendarLayout.Agenda;
+
+        _back.Visibility = room && (!agenda || _agendaPage > 0) ? Visibility.Visible : Visibility.Collapsed;
+        _forward.Visibility = room && (!agenda || _agendaPage < _agendaPages - 1) ? Visibility.Visible : Visibility.Collapsed;
+        _todayButton.Visibility = room && AwayFromToday ? Visibility.Visible : Visibility.Collapsed;
+    }
 
     private void ClearDrawing()
     {
@@ -630,6 +615,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         return brush;
     }
+
+    /// <summary>[S-566] An item's mark: its calendar's colour when colours show, the accent else, a birthday's caution hue.</summary>
+    private Brush MarkOf(DayItem item, bool showColors)
+        => item.Birthday is not null ? BirthdayBrush() : showColors ? ColorOf(item.Event!) : Accent();
 
     private static Brush Accent() => FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
@@ -692,6 +681,35 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         return string.Join(Environment.NewLine, lines);
     }
+
+    /// <summary>A day's date and everything on it, for the hover of a cell that cannot show it all.</summary>
+    private static string DayTooltip(DateOnly day, IReadOnlyList<DayItem> items)
+    {
+        var lines = new List<string> { Str.WidgetsA_Clock_Date.Format(("weekday", CalendarText.WeekdayName(day.DayOfWeek)), ("date", Formatting.ShortDate(day))) };
+
+        foreach (var item in items)
+        {
+            if (item.Birthday is { } b)
+            {
+                lines.Add(Str.WidgetsA_Calendar_BirthdayOf.Format(("name", BirthdayRules.Label(b, day))));
+            }
+            else if (item.Event is { } e)
+            {
+                lines.Add($"{(e.AllDay ? Str.Calendar_AllDay.Text() : Clock(e.Start))}  {Title(e)}");
+            }
+        }
+
+        return string.Join(Environment.NewLine, lines);
+    }
+
+    /// <summary>[S-2702] A weekday as much as its column holds.</summary>
+    private static string WeekdayText(DayOfWeek day, WeekdayLabel label) => label switch
+    {
+        WeekdayLabel.Short => CalendarText.WeekdayShort(day),
+        WeekdayLabel.Initials => CalendarText.WeekdayInitial(day),
+        WeekdayLabel.Narrow => LocaleFormat.WeekdayName(Strings.Current, day, NameWidth.Narrow),
+        _ => string.Empty,
+    };
 
     private static string Title(CalendarEvent item) => string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject;
 

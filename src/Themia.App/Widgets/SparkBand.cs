@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Windows.Foundation;
 
@@ -146,6 +147,31 @@ internal sealed partial class SparkBand : Grid
 
         _first.Enqueue(first);
         _second.Enqueue(second is { } s && double.IsFinite(s) ? s : double.NaN);
+        Redraw();
+    }
+
+    /// <summary>
+    /// [S-2504] Draw a series' history as the hub holds it, oldest first, replacing what the band held:
+    /// a band built again (a view switch, edit mode) starts from the history, not from empty.
+    /// </summary>
+    public void Load(IReadOnlyList<SeriesPoint> points)
+    {
+        _first.Clear();
+        _second.Clear();
+
+        for (var i = Math.Max(0, points.Count - _capacity); i < points.Count; i++)
+        {
+            var point = points[i];
+
+            if (!double.IsFinite(point.First))
+            {
+                continue;
+            }
+
+            _first.Enqueue(point.First);
+            _second.Enqueue(double.IsFinite(point.Second) ? point.Second : double.NaN);
+        }
+
         Redraw();
     }
 

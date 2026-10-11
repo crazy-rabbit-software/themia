@@ -126,6 +126,31 @@ internal static partial class Dpapi
         }
     }
 
+    /// <summary>
+    /// [S-2603] Seal raw bytes (the sync shelves' key) for this user. Throws
+    /// <see cref="CryptographicException"/> when Windows cannot; never falls back to plain bytes.
+    /// </summary>
+    public static byte[] SealBytes(byte[] plain)
+    {
+        ArgumentNullException.ThrowIfNull(plain);
+        return Transform(plain, protect: true);
+    }
+
+    /// <summary>[S-2603] Open bytes sealed by <see cref="SealBytes"/>; null when they will not open here.</summary>
+    public static byte[]? OpenBytes(byte[] blob)
+    {
+        ArgumentNullException.ThrowIfNull(blob);
+
+        try
+        {
+            return Transform(blob, protect: false);
+        }
+        catch (CryptographicException)
+        {
+            return null;
+        }
+    }
+
     private static unsafe byte[] Transform(byte[] input, bool protect)
     {
         fixed (byte* data = input)

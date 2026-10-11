@@ -25,7 +25,6 @@ public class HabitLayoutTests
         Assert.Equal(0, plan.Dots);
         Assert.False(plan.AddRow);
         Assert.False(plan.Summary);
-        Assert.Equal(0, plan.ChartHeight);
     }
 
     [Fact]
@@ -70,16 +69,15 @@ public class HabitLayoutTests
     }
 
     [Fact]
-    public void S1427_tall_adds_the_summary_and_a_chart_in_what_the_rows_leave()
+    public void S1427_tall_adds_the_summary_and_leaves_what_the_rows_do_not_use_empty()
     {
         var plan = Plan(200, 356);
 
         Assert.True(plan.Summary);
+        Assert.True(plan.SummaryBar);
         Assert.True(plan.AddRow);
         Assert.Equal(3, plan.Rows);
         Assert.Equal(0, plan.Dots);
-        Assert.Equal(356 - HabitLayout.ListBottomPadding - (3 * 40) - 40 - HabitLayout.SummaryHeight, plan.ChartHeight, 3);
-        Assert.Equal(12, plan.ChartBars);
     }
 
     [Fact]
@@ -92,8 +90,6 @@ public class HabitLayoutTests
         Assert.True(plan.Rate);
         Assert.False(plan.Best);
         Assert.True(plan.Summary);
-        Assert.True(plan.ChartHeight >= HabitLayout.ChartMinHeight);
-        Assert.Equal(HabitRules.MaxHistory, plan.ChartBars);
     }
 
     [Fact]
@@ -103,7 +99,6 @@ public class HabitLayoutTests
 
         Assert.True(plan.Best);
         Assert.True(plan.Rate);
-        Assert.True(plan.ChartHeight > 0);
     }
 
     [Fact]
@@ -119,16 +114,13 @@ public class HabitLayoutTests
     }
 
     [Fact]
-    public void S1427_too_many_habits_for_the_tile_scroll_and_drop_the_chart()
+    public void S1427_too_many_habits_for_the_tile_scroll()
     {
         var plan = Plan(320, 196, count: 9);
-
         Assert.Equal(3, plan.Rows);
-        Assert.Equal(0, plan.ChartHeight);
 
         var tall = Plan(200, 356, count: 12);
         Assert.True(tall.Rows < 12);
-        Assert.Equal(0, tall.ChartHeight);
     }
 
     [Fact]

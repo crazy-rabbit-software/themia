@@ -235,7 +235,7 @@ internal sealed partial class GalleryView
 
     /// <summary>
     /// [S-763]/[S-768] Words under the picture. The photo of the day's title and credit; for a
-    /// slideshow at L the file's name, and at XL where it sits in the set and which folder it is from.
+    /// slideshow from L the file's name, alone.
     /// </summary>
     private void DrawCaption(GalleryPlan plan)
     {
@@ -255,9 +255,8 @@ internal sealed partial class GalleryView
         }
         else
         {
-            var path = _scan.Paths[_index];
-            title = System.IO.Path.GetFileNameWithoutExtension(path);
-            detail = Str.WidgetsB_Gallery_Position.Format(("index", _index + 1), ("count", _scan.Paths.Count), ("folder", FolderPath.DisplayName(_config.Path)));
+            title = System.IO.Path.GetFileNameWithoutExtension(_scan.Paths[_index]);
+            detail = string.Empty;
         }
 
         _captionTitle.Text = title;

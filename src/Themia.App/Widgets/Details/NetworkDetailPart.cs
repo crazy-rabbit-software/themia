@@ -1,4 +1,4 @@
-using Themia.App.Services;
+using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -7,15 +7,16 @@ namespace Themia.App.Widgets.Details;
 
 /// <summary>
 /// [S-2415]..[S-2419] Download and upload, this session's totals, the addresses and every adapter,
-/// from the network meter's own shared reader (<see cref="NetworkThroughput"/>), so a meter and a
-/// details widget on one desktop share one sample.
+/// from the network meter's own hub feed, so a meter and a details widget on one desktop share one
+/// read. The addresses are read before the throughput on a tick ([S-2501]), so the throughput's read
+/// presents a sheet of one tick.
 /// </summary>
 internal sealed class NetworkDetailPart : DetailPart
 {
-    private NetworkDetailsConfig _config = new();
-    private IDisposable? _addresses;
-    private IDisposable? _public;
-    private bool _attached;
+    private readonly WatchSlot<ThroughputSample?> _throughput = new();
+    private readonly WatchSlot<IReadOnlyDictionary<string, string>> _addresses = new();
+    private readonly WatchSlot<PublicAddressReading> _public = new();
+    private IDetailHost? _host;
 
     public override WidgetKind Kind => WidgetKind.NetworkDetails;
 
@@ -24,53 +25,48 @@ internal sealed class NetworkDetailPart : DetailPart
     /// <summary>The name and the rates on one line, the address under them.</summary>
     public override double ListRowHeight => Fluent.RowHeight + Fluent.Space1;
 
-    public override bool ApplyConfig(WidgetConfig config, IDetailHost host)
+    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
     {
-        var next = config as NetworkDetailsConfig ?? new NetworkDetailsConfig();
-        var changed = next.ShowPublicAddress != _config.ShowPublicAddress;
-        _config = next;
+        _host = host;
+        var network = config as NetworkDetailsConfig ?? new NetworkDetailsConfig();
+        var interval = network.TickInterval;
 
-        if (_attached)
+        _addresses.Hold(hub, Sources.LocalAddresses, interval, static _ => { });
+
+        // [S-2417] The public lookup runs only while the setting is on.
+        if (network.ShowPublicAddress)
         {
-            HoldPublic();
-        }
-
-        return changed;
-    }
-
-    public override void Attach()
-    {
-        _attached = true;
-        _addresses ??= LocalAddresses.Acquire();
-        HoldPublic();
-    }
-
-    /// <summary>[S-2417] The public lookup runs only while the setting is on.</summary>
-    private void HoldPublic()
-    {
-        if (_config.ShowPublicAddress)
-        {
-            _public ??= PublicAddress.Acquire();
+            _public.Hold(hub, Sources.PublicAddress, interval, static _ => { });
         }
         else
         {
-            _public?.Dispose();
-            _public = null;
+            _public.Release();
         }
+
+        _throughput.Hold(hub, Sources.Network, interval, _ => Show());
+        Show();
     }
 
-    public override void Sample(IDetailHost host)
+    private void Show()
     {
-        var publicAddress = _public is null ? new PublicAddressReading(PublicAddressState.Off) : PublicAddress.Current();
-        host.Present(NetworkDetailRules.Sheet(Strings.Current, NetworkThroughput.Read(), LocalAddresses.Current(), publicAddress));
+        if (_host is not { } host || !_throughput.HasValue)
+        {
+            return;
+        }
+
+        var addresses = _addresses.HasValue ? _addresses.Value : new Dictionary<string, string>();
+        var publicAddress = _public.Current is null
+            ? new PublicAddressReading(PublicAddressState.Off)
+            : _public.HasValue ? _public.Value : new PublicAddressReading(PublicAddressState.Checking);
+
+        host.Present(NetworkDetailRules.Sheet(Strings.Current, _throughput.Value, addresses, publicAddress));
     }
 
     public override void Detach()
     {
-        _attached = false;
-        _public?.Dispose();
-        _public = null;
-        _addresses?.Dispose();
-        _addresses = null;
+        _throughput.Release();
+        _public.Release();
+        _addresses.Release();
+        _host = null;
     }
 }

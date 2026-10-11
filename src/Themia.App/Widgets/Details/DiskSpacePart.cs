@@ -1,6 +1,6 @@
 using Themia.App.Services;
+using Themia.App.Services.SystemData;
 using Themia.App.Shell;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -8,14 +8,15 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets.Details;
 
 /// <summary>
-/// [S-2420]..[S-2422] Free and used space, one row per drive, named and walked by the disk meter's
-/// own volume list (<see cref="DiskMetrics.Volumes"/>, re-walked at most every 30 s, so no drive is
-/// woken per tick). Enter on a row opens the drive in Explorer.
+/// [S-2420]..[S-2422] Free and used space, one row per drive, named and walked by the disk meter's own
+/// volume list (re-walked at most every 30 s, so no drive is woken per tick), from the hub's disk space
+/// feed. Enter on a row opens the drive in Explorer.
 /// </summary>
 internal sealed class DiskSpacePart : DetailPart
 {
+    private readonly WatchSlot<DiskSpaceSnapshot> _space = new();
     private DiskSpaceConfig _config = new();
-    private string? _lastFailure;
+    private IDetailHost? _host;
 
     public override WidgetKind Kind => WidgetKind.DiskSpace;
 
@@ -28,66 +29,46 @@ internal sealed class DiskSpacePart : DetailPart
 
     public override bool RowsGrow => true;
 
-    public override bool ApplyConfig(WidgetConfig config, IDetailHost host)
+    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
     {
-        var next = config as DiskSpaceConfig ?? new DiskSpaceConfig();
-        var changed = !next.Drives.SequenceEqual(_config.Drives, StringComparer.OrdinalIgnoreCase);
-        _config = next;
-        return changed;
+        _host = host;
+        _config = config as DiskSpaceConfig ?? new DiskSpaceConfig();
+
+        // Another choice of drives is the same read, picked again: shown at once.
+        _space.Hold(hub, Sources.DiskSpace, _config.TickInterval, _ => Show());
+        Show();
     }
 
-    public override void Sample(IDetailHost host)
+    private void Show()
     {
-        var walked = DiskMetrics.Volumes(refresh: true);
-        var volumes = DiskSpaceRules.Select(walked, _config.Drives);
+        if (_host is not { } host || !_space.HasValue)
+        {
+            return;
+        }
+
+        var snapshot = _space.Value;
+        var volumes = DiskSpaceRules.Select(snapshot.Walked, _config.Drives);
         var drives = new List<DriveSpace>(volumes.Count);
 
         foreach (var volume in volumes)
         {
-            // A chosen drive the walk did not find is not connected: it is not asked, so nothing is woken.
-            drives.Add(walked.Contains(volume) ? Read(volume) : new DriveSpace(volume, 0, 0));
+            // A chosen drive the walk did not find is not connected: it was not asked, so nothing was woken.
+            drives.Add(snapshot.Space.TryGetValue(volume.Root, out var space) ? space : new DriveSpace(volume, 0, 0));
         }
 
         host.Present(DiskSpaceRules.Sheet(Strings.Current, drives));
     }
 
-    /// <summary>One drive's space, or a drive that did not answer (Total 0), logged once on a change.</summary>
-    private DriveSpace Read(DiskVolume volume)
-    {
-        try
-        {
-            // Free to this user (quotas included), as Explorer counts it. The walk found the drive
-            // ready, so this is GetDiskFreeSpaceEx on a mounted volume, not a wake-up.
-            var drive = new DriveInfo(volume.Root);
-            return new DriveSpace(volume, (ulong)Math.Max(0, drive.TotalSize), (ulong)Math.Max(0, drive.AvailableFreeSpace));
-        }
-        catch (IOException ex)
-        {
-            Note($"{volume.Root} did not answer: {ex.Message}");
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            Note($"{volume.Root} refused: {ex.Message}");
-        }
-        catch (ArgumentException ex)
-        {
-            Note($"{volume.Root} is not a drive: {ex.Message}");
-        }
-
-        return new DriveSpace(volume, 0, 0);
-    }
-
-    private void Note(string failure)
-    {
-        if (failure != _lastFailure)
-        {
-            _lastFailure = failure;
-            Log.Debug(Scope, failure);
-        }
-    }
+    public override void Refresh() => _space.Current?.Refresh();
 
     public override void Open(DetailRow row) => ShellLauncher.Open(row.Key);
 
     public override IReadOnlyList<WidgetAction> ContextActions(IDetailHost host)
         => [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), host.SampleNow)];
+
+    public override void Detach()
+    {
+        _space.Release();
+        _host = null;
+    }
 }

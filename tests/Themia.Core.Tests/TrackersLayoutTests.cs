@@ -85,13 +85,14 @@ public class TrackersLayoutTests
     [Fact]
     public void S1443_clipboard_ladder_by_tier()
     {
-        Assert.Equal(new ClipboardPlan(1, false, false, false, true), ClipboardLayout.Plan(XS));
-        Assert.Equal(new ClipboardPlan(1, false, false, false, true), ClipboardLayout.Plan(S));
-        Assert.Equal(new ClipboardPlan(1, false, true, false, false), ClipboardLayout.Plan(M));
-        Assert.Equal(new ClipboardPlan(2, false, true, false, false), ClipboardLayout.Plan(Wide));
-        Assert.Equal(new ClipboardPlan(2, true, false, false, false), ClipboardLayout.Plan(Tall));
-        Assert.Equal(new ClipboardPlan(3, true, false, true, false), ClipboardLayout.Plan(L));
-        Assert.Equal(new ClipboardPlan(3, true, false, true, false), ClipboardLayout.Plan(XL));
+        // L and XL give the rows a third line; no count footer under them (concise: the entries only).
+        Assert.Equal(new ClipboardPlan(1, false, false, true), ClipboardLayout.Plan(XS));
+        Assert.Equal(new ClipboardPlan(1, false, false, true), ClipboardLayout.Plan(S));
+        Assert.Equal(new ClipboardPlan(1, false, true, false), ClipboardLayout.Plan(M));
+        Assert.Equal(new ClipboardPlan(2, false, true, false), ClipboardLayout.Plan(Wide));
+        Assert.Equal(new ClipboardPlan(2, true, false, false), ClipboardLayout.Plan(Tall));
+        Assert.Equal(new ClipboardPlan(3, true, false, false), ClipboardLayout.Plan(L));
+        Assert.Equal(new ClipboardPlan(3, true, false, false), ClipboardLayout.Plan(XL));
     }
 
     [Fact]

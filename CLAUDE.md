@@ -117,13 +117,18 @@ a `WidgetSetup.Needed` rule if it shows nothing unconfigured, and a SPEC section
 
 ## Working conventions
 
-- **Responsive widgets** (`Themia.Core/Widgets`, S-660..S-665): a widget shows more as it grows, by a
+- **Responsive widgets** (`Themia.Core/Widgets`, S-660..S-666): a widget adapts as it grows, by a
   ladder of parts, not by scaling one layout. Implement `IWidgetSizeAware.ApplySize(WidgetArea)`;
   classify on the `WidgetArea` (`WidthClass`/`HeightClass`/`Shape`, breakpoints 180/400/720 and
   128/280/480 DIPs), measure on the deflated box, spend height through one `Disclosure`
   (`Reserve` for the must-show part, `Take` for optional rungs in priority order, `TakeRows` for the
-  list). Costs are line heights, not font sizes; use worst-case text lengths. Empty space at L/XL
-  means a missing rung. Clock and the meters are the reference. Check every size tier on the showcase views.
+  list). Costs are line heights, not font sizes; use worst-case text lengths. **Concise first**
+  ([S-666], user rule): a rung may only add more of the widget's own items (rows, columns, a bigger
+  hero, a meter's graph) or one closely related detail of them — never a control, panel or fact that
+  is another widget's or Windows' job (a device picker, a detail/reading pane, a note list, a
+  counts footer, the next days on "weather now"). Room left at L/XL goes to the core content (a
+  larger ramp step, more rows); if that is used up, empty space is fine. Clock and the meters are the
+  reference. Check every size tier on the showcase views.
 - **Keyboard lease** ([S-800..812]): outside edit mode the surface is `WS_EX_NOACTIVATE`, so no widget
   receives keys by default. A widget that navigates with keys implements `IWidgetKeys.HandleKey(WidgetKey)`
   and gets the lease on a click; a widget with a text box calls `IWidgetSurface.RequestTextInput`

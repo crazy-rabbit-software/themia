@@ -28,12 +28,7 @@ internal sealed partial class RssView
     {
         ClearRows();
 
-        var reading = _plan.Arrangement == FeedArrangement.Reading;
-        var columns = reading ? 1 : Math.Max(1, _plan.Columns);
-
-        ColumnDefinitions[0].Width = reading ? new GridLength(_plan.ListWidth) : new GridLength(1, GridUnitType.Star);
-        ColumnDefinitions[1].Width = reading ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-        _pane.Visibility = reading ? Visibility.Visible : Visibility.Collapsed;
+        var columns = Math.Max(1, _plan.Columns);
 
         _rows.ColumnDefinitions.Clear();
         _rows.RowDefinitions.Clear();
@@ -80,8 +75,7 @@ internal sealed partial class RssView
             return;
         }
 
-        var listWidth = _plan.Arrangement == FeedArrangement.Reading ? _plan.ListWidth : _area.Width;
-        var columnWidth = Math.Max(1, listWidth / columns);
+        var columnWidth = Math.Max(1, _area.Width / columns);
         var heights = new List<double>();
 
         for (var i = 0; i < _rowElements.Count; i++)
@@ -185,7 +179,7 @@ internal sealed partial class RssView
         return row;
     }
 
-    /// <summary>A click focuses the row; on the largest tile it is also what the reading pane shows.</summary>
+    /// <summary>A click focuses the row.</summary>
     private void OnRowTapped(object sender, TappedRoutedEventArgs args)
     {
         if (sender is Border { Tag: int index })
@@ -221,8 +215,7 @@ internal sealed partial class RssView
     /// <summary>
     /// [S-1306] [S-1568] A key from the shell's keyboard lease ([S-800], a click in the widget takes
     /// it): Up/Down (and Left/Right) step, Home/End jump, Enter opens, the Menu key opens the item's
-    /// menu, Escape lets go. In the reading layout the cursor is the selection, so the pane follows
-    /// it. Returns whether the key was used.
+    /// menu, Escape lets go. Returns whether the key was used.
     /// </summary>
     public bool HandleKey(WidgetKey key)
     {
@@ -282,7 +275,6 @@ internal sealed partial class RssView
 
         _cursor = index;
         RowFocus.Mark(_rowElements[index], true);
-        UpdatePane();
     }
 
     private void Unfocus()
@@ -293,7 +285,6 @@ internal sealed partial class RssView
         }
 
         _cursor = null;
-        UpdatePane();
     }
 
     /// <summary>

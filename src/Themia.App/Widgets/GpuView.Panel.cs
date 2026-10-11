@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
+using Themia.App.Services;
+using Themia.App.Services.SystemData;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -16,7 +18,8 @@ internal sealed partial class GpuView
     /// <summary>
     /// One adapter: its load and its history — and, when it shares the tile with other adapters, its
     /// name beside the load. Built once and rewritten in place on every sample, so the tile does not
-    /// flicker as it updates; laid out again whenever its room changes.
+    /// flicker as it updates; laid out again whenever its room changes. The load and the history are
+    /// the hub's series for this adapter ([S-2504]).
     /// </summary>
     private sealed class Panel
     {
@@ -37,6 +40,7 @@ internal sealed partial class GpuView
         private readonly SparkBand _spark;
 
         private GpuConfig _config = new();
+        private SeriesWatch? _watch;
         private bool _stacked;
         private TypeStep _heroStep = FluentType.Subtitle;
 
@@ -80,44 +84,84 @@ internal sealed partial class GpuView
             _config = config;
             _stacked = stacked;
 
-            // [S-1200] The chart holds the configured span at the configured refresh.
+            // [S-1200] The chart holds the configured span at the configured refresh; a longer span
+            // shows the longer history the hub holds at once.
+            var grew = config.GraphCapacity > _spark.Capacity;
             _spark.Capacity = config.GraphCapacity;
+
+            if (grew && _watch is not null)
+            {
+                _spark.Load(_watch.History(_spark.Capacity));
+            }
+
             _name.Visibility = stacked ? Visibility.Visible : Visibility.Collapsed;
             _reading.ColumnDefinitions[0].Width = stacked ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
             _reading.HorizontalAlignment = stacked ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
         }
 
-        public void Show(GpuReading? reading, bool addSample)
+        /// <summary>
+        /// [S-2504] Watch this adapter's series at <paramref name="interval"/> (again when the cadence
+        /// changed): the history so far and the newest load at once, each read after through the watch.
+        /// </summary>
+        public void Watch(SystemHub hub, TimeSpan interval, bool cadenceChanged)
+        {
+            if (_watch is not null && !cadenceChanged)
+            {
+                return;
+            }
+
+            _watch?.Dispose();
+            _watch = hub.WatchSeries(Sources.Gpu, interval, _index.ToString(System.Globalization.CultureInfo.InvariantCulture), OnUpdate);
+            _spark.Load(_watch.History(_spark.Capacity));
+
+            if (_watch.Latest is { } latest)
+            {
+                ShowLoad(latest);
+            }
+        }
+
+        public void Unwatch()
+        {
+            _watch?.Dispose();
+            _watch = null;
+        }
+
+        /// <summary>
+        /// The adapter's name, or [S-433] the adapter is gone — undocked, or the selection names one
+        /// this machine does not have. Said in the panel, not by blanking the tile.
+        /// </summary>
+        public void Name(GpuReading? reading)
         {
             if (reading is null)
             {
-                // [S-433] An adapter that has gone — undocked, or the selection names one this
-                // machine does not have. Said in the panel, not by blanking the tile.
                 _name.Text = Str.WidgetsB_Gpu_Indexed.Format(("index", _index));
-                _hero.Text = "--";
-                _hero.Foreground = UnavailableBrush;
                 return;
             }
 
             _name.Text = GpuRules.ShortName(reading.Name);
             ToolTipService.SetToolTip(_root, reading.Name);
+        }
 
-            if (!reading.HasLoad)
+        private void OnUpdate(SeriesUpdate update)
+        {
+            ShowLoad(update.Reading);
+
+            if (update.Point is { } point)
             {
-                return;
+                _spark.Push(point.First);
             }
+        }
 
-            var fraction = reading.Utilization / 100;
-            _hero.Text = Formatting.Percent(fraction);
-            _hero.Foreground = ReadingBrush;
+        private void ShowLoad(MeterReading reading)
+        {
+            _hero.Text = reading.Primary;
+            _hero.Foreground = reading.Available ? ReadingBrush : UnavailableBrush;
 
             // [S-432] Pressure colours the trace, not the number: the number stays legible in every
             // state, and a trace that turns amber is seen from across the room.
-            _spark.SetBrush(Pressure(GpuRules.LoadPressure(reading.Utilization)));
-
-            if (addSample)
+            if (reading is { Available: true, Value: { } percent })
             {
-                _spark.Push(fraction);
+                _spark.SetBrush(Pressure(GpuRules.LoadPressure(percent)));
             }
         }
 

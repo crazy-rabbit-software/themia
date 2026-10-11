@@ -1,5 +1,5 @@
 using Themia.App.Services;
-using Themia.Core.Localization;
+using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 
@@ -20,9 +20,6 @@ internal sealed class BatteryMeter : MeterPart
     private static readonly string[] ChargingLevels =
         ["", "", "", "", "", "", "", "", "", "", ""];
 
-    private bool _charging;
-    private int? _percent;
-
     public override WidgetKind Kind => WidgetKind.Battery;
 
     public override bool CanBeAbsent => true;
@@ -31,39 +28,13 @@ internal sealed class BatteryMeter : MeterPart
     public override double ReadingCharacters => base.ReadingCharacters + 2;
 
     public override MeterPressure PressureOf(MeterReading reading)
-        => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, _charging);
+        => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, reading.Charging);
 
     /// <summary>[S-1187] The battery glyph, filled to the nearest tenth, with a bolt while charging.</summary>
     public override string? Badge(MeterReading reading)
-        => reading.Available && _percent is { } percent
-            ? (_charging ? ChargingLevels : Levels)[BatteryRules.Level(percent)]
+        => reading is { Available: true, Fraction: { } fraction }
+            ? (reading.Charging ? ChargingLevels : Levels)[BatteryRules.Level((int)Math.Round(fraction * 100))]
             : null;
 
-    public override void Sample(IMeterHost host) => Present(host, SystemMetrics.Battery());
-
-    private void Present(IMeterHost host, BatteryPower? reading)
-    {
-        if (reading is not { } power)
-        {
-            host.Present(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()));
-            return;
-        }
-
-        if (!power.HasBattery)
-        {
-            host.Present(MeterReading.Missing(Str.WidgetsB_Battery_None.Text()));
-            return;
-        }
-
-        if (power.Percent is not { } percent)
-        {
-            host.Present(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()));
-            return;
-        }
-
-        _charging = power.Charging;
-        _percent = percent;
-
-        host.Present(new MeterReading(percent / 100.0, LocaleFormat.Percent(Strings.Current, percent), true));
-    }
+    public override MeterSeries Series(WidgetConfig config) => MeterSeries.Of(Sources.Battery, Interval(config));
 }

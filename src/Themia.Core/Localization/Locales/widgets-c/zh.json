@@ -14,7 +14,6 @@
   "widgetsC.notes.notSaved": "未保存",
   "widgetsC.notes.saved": "已保存",
   "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
-  "widgetsC.notes.deletedPickInList": "此笔记已被删除。\n请在列表中选择其他笔记。",
   "widgetsC.notes.unreadable": "无法读取此笔记。",
   "widgetsC.notes.unavailable": "笔记不可用。",
   "widgetsC.notes.chooseNote": "选择笔记",
@@ -22,7 +21,6 @@
   "widgetsC.notes.deleteNoteEllipsis": "删除笔记…",
   "widgetsC.notes.deleteConfirmTitle": "要删除此笔记吗？",
   "widgetsC.notes.deleteConfirmBody": "“{name}”将从此电脑中删除，所有显示它的小组件都会受影响。其文本无法恢复。",
-  "widgetsC.notes.noNotes": "还没有笔记。",
   "widgetsC.notes.settings.note": "笔记",
   "widgetsC.notes.settings.wrap.label": "自动换行",
   "widgetsC.notes.settings.wrap.desc": "关闭后，长行将横向滚动而不是换行",
@@ -72,10 +70,6 @@
   "widgetsC.power.reason.refused": "Windows 拒绝了该操作",
   "widgetsC.power.reason.windowsError": "Windows 错误 {code}",
   "widgetsC.quote.showAnother": "显示另一条名言",
-  "widgetsC.quote.ofTheDay": "每日名言",
-  "widgetsC.quote.ofTheHour": "每小时名言",
-  "widgetsC.quote.quote": "名言",
-  "widgetsC.quote.captionPosition": "{name} · 第 {position}/{count} 条",
   "widgetsC.quote.quoted": "“{text}”",
   "widgetsC.quote.settings.quotes": "名言",
   "widgetsC.quote.settings.emptyList": "已没有名言。在添加之前，小组件会显示此提示。",
@@ -96,9 +90,7 @@
   "widgetsC.quote.settings.textPlaceholder": "值得反复阅读的话",
   "widgetsC.quote.settings.authorPlaceholder": "出自谁",
   "widgetsC.rss.failure": "{name}：{reason}",
-  "widgetsC.rss.openArticle": "打开文章",
   "widgetsC.rss.untitled": "（无标题）",
-  "widgetsC.rss.paneDate": "{date} {time} · {age}",
   "widgetsC.rss.copyLink": "复制链接",
   "widgetsC.rss.noArticles": "此订阅源没有文章",
   "widgetsC.rss.savedRefreshing": "保存于{age}；正在刷新",
@@ -126,9 +118,6 @@
   "widgetsC.scratchpad.clearDrawing": "清除绘图",
   "widgetsC.scratchpad.clearConfirm": "要清除整个绘图吗？",
   "widgetsC.scratchpad.penSizeTip": "笔触大小 {size} px",
-  "widgetsC.scratchpad.strokes": {
-    "other": "{count} 笔"
-  },
   "widgetsC.scratchpad.settings.inks": "墨色",
   "widgetsC.scratchpad.settings.tools": "工具",
   "widgetsC.scratchpad.settings.showTools.label": "显示工具",
@@ -146,16 +135,9 @@
   "widgetsC.screenTime.switches": {
     "other": "切换 {count} 次"
   },
-  "widgetsC.screenTime.apps": {
-    "other": "{count} 个应用"
-  },
-  "widgetsC.screenTime.statsDay": "{days} 天平均 {average} · 最多 {day} {busiest}",
-  "widgetsC.screenTime.statsWindow": "最多 {day} {busiest} · {apps}",
   "widgetsC.screenTime.notRecording": "Themia 运行时会记录屏幕使用时间",
   "widgetsC.screenTime.noActivityPeriod": "此期间没有活动",
   "widgetsC.screenTime.dailyLimit": "每日限制",
-  "widgetsC.screenTime.usedOf": "{used} / {limit}",
-  "widgetsC.screenTime.usedPerDayOf": "{used}/天 / {limit}",
   "widgetsC.screenTime.limitTip": "限制 {limit}",
   "widgetsC.screenTime.limitOverTip": "限制 {limit}（已超出）",
   "widgetsC.screenTime.settings.period.desc": "一天，或截至今天的滚动时段",
@@ -180,19 +162,6 @@
   "widgetsC.tasks.overdueOn": "已逾期 · {date}",
   "widgetsC.tasks.untitledTask": "（无标题任务）",
   "widgetsC.tasks.untitledList": "无标题列表",
-  "widgetsC.tasks.summary.nothingOpen": "没有未完成的任务",
-  "widgetsC.tasks.summary.open": {
-    "other": "{count} 项未完成"
-  },
-  "widgetsC.tasks.summary.overdue": {
-    "other": "{count} 项逾期"
-  },
-  "widgetsC.tasks.summary.dueToday": {
-    "other": "{count} 项今天到期"
-  },
-  "widgetsC.tasks.summary.done": {
-    "other": "{count} 项已完成"
-  },
   "widgetsC.tasks.completedHeading": "已完成 · {count}",
   "widgetsC.tasks.markDone": "标记为已完成",
   "widgetsC.tasks.markNotDone": "标记为未完成",
@@ -279,13 +248,7 @@
   "widgetsC.volume.noDevice": "没有输出设备",
   "widgetsC.volume.notConnected": "{device} 未连接",
   "widgetsC.volume.unavailable": "声音不可用",
-  "widgetsC.volume.appsOnDevice": "此设备上的应用",
   "widgetsC.volume.followDefault": "跟随默认输出",
-  "widgetsC.volume.microphone": "麦克风",
-  "widgetsC.volume.muteMic": "将麦克风静音",
-  "widgetsC.volume.unmuteMic": "取消麦克风静音",
-  "widgetsC.volume.chooseDevice": "选择输出设备",
-  "widgetsC.volume.notPlaying": "{name}（未在播放）",
   "widgetsC.volume.defaultNotChanged": "未更改默认输出",
   "widgetsC.volume.muted": "已静音",
   "widgetsC.volume.turnedDown": "已调至最低",
@@ -294,9 +257,6 @@
   "widgetsC.volume.settings.showSlider.desc": "关闭后磁贴仅显示数值",
   "widgetsC.volume.settings.meter.label": "电平表",
   "widgetsC.volume.settings.meter.desc": "中等及以上磁贴在滑块上方显示实时电平",
-  "widgetsC.volume.settings.mic.desc": "大磁贴上显示默认麦克风的电平和静音",
-  "widgetsC.volume.settings.apps.label": "应用",
-  "widgetsC.volume.settings.apps.desc": "空间足够的大磁贴上显示在此设备播放的应用",
   "widgetsC.volume.settings.behaviour": "行为",
   "widgetsC.volume.settings.allow.label": "允许更改",
   "widgetsC.volume.settings.allow.desc": "允许此磁贴调整系统音量",
@@ -322,16 +282,6 @@
   "widgetsC.videoStream.settings.note": "也可以通过小组件的右键菜单暂停、旋转和重新连接。已暂停的摄像头在重启后仍保持暂停，且不使用网络。不支持需要用户名和密码的摄像头。",
   "widgetsC.videoStream.settings.refresh.desc": "获取一帧的频率。设为 0 时以摄像头自身帧率保持流打开；其他值则获取一帧后断开，直到下一次",
   "widgetsC.shortcuts.search": "搜索快捷方式",
-  "widgetsC.shortcuts.footer.total": {
-    "other": "{count} 个快捷方式"
-  },
-  "widgetsC.shortcuts.footer.shown": "显示 {shown}/{total} 个",
-  "widgetsC.shortcuts.footer.selected": {
-    "other": "已选择 {count} 个"
-  },
-  "widgetsC.shortcuts.footer.missing": {
-    "other": "{count} 个缺失"
-  },
   "widgetsC.shortcuts.menu.closeSearch": "关闭搜索",
   "widgetsC.shortcuts.menu.undoRemove": "撤销移除",
   "widgetsC.shortcuts.menu.undoRemoveCount": {

@@ -83,15 +83,6 @@ public sealed class ContactsFitTests
         Assert.Equal(2, ContactRules.CardsPerRow(120, large: false));
     }
 
-    [Fact]
-    public void S1274_TheDetailPaneIsForASelectionOnAnXlTile()
-    {
-        Assert.True(ContactRules.ShowsDetailPane(new WidgetArea(800, 516), selected: true));
-        Assert.False(ContactRules.ShowsDetailPane(new WidgetArea(800, 516), selected: false));
-        Assert.False(ContactRules.ShowsDetailPane(new WidgetArea(560, 376), selected: true));
-        Assert.False(ContactRules.ShowsDetailPane(new WidgetArea(800, 200), selected: true));
-    }
-
     [Theory]
     [InlineData(76, ContactSearch.Hidden)]
     [InlineData(116, ContactSearch.Hidden)]

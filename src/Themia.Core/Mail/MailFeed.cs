@@ -19,7 +19,8 @@ public enum MailAccountState
 
 /// <summary>How one account's part of a feed last went.</summary>
 /// <param name="Folder">[S-1285] The folder's total and unread counts as the account last reported them, or null.</param>
-public sealed record MailAccountOutcome(string AccountId, MailAccountState State, FetchStatus Status, string? Detail, MailFolderStatus? Folder = null);
+/// <param name="At">[S-2612] When the stored list was last fetched, or null when nothing is stored.</param>
+public sealed record MailAccountOutcome(string AccountId, MailAccountState State, FetchStatus Status, string? Detail, MailFolderStatus? Folder = null, DateTimeOffset? At = null);
 
 /// <summary>
 /// [S-546] What a widget asks the mail service for. Two widgets asking the same thing share one feed
@@ -31,7 +32,8 @@ public sealed record MailQuery(IReadOnlyList<string> AccountIds, MailFolder Fold
 }
 
 /// <summary>A feed's state at one moment: the merged list (newest first) and how each account last went.</summary>
-public sealed record MailFeedSnapshot(IReadOnlyList<MailMessage> Messages, IReadOnlyList<MailAccountOutcome> Outcomes, bool Busy)
+/// <param name="WriteNote">[S-2624] Changes waiting to reach a provider, or the last one refused, in a sentence; else null.</param>
+public sealed record MailFeedSnapshot(IReadOnlyList<MailMessage> Messages, IReadOnlyList<MailAccountOutcome> Outcomes, bool Busy, string? WriteNote = null)
 {
     public static MailFeedSnapshot Empty { get; } = new([], [], false);
 }
@@ -202,7 +204,7 @@ public static class MailScreens
         var warning = broken.Count > 0
             ? SignInAgain(locale, broken[0].Label)
             : failed.Count > 0
-                ? Strings.Format(locale, Str.WidgetsB_Email_CouldNotRefresh, ("account", failed[0].Account.Label), ("reason", Reason(locale, failed[0].Outcome!.Status)))
+                ? Stamped(locale, Strings.Format(locale, Str.WidgetsB_Email_CouldNotRefresh, ("account", failed[0].Account.Label), ("reason", Reason(locale, failed[0].Outcome!.Status))), failed[0].Outcome!.At)
                 : null;
 
         if (messageCount > 0)
@@ -229,6 +231,12 @@ public static class MailScreens
 
         return new MailScreen(MailScreenKind.Empty, Strings.Format(locale, Str.WidgetsB_Email_NoMessagesIn, ("folder", folder.Label(locale))), false, warning);
     }
+
+    /// <summary>[S-2612] A failure over a stored list also says when that list is from.</summary>
+    private static string Stamped(Locale locale, string sentence, DateTimeOffset? at)
+        => at is { } stamp
+            ? Strings.Format(locale, Str.Sync_WithUpdated, ("sentence", sentence), ("time", Sync.SyncFreshness.When(locale, stamp, DateTimeOffset.Now)))
+            : sentence;
 
     private static string SignInAgain(Locale locale, string account)
         => Strings.Format(locale, Str.WidgetsB_Email_SignInAgain, ("account", account));

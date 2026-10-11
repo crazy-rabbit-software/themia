@@ -1,5 +1,5 @@
 using Themia.App.Services;
-using Themia.Core.Diagnostics;
+using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -7,93 +7,55 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets.Details;
 
 /// <summary>
-/// [S-2430]..[S-2432] One adapter's video memory, load and sensors, from the GPU meter's own shared
-/// sampler (<see cref="GpuSampler"/>: one query, one kernel handle per adapter, sampled on the pool
-/// for every GPU widget at once). The header names the adapter.
+/// [S-2430]..[S-2432] One adapter's video memory, load and sensors, from the GPU meter's own hub feed
+/// (<see cref="GpuSampler"/>: one query, one kernel handle per adapter, sampled on the pool once per
+/// due tick for every GPU widget). The header names the adapter.
 /// </summary>
 internal sealed class GpuDetailPart : DetailPart
 {
+    private readonly WatchSlot<GpuSnapshot> _gpu = new();
     private GpuDetailsConfig _config = new();
-    private bool _held;
-    private bool _inFlight;
-    private bool _detached;
+    private IDetailHost? _host;
 
     public override WidgetKind Kind => WidgetKind.GpuDetails;
 
     public override double HeroCharacters => GpuDetailRules.HeroCharacters;
 
-    public override bool ApplyConfig(WidgetConfig config, IDetailHost host)
+    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
     {
-        var next = config as GpuDetailsConfig ?? new GpuDetailsConfig();
-        var changed = next.Adapter != _config.Adapter;
-        _config = next;
-        return changed;
+        _host = host;
+        _config = config as GpuDetailsConfig ?? new GpuDetailsConfig();
+
+        // Another adapter is the same snapshot, picked again: shown at once.
+        _gpu.Hold(hub, Sources.Gpu, _config.TickInterval, _ => Show());
+        Show();
     }
 
-    public override void Attach()
+    private void Show()
     {
-        _detached = false;
-
-        if (!_held)
-        {
-            GpuSampler.Acquire();
-            _held = true;
-        }
-    }
-
-    public override void Sample(IDetailHost host)
-    {
-        if (_inFlight || _detached || !_held)
+        if (_host is not { } host || !_gpu.HasValue)
         {
             return;
         }
 
-        _inFlight = true;
-        _ = SampleAsync(host);
-    }
+        var snapshot = _gpu.Value;
 
-    private async Task SampleAsync(IDetailHost host)
-    {
-        try
+        if (snapshot.Details.Count == 0)
         {
-            var snapshot = await GpuSampler.SampleAsync().ConfigureAwait(true);
-
-            if (_detached)
-            {
-                return;
-            }
-
-            if (snapshot.Details.Count == 0)
-            {
-                host.SetTitle(null);
-                host.Present(DetailSheet.Missing(Str.Details_Gpu_None.Text()));
-                return;
-            }
-
-            // [S-2431] An adapter that is gone (a removed eGPU) shows the first one rather than nothing.
-            var detail = snapshot.Details[_config.Adapter < snapshot.Details.Count ? _config.Adapter : 0];
-            host.SetTitle(GpuRules.ShortName(detail.Name));
-            host.Present(GpuDetailRules.Sheet(Strings.Current, detail));
+            host.SetTitle(null);
+            host.Present(DetailSheet.Missing(Str.Details_Gpu_None.Text()));
+            return;
         }
-        catch (Exception ex)
-        {
-            // Fire-and-forget from a tick: an escape here would go unobserved.
-            Log.Error(Scope, "could not show the GPU details", ex);
-        }
-        finally
-        {
-            _inFlight = false;
-        }
+
+        // [S-2431] An adapter that is gone (a removed eGPU) shows the first one rather than nothing.
+        var detail = snapshot.Details[_config.Adapter < snapshot.Details.Count ? _config.Adapter : 0];
+        host.SetTitle(GpuRules.ShortName(detail.Name));
+        host.Present(GpuDetailRules.Sheet(Strings.Current, detail));
     }
 
     public override void Detach()
     {
-        _detached = true;
-
-        if (_held)
-        {
-            _held = false;
-            GpuSampler.Release();
-        }
+        _gpu.Release();
+        _host = null;
     }
 }

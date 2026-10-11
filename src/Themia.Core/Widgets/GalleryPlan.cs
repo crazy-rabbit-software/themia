@@ -190,14 +190,10 @@ public sealed record GalleryPlan(
             }
         }
 
-        // The file name at L, and where it sits in the set at XL: words only once the pictures
-        // have all the room they can use.
-        var lines = 0;
-
-        if (area.AtLeast(SizeClass.Expanded, SizeClass.Expanded) && room.Take(TitleCost(gap)))
-        {
-            lines = area.HeightClass >= SizeClass.Huge && room.Take(DetailCost) ? 2 : 1;
-        }
+        // The file name from L, once the pictures have all the room they can use. One line only:
+        // where it sits in the set is the header's counter already, and XL gives the pictures the
+        // room rather than more words.
+        var lines = area.AtLeast(SizeClass.Expanded, SizeClass.Expanded) && room.Take(TitleCost(gap)) ? 1 : 0;
 
         var used = (strip == GalleryStrip.Below ? thumb + gap : 0) + CaptionHeight(lines, gap);
         return new GalleryPlan(GalleryMode.Slideshow, 1, strip, stripCount, thumb, lines, regular, regular,

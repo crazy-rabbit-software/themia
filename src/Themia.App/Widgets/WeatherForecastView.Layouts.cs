@@ -7,7 +7,7 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
-/// <summary>The forecast's three layouts and the Today panel. [S-725]..[S-727]</summary>
+/// <summary>The forecast's three layouts. [S-725]..[S-727]</summary>
 internal sealed partial class WeatherForecastView
 {
     /// <summary>The bar's own thickness. Fluent's hairline would read as a scratch at this length.</summary>
@@ -17,34 +17,7 @@ internal sealed partial class WeatherForecastView
 
     private FrameworkElement BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
     {
-        FrameworkElement list = plan.Stretch ? StretchedRows(days, today, range, plan) : ScrollingRows(days, today, range, plan);
-
-        if (plan.HeroWidth <= 0 && plan.TopHeroHeight <= 0 || days[0].Day != today)
-        {
-            return list;
-        }
-
-        // A Today panel beside the rows (Huge both ways) or above them (a tall column with height
-        // to spare), so extra room holds information rather than taller rows.
-        var hero = TodayPanel(days[0], plan.HeroWidth > 0);
-        var host = new Grid();
-
-        if (plan.HeroWidth > 0)
-        {
-            host.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.HeroWidth) });
-            host.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            SetColumn(list, 1);
-        }
-        else
-        {
-            host.RowDefinitions.Add(new RowDefinition { Height = new GridLength(plan.TopHeroHeight) });
-            host.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            SetRow(list, 1);
-        }
-
-        host.Children.Add(hero);
-        host.Children.Add(list);
-        return host;
+        return plan.Stretch ? StretchedRows(days, today, range, plan) : ScrollingRows(days, today, range, plan);
     }
 
     /// <summary>[S-31] The days fit: one star row each, so the list fills the tile edge to edge.</summary>
@@ -478,109 +451,8 @@ internal sealed partial class WeatherForecastView
         return card;
     }
 
-    // ---- Today panel -------------------------------------------------------------------------
-
-    /// <summary>
-    /// Today at length: the sky, the high and low large, then the day's precipitation, wind, UV and
-    /// the sun's times — what a big tile has room to say about the one day a reader acts on.
-    /// </summary>
-    private FrameworkElement TodayPanel(ForecastDay day, bool beside)
-    {
-        var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", beside ? 56 : 28);
-        icon.HorizontalAlignment = HorizontalAlignment.Left;
-
-        var title = Fluent.Text(FluentType.Caption, "AccentTextFillColorPrimaryBrush");
-        title.Text = Str.Common_Today.Text();
-
-        var sky = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        sky.Text = WeatherReport.Describe(day.Code);
-        sky.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        var temps = Fluent.Text(beside ? FluentType.TitleLarge : FluentType.Subtitle);
-        temps.Text = $"{WeatherReport.Degrees(day.High)} / {WeatherReport.Degrees(day.Low)}";
-
-        var panel = new StackPanel
-        {
-            Spacing = beside ? Fluent.Space2 : Fluent.Space1,
-            Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space2),
-            VerticalAlignment = beside ? VerticalAlignment.Center : VerticalAlignment.Top,
-        };
-
-        if (beside)
-        {
-            panel.Children.Add(title);
-            panel.Children.Add(icon);
-            panel.Children.Add(temps);
-            panel.Children.Add(sky);
-
-            var facts = new StackPanel { Spacing = Fluent.Space2, Margin = new Thickness(0, Fluent.Space4, 0, 0) };
-            AddFact(facts, Glyphs.Droplet, Str.WidgetsC_Weather_Fact_Precipitation.Text(), JoinNonEmpty(WeatherReport.Precipitation(day.Precipitation), WeatherReport.Chance(day.PrecipitationChance)));
-            AddFact(facts, Glyphs.Wind, Str.Weather_Wind.Text(), day.WindMax is null ? string.Empty : WeatherReport.Wind(day.WindMax));
-            AddFact(facts, Glyphs.Sun, Str.WidgetsC_Weather_Fact_UvIndex.Text(), day.UvMax is null ? string.Empty : WeatherReport.Uv(day.UvMax));
-            AddFact(facts, Glyphs.Sun, Str.WidgetUi_Sunrise.Text(), day.Sunrise is null ? string.Empty : WeatherReport.Clock(day.Sunrise));
-            AddFact(facts, Glyphs.Moon, Str.WidgetUi_Sunset.Text(), day.Sunset is null ? string.Empty : WeatherReport.Clock(day.Sunset));
-            panel.Children.Add(facts);
-        }
-        else
-        {
-            // Above a tall column's rows: two lines beside the glyph.
-            var line = new Grid
-            {
-                ColumnSpacing = Fluent.Space3,
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                },
-            };
-
-            var words = new StackPanel { Children = { title, temps, sky } };
-            icon.VerticalAlignment = VerticalAlignment.Center;
-            SetColumn(words, 1);
-            line.Children.Add(icon);
-            line.Children.Add(words);
-            panel.Children.Add(line);
-        }
-
-        return panel;
-    }
-
     private static string JoinNonEmpty(params string[] parts)
         => string.Join(" · ", parts.Where(part => part.Length > 0 && part != "--"));
-
-    private static void AddFact(Panel host, string glyph, string label, string value)
-    {
-        if (value.Length == 0 || value == "--")
-        {
-            return;
-        }
-
-        var icon = Fluent.Icon(glyph, "TextFillColorTertiaryBrush", 14);
-        icon.Margin = new Thickness(0, 0, Fluent.Space2, 0);
-
-        var name = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        name.Text = label;
-
-        var text = Fluent.Text(FluentType.Body);
-        text.Text = value;
-
-        var line = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
-
-        SetColumn(name, 1);
-        SetColumn(text, 2);
-        line.Children.Add(icon);
-        line.Children.Add(name);
-        line.Children.Add(text);
-        host.Children.Add(line);
-    }
 
     // ---- parts -------------------------------------------------------------------------------
 

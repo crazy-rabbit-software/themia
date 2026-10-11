@@ -152,9 +152,6 @@ public static class ContactRules
     /// <summary>[S-1270] Below this column width a row gives the avatar's room to the name.</summary>
     public const double AvatarFrom = 180;
 
-    /// <summary>[S-1274] The selected person's detail pane beside the list.</summary>
-    public const double DetailPaneWidth = 300;
-
     /// <summary>[S-1275] From this height the search box is always there.</summary>
     public const double SearchFrom = 220;
 
@@ -276,10 +273,6 @@ public static class ContactRules
         => !(height > 0) || height >= SearchFrom ? ContactSearch.Shown
             : height >= SearchOnDemandFrom ? ContactSearch.OnDemand
             : ContactSearch.Hidden;
-
-    /// <summary>[S-1274] Whether the selected person gets a detail pane beside the list (an XL tile, someone selected).</summary>
-    public static bool ShowsDetailPane(WidgetArea area, bool selected)
-        => selected && area.IsMeasured && area.WidthClass >= SizeClass.Huge && area.HeightClass >= SizeClass.Expanded;
 
     /// <summary>[S-1273] Large grid cards (a 56 px avatar and a second line) on a tile tall and wide enough for two rows of them.</summary>
     public static bool LargeCards(WidgetArea area)

@@ -18,7 +18,6 @@ internal static unsafe partial class CoreAudio
     private const uint ClsCtxInprocServer = 0x1;
     private const uint CoInitMultithreaded = 0x0;
     private const int DataFlowRender = 0;
-    private const int DataFlowCapture = 1;
 
     /// <summary>eConsole: the device the volume keys, the flyout and Sound settings' "default" act on.</summary>
     private const int RoleConsole = 0;
@@ -308,7 +307,7 @@ internal static unsafe partial class CoreAudio
 
         [UnmanagedCallersOnly]
         private static int OnDefaultDeviceChanged(nint self, int flow, int role, char* id)
-            => role == RoleConsole && (flow == DataFlowRender || flow == DataFlowCapture) ? Wake(Change.Default) : 0;
+            => role == RoleConsole && flow == DataFlowRender ? Wake(Change.Default) : 0;
 
         /// <summary>Only a rename matters; the rest of a device's properties change often and mean nothing here.</summary>
         [UnmanagedCallersOnly]

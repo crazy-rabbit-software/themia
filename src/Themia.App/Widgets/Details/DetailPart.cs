@@ -1,26 +1,31 @@
+using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets.Details;
 
-/// <summary>What a detail part hands its reads to: the shared <see cref="DetailView"/>.</summary>
+/// <summary>What a detail part hands its sheets to: the shared <see cref="DetailView"/>.</summary>
 internal interface IDetailHost
 {
-    /// <summary>Put one read on screen. May come later than the tick that asked (a probe, a pool read).</summary>
+    /// <summary>Put one sheet on screen. Called from the part's hub callbacks, on the UI thread.</summary>
     void Present(DetailSheet sheet);
 
     /// <summary>Offer the card a title the kind knows (an adapter's name, a host's label); null for the catalogue's.</summary>
     void SetTitle(string? title);
 
-    /// <summary>Read now rather than at the next tick (Refresh).</summary>
+    /// <summary>[S-2510] Read now rather than at the next tick (Refresh).</summary>
     void SampleNow();
 }
 
 /// <summary>
-/// [S-2400] One detail kind's half of a detail widget: where its figures come from and what they
-/// mean. <see cref="DetailView"/> owns the other half — where the hero, the facts and the list go at
-/// each size ([S-2402]) — so a kind never lays anything out, and each kind lives in its own file
+/// [S-2400] One detail kind's half of a detail widget: which hub feeds its figures come from and what
+/// they mean. <see cref="DetailView"/> owns the other half — where the hero, the facts and the list go
+/// at each size ([S-2402]) — so a kind never lays anything out, and each kind lives in its own file
 /// (<c>Details/&lt;Kind&gt;Detail.cs</c>).
+/// <para>
+/// [S-2500] A part reads nothing itself: it watches the system hub's feeds in <see cref="Watch"/> and
+/// builds its sheet from their snapshots, and lets go of them in <see cref="Detach"/> ([S-1881]).
+/// </para>
 /// </summary>
 internal abstract class DetailPart
 {
@@ -46,16 +51,17 @@ internal abstract class DetailPart
     /// <summary>[S-2404] Whether Enter on a row does something (opens a drive).</summary>
     public virtual bool RowsOpen => false;
 
-    /// <summary>Take a new config (already the right kind). True when a read is due now (the host changed).</summary>
-    public virtual bool ApplyConfig(WidgetConfig config, IDetailHost host) => false;
+    /// <summary>
+    /// Take a config (already the right kind) and hold the feeds it needs: on Attach and on every
+    /// config change. A feed that is held already is kept; the sheet is presented from what the feeds
+    /// hold, at once when they have been read.
+    /// </summary>
+    public abstract void Watch(SystemHub hub, WidgetConfig config, IDetailHost host);
 
-    /// <summary>[S-1881] Take the shared readers' leases; only from the view's Attach.</summary>
-    public virtual void Attach()
+    /// <summary>[S-2510] Read now (a Refresh command).</summary>
+    public virtual void Refresh()
     {
     }
-
-    /// <summary>Read once and hand the sheet to <paramref name="host"/>. Runs on the UI thread's tick.</summary>
-    public abstract void Sample(IDetailHost host);
 
     /// <summary>Commands for the card's right-click menu, read each time it opens.</summary>
     public virtual IReadOnlyList<WidgetAction> ContextActions(IDetailHost host) => [];
@@ -65,10 +71,11 @@ internal abstract class DetailPart
     {
     }
 
-    /// <summary>Let go of every lease and anything in flight. Safe twice.</summary>
-    public virtual void Detach()
-    {
-    }
+    /// <summary>Let go of every feed. Safe twice.</summary>
+    public abstract void Detach();
+
+    /// <summary>The cadence a detail config asks for ([S-2401]).</summary>
+    protected static TimeSpan Interval(WidgetConfig config) => (config as DetailConfig)?.TickInterval ?? TimeSpan.FromSeconds(2);
 
     /// <summary>The part for a detail kind.</summary>
     public static DetailPart For(WidgetKind kind) => kind switch

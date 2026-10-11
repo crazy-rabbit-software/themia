@@ -32,7 +32,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-1443] The tile uses its room through <see cref="ClipboardLayout.Plan"/>: one line per row on
 /// a small tile, wrapped two- and three-line previews as it grows, a detail line (when · how much)
-/// on tall tiles, a time column where the width allows, and a count footer on large ones.
+/// on tall tiles and a time column where the width allows; nothing but the entries.
 /// </para>
 /// </summary>
 internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
@@ -50,7 +50,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     private readonly ScrollViewer _scroll;
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
-    private readonly TextBlock _footer = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
 
     /// <summary>One per row, so the hover and menu handlers come off with the rows they serve.</summary>
     private readonly List<IDisposable> _rowHandles = [];
@@ -95,13 +94,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         _empty = Fluent.EmptyState(Glyphs.Clipboard, _emptyText, out _);
         SetRowSpan(_empty, 2);
 
-        _footer.Margin = WidgetLayout.FooterInset;
-        _footer.TextAlignment = TextAlignment.Right;
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_footer, FontNumeralAlignment.Tabular);
-        SetRow(_footer, 1);
-
         Children.Add(_scroll);
-        Children.Add(_footer);
         Children.Add(_empty);
     }
 
@@ -203,7 +196,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
             _empty.Visibility = Visibility.Visible;
             _scroll.Visibility = Visibility.Collapsed;
-            _footer.Visibility = Visibility.Collapsed;
             _cursor = null;
             return;
         }
@@ -224,9 +216,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
         _cursor = _cursor is { } cursor && cursor < _history.Count ? cursor : null;
         ShowCursor();
-
-        _footer.Visibility = _plan.Footer ? Visibility.Visible : Visibility.Collapsed;
-        _footer.Text = ClipboardLayout.CountLine(_history.Count, _history.Capacity, Strings.Current);
     }
 
     private Border BuildRow(ClipboardEntry entry, bool current, DateTimeOffset now)
@@ -526,7 +515,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         Render();
     }
 
-    /// <summary>[S-1109] Rows, sizes and the footer are worded again in the new language.</summary>
+    /// <summary>[S-1109] Rows and sizes are worded again in the new language.</summary>
     private void OnLanguage(Locale locale)
     {
         ToolTipService.SetToolTip(_clear, Str.Clipboard_ClearHistory.Text());

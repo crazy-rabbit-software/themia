@@ -2,6 +2,7 @@ using System.Globalization;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Web;
@@ -312,77 +313,69 @@ internal static class WeatherService
     // ---- [S-729] persistence -----------------------------------------------------------------
 
     private static readonly Lock PersistGate = new();
-    private static string? _persistPath;
-    private static Task _writes = Task.CompletedTask;
+    private static SyncVault? _vault;
 
     /// <summary>
-    /// [S-729] Keep the last good answers in <paramref name="path"/> across restarts: read them back
-    /// now (marked restored, so they draw at once as stale and are fetched again), and save after
-    /// every fetch that brings a new one. Called once, by the app; a debug render never calls it, so a
-    /// render neither reads nor writes the user's file.
+    /// [S-729] [S-2660] Restore the last readings and forecasts from the offline store's sealed web
+    /// shelf, and save there after each fetch that brings a new answer. Only the app calls this; a
+    /// detached store (a debug render) reads and writes nothing.
     /// </summary>
-    public static void Persist(string path)
+    public static void Persist(SyncVault vault)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ArgumentNullException.ThrowIfNull(vault);
 
-        var (snapshot, outcome) = WeatherCacheStore.Load(path, DateTimeOffset.Now);
-
-        foreach (var entry in snapshot.Current)
+        var read = vault.Load(SyncKind.Web, WebShelf.WeatherOwner, SyncJsonContext.Default.WebShelf, WebShelf.Version);
+        if (read.Value is { } shelf)
         {
-            CurrentCache.Restore(entry.Key, entry.Value, entry.At);
-        }
+            if (WeatherCacheStore.Parse(shelf.Json, DateTimeOffset.Now) is { } snapshot)
+            {
+                foreach (var entry in snapshot.Current)
+                {
+                    CurrentCache.Restore(entry.Key, entry.Value, entry.At);
+                }
 
-        foreach (var entry in snapshot.Forecasts)
-        {
-            ForecastCache.Restore(entry.Key, entry.Value, entry.At);
-        }
+                foreach (var entry in snapshot.Forecasts)
+                {
+                    ForecastCache.Restore(entry.Key, entry.Value, entry.At);
+                }
 
-        if (outcome == WeatherCacheLoadOutcome.Loaded)
-        {
-            Log.Info(Scope, $"restored {snapshot.Current.Count} readings and {snapshot.Forecasts.Count} forecasts");
+                Log.Info(Scope, $"restored {snapshot.Current.Count} readings and {snapshot.Forecasts.Count} forecasts");
+            }
+            else
+            {
+                Log.Warn(Scope, "the stored weather is from another version or damaged; starting without it");
+            }
         }
 
         lock (PersistGate)
         {
-            _persistPath = path;
+            _vault = vault;
         }
     }
 
-    /// <summary>
-    /// Queue a save of both caches. One writer: each save runs after the one before it, off the UI
-    /// thread, with the snapshot taken now.
-    /// </summary>
     private static void SaveSoon()
     {
+        SyncVault? vault;
         lock (PersistGate)
         {
-            if (_persistPath is not { } path)
-            {
-                return;
-            }
-
-            var snapshot = new WeatherCacheSnapshot(
-                [.. CurrentCache.Snapshot().Select(pair => new CachedWeather<CurrentWeather>(pair.Key, pair.Entry.At, pair.Entry.Value!))],
-                [.. ForecastCache.Snapshot().Select(pair => new CachedWeather<Forecast>(pair.Key, pair.Entry.At, pair.Entry.Value!))]);
-
-            _writes = _writes.ContinueWith(
-                _ =>
-                {
-                    try
-                    {
-                        WeatherCacheStore.Save(path, snapshot);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Save handles the I/O failures it expects; anything here is a bug, logged
-                        // rather than left to fault a task nobody observes.
-                        Log.Error(Scope, "saving the weather cache threw", ex);
-                    }
-                },
-                CancellationToken.None,
-                TaskContinuationOptions.None,
-                TaskScheduler.Default);
+            vault = _vault;
         }
+
+        if (vault is null)
+        {
+            return;
+        }
+
+        var current = CurrentCache.Snapshot();
+        var forecasts = ForecastCache.Snapshot();
+
+        vault.SaveSoon(SyncKind.Web, WebShelf.WeatherOwner, () => new WebShelf
+        {
+            Owner = WebShelf.WeatherOwner,
+            Json = WeatherCacheStore.Serialize(new WeatherCacheSnapshot(
+                [.. current.Select(pair => new CachedWeather<CurrentWeather>(pair.Key, pair.Entry.At, pair.Entry.Value!))],
+                [.. forecasts.Select(pair => new CachedWeather<Forecast>(pair.Key, pair.Entry.At, pair.Entry.Value!))])),
+        }, SyncJsonContext.Default.WebShelf);
     }
 
     /// <summary>

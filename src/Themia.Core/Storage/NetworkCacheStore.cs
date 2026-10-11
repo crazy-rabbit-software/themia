@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Storage;
@@ -17,35 +16,21 @@ public sealed record NetworkCacheSnapshot(
     public static NetworkCacheSnapshot Empty { get; } = new([], []);
 }
 
-/// <summary>How the cache came off disk.</summary>
-public enum NetworkCacheLoadOutcome
-{
-    /// <summary>No file yet.</summary>
-    Fresh = 0,
-
-    Loaded = 1,
-
-    /// <summary>The file could not be used; set aside when corrupt, and the cache starts empty.</summary>
-    Recovered = 2,
-}
-
 /// <summary>
-/// [S-1300] The feed and stock widgets' last good answers, kept across restarts in
-/// <c>network_cache.json</c> beside the app state (the original's localStorage cache, S-23/S-29),
-/// so a cold launch draws the last headlines and price at once instead of "Loading" — marked
-/// restored, so the header shows their real age in the caution colour until a fetch replaces them.
+/// [S-1300] [S-2660] The feed and stock widgets' last good answers as a document, kept across
+/// restarts in the sealed web shelf of the offline store (the original's localStorage cache,
+/// S-23/S-29), so a cold launch draws the last headlines and price at once instead of "Loading" —
+/// marked restored, so the header shows their real age in the caution colour until a fetch replaces them.
 /// <para>
-/// Its own file, never the state file: it is somebody else's data and must never ride along in an
-/// export. Schema-versioned and validated on the way in, because every string in it came from a
-/// stranger first: a file that is not this schema is set aside as <c>.corrupt</c>; an entry that does
-/// not hold a usable feed or quote is dropped, as is anything older than <see cref="MaxAge"/>.
+/// Never the state file: it is somebody else's data and must never ride along in an export.
+/// Schema-versioned and validated on the way in, because every string in it came from a stranger
+/// first: a document that is not this schema is refused whole; an entry that does not hold a usable
+/// feed or quote is dropped, as is anything older than <see cref="MaxAge"/>.
 /// </para>
 /// </summary>
 public static class NetworkCacheStore
 {
     public const int SchemaVersion = 1;
-
-    public const string FileName = "network_cache.json";
 
     /// <summary>The oldest answer worth restoring.</summary>
     public static TimeSpan MaxAge { get; } = TimeSpan.FromDays(7);
@@ -55,50 +40,6 @@ public static class NetworkCacheStore
     private const int MaxItems = 200;
     private const int MaxBars = 4000;
     private const int MaxText = 1000;
-
-    private const string Scope = "network-cache";
-
-    private static long _tempSequence;
-
-    /// <summary>Read the cache. Never throws for bad data: absent is empty; locked is empty and a warning; corrupt is set aside.</summary>
-    public static (NetworkCacheSnapshot Snapshot, NetworkCacheLoadOutcome Outcome) Load(string path, DateTimeOffset now)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-        string json;
-        try
-        {
-            if (!File.Exists(path))
-            {
-                return (NetworkCacheSnapshot.Empty, NetworkCacheLoadOutcome.Fresh);
-            }
-
-            json = File.ReadAllText(path);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            Log.Warn(Scope, $"could not read {path}; starting without saved feeds and quotes", ex);
-            return (NetworkCacheSnapshot.Empty, NetworkCacheLoadOutcome.Recovered);
-        }
-
-        if (Parse(json, now) is { } snapshot)
-        {
-            return (snapshot, NetworkCacheLoadOutcome.Loaded);
-        }
-
-        Log.Warn(Scope, $"{path} is corrupt or from another version; starting without saved feeds and quotes");
-
-        try
-        {
-            File.Move(path, path + ".corrupt", overwrite: true);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            Log.Warn(Scope, "could not set the unreadable cache aside", ex);
-        }
-
-        return (NetworkCacheSnapshot.Empty, NetworkCacheLoadOutcome.Recovered);
-    }
 
     /// <summary>Parse a cache, or null when the envelope is not one this build trusts. Unusable entries are dropped.</summary>
     public static NetworkCacheSnapshot? Parse(string json, DateTimeOffset now)
@@ -169,44 +110,6 @@ public static class NetworkCacheStore
         };
 
         return JsonSerializer.Serialize(file, NetworkCacheJsonContext.Default.NetworkCacheFile);
-    }
-
-    /// <summary>Write atomically (unique temp file, then rename). The caller is the single writer.</summary>
-    /// <returns>False when the write failed; logged, and the old file is untouched.</returns>
-    public static bool Save(string path, NetworkCacheSnapshot snapshot)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-        var json = Serialize(snapshot);
-        var temp = $"{path}.tmp.{Environment.ProcessId}.{Interlocked.Increment(ref _tempSequence)}";
-
-        try
-        {
-            var directory = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            File.WriteAllText(temp, json);
-            File.Move(temp, path, overwrite: true);
-            return true;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            Log.Error(Scope, $"could not save {path}", ex);
-
-            try
-            {
-                File.Delete(temp);
-            }
-            catch (Exception cleanup) when (cleanup is IOException or UnauthorizedAccessException)
-            {
-                Log.Warn(Scope, "could not remove the temp cache file", cleanup);
-            }
-
-            return false;
-        }
     }
 
     private static DateTimeOffset? Usable(string? key, DateTimeOffset? at, DateTimeOffset now)

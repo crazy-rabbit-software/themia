@@ -23,9 +23,25 @@ internal static class AppServices
     public static Accounts.AccountService? Accounts { get; internal set; }
 
     /// <summary>
+    /// [S-2600] The offline sync store and the widgets' needs across every view. Null before the host
+    /// has started; detached (reads and writes nothing) in a debug render.
+    /// </summary>
+    public static Sync.SyncHost? Sync { get; internal set; }
+
+    /// <summary>[S-2661] The feeds every Rss widget reads, kept fresh in the background. Null before the host has started.</summary>
+    public static Web.FeedSync? Feeds { get; internal set; }
+
+    /// <summary>
     /// [S-459] Where screen-time widgets read from: the host's one tracker. Null before the host has started.
     /// </summary>
     public static IScreenTimeSource? ScreenTime { get; internal set; }
+
+    /// <summary>
+    /// [S-2500] Where every system widget (meters, GPU, the detail widgets) gets its figures: the
+    /// host's one <see cref="SystemData.SystemHub"/>, on the shared ticker. A debug render sets its own.
+    /// Null before the host has started.
+    /// </summary>
+    public static SystemData.SystemHub? System { get; internal set; }
 
     /// <summary>
     /// [S-546] Where Mail widgets read from: the host's one <see cref="Mail.MailService"/>.

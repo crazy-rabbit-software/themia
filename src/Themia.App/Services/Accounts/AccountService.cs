@@ -151,7 +151,20 @@ internal sealed partial class AccountService : IDisposable
 
         _problems.TryRemove(accountId, out _);
         Log.Info(Scope, $"signed out of {accountId}");
+
+        // [S-2607] Whatever was synced for the account goes with it.
+        try
+        {
+            SignedOut?.Invoke(accountId);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "a sign-out listener threw", ex);
+        }
     }
+
+    /// <summary>[S-2607] Raised after an account was signed out and saved, on whichever thread the save finished.</summary>
+    public event Action<string>? SignedOut;
 
     public void Dispose()
     {
@@ -162,6 +175,7 @@ internal sealed partial class AccountService : IDisposable
 
         _disposed = true;
         AccountsChanged = null;
+        SignedOut = null;
     }
 
     // -----------------------------------------------------------------------------------------

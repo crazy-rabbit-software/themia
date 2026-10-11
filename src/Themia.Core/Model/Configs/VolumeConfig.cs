@@ -34,12 +34,6 @@ public sealed class VolumeConfig : WidgetConfig
     /// <summary>[S-1223] A live level meter above the slider, from a medium tile up.</summary>
     public bool ShowPeaks { get; set; } = true;
 
-    /// <summary>[S-1224] The default microphone's level and mute as a second row on a large tile.</summary>
-    public bool ShowMicrophone { get; set; } = true;
-
-    /// <summary>[S-1231] The apps playing on the device, as read-only level bars on the largest tile.</summary>
-    public bool ShowApps { get; set; } = true;
-
     public override WidgetConfig Clone() => new VolumeConfig
     {
         DeviceId = DeviceId,
@@ -47,8 +41,6 @@ public sealed class VolumeConfig : WidgetConfig
         AllowControl = AllowControl,
         ShowSlider = ShowSlider,
         ShowPeaks = ShowPeaks,
-        ShowMicrophone = ShowMicrophone,
-        ShowApps = ShowApps,
     };
 
     /// <summary>A blank id is "follow the default", stored as null so there is one way to say it.</summary>

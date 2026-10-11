@@ -48,27 +48,21 @@ internal sealed record GpuSnapshot(IReadOnlyList<GpuAdapter> Adapters, IReadOnly
 /// without it costs one failed <c>LoadLibrary</c> and nothing else.
 /// </para>
 /// <para>
-/// <b>Shared and lazy.</b> One query, opened when the first GPU widget appears and closed when the
-/// last one goes. Widgets ask at their own cadence; a request that lands within half a second of the
-/// last sample gets that sample, and a request while one is being taken waits for it rather than
-/// starting another. Sampling runs on the thread pool: a counter array of a few hundred engine
-/// instances is not something to walk on the UI thread.
+/// <b>Shared and lazy.</b> One query, opened when the system hub's GPU source opens and closed when
+/// it closes ([S-2505]). The hub asks once per due tick for every GPU widget ([S-2501]); a request
+/// while one is being taken waits for it rather than starting another. Sampling runs on the thread
+/// pool: a counter array of a few hundred engine instances is not something to walk on the UI thread.
 /// </para>
 /// </summary>
 internal static partial class GpuSampler
 {
     private const string Scope = "gpu";
 
-    /// <summary>A sample younger than this is handed out again rather than taken afresh.</summary>
-    private static readonly TimeSpan Fresh = TimeSpan.FromMilliseconds(500);
-
     private static readonly Lock Gate = new();
 
     private static int _users;
     private static Session? _session;
     private static Task<GpuSnapshot>? _inFlight;
-    private static GpuSnapshot? _last;
-    private static long _lastAt;
 
     /// <summary>Start sharing the sampler. Pair every call with <see cref="Release"/>.</summary>
     public static void Acquire()
@@ -101,7 +95,6 @@ internal static partial class GpuSampler
             pending = _inFlight;
             _session = null;
             _inFlight = null;
-            _last = null;
         }
 
         if (closing is null)
@@ -129,18 +122,13 @@ internal static partial class GpuSampler
     }
 
     /// <summary>
-    /// A sample of every adapter: the last one when it is fresh, the one being taken when there is
-    /// one, otherwise a new one. Never faults: a failure is logged and reads as no adapters.
+    /// A sample of every adapter: the one being taken when there is one, otherwise a new one. Never
+    /// faults: a failure is logged and reads as no adapters.
     /// </summary>
     public static Task<GpuSnapshot> SampleAsync()
     {
         lock (Gate)
         {
-            if (_last is not null && Stopwatch.GetElapsedTime(_lastAt) < Fresh)
-            {
-                return Task.FromResult(_last);
-            }
-
             if (_inFlight is not null)
             {
                 return _inFlight;
@@ -172,8 +160,6 @@ internal static partial class GpuSampler
         {
             if (ReferenceEquals(_session, session))
             {
-                _last = snapshot;
-                _lastAt = Stopwatch.GetTimestamp();
                 _inFlight = null;
             }
         }

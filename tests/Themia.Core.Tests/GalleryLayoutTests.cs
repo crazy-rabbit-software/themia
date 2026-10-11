@@ -227,8 +227,10 @@ public class GalleryLayoutTests
         Assert.Equal(5, l.StripCount);
         Assert.Equal(1, l.CaptionLines);
 
+        // XL gives the pictures more room, not more words: the file name stays the one line
+        // (no "3 of 24 · folder" line under it).
         var xl = At(800, 516);
-        Assert.Equal(2, xl.CaptionLines);
+        Assert.Equal(1, xl.CaptionLines);
         Assert.True(xl.StripCount > l.StripCount);
     }
 

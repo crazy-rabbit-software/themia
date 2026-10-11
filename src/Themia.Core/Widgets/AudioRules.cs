@@ -197,7 +197,7 @@ public static class AudioRules
     /// zero ten times a second; repainting zero over zero is work for nothing, so silence is sent
     /// once and then not again until something moves.
     /// </summary>
-    public static bool PeaksWorthSending(bool previousSilent, double output, double microphone, IReadOnlyDictionary<string, double> byKey)
+    public static bool PeaksWorthSending(bool previousSilent, double output, IReadOnlyDictionary<string, double> byKey)
     {
         ArgumentNullException.ThrowIfNull(byKey);
 
@@ -206,6 +206,6 @@ public static class AudioRules
             return true;
         }
 
-        return output > 0 || microphone > 0 || byKey.Values.Any(static peak => peak > 0);
+        return output > 0 || byKey.Values.Any(static peak => peak > 0);
     }
 }

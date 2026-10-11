@@ -127,6 +127,9 @@ internal static class WidgetRender
                 window.AppWindow.Show(activateWindow: false);
 
                 ticker = new Ticker(dispatcher);
+
+                // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
+                AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
                 var host = new NoticeRender.RenderCardHost(ticker);
                 Place(page, host, kind, tiers, cards);
                 await Task.Delay(800).ConfigureAwait(true);
@@ -137,6 +140,13 @@ internal static class WidgetRender
                     {
                         if (card.View is IWidgetPreviewState preview)
                         {
+                            // [S-2711] A preview state draws over fixture data: no account is needed.
+                            if (card.ShowsSetup)
+                            {
+                                card.RunForPreview();
+                                await Task.Delay(200).ConfigureAwait(true);
+                            }
+
                             if (!preview.PreviewStates.Contains(state, StringComparer.Ordinal))
                             {
                                 Console.WriteLine($"widget: {kind} has no state '{state}' (has: {string.Join(", ", preview.PreviewStates)})");
@@ -181,6 +191,8 @@ internal static class WidgetRender
                     card.Detach();
                 }
 
+                AppServices.System?.Dispose();
+                AppServices.System = null;
                 ticker?.Dispose();
                 window?.Close();
                 app.Exit();

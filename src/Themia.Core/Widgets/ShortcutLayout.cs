@@ -89,8 +89,6 @@ public static class ShortcutLayout
     /// <summary>[S-1382] The detail line under a tile's name appears only on the largest tiles (XL).</summary>
     public static bool GridDetail(WidgetArea area) => area.AtLeast(SizeClass.Huge, SizeClass.Huge);
 
-    /// <summary>[S-1384] The status footer ("5 shortcuts", "2 selected") only on the tallest tiles.</summary>
-    public static bool Footer(WidgetArea area) => area.AtLeast(SizeClass.Expanded, SizeClass.Huge);
 
     /// <summary>
     /// [S-1382] Tile <paramref name="count"/> items into a <paramref name="width"/> ×

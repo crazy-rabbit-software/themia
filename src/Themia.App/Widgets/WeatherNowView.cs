@@ -17,8 +17,8 @@ namespace Themia.App.Widgets;
 /// A readout that grows with its tile ([S-723]): the temperature alone at the smallest size, then a
 /// "Feels" token, then a flat row of icon + label + value cells (the original's details, S-07),
 /// today's high and low, the next 24 hours as a chart, and at the largest size a second row of
-/// readings and the next days. A strip puts the readings beside the number, a tall column stacks
-/// them as rows under it. The ladder is <see cref="WeatherNowLayout"/>; this view only builds it.
+/// readings (the next days are the forecast widget's, never drawn here). A strip puts the readings
+/// beside the number, a tall column stacks them as rows under it. The ladder is <see cref="WeatherNowLayout"/>; this view only builds it.
 /// </para>
 /// <para>
 /// The header carries how old the reading is, always, in every state. That line is the reason this
@@ -35,9 +35,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     /// <summary>The widest reading this widget prints, in characters — "-18°F". Stable, so the step is.</summary>
     private const double ReadingCharacters = 5;
 
-    /// <summary>The days the strip shows after today.</summary>
-    private const int DailyCount = 5;
-
     private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly TextBlock _temperature = Fluent.Text(FluentType.Subtitle);
     private readonly TextBlock _condition = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
@@ -51,7 +48,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private readonly Grid _cells = new() { ColumnSpacing = WeatherNowLayout.CellGap, RowSpacing = WeatherNowLayout.Gap };
     private readonly Grid _side = new() { ColumnSpacing = Fluent.Space4, RowSpacing = WeatherNowLayout.SideGap, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _stack = new();
-    private readonly Grid _daily = new();
     private readonly WeatherHourlyChart _chart = new();
 
     private readonly StackPanel _emptyState;
@@ -90,7 +86,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private Fetched<CurrentWeather>? _reading;
     private IReadOnlyList<WeatherFact> _facts = [];
     private IReadOnlyList<HourlyPoint> _hours = [];
-    private IReadOnlyList<ForecastDay> _days = [];
     private WidgetArea _area;
     private WeatherNowPlan? _built;
     private bool _detached;
@@ -138,13 +133,11 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         _feels.TextTrimming = TextTrimming.CharacterEllipsis;
         _cells.Margin = new Thickness(WeatherNowLayout.Inset, WeatherNowLayout.Gap, WeatherNowLayout.Inset, 0);
         _stack.Margin = new Thickness(0, WeatherNowLayout.Gap, 0, 0);
-        _daily.Margin = new Thickness(WeatherNowLayout.Inset, WeatherNowLayout.Gap, WeatherNowLayout.Inset, 0);
         _chart.Margin = new Thickness(0, WeatherNowLayout.Gap, 0, 0);
 
         SetRow(_feels, 1);
         SetRow(_cells, 1);
         SetRow(_stack, 1);
-        SetRow(_daily, 2);
         SetRow(_chart, 3);
 
         _emptyState = Fluent.EmptyState(Glyphs.Weather, _emptyMessage, out _emptyIcon);
@@ -155,11 +148,10 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         Children.Add(_feels);
         Children.Add(_cells);
         Children.Add(_stack);
-        Children.Add(_daily);
         Children.Add(_chart);
         Children.Add(_emptyState);
 
-        Collapse(_feels, _cells, _side, _stack, _daily, _chart);
+        Collapse(_feels, _cells, _side, _stack, _chart);
     }
 
     /// <summary>
@@ -382,7 +374,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
             _emptyIcon.Glyph = Glyphs.Weather;
             _emptyState.Visibility = Visibility.Visible;
-            Collapse(_top, _feels, _cells, _stack, _daily, _chart);
+            Collapse(_top, _feels, _cells, _stack, _chart);
             _freshness.Text = string.Empty;
             _built = null;
             return;
@@ -402,7 +394,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         // The chart starts at the current hour; hours already past are not "next".
         var hourAgo = now.AddMinutes(-59);
         _hours = [.. reading.Hours.Where(hour => hour.At >= hourAgo).Take(24)];
-        _days = [.. reading.Days.Skip(1).Take(DailyCount)];
         _chart.SetHours(_hours, _config.Unit);
 
         // The age of the reading, and — when the last attempt to refresh it failed, or it was read
@@ -440,12 +431,12 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         var width = Math.Max(0, _area.Width - (2 * WeatherNowLayout.Inset));
         var hasToday = _highLow.Text.Length > 0;
 
-        var plan = WeatherNowLayout.Plan(_area, HeroFloor(width), _facts.Count, _config.ShowDetails, hasToday, _hours.Count, _days.Count);
+        var plan = WeatherNowLayout.Plan(_area, HeroFloor(width), _facts.Count, _config.ShowDetails, hasToday, _hours.Count);
 
         // A strip's readings column narrows the reading; measure the floor again for what is left.
         if (plan.Detail == WeatherDetailMode.Side)
         {
-            plan = WeatherNowLayout.Plan(_area, HeroFloor(width - plan.SideWidth - Fluent.Space4), _facts.Count, _config.ShowDetails, hasToday, _hours.Count, _days.Count);
+            plan = WeatherNowLayout.Plan(_area, HeroFloor(width - plan.SideWidth - Fluent.Space4), _facts.Count, _config.ShowDetails, hasToday, _hours.Count);
         }
 
         if (plan != _built)
@@ -472,7 +463,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     /// <summary>Build the rungs the plan has up, and hide the rest.</summary>
     private void Build(WeatherNowPlan plan)
     {
-        Collapse(_feels, _cells, _side, _stack, _daily, _chart);
+        Collapse(_feels, _cells, _side, _stack, _chart);
         _cells.Children.Clear();
         _cells.ColumnDefinitions.Clear();
         _cells.RowDefinitions.Clear();
@@ -480,8 +471,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         _side.ColumnDefinitions.Clear();
         _side.RowDefinitions.Clear();
         _stack.Children.Clear();
-        _daily.Children.Clear();
-        _daily.ColumnDefinitions.Clear();
 
         _highLow.Visibility = plan.HighLow ? Visibility.Visible : Visibility.Collapsed;
         var facts = _facts.Take(plan.FactCount).ToList();
@@ -510,12 +499,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
                 _stack.Visibility = Visibility.Visible;
                 break;
-        }
-
-        if (plan.Daily)
-        {
-            BuildDaily();
-            _daily.Visibility = Visibility.Visible;
         }
 
         if (plan.ChartHeight > 0)
@@ -639,34 +622,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         return edgeToEdge
             ? new Border { Child = grid, Padding = new Thickness(WeatherNowLayout.Inset, 0, WeatherNowLayout.Inset, 0) }
             : grid;
-    }
-
-    /// <summary>The next days: day, glyph, high and low, one column each.</summary>
-    private void BuildDaily()
-    {
-        var today = DateOnly.FromDateTime(DateTime.Now);
-
-        foreach (var day in _days)
-        {
-            _daily.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-            var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            label.Text = WeatherReport.DayLabel(day.Day, today);
-            label.HorizontalAlignment = HorizontalAlignment.Center;
-
-            var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", 20);
-            icon.HorizontalAlignment = HorizontalAlignment.Center;
-            icon.Margin = new Thickness(0, Fluent.Space1, 0, Fluent.Space1);
-
-            var range = Fluent.Text(FluentType.Caption);
-            range.Text = $"{WeatherReport.Degrees(day.High)}  {WeatherReport.Degrees(day.Low)}";
-            range.HorizontalAlignment = HorizontalAlignment.Center;
-
-            var column = new StackPanel { Children = { label, icon, range } };
-            ToolTipService.SetToolTip(column, $"{Formatting.ShortDate(day.Day)} · {WeatherReport.Describe(day.Code)}");
-            SetColumn(column, _daily.ColumnDefinitions.Count - 1);
-            _daily.Children.Add(column);
-        }
     }
 
     /// <summary>

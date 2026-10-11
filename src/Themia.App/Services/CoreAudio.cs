@@ -8,8 +8,7 @@ namespace Themia.App.Services;
 /// <param name="DeviceId">[S-1221] The output device's endpoint id, or null for Windows' default output.</param>
 /// <param name="Sessions">Read the device's audio sessions (the mixer; the volume tile at its largest).</param>
 /// <param name="Peaks">[S-1223] Sample level meters while this is on — only while a meter is on screen.</param>
-/// <param name="Microphone">[S-1224] Also bind the default input device.</param>
-internal readonly record struct AudioWant(string? DeviceId, bool Sessions, bool Peaks, bool Microphone);
+internal readonly record struct AudioWant(string? DeviceId, bool Sessions, bool Peaks);
 
 /// <summary>Whether a widget's device could be read.</summary>
 internal enum AudioStatus
@@ -30,24 +29,22 @@ internal enum AudioStatus
 internal sealed record AudioLevel(string Id, string Name, double Level, bool Muted);
 
 /// <summary>
-/// What one audio widget can see right now: its device's level and sessions, the default
-/// microphone, and every connected output device for the device picker.
+/// What one audio widget can see right now: its device's level and sessions, and every connected
+/// output device for the device picker.
 /// </summary>
 /// <param name="Output">The bound device's master level, or null when it could not be read.</param>
 /// <param name="Sessions">Every live session of the bound device, ungrouped. Empty unless asked for.</param>
-/// <param name="Microphone">The default input device's level, or null when not asked for or absent.</param>
 /// <param name="Devices">The active output devices, in Windows' order.</param>
 /// <param name="DefaultId">The default output device's id, or null when there is none.</param>
 internal sealed record AudioSnapshot(
     AudioStatus Status,
     AudioLevel? Output,
     IReadOnlyList<AudioSessionInfo> Sessions,
-    AudioLevel? Microphone,
     IReadOnlyList<AudioDevice> Devices,
     string? DefaultId,
     AudioTarget Target)
 {
-    public static AudioSnapshot Unavailable { get; } = new(AudioStatus.Unavailable, null, [], null, [], null, AudioTarget.Default);
+    public static AudioSnapshot Unavailable { get; } = new(AudioStatus.Unavailable, null, [], [], null, AudioTarget.Default);
 
     /// <summary>The bound device's master as a mixer row's level, or null when unknown.</summary>
     public (double Level, bool Muted)? Master => Output is { } output ? (output.Level, output.Muted) : null;
@@ -55,9 +52,9 @@ internal sealed record AudioSnapshot(
 
 /// <summary>[S-1223] One sample of the level meters, 0..1 each.</summary>
 /// <param name="ByKey">Per session, keyed by session key and by group key (the loudest of the group).</param>
-internal sealed record AudioPeaks(double Output, double Microphone, IReadOnlyDictionary<string, double> ByKey)
+internal sealed record AudioPeaks(double Output, IReadOnlyDictionary<string, double> ByKey)
 {
-    public static AudioPeaks Silent { get; } = new(0, 0, new Dictionary<string, double>(StringComparer.Ordinal));
+    public static AudioPeaks Silent { get; } = new(0, new Dictionary<string, double>(StringComparer.Ordinal));
 }
 
 /// <summary>A live subscription to <see cref="CoreAudio"/>. Change what it wants, or dispose it to stop.</summary>
@@ -68,7 +65,7 @@ internal interface IAudioSubscription : IDisposable
 
 /// <summary>
 /// [S-440] [S-1220] Core Audio for the mixer and the volume tile: the bound output devices' levels and
-/// sessions, the default microphone, level meters and the device list, kept current by Core Audio's
+/// sessions, level meters and the device list, kept current by Core Audio's
 /// own notifications rather than by polling.
 /// <para>
 /// <b>One worker thread, in the multithreaded apartment.</b> Session notifications are only
@@ -133,8 +130,7 @@ internal static unsafe partial class CoreAudio
 
     /// <summary>
     /// [S-446] Queue a level for a row of a device (null: the default output); the newest value per
-    /// row wins. <see cref="MixerRules.MasterKey"/> is the device itself and
-    /// <see cref="MixerRules.MicrophoneKey"/> the default input device.
+    /// row wins. <see cref="MixerRules.MasterKey"/> is the device itself.
     /// </summary>
     public static void SetLevel(string? deviceId, string key, double level)
         => _worker?.PostLevel(WriteKey(deviceId, key), MixerRules.ClampLevel(level));

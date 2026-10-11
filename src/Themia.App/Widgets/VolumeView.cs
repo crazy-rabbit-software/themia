@@ -25,9 +25,9 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>
 /// [S-1230] A ladder: the number and the slider at every size; the device's name in place of
-/// "Output level" once there is room beside the number; a live meter from a medium tile; the
-/// microphone's own row on a large one; and on the largest, the apps playing on the device and a
-/// device switcher on the name.
+/// "Output level" once there is room beside the number; a live meter from a medium tile. A larger
+/// tile gives the number more room, nothing else: the microphone, the apps and a device switcher
+/// are not this widget's job (the mixer lists apps; Windows picks the output).
 /// </para>
 /// </summary>
 internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
@@ -35,28 +35,12 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     /// <summary>Below this content width the caption beside the number is dropped: the number is the point.</summary>
     private const double CaptionMinimumWidth = 168;
 
-    /// <summary>[S-1231] How many apps the largest tile lists, and each one's line.</summary>
-    private const int TopAppCount = 3;
-
-    /// <summary>[S-1231] On a tile as tall as the largest, twice as many.</summary>
-    private const int TallAppCount = 6;
-
-    private const double AppLineHeight = 28;
-
     private readonly AudioFeed _feed;
     private readonly TextBlock _readout = Fluent.Text(FluentType.Subtitle);
     private readonly TextBlock _caption = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly FontIcon _chevron = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorTertiaryBrush", Fluent.IconSize - 6);
-    private readonly Button _device = new();
     private readonly Grid _reading = new();
-    private readonly StackPanel _apps = new() { Spacing = 0 };
-    private readonly TextBlock _appsCaption = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly List<AppLine> _appLines = [];
-    private readonly StackPanel _micBlock = new();
-    private readonly TextBlock _micName = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly LevelRow _mic;
-    private readonly Rectangle _meter = new() { Height = LevelRow.MeterHeight };
-    private readonly Rectangle _meterTrack = new() { Height = LevelRow.MeterHeight };
+    private readonly Rectangle _meter = new() { Height = AudioLook.MeterHeight };
+    private readonly Rectangle _meterTrack = new() { Height = AudioLook.MeterHeight };
     private readonly Grid _meterHost = new();
     private readonly ScaleTransform _meterScale = new() { ScaleX = 0 };
     private readonly Slider _slider = new();
@@ -88,7 +72,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     private TypeStep _heroStep = FluentType.Subtitle;
     private TypeStep _captionStep = FluentType.Caption;
     private bool _peaksOn;
-    private bool _switcher;
     private bool _loaded;
 
     /// <summary>
@@ -113,40 +96,20 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
         _readout.Text = "--";
         _readout.Foreground = _readingBrush;
         _readout.VerticalAlignment = VerticalAlignment.Bottom;
 
-        // The caption is the device switcher's face ([S-1222]): plain text until the tile is large
-        // enough to offer the switch, then the same text with a chevron.
+        // [S-1232] The caption names the device. It is text, not a switcher: picking the output is
+        // Windows' job (and the settings page's), not the tile's.
         _caption.TextTrimming = TextTrimming.CharacterEllipsis;
-        _caption.VerticalAlignment = VerticalAlignment.Center;
-        _chevron.VerticalAlignment = VerticalAlignment.Center;
-        _chevron.Margin = new Thickness(Fluent.Space1, 0, 0, 0);
-
-        var face = new Grid();
-        face.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        face.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        SetColumn(_chevron, 1);
-        face.Children.Add(_caption);
-        face.Children.Add(_chevron);
-
-        _device.Content = face;
-        _device.Padding = new Thickness(0);
-        _device.MinWidth = 0;
-        _device.MinHeight = 0;
-        _device.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        _device.BorderThickness = new Thickness(0);
-        _device.HorizontalAlignment = HorizontalAlignment.Left;
-        _device.VerticalAlignment = VerticalAlignment.Bottom;
+        _caption.HorizontalAlignment = HorizontalAlignment.Left;
+        _caption.VerticalAlignment = VerticalAlignment.Bottom;
 
         // Lifted off the baseline it sits beside: bottom-aligning a 12px caption against a 68px
         // number puts it below the number's baseline, which reads as a slipped line.
-        _device.Margin = new Thickness(0, 0, 0, Fluent.Space1);
-        _device.Click += OnDeviceClicked;
+        _caption.Margin = new Thickness(0, 0, 0, Fluent.Space1);
 
         // A Grid rather than a horizontal StackPanel: a StackPanel measures its children with
         // unbounded width, so the caption never learns how much room it has and its trimming never
@@ -156,23 +119,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _reading.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         _reading.Margin = WidgetLayout.SideInset;
         _reading.VerticalAlignment = VerticalAlignment.Center;
-        SetColumn(_device, 1);
+        SetColumn(_caption, 1);
         _reading.Children.Add(_readout);
-        _reading.Children.Add(_device);
-
-        // [S-1231] The apps playing on the device, read-only.
-        _appsCaption.Text = Str.WidgetsC_Volume_AppsOnDevice.Text();
-        _apps.Children.Add(_appsCaption);
-        _apps.Margin = new Thickness(WidgetLayout.ContentInset, 0, WidgetLayout.ContentInset, Fluent.Space2);
-        SetRow(_apps, 1);
-
-        // [S-1224] The microphone row.
-        _mic = new LevelRow(LevelRow.MicrophoneGlyph, OnMicLevel, OnMicMute);
-        _micName.TextTrimming = TextTrimming.CharacterEllipsis;
-        _micBlock.Children.Add(_micName);
-        _micBlock.Children.Add(_mic.Root);
-        _micBlock.Margin = new Thickness(WidgetLayout.ContentInset, 0, WidgetLayout.ContentInset, Fluent.Space2);
-        SetRow(_micBlock, 2);
+        _reading.Children.Add(_caption);
 
         // [S-1223] The meter: a scale transform on a full-width bar, so a sample costs no layout.
         _meter.Fill = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
@@ -182,7 +131,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _meterTrack.Fill = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
         _meterHost.Children.Add(_meterTrack);
         _meterHost.Children.Add(_meter);
-        SetRow(_meterHost, 3);
+        SetRow(_meterHost, 1);
 
         _muteIcon = Fluent.Icon(Glyphs.Volume3, "TextFillColorPrimaryBrush");
         _mute.Content = _muteIcon;
@@ -220,16 +169,14 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         SetColumn(_slider, 1);
         _band.Children.Add(_mute);
         _band.Children.Add(_slider);
-        SetRow(_band, 4);
+        SetRow(_band, 2);
 
         var definition = WidgetCatalog.Definition(WidgetKind.Volume);
         _empty = Fluent.EmptyState(definition.Glyph, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
-        SetRowSpan(_empty, 5);
+        SetRowSpan(_empty, 3);
 
         Children.Add(_reading);
-        Children.Add(_apps);
-        Children.Add(_micBlock);
         Children.Add(_meterHost);
         Children.Add(_band);
         Children.Add(_empty);
@@ -253,12 +200,8 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         ApplyConfig(config);
     }
 
-    /// <summary>[S-1110] The fixed caption again; the next lay-out re-reads every other text.</summary>
-    private void OnLanguage(Locale locale)
-    {
-        _appsCaption.Text = Str.WidgetsC_Volume_AppsOnDevice.Text();
-        Lay();
-    }
+    /// <summary>[S-1110] The next lay-out re-reads every text.</summary>
+    private void OnLanguage(Locale locale) => Lay();
 
     public void ApplyConfig(WidgetConfig config)
     {
@@ -350,24 +293,12 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         // Rung 2: [S-1223] the meter, from a medium tile (or along a wide strip).
         var peaks = _config.ShowPeaks && _loaded
             && (_area.Least >= SizeClass.Regular || _area.WidthClass >= SizeClass.Expanded)
-            && room.Take(LevelRow.MeterHeight);
+            && room.Take(AudioLook.MeterHeight);
 
-        // Rung 3: [S-1224] the microphone, on a large tile.
-        var large = (_area.WidthClass >= SizeClass.Expanded && _area.HeightClass >= SizeClass.Regular)
-            || (_area.WidthClass >= SizeClass.Regular && _area.HeightClass >= SizeClass.Expanded);
-        var mic = _config.ShowMicrophone && large && room.Take(FluentType.Caption.LineHeight + Fluent.RowHeight);
-
-        // Rung 4: [S-1231] the apps playing on the device, on a large tile with room left.
-        var appRows = _config.ShowApps && large
-            && room.Take(FluentType.Caption.LineHeight)
-            ? room.TakeRows(AppLineHeight, _area.HeightClass >= SizeClass.Huge ? TallAppCount : TopAppCount)
-            : 0;
-
-        // [S-1222] The device switcher rides on the caption, on large tiles.
-        _switcher = large && _surface is { IsPreview: false };
+        // Nothing past the meter: the rest of a large tile goes to the number.
         _peaksOn = peaks;
 
-        _feed.Want(new AudioWant(_config.DeviceId, Sessions: appRows > 0, Peaks: peaks, Microphone: mic));
+        _feed.Want(new AudioWant(_config.DeviceId, Sessions: false, Peaks: peaks));
 
         if (_snapshot is not { } snapshot || !measured)
         {
@@ -384,46 +315,31 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             };
 
             _empty.Visibility = Visibility.Visible;
-            _reading.Visibility = _band.Visibility = _apps.Visibility = _micBlock.Visibility = _meterHost.Visibility = Visibility.Collapsed;
+            _reading.Visibility = _band.Visibility = _meterHost.Visibility = Visibility.Collapsed;
             return;
         }
 
         // [S-446] Keep a dragged level until a snapshot confirms it.
         var master = new MixerRow(MixerRules.MasterKey, string.Empty, null, snapshot.Output!.Level, snapshot.Output.Muted, true, false, 0);
-        IReadOnlyList<MixerRow> confirmed = snapshot.Microphone is { } input
-            ? [master, new MixerRow(MixerRules.MicrophoneKey, input.Name, null, input.Level, input.Muted, true, false, 0)]
-            : [master];
-        _overrides = MixerRules.ReconcileOverrides(_overrides, confirmed);
+        _overrides = MixerRules.ReconcileOverrides(_overrides, [master]);
         level = Current() ?? level;
 
         _empty.Visibility = Visibility.Collapsed;
         _reading.Visibility = Visibility.Visible;
         _band.Visibility = band ? Visibility.Visible : Visibility.Collapsed;
         _meterHost.Visibility = peaks ? Visibility.Visible : Visibility.Collapsed;
-        _micBlock.Visibility = mic && snapshot.Microphone is not null ? Visibility.Visible : Visibility.Collapsed;
-        _apps.Visibility = appRows > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         // Read-only is a state of the controls, not a reason to hide them: a greyed slider still
         // shows the level, and a tile that drops its slider when control is switched off looks
         // like a different widget.
         _slider.IsEnabled = _config.AllowControl;
         _mute.IsEnabled = _config.AllowControl;
-        _mic.Root.IsHitTestVisible = _config.AllowControl;
 
         ShowLevel(level.Level, level.Muted, snapshot);
 
         // The meter sits between the slider band and whatever is above it, inset like the slider.
         _meterHost.Margin = new Thickness(WidgetLayout.ContentInset + Fluent.RowHeightCompact + Fluent.Space2, 0, WidgetLayout.ContentInset, band ? 0 : foot);
 
-        if (mic && snapshot.Microphone is { } microphone)
-        {
-            _micName.Text = microphone.Name.Length > 0 ? microphone.Name : Str.WidgetsC_Volume_Microphone.Text();
-            ToolTipService.SetToolTip(_micName, _micName.Text);
-            var held = _overrides.TryGetValue(MixerRules.MicrophoneKey, out var micLevel) ? micLevel : microphone.Level;
-            _mic.Show(held, microphone.Muted, (microphone.Muted ? Str.WidgetsC_Volume_UnmuteMic : Str.WidgetsC_Volume_MuteMic).Text());
-        }
-
-        ShowApps(appRows, snapshot);
         ShowPeaks();
 
         // Whatever the rungs left goes to the number. Four characters: "100%" is the widest this
@@ -451,11 +367,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             _caption.Apply(caption);
         }
 
-        _device.Visibility = captionBeside ? Visibility.Visible : Visibility.Collapsed;
-        _device.IsHitTestVisible = _switcher;
-        _device.IsTabStop = false;
-        _chevron.Visibility = _switcher ? Visibility.Visible : Visibility.Collapsed;
-        ToolTipService.SetToolTip(_device, _switcher ? Str.WidgetsC_Volume_ChooseDevice.Text() : null);
+        _caption.Visibility = captionBeside ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void ShowLevel(double level, bool muted, AudioSnapshot snapshot)
@@ -468,7 +380,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         // Muted is a colour, not an opacity: the disabled text brush is what every other disabled
         // thing on the desktop uses and it follows the theme.
         _readout.Foreground = muted ? _mutedBrush : _readingBrush;
-        _muteIcon.Glyph = LevelRow.OutputGlyph(level, muted);
+        _muteIcon.Glyph = AudioLook.OutputGlyph(level, muted);
         ToolTipService.SetToolTip(_mute, (muted ? Str.Mixer_Unmute : Str.Mixer_Mute).Text());
 
         // Echoing: this is a snapshot writing back what it just read, and the ValueChanged it raises
@@ -481,40 +393,10 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         }
     }
 
-    /// <summary>[S-1231] The top apps as read-only level bars, playing ones first.</summary>
-    private void ShowApps(int count, AudioSnapshot snapshot)
-    {
-        var rows = count > 0
-            ? MixerRules.TopApps(MixerRules.Group(snapshot.Sessions, grouped: true), count)
-            : [];
-
-        while (_appLines.Count < rows.Count)
-        {
-            var line = new AppLine();
-            _appLines.Add(line);
-            _apps.Children.Add(line.Root);
-        }
-
-        for (var i = 0; i < _appLines.Count; i++)
-        {
-            if (i < rows.Count)
-            {
-                _appLines[i].Show(rows[i]);
-            }
-            else
-            {
-                _appLines[i].Root.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        _appsCaption.Text = (rows.Count == 0 ? Str.Mixer_Empty : Str.WidgetsC_Volume_AppsOnDevice).Text();
-    }
-
     private void ShowPeaks()
     {
         var on = _peaksOn && Current() is { Muted: false };
         _meterScale.ScaleX = on ? AudioRules.Peak(_peaks.Output) : 0;
-        _mic.ShowPeak(_peaks.Microphone, _peaksOn);
     }
 
     // ---- writes -------------------------------------------------------------------------------
@@ -546,31 +428,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         }
 
         _feed.SetMute(MixerRules.MasterKey, !current.Muted);
-    }
-
-    private void OnMicLevel(double level)
-    {
-        if (_detached || !_config.AllowControl || _snapshot?.Microphone is not { } mic)
-        {
-            return;
-        }
-
-        _overrides[MixerRules.MicrophoneKey] = level;
-
-        if (mic.Muted && level > 0)
-        {
-            _feed.SetMute(MixerRules.MicrophoneKey, false);
-        }
-
-        _feed.SetLevel(MixerRules.MicrophoneKey, level);
-    }
-
-    private void OnMicMute()
-    {
-        if (!_detached && _config.AllowControl && _snapshot?.Microphone is { } mic)
-        {
-            _feed.SetMute(MixerRules.MicrophoneKey, !mic.Muted);
-        }
     }
 
     private void OnGrab(object sender, PointerRoutedEventArgs args) => _grabbed = true;
@@ -622,15 +479,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         }
     }
 
-    // ---- the device switcher ([S-1222]) -------------------------------------------------------
-
-    private void OnDeviceClicked(object sender, RoutedEventArgs args)
-    {
-        if (_switcher && _snapshot is { } snapshot)
-        {
-            AudioDeviceMenu.Build(snapshot, _config.DeviceId, PickDevice).ShowAt(_device);
-        }
-    }
+    // ---- following the default ([S-1222]) ----------------------------------------------------
 
     /// <summary>
     /// [S-1614] A pick makes the device Windows' default and the tile keeps following the default;
@@ -681,62 +530,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _slider.RemoveHandler(PointerCaptureLostEvent, _release);
         _slider.RemoveHandler(PointerCanceledEvent, _release);
         _mute.Click -= OnMuteClicked;
-        _device.Click -= OnDeviceClicked;
-        _mic.Detach();
         _feed.Dispose();
-    }
-
-    /// <summary>[S-1231] One app's read-only line: name, its level as a bar, percent.</summary>
-    private sealed class AppLine
-    {
-        /// <summary>A playing app's bar is the accent; a silent one's is the quiet control fill.</summary>
-        private static readonly Brush PlayingBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-
-        private static readonly Brush QuietBrush = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
-
-        private readonly TextBlock _name = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        private readonly TextBlock _percent = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        private readonly Rectangle _track = new() { Height = 4, RadiusX = 2, RadiusY = 2 };
-        private readonly Rectangle _level = new() { Height = 4, RadiusX = 2, RadiusY = 2 };
-        private readonly ScaleTransform _levelScale = new() { ScaleX = 0 };
-
-        public AppLine()
-        {
-            Root.Height = AppLineHeight;
-            Root.ColumnSpacing = Fluent.Space2;
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Fluent.Space6 + Fluent.Space3) });
-
-            _name.TextTrimming = TextTrimming.CharacterEllipsis;
-            _name.VerticalAlignment = VerticalAlignment.Center;
-            _percent.TextAlignment = TextAlignment.Right;
-            _percent.VerticalAlignment = VerticalAlignment.Center;
-
-            _track.Fill = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
-            _level.Fill = PlayingBrush;
-            _level.RenderTransform = _levelScale;
-            _level.RenderTransformOrigin = new Windows.Foundation.Point(0, 0.5);
-
-            SetColumn(_track, 1);
-            SetColumn(_level, 1);
-            SetColumn(_percent, 2);
-            Root.Children.Add(_name);
-            Root.Children.Add(_track);
-            Root.Children.Add(_level);
-            Root.Children.Add(_percent);
-        }
-
-        public Grid Root { get; } = new();
-
-        public void Show(MixerRow row)
-        {
-            Root.Visibility = Visibility.Visible;
-            _name.Text = row.Name.Length > 0 ? row.Name : Str.Mixer_UnknownApp.Text();
-            ToolTipService.SetToolTip(Root, row.Active ? _name.Text : Str.WidgetsC_Volume_NotPlaying.Format(("name", _name.Text)));
-            _percent.Text = LocaleFormat.Percent(Strings.Current, MixerRules.DisplayPercent(row));
-            _levelScale.ScaleX = row.Muted ? 0 : MixerRules.ClampLevel(row.Level);
-            _level.Fill = row.Active ? PlayingBrush : QuietBrush;
-        }
     }
 }

@@ -48,11 +48,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     private readonly ColumnDefinition _barLeft = new() { Width = new GridLength(1, GridUnitType.Star) };
     private Grid _summaryBar = null!;
 
-    // The completion chart under the list, in whatever height the rows leave.
-    private readonly Grid _chart;
-    private readonly TextBlock _chartCaption = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly Grid _bars = new();
-
     private readonly Brush _accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly Brush _track = FluentLayout.Themed("ControlAltFillColorSecondaryBrush", Colors.Gray);
 
@@ -82,7 +77,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // summary
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // rows / empty hint
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add row
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // chart
 
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_done, FontNumeralAlignment.Tabular);
 
@@ -103,20 +97,17 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         };
 
         _summary = BuildSummary();
-        _chart = BuildChart();
         _addRow = BuildAddRow();
 
         SetRow(_summary, 0);
         SetRow(_scroll, 1);
         SetRow(_emptyHost, 1);
         SetRow(_addRow, 2);
-        SetRow(_chart, 3);
 
         Children.Add(_summary);
         Children.Add(_scroll);
         Children.Add(_emptyHost);
         Children.Add(_addRow);
-        Children.Add(_chart);
     }
 
     /// <summary>The "3/5" count, in the card's header.</summary>
@@ -327,13 +318,13 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         _scroll.Visibility = count == 0 ? Visibility.Collapsed : Visibility.Visible;
 
         // An empty list's hint takes the room the rows would have, so it can shed its glyph on a
-        // small tile instead of being measured at its full height; otherwise the chart takes it.
+        // small tile instead of being measured at its full height. Under a list that all fits the
+        // rest of the tile stays empty: nothing but the habits fills it.
         RowDefinitions[1].Height = count == 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        RowDefinitions[3].Height = count == 0 ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
 
         // Whole rows in the viewport: the rest scroll, and the last visible row is never cut in half.
         _scroll.Height = plan.Rows < count ? plan.Rows * plan.RowHeight : double.NaN;
-        _scroll.Padding = plan.AddRow || plan.ChartHeight > 0 ? new Thickness(0) : Fluent.ListPadding;
+        _scroll.Padding = plan.AddRow ? new Thickness(0) : Fluent.ListPadding;
 
         foreach (var row in _rows)
         {
@@ -349,12 +340,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             DrawSummary();
         }
         _summary.Padding = new Thickness(plan.Inset, 0, plan.Inset, Fluent.Space3);
-
-        _chart.Visibility = plan.ChartHeight > 0 ? Visibility.Visible : Visibility.Collapsed;
-        if (plan.ChartHeight > 0)
-        {
-            DrawChart(plan);
-        }
     }
 
     // ---- the summary ([S-1427]) ------------------------------------------------------------------------
@@ -428,97 +413,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 
         _barDone.Width = new GridLength(doneNow, GridUnitType.Star);
         _barLeft.Width = new GridLength(Math.Max(0, count - doneNow), GridUnitType.Star);
-    }
-
-    // ---- the chart ([S-1427]) --------------------------------------------------------------------------
-
-    private Grid BuildChart()
-    {
-        _bars.Margin = new Thickness(0, Fluent.Space1, 0, 0);
-
-        var chart = new Grid
-        {
-            RowDefinitions =
-            {
-                new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-            },
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Visibility = Visibility.Collapsed,
-        };
-
-        SetRow(_bars, 1);
-        chart.Children.Add(_chartCaption);
-        chart.Children.Add(_bars);
-        return chart;
-    }
-
-    /// <summary>
-    /// One bar per past period: how many of the habits were done in it. Walks the same ladder as the
-    /// rows' dots, so a bar and the dots above it always mean the same period.
-    /// </summary>
-    private void DrawChart(HabitLayoutPlan plan)
-    {
-        var habits = Habits;
-        var cadence = _config.Cadence;
-        var zone = TimeZoneInfo.Local;
-        var bars = plan.ChartBars;
-
-        _chart.Height = plan.ChartHeight;
-        _chart.Padding = new Thickness(plan.Inset, Fluent.Space2, plan.Inset, Fluent.Space2);
-        _chartCaption.Text = Str.WidgetsB_Habits_LastUnitsTitle.Format(("units", HabitPeriods.Units(cadence.Period, bars)));
-
-        var counts = new int[bars];
-        HabitDot[] periods = [];
-
-        foreach (var habit in habits)
-        {
-            var dots = HabitRules.Recent(HabitRules.Log(habit.Log), _current, cadence, zone, bars);
-            periods = [.. dots];
-
-            for (var i = 0; i < dots.Count; i++)
-            {
-                counts[i] += dots[i].Done ? 1 : 0;
-            }
-        }
-
-        var barHeight = Math.Max(0, plan.ChartHeight - (2 * Fluent.Space2) - FluentType.Caption.LineHeight - Fluent.Space1);
-
-        _bars.Children.Clear();
-        _bars.ColumnDefinitions.Clear();
-
-        for (var i = 0; i < bars; i++)
-        {
-            _bars.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-            var share = habits.Count == 0 ? 0 : (double)counts[i] / habits.Count;
-            var fill = new Border
-            {
-                Background = _accent,
-                CornerRadius = new CornerRadius(2),
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Height = Math.Round(barHeight * share),
-            };
-
-            var column = new Grid
-            {
-                Background = _track,
-                CornerRadius = new CornerRadius(2),
-                Margin = new Thickness(2, 0, 2, 0),
-                MaxWidth = 24,
-                Children = { fill },
-            };
-
-            if (i < periods.Length)
-            {
-                var label = Str.WidgetsB_Habits_BarLabel.Format(("period", HabitPeriods.Describe(periods[i].Bucket, cadence)), ("done", counts[i]), ("total", habits.Count));
-                ToolTipService.SetToolTip(column, label);
-                AutomationProperties.SetName(column, label);
-            }
-
-            SetColumn(column, i);
-            _bars.Children.Add(column);
-        }
     }
 
     public void Detach()

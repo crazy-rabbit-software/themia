@@ -7,16 +7,16 @@ namespace Themia.App.Services;
 
 /// <summary>
 /// [S-2405]..[S-2407] The processor's figures for the CPU details widget, from Win32 and PDH only:
-/// the load from <see cref="SystemMetrics.Cpu"/> (the CPU meter's own shared read), the clock from
-/// <c>CallNtPowerInformation</c> and <c>\Processor Information(_Total)\% Processor Performance</c>,
-/// cores from <c>GetLogicalProcessorInformationEx</c>, the counts from <see cref="PerformanceInfo"/>,
-/// the thermal zone from <c>\Thermal Zone Information(*)\Temperature</c> and the name from the
+/// the clock from <c>CallNtPowerInformation</c> and
+/// <c>\Processor Information(_Total)\% Processor Performance</c>, cores from
+/// <c>GetLogicalProcessorInformationEx</c>, the thermal zone from <c>\Thermal Zone Information(*)\Temperature</c> and the name from the
 /// registry. No WMI, no driver, no admin.
 /// <para>
 /// The counters are one <see cref="PdhQuery"/> held while a CPU details widget lives
 /// (<see cref="Acquire"/>) and closed when the last one goes. What cannot change while Windows runs
-/// (the name, the cores, the base clock) is read once. Every read happens on the UI thread's tick;
-/// widgets reading in the same tick share one (<see cref="SampleCache{T}"/>).
+/// (the name, the cores, the base clock) is read once. Read by the system hub alone, once per due
+/// tick ([S-2501]); the load and the process counts are not read here but are the hub's CPU and
+/// performance sources' ([S-2405]), so the CPU details never move the CPU meter's baseline.
 /// </para>
 /// </summary>
 internal static unsafe partial class ProcessorInfo
@@ -31,8 +31,6 @@ internal static unsafe partial class ProcessorInfo
 
     /// <summary>ALL_PROCESSOR_GROUPS.</summary>
     private const ushort AllGroups = 0xFFFF;
-
-    private static readonly SampleCache<Reading> Cache = new();
 
     private static int _leases;
     private static PdhQuery? _query;
@@ -52,16 +50,9 @@ internal static unsafe partial class ProcessorInfo
         return new SharedLease(Release);
     }
 
-    /// <summary>One read of every figure; a figure Windows would not give is null.</summary>
+    /// <summary>One read of the processor's own figures (no load, no counts); a figure Windows would not give is null.</summary>
     public static CpuFigures Read()
     {
-        var now = Environment.TickCount64;
-
-        if (Cache.TryReuse(now, out var recent))
-        {
-            return recent.Figures;
-        }
-
         ReadStatic();
 
         double? performance = null;
@@ -74,25 +65,16 @@ internal static unsafe partial class ProcessorInfo
             celsius = _zones is { } z ? CpuDetailRules.HottestZone(query.Doubles(z).Select(i => i.Value)) : null;
         }
 
-        var load = SystemMetrics.Cpu();
-        var counts = PerformanceInfo.Read();
         var logical = (int)GetActiveProcessorCount(AllGroups);
 
-        var figures = new CpuFigures(
-            Load: load.Available ? load.Fraction : null,
+        return new CpuFigures(
             Mhz: _power is { } power ? CpuDetailRules.EffectiveMhz(performance, power.Base, power.Reported) : null,
             BaseMhz: _power?.Base is > 0 and var b ? b : null,
             Cores: _cores,
             Logical: logical > 0 ? logical : null,
-            Processes: counts?.Processes,
-            Threads: counts?.Threads,
-            Handles: counts?.Handles,
             Uptime: TimeSpan.FromMilliseconds(Environment.TickCount64),
             Celsius: celsius,
             Name: _name);
-
-        Cache.Store(now, new Reading(figures));
-        return figures;
     }
 
     /// <summary>The name, the cores and the base clock: once per run.</summary>
@@ -259,10 +241,7 @@ internal static unsafe partial class ProcessorInfo
         _query = null;
         _performance = _zones = null;
         _queryFailed = false;
-        Cache.Clear();
     }
-
-    private readonly record struct Reading(CpuFigures Figures);
 
     [LibraryImport("powrprof")]
     private static partial int CallNtPowerInformation(int level, void* input, uint inputLength, void* output, uint outputLength);

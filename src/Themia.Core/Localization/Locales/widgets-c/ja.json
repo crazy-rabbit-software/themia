@@ -14,7 +14,6 @@
   "widgetsC.notes.notSaved": "未保存",
   "widgetsC.notes.saved": "保存済み",
   "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
-  "widgetsC.notes.deletedPickInList": "このメモは削除されました。\n一覧から別のメモを選んでください。",
   "widgetsC.notes.unreadable": "このメモを読み込めませんでした。",
   "widgetsC.notes.unavailable": "メモを利用できません。",
   "widgetsC.notes.chooseNote": "メモを選択",
@@ -22,7 +21,6 @@
   "widgetsC.notes.deleteNoteEllipsis": "メモを削除…",
   "widgetsC.notes.deleteConfirmTitle": "このメモを削除しますか?",
   "widgetsC.notes.deleteConfirmBody": "「{name}」はこの PC から削除され、表示しているすべてのウィジェットから消えます。テキストは復元できません。",
-  "widgetsC.notes.noNotes": "メモはまだありません。",
   "widgetsC.notes.settings.note": "メモ",
   "widgetsC.notes.settings.wrap.label": "行を折り返す",
   "widgetsC.notes.settings.wrap.desc": "オフにすると、長い行は折り返さずに横にスクロールします",
@@ -72,10 +70,6 @@
   "widgetsC.power.reason.refused": "Windows が拒否しました",
   "widgetsC.power.reason.windowsError": "Windows エラー {code}",
   "widgetsC.quote.showAnother": "別の名言を表示",
-  "widgetsC.quote.ofTheDay": "今日の名言",
-  "widgetsC.quote.ofTheHour": "この時間の名言",
-  "widgetsC.quote.quote": "名言",
-  "widgetsC.quote.captionPosition": "{name} · {position}/{count}",
   "widgetsC.quote.quoted": "「{text}」",
   "widgetsC.quote.settings.quotes": "名言",
   "widgetsC.quote.settings.emptyList": "名言がありません。追加されるまでウィジェットにその旨が表示されます。",
@@ -96,9 +90,7 @@
   "widgetsC.quote.settings.textPlaceholder": "読み返したくなる言葉",
   "widgetsC.quote.settings.authorPlaceholder": "誰の言葉か",
   "widgetsC.rss.failure": "{name}: {reason}",
-  "widgetsC.rss.openArticle": "記事を開く",
   "widgetsC.rss.untitled": "(無題)",
-  "widgetsC.rss.paneDate": "{date} {time} · {age}",
   "widgetsC.rss.copyLink": "リンクをコピー",
   "widgetsC.rss.noArticles": "このフィードには記事がありません",
   "widgetsC.rss.savedRefreshing": "{age}に保存。更新中",
@@ -126,9 +118,6 @@
   "widgetsC.scratchpad.clearDrawing": "絵をクリア",
   "widgetsC.scratchpad.clearConfirm": "絵をすべてクリアしますか?",
   "widgetsC.scratchpad.penSizeTip": "ペンの太さ {size} px",
-  "widgetsC.scratchpad.strokes": {
-    "other": "{count} 本の線"
-  },
   "widgetsC.scratchpad.settings.inks": "インク",
   "widgetsC.scratchpad.settings.tools": "ツール",
   "widgetsC.scratchpad.settings.showTools.label": "ツールを表示",
@@ -146,16 +135,9 @@
   "widgetsC.screenTime.switches": {
     "other": "{count} 回の切り替え"
   },
-  "widgetsC.screenTime.apps": {
-    "other": "{count} 個のアプリ"
-  },
-  "widgetsC.screenTime.statsDay": "{days} 日間の平均 {average} · 最多 {day} {busiest}",
-  "widgetsC.screenTime.statsWindow": "最多 {day} {busiest} · {apps}",
   "widgetsC.screenTime.notRecording": "スクリーン タイムは Themia の実行中に記録されます",
   "widgetsC.screenTime.noActivityPeriod": "この期間のアクティビティはありません",
   "widgetsC.screenTime.dailyLimit": "1 日の制限",
-  "widgetsC.screenTime.usedOf": "{used} / {limit}",
-  "widgetsC.screenTime.usedPerDayOf": "{used}/日 / {limit}",
   "widgetsC.screenTime.limitTip": "制限 {limit}",
   "widgetsC.screenTime.limitOverTip": "制限 {limit} (超過)",
   "widgetsC.screenTime.settings.period.desc": "1 日、または今日までの期間",
@@ -180,19 +162,6 @@
   "widgetsC.tasks.overdueOn": "期限切れ · {date}",
   "widgetsC.tasks.untitledTask": "(無題のタスク)",
   "widgetsC.tasks.untitledList": "無題のリスト",
-  "widgetsC.tasks.summary.nothingOpen": "未完了なし",
-  "widgetsC.tasks.summary.open": {
-    "other": "未完了 {count}"
-  },
-  "widgetsC.tasks.summary.overdue": {
-    "other": "期限切れ {count}"
-  },
-  "widgetsC.tasks.summary.dueToday": {
-    "other": "今日が期限 {count}"
-  },
-  "widgetsC.tasks.summary.done": {
-    "other": "完了 {count}"
-  },
   "widgetsC.tasks.completedHeading": "完了 · {count}",
   "widgetsC.tasks.markDone": "完了にする",
   "widgetsC.tasks.markNotDone": "未完了にする",
@@ -279,13 +248,7 @@
   "widgetsC.volume.noDevice": "出力デバイスがありません",
   "widgetsC.volume.notConnected": "{device} は接続されていません",
   "widgetsC.volume.unavailable": "サウンドを利用できません",
-  "widgetsC.volume.appsOnDevice": "このデバイスのアプリ",
   "widgetsC.volume.followDefault": "既定の出力に従う",
-  "widgetsC.volume.microphone": "マイク",
-  "widgetsC.volume.muteMic": "マイクをミュート",
-  "widgetsC.volume.unmuteMic": "マイクのミュートを解除",
-  "widgetsC.volume.chooseDevice": "出力デバイスを選択",
-  "widgetsC.volume.notPlaying": "{name} (再生していません)",
   "widgetsC.volume.defaultNotChanged": "既定の出力は変更されませんでした",
   "widgetsC.volume.muted": "ミュート",
   "widgetsC.volume.turnedDown": "音量ゼロ",
@@ -294,9 +257,6 @@
   "widgetsC.volume.settings.showSlider.desc": "オフにするとタイルは表示のみになります",
   "widgetsC.volume.settings.meter.label": "レベル メーター",
   "widgetsC.volume.settings.meter.desc": "中サイズ以上のタイルで、スライダーの上にリアルタイムのメーターを表示",
-  "widgetsC.volume.settings.mic.desc": "大きいタイルで既定のマイクのレベルとミュートを表示",
-  "widgetsC.volume.settings.apps.label": "アプリ",
-  "widgetsC.volume.settings.apps.desc": "余裕のある大きいタイルで、デバイスで再生中のアプリを表示",
   "widgetsC.volume.settings.behaviour": "動作",
   "widgetsC.volume.settings.allow.label": "変更を許可",
   "widgetsC.volume.settings.allow.desc": "このタイルでシステムの音量を変更できるようにします",
@@ -322,16 +282,6 @@
   "widgetsC.videoStream.settings.note": "一時停止、回転、再接続はウィジェットの右クリック メニューからも行えます。一時停止したカメラは再起動後も一時停止のままで、ネットワークを使用しません。ユーザー名とパスワードが必要なカメラには対応していません。",
   "widgetsC.videoStream.settings.refresh.desc": "フレームを取得する頻度。0 ではカメラ本来のレートでストリームを開いたままにし、それ以外では 1 フレームを取得して次まで切断します",
   "widgetsC.shortcuts.search": "ショートカットを検索",
-  "widgetsC.shortcuts.footer.total": {
-    "other": "{count} 件のショートカット"
-  },
-  "widgetsC.shortcuts.footer.shown": "{total} 件中 {shown} 件を表示",
-  "widgetsC.shortcuts.footer.selected": {
-    "other": "{count} 件を選択"
-  },
-  "widgetsC.shortcuts.footer.missing": {
-    "other": "{count} 件が見つかりません"
-  },
   "widgetsC.shortcuts.menu.closeSearch": "検索を閉じる",
   "widgetsC.shortcuts.menu.undoRemove": "削除を元に戻す",
   "widgetsC.shortcuts.menu.undoRemoveCount": {

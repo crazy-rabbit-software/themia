@@ -25,10 +25,11 @@ namespace Themia.App.Widgets;
 /// <para>
 /// The editing itself is <see cref="MarkdownEditor"/>; this view binds it to the pool, saves on a
 /// debounce and on blur and detach, and lays the parts out by the ladder in <see cref="NotesLayout"/>:
-/// text, then the formatting bar, then a status line, then the note list beside the text at XL.
+/// text, then the formatting bar, then a status line. It shows the one note at every size; another
+/// note is picked from the header (<see cref="HeaderTrailing"/>), never from a list beside the text.
 /// </para>
 /// </summary>
-internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetHeaderContent, IWidgetKeys
+internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetHeaderContent
 {
     private const string Scope = "notes";
 
@@ -71,7 +72,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private string? _shownId;
     private NoteState _state = NoteState.Unbound;
     private WidgetArea _area;
-    private NotesLayoutPlan _plan = new(0, false, false, false, NotesLayout.MinTextLines);
+    private NotesLayoutPlan _plan = new(0, false, false, 0, NotesLayout.MinTextLines);
     private bool _dirty;
     private bool _resolving;
     private bool _editorFocused;
@@ -81,9 +82,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         // The card no longer pads its content; a view that is not a list carries its own inset.
         Padding = WidgetLayout.Inset;
-
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                       // note list (XL)
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });  // the note
 
         _body.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                              // bar
         _body.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });         // text
@@ -117,10 +115,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         _body.Children.Add(_message);
         _body.Children.Add(_status);
 
-        SetColumn(_body, 1);
         Children.Add(_body);
 
-        BuildList();
         BuildPicker();
 
         _editor.TextEdited += OnTextEdited;
@@ -221,17 +217,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _editor.RefreshTexts();
         ApplyPickerTexts();
-        if (_newRowText is not null)
-        {
-            _newRowText.Text = Str.Notes_NewNote.Text();
-        }
-
         UpdateMessage();
         UpdateStatus();
-        if (_plan.List)
-        {
-            RebuildList();
-        }
     }
 
     public void ApplyConfig(WidgetConfig config)
@@ -289,7 +276,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
             _resolving = false;
         }
 
-        RebuildList();
         Lay();
     }
 
@@ -371,7 +357,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _messageText.Text = _state switch
         {
-            NoteState.Deleted => _plan.List ? Str.WidgetsC_Notes_DeletedPickInList.Text() : Str.Notes_NoteGone.Text(),
+            NoteState.Deleted => Str.Notes_NoteGone.Text(),
             NoteState.Unreadable => Str.WidgetsC_Notes_Unreadable.Text(),
             NoteState.Unavailable => Str.WidgetsC_Notes_Unavailable.Text(),
             _ => string.Empty,
@@ -392,7 +378,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         if (id is null || string.Equals(id, _shownId, StringComparison.Ordinal))
         {
             Show(newDocument: false);
-            RebuildList();
             Lay();
         }
     }
@@ -432,11 +417,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         UpdateKeyboard();
     }
 
-    /// <summary>
-    /// [S-1563] Typing asks for the keyboard (the editor, a rename box); the note list does not need
-    /// to — it answers the keyboard lease's keys through <see cref="HandleKey"/>, which a click on
-    /// the widget already granted.
-    /// </summary>
+    /// <summary>Typing asks for the keyboard: the editor, and the picker's rename box.</summary>
     private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_editorFocused || _renaming is not null));
 
     private void OnSaveTick(DispatcherQueueTimer sender, object args) => Flush();
@@ -510,7 +491,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         _editor.VisibleButtons = _plan.ToolbarButtons;
         _status.Visibility = _plan.Status && editable ? Visibility.Visible : Visibility.Collapsed;
 
-        LayList();
+        UpdatePicker();
         UpdateStatus();
     }
 
@@ -542,7 +523,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         _editor.Box.GotFocus -= OnEditorGotFocus;
         _editor.Box.LostFocus -= OnEditorLostFocus;
         _editor.Detach();
-        DetachList();
+        DetachPicker();
         _surface?.RequestTextInput(false);
     }
 }

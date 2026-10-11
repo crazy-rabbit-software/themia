@@ -35,7 +35,7 @@ internal sealed partial class MixerView
         private readonly TextBlock _countText = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
         private readonly TextBlock _percent = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
         private readonly Slider _slider = new() { Minimum = 0, Maximum = 100, StepFrequency = 1 };
-        private readonly Rectangle _meter = new() { Height = LevelRow.MeterHeight };
+        private readonly Rectangle _meter = new() { Height = AudioLook.MeterHeight };
         private readonly ScaleTransform _meterScale = new() { ScaleX = 0 };
         private readonly Button _mute = new();
         private readonly FontIcon _muteIcon = Fluent.Icon(Glyphs.Volume3, "TextFillColorPrimaryBrush");
@@ -258,7 +258,7 @@ internal sealed partial class MixerView
             var percent = MixerRules.DisplayPercent(row);
             _percent.Text = LocaleFormat.Percent(Strings.Current, percent);
 
-            _muteIcon.Glyph = LevelRow.OutputGlyph(row.Level, row.Muted);
+            _muteIcon.Glyph = AudioLook.OutputGlyph(row.Level, row.Muted);
             ToolTipService.SetToolTip(_mute, row.Muted ? Str.Mixer_Unmute.Text() : Str.Mixer_Mute.Text());
 
             // A snapshot is the machine's truth, but not under a held thumb: writing it there would

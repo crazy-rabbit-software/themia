@@ -120,6 +120,10 @@ public static class MailWire
     public static Uri GmailList(MailFolder folder, int count) => new(string.Create(CultureInfo.InvariantCulture,
         $"{Gmail}/messages?labelIds={folder.GmailLabel()}&maxResults={count}"));
 
+    /// <summary>[S-2623] The newest unread ids of a folder: the read state of messages already held, without asking for each.</summary>
+    public static Uri GmailUnreadList(MailFolder folder, int count) => new(string.Create(CultureInfo.InvariantCulture,
+        $"{Gmail}/messages?labelIds={folder.GmailLabel()}&labelIds=UNREAD&maxResults={count}"));
+
     public static Uri GmailMetadata(string id)
         => new($"{Gmail}/messages/{Uri.EscapeDataString(id)}?format=metadata&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date");
 

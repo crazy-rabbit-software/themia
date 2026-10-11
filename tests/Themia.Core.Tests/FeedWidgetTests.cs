@@ -276,13 +276,15 @@ public sealed class FeedWidgetTests : IDisposable
     }
 
     [Fact]
-    public void S1306_TheLargestTileGetsAReadingPane()
+    public void S1305_TheLargestTileShowsMoreHeadlinesNotAReadingPane()
     {
+        // The feed is its headlines at every size: XL is three columns of them with their
+        // summaries, never a list beside a pane reading one item (retired, concise widgets).
         var plan = FeedLayout.Plan(new WidgetArea(800, 516), true, true, true);
 
-        Assert.Equal(FeedArrangement.Reading, plan.Arrangement);
-        Assert.InRange(plan.ListWidth, FeedLayout.MinPane, 360);
-        Assert.True(800 - plan.ListWidth >= FeedLayout.MinPane);
+        Assert.Equal(FeedArrangement.Columns, plan.Arrangement);
+        Assert.Equal(3, plan.Columns);
+        Assert.True(plan.PreviewLines > 0);
     }
 
     [Fact]
@@ -324,16 +326,14 @@ public sealed class FeedWidgetTests : IDisposable
     [Fact]
     public void S1300_FeedsAndQuotesRoundTrip()
     {
-        var path = Path.Combine(_dir, NetworkCacheStore.FileName);
         var feed = new FeedDocument("World", [new FeedEntry("Headline", "https://a.example/1", Now.AddHours(-1), "Summary")]);
 
-        Assert.True(NetworkCacheStore.Save(path, new NetworkCacheSnapshot(
+        var json = NetworkCacheStore.Serialize(new NetworkCacheSnapshot(
             [new CachedAnswer<FeedDocument>("https://a.example/f|20", Now.AddMinutes(-30), feed)],
-            [new CachedAnswer<TickerQuote>("Listed|MSFT|Day|prepost", Now.AddMinutes(-5), Quote())])));
+            [new CachedAnswer<TickerQuote>("Listed|MSFT|Day|prepost", Now.AddMinutes(-5), Quote())]));
 
-        var (snapshot, outcome) = NetworkCacheStore.Load(path, Now);
+        var snapshot = NetworkCacheStore.Parse(json, Now)!;
 
-        Assert.Equal(NetworkCacheLoadOutcome.Loaded, outcome);
         var restoredFeed = Assert.Single(snapshot.Feeds);
         Assert.Equal("Headline", restoredFeed.Value.Entries[0].Title);
         Assert.Equal("https://a.example/1", restoredFeed.Value.Entries[0].Link);
@@ -367,24 +367,10 @@ public sealed class FeedWidgetTests : IDisposable
     }
 
     [Fact]
-    public void S1300_ACorruptFileIsSetAsideAndTheCacheStartsEmpty()
-    {
-        Directory.CreateDirectory(_dir);
-        var path = Path.Combine(_dir, NetworkCacheStore.FileName);
-        File.WriteAllText(path, "{ not json");
-
-        var (snapshot, outcome) = NetworkCacheStore.Load(path, Now);
-
-        Assert.Equal(NetworkCacheLoadOutcome.Recovered, outcome);
-        Assert.Empty(snapshot.Feeds);
-        Assert.True(File.Exists(path + ".corrupt"));
-    }
+    public void S1300_ADocumentThatIsNotJsonIsNotTrusted()
+        => Assert.Null(NetworkCacheStore.Parse("{ not json", Now));
 
     [Fact]
     public void S1300_AnotherSchemaVersionIsNotTrusted()
         => Assert.Null(NetworkCacheStore.Parse("{\"schemaVersion\":99,\"feeds\":[],\"quotes\":[]}", Now));
-
-    [Fact]
-    public void S1300_NoFileIsAFreshStart()
-        => Assert.Equal(NetworkCacheLoadOutcome.Fresh, NetworkCacheStore.Load(Path.Combine(_dir, "none.json"), Now).Outcome);
 }

@@ -3,11 +3,14 @@ using Themia.Core.Office;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-561] The four ways the calendar widget lays out time.</summary>
-[JsonConverter(typeof(LenientEnumConverter<CalendarViewMode>))]
-public enum CalendarViewMode
+/// <summary>
+/// [S-2700] The five ways the calendar widget lays out time. The widget draws only the configured
+/// one, at every size: each layout sheds detail within itself, never turning into another.
+/// </summary>
+[JsonConverter(typeof(LenientEnumConverter<CalendarLayout>))]
+public enum CalendarLayout
 {
-    /// <summary>A six-week grid, the original's default.</summary>
+    /// <summary>The weeks of a month, the original's default.</summary>
     Month = 0,
 
     /// <summary>Seven day columns.</summary>
@@ -18,6 +21,9 @@ public enum CalendarViewMode
 
     /// <summary>A list of what is coming up, grouped by day.</summary>
     Agenda = 3,
+
+    /// <summary>The twelve months of a year as small grids.</summary>
+    Year = 4,
 }
 
 /// <summary>[S-564] Which day a week starts on: a closed set, never a stringly day name.</summary>
@@ -81,7 +87,8 @@ public sealed class CalendarConfig : WidgetConfig
     [JsonConverter(typeof(LenientStringMapConverter))]
     public Dictionary<string, string> CalendarColors { get; set; } = [];
 
-    public CalendarViewMode View { get; set; } = CalendarViewMode.Month;
+    /// <summary>[S-2700] The layout the widget draws, whatever its size.</summary>
+    public CalendarLayout Layout { get; set; } = CalendarLayout.Month;
 
     public WeekStartDay WeekStart { get; set; } = WeekStartDay.Monday;
 
@@ -94,9 +101,9 @@ public sealed class CalendarConfig : WidgetConfig
     [JsonIgnore]
     public int EffectiveAgendaCount => Math.Clamp(AgendaCount, 1, 100);
 
-    /// <summary>The view, narrowed to the closed set.</summary>
+    /// <summary>The layout, narrowed to the closed set.</summary>
     [JsonIgnore]
-    public CalendarViewMode EffectiveView => Enum.IsDefined(View) ? View : CalendarViewMode.Month;
+    public CalendarLayout EffectiveLayout => Enum.IsDefined(Layout) ? Layout : CalendarLayout.Month;
 
     [JsonIgnore]
     public WeekStartDay EffectiveWeekStart => Enum.IsDefined(WeekStart) ? WeekStart : WeekStartDay.Monday;
@@ -122,10 +129,10 @@ public sealed class CalendarConfig : WidgetConfig
             AgendaCount = EffectiveAgendaCount;
         }
 
-        if (!Enum.IsDefined(View) || !Enum.IsDefined(WeekStart))
+        if (!Enum.IsDefined(Layout) || !Enum.IsDefined(WeekStart))
         {
-            repairs.Add("calendar widget had an unknown view or week start");
-            View = EffectiveView;
+            repairs.Add("calendar widget had an unknown layout or week start");
+            Layout = EffectiveLayout;
             WeekStart = EffectiveWeekStart;
         }
 
@@ -137,7 +144,7 @@ public sealed class CalendarConfig : WidgetConfig
         AccountIds = [.. AccountIds],
         Calendars = Calendars.ToDictionary(kv => kv.Key, kv => kv.Value.ToList(), StringComparer.Ordinal),
         CalendarColors = new Dictionary<string, string>(CalendarColors, StringComparer.Ordinal),
-        View = View,
+        Layout = Layout,
         WeekStart = WeekStart,
         ShowBirthdays = ShowBirthdays,
         AgendaCount = AgendaCount,

@@ -1,6 +1,6 @@
 using Themia.App.Services;
+using Themia.App.Services.SystemData;
 using Themia.App.Shell;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -9,143 +9,74 @@ namespace Themia.App.Widgets.Details;
 
 /// <summary>
 /// [S-2426]..[S-2429] Latency statistics over the latest probes of one host: the newest answer,
-/// average, range, jitter and loss. Probes go through the ping meter's own
-/// <see cref="NetworkMetrics.PingAsync"/>: one at a time, never stacked, and a late answer from a
-/// host the user has since changed is dropped ([S-106], [S-107]).
+/// average, range, jitter and loss. [S-2508] The probes are the hub's prober for the host, the same
+/// one a ping meter on that host and cadence charts: one probe out at a time, a late answer from a
+/// host the user has since changed belongs to the old host's prober ([S-106], [S-107]), and the window
+/// is the prober's history, so the statistics survive a view switch.
 /// </summary>
 internal sealed class PingDetailPart : DetailPart
 {
-    private readonly PingWindow _window = new(60);
-
     private PingDetailsConfig _config = new();
-    private CancellationTokenSource? _probe;
-    private string? _host;
-    private string? _detail;
-    private bool _anyProbe;
-    private bool _detached;
+    private SeriesWatch? _watch;
+    private MeterSeries? _series;
+    private IDetailHost? _host;
 
     public override WidgetKind Kind => WidgetKind.PingDetails;
 
     public override double HeroCharacters => PingDetailRules.HeroCharacters;
 
-    public override bool ApplyConfig(WidgetConfig config, IDetailHost host)
+    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
     {
-        _detached = false;
+        _host = host;
         _config = config as PingDetailsConfig ?? new PingDetailsConfig();
-        _window.Capacity = _config.EffectiveWindow;
 
         // [S-1173] The header names the host as the user does.
         host.SetTitle(_config.EffectiveLabel ?? _config.EffectiveHost);
 
-        var previous = _host;
-        _host = _config.EffectiveHost;
+        // A different host or cadence is a different prober, with its own window; a different window
+        // size is the same probes counted again.
+        var series = MeterSeries.Of(Sources.Ping, _config.TickInterval, target: _config.EffectiveHost);
 
-        if (_host == previous)
+        if (_watch is null || series != _series)
         {
-            return false;
+            _watch?.Dispose();
+            _series = series;
+            _watch = series.Watch(hub, _ => Show());
         }
 
-        // A different host is a different measurement: what the window holds belongs to the old one.
-        CancelProbe();
-        _window.Clear();
-        _anyProbe = false;
-        return previous is not null;
+        Show();
     }
 
     public override IReadOnlyList<WidgetAction> ContextActions(IDetailHost host)
         => [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), host.SampleNow)];
 
-    public override void Sample(IDetailHost host)
+    public override void Refresh() => _watch?.Refresh();
+
+    /// <summary>[S-2427] [S-2428] The statistics over the newest probes the window holds.</summary>
+    private void Show()
     {
-        if (_probe is not null || _detached)
+        if (_host is not { } host || _watch is not { } watch)
         {
             return;
         }
 
-        if (!_anyProbe)
+        var window = new PingWindow(_config.EffectiveWindow);
+
+        foreach (var point in watch.History(_config.EffectiveWindow))
         {
-            Show(host);
+            window.Add(point.Answer);
         }
 
-        var probe = new CancellationTokenSource();
-        _probe = probe;
-        _ = ProbeAsync(_host ?? PingConfig.DefaultHost, probe, host);
-    }
-
-    private async Task ProbeAsync(string target, CancellationTokenSource probe, IDetailHost host)
-    {
-        try
-        {
-            var outcome = await NetworkMetrics.PingAsync(target, probe.Token).ConfigureAwait(true);
-
-            if (_detached || !ReferenceEquals(_probe, probe))
-            {
-                return;
-            }
-
-            Note(outcome.Detail);
-            _anyProbe = true;
-            _window.Add(outcome.Reading is { Available: true, Value: { } ms } ? ms : null);
-            Show(host);
-        }
-        catch (OperationCanceledException)
-        {
-            // ignore: cancelled by Detach or a host change; there is nobody left to show it to
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, $"could not probe {target}", ex);
-        }
-        finally
-        {
-            if (ReferenceEquals(_probe, probe))
-            {
-                _probe = null;
-            }
-
-            probe.Dispose();
-        }
-    }
-
-    private void Show(IDetailHost host)
-    {
-        var stats = _window.Stats();
-        var status = PingStats.Status(_anyProbe, stats.Last is not null);
+        var stats = window.Stats();
+        var status = PingStats.Status(watch.Count > 0, stats.Last is not null);
         host.Present(PingDetailRules.Sheet(Strings.Current, stats, _config.EffectiveHost, status));
-    }
-
-    /// <summary>A probe is logged only when it says something the last one did not.</summary>
-    private void Note(string? detail)
-    {
-        if (detail == _detail)
-        {
-            return;
-        }
-
-        _detail = detail;
-
-        if (detail is null)
-        {
-            Log.Info(Scope, $"ping answering again: {_host}");
-        }
-        else
-        {
-            Log.Warn(Scope, detail);
-        }
-    }
-
-    private void CancelProbe()
-    {
-        var probe = _probe;
-        _probe = null;
-
-        // Cancel only: ProbeAsync's finally owns the dispose.
-        probe?.Cancel();
     }
 
     public override void Detach()
     {
-        _detached = true;
-        CancelProbe();
+        _watch?.Dispose();
+        _watch = null;
+        _series = null;
+        _host = null;
     }
 }

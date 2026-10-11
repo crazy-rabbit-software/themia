@@ -85,41 +85,4 @@ public sealed class WeatherCacheStoreTests : IDisposable
         Assert.Null(kept.Value.Code);
         Assert.Empty(back.Forecasts);
     }
-
-    [Fact]
-    public void S729_an_absent_file_is_a_quiet_empty_cache()
-    {
-        var (snapshot, outcome) = WeatherCacheStore.Load(Path.Combine(_dir, WeatherCacheStore.FileName), Now);
-
-        Assert.Equal(WeatherCacheLoadOutcome.Fresh, outcome);
-        Assert.Empty(snapshot.Current);
-    }
-
-    [Fact]
-    public void S729_a_corrupt_file_is_set_aside_not_overwritten()
-    {
-        Directory.CreateDirectory(_dir);
-        var path = Path.Combine(_dir, WeatherCacheStore.FileName);
-        File.WriteAllText(path, "{ broken");
-
-        var (snapshot, outcome) = WeatherCacheStore.Load(path, Now);
-
-        Assert.Equal(WeatherCacheLoadOutcome.Recovered, outcome);
-        Assert.Empty(snapshot.Current);
-        Assert.False(File.Exists(path));
-        Assert.Equal("{ broken", File.ReadAllText(path + ".corrupt"));
-    }
-
-    [Fact]
-    public void S729_a_save_is_read_back_by_load()
-    {
-        var path = Path.Combine(_dir, WeatherCacheStore.FileName);
-
-        Assert.True(WeatherCacheStore.Save(path, Snapshot(Now.AddMinutes(-30))));
-        var (snapshot, outcome) = WeatherCacheStore.Load(path, Now);
-
-        Assert.Equal(WeatherCacheLoadOutcome.Loaded, outcome);
-        Assert.Single(snapshot.Current);
-        Assert.Empty(Directory.GetFiles(_dir, "*.tmp.*"));
-    }
 }

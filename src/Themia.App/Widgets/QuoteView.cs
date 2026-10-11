@@ -30,7 +30,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
     private readonly TextBlock _text = Fluent.Text(FluentType.Body);
     private readonly TextBlock _author = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _caption = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly Grid _body;
 
     private WidgetArea _area;
@@ -78,12 +77,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         _author.TextTrimming = TextTrimming.CharacterEllipsis;
         _author.Margin = new Thickness(0, Fluent.Space2, 0, 0);
 
-        // [S-1496] On a tall or large tile, a caption naming the rotation and where in the list this
-        // quote is. Never drawn at the cost of the quote's own lines.
-        _caption.TextTrimming = TextTrimming.CharacterEllipsis;
-        _caption.Margin = new Thickness(0, Fluent.Space2, 0, 0);
-        _caption.Visibility = Visibility.Collapsed;
-
         var grid = new Grid
         {
             VerticalAlignment = VerticalAlignment.Center,
@@ -92,16 +85,13 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
             {
                 new RowDefinition { Height = GridLength.Auto },
                 new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = GridLength.Auto },
             },
         };
 
         SetRow(_text, 0);
         SetRow(_author, 1);
-        SetRow(_caption, 2);
         grid.Children.Add(_text);
         grid.Children.Add(_author);
-        grid.Children.Add(_caption);
 
         return grid;
     }
@@ -287,7 +277,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
             ? Visibility.Visible
             : Visibility.Collapsed;
 
-        _caption.Text = Caption(index, quotes.Count);
         Lay();
     }
 
@@ -299,10 +288,8 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     }
 
     /// <summary>
-    /// [S-210]/[S-653]/[S-1496] The ladder. The quote is the widget, so everything else is planned
-    /// around it and given up for it, in this order: the caption ("Quote of the day · 3 of 16" under
-    /// the attribution, from a tile Expanded in height), then
-    /// the attribution. What is left sets the quote at the largest ramp step a paragraph of it fits
+    /// [S-210]/[S-653]/[S-1496] The ladder. The quote is the widget, so the attribution is planned
+    /// around it and given up for it; nothing else is drawn (no rotation caption). What is left sets the quote at the largest ramp step a paragraph of it fits
     /// at — up to TitleLarge, and Display on a tile Huge both ways — and a quote too long even at the
     /// floor ends in an ellipsis on the last line that fits.
     /// </summary>
@@ -317,23 +304,16 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         }
 
         var wantAuthor = _config.ShowAuthor && _author.Text.Length > 0;
-        var wantDecor = _area.HeightClass >= SizeClass.Expanded;
         var ceiling = _area.AtLeast(SizeClass.Huge, SizeClass.Huge) ? FluentType.Display : FluentType.TitleLarge;
 
-        var plan = Plan(box, characters, wantAuthor, wantDecor, ceiling);
-
-        if (!plan.Fits && wantDecor)
-        {
-            plan = Plan(box, characters, wantAuthor, decor: false, ceiling);
-        }
+        var plan = Plan(box, characters, wantAuthor, ceiling);
 
         if (!plan.Fits && wantAuthor)
         {
-            plan = Plan(box, characters, author: false, decor: false, ceiling);
+            plan = Plan(box, characters, author: false, ceiling);
         }
 
         _author.Visibility = Show(plan.Author);
-        _caption.Visibility = Show(plan.Caption);
 
         _text.Apply(plan.Step);
         _text.MaxLines = Math.Max(1, (int)Math.Floor((plan.TextHeight + Disclosure.Tolerance) / plan.Step.LineHeight));
@@ -342,40 +322,26 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         _author.Apply(AuthorStep(plan.Step));
     }
 
-    private readonly record struct QuotePlan(TypeStep Step, double TextHeight, bool Author, bool Caption, bool Fits);
+    private readonly record struct QuotePlan(TypeStep Step, double TextHeight, bool Author, bool Fits);
 
-    private static QuotePlan Plan(WidgetArea box, int characters, bool author, bool decor, TypeStep ceiling)
+    private static QuotePlan Plan(WidgetArea box, int characters, bool author, TypeStep ceiling)
     {
         var room = new Disclosure(box, Fluent.Space2);
         room.Reserve(FluentType.Caption.LineHeight);
 
         var showAuthor = author && room.Take(FluentType.Body.LineHeight);
-        var showCaption = decor && room.Take(FluentType.Caption.LineHeight);
 
         var height = room.Remaining + FluentType.Caption.LineHeight;
         var step = QuoteLayout.Fit(box.Width, height, characters, FluentType.Caption, ceiling);
         var fits = QuoteLayout.Capacity(step, box.Width, height) >= characters;
 
-        return new QuotePlan(step, height, showAuthor, showCaption, fits);
+        return new QuotePlan(step, height, showAuthor, fits);
     }
 
     private static TypeStep AuthorStep(TypeStep quote)
         => quote.FontSize > FluentType.Body.FontSize ? FluentType.Body : FluentType.Caption;
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
-
-    /// <summary>"Quote of the day · 3 of 16": which rotation this is, and where in the list.</summary>
-    private string Caption(int index, int count)
-    {
-        var name = (_config.Cadence switch
-        {
-            QuoteCadence.Daily => Str.WidgetsC_Quote_OfTheDay,
-            QuoteCadence.Hourly => Str.WidgetsC_Quote_OfTheHour,
-            _ => Str.WidgetsC_Quote_Quote,
-        }).Text();
-
-        return count > 1 ? Str.WidgetsC_Quote_CaptionPosition.Format(("name", name), ("position", index + 1), ("count", count)) : name;
-    }
 
     public void Detach()
     {

@@ -1,9 +1,5 @@
 {
   "$comment": "Machine-written translations (LOC-WIDGETS-A): every non-English string in this file needs native review.",
-  "widgetsA.audio.followDefault": "既定の出力に従う",
-  "widgetsA.audio.isDefault": "{name} (Windows の既定)",
-  "widgetsA.audio.makeDefault": "{name} を既定の出力にする",
-  "widgetsA.bluetooth.address": "アドレス",
   "widgetsA.bluetooth.connected": "接続済み",
   "widgetsA.bluetooth.connectedCount": {
     "other": "{count} 台接続中"
@@ -16,8 +12,6 @@
   "widgetsA.bluetooth.kind.pen": "ペン",
   "widgetsA.bluetooth.kind.phone": "電話",
   "widgetsA.bluetooth.kind.watch": "ウォッチ",
-  "widgetsA.bluetooth.notHeard": "受信なし",
-  "widgetsA.bluetooth.notReported": "報告なし",
   "widgetsA.bluetooth.paired": "ペアリング済み",
   "widgetsA.bluetooth.settings.battery.desc": "接続中の各デバイスに接続するため、更新が遅くなります",
   "widgetsA.bluetooth.settings.connectedOnly.desc": "ペアリング済みでも未接続のものを非表示",
@@ -33,7 +27,6 @@
   "widgetsA.bluetooth.settings.show": "表示",
   "widgetsA.bluetooth.settings.signal.desc": "更新のたびに Bluetooth LE デバイスを 3 秒間検出します。ほとんどのほかのデバイスは報告しません",
   "widgetsA.bluetooth.settings.signal.label": "信号強度",
-  "widgetsA.bluetooth.signal": "信号",
   "widgetsA.bluetooth.status.failed": "ペアリング済みのデバイスを読み込めませんでした",
   "widgetsA.bluetooth.status.loading": "ペアリング済みのデバイスを読み込んでいます",
   "widgetsA.bluetooth.status.noRadio": "この PC には Bluetooth がありません",
@@ -50,12 +43,8 @@
   "widgetsA.calendar.color.pink": "ピンク",
   "widgetsA.calendar.color.purple": "紫",
   "widgetsA.calendar.color.yellow": "黄",
-  "widgetsA.calendar.more": "ほか +{count} 件",
-  "widgetsA.calendar.moreToday": "今日はほかに +{count} 件",
   "widgetsA.calendar.noAccount": "カレンダーのアカウントはまだありません",
   "widgetsA.calendar.noEvents": "予定はありません",
-  "widgetsA.calendar.nothingComingUp": "予定はありません",
-  "widgetsA.calendar.nothingElseThisMonth": "今月はほかに予定はありません",
   "widgetsA.calendar.now": "現在",
   "widgetsA.calendar.previous": "前へ",
   "widgetsA.calendar.range": "{from}～{to}",
@@ -72,9 +61,7 @@
   "widgetsA.calendar.settings.listFailed": "カレンダーを一覧表示できませんでした。既定のカレンダーを表示しています。",
   "widgetsA.calendar.settings.listFailedWhy": "カレンダーを一覧表示できませんでした: {problem} 既定のカレンダーを表示しています。",
   "widgetsA.calendar.settings.listing": "このアカウントのカレンダーを検索しています…",
-  "widgetsA.calendar.settings.view.desc": "ビューが収まらない小さなウィジェットでは予定一覧を表示します",
   "widgetsA.calendar.spanWithLength": "{from}～{to} ({length})",
-  "widgetsA.calendar.weekdayDay": "{day}日 ({weekday})",
   "widgetsA.calendar.weekdayInitials": "日,月,火,水,木,金,土",
   "widgetsA.catalog.bluetooth.description": "ペアリング済みのデバイスとバッテリー残量",
   "widgetsA.catalog.calendar.description": "Microsoft、Google、CalDAV のカレンダーと誕生日",
@@ -138,7 +125,6 @@
   "widgetsA.clipboard.clearConfirm.body": "この一覧の内容はすべて消去されます。元に戻すことはできません。現在クリップボードにある内容は変わりません。",
   "widgetsA.clipboard.clearConfirm.title": "クリップボードの履歴を消去しますか?",
   "widgetsA.clipboard.clearEllipsis": "履歴を消去…",
-  "widgetsA.clipboard.countOf": "{count} / {capacity}",
   "widgetsA.clipboard.empty": "まだ何もコピーされていません。コピーするとここに表示されます。",
   "widgetsA.clipboard.lines": {
     "other": "{count} 行"

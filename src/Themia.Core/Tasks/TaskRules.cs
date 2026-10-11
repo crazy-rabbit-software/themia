@@ -199,64 +199,6 @@ public static class TaskRules
     }
 
     /// <summary>
-    /// [S-783] The summary strip on a panel: "7 open · 2 overdue · 1 due today · 3 done". The open
-    /// count is always said; the others only when there are any.
-    /// </summary>
-    public static string Summary(IReadOnlyList<TaskItem> rows, DateOnly today, TimeZoneInfo viewer)
-        => Summary(Strings.Current, rows, today, viewer);
-
-    /// <summary><see cref="Summary(IReadOnlyList{TaskItem}, DateOnly, TimeZoneInfo)"/> in an explicit language.</summary>
-    public static string Summary(Locale locale, IReadOnlyList<TaskItem> rows, DateOnly today, TimeZoneInfo viewer)
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-
-        int open = 0, overdue = 0, dueToday = 0, done = 0;
-
-        foreach (var task in rows)
-        {
-            if (task.Completed)
-            {
-                done++;
-                continue;
-            }
-
-            open++;
-
-            switch (TaskDue.Resolve(task.DueRaw, today, viewer)?.Label)
-            {
-                case DueLabel.Overdue:
-                    overdue++;
-                    break;
-                case DueLabel.Today:
-                    dueToday++;
-                    break;
-            }
-        }
-
-        var parts = new List<string>(4)
-        {
-            open == 0 ? Strings.Get(locale, Str.WidgetsC_Tasks_Summary_NothingOpen) : Strings.Plural(locale, Str.WidgetsC_Tasks_Summary_Open, open),
-        };
-
-        if (overdue > 0)
-        {
-            parts.Add(Strings.Plural(locale, Str.WidgetsC_Tasks_Summary_Overdue, overdue));
-        }
-
-        if (dueToday > 0)
-        {
-            parts.Add(Strings.Plural(locale, Str.WidgetsC_Tasks_Summary_DueToday, dueToday));
-        }
-
-        if (done > 0)
-        {
-            parts.Add(Strings.Plural(locale, Str.WidgetsC_Tasks_Summary_Done, done));
-        }
-
-        return string.Join(" · ", parts);
-    }
-
-    /// <summary>
     /// [S-596] The list a task typed into Today is created in: Today has no list of its own, so the
     /// account's default one, else its first. Null when the account has no lists at all.
     /// </summary>

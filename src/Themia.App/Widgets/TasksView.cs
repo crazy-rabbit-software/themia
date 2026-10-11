@@ -45,7 +45,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly TaskListHost _listHost;
 
     /// <summary>[S-783] "7 open · 2 overdue · 1 due today" over the list on a panel.</summary>
-    private readonly TextBlock _summary;
     private readonly Grid _emptyHost = new();
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
@@ -91,10 +90,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-        _summary = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        _summary.Margin = new Thickness(Fluent.Space4, 0, Fluent.Space4, TaskLayout.SummaryHeight - FluentType.Caption.LineHeight);
-        _summary.Visibility = Visibility.Collapsed;
 
         // The open count is Fluent's InfoBadge shape, which the design system owns.
         _badgeHost = Fluent.Badge(_badge);
@@ -155,7 +150,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         Grid.SetRow(_emptyHost, 1);
         Grid.SetRow(_addRow, 2);
 
-        Children.Add(_summary);
         Children.Add(_listHost);
         Children.Add(_emptyHost);
         Children.Add(_addRow);
@@ -568,9 +562,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         var plan = Plan(rows.Count);
         BuildRows(rows, today, plan);
 
-        _summary.Text = TaskRules.Summary(rows, today, TimeZoneInfo.Local);
-        _summary.Visibility = plan.Summary && rows.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-
         _badge.Text = TaskRules.OpenCount(rows).ToString(CultureInfo.InvariantCulture);
         _badgeHost.Visibility = TaskRules.OpenCount(rows) > 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -650,7 +641,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         ClearRows();
         _displayed = [];
         _badgeHost.Visibility = Visibility.Collapsed;
-        _summary.Visibility = Visibility.Collapsed;
         UpdateHeader();
 
         var who = _account?.Label;
