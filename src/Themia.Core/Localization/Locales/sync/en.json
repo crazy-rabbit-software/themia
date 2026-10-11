@@ -1,12 +1,5 @@
 {
-  "$comment": "[S-2612] Offline sync: what a widget says about the stored copy it shows and the changes waiting to reach the provider. English only until the translation round.",
-  "$englishOnly": [
-    "sync.updated",
-    "sync.stateUpdated",
-    "sync.pending",
-    "sync.queueFull",
-    "sync.withUpdated"
-  ],
+  "$comment": "[S-2612] Offline sync: what a widget says about the stored copy it shows and the changes waiting to reach the provider.",
   "sync.updated": "Updated {time}",
   "sync.stateUpdated": "{state} · updated {time}",
   "sync.pending": {

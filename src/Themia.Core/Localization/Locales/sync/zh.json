@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "{time} 更新",
+  "sync.stateUpdated": "{state} · {time} 更新",
+  "sync.pending": {
+    "other": "{count} 项更改待同步"
+  },
+  "sync.queueFull": "等待同步的更改过多；此更改未保留。",
+  "sync.withUpdated": "{sentence}{time} 更新。"
+}

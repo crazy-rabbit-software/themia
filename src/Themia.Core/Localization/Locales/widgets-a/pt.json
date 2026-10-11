@@ -60,6 +60,7 @@
   "widgetsA.calendar.settings.listing": "Procurando os calendários desta conta…",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
   "widgetsA.calendar.weekdayInitials": "Do,Se,Te,Qa,Qi,Sx,Sá",
+  "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.bluetooth.description": "Dispositivos emparelhados e a bateria deles",
   "widgetsA.catalog.category.accounts": "E-mail e calendário",
   "widgetsA.catalog.category.desk": "Mesa",

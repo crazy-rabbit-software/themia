@@ -3128,8 +3128,7 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
 (`Widgets/Details/*Part.cs`); rules in Core (`DetailFace`, `DetailSheet`, `CpuDetailRules`,
 `MemoryDetailRules`, `ProcessTable`, `NetworkDetailRules`, `DiskSpaceRules`, `BatteryDetailRules`,
 `PingWindow`, `GpuDetailRules`; configs in `Model/Configs/DetailConfigs.cs`); settings
-`WidgetSettings.Details.cs`. Tests `SystemDetailsTests` (`S24xx_`). Strings in `Locales/widgets-details`
-(English only so far).
+`WidgetSettings.Details.cs`. Tests `SystemDetailsTests` (`S24xx_`). Strings in `Locales/widgets-details`.
 
 - **[S-2400]** A detail widget is a hero (its main figure), a caption saying what it is of, facts in
   priority order and, for some kinds, a list. No "which facts" settings: the tile shows more as it grows.

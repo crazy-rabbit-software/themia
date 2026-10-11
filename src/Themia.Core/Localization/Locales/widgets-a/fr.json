@@ -60,6 +60,7 @@
   "widgetsA.calendar.settings.listing": "Recherche des calendriers de ce compte…",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
   "widgetsA.calendar.weekdayInitials": "Di,Lu,Ma,Me,Je,Ve,Sa",
+  "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.bluetooth.description": "Appareils associés et leur batterie",
   "widgetsA.catalog.category.accounts": "Courrier et calendrier",
   "widgetsA.catalog.category.desk": "Bureau",

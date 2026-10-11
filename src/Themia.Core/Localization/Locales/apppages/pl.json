@@ -1,0 +1,69 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Przeciągnij widok na inny, aby go przenieść, lub naciśnij na widoku Alt+Shift+Strzałka w górę lub w dół.",
+  "shell.list.reorderHint": "Przeciągnij element na inny, aby go przenieść, lub naciśnij na elemencie Alt+Shift+Strzałka w górę lub w dół.",
+  "shell.view.colour": "Kolor",
+  "shell.view.colourDesc": "Kolor ikony na pasku widoków i tutaj",
+  "shell.view.colourDefault": "Kolor tekstu",
+  "shell.appearance.themeColours": "Motyw i kolory",
+  "shell.appearance.cards": "Karty widżetów",
+  "shell.appearance.cardsDesc": "Obramowanie, narożniki i kontur",
+  "shell.appearance.textAndSize": "Tekst i rozmiar",
+  "shell.appearance.textAndSizeDesc": "Czcionka, rozmiar tekstu i skala widżetów",
+  "shell.appearance.layoutDesc": "Odstęp między widżetami i przyciąganie do siatki",
+  "shell.net.blockedLocal": "{host} jest w sieci lokalnej. Themia łączy się z nim tylko wtedy, gdy sam wpiszesz adres",
+  "shell.accounts.stats.mail": "Poczta",
+  "shell.accounts.stats.calendar": "Kalendarz",
+  "shell.accounts.stats.contacts": "Kontakty",
+  "shell.accounts.stats.tasks": "Zadania",
+  "shell.accounts.stats.messages": {
+    "one": "{count} wiadomość",
+    "few": "{count} wiadomości",
+    "many": "{count} wiadomości",
+    "other": "{count} wiadomości"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} wydarzenie",
+    "few": "{count} wydarzenia",
+    "many": "{count} wydarzeń",
+    "other": "{count} wydarzenia"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} kontakt",
+    "few": "{count} kontakty",
+    "many": "{count} kontaktów",
+    "other": "{count} kontaktu"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} zadanie",
+    "few": "{count} zadania",
+    "many": "{count} zadań",
+    "other": "{count} zadania"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "w {count} folderze",
+    "few": "w {count} folderach",
+    "many": "w {count} folderach",
+    "other": "w {count} folderu"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "w {count} kalendarzu",
+    "few": "w {count} kalendarzach",
+    "many": "w {count} kalendarzach",
+    "other": "w {count} kalendarza"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "na {count} liście",
+    "few": "na {count} listach",
+    "many": "na {count} listach",
+    "other": "na {count} listy"
+  },
+  "shell.accounts.stats.synced": "zsynchronizowano {time}",
+  "shell.accounts.stats.neverSynced": "jeszcze nie zsynchronizowano",
+  "shell.accounts.stats.nothing": "Na tym komputerze nie ma jeszcze danych",
+  "shell.accounts.nicknameDesc": "Nazwa tego konta widoczna w widżetach",
+  "shell.accounts.reconnect": "Zaloguj się ponownie",
+  "shell.accounts.reconnectButton": "Zaloguj",
+  "shell.accounts.signOutDesc": "Usuwa konto i wszystkie zsynchronizowane z niego dane z tego komputera",
+  "shell.accounts.needsSignIn": "Wymaga ponownego zalogowania"
+}

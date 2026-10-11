@@ -59,6 +59,7 @@
   "widgetsA.calendar.settings.listing": "正在查找此帐户的日历…",
   "widgetsA.calendar.spanWithLength": "{from}–{to}（{length}）",
   "widgetsA.calendar.weekdayInitials": "日,一,二,三,四,五,六",
+  "widgetsA.calendar.yearTitle": "{year}年",
   "widgetsA.catalog.bluetooth.description": "已配对设备及其电量",
   "widgetsA.catalog.category.accounts": "邮件和日历",
   "widgetsA.catalog.category.desk": "桌面工具",

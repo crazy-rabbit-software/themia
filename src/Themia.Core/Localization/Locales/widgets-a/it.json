@@ -60,6 +60,7 @@
   "widgetsA.calendar.settings.listing": "Ricerca dei calendari di questo account…",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
   "widgetsA.calendar.weekdayInitials": "Do,Lu,Ma,Me,Gi,Ve,Sa",
+  "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.bluetooth.description": "Dispositivi associati e la loro batteria",
   "widgetsA.catalog.category.accounts": "Posta e calendario",
   "widgetsA.catalog.category.desk": "Scrivania",

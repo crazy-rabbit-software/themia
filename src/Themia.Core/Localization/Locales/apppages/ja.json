@@ -1,0 +1,48 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "ビューを別のビューにドラッグして移動するか、ビュー上で Alt+Shift+↑ または ↓ キーを押します。",
+  "shell.list.reorderHint": "項目を別の項目にドラッグして移動するか、項目上で Alt+Shift+↑ または ↓ キーを押します。",
+  "shell.view.colour": "色",
+  "shell.view.colourDesc": "ビュー バーとこのウィンドウでのアイコンの色",
+  "shell.view.colourDefault": "文字の色",
+  "shell.appearance.themeColours": "テーマと色",
+  "shell.appearance.cards": "ウィジェット カード",
+  "shell.appearance.cardsDesc": "枠線、角、輪郭",
+  "shell.appearance.textAndSize": "文字とサイズ",
+  "shell.appearance.textAndSizeDesc": "フォント、文字サイズ、ウィジェットの拡大率",
+  "shell.appearance.layoutDesc": "ウィジェットの間隔とグリッドへの吸着",
+  "shell.net.blockedLocal": "{host} はローカル ネットワーク上にあります。Themia は自分で入力したアドレスの場合にのみアクセスします",
+  "shell.accounts.stats.mail": "メール",
+  "shell.accounts.stats.calendar": "カレンダー",
+  "shell.accounts.stats.contacts": "連絡先",
+  "shell.accounts.stats.tasks": "タスク",
+  "shell.accounts.stats.messages": {
+    "other": "{count} 件のメッセージ"
+  },
+  "shell.accounts.stats.events": {
+    "other": "{count} 件の予定"
+  },
+  "shell.accounts.stats.people": {
+    "other": "{count} 件の連絡先"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "{count} 件のタスク"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "{count} 個のフォルダー内"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "{count} 個のカレンダー内"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "{count} 個のリスト内"
+  },
+  "shell.accounts.stats.synced": "{time}に同期",
+  "shell.accounts.stats.neverSynced": "未同期",
+  "shell.accounts.stats.nothing": "この PC にはまだ何も保存されていません",
+  "shell.accounts.nicknameDesc": "ウィジェットに表示されるこのアカウントの名前",
+  "shell.accounts.reconnect": "再度サインイン",
+  "shell.accounts.reconnectButton": "サインイン",
+  "shell.accounts.signOutDesc": "アカウントと、この PC に同期されたすべてのデータを削除します",
+  "shell.accounts.needsSignIn": "再度サインインが必要です"
+}

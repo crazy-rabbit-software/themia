@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Aggiornato {time}",
+  "sync.stateUpdated": "{state} · aggiornato {time}",
+  "sync.pending": {
+    "one": "{count} modifica in sospeso",
+    "other": "{count} modifiche in sospeso"
+  },
+  "sync.queueFull": "Troppe modifiche in attesa di sincronizzazione; questa non è stata conservata.",
+  "sync.withUpdated": "{sentence} Aggiornato {time}."
+}

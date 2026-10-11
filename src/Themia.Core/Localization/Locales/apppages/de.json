@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Ziehe eine Ansicht auf eine andere, um sie zu verschieben, oder drücke Alt+Umschalt+Pfeil nach oben/unten.",
+  "shell.list.reorderHint": "Ziehe ein Element auf ein anderes, um es zu verschieben, oder drücke Alt+Umschalt+Pfeil nach oben/unten.",
+  "shell.view.colour": "Farbe",
+  "shell.view.colourDesc": "Farbe des Symbols in der Ansichtsleiste und hier",
+  "shell.view.colourDefault": "Textfarbe",
+  "shell.appearance.themeColours": "Design und Farben",
+  "shell.appearance.cards": "Widget-Karten",
+  "shell.appearance.cardsDesc": "Rahmen, Ecken und Kontur",
+  "shell.appearance.textAndSize": "Text und Größe",
+  "shell.appearance.textAndSizeDesc": "Schriftart, Textgröße und Widget-Skalierung",
+  "shell.appearance.layoutDesc": "Abstand zwischen Widgets und Ausrichten am Raster",
+  "shell.net.blockedLocal": "{host} liegt im lokalen Netzwerk. Themia greift nur darauf zu, wenn du die Adresse selbst eingegeben hast",
+  "shell.accounts.stats.mail": "E-Mail",
+  "shell.accounts.stats.calendar": "Kalender",
+  "shell.accounts.stats.contacts": "Kontakte",
+  "shell.accounts.stats.tasks": "Aufgaben",
+  "shell.accounts.stats.messages": {
+    "one": "{count} Nachricht",
+    "other": "{count} Nachrichten"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} Termin",
+    "other": "{count} Termine"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} Kontakt",
+    "other": "{count} Kontakte"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} Aufgabe",
+    "other": "{count} Aufgaben"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "in {count} Ordner",
+    "other": "in {count} Ordnern"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "in {count} Kalender",
+    "other": "in {count} Kalendern"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "in {count} Liste",
+    "other": "in {count} Listen"
+  },
+  "shell.accounts.stats.synced": "synchronisiert {time}",
+  "shell.accounts.stats.neverSynced": "noch nicht synchronisiert",
+  "shell.accounts.stats.nothing": "Noch nichts auf diesem PC gespeichert",
+  "shell.accounts.nicknameDesc": "Der Name, den Widgets für dieses Konto anzeigen",
+  "shell.accounts.reconnect": "Erneut anmelden",
+  "shell.accounts.reconnectButton": "Anmelden",
+  "shell.accounts.signOutDesc": "Entfernt das Konto und alles davon Synchronisierte von diesem PC",
+  "shell.accounts.needsSignIn": "Erneute Anmeldung erforderlich"
+}

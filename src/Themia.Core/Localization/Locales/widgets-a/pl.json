@@ -62,6 +62,7 @@
   "widgetsA.calendar.settings.listing": "Wyszukiwanie kalendarzy tego konta…",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
   "widgetsA.calendar.weekdayInitials": "Nd,Pn,Wt,Śr,Cz,Pt,So",
+  "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.bluetooth.description": "Sparowane urządzenia i ich bateria",
   "widgetsA.catalog.category.accounts": "Poczta i kalendarz",
   "widgetsA.catalog.category.desk": "Biurko",

@@ -1,0 +1,48 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "将视图拖到另一个视图上即可移动，或在视图上按 Alt+Shift+向上键或向下键。",
+  "shell.list.reorderHint": "将项目拖到另一个项目上即可移动，或在项目上按 Alt+Shift+向上键或向下键。",
+  "shell.view.colour": "颜色",
+  "shell.view.colourDesc": "图标在视图栏和此窗口中的颜色",
+  "shell.view.colourDefault": "文本颜色",
+  "shell.appearance.themeColours": "主题和颜色",
+  "shell.appearance.cards": "小组件卡片",
+  "shell.appearance.cardsDesc": "边框、圆角和轮廓",
+  "shell.appearance.textAndSize": "文本和大小",
+  "shell.appearance.textAndSizeDesc": "字体、文本大小和小组件缩放",
+  "shell.appearance.layoutDesc": "小组件间距和网格对齐",
+  "shell.net.blockedLocal": "{host} 位于本地网络。Themia 只会访问你亲自输入的地址",
+  "shell.accounts.stats.mail": "邮件",
+  "shell.accounts.stats.calendar": "日历",
+  "shell.accounts.stats.contacts": "联系人",
+  "shell.accounts.stats.tasks": "任务",
+  "shell.accounts.stats.messages": {
+    "other": "{count} 封邮件"
+  },
+  "shell.accounts.stats.events": {
+    "other": "{count} 个日程"
+  },
+  "shell.accounts.stats.people": {
+    "other": "{count} 位联系人"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "{count} 项任务"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "在 {count} 个文件夹中"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "在 {count} 个日历中"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "在 {count} 个列表中"
+  },
+  "shell.accounts.stats.synced": "{time}同步",
+  "shell.accounts.stats.neverSynced": "尚未同步",
+  "shell.accounts.stats.nothing": "此电脑上尚未存储任何内容",
+  "shell.accounts.nicknameDesc": "小组件为此帐户显示的名称",
+  "shell.accounts.reconnect": "重新登录",
+  "shell.accounts.reconnectButton": "登录",
+  "shell.accounts.signOutDesc": "移除此帐户以及从其同步到此电脑的所有内容",
+  "shell.accounts.needsSignIn": "需要重新登录"
+}

@@ -1,5 +1,4 @@
 {
-  "$englishOnly": ["shell.place.searchPlaceholder", "shell.place.notChosen", "shell.place.noMatch", "shell.place.offline", "shell.place.failed", "shell.color.pickFromScreen", "shell.color.pickFromScreenTip", "shell.color.pickFailed", "shell.viewBar.allViews", "shell.viewBar.someViews", "shell.viewBar.more"],
   "shell.time.justNow": "Just now",
   "shell.fetch.notConfigured": "Not set up yet",
   "shell.fetch.loading": "Loading",

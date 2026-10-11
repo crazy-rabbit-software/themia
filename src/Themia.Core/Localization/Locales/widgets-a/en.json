@@ -1,5 +1,4 @@
 {
-  "$englishOnly": ["widgetsA.calendar.yearTitle"],
   "widgetsA.bluetooth.connected": "Connected",
   "widgetsA.bluetooth.connectedCount": {
     "one": "{count} connected",

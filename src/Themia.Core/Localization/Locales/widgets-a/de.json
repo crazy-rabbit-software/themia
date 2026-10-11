@@ -60,6 +60,7 @@
   "widgetsA.calendar.settings.listing": "Kalender dieses Kontos werden gesucht…",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
   "widgetsA.calendar.weekdayInitials": "So,Mo,Di,Mi,Do,Fr,Sa",
+  "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.bluetooth.description": "Gekoppelte Geräte und ihr Akkustand",
   "widgetsA.catalog.category.accounts": "E-Mail & Kalender",
   "widgetsA.catalog.category.desk": "Schreibtisch",

@@ -59,6 +59,7 @@
   "widgetsA.calendar.settings.listing": "このアカウントのカレンダーを検索しています…",
   "widgetsA.calendar.spanWithLength": "{from}～{to} ({length})",
   "widgetsA.calendar.weekdayInitials": "日,月,火,水,木,金,土",
+  "widgetsA.calendar.yearTitle": "{year}年",
   "widgetsA.catalog.bluetooth.description": "ペアリング済みのデバイスとバッテリー残量",
   "widgetsA.catalog.category.accounts": "メールとカレンダー",
   "widgetsA.catalog.category.desk": "デスク",

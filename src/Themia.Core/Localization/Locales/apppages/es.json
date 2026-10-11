@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Arrastra una vista sobre otra para moverla, o pulsa Alt+Mayús+Arriba o Abajo sobre una vista.",
+  "shell.list.reorderHint": "Arrastra un elemento sobre otro para moverlo, o pulsa Alt+Mayús+Arriba o Abajo sobre un elemento.",
+  "shell.view.colour": "Color",
+  "shell.view.colourDesc": "Color del icono en la barra de vistas y aquí",
+  "shell.view.colourDefault": "Color del texto",
+  "shell.appearance.themeColours": "Tema y colores",
+  "shell.appearance.cards": "Tarjetas de widget",
+  "shell.appearance.cardsDesc": "Borde, esquinas y contorno",
+  "shell.appearance.textAndSize": "Texto y tamaño",
+  "shell.appearance.textAndSizeDesc": "Fuente, tamaño del texto y escala de los widgets",
+  "shell.appearance.layoutDesc": "Espacio entre widgets y ajuste a la cuadrícula",
+  "shell.net.blockedLocal": "{host} está en la red local. Themia solo accede a ella si escribiste tú la dirección",
+  "shell.accounts.stats.mail": "Correo",
+  "shell.accounts.stats.calendar": "Calendario",
+  "shell.accounts.stats.contacts": "Contactos",
+  "shell.accounts.stats.tasks": "Tareas",
+  "shell.accounts.stats.messages": {
+    "one": "{count} mensaje",
+    "other": "{count} mensajes"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} evento",
+    "other": "{count} eventos"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} contacto",
+    "other": "{count} contactos"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} tarea",
+    "other": "{count} tareas"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "en {count} carpeta",
+    "other": "en {count} carpetas"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "en {count} calendario",
+    "other": "en {count} calendarios"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "en {count} lista",
+    "other": "en {count} listas"
+  },
+  "shell.accounts.stats.synced": "sincronizado {time}",
+  "shell.accounts.stats.neverSynced": "aún no sincronizado",
+  "shell.accounts.stats.nothing": "Aún no hay nada guardado en este equipo",
+  "shell.accounts.nicknameDesc": "El nombre que muestran los widgets para esta cuenta",
+  "shell.accounts.reconnect": "Volver a iniciar sesión",
+  "shell.accounts.reconnectButton": "Iniciar sesión",
+  "shell.accounts.signOutDesc": "Olvida la cuenta y todo lo sincronizado desde ella en este equipo",
+  "shell.accounts.needsSignIn": "Debes volver a iniciar sesión"
+}
