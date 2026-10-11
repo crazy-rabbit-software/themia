@@ -14,7 +14,8 @@ namespace Themia.App.Widgets;
 /// rendering one can never move the machine's real volume.
 /// </para>
 /// </summary>
-internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot, Action<AudioPeaks> onPeaks) : IDisposable
+/// <param name="onPeaks">Meter samples; null for a widget that never asks for them (the volume tile, [S-2730]).</param>
+internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot, Action<AudioPeaks>? onPeaks = null) : IDisposable
 {
     private IAudioSubscription? _subscription;
     private AudioWant? _want;

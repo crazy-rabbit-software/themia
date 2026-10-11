@@ -15,25 +15,21 @@ namespace Themia.App.Widgets;
 /// The gallery's ladder and drawing. [S-767]
 /// <para>
 /// Every picture-bearing part sits on one <see cref="Canvas"/> at a position the plan worked out —
-/// the main picture or the grid / scatter / mosaic, the "up next" strip, the caption and the hover
-/// bar — so one layout pass places everything and nothing depends on a nested panel's measure
+/// the main picture or the grid / scatter / mosaic, and the hover bar — so one
+/// layout pass places everything and nothing depends on a nested panel's measure
 /// settling first. Picture frames are reused by position: a resize, or a slide moving on, re-points
 /// the frames it has rather than throwing away decoded bitmaps and asking for them all again.
 /// </para>
 /// </summary>
 internal sealed partial class GalleryView
 {
-    /// <summary>The gap between tiles, thumbnails and the caption; also the caption's bottom padding.</summary>
+    /// <summary>The gap between tiles.</summary>
     private const double Gap = Fluent.Space1;
 
     private readonly TextBlock _counter = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly Canvas _canvas = new();
     private readonly RectangleGeometry _clip = new();
     private readonly List<GalleryFrame> _frames = [];
-    private readonly List<GalleryFrame> _thumbs = [];
-    private readonly StackPanel _caption = new() { Spacing = Gap };
-    private readonly TextBlock _captionTitle = Fluent.Text(FluentType.BodyStrong);
-    private readonly TextBlock _captionDetail = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private Border _messageHost = null!;
     private TextBlock _message = null!;
     private FontIcon _messageIcon = null!;
@@ -48,15 +44,6 @@ internal sealed partial class GalleryView
 
         // Scatter prints are dealt near the edges and tilted; the clip keeps their corners on the card.
         _canvas.Clip = _clip;
-
-        _captionTitle.TextTrimming = TextTrimming.CharacterEllipsis;
-        _captionTitle.TextWrapping = TextWrapping.NoWrap;
-        _captionDetail.TextTrimming = TextTrimming.CharacterEllipsis;
-        _captionDetail.TextWrapping = TextWrapping.NoWrap;
-        _caption.Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
-        _caption.Children.Add(_captionTitle);
-        _caption.Children.Add(_captionDetail);
-        _canvas.Children.Add(_caption);
 
         // [S-301] Every outcome with no picture in it names itself. A photo frame showing a blank
         // card is indistinguishable from a broken one, and "no folder chosen", "that folder is
@@ -110,8 +97,7 @@ internal sealed partial class GalleryView
             return; // Not arranged yet; ApplySize brings us straight back.
         }
 
-        var caption = _config.Source == GallerySource.Bing && _config.ShowCaption && _scan.Caption is not null;
-        var plan = GalleryPlan.For(_area, _config.Layout, _config.IsSingleSource, _scan.Paths.Count, caption, Gap);
+        var plan = GalleryPlan.For(_area, _config.Layout, _config.IsSingleSource, _scan.Paths.Count, Gap);
         _plan = plan;
 
         _index = Math.Clamp(_index, 0, _scan.Paths.Count - 1);
@@ -135,8 +121,6 @@ internal sealed partial class GalleryView
                 break;
         }
 
-        DrawStrip(plan);
-        DrawCaption(plan);
         PlaceControls(plan);
 
         _counter.Text = plan.Counter && plan.Mode == GalleryMode.Slideshow
@@ -206,83 +190,17 @@ internal sealed partial class GalleryView
         }
     }
 
-    /// <summary>[S-768] The slideshow's "up next" thumbnails: a row under the picture, or squares beside it.</summary>
-    private void DrawStrip(GalleryPlan plan)
-    {
-        var count = plan.Strip == GalleryStrip.None ? 0 : plan.StripCount;
-        var thumbs = Frames(_thumbs, count);
-
-        for (var i = 0; i < thumbs.Count; i++)
-        {
-            GalleryRect rect;
-
-            if (plan.Strip == GalleryStrip.Beside)
-            {
-                rect = new GalleryRect(plan.MainWidth + Gap + (i * (plan.StripExtent + Gap)), 0, plan.StripExtent, plan.StripExtent);
-            }
-            else
-            {
-                var width = (plan.MainWidth - ((count - 1) * Gap)) / count;
-                rect = new GalleryRect(i * (width + Gap), plan.MainHeight + Gap, width, plan.StripExtent);
-            }
-
-            var index = (_index + 1 + i) % _scan.Paths.Count;
-            Place(thumbs[i], rect, Fluent.ControlRadius, Stretch.UniformToFill);
-            thumbs[i].Index = index;
-            Point(thumbs[i], _scan.Paths[index]);
-        }
-    }
-
-    /// <summary>
-    /// [S-763]/[S-768] Words under the picture. The photo of the day's title and credit; for a
-    /// slideshow from L the file's name, alone.
-    /// </summary>
-    private void DrawCaption(GalleryPlan plan)
-    {
-        if (plan.CaptionLines == 0)
-        {
-            _caption.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        string title;
-        string detail;
-
-        if (_scan.Caption is { } words)
-        {
-            title = words.Title;
-            detail = words.Credit;
-        }
-        else
-        {
-            title = System.IO.Path.GetFileNameWithoutExtension(_scan.Paths[_index]);
-            detail = string.Empty;
-        }
-
-        _captionTitle.Text = title;
-        _captionDetail.Text = detail;
-        _captionDetail.Visibility = plan.CaptionLines >= 2 && detail.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-
-        var top = plan.MainHeight + (plan.Strip == GalleryStrip.Below ? plan.StripExtent + Gap : 0) + Gap;
-        _caption.Width = _area.Width;
-        Canvas.SetTop(_caption, top);
-        Canvas.SetLeft(_caption, 0);
-        Canvas.SetZIndex(_caption, 1000);
-        _caption.Visibility = Visibility.Visible;
-    }
-
     private void ShowMessage(string text)
     {
         _plan = null;
 
-        foreach (var frame in _frames.Concat(_thumbs))
+        foreach (var frame in _frames)
         {
             frame.Release();
             _canvas.Children.Remove(frame.Host);
         }
 
         _frames.Clear();
-        _thumbs.Clear();
 
         // [S-767] On a compact card the sentence keeps only its first line ("No folder chosen."):
         // the advice after it would be cut off mid-word anyway.
@@ -315,7 +233,7 @@ internal sealed partial class GalleryView
 
         while (frames.Count < count)
         {
-            var frame = new GalleryFrame(ReferenceEquals(frames, _thumbs));
+            var frame = new GalleryFrame();
             WireFrame(frame);
             _canvas.Children.Insert(0, frame.Host);
             frames.Add(frame);
@@ -348,8 +266,13 @@ internal sealed partial class GalleryView
         var fill = frame.Image.Stretch == Stretch.UniformToFill;
         var wanted = fill ? Math.Max(frame.Host.Width, frame.Host.Height) * 1.5 : frame.Host.Width;
 
+        // [S-2760] The name is for a screen reader only: no caption and no hover tooltip shows it.
         AutomationProperties.SetName(frame.Host, Picture.Name(path));
-        ToolTipService.SetToolTip(frame.Host, Picture.IsLocal(path) ? path : _scan.Caption?.Title);
+
+        // [S-3112] The photo of the day's credit is its only tooltip; a local picture has none.
+        // Frames are reused across sources, so a frame that showed Bing's photo is cleared here.
+        var credit = _config.Source == GallerySource.Bing && !Picture.IsLocal(path) ? _scan.Credit?.Text : null;
+        ToolTipService.SetToolTip(frame.Host, credit);
 
         if (string.Equals(frame.Path, path, StringComparison.Ordinal) && wanted <= frame.Decoded + 1)
         {
@@ -403,22 +326,20 @@ internal sealed partial class GalleryView
     {
         DetachCommands();
 
-        foreach (var frame in _frames.Concat(_thumbs))
+        foreach (var frame in _frames)
         {
             frame.Release();
         }
 
         _frames.Clear();
-        _thumbs.Clear();
         _canvas.Children.Clear();
     }
 
     /// <summary>One picture on the canvas: its frame, what it shows, and the decode in flight for it.</summary>
     private sealed class GalleryFrame
     {
-        public GalleryFrame(bool thumbnail)
+        public GalleryFrame()
         {
-            Thumbnail = thumbnail;
             Image = new Image { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
             Host = new Border
             {
@@ -432,12 +353,6 @@ internal sealed partial class GalleryView
         public Border Host { get; }
 
         public Image Image { get; }
-
-        /// <summary>A strip thumbnail: a tap jumps the slideshow to it.</summary>
-        public bool Thumbnail { get; }
-
-        /// <summary>For a thumbnail, the slide it stands for.</summary>
-        public int Index { get; set; }
 
         public string? Path { get; set; }
 

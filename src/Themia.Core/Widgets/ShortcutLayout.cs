@@ -175,13 +175,6 @@ public static class ShortcutLayout
     }
 
     /// <summary>
-    /// [S-1382] Whether the grid sits centred as a group: every item is on screen at once and the
-    /// tiles are not stretched to fill the height (stretched tiles fill it already).
-    /// </summary>
-    public static bool Centred(ShortcutTilePlan plan, int count, bool stretch)
-        => !stretch && count > 0 && (int)Math.Ceiling(count / (double)Math.Max(1, plan.Columns)) <= plan.Rows;
-
-    /// <summary>
     /// A list runs in two columns on the widest tiles and on a wide strip (a short tile with the
     /// width of two lists), where one column would leave most of the width empty.
     /// </summary>

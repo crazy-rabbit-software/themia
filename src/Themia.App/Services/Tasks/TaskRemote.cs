@@ -1,7 +1,10 @@
+using System.Globalization;
 using System.Net.Http;
 using Themia.App.Services.Accounts;
 using Themia.Core.Accounts;
+using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Sync;
 using Themia.Core.Tasks;
 
 namespace Themia.App.Services.Tasks;
@@ -23,8 +26,13 @@ internal interface ITaskRemote
 
     Task<IReadOnlyList<TaskListInfo>> ListsAsync(string accountId, CancellationToken cancellation);
 
-    /// <summary>One real list's tasks (never Today: the service fans that out).</summary>
-    Task<IReadOnlyList<TaskItem>> TasksAsync(string accountId, string listId, bool showCompleted, CancellationToken cancellation);
+    /// <summary>
+    /// [S-2686] One real list's tasks (never Today: the service fans that out): the changes since
+    /// <paramref name="cursor"/> folded into <paramref name="held"/> when the cursor is usable, else
+    /// the list in full. Returns the tasks and the cursor to keep (null when none can follow).
+    /// </summary>
+    Task<(IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> SyncListAsync(
+        string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, CancellationToken cancellation);
 
     Task SetCompletedAsync(string accountId, string listId, string taskId, bool completed, CancellationToken cancellation);
 
@@ -42,6 +50,11 @@ internal interface ITaskRemote
 /// </summary>
 internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
 {
+    private const string Scope = "tasks";
+
+    /// <summary>The most entries one change round reads: a list's whole history of finished tasks, within reason.</summary>
+    private const int MaxRound = 2000;
+
     public IReadOnlyList<TaskAccount> Accounts =>
     [
         .. accounts.WithFeature(AccountFeatures.Tasks)
@@ -72,27 +85,88 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         return [.. graph.Select(TaskWire.FromGraph).OfType<TaskListInfo>()];
     }
 
-    public async Task<IReadOnlyList<TaskItem>> TasksAsync(string accountId, string listId, bool showCompleted, CancellationToken cancellation)
+    public async Task<(IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> SyncListAsync(
+        string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, CancellationToken cancellation)
     {
         var provider = Provider(accountId);
-        var address = TaskWire.Tasks(provider, listId, showCompleted);
+        var kind = provider == AccountProvider.Google ? CursorKind.GoogleUpdatedMin : CursorKind.GraphDelta;
+        var scope = TaskShelves.CursorScope(listId, includeCompleted);
+        var now = DateTimeOffset.UtcNow;
+        var check = held is null ? CursorCheck.Missing : SyncCursors.Check(cursor, kind, scope, now);
 
-        IEnumerable<TaskItem> tasks;
-        if (provider == AccountProvider.Google)
+        if (check == CursorCheck.Usable && held is not null && cursor is not null)
         {
-            var google = await accounts.GetGooglePagesAsync(accountId, address, "items", TaskWireContext.Default.GoogleTask, TaskWire.MaxTasksPerList, cancellation)
-                .ConfigureAwait(false);
-            tasks = google.Select(t => TaskWire.FromGoogle(t, listId)).OfType<TaskItem>();
+            try
+            {
+                return provider == AccountProvider.Google
+                    ? await GoogleChangesAsync(accountId, listId, includeCompleted, held, cursor, now, cancellation).ConfigureAwait(false)
+                    : await GraphRoundAsync(accountId, listId, includeCompleted, held, cursor, now, cancellation).ConfigureAwait(false);
+            }
+            catch (AccountException ex) when (DeltaRules.Rejected(ex.HttpStatus, ex.ProviderMessage))
+            {
+                // [S-2681] The provider no longer knows the cursor: the list in full, now.
+                Log.Info(Scope, $"{accountId}: list {listId} refused its change cursor (HTTP {ex.HttpStatus}); reading it in full");
+            }
         }
-        else
+        else if (check is CursorCheck.Stale or CursorCheck.OtherScope)
         {
-            var graph = await accounts.GetGraphPagesAsync(accountId, address, TaskWireContext.Default.GraphTodoTask, TaskWire.MaxTasksPerList, cancellation)
-                .ConfigureAwait(false);
-            tasks = graph.Select(t => TaskWire.FromGraph(t, listId)).OfType<TaskItem>();
+            Log.Debug(Scope, $"{accountId}: list {listId} read in full ({check})");
         }
 
-        return [.. showCompleted ? tasks : tasks.Where(t => !t.Completed)];
+        return provider == AccountProvider.Google
+            ? await GoogleFullAsync(accountId, listId, includeCompleted, scope, now, cancellation).ConfigureAwait(false)
+            : await GraphRoundAsync(accountId, listId, includeCompleted, null, null, now, cancellation).ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// [S-2686] Graph: a delta round, from the start (the whole list, finished tasks filtered as the
+    /// list wants) or from the stored delta link (only what changed). One path for both.
+    /// </summary>
+    private async Task<(IReadOnlyList<TaskItem>, SyncCursor?)> GraphRoundAsync(
+        string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, DateTimeOffset now, CancellationToken cancellation)
+    {
+        var first = cursor is null ? TaskWire.GraphTasksDelta(listId) : new Uri(cursor.Value);
+        var round = await accounts.GetDeltaAsync(accountId, first, DeltaDialect.Graph, TaskWireContext.Default.GraphTodoTask, MaxRound, cancellation,
+            ("Prefer", "odata.maxpagesize=200")).ConfigureAwait(false);
+
+        var changed = round.Items.Select(t => TaskWire.FromGraph(t, listId)).OfType<TaskItem>().ToList();
+        var (tasks, whole) = DeltaMerge.Tasks(held ?? [], changed, round.Removed, includeCompleted, TaskWire.MaxTasksPerList);
+
+        SyncCursor? next = round.Cursor is { } link && whole
+            ? cursor is null
+                ? SyncCursors.Start(CursorKind.GraphDelta, link, TaskShelves.CursorScope(listId, includeCompleted), now)
+                : SyncCursors.Advance(cursor, link, now)
+            : null;
+        return (tasks, next);
+    }
+
+    /// <summary>The whole Google list, and an <c>updatedMin</c> cursor a little before the request ([S-2686]).</summary>
+    private async Task<(IReadOnlyList<TaskItem>, SyncCursor?)> GoogleFullAsync(
+        string accountId, string listId, bool includeCompleted, string scope, DateTimeOffset now, CancellationToken cancellation)
+    {
+        var google = await accounts.GetGooglePagesAsync(accountId, TaskWire.Tasks(AccountProvider.Google, listId, includeCompleted), "items",
+            TaskWireContext.Default.GoogleTask, TaskWire.MaxTasksPerList, cancellation).ConfigureAwait(false);
+
+        var all = google.Select(t => TaskWire.FromGoogle(t, listId)).OfType<TaskItem>().ToList();
+        var (tasks, whole) = DeltaMerge.Tasks([], all, [], includeCompleted, TaskWire.MaxTasksPerList);
+        return (tasks, whole ? SyncCursors.Start(CursorKind.GoogleUpdatedMin, Instant(now - DeltaRules.ClockOverlap), scope, now) : null);
+    }
+
+    /// <summary>The Google tasks changed since the cursor's instant, deleted and hidden ones included ([S-2686]).</summary>
+    private async Task<(IReadOnlyList<TaskItem>, SyncCursor?)> GoogleChangesAsync(
+        string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem> held, SyncCursor cursor, DateTimeOffset now, CancellationToken cancellation)
+    {
+        // Validated on load ([S-2681]): the value parses.
+        var since = DateTimeOffset.Parse(cursor.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+        var round = await accounts.GetDeltaAsync(accountId, TaskWire.GoogleTasksSince(listId, since), DeltaDialect.GoogleTasks,
+            TaskWireContext.Default.GoogleTask, MaxRound, cancellation).ConfigureAwait(false);
+
+        var changed = round.Items.Select(t => TaskWire.FromGoogle(t, listId)).OfType<TaskItem>().ToList();
+        var (tasks, whole) = DeltaMerge.Tasks(held, changed, round.Removed, includeCompleted, TaskWire.MaxTasksPerList);
+        return (tasks, round.Complete && whole ? SyncCursors.Advance(cursor, Instant(now - DeltaRules.ClockOverlap), now) : null);
+    }
+
+    private static string Instant(DateTimeOffset moment) => moment.UtcDateTime.ToString("o", CultureInfo.InvariantCulture);
 
     public Task SetCompletedAsync(string accountId, string listId, string taskId, bool completed, CancellationToken cancellation)
     {

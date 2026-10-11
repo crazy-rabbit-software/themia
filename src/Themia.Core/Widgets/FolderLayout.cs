@@ -22,7 +22,6 @@ public sealed record FolderPlan(
     bool Breadcrumb,
     bool SearchBox,
     bool ColumnHeader,
-    bool Footer,
     IReadOnlyList<FolderColumn> Columns,
     double RowHeight,
     double IconSize,
@@ -38,8 +37,8 @@ public sealed record FolderPlan(
 /// <item>The search box when it is open (it was asked for).</item>
 /// <item>Details: the column header, and the chosen columns that fit the width ([S-1322]). List: a
 /// trailing Modified from 180 DIPs, Size from 400, Type from 720 — the same columns, unlabelled.</item>
-/// <item>L and up (both axes Expanded): a breadcrumb of the path above the list and an Explorer-style
-/// status footer ("24 items · 2 selected · 3.1 MB") below it.</item>
+/// <item>L and up (both axes Expanded): a breadcrumb of the path above the list. No status footer
+/// ("24 items · 2 selected", retired: concise widgets).</item>
 /// <item>XL (Huge width): grid tiles one preset larger, so a big tile shows bigger thumbnails rather
 /// than a sea of small ones.</item>
 /// <item>Everything left: rows (the list scrolls; the fade marks more below).</item>
@@ -50,7 +49,6 @@ public static class FolderLayout
     public const double BreadcrumbHeight = 28;
     public const double SearchHeight = 32;
     public const double ColumnHeaderHeight = 24;
-    public const double FooterHeight = 24;
     public const double HeaderButton = 28;
     public const double GitBadgeWidth = 96;
 
@@ -138,12 +136,11 @@ public static class FolderLayout
         var header = details && room.Take(ColumnHeaderHeight + rowHeight);
         var big = area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
         var breadcrumb = big && room.Take(BreadcrumbHeight + (2 * rowHeight));
-        var footer = big && room.Take(FooterHeight + (2 * rowHeight));
 
         // The rows got what is left; the rungs above each kept two rows back so a big tile never
         // trades its list for chrome. Hand those back now the chrome is settled.
         var listHeight = room.Remaining + firstRow
-            + (header ? rowHeight : 0) + (breadcrumb ? 2 * rowHeight : 0) + (footer ? 2 * rowHeight : 0);
+            + (header ? rowHeight : 0) + (breadcrumb ? 2 * rowHeight : 0);
 
         var textWidth = area.Width - (2 * RowInset) - IconLead(config.ItemSize);
 
@@ -155,7 +152,6 @@ public static class FolderLayout
             breadcrumb,
             search,
             header,
-            footer,
             columns,
             rowHeight,
             IconSize(config.ItemSize),

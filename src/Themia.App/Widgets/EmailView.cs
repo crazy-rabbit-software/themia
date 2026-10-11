@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-1280] It uses the whole tile: two- and three-line rows on a narrow tile, one line per message
 /// on a wide strip and a big tile, as many whole rows as fit (the count setting is a floor), the
-/// envelope from a medium tile, the provider and a folder summary on the largest. A click focuses a
+/// envelope from a medium tile; no provider name and no folder summary. A click focuses a
 /// row, a double-click opens it, right-click offers what its account allows ([S-544]).
 /// </para>
 /// </summary>

@@ -106,32 +106,6 @@ public static class FolderFormatting
             _ => Str.WidgetsB_Folder_Path_Unreadable,
         });
 
-    /// <summary>
-    /// [S-1323] The status footer, as Explorer's: "24 items", then "· 2 selected", then the selected
-    /// files' total size when any file is among them ("· 3.1 MB"). Folders add nothing to the size: the
-    /// recursive walk is not done.
-    /// </summary>
-    public static string Status(int count, int selected, long selectedBytes, bool selectionHasFiles)
-        => Status(Strings.Current, count, selected, selectedBytes, selectionHasFiles);
-
-    /// <summary><see cref="Status(int, int, long, bool)"/> in <paramref name="locale"/>: each fact its own phrase, joined as Explorer joins them.</summary>
-    public static string Status(Locale locale, int count, int selected, long selectedBytes, bool selectionHasFiles)
-    {
-        var text = Strings.Plural(locale, Str.WidgetsB_Folder_ItemCount, count);
-
-        if (selected > 0)
-        {
-            text += " · " + Strings.Plural(locale, Str.WidgetsB_Folder_SelectedCount, selected);
-
-            if (selectionHasFiles)
-            {
-                text += " · " + Formatting.Bytes(locale, selectedBytes);
-            }
-        }
-
-        return text;
-    }
-
     /// <summary>[S-1322] The Items column: a folder's entry count, capped where counting stops ("999+").</summary>
     public static string ItemCount(int? count, int cap) => count switch
     {

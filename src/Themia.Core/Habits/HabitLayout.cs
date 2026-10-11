@@ -10,36 +10,29 @@ namespace Themia.Core.Habits;
 public readonly record struct HabitLayoutInput(int Count, bool Writable, bool ShowStreak, int HistoryDots);
 
 /// <summary>
-/// [S-1427] One layout pass's decisions for the Habits widget, made together so the rows, the add
-/// row and the summary never disagree.
+/// [S-1427] One layout pass's decisions for the Habits widget, made together so the rows and the
+/// add row never disagree.
 /// </summary>
 /// <param name="CompactRows">32px rows rather than 40.</param>
 /// <param name="Inset">The rows' side padding: halved on a Compact-wide tile, so a name has room.</param>
 /// <param name="Rows">Rows the viewport shows whole; the rest scroll.</param>
 /// <param name="AddRow">The "Add a habit" row at the foot of the list.</param>
-/// <param name="Summary">The strip above the list: done this period, the rate, a progress bar.</param>
 /// <param name="Streak">The current run beside each name.</param>
 /// <param name="StreakWords">The run with its unit ("12 days") rather than a bare number.</param>
 /// <param name="Dots">History dots per row (0 for none): the configured count, or fewer when narrow.</param>
 /// <param name="Rate">A per-row completion rate over the last <see cref="HabitRules.RateWindow"/> periods.</param>
 /// <param name="Best">A per-row best run.</param>
-/// <param name="SummaryBar">
-/// [S-1571] The summary's progress bar under its line. False on a tile one height class down, where
-/// the summary is its line alone, in the height the whole rows leave.
-/// </param>
 public sealed record HabitLayoutPlan(
     bool CompactRows,
     double RowHeight,
     double Inset,
     int Rows,
     bool AddRow,
-    bool Summary,
     bool Streak,
     bool StreakWords,
     int Dots,
     bool Rate,
-    bool Best,
-    bool SummaryBar = true);
+    bool Best);
 
 /// <summary>[S-1428] What a key on a focused row does.</summary>
 public enum HabitKeyCommand
@@ -70,9 +63,9 @@ public readonly record struct HabitKeyResult(HabitKeyCommand Command, int Index)
 /// the run beside each (from Regular width; spelled out from Expanded) → the history dots (from
 /// Regular width, the configured count or as many as fit, oldest dropped first — the dots yield
 /// width, never the name) → the add row (from Regular height; always when the list is empty) →
-/// a per-row rate (Expanded width) → a per-row best run (Huge width) → the summary strip (Expanded
-/// height). Nothing else: height the rows do not use stays empty rather than filled with a chart
-/// (user decision: a large tile shows more of the widget's own rows, not new parts).
+/// a per-row rate (Expanded width) → a per-row best run (Huge width). Nothing else: no summary
+/// strip, and height the rows do not use stays empty rather than filled with a chart (user
+/// decision: a large tile shows more of the widget's own rows, not new parts).
 /// </para>
 /// </summary>
 public static class HabitLayout
@@ -98,12 +91,6 @@ public static class HabitLayout
     public const double DotPitch = 12;
 
     public const double DotSize = 8;
-
-    /// <summary>A caption line, a 4px bar, and the space around them.</summary>
-    public const double SummaryHeight = 16 + 4 + 4 + 12;
-
-    /// <summary>[S-1571] The summary as its line alone: a caption line and the space under it.</summary>
-    public const double SummaryLineHeight = 16 + 12;
 
     /// <summary>The list's own padding under its last row.</summary>
     public const double ListBottomPadding = 8;
@@ -139,14 +126,9 @@ public static class HabitLayout
         room.Reserve(row);
 
         var addRow = input.Writable && (count == 0 || (area.HeightClass >= SizeClass.Regular && room.Take(row)));
-        var summary = count > 0 && area.HeightClass >= SizeClass.Expanded && room.Take(SummaryHeight);
         var rows = count == 0 ? 0 : 1 + room.TakeRows(row, count - 1);
 
-        // [S-1571] One height class down the rows rarely come out even: the height no whole row can
-        // use (about a row's worth on an M tile) carries the summary's line, without its bar.
-        var summaryLine = !summary && count > 0 && area.HeightClass >= SizeClass.Regular && room.Take(SummaryLineHeight);
-
-        return new HabitLayoutPlan(compact, row, inset, rows, addRow, summary || summaryLine, streak, words, dots, rate, best, SummaryBar: summary);
+        return new HabitLayoutPlan(compact, row, inset, rows, addRow, streak, words, dots, rate, best);
     }
 
     /// <summary>

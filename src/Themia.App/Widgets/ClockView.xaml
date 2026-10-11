@@ -75,21 +75,9 @@
                     TextTrimming="CharacterEllipsis"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     Text="" />
-                <!-- [S-1485] The offset; [S-665] then the week and the time zone. -->
+                <!-- [S-1485] The offset. -->
                 <TextBlock
                     x:Name="OffsetText"
-                    TextTrimming="CharacterEllipsis"
-                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                    Visibility="Collapsed"
-                    Text="" />
-                <TextBlock
-                    x:Name="WeekText"
-                    TextTrimming="CharacterEllipsis"
-                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                    Visibility="Collapsed"
-                    Text="" />
-                <TextBlock
-                    x:Name="ZoneText"
                     TextTrimming="CharacterEllipsis"
                     Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                     Visibility="Collapsed"

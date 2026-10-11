@@ -26,7 +26,7 @@ namespace Themia.App.Widgets;
 /// <b>Event-driven.</b> The session raises when its metadata, its playback state or its timeline
 /// changes, and the tile redraws on that. The one thing on a clock is the elapsed-time readout,
 /// which is arithmetic against the anchor the session gave — not a question asked of it. The
-/// spectrum ([S-1470]) is the one live feed, and it runs only while it can be seen.
+/// spectrum is a widget of its own now, the audio visualizer ([S-3200]).
 /// </para>
 /// <para>
 /// Parts: this file holds the session, the transport, seeking, keys and hiding; the ladder that
@@ -46,11 +46,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly TextBlock _track = Fluent.Text(FluentType.BodyStrong);
     private readonly TextBlock _subtitle = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
     private readonly TextBlock _album = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _source = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly TextBlock _elapsed = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private readonly TextBlock _total = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private readonly MusicSeekBar _seek = new();
-    private readonly SpectrumBars _spectrum = new();
 
     private readonly Button _previous = new();
     private readonly Button _playPause = new();
@@ -84,11 +82,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     private bool _detached;
     private bool _preview;
     private bool _hidden;
-
-    // ---- spectrum feed ([S-1470]) -----------------------------------------------------------------
-    private IDisposable? _loopback;
-    private float[]? _pendingBands;
-    private int _drawQueued;
 
     public MusicView()
     {
@@ -131,7 +124,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
             Children = { _previous, _playPause, _next },
         };
 
-        _source.TextTrimming = TextTrimming.CharacterEllipsis;
         _total.TextAlignment = TextAlignment.Right;
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_elapsed, FontNumeralAlignment.Tabular);
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_total, FontNumeralAlignment.Tabular);
@@ -143,7 +135,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         _empty = Fluent.EmptyState(definition.Glyph, _emptyMessage, out _);
         _empty.Visibility = Visibility.Collapsed;
 
-        foreach (var part in new FrameworkElement[] { _artHost, _track, _subtitle, _album, _source, _transport, _spectrum, _seek, _elapsed, _total })
+        foreach (var part in new FrameworkElement[] { _artHost, _track, _subtitle, _album, _transport, _seek, _elapsed, _total })
         {
             part.Visibility = Visibility.Collapsed;
             _canvas.Children.Add(part);
@@ -151,9 +143,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
         Children.Add(_canvas);
         Children.Add(_empty);
-
-        Loaded += OnLoaded;
-        Unloaded += OnUnloaded;
 
         static void StyleButton(Button button, FontIcon icon, string tooltip)
         {
@@ -224,7 +213,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         _area = area;
         Lay();
-        SyncSpectrum();
     }
 
     /// <summary>
@@ -471,7 +459,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
             _album.Text = _now.Album;
 
             var playing = _now.State == MusicState.Playing;
-            _source.Text = MusicRules.StateLine(playing, _now.Source, Strings.Current);
 
             _playPauseIcon.Glyph = playing ? Glyphs.Pause : Glyphs.Play;
             ToolTipService.SetToolTip(_playPause, playing ? Str.WidgetsB_Music_Pause.Text() : Str.WidgetsB_Music_Play.Text());
@@ -488,7 +475,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
         Lay();
         Resubscribe();
-        SyncSpectrum();
     }
 
     /// <summary>Advance the bar and the labels from the anchor. Display only: the next snapshot overwrites it.</summary>
@@ -631,63 +617,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         }
     }
 
-    // ---- spectrum ([S-1470]) ---------------------------------------------------------------------
-
-    private void OnLoaded(object sender, RoutedEventArgs e) => SyncSpectrum();
-
-    private void OnUnloaded(object sender, RoutedEventArgs e) => SyncSpectrum();
-
-    /// <summary>
-    /// Hold the loopback capture exactly while the bars can be seen moving: shown by the ladder,
-    /// playing, the card not hidden, the view in the tree, not a preview. Anything else lets it go,
-    /// and the last tile to let go stops the capture thread.
-    /// </summary>
-    private void SyncSpectrum()
-    {
-        var wanted = !_detached && !_preview && !_hidden && IsLoaded
-            && _spectrum.Visibility == Visibility.Visible
-            && _now.State == MusicState.Playing;
-
-        if (wanted && _loopback is null)
-        {
-            _loopback = AudioLoopback.Subscribe(OnBands);
-        }
-        else if (!wanted && _loopback is not null)
-        {
-            _loopback.Dispose();
-            _loopback = null;
-
-            _spectrum.Clear();
-        }
-    }
-
-    /// <summary>On the capture thread: keep the newest frame, and queue one draw if none is waiting.</summary>
-    private void OnBands(float[] bands)
-    {
-        Volatile.Write(ref _pendingBands, bands);
-
-        if (Interlocked.Exchange(ref _drawQueued, 1) == 0 && _queue?.TryEnqueue(DrawBands) != true)
-        {
-            Interlocked.Exchange(ref _drawQueued, 0);
-        }
-    }
-
-    private void DrawBands()
-    {
-        Interlocked.Exchange(ref _drawQueued, 0);
-
-        if (_loopback is not null && Volatile.Read(ref _pendingBands) is { } bands)
-        {
-            _spectrum.SetLevels(bands);
-        }
-    }
-
     public void Detach()
     {
         _detached = true;
-
-        _loopback?.Dispose();
-        _loopback = null;
 
         _subscription?.Dispose();
         _subscription = null;

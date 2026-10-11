@@ -34,13 +34,13 @@ public sealed record MixerRow(
 /// <summary>[S-1227] How a mixer row is laid out, by the width it has.</summary>
 public enum MixerRowStyle
 {
-    /// <summary>No slider: icon, percent, mute.</summary>
+    /// <summary>No slider: icon and mute.</summary>
     Compact,
 
-    /// <summary>Name, percent and mute on top, the slider under them.</summary>
+    /// <summary>Name and mute on top, the slider under them.</summary>
     TwoLine,
 
-    /// <summary>Name, slider, percent and mute on one line.</summary>
+    /// <summary>Name, slider and mute on one line.</summary>
     OneLine,
 }
 
@@ -217,7 +217,7 @@ public static class MixerRules
             : [];
     }
 
-    /// <summary>[S-447] Whole percent for display. A muted row reads 0 but keeps its level, so unmuting restores it.</summary>
+    /// <summary>[S-447] The slider's whole-percent position. A muted row sits at 0 but keeps its level, so unmuting restores it.</summary>
     public static int DisplayPercent(MixerRow row)
     {
         ArgumentNullException.ThrowIfNull(row);

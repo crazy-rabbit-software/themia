@@ -13,7 +13,7 @@ public enum SampleEncoding
 }
 
 /// <summary>
-/// [S-1470] The audio spectrum the now-playing tile draws: a windowed FFT over the last
+/// [S-3201] The audio spectrum the audio visualizer draws: a windowed FFT over the last
 /// <see cref="FftSize"/> samples of what the PC is playing, grouped into <see cref="Bands"/>
 /// log-spaced bands of 0..1 — the original's analyser, bin for bin.
 /// <para>
@@ -26,6 +26,16 @@ public sealed class Spectrum
     public const int FftSize = 1024;
 
     public const int Bands = 24;
+
+    /// <summary>[S-3202] About thirty frames a second while there is something to draw.</summary>
+    public const int FrameMs = 33;
+
+    /// <summary>
+    /// [S-3202] The wait between drains once the bars are down and nothing arrives: well inside the
+    /// capture's 200 ms buffer, so the first packet of new sound is not lost, and five times fewer
+    /// wake-ups on a silent desktop.
+    /// </summary>
+    public const int IdleFrameMs = 150;
 
     /// <summary>The original's sqrt-compression gain.</summary>
     private const float Gain = 3.5f;
@@ -102,7 +112,7 @@ public sealed class Spectrum
     }
 
     /// <summary>
-    /// [S-1471] Bars rise at once and fall gently: each frame a bar is the new level or its last
+    /// [S-3202] Bars rise at once and fall gently: each frame a bar is the new level or its last
     /// height less <paramref name="fall"/>, whichever is higher. Without it the bars flicker at the
     /// capture rate; the original leaned on a CSS transition for the same effect.
     /// </summary>
@@ -113,6 +123,12 @@ public sealed class Spectrum
             shown[i] = Math.Clamp(Math.Max(fresh[i], shown[i] - fall), 0, 1);
         }
     }
+
+    /// <summary>
+    /// [S-3202] How long the capture waits before its next drain: a frame while sound arrives or a
+    /// bar is still up, the idle wait once everything has fallen and nothing came.
+    /// </summary>
+    public static int FrameWait(bool arrived, bool lit) => arrived || lit ? FrameMs : IdleFrameMs;
 
     /// <summary>
     /// Mix interleaved frames down to mono and append them to <paramref name="destination"/>.
@@ -227,8 +243,8 @@ public enum CaptureAction
 }
 
 /// <summary>
-/// [S-1472] The shared loopback capture's reference count (the original's [S-SPEC-05]). One worker
-/// serves every now-playing tile; it starts with the first subscriber and stops with the last, so a
+/// [S-3203] The shared loopback capture's reference count (the original's [S-SPEC-05]). One worker
+/// serves every audio visualizer; it starts with the first subscriber and stops with the last, so a
 /// second tile, a view switch or a remount that overlaps old and new never kills it for the others.
 /// A worker that died is restarted by the next arrival, not left wedged. Not thread-safe: the
 /// owner holds a lock around it.
@@ -238,6 +254,24 @@ public sealed class CaptureLease
     public int Subscribers { get; private set; }
 
     public bool Running { get; private set; }
+
+    /// <summary>
+    /// [S-3204] Whether the current worker reached the device: null until it has tried, false after
+    /// a capture failed, true once one started. A new worker starts unknown.
+    /// </summary>
+    public bool? Available { get; private set; }
+
+    /// <summary>[S-3204] The worker's news about the device. True when it changed what subscribers were told.</summary>
+    public bool Report(bool available)
+    {
+        if (!Running || Available == available)
+        {
+            return false;
+        }
+
+        Available = available;
+        return true;
+    }
 
     public CaptureAction Add()
     {
@@ -249,6 +283,7 @@ public sealed class CaptureLease
         }
 
         Running = true;
+        Available = null;
         return CaptureAction.Start;
     }
 
@@ -268,9 +303,14 @@ public sealed class CaptureLease
         }
 
         Running = false;
+        Available = null;
         return CaptureAction.Stop;
     }
 
     /// <summary>The worker ended on its own. The next <see cref="Add"/> starts another.</summary>
-    public void WorkerEnded() => Running = false;
+    public void WorkerEnded()
+    {
+        Running = false;
+        Available = null;
+    }
 }

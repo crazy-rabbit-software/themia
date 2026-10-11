@@ -26,7 +26,7 @@ public class WeatherLayoutTests
     private const double BesideFloor = 28;
 
     private static WeatherNowPlan Now(WidgetArea area, double floor = BesideFloor, bool details = true)
-        => WeatherNowLayout.Plan(area, floor, facts: 10, details, hasToday: true, hours: 24);
+        => WeatherNowLayout.Plan(area, floor, facts: 10, details, hasToday: true);
 
     // ---- current conditions [S-723] ------------------------------------------------------
 
@@ -37,7 +37,6 @@ public class WeatherLayoutTests
 
         Assert.Equal(WeatherDetailMode.None, plan.Detail);
         Assert.False(plan.HighLow);
-        Assert.Equal(0, plan.ChartHeight);
     }
 
     [Fact]
@@ -52,7 +51,6 @@ public class WeatherLayoutTests
         Assert.Equal(WeatherDetailMode.Cells, plan.Detail);
         Assert.Equal(3, plan.FactCount);
         Assert.True(plan.HighLow);
-        Assert.Equal(0, plan.ChartHeight);
     }
 
     [Fact]
@@ -76,26 +74,26 @@ public class WeatherLayoutTests
     }
 
     [Fact]
-    public void S723_a_large_tile_adds_the_next_hours_chart_below_a_capped_reading()
+    public void S723_a_large_tile_has_no_hourly_chart_and_the_reading_takes_the_room()
     {
+        // The next hours are the forecast widget's job (user decision, concise widgets): what the
+        // cells and today's line leave goes to the reading, uncapped.
         var plan = Now(L);
 
         Assert.Equal(WeatherDetailMode.Cells, plan.Detail);
-        Assert.True(plan.ChartHeight >= WeatherNowLayout.ChartMin);
-        Assert.True(plan.HeroRoom <= WeatherNowLayout.HeroCeiling);
+        Assert.True(plan.HeroRoom > 92 + 20 + 16, $"hero {plan.HeroRoom}");
     }
 
     [Fact]
     public void S723_the_largest_tile_adds_a_second_row_of_cells_and_no_next_days()
     {
         // The next days are the forecast widget's job: the largest tile gives the room to the
-        // readings and the chart instead (user decision, concise widgets).
+        // readings and the reading instead (user decision, concise widgets).
         var plan = Now(Xl);
 
         Assert.Equal(WeatherDetailMode.Cells, plan.Detail);
         Assert.Equal(10, plan.FactCount);
-        Assert.True(plan.ChartHeight >= WeatherNowLayout.ChartMin);
-        Assert.True(plan.HeroRoom + plan.ChartHeight > Now(L).HeroRoom + Now(L).ChartHeight);
+        Assert.True(plan.HeroRoom > Now(L).HeroRoom);
     }
 
     [Fact]
@@ -116,19 +114,8 @@ public class WeatherLayoutTests
     {
         foreach (var area in new[] { Xs, S, M, Wide, Tall, L, Xl })
         {
-            var plan = Now(area, details: false);
-            Assert.Equal(WeatherDetailMode.None, plan.Detail);
-            Assert.Equal(0, plan.ChartHeight);
+            Assert.Equal(WeatherDetailMode.None, Now(area, details: false).Detail);
         }
-    }
-
-    [Fact]
-    public void S723_no_hourly_data_means_no_chart_and_the_reading_keeps_the_room()
-    {
-        var plan = WeatherNowLayout.Plan(L, BesideFloor, 10, true, true, hours: 0);
-
-        Assert.Equal(0, plan.ChartHeight);
-        Assert.True(plan.HeroRoom > WeatherNowLayout.HeroCeiling);
     }
 
     [Fact]
@@ -320,14 +307,14 @@ public class WeatherLayoutTests
     [Fact]
     public void S728_the_title_is_the_chosen_city_not_the_typed_query()
     {
-        var config = new WeatherNowConfig { Place = "zuerich", LocationName = "Zürich, Zurich, Switzerland", Latitude = 47.37, Longitude = 8.54 };
+        var config = new WeatherNowConfig { LocationName = "Zürich, Zurich, Switzerland", Latitude = 47.37, Longitude = 8.54 };
 
         Assert.Equal("Zürich", config.Title);
     }
 
     [Fact]
-    public void S728_the_typed_query_stands_in_until_a_place_is_picked()
-        => Assert.Equal("Paris", new WeatherForecastConfig { Place = " Paris " }.Title);
+    public void S2846_with_no_place_picked_there_is_no_title_and_nothing_typed_stands_in()
+        => Assert.Null(new WeatherForecastConfig().Title);
 
     [Fact]
     public void S728_hiding_the_location_leaves_the_header_to_the_widget_s_label()

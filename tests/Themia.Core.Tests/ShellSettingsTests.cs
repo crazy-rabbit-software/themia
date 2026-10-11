@@ -73,7 +73,8 @@ public sealed class ShellSettingsTests : IDisposable
     [InlineData(WidgetKind.Notes)]
     [InlineData(WidgetKind.Countdown)]
     [InlineData(WidgetKind.Pomodoro)]
-    [InlineData(WidgetKind.SunMoon)]
+    [InlineData(WidgetKind.Sun)]
+    [InlineData(WidgetKind.Moon)]
     public void S700_other_widgets_still_start_with_a_top_header(WidgetKind kind)
         => Assert.Equal(HeaderPlacement.Top, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
 

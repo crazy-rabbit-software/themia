@@ -33,6 +33,7 @@ public static class WidgetKeywords
         [WidgetKind.Rss] = ["rss", "feed", "news", "headlines", "atom", "blog", "reader"],
         [WidgetKind.Stocks] = ["shares", "ticker", "market", "finance", "crypto", "bitcoin", "forex", "currency", "portfolio", "price"],
         [WidgetKind.VideoStream] = ["camera", "webcam", "cctv", "mjpeg", "live view", "printer"],
+        [WidgetKind.AudioVisualizer] = ["spectrum", "equalizer", "equaliser", "visualiser", "bars", "audio", "sound", "music"],
         [WidgetKind.Music] = ["spotify", "player", "playback", "song", "track", "audio", "media controls", "now playing"],
 
         [WidgetKind.Cpu] = ["processor", "load", "usage", "performance", "cores", "task manager", "system monitor"],
@@ -72,7 +73,8 @@ public static class WidgetKeywords
         [WidgetKind.Pomodoro] = ["timer", "focus", "productivity", "work break", "tomato", "session"],
         [WidgetKind.HabitTracker] = ["streaks", "daily", "routine", "goals", "checklist", "tracker"],
         [WidgetKind.Quote] = ["inspiration", "daily quote", "saying", "motivation"],
-        [WidgetKind.SunMoon] = ["sunrise", "sunset", "moon phase", "daylight", "golden hour", "astronomy"],
+        [WidgetKind.Sun] = ["sunrise", "sunset", "daylight", "golden hour", "dawn", "dusk", "solar noon", "astronomy"],
+        [WidgetKind.Moon] = ["moon phase", "full moon", "new moon", "moonrise", "moonset", "lunar", "astronomy"],
     };
 
     /// <summary>

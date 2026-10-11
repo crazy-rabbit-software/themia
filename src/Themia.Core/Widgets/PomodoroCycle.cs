@@ -135,12 +135,4 @@ public static class PomodoroCycle
         var next = Other(phase);
         return Strings.Format(locale, Str.WidgetsC_Pomodoro_Next, ("phase", PhaseLabel(locale, next)), ("time", Clock(PhaseSeconds(next, config))));
     }
-
-    /// <summary>
-    /// [S-1467] The focus sessions finished so far: a flip out of focus completes one; a skip does
-    /// not (it was abandoned, not finished), and a reset leaves the count alone. In memory only, like
-    /// the rest of the run state ([S-150]).
-    /// </summary>
-    public static int CountSession(int completed, PomodoroTick tick)
-        => tick.Flipped && tick.Phase == PomodoroPhase.Break ? completed + 1 : completed;
 }

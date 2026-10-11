@@ -18,9 +18,8 @@ namespace Themia.App.Widgets;
 /// the process waking up.
 /// <para>
 /// [S-665]/[S-1487] Its disclosure ladder, smallest tile first: the time (or the dial); the label of
-/// a world clock; the date (short when narrow, with the week and offset appended on a wide strip);
-/// the offset line; the week and day of the year once the tile is Expanded in height; the time zone
-/// once it is Expanded both ways. A tall column stacks the hours over the minutes, which is the only
+/// a world clock; the date (short when narrow, with the offset appended on a wide strip); the
+/// offset line. No week, day of the year or time zone line (concise widgets). A tall column stacks the hours over the minutes, which is the only
 /// way its width lets the digits grow. Whatever the rungs leave, the time (or the dial) fills. An
 /// analog dial on a wide strip puts its text beside the dial instead of under it.
 /// </para>
@@ -33,11 +32,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     /// <summary>The short date: "Wed 30 Sep".</summary>
     private const int ShortDateCharacters = 10;
 
-    /// <summary>The long date with the week after it: "Wednesday, 30 September · Week 40 · Day 274".</summary>
-    private const int DateWithWeekCharacters = 44;
-
-    /// <summary>The longer of the detail lines: "UTC+02:00 · W. Europe Daylight Time".</summary>
-    private const int DetailCharacters = 34;
+    /// <summary>The detail line, the longest offset: "+8 h zur Ortszeit".</summary>
+    private const int DetailCharacters = 18;
 
     /// <summary>The longest offset line, "−12:45h local", joined to the date with " · ".</summary>
     private const int OffsetCharacters = 16;
@@ -73,11 +69,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     private WidgetArea _area;
     private bool _stacked;
     private bool _shortDate;
-    private bool _dateWithWeek;
+    private bool _wideDate;
     private bool _showOffset;
     private bool _offsetOnDate;
-    private bool _showWeek;
-    private bool _showZone;
     private bool _side;
     private string? _label;
 
@@ -95,8 +89,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         LabelText.Margin = new Thickness(0, 0, 0, Fluent.Space1);
         DateText.Margin = new Thickness(0, Fluent.Space1, 0, 0);
         OffsetText.Margin = new Thickness(0, Fluent.Space1, 0, 0);
-        WeekText.Margin = new Thickness(0, Fluent.Space1, 0, 0);
-        ZoneText.Margin = new Thickness(0, Fluent.Space1, 0, 0);
 
         // Block line height, so a stacked readout's lines sit exactly one ramp line apart rather
         // than at the font's own (looser) spacing.
@@ -147,7 +139,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     /// <summary>
     /// Climb the ladder for the current area, then give the face everything the rungs left.
     /// <para>
-    /// The size classes decide which rungs are considered — a week line on a 150-pixel tile would be
+    /// The size classes decide which rungs are considered — a date on a 70-pixel dial would be
     /// taking room from the one thing it is for — and <see cref="Disclosure"/> decides which of those
     /// actually fit, so a rung is never drawn clipped. Every size is a step of the Windows 11 ramp, or
     /// for a tile larger than the ramp, a multiple of it that keeps Fluent's line-height ratio.
@@ -197,11 +189,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var showLabel = words && _label is not null && room.Take(labelStep.LineHeight);
 
         // The date: the long one when the line can hold it, the short one when it cannot, and on a
-        // wide strip — which has width it cannot otherwise use — the week (and the offset) after it.
-        _dateWithWeek = !analog && _area.Shape == AreaShape.Wide && _area.WidthClass >= SizeClass.Expanded;
-        _shortDate = !_dateWithWeek && width < FluentType.EstimateWidth(FluentType.Caption, LongDateCharacters);
-        _offsetOnDate = _dateWithWeek && _config.ShowDate && _config.OffsetMode != ClockOffsetMode.None;
-        var dateCharacters = (_dateWithWeek ? DateWithWeekCharacters : _shortDate ? ShortDateCharacters : LongDateCharacters)
+        // wide strip — which has width it cannot otherwise use — the offset after it.
+        _wideDate = !analog && _area.Shape == AreaShape.Wide && _area.WidthClass >= SizeClass.Expanded;
+        _shortDate = !_wideDate && width < FluentType.EstimateWidth(FluentType.Caption, LongDateCharacters);
+        _offsetOnDate = _wideDate && _config.ShowDate && _config.OffsetMode != ClockOffsetMode.None;
+        var dateCharacters = (_shortDate ? ShortDateCharacters : LongDateCharacters)
             + (_offsetOnDate ? OffsetCharacters : 0);
 
         // Support, never a second headline: capped at BodyLarge however large the tile grows (the
@@ -213,15 +205,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // The details are a step under the date, so the eye reads time, date, then the rest.
         var detailStep = FluentType.Fit(width, height * 0.12, DetailCharacters, FluentType.Caption, FluentType.Body);
         _showOffset = words && !_offsetOnDate && _config.OffsetMode != ClockOffsetMode.None && room.Take(detailStep.LineHeight);
-        _showWeek = showDate && !_dateWithWeek && _area.HeightClass >= SizeClass.Expanded && room.Take(detailStep.LineHeight);
-        _showZone = words && _area.AtLeast(SizeClass.Expanded, SizeClass.Expanded) && room.Take(detailStep.LineHeight);
 
         Show(showLabel, showDate);
         LabelText.Apply(FluentType.Strong(labelStep));
         DateText.Apply(dateStep);
         OffsetText.Apply(detailStep);
-        WeekText.Apply(detailStep);
-        ZoneText.Apply(detailStep);
 
         // The face has what the rungs left, plus the minimum it reserved for itself.
         var faceHeight = room.Remaining + floor;
@@ -245,7 +233,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var labelStep = FluentType.Fit(textWidth, box.Height * 0.3, Math.Max(4, _label?.Length ?? 0), FluentType.Caption, FluentType.Subtitle);
         var showLabel = _label is not null && room.Take(labelStep.LineHeight);
 
-        _dateWithWeek = false;
+        _wideDate = false;
         _offsetOnDate = false;
         _shortDate = textWidth < FluentType.EstimateWidth(FluentType.Caption, LongDateCharacters);
         var dateStep = FluentType.Fit(textWidth, box.Height * 0.25, _shortDate ? ShortDateCharacters : LongDateCharacters, FluentType.Caption, FluentType.BodyLarge);
@@ -253,15 +241,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
         var detailStep = FluentType.Fit(textWidth, box.Height * 0.2, DetailCharacters, FluentType.Caption, FluentType.Body);
         _showOffset = _config.OffsetMode != ClockOffsetMode.None && room.Take(detailStep.LineHeight);
-        _showWeek = showDate && room.Take(detailStep.LineHeight);
-        _showZone = _area.HeightClass >= SizeClass.Regular && room.Take(detailStep.LineHeight);
 
         Show(showLabel, showDate);
         LabelText.Apply(FluentType.Strong(labelStep));
         DateText.Apply(dateStep);
         OffsetText.Apply(detailStep);
-        WeekText.Apply(detailStep);
-        ZoneText.Apply(detailStep);
         Info.Width = textWidth;
 
         SizeDial(diameter);
@@ -272,8 +256,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         LabelText.Visibility = Visible(label);
         DateText.Visibility = Visible(date);
         OffsetText.Visibility = Visible(_showOffset);
-        WeekText.Visibility = Visible(_showWeek);
-        ZoneText.Visibility = Visible(_showZone);
     }
 
     private static Visibility Visible(bool shown) => shown ? Visibility.Visible : Visibility.Collapsed;
@@ -345,7 +327,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var lines = _side ? HorizontalAlignment.Left : horizontal;
         var lineText = _side ? TextAlignment.Left : text;
 
-        foreach (var line in new[] { LabelText, DateText, OffsetText, WeekText, ZoneText })
+        foreach (var line in new[] { LabelText, DateText, OffsetText })
         {
             line.HorizontalAlignment = lines;
             line.TextAlignment = lineText;
@@ -553,21 +535,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var offset = _showOffset || _offsetOnDate ? ClockFormatter.OffsetLine(now, _config, locale) : null;
         OffsetText.Text = offset ?? string.Empty;
 
-        // The extras are worked out only when a rung that shows one is up.
-        if (_shortDate || _dateWithWeek || _showWeek || _showZone)
-        {
-            var details = ClockFormatter.Details(now, _config, locale);
-            var date = _shortDate ? details.ShortDate
-                : _dateWithWeek ? $"{reading.Date} · {details.Week}"
-                : reading.Date ?? string.Empty;
-            DateText.Text = _offsetOnDate && offset is not null ? $"{date} · {offset}" : date;
-            WeekText.Text = details.Week;
-            ZoneText.Text = details.Zone;
-        }
-        else
-        {
-            DateText.Text = reading.Date ?? string.Empty;
-        }
+        var date = _shortDate ? ClockFormatter.ShortDate(now, _config, locale) : reading.Date ?? string.Empty;
+        DateText.Text = _offsetOnDate && offset is not null ? $"{date} · {offset}" : date;
 
         if (_config.Face != ClockFace.Analog)
         {

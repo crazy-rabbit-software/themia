@@ -294,6 +294,39 @@ public sealed class ViewsTests
         Assert.Empty(bar.VisibleViews);
     }
 
+    [Fact]
+    public void S1708_all_views_on_is_all_and_off_keeps_the_shown_view()
+    {
+        var state = ThreeViews();
+
+        Assert.Empty(ViewBarRules.SetAllVisible(state.Views, on: true, keepViewId: "b"));
+        Assert.Equal(["b"], ViewBarRules.SetAllVisible(state.Views, on: false, keepViewId: "b"));
+
+        // A shown view that is gone (or none yet) keeps the first: the bar never offers nothing.
+        Assert.Equal(["a"], ViewBarRules.SetAllVisible(state.Views, on: false, keepViewId: "gone"));
+        Assert.Equal(["a"], ViewBarRules.SetAllVisible(state.Views, on: false, keepViewId: null));
+
+        // One view is "all" either way.
+        var single = new AppState();
+        single.Views.Add(ViewState.Create("Only"));
+        Assert.Empty(ViewBarRules.SetAllVisible(single.Views, on: false, keepViewId: null));
+    }
+
+    [Fact]
+    public void S1708_the_offer_says_all_one_by_name_or_how_many()
+    {
+        var state = ThreeViews();
+
+        Assert.Equal(new ViewBarOffer(true, 3, 3, null), ViewBarRules.Offer(state.Views, new ViewBarSettings()));
+        Assert.Equal(new ViewBarOffer(true, 3, 3, null), ViewBarRules.Offer(state.Views, new ViewBarSettings { VisibleViews = ["gone"] }));
+        Assert.Equal(new ViewBarOffer(true, 3, 3, null), ViewBarRules.Offer(state.Views, new ViewBarSettings { VisibleViews = ["c", "b", "a"] }));
+
+        var one = ViewBarRules.Offer(state.Views, new ViewBarSettings { VisibleViews = ["b"] });
+        Assert.Equal(new ViewBarOffer(false, 1, 3, state.Views[1].Name), one);
+
+        Assert.Equal(new ViewBarOffer(false, 2, 3, null), ViewBarRules.Offer(state.Views, new ViewBarSettings { VisibleViews = ["a", "c"] }));
+    }
+
     // ---- view bar: placement and dragging -------------------------------------------------------
 
     /// <summary>A 1000 x 700 work area starting at (0, 40): a taskbar along the top.</summary>

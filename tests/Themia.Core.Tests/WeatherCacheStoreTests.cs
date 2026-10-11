@@ -25,7 +25,6 @@ public sealed class WeatherCacheStoreTests : IDisposable
         WindDirection = 315,
         UvIndex = 3,
         Days = [new ForecastDay(new DateOnly(2026, 10, 4), 2, 11, 19, 0) { Sunrise = new TimeOnly(7, 31), PrecipitationChance = 10 }],
-        Hours = [new HourlyPoint(Now, 18, 0), new HourlyPoint(Now.AddHours(1), 17.5, 20)],
     };
 
     private static WeatherCacheSnapshot Snapshot(DateTimeOffset at) => new(
@@ -45,8 +44,6 @@ public sealed class WeatherCacheStoreTests : IDisposable
         Assert.Equal(18.4, current.Value.Temperature);
         Assert.Equal(315, current.Value.WindDirection);
         Assert.Equal(new TimeOnly(7, 31), current.Value.Today?.Sunrise);
-        Assert.Equal(2, current.Value.Hours.Count);
-        Assert.Equal(Now.AddHours(1), current.Value.Hours[1].At);
 
         var forecast = Assert.Single(back.Forecasts);
         Assert.Equal(3.4, forecast.Value.Days[0].Precipitation);

@@ -297,8 +297,6 @@ internal sealed partial class FolderView : IWidgetDropTarget
         {
             Paint(visual);
         }
-
-        UpdateFooter();
     }
 
     /// <summary>

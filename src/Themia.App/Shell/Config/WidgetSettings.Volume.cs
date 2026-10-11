@@ -33,14 +33,7 @@ internal static partial class WidgetSettings
             save();
         }));
 
-        rows.Add(FluentLayout.Row(Glyphs.Sound, Str.WidgetsC_Volume_Settings_ShowSlider_Label.Text(),
-            Str.WidgetsC_Volume_Settings_ShowSlider_Desc.Text(),
-            FluentLayout.Toggle(config.ShowSlider, value => { config.ShowSlider = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Volume2, Str.WidgetsC_Volume_Settings_Meter_Label.Text(),
-            Str.WidgetsC_Volume_Settings_Meter_Desc.Text(),
-            FluentLayout.Toggle(config.ShowPeaks, value => { config.ShowPeaks = value; save(); })));
-
+        // [S-2730] Nothing to show or hide: the tile is the slider.
         rows.Add(FluentLayout.Header(Str.WidgetsC_Volume_Settings_Behaviour.Text()));
 
         // Named for what it does rather than "read-only": a desktop widget sits under the path of

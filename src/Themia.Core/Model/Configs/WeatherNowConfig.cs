@@ -16,21 +16,18 @@ public enum TemperatureUnit
 /// The place is stored as <b>coordinates plus the name they resolved to</b>, not as the text the
 /// user typed. Re-geocoding a free-text place on every refresh would mean two requests instead of
 /// one, and a widget whose location silently moves when the geocoder changes its mind about
-/// "Springfield". The typed query is kept only so the settings box can show what was searched for.
+/// "Springfield". The typed query is not kept at all ([S-2846]): half a word is not a place.
 /// </para>
 /// </summary>
 public abstract class WeatherConfig : WidgetConfig
 {
-    /// <summary>What the user last typed into the place box. Display only; never re-sent on a tick.</summary>
-    public string Place { get; set; } = string.Empty;
-
     /// <summary>Degrees north, or null when no location has been chosen. Zero is a real latitude.</summary>
     public double? Latitude { get; set; }
 
     /// <summary>Degrees east, or null when no location has been chosen. Zero is a real longitude.</summary>
     public double? Longitude { get; set; }
 
-    /// <summary>The name the geocoder gave the chosen point, e.g. "Zürich, Zurich, Switzerland".</summary>
+    /// <summary>The chosen place's label ([S-2842]), e.g. "Zürich, Zurich, Switzerland".</summary>
     public string LocationName { get; set; } = string.Empty;
 
     public TemperatureUnit Unit { get; set; } = TemperatureUnit.Celsius;
@@ -47,8 +44,7 @@ public abstract class WeatherConfig : WidgetConfig
     /// <summary>
     /// [S-728] The header title for the chosen place: the city, the first part of the name the
     /// geocoder gave ("Zürich" of "Zürich, Zurich, Switzerland"), not the text that was typed to
-    /// find it, which is as often "zurich" or "zuerich". The typed text only stands in before a
-    /// place has been picked.
+    /// find it, which is as often "zurich" or "zuerich". Null until a place has been picked.
     /// </summary>
     [JsonIgnore]
     public string? Title
@@ -62,12 +58,7 @@ public abstract class WeatherConfig : WidgetConfig
 
             var name = LocationName.Split(',', 2)[0].Trim();
 
-            if (name.Length > 0)
-            {
-                return name;
-            }
-
-            return string.IsNullOrWhiteSpace(Place) ? null : Place.Trim();
+            return name.Length > 0 ? name : null;
         }
     }
 
@@ -94,7 +85,6 @@ public abstract class WeatherConfig : WidgetConfig
 
     protected void CopyTo(WeatherConfig other)
     {
-        other.Place = Place;
         other.Latitude = Latitude;
         other.Longitude = Longitude;
         other.LocationName = LocationName;

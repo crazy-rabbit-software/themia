@@ -4,7 +4,7 @@ using Themia.Core.Localization;
 namespace Themia.Core.Astronomy;
 
 /// <summary>
-/// The Sun &amp; moon widget's words, from the string table and <see cref="LocaleFormat"/> rather
+/// The Sun and Moon widgets' words, from the string table and <see cref="LocaleFormat"/> rather
 /// than culture patterns: the app builds with <c>InvariantGlobalization</c>. Pure, so every edge
 /// (polar days, a shrinking day, the countdown's last minute) is a test rather than a screenshot.
 /// Each text has an overload taking the language, so tests do not depend on the process-wide one.
@@ -63,6 +63,26 @@ public static class SkyText
 
     public static string ShortDate(Locale locale, DateTimeOffset local)
         => LocaleFormat.Date(locale, DateOnly.FromDateTime(local.DateTime), DateStyle.WeekdayMonthDayShort);
+
+    /// <summary>
+    /// [S-3106] When a moonrise or moonset falls, read in the machine's zone: the time alone today
+    /// ("07:28"), the short weekday before it on another day ("Tue 07:28"), because the next one is
+    /// often tomorrow. An absent time is an em dash, as the sun's are ([S-161]).
+    /// </summary>
+    public static string EventTime(Locale locale, DateTimeOffset? at, DateTimeOffset now)
+    {
+        if (at is not { } moment)
+        {
+            return "—";
+        }
+
+        var local = moment.ToLocalTime();
+        var time = LocaleFormat.Time(locale, TimeOnly.FromDateTime(local.DateTime));
+
+        return local.Date == now.ToLocalTime().Date
+            ? time
+            : $"{LocaleFormat.WeekdayName(locale, local.DayOfWeek, NameWidth.Short)} {time}";
+    }
 
     /// <summary>"34°": whole degrees, which is all a widget can show of a sun position good to a degree.</summary>
     public static string Degrees(double degrees)

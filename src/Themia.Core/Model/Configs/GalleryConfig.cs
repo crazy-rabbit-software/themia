@@ -86,9 +86,6 @@ public sealed class GalleryConfig : WidgetConfig
     /// <summary>[S-761] The one picture the <see cref="GallerySource.File"/> source shows. Empty means none chosen.</summary>
     public string FilePath { get; set; } = string.Empty;
 
-    /// <summary>[S-763] Show the photo of the day's title and credit under it. Bing only.</summary>
-    public bool ShowCaption { get; set; } = true;
-
     /// <summary>
     /// [S-772] How often the source is read again, in minutes. Snapped to
     /// <see cref="RefreshChoices"/> by <see cref="TickInterval"/>, so a hand-edited value cannot
@@ -163,7 +160,6 @@ public sealed class GalleryConfig : WidgetConfig
         Source = Source,
         Path = Path,
         FilePath = FilePath,
-        ShowCaption = ShowCaption,
         RefreshMinutes = RefreshMinutes,
         Recursive = Recursive,
         Layout = Layout,

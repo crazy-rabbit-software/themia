@@ -37,7 +37,6 @@
   "widgetsB.email.couldNotCopy": "クリップボードにコピーできませんでした。",
   "widgetsB.email.deletePermanently": "完全に削除",
   "widgetsB.email.changeFailed": "操作できませんでした。themia.log を確認してください。",
-  "widgetsB.email.accountProvider": "{account} ({provider})",
   "widgetsB.settings.email.messages": "メッセージ",
   "widgetsB.settings.email.folder.desc": "各アカウントで表示するフォルダー",
   "widgetsB.settings.email.count.label": "メッセージ数",
@@ -72,12 +71,6 @@
   "widgetsB.folder.path.notRooted": "C:\\Users\\You\\Documents のような完全なパスを入力してください。",
   "widgetsB.folder.path.tooLong": "そのパスは Windows で許可される長さを超えています。",
   "widgetsB.folder.path.unreadable": "そのパスは読み取れません。",
-  "widgetsB.folder.itemCount": {
-    "other": "{count} 個の項目"
-  },
-  "widgetsB.folder.selectedCount": {
-    "other": "{count} 個選択"
-  },
   "widgetsB.folder.type.folder": "ファイル フォルダー",
   "widgetsB.folder.type.extension": "{ext} ファイル",
   "widgetsB.folder.type.file": "ファイル",
@@ -182,7 +175,6 @@
   "widgetsB.settings.gallery.sourceFolder": "フォルダー",
   "widgetsB.settings.gallery.sourceFile": "1 枚の画像",
   "widgetsB.settings.gallery.sourceBing": "Bing の今日の写真",
-  "widgetsB.settings.gallery.caption.desc": "写真のタイトルとクレジットを下に表示します",
   "widgetsB.settings.gallery.recursive.desc": "下位のフォルダーも検索します",
   "widgetsB.settings.gallery.layout.desc": "1 枚ずつ、タイル、テーブル上のプリント、またはモザイク",
   "widgetsB.settings.gallery.fit.label": "画像のサイズ",
@@ -261,8 +253,6 @@
   "widgetsB.habits.listDeleted": "この習慣リストは削除されました。\nこのウィジェットの設定でリストを選んでください。",
   "widgetsB.habits.emptyAdd": "まだ習慣はありません。\n下で追加してください。",
   "widgetsB.habits.empty": "まだ習慣はありません。",
-  "widgetsB.habits.lastUnits": "直近 {units}",
-  "widgetsB.habits.rateOver": "{window}で {percent} 完了",
   "widgetsB.settings.habits.list": "習慣リスト",
   "widgetsB.settings.habits.listsUnavailable": "習慣リストは利用できません。",
   "widgetsB.settings.habits.clearsEvery": {
@@ -361,10 +351,6 @@
   "widgetsB.music.playPause": "再生または一時停止",
   "widgetsB.music.play": "再生",
   "widgetsB.music.pause": "一時停止",
-  "widgetsB.music.playing": "再生中",
-  "widgetsB.music.paused": "一時停止中",
-  "widgetsB.music.playingIn": "再生中 · {app}",
-  "widgetsB.music.pausedIn": "一時停止中 · {app}",
   "widgetsB.music.unknownTrack": "不明なトラック",
   "widgetsB.music.loading": "メディア セッションを読み込んでいます",
   "widgetsB.music.noSession": "この PC では何も再生されていません",
@@ -387,8 +373,6 @@
   "widgetsB.settings.music.transport.desc": "前へ、再生/一時停止、次へ",
   "widgetsB.settings.music.progress.label": "進行状況を表示",
   "widgetsB.settings.music.progress.desc": "シークバー、経過時間、合計時間",
-  "widgetsB.settings.music.spectrum.label": "スペクトラムを表示",
-  "widgetsB.settings.music.spectrum.desc": "この PC で再生中の音に合わせて動くバー",
   "widgetsB.settings.music.hideWhenIdle.desc": "ウィジェットはデスクトップから消えますが、編集モードでは表示されます",
   "widgetsB.settings.music.hideWhenIdle.noSession": "プレーヤーが開いていないとき",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "何も再生していないとき",

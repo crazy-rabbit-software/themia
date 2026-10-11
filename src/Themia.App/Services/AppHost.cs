@@ -73,9 +73,6 @@ internal sealed partial class AppHost : IDisposable
         _mail = new Mail.MailService(Accounts, Ticker, Sync);
         AppServices.Mail = _mail;
 
-        // [S-2661] The feeds of every Rss widget, kept fresh in the background.
-        AppServices.Feeds = new Web.FeedSync(Sync, Ticker);
-
         // [S-588] [S-2630] One calendar and contacts source for every widget, synced through the store.
         _office = new Office.AccountOfficeSource(Accounts, Sync, Ticker);
         Office.OfficeSources.Current = _office;
@@ -220,15 +217,26 @@ internal sealed partial class AppHost : IDisposable
         // [S-2609] Syncs that waited for the network go as soon as it is back.
         Sync.Start();
 
+        // [S-2665] [S-2666] Shelves of accounts no longer signed in (a crash between a sign-out and
+        // its purge) go, only when the account list loaded whole.
+        Sync.Vault.Sweep(() => Accounts.TrustedAccountIds);
+
         // [S-1301] The request-forgery guard reads the user's "local network access" switch on
         // every check, so flipping it applies at once without a restart.
         Services.Web.NetGuard.AllowPrivate = () => State.Preferences.AllowPrivateNetwork;
 
         // [S-1300] [S-729] [S-2660] The feed, quote and weather widgets' last answers, from the sealed
-        // store, drawn at once on a cold launch instead of "Loading". Before the windows, so the
-        // first render finds them.
+        // store, drawn at once on a cold launch instead of "Loading". Before the syncs, so an answer
+        // fresh for its real age is not asked again ([S-2662]), and before the windows, so the first
+        // render finds them.
         Services.Web.NetworkCache.Persist(Sync.Vault);
         Services.Web.WeatherService.Persist(Sync.Vault);
+
+        // [S-2661] [S-2663] The feeds, readings, forecasts and quotes of every web widget in every
+        // view, kept fresh in the background. Only the app starts them, after the request guard
+        // knows the user's choice and the caches are restored: never a debug render.
+        AppServices.Feeds = new Web.FeedSync(Sync, Ticker);
+        AppServices.WebSync = new Web.WebSync(Sync, Ticker);
 
         // [S-890] Counted before the surfaces exist: a start that dies building them leaves its count.
         BeginStartGuard();
@@ -346,6 +354,8 @@ internal sealed partial class AppHost : IDisposable
         _office.Dispose();
         AppServices.Feeds?.Dispose();
         AppServices.Feeds = null;
+        AppServices.WebSync?.Dispose();
+        AppServices.WebSync = null;
         AppServices.Tasks?.Dispose();
         AppServices.Tasks = null;
         AppServices.Habits = null;

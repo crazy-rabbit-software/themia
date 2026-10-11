@@ -7,6 +7,7 @@ using Themia.App.Services.Web;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -45,7 +46,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private readonly Brush _todayFill = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Transparent);
     private readonly Brush _cardFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Transparent);
 
-    private readonly RefreshSchedule _schedule = new(Scope, "open-meteo");
 
     private Ticker? _ticker;
     private WeatherForecastConfig _config = new();
@@ -60,8 +60,13 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private CancellationTokenSource? _inFlight;
-    private int _generation;
+    private WebSync? _web;
+
+    /// <summary>What the widget asks for now, or null without a place ([S-2663]).</summary>
+    private WeatherInterest? _want;
+
+    /// <summary>The state to say when there is no forecast: not set up, or how the last sync went.</summary>
+    private FetchStatus _status = FetchStatus.Loading;
 
     private Fetched<Forecast>? _forecast;
     private WidgetArea _area;
@@ -89,7 +94,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     /// [S-730] Refresh. [S-1746] The layout is how the widget looks: it is chosen in its settings only.
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => { _schedule.Reset(); Reload(force: true); })] : [];
+        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))] : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -99,6 +104,15 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         // [S-1110] The texts follow the app's language. A static event: Detach unsubscribes.
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
+
+        // [S-2663] The forecast comes from the background sync; the widget only hears it.
+        _web = AppServices.WebSync;
+        if (_web is not null)
+        {
+            _web.Updated -= OnWebUpdated;
+            _web.Updated += OnWebUpdated;
+        }
+
         ApplyConfig(config);
     }
 
@@ -120,32 +134,21 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         _applied = (WeatherForecastConfig)next.Clone();
         PublishTitle();
 
-        // Only the fields that change what comes back are worth a re-read. Toggling the
+        // Only the fields that change what comes back make another forecast. Toggling the
         // precipitation column or the layout redraws the days already in hand.
-        var needsFetch = previous.Latitude != next.Latitude
+        var placeChanged = previous.Latitude != next.Latitude
             || previous.Longitude != next.Longitude
             || previous.Unit != next.Unit
             || previous.EffectiveDays != next.EffectiveDays;
 
-        if (needsFetch)
+        if (placeChanged)
         {
             _forecast = null;
-            _schedule.Reset();
         }
 
-        if (Resubscribe())
-        {
-            return;
-        }
-
-        if (needsFetch)
-        {
-            Reload();
-        }
-        else
-        {
-            Render();
-        }
+        // [S-2663] Always through the sync: it asks nothing for a forecast already held and fresh.
+        Resubscribe();
+        Reload(force: false);
     }
 
     /// <summary>[S-663] The card's word on how much room the widget has.</summary>
@@ -155,115 +158,78 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         Lay();
     }
 
-    private bool Resubscribe()
+    /// <summary>Rebuild the ticker subscription only when the cadence actually changed.</summary>
+    private void Resubscribe()
     {
         var interval = _config.TickInterval;
 
         if (_subscription is not null && interval == _subscribedInterval)
         {
-            return false;
+            return;
         }
 
         _subscription?.Dispose();
         _subscribedInterval = interval;
         _subscription = _ticker?.Subscribe(interval, OnTick);
-        return _subscription is not null;
     }
 
+    /// <summary>
+    /// A tick only redraws: the day labels and the freshness line move on their own ("Today" has to
+    /// become "Wed" at midnight). [S-2663] The forecast is kept fresh by the sync service.
+    /// </summary>
     private void OnTick()
     {
-        if (_detached)
+        if (!_detached)
         {
-            return;
+            Render();
         }
-
-        if (_schedule.MayFetch(DateTimeOffset.Now))
-        {
-            Reload();
-            return;
-        }
-
-        // Still backed off, but the day labels and the freshness line both move on their own —
-        // "Today" has to become "Wed" at midnight whether or not the network is working.
-        Render();
     }
 
-    private void Reload(bool force = false)
+    /// <summary>
+    /// [S-2663] Tell the sync what is on screen and draw what it holds. Nothing is fetched for a
+    /// forecast already held and fresh; <paramref name="force"/> (the user's Refresh) asks now.
+    /// </summary>
+    private void Reload(bool force)
     {
         if (_detached)
         {
             return;
         }
 
-        if (!WebInput.AreCoordinates(_config.Latitude, _config.Longitude))
+        _want = SyncInterests.For(_config);
+        if (_want is null)
         {
-            _schedule.Record(FetchStatus.NotConfigured, _config.TickInterval, null, DateTimeOffset.Now);
+            _status = FetchStatus.NotConfigured;
+            _forecast = null;
             Render();
             return;
         }
 
-        var latitude = _config.Latitude!.Value;
-        var longitude = _config.Longitude!.Value;
-        var unit = _config.Unit;
-        var days = _config.EffectiveDays;
-
-        _forecast ??= WeatherService.PeekForecast(latitude, longitude, unit, days);
-
-        _inFlight?.Cancel();
-        var cts = new CancellationTokenSource();
-        _inFlight = cts;
-        var generation = ++_generation;
-
-        Render();
-        _ = LoadAsync(latitude, longitude, unit, days, generation, force, cts);
+        _web?.Show(_want, force);
+        Take();
     }
 
-    private async Task LoadAsync(
-        double latitude,
-        double longitude,
-        TemperatureUnit unit,
-        int days,
-        int generation,
-        bool force,
-        CancellationTokenSource cts)
+    /// <summary>[S-2663] A forecast's answer or state changed in the sync service.</summary>
+    private void OnWebUpdated(string key)
     {
-        try
+        if (!_detached && _want is { } want && WebSync.Key(want) == key)
         {
-            var result = await WeatherService
-                .ForecastAsync(latitude, longitude, unit, days, _config.TickInterval, cts.Token, force)
-                .ConfigureAwait(true);
-
-            if (_detached || generation != _generation)
-            {
-                return;
-            }
-
-            _schedule.Record(result.Status, _config.TickInterval, result.Detail, DateTimeOffset.Now);
-
-            if (result.Value is not null)
-            {
-                _forecast = result;
-            }
-            else if (_forecast is { } held)
-            {
-                _forecast = held.Stale(result.Status, result.Detail);
-            }
-
-            Render();
+            Take();
         }
-        catch (OperationCanceledException)
+    }
+
+    /// <summary>What the sync holds: the newest forecast (kept through a failure, annotated with it), or the state to say.</summary>
+    private void Take()
+    {
+        if (_want is not { ForecastDays: { } days } want)
         {
-            // ignore: superseded by a newer request, which will draw in this one's place.
+            return;
         }
-        finally
-        {
-            if (ReferenceEquals(_inFlight, cts))
-            {
-                _inFlight = null;
-            }
 
-            cts.Dispose();
-        }
+        var answer = _web is { } web ? web.Forecast(want) : WeatherService.PeekForecast(want.Latitude, want.Longitude, want.Unit, days);
+        _forecast = answer?.Value is not null ? answer : null;
+        _status = answer?.Status ?? FetchStatus.Loading;
+        Render();
     }
 
     private void Render()
@@ -279,7 +245,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
 
         if (days is null || days.Count == 0)
         {
-            var status = _schedule.Status;
+            var status = _status;
 
             // No place yet: the card's Set up button covers this ([S-1862]).
             _emptyMessage.Text = status == FetchStatus.NotConfigured
@@ -415,8 +381,11 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         _subscription = null;
         _subscribedInterval = TimeSpan.Zero;
 
-        _inFlight?.Cancel();
-        _inFlight = null;
+        if (_web is not null)
+        {
+            _web.Updated -= OnWebUpdated;
+            _web = null;
+        }
 
         _ticker = null;
     }

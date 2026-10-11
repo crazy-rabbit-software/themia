@@ -70,7 +70,6 @@ internal static class Glyphs
     public static readonly string Sort = From(0xE8CB);
     public static readonly string Play = From(0xE768);
     public static readonly string Pause = From(0xE769);
-    public static readonly string Stop = From(0xE71A);
     public static readonly string Sound = From(0xE767);
     public static readonly string Link = From(0xE71B);
     public static readonly string Wrap = From(0xE751); // [S-652] E7A3 is not in the font: a return arrow
@@ -92,7 +91,6 @@ internal static class Glyphs
     public static readonly string Shortcut = From(0xE71B);
     public static readonly string Warning = From(0xE7BA);
     public static readonly string Undo = From(0xE7A7);
-    public static readonly string Eraser = From(0xED60);
     public static readonly string Shuffle = From(0xE8B1);
     public static readonly string Mute = From(0xE74F);
     public static readonly string Volume0 = From(0xE992);
@@ -104,12 +102,8 @@ internal static class Glyphs
     public static readonly string Speakers = From(0xE7F5);
     public static readonly string Previous = From(0xE892);
     public static readonly string Next = From(0xE893);
-    public static readonly string Headphone = From(0xE7F6);
     public static readonly string Mouse = From(0xE962);
-    public static readonly string Keyboard = From(0xE765);
-    public static readonly string Phone = From(0xE8EA);
     public static readonly string Game = From(0xE7FC);
-    public static readonly string Pen = From(0xE929);
     public static readonly string Bluetooth = From(0xE702);
     public static readonly string Weather = From(0xE753);
     public static readonly string Forecast = From(0xE9CA);
@@ -145,6 +139,9 @@ internal static class Glyphs
     public static readonly string Gallery = From(0xE91B);
     public static readonly string Habit = From(0xE73E);
     public static readonly string Music = From(0xE8D6);
+
+    /// <summary>[S-3200] The audio visualizer: Equalizer (E9E9) is the mixer's, so the sound-settings wave.</summary>
+    public static readonly string Visualizer = From(0xE7F3);
     public static readonly string Group = From(0xF168);
 
     // The system widgets: mixer and screen time (the GPU glyph sits with the other meters).
@@ -184,8 +181,6 @@ internal static class Glyphs
 
     // The Tasks widget.
     public static readonly string Back = From(0xE72B);
-    public static readonly string Today = From(0xE8BF);
-    public static readonly string Important = From(0xE8C9);
 
     // Checked against SegoeIcons.ttf's cmap and a rendered sheet: three joined nodes (a branch, the
     // folder's git badge), a gauge (pressure), a tag, a dot.
@@ -203,7 +198,6 @@ internal static class Glyphs
     public static readonly string BulletList = From(0xE8FD);
     public static readonly string Checklist = From(0xE9D5);
     public static readonly string ChevronDown = From(0xE70D);
-    public static readonly string ChevronUp = From(0xE70E);
 
     /// <summary>[S-913] The view bar's drag handle: upright bars on a row, flat bars on a column.</summary>
     public static readonly string GripperVertical = From(0xE784);

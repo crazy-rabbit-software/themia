@@ -1,4 +1,3 @@
-using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Xunit;
 
@@ -63,14 +62,12 @@ public class VolumeRulesTests
     public void S222_Mute_outranks_the_level_underneath_it()
     {
         Assert.Equal(VolumeLevel.Muted, VolumeRules.Level(0.8, muted: true));
-        Assert.Equal("Muted", VolumeRules.Caption(0.8, muted: true));
     }
 
     [Fact]
     public void S222_A_level_turned_all_the_way_down_is_not_the_same_state_as_muted()
     {
         Assert.Equal(VolumeLevel.Silent, VolumeRules.Level(0, muted: false));
-        Assert.Equal("Turned down", VolumeRules.Caption(0, muted: false));
     }
 
     [Theory]
@@ -83,11 +80,21 @@ public class VolumeRulesTests
     public void S222_The_speaker_glyph_steps_at_a_third_and_two_thirds(double scalar, VolumeLevel expected)
         => Assert.Equal(expected, VolumeRules.Level(scalar, muted: false));
 
-    [Fact]
-    public void S220_The_readout_is_the_percentage_and_nothing_else()
-        => Assert.Equal("42%", VolumeRules.Readout(Locale.En, 0.42));
+    [Theory]
+    [InlineData(120, 76)]   // XS
+    [InlineData(200, 106)]  // S
+    [InlineData(320, 196)]  // M
+    [InlineData(480, 116)]  // Wide
+    [InlineData(560, 376)]  // L
+    [InlineData(800, 516)]  // XL
+    public void S2731_the_slider_lies_along_every_tile_that_is_not_a_column(double width, double height)
+        => Assert.Equal(VolumeAxis.Horizontal, VolumeRules.Axis(new WidgetArea(width, height)));
 
     [Fact]
-    public void The_readout_uses_the_languages_percent_sign()
-        => Assert.Equal("42\u00A0%", VolumeRules.Readout(Locale.De, 0.42));
+    public void S2731_a_tall_column_stands_the_slider_up()
+        => Assert.Equal(VolumeAxis.Vertical, VolumeRules.Axis(new WidgetArea(200, 356)));
+
+    [Fact]
+    public void S2731_an_unmeasured_tile_starts_horizontal()
+        => Assert.Equal(VolumeAxis.Horizontal, VolumeRules.Axis(default));
 }

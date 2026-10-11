@@ -1,39 +1,34 @@
+using CommunityToolkit.WinUI.Controls;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services.Web;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
-using Windows.System;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// What a settings page hands <see cref="PlaceSearch"/>: what is chosen now, and what to do when the
-/// user picks a place or asks to change it. The search itself owns nothing in the config.
+/// What a settings page hands <see cref="PlaceSearch"/>: the place chosen now, and what to do when
+/// the user picks another. The search itself owns nothing in the config.
 /// </summary>
-/// <param name="Query">The text last searched for, to put back in the box.</param>
-/// <param name="Chosen">The chosen place's name, or null when none is chosen (the search is then shown).</param>
-/// <param name="QueryChanged">Remember what was typed (display only; never re-geocoded).</param>
-/// <param name="Picked">A result was picked: store its coordinates and name, and save.</param>
-/// <param name="Changed">"Change" was clicked: forget the choice if the widget can have none, and save.</param>
-internal sealed record PlaceSearchBinding(
-    string Query,
-    string? Chosen,
-    Action<string> QueryChanged,
-    Action<GeocodedPlace> Picked,
-    Action Changed);
+/// <param name="Chosen">The chosen place's label, or null when none is chosen yet.</param>
+/// <param name="Picked">A place was picked: store its coordinates and label, and save.</param>
+internal sealed record PlaceSearchBinding(string? Chosen, Action<PlaceMatch> Picked);
 
 /// <summary>
-/// [S-732] The city search, as one reusable piece: both weather widgets use it, and any other widget
-/// that needs a place by name (Sun &amp; Moon) can, with a <see cref="PlaceSearchBinding"/> of its own.
+/// [S-2840] The location row, one piece for both weather widgets and Sun &amp; Moon: the row says
+/// which place is chosen (or that none is), and its one control is a search box with type-ahead
+/// suggestions, the way Windows' own Weather and Clock pick a city.
 /// <para>
-/// The original's behaviour: a search 400 ms after the last keystroke once two characters are typed,
-/// Enter searches at once, the results open as a drop-down over the rows below rather than pushing
-/// them down, and three outcomes said three ways — "Searching…", "No locations found." (not an
-/// error) and "Search failed." (an error, logged). Once a place is chosen the search gives way to
-/// one row naming it, with a Change button that brings the search back ([S-23] of the original).
+/// The box never holds the choice: it is only ever a question. A pick replaces the choice at once
+/// and empties the box; there is no "Change" mode to enter and no way to leave a widget with half a
+/// choice. Everything the box can be told is said inside the suggestion list, where the eye already
+/// is: searching, the places ([S-2842]), no match, offline, failed ([S-2843]).
 /// </para>
 /// <para>
 /// The place resolves to coordinates <b>once</b>, at the pick, never on a refresh: re-geocoding
@@ -45,122 +40,140 @@ internal static class PlaceSearch
 {
     private const string Scope = "weather";
 
-    /// <summary>How long typing has to pause before a search goes out: six requests to type "Zurich" is five too many.</summary>
-    private static readonly TimeSpan Debounce = TimeSpan.FromMilliseconds(400);
+    /// <summary>As wide as the Clock's zone search and the verdict line under a field.</summary>
+    private const double FieldWidth = 300;
+
+#if DEBUG
+    /// <summary>
+    /// Debug renders only: answers in place of the geocoder, so every state of the list can be drawn
+    /// without a network. Null in every real run.
+    /// </summary>
+    internal static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>>? DebugLookup { get; set; }
+
+    /// <summary>Debug renders only: type into the last search box built and search at once, as Enter does.</summary>
+    internal static Action<string>? DebugType { get; private set; }
+#endif
 
     public static void Add(List<FrameworkElement> rows, PlaceSearchBinding binding)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(binding);
 
-        var box = new TextBox
+        var box = new AutoSuggestBox
         {
-            PlaceholderText = Str.Shell_Place_CityName.Text(),
-            Text = binding.Query,
-            Width = 260,
-            MaxLength = WebInput.MaxPlaceLength,
+            PlaceholderText = Str.Shell_Place_SearchPlaceholder.Text(),
+            QueryIcon = new SymbolIcon(Symbol.Find),
+            Width = FieldWidth,
+
+            // Arrowing through the list previews nothing and commits nothing; Enter or a click does.
+            UpdateTextOnSelect = false,
         };
 
-        // A drop-down rather than a list in the page: the results float over the rows below
-        // instead of pushing them down, and close on a pick, Escape or a click elsewhere.
-        var results = new ComboBox
-        {
-            Width = 260,
-            PlaceholderText = Str.Shell_Place_PickPlace.Text(),
-            Visibility = Visibility.Collapsed,
-        };
+        AutomationProperties.SetName(box, Str.Shell_Place_SearchPlaceholder.Text());
 
-        var verdict = FluentLayout.Verdict();
-
-        var search = FluentLayout.FieldRow(Glyphs.Search, Str.Common_Search.Text(), Str.Shell_Place_SearchDesc.Text(),
-            new StackPanel
-            {
-                Spacing = Fluent.Space1,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Children = { box, results },
-            },
-            verdict);
-
-        var chosen = FluentLayout.Note(binding.Chosen ?? string.Empty);
-        chosen.Margin = new Thickness(0);
-        chosen.VerticalAlignment = VerticalAlignment.Center;
-        chosen.TextTrimming = TextTrimming.CharacterEllipsis;
-        chosen.MaxWidth = 260;
-
-        var change = new Button { Content = Str.Common_Change.Text() };
-
-        var location = FluentLayout.Row(Glyphs.Place, Str.Shell_Place_Location.Text(), null, new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            Children = { chosen, change },
-        });
-
-        void ShowChosen(string? name)
-        {
-            var has = !string.IsNullOrWhiteSpace(name);
-            chosen.Text = name ?? string.Empty;
-            location.Visibility = has ? Visibility.Visible : Visibility.Collapsed;
-            search.Visibility = has ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        ShowChosen(binding.Chosen);
+        var row = FluentLayout.Row(Glyphs.Place, Str.Shell_Place_Location.Text(), Describe(binding.Chosen), box);
 
         // One search at a time. A new one cancels the last, so a slow answer for "par" cannot land
         // on top of the results for "paris".
         CancellationTokenSource? pending = null;
-        var lastQuery = string.Empty;
 
-        void Collapse()
+        // The places in the list, and the query they answer: Enter picks the first of them only
+        // while the box still says what they were found for.
+        IReadOnlyList<PlaceMatch> shown = [];
+        var shownFor = string.Empty;
+
+        void Cancel()
         {
-            results.Items.Clear();
-            results.Visibility = Visibility.Collapsed;
+            pending?.Cancel();
+            pending = null;
+        }
+
+        void Show(List<object> items)
+        {
+            box.ItemsSource = items;
+            box.IsSuggestionListOpen = items.Count > 0;
+        }
+
+        void Close()
+        {
+            shown = [];
+            shownFor = string.Empty;
+            box.ItemsSource = null;
+            box.IsSuggestionListOpen = false;
+        }
+
+        void Say(string glyph, string text, bool critical = false, bool busy = false)
+        {
+            shown = [];
+            shownFor = string.Empty;
+            Show([StatusItem(glyph, text, critical, busy)]);
+        }
+
+        void Pick(PlaceMatch place)
+        {
+            Cancel();
+            binding.Picked(place);
+
+            if (row.Child is SettingsCard card)
+            {
+                card.Description = Describe(place.Label);
+            }
+
+            box.Text = string.Empty;
+            Close();
         }
 
         async Task RunAsync(string query)
         {
-            pending?.Cancel();
+            Cancel();
             var cts = new CancellationTokenSource();
             pending = cts;
-            lastQuery = query;
 
-            Collapse();
-            FluentLayout.Confirm(verdict, Str.Shell_Place_Searching.Text());
+            Say(Glyphs.Search, Str.Shell_Place_Searching.Text(), busy: true);
 
             try
             {
-                var (status, places, detail) = await WeatherService.FindAsync(query, cts.Token).ConfigureAwait(true);
+#if DEBUG
+                var find = DebugLookup ?? WeatherService.FindAsync;
+#else
+                var find = WeatherService.FindAsync;
+#endif
+                var (outcome, places, detail) = await find(query, cts.Token).ConfigureAwait(true);
 
                 if (!ReferenceEquals(pending, cts))
                 {
                     return;
                 }
 
-                if (status == FetchStatus.Empty)
+                switch (outcome)
                 {
-                    FluentLayout.Confirm(verdict, Str.Shell_Place_NoneFound.Text());
-                    return;
-                }
+                    case PlaceOutcome.Matches:
+                        shown = places;
+                        shownFor = query;
+                        Show([.. places.Select(PlaceItem)]);
+                        break;
 
-                if (status != FetchStatus.Ok)
-                {
-                    Log.Warn(Scope, $"place search failed: {FetchState.Message(status)} {detail}".TrimEnd());
-                    FluentLayout.Refuse(verdict, Str.Shell_Place_SearchFailed.Text());
-                    return;
-                }
+                    case PlaceOutcome.NoMatch:
+                        Say(Glyphs.Search, Str.Shell_Place_NoMatch.Format(("query", query)));
+                        break;
 
-                foreach (var place in places)
-                {
-                    results.Items.Add(new ComboBoxItem { Content = place.Name, Tag = place });
-                }
+                    case PlaceOutcome.Offline:
+                        Say(Glyphs.Network, Str.Shell_Place_Offline.Text());
+                        break;
 
-                FluentLayout.Confirm(verdict, string.Empty);
-                results.Visibility = Visibility.Visible;
-                results.IsDropDownOpen = true;
+                    case PlaceOutcome.NotAName:
+                        Say(Glyphs.Info, Str.Shell_Place_TypeName.Text());
+                        break;
+
+                    default:
+                        Log.Warn(Scope, $"place search failed: {detail}".TrimEnd());
+                        Say(Glyphs.Warning, Str.Shell_Place_Failed.Text(), critical: true);
+                        break;
+                }
             }
             catch (OperationCanceledException)
             {
-                // ignore: superseded by a newer search, which reports in this one's place.
+                // ignore: superseded by a newer search, or the page closed; the newer one reports.
             }
             finally
             {
@@ -173,31 +186,38 @@ internal static class PlaceSearch
             }
         }
 
-        void Start()
+        // [S-2841] What the box says now calls for nothing, a word, or a search.
+        void Start(bool submitted)
         {
-            var query = box.Text.Trim();
-            binding.QueryChanged(query);
+            var query = PlaceQuery.Normalise(box.Text);
 
-            if (query.Length == 0)
+            switch (PlaceQuery.Classify(query, submitted))
             {
-                pending?.Cancel();
-                lastQuery = string.Empty;
-                Collapse();
-                FluentLayout.Confirm(verdict, string.Empty);
-                return;
+                case PlaceQueryStep.Idle:
+                case PlaceQueryStep.TooShort:
+                    Cancel();
+                    Close();
+                    return;
+
+                case PlaceQueryStep.NotAName:
+                    Cancel();
+                    Say(Glyphs.Info, Str.Shell_Place_TypeName.Text());
+                    return;
             }
 
-            if (!WebInput.IsPlausiblePlace(query))
+            // [S-2844] The list already answers this query: Enter takes its best match, a pause
+            // just shows it again.
+            if (shown.Count > 0 && query == shownFor)
             {
-                // Under two characters is not yet a question; anything else implausible is said.
-                Collapse();
-                FluentLayout.Confirm(verdict, query.Length < 2 ? string.Empty : Str.Shell_Place_TypeName.Text());
-                return;
-            }
+                if (submitted)
+                {
+                    Pick(shown[0]);
+                }
+                else
+                {
+                    box.IsSuggestionListOpen = true;
+                }
 
-            if (query == lastQuery && results.Items.Count > 0)
-            {
-                results.IsDropDownOpen = true;
                 return;
             }
 
@@ -210,60 +230,139 @@ internal static class PlaceSearch
 
         if (timer is not null)
         {
-            timer.Interval = Debounce;
+            timer.Interval = PlaceQuery.Debounce;
             timer.IsRepeating = false;
-            timer.Tick += (_, _) => Start();
+            timer.Tick += (_, _) => Start(submitted: false);
         }
 
-        box.TextChanged += (_, _) =>
+        box.TextChanged += (_, args) =>
         {
-            if (timer is null)
+            if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 return;
             }
 
-            timer.Stop();
-            timer.Start();
+            timer?.Stop();
+
+            // Emptied: close at once rather than after the pause.
+            if (box.Text.Length == 0)
+            {
+                Start(submitted: false);
+                return;
+            }
+
+            timer?.Start();
         };
 
-        box.KeyDown += (_, args) =>
+        // [S-2844] Enter, a click on a suggestion or on the search glyph. A highlighted place is
+        // picked; otherwise the query is asked now, or its best match taken if the list answers it.
+        box.QuerySubmitted += (_, args) =>
         {
-            if (args.Key == VirtualKey.Enter)
+            timer?.Stop();
+
+            if (args.ChosenSuggestion is ListViewItem { Tag: PlaceMatch place })
             {
-                args.Handled = true;
-                timer?.Stop();
-                Start();
+                Pick(place);
+                return;
             }
+
+            Start(submitted: true);
         };
 
         box.Unloaded += (_, _) =>
         {
             timer?.Stop();
-            pending?.Cancel();
+            Cancel();
         };
 
-        results.SelectionChanged += (_, _) =>
+#if DEBUG
+        DebugType = text =>
         {
-            if (results.SelectedItem is not ComboBoxItem { Tag: GeocodedPlace place })
+            box.Text = text;
+            Start(submitted: true);
+        };
+#endif
+
+        rows.Add(row);
+    }
+
+    /// <summary>The row's description: the chosen place in full, or that there is none yet.</summary>
+    private static string Describe(string? chosen)
+        => string.IsNullOrWhiteSpace(chosen) ? Str.Shell_Place_NotChosen.Text() : chosen;
+
+    /// <summary>[S-2842] A suggestion: the city on the first line, what sets it apart under it.</summary>
+    private static ListViewItem PlaceItem(PlaceMatch place)
+    {
+        var name = Fluent.Text(FluentType.Body);
+        name.Text = place.Name;
+
+        var lines = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { name } };
+
+        if (place.Detail.Length > 0)
+        {
+            var detail = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+            detail.Text = place.Detail;
+            lines.Children.Add(detail);
+        }
+
+        var item = new ListViewItem
+        {
+            Content = lines,
+            Tag = place,
+            Padding = new Thickness(Fluent.Space3, Fluent.Space1, Fluent.Space3, Fluent.Space1),
+        };
+
+        AutomationProperties.SetName(item, place.Label);
+        return item;
+    }
+
+    /// <summary>
+    /// [S-2843] A line in the list that is a state, not a choice: disabled, so neither the arrows nor
+    /// a click can pick it, with a ring while searching and the critical colour only for a failure.
+    /// </summary>
+    private static ListViewItem StatusItem(string glyph, string text, bool critical, bool busy)
+    {
+        FrameworkElement mark = busy
+            ? new ProgressRing { IsActive = true, Width = Fluent.IconSize, Height = Fluent.IconSize }
+            : new FontIcon
             {
-                return;
-            }
+                Glyph = glyph,
+                FontSize = Fluent.IconSize,
+                Foreground = critical
+                    ? FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red)
+                    : FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray),
+            };
 
-            binding.Picked(place);
-            Collapse();
-            FluentLayout.Confirm(verdict, string.Empty);
-            ShowChosen(place.Name);
-        };
+        mark.VerticalAlignment = VerticalAlignment.Top;
+        mark.Margin = new Thickness(0, Fluent.Space1 / 2, 0, 0);
 
-        change.Click += (_, _) =>
+        var message = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+        message.Text = text;
+        message.TextTrimming = TextTrimming.None;
+        message.TextWrapping = TextWrapping.Wrap;
+        Grid.SetColumn(message, 1);
+
+        var line = new Grid
         {
-            binding.Changed();
-            ShowChosen(null);
-            box.Focus(FocusState.Programmatic);
-            box.SelectAll();
+            ColumnSpacing = Fluent.Space3,
+            ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+            },
+            Children = { mark, message },
         };
 
-        rows.Add(search);
-        rows.Add(location);
+        var item = new ListViewItem
+        {
+            Content = line,
+            IsEnabled = false,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+            Padding = new Thickness(Fluent.Space3, Fluent.Space2, Fluent.Space3, Fluent.Space2),
+        };
+
+        AutomationProperties.SetName(item, text);
+        AutomationProperties.SetLiveSetting(item, AutomationLiveSetting.Polite);
+        return item;
     }
 }

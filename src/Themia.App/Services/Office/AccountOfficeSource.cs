@@ -389,6 +389,23 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
         var now = DateTimeOffset.UtcNow;
 
+        // [S-2684] A calendar its provider reports changes for: every refresh is one round over the
+        // whole window (the changes since the cursor, or the window in full when there is none).
+        // A calendar never synced draws the weeks around today first, as below.
+        if (WindowCursorKind(box.AccountId, item.CalendarId) is { } kind)
+        {
+            if (!force && !item.Near.IsDue(now))
+            {
+                return Task.CompletedTask;
+            }
+
+            var neverSynced = item.Span is null;
+            var quick = neverSynced ? EventsOnceAsync(box, item, full: false, force) : Task.CompletedTask;
+            item.Flight = ThenWindowRoundAsync(quick, neverSynced, box, item, kind, force);
+            item.FirstStep = neverSynced ? quick : item.Flight;
+            return item.Flight;
+        }
+
         // The user's Refresh asks for the whole window: whatever they are looking at is in it.
         var full = force || (item.Span is not null && item.Full.IsDue(now));
         if (!force && !(full ? item.Full : item.Near).IsDue(now))
@@ -410,6 +427,26 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
         {
             await EventsOnceAsync(box, item, full: true, force: false).ConfigureAwait(true);
         }
+    }
+
+    private async Task ThenWindowRoundAsync(Task quick, bool ranQuick, CalendarBox box, CalendarItem item, CursorKind kind, bool force)
+    {
+        await quick.ConfigureAwait(true);
+
+        // A first draw that failed has said why and set its back-off; the round waits for that too.
+        if (_disposed || (ranQuick && item.Problem != SyncProblem.None))
+        {
+            return;
+        }
+
+        var target = new CalendarTarget(box.AccountId, item.CalendarId);
+        await RunAsync(item.Near, () => item.Problem, p => item.Problem = p, async () =>
+        {
+            item.Span = await SyncWindowAsync(target, item.Span, kind, CancellationToken.None).ConfigureAwait(true);
+
+            // A round answers for the whole window: the full refresh's clock moves with it.
+            item.Full.Succeeded(DateTimeOffset.UtcNow);
+        }, box.Save, force).ConfigureAwait(true);
     }
 
     private Task EventsOnceAsync(CalendarBox box, CalendarItem item, bool full, bool force)
@@ -457,7 +494,8 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
         box.Flight = RunAsync(box.Schedule, () => box.Problem, p => box.Problem = p, async () =>
         {
-            box.People = await LoadContactsAsync(box.AccountId, OfficeShelves.MaxContacts, CancellationToken.None).ConfigureAwait(true);
+            // [S-2685] The changes since the book's cursor, or the book in full.
+            (box.People, box.Cursor) = await SyncBookAsync(box.AccountId, box.People, box.Cursor, CancellationToken.None).ConfigureAwait(true);
             box.At = DateTimeOffset.UtcNow;
         }, box.Save, force);
 
@@ -677,6 +715,9 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
 
         public IReadOnlyList<Contact>? People { get; set; }
 
+        /// <summary>[S-2680] Where the provider's changes continue from; null when none can follow.</summary>
+        public SyncCursor? Cursor { get; set; }
+
         public DateTimeOffset? At { get; set; }
 
         public SyncSchedule Schedule { get; } = new(ContactsInterval);
@@ -706,6 +747,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             if (shelf.At is { } at)
             {
                 box.People = [.. shelf.Contacts.Select(c => OfficeShelves.Restore(c, accountId))];
+                box.Cursor = shelf.Cursor;
                 box.At = at;
                 box.Schedule.Seed(at, DateTimeOffset.UtcNow);
             }
@@ -725,6 +767,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
                 Owner = AccountId,
                 At = At,
                 Contacts = [.. People.Take(OfficeShelves.MaxContacts).Select(OfficeShelves.Store)],
+                Cursor = Cursor,
             };
 
             owner._sync.Vault.SaveSoon(SyncKind.Contacts, AccountId, shelf, SyncJsonContext.Default.ContactsShelf);

@@ -133,7 +133,7 @@ internal sealed partial class GalleryView
         ToolTipService.SetToolTip(_pauseButton, _paused ? Str.WidgetsB_Gallery_Resume.Text() : Str.WidgetsB_Gallery_Pause.Text());
     }
 
-    /// <summary>Give a new frame its pointer behaviour: open on double-tap, jump on a thumbnail tap.</summary>
+    /// <summary>Give a new frame its pointer behaviour: open on double-tap.</summary>
     private void WireFrame(GalleryFrame frame)
     {
         // [S-771] Double, not single: a single click on the desktop layer is how a card is selected
@@ -146,15 +146,6 @@ internal sealed partial class GalleryView
                 args.Handled = true;
             }
         };
-
-        if (frame.Thumbnail)
-        {
-            frame.Host.Tapped += (_, args) =>
-            {
-                JumpTo(frame.Index);
-                args.Handled = true;
-            };
-        }
     }
 
     /// <summary>

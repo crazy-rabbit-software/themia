@@ -64,8 +64,8 @@ public class AudioRulesTests
     [Fact]
     public void S1221_clone_keeps_the_device_and_the_new_toggles()
     {
-        var clone = (VolumeConfig)new VolumeConfig { DeviceId = "{a}", DeviceName = "S", ShowPeaks = false }.Clone();
-        Assert.Equal(("{a}", "S", false), (clone.DeviceId, clone.DeviceName, clone.ShowPeaks));
+        var clone = (VolumeConfig)new VolumeConfig { DeviceId = "{a}", DeviceName = "S", AllowControl = false }.Clone();
+        Assert.Equal(("{a}", "S", false), (clone.DeviceId, clone.DeviceName, clone.AllowControl));
 
         var mixer = (MixerConfig)new MixerConfig { DeviceId = "{b}", ShowPeaks = false }.Clone();
         Assert.Equal(("{b}", false), (mixer.DeviceId, mixer.ShowPeaks));
@@ -94,6 +94,8 @@ public class AudioRulesTests
     [InlineData(WidgetKey.Minus, AudioKeyKind.Step, -2)]
     [InlineData(WidgetKey.PageUp, AudioKeyKind.Step, 10)]
     [InlineData(WidgetKey.PageDown, AudioKeyKind.Step, -10)]
+    [InlineData(WidgetKey.Home, AudioKeyKind.Step, -100)]
+    [InlineData(WidgetKey.End, AudioKeyKind.Step, 100)]
     [InlineData(WidgetKey.Mute, AudioKeyKind.ToggleMute, 0)]
     [InlineData(WidgetKey.Space, AudioKeyKind.ToggleMute, 0)]
     [InlineData(WidgetKey.Enter, AudioKeyKind.None, 0)]
@@ -229,14 +231,33 @@ public class AudioRulesTests
         Assert.Empty(MixerRules.QuietRows(rows, new MixerRowOptions(true, true, OnlyActive: false)));
     }
 
-    // ---- [S-1232] the caption --------------------------------------------------------------------
+    // ---- [S-2732] the wheel ----------------------------------------------------------------------
 
     [Fact]
-    public void S1232_the_device_name_replaces_output_level()
+    public void S2732_a_wheel_notch_is_one_arrow_step()
     {
-        Assert.Equal("Headphones", VolumeRules.Caption(0.5, muted: false, " Headphones "));
-        Assert.Equal("Output level", VolumeRules.Caption(0.5, muted: false, "  "));
-        Assert.Equal("Muted", VolumeRules.Caption(0.5, muted: true, "Headphones"));
-        Assert.Equal("Turned down", VolumeRules.Caption(0, muted: false, "Headphones"));
+        Assert.Equal((2, 0), AudioRules.Wheel(0, 120));
+        Assert.Equal((-2, 0), AudioRules.Wheel(0, -120));
+        Assert.Equal((6, 0), AudioRules.Wheel(0, 360));
+    }
+
+    [Fact]
+    public void S2732_a_precision_wheel_steps_once_its_small_deltas_add_up_to_a_notch()
+    {
+        var (step, carry) = AudioRules.Wheel(0, 40);
+        Assert.Equal((0, 40), (step, carry));
+
+        (step, carry) = AudioRules.Wheel(carry, 40);
+        Assert.Equal((0, 80), (step, carry));
+
+        (step, carry) = AudioRules.Wheel(carry, 50);
+        Assert.Equal((2, 10), (step, carry));
+    }
+
+    [Fact]
+    public void S2732_turning_the_wheel_back_drops_what_was_carried_the_other_way()
+    {
+        // Half a notch up and then a notch down is a step down, not nothing.
+        Assert.Equal((-2, 0), AudioRules.Wheel(60, -120));
     }
 }

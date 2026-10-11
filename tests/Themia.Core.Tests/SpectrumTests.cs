@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-1470]..[S-1472] the loopback spectrum: analysis, decoding, settling and the shared capture's count.</summary>
+/// <summary>[S-3201]..[S-3204] the loopback spectrum: analysis, decoding, settling, cadence, the shared capture's count and its availability.</summary>
 public class SpectrumTests
 {
     private static float[] Sine(double hz, int count, double amplitude = 0.8)
@@ -19,7 +19,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_silence_is_all_bars_down()
+    public void S3201_silence_is_all_bars_down()
     {
         var bands = new float[Spectrum.Bands];
         new Spectrum().Analyze(new float[Spectrum.FftSize], bands);
@@ -27,7 +27,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_a_low_tone_lifts_the_low_bands_and_a_high_tone_the_high_ones()
+    public void S3201_a_low_tone_lifts_the_low_bands_and_a_high_tone_the_high_ones()
     {
         var spectrum = new Spectrum();
         var low = new float[Spectrum.Bands];
@@ -45,7 +45,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_levels_stay_within_zero_to_one_even_for_a_full_scale_square()
+    public void S3201_levels_stay_within_zero_to_one_even_for_a_full_scale_square()
     {
         var square = Enumerable.Range(0, Spectrum.FftSize).Select(i => i % 64 < 32 ? 1f : -1f).ToArray();
         var bands = new float[Spectrum.Bands];
@@ -54,7 +54,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_bands_cover_bin_one_to_nyquist_without_gaps_or_empty_bands()
+    public void S3201_bands_cover_bin_one_to_nyquist_without_gaps_or_empty_bands()
     {
         var spectrum = new Spectrum();
         Assert.Equal(1, spectrum.BinsOf(0).Low);
@@ -68,7 +68,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_a_short_capture_is_padded_not_rejected()
+    public void S3201_a_short_capture_is_padded_not_rejected()
     {
         var bands = new float[Spectrum.Bands];
         new Spectrum().Analyze(Sine(440, 100), bands);
@@ -76,7 +76,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1471_bars_rise_at_once_and_fall_by_the_step()
+    public void S3202_bars_rise_at_once_and_fall_by_the_step()
     {
         float[] shown = [0.2f, 0.9f, 0.05f];
         Spectrum.Settle(shown, [0.6f, 0.1f, 0f], fall: 0.1f);
@@ -86,7 +86,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_float_frames_mix_down_to_mono()
+    public void S3201_float_frames_mix_down_to_mono()
     {
         var data = new byte[2 * 2 * 4];
         BinaryPrimitives.WriteSingleLittleEndian(data.AsSpan(0), 0.5f);
@@ -101,7 +101,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_int16_frames_are_scaled_to_one()
+    public void S3201_int16_frames_are_scaled_to_one()
     {
         var data = new byte[4];
         BinaryPrimitives.WriteInt16LittleEndian(data.AsSpan(0), short.MinValue);
@@ -116,7 +116,7 @@ public class SpectrumTests
     [Theory]
     [InlineData(true, SampleEncoding.Float32)]
     [InlineData(false, SampleEncoding.Unsupported)]
-    public void S1470_silent_packets_and_unknown_formats_are_zeros_that_still_take_time(bool silent, SampleEncoding encoding)
+    public void S3201_silent_packets_and_unknown_formats_are_zeros_that_still_take_time(bool silent, SampleEncoding encoding)
     {
         var data = Enumerable.Repeat((byte)0x7F, 64).ToArray();
         var mono = Enumerable.Repeat(9f, 8).ToArray();
@@ -125,7 +125,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1470_a_short_buffer_is_silence_rather_than_an_overrun()
+    public void S3201_a_short_buffer_is_silence_rather_than_an_overrun()
     {
         var mono = new float[4];
         Assert.Equal(4, Spectrum.MixDown(new byte[3], SampleEncoding.Float32, 2, 4, silent: false, mono));
@@ -133,7 +133,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1472_the_first_subscriber_starts_the_worker_and_more_only_count()
+    public void S3203_the_first_subscriber_starts_the_worker_and_more_only_count()
     {
         var lease = new CaptureLease();
         Assert.Equal(CaptureAction.Start, lease.Add());
@@ -143,7 +143,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1472_the_worker_stops_only_with_the_last_subscriber()
+    public void S3203_the_worker_stops_only_with_the_last_subscriber()
     {
         var lease = new CaptureLease();
         lease.Add();
@@ -156,7 +156,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1472_a_remount_that_overlaps_old_and_new_never_stops_the_capture()
+    public void S3203_a_remount_that_overlaps_old_and_new_never_stops_the_capture()
     {
         var lease = new CaptureLease();
         lease.Add();                                         // the old instance
@@ -166,7 +166,7 @@ public class SpectrumTests
     }
 
     [Fact]
-    public void S1472_a_dead_worker_is_restarted_by_the_next_subscriber()
+    public void S3203_a_dead_worker_is_restarted_by_the_next_subscriber()
     {
         var lease = new CaptureLease();
         lease.Add();
@@ -176,8 +176,52 @@ public class SpectrumTests
         Assert.Equal(2, lease.Subscribers);
     }
 
+    [Theory]
+    [InlineData(true, false, Spectrum.FrameMs)]
+    [InlineData(false, true, Spectrum.FrameMs)]
+    [InlineData(true, true, Spectrum.FrameMs)]
+    [InlineData(false, false, Spectrum.IdleFrameMs)]
+    public void S3202_the_capture_drains_slower_only_once_the_bars_are_down_and_nothing_arrives(bool arrived, bool lit, int wait)
+        => Assert.Equal(wait, Spectrum.FrameWait(arrived, lit));
+
     [Fact]
-    public void S1472_an_extra_release_never_goes_negative()
+    public void S3202_the_idle_wait_stays_inside_the_capture_buffer()
+        => Assert.True(Spectrum.IdleFrameMs < 200);
+
+    [Fact]
+    public void S3204_availability_is_unknown_until_the_worker_reports_and_told_once_per_change()
+    {
+        var lease = new CaptureLease();
+        lease.Add();
+        Assert.Null(lease.Available);
+
+        Assert.True(lease.Report(false));
+        Assert.False(lease.Report(false));
+        Assert.False(lease.Available);
+        Assert.True(lease.Report(true));
+        Assert.True(lease.Available);
+    }
+
+    [Fact]
+    public void S3204_a_new_worker_forgets_what_the_last_one_found()
+    {
+        var lease = new CaptureLease();
+        lease.Add();
+        lease.Report(false);
+        lease.Remove();
+
+        Assert.Null(lease.Available);
+        Assert.False(lease.Report(false));   // no worker: nothing to tell
+        lease.Add();
+        Assert.Null(lease.Available);
+
+        lease.Report(false);
+        lease.WorkerEnded();
+        Assert.Null(lease.Available);
+    }
+
+    [Fact]
+    public void S3203_an_extra_release_never_goes_negative()
     {
         var lease = new CaptureLease();
         Assert.Equal(CaptureAction.None, lease.Remove());

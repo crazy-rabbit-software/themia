@@ -53,20 +53,15 @@ public enum GalleryStatus
     Unavailable = 12,
 }
 
-/// <summary>[S-763] The words that go with a photo of the day: what it shows, and whose it is.</summary>
-public sealed record GalleryCaption(string Title, string Credit);
-
 /// <summary>What one scan found: a named state, and the pictures that go with it.</summary>
 /// <param name="Status">Which state the scan ended in.</param>
 /// <param name="Paths">
 /// The chosen pictures, already filtered, ordered and capped. Empty unless Ok. Fully qualified local
 /// paths, except for the photo of the day, whose one entry is a validated https address.
 /// </param>
-public sealed record GalleryScan(GalleryStatus Status, IReadOnlyList<string> Paths)
+/// <param name="Credit">[S-3112] The photo of the day's credit, for its hover tooltip. Null for local pictures.</param>
+public sealed record GalleryScan(GalleryStatus Status, IReadOnlyList<string> Paths, BingCredit? Credit = null)
 {
-    /// <summary>[S-763] The photo of the day's title and credit; null for every other source.</summary>
-    public GalleryCaption? Caption { get; init; }
-
     /// <summary>A result carrying no pictures, for every state that has none.</summary>
     public static GalleryScan Of(GalleryStatus status) => new(status, []);
 }

@@ -269,4 +269,41 @@ public static class ViewBarRules
         var summaries = views.Select(v => new ViewSummary(v.Id, v.Name)).ToList();
         return ViewListRules.Toggle(summaries, settings.VisibleViews, viewId, on);
     }
+
+    /// <summary>
+    /// [S-1708] The whitelist after the "All views" box: on is the empty "all" whitelist; off keeps
+    /// only <paramref name="keepViewId"/> (the view the display shows), or the first view when that
+    /// is not a view — the bar never offers nothing.
+    /// </summary>
+    public static List<string> SetAllVisible(IReadOnlyList<ViewState> views, bool on, string? keepViewId)
+    {
+        ArgumentNullException.ThrowIfNull(views);
+
+        if (on || views.Count == 0)
+        {
+            return [];
+        }
+
+        var keep = views.FirstOrDefault(v => v.Id == keepViewId) ?? views[0];
+        return views.Count == 1 ? [] : [keep.Id];
+    }
+
+    /// <summary>[S-1708] What the "Views on the bar" button says: every view, one view by name, or how many of how many.</summary>
+    public static ViewBarOffer Offer(IReadOnlyList<ViewState> views, ViewBarSettings settings)
+    {
+        ArgumentNullException.ThrowIfNull(views);
+        ArgumentNullException.ThrowIfNull(settings);
+
+        var offered = VisibleViews(views, settings);
+        return new ViewBarOffer(
+            offered.Count == views.Count,
+            offered.Count,
+            views.Count,
+            offered.Count == 1 && views.Count > 1 ? offered[0].Name : null);
+    }
 }
+
+/// <summary>[S-1708] A display's view bar choice, summed up for its settings button.</summary>
+/// <param name="All">Every view is offered (the whitelist is "all", or names every view).</param>
+/// <param name="Single">The one view's name when exactly one of several is offered.</param>
+public readonly record struct ViewBarOffer(bool All, int Count, int Total, string? Single);

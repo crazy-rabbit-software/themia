@@ -32,17 +32,6 @@ internal sealed class OpenMeteoReply
     [JsonPropertyName("daily")]
     public OpenMeteoDaily? Daily { get; init; }
 
-    /// <summary>[S-720] The next hours, for the current-conditions chart.</summary>
-    [JsonPropertyName("hourly")]
-    public OpenMeteoHourly? Hourly { get; init; }
-
-    /// <summary>
-    /// The place's offset from UTC, which <c>timezone=auto</c> puts the times in. The hourly times
-    /// come without one, so this is what makes "14:00" an instant rather than a wall-clock guess.
-    /// </summary>
-    [JsonPropertyName("utc_offset_seconds")]
-    public int? UtcOffsetSeconds { get; init; }
-
     /// <summary>open-meteo answers an invalid request with <c>{"error":true,"reason":"..."}</c>.</summary>
     [JsonPropertyName("reason")]
     public string? Reason { get; init; }
@@ -82,20 +71,6 @@ internal sealed class OpenMeteoCurrent
 
     [JsonPropertyName("uv_index")]
     public double? UvIndex { get; init; }
-}
-
-/// <summary>The hourly block, as parallel arrays like the daily one.</summary>
-internal sealed class OpenMeteoHourly
-{
-    /// <summary>Local wall-clock hours at the place, "2026-10-04T14:00".</summary>
-    [JsonPropertyName("time")]
-    public List<string?>? Time { get; init; }
-
-    [JsonPropertyName("temperature_2m")]
-    public List<double?>? Temperature { get; init; }
-
-    [JsonPropertyName("precipitation_probability")]
-    public List<double?>? PrecipitationChance { get; init; }
 }
 
 /// <summary>
@@ -160,6 +135,10 @@ internal sealed class GeocodeHit
 
     [JsonPropertyName("admin1")]
     public string? Admin1 { get; init; }
+
+    /// <summary>The county or district: what tells two Springfields in one state apart ([S-2842]).</summary>
+    [JsonPropertyName("admin2")]
+    public string? Admin2 { get; init; }
 }
 
 // ---- Yahoo Finance -------------------------------------------------------------------------
@@ -244,26 +223,6 @@ internal sealed class YahooMeta
 
     [JsonPropertyName("hasPrePostMarketData")]
     public bool? HasPrePostMarketData { get; init; }
-
-    // [S-1311] The facts a large tile shows. Each optional: an index has no volume, a currency
-    // pair no exchange name worth showing.
-    [JsonPropertyName("regularMarketDayHigh")]
-    public double? DayHigh { get; init; }
-
-    [JsonPropertyName("regularMarketDayLow")]
-    public double? DayLow { get; init; }
-
-    [JsonPropertyName("fiftyTwoWeekHigh")]
-    public double? YearHigh { get; init; }
-
-    [JsonPropertyName("fiftyTwoWeekLow")]
-    public double? YearLow { get; init; }
-
-    [JsonPropertyName("regularMarketVolume")]
-    public double? Volume { get; init; }
-
-    [JsonPropertyName("fullExchangeName")]
-    public string? FullExchangeName { get; init; }
 }
 
 /// <summary>[S-1307] <c>v1/finance/search</c>: the instruments matching a query.</summary>

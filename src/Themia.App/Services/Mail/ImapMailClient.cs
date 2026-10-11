@@ -8,6 +8,7 @@ using Themia.App.Services.Web;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Mail;
+using Themia.Core.Sync;
 
 namespace Themia.App.Services.Mail;
 
@@ -31,33 +32,53 @@ internal static class ImapMailClient
 {
     private static readonly TimeSpan Deadline = TimeSpan.FromSeconds(45);
 
-    /// <summary>The newest <paramref name="count"/> messages of a folder, newest first.</summary>
-    public static Task<IReadOnlyList<MailMessage>> FetchAsync(ImapCredentials login, string accountId, MailFolder folder, int count, CancellationToken cancellation)
+    /// <summary>
+    /// [S-2689] The newest <paramref name="count"/> messages of a folder, newest first, and the mark
+    /// to keep. With a usable mark of the same incarnation (UIDVALIDITY), only what changed is read:
+    /// nothing at all when CONDSTORE's HIGHESTMODSEQ, UIDNEXT and EXISTS stand; else the flags of the
+    /// held UIDs (a UID that does not answer was expunged) and the messages that arrived since
+    /// UIDNEXT. Everything else (no mark, another incarnation, a removal that left the list short of
+    /// what the folder holds) is the newest N in full.
+    /// </summary>
+    public static Task<(IReadOnlyList<MailMessage> Messages, SyncCursor? Cursor)> SyncAsync(
+        ImapCredentials login, string accountId, MailFolder folder, int count, IReadOnlyList<MailMessage> held, SyncCursor? cursor, long? total, CancellationToken cancellation)
         => RunAsync(login, cancellation, async session =>
         {
+            var scope = MailShelves.CursorScope(folder, count);
+            var now = DateTimeOffset.UtcNow;
             var mailbox = await session.ResolveAsync(folder).ConfigureAwait(false);
-            var opened = await session.OpenAsync("EXAMINE", mailbox).ConfigureAwait(false);
+            var condstore = await session.HasCapabilityAsync("CONDSTORE").ConfigureAwait(false);
+            var opened = await session.OpenAsync("EXAMINE", mailbox, condstore ? " (CONDSTORE)" : string.Empty).ConfigureAwait(false);
+            var state = new ImapOpenedState(opened.Exists, opened.UidValidity, opened.UidNext, opened.HighestModSeq);
+            var mark = ImapDelta.Mark(state);
 
-            if (ImapRules.RecentRange(opened.Exists, count) is not { } range)
+            var usable = held.Count > 0 && cursor is not null && SyncCursors.Check(cursor, CursorKind.Imap, scope, now) == CursorCheck.Usable ? cursor : null;
+            var plan = ImapDelta.Plan(usable?.Imap, state);
+
+            if (usable is not null && mark is not null && plan == ImapPlan.Unchanged)
             {
-                return (IReadOnlyList<MailMessage>)[];
+                return (held, Marked(SyncCursors.Advance(usable, string.Empty, now), mark));
             }
 
-            var (_, untagged) = await session.CommandAsync($"FETCH {range} {ImapRules.FetchItems}", required: true).ConfigureAwait(false);
-
-            var messages = new List<MailMessage>();
-            foreach (var response in untagged)
+            if (usable?.Imap is { } since && mark is not null && plan == ImapPlan.Incremental)
             {
-                if (ImapData.Fetch(response) is { } fetched && MailWire.FromImap(fetched, accountId, folder, opened.UidValidity) is { } message)
+                var (changed, removed) = await session.ChangesAsync(accountId, folder, held, since, mark, count, opened.UidValidity).ConfigureAwait(false);
+                var (messages, refill) = DeltaMerge.Mail(held, changed, removed, count, DeltaMerge.ByImapUid, total ?? opened.Exists);
+                if (!refill)
                 {
-                    messages.Add(message);
+                    return (messages, Marked(SyncCursors.Advance(usable, string.Empty, now), mark));
                 }
             }
 
-            // Sequence order is arrival order; newest first is the reverse.
-            messages.Reverse();
-            return messages;
+            var newest = await session.NewestAsync(accountId, folder, count, opened).ConfigureAwait(false);
+            return (newest, mark is null ? null : Marked(SyncCursors.Start(CursorKind.Imap, string.Empty, scope, now), mark));
         });
+
+    private static SyncCursor Marked(SyncCursor cursor, ImapMark mark)
+    {
+        cursor.Imap = mark;
+        return cursor;
+    }
 
     /// <summary>The folder's total and unread counts: the cheap probe ([S-546]).</summary>
     public static Task<MailFolderStatus> StatusAsync(ImapCredentials login, MailFolder folder, CancellationToken cancellation)
@@ -179,8 +200,8 @@ internal static class ImapMailClient
         }
     }
 
-    /// <summary>A mailbox opened with SELECT or EXAMINE: how many messages and which incarnation.</summary>
-    private readonly record struct Opened(long Exists, uint? UidValidity);
+    /// <summary>A mailbox opened with SELECT or EXAMINE: how many messages, which incarnation, the next UID and (CONDSTORE) the mod-sequence.</summary>
+    private readonly record struct Opened(long Exists, uint? UidValidity, uint? UidNext, ulong? HighestModSeq);
 
     /// <summary>Tagged commands and buffered response reading over the TLS stream.</summary>
     private sealed class Session(Stream stream, string host, CancellationToken cancellation)
@@ -193,6 +214,7 @@ internal static class ImapMailClient
         private int _end;
         private int _tag;
         private IReadOnlyList<ImapMailbox>? _mailboxes;
+        private List<ImapResponse>? _capabilities;
 
         public async Task GreetAndLoginAsync(ImapCredentials login)
         {
@@ -268,20 +290,114 @@ internal static class ImapMailClient
             return folder.ResolveImap(_mailboxes);
         }
 
-        public async Task<Opened> OpenAsync(string verb, string mailbox)
+        public async Task<Opened> OpenAsync(string verb, string mailbox, string parameters = "")
         {
-            var (_, untagged) = await CommandAsync($"{verb} {Mailbox(mailbox)}", required: true).ConfigureAwait(false);
+            var (_, untagged) = await CommandAsync($"{verb} {Mailbox(mailbox)}{parameters}", required: true).ConfigureAwait(false);
 
             long exists = 0;
             uint? validity = null;
+            uint? next = null;
+            ulong? modseq = null;
 
             foreach (var response in untagged)
             {
                 exists = ImapData.Exists(response) ?? exists;
                 validity = ImapData.UidValidity(response) ?? validity;
+                next = ImapDelta.UidNext(response) ?? next;
+                modseq = ImapDelta.HighestModSeq(response) ?? modseq;
             }
 
-            return new Opened(exists, validity);
+            return new Opened(exists, validity, next, modseq);
+        }
+
+        /// <summary>Whether the server, after login, names a capability (RFC 3501 CAPABILITY, asked once per session).</summary>
+        public async Task<bool> HasCapabilityAsync(string capability)
+        {
+            if (_capabilities is null)
+            {
+                var (_, untagged) = await CommandAsync("CAPABILITY", required: false).ConfigureAwait(false);
+                _capabilities = untagged;
+            }
+
+            return _capabilities.Any(r => ImapDelta.HasCapability(r, capability));
+        }
+
+        /// <summary>The newest <paramref name="count"/> messages by sequence (arrival), newest first.</summary>
+        public async Task<IReadOnlyList<MailMessage>> NewestAsync(string accountId, MailFolder folder, int count, Opened opened)
+        {
+            if (ImapRules.RecentRange(opened.Exists, count) is not { } range)
+            {
+                return [];
+            }
+
+            var (_, untagged) = await CommandAsync($"FETCH {range} {ImapRules.FetchItems}", required: true).ConfigureAwait(false);
+            var messages = Messages(untagged, accountId, folder, opened.UidValidity);
+
+            // Sequence order is arrival order; newest first is the reverse.
+            messages.Reverse();
+            return messages;
+        }
+
+        /// <summary>
+        /// [S-2689] The held messages with their flags as they are now (a UID that does not answer was
+        /// expunged), and the messages that arrived since the mark's UIDNEXT, at most <paramref name="count"/>.
+        /// </summary>
+        public async Task<(IReadOnlyList<MailMessage> Changed, IReadOnlyList<string> Removed)> ChangesAsync(
+            string accountId, MailFolder folder, IReadOnlyList<MailMessage> held, ImapMark since, ImapMark now, int count, uint? validity)
+        {
+            var byUid = new Dictionary<uint, MailMessage>();
+            foreach (var message in held)
+            {
+                if (ImapMessageId.Parse(message.RawId) is { } id)
+                {
+                    byUid.TryAdd(id.Uid, message);
+                }
+            }
+
+            var changed = new List<MailMessage>();
+            var present = new HashSet<uint>();
+
+            if (ImapDelta.UidSet(byUid.Keys) is { } set)
+            {
+                var (_, flags) = await CommandAsync($"UID FETCH {set} (UID FLAGS)", required: true).ConfigureAwait(false);
+                foreach (var response in flags)
+                {
+                    if (ImapData.Fetch(response) is { Uid: { } uid } fetched && byUid.TryGetValue(uid, out var message) && present.Add(uid))
+                    {
+                        changed.Add(message with { IsRead = fetched.Seen });
+                    }
+                }
+            }
+
+            var removed = byUid.Where(pair => !present.Contains(pair.Key)).Select(pair => pair.Value.RawId).ToList();
+
+            if (now.UidNext > since.UidNext)
+            {
+                var (_, search) = await CommandAsync(Invariant($"UID SEARCH UID {since.UidNext}:*"), required: true).ConfigureAwait(false);
+                var arrived = ImapDelta.Arrived(search.SelectMany(ImapDelta.Search), since.UidNext, count);
+
+                if (ImapDelta.UidSet(arrived) is { } fresh)
+                {
+                    var (_, untagged) = await CommandAsync($"UID FETCH {fresh} {ImapRules.FetchItems}", required: true).ConfigureAwait(false);
+                    changed.AddRange(Messages(untagged, accountId, folder, validity));
+                }
+            }
+
+            return (changed, removed);
+        }
+
+        private static List<MailMessage> Messages(List<ImapResponse> untagged, string accountId, MailFolder folder, uint? validity)
+        {
+            var messages = new List<MailMessage>();
+            foreach (var response in untagged)
+            {
+                if (ImapData.Fetch(response) is { } fetched && MailWire.FromImap(fetched, accountId, folder, validity) is { } message)
+                {
+                    messages.Add(message);
+                }
+            }
+
+            return messages;
         }
 
         /// <summary>SELECT the folder a message was listed in and refuse if it is a different incarnation.</summary>

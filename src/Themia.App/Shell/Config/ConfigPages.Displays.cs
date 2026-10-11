@@ -6,13 +6,14 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-1832] The Displays page: one group per connected display, switched off or not ([S-853]),
 /// each with whether Themia is shown there, which view it shows, how much it magnifies widgets,
-/// what Windows reports about it, and its view bar ([S-916]).
+/// and its view bar ([S-916]). Its resolution is the group's subtitle, not a row of its own ([S-1709]).
 /// </summary>
 internal static partial class ConfigPages
 {
@@ -47,7 +48,7 @@ internal static partial class ConfigPages
         return Page(Str.App_Displays.Text(), rows);
     }
 
-    /// <summary>[S-853] One display's rows: Show Themia here, Shows, Widget scale, Resolution, then its view bar.</summary>
+    /// <summary>[S-853] One display's rows: Show Themia here, Shows, Widget scale, then its view bar.</summary>
     private static List<Border> DisplayRows(AppHost host, MonitorTarget display)
     {
         var monitorId = display.Id;
@@ -92,15 +93,6 @@ internal static partial class ConfigPages
                     "%",
                     value => host.SetDisplayScale(monitorId, value / 100)),
                 "zoom", "size", "text size", "magnify"),
-
-            FluentLayout.Row(Glyphs.Display, Str.Shell_Display_Resolution.Text(),
-                Str.Shell_Display_ResolutionDesc.Format(("width", LocaleFormat.Integer(display.WorkArea.Width)), ("height", LocaleFormat.Integer(display.WorkArea.Height))),
-                new TextBlock
-                {
-                    Text = Str.Shell_Display_Size.Format(("width", LocaleFormat.Integer(display.Bounds.Width)), ("height", LocaleFormat.Integer(display.Bounds.Height))),
-                    VerticalAlignment = VerticalAlignment.Center,
-                },
-                "work area", "taskbar"),
         };
 
         rows.AddRange(ViewBarRows(host, monitorId));
@@ -153,55 +145,28 @@ internal static partial class ConfigPages
                 "labels", "icons only", "initials"),
         };
 
-        // [S-908] One check box per view, in a column on the row: a group cannot fold another group
-        // into itself. A change can be refused (the last view cannot be switched off), so after
-        // every change all the boxes are set back from what was stored.
-        var boxes = new List<(string Id, CheckBox Box)>();
-        var syncing = false;
-
-        void Sync()
-        {
-            var settings = ViewBarRules.For(host.State, monitorId);
-            var offered = ViewBarRules.VisibleViews(host.State.Views, settings).Select(v => v.Id).ToHashSet(StringComparer.Ordinal);
-            syncing = true;
-            try
+        // [S-1708] One drop-down button, however many views there are: a group cannot fold another
+        // group into itself, and a column of check boxes on the row grew it a line per view. A
+        // change can be refused (the last view cannot be switched off), so the boxes and the
+        // button's text are always read back from what was stored.
+        var views = FluentLayout.MultiChoice(
+            Str.Shell_ViewBar_AllViews.Text(),
+            () => [.. host.State.Views.Select(v => new MultiChoiceItem(v.Id, v.Name,
+                () => new IconLook(Glyphs.View, ViewListRules.Initials(v.Name)).For(string.IsNullOrEmpty(v.Icon) ? null : v.Icon)))],
+            () =>
             {
-                foreach (var (id, box) in boxes)
-                {
-                    box.IsChecked = offered.Contains(id);
-                }
-            }
-            finally
-            {
-                syncing = false;
-            }
-        }
+                var settings = ViewBarRules.For(host.State, monitorId);
+                var offer = ViewBarRules.Offer(host.State.Views, settings);
+                var picked = ViewBarRules.VisibleViews(host.State.Views, settings).Select(v => v.Id).ToHashSet(StringComparer.Ordinal);
+                var summary = offer.All
+                    ? Str.Shell_ViewBar_AllViews.Text()
+                    : offer.Single ?? Str.Shell_ViewBar_SomeViews.Format(("count", LocaleFormat.Integer(offer.Count)), ("total", LocaleFormat.Integer(offer.Total)));
+                return new MultiChoiceState(offer.All, picked, summary);
+            },
+            on => host.Mutate(s => ViewBarRules.Update(s, monitorId, b => b.VisibleViews = ViewBarRules.SetAllVisible(s.Views, on, ShownViewId(s, monitorId)))),
+            (id, on) => host.Mutate(s => ViewBarRules.Update(s, monitorId, b => b.VisibleViews = ViewBarRules.ToggleVisible(s.Views, b, id, on))));
 
-        void Toggled(string id, bool on)
-        {
-            if (syncing)
-            {
-                return;
-            }
-
-            host.Mutate(s => ViewBarRules.Update(s, monitorId, b => b.VisibleViews = ViewBarRules.ToggleVisible(s.Views, b, id, on)));
-            Sync();
-        }
-
-        var column = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left, MinWidth = FluentLayout.ChoiceMinWidth };
-        foreach (var view in host.State.Views)
-        {
-            var id = view.Id;
-            var box = new CheckBox { Content = view.Name };
-            box.Checked += (_, _) => Toggled(id, true);
-            box.Unchecked += (_, _) => Toggled(id, false);
-            boxes.Add((id, box));
-            column.Children.Add(box);
-        }
-
-        Sync();
-
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.Shell_ViewBar_Views.Text(), Str.Shell_ViewBar_ViewsDesc.Text(), column,
+        rows.Add(FluentLayout.Row(Glyphs.View, Str.Shell_ViewBar_Views.Text(), Str.Shell_ViewBar_ViewsDesc.Text(), views,
             [.. host.State.Views.Select(v => v.Name)]));
 
         return rows;

@@ -570,14 +570,6 @@ public sealed class FolderBrowserTests
     // ---- formatting -----------------------------------------------------------------------------
 
     [Fact]
-    public void S1323_the_footer_reads_like_explorers_status_bar()
-    {
-        Assert.Equal("1 item", FolderFormatting.Status(1, 0, 0, false));
-        Assert.Equal("1,204 items · 2 selected", FolderFormatting.Status(1204, 2, 0, false));
-        Assert.StartsWith("24 items · 2 selected · ", FolderFormatting.Status(24, 2, 3_100_000, true), StringComparison.Ordinal);
-    }
-
-    [Fact]
     public void S1322_item_counts_and_type_fallbacks()
     {
         Assert.Equal(string.Empty, FolderFormatting.ItemCount(null, 1000));
@@ -699,13 +691,24 @@ public sealed class FolderBrowserTests
 
         var small = FolderLayout.Plan(new WidgetArea(200, 106), config, 20, searchOpen: false, navigate: true, hasGit: false);
         Assert.False(small.Breadcrumb);
-        Assert.False(small.Footer);
 
         var big = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, false, true, false);
         Assert.True(big.Breadcrumb);
-        Assert.True(big.Footer);
         Assert.True(big.ColumnHeader);
         Assert.Equal(config.Columns, big.Columns);
+    }
+
+    [Fact]
+    public void S1323_a_big_tile_has_no_status_footer_and_the_list_keeps_its_height()
+    {
+        // The "24 items · 2 selected" footer is retired (concise widgets): under the breadcrumb,
+        // every DIP is the list's.
+        var config = new FolderConfig { View = FolderViewMode.Grid, StretchTiles = true };
+        var plan = FolderLayout.Plan(new WidgetArea(800, 516), config, 6, false, true, false);
+
+        Assert.True(plan.Breadcrumb);
+        Assert.True(plan.Grid is { Stretched: true });
+        Assert.Equal(516 - FolderLayout.BreadcrumbHeight, plan.Grid!.Value.CellHeight * plan.Grid.Value.Rows, 3);
     }
 
     [Fact]

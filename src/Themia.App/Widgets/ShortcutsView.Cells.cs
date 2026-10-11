@@ -94,20 +94,14 @@ internal sealed partial class ShortcutsView
         _panel.ColumnSpacing = ShortcutLayout.Gap;
         _panel.RowSpacing = ShortcutLayout.Gap;
 
-        // [S-1382] Everything on screen: the tiles sit as a group in the middle of the widget rather
-        // than in its top-left corner, so a two-item widget on a large tile looks placed, not lost.
-        var centred = ShortcutLayout.Centred(plan, visible.Count, _config.GridStretchHeight);
-        var columns = centred ? Math.Min(plan.Columns, Math.Max(1, visible.Count)) : plan.Columns;
+        // [S-1382] The tiles fill from the top-left, row by row, in the columns the plan shared the
+        // width into; a grid that does not fill the tile leaves the room at the right and bottom.
+        _panel.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _panel.VerticalAlignment = VerticalAlignment.Top;
 
-        _panel.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Stretch;
-        _panel.VerticalAlignment = centred ? VerticalAlignment.Center : VerticalAlignment.Top;
-
-        for (var c = 0; c < columns; c++)
+        for (var c = 0; c < plan.Columns; c++)
         {
-            _panel.ColumnDefinitions.Add(new ColumnDefinition
-            {
-                Width = centred ? new GridLength(plan.TileWidth) : new GridLength(1, GridUnitType.Star),
-            });
+            _panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
 
         var rows = (visible.Count + plan.Columns - 1) / plan.Columns;

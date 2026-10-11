@@ -56,7 +56,7 @@ internal sealed partial class EmailView
             lines.Children.Add(sender);
         }
 
-        var account = layout.Account ? AccountTag(message, labels, layout.Provider) : null;
+        var account = layout.Account ? AccountTag(message, labels) : null;
 
         if (layout.Subject || account is not null)
         {
@@ -67,7 +67,7 @@ internal sealed partial class EmailView
             {
                 var tag = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
                 tag.Text = account;
-                tag.MaxWidth = layout.Provider ? 200 : 120;
+                tag.MaxWidth = 120;
                 tag.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
                 lines.Children.Add(TwoColumns(subject, tag));
             }
@@ -127,11 +127,11 @@ internal sealed partial class EmailView
         Grid.SetColumn(line, 1);
         grid.Children.Add(line);
 
-        if (layout.Account && AccountTag(message, labels, layout.Provider) is { } account)
+        if (layout.Account && AccountTag(message, labels) is { } account)
         {
             var tag = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
             tag.Text = account;
-            tag.MaxWidth = layout.Provider ? 200 : 120;
+            tag.MaxWidth = 120;
             tag.VerticalAlignment = VerticalAlignment.Center;
             Grid.SetColumn(tag, 2);
             grid.Children.Add(tag);
@@ -181,7 +181,7 @@ internal sealed partial class EmailView
                     cell.Text = message.Preview;
                     break;
                 case MailColumn.Account:
-                    cell.Text = AccountTag(message, labels, _shape.Rows.Provider) ?? string.Empty;
+                    cell.Text = AccountTag(message, labels) ?? string.Empty;
                     break;
             }
 
@@ -212,11 +212,9 @@ internal sealed partial class EmailView
         return when;
     }
 
-    /// <summary>[S-1284] The account's name, and on the largest tile its provider: "Work (Microsoft)".</summary>
-    private static string? AccountTag(MailMessage message, Dictionary<string, string> labels, bool provider)
-        => labels.TryGetValue(message.AccountId, out var label)
-            ? provider ? Str.WidgetsB_Email_AccountProvider.Format(("account", label), ("provider", message.Provider.Label())) : label
-            : null;
+    /// <summary>The account's name, at every size; never its provider (retired, concise widgets).</summary>
+    private static string? AccountTag(MailMessage message, Dictionary<string, string> labels)
+        => labels.TryGetValue(message.AccountId, out var label) ? label : null;
 
     /// <summary>[S-542] The row view's column titles, laid out on the same grid as its rows.</summary>
     private void BuildColumnHeader(IReadOnlyList<MailColumnFit> columns)
@@ -462,7 +460,7 @@ internal sealed partial class EmailView
         _list.Children.Add(row);
     }
 
-    /// <summary>Who it is from, the subject, the full date, and which account (and provider) it came to.</summary>
+    /// <summary>Who it is from, the subject, the full date, and which account it came to.</summary>
     private static string Tooltip(MailMessage message, MailAccount? account)
     {
         var from = message.FromAddress.Length > 0 && message.FromName.Length > 0
@@ -470,7 +468,7 @@ internal sealed partial class EmailView
             : message.Sender;
 
         var when = message.Received is { } at ? Environment.NewLine + WhenLong(at.ToLocalTime()) : string.Empty;
-        var to = account is null ? string.Empty : Environment.NewLine + Str.WidgetsB_Email_AccountProvider.Format(("account", account.Label), ("provider", account.Provider.Label()));
+        var to = account is null ? string.Empty : Environment.NewLine + account.Label;
         return from + Environment.NewLine + message.SubjectLine + when + to;
     }
 

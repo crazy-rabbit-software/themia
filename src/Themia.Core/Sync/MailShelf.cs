@@ -33,6 +33,9 @@ public sealed class MailFolderShelf
     public long? Unread { get; set; }
 
     public List<StoredMail> Messages { get; set; } = [];
+
+    /// <summary>[S-2680] Where the provider's changes to this folder continue from; null when it offers none.</summary>
+    public SyncCursor? Cursor { get; set; }
 }
 
 /// <summary>A message as stored: what a row shows and what a change addresses. Never a body.</summary>
@@ -155,6 +158,7 @@ public static class MailShelves
                 Total = folder.Total is >= 0 ? folder.Total : null,
                 Unread = folder.Unread is >= 0 ? folder.Unread : null,
                 Messages = messages,
+                Cursor = SyncCursors.Validate(folder.Cursor, ref dropped),
             });
         }
 
@@ -164,6 +168,9 @@ public static class MailShelves
 
         return new MailShelf { Owner = shelf.Owner, Folders = folders, Pending = mailOnly };
     }
+
+    /// <summary>[S-2687] What a folder's cursor was issued for: the folder, and how many of its newest messages are held.</summary>
+    public static string CursorScope(MailFolder folder, int count) => string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{folder.Wire()}|{count}");
 
     public static bool IsMail(PendingKind kind)
         => kind is PendingKind.MailMarkRead or PendingKind.MailMarkUnread or PendingKind.MailArchive or PendingKind.MailJunk or PendingKind.MailDelete;

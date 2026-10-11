@@ -5,21 +5,22 @@ using Themia.Core.Widgets;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-1470]..[S-1473] The spectrum of whatever the PC is playing: a WASAPI loopback capture of the
+/// [S-3201]..[S-3204] The spectrum of whatever the PC is playing: a WASAPI loopback capture of the
 /// default output device, analysed into <see cref="Spectrum.Bands"/> levels about thirty times a
-/// second, shared by every now-playing tile that shows bars.
+/// second, shared by every audio visualizer.
 /// <para>
 /// <b>Cheap by construction.</b> One worker thread for all tiles, started by the first subscriber and
-/// stopped by the last ([S-1472]); a tile subscribes only while it is visible, playing and showing the
-/// bars, so a paused track, a hidden tile or game mode costs nothing. In silence the worker delivers
-/// nothing once the bars have fallen, so the UI thread does no work either.
+/// stopped by the last ([S-3203]); a tile subscribes only while it is on screen, so a hidden view,
+/// a preview or game mode (which detaches every widget) costs nothing. In silence the worker
+/// delivers nothing once the bars have fallen and drains at the slower idle cadence ([S-3202]), so
+/// the UI thread does no work either.
 /// </para>
 /// <para>
 /// <b>AOT.</b> Hand-rolled COM vtable calls, as in <see cref="CoreAudio"/>: no interop assembly, no
 /// runtime marshalling stubs. Every interface pointer and the mix format are released on every path.
 /// </para>
 /// <para>
-/// <b>Self-healing</b> ([S-1473]): switching the output device, a format change or an invalidated
+/// <b>Self-healing</b> ([S-3204]): switching the output device, a format change or an invalidated
 /// device ends the capture, and the worker re-acquires the new default endpoint after a short pause
 /// instead of freezing the bars until restart.
 /// </para>
@@ -30,36 +31,82 @@ internal static unsafe partial class AudioLoopback
 
     private static readonly Lock Gate = new();
     private static readonly CaptureLease Lease = new();
-    private static Action<float[]>[] _subscribers = [];
+    private static Subscriber[] _subscribers = [];
     private static Worker? _worker;
 
     /// <summary>
     /// Receive band levels (0..1, <see cref="Spectrum.Bands"/> of them) on the capture thread until
     /// the returned handle is disposed. The array is shared between subscribers: read it, do not keep
-    /// or change it. Call from any thread.
+    /// or change it. <paramref name="onAvailability"/> hears whether the output device can be
+    /// captured ([S-3204]): on every change, and at once when a running worker already failed. Both
+    /// arrive on the capture thread (or the caller's). Call from any thread.
     /// </summary>
-    public static IDisposable Subscribe(Action<float[]> onBands)
+    public static IDisposable Subscribe(Action<float[]> onBands, Action<bool> onAvailability)
     {
         ArgumentNullException.ThrowIfNull(onBands);
+        ArgumentNullException.ThrowIfNull(onAvailability);
+
+        var subscriber = new Subscriber(onBands, onAvailability);
+        bool? known;
 
         lock (Gate)
         {
-            _subscribers = [.. _subscribers, onBands];
+            _subscribers = [.. _subscribers, subscriber];
 
             if (Lease.Add() == CaptureAction.Start)
             {
                 _worker = Worker.Start();
             }
+
+            known = Lease.Available;
         }
 
-        return new Subscription(onBands);
+        if (known == false)
+        {
+            Notify(subscriber, available: false);
+        }
+
+        return new Subscription(subscriber);
     }
 
-    private static void Unsubscribe(Action<float[]> onBands)
+    /// <summary>The worker reached the device, or failed to: tell every subscriber once per change.</summary>
+    private static void ReportAvailability(Worker worker, bool available)
+    {
+        Subscriber[] told;
+
+        lock (Gate)
+        {
+            if (!ReferenceEquals(_worker, worker) || !Lease.Report(available))
+            {
+                return;
+            }
+
+            told = _subscribers;
+        }
+
+        foreach (var subscriber in told)
+        {
+            Notify(subscriber, available);
+        }
+    }
+
+    private static void Notify(Subscriber subscriber, bool available)
+    {
+        try
+        {
+            subscriber.OnAvailability(available);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "a spectrum subscriber threw on an availability change", ex);
+        }
+    }
+
+    private static void Unsubscribe(Subscriber subscriber)
     {
         lock (Gate)
         {
-            var index = Array.IndexOf(_subscribers, onBands);
+            var index = Array.IndexOf(_subscribers, subscriber);
 
             if (index < 0)
             {
@@ -84,7 +131,7 @@ internal static unsafe partial class AudioLoopback
         {
             try
             {
-                subscriber(bands);
+                subscriber.OnBands(bands);
             }
             catch (Exception ex)
             {
@@ -93,7 +140,15 @@ internal static unsafe partial class AudioLoopback
         }
     }
 
-    private sealed class Subscription(Action<float[]> onBands) : IDisposable
+    /// <summary>One subscription's callbacks. A class with reference identity, so two identical lambdas are two subscribers.</summary>
+    private sealed class Subscriber(Action<float[]> onBands, Action<bool> onAvailability)
+    {
+        public Action<float[]> OnBands { get; } = onBands;
+
+        public Action<bool> OnAvailability { get; } = onAvailability;
+    }
+
+    private sealed class Subscription(Subscriber subscriber) : IDisposable
     {
         private int _disposed;
 
@@ -101,7 +156,7 @@ internal static unsafe partial class AudioLoopback
         {
             if (Interlocked.Exchange(ref _disposed, 1) == 0)
             {
-                Unsubscribe(onBands);
+                Unsubscribe(subscriber);
             }
         }
     }
@@ -110,13 +165,10 @@ internal static unsafe partial class AudioLoopback
 
     private sealed class Worker
     {
-        /// <summary>About thirty frames a second: the original's cadence, and smooth enough for bars.</summary>
-        private const int FrameMs = 33;
-
         /// <summary>How long a failed capture waits before trying the (possibly new) default device again.</summary>
         private const int RetryMs = 500;
 
-        /// <summary>How far a bar falls per frame ([S-1471]): from full to nothing in about half a second.</summary>
+        /// <summary>How far a bar falls per frame ([S-3202]): from full to nothing in about half a second.</summary>
         private const float Fall = 0.06f;
 
         private readonly ManualResetEvent _stop = new(false);
@@ -155,6 +207,8 @@ internal static unsafe partial class AudioLoopback
                     {
                         continue;
                     }
+
+                    ReportAvailability(this, available: false);
 
                     if (result != lastFailure)
                     {
@@ -253,6 +307,8 @@ internal static unsafe partial class AudioLoopback
                     return hr;
                 }
 
+                ReportAvailability(this, available: true);
+
                 try
                 {
                     return Pump(capture, encoding, channels, blockAlign);
@@ -294,8 +350,9 @@ internal static unsafe partial class AudioLoopback
             var shown = new float[Spectrum.Bands];
             var scratch = new float[4096];
             var lit = false;
+            var wait = Spectrum.FrameMs;
 
-            while (!_stop.WaitOne(FrameMs))
+            while (!_stop.WaitOne(wait))
             {
                 if (Interlocked.Exchange(ref _endpointChanged, 0) != 0)
                 {
@@ -364,6 +421,7 @@ internal static unsafe partial class AudioLoopback
                 }
 
                 lit = any;
+                wait = Spectrum.FrameWait(arrived, lit);
             }
 
             return 0;

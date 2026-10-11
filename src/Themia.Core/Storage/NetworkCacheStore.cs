@@ -185,14 +185,6 @@ public static class NetworkCacheStore
             ZoneName = ExchangeTime.Zone(dto.Zone),
             QuoteType = Clip(dto.QuoteType),
             HasPrePost = dto.HasPrePost == true,
-            Stats = new QuoteStats(
-                Finite(dto.PreviousClose),
-                Finite(dto.DayHigh),
-                Finite(dto.DayLow),
-                Finite(dto.YearHigh),
-                Finite(dto.YearLow),
-                dto.Volume is >= 0 ? dto.Volume : null,
-                Clip(dto.Exchange)),
         };
     }
 
@@ -221,13 +213,6 @@ public static class NetworkCacheStore
             Zone = quote.ZoneName,
             QuoteType = quote.QuoteType,
             HasPrePost = quote.HasPrePost,
-            PreviousClose = quote.Stats.PreviousClose,
-            DayHigh = quote.Stats.DayHigh,
-            DayLow = quote.Stats.DayLow,
-            YearHigh = quote.Stats.YearHigh,
-            YearLow = quote.Stats.YearLow,
-            Volume = quote.Stats.Volume,
-            Exchange = quote.Stats.Exchange,
         };
     }
 
@@ -314,20 +299,6 @@ internal sealed class QuoteEntryDto
     public string? QuoteType { get; set; }
 
     public bool? HasPrePost { get; set; }
-
-    public double? PreviousClose { get; set; }
-
-    public double? DayHigh { get; set; }
-
-    public double? DayLow { get; set; }
-
-    public double? YearHigh { get; set; }
-
-    public double? YearLow { get; set; }
-
-    public long? Volume { get; set; }
-
-    public string? Exchange { get; set; }
 }
 
 [JsonSourceGenerationOptions(

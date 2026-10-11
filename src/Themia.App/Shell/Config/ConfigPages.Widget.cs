@@ -129,8 +129,12 @@ internal static partial class ConfigPages
                 WidgetSettings.Pomodoro(rows, pomodoro, Save);
                 break;
 
-            case SunMoonConfig sunMoon:
-                WidgetSettings.SunMoon(rows, sunMoon, Save);
+            case SunConfig sun:
+                WidgetSettings.Sun(rows, sun, Save);
+                break;
+
+            case MoonConfig moon:
+                WidgetSettings.Moon(rows, moon, Save);
                 break;
 
             case FolderConfig folder:

@@ -7,7 +7,7 @@ using Themia.Core.Model;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The Sun &amp; Moon rows: where the observer is, and how much of the sky to draw.
+/// [S-3101] The rows the Sun and Moon widgets share: where the observer is.
 /// <para>
 /// [S-1494] The place is picked by city name, as in the original [S-01], through the same search the
 /// weather widgets use (<see cref="PlaceSearch"/>). It resolves to coordinates once, at the pick; the
@@ -17,7 +17,7 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    public static void SunMoon(List<FrameworkElement> rows, SunMoonConfig config, Action save)
+    private static void SkyPlace(List<FrameworkElement> rows, SkyPlaceConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
@@ -30,23 +30,20 @@ internal static partial class WidgetSettings
         var latitude = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
         var longitude = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
 
-        // A Sun & moon tile always has a place (it starts at Zurich), so "Change" only reopens the
-        // search; it never clears the coordinates, unlike the weather's, which can have none.
+        // A Sun or Moon tile always has a place (it starts at Zurich); a pick replaces it and fills
+        // the exact fields below.
         PlaceSearch.Add(rows, new PlaceSearchBinding(
-            string.Empty,
             config.Place,
-            _ => { /* ignore: the typed query is not kept; the chosen place is what is stored */ },
             picked =>
             {
                 config.Latitude = picked.Latitude;
                 config.Longitude = picked.Longitude;
-                config.Place = picked.Name;
-                place.Text = picked.Name;
+                config.Place = picked.Label;
+                place.Text = picked.Label;
                 latitude.Text = FormatCoordinate(picked.Latitude);
                 longitude.Text = FormatCoordinate(picked.Longitude);
                 save();
-            },
-            () => { }));
+            }));
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_SunMoon_Settings_ExactCoordinates.Text()));
 
@@ -84,22 +81,6 @@ internal static partial class WidgetSettings
             -180,
             180,
             value => { config.Longitude = value; save(); }));
-
-        rows.Add(FluentLayout.Header(Str.WidgetsC_SunMoon_Settings_Sky.Text()));
-
-        rows.Add(FluentLayout.Row(Glyphs.Sun, Str.SunMoon_SunPath_Label.Text(), Str.SunMoon_SunPath_Desc.Text(),
-            FluentLayout.Choice(
-                [
-                    (SunPathMode.Numbers, Str.SunMoon_PathMode_Numbers.Text()),
-                    (SunPathMode.Plain, Str.SunMoon_PathMode_Plain.Text()),
-                    (SunPathMode.Hidden, Str.SunMoon_PathMode_Hidden.Text()),
-                ],
-                config.PathMode,
-                value => { config.PathMode = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.SunMoon_Events_Label.Text(),
-            Str.WidgetsC_SunMoon_Settings_Events_Desc.Text(),
-            FluentLayout.Toggle(config.ShowEvents, value => { config.ShowEvents = value; save(); })));
     }
 
     /// <summary>

@@ -1,9 +1,8 @@
-using Themia.Core.Localization;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// Which speaker icon the output level deserves. Windows draws four, and so does this: the glyph
-/// is how you read the level at a glance on a tile too small for the number.
+/// Which speaker icon the output level deserves. Windows draws four, and so does this: with no
+/// number on the tile ([S-2730]) the glyph on the mute button is how the state reads at a glance.
 /// </summary>
 public enum VolumeLevel
 {
@@ -80,28 +79,18 @@ public static class VolumeRules
     }
 
     /// <summary>
-    /// The line under the readout. Says <i>muted</i> in words as well as in the glyph, because a
-    /// state carried only by an icon is a state some readers do not get at all.
+    /// [S-2731] Which way the slider lies. Along the tile, so it is as long as the tile allows: a
+    /// column ([S-660] <see cref="AreaShape.Tall"/>) stands it up, every other shape lays it down.
     /// </summary>
-    /// <param name="device">[S-1232] The device's name, which replaces "Output level" when known.</param>
-    public static string Caption(double scalar, bool muted, string? device = null)
-    {
-        if (muted)
-        {
-            return Str.WidgetsC_Volume_Muted.Text();
-        }
+    public static VolumeAxis Axis(WidgetArea area) => area.Shape == AreaShape.Tall ? VolumeAxis.Vertical : VolumeAxis.Horizontal;
+}
 
-        if (Percent(scalar) == 0)
-        {
-            return Str.WidgetsC_Volume_TurnedDown.Text();
-        }
+/// <summary>[S-2731] The volume slider's direction.</summary>
+public enum VolumeAxis
+{
+    /// <summary>Left to right, the speaker button at its left.</summary>
+    Horizontal = 0,
 
-        return string.IsNullOrWhiteSpace(device) ? Str.WidgetsC_Volume_OutputLevel.Text() : device.Trim();
-    }
-
-    /// <summary>The big number. Kept separate from the caption so the tile can drop one and not the other.</summary>
-    public static string Readout(double scalar) => Readout(Strings.Current, scalar);
-
-    /// <summary><see cref="Readout(double)"/> in an explicit language: "42%", "42 %".</summary>
-    public static string Readout(Locale locale, double scalar) => LocaleFormat.Percent(locale, Percent(scalar));
+    /// <summary>Bottom to top, the speaker button under it.</summary>
+    Vertical = 1,
 }

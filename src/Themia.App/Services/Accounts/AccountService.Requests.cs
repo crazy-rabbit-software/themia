@@ -5,6 +5,7 @@ using System.Text.Json.Serialization.Metadata;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Sync;
 
 namespace Themia.App.Services.Accounts;
 
@@ -301,6 +302,75 @@ internal sealed partial class AccountService
                 && next.GetString() is { Length: > 0 } pageToken
                     ? WithQuery(firstUrl, "pageToken", pageToken)
                     : null);
+
+    /// <summary>
+    /// [S-2683] A round of a provider's change list: every changed item and every removed id across
+    /// pages (Graph <c>@odata.nextLink</c>, Google <c>nextPageToken</c> on <paramref name="first"/>),
+    /// and the cursor the last page carries. The cursor is null when the round stopped early — at
+    /// <paramref name="maxItems"/>, at the page ceiling, or at a next page on another host — since
+    /// then the changes after the stop were never seen. <paramref name="first"/> is the start of a
+    /// round or a stored delta link.
+    /// </summary>
+    public async Task<DeltaRound<T>> GetDeltaAsync<T>(
+        string accountId,
+        Uri first,
+        DeltaDialect dialect,
+        JsonTypeInfo<T> item,
+        int maxItems,
+        CancellationToken cancellation = default,
+        params (string Name, string Value)[] headers)
+    {
+        var items = new List<T>();
+        var removed = new List<string>();
+        string? cursor = null;
+        Uri? url = first;
+        var page = 0;
+        var stopped = false;
+
+        for (; url is not null && page < MaxPages; page++)
+        {
+            var reply = await SendAsync(accountId, Get(url, headers), cancellation).ConfigureAwait(false);
+
+            DeltaPage<T> read;
+            try
+            {
+                read = DeltaPages.Read(reply.Body, dialect, item);
+            }
+            catch (JsonException ex)
+            {
+                throw new AccountException(AccountError.BadResponse, $"{url.Host} sent a change page that does not parse: {ex.Message}", reply.Status, ex);
+            }
+
+            items.AddRange(read.Items);
+            removed.AddRange(read.Removed);
+            cursor = read.Cursor;
+
+            if (items.Count >= maxItems)
+            {
+                items.RemoveRange(maxItems, items.Count - maxItems);
+                stopped = true;
+                url = null;
+                break;
+            }
+
+            Uri? next = dialect == DeltaDialect.Graph
+                ? Uri.TryCreate(read.NextLink, UriKind.Absolute, out var link) ? link : null
+                : read.NextPageToken is { } token ? WithQuery(first, "pageToken", token) : null;
+
+            if (next is not null && !RedirectRules.IsSafeNextLink(first, next))
+            {
+                Log.Warn(Scope, $"not following a next change page on {next.Host}: the token stays on {first.Host}");
+                next = null;
+                stopped = true;
+            }
+
+            url = next;
+        }
+
+        // Stopped at the bound, the page ceiling or an unsafe next page: the rest was never read.
+        var complete = url is null && !stopped;
+        return new DeltaRound<T>(items, removed, complete ? cursor : null, complete);
+    }
 
     /// <summary>
     /// [S-533] A WebDAV request as a CalDAV / CardDAV account: basic auth, the <c>Depth</c> header,

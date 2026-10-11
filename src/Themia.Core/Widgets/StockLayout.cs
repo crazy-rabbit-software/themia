@@ -1,33 +1,16 @@
 namespace Themia.Core.Widgets;
 
-/// <summary>Where the stock widget's facts go on a large tile.</summary>
-public enum StatsPlacement
-{
-    None = 0,
-
-    /// <summary>A stack of label/value lines under the chart (a tall column).</summary>
-    Stack,
-
-    /// <summary>One row of tiles under the chart (a large tile).</summary>
-    Tiles,
-
-    /// <summary>A column of label/value pairs beside the chart (the largest tile).</summary>
-    Column,
-}
-
 /// <summary>What the stock widget is asked to fit.</summary>
 /// <param name="PriceCharacters">The price's worst-case length in characters (at least seven).</param>
 /// <param name="ExtrasCharacters">The change and currency beside it, in characters.</param>
 /// <param name="Chart">A chart is wanted and there are at least two bars.</param>
 /// <param name="Extended">An extended-hours print is to be shown.</param>
-/// <param name="Stats">How many facts the reply supplied.</param>
 /// <param name="MinMax">The high and low markers are switched on.</param>
 public readonly record struct StockInputs(
     double PriceCharacters,
     double ExtrasCharacters,
     bool Chart,
     bool Extended,
-    int Stats,
     bool MinMax);
 
 /// <summary>One layout of the stock widget.</summary>
@@ -45,10 +28,7 @@ public readonly record struct StockPlan(
     bool Labels,
     bool MiddleLabel,
     bool Axis,
-    bool MinMax,
-    StatsPlacement Stats,
-    int StatCount,
-    bool RangeChips);
+    bool MinMax);
 
 /// <summary>
 /// [S-1311] The stock widget's disclosure ladder, replacing the fixed chart band (34% of the tile,
@@ -60,27 +40,19 @@ public readonly record struct StockPlan(
 /// <item>The chart, at least 24px, full-bleed; start and end times under it from 128px of height,
 /// the middle one from 400px wide; the high/low markers (if on) from 48px of chart; a price axis
 /// from 400px wide and 120px of chart.</item>
-/// <item>Facts: a stack under the chart on a tall column, a row of tiles on a large tile, a column
-/// beside the chart on the largest — previous close, day and 52-week range, volume, exchange,
-/// as many as the reply carried and the room holds.</item>
-/// <item>The range chips (1D, 5D, 1M…) on the largest tile.</item>
 /// <item>A wide strip puts the readout <i>beside</i> the chart, which then has the strip's whole
 /// height, instead of a 50px band under a readout.</item>
 /// </list>
-/// The chart takes what is left, not a fixed share; the price grows only to a cap set by the tile's
-/// size class, so a big tile shows a big chart rather than a huge number over a strip.
+/// [S-2770] Nothing else at any size: no facts (previous close, ranges, volume) and no range
+/// chips; the period is a setting. The chart takes what is left, not a fixed share; the price
+/// grows only to a cap set by the tile's size class, so a big tile shows a big chart rather than a
+/// huge number over a strip.
 /// </summary>
 public static class StockLayout
 {
     public const double Inset = 16;
     public const double Gap = 4;
     public const double MinChart = 24;
-    public const double ChipsHeight = 28;
-    public const double TileHeight = 40;
-    public const double TileWidth = 104;
-    public const double StackLine = 20;
-    public const double ColumnWidth = 200;
-    public const double ColumnLine = 40;
 
     private static double LabelLine => FluentType.Caption.LineHeight;
 
@@ -91,7 +63,7 @@ public static class StockLayout
         if (!area.IsMeasured)
         {
             return new StockPlan(FluentType.Subtitle, FluentType.Body, false, true, true, false, 0, input.Extended,
-                input.Chart, MinChart, false, false, false, false, StatsPlacement.None, 0, false);
+                input.Chart, MinChart, false, false, false, false);
         }
 
         var text = Math.Max(0, area.Width - (2 * Inset));
@@ -113,17 +85,10 @@ public static class StockLayout
             var stripChart = labels ? chart - LabelLine - Gap : chart;
 
             return new StockPlan(price, ChangeStep(price), true, currency, true, true, readout, extendedBeside,
-                true, stripChart, labels, area.Width - readout >= 360, false, input.MinMax && stripChart >= 48,
-                StatsPlacement.None, 0, false);
+                true, stripChart, labels, area.Width - readout >= 360, false, input.MinMax && stripChart >= 48);
         }
 
-        var huge = area.WidthClass >= SizeClass.Huge && area.HeightClass >= SizeClass.Huge;
-        var large = area.WidthClass >= SizeClass.Expanded && area.HeightClass >= SizeClass.Expanded && area.Shape != AreaShape.Tall;
-        var tall = area.Shape == AreaShape.Tall && area.HeightClass >= SizeClass.Expanded;
-
         var budget = new Disclosure(area.Width, Math.Max(0, area.Height - Gap), Gap);
-
-        var chips = huge && input.Chart && budget.Take(ChipsHeight);
 
         // Rung 0: the price at its smallest, and the change line it may need under it.
         budget.Reserve(FluentType.Subtitle.LineHeight);
@@ -141,28 +106,6 @@ public static class StockLayout
 
         var chartWanted = input.Chart && budget.Take(MinChart);
         var labelsLine = chartWanted && area.HeightClass >= SizeClass.Regular && budget.Take(LabelLine);
-
-        // The facts, after the chart's minimum: a chart beats a table.
-        var stats = StatsPlacement.None;
-        var count = 0;
-
-        if (chartWanted && input.Stats > 0)
-        {
-            if (huge)
-            {
-                stats = StatsPlacement.Column;
-            }
-            else if (large && budget.Take(TileHeight))
-            {
-                stats = StatsPlacement.Tiles;
-                count = Math.Min(input.Stats, Math.Max(1, (int)((text + 8) / (TileWidth + 8))));
-            }
-            else if (tall)
-            {
-                count = budget.TakeRows(StackLine, Math.Min(input.Stats, 4));
-                stats = count > 0 ? StatsPlacement.Stack : StatsPlacement.None;
-            }
-        }
 
         // What is left: the price grows to its cap, the chart takes the rest.
         var leftover = budget.Remaining;
@@ -186,11 +129,6 @@ public static class StockLayout
             ? Math.Max(MinChart, MinChart + leftover - (priceStep.LineHeight - FluentType.Subtitle.LineHeight))
             : 0;
 
-        if (stats == StatsPlacement.Column)
-        {
-            count = Math.Min(input.Stats, Math.Max(1, (int)(chartHeight / ColumnLine)));
-        }
-
         return new StockPlan(
             priceStep,
             ChangeStep(priceStep),
@@ -205,10 +143,7 @@ public static class StockLayout
             labelsLine,
             labelsLine && area.Width >= 400,
             chartWanted && area.Width >= 400 && chartHeight >= 120,
-            input.MinMax && chartWanted && chartHeight >= 48,
-            stats,
-            count,
-            chips);
+            input.MinMax && chartWanted && chartHeight >= 48);
     }
 
     /// <summary>

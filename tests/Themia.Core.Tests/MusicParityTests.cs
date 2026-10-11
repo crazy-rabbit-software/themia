@@ -24,18 +24,13 @@ public class MusicParityTests
     [Fact]
     public void S1464_an_unknown_mode_reads_as_never_the_visible_state()
     {
-        var config = Assert.IsType<MusicConfig>(ConfigJson.Read("Music", """{"kind":"music","hideWhenIdle":"sometimes","showSpectrum":true}"""));
+        var config = Assert.IsType<MusicConfig>(ConfigJson.Read("Music", """{"kind":"music","hideWhenIdle":"sometimes"}"""));
         Assert.Equal(MusicHideWhenIdle.Never, config.HideWhenIdle);
-        Assert.True(config.ShowSpectrum);
     }
 
     [Fact]
-    public void S1464_defaults_never_hide_and_no_spectrum()
-    {
-        var config = new MusicConfig();
-        Assert.Equal(MusicHideWhenIdle.Never, config.HideWhenIdle);
-        Assert.False(config.ShowSpectrum);
-    }
+    public void S1464_defaults_never_hide()
+        => Assert.Equal(MusicHideWhenIdle.Never, new MusicConfig().HideWhenIdle);
 
     [Theory]
     [InlineData(50, 200, 0.25)]
@@ -70,17 +65,6 @@ public class MusicParityTests
     [InlineData(0x27, false, WidgetKey.Right)]
     public void S1468_shift_arrows_are_their_own_keys(int vk, bool shift, WidgetKey expected)
         => Assert.Equal(expected, WidgetKeys.FromVirtualKey(vk, shift, ctrl: false, alt: false));
-
-    [Theory]
-    [InlineData("Spotify.exe", "Spotify")]
-    [InlineData("chrome.exe", "Chrome")]
-    [InlineData("SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify", "Spotify Music")]
-    [InlineData("Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic", "Zune Music")]
-    [InlineData(@"C:\Program Files\VideoLAN\VLC\vlc.exe", "Vlc")]
-    [InlineData("  ", "")]
-    [InlineData(null, "")]
-    public void S1469_the_source_line_is_a_readable_app_name(string? appId, string expected)
-        => Assert.Equal(expected, MusicRules.SourceName(appId));
 
     [Fact]
     public void S1469_the_album_line_is_dropped_when_it_repeats_the_artist()

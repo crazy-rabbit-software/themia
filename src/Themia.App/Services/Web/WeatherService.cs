@@ -7,9 +7,6 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Web;
 
-/// <summary>A place the geocoder matched, with the coordinates to store for it.</summary>
-internal sealed record GeocodedPlace(string Name, double Latitude, double Longitude);
-
 /// <summary>
 /// open-meteo, which is the reason the two weather widgets could be ported at all: it is free,
 /// unauthenticated, and asks for nothing but a coordinate pair.
@@ -67,7 +64,7 @@ internal static class WeatherService
         return result;
     }
 
-    private static string CurrentKey(double latitude, double longitude, TemperatureUnit unit)
+    internal static string CurrentKey(double latitude, double longitude, TemperatureUnit unit)
         => $"now|{Coordinate(latitude)},{Coordinate(longitude)}|{unit}";
 
     /// <summary>The cached conditions for a point regardless of age, for drawing before a fetch returns.</summary>
@@ -108,7 +105,7 @@ internal static class WeatherService
     public static Fetched<Forecast>? PeekForecast(double latitude, double longitude, TemperatureUnit unit, int days)
         => ForecastCache.Peek(ForecastKey(latitude, longitude, unit, days));
 
-    private static string ForecastKey(double latitude, double longitude, TemperatureUnit unit, int days)
+    internal static string ForecastKey(double latitude, double longitude, TemperatureUnit unit, int days)
         => $"days|{Coordinate(latitude)},{Coordinate(longitude)}|{unit}|{days}";
 
     private static async Task<Fetched<CurrentWeather>> LoadCurrentAsync(
@@ -121,10 +118,9 @@ internal static class WeatherService
             $"{CurrentEndpoint}?latitude={Coordinate(latitude)}&longitude={Coordinate(longitude)}"
             + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
             + ",precipitation,pressure_msl,wind_direction_10m,wind_gusts_10m,cloud_cover,uv_index"
-            // [S-720] Today and the next five days, and the next 24 hours, in the same request: the
-            // larger tiles draw them, and asking once costs the service less than asking twice.
+            // [S-720] Today and the next five days in the same request: the larger tiles draw them,
+            // and asking once costs the service less than asking twice.
             + "&daily=" + DailyFields
-            + "&hourly=temperature_2m,precipitation_probability&forecast_hours=24"
             + "&forecast_days=6"
             + "&timezone=auto"
             + "&wind_speed_unit=kmh"
@@ -168,10 +164,9 @@ internal static class WeatherService
             CloudCover = Sane(current.CloudCover, 0, 100),
             UvIndex = Sane(current.UvIndex, 0, 30),
 
-            // The extras are extras: a reply whose daily or hourly block is missing or malformed
-            // still yields a reading, just without them.
+            // The extras are extras: a reply whose daily block is missing or malformed still
+            // yields a reading, just without it.
             Days = reply.Daily is { } daily ? ParseDays(daily, 6) : [],
-            Hours = ParseHours(reply.Hourly, reply.UtcOffsetSeconds),
         };
 
         // A "current" block with no temperature in it is not a reading, whatever else it carries.
@@ -268,37 +263,6 @@ internal static class WeatherService
         return parsed;
     }
 
-    /// <summary>
-    /// The hourly curve, as instants. Dropped whole when the reply has no UTC offset: an hour that
-    /// cannot be placed on the timeline would draw the chart against the wrong "now".
-    /// </summary>
-    private static List<HourlyPoint> ParseHours(OpenMeteoHourly? hourly, int? offsetSeconds)
-    {
-        var hours = new List<HourlyPoint>(24);
-
-        if (hourly?.Time is not { } times || offsetSeconds is not { } seconds || Math.Abs(seconds) > 14 * 3600)
-        {
-            return hours;
-        }
-
-        var offset = TimeSpan.FromSeconds(seconds);
-
-        for (var i = 0; i < times.Count && hours.Count < 48; i++)
-        {
-            if (!DateTime.TryParseExact(times[i] ?? string.Empty, "yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var local))
-            {
-                continue;
-            }
-
-            hours.Add(new HourlyPoint(
-                new DateTimeOffset(local, offset),
-                Sane(At(hourly.Temperature, i), -120, 100),
-                Sane(At(hourly.PrecipitationChance, i), 0, 100)));
-        }
-
-        return hours;
-    }
-
     /// <summary>The time part of "2026-10-04T07:31", or null for a polar day with no sunrise.</summary>
     private static TimeOnly? WallClock(List<string?>? list, int index)
     {
@@ -378,21 +342,37 @@ internal static class WeatherService
         }, SyncJsonContext.Default.WebShelf);
     }
 
+    /// <summary>[S-2845] This session's answers, shared by every settings page that searches.</summary>
+    private static readonly PlaceLookupCache Places = new();
+
     /// <summary>
-    /// Look a place up by name. Used only from the settings page, on a keystroke the user made, so
-    /// it is not cached and not on a timer.
+    /// [S-2841]..[S-2845] Look a place up by name, for the settings search. Only on a pause in the
+    /// user's typing or on Enter, never on a timer; an answer already given this session (in this
+    /// language) is served from memory, a failure is not remembered.
     /// </summary>
-    public static async Task<(FetchStatus Status, IReadOnlyList<GeocodedPlace> Places, string? Detail)> FindAsync(
+    public static async Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)> FindAsync(
         string query,
         CancellationToken token)
     {
-        if (!WebInput.IsPlausiblePlace(query))
+        query = PlaceQuery.Normalise(query);
+
+        if (PlaceQuery.Classify(query, submitted: true) != PlaceQueryStep.Search)
         {
-            return (FetchStatus.Refused, [], "not a place name");
+            return (PlaceOutcome.NotAName, [], "not a place name");
+        }
+
+        var locale = Themia.Core.Localization.Strings.Current;
+        var key = PlaceQuery.CacheKey(query, locale);
+
+        if (Places.TryGet(key, out var known))
+        {
+            return (known.Count == 0 ? PlaceOutcome.NoMatch : PlaceOutcome.Matches, known, null);
         }
 
         var uri = new Uri(
-            $"{GeocodeEndpoint}?name={Uri.EscapeDataString(query.Trim())}&count=6&language=en&format=json");
+            $"{GeocodeEndpoint}?name={Uri.EscapeDataString(query)}"
+            + $"&count={PlaceQuery.Requested.ToString(CultureInfo.InvariantCulture)}"
+            + $"&language={PlaceQuery.LanguageCode(locale)}&format=json");
 
         var (status, reply, detail) = await WebFetch
             .GetJsonAsync(uri, WebJsonContext.Default.GeocodeReply, token)
@@ -400,47 +380,18 @@ internal static class WeatherService
 
         if (status != FetchStatus.Ok || reply is null)
         {
-            return (status, [], detail);
+            return (PlaceQuery.Outcome(status), [], detail);
         }
 
-        var places = new List<GeocodedPlace>(6);
+        // Absent results are the geocoder matching nothing: an answer, not a failure, and the two
+        // read very differently to somebody who has just mistyped a city.
+        var places = PlaceQuery.Results(
+            (reply.Results ?? []).Select(hit => new PlaceCandidate(hit.Name, hit.Admin1, hit.Admin2, hit.Country, hit.Latitude, hit.Longitude)),
+            query);
 
-        foreach (var hit in reply.Results ?? [])
-        {
-            // A result with no name or no finite coordinates is dropped rather than drawn: it
-            // cannot be shown and it cannot be stored, so offering it would only produce a widget
-            // pointed at nowhere.
-            if (string.IsNullOrWhiteSpace(hit.Name) || !WebInput.AreCoordinates(hit.Latitude, hit.Longitude))
-            {
-                continue;
-            }
-
-            places.Add(new GeocodedPlace(Describe(hit), hit.Latitude!.Value, hit.Longitude!.Value));
-        }
-
-        // The geocoder matching nothing is an answer, not a failure, and the two read very
-        // differently to somebody who has just mistyped a city.
-        return places.Count == 0
-            ? (FetchStatus.Empty, places, null)
-            : (FetchStatus.Ok, places, null);
-    }
-
-    /// <summary>"Zurich, Canton of Zurich, Switzerland", skipping the parts the service left out.</summary>
-    private static string Describe(GeocodeHit hit)
-    {
-        var parts = new List<string>(3) { hit.Name!.Trim() };
-
-        if (!string.IsNullOrWhiteSpace(hit.Admin1) && !hit.Admin1.Equals(hit.Name, StringComparison.OrdinalIgnoreCase))
-        {
-            parts.Add(hit.Admin1.Trim());
-        }
-
-        if (!string.IsNullOrWhiteSpace(hit.Country))
-        {
-            parts.Add(hit.Country.Trim());
-        }
-
-        return string.Join(", ", parts);
+        var outcome = places.Count == 0 ? PlaceOutcome.NoMatch : PlaceOutcome.Matches;
+        Places.Put(key, places);
+        return (outcome, places, null);
     }
 
     private static string UnitParameter(TemperatureUnit unit)

@@ -26,7 +26,6 @@ public enum WeatherDetailMode
 /// <param name="FactCount">How many facts (in <see cref="WeatherFacts"/> order) are shown.</param>
 /// <param name="FactColumns">Cells per row in <see cref="WeatherDetailMode.Cells"/>, columns of lines in Side.</param>
 /// <param name="HighLow">Today's high and low under the condition.</param>
-/// <param name="ChartHeight">The next-24-hours chart's height, 0 when it is not shown.</param>
 /// <param name="HeroRoom">The height the reading and its condition may grow into.</param>
 /// <param name="SideWidth">The width of the Side column, 0 in every other mode.</param>
 public sealed record WeatherNowPlan(
@@ -34,7 +33,6 @@ public sealed record WeatherNowPlan(
     int FactCount,
     int FactColumns,
     bool HighLow,
-    double ChartHeight,
     double HeroRoom,
     double SideWidth);
 
@@ -47,9 +45,9 @@ public sealed record WeatherNowPlan(
 /// <item>Anything else: a row of cells once the slot is Regular high, else one "Feels" token.</item>
 /// <item>Today's high and low.</item>
 /// <item>A second row of cells, once the slot is Huge both ways.</item>
-/// <item>The next 24 hours as a chart, once the slot is Expanded high; it takes what the reading leaves.</item>
 /// </list>
-/// No next-days strip at any size: the days are the forecast widget's job.
+/// No hourly chart and no next-days strip at any size: the hours and the days are the forecast
+/// widget's job. What the rungs leave goes to the reading.
 /// </summary>
 public static class WeatherNowLayout
 {
@@ -83,28 +81,17 @@ public static class WeatherNowLayout
     /// <summary>The most Stack rows: past this the reading is worth more than an eighth fact.</summary>
     public const int StackMax = 8;
 
-    /// <summary>The smallest chart that still reads as a curve, axis captions included.</summary>
-    public const double ChartMin = 72;
-
-    /// <summary>
-    /// The reading's ceiling once a chart is below it: Display plus its condition and today's line.
-    /// Past this, height is worth more as chart than as a bigger number.
-    /// </summary>
-    public const double HeroCeiling = 92 + 20 + 16;
-
     /// <param name="slot">The view's slot (the card less its header).</param>
     /// <param name="heroFloor">The reading at its smallest step, with the condition under it if it must be.</param>
     /// <param name="facts">How many facts the reading has (<see cref="WeatherFacts.For"/>).</param>
     /// <param name="details">The user's "Show detail" switch: off is the reading alone.</param>
     /// <param name="hasToday">Whether today's high/low are known.</param>
-    /// <param name="hours">How many hourly points there are for the chart.</param>
     public static WeatherNowPlan Plan(
         WidgetArea slot,
         double heroFloor,
         int facts,
         bool details,
-        bool hasToday,
-        int hours)
+        bool hasToday)
     {
         var box = slot.Deflate(Inset, VerticalInset);
         var room = new Disclosure(box, Gap);
@@ -112,7 +99,7 @@ public static class WeatherNowLayout
 
         if (!details || !slot.IsMeasured)
         {
-            return new WeatherNowPlan(WeatherDetailMode.None, 0, 0, false, 0, heroFloor + room.Remaining, 0);
+            return new WeatherNowPlan(WeatherDetailMode.None, 0, 0, false, heroFloor + room.Remaining, 0);
         }
 
         var mode = WeatherDetailMode.None;
@@ -184,24 +171,8 @@ public static class WeatherNowLayout
             count = Math.Min(facts, columns * 2);
         }
 
-        var chart = mode != WeatherDetailMode.Stack && mode != WeatherDetailMode.Side
-            && hours >= 2
-            && slot.HeightClass >= SizeClass.Expanded
-            && slot.WidthClass >= SizeClass.Regular
-            && room.Take(ChartMin);
-
-        // What the rungs left goes to the reading, up to its ceiling when a chart is below to
-        // take the rest; with no chart the reading has it all.
-        var heroRoom = heroFloor + room.Remaining;
-        var chartHeight = 0.0;
-
-        if (chart)
-        {
-            heroRoom = Math.Min(heroRoom, Math.Max(heroFloor, HeroCeiling));
-            chartHeight = ChartMin + Math.Max(0, heroFloor + room.Remaining - heroRoom);
-        }
-
-        return new WeatherNowPlan(mode, count, columns, highLow, chartHeight, heroRoom, sideWidth);
+        // What the rungs left goes to the reading.
+        return new WeatherNowPlan(mode, count, columns, highLow, heroFloor + room.Remaining, sideWidth);
     }
 }
 

@@ -16,7 +16,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// The chart and what sits around it: the trace (solid in session, dashed outside it [S-1308]),
 /// the optional fill and high/low markers [S-1310], the price axis, the times under it in the
-/// exchange's zone [S-1309], the facts, the range chips and the pointer readout [S-1311].
+/// exchange's zone [S-1309] and the pointer readout [S-1311].
 /// </summary>
 internal sealed partial class StocksView
 {
@@ -34,10 +34,6 @@ internal sealed partial class StocksView
         Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush"),
         Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush"),
     ];
-
-    private readonly Grid _stats = new();
-    private readonly StackPanel _chips = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
-    private readonly List<(Button Button, QuoteRange Range)> _chipButtons = [];
 
     /// <summary>Where each bar was drawn, for the pointer readout.</summary>
     private readonly List<Point> _drawn = [];
@@ -76,85 +72,7 @@ internal sealed partial class StocksView
         _labelTexts[1].HorizontalAlignment = HorizontalAlignment.Center;
         _labelTexts[2].HorizontalAlignment = HorizontalAlignment.Right;
         _labels.Margin = new Thickness(StockLayout.Inset, StockLayout.Gap, StockLayout.Inset, Fluent.Space1);
-
-        _stats.Visibility = Visibility.Collapsed;
     }
-
-    private void BuildChips()
-    {
-        QuoteRange[] ranges =
-        [
-            QuoteRange.Day, QuoteRange.FiveDays, QuoteRange.Month, QuoteRange.ThreeMonths,
-            QuoteRange.SixMonths, QuoteRange.Year, QuoteRange.FiveYears,
-        ];
-
-        foreach (var range in ranges)
-        {
-            var button = new Button
-            {
-                Content = ChipText(range),
-                Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0),
-                MinHeight = 24,
-                Height = 24,
-                FontSize = FluentType.Caption.FontSize,
-                Tag = range,
-            };
-
-            button.Click += OnChipClick;
-            _chips.Children.Add(button);
-            _chipButtons.Add((button, range));
-        }
-
-        _chips.Margin = new Thickness(StockLayout.Inset, Fluent.Space1, StockLayout.Inset, 0);
-        _chips.Visibility = Visibility.Collapsed;
-        SetRow(_chips, 0);
-        SetColumnSpan(_chips, 2);
-    }
-
-    /// <summary>The chips' short period names ("1D", "1T"), again after a language change.</summary>
-    private void LabelChips()
-    {
-        foreach (var (button, range) in _chipButtons)
-        {
-            button.Content = ChipText(range);
-        }
-    }
-
-    private static string ChipText(QuoteRange range) => (range switch
-    {
-        QuoteRange.Day => Str.WidgetsC_Stocks_Range_Day,
-        QuoteRange.FiveDays => Str.WidgetsC_Stocks_Range_FiveDays,
-        QuoteRange.Month => Str.WidgetsC_Stocks_Range_Month,
-        QuoteRange.ThreeMonths => Str.WidgetsC_Stocks_Range_ThreeMonths,
-        QuoteRange.SixMonths => Str.WidgetsC_Stocks_Range_SixMonths,
-        QuoteRange.Year => Str.WidgetsC_Stocks_Range_Year,
-        _ => Str.WidgetsC_Stocks_Range_FiveYears,
-    }).Text();
-
-    /// <summary>[S-1311] A range chip sets the period, as the settings' Period choice does, and saves it.</summary>
-    private void OnChipClick(object sender, RoutedEventArgs args)
-    {
-        if (sender is not Button { Tag: QuoteRange range } || range == _config.Range)
-        {
-            return;
-        }
-
-        _config.Range = range;
-        _surface?.RequestSave();
-        ApplyConfig(_config);
-    }
-
-    private void UpdateChips()
-    {
-        foreach (var (button, range) in _chipButtons)
-        {
-            var on = range == _config.Range;
-            button.Style = on ? AccentStyle() : null;
-        }
-    }
-
-    private static Style? AccentStyle()
-        => Application.Current.Resources.TryGetValue("AccentButtonStyle", out var style) ? style as Style : null;
 
     /// <summary>[S-1309] Start and end (and middle) times under the chart, in the exchange's zone.</summary>
     private void UpdateLabels(TickerQuote quote, StockPlan plan)
@@ -166,134 +84,6 @@ internal sealed partial class StocksView
         _labelTexts[2].Text = labels.Count > 0 ? labels[^1] : string.Empty;
 
         ToolTipService.SetToolTip(_labels, ExchangeTime.ZoneNote(quote.ZoneName));
-    }
-
-    /// <summary>[S-1311] The facts: a stack, a row of tiles, or a column beside the chart.</summary>
-    private void LayStats(IReadOnlyList<(string Label, string Value)> facts, StockPlan plan)
-    {
-        _stats.Children.Clear();
-        _stats.RowDefinitions.Clear();
-        _stats.ColumnDefinitions.Clear();
-
-        var count = Math.Min(plan.StatCount, facts.Count);
-
-        if (plan.Stats == StatsPlacement.None || count == 0)
-        {
-            _stats.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        _stats.Visibility = Visibility.Visible;
-
-        switch (plan.Stats)
-        {
-            case StatsPlacement.Tiles:
-                _stats.ColumnSpacing = Fluent.Space2;
-                _stats.RowSpacing = 0;
-                _stats.Margin = new Thickness(StockLayout.Inset, StockLayout.Gap, StockLayout.Inset, Fluent.Space2);
-                _stats.Width = double.NaN;
-
-                for (var i = 0; i < count; i++)
-                {
-                    _stats.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                    var tile = Fact(facts[i], stacked: true);
-                    SetColumn(tile, i);
-                    _stats.Children.Add(tile);
-                }
-
-                Place(_stats, 5, 0, 1, 2);
-                break;
-
-            case StatsPlacement.Stack:
-                _stats.ColumnSpacing = 0;
-                _stats.RowSpacing = 0;
-                _stats.Margin = new Thickness(StockLayout.Inset, StockLayout.Gap, StockLayout.Inset, Fluent.Space2);
-                _stats.Width = double.NaN;
-
-                // [S-1109] A line whose label and value do not both fit the tile is shed rather than
-                // trimmed: "52-Wochen-Spanne 344,79…" says less than the lines that do fit. Measured,
-                // not estimated, because the words differ by language and a number is not a word.
-                var room = _area.Width - (2 * StockLayout.Inset);
-                var shown = 0;
-
-                for (var i = 0; i < facts.Count && shown < count; i++)
-                {
-                    var line = Fact(facts[i], stacked: false);
-                    line.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-                    if (line.DesiredSize.Width > room)
-                    {
-                        continue;
-                    }
-
-                    _stats.RowDefinitions.Add(new RowDefinition { Height = new GridLength(StockLayout.StackLine) });
-                    SetRow(line, shown++);
-                    _stats.Children.Add(line);
-                }
-
-                if (shown == 0)
-                {
-                    _stats.Visibility = Visibility.Collapsed;
-                    return;
-                }
-
-                Place(_stats, 5, 0, 1, 2);
-                break;
-
-            case StatsPlacement.Column:
-                _stats.ColumnSpacing = 0;
-                _stats.RowSpacing = 0;
-                _stats.Margin = new Thickness(Fluent.Space2, 0, StockLayout.Inset, Fluent.Space2);
-                _stats.Width = StockLayout.ColumnWidth;
-
-                for (var i = 0; i < count; i++)
-                {
-                    _stats.RowDefinitions.Add(new RowDefinition { Height = new GridLength(StockLayout.ColumnLine) });
-                    var tile = Fact(facts[i], stacked: true);
-                    SetRow(tile, i);
-                    _stats.Children.Add(tile);
-                }
-
-                _stats.VerticalAlignment = VerticalAlignment.Top;
-                Place(_stats, 3, 1, 2, 1);
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    /// <summary>One fact: label over value (a tile), or label left and value right (a line).</summary>
-    private static FrameworkElement Fact((string Label, string Value) fact, bool stacked)
-    {
-        var label = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        label.Text = fact.Label;
-        label.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        var value = Fluent.Text(stacked ? FluentType.Body : FluentType.Caption, "TextFillColorPrimaryBrush");
-        value.Text = fact.Value;
-        value.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        if (stacked)
-        {
-            return new StackPanel { Children = { label, value }, VerticalAlignment = VerticalAlignment.Center };
-        }
-
-        var line = new Grid
-        {
-            ColumnSpacing = Fluent.Space2,
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            },
-        };
-
-        value.HorizontalAlignment = HorizontalAlignment.Right;
-        SetColumn(value, 1);
-        line.Children.Add(label);
-        line.Children.Add(value);
-        return line;
     }
 
     private void OnChartSizeChanged(object sender, SizeChangedEventArgs args) => RedrawChart();
@@ -378,55 +168,68 @@ internal sealed partial class StocksView
             _canvas.Children.Add(line);
         }
 
+        var marked = new List<ChartMarker>(2);
+
         if (markers && MarketQuote.Extremes(bars) is { } extremes)
         {
-            Marker(_drawn[extremes.High], MarketQuote.Price(bars[extremes.High].Close, quote.PriceHint), above: true, width);
-            Marker(_drawn[extremes.Low], MarketQuote.Price(bars[extremes.Low].Close, quote.PriceHint), above: false, width);
+            marked.Add(new ChartMarker(_drawn[extremes.High].X, _drawn[extremes.High].Y, MarketQuote.Price(bars[extremes.High].Close, quote.PriceHint), Above: true));
+            marked.Add(new ChartMarker(_drawn[extremes.Low].X, _drawn[extremes.Low].Y, MarketQuote.Price(bars[extremes.Low].Close, quote.PriceHint), Above: false));
         }
+
+        string[] axis = [];
 
         if (_plan.Axis)
         {
-            Axis(quote, width, pad, usable);
+            var closes = MarketQuote.Closes(bars);
+            var low = closes.Min();
+            var high = closes.Max();
+            axis = [MarketQuote.Price(high, quote.PriceHint), MarketQuote.Price((high + low) / 2, quote.PriceHint), MarketQuote.Price(low, quote.PriceHint)];
+        }
+
+        // [S-1310] An axis label a marker's price would overlap is left out ([S-1311]).
+        var labels = StockChartLabels.Place(width, height, pad, usable, marked, axis);
+
+        for (var i = 0; i < marked.Count; i++)
+        {
+            Marker(marked[i], labels.Markers[i]);
+        }
+
+        for (var i = 0; i < axis.Length; i++)
+        {
+            if (labels.Axis[i] is { } box)
+            {
+                AxisLabel(axis[i], box, width);
+            }
         }
     }
 
     /// <summary>[S-1310] A dot on the extreme with its price beside it, kept inside the chart.</summary>
-    private void Marker(Point at, string text, bool above, double width)
+    private void Marker(ChartMarker marker, LabelBox box)
     {
         const double Dot = 6;
         var dot = new Ellipse { Width = Dot, Height = Dot, Fill = _direction };
-        Canvas.SetLeft(dot, at.X - (Dot / 2));
-        Canvas.SetTop(dot, at.Y - (Dot / 2));
+        Canvas.SetLeft(dot, marker.X - (Dot / 2));
+        Canvas.SetTop(dot, marker.Y - (Dot / 2));
         _canvas.Children.Add(dot);
 
         var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        label.Text = text;
-        var estimate = FluentType.EstimateWidth(FluentType.Caption, text.Length);
-        var left = Math.Clamp(at.X - (estimate / 2), Fluent.Space1, Math.Max(Fluent.Space1, width - estimate - Fluent.Space1));
-        Canvas.SetLeft(label, left);
-        Canvas.SetTop(label, above ? at.Y - FluentType.Caption.LineHeight - 2 : at.Y + 2);
+        label.Text = marker.Text;
+        Canvas.SetLeft(label, box.Left);
+        Canvas.SetTop(label, box.Top);
         _canvas.Children.Add(label);
     }
 
-    /// <summary>[S-1311] High, middle and low of the period at the chart's right edge.</summary>
-    private void Axis(TickerQuote quote, double width, double pad, double usable)
+    /// <summary>[S-1311] One price of the axis (high, middle or low) at the chart's right edge.</summary>
+    private void AxisLabel(string value, LabelBox box, double width)
     {
-        var closes = MarketQuote.Closes(quote.Bars);
-        var low = closes.Min();
-        var high = closes.Max();
-
-        foreach (var (fraction, value) in new[] { (0.0, high), (0.5, (high + low) / 2), (1.0, low) })
-        {
-            var text = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            text.Text = MarketQuote.Price(value, quote.PriceHint);
-            text.TextAlignment = TextAlignment.Right;
-            text.Width = 96;
-            Canvas.SetLeft(text, width - 96 - StockLayout.Inset);
-
-            var y = pad + (fraction * usable) - (FluentType.Caption.LineHeight / 2);
-            Canvas.SetTop(text, Math.Clamp(y, 0, Math.Max(0, _chart.ActualHeight - FluentType.Caption.LineHeight)));
-            _canvas.Children.Add(text);
-        }
+        const double Box = 96;
+        var text = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+        text.Text = value;
+        text.TextAlignment = TextAlignment.Right;
+        text.Width = Box;
+        Canvas.SetLeft(text, width - Box - StockLayout.Inset);
+        Canvas.SetTop(text, box.Top);
+        _canvas.Children.Add(text);
     }
 
     /// <summary>[S-1311] On a large tile, the pointer over the chart reads the bar under it: time and price.</summary>

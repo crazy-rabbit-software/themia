@@ -15,7 +15,7 @@ namespace Themia.App.Widgets;
 /// [S-440] Per-application volume, as the Windows volume mixer lays it out: the device's master level
 /// on top, then one row per app with its icon, its name, a slider, a live meter and a mute button.
 /// <para>
-/// [S-1227]..[S-1229] A ladder, not one layout scaled: rows are compact (icon, percent, mute), two
+/// [S-1227]..[S-1229] A ladder, not one layout scaled: rows are compact (icon, mute), two
 /// lines or one line by width, and the list takes the whole rows that fit — the rest scroll, never
 /// half a row. Room left over goes to the quiet apps only-active left out, then to the rows
 /// themselves ([S-1624]). The mixer is the apps' levels and nothing else: no device line or picker,

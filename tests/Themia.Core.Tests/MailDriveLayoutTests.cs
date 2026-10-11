@@ -105,7 +105,7 @@ public sealed class MailDriveLayoutTests
     }
 
     [Fact]
-    public void S1283_one_line_rows_add_preview_then_account_then_provider_as_they_widen()
+    public void S1283_one_line_rows_add_preview_then_account_as_they_widen()
     {
         var config = new EmailConfig();
 
@@ -119,10 +119,11 @@ public sealed class MailDriveLayoutTests
         var wider = MailLayout.Rows(config, 560, 116);
         Assert.True(wider.Preview);
         Assert.True(wider.Account);
-        Assert.False(wider.Provider);
 
+        // The account tag is the account's name alone at every size: no provider after it
+        // (retired, concise widgets).
         var xl = MailLayout.Rows(config, 800, 516);
-        Assert.True(xl.Provider);
+        Assert.True(xl.Account);
         Assert.Equal(1, xl.PreviewLines);
 
         // The compact view never shows a preview, on one line or two.

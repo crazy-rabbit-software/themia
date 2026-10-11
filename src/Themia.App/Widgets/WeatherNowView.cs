@@ -7,6 +7,7 @@ using Themia.App.Services.Web;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -16,8 +17,8 @@ namespace Themia.App.Widgets;
 /// <para>
 /// A readout that grows with its tile ([S-723]): the temperature alone at the smallest size, then a
 /// "Feels" token, then a flat row of icon + label + value cells (the original's details, S-07),
-/// today's high and low, the next 24 hours as a chart, and at the largest size a second row of
-/// readings (the next days are the forecast widget's, never drawn here). A strip puts the readings
+/// today's high and low, and at the largest size a second row of readings (the next hours and
+/// days are the forecast widget's, never drawn here). A strip puts the readings
 /// beside the number, a tall column stacks them as rows under it. The ladder is <see cref="WeatherNowLayout"/>; this view only builds it.
 /// </para>
 /// <para>
@@ -48,7 +49,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private readonly Grid _cells = new() { ColumnSpacing = WeatherNowLayout.CellGap, RowSpacing = WeatherNowLayout.Gap };
     private readonly Grid _side = new() { ColumnSpacing = Fluent.Space4, RowSpacing = WeatherNowLayout.SideGap, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _stack = new();
-    private readonly WeatherHourlyChart _chart = new();
 
     private readonly StackPanel _emptyState;
     private readonly TextBlock _emptyMessage = new();
@@ -59,7 +59,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private readonly Brush _freshBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
     private readonly Brush _staleBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
 
-    private readonly RefreshSchedule _schedule = new(Scope, "open-meteo");
 
     private Ticker? _ticker;
     private WeatherNowConfig _config = new();
@@ -75,17 +74,16 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private CancellationTokenSource? _inFlight;
+    private WebSync? _web;
 
-    /// <summary>
-    /// Which request is current. A reply carrying an older number is for a place the widget has
-    /// stopped pointing at, and a slow answer for Oslo must not overwrite Zurich.
-    /// </summary>
-    private int _generation;
+    /// <summary>What the widget asks for now, or null without a place ([S-2663]).</summary>
+    private WeatherInterest? _want;
+
+    /// <summary>The state to say when there is no reading: not set up, or how the last sync went.</summary>
+    private FetchStatus _status = FetchStatus.Loading;
 
     private Fetched<CurrentWeather>? _reading;
     private IReadOnlyList<WeatherFact> _facts = [];
-    private IReadOnlyList<HourlyPoint> _hours = [];
     private WidgetArea _area;
     private WeatherNowPlan? _built;
     private bool _detached;
@@ -93,8 +91,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     public WeatherNowView()
     {
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
         _look.Margin = new Thickness(0, 0, Fluent.Space3, 0);
@@ -133,25 +129,22 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         _feels.TextTrimming = TextTrimming.CharacterEllipsis;
         _cells.Margin = new Thickness(WeatherNowLayout.Inset, WeatherNowLayout.Gap, WeatherNowLayout.Inset, 0);
         _stack.Margin = new Thickness(0, WeatherNowLayout.Gap, 0, 0);
-        _chart.Margin = new Thickness(0, WeatherNowLayout.Gap, 0, 0);
 
         SetRow(_feels, 1);
         SetRow(_cells, 1);
         SetRow(_stack, 1);
-        SetRow(_chart, 3);
 
         _emptyState = Fluent.EmptyState(Glyphs.Weather, _emptyMessage, out _emptyIcon);
         _emptyState.Visibility = Visibility.Collapsed;
-        SetRowSpan(_emptyState, 4);
+        SetRowSpan(_emptyState, 2);
 
         Children.Add(_top);
         Children.Add(_feels);
         Children.Add(_cells);
         Children.Add(_stack);
-        Children.Add(_chart);
         Children.Add(_emptyState);
 
-        Collapse(_feels, _cells, _side, _stack, _chart);
+        Collapse(_feels, _cells, _side, _stack);
     }
 
     /// <summary>
@@ -162,7 +155,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
     /// <summary>[S-730] "Refresh": the network now, past both the back-off and the cache.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => { _schedule.Reset(); Reload(force: true); })] : [];
+        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))] : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -172,6 +165,15 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         // [S-1110] The texts follow the app's language. A static event: Detach unsubscribes.
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
+
+        // [S-2663] The reading comes from the background sync; the widget only hears it.
+        _web = AppServices.WebSync;
+        if (_web is not null)
+        {
+            _web.Updated -= OnWebUpdated;
+            _web.Updated += OnWebUpdated;
+        }
+
         ApplyConfig(config);
     }
 
@@ -202,25 +204,12 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
             // A different place, or a different scale, is a different reading. The one in hand is
             // about somewhere else and must not linger on screen under the new heading.
             _reading = null;
-
-            // And the user has just changed something, which is an explicit "try again now".
-            _schedule.Reset();
         }
 
-        // Subscribing fires a tick of its own, which reloads with the new config already in place.
-        if (Resubscribe())
-        {
-            return;
-        }
-
-        if (placeChanged)
-        {
-            Reload();
-        }
-        else
-        {
-            Render();
-        }
+        // [S-2663] Always through the sync: it asks nothing for a reading already held and fresh,
+        // so a toggle that only changes the drawing costs no request.
+        Resubscribe();
+        Reload(force: false);
     }
 
     /// <summary>[S-663] The card's word on how much room the widget has.</summary>
@@ -230,123 +219,81 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         Lay();
     }
 
-    /// <summary>
-    /// Rebuild the ticker subscription only when the cadence actually changed, and say whether it
-    /// did — a new subscription fires immediately, so the caller has nothing left to do.
-    /// </summary>
-    private bool Resubscribe()
+    /// <summary>Rebuild the ticker subscription only when the cadence actually changed.</summary>
+    private void Resubscribe()
     {
         var interval = _config.TickInterval;
 
         if (_subscription is not null && interval == _subscribedInterval)
         {
-            return false;
+            return;
         }
 
         _subscription?.Dispose();
         _subscribedInterval = interval;
         _subscription = _ticker?.Subscribe(interval, OnTick);
-        return _subscription is not null;
     }
 
     /// <summary>
-    /// A tick. It redraws unconditionally — the freshness line has to keep counting up even while
-    /// the widget is backed off — and fetches only when it is allowed to.
+    /// A tick only redraws: the freshness line keeps counting up. [S-2663] The reading is kept fresh
+    /// by the sync service, never fetched from here.
     /// </summary>
     private void OnTick()
     {
-        if (_detached)
+        if (!_detached)
         {
-            return;
+            Render();
         }
-
-        if (_schedule.MayFetch(DateTimeOffset.Now))
-        {
-            Reload();
-            return;
-        }
-
-        Render();
     }
 
-    private void Reload(bool force = false)
+    /// <summary>
+    /// [S-2663] Tell the sync what is on screen and draw what it holds. Nothing is fetched for a
+    /// reading already held and fresh; <paramref name="force"/> (the user's Refresh) asks now.
+    /// </summary>
+    private void Reload(bool force)
     {
         if (_detached)
         {
             return;
         }
 
-        if (!WebInput.AreCoordinates(_config.Latitude, _config.Longitude))
+        _want = SyncInterests.For(_config);
+        if (_want is null)
         {
-            _schedule.Record(FetchStatus.NotConfigured, _config.TickInterval, null, DateTimeOffset.Now);
+            _status = FetchStatus.NotConfigured;
+            _reading = null;
             Render();
             return;
         }
 
-        var latitude = _config.Latitude!.Value;
-        var longitude = _config.Longitude!.Value;
-        var unit = _config.Unit;
-
-        // Whatever the shared cache already holds for this exact place — another widget's answer,
-        // or the one saved at the last shutdown ([S-729]) — drawn before the request goes out.
-        _reading ??= WeatherService.PeekCurrent(latitude, longitude, unit);
-
-        _inFlight?.Cancel();
-        var cts = new CancellationTokenSource();
-        _inFlight = cts;
-        var generation = ++_generation;
-
-        Render();
-        _ = LoadAsync(latitude, longitude, unit, generation, force, cts);
+        _web?.Show(_want, force);
+        Take();
     }
 
-    private async Task LoadAsync(
-        double latitude,
-        double longitude,
-        TemperatureUnit unit,
-        int generation,
-        bool force,
-        CancellationTokenSource cts)
+    /// <summary>[S-2663] A reading's answer or state changed in the sync service.</summary>
+    private void OnWebUpdated(string key)
     {
-        try
+        if (!_detached && _want is { } want && WebSync.Key(want) == key)
         {
-            var result = await WeatherService
-                .CurrentAsync(latitude, longitude, unit, _config.TickInterval, cts.Token, force)
-                .ConfigureAwait(true);
-
-            // A late reply for a place the widget has since left. Dropped rather than drawn.
-            if (_detached || generation != _generation)
-            {
-                return;
-            }
-
-            _schedule.Record(result.Status, _config.TickInterval, result.Detail, DateTimeOffset.Now);
-
-            if (result.Value is not null)
-            {
-                _reading = result;
-            }
-            else if (_reading is { } held)
-            {
-                // Keep what is on screen and annotate it with what has just failed.
-                _reading = held.Stale(result.Status, result.Detail);
-            }
-
-            Render();
+            Take();
         }
-        catch (OperationCanceledException)
+    }
+
+    /// <summary>
+    /// What the sync holds for the place: the newest reading (kept through a failure, annotated with
+    /// it), or the state to say when there is none.
+    /// </summary>
+    private void Take()
+    {
+        if (_want is not { } want)
         {
-            // ignore: superseded by a newer request, which will draw in this one's place.
+            return;
         }
-        finally
-        {
-            if (ReferenceEquals(_inFlight, cts))
-            {
-                _inFlight = null;
-            }
 
-            cts.Dispose();
-        }
+        var answer = _web is { } web ? web.Reading(want) : WeatherService.PeekCurrent(want.Latitude, want.Longitude, want.Unit);
+        _reading = answer?.Value is not null ? answer : null;
+        _status = answer?.Status ?? FetchStatus.Loading;
+        Render();
     }
 
     /// <summary>
@@ -365,7 +312,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
         if (held?.Value is not { } reading)
         {
-            var status = _schedule.Status;
+            var status = _status;
 
             // No place yet: the card's Set up button covers this ([S-1862]).
             _emptyMessage.Text = status == FetchStatus.NotConfigured
@@ -374,7 +321,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
             _emptyIcon.Glyph = Glyphs.Weather;
             _emptyState.Visibility = Visibility.Visible;
-            Collapse(_top, _feels, _cells, _stack, _chart);
+            Collapse(_top, _feels, _cells, _stack);
             _freshness.Text = string.Empty;
             _built = null;
             return;
@@ -390,11 +337,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         _feels.Text = Str.WidgetsC_Weather_FeelsShort.Format(("temperature", WeatherReport.Temperature(reading.FeelsLike, _config.Unit)));
 
         _facts = WeatherFacts.For(reading, _config.Unit);
-
-        // The chart starts at the current hour; hours already past are not "next".
-        var hourAgo = now.AddMinutes(-59);
-        _hours = [.. reading.Hours.Where(hour => hour.At >= hourAgo).Take(24)];
-        _chart.SetHours(_hours, _config.Unit);
 
         // The age of the reading, and — when the last attempt to refresh it failed, or it was read
         // back from disk at launch and not yet replaced — in the caution colour. Said in the
@@ -431,12 +373,12 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         var width = Math.Max(0, _area.Width - (2 * WeatherNowLayout.Inset));
         var hasToday = _highLow.Text.Length > 0;
 
-        var plan = WeatherNowLayout.Plan(_area, HeroFloor(width), _facts.Count, _config.ShowDetails, hasToday, _hours.Count);
+        var plan = WeatherNowLayout.Plan(_area, HeroFloor(width), _facts.Count, _config.ShowDetails, hasToday);
 
         // A strip's readings column narrows the reading; measure the floor again for what is left.
         if (plan.Detail == WeatherDetailMode.Side)
         {
-            plan = WeatherNowLayout.Plan(_area, HeroFloor(width - plan.SideWidth - Fluent.Space4), _facts.Count, _config.ShowDetails, hasToday, _hours.Count);
+            plan = WeatherNowLayout.Plan(_area, HeroFloor(width - plan.SideWidth - Fluent.Space4), _facts.Count, _config.ShowDetails, hasToday);
         }
 
         if (plan != _built)
@@ -463,7 +405,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     /// <summary>Build the rungs the plan has up, and hide the rest.</summary>
     private void Build(WeatherNowPlan plan)
     {
-        Collapse(_feels, _cells, _side, _stack, _chart);
+        Collapse(_feels, _cells, _side, _stack);
         _cells.Children.Clear();
         _cells.ColumnDefinitions.Clear();
         _cells.RowDefinitions.Clear();
@@ -499,12 +441,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
                 _stack.Visibility = Visibility.Visible;
                 break;
-        }
-
-        if (plan.ChartHeight > 0)
-        {
-            _chart.Height = plan.ChartHeight;
-            _chart.Visibility = Visibility.Visible;
         }
     }
 
@@ -730,10 +666,11 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         _subscription = null;
         _subscribedInterval = TimeSpan.Zero;
 
-        // Cancel but do not dispose: the in-flight load owns its source and frees it on the way
-        // out, so there is exactly one owner however many times this is called.
-        _inFlight?.Cancel();
-        _inFlight = null;
+        if (_web is not null)
+        {
+            _web.Updated -= OnWebUpdated;
+            _web = null;
+        }
 
         _ticker = null;
     }

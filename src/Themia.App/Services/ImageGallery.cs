@@ -163,7 +163,7 @@ internal static class ImageGallery
             return GalleryScan.Of(GalleryStatus.Unavailable);
         }
 
-        return new GalleryScan(GalleryStatus.Ok, [photo.Image.AbsoluteUri]) { Caption = photo.Caption };
+        return new GalleryScan(GalleryStatus.Ok, [photo.Image.AbsoluteUri], photo.Credit);
     }
 
     private static List<string> Scan(GalleryRequest request, CancellationToken token)

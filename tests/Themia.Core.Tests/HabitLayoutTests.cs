@@ -24,7 +24,6 @@ public class HabitLayoutTests
         Assert.False(plan.Streak);
         Assert.Equal(0, plan.Dots);
         Assert.False(plan.AddRow);
-        Assert.False(plan.Summary);
     }
 
     [Fact]
@@ -48,10 +47,6 @@ public class HabitLayoutTests
         Assert.True(plan.AddRow);
         Assert.Equal(3, plan.Rows);
         Assert.False(plan.Rate);
-
-        // [S-1571] The height three whole rows leave carries the summary's line, without its bar.
-        Assert.True(plan.Summary);
-        Assert.False(plan.SummaryBar);
     }
 
     [Fact]
@@ -69,12 +64,10 @@ public class HabitLayoutTests
     }
 
     [Fact]
-    public void S1427_tall_adds_the_summary_and_leaves_what_the_rows_do_not_use_empty()
+    public void S1427_tall_leaves_what_the_rows_do_not_use_empty()
     {
         var plan = Plan(200, 356);
 
-        Assert.True(plan.Summary);
-        Assert.True(plan.SummaryBar);
         Assert.True(plan.AddRow);
         Assert.Equal(3, plan.Rows);
         Assert.Equal(0, plan.Dots);
@@ -89,7 +82,6 @@ public class HabitLayoutTests
         Assert.Equal(7, plan.Dots);
         Assert.True(plan.Rate);
         Assert.False(plan.Best);
-        Assert.True(plan.Summary);
     }
 
     [Fact]
@@ -119,8 +111,10 @@ public class HabitLayoutTests
         var plan = Plan(320, 196, count: 9);
         Assert.Equal(3, plan.Rows);
 
+        // No summary strip takes height from the rows (retired, concise widgets): a tall tile
+        // shows every whole row under its add row.
         var tall = Plan(200, 356, count: 12);
-        Assert.True(tall.Rows < 12);
+        Assert.Equal(7, tall.Rows);
     }
 
     [Fact]
@@ -130,7 +124,6 @@ public class HabitLayoutTests
 
         Assert.True(plan.AddRow);
         Assert.Equal(0, plan.Rows);
-        Assert.False(plan.Summary);
 
         Assert.False(Plan(120, 76, count: 0, writable: false).AddRow);
     }

@@ -191,15 +191,6 @@ public class MusicRulesTests
     }
 
     [Fact]
-    public void S1475_the_state_line_names_the_app_only_when_the_session_does()
-    {
-        Assert.Equal("Playing · Spotify", MusicRules.StateLine(true, "Spotify", Locale.En));
-        Assert.Equal("Paused", MusicRules.StateLine(false, string.Empty, Locale.En));
-        Assert.Equal("Wird wiedergegeben · Spotify", MusicRules.StateLine(true, "Spotify", Locale.De));
-        Assert.Equal("Angehalten", MusicRules.StateLine(false, string.Empty, Locale.De));
-    }
-
-    [Fact]
     public void S253_a_missing_title_is_unknown_in_the_language()
     {
         Assert.Equal("Unknown track", MusicRules.Title(null, Locale.En));

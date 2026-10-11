@@ -39,6 +39,9 @@ public sealed class TaskListShelf
     public bool IncludesCompleted { get; set; }
 
     public List<StoredTask> Tasks { get; set; } = [];
+
+    /// <summary>[S-2680] Where the provider's changes to this list continue from; null when it offers none.</summary>
+    public SyncCursor? Cursor { get; set; }
 }
 
 public sealed class StoredTask
@@ -79,6 +82,9 @@ public static class TaskShelves
     public static StoredTaskList Store(TaskListInfo list) => new() { Id = list.Id, Name = Cut(list.Name), IsDefault = list.IsDefault };
 
     public static TaskListInfo Restore(StoredTaskList list) => new(list.Id, list.Name, list.IsDefault);
+
+    /// <summary>[S-2686] What a list's cursor was issued for: the list, and whether finished tasks are held.</summary>
+    public static string CursorScope(string listId, bool includeCompleted) => $"{listId}|{(includeCompleted ? "all" : "open")}";
 
     public static bool IsTask(PendingKind kind)
         => kind is PendingKind.TaskComplete or PendingKind.TaskReopen or PendingKind.TaskRename or PendingKind.TaskDelete or PendingKind.TaskCreate;
@@ -140,7 +146,14 @@ public static class TaskShelves
                 });
             }
 
-            held.Add(new TaskListShelf { ListId = list.ListId, At = list.At, IncludesCompleted = list.IncludesCompleted, Tasks = tasks });
+            held.Add(new TaskListShelf
+            {
+                ListId = list.ListId,
+                At = list.At,
+                IncludesCompleted = list.IncludesCompleted,
+                Tasks = tasks,
+                Cursor = SyncCursors.Validate(list.Cursor, ref dropped),
+            });
         }
 
         var pending = WriteQueue.Validate(shelf.Pending, ref dropped);

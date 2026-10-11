@@ -31,6 +31,22 @@ public readonly record struct MoonInfo(double Phase, double Illumination, MoonPh
 public readonly record struct MoonEvent(MoonPhaseName Name, DateTimeOffset At);
 
 /// <summary>
+/// [S-3104] The next moonrise and the next moonset after an instant, each null when the moon does
+/// not cross the horizon in the window searched (it stays up, or down, near the poles).
+/// </summary>
+public readonly record struct MoonTimes(DateTimeOffset? Rise, DateTimeOffset? Set)
+{
+    /// <summary>Whichever of the two comes first, and whether it is the rise.</summary>
+    public (DateTimeOffset At, bool IsRise)? Next => (Rise, Set) switch
+    {
+        ({ } rise, { } set) => rise <= set ? (rise, true) : (set, false),
+        ({ } rise, null) => (rise, true),
+        (null, { } set) => (set, false),
+        _ => null,
+    };
+}
+
+/// <summary>
 /// Moon phase, illumination and where the moon is, computed offline.
 /// <para>
 /// The phase comes from the synodic month counted off a known new moon: a linear model, good to
@@ -110,6 +126,81 @@ public static class MoonPhase
         return toFull < toNew
             ? new MoonEvent(MoonPhaseName.FullMoon, moment.AddDays(toFull * SynodicMonth))
             : new MoonEvent(MoonPhaseName.NewMoon, moment.AddDays(toNew * SynodicMonth));
+    }
+
+    /// <summary>
+    /// The geocentric altitude of the moon's centre at the moment it is seen to rise or set: its
+    /// horizontal parallax (about 0.95 degrees) lifts it, refraction and the semi-diameter lower it,
+    /// netting about +0.125 degrees (Meeus, ch. 15).
+    /// </summary>
+    public const double RiseAltitudeDegrees = 0.125;
+
+    /// <summary>How far ahead <see cref="NextRiseSet"/> looks: two lunar days, so both events are found wherever they exist.</summary>
+    public static readonly TimeSpan RiseSetWindow = TimeSpan.FromHours(50);
+
+    private static readonly TimeSpan ScanStep = TimeSpan.FromMinutes(10);
+
+    /// <summary>
+    /// [S-3104] The next moonrise and moonset strictly after <paramref name="moment"/> for an observer
+    /// at the given place. The moon's altitude is stepped every ten minutes from the same sublunar
+    /// point that draws its position, and each horizon crossing is bisected to well under a second
+    /// of model time, so a rise is never missed between steps (the moon moves half a degree in an
+    /// hour against the sky, far slower than a step can skip). Good to a few minutes against an
+    /// almanac: the series is truncated.
+    /// </summary>
+    public static MoonTimes NextRiseSet(DateTimeOffset moment, double latitudeDegrees, double longitudeDegrees)
+    {
+        double Above(DateTimeOffset at)
+            => SkyPath.PositionOf(SublunarPoint(at), latitudeDegrees, longitudeDegrees).AltitudeDegrees - RiseAltitudeDegrees;
+
+        DateTimeOffset? rise = null;
+        DateTimeOffset? set = null;
+
+        var from = moment;
+        var before = Above(from);
+        var end = moment + RiseSetWindow;
+
+        while (from < end && (rise is null || set is null))
+        {
+            var to = from + ScanStep;
+            var after = Above(to);
+
+            if (before < 0 && after >= 0)
+            {
+                rise ??= Crossing(from, to, Above);
+            }
+            else if (before >= 0 && after < 0)
+            {
+                set ??= Crossing(from, to, Above);
+            }
+
+            from = to;
+            before = after;
+        }
+
+        return new MoonTimes(rise, set);
+    }
+
+    /// <summary>Bisect a sign change of <paramref name="above"/> between two instants.</summary>
+    private static DateTimeOffset Crossing(DateTimeOffset low, DateTimeOffset high, Func<DateTimeOffset, double> above)
+    {
+        var lowAbove = above(low) >= 0;
+
+        for (var i = 0; i < 12; i++)
+        {
+            var middle = low + ((high - low) / 2);
+
+            if ((above(middle) >= 0) == lowAbove)
+            {
+                low = middle;
+            }
+            else
+            {
+                high = middle;
+            }
+        }
+
+        return high;
     }
 
     /// <summary>The display label for a phase bucket, in the app's language.</summary>

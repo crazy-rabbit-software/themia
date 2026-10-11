@@ -384,25 +384,86 @@ internal sealed class MailService : IMailSource, IDisposable
         }
     }
 
-    private async Task<IReadOnlyList<MailMessage>> FetchAsync(Box box, MailFolder folder, int count, IReadOnlyList<MailMessage> held, CancellationToken cancellation)
+    /// <summary>
+    /// The newest <paramref name="count"/> of a folder, and the cursor to keep: [S-2687] Graph and
+    /// [S-2689] IMAP read only what changed since <paramref name="cursor"/> when it is usable; Gmail
+    /// keeps its own incremental read ([S-2623]).
+    /// </summary>
+    private async Task<(IReadOnlyList<MailMessage> Messages, SyncCursor? Cursor)> FetchAsync(
+        Box box, MailFolder folder, int count, IReadOnlyList<MailMessage> held, SyncCursor? cursor, MailFolderStatus counts, CancellationToken cancellation)
     {
         switch (box.Provider)
         {
             case AccountProvider.Microsoft:
-                var graph = await _accounts.GetGraphPagesAsync(
-                    box.AccountId, MailWire.GraphMessages(folder, count), MailWireContext.Default.GraphMailMessage, count, cancellation).ConfigureAwait(true);
-                return [.. graph.Select(m => MailWire.FromGraph(m, box.AccountId, folder)).OfType<MailMessage>()];
+                return await FetchGraphAsync(box, folder, count, held, cursor, counts, cancellation).ConfigureAwait(true);
 
             case AccountProvider.Google:
-                return await FetchGmailAsync(box, folder, count, held, cancellation).ConfigureAwait(true);
+                return (await FetchGmailAsync(box, folder, count, held, cancellation).ConfigureAwait(true), null);
 
             case AccountProvider.Imap:
                 var login = _accounts.GetImapCredentials(box.AccountId);
-                return await Task.Run(() => ImapMailClient.FetchAsync(login, box.AccountId, folder, count, cancellation), cancellation).ConfigureAwait(true);
+                return await Task.Run(() => ImapMailClient.SyncAsync(login, box.AccountId, folder, count, held, cursor, counts.Total, cancellation), cancellation)
+                    .ConfigureAwait(true);
 
             default:
                 throw new AccountException(AccountError.Refused, Str.Shell_Mail_NoMail.Format(("provider", box.Provider.Label())));
         }
+    }
+
+    /// <summary>The most entries one Graph mail delta round reads.</summary>
+    private const int MaxMailRound = 500;
+
+    /// <summary>
+    /// [S-2687] Graph: the folder's delta since the cursor, folded into the newest N. In full — no
+    /// usable cursor, the provider refused it, or a removal left the list short — the newest N are
+    /// listed and a delta round bounded to their dates starts the next cursor; what that round
+    /// says is folded in, so the list is as of the round.
+    /// </summary>
+    private async Task<(IReadOnlyList<MailMessage>, SyncCursor?)> FetchGraphAsync(
+        Box box, MailFolder folder, int count, IReadOnlyList<MailMessage> held, SyncCursor? cursor, MailFolderStatus counts, CancellationToken cancellation)
+    {
+        var scope = MailShelves.CursorScope(folder, count);
+        var now = DateTimeOffset.UtcNow;
+        var check = SyncCursors.Check(cursor, CursorKind.GraphDelta, scope, now);
+
+        if (check == CursorCheck.Usable && cursor is not null)
+        {
+            try
+            {
+                var round = await GraphMailRoundAsync(box, folder, new Uri(cursor.Value), cancellation).ConfigureAwait(true);
+                var (messages, refill) = DeltaMerge.Mail(held, round.Changed, round.Removed, count, DeltaMerge.ByReceived, counts.Total);
+                if (!refill)
+                {
+                    return (messages, round.Cursor is { } link ? SyncCursors.Advance(cursor, link, now) : null);
+                }
+
+                Log.Debug(Scope, $"{box.AccountId}: {folder.Wire()} is short after removals; reading it in full");
+            }
+            catch (AccountException ex) when (DeltaRules.Rejected(ex.HttpStatus, ex.ProviderMessage))
+            {
+                Log.Info(Scope, $"{box.AccountId}: {folder.Wire()} refused its change cursor (HTTP {ex.HttpStatus}); reading it in full");
+            }
+        }
+        else if (check is CursorCheck.Stale or CursorCheck.OtherScope)
+        {
+            Log.Debug(Scope, $"{box.AccountId}: {folder.Wire()} read in full ({check})");
+        }
+
+        var graph = await _accounts.GetGraphPagesAsync(
+            box.AccountId, MailWire.GraphMessages(folder, count), MailWireContext.Default.GraphMailMessage, count, cancellation).ConfigureAwait(true);
+        var newest = graph.Select(m => MailWire.FromGraph(m, box.AccountId, folder)).OfType<MailMessage>().ToList();
+
+        var start = await GraphMailRoundAsync(box, folder, MailWire.GraphMessagesDelta(folder, DeltaMerge.MailFilter(newest, count)), cancellation).ConfigureAwait(true);
+        var (merged, _) = DeltaMerge.Mail(newest, start.Changed, start.Removed, count, DeltaMerge.ByReceived, counts.Total);
+        return (merged, start.Cursor is { } next ? SyncCursors.Start(CursorKind.GraphDelta, next, scope, now) : null);
+    }
+
+    private async Task<(IReadOnlyList<MailMessage> Changed, IReadOnlyList<string> Removed, string? Cursor)> GraphMailRoundAsync(
+        Box box, MailFolder folder, Uri first, CancellationToken cancellation)
+    {
+        var round = await _accounts.GetDeltaAsync(box.AccountId, first, DeltaDialect.Graph, MailWireContext.Default.GraphMailMessage, MaxMailRound, cancellation,
+            ("Prefer", "odata.maxpagesize=50")).ConfigureAwait(true);
+        return ([.. round.Items.Select(m => MailWire.FromGraph(m, box.AccountId, folder)).OfType<MailMessage>()], round.Removed, round.Cursor);
     }
 
     /// <summary>
@@ -474,6 +535,9 @@ internal sealed class MailService : IMailSource, IDisposable
 
         /// <summary>How many newest messages were last fetched.</summary>
         public int Held { get; set; }
+
+        /// <summary>[S-2680] Where the provider's changes to this folder continue from; null when none can follow.</summary>
+        public SyncCursor? Cursor { get; set; }
 
         /// <summary>How many the widgets want; never shrinks during a run.</summary>
         public int Wanted { get; set; }
@@ -548,6 +612,7 @@ internal sealed class MailService : IMailSource, IDisposable
                         Known = stored.Total is { } total && stored.Unread is { } unread ? new MailFolderStatus(total, unread) : null,
                         LastFetch = stored.At,
                         Held = stored.Count,
+                        Cursor = stored.Cursor,
                     };
 
                     folder.Schedule.Seed(stored.At, now);
@@ -644,7 +709,7 @@ internal sealed class MailService : IMailSource, IDisposable
 
                 if (force || count > folder.Held || MailRefresh.NeedsFetch(folder.Known, counts, folder.LastFetch, now))
                 {
-                    folder.Messages = await _owner.FetchAsync(this, folder.Folder, count, folder.Messages, token).ConfigureAwait(true);
+                    (folder.Messages, folder.Cursor) = await _owner.FetchAsync(this, folder.Folder, count, folder.Messages, folder.Cursor, counts, token).ConfigureAwait(true);
                     folder.LastFetch = DateTimeOffset.UtcNow;
                     folder.Held = count;
                     _echo.RemoveAll(e => e.Confirmed < started);
@@ -904,6 +969,7 @@ internal sealed class MailService : IMailSource, IDisposable
                     Total = f.Known?.Total,
                     Unread = f.Known?.Unread,
                     Messages = [.. f.Messages.Take(MailShelves.MaxPerFolder).Select(MailShelves.Store)],
+                    Cursor = f.Cursor,
                 })],
                 Pending = [.. _pending],
             };

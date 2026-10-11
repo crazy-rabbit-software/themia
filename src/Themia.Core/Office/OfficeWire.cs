@@ -113,6 +113,10 @@ public sealed class GraphContact
 
     [JsonPropertyName("birthday")]
     public string? Birthday { get; set; }
+
+    /// <summary>The folder it lives in: the default contacts folder, whose delta round [S-2685] follows.</summary>
+    [JsonPropertyName("parentFolderId")]
+    public string? ParentFolderId { get; set; }
 }
 
 /// <summary>A Google Calendar <c>EventDateTime</c>: a date for all-day events, a dateTime otherwise.</summary>

@@ -180,14 +180,6 @@ internal static class MarketService
             ZoneName = ExchangeTime.Zone(meta.Timezone),
             QuoteType = (meta.InstrumentType ?? string.Empty).Trim(),
             HasPrePost = prePost && meta.HasPrePostMarketData == true,
-            Stats = new QuoteStats(
-                previous,
-                Sane(meta.DayHigh),
-                Sane(meta.DayLow),
-                Sane(meta.YearHigh),
-                Sane(meta.YearLow),
-                Sane(meta.Volume) is { } volume && volume >= 0 && volume < 1e15 ? (long)volume : null,
-                (meta.FullExchangeName ?? string.Empty).Trim()),
         };
 
         return new Fetched<TickerQuote>(FetchStatus.Ok, quote, null, now);

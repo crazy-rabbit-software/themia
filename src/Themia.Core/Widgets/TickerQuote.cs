@@ -14,19 +14,6 @@ public readonly record struct ExtendedPrint(double Price, double ChangePercent, 
 /// <summary>The extended prints of the day, each present only when a bar fell in its window.</summary>
 public readonly record struct ExtendedPrints(ExtendedPrint? Pre, ExtendedPrint? Post);
 
-/// <summary>[S-1311] The facts beside the chart on a large tile. Each is shown only when the reply carried it.</summary>
-public sealed record QuoteStats(
-    double? PreviousClose,
-    double? DayHigh,
-    double? DayLow,
-    double? YearHigh,
-    double? YearLow,
-    long? Volume,
-    string Exchange)
-{
-    public static QuoteStats None { get; } = new(null, null, null, null, null, null, string.Empty);
-}
-
 /// <summary>
 /// One instrument's quote, already validated and reduced to what a widget draws.
 /// </summary>
@@ -53,9 +40,6 @@ public sealed record TickerQuote(
 
     /// <summary>[S-1309] The exchange zone's short name ("EDT"), or empty.</summary>
     public string ZoneName { get; init; } = string.Empty;
-
-    /// <summary>[S-1311] Previous close, day and 52-week range, volume, exchange.</summary>
-    public QuoteStats Stats { get; init; } = QuoteStats.None;
 
     /// <summary>Yahoo's quote type ("EQUITY", "CURRENCY"…), or empty: refines <see cref="MarketQuote.Classify"/>.</summary>
     public string QuoteType { get; init; } = string.Empty;

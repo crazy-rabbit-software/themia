@@ -321,9 +321,41 @@ internal sealed partial class ConfigWindow
                 host.Children.Insert(host.Children.IndexOf((UIElement)row.Card!.Parent) + 1, card);
                 return true;
             }
+
+            // [S-1708] A several-of-many choice, also inside a group: its flyout's panel in a
+            // flyout-like card under the page's element that holds the row (the group).
+            if (row.Title == title && row.Control is DropDownButton multi && FluentLayout.DebugMultiChoicePanel(multi) is { } choices
+                && page is Panel listPage && TopLevel(listPage, row.Card) is { } holder)
+            {
+                listPage.Children.Insert(listPage.Children.IndexOf(holder) + 1, new Border
+                {
+                    Child = choices,
+                    Padding = new Thickness(16),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    CornerRadius = new CornerRadius(8),
+                    Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
+                    BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
+                    BorderThickness = new Thickness(1),
+                });
+                return true;
+            }
         }
 
         return false;
+    }
+
+    /// <summary>The child of <paramref name="page"/> that holds <paramref name="node"/>, or null.</summary>
+    private static UIElement? TopLevel(Panel page, DependencyObject? node)
+    {
+        for (; node is not null; node = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(node))
+        {
+            if (node is UIElement element && page.Children.Contains(element))
+            {
+                return element;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>The window's root element, for the render to capture.</summary>

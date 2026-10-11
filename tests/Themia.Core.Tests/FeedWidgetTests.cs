@@ -320,7 +320,6 @@ public sealed class FeedWidgetTests : IDisposable
         ExchangeOffset = TimeSpan.FromHours(-4),
         ZoneName = "EDT",
         HasPrePost = true,
-        Stats = new QuoteStats(409, 413, 408, 468, 344, 18_000_000, "NasdaqGS"),
     };
 
     [Fact]
@@ -344,7 +343,6 @@ public sealed class FeedWidgetTests : IDisposable
         Assert.Equal(TimeSpan.FromHours(-4), quote.ExchangeOffset);
         Assert.Equal("EDT", quote.ZoneName);
         Assert.True(quote.HasPrePost);
-        Assert.Equal(18_000_000, quote.Stats.Volume);
         Assert.NotNull(quote.Sessions.Regular);
     }
 

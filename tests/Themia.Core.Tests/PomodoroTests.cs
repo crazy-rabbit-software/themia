@@ -318,12 +318,4 @@ public class PomodoroLadderRulesTests
 
         Assert.Equal("Singing bowl", PomodoroSounds.Label(Locale.En, AlarmSound.Zen));
     }
-
-    [Fact]
-    public void S1467_a_flip_out_of_focus_completes_a_session_and_nothing_else_does()
-    {
-        Assert.Equal(3, PomodoroCycle.CountSession(2, new PomodoroTick(PomodoroPhase.Break, 300, Flipped: true)));
-        Assert.Equal(2, PomodoroCycle.CountSession(2, new PomodoroTick(PomodoroPhase.Work, 1500, Flipped: true)));
-        Assert.Equal(2, PomodoroCycle.CountSession(2, new PomodoroTick(PomodoroPhase.Work, 40, Flipped: false)));
-    }
 }

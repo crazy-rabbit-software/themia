@@ -22,7 +22,8 @@ internal enum CalendarSliceState
 /// <summary>
 /// [S-2701] One fetch of the calendar for a date range: the events (stamped with their account,
 /// calendar and fetch index, which pick their colour), the birthdays, the targets asked, each
-/// account's provider (for opening an event), and every problem met, by account.
+/// account's provider (for opening an event), and every problem met, by account, with when the
+/// stored copy it left on screen is from ([S-2664]; null when nothing was stored).
 /// </summary>
 internal sealed record CalendarSlice(
     CalendarSliceState State,
@@ -31,7 +32,7 @@ internal sealed record CalendarSlice(
     IReadOnlyList<CalendarTarget> Targets,
     IReadOnlyDictionary<string, AccountProvider> Providers,
     IReadOnlyDictionary<string, string> Labels,
-    IReadOnlyList<(string Account, SyncProblem Problem)> Problems,
+    IReadOnlyList<(string Account, SyncProblem Problem, DateTimeOffset? At)> Problems,
     bool AnyData)
 {
     public static CalendarSlice Empty(CalendarSliceState state)
@@ -91,7 +92,7 @@ internal sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
         await Task.WhenAll(eventTasks.Cast<Task>().Concat(birthdayTasks)).ConfigureAwait(true);
 
         var events = new List<CalendarEvent>();
-        var problems = new List<(string Account, SyncProblem Problem)>();
+        var problems = new List<(string Account, SyncProblem Problem, DateTimeOffset? At)>();
         var anyData = false;
 
         for (var i = 0; i < targets.Count; i++)
@@ -105,7 +106,7 @@ internal sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
 
             if (result.Problem != SyncProblem.None)
             {
-                problems.Add((targets[i].AccountId, result.Problem));
+                problems.Add((targets[i].AccountId, result.Problem, result.At));
             }
         }
 
@@ -119,7 +120,7 @@ internal sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
             // warning on the header, not an error over the events.
             if (result.Problem != SyncProblem.None)
             {
-                problems.Add((selected[i], result.Problem));
+                problems.Add((selected[i], result.Problem, result.At));
             }
         }
 

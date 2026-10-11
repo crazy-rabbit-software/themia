@@ -133,6 +133,21 @@ public static class TaskWire
         ? new Uri(GoogleRoot, $"lists/{Escape(listId)}/tasks?maxResults=100&showCompleted={(showCompleted ? "true" : "false")}&showHidden=false")
         : new Uri(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks?$top=100");
 
+    /// <summary>
+    /// [S-2686] The start of a Graph list's delta round: every task of the list, finished or not
+    /// (the round cannot be filtered), filtered when merged. Later rounds follow Graph's delta link.
+    /// </summary>
+    public static Uri GraphTasksDelta(string listId)
+        => new(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks/delta?$select=id,title,status,importance,dueDateTime");
+
+    /// <summary>
+    /// [S-2686] Google Tasks has no sync token: the tasks of a list changed since an instant, with the
+    /// finished, hidden and deleted ones, so a task that left the list says so.
+    /// </summary>
+    public static Uri GoogleTasksSince(string listId, DateTimeOffset since)
+        => new(GoogleRoot, $"lists/{Escape(listId)}/tasks?maxResults=100&showCompleted=true&showHidden=true&showDeleted=true&updatedMin="
+            + Uri.EscapeDataString(since.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.CultureInfo.InvariantCulture)));
+
     /// <summary>One task, for PATCH and DELETE.</summary>
     public static Uri Task(AccountProvider provider, string listId, string taskId) => provider == AccountProvider.Google
         ? new Uri(GoogleRoot, $"lists/{Escape(listId)}/tasks/{Escape(taskId)}")

@@ -5,17 +5,17 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1466]..[S-1467]-style ladder for now playing ([S-1475]): which parts a tile this size shows,
+/// [S-1466]-style ladder for now playing ([S-1475]): which parts a tile this size shows,
 /// and where. The parts sit on a canvas and are placed from one pass, so each class gets its own
 /// arrangement rather than one layout scaled.
 /// <list type="bullet">
 /// <item>XS: the title (and the artist when it fits) over a play/pause button.</item>
 /// <item>S, Wide (short strips): lines with the transport beside or under them, art at the left of a
 /// wide strip, the seek bar along the bottom (with the times beside it on a wide one).</item>
-/// <item>M: art, lines, transport, the seek bar with the times under it; the bars between when on.</item>
-/// <item>Tall: stacked — art, lines, bars, seek bar, times, transport — like the Windows media flyout.</item>
-/// <item>L, XL: large art beside a column of title, artist, album, "Playing · app", a larger
-/// transport and the bars; the seek bar and its times along the bottom.</item>
+/// <item>M: art, lines, transport, the seek bar with the times under it.</item>
+/// <item>Tall: stacked — art, lines, seek bar, times, transport — like the Windows media flyout.</item>
+/// <item>L, XL: large art beside a column of title, artist, album and a larger transport; the seek
+/// bar and its times along the bottom. No "Playing · app" line (concise widgets).</item>
 /// </list>
 /// </summary>
 internal sealed partial class MusicView
@@ -31,9 +31,6 @@ internal sealed partial class MusicView
 
     /// <summary>Narrower than this, the title cannot be read beside the transport.</summary>
     private const double LinesMinimumWidth = 120;
-
-    /// <summary>A spectrum shorter than this is a row of stubs.</summary>
-    private const double SpectrumMinimum = 28;
 
     /// <summary>"1:02:30": the widest time label, so the bar beside it does not shift as the time changes.</summary>
     private const int TimeCharacters = 7;
@@ -116,13 +113,6 @@ internal sealed partial class MusicView
             }
         }
 
-        var spectrum = 0.0;
-        if (_config.ShowSpectrum && !playOnly && room.Remaining >= SpectrumMinimum + gap && room.Take(SpectrumMinimum))
-        {
-            spectrum = Math.Min(96, room.Remaining + SpectrumMinimum);
-            room.Take(spectrum - SpectrumMinimum);
-        }
-
         var title = FluentType.Strong(FluentType.Fit(box.Width, FluentType.BodyStrong.LineHeight + room.Remaining, 16, FluentType.Body, FluentType.Subtitle));
         _track.Apply(title);
         _subtitle.Apply(subtitleStep);
@@ -130,7 +120,6 @@ internal sealed partial class MusicView
         var height = title.LineHeight
             + (art > 0 ? art + gap : 0)
             + (subtitle ? subtitleStep.LineHeight + Fluent.Space1 : 0)
-            + (spectrum > 0 ? spectrum + gap : 0)
             + (bar ? MusicSeekBar.BarHeight + gap : 0)
             + (times ? FluentType.Caption.LineHeight : 0)
             + (transport ? side + gap : 0);
@@ -157,12 +146,6 @@ internal sealed partial class MusicView
 
         y += gap;
 
-        if (spectrum > 0)
-        {
-            Place(_spectrum, x, y, box.Width, spectrum);
-            y += spectrum + gap;
-        }
-
         if (bar)
         {
             Place(_seek, x, y, box.Width, MusicSeekBar.BarHeight);
@@ -184,7 +167,7 @@ internal sealed partial class MusicView
         }
     }
 
-    /// <summary>S, M and Wide: [art] lines [transport] in a row, the bars and the seek bar under it.</summary>
+    /// <summary>S, M and Wide: [art] lines [transport] in a row, the seek bar under it.</summary>
     private void LayRow(WidgetArea area, WidgetArea box, double padY, double side)
     {
         var gap = Fluent.Space2;
@@ -229,17 +212,6 @@ internal sealed partial class MusicView
             {
                 art = 0;
             }
-        }
-
-        // The bars, between the row and the footer, when the body is taller than the row needs.
-        var rowNeeds = Math.Max(art, FluentType.BodyStrong.LineHeight + FluentType.Body.LineHeight + Fluent.Space1 + (_config.ShowTransport ? side + gap : 0));
-        var spectrum = 0.0;
-        if (_config.ShowSpectrum && area.HeightClass >= SizeClass.Regular && bodyHeight - rowNeeds >= SpectrumMinimum + gap)
-        {
-            spectrum = Math.Min(80, bodyHeight - rowNeeds - gap);
-            Place(_spectrum, x, padY + bodyHeight - spectrum - (footer > 0 ? 0 : 0), box.Width, spectrum);
-            bodyHeight -= spectrum + gap;
-            art = Math.Min(art, bodyHeight);
         }
 
         if (art > 0)
@@ -326,20 +298,16 @@ internal sealed partial class MusicView
         var titleStep = FluentType.Strong(FluentType.Fit(colWidth, FluentType.TitleLarge.LineHeight, 18, FluentType.Subtitle, huge ? FluentType.TitleLarge : FluentType.Title));
         var artistStep = huge ? FluentType.Subtitle : FluentType.BodyLarge;
         var albumStep = huge ? FluentType.BodyLarge : FluentType.Body;
-        var sourceStep = huge ? FluentType.Body : FluentType.Caption;
 
         var room = new Disclosure(colWidth, bodyHeight, Fluent.Space1);
         room.Reserve(titleStep.LineHeight);
         var transport = _config.ShowTransport && room.Take(side + gap);
         var artist = _now.Subtitle.Length > 0 && room.Take(artistStep.LineHeight);
         var album = _now.Album.Length > 0 && room.Take(albumStep.LineHeight);
-        var source = room.Take(sourceStep.LineHeight);
-        var spectrum = _config.ShowSpectrum && room.Remaining >= SpectrumMinimum + gap ? room.Remaining - gap : 0;
 
         _track.Apply(titleStep);
         _subtitle.Apply(artistStep);
         _album.Apply(albumStep);
-        _source.Apply(sourceStep);
 
         // The artist alone on its own line here; the album has its own line under it.
         _subtitle.Text = _now.Artist.Length > 0 ? _now.Artist : _now.Subtitle;
@@ -347,9 +315,7 @@ internal sealed partial class MusicView
         var height = titleStep.LineHeight
             + (artist ? Fluent.Space1 + artistStep.LineHeight : 0)
             + (album ? Fluent.Space1 + albumStep.LineHeight : 0)
-            + (source ? Fluent.Space1 + sourceStep.LineHeight : 0)
-            + (transport ? gap + side : 0)
-            + (spectrum > 0 ? gap + spectrum : 0);
+            + (transport ? gap + side : 0);
 
         var y = padY + Math.Max(0, (bodyHeight - height) / 2);
 
@@ -370,25 +336,11 @@ internal sealed partial class MusicView
             y += albumStep.LineHeight;
         }
 
-        if (source)
-        {
-            y += Fluent.Space1;
-            PlaceText(_source, colX, y, colWidth, sourceStep.LineHeight, TextAlignment.Left);
-            y += sourceStep.LineHeight;
-        }
-
         if (transport)
         {
             y += gap;
             var width = TransportWidth(side, playOnly: false);
             Place(_transport, colX, y, width, side);
-            y += side;
-        }
-
-        if (spectrum > 0)
-        {
-            y += gap;
-            Place(_spectrum, colX, y, colWidth, spectrum);
         }
     }
 

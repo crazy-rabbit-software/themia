@@ -32,7 +32,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
 
     /// <summary>
     /// The most items one view draws. A folder of fifty thousand files would be fifty thousand rows
-    /// of XAML; past this the footer row says how many more there are and opens Explorer.
+    /// of XAML; past this the last row says how many more there are and opens Explorer.
     /// </summary>
     public const int RenderCap = 1000;
 

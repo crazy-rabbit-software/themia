@@ -2,10 +2,9 @@ namespace Themia.Core.Widgets;
 
 /// <summary>
 /// Conditions right now at one point, already validated, plus the little of today and the next
-/// hours that the current-conditions widget shows once it has the room. [S-720]
+/// days that the current-conditions widget shows once it has the room. [S-720]
 /// <para>
-/// One request carries all of it (open-meteo's <c>current</c>, <c>hourly</c> and <c>daily</c>
-/// blocks together), so a larger tile costs no extra traffic: the extras are on hand from the
+/// One request carries all of it (open-meteo's <c>current</c> and <c>daily</c> blocks together), so a larger tile costs no extra traffic: the extras are on hand from the
 /// first fetch and the layout only decides whether to draw them.
 /// </para>
 /// </summary>
@@ -41,9 +40,6 @@ public sealed record CurrentWeather(
     /// <summary>Today first, then the next few days, in the place's own calendar.</summary>
     public IReadOnlyList<ForecastDay> Days { get; init; } = [];
 
-    /// <summary>The next 24 hours, in order.</summary>
-    public IReadOnlyList<HourlyPoint> Hours { get; init; } = [];
-
     /// <summary>Today's entry, when the reply carried one.</summary>
     public ForecastDay? Today => Days.Count > 0 ? Days[0] : null;
 }
@@ -64,10 +60,6 @@ public sealed record ForecastDay(DateOnly Day, int? Code, double? Low, double? H
 
     public TimeOnly? Sunset { get; init; }
 }
-
-/// <summary>One hour of the next day's temperature curve.</summary>
-/// <param name="At">The hour, with the place's own UTC offset.</param>
-public sealed record HourlyPoint(DateTimeOffset At, double? Temperature, double? PrecipitationChance);
 
 /// <summary>A forecast, in day order.</summary>
 public sealed record Forecast(IReadOnlyList<ForecastDay> Days);

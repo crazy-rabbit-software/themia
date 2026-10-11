@@ -51,6 +51,9 @@ public sealed class CalendarSpan
     public DateTimeOffset FullAt { get; set; }
 
     public List<StoredEvent> Events { get; set; } = [];
+
+    /// <summary>[S-2680] Where the provider's changes for this window continue from; null when it offers none.</summary>
+    public SyncCursor? Cursor { get; set; }
 }
 
 public sealed class StoredEvent
@@ -95,6 +98,9 @@ public sealed class ContactsShelf : ISyncShelf
     public DateTimeOffset? At { get; set; }
 
     public List<StoredContact> Contacts { get; set; } = [];
+
+    /// <summary>[S-2680] Where the provider's changes to this book continue from; null when it offers none.</summary>
+    public SyncCursor? Cursor { get; set; }
 }
 
 public sealed class StoredContact
@@ -261,6 +267,7 @@ public static class OfficeShelves
                 NearAt = span.NearAt,
                 FullAt = span.FullAt,
                 Events = events,
+                Cursor = SyncCursors.Validate(span.Cursor, ref dropped),
             });
         }
 
@@ -320,7 +327,13 @@ public static class OfficeShelves
             });
         }
 
-        return new ContactsShelf { Owner = shelf.Owner, At = contacts.Count > 0 || shelf.At is not null ? shelf.At : null, Contacts = contacts };
+        return new ContactsShelf
+        {
+            Owner = shelf.Owner,
+            At = contacts.Count > 0 || shelf.At is not null ? shelf.At : null,
+            Contacts = contacts,
+            Cursor = SyncCursors.Validate(shelf.Cursor, ref dropped),
+        };
     }
 
     private static string Cut(string? text) => text is null ? string.Empty : text.Length <= MaxText ? text : text[..MaxText];
@@ -433,7 +446,7 @@ public static class CalendarSync
         };
     }
 
-    private static List<StoredEvent> Bound(List<StoredEvent> events, DateTimeOffset anchor)
+    internal static List<StoredEvent> Bound(List<StoredEvent> events, DateTimeOffset anchor)
         => events.Count <= OfficeShelves.MaxEvents
             ? [.. events.OrderBy(e => e.Start)]
             : [.. events.OrderBy(e => Math.Abs((e.Start - anchor).Ticks)).Take(OfficeShelves.MaxEvents).OrderBy(e => e.Start)];

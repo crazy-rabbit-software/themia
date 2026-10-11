@@ -199,53 +199,10 @@ public sealed class StockWidgetTests
         Assert.Single(repairs);
     }
 
-    // ---- [S-1311] facts and the ladder ---------------------------------------------------------
+    // ---- [S-1311] the ladder -------------------------------------------------------------------
 
-    [Theory]
-    [InlineData(950L, "950")]
-    [InlineData(12_345L, "12.3K")]
-    [InlineData(4_560_000L, "4.56M")]
-    [InlineData(1_200_000_000L, "1.2B")]
-    [InlineData(null, "--")]
-    public void S1311_VolumeIsCompact(long? volume, string expected)
-        => Assert.Equal(expected, MarketQuote.Volume(Locale.En, volume));
-
-    [Theory]
-    [InlineData(9_500L, "9.500")]
-    [InlineData(12_345L, "12,3 Tsd.")]
-    [InlineData(4_500_000L, "4,5 Mio.")]
-    [InlineData(1_000_000_000L, "1 Mrd.")]
-    public void S1311_VolumeIsCompactInTheLanguagesOwnWords(long volume, string expected)
-        => Assert.Equal(expected, MarketQuote.Volume(Locale.De, volume));
-
-    [Fact]
-    public void S1309_TheZoneNoteNamesTheExchangesZone()
-    {
-        Assert.Equal("Times in EDT, the exchange's time", ExchangeTime.ZoneNote(Locale.En, "EDT"));
-        Assert.Equal("Times in your time zone", ExchangeTime.ZoneNote(Locale.En, string.Empty));
-        Assert.Equal("Zeiten in EDT, der Zeit der Börse", ExchangeTime.ZoneNote(Locale.De, "EDT"));
-    }
-
-    [Fact]
-    public void S1311_FactsAreOnlyWhatTheReplyCarried()
-    {
-        var quote = new TickerQuote("^GSPC", "S&P 500", 5000, 0.1, "USD", 2, [], TradingSessions.None)
-        {
-            Stats = new QuoteStats(4990, 5010, 4980, null, 4100, null, "SNP"),
-        };
-
-        var facts = MarketQuote.Facts(Locale.En, quote);
-
-        Assert.Equal(["Previous close", "Day range", "Exchange"], facts.Select(f => f.Label));
-        Assert.Equal("4,980.00 – 5,010.00", facts[1].Value);
-
-        var german = MarketQuote.Facts(Locale.De, quote);
-        Assert.Equal(["Vortagesschluss", "Tagesspanne", "Börse"], german.Select(f => f.Label));
-        Assert.Equal("4.980,00 – 5.010,00", german[1].Value);
-    }
-
-    private static StockPlan Plan(double width, double height, bool chart = true, int stats = 5)
-        => StockLayout.Plan(new WidgetArea(width, height), new StockInputs(6, 10, chart, false, stats, true));
+    private static StockPlan Plan(double width, double height, bool chart = true)
+        => StockLayout.Plan(new WidgetArea(width, height), new StockInputs(6, 10, chart, false, true));
 
     [Fact]
     public void S1311_TheSmallestTileKeepsThePriceAndChange_AndSheds()
@@ -254,7 +211,6 @@ public sealed class StockWidgetTests
 
         Assert.False(plan.Currency);
         Assert.False(plan.Chart);
-        Assert.Equal(StatsPlacement.None, plan.Stats);
     }
 
     [Fact]
@@ -273,29 +229,28 @@ public sealed class StockWidgetTests
         var plan = Plan(560, 376);
 
         Assert.True(plan.ChartHeight > 120, $"chart {plan.ChartHeight}");
-        Assert.Equal(StatsPlacement.Tiles, plan.Stats);
         Assert.True(plan.Labels && plan.MiddleLabel && plan.Axis && plan.MinMax);
         Assert.True(plan.Price.FontSize <= FluentType.TitleLarge.FontSize);
     }
 
-    [Fact]
-    public void S1311_TheLargestTileHasChipsAndAFactsColumn()
+    /// <summary>
+    /// [S-2770] No facts and no range chips at any size: what the readout does not use is the
+    /// chart's, so the parts add up to the tile (less the gaps), from the tall column to the largest.
+    /// </summary>
+    [Theory]
+    [InlineData(200, 356)]
+    [InlineData(320, 196)]
+    [InlineData(560, 376)]
+    [InlineData(800, 516)]
+    public void S2770_TheChartTakesEverythingTheReadoutLeaves(double width, double height)
     {
-        var plan = Plan(800, 516);
+        var plan = Plan(width, height);
 
-        Assert.True(plan.RangeChips);
-        Assert.Equal(StatsPlacement.Column, plan.Stats);
-        Assert.InRange(plan.StatCount, 1, 5);
-    }
+        var used = plan.Price.LineHeight + (plan.ExtrasUnder ? plan.Change.LineHeight : 0)
+            + plan.ChartHeight + (plan.Labels ? FluentType.Caption.LineHeight : 0);
 
-    [Fact]
-    public void S1311_ATallColumnStacksItsFactsUnderTheChart()
-    {
-        var plan = Plan(200, 356);
-
-        Assert.Equal(StatsPlacement.Stack, plan.Stats);
-        Assert.InRange(plan.StatCount, 1, 4);
         Assert.True(plan.Chart);
+        Assert.True(used >= height - (4 * StockLayout.Gap) - 1, $"{width}x{height}: {used} of {height}");
     }
 
     [Fact]
@@ -323,11 +278,68 @@ public sealed class StockWidgetTests
             ? Math.Max(plan.Price.LineHeight + plan.Change.LineHeight, plan.ChartHeight)
             : plan.Price.LineHeight + (plan.ExtrasUnder ? plan.Change.LineHeight : 0)
                 + (plan.Chart ? plan.ChartHeight : 0)
-                + (plan.Labels ? FluentType.Caption.LineHeight : 0)
-                + (plan.RangeChips ? StockLayout.ChipsHeight : 0)
-                + (plan.Stats == StatsPlacement.Tiles ? StockLayout.TileHeight : 0)
-                + (plan.Stats == StatsPlacement.Stack ? plan.StatCount * StockLayout.StackLine : 0);
+                + (plan.Labels ? FluentType.Caption.LineHeight : 0);
 
         Assert.True(used <= height + 1, $"{width}x{height}: {used}");
+    }
+
+    // ---- [S-1310] markers against the price axis ---------------------------------------------
+
+    private const double ChartWidth = 560;
+    private const double ChartHeight = 220;
+    private static readonly double Pad = FluentType.Caption.LineHeight;
+    private static readonly double Usable = ChartHeight - (2 * Pad);
+    private static readonly string[] AxisPrices = ["412.30", "410.15", "408.00"];
+
+    [Fact]
+    public void S1310_AHighMarkerNearTheEndHidesTheAxisTopLabel_NotDrawnOverIt()
+    {
+        // The period's high is the last bar: its price sits at the top right, where the axis's top is.
+        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable,
+            [new ChartMarker(ChartWidth, Pad, "412.30", Above: true), new ChartMarker(ChartWidth * 0.3, Pad + Usable, "408.00", Above: false)],
+            AxisPrices);
+
+        Assert.Null(plan.Axis[0]);
+        Assert.NotNull(plan.Axis[1]);
+        Assert.NotNull(plan.Axis[2]);
+        foreach (var label in plan.Axis.OfType<LabelBox>())
+        {
+            Assert.All(plan.Markers, marker => Assert.False(marker.Collides(label, StockChartLabels.Clearance)));
+        }
+    }
+
+    [Fact]
+    public void S1310_ALowMarkerNearTheEndHidesTheAxisBottomLabel()
+    {
+        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable,
+            [new ChartMarker(ChartWidth * 0.1, Pad, "412.30", Above: true), new ChartMarker(ChartWidth - 20, Pad + Usable, "408.00", Above: false)],
+            AxisPrices);
+
+        Assert.NotNull(plan.Axis[0]);
+        Assert.Null(plan.Axis[2]);
+    }
+
+    [Fact]
+    public void S1310_MarkersAwayFromTheAxisLeaveEveryAxisLabel()
+    {
+        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable,
+            [new ChartMarker(40, Pad, "412.30", Above: true), new ChartMarker(120, Pad + Usable, "408.00", Above: false)],
+            AxisPrices);
+
+        Assert.All(plan.Axis, label => Assert.NotNull(label));
+        Assert.Equal(2, plan.Markers.Count);
+    }
+
+    [Fact]
+    public void S1311_WithoutMarkersTheAxisIsWhole_AndInsideTheChart()
+    {
+        var plan = StockChartLabels.Place(ChartWidth, ChartHeight, Pad, Usable, [], AxisPrices);
+
+        Assert.All(plan.Axis, label =>
+        {
+            Assert.NotNull(label);
+            Assert.True(label.Value.Top >= 0 && label.Value.Bottom <= ChartHeight);
+            Assert.True(label.Value.Right <= ChartWidth - StockLayout.Inset + 0.001);
+        });
     }
 }

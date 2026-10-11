@@ -196,20 +196,6 @@ public static class MusicRules
     };
 
     /// <summary>
-    /// The state line on the large tiles: "Playing" or "Paused", and the app it is playing in when
-    /// the session names one.
-    /// </summary>
-    public static string StateLine(bool playing, string source, Locale locale)
-    {
-        if (string.IsNullOrEmpty(source))
-        {
-            return Strings.Get(locale, playing ? Str.WidgetsB_Music_Playing : Str.WidgetsB_Music_Paused);
-        }
-
-        return Strings.Format(locale, playing ? Str.WidgetsB_Music_PlayingIn : Str.WidgetsB_Music_PausedIn, ("app", source));
-    }
-
-    /// <summary>
     /// [S-1464] Whether the tile paints nothing. <see cref="MusicHideWhenIdle.NoSession"/> hides only
     /// when Windows reports no session at all; <see cref="MusicHideWhenIdle.NotPlaying"/> also hides
     /// a paused or empty one. Before the first snapshot (loading) a hiding tile stays hidden, so it
@@ -249,78 +235,6 @@ public static class MusicRules
         }
 
         return duration > TimeSpan.Zero && target > duration ? duration : target;
-    }
-
-    /// <summary>
-    /// [S-1469] A person's name for the app that owns the session, from its app user model id:
-    /// <c>Spotify.exe</c> → "Spotify", <c>SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify</c> →
-    /// "Spotify Music", <c>Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic</c> → "Zune Music".
-    /// Empty when there is nothing usable, so the line can drop.
-    /// </summary>
-    public static string SourceName(string? appId)
-    {
-        if (string.IsNullOrWhiteSpace(appId))
-        {
-            return string.Empty;
-        }
-
-        var id = appId.Trim();
-
-        // A packaged app: "Publisher.Name_hash!Entry" — the package name is the readable part.
-        var bang = id.IndexOf('!', StringComparison.Ordinal);
-        if (bang >= 0)
-        {
-            id = id[..bang];
-        }
-
-        var underscore = id.IndexOf('_', StringComparison.Ordinal);
-        if (underscore > 0)
-        {
-            id = id[..underscore];
-        }
-
-        // A path or an exe: the file name without its extension.
-        id = id.Replace('/', '\\');
-        var slash = id.LastIndexOf('\\');
-        if (slash >= 0)
-        {
-            id = id[(slash + 1)..];
-        }
-
-        if (id.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-        {
-            id = id[..^4];
-        }
-        else
-        {
-            // "Publisher.Name" (or "Microsoft.ZuneMusic"): the last dotted part.
-            var dot = id.LastIndexOf('.');
-            if (dot >= 0 && dot < id.Length - 1)
-            {
-                id = id[(dot + 1)..];
-            }
-        }
-
-        return Line(SplitWords(id)) ?? string.Empty;
-    }
-
-    /// <summary>"SpotifyMusic" → "Spotify Music": a space before each capital that follows a lower-case letter.</summary>
-    private static string SplitWords(string name)
-    {
-        var builder = new System.Text.StringBuilder(name.Length + 4);
-
-        for (var i = 0; i < name.Length; i++)
-        {
-            if (i > 0 && char.IsUpper(name[i]) && char.IsLower(name[i - 1]))
-            {
-                builder.Append(' ');
-            }
-
-            // "chrome.exe" is "Chrome": an exe name's case is the file system's, not the app's.
-            builder.Append(i == 0 ? char.ToUpperInvariant(name[i]) : name[i]);
-        }
-
-        return builder.ToString();
     }
 
     /// <summary>The artist alone, collapsed like every other line; empty when absent.</summary>

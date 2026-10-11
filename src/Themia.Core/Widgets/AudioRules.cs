@@ -117,9 +117,15 @@ public static class AudioRules
         return Math.Clamp(percent + deltaPercent, 0, 100) / 100.0;
     }
 
-    /// <summary>[S-1226] The volume tile's keys: arrows and +/− step, Page Up/Down step further, M or Space mute.</summary>
+    /// <summary>
+    /// [S-1226] The volume tile's keys: arrows and +/− step, Page Up/Down step further, M or Space
+    /// mute. [S-2733] Home and End go to silence and to the top, as on any slider (the mixer takes
+    /// Home/End for its row cursor before a key reaches this).
+    /// </summary>
     public static AudioKeyAction VolumeKey(WidgetKey key) => key switch
     {
+        WidgetKey.Home => new(AudioKeyKind.Step, Delta: -100),
+        WidgetKey.End => new(AudioKeyKind.Step, Delta: 100),
         WidgetKey.Right or WidgetKey.Up or WidgetKey.Plus => new(AudioKeyKind.Step, Delta: ArrowStep),
         WidgetKey.Left or WidgetKey.Down or WidgetKey.Minus => new(AudioKeyKind.Step, Delta: -ArrowStep),
         WidgetKey.PageUp => new(AudioKeyKind.Step, Delta: PageStep),
@@ -127,6 +133,27 @@ public static class AudioRules
         WidgetKey.Mute or WidgetKey.Space => new(AudioKeyKind.ToggleMute),
         _ => AudioKeyAction.None,
     };
+
+    /// <summary>One notch of a mouse wheel, as Windows reports it (<c>WHEEL_DELTA</c>).</summary>
+    public const int WheelNotch = 120;
+
+    /// <summary>
+    /// [S-2732] What a wheel delta does to the volume: one arrow step per notch. A precision wheel or
+    /// a touchpad reports a notch in small parts, so the remainder is carried to the next event
+    /// rather than dropped (dropped, a slow two-finger scroll would never move the level) or rounded
+    /// (rounded, it would race). Turning back drops what was carried the other way.
+    /// </summary>
+    /// <returns>The step in percentage points, and the carry to pass into the next call.</returns>
+    public static (int Delta, int Carry) Wheel(int carry, int delta)
+    {
+        if (carry != 0 && Math.Sign(carry) != Math.Sign(delta))
+        {
+            carry = 0;
+        }
+
+        var total = carry + delta;
+        return (total / WheelNotch * ArrowStep, total % WheelNotch);
+    }
 
     /// <summary>
     /// [S-1225] The mixer's keys. Up/Down/Home/End move the row cursor; Left/Right and +/− step the

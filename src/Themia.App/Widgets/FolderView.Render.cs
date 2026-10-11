@@ -37,8 +37,6 @@ internal sealed partial class FolderView
     private Panel _items = null!;
     private Canvas _bandLayer = null!;
     private Border _band = null!;
-    private Border _footerHost = null!;
-    private TextBlock _footer = null!;
     private Border _messageHost = null!;
     private TextBlock _message = null!;
     private ScrollFade? _fade;
@@ -91,7 +89,6 @@ internal sealed partial class FolderView
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
         _busy = new ProgressRing { Width = 14, Height = 14, IsActive = false, Visibility = Visibility.Collapsed };
 
@@ -201,19 +198,6 @@ internal sealed partial class FolderView
         _scroll.ViewChanged += (_, _) => RealizeMore();
         _scroll.SizeChanged += (_, _) => RealizeMore();
 
-        _footer = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        _footer.TextTrimming = TextTrimming.CharacterEllipsis;
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_footer, FontNumeralAlignment.Tabular);
-        _footerHost = new Border
-        {
-            Child = _footer,
-            Height = FolderLayout.FooterHeight,
-            Padding = new Thickness(FolderLayout.RowInset, 0, FolderLayout.RowInset, 0),
-            Visibility = Visibility.Collapsed,
-        };
-        _footer.VerticalAlignment = VerticalAlignment.Center;
-        SetRow(_footerHost, 4);
-
         _message = new TextBlock();
         _messageHost = new Border
         {
@@ -222,13 +206,12 @@ internal sealed partial class FolderView
             Visibility = Visibility.Collapsed,
         };
         SetRow(_messageHost, 0);
-        SetRowSpan(_messageHost, 5);
+        SetRowSpan(_messageHost, 4);
 
         Children.Add(_crumbHost);
         Children.Add(_searchBox);
         Children.Add(_columnHeader);
         Children.Add(_scroll);
-        Children.Add(_footerHost);
         Children.Add(_messageHost);
 
         _fade = new ScrollFade(_scroll, _items);
@@ -299,7 +282,6 @@ internal sealed partial class FolderView
         _crumbHost.Visibility = plan.Breadcrumb ? Visibility.Visible : Visibility.Collapsed;
         _searchBox.Visibility = plan.SearchBox ? Visibility.Visible : Visibility.Collapsed;
         _columnHeader.Visibility = plan.ColumnHeader ? Visibility.Visible : Visibility.Collapsed;
-        _footerHost.Visibility = plan.Footer ? Visibility.Visible : Visibility.Collapsed;
         _scroll.Padding = plan.Grid is null ? WidgetLayout.ListInset : new Thickness(4, 2, 4, Fluent.Space2);
         ApplyHeader();
     }
@@ -376,14 +358,12 @@ internal sealed partial class FolderView
             ShowMessage(_search.Length > 0 || _config.Filter.Trim().Length > 0
                 ? Str.WidgetsB_Folder_NoMatches.Text()
                 : Str.WidgetsB_Folder_Status_Empty.Text());
-            UpdateFooter();
             return;
         }
 
         if (status != FolderListingStatus.Ok)
         {
             ShowMessage(FolderFormatting.StatusMessage(status, _resolved.Problem));
-            UpdateFooter();
             return;
         }
 
@@ -405,7 +385,6 @@ internal sealed partial class FolderView
         _itemsKey = plan is null ? string.Empty : ItemsKey(plan);
         RefreshSelectionVisuals();
         RefreshDims();
-        UpdateFooter();
         _fade?.Refresh();
         LoadImages(generation, scale, 0);
 
@@ -903,7 +882,7 @@ internal sealed partial class FolderView
         }
     }
 
-    // ---- the details header, the breadcrumb, the footer ----------------------------------------
+    // ---- the details header and the breadcrumb ----------------------------------------
 
     private void BuildColumnHeader()
     {
@@ -1035,20 +1014,6 @@ internal sealed partial class FolderView
             ToolTipService.SetToolTip(crumb, path);
             _crumbs.Children.Add(crumb);
         }
-    }
-
-    /// <summary>[S-1323] "24 items · 2 selected · 3.1 MB".</summary>
-    private void UpdateFooter()
-    {
-        if (_plan is not { Footer: true })
-        {
-            return;
-        }
-
-        var selected = _shown.Where(e => _selection.IsSelected(e.FullPath)).ToList();
-        _footer.Text = _snapshot.Status == FolderListingStatus.Ok || _snapshot.Status == FolderListingStatus.Empty
-            ? FolderFormatting.Status(_total, selected.Count, selected.Where(e => !e.IsDirectory).Sum(e => e.Size), selected.Any(e => !e.IsDirectory))
-            : string.Empty;
     }
 
     /// <summary>[S-1329] Cut items dimmed while the cut is still on the clipboard.</summary>

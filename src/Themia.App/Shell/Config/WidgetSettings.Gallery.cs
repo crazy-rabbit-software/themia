@@ -43,7 +43,6 @@ internal static partial class WidgetSettings
         var folderOnly = new List<FrameworkElement>();
         var slideshowOnly = new List<FrameworkElement>();
         FrameworkElement? fileRow = null;
-        FrameworkElement? captionRow = null;
         FrameworkElement? fitRow = null;
 
         void Update()
@@ -61,7 +60,6 @@ internal static partial class WidgetSettings
             }
 
             fileRow!.Visibility = config.Source == GallerySource.File ? Visibility.Visible : Visibility.Collapsed;
-            captionRow!.Visibility = config.Source == GallerySource.Bing ? Visibility.Visible : Visibility.Collapsed;
 
             // [S-15] A mosaic always crops to fill, so the choice would do nothing there.
             fitRow!.Visibility = folder && config.Layout == GalleryLayout.Mosaic ? Visibility.Collapsed : Visibility.Visible;
@@ -82,10 +80,6 @@ internal static partial class WidgetSettings
 
         fileRow = GalleryPathRow(config, save, pickFile: true);
         rows.Add(fileRow);
-
-        captionRow = FluentLayout.Row(Glyphs.Info, Str.Gallery_CaptionLabel.Text(), Str.WidgetsB_Settings_Gallery_Caption_Desc.Text(),
-            FluentLayout.Toggle(config.ShowCaption, value => { config.ShowCaption = value; save(); }));
-        rows.Add(captionRow);
 
         var recursive = FluentLayout.Row(Glyphs.Folder, Str.Gallery_RecursiveLabel.Text(),
             Str.WidgetsB_Settings_Gallery_Recursive_Desc.Text(),

@@ -13,9 +13,6 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    /// <summary>Segoe Fluent Icons "Equalizer", for the spectrum row.</summary>
-    private static readonly string SpectrumGlyph = char.ConvertFromUtf32(0xE9E9);
-
     public static void Music(List<FrameworkElement> rows, MusicConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
@@ -35,11 +32,6 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Motion, Str.WidgetsB_Settings_Music_Progress_Label.Text(),
             Str.WidgetsB_Settings_Music_Progress_Desc.Text(),
             FluentLayout.Toggle(config.ShowProgress, value => { config.ShowProgress = value; save(); })));
-
-        // [S-1470] System-wide: the bars show whatever the PC is playing, not only this player.
-        rows.Add(FluentLayout.Row(SpectrumGlyph, Str.WidgetsB_Settings_Music_Spectrum_Label.Text(),
-            Str.WidgetsB_Settings_Music_Spectrum_Desc.Text(),
-            FluentLayout.Toggle(config.ShowSpectrum, value => { config.ShowSpectrum = value; save(); })));
 
         // [S-1464] Edit mode always shows a hidden widget, so it can still be found and changed.
         rows.Add(FluentLayout.Row(Glyphs.Hide, Str.Music_HideWhenIdle_Label.Text(),

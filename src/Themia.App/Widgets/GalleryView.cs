@@ -69,7 +69,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     /// </summary>
     private int _generation;
 
-    /// <summary>The slide on show; also where the thumbnail strip starts counting "up next".</summary>
+    /// <summary>The slide on show.</summary>
     private int _index;
 
     /// <summary>
@@ -345,8 +345,8 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
             }
 
             var sameSet = scan.Status == _scan.Status
-                && scan.Caption == _scan.Caption
-                && scan.Paths.SequenceEqual(_scan.Paths, StringComparer.Ordinal);
+                && scan.Paths.SequenceEqual(_scan.Paths, StringComparer.Ordinal)
+                && scan.Credit == _scan.Credit;
 
             _scan = scan;
 
@@ -414,30 +414,19 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
 
     /// <summary>
     /// Tell the card what this widget is about. The catalogue can only say "Gallery"; the widget
-    /// knows which folder or which picture — and on a desktop holding three of them, that is the
-    /// only thing telling them apart.
+    /// knows which folder — and on a desktop holding three of them, that is the only thing telling
+    /// them apart. [S-2760] A single file keeps the catalogue label: the picture's own name is
+    /// never shown.
     /// </summary>
     private void PublishTitle()
     {
         var title = _config.Source switch
         {
             GallerySource.Bing => Str.WidgetsB_Gallery_PhotoOfTheDay.Text(),
-            GallerySource.File => FileTitle(_config.FilePath),
+            GallerySource.File => null,
             _ => FolderPath.DisplayName(_config.Path),
         };
 
         _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
-    }
-
-    private static string FileTitle(string path)
-    {
-        try
-        {
-            return System.IO.Path.GetFileNameWithoutExtension(path.Trim());
-        }
-        catch (ArgumentException)
-        {
-            return string.Empty; // ignore: an unusable path has no name; the empty state says why.
-        }
     }
 }

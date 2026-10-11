@@ -39,13 +39,8 @@ public sealed class WidgetsALocaleTests
     }
 
     [Fact]
-    public void S1106_the_clock_details_are_translated()
-    {
-        var details = ClockFormatter.Details(new DateTimeOffset(2026, 10, 4, 13, 52, 0, TimeSpan.Zero), Utc(), Locale.De);
-
-        Assert.Equal("KW 40 · Tag 277", details.Week);
-        Assert.Equal("So., 4. Okt.", details.ShortDate);
-    }
+    public void S1106_the_clock_s_short_date_is_translated()
+        => Assert.Equal("So., 4. Okt.", ClockFormatter.ShortDate(new DateTimeOffset(2026, 10, 4, 13, 52, 0, TimeSpan.Zero), Utc(), Locale.De));
 
     [Fact]
     public void S1106_the_local_offset_is_translated_and_utc_stays_utc()

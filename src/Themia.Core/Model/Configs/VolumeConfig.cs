@@ -4,6 +4,7 @@ namespace Themia.Core.Model;
 
 /// <summary>
 /// The master level of one output device, and whether this tile is allowed to move it.
+/// [S-2730] The tile is the slider and nothing else, so there is nothing to show or hide.
 /// <para>
 /// Reading is the widget's job; setting is opt-out rather than opt-in, because a volume tile you
 /// cannot drag is a strange thing to put on a desktop — but a surface that sits under every other
@@ -28,19 +29,11 @@ public sealed class VolumeConfig : WidgetConfig
     /// <summary>Let the slider and the mute button write back to the system mixer.</summary>
     public bool AllowControl { get; set; } = true;
 
-    /// <summary>Show the slider at all. With it off the tile is a readout, whatever <see cref="AllowControl"/> says.</summary>
-    public bool ShowSlider { get; set; } = true;
-
-    /// <summary>[S-1223] A live level meter above the slider, from a medium tile up.</summary>
-    public bool ShowPeaks { get; set; } = true;
-
     public override WidgetConfig Clone() => new VolumeConfig
     {
         DeviceId = DeviceId,
         DeviceName = DeviceName,
         AllowControl = AllowControl,
-        ShowSlider = ShowSlider,
-        ShowPeaks = ShowPeaks,
     };
 
     /// <summary>A blank id is "follow the default", stored as null so there is one way to say it.</summary>

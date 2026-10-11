@@ -136,17 +136,6 @@ public class FolderFormattingTests
         Assert.NotEqual(rooted, characters);
     }
 
-    /// <summary>[S-1323] The status footer counts with each language's plural rules and number format.</summary>
-    [Fact]
-    public void S1323_status_footer_speaks_the_language()
-    {
-        Assert.Equal("1 item", FolderFormatting.Status(Locale.En, 1, 0, 0, false));
-        Assert.Equal("1,204 items · 2 selected", FolderFormatting.Status(Locale.En, 1204, 2, 0, false));
-        Assert.Equal("1.204 Elemente · 2 ausgewählt", FolderFormatting.Status(Locale.De, 1204, 2, 0, false));
-        Assert.Equal("3 elementy", FolderFormatting.Status(Locale.Pl, 3, 0, 0, false));
-        Assert.Equal("5 elementów", FolderFormatting.Status(Locale.Pl, 5, 0, 0, false));
-    }
-
     /// <summary>The empty-state sentences and the type fallback exist in every language, never blank.</summary>
     [Fact]
     public void Messages_and_types_are_translated()

@@ -394,15 +394,14 @@ public sealed class ShortcutsTests
     }
 
     [Fact]
-    public void S1382_a_grid_that_fits_sits_centred_unless_stretched()
+    public void S1382_a_grid_that_fits_keeps_its_columns_from_the_top_left()
     {
+        // Two items on an XL tile: the plan keeps every column at its shared width (the items take
+        // the first two from the left, the rest stays empty), never a narrowed, centred group.
         var few = ShortcutLayout.Grid(784, 504, 2, ShortcutItemSize.Large, false, false, true);
-        var many = ShortcutLayout.Grid(184, 94, 40, ShortcutItemSize.Medium, false, false, false);
 
-        Assert.True(ShortcutLayout.Centred(few, 2, stretch: false));
-        Assert.False(ShortcutLayout.Centred(few, 2, stretch: true));
-        Assert.False(ShortcutLayout.Centred(many, 40, stretch: false));
-        Assert.False(ShortcutLayout.Centred(few, 0, stretch: false));
+        Assert.True(few.Columns > 2);
+        Assert.InRange(few.Columns * few.TileWidth + (few.Columns - 1) * ShortcutLayout.Gap, 783.5, 784.5);
     }
 
     [Fact]

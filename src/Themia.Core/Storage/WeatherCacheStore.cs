@@ -135,7 +135,6 @@ public static class WeatherCacheStore
             CloudCover = Sane(dto.CloudCover, 0, 100),
             UvIndex = Sane(dto.Uv, 0, 30),
             Days = ToDays(dto.Days) ?? [],
-            Hours = ToHours(dto.Hours),
         };
     }
 
@@ -169,21 +168,6 @@ public static class WeatherCacheStore
         return days;
     }
 
-    private static List<HourlyPoint> ToHours(List<HourDto?>? list)
-    {
-        var hours = new List<HourlyPoint>();
-
-        foreach (var dto in list ?? [])
-        {
-            if (dto?.At is { } at)
-            {
-                hours.Add(new HourlyPoint(at, Sane(dto.Temperature, -120, 100), Sane(dto.Chance, 0, 100)));
-            }
-        }
-
-        return hours;
-    }
-
     private static CurrentDto FromReading(CurrentWeather reading) => new()
     {
         Temperature = reading.Temperature,
@@ -198,12 +182,6 @@ public static class WeatherCacheStore
         CloudCover = reading.CloudCover,
         Uv = reading.UvIndex,
         Days = FromDays(reading.Days),
-        Hours = [.. reading.Hours.Select(hour => (HourDto?)new HourDto
-        {
-            At = hour.At,
-            Temperature = hour.Temperature,
-            Chance = hour.PrecipitationChance,
-        })],
     };
 
     private static List<DayDto?> FromDays(IReadOnlyList<ForecastDay> days)
@@ -287,8 +265,6 @@ internal sealed class CurrentDto
     public double? Uv { get; set; }
 
     public List<DayDto?>? Days { get; set; }
-
-    public List<HourDto?>? Hours { get; set; }
 }
 
 internal sealed class DayDto
@@ -312,15 +288,6 @@ internal sealed class DayDto
     public string? Sunrise { get; set; }
 
     public string? Sunset { get; set; }
-}
-
-internal sealed class HourDto
-{
-    public DateTimeOffset? At { get; set; }
-
-    public double? Temperature { get; set; }
-
-    public double? Chance { get; set; }
 }
 
 [JsonSourceGenerationOptions(

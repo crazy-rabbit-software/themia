@@ -22,7 +22,8 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(NotesConfig), typeDiscriminator: "notes")]
 [JsonDerivedType(typeof(CountdownConfig), typeDiscriminator: "countdown")]
 [JsonDerivedType(typeof(PomodoroConfig), typeDiscriminator: "pomodoro")]
-[JsonDerivedType(typeof(SunMoonConfig), typeDiscriminator: "sunMoon")]
+[JsonDerivedType(typeof(SunConfig), typeDiscriminator: "sun")]
+[JsonDerivedType(typeof(MoonConfig), typeDiscriminator: "moon")]
 [JsonDerivedType(typeof(FolderConfig), typeDiscriminator: "folder")]
 [JsonDerivedType(typeof(VolumeConfig), typeDiscriminator: "volume")]
 [JsonDerivedType(typeof(ShutdownConfig), typeDiscriminator: "shutdown")]
@@ -34,6 +35,7 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(ScreenOffConfig), typeDiscriminator: "screenOff")]
 [JsonDerivedType(typeof(BluetoothConfig), typeDiscriminator: "bluetooth")]
 [JsonDerivedType(typeof(MusicConfig), typeDiscriminator: "music")]
+[JsonDerivedType(typeof(AudioVisualizerConfig), typeDiscriminator: "audioVisualizer")]
 [JsonDerivedType(typeof(WeatherNowConfig), typeDiscriminator: "weatherNow")]
 [JsonDerivedType(typeof(WeatherForecastConfig), typeDiscriminator: "weatherForecast")]
 [JsonDerivedType(typeof(StocksConfig), typeDiscriminator: "stocks")]
@@ -79,7 +81,8 @@ public abstract class WidgetConfig
         WidgetKind.Notes => new NotesConfig(),
         WidgetKind.Countdown => new CountdownConfig(),
         WidgetKind.Pomodoro => new PomodoroConfig(),
-        WidgetKind.SunMoon => new SunMoonConfig(),
+        WidgetKind.Sun => new SunConfig(),
+        WidgetKind.Moon => new MoonConfig(),
         WidgetKind.Folder => new FolderConfig(),
         WidgetKind.Volume => new VolumeConfig(),
         WidgetKind.Shutdown => new ShutdownConfig(),
@@ -91,6 +94,7 @@ public abstract class WidgetConfig
         WidgetKind.ScreenOff => new ScreenOffConfig(),
         WidgetKind.Bluetooth => new BluetoothConfig(),
         WidgetKind.Music => new MusicConfig(),
+        WidgetKind.AudioVisualizer => new AudioVisualizerConfig(),
         WidgetKind.WeatherNow => new WeatherNowConfig(),
         WidgetKind.WeatherForecast => new WeatherForecastConfig(),
         WidgetKind.Stocks => new StocksConfig(),

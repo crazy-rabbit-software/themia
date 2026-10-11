@@ -233,6 +233,7 @@ internal static class SettingsRender
             // the state file (accounts, screen time), and those must not be the user's either.
             var statePath = Path.Combine(Path.GetTempPath(), "themia-settings-render", "state.json");
             var state = DemoState();
+            AddManyViews(state, int.TryParse(Option(Environment.GetCommandLineArgs(), "--views"), out var extra) ? extra : 0);
             state.Design.Theme = request.Theme;
             // [S-1109] --lang: the host applies the state's language, so the demo state carries it.
             if (RenderLanguage.Setting(Environment.GetCommandLineArgs()) is { } language)
@@ -252,6 +253,9 @@ internal static class SettingsRender
                 PageKind.Widget => new ConfigTarget.Widget(DemoWidget(host, request.Kind!.Value).Id),
                 _ => request.App!,
             }, request.Open);
+
+            // [S-2847] --place-chosen / --place-query / --place-reply: the location row's states.
+            PlaceRender.Prepare(host, request.Kind);
 
             settings = new ConfigWindow(host);
             var window = settings.DebugWindow;
@@ -294,9 +298,21 @@ internal static class SettingsRender
                 settings.DebugSearch(query);
             }
 
-            if (request.Flyout is { } flyoutRow && !settings.DebugOpenFlyout(flyoutRow))
+            PlaceRender.Type();
+
+            if (request.Flyout is { } flyoutRow)
             {
-                Log.Warn(Scope, $"no drop-down on a row titled '{flyoutRow}'");
+                if (!settings.DebugOpenFlyout(flyoutRow))
+                {
+                    Log.Warn(Scope, $"no drop-down on a row titled '{flyoutRow}'");
+                }
+                else if (request.Search is null && request.Land is null)
+                {
+                    // The panel is drawn into the page: tall enough for the page as it is now.
+                    await Task.Delay(400).ConfigureAwait(true);
+                    var withPanel = Math.Max(800, settings.DebugPageHeight() + 180);
+                    window.AppWindow.Resize(new SizeInt32((int)(request.Width * scale), (int)(withPanel * scale)));
+                }
             }
 
             // Long enough for bitmaps to decode and the expander/scroll animations to settle.
@@ -306,14 +322,15 @@ internal static class SettingsRender
             await RenderPng.SaveAsync(root, request.OutPath).ConfigureAwait(true);
             Console.WriteLine($"settings: wrote {request.OutPath}");
 
-            if (request.Search is not null || request.Flyout is not null)
+            if (request.Search is not null || request.Flyout is not null || PlaceRender.Query is not null)
             {
                 // The suggestion list is a popup, outside the window's tree: drawn on its own.
                 foreach (var popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(root.XamlRoot))
                 {
                     if (popup.Child is FrameworkElement child)
                     {
-                        var path = Path.ChangeExtension(request.OutPath, null) + (request.Search is not null ? "-search.png" : "-flyout.png");
+                        var path = Path.ChangeExtension(request.OutPath, null)
+                            + (request.Search is not null ? "-search.png" : PlaceRender.Query is not null ? "-place.png" : "-flyout.png");
                         await RenderPng.SaveAsync(child, path).ConfigureAwait(true);
                         Console.WriteLine($"settings: wrote {path}");
                         break;
@@ -344,6 +361,38 @@ internal static class SettingsRender
         }
 
         return demo;
+    }
+
+    /// <summary>
+    /// <c>--views n</c>: the demo profile grown to n views, long and short names, every third with
+    /// an icon, so the list pages and the "Views on the bar" choice can be looked at crowded.
+    /// </summary>
+    private static void AddManyViews(AppState state, int total)
+    {
+        string[] names =
+        [
+            "Focus", "Gaming", "Morning routine and news", "Travel", "Home office", "Weekend",
+            "Studio", "Deep work: no distractions at all", "Reading", "Family", "Music", "Finance",
+            "Fitness", "Side project", "Calendar overview", "Night", "Kids", "Photos", "Build status",
+            "Stocks", "Shopping", "Notes", "Inbox zero", "Presentation mode", "Q",
+        ];
+        string[] icons = [Glyphs.Calendar, Glyphs.Mail, Glyphs.Sun, Glyphs.Moon, Glyphs.Play];
+
+        for (var i = state.Views.Count; i < Math.Min(total, 60); i++)
+        {
+            var view = ViewState.Create(names[i % names.Length]);
+            if (i % 3 == 0)
+            {
+                view.Icon = icons[i / 3 % icons.Length];
+            }
+
+            for (var w = 0; w < i % 4; w++)
+            {
+                view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.05 + 0.2 * w, 0.1, 0.15, 0.1)));
+            }
+
+            state.Views.Add(view);
+        }
     }
 
     /// <summary>A believable profile: three views with a few widgets, defaults everywhere else.</summary>

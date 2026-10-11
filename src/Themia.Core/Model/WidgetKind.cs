@@ -50,8 +50,6 @@ public enum WidgetKind
     /// <summary>A focus/break timer.</summary>
     Pomodoro = 14,
 
-    /// <summary>Sunrise, sunset and the moon phase, computed offline.</summary>
-    SunMoon = 16,
 
     /// <summary>The contents of one folder on this machine.</summary>
     Folder = 17,
@@ -151,6 +149,15 @@ public enum WidgetKind
 
     /// <summary>[S-2430] One adapter's video memory and sensors.</summary>
     GpuDetails = 67,
+
+    /// <summary>[S-3100] The sun's path, sunrise, sunset and daylight, computed offline. Replaces Sun &amp; moon (16).</summary>
+    Sun = 68,
+
+    /// <summary>[S-3100] The moon's phase, rise and set, computed offline.</summary>
+    Moon = 69,
+
+    /// <summary>[S-3200] The spectrum of whatever the PC plays, split out of Music.</summary>
+    AudioVisualizer = 70,
 }
 
 /// <summary>How a countdown renders the time it has left. [C-11]</summary>
@@ -170,7 +177,7 @@ public enum CountdownFormat
     DaysHoursMinutesSeconds = 3,
 }
 
-/// <summary>How much of the sun's path the Sun &amp; Moon widget draws. [S-10]</summary>
+/// <summary>How much of the sun's path the Sun widget draws. [S-170]</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<SunPathMode>))]
 public enum SunPathMode
 {

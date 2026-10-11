@@ -195,49 +195,6 @@ internal sealed partial class AccountOfficeSource
     }
 
     // -----------------------------------------------------------------------------------------
-    // Contacts
-    // -----------------------------------------------------------------------------------------
-
-    private async Task<IReadOnlyList<Contact>> LoadContactsAsync(string accountId, int max, CancellationToken ct)
-    {
-        var account = Require(accountId);
-        IEnumerable<Contact> contacts;
-
-        switch (account.Provider)
-        {
-            case AccountProvider.Microsoft:
-            {
-                var url = new Uri($"{Graph}me/contacts?$select=id,displayName,emailAddresses,businessPhones,mobilePhone,homePhones,jobTitle,companyName"
-                    + $"&$orderby=displayName&$top={Math.Min(max, 1000).ToString(CultureInfo.InvariantCulture)}");
-                var items = await _accounts.GetGraphPagesAsync(account.Id, url, OfficeJsonContext.Default.GraphContact, max, ct).ConfigureAwait(false);
-                contacts = items.Select(OfficeWire.FromGraph).OfType<Contact>();
-                break;
-            }
-
-            case AccountProvider.Google:
-            {
-                var url = new Uri($"{People}?personFields=names,emailAddresses,phoneNumbers,organizations&pageSize=1000&sortOrder=FIRST_NAME_ASCENDING");
-                var items = await _accounts.GetGooglePagesAsync(account.Id, url, "connections", OfficeJsonContext.Default.GooglePersonRecord, max, ct)
-                    .ConfigureAwait(false);
-                contacts = items.Select(OfficeWire.FromGoogle).OfType<Contact>();
-                break;
-            }
-
-            case AccountProvider.CardDav:
-            {
-                var reply = await _accounts.DavAsync(account.Id, "REPORT", null, DavOffice.AddressBookQuery, 1, ct).ConfigureAwait(false);
-                contacts = DavOffice.AddressData(reply.Body).SelectMany(VCards.Read).Select(c => c.Contact).Take(max);
-                break;
-            }
-
-            default:
-                throw new AccountException(AccountError.Refused, $"{account.Label} has no contacts.");
-        }
-
-        return [.. contacts.Select(c => c with { AccountId = account.Id })];
-    }
-
-    // -----------------------------------------------------------------------------------------
     // Plumbing
     // -----------------------------------------------------------------------------------------
 

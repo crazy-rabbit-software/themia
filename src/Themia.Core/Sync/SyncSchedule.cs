@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Core.Office;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Sync;
@@ -137,6 +138,34 @@ public static class SyncFreshness
     /// </summary>
     public static string Stamp(Locale locale, string problem, DateTimeOffset? at, DateTimeOffset now)
         => at is { } stamp ? Strings.Format(locale, Str.Sync_StateUpdated, ("state", problem), ("time", When(locale, stamp, now))) : problem;
+
+    /// <summary>
+    /// [S-2664] One line per account and problem out of a problem per synced item (a calendar each),
+    /// first seen first, stamped with the oldest stored copy among them: the header says how old the
+    /// worst of what is on screen is. Items with nothing stored add no stamp; when none of them has
+    /// one the line has none.
+    /// </summary>
+    public static IReadOnlyList<(string Owner, SyncProblem Problem, DateTimeOffset? At)> Fold(
+        IEnumerable<(string Owner, SyncProblem Problem, DateTimeOffset? At)> problems)
+    {
+        ArgumentNullException.ThrowIfNull(problems);
+
+        var folded = new List<(string Owner, SyncProblem Problem, DateTimeOffset? At)>();
+        foreach (var (owner, problem, at) in problems)
+        {
+            var index = folded.FindIndex(p => p.Owner == owner && p.Problem == problem);
+            if (index < 0)
+            {
+                folded.Add((owner, problem, at));
+            }
+            else if (at is { } stamp && (folded[index].At is not { } held || stamp < held))
+            {
+                folded[index] = (owner, problem, stamp);
+            }
+        }
+
+        return folded;
+    }
 
     /// <summary>The time part alone: a clock time today, weekday and time within six days, else a short date.</summary>
     public static string When(Locale locale, DateTimeOffset at, DateTimeOffset now)

@@ -349,6 +349,181 @@ internal static class FluentLayout
         return combo;
     }
 
+    /// <summary>
+    /// How tall a <see cref="MultiChoice"/>'s list grows before it scrolls: about ten items, so a
+    /// long list never runs off the flyout while a short one is shown whole.
+    /// </summary>
+    public const double MultiChoiceListMaxHeight = 360;
+
+    /// <summary>The widest a <see cref="MultiChoice"/>'s flyout gets; longer names are cut with an ellipsis.</summary>
+    public const double MultiChoiceMaxWidth = 360;
+
+    /// <summary>
+    /// [S-1708] A several-of-many choice that stays one row tall however long the list is: a
+    /// drop-down button that says what is picked ("All views", "3 of 25 views"), opening a flyout
+    /// with an "all" box above a scrolling list of check boxes. Every change is read back through
+    /// <paramref name="read"/>, so a refused one (the last item) shows as it really is.
+    /// </summary>
+    /// <param name="items">The items, read each time the flyout opens.</param>
+    /// <param name="read">What is picked now, and the button's summary of it.</param>
+    /// <param name="setAll">The "all" box was ticked (true) or unticked (false).</param>
+    /// <param name="set">One item's box was ticked or unticked.</param>
+    public static DropDownButton MultiChoice(
+        string allLabel,
+        Func<IReadOnlyList<MultiChoiceItem>> items,
+        Func<MultiChoiceState> read,
+        Action<bool> setAll,
+        Action<string, bool> set)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(read);
+        ArgumentNullException.ThrowIfNull(setAll);
+        ArgumentNullException.ThrowIfNull(set);
+
+        var summary = new TextBlock { TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = MultiChoiceMaxWidth };
+        var button = new DropDownButton
+        {
+            Content = summary,
+            MinWidth = ChoiceMinWidth,
+            HorizontalContentAlignment = HorizontalAlignment.Left,
+        };
+
+        var flyout = new Microsoft.UI.Xaml.Controls.Flyout { Placement = Microsoft.UI.Xaml.Controls.Primitives.FlyoutPlacementMode.BottomEdgeAlignedRight };
+        var boxes = new List<(string Id, CheckBox Box)>();
+        CheckBox? all = null;
+        var syncing = false;
+
+        void Sync()
+        {
+            var now = read();
+            summary.Text = now.Summary;
+            AutomationProperties.SetName(button, now.Summary);
+
+            syncing = true;
+            try
+            {
+                if (all is not null)
+                {
+                    // Indeterminate while some are picked, as a "select all" box shows a partial pick.
+                    all.IsChecked = now.All ? true : null;
+                }
+
+                foreach (var (id, box) in boxes)
+                {
+                    box.IsChecked = now.All || now.Picked.Contains(id);
+                }
+            }
+            finally
+            {
+                syncing = false;
+            }
+        }
+
+        void Run(Action change)
+        {
+            if (syncing)
+            {
+                return;
+            }
+
+            try
+            {
+                change();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, $"'{allLabel}' choice failed", ex);
+            }
+
+            Sync();
+        }
+
+        FrameworkElement BuildPanel()
+        {
+            boxes.Clear();
+            all = new CheckBox { Content = allLabel };
+
+            // A click on a partial "all" box picks everything; only a full one unpicks.
+            all.Checked += (_, _) => Run(() => setAll(true));
+            all.Unchecked += (_, _) => Run(() => setAll(!read().All));
+
+            var list = new StackPanel();
+            foreach (var item in items())
+            {
+                var id = item.Id;
+                var label = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space3 };
+                if (item.Icon?.Invoke() is { } icon)
+                {
+                    label.Children.Add(new Border { Width = Fluent.Space6, Child = icon, VerticalAlignment = VerticalAlignment.Center });
+                }
+
+                label.Children.Add(new TextBlock
+                {
+                    Text = item.Label,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    MaxWidth = MultiChoiceMaxWidth - (Fluent.Space6 * 3),
+                    VerticalAlignment = VerticalAlignment.Center,
+                });
+
+                var box = new CheckBox { Content = label };
+                AutomationProperties.SetName(box, item.Label);
+                ToolTipService.SetToolTip(box, item.Label);
+                box.Checked += (_, _) => Run(() => set(id, true));
+                box.Unchecked += (_, _) => Run(() => set(id, false));
+                boxes.Add((id, box));
+                list.Children.Add(box);
+            }
+
+            var panel = new StackPanel { MinWidth = ChoiceMinWidth, MaxWidth = MultiChoiceMaxWidth, Spacing = Fluent.Space1 };
+            panel.Children.Add(all);
+            panel.Children.Add(new Border
+            {
+                Height = Fluent.Hairline,
+                Margin = new Thickness(0, Fluent.Space1, 0, Fluent.Space1),
+                Background = Themed("DividerStrokeColorDefaultBrush", Colors.Gray),
+            });
+            panel.Children.Add(new ScrollViewer
+            {
+                Content = list,
+                MaxHeight = MultiChoiceListMaxHeight,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            });
+
+            Sync();
+            return panel;
+        }
+
+        // Built when it opens, like the icon picker: the list is the items as they are now.
+        flyout.Opening += (_, _) => flyout.Content = BuildPanel();
+
+        flyout.Closed += (_, _) =>
+        {
+            flyout.Content = null;
+            boxes.Clear();
+            all = null;
+        };
+
+        button.Flyout = flyout;
+        Sync();
+
+#if DEBUG
+        // The settings render draws the panel in the page: a flyout on an off-screen,
+        // never-activated window does not render.
+        DebugMultiChoicePanels.AddOrUpdate(button, BuildPanel);
+#endif
+
+        return button;
+    }
+
+#if DEBUG
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<DropDownButton, Func<FrameworkElement>> DebugMultiChoicePanels = [];
+
+    /// <summary>Debug renders only: the panel a <see cref="MultiChoice"/>'s flyout would show.</summary>
+    internal static FrameworkElement? DebugMultiChoicePanel(DropDownButton button)
+        => DebugMultiChoicePanels.TryGetValue(button, out var build) ? build() : null;
+#endif
+
     /// <summary>A slider with a live numeric readout, used for the gap and corner sizes.</summary>
     public static StackPanel Slider(double value, double min, double max, double step, string unit, Action<double> onChanged)
     {
@@ -924,3 +1099,9 @@ internal sealed class ListEditorHandle<T>
     /// <summary>Redraw the cards from the list as it stands.</summary>
     public void Refresh() => _rebuild();
 }
+
+/// <summary>[S-1708] One item of a <see cref="FluentLayout.MultiChoice"/>: its id, its name and, optionally, its icon (made fresh each time the list is built).</summary>
+internal readonly record struct MultiChoiceItem(string Id, string Label, Func<UIElement>? Icon = null);
+
+/// <summary>[S-1708] What a <see cref="FluentLayout.MultiChoice"/> has picked: every item, or the ids in <paramref name="Picked"/>, and the button's text for it.</summary>
+internal readonly record struct MultiChoiceState(bool All, IReadOnlySet<string> Picked, string Summary);

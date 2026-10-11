@@ -186,7 +186,9 @@ internal static class WidgetCatalog
         new(WidgetKind.Notes, Str.Widget_Notes_Label, Str.WidgetsA_Catalog_Notes_Description, Glyphs.Note, 300, 220, WidgetCategory.Desk),
         new(WidgetKind.Countdown, Str.Widget_Countdown_Label, Str.WidgetsA_Catalog_Countdown_Description, Glyphs.Countdown, 300, 200, WidgetCategory.Time),
         new(WidgetKind.Pomodoro, Str.Widget_Pomodoro_Label, Str.WidgetsA_Catalog_Pomodoro_Description, Glyphs.Pomodoro, 240, 200, WidgetCategory.Time),
-        new(WidgetKind.SunMoon, Str.Widget_SunMoon_Label, Str.WidgetsA_Catalog_SunMoon_Description, Glyphs.Sun, 320, 240, WidgetCategory.Time),
+        // [S-3100] The sun and the moon are two widgets, side by side in the Time section.
+        new(WidgetKind.Sun, Str.WidgetsC_Sun_Label, Str.WidgetsC_Sun_Desc, Glyphs.Sun, 320, 240, WidgetCategory.Time),
+        new(WidgetKind.Moon, Str.WidgetsC_Moon_Label, Str.WidgetsC_Moon_Desc, Glyphs.Moon, 240, 220, WidgetCategory.Time),
         new(WidgetKind.Folder, Str.Widget_Folder_Label, Str.WidgetsA_Catalog_Folder_Description, Glyphs.Folder, 340, 280, WidgetCategory.Launch),
         new(WidgetKind.Volume, Str.Widget_Volume_Label, Str.WidgetsA_Catalog_Volume_Description, Glyphs.Volume, 200, 150, WidgetCategory.System),
         // [S-1910] One widget per power action, each a single button.
@@ -199,6 +201,8 @@ internal static class WidgetCatalog
         new(WidgetKind.ScreenOff, Str.Power_Action_ScreenOff, Str.WidgetsC_Power_Desc_ScreenOff, Glyphs.Display, 120, 120, WidgetCategory.Power),
         new(WidgetKind.Bluetooth, Str.Widget_Bluetooth_Label, Str.WidgetsA_Catalog_Bluetooth_Description, Glyphs.Bluetooth, 300, 240, WidgetCategory.System),
         new(WidgetKind.Music, Str.WidgetsA_Catalog_Music_Label, Str.WidgetsA_Catalog_Music_Description, Glyphs.Music, 340, 160, WidgetCategory.Media),
+        // [S-3200] The spectrum, split out of Music, beside it.
+        new(WidgetKind.AudioVisualizer, Str.WidgetsC_Visualizer_Label, Str.WidgetsC_Visualizer_Desc, Glyphs.Visualizer, 320, 160, WidgetCategory.Media),
         new(WidgetKind.WeatherNow, Str.Widget_WeatherCurrent_Label, Str.WidgetsA_Catalog_Weather_Description, Glyphs.Weather, 260, 200, WidgetCategory.Information),
         new(WidgetKind.WeatherForecast, Str.WidgetsA_Catalog_Forecast_Label, Str.WidgetsA_Catalog_Forecast_Description, Glyphs.Forecast, 380, 220, WidgetCategory.Information),
         new(WidgetKind.Stocks, Str.Widget_Stocks_Label, Str.WidgetsA_Catalog_Stocks_Description, Glyphs.Stocks, 320, 240, WidgetCategory.Information),
@@ -287,13 +291,15 @@ internal static class WidgetCatalog
         WidgetKind.Notes => new NotesView(),
         WidgetKind.Countdown => new CountdownView(),
         WidgetKind.Pomodoro => new PomodoroView(),
-        WidgetKind.SunMoon => new SunMoonView(),
+        WidgetKind.Sun => new SunView(),
+        WidgetKind.Moon => new MoonView(),
         WidgetKind.Folder => new FolderView(),
         WidgetKind.Volume => new VolumeView(),
         WidgetKind.Shutdown or WidgetKind.Restart or WidgetKind.Sleep or WidgetKind.Hibernate
             or WidgetKind.Lock or WidgetKind.SignOut or WidgetKind.ScreenOff => new PowerButtonView(kind),
         WidgetKind.Bluetooth => new BluetoothView(),
         WidgetKind.Music => new MusicView(),
+        WidgetKind.AudioVisualizer => new AudioVisualizerView(),
         WidgetKind.WeatherNow => new WeatherNowView(),
         WidgetKind.WeatherForecast => new WeatherForecastView(),
         WidgetKind.Stocks => new StocksView(),

@@ -69,6 +69,7 @@ internal sealed partial class AccountService : IDisposable
     private readonly DispatcherQueue? _dispatcher;
     private readonly AccountStore _store;
     private readonly bool _writable;
+    private readonly bool _loadedWhole;
     private readonly SemaphoreSlim _writeGate = new(1, 1);
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _refreshGates = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, string> _problems = new(StringComparer.Ordinal);
@@ -86,6 +87,7 @@ internal sealed partial class AccountService : IDisposable
         var load = _store.Load(DateTimeOffset.UtcNow);
         _accounts = [.. load.Accounts];
         _writable = load.Writable;
+        _loadedWhole = Themia.Core.Sync.ShelfSweep.MayRun(load);
 
         LoadProblem = load.Outcome == LoadOutcome.Recovered
             ? load.Writable
@@ -106,6 +108,13 @@ internal sealed partial class AccountService : IDisposable
 
     /// <summary>Why the accounts file could not be used at start, or null when it was fine.</summary>
     public string? LoadProblem { get; }
+
+    /// <summary>
+    /// [S-2666] Every account's id, when the list can say which accounts do not exist: only after a
+    /// file that loaded whole (no repair, writable). Null otherwise, so nothing is deleted on the
+    /// strength of a list that may be missing accounts. Safe from any thread.
+    /// </summary>
+    public IReadOnlyCollection<string>? TrustedAccountIds => _loadedWhole ? [.. _accounts.Select(a => a.Id)] : null;
 
     /// <summary>Every account, in the order they were added.</summary>
     public IReadOnlyList<AccountInfo> Accounts => [.. _accounts.Select(Info)];

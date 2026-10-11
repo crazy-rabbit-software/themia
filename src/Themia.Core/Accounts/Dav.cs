@@ -163,6 +163,9 @@ public static class DavXml
             ? Uri.UnescapeDataString(last)
             : href;
 
+    /// <summary>A multistatus as a document, through the same DTD-refusing reader; null when it is not XML.</summary>
+    public static XDocument? Document(string? xml) => Parse(xml);
+
     private static XDocument? Parse(string? xml)
     {
         if (string.IsNullOrWhiteSpace(xml))

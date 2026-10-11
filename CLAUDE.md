@@ -29,12 +29,16 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified.
 
 ```
-Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search t] [--open first|name]   # Page incl. Displays, Views
-Themia.exe --picker-png <out.png> [--search t]      Themia.exe --viewbar-png <outDir>
-Themia.exe --notices-png <outDir>
-Themia.exe --menu-png <outDir>                               Themia.exe --iconpicker-png <out.png> [--search t]
-Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name]   # one card at the 7 tiers (or w×h)
+Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search t] [--land t]
+           [--flyout row] [--width dips] [--open first|name] [--views n]      # Page: General..About, Displays, Views
+           [--place-chosen] [--place-query t [--place-reply results|none|offline|error|searching]]   # place row [S-2847]
+Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--keys k1,k2|text:abc]
+           # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
+Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
+Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
+Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
+Any render: [--lang en|de|es|fr|it|ja|pl|pt|zh]
 ```
 
 Build output (`artifacts/`, `bin/`, `obj/`) cannot be read by agents; write render PNGs outside it.

@@ -37,7 +37,6 @@
   "widgetsB.email.couldNotCopy": "无法复制到剪贴板。",
   "widgetsB.email.deletePermanently": "永久删除",
   "widgetsB.email.changeFailed": "操作未成功。请查看 themia.log。",
-  "widgetsB.email.accountProvider": "{account}（{provider}）",
   "widgetsB.settings.email.messages": "邮件",
   "widgetsB.settings.email.folder.desc": "要列出每个帐户的哪个文件夹",
   "widgetsB.settings.email.count.label": "邮件数",
@@ -72,12 +71,6 @@
   "widgetsB.folder.path.notRooted": "请输入完整路径，例如 C:\\Users\\You\\Documents。",
   "widgetsB.folder.path.tooLong": "该路径超出 Windows 允许的长度。",
   "widgetsB.folder.path.unreadable": "无法读取该路径。",
-  "widgetsB.folder.itemCount": {
-    "other": "{count} 个项目"
-  },
-  "widgetsB.folder.selectedCount": {
-    "other": "已选择 {count} 个"
-  },
   "widgetsB.folder.type.folder": "文件夹",
   "widgetsB.folder.type.extension": "{ext} 文件",
   "widgetsB.folder.type.file": "文件",
@@ -182,7 +175,6 @@
   "widgetsB.settings.gallery.sourceFolder": "文件夹",
   "widgetsB.settings.gallery.sourceFile": "单张图片",
   "widgetsB.settings.gallery.sourceBing": "Bing 每日图片",
-  "widgetsB.settings.gallery.caption.desc": "在图片下方显示标题和署名",
   "widgetsB.settings.gallery.recursive.desc": "也查找下级文件夹",
   "widgetsB.settings.gallery.layout.desc": "逐张、磁贴、桌上照片或马赛克",
   "widgetsB.settings.gallery.fit.label": "图片大小",
@@ -261,8 +253,6 @@
   "widgetsB.habits.listDeleted": "此习惯列表已删除。\n请在此小组件的设置中选择列表。",
   "widgetsB.habits.emptyAdd": "还没有习惯。\n请在下方添加。",
   "widgetsB.habits.empty": "还没有习惯。",
-  "widgetsB.habits.lastUnits": "最近 {units}",
-  "widgetsB.habits.rateOver": "{window}完成率 {percent}",
   "widgetsB.settings.habits.list": "习惯列表",
   "widgetsB.settings.habits.listsUnavailable": "习惯列表不可用。",
   "widgetsB.settings.habits.clearsEvery": {
@@ -361,10 +351,6 @@
   "widgetsB.music.playPause": "播放或暂停",
   "widgetsB.music.play": "播放",
   "widgetsB.music.pause": "暂停",
-  "widgetsB.music.playing": "正在播放",
-  "widgetsB.music.paused": "已暂停",
-  "widgetsB.music.playingIn": "正在播放 · {app}",
-  "widgetsB.music.pausedIn": "已暂停 · {app}",
   "widgetsB.music.unknownTrack": "未知曲目",
   "widgetsB.music.loading": "正在读取媒体会话",
   "widgetsB.music.noSession": "此电脑上没有正在播放的内容",
@@ -387,8 +373,6 @@
   "widgetsB.settings.music.transport.desc": "上一个、播放或暂停、下一个",
   "widgetsB.settings.music.progress.label": "显示进度",
   "widgetsB.settings.music.progress.desc": "进度条以及已播放时间和总时长",
-  "widgetsB.settings.music.spectrum.label": "显示频谱",
-  "widgetsB.settings.music.spectrum.desc": "随此电脑播放的声音跳动的条形",
   "widgetsB.settings.music.hideWhenIdle.desc": "小组件会从桌面上消失；编辑模式下仍会显示",
   "widgetsB.settings.music.hideWhenIdle.noSession": "没有打开播放器时",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "没有播放内容时",

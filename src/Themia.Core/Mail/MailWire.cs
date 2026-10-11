@@ -109,6 +109,20 @@ public static class MailWire
     public static Uri GraphMessages(MailFolder folder, int count) => new(string.Create(CultureInfo.InvariantCulture,
         $"{Graph}/mailFolders/{folder.GraphName()}/messages?$top={count}&$select=id,subject,from,receivedDateTime,isRead,bodyPreview,webLink&$orderby=receivedDateTime%20desc"));
 
+    /// <summary>
+    /// [S-2687] The start of a folder's delta round: the fields a row shows, at most 50 a page, bounded
+    /// to messages received since <paramref name="since"/> when the folder is full (only those can
+    /// be among the newest the shelf keeps). Later rounds follow the delta link Graph returns.
+    /// </summary>
+    public static Uri GraphMessagesDelta(MailFolder folder, DateTimeOffset? since)
+    {
+        var filter = since is { } at
+            ? "&$filter=receivedDateTime%20ge%20" + at.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture)
+            : string.Empty;
+        return new(string.Create(CultureInfo.InvariantCulture,
+            $"{Graph}/mailFolders/{folder.GraphName()}/messages/delta?$select=id,subject,from,receivedDateTime,isRead,bodyPreview,webLink{filter}"));
+    }
+
     public static Uri GraphFolder(MailFolder folder)
         => new($"{Graph}/mailFolders/{folder.GraphName()}?$select=unreadItemCount,totalItemCount");
 

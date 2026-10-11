@@ -206,32 +206,12 @@ public class ResponsiveLayoutTests
     // The chart's window now comes from the span setting: see MeterFrameworkTests (S-1121).
 
     [Fact]
-    public void S665_a_larger_clock_adds_the_week_and_the_zone()
+    public void S665_a_narrow_clock_has_a_short_date_and_no_week_or_zone()
     {
-        var config = new ClockConfig { TimeZoneId = "Etc/UTC" };
-        var details = ClockFormatter.Details(new DateTimeOffset(2026, 10, 4, 13, 52, 0, TimeSpan.Zero), config, Locale.En);
-
-        Assert.Equal("Sun, Oct 4", details.ShortDate);
-        Assert.Equal("Week 40 · Day 277", details.Week);
-        Assert.StartsWith("UTC", details.Zone, StringComparison.Ordinal);
-    }
-
-    [Theory]
-    [InlineData(0, 0, "UTC")]
-    [InlineData(2, 0, "UTC+02:00")]
-    [InlineData(-3, -30, "UTC-03:30")]
-    [InlineData(5, 45, "UTC+05:45")]
-    public void S665_the_offset_is_written_as_windows_writes_it(int hours, int minutes, string expected)
-        => Assert.Equal(expected, ClockFormatter.Offset(new TimeSpan(hours, minutes, 0)));
-
-    [Fact]
-    public void S665_the_week_is_the_iso_week_across_a_year_boundary()
-    {
+        // The week, the day of the year and the time zone are retired (concise widgets): the
+        // only detail a clock adds is the date, short when narrow.
         var config = new ClockConfig { TimeZoneId = "Etc/UTC" };
 
-        // 1 January 2027 is a Friday, so it still belongs to ISO week 53 of 2026.
-        var details = ClockFormatter.Details(new DateTimeOffset(2027, 1, 1, 12, 0, 0, TimeSpan.Zero), config, Locale.En);
-
-        Assert.Equal("Week 53 · Day 1", details.Week);
+        Assert.Equal("Sun, Oct 4", ClockFormatter.ShortDate(new DateTimeOffset(2026, 10, 4, 13, 52, 0, TimeSpan.Zero), config, Locale.En));
     }
 }

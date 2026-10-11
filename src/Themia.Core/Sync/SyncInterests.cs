@@ -1,6 +1,8 @@
+using System.Globalization;
 using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Sync;
 
@@ -20,6 +22,13 @@ public sealed record TaskInterest(string AccountId, string ListId, bool ShowComp
 
 public sealed record FeedInterest(string Url, int MaxItems, TimeSpan Interval);
 
+/// <summary>[S-2663] A weather widget's place and scale.</summary>
+/// <param name="ForecastDays">The forecast's day count, or null for the conditions now (WeatherNow).</param>
+public sealed record WeatherInterest(double Latitude, double Longitude, TemperatureUnit Unit, int? ForecastDays, TimeSpan Interval);
+
+/// <summary>[S-2663] A Stocks widget's instrument and chart: everything that changes the quote asked for.</summary>
+public sealed record QuoteInterest(string Symbol, QuoteMarket Market, QuoteRange Range, bool PrePost, TimeSpan Interval);
+
 /// <summary>
 /// [S-2608] What the sync services keep on the shelf: the needs of every widget in every view, shown
 /// or not. A view the user switches to is already synced, so switching draws and asks nothing. The
@@ -31,9 +40,11 @@ public sealed record SyncInterests(
     IReadOnlyList<CalendarInterest> Calendar,
     IReadOnlyList<ContactsInterest> Contacts,
     IReadOnlyList<TaskInterest> Tasks,
-    IReadOnlyList<FeedInterest> Feeds)
+    IReadOnlyList<FeedInterest> Feeds,
+    IReadOnlyList<WeatherInterest> Weather,
+    IReadOnlyList<QuoteInterest> Quotes)
 {
-    public static SyncInterests None { get; } = new([], [], [], [], []);
+    public static SyncInterests None { get; } = new([], [], [], [], [], [], []);
 
     /// <summary>
     /// Everything that changes what is synced, as one string: the state changes sixty times a second
@@ -74,6 +85,18 @@ public sealed record SyncInterests(
             text.Append("f|").Append(f.Url).Append('|').Append(f.MaxItems).Append('|').Append(f.Interval.Ticks).Append('#');
         }
 
+        foreach (var w in Weather)
+        {
+            text.Append("w|").Append(w.Latitude.ToString("R", CultureInfo.InvariantCulture))
+                .Append(',').Append(w.Longitude.ToString("R", CultureInfo.InvariantCulture))
+                .Append('|').Append(w.Unit).Append('|').Append(w.ForecastDays).Append('|').Append(w.Interval.Ticks).Append('#');
+        }
+
+        foreach (var q in Quotes)
+        {
+            text.Append("q|").Append(q.Symbol).Append('|').Append(q.Market).Append('|').Append(q.Range).Append('|').Append(q.PrePost).Append('|').Append(q.Interval.Ticks).Append('#');
+        }
+
         return text.ToString();
     }
 
@@ -86,6 +109,8 @@ public sealed record SyncInterests(
         var contacts = new List<ContactsInterest>();
         var tasks = new List<TaskInterest>();
         var feeds = new List<FeedInterest>();
+        var weather = new List<WeatherInterest>();
+        var quotes = new List<QuoteInterest>();
 
         foreach (var widget in state.Views.SelectMany(v => v.Widgets))
         {
@@ -114,9 +139,44 @@ public sealed record SyncInterests(
                     }
 
                     break;
+
+                case WeatherConfig place when For(place) is { } wants:
+                    weather.Add(wants);
+                    break;
+
+                case StocksConfig stock when For(stock) is { } wants:
+                    quotes.Add(wants);
+                    break;
             }
         }
 
-        return new SyncInterests(mail, calendar, contacts, tasks, feeds);
+        return new SyncInterests(mail, calendar, contacts, tasks, feeds, weather, quotes);
+    }
+
+    /// <summary>
+    /// [S-2663] What a weather widget asks for, or null when it can ask nothing (no place: the
+    /// widget's own "set up" state, never a request). The widget and the sync use this one rule.
+    /// </summary>
+    public static WeatherInterest? For(WeatherConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        if (!WebInput.AreCoordinates(config.Latitude, config.Longitude))
+        {
+            return null;
+        }
+
+        int? days = config is WeatherForecastConfig forecast ? forecast.EffectiveDays : null;
+        return new WeatherInterest(config.Latitude!.Value, config.Longitude!.Value, config.Unit, days, config.TickInterval);
+    }
+
+    /// <summary>[S-2663] What a Stocks widget asks for, or null without a usable symbol.</summary>
+    public static QuoteInterest? For(StocksConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        return config.EffectiveSymbol is { Length: > 0 } symbol
+            ? new QuoteInterest(symbol, config.Market, config.Range, config.WantsPrePost, config.TickInterval)
+            : null;
     }
 }

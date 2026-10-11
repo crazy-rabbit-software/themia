@@ -64,10 +64,14 @@ public sealed class WidgetInstance
     /// [S-1911] The power widgets start headerless too: the whole tile is the button, and its name
     /// is already under the icon.
     /// </para>
+    /// <para>
+    /// [S-3200] So does the audio visualizer: the bars are the widget, and a title over them says
+    /// nothing the bars do not.
+    /// </para>
     /// </summary>
     public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
     {
-        WidgetKind.Clock => HeaderPlacement.Hidden,
+        WidgetKind.Clock or WidgetKind.AudioVisualizer => HeaderPlacement.Hidden,
         _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
         _ => HeaderPlacement.Top,
     };

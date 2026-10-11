@@ -471,7 +471,7 @@ internal sealed class TaskService : IDisposable
     internal sealed class Box
     {
         private readonly TaskService _owner;
-        private readonly Dictionary<string, (DateTimeOffset At, bool IncludesCompleted, IReadOnlyList<TaskItem> Tasks)> _held = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, (DateTimeOffset At, bool IncludesCompleted, IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> _held = new(StringComparer.Ordinal);
         private readonly Dictionary<string, long> _tickets = new(StringComparer.Ordinal);
         private readonly Dictionary<string, TaskCompletionSource<TaskItem?>> _creates = new(StringComparer.Ordinal);
         private List<PendingWrite> _pending = [];
@@ -549,7 +549,7 @@ internal sealed class TaskService : IDisposable
 
             foreach (var list in shelf.Held)
             {
-                box._held[list.ListId] = (list.At, list.IncludesCompleted, [.. list.Tasks.Select(t => TaskShelves.Restore(t, list.ListId))]);
+                box._held[list.ListId] = (list.At, list.IncludesCompleted, [.. list.Tasks.Select(t => TaskShelves.Restore(t, list.ListId))], list.Cursor);
             }
 
             box.Edits.Landed(box.Base(), box.Edits.FetchStarted());
@@ -624,8 +624,10 @@ internal sealed class TaskService : IDisposable
                 {
                     try
                     {
-                        var tasks = await _owner._remote.TasksAsync(AccountId, listId, includeCompleted, CancellationToken.None).ConfigureAwait(true);
-                        _held[listId] = (DateTimeOffset.UtcNow, includeCompleted, [.. tasks.Take(TaskShelves.MaxTasksPerList)]);
+                        // [S-2686] Only the changes since the list's cursor, when it has a usable one.
+                        var was = _held.TryGetValue(listId, out var held) ? held : default;
+                        var (tasks, cursor) = await _owner._remote.SyncListAsync(AccountId, listId, includeCompleted, was.Tasks, was.Cursor, CancellationToken.None).ConfigureAwait(true);
+                        _held[listId] = (DateTimeOffset.UtcNow, includeCompleted, [.. tasks.Take(TaskShelves.MaxTasksPerList)], cursor);
                     }
                     catch (AccountException ex)
                     {
@@ -890,6 +892,7 @@ internal sealed class TaskService : IDisposable
                     At = pair.Value.At,
                     IncludesCompleted = pair.Value.IncludesCompleted,
                     Tasks = [.. pair.Value.Tasks.Select(TaskShelves.Store)],
+                    Cursor = pair.Value.Cursor,
                 })],
                 Pending = [.. _pending],
             };

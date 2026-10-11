@@ -45,12 +45,6 @@ public sealed class MusicConfig : WidgetConfig
     /// <summary>[S-1464] Paint nothing while idle.</summary>
     public MusicHideWhenIdle HideWhenIdle { get; set; } = MusicHideWhenIdle.Never;
 
-    /// <summary>
-    /// [S-1470] Draw the spectrum of what the PC is playing (system-wide loopback). Off by default,
-    /// as in the original: it is the one part of this widget that costs CPU while music plays.
-    /// </summary>
-    public bool ShowSpectrum { get; set; }
-
     public override IReadOnlyList<string> Repair()
     {
         if (Enum.IsDefined(HideWhenIdle))
@@ -68,6 +62,5 @@ public sealed class MusicConfig : WidgetConfig
         ShowTransport = ShowTransport,
         ShowProgress = ShowProgress,
         HideWhenIdle = HideWhenIdle,
-        ShowSpectrum = ShowSpectrum,
     };
 }

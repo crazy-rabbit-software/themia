@@ -7,6 +7,7 @@ using Themia.App.Services.Web;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -17,8 +18,8 @@ namespace Themia.App.Widgets;
 /// <para>
 /// The chart is <b>full-bleed</b>: it reaches the card's left, right and bottom edges, and the text
 /// above it carries the inset instead. It takes whatever the ladder leaves ([S-1311]) rather than a
-/// fixed band, so a large tile is a large chart with its axis, times and facts, not a strip under a
-/// huge number.
+/// fixed band, so a large tile is a large chart with its axis and times, not a strip under a huge
+/// number. Concise ([S-2770]): no facts and no range chips; the period is a setting.
 /// </para>
 /// <para>
 /// The two services behind it — Yahoo's chart endpoint and CoinGecko's public API — are free,
@@ -62,7 +63,6 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private readonly Brush _flatBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
     private readonly Brush _accentBrush = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
 
-    private readonly RefreshSchedule _schedule = new(Scope, "quotes");
 
     private Ticker? _ticker;
     private StocksConfig _config = new();
@@ -74,11 +74,14 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private StocksConfig _applied = new();
 
     private IWidgetSurface? _surface;
-    private IDisposable? _subscription;
     private IDisposable? _clock;
-    private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private CancellationTokenSource? _inFlight;
-    private int _generation;
+    private WebSync? _web;
+
+    /// <summary>What the widget asks for now, or null without a usable symbol ([S-2663]).</summary>
+    private QuoteInterest? _want;
+
+    /// <summary>The state to say when there is no quote: not set up, refused, or how the last sync went.</summary>
+    private FetchStatus _status = FetchStatus.Loading;
 
     private Fetched<TickerQuote>? _quote;
     private WidgetArea _area;
@@ -88,12 +91,10 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
     public StocksView()
     {
-        // Rows: range chips, readout, extended print, chart (the rest), time labels, facts.
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        // Rows: the readout (price, change, extended print), the chart (the rest), its time labels.
+        // Columns: one, or readout | chart on a strip.
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -102,18 +103,15 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
         BuildReadout();
         BuildChart();
-        BuildChips();
 
         _emptyState = Fluent.EmptyState(Glyphs.Stocks, _emptyMessage, out _);
         _emptyState.Visibility = Visibility.Collapsed;
-        SetRowSpan(_emptyState, 6);
+        SetRowSpan(_emptyState, 3);
         SetColumnSpan(_emptyState, 2);
 
-        Children.Add(_chips);
         Children.Add(_readoutColumn);
         Children.Add(_chart);
         Children.Add(_labels);
-        Children.Add(_stats);
         Children.Add(_emptyState);
     }
 
@@ -177,7 +175,6 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         _readoutColumn.Children.Add(_readout);
         _readoutColumn.Children.Add(_extended);
         _readoutColumn.Margin = new Thickness(StockLayout.Inset, Fluent.Space1, StockLayout.Inset, 0);
-        SetRow(_readoutColumn, 1);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -192,15 +189,20 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         // [S-1110] The texts follow the app's language. A static event: Detach unsubscribes.
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
+
+        // [S-2663] The quote comes from the background sync; the widget only hears it.
+        _web = AppServices.WebSync;
+        if (_web is not null)
+        {
+            _web.Updated -= OnWebUpdated;
+            _web.Updated += OnWebUpdated;
+        }
+
         ApplyConfig(config);
     }
 
-    /// <summary>The language changed: the range chips and every text are rewritten from the quote in hand.</summary>
-    private void OnLanguage(Locale locale)
-    {
-        LabelChips();
-        Render();
-    }
+    /// <summary>The language changed: every text is rewritten from the quote in hand.</summary>
+    private void OnLanguage(Locale locale) => Render();
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface)
@@ -233,53 +235,11 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             // A different instrument, or a different period. The numbers in hand are about
             // something else and must not sit under the new heading for even one frame.
             _quote = null;
-            _schedule.Reset();
         }
 
-        if (Resubscribe())
-        {
-            return;
-        }
-
-        if (needsFetch)
-        {
-            Reload(force: false);
-        }
-        else
-        {
-            Render();
-        }
-    }
-
-    private bool Resubscribe()
-    {
-        var interval = _config.TickInterval;
-
-        if (_subscription is not null && interval == _subscribedInterval)
-        {
-            return false;
-        }
-
-        _subscription?.Dispose();
-        _subscribedInterval = interval;
-        _subscription = _ticker?.Subscribe(interval, OnTick);
-        return _subscription is not null;
-    }
-
-    private void OnTick()
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        if (_schedule.MayFetch(DateTimeOffset.Now))
-        {
-            Reload(force: false);
-            return;
-        }
-
-        Render();
+        // [S-2663] Always through the sync: it asks nothing for a quote already held and fresh, so
+        // a colour or a toggle costs no request.
+        Reload(force: false);
     }
 
     private void OnMinute()
@@ -294,6 +254,11 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         UpdateFreshness(_quote, now);
     }
 
+    /// <summary>
+    /// [S-2663] Tell the sync what is on screen and draw what it holds. The quote is kept fresh by
+    /// the sync service, never fetched from a tick; <paramref name="force"/> (the user's Refresh,
+    /// [S-1311]) asks now.
+    /// </summary>
     private void Reload(bool force)
     {
         if (_detached)
@@ -301,86 +266,44 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             return;
         }
 
-        var symbol = _config.EffectiveSymbol;
-
-        if (symbol.Length == 0)
+        _want = SyncInterests.For(_config);
+        if (_want is null)
         {
             // Told apart on purpose: nothing typed is "not set up", something typed that is not a
             // symbol is "refused".
-            var status = string.IsNullOrWhiteSpace(_config.Symbol) ? FetchStatus.NotConfigured : FetchStatus.Refused;
-            _schedule.Record(status, _config.TickInterval, _config.Symbol, DateTimeOffset.Now);
+            _status = string.IsNullOrWhiteSpace(_config.Symbol) ? FetchStatus.NotConfigured : FetchStatus.Refused;
+            _quote = null;
+            PublishTitle();
             Render();
             return;
         }
 
-        if (force)
-        {
-            _schedule.Reset();
-        }
-
-        var market = _config.Market;
-        var range = _config.Range;
-        var prePost = _config.WantsPrePost;
-
-        // A restored or shared answer draws at once, before the network has said anything.
-        _quote ??= MarketService.Peek(symbol, market, range, prePost);
-
-        _inFlight?.Cancel();
-        var cts = new CancellationTokenSource();
-        _inFlight = cts;
-        var generation = ++_generation;
-
-        Render();
-        _ = LoadAsync(symbol, market, range, prePost, force, generation, cts);
+        _web?.Show(_want, force);
+        Take();
     }
 
-    private async Task LoadAsync(
-        string symbol,
-        QuoteMarket market,
-        QuoteRange range,
-        bool prePost,
-        bool force,
-        int generation,
-        CancellationTokenSource cts)
+    /// <summary>[S-2663] A quote's answer or state changed in the sync service.</summary>
+    private void OnWebUpdated(string key)
     {
-        try
+        if (!_detached && _want is { } want && WebSync.Key(want) == key)
         {
-            var result = await MarketService
-                .QuoteAsync(symbol, market, range, prePost, _config.TickInterval, cts.Token, force)
-                .ConfigureAwait(true);
-
-            if (_detached || generation != _generation)
-            {
-                return;
-            }
-
-            _schedule.Record(result.Status, _config.TickInterval, result.Detail, DateTimeOffset.Now);
-
-            if (result.Value is not null)
-            {
-                _quote = result;
-            }
-            else if (_quote is { } held)
-            {
-                _quote = held.Stale(result.Status, result.Detail);
-            }
-
-            PublishTitle();
-            Render();
+            Take();
         }
-        catch (OperationCanceledException)
+    }
+
+    /// <summary>What the sync holds: the newest quote (kept through a failure, annotated with it), or the state to say.</summary>
+    private void Take()
+    {
+        if (_want is not { } want)
         {
-            // ignore: superseded by a newer request, which will draw in this one's place.
+            return;
         }
-        finally
-        {
-            if (ReferenceEquals(_inFlight, cts))
-            {
-                _inFlight = null;
-            }
 
-            cts.Dispose();
-        }
+        var answer = _web is { } web ? web.Quote(want) : MarketService.Peek(want.Symbol, want.Market, want.Range, want.PrePost);
+        _quote = answer?.Value is not null ? answer : null;
+        _status = answer?.Status ?? FetchStatus.Loading;
+        PublishTitle();
+        Render();
     }
 
     private void Render()
@@ -395,7 +318,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
         if (held?.Value is not { } quote)
         {
-            var status = _schedule.Status;
+            var status = _status;
 
             _emptyMessage.Text = status switch
             {
@@ -410,8 +333,6 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             _readoutColumn.Visibility = Visibility.Collapsed;
             _chart.Visibility = Visibility.Collapsed;
             _labels.Visibility = Visibility.Collapsed;
-            _stats.Visibility = Visibility.Collapsed;
-            _chips.Visibility = Visibility.Collapsed;
             _freshness.Text = string.Empty;
             return;
         }
@@ -440,16 +361,15 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         UpdateExtended(quote, extended);
         UpdateFreshness(held, now);
 
-        var facts = MarketQuote.Facts(quote);
         var chart = _config.ShowSparkline && quote.Bars.Count >= 2;
         var extras = _change.Text.Length + 1 + _currency.Text.Length;
 
-        _plan = StockLayout.Plan(_area, new StockInputs(_price.Text.Length, extras, chart, extended is not null, facts.Count, _config.ShowMinMax));
-        Lay(quote, facts);
+        _plan = StockLayout.Plan(_area, new StockInputs(_price.Text.Length, extras, chart, extended is not null, _config.ShowMinMax));
+        Lay(quote);
     }
 
     /// <summary>Place the parts the plan chose. The chart draws itself on its own size change.</summary>
-    private void Lay(TickerQuote quote, IReadOnlyList<(string Label, string Value)> facts)
+    private void Lay(TickerQuote quote)
     {
         var plan = _plan;
 
@@ -471,33 +391,25 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             // A strip: the readout is a column on the left, the chart has the strip's height.
             ColumnDefinitions[0].Width = new GridLength(plan.ReadoutWidth + (2 * StockLayout.Inset));
             ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
-            Place(_readoutColumn, 0, 0, 6, 1);
+            Place(_readoutColumn, 0, 0, 3, 1);
             _readoutColumn.VerticalAlignment = VerticalAlignment.Center;
-            Place(_chart, 0, 1, plan.Labels ? 4 : 6, 1);
-            Place(_labels, 4, 1, 2, 1);
+            Place(_chart, 0, 1, plan.Labels ? 2 : 3, 1);
+            Place(_labels, 2, 1, 1, 1);
         }
         else
         {
             ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
             ColumnDefinitions[1].Width = GridLength.Auto;
-            Place(_readoutColumn, 1, 0, plan.Chart ? 2 : 5, plan.Stats == StatsPlacement.Column ? 2 : 1);
+            Place(_readoutColumn, 0, 0, plan.Chart ? 1 : 3, 2);
 
             // Without a chart the price is the tile: centred in it rather than stranded at the top.
             _readoutColumn.VerticalAlignment = plan.Chart ? VerticalAlignment.Top : VerticalAlignment.Center;
-            Place(_chart, 3, 0, 1, 1);
-            Place(_labels, 4, 0, 1, 1);
+            Place(_chart, 1, 0, 1, 2);
+            Place(_labels, 2, 0, 1, 2);
         }
 
         _chart.Visibility = plan.Chart ? Visibility.Visible : Visibility.Collapsed;
         _labels.Visibility = plan.Chart && plan.Labels ? Visibility.Visible : Visibility.Collapsed;
-        _chips.Visibility = plan.RangeChips ? Visibility.Visible : Visibility.Collapsed;
-
-        if (plan.RangeChips)
-        {
-            UpdateChips();
-        }
-
-        LayStats(facts, plan);
 
         if (plan.Chart)
         {
@@ -616,15 +528,14 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         _detached = true;
         Strings.Changed -= OnLanguage;
 
-        _subscription?.Dispose();
-        _subscription = null;
-        _subscribedInterval = TimeSpan.Zero;
-
         _clock?.Dispose();
         _clock = null;
 
-        _inFlight?.Cancel();
-        _inFlight = null;
+        if (_web is not null)
+        {
+            _web.Updated -= OnWebUpdated;
+            _web = null;
+        }
 
         DetachChart();
         _ticker = null;

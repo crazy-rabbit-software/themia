@@ -15,7 +15,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// A focus and break timer.
 /// <para>
-/// The run state — phase, seconds left, whether it is going, the sessions finished — lives in this
+/// The run state — phase, seconds left, whether it is going — lives in this
 /// instance and nowhere else. It is deliberately not persisted and not shared ([S-150]): the same
 /// widget shown on two monitors is two independent timers, which is also why only the instance that
 /// is actually running can sound the cue, so a two-monitor desktop cannot echo it.
@@ -42,9 +42,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     /// <summary>The room a column beside the ring needs for "Next: Focus 25:00" and three buttons.</summary>
     private const double SideColumnMinimum = 180;
 
-    /// <summary>Session dots drawn at most; past that the caption carries the count.</summary>
-    private const int MaxDots = 8;
-
     private readonly Canvas _canvas = new();
 
     private readonly TextBlock _phase = Fluent.Text(FluentType.BodyStrong);
@@ -55,9 +52,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     private readonly Ellipse _ringTrack = new();
     private readonly Microsoft.UI.Xaml.Shapes.Path _ringArc = new();
     private readonly TextBlock _next = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly StackPanel _dots = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
-    private readonly TextBlock _sessions = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly StackPanel _sessionRow;
 
     private readonly Button _runButton = new();
     private readonly FontIcon _runIcon = new();
@@ -71,9 +65,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     private IDisposable? _subscription;
     private WidgetArea _area;
     private bool _preview;
-
-    /// <summary>[S-1467] Focus sessions finished since this instance started. In memory only.</summary>
-    private int _completed;
 
     /// <summary>Whether the ring (rather than the bar) is drawn, and its size, from the last ladder pass.</summary>
     private bool _ringShown;
@@ -137,22 +128,12 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             Children = { _runButton, _resetButton, _skipButton },
         };
 
-        _sessionRow = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            Children = { _dots, _sessions },
-        };
-        _dots.VerticalAlignment = VerticalAlignment.Center;
-        _sessions.VerticalAlignment = VerticalAlignment.Center;
-
         _canvas.Children.Add(_ringTrack);
         _canvas.Children.Add(_ringArc);
         _canvas.Children.Add(_phaseRow);
         _canvas.Children.Add(_clock);
         _canvas.Children.Add(_progress);
         _canvas.Children.Add(_next);
-        _canvas.Children.Add(_sessionRow);
         _canvas.Children.Add(_controls);
         Children.Add(_canvas);
 
@@ -267,7 +248,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         }
     }
 
-    /// <summary>[S-02] Reset stops and returns to a fresh work phase. Nothing sounds. The session count stays.</summary>
+    /// <summary>[S-02] Reset stops and returns to a fresh work phase. Nothing sounds.</summary>
     private void Reset()
     {
         SetRunning(false);
@@ -275,7 +256,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         Render();
     }
 
-    /// <summary>[S-1466] Skip to the next phase, running or not. A skip is the user's own flip: silent, and not a finished session.</summary>
+    /// <summary>[S-1466] Skip to the next phase, running or not. A skip is the user's own flip: silent.</summary>
     private void Skip()
     {
         _state = PomodoroCycle.Skip(_state, _config);
@@ -301,7 +282,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             PomodoroCycle.PhaseSeconds(PomodoroPhase.Break, _config));
 
         _state = new PomodoroState(tick.Phase, tick.RemainingSeconds);
-        _completed = PomodoroCycle.CountSession(_completed, tick);
 
         // [S-152] The flip is the only thing that sounds, and it announces the phase being ENTERED.
         // Never from a preview card: it makes no sound ([S-1251]).
@@ -325,7 +305,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _phaseIcon.Glyph = work ? Glyphs.Pomodoro : Glyphs.Timer;
         _progress.Value = fraction * 100;
         _next.Text = PomodoroCycle.NextLine(_state.Phase, _config);
-        _sessions.Text = Str.WidgetsC_Pomodoro_SessionsDone.Plural(_completed);
 
         // Which phase you are in is the first thing to read off this widget, so it is carried by
         // colour as well as by the word: accent text for focus, the success colour for a break.
@@ -344,8 +323,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _runIcon.Glyph = _running ? Glyphs.Pause : Glyphs.Play;
         ToolTipService.SetToolTip(_runButton, (_running ? Str.WidgetsC_Pomodoro_Pause : Str.WidgetsC_Pomodoro_Start).Text());
 
-        RenderDots(fill);
-
         if (_ringShown)
         {
             _ringArc.Data = Arc(_ringDiameter, _ringArc.StrokeThickness, fraction);
@@ -356,31 +333,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         if (_clock.Text.Length != characters)
         {
             Lay();
-        }
-    }
-
-    private void RenderDots(Brush fill)
-    {
-        var shown = Math.Clamp(Math.Max(4, _completed), 4, MaxDots);
-
-        while (_dots.Children.Count < shown)
-        {
-            _dots.Children.Add(new Ellipse { Width = Fluent.Space2, Height = Fluent.Space2, StrokeThickness = Fluent.Hairline });
-        }
-
-        while (_dots.Children.Count > shown)
-        {
-            _dots.Children.RemoveAt(_dots.Children.Count - 1);
-        }
-
-        var outline = FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
-
-        for (var i = 0; i < _dots.Children.Count; i++)
-        {
-            var dot = (Ellipse)_dots.Children[i];
-            var done = i < _completed;
-            dot.Fill = done ? fill : null;
-            dot.Stroke = done ? fill : outline;
         }
     }
 
@@ -395,7 +347,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     /// along the bottom; a wide strip adds skip and the next phase under the controls.</item>
     /// <item>M: phase, digits, bar, controls (with skip), the next phase.</item>
     /// <item>Tall, L, XL: a ring that fills with the phase, the digits inside it; beside it on a wide
-    /// tile, the phase, the next phase, the controls and (XL) the sessions done.</item>
+    /// tile, the phase, the next phase, and the controls.</item>
     /// </list>
     /// </summary>
     private void Lay()
@@ -417,7 +369,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
 
         // Reset everything the arrangements below may not place.
         _ringShown = false;
-        Hide(_ringTrack, _ringArc, _phaseRow, _progress, _next, _sessionRow);
+        Hide(_ringTrack, _ringArc, _phaseRow, _progress, _next);
 
         var skip = area.WidthClass >= SizeClass.Expanded || area.AtLeast(SizeClass.Regular, SizeClass.Regular);
         var reset = area.WidthClass >= SizeClass.Regular || area.HeightClass >= SizeClass.Regular;
@@ -550,7 +502,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         var beside = box.Width - box.Height >= SideColumnMinimum;
         var label = area.Least >= SizeClass.Expanded ? FluentType.Strong(FluentType.Subtitle) : FluentType.BodyStrong;
         var nextStep = area.Least >= SizeClass.Expanded ? FluentType.Body : FluentType.Caption;
-        var dotsWanted = area.Least >= SizeClass.Huge;
         double diameter;
 
         if (beside)
@@ -594,8 +545,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             // The second column: everything but the digits, centred on the ring.
             var colX = ringX + diameter + gap + Fluent.Space4;
             var colW = Math.Max(0, (x0 + box.Width) - colX);
-            var dots = dotsWanted && box.Height >= label.LineHeight + nextStep.LineHeight + side + FluentType.Caption.LineHeight + (3 * gap);
-            var height = label.LineHeight + gap + nextStep.LineHeight + gap + side + (dots ? gap + FluentType.Caption.LineHeight : 0);
+            var height = label.LineHeight + gap + nextStep.LineHeight + gap + side;
             var y = y0 + Math.Max(0, (box.Height - height) / 2);
 
             Place(_phaseRow, colX, y, colW, label.LineHeight);
@@ -604,12 +554,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             Place(_next, colX, y, colW, nextStep.LineHeight);
             y += nextStep.LineHeight + gap;
             Place(_controls, colX, y, buttons, side);
-            y += side + gap;
-
-            if (dots)
-            {
-                Place(_sessionRow, colX, y, colW, FluentType.Caption.LineHeight);
-            }
         }
         else
         {
@@ -618,12 +562,10 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             room.Reserve(diameter);
             var phase = room.Take(label.LineHeight);
             var next = room.Take(nextStep.LineHeight);
-            var dots = dotsWanted && room.Take(FluentType.Caption.LineHeight);
 
             var height = diameter + gap + side
                 + (phase ? label.LineHeight + gap : 0)
-                + (next ? nextStep.LineHeight + gap : 0)
-                + (dots ? FluentType.Caption.LineHeight + gap : 0);
+                + (next ? nextStep.LineHeight + gap : 0);
             var y = y0 + Math.Max(0, (box.Height - height) / 2);
 
             if (phase)
@@ -643,12 +585,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             }
 
             Place(_controls, x0 + ((box.Width - buttons) / 2), y, buttons, side);
-            y += side + gap;
-
-            if (dots)
-            {
-                PlaceCentred(_sessionRow, x0, y, box.Width, FluentType.Caption.LineHeight);
-            }
         }
 
         _ringArc.Data = Arc(diameter, stroke, PomodoroCycle.Progress(_state, PomodoroCycle.PhaseSeconds(_state.Phase, _config)));

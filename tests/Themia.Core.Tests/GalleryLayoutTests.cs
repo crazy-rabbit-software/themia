@@ -179,14 +179,11 @@ public class GalleryLayoutTests
 
         foreach (var layout in Enum.GetValues<GalleryLayout>())
         {
-            var plan = GalleryPlan.For(area, layout, singleSource: false, available: 24, caption: false, Gap);
+            var plan = GalleryPlan.For(area, layout, singleSource: false, available: 24, Gap);
 
             Assert.True(plan.MainWidth > 0 && plan.MainHeight > 0, $"{tier} {layout}: no main area");
             Assert.True(plan.MainWidth <= width + 0.001, $"{tier} {layout}: main too wide");
-
-            var stripHeight = plan.Strip == GalleryStrip.Below ? plan.StripExtent + Gap : 0;
-            var total = plan.MainHeight + stripHeight + GalleryPlan.CaptionHeight(plan.CaptionLines, Gap);
-            Assert.True(total <= height + 0.5, $"{tier} {layout}: {total} > {height}");
+            Assert.True(plan.MainHeight <= height + 0.5, $"{tier} {layout}: {plan.MainHeight} > {height}");
         }
     }
 
@@ -197,41 +194,49 @@ public class GalleryLayoutTests
 
         foreach (var layout in Enum.GetValues<GalleryLayout>())
         {
-            var plan = GalleryPlan.For(xs, layout, false, 24, false, Gap);
+            var plan = GalleryPlan.For(xs, layout, false, 24, Gap);
             Assert.Equal(1, plan.Pictures);
             Assert.False(plan.Counter);
             Assert.False(plan.Controls);
-            Assert.Equal(GalleryStrip.None, plan.Strip);
         }
     }
 
     [Fact]
-    public void S767_slideshow_discloses_counter_then_strip_then_caption()
+    public void S767_slideshow_discloses_the_counter_and_no_up_next_thumbnails()
     {
-        GalleryPlan At(double w, double h) => GalleryPlan.For(new WidgetArea(w, h), GalleryLayout.Slideshow, false, 24, false, Gap);
+        // The "up next" thumbnails are retired (concise widgets): the slide is the whole slot at
+        // every size, a wide strip and a tall column included.
+        GalleryPlan At(double w, double h) => GalleryPlan.For(new WidgetArea(w, h), GalleryLayout.Slideshow, false, 24, Gap);
 
         var s = At(200, 106);
         Assert.True(s.Counter && s.Controls);
-        Assert.Equal(GalleryStrip.None, s.Strip);
 
-        var wide = At(480, 116);
-        Assert.Equal(GalleryStrip.Beside, wide.Strip);
-        Assert.True(wide.MainWidth >= 116 * GalleryPlan.BesideAspect);
+        foreach (var (w, h) in new[] { (480.0, 116.0), (200.0, 356.0), (560.0, 376.0), (800.0, 516.0) })
+        {
+            var plan = At(w, h);
+            Assert.Equal(GalleryMode.Slideshow, plan.Mode);
+            Assert.Equal(w, plan.MainWidth, 3);
+            Assert.Equal(h, plan.MainHeight, 3);
+        }
+    }
 
-        var tall = At(200, 356);
-        Assert.Equal(GalleryStrip.Below, tall.Strip);
-        Assert.Equal(0, tall.CaptionLines);
+    [Theory]
+    [MemberData(nameof(Tiers))]
+    public void S2760_no_words_under_any_picture_the_picture_takes_the_height(string tier, double width, double height)
+    {
+        var area = new WidgetArea(width, height);
 
-        var l = At(560, 376);
-        Assert.Equal(GalleryStrip.Below, l.Strip);
-        Assert.Equal(5, l.StripCount);
-        Assert.Equal(1, l.CaptionLines);
+        // A single source (a file, the photo of the day) is the picture and nothing else.
+        var single = GalleryPlan.For(area, GalleryLayout.Grid, singleSource: true, available: 1, Gap);
+        Assert.Equal(GalleryMode.Single, single.Mode);
+        Assert.Equal(height, single.MainHeight, 3);
 
-        // XL gives the pictures more room, not more words: the file name stays the one line
-        // (no "3 of 24 · folder" line under it).
-        var xl = At(800, 516);
-        Assert.Equal(1, xl.CaptionLines);
-        Assert.True(xl.StripCount > l.StripCount);
+        foreach (var layout in Enum.GetValues<GalleryLayout>())
+        {
+            // No file name under a slide at any size: the picture keeps all the height.
+            var plan = GalleryPlan.For(area, layout, singleSource: false, available: 24, Gap);
+            Assert.True(Math.Abs(plan.MainHeight - height) < 0.001, $"{tier} {layout}: {plan.MainHeight} != {height}");
+        }
     }
 
     [Fact]
@@ -239,9 +244,9 @@ public class GalleryLayoutTests
     {
         foreach (var layout in new[] { GalleryLayout.Grid, GalleryLayout.Scatter, GalleryLayout.Mosaic })
         {
-            var m = GalleryPlan.For(new WidgetArea(320, 196), layout, false, 24, false, Gap).Pictures;
-            var l = GalleryPlan.For(new WidgetArea(560, 376), layout, false, 24, false, Gap).Pictures;
-            var xl = GalleryPlan.For(new WidgetArea(800, 516), layout, false, 24, false, Gap).Pictures;
+            var m = GalleryPlan.For(new WidgetArea(320, 196), layout, false, 24, Gap).Pictures;
+            var l = GalleryPlan.For(new WidgetArea(560, 376), layout, false, 24, Gap).Pictures;
+            var xl = GalleryPlan.For(new WidgetArea(800, 516), layout, false, 24, Gap).Pictures;
 
             Assert.True(m > 1, $"{layout} M");
             Assert.True(l > m, $"{layout} L");
@@ -251,24 +256,7 @@ public class GalleryLayoutTests
 
     [Fact]
     public void S767_a_layout_never_asks_for_more_pictures_than_the_scan_found()
-        => Assert.Equal(3, GalleryPlan.For(new WidgetArea(800, 516), GalleryLayout.Grid, false, 3, false, Gap).Pictures);
-
-    [Fact]
-    public void S763_photo_of_the_day_caption_sheds_credit_then_title()
-    {
-        GalleryPlan At(double w, double h) => GalleryPlan.For(new WidgetArea(w, h), GalleryLayout.Grid, true, 1, true, Gap);
-
-        Assert.Equal(GalleryMode.Single, At(560, 376).Mode);
-        Assert.Equal(2, At(560, 376).CaptionLines);
-        Assert.Equal(1, At(200, 106).CaptionLines);
-        Assert.Equal(0, At(120, 76).CaptionLines);
-
-        // A wide strip keeps the photograph rather than a letterbox with words under it.
-        Assert.Equal(0, At(480, 116).CaptionLines);
-
-        // A file never captions; only the photo of the day has words to show.
-        Assert.Equal(0, GalleryPlan.For(new WidgetArea(560, 376), GalleryLayout.Grid, true, 1, false, Gap).CaptionLines);
-    }
+        => Assert.Equal(3, GalleryPlan.For(new WidgetArea(800, 516), GalleryLayout.Grid, false, 3, Gap).Pictures);
 
     // -----------------------------------------------------------------------------------------
     // [S-762] the photo of the day
@@ -287,8 +275,6 @@ public class GalleryLayoutTests
         Assert.Equal("https", photo.Image.Scheme);
         Assert.Equal("www.bing.com", photo.Image.Host);
         Assert.StartsWith("/th", photo.Image.PathAndQuery, StringComparison.Ordinal);
-        Assert.Equal("A lake", photo.Caption.Title);
-        Assert.Equal("© Someone", photo.Caption.Credit);
     }
 
     [Theory]
@@ -306,13 +292,66 @@ public class GalleryLayoutTests
     public void S762_anything_that_is_not_a_path_on_bing_is_refused(string json)
         => Assert.Null(BingPhoto.Parse(json));
 
+    // -----------------------------------------------------------------------------------------
+    // [S-3112] the photo of the day's credit tooltip
+    // -----------------------------------------------------------------------------------------
+
     [Fact]
-    public void S762_missing_words_are_empty_not_null()
+    public void S3112_a_bing_reply_carries_only_the_credit_not_the_title()
+    {
+        const string json = """
+            {"images":[{"url":"/th?id=OHR.Example_EN-US123_1920x1080.jpg","title":"A lake","copyright":"Lake Bled, Slovenia (© Jane Doe/Agency)"}]}
+            """;
+
+        Assert.Equal("© Jane Doe/Agency", BingPhoto.Parse(json)?.Credit?.Text);
+    }
+
+    [Fact]
+    public void S3112_a_missing_credit_is_no_tooltip_but_still_a_photo()
     {
         var photo = BingPhoto.Parse("""{"images":[{"url":"/th?id=x.jpg"}]}""");
+
         Assert.NotNull(photo);
-        Assert.Equal(string.Empty, photo.Caption.Title);
-        Assert.Equal(string.Empty, photo.Caption.Credit);
+        Assert.Null(photo.Credit);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\n\t\u0000")]
+    [InlineData("‮​")]
+    [InlineData("(© )")]
+    public void S3112_a_blank_credit_is_none(string? raw)
+        => Assert.Null(BingCredit.Parse(raw));
+
+    [Theory]
+    [InlineData("  © Someone  ", "© Someone")]
+    [InlineData("© Some\r\none\u0007here", "© Some one here")]
+    [InlineData("© Evil‮gnp.exe", "© Evilgnp.exe")]
+    [InlineData("Place (© Open-ended", "© Open-ended")]
+    [InlineData("Credit without a mark", "Credit without a mark")]
+    [InlineData("A (© First) B (© Second)", "© Second")]
+    public void S3112_the_credit_is_cleaned(string raw, string expected)
+        => Assert.Equal(expected, BingCredit.Parse(raw)?.Text);
+
+    [Fact]
+    public void S3112_a_long_credit_is_capped()
+    {
+        var credit = BingCredit.Parse("© " + new string('x', 1000));
+
+        Assert.NotNull(credit);
+        Assert.Equal(BingCredit.MaxLength, credit.Text.Length);
+    }
+
+    [Fact]
+    public void S3112_the_cap_never_splits_a_surrogate_pair()
+    {
+        var credit = BingCredit.Parse("© " + new string('x', BingCredit.MaxLength - 3) + "😀😀");
+
+        Assert.NotNull(credit);
+        Assert.True(credit.Text.Length <= BingCredit.MaxLength);
+        Assert.False(char.IsHighSurrogate(credit.Text[^1]));
     }
 
     // -----------------------------------------------------------------------------------------
@@ -341,7 +380,6 @@ public class GalleryLayoutTests
         {
             Source = GallerySource.File,
             FilePath = @"C:\Pictures\a.jpg",
-            ShowCaption = false,
             RefreshMinutes = 15,
             Layout = GalleryLayout.Mosaic,
         };
@@ -350,7 +388,6 @@ public class GalleryLayoutTests
 
         Assert.Equal(GallerySource.File, clone.Source);
         Assert.Equal(@"C:\Pictures\a.jpg", clone.FilePath);
-        Assert.False(clone.ShowCaption);
         Assert.Equal(15, clone.RefreshMinutes);
         Assert.Equal(GalleryLayout.Mosaic, clone.Layout);
         Assert.True(clone.IsSingleSource);

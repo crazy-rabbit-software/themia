@@ -272,6 +272,62 @@ public sealed class SyncVault
         Log.Info(Scope, "an owner's synced data was purged");
     }
 
+    /// <summary>
+    /// [S-2665] Delete the shelves of owners that no longer exist, through the same queue as every
+    /// write, so nothing is written beside it. <paramref name="owners"/> is read on the writer's
+    /// thread when the sweep runs (an account signed in just before still counts); null means the
+    /// account list cannot be trusted now ([S-2666]) and nothing is swept. The log names kinds and
+    /// counts, never an owner.
+    /// </summary>
+    public void Sweep(Func<IReadOnlyCollection<string>?> owners)
+    {
+        ArgumentNullException.ThrowIfNull(owners);
+
+        if (_directory is not { } directory)
+        {
+            return;
+        }
+
+        Enqueue(Path.Combine(directory, "|sweep"), () =>
+        {
+            if (owners() is not { } known)
+            {
+                Log.Info(Scope, "the account list could not be trusted; no shelves swept");
+                return;
+            }
+
+            string[] names;
+            try
+            {
+                if (!System.IO.Directory.Exists(directory))
+                {
+                    return;
+                }
+
+                names = [.. System.IO.Directory.EnumerateFiles(directory).Select(f => Path.GetFileName(f))];
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Log.Warn(Scope, "could not list the offline store to sweep it", ex);
+                return;
+            }
+
+            var orphans = ShelfSweep.Orphans(names, known);
+            if (orphans.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var name in orphans)
+            {
+                Delete(Path.Combine(directory, name));
+            }
+
+            var kinds = string.Join(", ", orphans.GroupBy(ShelfSweep.KindOf, StringComparer.OrdinalIgnoreCase).Select(g => $"{g.Count()} {g.Key.ToLowerInvariant()}"));
+            Log.Info(Scope, $"swept {orphans.Count} shelf file(s) of accounts no longer signed in ({kinds})");
+        });
+    }
+
     /// <summary>Wait until every queued write and purge has landed (exit, tests).</summary>
     public async Task FlushAsync()
     {

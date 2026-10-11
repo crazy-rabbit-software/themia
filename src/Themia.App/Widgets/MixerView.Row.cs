@@ -1,9 +1,7 @@
 using Microsoft.UI;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
@@ -33,7 +31,6 @@ internal sealed partial class MixerView
         private readonly TextBlock _detail = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
         private readonly Border _count;
         private readonly TextBlock _countText = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        private readonly TextBlock _percent = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
         private readonly Slider _slider = new() { Minimum = 0, Maximum = 100, StepFrequency = 1 };
         private readonly Rectangle _meter = new() { Height = AudioLook.MeterHeight };
         private readonly ScaleTransform _meterScale = new() { ScaleX = 0 };
@@ -80,11 +77,6 @@ internal sealed partial class MixerView
             // The count hugs the name, and the name ellipsises rather than running under the slider.
             _nameLine = new HugRow(_name, _count, Fluent.Space2) { VerticalAlignment = VerticalAlignment.Center };
 
-            _percent.TextAlignment = TextAlignment.Right;
-            _percent.MinWidth = Fluent.Space6 + Fluent.Space2;
-            _percent.VerticalAlignment = VerticalAlignment.Center;
-            Typography.SetNumeralAlignment(_percent, FontNumeralAlignment.Tabular);
-
             _mute.Content = _muteIcon;
             _mute.Padding = new Thickness(Fluent.Space1 + 2);
             _mute.MinWidth = 0;
@@ -130,7 +122,6 @@ internal sealed partial class MixerView
             _grid.Children.Add(_detail);
             _grid.Children.Add(_slider);
             _grid.Children.Add(_meter);
-            _grid.Children.Add(_percent);
             _grid.Children.Add(_mute);
 
             Host = Fluent.Row(_grid);
@@ -153,8 +144,8 @@ internal sealed partial class MixerView
         /// empty columns too, and a narrow row cannot afford thirty pixels of gaps around nothing.
         /// </summary>
         /// <param name="detail">
-        /// [S-1624] A one-line row tall enough for it has a caption under the name; the slider, the
-        /// percent and the mute then span both lines, centred on the row.
+        /// [S-1624] A one-line row tall enough for it has a caption under the name; the slider and
+        /// the mute then span both lines, centred on the row.
         /// </param>
         public void Arrange(MixerRowStyle style, double height, bool icons, bool detail)
         {
@@ -182,7 +173,6 @@ internal sealed partial class MixerView
                     Place(_detail, 1, 1, 1);
                     Place(_slider, 0, 2, 1, lines);
                     Place(_meter, 0, 2, 1, lines);
-                    Place(_percent, 0, 3, 1, lines);
                     Place(_mute, 0, 4, 1, lines);
                     _nameLine.VerticalAlignment = detail ? VerticalAlignment.Bottom : VerticalAlignment.Center;
                     _detail.VerticalAlignment = VerticalAlignment.Top;
@@ -193,7 +183,6 @@ internal sealed partial class MixerView
                 case MixerRowStyle.TwoLine:
                     _nameLine.VerticalAlignment = VerticalAlignment.Center;
                     Place(_nameLine, 0, 1, 2);
-                    Place(_percent, 0, 3, 1);
                     Place(_mute, 0, 4, 1);
                     Place(_slider, 1, 1, 4);
                     Place(_meter, 1, 1, 4);
@@ -206,19 +195,17 @@ internal sealed partial class MixerView
                 default:
                     _nameLine.VerticalAlignment = VerticalAlignment.Center;
                     Place(_nameLine, 0, 1, 2);
-                    Place(_percent, 0, 3, 1);
                     Place(_mute, 0, 4, 1);
                     break;
             }
 
             _slider.Visibility = style == MixerRowStyle.Compact ? Visibility.Collapsed : Visibility.Visible;
 
-            // A compact row is the app, its level and its mute: the icon names the app, and the
-            // name only comes back when there is no icon to do it.
+            // A compact row is the app and its mute (the glyph shows the level band, [S-2771]): the
+            // icon names the app, and the name only comes back when there is no icon to do it.
             _nameLine.Visibility = style == MixerRowStyle.Compact && icons ? Visibility.Collapsed : Visibility.Visible;
             _nameLine.Margin = new Thickness(icons ? Fluent.Space2 : 0, 0, 0, 0);
             _detail.Margin = _nameLine.Margin;
-            _percent.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
             _mute.Margin = new Thickness(Fluent.Space1, 0, 0, 0);
 
             // A two-line row is the name line (28: the mute button) and the tucked slider (16) in
@@ -255,8 +242,8 @@ internal sealed partial class MixerView
             _count.Visibility = row.Sessions > 1 ? Visibility.Visible : Visibility.Collapsed;
             _countText.Text = LocaleFormat.Integer(row.Sessions);
 
+            // [S-2771] The level is the slider's position (and the mute glyph's band), never a number.
             var percent = MixerRules.DisplayPercent(row);
-            _percent.Text = LocaleFormat.Percent(Strings.Current, percent);
 
             _muteIcon.Glyph = AudioLook.OutputGlyph(row.Level, row.Muted);
             ToolTipService.SetToolTip(_mute, row.Muted ? Str.Mixer_Unmute.Text() : Str.Mixer_Mute.Text());

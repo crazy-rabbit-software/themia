@@ -251,9 +251,10 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     }
 
     /// <summary>[S-2661] A feed's answer or state changed in the sync service.</summary>
-    private void OnFeedUpdated(string url)
+    private void OnFeedUpdated(string key)
     {
-        if (_detached || !_config.FeedUrls.Contains(url, StringComparer.Ordinal))
+        var cap = _config.EffectiveMaxItems;
+        if (_detached || !_config.FeedUrls.Any(url => FeedSync.Key(url, cap) == key))
         {
             return;
         }

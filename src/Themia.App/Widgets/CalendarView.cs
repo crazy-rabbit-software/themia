@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -340,13 +341,16 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
             return;
         }
 
+        // [S-2664] Events from the store the last sync could not improve on say when they are from,
+        // as Mail and Contacts do: "Work: No network · updated 10:42".
         _screen = Screen.Ready;
-        _warningText = problems.Count == 0
+        var folded = SyncFreshness.Fold(problems);
+        _warningText = folded.Count == 0
             ? null
-            : () => string.Join(Environment.NewLine, problems.Distinct().Select(p =>
+            : () => string.Join(Environment.NewLine, folded.Select(p =>
                 Str.WidgetsA_Office_AccountProblem.Format(
-                    ("account", labels.TryGetValue(p.Account, out var label) ? label : p.Account),
-                    ("problem", SyncProblems.Message(p.Problem, SyncSubject.Calendar, Strings.Current)))));
+                    ("account", labels.TryGetValue(p.Owner, out var label) ? label : p.Owner),
+                    ("problem", SyncFreshness.Stamp(Strings.Current, SyncProblems.Message(p.Problem, SyncSubject.Calendar, Strings.Current), p.At?.ToLocalTime(), DateTimeOffset.Now)))));
         _warningOpensAccounts = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
     }
 

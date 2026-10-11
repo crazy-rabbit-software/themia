@@ -6,7 +6,6 @@ namespace Themia.Core.Mail;
 /// <summary>Which lines a list or compact row draws at the widget's current size.</summary>
 /// <param name="Inline">[S-1283] One line per message — sender, subject and preview, account, time side by side.</param>
 /// <param name="Envelope">[S-1282] The closed or open envelope in front of the sender.</param>
-/// <param name="Provider">[S-1284] The account tag names its provider too: "Work (Microsoft)".</param>
 public readonly record struct MailRowLayout(
     bool Subject,
     bool Preview,
@@ -14,8 +13,7 @@ public readonly record struct MailRowLayout(
     bool Account,
     bool Time,
     bool Inline = false,
-    bool Envelope = false,
-    bool Provider = false);
+    bool Envelope = false);
 
 /// <summary>One row-view column at the width it gets: a fixed width, or a share of what is left.</summary>
 public readonly record struct MailColumnFit(MailColumn Column, double Width, double Star);
@@ -54,9 +52,6 @@ public static class MailLayout
     /// <summary>[S-1282] From this width the envelope glyph costs the sender nothing it needs.</summary>
     public const double EnvelopeNeedsWidth = 300;
 
-    /// <summary>[S-1284] From this width the account tag has room for its provider.</summary>
-    public const double ProviderNeedsWidth = 720;
-
     /// <summary>[S-1287] From this width the row view adds the preview column when the subject would hog the line.</summary>
     public const double RoomyPreviewFromWidth = 700;
 
@@ -80,8 +75,7 @@ public static class MailLayout
                 account,
                 Time: true,
                 Inline: true,
-                Envelope: envelope,
-                Provider: account && width >= ProviderNeedsWidth);
+                Envelope: envelope);
         }
 
         var preview = config.Shows(MailListField.Preview) && height >= PreviewNeedsHeight && width >= 180;
@@ -94,8 +88,7 @@ public static class MailLayout
             lines,
             tag,
             width >= TimeNeedsWidth,
-            Envelope: envelope,
-            Provider: tag && width >= ProviderNeedsWidth);
+            Envelope: envelope);
     }
 
     /// <summary>The narrowest each column can be and still say anything.</summary>
