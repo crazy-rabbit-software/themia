@@ -103,6 +103,8 @@
   "shell.color.mist": "Neblina",
   "shell.color.white": "Blanco",
   "shell.view.defaultName": "Escritorio",
+  "shell.view.homeName": "Inicio",
+  "shell.view.workName": "Trabajo",
   "shell.drop.moveTo": "Mover a %1",
   "shell.drop.copyTo": "Copiar en %1",
   "shell.drop.linkIn": "Crear vínculo en %1",

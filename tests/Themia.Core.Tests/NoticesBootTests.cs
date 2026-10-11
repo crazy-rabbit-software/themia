@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Storage;
@@ -171,7 +172,8 @@ public sealed class NoticesBootTests : IDisposable
 
         Assert.True(state.Design.RunAtStartup);
         Assert.Equal(new DesignState().WidgetGapPx, state.Design.WidgetGapPx);
-        Assert.Equal(3, Assert.Single(state.Views).Widgets.Count);
+        Assert.Equal(2, state.Views.Count);
+        Assert.Equal(3, state.Views[0].Widgets.Count);
     }
 
     // ---------------------------------------------------------------------------------------
@@ -179,10 +181,25 @@ public sealed class NoticesBootTests : IDisposable
     // ---------------------------------------------------------------------------------------
 
     [Fact]
-    public void S893_a_fresh_profile_gets_the_originals_first_run_desktop()
+    public void S893_a_fresh_profile_gets_a_home_and_a_work_view()
     {
         var state = AppState.CreateDefault();
-        var widgets = Assert.Single(state.Views).Widgets;
+
+        Assert.Equal(2, state.Views.Count);
+        Assert.Equal(Str.Shell_View_HomeName.Text(), state.Views[0].Name);
+        Assert.Equal(Str.Shell_View_WorkName.Text(), state.Views[1].Name);
+        Assert.Equal(state.Views[0].Id, state.ActiveViewId);
+        Assert.NotEqual(state.Views[0].Id, state.Views[1].Id);
+
+        // Two seeded views must still fit the free tier, with room left to add widgets.
+        Assert.True(state.Views.Count <= Themia.Core.Licensing.LicenseRules.FreeViewLimit);
+        Assert.True(state.Views.Sum(v => v.Widgets.Count) < Themia.Core.Licensing.LicenseRules.FreeWidgetLimit);
+    }
+
+    [Fact]
+    public void S893_the_home_view_is_the_originals_first_run_desktop()
+    {
+        var widgets = AppState.CreateDefault().Views[0].Widgets;
 
         Assert.Equal(
             [WidgetKind.Clock, WidgetKind.Folder, WidgetKind.Shortcuts],
@@ -191,8 +208,43 @@ public sealed class NoticesBootTests : IDisposable
         var places = Assert.IsType<ShortcutsConfig>(widgets[2].Config);
         Assert.Equal(AppState.FirstRunPlaces.Select(p => "shell:" + p), places.Items.Select(i => i.Target));
         Assert.All(places.Items, i => Assert.Equal(string.Empty, i.Label));
+        AssertInsideAndApart(widgets);
+    }
 
-        // Every widget inside the screen and none overlapping another.
+    [Fact]
+    public void S893_the_work_view_is_calendar_tasks_notes_and_a_clock()
+    {
+        var widgets = AppState.CreateDefault().Views[1].Widgets;
+
+        // The clock first, as on Home, so it is the one drawn on top.
+        Assert.Equal(
+            [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
+            widgets.Select(w => w.Kind));
+        Assert.DoesNotContain(widgets, w => w.Kind == WidgetKind.Folder);
+        AssertInsideAndApart(widgets);
+    }
+
+    [Fact]
+    public void S893_every_seeded_widget_has_its_own_id()
+    {
+        var ids = AppState.CreateDefault().Views.SelectMany(v => v.Widgets).Select(w => w.Id).ToList();
+
+        Assert.Equal(ids.Count, ids.Distinct(StringComparer.Ordinal).Count());
+    }
+
+    [Fact]
+    public void S893_load_validation_changes_nothing_in_the_first_run_desktop()
+    {
+        var state = AppState.CreateDefault();
+        var before = state.Views.SelectMany(v => v.Widgets).Select(w => (w.Kind, w.Rect)).ToList();
+
+        Assert.Empty(AppStateStore.Validate(state));
+        Assert.Equal(before, state.Views.SelectMany(v => v.Widgets).Select(w => (w.Kind, w.Rect)));
+    }
+
+    /// <summary>Every widget inside the screen and none overlapping another.</summary>
+    private static void AssertInsideAndApart(List<WidgetInstance> widgets)
+    {
         foreach (var w in widgets)
         {
             Assert.InRange(w.X, 0, 1 - w.W);
@@ -224,7 +276,11 @@ public sealed class NoticesBootTests : IDisposable
 
         var loaded = new AppStateStore(path).Load();
         Assert.Equal(LoadOutcome.Loaded, loaded.Outcome);
+        Assert.Equal(2, loaded.State.Views.Count);
         Assert.Equal(3, loaded.State.Views[0].Widgets.Count);
+        Assert.Equal(
+            [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
+            loaded.State.Views[1].Widgets.Select(w => w.Kind));
         Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[2].Config).Items.Count);
     }
 }

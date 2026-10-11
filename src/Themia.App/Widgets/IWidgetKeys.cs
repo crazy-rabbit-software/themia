@@ -34,4 +34,12 @@ public interface IWidgetKeys
     /// click on a small tile never takes the keyboard from the foreground app for nothing.
     /// </summary>
     bool WantsKeys => true;
+
+    /// <summary>
+    /// [S-1980]/[S-1997] A character typed while the widget holds the lease and no text box has focus:
+    /// type-ahead in a long list (<see cref="TypeAhead"/>). Return whether it was used. Arrives after
+    /// the key's own <see cref="HandleKey"/>, so a letter that is a widget key (M) reaches both; a
+    /// view without type-ahead leaves this alone.
+    /// </summary>
+    bool HandleText(char character) => false;
 }

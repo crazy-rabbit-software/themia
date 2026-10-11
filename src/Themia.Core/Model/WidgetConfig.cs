@@ -48,6 +48,14 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(GpuConfig), typeDiscriminator: "gpu")]
 [JsonDerivedType(typeof(MixerConfig), typeDiscriminator: "mixer")]
 [JsonDerivedType(typeof(ScreenTimeConfig), typeDiscriminator: "screenTime")]
+[JsonDerivedType(typeof(CpuDetailsConfig), typeDiscriminator: "cpuDetails")]
+[JsonDerivedType(typeof(MemoryDetailsConfig), typeDiscriminator: "memoryDetails")]
+[JsonDerivedType(typeof(TopProcessesConfig), typeDiscriminator: "topProcesses")]
+[JsonDerivedType(typeof(NetworkDetailsConfig), typeDiscriminator: "networkDetails")]
+[JsonDerivedType(typeof(DiskSpaceConfig), typeDiscriminator: "diskSpace")]
+[JsonDerivedType(typeof(BatteryDetailsConfig), typeDiscriminator: "batteryDetails")]
+[JsonDerivedType(typeof(PingDetailsConfig), typeDiscriminator: "pingDetails")]
+[JsonDerivedType(typeof(GpuDetailsConfig), typeDiscriminator: "gpuDetails")]
 public abstract class WidgetConfig
 {
     /// <summary>The kind this config belongs to. Used to detect a config/kind mismatch on load.</summary>
@@ -97,6 +105,14 @@ public abstract class WidgetConfig
         WidgetKind.Gpu => new GpuConfig(),
         WidgetKind.Mixer => new MixerConfig(),
         WidgetKind.ScreenTime => new ScreenTimeConfig(),
+        WidgetKind.CpuDetails => new CpuDetailsConfig(),
+        WidgetKind.MemoryDetails => new MemoryDetailsConfig(),
+        WidgetKind.TopProcesses => new TopProcessesConfig(),
+        WidgetKind.NetworkDetails => new NetworkDetailsConfig(),
+        WidgetKind.DiskSpace => new DiskSpaceConfig(),
+        WidgetKind.BatteryDetails => new BatteryDetailsConfig(),
+        WidgetKind.PingDetails => new PingDetailsConfig(),
+        WidgetKind.GpuDetails => new GpuDetailsConfig(),
         _ => new ClockConfig(),
     };
 

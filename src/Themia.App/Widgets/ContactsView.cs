@@ -78,6 +78,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private bool _searchOpen;
     private IReadOnlyList<Contact> _contacts = [];
     private IReadOnlyList<Contact> _visible = [];
+
+    /// <summary>[S-1983] The names typed so far ([S-1980]).</summary>
+    private readonly TypeAhead _typeAhead = new();
     private Screen _screen = Screen.Loading;
     /// <summary>The problem in words, worded when shown so a language switch reaches it ([S-1109]).</summary>
     private Func<string> _problemText = () => string.Empty;
@@ -497,19 +500,46 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             return false;
         }
 
+        if (key == WidgetKey.Escape)
+        {
+            _typeAhead.Reset();
+        }
+
         var next = ContactRules.MoveSelection([.. _visible.Select(c => c.Id)], _selectedId, key);
         if (next == _selectedId)
         {
             return key == WidgetKey.Escape;
         }
 
-        Select(next);
-        if (next is not null && _rows.TryGetValue(next, out var row))
+        SelectAndShow(next);
+        return true;
+    }
+
+    /// <summary>[S-1983] Type-ahead: the first letters of a name select that person.</summary>
+    public bool HandleText(char character)
+    {
+        if (_detached || _screen != Screen.Ready || _visible.Count == 0)
+        {
+            return false;
+        }
+
+        var current = _selectedId is null ? -1 : _visible.ToList().FindIndex(c => c.Id == _selectedId);
+        if (_typeAhead.Type(character, Environment.TickCount64, [.. _visible.Select(c => c.Name)], current) is not { } index)
+        {
+            return _typeAhead.Prefix.Length > 0;
+        }
+
+        SelectAndShow(_visible[index].Id);
+        return true;
+    }
+
+    private void SelectAndShow(string? id)
+    {
+        Select(id);
+        if (id is not null && _rows.TryGetValue(id, out var row))
         {
             row.StartBringIntoView();
         }
-
-        return true;
     }
 
     // -----------------------------------------------------------------------------------------

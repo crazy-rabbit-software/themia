@@ -12,8 +12,7 @@ public class ViewPerDisplayTests
     private static AppState TwoViewsOnTwoDisplays()
     {
         var state = AppState.CreateDefault();
-        var second = ViewState.Create("Second");
-        state.Views.Add(second);
+        var second = state.Views[1];
         state.MonitorViews[TwoDisplays[0]] = state.Views[0].Id;
         state.MonitorViews[TwoDisplays[1]] = second.Id;
         return state;
@@ -24,10 +23,11 @@ public class ViewPerDisplayTests
     {
         var state = AppState.CreateDefault();
         var original = state.ActiveView();
+        var views = state.Views.Count;
 
         DisplayPlan.AssignViews(state, TwoDisplays);
 
-        Assert.Single(state.Views);
+        Assert.Equal(views, state.Views.Count);
         Assert.Equal(original.Id, state.ViewForMonitor(TwoDisplays[0]).Id);
         Assert.Equal(original.Id, state.ViewForMonitor(TwoDisplays[1]).Id);
     }
@@ -36,7 +36,7 @@ public class ViewPerDisplayTests
     public void S1705_the_seeded_widgets_are_not_duplicated_or_lost()
     {
         var state = AppState.CreateDefault();
-        var seeded = state.ActiveView().Widgets.Count;
+        var seeded = state.Views.Sum(v => v.Widgets.Count);
 
         DisplayPlan.AssignViews(state, TwoDisplays);
 

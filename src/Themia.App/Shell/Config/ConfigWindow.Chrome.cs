@@ -117,6 +117,7 @@ internal sealed partial class ConfigWindow
         };
 
         AttachHistoryKeys(root);
+        AttachWindowKeys(root);
         return root;
     }
 

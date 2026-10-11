@@ -34,6 +34,7 @@ Themia.exe --picker-png <out.png> [--search t]      Themia.exe --viewbar-png <ou
 Themia.exe --notices-png <outDir>
 Themia.exe --menu-png <outDir>                               Themia.exe --iconpicker-png <out.png> [--search t]
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name]   # one card at the 7 tiers (or w×h)
+Themia.exe --groups-png <outDir> [--theme light|dark]   # touching widgets sharing one card, fixture surface
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
 ```
 

@@ -127,6 +127,30 @@ public enum WidgetKind
 
     /// <summary>[S-1910] One button: turn off the display.</summary>
     ScreenOff = 59,
+
+    /// <summary>[S-2405] The processor's speed, cores, processes and uptime.</summary>
+    CpuDetails = 60,
+
+    /// <summary>[S-2408] Memory in use, committed, cached, the pools and the page file.</summary>
+    MemoryDetails = 61,
+
+    /// <summary>[S-2410] The busiest processes, by processor or memory.</summary>
+    TopProcesses = 62,
+
+    /// <summary>[S-2415] Rates, session totals, addresses and every adapter.</summary>
+    NetworkDetails = 63,
+
+    /// <summary>[S-2420] Free and used space on every drive.</summary>
+    DiskSpace = 64,
+
+    /// <summary>[S-2423] The battery's status, time left, health and cycles.</summary>
+    BatteryDetails = 65,
+
+    /// <summary>[S-2426] Latency statistics: average, range, jitter and loss.</summary>
+    PingDetails = 66,
+
+    /// <summary>[S-2430] One adapter's video memory and sensors.</summary>
+    GpuDetails = 67,
 }
 
 /// <summary>How a countdown renders the time it has left. [C-11]</summary>

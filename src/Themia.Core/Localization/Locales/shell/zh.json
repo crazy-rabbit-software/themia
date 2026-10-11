@@ -103,6 +103,8 @@
   "shell.color.mist": "雾白色",
   "shell.color.white": "白色",
   "shell.view.defaultName": "桌面",
+  "shell.view.homeName": "主页",
+  "shell.view.workName": "工作",
   "shell.drop.moveTo": "移动到 %1",
   "shell.drop.copyTo": "复制到 %1",
   "shell.drop.linkIn": "在 %1 中创建链接",

@@ -103,6 +103,8 @@
   "shell.color.mist": "Névoa",
   "shell.color.white": "Branco",
   "shell.view.defaultName": "Área de trabalho",
+  "shell.view.homeName": "Início",
+  "shell.view.workName": "Trabalho",
   "shell.drop.moveTo": "Mover para %1",
   "shell.drop.copyTo": "Copiar para %1",
   "shell.drop.linkIn": "Criar atalho em %1",

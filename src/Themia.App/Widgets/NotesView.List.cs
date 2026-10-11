@@ -22,6 +22,9 @@ namespace Themia.App.Widgets;
 internal sealed partial class NotesView
 {
     private readonly List<(string Id, Border Row, IDisposable Hover)> _rows = [];
+
+    /// <summary>[S-1994] The title typed so far.</summary>
+    private readonly TypeAhead _typeAhead = new();
     private Button _picker = null!;
     private Grid _listHost = null!;
     private StackPanel _listPanel = null!;
@@ -464,6 +467,7 @@ internal sealed partial class NotesView
 
         if (key == WidgetKey.Escape)
         {
+            _typeAhead.Reset();
             return ReleaseList();
         }
 
@@ -499,6 +503,24 @@ internal sealed partial class NotesView
             default:
                 return false;
         }
+    }
+
+    /// <summary>[S-1994] Type-ahead ([S-1980]) in the XL note list: a title's first letters focus its row.</summary>
+    public bool HandleText(char character)
+    {
+        if (_detached || _renaming is not null || _listHost.Visibility != Visibility.Visible || _rows.Count == 0)
+        {
+            return false;
+        }
+
+        var titles = _rows.Select(r => _pool?.Find(r.Id)?.Title ?? string.Empty).ToList();
+        if (_typeAhead.Type(character, Environment.TickCount64, titles, _focusIndex) is not { } index)
+        {
+            return _typeAhead.Prefix.Length > 0;
+        }
+
+        FocusList(index);
+        return true;
     }
 
     private bool ReleaseList()

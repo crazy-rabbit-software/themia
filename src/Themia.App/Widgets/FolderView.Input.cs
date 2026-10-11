@@ -407,6 +407,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 // open rename; the paste target (this folder) is untouched.
                 CancelRename();
                 _keyboardActive = false;
+                _typeAhead.Reset();
                 _selection.Clear();
                 RefreshSelectionVisuals();
                 return true;
@@ -414,6 +415,33 @@ internal sealed partial class FolderView : IWidgetDropTarget
             default:
                 return false;
         }
+    }
+
+    /// <summary>The name typed so far ([S-1993]).</summary>
+    private readonly TypeAhead _typeAhead = new();
+
+    /// <summary>
+    /// [S-1993] Type-ahead ([S-1980]), as in Explorer: a name's first letters select that item alone
+    /// and move the cursor to it; the same letter again steps through the items starting with it.
+    /// </summary>
+    public bool HandleText(char character)
+    {
+        if (_detached || _renaming is not null || _shown.Count == 0)
+        {
+            return false;
+        }
+
+        if (_typeAhead.Type(character, Environment.TickCount64, [.. _shown.Select(e => e.Name)], _selection.FocusIndex) is not { } index)
+        {
+            return _typeAhead.Prefix.Length > 0;
+        }
+
+        _keyboardActive = true;
+        _selection.Click(index, ctrl: false, shift: false);
+        RealizeThrough(index);
+        RefreshSelectionVisuals();
+        BringIntoView(index);
+        return true;
     }
 
     private bool MoveCursor(FolderMove move, bool extend)
@@ -429,12 +457,23 @@ internal sealed partial class FolderView : IWidgetDropTarget
         RealizeThrough(_selection.FocusIndex);
         RefreshSelectionVisuals();
 
-        if (_selection.FocusIndex is var index and >= 0 && index < _visuals.Count)
+        BringIntoView(_selection.FocusIndex);
+        return true;
+    }
+
+    /// <summary>
+    /// Scroll an item into view. A row realised just now ([S-1887]) has no layout yet, and asking
+    /// before it has one scrolls to where the panel guessed it was: lay out first.
+    /// </summary>
+    private void BringIntoView(int index)
+    {
+        if (index < 0 || index >= _visuals.Count)
         {
-            _visuals[index].Root.StartBringIntoView();
+            return;
         }
 
-        return true;
+        _scroll.UpdateLayout();
+        _visuals[index].Root.StartBringIntoView();
     }
 
     // ---- drag out -------------------------------------------------------------------------------

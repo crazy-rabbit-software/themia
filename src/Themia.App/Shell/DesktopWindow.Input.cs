@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Shell;
@@ -34,81 +35,17 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var ctrl = IsDown(Windows.System.VirtualKey.Control);
+        // [S-70], [S-1970]..[S-1976] One key map (Core EditKeys); the surface only carries it out.
+        var action = EditKeys.Decide(
+            (int)args.Key,
+            IsDown(Windows.System.VirtualKey.Shift),
+            IsDown(Windows.System.VirtualKey.Control),
+            IsDown(Windows.System.VirtualKey.Menu));
 
-        switch (args.Key)
+        if (action.Command != EditCommand.None && RunEditKey(action))
         {
-            case Windows.System.VirtualKey.C when ctrl:
-                _host.CopySelected();
-                break;
-
-            case Windows.System.VirtualKey.X when ctrl:
-                _host.CutSelected();
-                break;
-
-            case Windows.System.VirtualKey.V when ctrl:
-                // [S-74] The ghost appears on the display under the pointer, not the one holding the
-                // keyboard. Those differ exactly when it matters: copy on one screen, point at the
-                // other, paste.
-                _host.Paste();
-                break;
-
-            case Windows.System.VirtualKey.D when ctrl:
-                _host.DuplicateSelected();
-                break;
-
-            // [S-885] Undo and redo, in edit mode only, like every other shortcut here.
-            case Windows.System.VirtualKey.Z when ctrl && IsDown(Windows.System.VirtualKey.Shift):
-            case Windows.System.VirtualKey.Y when ctrl:
-                _host.Redo();
-                break;
-
-            case Windows.System.VirtualKey.Z when ctrl:
-                _host.Undo();
-                break;
-
-            case Windows.System.VirtualKey.A when ctrl:
-                // [S-1582] Everything on the display under the pointer.
-                _host.SelectAllUnderCursor();
-                break;
-
-            case Windows.System.VirtualKey.Delete:
-                _host.DeleteSelected();
-                break;
-
-            // [S-904] Ctrl+1..9 shows the n-th view, in edit mode only: the surface has the keyboard
-            // then, and nowhere else may Themia take digits from the app the user is typing in.
-            case >= Windows.System.VirtualKey.Number1 and <= Windows.System.VirtualKey.Number9 when ctrl:
-                ShowViewByNumber(args.Key - Windows.System.VirtualKey.Number1 + 1);
-                break;
-
-            case >= Windows.System.VirtualKey.NumberPad1 and <= Windows.System.VirtualKey.NumberPad9 when ctrl:
-                ShowViewByNumber(args.Key - Windows.System.VirtualKey.NumberPad1 + 1);
-                break;
-
-            case Windows.System.VirtualKey.Escape:
-                // [S-1583] Escape backs out one step at a time: out of placing first, then out of the
-                // selection, then out of editing.
-                if (_host.Placing is not null)
-                {
-                    _host.CancelPlacement();
-                }
-                else if (!_host.Selection.IsEmpty)
-                {
-                    _host.Select(null);
-                }
-                else
-                {
-                    _host.SetEditMode(false);
-                }
-
-                break;
-
-            default:
-                return;
+            args.Handled = true;
         }
-
-        args.Handled = true;
     }
 
     /// <summary>
@@ -167,6 +104,22 @@ internal sealed partial class DesktopWindow
                 args.Handled = holder.SendKey(widgetKey);
                 break;
         }
+    }
+
+    /// <summary>
+    /// [S-1997] A character typed outside edit mode goes to the lease holder on this surface for its
+    /// type-ahead ([S-1980]) — never while a text box has focus (the box types it, [S-804]), and never
+    /// a Ctrl or Alt chord's (those are not typing; AltGr, which is both, is).
+    /// </summary>
+    private void OnCharacterReceived(UIElement sender, CharacterReceivedRoutedEventArgs args)
+    {
+        if (EditMode || args.Handled || !ReferenceEquals(_host.KeyboardSurface, this) || _host.KeyboardHolder is not { } holder
+            || TextHasFocus() || IsDown(Windows.System.VirtualKey.Control) != IsDown(Windows.System.VirtualKey.Menu))
+        {
+            return;
+        }
+
+        args.Handled = holder.SendText(args.Character);
     }
 
     private static bool IsDown(Windows.System.VirtualKey key)
@@ -251,24 +204,6 @@ internal sealed partial class DesktopWindow
         ApplyInteractivity();
     }
 
-    private bool FocusIsIn(WidgetCard card)
-    {
-        if (_root.XamlRoot is not { } xamlRoot)
-        {
-            return false;
-        }
-
-        for (var node = FocusManager.GetFocusedElement(xamlRoot) as DependencyObject; node is not null; node = VisualTreeHelper.GetParent(node))
-        {
-            if (ReferenceEquals(node, card))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /// <summary>
     /// [S-802] Losing activation ends the lease: the user clicked the desktop or another app, or
     /// switched away with Alt+Tab. That is the "click outside" signal — no global mouse hook, because
@@ -279,6 +214,8 @@ internal sealed partial class DesktopWindow
     {
         if (args.WindowActivationState == WindowActivationState.Deactivated)
         {
+            // [S-1972] An arrow held while the keyboard went elsewhere never sees its key-up.
+            FlushNudge();
             _host.KeyboardEndOn(this);
         }
     }

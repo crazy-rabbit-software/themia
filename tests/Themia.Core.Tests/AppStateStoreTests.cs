@@ -37,7 +37,7 @@ public sealed class AppStateStoreTests : IDisposable
         var result = NewStore().Load();
 
         Assert.Equal(LoadOutcome.Fresh, result.Outcome);
-        Assert.Single(result.State.Views);
+        Assert.Equal(AppState.CreateDefault().Views.Count, result.State.Views.Count);
     }
 
     [Fact]

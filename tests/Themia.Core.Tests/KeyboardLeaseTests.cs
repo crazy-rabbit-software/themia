@@ -249,7 +249,7 @@ public sealed class KeyboardLeaseTests
     [Fact]
     public void S812_keys_the_lists_do_not_answer_do_nothing()
     {
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.Space, 1, 3).Command);
+        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.Left, 1, 3).Command);
         Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.Left, 1, 3).Command);
     }
 }

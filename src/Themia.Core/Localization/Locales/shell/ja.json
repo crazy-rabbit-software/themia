@@ -103,6 +103,8 @@
   "shell.color.mist": "ミスト",
   "shell.color.white": "ホワイト",
   "shell.view.defaultName": "デスクトップ",
+  "shell.view.homeName": "ホーム",
+  "shell.view.workName": "仕事",
   "shell.drop.moveTo": "%1 へ移動",
   "shell.drop.copyTo": "%1 へコピー",
   "shell.drop.linkIn": "%1 にリンクを作成",

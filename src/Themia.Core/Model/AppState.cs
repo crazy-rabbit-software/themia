@@ -257,13 +257,26 @@ public sealed class AppState
     public Dictionary<string, ViewBarSettings> ViewBars { get; set; } = [];
 
     /// <summary>
-    /// [S-893] A fresh profile, laid out as the original's first run: a clock top right, the Desktop
-    /// folder top left, and the everyday Windows places bottom right. The clock stays first, so it is the one a reset or a recovery shows on top.
-    /// Shortcut labels are left empty so the names come from the target, translated with the app.
+    /// [S-893] A fresh profile, seeded as the original's first run with two views so switching views
+    /// is discoverable from the start. Home: a clock top right, the Desktop folder top left, and the
+    /// everyday Windows places bottom right. Work: calendar, tasks, notes and a clock. The clock stays
+    /// first in each, so it is the one a reset or a recovery shows on top. Shortcut labels are left
+    /// empty so the names come from the target, translated with the app.
     /// </summary>
     public static AppState CreateDefault()
     {
-        var view = ViewState.Create(Str.Shell_View_DefaultName.Text());
+        var home = CreateHomeView();
+        var work = CreateWorkView();
+        return new AppState
+        {
+            Views = [home, work],
+            ActiveViewId = home.Id,
+        };
+    }
+
+    private static ViewState CreateHomeView()
+    {
+        var view = ViewState.Create(Str.Shell_View_HomeName.Text());
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.78, 0.04, 0.20, 0.16)));
 
         var folder = WidgetInstance.Create(WidgetKind.Folder, new FracRect(0.02, 0.04, 0.24, 0.50));
@@ -283,12 +296,22 @@ public sealed class AppState
         }
 
         view.Widgets.Add(places);
+        return view;
+    }
 
-        return new AppState
-        {
-            Views = [view],
-            ActiveViewId = view.Id,
-        };
+    /// <summary>
+    /// [S-893] The original's Work showcase: the calendar takes the left half, tasks and notes share a
+    /// column beside it, the clock sits top right as on Home. Calendar and tasks show their Set up
+    /// button until an account exists ([S-1860]); notes work at once.
+    /// </summary>
+    private static ViewState CreateWorkView()
+    {
+        var view = ViewState.Create(Str.Shell_View_WorkName.Text());
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.78, 0.04, 0.20, 0.16)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.02, 0.04, 0.50, 0.72)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Tasks, new FracRect(0.54, 0.04, 0.20, 0.58)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.54, 0.64, 0.20, 0.28)));
+        return view;
     }
 
     /// <summary>[S-893] The Windows places the first-run Shortcuts widget holds, in the original's order.</summary>

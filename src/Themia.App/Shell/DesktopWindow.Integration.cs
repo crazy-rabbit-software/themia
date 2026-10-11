@@ -46,6 +46,9 @@ internal sealed partial class DesktopWindow
 
         _cards.Clear();
 
+        // [S-2106] No cards, no groups: nothing of theirs is left to show on resume.
+        ApplyGroups();
+
         // Out of the z-order controller's hands while hidden: its cloak repair shows any cloaked
         // surface it manages, and a full-screen game is exactly what cloaks windows.
         DesktopZOrder.Forget(_hwnd);

@@ -168,6 +168,15 @@ internal static class WidgetCatalog
         new(WidgetKind.Network, Str.WidgetsA_Catalog_Network_Label, Str.WidgetsA_Catalog_Network_Description, Glyphs.Network, 200, 150, WidgetCategory.System),
         new(WidgetKind.Ping, Str.Widget_Ping_Label, Str.WidgetsA_Catalog_Ping_Description, Glyphs.Ping, 200, 150, WidgetCategory.System),
         new(WidgetKind.Gpu, Str.WidgetsA_Catalog_Gpu_Label, Str.Shell_Meters_GpuDescription, Glyphs.Gpu, 220, 220, WidgetCategory.System),
+        // [S-2400] The detail widgets, right after the meters they go with.
+        new(WidgetKind.CpuDetails, Str.Details_Catalog_Cpu_Label, Str.Details_Catalog_Cpu_Desc, Glyphs.Cpu, 280, 240, WidgetCategory.System),
+        new(WidgetKind.MemoryDetails, Str.Details_Catalog_Memory_Label, Str.Details_Catalog_Memory_Desc, Glyphs.Memory, 280, 240, WidgetCategory.System),
+        new(WidgetKind.TopProcesses, Str.Details_Catalog_Processes_Label, Str.Details_Catalog_Processes_Desc, Glyphs.ListLayout, 300, 300, WidgetCategory.System),
+        new(WidgetKind.NetworkDetails, Str.Details_Catalog_Network_Label, Str.Details_Catalog_Network_Desc, Glyphs.Network, 300, 280, WidgetCategory.System),
+        new(WidgetKind.DiskSpace, Str.Details_Catalog_Disk_Label, Str.Details_Catalog_Disk_Desc, Glyphs.Disk, 300, 240, WidgetCategory.System),
+        new(WidgetKind.BatteryDetails, Str.Details_Catalog_Battery_Label, Str.Details_Catalog_Battery_Desc, Glyphs.Battery, 280, 240, WidgetCategory.System),
+        new(WidgetKind.PingDetails, Str.Details_Catalog_Ping_Label, Str.Details_Catalog_Ping_Desc, Glyphs.Ping, 260, 240, WidgetCategory.System),
+        new(WidgetKind.GpuDetails, Str.Details_Catalog_Gpu_Label, Str.Details_Catalog_Gpu_Desc, Glyphs.Gpu, 280, 240, WidgetCategory.System),
         new(WidgetKind.Mixer, Str.WidgetsA_Catalog_Mixer_Label, Str.WidgetsA_Catalog_Mixer_Description, Glyphs.Mixer, 300, 260, WidgetCategory.System),
         new(WidgetKind.ScreenTime, Str.WidgetsA_Catalog_ScreenTime_Label, Str.WidgetsA_Catalog_ScreenTime_Description, Glyphs.ScreenTime, 260, 300, WidgetCategory.System),
         new(WidgetKind.Email, Str.WidgetsA_Catalog_Mail_Label, Str.WidgetsA_Catalog_Mail_Description, Glyphs.Mail, 380, 260, WidgetCategory.Accounts),
@@ -267,6 +276,8 @@ internal static class WidgetCatalog
         WidgetKind.Cpu or WidgetKind.Memory or WidgetKind.Disk
             or WidgetKind.Battery or WidgetKind.Network or WidgetKind.Ping => new MeterView(kind),
         WidgetKind.Gpu => new GpuView(),
+        WidgetKind.CpuDetails or WidgetKind.MemoryDetails or WidgetKind.TopProcesses or WidgetKind.NetworkDetails
+            or WidgetKind.DiskSpace or WidgetKind.BatteryDetails or WidgetKind.PingDetails or WidgetKind.GpuDetails => new DetailView(kind),
         WidgetKind.Mixer => new MixerView(),
         WidgetKind.ScreenTime => new ScreenTimeView(),
         WidgetKind.Email => new EmailView(),

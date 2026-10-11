@@ -70,6 +70,9 @@ internal sealed partial class ViewBar : Grid
     private bool _dragging;
     private List<string> _orderAtPress = [];
 
+    /// <summary>[S-1979] The view whose chip takes the focus back after the rebuild an Enter caused.</summary>
+    private string? _refocusId;
+
     public ViewBar(IViewBarOwner owner)
     {
         _owner = owner;
@@ -178,6 +181,13 @@ internal sealed partial class ViewBar : Grid
             _panel.Children.Add(BuildChip(item, look, metrics));
         }
 
+        // [S-1979] Enter on a chip rebuilds the bar under the focus: give it back to the same view's chip.
+        if (_refocusId is { } refocus && Chip(refocus) is { } again)
+        {
+            _refocusId = null;
+            again.Loaded += (_, _) => again.Focus(FocusState.Keyboard);
+        }
+
         ToolTipService.SetToolTip(this, null);
         if (look.Preview)
         {
@@ -267,6 +277,16 @@ internal sealed partial class ViewBar : Grid
         AutomationProperties.SetItemStatus(chip, item.Shown ? Str.Shell_ViewBar_Showing.Text() : string.Empty);
 
         HoverFill(chip, item.Shown);
+
+        // [S-1979] In edit mode the chips take the keyboard (F6 reaches the bar): the arrows rove,
+        // Enter or Space shows the view. Outside edit mode the surface never has the keyboard.
+        if (look.Editing)
+        {
+            chip.IsTabStop = true;
+            chip.UseSystemFocusVisuals = true;
+            chip.KeyDown += (_, e) => e.Handled = OnChipKey(item.Id, e.Key);
+        }
+
         chip.PointerPressed += (_, e) => OnPressed(e, item.Id);
         chip.RightTapped += (_, e) =>
         {
@@ -449,6 +469,52 @@ internal sealed partial class ViewBar : Grid
     {
         _built = string.Empty;
         Rebuild();
+    }
+
+    /// <summary>[S-1979] A key on a focused chip in edit mode.</summary>
+    private bool OnChipKey(string viewId, Windows.System.VirtualKey key)
+    {
+        if (key is Windows.System.VirtualKey.Enter or Windows.System.VirtualKey.Space)
+        {
+            if (!_items.Any(i => i.Shown && i.Id == viewId))
+            {
+                _refocusId = viewId;
+            }
+
+            _owner.SwitchTo(viewId);
+            return true;
+        }
+
+        WidgetKey? move = key switch
+        {
+            Windows.System.VirtualKey.Left or Windows.System.VirtualKey.Up => WidgetKey.Up,
+            Windows.System.VirtualKey.Right or Windows.System.VirtualKey.Down => WidgetKey.Down,
+            Windows.System.VirtualKey.Home => WidgetKey.Home,
+            Windows.System.VirtualKey.End => WidgetKey.End,
+            _ => null,
+        };
+
+        if (move is not { } widgetKey)
+        {
+            return false;
+        }
+
+        var chips = Chips().ToList();
+        var step = ListKeys.Decide(widgetKey, chips.FindIndex(c => (string)c.Tag == viewId), chips.Count);
+        if (step.Command == ListCommand.Focus && step.Index >= 0)
+        {
+            chips[step.Index].Focus(FocusState.Keyboard);
+        }
+
+        return true;
+    }
+
+    /// <summary>[S-1979] Put the keyboard on the shown view's chip (the surface's F6); false when the bar has none to focus.</summary>
+    internal bool FocusFirstChip()
+    {
+        var chips = Chips().ToList();
+        var shown = chips.FindIndex(c => _items.Any(i => i.Shown && i.Id == (string)c.Tag));
+        return chips.Count > 0 && chips[Math.Max(0, shown)].Focus(FocusState.Keyboard);
     }
 
     private IEnumerable<Border> Chips() => _panel.Children.OfType<Border>().Where(b => b.Tag is string);

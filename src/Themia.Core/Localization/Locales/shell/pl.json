@@ -103,6 +103,8 @@
   "shell.color.mist": "Mgła",
   "shell.color.white": "Biały",
   "shell.view.defaultName": "Pulpit",
+  "shell.view.homeName": "Dom",
+  "shell.view.workName": "Praca",
   "shell.drop.moveTo": "Przenieś do: %1",
   "shell.drop.copyTo": "Kopiuj do: %1",
   "shell.drop.linkIn": "Utwórz łącze w: %1",

@@ -170,6 +170,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     /// <summary>[S-873] The view asked to paint nothing (outside edit mode).</summary>
     private bool _hidden;
 
+    /// <summary>[S-2104] A member of a group: the group's shared background replaces this card's own.</summary>
+    private bool _grouped;
+
     private readonly Grid _header;
     private readonly TextBlock _headerTitle;
 
@@ -415,6 +418,26 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     /// <summary>[S-872] Whether the card draws anything the window's hit region must take clicks for.</summary>
     public bool IsShown(bool editMode) => !_hidden || editMode;
 
+    /// <summary>[S-2102] Whether the card paints its own card right now (a view hiding itself does not, even faded in edit mode).</summary>
+    public bool PaintsOwnCard => !_hidden;
+
+    /// <summary>
+    /// [S-2104] Join or leave a group. A member paints no fill, tint or border of its own (the group
+    /// draws one under every card), and its header strip only when the header has a colour of its
+    /// own. Its content, header, edit outline and hit-testing are untouched.
+    /// </summary>
+    public void SetGrouped(bool grouped)
+    {
+        if (grouped == _grouped)
+        {
+            return;
+        }
+
+        _grouped = grouped;
+        ApplyHidden();
+        ApplyDesign();
+    }
+
     /// <summary>
     /// Paint the card from the design: corner radius, fill colour and opacity, border, header fill and
     /// font. The one per-card apply path ([S-820]..[S-829]); the app-wide half (theme, accent, text
@@ -444,22 +467,21 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         // opaque surface colour that overlay is meant to sit on, so it is the correct base here.
         // A colour of the user's own replaces both: it is meant to be exactly that colour.
         var opacity = DesignLook.FillOpacity(Model.Surface, design.SurfaceOpacity);
-        var custom = DesignApplier.UserBrush(design.WidgetBackgroundColor);
+        var tinted = CardPaint.Tint(design) is not null;
 
-        _fill.Background = opacity <= 0 ? null
-            : custom ?? FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
+        _fill.Background = opacity <= 0 ? null : CardPaint.Base(design);
         _fill.BorderBrush = null;
         _fill.BorderThickness = new Thickness(0);
         _fill.Opacity = opacity <= 0 ? 1 : opacity;
-        _tint.Opacity = custom is null ? opacity : 0;
+        _tint.Opacity = tinted ? opacity : 0;
 
-        // [S-824] The border: style, width, colour and opacity, over the content.
+        // [S-824] The border: style, width, colour and opacity, over the content. [S-2104] A group
+        // member's border is the group's.
         var border = DesignLook.Border(Model.Surface, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
-        if (border.Visible && (!_hidden || _host.EditMode))
+        if (border.Visible && !_grouped && (!_hidden || _host.EditMode))
         {
             _stroke.Visibility = Visibility.Visible;
-            _stroke.Stroke = DesignApplier.UserBrush(design.BorderColor)
-                ?? FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray);
+            _stroke.Stroke = CardPaint.Stroke(design);
             _stroke.StrokeThickness = border.Thickness;
             _stroke.Opacity = border.Opacity;
 
@@ -467,13 +489,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             // radius is the card's less that half, or the corners would not meet the fill's.
             _stroke.RadiusX = _stroke.RadiusY = Math.Max(0, radiusPx - (border.Thickness / 2));
 
-            var dashes = new DoubleCollection();
-            foreach (var dash in border.Dashes)
-            {
-                dashes.Add(dash);
-            }
-
-            _stroke.StrokeDashArray = dashes;
+            _stroke.StrokeDashArray = CardPaint.Dashes(border);
             _stroke.StrokeDashCap = border.RoundCaps ? PenLineCap.Round : PenLineCap.Flat;
             _stroke.StrokeStartLineCap = _stroke.StrokeEndLineCap = _stroke.StrokeDashCap;
         }
@@ -511,19 +527,17 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         var own = DesignApplier.UserBrush(design.HeaderBackgroundColor);
         var surface = DesignLook.FillOpacity(Model.Surface, design.SurfaceOpacity);
         var opacity = DesignLook.HeaderFillOpacity(Model.Surface, design.SurfaceOpacity, design.HeaderOpacity, own is not null);
-        var custom = DesignApplier.UserBrush(design.WidgetBackgroundColor);
 
         _headerHost.Background = own is null ? null : DesignApplier.UserBrush(design.HeaderBackgroundColor, opacity);
         _headerHost.CornerRadius = radius;
 
         // Shared with the widget: the same base and Fluent lift as the body, faded on their own.
-        _headerBase.Background = own is null && surface > 0
-            ? custom ?? FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black)
-            : null;
+        // [S-2104] In a group the shared fill is the group's, already under the strip: painting it
+        // again here would stack a second fill on the first.
+        var shared = own is null && surface > 0 && !_grouped;
+        _headerBase.Background = shared ? CardPaint.Base(design) : null;
         _headerBase.Opacity = opacity;
-        _headerTint.Background = own is null && custom is null && surface > 0
-            ? FluentLayout.Themed("CardBackgroundFillColorDefaultBrush", Colors.Transparent)
-            : null;
+        _headerTint.Background = shared ? CardPaint.Tint(design) : null;
         _headerTint.Opacity = opacity;
         _headerBase.CornerRadius = radius;
         _headerTint.CornerRadius = radius;
@@ -580,8 +594,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         var editing = _host.EditMode;
         var visibility = !_hidden || editing ? Visibility.Visible : Visibility.Collapsed;
 
-        _fill.Visibility = visibility;
-        _tint.Visibility = visibility;
+        // [S-2104] A group member's fill is the group's.
+        var fill = _grouped ? Visibility.Collapsed : visibility;
+        _fill.Visibility = fill;
+        _tint.Visibility = fill;
         _surface.Visibility = visibility;
         _surface.Opacity = _hidden && editing ? 0.5 : 1;
     }
@@ -1146,6 +1162,25 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         catch (Exception ex)
         {
             Log.Error(Scope, $"{Model.Kind} threw handling {key}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>[S-1997] Hand the view a typed character from the lease (type-ahead), guarded like <see cref="SendKey"/>.</summary>
+    public bool SendText(char character)
+    {
+        if (!_running || _view is not IWidgetKeys keys)
+        {
+            return false;
+        }
+
+        try
+        {
+            return keys.HandleText(character);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"{Model.Kind} threw handling typed text", ex);
             return false;
         }
     }

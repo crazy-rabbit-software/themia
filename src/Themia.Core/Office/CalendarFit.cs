@@ -325,7 +325,8 @@ public static class CalendarFit
     /// <summary>
     /// [S-1269] The classic keys (S-31..34): Left / Right step the period, Up / Down move the cursor
     /// day a week in the month and week layouts, Home goes to today, Enter opens the cursor day's
-    /// first event. A layout that does not page takes only Enter.
+    /// first event. A layout that does not page takes only Enter. [S-1984] Page Up / Page Down page
+    /// too (a month in the month layouts), so the arrows' meaning never has to be learnt to page.
     /// </summary>
     public static CalendarKeyCommand Key(WidgetKey key, CalendarLayout layout)
     {
@@ -336,6 +337,8 @@ public static class CalendarFit
         {
             WidgetKey.Left when pages => CalendarKeyCommand.Back,
             WidgetKey.Right when pages => CalendarKeyCommand.Forward,
+            WidgetKey.PageUp when pages => CalendarKeyCommand.Back,
+            WidgetKey.PageDown when pages => CalendarKeyCommand.Forward,
             WidgetKey.Up when weeks => CalendarKeyCommand.WeekBack,
             WidgetKey.Down when weeks => CalendarKeyCommand.WeekForward,
             WidgetKey.Home when pages => CalendarKeyCommand.Today,

@@ -9,7 +9,9 @@ namespace Themia.App.Services;
 /// <summary>One graphics adapter as DXGI lists it.</summary>
 /// <param name="Index">Its place in DXGI's list: the persisted selection.</param>
 /// <param name="Luid">The token its performance counters are filed under.</param>
-internal sealed record GpuAdapter(int Index, string Name, string Luid, ulong DedicatedBytes, ulong SharedBytes);
+/// <param name="LuidLow">[S-2432] The LUID's low part, for opening the adapter in the graphics kernel.</param>
+/// <param name="LuidHigh">[S-2432] The LUID's high part.</param>
+internal sealed record GpuAdapter(int Index, string Name, string Luid, ulong DedicatedBytes, ulong SharedBytes, uint LuidLow = 0, int LuidHigh = 0);
 
 /// <summary>One sample of every adapter. Readings line up with <see cref="Adapters"/>.</summary>
 /// <param name="HasLoad">
@@ -17,7 +19,11 @@ internal sealed record GpuAdapter(int Index, string Name, string Luid, ulong Ded
 /// on a machine with no NVIDIA card. Each reading says so for itself too; the view shows "--" for
 /// it rather than a 0% that never happened.
 /// </param>
-internal sealed record GpuSnapshot(IReadOnlyList<GpuAdapter> Adapters, IReadOnlyList<GpuReading> Readings, bool HasLoad);
+internal sealed record GpuSnapshot(IReadOnlyList<GpuAdapter> Adapters, IReadOnlyList<GpuReading> Readings, bool HasLoad)
+{
+    /// <summary>[S-2430] Each adapter's memory and sensors, in <see cref="Adapters"/> order, for the details widget.</summary>
+    public IReadOnlyList<GpuDetail> Details { get; init; } = [];
+}
 
 /// <summary>
 /// [S-431] Graphics load and memory for every adapter, sampled once for however many GPU widgets
@@ -187,6 +193,7 @@ internal static partial class GpuSampler
         private readonly IReadOnlyList<GpuAdapter> _adapters;
         private readonly GpuCounters? _counters;
         private readonly Nvml? _nvml;
+        private readonly GpuKernel _kernel;
         private bool _baselined;
 
         public Session()
@@ -194,11 +201,14 @@ internal static partial class GpuSampler
             _adapters = Dxgi.Enumerate();
             _counters = GpuCounters.Open();
             _nvml = Nvml.TryOpen();
+            _kernel = new GpuKernel(_adapters);
         }
 
         public GpuSnapshot Sample()
         {
             var engines = _counters?.Engines() ?? [];
+            var dedicated = _counters?.Dedicated() ?? [];
+            var shared = _counters?.Shared() ?? [];
 
             // The query collected once when it opened, so every sample after the first has a
             // second reading to make a rate from.
@@ -207,6 +217,7 @@ internal static partial class GpuSampler
             var anyLoad = false;
 
             var readings = new List<GpuReading>(_adapters.Count);
+            var details = new List<GpuDetail>(_adapters.Count);
             var seen = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var adapter in _adapters)
@@ -225,15 +236,25 @@ internal static partial class GpuSampler
                 });
 
                 anyLoad |= readings[^1].HasLoad;
+
+                details.Add(new GpuDetail(
+                    adapter.Name,
+                    readings[^1].HasLoad ? readings[^1].Utilization : null,
+                    GpuDetailRules.SumFor(dedicated, adapter.Luid),
+                    adapter.DedicatedBytes,
+                    GpuDetailRules.SumFor(shared, adapter.Luid),
+                    adapter.SharedBytes,
+                    _kernel.Read(adapter.Luid)));
             }
 
-            return new GpuSnapshot(_adapters, readings, anyLoad);
+            return new GpuSnapshot(_adapters, readings, anyLoad) { Details = details };
         }
 
         public void Dispose()
         {
             _counters?.Dispose();
             _nvml?.Dispose();
+            _kernel.Dispose();
         }
     }
 
@@ -321,7 +342,9 @@ internal static partial class GpuSampler
                             name.Length > 0 ? name : "GPU",
                             GpuRules.LuidKey(unchecked((uint)desc.LuidHigh), desc.LuidLow),
                             desc.DedicatedVideoMemory,
-                            desc.SharedSystemMemory));
+                            desc.SharedSystemMemory,
+                            desc.LuidLow,
+                            desc.LuidHigh));
                     }
                     finally
                     {
@@ -363,11 +386,15 @@ internal static partial class GpuSampler
     {
         private readonly PdhQuery _query;
         private readonly PdhCounter _engines;
+        private readonly PdhCounter? _dedicated;
+        private readonly PdhCounter? _shared;
 
-        private GpuCounters(PdhQuery query, PdhCounter engines)
+        private GpuCounters(PdhQuery query, PdhCounter engines, PdhCounter? dedicated, PdhCounter? shared)
         {
             _query = query;
             _engines = engines;
+            _dedicated = dedicated;
+            _shared = shared;
         }
 
         /// <summary>The counters, collected once so the next collection has something to rate against. Null when PDH refuses.</summary>
@@ -386,7 +413,11 @@ internal static partial class GpuSampler
                 return null;
             }
 
-            var counters = new GpuCounters(query, engines);
+            // [S-2430] Memory in use per adapter, collected with the engines; optional, like any
+            // counter a machine may lack.
+            var counters = new GpuCounters(query, engines,
+                query.Add(@"\GPU Adapter Memory(*)\Dedicated Usage"),
+                query.Add(@"\GPU Adapter Memory(*)\Shared Usage"));
 
             query.Collect();
             return counters;
@@ -399,6 +430,12 @@ internal static partial class GpuSampler
             _query.Collect();
             return _query.Doubles(_engines);
         }
+
+        /// <summary>[S-2430] Dedicated memory in use per instance, from the collection <see cref="Engines"/> just made.</summary>
+        public List<(string Instance, long Value)> Dedicated() => _dedicated is { } c ? _query.Larges(c) : [];
+
+        /// <summary>[S-2430] Shared memory in use per instance, from the same collection.</summary>
+        public List<(string Instance, long Value)> Shared() => _shared is { } c ? _query.Larges(c) : [];
 
         public void Dispose() => _query.Dispose();
     }

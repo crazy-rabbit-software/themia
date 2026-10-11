@@ -695,6 +695,9 @@ internal static class FluentLayout
         };
 
         ToolTipService.SetToolTip(button, tooltip);
+
+        // [S-1979] An icon has nothing for a screen reader to read: the tooltip is its name.
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, tooltip);
         return button;
     }
 

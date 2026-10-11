@@ -100,6 +100,11 @@ internal static partial class ConfigPages
                 WidgetSettings.ScreenTime(rows, screenTime, Save);
                 break;
 
+            // [S-2400] Every detail widget: its own rows, then its refresh.
+            case DetailConfig details:
+                WidgetSettings.Details(rows, details, Save);
+                break;
+
             case ContactsConfig contacts:
                 WidgetSettings.Contacts(rows, contacts, Save);
                 break;

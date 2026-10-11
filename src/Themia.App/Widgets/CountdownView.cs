@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// tiles add a progress bar from the timer's creation to its target ([S-1448]).
 /// </para>
 /// </summary>
-internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
+internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
     /// <summary>The hero's own column on a wide strip, as a share of the width.</summary>
     private const double HeroShare = 0.42;
@@ -64,6 +64,9 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     private bool _heroProgressShown;
     private bool _nextShown;
     private bool _detached;
+
+    /// <summary>[S-1986] The listed timer the keyboard cursor is on, by id so a rebuild keeps it.</summary>
+    private string? _cursorId;
 
     public CountdownView()
     {
@@ -183,6 +186,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
     private void BuildRows()
     {
+        var cursorAt = _cursorId is null ? -1 : _rows.FindIndex(r => r.Id == _cursorId);
+
         foreach (var existing in _rows)
         {
             existing.Detach();
@@ -203,6 +208,76 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
             row.SetDensity(_plan.CompactRows, _plan.RowProgress, InlineDates());
             _rows.Add(row);
             _list.Children.Add(row.Host);
+        }
+
+        // [S-1986] A removed timer hands the cursor to the row that took its place.
+        if (_cursorId is not null && _rows.FindIndex(r => r.Id == _cursorId) < 0)
+        {
+            var next = ListKeys.AfterRemoval(cursorAt, _rows.Count);
+            _cursorId = cursorAt >= 0 && next >= 0 ? _rows[next].Id : null;
+        }
+
+        MarkCursor();
+    }
+
+    // ---- keys ([S-1986]) -------------------------------------------------------------------------
+
+    /// <summary>[S-1986] Only a tile that lists timers takes the keyboard on a click.</summary>
+    public bool WantsKeys => !_detached && _rows.Count > 0 && _scroll.Visibility == Visibility.Visible;
+
+    /// <summary>
+    /// [S-1986] The listed timers through <see cref="ListKeys"/>: Up/Down, Page Up/Down, Home/End move
+    /// the cursor, Delete removes the timer (after asking, as its menu does), the Menu key opens its
+    /// menu, Escape lets go. Enter has nothing to open.
+    /// </summary>
+    public bool HandleKey(WidgetKey key)
+    {
+        if (_detached)
+        {
+            return false;
+        }
+
+        if (key == WidgetKey.Escape)
+        {
+            var had = _cursorId is not null;
+            _cursorId = null;
+            MarkCursor();
+            return had;
+        }
+
+        if (!WantsKeys)
+        {
+            return false;
+        }
+
+        var decision = ListKeys.Decide(key, _cursorId is null ? -1 : _rows.FindIndex(r => r.Id == _cursorId), _rows.Count);
+        var row = decision.Index >= 0 && decision.Index < _rows.Count ? _rows[decision.Index] : null;
+
+        switch (decision.Command)
+        {
+            case ListCommand.Focus when row is not null:
+                _cursorId = row.Id;
+                MarkCursor();
+                return true;
+
+            case ListCommand.Delete when row is not null:
+                _ = RemoveAsync(row.Id);
+                return true;
+
+            case ListCommand.Menu when row is not null:
+                ItemMenu.Open(row.Host, TimerMenu(row.Id));
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    private void MarkCursor()
+    {
+        foreach (var row in _rows)
+        {
+            RowFocus.Mark(row.Host, row.Id == _cursorId);
         }
     }
 
@@ -517,6 +592,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
             // A Windows 11 list row: a fixed height, the inset as its own padding so the highlight
             // reaches both edges of the widget, and nothing ruled underneath it.
             Host = Fluent.Row(grid);
+            RowFocus.Prepare(Host);
 
             // Held, and dropped in Detach: a handler left hooked keeps the row alive.
             _hover = Fluent.Hover(Host);
@@ -524,6 +600,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         }
 
         public Border Host { get; }
+
+        public string Id => _timer.Id;
 
         public void Update(DateTimeOffset now, TimeZoneInfo zone)
         {

@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// per click for something that is supposed to come back to today's quote in the morning.
 /// </para>
 /// </summary>
-internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware
+internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
 {
     private readonly Button _next;
 
@@ -220,6 +220,33 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     {
         _step++;
         Render();
+    }
+
+    /// <summary>[S-1990] Only a tile with somewhere to go takes the keyboard on a click.</summary>
+    public bool WantsKeys => !_detached && _config.EffectiveQuotes.Count > 1;
+
+    /// <summary>[S-1990] Right, Space or Enter the next quote, Left the one before (<see cref="ControlKeys.Quote"/>).</summary>
+    public bool HandleKey(WidgetKey key)
+    {
+        if (_detached)
+        {
+            return false;
+        }
+
+        switch (ControlKeys.Quote(key, _config.EffectiveQuotes.Count))
+        {
+            case ControlKey.Next:
+                ShowNext();
+                return true;
+
+            case ControlKey.Previous:
+                _step--;
+                Render();
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     /// <summary>

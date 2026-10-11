@@ -13,6 +13,9 @@ internal static class Glyphs
 {
     public static readonly string Settings = From(0xE713);
     public static readonly string Palette = From(0xE790);
+
+    /// <summary>[S-1556] The colour picker's "pick from the screen".</summary>
+    public static readonly string Eyedropper = From(0xEF3C);
     public static readonly string Grid = From(0xE80A);
     public static readonly string Info = From(0xE946);
     public static readonly string View = From(0xE7C4);

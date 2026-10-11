@@ -36,16 +36,7 @@ internal sealed partial class DesktopWindow
                 return;
             }
 
-            var view = ViewForThisMonitor(_host.State);
-            var facts = new SurfaceMenuFacts(
-                EditMode: EditMode,
-                Placing: _host.Placing is not null,
-                CanPaste: _host.Clipboard.HasContent,
-                HasWidgets: SelectionRules.All(view, HiddenIds()).Count > 0,
-                GridSnap: Design.GridSnap);
-
-            var at = e.GetPosition(_root);
-            if (ItemMenu.ShowAt(_root, at, SurfaceMenu(facts, at)))
+            if (OpenSurfaceMenu(e.GetPosition(_root)))
             {
                 e.Handled = true;
             }
@@ -54,6 +45,20 @@ internal sealed partial class DesktopWindow
         {
             Log.Error(Scope, "could not open the surface menu", ex);
         }
+    }
+
+    /// <summary>[S-1744] The surface menu at a point of the surface (a right-click, or [S-1974] the Menu key).</summary>
+    private bool OpenSurfaceMenu(Point at)
+    {
+        var view = ViewForThisMonitor(_host.State);
+        var facts = new SurfaceMenuFacts(
+            EditMode: EditMode,
+            Placing: _host.Placing is not null,
+            CanPaste: _host.Clipboard.HasContent,
+            HasWidgets: SelectionRules.All(view, HiddenIds()).Count > 0,
+            GridSnap: Design.GridSnap);
+
+        return ItemMenu.ShowAt(_root, at, SurfaceMenu(facts, at));
     }
 
     /// <summary>[S-1744] The entries for this surface. <paramref name="at"/> is where the picker opens.</summary>

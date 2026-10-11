@@ -158,28 +158,44 @@ internal sealed partial class GalleryView
     }
 
     /// <summary>
-    /// [S-811] A key from the shell's keyboard lease: Left / Right step and Space pauses the slideshow.
-    /// The other layouts show every picture at once and have nothing to step.
+    /// [S-811]/[S-1992] A key from the shell's keyboard lease (<see cref="ControlKeys.Slideshow"/>):
+    /// Left / Right step, Space pauses the slideshow, Home / End go to the first and last picture,
+    /// Enter opens the one shown. The other layouts show every picture at once and have nothing to step.
     /// </summary>
+    public bool WantsKeys => _config.Layout == GalleryLayout.Slideshow && _scan.Paths.Count > 0;
+
+    /// <inheritdoc cref="WantsKeys"/>
     public bool HandleKey(WidgetKey key)
     {
-        if (_detached || _config.Layout != GalleryLayout.Slideshow || _scan.Paths.Count == 0)
+        if (_detached || !WantsKeys)
         {
             return false;
         }
 
-        switch (key)
+        switch (ControlKeys.Slideshow(key, _scan.Paths.Count))
         {
-            case WidgetKey.Left:
+            case ControlKey.Previous:
                 Previous();
                 return true;
 
-            case WidgetKey.Right:
+            case ControlKey.Next:
                 Next();
                 return true;
 
-            case WidgetKey.Space:
+            case ControlKey.First:
+                JumpTo(0);
+                return true;
+
+            case ControlKey.Last:
+                JumpTo(_scan.Paths.Count - 1);
+                return true;
+
+            case ControlKey.Toggle:
                 TogglePause();
+                return true;
+
+            case ControlKey.Open when _index >= 0 && _index < _scan.Paths.Count && Picture.IsLocal(_scan.Paths[_index]):
+                ShellLauncher.Open(_scan.Paths[_index]);
                 return true;
 
             default:

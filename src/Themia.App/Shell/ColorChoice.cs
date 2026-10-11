@@ -5,10 +5,13 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
+using Themia.App.Interop;
+using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Shell;
@@ -140,18 +143,23 @@ internal static class ColorChoice
         }
 
         // Built each time it opens, so the ring sits on whatever is chosen now.
-        flyout.Opening += (_, _) => flyout.Content = Panel(current, options, Choose, () =>
-        {
-            flyout.Hide();
-            _ = CustomAsync(button, current, options, Choose);
-        });
+        flyout.Opening += (_, _) => flyout.Content = Panel(
+            current,
+            options,
+            Choose,
+            () =>
+            {
+                flyout.Hide();
+                _ = CustomAsync(button, current, options, Choose);
+            },
+            () => PickFromScreen(flyout, Choose));
 
         Show();
 
 #if DEBUG
         // The settings render draws the picker's panel in the page: a flyout on an off-screen,
         // never-activated window does not render.
-        DebugPanels.AddOrUpdate(button, new Func<FrameworkElement>(() => Panel(current, options, _ => { }, () => { })));
+        DebugPanels.AddOrUpdate(button, new Func<FrameworkElement>(() => Panel(current, options, _ => { }, () => { }, () => { })));
 #endif
 
         return button;
@@ -189,8 +197,8 @@ internal static class ColorChoice
             : FluentLayout.Themed("SolidBackgroundFillColorTertiaryBrush", Colors.Gray);
     }
 
-    /// <summary>The flyout: the default, the swatches, and the way to a custom colour.</summary>
-    private static StackPanel Panel(string current, ColorChoiceOptions options, Action<string> choose, Action custom)
+    /// <summary>The flyout: the default, the swatches, and the ways to a custom colour (the full picker, the eyedropper).</summary>
+    private static StackPanel Panel(string current, ColorChoiceOptions options, Action<string> choose, Action custom, Action pickFromScreen)
     {
         var panel = new StackPanel { Spacing = Fluent.Space3, Width = (SwatchSize * ColorPresets.Columns) + (Fluent.Space1 * (ColorPresets.Columns - 1)) };
 
@@ -250,10 +258,11 @@ internal static class ColorChoice
                     new ColumnDefinition { Width = GridLength.Auto },
                     new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
                     new ColumnDefinition { Width = GridLength.Auto },
+                    new ColumnDefinition { Width = GridLength.Auto },
                 },
             };
 
-            // A custom colour in use is shown, ringed, beside the way to change it.
+            // A custom colour in use is shown, ringed, beside the ways to change it.
             var isCustom = current.Length > 0 && ColorPresets.Find(options.Presets, current) is null;
             var mine = new Border { Width = 20, Height = 20, VerticalAlignment = VerticalAlignment.Center, Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed };
             FluentLayout.ApplyStyle(mine, "SettingsSwatchBorderStyle");
@@ -263,10 +272,23 @@ internal static class ColorChoice
             var view = new Button { Content = Str.Shell_Color_ViewColours.Text() };
             view.Click += (_, _) => custom();
 
+            // [S-1556] The eyedropper: any pixel on any display becomes the custom colour.
+            var dropper = new Button
+            {
+                Content = new FontIcon { Glyph = Glyphs.Eyedropper, FontSize = Fluent.IconSize },
+                VerticalAlignment = VerticalAlignment.Stretch,
+            };
+
+            AutomationProperties.SetName(dropper, Str.Shell_Color_PickFromScreen.Text());
+            ToolTipService.SetToolTip(dropper, Str.Shell_Color_PickFromScreenTip.Text());
+            dropper.Click += (_, _) => pickFromScreen();
+
             Grid.SetColumn(title, 1);
-            Grid.SetColumn(view, 2);
+            Grid.SetColumn(dropper, 2);
+            Grid.SetColumn(view, 3);
             row.Children.Add(mine);
             row.Children.Add(title);
+            row.Children.Add(dropper);
             row.Children.Add(view);
             panel.Children.Add(row);
         }
@@ -350,7 +372,93 @@ internal static class ColorChoice
         return grid;
     }
 
-    private static bool IsLight(byte r, byte g, byte b) => (0.299 * r) + (0.587 * g) + (0.114 * b) > 150;
+    private static bool IsLight(byte r, byte g, byte b) => ScreenPick.WantsDarkInk(r, g, b);
+
+    /// <summary>The eyedropper's loupe, sized from the design tokens: 11 magnified pixels a side.</summary>
+    private static LoupeMetrics Loupe => new(
+        Cells: 11,
+        CellDips: Fluent.Space3,
+        OffsetDips: Fluent.Space5,
+        GapDips: Fluent.Space1,
+        LabelHeightDips: FluentType.BodyStrong.LineHeight + (2 * Fluent.Space1));
+
+    /// <summary>
+    /// [S-1556] Close the flyout, wait until the screen no longer shows it, then run the eyedropper.
+    /// Event-driven throughout: the flyout's Closed, the next XAML frame, then the compositor's.
+    /// </summary>
+    private static void PickFromScreen(Flyout flyout, Action<string> choose)
+    {
+        if (ScreenColorPicker.IsActive)
+        {
+            return;
+        }
+
+        void OnClosed(object? sender, object e)
+        {
+            flyout.Closed -= OnClosed;
+            AfterNextFrame(() => _ = PickFromScreenAsync(choose));
+        }
+
+        flyout.Closed += OnClosed;
+        flyout.Hide();
+    }
+
+    /// <summary>Run <paramref name="then"/> once the next XAML frame has been handed to the compositor.</summary>
+    private static void AfterNextFrame(Action then)
+    {
+        var queue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+
+        void OnRendering(object? sender, object e)
+        {
+            CompositionTarget.Rendering -= OnRendering;
+
+            // Rendering runs before the frame is drawn; a low-priority item runs after it is sent.
+            if (queue is null || !queue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => then()))
+            {
+                Log.Warn(Scope, "could not queue the eyedropper after the frame; starting it now");
+                then();
+            }
+        }
+
+        CompositionTarget.Rendering += OnRendering;
+    }
+
+    private static async Task PickFromScreenAsync(Action<string> choose)
+    {
+        try
+        {
+            ScreenColorPicker.WaitForComposedFrame();
+            var result = await ScreenColorPicker.PickAsync(Loupe, FluentType.BodyStrong.FontSize);
+            switch (result.Outcome)
+            {
+                case ScreenPickOutcome.Picked:
+                    // Normalised again: the result crossed from native memory, and Choose stores it as is.
+                    var hex = HexColor.Normalise(result.Hex);
+                    if (hex.Length == 0)
+                    {
+                        Log.Error(Scope, $"the eyedropper returned an unreadable colour '{result.Hex}'");
+                        Notices.Show(Notice.Error(Str.Shell_Color_PickFailed.Text()));
+                        return;
+                    }
+
+                    choose(hex);
+                    return;
+
+                case ScreenPickOutcome.Failed:
+                    Notices.Show(Notice.Error(Str.Shell_Color_PickFailed.Text()));
+                    return;
+
+                default:
+                    // Escape, a right click, focus elsewhere: the user changed their mind.
+                    return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "the eyedropper failed", ex);
+            Notices.Show(Notice.Error(Str.Shell_Color_PickFailed.Text()));
+        }
+    }
 
     /// <summary>
     /// "Custom colour": WinUI's colour picker in a dialog, as Settings opens one for a custom accent.

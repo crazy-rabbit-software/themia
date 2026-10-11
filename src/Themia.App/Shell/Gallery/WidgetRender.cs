@@ -77,8 +77,8 @@ internal static class WidgetRender
             || !Enum.IsDefined(kind)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--keys k1,k2|text:abc]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--keys k1,k2|text:abc]");
             app.Exit();
             return true;
         }
@@ -153,6 +153,18 @@ internal static class WidgetRender
                     await Task.Delay(400).ConfigureAwait(true);
                 }
 
+                // [S-1980] Keys handed to every card before the shot, to look at a widget's keyboard
+                // focus ("--keys Down,Down" or "--keys text:be" for type-ahead) without the lease.
+                if (Option(args, "--keys") is { } keys)
+                {
+                    foreach (var card in cards)
+                    {
+                        SendKeys(card, keys);
+                    }
+
+                    await Task.Delay(400).ConfigureAwait(true);
+                }
+
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
                 await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
                 Console.WriteLine($"widget: wrote {outPath}");
@@ -176,6 +188,28 @@ internal static class WidgetRender
         });
 
         return true;
+    }
+
+    private static void SendKeys(WidgetCard card, string keys)
+    {
+        foreach (var token in keys.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (token.StartsWith("text:", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var character in token[5..])
+                {
+                    card.SendText(character);
+                }
+            }
+            else if (Enum.TryParse<WidgetKey>(token, ignoreCase: true, out var key) && Enum.IsDefined(key))
+            {
+                card.SendKey(key);
+            }
+            else
+            {
+                Console.WriteLine($"widget: no key '{token}'");
+            }
+        }
     }
 
     /// <summary>One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).</summary>

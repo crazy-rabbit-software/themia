@@ -249,11 +249,12 @@ public class DisplayPlanTests
     {
         var state = AppState.CreateDefault();
         var only = state.Views[0].Id;
+        var views = state.Views.Count;
 
         var assigned = DisplayPlan.AssignViews(state, [PathA, PathB, "third-display"]);
 
         Assert.Equal(3, assigned);
-        Assert.Single(state.Views);
+        Assert.Equal(views, state.Views.Count);
         Assert.All(state.MonitorViews.Values, id => Assert.Equal(only, id));
     }
 
@@ -262,11 +263,12 @@ public class DisplayPlanTests
     {
         var state = AppState.CreateDefault();
         state.MonitorViews[PathA] = "gone";
+        var views = state.Views.Count;
 
         DisplayPlan.AssignViews(state, [PathA]);
 
         Assert.Equal(state.Views[0].Id, state.MonitorViews[PathA]);
-        Assert.Single(state.Views);
+        Assert.Equal(views, state.Views.Count);
     }
 
     [Fact]

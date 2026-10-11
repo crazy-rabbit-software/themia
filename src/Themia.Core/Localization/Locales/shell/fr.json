@@ -103,6 +103,8 @@
   "shell.color.mist": "Brume",
   "shell.color.white": "Blanc",
   "shell.view.defaultName": "Bureau",
+  "shell.view.homeName": "Accueil",
+  "shell.view.workName": "Travail",
   "shell.drop.moveTo": "Déplacer vers %1",
   "shell.drop.copyTo": "Copier vers %1",
   "shell.drop.linkIn": "Créer un lien dans %1",

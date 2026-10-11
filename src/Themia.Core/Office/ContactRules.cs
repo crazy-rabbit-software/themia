@@ -295,6 +295,7 @@ public static class ContactRules
     /// [S-1277] The selection after a key, over the people on screen in order (the classic S-31):
     /// Up / Down move by one (from nothing, Down picks the first and Up the last), Home / End jump,
     /// Escape clears. Other keys leave it; a selection no longer on screen starts over.
+    /// [S-1983] Page Up / Page Down jump <see cref="ListKeys.PageStep"/> people (from nothing, the first).
     /// </summary>
     public static string? MoveSelection(IReadOnlyList<string> ids, string? current, WidgetKey key)
     {
@@ -314,6 +315,8 @@ public static class ContactRules
         {
             WidgetKey.Down => ids[index < 0 ? 0 : Math.Min(ids.Count - 1, index + 1)],
             WidgetKey.Up => ids[index < 0 ? ids.Count - 1 : Math.Max(0, index - 1)],
+            WidgetKey.PageDown => ids[index < 0 ? 0 : Math.Min(ids.Count - 1, index + ListKeys.PageStep)],
+            WidgetKey.PageUp => ids[index < 0 ? 0 : Math.Max(0, index - ListKeys.PageStep)],
             WidgetKey.Home => ids[0],
             WidgetKey.End => ids[^1],
             _ => current,

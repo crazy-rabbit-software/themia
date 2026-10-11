@@ -103,6 +103,8 @@
   "shell.color.mist": "Nebel",
   "shell.color.white": "Weiß",
   "shell.view.defaultName": "Desktop",
+  "shell.view.homeName": "Zuhause",
+  "shell.view.workName": "Arbeit",
   "shell.drop.moveTo": "Nach %1 verschieben",
   "shell.drop.copyTo": "Nach %1 kopieren",
   "shell.drop.linkIn": "Verknüpfung in %1 erstellen",

@@ -16,10 +16,10 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Touching widgets share one card (GROUPS); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
+- **System widgets.** System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
 - **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Sun and moon; Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay.
 
@@ -43,7 +43,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-04]** Each widget renders at `left = x·W`, `top = y·H`, inset on every side by
   `widgetGap / 2`, so neighbours show a gap without changing their logical rect. Logical edges are
   rounded to a shared whole-pixel boundary *before* the gap inset, so adjacent widgets still meet
-  exactly.
+  exactly. Widgets whose cells touch share one card and show no gap between them ([S-2100]..[S-2106]).
 - **[S-05]** The DIP space a fraction resolves into is the window's **real client rect divided by
   the window's real rasterization scale** — not `ActualWidth`. Changing display scale resizes the
   content without changing the client's pixel size, so no `SizeChanged` fires and `ActualWidth` can
@@ -682,6 +682,8 @@ releases everything.
   A value the enum does not name reads as none.
 - **[S-469]** Paused is persisted, so a parked camera stays parked across restarts and uses no network;
   it shows "Paused" (was [S-07]).
+- **[S-1991]** Video stream: Space pauses and resumes (`ControlKeys.Stream`), as the overlay button
+  does, and is persisted the same way. Only a tile with a URL takes the keyboard.
 - **[S-470]** `RefreshSeconds` 0–300, default 0 (was [S-17]). 0 holds the stream open at the camera's
   rate; any other value grabs one frame, closes the connection, waits, and grabs again — the only real
   throttle, since a camera pushes frames at its own rate. The cache-buster the original needed for the
@@ -926,6 +928,10 @@ Not ported: the poll `interval` setting (there is no poll).
   carries the icon (or an initial chip in that colour), the name with the colour dot right after it,
   and the time as its last column. Hovering a wedge, segment or row lights it, dims the rest and
   names it in the readout.
+- **[S-1989]** Screen time keys: Up/Down, Page Up/Down, Home/End light one legend app the way
+  hovering does (the rest dim, the headline names it); the Menu key opens its Hide menu (not on
+  Other); Left / Right step the day as the header arrows do, Day period only and never past today;
+  Escape lets the app go. Hiding is never a bare key: it has no undo.
 - **[S-453]** `ShowAverage` (on): in a window, the per-day average (divided by the window length, so
   idle days count) beside the total and on each row. `ShowSwitches` (off): how often the foreground
   app changed. `ShowPercent` (off): each app's share of the shown total.
@@ -1385,6 +1391,9 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   "N of M · folder" at XL. Grid / scatter / mosaic take more pictures as the card grows. Scatter and
   mosaic are dealt from one seed per scan, so a resize moves pictures rather than reshuffling them.
 - **[S-768]** A tap on a thumbnail jumps the slideshow there and restarts its hold.
+- **[S-1992]** Slideshow keys (`ControlKeys.Slideshow`) beyond [S-811]: Home / End jump to the first
+  and last picture, Enter opens the shown one (local files only, as a double-click does). The other
+  layouts take no keys, and a click on them no longer takes the keyboard (`WantsKeys`).
 - **[S-769]** The hover bar (previous / pause-resume / next) shows only while the pointer is over
   the widget, in the slideshow with more than one picture. Pause is not persisted.
 - **[S-770]** The slideshow's own timer runs only while it is a folder slideshow with more than one
@@ -1498,6 +1507,8 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
   Enter ticks, Delete deletes, F2 renames, Escape gives the keyboard back; leaving the list drops
   the row focus; a redraw keeps the focus
   on the same task, or the row now in its place.
+- **[S-1981]** Space ticks the focused task as Enter does, and Page Up / Page Down jump ten rows
+  (`TaskLayout.Decide`, clamped; from no row, the first). All widget keys: Widget keys (WIDGET-KEYS).
 - **[S-788]** Tab in a rename box commits and opens the next task's box (none past the last); in the
   add box it commits and keeps it open; Shift+Tab commits and closes (classic S-56).
 - **[S-789]** Under Today on a panel each row names its list (the account's lists, cached).
@@ -1525,7 +1536,7 @@ repaired to defaults and logged, never an upgrade. S-1050..S-1059.
 ## Settings window: Windows 11 Settings
 
 The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owning files:
-`Shell/FluentLayout.cs`, `Shell/SettingRow.cs`, `Shell/ColorChoice.cs`, `Shell/Config/ConfigWindow*.cs`,
+`Shell/FluentLayout.cs`, `Shell/SettingRow.cs`, `Shell/ColorChoice.cs`, `Interop/ScreenColorPicker.cs`, `Shell/Config/ConfigWindow*.cs`,
 `Shell/Config/SettingsPage.cs`, `Shell/Config/SettingsSearchIndex.cs`, `Shell/Config/ConfigPages.Uninstall.cs`,
 `Services/DataPurge.cs`, `Core/Settings/*` (tests: `SettingsWindowTests`).
 
@@ -1574,6 +1585,30 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   widget background and border colour; the calendar colours (Automatic + the six + custom); the
   palette editor's entries (rgb()/hsl() entries open on their colour, are stored as hex once
   changed); the scratchpad ink (the six inks + custom).
+- **[S-1556]** The eyedropper (`Interop/ScreenColorPicker.cs`, pure rules `Core/Settings/ScreenPick.cs`):
+  wherever "Custom colour" is offered, an eyedropper button beside "View colours" closes the
+  flyout, waits until the screen no longer shows it (the flyout's Closed, the next XAML frame, then
+  `DwmFlush`; no timer), captures every display into one 32-bit DIB and covers them with a
+  topmost popup showing that frozen picture. The picked pixel goes through the same path as a
+  swatch, normalised to `#RRGGBB`. A failure to capture or show it is logged and raises an Error
+  notice; nothing changes.
+- **[S-1557]** The loupe: 11×11 pixels around the pointer, each drawn `Fluent.Space3` DIPs square,
+  the centre pixel framed, its hex in Body Strong on a label filled with that colour (dark or
+  light ink by luma), all framed dark-outside-light so it reads on any colour. It sits
+  `Fluent.Space5` below-right of the pointer, flips left/up where it would leave the display, and
+  is held inside the display under the pointer (never spilling onto the next one). Pixels outside
+  the capture show black.
+- **[S-1558]** Every display, mixed DPI: the process is per-monitor DPI aware (v2), so cursor,
+  capture and overlay share physical pixels; the virtual screen is the union of the displays'
+  bounds (left/above the primary included); a point in a gap belongs to the nearest display; the
+  loupe is sized for the DPI of the display under the pointer (unknown DPI reads as 100 %). The
+  overlay ignores `WM_DPICHANGED`. Arrow keys move the pointer one pixel (Shift: ten).
+- **[S-1559]** A left click picks (on the release, so the click never reaches the window
+  underneath); Enter or Space picks the pixel under the pointer; Escape, a right click (on release),
+  another window taking the focus, `WM_CANCELMODE` or a display change cancels and keeps the old
+  colour. One pick at a time. Every DC, bitmap, brush and font is a `SafeHandle`, released on every
+  path; the window procedure catches, logs and ends the pick as a failure. Focus returns to the
+  window that had it.
 - **[S-1551]** The navigation pane is open at 1008 DIPs and wider; narrower it folds away (no
   icon-only rail, as in Settings) behind a button in the title bar next to back. About stays the
   last footer entry ([S-493]).
@@ -1831,6 +1866,8 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
   Up/Down clamp, Home/End, Tab/Shift+Tab wrap, Enter ticks, F2 renames, Delete deletes, Escape gives
   the keyboard back. In an editor Tab commits and opens the next row's editor, falling into the add
   row past the last. Not verified live: needs a manual pass on the desktop.
+- **[S-1982]** Space ticks the focused habit as Enter does, and Page Up / Page Down jump ten rows
+  (`HabitLayout.Decide`, clamped; from no row, the first).
 - **[S-1429]** Settings: the list picker/editor (pick, rename as typed, habit count, add, delete
   — always confirmed, empty or not, original S-24), Resets, Interval (custom only), Show streaks,
   History. Renaming a list retitles every widget showing it.
@@ -1881,6 +1918,8 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
   move the cursor day a week (month and week layouts; the month outlines it), Home today, Enter opens
   the cursor day's first event (next event where nothing pages). Not yet reachable: the shell's
   keyboard lease does not exist; this is what it will call.
+- **[S-1984]** Page Up / Page Down page the calendar as Left / Right do (a month in the month
+  layouts); the arrows keep the classic meaning. Agenda layouts do not page.
 - **[S-1270]** Contacts list rows say what the list's area allows (`ContactRules.ListDetail`, on the
   tile less its search box): width Compact → the name only (32 px rows, no avatar); height Compact →
   the role, else the address/number; Regular → the role plus the address (else number) when three
@@ -1904,6 +1943,8 @@ The Calendar and Contacts ladders ([S-660] API), the Outlook hand-off and the ke
   writes (else calls). A click anywhere else — another widget, the desktop, another app — ends the
   keyboard lease the widget holds from the selecting click, which arrives as Escape and clears the
   selection (classic S-38; [S-807]).
+- **[S-1983]** Page Up / Page Down move the selection ten people (`ContactRules.MoveSelection`), and
+  type-ahead ([S-1980]) over the names on screen selects the person typed.
 - **[S-1278]** vCard 2.1 quoted-printable: `ENCODING=QUOTED-PRINTABLE` (or the bare parameter) values
   are decoded in UTF-8 or Latin-1 (`CHARSET`), across `=` soft line breaks; bare 2.1 parameters join
   `TYPE` (so `TEL;CELL;PREF` is preferred). Lenient: a stray `=` stays.
@@ -1993,9 +2034,16 @@ Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
   collapse inside it as at the top level.
 - **[S-1457]** `ItemCursor.Move`: the shared list cursor (Up/Left back, Down/Right forward, clamped;
   Home/End; Escape clears; no cursor + forward = first, + back = last).
+- **[S-1985]** `ItemCursor.Move` also pages: Page Up / Page Down jump ten items (`ListKeys.PageStep`),
+  clamped; with no cursor they land on the first. RSS, Bluetooth and Screen time move with it.
+- **[S-1986]** Countdown keys (`CountdownView : IWidgetKeys`, `ListKeys`): taken only while timers
+  are listed under the hero. Up/Down, Page Up/Down, Home/End move a `RowFocus` ring over the listed
+  timers (the hero is not a row), Delete removes the timer after the same confirmation as its menu,
+  the Menu key opens its menu, Escape lets go. A removed timer hands the ring to the row that took
+  its place. Enter has nothing to open.
 
 Not ported, deliberately: clipboard pin (an optional extra the audit listed, not in the original);
-Countdown keyboard (the original had none); Countdown C-61 keep-open (above).
+Countdown C-61 keep-open (above). Countdown keys came later although the original had none ([S-1986]).
 
 ## CPU
 
@@ -2294,6 +2342,137 @@ Not live-verified: focus taking, Alt+Tab, deactivation timing, IME (see the repo
 Key routing was fixed after this section was written: the holder now gets its keys in the tunnelling
 pass, before a `ScrollViewer` can take them ([S-860]).
 
+## Widget keys (WIDGET-KEYS)
+
+Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCursor`, `TaskLayout`,
+`HabitLayout`, `CalendarFit.Key`, `ContactRules.MoveSelection`, `AudioRules`, `ControlKeys`,
+`TypeAhead`; tests `WidgetKeyMapTests` and the per-widget suites); the views implement
+`IWidgetKeys` and only carry the answer out. Keys arrive through the lease ([S-800]..[S-812], [S-860]).
+
+- **[S-1980]** Type-ahead (`TypeAhead`): characters typed within a second of each other build one
+  prefix; the cursor goes to the first name starting with it, searching from the cursor itself and
+  wrapping, ignoring case. One letter repeated ("ss") steps through the names starting with it. A
+  control character never types; a space only inside a prefix (a lone Space is the widget's key). No
+  match leaves the cursor, and the character is still used. Escape (every lease end) forgets it.
+- **[S-1996]** Widgets deliberately without keys: Clock, Sun & moon, Weather now and forecast, Stocks
+  (nothing to navigate or act on), Scratchpad (only typed into: `RequestTextInput`), the seven power
+  buttons (a single deliberate press; a key that shuts the PC down after a stray click is not
+  calm), and the meters (their own lane, [S-1564]). A click on them never takes the keyboard.
+- **[S-1997]** Characters reach the holder through `IWidgetKeys.HandleText(char)` (default: unused),
+  from the surface's `CharacterReceived` outside edit mode, on the holder's surface only, never while
+  a text box has focus and never for a Ctrl or Alt chord (AltGr, which is both, types). A letter that
+  is a widget key (M) reaches `HandleKey` first, then `HandleText`.
+
+| Widget | Keys |
+|---|---|
+| Mail | Up/Down, PgUp/PgDn, Home/End move; Enter opens; Delete (where allowed); Menu; Esc ([S-1288]) |
+| Calendar | Left/Right and PgUp/PgDn page; Up/Down a week (month, week); Home today; Enter first event ([S-1269], [S-1984]) |
+| Contacts | Up/Down, PgUp/PgDn, Home/End; Enter writes or calls; type-ahead ([S-1277], [S-1983]) |
+| Tasks | Up/Down, PgUp/PgDn, Home/End; Enter/Space tick; Delete; F2; Esc ([S-787], [S-1981]) |
+| Habits | as Tasks, plus Tab/Shift+Tab wrap ([S-1428], [S-1982]) |
+| Folder | arrows (grid aware), PgUp/PgDn, Home/End, Shift extends; Enter; Space; Delete; F2; Menu; Ctrl+C/X/V/A; Backspace; type-ahead ([S-1327], [S-1993]) |
+| Shortcuts | arrows, Home/End, PgUp/PgDn; Enter opens; Space toggles; Delete; F2; Menu; type-ahead ([S-1390], [S-1995]) |
+| Notes (XL list) | Up/Down, PgUp/PgDn, Home/End; Enter opens; F2; Delete (asks); Menu; type-ahead ([S-1563], [S-1994]) |
+| RSS | Up/Down/Left/Right, PgUp/PgDn, Home/End; Enter opens; Menu ([S-1306], [S-1985]) |
+| Clipboard | Up/Down, PgUp/PgDn, Home/End; Enter copies; Delete; Menu ([S-1444]) |
+| Countdown | Up/Down, PgUp/PgDn, Home/End; Delete (asks); Menu ([S-1986]) |
+| Pictures (slideshow) | Left/Right; Home/End; Space pauses; Enter opens ([S-811], [S-1992]) |
+| Mixer | Up/Down/Home/End rows; Left/Right, +/- step; PgUp/PgDn step 10; M/Space mute; Menu ([S-1225]) |
+| Volume | arrows, +/- step; PgUp/PgDn step 10; M/Space mute ([S-1226]) |
+| Music | Space/Enter play-pause; Left/Right track; Shift+Left/Right seek 5 s ([S-1468]) |
+| Pomodoro | Space/Enter start-pause; Right skip; Home reset ([S-1987]) |
+| Bluetooth (detail panel) | Up/Down/Left/Right, PgUp/PgDn, Home/End select ([S-1988]) |
+| Screen time | Up/Down, PgUp/PgDn, Home/End light an app; Menu; Left/Right day ([S-1989]) |
+| Quote | Right/Space/Enter next; Left previous ([S-1990]) |
+| Video stream | Space pause ([S-1991]) |
+
+## Keyboard in the shell (SHELL-KEYS)
+
+Keys everywhere outside a widget's own view: edit mode on the desktop surface, the view bar, the
+settings window. Rules in Core `EditKeys`, `KeyboardNudge`, `SelectionRules.Cycle`, `SettingsKeys`
+and the widgets' `TypeAhead` ([S-1980], one implementation for lists and the navigation; tests `ShellKeyboardTests`); carried out by `DesktopWindow.Keys.cs`,
+`ViewBar.cs` and `ConfigWindow.Keys.cs`. Widget views' keys are the lease's ([S-800]..[S-812]).
+The surface keeps `WS_EX_NOACTIVATE` outside edit mode ([S-20]), so none of the surface keys exist
+there: Themia never takes a key from the app the user is typing in.
+
+| Where | Key | Does |
+|---|---|---|
+| Anywhere | Ctrl+Alt+W | Toggle edit mode ([S-65], global hotkey) |
+| Edit mode | Arrows | Move the selection one grid cell ([S-1970]) |
+| Edit mode | Ctrl+Arrows | Move ten cells ([S-1972]) |
+| Edit mode | Alt+Arrows | Move one DIP, off the grid ([S-1972]) |
+| Edit mode | Shift+Arrows (+Ctrl / +Alt) | Resize by the right / bottom edge, same steps ([S-1971]) |
+| Edit mode | Tab / Shift+Tab | Select the next / previous widget ([S-1973]) |
+| Edit mode | Enter | Open the selected widget's settings ([S-1974]) |
+| Edit mode | Menu key / Shift+F10 | The selection's menu, or the surface's ([S-1974]) |
+| Edit mode | F6 / Shift+F6 | Widgets → toolbar → view bar → notices ([S-1975]) |
+| Edit mode | Delete | Delete the selection, undoable ([S-1592], [S-885]) |
+| Edit mode | Ctrl+C / X / V / D | Copy, cut, paste, duplicate ([S-70]) |
+| Edit mode | Ctrl+A | Select all on the display under the pointer ([S-1582]) |
+| Edit mode | Ctrl+Z / Ctrl+Y, Ctrl+Shift+Z | Undo / redo ([S-885]) |
+| Edit mode | Ctrl+1..9 | Show the n-th view ([S-904]) |
+| Edit mode | Escape | Placing, then the selection, then edit mode ([S-1583]) |
+| View bar (edit mode) | Arrows, Home / End; Enter / Space | Move between chips; show the view ([S-1979]) |
+| Settings | Ctrl+F / Ctrl+E | Focus "Find a setting" ([S-1977]) |
+| Settings | Escape in the search box | Close the list, then empty the box ([S-1977]) |
+| Settings | F6 / Shift+F6 | Title bar → navigation → page ([S-1977]) |
+| Settings | Alt+Left / Alt+Right, mouse back / forward | Page history (existing) |
+| Settings | Ctrl+W | Close the window ([S-1977]) |
+| Settings navigation | Up / Down, Enter / Space | Move, open (NavigationView's own) |
+| Settings navigation | Home / End, letters | First / last entry, type-ahead ([S-1978]) |
+| Widget picker | Up / Down, Enter, Escape | Move the highlight, pick, close ([S-949]) |
+| Menus, flyouts, dialogs | Arrows, Enter, Escape | WinUI's own: Escape closes the innermost |
+
+- **[S-1970]** In edit mode an arrow moves **every selected widget on this display** one snap cell
+  ([S-06b]) as one block, by the drag's rules ([S-1584]): the block's corner snapped when the grid
+  is on, the block slid into the work area, never pulled apart at an edge. An off-grid widget lands
+  on the next line in the arrow's direction, never back where it was. Nothing selected, or a ghost
+  being placed: the arrows do nothing.
+- **[S-1971]** **Shift** + arrow resizes instead, each selected widget on its own, always by its
+  **right or bottom edge** (Right / Down grow, Left / Up shrink), so the top-left corner stays put.
+  Only the moved edge snaps ([S-31a]); the [S-08] floor and the work-area edge stop it. Shift was
+  chosen over a bigger step because one modifier per meaning (Ctrl = far, Alt = fine) combines.
+- **[S-1972]** **Ctrl** makes the step ten cells, **Alt** one DIP with the grid suspended (as Alt
+  suspends it for a drag, [S-06]). Ctrl+Alt is never a shortcut (AltGr). One press-and-hold is
+  **one undo step**: the geometry is committed when the arrow comes up, before any other edit key,
+  and when the surface loses activation.
+- **[S-1973]** **Tab / Shift+Tab** selects the next / previous widget of the display in reading
+  order (top edge, then left, then view order), wrapping, skipping cards that draw nothing; from no
+  selection Tab lands on the first and Shift+Tab on the last. The card takes the keyboard focus, so
+  the selection outline is the focus indicator. With focus on the toolbar, the view bar or a notice,
+  Tab, the arrows, Enter and the Menu key are those controls' own.
+- **[S-1974]** **Enter** opens the selected (primary) widget's settings page; the **Menu key** or
+  **Shift+F10** opens the selection's card menu on its card ([S-1743]), or the surface menu
+  ([S-1744]) at the work area's centre when nothing is selected.
+- **[S-1975]** **F6 / Shift+F6** moves the keyboard round the surface's panes: the widgets (the
+  selected card, else the surface), the toolbar's first button, the view bar (when it shows) and the
+  notices (while one has a button). This is how the toolbar is reached without the mouse.
+- **[S-1976]** One key map: `EditKeys.Decide` turns a key and its modifiers into a command and the
+  surface only carries it out; the old per-key switch is gone. Ctrl+Shift letters, Shift+Delete,
+  plain letters and F10 alone are not edit keys. While a text box has the focus (the picker's
+  search) no key is an edit key: Delete or Ctrl+V there edits the text, not the desktop.
+- **[S-1977]** Settings window: **Ctrl+F** (and Ctrl+E, as in Explorer) focuses "Find a setting";
+  **Escape** there closes the suggestion list (the box's own), then empties the text; **F6 /
+  Shift+F6** cycles the title bar (search), the navigation (the entry of the page on screen) and the
+  page (its first control), skipping the navigation while it is folded away; **Ctrl+W** closes the
+  window. Escape does **not** close the settings window: it is a window, not a dialog (as in main
+  and in Windows Settings).
+- **[S-1978]** Navigation type-ahead (main's `createTypeAhead` / `findByPrefix`): letters typed on
+  a focused entry within a second of each other build a prefix, case-insensitive, and the focus
+  moves to the first entry starting with it, searching from the focused one (a longer prefix keeps
+  the entry while it still matches); one letter, or the same letter again, steps to the next entry
+  with that initial, wrapping. Read from the typed character, so every layout works. Home / End go
+  to the first / last entry. Focus moves, nothing opens: Enter opens, as NavigationView does.
+- **[S-1979]** Focus and names: view-bar chips are focusable in edit mode with the system focus
+  ring, the arrows rove between them, Enter or Space shows the view and the focus stays on its chip
+  through the rebuild. Every icon-only button has an `AutomationProperties.Name` (the list commands
+  of `FluentLayout.IconCommand` take their tooltip). No `AccessKey`s on the surface: Alt is the
+  snap override there and would open key tips mid-drag.
+
+Not built: placing a new widget from the keyboard (the placement ghost follows the pointer,
+[S-1587]); the view bar outside edit mode (the surface has no keyboard then). Not live-verified:
+focus after F6, focus rings, the foreground handling of edit mode, Narrator (see the report).
+
 ## Battery and network
 
 Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMeter.cs`,
@@ -2357,6 +2536,116 @@ Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core 
   `SizeChanged`; a debug render never hooks or writes ([S-459]).
 - Not ported / different: the original's GPU `visibleMetrics` order (fixed ladder order); per-engine
   history charts (one chart, the load).
+
+## System details (SYS-DETAILS)
+
+The details the original's meters showed, back as their own placeable widgets; the meters themselves
+stay label, reading and history ([S-1762]). Eight kinds in the System section of the picker, right
+after the meters: CPU details, Memory details, Top processes, Network details, Disk space, Battery
+details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), one `DetailPart` per kind
+(`Widgets/Details/*Part.cs`); rules in Core (`DetailFace`, `DetailSheet`, `CpuDetailRules`,
+`MemoryDetailRules`, `ProcessTable`, `NetworkDetailRules`, `DiskSpaceRules`, `BatteryDetailRules`,
+`PingWindow`, `GpuDetailRules`; configs in `Model/Configs/DetailConfigs.cs`); settings
+`WidgetSettings.Details.cs`. Tests `SystemDetailsTests` (`S24xx_`). Strings in `Locales/widgets-details`
+(English only so far).
+
+- **[S-2400]** A detail widget is a hero (its main figure), a caption saying what it is of, facts in
+  priority order and, for some kinds, a list. No "which facts" settings: the tile shows more as it grows.
+  Every source is Win32, PDH, `NtQuerySystemInformation`, DXGI, D3DKMT or a battery IOCTL: no WMI, no
+  `PerformanceCounter`, no driver, no admin rights. Shared readers are taken in `Attach` and given back in
+  `Detach` ([S-1881]); a parked or hidden widget holds none.
+- **[S-2401]** `DetailConfig.IntervalSeconds`, 1–60 s (disk space and ping up to 300). Defaults: CPU,
+  memory, processes, GPU 2 s; network 1 s; battery 15 s; ping 10 s; disk space 30 s. Load clamps it, loudly.
+- **[S-2402]** The ladder (`DetailFace.Plan`): Compact both ways is the hero alone, filling the tile (a
+  list kind: its rows). A Wide strip at least Expanded wide puts the hero in a left column (40 %) and the
+  facts in lines beside it. Otherwise hero, caption and facts stack; when every fact fits, the richest
+  fact style and the largest hero that fit are chosen together (lines, then tiles, then large tiles; a
+  tile style whose single column would cut the longest value is skipped), and without a list the height
+  the facts leave goes to the hero, scaled past Display up to 2.4×. When not all fit, facts are lines in
+  as many whole rows as fit, most wanted first. A list takes everything under the facts, one whole row at
+  least, or is not shown. Costs are line heights of the live ramp.
+- **[S-2403]** A fact Windows does not report on this machine is left out, never "--"; a fact that can be
+  read but is not available right now (a lost probe) is a dimmed "--". A thing that is not on the machine
+  (no battery, no adapter) is the empty state ([S-82a]). Why the hero is dimmed is its tooltip.
+- **[S-2404]** A list is Windows 11 rows in a scroller with the foot fade ([S-1281]) and a focus ring
+  walked by the keyboard lease ([S-800], `ListKeys`): Up/Down, Page, Home/End, Escape; Enter opens where a
+  row opens (a drive). The ring stays on its row's key across reads. Only a list on screen wants keys.
+- **[S-2405]** CPU details: the effective clock as the hero, "23% utilization" (the CPU meter's own shared
+  read) under it; base speed, cores (`GetLogicalProcessorInformationEx`), logical processors, processes,
+  threads, handles (`GetPerformanceInfo`), up time, the thermal zone. The header names the processor from
+  the registry, without vendor and generation noise ("Core i9-12900K").
+- **[S-2406]** The clock is the base clock times `\Processor Information(_Total)\% Processor Performance`
+  (Task Manager's figure, past 100 % under turbo); without the counter the reported clock stands in.
+- **[S-2407]** Temperature is the hottest ACPI thermal zone (`\Thermal Zone Information(*)\Temperature`),
+  labelled "Thermal zone" because it is the board's zone, not the package; 1–150 °C or left out.
+- **[S-2408]** Memory details: in use as the hero, "41% of 64 GB"; available, committed (of the commit
+  limit), cached, paged pool, non-paged pool (`GetPerformanceInfo`), page file.
+- **[S-2409]** The page file is `NtQuerySystemInformation(SystemPageFileInformation)`, every file summed
+  ("None" without one); the chain is walked defensively and never past the buffer.
+- **[S-2410]** Top processes: one `NtQuerySystemInformation(SystemProcessInformation)` snapshot (no
+  per-process handle, so elevated and protected processes are counted), parsed in Core; memory is the
+  private working set (Task Manager's column). One reader for every list; a second list within half its
+  interval shares the read. The pinned buffer goes with the last list. The idle process is left out.
+  A new widget: the removed process list ([S-1902]) stays removed.
+- **[S-2411]** `SortBy`: processor (default) or memory; ties by the other figure, then name.
+- **[S-2412]** `MaxRows`: 0 (default) lists every process the list can scroll to, 1–50 a ceiling.
+- **[S-2413]** `GroupByName` (on): every process of one image name is one row, figures added, the count
+  after the name ("brave (26)").
+- **[S-2414]** A share is processor time over wall time over the logical processors (the CPU meter's
+  scale). A process first seen reads 0; a pid with another start time is another process and starts over.
+  From 280 px a row shows the other figure beside the ranked one.
+- **[S-2415]** Network details: download as the hero, "Up 1.4 KB/s"; received and sent since Themia
+  started, the busiest adapter's local address, the public address when asked for; from the network
+  meter's own shared reader ([S-1190]), so the counted adapters are the meter's ([S-1192]).
+- **[S-2416]** One list row per counted adapter, busiest first: name, "↓ x ↑ y", its address under it.
+  No adapter is "No connection".
+- **[S-2417]** `ShowPublicAddress` (off by default: it asks a third party) asks `api.ipify.org` through the
+  guarded `WebFetch` client, only while such a widget lives.
+- **[S-2418]** The answer is shown only when it is one IPv4 or IPv6 address; it is trusted 10 minutes and
+  asked again at once after the machine's addresses change. A failure is logged without the body.
+- **[S-2419]** An adapter's local address is its first IPv4 that is not link-local, else its first global
+  IPv6; re-walked at most every minute, or when Windows says the addresses changed.
+- **[S-2420]** Disk space: one row per drive, named as Explorer names it ([S-1161]), the share used,
+  "844 GB free of 1.8 TB" (free to this user) and a bar coloured as a load (caution 70 %, critical 90 %).
+  A few rows in a tall tile grow into their share of it (figure by ramp step, thicker bar). Enter on a row
+  opens the drive.
+- **[S-2421]** `Drives`: empty lists every drive the disk meter's walk lists ([S-1162], at most every
+  30 s), by letter; otherwise those roots in order. Load keeps roots only, once. A chosen drive that is not
+  connected keeps its row ("--", "Not connected").
+- **[S-2422]** Space is read only for a drive the walk found ready, so no tick wakes a sleeping drive.
+- **[S-2423]** Battery details: the charge and status from `GetSystemPowerStatus` (the meter's source);
+  the rest from the battery class driver (`SetupDi` + `IOCTL_BATTERY_QUERY_TAG/_INFORMATION/_STATUS`),
+  every battery summed, devices re-listed once a minute, a read shared for 2 s; asked only when Windows
+  says there is a battery.
+- **[S-2424]** `BATTERY_INFORMATION` and `BATTERY_STATUS` are parsed in Core: all-ones and zero are
+  unknown, the chemistry code becomes a word, the temperature level is tenths of a Kelvin (−40–120 °C).
+- **[S-2425]** Status: Charging, Fully charged, Plugged in, not charging, On battery. Then time left
+  (Windows' estimate, else remaining over the drain) or full in (while charging), health (full over
+  design), full-charge and design capacity, cycles, charge or discharge rate, voltage, temperature,
+  chemistry and maker, each only when reported; a relative-capacity battery shows no Wh or W.
+- **[S-2426]** Ping statistics: its own probes through `NetworkMetrics.PingAsync`, one at a time, a late
+  answer dropped, a host change clears the window ([S-106], [S-107]); host and name rows as the meter's.
+- **[S-2427]** `Window`: the latest 5–500 probes (offered 10, 30, 60, 120, 300; default 60).
+- **[S-2428]** Over the window: min, average and max of the answers; jitter the mean absolute difference
+  of consecutive answers (a loss between two does not break the pair; under two answers, none); loss the
+  unanswered share of every probe.
+- **[S-2429]** The latest latency is the hero, the status (Online, Offline, Checking…) the caption; the
+  header names the host. A lost probe dims the hero, its tooltip naming the host and the status.
+- **[S-2430]** GPU details: video memory in use (`\GPU Adapter Memory(*)\Dedicated Usage`, summed per
+  LUID) as the hero, "of 7.8 GB video memory" (DXGI); load ([S-434]), shared memory, temperature, fan, GPU
+  clock, memory clock. An integrated adapter leads with its shared memory. From the GPU meter's own shared
+  sampler (the memory counters join its query); the header names the adapter ([S-430]).
+- **[S-2431]** `Adapter`: a DXGI position, offered with two or more adapters; one that is gone shows the
+  first.
+- **[S-2432]** Sensors from the graphics kernel, any vendor's WDDM 2.4+ driver (`D3DKMTQueryAdapterInfo`
+  adapter and node performance data and caps, one handle per adapter per sampler session): temperature
+  1–150 °C, the fan only when the caps name one, clocks only when non-zero; a driver that answers none is
+  asked no more.
+- Not ported / dropped: CPU fan speed and package temperature (no Windows source without a driver or a
+  third-party monitor; the original's hardware-monitor bridge stays out); GPU power draw and
+  encode/decode (D3DKMT gives power only as an unlabelled share, NVML is NVIDIA-only); the per-core grid;
+  IOPS and per-disk I/O (the disk meter is I/O); the Wi-Fi name (Windows 11 gates it behind location
+  consent). Ping statistics and a ping meter on the same host each probe at their own cadence.
 
 ## Feed, stocks and the web widgets: parity and the whole tile (OFF-E)
 
@@ -2692,6 +2981,7 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   F2 renames, Delete deletes after asking, Menu, Escape). Only the editor and a rename box request
   the keyboard for typing; a click on a list row parks focus on the list host (outside the
   scroller, which would take the arrows) so the keys reach the list.
+- **[S-1994]** Notes: type-ahead ([S-1980]) over the XL list's titles focuses the matching row.
 - **[S-1564]** `IWidgetKeys.WantsKeys` (default true): a view whose keys belong to a part shown only
   at some sizes says no while it is off screen, so the click does not take the keyboard. The card's
   `TakesKeys` honours it.
@@ -2703,6 +2993,9 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   (`BluetoothRules.AddressText`, "A4:C3:…"). The device is the last clicked row while it is listed,
   else the first (`BluetoothRules.Selected`); its row stays lit. Narrow columns stack the facts and
   let the name wrap to two lines.
+- **[S-1988]** Bluetooth keys, only while the detail panel is up with two or more devices: the lit
+  row is the selection, so Up/Down/Left/Right, Page Up/Down and Home/End (`ItemCursor`) move it and
+  the panel follows; a key-moved row scrolls into view. No Escape state: the panel always shows one.
 - **[S-1571]** Habits one height class down (Regular, e.g. M): the height no whole row can use
   carries the summary's line ("3 of 5 done today · 71%") without its bar; the full strip with bar
   stays at Expanded height.
@@ -2760,6 +3053,8 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   Enter opens the selection, Delete removes it, F2 renames, the Menu key opens the item menu,
   Escape cancels rename, then closes search, then clears the selection. Ctrl+A is "Select all" on the
   card menu (the lease never maps Ctrl chords, [S-803]).
+- **[S-1995]** Type-ahead ([S-1980]) over the shortcut names selects the match alone and moves the
+  cursor to it; not while a rename box or the search box is open.
 - **[S-1391]** Card menu (original S-27, S-49): Search, Open on single / double click, Select all,
   Undo remove. The view, sizes, icons only, stretch and file extensions are settings only ([S-1746]).
 - **[S-1392]** Items enter the widget's own surface through one method (`AddItems`); every
@@ -3158,6 +3453,8 @@ displays, the ghost following the pointer across displays, Ctrl+A/Ctrl+D/Escape 
 - **[S-1468]** Music keys via the keyboard lease (`IWidgetKeys`; taken only with a track shown):
   Space/Enter play/pause, Left/Right previous/next, Shift+Left/Right seek ∓5 s (new
   `WidgetKey.ShiftLeft/ShiftRight`; Shift+arrows no longer arrive as plain arrows in other views).
+- **[S-1987]** Pomodoro keys (`ControlKeys.Pomodoro`): Space or Enter start / pause, Right skips to
+  the next phase, Home resets: the three buttons in their order. Nothing after the card left.
 - **[S-1469]** The large tiles split the subtitle into artist and album (album dropped when it
   repeats the artist) and add "Playing · <app>" from the session's app id (`MusicRules.SourceName`).
 - **[S-1470]** Spectrum (`ShowSpectrum`, default off): WASAPI loopback of the default render
@@ -3306,6 +3603,8 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   rotation shows the original's quote for the day (`QUOTES[localDay % 16]`, regression-tested). The
   header button shows a random *other* quote (`QuoteRotation.RandomStep`); a tap steps to the next.
   Both stay ephemeral (original S-02).
+- **[S-1990]** Quote keys (`ControlKeys.Quote`), only with two or more quotes: Right, Space or Enter
+  the next quote (what a tap does), Left the one before. Ephemeral, like the tap.
 - **[S-1496]** Quote ladder on `IWidgetSizeAware` + `Disclosure`: quote (Caption floor) → author →
   caption "Quote of the day · 3 of 16" (H ≥ Expanded); decor goes first, then the author, when the
   quote would not fit. Ceiling TitleLarge, Display on a Huge × Huge tile (replaces S-653's cap there).
@@ -3561,10 +3860,15 @@ breadcrumb's crumbs and Back from a widget's page.
   with Windows is kept, as on import); the undo history is cleared; a Success notice. Accounts,
   notes, tasks and habits are separate files and are kept.
 - **[S-893]** First-run desktop (`AppState.CreateDefault`, also what a reset and a corrupt-state
-  recovery show), as the original's less its guide: Clock (0.78, 0.04, 0.20×0.16) first, Folder on the
-  user's Desktop folder (0.02, 0.04, 0.24×0.50), Shortcuts (0.80, 0.80, 0.18×0.16) with Recycle Bin,
-  This PC, Downloads, Documents, Pictures and Home (shell targets, labels empty so the names are the
-  translated target names).
+  recovery show), as the original's: two views, so switching views is discoverable, named Home and
+  Work (translated, `shell.view.homeName`/`workName`); Home is active. Home is the original's less its
+  guide: Clock (0.78, 0.04, 0.20×0.16) first, Folder on the user's Desktop folder (0.02, 0.04,
+  0.24×0.50), Shortcuts (0.80, 0.80, 0.18×0.16) with Recycle Bin, This PC, Downloads, Documents,
+  Pictures and Home (shell targets, labels empty so the names are the translated target names).
+  Work has no folder: Clock (0.78, 0.04, 0.20×0.16) first, Calendar (0.02, 0.04, 0.50×0.72), Tasks
+  (0.54, 0.04, 0.20×0.58), Notes (0.54, 0.64, 0.20×0.28); Calendar and Tasks show Set up until an
+  account exists ([S-1860]). Every widget is inside the screen, none overlaps another, load
+  validation changes nothing, and both views together stay inside the free tier ([S-1065]).
 - Not ported: the original's pending-operation framework (an operation that resolves later; nothing
   here records one yet, and file operations will add their own step when they need it), and
   per-window boot counters (one process here, so one counter).
@@ -3649,6 +3953,8 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   Space selects (Ctrl+Space toggles), Delete, F2, Menu, Ctrl+C/X/V/A (new `WidgetKey.Copy/Cut/Paste/SelectAll`, Ctrl
   alone; other chords still never reach widgets), Backspace (`WidgetKey.Back`); Escape (and lease end) clears selection and
   cursor. Double-click mode opens on double-click; Single opens on a plain click (Ctrl/Shift only select).
+- **[S-1993]** Type-ahead ([S-1980]) over the shown names: the match is selected alone and focused,
+  realised if it is past the built rows, and scrolled into view. Not while renaming.
 - **[S-1328]** Press -> click | rubber band | drag is the pure `FolderGesture` (orig. `gesture.ts`, S-65/#58): 5 DIP dead
   zone, every exit resets, each press wipes prior state, a generation token cancels a deferred drag. Background drags draw
   a band selecting every overlapped item (Ctrl keeps the earlier selection).
@@ -4054,6 +4360,54 @@ own buttons, rows, links and controls keep their clicks, and a double-click ente
 - **[S-1928]** *(Retired: account widgets open no service.)*
 - **[S-1929]** *(Retired: folder and pictures open no folder.)*
 - **[S-1930]** *(Retired: a feed does not keep its site.)*
+
+## Touching widgets share one card (GROUPS)
+
+Owning files: `Themia.Core/Widgets/CardGroups.cs` (the rules, tested in `CardGroupsTests`),
+`Themia.App/Shell/CardGroupLayer.cs` (draws them), `CardPaint.cs` (the brushes a lone card and a group
+share), `WidgetCard.SetGrouped`, `DesktopWindow.Layout.cs` (regrouping and the hit region).
+
+- **[S-2100]** Widgets on one surface whose cells touch form a **group**, and a group draws **one**
+  background: one fill, one Fluent tint and one border following the outline of all its members
+  together, under every card. Joining is transitive (A touches B touches C is one group). A widget that
+  touches nobody keeps its own card exactly as before ([S-04], [S-823]..[S-825]).
+- **[S-2101]** Two cells touch when their facing edges are within **half a snap cell** of each other
+  (5 DIP at the 10 DIP cell, [S-06b]) and the edge they share is longer than that. Snapped neighbours
+  meet exactly or a rounding pixel apart; **one empty grid cell** between two widgets is a whole cell,
+  so they stay separate groups, each with its own card. Meeting only at a corner is not touching.
+  Cells are the gap-free rects of [S-04] at the widgets' live rects, so the user's gap never decides it.
+- **[S-2102]** Only like cards merge: Card with Card, Translucent with Translucent ([S-32]). A
+  transparent widget and a view that hides itself ([S-873], even shown faded in edit mode) paint no
+  card, so they never join and never bridge two others. A widget **overlapping** another (more than the
+  half-cell tolerance on both axes) keeps its own card, and so does the one it overlaps: the shared
+  fill lies under every card, so a stacked member would show the other through it. Colour, opacity and
+  border are design-wide, so members never disagree about them.
+- **[S-2103]** The outline is the members' cells taken together, edges within the tolerance welded first
+  (an unsnapped neighbour a pixel off leaves no notch), then every edge pulled in by half the gap, as a
+  lone card sits in its cell. So inside a group there is **no gap and no seam**: the fill runs across
+  where the members meet, and the gap shows only on the group's outside. Outer (convex) corners take the
+  corner radius; holes (a ring of widgets round an empty area) stay open. Each radius is capped at half
+  of either edge beside it, so a one-cell step rounds by 5 DIP rather than overshooting.
+- **[S-2104]** Inner (concave) corners are rounded too, by the radius or half the gap, whichever is
+  smaller: the fillet then stays inside the members' own cells, never reaching into the empty space or
+  a neighbour. With no gap they are sharp. A member paints no fill, tint or border of its own; its
+  content keeps its inset, its own clip and corners ([S-825]), its header, edit outline, handles and
+  hit-testing. A header strip with a colour of its own still paints it, at the header opacity, over the
+  group's fill; a header sharing the widget's fill paints nothing, since the group's fill is under it
+  already (the [S-1761] fade of a shared header applies to lone cards only).
+- **[S-2105]** The window's hit region ([S-872]) takes each group's painted shape instead of the members'
+  rects: the rectangles of the inset outline (the seam between members included, a hole left out) and
+  the square of every rounded inner corner. The gap round the group stays the desktop's.
+- **[S-2106]** Grouping follows the layout, event-driven: any card moved, resized, added, removed or
+  hidden marks the groups stale and they are worked out once after that batch (or first, when the hit
+  region is asked for), so a drag or resize regroups live as the edge passes a neighbour. Recomputed
+  only when a cell, which cards paint, the gap, the radius or the border width changed; brushes are
+  re-applied on cached brushes. While an intro plays ([S-1000]) every card paints its own card, since
+  the intro moves each on its own; the cards join their groups again when it ends.
+- **[S-2107]** Debug: `--groups-png <outDir> [--theme light|dark]` draws a fixture surface (a touching
+  pair, an L, a pair one empty cell apart, a staircase of three, a card beside a transparent widget)
+  through the real cards and group layer, in four looks: the default design, no gap, a 2 px dashed
+  border at radius 16 with a 12 px gap, and translucent cards with a header colour.
 
 ## Removed widgets (R7-REMOVE)
 

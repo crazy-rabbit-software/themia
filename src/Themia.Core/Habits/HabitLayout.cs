@@ -171,6 +171,7 @@ public static class HabitLayout
     /// [S-1428] A key on the row at <paramref name="index"/> of <paramref name="count"/>. The arrows
     /// clamp at the ends; Tab and Shift+Tab wrap ("next one", not a direction); Enter ticks, as the
     /// box does; F2 renames; Delete removes; Escape gives the keyboard back.
+    /// [S-1982] Space ticks too, and Page Up / Page Down jump <see cref="ListKeys.PageStep"/> rows.
     /// </summary>
     /// <remarks>
     /// [S-812] With no row focused (<paramref name="index"/> negative) a movement key lands on an end
@@ -184,7 +185,7 @@ public static class HabitLayout
             {
                 WidgetKey.Escape => new(HabitKeyCommand.Release, -1),
                 _ when count <= 0 => new(HabitKeyCommand.None, -1),
-                WidgetKey.Up or WidgetKey.Down or WidgetKey.Home or WidgetKey.Tab => new(HabitKeyCommand.Focus, 0),
+                WidgetKey.Up or WidgetKey.Down or WidgetKey.Home or WidgetKey.Tab or WidgetKey.PageUp or WidgetKey.PageDown => new(HabitKeyCommand.Focus, 0),
                 WidgetKey.End or WidgetKey.ShiftTab => new(HabitKeyCommand.Focus, count - 1),
                 _ => new(HabitKeyCommand.None, -1),
             };
@@ -198,9 +199,11 @@ public static class HabitLayout
             WidgetKey.Down => new(HabitKeyCommand.Focus, Math.Min(count - 1, at + 1)),
             WidgetKey.Home => new(HabitKeyCommand.Focus, 0),
             WidgetKey.End => new(HabitKeyCommand.Focus, count - 1),
+            WidgetKey.PageUp => new(HabitKeyCommand.Focus, Math.Max(0, at - ListKeys.PageStep)),
+            WidgetKey.PageDown => new(HabitKeyCommand.Focus, Math.Min(count - 1, at + ListKeys.PageStep)),
             WidgetKey.Tab => new(HabitKeyCommand.Focus, (at + 1) % count),
             WidgetKey.ShiftTab => new(HabitKeyCommand.Focus, (at - 1 + count) % count),
-            WidgetKey.Enter => new(HabitKeyCommand.Toggle, at),
+            WidgetKey.Enter or WidgetKey.Space => new(HabitKeyCommand.Toggle, at),
             WidgetKey.Rename => new(HabitKeyCommand.Rename, at),
             WidgetKey.Delete => new(HabitKeyCommand.Delete, at),
             WidgetKey.Escape => new(HabitKeyCommand.Release, at),

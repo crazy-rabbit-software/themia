@@ -281,6 +281,7 @@ internal sealed partial class ShortcutsView
         switch (key)
         {
             case WidgetKey.Escape:
+                _typeAhead.Reset();
                 if (_renaming is not null)
                 {
                     EndRename(commit: false);
@@ -347,6 +348,32 @@ internal sealed partial class ShortcutsView
                 CursorCell()?.Root.StartBringIntoView();
                 return true;
         }
+    }
+
+    /// <summary>The name typed so far ([S-1995]).</summary>
+    private readonly TypeAhead _typeAhead = new();
+
+    /// <summary>
+    /// [S-1995] Type-ahead ([S-1980]): a shortcut's first letters select it alone and move the cursor
+    /// to it. Not while its rename box or the search box is open: those are typed into.
+    /// </summary>
+    public bool HandleText(char character)
+    {
+        if (_detached || _renaming is not null || _searchOpen || _cells.Count == 0)
+        {
+            return false;
+        }
+
+        var current = _selection.Cursor is { } id ? _cells.FindIndex(cell => cell.Item.Id == id) : -1;
+        if (_typeAhead.Type(character, Environment.TickCount64, [.. _cells.Select(cell => cell.Name.Text)], current) is not { } index)
+        {
+            return _typeAhead.Prefix.Length > 0;
+        }
+
+        _selection.Click(Order(), _cells[index].Item.Id, ctrl: false, shift: false);
+        PaintAll();
+        _cells[index].Root.StartBringIntoView();
+        return true;
     }
 
     /// <summary>How many items an Up / Down step skips: the grid's columns, or the list's.</summary>

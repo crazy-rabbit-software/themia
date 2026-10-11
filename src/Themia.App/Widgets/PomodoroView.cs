@@ -26,7 +26,7 @@ namespace Themia.App.Widgets;
 /// beside, a stack, a ring on tall and large tiles — rather than one stack scaled up and down.
 /// </para>
 /// </summary>
-internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
+internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
     private const string Scope = "pomodoro";
 
@@ -238,6 +238,33 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         }
 
         Render();
+    }
+
+    /// <summary>[S-1987] Space or Enter start and pause, Right skips, Home resets (<see cref="ControlKeys.Pomodoro"/>).</summary>
+    public bool HandleKey(WidgetKey key)
+    {
+        if (_ticker is null)
+        {
+            return false;
+        }
+
+        switch (ControlKeys.Pomodoro(key))
+        {
+            case ControlKey.Toggle:
+                SetRunning(!_running);
+                return true;
+
+            case ControlKey.Next:
+                Skip();
+                return true;
+
+            case ControlKey.Reset:
+                Reset();
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     /// <summary>[S-02] Reset stops and returns to a fresh work phase. Nothing sounds. The session count stays.</summary>
@@ -727,5 +754,8 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _subscription?.Dispose();
         _subscription = null;
         _running = false;
+
+        // A key the lease delivers after the card left ([S-802]) must not start a detached timer.
+        _ticker = null;
     }
 }

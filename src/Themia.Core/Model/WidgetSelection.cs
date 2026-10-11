@@ -178,6 +178,40 @@ public static class SelectionRules
     }
 
     /// <summary>
+    /// [S-1973] Tab in edit mode: the widget after <paramref name="currentId"/> in reading order (top
+    /// edge, then left edge, then view order), wrapping at the end. From nothing (or a widget that is
+    /// not in the view) Tab lands on the first, Shift+Tab on the last. Hidden widgets are skipped;
+    /// null when the view has none to land on.
+    /// </summary>
+    public static string? Cycle(ViewState view, string? currentId, bool backwards, IReadOnlySet<string>? hidden = null)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+
+        var order = view.Widgets
+            .Select((w, index) => (Widget: w, Index: index))
+            .Where(x => hidden?.Contains(x.Widget.Id) != true)
+            .OrderBy(x => x.Widget.Y)
+            .ThenBy(x => x.Widget.X)
+            .ThenBy(x => x.Index)
+            .Select(x => x.Widget.Id)
+            .ToList();
+
+        if (order.Count == 0)
+        {
+            return null;
+        }
+
+        var at = currentId is null ? -1 : order.IndexOf(currentId);
+        if (at < 0)
+        {
+            return backwards ? order[^1] : order[0];
+        }
+
+        var next = backwards ? (at - 1 + order.Count) % order.Count : (at + 1) % order.Count;
+        return order[next];
+    }
+
+    /// <summary>
     /// [S-1584]/[S-1588] The selected widgets that are in the view, in view order: what a drag moves
     /// and what a copy or move takes. Ids not in the view are ignored.
     /// </summary>

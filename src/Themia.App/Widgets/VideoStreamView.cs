@@ -32,7 +32,7 @@ namespace Themia.App.Widgets;
 /// stream — a desktop of MJPEG cameras never loads the media pipeline at all.
 /// </para>
 /// </summary>
-internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IStreamSink
+internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IStreamSink, IWidgetKeys
 {
     private const string Scope = "video-stream";
 
@@ -163,6 +163,21 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
             : new WidgetAction(Glyphs.Pause, Str.VideoStream_Pause.Text(), () => SetPaused(true)),
         new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), RefreshNow),
     ];
+
+    /// <summary>[S-1991] Only a tile with a stream to pause takes the keyboard on a click.</summary>
+    public bool WantsKeys => !_detached && !string.IsNullOrWhiteSpace(_config.Url);
+
+    /// <summary>[S-1991] Space pauses and resumes the stream (<see cref="ControlKeys.Stream"/>).</summary>
+    public bool HandleKey(WidgetKey key)
+    {
+        if (!WantsKeys || ControlKeys.Stream(key) != ControlKey.Toggle)
+        {
+            return false;
+        }
+
+        SetPaused(!_config.Paused);
+        return true;
+    }
 
     private void SetPaused(bool paused)
     {

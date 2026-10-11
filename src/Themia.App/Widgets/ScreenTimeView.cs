@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// every sampling tick, a resolved name — and when the user moves through the days.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware
+internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
 {
     /// <summary>A legend row: Fluent's compact list row.</summary>
     private const double RowHeight = Fluent.RowHeightCompact;
@@ -459,6 +459,75 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         {
             ApplyHeadline(_ringTotal, _ringDetail, _ringHole);
         }
+    }
+
+    // ---- keys ([S-1989]) -------------------------------------------------------------------------
+
+    /// <summary>The apps the legend shows right now, top to bottom: what the arrows step through.</summary>
+    private List<string> LegendKeys()
+        => [.. _rows.Where(row => row.Host.Visibility == Visibility.Visible && row.Key is not null).Select(row => row.Key!)];
+
+    /// <summary>[S-1989] A tile with a legend, or with days to step, takes the keyboard on a click.</summary>
+    public bool WantsKeys => !_detached && (LegendKeys().Count > 0 || ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day);
+
+    /// <summary>
+    /// [S-1989] Up/Down, Page Up/Down and Home/End (<see cref="ItemCursor"/>) light one app of the
+    /// legend as hovering does — the rest dim and the headline names it; the Menu key opens its Hide
+    /// menu; Left/Right step the day as the header's arrows do (a day period only, never past today);
+    /// Escape lets the app go.
+    /// </summary>
+    public bool HandleKey(WidgetKey key)
+    {
+        if (_detached)
+        {
+            return false;
+        }
+
+        if (key == WidgetKey.Escape)
+        {
+            var had = _focus is not null;
+            SetFocus(null);
+            return had;
+        }
+
+        if (key is WidgetKey.Left or WidgetKey.Right)
+        {
+            var today = _source?.Today ?? LocalDay.From(DateTimeOffset.Now);
+            var allowed = ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day
+                && (key == WidgetKey.Left ? ScreenTimeRules.CanGoBack(_pinned, today) : _pinned is not null);
+
+            if (allowed)
+            {
+                Navigate(key == WidgetKey.Left ? -1 : 1);
+            }
+
+            return allowed;
+        }
+
+        var keys = LegendKeys();
+        var current = _focus is null ? -1 : keys.IndexOf(_focus);
+
+        if (key == WidgetKey.Menu)
+        {
+            var row = current < 0 ? null : _rows.Find(r => r.Key == keys[current]);
+            if (row is null || keys[current] == ScreenTimeRules.OtherKey)
+            {
+                return false;
+            }
+
+            var app = keys[current];
+            return ItemMenu.Open(row.Host, [new ItemMenuEntry(Glyphs.Hide, Str.Screentime_HideApp.Text(), () => Hide(app))]);
+        }
+
+        if (key is not (WidgetKey.Up or WidgetKey.Down or WidgetKey.Home or WidgetKey.End or WidgetKey.PageUp or WidgetKey.PageDown)
+            || ItemCursor.Move(keys.Count, current < 0 ? null : current, key) is not { } next)
+        {
+            return false;
+        }
+
+        SetFocus(keys[next]);
+        _rows.Find(r => r.Key == keys[next])?.Host.StartBringIntoView();
+        return true;
     }
 
     /// <summary>[S-455] Hide an app from every view of this widget. Its time is still recorded.</summary>

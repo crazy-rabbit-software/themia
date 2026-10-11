@@ -249,6 +249,7 @@ public static class TaskLayout
     /// [S-787] What a key does to the row at <paramref name="index"/> of <paramref name="count"/>.
     /// Arrows and Home/End move the focus and stop at the ends (no wrap, as in every Windows list);
     /// Enter ticks the task, Delete deletes it, F2 renames it, Escape gives the keyboard back.
+    /// [S-1981] Space ticks too, and Page Up / Page Down jump <see cref="ListKeys.PageStep"/> rows.
     /// [S-812] With no row focused (<paramref name="index"/> negative: the widget holds the keyboard
     /// but the click was not on a row) a movement key lands on an end and the rest do nothing — Enter
     /// must never tick a task the user has not pointed at.
@@ -261,7 +262,7 @@ public static class TaskLayout
             {
                 WidgetKey.Escape => new(TaskKeyCommand.Release, -1),
                 _ when count <= 0 => new(TaskKeyCommand.None, -1),
-                WidgetKey.Up or WidgetKey.Down or WidgetKey.Home => new(TaskKeyCommand.Focus, 0),
+                WidgetKey.Up or WidgetKey.Down or WidgetKey.Home or WidgetKey.PageUp or WidgetKey.PageDown => new(TaskKeyCommand.Focus, 0),
                 WidgetKey.End => new(TaskKeyCommand.Focus, count - 1),
                 _ => new(TaskKeyCommand.None, -1),
             };
@@ -275,7 +276,9 @@ public static class TaskLayout
             WidgetKey.Down => new(TaskKeyCommand.Focus, Math.Min(count - 1, at + 1)),
             WidgetKey.Home => new(TaskKeyCommand.Focus, 0),
             WidgetKey.End => new(TaskKeyCommand.Focus, count - 1),
-            WidgetKey.Enter => new(TaskKeyCommand.Toggle, at),
+            WidgetKey.PageUp => new(TaskKeyCommand.Focus, Math.Max(0, at - ListKeys.PageStep)),
+            WidgetKey.PageDown => new(TaskKeyCommand.Focus, Math.Min(count - 1, at + ListKeys.PageStep)),
+            WidgetKey.Enter or WidgetKey.Space => new(TaskKeyCommand.Toggle, at),
             WidgetKey.Delete => new(TaskKeyCommand.Delete, at),
             WidgetKey.Rename => new(TaskKeyCommand.Rename, at),
             WidgetKey.Escape => new(TaskKeyCommand.Release, at),

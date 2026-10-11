@@ -12,6 +12,8 @@ public static class ItemCursor
     /// forward, both clamped (a list is not a carousel); Home/End jump to the ends; Escape clears.
     /// With no cursor yet, a forward step or Home lands on the first item, a back step or End on the
     /// last. Enter never moves it (the caller acts on the item). An empty list has no cursor.
+    /// [S-1985] Page Up / Page Down jump <see cref="ListKeys.PageStep"/> items, clamped, the same
+    /// distance as every <see cref="ListKeys"/> list; with no cursor yet they land on the first item.
     /// </summary>
     public static int? Move(int count, int? current, WidgetKey key)
     {
@@ -29,6 +31,8 @@ public static class ItemCursor
             WidgetKey.End => count - 1,
             WidgetKey.Up or WidgetKey.Left => at is { } i ? Math.Max(0, i - 1) : count - 1,
             WidgetKey.Down or WidgetKey.Right => at is { } i ? Math.Min(count - 1, i + 1) : 0,
+            WidgetKey.PageUp => at is { } i ? Math.Max(0, i - ListKeys.PageStep) : 0,
+            WidgetKey.PageDown => at is { } i ? Math.Min(count - 1, i + ListKeys.PageStep) : 0,
             _ => at,
         };
     }
