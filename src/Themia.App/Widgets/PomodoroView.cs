@@ -99,7 +99,9 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _progress.Minimum = 0;
         _progress.Maximum = 100;
 
-        _ringTrack.Stroke = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
+        // [S-837] The ring stands for a progress ring, whose track is a control's strong rest fill; the
+        // disabled fill read as a timer that was switched off.
+        _ringTrack.Stroke = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
         _ringArc.StrokeStartLineCap = PenLineCap.Round;
         _ringArc.StrokeEndLineCap = PenLineCap.Round;
 

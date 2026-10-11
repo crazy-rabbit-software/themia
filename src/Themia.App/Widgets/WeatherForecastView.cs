@@ -41,7 +41,8 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
 
     private readonly Brush _freshBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
     private readonly Brush _staleBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
-    private readonly Brush _trackBrush = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
+    // [S-837] The range bar's track is a slider's (SliderTrackFill), not the disabled fill.
+    private readonly Brush _trackBrush = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
     private readonly Brush _barBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly Brush _todayFill = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Transparent);
     private readonly Brush _cardFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Transparent);

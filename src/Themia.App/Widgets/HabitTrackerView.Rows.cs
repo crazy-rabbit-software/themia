@@ -543,8 +543,9 @@ internal sealed partial class HabitTrackerView
         private readonly IDisposable _menu;
 
         private readonly Brush _filled = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        // The empty dot must read as a slot on both themes; the alt fill is all but invisible on dark.
-        private readonly Brush _blank = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
+        // [S-837] The empty dot must read as a slot on both themes (the alt fill is all but invisible on
+        // dark): a control's strong rest fill, not the disabled one, which read as a switched-off habit.
+        private readonly Brush _blank = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
         private readonly Brush _stroke = FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
 
         private IReadOnlyList<HabitDot> _recent = [];

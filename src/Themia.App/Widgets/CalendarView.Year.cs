@@ -164,11 +164,26 @@ internal sealed partial class CalendarView
         }
 
         // [S-3620] The selected day is ringed: in the accent, or the text colour round today's disc.
+        // A day with something keeps its stripe, shortened to sit inside the ring under the number.
         if (isSelected)
         {
+            var face = new Grid { Children = { number } };
+            if (items.Count > 0 && !isToday)
+            {
+                face.Children.Add(new Border
+                {
+                    Height = 2,
+                    Width = Math.Max(4, Math.Floor((cell - 1) / 2)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Margin = new Thickness(0, 0, 0, Math.Max(1, Math.Floor(cell / 8))),
+                    Background = MarkOf(items[0], showColors),
+                });
+            }
+
             return new Border
             {
-                Child = number,
+                Child = face,
                 Width = cell - 1,
                 Height = cell - 1,
                 CornerRadius = new CornerRadius((cell - 1) / 2),

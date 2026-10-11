@@ -126,4 +126,22 @@ public sealed class ScreenTimeLayoutTests
         Assert.False(day.Average);
         Assert.False(off.Percent || off.Average);
     }
+
+    [Fact]
+    public void S3352_a_narrow_row_drops_the_name_and_keeps_the_time()
+    {
+        // At XS a name squeezed beside the time read as one letter ("O" for Other): the row is the
+        // icon and the time, the name in its tooltip; from S on every row carries its name.
+        var xs = ScreenTimeLayout.Apps(Content(Tier("XS")), Row, 5, false, true, true);
+        Assert.True(xs.Rows >= 1);
+        Assert.False(xs.Names);
+
+        foreach (var tier in WidgetTiers.All.Where(t => t.Name != "XS"))
+        {
+            Assert.True(ScreenTimeLayout.Apps(Content(tier), Row, 5, false, true, true).Names, tier.Name);
+        }
+
+        Assert.True(ScreenTimeLayout.Apps(new WidgetArea(ScreenTimeLayout.NamesFrom, 200), Row, 5, false, true, true).Names);
+        Assert.False(ScreenTimeLayout.Apps(new WidgetArea(ScreenTimeLayout.NamesFrom - 1, 200), Row, 5, false, true, true).Names);
+    }
 }

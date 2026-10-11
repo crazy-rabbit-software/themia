@@ -120,12 +120,14 @@ internal sealed partial class ScreenTimeAppsView
 
         public string? Key => _segment?.Key;
 
-        public void Show(ScreenTimeSegment segment, string? average, string? percent, ScreenTimeGoal? goal)
+        public void Show(ScreenTimeSegment segment, string? average, string? percent, ScreenTimeGoal? goal, bool name)
         {
             _segment = segment;
             var colour = ScreenTimeLook.For(segment.Key);
 
+            // [S-3352] Too narrow for a name: the icon and the time, the name stays in the tooltip.
             _name.Text = segment.Name;
+            _name.Visibility = name ? Visibility.Visible : Visibility.Collapsed;
             _average.Text = average ?? string.Empty;
             _average.Visibility = average is null ? Visibility.Collapsed : Visibility.Visible;
             _percent.Text = percent ?? string.Empty;

@@ -215,7 +215,8 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
                 segment,
                 plan.Average ? Str.Screentime_PerDay.Format(("value", ScreenTimeRules.FormatDuration(average))) : null,
                 plan.Percent ? ScreenTimeLook.Percent(segment.Seconds, data.Total) : null,
-                goal);
+                goal,
+                plan.Names);
         }
 
         ApplyFocus();

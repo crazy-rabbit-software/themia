@@ -82,14 +82,8 @@ internal sealed partial class CalendarView
                 var count = fit.Density == MonthDensity.Chips ? bars.Count(b => b.First <= c && c <= b.Last) : items.Count;
                 var hidden = fit.Density == MonthDensity.Chips ? CalendarFit.Hidden(bars, c, fit.ChipLines) : 0;
 
-                var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, fit, showColors, dotLimit);
-
-                // [S-3620] The selected day (also the keys' cursor day, [S-3624]) is outlined.
-                if (_selected == day)
-                {
-                    cell.BorderThickness = new Thickness(1);
-                    cell.BorderBrush = Accent();
-                }
+                // [S-3620] The selected day (also the keys' cursor day, [S-3624]) is marked in its cell.
+                var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, _selected == day, fit, showColors, dotLimit);
 
                 cell.Tapped += (_, _) => ToggleDay(day);
 
@@ -132,6 +126,7 @@ internal sealed partial class CalendarView
         int hidden,
         bool inMonth,
         bool isToday,
+        bool isSelected,
         MonthFit fit,
         bool showColors,
         int dotLimit)
@@ -189,6 +184,34 @@ internal sealed partial class CalendarView
             number.HorizontalAlignment = HorizontalAlignment.Center;
         }
 
+        // [S-3620] With chips the selected day's number is ringed and its cell filled, rather than the
+        // cell outlined: a chip spanning the day would be crossed by the outline (the chips are
+        // translucent, so even an outline under them showed through). Today's disc keeps its accent
+        // and takes the ring in the text colour.
+        var chipped = density == MonthDensity.Chips;
+        if (chipped && isSelected)
+        {
+            if (numberHost is Border disc)
+            {
+                disc.BorderThickness = new Thickness(1);
+                disc.BorderBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
+            }
+            else
+            {
+                number.HorizontalAlignment = HorizontalAlignment.Center;
+                numberHost = new Border
+                {
+                    Child = number,
+                    CornerRadius = new CornerRadius(line / 2),
+                    MinWidth = line,
+                    Height = line,
+                    Padding = new Thickness(3, 0, 3, 0),
+                    BorderThickness = new Thickness(1),
+                    BorderBrush = Accent(),
+                };
+            }
+        }
+
         if (fit.InlineDots && items.Count > 0)
         {
             // A wide, short cell: the dots beside the number, where there is room for them.
@@ -228,7 +251,13 @@ internal sealed partial class CalendarView
             Margin = density == MonthDensity.Number ? new Thickness(0) : new Thickness(CellMargin),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             VerticalAlignment = density == MonthDensity.Number ? VerticalAlignment.Center : VerticalAlignment.Stretch,
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = chipped && isSelected
+                ? FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Transparent)
+                : FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+
+            // Without chips nothing spans a cell, so the selected one is outlined whole.
+            BorderThickness = new Thickness(!chipped && isSelected ? 1 : 0),
+            BorderBrush = !chipped && isSelected ? Accent() : null,
         };
     }
 

@@ -1201,8 +1201,9 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`
   share when shown, the time last; over its own limit the time is critical, and the tooltip says the limit.
 - **[S-3351]** As many whole rows as fit, up to the ceiling; when apps are left over the last row is
   Other, so the rows add up to the total (`ScreenTimeRules.ListNamed`). Rows are reused by position.
-- **[S-3352]** Ladder (`ScreenTimeLayout.Apps`): whole compact rows; the share from 200 DIPs wide, a
-  window's average from 300. No headline, no footer ([S-666]): the total is the donut's and the chart's.
+- **[S-3352]** Ladder (`ScreenTimeLayout.Apps`): whole compact rows; the time always, the name from
+  160 DIPs wide (under it a row is the icon and the time, the name in its tooltip: a squeezed name
+  read as one letter), the share from 200, a window's average from 300. No headline, no footer ([S-666]): the total is the donut's and the chart's.
 - **[S-3353]** Linked focus: the focused row has the hover fill, the others dim; the selected row
   keeps Fluent's selection pill and fill; the keyboard cursor has the focus ring ([S-1288]). Hover a
   row hovers the app; click selects (again: lets go); the space under the rows clears.
@@ -2406,8 +2407,9 @@ Shared dates and events on a view ([S-3300], [S-3311]):
 
 - **[S-3620]** A click on a day in the month (its cell), the week (its column head) or the year (its
   day) selects it on the view (`SelectedDate`); a click on the selected day lets it go
-  (`CalendarShare.Toggle`), and so does Escape. The selected day is outlined in the month, underlined
-  in the week, ringed in the year, its heading in the accent in the agenda. A selection stays when the
+  (`CalendarShare.Toggle`), and so does Escape. The selected day is outlined in the month (with chips: its
+  number ringed and its cell filled, so no outline crosses a chip spanning it), underlined in the
+  week, ringed in the year (a day with something keeps its stripe inside the ring), its heading in the accent in the agenda. A selection stays when the
   widget pages and when the view is switched away and back; nothing is persisted.
 - **[S-3621]** Every calendar on the view follows the selected day: the month, week, day and year
   anchor on it (`CalendarShare.AnchorFor`), paging only when it is in another period, so the day
@@ -3474,7 +3476,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   `--widget-png … --reference` draws a stock WinUI card (framework brushes, application theme) beside
   the first tier and prints the colours it should composite to, for a pixel comparison.
 - **[S-837]** Tracks follow the control they stand for: a seek bar is a slider
-  (`SliderTrackFill` = `ControlStrongFillColorDefault`, value `AccentFillColorDefault`, 4px).
+  (`SliderTrackFill` = `ControlStrongFillColorDefault`, value `AccentFillColorDefault`, 4px), and so
+  are the tracks that stand for a progress bar or ring (Bluetooth battery, Pomodoro's ring), the
+  forecast's temperature range bar and a habit's empty dot. None uses the disabled fill, which reads
+  as a control that is switched off.
 - **[S-834]** Appearance page: Style (presets + Custom), theme, accent, widget background + opacity,
   header background + opacity, corner radius, border group, font (presets + installed), text size,
   widget scale, then Layout ([S-1722]: gap between widgets, snap to grid). Picking a preset rebuilds
