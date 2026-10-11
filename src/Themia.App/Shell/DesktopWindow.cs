@@ -50,9 +50,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly Grid _root;
     private readonly List<WidgetCard> _cards = [];
 
-    /// <summary>[S-2100] The shared backgrounds of touching widgets, under the widget layer.</summary>
-    private readonly CardGroupLayer _groups = new();
-
     private MonitorTarget _monitor;
     private nint _hwnd;
     private AppWindow? _appWindow;
@@ -98,7 +95,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = new SolidColorBrush(Colors.Transparent),
-            Children = { _gridOverlay, _groups.Element, _widgetLayer, _barLayer, _ghostLayer, _toolbar, _placementHint },
+            Children = { _gridOverlay, _widgetLayer, _barLayer, _ghostLayer, _toolbar, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.

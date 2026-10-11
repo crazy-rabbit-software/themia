@@ -20,8 +20,7 @@ public partial class App : Application
         // resources load, and the pages' brushes come from it.
         if ((Shell.Gallery.SettingsRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.IconPickerRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.GroupRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
+            ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
         {
             RequestedTheme = theme;
         }
@@ -118,12 +117,6 @@ public partial class App : Application
 
         // And for the context menus ([S-1740]..[S-1744]).
         if (Shell.Gallery.MenuRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for touching widgets sharing one card ([S-2107]).
-        if (Shell.Gallery.GroupRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;
         }

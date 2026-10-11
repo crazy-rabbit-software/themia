@@ -71,9 +71,6 @@ internal sealed partial class DesktopWindow
         // [S-1012] A view change replaces whatever was still playing: the old cards are gone already.
         _show?.Stop();
 
-        // [S-2106] The intro moves every card on its own, so each paints its own card while it plays.
-        _groups.Apply(_cards, Metrics, Design, enabled: false);
-
         try
         {
             _show = MotionShow.Start(
@@ -91,12 +88,13 @@ internal sealed partial class DesktopWindow
             Log.Error(Scope, $"the {mode} intro failed to start on {_monitor.GdiName}", ex);
             _show?.Stop();
             _show = null;
-            ApplyGroups();
-            ApplyHitRegion();
             return false;
         }
 
-        ApplyHitRegion();
+        if (MotionCoversScreen)
+        {
+            ApplyHitRegion();
+        }
 
         return true;
     }
@@ -135,11 +133,9 @@ internal sealed partial class DesktopWindow
 
         _show = null;
 
-        // The region shrinks back to the widgets once the overlay is gone, and [S-2106] the cards
-        // at rest join their groups again.
-        if (!_closed)
+        // The region shrinks back to the widgets once the overlay is gone.
+        if (show.Overlay is not null && !_closed)
         {
-            ApplyGroups();
             ApplyHitRegion();
         }
     }

@@ -17,7 +17,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Touching widgets share one card (GROUPS); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
+- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
 - **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Sun and moon; Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
@@ -43,7 +43,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-04]** Each widget renders at `left = x·W`, `top = y·H`, inset on every side by
   `widgetGap / 2`, so neighbours show a gap without changing their logical rect. Logical edges are
   rounded to a shared whole-pixel boundary *before* the gap inset, so adjacent widgets still meet
-  exactly. Widgets whose cells touch share one card and show no gap between them ([S-2100]..[S-2106]).
+  exactly.
 - **[S-05]** The DIP space a fraction resolves into is the window's **real client rect divided by
   the window's real rasterization scale** — not `ActualWidth`. Changing display scale resizes the
   content without changing the client's pixel size, so no `SizeChanged` fires and `ActualWidth` can
@@ -4360,54 +4360,6 @@ own buttons, rows, links and controls keep their clicks, and a double-click ente
 - **[S-1928]** *(Retired: account widgets open no service.)*
 - **[S-1929]** *(Retired: folder and pictures open no folder.)*
 - **[S-1930]** *(Retired: a feed does not keep its site.)*
-
-## Touching widgets share one card (GROUPS)
-
-Owning files: `Themia.Core/Widgets/CardGroups.cs` (the rules, tested in `CardGroupsTests`),
-`Themia.App/Shell/CardGroupLayer.cs` (draws them), `CardPaint.cs` (the brushes a lone card and a group
-share), `WidgetCard.SetGrouped`, `DesktopWindow.Layout.cs` (regrouping and the hit region).
-
-- **[S-2100]** Widgets on one surface whose cells touch form a **group**, and a group draws **one**
-  background: one fill, one Fluent tint and one border following the outline of all its members
-  together, under every card. Joining is transitive (A touches B touches C is one group). A widget that
-  touches nobody keeps its own card exactly as before ([S-04], [S-823]..[S-825]).
-- **[S-2101]** Two cells touch when their facing edges are within **half a snap cell** of each other
-  (5 DIP at the 10 DIP cell, [S-06b]) and the edge they share is longer than that. Snapped neighbours
-  meet exactly or a rounding pixel apart; **one empty grid cell** between two widgets is a whole cell,
-  so they stay separate groups, each with its own card. Meeting only at a corner is not touching.
-  Cells are the gap-free rects of [S-04] at the widgets' live rects, so the user's gap never decides it.
-- **[S-2102]** Only like cards merge: Card with Card, Translucent with Translucent ([S-32]). A
-  transparent widget and a view that hides itself ([S-873], even shown faded in edit mode) paint no
-  card, so they never join and never bridge two others. A widget **overlapping** another (more than the
-  half-cell tolerance on both axes) keeps its own card, and so does the one it overlaps: the shared
-  fill lies under every card, so a stacked member would show the other through it. Colour, opacity and
-  border are design-wide, so members never disagree about them.
-- **[S-2103]** The outline is the members' cells taken together, edges within the tolerance welded first
-  (an unsnapped neighbour a pixel off leaves no notch), then every edge pulled in by half the gap, as a
-  lone card sits in its cell. So inside a group there is **no gap and no seam**: the fill runs across
-  where the members meet, and the gap shows only on the group's outside. Outer (convex) corners take the
-  corner radius; holes (a ring of widgets round an empty area) stay open. Each radius is capped at half
-  of either edge beside it, so a one-cell step rounds by 5 DIP rather than overshooting.
-- **[S-2104]** Inner (concave) corners are rounded too, by the radius or half the gap, whichever is
-  smaller: the fillet then stays inside the members' own cells, never reaching into the empty space or
-  a neighbour. With no gap they are sharp. A member paints no fill, tint or border of its own; its
-  content keeps its inset, its own clip and corners ([S-825]), its header, edit outline, handles and
-  hit-testing. A header strip with a colour of its own still paints it, at the header opacity, over the
-  group's fill; a header sharing the widget's fill paints nothing, since the group's fill is under it
-  already (the [S-1761] fade of a shared header applies to lone cards only).
-- **[S-2105]** The window's hit region ([S-872]) takes each group's painted shape instead of the members'
-  rects: the rectangles of the inset outline (the seam between members included, a hole left out) and
-  the square of every rounded inner corner. The gap round the group stays the desktop's.
-- **[S-2106]** Grouping follows the layout, event-driven: any card moved, resized, added, removed or
-  hidden marks the groups stale and they are worked out once after that batch (or first, when the hit
-  region is asked for), so a drag or resize regroups live as the edge passes a neighbour. Recomputed
-  only when a cell, which cards paint, the gap, the radius or the border width changed; brushes are
-  re-applied on cached brushes. While an intro plays ([S-1000]) every card paints its own card, since
-  the intro moves each on its own; the cards join their groups again when it ends.
-- **[S-2107]** Debug: `--groups-png <outDir> [--theme light|dark]` draws a fixture surface (a touching
-  pair, an L, a pair one empty cell apart, a staircase of three, a card beside a transparent widget)
-  through the real cards and group layer, in four looks: the default design, no gap, a 2 px dashed
-  border at radius 16 with a 12 px gap, and translucent cards with a header colour.
 
 ## Removed widgets (R7-REMOVE)
 

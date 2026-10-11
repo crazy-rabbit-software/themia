@@ -270,51 +270,6 @@ internal sealed partial class DesktopWindow
         card.Width = cell.Width;
         card.Height = cell.Height;
         card.ApplyGap(Design.WidgetGapPx);
-
-        // [S-2106] Whoever moved the card, the groups follow: once, after the batch of moves.
-        MarkGroupsDirty();
-    }
-
-    /// <summary>Set when a card moved since the groups were last worked out.</summary>
-    private bool _groupsDirty;
-
-    /// <summary>
-    /// [S-2106] A card moved, resized, appeared or hid itself: regroup once the current batch of
-    /// changes is done (a block drag moves every selected card, a relayout every card), or sooner
-    /// when the hit region is asked for first.
-    /// </summary>
-    private void MarkGroupsDirty()
-    {
-        if (_groupsDirty)
-        {
-            return;
-        }
-
-        // Not queued (the surface is going away): the flag stays set and the next hit region regroups.
-        _groupsDirty = true;
-        _ = _root.DispatcherQueue?.TryEnqueue(() =>
-        {
-            if (_groupsDirty && !_closed)
-            {
-                ApplyGroups();
-                ApplyHitRegion();
-            }
-        });
-    }
-
-    /// <summary>
-    /// [S-2100]..[S-2106] Group the cards at their live rects and draw the shared backgrounds. Not
-    /// while an intro plays: the intro moves each card on its own, so each paints its own card.
-    /// </summary>
-    private void ApplyGroups()
-    {
-        _groupsDirty = false;
-        if (_closed)
-        {
-            return;
-        }
-
-        _groups.Apply(_cards, Metrics, Design, enabled: _show is null);
     }
 
     /// <summary>
@@ -332,11 +287,6 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void ApplyHitRegion()
     {
-        if (_groupsDirty)
-        {
-            ApplyGroups();
-        }
-
         var metrics = Metrics;
         if (!metrics.IsUsable || !Win32.GetWindowRect(_hwnd, out var window))
         {
@@ -362,8 +312,7 @@ internal sealed partial class DesktopWindow
 
         foreach (var card in _cards)
         {
-            // [S-2105] A group member's area is the group's, added below.
-            if (card.Visibility == Visibility.Collapsed || _groups.Contains(card))
+            if (card.Visibility == Visibility.Collapsed)
             {
                 continue;
             }
@@ -377,21 +326,6 @@ internal sealed partial class DesktopWindow
                 continue;
             }
 
-            var physical = PixelRect.FromEdges(
-                offsetX + Math.Floor(box.X * scale),
-                offsetY + Math.Floor(box.Y * scale),
-                offsetX + Math.Ceiling((box.X + box.Width) * scale),
-                offsetY + Math.Ceiling((box.Y + box.Height) * scale));
-
-            if (GridGeometry.Intersect(physical, allowed) is { } visible)
-            {
-                rects.Add(ToRegionRect(visible));
-            }
-        }
-
-        // [S-2105] Each group's painted shape, seam and rounded inner corners included.
-        foreach (var box in _groups.Region)
-        {
             var physical = PixelRect.FromEdges(
                 offsetX + Math.Floor(box.X * scale),
                 offsetY + Math.Floor(box.Y * scale),
