@@ -1,6 +1,9 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using Themia.Core.Accounts;
+using Themia.Core.Diagnostics;
 
 namespace Themia.Core.Sync;
 
@@ -388,5 +391,57 @@ public static class DeltaRules
 
         return status == 400 && providerMessage is { } said
             && (said.Contains("token", StringComparison.OrdinalIgnoreCase) || said.Contains("sync", StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// [S-2690] Whether a change request (a delta, a sync token, an <c>updatedMin</c>) was refused as a
+    /// request: 400 (Graph's bare "Invalid request" for a To Do list it will not track), 405 or 501.
+    /// Not the account's failure and not the data's: the same thing is read the plain way instead.
+    /// A cursor refusal ([S-2681], <see cref="Rejected"/>) is tried first, by a fresh round.
+    /// </summary>
+    public static bool Unsupported(int status) => status is 400 or 405 or 501;
+}
+
+/// <summary>
+/// [S-2690] Change requests a provider refused for one thing it holds (a To Do list, a calendar, a
+/// book, a folder), remembered for the session, so that thing is read the plain way — as before
+/// incremental sync — from then on instead of being skipped, or asked again every cycle. One per
+/// service; keys name the account and the thing.
+/// </summary>
+public sealed class DeltaFallback(string logScope)
+{
+    private readonly ConcurrentDictionary<string, byte> _refused = new(StringComparer.Ordinal);
+
+    /// <summary>Whether a change request for <paramref name="key"/> was refused this session.</summary>
+    public bool Refused(string key) => _refused.ContainsKey(key);
+
+    /// <summary>
+    /// <paramref name="delta"/> unless <paramref name="key"/> refused one before; on a refusal
+    /// (<see cref="DeltaRules.Unsupported"/>), logged once, <paramref name="plain"/>. A failure of
+    /// the plain read is the caller's, as any other failure of the delta is.
+    /// </summary>
+    /// <param name="what">The thing, for the log (an account id and a list id; ids, never names).</param>
+    public async Task<T> ReadAsync<T>(string key, string what, Func<Task<T>> delta, Func<Task<T>> plain)
+    {
+        ArgumentNullException.ThrowIfNull(delta);
+        ArgumentNullException.ThrowIfNull(plain);
+
+        if (!_refused.ContainsKey(key))
+        {
+            try
+            {
+                // ConfigureAwait(true): callers on the UI thread run the plain read on it too.
+                return await delta().ConfigureAwait(true);
+            }
+            catch (AccountException ex) when (DeltaRules.Unsupported(ex.HttpStatus))
+            {
+                if (_refused.TryAdd(key, 0))
+                {
+                    Log.Info(logScope, $"{what} refused its change request (HTTP {ex.HttpStatus}); read in full from now on");
+                }
+            }
+        }
+
+        return await plain().ConfigureAwait(true);
     }
 }

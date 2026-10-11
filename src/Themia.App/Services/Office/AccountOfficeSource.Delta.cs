@@ -38,6 +38,9 @@ internal sealed partial class AccountOfficeSource
 
     private const string BookScope = "book";
 
+    /// <summary>[S-2690] Calendars and books whose change requests were refused this session: read the plain way.</summary>
+    private readonly DeltaFallback _fallback = new(Scope);
+
     // -----------------------------------------------------------------------------------------
     // Calendar window
     // -----------------------------------------------------------------------------------------
@@ -46,10 +49,29 @@ internal sealed partial class AccountOfficeSource
     /// [S-2684] The whole window of one calendar: the changes since its cursor when usable, else in
     /// full. Only for a calendar <see cref="WindowCursorKind"/> names.
     /// </summary>
-    private async Task<CalendarSpan> SyncWindowAsync(CalendarTarget target, CalendarSpan? held, CursorKind kind, CancellationToken ct)
+    private Task<CalendarSpan> SyncWindowAsync(CalendarTarget target, CalendarSpan? held, CursorKind kind, CancellationToken ct)
+    {
+        var (from, to) = CalendarSync.Window(DateOnly.FromDateTime(DateTime.Now), TimeZoneInfo.Local);
+
+        // DAV's own refusals fall back inside its rounds ([S-2688]); its full read is the plain one.
+        if (kind == CursorKind.Dav)
+        {
+            return WindowChangesAsync(target, held, kind, from, to, ct);
+        }
+
+        // [S-2690] A calendar whose provider refused the change request: the plain calendar view, no cursor.
+        return _fallback.ReadAsync($"{target.AccountId}|calendar|{target.CalendarId}", $"{target.AccountId}: calendar {target.CalendarId ?? "default"}",
+            () => WindowChangesAsync(target, held, kind, from, to, ct),
+            async () =>
+            {
+                var events = await LoadEventsAsync(target, from, to, ct).ConfigureAwait(true);
+                return CalendarSync.Merge(held, target.CalendarId, events, from, to, DateTimeOffset.UtcNow, full: true);
+            });
+    }
+
+    private async Task<CalendarSpan> WindowChangesAsync(CalendarTarget target, CalendarSpan? held, CursorKind kind, DateTimeOffset from, DateTimeOffset to, CancellationToken ct)
     {
         var account = Require(target.AccountId);
-        var (from, to) = CalendarSync.Window(DateOnly.FromDateTime(DateTime.Now), TimeZoneInfo.Local);
         var scope = WindowScope(from, to);
         var now = DateTimeOffset.UtcNow;
         var check = held is null ? CursorCheck.Missing : SyncCursors.Check(held.Cursor, kind, scope, now);
@@ -206,9 +228,22 @@ internal sealed partial class AccountOfficeSource
     // -----------------------------------------------------------------------------------------
 
     /// <summary>[S-2685] An address book: the changes since its cursor when usable, else in full.</summary>
-    private async Task<(IReadOnlyList<Contact> People, SyncCursor? Cursor)> SyncBookAsync(string accountId, IReadOnlyList<Contact>? held, SyncCursor? cursor, CancellationToken ct)
+    private Task<(IReadOnlyList<Contact> People, SyncCursor? Cursor)> SyncBookAsync(string accountId, IReadOnlyList<Contact>? held, SyncCursor? cursor, CancellationToken ct)
     {
         var account = Require(accountId);
+        if (account.Provider is not (AccountProvider.Microsoft or AccountProvider.Google))
+        {
+            return BookChangesAsync(account, held, cursor, ct);
+        }
+
+        // [S-2690] A book whose provider refused the change request: the plain listing, no cursor.
+        return _fallback.ReadAsync($"{account.Id}|book", $"{account.Id}: address book",
+            () => BookChangesAsync(account, held, cursor, ct),
+            () => account.Provider == AccountProvider.Microsoft ? GraphBookPlainAsync(account, ct) : GoogleBookPlainAsync(account, ct));
+    }
+
+    private async Task<(IReadOnlyList<Contact> People, SyncCursor? Cursor)> BookChangesAsync(AccountInfo account, IReadOnlyList<Contact>? held, SyncCursor? cursor, CancellationToken ct)
+    {
         CursorKind? kind = account.Provider switch
         {
             AccountProvider.Microsoft => CursorKind.GraphDelta,
@@ -264,18 +299,37 @@ internal sealed partial class AccountOfficeSource
     /// </summary>
     private async Task<(IReadOnlyList<Contact>, SyncCursor?)> GraphBookFullAsync(AccountInfo account, DateTimeOffset now, CancellationToken ct)
     {
-        var max = OfficeShelves.MaxContacts;
-        var url = new Uri($"{Graph}me/contacts?$select={GraphContactFields},parentFolderId&$orderby=displayName&$top={max.ToString(CultureInfo.InvariantCulture)}");
-        var items = await _accounts.GetGraphPagesAsync(account.Id, url, OfficeJsonContext.Default.GraphContact, max, ct).ConfigureAwait(true);
-        var people = Own(account, items.Select(OfficeWire.FromGraph).OfType<Contact>());
-
-        if (people.Count >= max || items.Select(i => i.ParentFolderId).FirstOrDefault(f => !string.IsNullOrEmpty(f)) is not { } folder)
+        var (people, folder) = await GraphBookListAsync(account, ct).ConfigureAwait(true);
+        if (people.Count >= OfficeShelves.MaxContacts || folder is null)
         {
             return (people, null);
         }
 
         var first = new Uri($"{Graph}me/contactFolders/{Uri.EscapeDataString(folder)}/contacts/delta?$select={GraphContactFields}");
         return await GraphBookRoundAsync(account, [], null, first, now, ct).ConfigureAwait(true);
+    }
+
+    /// <summary>The first <see cref="OfficeShelves.MaxContacts"/> by name, and the folder they are in.</summary>
+    private async Task<(IReadOnlyList<Contact> People, string? Folder)> GraphBookListAsync(AccountInfo account, CancellationToken ct)
+    {
+        var max = OfficeShelves.MaxContacts;
+        var url = new Uri($"{Graph}me/contacts?$select={GraphContactFields},parentFolderId&$orderby=displayName&$top={max.ToString(CultureInfo.InvariantCulture)}");
+        var items = await _accounts.GetGraphPagesAsync(account.Id, url, OfficeJsonContext.Default.GraphContact, max, ct).ConfigureAwait(true);
+        return (Own(account, items.Select(OfficeWire.FromGraph).OfType<Contact>()), items.Select(i => i.ParentFolderId).FirstOrDefault(f => !string.IsNullOrEmpty(f)));
+    }
+
+    /// <summary>[S-2690] Graph's book the plain way: the listing alone.</summary>
+    private async Task<(IReadOnlyList<Contact>, SyncCursor?)> GraphBookPlainAsync(AccountInfo account, CancellationToken ct)
+        => ((await GraphBookListAsync(account, ct).ConfigureAwait(true)).People, null);
+
+    /// <summary>[S-2690] Google's book the plain way: the connections without asking for a sync token.</summary>
+    private async Task<(IReadOnlyList<Contact>, SyncCursor?)> GoogleBookPlainAsync(AccountInfo account, CancellationToken ct)
+    {
+        var url = new Uri($"{People}?personFields=names,emailAddresses,phoneNumbers,organizations&pageSize=1000&sortOrder=FIRST_NAME_ASCENDING");
+        var items = await _accounts.GetGooglePagesAsync(account.Id, url, "connections", OfficeJsonContext.Default.GooglePersonRecord, OfficeShelves.MaxContacts, ct)
+            .ConfigureAwait(true);
+        var (people, _) = DeltaMerge.Contacts([], Own(account, items.Select(OfficeWire.FromGoogle).OfType<Contact>()), [], OfficeShelves.MaxContacts);
+        return (people, null);
     }
 
     private async Task<(IReadOnlyList<Contact>, SyncCursor?)> GraphBookRoundAsync(AccountInfo account, IReadOnlyList<Contact> held, SyncCursor? cursor, Uri first, DateTimeOffset now, CancellationToken ct)

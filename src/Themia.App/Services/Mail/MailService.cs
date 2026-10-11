@@ -419,7 +419,24 @@ internal sealed class MailService : IMailSource, IDisposable
     /// listed and a delta round bounded to their dates starts the next cursor; what that round
     /// says is folded in, so the list is as of the round.
     /// </summary>
-    private async Task<(IReadOnlyList<MailMessage>, SyncCursor?)> FetchGraphAsync(
+    private Task<(IReadOnlyList<MailMessage>, SyncCursor?)> FetchGraphAsync(
+        Box box, MailFolder folder, int count, IReadOnlyList<MailMessage> held, SyncCursor? cursor, MailFolderStatus counts, CancellationToken cancellation)
+        => _fallback.ReadAsync($"{box.AccountId}|{folder.Wire()}", $"{box.AccountId}: {folder.Wire()}",
+            () => GraphChangesAsync(box, folder, count, held, cursor, counts, cancellation),
+            async () => ((IReadOnlyList<MailMessage>)await GraphNewestAsync(box, folder, count, cancellation).ConfigureAwait(true), (SyncCursor?)null));
+
+    /// <summary>[S-2690] Folders whose delta Graph refused this session: the newest N listed, no cursor.</summary>
+    private readonly DeltaFallback _fallback = new(Scope);
+
+    /// <summary>The newest <paramref name="count"/> of a folder, listed the plain way.</summary>
+    private async Task<List<MailMessage>> GraphNewestAsync(Box box, MailFolder folder, int count, CancellationToken cancellation)
+    {
+        var graph = await _accounts.GetGraphPagesAsync(
+            box.AccountId, MailWire.GraphMessages(folder, count), MailWireContext.Default.GraphMailMessage, count, cancellation).ConfigureAwait(true);
+        return graph.Select(m => MailWire.FromGraph(m, box.AccountId, folder)).OfType<MailMessage>().ToList();
+    }
+
+    private async Task<(IReadOnlyList<MailMessage>, SyncCursor?)> GraphChangesAsync(
         Box box, MailFolder folder, int count, IReadOnlyList<MailMessage> held, SyncCursor? cursor, MailFolderStatus counts, CancellationToken cancellation)
     {
         var scope = MailShelves.CursorScope(folder, count);
@@ -449,9 +466,7 @@ internal sealed class MailService : IMailSource, IDisposable
             Log.Debug(Scope, $"{box.AccountId}: {folder.Wire()} read in full ({check})");
         }
 
-        var graph = await _accounts.GetGraphPagesAsync(
-            box.AccountId, MailWire.GraphMessages(folder, count), MailWireContext.Default.GraphMailMessage, count, cancellation).ConfigureAwait(true);
-        var newest = graph.Select(m => MailWire.FromGraph(m, box.AccountId, folder)).OfType<MailMessage>().ToList();
+        var newest = await GraphNewestAsync(box, folder, count, cancellation).ConfigureAwait(true);
 
         var start = await GraphMailRoundAsync(box, folder, MailWire.GraphMessagesDelta(folder, DeltaMerge.MailFilter(newest, count)), cancellation).ConfigureAwait(true);
         var (merged, _) = DeltaMerge.Mail(newest, start.Changed, start.Removed, count, DeltaMerge.ByReceived, counts.Total);

@@ -4751,7 +4751,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 - **Incremental sync.** Owning files: `Themia.Core/Sync/{DeltaSync,DeltaMerge}.cs`,
   `Core/Office/DavDelta.cs`, `Core/Mail/ImapDelta.cs`, `Services/Office/AccountOfficeSource.Delta.cs`,
   `AccountService.GetDeltaAsync`, `MailService.FetchGraphAsync`, `ImapMailClient.SyncAsync`,
-  `AccountTaskRemote.SyncListAsync`. Tests: `IncrementalSyncTests` (`S268x_`).
+  `AccountTaskRemote.SyncListAsync`. Tests: `IncrementalSyncTests` (`S268x_`), `DeltaFallbackTests` (`S2690_`).
 
   | Provider | Calendar (window) | Contacts | Mail (newest N a folder) | Tasks (a list) |
   |---|---|---|---|---|
@@ -4774,7 +4774,8 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   of another scope, stale ([S-2682]) or refused by the provider (410 Gone; a 400 naming the token,
   as Google People's "Sync token is expired") means a full read within the bounds at once, which
   starts a new cursor; a refusal is logged once at Info, a scope change or the daily resync at Debug.
-  A refusal is never the account's failure.
+  A refusal is never the account's failure. Any other refusal of the change request itself is
+  [S-2690]'s.
 - **[S-2682]** However well deltas go, everything is read in full again once its chain is a day old
   (`SyncCursors.ResyncAfter`), as a safety net for a change a provider never reported; a chain
   started in the future (the clock moved back) is stale too. A day because the calendar window moves
@@ -4794,7 +4795,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 - **[S-2686]** Tasks: a changed task keeps its place, a new one joins at the end, a removed, deleted
   or hidden one leaves, and one finished elsewhere leaves a list held without finished tasks (and
   comes back reopened); at most 400, a list at the bound keeps no cursor. Graph reads every list as a
-  delta round (one path: from the start, or from its link); Google reads the list in full with an
+  delta round (one path: from the start, or from its link) unless the list refused it ([S-2690]); Google reads the list in full with an
   `updatedMin` cursor five minutes before the request, then the tasks updated since (finished, hidden
   and deleted ones included). Queued changes still win on screen ([S-2653]): they are laid over what
   is held, never folded into it.
@@ -4816,6 +4817,14 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   expunged) and only messages at or above the stored UIDNEXT (newest N of them) are fetched whole. A
   removal that leaves the list short is read in full. QRESYNC is not used: the flag fetch of at most
   50 UIDs already finds expunges.
+- **[S-2690]** A change request (Graph delta, Google sync token or `updatedMin`) refused as a request
+  — 400 without naming the token, 405 or 501; Graph answers a To Do list's `tasks/delta` with a bare
+  400 "Invalid request" for some lists — is not a skipped list, calendar, book or folder: it is read
+  the plain way at once (as before incremental sync: `tasks?$top=100`, `calendarView`, the contacts
+  listing, the newest N messages), with no cursor, and remembered for the session per account and
+  thing (`DeltaFallback`), so the next cycles go straight to the plain read; logged once at Info. A
+  failure of the plain read is an error as any other; 401, 403, 404, 429 and 5xx on a delta are not
+  refusals. DAV keeps its own fallbacks ([S-2688]); IMAP has no HTTP refusal.
 - **[S-2660]** Feeds, quotes and weather keep their documents ([S-1300], [S-729]: same validation,
   same ages) in the sealed `web` shelves of the store, no longer as plain `network_cache.json` /
   `weather_cache.json` files.

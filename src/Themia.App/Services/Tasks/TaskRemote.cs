@@ -85,10 +85,22 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         return [.. graph.Select(TaskWire.FromGraph).OfType<TaskListInfo>()];
     }
 
-    public async Task<(IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> SyncListAsync(
+    /// <summary>[S-2690] Lists whose change requests Graph or Google refused this session: read the plain way.</summary>
+    private readonly DeltaFallback _fallback = new(Scope);
+
+    public Task<(IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> SyncListAsync(
         string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, CancellationToken cancellation)
     {
         var provider = Provider(accountId);
+        return _fallback.ReadAsync($"{accountId}|{listId}", $"{accountId}: list {listId}",
+            () => ChangesAsync(provider, accountId, listId, includeCompleted, held, cursor, cancellation),
+            () => PlainAsync(provider, accountId, listId, includeCompleted, cancellation));
+    }
+
+    /// <summary>[S-2686] By the list's changes: from a usable cursor, else a fresh round (Graph delta, Google with an <c>updatedMin</c> cursor).</summary>
+    private async Task<(IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> ChangesAsync(
+        AccountProvider provider, string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, CancellationToken cancellation)
+    {
         var kind = provider == AccountProvider.Google ? CursorKind.GoogleUpdatedMin : CursorKind.GraphDelta;
         var scope = TaskShelves.CursorScope(listId, includeCompleted);
         var now = DateTimeOffset.UtcNow;
@@ -138,6 +150,24 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
                 : SyncCursors.Advance(cursor, link, now)
             : null;
         return (tasks, next);
+    }
+
+    /// <summary>
+    /// [S-2690] The list in full the plain way, as before incremental sync, with no cursor: for a list
+    /// whose change request was refused. Graph is filtered here ([S-591]); Google asks without the finished ones.
+    /// </summary>
+    private async Task<(IReadOnlyList<TaskItem>, SyncCursor?)> PlainAsync(
+        AccountProvider provider, string accountId, string listId, bool includeCompleted, CancellationToken cancellation)
+    {
+        var address = TaskWire.Tasks(provider, listId, includeCompleted);
+        var all = provider == AccountProvider.Google
+            ? (await accounts.GetGooglePagesAsync(accountId, address, "items", TaskWireContext.Default.GoogleTask, TaskWire.MaxTasksPerList, cancellation)
+                .ConfigureAwait(false)).Select(t => TaskWire.FromGoogle(t, listId)).OfType<TaskItem>().ToList()
+            : (await accounts.GetGraphPagesAsync(accountId, address, TaskWireContext.Default.GraphTodoTask, TaskWire.MaxTasksPerList, cancellation)
+                .ConfigureAwait(false)).Select(t => TaskWire.FromGraph(t, listId)).OfType<TaskItem>().ToList();
+
+        var (tasks, _) = DeltaMerge.Tasks([], all, [], includeCompleted, TaskWire.MaxTasksPerList);
+        return (tasks, null);
     }
 
     /// <summary>The whole Google list, and an <c>updatedMin</c> cursor a little before the request ([S-2686]).</summary>
