@@ -181,6 +181,7 @@ const GOOGLE_CLIENT_SECRET: Option<&str> = option_env!("THEMIA_GOOGLE_CLIENT_SEC
 const GOOGLE_SCOPE: &str = "openid email profile \
     https://www.googleapis.com/auth/gmail.readonly \
     https://www.googleapis.com/auth/calendar.events.readonly \
+    https://www.googleapis.com/auth/calendar.calendarlist.readonly \
     https://www.googleapis.com/auth/tasks \
     https://www.googleapis.com/auth/contacts.readonly";
 
@@ -817,6 +818,13 @@ mod pagination_tests {
             .expect("pagination should succeed");
         let names: Vec<&str> = got.iter().map(|c| c.name.as_str()).collect();
         assert_eq!(names, vec!["A", "B"]);
+    }
+
+    // [S-52] Google sign-in must request the calendar-list scope: without it
+    // `calendarList` answers 403 and only the primary calendar can be shown.
+    #[test]
+    fn s52_google_scope_lists_calendars() {
+        assert!(GOOGLE_SCOPE.contains("https://www.googleapis.com/auth/calendar.calendarlist.readonly"));
     }
 
     // [S-51] Color trust boundary: `#rrggbb` kept (lowercased), Apple `#rrggbbaa`
