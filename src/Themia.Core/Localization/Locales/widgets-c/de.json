@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "Rückgängig",
   "widgetsC.notes.editor.redo": "Wiederholen",
   "widgetsC.notes.editor.moreFormatting": "Weitere Formatierung",
-  "widgetsC.notes.words": {
-    "one": "{count} Wort",
-    "other": "{count} Wörter"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} Zeichen",
-    "other": "{count} Zeichen"
-  },
-  "widgetsC.notes.saving": "Wird gespeichert…",
   "widgetsC.notes.notSaved": "Nicht gespeichert",
-  "widgetsC.notes.saved": "Gespeichert",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Diese Notiz konnte nicht gelesen werden.",
   "widgetsC.notes.unavailable": "Notizen sind nicht verfügbar.",
   "widgetsC.notes.chooseNote": "Notiz auswählen",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Rückgängig",
   "widgetsC.scratchpad.clearDrawing": "Zeichnung löschen",
   "widgetsC.scratchpad.clearConfirm": "Die ganze Zeichnung löschen?",
+  "widgetsC.scratchpad.fullScreen": "Vollbild",
+  "widgetsC.scratchpad.exitFullScreen": "Vollbild beenden",
   "widgetsC.scratchpad.penSizeTip": "Stiftbreite {size} px",
   "widgetsC.scratchpad.settings.inks": "Tinten",
   "widgetsC.scratchpad.settings.tools": "Werkzeuge",

@@ -69,12 +69,18 @@ public sealed class ShellSettingsTests : IDisposable
         => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.1, 0.1)).Header);
 
     [Theory]
+    [InlineData(WidgetKind.Sun)]
+    [InlineData(WidgetKind.Moon)]
+    [InlineData(WidgetKind.Disk)]
+    public void S700_the_sun_the_moon_and_the_disk_meter_start_without_a_header(WidgetKind kind)
+        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
+
+    [Theory]
     [InlineData(WidgetKind.Cpu)]
     [InlineData(WidgetKind.Notes)]
     [InlineData(WidgetKind.Countdown)]
     [InlineData(WidgetKind.Pomodoro)]
-    [InlineData(WidgetKind.Sun)]
-    [InlineData(WidgetKind.Moon)]
+    [InlineData(WidgetKind.DiskSpace)]
     public void S700_other_widgets_still_start_with_a_top_header(WidgetKind kind)
         => Assert.Equal(HeaderPlacement.Top, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
 

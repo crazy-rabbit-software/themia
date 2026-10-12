@@ -31,6 +31,7 @@ internal sealed partial class AppHost : IDisposable
     private readonly Office.AccountOfficeSource _office;
     private readonly SystemData.SystemHub _system;
     private readonly GalleryService _gallery;
+    private readonly ClipboardHistoryService _clipboard = new();
     private bool _editMode;
     private bool _disposed;
 
@@ -83,6 +84,15 @@ internal sealed partial class AppHost : IDisposable
         // view switched to shows its charts with their history and its details already read.
         _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(state, DiskMetrics.SystemRoot));
         StateChanged += () => _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(State, DiskMetrics.SystemRoot));
+
+        // [S-1458] One clipboard history, kept while any view holds a Clipboard widget, on screen or
+        // not. Never for a detached state (a debug render): its PNGs must not carry the clipboard.
+        if (store.Persists)
+        {
+            AppServices.Clipboard = _clipboard;
+            _clipboard.SetWanted(Themia.Core.Widgets.ClipboardInterest.Capacity(state));
+            StateChanged += () => _clipboard.SetWanted(Themia.Core.Widgets.ClipboardInterest.Capacity(State));
+        }
 
         // [S-2607] Signing out takes the account's synced data with it.
         Accounts.SignedOut += Sync.Purge;
@@ -403,6 +413,8 @@ internal sealed partial class AppHost : IDisposable
         _system.Dispose();
         AppServices.Gallery = null;
         _gallery.Dispose();
+        AppServices.Clipboard = null;
+        _clipboard.Dispose();
 
         _config?.Close();
         Ticker.Dispose();

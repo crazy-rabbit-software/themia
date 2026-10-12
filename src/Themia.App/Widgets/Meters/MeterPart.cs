@@ -60,6 +60,13 @@ internal abstract class MeterPart
     public virtual bool HasBadge => false;
 
     /// <summary>
+    /// [S-1161] A short word on the reading's baseline after it, in the secondary colour behind the
+    /// kind's glyph (the disk meter's drive), or null. A kind with one counts both in
+    /// <see cref="ReadingCharacters"/>.
+    /// </summary>
+    public virtual string? Token => null;
+
+    /// <summary>
     /// [S-2504] [S-2513] The hub series this config shows: the one the state asks the hub for, so
     /// the history is there from app start. A different one is a different history.
     /// </summary>

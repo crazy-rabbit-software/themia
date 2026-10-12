@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "I-undo",
   "widgetsC.notes.editor.redo": "I-redo",
   "widgetsC.notes.editor.moreFormatting": "Higit pang formatting",
-  "widgetsC.notes.words": {
-    "one": "{count} salita",
-    "other": "{count} salita"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} character",
-    "other": "{count} character"
-  },
-  "widgetsC.notes.saving": "Sine-save…",
   "widgetsC.notes.notSaved": "Hindi naka-save",
-  "widgetsC.notes.saved": "Naka-save",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Hindi mabasa ang talang ito.",
   "widgetsC.notes.unavailable": "Hindi available ang mga tala.",
   "widgetsC.notes.chooseNote": "Pumili ng tala",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "I-undo",
   "widgetsC.scratchpad.clearDrawing": "I-clear ang drawing",
   "widgetsC.scratchpad.clearConfirm": "I-clear ang buong drawing?",
+  "widgetsC.scratchpad.fullScreen": "Full screen",
+  "widgetsC.scratchpad.exitFullScreen": "Lumabas sa full screen",
   "widgetsC.scratchpad.penSizeTip": "Laki ng pen {size} px",
   "widgetsC.scratchpad.settings.inks": "Mga tinta",
   "widgetsC.scratchpad.settings.tools": "Mga tool",

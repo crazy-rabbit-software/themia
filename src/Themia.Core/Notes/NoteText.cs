@@ -1,7 +1,3 @@
-using System.Globalization;
-using System.Text;
-using Themia.Core.Localization;
-
 namespace Themia.Core.Notes;
 
 /// <summary>The smallest replacement turning one text into another.</summary>
@@ -13,25 +9,9 @@ public readonly record struct TextChange(int Start, int RemoveLength, string Ins
     public bool IsEmpty => RemoveLength == 0 && Insert.Length == 0;
 }
 
-/// <summary>Words and characters in a note, for its status line.</summary>
-public readonly record struct NoteCounts(int Words, int Characters);
-
-/// <summary>Whether what is on screen is on disk yet, for the status line.</summary>
-public enum NoteSaveState
-{
-    /// <summary>On disk.</summary>
-    Saved,
-
-    /// <summary>Typed, and waiting for the debounce or the write.</summary>
-    Saving,
-
-    /// <summary>The last write failed; the text is still on screen and the next change tries again.</summary>
-    Failed,
-}
-
 /// <summary>
 /// The small text arithmetic the note editor needs between the control and the markdown rules:
-/// minimal replacements, which lines need drawing again, and the status line's counts.
+/// minimal replacements and which lines need drawing again.
 /// </summary>
 public static class NoteText
 {
@@ -118,82 +98,5 @@ public static class NoteText
         }
 
         return redraw;
-    }
-
-    /// <summary>
-    /// [S-1362] Words are runs of non-space text holding at least one letter or digit, so list
-    /// markers and rules (<c>-</c>, <c>---</c>, <c>[ ]</c>) are not counted as words. Characters are
-    /// user-perceived characters, newlines excluded.
-    /// </summary>
-    public static NoteCounts Count(string? text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return new NoteCounts(0, 0);
-        }
-
-        var words = 0;
-        var inWord = false;
-        var wordHasContent = false;
-
-        foreach (var rune in text.EnumerateRunes())
-        {
-            if (Rune.IsWhiteSpace(rune))
-            {
-                if (inWord && wordHasContent)
-                {
-                    words++;
-                }
-
-                inWord = false;
-                wordHasContent = false;
-                continue;
-            }
-
-            inWord = true;
-            wordHasContent |= Rune.IsLetterOrDigit(rune);
-        }
-
-        if (inWord && wordHasContent)
-        {
-            words++;
-        }
-
-        var characters = 0;
-        var elements = StringInfo.GetTextElementEnumerator(text);
-        while (elements.MoveNext())
-        {
-            if (elements.GetTextElement() is not ("\n" or "\r" or "\r\n"))
-            {
-                characters++;
-            }
-        }
-
-        return new NoteCounts(words, characters);
-    }
-
-    /// <summary>[S-1362] "1 word", "12 words · 64 characters", with the save state when asked for.</summary>
-    public static string Status(NoteCounts counts, bool detail, NoteSaveState save)
-        => Status(Strings.Current, counts, detail, save);
-
-    /// <summary>[S-1362] <see cref="Status(NoteCounts, bool, NoteSaveState)"/> in an explicit language.</summary>
-    public static string Status(Locale locale, NoteCounts counts, bool detail, NoteSaveState save)
-    {
-        var words = Strings.Plural(locale, Str.WidgetsC_Notes_Words, counts.Words);
-
-        if (!detail)
-        {
-            return words;
-        }
-
-        var characters = Strings.Plural(locale, Str.WidgetsC_Notes_Characters, counts.Characters);
-        var saved = Strings.Get(locale, save switch
-        {
-            NoteSaveState.Saving => Str.WidgetsC_Notes_Saving,
-            NoteSaveState.Failed => Str.WidgetsC_Notes_NotSaved,
-            _ => Str.WidgetsC_Notes_Saved,
-        });
-
-        return Strings.Format(locale, Str.WidgetsC_Notes_StatusDetail, ("words", words), ("characters", characters), ("state", saved));
     }
 }

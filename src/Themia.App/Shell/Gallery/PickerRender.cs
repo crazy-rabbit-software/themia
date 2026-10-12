@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Widgets;
 using Windows.Graphics;
 
@@ -51,14 +52,19 @@ internal static class PickerRender
             try
             {
                 EditBarRender.ApplyDesignTheme(app);
-                var picker = new WidgetPicker(_ => { }, () => { }, WorkWidth, WorkHeight);
+                // [S-3512] The submenus stand on a layer over the stand-in work area, where the
+                // live menu's popups would be, so the render shows them beside their rows.
+                var layer = new Canvas { Width = LayerWidth, Height = LayerHeight };
+                var picker = new WidgetPicker(_ => { }, () => { }, new PixelRect(0, 0, LayerWidth, LayerHeight)) { RenderLayer = layer };
                 var presenter = Presenter(picker);
 
                 var root = new Grid
                 {
                     Padding = new Thickness(Fluent.Space4),
                     Background = DesignApplier.Brush("SolidBackgroundFillColorBaseBrush", Colors.Black),
-                    Children = { presenter },
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Children = { presenter, layer },
                 };
 
                 window = new Window { Content = root, Title = "Themia picker render" };
@@ -69,7 +75,7 @@ internal static class PickerRender
 
                 // Off-screen and never activated: it must not appear on the user's desktop.
                 window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)(1500 * scale), (int)(960 * scale)));
+                window.AppWindow.Resize(new SizeInt32((int)((LayerWidth + 80) * scale), (int)((LayerHeight + 120) * scale)));
                 window.AppWindow.Show(activateWindow: false);
 
                 await Task.Delay(500).ConfigureAwait(true);
@@ -87,7 +93,7 @@ internal static class PickerRender
                 }
 
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
-                await RenderPng.SaveAsync(presenter, outPath).ConfigureAwait(true);
+                await RenderPng.SaveAsync(root, outPath).ConfigureAwait(true);
                 Console.WriteLine($"picker: wrote {outPath}");
             }
             catch (Exception ex)
@@ -108,6 +114,11 @@ internal static class PickerRender
     internal const double WorkWidth = 1920;
 
     internal const double WorkHeight = 1032;
+
+    /// <summary>The part of the work area the picker render draws: the menu and room for its cascade beside it.</summary>
+    private const double LayerWidth = 1280;
+
+    private const double LayerHeight = 800;
 
     /// <summary>A stand-in for the flyout presenter: the same acrylic fill, stroke, corners and padding.</summary>
     internal static Border Presenter(UIElement content) => new()

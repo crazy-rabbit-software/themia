@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "पूर्ववत करें",
   "widgetsC.notes.editor.redo": "फिर से करें",
   "widgetsC.notes.editor.moreFormatting": "और फ़ॉर्मैटिंग",
-  "widgetsC.notes.words": {
-    "one": "{count} शब्द",
-    "other": "{count} शब्द"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} वर्ण",
-    "other": "{count} वर्ण"
-  },
-  "widgetsC.notes.saving": "सहेजा जा रहा है…",
   "widgetsC.notes.notSaved": "सहेजा नहीं गया",
-  "widgetsC.notes.saved": "सहेजा गया",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "यह नोट पढ़ा नहीं जा सका।",
   "widgetsC.notes.unavailable": "नोट्स उपलब्ध नहीं हैं।",
   "widgetsC.notes.chooseNote": "नोट चुनें",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "पूर्ववत करें",
   "widgetsC.scratchpad.clearDrawing": "चित्र साफ़ करें",
   "widgetsC.scratchpad.clearConfirm": "पूरा चित्र साफ़ करें?",
+  "widgetsC.scratchpad.fullScreen": "पूर्ण स्क्रीन",
+  "widgetsC.scratchpad.exitFullScreen": "पूर्ण स्क्रीन से बाहर निकलें",
   "widgetsC.scratchpad.penSizeTip": "पेन का आकार {size} px",
   "widgetsC.scratchpad.settings.inks": "स्याही",
   "widgetsC.scratchpad.settings.tools": "टूल",

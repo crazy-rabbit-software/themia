@@ -120,7 +120,7 @@ internal static class EditBarRender
                 await Shot(screen, Bar(snapOn: true), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
                 await Shot(screen, Bar(snapOn: false), null, outDir, $"editbar-{theme}-snapoff.png").ConfigureAwait(true);
 
-                var menu = PickerRender.Presenter(new WidgetPicker(_ => { }, () => { }, PickerRender.WorkWidth, PickerRender.WorkHeight));
+                var menu = PickerRender.Presenter(new WidgetPicker(_ => { }, () => { }, new PixelRect(0, 0, PickerRender.WorkWidth, PickerRender.WorkHeight)));
                 UiLanguage.ApplyFlow(menu);
                 await Shot(screen, Bar(snapOn: true), menu, outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
 

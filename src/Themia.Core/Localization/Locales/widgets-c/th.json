@@ -5,16 +5,7 @@
   "widgetsC.notes.editor.undo": "เลิกทำ",
   "widgetsC.notes.editor.redo": "ทำซ้ำ",
   "widgetsC.notes.editor.moreFormatting": "การจัดรูปแบบเพิ่มเติม",
-  "widgetsC.notes.words": {
-    "other": "{count} คำ"
-  },
-  "widgetsC.notes.characters": {
-    "other": "{count} อักขระ"
-  },
-  "widgetsC.notes.saving": "กำลังบันทึก…",
   "widgetsC.notes.notSaved": "ยังไม่ได้บันทึก",
-  "widgetsC.notes.saved": "บันทึกแล้ว",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "ไม่สามารถอ่านบันทึกย่อนี้ได้",
   "widgetsC.notes.unavailable": "บันทึกย่อไม่พร้อมใช้งาน",
   "widgetsC.notes.chooseNote": "เลือกบันทึกย่อ",
@@ -108,6 +99,8 @@
   "widgetsC.scratchpad.undo": "เลิกทำ",
   "widgetsC.scratchpad.clearDrawing": "ล้างภาพวาด",
   "widgetsC.scratchpad.clearConfirm": "ล้างภาพวาดทั้งหมดหรือไม่",
+  "widgetsC.scratchpad.fullScreen": "เต็มหน้าจอ",
+  "widgetsC.scratchpad.exitFullScreen": "ออกจากโหมดเต็มหน้าจอ",
   "widgetsC.scratchpad.penSizeTip": "ขนาดปากกา {size} px",
   "widgetsC.scratchpad.settings.inks": "หมึก",
   "widgetsC.scratchpad.settings.tools": "เครื่องมือ",

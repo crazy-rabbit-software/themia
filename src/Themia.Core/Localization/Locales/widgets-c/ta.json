@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "செயல்தவிர்",
   "widgetsC.notes.editor.redo": "மீண்டும் செய்",
   "widgetsC.notes.editor.moreFormatting": "மேலும் வடிவமைப்பு",
-  "widgetsC.notes.words": {
-    "one": "{count} சொல்",
-    "other": "{count} சொற்கள்"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} எழுத்து",
-    "other": "{count} எழுத்துகள்"
-  },
-  "widgetsC.notes.saving": "சேமிக்கிறது…",
   "widgetsC.notes.notSaved": "சேமிக்கப்படவில்லை",
-  "widgetsC.notes.saved": "சேமிக்கப்பட்டது",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "இந்தக் குறிப்பைப் படிக்க முடியவில்லை.",
   "widgetsC.notes.unavailable": "குறிப்புகள் கிடைக்கவில்லை.",
   "widgetsC.notes.chooseNote": "குறிப்பைத் தேர்ந்தெடு",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "செயல்தவிர்",
   "widgetsC.scratchpad.clearDrawing": "வரைபடத்தை அழி",
   "widgetsC.scratchpad.clearConfirm": "முழு வரைபடத்தையும் அழிக்கவா?",
+  "widgetsC.scratchpad.fullScreen": "முழுத்திரை",
+  "widgetsC.scratchpad.exitFullScreen": "முழுத்திரையிலிருந்து வெளியேறு",
   "widgetsC.scratchpad.penSizeTip": "பேனா அளவு {size} px",
   "widgetsC.scratchpad.settings.inks": "மைகள்",
   "widgetsC.scratchpad.settings.tools": "கருவிகள்",

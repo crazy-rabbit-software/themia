@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "Ongedaan maken",
   "widgetsC.notes.editor.redo": "Opnieuw",
   "widgetsC.notes.editor.moreFormatting": "Meer opmaak",
-  "widgetsC.notes.words": {
-    "one": "{count} woord",
-    "other": "{count} woorden"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} teken",
-    "other": "{count} tekens"
-  },
-  "widgetsC.notes.saving": "Opslaan…",
   "widgetsC.notes.notSaved": "Niet opgeslagen",
-  "widgetsC.notes.saved": "Opgeslagen",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Deze notitie kan niet worden gelezen.",
   "widgetsC.notes.unavailable": "Notities zijn niet beschikbaar.",
   "widgetsC.notes.chooseNote": "Kies een notitie",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Ongedaan maken",
   "widgetsC.scratchpad.clearDrawing": "Tekening wissen",
   "widgetsC.scratchpad.clearConfirm": "De hele tekening wissen?",
+  "widgetsC.scratchpad.fullScreen": "Volledig scherm",
+  "widgetsC.scratchpad.exitFullScreen": "Volledig scherm afsluiten",
   "widgetsC.scratchpad.penSizeTip": "Pengrootte {size} px",
   "widgetsC.scratchpad.settings.inks": "Inkt",
   "widgetsC.scratchpad.settings.tools": "Hulpmiddelen",

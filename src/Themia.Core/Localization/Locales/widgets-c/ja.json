@@ -5,16 +5,7 @@
   "widgetsC.notes.editor.undo": "元に戻す",
   "widgetsC.notes.editor.redo": "やり直し",
   "widgetsC.notes.editor.moreFormatting": "その他の書式",
-  "widgetsC.notes.words": {
-    "other": "{count} 語"
-  },
-  "widgetsC.notes.characters": {
-    "other": "{count} 文字"
-  },
-  "widgetsC.notes.saving": "保存中…",
   "widgetsC.notes.notSaved": "未保存",
-  "widgetsC.notes.saved": "保存済み",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "このメモを読み込めませんでした。",
   "widgetsC.notes.unavailable": "メモを利用できません。",
   "widgetsC.notes.chooseNote": "メモを選択",
@@ -108,6 +99,8 @@
   "widgetsC.scratchpad.undo": "元に戻す",
   "widgetsC.scratchpad.clearDrawing": "絵をクリア",
   "widgetsC.scratchpad.clearConfirm": "絵をすべてクリアしますか?",
+  "widgetsC.scratchpad.fullScreen": "全画面表示",
+  "widgetsC.scratchpad.exitFullScreen": "全画面表示を終了",
   "widgetsC.scratchpad.penSizeTip": "ペンの太さ {size} px",
   "widgetsC.scratchpad.settings.inks": "インク",
   "widgetsC.scratchpad.settings.tools": "ツール",

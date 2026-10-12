@@ -5,16 +5,7 @@
   "widgetsC.notes.editor.undo": "撤销",
   "widgetsC.notes.editor.redo": "重做",
   "widgetsC.notes.editor.moreFormatting": "更多格式",
-  "widgetsC.notes.words": {
-    "other": "{count} 个词"
-  },
-  "widgetsC.notes.characters": {
-    "other": "{count} 个字符"
-  },
-  "widgetsC.notes.saving": "正在保存…",
   "widgetsC.notes.notSaved": "未保存",
-  "widgetsC.notes.saved": "已保存",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "无法读取此笔记。",
   "widgetsC.notes.unavailable": "笔记不可用。",
   "widgetsC.notes.chooseNote": "选择笔记",
@@ -108,6 +99,8 @@
   "widgetsC.scratchpad.undo": "撤销",
   "widgetsC.scratchpad.clearDrawing": "清除绘图",
   "widgetsC.scratchpad.clearConfirm": "要清除整个绘图吗？",
+  "widgetsC.scratchpad.fullScreen": "全屏",
+  "widgetsC.scratchpad.exitFullScreen": "退出全屏",
   "widgetsC.scratchpad.penSizeTip": "笔触大小 {size} px",
   "widgetsC.scratchpad.settings.inks": "墨色",
   "widgetsC.scratchpad.settings.tools": "工具",

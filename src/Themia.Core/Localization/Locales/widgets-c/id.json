@@ -5,16 +5,7 @@
   "widgetsC.notes.editor.undo": "Urungkan",
   "widgetsC.notes.editor.redo": "Ulangi",
   "widgetsC.notes.editor.moreFormatting": "Format lainnya",
-  "widgetsC.notes.words": {
-    "other": "{count} kata"
-  },
-  "widgetsC.notes.characters": {
-    "other": "{count} karakter"
-  },
-  "widgetsC.notes.saving": "Menyimpan…",
   "widgetsC.notes.notSaved": "Belum disimpan",
-  "widgetsC.notes.saved": "Disimpan",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Catatan ini tidak dapat dibaca.",
   "widgetsC.notes.unavailable": "Catatan tidak tersedia.",
   "widgetsC.notes.chooseNote": "Pilih catatan",
@@ -108,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Urungkan",
   "widgetsC.scratchpad.clearDrawing": "Kosongkan gambar",
   "widgetsC.scratchpad.clearConfirm": "Kosongkan seluruh gambar?",
+  "widgetsC.scratchpad.fullScreen": "Layar penuh",
+  "widgetsC.scratchpad.exitFullScreen": "Keluar dari layar penuh",
   "widgetsC.scratchpad.penSizeTip": "Ukuran pena {size} px",
   "widgetsC.scratchpad.settings.inks": "Tinta",
   "widgetsC.scratchpad.settings.tools": "Alat",

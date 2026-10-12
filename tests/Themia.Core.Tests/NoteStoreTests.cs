@@ -295,8 +295,8 @@ public sealed class NoteStoreTests : IDisposable
 
     // -- layout -------------------------------------------------------------------------------
 
-    private static NotesLayoutPlan Plan(double width, double height)
-        => NotesLayout.Plan(new WidgetArea(width, height - 44), inset: 16, gap: 8, lineHeight: 18, statusHeight: 16);
+    private static NotesLayoutPlan Plan(double width, double height, bool notSaved = false)
+        => NotesLayout.Plan(new WidgetArea(width, height - 44), inset: 16, gap: 8, lineHeight: 18, statusHeight: 16, notSaved);
 
     [Fact]
     public void S1363_xs_and_s_show_text_alone()
@@ -321,24 +321,34 @@ public sealed class NoteStoreTests : IDisposable
         Assert.Equal(NotesLayout.MinTextLines + Disclosure.WholeRows((240 - 44 - 32) - (18 * NotesLayout.MinTextLines), 18), m.TextLines);
     }
 
+    /// <summary>[S-1362] No word or character count and no "Saved" (user requirement): a saved note is its text alone at every size.</summary>
+    [Theory]
+    [InlineData(120, 120)]
+    [InlineData(200, 150)]
+    [InlineData(320, 240)]
+    [InlineData(480, 160)]
+    [InlineData(200, 400)]
+    [InlineData(560, 420)]
+    [InlineData(800, 560)]
+    public void S1362_a_saved_note_has_no_status_line_at_any_size(double width, double height)
+        => Assert.False(Plan(width, height).Status);
+
     [Fact]
-    public void S1363_tall_counts_words()
+    public void S1362_a_failed_save_is_said_under_the_text_where_a_line_is_left()
     {
-        var tall = Plan(200, 400);
-        Assert.True(tall.Status);
-        Assert.False(tall.StatusDetail);
+        var saved = Plan(320, 240);
+        var failed = Plan(320, 240, notSaved: true);
+
+        Assert.True(failed.Status);
+        Assert.True(failed.TextLines < saved.TextLines);
+
+        // The text keeps its two lines first.
+        Assert.False(Plan(120, 120, notSaved: true).Status);
     }
 
     [Fact]
-    public void S1363_l_and_xl_add_the_detailed_status_and_give_the_rest_to_the_text()
-    {
-        var l = Plan(560, 420);
-        var xl = Plan(800, 560);
-
-        Assert.True(l.StatusDetail);
-        Assert.True(xl.StatusDetail);
-        Assert.True(xl.TextLines > l.TextLines);
-    }
+    public void S1363_xl_gives_the_rest_to_the_text()
+        => Assert.True(Plan(800, 560).TextLines > Plan(560, 420).TextLines);
 
     /// <summary>
     /// [S-1363] The widget is the one note at every size: the text takes the whole width even at

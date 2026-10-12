@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "ਵਾਪਸ ਕਰੋ",
   "widgetsC.notes.editor.redo": "ਦੁਬਾਰਾ ਕਰੋ",
   "widgetsC.notes.editor.moreFormatting": "ਹੋਰ ਫ਼ਾਰਮੈਟਿੰਗ",
-  "widgetsC.notes.words": {
-    "one": "{count} ਸ਼ਬਦ",
-    "other": "{count} ਸ਼ਬਦ"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} ਅੱਖਰ",
-    "other": "{count} ਅੱਖਰ"
-  },
-  "widgetsC.notes.saving": "ਸੰਭਾਲਿਆ ਜਾ ਰਿਹਾ ਹੈ…",
   "widgetsC.notes.notSaved": "ਸੰਭਾਲਿਆ ਨਹੀਂ",
-  "widgetsC.notes.saved": "ਸੰਭਾਲਿਆ",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "ਇਹ ਨੋਟ ਪੜ੍ਹਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।",
   "widgetsC.notes.unavailable": "ਨੋਟਸ ਉਪਲਬਧ ਨਹੀਂ ਹਨ।",
   "widgetsC.notes.chooseNote": "ਨੋਟ ਚੁਣੋ",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "ਵਾਪਸ ਕਰੋ",
   "widgetsC.scratchpad.clearDrawing": "ਡਰਾਇੰਗ ਸਾਫ਼ ਕਰੋ",
   "widgetsC.scratchpad.clearConfirm": "ਪੂਰੀ ਡਰਾਇੰਗ ਸਾਫ਼ ਕਰਨੀ ਹੈ?",
+  "widgetsC.scratchpad.fullScreen": "ਪੂਰੀ ਸਕ੍ਰੀਨ",
+  "widgetsC.scratchpad.exitFullScreen": "ਪੂਰੀ ਸਕ੍ਰੀਨ ਤੋਂ ਬਾਹਰ ਨਿਕਲੋ",
   "widgetsC.scratchpad.penSizeTip": "ਪੈੱਨ ਦਾ ਆਕਾਰ {size} px",
   "widgetsC.scratchpad.settings.inks": "ਸਿਆਹੀਆਂ",
   "widgetsC.scratchpad.settings.tools": "ਟੂਲ",

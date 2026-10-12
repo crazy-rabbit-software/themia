@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "واگرد",
   "widgetsC.notes.editor.redo": "از نو",
   "widgetsC.notes.editor.moreFormatting": "قالب‌بندی بیشتر",
-  "widgetsC.notes.words": {
-    "one": "{count} واژه",
-    "other": "{count} واژه"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} نویسه",
-    "other": "{count} نویسه"
-  },
-  "widgetsC.notes.saving": "در حال ذخیره…",
   "widgetsC.notes.notSaved": "ذخیره نشده",
-  "widgetsC.notes.saved": "ذخیره شد",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "این یادداشت خوانده نشد.",
   "widgetsC.notes.unavailable": "یادداشت‌ها در دسترس نیستند.",
   "widgetsC.notes.chooseNote": "انتخاب یادداشت",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "واگرد",
   "widgetsC.scratchpad.clearDrawing": "پاک کردن نقاشی",
   "widgetsC.scratchpad.clearConfirm": "کل نقاشی پاک شود؟",
+  "widgetsC.scratchpad.fullScreen": "تمام‌صفحه",
+  "widgetsC.scratchpad.exitFullScreen": "خروج از تمام‌صفحه",
   "widgetsC.scratchpad.penSizeTip": "اندازه قلم {size} px",
   "widgetsC.scratchpad.settings.inks": "جوهرها",
   "widgetsC.scratchpad.settings.tools": "ابزارها",

@@ -68,11 +68,16 @@ public sealed class WidgetInstance
     /// [S-3901] The quick-setting toggles and [S-3200] every audio visualizer never have one
     /// ([S-3711]).
     /// </para>
+    /// <para>
+    /// The sun, the moon and the disk meter start headerless too (user requirement): the sun's path
+    /// and the moon's face say what they are, and the disk meter names its drive beside the reading
+    /// ([S-1161]).
+    /// </para>
     /// </summary>
     public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
     {
         _ when !CanHaveHeader(kind) => HeaderPlacement.Hidden,
-        WidgetKind.Clock => HeaderPlacement.Hidden,
+        WidgetKind.Clock or WidgetKind.Sun or WidgetKind.Moon or WidgetKind.Disk => HeaderPlacement.Hidden,
         _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
         _ => HeaderPlacement.Top,
     };

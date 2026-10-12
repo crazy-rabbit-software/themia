@@ -25,9 +25,11 @@ namespace Themia.App.Widgets;
 /// link, never opened.
 /// </para>
 /// <para>
-/// The history is fed by <see cref="ClipboardWatcher"/>, which is a message-only window with
-/// <c>AddClipboardFormatListener</c> rather than a poll — so the clipboard is read exactly when
-/// Windows says it changed and at no other time.
+/// [S-1458] The history is the app's one <see cref="ClipboardHistoryService"/>, kept while any view
+/// holds a Clipboard widget, so it is there when this view is switched to; the widget shows its
+/// newest entries, as many as its own setting keeps. It is fed by <see cref="ClipboardWatcher"/>, a
+/// message-only window with <c>AddClipboardFormatListener</c> rather than a poll — so the
+/// clipboard is read exactly when Windows says it changed and at no other time.
 /// </para>
 /// <para>
 /// [S-1443] The tile uses its room through <see cref="ClipboardLayout.Plan"/>: one line per row on
@@ -56,11 +58,10 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
     private readonly List<Border> _rows = [];
 
-    private readonly ClipboardHistory _history = new();
 
     private ClipboardConfig _config = new();
     private ClipboardPlan _plan = ClipboardLayout.Plan(default);
-    private IDisposable? _watch;
+    private ClipboardHistoryService? _source;
     private IDisposable? _subscription;
     private Ticker? _ticker;
     private IWidgetSurface? _surface;
@@ -112,13 +113,13 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         _ticker = ticker;
         Strings.Changed += OnLanguage;
 
-        // The listener is shared by every Clipboard widget on every display: subscribers are
-        // counted and the message window is created with the first and destroyed with the last.
+        // [S-1458] The app's one history, shared by every Clipboard widget on every view.
         // [S-1443] Never for a preview (a debug render): a render's PNG must not
         // carry whatever happens to be on the user's clipboard.
-        if (_surface?.IsPreview != true)
+        if (_surface?.IsPreview != true && _source is null && AppServices.Clipboard is { } source)
         {
-            _watch ??= ClipboardWatcher.Subscribe(OnClipboardText);
+            _source = source;
+            _source.Changed += OnHistoryChanged;
         }
 
         // The tick does not fetch anything. It only keeps the relative times ("4m", "2h") honest,
@@ -132,11 +133,9 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     {
         _config = config as ClipboardConfig ?? new ClipboardConfig();
 
-        // Lowering the capacity drops the oldest entries immediately rather than at the next copy:
-        // a shorter history is the one setting here that actually reduces exposure, and it should
-        // take effect when it is asked for.
-        _history.Capacity = _config.EffectiveCapacity;
-
+        // Lowering the capacity shows fewer entries at once; the shared history drops what no
+        // Clipboard widget keeps any more when the state saves the setting ([S-1458]): a shorter
+        // history is the one setting here that actually reduces exposure.
         Render();
     }
 
@@ -154,15 +153,16 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         Render();
     }
 
-    /// <summary>Something new was copied. Only a change to the list is worth a redraw.</summary>
-    private void OnClipboardText(string text)
-    {
-        if (_detached)
-        {
-            return;
-        }
+    /// <summary>The newest entries, as many as this widget keeps; none for a preview.</summary>
+    private IReadOnlyList<ClipboardEntry> Entries
+        => _source is not { } source ? []
+            : source.Entries.Count <= _config.EffectiveCapacity ? source.Entries
+            : [.. source.Entries.Take(_config.EffectiveCapacity)];
 
-        if (_history.Add(text, DateTimeOffset.Now))
+    /// <summary>The shared history changed (only a real change is raised): redraw.</summary>
+    private void OnHistoryChanged()
+    {
+        if (!_detached)
         {
             Render();
         }
@@ -184,9 +184,9 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     {
         ClearRows();
 
-        _clear.IsEnabled = _history.Count > 0;
+        _clear.IsEnabled = Entries.Count > 0;
 
-        if (_history.Count == 0)
+        if (Entries.Count == 0)
         {
             // Each state says which it is. "Nothing copied yet" and "the listener never started"
             // need very different things from the reader.
@@ -207,14 +207,14 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         // show two different ideas of "now".
         var now = DateTimeOffset.Now;
 
-        for (var i = 0; i < _history.Count; i++)
+        for (var i = 0; i < Entries.Count; i++)
         {
-            var row = BuildRow(_history.Entries[i], i == 0, now);
+            var row = BuildRow(Entries[i], i == 0, now);
             _rows.Add(row);
             _list.Children.Add(row);
         }
 
-        _cursor = _cursor is { } cursor && cursor < _history.Count ? cursor : null;
+        _cursor = _cursor is { } cursor && cursor < Entries.Count ? cursor : null;
         ShowCursor();
     }
 
@@ -384,9 +384,10 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     /// <summary>[S-1444] Forget one entry. Leaves the clipboard itself alone.</summary>
     private void Remove(string text)
     {
-        if (!_detached && _history.Remove(text))
+        if (!_detached)
         {
-            Render();
+            // The history raises the change, and every Clipboard widget redraws from it.
+            _source?.Remove(text);
         }
     }
 
@@ -430,7 +431,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             return false;
         }
 
-        var decision = ListKeys.Decide(key, _cursor ?? -1, _history.Count);
+        var decision = ListKeys.Decide(key, _cursor ?? -1, Entries.Count);
 
         switch (decision.Command)
         {
@@ -440,17 +441,17 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
                 return true;
 
             case ListCommand.Open:
-                CopyBack(_history.Entries[decision.Index].Text);
+                CopyBack(Entries[decision.Index].Text);
                 return true;
 
             case ListCommand.Delete:
                 // Render keeps a cursor that is still in range, which is the row that moved up.
-                _cursor = ListKeys.AfterRemoval(decision.Index, _history.Count - 1) is var next and >= 0 ? next : null;
-                Remove(_history.Entries[decision.Index].Text);
+                _cursor = ListKeys.AfterRemoval(decision.Index, Entries.Count - 1) is var next and >= 0 ? next : null;
+                Remove(Entries[decision.Index].Text);
                 return true;
 
             case ListCommand.Menu when decision.Index < _rows.Count:
-                ItemMenu.Open(_rows[decision.Index], RowMenu(_history.Entries[decision.Index].Text));
+                ItemMenu.Open(_rows[decision.Index], RowMenu(Entries[decision.Index].Text));
                 return true;
 
             case ListCommand.Release:
@@ -495,7 +496,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     /// </summary>
     private async Task ConfirmClearAsync()
     {
-        if (_detached || _history.Count == 0)
+        if (_detached || Entries.Count == 0)
         {
             return;
         }
@@ -511,8 +512,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             return;
         }
 
-        _history.Clear();
-        Render();
+        // Every Clipboard widget shows the one history, so all of them are cleared.
+        _source?.Clear();
     }
 
     /// <summary>[S-1109] Rows and sizes are worded again in the new language.</summary>
@@ -537,14 +538,14 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         _subscription?.Dispose();
         _subscription = null;
 
-        // Unhooks this widget from the shared listener, and takes the message window down with it
-        // when this was the last Clipboard widget on the desktop.
-        _watch?.Dispose();
-        _watch = null;
+        // [S-1458] The history stays with the app while a view holds a Clipboard widget; it is
+        // forgotten, and the listener stopped, when the state holds none.
+        if (_source is not null)
+        {
+            _source.Changed -= OnHistoryChanged;
+            _source = null;
+        }
 
-        // In memory only, and gone the moment the widget is: there is nothing to write out and
-        // nothing left behind.
-        _history.Clear();
         ClearRows();
 
         _ticker = null;

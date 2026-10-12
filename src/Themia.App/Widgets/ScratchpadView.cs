@@ -53,6 +53,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     private readonly ToggleButton _eraser;
     private readonly Button _undoButton;
     private readonly Button _clearButton;
+    private readonly Button _fullButton;
 
     private readonly Canvas _pad = new();
     private readonly StackPanel _hint;
@@ -76,11 +77,14 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     private bool _pressed;
     private bool _detached;
 
+    /// <summary>The gesture is a pen's eraser end: it erases whatever tool is chosen.</summary>
+    private bool _penEraser;
+
     public ScratchpadView()
     {
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _eraser = ToggleCommand(Glyphs.Clear, Str.WidgetsC_Scratchpad_EraseStrokes.Text());
+        _eraser = ToggleCommand(Glyphs.EraseTool, Str.WidgetsC_Scratchpad_EraseStrokes.Text());
         _eraser.Checked += OnEraserToggled;
         _eraser.Unchecked += OnEraserToggled;
 
@@ -90,12 +94,15 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         _clearButton = CommandButton(Glyphs.Delete, Str.WidgetsC_Scratchpad_ClearDrawing.Text());
         _clearButton.Flyout = BuildClearConfirmation();
 
+        _fullButton = CommandButton(Glyphs.FullScreen, Str.WidgetsC_Scratchpad_FullScreen.Text());
+        _fullButton.Click += OnFullScreenClicked;
+
         _tools = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = Fluent.Space1,
             VerticalAlignment = VerticalAlignment.Center,
-            Children = { _eraser, _undoButton, _clearButton },
+            Children = { _eraser, _undoButton, _clearButton, _fullButton },
         };
 
         // A transparent brush rather than no brush: a panel with a null background is not
@@ -259,8 +266,8 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// The pad's own commands — erase, undo, clear — in the card's header. Built in the constructor
-    /// because the card reads this once, when it builds that header.
+    /// The pad's own commands — erase, undo, clear, full screen — in the card's header. Built in the
+    /// constructor because the card reads this once, when it builds that header.
     /// </summary>
     public FrameworkElement? HeaderTrailing => _tools;
 
@@ -279,6 +286,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     {
         ToolTipService.SetToolTip(_undoButton, Str.WidgetsC_Scratchpad_Undo.Text());
         ToolTipService.SetToolTip(_clearButton, Str.WidgetsC_Scratchpad_ClearDrawing.Text());
+        ToolTipService.SetToolTip(_fullButton, FullScreenTip());
         _clearButton.Flyout = BuildClearConfirmation();
         _hintText.Text = Str.Scratchpad_DrawHere.Text();
         ApplyBarTips();
@@ -299,7 +307,8 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
             _config = incoming;
         }
 
-        _tools.Visibility = _config.ShowTools ? Visibility.Visible : Visibility.Collapsed;
+        // [S-1499] Full screen always keeps its tools: they hold the way back.
+        _tools.Visibility = _config.ShowTools || IsFullScreen ? Visibility.Visible : Visibility.Collapsed;
 
         RenderAll();
         UpdateCommands();
@@ -315,6 +324,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
 
         // The last stroke has no other copy: commit it before anything is unhooked.
         CommitStroke();
+
+        // [S-1499] A view switch or a removed widget takes its full-screen pad with it.
+        ExitFullScreen();
         _detached = true;
         Strings.Changed -= OnLanguage;
 
@@ -323,6 +335,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         _eraser.Checked -= OnEraserToggled;
         _eraser.Unchecked -= OnEraserToggled;
         _undoButton.Click -= OnUndoClicked;
+        _fullButton.Click -= OnFullScreenClicked;
 
         _pad.PointerPressed -= OnPointerPressed;
         _pad.PointerMoved -= OnPointerMoved;
@@ -340,8 +353,10 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
 
     private void OnPointerPressed(object sender, PointerRoutedEventArgs args)
     {
-        // Left button only: a right press opens the card's context menu and must not paint.
-        if (_detached || !args.GetCurrentPoint(_pad).Properties.IsLeftButtonPressed)
+        // Left button (or a pen's tip or eraser end) only: a right press opens the card's context
+        // menu and must not paint.
+        var properties = args.GetCurrentPoint(_pad).Properties;
+        if (_detached || !(properties.IsLeftButtonPressed || properties.IsEraser))
         {
             return;
         }
@@ -349,7 +364,10 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         AbandonStroke();
         _pressed = true;
 
-        if (!_eraser.IsChecked == true)
+        // [S-1498] The pen's eraser end erases, whichever tool is chosen, as it does in Windows Ink.
+        _penEraser = properties.IsEraser;
+
+        if (!Erasing)
         {
             _current.Add(PadPoint(args));
         }
@@ -367,7 +385,8 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
             return;
         }
 
-        if (!args.GetCurrentPoint(_pad).Properties.IsLeftButtonPressed)
+        var properties = args.GetCurrentPoint(_pad).Properties;
+        if (!(properties.IsLeftButtonPressed || properties.IsEraser))
         {
             // The button came up somewhere this view never saw — in edit mode, under the card's
             // capture. Whatever was pressed was not a stroke.
@@ -385,7 +404,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
 
         var point = PadPoint(args);
 
-        if (_eraser.IsChecked == true)
+        if (Erasing)
         {
             Erase(point);
         }
@@ -407,7 +426,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         // A tap with the eraser, which never raised a move. Safe to do here and nowhere else: this
         // view only sees a release when the card did NOT take the pointer, so a press that was a
         // widget drag can never rub anything out.
-        if (_eraser.IsChecked == true && _erasing is null)
+        if (Erasing && _erasing is null)
         {
             Erase(PadPoint(args));
         }
@@ -432,6 +451,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
 
         _captured = null;
     }
+
+    /// <summary>[S-1498] This gesture erases: the eraser is chosen, or it is a pen's eraser end.</summary>
+    private bool Erasing => _eraser.IsChecked == true || _penEraser;
 
     /// <summary>Where the pointer is, in the pad's unit square, clamped to it.</summary>
     private InkPoint PadPoint(PointerRoutedEventArgs args)
@@ -697,6 +719,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     {
         // Switching tool mid-gesture would otherwise finish a pen stroke as an erase.
         AbandonStroke();
+
+        // [S-1498] The bar's eraser and the header's are one tool.
+        _barEraser.IsChecked = _eraser.IsChecked;
         UpdateCommands();
     }
 
@@ -704,7 +729,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     {
         _undoButton.IsEnabled = _undo.Count > 0;
         _clearButton.IsEnabled = _config.Strokes.Count > 0;
-        ToolTipService.SetToolTip(_eraser, _eraser.IsChecked == true ? Str.WidgetsC_Scratchpad_Draw.Text() : Str.WidgetsC_Scratchpad_EraseStrokes.Text());
+        var eraserTip = _eraser.IsChecked == true ? Str.WidgetsC_Scratchpad_Draw.Text() : Str.WidgetsC_Scratchpad_EraseStrokes.Text();
+        ToolTipService.SetToolTip(_eraser, eraserTip);
+        ToolTipService.SetToolTip(_barEraser, eraserTip);
         UpdateBar();
     }
 
@@ -723,11 +750,13 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// [S-651] The tools ride on the card's header, beside its icon and title, so a narrow tile can
     /// only hold as many as leave the title a few letters. Three 36px buttons on a 120px tile ran
     /// past the card edge and pushed the title out entirely. They go in reverse order of use:
-    /// the eraser first, then clear; undo stays, because it is the one that rescues a slip.
+    /// the eraser first, then clear, then full screen; undo stays, because it is the one that
+    /// rescues a slip. [S-1498] Where the ink bar shows, the eraser stands in it instead
+    /// (<see cref="LayBar"/>).
     /// </summary>
     private void ShedTools(double width)
     {
-        if (!(width > 0))
+        if (!(width > 0) || IsFullScreen)
         {
             return;
         }
@@ -737,19 +766,11 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         const double PerTool = Fluent.Space6 + Fluent.Space3 + Fluent.Space1;
 
         var room = (int)Math.Floor((width - Taken) / PerTool);
-        var fit = Math.Clamp(room, 1, 3);
+        var fit = Math.Clamp(room, 1, 4);
 
-        var showClear = fit >= 2;
-        var showEraser = fit >= 3;
-
-        // A hidden eraser must not leave the pad in erase mode with no way out of it.
-        if (!showEraser && _eraser.IsChecked == true)
-        {
-            _eraser.IsChecked = false;
-        }
-
-        _eraser.Visibility = showEraser ? Visibility.Visible : Visibility.Collapsed;
-        _clearButton.Visibility = showClear ? Visibility.Visible : Visibility.Collapsed;
+        _fullButton.Visibility = fit >= 2 ? Visibility.Visible : Visibility.Collapsed;
+        _clearButton.Visibility = fit >= 3 ? Visibility.Visible : Visibility.Collapsed;
+        _eraserFits = fit >= 4;
     }
 
     /// <summary>

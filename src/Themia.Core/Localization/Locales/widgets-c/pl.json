@@ -5,22 +5,7 @@
   "widgetsC.notes.editor.undo": "Cofnij",
   "widgetsC.notes.editor.redo": "Ponów",
   "widgetsC.notes.editor.moreFormatting": "Więcej formatowania",
-  "widgetsC.notes.words": {
-    "one": "{count} słowo",
-    "few": "{count} słowa",
-    "many": "{count} słów",
-    "other": "{count} słowa"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} znak",
-    "few": "{count} znaki",
-    "many": "{count} znaków",
-    "other": "{count} znaku"
-  },
-  "widgetsC.notes.saving": "Zapisywanie…",
   "widgetsC.notes.notSaved": "Nie zapisano",
-  "widgetsC.notes.saved": "Zapisano",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Nie można odczytać tej notatki.",
   "widgetsC.notes.unavailable": "Notatki są niedostępne.",
   "widgetsC.notes.chooseNote": "Wybierz notatkę",
@@ -114,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Cofnij",
   "widgetsC.scratchpad.clearDrawing": "Wyczyść rysunek",
   "widgetsC.scratchpad.clearConfirm": "Wyczyścić cały rysunek?",
+  "widgetsC.scratchpad.fullScreen": "Pełny ekran",
+  "widgetsC.scratchpad.exitFullScreen": "Zamknij pełny ekran",
   "widgetsC.scratchpad.penSizeTip": "Grubość pióra {size} px",
   "widgetsC.scratchpad.settings.inks": "Atramenty",
   "widgetsC.scratchpad.settings.tools": "Narzędzia",

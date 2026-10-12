@@ -2,13 +2,16 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Windows.Foundation;
 using Windows.System;
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 using DispatcherQueueTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
@@ -18,15 +21,17 @@ namespace Themia.App.Shell;
 /// <summary>
 /// [S-3501] [S-3510..S-3515] The body of the edit bar's add menu, after Karpo's add list: a search
 /// box, then two columns under their headings — <b>Popular</b> and <b>Browse</b>, a row per subject
-/// — and the cascade a subject opens beside them, a family inside it one more column. Each row is
+/// — and the cascade a subject opens beside them, a family inside it one more level. Each row is
 /// the widget's icon and name, a folder's with a chevron — no preview. Typing lists what matches in
 /// place of the tree, flat, each with where it lives. Built from <see cref="WidgetCatalog.All"/>
 /// through Core's <see cref="AddTree"/> each time it opens, so a new kind is listed without touching
 /// this, and in the current language ([S-1109]).
 /// <para>
 /// Its own control rather than code inside the surface, so the debug render can draw it off-screen
-/// without a desktop window; the cascade is columns inside the one flyout rather than popups of
-/// their own for the same reason, and so one light dismiss closes all of it.
+/// without a desktop window. A submenu is a card in a popup of its own beside the row that opened
+/// it (<see cref="AddCascade"/>), as Karpo's are windows of their own: inside the menu it pushed
+/// the columns about and grew the menu. The popups are children of this control, so the flyout
+/// counts them as inside it and one light dismiss closes all of it.
 /// </para>
 /// <para>
 /// Keyboard ([S-3514]): the search box keeps the focus, so typing always searches; the highlight is
@@ -71,8 +76,11 @@ internal sealed partial class WidgetPicker : Grid
     /// <summary>The tree as the catalogue resolves it.</summary>
     private readonly IReadOnlyList<AddColumn> _menu;
 
-    /// <summary>The columns drawn, left to right, each its row buttons (null for a line) by row.</summary>
-    private readonly List<(FrameworkElement Column, Button?[] Rows)> _columns = [];
+    /// <summary>The work area, in the coordinates of the window's content (the render's layer).</summary>
+    private readonly PixelRect _room;
+
+    /// <summary>The columns drawn, the top ones then each open submenu, each its row buttons (null for a line) by row.</summary>
+    private readonly List<Drawn> _columns = [];
 
     private readonly List<(Button Button, WidgetKind Kind)> _hits = [];
 
@@ -88,12 +96,12 @@ internal sealed partial class WidgetPicker : Grid
 
     /// <param name="pick">Runs when a widget is chosen.</param>
     /// <param name="close">Runs on Escape with nothing typed and nothing open.</param>
-    /// <param name="areaWidth">The work area's width in DIPs; past it the cascade scrolls rather than leaving the screen.</param>
-    /// <param name="areaHeight">The work area's height in DIPs.</param>
-    public WidgetPicker(Action<WidgetDefinition> pick, Action close, double areaWidth, double areaHeight)
+    /// <param name="room">The work area in DIPs, in the coordinates of the window's content: the submenus stay inside it.</param>
+    public WidgetPicker(Action<WidgetDefinition> pick, Action close, PixelRect room)
     {
         _pick = pick;
         _close = close;
+        _room = room;
         _menu = AddTree.On([.. WidgetCatalog.All.Select(definition => definition.Kind)]);
 
         RowSpacing = Fluent.Space3;
@@ -111,22 +119,21 @@ internal sealed partial class WidgetPicker : Grid
         _search.TextChanged += (_, _) => Refresh();
         _search.PreviewKeyDown += OnSearchKeyDown;
 
-        // [S-3512] The tree's width is its two top columns; the box stays that wide as a cascade opens.
+        // [S-3512] The menu is its two top columns, whatever opens beside it.
         var topWidth = (_menu.Count * ColumnWidth) + (Math.Max(0, _menu.Count - 1) * ColumnGap);
         var box = new Grid { Children = { _search }, HorizontalAlignment = HorizontalAlignment.Left, Width = topWidth };
         Children.Add(box);
 
-        // [S-3512] As tall as the tallest column any folder can open, so nothing jumps as one opens.
-        var height = Math.Min(TallestColumn(), Math.Max(2 * LineHeight, areaHeight * 0.7));
+        // [S-3512] As tall as its taller top column, so the search's results do not resize it.
+        var height = Math.Min(TallestColumn(), Math.Max(2 * LineHeight, room.Height * 0.7));
 
         _tree = new StackPanel { Orientation = Orientation.Horizontal, Spacing = ColumnGap, VerticalAlignment = VerticalAlignment.Top };
         _treeScroll = new ScrollViewer
         {
             Content = _tree,
             Height = height,
-            MaxWidth = Math.Max(topWidth, areaWidth * 0.75),
-            HorizontalScrollMode = ScrollMode.Auto,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+            Width = topWidth,
+            HorizontalAlignment = HorizontalAlignment.Left,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
 
@@ -157,11 +164,20 @@ internal sealed partial class WidgetPicker : Grid
 
         for (var c = 0; c < _menu.Count; c++)
         {
-            AddColumnView(_menu[c].Shelf.Title.Text(), _menu[c].Rows, c, submenu: false);
+            AddColumnView(_menu[c].Shelf.Title.Text(), _menu[c].Rows, c);
         }
+
+        // The flyout closed: its submenus go with it.
+        Unloaded += (_, _) => CloseSubmenus(_menu.Count);
 
         Draw();
     }
+
+    /// <summary>
+    /// Debug renders only: draw the submenus on this canvas, which covers the stand-in work area,
+    /// rather than in popups, which a render cannot capture. The picker's room is then the canvas's.
+    /// </summary>
+    internal Canvas? RenderLayer { get; set; }
 
     /// <summary>Put the caret in the search box. Called once the flyout is open.</summary>
     public void FocusSearch() => _search.Focus(FocusState.Programmatic);
@@ -193,27 +209,13 @@ internal sealed partial class WidgetPicker : Grid
         Draw();
     }
 
-    /// <summary>The height of the tallest column the tree can show: a heading and its rows.</summary>
+    /// <summary>The height of the taller top column: its heading, its rows and the gap over them.</summary>
     private double TallestColumn()
-    {
-        var tallest = 0.0;
-        void Measure(IReadOnlyList<AddRow> rows)
-        {
-            tallest = Math.Max(tallest, LineHeight + rows.Sum(row => row is AddRule ? RuleHeight : LineHeight));
-            foreach (var folder in rows.OfType<AddFolder>())
-            {
-                Measure(folder.Rows);
-            }
-        }
+        => _menu.Max(column => LineHeight + RowsHeight(column.Rows, column.Rows.Count)) + Fluent.Space1 + Fluent.Hairline;
 
-        foreach (var column in _menu)
-        {
-            Measure(column.Rows);
-        }
-
-        // The submenu's card adds its padding round the rows.
-        return tallest + (2 * (Fluent.Space1 + Fluent.Hairline));
-    }
+    /// <summary>The height of the first <paramref name="count"/> rows of a column, lines counted.</summary>
+    private static double RowsHeight(IReadOnlyList<AddRow> rows, int count)
+        => rows.Take(count).Sum(row => row is AddRule ? RuleHeight : LineHeight);
 
     private static (IndexedWidget Index, AddHome Home)[] SearchIndex(IReadOnlyList<AddColumn> menu)
     {
@@ -232,16 +234,30 @@ internal sealed partial class WidgetPicker : Grid
 
     // ---- the tree -------------------------------------------------------------------------
 
-    /// <summary>Draw one column: a heading, then its rows; a submenu stands on a card of its own.</summary>
-    private void AddColumnView(string heading, IReadOnlyList<AddRow> rows, int column, bool submenu)
+    /// <summary>A drawn column: its view, its row buttons and rows, and for a submenu its popup and where it stands.</summary>
+    private sealed record Drawn(FrameworkElement View, Button?[] Rows, IReadOnlyList<AddRow> Items, Popup? Popup = null, AddCascadeSpot? Spot = null);
+
+    /// <summary>[S-3512] A submenu's frame and padding: how far its first row is under its card's top.</summary>
+    private const double CardLead = Fluent.Hairline + Fluent.Space1;
+
+    /// <summary>Draw a top column: a heading, then its rows.</summary>
+    private void AddColumnView(string heading, IReadOnlyList<AddRow> rows, int column)
     {
-        var stack = new StackPanel { Width = ColumnWidth };
+        var stack = new StackPanel { Width = ColumnWidth, Margin = new Thickness(0, Fluent.Space1 + Fluent.Hairline, 0, 0) };
         var title = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
         title.Text = heading;
         title.Height = LineHeight;
         title.Padding = new Thickness(Fluent.Space3, Fluent.Space3, Fluent.Space3, 0);
         stack.Children.Add(title);
 
+        var buttons = Rows(stack, rows, column);
+        _columns.Add(new Drawn(stack, buttons, rows));
+        _tree.Children.Add(stack);
+    }
+
+    /// <summary>A column's rows into <paramref name="stack"/>; the buttons by row, null for a line.</summary>
+    private Button?[] Rows(StackPanel stack, IReadOnlyList<AddRow> rows, int column)
+    {
         var buttons = new Button?[rows.Count];
         for (var r = 0; r < rows.Count; r++)
         {
@@ -256,27 +272,111 @@ internal sealed partial class WidgetPicker : Grid
             stack.Children.Add(button);
         }
 
-        FrameworkElement view = stack;
+        return buttons;
+    }
 
-        // A top column stands as far down as a submenu's card puts its rows, so the headings and rows line up.
-        stack.Margin = submenu ? default : new Thickness(0, Fluent.Space1 + Fluent.Hairline, 0, 0);
-        if (submenu)
+    /// <summary>
+    /// [S-3512] Open a submenu: its rows on a card of the flyout's own chrome (acrylic, stroke,
+    /// corners, shadow), in a popup beside the row <paramref name="from"/> that opened it, its first
+    /// row level with that row. No heading: the lit row it hangs from names it, as in Windows' menus.
+    /// </summary>
+    private void AddSubmenu(IReadOnlyList<AddRow> rows, int column, AddSpot from)
+    {
+        var stack = new StackPanel { Width = ColumnWidth };
+        var buttons = Rows(stack, rows, column);
+
+        var width = ColumnWidth + (2 * CardLead);
+        var height = RowsHeight(rows, rows.Count) + (2 * CardLead);
+        var (left, right, top, backward) = Hanger(from);
+        var spot = AddCascade.Beside(left, right, top, CardLead, width, height, backward, Room());
+
+        var card = new Border
         {
-            // [S-3512] A submenu reads as one: the card's fill and hairline, as Windows' layered panes are.
-            view = new Border
+            Child = new ScrollViewer { Content = stack, VerticalScrollBarVisibility = ScrollBarVisibility.Auto },
+            Padding = new Thickness(Fluent.Space1),
+            Width = spot.Box.Width,
+            Height = spot.Box.Height,
+        };
+        EditBar.Frame(card);
+
+        Popup? popup = null;
+        if (RenderLayer is { } layer)
+        {
+            var at = TransformToVisual(layer).TransformPoint(new Point(spot.Box.X, spot.Box.Y));
+            Canvas.SetLeft(card, at.X);
+            Canvas.SetTop(card, at.Y);
+            layer.Children.Add(card);
+        }
+        else
+        {
+            // A child of the picker, so the flyout's light dismiss counts a press on it as inside.
+            popup = new Popup
             {
-                Child = stack,
-                Padding = new Thickness(Fluent.Space1),
-                CornerRadius = new CornerRadius(Fluent.OverlayRadius),
-                BorderThickness = new Thickness(Fluent.Hairline),
-                BorderBrush = FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray),
-                Background = FluentLayout.Themed("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
+                Child = card,
+                HorizontalOffset = spot.Box.X,
+                VerticalOffset = spot.Box.Y,
+                HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
             };
+            Children.Add(popup);
+            popup.IsOpen = true;
         }
 
-        _columns.Add((view, buttons));
-        _tree.Children.Add(view);
+        _columns.Add(new Drawn(card, buttons, rows, popup, spot));
+    }
+
+    /// <summary>
+    /// The column a row is in (its left and right edge), the row's top, and which way the cascade
+    /// runs from there, all in this control's coordinates.
+    /// </summary>
+    private (double Left, double Right, double Top, bool Backward) Hanger(AddSpot from)
+    {
+        var parent = _columns[from.Column];
+        if (parent.Spot is { } spot)
+        {
+            return (spot.Box.X, spot.Box.X + spot.Box.Width, spot.Box.Y + CardLead + RowsHeight(parent.Items, from.Row), spot.Backward);
+        }
+
+        if (parent.Rows[from.Row] is { } row)
+        {
+            var box = row.TransformToVisual(this).TransformBounds(new Rect(0, 0, row.ActualWidth, row.ActualHeight));
+            return (box.X, box.X + box.Width, box.Y, false);
+        }
+
+        return (0, ColumnWidth, 0, false);
+    }
+
+    /// <summary>The work area in this control's coordinates (the render's layer is its own work area).</summary>
+    private PixelRect Room()
+    {
+        UIElement? origin = RenderLayer ?? XamlRoot?.Content;
+        if (origin is null)
+        {
+            return _room;
+        }
+
+        var box = origin.TransformToVisual(this).TransformBounds(new Rect(_room.X, _room.Y, _room.Width, _room.Height));
+        return new PixelRect(box.X, box.Y, box.Width, box.Height);
+    }
+
+    /// <summary>Close the submenus from column <paramref name="from"/> on (never a top column).</summary>
+    private void CloseSubmenus(int from)
+    {
+        while (_columns.Count > Math.Max(from, _menu.Count))
+        {
+            var drawn = _columns[^1];
+            _columns.RemoveAt(_columns.Count - 1);
+            if (drawn.Popup is { } popup)
+            {
+                popup.IsOpen = false;
+                popup.Child = null;
+                Children.Remove(popup);
+            }
+            else
+            {
+                RenderLayer?.Children.Remove(drawn.View);
+            }
+        }
     }
 
     private static Border Rule() => new()
@@ -435,15 +535,11 @@ internal sealed partial class WidgetPicker : Grid
             same++;
         }
 
-        while (_columns.Count > _menu.Count + same)
-        {
-            _tree.Children.Remove(_columns[^1].Column);
-            _columns.RemoveAt(_columns.Count - 1);
-        }
+        CloseSubmenus(_menu.Count + same);
 
         for (var i = same; i < open.Count; i++)
         {
-            AddColumnView(open[i].Shelf.Title.Text(), open[i].Rows, _menu.Count + i, submenu: true);
+            AddSubmenu(open[i].Rows, _menu.Count + i, spots[i]);
         }
 
         _drawnOpen = spots;

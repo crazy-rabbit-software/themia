@@ -5,16 +5,7 @@
   "widgetsC.notes.editor.undo": "Hoàn tác",
   "widgetsC.notes.editor.redo": "Làm lại",
   "widgetsC.notes.editor.moreFormatting": "Định dạng khác",
-  "widgetsC.notes.words": {
-    "other": "{count} từ"
-  },
-  "widgetsC.notes.characters": {
-    "other": "{count} ký tự"
-  },
-  "widgetsC.notes.saving": "Đang lưu…",
   "widgetsC.notes.notSaved": "Chưa lưu",
-  "widgetsC.notes.saved": "Đã lưu",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Không đọc được ghi chú này.",
   "widgetsC.notes.unavailable": "Ghi chú không khả dụng.",
   "widgetsC.notes.chooseNote": "Chọn ghi chú",
@@ -108,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Hoàn tác",
   "widgetsC.scratchpad.clearDrawing": "Xóa bản vẽ",
   "widgetsC.scratchpad.clearConfirm": "Xóa toàn bộ bản vẽ?",
+  "widgetsC.scratchpad.fullScreen": "Toàn màn hình",
+  "widgetsC.scratchpad.exitFullScreen": "Thoát toàn màn hình",
   "widgetsC.scratchpad.penSizeTip": "Cỡ bút {size} px",
   "widgetsC.scratchpad.settings.inks": "Màu mực",
   "widgetsC.scratchpad.settings.tools": "Công cụ",

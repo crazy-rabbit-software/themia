@@ -3,11 +3,10 @@ using Themia.Core.Widgets;
 namespace Themia.Core.Notes;
 
 /// <summary>What the note widget's body shows at one size.</summary>
-/// <param name="Status">The status line under the text: word count.</param>
-/// <param name="StatusDetail">The status line also gives characters and the save state.</param>
+/// <param name="Status">The line under the text that says the note is not saved ([S-1362]).</param>
 /// <param name="TextWidth">The width the text has: the whole box at every size, never shared with a note list.</param>
 /// <param name="TextLines">Whole lines of text the editor shows at least (for tests; the editor scrolls).</param>
-public sealed record NotesLayoutPlan(bool Status, bool StatusDetail, double TextWidth, int TextLines);
+public sealed record NotesLayoutPlan(bool Status, double TextWidth, int TextLines);
 
 /// <summary>
 /// [S-3963] The formatting bar in the card's header: how many buttons stand in it, and whether the
@@ -35,8 +34,8 @@ public readonly record struct NotesHeaderBar(int Inline, bool Overflow)
 /// [S-1363] The note widget's disclosure ladder (<see cref="Disclosure"/>, S-660).
 /// <list type="number">
 /// <item>The text — always, at least two lines, even at 120 × 120.</item>
-/// <item>A status line (words) once the height is expanded; with characters and the save state once
-/// the width is too.</item>
+/// <item>"Not saved" under the text, only while the note's last write failed ([S-1362]): no word or
+/// character count (user requirement), and nothing while all is well.</item>
 /// </list>
 /// The formatting bar is not part of the body: it stands in the card's header while the note is
 /// being edited ([S-3963], <see cref="HeaderBar"/>). The widget is the one note at every size: a
@@ -73,11 +72,12 @@ public static class NotesLayout
     /// <param name="gap">The margin between parts.</param>
     /// <param name="lineHeight">One line of the note at its size.</param>
     /// <param name="statusHeight">One line of the status (Caption).</param>
-    public static NotesLayoutPlan Plan(WidgetArea area, double inset, double gap, double lineHeight, double statusHeight)
+    /// <param name="notSaved">The note's last write failed, which the status line says.</param>
+    public static NotesLayoutPlan Plan(WidgetArea area, double inset, double gap, double lineHeight, double statusHeight, bool notSaved = false)
     {
         if (!area.IsMeasured)
         {
-            return new NotesLayoutPlan(false, false, 0, MinTextLines);
+            return new NotesLayoutPlan(false, 0, MinTextLines);
         }
 
         var box = area.Deflate(inset, inset);
@@ -86,11 +86,10 @@ public static class NotesLayout
         var room = new Disclosure(width, box.Height, gap);
         room.Reserve(lineHeight * MinTextLines);
 
-        var status = area.HeightClass >= SizeClass.Expanded && room.Take(statusHeight);
-        var detail = status && area.WidthClass >= SizeClass.Expanded;
+        var status = notSaved && room.Take(statusHeight);
 
         var lines = MinTextLines + Disclosure.WholeRows(room.Remaining, lineHeight);
-        return new NotesLayoutPlan(status, detail, width, lines);
+        return new NotesLayoutPlan(status, width, lines);
     }
 
     /// <summary>

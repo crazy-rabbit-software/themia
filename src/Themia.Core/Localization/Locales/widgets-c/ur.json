@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "کالعدم کریں",
   "widgetsC.notes.editor.redo": "دوبارہ کریں",
   "widgetsC.notes.editor.moreFormatting": "مزید فارمیٹنگ",
-  "widgetsC.notes.words": {
-    "one": "{count} لفظ",
-    "other": "{count} الفاظ"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} حرف",
-    "other": "{count} حروف"
-  },
-  "widgetsC.notes.saving": "محفوظ ہو رہا ہے…",
   "widgetsC.notes.notSaved": "محفوظ نہیں ہوا",
-  "widgetsC.notes.saved": "محفوظ ہو گیا",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "یہ نوٹ پڑھا نہیں جا سکا۔",
   "widgetsC.notes.unavailable": "نوٹس دستیاب نہیں۔",
   "widgetsC.notes.chooseNote": "نوٹ چنیں",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "کالعدم کریں",
   "widgetsC.scratchpad.clearDrawing": "ڈرائنگ صاف کریں",
   "widgetsC.scratchpad.clearConfirm": "پوری ڈرائنگ صاف کریں؟",
+  "widgetsC.scratchpad.fullScreen": "پوری اسکرین",
+  "widgetsC.scratchpad.exitFullScreen": "پوری اسکرین سے باہر نکلیں",
   "widgetsC.scratchpad.penSizeTip": "قلم کا سائز {size} px",
   "widgetsC.scratchpad.settings.inks": "سیاہیاں",
   "widgetsC.scratchpad.settings.tools": "ٹولز",

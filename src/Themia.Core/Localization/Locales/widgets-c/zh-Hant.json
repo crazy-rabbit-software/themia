@@ -5,16 +5,7 @@
   "widgetsC.notes.editor.undo": "復原",
   "widgetsC.notes.editor.redo": "取消復原",
   "widgetsC.notes.editor.moreFormatting": "更多格式",
-  "widgetsC.notes.words": {
-    "other": "{count} 個字詞"
-  },
-  "widgetsC.notes.characters": {
-    "other": "{count} 個字元"
-  },
-  "widgetsC.notes.saving": "正在儲存…",
   "widgetsC.notes.notSaved": "未儲存",
-  "widgetsC.notes.saved": "已儲存",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "無法讀取此筆記。",
   "widgetsC.notes.unavailable": "無法使用筆記。",
   "widgetsC.notes.chooseNote": "選擇筆記",
@@ -108,6 +99,8 @@
   "widgetsC.scratchpad.undo": "復原",
   "widgetsC.scratchpad.clearDrawing": "清除繪圖",
   "widgetsC.scratchpad.clearConfirm": "要清除整個繪圖嗎？",
+  "widgetsC.scratchpad.fullScreen": "全螢幕",
+  "widgetsC.scratchpad.exitFullScreen": "結束全螢幕",
   "widgetsC.scratchpad.penSizeTip": "筆觸大小 {size} px",
   "widgetsC.scratchpad.settings.inks": "墨水色彩",
   "widgetsC.scratchpad.settings.tools": "工具",

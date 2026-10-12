@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "Geri al",
   "widgetsC.notes.editor.redo": "Yinele",
   "widgetsC.notes.editor.moreFormatting": "Daha fazla biçimlendirme",
-  "widgetsC.notes.words": {
-    "one": "{count} sözcük",
-    "other": "{count} sözcük"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} karakter",
-    "other": "{count} karakter"
-  },
-  "widgetsC.notes.saving": "Kaydediliyor…",
   "widgetsC.notes.notSaved": "Kaydedilmedi",
-  "widgetsC.notes.saved": "Kaydedildi",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Bu not okunamadı.",
   "widgetsC.notes.unavailable": "Notlar kullanılamıyor.",
   "widgetsC.notes.chooseNote": "Bir not seçin",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Geri al",
   "widgetsC.scratchpad.clearDrawing": "Çizimi temizle",
   "widgetsC.scratchpad.clearConfirm": "Tüm çizim temizlensin mi?",
+  "widgetsC.scratchpad.fullScreen": "Tam ekran",
+  "widgetsC.scratchpad.exitFullScreen": "Tam ekrandan çık",
   "widgetsC.scratchpad.penSizeTip": "Kalem boyutu {size} px",
   "widgetsC.scratchpad.settings.inks": "Mürekkepler",
   "widgetsC.scratchpad.settings.tools": "Araçlar",

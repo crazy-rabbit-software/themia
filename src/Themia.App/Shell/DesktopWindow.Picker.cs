@@ -58,11 +58,7 @@ internal sealed partial class DesktopWindow
         flyout.Opening += (_, _) =>
         {
             var area = Metrics.IsUsable ? GridGeometry.AllowedPixels(Metrics) : new PixelRect(0, 0, 1280, 720);
-            flyout.Content = new WidgetPicker(
-                definition => OnPicked(flyout, definition),
-                flyout.Hide,
-                area.Width,
-                area.Height);
+            flyout.Content = new WidgetPicker(definition => OnPicked(flyout, definition), flyout.Hide, area);
         };
 
         // [S-3514] Typing searches at once: the caret is in the box as soon as the picker is open.

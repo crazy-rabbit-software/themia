@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "Desfazer",
   "widgetsC.notes.editor.redo": "Refazer",
   "widgetsC.notes.editor.moreFormatting": "Mais formatação",
-  "widgetsC.notes.words": {
-    "one": "{count} palavra",
-    "other": "{count} palavras"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} caractere",
-    "other": "{count} caracteres"
-  },
-  "widgetsC.notes.saving": "Salvando…",
   "widgetsC.notes.notSaved": "Não salvo",
-  "widgetsC.notes.saved": "Salvo",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Não foi possível ler esta nota.",
   "widgetsC.notes.unavailable": "As notas não estão disponíveis.",
   "widgetsC.notes.chooseNote": "Escolher uma nota",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Desfazer",
   "widgetsC.scratchpad.clearDrawing": "Limpar o desenho",
   "widgetsC.scratchpad.clearConfirm": "Limpar todo o desenho?",
+  "widgetsC.scratchpad.fullScreen": "Tela inteira",
+  "widgetsC.scratchpad.exitFullScreen": "Sair da tela inteira",
   "widgetsC.scratchpad.penSizeTip": "Tamanho da caneta {size} px",
   "widgetsC.scratchpad.settings.inks": "Tintas",
   "widgetsC.scratchpad.settings.tools": "Ferramentas",

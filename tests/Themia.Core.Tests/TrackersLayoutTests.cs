@@ -33,6 +33,38 @@ public class TrackersLayoutTests
         Assert.Equal(1, new ClipboardConfig { Capacity = 0 }.EffectiveCapacity);
     }
 
+    /// <summary>[S-1458] The history is kept while any view holds a Clipboard widget, on screen or not, at the longest capacity asked for.</summary>
+    [Fact]
+    public void S1458_the_history_is_wanted_while_any_view_holds_a_clipboard_widget()
+    {
+        var state = AppState.CreateDefault();
+        foreach (var view in state.Views)
+        {
+            view.Widgets.Clear();
+        }
+
+        Assert.Null(ClipboardInterest.Capacity(state));
+
+        // A clipboard widget on a view that is not the one on screen still wants the history.
+        var hidden = ViewState.Create("Hidden");
+        var small = WidgetInstance.Create(WidgetKind.Clipboard, new Geometry.FracRect(0, 0, 0.2, 0.2));
+        ((ClipboardConfig)small.Config).Capacity = 10;
+        hidden.Widgets.Add(small);
+        state.Views.Add(hidden);
+        Assert.Equal(10, ClipboardInterest.Capacity(state));
+
+        var large = WidgetInstance.Create(WidgetKind.Clipboard, new Geometry.FracRect(0, 0, 0.2, 0.2));
+        ((ClipboardConfig)large.Config).Capacity = 120;
+        state.Views[0].Widgets.Add(large);
+        Assert.Equal(120, ClipboardInterest.Capacity(state));
+
+        // Any other widget wants nothing of the clipboard.
+        hidden.Widgets.Clear();
+        state.Views[0].Widgets.Clear();
+        state.Views[0].Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, new Geometry.FracRect(0, 0, 0.2, 0.2)));
+        Assert.Null(ClipboardInterest.Capacity(state));
+    }
+
     [Fact]
     public void S1441_one_line_preview_is_the_collapsed_preview()
     {

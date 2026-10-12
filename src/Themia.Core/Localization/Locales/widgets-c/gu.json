@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "પૂર્વવત્ કરો",
   "widgetsC.notes.editor.redo": "ફરી કરો",
   "widgetsC.notes.editor.moreFormatting": "વધુ ફૉર્મેટિંગ",
-  "widgetsC.notes.words": {
-    "one": "{count} શબ્દ",
-    "other": "{count} શબ્દો"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} અક્ષર",
-    "other": "{count} અક્ષરો"
-  },
-  "widgetsC.notes.saving": "સાચવી રહ્યાં છીએ…",
   "widgetsC.notes.notSaved": "સાચવ્યું નથી",
-  "widgetsC.notes.saved": "સાચવ્યું",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "આ નોંધ વાંચી શકાઈ નહીં.",
   "widgetsC.notes.unavailable": "નોંધો ઉપલબ્ધ નથી.",
   "widgetsC.notes.chooseNote": "નોંધ પસંદ કરો",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "પૂર્વવત્ કરો",
   "widgetsC.scratchpad.clearDrawing": "ચિત્ર સાફ કરો",
   "widgetsC.scratchpad.clearConfirm": "આખું ચિત્ર સાફ કરીએ?",
+  "widgetsC.scratchpad.fullScreen": "પૂર્ણ સ્ક્રીન",
+  "widgetsC.scratchpad.exitFullScreen": "પૂર્ણ સ્ક્રીનમાંથી બહાર નીકળો",
   "widgetsC.scratchpad.penSizeTip": "પેનનું કદ {size} px",
   "widgetsC.scratchpad.settings.inks": "શાહી",
   "widgetsC.scratchpad.settings.tools": "સાધનો",

@@ -1,6 +1,7 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
@@ -11,13 +12,14 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-1497] The ink bar along the foot of the pad: the original's toolbar of preset inks and three
-/// nibs ([S-02] of the original), shown once the pad has room for it. The header keeps eraser,
-/// undo and clear at every size ([S-651]); the bar is the rung a larger tile adds, so choosing an ink
-/// no longer means opening settings. Picking an ink also leaves the eraser, as the original did.
+/// nibs ([S-02] of the original), shown once the pad has room for it, and [S-1498] the eraser as a
+/// tool beside them. The header keeps undo, clear and full screen ([S-651]), and the eraser while
+/// the bar is not shown; the bar is the rung a larger tile adds, so choosing an ink no longer means
+/// opening settings. Picking an ink or a nib also leaves the eraser, as the original did.
 /// <para>
-/// Its ladder: nothing on a tile Compact either way (the pad is the widget); the six inks from a
-/// Regular × Regular tile; the three nibs beside them when the width holds both. Nothing more on a
-/// larger tile (no stroke count): the rest is pad.
+/// Its ladder: nothing on a tile Compact either way (the pad is the widget); the six inks and the
+/// eraser from a Regular × Regular tile; the three nibs between them when the width holds all.
+/// Nothing more on a larger tile (no stroke count): the rest is pad.
 /// </para>
 /// </summary>
 internal sealed partial class ScratchpadView
@@ -31,13 +33,19 @@ internal sealed partial class ScratchpadView
     private readonly StackPanel _bar = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
     private readonly StackPanel _inks = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
     private readonly StackPanel _nibs = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
+    private readonly Border _nibGap = new() { Width = Fluent.Space2 };
+    private readonly ToggleButton _barEraser = ToggleCommand(Glyphs.EraseTool, Str.WidgetsC_Scratchpad_EraseStrokes.Text());
     private readonly Grid _barRow = new();
     private readonly List<(Ink Ink, Ellipse Ring)> _inkRings = [];
     private readonly List<(double Width, Ellipse Ring)> _nibRings = [];
     private readonly List<(Button Button, RoutedEventHandler Handler)> _barHandlers = [];
+    private readonly List<(ToggleButton Button, RoutedEventHandler Handler)> _barToggles = [];
     private readonly List<(Button Button, Func<string> Tip)> _barTips = [];
 
     private WidgetArea _area;
+
+    /// <summary>[S-651] The header has room for the eraser too (it shows there while the bar does not).</summary>
+    private bool _eraserFits;
 
     /// <summary>[S-663] The card's word on how much room there is: header tools and the bar.</summary>
     public void ApplySize(WidgetArea area)
@@ -70,9 +78,20 @@ internal sealed partial class ScratchpadView
             OnBarClick(button, () => PickNib(width));
         }
 
+        // [S-1498] The eraser is a tool beside the nibs; it and the header's are one (OnEraserToggled).
+        _barEraser.Width = BarButton;
+        _barEraser.Height = BarButton;
+        _barEraser.Padding = new Thickness(0);
+        RoutedEventHandler onBarEraser = (_, _) => _eraser.IsChecked = _barEraser.IsChecked;
+        _barEraser.Checked += onBarEraser;
+        _barEraser.Unchecked += onBarEraser;
+        _barToggles.Add((_barEraser, onBarEraser));
+
         _bar.Children.Add(_inks);
-        _bar.Children.Add(new Border { Width = Fluent.Space2 });
+        _bar.Children.Add(_nibGap);
         _bar.Children.Add(_nibs);
+        _bar.Children.Add(new Border { Width = Fluent.Space2 });
+        _bar.Children.Add(_barEraser);
 
         _barRow.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space3, Fluent.Space2);
         _barRow.Visibility = Visibility.Collapsed;
@@ -133,6 +152,14 @@ internal sealed partial class ScratchpadView
         }
 
         _barHandlers.Clear();
+
+        foreach (var (button, handler) in _barToggles)
+        {
+            button.Checked -= handler;
+            button.Unchecked -= handler;
+        }
+
+        _barToggles.Clear();
     }
 
     private void PickInk(Ink ink)
@@ -148,6 +175,9 @@ internal sealed partial class ScratchpadView
     private void PickNib(double width)
     {
         _config.PenWidth = width;
+
+        // Choosing a nib is choosing to draw, as an ink is.
+        _eraser.IsChecked = false;
         UpdateBar();
         _surface?.RequestSave();
     }
@@ -155,18 +185,43 @@ internal sealed partial class ScratchpadView
     /// <summary>Climb the bar's ladder for the current area. Called on a resize and a config change.</summary>
     private void LayBar()
     {
-        var inksWidth = InkPalette.Inks.Count * BarButton;
-        var nibsWidth = (InkPalette.Widths.Count * BarButton) + Fluent.Space2 + Fluent.Space1;
+        if (IsFullScreen)
+        {
+            // [S-1499] Full screen shows the whole bar on its own toolbar.
+            _nibs.Visibility = Visibility.Visible;
+            _nibGap.Visibility = Visibility.Visible;
+            _eraser.Visibility = Visibility.Collapsed;
+            UpdateBar();
+            return;
+        }
+
+        // The bar's own run: the inks, a gap and the eraser (the stack's spacing between the three);
+        // the nibs add a gap and themselves, two more spacings.
+        var inksWidth = (InkPalette.Inks.Count * BarButton) + Fluent.Space2 + BarButton + (2 * Fluent.Space1);
+        var nibsWidth = (InkPalette.Widths.Count * BarButton) + Fluent.Space2 + (2 * Fluent.Space1);
+        var width = _area.Width - Fluent.Space2 - Fluent.Space3; // the row's margins
 
         var room = new Disclosure(_area.Deflate(Fluent.Space2, 0), Fluent.Space2);
         room.Reserve(PadFloor);
 
         var show = _config.ShowTools
             && _area.AtLeast(SizeClass.Regular, SizeClass.Regular)
+            && width >= inksWidth
             && room.Take(BarButton, inksWidth);
 
-        _nibs.Visibility = Shown(room.Width >= inksWidth + nibsWidth);
+        _nibs.Visibility = Shown(width >= inksWidth + nibsWidth);
+        _nibGap.Visibility = _nibs.Visibility;
         _barRow.Visibility = Shown(show);
+
+        // [S-1498] One eraser on screen: in the bar where it shows, else in the header where it fits.
+        var headerEraser = !show && _eraserFits;
+        _eraser.Visibility = Shown(headerEraser);
+
+        // A hidden eraser must not leave the pad in erase mode with no way out of it.
+        if (!show && !headerEraser && _eraser.IsChecked == true)
+        {
+            _eraser.IsChecked = false;
+        }
 
         UpdateBar();
     }

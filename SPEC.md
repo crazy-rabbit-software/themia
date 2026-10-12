@@ -456,9 +456,10 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   assign the border element directly and outrank a local value, so the field would light up solid
   on hover.
 - **[S-3962]** No hover state: the pointer-over fill and border are the rest ones (transparent), so
-  the field never lights up as the pointer crosses it. Focus keeps its look (the subtle fill and the
-  accent line), so where the keyboard went is still shown. Through the same resource keys, theme
-  brushes only.
+  the field never lights up as the pointer crosses it. Focus keeps only the subtle fill: no accent
+  frame or line (user requirement; the focused state's elevation brush and thickness are cleared
+  too, and no system focus rectangle), the caret shows where the keys go. Through the same resource
+  keys, theme brushes only.
 - **[S-130]** "Clear note" confirms in a dialog. The text is unrecoverable, so one click is not
   enough, and failing to show the dialog leaves the note alone. It empties the note's body (for every
   widget showing it); the note and its title stay.
@@ -550,7 +551,7 @@ tests `SkyWidgetsTests` (`S310x_`).
   number strip and the rows sunrise, sunset, daylight (+ change), solar noon, dawn, dusk ([S-3102]).
   **Moon** (`WidgetKind.Moon`, 240×220, moon glyph) is the moon: the disc, its phase's name, the lit
   percentage, moonrise, moonset and the next full or new moon ([S-3105]). Both sit in the add menu's
-  Weather & sky subject ([S-3511]), have a Top header titled with the place, never need setting up (they
+  Weather & sky subject ([S-3511]), start headerless ([S-700]; a header given them is titled with the place), never need setting up (they
   start at Zurich) and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
@@ -721,12 +722,16 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   `AddMenuTests` fail until it has a home.
 - **[S-3512]** Layout: 240-DIP columns 8 DIPs apart; a heading line, then 32-DIP rows; a line is a
   hairline with 4 DIPs either side. A folder's row ends in a chevron (mirrored right to left). An
-  open submenu is a column of its own beside the one it hangs from, on a card (the card fill and
-  hairline, 8-DIP corners), its heading the folder's name; the row that opened it stays lit. The
-  cascade lives inside the one flyout (one light dismiss closes all of it, and the debug render can
-  draw it), grows to the side and scrolls sideways past 75 % of the work area's width. The body is as
-  tall as the tallest column any folder can open (at most 70 % of the work area), so nothing jumps
-  as one opens. A folder holds at most 12 rows, a line counted, except Quick settings (every toggle).
+  open submenu is **not part of the menu** (user requirement, after Karpo's add list, whose
+  submenus are windows of their own): it is a card of its own in a popup, on the flyout's own
+  chrome (acrylic, stroke, 8-DIP corners, shadow), with no heading — the row that opened it stays
+  lit and names it. It stands beside that row, its first row level with it, lapping the column 4
+  DIPs; it opens forward (right, left to right) while it fits in the work area, else backward, and a
+  cascade that turned keeps that way; it never leaves the work area (`AddCascade`, tests
+  `AddMenuTests`). Opening or closing one moves and resizes nothing else. The popups are the
+  picker's children, so the flyout's one light dismiss closes all of it. The menu itself is its two
+  top columns, as tall as the taller one (at most 70 % of the work area). A folder holds at most 12
+  rows, a line counted, except Quick settings (every toggle).
 - **[S-3513]** Search lists each widget once, at its home, and matches it on its name, keywords,
   kind, description and **the names of the folders it is in** (subject and family: [S-940]'s
   category field), so "calendar" finds the week view and "system" the meters.
@@ -750,8 +755,9 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   stand-in display (snap on and off, the add menu open under Add widget, the placement line, and the
   properties strip, [S-3713]), and
   `--picker-png <out.png> [--search text] [--open Subject[/Family]] [--theme light|dark]` the open
-  menu for a 1920 × 1032-DIP work area, `--open` opening the cascade by `AddFolderId` names
-  (`CalendarMail/CalendarLayouts`, `System/Processor`, `QuickSettings`).
+  menu, `--open` opening the cascade by `AddFolderId` names
+  (`CalendarMail/CalendarLayouts`, `System/Processor`, `QuickSettings`); the render draws the
+  submenus on a layer over a 1280 × 800-DIP stand-in work area, where the popups would stand.
 
 Needs a live pass: the bar on every display at mixed DPI and with a top taskbar, the menu opening
 under Add widget and at a right-click (and growing sideways as a submenu opens, near a display's
@@ -1765,9 +1771,10 @@ Prep for the parallel shell and widget packages (S-700..S-719). Mostly file layo
 rules are these.
 
 - **[S-700]** The clock starts with its header **hidden**, as in the original
-  (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]) and the audio visualizer
-  ([S-3200]). Only creation reads the default; a loaded widget keeps the
-  placement it was saved with.
+  (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
+  ([S-3200]), and (user requirement) the sun, the moon ([S-3100]) and the disk meter, which names
+  its drive beside its reading instead ([S-1161]). Only creation reads the default; a loaded widget
+  keeps the placement it was saved with.
 - **[S-701]** The app pages of the settings window come from one table, `ConfigPages.AppPages`
   (page, title, glyph, main or footer slot, builder). The navigation and the body both read it, so a
   page is added with one line plus its own `ConfigPages.<Page>.cs`. A reserved `AppPage` value with
@@ -2673,6 +2680,14 @@ Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
   (confirmed through `FluentLayout.ConfirmAsync`, like the header bin). `HandleKey`: Up/Down/Home/End
   cursor, Enter copies, Escape drops it — through the shell's keyboard lease ([S-800]..[S-812]),
   `ClipboardView : IWidgetKeys`; needs a live pass.
+- **[S-1458]** The clipboard history is the app's, not the widget's (user requirement): one
+  `ClipboardHistoryService` (`AppServices.Clipboard`) listens while any view on any display holds a
+  Clipboard widget, on screen or not (`ClipboardInterest`), so a view switched to shows what was
+  copied while it was away. It keeps the longest capacity any of them asks for; each widget shows
+  its newest entries up to its own. Remove and Clear history act on the one history, for every
+  Clipboard widget. With no Clipboard widget left in the state the listener stops and the history
+  is forgotten; still text only, in memory, never written. A detached state (a debug render) has
+  none.
 - **[S-1445]** Countdown timer menu on every row and on the hero (original C-60): Remove… (confirmed).
   The display format is chosen per timer in the settings only ([S-1746]); original C-61 is moot.
 - **[S-1446]** The featured timer is the soonest still ahead, else the most recently passed; the
@@ -2863,11 +2878,12 @@ Ports the original `widgets/others/notes` (SPEC S-01..S-38, `src/lib.rs`, `markd
   steps. The control's own stack is off — it would also hold every formatting pass (original S-22).
 - **[S-1361]** Only the lines an edit touched, plus lines whose parse changed (a fence opened or
   closed), are redrawn (`NoteText.LinesToRedraw`); replacements never split a surrogate pair.
-- **[S-1362]** Status line: "N words" (runs holding a letter or digit, so markers are not words); at
-  wide sizes also "N characters · Saved / Saving… / Not saved", driven by the pool's save events.
+- **[S-1362]** No word or character count, and no "Saved" (user requirement). The one status line
+  is "Not saved" under the text, only while the note's last write failed (the pool's save events),
+  where a line is left after the text's two.
 - **[S-1363]** Ladder (`NotesLayout.Plan`): the text always (at least two lines; headings at body size
-  on a compact width) → status line at height Expanded (with detail at width Expanded); the text
-  takes the rest. The formatting bar is not a row of the body ([S-3963]). The widget is the one
+  on a compact width) → the "Not saved" line while a write failed ([S-1362]); the text takes the
+  rest. The formatting bar is not a row of the body ([S-3963]). The widget is the one
   note at every size: there is no note list beside the text, at any size (user decision; the
   header's picker switches notes).
 - **[S-1364]** The header title is the note's title (the user's own widget label still wins). A
@@ -2914,7 +2930,10 @@ they show the label, the reading and the history only ([S-1762]).
   chart (original [S-22]). The settings page offers "System drive (C:)" and every drive Windows lists;
   a chosen drive that has been removed stays offered as "not connected".
 - **[S-1161]** The header title names the drive as Explorer does ("System (C:)", "Local Disk (D:)",
-  "USB Drive (E:)"), "C:" for a drive the walk did not list, "All drives" for every drive.
+  "USB Drive (E:)"), "C:" for a drive the walk did not list, "All drives" for every drive. The meter
+  starts headerless ([S-700]), so the reading names its drive itself, at every size: the drive's
+  letter ("C:", "All drives" for every drive) in the secondary colour on the reading's baseline,
+  after the rate, as the hero readout's token ([S-667]); the reading's width bound counts it.
 - **[S-1162]** Read and write rates are per drive from one shared PDH query
   (`\LogicalDisk(*)\Disk Read|Write Bytes/sec`, matched by letter ignoring case; `_Total` and folder
   mounts left out). A drive the counters do not list has no rate, never the system total (original
@@ -4645,7 +4664,21 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   with the settings picker) and the original's three nibs 2/4/8 px at the foot of the pad from
   Regular × Regular; nibs only when the width holds both; nothing more on a larger pad (the stroke
   count at W ≥ Expanded is retired, concise widgets). Picking an
-  ink leaves the eraser. Header tools still shed per S-651. Not ported: export as PNG.
+  ink or a nib leaves the eraser. Header tools still shed per S-651. Not ported: export as PNG.
+- **[S-1498]** The eraser (user requirement: an erasing stylus) is a tool of the ink bar, after the
+  nibs, drawn with Windows' eraser glyph; it and the header's toggle are one tool, and one of them
+  is on screen: the bar's while the bar shows, else the header's where it fits (the header sheds
+  the eraser first, then clear, then full screen; undo stays). A hidden eraser never leaves the pad
+  erasing. It removes the whole strokes it touches, as before. A pen's eraser end erases whatever
+  tool is chosen, as in Windows Ink.
+- **[S-1499]** **Full screen** (user requirement; a header tool): the same pad moves into a windowed
+  popup over the whole display and back, so the drawing, the undo history and the gesture are the
+  pad's own, nothing copied. On the theme's base fill, a toolbar on the flyouts' chrome at the top
+  (the inks, the nibs and the eraser, then undo, clear and Exit full screen, always shown whatever
+  Show tools says), and under it the pad on a card at the tile's own shape (the strokes are in pad
+  units; another shape would stretch them), as large as the display holds. The tile's button
+  leaves it; so does the widget detaching (a view switch, a removal). Needs a live pass: pointer and
+  pen input in the popup, a top or side taskbar, mixed DPI.
 
 
 ## Device and location (DEVICE-AND-LOCATION)
@@ -5180,8 +5213,11 @@ breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout
   routes the faults of subscriptions made inside a card's `CatchFaults` scope (Attach, ApplyConfig)
   to that card; a fault on the first tick during Attach counts as an attach failure, a later one
   swaps on the next UI-queue pass. The card keeps its header (the view's trailing part goes) and
-  shows "This widget stopped working.", Retry, and Details (a flyout with the exception type and
-  message). Logged with the widget id and kind. Retry builds the view again in place. Below 160 DIP
+  shows "This widget stopped working.", Retry, and Details: a flyout with the exception type and
+  message (scrolling past 240 DIPs) and **Copy**, which puts the widget's kind and the whole
+  exception with its stack on the clipboard, through the log's redactor ([S-983]). The flyout is a
+  windowed popup, never cut off at the card's edge by the surface's region ([S-851]; user
+  report). Logged with the widget id and kind. Retry builds the view again in place. Below 160 DIP
   high the glyph goes; below 150×110 DIP the Details link goes too and the line shortens to
   "Stopped working." (Retry always stays).
 - **[S-892]** Settings › About › Reset all settings (confirm): the current state is written to

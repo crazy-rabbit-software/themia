@@ -2,6 +2,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -319,6 +320,13 @@ internal sealed partial class WidgetCard
         => $"{error.GetType().Name}: {error.Message}";
 
     /// <summary>
+    /// [S-891] What Copy puts on the clipboard, for a bug report: the widget's kind and the whole
+    /// exception with its stack, through the log's redactor ([S-983]) so no secret leaves in it.
+    /// </summary>
+    private static string Report(WidgetKind kind, Exception error)
+        => LogRedactor.Redact($"Themia {kind} widget stopped working.\r\n{error}");
+
+    /// <summary>
     /// [S-891] The body of a card whose view is not running: a mark, one line, Retry, and Details
     /// (the error itself) when it failed. Sheds like an empty state on a small tile — the glyph
     /// first, then the details link — so the Retry button is still there at XS.
@@ -365,7 +373,8 @@ internal sealed partial class WidgetCard
                     AllowFocusOnInteraction = false,
                     VerticalAlignment = VerticalAlignment.Center,
                 };
-                details.Click += (_, _) => ShowDetails(details, Describe(error));
+                var kind = owner.Model.Kind;
+                details.Click += (_, _) => ShowDetails(details, Describe(error), Report(kind, error));
                 actions.Children.Add(details);
             }
 
@@ -412,15 +421,50 @@ internal sealed partial class WidgetCard
 
         public bool Paused { get; }
 
-        private static void ShowDetails(FrameworkElement anchor, string text)
+        /// <summary>
+        /// [S-891] The error and a Copy button. A windowed popup, not one inside the surface: outside
+        /// edit mode the surface's region is the cards' own rects ([S-851]), and a flyout inside it
+        /// was cut off at the card's edge.
+        /// </summary>
+        private static void ShowDetails(FrameworkElement anchor, string text, string report)
         {
             var body = Fluent.Text(FluentType.Body, "TextFillColorPrimaryBrush");
             body.Text = text;
             body.TextWrapping = TextWrapping.Wrap;
             body.IsTextSelectionEnabled = true;
-            body.MaxWidth = 320;
 
-            new Flyout { Content = body, Placement = FlyoutPlacementMode.Bottom }.ShowAt(anchor);
+            var copy = new Button
+            {
+                Content = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Spacing = Fluent.Space2,
+                    Children = { Fluent.Icon(Glyphs.Copy, "TextFillColorPrimaryBrush", FluentType.Body.FontSize), new TextBlock { Text = Str.Common_Copy.Text() } },
+                },
+                HorizontalAlignment = HorizontalAlignment.Left,
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(copy, Str.Common_Copy.Text());
+            copy.Click += (_, _) =>
+            {
+                // ClipboardWatcher logs the Win32 reason when another app holds the clipboard.
+                if (!ClipboardWatcher.SetText(report))
+                {
+                    Log.Warn(Scope, "the error details could not be copied");
+                }
+            };
+
+            var content = new StackPanel
+            {
+                Spacing = Fluent.Space3,
+                MaxWidth = 320,
+                Children =
+                {
+                    new ScrollViewer { Content = body, MaxHeight = 240, VerticalScrollBarVisibility = ScrollBarVisibility.Auto },
+                    copy,
+                },
+            };
+
+            new Flyout { Content = content, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false }.ShowAt(anchor);
         }
     }
 }

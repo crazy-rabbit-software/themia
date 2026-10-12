@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "Tendua",
   "widgetsC.notes.editor.redo": "Rudia",
   "widgetsC.notes.editor.moreFormatting": "Uumbizaji zaidi",
-  "widgetsC.notes.words": {
-    "one": "Neno {count}",
-    "other": "Maneno {count}"
-  },
-  "widgetsC.notes.characters": {
-    "one": "Herufi {count}",
-    "other": "Herufi {count}"
-  },
-  "widgetsC.notes.saving": "Inahifadhi…",
   "widgetsC.notes.notSaved": "Haijahifadhiwa",
-  "widgetsC.notes.saved": "Imehifadhiwa",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Dokezo hili halikuweza kusomwa.",
   "widgetsC.notes.unavailable": "Madokezo hayapatikani.",
   "widgetsC.notes.chooseNote": "Chagua dokezo",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Tendua",
   "widgetsC.scratchpad.clearDrawing": "Futa mchoro",
   "widgetsC.scratchpad.clearConfirm": "Futa mchoro wote?",
+  "widgetsC.scratchpad.fullScreen": "Skrini nzima",
+  "widgetsC.scratchpad.exitFullScreen": "Toka kwenye skrini nzima",
   "widgetsC.scratchpad.penSizeTip": "Ukubwa wa kalamu {size} px",
   "widgetsC.scratchpad.settings.inks": "Wino",
   "widgetsC.scratchpad.settings.tools": "Zana",

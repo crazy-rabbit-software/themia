@@ -1,3 +1,4 @@
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -308,5 +309,56 @@ public sealed class AddMenuTests
         Assert.Null(AddMenuKeys.MoveInList(3, -1, WidgetKey.Home));
         Assert.Null(AddMenuKeys.MoveInList(3, 1, WidgetKey.Left));
         Assert.Equal(-1, AddMenuKeys.MoveInList(0, -1, WidgetKey.Down));
+    }
+
+    // ---- [S-3512] where a submenu stands ------------------------------------------------------
+
+    private static readonly PixelRect Room = new(0, 0, 1920, 1032);
+
+    [Fact]
+    public void S3512_a_submenu_opens_beside_its_row_lapping_the_column_with_its_first_row_level()
+    {
+        var spot = AddCascade.Beside(columnLeft: 100, columnRight: 340, rowTop: 200, lead: 5, width: 250, height: 300, backward: false, Room);
+
+        Assert.Equal(new PixelRect(340 - AddCascade.Overlap, 195, 250, 300), spot.Box);
+        Assert.False(spot.Backward);
+    }
+
+    [Fact]
+    public void S3512_a_submenu_with_no_room_forward_opens_backward_and_the_cascade_keeps_that_way()
+    {
+        var first = AddCascade.Beside(1600, 1840, 200, 5, 250, 300, backward: false, Room);
+        Assert.True(first.Backward);
+        Assert.Equal(1600 + AddCascade.Overlap - 250, first.Box.X);
+
+        // The next level hangs from the first and keeps running backward, though forward would fit.
+        var second = AddCascade.Beside(first.Box.X, first.Box.X + 250, 240, 5, 250, 300, first.Backward, Room);
+        Assert.True(second.Backward);
+        Assert.Equal(first.Box.X + AddCascade.Overlap - 250, second.Box.X);
+    }
+
+    [Fact]
+    public void S3512_a_backward_cascade_turns_forward_again_at_the_other_edge()
+    {
+        var spot = AddCascade.Beside(100, 340, 200, 5, 250, 300, backward: true, Room);
+
+        Assert.False(spot.Backward);
+        Assert.Equal(340 - AddCascade.Overlap, spot.Box.X);
+    }
+
+    [Fact]
+    public void S3512_a_submenu_stays_inside_the_work_area()
+    {
+        // Near the bottom it rises until it fits; taller than the work area it is cut to it.
+        var low = AddCascade.Beside(100, 340, 1000, 5, 250, 300, backward: false, Room);
+        Assert.Equal(1032 - 300, low.Box.Y);
+
+        var tall = AddCascade.Beside(100, 340, 200, 5, 250, 2000, backward: false, Room);
+        Assert.Equal(0, tall.Box.Y);
+        Assert.Equal(1032, tall.Box.Height);
+
+        // Neither side fits: the side with more room, pushed in.
+        var wide = AddCascade.Beside(800, 1040, 200, 5, 1000, 300, backward: false, new PixelRect(0, 0, 1500, 1032));
+        Assert.InRange(wide.Box.X, 0, 1500 - 1000);
     }
 }

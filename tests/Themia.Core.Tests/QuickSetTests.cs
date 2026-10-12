@@ -117,7 +117,7 @@ public sealed class QuickSetTests
     {
         var a = Widget(WidgetKind.Cpu, "a");
         var b = Widget(WidgetKind.Memory, "b");
-        var c = Widget(WidgetKind.Disk, "c");
+        var c = Widget(WidgetKind.Network, "c");
         b.Surface = WidgetSurface.Transparent;
         var (_, view, other) = State(a, b, c);
 

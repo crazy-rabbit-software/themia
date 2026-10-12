@@ -54,6 +54,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly Brush _cautionBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Orange);
     private readonly Brush _criticalBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
     private readonly Brush _successBrush = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
+    private readonly Brush _tokenBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
 
     private WidgetConfig _config;
     private SeriesWatch? _watch;
@@ -64,6 +65,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private TypeStep? _heroStep;
     private bool _badged;
     private string _shown = string.Empty;
+    private string? _token;
 
     private WidgetArea _area;
     private bool _graph;
@@ -203,6 +205,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _graph = gauge is { ShowGraph: true };
 
         _part.ApplyConfig(_config, this);
+        ShowToken();
 
         // [S-1121] The span at the series' spacing ([S-2512]: a ping point is five seconds).
         var series = _part.Series(_config);
@@ -217,6 +220,23 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         }
 
         Lay();
+    }
+
+    /// <summary>[S-1161] The kind's word after the reading (the disk's drive), laid again only when it changed.</summary>
+    private void ShowToken()
+    {
+        var token = _part.Token;
+        if (token == _token)
+        {
+            return;
+        }
+
+        _token = token;
+        // The kind's glyph before the word, so "C:" does not read as the end of the unit.
+        _reading.SetTrailing(token is null
+            ? []
+            : [WidgetParts.Run("  ", _tokenBrush), WidgetParts.GlyphRun(WidgetCatalog.Definition(_kind).Glyph, _tokenBrush), WidgetParts.Run(" " + token, _tokenBrush)]);
+        _heroStep = null;
     }
 
     /// <summary>

@@ -84,6 +84,9 @@ internal static class Glyphs
     public static readonly string Link = From(0xE71B);
     public static readonly string Wrap = From(0xE751); // [S-652] E7A3 is not in the font: a return arrow
     public static readonly string Clear = From(0xE894);
+    public static readonly string EraseTool = From(0xE75C);
+    public static readonly string FullScreen = From(0xE740);
+    public static readonly string BackToWindow = From(0xE73F);
     public static readonly string MoveUp = From(0xE74A);
     public static readonly string MoveDown = From(0xE74B);
     public static readonly string Folder = From(0xE8B7);

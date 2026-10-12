@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "Annuler",
   "widgetsC.notes.editor.redo": "Rétablir",
   "widgetsC.notes.editor.moreFormatting": "Plus de mise en forme",
-  "widgetsC.notes.words": {
-    "one": "{count} mot",
-    "other": "{count} mots"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} caractère",
-    "other": "{count} caractères"
-  },
-  "widgetsC.notes.saving": "Enregistrement…",
   "widgetsC.notes.notSaved": "Non enregistré",
-  "widgetsC.notes.saved": "Enregistré",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Impossible de lire cette note.",
   "widgetsC.notes.unavailable": "Les notes ne sont pas disponibles.",
   "widgetsC.notes.chooseNote": "Choisir une note",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Annuler",
   "widgetsC.scratchpad.clearDrawing": "Effacer le dessin",
   "widgetsC.scratchpad.clearConfirm": "Effacer tout le dessin ?",
+  "widgetsC.scratchpad.fullScreen": "Plein écran",
+  "widgetsC.scratchpad.exitFullScreen": "Quitter le plein écran",
   "widgetsC.scratchpad.penSizeTip": "Taille du stylet {size} px",
   "widgetsC.scratchpad.settings.inks": "Encres",
   "widgetsC.scratchpad.settings.tools": "Outils",

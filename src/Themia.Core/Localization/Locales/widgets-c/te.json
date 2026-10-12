@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "రద్దు చేయి",
   "widgetsC.notes.editor.redo": "మళ్లీ చేయి",
   "widgetsC.notes.editor.moreFormatting": "మరింత ఫార్మాటింగ్",
-  "widgetsC.notes.words": {
-    "one": "{count} పదం",
-    "other": "{count} పదాలు"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count} అక్షరం",
-    "other": "{count} అక్షరాలు"
-  },
-  "widgetsC.notes.saving": "సేవ్ అవుతోంది…",
   "widgetsC.notes.notSaved": "సేవ్ కాలేదు",
-  "widgetsC.notes.saved": "సేవ్ చేయబడింది",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "ఈ గమనికను చదవడం సాధ్యం కాలేదు.",
   "widgetsC.notes.unavailable": "గమనికలు అందుబాటులో లేవు.",
   "widgetsC.notes.chooseNote": "గమనికను ఎంచుకోండి",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "రద్దు చేయి",
   "widgetsC.scratchpad.clearDrawing": "డ్రాయింగ్‌ను క్లియర్ చేయి",
   "widgetsC.scratchpad.clearConfirm": "మొత్తం డ్రాయింగ్‌ను క్లియర్ చేయాలా?",
+  "widgetsC.scratchpad.fullScreen": "పూర్తి స్క్రీన్",
+  "widgetsC.scratchpad.exitFullScreen": "పూర్తి స్క్రీన్ నుండి నిష్క్రమించు",
   "widgetsC.scratchpad.penSizeTip": "పెన్ పరిమాణం {size} px",
   "widgetsC.scratchpad.settings.inks": "సిరాలు",
   "widgetsC.scratchpad.settings.tools": "సాధనాలు",

@@ -77,10 +77,13 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private string? _shownId;
     private NoteState _state = NoteState.Unbound;
     private WidgetArea _area;
-    private NotesLayoutPlan _plan = new(false, false, 0, NotesLayout.MinTextLines);
+    private NotesLayoutPlan _plan = new(false, 0, NotesLayout.MinTextLines);
     private bool _dirty;
     private bool _resolving;
     private bool _editorFocused;
+
+    // [S-1362] The note's last write failed: the status line says so.
+    private bool _notSaved;
 
     /// <summary>[S-3963] The "More" menu is open: the bar stays while the note's focus is in it.</summary>
     private bool _moreOpen;
@@ -170,8 +173,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     /// <summary>
     /// [S-129] A Windows 11 text field with no chrome at rest, so the note reads as writing on the
     /// card — and [S-3962] none under the pointer either: the field does not light up as the pointer
-    /// crosses it. Focus keeps the stock subtle fill and the accent line, so the keyboard's place is
-    /// still shown and the note still reads as something you are typing in.
+    /// crosses it. Focus keeps only the stock subtle fill, so the note still reads as something you
+    /// are typing in: no accent frame or line round it (user requirement), the caret says where the
+    /// keys go.
     /// <para>
     /// The brushes are replaced through the control's own resource keys, not through its
     /// <c>Background</c>: the stock template's visual states assign the pointer-over and focused
@@ -185,7 +189,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         var box = _editor.Box;
         var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
         var focusFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-        var focus = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
         box.Resources["TextControlBackground"] = clear;
         box.Resources["TextControlBackgroundPointerOver"] = clear;
@@ -197,9 +200,12 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         box.Resources["TextControlBorderBrushPointerOver"] = clear;
         box.Resources["TextControlBorderBrushDisabled"] = clear;
 
-        // The one piece of chrome that stays: the accent line under a focused field says where the
-        // caret went.
-        box.Resources["TextControlBorderBrushFocused"] = focus;
+        // No frame on focus either: the focused state draws the accent through its own elevation
+        // brush and thickness, past the box's BorderThickness, so those keys are cleared too.
+        box.Resources["TextControlBorderBrushFocused"] = clear;
+        box.Resources["TextControlElevationBorderFocusedBrush"] = clear;
+        box.Resources["TextControlBorderThemeThicknessFocused"] = new Thickness(0);
+        box.UseSystemFocusVisuals = false;
 
         box.BorderThickness = new Thickness(0);
         box.CornerRadius = new CornerRadius(Fluent.ControlRadius);
@@ -415,14 +421,12 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         if (_detached || _state != NoteState.Ready)
         {
-            // A preview's draft has nowhere to go; only its word count follows the typing.
-            UpdateStatus();
+            // A preview's draft has nowhere to go.
             return;
         }
 
         _dirty = true;
         _saveTimer?.Start(); // restarts the countdown, so a run of keystrokes is one write
-        UpdateStatus();
     }
 
     /// <summary>
@@ -480,20 +484,21 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         }
     }
 
-    /// <summary>[S-1362] Words, and at wide sizes characters and whether it is on disk yet.</summary>
+    /// <summary>
+    /// [S-1362] "Not saved" while the note's last write failed, and nothing at all otherwise: no
+    /// word or character count, no "Saved" (user requirement). The line takes a rung of the ladder,
+    /// so a change of state lays the body out again.
+    /// </summary>
     private void UpdateStatus()
     {
-        if (!_plan.Status || !Editable)
+        var failed = _state == NoteState.Ready && _pool?.WriteFailed == true;
+        if (failed != _notSaved)
         {
-            _status.Text = string.Empty;
-            return;
+            _notSaved = failed;
+            Lay();
         }
 
-        var save = _dirty || _pool?.Saving == true ? NoteSaveState.Saving
-            : _pool?.WriteFailed == true ? NoteSaveState.Failed
-            : NoteSaveState.Saved;
-
-        _status.Text = NoteText.Status(NoteText.Count(_editor.Text), _plan.StatusDetail, save);
+        _status.Text = Str.WidgetsC_Notes_NotSaved.Text();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -510,14 +515,13 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         // A line of the note at its size: the type ramp's leading for body text, scaled.
         var lineHeight = _config.EffectiveFontSizePx * FluentType.Body.LineHeight / FluentType.Body.FontSize;
-        _plan = NotesLayout.Plan(_area, WidgetLayout.ContentInset, Fluent.Space2, lineHeight, FluentType.Caption.LineHeight);
+        _plan = NotesLayout.Plan(_area, WidgetLayout.ContentInset, Fluent.Space2, lineHeight, FluentType.Caption.LineHeight, _notSaved);
 
         _editor.FlatHeadings = _area.WidthClass == SizeClass.Compact;
-        _status.Visibility = _plan.Status && Editable ? Visibility.Visible : Visibility.Collapsed;
+        _status.Visibility = _plan.Status ? Visibility.Visible : Visibility.Collapsed;
 
         UpdatePicker();
         UpdateBar();
-        UpdateStatus();
     }
 
     /// <summary>

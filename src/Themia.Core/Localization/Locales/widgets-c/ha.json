@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "Soke",
   "widgetsC.notes.editor.redo": "Maimaita",
   "widgetsC.notes.editor.moreFormatting": "Ƙarin tsarawa",
-  "widgetsC.notes.words": {
-    "one": "Kalma {count}",
-    "other": "Kalmomi {count}"
-  },
-  "widgetsC.notes.characters": {
-    "one": "Harafi {count}",
-    "other": "Haruffa {count}"
-  },
-  "widgetsC.notes.saving": "Ana ajiyewa…",
   "widgetsC.notes.notSaved": "Ba a ajiye ba",
-  "widgetsC.notes.saved": "An ajiye",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "Ba a iya karanta wannan bayani ba.",
   "widgetsC.notes.unavailable": "Babu bayanai.",
   "widgetsC.notes.chooseNote": "Zaɓi bayani",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "Soke",
   "widgetsC.scratchpad.clearDrawing": "Share zanen",
   "widgetsC.scratchpad.clearConfirm": "Share duk zanen?",
+  "widgetsC.scratchpad.fullScreen": "Cikakken allo",
+  "widgetsC.scratchpad.exitFullScreen": "Fita daga cikakken allo",
   "widgetsC.scratchpad.penSizeTip": "Girman alƙalami {size} px",
   "widgetsC.scratchpad.settings.inks": "Tawada",
   "widgetsC.scratchpad.settings.tools": "Kayan aiki",

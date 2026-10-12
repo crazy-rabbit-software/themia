@@ -1,4 +1,3 @@
-using Themia.Core.Localization;
 using Themia.Core.Notes;
 using Xunit;
 
@@ -454,32 +453,4 @@ public sealed class NoteEditingTests
     [Fact]
     public void S1361_no_change_redraws_nothing()
         => Assert.Empty(NoteText.LinesToRedraw("a", NoteMarkdown.Parse("a"), "a", NoteMarkdown.Parse("a")));
-
-    // -- status -------------------------------------------------------------------------------
-
-    [Fact]
-    public void S1362_words_skip_markers_and_characters_skip_newlines()
-    {
-        Assert.Equal(new NoteCounts(3, 20), NoteText.Count("- [ ] buy milk\n---\nnow"));
-        Assert.Equal(new NoteCounts(0, 0), NoteText.Count(string.Empty));
-        Assert.Equal(new NoteCounts(1, 2), NoteText.Count("a\U0001F600"));
-    }
-
-    [Fact]
-    public void S1362_status_reads_short_then_long()
-    {
-        Assert.Equal("1 word", NoteText.Status(Locale.En, new NoteCounts(1, 4), detail: false, NoteSaveState.Saved));
-        Assert.Equal("12 words · 1 character · Saving…", NoteText.Status(Locale.En, new NoteCounts(12, 1), detail: true, NoteSaveState.Saving));
-        Assert.Equal("0 words · 0 characters · Not saved", NoteText.Status(Locale.En, new NoteCounts(0, 0), detail: true, NoteSaveState.Failed));
-        Assert.Equal("1,234 words · 5,678 characters · Saved", NoteText.Status(Locale.En, new NoteCounts(1234, 5678), detail: true, NoteSaveState.Saved));
-    }
-
-    [Fact]
-    public void S1362_status_is_in_the_language_with_its_plurals_and_digit_grouping()
-    {
-        Assert.Equal("1 Wort", NoteText.Status(Locale.De, new NoteCounts(1, 4), detail: false, NoteSaveState.Saved));
-        Assert.Equal("1.234 Wörter · 1 Zeichen · Nicht gespeichert", NoteText.Status(Locale.De, new NoteCounts(1234, 1), detail: true, NoteSaveState.Failed));
-        Assert.Equal("5 słów", NoteText.Status(Locale.Pl, new NoteCounts(5, 0), detail: false, NoteSaveState.Saved));
-        Assert.Equal("3 słowa", NoteText.Status(Locale.Pl, new NoteCounts(3, 0), detail: false, NoteSaveState.Saved));
-    }
 }

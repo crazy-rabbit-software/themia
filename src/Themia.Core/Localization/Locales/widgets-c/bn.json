@@ -5,18 +5,7 @@
   "widgetsC.notes.editor.undo": "পূর্বাবস্থায় ফেরান",
   "widgetsC.notes.editor.redo": "আবার করুন",
   "widgetsC.notes.editor.moreFormatting": "আরও ফরম্যাটিং",
-  "widgetsC.notes.words": {
-    "one": "{count}টি শব্দ",
-    "other": "{count}টি শব্দ"
-  },
-  "widgetsC.notes.characters": {
-    "one": "{count}টি অক্ষর",
-    "other": "{count}টি অক্ষর"
-  },
-  "widgetsC.notes.saving": "সংরক্ষণ হচ্ছে…",
   "widgetsC.notes.notSaved": "সংরক্ষিত হয়নি",
-  "widgetsC.notes.saved": "সংরক্ষিত",
-  "widgetsC.notes.statusDetail": "{words} · {characters} · {state}",
   "widgetsC.notes.unreadable": "এই নোটটি পড়া যায়নি।",
   "widgetsC.notes.unavailable": "নোট উপলব্ধ নয়।",
   "widgetsC.notes.chooseNote": "একটি নোট বেছে নিন",
@@ -110,6 +99,8 @@
   "widgetsC.scratchpad.undo": "পূর্বাবস্থায় ফেরান",
   "widgetsC.scratchpad.clearDrawing": "আঁকা মুছে দিন",
   "widgetsC.scratchpad.clearConfirm": "পুরো আঁকা মুছে দেবেন?",
+  "widgetsC.scratchpad.fullScreen": "পূর্ণ স্ক্রিন",
+  "widgetsC.scratchpad.exitFullScreen": "পূর্ণ স্ক্রিন থেকে বের হন",
   "widgetsC.scratchpad.penSizeTip": "কলমের আকার {size} px",
   "widgetsC.scratchpad.settings.inks": "কালি",
   "widgetsC.scratchpad.settings.tools": "টুল",

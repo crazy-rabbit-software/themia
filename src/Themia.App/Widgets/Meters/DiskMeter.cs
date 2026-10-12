@@ -9,8 +9,9 @@ namespace Themia.App.Widgets.Meters;
 
 /// <summary>
 /// [S-1820]..[S-1822] Disk activity: the drive's reads and writes together, per second, as the
-/// reading and as the chart — of the drive the settings name, or of every drive. The header names
-/// the drive as Explorer does, and the card's menu opens it.
+/// reading and as the chart — of the drive the settings name, or of every drive. [S-1161] The
+/// reading names the drive by its letter, as the meter starts headerless ([S-700]); a header names
+/// it as Explorer does, and the card's menu opens it.
 /// <para>
 /// [S-1820] Space used is not shown (user requirement): it barely moves, and the question a disk
 /// meter on the desktop answers is "is the disk busy", not "is it full" — File Explorer says that.
@@ -23,8 +24,11 @@ internal sealed class DiskMeter : MeterPart
 
     public override WidgetKind Kind => WidgetKind.Disk;
 
-    /// <summary>"1.2 MB/s", as the network meter's.</summary>
-    public override double ReadingCharacters => 8;
+    /// <summary>"1.2 MB/s", as the network meter's, and the drive after it.</summary>
+    public override double ReadingCharacters => 8 + 4 + (Token?.Length ?? 0);
+
+    /// <summary>[S-1161] "C:", or "All drives": which throughput this is, with no header to say so.</summary>
+    public override string? Token => _config.Scope == DiskScope.AllDrives ? Str.WidgetsB_Disk_AllDrives.Text() : DiskRules.Instance(_root);
 
     /// <summary>[S-1821] Against the window's peak, rounded up to a doubling of 1 MB/s.</summary>
     public override ChartScale Scale => DiskRules.Scale;
