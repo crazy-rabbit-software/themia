@@ -366,10 +366,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     // -----------------------------------------------------------------------------------------
 
     /// <summary>[S-568] The days the layout covers, which is what is fetched.</summary>
-    private (DateOnly First, DateOnly Last) Range() => CalendarRules.ViewRange(Layout, _anchor, Today, _config.EffectiveWeekStart);
+    private (DateOnly First, DateOnly Last) Range() => CalendarRules.ViewRange(Layout, _anchor, Today, _config.Period);
 
     /// <summary>Whether a day is in the period on screen, so the today button can hide when it would do nothing.</summary>
-    private bool InView(DateOnly day) => CalendarRules.InView(Layout, _anchor, Today, _config.EffectiveWeekStart, day);
+    private bool InView(DateOnly day) => CalendarRules.InView(Layout, _anchor, Today, _config.Period, day);
 
     /// <summary>Whether the today button would do anything: today is off screen, or the agenda is past its first page.</summary>
     private bool AwayFromToday => Layout == CalendarLayout.Agenda ? _agendaPage > 0 : !InView(Today);
@@ -384,7 +384,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
             return;
         }
 
-        _anchor = CalendarRules.Step(Layout, _anchor, direction);
+        _anchor = CalendarRules.Step(Layout, _anchor, direction, _config.Period);
 
         // Paging back to the period holding today picks following it up again.
         _followToday = InView(Today);
@@ -505,7 +505,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         ToolTipService.SetToolTip(_warning, _warningText?.Invoke());
 
         // [S-568] The period is the header's title; the agenda's is its widget name.
-        var title = ready ? CalendarRules.Title(Layout, _anchor, _config.EffectiveWeekStart, Strings.Current) : string.Empty;
+        var title = ready ? CalendarRules.Title(Layout, _anchor, Today, _config.Period, Strings.Current) : string.Empty;
         _surface?.SetHeaderTitle(title.Length > 0 ? title : null);
 
         switch (_screen)
@@ -713,6 +713,34 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     };
 
     private static string Title(CalendarEvent item) => string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject;
+
+    /// <summary>
+    /// [S-2717] Whether a one-line text runs past <paramref name="width"/>: a title that would take a
+    /// second line if it had one. Measured as drawn (its step, weight and language).
+    /// </summary>
+    private static bool Overflows(TextBlock text, double width)
+    {
+        if (!(width > 0) || string.IsNullOrEmpty(text.Text))
+        {
+            return false;
+        }
+
+        var trimming = text.TextTrimming;
+        text.Language = UiLanguage.Tag(Strings.Current);
+        text.TextTrimming = TextTrimming.None;
+        text.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        var wide = text.DesiredSize.Width > width + Disclosure.Tolerance;
+        text.TextTrimming = trimming;
+        return wide;
+    }
+
+    /// <summary>[S-2717] A title given its second line: it wraps by word and ends in an ellipsis after it.</summary>
+    private static void WrapTitle(TextBlock text)
+    {
+        text.TextWrapping = TextWrapping.WrapWholeWords;
+        text.MaxLines = CalendarFit.MaxTitleLines;
+        text.TextTrimming = TextTrimming.CharacterEllipsis;
+    }
 
     private static string Clock(DateTimeOffset moment) => Formatting.Clock24(moment);
 

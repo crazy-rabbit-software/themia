@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "جگہ اور تاریخ کا سائز",
+  "clockText.sizeDesc": "جگہ، تاریخ اور وقت کے فرق کی لائن کتنی بڑی ہو",
+  "clockText.small": "چھوٹا",
+  "clockText.large": "بڑا",
+  "dateWidget.label": "تاریخ",
+  "dateWidget.desc": "آج کا دن اور تاریخ، وال پیپر کے لیے بنایا گیا",
+  "dateWidget.showYear": "سال دکھائیں",
+  "variants.visualizer.scope.label": "لہر کی شکل",
+  "variants.visualizer.scope.desc": "ایک لکیر جو آسیلوسکوپ کی طرح خود آواز کو کھینچتی ہے",
+  "planner.label": "ہفتہ وار منصوبہ ساز",
+  "planner.desc": "آنے والے دن اپنے ایونٹس کے ساتھ، اور آج کیا واجب ہے",
+  "planner.tasksHeader": "آج کے کام",
+  "planner.showTasks": "آج کے کام دکھائیں",
+  "planner.showTasksDesc": "آج واجب یا تاخیر شدہ کام، آج کے ایونٹس کے نیچے",
+  "planner.taskAccount": "کام یہاں سے",
+  "planner.taskAccountFirst": "کاموں والا پہلا اکاؤنٹ",
+  "planner.free": "کچھ بھی طے نہیں"
+}

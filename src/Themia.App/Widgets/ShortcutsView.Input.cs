@@ -430,7 +430,7 @@ internal sealed partial class ShortcutsView
         var selected = Selected();
         var many = selected.Count > 1 && selected.Contains(cell);
 
-        foreach (var entry in ShortcutRules.Menu(cell.Target, many ? selected.Count : 1, cell.Item.Layout))
+        foreach (var entry in ShortcutRules.Menu(cell.Target, many ? selected.Count : 1, cell.Item.Layout, RecycleBinStatus.CanEmpty))
         {
             if (entry.Command is not { } command)
             {
@@ -450,10 +450,22 @@ internal sealed partial class ShortcutsView
                 ShortcutCommand.CopyPath => new(Glyphs.Copy, Str.Shortcut_CopyPath.Text(), () => Copy(cell.Target.Value)),
                 ShortcutCommand.OpenFileLocation => new(Glyphs.Folder, Str.Shortcut_OpenFileLocation.Text(), () => Reveal(cell)),
                 ShortcutCommand.Rename => new(Glyphs.Rename, Str.Common_Rename.Text(), () => BeginRename(cell), Disabled: entry.Disabled, Quick: QuickCommand.Rename),
+
+                // [S-4864] The Recycle Bin widget's own Empty ([S-4863]): Windows asks first.
+                ShortcutCommand.EmptyRecycleBin => new(Glyphs.RecycleBin, Str.RecycleBin_EmptyEllipsis.Text(), EmptyBin, Disabled: entry.Disabled),
                 _ => new(Glyphs.Delete,
                     many ? Str.WidgetsC_Shortcuts_Menu_RemoveMany.Plural(selected.Count) : Str.Common_Remove.Text(),
                     () => Remove(many ? selected : [cell]), Danger: true),
             };
+        }
+    }
+
+    /// <summary>[S-4864] Empty the bin through the one implementation ([S-4863]). Inert in a preview card.</summary>
+    private void EmptyBin()
+    {
+        if (!_detached && _surfaceHost?.IsPreview != true)
+        {
+            _ = RecycleBinStatus.EmptyAsync();
         }
     }
 

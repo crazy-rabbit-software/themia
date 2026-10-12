@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Taille du lieu et de la date",
+  "clockText.sizeDesc": "Taille du lieu, de la date et de la ligne de décalage",
+  "clockText.small": "Petite",
+  "clockText.large": "Grande",
+  "dateWidget.label": "Date",
+  "dateWidget.desc": "Le jour de la semaine et la date du jour, pensés pour le fond d’écran",
+  "dateWidget.showYear": "Afficher l’année",
+  "variants.visualizer.scope.label": "Forme d’onde",
+  "variants.visualizer.scope.desc": "Une ligne qui trace le son lui-même, comme un oscilloscope",
+  "planner.label": "Planning de la semaine",
+  "planner.desc": "Les prochains jours avec leurs événements, et ce qui est à faire aujourd’hui",
+  "planner.tasksHeader": "Tâches du jour",
+  "planner.showTasks": "Afficher les tâches du jour",
+  "planner.showTasksDesc": "Tâches à faire aujourd’hui ou en retard, sous les événements du jour",
+  "planner.taskAccount": "Tâches de",
+  "planner.taskAccountFirst": "Le premier compte avec des tâches",
+  "planner.free": "Rien de prévu"
+}

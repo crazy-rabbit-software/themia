@@ -157,6 +157,8 @@ internal static class WidgetCatalog
     public static readonly IReadOnlyList<WidgetDefinition> All =
     [
         new(WidgetKind.Clock, Str.Widget_Clock_Label, Str.WidgetsA_Catalog_Clock_Description, Glyphs.Clock, 280, 140),
+        // [S-5300] The date without the time, beside the clock.
+        new(WidgetKind.Date, Str.DateWidget_Label, Str.DateWidget_Desc, Glyphs.Date, 240, 200),
         new(WidgetKind.Cpu, Str.WidgetsA_Catalog_Cpu_Label, Str.WidgetsA_Catalog_Cpu_Description, Glyphs.Cpu, 200, 150),
         new(WidgetKind.Memory, Str.WidgetsA_Catalog_Memory_Label, Str.WidgetsA_Catalog_Memory_Description, Glyphs.Memory, 200, 150),
         new(WidgetKind.Disk, Str.WidgetsA_Catalog_Disk_Label, Str.WidgetsA_Catalog_Disk_Description, Glyphs.Disk, 200, 150),
@@ -189,6 +191,8 @@ internal static class WidgetCatalog
         new(WidgetKind.YearCalendar, Str.WidgetsC_CalYear_Label, Str.WidgetsC_CalYear_Desc, Glyphs.CalendarYear, 420, 300),
         new(WidgetKind.Agenda, Str.WidgetsC_Agenda_Label, Str.WidgetsC_Agenda_Desc, Glyphs.Agenda, 320, 300),
         new(WidgetKind.NextMeeting, Str.Meeting_Label, Str.Meeting_Desc, Glyphs.Meeting, 320, 200),
+        // [S-5320] The days ahead and today's tasks, beside the calendars.
+        new(WidgetKind.WeekPlanner, Str.Planner_Label, Str.Planner_Desc, Glyphs.WeekPlanner, 480, 280),
         new(WidgetKind.Tasks, Str.WidgetsA_Catalog_Tasks_Label, Str.WidgetsA_Catalog_Tasks_Description, Glyphs.Task, 320, 320),
         new(WidgetKind.Contacts, Str.Widget_Contacts_Label, Str.WidgetsA_Catalog_Contacts_Description, Glyphs.Contact, 320, 260),
         new(WidgetKind.Notes, Str.Widget_Notes_Label, Str.WidgetsA_Catalog_Notes_Description, Glyphs.Note, 300, 220),
@@ -238,12 +242,13 @@ internal static class WidgetCatalog
         new(WidgetKind.GameModeToggle, Str.Toggles_GameMode_Label, Str.Toggles_GameMode_Desc, Glyphs.GameMode, 120, 120),
         new(WidgetKind.Bluetooth, Str.Widget_Bluetooth_Label, Str.WidgetsA_Catalog_Bluetooth_Description, Glyphs.Bluetooth, 300, 240),
         new(WidgetKind.Music, Str.WidgetsA_Catalog_Music_Label, Str.WidgetsA_Catalog_Music_Description, Glyphs.Music, 340, 160),
-        // [S-3200] [S-3210] The spectrum, split out of Music, beside it: five designs, five widgets.
+        // [S-3200] [S-3210] The spectrum, split out of Music, beside it: six designs, six widgets.
         new(WidgetKind.AudioVisualizer, Str.Variants_Visualizer_Bars_Label, Str.Variants_Visualizer_Bars_Desc, Glyphs.Visualizer, 320, 160),
         new(WidgetKind.VisualizerMirror, Str.Variants_Visualizer_Mirror_Label, Str.Variants_Visualizer_Mirror_Desc, Glyphs.VisualizerMirror, 320, 160),
         new(WidgetKind.VisualizerWave, Str.Variants_Visualizer_Wave_Label, Str.Variants_Visualizer_Wave_Desc, Glyphs.VisualizerWave, 320, 160),
         new(WidgetKind.VisualizerDots, Str.Variants_Visualizer_Dots_Label, Str.Variants_Visualizer_Dots_Desc, Glyphs.VisualizerDots, 320, 160),
         new(WidgetKind.VisualizerRadial, Str.Variants_Visualizer_Radial_Label, Str.Variants_Visualizer_Radial_Desc, Glyphs.VisualizerRadial, 240, 240),
+        new(WidgetKind.VisualizerScope, Str.Variants_Visualizer_Scope_Label, Str.Variants_Visualizer_Scope_Desc, Glyphs.VisualizerScope, 320, 160),
         new(WidgetKind.WeatherNow, Str.Widget_WeatherCurrent_Label, Str.WidgetsA_Catalog_Weather_Description, Glyphs.Weather, 260, 200),
         new(WidgetKind.WeatherForecast, Str.WidgetsA_Catalog_Forecast_Label, Str.WidgetsA_Catalog_Forecast_Description, Glyphs.Forecast, 380, 220),
         new(WidgetKind.Stocks, Str.Widget_Stocks_Label, Str.WidgetsA_Catalog_Stocks_Description, Glyphs.Stocks, 320, 240),
@@ -315,6 +320,7 @@ internal static class WidgetCatalog
     public static FrameworkElement CreateView(WidgetKind kind) => kind switch
     {
         WidgetKind.Clock => new ClockView(),
+        WidgetKind.Date => new DateView(),
         WidgetKind.Cpu or WidgetKind.Memory or WidgetKind.Disk
             or WidgetKind.Battery or WidgetKind.Network or WidgetKind.Ping => new MeterView(kind),
         WidgetKind.Gpu => new GpuView(),
@@ -344,6 +350,7 @@ internal static class WidgetCatalog
         WidgetKind.Moon => new MoonView(),
         WidgetKind.YearProgress => new YearProgressView(),
         WidgetKind.NextMeeting => new NextMeetingView(),
+        WidgetKind.WeekPlanner => new WeekPlannerView(),
         WidgetKind.RecentFiles => new RecentFilesView(),
         WidgetKind.RecycleBin => new RecycleBinView(),
         WidgetKind.Folder or WidgetKind.FolderDetails or WidgetKind.FolderGrid or WidgetKind.FolderIcons => new FolderView(kind),

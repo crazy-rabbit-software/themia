@@ -78,6 +78,29 @@ internal sealed partial class AppHost
         Log.Info(Scope, enabled ? "entered edit mode" : "left edit mode");
     }
 
+    /// <summary>
+    /// [S-1998] The add menu from the keyboard (Ctrl+Alt+Shift+W anywhere, Ctrl+N in edit mode): edit
+    /// mode on, a placement in progress dropped, and the menu opened on the display under the
+    /// pointer, as a paste lands there ([S-74]). One path for both keys.
+    /// </summary>
+    public void OpenAddMenu()
+    {
+        if ((SurfaceUnderCursor() ?? _windows.FirstOrDefault()) is not { } surface)
+        {
+            Log.Warn(Scope, "no display to open the add menu on");
+            return;
+        }
+
+        SetEditMode(true);
+
+        if (Placing is not null)
+        {
+            CancelPlacement();
+        }
+
+        surface.OpenAddMenuFromKeys();
+    }
+
     /// <summary>[S-19] Show a view on one display. See <see cref="AppState.ShowViewOn"/>.</summary>
     public void ShowView(string monitorId, string viewId)
         => Mutate(state => state.ShowViewOn(monitorId, viewId));

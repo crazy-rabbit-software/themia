@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Laki ng lugar at petsa",
+  "clockText.sizeDesc": "Gaano kalaki ang lugar, ang petsa at ang linya ng offset",
+  "clockText.small": "Maliit",
+  "clockText.large": "Malaki",
+  "dateWidget.label": "Petsa",
+  "dateWidget.desc": "Ang araw ng linggo at petsa ngayon, ginawa para sa wallpaper",
+  "dateWidget.showYear": "Ipakita ang taon",
+  "variants.visualizer.scope.label": "Waveform",
+  "variants.visualizer.scope.desc": "Isang linyang gumuguhit ng mismong tunog, gaya ng oscilloscope",
+  "planner.label": "Planner ng linggo",
+  "planner.desc": "Ang mga susunod na araw kasama ang kanilang mga event, at ang dapat tapusin ngayon",
+  "planner.tasksHeader": "Mga gawain ngayon",
+  "planner.showTasks": "Ipakita ang mga gawain ngayon",
+  "planner.showTasksDesc": "Mga gawaing due ngayon o overdue, sa ilalim ng mga event ngayon",
+  "planner.taskAccount": "Mga gawain mula sa",
+  "planner.taskAccountFirst": "Ang unang account na may mga gawain",
+  "planner.free": "Walang nakaplano"
+}

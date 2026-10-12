@@ -21,7 +21,7 @@ public class WidgetSetupTests
         WidgetKind.Countdown, WidgetKind.Rss, WidgetKind.Stocks, WidgetKind.WeatherNow, WidgetKind.WeatherForecast, WidgetKind.AirQuality, WidgetKind.RainNextHour,
         WidgetKind.VideoStream, WidgetKind.Gallery,
         WidgetKind.Email, WidgetKind.MonthCalendar, WidgetKind.WeekCalendar, WidgetKind.DayCalendar, WidgetKind.YearCalendar, WidgetKind.Agenda, WidgetKind.NextMeeting,
-        WidgetKind.Contacts, WidgetKind.Tasks,
+        WidgetKind.WeekPlanner, WidgetKind.Contacts, WidgetKind.Tasks,
     ];
 
     [Fact]

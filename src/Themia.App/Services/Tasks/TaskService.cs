@@ -65,6 +65,9 @@ internal sealed class TaskFeed
     /// <summary>When what is drawn was synced.</summary>
     public DateTimeOffset? FetchedAt => IsToday ? Owner.LastSync : Owner.At(ListId);
 
+    /// <summary>[S-614] The account's lists as last read, renames still on their way included; null before the first read.</summary>
+    public IReadOnlyList<TaskListInfo>? Lists => Owner.Lists;
+
     public event Action? Changed;
 
     internal int Holders { get; set; }
@@ -233,7 +236,7 @@ internal sealed class TaskService : IDisposable
             return Task.CompletedTask; // no real id to write to yet
         }
 
-        return feed.Owner.Enqueue(completed ? PendingKind.TaskComplete : PendingKind.TaskReopen, task.Id, task.ListId, null, null, TaskEdit.Complete(task.Id, completed));
+        return feed.Owner.Enqueue(completed ? PendingKind.TaskComplete : PendingKind.TaskReopen, task.Id, task.ListId, null, null, TaskEdit.Complete(task.Id, completed, DateTimeOffset.UtcNow));
     }
 
     /// <summary>[S-600] Rename a task. A blank or unchanged title writes nothing.</summary>
@@ -249,6 +252,24 @@ internal sealed class TaskService : IDisposable
         }
 
         return feed.Owner.Enqueue(PendingKind.TaskRename, task.Id, task.ListId, clean, null, TaskEdit.Rename(task.Id, clean));
+    }
+
+    /// <summary>
+    /// [S-614] Rename an account list. Queued and in order like every task change ([S-2610]): the new
+    /// name shows at once (the header, Today's row names, every widget on the account), waits offline,
+    /// and a refusal puts the old one back and says why. A blank or unchanged name, Today and To Do's
+    /// own lists write nothing.
+    /// </summary>
+    public Task RenameListAsync(string accountId, TaskListInfo list, string name)
+    {
+        ArgumentNullException.ThrowIfNull(list);
+
+        if (!TaskRules.CanRename(list) || TaskRules.RenameTo(list.Name, name) is not { } clean || BoxFor(accountId) is not { } box)
+        {
+            return Task.CompletedTask;
+        }
+
+        return box.Enqueue(PendingKind.TaskListRename, list.Id, list.Id, clean, null, null);
     }
 
     /// <summary>[S-597] Delete a task; a refusal puts it back where it was.</summary>
@@ -475,6 +496,14 @@ internal sealed class TaskService : IDisposable
         private readonly Dictionary<string, long> _tickets = new(StringComparer.Ordinal);
         private readonly Dictionary<string, TaskCompletionSource<TaskItem?>> _creates = new(StringComparer.Ordinal);
         private List<PendingWrite> _pending = [];
+
+        /// <summary>
+        /// [S-614] Renames the provider confirmed, by the list clock: kept on top of the lists until a
+        /// read that started after the confirmation lands, so a racing read cannot flash the old name.
+        /// </summary>
+        private readonly List<(string ListId, string Name, long ConfirmedAt)> _listRenames = [];
+        private IReadOnlyList<TaskListInfo>? _lists;
+        private long _listClock;
         private DateTimeOffset? _listsAt;
         private bool _writing;
         private bool _again;
@@ -492,7 +521,13 @@ internal sealed class TaskService : IDisposable
 
         public SyncSchedule Schedule { get; } = new(DefaultInterval);
 
-        public IReadOnlyList<TaskListInfo>? Lists { get; private set; }
+        /// <summary>The lists as last read, with the renames still queued or not yet read back on top ([S-614]).</summary>
+        public IReadOnlyList<TaskListInfo>? Lists => _lists is null
+            ? null
+            : TaskShelves.Renamed(_lists, [
+                .. _listRenames.Select(r => (r.ListId, r.Name)),
+                .. _pending.Where(w => w.Kind == PendingKind.TaskListRename && w.Text is not null).Select(w => (w.Target, w.Text!)),
+            ]);
 
         public Task<IReadOnlyList<TaskListInfo>>? ListsFlight { get; set; }
 
@@ -505,7 +540,7 @@ internal sealed class TaskService : IDisposable
 
         public AccountException? Failure { get; private set; }
 
-        public bool HeldAny => _held.Count > 0 || Lists is { Count: 0 };
+        public bool HeldAny => _held.Count > 0 || _lists is { Count: 0 };
 
         public DateTimeOffset? LastSync => Schedule.LastSuccess;
 
@@ -543,7 +578,7 @@ internal sealed class TaskService : IDisposable
 
             if (shelf.Lists is { } lists)
             {
-                box.Lists = [.. lists.Select(TaskShelves.Restore)];
+                box._lists = [.. lists.Select(TaskShelves.Restore)];
                 box._listsAt = shelf.ListsAt;
             }
 
@@ -561,19 +596,24 @@ internal sealed class TaskService : IDisposable
             // [S-2653] Changes that were waiting when the app last closed are shown again and resent.
             foreach (var write in shelf.Pending)
             {
-                box._tickets[write.Id] = box.Edits.Begin(Edit(write));
+                // A list rename has no task edit: the lists themselves show it ([S-614]).
+                if (Edit(write) is { } edit)
+                {
+                    box._tickets[write.Id] = box.Edits.Begin(edit);
+                }
             }
 
             box._pending = shelf.Pending;
             return box;
         }
 
-        private static TaskEdit Edit(PendingWrite write) => write.Kind switch
+        private static TaskEdit? Edit(PendingWrite write) => write.Kind switch
         {
-            PendingKind.TaskComplete => TaskEdit.Complete(write.Target, true),
+            PendingKind.TaskComplete => TaskEdit.Complete(write.Target, true, write.Queued),
             PendingKind.TaskReopen => TaskEdit.Complete(write.Target, false),
             PendingKind.TaskRename => TaskEdit.Rename(write.Target, write.Text ?? string.Empty),
             PendingKind.TaskDelete => TaskEdit.Delete(write.Target),
+            PendingKind.TaskListRename => null,
             _ => TaskEdit.Create(Optimistic(write.Target, write.Container, write.Text ?? string.Empty, write.Due)),
         };
 
@@ -587,12 +627,14 @@ internal sealed class TaskService : IDisposable
 
         public async Task<IReadOnlyList<TaskListInfo>> LoadListsAsync()
         {
+            var started = ++_listClock;
             var lists = await _owner._remote.ListsAsync(AccountId, CancellationToken.None).ConfigureAwait(true);
             Log.Debug(Scope, $"{lists.Count} task list(s) on {AccountId}");
-            Lists = [.. lists.Take(TaskShelves.MaxLists)];
+            _lists = [.. lists.Take(TaskShelves.MaxLists)];
+            _listRenames.RemoveAll(r => r.ConfirmedAt < started);
             _listsAt = DateTimeOffset.UtcNow;
             Save();
-            return Lists;
+            return Lists!;
         }
 
         /// <summary>[S-2652] One sync of the account: the lists, then each wanted list in turn.</summary>
@@ -688,7 +730,7 @@ internal sealed class TaskService : IDisposable
 
         // ---- the queue ----------------------------------------------------------------------------
 
-        public Task Enqueue(PendingKind kind, string taskId, string listId, string? text, DateOnly? due, TaskEdit edit)
+        public Task Enqueue(PendingKind kind, string taskId, string listId, string? text, DateOnly? due, TaskEdit? edit)
         {
             var write = new PendingWrite(Guid.NewGuid().ToString("n"), kind, taskId, listId, text, due, DateTimeOffset.UtcNow);
             return Add(write, edit) ? DrainAsync() : Task.CompletedTask;
@@ -724,7 +766,7 @@ internal sealed class TaskService : IDisposable
         }
 
         /// <summary>Queue a write and show its edit; queued writes it folds away lose theirs ([S-2611]).</summary>
-        private bool Add(PendingWrite write, TaskEdit edit)
+        private bool Add(PendingWrite write, TaskEdit? edit)
         {
             if (WriteQueue.Add(_pending, write, headInFlight: _writing) is not { } next)
             {
@@ -744,7 +786,7 @@ internal sealed class TaskService : IDisposable
             _pending = next;
             _refused = null;
 
-            if (kept.Contains(write.Id))
+            if (edit is not null && kept.Contains(write.Id))
             {
                 _tickets[write.Id] = Edits.Begin(edit);
             }
@@ -773,6 +815,10 @@ internal sealed class TaskService : IDisposable
                     var ticket = _tickets.GetValueOrDefault(write.Id);
                     switch (result)
                     {
+                        case WriteResult.Done when write.Kind == PendingKind.TaskListRename:
+                            _listRenames.Add((write.Target, write.Text ?? string.Empty, ++_listClock));
+                            break;
+
                         case WriteResult.Done:
                             _tickets.Remove(write.Id);
                             Edits.Succeeded(ticket, created);
@@ -825,6 +871,7 @@ internal sealed class TaskService : IDisposable
             PendingKind.TaskReopen => Str.Shell_Tasks_ReopenFailed,
             PendingKind.TaskRename => Str.Shell_Tasks_RenameFailed,
             PendingKind.TaskDelete => Str.Shell_Tasks_DeleteFailed,
+            PendingKind.TaskListRename => Str.WidgetsC_Tasks_RenameListFailed,
             _ => Str.Shell_Tasks_AddFailed,
         };
 
@@ -845,6 +892,9 @@ internal sealed class TaskService : IDisposable
                         break;
                     case PendingKind.TaskDelete:
                         await remote.DeleteAsync(AccountId, write.Container, write.Target, CancellationToken.None).ConfigureAwait(true);
+                        break;
+                    case PendingKind.TaskListRename:
+                        await remote.RenameListAsync(AccountId, write.Target, write.Text ?? string.Empty, CancellationToken.None).ConfigureAwait(true);
                         break;
                     default:
                         created = await remote.CreateAsync(AccountId, write.Container, write.Text ?? string.Empty, write.Due, CancellationToken.None).ConfigureAwait(true);
@@ -887,8 +937,8 @@ internal sealed class TaskService : IDisposable
             var shelf = new TasksShelf
             {
                 Owner = AccountId,
-                Lists = Lists is { } lists ? [.. lists.Select(TaskShelves.Store)] : null,
-                ListsAt = Lists is null ? null : _listsAt,
+                Lists = _lists is { } lists ? [.. lists.Select(TaskShelves.Store)] : null,
+                ListsAt = _lists is null ? null : _listsAt,
                 Held = [.. _held.Select(pair => new TaskListShelf
                 {
                     ListId = pair.Key,

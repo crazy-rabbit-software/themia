@@ -5,7 +5,7 @@ namespace Themia.Core.Model;
 
 /// <summary>
 /// [S-3200] [S-3210] An audio visualizer: the spectrum of whatever the PC plays, as a widget of its own,
-/// in one of five designs, each its own kind.
+/// in one of six designs, each its own kind.
 /// <para>
 /// Nothing to configure, and that is deliberate: the bars inside Music were an on/off switch and
 /// nothing more, and the switch is now the act of placing the widget; the design is the choice of
@@ -64,4 +64,13 @@ public sealed class VisualizerRadialConfig : VisualizerConfig
     public override WidgetKind Kind => WidgetKind.VisualizerRadial;
 
     public override WidgetConfig Clone() => new VisualizerRadialConfig();
+}
+
+/// <summary>[S-3212] The waveform: a line that moves with the sound itself, like an oscilloscope.</summary>
+public sealed class VisualizerScopeConfig : VisualizerConfig
+{
+    [JsonIgnore]
+    public override WidgetKind Kind => WidgetKind.VisualizerScope;
+
+    public override WidgetConfig Clone() => new VisualizerScopeConfig();
 }

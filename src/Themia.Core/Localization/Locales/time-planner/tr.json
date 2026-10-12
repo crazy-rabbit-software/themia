@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Yer ve tarih boyutu",
+  "clockText.sizeDesc": "Yer, tarih ve fark satırının ne kadar büyük olduğu",
+  "clockText.small": "Küçük",
+  "clockText.large": "Büyük",
+  "dateWidget.label": "Tarih",
+  "dateWidget.desc": "Bugünün haftanın günü ve tarihi, duvar kâğıdı için",
+  "dateWidget.showYear": "Yılı göster",
+  "variants.visualizer.scope.label": "Dalga biçimi",
+  "variants.visualizer.scope.desc": "Sesin kendisini çizen bir çizgi, osiloskop gibi",
+  "planner.label": "Haftalık planlayıcı",
+  "planner.desc": "Önümüzdeki günler etkinlikleriyle ve bugün bitmesi gerekenler",
+  "planner.tasksHeader": "Bugünün görevleri",
+  "planner.showTasks": "Bugünün görevlerini göster",
+  "planner.showTasksDesc": "Bugün süresi dolan veya gecikmiş görevler, bugünün etkinliklerinin altında",
+  "planner.taskAccount": "Görevlerin kaynağı",
+  "planner.taskAccountFirst": "Görevi olan ilk hesap",
+  "planner.free": "Plan yok"
+}

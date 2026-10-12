@@ -276,8 +276,174 @@ public sealed class TaskRulesTests
     public void S595_hides_completed_tasks_unless_asked_keeping_order()
     {
         IReadOnlyList<TaskItem> tasks = [Task("a", null), Task("b", null, done: true), Task("c", null)];
-        Assert.Equal(["a", "c"], TaskRules.Visible(tasks, false).Select(t => t.Id));
-        Assert.Same(tasks, TaskRules.Visible(tasks, true));
+        Assert.Equal(["a", "c"], TaskRules.Visible(tasks, new TaskFilter(false), Monday, NewYork).Select(t => t.Id));
+        Assert.Same(tasks, TaskRules.Visible(tasks, new TaskFilter(true), Monday, NewYork));
         Assert.Equal(2, TaskRules.OpenCount(tasks));
+    }
+
+    // ---- [S-610] new tasks at the top --------------------------------------------------------------
+
+    [Fact]
+    public void S610_tasks_the_order_has_not_seen_lead_when_new_tasks_go_to_the_top()
+    {
+        IReadOnlyList<string> rows = ["a", "phone", "b", "new"];
+        Assert.Equal(["phone", "new", "b", "a"], TaskRules.ApplyOrder(rows, ["b", "a"], r => r, unknownFirst: true));
+        Assert.Equal(["b", "a", "phone", "new"], TaskRules.ApplyOrder(rows, ["b", "a"], r => r));
+    }
+
+    [Fact]
+    public void S610_an_added_task_is_pinned_first_or_last_and_never_twice()
+    {
+        Assert.Equal(["n", "a", "b"], TaskRules.PlaceAdded(["a", "n", "b"], "n", onTop: true));
+        Assert.Equal(["a", "b", "n"], TaskRules.PlaceAdded(["a", "n", "b"], "n", onTop: false));
+        Assert.Equal(["n"], TaskRules.PlaceAdded([], "n", onTop: true));
+    }
+
+    [Fact]
+    public void S610_a_task_on_this_pc_is_added_at_the_top_when_asked()
+    {
+        IReadOnlyList<LocalTask> tasks = [new("a", "A", false)];
+        Assert.Equal(["n", "a"], LocalTaskLists.AddTask(tasks, " New ", "n", onTop: true).Select(t => t.Id));
+        Assert.Equal(["a", "n"], LocalTaskLists.AddTask(tasks, "New", "n").Select(t => t.Id));
+        Assert.Same(tasks, LocalTaskLists.AddTask(tasks, "  ", "n", onTop: true));
+    }
+
+    // ---- [S-611] filters ---------------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(TaskDueFilter.Any, "past,today,thu,next,undated,donepast")]
+    [InlineData(TaskDueFilter.Overdue, "past")]
+    [InlineData(TaskDueFilter.Today, "today")]
+    [InlineData(TaskDueFilter.ThisWeek, "today,thu")]
+    [InlineData(TaskDueFilter.NoDate, "undated")]
+    public void S611_the_due_filter_keeps_the_tasks_due_then(TaskDueFilter due, string expected)
+    {
+        // Monday 10 Aug 2026, weeks starting on Monday: Thursday is this week, the next Monday is not.
+        IReadOnlyList<TaskItem> tasks =
+        [
+            Task("past", "2026-08-07"),
+            Task("today", "2026-08-10"),
+            Task("thu", "2026-08-13"),
+            Task("next", "2026-08-17"),
+            Task("undated", null),
+            Task("donepast", "2026-08-07", done: true),
+        ];
+
+        var got = TaskRules.Visible(tasks, new TaskFilter(true, due), Monday, NewYork, Model.WeekStartDay.Monday);
+        Assert.Equal(expected.Split(','), got.Select(t => t.Id));
+    }
+
+    [Fact]
+    public void S611_this_week_follows_the_regional_week_start()
+    {
+        // Holding Monday 10 Aug: a Sunday week runs 9..15 Aug, a Saturday week 8..14, a Monday week 10..16.
+        IReadOnlyList<TaskItem> tasks = [Task("sun", "2026-08-09"), Task("sat", "2026-08-15")];
+        Assert.Equal(["sun", "sat"], TaskRules.Visible(tasks, new TaskFilter(false, TaskDueFilter.ThisWeek), Monday, NewYork, Model.WeekStartDay.Sunday).Select(t => t.Id));
+        Assert.Equal(["sun"], TaskRules.Visible(tasks, new TaskFilter(false, TaskDueFilter.ThisWeek), Monday, NewYork, Model.WeekStartDay.Saturday).Select(t => t.Id));
+        Assert.Equal(["sat"], TaskRules.Visible(tasks, new TaskFilter(false, TaskDueFilter.ThisWeek), Monday, NewYork, Model.WeekStartDay.Monday).Select(t => t.Id));
+    }
+
+    [Fact]
+    public void S611_important_only_and_words_in_any_case()
+    {
+        IReadOnlyList<TaskItem> tasks =
+        [
+            new("a", "L1", "Call the Dentist", false, Important: true),
+            new("b", "L1", "dentist bill", false),
+            new("c", "L1", "Water plants", false, Important: true),
+        ];
+
+        Assert.Equal(["a", "c"], TaskRules.Visible(tasks, new TaskFilter(false, ImportantOnly: true), Monday, NewYork).Select(t => t.Id));
+        Assert.Equal(["a", "b"], TaskRules.Visible(tasks, new TaskFilter(false, Text: "  DENTIST "), Monday, NewYork).Select(t => t.Id));
+        Assert.Equal(["a"], TaskRules.Visible(tasks, new TaskFilter(false, ImportantOnly: true, Text: "dentist"), Monday, NewYork).Select(t => t.Id));
+        Assert.Same(tasks, TaskRules.Visible(tasks, new TaskFilter(false, Text: "   "), Monday, NewYork));
+    }
+
+    [Fact]
+    public void S611_only_a_real_filter_narrows_the_list()
+    {
+        Assert.False(new TaskFilter(true, Text: " ").Narrows);
+        Assert.True(new TaskFilter(false, TaskDueFilter.NoDate).Narrows);
+        Assert.True(new TaskFilter(false, ImportantOnly: true).Narrows);
+        Assert.True(new TaskFilter(false, Text: "x").Narrows);
+    }
+
+    [Fact]
+    public void S611_a_list_on_this_pc_keeps_only_its_text_filter()
+    {
+        var config = new Model.TasksConfig { Source = TaskSource.Local, DueFilter = TaskDueFilter.Today, ImportantOnly = true, TextFilter = "milk", ShowCompleted = true };
+        Assert.Equal(new TaskFilter(true, Text: "milk"), config.Filter(today: false));
+
+        config.Source = TaskSource.Account;
+        Assert.Equal(new TaskFilter(true, TaskDueFilter.Today, true, "milk", FinishedTodayOnly: true), config.Filter(today: true));
+    }
+
+    [Fact]
+    public void S611_moving_a_row_in_a_filtered_list_keeps_the_hidden_rows_in_their_slots()
+    {
+        // b and d are hidden by a filter; the user drags c above a.
+        Assert.Equal(["c", "b", "a", "d", "e"], TaskRules.MergeOrder(["a", "b", "c", "d", "e"], ["c", "a", "e"]));
+        Assert.Equal(["a", "b"], TaskRules.MergeOrder(["a", "b"], ["gone", "a"]));
+    }
+
+    // ---- [S-612] Today: finished today ---------------------------------------------------------------
+
+    [Fact]
+    public void S612_today_with_show_completed_keeps_only_tasks_finished_today()
+    {
+        IReadOnlyList<TaskItem> tasks =
+        [
+            Task("open", "2026-08-07"),
+            Task("done-today", "2026-08-07", done: true) with { CompletedOn = TaskStamp.Parse("2026-08-10T13:00:00Z") },
+            Task("done-friday", "2026-08-07", done: true) with { CompletedOn = TaskStamp.Parse("2026-08-07T13:00:00Z") },
+            Task("done-undated", "2026-08-07", done: true),
+
+            // 02:00 UTC on the 11th is still the 10th in New York.
+            Task("done-late", "2026-08-10", done: true) with { CompletedOn = TaskStamp.Parse("2026-08-11T02:00:00Z") },
+
+            // To Do's day-only completion is that day for every viewer.
+            Task("done-day", "2026-08-10", done: true) with { CompletedOn = TaskStamp.Parse("2026-08-10T00:00:00.0000000") },
+        ];
+
+        var today = TaskRules.Visible(tasks, new TaskFilter(true, FinishedTodayOnly: true), Monday, NewYork);
+        Assert.Equal(["open", "done-today", "done-late", "done-day"], today.Select(t => t.Id));
+
+        // A list (not Today) shows every finished task.
+        Assert.Same(tasks, TaskRules.Visible(tasks, new TaskFilter(true), Monday, NewYork));
+    }
+
+    [Theory]
+    [InlineData("2026-08-10T00:00:00.0000000", "2026-08-10")]
+    [InlineData("2026-08-10", "2026-08-10")]
+    [InlineData("2026-08-10T18:30:00Z", "2026-08-10T18:30:00.0000000Z")]
+    [InlineData("2026-08-10T18:30:00.5+02:00", "2026-08-10T16:30:00.5000000Z")]
+    public void S612_a_stamp_is_a_day_or_an_instant_and_round_trips_through_its_wire_form(string raw, string wire)
+    {
+        var stamp = TaskStamp.Parse(raw)!.Value;
+        Assert.Equal(wire, stamp.Wire());
+        Assert.Equal(stamp, TaskStamp.Parse(stamp.Wire()));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("yesterday")]
+    [InlineData("2026-02-30")]
+    [InlineData("2026-13-01T10:00:00Z")]
+    public void S612_a_value_that_is_not_a_date_is_no_stamp(string? raw) => Assert.Null(TaskStamp.Parse(raw));
+
+    // ---- [S-614] renaming a list ---------------------------------------------------------------------
+
+    [Fact]
+    public void S614_neither_Today_nor_a_built_in_list_is_renamed_and_a_blank_or_same_name_writes_nothing()
+    {
+        Assert.True(TaskRules.CanRename(new TaskListInfo("a", "Work", false)));
+        Assert.False(TaskRules.CanRename(new TaskListInfo("t", "Tasks", true, BuiltIn: true)));
+        Assert.False(TaskRules.CanRename(new TaskListInfo(TaskRules.TodayListId, "Today", false)));
+        Assert.False(TaskRules.CanRename(null));
+
+        Assert.Equal("Home", TaskRules.RenameTo("Work", "  Home "));
+        Assert.Null(TaskRules.RenameTo("Work", "   "));
+        Assert.Null(TaskRules.RenameTo("Work", " Work "));
     }
 }

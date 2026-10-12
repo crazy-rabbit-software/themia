@@ -45,6 +45,9 @@ public static class WidgetSetup
             },
 
             EmailConfig => Lacks(signedIn, AccountFeatures.Mail),
+            // [S-5325] The planner shows a calendar's days and, if it lists them, an account's
+            // tasks: it waits for setup only while neither source is signed in.
+            WeekPlannerConfig planner => Lacks(signedIn, AccountFeatures.Calendar) && (!planner.ShowTasks || Lacks(signedIn, AccountFeatures.Tasks)),
             CalendarConfig => Lacks(signedIn, AccountFeatures.Calendar),
             ContactsConfig => Lacks(signedIn, AccountFeatures.Contacts),
 

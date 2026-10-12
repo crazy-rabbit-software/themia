@@ -67,15 +67,76 @@ internal static partial class WidgetSettings
         // [S-3601] Only what this kind uses. The week start is every calendar's ([S-3770]).
         if (config is AgendaConfig agenda)
         {
+            AgendaRangeRows(rows, agenda, save);
             rows.Add(FluentLayout.Row(Glyphs.Count, Str.Calendar_AgendaEvents_Label.Text(),
-                Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Format(("days", CalendarRules.AgendaDays)),
+                Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Text(),
                 FluentLayout.Slider(agenda.EffectiveAgendaCount, 1, 100, 1, string.Empty,
                     value => { agenda.AgendaCount = (int)Math.Round(value); save(); })));
+        }
+        else if (config is WeekCalendarConfig week)
+        {
+            // [S-3637] Where the columns start and how many there are.
+            var weekStart = CalendarText.WeekdayName(CalendarRules.FirstDay(week.EffectiveWeekStart));
+            rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(),
+                Str.WidgetsA_Calendar_Settings_WeekFrom_Desc.Text(),
+                FluentLayout.Choice<WeekFirstDay>(
+                    [
+                        (WeekFirstDay.Week, Str.WidgetsA_Calendar_Settings_WeekFrom_WeekStart.Format(("day", weekStart))),
+                        (WeekFirstDay.Today, Str.Common_Today.Text()),
+                    ],
+                    week.FirstDay,
+                    value => { week.FirstDay = value; save(); })));
+            rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Calendar_Settings_Days_Label.Text(),
+                Str.WidgetsA_Calendar_Settings_WeekDays_Desc.Format(
+                    ("week", LocaleFormat.Integer(WeekCalendarConfig.DefaultDays)),
+                    ("workweek", LocaleFormat.Integer(WeekCalendarConfig.WorkWeekDays))),
+                FluentLayout.Slider(week.EffectiveDays, WeekCalendarConfig.MinDays, WeekCalendarConfig.MaxDays, 1, string.Empty,
+                    value => { week.Days = (int)Math.Round(value); save(); })));
         }
 
         rows.Add(FluentLayout.Row(Glyphs.Contact, Str.Calendar_ShowBirthdays_Label.Text(),
             Str.WidgetsA_Calendar_Settings_Birthdays_Desc.Text(),
             FluentLayout.Toggle(config.ShowBirthdays, value => { config.ShowBirthdays = value; save(); })));
+    }
+
+    /// <summary>
+    /// [S-3636] How far ahead the agenda looks: Today, Today and tomorrow, 3, 7 or 30 days, or Custom,
+    /// which shows a number of days of its own (1 to 365) under it.
+    /// </summary>
+    private static void AgendaRangeRows(List<FrameworkElement> rows, AgendaConfig agenda, Action save)
+    {
+        const int Custom = 0;
+        var options = new List<(int Value, string Label)>();
+        foreach (var days in AgendaConfig.DayPresets)
+        {
+            options.Add((days, days switch
+            {
+                1 => Str.Common_Today.Text(),
+                2 => Str.WidgetsA_Calendar_Settings_AgendaRange_TodayTomorrow.Text(),
+                _ => Str.WidgetsA_Calendar_Settings_AgendaRange_Days.Plural(days),
+            }));
+        }
+
+        options.Add((Custom, Str.WidgetsA_Calendar_Settings_AgendaRange_Custom.Text()));
+
+        var preset = AgendaConfig.DayPresets.Contains(agenda.EffectiveAgendaDays);
+        var stepper = FluentLayout.Stepper(agenda.EffectiveAgendaDays, AgendaConfig.MinDays, 1, value => { agenda.AgendaDays = value; save(); });
+        stepper.Maximum = AgendaConfig.MaxDays;
+        var custom = FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Calendar_Settings_Days_Label.Text(), null, stepper);
+        custom.Visibility = preset ? Visibility.Collapsed : Visibility.Visible;
+
+        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsA_Calendar_Settings_AgendaRange_Label.Text(),
+            Str.WidgetsA_Calendar_Settings_AgendaRange_Desc.Text(),
+            FluentLayout.Choice<int>(options, preset ? agenda.EffectiveAgendaDays : Custom, value =>
+            {
+                custom.Visibility = value == Custom ? Visibility.Visible : Visibility.Collapsed;
+                if (value != Custom)
+                {
+                    agenda.AgendaDays = value;
+                    save();
+                }
+            })));
+        rows.Add(custom);
     }
 
     /// <summary>

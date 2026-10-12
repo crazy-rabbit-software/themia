@@ -5,7 +5,12 @@ namespace Themia.Core.Sync;
 /// <summary>[S-2650] One task account's shelf: its lists, the tasks of every list a widget reads, and the queued changes.</summary>
 public sealed class TasksShelf : ISyncShelf
 {
-    public const int Version = 1;
+    /// <summary>
+    /// v2: tasks carry when they were finished and lists whether they are To Do's own ([S-612],
+    /// [S-614]). A v1 shelf (and its change cursors, which never asked for the completion) is a stale
+    /// cache, read again in full ([S-2605]).
+    /// </summary>
+    public const int Version = 2;
 
     public int SchemaVersion { get; set; } = Version;
 
@@ -27,6 +32,9 @@ public sealed class StoredTaskList
     public string Name { get; set; } = string.Empty;
 
     public bool IsDefault { get; set; }
+
+    /// <summary>[S-614] One of To Do's own lists, which cannot be renamed.</summary>
+    public bool BuiltIn { get; set; }
 }
 
 /// <summary>One list's tasks as last synced; <see cref="IncludesCompleted"/> says whether finished ones were asked for.</summary>
@@ -55,6 +63,9 @@ public sealed class StoredTask
     public bool Important { get; set; }
 
     public string? DueRaw { get; set; }
+
+    /// <summary>[S-612] When it was finished, as <see cref="TaskStamp.Wire"/>; validated on load.</summary>
+    public string? CompletedOn { get; set; }
 }
 
 /// <summary>[S-2650]..[S-2653] The task shelf's bounds, validation and conversions.</summary>
@@ -75,25 +86,49 @@ public static class TaskShelves
         Completed = task.Completed,
         Important = task.Important,
         DueRaw = task.DueRaw is { Length: <= 64 } due ? due : null,
+        CompletedOn = task.Completed ? task.CompletedOn?.Wire() : null,
     };
 
-    public static TaskItem Restore(StoredTask task, string listId) => new(task.Id, listId, task.Title, task.Completed, task.Important, task.DueRaw);
+    public static TaskItem Restore(StoredTask task, string listId)
+        => new(task.Id, listId, task.Title, task.Completed, task.Important, task.DueRaw, task.Completed ? TaskStamp.Parse(task.CompletedOn) : null);
 
-    public static StoredTaskList Store(TaskListInfo list) => new() { Id = list.Id, Name = Cut(list.Name), IsDefault = list.IsDefault };
+    public static StoredTaskList Store(TaskListInfo list) => new() { Id = list.Id, Name = Cut(list.Name), IsDefault = list.IsDefault, BuiltIn = list.BuiltIn };
 
-    public static TaskListInfo Restore(StoredTaskList list) => new(list.Id, list.Name, list.IsDefault);
+    public static TaskListInfo Restore(StoredTaskList list) => new(list.Id, list.Name, list.IsDefault, list.BuiltIn);
+
+    /// <summary>
+    /// [S-614] The lists as the widget should name them: each list renamed by the last of
+    /// <paramref name="renames"/> that names it (queued, or confirmed but not yet read back).
+    /// Returns the input itself when nothing is renamed.
+    /// </summary>
+    public static IReadOnlyList<TaskListInfo> Renamed(IReadOnlyList<TaskListInfo> lists, IEnumerable<(string ListId, string Name)> renames)
+    {
+        ArgumentNullException.ThrowIfNull(lists);
+        ArgumentNullException.ThrowIfNull(renames);
+
+        var names = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (listId, name) in renames)
+        {
+            names[listId] = name;
+        }
+
+        return names.Count == 0 || !lists.Any(l => names.ContainsKey(l.Id))
+            ? lists
+            : [.. lists.Select(l => names.TryGetValue(l.Id, out var name) ? l with { Name = name } : l)];
+    }
 
     /// <summary>[S-2686] What a list's cursor was issued for: the list, and whether finished tasks are held.</summary>
     public static string CursorScope(string listId, bool includeCompleted) => $"{listId}|{(includeCompleted ? "all" : "open")}";
 
     public static bool IsTask(PendingKind kind)
-        => kind is PendingKind.TaskComplete or PendingKind.TaskReopen or PendingKind.TaskRename or PendingKind.TaskDelete or PendingKind.TaskCreate;
+        => kind is PendingKind.TaskComplete or PendingKind.TaskReopen or PendingKind.TaskRename or PendingKind.TaskDelete or PendingKind.TaskCreate
+            or PendingKind.TaskListRename;
 
     /// <summary>
     /// [S-2651] A task shelf that opened: lists need an id (repeats and the overflow dropped); a held
     /// list needs an id and appears once; tasks need an id, appear once per list and stop at
-    /// <see cref="MaxTasksPerList"/>; the queue keeps only task changes, and a rename or create without
-    /// a title is dropped.
+    /// <see cref="MaxTasksPerList"/>, and a completion that is not a date is dropped; the queue keeps
+    /// only task and list changes, and a rename or create without a title or name is dropped.
     /// </summary>
     public static TasksShelf Validate(TasksShelf shelf, ref int dropped)
     {
@@ -112,7 +147,7 @@ public static class TaskShelves
                     continue;
                 }
 
-                lists.Add(new StoredTaskList { Id = list.Id, Name = Cut(list.Name), IsDefault = list.IsDefault });
+                lists.Add(new StoredTaskList { Id = list.Id, Name = Cut(list.Name), IsDefault = list.IsDefault, BuiltIn = list.BuiltIn });
             }
         }
 
@@ -143,6 +178,9 @@ public static class TaskShelves
                     Completed = task.Completed,
                     Important = task.Important,
                     DueRaw = task.DueRaw is { Length: <= 64 } due ? due : null,
+
+                    // [S-612] Only a finished task has a completion, and only one that reads as a date.
+                    CompletedOn = task.Completed && TaskStamp.Parse(task.CompletedOn) is { } done ? done.Wire() : null,
                 });
             }
 
@@ -159,7 +197,7 @@ public static class TaskShelves
         var pending = WriteQueue.Validate(shelf.Pending, ref dropped);
         var kept = pending
             .Where(w => IsTask(w.Kind) && w.Container.Length > 0
-                && (w.Kind is not (PendingKind.TaskRename or PendingKind.TaskCreate) || !string.IsNullOrWhiteSpace(w.Text)))
+                && (w.Kind is not (PendingKind.TaskRename or PendingKind.TaskCreate or PendingKind.TaskListRename) || !string.IsNullOrWhiteSpace(w.Text)))
             .ToList();
         dropped += pending.Count - kept.Count;
 

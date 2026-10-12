@@ -39,6 +39,8 @@ internal static partial class WidgetSettings
         var sourceRows = new StackPanel { Spacing = Fluent.Space1 };
         rows.Add(sourceRows);
 
+        var filterRows = new StackPanel { Spacing = Fluent.Space1 };
+
         void Rebuild()
         {
             sourceRows.Children.Clear();
@@ -46,6 +48,13 @@ internal static partial class WidgetSettings
             foreach (var row in TaskSourceRows(service, config, save, navigate, Rebuild))
             {
                 sourceRows.Children.Add(row);
+            }
+
+            filterRows.Children.Clear();
+
+            foreach (var row in TaskAccountFilterRows(config, save))
+            {
+                filterRows.Children.Add(row);
             }
         }
 
@@ -67,7 +76,75 @@ internal static partial class WidgetSettings
             FluentLayout.Slider(config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1, string.Empty,
                 value => { config.TitleLines = (int)Math.Round(value); save(); })));
 
+        // [S-610] Where a new task lands; the stored order ([S-598]) is kept either way.
+        rows.Add(FluentLayout.Row(Glyphs.Sort, Str.WidgetsC_Tasks_Settings_NewOnTop_Label.Text(), Str.WidgetsC_Tasks_Settings_NewOnTop_Desc.Text(),
+            FluentLayout.Toggle(config.NewOnTop, value => { config.NewOnTop = value; save(); })));
+
+        // [S-611] Filters. Due dates and importance exist only on an account's tasks, so the rows that
+        // filter by them follow the source (rebuilt with it).
+        rows.Add(FluentLayout.Header(Str.WidgetsC_Tasks_Settings_Filter.Text()));
+        rows.Add(filterRows);
+        rows.Add(TaskTextFilterRow(config, save));
+
         Rebuild();
+    }
+
+    /// <summary>[S-611] The due and importance filters: an account's tasks only.</summary>
+    private static IEnumerable<FrameworkElement> TaskAccountFilterRows(TasksConfig config, Action save)
+    {
+        if (config.Source != TaskSource.Account)
+        {
+            yield break;
+        }
+
+        yield return FluentLayout.Row(Glyphs.Calendar, Str.WidgetsC_Tasks_Settings_DueFilter_Label.Text(), Str.WidgetsC_Tasks_Settings_DueFilter_Desc.Text(),
+            FluentLayout.Choice<TaskDueFilter>(
+                [
+                    (TaskDueFilter.Any, Str.WidgetsC_Tasks_Settings_DueFilter_Any.Text()),
+                    (TaskDueFilter.Overdue, Str.WidgetsC_Tasks_Overdue.Text()),
+                    (TaskDueFilter.Today, Str.Common_Today.Text()),
+                    (TaskDueFilter.ThisWeek, Str.WidgetsC_Tasks_Settings_DueFilter_ThisWeek.Text()),
+                    (TaskDueFilter.NoDate, Str.WidgetsC_Tasks_Settings_DueFilter_NoDate.Text()),
+                ],
+                config.DueFilter,
+                value => { config.DueFilter = value; save(); }));
+
+        yield return FluentLayout.Row(Glyphs.Important, Str.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), Str.WidgetsC_Tasks_Settings_ImportantOnly_Desc.Text(),
+            FluentLayout.Toggle(config.ImportantOnly, value => { config.ImportantOnly = value; save(); }));
+    }
+
+    /// <summary>[S-611] Words the titles must hold. Written on Enter and on leaving the box, never per keystroke.</summary>
+    private static Border TaskTextFilterRow(TasksConfig config, Action save)
+    {
+        var box = new TextBox
+        {
+            Text = config.TextFilter,
+            PlaceholderText = Str.WidgetsC_Tasks_Settings_TextFilter_Placeholder.Text(),
+            MaxLength = TasksConfig.TextFilterMax,
+            MinWidth = 200,
+        };
+
+        void Commit()
+        {
+            var text = box.Text.Trim();
+            if (text != config.TextFilter)
+            {
+                config.TextFilter = text;
+                save();
+            }
+        }
+
+        box.LostFocus += (_, _) => Commit();
+        box.KeyDown += (_, e) =>
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                e.Handled = true;
+                Commit();
+            }
+        };
+
+        return FluentLayout.Row(Glyphs.Search, Str.WidgetsC_Tasks_Settings_TextFilter_Label.Text(), Str.WidgetsC_Tasks_Settings_TextFilter_Desc.Text(), box);
     }
 
     /// <summary>The source picker, then what that source offers: an account's lists, or this PC's.</summary>

@@ -17,6 +17,9 @@ public enum ShortcutCommand
 
     /// <summary>[S-1405] Open the layout editor on an app layout.</summary>
     EditLayout,
+
+    /// <summary>[S-4864] Empty the Recycle Bin, Windows asking first ([S-4863]): on an item pointing at it.</summary>
+    EmptyRecycleBin,
 }
 
 /// <summary>One line of a shortcut's item menu; a null command is a separator.</summary>
@@ -43,6 +46,13 @@ public enum TargetHealth
 public readonly record struct RecycleBinState(long Items, long Bytes)
 {
     public bool IsEmpty => Items <= 0;
+
+    /// <summary>
+    /// [S-4863] Whether Empty is offered: only with something in the bin (an unknown answer is not
+    /// "something"), and not while an empty is already out. The widget's button and the Shortcuts
+    /// item menu both ask this.
+    /// </summary>
+    public static bool CanEmpty(RecycleBinState? state, bool emptying) => state is { IsEmpty: false } && !emptying;
 }
 
 /// <summary>
@@ -84,9 +94,10 @@ public static class ShortcutRules
     /// <summary>
     /// [S-1405] The item menu, for an app layout too (original S-26): "Open" launches it (off while
     /// no pane opens anything), "Edit layout…" replaces the target-specific actions, and Rename and
-    /// Remove are as for any item.
+    /// Remove are as for any item. [S-4864] An item pointing at the Recycle Bin also offers "Empty
+    /// Recycle Bin…", off unless <paramref name="canEmptyBin"/> (<see cref="RecycleBinState.CanEmpty"/>).
     /// </summary>
-    public static IReadOnlyList<ShortcutMenuEntry> Menu(LaunchTarget target, int selected, LayoutNode? layout)
+    public static IReadOnlyList<ShortcutMenuEntry> Menu(LaunchTarget target, int selected, LayoutNode? layout, bool canEmptyBin = false)
     {
         if (selected > 1)
         {
@@ -118,6 +129,11 @@ public static class ShortcutRules
                 break;
 
             case LaunchKind.ShellNamespace:
+                if (IsRecycleBin(target.Value))
+                {
+                    entries.Add(new(ShortcutCommand.EmptyRecycleBin, Disabled: !canEmptyBin));
+                }
+
                 entries.Add(new(ShortcutCommand.CopyPath));
                 break;
         }

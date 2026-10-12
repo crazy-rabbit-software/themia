@@ -41,6 +41,9 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-1289] Below this width the sort button would squeeze the folder name; the menu still has it.</summary>
     private const double SortNeedsWidth = 200;
 
+    /// <summary>[S-558] Below this width the compose button would squeeze the folder name; the menu still has it.</summary>
+    private const double ComposeNeedsWidth = 240;
+
     /// <summary>Below this content height the accounts link under an empty state has no room.</summary>
     private const double LinkNeedsHeight = 100;
 
@@ -53,6 +56,8 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly ProgressRing _busy = new();
     private readonly Border _sort;
     private readonly IDisposable _sortHover;
+    private readonly Border _compose;
+    private readonly IDisposable _composeHover;
     private readonly StackPanel _trailing;
 
     private readonly Grid _columnHeader = new();
@@ -114,13 +119,25 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _sort.Tapped += OnSortTapped;
         _sortHover = Fluent.Hover(_sort);
 
+        // [S-558] Write a new email, beside the sort button: the account's own compose page.
+        _compose = new Border
+        {
+            Child = Fluent.Icon(Glyphs.MailCompose, "TextFillColorSecondaryBrush", 14),
+            Padding = new Thickness(Fluent.Space1),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            Background = Fluent.RowRest(),
+            Visibility = Visibility.Collapsed,
+        };
+        _compose.Tapped += OnComposeTapped;
+        _composeHover = Fluent.Hover(_compose);
+
         // Read once by the card when it builds the header, so it exists from construction.
         _trailing = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = Fluent.Space2,
             VerticalAlignment = VerticalAlignment.Center,
-            Children = { _warning, _busy, _sort, _badgeHost },
+            Children = { _warning, _busy, _compose, _sort, _badgeHost },
         };
 
         _columnHeader.Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, Fluent.Space1);
@@ -299,6 +316,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             header,
             Warning: width >= WarningNeedsWidth,
             Sort: width >= SortNeedsWidth,
+            Compose: width >= ComposeNeedsWidth,
             QuickActions: rows.Inline && _area.WidthClass >= SizeClass.Huge,
             Fetch: _config.FetchCount(fit));
     }
@@ -354,6 +372,10 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         // On a tile this narrow the glyph would squeeze the folder name to a letter; the warning waits.
         _warning.Visibility = warning is null || !_shape.Warning ? Visibility.Collapsed : Visibility.Visible;
         ToolTipService.SetToolTip(_warning, warning);
+
+        // [S-558] Any screen with an account to write from offers it, an empty folder included.
+        _compose.Visibility = _shape.Compose && ComposeAccounts().Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        ToolTipService.SetToolTip(_compose, Str.WidgetsB_Email_Compose.Text());
 
         if (screen.Kind != MailScreenKind.Messages)
         {
@@ -573,6 +595,35 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         }
     }
 
+    /// <summary>[S-558] The accounts a new message can come from: the ones this widget reads, signed in or not (compose needs no token).</summary>
+    private IReadOnlyList<MailAccount> ComposeAccounts()
+        => _source is null ? [] : MailScreens.Targets(_source.Accounts, _config.EffectiveAccountIds);
+
+    /// <summary>[S-558] Start a new message from <paramref name="account"/>; a refusal is the header warning.</summary>
+    private void Compose(MailAccount account)
+    {
+        if (_source?.Compose(account, _feed?.Snapshot.Messages ?? []) == false)
+        {
+            ShowProblem(Str.WidgetsB_Email_CouldNotCompose.Text());
+        }
+    }
+
+    /// <summary>[S-558] One account writes at once; several ask which, in a menu under the button.</summary>
+    private void OnComposeTapped(object sender, TappedRoutedEventArgs args)
+    {
+        args.Handled = true;
+        var accounts = ComposeAccounts();
+
+        if (accounts.Count == 1)
+        {
+            Compose(accounts[0]);
+        }
+        else if (accounts.Count > 1)
+        {
+            ItemMenu.Open(_compose, accounts.Select(a => Item(Glyphs.Mail, a.Label, () => Compose(a))));
+        }
+    }
+
     /// <summary>[S-1289] The header's sort button turns the list round, saved like the menu's toggle.</summary>
     private void OnSortTapped(object sender, TappedRoutedEventArgs args)
     {
@@ -599,10 +650,20 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         {
             // [S-542] Refresh and the folder (which mail, not how it looks), the current one checked.
             // [S-1746] The view and the order are how the widget looks: they are in its settings only.
+            // [S-559] Refresh says how old the list is; [S-558] a new email, from each account read.
+            var age = MailScreens.UpdatedAgo(Strings.Current, _feed?.Snapshot.Outcomes ?? [], DateTimeOffset.Now);
             var actions = new List<WidgetAction>
             {
-                new(Glyphs.Refresh, Str.Common_Refresh.Text(), Refresh),
+                new(Glyphs.Refresh, age is null ? Str.Common_Refresh.Text() : Str.WidgetsB_Email_RefreshUpdated.Format(("age", age)), Refresh),
             };
+
+            var writers = ComposeAccounts();
+            foreach (var account in writers)
+            {
+                actions.Add(new(Glyphs.MailCompose, writers.Count == 1
+                    ? Str.WidgetsB_Email_Compose.Text()
+                    : Str.WidgetsB_Email_ComposeFrom.Format(("account", account.Label)), () => Compose(account)));
+            }
 
             foreach (var folder in MailFolders.Listable)
             {
@@ -659,6 +720,8 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _warning.Tapped -= OnWarningTapped;
         _sort.Tapped -= OnSortTapped;
         _sortHover.Dispose();
+        _compose.Tapped -= OnComposeTapped;
+        _composeHover.Dispose();
         _accountsLink.Click -= OnAccountsClicked;
 
         _clock?.Dispose();
@@ -686,6 +749,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         bool ColumnHeader,
         bool Warning,
         bool Sort,
+        bool Compose,
         bool QuickActions,
         int Fetch);
 }

@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Shell;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -18,8 +17,6 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
 {
-    private const string Scope = "recycle-bin-widget";
-
     private readonly FontIcon _icon = Fluent.Icon(Glyphs.RecycleBin, "TextFillColorSecondaryBrush", RecycleBinLayout.LargeGlyph);
     private readonly TextBlock _size = Fluent.Text(FluentType.Strong(RecycleBinLayout.SizeStepFor(false)));
     private readonly TextBlock _count = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
@@ -31,7 +28,6 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     private IWidgetSurface? _surface;
     private IDisposable? _binWatch;
     private RecycleBinPlan _plan = RecycleBinLayout.Plan(default);
-    private bool _emptying;
     private bool _detached;
 
     /// <summary>The answer drawn: the shared one, which a preview replaces.</summary>
@@ -166,39 +162,16 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
         _count.Text = RecycleBinLayout.CountText(locale, state) ?? string.Empty;
         _buttonLabel.Text = Str.RecycleBin_Empty.Text();
 
-        // Empty is offered only when there is something to empty, and not twice at once.
-        _empty.IsEnabled = state is { IsEmpty: false } && !_emptying;
+        // Empty is offered only when there is something to empty, and not twice at once (process-wide).
+        _empty.IsEnabled = RecycleBinState.CanEmpty(state, RecycleBinStatus.Emptying);
         ToolTipService.SetToolTip(this, ShortcutRules.BinTooltip(locale, Str.WidgetsC_Location_RecycleBin.Text(), state));
     }
 
     private void OnEmptyClicked(object sender, RoutedEventArgs args) => _ = EmptyAsync();
 
-    /// <summary>[S-4863] Windows asks; the widget never empties on its own say.</summary>
-    private async Task EmptyAsync()
-    {
-        if (_detached || _emptying || _surface?.IsPreview == true || _state() is not { IsEmpty: false })
-        {
-            return;
-        }
-
-        _emptying = true;
-        Render();
-
-        try
-        {
-            await RecycleBinStatus.EmptyAsync().ConfigureAwait(true);
-        }
-        catch (Exception ex)
-        {
-            // Reached from a click: nothing above may see it.
-            Log.Error(Scope, "emptying the Recycle Bin failed", ex);
-        }
-        finally
-        {
-            _emptying = false;
-            Render();
-        }
-    }
+    /// <summary>[S-4863] Windows asks; the widget never empties on its own say. The shared status guards and redraws.</summary>
+    private Task EmptyAsync()
+        => _detached || _surface?.IsPreview == true ? Task.CompletedTask : RecycleBinStatus.EmptyAsync();
 
     private void OnTapped(object sender, TappedRoutedEventArgs args)
     {

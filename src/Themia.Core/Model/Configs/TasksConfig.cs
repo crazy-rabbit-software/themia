@@ -46,6 +46,18 @@ public sealed class TasksConfig : WidgetConfig
     /// <summary>[S-601] Lines a title wraps to before it is cut. Clamped on read.</summary>
     public int TitleLines { get; set; } = TaskRules.TitleLinesDefault;
 
+    /// <summary>[S-610] A task added here, or one this widget has not seen before, goes to the top rather than the bottom.</summary>
+    public bool NewOnTop { get; set; }
+
+    /// <summary>[S-611] Which due dates the list keeps.</summary>
+    public TaskDueFilter DueFilter { get; set; } = TaskDueFilter.Any;
+
+    /// <summary>[S-611] Only important tasks (Microsoft To Do's star).</summary>
+    public bool ImportantOnly { get; set; }
+
+    /// <summary>[S-611] Only tasks whose title holds these words, in any case; empty for every task.</summary>
+    public string TextFilter { get; set; } = string.Empty;
+
     /// <summary>
     /// [S-598] The user's own row order for an account list, as task ids. Neither provider stores a
     /// hand-sorted order, so it lives here. A list on this PC keeps its order in the list itself.
@@ -60,6 +72,18 @@ public sealed class TasksConfig : WidgetConfig
 
     [JsonIgnore]
     public int EffectiveTitleLines => TaskRules.ClampTitleLines(TitleLines);
+
+    /// <summary>The most a text filter holds: a few words, not a document.</summary>
+    public const int TextFilterMax = 100;
+
+    /// <summary>
+    /// [S-595] [S-611] [S-612] What the list keeps. Under Today ([S-596]) "Show completed" means the
+    /// tasks finished today, as To Do's own My Day does. A list on this PC has no due dates or
+    /// importance, so only its text filter applies: a due filter left from an account cannot empty it.
+    /// </summary>
+    public TaskFilter Filter(bool today) => Source == TaskSource.Local
+        ? new(ShowCompleted, Text: TextFilter)
+        : new(ShowCompleted, DueFilter, ImportantOnly, TextFilter, FinishedTodayOnly: today);
 
     /// <summary>[S-591] [S-3780] How often an account list is asked: the shared accounts cadence (Settings › Widgets).</summary>
     [JsonIgnore]
@@ -78,6 +102,19 @@ public sealed class TasksConfig : WidgetConfig
         ListId ??= string.Empty;
         ListName ??= string.Empty;
         LocalListId ??= string.Empty;
+        TextFilter ??= string.Empty;
+
+        if (TextFilter.Length > TextFilterMax)
+        {
+            TextFilter = TextFilter[..TextFilterMax];
+            repairs.Add("a Tasks widget's text filter was cut to its length");
+        }
+
+        if (!Enum.IsDefined(DueFilter))
+        {
+            DueFilter = TaskDueFilter.Any;
+            repairs.Add("a Tasks widget named an unknown due filter; it shows every due date again");
+        }
 
         if (!Enum.IsDefined(Source))
         {
@@ -111,6 +148,10 @@ public sealed class TasksConfig : WidgetConfig
         ShowDueDate = ShowDueDate,
         ViewMode = ViewMode,
         TitleLines = TitleLines,
+        NewOnTop = NewOnTop,
+        DueFilter = DueFilter,
+        ImportantOnly = ImportantOnly,
+        TextFilter = TextFilter,
         TaskOrder = [.. TaskOrder],
     };
 }

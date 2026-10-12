@@ -208,15 +208,7 @@ internal static partial class Win32
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool PostMessage(nint hWnd, uint msg, nint wParam, nint lParam);
 
-    // ---- global hotkey -----------------------------------------------------------------------
-
-    internal const uint ModAlt = 0x0001;
-    internal const uint ModControl = 0x0002;
-
-    /// <summary>Without this a held key toggles whatever the hotkey does dozens of times a second.</summary>
-    internal const uint ModNoRepeat = 0x4000;
-
-    internal const uint VkW = 0x57;
+    // ---- global hotkey (the keys are Core ShellHotkeys') ----------------------------------------
 
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

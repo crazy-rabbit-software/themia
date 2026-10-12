@@ -31,6 +31,10 @@ internal interface IMailSource
 
     /// <summary>[S-547] Start a reply. False when there is no way to.</summary>
     bool Reply(MailMessage message);
+
+    /// <summary>[S-558] Start a new message from <paramref name="account"/>. False when the shell would not open it.</summary>
+    /// <param name="known">The messages on screen: they tell which Outlook on the web a Microsoft account lives on.</param>
+    bool Compose(MailAccount account, IReadOnlyList<MailMessage> known);
 }
 
 /// <summary>One widget's handle on a shared feed.</summary>

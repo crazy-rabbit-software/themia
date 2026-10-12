@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -131,13 +132,99 @@ internal sealed partial class GalleryView
 
     private Stretch PictureStretch => _config.Fit == GalleryFit.Fill ? Stretch.UniformToFill : Stretch.Uniform;
 
-    /// <summary>One picture filling the main area: the slide, the file, the photo of the day.</summary>
+    /// <summary>
+    /// One picture filling the main area: the slide, the file, the photo of the day. [S-776] With no
+    /// backing fill, so a letterboxed picture shows the card (or the desktop on a transparent
+    /// surface) beside it, and a PNG's transparent pixels show through.
+    /// </summary>
     private void DrawMain(GalleryPlan plan)
     {
         var frames = Frames(_frames, 1);
+        var frame = frames[0];
         var path = _pictures[_index];
-        Place(frames[0], new GalleryRect(0, 0, plan.MainWidth, plan.MainHeight), radius: 0, PictureStretch);
-        Point(frames[0], path);
+        var sticker = _config.IsSticker;
+
+        // [S-774] A sticker is always whole: turned or outlined, a cropped edge would be cut, not shaped.
+        Place(frame, new GalleryRect(0, 0, plan.MainWidth, plan.MainHeight), radius: 0, sticker ? Stretch.Uniform : PictureStretch, backed: false);
+        frame.UseSticker(sticker);
+        Point(frame, path);
+
+        if (sticker)
+        {
+            ApplySticker(frame);
+        }
+    }
+
+    /// <summary>
+    /// [S-774] [S-775] Turn the sticker and give it the shape it is fitted by: the outline's padded
+    /// picture once that is worked out, else the picture's own, else (not decoded yet) the frame's.
+    /// The outline is asked for again only when what it was worked out for changed.
+    /// </summary>
+    private void ApplySticker(GalleryFrame frame)
+    {
+        if (_detached || !frame.IsSticker || frame.Path is not { } path)
+        {
+            return;
+        }
+
+        frame.Box.Angle = _config.EffectiveRotation;
+
+        if (!_config.Outline)
+        {
+            frame.CancelOutline();
+            frame.ShowOutline(null);
+            return;
+        }
+
+        var scale = XamlRoot?.RasterizationScale ?? 1;
+        var width = frame.Host.Width;
+        var height = frame.Host.Height;
+        var key = string.Create(
+            CultureInfo.InvariantCulture,
+            $"{path}|{_config.EffectiveOutlineColor}|{_config.EffectiveOutlineWidth}|{_config.EffectiveRotation}|{scale}|{Math.Ceiling(width / 32)}|{Math.Ceiling(height / 32)}");
+
+        if (string.Equals(frame.OutlineKey, key, StringComparison.Ordinal))
+        {
+            // Asked for already; until it arrives the picture is fitted by its own shape.
+            if (frame.OutlinePending is not null)
+            {
+                frame.ShowOutline(null);
+            }
+
+            return;
+        }
+
+        frame.CancelOutline();
+        frame.OutlineKey = key;
+        var cts = new CancellationTokenSource();
+        frame.OutlinePending = cts;
+        _ = OutlineAsync(frame, path, width, height, scale, cts);
+    }
+
+    private async Task OutlineAsync(GalleryFrame frame, string path, double width, double height, double scale, CancellationTokenSource cts)
+    {
+        try
+        {
+            var outline = await StickerOutline.BuildAsync(path, width, height, scale, _config.EffectiveRotation,
+                _config.EffectiveOutlineWidth, _config.EffectiveOutlineColor, cts.Token).ConfigureAwait(true);
+
+            if (_detached || cts.IsCancellationRequested || !ReferenceEquals(frame.OutlinePending, cts))
+            {
+                return;
+            }
+
+            frame.OutlinePending = null;
+            frame.ShowOutline(outline);
+        }
+        catch (OperationCanceledException)
+        {
+            // ignore: the picture, colour, width or size changed; the outline that replaced this one draws instead.
+        }
+        catch (Exception ex)
+        {
+            // Fired and forgotten from a layout pass: nothing above may see it. The picture still shows.
+            Log.Error(Scope, "could not outline the picture", ex);
+        }
     }
 
     /// <summary>[S-766] Tiles as close to square as the count allows.</summary>
@@ -152,7 +239,7 @@ internal sealed partial class GalleryView
         {
             var x = (i % columns) * (width + Gap);
             var y = (i / columns) * (height + Gap);
-            Place(frames[i], new GalleryRect(x, y, width, height), Fluent.ControlRadius, PictureStretch);
+            Place(frames[i], new GalleryRect(x, y, width, height), Fluent.ControlRadius, PictureStretch, backed: true);
             Point(frames[i], _pictures[i]);
         }
     }
@@ -168,7 +255,7 @@ internal sealed partial class GalleryView
             var print = prints[i];
             var frame = frames[i];
             var rect = new GalleryRect(print.CenterX - (print.Side / 2), print.CenterY - (print.Side / 2), print.Side, print.Side);
-            Place(frame, rect, radius: 0, Stretch.UniformToFill);
+            Place(frame, rect, radius: 0, Stretch.UniformToFill, backed: true);
 
             frame.Host.BorderThickness = new Thickness(1);
             frame.Host.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
@@ -186,7 +273,7 @@ internal sealed partial class GalleryView
 
         for (var i = 0; i < frames.Count; i++)
         {
-            Place(frames[i], cells[i], radius: 0, Stretch.UniformToFill);
+            Place(frames[i], cells[i], radius: 0, Stretch.UniformToFill, backed: true);
             Point(frames[i], _pictures[i]);
         }
     }
@@ -243,8 +330,16 @@ internal sealed partial class GalleryView
         return frames;
     }
 
-    private static void Place(GalleryFrame frame, GalleryRect rect, double radius, Stretch stretch)
+    /// <param name="backed">A tile's placeholder fill while it decodes; never under the one main picture ([S-776]).</param>
+    private static void Place(GalleryFrame frame, GalleryRect rect, double radius, Stretch stretch, bool backed)
     {
+        if (backed)
+        {
+            // A tile is never a sticker; the main picture says for itself ([S-774]).
+            frame.UseSticker(false);
+        }
+
+        frame.Host.Background = backed ? frame.Backing : null;
         frame.Host.Width = Math.Max(0, rect.Width);
         frame.Host.Height = Math.Max(0, rect.Height);
         frame.Host.CornerRadius = new CornerRadius(radius);
@@ -329,6 +424,9 @@ internal sealed partial class GalleryView
             }
 
             frame.Show(handle);
+
+            // [S-774] The picture's own shape is known now: a sticker is fitted by it.
+            ApplySticker(frame);
         }
         catch (OperationCanceledException)
         {
@@ -352,19 +450,111 @@ internal sealed partial class GalleryView
     /// <summary>One picture on the canvas: its frame, what it shows, and the decode in flight for it.</summary>
     private sealed class GalleryFrame
     {
+        /// <summary>[S-775] The outline under a sticker, in a 3x3 grid whose star weights are the pad and the picture.</summary>
+        private readonly Image _outline = new() { Stretch = Stretch.Fill };
+        private readonly Grid _cut = new();
+
         public GalleryFrame()
         {
             Image = new Image { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+            Backing = FluentLayout.Themed("ControlAltFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
             Host = new Border
             {
                 Child = Image,
                 Tag = this,
                 BorderBrush = FluentLayout.Themed("CardStrokeColorDefaultBrush", Microsoft.UI.Colors.Gray),
-                Background = FluentLayout.Themed("ControlAltFillColorSecondaryBrush", Microsoft.UI.Colors.Gray),
+                Background = Backing,
             };
+
+            for (var i = 0; i < 3; i++)
+            {
+                _cut.RowDefinitions.Add(new RowDefinition());
+                _cut.ColumnDefinitions.Add(new ColumnDefinition());
+            }
+
+            Grid.SetRowSpan(_outline, 3);
+            Grid.SetColumnSpan(_outline, 3);
         }
 
         public Border Host { get; }
+
+        /// <summary>A tile's placeholder fill while its picture decodes.</summary>
+        public Brush Backing { get; }
+
+        /// <summary>[S-774] The turn and the fit of a sticker; holds the picture only while <see cref="IsSticker"/>.</summary>
+        public RotatedBox Box { get; } = new();
+
+        public bool IsSticker { get; private set; }
+
+        /// <summary>[S-775] What the outline on show (or in the works) was asked for; null for none.</summary>
+        public string? OutlineKey { get; set; }
+
+        public CancellationTokenSource? OutlinePending { get; set; }
+
+        /// <summary>The picture's width over its height once decoded, else null.</summary>
+        public double? PictureAspect => Image.Source is BitmapImage { PixelWidth: > 0, PixelHeight: > 0 } bitmap
+            ? bitmap.PixelWidth / (double)bitmap.PixelHeight
+            : null;
+
+        /// <summary>[S-774] Hold the picture in the turning box (a sticker) or straight in the frame.</summary>
+        public void UseSticker(bool on)
+        {
+            if (on == IsSticker)
+            {
+                return;
+            }
+
+            IsSticker = on;
+            Host.Child = null;
+            _cut.Children.Clear();
+            Box.Children.Clear();
+
+            if (on)
+            {
+                Grid.SetRow(Image, 1);
+                Grid.SetColumn(Image, 1);
+                _cut.Children.Add(_outline);
+                _cut.Children.Add(Image);
+                Box.Children.Add(_cut);
+                Host.Child = Box;
+                ShowOutline(null);
+                return;
+            }
+
+            CancelOutline();
+            ShowOutline(null);
+            Grid.SetRow(Image, 0);
+            Grid.SetColumn(Image, 0);
+            Host.Child = Image;
+        }
+
+        /// <summary>[S-775] Draw an outline (or none) and fit the sticker by the shape it gives.</summary>
+        public void ShowOutline(StickerOutlineImage? outline)
+        {
+            _outline.Source = outline?.Bitmap;
+
+            var pad = outline?.Pad ?? 0;
+            var (columns, rows) = outline is { } o ? ((double)o.PictureWidth, (double)o.PictureHeight) : (1.0, 1.0);
+            _cut.ColumnDefinitions[0].Width = new GridLength(pad, GridUnitType.Star);
+            _cut.ColumnDefinitions[2].Width = new GridLength(pad, GridUnitType.Star);
+            _cut.RowDefinitions[0].Height = new GridLength(pad, GridUnitType.Star);
+            _cut.RowDefinitions[2].Height = new GridLength(pad, GridUnitType.Star);
+            _cut.ColumnDefinitions[1].Width = new GridLength(columns, GridUnitType.Star);
+            _cut.RowDefinitions[1].Height = new GridLength(rows, GridUnitType.Star);
+
+            Box.ChildAspect = outline is { } shape
+                ? (shape.PictureWidth + (2.0 * shape.Pad)) / (shape.PictureHeight + (2.0 * shape.Pad))
+                : PictureAspect;
+        }
+
+        /// <summary>[S-775] Drop the outline in the works, so the next ask works one out again.</summary>
+        public void CancelOutline()
+        {
+            var pending = OutlinePending;
+            OutlinePending = null;
+            OutlineKey = null;
+            pending?.Cancel();
+        }
 
         public Image Image { get; }
 
@@ -402,6 +592,7 @@ internal sealed partial class GalleryView
         public void Release()
         {
             Cancel();
+            UseSticker(false);
             Show(null);
             Path = null;
             Decoded = 0;

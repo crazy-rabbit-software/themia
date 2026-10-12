@@ -211,6 +211,33 @@ public sealed class ShortcutsTests
     }
 
     [Fact]
+    public void S4864_the_recycle_bin_item_offers_empty_only_while_it_can_be_emptied()
+    {
+        var bin = LaunchTargets.Classify("shell:RecycleBinFolder");
+        var full = ShortcutRules.Menu(bin, 1, layout: null, canEmptyBin: true);
+        var empty = ShortcutRules.Menu(bin, 1, layout: null, canEmptyBin: false);
+        var desktop = Commands(ShortcutRules.Menu(LaunchTargets.Classify("shell:Desktop"), 1, layout: null, canEmptyBin: true));
+        var many = Commands(ShortcutRules.Menu(bin, 2, layout: null, canEmptyBin: true));
+
+        Assert.Equal(
+            [ShortcutCommand.Open, ShortcutCommand.EmptyRecycleBin, ShortcutCommand.CopyPath, ShortcutCommand.Rename, ShortcutCommand.Remove],
+            Commands(full));
+        Assert.False(full.Single(e => e.Command == ShortcutCommand.EmptyRecycleBin).Disabled);
+        Assert.True(empty.Single(e => e.Command == ShortcutCommand.EmptyRecycleBin).Disabled);
+        Assert.DoesNotContain(ShortcutCommand.EmptyRecycleBin, desktop);
+        Assert.DoesNotContain(ShortcutCommand.EmptyRecycleBin, many);
+    }
+
+    [Fact]
+    public void S4863_empty_is_offered_only_with_items_and_not_twice_at_once()
+    {
+        Assert.True(RecycleBinState.CanEmpty(new RecycleBinState(3, 100), emptying: false));
+        Assert.False(RecycleBinState.CanEmpty(new RecycleBinState(3, 100), emptying: true));
+        Assert.False(RecycleBinState.CanEmpty(new RecycleBinState(0, 0), emptying: false));
+        Assert.False(RecycleBinState.CanEmpty(null, emptying: false));
+    }
+
+    [Fact]
     public void S1387_a_multi_selection_gets_open_all_and_no_rename()
     {
         var menu = ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 3);

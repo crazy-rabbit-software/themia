@@ -111,6 +111,11 @@ internal sealed partial class DesktopWindow
                 SwitchPane(action.Backwards);
                 return true;
 
+            case EditCommand.AddWidget:
+                // [S-1998] The hotkey's own path: the display under the pointer, placement dropped.
+                _host.OpenAddMenu();
+                return true;
+
             default:
                 return false;
         }

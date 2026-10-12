@@ -26,8 +26,17 @@ internal sealed partial class AudioVisualizerView : IWidgetPreviewState
                     bands[i] = (float)Math.Clamp(shape, 0.05, 1);
                 }
 
+                // [S-3212] The waveform's still: a voice-like sum of three partials, louder at the start.
+                var trace = new float[Oscilloscope.Points];
+                for (var i = 0; i < trace.Length; i++)
+                {
+                    var t = i / (double)trace.Length;
+                    var wave = (0.55 * Math.Sin(2 * Math.PI * 3 * t)) + (0.25 * Math.Sin(2 * Math.PI * 7 * t + 0.6)) + (0.12 * Math.Sin(2 * Math.PI * 17 * t));
+                    trace[i] = (float)Math.Clamp(wave * (1.1 - (0.4 * t)), -1, 1);
+                }
+
                 ShowAvailability(available: true);
-                _bars.SetLevels(bands);
+                _bars.SetFrame(new AudioFrame(bands, trace));
                 break;
 
             case "unavailable":

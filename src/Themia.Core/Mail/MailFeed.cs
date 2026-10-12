@@ -19,7 +19,7 @@ public enum MailAccountState
 
 /// <summary>How one account's part of a feed last went.</summary>
 /// <param name="Folder">[S-1285] The folder's total and unread counts as the account last reported them, or null.</param>
-/// <param name="At">[S-2612] When the stored list was last fetched, or null when nothing is stored.</param>
+/// <param name="At">[S-2612] [S-559] When the stored list was last known current (fetched, or a probe found it unchanged), or null when nothing is stored.</param>
 public sealed record MailAccountOutcome(string AccountId, MailAccountState State, FetchStatus Status, string? Detail, MailFolderStatus? Folder = null, DateTimeOffset? At = null);
 
 /// <summary>
@@ -230,6 +230,34 @@ public static class MailScreens
         }
 
         return new MailScreen(MailScreenKind.Empty, Strings.Format(locale, Str.WidgetsB_Email_NoMessagesIn, ("folder", folder.Label(locale))), false, warning);
+    }
+
+    /// <summary>
+    /// [S-559] How long ago the list on screen was fetched, for the Refresh command: the oldest
+    /// account's stamp (the worst of what is shown, as [S-2664] stamps), in the language's short
+    /// relative time ("now", "5 min. ago"). A provider clock ahead of this one reads "now". Null
+    /// while nothing is stored yet.
+    /// </summary>
+    public static string? UpdatedAgo(Locale locale, IReadOnlyList<MailAccountOutcome> outcomes, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(outcomes);
+
+        DateTimeOffset? oldest = null;
+        foreach (var outcome in outcomes)
+        {
+            if (outcome.At is { } at && (oldest is not { } held || at < held))
+            {
+                oldest = at;
+            }
+        }
+
+        if (oldest is not { } stamp)
+        {
+            return null;
+        }
+
+        var age = now - stamp;
+        return LocaleFormat.Relative(locale, age > TimeSpan.Zero ? -age : TimeSpan.Zero, RelativeStyle.Short);
     }
 
     /// <summary>[S-2612] A failure over a stored list also says when that list is from.</summary>

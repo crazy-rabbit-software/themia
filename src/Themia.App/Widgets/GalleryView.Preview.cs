@@ -13,10 +13,26 @@ internal sealed partial class GalleryView : IWidgetPreviewState
 {
     private const string PreviewFolder = @"C:\Windows\Web\Wallpaper";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["slideshow", "grid", "scatter", "mosaic", "file"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["slideshow", "grid", "scatter", "mosaic", "file", "sticker"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
+        if (state == "sticker")
+        {
+            // [S-774] [S-775] A cut-out PNG (the app's own logo), turned and outlined.
+            var logo = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "themia-logo.png");
+            _watch?.Dispose();
+            _watch = null;
+            _config = new GalleryConfig { Source = GallerySource.File, FilePath = logo, Rotation = -15, Outline = true, OutlineColor = "#FFFFFF", OutlineWidth = 6 };
+            PublishTitle();
+            _scan = new GalleryScan(GalleryStatus.Ok, [logo]);
+            Select(keepPath: null, index: 0);
+            _slideTimer?.Stop();
+            Lay();
+            await Task.Delay(2500).ConfigureAwait(true);
+            return;
+        }
+
         var (source, layout) = state switch
         {
             "slideshow" => (GallerySource.Folder, GalleryLayout.Slideshow),

@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "ਥਾਂ ਅਤੇ ਤਾਰੀਖ ਦਾ ਆਕਾਰ",
+  "clockText.sizeDesc": "ਥਾਂ, ਤਾਰੀਖ ਅਤੇ ਆਫ਼ਸੈੱਟ ਲਾਈਨ ਕਿੰਨੀ ਵੱਡੀ ਹੋਵੇ",
+  "clockText.small": "ਛੋਟਾ",
+  "clockText.large": "ਵੱਡਾ",
+  "dateWidget.label": "ਤਾਰੀਖ",
+  "dateWidget.desc": "ਅੱਜ ਦਾ ਦਿਨ ਅਤੇ ਤਾਰੀਖ, ਵਾਲਪੇਪਰ ਲਈ ਬਣਾਇਆ",
+  "dateWidget.showYear": "ਸਾਲ ਦਿਖਾਓ",
+  "variants.visualizer.scope.label": "ਤਰੰਗ ਰੂਪ",
+  "variants.visualizer.scope.desc": "ਇੱਕ ਲਕੀਰ ਜੋ ਆਸਿਲੋਸਕੋਪ ਵਾਂਗ ਆਵਾਜ਼ ਨੂੰ ਹੀ ਖਿੱਚਦੀ ਹੈ",
+  "planner.label": "ਹਫ਼ਤਾਵਾਰੀ ਯੋਜਨਾਕਾਰ",
+  "planner.desc": "ਆਉਣ ਵਾਲੇ ਦਿਨ ਉਹਨਾਂ ਦੇ ਇਵੈਂਟਾਂ ਨਾਲ, ਅਤੇ ਅੱਜ ਕੀ ਬਕਾਇਆ ਹੈ",
+  "planner.tasksHeader": "ਅੱਜ ਦੇ ਕੰਮ",
+  "planner.showTasks": "ਅੱਜ ਦੇ ਕੰਮ ਦਿਖਾਓ",
+  "planner.showTasksDesc": "ਅੱਜ ਬਕਾਇਆ ਜਾਂ ਮਿਆਦ ਪੁੱਗੇ ਕੰਮ, ਅੱਜ ਦੇ ਇਵੈਂਟਾਂ ਹੇਠਾਂ",
+  "planner.taskAccount": "ਕੰਮ ਇੱਥੋਂ",
+  "planner.taskAccountFirst": "ਕੰਮਾਂ ਵਾਲਾ ਪਹਿਲਾ ਖਾਤਾ",
+  "planner.free": "ਕੁਝ ਵੀ ਯੋਜਨਾਬੱਧ ਨਹੀਂ"
+}

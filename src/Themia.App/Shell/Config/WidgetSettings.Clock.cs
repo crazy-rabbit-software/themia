@@ -39,6 +39,13 @@ internal static partial class WidgetSettings
                 clock.Align,
                 value => { clock.Align = value; save(); })));
 
+        // [S-1476] The place and the date larger (user request: both were hard to read) or smaller.
+        rows.Add(FluentLayout.Row(Glyphs.Font, Str.ClockText_SizeLabel.Text(), Str.ClockText_SizeDesc.Text(),
+            FluentLayout.Choice(
+                [(ClockTextSize.Small, Str.ClockText_Small.Text()), (ClockTextSize.Default, Str.Common_Default.Text()), (ClockTextSize.Large, Str.ClockText_Large.Text())],
+                clock.TextSize,
+                value => { clock.TextSize = value; save(); })));
+
         // The label box is built first so the zone search can update its placeholder: an empty label
         // shows the chosen city, and the placeholder says which.
         var label = LabelBox(clock, save);

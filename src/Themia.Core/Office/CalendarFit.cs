@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 
@@ -63,6 +64,12 @@ public readonly record struct HourWindow(int First, int Count, double HourHeight
 {
     public int End => First + Count;
 }
+
+/// <summary>
+/// [S-2718] The day's all-day band: how many lines, each one's height, and whether the last line is
+/// shared among the items left over (chips, then "+N") rather than one item's own bar.
+/// </summary>
+public sealed record DayBandFit(int Lines, double LineHeight, bool SharedLast);
 
 /// <summary>
 /// [S-2707] What a year of a given box draws: how many months, in how many columns and rows, the
@@ -279,10 +286,13 @@ public static class CalendarFit
     /// <summary>[S-2704] The week is an hour grid from this slot height and column width; else a list per day.</summary>
     public const double WeekTimelineFrom = 280;
 
-    /// <summary>[S-2704] The week for a box: the hour grid on a large tile, else a list per column (dots when narrow).</summary>
-    public static WeekFit Week(double width, double height)
+    /// <summary>
+    /// [S-2704] The week for a box: the hour grid on a large tile, else a list per column (dots when
+    /// narrow). [S-2719] <paramref name="days"/> columns share the width: fewer days, wider columns.
+    /// </summary>
+    public static WeekFit Week(double width, double height, int days)
     {
-        var columnWidth = Math.Max(0, width) / 7;
+        var columnWidth = Math.Max(0, width) / Math.Max(1, days);
         var timeline = columnWidth >= WeekdayNamesFrom && height >= WeekTimelineFrom;
 
         // A week column always says which day it is: one letter at the least, over its number.
@@ -604,7 +614,8 @@ public static class CalendarFit
     /// <paramref name="height"/> holds in whole rows. A day's heading comes before its first item and
     /// again at the top of a column that starts mid-day, so an item is never shown without the day it
     /// falls on; <paramref name="firstHeading"/> false drops the very first one ([S-1267]). At least
-    /// one item while any is left, so paging always moves.
+    /// one item while any is left, so paging always moves. Rows are fitted at one title line each
+    /// (<paramref name="rowHeight"/>): a wrapped title's second line never costs a row ([S-2717]).
     /// </summary>
     public static int AgendaFit(IReadOnlyList<DateOnly> days, int start, double height, double headingHeight, double rowHeight, bool firstHeading)
     {
@@ -618,8 +629,7 @@ public static class CalendarFit
         var count = 0;
         for (var i = start; i < days.Count; i++)
         {
-            var heading = i == start ? firstHeading : days[i] != days[i - 1];
-            if (!room.Take(rowHeight + (heading ? headingHeight : 0)))
+            if (!room.Take(rowHeight + (AgendaHeadingBefore(days, start, i, firstHeading) ? headingHeight : 0)))
             {
                 break;
             }
@@ -628,6 +638,30 @@ public static class CalendarFit
         }
 
         return Math.Max(1, count);
+    }
+
+    /// <summary>[S-2709] Whether row <paramref name="i"/> of a column starting at <paramref name="start"/> has its day's heading over it.</summary>
+    public static bool AgendaHeadingBefore(IReadOnlyList<DateOnly> days, int start, int i, bool firstHeading)
+    {
+        ArgumentNullException.ThrowIfNull(days);
+        return i == start ? firstHeading : days[i] != days[i - 1];
+    }
+
+    /// <summary>
+    /// [S-2717] The height a column's <paramref name="count"/> rows from <paramref name="start"/> and
+    /// their headings use at one title line each: what is left under them is what wrapped titles
+    /// may spend.
+    /// </summary>
+    public static double AgendaColumnHeight(IReadOnlyList<DateOnly> days, int start, int count, double headingHeight, double rowHeight, bool firstHeading)
+    {
+        ArgumentNullException.ThrowIfNull(days);
+        var used = 0.0;
+        for (var i = start; i < start + count && i < days.Count; i++)
+        {
+            used += rowHeight + (AgendaHeadingBefore(days, start, i, firstHeading) ? headingHeight : 0);
+        }
+
+        return used;
     }
 
     /// <summary>
@@ -656,6 +690,133 @@ public static class CalendarFit
         }
 
         return pages;
+    }
+
+    /// <summary>
+    /// [S-2716] An agenda day's heading: "Today" and "Tomorrow" by name, with the date after them
+    /// ("Today · Thu, Oct 8") when <paramref name="dated"/>; any other day its date ("Sat, Oct 10").
+    /// </summary>
+    public static string AgendaHeading(Locale locale, DateOnly day, DateOnly today, bool dated)
+    {
+        var date = LocaleFormat.Date(locale, day, DateStyle.WeekdayMonthDayShort);
+        Str? word = day == today ? Str.Common_Today : day == today.AddDays(1) ? Str.Common_Tomorrow : null;
+
+        if (word is not { } name)
+        {
+            return date;
+        }
+
+        return dated
+            ? Strings.Format(locale, Str.WidgetsA_Calendar_HeadingWithDate, ("day", Strings.Get(locale, name)), ("date", date))
+            : Strings.Get(locale, name);
+    }
+
+    /// <summary>
+    /// [S-2716] Whether a heading line of <paramref name="width"/> DIPs holds "Today" or "Tomorrow"
+    /// with the date after it, for the longest such heading the language writes (every weekday,
+    /// every month), so the date does not come and go with the day of the week. Concise first: the
+    /// word is the heading; the date only joins where it fits whole.
+    /// </summary>
+    public static bool AgendaHeadingDated(Locale locale, double width)
+    {
+        var longest = 0;
+        foreach (var name in new[] { Str.Common_Today, Str.Common_Tomorrow })
+        {
+            var word = Strings.Get(locale, name);
+            for (var month = 1; month <= 12; month++)
+            {
+                for (var day = 22; day <= 28; day++)
+                {
+                    var date = LocaleFormat.Date(locale, new DateOnly(2026, month, day), DateStyle.WeekdayMonthDayShort);
+                    longest = Math.Max(longest, Strings.Format(locale, Str.WidgetsA_Calendar_HeadingWithDate, ("day", word), ("date", date)).Length);
+                }
+            }
+        }
+
+        return width >= FluentType.EstimateWidth(FluentType.BodyStrong, longest);
+    }
+
+    // ---- wrapped titles ([S-2717]) -----------------------------------------------------------------
+
+    /// <summary>[S-2717] A title wraps onto at most this many lines; past them it ends in an ellipsis.</summary>
+    public const int MaxTitleLines = 2;
+
+    /// <summary>
+    /// [S-2717] Which of a list's rows get a wrapped title's second line. The rows were fitted at one
+    /// line each, so every event that fits is shown first; then, in order, each row whose title runs
+    /// past its line takes one more line of <paramref name="extraLine"/> while
+    /// <paramref name="leftover"/> holds it. A title that fits its line takes nothing.
+    /// </summary>
+    public static IReadOnlyList<bool> SecondLines(IReadOnlyList<bool> wraps, double leftover, double extraLine)
+    {
+        ArgumentNullException.ThrowIfNull(wraps);
+        var room = new Disclosure(1, leftover);
+        var result = new bool[wraps.Count];
+        for (var i = 0; i < wraps.Count; i++)
+        {
+            // A row that does not wrap asks for nothing; one that no longer fits ends the wrapping.
+            result[i] = wraps[i] && room.Take(extraLine);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// [S-2717] What a timed block of <paramref name="lines"/> whole caption lines shows, in priority
+    /// order: the title; its time; the title's second line when it wraps; then where and who ([S-1266]).
+    /// </summary>
+    public static (int TitleLines, bool Time, bool Meta) BlockParts(int lines, bool titleWraps, bool hasMeta)
+    {
+        var room = Math.Max(1, lines) - 1;
+        var time = room > 0;
+        room -= time ? 1 : 0;
+        var title = titleWraps && room > 0 ? MaxTitleLines : 1;
+        room -= title - 1;
+        return (title, time, hasMeta && room > 0);
+    }
+
+    // ---- the day's all-day band ([S-2718]) ---------------------------------------------------------
+
+    /// <summary>[S-2718] At most this many span bars over a day's timeline; the rest share the last line.</summary>
+    public const int DayBandMaxBars = 3;
+
+    /// <summary>[S-2718] The timeline under the band keeps at least this many hours.</summary>
+    public const int DayBandKeepsHours = 3;
+
+    /// <summary>[S-2718] A span bar: a body line with room around it, so it reads as a bar, not a chip.</summary>
+    public static double DayBar => FluentType.Body.LineHeight + 8;
+
+    /// <summary>
+    /// [S-2718] The day's all-day band for <paramref name="items"/> all-day and multi-day items over a
+    /// slot of <paramref name="height"/>: one full-width bar per item, as many as fit (up to three)
+    /// while the timeline keeps <see cref="DayBandKeepsHours"/> hours; when items are left over, the
+    /// last line is shared among them ([S-2706]). A box too short for one bar falls back to that one
+    /// shared chip line over an hour; too short even for that, no band (the items are on the hover).
+    /// </summary>
+    public static DayBandFit DayBand(double height, int items)
+    {
+        if (items <= 0)
+        {
+            return new DayBandFit(0, 0, false);
+        }
+
+        var room = new Disclosure(1, height);
+        room.Reserve(DayBandKeepsHours * MinHour);
+
+        var bars = 0;
+        while (bars < Math.Min(items, DayBandMaxBars) && room.Take(DayBar))
+        {
+            bars++;
+        }
+
+        if (bars > 0)
+        {
+            return new DayBandFit(bars, DayBar, bars < items);
+        }
+
+        var chips = new Disclosure(1, height);
+        chips.Reserve(MinHour);
+        return chips.Take(ChipLine) ? new DayBandFit(1, ChipLine, true) : new DayBandFit(0, 0, false);
     }
 
     // ---- keys ([S-2710]) ---------------------------------------------------------------------------

@@ -128,6 +128,14 @@ internal static partial class WidgetSettings
                 1,
                 string.Empty,
                 value => { config.HistoryDots = (int)Math.Round(value); save(); })));
+
+        // [S-1430] The way to the file itself, for a backup or another program: the habits are kept
+        // in plain JSON beside the settings file, a folder nobody finds on their own.
+        var file = AppServices.Habits?.FilePath;
+        var open = new Button { Content = Str.Folder_OpenInExplorer.Text(), IsEnabled = file is not null };
+        open.Click += (_, _) => ShellLauncher.OpenContainingFolder(file);
+        rows.Add(FluentLayout.Row(Glyphs.Folder, Str.WidgetsB_Settings_Habits_DataFolder_Label.Text(),
+            Str.WidgetsB_Settings_Habits_DataFolder_Desc.Text(), open));
     }
 
     /// <summary>

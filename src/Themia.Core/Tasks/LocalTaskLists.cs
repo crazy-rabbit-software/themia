@@ -165,13 +165,20 @@ public static class LocalTaskLists
     // ---- tasks within a list -------------------------------------------------------------------
 
     /// <summary>
-    /// [S-599] Append an open task at the bottom, where the user typed it, trimming the title. A blank
-    /// title is a no-op returning the input itself.
+    /// [S-599] Add an open task at the bottom, where the add footer is, trimming the title — or
+    /// [S-610] at the top when the widget puts new tasks there. A blank title is a no-op returning the
+    /// input itself.
     /// </summary>
-    public static IReadOnlyList<LocalTask> AddTask(IReadOnlyList<LocalTask> tasks, string title, string id)
+    public static IReadOnlyList<LocalTask> AddTask(IReadOnlyList<LocalTask> tasks, string title, string id, bool onTop = false)
     {
         var clean = title.Trim();
-        return clean.Length == 0 ? tasks : [.. tasks, new LocalTask(id, clean, false)];
+        if (clean.Length == 0)
+        {
+            return tasks;
+        }
+
+        var task = new LocalTask(id, clean, false);
+        return onTop ? [task, .. tasks] : [.. tasks, task];
     }
 
     /// <summary>[S-603] Flip one task's done flag. Unknown id: an equal list.</summary>

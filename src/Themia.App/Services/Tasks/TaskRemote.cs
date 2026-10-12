@@ -41,6 +41,9 @@ internal interface ITaskRemote
     Task DeleteAsync(string accountId, string listId, string taskId, CancellationToken cancellation);
 
     Task<TaskItem> CreateAsync(string accountId, string listId, string title, DateOnly? due, CancellationToken cancellation);
+
+    /// <summary>[S-614] Rename a list at the provider.</summary>
+    Task RenameListAsync(string accountId, string listId, string name, CancellationToken cancellation);
 }
 
 /// <summary>
@@ -218,6 +221,12 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
 
         return TaskWire.ParseCreated(provider, reply.Body, listId)
             ?? throw new AccountException(AccountError.BadResponse, Str.Shell_Tasks_CreatedUndescribed.Text(), reply.Status);
+    }
+
+    public Task RenameListAsync(string accountId, string listId, string name, CancellationToken cancellation)
+    {
+        var provider = Provider(accountId);
+        return accounts.SendJsonAsync(accountId, HttpMethod.Patch, TaskWire.List(provider, listId), TaskWire.RenameListBody(provider, name), cancellation);
     }
 
     private AccountProvider Provider(string accountId)

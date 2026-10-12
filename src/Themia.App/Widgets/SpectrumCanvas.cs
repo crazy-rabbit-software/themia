@@ -52,6 +52,13 @@ internal sealed partial class SpectrumCanvas : Canvas
     private readonly double[] _heights = new double[Spectrum.Bands];
     private readonly (double X, double Y)[] _controls = new (double X, double Y)[3 * (Spectrum.Bands - 1)];
 
+    // Scope ([S-3212]): one line through the trace's points, its segments a pool that only grows.
+    private readonly Path? _scope;
+    private readonly PathFigure? _scopeFigure;
+    private readonly List<LineSegment> _scopeSegments = [];
+    private readonly float[] _trace = new float[Oscilloscope.Points];
+    private readonly float[] _scopePoints = new float[Oscilloscope.Points];
+
     public SpectrumCanvas(VisualizerStyle style)
     {
         _style = style;
@@ -99,6 +106,21 @@ internal sealed partial class SpectrumCanvas : Canvas
             Children.Add(_area);
             Children.Add(_line);
         }
+
+        if (style == VisualizerStyle.Scope)
+        {
+            _scopeFigure = new PathFigure { IsClosed = false, IsFilled = false };
+            _scope = new Path
+            {
+                Stroke = _fill,
+                StrokeThickness = LineThickness,
+                StrokeLineJoin = PenLineJoin.Round,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round,
+                Data = new PathGeometry { Figures = { _scopeFigure } },
+            };
+            Children.Add(_scope);
+        }
     }
 
     /// <summary>Place the shapes for <paramref name="plan"/>; the levels are kept.</summary>
@@ -121,8 +143,33 @@ internal sealed partial class SpectrumCanvas : Canvas
             case VisualizerStyle.Wave:
                 ArrangeWave(plan);
                 break;
+            case VisualizerStyle.Scope:
+                ArrangeScope(plan);
+                break;
         }
 
+        Draw();
+    }
+
+    /// <summary>[S-3214] Draw one frame of the shared capture: the trace for the waveform, the bands for every other design.</summary>
+    public void SetFrame(AudioFrame frame)
+    {
+        ArgumentNullException.ThrowIfNull(frame);
+
+        if (_style == VisualizerStyle.Scope)
+        {
+            SetTrace(frame.Trace);
+            return;
+        }
+
+        SetLevels(frame.Bands);
+    }
+
+    /// <summary>[S-3212] Draw a waveform trace (−1..1); missing points are the centre line.</summary>
+    public void SetTrace(ReadOnlySpan<float> trace)
+    {
+        _trace.AsSpan().Clear();
+        trace[..Math.Min(trace.Length, _trace.Length)].CopyTo(_trace);
         Draw();
     }
 
@@ -137,6 +184,7 @@ internal sealed partial class SpectrumCanvas : Canvas
     public void Clear()
     {
         Array.Clear(_grouped);
+        Array.Clear(_trace);
         Draw();
     }
 
@@ -342,6 +390,59 @@ internal sealed partial class SpectrumCanvas : Canvas
             case VisualizerStyle.Wave:
                 DrawWave();
                 break;
+
+            case VisualizerStyle.Scope:
+                DrawScope();
+                break;
+        }
+    }
+
+    /// <summary>[S-3213] The line's segments for the plan's points: placed once per layout, moved per frame.</summary>
+    private void ArrangeScope(VisualizerPlan plan)
+    {
+        if (_scope is null || _scopeFigure is null)
+        {
+            return;
+        }
+
+        var segments = Math.Max(1, plan.Bars - 1);
+        while (_scopeSegments.Count < segments)
+        {
+            _scopeSegments.Add(new LineSegment());
+        }
+
+        _scopeFigure.Segments.Clear();
+        for (var i = 0; i < segments; i++)
+        {
+            _scopeFigure.Segments.Add(_scopeSegments[i]);
+        }
+
+        _scope.StrokeThickness = plan.Thickness;
+    }
+
+    /// <summary>
+    /// [S-3213] [S-3206] The trace fitted to the plan's points, swinging about the centre line within
+    /// the short side less the line's own half-thickness; silence is the flat centre line.
+    /// </summary>
+    private void DrawScope()
+    {
+        var n = Math.Min(_plan.Bars, _scopePoints.Length);
+
+        if (n < 2 || _scopeFigure is null || _scopeFigure.Segments.Count < n - 1)
+        {
+            return;
+        }
+
+        Oscilloscope.Resample(_trace, _scopePoints.AsSpan(0, n));
+
+        var middle = _plan.Length / 2;
+        var swing = Math.Max(0, middle - (_plan.Thickness / 2));
+        var step = _plan.Run / (n - 1);
+
+        _scopeFigure.StartPoint = Map(0, middle + (swing * _scopePoints[0]), _plan.Run);
+        for (var i = 1; i < n; i++)
+        {
+            _scopeSegments[i - 1].Point = Map(i * step, middle + (swing * _scopePoints[i]), _plan.Run);
         }
     }
 

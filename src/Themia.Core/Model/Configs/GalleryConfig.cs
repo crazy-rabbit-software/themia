@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
@@ -110,6 +111,35 @@ public sealed class GalleryConfig : WidgetConfig
     /// <summary>How many pictures are taken from the folder.</summary>
     public int MaxImages { get; set; } = 24;
 
+    /// <summary>[S-774] One picture turned by this many degrees (any whole number; read through <see cref="EffectiveRotation"/>).</summary>
+    public int Rotation { get; set; }
+
+    /// <summary>[S-775] One picture outlined along its own shape, like a sticker.</summary>
+    public bool Outline { get; set; }
+
+    /// <summary>[S-775] The outline's colour, <c>#RRGGBB</c>; one that does not parse is white.</summary>
+    public string OutlineColor { get; set; } = StickerRules.DefaultOutlineColor;
+
+    /// <summary>[S-775] The outline's width in DIPs, <see cref="StickerRules.MinOutline"/>..<see cref="StickerRules.MaxOutline"/>.</summary>
+    public int OutlineWidth { get; set; } = StickerRules.DefaultOutline;
+
+    /// <summary>[S-774] The turn in (−180, 180].</summary>
+    [JsonIgnore]
+    public int EffectiveRotation => StickerRules.NormalizeDegrees(Rotation);
+
+    [JsonIgnore]
+    public string EffectiveOutlineColor => HexColor.Normalise(OutlineColor) is { Length: > 0 } colour ? colour : StickerRules.DefaultOutlineColor;
+
+    [JsonIgnore]
+    public int EffectiveOutlineWidth => Math.Clamp(OutlineWidth, StickerRules.MinOutline, StickerRules.MaxOutline);
+
+    /// <summary>
+    /// [S-774] A single picture file turned or outlined: drawn whole (never cropped), turned and
+    /// outlined. The photo of the day and folders are not stickers.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsSticker => Source == GallerySource.File && (EffectiveRotation != 0 || Outline);
+
     [JsonIgnore]
     public int EffectiveMaxImages => Math.Clamp(MaxImages, 1, MaxImageCount);
 
@@ -139,5 +169,9 @@ public sealed class GalleryConfig : WidgetConfig
         Shuffle = Shuffle,
         SlideshowSeconds = SlideshowSeconds,
         MaxImages = MaxImages,
+        Rotation = Rotation,
+        Outline = Outline,
+        OutlineColor = OutlineColor,
+        OutlineWidth = OutlineWidth,
     };
 }

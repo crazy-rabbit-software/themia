@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "حجم المكان والتاريخ",
+  "clockText.sizeDesc": "حجم المكان والتاريخ وسطر فرق التوقيت",
+  "clockText.small": "صغير",
+  "clockText.large": "كبير",
+  "dateWidget.label": "التاريخ",
+  "dateWidget.desc": "يوم الأسبوع وتاريخ اليوم، مصممان لخلفية الشاشة",
+  "dateWidget.showYear": "إظهار السنة",
+  "variants.visualizer.scope.label": "شكل الموجة",
+  "variants.visualizer.scope.desc": "خط يرسم الصوت نفسه، مثل راسم الذبذبات",
+  "planner.label": "مخطط الأسبوع",
+  "planner.desc": "الأيام القادمة بأحداثها، وما يستحق اليوم",
+  "planner.tasksHeader": "مهام اليوم",
+  "planner.showTasks": "إظهار مهام اليوم",
+  "planner.showTasksDesc": "المهام المستحقة اليوم أو المتأخرة، أسفل أحداث اليوم",
+  "planner.taskAccount": "المهام من",
+  "planner.taskAccountFirst": "أول حساب يحتوي على مهام",
+  "planner.free": "لا شيء مخطط له"
+}

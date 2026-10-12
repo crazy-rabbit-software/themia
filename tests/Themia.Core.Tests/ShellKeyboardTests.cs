@@ -67,6 +67,53 @@ public sealed class ShellKeyboardTests
         => Assert.Equal(EditCommand.None, EditKeys.Decide(vk, shift, ctrl, alt).Command);
 
     [Fact]
+    public void S1998_ctrl_n_opens_the_add_menu_and_nothing_else_does()
+    {
+        Assert.Equal(EditCommand.AddWidget, EditKeys.Decide(0x4E, false, true, false).Command);
+        Assert.Equal(EditCommand.None, EditKeys.Decide(0x4E, true, true, false).Command);
+        Assert.Equal(EditCommand.None, EditKeys.Decide(0x4E, false, true, true).Command); // AltGr+N
+        Assert.Equal(EditCommand.None, EditKeys.Decide(0x4E, false, false, false).Command);
+    }
+
+    [Fact]
+    public void S1998_the_hotkeys_are_one_table_with_distinct_ids_and_no_repeat()
+    {
+        var all = ShellHotkeys.All;
+
+        Assert.Equal(Enum.GetValues<ShellHotkey>().Length, all.Count);
+        Assert.Equal(all.Count, all.Select(b => b.Hotkey).Distinct().Count());
+        Assert.Equal(all.Count, all.Select(b => (b.Modifiers, b.VirtualKey)).Distinct().Count());
+        Assert.All(all, b => Assert.True(b.Modifiers.HasFlag(HotkeyModifiers.NoRepeat)));
+        Assert.All(all, b => Assert.True((int)b.Hotkey > 0)); // RegisterHotKey ids start at 1
+
+        // [S-65] Unchanged: Ctrl+Alt+W toggles edit mode; Shift adds the add menu.
+        var toggle = all.Single(b => b.Hotkey == ShellHotkey.ToggleEditMode);
+        var add = all.Single(b => b.Hotkey == ShellHotkey.AddWidget);
+        Assert.Equal(HotkeyModifiers.Control | HotkeyModifiers.Alt | HotkeyModifiers.NoRepeat, toggle.Modifiers);
+        Assert.Equal(toggle.Modifiers | HotkeyModifiers.Shift, add.Modifiers);
+        Assert.Equal(0x57u, add.VirtualKey);
+    }
+
+    [Fact]
+    public void S1998_a_hotkey_message_maps_back_only_to_our_ids()
+    {
+        Assert.Equal(ShellHotkey.ToggleEditMode, ShellHotkeys.FromId(1));
+        Assert.Equal(ShellHotkey.AddWidget, ShellHotkeys.FromId(2));
+        Assert.Null(ShellHotkeys.FromId(0));
+        Assert.Null(ShellHotkeys.FromId(3));
+        Assert.Null(ShellHotkeys.FromId(-1)); // IDHOT_SNAPDESKTOP and friends are negative
+    }
+
+    [Fact]
+    public void S1998_modifier_flags_are_windows_own_values()
+    {
+        Assert.Equal(0x0001u, (uint)HotkeyModifiers.Alt);
+        Assert.Equal(0x0002u, (uint)HotkeyModifiers.Control);
+        Assert.Equal(0x0004u, (uint)HotkeyModifiers.Shift);
+        Assert.Equal(0x4000u, (uint)HotkeyModifiers.NoRepeat);
+    }
+
+    [Fact]
     public void S904_ctrl_digits_and_keypad_digits_name_a_view()
     {
         Assert.Equal(new EditKeyAction(EditCommand.ShowView, ViewNumber: 1), EditKeys.Decide(0x31, false, true, false));

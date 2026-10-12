@@ -7,7 +7,9 @@ namespace Themia.App.Services;
 /// <summary>
 /// [S-3201]..[S-3204] The spectrum of whatever the PC is playing: a WASAPI loopback capture of the
 /// default output device, analysed into <see cref="Spectrum.Bands"/> levels about thirty times a
-/// second, shared by every audio visualizer.
+/// second, shared by every audio visualizer. [S-3214] Each frame carries the waveform's trace
+/// (<see cref="Oscilloscope"/>) beside the bands, read from the same analysis window: one capture
+/// for all six designs.
 /// <para>
 /// <b>Cheap by construction.</b> One worker thread for all tiles, started by the first subscriber and
 /// stopped by the last ([S-3203]); a tile subscribes only while it is on screen, so a hidden view,
@@ -35,18 +37,18 @@ internal static unsafe partial class AudioLoopback
     private static Worker? _worker;
 
     /// <summary>
-    /// Receive band levels (0..1, <see cref="Spectrum.Bands"/> of them) on the capture thread until
-    /// the returned handle is disposed. The array is shared between subscribers: read it, do not keep
-    /// or change it. <paramref name="onAvailability"/> hears whether the output device can be
+    /// Receive frames (the bands, 0..1, and the trace, −1..1: <see cref="AudioFrame"/>) on the capture
+    /// thread until the returned handle is disposed. A frame is shared between subscribers: read it,
+    /// do not keep or change it. <paramref name="onAvailability"/> hears whether the output device can be
     /// captured ([S-3204]): on every change, and at once when a running worker already failed. Both
     /// arrive on the capture thread (or the caller's). Call from any thread.
     /// </summary>
-    public static IDisposable Subscribe(Action<float[]> onBands, Action<bool> onAvailability)
+    public static IDisposable Subscribe(Action<AudioFrame> onFrame, Action<bool> onAvailability)
     {
-        ArgumentNullException.ThrowIfNull(onBands);
+        ArgumentNullException.ThrowIfNull(onFrame);
         ArgumentNullException.ThrowIfNull(onAvailability);
 
-        var subscriber = new Subscriber(onBands, onAvailability);
+        var subscriber = new Subscriber(onFrame, onAvailability);
         bool? known;
 
         lock (Gate)
@@ -125,13 +127,13 @@ internal static unsafe partial class AudioLoopback
         }
     }
 
-    private static void Deliver(float[] bands)
+    private static void Deliver(AudioFrame frame)
     {
         foreach (var subscriber in Volatile.Read(ref _subscribers))
         {
             try
             {
-                subscriber.OnBands(bands);
+                subscriber.OnFrame(frame);
             }
             catch (Exception ex)
             {
@@ -141,9 +143,9 @@ internal static unsafe partial class AudioLoopback
     }
 
     /// <summary>One subscription's callbacks. A class with reference identity, so two identical lambdas are two subscribers.</summary>
-    private sealed class Subscriber(Action<float[]> onBands, Action<bool> onAvailability)
+    private sealed class Subscriber(Action<AudioFrame> onFrame, Action<bool> onAvailability)
     {
-        public Action<float[]> OnBands { get; } = onBands;
+        public Action<AudioFrame> OnFrame { get; } = onFrame;
 
         public Action<bool> OnAvailability { get; } = onAvailability;
     }
@@ -348,6 +350,8 @@ internal static unsafe partial class AudioLoopback
             var filled = 0;
             var fresh = new float[Spectrum.Bands];
             var shown = new float[Spectrum.Bands];
+            var trace = new float[Oscilloscope.Points];
+            var shownTrace = new float[Oscilloscope.Points];
             var scratch = new float[4096];
             var lit = false;
             var wait = Spectrum.FrameMs;
@@ -406,6 +410,9 @@ internal static unsafe partial class AudioLoopback
                 if (arrived)
                 {
                     spectrum.Analyze(window.AsSpan(Spectrum.FftSize - filled), fresh);
+
+                    // [S-3214] The waveform from the same window: the trigger finds its own start.
+                    Oscilloscope.Trace(window, trace);
                 }
                 else
                 {
@@ -413,11 +420,12 @@ internal static unsafe partial class AudioLoopback
                 }
 
                 Spectrum.Settle(shown, fresh, Fall);
+                var moving = Oscilloscope.Settle(shownTrace, trace, arrived);
 
-                var any = Array.Exists(shown, level => level > 0);
+                var any = moving || Array.Exists(shown, level => level > 0);
                 if (any || lit)
                 {
-                    Deliver((float[])shown.Clone());
+                    Deliver(new AudioFrame((float[])shown.Clone(), (float[])shownTrace.Clone()));
                 }
 
                 lit = any;

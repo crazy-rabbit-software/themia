@@ -14,9 +14,10 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-561] / [S-2704] The week: seven day columns under their weekday and number, a band of bars for
-/// all-day and multi-day events and birthdays ([S-2703]), then on a large tile an hour grid, on a
-/// smaller one each day's timed events as a list (dots in a narrow column).
+/// [S-561] / [S-2704] The week: its day columns (seven, or the widget's own count from the week's
+/// first day or from today, [S-2719]) under their weekday and number, a band of bars for all-day and
+/// multi-day events and birthdays ([S-2703]), then on a large tile an hour grid, on a smaller one
+/// each day's timed events as a list (dots in a narrow column).
 /// </summary>
 internal sealed partial class CalendarView
 {
@@ -33,22 +34,23 @@ internal sealed partial class CalendarView
 
     private void DrawWeek(double width, double height)
     {
-        var start = CalendarRules.StartOfWeek(_anchor, _config.EffectiveWeekStart);
+        var (start, last) = Range();
+        var days = last.DayNumber - start.DayNumber + 1;
         var today = Today;
         var zone = TimeZoneInfo.Local;
         var showColors = ShowColors;
 
         var inner = new WidgetArea(width, height).Deflate(Fluent.Space1, 0);
-        var fit = CalendarFit.Week(inner.Width, inner.Height);
+        var fit = CalendarFit.Week(inner.Width, inner.Height, days);
         var gutter = fit.Timeline ? HourLabelWidth : 0;
-        var columnWidth = Math.Max(0, (inner.Width - gutter) / 7);
+        var columnWidth = Math.Max(0, (inner.Width - gutter) / days);
 
         // The height ladder: the day numbers always, then the weekday line, then the bars, then the body.
         var room = new Disclosure(inner.Width, Math.Max(0, inner.Height - Fluent.Space1));
         room.Reserve(FluentType.BodyStrong.LineHeight + Fluent.Space1);
         var weekdays = room.Fits(FluentType.Caption.LineHeight + (2 * FluentType.Caption.LineHeight)) && room.Take(FluentType.Caption.LineHeight);
 
-        var bars = CalendarFit.Bars(_events, _birthdays, start, 7, zone, singleTimed: false);
+        var bars = CalendarFit.Bars(_events, _birthdays, start, days, zone, singleTimed: false);
         var barLine = fit.Dots ? ThinBar + 2 : CalendarFit.ChipLine;
         var wantedLines = Math.Min(CalendarFit.LaneCount(bars), fit.Timeline ? 3 : 2);
 
@@ -72,7 +74,7 @@ internal sealed partial class CalendarView
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(gutter) });
         }
 
-        for (var c = 0; c < 7; c++)
+        for (var c = 0; c < days; c++)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
@@ -80,8 +82,8 @@ internal sealed partial class CalendarView
         var first = fit.Timeline ? 1 : 0;
 
         // Each day's timed events of one day only; the rest are bars.
-        var timedByDay = new List<CalendarEvent>[7];
-        for (var c = 0; c < 7; c++)
+        var timedByDay = new List<CalendarEvent>[days];
+        for (var c = 0; c < days; c++)
         {
             var day = start.AddDays(c);
             timedByDay[c] = [.. CalendarRules.DayItems(_events, [], day, zone)
@@ -123,11 +125,11 @@ internal sealed partial class CalendarView
 
         if (fit.Timeline)
         {
-            DrawWeekTimeline(grid, start, timedByDay, bars, bandLines, bodyHeight, showColors);
+            DrawWeekTimeline(grid, start, timedByDay, bars, bandLines, bodyHeight, columnWidth, showColors);
         }
         else
         {
-            for (var c = 0; c < 7; c++)
+            for (var c = 0; c < days; c++)
             {
                 var hiddenBars = CalendarFit.Hidden(bars, c, bandLines);
                 var column = fit.Dots
@@ -220,7 +222,7 @@ internal sealed partial class CalendarView
     /// <summary>
     /// [S-2704] A column's timed events as chips: the start time over the title from 64 px columns
     /// (start–end and the place under it from 100 px, [S-1265]), the title alone in a narrower one;
-    /// as many as fit whole, then "+N".
+    /// as many as fit whole, then "+N". [S-2717] The room left under them gives long titles a second line.
     /// </summary>
     private StackPanel WeekList(IReadOnlyList<CalendarEvent> timed, int hiddenBars, double height, double columnWidth, bool showColors, bool detail)
     {
@@ -229,6 +231,7 @@ internal sealed partial class CalendarView
         var line = FluentType.Caption.LineHeight;
         var room = new Disclosure(columnWidth, height, gap: 2);
         var shown = 0;
+        var titles = new List<TextBlock>();
 
         for (var i = 0; i < timed.Count; i++)
         {
@@ -243,11 +246,25 @@ internal sealed partial class CalendarView
                 break;
             }
 
-            column.Children.Add(WeekChip(e, showColors, stacked, detail));
+            var (chip, title) = WeekChip(e, showColors, stacked, detail);
+            column.Children.Add(chip);
+            titles.Add(title);
             shown++;
         }
 
         var rest = timed.Count - shown + hiddenBars;
+
+        // The chip's edge and padding and the column's margins come off the title's line.
+        var titleWidth = columnWidth - 9;
+        var leftover = room.Remaining - (rest > 0 ? line + 2 : 0);
+        var second = CalendarFit.SecondLines([.. titles.Select(t => Overflows(t, titleWidth))], leftover, line);
+        for (var k = 0; k < titles.Count; k++)
+        {
+            if (second[k])
+            {
+                WrapTitle(titles[k]);
+            }
+        }
         if (rest > 0)
         {
             var more = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
@@ -263,7 +280,7 @@ internal sealed partial class CalendarView
     /// [S-561] A timed chip: its start time above the title so the title keeps the column's width; a
     /// wide column ([S-1265]) shows the end time too and puts the place under the title.
     /// </summary>
-    private Border WeekChip(CalendarEvent e, bool showColors, bool stacked, bool detail)
+    private (Border Chip, TextBlock Title) WeekChip(CalendarEvent e, bool showColors, bool stacked, bool detail)
     {
         var stack = new StackPanel { Spacing = 0 };
         var chip = new Border
@@ -296,28 +313,29 @@ internal sealed partial class CalendarView
         }
 
         MakeOpenable(chip, e);
-        return chip;
+        return (chip, title);
     }
 
     /// <summary>
     /// [S-2704] / [S-2705] The large week: an hour grid of the hours that fit, the week's timed events
     /// placed on it in side-by-side lanes where they overlap ([S-573]).
     /// </summary>
-    private void DrawWeekTimeline(Grid grid, DateOnly start, List<CalendarEvent>[] timedByDay, IReadOnlyList<LaneItem> bars, int bandLines, double height, bool showColors)
+    private void DrawWeekTimeline(Grid grid, DateOnly start, List<CalendarEvent>[] timedByDay, IReadOnlyList<LaneItem> bars, int bandLines, double height, double columnWidth, bool showColors)
     {
         var zone = TimeZoneInfo.Local;
         var today = Today;
+        var days = timedByDay.Length;
         var all = timedByDay.SelectMany(d => d).ToList();
         var earliest = 24;
         var latest = 0;
-        for (var c = 0; c < 7; c++)
+        for (var c = 0; c < days; c++)
         {
             var (e, l) = CalendarFit.EventHours(timedByDay[c], start.AddDays(c), zone);
             earliest = Math.Min(earliest, e);
             latest = Math.Max(latest, l);
         }
 
-        var focusDay = today >= start && today < start.AddDays(7) ? today : start;
+        var focusDay = today >= start && today < start.AddDays(days) ? today : start;
         var focus = CalendarFit.FocusHour(all.Where(e => CalendarRules.StartDay(e, zone) >= focusDay), focusDay, today, DateTimeOffset.Now, zone);
         var window = CalendarFit.Hours(height, earliest, latest, focus);
 
@@ -329,13 +347,13 @@ internal sealed partial class CalendarView
         var rules = HourRules(window);
         SetRow(rules, 2);
         SetColumn(rules, 1);
-        SetColumnSpan(rules, 7);
+        SetColumnSpan(rules, days);
         grid.Children.Add(rules);
 
-        for (var c = 0; c < 7; c++)
+        for (var c = 0; c < days; c++)
         {
             var day = start.AddDays(c);
-            var canvas = TimelineCanvas(timedByDay[c], day, window, showColors);
+            var canvas = TimelineCanvas(timedByDay[c], day, window, columnWidth, showColors);
             var hidden = CalendarFit.Hidden(bars, c, bandLines) + timedByDay[c].Count(e => CalendarFit.Place(e.Start, e.End, day, zone, window) is null);
             if (hidden > 0)
             {
@@ -386,8 +404,10 @@ internal sealed partial class CalendarView
     /// <summary>
     /// One day's timed events on a timeline of <paramref name="window"/>'s hours, overlapping ones in
     /// side-by-side lanes ([S-573]); the width is the column's, so the blocks are sized on layout.
+    /// <paramref name="expectedWidth"/> is that width as the layout will give it, for what a block
+    /// has room to say ([S-2717]).
     /// </summary>
-    private Canvas TimelineCanvas(IReadOnlyList<CalendarEvent> timed, DateOnly day, HourWindow window, bool showColors)
+    private Canvas TimelineCanvas(IReadOnlyList<CalendarEvent> timed, DateOnly day, HourWindow window, double expectedWidth, bool showColors)
     {
         var zone = TimeZoneInfo.Local;
         var canvas = new Canvas { Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent) };
@@ -404,7 +424,7 @@ internal sealed partial class CalendarView
             var (e, place) = placed[i];
             var (top, span) = place!.Value;
             var blockHeight = Math.Max(FluentType.Caption.LineHeight, (span * timelineHeight) - 1);
-            var block = TimedBlock(e, showColors, blockHeight);
+            var block = TimedBlock(e, showColors, blockHeight, Math.Max(0, (expectedWidth / Math.Max(1, lanes[i].Columns)) - 2));
             block.Height = blockHeight;
             Canvas.SetTop(block, top * timelineHeight);
             canvas.Children.Add(block);

@@ -251,7 +251,62 @@ public class MailFeedTests
         Assert.Null(MailLinks.Open(imap with { WebLink = "javascript:alert(1)" }, false));
     }
 
+    [Fact]
+    public void S558_compose_opens_each_providers_own_new_message()
+    {
+        // Work or school: Graph's web link is on outlook.office365.com, so is its compose page.
+        var work = Message("w", "1", Now) with { WebLink = "https://outlook.office365.com/owa/?ItemID=1" };
+        Assert.Equal("https://outlook.office.com/mail/deeplink/compose", MailLinks.Compose(Work, [work]));
+
+        // A personal account: Graph says outlook.live.com, whatever the address's domain.
+        var personal = Work with { Address = "me@example.org" };
+        Assert.Equal("https://outlook.live.com/mail/0/deeplink/compose", MailLinks.Compose(personal, [work with { WebLink = "https://outlook.live.com/owa/?ItemID=1" }]));
+
+        // Another account's messages say nothing about this one.
+        Assert.Equal("https://outlook.office.com/mail/deeplink/compose", MailLinks.Compose(personal, [work with { AccountId = "x", WebLink = "https://outlook.live.com/owa/?ItemID=1" }]));
+
+        // Before any message is held, the Outlook.com domains are personal.
+        Assert.Equal("https://outlook.live.com/mail/0/deeplink/compose", MailLinks.Compose(Work with { Address = "me@hotmail.co.uk" }, []));
+        Assert.Equal("https://outlook.live.com/mail/0/deeplink/compose", MailLinks.Compose(Work with { Address = "me@outlook.com" }, []));
+        Assert.Equal("https://outlook.office.com/mail/deeplink/compose", MailLinks.Compose(Work with { Address = "me@outlook.contoso.com.au" }, []));
+
+        // Gmail: that address's compose window, the address encoded like the message links.
+        var gmail = new MailAccount("g", AccountProvider.Google, "Personal", "me+x@gmail.com", null);
+        Assert.Equal("https://mail.google.com/mail/?authuser=me%2Bx%40gmail.com&view=cm&fs=1", MailLinks.Compose(gmail, []));
+        Assert.Equal("https://mail.google.com/mail/?view=cm&fs=1", MailLinks.Compose(gmail with { Address = "not an address" }, []));
+
+        // IMAP: the default mail app, with nobody filled in.
+        Assert.Equal("mailto:", MailLinks.Compose(Home, []));
+
+        // Every one of them passes the launcher's gate.
+        foreach (var link in new[] { MailLinks.Compose(Work, []), MailLinks.Compose(personal with { Address = "a@live.com" }, []), MailLinks.Compose(gmail, []), MailLinks.Compose(Home, []) })
+        {
+            Assert.True(MailLinks.IsLaunchable(link), link);
+        }
+    }
+
+    [Fact]
+    public void S559_refresh_says_how_old_the_oldest_list_is()
+    {
+        Assert.Null(MailScreens.UpdatedAgo(Locale.En, [], Now));
+        Assert.Null(MailScreens.UpdatedAgo(Locale.En, [new MailAccountOutcome("w", MailAccountState.Pending, FetchStatus.Loading, null)], Now));
+
+        MailAccountOutcome[] two =
+        [
+            new("w", MailAccountState.Ok, FetchStatus.Ok, null, At: Now.AddMinutes(-3)),
+            new("h", MailAccountState.Failed, FetchStatus.Offline, null, At: Now.AddMinutes(-12)),
+        ];
+        Assert.Equal("12 min. ago", MailScreens.UpdatedAgo(Locale.En, two, Now));
+        Assert.Equal("vor 12 Min.", MailScreens.UpdatedAgo(Locale.De, two, Now));
+
+        // Under a minute, and a provider clock running ahead, are both "now", never "in 2 min.".
+        Assert.Equal("now", MailScreens.UpdatedAgo(Locale.En, [two[0] with { At = Now.AddSeconds(-20) }], Now));
+        Assert.Equal("now", MailScreens.UpdatedAgo(Locale.En, [two[0] with { At = Now.AddMinutes(2) }], Now));
+    }
+
     [Theory]
+    [InlineData("mailto:", true)]
+    [InlineData("mailto:?subject=x", false)]
     [InlineData("https://mail.google.com/mail/#all/1", true)]
     [InlineData("ms-outlook://emails/AAMk%2FAD%3D", true)]
     [InlineData("ms-outlook://emails/AAMk%2FAD%3D/reply", true)]

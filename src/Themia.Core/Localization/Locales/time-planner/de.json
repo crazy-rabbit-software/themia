@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Größe von Ort und Datum",
+  "clockText.sizeDesc": "Wie groß Ort, Datum und Zeitverschiebung angezeigt werden",
+  "clockText.small": "Klein",
+  "clockText.large": "Groß",
+  "dateWidget.label": "Datum",
+  "dateWidget.desc": "Wochentag und Datum von heute, gemacht für den Hintergrund",
+  "dateWidget.showYear": "Jahr anzeigen",
+  "variants.visualizer.scope.label": "Wellenform",
+  "variants.visualizer.scope.desc": "Eine Linie, die den Klang selbst nachzeichnet, wie ein Oszilloskop",
+  "planner.label": "Wochenplaner",
+  "planner.desc": "Die nächsten Tage mit ihren Terminen und was heute fällig ist",
+  "planner.tasksHeader": "Heutige Aufgaben",
+  "planner.showTasks": "Heutige Aufgaben anzeigen",
+  "planner.showTasksDesc": "Heute fällige oder überfällige Aufgaben, unter den heutigen Terminen",
+  "planner.taskAccount": "Aufgaben aus",
+  "planner.taskAccountFirst": "Das erste Konto mit Aufgaben",
+  "planner.free": "Nichts geplant"
+}

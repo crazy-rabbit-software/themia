@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "સ્થળ અને તારીખનું કદ",
+  "clockText.sizeDesc": "સ્થળ, તારીખ અને ઑફસેટ લાઇન કેટલી મોટી હોય",
+  "clockText.small": "નાનું",
+  "clockText.large": "મોટું",
+  "dateWidget.label": "તારીખ",
+  "dateWidget.desc": "આજનો વાર અને તારીખ, વૉલપેપર માટે બનાવેલ",
+  "dateWidget.showYear": "વર્ષ બતાવો",
+  "variants.visualizer.scope.label": "તરંગ સ્વરૂપ",
+  "variants.visualizer.scope.desc": "ઓસિલોસ્કોપની જેમ અવાજને જ દોરતી એક રેખા",
+  "planner.label": "સાપ્તાહિક આયોજક",
+  "planner.desc": "આવનારા દિવસો તેમની ઇવેન્ટ્સ સાથે, અને આજે શું બાકી છે",
+  "planner.tasksHeader": "આજનાં કાર્યો",
+  "planner.showTasks": "આજનાં કાર્યો બતાવો",
+  "planner.showTasksDesc": "આજે બાકી અથવા મુદત વીતેલાં કાર્યો, આજની ઇવેન્ટ્સ નીચે",
+  "planner.taskAccount": "કાર્યો અહીંથી",
+  "planner.taskAccountFirst": "કાર્યો ધરાવતું પહેલું એકાઉન્ટ",
+  "planner.free": "કંઈ આયોજિત નથી"
+}

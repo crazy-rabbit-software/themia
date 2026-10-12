@@ -14,7 +14,8 @@ namespace Themia.Core.Mail;
 /// <para>
 /// Only three shapes ever leave this class — an https URL from the provider, an
 /// <c>ms-outlook://emails/…</c> link with a percent-encoded id, and a <c>mailto:</c> with a checked
-/// address — and <see cref="IsLaunchable"/> is the gate the launcher applies to them.
+/// address (or none, to compose, [S-558]) — and <see cref="IsLaunchable"/> is the gate the launcher
+/// applies to them.
 /// </para>
 /// </summary>
 public static class MailLinks
@@ -56,6 +57,79 @@ public static class MailLinks
         return $"mailto:{message.FromAddress}?subject={MailWire.PercentEncode(subject)}";
     }
 
+    /// <summary>A bare <c>mailto:</c>: a new message in the default mail app, to nobody yet.</summary>
+    public const string BlankMailto = "mailto:";
+
+    /// <summary>
+    /// [S-558] The link that starts a new message from <paramref name="account"/>. Microsoft opens
+    /// Outlook on the web's compose page, on outlook.live.com for a personal account and
+    /// outlook.office.com for a work or school one; Gmail its compose window for that address
+    /// (<c>authuser</c>, as the message links do, [S-545]); IMAP a bare <c>mailto:</c>, so the default
+    /// mail app opens with no recipient. Never null: every account can start a message.
+    /// </summary>
+    /// <param name="known">Messages already held for the account: Graph's web links say which Outlook it lives on.</param>
+    public static string Compose(MailAccount account, IEnumerable<MailMessage> known)
+    {
+        ArgumentNullException.ThrowIfNull(account);
+        ArgumentNullException.ThrowIfNull(known);
+
+        switch (account.Provider)
+        {
+            case AccountProvider.Microsoft:
+                return IsPersonalMicrosoft(account, known)
+                    ? "https://outlook.live.com/mail/0/deeplink/compose"
+                    : "https://outlook.office.com/mail/deeplink/compose";
+
+            case AccountProvider.Google:
+                return IsAddress(account.Address)
+                    ? $"https://mail.google.com/mail/?authuser={MailWire.PercentEncode(account.Address)}&view=cm&fs=1"
+                    : "https://mail.google.com/mail/?view=cm&fs=1";
+
+            default:
+                return BlankMailto;
+        }
+    }
+
+    /// <summary>
+    /// Whether a Microsoft account is a personal one (Outlook.com) rather than work or school. Graph's
+    /// own web link says so best (outlook.live.com against outlook.office365.com); before any message
+    /// is held, the address's domain does (outlook.*, hotmail.*, live.*, msn.com). A personal account
+    /// on its own domain, with no message yet, lands on outlook.office.com, which signs it in there.
+    /// </summary>
+    private static bool IsPersonalMicrosoft(MailAccount account, IEnumerable<MailMessage> known)
+    {
+        foreach (var message in known)
+        {
+            if (message.AccountId != account.Id
+                || !Uri.TryCreate(message.WebLink.Trim(), UriKind.Absolute, out var uri)
+                || uri.Scheme != Uri.UriSchemeHttps)
+            {
+                continue;
+            }
+
+            if (uri.Host.Equals("outlook.live.com", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (uri.Host.StartsWith("outlook.office", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+        }
+
+        var at = account.Address.LastIndexOf('@');
+        if (at < 0)
+        {
+            return false;
+        }
+
+        var domain = account.Address[(at + 1)..].ToLowerInvariant();
+        var first = domain.Split('.')[0];
+        return domain is "msn.com" or "passport.com"
+            || (first is "outlook" or "hotmail" or "live" or "windowslive" && domain.Count(c => c == '.') is 1 or 2);
+    }
+
     /// <summary>
     /// Whether a link is one of the three shapes this class makes. Re-checked on the literal string
     /// at the moment of launch, so nothing built elsewhere can ride through.
@@ -82,6 +156,11 @@ public static class MailLinks
             }
 
             return rest.Length > 0 && rest.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.' or '~' or '%');
+        }
+
+        if (link == BlankMailto)
+        {
+            return true;
         }
 
         if (link.StartsWith("mailto:", StringComparison.Ordinal))

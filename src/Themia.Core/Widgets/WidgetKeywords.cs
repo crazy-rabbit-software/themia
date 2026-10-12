@@ -48,6 +48,7 @@ public static class WidgetKeywords
         [WidgetKind.VisualizerWave] = ["spectrum", "equalizer", "equaliser", "visualiser", "wave", "waveform", "curve", "audio", "sound", "music"],
         [WidgetKind.VisualizerDots] = ["spectrum", "equalizer", "equaliser", "visualiser", "led", "dots", "vu meter", "audio", "sound", "music"],
         [WidgetKind.VisualizerRadial] = ["spectrum", "equalizer", "equaliser", "visualiser", "circle", "radial", "ring", "audio", "sound", "music"],
+        [WidgetKind.VisualizerScope] = ["oscilloscope", "waveform", "wave", "line", "ecg", "visualiser", "audio", "sound", "music"],
         [WidgetKind.Music] = ["spotify", "player", "playback", "song", "track", "audio", "media controls", "now playing"],
 
         [WidgetKind.Cpu] = ["processor", "load", "usage", "performance", "cores", "task manager", "system monitor"],
@@ -116,6 +117,8 @@ public static class WidgetKeywords
         [WidgetKind.Moon] = ["moon phase", "full moon", "new moon", "moonrise", "moonset", "lunar", "astronomy"],
         [WidgetKind.YearProgress] = ["progress", "percent", "year", "month", "week", "day", "time passed", "elapsed"],
         [WidgetKind.NextMeeting] = ["meeting", "join", "teams", "zoom", "google meet", "webex", "event", "calendar", "upcoming"],
+        [WidgetKind.Date] = ["date", "day", "today", "weekday", "month", "calendar", "wallpaper"],
+        [WidgetKind.WeekPlanner] = ["planner", "week", "schedule", "agenda", "todo", "to do", "tasks", "events", "calendar", "plan"],
         [WidgetKind.RecentFiles] = ["recent", "recently opened", "history", "documents", "files", "quick access", "last opened"],
         [WidgetKind.RecycleBin] = ["trash", "bin", "deleted", "empty", "restore", "wastebasket", "deleted files"],
     };
@@ -133,6 +136,7 @@ public static class WidgetKeywords
         [WidgetKind.YearCalendar] = ["Microsoft", "Google", "CalDAV"],
         [WidgetKind.Agenda] = ["Microsoft", "Google", "CalDAV"],
         [WidgetKind.NextMeeting] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.WeekPlanner] = ["Microsoft", "Google", "CalDAV"],
 
         [WidgetKind.Contacts] = ["Microsoft", "Google", "CardDAV"],
         [WidgetKind.Tasks] = ["Microsoft", "Google"],

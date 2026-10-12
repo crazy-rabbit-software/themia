@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Label and date size",
+  "clockText.sizeDesc": "How large the place, the date and the offset line are",
+  "clockText.small": "Small",
+  "clockText.large": "Large",
+  "dateWidget.label": "Date",
+  "dateWidget.desc": "Today's weekday and date, made for the wallpaper",
+  "dateWidget.showYear": "Show year",
+  "variants.visualizer.scope.label": "Waveform",
+  "variants.visualizer.scope.desc": "A line that traces the sound itself, like an oscilloscope",
+  "planner.label": "Week planner",
+  "planner.desc": "The days ahead with their events, and what is due today",
+  "planner.tasksHeader": "Today's tasks",
+  "planner.showTasks": "Show today's tasks",
+  "planner.showTasksDesc": "Tasks due today or overdue, under today's events",
+  "planner.taskAccount": "Tasks from",
+  "planner.taskAccountFirst": "The first account with tasks",
+  "planner.free": "Nothing planned"
+}

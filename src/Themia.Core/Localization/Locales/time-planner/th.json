@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "ขนาดสถานที่และวันที่",
+  "clockText.sizeDesc": "ขนาดของสถานที่ วันที่ และบรรทัดเวลาต่าง",
+  "clockText.small": "เล็ก",
+  "clockText.large": "ใหญ่",
+  "dateWidget.label": "วันที่",
+  "dateWidget.desc": "วันในสัปดาห์และวันที่ของวันนี้ ออกแบบมาสำหรับวอลเปเปอร์",
+  "dateWidget.showYear": "แสดงปี",
+  "variants.visualizer.scope.label": "รูปคลื่น",
+  "variants.visualizer.scope.desc": "เส้นที่วาดเสียงออกมาโดยตรง เหมือนออสซิลโลสโคป",
+  "planner.label": "ตัววางแผนรายสัปดาห์",
+  "planner.desc": "วันข้างหน้าพร้อมกิจกรรม และสิ่งที่ครบกำหนดวันนี้",
+  "planner.tasksHeader": "งานวันนี้",
+  "planner.showTasks": "แสดงงานวันนี้",
+  "planner.showTasksDesc": "งานที่ครบกำหนดวันนี้หรือเลยกำหนด ใต้กิจกรรมของวันนี้",
+  "planner.taskAccount": "งานจาก",
+  "planner.taskAccountFirst": "บัญชีแรกที่มีงาน",
+  "planner.free": "ไม่มีแผน"
+}

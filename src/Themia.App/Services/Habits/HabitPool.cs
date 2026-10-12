@@ -60,6 +60,9 @@ internal sealed class HabitPool
     /// <summary>Why the file could not be used at start, or null.</summary>
     public string? Problem { get; }
 
+    /// <summary>[S-1430] Where <c>habits.json</c> lives, or null for a pool kept in memory only (a debug render).</summary>
+    public string? FilePath => _store?.Path;
+
     public HabitList? Find(string? id) => HabitLists.Find(_lists, id);
 
     /// <summary>[S-1429] Create a list named uniquely from <paramref name="baseName"/>; returns its id, or null when read-only.</summary>

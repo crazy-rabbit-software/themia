@@ -20,8 +20,8 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon (two widgets, SKY-SPLIT); Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
-- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar widgets: five kinds and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Air quality, rain and exchange rates (ONLINE-2).
+- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon (two widgets, SKY-SPLIT); Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
+- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar widgets: five kinds and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
 
@@ -705,11 +705,11 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   opening its own submenu. Never deeper than that. The catalogue has no sections of its own any more.
 - **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast, Month
   calendar, Agenda, Mail, Tasks, Notes, Now playing, CPU, Folder list, Shortcuts. **Browse**, in
-  order: **Time** (clock, alarm, countdown, stopwatch | pomodoro, focus session | year progress);
-  **Calendar & mail** (Calendar › month, agenda, week, day, year; next meeting | mail, tasks,
+  order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session | year progress);
+  **Calendar & mail** (Calendar › month, agenda, week, day, year; next meeting, week planner | mail, tasks,
   contacts | notifications); **Weather & sky** (weather, forecast, rain next hour, air quality | sun,
   moon); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
-  Visualizer › its five designs, volume, mixer | gallery, video stream); **Notes & tools** (notes,
+  Visualizer › its six designs, volume, mixer | gallery, video stream); **Notes & tools** (notes,
   scratchpad, clipboard | habits, quote); **Files & apps** (Folder › list, details, grid, icons;
   shortcuts, recent files, recycle bin); **System** (CPU › meter, details, top processes; Memory ›,
   GPU ›, Disk › meter and disk space, Network ›, Ping ›, each a meter and its details | Screen
@@ -822,7 +822,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   flip sides on every move. It comes back on the drop, placed against where the widgets landed. It
   is away too outside edit mode, while placing ([S-421]) and with nothing selected on the display.
 - **[S-3711]** Some kinds can never have a header (`WidgetInstance.CanHaveHeader`): the thirteen
-  quick-setting toggles ([S-3901]) and all five audio visualizer designs ([S-3200]). For a selection holding one, the strip has no Header choice and
+  quick-setting toggles ([S-3901]) and all six audio visualizer designs ([S-3200], [S-3212]). For a selection holding one, the strip has no Header choice and
   shows only what every selected widget can take (Background, and the title for one); `SetHeader`
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
@@ -1404,8 +1404,8 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   line of user-ordered columns under a header row) views [S-14, S-37]; newest or oldest first over
   the same newest N [S-17]. The card title is the folder; the header carries the unread badge
   [S-02], a warning glyph naming an account that failed or needs signing in (tap → Accounts), and a
-  busy ring only for a refresh the user asked for. The card menu offers Refresh and the five folders
-  [S-20]; the view and the order are settings only ([S-1746]).
+  busy ring only for a refresh the user asked for. The card menu offers Refresh, Write email
+  ([S-558]) and the five folders [S-20]; the view and the order are settings only ([S-1746]).
 - **[S-543]** List fields Subject / Preview / Account, default all on; Preview only in the list view;
   the account tag shows whenever chosen [S-43]. Row columns From, Subject, Date, Preview, Account,
   reorderable, at least one on [S-16].
@@ -1470,6 +1470,20 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   essential columns whose minimums fit (From, Subject, Date, Account, Preview — so a narrow tile keeps
   From and Date), in the user's order, never fewer than one; the column header needs 140px.
 - **[S-557]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
+- **[S-558]** Write email (issue #6): the card menu offers it under Refresh, once per account the widget
+  reads ("Write email from Work" when there are several), whatever the screen and whether or not the
+  header shows; the header carries a pen button for it from 240px wide (a menu of the accounts when
+  there are several). It opens a new message where the account lives (`MailLinks.Compose`): Microsoft
+  Outlook on the web's compose page — outlook.live.com for a personal account (Graph's web links say
+  so; before any message is held, an Outlook.com / Hotmail / Live / MSN address), else
+  outlook.office.com; Gmail `mail.google.com/mail/?authuser=<address>&view=cm&fs=1`; IMAP a bare
+  `mailto:` for the default mail app. A bare `mailto:` is the fourth launchable shape ([S-547]);
+  a refusal from the shell is the header warning.
+- **[S-559]** When mail last refreshed (issue #120): the menu's Refresh names the list's age, "Refresh ·
+  updated 3 min. ago" (the language's short relative time, "now" under a minute or for a clock
+  ahead), of the oldest account in the feed. "Updated" is when a list was last known current: fetched,
+  or a probe found its counts unchanged ([S-546]); the failure stamp of [S-2612] uses the same time.
+  Nothing new on the tile: the rows already carry their own times ([S-666]).
 
 Not ported, deliberately: the per-widget header hide and label [S-03, S-19] (the card's own header
 placement and label do this for every widget), the "unread only" filter, and the composite
@@ -1510,8 +1524,10 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
 - **[S-594]** Labels: Overdue / Today / Tomorrow / short weekday (2–6 days) / `14 Oct`, counted in day
   numbers so a DST change cannot shift them. Overdue is said in words and in the critical colour, and
   never for a finished task.
-- **[S-595]** Completed tasks are hidden unless "Show completed" is on; then they are struck through.
-  Completing one with completed hidden makes it leave the list at once (no timed removal).
+- **[S-595]** Completed tasks are hidden unless "Show completed" is on; then they are struck through
+  (under Today only those finished today, [S-612]). Completing one with completed hidden makes it
+  leave the list at once (no timed removal). This and the filters of [S-611] are one rule
+  (`TaskRules.Visible` over a `TaskFilter`).
 - **[S-596]** Today (`__today__`, the classic id) is every task due today or overdue across the
   account's lists (at most 50, read one at a time), oldest first, stable within a day; undated tasks
   are not in it. A failing list is skipped and logged; when every list fails the first error is shown
@@ -1525,14 +1541,15 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
   offline or throttled a change stays on screen and waits; only a refusal takes it back. Every feed
   of the account (a list and Today) shows the same pending changes. The round marker is the one control that completes a task.
 - **[S-598]** Neither provider stores a hand-made order, so an account list's order is task ids in the
-  widget's config (`ApplyOrder`: known ids first, unknown ones — new tasks — after; a gone id leaves no
-  hole, a duplicate cannot double a row). A list on this PC is its own order, and a move leaves hidden
-  completed tasks in their slots. Rows move by dragging ([S-786]) or with Alt+Shift+Up / Down on the
+  widget's config (`ApplyOrder`: known ids first, unknown ones — new tasks — after, or before with
+  [S-610]; a gone id leaves no hole, a duplicate cannot double a row). A list on this PC is its own
+  order. A move is written over the whole list (`MergeOrder`), so tasks hidden by "Show completed" or
+  a filter ([S-611]) keep their slots. Rows move by dragging ([S-786]) or with Alt+Shift+Up / Down on the
   focused row ([S-3802]); the row's menu has no Move up / Move down.
 - **[S-599]** A new task is added from the add footer pinned at the bottom of the widget ([S-3850]; Enter adds and keeps the box
-  open for the next; leaving it adds and closes) and appears at the bottom: optimistically under a
-  temporary id that is never written to, then under the provider's id, with the order on screen pinned
-  into the config so the next refresh cannot re-sort it to the top.
+  open for the next; leaving it adds and closes) and appears at the bottom (the top with [S-610]):
+  optimistically under a temporary id that is never written to, then under the provider's id, with
+  the whole list's order pinned into the config (`PlaceAdded`) so the next refresh cannot re-sort it.
 - **[S-600]** Double-click a task (or Rename in its menu) to rename it in place. Enter or leaving the
   box commits, Escape cancels, a blank or unchanged title writes nothing. The request is a PATCH of
   the title alone, its body written with a JSON writer so a quote cannot break out.
@@ -1554,7 +1571,43 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
   first, else a new one — only the last creates anything. A deleted list leaves its widgets on "Pick
   or start a list", never on another list's tasks.
 - **[S-605]** Retired (the app is unreleased: no hearth-era config is read). Nulls a hand edit leaves in
-  a Tasks config's strings, an unknown source or layout, and a broken row order are repaired on load.
+  a Tasks config's strings, an unknown source, layout or due filter, a text filter over 100
+  characters, and a broken row order are repaired on load.
+- **[S-610]** "New tasks at the top" (per widget, settings, off by default = [S-599]): a task added
+  here goes first — a list on this PC inserts it at the head of its array; an account list pins it
+  first in the widget's order — and tasks the widget's order has not seen (added on a phone, or a
+  temporary row confirmed under the provider's id) lead the list instead of trailing it. Neither
+  provider is asked to move anything: Graph keeps no order and Google's `position` is not read
+  ([S-598]); the order stays the widget's own.
+- **[S-611]** Filters (per widget, in settings under Filter; none by default): Due — any time,
+  overdue (open tasks only: a finished task is never overdue, [S-594]), today, this week (the
+  calendar week holding today, from the regional week start [S-564]), no due date; Important only
+  (To Do's importance); Title contains (words, any case, at most 100 characters, written on Enter or
+  leaving the box). Due and importance exist only on account tasks: a list on this PC applies the
+  text filter alone and its settings do not offer the others. Filters combine with "Show completed"
+  and Today. A list a filter empties says "No tasks match the filter."; while a filter narrows the
+  list the add footer hides ([S-3850]), because a task typed there could vanish as it is added.
+- **[S-612]** A finished task carries when it was finished (`TaskStamp`, parsed at the boundary from
+  Graph `completedDateTime` — To Do may write the day only, midnight, which reads as that day — or
+  Google `completed`; a value that is not a date, or one on an open task, is none). Under Today,
+  "Show completed" shows only the tasks finished today in the viewer's zone, as To Do's My Day does
+  (#137); a list shows every finished task. A tick shows its own moment until the provider's arrives,
+  a reopen clears it. Stored in the task shelf ([S-2651]); a list on this PC has no Today and keeps none.
+- **[S-613]** My Day (#128, #137): Microsoft Graph does not expose it — no `todoTask` property
+  (v1.0 or beta) says a task is in My Day and no `wellknownListName` names it (checked 2026-10) —
+  and Google Tasks has no such list. So Today ([S-596]) stays what can be read honestly: every task
+  due today or overdue, across the account's lists, with today's finished ones ([S-612]). It is
+  called "Today", never "My Day".
+- **[S-614]** The header's list picker (a chevron after the badge, from Regular width; like Notes'
+  [S-1364]): Today and the account's lists, or the lists on this PC, to switch to (an account list
+  picked here starts its own order, as in settings), then Rename list… for the list shown, in a box
+  under the picker (Enter or leaving it renames, Escape does not; a blank or unchanged name writes
+  nothing). An account list is renamed through the account's queue ([S-2610]): `PATCH` of
+  `displayName` (Graph) or `title` (Google) alone; the new name shows at once in every widget on the
+  account, a second rename replaces a queued one, a confirmed one stays on top of a list read that
+  started before it, and a refusal puts the old name back and says why. Today and To Do's own lists
+  (`wellknownListName` other than `none`: Tasks, Flagged email — To Do refuses to rename them) offer
+  no Rename. A list on this PC is renamed in its pool ([S-603]).
 
 Not ported, deliberately: the pop-out window [S-39] (out of scope by user decision), the per-widget
 header hide and label [S-02, S-20] (the card's own header does this for every widget), the 600 ms delay before a completed task leaves the list [S-26] (no wall-clock timing in the
@@ -1576,9 +1629,9 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   never converted between zones; a timed one as two instants. Clicking an event opens its provider
   page (CalDAV has none: tooltip only).
 - **[S-561]** Config, shared by the five calendar kinds ([S-3601]): `accountIds`, `calendars`,
-  `calendarColors`, `showBirthdays` (on); the month, week and year add `weekStart`, the agenda
-  `agendaCount` (1–100, 20). No `layout`: the kind is the layout ([S-3600]). The context menu offers
-  Refresh.
+  `calendarColors`, `showBirthdays` (on); the week adds `days` and `firstDay` ([S-3637]), the agenda
+  `agendaCount` (1–100, 20) and `agendaDays` ([S-3636]). No `layout`: the kind is the layout
+  ([S-3600]). The context menu offers Refresh.
 - **[S-562]** An empty `accountIds` means every calendar account (later ones too — the Mail
   pattern); settings offer "Every calendar account" or a choice where the last cannot be turned off.
   Chosen accounts that were signed out are skipped; when none are left the widget says so with a
@@ -1588,7 +1641,8 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   [S-1050].)*
 - **[S-564]** Week start Monday, Sunday or Saturday (the Iranian week, fa-IR) drives the month grid, the week view, the year's small
   months and the weekday header; the day and the agenda have none. It is the shared regional
-  setting ([S-3770]), not a calendar's own: no calendar stores `weekStart`.
+  setting ([S-3770]), not a calendar's own: no calendar stores `weekStart`. Only the week calendar
+  may start its columns on today instead, for itself alone ([S-3637]).
 
 - **[S-565]** Provider datetimes: a zone (`Z`, `±HH:MM`, `±HHMM`, negative offsets included) is kept;
   a zoneless one is UTC. Cancelled events (Graph `isCancelled`, Google `status: cancelled`, iCal
@@ -1602,17 +1656,20 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   the six) and, when there is more than one, a switch. No selection means the default calendar;
   deselecting the last one goes back to it. A Google sign-in whose scope cannot list calendars
   (403) is offered its primary calendar.
-- **[S-568]** Ranges: month = whole weeks around the month; week; day; year = 1 Jan – 31 Dec;
-  agenda = today and the next 30 days. Requested from local midnight to local midnight (the classic
-  app used UTC midnight). The header title is the period ("October 2026", "28 Sep – 4 Oct",
-  "Sun 4 Oct", "2026"); the agenda's is the widget's name.
-- **[S-569]** Back / forward step a month (day clamped), week, day or year (29 Feb clamped); the
+- **[S-568]** Ranges: month = whole weeks around the month; week = its days ([S-2719], a whole week
+  by default); day; year = 1 Jan – 31 Dec; agenda = its date range from today ([S-3636], 30 days
+  with today by default). Requested from local midnight to local midnight (the classic app used UTC
+  midnight); what decides them beside the kind and the anchor is one `CalendarPeriod` (week start,
+  week days and first day, agenda days). The header title is the period ("October 2026",
+  "28 Sep – 4 Oct", "Sun 4 Oct", "2026"; a one-day week reads like a day); the agenda's is the
+  widget's name.
+- **[S-569]** Back / forward step a month (day clamped), the week's period ([S-2719]), day or year (29 Feb clamped); the
   agenda pages its rows ([S-2709]). A today button shows when today is off screen (the agenda: past
   its first page). The widget follows today across midnight until the user pages away.
 - **[S-570]** A day lists birthdays, then all-day events, then timed ones by start; an all-day
   event covers [first, end); a timed one shows on every local day it overlaps.
-- **[S-571]** Agenda: grouped by day ("Today", "Tomorrow", "Mon 5 Oct"), at most `agendaCount`
-  entries; an event spanning several days is listed under each day it covers (classic #155), one
+- **[S-571]** Agenda: grouped by day ("Today", "Tomorrow", "Mon 5 Oct"; [S-2716]), at most `agendaCount`
+  entries within its date range ([S-3636]); an event spanning several days is listed under each day it covers (classic #155), one
   still running from before from today on; timed events already over are left out. A timed event's
   row shows that day's part of it (18:00–00:00, "All day" for a day it covers whole, 00:00–10:00). Rows: time column (start over end, "All day", "Now"), title, location · organizer; on a
   tile under 260 px the time folds under the title. The time column is as wide as its widest label
@@ -1621,8 +1678,8 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
 - **[S-572]** Month cells: chips (title, coloured edge) as many as fit, the overflow as "+N" beside
   the day number; on smaller cells up to three dots (two in narrow cells) plus a muted one; on the
   smallest the number alone, strong when the day has something. Today is an accent disc.
-- **[S-573]** Day: an all-day bar (all-day and multi-day events, birthdays) and a timeline of the
-  hours that fit ([S-2705]), overlapping events in side-by-side lanes. Not scrolled.
+- **[S-573]** Day: an all-day band (all-day and multi-day events, birthdays, as span bars, [S-2718])
+  and a timeline of the hours that fit ([S-2705]), overlapping events in side-by-side lanes. Not scrolled.
 - **[S-574]** *(Retired: a layout never falls back to another, [S-2700].)*
 - **[S-575]** Birthdays (when `showBirthdays`) come from Microsoft (`/me/contacts` `birthday`) and
   Google (People `birthdays`) accounts, held for a day. 29 February falls on the 28th in other
@@ -1771,7 +1828,7 @@ Prep for the parallel shell and widget packages (S-700..S-719). Mostly file layo
 rules are these.
 
 - **[S-700]** The clock starts with its header **hidden**, as in the original
-  (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
+  (`WidgetInstance.DefaultHeader`); so do the Date widget ([S-5300]), the power buttons ([S-1911]), the audio visualizer
   ([S-3200]), and (user requirement) the sun, the moon ([S-3100]) and the disk meter, which names
   its drive beside its reading instead ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.
@@ -1899,6 +1956,29 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   and back within it finds everything in hand; then it is released: watcher closed, read cancelled,
   and the decoded pictures only it showed dropped. A widget coming back later reads its source again
   but still returns to its picture ([S-3412]). (Tests `S3413_`.)
+- **[S-774]** A sticker (issue #158): a `File` source turned (`Rotation`, any whole degree, read in
+  (−180, 180]) or outlined is drawn **whole** (the fit setting is hidden, never a crop) and turned
+  about its centre by `RotatedBox`, the video stream's panel ([S-468]) generalised to any angle: the
+  picture is laid out at the largest box of its own shape that still fits the frame once turned
+  (`StickerRules.FitRotated`; a quarter turn is the old axis swap), so nothing is clipped at any
+  angle. Folders and the photo of the day are not stickers. Settings: Rotation (−180°..180° slider)
+  and Outline, shown for one picture only. (Tests `S774_`.)
+- **[S-775]** The outline follows the picture's own transparent shape: every pixel at least 50 %
+  opaque is the shape, and the band is the exact Euclidean distance from it (`StickerRules.Outline`,
+  round at corners, half a pixel of edge softening), `OutlineWidth` 1–24 DIPs wide (default 6) in
+  `OutlineColor` (`ColorPickerRow`, default white; one that does not parse is white). The pad is
+  settled in the picture's pixels so the band shows that many DIPs once fitted and turned
+  (`StickerRules.OutlinePad`). A picture with no opaque pixel has no outline. (Tests `S775_`.)
+- **[S-776]** The one main picture (slideshow, file, photo of the day) has **no backing fill**, so a
+  PNG's transparent pixels and a letterbox show the card, or the desktop on a transparent surface
+  ([S-32]): a cut-out picture on a transparent Gallery is a sticker on the wallpaper. Tiles (grid,
+  scatter, mosaic) keep their placeholder fill while they decode.
+- **[S-777]** The outline is worked out from a second decode of the file at the size shown (longest
+  side rounded up to 64 px, at most 2048, never above the picture's own; files over 64 MB are shown
+  without one), the distance pass on the thread pool, drawn as a bitmap under the picture. It is
+  asked again only when the picture, colour, width, angle, scale or the frame's size (in 32-DIP
+  steps) changes; a newer ask cancels the one in flight, and until it lands the picture is fitted by
+  its own shape. Debug: `--widget-png Gallery … --state sticker` (the app's logo, −15°, white).
 
 ## Weather: current conditions and forecast
 
@@ -2008,7 +2088,9 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 ## Tasks: using the whole tile, and the rest of the original
 
 - **[S-780]** Tasks ladder (`TaskLayout.Plan`, from the card's `WidgetArea`): one task always; the add
-  footer ([S-3850]) from Regular height, and at any size under an empty list; the list takes the rest (no summary strip, [S-783]).
+  footer ([S-3850]) from Regular height, and at any size under an empty list (never while a filter
+  narrows the list, [S-611]); the list takes the rest (no summary strip, [S-783]). The header's list
+  picker ([S-614]) from Regular width.
   Compact rows below Expanded height; one-line titles at Compact height, at most two below Expanded.
   Due text by width: none on an XS tile (both axes Compact), only Overdue/Today in a Compact-wide
   column, the short label otherwise, label plus date ("Overdue · 2 Oct", "Thu 8 Oct") on a panel;
@@ -2430,6 +2512,10 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
 - **[S-1429]** Settings: the list picker/editor (pick, rename as typed, habit count, add, delete
   — always confirmed, empty or not, original S-24), Resets, Interval (custom only), Show streaks,
   History. Renaming a list retitles every widget showing it.
+- **[S-1430]** Settings end with "Data folder" (issue #154): **Open in Explorer** opens the folder
+  holding `habits.json` (`HabitPool.FilePath`, through `ShellLauncher.OpenContainingFolder`, so it is
+  classified like every other launch), for a backup or another program. Off when the pool has no
+  file (a debug render keeps it in memory).
 - Not ported: original S-10 compact header default (no compact header mode here), S-12 equal-slice
   rows (Fluent fixed rows, S-213), S-13 drag reorder (above), S-21 legacy migration (no backwards
   compatibility).
@@ -2481,8 +2567,8 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   across them, squared off where it runs past the row. Lines are packed from the first column, the
   longest first; what a day's lines cannot hold is its "+N". A timed event ending at midnight is
   one day.
-- **[S-2704]** Week (`CalendarFit.Week`): columns under weekday and number (never without one letter
-  of the weekday); a band of bars (up to two lines, three on the hour grid, always leaving a line for
+- **[S-2704]** Week (`CalendarFit.Week`): its day columns ([S-2719]; the widths below are a column's)
+  under weekday and number (never without one letter of the weekday); a band of bars (up to two lines, three on the hour grid, always leaving a line for
   the body); then, from 64 px columns and 280 px tall (L, XL), an hour grid with each day's timed
   events in overlap lanes; else each column's timed events as chips (time over title from 64 px,
   title alone from 40 px), then "+N"; under 40 px one dot per event and a muted one for the rest.
@@ -2492,8 +2578,8 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   before the focus (today: the next event still to end, else now; another day: its first event, else 08:00). Hours fill
   the box exactly; hour labels read "07:00", or "07" in a day under 160 px. Today has an accent
   now-line. Events outside the window are on the day's hover.
-- **[S-2706]** Day: the all-day bar shares its width in chips of at least 56 px, the rest "+N" (on
-  hover); a day with nothing says "No events today".
+- **[S-2706]** Day: the all-day band's shared line ([S-2718]) splits its width in chips of at least
+  56 px, the rest "+N" (on hover); a day with nothing says "No events today".
 - **[S-2707]** Year (`CalendarFit.Year`): twelve small months in the arrangement of 4×3, 3×4, 6×2,
   2×6, 12×1 or 1×12 with the largest day cell, preferring cells that hold numbers (a caption line)
   and then a weekday row; under 4 px it falls back to 6, 4, 3, 2 or 1 months around the current one
@@ -2502,14 +2588,41 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   ringed. Every day's items on hover. XS shows three months, S six, the rest twelve.
 - **[S-2708]** Month names in the year follow the small month's width: "September", "Sep", "S"
   (`LocaleFormat.MonthName`); the current month's in the accent.
-- **[S-2709]** Agenda pages (`CalendarFit.AgendaPages`): whole rows of one height per render, a day's
-  heading before its first row and again atop a column that starts mid-day; pages fill the columns in
-  turn and always advance. Back / forward show only where there is a page; Home is the first.
+- **[S-2709]** Agenda pages (`CalendarFit.AgendaPages`): whole rows of one height per render (a
+  wrapped title's second line aside, [S-2717]), a day's heading before its first row and again atop a
+  column that starts mid-day; pages fill the columns in turn and always advance. Back / forward show
+  only where there is a page; Home is the first.
 - **[S-2710]** Key map (`CalendarFit.Key`), every layout: Left / Right and Page Up / Page Down step
   the layout's unit (month, week, day, year, agenda page); Up / Down the cursor day a week (month,
   week); Home today; Enter the cursor day's first event (the agenda page's first; none in the year).
   The header's arrows hide on a Compact-width tile (the keys still page).
 - **[S-2711]** *(Retired: one widget with five layout states; each calendar kind has its own renders, [S-3606].)*
+- **[S-2716]** Agenda day headings (`CalendarFit.AgendaHeading`): today and tomorrow are "Today" and
+  "Tomorrow", any other day its date ("Tue, Oct 6"). Where the heading line holds the longest
+  dated heading the language writes (every weekday and month, `AgendaHeadingDated`), the two named
+  days carry their date too ("Today · Sun, Oct 4"); else the word alone (concise first), so the
+  date never comes and goes with the day of the week.
+- **[S-2717]** Long titles wrap: an agenda row's title, a week column's chip and a timeline block
+  take a second line where a title runs past its one (word wrap, an ellipsis after the second). A
+  list is fitted at one title line a row first, so a wrap never costs an event its place; what is
+  left under the column (less the "+N" line) goes to the wrapping titles in order, one line each
+  (`CalendarFit.SecondLines`). A timeline block spends its whole caption lines on the title, its
+  time, the title's second line, then where and who (`CalendarFit.BlockParts`). Month and band
+  chips stay one line.
+- **[S-2718]** The day's all-day band (`CalendarFit.DayBand`): each all-day or multi-day item and
+  birthday is a full-width span bar a body line tall (with room around it), up to three, as long as
+  the timeline keeps three hours. Its colour runs along the leading edge; an item that began before
+  the day or runs past it is squared off with a chevron on that side, and from 200 px names its days
+  ("Oct 6 – Oct 9"). Items past the bars share the last line ([S-2706]); a box too short for one bar
+  keeps the one shared chip line, and one too short for that has no band (the hover lists them).
+- **[S-2719]** Week days (`CalendarRules.WeekFirst`, `WeekStep`): the week shows `days` columns
+  ([S-3637]) from the first day of the week or from today. Its periods are laid end to end from
+  today (from today) or from the start of today's week, one step apart: its own length from today,
+  else whole weeks (5 days step Monday to Monday, 14 days two weeks). The period on screen is the
+  one holding the anchor, so following today keeps the next days rolling, a day selected inside the
+  period moves nothing and one outside pages to its period ([S-3621]). Columns share the width
+  (`CalendarFit.Week(width, height, days)`), so fewer days are roomier columns; the band, lists and
+  hour grid are the same layout for any count.
 - **[S-1270]** Contacts list rows say what the list's area allows (`ContactRules.ListDetail`, on the
   tile less its search box): width Compact → the name only (32 px rows, no avatar); height Compact →
   the role, else the address/number; Regular → the role plus the address (else number) when three
@@ -2556,17 +2669,29 @@ for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `Offic
   ([S-1900], [S-1050]). The kind fixes the layout (`CalendarConfig.Layout`, never stored), and each
   keeps its size ladder ([S-2702]..[S-2709]).
 - **[S-3601]** One settings builder for all five: accounts and their calendars with colours
-  ([S-562], [S-566], [S-567]) and birthdays, plus only what the kind uses: the week start for month,
-  week and year (`CalendarGridConfig`), the agenda length for the agenda. A day or agenda config
-  stores no week start, a month no agenda length.
+  ([S-562], [S-566], [S-567]) and birthdays, plus only what the kind uses: the week's first column
+  and days ([S-3637]), the agenda's date range ([S-3636]) and length. No calendar stores a week
+  start ([S-564]); a month, day or year config stores neither the week's nor the agenda's fields.
 - **[S-3602]** One data seam and one sync for all five ([S-2701], [S-588]): two calendar widgets on
   a desktop ask the same shared source and store, never their own.
-- **[S-3606]** Debug renders: `--widget-png <Kind> <out> --state sample|selected|linked` for each
+- **[S-3606]** Debug renders: `--widget-png <Kind> <out> --state sample|selected|linked|days` for each
   kind: the fixed sample (two calendars, a one-day and a four-day all-day event, a trip across a
-  week's end, an overnight event, overlaps, birthdays, a year of meetings) through a fixture
-  `ICalendarData`; `selected` selects the day after tomorrow as another widget would ([S-3620]);
-  `linked` puts another widget's pointer on one event ([S-3623]). A card that needs setting up runs
-  its view for the preview (`WidgetCard.RunForPreview`).
+  week's end, an overnight event, overlaps, a long title, birthdays, a year of meetings) through a
+  fixture `ICalendarData`; `selected` selects the day after tomorrow as another widget would ([S-3620]);
+  `linked` puts another widget's pointer on one event ([S-3623]); `days` sets the kind's own range
+  (the week: the next four days from today; the agenda: today and tomorrow). A card that needs
+  setting up runs its view for the preview (`WidgetCard.RunForPreview`).
+- **[S-3636]** The agenda's date range (`AgendaConfig.AgendaDays`, 1–365, 30): how many days it
+  covers from today, today included; it replaces the fixed 30 days in the one range path
+  (`CalendarRules.ViewRange`). Settings offer Today, Today and tomorrow, 3, 7 and 30 days, and Custom,
+  which shows a number of days of its own; the length (`agendaCount`) still caps the entries within
+  it. A value out of range is brought inside it at load and logged.
+- **[S-3637]** The week's own days (`WeekCalendarConfig`): `days` (1–14, 7) and `firstDay`
+  (`week`, the regional first day of the week, or `today`); a working week is 5 from the week
+  start, the next days any count from today ([S-2719]). Settings: "Starts on" (First day of the week
+  (Monday) or Today) and "Days shown". It overrides the regional week start for this widget only and
+  stores no `weekStart`; out-of-range or unknown values fall back at load (days clamped, an unknown
+  first day the week start).
 
 Provider events ([S-560], [S-565]), as real calendars send them:
 
@@ -2600,7 +2725,7 @@ Shared dates and events on a view ([S-3300], [S-3311]):
   anchor on it (`CalendarShare.AnchorFor`), paging only when it is in another period, so the day
   calendar shows the day picked in the month or the year. A widget that joins a view reads the
   selection there at once.
-- **[S-3622]** The agenda keeps its own range (today and the next 30 days) and turns to the page
+- **[S-3622]** The agenda keeps its own range (its date range from today, [S-3636]) and turns to the page
   holding the selected day: the page with the first row on or after it (`CalendarShare.AgendaPageOf`);
   a day after every row moves nothing.
 - **[S-3623]** The event under the pointer is shared (`HoveredEvent`, `EventLink(account, calendar,
@@ -2652,7 +2777,8 @@ Shared dates and events on a view ([S-3300], [S-3311]):
   keyboard; the views' `KeyDown` handlers are in place for it. Clearing the focus on a click outside
   or on app blur is the lease's job.
 - **[S-1289]** Mail's header carries a sort button (from 200px wide) that turns the list round and
-  saves `SortOrder`, like the menu's toggle; its tooltip says the current order.
+  saves `SortOrder`, like the menu's toggle; its tooltip says the current order. The compose button
+  joins before it from 240px ([S-558]).
 - **[S-1295]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
 Not ported, deliberately: main's low-level keyboard hook for list focus (the lease replaces it).
@@ -3135,6 +3261,8 @@ there: Themia never takes a key from the app the user is typing in.
 | Where | Key | Does |
 |---|---|---|
 | Anywhere | Ctrl+Alt+W | Toggle edit mode ([S-65], global hotkey) |
+| Anywhere | Ctrl+Alt+Shift+W | Edit mode with the add menu open ([S-1998], global hotkey) |
+| Edit mode | Ctrl+N | Open the add menu ([S-1998]) |
 | Edit mode | Arrows | Move the selection one grid cell ([S-1970]) |
 | Edit mode | Ctrl+Arrows | Move ten cells ([S-1972]) |
 | Edit mode | Alt+Arrows | Move one DIP, off the grid ([S-1972]) |
@@ -3160,6 +3288,15 @@ there: Themia never takes a key from the app the user is typing in.
 | Add menu | Arrows, Home / End, Enter, Space, Escape | Walk the tree, open a subject or family (Right, Enter), close it (Left, Escape), place, empty the search then close ([S-3514], [S-3515]) |
 | Menus, flyouts, dialogs | Arrows, Enter, Escape | WinUI's own: Escape closes the innermost |
 
+- **[S-1998]** The add menu straight from the keyboard (issue #120). **Ctrl+Alt+Shift+W** anywhere
+  (a second global hotkey: Ctrl+Alt+W with Shift for "and add") and **Ctrl+N** in edit mode take one
+  path, `AppHost.OpenAddMenu`: edit mode on, a placement in progress dropped, and the add menu
+  ([S-3501]) opened on the display under the pointer (as a paste lands there, [S-74]), at the
+  pointer, else mid work area. The surface takes the foreground (the hotkey press is what lets it)
+  so typing reaches the menu's search ([S-3514]). Both hotkeys are rows of one table, Core
+  `ShellHotkeys`, registered `MOD_NOREPEAT` and unregistered on shutdown by the command window's one
+  loop; one another program owns is logged and skipped, as [S-65]. The surface menu's Add widget
+  shows Ctrl+N. (Tests `S1998_`.)
 - **[S-1970]** In edit mode an arrow moves **every selected widget on this display** one snap cell
   ([S-06b]) as one block, by the drag's rules ([S-1584]): the block's corner snapped when the grid
   is on, the block slid into the work area, never pulled apart at an edge. An off-grid widget lands
@@ -4401,7 +4538,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 - **[S-3200]** `AudioVisualizer` (kind 70, `AudioVisualizerConfig`, discriminator
   `audioVisualizer`): the spectrum of whatever the PC plays, split out of Music, which no longer
   draws it. Listed under Media beside Music; glyph `Glyphs.Visualizer` (E7F3; Equalizer is the
-  mixer's). It is the Bars design of five ([S-3210]). Every design starts headerless ([S-700]). No
+  mixer's). It is the Bars design of six ([S-3210]). Every design starts headerless ([S-700]). No
   settings of its own: the spectrum in Music was an on/off switch and nothing else, and placing the
   widget is that switch now (the design is the choice of widget); the page carries only the card's
   appearance rows. Accent fill (`AccentFillColorDefaultBrush`), never a typed colour.
@@ -4441,7 +4578,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   with the design's glyph); the spectrum comes back when the worker reaches it.
 - **[S-3207]** Debug renders cannot capture sound: `--widget-png <visualizer kind> --state playing`
   draws a still synthetic spectrum, `--state unavailable` the sentence.
-- **[S-3210]** Five designs, five kinds, one family of the add menu (Music & media › Visualizer, [S-3511]), sharing the one capture
+- **[S-3210]** Six designs (the sixth, the waveform, is [S-3212]), six kinds, one family of the add menu (Music & media › Visualizer, [S-3511]), sharing the one capture
   ([S-3203]), the one grouping ([S-3205]), one view (`AudioVisualizerView(kind)`) and one drawing
   (`SpectrumCanvas`, `VisualizerStyle` from `VisualizerLayout.StyleOf(kind)`, never stored; every
   config stores its discriminator only): **Spectrum bars** (`AudioVisualizer`, 70,
@@ -4458,6 +4595,26 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 - **[S-3211]** A frame writes numbers only, never allocates: a scale per bar or spoke, the opacity of
   the LED cells whose state changed, the wave's Bézier points. Shapes are placed once per layout
   (the LED pool only grows), so the cost per frame is the same as the bars'.
+- **[S-3212]** A sixth design (issue #136, a line like an ECG that moves with the music):
+  **Waveform** (`VisualizerScope`, 132, `visualizerScope`, glyph E95E Health): not a spectrum but
+  the sound itself, one accent line (`AccentFillColorDefaultBrush`) swinging about the centre line,
+  like an oscilloscope. Same family, view, drawing and capture; never a header ([S-3711]); no
+  settings.
+- **[S-3213]** Its plan (`VisualizerLayout.Plan`, `VisualizerStyle.Scope`): along the long side like
+  the linear designs (down a Tall column), a point every 4 DIP (`ScopeStep`) from 16 up to the
+  trace's 128 (`Oscilloscope.Points`), the line 2 to 4 DIP thick (short side / 60), the swing the
+  short side less the line's half-thickness. `Oscilloscope.Resample` fits the 128-point trace to
+  the plan's count keeping each stretch's signed peak. Segments are placed once per layout (a pool
+  that only grows); a frame moves their points ([S-3211]).
+- **[S-3214]** The shared feed carries the trace (one path, no second capture): each worker frame is
+  an `AudioFrame(Bands, Trace)`, the trace read from the same 1024-sample analysis window the FFT
+  reads. `Oscilloscope.Trace` shows the newest 512 samples (about 11 ms at 48 kHz) from the newest
+  rising zero crossing that still leaves a whole span after it (else the newest span), so a steady
+  tone stands still; each point is the loudest sample of its stretch, square-root compressed with
+  its sign, as the bands are; bad samples are silence. The other designs read the bands only.
+- **[S-3215]** While sound arrives the line is the fresh trace; when it stops the line fades ×0.8 a
+  frame and points under 0.01 are zero, so it lies flat (the design's idle, [S-3206]) in about half
+  a second; the worker delivers while the line or a bar moves, then goes idle as before ([S-3202]).
 - Not live-verified: loopback capture against real output and device-switch healing, the
   unavailable sentence on a machine with no output device, the idle cadence's CPU cost, and the
   capture stopping under game mode.
@@ -4638,6 +4795,14 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
 - **[S-1488]** The analog dial at every tier, sized by the ladder (40 px floor, rebuilt only when the
   diameter changes): dial alone on XS, text under it on panels and columns, text beside it on a wide
   strip. The second hand still sweeps (S-51, deliberate).
+- **[S-1476]** Label and date size (issue #170: the place and the date were hard to read): a
+  per-widget `ClockConfig.TextSize` Small / Default / Large (a row on the clock's page). It moves the
+  label's, the date's and the offset line's floor and ceiling along the type ramp (`ClockText`: Large
+  lifts the floor one step, off Caption, and the ceiling two, so a date can reach Title; Small lowers
+  the ceiling one) and scales the height share each line may ask for (×1.6 / ×0.75). Default is the
+  ladder of [S-1487] unchanged. The lines stay regular weight (support, not a second title); the
+  short-date switch measures against the size's floor; the time takes what the lines leave.
+- **[S-1477]** `ClockText.Shift` walks the ramp and stops at its ends, so no size invents a font size.
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1490]** The Sun widget adds civil dawn/dusk (sun's centre at −6°; none in white nights), solar
   noon with the sun's altitude, and the day's change against yesterday ("−3m 22s"; none inside the
@@ -5815,7 +5980,8 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   resync's first save to replace, and the owner starts empty and resyncs, change cursors included.
   A kind's schema is bumped when what earlier builds stored cannot be trusted: the calendar shelf is
   v2 because v1 could hold Graph delta notices stored as untitled events and all-day events stretched
-  over two days ([S-2632]); only the calendar shelves start over. A file
+  over two days ([S-2632]); only the calendar shelves start over. The task shelf is v2 because v1
+  held no completion dates ([S-612]) and its Graph change cursors never asked for them. A file
   that cannot be read (locked) is left in place and the owner starts empty for the run. Every shelf
   that opens is validated by its kind's rules ([S-2621], [S-2632], [S-2641], [S-2651]); what is
   dropped is counted in one log line.
@@ -5842,14 +6008,14 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   now unless the provider said "slow down". Showing a widget is not a trigger, except for an item
   never synced at all.
 - **[S-2610]** Changes (mark read, move, delete a message; complete, reopen, rename, delete, add a
-  task) show at once and wait in the owner's queue, persisted in its shelf (`PendingWrite`), until
+  task; rename a task list, [S-614]) show at once and wait in the owner's queue, persisted in its shelf (`PendingWrite`), until
   the provider has them. Strictly in order, head only, one at a time. Offline, unreachable, timed
   out, throttled, the server's trouble or a sign-in to mend: kept and retried after 30 s, 1, 2, 4 …
   30 min (or at once when the network returns); refused (gone, forbidden, malformed): taken back and
   the header says why. At most 500 queued; the next is refused in words. A queue restored at start
   is shown again and resent.
 - **[S-2611]** A new change folds into what is still queued for the same thing: a second tick or read
-  flag replaces the first, a rename replaces a rename, a delete swallows the task's queued tick and
+  flag replaces the first, a rename replaces a rename (a list's rename a list's rename), a delete swallows the task's queued tick and
   rename, and a task created and deleted before either reached the provider leaves nothing. The head
   is never folded while it is on the wire. A confirmed create re-addresses later changes to the
   provider's id.
@@ -5901,9 +6067,11 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   list in turn, at the fastest refresh any of its widgets asks for (30–600 s); a list that fails
   while others answer keeps its stored copy. Every widget on the account — a list and Today — shares
   the account's tasks and pending changes. Each list is read by its changes ([S-2686]).
-- **[S-2651]** A task shelf on load: lists need an id (once, at most 50); held lists need an id and
-  appear once (never Today); tasks need an id, appear once per list, stop at 400; the queue keeps
-  task changes with a list, and a rename or add with a title.
+- **[S-2651]** A task shelf on load: lists need an id (once, at most 50) and keep whether they are
+  To Do's own ([S-614]); held lists need an id and appear once (never Today); tasks need an id,
+  appear once per list, stop at 400, and a completion date ([S-612]) is kept only on a finished task
+  and only when it reads as a date; the queue keeps task and list changes with a list, and a rename,
+  list rename or add with a title.
 - **[S-2652]** The lists a sync reads: each list a widget shows (an empty id is the default list),
   every list once Today is shown (Today is built from all of them, [S-596]); finished tasks only for
   a list a widget shows them for, so finished ones cannot push open ones past the bound.
@@ -6210,6 +6378,12 @@ Owning files: `Themia.Core/Widgets/RecycleBinRules.cs`, `Themia.App/Services/Rec
   say. It is offered only when the bin has items and not twice at once; the answer is asked again
   when Windows returns, whatever the user chose. A click elsewhere on the tile opens the bin
   (`shell:RecycleBinFolder`). Debug: `--state sample`, `empty`.
+- **[S-4864]** The same Empty is on a Shortcuts item pointing at the Recycle Bin ([S-1389], issue
+  #120): its item menu offers "Empty Recycle Bin…" after Open, off unless
+  `RecycleBinState.CanEmpty` (items in the bin, no empty already out). One implementation,
+  `RecycleBinStatus.EmptyAsync`, guards and empties for both; "not twice at once" is process-wide
+  (`RecycleBinStatus.Emptying`), so the widget's button and every Shortcuts menu agree. Not on a
+  multi-selection. (Tests `S4864_`, `S4863_`.)
 
 Needs a live pass: Empty with Windows' dialog (Yes and No), deleting a file from Explorer (the count
 following within 15 s).
@@ -6492,3 +6666,65 @@ Shared:
 Needs a live pass: the three widgets against the real services (a place in and outside Europe for
 the index and pollen, a rainy hour, an ECB publication day and a weekend), offline with a restored
 shelf, and the Windows region read (`GetUserDefaultGeoName`) in the packaged build.
+
+## Date (DATE)
+
+Tests: `tests/Themia.Core.Tests/DateWidgetTests.cs`. Issues #150, #131.
+
+- **[S-5300]** `Date` (kind 131, `DateConfig`, discriminator `date`, glyph E8D1 GotoToday): the
+  weekday and the date, no time, made for the wallpaper. Time subject of the add menu, after the
+  clock ([S-3511]). Starts headerless like the clock ([S-700]); needs no setup; clicking it does
+  nothing.
+- **[S-5301]** Ladder (`DateLayout.Plan`, on `Disclosure` like the clock's [S-1487]): the day of the
+  month is reserved and takes what the rungs leave (`FluentType.Hero`, two figures); the weekday
+  (accent, semibold, up to Title) is the first rung, the month line (secondary, regular, up to
+  Subtitle) the second. A column (weekday, day, month) on every tile but a strip; on a Wide strip of
+  Regular width or more the day stands as tall as the strip with the weekday over the month beside
+  it, the pair placed by the alignment. Concise ([S-666]): a larger tile sets the date larger and
+  adds nothing else.
+- **[S-5302]** Words through `LocaleFormat` only (`DateText`): the weekday wide or short, the day in
+  the language's digits, the month by name, or with the year `DateStyle.MonthYear`. Widths are
+  judged on worst-case names (13 characters for a weekday, 11 for a month, +5 for the year): a line
+  too narrow for its wide form takes the short name, and the month's short form drops the year.
+- **[S-5303]** Settings in keeping with the clock's: alignment Left / Centre / Right ([S-1484]) and
+  Show year (off by default). An unknown alignment is centred on load and logged.
+- **[S-5304]** One tick a minute on the shared ticker: the date turns over within a minute of midnight.
+
+## Week planner (WEEK-PLANNER)
+
+Tests: `tests/Themia.Core.Tests/WeekPlannerTests.cs`. Issue #160.
+
+- **[S-5320]** `WeekPlanner` (kind 133, `WeekPlannerConfig : CalendarConfig`, discriminator
+  `weekPlanner`, glyph E762 MultiSelect, 480×280): the days ahead, each with its events, and under
+  today the tasks due. One planner: a day's tasks are rows of that day after its events, not a task
+  list beside a calendar. Calendar & mail subject, after next meeting ([S-3511]). Events through the
+  calendar widgets' seam (`ICalendarData`, [S-2701]); tasks through the shared `TaskService`
+  ([S-591]); the widget fetches nothing itself (a 5-minute poll of the synced store, the accounts'
+  change events, a minute tick to redraw).
+- **[S-5321]** A rolling week: today and the six days after (`WeekPlannerRules.Range`), fetched whole
+  whatever the size shows. Days stand side by side as the width allows (140 DIP a column, 8 apart, up
+  to seven). One column: today alone on a Compact-height tile (no heading), else the days stacked
+  as an agenda's. A column under 120 DIP drops the events' start times.
+- **[S-5322]** A day's rows (`WeekPlannerRules.Build`): its events as a calendar day lists them
+  ([S-570]: birthdays, all-day, then timed by start), today without the timed events already over;
+  an event row is its calendar's colour mark ([S-566]), its start in the region's clock (accent
+  while it runs; none for a whole day) and its title; a click opens it as a calendar's does
+  ([S-1268]). Under today only: the open tasks due today or overdue, oldest first ([S-596]), with
+  the Tasks widget's ring (critical when overdue); the ring ticks the task off through the service
+  ([S-597]), inert in a preview and in edit mode.
+- **[S-5323]** Whole rows only (`Columns`, `Stack`): a day shows its heading ("Today" in the accent,
+  "Tomorrow", then the short date) and as many rows as fit; when it has more, the last row says
+  "+N". An empty today says "Nothing planned"; stacked, later days with nothing are skipped and the
+  list ends at the first day cut short or whose heading and a row no longer fit.
+- **[S-5324]** Settings: every calendar's rows (accounts, calendars, colours, birthdays, [S-561]),
+  then Today's tasks: Show (on by default) and Tasks from (the first account with tasks, or one
+  account; a chosen account that is signed out stays listed by its id, never swapped, [S-590]).
+  Lists kept on this PC are not offered: the planner is the synced schedule.
+- **[S-5325]** Setup and sync: it asks to be set up only while neither a calendar account nor (when
+  it shows tasks) a task account is signed in; with tasks alone it is a week of tasks.
+  `SyncInterests` takes its calendars as a calendar interest and its task account's Today view as a
+  task interest, so both sync with everything else.
+
+Needs a live pass: a signed-in Microsoft and Google account (events, colours, opening an event,
+ticking a task off and seeing it leave every Tasks widget), a day turning over at midnight, and the
+showcase views on the live desktop.

@@ -36,6 +36,15 @@ internal static partial class RecycleBinStatus
     /// <summary>The last answer, or null when none has come back yet. UI thread only.</summary>
     public static RecycleBinState? Current { get; private set; }
 
+    /// <summary>
+    /// [S-4863] Windows is emptying the bin (its dialog may be up). Process-wide, so the widget's
+    /// button and every Shortcuts menu agree that a second empty is not offered. UI thread only.
+    /// </summary>
+    public static bool Emptying { get; private set; }
+
+    /// <summary>[S-4863] Whether Empty is offered now: <see cref="RecycleBinState.CanEmpty"/> on the shared answer.</summary>
+    public static bool CanEmpty => RecycleBinState.CanEmpty(Current, Emptying);
+
     /// <summary>Raised on the UI thread when <see cref="Current"/> changes.</summary>
     public static event Action? Changed;
 
@@ -85,9 +94,51 @@ internal static partial class RecycleBinStatus
     /// [S-4863] Empty the bin on every drive the way Explorer does: Windows asks first (no
     /// <c>SHERB_NOCONFIRMATION</c>), then shows its progress and plays its sound. The call blocks
     /// while the dialog is up, so it runs on its own STA thread and the desktop keeps drawing; the
-    /// answer is asked again when it returns, whatever the user chose. UI thread; never throws.
+    /// answer is asked again when it returns, whatever the user chose. Does nothing unless
+    /// <see cref="CanEmpty"/>: one implementation for the widget's button and the Shortcuts menu
+    /// ([S-4864]). UI thread; never throws.
     /// </summary>
     public static async Task EmptyAsync()
+    {
+        if (!CanEmpty)
+        {
+            return;
+        }
+
+        SetEmptying(true);
+
+        try
+        {
+            await EmptyOnOwnThreadAsync().ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            // Reached from a click: nothing above may see it.
+            Log.Error(Scope, "emptying the Recycle Bin failed", ex);
+        }
+        finally
+        {
+            SetEmptying(false);
+        }
+
+        Ask();
+    }
+
+    private static void SetEmptying(bool value)
+    {
+        Emptying = value;
+
+        try
+        {
+            Changed?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "a Recycle Bin listener threw", ex);
+        }
+    }
+
+    private static async Task EmptyOnOwnThreadAsync()
     {
         var done = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
@@ -116,8 +167,6 @@ internal static partial class RecycleBinStatus
             // Cancelled in Windows' dialog is ERROR_CANCELLED; an already empty bin is E_UNEXPECTED.
             Log.Debug(Scope, $"SHEmptyRecycleBin returned 0x{result:X8}");
         }
-
-        Ask();
     }
 
     private static async Task RefreshAsync()

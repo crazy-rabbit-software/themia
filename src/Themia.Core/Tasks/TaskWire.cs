@@ -47,6 +47,10 @@ public sealed class GraphTodoTask
 
     [JsonPropertyName("dueDateTime")]
     public GraphDateTimeZone? DueDateTime { get; set; }
+
+    /// <summary>[S-612] When it was finished; To Do may write only the day (midnight).</summary>
+    [JsonPropertyName("completedDateTime")]
+    public GraphDateTimeZone? CompletedDateTime { get; set; }
 }
 
 /// <summary>Google Tasks <c>TaskList</c>.</summary>
@@ -75,6 +79,10 @@ public sealed class GoogleTask
     /// <summary>RFC 3339; documented as date-only (the time part is meaningless).</summary>
     [JsonPropertyName("due")]
     public string? Due { get; set; }
+
+    /// <summary>[S-612] RFC 3339: when it was finished.</summary>
+    [JsonPropertyName("completed")]
+    public string? CompletedAt { get; set; }
 
     /// <summary>A task hidden by "clear completed" in Google's own apps.</summary>
     [JsonPropertyName("hidden")]
@@ -138,7 +146,7 @@ public static class TaskWire
     /// (the round cannot be filtered), filtered when merged. Later rounds follow Graph's delta link.
     /// </summary>
     public static Uri GraphTasksDelta(string listId)
-        => new(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks/delta?$select=id,title,status,importance,dueDateTime");
+        => new(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks/delta?$select=id,title,status,importance,dueDateTime,completedDateTime");
 
     /// <summary>
     /// [S-2686] Google Tasks has no sync token: the tasks of a list changed since an instant, with the
@@ -153,6 +161,11 @@ public static class TaskWire
         ? new Uri(GoogleRoot, $"lists/{Escape(listId)}/tasks/{Escape(taskId)}")
         : new Uri(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks/{Escape(taskId)}");
 
+    /// <summary>[S-614] One list, for a rename (PATCH).</summary>
+    public static Uri List(AccountProvider provider, string listId) => provider == AccountProvider.Google
+        ? new Uri(GoogleRoot, $"users/@me/lists/{Escape(listId)}")
+        : new Uri(GraphRoot, $"me/todo/lists/{Escape(listId)}");
+
     /// <summary>Where a new task is POSTed.</summary>
     public static Uri Create(AccountProvider provider, string listId) => provider == AccountProvider.Google
         ? new Uri(GoogleRoot, $"lists/{Escape(listId)}/tasks")
@@ -166,7 +179,11 @@ public static class TaskWire
         ArgumentNullException.ThrowIfNull(list);
         return string.IsNullOrEmpty(list.Id)
             ? null
-            : new TaskListInfo(list.Id, list.DisplayName ?? string.Empty, list.WellKnownListName == "defaultList");
+            : new TaskListInfo(
+                list.Id,
+                list.DisplayName ?? string.Empty,
+                list.WellKnownListName == "defaultList",
+                BuiltIn: list.WellKnownListName is { Length: > 0 } known && known != "none");
     }
 
     /// <summary>Google's lists: the first is its <c>@default</c>, so it is the default here.</summary>
@@ -202,7 +219,8 @@ public static class TaskWire
                 task.Title ?? string.Empty,
                 string.Equals(task.Status, "completed", StringComparison.OrdinalIgnoreCase),
                 string.Equals(task.Importance, "high", StringComparison.OrdinalIgnoreCase),
-                task.DueDateTime?.DateTime);
+                task.DueDateTime?.DateTime,
+                Finished(string.Equals(task.Status, "completed", StringComparison.OrdinalIgnoreCase), task.CompletedDateTime?.DateTime));
     }
 
     /// <summary>A Google task, or null when it has no id or Google calls it hidden or deleted.</summary>
@@ -218,8 +236,12 @@ public static class TaskWire
                 task.Title ?? string.Empty,
                 string.Equals(task.Status, "completed", StringComparison.OrdinalIgnoreCase),
                 false,
-                task.Due);
+                task.Due,
+                Finished(string.Equals(task.Status, "completed", StringComparison.OrdinalIgnoreCase), task.CompletedAt));
     }
+
+    /// <summary>[S-612] A finished task's completion, parsed here at the boundary; an open task has none, whatever was sent.</summary>
+    private static TaskStamp? Finished(bool completed, string? raw) => completed ? TaskStamp.Parse(raw) : null;
 
     // ---- writing -------------------------------------------------------------------------------
 
@@ -242,6 +264,10 @@ public static class TaskWire
             writer.WriteString("status", completed ? "completed" : "notStarted");
         }
     });
+
+    /// <summary>[S-614] A list rename: the name alone (Graph <c>displayName</c>, Google <c>title</c>).</summary>
+    public static string RenameListBody(AccountProvider provider, string name)
+        => Json(writer => writer.WriteString(provider == AccountProvider.Google ? "title" : "displayName", name));
 
     /// <summary>[S-600] A rename: the title alone, so it can never clear another field by omitting it.</summary>
     public static string RenameBody(string title) => Json(writer => writer.WriteString("title", title));

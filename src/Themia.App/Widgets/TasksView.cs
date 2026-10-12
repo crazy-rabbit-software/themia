@@ -108,12 +108,14 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _warning = Fluent.Icon(Glyphs.Warning, "SystemFillColorCautionBrush");
         _warning.Visibility = Visibility.Collapsed;
 
+        BuildPicker();
+
         _trailing = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = Fluent.Space2,
             VerticalAlignment = VerticalAlignment.Center,
-            Children = { _warning, _busy, _badgeHost },
+            Children = { _warning, _busy, _badgeHost, _picker },
         };
 
         _scroll = new ScrollViewer
@@ -207,6 +209,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private void OnLanguage(Locale locale)
     {
         _addRow.Label = Str.WidgetsC_Tasks_AddTask.Text();
+        ApplyPickerTexts();
         PublishTitle();
         Render();
     }
@@ -360,13 +363,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
             if (TaskRules.IsToday(listId))
             {
-                var names = new Dictionary<string, string>(StringComparer.Ordinal);
-                foreach (var each in lists)
-                {
-                    names.TryAdd(each.Id, each.Name);
-                }
-
-                _listNames = names;
+                _listNames = Names(lists);
                 Render();
             }
             else if (lists.FirstOrDefault(l => l.Id == listId) is { } list)
@@ -374,6 +371,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 _resolvedListName = list.Name;
                 PublishTitle();
             }
+
+            UpdatePicker();
         }
         catch (AccountException ex)
         {
@@ -464,7 +463,28 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         }
     }
 
-    private void OnFeedChanged() => Render();
+    /// <summary>[S-614] A sync or a rename may have renamed a list: the title and Today's row names follow.</summary>
+    private void OnFeedChanged()
+    {
+        if (_feed?.Lists is { } lists && TaskRules.IsToday(_feed.ListId))
+        {
+            _listNames = Names(lists);
+        }
+
+        PublishTitle();
+        Render();
+    }
+
+    private static Dictionary<string, string> Names(IReadOnlyList<TaskListInfo> lists)
+    {
+        var names = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var each in lists)
+        {
+            names.TryAdd(each.Id, each.Name);
+        }
+
+        return names;
+    }
 
     private void OnAccountsChanged() => Rebind();
 
@@ -497,7 +517,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         }
         else
         {
-            title = _resolvedListName is { Length: > 0 } resolved ? resolved
+            // [S-614] The account's lists as the service holds them, a rename on its way included.
+            title = ShownList()?.Name is { Length: > 0 } live ? live
+                : _resolvedListName is { Length: > 0 } resolved ? resolved
                 : _config.ListName is { Length: > 0 } picked ? picked
                 : null;
         }
@@ -519,23 +541,24 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
             // A list on this PC is its own order.
             var items = list.Tasks.Select(t => LocalTaskLists.ToItem(t, list.Id)).ToList();
-            return TaskRules.Sectioned(TaskRules.Visible(items, _config.ShowCompleted));
+            return TaskRules.Sectioned(Visible(items, today));
         }
 
-        if (_feed is not { Loaded: true } feed)
-        {
-            return null;
-        }
+        return _feed is { Loaded: true } feed ? TaskRules.Sectioned(Visible(Arranged(feed, today), today)) : null;
+    }
 
-        var tasks = feed.Tasks;
+    /// <summary>[S-595] [S-611] [S-612] The one filter rule over a list already in its order.</summary>
+    private IReadOnlyList<TaskItem> Visible(IReadOnlyList<TaskItem> tasks, DateOnly today)
+        => TaskRules.Visible(tasks, _config.Filter(_feed?.IsToday == true && !IsLocal), today, TimeZoneInfo.Local, RegionFormat.Current.WeekStart);
 
-        if (feed.IsToday)
-        {
-            tasks = TaskRules.Today(tasks, today, TimeZoneInfo.Local);
-        }
-
-        tasks = TaskRules.Visible(tasks, _config.ShowCompleted);
-        return TaskRules.Sectioned(TaskRules.ApplyOrder(tasks, TaskRules.CleanOrder(_config.TaskOrder), t => t.Id));
+    /// <summary>
+    /// [S-598] [S-610] Every task of an account feed (Today's for Today) in the widget's order, hidden
+    /// ones included: what the rows are filtered from, and what an order is written over.
+    /// </summary>
+    private IReadOnlyList<TaskItem> Arranged(TaskFeed feed, DateOnly today)
+    {
+        var tasks = feed.IsToday ? TaskRules.Today(feed.Tasks, today, TimeZoneInfo.Local) : feed.Tasks;
+        return TaskRules.ApplyOrder(tasks, TaskRules.CleanOrder(_config.TaskOrder), t => t.Id, _config.NewOnTop);
     }
 
     private void Render()
@@ -585,7 +608,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-780] The ladder for the slot the card gave this view, and the rows there are to show.</summary>
     private TaskLayoutPlan Plan(int count) => TaskLayout.Plan(
         _area,
-        new TaskLayoutInput(count, Writable, _feed?.IsToday == true, _config.ShowDueDate, _config.ViewMode, _config.EffectiveTitleLines),
+        new TaskLayoutInput(count, CanAdd, _feed?.IsToday == true, _config.ShowDueDate, _config.ViewMode, _config.EffectiveTitleLines),
         Fluent.RowHeight,
         Fluent.RowHeightCompact);
 
@@ -594,6 +617,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     {
         _area = area;
         FitEmptyState();
+        UpdatePicker();
 
         if (_screen == Screen.Ready)
         {
@@ -623,10 +647,17 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
         _warning.Visibility = warning is null ? Visibility.Collapsed : Visibility.Visible;
         ToolTipService.SetToolTip(_warning, warning);
+        UpdatePicker();
     }
 
     private string EmptyListText()
     {
+        // [S-611] A filter that leaves nothing says so, rather than "all done".
+        if (_config.Filter(today: false).Narrows)
+        {
+            return Str.WidgetsC_Tasks_NoMatch.Text();
+        }
+
         if (_feed?.IsToday == true)
         {
             return Str.WidgetsC_Tasks_NothingDueToday.Text();
@@ -775,6 +806,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
         CancelDrag();
         CancelEdit();
+        DetachPicker();
         _rowFocused = false;
         _detached = true;
         _bindGeneration++;

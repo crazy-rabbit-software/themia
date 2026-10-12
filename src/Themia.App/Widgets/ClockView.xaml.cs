@@ -189,25 +189,27 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var words = !analog || _area.WidthClass >= SizeClass.Regular || _area.HeightClass >= SizeClass.Regular;
 
         // [S-1482] The label first: on a world clock "Tokyo" says more than the date does.
-        var labelStep = FluentType.Fit(width, height * 0.16, Math.Max(4, _label?.Length ?? 0), FluentType.Caption, FluentType.BodyLarge);
+        // [S-1476] The label, the date and the offset at the widget's own text size.
+        var size = _config.TextSize;
+        var labelStep = ClockText.Fit(size, width, height, 0.16, Math.Max(4, _label?.Length ?? 0), FluentType.Caption, FluentType.BodyLarge);
         var showLabel = words && _label is not null && room.Take(labelStep.LineHeight);
 
         // The date: the long one when the line can hold it, the short one when it cannot, and on a
         // wide strip — which has width it cannot otherwise use — the offset after it.
         _wideDate = !analog && _area.Shape == AreaShape.Wide && _area.WidthClass >= SizeClass.Expanded;
-        _shortDate = !_wideDate && width < FluentType.EstimateWidth(FluentType.Caption, LongDateCharacters);
+        _shortDate = !_wideDate && width < FluentType.EstimateWidth(ClockText.Floor(size, FluentType.Caption), LongDateCharacters);
         _offsetOnDate = _wideDate && _config.ShowDate && _config.OffsetMode != ClockOffsetMode.None;
         var dateCharacters = (_shortDate ? ShortDateCharacters : LongDateCharacters)
             + (_offsetOnDate ? OffsetCharacters : 0);
 
         // Support, never a second headline: capped at BodyLarge however large the tile grows (the
         // steps above it are semibold and would read as a second title).
-        var dateStep = FluentType.Fit(width, height * 0.22, dateCharacters, FluentType.Caption, FluentType.BodyLarge);
+        var dateStep = ClockText.Fit(size, width, height, 0.22, dateCharacters, FluentType.Caption, FluentType.BodyLarge);
         var showDate = words && _config.ShowDate && room.Take(dateStep.LineHeight);
         _offsetOnDate &= showDate;
 
         // The details are a step under the date, so the eye reads time, date, then the rest.
-        var detailStep = FluentType.Fit(width, height * 0.12, DetailCharacters, FluentType.Caption, FluentType.Body);
+        var detailStep = ClockText.Fit(size, width, height, 0.12, DetailCharacters, FluentType.Caption, FluentType.Body);
         _showOffset = words && !_offsetOnDate && _config.OffsetMode != ClockOffsetMode.None && room.Take(detailStep.LineHeight);
 
         Show(showLabel, showDate);
@@ -234,16 +236,17 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var textWidth = Math.Max(0, box.Width - diameter - Fluent.Space4);
         var room = new Disclosure(textWidth, box.Height, Fluent.Space1);
 
-        var labelStep = FluentType.Fit(textWidth, box.Height * 0.3, Math.Max(4, _label?.Length ?? 0), FluentType.Caption, FluentType.Subtitle);
+        var size = _config.TextSize;
+        var labelStep = ClockText.Fit(size, textWidth, box.Height, 0.3, Math.Max(4, _label?.Length ?? 0), FluentType.Caption, FluentType.Subtitle);
         var showLabel = _label is not null && room.Take(labelStep.LineHeight);
 
         _wideDate = false;
         _offsetOnDate = false;
-        _shortDate = textWidth < FluentType.EstimateWidth(FluentType.Caption, LongDateCharacters);
-        var dateStep = FluentType.Fit(textWidth, box.Height * 0.25, _shortDate ? ShortDateCharacters : LongDateCharacters, FluentType.Caption, FluentType.BodyLarge);
+        _shortDate = textWidth < FluentType.EstimateWidth(ClockText.Floor(size, FluentType.Caption), LongDateCharacters);
+        var dateStep = ClockText.Fit(size, textWidth, box.Height, 0.25, _shortDate ? ShortDateCharacters : LongDateCharacters, FluentType.Caption, FluentType.BodyLarge);
         var showDate = _config.ShowDate && room.Take(dateStep.LineHeight);
 
-        var detailStep = FluentType.Fit(textWidth, box.Height * 0.2, DetailCharacters, FluentType.Caption, FluentType.Body);
+        var detailStep = ClockText.Fit(size, textWidth, box.Height, 0.2, DetailCharacters, FluentType.Caption, FluentType.Body);
         _showOffset = _config.OffsetMode != ClockOffsetMode.None && room.Take(detailStep.LineHeight);
 
         Show(showLabel, showDate);

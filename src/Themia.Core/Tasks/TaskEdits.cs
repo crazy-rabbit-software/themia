@@ -12,9 +12,10 @@ public enum TaskEditKind
 /// <summary>One change the user made that the provider has not confirmed yet.</summary>
 /// <param name="TaskId">The task it is about; for <see cref="TaskEditKind.Create"/> a temporary id.</param>
 /// <param name="Created">The row a create shows: the optimistic one, then the provider's once it answers.</param>
-public sealed record TaskEdit(TaskEditKind Kind, string TaskId, bool Completed = false, string? Title = null, TaskItem? Created = null)
+/// <param name="At">[S-612] When a task was ticked: its completion until the provider's own arrives.</param>
+public sealed record TaskEdit(TaskEditKind Kind, string TaskId, bool Completed = false, string? Title = null, TaskItem? Created = null, DateTimeOffset? At = null)
 {
-    public static TaskEdit Complete(string taskId, bool completed) => new(TaskEditKind.SetCompleted, taskId, Completed: completed);
+    public static TaskEdit Complete(string taskId, bool completed, DateTimeOffset? at = null) => new(TaskEditKind.SetCompleted, taskId, Completed: completed, At: at);
 
     public static TaskEdit Rename(string taskId, string title) => new(TaskEditKind.Rename, taskId, Title: title);
 
@@ -127,8 +128,16 @@ public sealed class TaskEdits
 
                 switch (edit.Kind)
                 {
+                    // [S-612] A tick carries its moment, so Today's "finished today" keeps the row; a
+                    // reopen clears it. A task the provider already holds as finished keeps its own.
                     case TaskEditKind.SetCompleted when index >= 0:
-                        list[index] = list[index] with { Completed = edit.Completed };
+                        list[index] = list[index] with
+                        {
+                            Completed = edit.Completed,
+                            CompletedOn = !edit.Completed ? null
+                                : list[index] is { Completed: true, CompletedOn: { } held } ? held
+                                : edit.At is { } at ? TaskStamp.At(at) : null,
+                        };
                         break;
 
                     case TaskEditKind.Rename when index >= 0 && edit.Title is { } title:

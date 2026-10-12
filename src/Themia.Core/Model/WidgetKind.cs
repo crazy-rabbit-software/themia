@@ -278,6 +278,15 @@ public enum WidgetKind
 
     /// <summary>[S-5140] The ECB's reference exchange rates for a base currency, with the day's change.</summary>
     ExchangeRates = 130,
+
+    /// <summary>[S-5300] The weekday and the date, no time: made for the wallpaper.</summary>
+    Date = 131,
+
+    /// <summary>[S-3212] The audio visualizer as a moving line: the sound's waveform, like an oscilloscope.</summary>
+    VisualizerScope = 132,
+
+    /// <summary>[S-5320] The days ahead with their events, and today's tasks.</summary>
+    WeekPlanner = 133,
 }
 
 /// <summary>How a countdown renders the time it has left. [C-11]</summary>

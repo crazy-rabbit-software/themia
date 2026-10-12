@@ -11,7 +11,7 @@ namespace Themia.Core.Tests;
 public class AudioVisualizerTests
 {
     private static readonly WidgetKind[] Kinds =
-        [WidgetKind.AudioVisualizer, WidgetKind.VisualizerMirror, WidgetKind.VisualizerWave, WidgetKind.VisualizerDots, WidgetKind.VisualizerRadial];
+        [WidgetKind.AudioVisualizer, WidgetKind.VisualizerMirror, WidgetKind.VisualizerWave, WidgetKind.VisualizerDots, WidgetKind.VisualizerRadial, WidgetKind.VisualizerScope];
 
     private static readonly VisualizerStyle[] Linear =
         [VisualizerStyle.Bars, VisualizerStyle.Mirror, VisualizerStyle.Wave, VisualizerStyle.Dots];
@@ -260,8 +260,9 @@ public class AudioVisualizerTests
             Assert.Equal(VisualizerLayout.Counts[^1], unmeasured.Bars);
             Assert.Equal(1, unmeasured.Floor);
 
+            // [S-3213] The waveform's count is points along its run, never fewer than its minimum.
             var tiny = VisualizerLayout.Plan(new WidgetArea(20, 20), style);
-            Assert.Equal(VisualizerLayout.Counts[^1], tiny.Bars);
+            Assert.Equal(style == VisualizerStyle.Scope ? VisualizerLayout.MinScopePoints : VisualizerLayout.Counts[^1], tiny.Bars);
             Assert.True(tiny.Thickness >= 0);
             Assert.InRange(tiny.Floor, 0, 1);
             Assert.True(tiny.Cell >= 0);

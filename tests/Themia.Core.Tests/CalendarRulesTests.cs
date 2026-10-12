@@ -199,16 +199,16 @@ public sealed class CalendarRulesTests
     {
         Assert.Equal((new DateOnly(2026, 9, 28), new DateOnly(2026, 10, 4)), CalendarRules.ViewRange(CalendarLayout.Week, Today, Today, WeekStartDay.Monday));
         Assert.Equal((Today, Today), CalendarRules.ViewRange(CalendarLayout.Day, Today, Today, WeekStartDay.Monday));
-        Assert.Equal((Today, Today.AddDays(30)), CalendarRules.ViewRange(CalendarLayout.Agenda, Today.AddDays(-90), Today, WeekStartDay.Monday));
+        Assert.Equal((Today, Today.AddDays(29)), CalendarRules.ViewRange(CalendarLayout.Agenda, Today.AddDays(-90), Today, WeekStartDay.Monday));
     }
 
     [Fact]
     public void S2707_AYearFetchesAndTitlesItsWholeYearAndPagesByYear()
     {
         Assert.Equal((new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31)), CalendarRules.ViewRange(CalendarLayout.Year, Today, Today, WeekStartDay.Monday));
-        Assert.Equal("2026", CalendarRules.Title(CalendarLayout.Year, Today, WeekStartDay.Monday, Locale.En));
-        Assert.Equal(new DateOnly(2027, 2, 28), CalendarRules.Step(CalendarLayout.Year, new DateOnly(2028, 2, 29), -1));
-        Assert.Equal(new DateOnly(2025, 10, 4), CalendarRules.Step(CalendarLayout.Year, Today, -1));
+        Assert.Equal("2026", CalendarRules.Title(CalendarLayout.Year, Today, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal(new DateOnly(2027, 2, 28), CalendarRules.Step(CalendarLayout.Year, new DateOnly(2028, 2, 29), -1, WeekStartDay.Monday));
+        Assert.Equal(new DateOnly(2025, 10, 4), CalendarRules.Step(CalendarLayout.Year, Today, -1, WeekStartDay.Monday));
         Assert.True(CalendarRules.InView(CalendarLayout.Year, Today.AddMonths(-3), Today, WeekStartDay.Monday, Today));
         Assert.False(CalendarRules.InView(CalendarLayout.Year, Today.AddYears(1), Today, WeekStartDay.Monday, Today));
     }
@@ -232,10 +232,10 @@ public sealed class CalendarRulesTests
     [Fact]
     public void S568_Titles()
     {
-        Assert.Equal("October 2026", CalendarRules.Title(CalendarLayout.Month, Today, WeekStartDay.Monday, Locale.En));
-        Assert.Equal("Sep 28 – Oct 4", CalendarRules.Title(CalendarLayout.Week, Today, WeekStartDay.Monday, Locale.En));
-        Assert.Equal("Sun, Oct 4", CalendarRules.Title(CalendarLayout.Day, Today, WeekStartDay.Monday, Locale.En));
-        Assert.Equal(string.Empty, CalendarRules.Title(CalendarLayout.Agenda, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal("October 2026", CalendarRules.Title(CalendarLayout.Month, Today, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal("Sep 28 – Oct 4", CalendarRules.Title(CalendarLayout.Week, Today, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal("Sun, Oct 4", CalendarRules.Title(CalendarLayout.Day, Today, Today, WeekStartDay.Monday, Locale.En));
+        Assert.Equal(string.Empty, CalendarRules.Title(CalendarLayout.Agenda, Today, Today, WeekStartDay.Monday, Locale.En));
     }
 
     // ---- [S-569] navigation ----------------------------------------------------------------------
@@ -243,10 +243,10 @@ public sealed class CalendarRulesTests
     [Fact]
     public void S569_StepsByMonthWeekDayAndTheAgendaStaysPut()
     {
-        Assert.Equal(new DateOnly(2026, 2, 28), CalendarRules.Step(CalendarLayout.Month, new DateOnly(2026, 1, 31), 1));
-        Assert.Equal(Today.AddDays(-7), CalendarRules.Step(CalendarLayout.Week, Today, -1));
-        Assert.Equal(Today.AddDays(1), CalendarRules.Step(CalendarLayout.Day, Today, 1));
-        Assert.Equal(Today, CalendarRules.Step(CalendarLayout.Agenda, Today, 1));
+        Assert.Equal(new DateOnly(2026, 2, 28), CalendarRules.Step(CalendarLayout.Month, new DateOnly(2026, 1, 31), 1, WeekStartDay.Monday));
+        Assert.Equal(Today.AddDays(-7), CalendarRules.Step(CalendarLayout.Week, Today, -1, WeekStartDay.Monday));
+        Assert.Equal(Today.AddDays(1), CalendarRules.Step(CalendarLayout.Day, Today, 1, WeekStartDay.Monday));
+        Assert.Equal(Today, CalendarRules.Step(CalendarLayout.Agenda, Today, 1, WeekStartDay.Monday));
     }
 
     // ---- [S-570] what falls on a day -------------------------------------------------------------

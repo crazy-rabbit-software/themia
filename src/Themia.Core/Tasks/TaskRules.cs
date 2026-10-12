@@ -1,4 +1,7 @@
 using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Core.Office;
+
 namespace Themia.Core.Tasks;
 
 /// <summary>
@@ -45,13 +48,15 @@ public static class TaskRules
     }
 
     /// <summary>
-    /// [S-598] Arrange rows by the user's order: ids the order names (and that are present) first, in
-    /// that order, then everything else in the provider's order. An empty order returns the input
-    /// untouched, so an untouched widget keeps the provider's own sorting (and Today's oldest-first).
-    /// A deleted id leaves no hole, a corrupt duplicate cannot double a row, and an id the order has
-    /// never seen — a task just created — lands at the bottom ([S-599]).
+    /// [S-598] Arrange rows by the user's order: ids the order names (and that are present) in that
+    /// order, and everything else in the provider's order after them — or, with
+    /// <paramref name="unknownFirst"/> ([S-610], "new tasks go to the top"), before them. An empty
+    /// order returns the input untouched, so an untouched widget keeps the provider's own sorting
+    /// (and Today's oldest-first). A deleted id leaves no hole, a corrupt duplicate cannot double a
+    /// row, and an id the order has never seen — a task just created, here or on another device —
+    /// lands at the bottom ([S-599]) or the top ([S-610]).
     /// </summary>
-    public static IReadOnlyList<T> ApplyOrder<T>(IReadOnlyList<T> rows, IReadOnlyList<string> order, Func<T, string> id)
+    public static IReadOnlyList<T> ApplyOrder<T>(IReadOnlyList<T> rows, IReadOnlyList<string> order, Func<T, string> id, bool unknownFirst = false)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(order);
@@ -69,25 +74,66 @@ public static class TaskRules
         }
 
         var taken = new HashSet<string>(StringComparer.Ordinal);
-        var result = new List<T>(rows.Count);
+        var known = new List<T>(rows.Count);
 
         foreach (var wanted in order)
         {
             if (byId.TryGetValue(wanted, out var row) && taken.Add(wanted))
             {
-                result.Add(row);
+                known.Add(row);
             }
         }
 
+        var unknown = new List<T>();
         foreach (var row in rows)
         {
             if (taken.Add(id(row)))
             {
-                result.Add(row);
+                unknown.Add(row);
             }
         }
 
-        return result;
+        return unknownFirst ? [.. unknown, .. known] : [.. known, .. unknown];
+    }
+
+    /// <summary>
+    /// [S-599] [S-610] The order to pin once a task was added: every id in <paramref name="ids"/> (the
+    /// whole list as arranged, hidden rows included) with <paramref name="added"/> at the top or the
+    /// bottom. Pinned so the next refresh cannot re-sort it into the provider's own order.
+    /// </summary>
+    public static IReadOnlyList<string> PlaceAdded(IReadOnlyList<string> ids, string added, bool onTop)
+    {
+        ArgumentNullException.ThrowIfNull(ids);
+        ArgumentNullException.ThrowIfNull(added);
+
+        var rest = ids.Where(id => !string.Equals(id, added, StringComparison.Ordinal));
+        return onTop ? [added, .. rest] : [.. rest, added];
+    }
+
+    /// <summary>
+    /// [S-598] [S-611] A new arrangement of the rows shown, written into the whole list's order: rows a
+    /// filter or "Show completed" hides keep their slots and the shown ones fill the slots around them
+    /// in their new order, so moving a row in a filtered list cannot shuffle, drop or promote a task
+    /// the user could not see. Ids that are not in <paramref name="all"/> are ignored.
+    /// </summary>
+    public static IReadOnlyList<string> MergeOrder(IReadOnlyList<string> all, IReadOnlyList<string> shown)
+    {
+        ArgumentNullException.ThrowIfNull(all);
+        ArgumentNullException.ThrowIfNull(shown);
+
+        var present = new HashSet<string>(all, StringComparer.Ordinal);
+        var moving = new List<string>();
+        var movingIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var id in shown)
+        {
+            if (present.Contains(id) && movingIds.Add(id))
+            {
+                moving.Add(id);
+            }
+        }
+
+        var next = 0;
+        return [.. all.Select(id => movingIds.Contains(id) ? moving[next++] : id)];
     }
 
     /// <summary>
@@ -161,11 +207,51 @@ public static class TaskRules
     /// </summary>
     public static int ClampTitleLines(int lines) => Math.Clamp(lines, TitleLinesMin, TitleLinesMax);
 
-    /// <summary>[S-595] What the list shows: completed tasks are hidden unless asked for. Order kept.</summary>
-    public static IReadOnlyList<TaskItem> Visible(IReadOnlyList<TaskItem> tasks, bool showCompleted)
+    /// <summary>
+    /// [S-595] [S-611] [S-612] What the list shows, in the order it was given: finished tasks only
+    /// when asked for (and under <see cref="TaskFilter.FinishedTodayOnly"/> only those finished on
+    /// <paramref name="today"/>), then the user's filters — due date, importance, words in the title
+    /// in any case. Returns the input itself when nothing is left out.
+    /// </summary>
+    public static IReadOnlyList<TaskItem> Visible(
+        IReadOnlyList<TaskItem> tasks,
+        TaskFilter filter,
+        DateOnly today,
+        TimeZoneInfo viewer,
+        WeekStartDay weekStart = WeekStartDay.Monday)
     {
         ArgumentNullException.ThrowIfNull(tasks);
-        return showCompleted ? tasks : tasks.Where(t => !t.Completed).ToList();
+        ArgumentNullException.ThrowIfNull(filter);
+        ArgumentNullException.ThrowIfNull(viewer);
+
+        var words = filter.Words;
+        var weekFirst = CalendarRules.StartOfWeek(today, weekStart);
+        var kept = tasks.Where(Keep).ToList();
+        return kept.Count == tasks.Count ? tasks : kept;
+
+        bool Keep(TaskItem task)
+        {
+            if (task.Completed && (!filter.ShowCompleted || (filter.FinishedTodayOnly && task.CompletedOn?.DayIn(viewer) != today)))
+            {
+                return false;
+            }
+
+            if ((filter.ImportantOnly && !task.Important)
+                || (words is not null && !task.Title.Contains(words, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            var due = TaskDue.Day(task.DueRaw, viewer);
+            return filter.Due switch
+            {
+                TaskDueFilter.Overdue => !task.Completed && due < today,
+                TaskDueFilter.Today => due == today,
+                TaskDueFilter.ThisWeek => due >= weekFirst && due < weekFirst.AddDays(7),
+                TaskDueFilter.NoDate => due is null,
+                _ => true,
+            };
+        }
     }
 
     /// <summary>The header count: open tasks among those shown.</summary>
@@ -206,6 +292,20 @@ public static class TaskRules
     {
         ArgumentNullException.ThrowIfNull(lists);
         return lists.FirstOrDefault(l => l.IsDefault) ?? lists.FirstOrDefault();
+    }
+
+    /// <summary>
+    /// [S-614] Whether a list may be renamed from the widget: never Today (it is not a list) and never
+    /// one of To Do's own lists (To Do refuses).
+    /// </summary>
+    public static bool CanRename(TaskListInfo? list) => list is { BuiltIn: false } && !IsToday(list.Id);
+
+    /// <summary>[S-614] The name a rename writes, trimmed; null when it would write nothing (blank or unchanged).</summary>
+    public static string? RenameTo(string current, string typed)
+    {
+        ArgumentNullException.ThrowIfNull(typed);
+        var clean = typed.Trim();
+        return clean.Length == 0 || string.Equals(clean, current, StringComparison.Ordinal) ? null : clean;
     }
 
     /// <summary>The list a widget with no list chosen shows: the default, else the first.</summary>

@@ -108,6 +108,9 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(NextMeetingConfig))]
 [JsonSerializable(typeof(RecentFilesConfig))]
 [JsonSerializable(typeof(RecycleBinConfig))]
+[JsonSerializable(typeof(DateConfig))]
+[JsonSerializable(typeof(VisualizerScopeConfig))]
+[JsonSerializable(typeof(WeekPlannerConfig))]
 [JsonSerializable(typeof(DesignState))]
 [JsonSerializable(typeof(AppPreferences))]
 internal sealed partial class AppStateJsonContext : JsonSerializerContext;

@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "장소 및 날짜 크기",
+  "clockText.sizeDesc": "장소, 날짜, 시차 줄의 크기",
+  "clockText.small": "작게",
+  "clockText.large": "크게",
+  "dateWidget.label": "날짜",
+  "dateWidget.desc": "오늘의 요일과 날짜, 배경 화면용",
+  "dateWidget.showYear": "연도 표시",
+  "variants.visualizer.scope.label": "파형",
+  "variants.visualizer.scope.desc": "오실로스코프처럼 소리 자체를 그리는 선",
+  "planner.label": "주간 플래너",
+  "planner.desc": "앞으로의 날과 일정, 그리고 오늘 마감인 일",
+  "planner.tasksHeader": "오늘의 작업",
+  "planner.showTasks": "오늘의 작업 표시",
+  "planner.showTasksDesc": "오늘 마감이거나 기한이 지난 작업, 오늘 일정 아래에",
+  "planner.taskAccount": "작업 가져올 곳",
+  "planner.taskAccountFirst": "작업이 있는 첫 번째 계정",
+  "planner.free": "계획 없음"
+}

@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "اندازهٔ مکان و تاریخ",
+  "clockText.sizeDesc": "اندازهٔ مکان، تاریخ و خط اختلاف ساعت",
+  "clockText.small": "کوچک",
+  "clockText.large": "بزرگ",
+  "dateWidget.label": "تاریخ",
+  "dateWidget.desc": "روز هفته و تاریخ امروز، ساخته‌شده برای تصویر زمینه",
+  "dateWidget.showYear": "نمایش سال",
+  "variants.visualizer.scope.label": "شکل موج",
+  "variants.visualizer.scope.desc": "خطی که خودِ صدا را رسم می‌کند، مانند اسیلوسکوپ",
+  "planner.label": "برنامه‌ریز هفته",
+  "planner.desc": "روزهای پیش رو با رویدادهایشان، و آنچه امروز سررسید دارد",
+  "planner.tasksHeader": "کارهای امروز",
+  "planner.showTasks": "نمایش کارهای امروز",
+  "planner.showTasksDesc": "کارهایی که سررسیدشان امروز است یا گذشته، زیر رویدادهای امروز",
+  "planner.taskAccount": "کارها از",
+  "planner.taskAccountFirst": "نخستین حساب دارای کار",
+  "planner.free": "برنامه‌ای نیست"
+}

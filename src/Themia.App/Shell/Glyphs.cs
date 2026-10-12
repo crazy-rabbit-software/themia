@@ -78,6 +78,9 @@ internal static class Glyphs
     public static readonly string Moon = From(0xE708);
     public static readonly string Place = From(0xE707);
     public static readonly string Sort = From(0xE8CB);
+
+    /// <summary>[S-611] To Do's importance star (Segoe "FavoriteStar"), for the Tasks importance filter.</summary>
+    public static readonly string Important = From(0xE734);
     public static readonly string Play = From(0xE768);
     public static readonly string Pause = From(0xE769);
     public static readonly string Sound = From(0xE767);
@@ -185,6 +188,8 @@ internal static class Glyphs
     public static readonly string VisualizerWave = From(0xE9D9);
     public static readonly string VisualizerDots = From(0xF232);
     public static readonly string VisualizerRadial = From(0xE706);
+    /// <summary>[S-3212] The waveform design (FluentIconData "Health": the heart and its trace, as the request put it, an ECG line).</summary>
+    public static readonly string VisualizerScope = From(0xE95E);
     /// <summary>[S-4120] The folder layouts after the list (which keeps <see cref="Folder"/>): FolderHorizontal (List read as a menu), Tiles, GridView.</summary>
     public static readonly string FolderDetails = From(0xF12B);
     public static readonly string FolderGrid = From(0xECA5);
@@ -241,6 +246,9 @@ internal static class Glyphs
     // The Mail widget's message commands and folders.
     public static readonly string MailRead = From(0xE8C3);
     public static readonly string MailReply = From(0xE8CA);
+
+    /// <summary>[S-558] Write a new email: the pen the mail apps draw for it.</summary>
+    public static readonly string MailCompose = From(0xE70F);
     public static readonly string Archive = From(0xE7B8);
     public static readonly string Junk = From(0xE8F8);
     public static readonly string Send = From(0xE724);
@@ -313,6 +321,12 @@ internal static class Glyphs
 
     /// <summary>[S-4800] Year progress (Segoe "DateTime").</summary>
     public static readonly string YearProgress = From(0xEC92);
+
+    /// <summary>[S-5300] The Date widget (Segoe "GotoToday": a calendar page with today marked).</summary>
+    public static readonly string Date = From(0xE8D1);
+
+    /// <summary>[S-5320] The week planner (Segoe "MultiSelect": rows to tick, beside the calendars' pages).</summary>
+    public static readonly string WeekPlanner = From(0xE762);
 
     /// <summary>[S-4820] Next meeting and its Join button (Segoe "VideoChat").</summary>
     public static readonly string Meeting = From(0xE8AA);

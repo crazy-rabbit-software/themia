@@ -1,7 +1,9 @@
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
@@ -84,7 +86,8 @@ internal sealed partial class DesktopWindow
                 ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), actions.Paste, Disabled: disabled, Quick: item.Quick,
                     Shortcut: Str.Shell_Key_CtrlPlus.Format(("key", "V"))),
                 ShellCommand.Settings => new(Glyphs.Settings, Str.Common_Settings.Text(), actions.Settings, Quick: item.Quick),
-                ShellCommand.AddWidget => new(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), actions.AddWidget),
+                ShellCommand.AddWidget => new(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), actions.AddWidget,
+                    Shortcut: Str.Shell_Key_CtrlPlus.Format(("key", "N"))),
                 ShellCommand.SelectAll => new(Glyphs.SelectAll, Str.Shell_Menu_SelectAll.Text(), actions.SelectAll, Disabled: disabled,
                     Shortcut: Str.Shell_Key_CtrlPlus.Format(("key", "A"))),
                 ShellCommand.SnapToGrid => new(Glyphs.Grid, Str.Shell_Toolbar_SnapName.Text(), actions.ToggleSnap, Checked: item.Checked == true),
@@ -108,6 +111,49 @@ internal sealed partial class DesktopWindow
         }
 
         BuildAddFlyout().ShowAt(_menuAnchor, new FlyoutShowOptions { Position = OnMenuAnchor(at), Placement = FlyoutPlacementMode.Bottom, ShowMode = FlyoutShowMode.Standard });
+    }
+
+    /// <summary>
+    /// [S-1998] The add menu from a key (the global Ctrl+Alt+Shift+W, or Ctrl+N in edit mode): at the
+    /// pointer when it is on this display, else in the middle of the work area, as the Menu key opens
+    /// the surface menu. The surface takes the foreground first — a hotkey press is what lets it —
+    /// or the picker's search box would get none of the keys typed into it ([S-3514]).
+    /// </summary>
+    internal void OpenAddMenuFromKeys()
+    {
+        if (_closed || !EditMode)
+        {
+            return;
+        }
+
+        try
+        {
+            if (Win32.GetForegroundWindow() != _hwnd && !Win32.SetForegroundWindow(_hwnd))
+            {
+                Log.Info(Scope, "could not take the foreground for the add menu; typing will not reach its search");
+            }
+
+            Point at;
+            var metrics = Metrics;
+
+            if (IsUnderCursor && Win32.GetCursorPos(out var cursor))
+            {
+                var (x, y) = FractionOf(cursor);
+                at = new Point(x * metrics.Width, y * metrics.Height);
+            }
+            else
+            {
+                var area = GridGeometry.AllowedPixels(metrics);
+                at = new Point(area.X + (area.Width / 2), area.Y + (area.Height / 2));
+            }
+
+            OpenPickerAt(at);
+        }
+        catch (Exception ex)
+        {
+            // Reached from a hotkey or a key press: nothing above may see it.
+            Log.Error(Scope, "could not open the add menu from the keyboard", ex);
+        }
     }
 
     /// <summary>[S-06] The grid snap aid, flipped as the toolbar's switch does; <see cref="SyncToolbar"/> follows.</summary>

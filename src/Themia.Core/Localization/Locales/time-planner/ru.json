@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Размер места и даты",
+  "clockText.sizeDesc": "Насколько крупно показаны место, дата и строка смещения",
+  "clockText.small": "Мелкий",
+  "clockText.large": "Крупный",
+  "dateWidget.label": "Дата",
+  "dateWidget.desc": "Сегодняшний день недели и дата — для обоев",
+  "dateWidget.showYear": "Показывать год",
+  "variants.visualizer.scope.label": "Осциллограмма",
+  "variants.visualizer.scope.desc": "Линия, рисующая сам звук, как осциллограф",
+  "planner.label": "Планировщик недели",
+  "planner.desc": "Ближайшие дни с событиями и то, что нужно сделать сегодня",
+  "planner.tasksHeader": "Задачи на сегодня",
+  "planner.showTasks": "Показывать задачи на сегодня",
+  "planner.showTasksDesc": "Задачи со сроком сегодня или просроченные, под событиями дня",
+  "planner.taskAccount": "Задачи из",
+  "planner.taskAccountFirst": "Первая учётная запись с задачами",
+  "planner.free": "Ничего не запланировано"
+}

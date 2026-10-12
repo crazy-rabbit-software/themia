@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "地點和日期大小",
+  "clockText.sizeDesc": "地點、日期和時差列的大小",
+  "clockText.small": "小",
+  "clockText.large": "大",
+  "dateWidget.label": "日期",
+  "dateWidget.desc": "今天的星期和日期，專為桌布設計",
+  "dateWidget.showYear": "顯示年份",
+  "variants.visualizer.scope.label": "波形",
+  "variants.visualizer.scope.desc": "像示波器一樣描繪聲音本身的線條",
+  "planner.label": "週計畫",
+  "planner.desc": "接下來幾天的行程，以及今天到期的工作",
+  "planner.tasksHeader": "今天的工作",
+  "planner.showTasks": "顯示今天的工作",
+  "planner.showTasksDesc": "今天到期或已逾期的工作，顯示在今天的行程下方",
+  "planner.taskAccount": "工作來源",
+  "planner.taskAccountFirst": "第一個有工作的帳戶",
+  "planner.free": "沒有安排"
+}

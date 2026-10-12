@@ -25,7 +25,7 @@ internal sealed partial class CalendarView
     private void DrawAgenda(double width, double height)
     {
         var today = Today;
-        var (first, last) = CalendarRules.ViewRange(CalendarLayout.Agenda, _anchor, today, _config.EffectiveWeekStart);
+        var (first, last) = CalendarRules.ViewRange(CalendarLayout.Agenda, _anchor, today, _config.Period);
         var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config is AgendaConfig agenda ? agenda.EffectiveAgendaCount : AgendaConfig.DefaultCount, DateTimeOffset.Now);
 
         var items = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
@@ -76,30 +76,49 @@ internal sealed partial class CalendarView
         var grid = new Grid { ColumnSpacing = Fluent.Space2, Padding = Fluent.ListPadding };
         var at = pages[_agendaPage];
 
+        // [S-2716] "Today" and "Tomorrow" carry their date where the heading line holds it whole.
+        var dated = CalendarFit.AgendaHeadingDated(Strings.Current, columnWidth - (2 * Fluent.Space4));
+        var titleWidth = AgendaTitleWidth(columnWidth, narrow, metaColumns, timeColumn);
+
         for (var c = 0; c < columns && at < items.Count; c++)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             var heading = firstHeading || at > 0;
             var count = CalendarFit.AgendaFit(days, at, box, headingHeight, rowHeight, heading);
             var stack = new StackPanel { Spacing = 0 };
+            var rows = new List<(Border Row, TextBlock Title)>(count);
 
             for (var i = at; i < at + count; i++)
             {
                 var (day, item) = items[i];
-                if (i == at ? heading : day != days[i - 1])
+                if (CalendarFit.AgendaHeadingBefore(days, at, i, heading))
                 {
                     // [S-3622] The selected day's heading is in the accent.
                     var text = Fluent.Text(FluentType.BodyStrong, day == _selected ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
-                    text.Text = Formatting.DayHeading(day, today);
+                    text.Text = CalendarFit.AgendaHeading(Strings.Current, day, today, dated);
 
                     stack.Children.Add(new Border { Child = text, Height = headingHeight, Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space1) });
                 }
 
-                var row = AgendaRow(item, day, now, compact, narrow, metaColumns, showColors, timeColumn);
+                var (row, title) = AgendaRow(item, day, now, compact, narrow, metaColumns, showColors, timeColumn);
                 row.Height = rowHeight;
                 _hovers.Add(Fluent.Hover(row));
                 stack.Children.Add(row);
+                rows.Add((row, title));
                 _agendaFirst ??= item.Event;
+            }
+
+            // [S-2717] The column's rows are in at one title line each; what is left under them gives
+            // the long titles their second line, in order.
+            var leftover = box - CalendarFit.AgendaColumnHeight(days, at, count, headingHeight, rowHeight, heading);
+            var second = CalendarFit.SecondLines([.. rows.Select(r => Overflows(r.Title, titleWidth))], leftover, FluentType.BodyStrong.LineHeight);
+            for (var k = 0; k < rows.Count; k++)
+            {
+                if (second[k])
+                {
+                    rows[k].Row.Height = rowHeight + FluentType.BodyStrong.LineHeight;
+                    WrapTitle(rows[k].Title);
+                }
             }
 
             SetColumn(stack, c);
@@ -132,12 +151,28 @@ internal sealed partial class CalendarView
     }
 
     /// <summary>
+    /// [S-2717] The width an agenda row's title has: the column less the row's padding, the colour
+    /// stripe, the time column beside it (not on a narrow tile) and, on a wide one, the where and who
+    /// columns that share the rest with it (1 : 0.6 : 0.45).
+    /// </summary>
+    private static double AgendaTitleWidth(double columnWidth, bool narrow, bool metaColumns, double timeColumn)
+    {
+        var width = columnWidth - (Fluent.Space4 - Fluent.Space2) - (narrow ? Fluent.Space2 : Fluent.Space4) - Fluent.Space2;
+        if (!narrow)
+        {
+            width -= timeColumn + Fluent.Space2;
+        }
+
+        return metaColumns ? (width - (2 * Fluent.Space2)) / 2.05 : width;
+    }
+
+    /// <summary>
     /// [S-571] One agenda row: the time column (start over end, "All day", or "Now" in the strong
     /// step for one under way), then the title over where and who. On a narrow tile ([S-574]) the
     /// time moves under the title, where it costs a line rather than half the width; on a wide one
     /// ([S-1267]) where and who get columns of their own beside the title.
     /// </summary>
-    private Border AgendaRow(DayItem item, DateOnly day, DateTimeOffset now, bool compact, bool narrow, bool metaColumns, bool showColors, double timeColumn)
+    private (Border Row, TextBlock Title) AgendaRow(DayItem item, DateOnly day, DateTimeOffset now, bool compact, bool narrow, bool metaColumns, bool showColors, double timeColumn)
     {
         string? location = null;
         string? organizer = null;
@@ -268,6 +303,6 @@ internal sealed partial class CalendarView
             MakeOpenable(row, ev);
         }
 
-        return row;
+        return (row, title);
     }
 }

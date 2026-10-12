@@ -14,7 +14,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
 {
     private const string PreviewListId = "preview-list";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -34,6 +34,16 @@ internal sealed partial class TasksView : IWidgetPreviewState
                 new("t10", "Plan the weekend", false),
             ],
             "few" => [new("t1", "Pick up the parcel", false), new("t2", "Water the plants", false)],
+
+            // [S-784] Finished tasks shown, under their heading.
+            "done" =>
+            [
+                new("t1", "Pick up the parcel", false),
+                new("t2", "Water the plants", true),
+                new("t3", "Send the invoice", false),
+                new("t4", "Call Grandma", true),
+                new("t5", "Back up the laptop", false),
+            ],
             "empty" => [],
             _ => null,
         };
@@ -44,6 +54,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
         }
 
         _config.Source = TaskSource.Local;
+        _config.ShowCompleted = state == "done";
         _config.LocalListId = PreviewListId;
         _local = new LocalTaskPool(null, [new LocalTaskList(PreviewListId, "Errands", tasks)]);
         _localListId = PreviewListId;

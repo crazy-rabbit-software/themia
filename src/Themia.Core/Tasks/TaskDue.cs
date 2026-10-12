@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
 using Themia.Core.Localization;
 
 namespace Themia.Core.Tasks;
@@ -43,52 +42,13 @@ public readonly record struct Due(DateOnly Day, DueLabel Label, int Days)
 /// fixed clock rather than against whatever the build machine's day happens to be.
 /// </para>
 /// </summary>
-public static partial class TaskDue
+public static class TaskDue
 {
-
     /// <summary>The intended day of a due value, or null when it is absent or not a date.</summary>
     public static DateOnly? Day(string? raw, TimeZoneInfo viewer)
     {
         ArgumentNullException.ThrowIfNull(viewer);
-
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return null;
-        }
-
-        var match = DuePattern().Match(raw);
-        if (!match.Success)
-        {
-            return null;
-        }
-
-        if (!TryDate(match, out var written))
-        {
-            return null;
-        }
-
-        var hasTime = match.Groups[4].Success;
-        var midnight = !hasTime
-            || (match.Groups[4].Value == "00" && match.Groups[5].Value == "00"
-                && (!match.Groups[6].Success || match.Groups[6].Value == "00"));
-
-        if (midnight)
-        {
-            // Date-only under every encoding: the written date is the day meant.
-            return written;
-        }
-
-        // A real instant. Zoneless means UTC, as the calendar reads Graph's own zoneless times.
-        if (!DateTimeOffset.TryParse(
-                raw.Trim(),
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-                out var instant))
-        {
-            return null;
-        }
-
-        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(instant, viewer).DateTime);
+        return TaskStamp.Parse(raw)?.DayIn(viewer);
     }
 
     /// <summary>[S-594] Resolve a due value against <paramref name="today"/>.</summary>
@@ -168,24 +128,4 @@ public static partial class TaskDue
     /// <c>yyyy-MM-dd</c>, wrapped in each provider's field shape by <see cref="TaskWire"/>.
     /// </summary>
     public static string Wire(DateOnly day) => day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-    private static bool TryDate(Match match, out DateOnly day)
-    {
-        day = default;
-        var year = int.Parse(match.Groups[1].ValueSpan, CultureInfo.InvariantCulture);
-        var month = int.Parse(match.Groups[2].ValueSpan, CultureInfo.InvariantCulture);
-        var dayOfMonth = int.Parse(match.Groups[3].ValueSpan, CultureInfo.InvariantCulture);
-
-        if (year < 1 || month is < 1 or > 12 || dayOfMonth < 1 || dayOfMonth > DateTime.DaysInMonth(year, month))
-        {
-            return false;
-        }
-
-        day = new DateOnly(year, month, dayOfMonth);
-        return true;
-    }
-
-    /// <summary><c>YYYY-MM-DD</c>, optionally followed by a time; the wall clock exactly as written.</summary>
-    [GeneratedRegex(@"^\s*(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?", RegexOptions.CultureInvariant)]
-    private static partial Regex DuePattern();
 }

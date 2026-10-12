@@ -44,6 +44,8 @@ internal static partial class WidgetSettings
         var slideshowOnly = new List<FrameworkElement>();
         FrameworkElement? fileRow = null;
         FrameworkElement? fitRow = null;
+        var stickerRows = new List<FrameworkElement>();
+        var outlineRows = new List<FrameworkElement>();
 
         void Update()
         {
@@ -59,10 +61,23 @@ internal static partial class WidgetSettings
                 row.Visibility = folder && config.Layout == GalleryLayout.Slideshow ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            fileRow!.Visibility = config.Source == GallerySource.File ? Visibility.Visible : Visibility.Collapsed;
+            var file = config.Source == GallerySource.File;
+            fileRow!.Visibility = file ? Visibility.Visible : Visibility.Collapsed;
 
-            // [S-15] A mosaic always crops to fill, so the choice would do nothing there.
-            fitRow!.Visibility = folder && config.Layout == GalleryLayout.Mosaic ? Visibility.Collapsed : Visibility.Visible;
+            // [S-774] [S-775] One picture file can be a sticker; the outline's own rows follow its switch.
+            foreach (var row in stickerRows)
+            {
+                row.Visibility = file ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            foreach (var row in outlineRows)
+            {
+                row.Visibility = file && config.Outline ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            // [S-15] A mosaic always crops to fill, so the choice would do nothing there; [S-774] nor
+            // would it on a sticker, which is always whole.
+            fitRow!.Visibility = (folder && config.Layout == GalleryLayout.Mosaic) || config.IsSticker ? Visibility.Collapsed : Visibility.Visible;
         }
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Gallery_Gallery.Text()));
@@ -108,6 +123,30 @@ internal static partial class WidgetSettings
                 config.Fit,
                 value => { config.Fit = value; save(); }));
         rows.Add(fitRow);
+
+        // [S-774] Turned by any angle, the whole picture still inside the widget.
+        var rotation = FluentLayout.Row(Glyphs.Rotate, Str.WidgetsB_Settings_Gallery_Rotation_Label.Text(), Str.WidgetsB_Settings_Gallery_Rotation_Desc.Text(),
+            FluentLayout.Slider(config.EffectiveRotation, -180, 180, 1, "°",
+                value => { config.Rotation = (int)Math.Round(value); save(); Update(); }));
+        rows.Add(rotation);
+        stickerRows.Add(rotation);
+
+        // [S-775] The outline along the picture's own shape, its colour and its width.
+        var outline = FluentLayout.Row(Glyphs.Gallery, Str.WidgetsB_Settings_Gallery_Outline_Label.Text(), Str.WidgetsB_Settings_Gallery_Outline_Desc.Text(),
+            FluentLayout.Toggle(config.Outline, value => { config.Outline = value; save(); Update(); }));
+        rows.Add(outline);
+        stickerRows.Add(outline);
+
+        var colour = FluentLayout.ColorPickerRow(Glyphs.Palette, Str.WidgetsB_Settings_Gallery_OutlineColour_Label.Text(), null,
+            config.EffectiveOutlineColor, value => { config.OutlineColor = value; save(); });
+        rows.Add(colour);
+        outlineRows.Add(colour);
+
+        var thickness = FluentLayout.Row(Glyphs.Scale, Str.WidgetsB_Settings_Gallery_OutlineWidth_Label.Text(), null,
+            FluentLayout.Slider(config.EffectiveOutlineWidth, StickerRules.MinOutline, StickerRules.MaxOutline, 1, "px",
+                value => { config.OutlineWidth = (int)Math.Round(value); save(); }));
+        rows.Add(thickness);
+        outlineRows.Add(thickness);
 
         var count = FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Gallery_Count_Label.Text(), Str.WidgetsB_Settings_Gallery_Count_Desc.Text(),
             FluentLayout.Slider(

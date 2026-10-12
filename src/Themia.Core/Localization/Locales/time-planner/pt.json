@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Tamanho do local e da data",
+  "clockText.sizeDesc": "O tamanho do local, da data e da linha de fuso",
+  "clockText.small": "Pequeno",
+  "clockText.large": "Grande",
+  "dateWidget.label": "Data",
+  "dateWidget.desc": "O dia da semana e a data de hoje, feitos para o papel de parede",
+  "dateWidget.showYear": "Mostrar o ano",
+  "variants.visualizer.scope.label": "Forma de onda",
+  "variants.visualizer.scope.desc": "Uma linha que desenha o próprio som, como um osciloscópio",
+  "planner.label": "Planejador semanal",
+  "planner.desc": "Os próximos dias com seus eventos e o que vence hoje",
+  "planner.tasksHeader": "Tarefas de hoje",
+  "planner.showTasks": "Mostrar as tarefas de hoje",
+  "planner.showTasksDesc": "Tarefas que vencem hoje ou atrasadas, abaixo dos eventos de hoje",
+  "planner.taskAccount": "Tarefas de",
+  "planner.taskAccountFirst": "A primeira conta com tarefas",
+  "planner.free": "Nada planejado"
+}

@@ -164,6 +164,17 @@ public sealed record SyncInterests(
                     mail.Add(new MailInterest([.. email.EffectiveAccountIds], email.Folder, email.FetchCount(0)));
                     break;
 
+                // [S-5325] The planner's days are a calendar interest and its tasks the Today view
+                // of its task account: both synced with everything else, never fetched by the widget.
+                case WeekPlannerConfig planner:
+                    calendar.Add(new CalendarInterest([.. planner.AccountIds], planner.Calendars, planner.ShowBirthdays));
+                    if (planner.ShowTasks)
+                    {
+                        tasks.Add(new TaskInterest(planner.TaskAccountId ?? string.Empty, TaskRules.TodayListId, false, accounts));
+                    }
+
+                    break;
+
                 case CalendarConfig cal:
                     calendar.Add(new CalendarInterest([.. cal.AccountIds], cal.Calendars, cal.ShowBirthdays));
                     break;

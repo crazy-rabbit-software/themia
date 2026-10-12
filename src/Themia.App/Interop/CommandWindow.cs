@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
+using Themia.Core.Shell;
 
 namespace Themia.App.Interop;
 
@@ -27,7 +28,6 @@ internal sealed unsafe class CommandWindow : IDisposable
     private const string ClassName = "ThemiaCommandWindow";
 
     private const uint WsPopup = 0x80000000;
-    private const int HotkeyId = 1;
 
     private const uint WmDisplayChange = 0x007E;
     private const uint WmSettingChange = 0x001A;
@@ -58,7 +58,9 @@ internal sealed unsafe class CommandWindow : IDisposable
     private static uint _taskbarCreatedMessage;
 
     private nint _hwnd;
-    private bool _hotkeyRegistered;
+
+    /// <summary>[S-65] [S-1998] The hotkeys this window holds, so <see cref="Dispose"/> lets go of exactly those.</summary>
+    private readonly List<ShellHotkey> _hotkeys = [];
 
     /// <summary>[S-1011] Registered for session notifications, so <see cref="Dispose"/> unregisters.</summary>
     private bool _sessionRegistered;
@@ -69,6 +71,9 @@ internal sealed unsafe class CommandWindow : IDisposable
 
     /// <summary>Raised when the user asks for edit mode, by hotkey or by launching the app again.</summary>
     public event Action? EditModeToggleRequested;
+
+    /// <summary>[S-1998] Raised on Ctrl+Alt+Shift+W: edit mode, with the add menu open.</summary>
+    public event Action? AddWidgetRequested;
 
     /// <summary>
     /// [S-848] A display was added, removed, re-arranged, re-sized or re-scaled, or the work area
@@ -204,7 +209,7 @@ internal sealed unsafe class CommandWindow : IDisposable
             Log.Warn(Scope, "could not register TaskbarCreated; an Explorer restart may leave widgets placed for the old taskbar");
         }
 
-        RegisterHotkey();
+        RegisterHotkeys();
 
         // [S-1011] The unlock replays the intro. Without it the desktop simply comes back still.
         _sessionRegistered = SessionNotifications.Register(_hwnd, SessionNotifications.ForThisSession);
@@ -220,29 +225,29 @@ internal sealed unsafe class CommandWindow : IDisposable
     }
 
     /// <summary>
-    /// Claim Ctrl+Alt+W. NOREPEAT because a held key would otherwise toggle edit mode dozens of
-    /// times a second.
+    /// [S-65] [S-1998] Claim every hotkey in <see cref="ShellHotkeys.All"/>, each NOREPEAT because a
+    /// held key would otherwise fire it dozens of times a second. One that another program owns is
+    /// logged and skipped: the others, and every other way into edit mode, still work.
     /// </summary>
-    private void RegisterHotkey()
+    private void RegisterHotkeys()
     {
-        _hotkeyRegistered = Win32.RegisterHotKey(
-            _hwnd,
-            HotkeyId,
-            Win32.ModControl | Win32.ModAlt | Win32.ModNoRepeat,
-            Win32.VkW);
-
-        if (_hotkeyRegistered)
+        foreach (var binding in ShellHotkeys.All)
         {
-            Log.Info(Scope, "Ctrl+Alt+W toggles edit mode");
-            return;
-        }
+            if (Win32.RegisterHotKey(_hwnd, (int)binding.Hotkey, (uint)binding.Modifiers, binding.VirtualKey))
+            {
+                _hotkeys.Add(binding.Hotkey);
+                Log.Info(Scope, $"{binding.Keys}: {binding.Hotkey}");
+                continue;
+            }
 
-        // Another program owns the combination. Double-clicking a widget and launching Themia again
-        // both still work, so this is a degraded app rather than an unusable one.
-        Log.Error(
-            Scope,
-            $"Ctrl+Alt+W is taken by another program (win32 {Marshal.GetLastWin32Error()}); " +
-            "edit mode can still be reached by double-clicking a widget or launching Themia again");
+            // Another program owns the combination. Double-clicking a widget, launching Themia
+            // again and the edit bar's Add widget all still work, so this is a degraded app rather
+            // than an unusable one.
+            Log.Error(
+                Scope,
+                $"{binding.Keys} is taken by another program (win32 {Marshal.GetLastWin32Error()}); " +
+                "edit mode can still be reached by double-clicking a widget or launching Themia again");
+        }
     }
 
     [UnmanagedCallersOnly]
@@ -255,9 +260,9 @@ internal sealed unsafe class CommandWindow : IDisposable
             var self = _instance;
             if (self is not null && self._hwnd == hwnd)
             {
-                if (msg == Win32.WmHotkey && (int)wParam == HotkeyId)
+                if (msg == Win32.WmHotkey && ShellHotkeys.FromId(wParam) is { } hotkey)
                 {
-                    self.EditModeToggleRequested?.Invoke();
+                    (hotkey == ShellHotkey.AddWidget ? self.AddWidgetRequested : self.EditModeToggleRequested)?.Invoke();
                     return 0;
                 }
 
@@ -320,17 +325,17 @@ internal sealed unsafe class CommandWindow : IDisposable
 
         _disposed = true;
 
-        if (_hotkeyRegistered)
+        // A hotkey outliving its window is a combination nothing can claim until the session
+        // ends, including the copy the user starts next.
+        foreach (var hotkey in _hotkeys)
         {
-            // A hotkey outliving its window is a combination nothing can claim until the session
-            // ends, including the copy the user starts next.
-            if (!Win32.UnregisterHotKey(_hwnd, HotkeyId))
+            if (!Win32.UnregisterHotKey(_hwnd, (int)hotkey))
             {
-                Log.Warn(Scope, $"UnregisterHotKey failed (win32 {Marshal.GetLastWin32Error()})");
+                Log.Warn(Scope, $"UnregisterHotKey({hotkey}) failed (win32 {Marshal.GetLastWin32Error()})");
             }
-
-            _hotkeyRegistered = false;
         }
+
+        _hotkeys.Clear();
 
         if (_sessionRegistered)
         {

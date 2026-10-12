@@ -17,9 +17,11 @@ internal sealed partial class CalendarView : IWidgetPreviewState
 {
     /// <summary>
     /// <c>sample</c>: the fixture; <c>selected</c>: the day after tomorrow selected on the view
-    /// ([S-3620]); <c>linked</c>: another widget's pointer on the design review ([S-3623]).
+    /// ([S-3620]); <c>linked</c>: another widget's pointer on the design review ([S-3623]);
+    /// <c>days</c>: the kind's own range ([S-2719], [S-3636]): the week the next four days from today,
+    /// the agenda today and tomorrow.
     /// </summary>
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked", "days"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -29,6 +31,16 @@ internal sealed partial class CalendarView : IWidgetPreviewState
         }
 
         _agendaPage = 0;
+
+        if (string.Equals(state, "days", StringComparison.OrdinalIgnoreCase))
+        {
+            _config = _layout switch
+            {
+                CalendarLayout.Week => new WeekCalendarConfig { Days = 4, FirstDay = WeekFirstDay.Today },
+                CalendarLayout.Agenda => new AgendaConfig { AgendaDays = 2 },
+                _ => _config,
+            };
+        }
 
         UseData(new SampleCalendarData());
         await RefreshAsync(force: true).ConfigureAwait(true);
@@ -88,7 +100,7 @@ internal sealed partial class CalendarView : IWidgetPreviewState
             events.Add(At(1, "Pick up the kids", 0, 16, 30, 30));
             events.Add(AllDay(1, "Public holiday", 0, 1));
             events.Add(At(0, "Standup", 1, 9, 0, 15, "Teams"));
-            events.Add(At(0, "Quarterly planning", 1, 13, 0, 120, "Board room"));
+            events.Add(At(0, "Quarterly planning with product, design and engineering leads", 1, 13, 0, 120, "Board room"));
             events.Add(At(1, "Yoga", 1, 18, 0, 60));
             events.Add(AllDay(0, "Offsite in Lisbon", 2, 4));
             events.Add(At(1, "Night train", 2, 22, 0, 480));

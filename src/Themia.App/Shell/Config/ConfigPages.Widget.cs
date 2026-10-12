@@ -96,6 +96,10 @@ internal static partial class ConfigPages
                 WidgetSettings.Clock(rows, clock, Save);
                 break;
 
+            case DateConfig date:
+                WidgetSettings.Date(rows, date, Save);
+                break;
+
             case DiskConfig disk:
                 WidgetSettings.Disk(rows, disk, Save);
                 break;
@@ -154,6 +158,11 @@ internal static partial class ConfigPages
 
             case ContactsConfig contacts:
                 WidgetSettings.Contacts(rows, contacts, Save);
+                break;
+
+            // Before CalendarConfig: the planner is one, with its tasks after the calendar's rows.
+            case WeekPlannerConfig planner:
+                WidgetSettings.WeekPlanner(rows, planner, Save);
                 break;
 
             case CalendarConfig calendar:

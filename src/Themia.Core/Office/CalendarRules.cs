@@ -33,9 +33,6 @@ public static class CalendarRules
         Str.WidgetsA_Calendar_Color_Pink,
     ];
 
-    /// <summary>The agenda looks this many days ahead, as the original did.</summary>
-    public const int AgendaDays = 30;
-
     // ---- colours -----------------------------------------------------------------------------
 
     /// <summary>The palette colour for a target index, wrapping past six and never negative.</summary>
@@ -217,22 +214,23 @@ public static class CalendarRules
 
     /// <summary>
     /// [S-568] The days a layout covers, both inclusive, which is what is fetched. Month: whole weeks
-    /// from the week holding the 1st to the week holding the last day. Week: the week holding the
-    /// anchor. Day: the anchor. Year ([S-2707]): 1 January to 31 December of the anchor's year.
-    /// Agenda: today and the next <see cref="AgendaDays"/> days, wherever the anchor is.
+    /// from the week holding the 1st to the week holding the last day. Week ([S-2719]): the span's
+    /// days from the period holding the anchor (<see cref="WeekFirst"/>). Day: the anchor. Year
+    /// ([S-2707]): 1 January to 31 December of the anchor's year. Agenda ([S-3636]): the span's days
+    /// from today, wherever the anchor is.
     /// </summary>
-    public static (DateOnly First, DateOnly Last) ViewRange(CalendarLayout view, DateOnly anchor, DateOnly today, WeekStartDay start)
+    public static (DateOnly First, DateOnly Last) ViewRange(CalendarLayout view, DateOnly anchor, DateOnly today, CalendarPeriod span)
     {
         switch (view)
         {
             case CalendarLayout.Month:
                 var firstOfMonth = new DateOnly(anchor.Year, anchor.Month, 1);
                 var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
-                return (StartOfWeek(firstOfMonth, start), StartOfWeek(lastOfMonth, start).AddDays(6));
+                return (StartOfWeek(firstOfMonth, span.WeekStart), StartOfWeek(lastOfMonth, span.WeekStart).AddDays(6));
 
             case CalendarLayout.Week:
-                var weekStart = StartOfWeek(anchor, start);
-                return (weekStart, weekStart.AddDays(6));
+                var weekFirst = WeekFirst(anchor, today, span);
+                return (weekFirst, weekFirst.AddDays(span.Days - 1));
 
             case CalendarLayout.Day:
                 return (anchor, anchor);
@@ -241,8 +239,30 @@ public static class CalendarRules
                 return (new DateOnly(anchor.Year, 1, 1), new DateOnly(anchor.Year, 12, 31));
 
             default:
-                return (today, today.AddDays(AgendaDays));
+                return (today, today.AddDays(span.AgendaLength - 1));
         }
+    }
+
+    /// <summary>
+    /// [S-2719] How far the week calendar pages: its own length from today, else whole weeks (one for
+    /// up to seven days, two for up to fourteen), so a working week steps Monday to Monday.
+    /// </summary>
+    public static int WeekStep(CalendarPeriod span)
+        => span.WeekFrom == WeekFirstDay.Today ? span.Days : ((span.Days + 6) / 7) * 7;
+
+    /// <summary>
+    /// [S-2719] The week calendar's first column for <paramref name="anchor"/>: its periods are laid
+    /// end to end from today (from today) or from the first day of today's week, one
+    /// <see cref="WeekStep"/> apart, and the anchor's period is the one holding it. A whole week from
+    /// the week start is the week holding the anchor, as before; any day selected inside the period
+    /// on screen keeps it there ([S-3621]).
+    /// </summary>
+    public static DateOnly WeekFirst(DateOnly anchor, DateOnly today, CalendarPeriod span)
+    {
+        var origin = span.WeekFrom == WeekFirstDay.Today ? today : StartOfWeek(today, span.WeekStart);
+        var step = WeekStep(span);
+        var periods = (int)Math.Floor((anchor.DayNumber - origin.DayNumber) / (double)step);
+        return origin.AddDays(periods * step);
     }
 
     /// <summary>The 42 days of a month grid, from the start of the first week.</summary>
@@ -254,13 +274,13 @@ public static class CalendarRules
 
     /// <summary>
     /// [S-569] The anchor one step back or forward: a month (the day clamped to the shorter month),
-    /// a week, a day or a year (29 February clamped to the 28th). The agenda pages through its rows
-    /// ([S-2709]), not its dates, so its anchor does not move.
+    /// the week calendar's period ([S-2719]), a day or a year (29 February clamped to the 28th). The
+    /// agenda pages through its rows ([S-2709]), not its dates, so its anchor does not move.
     /// </summary>
-    public static DateOnly Step(CalendarLayout view, DateOnly anchor, int direction) => view switch
+    public static DateOnly Step(CalendarLayout view, DateOnly anchor, int direction, CalendarPeriod span) => view switch
     {
         CalendarLayout.Month => anchor.AddMonths(Math.Sign(direction)),
-        CalendarLayout.Week => anchor.AddDays(7 * Math.Sign(direction)),
+        CalendarLayout.Week => anchor.AddDays(WeekStep(span) * Math.Sign(direction)),
         CalendarLayout.Day => anchor.AddDays(Math.Sign(direction)),
         CalendarLayout.Year => anchor.AddYears(Math.Sign(direction)),
         _ => anchor,
@@ -271,14 +291,14 @@ public static class CalendarRules
     /// nothing. A month counts only its own days, not the neighbours' that pad its weeks; the agenda
     /// always holds today (its paging is by rows, [S-2709]).
     /// </summary>
-    public static bool InView(CalendarLayout view, DateOnly anchor, DateOnly today, WeekStartDay start, DateOnly day)
+    public static bool InView(CalendarLayout view, DateOnly anchor, DateOnly today, CalendarPeriod span, DateOnly day)
     {
         if (view == CalendarLayout.Month)
         {
             return day.Year == anchor.Year && day.Month == anchor.Month;
         }
 
-        var (first, last) = ViewRange(view, anchor, today, start);
+        var (first, last) = ViewRange(view, anchor, today, span);
         return day >= first && day <= last;
     }
 
@@ -302,7 +322,7 @@ public static class CalendarRules
     /// <c>2026</c>. Agenda has none. Names and order from <see cref="LocaleFormat"/> for
     /// <paramref name="locale"/> ([S-1106]).
     /// </summary>
-    public static string Title(CalendarLayout view, DateOnly anchor, WeekStartDay start, Locale locale)
+    public static string Title(CalendarLayout view, DateOnly anchor, DateOnly today, CalendarPeriod span, Locale locale)
     {
         switch (view)
         {
@@ -310,8 +330,9 @@ public static class CalendarRules
                 return LocaleFormat.Date(locale, anchor, DateStyle.MonthYear);
 
             case CalendarLayout.Week:
-                var first = StartOfWeek(anchor, start);
-                return Range(first, first.AddDays(6), locale);
+                // [S-2719] One column is a day, and titled like one.
+                var (first, last) = ViewRange(view, anchor, today, span);
+                return first == last ? LocaleFormat.Date(locale, first, DateStyle.WeekdayMonthDayShort) : Range(first, last, locale);
 
             case CalendarLayout.Day:
                 return LocaleFormat.Date(locale, anchor, DateStyle.WeekdayMonthDayShort);

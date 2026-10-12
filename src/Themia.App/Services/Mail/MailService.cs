@@ -332,6 +332,14 @@ internal sealed class MailService : IMailSource, IDisposable
         return ShellLauncher.OpenMailLink(link) == LaunchOutcome.Opened;
     }
 
+    public bool Compose(MailAccount account, IReadOnlyList<MailMessage> known)
+    {
+        ArgumentNullException.ThrowIfNull(account);
+        ArgumentNullException.ThrowIfNull(known);
+
+        return ShellLauncher.OpenMailLink(MailLinks.Compose(account, known)) == LaunchOutcome.Opened;
+    }
+
     /// <summary>Whether Outlook's <c>ms-outlook:</c> protocol is registered; one check shared with the calendar ([S-1268]).</summary>
     private static bool OutlookInstalled => ShellLauncher.OutlookInstalled;
 
@@ -548,6 +556,12 @@ internal sealed class MailService : IMailSource, IDisposable
 
         public DateTimeOffset? LastFetch { get; set; }
 
+        /// <summary>
+        /// [S-559] When the stored list was last known current: fetched, or a probe found its counts
+        /// unchanged ([S-546]). What "updated" means to the user; <see cref="LastFetch"/> is the cadence's.
+        /// </summary>
+        public DateTimeOffset? CurrentAt { get; set; }
+
         /// <summary>How many newest messages were last fetched.</summary>
         public int Held { get; set; }
 
@@ -626,6 +640,7 @@ internal sealed class MailService : IMailSource, IDisposable
                         Messages = [.. stored.Messages.Select(m => MailShelves.Restore(m, account.Id, account.Provider, stored.Folder))],
                         Known = stored.Total is { } total && stored.Unread is { } unread ? new MailFolderStatus(total, unread) : null,
                         LastFetch = stored.At,
+                        CurrentAt = stored.At,
                         Held = stored.Count,
                         Cursor = stored.Cursor,
                     };
@@ -740,6 +755,7 @@ internal sealed class MailService : IMailSource, IDisposable
 
                 changed = fetched || folder.Known != counts;
                 folder.Known = counts;
+                folder.CurrentAt = DateTimeOffset.UtcNow;
                 Record(folder, FetchStatus.Ok, null);
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested)
@@ -966,7 +982,8 @@ internal sealed class MailService : IMailSource, IDisposable
                 _ => MailAccountState.Failed,
             };
 
-            DateTimeOffset? at = sync.LastFetch is { } fetched && state == MailAccountState.Failed ? fetched.ToLocalTime() : null;
+            // [S-2612] [S-559] When the list on screen was last known current: the failure's stamp and the Refresh command's age.
+            DateTimeOffset? at = sync.LastFetch is not null && sync.CurrentAt is { } current ? current.ToLocalTime() : null;
             return new MailAccountOutcome(AccountId, state, schedule.Status, schedule.Detail, sync.Known, at);
         }
 

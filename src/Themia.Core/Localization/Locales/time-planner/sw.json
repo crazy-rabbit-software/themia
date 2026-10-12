@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Ukubwa wa mahali na tarehe",
+  "clockText.sizeDesc": "Jinsi mahali, tarehe na mstari wa tofauti ya saa vilivyo vikubwa",
+  "clockText.small": "Ndogo",
+  "clockText.large": "Kubwa",
+  "dateWidget.label": "Tarehe",
+  "dateWidget.desc": "Siku ya wiki na tarehe ya leo, imeundwa kwa ajili ya mandhari",
+  "dateWidget.showYear": "Onyesha mwaka",
+  "variants.visualizer.scope.label": "Umbo la wimbi",
+  "variants.visualizer.scope.desc": "Mstari unaochora sauti yenyewe, kama osiloskopu",
+  "planner.label": "Mpangaji wa wiki",
+  "planner.desc": "Siku zijazo pamoja na matukio yake, na kinachopaswa kufanywa leo",
+  "planner.tasksHeader": "Kazi za leo",
+  "planner.showTasks": "Onyesha kazi za leo",
+  "planner.showTasksDesc": "Kazi zinazopaswa leo au zilizochelewa, chini ya matukio ya leo",
+  "planner.taskAccount": "Kazi kutoka",
+  "planner.taskAccountFirst": "Akaunti ya kwanza yenye kazi",
+  "planner.free": "Hakuna kilichopangwa"
+}

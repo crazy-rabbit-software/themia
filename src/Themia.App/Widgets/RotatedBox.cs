@@ -8,14 +8,17 @@ using Windows.Foundation;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-468] A panel that turns its one child a quarter turn at a time and still fits it.
+/// [S-468] [S-774] A panel that turns its children by any angle and still fits them.
 /// <para>
 /// A render transform alone rotates the child <i>after</i> layout, so a picture laid out for a wide
-/// frame and then turned sideways overflows top and bottom and is cut off. Here a sideways child is
-/// laid out against the swapped axes — a 320x240 frame lays its child out at 240x320 — and only
-/// then turned, so a rotated camera fits the frame exactly as an upright one does.
+/// frame and then turned sideways overflows top and bottom and is cut off. Here the child is laid
+/// out at the largest box that, once turned, still fits the frame (<see cref="StickerRules.FitRotated"/>)
+/// — a quarter turn lays a 320x240 frame's child out at 240x320 — and only then turned, so a rotated
+/// camera or a tilted sticker fits the frame exactly as an upright one does.
 /// </para>
 /// <para>
+/// The box has the child's own shape when the caller knows it (<see cref="ChildAspect"/>, a sticker's
+/// picture), else the frame's shape turned with it (the video stream, whose picture fits itself).
 /// It also clips to its own bounds: the "cover" fit deliberately overflows, and the overflow must
 /// stop at the card rather than paint over its neighbours.
 /// </para>
@@ -23,24 +26,50 @@ namespace Themia.App.Widgets;
 internal sealed partial class RotatedBox : Panel
 {
     private readonly RectangleGeometry _clip = new();
-    private StreamRotation _rotation = StreamRotation.None;
+    private double _angle;
+    private double? _aspect;
 
     public RotatedBox()
     {
         Clip = _clip;
     }
 
+    /// <summary>[S-468] A quarter turn, for the video stream.</summary>
     public StreamRotation Turn
     {
-        get => _rotation;
+        get => (StreamRotation)(int)_angle;
+        set => Angle = (int)value;
+    }
+
+    /// <summary>[S-774] The turn in degrees, clockwise.</summary>
+    public double Angle
+    {
+        get => _angle;
         set
         {
-            if (_rotation == value)
+            if (_angle.Equals(value))
             {
                 return;
             }
 
-            _rotation = value;
+            _angle = value;
+            InvalidateMeasure();
+            InvalidateArrange();
+        }
+    }
+
+    /// <summary>[S-774] The child's width over its height, or null to give it the frame's shape (turned with it).</summary>
+    public double? ChildAspect
+    {
+        get => _aspect;
+        set
+        {
+            if (Nullable.Equals(_aspect, value))
+            {
+                return;
+            }
+
+            _aspect = value;
             InvalidateMeasure();
             InvalidateArrange();
         }
@@ -48,8 +77,7 @@ internal sealed partial class RotatedBox : Panel
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        var sideways = VideoStreamRules.IsSideways(_rotation);
-        var inner = sideways ? new Size(availableSize.Height, availableSize.Width) : availableSize;
+        var inner = Inner(availableSize);
 
         foreach (var child in Children)
         {
@@ -64,8 +92,7 @@ internal sealed partial class RotatedBox : Panel
 
     protected override Size ArrangeOverride(Size finalSize)
     {
-        var sideways = VideoStreamRules.IsSideways(_rotation);
-        var inner = sideways ? new Size(finalSize.Height, finalSize.Width) : finalSize;
+        var inner = Inner(finalSize);
 
         // Centred on the frame, so the turn about the child's own centre lands it back in place.
         var origin = new Point((finalSize.Width - inner.Width) / 2, (finalSize.Height - inner.Height) / 2);
@@ -74,7 +101,7 @@ internal sealed partial class RotatedBox : Panel
         {
             child.RenderTransformOrigin = new Point(0.5, 0.5);
 
-            if (_rotation == StreamRotation.None)
+            if (_angle == 0)
             {
                 child.RenderTransform = null;
             }
@@ -87,7 +114,7 @@ internal sealed partial class RotatedBox : Panel
                     child.RenderTransform = turn;
                 }
 
-                turn.Angle = (int)_rotation;
+                turn.Angle = _angle;
             }
 
             child.Arrange(new Rect(origin, inner));
@@ -95,5 +122,18 @@ internal sealed partial class RotatedBox : Panel
 
         _clip.Rect = new Rect(0, 0, finalSize.Width, finalSize.Height);
         return finalSize;
+    }
+
+    private Size Inner(Size frame)
+    {
+        if (double.IsInfinity(frame.Width) || double.IsInfinity(frame.Height))
+        {
+            // Unbounded: nothing to fit against, so the frame's own (swapped when sideways) measure stands.
+            var sideways = Math.Abs(Math.Sin(_angle * Math.PI / 180)) > Math.Sqrt(0.5);
+            return sideways ? new Size(frame.Height, frame.Width) : frame;
+        }
+
+        var box = StickerRules.FitRotated(frame.Width, frame.Height, _angle, _aspect);
+        return new Size(box.Width, box.Height);
     }
 }

@@ -22,6 +22,9 @@ public enum VisualizerStyle
 
     /// <summary>Spokes around a ring, the spectrum mirrored left and right.</summary>
     Radial = 4,
+
+    /// <summary>[S-3212] The waveform itself, a line moving about the centre: an oscilloscope, not a spectrum.</summary>
+    Scope = 5,
 }
 
 /// <summary>
@@ -42,6 +45,7 @@ public enum VisualizerStyle
 /// <param name="Radius">The inner ring the spokes stand on (<see cref="VisualizerStyle.Radial"/>), DIPs.</param>
 /// <param name="CenterX">The ring's centre, DIPs from the box's left.</param>
 /// <param name="CenterY">The ring's centre, DIPs from the box's top.</param>
+/// <param name="Run">[S-3213] The waveform's run along the long side (<see cref="VisualizerStyle.Scope"/>), DIPs; <see cref="Bars"/> is its point count there.</param>
 public readonly record struct VisualizerPlan(
     VisualizerStyle Style,
     bool Horizontal,
@@ -54,7 +58,8 @@ public readonly record struct VisualizerPlan(
     double Cell = 0,
     double Radius = 0,
     double CenterX = 0,
-    double CenterY = 0);
+    double CenterY = 0,
+    double Run = 0);
 
 /// <summary>
 /// [S-3205] [S-3210] The audio visualizer's layout. The tile is the spectrum and nothing else, so the
@@ -98,6 +103,7 @@ public static class VisualizerLayout
         WidgetKind.VisualizerWave => VisualizerStyle.Wave,
         WidgetKind.VisualizerDots => VisualizerStyle.Dots,
         WidgetKind.VisualizerRadial => VisualizerStyle.Radial,
+        WidgetKind.VisualizerScope => VisualizerStyle.Scope,
         _ => null,
     };
 
@@ -109,7 +115,33 @@ public static class VisualizerLayout
             return new VisualizerPlan(style, false, Counts[^1], MinThickness, 2, 0, 1);
         }
 
-        return style == VisualizerStyle.Radial ? PlanRadial(area) : PlanLinear(area, style);
+        return style switch
+        {
+            VisualizerStyle.Radial => PlanRadial(area),
+            VisualizerStyle.Scope => PlanScope(area),
+            _ => PlanLinear(area, style),
+        };
+    }
+
+    /// <summary>[S-3213] The waveform's points are this far apart along the run: close enough to read as a curve.</summary>
+    public const double ScopeStep = 4;
+
+    /// <summary>[S-3213] Fewer points than this and a waveform is a zigzag.</summary>
+    public const int MinScopePoints = 16;
+
+    /// <summary>
+    /// [S-3213] The waveform: along the long side like the linear designs (down a Tall column), a point
+    /// every <see cref="ScopeStep"/> DIPs up to the trace's <see cref="Oscilloscope.Points"/>, the line 2
+    /// to 4 DIPs thick as the tile grows, swinging about the centre line across the short side.
+    /// </summary>
+    private static VisualizerPlan PlanScope(WidgetArea area)
+    {
+        var horizontal = area.Shape == AreaShape.Tall;
+        var along = horizontal ? area.Height : area.Width;
+        var across = horizontal ? area.Width : area.Height;
+        var points = Math.Clamp((int)Math.Floor(along / ScopeStep) + 1, MinScopePoints, Oscilloscope.Points);
+        var line = Math.Clamp(Math.Round(across / 60), 2, 4);
+        return new VisualizerPlan(VisualizerStyle.Scope, horizontal, points, line, 0, across, 0, Run: along);
     }
 
     private static VisualizerPlan PlanLinear(WidgetArea area, VisualizerStyle style)

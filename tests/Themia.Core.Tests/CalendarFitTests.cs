@@ -114,7 +114,7 @@ public sealed class CalendarFitTests
     [InlineData(40, 76, false, true, WeekdayLabel.Narrow)]  // never without its day
     public void S2704_AWeekIsAnHourGridOnALargeTileElseColumns(double width, double height, bool timeline, bool dots, WeekdayLabel weekdays)
     {
-        var fit = CalendarFit.Week(width, height);
+        var fit = CalendarFit.Week(width, height, 7);
         Assert.Equal(timeline, fit.Timeline);
         Assert.Equal(dots, fit.Dots);
         Assert.Equal(weekdays, fit.Weekdays);

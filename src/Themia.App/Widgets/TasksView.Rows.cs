@@ -402,7 +402,7 @@ internal sealed partial class TasksView
     /// in the widget gives it the shell's keyboard lease (<see cref="IWidgetKeys"/>), and an editor
     /// closing keeps it. This is only the text box's share of the same lease.
     /// </summary>
-    private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && _editor is not null);
+    private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_editor is not null || _renamingList is not null));
 
     private void FocusRow(Border row)
     {
@@ -638,7 +638,14 @@ internal sealed partial class TasksView
             return;
         }
 
-        _config.TaskOrder = [.. ids];
+        // [S-611] Written over the whole list, so rows a filter hides keep their places.
+        if (_feed is not { } feed)
+        {
+            return;
+        }
+
+        var all = Arranged(feed, DateOnly.FromDateTime(DateTime.Now)).Select(t => t.Id).ToList();
+        _config.TaskOrder = [.. TaskRules.MergeOrder(all, ids)];
         _surface?.RequestSave();
         Render();
     }
@@ -654,7 +661,7 @@ internal sealed partial class TasksView
         {
             if (_localListId is { } listId)
             {
-                _service.Local.Update(listId, tasks => LocalTaskLists.AddTask(tasks, title, $"local-{Guid.NewGuid():n}"));
+                _service.Local.Update(listId, tasks => LocalTaskLists.AddTask(tasks, title, $"local-{Guid.NewGuid():n}", _config.NewOnTop));
             }
 
             return;
@@ -672,13 +679,13 @@ internal sealed partial class TasksView
             return;
         }
 
-        // [S-599] Pin the arrangement on screen with the new task last. Without this the next
+        // [S-599] [S-610] Pin the arrangement with the new task last (or first). Without this the next
         // refresh re-imposes the provider's own sort — Graph lists most recently changed first —
-        // which is how a task just added kept jumping to the top. Rebuilt from the rows shown, so
-        // ids of deleted tasks prune themselves rather than accumulate.
-        var order = _displayed.Select(t => t.Id).Where(id => id != created.Id).ToList();
-        order.Add(created.Id);
-        _config.TaskOrder = order;
+        // which is how a task just added kept jumping to the top. Rebuilt from the whole list held,
+        // so ids of deleted tasks prune themselves rather than accumulate, and rows a filter hides
+        // keep their places.
+        var all = Arranged(feed, DateOnly.FromDateTime(DateTime.Now)).Select(t => t.Id).ToList();
+        _config.TaskOrder = [.. TaskRules.PlaceAdded(all, created.Id, _config.NewOnTop)];
         _surface?.RequestSave();
         Render();
     }
@@ -741,11 +748,17 @@ internal sealed partial class TasksView
     /// </summary>
     private void FitAddRow(TaskLayoutPlan plan)
         => _addRow.Fit(
-            (plan.AddRow && _screen == Screen.Ready && Writable) || _editor is { TaskId: null },
+            (plan.AddRow && _screen == Screen.Ready && CanAdd) || _editor is { TaskId: null },
             plan.CompactRows,
             plan.NarrowInset ? Fluent.Space2 : Fluent.Space4);
 
     private bool Writable => IsLocal ? _local?.Writable == true && _localListId is not null : _feed is { Loaded: true };
+
+    /// <summary>
+    /// [S-611] Whether the add footer may show: a list to add to, and no filter narrowing it — a task
+    /// typed into a filtered list would vanish the moment it was added.
+    /// </summary>
+    private bool CanAdd => Writable && !_config.Filter(today: false).Narrows;
 
     private TextBox NewEditor(string text)
     {

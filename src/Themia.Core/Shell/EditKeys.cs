@@ -41,6 +41,9 @@ public enum EditCommand
 
     /// <summary>[S-1975] F6 / Shift+F6 moves the keyboard between the widgets and the toolbar.</summary>
     SwitchPane,
+
+    /// <summary>[S-1998] Ctrl+N opens the add menu, as the global Ctrl+Alt+Shift+W does.</summary>
+    AddWidget,
 }
 
 /// <summary>Which way an arrow key points.</summary>
@@ -107,6 +110,7 @@ public static class EditKeys
     private const int Vk9 = 0x39;
     private const int VkA = 0x41;
     private const int VkC = 0x43;
+    private const int VkN = 0x4E;
     private const int VkV = 0x56;
     private const int VkX = 0x58;
     private const int VkY = 0x59;
@@ -138,6 +142,7 @@ public static class EditKeys
                 VkX when !shift => new(EditCommand.Cut),
                 VkV when !shift => new(EditCommand.Paste),
                 VkA when !shift => new(EditCommand.SelectAll),
+                VkN when !shift => new(EditCommand.AddWidget),
                 VkZ => new(shift ? EditCommand.Redo : EditCommand.Undo),
                 VkY when !shift => new(EditCommand.Redo),
                 >= Vk1 and <= Vk9 when !shift => new(EditCommand.ShowView, ViewNumber: virtualKey - Vk1 + 1),

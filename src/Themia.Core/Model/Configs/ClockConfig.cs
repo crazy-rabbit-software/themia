@@ -12,6 +12,18 @@ public enum ClockAlign
     Right = 2,
 }
 
+/// <summary>
+/// [S-1476] How large the clock sets the place label and the date (and the offset line) against
+/// the time: a step of the type ramp down or up, never a free size.
+/// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<ClockTextSize>))]
+public enum ClockTextSize
+{
+    Default = 0,
+    Small = 1,
+    Large = 2,
+}
+
 /// <summary>[S-1485] The offset line under the date: none, from UTC, or from the machine's own zone.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<ClockOffsetMode>))]
 public enum ClockOffsetMode
@@ -48,6 +60,9 @@ public sealed class ClockConfig : WidgetConfig
 
     public ClockOffsetMode OffsetMode { get; set; } = ClockOffsetMode.None;
 
+    /// <summary>[S-1476] The label and date size (user request: both were hard to read).</summary>
+    public ClockTextSize TextSize { get; set; } = ClockTextSize.Default;
+
     public override WidgetConfig Clone() => new ClockConfig
     {
         Face = Face,
@@ -57,6 +72,7 @@ public sealed class ClockConfig : WidgetConfig
         CustomLabel = CustomLabel,
         Align = Align,
         OffsetMode = OffsetMode,
+        TextSize = TextSize,
     };
 
     /// <summary>
@@ -99,6 +115,12 @@ public sealed class ClockConfig : WidgetConfig
         {
             repairs.Add($"clock offset mode {(int)OffsetMode} unknown; none");
             OffsetMode = ClockOffsetMode.None;
+        }
+
+        if (!Enum.IsDefined(TextSize))
+        {
+            repairs.Add($"clock text size {(int)TextSize} unknown; default");
+            TextSize = ClockTextSize.Default;
         }
 
         if (!string.IsNullOrWhiteSpace(TimeZoneId) && ZoneCatalog.Find(TimeZoneId) is null)

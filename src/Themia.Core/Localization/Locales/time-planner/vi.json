@@ -1,0 +1,19 @@
+{
+  "clockText.sizeLabel": "Cỡ địa điểm và ngày",
+  "clockText.sizeDesc": "Độ lớn của địa điểm, ngày và dòng chênh lệch giờ",
+  "clockText.small": "Nhỏ",
+  "clockText.large": "Lớn",
+  "dateWidget.label": "Ngày",
+  "dateWidget.desc": "Thứ và ngày hôm nay, dành cho hình nền",
+  "dateWidget.showYear": "Hiện năm",
+  "variants.visualizer.scope.label": "Dạng sóng",
+  "variants.visualizer.scope.desc": "Một đường vẽ chính âm thanh, như máy hiện sóng",
+  "planner.label": "Kế hoạch tuần",
+  "planner.desc": "Những ngày tới cùng sự kiện, và việc đến hạn hôm nay",
+  "planner.tasksHeader": "Tác vụ hôm nay",
+  "planner.showTasks": "Hiện tác vụ hôm nay",
+  "planner.showTasksDesc": "Tác vụ đến hạn hôm nay hoặc quá hạn, dưới các sự kiện hôm nay",
+  "planner.taskAccount": "Tác vụ từ",
+  "planner.taskAccountFirst": "Tài khoản đầu tiên có tác vụ",
+  "planner.free": "Không có kế hoạch"
+}

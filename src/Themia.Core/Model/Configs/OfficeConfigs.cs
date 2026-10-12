@@ -37,6 +37,19 @@ public enum WeekStartDay
     Saturday = 2,
 }
 
+/// <summary>
+/// [S-2719] [S-3637] Where the week calendar's first column is: the first day of the week (the shared
+/// regional setting, [S-3770]), or today, for the days coming up.
+/// </summary>
+[JsonConverter(typeof(LenientEnumConverter<WeekFirstDay>))]
+public enum WeekFirstDay
+{
+    /// <summary>The first day of the week, the regional setting ([S-3770]).</summary>
+    Week = 0,
+
+    Today = 1,
+}
+
 /// <summary>[S-581] The four ways the contacts widget lays out people.</summary>
 [JsonConverter(typeof(LenientEnumConverter<ContactsLayout>))]
 public enum ContactsLayout
@@ -112,6 +125,13 @@ public abstract class CalendarConfig : WidgetConfig
     [JsonIgnore]
     public WeekStartDay EffectiveWeekStart => Localization.RegionFormat.Current.WeekStart;
 
+    /// <summary>
+    /// [S-568] Everything beside the kind and the anchor that decides the days the layout covers:
+    /// the week start, and the week's and the agenda's own lengths where the kind has them.
+    /// </summary>
+    [JsonIgnore]
+    public virtual CalendarPeriod Period => new(EffectiveWeekStart);
+
     /// <summary>[S-563] Bring every value back inside its range.</summary>
     public sealed override IReadOnlyList<string> Repair()
     {
@@ -166,16 +186,61 @@ public sealed class MonthCalendarConfig : CalendarGridConfig
     public override WidgetConfig Clone() => CopySharedTo(new MonthCalendarConfig());
 }
 
-/// <summary>[S-3600] The week calendar.</summary>
+/// <summary>
+/// [S-3600] The week calendar. [S-3637] Its own length and first column: a whole week (7) from the
+/// regional week start by default, a working week (5), or the next few days from today.
+/// </summary>
 public sealed class WeekCalendarConfig : CalendarGridConfig
 {
+    public const int DefaultDays = 7;
+
+    public const int MinDays = 1;
+
+    public const int MaxDays = 14;
+
+    /// <summary>[S-3637] A working week, which settings name beside the whole one.</summary>
+    public const int WorkWeekDays = 5;
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WeekCalendar;
 
     [JsonIgnore]
     public override CalendarLayout Layout => CalendarLayout.Week;
 
-    public override WidgetConfig Clone() => CopySharedTo(new WeekCalendarConfig());
+    /// <summary>[S-3637] How many day columns, 1 to 14.</summary>
+    public int Days { get; set; } = DefaultDays;
+
+    /// <summary>[S-3637] Where the first column is: the week's first day, or today.</summary>
+    public WeekFirstDay FirstDay { get; set; } = WeekFirstDay.Week;
+
+    [JsonIgnore]
+    public int EffectiveDays => Math.Clamp(Days, MinDays, MaxDays);
+
+    [JsonIgnore]
+    public override CalendarPeriod Period => new(EffectiveWeekStart, EffectiveDays, FirstDay);
+
+    protected override void RepairOwn(List<string> repairs)
+    {
+        if (Days != EffectiveDays)
+        {
+            repairs.Add($"week calendar days {Days} was out of range");
+            Days = EffectiveDays;
+        }
+
+        if (!Enum.IsDefined(FirstDay))
+        {
+            repairs.Add("week calendar first day was not a known one");
+            FirstDay = WeekFirstDay.Week;
+        }
+    }
+
+    public override WidgetConfig Clone()
+    {
+        var copy = CopySharedTo(new WeekCalendarConfig());
+        copy.Days = Days;
+        copy.FirstDay = FirstDay;
+        return copy;
+    }
 }
 
 /// <summary>[S-3600] The year calendar.</summary>
@@ -202,7 +267,7 @@ public sealed class DayCalendarConfig : CalendarConfig
     public override WidgetConfig Clone() => CopySharedTo(new DayCalendarConfig());
 }
 
-/// <summary>[S-3600] The agenda: a list, so a length instead of a week start.</summary>
+/// <summary>[S-3600] The agenda: a list, so a length and a date range instead of a week start.</summary>
 public sealed class AgendaConfig : CalendarConfig
 {
     [JsonIgnore]
@@ -213,12 +278,31 @@ public sealed class AgendaConfig : CalendarConfig
 
     public const int DefaultCount = 20;
 
+    /// <summary>[S-3636] The agenda looks this many days ahead, today included, unless set otherwise.</summary>
+    public const int DefaultDays = 30;
+
+    public const int MinDays = 1;
+
+    /// <summary>[S-3636] A year: as far as the shared source keeps events ([S-588]).</summary>
+    public const int MaxDays = 365;
+
+    /// <summary>[S-3636] The ranges settings offer by name: today, today and tomorrow, 3, 7 and 30 days; any other is custom.</summary>
+    public static IReadOnlyList<int> DayPresets { get; } = [1, 2, 3, 7, 30];
+
     /// <summary>[S-571] How many entries the agenda lists, 1 to 100.</summary>
     public int AgendaCount { get; set; } = DefaultCount;
 
+    /// <summary>[S-3636] How many days the agenda covers, today first, 1 to 365.</summary>
+    public int AgendaDays { get; set; } = DefaultDays;
 
     [JsonIgnore]
     public int EffectiveAgendaCount => Math.Clamp(AgendaCount, 1, 100);
+
+    [JsonIgnore]
+    public int EffectiveAgendaDays => Math.Clamp(AgendaDays, MinDays, MaxDays);
+
+    [JsonIgnore]
+    public override CalendarPeriod Period => new(EffectiveWeekStart, AgendaDays: EffectiveAgendaDays);
 
     protected override void RepairOwn(List<string> repairs)
     {
@@ -227,12 +311,19 @@ public sealed class AgendaConfig : CalendarConfig
             repairs.Add($"agenda count {AgendaCount} was out of range");
             AgendaCount = EffectiveAgendaCount;
         }
+
+        if (AgendaDays != EffectiveAgendaDays)
+        {
+            repairs.Add($"agenda days {AgendaDays} was out of range");
+            AgendaDays = EffectiveAgendaDays;
+        }
     }
 
     public override WidgetConfig Clone()
     {
         var copy = CopySharedTo(new AgendaConfig());
         copy.AgendaCount = AgendaCount;
+        copy.AgendaDays = AgendaDays;
         return copy;
     }
 }

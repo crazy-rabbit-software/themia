@@ -11,7 +11,8 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-3200] [S-3210] The audio visualizer: the spectrum of whatever the PC is playing, and nothing
-/// else, in the design its kind names; one view and one drawing (<see cref="SpectrumCanvas"/>) for all five.
+/// else, in the design its kind names; one view and one drawing (<see cref="SpectrumCanvas"/>) for all six.
+/// [S-3212] The waveform design draws the frame's trace instead of its bands; it holds the same capture.
 /// <para>
 /// The bars come from the one shared loopback capture (<see cref="AudioLoopback"/>, [S-3203]),
 /// held exactly while this tile can be seen: attached, in the tree, not a preview. Game mode
@@ -29,7 +30,7 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
 
     private DispatcherQueue? _queue;
     private IDisposable? _loopback;
-    private float[]? _pendingBands;
+    private AudioFrame? _pending;
     private int _drawQueued;
     private bool _detached = true;
     private bool _preview;
@@ -84,7 +85,7 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
 
         if (wanted && _loopback is null)
         {
-            _loopback = AudioLoopback.Subscribe(OnBands, OnAvailability);
+            _loopback = AudioLoopback.Subscribe(OnFrame, OnAvailability);
         }
         else if (!wanted && _loopback is not null)
         {
@@ -95,23 +96,23 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
     }
 
     /// <summary>On the capture thread: keep the newest frame, and queue one draw if none is waiting.</summary>
-    private void OnBands(float[] bands)
+    private void OnFrame(AudioFrame frame)
     {
-        Volatile.Write(ref _pendingBands, bands);
+        Volatile.Write(ref _pending, frame);
 
-        if (Interlocked.Exchange(ref _drawQueued, 1) == 0 && _queue?.TryEnqueue(DrawBands) != true)
+        if (Interlocked.Exchange(ref _drawQueued, 1) == 0 && _queue?.TryEnqueue(DrawFrame) != true)
         {
             Interlocked.Exchange(ref _drawQueued, 0);
         }
     }
 
-    private void DrawBands()
+    private void DrawFrame()
     {
         Interlocked.Exchange(ref _drawQueued, 0);
 
-        if (_loopback is not null && Volatile.Read(ref _pendingBands) is { } bands)
+        if (_loopback is not null && Volatile.Read(ref _pending) is { } frame)
         {
-            _bars.SetLevels(bands);
+            _bars.SetFrame(frame);
         }
     }
 

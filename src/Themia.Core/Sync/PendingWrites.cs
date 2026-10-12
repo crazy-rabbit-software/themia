@@ -17,6 +17,9 @@ public enum PendingKind
     TaskRename,
     TaskDelete,
     TaskCreate,
+
+    /// <summary>[S-614] Rename a task list: the target and the container are the list's id, the text its new name.</summary>
+    TaskListRename,
 }
 
 /// <summary>
@@ -212,6 +215,7 @@ public static class WriteQueue
         PendingKind.MailMarkRead or PendingKind.MailMarkUnread => queued is PendingKind.MailMarkRead or PendingKind.MailMarkUnread,
         PendingKind.TaskComplete or PendingKind.TaskReopen => queued is PendingKind.TaskComplete or PendingKind.TaskReopen,
         PendingKind.TaskRename => queued is PendingKind.TaskRename,
+        PendingKind.TaskListRename => queued is PendingKind.TaskListRename,
         PendingKind.TaskDelete => queued is PendingKind.TaskComplete or PendingKind.TaskReopen or PendingKind.TaskRename,
         _ => false,
     };
