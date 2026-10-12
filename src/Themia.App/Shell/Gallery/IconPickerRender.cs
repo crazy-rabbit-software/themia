@@ -89,6 +89,7 @@ internal static class IconPickerRender
                 };
 
                 window = new Window { Content = root, Title = "Themia icon picker render" };
+                UiLanguage.Apply(root);
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
                 var dpi = Win32.GetDpiForWindow(hwnd);
                 var scale = dpi > 0 ? dpi / 96.0 : 1.0;

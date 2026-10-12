@@ -199,13 +199,13 @@ internal static class Fluent
 
     /// <summary>A 16px icon in one of the named text colours.</summary>
     public static FontIcon Icon(string glyph, string colorKey = "TextFillColorSecondaryBrush", double size = IconSize)
-        => new()
+        => UiLanguage.Mirrored(new FontIcon
         {
             Glyph = glyph,
             FontSize = size,
             Foreground = FluentLayout.Themed(colorKey, Colors.Gray),
             VerticalAlignment = VerticalAlignment.Center,
-        };
+        });
 
     /// <summary>An accent pill, the shape Windows uses for an unread or overflow count.</summary>
     public static Border Badge(TextBlock content)

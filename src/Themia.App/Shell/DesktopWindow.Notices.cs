@@ -127,6 +127,7 @@ internal sealed partial class DesktopWindow
         layer.SizeChanged += (_, _) => ApplyHitRegion();
 
         // Last, so notices sit over the widgets, the view bar and the toolbar.
+        UiLanguage.ApplyFlow(layer);
         _root.Children.Add(layer);
         _noticeLayer = layer;
 

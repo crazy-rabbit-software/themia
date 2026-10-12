@@ -32,6 +32,7 @@ internal sealed partial class ConfigWindow
             }
 
             ApplyChromeText();
+            ApplyCaptionInset();
             RebuildNavigation();
             _index.Invalidate();
             RenderBody();

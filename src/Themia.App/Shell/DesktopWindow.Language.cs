@@ -37,7 +37,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        UiLanguage.Apply(_root);
+        ApplyFlow();
         RebuildToolbar();
 
         // A suspended surface has no cards; it builds them fresh, in the new language, when it resumes.
@@ -58,6 +58,26 @@ internal sealed partial class DesktopWindow
         OnPlacementChanged();
         Log.Info(Scope, $"redrew {_monitor.GdiName} in {LanguageResolver.Code(Strings.Current)}");
     }
+
+    /// <summary>
+    /// [S-1113] The language on the whole surface, its direction only on the parts that are text:
+    /// the edit bar, the view bar, the placement hint, the notices and the menu anchor (each card
+    /// sets its own as it is built). The surface root and its canvases stay left to right — they
+    /// are where things are on the screen, and a widget does not move when the language changes.
+    /// </summary>
+    private void ApplyFlow()
+    {
+        UiLanguage.ApplyLanguageOnly(_root);
+        UiLanguage.ApplyFlow(_menuAnchor);
+        UiLanguage.ApplyFlow(_toolbar);
+        UiLanguage.ApplyFlow(_viewBar);
+        UiLanguage.ApplyFlow(_placementHint);
+        UiLanguage.ApplyFlow(_noticeLayer);
+    }
+
+    /// <summary>[S-1113] A point on the surface as the menu anchor counts it (mirrored when the language runs right to left).</summary>
+    private Windows.Foundation.Point OnMenuAnchor(Windows.Foundation.Point at)
+        => _root.TransformToVisual(_menuAnchor).TransformPoint(at);
 
     /// <summary>The edit bar's buttons and its add menu, built again in the current language.</summary>
     private void RebuildToolbar() => _toolbar.Fill(ToolbarCommands());

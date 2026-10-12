@@ -126,6 +126,9 @@ internal static class WidgetRender
                 };
 
                 window = new Window { Content = new Grid { Children = { page } }, Title = "Themia widget render" };
+
+                // As on the desktop: the page is screen geometry, each card flows with the language itself.
+                UiLanguage.ApplyLanguageOnly(page);
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
                 var dpi = Win32.GetDpiForWindow(hwnd);
                 var scale = dpi > 0 ? dpi / 96.0 : 1.0;

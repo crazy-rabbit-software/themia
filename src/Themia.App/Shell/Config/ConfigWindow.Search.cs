@@ -98,7 +98,7 @@ internal sealed partial class ConfigWindow
     /// <summary>One suggestion: the row's icon, its title, and the page it is on.</summary>
     private static Grid SuggestionRow(SettingHit hit)
     {
-        var icon = new FontIcon { Glyph = hit.Glyph, FontSize = 16, VerticalAlignment = VerticalAlignment.Center };
+        var icon = UiLanguage.Mirrored(new FontIcon { Glyph = hit.Glyph, FontSize = 16, VerticalAlignment = VerticalAlignment.Center });
 
         var title = new TextBlock { Text = hit.Entry.Title, TextTrimming = TextTrimming.CharacterEllipsis };
         var where = new TextBlock

@@ -69,6 +69,7 @@ internal static class NoticeRender
                 };
 
                 window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia notice render" };
+                UiLanguage.ApplyLanguageOnly(screen);
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
                 var dpi = Win32.GetDpiForWindow(hwnd);
                 var scale = dpi > 0 ? dpi / 96.0 : 1.0;
@@ -155,6 +156,7 @@ internal static class NoticeRender
             layer.Children.Add(new NoticeCard(notice, _ => { }));
         }
 
+        UiLanguage.ApplyFlow(layer);
         screen.Children.Add(layer);
 
         var single = new NoticeCard(new Notice(NoticeKind.Success, "Settings reset") { Message = "Your previous settings are kept next to the settings file." }, _ => { })
@@ -163,6 +165,7 @@ internal static class NoticeRender
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(Fluent.Space4),
         };
+        UiLanguage.ApplyFlow(single);
         screen.Children.Add(single);
 
         var safe = new NoticeCard(
@@ -178,6 +181,7 @@ internal static class NoticeRender
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(Fluent.Space4, 120, 0, 0),
         };
+        UiLanguage.ApplyFlow(safe);
         screen.Children.Add(safe);
     }
 

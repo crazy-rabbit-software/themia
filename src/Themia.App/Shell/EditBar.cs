@@ -442,7 +442,7 @@ internal sealed partial class EditBar : Grid
     /// </summary>
     private static FontIcon Icon(string glyph, bool turned, double? size = null)
     {
-        var icon = new FontIcon { Glyph = glyph, VerticalAlignment = VerticalAlignment.Center };
+        var icon = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, VerticalAlignment = VerticalAlignment.Center });
         if (size is { } s)
         {
             icon.FontSize = s;
@@ -465,7 +465,7 @@ internal sealed partial class EditBar : Grid
         words.ClearValue(TextBlock.ForegroundProperty); // the button's own, which a checked toggle turns to on-accent
         words.VerticalAlignment = VerticalAlignment.Center;
 
-        var icon = new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center };
+        var icon = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center });
         if (accent)
         {
             icon.Foreground = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);

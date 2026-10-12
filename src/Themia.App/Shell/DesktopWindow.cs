@@ -48,6 +48,13 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly List<GhostCard> _ghosts = [];
 
     private readonly Grid _root;
+
+    /// <summary>
+    /// [S-1113] What menus opened on the bare surface hang from: a full-size, never hit-tested layer
+    /// that flows with the language, so those menus mirror while the surface's own layers (screen
+    /// geometry) do not. Flyouts take their direction from the element they open on.
+    /// </summary>
+    private readonly Grid _menuAnchor = new() { IsHitTestVisible = false };
     private readonly List<WidgetCard> _cards = [];
 
     private MonitorTarget _monitor;
@@ -95,7 +102,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = new SolidColorBrush(Colors.Transparent),
-            Children = { _gridOverlay, _widgetLayer, _barLayer, _ghostLayer, _toolbar, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _barLayer, _ghostLayer, _toolbar, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.
@@ -139,7 +146,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _host.PlacementChanged += OnPlacementChanged;
 
         // [S-1110] One central redraw when the language changes; no card follows it on its own.
-        UiLanguage.Apply(_root);
+        ApplyFlow();
         Strings.Changed += OnLanguageChanged;
     }
 

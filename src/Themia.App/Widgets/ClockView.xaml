@@ -64,6 +64,7 @@
                 -->
                 <Canvas
                     x:Name="AnalogFace"
+                    FlowDirection="LeftToRight"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Visibility="Collapsed" />

@@ -122,6 +122,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
             Orientation = Orientation.Horizontal,
             Spacing = Fluent.Space1,
             Children = { _previous, _playPause, _next },
+
+            // [S-1113] Media transport keeps its order and direction in every language.
+            FlowDirection = FlowDirection.LeftToRight,
         };
 
         _total.TextAlignment = TextAlignment.Right;

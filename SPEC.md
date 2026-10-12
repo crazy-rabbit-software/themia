@@ -4245,7 +4245,30 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   as extras). Each is a `Locale`, an `AppLanguage` (persisted by name) and a file per locale folder;
   `LanguageResolver.Setting` maps a locale back to its setting. The eight new languages are machine
   translations marked for native review in every file's `$comment`. `LocaleFormat` always writes
-  Latin digits.
+  Latin digits; what is drawn follows Windows for the layout tag's region ([S-1114]): Arabic-Indic
+  digits in Arabic (ar-SA substitutes "by context"), Latin everywhere else.
+- **[S-1113]** Right to left: Arabic and Urdu (`TextDirection.IsRightToLeft`). The direction is set
+  on the roots whose whole content is text-like UI — the settings window, each card, the edit bar,
+  the view bar, the notices, the placement hint, the anchor menus on the bare surface open from —
+  and never on a desktop surface itself: its canvases, the hit region (`SetWindowRgn`), the rubber
+  band and every stored geometry stay physical, so no widget moves when the language changes and
+  `WidgetArea`/`Disclosure`/view-bar fit (widths and heights only) are unchanged. Flyouts, menus and
+  tooltips take the direction of the element they open on. Kept left to right on purpose: a card's
+  resize grips (physical corners), media transport and the seek bar (Music, the Gallery slideshow),
+  charts over time (meter sparklines, Stocks, Screen time, the Sun's day arc), the audio spectrum and
+  the analog clock face. Numbers stay left-to-right runs by the bidi algorithm. Directional icons
+  mirror (`TextDirection.MirrorsGlyph`: back, forward, chevrons, send, reply, undo/redo, return,
+  open outside, sign out, bulleted and checked lists, via `FontIcon.MirroredWhenRightToLeft`);
+  play/previous/next never do. The settings window's caption buttons stay where Windows draws them
+  (right); a right-to-left title bar keeps their width clear at its start.
+- **[S-1114]** Fonts per language follow Karpo's rule: no font is named per language, the layout tag
+  (`TextDirection.LayoutTag`, the language with its main region) makes DirectWrite's fallback pick
+  the script's Windows UI face — Nirmala UI for Devanagari (hi, mr) and Bengali, Segoe UI for
+  Latin, Cyrillic, Vietnamese, Arabic and Urdu, Yu Gothic UI for Japanese, Microsoft YaHei UI for
+  Simplified Chinese. No Nastaliq for Urdu: "Urdu Typesetting" ships only with the Urdu language
+  pack, and its tall lines would overflow the line-height budgets. Bengali is tagged bn-IN rather
+  than bn-BD: Windows' bn-BD digits are Bengali and run about a quarter wider than the Latin advance
+  the type ladder measures, which clipped the tall clock.
 - Ported from `main`: 1,673 of the original's 1,748 keys with all nine translations (key names
   kept; `folder.showHidden_`/`showExt_` → `showHiddenMenu`/`showExtMenu`; `shortcut.appCountOne/Other`
   and `binCountOne/Other` → plural keys; `<br/>` → newline; `settings.language.system` takes the

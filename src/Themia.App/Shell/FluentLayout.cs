@@ -71,7 +71,7 @@ internal static class FluentLayout
     /// website" — with Windows' open-in-new-window mark on the right.
     /// </summary>
     public static Border ClickRow(string glyph, string title, string? description, Action onClick)
-        => ActionRow(glyph, title, description, onClick, new FontIcon { Glyph = Glyphs.OpenExternal, FontSize = 14 });
+        => ActionRow(glyph, title, description, onClick, UiLanguage.Mirrored(new FontIcon { Glyph = Glyphs.OpenExternal, FontSize = 14 }));
 
     /// <summary>
     /// A row that is itself the button and goes to another page of this window — a view's widget,
@@ -244,7 +244,7 @@ internal static class FluentLayout
     private static Border Wrap(Control card, string title, string? description, FrameworkElement? control, string[] keywords)
         => new() { Child = card, Tag = new SettingRow(title, description, control) { Card = card, Keywords = keywords } };
 
-    private static FontIcon GlyphIcon(string glyph) => new() { Glyph = glyph };
+    private static FontIcon GlyphIcon(string glyph) => UiLanguage.Mirrored(new FontIcon { Glyph = glyph });
 
     /// <summary>A picture in the icon slot: an image becomes an image icon, an icon stays itself.</summary>
     private static IconElement PictureIcon(FrameworkElement picture) => picture switch
@@ -818,7 +818,7 @@ internal static class FluentLayout
     {
         var button = new Button
         {
-            Content = new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize },
+            Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize }),
             Width = 32,
             Height = 32,
             Padding = new Thickness(0),

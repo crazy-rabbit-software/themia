@@ -99,6 +99,7 @@ internal static class EditBarRender
                 };
 
                 window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia edit bar render" };
+                UiLanguage.ApplyLanguageOnly(screen);
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
                 var dpi = Win32.GetDpiForWindow(hwnd);
                 var scale = dpi > 0 ? dpi / 96.0 : 1.0;
@@ -112,6 +113,7 @@ internal static class EditBarRender
                 await Shot(screen, Bar(snapOn: false), null, outDir, $"editbar-{theme}-snapoff.png").ConfigureAwait(true);
 
                 var menu = PickerRender.Presenter(new WidgetPicker(_ => { }, () => { }, PickerRender.WorkWidth, PickerRender.WorkHeight));
+                UiLanguage.ApplyFlow(menu);
                 await Shot(screen, Bar(snapOn: true), menu, outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
 
                 var hint = new TextBlock
@@ -145,7 +147,7 @@ internal static class EditBarRender
         return true;
     }
 
-    private static EditBar Bar(bool snapOn) => new(new EditBarCommands(
+    private static EditBar Bar(bool snapOn) => Flowing(new EditBar(new EditBarCommands(
         AddFlyout: () => new Flyout(),
         FillViews: _ => { },
         SnapOn: snapOn,
@@ -156,7 +158,14 @@ internal static class EditBarRender
         SetHeader: _ => { },
         SetSurface: _ => { },
         SetTitle: (_, _) => { },
-        ReleaseFocus: () => { }));
+        ReleaseFocus: () => { })));
+
+    /// <summary>[S-1113] The bar flows with the language, as the desktop sets it; the screen around it does not.</summary>
+    private static EditBar Flowing(EditBar bar)
+    {
+        UiLanguage.ApplyFlow(bar);
+        return bar;
+    }
 
     /// <summary>One picture: the bar centred 8 DIPs under the display's top, and the menu hanging under its Add button.</summary>
     private static async Task Shot(Grid screen, FrameworkElement bar, FrameworkElement? menu, string outDir, string name)

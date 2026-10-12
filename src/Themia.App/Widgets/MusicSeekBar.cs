@@ -46,6 +46,9 @@ internal sealed partial class MusicSeekBar : Grid
     public MusicSeekBar()
     {
         Height = BarHeight;
+
+        // [S-1113] A media timeline: left to right in every language, as Windows' own players keep it.
+        FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
         Background = new SolidColorBrush(Colors.Transparent); // hit-testable across its whole height
 
         _track.Height = TrackHeight;

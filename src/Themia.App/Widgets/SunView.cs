@@ -181,6 +181,9 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
     private void BuildCanvas()
     {
+        // [S-1113] The day's arc is a time axis (and east to west): left to right in every language.
+        _canvas.FlowDirection = FlowDirection.LeftToRight;
+
         // The elapsed daylight is the accent behind the curve. The alpha is the shape's, never the
         // shared brush's: the brush comes out of the application's resources and is the same object
         // every other accent surface in the app is painted with.

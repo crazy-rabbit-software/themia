@@ -105,6 +105,7 @@ internal static class ViewBarRender
                 };
 
                 window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia view bar render" };
+                UiLanguage.ApplyLanguageOnly(screen);
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
                 var dpi = Win32.GetDpiForWindow(hwnd);
                 var scale = dpi > 0 ? dpi / 96.0 : 1.0;
@@ -235,6 +236,7 @@ internal static class ViewBarRender
         }
 
         var bar = new ViewBar(new NoOwner());
+        UiLanguage.ApplyFlow(bar);
         bar.Update(
             items,
             new ViewBarLook(c.Size, c.IconOnly, ViewBarRules.IsVertical(c.Anchor), c.Editing, c.Editing && c.Hidden),

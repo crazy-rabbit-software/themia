@@ -26,7 +26,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     private readonly StackPanel _readout = new() { Margin = new Thickness(ScreenTimeLayout.Inset, 0, ScreenTimeLayout.Inset, 0) };
     private readonly TextBlock _total = Fluent.Text(FluentType.BodyStrong);
     private readonly TextBlock _detail = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Grid _drawing = new() { Margin = new Thickness(ScreenTimeLayout.Inset, 0, ScreenTimeLayout.Inset, ScreenTimeLayout.Gap) };
+    private readonly Grid _drawing = new() { FlowDirection = FlowDirection.LeftToRight, Margin = new Thickness(ScreenTimeLayout.Inset, 0, ScreenTimeLayout.Inset, ScreenTimeLayout.Gap) };
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
 

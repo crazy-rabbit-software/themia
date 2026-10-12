@@ -41,6 +41,9 @@ internal sealed partial class GalleryView
             Orientation = Orientation.Horizontal,
             Spacing = 2,
             Children = { previous, _pauseButton, next },
+
+            // [S-1113] Slideshow transport, like media: left to right in every language.
+            FlowDirection = FlowDirection.LeftToRight,
         };
         _controls.Padding = new Thickness(2);
         _controls.CornerRadius = new CornerRadius(Fluent.ControlRadius);

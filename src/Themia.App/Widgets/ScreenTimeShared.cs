@@ -389,7 +389,7 @@ internal sealed class ScreenTimeDayNav
     {
         var button = new Button
         {
-            Content = new FontIcon { Glyph = glyph, FontSize = FluentType.Caption.FontSize },
+            Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = FluentType.Caption.FontSize }),
             Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
             MinWidth = 0,
             MinHeight = 0,

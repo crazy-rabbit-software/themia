@@ -58,7 +58,7 @@ internal sealed partial class DesktopWindow
             HasWidgets: SelectionRules.All(view, HiddenIds()).Count > 0,
             GridSnap: Design.GridSnap);
 
-        return ItemMenu.ShowAt(_root, at, SurfaceMenu(facts, at));
+        return ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), SurfaceMenu(facts, at));
     }
 
     /// <summary>[S-1744] The entries for this surface. <paramref name="at"/> is where the picker opens.</summary>
@@ -107,7 +107,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        BuildAddFlyout().ShowAt(_root, new FlyoutShowOptions { Position = at, Placement = FlyoutPlacementMode.Bottom, ShowMode = FlyoutShowMode.Standard });
+        BuildAddFlyout().ShowAt(_menuAnchor, new FlyoutShowOptions { Position = OnMenuAnchor(at), Placement = FlyoutPlacementMode.Bottom, ShowMode = FlyoutShowMode.Standard });
     }
 
     /// <summary>[S-06] The grid snap aid, flipped as the toolbar's switch does; <see cref="SyncToolbar"/> follows.</summary>

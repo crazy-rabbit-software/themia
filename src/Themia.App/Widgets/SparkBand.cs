@@ -44,6 +44,9 @@ internal sealed partial class SparkBand : Grid
         _second = new Queue<double>(_capacity);
         _scale = scale ?? ChartScale.Share;
 
+        // [S-1113] Time runs left to right in every language: newest at the right edge.
+        FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
+
         var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
         // The wash is the stroke's colour at low alpha, applied to the shape and never to the shared

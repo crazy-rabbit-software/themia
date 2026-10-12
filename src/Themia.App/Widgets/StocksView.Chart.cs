@@ -55,6 +55,8 @@ internal sealed partial class StocksView
 
         // The chart's own surface takes the pointer for the readout; the rest of the card is still
         // the card's to drag. A transparent fill is what makes an empty area hit-testable.
+        // [S-1113] A price over time: the time axis runs left to right in every language.
+        _chart.FlowDirection = FlowDirection.LeftToRight;
         _chart.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
         _chart.SizeChanged += OnChartSizeChanged;
         _chart.PointerMoved += OnChartPointerMoved;

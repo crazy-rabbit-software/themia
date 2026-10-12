@@ -322,7 +322,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             Visibility = Visibility.Collapsed,
         };
 
-        _handles = BuildHandles();
+        // [S-1113] The card's content (header, view, its menus) flows with the language; the resize
+        // grips are physical corners and keep their places, so a drag on the left grip still moves
+        // the left edge.
+        UiLanguage.ApplyFlow(this);
+        _handles = UiLanguage.KeepLeftToRight(BuildHandles());
 
         Children.Add(_surface);
         Children.Add(_stroke);

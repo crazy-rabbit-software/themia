@@ -147,7 +147,7 @@ internal static class ItemMenu
                 var sub = new MenuFlyoutSubItem { Text = entry.Text, IsEnabled = !entry.Disabled };
                 if (entry.Glyph is not null)
                 {
-                    sub.Icon = new FontIcon { Glyph = entry.Glyph };
+                    sub.Icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
                 }
 
                 var inner = children.ToList();
@@ -162,7 +162,7 @@ internal static class ItemMenu
 
             if (entry.Glyph is not null)
             {
-                item.Icon = new FontIcon { Glyph = entry.Glyph };
+                item.Icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
             }
 
             if (entry.Shortcut is not null)
@@ -271,7 +271,7 @@ internal static class ItemMenu
         var button = new AppBarButton
         {
             Label = entry.Text,
-            Icon = new FontIcon { Glyph = entry.Glyph ?? QuickGlyph(entry.Quick) },
+            Icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph ?? QuickGlyph(entry.Quick) }),
             IsEnabled = !entry.Disabled,
 
             // Icons alone, as Explorer's row: the label is the tooltip and the accessible name.
@@ -311,7 +311,7 @@ internal static class ItemMenu
 
         if (entry.Glyph is not null)
         {
-            var icon = new FontIcon { Glyph = entry.Glyph };
+            var icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
             if (button is not null)
             {
                 button.Icon = icon;

@@ -34,6 +34,9 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
 
     public AudioVisualizerView()
     {
+        // [S-1113] A spectrum is an axis (low to high), not text: left to right in every language.
+        FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
+
         var message = new TextBlock { Text = Str.WidgetsC_Visualizer_Unavailable.Text() };
         _unavailable = Fluent.EmptyState(WidgetCatalog.Definition(WidgetKind.AudioVisualizer).Glyph, message, out _);
         _unavailable.Visibility = Visibility.Collapsed;

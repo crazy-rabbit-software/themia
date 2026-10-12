@@ -123,7 +123,7 @@ internal sealed partial class ConfigWindow
 
     private void BuildTitleBar()
     {
-        _back.Content = new FontIcon { Glyph = Glyphs.Back, FontSize = 12 };
+        _back.Content = UiLanguage.Mirrored(new FontIcon { Glyph = Glyphs.Back, FontSize = 12 });
         _back.Click += (_, _) => GoBack();
 
         _paneToggle.Content = new FontIcon { Glyph = "", FontSize = 14 };
@@ -193,6 +193,33 @@ internal sealed partial class ConfigWindow
         _search.SizeChanged += (_, _) => UpdateDragRegions();
 
         UpdateBackButton();
+    }
+
+    /// <summary>
+    /// [S-1113] Windows draws the caption buttons at the right edge whatever the language, so a
+    /// title bar flowing right to left keeps their width clear at its start (the right) for the back
+    /// button and the name. Left to right, the empty third column already holds them.
+    /// </summary>
+    private void ApplyCaptionInset()
+    {
+        if (_hwnd == 0)
+        {
+            return;
+        }
+
+        var appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(_hwnd));
+        var dpi = Win32.GetDpiForWindow(_hwnd);
+        var scale = dpi > 0 ? dpi / 96.0 : 1.0;
+        var padding = UiLanguage.Flow == FlowDirection.RightToLeft
+            ? new Thickness(appWindow.TitleBar.RightInset / scale, 0, 0, 0)
+            : new Thickness(0);
+
+        if (_titleBar.Padding != padding)
+        {
+            _titleBar.Padding = padding;
+            _titleBar.UpdateLayout();
+            UpdateDragRegions();
+        }
     }
 
     /// <summary>
@@ -276,13 +303,13 @@ internal sealed partial class ConfigWindow
             crumb.Click += (_, _) => Navigate(target);
             _crumbs.Children.Add(crumb);
 
-            var chevron = new FontIcon
+            var chevron = UiLanguage.Mirrored(new FontIcon
             {
-                Glyph = "",
+                Glyph = Glyphs.ChevronRight,
                 FontSize = 14,
                 Margin = new Thickness(11, 0, 11, 6),
                 VerticalAlignment = VerticalAlignment.Bottom,
-            };
+            });
 
             _crumbs.Children.Add(chevron);
         }
@@ -344,6 +371,7 @@ internal sealed partial class ConfigWindow
 
         // Settings' title bar is the tall one; the caption buttons stretch to its height.
         appWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+        _titleBar.SizeChanged += (_, _) => ApplyCaptionInset();
 
         ApplyTheme();
 
