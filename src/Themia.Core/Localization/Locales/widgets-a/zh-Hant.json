@@ -47,7 +47,7 @@
   "widgetsA.calendar.readFailed": "無法讀取行事曆。請查看 themia.log。",
   "widgetsA.calendar.settings.accounts": "帳戶和行事曆",
   "widgetsA.calendar.settings.addHint": "在「帳戶」頁面登入",
-  "widgetsA.calendar.settings.agendaCount.desc": "議程在未來 30 天內列出的數量",
+  "widgetsA.calendar.settings.agendaCount.desc": "議程在未來 {days} 天內列出的數量",
   "widgetsA.calendar.settings.birthdays.desc": "來自 Microsoft 和 Google 帳戶的連絡人生日",
   "widgetsA.calendar.settings.colorAuto": "自動",
   "widgetsA.calendar.settings.colorOf": "{name} 的色彩",

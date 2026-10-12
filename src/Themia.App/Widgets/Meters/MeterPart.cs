@@ -52,9 +52,12 @@ internal abstract class MeterPart
 
     /// <summary>
     /// [S-1187] A glyph drawn before the reading, in the pressure colour (the battery's fill level),
-    /// or null for none. Count its width in <see cref="ReadingCharacters"/>.
+    /// or null for none. A kind with one says so in <see cref="HasBadge"/>.
     /// </summary>
     public virtual string? Badge(MeterReading reading) => null;
+
+    /// <summary>[S-3860] Whether the reading may lead with a <see cref="Badge"/>, which the ladder measures as the readout's glyph.</summary>
+    public virtual bool HasBadge => false;
 
     /// <summary>
     /// [S-2504] [S-2513] The hub series this config shows: the one the state asks the hub for, so

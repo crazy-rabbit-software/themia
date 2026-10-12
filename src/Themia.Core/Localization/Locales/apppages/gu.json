@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "વ્યૂને ખસેડવા માટે તેને બીજા પર ખેંચો, અથવા વ્યૂ પર Alt+Shift+Up કે Down દબાવો.",
+  "shell.list.reorderHint": "આઇટમને ખસેડવા માટે તેને બીજી પર ખેંચો, અથવા આઇટમ પર Alt+Shift+Up કે Down દબાવો.",
+  "shell.view.colour": "રંગ",
+  "shell.view.colourDesc": "વ્યૂ બારમાં અને આ વિન્ડોમાં આઇકનનો રંગ",
+  "shell.view.colourDefault": "ટેક્સ્ટનો રંગ",
+  "shell.appearance.themeColours": "થીમ અને રંગો",
+  "shell.appearance.cards": "વિજેટ કાર્ડ",
+  "shell.appearance.cardsDesc": "બૉર્ડર, ખૂણા અને રૂપરેખા",
+  "shell.appearance.textAndSize": "ટેક્સ્ટ અને કદ",
+  "shell.appearance.textAndSizeDesc": "ફૉન્ટ, ટેક્સ્ટનું કદ અને વિજેટ સ્કેલ",
+  "shell.appearance.layoutDesc": "વિજેટ વચ્ચેનું અંતર અને ગ્રિડ પર સ્નેપ",
+  "shell.net.blockedLocal": "{host} સ્થાનિક નેટવર્ક પર છે. Themia ત્યાં ફક્ત તમે જાતે લખેલા સરનામા માટે જ જાય છે",
+  "shell.accounts.stats.mail": "મેઇલ",
+  "shell.accounts.stats.calendar": "કૅલેન્ડર",
+  "shell.accounts.stats.contacts": "સંપર્કો",
+  "shell.accounts.stats.tasks": "કાર્યો",
+  "shell.accounts.stats.messages": {
+    "one": "{count} સંદેશ",
+    "other": "{count} સંદેશા"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} ઇવેન્ટ",
+    "other": "{count} ઇવેન્ટ્સ"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} સંપર્ક",
+    "other": "{count} સંપર્કો"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} કાર્ય",
+    "other": "{count} કાર્યો"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} ફોલ્ડરમાં",
+    "other": "{count} ફોલ્ડરમાં"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} કૅલેન્ડરમાં",
+    "other": "{count} કૅલેન્ડરમાં"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} સૂચિમાં",
+    "other": "{count} સૂચિઓમાં"
+  },
+  "shell.accounts.stats.synced": "{time} સમન્વયિત",
+  "shell.accounts.stats.neverSynced": "હજી સમન્વયિત નથી",
+  "shell.accounts.stats.nothing": "આ PC પર હજી કંઈ સંગ્રહિત નથી",
+  "shell.accounts.nicknameDesc": "વિજેટ આ એકાઉન્ટ માટે જે નામ બતાવે છે",
+  "shell.accounts.reconnect": "ફરીથી સાઇન ઇન કરો",
+  "shell.accounts.reconnectButton": "સાઇન ઇન કરો",
+  "shell.accounts.signOutDesc": "આ PC પરથી એકાઉન્ટ અને તેમાંથી સમન્વયિત બધું ભૂલી જાય છે",
+  "shell.accounts.needsSignIn": "તમારે ફરીથી સાઇન ઇન કરવાની જરૂર છે"
+}

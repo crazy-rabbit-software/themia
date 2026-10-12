@@ -152,6 +152,7 @@ public class DeskInfoWidgetsTests
         var wednesday = new DateOnly(2026, 10, 14);
         Assert.Equal(new DateOnly(2026, 10, 12), TimeProgress.WeekStart(wednesday, WeekStartDay.Monday));
         Assert.Equal(new DateOnly(2026, 10, 11), TimeProgress.WeekStart(wednesday, WeekStartDay.Sunday));
+        Assert.Equal(new DateOnly(2026, 10, 10), TimeProgress.WeekStart(wednesday, WeekStartDay.Saturday));
 
         // Sunday: the last day of a Monday week, the first of a Sunday week.
         var sunday = new DateOnly(2026, 10, 18);
@@ -173,6 +174,8 @@ public class DeskInfoWidgetsTests
     [InlineData(2026, 1, 3, WeekStartDay.Sunday, 1)]
     [InlineData(2026, 1, 4, WeekStartDay.Sunday, 2)]
     [InlineData(2026, 12, 31, WeekStartDay.Sunday, 53)]
+    [InlineData(2026, 1, 2, WeekStartDay.Saturday, 1)]
+    [InlineData(2026, 1, 3, WeekStartDay.Saturday, 2)]
     public void S4802_week_numbers_are_iso_for_monday_and_us_for_sunday(int year, int month, int day, WeekStartDay start, int expected)
         => Assert.Equal(expected, TimeProgress.WeekNumber(new DateOnly(year, month, day), start));
 

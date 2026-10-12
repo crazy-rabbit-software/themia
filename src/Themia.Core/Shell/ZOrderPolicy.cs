@@ -49,11 +49,16 @@ public static class ZOrderPolicy
     /// <param name="ownSurfaceForeground">
     /// Whether one of the widget surfaces itself owns the foreground — the user clicked a widget.
     /// </param>
+    /// <param name="applicationOnScreen">
+    /// [S-33e] Whether an ordinary application window is on screen again (not minimised, not
+    /// cloaked, not topmost). Only read while the pin is held and a shell or own surface is in front.
+    /// </param>
     public static ZAction Decide(
         bool showDesktopActive,
         bool pinnedTopmost,
         bool shellSurfaceForeground,
-        bool ownSurfaceForeground)
+        bool ownSurfaceForeground,
+        bool applicationOnScreen)
     {
         if (showDesktopActive)
         {
@@ -77,6 +82,16 @@ public static class ZOrderPolicy
         // but nothing has been restored and the desktop layer is still elevated. Dropping the pin
         // then put the surface under it: the widgets vanished on the first click after Win+D, which
         // is exactly when the user had gone to the desktop to use them.
+        //
+        // [S-33e] Both holds are only for while the desktop is still what is on screen. Show Desktop
+        // can end with the taskbar, Task View or a widget still in front (the taskbar's own Show
+        // Desktop button, a second Win+D, a three-finger swipe): the windows come back, nothing hands
+        // the foreground to them, and holding there drew the widgets over the user's work until a click.
+        if (applicationOnScreen)
+        {
+            return ZAction.DropToAnchor;
+        }
+
         return shellSurfaceForeground || ownSurfaceForeground ? ZAction.HoldTopmost : ZAction.DropToAnchor;
     }
 }

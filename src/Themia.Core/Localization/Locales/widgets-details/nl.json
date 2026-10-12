@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Groeperen per app",
   "details.settings.processes.group.desc": "Alle processen van één programma vormen één rij",
   "details.settings.network.public.label": "Openbaar adres",
-  "details.settings.network.public.desc": "Vraagt het op bij api.ipify.org, hoogstens om de 10 minuten",
+  "details.settings.network.public.desc": "Vraagt het op bij api.ipify.org, hoogstens om de {minutes} minuten",
   "details.settings.disk.drives": "Stations",
   "details.settings.disk.all.label": "Elk station",
   "details.settings.disk.all.desc": "Elk station van Windows weergeven, zodra het verschijnt of verdwijnt",

@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "برای جابه‌جایی، یک نما را روی نمای دیگر بکشید یا روی نما Alt+Shift+Up یا Down را فشار دهید.",
+  "shell.list.reorderHint": "برای جابه‌جایی، یک مورد را روی مورد دیگر بکشید یا روی مورد Alt+Shift+Up یا Down را فشار دهید.",
+  "shell.view.colour": "رنگ",
+  "shell.view.colourDesc": "رنگ نماد در نوار نما و در این پنجره",
+  "shell.view.colourDefault": "رنگ متن",
+  "shell.appearance.themeColours": "زمینه و رنگ‌ها",
+  "shell.appearance.cards": "کارت‌های ویجت",
+  "shell.appearance.cardsDesc": "حاشیه، گوشه‌ها و خط دور",
+  "shell.appearance.textAndSize": "متن و اندازه",
+  "shell.appearance.textAndSizeDesc": "قلم، اندازه متن و مقیاس ویجت",
+  "shell.appearance.layoutDesc": "فاصله بین ویجت‌ها و چسبیدن به شبکه",
+  "shell.net.blockedLocal": "{host} در شبکه محلی است. Themia فقط برای نشانی‌ای که خودتان تایپ کرده‌اید به آن وصل می‌شود",
+  "shell.accounts.stats.mail": "ایمیل",
+  "shell.accounts.stats.calendar": "تقویم",
+  "shell.accounts.stats.contacts": "مخاطبین",
+  "shell.accounts.stats.tasks": "کارها",
+  "shell.accounts.stats.messages": {
+    "one": "{count} پیام",
+    "other": "{count} پیام"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} رویداد",
+    "other": "{count} رویداد"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} مخاطب",
+    "other": "{count} مخاطب"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} کار",
+    "other": "{count} کار"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "در {count} پوشه",
+    "other": "در {count} پوشه"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "در {count} تقویم",
+    "other": "در {count} تقویم"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "در {count} فهرست",
+    "other": "در {count} فهرست"
+  },
+  "shell.accounts.stats.synced": "همگام‌سازی‌شده {time}",
+  "shell.accounts.stats.neverSynced": "هنوز همگام‌سازی نشده",
+  "shell.accounts.stats.nothing": "هنوز چیزی در این رایانه ذخیره نشده",
+  "shell.accounts.nicknameDesc": "نامی که ویجت‌ها برای این حساب نشان می‌دهند",
+  "shell.accounts.reconnect": "ورود دوباره",
+  "shell.accounts.reconnectButton": "ورود",
+  "shell.accounts.signOutDesc": "حساب و همه داده‌های همگام‌سازی‌شده آن را از این رایانه پاک می‌کند",
+  "shell.accounts.needsSignIn": "باید دوباره وارد شوید"
+}

@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "ইউরোপীয় (EAQI)",
   "online.air.settings.index.us": "মার্কিন (AQI)",
   "online.rain.label": "পরের ঘণ্টায় বৃষ্টি",
-  "online.rain.desc": "বৃষ্টি কখন শুরু বা থামবে, ১৫ মিনিটের ধাপে",
+  "online.rain.desc": "বৃষ্টি কখন শুরু বা থামবে, {minutes} মিনিটের ধাপে",
   "online.rain.startsIn": "{minutes} মিনিটে বৃষ্টি",
   "online.rain.stopsIn": "{minutes} মিনিটে বৃষ্টি থামবে",
   "online.rain.continues": "আগামী ২ ঘণ্টা বৃষ্টি",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "মুদ্রা",
   "online.rates.settings.quotes.desc": "যতগুলো ধরে, বেছে নেওয়া ক্রমে",
   "online.rates.settings.quotes.all": "সব মুদ্রা",
-  "online.rates.settings.chart.label": "৯০ দিনের চার্ট",
+  "online.rates.settings.chart.label": "{days} দিনের চার্ট",
   "online.rates.settings.chart.desc": "জায়গা থাকলে প্রতিটি হারের নিচে"
 }

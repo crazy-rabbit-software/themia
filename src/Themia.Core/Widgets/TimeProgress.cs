@@ -70,15 +70,13 @@ public static class TimeProgress
     /// <summary>[S-4802] The first day of the week holding <paramref name="day"/>.</summary>
     public static DateOnly WeekStart(DateOnly day, WeekStartDay weekStart)
     {
-        var first = weekStart == WeekStartDay.Sunday ? DayOfWeek.Sunday : DayOfWeek.Monday;
-        var back = ((int)day.DayOfWeek - (int)first + 7) % 7;
-        return day.AddDays(-back);
+        return CalendarRules.StartOfWeek(day, weekStart);
     }
 
     /// <summary>
     /// [S-4802] The week's number in its year. A Monday week is ISO 8601's (week 1 holds the first
     /// Thursday, so 29 Dec can be week 1 of the next year and 1 Jan week 53 of the last); a Sunday
-    /// week counts as North America does: week 1 holds 1 January.
+    /// week counts as North America does: week 1 holds 1 January; so does a Saturday week (Iran).
     /// </summary>
     public static int WeekNumber(DateOnly day, WeekStartDay weekStart)
     {
@@ -87,7 +85,7 @@ public static class TimeProgress
             return System.Globalization.ISOWeek.GetWeekOfYear(day.ToDateTime(TimeOnly.MinValue));
         }
 
-        var firstWeek = WeekStart(new DateOnly(day.Year, 1, 1), WeekStartDay.Sunday);
+        var firstWeek = WeekStart(new DateOnly(day.Year, 1, 1), weekStart);
         return ((day.DayNumber - firstWeek.DayNumber) / 7) + 1;
     }
 

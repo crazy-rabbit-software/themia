@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "Unidade do sistema ({drive})",
   "shell.meters.gpuDescription": "Carga gráfica, por adaptador",
   "shell.meters.batteryDescription": "Nível de carga",
-  "shell.appearance.headerFade": "O quão opaca é a faixa do cabeçalho; 100% corresponde ao widget",
+  "shell.appearance.headerFade": "O quão opaca é a faixa do cabeçalho; {percent} corresponde ao widget",
   "shell.views.add": "Adicionar visualização",
   "shell.views.addDesc": "Uma visualização nova e vazia no fim da lista",
   "shell.views.more": "Mais opções",

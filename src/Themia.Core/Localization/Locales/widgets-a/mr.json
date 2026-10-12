@@ -48,7 +48,7 @@
   "widgetsA.calendar.readFailed": "कॅलेंडर वाचता आले नाही. themia.log पहा.",
   "widgetsA.calendar.settings.accounts": "खाती आणि कॅलेंडर",
   "widgetsA.calendar.settings.addHint": "खाती पृष्ठावर साइन इन करा",
-  "widgetsA.calendar.settings.agendaCount.desc": "पुढील 30 दिवसांत अजेंडा किती दाखवतो",
+  "widgetsA.calendar.settings.agendaCount.desc": "पुढील {days} दिवसांत अजेंडा किती दाखवतो",
   "widgetsA.calendar.settings.birthdays.desc": "Microsoft आणि Google खात्यांमधील तुमच्या संपर्कांचे वाढदिवस",
   "widgetsA.calendar.settings.colorAuto": "स्वयंचलित",
   "widgetsA.calendar.settings.colorOf": "{name} रंग",

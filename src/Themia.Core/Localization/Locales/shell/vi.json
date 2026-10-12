@@ -586,7 +586,7 @@
   "shell.meters.systemDrive": "Ổ đĩa hệ thống ({drive})",
   "shell.meters.gpuDescription": "Tải đồ họa, theo từng bộ điều hợp",
   "shell.meters.batteryDescription": "Mức pin",
-  "shell.appearance.headerFade": "Độ đặc của dải tiêu đề; 100% giống tiện ích",
+  "shell.appearance.headerFade": "Độ đặc của dải tiêu đề; {percent} giống tiện ích",
   "shell.views.add": "Thêm dạng xem",
   "shell.views.addDesc": "Một dạng xem mới, trống, ở cuối danh sách",
   "shell.views.more": "Tùy chọn khác",

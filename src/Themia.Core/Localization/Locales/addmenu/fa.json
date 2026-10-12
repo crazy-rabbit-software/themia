@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "پرطرفدار",
+  "addMenu.browse": "مرور",
+  "addMenu.subject.time": "زمان",
+  "addMenu.subject.calendar": "تقویم و ایمیل",
+  "addMenu.subject.weather": "آب‌وهوا و آسمان",
+  "addMenu.subject.markets": "اخبار و بازارها",
+  "addMenu.subject.media": "موسیقی و رسانه",
+  "addMenu.subject.notes": "یادداشت‌ها و ابزارها",
+  "addMenu.subject.files": "فایل‌ها و برنامه‌ها",
+  "addMenu.subject.system": "سیستم",
+  "addMenu.subject.devices": "دستگاه‌ها و برق",
+  "addMenu.subject.more": "بیشتر",
+  "addMenu.family.calendar": "تقویم",
+  "addMenu.family.visualizer": "نمایشگر صدا",
+  "addMenu.family.folder": "پوشه",
+  "addMenu.family.screenTime": "زمان استفاده",
+  "addMenu.family.powerButtons": "دکمه‌های برق"
+}

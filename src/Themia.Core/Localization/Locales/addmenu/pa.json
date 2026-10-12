@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "ਪ੍ਰਸਿੱਧ",
+  "addMenu.browse": "ਬ੍ਰਾਊਜ਼ ਕਰੋ",
+  "addMenu.subject.time": "ਸਮਾਂ",
+  "addMenu.subject.calendar": "ਕੈਲੰਡਰ ਅਤੇ ਮੇਲ",
+  "addMenu.subject.weather": "ਮੌਸਮ ਅਤੇ ਅਸਮਾਨ",
+  "addMenu.subject.markets": "ਖ਼ਬਰਾਂ ਅਤੇ ਬਾਜ਼ਾਰ",
+  "addMenu.subject.media": "ਸੰਗੀਤ ਅਤੇ ਮੀਡੀਆ",
+  "addMenu.subject.notes": "ਨੋਟਸ ਅਤੇ ਟੂਲ",
+  "addMenu.subject.files": "ਫ਼ਾਈਲਾਂ ਅਤੇ ਐਪਾਂ",
+  "addMenu.subject.system": "ਸਿਸਟਮ",
+  "addMenu.subject.devices": "ਡਿਵਾਈਸਾਂ ਅਤੇ ਪਾਵਰ",
+  "addMenu.subject.more": "ਹੋਰ",
+  "addMenu.family.calendar": "ਕੈਲੰਡਰ",
+  "addMenu.family.visualizer": "ਵਿਜ਼ੁਅਲਾਈਜ਼ਰ",
+  "addMenu.family.folder": "ਫੋਲਡਰ",
+  "addMenu.family.screenTime": "ਸਕ੍ਰੀਨ ਸਮਾਂ",
+  "addMenu.family.powerButtons": "ਪਾਵਰ ਬਟਨ"
+}

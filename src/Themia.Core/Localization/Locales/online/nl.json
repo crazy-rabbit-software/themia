@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "Europees (EAQI)",
   "online.air.settings.index.us": "VS (AQI)",
   "online.rain.label": "Regen komend uur",
-  "online.rain.desc": "Wanneer regen begint of stopt, per 15 minuten",
+  "online.rain.desc": "Wanneer regen begint of stopt, per {minutes} minuten",
   "online.rain.startsIn": "Regen over {minutes} min",
   "online.rain.stopsIn": "Regen stopt over {minutes} min",
   "online.rain.continues": "Regen de komende 2 uur",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "Valuta's",
   "online.rates.settings.quotes.desc": "Zoveel als er passen, in de gekozen volgorde",
   "online.rates.settings.quotes.all": "Alle valuta's",
-  "online.rates.settings.chart.label": "Grafiek van 90 dagen",
+  "online.rates.settings.chart.label": "Grafiek van {days} dagen",
   "online.rates.settings.chart.desc": "Onder elke koers, als er ruimte is"
 }

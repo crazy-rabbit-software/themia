@@ -172,6 +172,12 @@ Sections, grouped by area (file order below; search for the heading).
     desktop window, and both return to the desktop layer when it ends. The original app documents a
     wry/WebView2 limitation where only the first window in a process can be promoted; that does not
     apply here.
+- **[S-33e]** Both holds ([S-33c], [S-28]) last only while the user's windows are still away. Once an
+  ordinary application window is on screen again (same test as [S-33a]) the pin drops, whoever has
+  the foreground. Show Desktop can end with the taskbar, Task View or a widget still in front (the
+  taskbar's Show Desktop button, a second Win+D, a three-finger swipe up): the windows came back,
+  nothing handed them the foreground, and the held pin drew the widgets over them until a click
+  (original issues #132, #167). `ZOrderPolicy.Decide(..., applicationOnScreen)`.
 - **[S-34]** The surface is kept **uncloaked**. A fullscreen exclusive application hides windows by
   asking DWM to cloak them — a path that goes through neither `SC_MINIMIZE` nor `WM_SHOWWINDOW`, so
   no window procedure sees it. A cloaked window is still `IsWindowVisible`, still not iconic, still
@@ -937,9 +943,10 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
   account is (provider, IMAP host, DAV address) cannot be guessed and its entry is dropped; a field it
   can live without (nickname, IMAP port) is repaired; a missing secret is kept as "sign in again".
   Every drop and repair is logged. Duplicates keep the first.
-- **[S-505]** Ids are built exactly as the classic app built them (`google:<sub>`, `imap:user@host`,
-  `caldav:user@authority`, the Graph id for Microsoft), so signing in again replaces the account
-  (keeping its nickname).
+- **[S-505]** Ids are built as the classic app built them, DAV aside (`google:<sub>`, `imap:user@host`,
+  `caldav:user@authority/path` of the collection, the Graph id for Microsoft), so signing in again
+  replaces the account (keeping its nickname), while a second collection of the same user on the
+  same server (Google's per-calendar CalDAV addresses) is a second account (classic #133).
 - **[S-506]** A secret is stored as `dpapi:v1:` + base64 of a DPAPI blob — the classic envelope byte
   for byte. Untagged text and a damaged payload are told apart from a good blob.
 - **[S-507]** An access token within five minutes of expiry is treated as expired; a missing or absurd
@@ -1288,6 +1295,16 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`
   `WhatsApp.Root.exe` has no icon resource, so the file's icon was Windows' blank program icon. One
   path for every icon of a program (`AppIcons`: screen time, the mixer, the layout editor), cached per
   (path, size); the manifest is read once per entry, off the UI thread, and a read failure is logged.
+- **[S-3965]** The logo follows the card's theme. The Apps-folder item always draws the dark-theme
+  asset, so Codex's white logo vanished on a light card. `PackagedApps.Logo` picks the file itself from
+  the app's `Square44x44Logo` and the qualifiers of the files beside it: on a light card
+  `altform-lightunplated` (or `altform-unplated` with `theme-light`), on a dark card
+  `altform-unplated`; else the plated logo, drawn on the manifest's `BackgroundColor` (`#RRGGBB`;
+  `transparent` or a named colour is no plate); else the other theme's unplated one. High-contrast and
+  other alternate forms are never picked; within a kind the smallest size not under the drawn one,
+  else the largest. No asset (or one that will not decode, logged) leaves the icon to [S-3960]'s path.
+  The theme is in the cache key of a packaged icon only; the screen-time, mixer and process rows ask
+  again when their theme changes.
 - **[S-3351]** As many whole rows as fit, up to the ceiling; when apps are left over the last row is
   Other, so the rows add up to the total (`ScreenTimeRules.ListNamed`). Rows are reused by position.
 - **[S-3352]** Ladder (`ScreenTimeLayout.Apps`): whole compact rows; the time always, the name from
@@ -1424,8 +1441,13 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
 - **[S-552]** The IMAP preview walks MIME [S-52]: first text/plain, else text/html, attachments and
   non-text skipped, quoted-printable / base64 / charset decoded before the whitespace collapse, 200
   characters, bounded (6 levels, 32 parts, 16 KB a part). The body stays bytes (Latin-1 chars) until
-  a part's charset decodes it, so 8-bit ISO-8859-1 bodies survive. HTML block tags leave a space.
-- **[S-553]** IMAP over implicit TLS, one session per job: LOGIN (literal when a value needs one),
+  a part's charset decodes it, so 8-bit ISO-8859-1 bodies survive; the legacy code pages (KOI8-R,
+  windows-1251, GBK, Big5, Shift_JIS; classic #147) are read from the in-box tables, in bodies and in
+  RFC 2047 words. A cut at the 16 KB bound inside a character never throws (classic #164). HTML block
+  tags leave a space.
+- **[S-553]** IMAP over implicit TLS, one session per job: LOGIN (literal when a value needs one), then
+  the RFC 2971 `ID` (name and vendor only) when the server advertises it (163.com refuses SELECT
+  otherwise, classic #169),
   LIST once for folder resolution, `EXAMINE` (read-only) and
   `FETCH n:m (UID FLAGS RFC822.HEADER BODY.PEEK[TEXT]<0.32768>)` — parenthesised [S-38/#45], never
   setting `\Seen`, and capped at 32 KB of text per message. Responses are framed by their literal
@@ -1558,7 +1580,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
 - **[S-563]** Every value is read leniently: a wrong type or unknown name becomes the default
   instead of refusing the state. *(The hearth-era config fold-in that shared this tag is retired,
   [S-1050].)*
-- **[S-564]** Week start Monday or Sunday drives the month grid, the week view, the year's small
+- **[S-564]** Week start Monday, Sunday or Saturday (the Iranian week, fa-IR) drives the month grid, the week view, the year's small
   months and the weekday header; the day and the agenda have none. It is the shared regional
   setting ([S-3770]), not a calendar's own: no calendar stores `weekStart`.
 
@@ -1584,8 +1606,9 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
 - **[S-570]** A day lists birthdays, then all-day events, then timed ones by start; an all-day
   event covers [first, end); a timed one shows on every local day it overlaps.
 - **[S-571]** Agenda: grouped by day ("Today", "Tomorrow", "Mon 5 Oct"), at most `agendaCount`
-  entries; an event still running from before is filed under today; timed events already over are
-  left out. Rows: time column (start over end, "All day", "Now"), title, location · organizer; on a
+  entries; an event spanning several days is listed under each day it covers (classic #155), one
+  still running from before from today on; timed events already over are left out. A timed event's
+  row shows that day's part of it (18:00–00:00, "All day" for a day it covers whole, 00:00–10:00). Rows: time column (start over end, "All day", "Now"), title, location · organizer; on a
   tile under 260 px the time folds under the title. The time column is as wide as its widest label
   in the current language (at least 52 px, at most 35% of the row; a longer word label trims), so
   "Toute la journée" or "طوال اليوم" is not cut.
@@ -1680,8 +1703,8 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   [S-1624], [S-723], [S-725], [S-763], [S-767], [S-768], [S-783], [S-1213], [S-1274], [S-1285],
   [S-665], [S-1571], [S-1323], [S-1284], [S-1469], [S-1475]; the stock
   facts and range chips, [S-2770]; the mixer's percent, [S-2771]).
-- **[S-667]** **The hero readout** (`HeroReadout`, metrics in `HeroLayout`; Weather now, Stocks;
-  the system meters keep their own for now, to be moved over in a later pass): the one big value
+- **[S-667]** **The hero readout** (`HeroReadout`, metrics in `HeroLayout`; Weather now, Stocks,
+  Air quality, Exchange rates, the system meters and GPU panels, the detail widgets, [S-3860]): the one big value
   with its unit, an optional token on its baseline, an optional leading glyph and caption lines.
   Value, unit and token are runs of one text block, so they share a baseline (they were three
   bottom-aligned blocks of different line heights, a few pixels apart). The unit is the largest ramp
@@ -1698,6 +1721,31 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
 - **[S-669]** **Day row** parts: the weekday column 44 wide (with the glyph), the sky's glyph 20 with 8 either side, the low and high
   in a right-aligned tabular figure column of at least 32 (`WidgetParts.Figure`): the high Body
   Strong primary, the low Body secondary, as Windows sets a range.
+- **[S-3860]** **One hero ladder for chart and reading widgets.** While a hero shares its tile with
+  the content it heads (a chart, readings, a list) it grows to the tier's step, by the tile's
+  smaller size class (`HeroLayout.TierStep`): Title up to Regular, TitleLarge at Expanded, Display
+  at Huge, fitted down where the width is short. Stocks ([S-1311]), the meters and GPU panels
+  ([S-1762]) and the detail widgets ([S-2402]) use it, so at the seven tiers a CPU meter and a
+  stock draw their number at 28 / 28 / 28 / 28 / 28 / 40 / 68. A hero alone on its tile (a meter
+  with the history off, a detail widget whose every fact is shown and has no list, the weather)
+  fills it: Display, then grown past it up to 1.5×. The readout stands 16 from the card's sides
+  and 4 under the header (`HeroLayout.SideInset` / `TopInset`), centred instead where it is alone
+  or beside a chart. A formatted reading is split for the readout by `HeroLayout.Split`: the
+  leading figure (digits of any script, `.` `,` and the Arabic separators) and the unit after it
+  ("42" + "%", "1.2" + " MB/s"); a text that does not start with a figure and a unit ("--", "%42",
+  a direction mark, "1 234 ms") is drawn whole, never reordered.
+- **[S-3861]** **Detail widgets never end in an empty band** (user decision 2026-10-12, one rule
+  for all eight): what the ladder's rungs leave goes first to the hero (to the tier's step; past
+  it to Display and 1.5× only when every fact is shown and there is no list), a list is as tall as
+  its rows (rows that grow, Disk space's, [S-2420], take all the room, each centring its drive in its share), and
+  what is still spare is split above and below the block, so a short adapter list in an L tile
+  stands with its hero and facts in the middle rather than under them at the top. A list that
+  overflows fills the room and scrolls (no spare). A widget without a hero is its list from the top.
+- **[S-3862]** A detail widget's facts are drawn only as the shared stat parts ([S-668], one
+  implementation, `StatPart`, restyled in place each read): stat cells (Caption label over Body
+  Strong value) when every fact fits in two or more columns of cells, else stat lines (28 each,
+  no glyph), as many whole rows as fit. The Title-valued "large tile" and the Body Large tile are
+  retired with the 2.4× hero.
 - **[S-3850]** **The add footer** (every widget that adds an item in place: Habits [S-1427], Tasks
   [S-780]). One full-width list row, built only by `AddFooterRow`: a plus glyph and the secondary
   Body line ("Add a habit", "Add a task"), the list's own row height (compact with the rows) and
@@ -2179,8 +2227,10 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   is the reading alone, filling it; a Wide strip at least Expanded wide puts the reading in a column
   on the left (35–50 % of the width) and the history the full height on the right; everything else
   stacks the reading over the history, which is promised half the height (never under 24 px), the
-  reading growing by ramp step up to Display in what is left, and the history taking every pixel
-  the reading does not — no empty space at L or XL. With Show history off the reading fills the tile.
+  reading the shared hero readout ([S-667]: the number, its unit smaller; the battery's glyph as
+  its icon) at the tier's step ([S-3860]) in what is left, and the history taking every pixel
+  the reading does not — no empty space at L or XL. With Show history off the reading fills the
+  tile, grown past Display as the weather's is.
 - **[S-1823]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1824]** The history is the card's bottom band, edge to edge (user decision 2026-10-11): no
   inset at its left, right or under it; beside the reading on a strip it fills the rest of the
@@ -2307,6 +2357,8 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
 - **[S-3961]** No battery bar and no connection dot: the battery is its percentage as text, and the
   state is the device icon's colour (primary connected, secondary paired), the status word where the
   row has room and the second line. `ShowConnection` governs the word and the second line's state.
+  No count badge in the header either: the connected count is the "2 connected" words where
+  [S-1254] gives the header room, and nothing on smaller tiles.
 
 Not ported: Bluetooth's 1–30 s refresh choices (kept 5–300 s: enumeration and GATT reads take
 seconds); per-metric `visibleMetrics` ordering (fixed ladder order).
@@ -3290,14 +3342,12 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
   `Detach` ([S-1881]); a parked widget holds none.
 - **[S-2401]** A detail widget reads on the hub's one cadence ([S-2503]); `DetailConfig` has no cadence
   of its own and a stored `intervalSeconds` is not read.
-- **[S-2402]** The ladder (`DetailFace.Plan`): Compact both ways is the hero alone, filling the tile (a
-  list kind: its rows). A Wide strip at least Expanded wide puts the hero in a left column (40 %) and the
-  facts in lines beside it. Otherwise hero, caption and facts stack; when every fact fits, the richest
-  fact style and the largest hero that fit are chosen together (lines, then tiles, then large tiles; a
-  tile style whose single column would cut the longest value is skipped), and without a list the height
-  the facts leave goes to the hero, scaled past Display up to 2.4×. When not all fit, facts are lines in
-  as many whole rows as fit, most wanted first. A list takes everything under the facts, one whole row at
-  least, or is not shown. Costs are line heights of the live ramp.
+- **[S-2402]** The ladder (`DetailFace.Plan`): Compact both ways is the hero alone at the tier's step
+  (a list kind: its rows). A Wide strip at least Expanded wide without a list puts the hero in a left
+  column (40 %) and the facts in stat lines beside it. Otherwise one height budget: the hero (the shared
+  readout, [S-667], its caption a Body line under it) is reserved at Subtitle; the facts take whole rows
+  most wanted first, as stat cells or stat lines ([S-3862]); a list takes one whole row at least, or is
+  not shown. The rest is [S-3861]. Costs are line heights of the live ramp.
 - **[S-2403]** A fact Windows does not report on this machine is left out, never "--"; a fact that can be
   read but is not available right now (a lost probe) is a dimmed "--". A thing that is not on the machine
   (no battery, no adapter) is the empty state ([S-82a]). Why the hero is dimmed is its tooltip.
@@ -3714,6 +3764,16 @@ switch for it ([S-1724]).
   characters without splitting a surrogate pair. The source is registered by the installer (HKLM,
   later package); without it Windows still files the event, wrapped in its "description cannot be
   found" preamble. A failure to register or report is silent: the caller is the logging pipeline.
+- **[S-987]** Only an explicit quit ends the process: `Application.DispatcherShutdownMode` is
+  `OnExplicitShutdown`, and every way out (Quit, the single-instance hand-off, the data purge, the
+  renders) calls `Exit`. WinUI's default ends the process when the last window closes, and Themia has
+  no main window: the display pass closes a surface before it builds its replacement ([S-844]), so a
+  lone display that changed id, a dead surface being rebuilt, or every panel powering off at once
+  exited without a log line (the original's #87 / [EX-01]).
+- **[S-988]** An exception that escapes on a background thread is logged
+  (`AppDomain.UnhandledException`) before the process ends, and a faulted task nobody awaited is
+  logged and observed (`TaskScheduler.UnobservedTaskException`). The UI thread's own throws are logged
+  and handled ([S-891] keeps one widget's fault in its card).
 
 Not ported, on purpose: the original's Developer section and Logs page — developer mode, verbose
 logging, the session list of records ([S-1724]); DevTools (no web view), demo mode and dev views (the
@@ -4391,7 +4451,8 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   `Strings.Current`, or `Strings.Get(locale, id)` for an explicit language. Lookup is an array read;
   no `ResourceManager`, no reflection, nothing loaded at run time (Native AOT clean).
 - **[S-1101]** Source: one JSON file per language, `src/Themia.Core/Localization/Locales/<code>.json`
-  (en, de, es, fr, it, ja, pl, pt, zh, hi, ar, bn, ru, id, ur, mr, vi, ko, nl, tr, zh-Hant), flat `"dotted.key": "text"` or a plural object. en.json is the
+  (en, de, es, fr, it, ja, pl, pt, zh, hi, ar, bn, ru, id, ur, mr, vi, ko, nl, tr, zh-Hant, te, ha, pa,
+  sw, fil, ta, fa, th, gu), flat `"dotted.key": "text"` or a plural object. en.json is the
   master (its keys, in order, are the enum). `Themia.Localization.Generator` (Roslyn incremental
   generator, build-time only) compiles them; a malformed file, a bad key, a duplicate, a key en.json
   lacks, an unknown locale file or two keys clashing on one member name is a build error
@@ -4400,10 +4461,11 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   never re-scanned; a placeholder without an argument stays visible; number arguments are formatted
   for the language (`1,500` / `1.500`).
 - **[S-1103]** Plurals are CLDR cardinal categories for whole numbers (`zero one two few many other`):
-  en/de/es/it/ur/mr/nl/tr one = 1; fr/pt/hi/bn one = 0 and 1; pl one / few (2–4, not 12–14) / many;
+  en/de/es/it/ur/mr/nl/tr/te/ha/sw/ta one = 1; fr/pt/hi/bn/pa/gu/fa one = 0 and 1; fil one = every
+  count not ending in 4, 6 or 9 (0, 1, 2, 3, 5, 7, 8, 10 …), other the rest; pl one / few (2–4, not 12–14) / many;
   ru one (1, 21, not 11) / few (2–4, not 12–14) / many (and `other` for fractions = few's text);
   ar zero / one / two / few (n%100 3–10) / many (n%100 11–99) / other (100–102 …); ja/zh/zh-Hant/ko/
-  id/vi other only. Russian and Arabic plural keys supply every category (test).
+  id/vi/th other only. Russian and Arabic plural keys supply every category (test).
   `Plural(n)` fills `{count}`; a missing category uses the language's `other`, then English.
 - **[S-1104]** A string the language lacks falls back to English, logged once per key and language at
   debug level; an id or key nobody has returns the key text. Never an exception, never empty.
@@ -4413,14 +4475,18 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   language's categories; no text is blank.
 - **[S-1106]** Formatting without `CultureInfo` (`LocaleFormat`, data in `LocaleData`, transcribed
   from CLDR per main region — en-US, pt-BR, zh-CN, es-ES, ar-SA with the Gregorian month names,
-  bn-BD, ur-PK, hi-IN, mr-IN, ko-KR, nl-NL, tr-TR, zh-TW for zh-Hant, the rest their home
-  country): month and weekday names
-  (wide/short/narrow; Polish, Russian and Vietnamese months declined inside dates, long and short),
+  bn-BD, ur-PK, hi-IN, mr-IN, ko-KR, nl-NL, tr-TR, zh-TW for zh-Hant, te-IN, ta-IN, gu-IN, pa-Guru-IN,
+  ha-NG, sw-KE (Windows' Swahili), fil-PH, fa-IR, th-TH, the rest their home country): month and weekday names
+  (wide/short/narrow; Polish, Russian and Vietnamese months declined inside dates, long and short,
+  Persian months with the ezafe inside a date: "۴ مهٔ ۲۰۲۶"),
   8 `DateStyle`s, times on the language's default clock or forced 12/24 h (with seconds, which take
   the minutes' separator: Indonesian 15.05.09), integers and decimals with the language's
-  grouping/decimal marks (es and pl leave 4-digit numbers ungrouped; hi, bn and mr group in lakh and
-  crore, 12,34,567), percent (Turkish before the number, %42), first day of the week (only Sunday or Monday; ar-SA,
-  ko-KR and zh-TW are Sunday). Pure
+  grouping/decimal marks (es and pl leave 4-digit numbers ungrouped; hi, bn, mr, te, ta, gu and pa
+  group in lakh and crore, 12,34,567), percent (Turkish before the number, %42), first day of the week
+  (Monday, Sunday or Saturday: ar-SA, ko-KR, zh-TW, the Indian languages, sw-KE, fil-PH and th-TH are
+  Sunday, ha-NG Monday, fa-IR Saturday, [S-564]). Every date is Gregorian, in every language: Persian
+  and Thai get their language's Gregorian month names, not the Solar Hijri or Buddhist-era calendars
+  Windows' fa-IR and th-TH default to (the app draws no other calendar). Pure
   functions; overloads without a locale use `Strings.Current`. Arabic relative times say one and two
   in words ("قبل دقيقتين"), as CLDR does.
 - **[S-1107]** Relative time (`LocaleFormat.Relative`): under 1 min "now", then whole minutes, hours,
@@ -4430,8 +4496,11 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   sign-out), first tag whose primary subtag Themia has, else English. Chinese goes by script, as
   in Windows and Karpo: `zh-Hant*`, and `zh-TW`/`zh-HK`/`zh-MO` without a script, → zh-Hant
   (Traditional); every other Chinese tag (`zh-CN`, `zh-SG`, `zh-Hans-HK`, `zh`) → zh (Simplified,
-  zh-Hans). Every Portuguese tag (`pt-BR`, `pt-PT`) → pt, the Brazilian table. Walks the whole list, not only its head.
-- **[S-1109]** Settings › General › Language (first row): System + the twenty-one, each named in its own
+  zh-Hans). Every Portuguese tag (`pt-BR`, `pt-PT`) → pt, the Brazilian table. `fa-IR`, `fa-AF` and Dari
+  (`prs-AF`) → fa; `fil-PH` and Tagalog (`tl`) → fil; `sw-KE`/`sw-TZ` → sw; `ha-Latn-NG` → ha;
+  `pa-IN`/`pa-Guru*` → pa, but Shahmukhi (`pa-Arab*`, Pakistan) is not taken for the Gurmukhi table and
+  the walk goes on. Walks the whole list, not only its head.
+- **[S-1109]** Settings › General › Language (first row): System + the thirty, each named in its own
   language. The host resolves the setting before any window is built and again on every state
   change (an import or reset), and `SetLanguage` applies it at once.
 - **[S-1110]** Live switch: `Strings.Changed(Locale)` fires on the UI thread after the language
@@ -4457,18 +4526,31 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   of Karpo's set; also machine translations marked for native review, reusing Karpo's wording where
   it has the same concept. One file per language: `pt` is Brazilian Portuguese (pt-BR), `zh` is
   Simplified Chinese (zh-Hans); their file codes stay short, their layout tags carry the variant.
+  Thirty, the thirty most widely spoken, since Telugu, Hausa, Punjabi (Gurmukhi), Swahili, Filipino
+  (`fil`, the one three-letter code), Tamil, Persian, Thai and Gujarati joined (named తెలుగు, Hausa,
+  ਪੰਜਾਬੀ, Kiswahili, Filipino, தமிழ், فارسی, ไทย, ગુજરાતી); also machine translations marked for native
+  review in every file's `$comment`.
 - **[S-1115]** Native digits: a language that writes its own digits gets them in the text, not from
   DirectWrite's contextual substitution, which follows the neighbouring script (an Arabic agenda row
   "09:00–09:15 · Teams" was drawn with Latin digits). `LocaleFormat` swaps them in as the last step
   of every date, time, number, percent and relative time (`LocaleData.DigitZero`), and
   `LocaleFormat.Digits(locale, text)` does it for numbers a view composes itself (the clock readout
-  and its local offset, calendar day numbers, hour labels and "+N"). Only Arabic does: Arabic-Indic
-  ٠–٩ with ٫ decimal, ٬ grouping and ٪ (CLDR "arab"). Urdu keeps Latin digits (Windows' ur-PK and
+  and its local offset, calendar day numbers, hour labels and "+N"). Arabic does: Arabic-Indic
+  ٠–٩ with ٫ decimal, ٬ grouping and ٪ (CLDR "arab"); so does Persian, with the Extended Arabic-Indic
+  ۰–۹ (U+06F0, CLDR "arabext", Windows' fa-IR default) and the same marks. Thai, Telugu, Tamil,
+  Gujarati and Punjabi keep Latin digits: Windows' th-TH, te-IN, ta-IN, gu-IN and pa-IN default to
+  them (native digits are an opt-in there). Urdu keeps Latin digits (Windows' ur-PK and
   CLDR default); Bengali keeps Latin ([S-1114]). The swap is one character for one, so the clock's
   character-count type ladder and the agenda's measured time column (measured on the language's own
   "00:00") see the digits that are drawn. Never applied to text that must stay as written: URLs,
   addresses, stock symbols, "UTC+2", what the user typed.
-- **[S-1113]** Right to left: Arabic and Urdu (`TextDirection.IsRightToLeft`). The direction is set
+- **[S-1116]** No digits typed into prose: a number in a string ("Last {count} days", "Reset to
+  {percent}", "{minutes}-minute steps", "{zero} is off") is a placeholder in every language, filled
+  from code through `LocaleFormat`, so Arabic and Persian draw it in their own digits. Names that
+  merely contain digits stay Latin and are listed in the test's allow-list: ports (993, 65535), key
+  names (F2), formats (MP4), heading levels (H1), chart ranges (1D, 5D); the shell's `%1` insert is
+  not prose. A Core test fails on any other Latin digit in the Arabic or Persian files.
+- **[S-1113]** Right to left: Arabic, Urdu and Persian (`TextDirection.IsRightToLeft`). The direction is set
   on the roots whose whole content is text-like UI — the settings window, each card, the edit bar,
   the view bar, the notices, the placement hint, the anchor menus on the bare surface open from —
   and never on a desktop surface itself: its canvases, the hit region (`SetWindowRgn`), the rubber
@@ -4487,7 +4569,9 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   the script's Windows UI face — Nirmala UI for Devanagari (hi, mr) and Bengali, Segoe UI for
   Latin (incl. Dutch and Turkish), Cyrillic, Vietnamese, Arabic and Urdu, Yu Gothic UI for
   Japanese, Microsoft YaHei UI for Simplified Chinese (zh-Hans), Malgun Gothic for Korean (ko-KR),
-  Microsoft JhengHei UI for Traditional Chinese (zh-TW). No Nastaliq for Urdu: "Urdu Typesetting" ships only with the Urdu language
+  Microsoft JhengHei UI for Traditional Chinese (zh-TW), Nirmala UI for Telugu, Tamil, Gujarati and
+  Gurmukhi (te-IN, ta-IN, gu-IN, pa-IN), Leelawadee UI for Thai (th-TH), Segoe UI for Persian (fa-IR),
+  Hausa (ha-NG, with its hooked letters), Swahili (sw-KE) and Filipino (fil-PH). No Nastaliq for Urdu: "Urdu Typesetting" ships only with the Urdu language
   pack, and its tall lines would overflow the line-height budgets. Bengali is tagged bn-IN rather
   than bn-BD: Windows' bn-BD digits are Bengali and run about a quarter wider than the Latin advance
   the type ladder measures, which clipped the tall clock.
@@ -4519,7 +4603,9 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   machine's own Windows zone (a Windows zone covers many cities). Labels are capped at 40 characters.
 - **[S-1483]** Style Digital / Analog / Stacked (original S-10..S-13). Stacked always stacks hours
   over minutes; seconds and AM/PM ride a step down beside the minutes. A digital face still stacks on
-  its own in a tall column when that draws the digits larger.
+  its own in a tall column when that draws the digits larger. The AM/PM marker counts towards the readout's width by its own
+  length (`ClockFormatter.MeridiemCharacters`), never less than "PM"'s budget: Tamil's "பிற்பகல்" is
+  about four times as wide as "PM".
 - **[S-1484]** Alignment Left / Centre / Right for the whole column (original S-25/S-26). Beside an
   analog dial the text stays left-aligned to the dial.
 - **[S-1485]** Offset line None / From UTC ("UTC+2", "UTC+5:30", "UTC−3") / From local ("+8h local",
@@ -5186,6 +5272,9 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   per path) and image thumbnails in Grid/Icons (`SIIGBF_THUMBNAILONLY`; never for cloud placeholders). Caches bounded and
   shared; extraction serialised (orig. S-64). Cloud badge from attributes (cloud-only / always kept / available) over the
   icon and in the Cloud column; "Always keep on this device" / "Free up space" set the pin bits.
+- **[S-5175]** Icon and thumbnail caches (`LoadCache`) keep only what a load found: one load per key in flight, and a
+  load that found nothing is asked again on the next render, never kept as "no icon" (orig. #4/#16: a transient
+  extraction failure left a type's items as glyphs until restart).
 - **[S-1325]** Git: only when a `.git` exists up the tree; `git --no-optional-locks status --porcelain=v1 --branch -z`
   off-thread, single-flight per repository; no git = no badge. Header badge "main ~2 ?3" (List/Details, by width) and the
   Git column (file code; "•" for a folder with changes beneath).
@@ -5914,10 +6003,10 @@ Strings in `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
   what is in force; a change raises `Strings.Changed`, so every widget redraws its text as it does for
   a language change (the weather widgets ask again under the new scale).
 - **[S-3771]** Each format offers "Windows setting (…)" first, naming the value Windows has, then the
-  fixed choices: 12-hour / 24-hour; Monday / Sunday; Celsius (°C) / Fahrenheit (°F).
+  fixed choices: 12-hour / 24-hour; Monday / Sunday / Saturday; Celsius (°C) / Fahrenheit (°F).
 - **[S-3772]** "Windows setting" reads the user's regional format through `GetLocaleInfoEx`
-  (`LOCALE_SSHORTTIME`: an `H` is the 24-hour clock; `LOCALE_IFIRSTDAYOFWEEK`: 6 is Sunday, any other
-  day Monday; `LOCALE_IMEASURE`: 1 is Fahrenheit), never `CultureInfo` (`InvariantGlobalization`). It
+  (`LOCALE_SSHORTTIME`: an `H` is the 24-hour clock; `LOCALE_IFIRSTDAYOFWEEK`: 6 is Sunday, 5 Saturday, any
+  other day Monday; `LOCALE_IMEASURE`: 1 is Fahrenheit), never `CultureInfo` (`InvariantGlobalization`). It
   is read again on every state change. An unreadable value falls back to the app language's habit
   (`RegionFormat.Language`). An unknown stored value follows Windows again, loudly; a null block is
   the defaults.
@@ -5975,7 +6064,8 @@ Owning files: `Themia.Core/Widgets/TimeProgress.cs`, `Themia.App/Widgets/YearPro
   February of one 29. The day is read in the machine's zone, never in UTC. The percentage is
   floored (`TimeProgress.Percent`), so 100 % is only ever the end.
 - **[S-4802]** The week starts on the regional first day. Its number is ISO 8601's for a Monday
-  week (31 Dec 2026 is week 53) and North America's for a Sunday week (week 1 holds 1 January).
+  week (31 Dec 2026 is week 53) and North America's for a Sunday or Saturday week (week 1 holds
+  1 January).
 - **[S-4803]** The ladder (`YearProgressLayout.Plan`, on the area less the 16 DIP inset): too narrow
   for a label beside a percentage (< 96 DIPs, XS) or too short for two rows, the year alone, its
   percentage as large as the tile allows over its bar and the year number. Otherwise rows in the

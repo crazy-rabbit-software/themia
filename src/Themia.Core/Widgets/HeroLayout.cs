@@ -13,6 +13,12 @@ namespace Themia.Core.Widgets;
 /// </summary>
 public static class HeroLayout
 {
+    /// <summary>[S-3860] The readout's inset from the card's sides, in every widget that draws one.</summary>
+    public const double SideInset = 16;
+
+    /// <summary>[S-3860] The readout's inset under the card's header: the header already ends in its own air.</summary>
+    public const double TopInset = 4;
+
     /// <summary>Between the leading glyph and the value.</summary>
     public const double IconGap = 12;
 
@@ -112,4 +118,77 @@ public static class HeroLayout
         var factor = Math.Min(MaxGrowth, Math.Min(byWidth, byHeight));
         return factor > 1 ? FluentType.Scaled(FluentType.Display, factor) : FluentType.Display;
     }
+
+    /// <summary>
+    /// [S-3860] The step a hero grows to while it shares the tile with the content it heads (a
+    /// chart, readings, a list), by the tile's smaller size class: Title up to Regular, TitleLarge
+    /// at Expanded, Display at Huge. One ladder for every such widget, so a CPU meter, a stock and
+    /// a detail widget of one size draw their number at one size. Fitted down where the width is
+    /// short; never up past it while the other content is on the tile.
+    /// </summary>
+    public static TypeStep TierStep(WidgetArea area) => area.Least switch
+    {
+        SizeClass.Huge => FluentType.Display,
+        SizeClass.Expanded => FluentType.TitleLarge,
+        _ => FluentType.Title,
+    };
+
+    /// <summary>
+    /// <see cref="Fit"/> with the leading glyph beside the value when <paramref name="icon"/>: the
+    /// glyph's size follows the step, so the room is measured once at the glyph-free step and
+    /// again with that step's glyph taken off.
+    /// </summary>
+    public static TypeStep FitBeside(double width, double height, double valueCharacters, double unitCharacters, TypeStep floor, TypeStep ceiling, bool icon)
+    {
+        var step = Fit(width, height, valueCharacters, unitCharacters, floor, ceiling);
+        return icon ? Fit(width - IconSize(step) - IconGap, height, valueCharacters, unitCharacters, floor, ceiling) : step;
+    }
+
+    /// <summary>
+    /// [S-3860] A formatted reading split for the readout: the leading number ("42", "1.2", "4,48")
+    /// and the unit after it ("%", "MB/s", "GHz"), and whether a space stood between them. A text
+    /// that does not start with a figure ("--", a unit written first as Turkish writes "%42", a
+    /// direction mark) is all value and no unit, so nothing is ever reordered or lost.
+    /// </summary>
+    public static HeroText Split(string? text)
+    {
+        if (string.IsNullOrEmpty(text) || !char.IsDigit(text[0]))
+        {
+            return new HeroText(text ?? string.Empty, string.Empty, false);
+        }
+
+        var end = 0;
+
+        // The figure: digits of any script and the separators a number is written with (a decimal
+        // point or comma, the Arabic decimal and thousands marks).
+        while (end < text.Length && (char.IsDigit(text[end]) || IsSeparator(text[end])))
+        {
+            end++;
+        }
+
+        var unitAt = end;
+
+        while (unitAt < text.Length && IsSpace(text[unitAt]))
+        {
+            unitAt++;
+        }
+
+        var unit = text[unitAt..];
+
+        // A second figure after the first ("1 234 ms" grouped with spaces, "3/4") is one number, not a unit.
+        // A figure ending on a separator ("12." then a unit) is not a number this can read.
+        if (unit.Length == 0 || unit.Any(char.IsDigit) || IsSeparator(text[end - 1]))
+        {
+            return new HeroText(text, string.Empty, false);
+        }
+
+        return new HeroText(text[..end], unit, unitAt > end);
+    }
+
+    private static bool IsSeparator(char c) => c is '.' or ',' or '٫' or '٬';
+
+    private static bool IsSpace(char c) => c is ' ' or ' ' or ' ' or ' ';
 }
+
+/// <summary>[S-3860] A reading as the hero readout draws it: the number, the unit after it, and whether a space stood between.</summary>
+public readonly record struct HeroText(string Value, string Unit, bool Spaced);

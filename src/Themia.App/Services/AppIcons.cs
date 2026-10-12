@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.Core.Diagnostics;
@@ -50,14 +51,19 @@ internal static partial class AppIcons
     private sealed record Pixels(int Width, int Height, byte[] Bgra);
 
     /// <summary>The icon for <paramref name="path"/> at the default size, or null when it has none.</summary>
-    public static Task<ImageSource?> GetAsync(string path) => GetAsync(path, DefaultSize);
+    public static Task<ImageSource?> GetAsync(string path, LogoTheme theme) => GetAsync(path, DefaultSize, theme);
+
+    /// <summary>[S-3965] The theme a packaged app's logo is chosen for: the element's own, as it is drawn now.</summary>
+    public static LogoTheme ThemeOf(FrameworkElement element)
+        => element.ActualTheme == ElementTheme.Light ? LogoTheme.Light : LogoTheme.Dark;
 
     /// <summary>
     /// The icon for <paramref name="path"/> (a file-system path or a <c>shell:</c> name) at
-    /// <paramref name="size"/> pixels, or null when it has none. UI thread only: it builds the bitmap
-    /// there, and the two caches are only ever touched from it.
+    /// <paramref name="size"/> pixels, or null when it has none. <paramref name="theme"/> is the card's
+    /// ([S-3965]): it picks a packaged app's logo and is part of only such an icon's cache key. UI
+    /// thread only: it builds the bitmap there, and the two caches are only ever touched from it.
     /// </summary>
-    public static async Task<ImageSource?> GetAsync(string path, int size, string? variant = null)
+    public static async Task<ImageSource?> GetAsync(string path, int size, LogoTheme theme, string? variant = null)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -65,7 +71,15 @@ internal static partial class AppIcons
         }
 
         size = Math.Clamp(size, 16, 256);
-        var key = string.Concat(size.ToString(System.Globalization.CultureInfo.InvariantCulture), "|", variant, "|", path);
+        var packaged = PackagedApps.PackageOf(path) is not null;
+        var key = string.Concat(
+            size.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            "|",
+            variant,
+            "|",
+            packaged ? (theme == LogoTheme.Light ? "light" : "dark") : null,
+            "|",
+            path);
 
         if (Ready.TryGetValue(key, out var known))
         {
@@ -74,7 +88,7 @@ internal static partial class AppIcons
 
         if (!Pending.TryGetValue(key, out var task))
         {
-            task = ExtractSerialisedAsync(path, size, IconOnly);
+            task = packaged ? PackagedSerialisedAsync(path, size, theme) : ExtractSerialisedAsync(path, size, IconOnly);
             Pending[key] = task;
         }
 
@@ -138,6 +152,139 @@ internal static partial class AppIcons
         finally
         {
             OneAtATime.Release();
+        }
+    }
+
+    /// <summary>
+    /// [S-3965] A packaged app's icon: the package's logo asset for the card's theme, decoded at
+    /// <paramref name="size"/>; when the package has none that fits (or it will not decode, logged),
+    /// the Apps-folder item's icon as the shell draws it ([S-3960]).
+    /// </summary>
+    private static async Task<Pixels?> PackagedSerialisedAsync(string path, int size, LogoTheme theme)
+    {
+        await OneAtATime.WaitAsync().ConfigureAwait(false);
+
+        try
+        {
+            var logo = await Task.Run(() => PackagedApps.Logo(path, ReadManifest, ListFiles, theme, size)).ConfigureAwait(false);
+
+            if (logo is not null && await DecodeLogoAsync(logo, size).ConfigureAwait(false) is { } pixels)
+            {
+                return pixels;
+            }
+
+            return await Task.Run(() => Extract(path, size, IconOnly)).ConfigureAwait(false);
+        }
+        finally
+        {
+            OneAtATime.Release();
+        }
+    }
+
+    /// <summary>A logo file is a few kilobytes; one past this is not decoded.</summary>
+    private const long MaxLogoBytes = 4 << 20;
+
+    /// <summary>
+    /// The logo file as premultiplied BGRA at <paramref name="size"/> per side (aspect kept, centred),
+    /// laid on its plate when it has one. Null, logged, when it cannot be read or decoded.
+    /// </summary>
+    private static async Task<Pixels?> DecodeLogoAsync(PackagedLogo logo, int size)
+    {
+        try
+        {
+            var info = new FileInfo(logo.File);
+            if (!info.Exists || info.Length == 0 || info.Length > MaxLogoBytes)
+            {
+                Log.Warn(Scope, $"the package logo {logo.File} is missing or {info.Length} bytes; not decoded");
+                return null;
+            }
+
+            var bytes = await File.ReadAllBytesAsync(logo.File).ConfigureAwait(false);
+
+            using var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream();
+            await stream.WriteAsync(bytes.AsBuffer());
+            stream.Seek(0);
+
+            var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(stream);
+            if (decoder.PixelWidth == 0 || decoder.PixelHeight == 0)
+            {
+                return null;
+            }
+
+            var fit = Math.Min((double)size / decoder.PixelWidth, (double)size / decoder.PixelHeight);
+            var width = (int)Math.Clamp(Math.Round(decoder.PixelWidth * fit), 1, size);
+            var height = (int)Math.Clamp(Math.Round(decoder.PixelHeight * fit), 1, size);
+
+            var data = await decoder.GetPixelDataAsync(
+                Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8,
+                Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied,
+                new Windows.Graphics.Imaging.BitmapTransform
+                {
+                    ScaledWidth = (uint)width,
+                    ScaledHeight = (uint)height,
+                    InterpolationMode = Windows.Graphics.Imaging.BitmapInterpolationMode.Fant,
+                },
+                Windows.Graphics.Imaging.ExifOrientationMode.IgnoreExifOrientation,
+                Windows.Graphics.Imaging.ColorManagementMode.DoNotColorManage);
+
+            var source = data.DetachPixelData();
+            if (source.Length != width * height * 4)
+            {
+                return null;
+            }
+
+            // Centred on a square, so a logo that is not one keeps its shape.
+            var square = new byte[size * size * 4];
+            var left = (size - width) / 2;
+            var top = (size - height) / 2;
+
+            for (var y = 0; y < height; y++)
+            {
+                Buffer.BlockCopy(source, y * width * 4, square, (((top + y) * size) + left) * 4, width * 4);
+            }
+
+            if (logo.Plate is { } plate)
+            {
+                // The plated logo stands on its background colour, as Start draws it.
+                var r = Convert.ToByte(plate[1..3], 16);
+                var g = Convert.ToByte(plate[3..5], 16);
+                var b = Convert.ToByte(plate[5..7], 16);
+
+                for (var i = 0; i < square.Length; i += 4)
+                {
+                    var rest = 255 - square[i + 3];
+                    square[i] = (byte)(square[i] + (b * rest / 255));
+                    square[i + 1] = (byte)(square[i + 1] + (g * rest / 255));
+                    square[i + 2] = (byte)(square[i + 2] + (r * rest / 255));
+                    square[i + 3] = 255;
+                }
+            }
+
+            return new Pixels(size, size, square);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or COMException or ArgumentException or InvalidOperationException)
+        {
+            Log.Warn(Scope, $"could not decode the package logo {logo.File}", ex);
+            return null;
+        }
+    }
+
+    /// <summary>The names of the files in a package's asset folder; null when it cannot be listed (logged).</summary>
+    private static IReadOnlyList<string>? ListFiles(string folder)
+    {
+        try
+        {
+            if (!Directory.Exists(folder))
+            {
+                return null;
+            }
+
+            return Directory.EnumerateFiles(folder).Select(Path.GetFileName).OfType<string>().ToList();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            Log.Warn(Scope, $"could not list the package assets in {folder}", ex);
+            return null;
         }
     }
 

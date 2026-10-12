@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Shahararru",
+  "addMenu.browse": "Bincika",
+  "addMenu.subject.time": "Lokaci",
+  "addMenu.subject.calendar": "Kalanda da imel",
+  "addMenu.subject.weather": "Yanayi da sama",
+  "addMenu.subject.markets": "Labarai da kasuwanni",
+  "addMenu.subject.media": "Kiɗa da kafofin watsa labarai",
+  "addMenu.subject.notes": "Bayanai da kayan aiki",
+  "addMenu.subject.files": "Fayiloli da manhajoji",
+  "addMenu.subject.system": "Tsarin aiki",
+  "addMenu.subject.devices": "Na'urori da wuta",
+  "addMenu.subject.more": "Ƙari",
+  "addMenu.family.calendar": "Kalanda",
+  "addMenu.family.visualizer": "Mai nuna sauti",
+  "addMenu.family.folder": "Babban fayil",
+  "addMenu.family.screenTime": "Lokacin allo",
+  "addMenu.family.powerButtons": "Maɓallan wuta"
+}

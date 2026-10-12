@@ -182,7 +182,7 @@
   "widgetsB.settings.gallery.noFolderYet": "フォルダーはまだ選択されていません。",
   "widgetsB.settings.gallery.showing": "{name} を表示中",
   "widgetsB.habits.minutes.empty": "分数を入力してください。",
-  "widgetsB.habits.minutes.notWhole": "30 のような整数の分数のみ入力できます。",
+  "widgetsB.habits.minutes.notWhole": "{example} のような整数の分数のみ入力できます。",
   "widgetsB.habits.minutes.range": "{min} ～ {max} 分 (1 日) の範囲で入力してください。",
   "widgetsB.habits.describe.hourly": "{date} {time}",
   "widgetsB.habits.describe.weekly": "{date} の週",
@@ -236,7 +236,7 @@
   "widgetsB.settings.habits.clearsEvery": {
     "other": "{count} 分ごとにクリアされます。"
   },
-  "widgetsB.settings.habits.interval.desc": "1 期間の分数 (1 ～ 1440)",
+  "widgetsB.settings.habits.interval.desc": "期間ごとの分数（{min}～{max}）",
   "widgetsB.settings.habits.resets.label": "リセット",
   "widgetsB.settings.habits.everyHour": "1 時間ごと",
   "widgetsB.settings.habits.everyDay": "毎日",
@@ -246,7 +246,7 @@
   "widgetsB.settings.habits.streaks.label": "連続記録を表示",
   "widgetsB.settings.habits.streaks.desc": "各習慣の現在の連続記録",
   "widgetsB.settings.habits.history.label": "履歴",
-  "widgetsB.settings.habits.history.desc": "過去の期間を点で表示。0 で非表示",
+  "widgetsB.settings.habits.history.desc": "過去の期間を点で表示。{zero} で非表示",
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} 個の習慣"
   },

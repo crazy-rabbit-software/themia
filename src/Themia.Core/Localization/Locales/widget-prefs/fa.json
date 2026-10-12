@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "ویجت‌ها",
+  "widgetPrefs.subtitle": "قالب‌ها و به‌روزرسانی‌های مشترک همه ویجت‌ها",
+  "widgetPrefs.region.header": "قالب منطقه‌ای",
+  "widgetPrefs.region.clock": "قالب زمان",
+  "widgetPrefs.region.clock12": "{hours} ساعته",
+  "widgetPrefs.region.clock24": "{hours} ساعته",
+  "widgetPrefs.followWindows": "تنظیم Windows ({value})",
+  "widgetPrefs.updates.header": "به‌روزرسانی‌ها",
+  "widgetPrefs.updates.note": "ویجت‌ها هر چند وقت از سرویس‌های آنلاین درخواست کنند. تازه‌سازی روی یک ویجت فوراً درخواست می‌کند.",
+  "widgetPrefs.updates.weather": "آب‌وهوا",
+  "widgetPrefs.updates.markets": "سهام",
+  "widgetPrefs.updates.feeds": "خوراک‌های خبری",
+  "widgetPrefs.updates.accounts": "ایمیل، تقویم‌ها و کارها",
+  "widgetPrefs.updates.everyHours": {
+    "one": "هر {count} ساعت",
+    "other": "هر {count} ساعت"
+  },
+  "widgetsC.shortcuts.settings.locations": "مکان‌های Windows"
+}

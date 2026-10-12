@@ -34,7 +34,8 @@ public sealed class StringTableGenerator : IIncrementalGenerator
         new[] { "ja", "Ja" }, new[] { "pl", "Pl" }, new[] { "pt", "Pt" }, new[] { "zh", "Zh" }, new[] { "hi", "Hi" },
         new[] { "ar", "Ar" }, new[] { "bn", "Bn" }, new[] { "ru", "Ru" }, new[] { "id", "Id" }, new[] { "ur", "Ur" },
         new[] { "mr", "Mr" }, new[] { "vi", "Vi" }, new[] { "ko", "Ko" }, new[] { "nl", "Nl" }, new[] { "tr", "Tr" },
-        new[] { "zh-hant", "ZhHant" },
+        new[] { "zh-hant", "ZhHant" }, new[] { "te", "Te" }, new[] { "ha", "Ha" }, new[] { "pa", "Pa" }, new[] { "sw", "Sw" },
+        new[] { "fil", "Fil" }, new[] { "ta", "Ta" }, new[] { "fa", "Fa" }, new[] { "th", "Th" }, new[] { "gu", "Gu" },
     };
 
     /// <summary>CLDR plural categories, in the index order <c>PluralCategory</c> uses.</summary>

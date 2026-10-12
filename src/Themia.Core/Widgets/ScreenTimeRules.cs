@@ -78,7 +78,7 @@ public static class ScreenTimeRules
     {
         if (!double.IsFinite(seconds) || seconds < 60)
         {
-            return Strings.Get(locale, Str.WidgetsC_ScreenTime_Dur_LessThanMinute);
+            return Strings.Format(locale, Str.WidgetsC_ScreenTime_Dur_LessThanMinute, ("minutes", 1));
         }
 
         var whole = (long)seconds;
@@ -139,7 +139,7 @@ public static class ScreenTimeRules
     {
         if (!double.IsFinite(seconds) || seconds < 60)
         {
-            return Strings.Get(locale, Str.WidgetsC_ScreenTime_Dur_LessThanMinute);
+            return Strings.Format(locale, Str.WidgetsC_ScreenTime_Dur_LessThanMinute, ("minutes", 1));
         }
 
         if (seconds < 3600)
@@ -452,12 +452,13 @@ public static class ScreenTimeRules
     };
 
     /// <summary>[S-454] What a window period is called in the header.</summary>
-    public static string PeriodLabel(ScreenTimePeriod period) => (period switch
+    /// [S-1115] The day count is a placeholder, so it is written in the language's own digits.
+    public static string PeriodLabel(ScreenTimePeriod period) => period switch
     {
-        ScreenTimePeriod.Week => Str.Screentime_Last7Days,
-        ScreenTimePeriod.Month => Str.Screentime_Last30Days,
-        _ => Str.Common_Today,
-    }).Text();
+        ScreenTimePeriod.Week => Str.Screentime_Last7Days.Format(("count", RangeLength(period))),
+        ScreenTimePeriod.Month => Str.Screentime_Last30Days.Format(("count", RangeLength(period))),
+        _ => Str.Common_Today.Text(),
+    };
 
     /// <summary>[S-3310] What a screen-time widget emphasises: the hover when there is one, else the selection.</summary>
     public static string? Focus(string? hovered, string? selected) => hovered ?? selected;

@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "ஒரு காட்சியை நகர்த்த அதை வேறொன்றின் மீது இழுக்கவும், அல்லது காட்சியில் Alt+Shift+Up அல்லது Down ஐ அழுத்தவும்.",
+  "shell.list.reorderHint": "ஒரு உருப்படியை நகர்த்த அதை வேறொன்றின் மீது இழுக்கவும், அல்லது உருப்படியில் Alt+Shift+Up அல்லது Down ஐ அழுத்தவும்.",
+  "shell.view.colour": "நிறம்",
+  "shell.view.colourDesc": "காட்சிப் பட்டியிலும் இந்தச் சாளரத்திலும் ஐகானின் நிறம்",
+  "shell.view.colourDefault": "உரை நிறம்",
+  "shell.appearance.themeColours": "தீம் மற்றும் நிறங்கள்",
+  "shell.appearance.cards": "விட்ஜெட் அட்டைகள்",
+  "shell.appearance.cardsDesc": "கரை, மூலைகள் மற்றும் வெளிக்கோடு",
+  "shell.appearance.textAndSize": "உரை மற்றும் அளவு",
+  "shell.appearance.textAndSizeDesc": "எழுத்துரு, உரை அளவு மற்றும் விட்ஜெட் அளவு",
+  "shell.appearance.layoutDesc": "விட்ஜெட்களுக்கு இடையிலான இடைவெளி மற்றும் கட்டத்துடன் ஒட்டுதல்",
+  "shell.net.blockedLocal": "{host} உள்ளூர் நெட்வொர்க்கில் உள்ளது. நீங்களே தட்டச்சு செய்த முகவரிக்கு மட்டுமே Themia அங்கு செல்லும்",
+  "shell.accounts.stats.mail": "அஞ்சல்",
+  "shell.accounts.stats.calendar": "நாள்காட்டி",
+  "shell.accounts.stats.contacts": "தொடர்புகள்",
+  "shell.accounts.stats.tasks": "பணிகள்",
+  "shell.accounts.stats.messages": {
+    "one": "{count} செய்தி",
+    "other": "{count} செய்திகள்"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} நிகழ்வு",
+    "other": "{count} நிகழ்வுகள்"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} தொடர்பு",
+    "other": "{count} தொடர்புகள்"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} பணி",
+    "other": "{count} பணிகள்"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} கோப்புறையில்",
+    "other": "{count} கோப்புறைகளில்"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} நாள்காட்டியில்",
+    "other": "{count} நாள்காட்டிகளில்"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} பட்டியலில்",
+    "other": "{count} பட்டியல்களில்"
+  },
+  "shell.accounts.stats.synced": "{time} ஒத்திசைக்கப்பட்டது",
+  "shell.accounts.stats.neverSynced": "இன்னும் ஒத்திசைக்கப்படவில்லை",
+  "shell.accounts.stats.nothing": "இந்த PC இல் இன்னும் எதுவும் சேமிக்கப்படவில்லை",
+  "shell.accounts.nicknameDesc": "இந்தக் கணக்குக்கு விட்ஜெட்கள் காட்டும் பெயர்",
+  "shell.accounts.reconnect": "மீண்டும் உள்நுழை",
+  "shell.accounts.reconnectButton": "உள்நுழை",
+  "shell.accounts.signOutDesc": "இந்த PC இல் கணக்கையும் அதிலிருந்து ஒத்திசைத்த அனைத்தையும் மறக்கும்",
+  "shell.accounts.needsSignIn": "நீங்கள் மீண்டும் உள்நுழைய வேண்டும்"
+}

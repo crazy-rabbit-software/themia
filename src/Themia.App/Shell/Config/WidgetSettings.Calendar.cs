@@ -68,7 +68,7 @@ internal static partial class WidgetSettings
         if (config is AgendaConfig agenda)
         {
             rows.Add(FluentLayout.Row(Glyphs.Count, Str.Calendar_AgendaEvents_Label.Text(),
-                Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Text(),
+                Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Format(("days", CalendarRules.AgendaDays)),
                 FluentLayout.Slider(agenda.EffectiveAgendaCount, 1, 100, 1, string.Empty,
                     value => { agenda.AgendaCount = (int)Math.Round(value); save(); })));
         }

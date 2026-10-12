@@ -47,7 +47,7 @@
   "widgetsA.calendar.readFailed": "无法读取日历。请查看 themia.log。",
   "widgetsA.calendar.settings.accounts": "帐户和日历",
   "widgetsA.calendar.settings.addHint": "在“帐户”页面登录",
-  "widgetsA.calendar.settings.agendaCount.desc": "日程列表在未来 30 天内显示的数量",
+  "widgetsA.calendar.settings.agendaCount.desc": "日程列表在未来 {days} 天内显示的数量",
   "widgetsA.calendar.settings.birthdays.desc": "来自 Microsoft 和 Google 帐户的联系人生日",
   "widgetsA.calendar.settings.colorAuto": "自动",
   "widgetsA.calendar.settings.colorOf": "{name} 的颜色",

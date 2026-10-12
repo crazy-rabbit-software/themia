@@ -32,6 +32,9 @@ public enum WeekStartDay
 {
     Monday = 0,
     Sunday = 1,
+
+    /// <summary>The Iranian and Afghan week (Persian), which Windows' fa-IR also starts on Saturday.</summary>
+    Saturday = 2,
 }
 
 /// <summary>[S-581] The four ways the contacts widget lays out people.</summary>

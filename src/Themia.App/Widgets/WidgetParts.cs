@@ -163,10 +163,10 @@ internal sealed partial class HeroReadout : Grid
         }
 
         // The lines: a column beside the value, or the rest of the stack under it.
-        if (_lines.Parent is Panel holder)
-        {
-            holder.Children.Remove(_lines);
-        }
+        // Out of both holders by hand: Parent is not reliable before the readout is in the live
+        // tree (a meter lays out while it attaches), and adding a child twice throws.
+        Children.Remove(_lines);
+        _under.Children.Remove(_lines);
 
         if (linesBeside)
         {
@@ -221,69 +221,13 @@ internal static class WidgetParts
     /// [S-668] One reading on one line: a 16px glyph, the label in the secondary colour, the value
     /// at the end in the primary — the shape of a Settings info row, at <see cref="PartMetrics.StatLine"/>.
     /// </summary>
-    public static Grid StatLine(string glyph, string label, string value)
-    {
-        var icon = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", PartMetrics.LineIcon);
-        icon.Margin = new Thickness(0, 0, Fluent.Space2, 0);
-
-        var name = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        name.Text = label;
-        name.VerticalAlignment = VerticalAlignment.Center;
-
-        var figure = Fluent.Text(FluentType.Body);
-        figure.Text = value;
-        figure.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
-        figure.VerticalAlignment = VerticalAlignment.Center;
-
-        var grid = new Grid
-        {
-            Height = PartMetrics.StatLine,
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
-
-        Grid.SetColumn(name, 1);
-        Grid.SetColumn(figure, 2);
-        grid.Children.Add(icon);
-        grid.Children.Add(name);
-        grid.Children.Add(figure);
-        return grid;
-    }
+    public static Grid StatLine(string glyph, string label, string value) => new StatPart(FactStyle.Line, glyph).Show(label, value).Root;
 
     /// <summary>
     /// [S-668] One reading as a cell: a 12px glyph and the Caption label over the value in Body
     /// Strong, no box — the Windows Weather widget's detail cell, at <see cref="PartMetrics.StatCell"/>.
     /// </summary>
-    public static StackPanel StatCell(string glyph, string label, string value)
-    {
-        var icon = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", PartMetrics.CaptionIcon);
-        icon.Margin = new Thickness(0, 0, Fluent.Space1, 0);
-
-        var name = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        name.Text = label;
-
-        var top = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            },
-        };
-
-        Grid.SetColumn(name, 1);
-        top.Children.Add(icon);
-        top.Children.Add(name);
-
-        var figure = Fluent.Text(FluentType.BodyStrong);
-        figure.Text = value;
-
-        return new StackPanel { Height = PartMetrics.StatCell, Children = { top, figure } };
-    }
+    public static Grid StatCell(string glyph, string label, string value) => new StatPart(FactStyle.Cell, glyph).Show(label, value).Root;
 
     /// <summary>
     /// [S-669] A number in a list column: right-aligned, tabular, at least <see cref="PartMetrics.FigureWidth"/>
@@ -305,4 +249,91 @@ internal static class WidgetParts
         => _symbols ??= Application.Current.Resources.TryGetValue("SymbolThemeFontFamily", out var font) && font is FontFamily family
             ? family
             : new FontFamily("Segoe Fluent Icons");
+}
+
+/// <summary>
+/// [S-668] [S-3862] A reading as a stat line or a stat cell: the one implementation of both shapes,
+/// kept and restyled in place by a widget that rewrites its readings every tick (the detail
+/// widgets), built once by one that does not (<see cref="WidgetParts.StatLine"/>). Without a glyph
+/// the label starts at the part's own edge.
+/// </summary>
+internal sealed class StatPart
+{
+    private readonly FontIcon? _icon;
+    private readonly TextBlock _name = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+    private readonly TextBlock _figure = Fluent.Text(FluentType.Body);
+    private FactStyle? _style;
+
+    public StatPart(FactStyle style, string? glyph = null)
+    {
+        Root.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        Root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        Root.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        Root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        Root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+        if (!string.IsNullOrEmpty(glyph))
+        {
+            _icon = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", PartMetrics.LineIcon);
+            _icon.VerticalAlignment = VerticalAlignment.Center;
+            Root.Children.Add(_icon);
+        }
+
+        Typography.SetNumeralAlignment(_figure, FontNumeralAlignment.Tabular);
+        _name.TextTrimming = TextTrimming.CharacterEllipsis;
+        Grid.SetColumn(_name, 1);
+        Root.Children.Add(_name);
+        Root.Children.Add(_figure);
+        Restyle(style);
+    }
+
+    public Grid Root { get; } = new();
+
+    /// <summary>The value's text block, for a caller that colours a reading that is not available.</summary>
+    public TextBlock Figure => _figure;
+
+    /// <summary>Draw as a line or as a cell; nothing is touched when the shape is already this one.</summary>
+    public StatPart Restyle(FactStyle style)
+    {
+        if (_style == style)
+        {
+            return this;
+        }
+
+        _style = style;
+        var line = style == FactStyle.Line;
+        Root.Height = line ? PartMetrics.StatLine : PartMetrics.StatCell;
+
+        if (_icon is not null)
+        {
+            _icon.FontSize = line ? PartMetrics.LineIcon : PartMetrics.CaptionIcon;
+            _icon.Margin = new Thickness(0, 0, line ? Fluent.Space2 : Fluent.Space1, 0);
+        }
+
+        _name.Apply(line ? FluentType.Body : FluentType.Caption);
+        _name.VerticalAlignment = line ? VerticalAlignment.Center : VerticalAlignment.Top;
+        _figure.Apply(line ? FluentType.Body : FluentType.BodyStrong);
+        _figure.VerticalAlignment = line ? VerticalAlignment.Center : VerticalAlignment.Top;
+        _figure.Margin = line ? new Thickness(Fluent.Space3, 0, 0, 0) : new Thickness(0);
+        Grid.SetRow(_figure, line ? 0 : 1);
+        Grid.SetColumn(_figure, line ? 2 : 0);
+        Grid.SetColumnSpan(_figure, line ? 1 : 3);
+        return this;
+    }
+
+    /// <summary>The label and the value, written only when they changed.</summary>
+    public StatPart Show(string label, string value)
+    {
+        if (_name.Text != label)
+        {
+            _name.Text = label;
+        }
+
+        if (_figure.Text != value)
+        {
+            _figure.Text = value;
+        }
+
+        return this;
+    }
 }

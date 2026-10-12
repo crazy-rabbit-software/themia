@@ -69,6 +69,10 @@ internal sealed partial class DetailView : IWidgetKeys
     {
         _scroll.Visibility = height > 0 ? Visibility.Visible : Visibility.Collapsed;
 
+        // [S-3861] As tall as the plan made it (its rows, or the room): never a stretched band of nothing.
+        _scroll.Height = height > 0 ? height : double.NaN;
+        _scroll.VerticalAlignment = VerticalAlignment.Top;
+
         // Stacked under the facts: the list starts after the section gap, or at the top when it is all there is.
         var under = _heroBlock.Visibility == Visibility.Visible || _facts.Visibility == Visibility.Visible;
         _scroll.Margin = new Thickness(0, under ? DetailFace.SectionGap : 0, 0, 0);
@@ -227,6 +231,7 @@ internal sealed partial class DetailView : IWidgetKeys
         private readonly Image _image = new() { Width = Fluent.IconSize, Height = Fluent.IconSize, Stretch = Stretch.Uniform };
         private readonly Grid _icon = new() { Width = Fluent.IconSize, Height = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center };
         private string? _iconPath;
+        private LogoTheme _iconTheme;
         private readonly TextBlock _name = Fluent.Text(FluentType.Body);
         private readonly TextBlock _second = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
         private readonly TextBlock _value = Fluent.Text(FluentType.Body);
@@ -296,7 +301,7 @@ internal sealed partial class DetailView : IWidgetKeys
             if (roomy is { } r)
             {
                 Root.MinHeight = r.Height;
-                ((FrameworkElement)Root.Child).VerticalAlignment = VerticalAlignment.Top;
+                ((FrameworkElement)Root.Child).VerticalAlignment = VerticalAlignment.Center; // [S-3861] centred in its share: no band under a grown drive
                 Root.Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, 0);
                 _value.Apply(r.Value);
                 _name.Apply(FluentType.BodyStrong);
@@ -347,7 +352,8 @@ internal sealed partial class DetailView : IWidgetKeys
             _icon.Visibility = row.Symbol == RowSymbol.None && row.IconPath is null ? Visibility.Collapsed : Visibility.Visible;
             _symbol.Glyph = Glyph(row.Symbol);
 
-            if (string.Equals(_iconPath, row.IconPath, StringComparison.OrdinalIgnoreCase))
+            // [S-3965] A packaged app's logo is chosen per theme, so a theme change asks again.
+            if (string.Equals(_iconPath, row.IconPath, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIcons.ThemeOf(Root))
             {
                 return;
             }
@@ -366,10 +372,12 @@ internal sealed partial class DetailView : IWidgetKeys
         {
             // Decoded at the row's size on this display, so a 16 DIP icon stays sharp at 200%.
             var scale = Root.XamlRoot?.RasterizationScale ?? 2;
-            var image = await AppIcons.GetAsync(path, (int)Math.Ceiling(Fluent.IconSize * Math.Max(1, scale))).ConfigureAwait(true);
+            var theme = AppIcons.ThemeOf(Root);
+            _iconTheme = theme;
+            var image = await AppIcons.GetAsync(path, (int)Math.Ceiling(Fluent.IconSize * Math.Max(1, scale)), theme).ConfigureAwait(true);
 
-            // A row that has moved on to another process while this was extracted keeps its own.
-            if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase))
+            // A row that has moved on to another process (or theme) while this was extracted keeps its own.
+            if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme)
             {
                 return;
             }

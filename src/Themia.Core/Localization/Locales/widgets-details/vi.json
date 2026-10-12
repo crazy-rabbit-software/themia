@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Nhóm theo ứng dụng",
   "details.settings.processes.group.desc": "Mọi tiến trình của một chương trình gộp thành một hàng",
   "details.settings.network.public.label": "Địa chỉ công khai",
-  "details.settings.network.public.desc": "Truy vấn api.ipify.org, tối đa 10 phút một lần",
+  "details.settings.network.public.desc": "Truy vấn api.ipify.org, tối đa {minutes} phút một lần",
   "details.settings.disk.drives": "Ổ đĩa",
   "details.settings.disk.all.label": "Mọi ổ đĩa",
   "details.settings.disk.all.desc": "Liệt kê mọi ổ đĩa Windows có, khi ổ được cắm vào hay rút ra",

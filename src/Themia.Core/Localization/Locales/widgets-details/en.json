@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Group by app",
   "details.settings.processes.group.desc": "Every process of one program is one row",
   "details.settings.network.public.label": "Public address",
-  "details.settings.network.public.desc": "Asks api.ipify.org, at most every 10 minutes",
+  "details.settings.network.public.desc": "Asks api.ipify.org, at most every {minutes} minutes",
   "details.settings.disk.drives": "Drives",
   "details.settings.disk.all.label": "Every drive",
   "details.settings.disk.all.desc": "List each drive Windows has, as it comes and goes",

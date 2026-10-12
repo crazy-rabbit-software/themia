@@ -188,7 +188,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Папка еще не выбрана.",
   "widgetsB.settings.gallery.showing": "Показывается {name}",
   "widgetsB.habits.minutes.empty": "Введите число минут.",
-  "widgetsB.habits.minutes.notWhole": "Только целые минуты, например 30.",
+  "widgetsB.habits.minutes.notWhole": "Только целые минуты, например {example}.",
   "widgetsB.habits.minutes.range": "От {min} до {max} минут (одни сутки).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Неделя с {date}",
@@ -260,7 +260,7 @@
     "many": "Сброс каждые {count} минут.",
     "other": "Сброс каждые {count} минуты."
   },
-  "widgetsB.settings.habits.interval.desc": "Минут в интервале, от 1 до 1440",
+  "widgetsB.settings.habits.interval.desc": "Минут в интервале, от {min} до {max}",
   "widgetsB.settings.habits.resets.label": "Сброс",
   "widgetsB.settings.habits.everyHour": "Каждый час",
   "widgetsB.settings.habits.everyDay": "Каждый день",
@@ -270,7 +270,7 @@
   "widgetsB.settings.habits.streaks.label": "Показывать серии",
   "widgetsB.settings.habits.streaks.desc": "Текущая серия каждой привычки",
   "widgetsB.settings.habits.history.label": "История",
-  "widgetsB.settings.habits.history.desc": "Прошлые периоды точками; 0 скрывает их",
+  "widgetsB.settings.habits.history.desc": "Прошлые периоды точками; {zero} скрывает их",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} привычка",
     "few": "{count} привычки",

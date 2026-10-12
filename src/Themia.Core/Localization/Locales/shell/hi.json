@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "सिस्टम ड्राइव ({drive})",
   "shell.meters.gpuDescription": "ग्राफ़िक्स लोड, प्रति एडेप्टर",
   "shell.meters.batteryDescription": "चार्ज स्तर",
-  "shell.appearance.headerFade": "हेडर पट्टी कितनी ठोस हो; 100% विजेट से मेल खाता है",
+  "shell.appearance.headerFade": "हेडर पट्टी कितनी ठोस हो; {percent} विजेट से मेल खाता है",
   "shell.views.add": "व्यू जोड़ें",
   "shell.views.addDesc": "सूची के अंत में एक नया, खाली व्यू",
   "shell.views.more": "और विकल्प",

@@ -6,10 +6,12 @@ namespace Themia.Core.Localization;
 /// (the data Windows, ICU and browsers use) for each language's main region: en = US,
 /// pt = Brazil, zh = Simplified/China, es = Spain, ar = Saudi Arabia (with the Gregorian month
 /// names Egypt and the Levant use), bn = Bangladesh, ur = Pakistan, hi and mr = India, ko = Korea, nl = the Netherlands, tr = Turkey,
-/// zh-Hant = Taiwan, the rest their home country.
+/// zh-Hant = Taiwan, te/ta/gu/pa = India, ha = Nigeria, sw = Kenya (Windows' Swahili), fil = the Philippines,
+/// fa = Iran, th = Thailand, the rest their home country. Every date is Gregorian: Persian and Thai
+/// use their language's Gregorian names, not the Solar Hijri or Buddhist calendars Windows defaults to there.
 /// <para>
 /// [S-1115] Every pattern is written with Latin digits (0–9); a language that writes its own
-/// (<see cref="DigitZero"/>: Arabic) has them swapped in as the last step of formatting, so the
+/// (<see cref="DigitZero"/>: Arabic, Persian) has them swapped in as the last step of formatting, so the
 /// patterns stay comparable and every language shares one formatter. The swap is in the text, not
 /// left to DirectWrite's contextual substitution, which follows the neighbouring script and drew
 /// "09:00–09:15 · Teams" with Latin digits.
@@ -69,8 +71,8 @@ internal sealed class LocaleData
     public required DayOfWeek FirstDayOfWeek { get; init; }
 
     /// <summary>
-    /// [S-1115] The language's own zero when it writes its own digits (Arabic-Indic U+0660 for
-    /// Arabic); null for Latin digits. The ten digits follow it in Unicode.
+    /// [S-1115] The language's own zero when it writes its own digits (Arabic-Indic U+0660 for Arabic,
+    /// Extended Arabic-Indic U+06F0 for Persian); null for Latin digits. The ten digits follow it in Unicode.
     /// </summary>
     public char? DigitZero { get; init; }
 
@@ -103,6 +105,15 @@ internal sealed class LocaleData
         Locale.Nl => Nl,
         Locale.Tr => Tr,
         Locale.ZhHant => ZhHant,
+        Locale.Te => Te,
+        Locale.Ha => Ha,
+        Locale.Pa => Pa,
+        Locale.Sw => Sw,
+        Locale.Fil => Fil,
+        Locale.Ta => Ta,
+        Locale.Fa => Fa,
+        Locale.Th => Th,
+        Locale.Gu => Gu,
         _ => En,
     };
 
@@ -912,6 +923,344 @@ internal sealed class LocaleData
         Now = "現在",
         Relative = TraditionalChineseRelative,
         RelativeShort = TraditionalChineseRelative,
+    };
+
+    // te-IN. Indian grouping (12,34,567), the 12-hour clock, Sunday first; Latin digits, Windows' te-IN default.
+    private static readonly LocaleData Te = new()
+    {
+        Months = ["జనవరి", "ఫిబ్రవరి", "మార్చి", "ఏప్రిల్", "మే", "జూన్", "జులై", "ఆగస్టు", "సెప్టెంబర్", "అక్టోబర్", "నవంబర్", "డిసెంబర్"],
+        MonthsShort = ["జన", "ఫిబ్ర", "మార్చి", "ఏప్రి", "మే", "జూన్", "జులై", "ఆగ", "సెప్టెం", "అక్టో", "నవం", "డిసెం"],
+        Weekdays = ["ఆదివారం", "సోమవారం", "మంగళవారం", "బుధవారం", "గురువారం", "శుక్రవారం", "శనివారం"],
+        WeekdaysShort = ["ఆది", "సోమ", "మంగళ", "బుధ", "గురు", "శుక్ర", "శని"],
+        WeekdaysNarrow = ["ఆ", "సో", "మ", "బు", "గు", "శు", "శ"],
+        DatePatterns = ["dd-MM-y", "d MMM, y", "d MMMM, y", "d, MMMM y, EEEE", "d MMMM", "d MMM", "MMMM y", "d MMM, EEE"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "ఇప్పుడు",
+        Relative =
+        [
+            R(P("{0} నిమిషం క్రితం", "{0} నిమిషాల క్రితం"), P("{0} నిమిషంలో", "{0} నిమిషాల్లో")),
+            R(P("{0} గంట క్రితం", "{0} గంటల క్రితం"), P("{0} గంటలో", "{0} గంటల్లో")),
+            R(P("{0} రోజు క్రితం", "{0} రోజుల క్రితం"), P("{0} రోజులో", "{0} రోజుల్లో")),
+            R(P("{0} వారం క్రితం", "{0} వారాల క్రితం"), P("{0} వారంలో", "{0} వారాల్లో")),
+            R(P("{0} నెల క్రితం", "{0} నెలల క్రితం"), P("{0} నెలలో", "{0} నెలల్లో")),
+            R(P("{0} సంవత్సరం క్రితం", "{0} సంవత్సరాల క్రితం"), P("{0} సంవత్సరంలో", "{0} సంవత్సరాల్లో")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} నిమి. క్రితం"), P1("{0} నిమి.లో")),
+            R(P1("{0} గం. క్రితం"), P1("{0} గం.లో")),
+            R(P("{0} రోజు క్రితం", "{0} రోజుల క్రితం"), P("{0} రోజులో", "{0} రోజుల్లో")),
+            R(P("{0} వారం క్రితం", "{0} వారాల క్రితం"), P("{0} వారంలో", "{0} వారాల్లో")),
+            R(P("{0} నెల క్రితం", "{0} నెలల క్రితం"), P("{0} నెలలో", "{0} నెలల్లో")),
+            R(P("{0} సంవత్సరం క్రితం", "{0} సంవత్సరాల క్రితం"), P("{0} సంవత్సరంలో", "{0} సంవత్సరాల్లో")),
+        ],
+    };
+
+    // ha-NG (Hausa in Latin script). Nigeria starts its week on Monday and writes 24-hour times.
+    private static readonly RelativeForms[] HausaRelative =
+    [
+        R(P("minti {0} da ya gabata", "mintuna {0} da suka gabata"), P("cikin minti {0}", "cikin mintuna {0}")),
+        R(P("awa {0} da ya gabata", "awanni {0} da suka gabata"), P("cikin awa {0}", "cikin awanni {0}")),
+        R(P("kwana {0} da ya gabata", "kwanaki {0} da suka gabata"), P("cikin kwana {0}", "cikin kwanaki {0}")),
+        R(P("mako {0} da ya gabata", "makonni {0} da suka gabata"), P("cikin mako {0}", "cikin makonni {0}")),
+        R(P("wata {0} da ya gabata", "watanni {0} da suka gabata"), P("cikin wata {0}", "cikin watanni {0}")),
+        R(P("shekara {0} da ya gabata", "shekaru {0} da suka gabata"), P("cikin shekara {0}", "cikin shekaru {0}")),
+    ];
+
+    private static readonly LocaleData Ha = new()
+    {
+        Months = ["Janairu", "Faburairu", "Maris", "Afirilu", "Mayu", "Yuni", "Yuli", "Agusta", "Satumba", "Oktoba", "Nuwamba", "Disamba"],
+        MonthsShort = ["Jan", "Fab", "Mar", "Afi", "May", "Yun", "Yul", "Agu", "Sat", "Okt", "Nuw", "Dis"],
+        Weekdays = ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"],
+        WeekdaysShort = ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+        WeekdaysNarrow = ["L", "L", "T", "L", "A", "J", "A"],
+        DatePatterns = ["d/M/y", "d MMM, y", "d MMMM, y", "EEEE d MMMM, y", "d MMMM", "d MMM", "MMMM y", "EEE d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "SF",
+        Pm = "YM",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "yanzu",
+        Relative = HausaRelative,
+        RelativeShort = HausaRelative,
+    };
+
+    // pa-Guru-IN (Gurmukhi). Indian grouping, the 12-hour clock, Sunday first, Latin digits as Windows' pa-IN default.
+    private static readonly RelativeForms[] PunjabiRelative =
+    [
+        R(P1("{0} ਮਿੰਟ ਪਹਿਲਾਂ"), P1("{0} ਮਿੰਟ ਵਿੱਚ")),
+        R(P("{0} ਘੰਟਾ ਪਹਿਲਾਂ", "{0} ਘੰਟੇ ਪਹਿਲਾਂ"), P1("{0} ਘੰਟੇ ਵਿੱਚ")),
+        R(P1("{0} ਦਿਨ ਪਹਿਲਾਂ"), P1("{0} ਦਿਨ ਵਿੱਚ")),
+        R(P("{0} ਹਫ਼ਤਾ ਪਹਿਲਾਂ", "{0} ਹਫ਼ਤੇ ਪਹਿਲਾਂ"), P1("{0} ਹਫ਼ਤੇ ਵਿੱਚ")),
+        R(P("{0} ਮਹੀਨਾ ਪਹਿਲਾਂ", "{0} ਮਹੀਨੇ ਪਹਿਲਾਂ"), P1("{0} ਮਹੀਨੇ ਵਿੱਚ")),
+        R(P1("{0} ਸਾਲ ਪਹਿਲਾਂ"), P1("{0} ਸਾਲ ਵਿੱਚ")),
+    ];
+
+    private static readonly LocaleData Pa = new()
+    {
+        Months = ["ਜਨਵਰੀ", "ਫ਼ਰਵਰੀ", "ਮਾਰਚ", "ਅਪ੍ਰੈਲ", "ਮਈ", "ਜੂਨ", "ਜੁਲਾਈ", "ਅਗਸਤ", "ਸਤੰਬਰ", "ਅਕਤੂਬਰ", "ਨਵੰਬਰ", "ਦਸੰਬਰ"],
+        MonthsShort = ["ਜਨ", "ਫ਼ਰ", "ਮਾਰਚ", "ਅਪ੍ਰੈ", "ਮਈ", "ਜੂਨ", "ਜੁਲਾ", "ਅਗ", "ਸਤੰ", "ਅਕਤੂ", "ਨਵੰ", "ਦਸੰ"],
+        Weekdays = ["ਐਤਵਾਰ", "ਸੋਮਵਾਰ", "ਮੰਗਲਵਾਰ", "ਬੁੱਧਵਾਰ", "ਵੀਰਵਾਰ", "ਸ਼ੁੱਕਰਵਾਰ", "ਸ਼ਨਿੱਚਰਵਾਰ"],
+        WeekdaysShort = ["ਐਤ", "ਸੋਮ", "ਮੰਗਲ", "ਬੁੱਧ", "ਵੀਰ", "ਸ਼ੁੱਕਰ", "ਸ਼ਨਿੱਚਰ"],
+        WeekdaysNarrow = ["ਐ", "ਸੋ", "ਮੰ", "ਬੁੱ", "ਵੀ", "ਸ਼ੁੱ", "ਸ਼"],
+        DatePatterns = ["d/M/y", "d MMM y", "d MMMM y", "EEEE, d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "ਪੂ.ਦੁ.",
+        Pm = "ਬਾ.ਦੁ.",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "ਹੁਣ",
+        Relative = PunjabiRelative,
+        RelativeShort = PunjabiRelative,
+    };
+
+    // sw-KE, Windows' Swahili. Kenya starts its week on Sunday and writes 24-hour times.
+    private static readonly RelativeForms[] SwahiliRelative =
+    [
+        R(P("dakika {0} iliyopita", "dakika {0} zilizopita"), P1("baada ya dakika {0}")),
+        R(P("saa {0} iliyopita", "saa {0} zilizopita"), P1("baada ya saa {0}")),
+        R(P("siku {0} iliyopita", "siku {0} zilizopita"), P1("baada ya siku {0}")),
+        R(P("wiki {0} iliyopita", "wiki {0} zilizopita"), P1("baada ya wiki {0}")),
+        R(P("mwezi {0} uliopita", "miezi {0} iliyopita"), P("baada ya mwezi {0}", "baada ya miezi {0}")),
+        R(P("mwaka {0} uliopita", "miaka {0} iliyopita"), P("baada ya mwaka {0}", "baada ya miaka {0}")),
+    ];
+
+    private static readonly LocaleData Sw = new()
+    {
+        Months = ["Januari", "Februari", "Machi", "Aprili", "Mei", "Juni", "Julai", "Agosti", "Septemba", "Oktoba", "Novemba", "Desemba"],
+        MonthsShort = ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun", "Jul", "Ago", "Sep", "Okt", "Nov", "Des"],
+        Weekdays = ["Jumapili", "Jumatatu", "Jumanne", "Jumatano", "Alhamisi", "Ijumaa", "Jumamosi"],
+
+        // CLDR's abbreviated Swahili weekdays are the full names; its "short" width is what fits a column.
+        WeekdaysShort = ["Jpi", "Jtt", "Jnn", "Jtn", "Alh", "Ij", "Jmo"],
+        WeekdaysNarrow = ["S", "M", "T", "W", "T", "F", "S"],
+        DatePatterns = ["dd/MM/y", "d MMM y", "d MMMM y", "EEEE, d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "sasa hivi",
+        Relative = SwahiliRelative,
+        RelativeShort = SwahiliRelative,
+    };
+
+    // fil-PH. Month-first dates as in English, the 12-hour clock, Sunday first. Nouns do not inflect after a number.
+    private static readonly LocaleData Fil = new()
+    {
+        Months = ["Enero", "Pebrero", "Marso", "Abril", "Mayo", "Hunyo", "Hulyo", "Agosto", "Setyembre", "Oktubre", "Nobyembre", "Disyembre"],
+        MonthsShort = ["Ene", "Peb", "Mar", "Abr", "May", "Hun", "Hul", "Ago", "Set", "Okt", "Nob", "Dis"],
+        Weekdays = ["Linggo", "Lunes", "Martes", "Miyerkules", "Huwebes", "Biyernes", "Sabado"],
+        WeekdaysShort = ["Lin", "Lun", "Mar", "Miy", "Huw", "Biy", "Sab"],
+
+        // CLDR's narrow Filipino weekdays are the three-letter forms; a calendar column wants one letter.
+        WeekdaysNarrow = ["L", "L", "M", "M", "H", "B", "S"],
+        DatePatterns = ["M/d/y", "MMM d, y", "MMMM d, y", "EEEE, MMMM d, y", "MMMM d", "MMM d", "MMMM y", "EEE, MMM d"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "ngayon",
+        Relative =
+        [
+            R(P1("{0} minuto ang nakalipas"), P1("sa {0} minuto")),
+            R(P1("{0} oras ang nakalipas"), P1("sa {0} oras")),
+            R(P1("{0} araw ang nakalipas"), P1("sa {0} araw")),
+            R(P1("{0} linggo ang nakalipas"), P1("sa {0} linggo")),
+            R(P1("{0} buwan ang nakalipas"), P1("sa {0} buwan")),
+            R(P1("{0} taon ang nakalipas"), P1("sa {0} taon")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} min. ang nakalipas"), P1("sa {0} min.")),
+            R(P1("{0} oras ang nakalipas"), P1("sa {0} oras")),
+            R(P1("{0} araw ang nakalipas"), P1("sa {0} araw")),
+            R(P1("{0} linggo ang nakalipas"), P1("sa {0} linggo")),
+            R(P1("{0} buwan ang nakalipas"), P1("sa {0} buwan")),
+            R(P1("{0} taon ang nakalipas"), P1("sa {0} taon")),
+        ],
+    };
+
+    // ta-IN. Indian grouping, the 12-hour clock with the marker first, Sunday first, Latin digits as Windows' ta-IN default.
+    private static readonly LocaleData Ta = new()
+    {
+        Months = ["ஜனவரி", "பிப்ரவரி", "மார்ச்", "ஏப்ரல்", "மே", "ஜூன்", "ஜூலை", "ஆகஸ்ட்", "செப்டம்பர்", "அக்டோபர்", "நவம்பர்", "டிசம்பர்"],
+        MonthsShort = ["ஜன.", "பிப்.", "மார்.", "ஏப்.", "மே", "ஜூன்", "ஜூலை", "ஆக.", "செப்.", "அக்.", "நவ.", "டிச."],
+        Weekdays = ["ஞாயிறு", "திங்கள்", "செவ்வாய்", "புதன்", "வியாழன்", "வெள்ளி", "சனி"],
+        WeekdaysShort = ["ஞாயி.", "திங்.", "செவ்.", "புத.", "வியா.", "வெள்.", "சனி"],
+        WeekdaysNarrow = ["ஞா", "தி", "செ", "பு", "வி", "வெ", "ச"],
+        DatePatterns = ["d/M/y", "d MMM, y", "d MMMM, y", "EEEE, d MMMM, y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "a h:mm",
+        Uses24Hour = false,
+        Am = "முற்பகல்",
+        Pm = "பிற்பகல்",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "இப்போது",
+        Relative =
+        [
+            R(P("{0} நிமிடத்திற்கு முன்", "{0} நிமிடங்களுக்கு முன்"), P("{0} நிமிடத்தில்", "{0} நிமிடங்களில்")),
+            R(P1("{0} மணிநேரம் முன்"), P1("{0} மணிநேரத்தில்")),
+            R(P("{0} நாளுக்கு முன்", "{0} நாட்களுக்கு முன்"), P("{0} நாளில்", "{0} நாட்களில்")),
+            R(P("{0} வாரத்திற்கு முன்", "{0} வாரங்களுக்கு முன்"), P("{0} வாரத்தில்", "{0} வாரங்களில்")),
+            R(P("{0} மாதத்துக்கு முன்", "{0} மாதங்களுக்கு முன்"), P("{0} மாதத்தில்", "{0} மாதங்களில்")),
+            R(P("{0} ஆண்டிற்கு முன்", "{0} ஆண்டுகளுக்கு முன்"), P("{0} ஆண்டில்", "{0} ஆண்டுகளில்")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} நிமி. முன்"), P1("{0} நிமி.")),
+            R(P1("{0} மணி. முன்"), P1("{0} மணி.")),
+            R(P("{0} நாளுக்கு முன்", "{0} நாட்களுக்கு முன்"), P("{0} நாளில்", "{0} நாட்களில்")),
+            R(P("{0} வாரத்திற்கு முன்", "{0} வாரங்களுக்கு முன்"), P("{0} வாரத்தில்", "{0} வாரங்களில்")),
+            R(P("{0} மாதத்துக்கு முன்", "{0} மாதங்களுக்கு முன்"), P("{0} மாதத்தில்", "{0} மாதங்களில்")),
+            R(P("{0} ஆண்டிற்கு முன்", "{0} ஆண்டுகளுக்கு முன்"), P("{0} ஆண்டில்", "{0} ஆண்டுகளில்")),
+        ],
+    };
+
+    // fa-IR, on the Gregorian calendar the app keeps everywhere (the Solar Hijri calendar Windows'
+    // fa-IR defaults to is not drawn). Saturday first, the 24-hour clock, and [S-1115] Extended
+    // Arabic-Indic digits (۰–۹, U+06F0) with the Arabic decimal and group marks, as Windows writes them.
+    // A noun stays singular after a number, so one and other read alike.
+    private static readonly RelativeForms[] PersianRelative =
+    [
+        R(P1("{0} دقیقه پیش"), P1("{0} دقیقه بعد")),
+        R(P1("{0} ساعت پیش"), P1("{0} ساعت بعد")),
+        R(P1("{0} روز پیش"), P1("{0} روز بعد")),
+        R(P1("{0} هفته پیش"), P1("{0} هفته بعد")),
+        R(P1("{0} ماه پیش"), P1("{0} ماه بعد")),
+        R(P1("{0} سال پیش"), P1("{0} سال بعد")),
+    ];
+
+    private static readonly LocaleData Fa = new()
+    {
+        Months = ["ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن", "ژوئیه", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"],
+
+        // Inside a date the month takes the ezafe ("۴ ژانویهٔ ۲۰۲۶"), CLDR's format form.
+        MonthsInDate = ["ژانویهٔ", "فوریهٔ", "مارس", "آوریل", "مهٔ", "ژوئن", "ژوئیهٔ", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"],
+        MonthsShort = ["ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن", "ژوئیه", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"],
+        MonthsShortInDate = ["ژانویهٔ", "فوریهٔ", "مارس", "آوریل", "مهٔ", "ژوئن", "ژوئیهٔ", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"],
+        Weekdays = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"],
+        WeekdaysShort = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"],
+        WeekdaysNarrow = ["ی", "د", "س", "چ", "پ", "ج", "ش"],
+        DatePatterns = ["y/M/d", "d MMM y", "d MMMM y", "EEEE d MMMM y", "d MMMM", "d MMM", "LLLL y", "EEE d MMM"],
+        Time24 = "H:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "ق.ظ.",
+        Pm = "ب.ظ.",
+        Decimal = '٫',
+        Group = "٬",
+        Percent = "{0}٪",
+        DigitZero = '۰',
+        FirstDayOfWeek = DayOfWeek.Saturday,
+        Now = "اکنون",
+        Relative = PersianRelative,
+        RelativeShort = PersianRelative,
+    };
+
+    // th-TH, on the Gregorian calendar (Windows' th-TH defaults to the Buddhist era, which the app
+    // does not draw). The 24-hour clock, Sunday first, Latin digits as Windows' default; no plural.
+    private static readonly LocaleData Th = new()
+    {
+        Months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"],
+        MonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."],
+        Weekdays = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"],
+        WeekdaysShort = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."],
+        WeekdaysNarrow = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"],
+        DatePatterns = ["d/M/y", "d MMM y", "d MMMM y", "EEEEที่ d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "ก่อนเที่ยง",
+        Pm = "หลังเที่ยง",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "ขณะนี้",
+        Relative =
+        [
+            R(P1("{0} นาทีที่ผ่านมา"), P1("ในอีก {0} นาที")),
+            R(P1("{0} ชั่วโมงที่ผ่านมา"), P1("ในอีก {0} ชั่วโมง")),
+            R(P1("{0} วันที่ผ่านมา"), P1("ในอีก {0} วัน")),
+            R(P1("{0} สัปดาห์ที่ผ่านมา"), P1("ในอีก {0} สัปดาห์")),
+            R(P1("{0} เดือนที่ผ่านมา"), P1("ในอีก {0} เดือน")),
+            R(P1("{0} ปีที่แล้ว"), P1("ในอีก {0} ปี")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} นาทีที่แล้ว"), P1("ใน {0} นาที")),
+            R(P1("{0} ชม. ที่แล้ว"), P1("ใน {0} ชม.")),
+            R(P1("{0} วันที่แล้ว"), P1("ใน {0} วัน")),
+            R(P1("{0} สัปดาห์ที่แล้ว"), P1("ใน {0} สัปดาห์")),
+            R(P1("{0} เดือนที่แล้ว"), P1("ใน {0} เดือน")),
+            R(P1("{0} ปีที่แล้ว"), P1("ใน {0} ปี")),
+        ],
+    };
+
+    // gu-IN. Indian grouping, the 12-hour clock with a padded hour, Sunday first, Latin digits as Windows' gu-IN default.
+    private static readonly RelativeForms[] GujaratiRelative =
+    [
+        R(P1("{0} મિનિટ પહેલાં"), P1("{0} મિનિટમાં")),
+        R(P1("{0} કલાક પહેલાં"), P1("{0} કલાકમાં")),
+        R(P1("{0} દિવસ પહેલાં"), P1("{0} દિવસમાં")),
+        R(P1("{0} અઠવાડિયા પહેલાં"), P1("{0} અઠવાડિયામાં")),
+        R(P1("{0} મહિના પહેલાં"), P1("{0} મહિનામાં")),
+        R(P1("{0} વર્ષ પહેલાં"), P1("{0} વર્ષમાં")),
+    ];
+
+    private static readonly LocaleData Gu = new()
+    {
+        Months = ["જાન્યુઆરી", "ફેબ્રુઆરી", "માર્ચ", "એપ્રિલ", "મે", "જૂન", "જુલાઈ", "ઑગસ્ટ", "સપ્ટેમ્બર", "ઑક્ટોબર", "નવેમ્બર", "ડિસેમ્બર"],
+        MonthsShort = ["જાન્યુ", "ફેબ્રુ", "માર્ચ", "એપ્રિલ", "મે", "જૂન", "જુલાઈ", "ઑગસ્ટ", "સપ્ટે", "ઑક્ટો", "નવે", "ડિસે"],
+        Weekdays = ["રવિવાર", "સોમવાર", "મંગળવાર", "બુધવાર", "ગુરુવાર", "શુક્રવાર", "શનિવાર"],
+        WeekdaysShort = ["રવિ", "સોમ", "મંગળ", "બુધ", "ગુરુ", "શુક્ર", "શનિ"],
+        WeekdaysNarrow = ["ર", "સો", "મં", "બુ", "ગુ", "શુ", "શ"],
+        DatePatterns = ["d/M/y", "d MMM, y", "d MMMM, y", "EEEE, d MMMM, y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "hh:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "હમણાં",
+        Relative = GujaratiRelative,
+        RelativeShort = GujaratiRelative,
     };
 }
 

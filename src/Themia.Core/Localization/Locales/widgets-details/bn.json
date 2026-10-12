@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "অ্যাপ অনুযায়ী গ্রুপ করুন",
   "details.settings.processes.group.desc": "একটি প্রোগ্রামের সব প্রসেস এক সারিতে",
   "details.settings.network.public.label": "পাবলিক ঠিকানা",
-  "details.settings.network.public.desc": "api.ipify.org-কে জিজ্ঞাসা করে, সর্বোচ্চ প্রতি 10 মিনিটে",
+  "details.settings.network.public.desc": "api.ipify.org-কে জিজ্ঞাসা করে, সর্বোচ্চ প্রতি {minutes} মিনিটে",
   "details.settings.disk.drives": "ড্রাইভ",
   "details.settings.disk.all.label": "প্রতিটি ড্রাইভ",
   "details.settings.disk.all.desc": "Windows-এর প্রতিটি ড্রাইভ দেখান, যুক্ত বা সরানোর সঙ্গে সঙ্গে",

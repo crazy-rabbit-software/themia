@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "欧州 (EAQI)",
   "online.air.settings.index.us": "米国 (AQI)",
   "online.rain.label": "1 時間以内の雨",
-  "online.rain.desc": "雨が降り始める・やむ時刻を 15 分ごとに表示",
+  "online.rain.desc": "雨が降り始める・やむ時刻を {minutes} 分ごとに表示",
   "online.rain.startsIn": "{minutes} 分後に雨",
   "online.rain.stopsIn": "{minutes} 分後に雨がやみます",
   "online.rain.continues": "この先 2 時間は雨",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "通貨",
   "online.rates.settings.quotes.desc": "表示できるだけ、選んだ順に",
   "online.rates.settings.quotes.all": "すべての通貨",
-  "online.rates.settings.chart.label": "90 日間のグラフ",
+  "online.rates.settings.chart.label": "{days} 日間のグラフ",
   "online.rates.settings.chart.desc": "スペースがあれば各レートの下に"
 }

@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "อัปเดตเมื่อ {time}",
+  "sync.stateUpdated": "{state} · อัปเดตเมื่อ {time}",
+  "sync.pending": {
+    "other": "มี {count} การเปลี่ยนแปลงที่รอซิงค์"
+  },
+  "sync.queueFull": "มีการเปลี่ยนแปลงที่รอซิงค์มากเกินไป การเปลี่ยนแปลงนี้จึงไม่ถูกเก็บไว้",
+  "sync.withUpdated": "{sentence} อัปเดตเมื่อ {time}"
+}

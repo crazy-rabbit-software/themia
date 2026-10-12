@@ -51,6 +51,20 @@ public static class ClockFormatter
     }
 
     /// <summary>
+    /// [S-1483] The width the AM/PM marker beside the digits takes, in readout characters, for a
+    /// readout whose marker is set at <paramref name="scale"/> of the digits' size. The marker's own
+    /// length (plus the space before it) stands in for its drawn width, never less than
+    /// <paramref name="floor"/>, the budget "PM" has always had: Tamil's "பிற்பகல்" is four times as
+    /// wide as "PM" and clipped a tall clock while the ladder still counted it as two letters.
+    /// </summary>
+    public static double MeridiemCharacters(Locale locale, double scale, double floor)
+    {
+        var data = LocaleData.For(locale);
+        var longest = Math.Max(data.Am.Length, data.Pm.Length);
+        return Math.Max(floor, (longest + 1) * scale);
+    }
+
+    /// <summary>
     /// [S-665] "Sun, Oct 4" / "So., 4. Okt.": the date for a tile too narrow for the long one. No
     /// week, day of the year or time zone line (retired, concise widgets).
     /// </summary>

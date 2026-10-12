@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Regrouper par application",
   "details.settings.processes.group.desc": "Tous les processus d’un programme sur une ligne",
   "details.settings.network.public.label": "Adresse publique",
-  "details.settings.network.public.desc": "Interroge api.ipify.org, au plus toutes les 10 minutes",
+  "details.settings.network.public.desc": "Interroge api.ipify.org, au plus toutes les {minutes} minutes",
   "details.settings.disk.drives": "Lecteurs",
   "details.settings.disk.all.label": "Tous les lecteurs",
   "details.settings.disk.all.desc": "Chaque lecteur de Windows, au fil des branchements",

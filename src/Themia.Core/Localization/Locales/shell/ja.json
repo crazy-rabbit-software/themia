@@ -586,7 +586,7 @@
   "shell.meters.systemDrive": "システム ドライブ ({drive})",
   "shell.meters.gpuDescription": "アダプターごとのグラフィックス負荷",
   "shell.meters.batteryDescription": "充電レベル",
-  "shell.appearance.headerFade": "ヘッダー帯の不透明度。100% でウィジェットと同じになります",
+  "shell.appearance.headerFade": "ヘッダー帯の不透明度。{percent} でウィジェットと同じになります",
   "shell.views.add": "ビューを追加",
   "shell.views.addDesc": "リストの末尾に新しい空のビューを追加します",
   "shell.views.more": "その他のオプション",

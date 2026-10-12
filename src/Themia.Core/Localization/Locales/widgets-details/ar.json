@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "التجميع حسب التطبيق",
   "details.settings.processes.group.desc": "كل عمليات البرنامج الواحد في صف واحد",
   "details.settings.network.public.label": "العنوان العام",
-  "details.settings.network.public.desc": "يستعلم من api.ipify.org، مرة كل 10 دقائق على الأكثر",
+  "details.settings.network.public.desc": "يستعلم من api.ipify.org، مرة كل {minutes} دقائق على الأكثر",
   "details.settings.disk.drives": "محركات الأقراص",
   "details.settings.disk.all.label": "كل محركات الأقراص",
   "details.settings.disk.all.desc": "سرد كل محرك أقراص لدى Windows عند توصيله أو فصله",

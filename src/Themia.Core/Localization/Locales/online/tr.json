@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "Avrupa (EAQI)",
   "online.air.settings.index.us": "ABD (AQI)",
   "online.rain.label": "Gelecek saatte yağmur",
-  "online.rain.desc": "Yağmurun başlayacağı veya duracağı zaman, 15 dakikalık adımlarla",
+  "online.rain.desc": "Yağmurun başlayacağı veya duracağı zaman, {minutes} dakikalık adımlarla",
   "online.rain.startsIn": "{minutes} dk içinde yağmur",
   "online.rain.stopsIn": "Yağmur {minutes} dk içinde duruyor",
   "online.rain.continues": "Önümüzdeki 2 saat yağmurlu",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "Para birimleri",
   "online.rates.settings.quotes.desc": "Sığdığı kadar, seçilen sırayla",
   "online.rates.settings.quotes.all": "Tüm para birimleri",
-  "online.rates.settings.chart.label": "90 günlük grafik",
+  "online.rates.settings.chart.label": "{days} günlük grafik",
   "online.rates.settings.chart.desc": "Yer varsa her kurun altında"
 }

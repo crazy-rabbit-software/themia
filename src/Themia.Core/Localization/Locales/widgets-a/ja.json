@@ -47,7 +47,7 @@
   "widgetsA.calendar.readFailed": "カレンダーを読み込めませんでした。themia.log を確認してください。",
   "widgetsA.calendar.settings.accounts": "アカウントとカレンダー",
   "widgetsA.calendar.settings.addHint": "[アカウント] ページでサインイン",
-  "widgetsA.calendar.settings.agendaCount.desc": "今後 30 日間で予定一覧に表示する数",
+  "widgetsA.calendar.settings.agendaCount.desc": "今後 {days} 日間で予定一覧に表示する数",
   "widgetsA.calendar.settings.birthdays.desc": "Microsoft と Google アカウントの連絡先の誕生日",
   "widgetsA.calendar.settings.colorAuto": "自動",
   "widgetsA.calendar.settings.colorOf": "{name} の色",

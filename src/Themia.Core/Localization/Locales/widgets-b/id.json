@@ -182,7 +182,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Belum ada folder dipilih.",
   "widgetsB.settings.gallery.showing": "Menampilkan {name}",
   "widgetsB.habits.minutes.empty": "Masukkan jumlah menit.",
-  "widgetsB.habits.minutes.notWhole": "Hanya menit bulat, seperti 30.",
+  "widgetsB.habits.minutes.notWhole": "Hanya menit bulat, seperti {example}.",
   "widgetsB.habits.minutes.range": "Antara {min} dan {max} menit (satu hari).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Minggu {date}",
@@ -236,7 +236,7 @@
   "widgetsB.settings.habits.clearsEvery": {
     "other": "Dikosongkan setiap {count} menit."
   },
-  "widgetsB.settings.habits.interval.desc": "Menit per periode, 1 hingga 1440",
+  "widgetsB.settings.habits.interval.desc": "Menit per periode, {min} hingga {max}",
   "widgetsB.settings.habits.resets.label": "Diatur ulang",
   "widgetsB.settings.habits.everyHour": "Setiap jam",
   "widgetsB.settings.habits.everyDay": "Setiap hari",
@@ -246,7 +246,7 @@
   "widgetsB.settings.habits.streaks.label": "Tampilkan rentetan",
   "widgetsB.settings.habits.streaks.desc": "Rentetan yang sedang dijalani setiap kebiasaan",
   "widgetsB.settings.habits.history.label": "Riwayat",
-  "widgetsB.settings.habits.history.desc": "Periode lalu sebagai titik; 0 menyembunyikannya",
+  "widgetsB.settings.habits.history.desc": "Periode lalu sebagai titik; {zero} menyembunyikannya",
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} kebiasaan"
   },

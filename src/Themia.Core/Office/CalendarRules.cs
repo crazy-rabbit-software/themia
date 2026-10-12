@@ -184,16 +184,32 @@ public static class CalendarRules
 
     // ---- weeks -------------------------------------------------------------------------------
 
+    /// <summary>[S-564] The weekday a week starting on <paramref name="start"/> begins with.</summary>
+    public static DayOfWeek FirstDay(WeekStartDay start) => start switch
+    {
+        WeekStartDay.Sunday => DayOfWeek.Sunday,
+        WeekStartDay.Saturday => DayOfWeek.Saturday,
+        _ => DayOfWeek.Monday,
+    };
+
+    /// <summary>[S-564] The week start a language or Windows names by its first weekday; a day no calendar starts on is Monday.</summary>
+    public static WeekStartDay WeekStartOf(DayOfWeek first) => first switch
+    {
+        DayOfWeek.Sunday => WeekStartDay.Sunday,
+        DayOfWeek.Saturday => WeekStartDay.Saturday,
+        _ => WeekStartDay.Monday,
+    };
+
     /// <summary>[S-564] Days to step back from <paramref name="day"/> to reach the first day of its week.</summary>
     public static int WeekStartOffset(DayOfWeek day, WeekStartDay start)
-        => ((int)day - (start == WeekStartDay.Sunday ? 0 : 1) + 7) % 7;
+        => ((int)day - (int)FirstDay(start) + 7) % 7;
 
     public static DateOnly StartOfWeek(DateOnly day, WeekStartDay start) => day.AddDays(-WeekStartOffset(day.DayOfWeek, start));
 
-    /// <summary>[S-564] The seven weekdays in column order: Mon..Sun, or Sun..Sat.</summary>
+    /// <summary>[S-564] The seven weekdays in column order: Mon..Sun, Sun..Sat or Sat..Fri.</summary>
     public static IReadOnlyList<DayOfWeek> WeekdayOrder(WeekStartDay start)
     {
-        var first = start == WeekStartDay.Sunday ? 0 : 1;
+        var first = (int)FirstDay(start);
         return [.. Enumerable.Range(0, 7).Select(i => (DayOfWeek)((first + i) % 7))];
     }
 
@@ -413,8 +429,9 @@ public static class CalendarRules
             .ThenBy(e => e.Start)
             .ThenBy(e => e.Subject, StringComparer.Ordinal))
         {
+            // Under every day of the range it covers (classic issue #155 listed a Monday-to-Thursday
+            // event on the Monday only); one that started earlier begins at the first day.
             var day = StartDay(e, zone);
-
             if (day < first)
             {
                 // Started earlier: only worth listing while it still runs into the range.
@@ -426,12 +443,11 @@ public static class CalendarRules
                 day = first;
             }
 
-            if (day > last)
+            var item = new DayItem(e, null);
+            for (var on = day; on <= last && (on == day || OccursOn(e, on, zone)); on = on.AddDays(1))
             {
-                continue;
+                Add(on, item);
             }
-
-            Add(day, new DayItem(e, null));
         }
 
         var groups = new List<(DateOnly, IReadOnlyList<DayItem>)>();
@@ -451,6 +467,29 @@ public static class CalendarRules
         }
 
         return groups;
+    }
+
+    /// <summary>
+    /// [S-571] The part of an event an agenda row on <paramref name="day"/> shows: the event cut to
+    /// that local day, so a timed event running over several days reads 18:00–00:00, then all day,
+    /// then 00:00–10:00 rather than repeating its first start under every heading. All-day events
+    /// and timed ones covering the whole day are <see cref="AgendaTime.WholeDay"/>.
+    /// </summary>
+    public static AgendaTime AgendaSpan(CalendarEvent item, DateOnly day, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        if (item.AllDay)
+        {
+            return new AgendaTime(item.Start, item.End, WholeDay: true);
+        }
+
+        var dayStart = LocalMidnight(day, zone);
+        var dayEnd = LocalMidnight(day.AddDays(1), zone);
+        var start = item.Start > dayStart ? item.Start : dayStart;
+        var end = item.End > item.Start && item.End > dayEnd ? dayEnd : item.End;
+
+        return new AgendaTime(start, end, item.Start <= dayStart && item.End >= dayEnd);
     }
 
     // ---- layout ------------------------------------------------------------------------------
@@ -608,6 +647,12 @@ public static class CalendarRules
                 : null;
     }
 }
+
+/// <summary>[S-571] What an agenda row's time column reads for one day of an event.</summary>
+/// <param name="Start">The start on that day (the day's midnight when it began earlier).</param>
+/// <param name="End">The end on that day (the next midnight when it runs on).</param>
+/// <param name="WholeDay">All-day, or a timed event covering the whole day: the row says "All day".</param>
+public readonly record struct AgendaTime(DateTimeOffset Start, DateTimeOffset End, bool WholeDay);
 
 /// <summary>[S-572] How much a month cell can show of its day's events.</summary>
 public enum MonthDensity

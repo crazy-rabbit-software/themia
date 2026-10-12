@@ -182,7 +182,7 @@
   "widgetsB.settings.gallery.noFolderYet": "尚未选择文件夹。",
   "widgetsB.settings.gallery.showing": "正在显示 {name}",
   "widgetsB.habits.minutes.empty": "请输入分钟数。",
-  "widgetsB.habits.minutes.notWhole": "仅限整数分钟，例如 30。",
+  "widgetsB.habits.minutes.notWhole": "仅限整数分钟，例如 {example}。",
   "widgetsB.habits.minutes.range": "介于 {min} 到 {max} 分钟之间（一天）。",
   "widgetsB.habits.describe.hourly": "{date} {time}",
   "widgetsB.habits.describe.weekly": "{date} 所在的一周",
@@ -236,7 +236,7 @@
   "widgetsB.settings.habits.clearsEvery": {
     "other": "每 {count} 分钟清除一次。"
   },
-  "widgetsB.settings.habits.interval.desc": "每个时段的分钟数，1 到 1440",
+  "widgetsB.settings.habits.interval.desc": "每个时段的分钟数，{min} 到 {max}",
   "widgetsB.settings.habits.resets.label": "重置",
   "widgetsB.settings.habits.everyHour": "每小时",
   "widgetsB.settings.habits.everyDay": "每天",
@@ -246,7 +246,7 @@
   "widgetsB.settings.habits.streaks.label": "显示连续记录",
   "widgetsB.settings.habits.streaks.desc": "每个习惯当前的连续记录",
   "widgetsB.settings.habits.history.label": "历史记录",
-  "widgetsB.settings.habits.history.desc": "以圆点显示过去的周期；0 隐藏",
+  "widgetsB.settings.habits.history.desc": "以圆点显示过去的周期；{zero} 隐藏",
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} 个习惯"
   },

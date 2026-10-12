@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Noch kein Ordner gewählt.",
   "widgetsB.settings.gallery.showing": "{name} wird angezeigt",
   "widgetsB.habits.minutes.empty": "Geben Sie eine Anzahl Minuten ein.",
-  "widgetsB.habits.minutes.notWhole": "Nur ganze Minuten, z. B. 30.",
+  "widgetsB.habits.minutes.notWhole": "Nur ganze Minuten, z. B. {example}.",
   "widgetsB.habits.minutes.range": "Zwischen {min} und {max} Minuten (ein Tag).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Woche ab {date}",
@@ -244,7 +244,7 @@
     "one": "Wird nach {count} Minute geleert.",
     "other": "Wird alle {count} Minuten geleert."
   },
-  "widgetsB.settings.habits.interval.desc": "Minuten pro Zeitraum, 1 bis 1440",
+  "widgetsB.settings.habits.interval.desc": "Minuten pro Zeitraum, {min} bis {max}",
   "widgetsB.settings.habits.resets.label": "Zurücksetzen",
   "widgetsB.settings.habits.everyHour": "Jede Stunde",
   "widgetsB.settings.habits.everyDay": "Jeden Tag",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "Serien anzeigen",
   "widgetsB.settings.habits.streaks.desc": "Die aktuelle Serie jeder Gewohnheit",
   "widgetsB.settings.habits.history.label": "Verlauf",
-  "widgetsB.settings.habits.history.desc": "Vergangene Zeiträume als Punkte; 0 blendet sie aus",
+  "widgetsB.settings.habits.history.desc": "Vergangene Zeiträume als Punkte; {zero} blendet sie aus",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} Gewohnheit",
     "other": "{count} Gewohnheiten"

@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "ยอดนิยม",
+  "addMenu.browse": "เรียกดู",
+  "addMenu.subject.time": "เวลา",
+  "addMenu.subject.calendar": "ปฏิทินและอีเมล",
+  "addMenu.subject.weather": "สภาพอากาศและท้องฟ้า",
+  "addMenu.subject.markets": "ข่าวและตลาด",
+  "addMenu.subject.media": "เพลงและสื่อ",
+  "addMenu.subject.notes": "บันทึกย่อและเครื่องมือ",
+  "addMenu.subject.files": "ไฟล์และแอป",
+  "addMenu.subject.system": "ระบบ",
+  "addMenu.subject.devices": "อุปกรณ์และพลังงาน",
+  "addMenu.subject.more": "เพิ่มเติม",
+  "addMenu.family.calendar": "ปฏิทิน",
+  "addMenu.family.visualizer": "ภาพแสดงเสียง",
+  "addMenu.family.folder": "โฟลเดอร์",
+  "addMenu.family.screenTime": "เวลาหน้าจอ",
+  "addMenu.family.powerButtons": "ปุ่มเปิด/ปิด"
+}

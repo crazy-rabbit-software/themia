@@ -23,8 +23,13 @@ internal static partial class ConfigPages
         // [S-3771] Each format offers "Windows setting (…)" first, naming what Windows says, so the
         // default is never a value the reader has to look up.
         string FollowWindows(string value) => Str.WidgetPrefs_FollowWindows.Format(("value", value));
-        string Hours(bool use24) => use24 ? Str.WidgetPrefs_Region_Clock24.Text() : Str.WidgetPrefs_Region_Clock12.Text();
-        string Day(WeekStartDay day) => day == WeekStartDay.Sunday ? Str.Calendar_WeekStart_Sunday.Text() : Str.Calendar_WeekStart_Monday.Text();
+        string Hours(bool use24) => use24 ? Str.WidgetPrefs_Region_Clock24.Format(("hours", 24)) : Str.WidgetPrefs_Region_Clock12.Format(("hours", 12));
+        string Day(WeekStartDay day) => day switch
+        {
+            WeekStartDay.Sunday => Str.Calendar_WeekStart_Sunday.Text(),
+            WeekStartDay.Saturday => Str.Calendar_WeekStart_Saturday.Text(),
+            _ => Str.Calendar_WeekStart_Monday.Text(),
+        };
         string Scale(TemperatureUnit unit) => unit == TemperatureUnit.Fahrenheit
             ? $"{Str.WidgetsC_Weather_Settings_Fahrenheit.Text()} (°F)"
             : $"{Str.WidgetsC_Weather_Settings_Celsius.Text()} (°C)";
@@ -42,7 +47,7 @@ internal static partial class ConfigPages
 
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Calendar_WeekStart_Label.Text(), null,
             FluentLayout.Choice(
-                [(FirstWeekday.System, FollowWindows(Day(windows.WeekStart))), (FirstWeekday.Monday, Day(WeekStartDay.Monday)), (FirstWeekday.Sunday, Day(WeekStartDay.Sunday))],
+                [(FirstWeekday.System, FollowWindows(Day(windows.WeekStart))), (FirstWeekday.Monday, Day(WeekStartDay.Monday)), (FirstWeekday.Sunday, Day(WeekStartDay.Sunday)), (FirstWeekday.Saturday, Day(WeekStartDay.Saturday))],
                 region.WeekStart,
                 value => SetRegion(r => r.WeekStart = value)),
             "week", "calendar", "first day"));

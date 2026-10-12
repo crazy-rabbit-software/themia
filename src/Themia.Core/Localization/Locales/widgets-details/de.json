@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Nach App gruppieren",
   "details.settings.processes.group.desc": "Alle Prozesse eines Programms in einer Zeile",
   "details.settings.network.public.label": "Öffentliche Adresse",
-  "details.settings.network.public.desc": "Fragt api.ipify.org, höchstens alle 10 Minuten",
+  "details.settings.network.public.desc": "Fragt api.ipify.org, höchstens alle {minutes} Minuten",
   "details.settings.disk.drives": "Laufwerke",
   "details.settings.disk.all.label": "Alle Laufwerke",
   "details.settings.disk.all.desc": "Jedes Laufwerk von Windows, sobald es erscheint oder verschwindet",

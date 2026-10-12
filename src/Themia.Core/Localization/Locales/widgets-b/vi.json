@@ -182,7 +182,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Chưa chọn thư mục nào.",
   "widgetsB.settings.gallery.showing": "Đang hiện {name}",
   "widgetsB.habits.minutes.empty": "Nhập số phút.",
-  "widgetsB.habits.minutes.notWhole": "Chỉ số phút nguyên, như 30.",
+  "widgetsB.habits.minutes.notWhole": "Chỉ số phút nguyên, như {example}.",
   "widgetsB.habits.minutes.range": "Từ {min} đến {max} phút (một ngày).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Tuần của {date}",
@@ -236,7 +236,7 @@
   "widgetsB.settings.habits.clearsEvery": {
     "other": "Xóa sau mỗi {count} phút."
   },
-  "widgetsB.settings.habits.interval.desc": "Số phút mỗi chu kỳ, từ 1 đến 1440",
+  "widgetsB.settings.habits.interval.desc": "Số phút mỗi chu kỳ, từ {min} đến {max}",
   "widgetsB.settings.habits.resets.label": "Đặt lại",
   "widgetsB.settings.habits.everyHour": "Mỗi giờ",
   "widgetsB.settings.habits.everyDay": "Mỗi ngày",
@@ -246,7 +246,7 @@
   "widgetsB.settings.habits.streaks.label": "Hiện chuỗi",
   "widgetsB.settings.habits.streaks.desc": "Chuỗi liên tiếp hiện tại của mỗi thói quen",
   "widgetsB.settings.habits.history.label": "Lịch sử",
-  "widgetsB.settings.habits.history.desc": "Các kỳ trước dưới dạng chấm; 0 sẽ ẩn chúng",
+  "widgetsB.settings.habits.history.desc": "Các kỳ trước dưới dạng chấm; {zero} sẽ ẩn chúng",
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} thói quen"
   },

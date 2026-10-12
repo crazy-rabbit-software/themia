@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "युरोपियन (EAQI)",
   "online.air.settings.index.us": "अमेरिकन (AQI)",
   "online.rain.label": "पुढच्या तासात पाऊस",
-  "online.rain.desc": "पाऊस कधी सुरू किंवा थांबेल, 15 मिनिटांच्या टप्प्यांत",
+  "online.rain.desc": "पाऊस कधी सुरू किंवा थांबेल, {minutes} मिनिटांच्या टप्प्यांत",
   "online.rain.startsIn": "{minutes} मिनिटांत पाऊस",
   "online.rain.stopsIn": "{minutes} मिनिटांत पाऊस थांबेल",
   "online.rain.continues": "पुढील 2 तास पाऊस",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "चलने",
   "online.rates.settings.quotes.desc": "जितकी बसतील, निवडलेल्या क्रमाने",
   "online.rates.settings.quotes.all": "सर्व चलने",
-  "online.rates.settings.chart.label": "90 दिवसांचा तक्ता",
+  "online.rates.settings.chart.label": "{days} दिवसांचा तक्ता",
   "online.rates.settings.chart.desc": "जागा असल्यास प्रत्येक दराखाली"
 }

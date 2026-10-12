@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "Eropa (EAQI)",
   "online.air.settings.index.us": "AS (AQI)",
   "online.rain.label": "Hujan sejam ke depan",
-  "online.rain.desc": "Kapan hujan mulai atau berhenti, per 15 menit",
+  "online.rain.desc": "Kapan hujan mulai atau berhenti, per {minutes} menit",
   "online.rain.startsIn": "Hujan dalam {minutes} mnt",
   "online.rain.stopsIn": "Hujan berhenti dalam {minutes} mnt",
   "online.rain.continues": "Hujan selama 2 jam ke depan",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "Mata uang",
   "online.rates.settings.quotes.desc": "Sebanyak yang muat, sesuai urutan pilihan",
   "online.rates.settings.quotes.all": "Semua mata uang",
-  "online.rates.settings.chart.label": "Grafik 90 hari",
+  "online.rates.settings.chart.label": "Grafik {days} hari",
   "online.rates.settings.chart.desc": "Di bawah setiap kurs, jika ada ruang"
 }

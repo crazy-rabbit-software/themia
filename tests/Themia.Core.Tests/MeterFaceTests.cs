@@ -9,12 +9,13 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class MeterFaceTests
 {
-    private const double Inset = 16;
+    private const double Inset = HeroLayout.SideInset;
+    private const double Top = HeroLayout.TopInset;
     private const double Gap = 8;
     private const double Floor = 24;
 
-    private static MeterFacePlan Plan(double width, double height, bool graph = true, TypeStep? fixedStep = null)
-        => MeterFace.Plan(new WidgetArea(width, height), graph, 4, Inset, Gap, Floor, fixedStep);
+    private static MeterFacePlan Plan(double width, double height, bool graph = true, TypeStep? fixedStep = null, bool icon = false)
+        => MeterFace.Plan(new WidgetArea(width, height), graph, 4, icon, Gap, Floor, fixedStep);
 
     [Fact]
     public void S1762_a_tiny_tile_is_the_reading_alone_filling_it()
@@ -24,7 +25,7 @@ public sealed class MeterFaceTests
         Assert.Equal(MeterFaceArrangement.ReadingOnly, plan.Arrangement);
         Assert.False(plan.Graph);
         Assert.Equal(0, plan.GraphHeight);
-        Assert.Equal(MeterFace.Reading(120 - (2 * Inset), 76, 4), plan.Reading);
+        Assert.Equal(MeterFace.Reading(120 - (2 * Inset), 76, 4, false, FluentType.Title), plan.Reading);
     }
 
     [Theory]
@@ -41,14 +42,14 @@ public sealed class MeterFaceTests
 
         // No empty space: the reading's line, the gap and the history, which reaches the card's
         // bottom edge ([S-1824]), are the whole tile.
-        Assert.Equal(height, plan.Reading.LineHeight + Gap + plan.GraphHeight, 6);
+        Assert.Equal(height, Top + plan.Reading.LineHeight + Gap + plan.GraphHeight, 6);
 
         // The history is never a sliver: at least the floor, and half the tile once there is room.
         Assert.True(plan.GraphHeight >= Floor);
-        Assert.True(plan.GraphHeight >= Math.Min(height * MeterFace.GraphShare, height - FluentType.Subtitle.LineHeight - Gap) - 1);
+        Assert.True(plan.GraphHeight >= Math.Min(height * MeterFace.GraphShare, height - Top - FluentType.Subtitle.LineHeight - Gap) - 1);
 
-        // The reading never grows past Display beside a history, nor below Subtitle.
-        Assert.InRange(plan.Reading.LineHeight, FluentType.Subtitle.LineHeight, FluentType.Display.LineHeight + 1e-6);
+        // [S-3860] The reading never grows past the tier's step beside a history, nor below Subtitle.
+        Assert.InRange(plan.Reading.LineHeight, FluentType.Subtitle.LineHeight, HeroLayout.TierStep(new WidgetArea(width, height)).LineHeight + 1e-6);
     }
 
     [Fact]
@@ -80,9 +81,11 @@ public sealed class MeterFaceTests
     public void S1762_without_the_history_the_reading_fills_the_tile(double width, double height)
     {
         var plan = Plan(width, height, graph: false);
+        var fitted = MeterFace.Reading(width - (2 * Inset), height, 4, false, FluentType.Display);
 
         Assert.Equal(MeterFaceArrangement.ReadingOnly, plan.Arrangement);
-        Assert.Equal(MeterFace.Reading(width - (2 * Inset), height, 4), plan.Reading);
+        Assert.Equal(HeroLayout.Grow(fitted, width - (2 * Inset), height, 4, 0), plan.Reading);
+        Assert.True(plan.Reading.FontSize >= HeroLayout.TierStep(new WidgetArea(width, height)).FontSize || plan.Reading == fitted);
     }
 
     [Fact]
@@ -91,14 +94,14 @@ public sealed class MeterFaceTests
         var plan = Plan(380, 250, fixedStep: FluentType.Subtitle);
 
         Assert.Equal(FluentType.Subtitle, plan.Reading);
-        Assert.Equal(250 - FluentType.Subtitle.LineHeight - Gap, plan.GraphHeight, 6);
+        Assert.Equal(250 - Top - FluentType.Subtitle.LineHeight - Gap, plan.GraphHeight, 6);
     }
 
     [Fact]
     public void S1762_a_box_too_short_for_the_floor_shows_no_history()
     {
         // Regular wide, but only room for the reading itself.
-        var plan = Plan(300, FluentType.Subtitle.LineHeight + Gap + Floor - 1);
+        var plan = Plan(300, Top + FluentType.Subtitle.LineHeight + Gap + Floor - 1);
 
         Assert.Equal(MeterFaceArrangement.ReadingOnly, plan.Arrangement);
     }
@@ -107,7 +110,7 @@ public sealed class MeterFaceTests
     public void S1824_the_history_is_the_cards_bottom_band_with_no_inset_under_it()
     {
         // Room for the reading, the gap and the least history is enough: no bottom inset is spent.
-        var fits = Plan(300, FluentType.Subtitle.LineHeight + Gap + Floor);
+        var fits = Plan(300, Top + FluentType.Subtitle.LineHeight + Gap + Floor);
 
         Assert.Equal(MeterFaceArrangement.Stacked, fits.Arrangement);
         Assert.Equal(Floor, fits.GraphHeight, 6);
@@ -116,9 +119,37 @@ public sealed class MeterFaceTests
     [Fact]
     public void S1762_an_unmeasured_box_stacks_without_a_size()
     {
-        var plan = MeterFace.Plan(default, true, 4, Inset, Gap, Floor);
+        var plan = MeterFace.Plan(default, true, 4, false, Gap, Floor);
 
         Assert.Equal(MeterFaceArrangement.Stacked, plan.Arrangement);
         Assert.Equal(FluentType.Subtitle, plan.Reading);
+    }
+
+    [Theory]
+    [InlineData(120, 76, 28)]   // XS: the reading alone, at the tier's step
+    [InlineData(200, 106, 28)]  // S
+    [InlineData(320, 196, 28)]  // M
+    [InlineData(480, 116, 28)]  // Wide
+    [InlineData(200, 356, 28)]  // Tall
+    [InlineData(560, 376, 40)]  // L
+    [InlineData(800, 516, 68)]  // XL
+    public void S3860_the_reading_is_the_tier_ladders_step_as_a_stock_price_beside_its_chart(double width, double height, double size)
+    {
+        var plan = Plan(width, height);
+
+        Assert.Equal(size, plan.Reading.FontSize);
+        Assert.Equal(HeroLayout.TierStep(new WidgetArea(width, height)), plan.Reading);
+    }
+
+    [Fact]
+    public void S3860_a_battery_glyph_costs_the_reading_width_never_height()
+    {
+        // Narrow enough that the glyph's width matters: the reading steps down rather than overflowing.
+        var bare = Plan(160, 300, icon: false);
+        var badged = Plan(160, 300, icon: true);
+
+        Assert.True(badged.Reading.FontSize <= bare.Reading.FontSize);
+        Assert.True(HeroLayout.IconSize(badged.Reading) + HeroLayout.IconGap + FluentType.EstimateWidth(badged.Reading, 4) <= 160 - (2 * Inset) + 1e-6
+            || badged.Reading == FluentType.Subtitle);
     }
 }

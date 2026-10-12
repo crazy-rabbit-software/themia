@@ -251,4 +251,26 @@ public class PlaceLookupTests
     [InlineData(PlaceOutcome.NotAName, false)]
     public void S2845_only_answers_are_cached_never_failures(PlaceOutcome outcome, bool cached)
         => Assert.Equal(cached, PlaceQuery.IsCacheable(outcome));
+
+    [Fact]
+    public void S2842_issue_135_st_louis_with_its_period_is_searched_and_offered_in_chinese()
+    {
+        // Classic issue #135 (weather for St. Louis not found, app in Chinese). The period is not a
+        // reason to refuse the query, and the geocoder's Chinese answer (names translated, one null
+        // admin) is offered whole, the US city first as the service ranked it.
+        var query = PlaceQuery.Normalise(" St.  Louis ");
+        Assert.Equal("St. Louis", query);
+        Assert.Equal(PlaceQueryStep.Search, PlaceQuery.Classify(query, submitted: false));
+
+        var offered = PlaceQuery.Results(
+            [
+                Hit("圣路易斯", "密苏里州", "美国", 38.63, -90.20),
+                Hit("St. Louis", "愛德華王子島", "加拿大", 46.88, -64.14),
+                Hit("St. Louis, Mount", null, null, 12.1, -61.7),
+            ],
+            query);
+
+        Assert.Equal(3, offered.Count);
+        Assert.Contains(offered, p => p.Name == "圣路易斯" && p.Latitude == 38.63 && p.Longitude == -90.20);
+    }
 }

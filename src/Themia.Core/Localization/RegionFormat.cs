@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Core.Office;
 
 namespace Themia.Core.Localization;
 
@@ -37,7 +38,7 @@ public static class RegionFormat
     /// <summary>[S-3772] A language's own habits: its hour cycle and week start, Celsius except in English.</summary>
     public static RegionValues Language(Locale locale) => new(
         LocaleFormat.Uses24Hour(locale),
-        LocaleFormat.FirstDayOfWeek(locale) == DayOfWeek.Sunday ? WeekStartDay.Sunday : WeekStartDay.Monday,
+        CalendarRules.WeekStartOf(LocaleFormat.FirstDayOfWeek(locale)),
         TemperatureUnit.Celsius);
 
     /// <summary>
@@ -60,6 +61,7 @@ public static class RegionFormat
             {
                 FirstWeekday.Monday => WeekStartDay.Monday,
                 FirstWeekday.Sunday => WeekStartDay.Sunday,
+                FirstWeekday.Saturday => WeekStartDay.Saturday,
                 _ => windows.WeekStart,
             },
             preferences.Temperature switch
@@ -88,11 +90,13 @@ public static class RegionFormat
             ? fallback.Use24Hour
             : timePattern.Contains('H', StringComparison.Ordinal) || (!timePattern.Contains('h', StringComparison.Ordinal) && fallback.Use24Hour);
 
-        // Only Monday and Sunday are offered; a Saturday week (some Middle Eastern locales) starts on Monday.
+        // LOCALE_IFIRSTDAYOFWEEK counts from Monday (0) to Sunday (6). Monday, Sunday and Saturday
+        // (fa-IR) are the weeks calendars start on; any other day starts on Monday.
         var weekStart = firstDay switch
         {
             6 => WeekStartDay.Sunday,
-            >= 0 and <= 5 => WeekStartDay.Monday,
+            5 => WeekStartDay.Saturday,
+            >= 0 and <= 4 => WeekStartDay.Monday,
             _ => fallback.WeekStart,
         };
 

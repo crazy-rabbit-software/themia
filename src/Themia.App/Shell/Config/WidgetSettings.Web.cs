@@ -54,7 +54,7 @@ internal static partial class WidgetSettings
 
         FluentLayout.RefreshSeconds(
             rows,
-            Str.WidgetsC_VideoStream_Settings_Refresh_Desc.Text(),
+            Str.WidgetsC_VideoStream_Settings_Refresh_Desc.Format(("zero", 0)),
             config.EffectiveRefreshSeconds,
             VideoStreamRules.LiveRefreshSeconds,
             VideoStreamRules.MaxRefreshSeconds,

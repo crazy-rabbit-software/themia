@@ -1,0 +1,33 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "ஆண்டு முன்னேற்றம்",
+  "yearProgress.desc": "நாள், வாரம், மாதம், ஆண்டு எவ்வளவு கடந்துள்ளது",
+  "yearProgress.day": "நாள்",
+  "yearProgress.week": "வாரம்",
+  "yearProgress.month": "மாதம்",
+  "yearProgress.year": "ஆண்டு",
+  "yearProgress.left": "{time} மீதம்",
+  "yearProgress.weekNumber": "வாரம் {number}",
+  "yearProgress.dayOf": "{days} இல் நாள் {day}",
+  "meeting.label": "அடுத்த கூட்டம்",
+  "meeting.desc": "உங்கள் அடுத்த நிகழ்வு, ஆன்லைன் கூட்டங்களுக்கு சேர் பொத்தானுடன்",
+  "meeting.join": "சேர்",
+  "meeting.joinTip": "ஆன்லைன் கூட்டத்தில் சேர்",
+  "meeting.nowEnds": "இப்போது · {time} க்கு முடியும்",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "வரவிருப்பது எதுவும் இல்லை",
+  "recentFiles.label": "சமீபத்திய கோப்புகள்",
+  "recentFiles.desc": "நீங்கள் கடைசியாகத் திறந்த கோப்புகள்",
+  "recentFiles.empty": "சமீபத்தில் எதுவும் திறக்கப்படவில்லை",
+  "recentFiles.unreadable": "Windows இன் சமீபத்திய உருப்படிகளைப் படிக்க முடியவில்லை",
+  "recentFiles.remove": "பட்டியலிலிருந்து அகற்று",
+  "recycleBin.desc": "மறுசுழற்சி தொட்டி எவ்வளவு நிரம்பியுள்ளது, காலியாக்கு பொத்தானுடன்",
+  "recycleBin.empty": "காலியாக்கு",
+  "recycleBin.emptyEllipsis": "மறுசுழற்சி தொட்டியைக் காலியாக்கு…",
+  "recycleBin.isEmpty": "உருப்படிகள் இல்லை",
+  "recycleBin.items": {
+    "one": "{count} உருப்படி",
+    "other": "{count} உருப்படிகள்"
+  },
+  "recycleBin.open": "மறுசுழற்சி தொட்டியைத் திற"
+}

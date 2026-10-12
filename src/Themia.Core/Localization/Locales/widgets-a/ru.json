@@ -50,7 +50,7 @@
   "widgetsA.calendar.readFailed": "Не удалось прочитать календарь. См. themia.log.",
   "widgetsA.calendar.settings.accounts": "Учетные записи и календари",
   "widgetsA.calendar.settings.addHint": "Войдите на странице «Учетные записи»",
-  "widgetsA.calendar.settings.agendaCount.desc": "Сколько событий показывает повестка на ближайшие 30 дней",
+  "widgetsA.calendar.settings.agendaCount.desc": "Сколько событий показывает повестка на ближайшие {days} дней",
   "widgetsA.calendar.settings.birthdays.desc": "Дни рождения ваших контактов из учетных записей Microsoft и Google",
   "widgetsA.calendar.settings.colorAuto": "Автоматически",
   "widgetsA.calendar.settings.colorOf": "Цвет: {name}",

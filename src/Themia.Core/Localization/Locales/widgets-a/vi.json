@@ -47,7 +47,7 @@
   "widgetsA.calendar.readFailed": "Không đọc được lịch. Xem themia.log.",
   "widgetsA.calendar.settings.accounts": "Tài khoản và lịch",
   "widgetsA.calendar.settings.addHint": "Đăng nhập trên trang Tài khoản",
-  "widgetsA.calendar.settings.agendaCount.desc": "Số sự kiện lịch biểu liệt kê trong 30 ngày tới",
+  "widgetsA.calendar.settings.agendaCount.desc": "Số sự kiện lịch biểu liệt kê trong {days} ngày tới",
   "widgetsA.calendar.settings.birthdays.desc": "Sinh nhật của liên hệ, từ tài khoản Microsoft và Google",
   "widgetsA.calendar.settings.colorAuto": "Tự động",
   "widgetsA.calendar.settings.colorOf": "Màu của {name}",

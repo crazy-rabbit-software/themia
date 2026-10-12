@@ -214,8 +214,21 @@ public sealed class AccountModelTests : IDisposable
     {
         Assert.Equal("google:117", AccountIds.Google("117"));
         Assert.Equal("imap:bob@mail.example", AccountIds.Imap("bob", "mail.example"));
-        Assert.Equal("caldav:al@cloud.example:8443", AccountIds.Dav(AccountProvider.CalDav, "al", new Uri("https://cloud.example:8443/dav/")));
-        Assert.Equal("carddav:al@cloud.example", AccountIds.Dav(AccountProvider.CardDav, "al", new Uri("https://cloud.example/dav/")));
+        Assert.Equal("caldav:al@cloud.example:8443/dav", AccountIds.Dav(AccountProvider.CalDav, "al", new Uri("https://cloud.example:8443/dav/")));
+        Assert.Equal("carddav:al@cloud.example/dav", AccountIds.Dav(AccountProvider.CardDav, "al", new Uri("https://cloud.example/dav/")));
+    }
+
+    [Fact]
+    public void S505_issue_133_two_collections_of_one_user_on_one_server_are_two_accounts()
+    {
+        // Google's legacy CalDAV: one address per calendar, the same user name for both. The classic
+        // id (user@host) made the second sign-in replace the first.
+        var main = AccountIds.Dav(AccountProvider.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/user@example.com/events"));
+        var second = AccountIds.Dav(AccountProvider.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/team@group.example.com/events"));
+        Assert.NotEqual(main, second);
+
+        // The same collection found again (with or without its trailing slash) is the same account.
+        Assert.Equal(main, AccountIds.Dav(AccountProvider.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/user@example.com/events/")));
     }
 
     [Fact]

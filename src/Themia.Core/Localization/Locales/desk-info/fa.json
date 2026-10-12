@@ -1,0 +1,33 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "پیشرفت سال",
+  "yearProgress.desc": "چه مقدار از روز، هفته، ماه و سال گذشته است",
+  "yearProgress.day": "روز",
+  "yearProgress.week": "هفته",
+  "yearProgress.month": "ماه",
+  "yearProgress.year": "سال",
+  "yearProgress.left": "{time} مانده",
+  "yearProgress.weekNumber": "هفته {number}",
+  "yearProgress.dayOf": "روز {day} از {days}",
+  "meeting.label": "جلسه بعدی",
+  "meeting.desc": "رویداد بعدی شما، با پیوستن برای جلسات آنلاین",
+  "meeting.join": "پیوستن",
+  "meeting.joinTip": "پیوستن به جلسه آنلاین",
+  "meeting.nowEnds": "اکنون · پایان {time}",
+  "meeting.dayTime": "{day}، {time}",
+  "meeting.none": "چیزی در پیش نیست",
+  "recentFiles.label": "فایل‌های اخیر",
+  "recentFiles.desc": "فایل‌هایی که اخیراً باز کرده‌اید",
+  "recentFiles.empty": "اخیراً چیزی باز نشده",
+  "recentFiles.unreadable": "موارد اخیر Windows خوانده نشد",
+  "recentFiles.remove": "برداشتن از فهرست",
+  "recycleBin.desc": "میزان پر بودن سطل بازیافت، با خالی کردن",
+  "recycleBin.empty": "خالی کردن",
+  "recycleBin.emptyEllipsis": "خالی کردن سطل بازیافت…",
+  "recycleBin.isEmpty": "موردی نیست",
+  "recycleBin.items": {
+    "one": "{count} مورد",
+    "other": "{count} مورد"
+  },
+  "recycleBin.open": "باز کردن سطل بازیافت"
+}

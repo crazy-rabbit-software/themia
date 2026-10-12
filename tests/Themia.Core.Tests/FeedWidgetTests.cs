@@ -113,6 +113,22 @@ public sealed class FeedWidgetTests : IDisposable
     }
 
     [Fact]
+    public void S1302_issue_81_a_widget_set_to_50_items_keeps_50_of_a_longer_feed()
+    {
+        // Classic issue #81: 50 items configured, 20 shown. Neither the parser nor the merge caps
+        // below the setting; the configured maximum itself is clamped to 5..50.
+        var xml = "<rss version=\"2.0\"><channel><title>Long</title>"
+            + string.Concat(Enumerable.Range(0, 60).Select(i => $"<item><title>i{i}</title><link>https://a.example/{i}</link></item>"))
+            + "</channel></rss>";
+        var document = FeedParser.Parse(xml, 50).Document;
+        Assert.Equal(50, document.Entries.Count);
+
+        var config = new Themia.Core.Model.RssConfig { MaxItems = 50 };
+        var merged = FeedAggregate.Merge([new FeedPart("https://a.example/f", document, FetchStatus.Ok, null)], config.EffectiveMaxItems);
+        Assert.Equal(50, merged.Entries.Count);
+    }
+
+    [Fact]
     public void S1302_APartialFailureIsNamedAfterItsFeed()
     {
         var a = new FeedDocument("Tech News", [Entry("a1", Now)]);

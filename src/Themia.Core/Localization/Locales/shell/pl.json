@@ -643,7 +643,7 @@
   "shell.meters.systemDrive": "Dysk systemowy ({drive})",
   "shell.meters.gpuDescription": "Obciążenie grafiki, dla każdej karty",
   "shell.meters.batteryDescription": "Poziom naładowania",
-  "shell.appearance.headerFade": "Jak kryjący jest pasek nagłówka; 100% odpowiada widżetowi",
+  "shell.appearance.headerFade": "Jak kryjący jest pasek nagłówka; {percent} odpowiada widżetowi",
   "shell.views.add": "Dodaj widok",
   "shell.views.addDesc": "Nowy, pusty widok na końcu listy",
   "shell.views.more": "Więcej opcji",

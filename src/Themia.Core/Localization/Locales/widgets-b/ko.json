@@ -182,7 +182,7 @@
   "widgetsB.settings.gallery.noFolderYet": "아직 선택한 폴더가 없습니다.",
   "widgetsB.settings.gallery.showing": "{name} 표시 중",
   "widgetsB.habits.minutes.empty": "분 단위 숫자를 입력하세요.",
-  "widgetsB.habits.minutes.notWhole": "30처럼 정수 분만 입력하세요.",
+  "widgetsB.habits.minutes.notWhole": "{example}처럼 정수 분만 입력하세요.",
   "widgetsB.habits.minutes.range": "{min}분에서 {max}분 사이(하루).",
   "widgetsB.habits.describe.hourly": "{date}, {time}",
   "widgetsB.habits.describe.weekly": "{date} 주",
@@ -236,7 +236,7 @@
   "widgetsB.settings.habits.clearsEvery": {
     "other": "{count}분마다 초기화됩니다."
   },
-  "widgetsB.settings.habits.interval.desc": "기간당 분(1~1440)",
+  "widgetsB.settings.habits.interval.desc": "기간당 분({min}~{max})",
   "widgetsB.settings.habits.resets.label": "초기화",
   "widgetsB.settings.habits.everyHour": "매시간",
   "widgetsB.settings.habits.everyDay": "매일",
@@ -246,7 +246,7 @@
   "widgetsB.settings.habits.streaks.label": "연속 기록 표시",
   "widgetsB.settings.habits.streaks.desc": "각 습관의 현재 연속 기록",
   "widgetsB.settings.habits.history.label": "기록",
-  "widgetsB.settings.habits.history.desc": "지난 기간을 점으로 표시합니다. 0이면 숨깁니다",
+  "widgetsB.settings.habits.history.desc": "지난 기간을 점으로 표시합니다. {zero}이면 숨깁니다",
   "widgetsB.settings.habits.habitCount": {
     "other": "습관 {count}개"
   },

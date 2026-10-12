@@ -26,7 +26,7 @@ internal static partial class WidgetSettings
                 break;
             case NetworkDetailsConfig network:
                 rows.Add(FluentLayout.Header(Str.Details_Catalog_Network_Label.Text()));
-                rows.Add(FluentLayout.Row(Glyphs.Globe, Str.Details_Settings_Network_Public_Label.Text(), Str.Details_Settings_Network_Public_Desc.Text(),
+                rows.Add(FluentLayout.Row(Glyphs.Globe, Str.Details_Settings_Network_Public_Label.Text(), Str.Details_Settings_Network_Public_Desc.Format(("minutes", (long)NetworkDetailRules.PublicAddressLifetime.TotalMinutes)),
                     FluentLayout.Toggle(network.ShowPublicAddress, on => { network.ShowPublicAddress = on; save(); }),
                     "ip", "public ip", "address"));
                 break;

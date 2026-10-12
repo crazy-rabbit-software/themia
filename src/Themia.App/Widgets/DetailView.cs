@@ -36,16 +36,15 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     private readonly DetailPart _part;
     private readonly WidgetKind _kind;
 
-    private readonly StackPanel _heroBlock = new() { Spacing = 0 };
-    private readonly TextBlock _hero = Fluent.Text(FluentType.Subtitle);
-    private readonly TextBlock _caption = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+    // [S-3860] The shared hero readout: the main figure with its smaller unit, the caption its line under it.
+    private readonly HeroReadout _heroBlock = new();
+    private readonly TextBlock _caption;
     private readonly Grid _facts = new();
-    private readonly List<FactCell> _cells = [];
+    private readonly List<StatPart> _cells = [];
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
 
     private readonly Brush _primaryBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _secondaryBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
     private readonly Brush _disabledBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
 
     private WidgetConfig _config;
@@ -61,18 +60,19 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     // The longest fact value the plan was made for: a longer one re-plans, so no value is ever cut.
     private int _valueChars;
 
+    // The hero text last split, so a tick that did not change it does not touch the readout.
+    private string? _heroText;
+
     public DetailView(WidgetKind kind)
     {
         _kind = kind;
         _part = DetailPart.For(kind);
         _config = WidgetConfig.CreateDefault(kind);
 
-        _hero.Text = "--";
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_hero, FontNumeralAlignment.Tabular);
+        _heroBlock.SetValue("--", string.Empty, false);
+        _caption = _heroBlock.AddLine(FluentType.Body);
         _caption.Visibility = Visibility.Collapsed;
-        _heroBlock.Children.Add(_hero);
-        _heroBlock.Children.Add(_caption);
-        _heroBlock.Margin = WidgetLayout.SideInset;
+        _heroBlock.Margin = new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
         _facts.Margin = WidgetLayout.SideInset;
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -225,7 +225,8 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
         var rows = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, _sheet.Rows.Count) : _sheet.Rows.Count;
         _valueChars = LongestValue(_sheet);
         var labels = _sheet.Facts.Count == 0 ? 0 : _sheet.Facts.Max(f => f.Label.Length);
-        var shape = new DetailShape(hasHero, _part.HeroCharacters, _sheet.Caption is not null, _sheet.Facts.Count, Math.Max(rows, _part.HasHero ? 0 : 1), _part.ListRowHeight, _valueChars, labels);
+        var shape = new DetailShape(hasHero, _part.HeroCharacters, _sheet.Caption is not null, _sheet.Facts.Count, Math.Max(rows, _part.HasHero ? 0 : 1), _part.ListRowHeight, _valueChars, labels,
+            WidgetLayout.ListInset.Top + WidgetLayout.ListInset.Bottom, _part.RowsGrow);
         var plan = DetailFace.Plan(_area, shape, WidgetLayout.ContentInset);
         _plan = plan;
 
@@ -239,8 +240,13 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
         SetRow(_heroBlock, 0);
         SetRowSpan(_heroBlock, alone || side ? 3 : 1);
         _heroBlock.VerticalAlignment = alone || side ? VerticalAlignment.Center : VerticalAlignment.Top;
-        _hero.Apply(plan.Hero);
+
+        // [S-3861] Stacked, the block stands where the plan balanced it: half the spare room above.
+        _heroBlock.Margin = alone || side
+            ? new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0)
+            : new Thickness(HeroLayout.SideInset, HeroLayout.TopInset + plan.Top, HeroLayout.SideInset, 0);
         _caption.Visibility = plan.Caption ? Visibility.Visible : Visibility.Collapsed;
+        _heroBlock.Lay(plan.Hero, icon: false, trailingBeside: true, linesBeside: false);
 
         _facts.Visibility = plan.Facts > 0 ? Visibility.Visible : Visibility.Collapsed;
         SetRow(_facts, side ? 0 : 1);
@@ -249,7 +255,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
         _facts.VerticalAlignment = side ? VerticalAlignment.Center : VerticalAlignment.Top;
         _facts.Margin = side
             ? new Thickness(0, 0, WidgetLayout.ContentInset, WidgetLayout.ContentInset)
-            : new Thickness(WidgetLayout.ContentInset, hasHero ? DetailFace.SectionGap : 0, WidgetLayout.ContentInset, 0);
+            : new Thickness(WidgetLayout.ContentInset, hasHero ? DetailFace.SectionGap : HeroLayout.TopInset + plan.Top, WidgetLayout.ContentInset, 0);
 
         LayFacts(plan);
         ShowList(plan.List ? plan.ListHeight : 0);
@@ -292,7 +298,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
 
         while (_cells.Count < plan.Facts)
         {
-            var cell = new FactCell();
+            var cell = new StatPart(plan.Style);
             _cells.Add(cell);
             _facts.Children.Add(cell.Root);
         }
@@ -306,7 +312,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
             {
                 SetRow(_cells[i].Root, i / columns);
                 SetColumn(_cells[i].Root, i % columns);
-                _cells[i].Style(plan.Style);
+                _cells[i].Restyle(plan.Style);
             }
         }
     }
@@ -319,72 +325,24 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
             return;
         }
 
-        _hero.Text = _sheet.Hero ?? string.Empty;
-        _hero.Foreground = _sheet.HeroAvailable ? _primaryBrush : _disabledBrush;
+        if (_sheet.Hero != _heroText)
+        {
+            _heroText = _sheet.Hero;
+            var hero = HeroLayout.Split(_sheet.Hero);
+            _heroBlock.SetValue(hero.Value, hero.Unit, hero.Spaced);
+        }
+
+        _heroBlock.ValueLine.Foreground = _sheet.HeroAvailable ? _primaryBrush : _disabledBrush;
         ToolTipService.SetToolTip(_heroBlock, _sheet.HeroAvailable ? null : _sheet.Note);
         _caption.Text = _sheet.Caption ?? string.Empty;
 
         for (var i = 0; i < plan.Facts && i < _sheet.Facts.Count && i < _cells.Count; i++)
         {
-            _cells[i].Show(_sheet.Facts[i], _primaryBrush, _secondaryBrush, _disabledBrush);
+            var fact = _sheet.Facts[i];
+            _cells[i].Show(fact.Label, fact.Value);
+            _cells[i].Figure.Foreground = fact.Available ? _primaryBrush : _disabledBrush;
         }
 
         FillList();
-    }
-
-    /// <summary>One fact: its label and value, drawn in the plan's style.</summary>
-    private sealed class FactCell
-    {
-        private readonly TextBlock _label = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        private readonly TextBlock _value = Fluent.Text(FluentType.Body);
-        private FactStyle? _style;
-
-        public FactCell()
-        {
-            Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_value, FontNumeralAlignment.Tabular);
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            Root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            Root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            Root.Children.Add(_label);
-            Root.Children.Add(_value);
-        }
-
-        public Grid Root { get; } = new();
-
-        /// <summary>[S-2402] A line puts the value at the right of the label; a tile puts it under, larger.</summary>
-        public void Style(FactStyle style)
-        {
-            if (_style == style)
-            {
-                return;
-            }
-
-            _style = style;
-            var line = style == FactStyle.Line;
-
-            _label.Apply(line ? FluentType.Body : FluentType.Caption);
-            _value.Apply(style switch
-            {
-                FactStyle.LargeTile => FluentType.Title,
-                FactStyle.Tile => FluentType.BodyLarge,
-                _ => FluentType.Body,
-            });
-
-            SetRow(_value, line ? 0 : 1);
-            SetColumn(_value, line ? 1 : 0);
-            SetColumnSpan(_label, line ? 1 : 2);
-            SetColumnSpan(_value, line ? 1 : 2);
-            _value.HorizontalAlignment = line ? HorizontalAlignment.Right : HorizontalAlignment.Left;
-            _value.Margin = line ? new Thickness(Fluent.Space2, 0, 0, 0) : new Thickness(0);
-        }
-
-        public void Show(DetailFact fact, Brush primary, Brush secondary, Brush disabled)
-        {
-            _label.Text = fact.Label;
-            _value.Text = fact.Value;
-            _value.Foreground = fact.Available ? primary : disabled;
-            _label.Foreground = secondary;
-        }
     }
 }

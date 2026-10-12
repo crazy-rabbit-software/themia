@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "ابھی کوئی فولڈر نہیں چنا گیا۔",
   "widgetsB.settings.gallery.showing": "{name} دکھایا جا رہا ہے",
   "widgetsB.habits.minutes.empty": "منٹوں کی تعداد درج کریں۔",
-  "widgetsB.habits.minutes.notWhole": "صرف پورے منٹ، جیسے 30۔",
+  "widgetsB.habits.minutes.notWhole": "صرف پورے منٹ، جیسے {example}۔",
   "widgetsB.habits.minutes.range": "{min} اور {max} منٹ کے درمیان (ایک دن)۔",
   "widgetsB.habits.describe.hourly": "{time}، {date}",
   "widgetsB.habits.describe.weekly": "{date} والا ہفتہ",
@@ -244,7 +244,7 @@
     "one": "ہر {count} منٹ بعد صاف ہوتی ہے۔",
     "other": "ہر {count} منٹ بعد صاف ہوتی ہے۔"
   },
-  "widgetsB.settings.habits.interval.desc": "فی وقفہ منٹ، 1 سے 1440",
+  "widgetsB.settings.habits.interval.desc": "فی وقفہ منٹ، {min} سے {max}",
   "widgetsB.settings.habits.resets.label": "ری سیٹ",
   "widgetsB.settings.habits.everyHour": "ہر گھنٹے",
   "widgetsB.settings.habits.everyDay": "ہر دن",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "تسلسل دکھائیں",
   "widgetsB.settings.habits.streaks.desc": "ہر عادت کا موجودہ تسلسل",
   "widgetsB.settings.habits.history.label": "سرگزشت",
-  "widgetsB.settings.habits.history.desc": "پچھلے ادوار نقطوں کی صورت میں؛ 0 انہیں چھپاتا ہے",
+  "widgetsB.settings.habits.history.desc": "پچھلے ادوار نقطوں کی صورت میں؛ {zero} انہیں چھپاتا ہے",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} عادت",
     "other": "{count} عادات"

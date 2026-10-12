@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "به‌روزرسانی {time}",
+  "sync.stateUpdated": "{state} · به‌روزرسانی {time}",
+  "sync.pending": {
+    "one": "{count} تغییر در انتظار همگام‌سازی",
+    "other": "{count} تغییر در انتظار همگام‌سازی"
+  },
+  "sync.queueFull": "تغییرات زیادی در انتظار همگام‌سازی است؛ این یکی نگه داشته نشد.",
+  "sync.withUpdated": "{sentence} به‌روزرسانی {time}."
+}

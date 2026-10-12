@@ -586,7 +586,7 @@
   "shell.meters.systemDrive": "시스템 드라이브({drive})",
   "shell.meters.gpuDescription": "어댑터별 그래픽 부하",
   "shell.meters.batteryDescription": "충전 수준",
-  "shell.appearance.headerFade": "머리글 줄의 불투명도입니다. 100%이면 위젯과 같습니다",
+  "shell.appearance.headerFade": "머리글 줄의 불투명도입니다. {percent}이면 위젯과 같습니다",
   "shell.views.add": "보기 추가",
   "shell.views.addDesc": "목록 끝에 비어 있는 새 보기를 추가합니다",
   "shell.views.more": "추가 옵션",

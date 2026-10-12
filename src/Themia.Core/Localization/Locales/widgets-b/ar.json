@@ -192,7 +192,7 @@
   "widgetsB.settings.gallery.noFolderYet": "لم يُختر مجلد بعد.",
   "widgetsB.settings.gallery.showing": "عرض {name}",
   "widgetsB.habits.minutes.empty": "أدخل عدد الدقائق.",
-  "widgetsB.habits.minutes.notWhole": "دقائق كاملة فقط، مثل 30.",
+  "widgetsB.habits.minutes.notWhole": "دقائق كاملة فقط، مثل {example}.",
   "widgetsB.habits.minutes.range": "بين {min} و{max} دقيقة (يوم واحد).",
   "widgetsB.habits.describe.hourly": "{time}، {date}",
   "widgetsB.habits.describe.weekly": "أسبوع {date}",
@@ -276,7 +276,7 @@
     "many": "تُمسح كل {count} دقيقة.",
     "other": "تُمسح كل {count} دقيقة."
   },
-  "widgetsB.settings.habits.interval.desc": "الدقائق لكل فترة، من 1 إلى 1440",
+  "widgetsB.settings.habits.interval.desc": "الدقائق لكل فترة، من {min} إلى {max}",
   "widgetsB.settings.habits.resets.label": "إعادة التعيين",
   "widgetsB.settings.habits.everyHour": "كل ساعة",
   "widgetsB.settings.habits.everyDay": "كل يوم",
@@ -286,7 +286,7 @@
   "widgetsB.settings.habits.streaks.label": "إظهار السلاسل المتتالية",
   "widgetsB.settings.habits.streaks.desc": "السلسلة الحالية لكل عادة",
   "widgetsB.settings.habits.history.label": "السجل",
-  "widgetsB.settings.habits.history.desc": "الفترات السابقة كنقاط؛ 0 يخفيها",
+  "widgetsB.settings.habits.history.desc": "الفترات السابقة كنقاط؛ {zero} يخفيها",
   "widgetsB.settings.habits.habitCount": {
     "zero": "{count} عادة",
     "one": "{count} عادة",

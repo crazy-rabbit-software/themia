@@ -643,7 +643,7 @@
   "shell.meters.systemDrive": "Системный диск ({drive})",
   "shell.meters.gpuDescription": "Нагрузка на графику по адаптерам",
   "shell.meters.batteryDescription": "Уровень заряда",
-  "shell.appearance.headerFade": "Насколько плотна полоса заголовка; 100% — как у виджета",
+  "shell.appearance.headerFade": "Насколько плотна полоса заголовка; {percent} — как у виджета",
   "shell.views.add": "Добавить вид",
   "shell.views.addDesc": "Новый пустой вид в конце списка",
   "shell.views.more": "Другие действия",

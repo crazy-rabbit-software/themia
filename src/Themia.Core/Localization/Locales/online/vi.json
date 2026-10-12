@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "Châu Âu (EAQI)",
   "online.air.settings.index.us": "Mỹ (AQI)",
   "online.rain.label": "Mưa trong giờ tới",
-  "online.rain.desc": "Khi nào mưa bắt đầu hoặc tạnh, theo từng 15 phút",
+  "online.rain.desc": "Khi nào mưa bắt đầu hoặc tạnh, theo từng {minutes} phút",
   "online.rain.startsIn": "Mưa sau {minutes} phút",
   "online.rain.stopsIn": "Tạnh mưa sau {minutes} phút",
   "online.rain.continues": "Mưa trong 2 giờ tới",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "Tiền tệ",
   "online.rates.settings.quotes.desc": "Bao nhiêu vừa chỗ, theo thứ tự đã chọn",
   "online.rates.settings.quotes.all": "Tất cả tiền tệ",
-  "online.rates.settings.chart.label": "Biểu đồ 90 ngày",
+  "online.rates.settings.chart.label": "Biểu đồ {days} ngày",
   "online.rates.settings.chart.desc": "Dưới mỗi tỷ giá, nếu còn chỗ"
 }

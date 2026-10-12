@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "ਕਿਸੇ ਵਿਊ ਨੂੰ ਹਿਲਾਉਣ ਲਈ ਉਸਨੂੰ ਦੂਜੇ ਉੱਤੇ ਖਿੱਚੋ, ਜਾਂ ਵਿਊ ਉੱਤੇ Alt+Shift+Up ਜਾਂ Down ਦਬਾਓ।",
+  "shell.list.reorderHint": "ਕਿਸੇ ਆਈਟਮ ਨੂੰ ਹਿਲਾਉਣ ਲਈ ਉਸਨੂੰ ਦੂਜੀ ਉੱਤੇ ਖਿੱਚੋ, ਜਾਂ ਆਈਟਮ ਉੱਤੇ Alt+Shift+Up ਜਾਂ Down ਦਬਾਓ।",
+  "shell.view.colour": "ਰੰਗ",
+  "shell.view.colourDesc": "ਵਿਊ ਬਾਰ ਵਿੱਚ ਅਤੇ ਇਸ ਵਿੰਡੋ ਵਿੱਚ ਆਈਕਨ ਦਾ ਰੰਗ",
+  "shell.view.colourDefault": "ਟੈਕਸਟ ਦਾ ਰੰਗ",
+  "shell.appearance.themeColours": "ਥੀਮ ਅਤੇ ਰੰਗ",
+  "shell.appearance.cards": "ਵਿਜੇਟ ਕਾਰਡ",
+  "shell.appearance.cardsDesc": "ਬਾਰਡਰ, ਕੋਨੇ ਅਤੇ ਰੂਪਰੇਖਾ",
+  "shell.appearance.textAndSize": "ਟੈਕਸਟ ਅਤੇ ਆਕਾਰ",
+  "shell.appearance.textAndSizeDesc": "ਫ਼ੌਂਟ, ਟੈਕਸਟ ਦਾ ਆਕਾਰ ਅਤੇ ਵਿਜੇਟ ਸਕੇਲ",
+  "shell.appearance.layoutDesc": "ਵਿਜੇਟਾਂ ਵਿਚਕਾਰ ਫ਼ਾਸਲਾ ਅਤੇ ਗਰਿੱਡ ਨਾਲ ਜੁੜਨਾ",
+  "shell.net.blockedLocal": "{host} ਲੋਕਲ ਨੈੱਟਵਰਕ ਉੱਤੇ ਹੈ। Themia ਉੱਥੇ ਸਿਰਫ਼ ਉਸ ਪਤੇ ਲਈ ਜਾਂਦਾ ਹੈ ਜੋ ਤੁਸੀਂ ਖ਼ੁਦ ਟਾਈਪ ਕੀਤਾ ਹੋਵੇ",
+  "shell.accounts.stats.mail": "ਮੇਲ",
+  "shell.accounts.stats.calendar": "ਕੈਲੰਡਰ",
+  "shell.accounts.stats.contacts": "ਸੰਪਰਕ",
+  "shell.accounts.stats.tasks": "ਕਾਰਜ",
+  "shell.accounts.stats.messages": {
+    "one": "{count} ਸੁਨੇਹਾ",
+    "other": "{count} ਸੁਨੇਹੇ"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} ਇਵੈਂਟ",
+    "other": "{count} ਇਵੈਂਟ"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} ਸੰਪਰਕ",
+    "other": "{count} ਸੰਪਰਕ"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} ਕਾਰਜ",
+    "other": "{count} ਕਾਰਜ"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} ਫੋਲਡਰ ਵਿੱਚ",
+    "other": "{count} ਫੋਲਡਰਾਂ ਵਿੱਚ"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} ਕੈਲੰਡਰ ਵਿੱਚ",
+    "other": "{count} ਕੈਲੰਡਰਾਂ ਵਿੱਚ"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} ਸੂਚੀ ਵਿੱਚ",
+    "other": "{count} ਸੂਚੀਆਂ ਵਿੱਚ"
+  },
+  "shell.accounts.stats.synced": "{time} ਸਿੰਕ ਕੀਤਾ",
+  "shell.accounts.stats.neverSynced": "ਹਾਲੇ ਸਿੰਕ ਨਹੀਂ ਕੀਤਾ",
+  "shell.accounts.stats.nothing": "ਇਸ PC ਉੱਤੇ ਹਾਲੇ ਕੁਝ ਵੀ ਸਟੋਰ ਨਹੀਂ ਹੈ",
+  "shell.accounts.nicknameDesc": "ਉਹ ਨਾਮ ਜੋ ਵਿਜੇਟ ਇਸ ਖਾਤੇ ਲਈ ਦਿਖਾਉਂਦੇ ਹਨ",
+  "shell.accounts.reconnect": "ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰੋ",
+  "shell.accounts.reconnectButton": "ਸਾਈਨ ਇਨ ਕਰੋ",
+  "shell.accounts.signOutDesc": "ਇਸ PC ਉੱਤੋਂ ਖਾਤੇ ਅਤੇ ਉਸ ਤੋਂ ਸਿੰਕ ਕੀਤੀ ਹਰ ਚੀਜ਼ ਨੂੰ ਭੁਲਾ ਦਿੰਦਾ ਹੈ",
+  "shell.accounts.needsSignIn": "ਤੁਹਾਨੂੰ ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰਨ ਦੀ ਲੋੜ ਹੈ"
+}

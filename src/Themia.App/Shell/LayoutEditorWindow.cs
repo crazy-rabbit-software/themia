@@ -749,7 +749,7 @@ internal sealed class LayoutEditorWindow
     {
         try
         {
-            if (await AppIcons.GetAsync(path, 64, null).ConfigureAwait(true) is { } source)
+            if (await AppIcons.GetAsync(path, 64, AppIcons.ThemeOf(image)).ConfigureAwait(true) is { } source)
             {
                 image.Source = source;
                 image.Visibility = Visibility.Visible;

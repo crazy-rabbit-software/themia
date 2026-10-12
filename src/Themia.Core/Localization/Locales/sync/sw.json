@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Imesasishwa {time}",
+  "sync.stateUpdated": "{state} · imesasishwa {time}",
+  "sync.pending": {
+    "one": "Badiliko {count} linasubiri kusawazishwa",
+    "other": "Mabadiliko {count} yanasubiri kusawazishwa"
+  },
+  "sync.queueFull": "Mabadiliko mengi mno yanasubiri kusawazishwa; hili halikuhifadhiwa.",
+  "sync.withUpdated": "{sentence} Imesasishwa {time}."
+}

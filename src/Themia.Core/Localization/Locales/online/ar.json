@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "الأوروبي (EAQI)",
   "online.air.settings.index.us": "الأمريكي (AQI)",
   "online.rain.label": "المطر خلال الساعة القادمة",
-  "online.rain.desc": "متى يبدأ المطر أو يتوقف، بخطوات من 15 دقيقة",
+  "online.rain.desc": "متى يبدأ المطر أو يتوقف، بخطوات من {minutes} دقيقة",
   "online.rain.startsIn": "مطر خلال {minutes} دقيقة",
   "online.rain.stopsIn": "يتوقف المطر خلال {minutes} دقيقة",
   "online.rain.continues": "مطر خلال الساعتين القادمتين",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "العملات",
   "online.rates.settings.quotes.desc": "بقدر ما يتسع، بالترتيب المختار",
   "online.rates.settings.quotes.all": "كل العملات",
-  "online.rates.settings.chart.label": "مخطط 90 يومًا",
+  "online.rates.settings.chart.label": "مخطط {days} يومًا",
   "online.rates.settings.chart.desc": "تحت كل سعر، إن توفرت مساحة"
 }

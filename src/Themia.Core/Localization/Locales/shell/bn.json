@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "সিস্টেম ড্রাইভ ({drive})",
   "shell.meters.gpuDescription": "প্রতি অ্যাডাপ্টারে গ্রাফিক্স লোড",
   "shell.meters.batteryDescription": "চার্জের মাত্রা",
-  "shell.appearance.headerFade": "হেডার স্ট্রিপ কতটা নিরেট; 100% উইজেটের সঙ্গে মেলে",
+  "shell.appearance.headerFade": "হেডার স্ট্রিপ কতটা নিরেট; {percent} উইজেটের সঙ্গে মেলে",
   "shell.views.add": "ভিউ যোগ করুন",
   "shell.views.addDesc": "তালিকার শেষে একটি নতুন, খালি ভিউ",
   "shell.views.more": "আরও বিকল্প",

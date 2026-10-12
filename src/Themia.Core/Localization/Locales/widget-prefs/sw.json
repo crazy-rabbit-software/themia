@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "Wijeti",
+  "widgetPrefs.subtitle": "Miundo na masasisho yanayoshirikiwa na wijeti zote",
+  "widgetPrefs.region.header": "Muundo wa kieneo",
+  "widgetPrefs.region.clock": "Muundo wa saa",
+  "widgetPrefs.region.clock12": "Saa {hours}",
+  "widgetPrefs.region.clock24": "Saa {hours}",
+  "widgetPrefs.followWindows": "Mpangilio wa Windows ({value})",
+  "widgetPrefs.updates.header": "Masasisho",
+  "widgetPrefs.updates.note": "Mara ngapi wijeti huuliza huduma za mtandaoni. Onyesha upya kwenye wijeti huuliza papo hapo.",
+  "widgetPrefs.updates.weather": "Hali ya hewa",
+  "widgetPrefs.updates.markets": "Hisa",
+  "widgetPrefs.updates.feeds": "Milisho ya habari",
+  "widgetPrefs.updates.accounts": "Barua, kalenda na kazi",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Kila saa {count}",
+    "other": "Kila saa {count}"
+  },
+  "widgetsC.shortcuts.settings.locations": "Maeneo ya Windows"
+}

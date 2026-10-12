@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Kelompokkan per aplikasi",
   "details.settings.processes.group.desc": "Semua proses dari satu program menjadi satu baris",
   "details.settings.network.public.label": "Alamat publik",
-  "details.settings.network.public.desc": "Menanyakan api.ipify.org, paling sering setiap 10 menit",
+  "details.settings.network.public.desc": "Menanyakan api.ipify.org, paling sering setiap {minutes} menit",
   "details.settings.disk.drives": "Drive",
   "details.settings.disk.all.label": "Semua drive",
   "details.settings.disk.all.desc": "Daftarkan setiap drive Windows saat terpasang dan dilepas",

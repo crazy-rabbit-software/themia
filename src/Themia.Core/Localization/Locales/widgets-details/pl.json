@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Grupuj według aplikacji",
   "details.settings.processes.group.desc": "Wszystkie procesy jednego programu w jednym wierszu",
   "details.settings.network.public.label": "Adres publiczny",
-  "details.settings.network.public.desc": "Pyta api.ipify.org, najwyżej co 10 minut",
+  "details.settings.network.public.desc": "Pyta api.ipify.org, najwyżej co {minutes} minut",
   "details.settings.disk.drives": "Dyski",
   "details.settings.disk.all.label": "Wszystkie dyski",
   "details.settings.disk.all.desc": "Każdy dysk systemu Windows, gdy się pojawia lub znika",

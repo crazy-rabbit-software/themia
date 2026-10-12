@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Maarufu",
+  "addMenu.browse": "Vinjari",
+  "addMenu.subject.time": "Muda",
+  "addMenu.subject.calendar": "Kalenda na barua",
+  "addMenu.subject.weather": "Hali ya hewa na anga",
+  "addMenu.subject.markets": "Habari na masoko",
+  "addMenu.subject.media": "Muziki na midia",
+  "addMenu.subject.notes": "Madokezo na zana",
+  "addMenu.subject.files": "Faili na programu",
+  "addMenu.subject.system": "Mfumo",
+  "addMenu.subject.devices": "Vifaa na nishati",
+  "addMenu.subject.more": "Zaidi",
+  "addMenu.family.calendar": "Kalenda",
+  "addMenu.family.visualizer": "Kionyeshi sauti",
+  "addMenu.family.folder": "Folda",
+  "addMenu.family.screenTime": "Muda wa skrini",
+  "addMenu.family.powerButtons": "Vitufe vya nishati"
+}

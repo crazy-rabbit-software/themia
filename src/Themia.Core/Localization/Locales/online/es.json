@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "Europeo (EAQI)",
   "online.air.settings.index.us": "EE. UU. (AQI)",
   "online.rain.label": "Lluvia en la próxima hora",
-  "online.rain.desc": "Cuándo empieza o para la lluvia, en pasos de 15 minutos",
+  "online.rain.desc": "Cuándo empieza o para la lluvia, en pasos de {minutes} minutos",
   "online.rain.startsIn": "Lluvia en {minutes} min",
   "online.rain.stopsIn": "La lluvia para en {minutes} min",
   "online.rain.continues": "Lluvia durante las próximas 2 horas",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "Monedas",
   "online.rates.settings.quotes.desc": "Tantas como quepan, en el orden elegido",
   "online.rates.settings.quotes.all": "Todas las monedas",
-  "online.rates.settings.chart.label": "Gráfico de 90 días",
+  "online.rates.settings.chart.label": "Gráfico de {days} días",
   "online.rates.settings.chart.desc": "Bajo cada tipo, si hay espacio"
 }

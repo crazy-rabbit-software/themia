@@ -106,7 +106,7 @@ internal static partial class WidgetSettings
         {
             if (!StockHolding.TryParse(Strings.Current, box.Text, out var amount))
             {
-                FluentLayout.Refuse(verdict, Str.WidgetsC_Stocks_Settings_Holding_Refused.Format(("example", StockHolding.Amount(Strings.Current, 12.5))));
+                FluentLayout.Refuse(verdict, Str.WidgetsC_Stocks_Settings_Holding_Refused.Format(("zero", 0), ("example", StockHolding.Amount(Strings.Current, 12.5))));
                 return;
             }
 

@@ -79,7 +79,7 @@ public enum RelativeUnit
 /// [S-1106] Dates, times, numbers and relative times per language, without <c>CultureInfo</c>: the
 /// app runs with <c>InvariantGlobalization</c>, so every name, pattern and separator comes from
 /// <see cref="LocaleData"/>. Pure functions of their arguments; the overloads without a locale use
-/// <see cref="Strings.Current"/>. [S-1115] A language with its own digits (Arabic) gets them in
+/// <see cref="Strings.Current"/>. [S-1115] A language with its own digits (Arabic, Persian) gets them in
 /// every date, time and number written here.
 /// </summary>
 public static class LocaleFormat
@@ -214,7 +214,7 @@ public static class LocaleFormat
 
     /// <summary>
     /// [S-1115] Whether <paramref name="locale"/> writes its own digits rather than 0–9: Arabic
-    /// (Arabic-Indic ٠–٩). Urdu and Bengali keep Latin digits, as Windows does for ur-PK and the
+    /// (Arabic-Indic ٠–٩) and Persian (Extended Arabic-Indic ۰–۹, Windows' fa-IR). Urdu and Bengali keep Latin digits, as Windows does for ur-PK and the
     /// clock's type ladder needs for Bengali ([S-1114]).
     /// </summary>
     public static bool HasNativeDigits(Locale locale) => LocaleData.For(locale).DigitZero is not null;

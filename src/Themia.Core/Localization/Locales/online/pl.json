@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "Europejski (EAQI)",
   "online.air.settings.index.us": "USA (AQI)",
   "online.rain.label": "Deszcz w ciągu godziny",
-  "online.rain.desc": "Kiedy deszcz zacznie się lub skończy, co 15 minut",
+  "online.rain.desc": "Kiedy deszcz zacznie się lub skończy, co {minutes} minut",
   "online.rain.startsIn": "Deszcz za {minutes} min",
   "online.rain.stopsIn": "Deszcz ustanie za {minutes} min",
   "online.rain.continues": "Deszcz przez najbliższe 2 godziny",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "Waluty",
   "online.rates.settings.quotes.desc": "Tyle, ile się zmieści, w wybranej kolejności",
   "online.rates.settings.quotes.all": "Wszystkie waluty",
-  "online.rates.settings.chart.label": "Wykres 90 dni",
+  "online.rates.settings.chart.label": "Wykres {days} dni",
   "online.rates.settings.chart.desc": "Pod każdym kursem, jeśli jest miejsce"
 }

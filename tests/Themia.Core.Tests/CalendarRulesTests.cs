@@ -49,6 +49,23 @@ public sealed class CalendarRulesTests
         Assert.Equal(6, CalendarRules.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Monday));
         Assert.Equal(0, CalendarRules.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Sunday));
         Assert.Equal(6, CalendarRules.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Sunday));
+        Assert.Equal(0, CalendarRules.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Saturday));
+        Assert.Equal(6, CalendarRules.WeekStartOffset(DayOfWeek.Friday, WeekStartDay.Saturday));
+        Assert.Equal(1, CalendarRules.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Saturday));
+    }
+
+    [Theory]
+    [InlineData(DayOfWeek.Monday, WeekStartDay.Monday)]
+    [InlineData(DayOfWeek.Sunday, WeekStartDay.Sunday)]
+    [InlineData(DayOfWeek.Saturday, WeekStartDay.Saturday)]
+    [InlineData(DayOfWeek.Friday, WeekStartDay.Monday)]
+    public void S564_a_first_weekday_names_its_week_start(DayOfWeek first, WeekStartDay expected)
+    {
+        Assert.Equal(expected, CalendarRules.WeekStartOf(first));
+        if (expected != WeekStartDay.Monday || first == DayOfWeek.Monday)
+        {
+            Assert.Equal(first, CalendarRules.FirstDay(expected));
+        }
     }
 
     [Fact]
@@ -59,6 +76,11 @@ public sealed class CalendarRulesTests
         Assert.Equal(DayOfWeek.Monday, CalendarRules.WeekdayOrder(WeekStartDay.Monday)[0]);
         Assert.Equal(DayOfWeek.Sunday, CalendarRules.WeekdayOrder(WeekStartDay.Monday)[6]);
         Assert.Equal(DayOfWeek.Sunday, CalendarRules.WeekdayOrder(WeekStartDay.Sunday)[0]);
+        Assert.Equal(new DateOnly(2026, 10, 3), CalendarRules.StartOfWeek(Today, WeekStartDay.Saturday));
+        Assert.Equal(
+            [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
+            CalendarRules.WeekdayOrder(WeekStartDay.Saturday));
+        Assert.Equal(new DateOnly(2026, 9, 26), CalendarRules.MonthCells(Today, WeekStartDay.Saturday)[0]);
     }
 
     // ---- [S-566] colours -------------------------------------------------------------------------
@@ -296,6 +318,106 @@ public sealed class CalendarRulesTests
         Assert.Equal(Today.AddDays(1), agenda[1].Day);
         Assert.True(agenda[1].Items[0].IsBirthday);
         Assert.Equal("tomorrow", agenda[1].Items[1].Event!.Id);
+    }
+
+    [Fact]
+    public void S571_issue_155_a_multi_day_event_is_listed_under_every_day_it_covers()
+    {
+        // Monday to Thursday, seen on the Sunday before: classic issue #155 listed it on Monday only.
+        var trip = CalendarEvent.AllDayEvent("trip", "Trip", Today.AddDays(1), Today.AddDays(5));
+        var workshop = Timed("workshop", new DateTimeOffset(2026, 10, 5, 16, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(40));
+        var now = new DateTimeOffset(2026, 10, 4, 8, 0, 0, TimeSpan.Zero);
+
+        var agenda = CalendarRules.Agenda([trip, workshop], [], Today, Today.AddDays(30), Plus2, limit: 20, now);
+
+        Assert.Equal([Today.AddDays(1), Today.AddDays(2), Today.AddDays(3), Today.AddDays(4)], agenda.Select(g => g.Day));
+        Assert.All(agenda, g => Assert.Contains(g.Items, i => i.Event!.Id == "trip"));
+
+        // 18:00 Monday to 10:00 Wednesday (UTC+2): Monday, Tuesday and Wednesday, not Thursday.
+        Assert.Equal(
+            [Today.AddDays(1), Today.AddDays(2), Today.AddDays(3)],
+            agenda.Where(g => g.Items.Any(i => i.Event!.Id == "workshop")).Select(g => g.Day));
+    }
+
+    [Fact]
+    public void S571_issue_155_a_running_multi_day_event_starts_today_and_ended_days_are_gone()
+    {
+        // Began Friday, ends Tuesday: from today on, never under the days already past.
+        var trip = CalendarEvent.AllDayEvent("trip", "Trip", Today.AddDays(-2), Today.AddDays(3));
+        var over = CalendarEvent.AllDayEvent("over", "Over", Today.AddDays(-3), Today);
+        var now = new DateTimeOffset(2026, 10, 4, 8, 0, 0, TimeSpan.Zero);
+
+        var agenda = CalendarRules.Agenda([trip, over], [], Today, Today.AddDays(30), Plus2, limit: 20, now);
+
+        Assert.Equal([Today, Today.AddDays(1), Today.AddDays(2)], agenda.Select(g => g.Day));
+        Assert.All(agenda, g => Assert.Equal("trip", Assert.Single(g.Items).Event!.Id));
+    }
+
+    [Fact]
+    public void S571_issue_155_a_continuing_day_shows_that_days_part_of_the_span()
+    {
+        var workshop = Timed("workshop", new DateTimeOffset(2026, 10, 5, 16, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(40));
+
+        // Monday from 18:00 local, then the whole of Tuesday, then Wednesday until 10:00.
+        var monday = CalendarRules.AgendaSpan(workshop, Today.AddDays(1), Plus2);
+        Assert.False(monday.WholeDay);
+        Assert.Equal(workshop.Start, monday.Start);
+        Assert.Equal(CalendarRules.LocalMidnight(Today.AddDays(2), Plus2), monday.End);
+
+        Assert.True(CalendarRules.AgendaSpan(workshop, Today.AddDays(2), Plus2).WholeDay);
+
+        var wednesday = CalendarRules.AgendaSpan(workshop, Today.AddDays(3), Plus2);
+        Assert.False(wednesday.WholeDay);
+        Assert.Equal(CalendarRules.LocalMidnight(Today.AddDays(3), Plus2), wednesday.Start);
+        Assert.Equal(workshop.End, wednesday.End);
+
+        var allDay = CalendarEvent.AllDayEvent("trip", "Trip", Today, Today.AddDays(2));
+        Assert.True(CalendarRules.AgendaSpan(allDay, Today.AddDays(1), Plus2).WholeDay);
+    }
+
+    [Fact]
+    public void S571_issue_153_the_agenda_is_chronological_across_and_within_days()
+    {
+        // Handed over in no order at all, as several calendars merged arrive.
+        var events = new[]
+        {
+            Timed("oct13", new DateTimeOffset(2026, 10, 13, 9, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(1)),
+            Timed("oct5-late", new DateTimeOffset(2026, 10, 5, 15, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(1)),
+            CalendarEvent.AllDayEvent("oct9", "Holiday", new DateOnly(2026, 10, 9), new DateOnly(2026, 10, 10)),
+            Timed("oct5-early", new DateTimeOffset(2026, 10, 5, 7, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(1)),
+            Timed("oct5-mid", new DateTimeOffset(2026, 10, 5, 10, 0, 0, TimeSpan.Zero), TimeSpan.FromHours(1)),
+        };
+
+        var agenda = CalendarRules.Agenda(events, [], Today, Today.AddDays(30), Plus2, 20, new DateTimeOffset(2026, 10, 4, 8, 0, 0, TimeSpan.Zero));
+
+        Assert.Equal(["oct5-early", "oct5-mid", "oct5-late", "oct9", "oct13"], agenda.SelectMany(g => g.Items).Select(i => i.Event!.Id));
+    }
+
+    [Fact]
+    public void S570_issue_139_the_day_view_shows_what_the_agenda_files_under_that_day()
+    {
+        // A day weeks ahead, in a zone west of UTC and one east of it.
+        var day = new DateOnly(2026, 11, 8);
+        foreach (var zone in new[] { Plus2, TimeZoneInfo.CreateCustomTimeZone("Test-5", TimeSpan.FromHours(-5), "Test-5", "Test-5") })
+        {
+            var events = new[]
+            {
+                CalendarEvent.AllDayEvent("allday", "Fair", day, day.AddDays(1)),
+                Timed("morning", new DateTimeOffset(day.ToDateTime(new TimeOnly(9, 0)), zone.BaseUtcOffset), TimeSpan.FromHours(1)),
+                Timed("late", new DateTimeOffset(day.ToDateTime(new TimeOnly(23, 30)), zone.BaseUtcOffset), TimeSpan.FromMinutes(20)),
+            };
+
+            var agenda = CalendarRules.Agenda(events, [], Today, Today.AddDays(40), zone, 50, new DateTimeOffset(2026, 10, 4, 8, 0, 0, TimeSpan.Zero));
+            var filed = agenda.Single(g => g.Day == day).Items.Select(i => i.Event!.Id);
+
+            // The day view asks exactly its own day, and the shelf answers that window.
+            var (from, to) = CalendarRules.FetchWindow(day, day, zone);
+            var asked = events.Where(e => Themia.Core.Sync.CalendarSync.Overlaps(Themia.Core.Sync.OfficeShelves.Store(e), from, to));
+            var shown = CalendarRules.DayItems(asked, [], day, zone).Select(i => i.Event!.Id);
+
+            Assert.Equal(filed, shown);
+            Assert.Equal(3, shown.Count());
+        }
     }
 
     [Fact]

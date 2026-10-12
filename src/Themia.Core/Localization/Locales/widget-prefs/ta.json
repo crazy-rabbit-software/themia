@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "விட்ஜெட்கள்",
+  "widgetPrefs.subtitle": "எல்லா விட்ஜெட்களும் பகிரும் வடிவங்களும் புதுப்பிப்புகளும்",
+  "widgetPrefs.region.header": "பிராந்திய வடிவம்",
+  "widgetPrefs.region.clock": "நேர வடிவம்",
+  "widgetPrefs.region.clock12": "{hours}-மணிநேரம்",
+  "widgetPrefs.region.clock24": "{hours}-மணிநேரம்",
+  "widgetPrefs.followWindows": "Windows அமைப்பு ({value})",
+  "widgetPrefs.updates.header": "புதுப்பிப்புகள்",
+  "widgetPrefs.updates.note": "விட்ஜெட்கள் ஆன்லைன் சேவைகளை எவ்வளவு அடிக்கடி கேட்கின்றன. ஒரு விட்ஜெட்டில் புதுப்பி உடனே கேட்கும்.",
+  "widgetPrefs.updates.weather": "வானிலை",
+  "widgetPrefs.updates.markets": "பங்குகள்",
+  "widgetPrefs.updates.feeds": "செய்தி ஊட்டங்கள்",
+  "widgetPrefs.updates.accounts": "அஞ்சல், நாள்காட்டிகள் மற்றும் பணிகள்",
+  "widgetPrefs.updates.everyHours": {
+    "one": "ஒவ்வொரு {count} மணிநேரமும்",
+    "other": "ஒவ்வொரு {count} மணிநேரமும்"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows இருப்பிடங்கள்"
+}

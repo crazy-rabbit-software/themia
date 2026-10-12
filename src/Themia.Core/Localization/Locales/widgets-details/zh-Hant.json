@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "依應用程式分組",
   "details.settings.processes.group.desc": "同一程式的所有處理程序合為一列",
   "details.settings.network.public.label": "公用位址",
-  "details.settings.network.public.desc": "查詢 api.ipify.org，最多每 10 分鐘一次",
+  "details.settings.network.public.desc": "查詢 api.ipify.org，最多每 {minutes} 分鐘一次",
   "details.settings.disk.drives": "磁碟機",
   "details.settings.disk.all.label": "所有磁碟機",
   "details.settings.disk.all.desc": "列出 Windows 的每個磁碟機，隨插拔更新",

@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "ایپ کے لحاظ سے گروپ کریں",
   "details.settings.processes.group.desc": "ایک پروگرام کے سب پروسیسز ایک قطار میں",
   "details.settings.network.public.label": "عوامی پتہ",
-  "details.settings.network.public.desc": "api.ipify.org سے پوچھتا ہے، زیادہ سے زیادہ ہر 10 منٹ بعد",
+  "details.settings.network.public.desc": "api.ipify.org سے پوچھتا ہے، زیادہ سے زیادہ ہر {minutes} منٹ بعد",
   "details.settings.disk.drives": "ڈرائیوز",
   "details.settings.disk.all.label": "ہر ڈرائیو",
   "details.settings.disk.all.desc": "Windows کی ہر ڈرائیو دکھائیں، جیسے جیسے وہ آئیں اور جائیں",

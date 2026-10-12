@@ -38,7 +38,8 @@ public sealed class WidgetPreferencesTests
     [Theory]
     [InlineData("HH:mm", 0, 0, true, WeekStartDay.Monday, TemperatureUnit.Celsius)]
     [InlineData("h:mm tt", 6, 1, false, WeekStartDay.Sunday, TemperatureUnit.Fahrenheit)]
-    [InlineData("tt hh:mm", 5, 0, false, WeekStartDay.Monday, TemperatureUnit.Celsius)]
+    [InlineData("tt hh:mm", 5, 0, false, WeekStartDay.Saturday, TemperatureUnit.Celsius)]
+    [InlineData("HH:mm", 4, 0, true, WeekStartDay.Monday, TemperatureUnit.Celsius)]
     [InlineData("H.mm", 2, 0, true, WeekStartDay.Monday, TemperatureUnit.Celsius)]
     public void S3772_windows_raw_values_are_read(string pattern, int firstDay, int measure, bool use24, WeekStartDay start, TemperatureUnit unit)
         => Assert.Equal(new RegionValues(use24, start, unit), RegionFormat.FromWindows(pattern, firstDay, measure, Swiss));
@@ -57,6 +58,7 @@ public sealed class WidgetPreferencesTests
     {
         Assert.Equal(new RegionValues(false, WeekStartDay.Sunday, TemperatureUnit.Celsius), RegionFormat.Language(Locale.En));
         Assert.Equal(new RegionValues(true, WeekStartDay.Monday, TemperatureUnit.Celsius), RegionFormat.Language(Locale.De));
+        Assert.Equal(new RegionValues(true, WeekStartDay.Saturday, TemperatureUnit.Celsius), RegionFormat.Language(Locale.Fa));
     }
 
     [Fact]

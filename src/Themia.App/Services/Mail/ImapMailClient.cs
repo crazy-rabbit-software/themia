@@ -262,6 +262,13 @@ internal static class ImapMailClient
             {
                 throw Refused(tagged);
             }
+
+            // [S-553] Name the client to a server that asks for it (163.com refuses SELECT otherwise,
+            // classic #169). Not required: a server that answers NO or BAD still serves the job.
+            if (await HasCapabilityAsync("ID").ConfigureAwait(false))
+            {
+                await CommandAsync(ImapProtocol.IdCommand, required: false).ConfigureAwait(false);
+            }
         }
 
         private static AccountException Refused(ImapResponse tagged)

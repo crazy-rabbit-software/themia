@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Aucun dossier choisi pour l’instant.",
   "widgetsB.settings.gallery.showing": "Affichage de {name}",
   "widgetsB.habits.minutes.empty": "Saisissez un nombre de minutes.",
-  "widgetsB.habits.minutes.notWhole": "Minutes entières uniquement, comme 30.",
+  "widgetsB.habits.minutes.notWhole": "Minutes entières uniquement, comme {example}.",
   "widgetsB.habits.minutes.range": "Entre {min} et {max} minutes (un jour).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Semaine du {date}",
@@ -244,7 +244,7 @@
     "one": "Se vide après {count} minute.",
     "other": "Se vide toutes les {count} minutes."
   },
-  "widgetsB.settings.habits.interval.desc": "Minutes par intervalle, de 1 à 1440",
+  "widgetsB.settings.habits.interval.desc": "Minutes par intervalle, de {min} à {max}",
   "widgetsB.settings.habits.resets.label": "Réinitialisation",
   "widgetsB.settings.habits.everyHour": "Toutes les heures",
   "widgetsB.settings.habits.everyDay": "Tous les jours",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "Afficher les séries",
   "widgetsB.settings.habits.streaks.desc": "La série en cours de chaque habitude",
   "widgetsB.settings.habits.history.label": "Historique",
-  "widgetsB.settings.habits.history.desc": "Périodes passées en points ; 0 les masque",
+  "widgetsB.settings.habits.history.desc": "Périodes passées en points ; {zero} les masque",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} habitude",
     "other": "{count} habitudes"

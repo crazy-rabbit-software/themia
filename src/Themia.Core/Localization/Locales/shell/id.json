@@ -586,7 +586,7 @@
   "shell.meters.systemDrive": "Drive sistem ({drive})",
   "shell.meters.gpuDescription": "Beban grafis, per adaptor",
   "shell.meters.batteryDescription": "Tingkat daya",
-  "shell.appearance.headerFade": "Seberapa pekat strip header; 100% sama dengan widget",
+  "shell.appearance.headerFade": "Seberapa pekat strip header; {percent} sama dengan widget",
   "shell.views.add": "Tambah tampilan",
   "shell.views.addDesc": "Tampilan baru yang kosong di akhir daftar",
   "shell.views.more": "Opsi lainnya",

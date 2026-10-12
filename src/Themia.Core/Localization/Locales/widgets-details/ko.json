@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "앱별로 그룹화",
   "details.settings.processes.group.desc": "한 프로그램의 모든 프로세스를 한 행으로 표시합니다",
   "details.settings.network.public.label": "공용 주소",
-  "details.settings.network.public.desc": "api.ipify.org에 최대 10분마다 한 번 요청합니다",
+  "details.settings.network.public.desc": "api.ipify.org에 최대 {minutes}분마다 한 번 요청합니다",
   "details.settings.disk.drives": "드라이브",
   "details.settings.disk.all.label": "모든 드라이브",
   "details.settings.disk.all.desc": "Windows에 있는 모든 드라이브를 연결되고 분리되는 대로 표시합니다",

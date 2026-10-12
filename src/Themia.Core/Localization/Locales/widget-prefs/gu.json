@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "વિજેટ",
+  "widgetPrefs.subtitle": "બધા વિજેટ દ્વારા વહેંચાયેલાં ફૉર્મેટ અને અપડેટ",
+  "widgetPrefs.region.header": "પ્રાદેશિક ફૉર્મેટ",
+  "widgetPrefs.region.clock": "સમય ફૉર્મેટ",
+  "widgetPrefs.region.clock12": "{hours}-કલાક",
+  "widgetPrefs.region.clock24": "{hours}-કલાક",
+  "widgetPrefs.followWindows": "Windows સેટિંગ ({value})",
+  "widgetPrefs.updates.header": "અપડેટ",
+  "widgetPrefs.updates.note": "વિજેટ ઑનલાઇન સેવાઓને કેટલી વાર પૂછે છે. વિજેટ પર રિફ્રેશ કરવાથી તરત પૂછે છે.",
+  "widgetPrefs.updates.weather": "હવામાન",
+  "widgetPrefs.updates.markets": "સ્ટૉક્સ",
+  "widgetPrefs.updates.feeds": "સમાચાર ફીડ",
+  "widgetPrefs.updates.accounts": "મેઇલ, કૅલેન્ડર અને કાર્યો",
+  "widgetPrefs.updates.everyHours": {
+    "one": "દર {count} કલાકે",
+    "other": "દર {count} કલાકે"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows સ્થાનો"
+}

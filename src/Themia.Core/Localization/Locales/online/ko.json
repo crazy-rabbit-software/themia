@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "유럽 (EAQI)",
   "online.air.settings.index.us": "미국 (AQI)",
   "online.rain.label": "1시간 내 비",
-  "online.rain.desc": "비가 시작하거나 그치는 시각, 15분 단위",
+  "online.rain.desc": "비가 시작하거나 그치는 시각, {minutes}분 단위",
   "online.rain.startsIn": "{minutes}분 후 비",
   "online.rain.stopsIn": "{minutes}분 후 비 그침",
   "online.rain.continues": "앞으로 2시간 동안 비",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "통화",
   "online.rates.settings.quotes.desc": "들어가는 만큼, 고른 순서대로",
   "online.rates.settings.quotes.all": "모든 통화",
-  "online.rates.settings.chart.label": "90일 차트",
+  "online.rates.settings.chart.label": "{days}일 차트",
   "online.rates.settings.chart.desc": "공간이 있으면 각 환율 아래에"
 }

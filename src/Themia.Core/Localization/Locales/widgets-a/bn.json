@@ -48,7 +48,7 @@
   "widgetsA.calendar.readFailed": "ক্যালেন্ডার পড়া যায়নি। themia.log দেখুন।",
   "widgetsA.calendar.settings.accounts": "অ্যাকাউন্ট ও ক্যালেন্ডার",
   "widgetsA.calendar.settings.addHint": "অ্যাকাউন্ট পৃষ্ঠায় সাইন ইন করুন",
-  "widgetsA.calendar.settings.agendaCount.desc": "পরের 30 দিনে এজেন্ডা কতগুলো দেখাবে",
+  "widgetsA.calendar.settings.agendaCount.desc": "পরের {days} দিনে এজেন্ডা কতগুলো দেখাবে",
   "widgetsA.calendar.settings.birthdays.desc": "Microsoft ও Google অ্যাকাউন্ট থেকে আপনার পরিচিতিদের জন্মদিন",
   "widgetsA.calendar.settings.colorAuto": "স্বয়ংক্রিয়",
   "widgetsA.calendar.settings.colorOf": "{name}-এর রং",

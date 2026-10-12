@@ -7,10 +7,10 @@ namespace Themia.Core.Tests;
 public sealed class TextDirectionTests
 {
     [Fact]
-    public void S1113_arabic_and_urdu_run_right_to_left_and_nothing_else_does()
+    public void S1113_arabic_urdu_and_persian_run_right_to_left_and_nothing_else_does()
     {
         var rtl = LanguageResolver.All.Where(TextDirection.IsRightToLeft).ToList();
-        Assert.Equal([Locale.Ar, Locale.Ur], rtl);
+        Assert.Equal([Locale.Ar, Locale.Ur, Locale.Fa], rtl);
     }
 
     [Theory]
@@ -60,6 +60,15 @@ public sealed class TextDirectionTests
     [InlineData(Locale.Nl, "nl-NL")]
     [InlineData(Locale.Tr, "tr-TR")]
     [InlineData(Locale.ZhHant, "zh-TW")]
+    [InlineData(Locale.Te, "te-IN")]
+    [InlineData(Locale.Ha, "ha-NG")]
+    [InlineData(Locale.Pa, "pa-IN")]
+    [InlineData(Locale.Sw, "sw-KE")]
+    [InlineData(Locale.Fil, "fil-PH")]
+    [InlineData(Locale.Ta, "ta-IN")]
+    [InlineData(Locale.Fa, "fa-IR")]
+    [InlineData(Locale.Th, "th-TH")]
+    [InlineData(Locale.Gu, "gu-IN")]
     public void S1114_layout_tags_carry_the_region_the_font_fallback_needs(Locale locale, string tag)
         => Assert.Equal(tag, TextDirection.LayoutTag(locale));
 

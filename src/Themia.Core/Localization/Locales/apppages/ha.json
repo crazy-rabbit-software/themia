@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Ja wani duba kan wani don motsa shi, ko danna Alt+Shift+Up ko Down a kan duba.",
+  "shell.list.reorderHint": "Ja wani abu kan wani don motsa shi, ko danna Alt+Shift+Up ko Down a kan abu.",
+  "shell.view.colour": "Launi",
+  "shell.view.colourDesc": "Launin gunkin a sandar duba da kuma a wannan taga",
+  "shell.view.colourDefault": "Launin rubutu",
+  "shell.appearance.themeColours": "Jigo da launuka",
+  "shell.appearance.cards": "Katunan widget",
+  "shell.appearance.cardsDesc": "Iyaka, kusurwoyi da layin waje",
+  "shell.appearance.textAndSize": "Rubutu da girma",
+  "shell.appearance.textAndSizeDesc": "Rubutun haruffa, girman rubutu da girman widget",
+  "shell.appearance.layoutDesc": "Tazara tsakanin widget da manne wa grid",
+  "shell.net.blockedLocal": "{host} yana kan cibiyar sadarwa ta gida. Themia tana zuwa can ne kawai don adireshin da kai da kanka ka rubuta",
+  "shell.accounts.stats.mail": "Imel",
+  "shell.accounts.stats.calendar": "Kalanda",
+  "shell.accounts.stats.contacts": "Lambobin sadarwa",
+  "shell.accounts.stats.tasks": "Ayyuka",
+  "shell.accounts.stats.messages": {
+    "one": "Saƙo {count}",
+    "other": "Saƙonni {count}"
+  },
+  "shell.accounts.stats.events": {
+    "one": "Taron {count}",
+    "other": "Taruka {count}"
+  },
+  "shell.accounts.stats.people": {
+    "one": "Lambar sadarwa {count}",
+    "other": "Lambobin sadarwa {count}"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "Aiki {count}",
+    "other": "Ayyuka {count}"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "a cikin babban fayil {count}",
+    "other": "a cikin manyan fayiloli {count}"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "a cikin kalanda {count}",
+    "other": "a cikin kalandoji {count}"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "a cikin jeri {count}",
+    "other": "a cikin jerurruka {count}"
+  },
+  "shell.accounts.stats.synced": "an daidaita {time}",
+  "shell.accounts.stats.neverSynced": "ba a daidaita ba tukuna",
+  "shell.accounts.stats.nothing": "Babu abin da aka adana a wannan kwamfuta tukuna",
+  "shell.accounts.nicknameDesc": "Sunan da widget ke nunawa don wannan asusu",
+  "shell.accounts.reconnect": "Sake shiga",
+  "shell.accounts.reconnectButton": "Shiga",
+  "shell.accounts.signOutDesc": "Yana manta asusun da duk abin da aka daidaita daga gare shi a wannan kwamfuta",
+  "shell.accounts.needsSignIn": "Yana buƙatar ka sake shiga"
+}

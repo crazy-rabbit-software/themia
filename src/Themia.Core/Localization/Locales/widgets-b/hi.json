@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "अभी कोई फ़ोल्डर नहीं चुना।",
   "widgetsB.settings.gallery.showing": "{name} दिखाया जा रहा है",
   "widgetsB.habits.minutes.empty": "मिनटों की संख्या दर्ज करें।",
-  "widgetsB.habits.minutes.notWhole": "केवल पूरे मिनट, जैसे 30।",
+  "widgetsB.habits.minutes.notWhole": "केवल पूरे मिनट, जैसे {example}।",
   "widgetsB.habits.minutes.range": "{min} और {max} मिनट के बीच (एक दिन)।",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "{date} का सप्ताह",
@@ -244,7 +244,7 @@
     "one": "हर {count} मिनट में साफ़ होती है।",
     "other": "हर {count} मिनट में साफ़ होती है।"
   },
-  "widgetsB.settings.habits.interval.desc": "प्रति अवधि मिनट, 1 से 1440",
+  "widgetsB.settings.habits.interval.desc": "प्रति अवधि मिनट, {min} से {max}",
   "widgetsB.settings.habits.resets.label": "रीसेट",
   "widgetsB.settings.habits.everyHour": "हर घंटे",
   "widgetsB.settings.habits.everyDay": "हर दिन",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "सिलसिले दिखाएँ",
   "widgetsB.settings.habits.streaks.desc": "हर आदत का मौजूदा सिलसिला",
   "widgetsB.settings.habits.history.label": "इतिहास",
-  "widgetsB.settings.habits.history.desc": "पिछली अवधियाँ बिंदुओं के रूप में; 0 उन्हें छिपाता है",
+  "widgetsB.settings.habits.history.desc": "पिछली अवधियाँ बिंदुओं के रूप में; {zero} उन्हें छिपाता है",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} आदत",
     "other": "{count} आदतें"

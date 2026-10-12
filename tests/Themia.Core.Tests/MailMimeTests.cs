@@ -324,4 +324,33 @@ public class MailMimeTests
         Assert.Equal(199, line.Length);
         Assert.False(char.IsHighSurrogate(line[^1]));
     }
+
+    [Fact]
+    public void S552_issue_164_chinese_text_around_an_entity_and_a_cut_mid_character_never_throws()
+    {
+        // Classic issue #164: the preview cut at a byte index inside "时" and panicked.
+        const string headers = "Content-Type: text/html; charset=utf-8\r\nContent-Transfer-Encoding: base64\r\n\r\n";
+        var html = Convert.ToBase64String(Encoding.UTF8.GetBytes("<p>&gt;\n发送时间: 2026</p>"));
+        Assert.Equal("> 发送时间: 2026", MimePreview.Build(headers, html));
+
+        // A part longer than the scan limit is cut there, which here falls inside a three-byte character.
+        var body = Encoding.UTF8.GetBytes(new string('时', (MimePreview.PartScanLimit / 3) + 10));
+        var preview = MimePreview.Build("Content-Type: text/plain; charset=utf-8\r\n\r\n", body);
+        Assert.Equal(MimePreview.MaxLength, preview.Length);
+        Assert.All(preview, c => Assert.Equal('时', c));
+    }
+
+    [Fact]
+    public void S552_issue_147_legacy_cyrillic_and_chinese_charsets_are_honoured()
+    {
+        // Classic issue #147 (Yandex: letters from other senders read garbled) and 163.com mail: KOI8-R,
+        // windows-1251 and GBK are not UTF-8 and used to degrade to replacement characters.
+        Assert.Equal("Привет", MimeText.Decode([240, 210, 201, 215, 197, 212], "koi8-r"));
+        Assert.Equal("发送时间", MimeText.Decode([183, 162, 203, 205, 202, 177, 188, 228], "gbk"));
+        Assert.Equal("发送时间", MimeText.Decode([183, 162, 203, 205, 202, 177, 188, 228], "GB2312"));
+        Assert.Equal("Счёт за май", MailHeaders.DecodeWords("=?windows-1251?B?0fe48iDn4CDs4Ok=?="));
+
+        // An unknown label still degrades to lossy UTF-8 rather than throwing.
+        Assert.Equal("ok", MimeText.Decode("ok"u8.ToArray(), "x-made-up"));
+    }
 }

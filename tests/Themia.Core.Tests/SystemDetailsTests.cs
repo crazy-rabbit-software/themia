@@ -82,27 +82,99 @@ public sealed class SystemDetailsTests
         var rows = (plan.Facts + plan.Columns - 1) / plan.Columns;
         var used = plan.Hero.LineHeight + (plan.Caption ? FluentType.Body.LineHeight : 0)
             + (plan.Facts > 0 ? DetailFace.SectionGap : 0) + DetailFace.FactsHeight(plan.Style, rows);
-        Assert.True(used <= h - Inset + Disclosure.Tolerance, $"{used} > {h - Inset}");
+        Assert.True(used + plan.Top <= h - HeroLayout.TopInset - Inset + Disclosure.Tolerance, $"{used} > {h - Inset}");
     }
 
     [Fact]
-    public void S2402_large_tiles_show_every_fact_as_a_tile_and_grow_the_hero()
+    public void S3862_large_tiles_show_every_fact_as_a_stat_cell_and_grow_the_hero()
     {
         var plan = DetailFace.Plan(new WidgetArea(800, 516), Facts(8), Inset);
 
         Assert.Equal(8, plan.Facts);
-        Assert.NotEqual(FactStyle.Line, plan.Style);
+        Assert.Equal(FactStyle.Cell, plan.Style);
+        Assert.True(plan.Columns >= 2);
         Assert.True(plan.Hero.FontSize >= FluentType.Display.FontSize);
+        Assert.True(plan.Hero.FontSize <= (FluentType.Display.FontSize * HeroLayout.MaxGrowth) + 1e-6);
     }
 
     [Fact]
-    public void S2402_a_tile_style_is_never_chosen_when_it_would_cut_a_value()
+    public void S3862_facts_are_only_ever_drawn_as_the_shared_stat_parts()
     {
-        // "31 GB / 68 GB" in Title does not fit a narrow column: the tall tile uses smaller tiles or lines.
+        Assert.Equal(PartMetrics.StatLine, DetailFace.FactHeight(FactStyle.Line));
+        Assert.Equal(PartMetrics.StatCell, DetailFace.FactHeight(FactStyle.Cell));
+    }
+
+    [Fact]
+    public void S2402_a_cell_style_is_never_chosen_when_it_would_cut_a_value_or_stand_alone()
+    {
+        // A narrow column has room for one cell across: the facts are lines there.
         var plan = DetailFace.Plan(new WidgetArea(200, 356), Facts(6, valueChars: 13), Inset);
 
-        Assert.True(DetailFace.ColumnNeed(plan.Style, 13, 18) <= 200 - (2 * Inset) + Disclosure.Tolerance || plan.Style == FactStyle.Line);
-        Assert.NotEqual(FactStyle.LargeTile, plan.Style);
+        Assert.Equal(FactStyle.Line, plan.Style);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    public void S3861_the_stacked_block_and_its_balance_fill_the_tile_exactly_when_there_is_no_list(int tier)
+    {
+        var (name, w, h) = Tiers[tier];
+        var plan = DetailFace.Plan(new WidgetArea(w, h), Facts(9), Inset);
+
+        if (plan.Arrangement != DetailArrangement.Stacked)
+        {
+            return;
+        }
+
+        var rows = (plan.Facts + plan.Columns - 1) / plan.Columns;
+        var block = plan.Hero.LineHeight + (plan.Caption ? FluentType.Body.LineHeight : 0)
+            + (plan.Facts > 0 ? DetailFace.SectionGap + DetailFace.FactsHeight(plan.Style, rows) : 0);
+        var box = h - HeroLayout.TopInset - Inset;
+
+        // Above the block is half of what is spare, under it the other half (to a pixel of rounding).
+        Assert.True(block + (2 * plan.Top) <= box + Disclosure.Tolerance, name);
+        Assert.True(box - block - (2 * plan.Top) <= 1 + Disclosure.Tolerance, name);
+    }
+
+    [Theory]
+    [InlineData(560, 376)]
+    [InlineData(800, 516)]
+    public void S3861_a_short_list_is_as_tall_as_its_rows_and_the_block_stands_in_the_middle(double w, double h)
+    {
+        // Network details: two adapters under the facts in a large tile.
+        var shape = new DetailShape(true, 11, true, 6, ListRows: 2, ListRowHeight: 44, ValueCharacters: 11, LabelCharacters: 19, ListPadding: 14);
+        var plan = DetailFace.Plan(new WidgetArea(w, h), shape, Inset);
+
+        Assert.True(plan.List);
+        Assert.Equal((2 * 44) + 14, plan.ListHeight, 6);
+        Assert.True(plan.Top > 0, $"no balance at {w}x{h}");
+
+        // The hero grew into the room, but only to the tier's step: the list is still the point.
+        Assert.True(plan.Hero.FontSize <= HeroLayout.TierStep(new WidgetArea(w, h)).FontSize);
+    }
+
+    [Fact]
+    public void S3861_a_list_that_overflows_fills_the_room_and_starts_at_the_top_of_its_block()
+    {
+        var shape = new DetailShape(true, 11, true, 6, ListRows: 40, ListRowHeight: 44, ValueCharacters: 11, LabelCharacters: 19, ListPadding: 14);
+        var plan = DetailFace.Plan(new WidgetArea(560, 376), shape, Inset);
+
+        Assert.True(plan.ListHeight < (40 * 44) + 14);
+        Assert.Equal(0, plan.Top);
+    }
+
+    [Fact]
+    public void S3861_rows_that_grow_take_all_the_room_and_read_from_the_top()
+    {
+        var shape = new DetailShape(true, 8, false, 0, ListRows: 1, ListRowHeight: 56, ListPadding: 14, RowsGrow: true);
+        var plan = DetailFace.Plan(new WidgetArea(560, 376), shape, Inset);
+
+        Assert.True(plan.ListHeight > 56 * 2);
+        Assert.Equal(0, plan.Top);
     }
 
     [Fact]

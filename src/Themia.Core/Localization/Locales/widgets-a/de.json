@@ -48,7 +48,7 @@
   "widgetsA.calendar.readFailed": "Der Kalender konnte nicht gelesen werden. Siehe themia.log.",
   "widgetsA.calendar.settings.accounts": "Konten und Kalender",
   "widgetsA.calendar.settings.addHint": "Auf der Seite Konten anmelden",
-  "widgetsA.calendar.settings.agendaCount.desc": "Wie viele die Agenda in den nächsten 30 Tagen aufführt",
+  "widgetsA.calendar.settings.agendaCount.desc": "Wie viele die Agenda in den nächsten {days} Tagen aufführt",
   "widgetsA.calendar.settings.birthdays.desc": "Geburtstage deiner Kontakte aus Microsoft- und Google-Konten",
   "widgetsA.calendar.settings.colorAuto": "Automatisch",
   "widgetsA.calendar.settings.colorOf": "Farbe von {name}",

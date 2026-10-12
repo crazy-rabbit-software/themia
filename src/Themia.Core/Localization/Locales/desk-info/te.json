@@ -1,0 +1,33 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "సంవత్సర పురోగతి",
+  "yearProgress.desc": "రోజు, వారం, నెల మరియు సంవత్సరంలో ఎంత గడిచిపోయింది",
+  "yearProgress.day": "రోజు",
+  "yearProgress.week": "వారం",
+  "yearProgress.month": "నెల",
+  "yearProgress.year": "సంవత్సరం",
+  "yearProgress.left": "{time} మిగిలి ఉంది",
+  "yearProgress.weekNumber": "వారం {number}",
+  "yearProgress.dayOf": "{days}లో {day}వ రోజు",
+  "meeting.label": "తదుపరి సమావేశం",
+  "meeting.desc": "మీ తదుపరి ఈవెంట్, ఆన్‌లైన్ సమావేశాల కోసం చేరు బటన్‌తో",
+  "meeting.join": "చేరు",
+  "meeting.joinTip": "ఆన్‌లైన్ సమావేశంలో చేరండి",
+  "meeting.nowEnds": "ఇప్పుడు · {time}కి ముగుస్తుంది",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "రాబోయేవి ఏవీ లేవు",
+  "recentFiles.label": "ఇటీవలి ఫైల్‌లు",
+  "recentFiles.desc": "మీరు చివరిగా తెరిచిన ఫైల్‌లు",
+  "recentFiles.empty": "ఇటీవల ఏదీ తెరవబడలేదు",
+  "recentFiles.unreadable": "Windows ఇటీవలి అంశాలను చదవడం సాధ్యం కాలేదు",
+  "recentFiles.remove": "జాబితా నుండి తీసివేయి",
+  "recycleBin.desc": "రీసైకిల్ బిన్ ఎంత నిండి ఉంది, ఖాళీ చేయి బటన్‌తో",
+  "recycleBin.empty": "ఖాళీ చేయి",
+  "recycleBin.emptyEllipsis": "రీసైకిల్ బిన్‌ను ఖాళీ చేయి…",
+  "recycleBin.isEmpty": "అంశాలు లేవు",
+  "recycleBin.items": {
+    "one": "{count} అంశం",
+    "other": "{count} అంశాలు"
+  },
+  "recycleBin.open": "రీసైకిల్ బిన్‌ను తెరువు"
+}

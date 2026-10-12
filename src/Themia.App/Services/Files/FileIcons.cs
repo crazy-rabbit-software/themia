@@ -27,10 +27,11 @@ internal static partial class FileIcons
     /// <summary>Counting stops here; a folder with more shows "999+".</summary>
     public const int CountCap = 1000;
 
-    private static readonly Dictionary<string, ImageSource?> Shared = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Dictionary<string, ImageSource?> PerItem = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Dictionary<string, ImageSource?> Thumbnails = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Dictionary<string, Task<ImageSource?>> Pending = new(StringComparer.OrdinalIgnoreCase);
+    // [S-5175] A load that found nothing is not kept: a transient extraction failure must not leave a
+    // type's items as glyphs for the rest of the session (the original's issues #4 and #16).
+    private static readonly LoadCache<ImageSource> Shared = new(0, StringComparer.OrdinalIgnoreCase);
+    private static readonly LoadCache<ImageSource> PerItem = new(PerItemCap, StringComparer.OrdinalIgnoreCase);
+    private static readonly LoadCache<ImageSource> Thumbnails = new(ThumbnailCap, StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, string> TypeNames = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, int?> Counts = new(StringComparer.OrdinalIgnoreCase);
 
@@ -38,21 +39,14 @@ internal static partial class FileIcons
     public static bool TryIcon(FolderEntry entry, int pixels, out ImageSource? image)
     {
         var key = IconKey(entry, pixels, out var shared);
-        return (shared ? Shared : PerItem).TryGetValue(key, out image);
+        return (shared ? Shared : PerItem).TryGet(key, out image);
     }
 
     /// <summary>The shell icon for an entry at <paramref name="pixels"/> (physical) pixels, or null.</summary>
     public static Task<ImageSource?> IconAsync(FolderEntry entry, int pixels)
     {
         var key = IconKey(entry, pixels, out var shared);
-        var cache = shared ? Shared : PerItem;
-
-        if (cache.TryGetValue(key, out var known))
-        {
-            return Task.FromResult(known);
-        }
-
-        return Fetch(key, cache, PerItemCap, () => AppIcons.LoadAsync(entry.FullPath, pixels, thumbnail: false));
+        return (shared ? Shared : PerItem).GetAsync(key, () => AppIcons.LoadAsync(entry.FullPath, pixels, thumbnail: false));
     }
 
     /// <summary>
@@ -69,40 +63,7 @@ internal static partial class FileIcons
         // The modified time is part of the key: an edited photo gets a new thumbnail.
         var key = $"{pixels}|{entry.Modified.UtcTicks}|{entry.FullPath}";
 
-        if (Thumbnails.TryGetValue(key, out var known))
-        {
-            return Task.FromResult(known);
-        }
-
-        return Fetch(key, Thumbnails, ThumbnailCap, () => AppIcons.LoadAsync(entry.FullPath, pixels, thumbnail: true));
-    }
-
-    private static async Task<ImageSource?> Fetch(string key, Dictionary<string, ImageSource?> cache, int cap, Func<Task<ImageSource?>> load)
-    {
-        if (!Pending.TryGetValue(key, out var task))
-        {
-            task = load();
-            Pending[key] = task;
-        }
-
-        ImageSource? image;
-
-        try
-        {
-            image = await task.ConfigureAwait(true);
-        }
-        finally
-        {
-            Pending.Remove(key);
-        }
-
-        if (!ReferenceEquals(cache, Shared) && cache.Count >= cap)
-        {
-            cache.Clear();
-        }
-
-        cache[key] = image;
-        return image;
+        return Thumbnails.GetAsync(key, () => AppIcons.LoadAsync(entry.FullPath, pixels, thumbnail: true));
     }
 
     private static string IconKey(FolderEntry entry, int pixels, out bool shared)

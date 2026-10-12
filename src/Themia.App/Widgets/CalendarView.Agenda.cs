@@ -161,19 +161,23 @@ internal sealed partial class CalendarView
         else
         {
             var e = item.Event!;
-            var running = AgendaRules.IsInProgress(e.AllDay, e.Start, e.End, now);
-            var startText = e.AllDay ? Str.Calendar_AllDay.Text() : running ? Str.WidgetsA_Calendar_Now.Text() : Clock(e.Start);
+
+            // [S-571] The part of the event on this row's day: a timed event over several days reads
+            // its own hours on its first and last day and "All day" between.
+            var part = CalendarRules.AgendaSpan(e, day, TimeZoneInfo.Local);
+            var running = !part.WholeDay && AgendaRules.IsInProgress(false, part.Start, part.End, now);
+            var startText = part.WholeDay ? Str.Calendar_AllDay.Text() : running ? Str.WidgetsA_Calendar_Now.Text() : Clock(part.Start);
             var start = Fluent.Text(running ? FluentType.BodyStrong : FluentType.Body, "TextFillColorSecondaryBrush");
             start.Text = startText;
             // A clock is never cut; a word label longer than the column's cap trims rather than clips.
-            start.TextTrimming = e.AllDay || running ? TextTrimming.CharacterEllipsis : TextTrimming.None;
+            start.TextTrimming = part.WholeDay || running ? TextTrimming.CharacterEllipsis : TextTrimming.None;
             Typography.SetNumeralAlignment(start, FontNumeralAlignment.Tabular);
             when.Children.Add(start);
 
-            if (!e.AllDay && !compact && e.End > e.Start)
+            if (!part.WholeDay && !compact && part.End > part.Start)
             {
                 var end = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-                end.Text = Clock(e.End);
+                end.Text = Clock(part.End);
                 Typography.SetNumeralAlignment(end, FontNumeralAlignment.Tabular);
                 when.Children.Add(end);
             }
@@ -181,7 +185,7 @@ internal sealed partial class CalendarView
             title.Text = Title(e);
 
             var meta = string.Join(" · ", new[] { e.Location, e.Organizer }.Where(s => !string.IsNullOrWhiteSpace(s)));
-            var span = e.AllDay || running || e.End <= e.Start ? startText : $"{startText}–{Clock(e.End)}";
+            var span = part.WholeDay || running || part.End <= part.Start ? startText : $"{startText}–{Clock(part.End)}";
 
             second = narrow
                 ? (compact || meta.Length == 0 ? span : $"{span} · {meta}")

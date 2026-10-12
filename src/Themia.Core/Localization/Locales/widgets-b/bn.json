@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "এখনও কোনো ফোল্ডার বেছে নেওয়া হয়নি।",
   "widgetsB.settings.gallery.showing": "{name} দেখানো হচ্ছে",
   "widgetsB.habits.minutes.empty": "মিনিটের সংখ্যা লিখুন।",
-  "widgetsB.habits.minutes.notWhole": "শুধু পূর্ণ মিনিট, যেমন 30।",
+  "widgetsB.habits.minutes.notWhole": "শুধু পূর্ণ মিনিট, যেমন {example}।",
   "widgetsB.habits.minutes.range": "{min} থেকে {max} মিনিটের মধ্যে (এক দিন)।",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "{date}-এর সপ্তাহ",
@@ -244,7 +244,7 @@
     "one": "প্রতি {count} মিনিটে খালি হয়।",
     "other": "প্রতি {count} মিনিটে খালি হয়।"
   },
-  "widgetsB.settings.habits.interval.desc": "প্রতি ব্যবধানে মিনিট, 1 থেকে 1440",
+  "widgetsB.settings.habits.interval.desc": "প্রতি ব্যবধানে মিনিট, {min} থেকে {max}",
   "widgetsB.settings.habits.resets.label": "রিসেট হয়",
   "widgetsB.settings.habits.everyHour": "প্রতি ঘণ্টায়",
   "widgetsB.settings.habits.everyDay": "প্রতিদিন",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "ধারা দেখান",
   "widgetsB.settings.habits.streaks.desc": "প্রতিটি অভ্যাস কত টানা চলছে",
   "widgetsB.settings.habits.history.label": "ইতিহাস",
-  "widgetsB.settings.habits.history.desc": "অতীতের সময়কাল বিন্দু হিসেবে; 0 দিলে লুকায়",
+  "widgetsB.settings.habits.history.desc": "অতীতের সময়কাল বিন্দু হিসেবে; {zero} দিলে লুকায়",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count}টি অভ্যাস",
     "other": "{count}টি অভ্যাস"

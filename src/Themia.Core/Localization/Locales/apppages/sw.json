@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Buruta mwonekano juu ya mwingine ili kuuhamisha, au bonyeza Alt+Shift+Up au Down kwenye mwonekano.",
+  "shell.list.reorderHint": "Buruta kipengee juu ya kingine ili kukihamisha, au bonyeza Alt+Shift+Up au Down kwenye kipengee.",
+  "shell.view.colour": "Rangi",
+  "shell.view.colourDesc": "Rangi ya aikoni kwenye upau wa mionekano na katika dirisha hili",
+  "shell.view.colourDefault": "Rangi ya maandishi",
+  "shell.appearance.themeColours": "Mandhari na rangi",
+  "shell.appearance.cards": "Kadi za wijeti",
+  "shell.appearance.cardsDesc": "Mpaka, pembe na muhtasari",
+  "shell.appearance.textAndSize": "Maandishi na ukubwa",
+  "shell.appearance.textAndSizeDesc": "Fonti, ukubwa wa maandishi na kipimo cha wijeti",
+  "shell.appearance.layoutDesc": "Nafasi kati ya wijeti na kushikamana na gridi",
+  "shell.net.blockedLocal": "{host} iko kwenye mtandao wa karibu. Themia huenda huko tu kwa anwani uliyoandika mwenyewe",
+  "shell.accounts.stats.mail": "Barua",
+  "shell.accounts.stats.calendar": "Kalenda",
+  "shell.accounts.stats.contacts": "Anwani",
+  "shell.accounts.stats.tasks": "Kazi",
+  "shell.accounts.stats.messages": {
+    "one": "Ujumbe {count}",
+    "other": "Jumbe {count}"
+  },
+  "shell.accounts.stats.events": {
+    "one": "Tukio {count}",
+    "other": "Matukio {count}"
+  },
+  "shell.accounts.stats.people": {
+    "one": "Mwasiliani {count}",
+    "other": "Waasiliani {count}"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "Kazi {count}",
+    "other": "Kazi {count}"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "katika folda {count}",
+    "other": "katika folda {count}"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "katika kalenda {count}",
+    "other": "katika kalenda {count}"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "katika orodha {count}",
+    "other": "katika orodha {count}"
+  },
+  "shell.accounts.stats.synced": "imesawazishwa {time}",
+  "shell.accounts.stats.neverSynced": "bado haijasawazishwa",
+  "shell.accounts.stats.nothing": "Bado hakuna kilichohifadhiwa kwenye Kompyuta hii",
+  "shell.accounts.nicknameDesc": "Jina ambalo wijeti huonyesha kwa akaunti hii",
+  "shell.accounts.reconnect": "Ingia tena",
+  "shell.accounts.reconnectButton": "Ingia",
+  "shell.accounts.signOutDesc": "Husahau akaunti na kila kitu kilichosawazishwa kutoka kwayo kwenye Kompyuta hii",
+  "shell.accounts.needsSignIn": "Unahitaji kuingia tena"
+}

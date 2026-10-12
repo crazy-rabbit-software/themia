@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "Systeemstation ({drive})",
   "shell.meters.gpuDescription": "Grafische belasting, per adapter",
   "shell.meters.batteryDescription": "Laadniveau",
-  "shell.appearance.headerFade": "Hoe dekkend de koptekststrook is; 100% komt overeen met de widget",
+  "shell.appearance.headerFade": "Hoe dekkend de koptekststrook is; {percent} komt overeen met de widget",
   "shell.views.add": "Weergave toevoegen",
   "shell.views.addDesc": "Een nieuwe, lege weergave aan het eind van de lijst",
   "shell.views.more": "Meer opties",

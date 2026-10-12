@@ -60,6 +60,7 @@ internal sealed partial class ScreenTimeAppsView
 
         private ScreenTimeSegment? _segment;
         private string? _iconPath;
+        private LogoTheme _iconTheme;
 
         public AppRow(ScreenTimeAppsView owner)
         {
@@ -114,6 +115,7 @@ internal sealed partial class ScreenTimeAppsView
             Host.PointerCaptureLost += OnLeft;
             Host.Tapped += OnTapped;
             Host.RightTapped += OnRightTapped;
+            Host.ActualThemeChanged += OnThemeChanged;
         }
 
         public Border Host { get; }
@@ -177,7 +179,7 @@ internal sealed partial class ScreenTimeAppsView
                 return;
             }
 
-            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _image.Source is not null)
+            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _image.Source is not null && _iconTheme == AppIcons.ThemeOf(Host))
             {
                 return;
             }
@@ -188,11 +190,22 @@ internal sealed partial class ScreenTimeAppsView
             _ = LoadIconAsync(path);
         }
 
+        /// <summary>[S-3965] A packaged app's logo is chosen per theme: a theme change asks again.</summary>
+        private void OnThemeChanged(FrameworkElement sender, object args)
+        {
+            if (_iconPath is { } path && _iconTheme != AppIcons.ThemeOf(Host))
+            {
+                _ = LoadIconAsync(path);
+            }
+        }
+
         private async Task LoadIconAsync(string path)
         {
-            var image = await AppIcons.GetAsync(path).ConfigureAwait(true);
+            var theme = AppIcons.ThemeOf(Host);
+            _iconTheme = theme;
+            var image = await AppIcons.GetAsync(path, theme).ConfigureAwait(true);
 
-            if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase))
+            if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme)
             {
                 return;
             }
@@ -239,6 +252,7 @@ internal sealed partial class ScreenTimeAppsView
             Host.PointerCaptureLost -= OnLeft;
             Host.Tapped -= OnTapped;
             Host.RightTapped -= OnRightTapped;
+            Host.ActualThemeChanged -= OnThemeChanged;
         }
     }
 }

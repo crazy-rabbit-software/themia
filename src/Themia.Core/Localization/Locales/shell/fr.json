@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "Lecteur système ({drive})",
   "shell.meters.gpuDescription": "Charge graphique, par carte",
   "shell.meters.batteryDescription": "Niveau de charge",
-  "shell.appearance.headerFade": "L’opacité du bandeau d’en-tête ; 100 % correspond au widget",
+  "shell.appearance.headerFade": "L’opacité du bandeau d’en-tête ; {percent} correspond au widget",
   "shell.views.add": "Ajouter une vue",
   "shell.views.addDesc": "Une nouvelle vue vide en fin de liste",
   "shell.views.more": "Plus d’options",

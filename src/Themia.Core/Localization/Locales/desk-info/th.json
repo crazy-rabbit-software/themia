@@ -1,0 +1,32 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "ความคืบหน้าของปี",
+  "yearProgress.desc": "วัน สัปดาห์ เดือน และปีผ่านไปแล้วเท่าใด",
+  "yearProgress.day": "วัน",
+  "yearProgress.week": "สัปดาห์",
+  "yearProgress.month": "เดือน",
+  "yearProgress.year": "ปี",
+  "yearProgress.left": "เหลือ {time}",
+  "yearProgress.weekNumber": "สัปดาห์ที่ {number}",
+  "yearProgress.dayOf": "วันที่ {day} จาก {days}",
+  "meeting.label": "การประชุมถัดไป",
+  "meeting.desc": "กิจกรรมถัดไปของคุณ พร้อมปุ่มเข้าร่วมสำหรับการประชุมออนไลน์",
+  "meeting.join": "เข้าร่วม",
+  "meeting.joinTip": "เข้าร่วมการประชุมออนไลน์",
+  "meeting.nowEnds": "ตอนนี้ · สิ้นสุด {time}",
+  "meeting.dayTime": "{day} {time}",
+  "meeting.none": "ไม่มีรายการที่กำลังจะมาถึง",
+  "recentFiles.label": "ไฟล์ล่าสุด",
+  "recentFiles.desc": "ไฟล์ที่คุณเปิดล่าสุด",
+  "recentFiles.empty": "ไม่มีรายการที่เปิดเมื่อเร็วๆ นี้",
+  "recentFiles.unreadable": "ไม่สามารถอ่านรายการล่าสุดของ Windows ได้",
+  "recentFiles.remove": "เอาออกจากรายการ",
+  "recycleBin.desc": "ถังรีไซเคิลเต็มแค่ไหน พร้อมปุ่มล้าง",
+  "recycleBin.empty": "ล้าง",
+  "recycleBin.emptyEllipsis": "ล้างถังรีไซเคิล…",
+  "recycleBin.isEmpty": "ไม่มีรายการ",
+  "recycleBin.items": {
+    "other": "{count} รายการ"
+  },
+  "recycleBin.open": "เปิดถังรีไซเคิล"
+}

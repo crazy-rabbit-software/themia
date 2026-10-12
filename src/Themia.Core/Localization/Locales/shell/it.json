@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "Unità di sistema ({drive})",
   "shell.meters.gpuDescription": "Carico grafico, per scheda",
   "shell.meters.batteryDescription": "Livello di carica",
-  "shell.appearance.headerFade": "Quanto è opaca la striscia dell’intestazione; 100% corrisponde al widget",
+  "shell.appearance.headerFade": "Quanto è opaca la striscia dell’intestazione; {percent} corrisponde al widget",
   "shell.views.add": "Aggiungi vista",
   "shell.views.addDesc": "Una nuova vista vuota in fondo all’elenco",
   "shell.views.more": "Altre opzioni",

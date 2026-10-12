@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Группировать по приложению",
   "details.settings.processes.group.desc": "Все процессы одной программы — одна строка",
   "details.settings.network.public.label": "Публичный адрес",
-  "details.settings.network.public.desc": "Запрашивает api.ipify.org не чаще раза в 10 минут",
+  "details.settings.network.public.desc": "Запрашивает api.ipify.org не чаще раза в {minutes} минут",
   "details.settings.disk.drives": "Диски",
   "details.settings.disk.all.label": "Все диски",
   "details.settings.disk.all.desc": "Показывать каждый диск Windows по мере подключения и отключения",

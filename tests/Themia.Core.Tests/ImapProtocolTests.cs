@@ -64,4 +64,18 @@ public class ImapProtocolTests
         Assert.Equal("https://contacts.icloud.com", DavPresets.ForAddress("me@icloud.com", DavKind.Contacts));
         Assert.Null(DavPresets.ForAddress("me@example.org", DavKind.Calendar));
     }
+
+    [Fact]
+    public void S553_issue_169_the_client_names_itself_with_an_rfc_2971_id()
+    {
+        // Classic issue #169: 163.com (NetEase) refuses SELECT with "Unsafe Login" until the client
+        // identifies itself after LOGIN. The ID is a parenthesised list of quoted field/value pairs.
+        Assert.Equal("ID (\"name\" \"Themia\" \"vendor\" \"Lometics GmbH\")", ImapProtocol.IdCommand);
+
+        // Sent only to a server that advertises ID; one that does not is never asked.
+        var id = Themia.Core.Mail.ImapParser.Parse("* CAPABILITY IMAP4rev1 ID IDLE"u8.ToArray());
+        var none = Themia.Core.Mail.ImapParser.Parse("* CAPABILITY IMAP4rev1 IDLE"u8.ToArray());
+        Assert.True(Themia.Core.Mail.ImapDelta.HasCapability(id, "ID"));
+        Assert.False(Themia.Core.Mail.ImapDelta.HasCapability(none, "ID"));
+    }
 }

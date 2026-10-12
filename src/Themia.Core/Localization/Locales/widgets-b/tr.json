@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Henüz klasör seçilmedi.",
   "widgetsB.settings.gallery.showing": "Gösterilen: {name}",
   "widgetsB.habits.minutes.empty": "Bir dakika sayısı girin.",
-  "widgetsB.habits.minutes.notWhole": "Yalnızca tam dakika, örneğin 30.",
+  "widgetsB.habits.minutes.notWhole": "Yalnızca tam dakika, örneğin {example}.",
   "widgetsB.habits.minutes.range": "{min} ile {max} dakika arası (bir gün).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Hafta: {date}",
@@ -244,7 +244,7 @@
     "one": "{count} dakikada bir temizlenir.",
     "other": "{count} dakikada bir temizlenir."
   },
-  "widgetsB.settings.habits.interval.desc": "Pencere başına dakika, 1 ile 1440 arası",
+  "widgetsB.settings.habits.interval.desc": "Pencere başına dakika, {min} ile {max} arası",
   "widgetsB.settings.habits.resets.label": "Sıfırlanma",
   "widgetsB.settings.habits.everyHour": "Her saat",
   "widgetsB.settings.habits.everyDay": "Her gün",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "Serileri göster",
   "widgetsB.settings.habits.streaks.desc": "Her alışkanlığın sürdürdüğü seri",
   "widgetsB.settings.habits.history.label": "Geçmiş",
-  "widgetsB.settings.habits.history.desc": "Geçmiş dönemler nokta olarak; 0 bunları gizler",
+  "widgetsB.settings.habits.history.desc": "Geçmiş dönemler nokta olarak; {zero} bunları gizler",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} alışkanlık",
     "other": "{count} alışkanlık"

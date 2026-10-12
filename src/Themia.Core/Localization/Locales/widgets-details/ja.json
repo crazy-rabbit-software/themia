@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "アプリごとにまとめる",
   "details.settings.processes.group.desc": "1 つのプログラムのプロセスを 1 行にまとめます",
   "details.settings.network.public.label": "パブリック アドレス",
-  "details.settings.network.public.desc": "api.ipify.org に問い合わせます (最短 10 分間隔)",
+  "details.settings.network.public.desc": "api.ipify.org に問い合わせます (最短 {minutes} 分間隔)",
   "details.settings.disk.drives": "ドライブ",
   "details.settings.disk.all.label": "すべてのドライブ",
   "details.settings.disk.all.desc": "Windows のすべてのドライブを、接続や取り外しに合わせて表示",

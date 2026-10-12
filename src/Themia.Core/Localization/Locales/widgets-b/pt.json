@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Nenhuma pasta escolhida ainda.",
   "widgetsB.settings.gallery.showing": "Mostrando {name}",
   "widgetsB.habits.minutes.empty": "Digite um número de minutos.",
-  "widgetsB.habits.minutes.notWhole": "Somente minutos inteiros, como 30.",
+  "widgetsB.habits.minutes.notWhole": "Somente minutos inteiros, como {example}.",
   "widgetsB.habits.minutes.range": "Entre {min} e {max} minutos (um dia).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Semana de {date}",
@@ -244,7 +244,7 @@
     "one": "É limpo a cada {count} minuto.",
     "other": "É limpo a cada {count} minutos."
   },
-  "widgetsB.settings.habits.interval.desc": "Minutos por intervalo, de 1 a 1440",
+  "widgetsB.settings.habits.interval.desc": "Minutos por intervalo, de {min} a {max}",
   "widgetsB.settings.habits.resets.label": "Reinicia",
   "widgetsB.settings.habits.everyHour": "A cada hora",
   "widgetsB.settings.habits.everyDay": "Todos os dias",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "Mostrar sequências",
   "widgetsB.settings.habits.streaks.desc": "A sequência de cada hábito",
   "widgetsB.settings.habits.history.label": "Histórico",
-  "widgetsB.settings.habits.history.desc": "Períodos passados como pontos; 0 oculta-os",
+  "widgetsB.settings.habits.history.desc": "Períodos passados como pontos; {zero} oculta-os",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} hábito",
     "other": "{count} hábitos"

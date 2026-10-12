@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Raggruppa per app",
   "details.settings.processes.group.desc": "Tutti i processi di un programma in una riga",
   "details.settings.network.public.label": "Indirizzo pubblico",
-  "details.settings.network.public.desc": "Interroga api.ipify.org, al massimo ogni 10 minuti",
+  "details.settings.network.public.desc": "Interroga api.ipify.org, al massimo ogni {minutes} minuti",
   "details.settings.disk.drives": "Unità",
   "details.settings.disk.all.label": "Tutte le unità",
   "details.settings.disk.all.desc": "Ogni unità di Windows, man mano che compare o scompare",

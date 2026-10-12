@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "सिस्टम ड्राइव्ह ({drive})",
   "shell.meters.gpuDescription": "प्रति अ‍ॅडॉप्टर ग्राफिक्स लोड",
   "shell.meters.batteryDescription": "चार्ज पातळी",
-  "shell.appearance.headerFade": "हेडर पट्टी किती गडद आहे; 100% विजेटशी जुळते",
+  "shell.appearance.headerFade": "हेडर पट्टी किती गडद आहे; {percent} विजेटशी जुळते",
   "shell.views.add": "दृश्य जोडा",
   "shell.views.addDesc": "सूचीच्या शेवटी नवीन, रिकामे दृश्य",
   "shell.views.more": "अधिक पर्याय",

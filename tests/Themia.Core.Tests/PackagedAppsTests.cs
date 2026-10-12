@@ -115,4 +115,108 @@ public class PackagedAppsTests
         // A document past the cap is not read.
         Assert.Null(PackagedApps.AppsFolderTarget(exe, _ => OneApp + new string(' ', PackagedApps.MaxManifestCharacters)));
     }
+
+    private const string CodexRoot = @"C:\Program Files\WindowsApps\OpenAI.Codex_26.1007.2314.0_x64__2p2nqsd0c76g0";
+
+    // The shape of Codex's manifest: a white logo for the dark taskbar, a light-theme one beside it.
+    private const string CodexManifest = """
+        <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+                 xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+          <Applications>
+            <Application Id="App" Executable="app/ChatGPT.exe" EntryPoint="Windows.FullTrustApplication">
+              <uap:VisualElements DisplayName="ChatGPT" Square44x44Logo="assets/Square44x44Logo.png" BackgroundColor="#3143ff" />
+            </Application>
+          </Applications>
+        </Package>
+        """;
+
+    private static readonly string[] CodexAssets =
+    [
+        "Square150x150Logo.png",
+        "Square44x44Logo.png",
+        "Square44x44Logo.scale-200.png",
+        "Square44x44Logo.targetsize-24_altform-lightunplated.png",
+        "Square44x44Logo.targetsize-24_altform-unplated.png",
+        "Square44x44Logo.targetsize-48_altform-lightunplated.png",
+        "Square44x44Logo.targetsize-48_altform-unplated.png",
+        "Square44x44Logo.targetsize-48_altform-lightunplated_contrast-black.png",
+        "Square44x44Logo.targetsize-64_altform-colorful_theme-light.png",
+        "Square44x44Logo.targetsize-96_altform-lightunplated.png",
+        "Square44x44Logo.targetsize-96_altform-unplated.png",
+    ];
+
+    private static PackagedLogo? Codex(LogoTheme theme, int pixels, IReadOnlyList<string> files, string manifest = CodexManifest)
+    {
+        string? listed = null;
+        var logo = PackagedApps.Logo(
+            CodexRoot + @"\app\ChatGPT.exe",
+            _ => manifest,
+            folder =>
+            {
+                listed = folder;
+                return files;
+            },
+            theme,
+            pixels);
+
+        Assert.True(listed is null || listed == CodexRoot + @"\assets", listed);
+        return logo;
+    }
+
+    [Fact]
+    public void S3965_a_light_card_draws_the_light_theme_logo_and_a_dark_card_the_dark_one()
+    {
+        // Regression: the shell's Apps-folder item drew Codex's white dark-theme logo on a light card.
+        Assert.Equal(
+            new PackagedLogo(CodexRoot + @"\assets\Square44x44Logo.targetsize-48_altform-lightunplated.png", null),
+            Codex(LogoTheme.Light, 48, CodexAssets));
+        Assert.Equal(
+            new PackagedLogo(CodexRoot + @"\assets\Square44x44Logo.targetsize-48_altform-unplated.png", null),
+            Codex(LogoTheme.Dark, 48, CodexAssets));
+    }
+
+    [Fact]
+    public void S3965_the_size_is_the_smallest_not_under_the_one_drawn_else_the_largest()
+    {
+        Assert.EndsWith("targetsize-48_altform-lightunplated.png", Codex(LogoTheme.Light, 40, CodexAssets)!.File);
+        Assert.EndsWith("targetsize-24_altform-unplated.png", Codex(LogoTheme.Dark, 20, CodexAssets)!.File);
+        Assert.EndsWith("targetsize-96_altform-unplated.png", Codex(LogoTheme.Dark, 200, CodexAssets)!.File);
+    }
+
+    [Fact]
+    public void S3965_without_an_unplated_logo_the_plated_one_stands_on_its_background_colour()
+    {
+        string[] plated = ["Square44x44Logo.png", "Square44x44Logo.scale-200.png", "Square44x44Logo.targetsize-48_contrast-white.png"];
+
+        // scale-200 is 88 px: the smallest not under 48.
+        Assert.Equal(
+            new PackagedLogo(CodexRoot + @"\assets\Square44x44Logo.scale-200.png", "#3143FF"),
+            Codex(LogoTheme.Light, 48, plated));
+
+        // A transparent or named background is no plate.
+        Assert.Null(Codex(LogoTheme.Dark, 48, plated, CodexManifest.Replace("#3143ff", "transparent"))!.Plate);
+        Assert.Null(Codex(LogoTheme.Dark, 48, plated, CodexManifest.Replace("#3143ff", "blue"))!.Plate);
+
+        // Only a dark-theme unplated logo: on a light card the plated one goes before it.
+        string[] terminal = ["Square44x44Logo.targetsize-48.png", "Square44x44Logo.targetsize-48_altform-unplated.png"];
+        Assert.EndsWith("targetsize-48.png", Codex(LogoTheme.Light, 48, terminal)!.File);
+        Assert.EndsWith("targetsize-48_altform-unplated.png", Codex(LogoTheme.Dark, 48, terminal)!.File);
+
+        // Nothing but the unplated dark one: drawn on a light card too, rather than nothing.
+        Assert.EndsWith("_altform-unplated.png", Codex(LogoTheme.Light, 48, ["Square44x44Logo.targetsize-48_altform-unplated.png"])!.File);
+
+        // theme-light with altform-unplated is the light-theme asset.
+        Assert.EndsWith("_altform-unplated_theme-light.png", Codex(LogoTheme.Light, 48, [.. terminal, "Square44x44Logo.targetsize-48_altform-unplated_theme-light.png"])!.File);
+    }
+
+    [Fact]
+    public void S3965_no_asset_or_an_unsafe_logo_path_leaves_the_icon_to_the_shell()
+    {
+        Assert.Null(Codex(LogoTheme.Light, 48, []));
+        Assert.Null(Codex(LogoTheme.Light, 48, ["Square150x150Logo.png", "Square44x44Logo.targetsize-48_contrast-black.png", "Square44x44Logo.targetsize-48_altform-colorful.png"]));
+        Assert.Null(Codex(LogoTheme.Light, 48, CodexAssets, CodexManifest.Replace("assets/Square44x44Logo.png", "../../evil/Logo.png")));
+        Assert.Null(Codex(LogoTheme.Light, 48, CodexAssets, CodexManifest.Replace("assets/Square44x44Logo.png", @"C:\evil\Logo.png")));
+        Assert.Null(Codex(LogoTheme.Light, 48, CodexAssets, CodexManifest.Replace(" Square44x44Logo=\"assets/Square44x44Logo.png\"", string.Empty)));
+        Assert.Null(PackagedApps.Logo(@"C:\Windows\explorer.exe", _ => CodexManifest, _ => CodexAssets, LogoTheme.Light, 48));
+    }
 }

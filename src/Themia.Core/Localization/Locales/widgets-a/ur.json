@@ -48,7 +48,7 @@
   "widgetsA.calendar.readFailed": "کیلنڈر پڑھا نہیں جا سکا۔ themia.log دیکھیں۔",
   "widgetsA.calendar.settings.accounts": "اکاؤنٹس اور کیلنڈرز",
   "widgetsA.calendar.settings.addHint": "اکاؤنٹس کے صفحے پر سائن ان کریں",
-  "widgetsA.calendar.settings.agendaCount.desc": "اگلے 30 دنوں میں ایجنڈا کتنی تقاریب دکھائے",
+  "widgetsA.calendar.settings.agendaCount.desc": "اگلے {days} دنوں میں ایجنڈا کتنی تقاریب دکھائے",
   "widgetsA.calendar.settings.birthdays.desc": "Microsoft اور Google اکاؤنٹس سے آپ کے رابطوں کی سالگرہیں",
   "widgetsA.calendar.settings.colorAuto": "خودکار",
   "widgetsA.calendar.settings.colorOf": "{name} کا رنگ",

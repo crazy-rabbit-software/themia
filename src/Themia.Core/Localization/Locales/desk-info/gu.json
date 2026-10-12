@@ -1,0 +1,33 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "વર્ષની પ્રગતિ",
+  "yearProgress.desc": "દિવસ, અઠવાડિયું, મહિનો અને વર્ષ કેટલું વીતી ગયું",
+  "yearProgress.day": "દિવસ",
+  "yearProgress.week": "અઠવાડિયું",
+  "yearProgress.month": "મહિનો",
+  "yearProgress.year": "વર્ષ",
+  "yearProgress.left": "{time} બાકી",
+  "yearProgress.weekNumber": "અઠવાડિયું {number}",
+  "yearProgress.dayOf": "{days} માંથી દિવસ {day}",
+  "meeting.label": "આગલી મીટિંગ",
+  "meeting.desc": "તમારી આગલી ઇવેન્ટ, ઑનલાઇન મીટિંગ માટે જોડાઓ બટન સાથે",
+  "meeting.join": "જોડાઓ",
+  "meeting.joinTip": "ઑનલાઇન મીટિંગમાં જોડાઓ",
+  "meeting.nowEnds": "હમણાં · {time} એ સમાપ્ત",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "આગળ કંઈ નથી",
+  "recentFiles.label": "તાજેતરની ફાઇલો",
+  "recentFiles.desc": "તમે છેલ્લે ખોલેલી ફાઇલો",
+  "recentFiles.empty": "તાજેતરમાં કંઈ ખોલ્યું નથી",
+  "recentFiles.unreadable": "Windows ની તાજેતરની આઇટમ્સ વાંચી શકાઈ નહીં",
+  "recentFiles.remove": "સૂચિમાંથી દૂર કરો",
+  "recycleBin.desc": "રિસાયકલ બિન કેટલું ભરેલું છે, ખાલી કરો બટન સાથે",
+  "recycleBin.empty": "ખાલી કરો",
+  "recycleBin.emptyEllipsis": "રિસાયકલ બિન ખાલી કરો…",
+  "recycleBin.isEmpty": "કોઈ આઇટમ નથી",
+  "recycleBin.items": {
+    "one": "{count} આઇટમ",
+    "other": "{count} આઇટમ્સ"
+  },
+  "recycleBin.open": "રિસાયકલ બિન ખોલો"
+}

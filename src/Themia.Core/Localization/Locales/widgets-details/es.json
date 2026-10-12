@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Agrupar por app",
   "details.settings.processes.group.desc": "Todos los procesos de un programa en una fila",
   "details.settings.network.public.label": "Dirección pública",
-  "details.settings.network.public.desc": "Consulta api.ipify.org, como mucho cada 10 minutos",
+  "details.settings.network.public.desc": "Consulta api.ipify.org, como mucho cada {minutes} minutos",
   "details.settings.disk.drives": "Unidades",
   "details.settings.disk.all.label": "Todas las unidades",
   "details.settings.disk.all.desc": "Cada unidad de Windows, según aparece o desaparece",

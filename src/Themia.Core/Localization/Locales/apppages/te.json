@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "వీక్షణను తరలించడానికి దాన్ని మరొకదానిపైకి లాగండి, లేదా వీక్షణపై Alt+Shift+Up లేదా Down నొక్కండి.",
+  "shell.list.reorderHint": "అంశాన్ని తరలించడానికి దాన్ని మరొకదానిపైకి లాగండి, లేదా అంశంపై Alt+Shift+Up లేదా Down నొక్కండి.",
+  "shell.view.colour": "రంగు",
+  "shell.view.colourDesc": "వీక్షణ బార్‌లో మరియు ఈ విండోలో చిహ్నం రంగు",
+  "shell.view.colourDefault": "వచన రంగు",
+  "shell.appearance.themeColours": "థీమ్ మరియు రంగులు",
+  "shell.appearance.cards": "విడ్జెట్ కార్డ్‌లు",
+  "shell.appearance.cardsDesc": "అంచు, మూలలు మరియు అవుట్‌లైన్",
+  "shell.appearance.textAndSize": "వచనం మరియు పరిమాణం",
+  "shell.appearance.textAndSizeDesc": "ఫాంట్, వచన పరిమాణం మరియు విడ్జెట్ స్కేల్",
+  "shell.appearance.layoutDesc": "విడ్జెట్‌ల మధ్య ఖాళీ మరియు గ్రిడ్‌కు అతికించడం",
+  "shell.net.blockedLocal": "{host} స్థానిక నెట్‌వర్క్‌లో ఉంది. మీరే టైప్ చేసిన చిరునామా కోసం మాత్రమే Themia అక్కడికి వెళ్తుంది",
+  "shell.accounts.stats.mail": "మెయిల్",
+  "shell.accounts.stats.calendar": "క్యాలెండర్",
+  "shell.accounts.stats.contacts": "పరిచయాలు",
+  "shell.accounts.stats.tasks": "పనులు",
+  "shell.accounts.stats.messages": {
+    "one": "{count} సందేశం",
+    "other": "{count} సందేశాలు"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} ఈవెంట్",
+    "other": "{count} ఈవెంట్‌లు"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} పరిచయం",
+    "other": "{count} పరిచయాలు"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} పని",
+    "other": "{count} పనులు"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} ఫోల్డర్‌లో",
+    "other": "{count} ఫోల్డర్‌లలో"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} క్యాలెండర్‌లో",
+    "other": "{count} క్యాలెండర్‌లలో"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} జాబితాలో",
+    "other": "{count} జాబితాలలో"
+  },
+  "shell.accounts.stats.synced": "{time} సమకాలీకరించబడింది",
+  "shell.accounts.stats.neverSynced": "ఇంకా సమకాలీకరించబడలేదు",
+  "shell.accounts.stats.nothing": "ఈ PCలో ఇంకా ఏమీ నిల్వ చేయబడలేదు",
+  "shell.accounts.nicknameDesc": "ఈ ఖాతా కోసం విడ్జెట్‌లు చూపించే పేరు",
+  "shell.accounts.reconnect": "మళ్లీ సైన్ ఇన్ చేయి",
+  "shell.accounts.reconnectButton": "సైన్ ఇన్",
+  "shell.accounts.signOutDesc": "ఈ PCలో ఖాతాను మరియు దాని నుండి సమకాలీకరించిన ప్రతిదాన్ని మరచిపోతుంది",
+  "shell.accounts.needsSignIn": "మీరు మళ్లీ సైన్ ఇన్ చేయాలి"
+}

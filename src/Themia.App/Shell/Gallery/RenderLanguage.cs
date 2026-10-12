@@ -28,7 +28,7 @@ internal static class RenderLanguage
             return locale;
         }
 
-        Log.Error(Scope, "usage: --lang <en|de|es|fr|it|ja|pl|pt|zh|hi|ar|bn|ru|id|ur|mr|vi|ko|nl|tr|zh-Hant>; rendering in English");
+        Log.Error(Scope, "usage: --lang <en|de|es|fr|it|ja|pl|pt|zh|hi|ar|bn|ru|id|ur|mr|vi|ko|nl|tr|zh-Hant|te|ha|pa|sw|fil|ta|fa|th|gu>; rendering in English");
         return null;
     }
 

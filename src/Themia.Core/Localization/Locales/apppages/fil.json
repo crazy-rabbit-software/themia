@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "I-drag ang isang view papunta sa iba para ilipat ito, o pindutin ang Alt+Shift+Up o Down sa isang view.",
+  "shell.list.reorderHint": "I-drag ang isang item papunta sa iba para ilipat ito, o pindutin ang Alt+Shift+Up o Down sa isang item.",
+  "shell.view.colour": "Kulay",
+  "shell.view.colourDesc": "Ang kulay ng icon sa view bar at sa window na ito",
+  "shell.view.colourDefault": "Kulay ng text",
+  "shell.appearance.themeColours": "Tema at mga kulay",
+  "shell.appearance.cards": "Mga card ng widget",
+  "shell.appearance.cardsDesc": "Border, mga sulok at outline",
+  "shell.appearance.textAndSize": "Text at laki",
+  "shell.appearance.textAndSizeDesc": "Font, laki ng text at scale ng widget",
+  "shell.appearance.layoutDesc": "Puwang sa pagitan ng mga widget at pag-snap sa grid",
+  "shell.net.blockedLocal": "Nasa lokal na network ang {host}. Pupunta lang doon ang Themia para sa address na ikaw mismo ang nag-type",
+  "shell.accounts.stats.mail": "Mail",
+  "shell.accounts.stats.calendar": "Kalendaryo",
+  "shell.accounts.stats.contacts": "Mga contact",
+  "shell.accounts.stats.tasks": "Mga gawain",
+  "shell.accounts.stats.messages": {
+    "one": "{count} mensahe",
+    "other": "{count} mensahe"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} event",
+    "other": "{count} event"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} contact",
+    "other": "{count} contact"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} gawain",
+    "other": "{count} gawain"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "sa {count} folder",
+    "other": "sa {count} folder"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "sa {count} kalendaryo",
+    "other": "sa {count} kalendaryo"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "sa {count} listahan",
+    "other": "sa {count} listahan"
+  },
+  "shell.accounts.stats.synced": "na-sync {time}",
+  "shell.accounts.stats.neverSynced": "hindi pa na-sync",
+  "shell.accounts.stats.nothing": "Wala pang naka-store sa PC na ito",
+  "shell.accounts.nicknameDesc": "Ang pangalang ipinapakita ng mga widget para sa account na ito",
+  "shell.accounts.reconnect": "Mag-sign in ulit",
+  "shell.accounts.reconnectButton": "Mag-sign in",
+  "shell.accounts.signOutDesc": "Kinakalimutan ang account at lahat ng na-sync mula rito sa PC na ito",
+  "shell.accounts.needsSignIn": "Kailangan mong mag-sign in ulit"
+}

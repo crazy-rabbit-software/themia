@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "An sabunta {time}",
+  "sync.stateUpdated": "{state} · an sabunta {time}",
+  "sync.pending": {
+    "one": "Canji {count} yana jiran daidaitawa",
+    "other": "Canje-canje {count} suna jiran daidaitawa"
+  },
+  "sync.queueFull": "Canje-canje da yawa suna jiran daidaitawa; ba a ajiye wannan ba.",
+  "sync.withUpdated": "{sentence} An sabunta {time}."
+}

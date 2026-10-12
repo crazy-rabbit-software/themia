@@ -605,7 +605,7 @@
   "shell.meters.systemDrive": "Sistem sürücüsü ({drive})",
   "shell.meters.gpuDescription": "Bağdaştırıcı başına grafik yükü",
   "shell.meters.batteryDescription": "Şarj düzeyi",
-  "shell.appearance.headerFade": "Başlık şeridinin ne kadar opak olduğu; %100 pencere öğesiyle eşleşir",
+  "shell.appearance.headerFade": "Başlık şeridinin ne kadar opak olduğu; {percent} pencere öğesiyle eşleşir",
   "shell.views.add": "Görünüm ekle",
   "shell.views.addDesc": "Listenin sonunda yeni, boş bir görünüm",
   "shell.views.more": "Diğer seçenekler",

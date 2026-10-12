@@ -1,0 +1,48 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "ลากมุมมองไปวางบนมุมมองอื่นเพื่อย้าย หรือกด Alt+Shift+Up หรือ Down บนมุมมอง",
+  "shell.list.reorderHint": "ลากรายการไปวางบนรายการอื่นเพื่อย้าย หรือกด Alt+Shift+Up หรือ Down บนรายการ",
+  "shell.view.colour": "สี",
+  "shell.view.colourDesc": "สีของไอคอนในแถบมุมมองและในหน้าต่างนี้",
+  "shell.view.colourDefault": "สีข้อความ",
+  "shell.appearance.themeColours": "ธีมและสี",
+  "shell.appearance.cards": "การ์ดวิดเจ็ต",
+  "shell.appearance.cardsDesc": "เส้นขอบ มุม และเส้นกรอบ",
+  "shell.appearance.textAndSize": "ข้อความและขนาด",
+  "shell.appearance.textAndSizeDesc": "ฟอนต์ ขนาดข้อความ และมาตราส่วนวิดเจ็ต",
+  "shell.appearance.layoutDesc": "ระยะห่างระหว่างวิดเจ็ตและการจัดชิดเส้นตาราง",
+  "shell.net.blockedLocal": "{host} อยู่ในเครือข่ายท้องถิ่น Themia จะเชื่อมต่อไปที่นั่นเฉพาะที่อยู่ที่คุณพิมพ์เองเท่านั้น",
+  "shell.accounts.stats.mail": "อีเมล",
+  "shell.accounts.stats.calendar": "ปฏิทิน",
+  "shell.accounts.stats.contacts": "ผู้ติดต่อ",
+  "shell.accounts.stats.tasks": "งาน",
+  "shell.accounts.stats.messages": {
+    "other": "{count} ข้อความ"
+  },
+  "shell.accounts.stats.events": {
+    "other": "{count} กิจกรรม"
+  },
+  "shell.accounts.stats.people": {
+    "other": "ผู้ติดต่อ {count} ราย"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "{count} งาน"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "ใน {count} โฟลเดอร์"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "ใน {count} ปฏิทิน"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "ใน {count} รายการ"
+  },
+  "shell.accounts.stats.synced": "ซิงค์เมื่อ {time}",
+  "shell.accounts.stats.neverSynced": "ยังไม่ได้ซิงค์",
+  "shell.accounts.stats.nothing": "ยังไม่มีข้อมูลจัดเก็บบนพีซีเครื่องนี้",
+  "shell.accounts.nicknameDesc": "ชื่อที่วิดเจ็ตแสดงสำหรับบัญชีนี้",
+  "shell.accounts.reconnect": "ลงชื่อเข้าใช้อีกครั้ง",
+  "shell.accounts.reconnectButton": "ลงชื่อเข้าใช้",
+  "shell.accounts.signOutDesc": "ลืมบัญชีนี้และทุกอย่างที่ซิงค์จากบัญชีนี้บนพีซีเครื่องนี้",
+  "shell.accounts.needsSignIn": "ต้องลงชื่อเข้าใช้อีกครั้ง"
+}

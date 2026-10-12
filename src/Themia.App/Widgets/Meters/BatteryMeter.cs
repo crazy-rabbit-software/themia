@@ -24,8 +24,8 @@ internal sealed class BatteryMeter : MeterPart
 
     public override bool CanBeAbsent => true;
 
-    /// <summary>The icon sits beside the number, about two characters wide at the reading's size.</summary>
-    public override double ReadingCharacters => base.ReadingCharacters + 2;
+    /// <summary>[S-1187] The charge glyph leads the reading; the ladder measures it as the readout's glyph ([S-3860]).</summary>
+    public override bool HasBadge => true;
 
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, reading.Charging);

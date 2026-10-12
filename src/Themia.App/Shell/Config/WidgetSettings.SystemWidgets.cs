@@ -31,7 +31,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(), Str.WidgetsC_ScreenTime_Settings_ChartPeriod_Desc.Text(),
             FluentLayout.Choice(
-                [(ScreenTimePeriod.Week, Str.Screentime_Last7Days.Text()), (ScreenTimePeriod.Month, Str.Screentime_Last30Days.Text())],
+                [(ScreenTimePeriod.Week, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week)), (ScreenTimePeriod.Month, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month))],
                 ScreenTimeRules.ChartPeriod(config.Period),
                 value => { config.Period = value; save(); })));
 
@@ -68,7 +68,7 @@ internal static partial class WidgetSettings
 
         // [S-1211] A ceiling over what the tile has room for.
         rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsC_ScreenTime_Settings_Most_Label.Text(),
-            Str.WidgetsC_ScreenTime_Settings_Most_Desc.Text(),
+            Str.WidgetsC_ScreenTime_Settings_Most_Desc.Format(("zero", 0)),
             FluentLayout.Slider(ScreenTimeRules.EffectiveMaxApps(config.MaxApps), 0, ScreenTimeRules.MaxAppsLimit, 1, string.Empty,
                 value => { config.MaxApps = (int)Math.Round(value); save(); }),
             "apps listed", "max apps"));
@@ -88,7 +88,7 @@ internal static partial class WidgetSettings
     private static Border PeriodRow(ScreenTimePeriod period, Action<ScreenTimePeriod> changed)
         => FluentLayout.Row(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(), Str.WidgetsC_ScreenTime_Settings_Period_Desc.Text(),
             FluentLayout.Choice(
-                [(ScreenTimePeriod.Day, Str.Screentime_Cfg_PeriodDay.Text()), (ScreenTimePeriod.Week, Str.Screentime_Last7Days.Text()), (ScreenTimePeriod.Month, Str.Screentime_Last30Days.Text())],
+                [(ScreenTimePeriod.Day, Str.Screentime_Cfg_PeriodDay.Text()), (ScreenTimePeriod.Week, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week)), (ScreenTimePeriod.Month, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month))],
                 ScreenTimeRules.ClampPeriod(period),
                 changed));
 
@@ -119,7 +119,7 @@ internal static partial class WidgetSettings
     /// </summary>
     private static void AddLimits(List<FrameworkElement> rows, IScreenTimeSource source)
     {
-        rows.Add(FluentLayout.Row(Glyphs.Timer, Str.WidgetsC_ScreenTime_DailyLimit.Text(), Str.WidgetsC_ScreenTime_Settings_DailyLimit_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Timer, Str.WidgetsC_ScreenTime_DailyLimit.Text(), Str.WidgetsC_ScreenTime_Settings_DailyLimit_Desc.Format(("zero", 0)),
             FluentLayout.Slider(Math.Clamp(source.Preferences.GoalSeconds / 60, 0, 1440), 0, 1440, 15, Str.WidgetsC_Pomodoro_MinutesUnit.Text(),
                 value =>
                 {

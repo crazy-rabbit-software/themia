@@ -192,7 +192,7 @@ internal static partial class WidgetSettings
     {
         try
         {
-            icon.Source = await AppIcons.GetAsync(uri, (int)(Fluent.IconSize * 2)).ConfigureAwait(true);
+            icon.Source = await AppIcons.GetAsync(uri, (int)(Fluent.IconSize * 2), AppIcons.ThemeOf(icon)).ConfigureAwait(true);
         }
         catch (Exception ex)
         {

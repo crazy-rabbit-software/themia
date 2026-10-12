@@ -3,7 +3,7 @@ namespace Themia.Core.Localization;
 /// <summary>
 /// [S-1113] Which way a language's UI runs, and which icons turn with it.
 /// <para>
-/// Arabic and Urdu read right to left, and so does their UI: settings, card content, menus, the
+/// Arabic, Urdu and Persian read right to left, and so does their UI: settings, card content, menus, the
 /// edit bar and the view bar mirror. What does not mirror is decided here and in the views, after
 /// Windows' own guidance: where a widget sits on the desktop (that is the user's geometry, not
 /// text), numbers and clock faces, media transport (play, previous, next, seek), and charts whose
@@ -13,7 +13,7 @@ namespace Themia.Core.Localization;
 public static class TextDirection
 {
     /// <summary>Whether <paramref name="locale"/>'s UI runs right to left.</summary>
-    public static bool IsRightToLeft(Locale locale) => locale is Locale.Ar or Locale.Ur;
+    public static bool IsRightToLeft(Locale locale) => locale is Locale.Ar or Locale.Ur or Locale.Fa;
 
     /// <summary>
     /// Segoe Fluent Icons glyphs that point a way along the line of text and so turn round in a
@@ -49,7 +49,9 @@ public static class TextDirection
     /// and Bengali come out in Nirmala UI, Arabic, Urdu, Cyrillic and Vietnamese in Segoe UI,
     /// Japanese in Yu Gothic UI, Simplified Chinese in Microsoft YaHei UI, Korean (ko-KR) in Malgun
     /// Gothic, Traditional Chinese (zh-TW) in Microsoft JhengHei UI; Dutch and Turkish stay in
-    /// Segoe UI. Urdu is not asked for a Nastaliq face: Windows installs "Urdu Typesetting" only with the Urdu language pack, and its
+    /// Segoe UI. Telugu, Tamil, Gujarati and Gurmukhi (te-IN, ta-IN, gu-IN, pa-IN) come out in
+    /// Nirmala UI, Thai (th-TH) in Leelawadee UI, Persian (fa-IR), Hausa, Swahili and Filipino in
+    /// Segoe UI (which has Hausa's hooked letters). Urdu is not asked for a Nastaliq face: Windows installs "Urdu Typesetting" only with the Urdu language pack, and its
     /// tall lines would overflow every height the widgets budget in line heights.
     /// <para>
     /// The region does not decide the digits ([S-1115]): DirectWrite's contextual substitution
@@ -58,7 +60,10 @@ public static class TextDirection
     /// instead. Bengali is laid out as India (bn-IN), not Bangladesh, and keeps Latin digits:
     /// Windows' bn-BD default is Bengali digits, which run about a quarter wider than the Latin
     /// advance every widget's type ladder is measured on and clipped the tall clock. Urdu keeps
-    /// Latin digits, as Windows' ur-PK default and CLDR do; so does every other language here.
+    /// Latin digits, as Windows' ur-PK default and CLDR do. Persian writes Extended Arabic-Indic
+    /// digits, as Windows' fa-IR does. Thai, Telugu, Tamil, Gujarati and Punjabi keep Latin
+    /// digits, Windows' default for th-TH, te-IN, ta-IN, gu-IN and pa-IN (their own digits are an
+    /// opt-in there); so does every other language here.
     /// </para>
     /// </summary>
     public static string LayoutTag(Locale locale) => locale switch
@@ -77,6 +82,15 @@ public static class TextDirection
         Locale.Nl => "nl-NL",
         Locale.Tr => "tr-TR",
         Locale.ZhHant => "zh-TW",
+        Locale.Te => "te-IN",
+        Locale.Ha => "ha-NG",
+        Locale.Pa => "pa-IN",
+        Locale.Sw => "sw-KE",
+        Locale.Fil => "fil-PH",
+        Locale.Ta => "ta-IN",
+        Locale.Fa => "fa-IR",
+        Locale.Th => "th-TH",
+        Locale.Gu => "gu-IN",
         _ => LanguageResolver.Code(locale),
     };
 }

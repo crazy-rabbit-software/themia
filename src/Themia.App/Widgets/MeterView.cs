@@ -41,14 +41,8 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly MeterPart _part;
     private readonly WidgetKind _kind;
 
-    private readonly StackPanel _reading = new()
-    {
-        Orientation = Orientation.Horizontal,
-        Spacing = Fluent.Space2,
-    };
-
-    private readonly TextBlock _primary = Fluent.Text(FluentType.Subtitle);
-    private readonly FontIcon _badge = new();
+    // [S-3860] The shared hero readout: the number with its smaller unit, the battery's glyph as its icon.
+    private readonly HeroReadout _reading = new();
     private readonly SparkBand _band;
     private readonly StackPanel? _absentState;
 
@@ -67,7 +61,9 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
     // The ramp step currently applied. Kept so a sample that lands on the same step does not touch
     // the text block at all: re-applying a font size is a layout invalidation the tile does not need.
-    private TypeStep _heroStep = FluentType.Subtitle;
+    private TypeStep? _heroStep;
+    private bool _badged;
+    private string _shown = string.Empty;
 
     private WidgetArea _area;
     private bool _graph;
@@ -85,17 +81,12 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _config = WidgetConfig.CreateDefault(kind);
         _band = new SparkBand(60, _part.Scale);
 
-        _primary.Text = "--";
-        _primary.Foreground = _readingBrush;
-        _primary.VerticalAlignment = VerticalAlignment.Center;
+        _reading.SetValue("--", string.Empty, false);
 
-        // [S-1187] The kind's badge (the battery icon) leads the reading; its width is in the kind's
-        // ReadingCharacters, so the ladder never has to know it is there.
-        _badge.Visibility = Visibility.Collapsed;
-        _badge.VerticalAlignment = VerticalAlignment.Center;
-        _reading.Children.Add(_badge);
-        _reading.Children.Add(_primary);
-        _reading.Margin = WidgetLayout.SideInset;
+        // [S-1187] The kind's badge (the battery icon) leads the reading as the readout's glyph; the
+        // ladder measures its width ([S-3860]).
+        _reading.Icon.VerticalAlignment = VerticalAlignment.Center;
+        _reading.Margin = new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
 
         // Two rows (the reading, the history) and two columns (the reading's, the history's on a
         // strip): each arrangement only moves the two parts between these cells.
@@ -167,7 +158,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
             return;
         }
 
-        var plan = MeterFace.Plan(_area, _graph, _part.ReadingCharacters, WidgetLayout.ContentInset, Fluent.Space2, GraphFloor);
+        var plan = MeterFace.Plan(_area, _graph, _part.ReadingCharacters, _part.HasBadge, Fluent.Space2, GraphFloor);
         var side = plan.Arrangement == MeterFaceArrangement.Side;
         var alone = plan.Arrangement == MeterFaceArrangement.ReadingOnly;
 
@@ -179,6 +170,9 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         SetRow(_reading, 0);
         SetRowSpan(_reading, alone || side ? 2 : 1);
         _reading.VerticalAlignment = alone || side ? VerticalAlignment.Center : VerticalAlignment.Top;
+        _reading.Margin = alone || side
+            ? new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0)
+            : new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
 
         _band.Visibility = plan.Graph ? Visibility.Visible : Visibility.Collapsed;
         SetRow(_band, side ? 0 : 1);
@@ -191,11 +185,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         if (plan.Reading != _heroStep)
         {
             _heroStep = plan.Reading;
-            _primary.Apply(plan.Reading);
-
-            // An icon's ink fills less of its em box than a figure's, so it is drawn a little larger
-            // than the type to stand as tall as the digits.
-            _badge.FontSize = Math.Round(plan.Reading.FontSize * 1.1);
+            _reading.Lay(plan.Reading, _badged, trailingBeside: true, linesBeside: false);
         }
     }
 
@@ -298,26 +288,35 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // rather than a dimmed "--".
         _absent = reading.Absent;
 
-        _primary.Text = reading.Primary;
+        // [S-3860] The number and its smaller unit, split again only when the text changed.
+        if (reading.Primary != _shown)
+        {
+            _shown = reading.Primary;
+            var text = HeroLayout.Split(reading.Primary);
+            _reading.SetValue(text.Value, text.Unit, text.Spaced);
+        }
 
         // Unavailable is a colour, not an opacity. Pressure colours the chart, never the number,
         // which stays legible whatever the load. Why it is unavailable is said on hover.
-        _primary.Foreground = reading.Available ? _readingBrush : _unavailableBrush;
+        _reading.ValueLine.Foreground = reading.Available ? _readingBrush : _unavailableBrush;
         ToolTipService.SetToolTip(_reading, reading.Available ? null : reading.Reason);
 
         var pressure = Pressure(_part.PressureOf(reading));
         _band.SetBrush(pressure);
 
         var badge = _part.Badge(reading);
-        _badge.Glyph = badge ?? string.Empty;
-        _badge.Foreground = pressure;
-        _badge.Visibility = badge is null ? Visibility.Collapsed : Visibility.Visible;
+        var badged = badge is not null;
+        _reading.Icon.Glyph = badge ?? string.Empty;
+        _reading.Icon.Foreground = pressure;
 
         _part.Observe(reading, this);
 
-        // Only the absent state swaps the face out; every other reading keeps the layout it has.
-        if (wasAbsent != _absent)
+        // Only the absent state and a glyph coming or going change the face; every other reading
+        // keeps the layout it has.
+        if (wasAbsent != _absent || badged != _badged)
         {
+            _badged = badged;
+            _heroStep = null;
             Lay();
         }
     }

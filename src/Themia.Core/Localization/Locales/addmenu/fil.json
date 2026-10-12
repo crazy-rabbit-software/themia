@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Sikat",
+  "addMenu.browse": "Mag-browse",
+  "addMenu.subject.time": "Oras",
+  "addMenu.subject.calendar": "Kalendaryo at mail",
+  "addMenu.subject.weather": "Panahon at langit",
+  "addMenu.subject.markets": "Balita at merkado",
+  "addMenu.subject.media": "Musika at media",
+  "addMenu.subject.notes": "Mga tala at tool",
+  "addMenu.subject.files": "Mga file at app",
+  "addMenu.subject.system": "System",
+  "addMenu.subject.devices": "Mga device at power",
+  "addMenu.subject.more": "Higit pa",
+  "addMenu.family.calendar": "Kalendaryo",
+  "addMenu.family.visualizer": "Visualizer",
+  "addMenu.family.folder": "Folder",
+  "addMenu.family.screenTime": "Oras sa screen",
+  "addMenu.family.powerButtons": "Mga power button"
+}

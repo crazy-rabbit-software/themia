@@ -102,4 +102,35 @@ public sealed class WidgetPartsTests
         Assert.True(held.LineHeight <= 110 + 0.001);
         Assert.Equal(FluentType.Display, HeroLayout.Grow(FluentType.Display, 100, 2000, 3, 2));
     }
+
+    [Theory]
+    [InlineData("42%", "42", "%", false)]
+    [InlineData("42 %", "42", "%", true)]
+    [InlineData("1.2 MB/s", "1.2", "MB/s", true)]
+    [InlineData("4,48 GHz", "4,48", "GHz", true)]
+    [InlineData("24 ms", "24", "ms", true)]
+    [InlineData("٤٢٪", "٤٢", "٪", false)]
+    public void S3860_a_reading_splits_into_its_number_and_the_unit_after_it(string text, string value, string unit, bool spaced)
+        => Assert.Equal(new HeroText(value, unit, spaced), HeroLayout.Split(text));
+
+    [Theory]
+    [InlineData("--")]
+    [InlineData("%42")]
+    [InlineData("1 234 ms")]
+    [InlineData("42")]
+    [InlineData("")]
+    [InlineData("‏42%")]
+    [InlineData("12. GB")]
+    public void S3860_a_reading_that_does_not_lead_with_a_figure_and_a_unit_stays_whole(string text)
+        => Assert.Equal(new HeroText(text, string.Empty, false), HeroLayout.Split(text));
+
+    [Fact]
+    public void S3860_the_tier_step_grows_with_the_tiles_smaller_class()
+    {
+        Assert.Equal(FluentType.Title, HeroLayout.TierStep(new WidgetArea(120, 76)));
+        Assert.Equal(FluentType.Title, HeroLayout.TierStep(new WidgetArea(320, 196)));
+        Assert.Equal(FluentType.Title, HeroLayout.TierStep(new WidgetArea(200, 356)));
+        Assert.Equal(FluentType.TitleLarge, HeroLayout.TierStep(new WidgetArea(560, 376)));
+        Assert.Equal(FluentType.Display, HeroLayout.TierStep(new WidgetArea(800, 516)));
+    }
 }

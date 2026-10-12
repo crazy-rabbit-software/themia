@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// The language the app's own text is shown in. The nine the original shipped, twelve more
+/// The language the app's own text is shown in. The nine the original shipped, twenty-one more
 /// ([S-1112]), and following Windows. A closed set: each value picks a string table, not a parameter.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<AppLanguage>))]
@@ -32,6 +32,15 @@ public enum AppLanguage
     Dutch = 19,
     Turkish = 20,
     ChineseTraditional = 21,
+    Telugu = 22,
+    Hausa = 23,
+    Punjabi = 24,
+    Swahili = 25,
+    Filipino = 26,
+    Tamil = 27,
+    Persian = 28,
+    Thai = 29,
+    Gujarati = 30,
 }
 
 /// <summary>
@@ -83,6 +92,7 @@ public enum FirstWeekday
     System = 0,
     Monday = 1,
     Sunday = 2,
+    Saturday = 3,
 }
 
 /// <summary>[S-3771] The scale weather is shown in.</summary>

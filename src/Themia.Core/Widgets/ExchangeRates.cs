@@ -197,6 +197,9 @@ public static class ExchangeRules
 
     /// <summary>The longest rate this widget prints, in characters, for a stable type step.</summary>
     public const double RateCharacters = 9;
+
+    /// <summary>[S-5141] The days the ECB's history file covers, as the chart setting names them.</summary>
+    public const int HistoryDays = 90;
 }
 
 /// <summary>

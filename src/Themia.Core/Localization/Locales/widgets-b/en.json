@@ -183,7 +183,7 @@
   "widgetsB.settings.gallery.noFolderYet": "No folder chosen yet.",
   "widgetsB.settings.gallery.showing": "Showing {name}",
   "widgetsB.habits.minutes.empty": "Enter a number of minutes.",
-  "widgetsB.habits.minutes.notWhole": "Whole minutes only, like 30.",
+  "widgetsB.habits.minutes.notWhole": "Whole minutes only, like {example}.",
   "widgetsB.habits.minutes.range": "Between {min} and {max} minutes (one day).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Week of {date}",
@@ -243,7 +243,7 @@
     "one": "Clears every minute.",
     "other": "Clears every {count} minutes."
   },
-  "widgetsB.settings.habits.interval.desc": "Minutes per window, 1 to 1440",
+  "widgetsB.settings.habits.interval.desc": "Minutes per window, {min} to {max}",
   "widgetsB.settings.habits.resets.label": "Resets",
   "widgetsB.settings.habits.everyHour": "Every hour",
   "widgetsB.settings.habits.everyDay": "Every day",
@@ -253,7 +253,7 @@
   "widgetsB.settings.habits.streaks.label": "Show streaks",
   "widgetsB.settings.habits.streaks.desc": "The run each habit is on",
   "widgetsB.settings.habits.history.label": "History",
-  "widgetsB.settings.habits.history.desc": "Past periods as dots; 0 hides them",
+  "widgetsB.settings.habits.history.desc": "Past periods as dots; {zero} hides them",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} habit",
     "other": "{count} habits"

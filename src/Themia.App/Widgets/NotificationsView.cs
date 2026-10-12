@@ -503,7 +503,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         try
         {
-            var image = await AppIcons.GetAsync(target, (int)Math.Ceiling(AppIconSize * 2)).ConfigureAwait(true);
+            var image = await AppIcons.GetAsync(target, (int)Math.Ceiling(AppIconSize * 2), AppIcons.ThemeOf(this)).ConfigureAwait(true);
             if (image is null || _detached)
             {
                 return;

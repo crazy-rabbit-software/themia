@@ -31,6 +31,19 @@ public enum Locale
 
     /// <summary>Traditional Chinese (Taiwan). <see cref="Zh"/> is Simplified.</summary>
     ZhHant = 20,
+    Te = 21,
+    Ha = 22,
+
+    /// <summary>Punjabi in the Gurmukhi script (India); Shahmukhi (pa-Arab, Pakistan) is not this table.</summary>
+    Pa = 23,
+    Sw = 24,
+    Fil = 25,
+    Ta = 26,
+
+    /// <summary>Persian (Iran): right to left, Extended Arabic-Indic digits, Saturday weeks.</summary>
+    Fa = 27,
+    Th = 28,
+    Gu = 29,
 }
 
 /// <summary>[S-1108] Turning the language setting (and Windows' language list) into a <see cref="Locale"/>.</summary>
@@ -40,11 +53,13 @@ public static class LanguageResolver
     public static IReadOnlyList<Locale> All { get; } =
         [Locale.En, Locale.De, Locale.Es, Locale.Fr, Locale.It, Locale.Ja, Locale.Pl, Locale.Pt, Locale.Zh,
          Locale.Hi, Locale.Ar, Locale.Bn, Locale.Ru, Locale.Id, Locale.Ur, Locale.Mr, Locale.Vi,
-         Locale.Ko, Locale.Nl, Locale.Tr, Locale.ZhHant];
+         Locale.Ko, Locale.Nl, Locale.Tr, Locale.ZhHant, Locale.Te, Locale.Ha, Locale.Pa, Locale.Sw,
+         Locale.Fil, Locale.Ta, Locale.Fa, Locale.Th, Locale.Gu];
 
     /// <summary>
     /// The language's code, which is also the locale file's name (<c>de</c> → de.json): two
-    /// letters, except Traditional Chinese, which is told apart by its script (<c>zh-Hant</c>).
+    /// letters, except Filipino (<c>fil</c>, its ISO 639 code) and Traditional Chinese, which is
+    /// told apart by its script (<c>zh-Hant</c>).
     /// <c>pt</c> is Brazilian Portuguese and <c>zh</c> Simplified Chinese (zh-Hans); each language
     /// has one file, so the codes stay short.
     /// </summary>
@@ -70,6 +85,15 @@ public static class LanguageResolver
         Locale.Nl => "nl",
         Locale.Tr => "tr",
         Locale.ZhHant => "zh-Hant",
+        Locale.Te => "te",
+        Locale.Ha => "ha",
+        Locale.Pa => "pa",
+        Locale.Sw => "sw",
+        Locale.Fil => "fil",
+        Locale.Ta => "ta",
+        Locale.Fa => "fa",
+        Locale.Th => "th",
+        Locale.Gu => "gu",
         _ => "en",
     };
 
@@ -109,6 +133,15 @@ public static class LanguageResolver
             AppLanguage.Dutch => Locale.Nl,
             AppLanguage.Turkish => Locale.Tr,
             AppLanguage.ChineseTraditional => Locale.ZhHant,
+            AppLanguage.Telugu => Locale.Te,
+            AppLanguage.Hausa => Locale.Ha,
+            AppLanguage.Punjabi => Locale.Pa,
+            AppLanguage.Swahili => Locale.Sw,
+            AppLanguage.Filipino => Locale.Fil,
+            AppLanguage.Tamil => Locale.Ta,
+            AppLanguage.Persian => Locale.Fa,
+            AppLanguage.Thai => Locale.Th,
+            AppLanguage.Gujarati => Locale.Gu,
             _ => FromSystem(preferredUiLanguages),
         };
     }
@@ -136,6 +169,15 @@ public static class LanguageResolver
         Locale.Nl => AppLanguage.Dutch,
         Locale.Tr => AppLanguage.Turkish,
         Locale.ZhHant => AppLanguage.ChineseTraditional,
+        Locale.Te => AppLanguage.Telugu,
+        Locale.Ha => AppLanguage.Hausa,
+        Locale.Pa => AppLanguage.Punjabi,
+        Locale.Sw => AppLanguage.Swahili,
+        Locale.Fil => AppLanguage.Filipino,
+        Locale.Ta => AppLanguage.Tamil,
+        Locale.Fa => AppLanguage.Persian,
+        Locale.Th => AppLanguage.Thai,
+        Locale.Gu => AppLanguage.Gujarati,
         _ => AppLanguage.English,
     };
 
@@ -160,7 +202,10 @@ public static class LanguageResolver
     /// primary language subtag; null for a language Themia does not have. Chinese is told apart by
     /// its script, as Windows and Karpo do: Traditional for <c>zh-Hant</c> and for <c>zh-TW</c>,
     /// <c>zh-HK</c> and <c>zh-MO</c> without a script, Simplified for the rest (<c>zh-CN</c>,
-    /// <c>zh-SG</c>, <c>zh-Hans-HK</c>). Every Portuguese tag is the Brazilian table.
+    /// <c>zh-SG</c>, <c>zh-Hans-HK</c>). Every Portuguese tag is the Brazilian table. Tagalog
+    /// (<c>tl</c>, older Windows) is Filipino; Dari (<c>prs-AF</c>, Windows' Afghan Persian) and
+    /// <c>fa-AF</c> are Persian. Punjabi is the Gurmukhi table, so Shahmukhi (<c>pa-Arab</c>,
+    /// Pakistan) is not taken for it and the walk goes on to the next preference.
     /// </summary>
     public static Locale? FromTag(string? tag)
     {
@@ -175,6 +220,22 @@ public static class LanguageResolver
         if (primary.Equals("zh", StringComparison.OrdinalIgnoreCase))
         {
             return IsTraditionalChinese(parts) ? Locale.ZhHant : Locale.Zh;
+        }
+
+        if (primary.Equals("tl", StringComparison.OrdinalIgnoreCase))
+        {
+            return Locale.Fil;
+        }
+
+        if (primary.Equals("prs", StringComparison.OrdinalIgnoreCase))
+        {
+            return Locale.Fa;
+        }
+
+        if (primary.Equals("pa", StringComparison.OrdinalIgnoreCase)
+            && parts.Skip(1).Any(p => p.Equals("Arab", StringComparison.OrdinalIgnoreCase)))
+        {
+            return null;
         }
 
         foreach (var locale in All)

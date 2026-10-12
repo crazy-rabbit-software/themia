@@ -48,7 +48,7 @@
   "widgetsA.calendar.readFailed": "Takvim okunamadı. themia.log dosyasına bakın.",
   "widgetsA.calendar.settings.accounts": "Hesaplar ve takvimler",
   "widgetsA.calendar.settings.addHint": "Hesaplar sayfasında oturum açın",
-  "widgetsA.calendar.settings.agendaCount.desc": "Ajandanın önümüzdeki 30 gün içinde kaç tane listelediği",
+  "widgetsA.calendar.settings.agendaCount.desc": "Ajandanın önümüzdeki {days} gün içinde kaç tane listelediği",
   "widgetsA.calendar.settings.birthdays.desc": "Microsoft ve Google hesaplarından kişilerinizin doğum günleri",
   "widgetsA.calendar.settings.colorAuto": "Otomatik",
   "widgetsA.calendar.settings.colorOf": "Renk: {name}",

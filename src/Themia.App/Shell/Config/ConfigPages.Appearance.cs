@@ -72,7 +72,7 @@ internal static partial class ConfigPages
                         design.HeaderBackgroundColor, value => host.Mutate(s => s.Design.HeaderBackgroundColor = value),
                         new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_SameAsWidget.Text(), Presets = ColorPresets.Surfaces }),
 
-                    FluentLayout.Row(Glyphs.Opacity, Str.Settings_Style_HeaderOpacity_Label.Text(), Str.Shell_Appearance_HeaderFade.Text(),
+                    FluentLayout.Row(Glyphs.Opacity, Str.Settings_Style_HeaderOpacity_Label.Text(), Str.Shell_Appearance_HeaderFade.Format(("percent", LocaleFormat.Percent(Strings.Current, 100))),
                         FluentLayout.Slider(design.HeaderOpacity * 100, 0, 100, 5, "%",
                             value => host.Mutate(s => s.Design.HeaderOpacity = value / 100))),
                 ]),

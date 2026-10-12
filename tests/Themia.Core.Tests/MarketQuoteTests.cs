@@ -178,6 +178,32 @@ public class MarketQuoteTests
         Assert.Equal(MarketPhase.Unknown, MarketQuote.Phase(null, At(1_790_260_000)));
     }
 
+    /// <summary>
+    /// The original's issue #100 ("Market closed" on a US ticker while the market was open). The
+    /// phase is a comparison of instants, so the reader's zone and the weeks where US and European
+    /// daylight saving disagree (2026-03-09: New York on EDT, Zurich still on CET) cannot move it.
+    /// </summary>
+    [Theory]
+    [InlineData(1)]   // Zurich, CET
+    [InlineData(-4)]  // New York, EDT
+    [InlineData(9)]   // Tokyo
+    [InlineData(-10)] // Honolulu
+    public void Issue100_the_phase_is_the_exchanges_whatever_the_readers_zone(int readerOffsetHours)
+    {
+        // 09:30-16:00 EDT on Monday 2026-03-09 is 13:30-20:00 UTC.
+        var open = new DateTimeOffset(2026, 3, 9, 13, 30, 0, TimeSpan.Zero).ToUnixTimeSeconds();
+        var close = new DateTimeOffset(2026, 3, 9, 20, 0, 0, TimeSpan.Zero).ToUnixTimeSeconds();
+        var sessions = new TradingSessions(MarketQuote.Window(open - 5.5 * 3600, open), MarketQuote.Window(open, close), MarketQuote.Window(close, close + 4 * 3600));
+        var offset = TimeSpan.FromHours(readerOffsetHours);
+
+        DateTimeOffset Reader(int hourUtc, int minute) => new DateTimeOffset(2026, 3, 9, hourUtc, minute, 0, TimeSpan.Zero).ToOffset(offset);
+
+        Assert.Equal(MarketPhase.Open, MarketQuote.Phase(sessions, Reader(13, 45)));  // 09:45 EDT
+        Assert.Equal(MarketPhase.Open, MarketQuote.Phase(sessions, Reader(19, 59)));  // 15:59 EDT
+        Assert.Equal(MarketPhase.Pre, MarketQuote.Phase(sessions, Reader(13, 15)));   // 09:15 EDT
+        Assert.Equal(MarketPhase.Post, MarketQuote.Phase(sessions, Reader(20, 30)));  // 16:30 EDT
+    }
+
     [Fact]
     public void A_broken_after_hours_window_does_not_cost_the_regular_one()
     {

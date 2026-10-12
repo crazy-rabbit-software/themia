@@ -1,0 +1,33 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "Ci gaban shekara",
+  "yearProgress.desc": "Nawa ne ya wuce na yini, mako, wata da shekara",
+  "yearProgress.day": "Yini",
+  "yearProgress.week": "Mako",
+  "yearProgress.month": "Wata",
+  "yearProgress.year": "Shekara",
+  "yearProgress.left": "Saura {time}",
+  "yearProgress.weekNumber": "Mako na {number}",
+  "yearProgress.dayOf": "Rana ta {day} cikin {days}",
+  "meeting.label": "Taro na gaba",
+  "meeting.desc": "Taronka na gaba, tare da Shiga don tarukan kan layi",
+  "meeting.join": "Shiga",
+  "meeting.joinTip": "Shiga taron kan layi",
+  "meeting.nowEnds": "Yanzu · zai ƙare {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Babu abin da ke tafe",
+  "recentFiles.label": "Fayilolin kwanan nan",
+  "recentFiles.desc": "Fayilolin da ka buɗe na ƙarshe",
+  "recentFiles.empty": "Ba a buɗe komai kwanan nan ba",
+  "recentFiles.unreadable": "Ba a iya karanta abubuwan kwanan nan na Windows ba",
+  "recentFiles.remove": "Cire daga jeri",
+  "recycleBin.desc": "Yadda Kwandon Shara ya cika, tare da Wofintar",
+  "recycleBin.empty": "Wofintar",
+  "recycleBin.emptyEllipsis": "Wofintar da Kwandon Shara…",
+  "recycleBin.isEmpty": "Babu abubuwa",
+  "recycleBin.items": {
+    "one": "Abu {count}",
+    "other": "Abubuwa {count}"
+  },
+  "recycleBin.open": "Buɗe Kwandon Shara"
+}

@@ -41,6 +41,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     /// <summary>Line height of stacked digits, as a multiple of their size.</summary>
     private const double StackedLeading = 1.05;
 
+    /// <summary>The AM/PM marker's size against the digits: beside a digital readout, and beside stacked minutes.</summary>
+    private const double MeridiemScale = 0.45;
+    private const double StackedTailScale = 0.4;
+
     /// <summary>[S-1488] Under this an analog dial is a smear of hairlines; it never draws smaller.</summary>
     private const double DialFloor = 40;
 
@@ -263,8 +267,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     /// <summary>The digital and stacked readouts: the largest ramp step that fits what the rungs left.</summary>
     private void SizeDigits(double width, double timeHeight)
     {
-        // "12:34:56" plus " PM" — the meridiem sits on the same line, so it counts towards the width.
-        var meridiem = RegionFormat.Current.Use24Hour ? 0 : 3;
+        // "12:34:56" plus " PM" — the meridiem sits on the same line, so it counts towards the width, by its own length ("பிற்பகல்").
+        var meridiem = RegionFormat.Current.Use24Hour ? 0 : ClockFormatter.MeridiemCharacters(Strings.Current, MeridiemScale, 3);
         var characters = (_config.ShowSeconds ? 8 : 5) + meridiem;
         var timeStep = FluentType.Hero(width, timeHeight, characters);
 
@@ -274,7 +278,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // the original set them. Stacked digits are set solid (StackedLeading) rather than at the
         // ramp's 1.3 leading: two lines of figures with a ramp line's air between them read as two
         // separate numbers.
-        var tail = _config.ShowSeconds || !RegionFormat.Current.Use24Hour ? 1.2 : 0;
+        var tail = !RegionFormat.Current.Use24Hour ? ClockFormatter.MeridiemCharacters(Strings.Current, StackedTailScale, 1.2)
+            : _config.ShowSeconds ? 1.2 : 0;
         var perLine = timeHeight / 2;
         var byWidth = FluentType.Hero(width, perLine * 2, 2 + tail);
         var stackedSize = Math.Min(byWidth.FontSize, perLine / StackedLeading);
@@ -292,8 +297,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // The meridiem is the largest ramp step that stays well under the readout: a clock whose
         // "PM" is as tall as its digits reads as two numbers. Stacked, the seconds share its step.
         var tailStep = _stacked
-            ? new TypeStep(Math.Max(FluentType.Caption.FontSize, stackedSize * 0.4), Math.Max(FluentType.Caption.FontSize, stackedSize * 0.4) * 1.15, false)
-            : FluentType.Fit(width, timeStep.FontSize * 0.45, 2, FluentType.Caption, FluentType.Title);
+            ? new TypeStep(Math.Max(FluentType.Caption.FontSize, stackedSize * StackedTailScale), Math.Max(FluentType.Caption.FontSize, stackedSize * StackedTailScale) * 1.15, false)
+            : FluentType.Fit(width, timeStep.FontSize * MeridiemScale, 2, FluentType.Caption, FluentType.Title);
         MeridiemText.Apply(tailStep);
         SecondsText.Apply(tailStep);
         SecondsText.Visibility = _stacked && _config.ShowSeconds ? Visibility.Visible : Visibility.Collapsed;

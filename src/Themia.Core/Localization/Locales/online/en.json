@@ -48,7 +48,7 @@
   "online.air.settings.index.european": "European (EAQI)",
   "online.air.settings.index.us": "US (AQI)",
   "online.rain.label": "Rain next hour",
-  "online.rain.desc": "When rain starts or stops, in 15-minute steps",
+  "online.rain.desc": "When rain starts or stops, in {minutes}-minute steps",
   "online.rain.startsIn": "Rain in {minutes} min",
   "online.rain.stopsIn": "Rain stops in {minutes} min",
   "online.rain.continues": "Rain for the next 2 hours",
@@ -72,6 +72,6 @@
   "online.rates.settings.quotes.label": "Currencies",
   "online.rates.settings.quotes.desc": "As many as fit, in the order picked",
   "online.rates.settings.quotes.all": "All currencies",
-  "online.rates.settings.chart.label": "90-day chart",
+  "online.rates.settings.chart.label": "{days}-day chart",
   "online.rates.settings.chart.desc": "Under each rate, where there is room"
 }

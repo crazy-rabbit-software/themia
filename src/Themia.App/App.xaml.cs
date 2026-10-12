@@ -28,7 +28,19 @@ public partial class App : Application
 #endif
 
         InitializeComponent();
+
+        // [S-987] Only an explicit quit ends the process. WinUI's default ends it when the last
+        // window closes, and Themia has no main window: the display pass closes a surface before it
+        // builds the replacement, so re-keying a lone display, rebuilding a dead surface or every
+        // panel powering off at once exited silently (the original's #87). Every way out calls Exit.
+        DispatcherShutdownMode = DispatcherShutdownMode.OnExplicitShutdown;
+
         UnhandledException += OnUnhandledException;
+
+        // [S-988] A throw on a background thread ends the process whatever is done here; it is put on
+        // record first (the log flushes per record), so a crash is never "without a trace".
+        AppDomain.CurrentDomain.UnhandledException += OnFatalException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -186,6 +198,24 @@ public partial class App : Application
 
         _host = new AppHost(dispatcher, store, load.State);
         _host.Start();
+    }
+
+    private static void OnFatalException(object sender, System.UnhandledExceptionEventArgs e)
+    {
+        try
+        {
+            Log.Error(Scope, $"unhandled exception off the UI thread (terminating: {e.IsTerminating})", e.ExceptionObject as Exception);
+        }
+        catch (Exception)
+        {
+            // ignore: the process is going down and the logger itself failed; nothing is left to tell.
+        }
+    }
+
+    private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        Log.Error(Scope, "a background task failed and nobody awaited it", e.Exception);
+        e.SetObserved();
     }
 
     private static void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)

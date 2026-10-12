@@ -48,7 +48,7 @@
   "widgetsA.calendar.readFailed": "Kan de agenda niet lezen. Zie themia.log.",
   "widgetsA.calendar.settings.accounts": "Accounts en agenda's",
   "widgetsA.calendar.settings.addHint": "Meld je aan op de pagina Accounts",
-  "widgetsA.calendar.settings.agendaCount.desc": "Hoeveel de agenda toont, over de komende 30 dagen",
+  "widgetsA.calendar.settings.agendaCount.desc": "Hoeveel de agenda toont, over de komende {days} dagen",
   "widgetsA.calendar.settings.birthdays.desc": "De verjaardagen van je contactpersonen, uit Microsoft- en Google-accounts",
   "widgetsA.calendar.settings.colorAuto": "Automatisch",
   "widgetsA.calendar.settings.colorOf": "Kleur van {name}",

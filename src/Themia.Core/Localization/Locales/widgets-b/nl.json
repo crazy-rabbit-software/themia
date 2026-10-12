@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Nog geen map gekozen.",
   "widgetsB.settings.gallery.showing": "{name} wordt getoond",
   "widgetsB.habits.minutes.empty": "Voer een aantal minuten in.",
-  "widgetsB.habits.minutes.notWhole": "Alleen hele minuten, zoals 30.",
+  "widgetsB.habits.minutes.notWhole": "Alleen hele minuten, zoals {example}.",
   "widgetsB.habits.minutes.range": "Tussen {min} en {max} minuten (één dag).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Week van {date}",
@@ -244,7 +244,7 @@
     "one": "Wordt na {count} minuut gewist.",
     "other": "Wordt om de {count} minuten gewist."
   },
-  "widgetsB.settings.habits.interval.desc": "Minuten per periode, 1 tot 1440",
+  "widgetsB.settings.habits.interval.desc": "Minuten per periode, {min} tot {max}",
   "widgetsB.settings.habits.resets.label": "Opnieuw instellen",
   "widgetsB.settings.habits.everyHour": "Elk uur",
   "widgetsB.settings.habits.everyDay": "Elke dag",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "Reeksen weergeven",
   "widgetsB.settings.habits.streaks.desc": "De reeks waarin elke gewoonte zit",
   "widgetsB.settings.habits.history.label": "Geschiedenis",
-  "widgetsB.settings.habits.history.desc": "Eerdere periodes als stippen; 0 verbergt ze",
+  "widgetsB.settings.habits.history.desc": "Eerdere periodes als stippen; {zero} verbergt ze",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} gewoonte",
     "other": "{count} gewoonten"

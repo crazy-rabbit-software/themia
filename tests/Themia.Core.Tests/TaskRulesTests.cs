@@ -30,6 +30,19 @@ public sealed class TaskRulesTests
         Assert.Equal(DayOfWeek.Monday, TaskDue.Day("2026-08-09T17:00:00.0000000", Bangkok)!.Value.DayOfWeek);
     }
 
+    [Theory]
+    [InlineData("2026-08-11T15:00:00.0000000")] // Tokyo's midnight of the 12th, converted to UTC by To Do
+    [InlineData("2026-08-12T00:00:00.0000000")] // the zoneless midnight Graph also writes
+    [InlineData("2026-08-12T00:00:00.000Z")] // Google's UTC midnight
+    public void S593_issue_109_due_the_12th_seen_on_the_10th_in_Tokyo_is_not_tomorrow(string raw)
+    {
+        var tokyo = TimeZoneInfo.CreateCustomTimeZone("Test/Tokyo", TimeSpan.FromHours(9), "UTC+9", "UTC+9");
+        var due = TaskDue.Resolve(raw, new DateOnly(2026, 8, 10), tokyo)!.Value;
+
+        Assert.Equal(new DateOnly(2026, 8, 12), due.Day);
+        Assert.Equal(DueLabel.Weekday, due.Label);
+    }
+
     [Fact]
     public void S593_a_task_due_today_is_today_not_overdue()
     {

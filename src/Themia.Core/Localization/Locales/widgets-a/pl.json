@@ -50,7 +50,7 @@
   "widgetsA.calendar.readFailed": "Nie można odczytać kalendarza. Zobacz themia.log.",
   "widgetsA.calendar.settings.accounts": "Konta i kalendarze",
   "widgetsA.calendar.settings.addHint": "Zaloguj się na stronie Konta",
-  "widgetsA.calendar.settings.agendaCount.desc": "Ile wydarzeń agenda pokazuje w ciągu najbliższych 30 dni",
+  "widgetsA.calendar.settings.agendaCount.desc": "Ile wydarzeń agenda pokazuje w ciągu najbliższych {days} dni",
   "widgetsA.calendar.settings.birthdays.desc": "Urodziny Twoich kontaktów z kont Microsoft i Google",
   "widgetsA.calendar.settings.colorAuto": "Automatycznie",
   "widgetsA.calendar.settings.colorOf": "Kolor: {name}",

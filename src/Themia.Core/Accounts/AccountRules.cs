@@ -177,13 +177,19 @@ public static class AccountIds
 
     public static string Imap(string username, string host) => $"imap:{username}@{host}";
 
+    /// <summary>
+    /// DAV: the user and the collection itself (authority and path), not just the server. One user
+    /// may sign in to several collections of one server (Google's legacy CalDAV has an address per
+    /// calendar); keyed by the server alone, each sign-in replaced the last (classic issue #133).
+    /// </summary>
     public static string Dav(AccountProvider provider, string username, Uri collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
+        var where = collection.Authority + collection.AbsolutePath.TrimEnd('/');
         return provider switch
         {
-            AccountProvider.CalDav => $"caldav:{username}@{collection.Authority}",
-            AccountProvider.CardDav => $"carddav:{username}@{collection.Authority}",
+            AccountProvider.CalDav => $"caldav:{username}@{where}",
+            AccountProvider.CardDav => $"carddav:{username}@{where}",
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "not a DAV provider"),
         };
     }

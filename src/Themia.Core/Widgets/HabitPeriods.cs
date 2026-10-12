@@ -57,7 +57,7 @@ public readonly record struct HabitCadence(HabitPeriod Period, int CustomMinutes
 
         if (!int.TryParse(trimmed, NumberStyles.None, CultureInfo.InvariantCulture, out var value))
         {
-            refusal = Strings.Get(locale, Str.WidgetsB_Habits_Minutes_NotWhole);
+            refusal = Strings.Format(locale, Str.WidgetsB_Habits_Minutes_NotWhole, ("example", HabitCadence.DefaultCustomMinutes));
             return false;
         }
 

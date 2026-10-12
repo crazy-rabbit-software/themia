@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "यूरोपीय (EAQI)",
   "online.air.settings.index.us": "अमेरिकी (AQI)",
   "online.rain.label": "अगले घंटे में बारिश",
-  "online.rain.desc": "बारिश कब शुरू या बंद होगी, 15 मिनट के अंतराल में",
+  "online.rain.desc": "बारिश कब शुरू या बंद होगी, {minutes} मिनट के अंतराल में",
   "online.rain.startsIn": "{minutes} मिनट में बारिश",
   "online.rain.stopsIn": "{minutes} मिनट में बारिश रुकेगी",
   "online.rain.continues": "अगले 2 घंटे बारिश",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "मुद्राएँ",
   "online.rates.settings.quotes.desc": "जितनी समाएँ, चुने गए क्रम में",
   "online.rates.settings.quotes.all": "सभी मुद्राएँ",
-  "online.rates.settings.chart.label": "90 दिन का चार्ट",
+  "online.rates.settings.chart.label": "{days} दिन का चार्ट",
   "online.rates.settings.chart.desc": "जगह हो तो हर दर के नीचे"
 }

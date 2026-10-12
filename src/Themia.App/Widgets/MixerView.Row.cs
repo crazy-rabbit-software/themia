@@ -43,6 +43,7 @@ internal sealed partial class MixerView
 
         private MixerRow? _row;
         private string? _iconPath;
+        private LogoTheme _iconTheme;
         private MixerRowStyle? _style;
         private bool _icons = true;
         private bool _detailOn;
@@ -126,6 +127,7 @@ internal sealed partial class MixerView
 
             Host = Fluent.Row(_grid);
             Host.RightTapped += OnRightTapped;
+            Host.ActualThemeChanged += OnThemeChanged;
 
             // [S-1225] The keyboard cursor sits on the row, with the system focus rect: no layout cost.
             Host.IsTabStop = true;
@@ -293,7 +295,7 @@ internal sealed partial class MixerView
                 return;
             }
 
-            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIcons.ThemeOf(Host))
             {
                 return;
             }
@@ -304,12 +306,23 @@ internal sealed partial class MixerView
             _ = LoadIconAsync(path);
         }
 
+        /// <summary>[S-3965] A packaged app's logo is chosen per theme: a theme change asks again.</summary>
+        private void OnThemeChanged(FrameworkElement sender, object args)
+        {
+            if (_iconPath is { } path && _iconTheme != AppIcons.ThemeOf(Host))
+            {
+                _ = LoadIconAsync(path);
+            }
+        }
+
         private async Task LoadIconAsync(string path)
         {
-            var image = await AppIcons.GetAsync(path).ConfigureAwait(true);
+            var theme = AppIcons.ThemeOf(Host);
+            _iconTheme = theme;
+            var image = await AppIcons.GetAsync(path, theme).ConfigureAwait(true);
 
-            // The row may show another app by now.
-            if (!string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || image is null)
+            // The row may show another app (or theme) by now.
+            if (!string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme || image is null)
             {
                 return;
             }
@@ -353,7 +366,7 @@ internal sealed partial class MixerView
             ItemMenu.ShowAt(Host, at,
             [
                 new(row.Muted ? Glyphs.Volume3 : Glyphs.Mute, row.Muted ? Str.Mixer_Unmute.Text() : Str.Mixer_Mute.Text(), () => _owner.OnMute(row)),
-                new(Glyphs.Reset, Str.Mixer_Reset.Text(), () => _owner.OnReset(row)),
+                new(Glyphs.Reset, Str.Mixer_Reset.Format(("percent", LocaleFormat.Percent(Strings.Current, 100))), () => _owner.OnReset(row)),
             ]);
         }
 
@@ -361,6 +374,7 @@ internal sealed partial class MixerView
         {
             _hover.Dispose();
             Host.RightTapped -= OnRightTapped;
+            Host.ActualThemeChanged -= OnThemeChanged;
             _mute.Click -= OnMuteClicked;
             _slider.ValueChanged -= OnSliderChanged;
             _slider.RemoveHandler(PointerPressedEvent, _grab);

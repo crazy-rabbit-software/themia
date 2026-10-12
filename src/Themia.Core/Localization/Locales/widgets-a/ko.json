@@ -47,7 +47,7 @@
   "widgetsA.calendar.readFailed": "일정을 읽을 수 없습니다. themia.log를 참조하세요.",
   "widgetsA.calendar.settings.accounts": "계정 및 캘린더",
   "widgetsA.calendar.settings.addHint": "계정 페이지에서 로그인하세요",
-  "widgetsA.calendar.settings.agendaCount.desc": "향후 30일 동안 일정 목록에 표시할 개수",
+  "widgetsA.calendar.settings.agendaCount.desc": "향후 {days}일 동안 일정 목록에 표시할 개수",
   "widgetsA.calendar.settings.birthdays.desc": "Microsoft 및 Google 계정에 있는 연락처의 생일",
   "widgetsA.calendar.settings.colorAuto": "자동",
   "widgetsA.calendar.settings.colorOf": "{name} 색",

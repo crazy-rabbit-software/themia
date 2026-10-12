@@ -22,7 +22,7 @@ internal sealed partial class GpuView
     /// flicker as it updates; laid out again whenever its room changes. The load and the history are
     /// the hub's series for this adapter ([S-2504]).
     /// </summary>
-    private sealed class Panel
+    private sealed partial class Panel
     {
         /// <summary>The least history worth drawing under a reading: below it the trace is a smudge.</summary>
         private const double MinChart = Fluent.Space6;
@@ -37,24 +37,25 @@ internal sealed partial class GpuView
         private readonly Grid _root = new();
         private readonly Grid _reading = new() { ColumnSpacing = Fluent.Space2 };
         private readonly TextBlock _name = Fluent.Text(FluentType.BodyStrong, "TextFillColorSecondaryBrush");
-        private readonly TextBlock _hero = Fluent.Text(FluentType.Subtitle);
+        private readonly HeroReadout _hero = new() { HorizontalAlignment = HorizontalAlignment.Right };
         private readonly SparkBand _spark;
 
         private GpuConfig _config = new();
         private SeriesWatch? _watch;
         private bool _stacked;
-        private TypeStep _heroStep = FluentType.Subtitle;
+        private TypeStep? _heroStep;
+        private string _shown = string.Empty;
 
         public Panel(int index)
         {
             _index = index;
             _spark = new SparkBand(Capacity(_config));
 
-            _hero.Text = "--";
-            _hero.Foreground = UnavailableBrush;
+            // [S-3860] The shared hero readout: the number and its smaller unit, as every meter's.
+            _hero.SetValue("--", string.Empty, false);
+            _hero.ValueLine.Foreground = UnavailableBrush;
+            _hero.ValueLine.TextTrimming = TextTrimming.None;
             _hero.VerticalAlignment = VerticalAlignment.Center;
-            Typography.SetNumeralAlignment(_hero, FontNumeralAlignment.Tabular);
-            _hero.TextTrimming = TextTrimming.None;
 
             _name.Text = Str.WidgetsB_Gpu_Indexed.Format(("index", index));
             _name.VerticalAlignment = VerticalAlignment.Center;
@@ -65,7 +66,7 @@ internal sealed partial class GpuView
             // place at the right; one panel: the number alone.
             _reading.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             _reading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            _reading.Margin = WidgetLayout.SideInset;
+            _reading.Margin = new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
             SetColumn(_hero, 1);
             _reading.Children.Add(_name);
             _reading.Children.Add(_hero);
@@ -98,6 +99,10 @@ internal sealed partial class GpuView
 
             _name.Visibility = stacked ? Visibility.Visible : Visibility.Collapsed;
             _reading.ColumnDefinitions[0].Width = stacked ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+
+            // [S-3860] The spacing stands even beside an empty column: one panel's number would sit
+            // a gap right of every other meter's.
+            _reading.ColumnSpacing = stacked ? Fluent.Space2 : 0;
             _reading.HorizontalAlignment = stacked ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
         }
 
@@ -159,8 +164,14 @@ internal sealed partial class GpuView
 
         private void ShowLoad(MeterReading reading)
         {
-            _hero.Text = reading.Primary;
-            _hero.Foreground = reading.Available ? ReadingBrush : UnavailableBrush;
+            if (reading.Primary != _shown)
+            {
+                _shown = reading.Primary;
+                var text = HeroLayout.Split(reading.Primary);
+                _hero.SetValue(text.Value, text.Unit, text.Spaced);
+            }
+
+            _hero.ValueLine.Foreground = reading.Available ? ReadingBrush : UnavailableBrush;
 
             // [S-432] Pressure colours the trace, not the number: the number stays legible in every
             // state, and a trace that turns amber is seen from across the room.
@@ -182,7 +193,7 @@ internal sealed partial class GpuView
                 return;
             }
 
-            var plan = MeterFace.Plan(area, _config.ShowGraph, Formatting.Percent(1).Length, WidgetLayout.ContentInset, Fluent.Space2, MinChart,
+            var plan = MeterFace.Plan(area, _config.ShowGraph, Formatting.Percent(1).Length, false, Fluent.Space2, MinChart,
                 _stacked ? FluentType.Subtitle : null);
             var side = plan.Arrangement == MeterFaceArrangement.Side;
             var alone = plan.Arrangement == MeterFaceArrangement.ReadingOnly;
@@ -190,7 +201,7 @@ internal sealed partial class GpuView
             if (plan.Reading != _heroStep)
             {
                 _heroStep = plan.Reading;
-                _hero.Apply(plan.Reading);
+                _hero.Lay(plan.Reading, icon: false, trailingBeside: true, linesBeside: false);
             }
 
             _root.ColumnDefinitions[0].Width = side ? new GridLength(plan.ReadingColumn) : new GridLength(1, GridUnitType.Star);
@@ -199,6 +210,9 @@ internal sealed partial class GpuView
             SetRow(_reading, 0);
             SetRowSpan(_reading, alone || side ? 2 : 1);
             _reading.VerticalAlignment = alone || side ? VerticalAlignment.Center : VerticalAlignment.Top;
+            _reading.Margin = alone || side
+                ? new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0)
+                : new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
 
             _spark.Visibility = plan.Graph ? Visibility.Visible : Visibility.Collapsed;
             SetRow(_spark, side ? 0 : 1);

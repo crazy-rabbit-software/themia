@@ -604,7 +604,7 @@
   "shell.meters.systemDrive": "System drive ({drive})",
   "shell.meters.gpuDescription": "Graphics load, per adapter",
   "shell.meters.batteryDescription": "Charge level",
-  "shell.appearance.headerFade": "How solid the header strip is; 100% matches the widget",
+  "shell.appearance.headerFade": "How solid the header strip is; {percent} matches the widget",
   "shell.views.add": "Add view",
   "shell.views.addDesc": "A new, empty view at the end of the list",
   "shell.views.more": "More options",

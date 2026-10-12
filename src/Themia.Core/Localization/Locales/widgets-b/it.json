@@ -184,7 +184,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Nessuna cartella ancora scelta.",
   "widgetsB.settings.gallery.showing": "Viene mostrato {name}",
   "widgetsB.habits.minutes.empty": "Inserisci un numero di minuti.",
-  "widgetsB.habits.minutes.notWhole": "Solo minuti interi, ad esempio 30.",
+  "widgetsB.habits.minutes.notWhole": "Solo minuti interi, ad esempio {example}.",
   "widgetsB.habits.minutes.range": "Tra {min} e {max} minuti (un giorno).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Settimana del {date}",
@@ -244,7 +244,7 @@
     "one": "Si azzera ogni {count} minuto.",
     "other": "Si azzera ogni {count} minuti."
   },
-  "widgetsB.settings.habits.interval.desc": "Minuti per intervallo, da 1 a 1440",
+  "widgetsB.settings.habits.interval.desc": "Minuti per intervallo, da {min} a {max}",
   "widgetsB.settings.habits.resets.label": "Azzeramento",
   "widgetsB.settings.habits.everyHour": "Ogni ora",
   "widgetsB.settings.habits.everyDay": "Ogni giorno",
@@ -254,7 +254,7 @@
   "widgetsB.settings.habits.streaks.label": "Mostra serie",
   "widgetsB.settings.habits.streaks.desc": "La serie di ogni abitudine",
   "widgetsB.settings.habits.history.label": "Cronologia",
-  "widgetsB.settings.habits.history.desc": "Periodi passati come punti; 0 li nasconde",
+  "widgetsB.settings.habits.history.desc": "Periodi passati come punti; {zero} li nasconde",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} abitudine",
     "other": "{count} abitudini"

@@ -31,9 +31,11 @@ public readonly record struct MeterFacePlan(MeterFaceArrangement Arrangement, Ty
 /// tile, so a large tile is a large chart rather than empty space under a number, and a tiny tile
 /// is the reading alone.
 /// <para>
-/// The reading grows by ramp step, never past <see cref="FluentType.Display"/> beside a history, and
-/// the history is promised <see cref="GraphShare"/> of the height before the reading may grow into
-/// it. Without a history the reading fills the tile.
+/// [S-3860] The reading is the shared hero readout (<see cref="HeroLayout"/>): the number with a
+/// smaller unit, its step the tier ladder's (<see cref="HeroLayout.TierStep"/>, as the stock price
+/// beside its chart), fitted down to the room; it sits <see cref="HeroLayout.TopInset"/> under the
+/// header and <see cref="HeroLayout.SideInset"/> from the sides. With the history switched off the
+/// reading is a tile of its own and fills it as the weather's does (Display, then grown past it).
 /// </para>
 /// <para>
 /// [S-1824] The history is the card's bottom band, edge to edge: no inset at its sides or under it
@@ -52,22 +54,26 @@ public static class MeterFace
     public const double SideColumnCap = 0.5;
 
     /// <summary>
-    /// The plan for a box of <paramref name="area"/>. <paramref name="inset"/> is the content inset:
-    /// the reading's from both sides (the history has none, [S-1824]); <paramref name="gap"/> the space between
-    /// the reading and the history under it, <paramref name="graphFloor"/> the least history worth
-    /// drawing. A <paramref name="fixedStep"/> keeps the reading at one step (a panel that names its
-    /// adapter beside the number); the history still takes the rest.
+    /// The plan for a box of <paramref name="area"/>. <paramref name="readingCharacters"/> is the
+    /// widest reading in characters, its unit counted at the number's size (a bound, never the live
+    /// text, so the number does not change size between two samples); <paramref name="icon"/> a
+    /// glyph before it (the battery's). <paramref name="gap"/> is the space between the reading and
+    /// the history under it, <paramref name="graphFloor"/> the least history worth drawing. A
+    /// <paramref name="fixedStep"/> keeps the reading at one step (a panel that names its adapter
+    /// beside the number); the history still takes the rest.
     /// </summary>
     public static MeterFacePlan Plan(
         WidgetArea area,
         bool graphOn,
         double readingCharacters,
-        double inset,
+        bool icon,
         double gap,
         double graphFloor,
         TypeStep? fixedStep = null)
     {
         var characters = Math.Max(1, readingCharacters);
+        const double inset = HeroLayout.SideInset;
+        const double top = HeroLayout.TopInset;
 
         if (!area.IsMeasured)
         {
@@ -77,6 +83,7 @@ public static class MeterFace
         var width = Math.Max(0, area.Width);
         var height = Math.Max(0, area.Height);
         var textWidth = Math.Max(0, width - (2 * inset));
+        var tier = HeroLayout.TierStep(area);
 
         // A tile small both ways is the reading alone: a sliver of history under it says nothing.
         var tiny = area.WidthClass == SizeClass.Compact && area.HeightClass == SizeClass.Compact;
@@ -87,27 +94,34 @@ public static class MeterFace
                 Math.Max(width * SideColumnShare, FluentType.EstimateWidth(FluentType.Title, characters) + (2 * inset)),
                 0,
                 width * SideColumnCap));
-            var step = fixedStep ?? Reading(Math.Max(0, column - (2 * inset)), Math.Min(height, FluentType.Display.LineHeight), characters);
+            var step = fixedStep ?? Reading(Math.Max(0, column - (2 * inset)), height, characters, icon, tier);
             return new MeterFacePlan(MeterFaceArrangement.Side, step, column, height);
         }
 
         var floor = fixedStep ?? FluentType.Subtitle;
 
-        if (graphOn && !tiny && height - floor.LineHeight - gap >= graphFloor)
+        if (graphOn && !tiny && height - top - floor.LineHeight - gap >= graphFloor)
         {
             var promised = Math.Max(graphFloor, Math.Round(height * GraphShare));
-            var box = Math.Min(height - gap - promised, FluentType.Display.LineHeight);
-            var step = fixedStep ?? Reading(textWidth, box, characters);
-            return new MeterFacePlan(MeterFaceArrangement.Stacked, step, width, Math.Max(0, height - step.LineHeight - gap));
+            var box = height - top - gap - promised;
+            var step = fixedStep ?? Reading(textWidth, box, characters, icon, tier);
+            return new MeterFacePlan(MeterFaceArrangement.Stacked, step, width, Math.Max(0, height - top - step.LineHeight - gap));
         }
 
-        return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, fixedStep ?? Reading(textWidth, height, characters), width, 0);
+        if (graphOn || fixedStep is not null)
+        {
+            // The history is on but the tile is too small for it: still a chart widget's tile, so
+            // the reading keeps the tier's step rather than becoming a poster.
+            return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, fixedStep ?? Reading(textWidth, height, characters, icon, tier), width, 0);
+        }
+
+        // No history at all: the reading is the whole widget, as the weather's is.
+        var alone = Reading(textWidth, height, characters, icon, FluentType.Display);
+        var room = icon ? textWidth - HeroLayout.IconSize(alone) - HeroLayout.IconGap : textWidth;
+        return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, HeroLayout.Grow(alone, room, height, characters, 0), width, 0);
     }
 
-    /// <summary>The reading's step for a box. Never below Subtitle: the reading is the point of the tile.</summary>
-    public static TypeStep Reading(double width, double height, double characters)
-    {
-        var hero = FluentType.Hero(width, height, characters);
-        return hero.FontSize < FluentType.Subtitle.FontSize ? FluentType.Subtitle : hero;
-    }
+    /// <summary>[S-3860] The reading's step for a box: the hero fit from Subtitle (never smaller: the reading is the point of the tile) up to <paramref name="ceiling"/>.</summary>
+    public static TypeStep Reading(double width, double height, double characters, bool icon, TypeStep ceiling)
+        => HeroLayout.FitBeside(width, height, characters, 0, FluentType.Subtitle, ceiling, icon);
 }

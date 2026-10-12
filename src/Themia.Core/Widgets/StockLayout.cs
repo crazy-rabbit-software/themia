@@ -53,7 +53,7 @@ public readonly record struct StockPlan(
 /// </summary>
 public static class StockLayout
 {
-    public const double Inset = 16;
+    public const double Inset = HeroLayout.SideInset;
     public const double Gap = 4;
     public const double MinChart = 24;
 
@@ -162,11 +162,6 @@ public static class StockLayout
     /// </summary>
     public static TypeStep ChangeStep(TypeStep price) => HeroLayout.TrailingStep(price);
 
-    /// <summary>How large the price may grow while a chart shares the tile, by the tile's smaller class.</summary>
-    private static TypeStep Cap(WidgetArea area) => area.Least switch
-    {
-        SizeClass.Huge => FluentType.Display,
-        SizeClass.Expanded => FluentType.TitleLarge,
-        _ => FluentType.Title,
-    };
+    /// <summary>[S-3860] How large the price may grow while a chart shares the tile: the shared tier ladder.</summary>
+    private static TypeStep Cap(WidgetArea area) => HeroLayout.TierStep(area);
 }

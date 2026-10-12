@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "జనాదరణ పొందినవి",
+  "addMenu.browse": "బ్రౌజ్ చేయి",
+  "addMenu.subject.time": "సమయం",
+  "addMenu.subject.calendar": "క్యాలెండర్ & మెయిల్",
+  "addMenu.subject.weather": "వాతావరణం & ఆకాశం",
+  "addMenu.subject.markets": "వార్తలు & మార్కెట్‌లు",
+  "addMenu.subject.media": "సంగీతం & మీడియా",
+  "addMenu.subject.notes": "గమనికలు & సాధనాలు",
+  "addMenu.subject.files": "ఫైల్‌లు & యాప్‌లు",
+  "addMenu.subject.system": "సిస్టమ్",
+  "addMenu.subject.devices": "పరికరాలు & పవర్",
+  "addMenu.subject.more": "మరిన్ని",
+  "addMenu.family.calendar": "క్యాలెండర్",
+  "addMenu.family.visualizer": "విజువలైజర్",
+  "addMenu.family.folder": "ఫోల్డర్",
+  "addMenu.family.screenTime": "స్క్రీన్ సమయం",
+  "addMenu.family.powerButtons": "పవర్ బటన్‌లు"
+}

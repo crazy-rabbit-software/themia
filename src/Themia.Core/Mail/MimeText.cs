@@ -138,8 +138,8 @@ public static class MimeText
     /// Bytes to text by their charset. Valid UTF-8 is read as UTF-8 whatever the label says (it
     /// covers us-ascii and every correctly labelled UTF-8 body); a Latin-1-family label goes through
     /// the Windows-1252 table, because mail labelled ISO-8859-1 that uses 0x80–0x9F is cp1252 in
-    /// practice; UTF-16 and the other encodings .NET carries in-box are honoured; anything else
-    /// degrades to lossy UTF-8 rather than failing the preview.
+    /// practice; UTF-16 and the legacy code pages (KOI8-R, windows-1251, GBK, Big5, Shift_JIS, ...) are
+    /// honoured; anything else degrades to lossy UTF-8 rather than failing the preview.
     /// </summary>
     public static string Decode(byte[] bytes, string? charset)
     {
@@ -171,6 +171,14 @@ public static class MimeText
         if (IsLatin1Family(label))
         {
             return Windows1252(bytes);
+        }
+
+        // The legacy code pages much of the world's mail still declares: KOI8-R and windows-1251
+        // (Yandex, Mail.ru), GBK / GB2312 / Big5 (163.com, QQ), Shift_JIS, EUC-KR. Read from the
+        // in-box code-page tables, without registering a process-wide provider (classic issue #147).
+        if (label.Length > 0 && CodePagesEncodingProvider.Instance.GetEncoding(label) is { } legacy)
+        {
+            return legacy.GetString(bytes);
         }
 
         return Encoding.UTF8.GetString(bytes);

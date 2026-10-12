@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "Uygulamaya göre grupla",
   "details.settings.processes.group.desc": "Bir programın tüm işlemleri tek satırdır",
   "details.settings.network.public.label": "Genel adres",
-  "details.settings.network.public.desc": "En fazla 10 dakikada bir api.ipify.org'a sorar",
+  "details.settings.network.public.desc": "En fazla {minutes} dakikada bir api.ipify.org'a sorar",
   "details.settings.disk.drives": "Sürücüler",
   "details.settings.disk.all.label": "Tüm sürücüler",
   "details.settings.disk.all.desc": "Windows'taki her sürücüyü, takılıp çıkarıldıkça listeler",

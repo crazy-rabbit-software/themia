@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "பிரபலமானவை",
+  "addMenu.browse": "உலாவு",
+  "addMenu.subject.time": "நேரம்",
+  "addMenu.subject.calendar": "நாள்காட்டி & அஞ்சல்",
+  "addMenu.subject.weather": "வானிலை & வானம்",
+  "addMenu.subject.markets": "செய்திகள் & சந்தைகள்",
+  "addMenu.subject.media": "இசை & மீடியா",
+  "addMenu.subject.notes": "குறிப்புகள் & கருவிகள்",
+  "addMenu.subject.files": "கோப்புகள் & பயன்பாடுகள்",
+  "addMenu.subject.system": "சிஸ்டம்",
+  "addMenu.subject.devices": "சாதனங்கள் & பவர்",
+  "addMenu.subject.more": "மேலும்",
+  "addMenu.family.calendar": "நாள்காட்டி",
+  "addMenu.family.visualizer": "விஷுவலைசர்",
+  "addMenu.family.folder": "கோப்புறை",
+  "addMenu.family.screenTime": "திரை நேரம்",
+  "addMenu.family.powerButtons": "பவர் பொத்தான்கள்"
+}

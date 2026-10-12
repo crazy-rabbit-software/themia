@@ -1,0 +1,33 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "Takbo ng taon",
+  "yearProgress.desc": "Gaano na kalaki ang lumipas sa araw, linggo, buwan at taon",
+  "yearProgress.day": "Araw",
+  "yearProgress.week": "Linggo",
+  "yearProgress.month": "Buwan",
+  "yearProgress.year": "Taon",
+  "yearProgress.left": "{time} pa",
+  "yearProgress.weekNumber": "Linggo {number}",
+  "yearProgress.dayOf": "Araw {day} ng {days}",
+  "meeting.label": "Susunod na meeting",
+  "meeting.desc": "Ang susunod mong event, may Sumali para sa mga online meeting",
+  "meeting.join": "Sumali",
+  "meeting.joinTip": "Sumali sa online meeting",
+  "meeting.nowEnds": "Ngayon · matatapos {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Walang paparating",
+  "recentFiles.label": "Mga kamakailang file",
+  "recentFiles.desc": "Ang mga file na huli mong binuksan",
+  "recentFiles.empty": "Walang binuksan kamakailan",
+  "recentFiles.unreadable": "Hindi mabasa ang mga kamakailang item ng Windows",
+  "recentFiles.remove": "Alisin sa listahan",
+  "recycleBin.desc": "Gaano kapuno ang Recycle Bin, may Alisan ng laman",
+  "recycleBin.empty": "Alisan ng laman",
+  "recycleBin.emptyEllipsis": "Alisan ng laman ang Recycle Bin…",
+  "recycleBin.isEmpty": "Walang item",
+  "recycleBin.items": {
+    "one": "{count} item",
+    "other": "{count} item"
+  },
+  "recycleBin.open": "Buksan ang Recycle Bin"
+}

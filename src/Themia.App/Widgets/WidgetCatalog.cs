@@ -145,7 +145,7 @@ internal readonly record struct WidgetDefinition(
     public string Label => LabelId.Text();
 
     /// <summary>The picker's one-line description in the current language.</summary>
-    public string Description => DescriptionId.Text();
+    public string Description => WidgetCatalog.Describe(Strings.Current, DescriptionId);
 }
 
 /// <summary>
@@ -282,11 +282,18 @@ internal static class WidgetCatalog
             WidgetKeywords.Providers(definition.Kind));
     }
 
+    /// <summary>
+    /// [S-1115] A catalogue text with its facts filled: a number in a description ("15-minute steps")
+    /// is a placeholder, so it is written in the language's own digits. A text without one is as is.
+    /// </summary>
+    public static string Describe(Locale locale, Str id)
+        => Strings.Format(locale, id, ("minutes", (long)RainRules.Step.TotalMinutes));
+
     /// <summary>The text in <paramref name="locale"/>, then in English when that differs; the first is the shown one.</summary>
     private static string[] Both(Locale locale, Str id)
     {
-        var shown = Strings.Get(locale, id);
-        var english = Strings.Get(Locale.En, id);
+        var shown = Describe(locale, id);
+        var english = Describe(Locale.En, id);
         return string.Equals(shown, english, StringComparison.Ordinal) ? [shown] : [shown, english];
     }
 

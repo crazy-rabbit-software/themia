@@ -101,7 +101,7 @@
   "details.settings.processes.group.label": "ऐप के अनुसार समूह",
   "details.settings.processes.group.desc": "एक प्रोग्राम के सभी प्रोसेस एक पंक्ति में",
   "details.settings.network.public.label": "सार्वजनिक पता",
-  "details.settings.network.public.desc": "api.ipify.org से पूछता है, अधिकतम हर 10 मिनट में",
+  "details.settings.network.public.desc": "api.ipify.org से पूछता है, अधिकतम हर {minutes} मिनट में",
   "details.settings.disk.drives": "ड्राइव",
   "details.settings.disk.all.label": "हर ड्राइव",
   "details.settings.disk.all.desc": "Windows की हर ड्राइव दिखाएँ, जैसे-जैसे वे जुड़ें या हटें",

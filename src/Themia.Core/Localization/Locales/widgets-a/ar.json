@@ -52,7 +52,7 @@
   "widgetsA.calendar.readFailed": "تعذرت قراءة التقويم. راجع themia.log.",
   "widgetsA.calendar.settings.accounts": "الحسابات والتقويمات",
   "widgetsA.calendar.settings.addHint": "سجّل الدخول في صفحة الحسابات",
-  "widgetsA.calendar.settings.agendaCount.desc": "عدد ما يسرده جدول الأعمال خلال الأيام الـ 30 القادمة",
+  "widgetsA.calendar.settings.agendaCount.desc": "عدد ما يسرده جدول الأعمال خلال الأيام الـ {days} القادمة",
   "widgetsA.calendar.settings.birthdays.desc": "أعياد ميلاد جهات اتصالك، من حسابات Microsoft وGoogle",
   "widgetsA.calendar.settings.colorAuto": "تلقائي",
   "widgetsA.calendar.settings.colorOf": "لون {name}",

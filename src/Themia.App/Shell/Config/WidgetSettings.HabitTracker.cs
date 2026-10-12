@@ -94,7 +94,7 @@ internal static partial class WidgetSettings
             }
         };
 
-        var interval = FluentLayout.FieldRow(Glyphs.Countdown, Str.HabitTracker_IntervalLabel.Text(), Str.WidgetsB_Settings_Habits_Interval_Desc.Text(), minutes, verdict);
+        var interval = FluentLayout.FieldRow(Glyphs.Countdown, Str.HabitTracker_IntervalLabel.Text(), Str.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)), minutes, verdict);
         interval.Visibility = config.Cadence.Period == HabitPeriod.Custom ? Visibility.Visible : Visibility.Collapsed;
 
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsB_Settings_Habits_Resets_Label.Text(), Str.HabitTracker_ResetDesc.Text(),
@@ -120,7 +120,7 @@ internal static partial class WidgetSettings
             FluentLayout.Toggle(config.ShowStreak, value => { config.ShowStreak = value; save(); })));
 
         rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Habits_History_Label.Text(),
-            Str.WidgetsB_Settings_Habits_History_Desc.Text(),
+            Str.WidgetsB_Settings_Habits_History_Desc.Format(("zero", 0)),
             FluentLayout.Slider(
                 config.EffectiveHistoryDots,
                 0,

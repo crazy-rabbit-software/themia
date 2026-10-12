@@ -11,7 +11,7 @@ namespace Themia.Core.Widgets;
 /// <param name="BatteryColumn">The battery percentage in its own column (else, on a two-line row, in the second line; on a one-line row, the tooltip).</param>
 /// <param name="SignalColumn">The signal reading in its own column, likewise.</param>
 /// <param name="FactColumns">A two-line row keeps battery and signal in their own columns rather than in its second line.</param>
-/// <param name="Summary">"2 connected" in the header instead of the bare count.</param>
+/// <param name="Summary">"2 connected" in the header; smaller tiles show no count ([S-3961]).</param>
 public readonly record struct BluetoothRowPlan(
     int Columns,
     bool TwoLine,

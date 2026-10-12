@@ -47,7 +47,7 @@
   "widgetsA.calendar.readFailed": "Tidak dapat membaca kalender. Lihat themia.log.",
   "widgetsA.calendar.settings.accounts": "Akun dan kalender",
   "widgetsA.calendar.settings.addHint": "Masuk di halaman Akun",
-  "widgetsA.calendar.settings.agendaCount.desc": "Berapa banyak yang dicantumkan agenda, dalam 30 hari ke depan",
+  "widgetsA.calendar.settings.agendaCount.desc": "Berapa banyak yang dicantumkan agenda, dalam {days} hari ke depan",
   "widgetsA.calendar.settings.birthdays.desc": "Ulang tahun kontak Anda, dari akun Microsoft dan Google",
   "widgetsA.calendar.settings.colorAuto": "Otomatis",
   "widgetsA.calendar.settings.colorOf": "Warna {name}",

@@ -39,7 +39,7 @@
   "online.air.settings.index.european": "یورپی (EAQI)",
   "online.air.settings.index.us": "امریکی (AQI)",
   "online.rain.label": "اگلے گھنٹے میں بارش",
-  "online.rain.desc": "بارش کب شروع یا بند ہوگی، 15 منٹ کے وقفوں میں",
+  "online.rain.desc": "بارش کب شروع یا بند ہوگی، {minutes} منٹ کے وقفوں میں",
   "online.rain.startsIn": "{minutes} منٹ میں بارش",
   "online.rain.stopsIn": "{minutes} منٹ میں بارش رکے گی",
   "online.rain.continues": "اگلے 2 گھنٹے بارش",
@@ -63,6 +63,6 @@
   "online.rates.settings.quotes.label": "کرنسیاں",
   "online.rates.settings.quotes.desc": "جتنی سما سکیں، چنی گئی ترتیب میں",
   "online.rates.settings.quotes.all": "تمام کرنسیاں",
-  "online.rates.settings.chart.label": "90 دن کا چارٹ",
+  "online.rates.settings.chart.label": "{days} دن کا چارٹ",
   "online.rates.settings.chart.desc": "جگہ ہو تو ہر شرح کے نیچے"
 }

@@ -188,7 +188,7 @@
   "widgetsB.settings.gallery.noFolderYet": "Jeszcze nie wybrano folderu.",
   "widgetsB.settings.gallery.showing": "Wyświetlany jest {name}",
   "widgetsB.habits.minutes.empty": "Wpisz liczbę minut.",
-  "widgetsB.habits.minutes.notWhole": "Tylko pełne minuty, np. 30.",
+  "widgetsB.habits.minutes.notWhole": "Tylko pełne minuty, np. {example}.",
   "widgetsB.habits.minutes.range": "Od {min} do {max} minut (jeden dzień).",
   "widgetsB.habits.describe.hourly": "{time}, {date}",
   "widgetsB.habits.describe.weekly": "Tydzień od {date}",
@@ -260,7 +260,7 @@
     "many": "Czyszczone co {count} minut.",
     "other": "Czyszczone co {count} minuty."
   },
-  "widgetsB.settings.habits.interval.desc": "Minuty na okres, od 1 do 1440",
+  "widgetsB.settings.habits.interval.desc": "Minuty na okres, od {min} do {max}",
   "widgetsB.settings.habits.resets.label": "Resetowanie",
   "widgetsB.settings.habits.everyHour": "Co godzinę",
   "widgetsB.settings.habits.everyDay": "Codziennie",
@@ -270,7 +270,7 @@
   "widgetsB.settings.habits.streaks.label": "Pokaż serie",
   "widgetsB.settings.habits.streaks.desc": "Bieżąca seria każdego nawyku",
   "widgetsB.settings.habits.history.label": "Historia",
-  "widgetsB.settings.habits.history.desc": "Minione okresy jako kropki; 0 je ukrywa",
+  "widgetsB.settings.habits.history.desc": "Minione okresy jako kropki; {zero} je ukrywa",
   "widgetsB.settings.habits.habitCount": {
     "one": "{count} nawyk",
     "few": "{count} nawyki",

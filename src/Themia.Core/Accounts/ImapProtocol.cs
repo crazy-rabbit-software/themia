@@ -112,6 +112,13 @@ public static class ImapProtocol
         return quoted.Append('"').ToString();
     }
 
+    /// <summary>
+    /// [S-553] The RFC 2971 <c>ID</c> the client sends after LOGIN to a server that advertises it.
+    /// NetEase (163.com, 126.com) refuses SELECT with "Unsafe Login" from a client that has not named
+    /// itself (classic issue #169). Name and vendor only: no version or OS that would fingerprint.
+    /// </summary>
+    public const string IdCommand = "ID (\"name\" \"Themia\" \"vendor\" \"Lometics GmbH\")";
+
     /// <summary>The <c>{n}</c> that announces a literal of <paramref name="bytes"/> octets.</summary>
     public static string LiteralPrefix(int bytes)
         => "{" + bytes.ToString(System.Globalization.CultureInfo.InvariantCulture) + "}";

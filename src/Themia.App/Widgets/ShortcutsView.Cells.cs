@@ -562,14 +562,14 @@ internal sealed partial class ShortcutsView
             ImageSource? source = cell.Item.IconPath is { } iconPath
                 && LaunchTargets.Classify(iconPath) is { Kind: LaunchKind.LocalPath } iconTarget
                 && LaunchTargets.MayProbe(iconTarget)
-                ? await AppIcons.GetAsync(iconTarget.Value, (int)Math.Ceiling(cell.IconSize * 2)).ConfigureAwait(true)
+                ? await AppIcons.GetAsync(iconTarget.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIcons.ThemeOf(this)).ConfigureAwait(true)
                 : null;
 
             source ??= cell.Target.Kind switch
             {
                 LaunchKind.Web => await FaviconAsync(cell.Target.Value).ConfigureAwait(true),
                 LaunchKind.LocalPath or LaunchKind.ShellNamespace when LaunchTargets.MayProbe(cell.Target)
-                    => await AppIcons.GetAsync(cell.Target.Value, (int)Math.Ceiling(cell.IconSize * 2), variant).ConfigureAwait(true),
+                    => await AppIcons.GetAsync(cell.Target.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIcons.ThemeOf(this), variant).ConfigureAwait(true),
                 _ => null,
             };
 
@@ -658,7 +658,7 @@ internal sealed partial class ShortcutsView
                 {
                     LaunchKind.Web => await FaviconAsync(target.Value).ConfigureAwait(true),
                     LaunchKind.LocalPath when LaunchTargets.MayProbe(target)
-                        => await AppIcons.GetAsync(target.Value, (int)Math.Ceiling(cell.IconSize * 2)).ConfigureAwait(true),
+                        => await AppIcons.GetAsync(target.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIcons.ThemeOf(this)).ConfigureAwait(true),
                     _ => null,
                 };
 

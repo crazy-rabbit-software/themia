@@ -231,7 +231,11 @@ internal static unsafe class DesktopZOrder
             var ownSurface = pinned && !shellSurface && ShellSignals.OwnSurfaceIsForeground();
             var showDesktop = !shellSurface && !ownSurface && ShellSignals.ShowDesktopIsActive();
 
-            Apply(ZOrderPolicy.Decide(showDesktop, pinned, shellSurface, ownSurface));
+            // [S-33e] A hold is only right while the user's windows are still away. One sweep, and
+            // only while a hold is on the table (pinned, with a shell or own surface in front).
+            var applicationOnScreen = (shellSurface || ownSurface) && ShellSignals.AnyOrdinaryAppVisible();
+
+            Apply(ZOrderPolicy.Decide(showDesktop, pinned, shellSurface, ownSurface, applicationOnScreen));
         }
         catch (Exception ex)
         {

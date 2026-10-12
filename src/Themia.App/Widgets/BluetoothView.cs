@@ -27,7 +27,8 @@ namespace Themia.App.Widgets;
 /// <b>Ladder</b> ([S-1254], <see cref="BluetoothLayout"/>): every whole row the tile has, up to the
 /// ceiling; the battery % from 180 px; the status word from 260 px; a second line (kind · state ·
 /// battery · signal) on tall tiles; "2 connected" in the header and two columns on the largest. The
-/// battery is its percentage alone and the row has no connection dot ([S-3961]): a connected device's
+/// battery is its percentage alone, the row has no connection dot and the header no count badge
+/// ([S-3961]): a connected device's
 /// icon is in the primary text colour, a merely paired one's in the secondary.
 /// A short list on a large tile stays a short list: no detail panel under it ([S-1569] retired).
 /// Every empty list says which empty list it is.
@@ -50,8 +51,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         From(0xE916), // watch    - Stopwatch
     ];
 
-    private readonly TextBlock _count = new();
-    private readonly Border _badge;
     private readonly TextBlock _summary = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private readonly ProgressRing _busy = new();
     private readonly StackPanel _trailing;
@@ -97,22 +96,18 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         _busy.IsActive = false;
         _busy.Visibility = Visibility.Collapsed;
 
-        _badge = Fluent.Badge(_count);
-        _badge.Visibility = Visibility.Collapsed;
-        _badge.Margin = new Thickness(0, 0, Fluent.Space2, 0);
-
         _summary.Visibility = Visibility.Collapsed;
         _summary.VerticalAlignment = VerticalAlignment.Center;
         _summary.Margin = new Thickness(0, 0, Fluent.Space2, 0);
 
-        // All sit in the card header's trailing slot: the ring while a pass is out, the count (or,
-        // on a large tile, "2 connected") once one has landed. Built here because the card reads it
-        // once, when it builds the header.
+        // Both sit in the card header's trailing slot: the ring while a pass is out, "2 connected" on
+        // a large tile once one has landed. No count badge ([S-3961]). Built here because the card
+        // reads it once, when it builds the header.
         _trailing = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             VerticalAlignment = VerticalAlignment.Center,
-            Children = { _summary, _badge, _busy },
+            Children = { _summary, _busy },
         };
 
         _scroll = new ScrollViewer
@@ -317,12 +312,10 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         var listHeight = Math.Max(0, _area.Height - inset.Top - inset.Bottom);
         var plan = BluetoothLayout.Plan(_area, listHeight, devices.Count);
 
-        // [S-1255] "2 connected" in words where the header has room; the bare count elsewhere.
+        // [S-1254] "2 connected" in words where the header has room; nothing elsewhere ([S-3961]).
         var summary = plan.Summary ? BluetoothRules.ConnectedSummary(connected, Strings.Current) : null;
         _summary.Text = summary ?? string.Empty;
         _summary.Visibility = summary is null ? Visibility.Collapsed : Visibility.Visible;
-        _count.Text = connected.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        _badge.Visibility = connected > 0 && summary is null ? Visibility.Visible : Visibility.Collapsed;
 
         if (devices.Count == 0)
         {

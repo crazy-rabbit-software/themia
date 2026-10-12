@@ -586,7 +586,7 @@
   "shell.meters.systemDrive": "系統磁碟機 ({drive})",
   "shell.meters.gpuDescription": "每個介面卡的圖形負載",
   "shell.meters.batteryDescription": "電量",
-  "shell.appearance.headerFade": "標題列的不透明程度；100% 與小工具相同",
+  "shell.appearance.headerFade": "標題列的不透明程度；{percent} 與小工具相同",
   "shell.views.add": "新增檢視",
   "shell.views.addDesc": "在清單末尾新增一個空白檢視",
   "shell.views.more": "更多選項",
