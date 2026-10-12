@@ -17,6 +17,14 @@ public enum Locale
     Pl = 6,
     Pt = 7,
     Zh = 8,
+    Hi = 9,
+    Ar = 10,
+    Bn = 11,
+    Ru = 12,
+    Id = 13,
+    Ur = 14,
+    Mr = 15,
+    Vi = 16,
 }
 
 /// <summary>[S-1108] Turning the language setting (and Windows' language list) into a <see cref="Locale"/>.</summary>
@@ -24,7 +32,8 @@ public static class LanguageResolver
 {
     /// <summary>Every locale, in enum order.</summary>
     public static IReadOnlyList<Locale> All { get; } =
-        [Locale.En, Locale.De, Locale.Es, Locale.Fr, Locale.It, Locale.Ja, Locale.Pl, Locale.Pt, Locale.Zh];
+        [Locale.En, Locale.De, Locale.Es, Locale.Fr, Locale.It, Locale.Ja, Locale.Pl, Locale.Pt, Locale.Zh,
+         Locale.Hi, Locale.Ar, Locale.Bn, Locale.Ru, Locale.Id, Locale.Ur, Locale.Mr, Locale.Vi];
 
     /// <summary>The two-letter code, which is also the locale file's name (<c>de</c> → de.json).</summary>
     public static string Code(Locale locale) => locale switch
@@ -37,6 +46,14 @@ public static class LanguageResolver
         Locale.Pl => "pl",
         Locale.Pt => "pt",
         Locale.Zh => "zh",
+        Locale.Hi => "hi",
+        Locale.Ar => "ar",
+        Locale.Bn => "bn",
+        Locale.Ru => "ru",
+        Locale.Id => "id",
+        Locale.Ur => "ur",
+        Locale.Mr => "mr",
+        Locale.Vi => "vi",
         _ => "en",
     };
 
@@ -64,9 +81,39 @@ public static class LanguageResolver
             AppLanguage.Polish => Locale.Pl,
             AppLanguage.Portuguese => Locale.Pt,
             AppLanguage.Chinese => Locale.Zh,
+            AppLanguage.Hindi => Locale.Hi,
+            AppLanguage.Arabic => Locale.Ar,
+            AppLanguage.Bengali => Locale.Bn,
+            AppLanguage.Russian => Locale.Ru,
+            AppLanguage.Indonesian => Locale.Id,
+            AppLanguage.Urdu => Locale.Ur,
+            AppLanguage.Marathi => Locale.Mr,
+            AppLanguage.Vietnamese => Locale.Vi,
             _ => FromSystem(preferredUiLanguages),
         };
     }
+
+    /// <summary>The explicit language setting that resolves to <paramref name="locale"/> (never <see cref="AppLanguage.System"/>).</summary>
+    public static AppLanguage Setting(Locale locale) => locale switch
+    {
+        Locale.De => AppLanguage.German,
+        Locale.Es => AppLanguage.Spanish,
+        Locale.Fr => AppLanguage.French,
+        Locale.It => AppLanguage.Italian,
+        Locale.Ja => AppLanguage.Japanese,
+        Locale.Pl => AppLanguage.Polish,
+        Locale.Pt => AppLanguage.Portuguese,
+        Locale.Zh => AppLanguage.Chinese,
+        Locale.Hi => AppLanguage.Hindi,
+        Locale.Ar => AppLanguage.Arabic,
+        Locale.Bn => AppLanguage.Bengali,
+        Locale.Ru => AppLanguage.Russian,
+        Locale.Id => AppLanguage.Indonesian,
+        Locale.Ur => AppLanguage.Urdu,
+        Locale.Mr => AppLanguage.Marathi,
+        Locale.Vi => AppLanguage.Vietnamese,
+        _ => AppLanguage.English,
+    };
 
     /// <summary>The first tag in the list that names a language Themia has; English when none does.</summary>
     public static Locale FromSystem(IEnumerable<string> preferredUiLanguages)

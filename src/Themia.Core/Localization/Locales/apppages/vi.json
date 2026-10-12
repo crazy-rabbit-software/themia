@@ -1,0 +1,48 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Kéo một dạng xem lên dạng xem khác để di chuyển, hoặc nhấn Alt+Shift+Lên hay Xuống trên dạng xem.",
+  "shell.list.reorderHint": "Kéo một mục lên mục khác để di chuyển, hoặc nhấn Alt+Shift+Lên hay Xuống trên mục.",
+  "shell.view.colour": "Màu",
+  "shell.view.colourDesc": "Màu biểu tượng trên thanh dạng xem và trong cửa sổ này",
+  "shell.view.colourDefault": "Màu chữ",
+  "shell.appearance.themeColours": "Chủ đề và màu sắc",
+  "shell.appearance.cards": "Thẻ tiện ích",
+  "shell.appearance.cardsDesc": "Viền, góc và đường bao",
+  "shell.appearance.textAndSize": "Chữ và kích thước",
+  "shell.appearance.textAndSizeDesc": "Phông chữ, cỡ chữ và tỷ lệ tiện ích",
+  "shell.appearance.layoutDesc": "Khoảng cách giữa các tiện ích và bám theo lưới",
+  "shell.net.blockedLocal": "{host} nằm trong mạng cục bộ. Themia chỉ truy cập địa chỉ do chính bạn nhập",
+  "shell.accounts.stats.mail": "Thư",
+  "shell.accounts.stats.calendar": "Lịch",
+  "shell.accounts.stats.contacts": "Danh bạ",
+  "shell.accounts.stats.tasks": "Tác vụ",
+  "shell.accounts.stats.messages": {
+    "other": "{count} thư"
+  },
+  "shell.accounts.stats.events": {
+    "other": "{count} sự kiện"
+  },
+  "shell.accounts.stats.people": {
+    "other": "{count} liên hệ"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "{count} tác vụ"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "trong {count} thư mục"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "trong {count} lịch"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "trong {count} danh sách"
+  },
+  "shell.accounts.stats.synced": "đã đồng bộ {time}",
+  "shell.accounts.stats.neverSynced": "chưa đồng bộ",
+  "shell.accounts.stats.nothing": "Chưa có gì được lưu trên PC này",
+  "shell.accounts.nicknameDesc": "Tên mà tiện ích hiển thị cho tài khoản này",
+  "shell.accounts.reconnect": "Đăng nhập lại",
+  "shell.accounts.reconnectButton": "Đăng nhập",
+  "shell.accounts.signOutDesc": "Xóa tài khoản và mọi dữ liệu đã đồng bộ từ tài khoản đó trên PC này",
+  "shell.accounts.needsSignIn": "Cần đăng nhập lại"
+}

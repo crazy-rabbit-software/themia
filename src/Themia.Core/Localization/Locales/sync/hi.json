@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "अपडेट किया गया {time}",
+  "sync.stateUpdated": "{state} · अपडेट किया गया {time}",
+  "sync.pending": {
+    "one": "{count} बदलाव सिंक होने की प्रतीक्षा में",
+    "other": "{count} बदलाव सिंक होने की प्रतीक्षा में"
+  },
+  "sync.queueFull": "बहुत सारे बदलाव सिंक की प्रतीक्षा में हैं; यह वाला नहीं रखा गया।",
+  "sync.withUpdated": "{sentence} अपडेट किया गया {time}।"
+}

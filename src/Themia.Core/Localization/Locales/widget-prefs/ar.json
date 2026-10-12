@@ -1,0 +1,25 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "الأدوات",
+  "widgetPrefs.subtitle": "التنسيقات والتحديثات المشتركة بين كل الأدوات",
+  "widgetPrefs.region.header": "التنسيق الإقليمي",
+  "widgetPrefs.region.clock": "تنسيق الوقت",
+  "widgetPrefs.region.clock12": "12 ساعة",
+  "widgetPrefs.region.clock24": "24 ساعة",
+  "widgetPrefs.followWindows": "إعداد Windows ({value})",
+  "widgetPrefs.updates.header": "التحديثات",
+  "widgetPrefs.updates.note": "عدد مرات اتصال الأدوات بالخدمات عبر الإنترنت. يؤدي «تحديث» في أداة إلى الاتصال فورًا.",
+  "widgetPrefs.updates.weather": "الطقس",
+  "widgetPrefs.updates.markets": "الأسهم",
+  "widgetPrefs.updates.feeds": "موجزات الأخبار",
+  "widgetPrefs.updates.accounts": "البريد والتقويمات والمهام",
+  "widgetPrefs.updates.everyHours": {
+    "zero": "كل {count} ساعة",
+    "one": "كل {count} ساعة",
+    "two": "كل {count} ساعتين",
+    "few": "كل {count} ساعات",
+    "many": "كل {count} ساعة",
+    "other": "كل {count} ساعة"
+  },
+  "widgetsC.shortcuts.settings.locations": "مواقع Windows"
+}

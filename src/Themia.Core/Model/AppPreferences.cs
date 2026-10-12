@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// The language the app's own text is shown in. The nine the original shipped, plus following
-/// Windows. A closed set: each value picks a string table, not a parameter.
+/// The language the app's own text is shown in. The nine the original shipped, eight more
+/// ([S-1112]), and following Windows. A closed set: each value picks a string table, not a parameter.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<AppLanguage>))]
 public enum AppLanguage
@@ -20,6 +20,14 @@ public enum AppLanguage
     Polish = 7,
     Portuguese = 8,
     Chinese = 9,
+    Hindi = 10,
+    Arabic = 11,
+    Bengali = 12,
+    Russian = 13,
+    Indonesian = 14,
+    Urdu = 15,
+    Marathi = 16,
+    Vietnamese = 17,
 }
 
 /// <summary>

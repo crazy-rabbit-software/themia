@@ -1,0 +1,83 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "اسحب مشهدًا فوق آخر لنقله، أو اضغط Alt+Shift+سهم لأعلى أو لأسفل على المشهد.",
+  "shell.list.reorderHint": "اسحب عنصرًا فوق آخر لنقله، أو اضغط Alt+Shift+سهم لأعلى أو لأسفل على العنصر.",
+  "shell.view.colour": "اللون",
+  "shell.view.colourDesc": "لون الأيقونة في شريط المشاهد وفي هذه النافذة",
+  "shell.view.colourDefault": "لون النص",
+  "shell.appearance.themeColours": "السمة والألوان",
+  "shell.appearance.cards": "بطاقات الأدوات",
+  "shell.appearance.cardsDesc": "الحد والزوايا والإطار",
+  "shell.appearance.textAndSize": "النص والحجم",
+  "shell.appearance.textAndSizeDesc": "الخط وحجم النص وحجم الأدوات",
+  "shell.appearance.layoutDesc": "المسافة بين الأدوات والمحاذاة إلى الشبكة",
+  "shell.net.blockedLocal": "{host} موجود على الشبكة المحلية. لا يتصل Themia به إلا لعنوان كتبته بنفسك",
+  "shell.accounts.stats.mail": "البريد",
+  "shell.accounts.stats.calendar": "التقويم",
+  "shell.accounts.stats.contacts": "جهات الاتصال",
+  "shell.accounts.stats.tasks": "المهام",
+  "shell.accounts.stats.messages": {
+    "zero": "{count} رسالة",
+    "one": "{count} رسالة",
+    "two": "{count} رسالتان",
+    "few": "{count} رسائل",
+    "many": "{count} رسالة",
+    "other": "{count} رسالة"
+  },
+  "shell.accounts.stats.events": {
+    "zero": "{count} حدث",
+    "one": "{count} حدث",
+    "two": "{count} حدثان",
+    "few": "{count} أحداث",
+    "many": "{count} حدثًا",
+    "other": "{count} حدث"
+  },
+  "shell.accounts.stats.people": {
+    "zero": "{count} جهة اتصال",
+    "one": "{count} جهة اتصال",
+    "two": "{count} جهتا اتصال",
+    "few": "{count} جهات اتصال",
+    "many": "{count} جهة اتصال",
+    "other": "{count} جهة اتصال"
+  },
+  "shell.accounts.stats.taskCount": {
+    "zero": "{count} مهمة",
+    "one": "{count} مهمة",
+    "two": "{count} مهمتان",
+    "few": "{count} مهام",
+    "many": "{count} مهمة",
+    "other": "{count} مهمة"
+  },
+  "shell.accounts.stats.folders": {
+    "zero": "في {count} مجلد",
+    "one": "في {count} مجلد",
+    "two": "في {count} مجلدين",
+    "few": "في {count} مجلدات",
+    "many": "في {count} مجلدًا",
+    "other": "في {count} مجلد"
+  },
+  "shell.accounts.stats.calendars": {
+    "zero": "في {count} تقويم",
+    "one": "في {count} تقويم",
+    "two": "في {count} تقويمين",
+    "few": "في {count} تقويمات",
+    "many": "في {count} تقويمًا",
+    "other": "في {count} تقويم"
+  },
+  "shell.accounts.stats.lists": {
+    "zero": "في {count} قائمة",
+    "one": "في {count} قائمة",
+    "two": "في {count} قائمتين",
+    "few": "في {count} قوائم",
+    "many": "في {count} قائمة",
+    "other": "في {count} قائمة"
+  },
+  "shell.accounts.stats.synced": "تمت المزامنة {time}",
+  "shell.accounts.stats.neverSynced": "لم تتم المزامنة بعد",
+  "shell.accounts.stats.nothing": "لا شيء مخزّن على هذا الكمبيوتر بعد",
+  "shell.accounts.nicknameDesc": "الاسم الذي تعرضه الأدوات لهذا الحساب",
+  "shell.accounts.reconnect": "تسجيل الدخول مرة أخرى",
+  "shell.accounts.reconnectButton": "تسجيل الدخول",
+  "shell.accounts.signOutDesc": "ينسى الحساب وكل ما تمت مزامنته منه على هذا الكمبيوتر",
+  "shell.accounts.needsSignIn": "يجب تسجيل الدخول مرة أخرى"
+}

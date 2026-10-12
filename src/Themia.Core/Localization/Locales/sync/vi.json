@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Đã cập nhật {time}",
+  "sync.stateUpdated": "{state} · đã cập nhật {time}",
+  "sync.pending": {
+    "other": "{count} thay đổi đang chờ đồng bộ"
+  },
+  "sync.queueFull": "Có quá nhiều thay đổi đang chờ đồng bộ; thay đổi này không được giữ lại.",
+  "sync.withUpdated": "{sentence} Đã cập nhật {time}."
+}

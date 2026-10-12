@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "التحديث {time}",
+  "sync.stateUpdated": "{state} · التحديث {time}",
+  "sync.pending": {
+    "zero": "{count} تغيير بانتظار المزامنة",
+    "one": "{count} تغيير بانتظار المزامنة",
+    "two": "{count} تغييران بانتظار المزامنة",
+    "few": "{count} تغييرات بانتظار المزامنة",
+    "many": "{count} تغييرًا بانتظار المزامنة",
+    "other": "{count} تغيير بانتظار المزامنة"
+  },
+  "sync.queueFull": "تغييرات كثيرة جدًا بانتظار المزامنة؛ لم يُحتفظ بهذا التغيير.",
+  "sync.withUpdated": "{sentence} التحديث {time}."
+}

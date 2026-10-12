@@ -139,18 +139,7 @@ public static class PlaceQuery
     }
 
     /// <summary>The geocoder's language parameter for the app's language.</summary>
-    public static string LanguageCode(Locale locale) => locale switch
-    {
-        Locale.De => "de",
-        Locale.Es => "es",
-        Locale.Fr => "fr",
-        Locale.It => "it",
-        Locale.Ja => "ja",
-        Locale.Pl => "pl",
-        Locale.Pt => "pt",
-        Locale.Zh => "zh",
-        _ => "en",
-    };
+    public static string LanguageCode(Locale locale) => LanguageResolver.Code(locale);
 
     /// <summary>One cache entry per question: the same words in any case, in one language.</summary>
     public static string CacheKey(string query, Locale locale)

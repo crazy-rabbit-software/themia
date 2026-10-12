@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "Виджеты",
+  "widgetPrefs.subtitle": "Форматы и обновление для всех виджетов",
+  "widgetPrefs.region.header": "Региональный формат",
+  "widgetPrefs.region.clock": "Формат времени",
+  "widgetPrefs.region.clock12": "12-часовой",
+  "widgetPrefs.region.clock24": "24-часовой",
+  "widgetPrefs.followWindows": "Как в Windows ({value})",
+  "widgetPrefs.updates.header": "Обновление",
+  "widgetPrefs.updates.note": "Как часто виджеты обращаются к онлайн-службам. «Обновить» в виджете запрашивает сразу.",
+  "widgetPrefs.updates.weather": "Погода",
+  "widgetPrefs.updates.markets": "Акции",
+  "widgetPrefs.updates.feeds": "Новостные ленты",
+  "widgetPrefs.updates.accounts": "Почта, календари и задачи",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Каждый {count} час",
+    "few": "Каждые {count} часа",
+    "many": "Каждые {count} часов",
+    "other": "Каждые {count} часа"
+  },
+  "widgetsC.shortcuts.settings.locations": "Расположения Windows"
+}

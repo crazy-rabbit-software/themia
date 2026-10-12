@@ -4187,7 +4187,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   `Strings.Current`, or `Strings.Get(locale, id)` for an explicit language. Lookup is an array read;
   no `ResourceManager`, no reflection, nothing loaded at run time (Native AOT clean).
 - **[S-1101]** Source: one JSON file per language, `src/Themia.Core/Localization/Locales/<code>.json`
-  (en, de, es, fr, it, ja, pl, pt, zh), flat `"dotted.key": "text"` or a plural object. en.json is the
+  (en, de, es, fr, it, ja, pl, pt, zh, hi, ar, bn, ru, id, ur, mr, vi), flat `"dotted.key": "text"` or a plural object. en.json is the
   master (its keys, in order, are the enum). `Themia.Localization.Generator` (Roslyn incremental
   generator, build-time only) compiles them; a malformed file, a bad key, a duplicate, a key en.json
   lacks, an unknown locale file or two keys clashing on one member name is a build error
@@ -4196,7 +4196,10 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   never re-scanned; a placeholder without an argument stays visible; number arguments are formatted
   for the language (`1,500` / `1.500`).
 - **[S-1103]** Plurals are CLDR cardinal categories for whole numbers (`zero one two few many other`):
-  en/de/es/it one = 1; fr/pt one = 0 and 1; pl one / few (2–4, not 12–14) / many; ja/zh other only.
+  en/de/es/it/ur/mr one = 1; fr/pt/hi/bn one = 0 and 1; pl one / few (2–4, not 12–14) / many;
+  ru one (1, 21, not 11) / few (2–4, not 12–14) / many (and `other` for fractions = few's text);
+  ar zero / one / two / few (n%100 3–10) / many (n%100 11–99) / other (100–102 …); ja/zh/id/vi
+  other only. Russian and Arabic plural keys supply every category (test).
   `Plural(n)` fills `{count}`; a missing category uses the language's `other`, then English.
 - **[S-1104]** A string the language lacks falls back to English, logged once per key and language at
   debug level; an id or key nobody has returns the key text. Never an exception, never empty.
@@ -4205,18 +4208,22 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   form's placeholders equal English's; plural keys are plural in every language and use only that
   language's categories; no text is blank.
 - **[S-1106]** Formatting without `CultureInfo` (`LocaleFormat`, data in `LocaleData`, transcribed
-  from CLDR per main region — en-US, pt-BR, zh-CN, es-ES, the rest their home country): month and
-  weekday names (wide/short/narrow; Polish genitive inside dates), 8 `DateStyle`s, times on the
-  language's default clock or forced 12/24 h (with seconds), integers and decimals with the
-  language's grouping/decimal marks (es and pl leave 4-digit numbers ungrouped), percent, first day
-  of the week. Pure functions; overloads without a locale use `Strings.Current`.
+  from CLDR per main region — en-US, pt-BR, zh-CN, es-ES, ar-SA with the Gregorian month names,
+  bn-BD, ur-PK, hi-IN, mr-IN, the rest their home country): month and weekday names
+  (wide/short/narrow; Polish, Russian and Vietnamese months declined inside dates, long and short),
+  8 `DateStyle`s, times on the language's default clock or forced 12/24 h (with seconds, which take
+  the minutes' separator: Indonesian 15.05.09), integers and decimals with the language's
+  grouping/decimal marks (es and pl leave 4-digit numbers ungrouped; hi, bn and mr group in lakh and
+  crore, 12,34,567), percent, first day of the week (only Sunday or Monday; ar-SA is Sunday). Pure
+  functions; overloads without a locale use `Strings.Current`. Arabic relative times say one and two
+  in words ("قبل دقيقتين"), as CLDR does.
 - **[S-1107]** Relative time (`LocaleFormat.Relative`): under 1 min "now", then whole minutes, hours,
   days, weeks (from 7 d), 30-day months (from 30 d), 365-day years (from 365 d), truncated; past
   "… ago", future "in …"; long and short styles, plural-correct.
 - **[S-1108]** "Follow Windows": `GetUserPreferredUILanguages` (read once; changing it needs a
   sign-out), first tag whose primary subtag Themia has (`zh-CN`, `zh-TW` → zh as in the original,
   `pt-BR` → pt), else English. Walks the whole list, not only its head.
-- **[S-1109]** Settings › General › Language (first row): System + the nine, each named in its own
+- **[S-1109]** Settings › General › Language (first row): System + the seventeen, each named in its own
   language. The host resolves the setting before any window is built and again on every state
   change (an import or reset), and `SetLanguage` applies it at once.
 - **[S-1110]** Live switch: `Strings.Changed(Locale)` fires on the UI thread after the language
@@ -4233,6 +4240,12 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   name `THEMIALOC009`. `$englishOnly` lists keys of its own file. The root `en.json` is still required;
   the root files stay valid. The S1105 completeness tests run on the merged result; the generator
   rules are tested in-process by `LocaleFragmentTests`.
+- **[S-1112]** Seventeen languages: the nine the original shipped plus Hindi, Arabic, Bengali,
+  Russian, Indonesian, Urdu, Marathi and Vietnamese, the same set as Karpo's (Italian and Polish stay
+  as extras). Each is a `Locale`, an `AppLanguage` (persisted by name) and a file per locale folder;
+  `LanguageResolver.Setting` maps a locale back to its setting. The eight new languages are machine
+  translations marked for native review in every file's `$comment`. `LocaleFormat` always writes
+  Latin digits.
 - Ported from `main`: 1,673 of the original's 1,748 keys with all nine translations (key names
   kept; `folder.showHidden_`/`showExt_` → `showHiddenMenu`/`showExtMenu`; `shortcut.appCountOne/Other`
   and `binCountOne/Other` → plural keys; `<br/>` → newline; `settings.language.system` takes the

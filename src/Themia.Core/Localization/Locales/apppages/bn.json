@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "সরাতে একটি ভিউ অন্যটির উপর টেনে আনুন, অথবা ভিউতে Alt+Shift+Up বা Down চাপুন।",
+  "shell.list.reorderHint": "সরাতে একটি আইটেম অন্যটির উপর টেনে আনুন, অথবা আইটেমে Alt+Shift+Up বা Down চাপুন।",
+  "shell.view.colour": "রং",
+  "shell.view.colourDesc": "ভিউ বারে ও এই উইন্ডোতে আইকনের রং",
+  "shell.view.colourDefault": "লেখার রং",
+  "shell.appearance.themeColours": "থিম ও রং",
+  "shell.appearance.cards": "উইজেট কার্ড",
+  "shell.appearance.cardsDesc": "বর্ডার, কোণ ও আউটলাইন",
+  "shell.appearance.textAndSize": "লেখা ও আকার",
+  "shell.appearance.textAndSizeDesc": "ফন্ট, লেখার আকার ও উইজেটের স্কেল",
+  "shell.appearance.layoutDesc": "উইজেটের মধ্যে ফাঁক ও গ্রিডে স্ন্যাপ",
+  "shell.net.blockedLocal": "{host} স্থানীয় নেটওয়ার্কে আছে। Themia সেখানে শুধু আপনার নিজে টাইপ করা ঠিকানার জন্য যায়",
+  "shell.accounts.stats.mail": "মেইল",
+  "shell.accounts.stats.calendar": "ক্যালেন্ডার",
+  "shell.accounts.stats.contacts": "পরিচিতি",
+  "shell.accounts.stats.tasks": "কাজ",
+  "shell.accounts.stats.messages": {
+    "one": "{count}টি বার্তা",
+    "other": "{count}টি বার্তা"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count}টি ইভেন্ট",
+    "other": "{count}টি ইভেন্ট"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count}টি পরিচিতি",
+    "other": "{count}টি পরিচিতি"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count}টি কাজ",
+    "other": "{count}টি কাজ"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count}টি ফোল্ডারে",
+    "other": "{count}টি ফোল্ডারে"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count}টি ক্যালেন্ডারে",
+    "other": "{count}টি ক্যালেন্ডারে"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count}টি তালিকায়",
+    "other": "{count}টি তালিকায়"
+  },
+  "shell.accounts.stats.synced": "সিঙ্ক হয়েছে {time}",
+  "shell.accounts.stats.neverSynced": "এখনও সিঙ্ক হয়নি",
+  "shell.accounts.stats.nothing": "এই PC-তে এখনও কিছু সংরক্ষিত নেই",
+  "shell.accounts.nicknameDesc": "এই অ্যাকাউন্টের জন্য উইজেটে দেখানো নাম",
+  "shell.accounts.reconnect": "আবার সাইন ইন করুন",
+  "shell.accounts.reconnectButton": "সাইন ইন",
+  "shell.accounts.signOutDesc": "এই PC থেকে অ্যাকাউন্ট ও তা থেকে সিঙ্ক হওয়া সবকিছু মুছে দেয়",
+  "shell.accounts.needsSignIn": "আবার সাইন ইন করা প্রয়োজন"
+}

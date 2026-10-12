@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "ویجیٹس",
+  "widgetPrefs.subtitle": "وہ فارمیٹس اور اپ ڈیٹس جو سب ویجیٹس میں مشترک ہیں",
+  "widgetPrefs.region.header": "علاقائی فارمیٹ",
+  "widgetPrefs.region.clock": "وقت کا فارمیٹ",
+  "widgetPrefs.region.clock12": "12 گھنٹے",
+  "widgetPrefs.region.clock24": "24 گھنٹے",
+  "widgetPrefs.followWindows": "Windows کی ترتیب ({value})",
+  "widgetPrefs.updates.header": "اپ ڈیٹس",
+  "widgetPrefs.updates.note": "ویجیٹس آن لائن سروسز سے کتنی بار پوچھتے ہیں۔ ویجیٹ پر تازہ کریں فوراً پوچھتا ہے۔",
+  "widgetPrefs.updates.weather": "موسم",
+  "widgetPrefs.updates.markets": "اسٹاکس",
+  "widgetPrefs.updates.feeds": "نیوز فیڈز",
+  "widgetPrefs.updates.accounts": "میل، کیلنڈرز اور کام",
+  "widgetPrefs.updates.everyHours": {
+    "one": "ہر {count} گھنٹے",
+    "other": "ہر {count} گھنٹے"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows مقامات"
+}

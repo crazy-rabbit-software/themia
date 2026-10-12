@@ -6,7 +6,7 @@ using Themia.Core.Model;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-1109] The debug renders' language switch: <c>--lang &lt;en|de|es|fr|it|ja|pl|pt|zh&gt;</c> on any
+/// [S-1109] The debug renders' language switch: <c>--lang &lt;code&gt;</c> (any code of <see cref="LanguageResolver.All"/>, e.g. <c>de</c>, <c>ar</c>) on any
 /// render flag (<c>--settings-png</c>, <c>--picker-png</c>, …) draws it in that language, so a
 /// translation can be checked without changing anyone's settings.
 /// </summary>
@@ -28,7 +28,7 @@ internal static class RenderLanguage
             return locale;
         }
 
-        Log.Error(Scope, "usage: --lang <en|de|es|fr|it|ja|pl|pt|zh>; rendering in English");
+        Log.Error(Scope, "usage: --lang <en|de|es|fr|it|ja|pl|pt|zh|hi|ar|bn|ru|id|ur|mr|vi>; rendering in English");
         return null;
     }
 
@@ -42,18 +42,7 @@ internal static class RenderLanguage
     }
 
     /// <summary>The language setting that resolves to the requested locale, so a host built over a demo state keeps it.</summary>
-    public static AppLanguage? Setting(string[] args) => Requested(args) switch
-    {
-        Locale.En => AppLanguage.English,
-        Locale.De => AppLanguage.German,
-        Locale.Es => AppLanguage.Spanish,
-        Locale.Fr => AppLanguage.French,
-        Locale.It => AppLanguage.Italian,
-        Locale.Ja => AppLanguage.Japanese,
-        Locale.Pl => AppLanguage.Polish,
-        Locale.Pt => AppLanguage.Portuguese,
-        Locale.Zh => AppLanguage.Chinese,
-        _ => null,
-    };
+    public static AppLanguage? Setting(string[] args)
+        => Requested(args) is { } locale ? LanguageResolver.Setting(locale) : null;
 }
 #endif

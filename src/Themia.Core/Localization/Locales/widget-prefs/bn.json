@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "উইজেট",
+  "widgetPrefs.subtitle": "সব উইজেটের শেয়ার করা ফরম্যাট ও আপডেট",
+  "widgetPrefs.region.header": "আঞ্চলিক ফরম্যাট",
+  "widgetPrefs.region.clock": "সময়ের ফরম্যাট",
+  "widgetPrefs.region.clock12": "12-ঘণ্টা",
+  "widgetPrefs.region.clock24": "24-ঘণ্টা",
+  "widgetPrefs.followWindows": "Windows সেটিং ({value})",
+  "widgetPrefs.updates.header": "আপডেট",
+  "widgetPrefs.updates.note": "উইজেট কত ঘন ঘন অনলাইন সার্ভিসে জিজ্ঞাসা করে। উইজেটে রিফ্রেশ করলে সঙ্গে সঙ্গে জিজ্ঞাসা করে।",
+  "widgetPrefs.updates.weather": "আবহাওয়া",
+  "widgetPrefs.updates.markets": "স্টক",
+  "widgetPrefs.updates.feeds": "নিউজ ফিড",
+  "widgetPrefs.updates.accounts": "মেইল, ক্যালেন্ডার ও কাজ",
+  "widgetPrefs.updates.everyHours": {
+    "one": "প্রতি {count} ঘণ্টায়",
+    "other": "প্রতি {count} ঘণ্টায়"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows-এর অবস্থান"
+}

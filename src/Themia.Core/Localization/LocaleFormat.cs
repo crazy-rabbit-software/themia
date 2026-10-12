@@ -146,7 +146,10 @@ public static class LocaleFormat
         var pattern = use24 ? data.Time24 : data.Time12;
         if (seconds)
         {
-            pattern = pattern.Replace("mm", "mm:ss", StringComparison.Ordinal);
+            // Seconds take the separator the minutes have: 15:05:09, Indonesian 15.05.09.
+            var at = pattern.IndexOf("mm", StringComparison.Ordinal);
+            var separator = at > 0 ? pattern[at - 1] : ':';
+            pattern = pattern.Replace("mm", "mm" + separator + "ss", StringComparison.Ordinal);
         }
 
         return Render(data, pattern, default, time);
@@ -207,7 +210,7 @@ public static class LocaleFormat
 
     public static string Integer(long value) => Integer(Strings.Current, value);
 
-    /// <summary>A whole number with the language's grouping: 12,345 · 12.345 · 12 345.</summary>
+    /// <summary>A whole number with the language's grouping: 12,345 · 12.345 · 12 345 · 1,23,456.</summary>
     public static string Integer(Locale locale, long value)
         => Compose(LocaleData.For(locale), value < 0, value == long.MinValue ? "9223372036854775808" : Math.Abs(value).ToString(CultureInfo.InvariantCulture), string.Empty);
 
@@ -254,21 +257,22 @@ public static class LocaleFormat
 
         if (whole.Length >= 3 + data.MinimumGrouping)
         {
-            var head = whole.Length % 3;
+            // The last three digits are one group; the rest are grouped by the secondary size
+            // (3, or 2 in the Indian system: 12,34,567).
+            var rest = whole.Length - 3;
+            var size = data.SecondaryGrouping;
+            var head = rest % size;
             if (head > 0)
             {
-                sb.Append(whole, 0, head);
+                sb.Append(whole, 0, head).Append(data.Group);
             }
 
-            for (var i = head; i < whole.Length; i += 3)
+            for (var i = head; i < rest; i += size)
             {
-                if (i > 0)
-                {
-                    sb.Append(data.Group);
-                }
-
-                sb.Append(whole, i, 3);
+                sb.Append(whole, i, size).Append(data.Group);
             }
+
+            sb.Append(whole, rest, 3);
         }
         else
         {
@@ -339,7 +343,7 @@ public static class LocaleFormat
                     }
                     else if (run == 3)
                     {
-                        sb.Append(data.MonthsShort[date.Month - 1]);
+                        sb.Append((data.MonthsShortInDate ?? data.MonthsShort)[date.Month - 1]);
                     }
                     else
                     {

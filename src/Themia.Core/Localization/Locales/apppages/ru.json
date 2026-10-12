@@ -1,0 +1,69 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Перетащите вид на другой, чтобы переместить его, или нажмите Alt+Shift+Стрелка вверх или вниз на виде.",
+  "shell.list.reorderHint": "Перетащите элемент на другой, чтобы переместить его, или нажмите Alt+Shift+Стрелка вверх или вниз на элементе.",
+  "shell.view.colour": "Цвет",
+  "shell.view.colourDesc": "Цвет значка на панели видов и в этом окне",
+  "shell.view.colourDefault": "Цвет текста",
+  "shell.appearance.themeColours": "Тема и цвета",
+  "shell.appearance.cards": "Карточки виджетов",
+  "shell.appearance.cardsDesc": "Рамка, углы и контур",
+  "shell.appearance.textAndSize": "Текст и размер",
+  "shell.appearance.textAndSizeDesc": "Шрифт, размер текста и масштаб виджетов",
+  "shell.appearance.layoutDesc": "Промежуток между виджетами и привязка к сетке",
+  "shell.net.blockedLocal": "{host} находится в локальной сети. Themia обращается туда, только если вы сами ввели этот адрес",
+  "shell.accounts.stats.mail": "Почта",
+  "shell.accounts.stats.calendar": "Календарь",
+  "shell.accounts.stats.contacts": "Контакты",
+  "shell.accounts.stats.tasks": "Задачи",
+  "shell.accounts.stats.messages": {
+    "one": "{count} письмо",
+    "few": "{count} письма",
+    "many": "{count} писем",
+    "other": "{count} письма"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} событие",
+    "few": "{count} события",
+    "many": "{count} событий",
+    "other": "{count} события"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} контакт",
+    "few": "{count} контакта",
+    "many": "{count} контактов",
+    "other": "{count} контакта"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} задача",
+    "few": "{count} задачи",
+    "many": "{count} задач",
+    "other": "{count} задачи"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "в {count} папке",
+    "few": "в {count} папках",
+    "many": "в {count} папках",
+    "other": "в {count} папки"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "в {count} календаре",
+    "few": "в {count} календарях",
+    "many": "в {count} календарях",
+    "other": "в {count} календаря"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "в {count} списке",
+    "few": "в {count} списках",
+    "many": "в {count} списках",
+    "other": "в {count} списка"
+  },
+  "shell.accounts.stats.synced": "синхронизировано {time}",
+  "shell.accounts.stats.neverSynced": "еще не синхронизировано",
+  "shell.accounts.stats.nothing": "На этом ПК пока ничего не сохранено",
+  "shell.accounts.nicknameDesc": "Имя этой учетной записи в виджетах",
+  "shell.accounts.reconnect": "Войти снова",
+  "shell.accounts.reconnectButton": "Войти",
+  "shell.accounts.signOutDesc": "Удаляет учетную запись и все синхронизированные из нее данные с этого ПК",
+  "shell.accounts.needsSignIn": "Нужно войти снова"
+}

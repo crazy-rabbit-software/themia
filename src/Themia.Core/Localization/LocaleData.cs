@@ -4,7 +4,16 @@ namespace Themia.Core.Localization;
 /// [S-1106] Per-language formatting data, written out because the app is built with
 /// <c>InvariantGlobalization</c> (no ICU, no <c>CultureInfo</c> data — S-54). Transcribed from CLDR
 /// (the data Windows, ICU and browsers use) for each language's main region: en = US,
-/// pt = Brazil, zh = Simplified/China, es = Spain, the rest their home country.
+/// pt = Brazil, zh = Simplified/China, es = Spain, ar = Saudi Arabia (with the Gregorian month
+/// names Egypt and the Levant use), bn = Bangladesh, ur = Pakistan, hi and mr = India, the rest
+/// their home country.
+/// <para>
+/// [S-1112] Every pattern writes Latin digits (0–9). What is drawn is decided at layout, the way
+/// Windows decides it: DirectWrite substitutes digits for the region of the tag text is laid out
+/// with ([S-1114]), so Arabic shows Arabic-Indic digits and the rest Latin.
+/// Keeping the data Latin means one formatter, comparable strings in the tests, and no widget
+/// parsing a number it drew.
+/// </para>
 /// <para>
 /// Patterns use CLDR letters: <c>d dd</c> day, <c>M MM</c> month number, <c>MMM MMMM</c> month name
 /// as used inside a date, <c>LLLL</c> month name on its own (Polish declines it), <c>y</c> year,
@@ -20,6 +29,9 @@ internal sealed class LocaleData
     public string[]? MonthsInDate { get; init; }
 
     public required string[] MonthsShort { get; init; }
+
+    /// <summary>Short month names inside a date ("4 мая" beside "май"); same as <see cref="MonthsShort"/> unless the language declines them.</summary>
+    public string[]? MonthsShortInDate { get; init; }
 
     /// <summary>Sunday first, as <see cref="DayOfWeek"/> counts.</summary>
     public required string[] Weekdays { get; init; }
@@ -48,6 +60,9 @@ internal sealed class LocaleData
     /// <summary>CLDR minimumGroupingDigits: 2 means 1234 stays ungrouped but 12 345 is grouped (es, pl).</summary>
     public int MinimumGrouping { get; init; } = 1;
 
+    /// <summary>The size of every group after the first three digits: 2 for the Indian lakh/crore grouping (12,34,567), else 3.</summary>
+    public int SecondaryGrouping { get; init; } = 3;
+
     /// <summary>The percent pattern around the number, "{0}%" or "{0} %".</summary>
     public required string Percent { get; init; }
 
@@ -70,15 +85,28 @@ internal sealed class LocaleData
         Locale.Pl => Pl,
         Locale.Pt => Pt,
         Locale.Zh => Zh,
+        Locale.Hi => Hi,
+        Locale.Ar => Ar,
+        Locale.Bn => Bn,
+        Locale.Ru => Ru,
+        Locale.Id => Id,
+        Locale.Ur => Ur,
+        Locale.Mr => Mr,
+        Locale.Vi => Vi,
         _ => En,
     };
 
-    // Relative-time helpers: P(one, other) for the two-form languages, P3 for Polish, P1 for none.
+    // Relative-time helpers: P(one, other) for the two-form languages, Pl3 for Polish and Russian
+    // (one, few, many; a fraction takes few), Ar6 for Arabic, P1 for none.
     private static PluralText P(string one, string other) => new(One: one, Other: other);
 
     private static PluralText P1(string other) => new(Other: other);
 
     private static PluralText Pl3(string one, string few, string many) => new(One: one, Few: few, Many: many, Other: few);
+
+    /// <summary>Arabic: one and two are words of their own (no number), few takes the plural, many and other the singular.</summary>
+    private static PluralText Ar6(string one, string two, string few, string many, string other)
+        => new(Other: other, One: one, Few: few, Many: many, Zero: other, Two: two);
 
     private static RelativeForms R(PluralText past, PluralText future) => new(past, future);
 
@@ -428,14 +456,316 @@ internal sealed class LocaleData
             R(P1("{0}年前"), P1("{0}年后")),
         ],
     };
+
+    // -----------------------------------------------------------------------------------------
+    // [S-1112] The eight added later.
+    // -----------------------------------------------------------------------------------------
+
+    private static readonly LocaleData Hi = new()
+    {
+        Months = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्तूबर", "नवंबर", "दिसंबर"],
+        MonthsShort = ["जन॰", "फ़र॰", "मार्च", "अप्रैल", "मई", "जून", "जुल॰", "अग॰", "सित॰", "अक्तू॰", "नव॰", "दिस॰"],
+        Weekdays = ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"],
+        WeekdaysShort = ["रवि", "सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि"],
+        WeekdaysNarrow = ["र", "सो", "मं", "बु", "गु", "शु", "श"],
+        DatePatterns = ["d/M/y", "d MMM y", "d MMMM y", "EEEE, d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "am",
+        Pm = "pm",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "अभी",
+        Relative =
+        [
+            R(P1("{0} मिनट पहले"), P1("{0} मिनट में")),
+            R(P("{0} घंटा पहले", "{0} घंटे पहले"), P1("{0} घंटे में")),
+            R(P1("{0} दिन पहले"), P1("{0} दिन में")),
+            R(P1("{0} सप्ताह पहले"), P1("{0} सप्ताह में")),
+            R(P1("{0} माह पहले"), P1("{0} माह में")),
+            R(P1("{0} वर्ष पहले"), P1("{0} वर्ष में")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} मि॰ पहले"), P1("{0} मि॰ में")),
+            R(P1("{0} घं॰ पहले"), P1("{0} घं॰ में")),
+            R(P1("{0} दिन पहले"), P1("{0} दिन में")),
+            R(P1("{0} सप्ताह पहले"), P1("{0} सप्ताह में")),
+            R(P1("{0} माह पहले"), P1("{0} माह में")),
+            R(P1("{0} वर्ष पहले"), P1("{0} वर्ष में")),
+        ],
+    };
+
+    private static readonly RelativeForms[] ArabicRelative =
+    [
+        R(Ar6("قبل دقيقة واحدة", "قبل دقيقتين", "قبل {0} دقائق", "قبل {0} دقيقة", "قبل {0} دقيقة"), Ar6("خلال دقيقة واحدة", "خلال دقيقتين", "خلال {0} دقائق", "خلال {0} دقيقة", "خلال {0} دقيقة")),
+        R(Ar6("قبل ساعة واحدة", "قبل ساعتين", "قبل {0} ساعات", "قبل {0} ساعة", "قبل {0} ساعة"), Ar6("خلال ساعة واحدة", "خلال ساعتين", "خلال {0} ساعات", "خلال {0} ساعة", "خلال {0} ساعة")),
+        R(Ar6("قبل يوم واحد", "قبل يومين", "قبل {0} أيام", "قبل {0} يومًا", "قبل {0} يوم"), Ar6("خلال يوم واحد", "خلال يومين", "خلال {0} أيام", "خلال {0} يومًا", "خلال {0} يوم")),
+        R(Ar6("قبل أسبوع واحد", "قبل أسبوعين", "قبل {0} أسابيع", "قبل {0} أسبوعًا", "قبل {0} أسبوع"), Ar6("خلال أسبوع واحد", "خلال أسبوعين", "خلال {0} أسابيع", "خلال {0} أسبوعًا", "خلال {0} أسبوع")),
+        R(Ar6("قبل شهر واحد", "قبل شهرين", "قبل {0} أشهر", "قبل {0} شهرًا", "قبل {0} شهر"), Ar6("خلال شهر واحد", "خلال شهرين", "خلال {0} أشهر", "خلال {0} شهرًا", "خلال {0} شهر")),
+        R(Ar6("قبل سنة واحدة", "قبل سنتين", "قبل {0} سنوات", "قبل {0} سنة", "قبل {0} سنة"), Ar6("خلال سنة واحدة", "خلال سنتين", "خلال {0} سنوات", "خلال {0} سنة", "خلال {0} سنة")),
+    ];
+
+    private static readonly LocaleData Ar = new()
+    {
+        Months = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+        MonthsShort = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+        Weekdays = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+        WeekdaysShort = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+        WeekdaysNarrow = ["ح", "ن", "ث", "ر", "خ", "ج", "س"],
+
+        // CLDR puts RLMs between the numeric parts; the surfaces lay text out right-to-left
+        // themselves ([S-1113]), and Latin digits joined by '/' already stay one left-to-right run.
+        DatePatterns = ["d/M/y", "dd/MM/y", "d MMMM y", "EEEE، d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE، d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "ص",
+        Pm = "م",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "الآن",
+        Relative = ArabicRelative,
+
+        // Arabic has no customary abbreviations for these units: the short style is the long one.
+        RelativeShort = ArabicRelative,
+    };
+
+    private static readonly RelativeForms[] BengaliRelative =
+    [
+        R(P1("{0} মিনিট আগে"), P1("{0} মিনিটে")),
+        R(P1("{0} ঘন্টা আগে"), P1("{0} ঘন্টায়")),
+        R(P1("{0} দিন আগে"), P1("{0} দিনের মধ্যে")),
+        R(P1("{0} সপ্তাহ আগে"), P1("{0} সপ্তাহে")),
+        R(P1("{0} মাস আগে"), P1("{0} মাসে")),
+        R(P1("{0} বছর আগে"), P1("{0} বছরে")),
+    ];
+
+    private static readonly LocaleData Bn = new()
+    {
+        Months = ["জানুয়ারী", "ফেব্রুয়ারী", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"],
+        MonthsShort = ["জানু", "ফেব", "মার্চ", "এপ্রি", "মে", "জুন", "জুল", "আগ", "সেপ", "অক্টো", "নভে", "ডিসে"],
+        Weekdays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"],
+        WeekdaysShort = ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহস্পতি", "শুক্র", "শনি"],
+        WeekdaysNarrow = ["র", "সো", "ম", "বু", "বৃ", "শু", "শ"],
+        DatePatterns = ["d/M/y", "d MMM, y", "d MMMM, y", "EEEE, d MMMM, y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "এখন",
+        Relative = BengaliRelative,
+        RelativeShort = BengaliRelative,
+    };
+
+    private static readonly LocaleData Ru = new()
+    {
+        Months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"],
+        MonthsInDate = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"],
+        MonthsShort = ["янв.", "февр.", "март", "апр.", "май", "июнь", "июль", "авг.", "сент.", "окт.", "нояб.", "дек."],
+        MonthsShortInDate = ["янв.", "февр.", "мар.", "апр.", "мая", "июн.", "июл.", "авг.", "сент.", "окт.", "нояб.", "дек."],
+        Weekdays = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"],
+        WeekdaysShort = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"],
+        WeekdaysNarrow = ["В", "П", "В", "С", "Ч", "П", "С"],
+        DatePatterns = ["dd.MM.y", "d MMM y 'г'.", "d MMMM y 'г'.", "EEEE, d MMMM y 'г'.", "d MMMM", "d MMM", "LLLL y 'г'.", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = ',',
+        Group = " ",
+        Percent = "{0} %",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "сейчас",
+        Relative =
+        [
+            R(Pl3("{0} минуту назад", "{0} минуты назад", "{0} минут назад"), Pl3("через {0} минуту", "через {0} минуты", "через {0} минут")),
+            R(Pl3("{0} час назад", "{0} часа назад", "{0} часов назад"), Pl3("через {0} час", "через {0} часа", "через {0} часов")),
+            R(Pl3("{0} день назад", "{0} дня назад", "{0} дней назад"), Pl3("через {0} день", "через {0} дня", "через {0} дней")),
+            R(Pl3("{0} неделю назад", "{0} недели назад", "{0} недель назад"), Pl3("через {0} неделю", "через {0} недели", "через {0} недель")),
+            R(Pl3("{0} месяц назад", "{0} месяца назад", "{0} месяцев назад"), Pl3("через {0} месяц", "через {0} месяца", "через {0} месяцев")),
+            R(Pl3("{0} год назад", "{0} года назад", "{0} лет назад"), Pl3("через {0} год", "через {0} года", "через {0} лет")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} мин. назад"), P1("через {0} мин.")),
+            R(P1("{0} ч назад"), P1("через {0} ч")),
+            R(P1("{0} дн. назад"), P1("через {0} дн.")),
+            R(P1("{0} нед. назад"), P1("через {0} нед.")),
+            R(P1("{0} мес. назад"), P1("через {0} мес.")),
+            R(Pl3("{0} г. назад", "{0} г. назад", "{0} л. назад"), Pl3("через {0} г.", "через {0} г.", "через {0} л.")),
+        ],
+    };
+
+    private static readonly LocaleData Id = new()
+    {
+        Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
+        MonthsShort = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+        Weekdays = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
+        WeekdaysShort = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+        WeekdaysNarrow = ["M", "S", "S", "R", "K", "J", "S"],
+        DatePatterns = ["dd/MM/y", "d MMM y", "d MMMM y", "EEEE, dd MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+
+        // Indonesian separates hours and minutes with a dot (and seconds too: 15.05.09).
+        Time24 = "HH.mm",
+        Time12 = "h.mm a",
+        Uses24Hour = true,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = ',',
+        Group = ".",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "sekarang",
+        Relative =
+        [
+            R(P1("{0} menit yang lalu"), P1("dalam {0} menit")),
+            R(P1("{0} jam yang lalu"), P1("dalam {0} jam")),
+            R(P1("{0} hari yang lalu"), P1("dalam {0} hari")),
+            R(P1("{0} minggu yang lalu"), P1("dalam {0} minggu")),
+            R(P1("{0} bulan yang lalu"), P1("dalam {0} bulan")),
+            R(P1("{0} tahun yang lalu"), P1("dalam {0} tahun")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} mnt lalu"), P1("dalam {0} mnt")),
+            R(P1("{0} jam lalu"), P1("dalam {0} jam")),
+            R(P1("{0} h lalu"), P1("dalam {0} h")),
+            R(P1("{0} mgg lalu"), P1("dalam {0} mgg")),
+            R(P1("{0} bln lalu"), P1("dalam {0} bln")),
+            R(P1("{0} thn lalu"), P1("dalam {0} thn")),
+        ],
+    };
+
+    private static readonly RelativeForms[] UrduRelative =
+    [
+        R(P1("{0} منٹ پہلے"), P1("{0} منٹ میں")),
+        R(P("{0} گھنٹہ پہلے", "{0} گھنٹے پہلے"), P1("{0} گھنٹے میں")),
+        R(P1("{0} دن پہلے"), P1("{0} دن میں")),
+        R(P("{0} ہفتہ پہلے", "{0} ہفتے پہلے"), P1("{0} ہفتے میں")),
+        R(P1("{0} ماہ پہلے"), P1("{0} ماہ میں")),
+        R(P1("{0} سال پہلے"), P1("{0} سال میں")),
+    ];
+
+    private static readonly LocaleData Ur = new()
+    {
+        Months = ["جنوری", "فروری", "مارچ", "اپریل", "مئی", "جون", "جولائی", "اگست", "ستمبر", "اکتوبر", "نومبر", "دسمبر"],
+        MonthsShort = ["جنوری", "فروری", "مارچ", "اپریل", "مئی", "جون", "جولائی", "اگست", "ستمبر", "اکتوبر", "نومبر", "دسمبر"],
+        Weekdays = ["اتوار", "پیر", "منگل", "بدھ", "جمعرات", "جمعہ", "ہفتہ"],
+        WeekdaysShort = ["اتوار", "پیر", "منگل", "بدھ", "جمعرات", "جمعہ", "ہفتہ"],
+
+        // CLDR's narrow Urdu weekdays are Latin (S M T …); a calendar header wants the script's own initials.
+        WeekdaysNarrow = ["ا", "پ", "م", "ب", "ج", "ج", "ہ"],
+        DatePatterns = ["d/M/y", "d MMM، y", "d MMMM، y", "EEEE، d MMMM، y", "d MMMM", "d MMM", "MMMM y", "EEE، d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "ابھی",
+        Relative = UrduRelative,
+        RelativeShort = UrduRelative,
+    };
+
+    private static readonly LocaleData Mr = new()
+    {
+        Months = ["जानेवारी", "फेब्रुवारी", "मार्च", "एप्रिल", "मे", "जून", "जुलै", "ऑगस्ट", "सप्टेंबर", "ऑक्टोबर", "नोव्हेंबर", "डिसेंबर"],
+        MonthsShort = ["जाने", "फेब्रु", "मार्च", "एप्रि", "मे", "जून", "जुलै", "ऑग", "सप्टें", "ऑक्टो", "नोव्हें", "डिसें"],
+        Weekdays = ["रविवार", "सोमवार", "मंगळवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"],
+        WeekdaysShort = ["रवि", "सोम", "मंगळ", "बुध", "गुरु", "शुक्र", "शनि"],
+        WeekdaysNarrow = ["र", "सो", "मं", "बु", "गु", "शु", "श"],
+        DatePatterns = ["d/M/y", "d MMM, y", "d MMMM, y", "EEEE, d MMMM, y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "आत्ता",
+        Relative =
+        [
+            R(P("{0} मिनिटापूर्वी", "{0} मिनिटांपूर्वी"), P("{0} मिनिटामध्ये", "{0} मिनिटांमध्ये")),
+            R(P("{0} तासापूर्वी", "{0} तासांपूर्वी"), P("{0} तासामध्ये", "{0} तासांमध्ये")),
+            R(P("{0} दिवसापूर्वी", "{0} दिवसांपूर्वी"), P("{0} दिवसामध्ये", "{0} दिवसांमध्ये")),
+            R(P("{0} आठवड्यापूर्वी", "{0} आठवड्यांपूर्वी"), P("{0} आठवड्यामध्ये", "{0} आठवड्यांमध्ये")),
+            R(P("{0} महिन्यापूर्वी", "{0} महिन्यांपूर्वी"), P("{0} महिन्यामध्ये", "{0} महिन्यांमध्ये")),
+            R(P("{0} वर्षापूर्वी", "{0} वर्षांपूर्वी"), P("{0} वर्षामध्ये", "{0} वर्षांमध्ये")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} मि. पूर्वी"), P1("{0} मि. मध्ये")),
+            R(P1("{0} ता. पूर्वी"), P1("{0} ता. मध्ये")),
+            R(P("{0} दिवसापूर्वी", "{0} दिवसांपूर्वी"), P("{0} दिवसामध्ये", "{0} दिवसांमध्ये")),
+            R(P("{0} आठवड्यापूर्वी", "{0} आठवड्यांपूर्वी"), P("{0} आठवड्यामध्ये", "{0} आठवड्यांमध्ये")),
+            R(P("{0} महिन्यापूर्वी", "{0} महिन्यांपूर्वी"), P("{0} महिन्यामध्ये", "{0} महिन्यांमध्ये")),
+            R(P("{0} वर्षापूर्वी", "{0} वर्षांपूर्वी"), P("{0} वर्षामध्ये", "{0} वर्षांमध्ये")),
+        ],
+    };
+
+    private static readonly RelativeForms[] VietnameseRelative =
+    [
+        R(P1("{0} phút trước"), P1("sau {0} phút")),
+        R(P1("{0} giờ trước"), P1("sau {0} giờ")),
+        R(P1("{0} ngày trước"), P1("sau {0} ngày")),
+        R(P1("{0} tuần trước"), P1("sau {0} tuần")),
+        R(P1("{0} tháng trước"), P1("sau {0} tháng")),
+        R(P1("{0} năm trước"), P1("sau {0} năm")),
+    ];
+
+    private static readonly LocaleData Vi = new()
+    {
+        Months = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        MonthsInDate = ["tháng 1", "tháng 2", "tháng 3", "tháng 4", "tháng 5", "tháng 6", "tháng 7", "tháng 8", "tháng 9", "tháng 10", "tháng 11", "tháng 12"],
+        MonthsShort = ["Thg 1", "Thg 2", "Thg 3", "Thg 4", "Thg 5", "Thg 6", "Thg 7", "Thg 8", "Thg 9", "Thg 10", "Thg 11", "Thg 12"],
+        MonthsShortInDate = ["thg 1", "thg 2", "thg 3", "thg 4", "thg 5", "thg 6", "thg 7", "thg 8", "thg 9", "thg 10", "thg 11", "thg 12"],
+        Weekdays = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"],
+        WeekdaysShort = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"],
+        WeekdaysNarrow = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        DatePatterns = ["dd/MM/y", "d MMM, y", "d MMMM, y", "EEEE, d MMMM, y", "d MMMM", "d MMM", "LLLL 'năm' y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "SA",
+        Pm = "CH",
+        Decimal = ',',
+        Group = ".",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "bây giờ",
+        Relative = VietnameseRelative,
+        RelativeShort = VietnameseRelative,
+    };
 }
 
 /// <summary>One text per plural category; a missing category uses <see cref="Other"/>.</summary>
-internal readonly record struct PluralText(string Other, string? One = null, string? Few = null, string? Many = null)
+internal readonly record struct PluralText(string Other, string? One = null, string? Few = null, string? Many = null, string? Zero = null, string? Two = null)
 {
     public string For(PluralCategory category) => category switch
     {
+        PluralCategory.Zero => Zero ?? Other,
         PluralCategory.One => One ?? Other,
+        PluralCategory.Two => Two ?? Other,
         PluralCategory.Few => Few ?? Other,
         PluralCategory.Many => Many ?? Other,
         _ => Other,

@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "दृश्य हलवण्यासाठी ते दुसऱ्यावर ड्रॅग करा, किंवा दृश्यावर Alt+Shift+Up किंवा Down दाबा.",
+  "shell.list.reorderHint": "आयटम हलवण्यासाठी तो दुसऱ्यावर ड्रॅग करा, किंवा आयटमवर Alt+Shift+Up किंवा Down दाबा.",
+  "shell.view.colour": "रंग",
+  "shell.view.colourDesc": "दृश्य बार आणि या विंडोमधील आयकॉनचा रंग",
+  "shell.view.colourDefault": "मजकुराचा रंग",
+  "shell.appearance.themeColours": "थीम आणि रंग",
+  "shell.appearance.cards": "विजेट कार्ड",
+  "shell.appearance.cardsDesc": "किनार, कोपरे आणि बाह्यरेषा",
+  "shell.appearance.textAndSize": "मजकूर आणि आकार",
+  "shell.appearance.textAndSizeDesc": "फॉन्ट, मजकुराचा आकार आणि विजेट स्केल",
+  "shell.appearance.layoutDesc": "विजेटमधील अंतर आणि ग्रिडला स्नॅप करणे",
+  "shell.net.blockedLocal": "{host} स्थानिक नेटवर्कवर आहे. तुम्ही स्वतः टाइप केलेल्या पत्त्यासाठीच Themia तेथे जाते",
+  "shell.accounts.stats.mail": "मेल",
+  "shell.accounts.stats.calendar": "कॅलेंडर",
+  "shell.accounts.stats.contacts": "संपर्क",
+  "shell.accounts.stats.tasks": "कार्ये",
+  "shell.accounts.stats.messages": {
+    "one": "{count} संदेश",
+    "other": "{count} संदेश"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} इव्हेंट",
+    "other": "{count} इव्हेंट"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} संपर्क",
+    "other": "{count} संपर्क"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} कार्य",
+    "other": "{count} कार्ये"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} फोल्डरमध्ये",
+    "other": "{count} फोल्डरमध्ये"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} कॅलेंडरमध्ये",
+    "other": "{count} कॅलेंडरमध्ये"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} सूचीमध्ये",
+    "other": "{count} सूचींमध्ये"
+  },
+  "shell.accounts.stats.synced": "सिंक: {time}",
+  "shell.accounts.stats.neverSynced": "अद्याप सिंक केलेले नाही",
+  "shell.accounts.stats.nothing": "या PC वर अद्याप काहीही संग्रहित नाही",
+  "shell.accounts.nicknameDesc": "या खात्यासाठी विजेट दाखवतात ते नाव",
+  "shell.accounts.reconnect": "पुन्हा साइन इन करा",
+  "shell.accounts.reconnectButton": "साइन इन करा",
+  "shell.accounts.signOutDesc": "या PC वरून खाते आणि त्यातून सिंक केलेले सर्व काही विसरते",
+  "shell.accounts.needsSignIn": "तुम्हाला पुन्हा साइन इन करावे लागेल"
+}

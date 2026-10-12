@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "کسی منظر کو منتقل کرنے کے لیے اسے دوسرے منظر پر گھسیٹیں، یا منظر پر Alt+Shift+Up یا Down دبائیں۔",
+  "shell.list.reorderHint": "کسی آئٹم کو منتقل کرنے کے لیے اسے دوسرے آئٹم پر گھسیٹیں، یا آئٹم پر Alt+Shift+Up یا Down دبائیں۔",
+  "shell.view.colour": "رنگ",
+  "shell.view.colourDesc": "منظر بار اور اس ونڈو میں آئیکن کا رنگ",
+  "shell.view.colourDefault": "متن کا رنگ",
+  "shell.appearance.themeColours": "تھیم اور رنگ",
+  "shell.appearance.cards": "ویجیٹ کارڈز",
+  "shell.appearance.cardsDesc": "بارڈر، کونے اور خاکہ",
+  "shell.appearance.textAndSize": "متن اور سائز",
+  "shell.appearance.textAndSizeDesc": "فونٹ، متن کا سائز اور ویجیٹ کا پیمانہ",
+  "shell.appearance.layoutDesc": "ویجیٹس کے درمیان فاصلہ اور گرڈ پر سنیپ",
+  "shell.net.blockedLocal": "{host} مقامی نیٹ ورک پر ہے۔ Themia وہاں صرف اسی پتے کے لیے جاتا ہے جو آپ نے خود ٹائپ کیا ہو",
+  "shell.accounts.stats.mail": "میل",
+  "shell.accounts.stats.calendar": "کیلنڈر",
+  "shell.accounts.stats.contacts": "رابطے",
+  "shell.accounts.stats.tasks": "کام",
+  "shell.accounts.stats.messages": {
+    "one": "{count} پیغام",
+    "other": "{count} پیغامات"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} تقریب",
+    "other": "{count} تقاریب"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} رابطہ",
+    "other": "{count} رابطے"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} کام",
+    "other": "{count} کام"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} فولڈر میں",
+    "other": "{count} فولڈرز میں"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} کیلنڈر میں",
+    "other": "{count} کیلنڈرز میں"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} فہرست میں",
+    "other": "{count} فہرستوں میں"
+  },
+  "shell.accounts.stats.synced": "{time} ہم وقت کیا گیا",
+  "shell.accounts.stats.neverSynced": "ابھی ہم وقت نہیں کیا گیا",
+  "shell.accounts.stats.nothing": "اس PC پر ابھی کچھ محفوظ نہیں",
+  "shell.accounts.nicknameDesc": "وہ نام جو ویجیٹس اس اکاؤنٹ کے لیے دکھاتے ہیں",
+  "shell.accounts.reconnect": "دوبارہ سائن ان کریں",
+  "shell.accounts.reconnectButton": "سائن ان کریں",
+  "shell.accounts.signOutDesc": "اس PC سے اکاؤنٹ اور اس سے ہم وقت کیا گیا سب کچھ بھلا دیتا ہے",
+  "shell.accounts.needsSignIn": "دوبارہ سائن ان کرنا ضروری ہے"
+}

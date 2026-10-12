@@ -1,0 +1,48 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Seret tampilan ke tampilan lain untuk memindahkannya, atau tekan Alt+Shift+Atas atau Bawah pada tampilan.",
+  "shell.list.reorderHint": "Seret item ke item lain untuk memindahkannya, atau tekan Alt+Shift+Atas atau Bawah pada item.",
+  "shell.view.colour": "Warna",
+  "shell.view.colourDesc": "Warna ikon di bilah tampilan dan di jendela ini",
+  "shell.view.colourDefault": "Warna teks",
+  "shell.appearance.themeColours": "Tema dan warna",
+  "shell.appearance.cards": "Kartu widget",
+  "shell.appearance.cardsDesc": "Batas, sudut, dan garis luar",
+  "shell.appearance.textAndSize": "Teks dan ukuran",
+  "shell.appearance.textAndSizeDesc": "Font, ukuran teks, dan skala widget",
+  "shell.appearance.layoutDesc": "Jarak antarwidget dan jepret ke kisi",
+  "shell.net.blockedLocal": "{host} ada di jaringan lokal. Themia hanya membukanya untuk alamat yang Anda ketik sendiri",
+  "shell.accounts.stats.mail": "Email",
+  "shell.accounts.stats.calendar": "Kalender",
+  "shell.accounts.stats.contacts": "Kontak",
+  "shell.accounts.stats.tasks": "Tugas",
+  "shell.accounts.stats.messages": {
+    "other": "{count} pesan"
+  },
+  "shell.accounts.stats.events": {
+    "other": "{count} acara"
+  },
+  "shell.accounts.stats.people": {
+    "other": "{count} kontak"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "{count} tugas"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "di {count} folder"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "di {count} kalender"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "di {count} daftar"
+  },
+  "shell.accounts.stats.synced": "disinkronkan {time}",
+  "shell.accounts.stats.neverSynced": "belum disinkronkan",
+  "shell.accounts.stats.nothing": "Belum ada yang disimpan di PC ini",
+  "shell.accounts.nicknameDesc": "Nama yang ditampilkan widget untuk akun ini",
+  "shell.accounts.reconnect": "Masuk lagi",
+  "shell.accounts.reconnectButton": "Masuk",
+  "shell.accounts.signOutDesc": "Melupakan akun dan semua yang disinkronkan darinya di PC ini",
+  "shell.accounts.needsSignIn": "Anda perlu masuk lagi"
+}
