@@ -195,12 +195,27 @@ public sealed class QuickSetTests
         Assert.Equal(HeaderPlacement.Hidden, toggle.Header);
     }
 
+    [Theory]
+    [InlineData(WidgetKind.AudioVisualizer)]
+    [InlineData(WidgetKind.VisualizerMirror)]
+    [InlineData(WidgetKind.VisualizerWave)]
+    [InlineData(WidgetKind.VisualizerDots)]
+    [InlineData(WidgetKind.VisualizerRadial)]
+    public void S3711_no_audio_visualizer_can_have_a_header(WidgetKind kind)
+    {
+        Assert.False(WidgetInstance.CanHaveHeader(kind));
+        var widget = Widget(kind, "v");
+        widget.Header = HeaderPlacement.Top;
+        Assert.Equal(HeaderPlacement.Hidden, widget.ShownHeader);
+    }
+
     [Fact]
-    public void S3711_every_toggle_kind_is_headerless_and_other_kinds_may_have_one()
+    public void S3711_every_toggle_and_visualizer_kind_is_headerless_and_other_kinds_may_have_one()
     {
         foreach (var kind in Enum.GetValues<WidgetKind>())
         {
-            var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null;
+            var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null
+                || Themia.Core.Widgets.VisualizerLayout.StyleOf(kind) is not null;
             Assert.Equal(!toggle, WidgetInstance.CanHaveHeader(kind));
             if (toggle)
             {

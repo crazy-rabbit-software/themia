@@ -816,7 +816,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   flip sides on every move. It comes back on the drop, placed against where the widgets landed. It
   is away too outside edit mode, while placing ([S-421]) and with nothing selected on the display.
 - **[S-3711]** Some kinds can never have a header (`WidgetInstance.CanHaveHeader`): the thirteen
-  quick-setting toggles ([S-3901]). For a selection holding one, the strip has no Header choice and
+  quick-setting toggles ([S-3901]) and all five audio visualizer designs ([S-3200]). For a selection holding one, the strip has no Header choice and
   shows only what every selected widget can take (Background, and the title for one); `SetHeader`
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).

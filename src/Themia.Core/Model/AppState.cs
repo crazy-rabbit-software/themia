@@ -65,18 +65,14 @@ public sealed class WidgetInstance
     /// is already under the icon.
     /// </para>
     /// <para>
-    /// [S-3200] So does the audio visualizer: the bars are the widget, and a title over them says
-    /// nothing the bars do not.
-    /// </para>
-    /// <para>
-    /// [S-3901] And the quick-setting toggles, which never have one ([S-3711]).
+    /// [S-3901] The quick-setting toggles and [S-3200] every audio visualizer never have one
+    /// ([S-3711]).
     /// </para>
     /// </summary>
     public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
     {
         _ when !CanHaveHeader(kind) => HeaderPlacement.Hidden,
         WidgetKind.Clock => HeaderPlacement.Hidden,
-        _ when Themia.Core.Widgets.VisualizerLayout.StyleOf(kind) is not null => HeaderPlacement.Hidden,
         _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
         _ => HeaderPlacement.Top,
     };
@@ -84,9 +80,13 @@ public sealed class WidgetInstance
     /// <summary>
     /// [S-3711] Whether a widget of <paramref name="kind"/> may have a header at all. The
     /// quick-setting toggles never do ([S-3901]): the whole tile is the switch and its name is
-    /// under the icon, so a header would only repeat it and take a third of a 120-DIP tile.
+    /// under the icon, so a header would only repeat it and take a third of a 120-DIP tile. Nor
+    /// does any audio visualizer ([S-3200]): the spectrum is the widget, edge to edge, and a title
+    /// over it says nothing the bars do not.
     /// </summary>
-    public static bool CanHaveHeader(WidgetKind kind) => Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is null;
+    public static bool CanHaveHeader(WidgetKind kind)
+        => Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is null
+            && Themia.Core.Widgets.VisualizerLayout.StyleOf(kind) is null;
 
     /// <summary>
     /// [S-3711]/[S-3712] Where the header is drawn: the stored placement, or hidden for a kind that
