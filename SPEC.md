@@ -1495,7 +1495,9 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
 - **[S-571]** Agenda: grouped by day ("Today", "Tomorrow", "Mon 5 Oct"), at most `agendaCount`
   entries; an event still running from before is filed under today; timed events already over are
   left out. Rows: time column (start over end, "All day", "Now"), title, location · organizer; on a
-  tile under 260 px the time folds under the title.
+  tile under 260 px the time folds under the title. The time column is as wide as its widest label
+  in the current language (at least 52 px, at most 35% of the row; a longer word label trims), so
+  "Toute la journée" or "طوال اليوم" is not cut.
 - **[S-572]** Month cells: chips (title, coloured edge) as many as fit, the overflow as "+N" beside
   the day number; on smaller cells up to three dots (two in narrow cells) plus a muted one; on the
   smallest the number alone, strong when the day has something. Today is an accent disc.

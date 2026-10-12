@@ -260,6 +260,14 @@ public sealed class CalendarFitTests
         Assert.True(CalendarFit.ShowsFirstHeading(Today, Today, height: 200));
     }
 
+    [Theory]
+    [InlineData(38, 480, 52)]    // "All day", a clock: the floor
+    [InlineData(105.3, 480, 108)] // "Toute la journée", "طوال اليوم": widened to the label, on the 4px grid
+    [InlineData(300, 480, 168)]  // never more than a third and a bit of the row: the title keeps the rest
+    [InlineData(105.3, 100, 52)] // a column too narrow for the cap keeps the floor
+    public void S571_AgendaTimeColumnFitsItsWidestLabel(double widestLabel, double columnWidth, double expected)
+        => Assert.Equal(expected, CalendarFit.AgendaTimeColumn(widestLabel, columnWidth));
+
     // ---- [S-1268] Outlook hand-off ----------------------------------------------------------------
 
     [Fact]

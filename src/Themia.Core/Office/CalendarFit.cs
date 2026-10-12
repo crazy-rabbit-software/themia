@@ -580,6 +580,18 @@ public static class CalendarFit
     /// <summary>[S-1267] From this width the agenda flows its days into two columns.</summary>
     public const double AgendaTwoColumnsFrom = 720;
 
+    /// <summary>[S-571] The agenda's time column at its narrowest: a clock and the English "All day".</summary>
+    public const double AgendaTimeColumnMin = 52;
+
+    /// <summary>
+    /// [S-571] The agenda's time column for a widest label ("All day", "Now" or a clock, measured in
+    /// the current language) of <paramref name="widestLabel"/> DIPs: wide enough for it on the 4px
+    /// grid, so "Toute la journée" or "طوال اليوم" is not cut, but never more than 35% of the row,
+    /// where the title keeps the rest and an even longer label trims.
+    /// </summary>
+    public static double AgendaTimeColumn(double widestLabel, double columnWidth)
+        => Math.Clamp(Math.Ceiling(widestLabel / 4) * 4, AgendaTimeColumnMin, Math.Max(AgendaTimeColumnMin, Math.Floor(columnWidth * 0.35)));
+
     /// <summary>
     /// [S-1267] Whether the first page's first day gets its heading. On a short tile the first group's
     /// "Today" is implied (it is what a small agenda is about) and its line goes to an event instead.

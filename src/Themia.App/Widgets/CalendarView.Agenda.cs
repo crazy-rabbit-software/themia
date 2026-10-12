@@ -19,9 +19,6 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class CalendarView
 {
-    /// <summary>The agenda's time column: "All day" at the caption step, on the 4px grid.</summary>
-    private const double TimeColumn = 52;
-
     /// <summary>Below this column width the time column folds into the line under the title.</summary>
     private const double AgendaNarrowBelow = 260;
 
@@ -47,6 +44,7 @@ internal sealed partial class CalendarView
         var compact = height > 0 && height < Fluent.CompactBelow;
         var narrow = columnWidth > 0 && columnWidth < AgendaNarrowBelow;
         var metaColumns = columnWidth >= CalendarFit.AgendaColumnsFrom && !compact;
+        var timeColumn = CalendarFit.AgendaTimeColumn(WidestTimeLabel(), columnWidth);
 
         // One row height per render, so the fit is exact: two lines where a second one is drawn.
         var twoLines = narrow || !compact;
@@ -97,7 +95,7 @@ internal sealed partial class CalendarView
                     stack.Children.Add(new Border { Child = text, Height = headingHeight, Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space1) });
                 }
 
-                var row = AgendaRow(item, day, now, compact, narrow, metaColumns, showColors);
+                var row = AgendaRow(item, day, now, compact, narrow, metaColumns, showColors, timeColumn);
                 row.Height = rowHeight;
                 _hovers.Add(Fluent.Hover(row));
                 stack.Children.Add(row);
@@ -113,16 +111,36 @@ internal sealed partial class CalendarView
     }
 
     /// <summary>
+    /// [S-571] The widest thing the time column shows, measured in the current language: "All day"
+    /// and "Now" run far longer than a clock in some languages ("Toute la journée", "طوال اليوم").
+    /// </summary>
+    private static double WidestTimeLabel()
+    {
+        var widest = 0.0;
+        foreach (var (type, label) in new[] { (FluentType.Body, Str.Calendar_AllDay.Text()), (FluentType.BodyStrong, Str.WidgetsA_Calendar_Now.Text()), (FluentType.Body, "00:00") })
+        {
+            var probe = Fluent.Text(type);
+            probe.Language = UiLanguage.Tag(Strings.Current);
+            probe.TextTrimming = TextTrimming.None;
+            probe.Text = label;
+            probe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            widest = Math.Max(widest, probe.DesiredSize.Width);
+        }
+
+        return widest;
+    }
+
+    /// <summary>
     /// [S-571] One agenda row: the time column (start over end, "All day", or "Now" in the strong
     /// step for one under way), then the title over where and who. On a narrow tile ([S-574]) the
     /// time moves under the title, where it costs a line rather than half the width; on a wide one
     /// ([S-1267]) where and who get columns of their own beside the title.
     /// </summary>
-    private Border AgendaRow(DayItem item, DateOnly day, DateTimeOffset now, bool compact, bool narrow, bool metaColumns, bool showColors)
+    private Border AgendaRow(DayItem item, DateOnly day, DateTimeOffset now, bool compact, bool narrow, bool metaColumns, bool showColors, double timeColumn)
     {
         string? location = null;
         string? organizer = null;
-        var when = new StackPanel { Spacing = 0, Width = TimeColumn, Margin = new Thickness(0, 0, Fluent.Space2, 0), VerticalAlignment = VerticalAlignment.Center };
+        var when = new StackPanel { Spacing = 0, Width = timeColumn, Margin = new Thickness(0, 0, Fluent.Space2, 0), VerticalAlignment = VerticalAlignment.Center };
         var text = new StackPanel { Spacing = 0, VerticalAlignment = VerticalAlignment.Center };
         var title = Fluent.Text(FluentType.BodyStrong);
         text.Children.Add(title);
@@ -146,7 +164,8 @@ internal sealed partial class CalendarView
             var startText = e.AllDay ? Str.Calendar_AllDay.Text() : running ? Str.WidgetsA_Calendar_Now.Text() : Clock(e.Start);
             var start = Fluent.Text(running ? FluentType.BodyStrong : FluentType.Body, "TextFillColorSecondaryBrush");
             start.Text = startText;
-            start.TextTrimming = TextTrimming.None;
+            // A clock is never cut; a word label longer than the column's cap trims rather than clips.
+            start.TextTrimming = e.AllDay || running ? TextTrimming.CharacterEllipsis : TextTrimming.None;
             Typography.SetNumeralAlignment(start, FontNumeralAlignment.Tabular);
             when.Children.Add(start);
 
