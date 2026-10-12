@@ -126,7 +126,8 @@ internal static class Glyphs
     public static readonly string Microphone = From(0xE720);
     public static readonly string MicrophoneOff = From(0xEC54);
     public static readonly string SpatialSound = From(0xED33);
-    public static readonly string MonoAudio = From(0xE15D);
+    /// <summary>Headphone, not Karpo's E15D: that one draws the same speaker as the Sound toggle.</summary>
+    public static readonly string MonoAudio = From(0xE7F6);
     public static readonly string ColorFilters = From(0xE2B1);
     /// <summary>Karpo's F7FC is not in Segoe Fluent Icons here (drew a box): the controller.</summary>
     public static readonly string GameMode = From(0xE7FC);
