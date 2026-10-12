@@ -19,7 +19,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION).
+- **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES).
 - **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Sun and moon (two widgets, SKY-SPLIT); Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar widgets: five kinds and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC).
 
@@ -4334,6 +4334,96 @@ network meter's connection line ([S-1762]).
 Needs live verification: the default switch on real hardware (all three roles in Sound settings; refusal path on a locked-down
 account).
 
+## Quick-setting toggles (QUICK-TOGGLES)
+
+The toggle widgets of Karpo's Quick settings (`karpo-app`, docs\widgets.md §117: the ones a click
+flips where they stand), each its own widget. Core: `QuickToggleRules`, `ToggleGate`, `ToggleFace`;
+App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`); tests
+`QuickToggleTests`.
+
+- **[S-3900]** Thirteen kinds, one per toggle, in the picker's own section **Quick settings**, after
+  Power, default size 120×120: Wi-Fi (`WifiToggle`), Bluetooth (`BluetoothToggle`), Airplane mode,
+  Energy saver, Night light, Rotation lock, Do not disturb, Sound (the default output's mute),
+  Microphone (the default microphone's mute), Spatial sound, Mono audio, Color filters, Game mode.
+  The kind maps to its `QuickToggle` in Core (`QuickToggleRules.ForKind`/`KindOf`); one view serves
+  all thirteen. Each has an empty config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`):
+  no settings page ([S-1750]), never needs setting up. The picker names it "<name> on/off" so it never
+  reads as another widget ("Bluetooth on/off" beside the Bluetooth devices widget); the tile says the
+  name alone. Not ported from Karpo: its row of several toggles in one widget, mobile hotspot, VPN and
+  nearby sharing (Karpo keeps those out of its toggles: they open lists or flyouts), live captions,
+  accessibility and project (Windows tells no app whether they are on).
+- **[S-3901]** A new toggle has no header ([S-700]): the whole tile is the switch, its name under the
+  icon. The user may still give it one.
+- **[S-3902]** Icons are Windows 11's quick-settings glyphs (Karpo's set); Sound and Microphone are
+  struck through (E74F, EC54) while muted.
+- **[S-3903]** A source reads `ToggleReading(On, Block)`. `Block` says why it cannot be switched:
+  `Reading` (asked, not answered: no state, inert, not dimmed), `NoHardware` (no radio, no rotation
+  sensor), `NoDevice` (no output or microphone), `NotOnWindows` (energy saver before 24H2),
+  `NotNow` (rotation while docked, on several screens, as a laptop, remote), `NoSwitch` (Windows'
+  interface or Settings handler is not there for an app), `NotSupported` (the output cannot do
+  spatial sound), `TurnedOff` (Windows says the setting does not apply, or a radio's hardware switch
+  holds it). Nothing ever elevates: what needs more than the user's rights is one of these.
+- **[S-3904]** The tile is a Windows 11 quick-settings button over the whole content area, inside the
+  card's own fill and corners: on, `AccentFillColorDefault` (Secondary on hover, Tertiary pressed)
+  with `TextOnAccentFillColorPrimary` icon and name; off, the subtle fills on hover and press; not
+  known, the secondary text colour; unavailable, the disabled text colour, no hover, no press, and
+  the reason in the tooltip ("Bluetooth: This PC does not have it"). The tooltip is otherwise
+  "Wi-Fi: On"; after a refused click, "…: Windows did not switch it" until the next click. In edit
+  mode the press is the card's ([S-1911]).
+- **[S-3905]** Clicks go through `ToggleGate`: a click asks for the opposite of what is read and the
+  tile shows it at once; while that switch is on its way every click does nothing; a click within
+  400 ms of the last is the same click (a double-click never flips back). When Windows answers, the
+  source's reading stands. Space or Enter switch it while the widget holds the keyboard lease
+  ([S-800]); a toggle that cannot be switched does not take the keyboard (`WantsKeys`).
+- **[S-3906]** Ladder (`ToggleFace`): Compact width (XS) is the icon alone; then the name under it
+  (Caption to Title, about a sixth of the height), and the state line ("On", "Off", "Unavailable",
+  one step smaller) where the height allows; a wide strip puts the icon left of the name and state.
+  The text is planned for the language's longest state line, so switching moves nothing. Icon 16–128.
+- **[S-3907]** One source per toggle for the whole app (`ToggleHub`), started by its first widget and
+  stopped by its last; a change reaches each widget on its own thread. No source polls: each follows
+  the notification its setting has and reads again when it fires. The pointer coming onto a tile
+  re-reads what Windows announces nowhere (availability, a do not disturb rule). Nothing blocks the UI
+  thread; every native callback catches, logs and returns. Native AOT: `LibraryImport`, COM through
+  function-pointer vtables, CsWinRT projections only for documented WinRT types.
+- **[S-3908]** Energy saver, night light, game mode, color filters and mono audio switch through the
+  Settings handler Windows' own tile calls (`GetSetting` in `SettingsHandlers_*.dll` from System32,
+  undocumented `ISettingItem` "Value"), checked to be the switch asked for (its id said back, type 3,
+  a boolean) before use. The handlers live on one STA thread with a message loop, every call handed to
+  it as a task; no wall-clock wait (Karpo's two-second start-up wait is not ported: whether a handler
+  applies is asked when the pointer comes by).
+- **[S-3909]** Debug: `--widget-png <Kind> <out.png> [--theme light|dark] --state on|off|unavailable|unknown|hover|pressed|refused`.
+  A render reads nothing and switches nothing ([S-1251]); a click there flips a made-up reading.
+- **[S-3910]** Wi-Fi and Bluetooth: `Windows.Devices.Radios`, the radio of the kind found on the pool,
+  `StateChanged` followed, `RequestAccessAsync` then `SetStateAsync` (Windows may refuse an app; the
+  click says so). Airplane mode: the Radio Management service's system switch, `IRadioManager`
+  out of process (`GetSystemRadioState`/`SetSystemRadioState`, "enabled" is airplane mode's
+  opposite), followed through HKLM `…\RadioManagement\SystemRadioState`. Karpo's fall-back of
+  switching each radio by hand is not ported (one path): without the service, `NoSwitch`.
+- **[S-3911]** Energy saver: `GUID_ENERGY_SAVER_STATUS` through `PowerSettingRegisterNotification`
+  (callback; 1 standard and 2 high savings are on), Windows 11 24H2 and later only (`NotOnWindows`
+  elsewhere). Night light: the Display handler for state and switch, followed through the
+  CloudStore blue-light value; Karpo's hand-written Bond rewrite of that value is not ported.
+- **[S-3912]** Rotation lock: `GetAutoRotationState` read as Windows' handler reads it (no sensor or
+  not supported: no hardware; remote, multimon, docked, laptop: not now; else locked while disabled),
+  switched by `SetAutoRotation` (user32 ordinal 2507), followed through HKLM `…\AutoRotation`.
+- **[S-3913]** Do not disturb: `IQuietHoursSettings` (WpnUserService, undocumented). On while the
+  active profile is not the off profile; on sets the user's profile to PriorityOnly, off sets it back
+  and turns off a rule holding it on. Heard through the CloudStore quiet-hours value; a rule turning
+  it on or off by itself (a game, the schedule) shows when the pointer next comes by (Karpo's
+  `NotificationModeChanged` needs a Windows 11 SDK projection this build does not target).
+- **[S-3914]** Sound: the default output's mute through the shared Core Audio worker ([S-1220]).
+  Microphone: the default capture endpoint's (console role) mute, its own small Core Audio watch
+  (endpoint-volume and device callbacks, re-bound when the default changes). Spatial sound:
+  `SpatialAudioDeviceConfiguration` of the default output, on is Windows Sonic for Headphones, off is
+  GUID_NULL, followed through `ConfigurationChanged` and the default output changing; Windows keeps
+  the choice for Settings and may refuse. Karpo's list of installed formats is not ported.
+- **[S-3915]** Game mode (`HKCU\Software\Microsoft\GameBar\AutoGameModeEnabled`, absent is on), color
+  filters (`…\ColorFiltering\Active`, absent is off; the filter is Windows' last one) and mono audio
+  (`…\Multimedia\Audio\AccessibilityMonoMixState`, absent is off) are read from those DWORDs, watched
+  (a key not there yet is waited for at its parent), and switched through their handlers.
+- Needs a live pass on real hardware: every switch is untested against this PC's state by design
+  (no test touches the user's radios or settings).
+
 ## Views and the view bar (WP8)
 
 Duplicate, reorder and icons for views, the original's desktop view bar, Ctrl+1..9 and the
@@ -5007,7 +5097,7 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   or the point of a right-click on the surface — and flips above only
   when there is no room below.
 - **[S-1750]** A widget whose settings page would have no rows (the CPU, memory and battery details,
-  the audio visualizer, the seven power buttons; the GPU details on a PC with one adapter) has no
+  the audio visualizer, the seven power buttons, the thirteen quick-setting toggles; the GPU details on a PC with one adapter) has no
   Settings: the card menu leaves it out of the row, and Enter ([S-1974]), a click while the settings
   window is open ([S-1745]) and every other way in do nothing for it. Whether a page has rows is read
   off the page builder itself (a throwaway widget of the kind, once per kind), never a list kept

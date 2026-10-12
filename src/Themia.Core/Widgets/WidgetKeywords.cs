@@ -68,6 +68,21 @@ public static class WidgetKeywords
         [WidgetKind.Lock] = ["power", "lock screen", "away", "security"],
         [WidgetKind.SignOut] = ["power", "log off", "log out", "logout", "sign off"],
         [WidgetKind.ScreenOff] = ["power", "monitor off", "screen off", "blank screen", "display"],
+
+        // [S-3900] The quick-setting toggles.
+        [WidgetKind.WifiToggle] = ["quick settings", "toggle", "wifi", "wlan", "wireless", "radio", "internet"],
+        [WidgetKind.BluetoothToggle] = ["quick settings", "toggle", "radio", "wireless", "headphones"],
+        [WidgetKind.AirplaneModeToggle] = ["quick settings", "toggle", "flight mode", "flight", "radios off", "offline"],
+        [WidgetKind.EnergySaverToggle] = ["quick settings", "toggle", "battery saver", "power saving", "battery", "eco"],
+        [WidgetKind.NightLightToggle] = ["quick settings", "toggle", "blue light", "warm screen", "night mode", "eye strain"],
+        [WidgetKind.RotationLockToggle] = ["quick settings", "toggle", "auto rotate", "screen rotation", "tablet", "orientation"],
+        [WidgetKind.DoNotDisturbToggle] = ["quick settings", "toggle", "dnd", "focus assist", "quiet hours", "notifications", "silence"],
+        [WidgetKind.SoundToggle] = ["quick settings", "toggle", "mute", "unmute", "speaker", "audio", "volume"],
+        [WidgetKind.MicrophoneToggle] = ["quick settings", "toggle", "mic", "mute", "unmute", "calls", "recording"],
+        [WidgetKind.SpatialSoundToggle] = ["quick settings", "toggle", "windows sonic", "surround", "3d audio", "headphones"],
+        [WidgetKind.MonoAudioToggle] = ["quick settings", "toggle", "mono", "accessibility", "one ear", "audio"],
+        [WidgetKind.ColorFiltersToggle] = ["quick settings", "toggle", "grayscale", "color blind", "invert", "accessibility"],
+        [WidgetKind.GameModeToggle] = ["quick settings", "toggle", "gaming", "games", "performance", "xbox"],
         [WidgetKind.Clipboard] = ["copy", "paste", "history", "snippets"],
 
         [WidgetKind.Clock] = ["time", "timezone", "watch", "world clock", "date", "analog", "digital"],

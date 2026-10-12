@@ -37,6 +37,19 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(LockConfig), typeDiscriminator: "lock")]
 [JsonDerivedType(typeof(SignOutConfig), typeDiscriminator: "signOut")]
 [JsonDerivedType(typeof(ScreenOffConfig), typeDiscriminator: "screenOff")]
+[JsonDerivedType(typeof(WifiToggleConfig), typeDiscriminator: "wifiToggle")]
+[JsonDerivedType(typeof(BluetoothToggleConfig), typeDiscriminator: "bluetoothToggle")]
+[JsonDerivedType(typeof(AirplaneModeToggleConfig), typeDiscriminator: "airplaneModeToggle")]
+[JsonDerivedType(typeof(EnergySaverToggleConfig), typeDiscriminator: "energySaverToggle")]
+[JsonDerivedType(typeof(NightLightToggleConfig), typeDiscriminator: "nightLightToggle")]
+[JsonDerivedType(typeof(RotationLockToggleConfig), typeDiscriminator: "rotationLockToggle")]
+[JsonDerivedType(typeof(DoNotDisturbToggleConfig), typeDiscriminator: "doNotDisturbToggle")]
+[JsonDerivedType(typeof(SoundToggleConfig), typeDiscriminator: "soundToggle")]
+[JsonDerivedType(typeof(MicrophoneToggleConfig), typeDiscriminator: "microphoneToggle")]
+[JsonDerivedType(typeof(SpatialSoundToggleConfig), typeDiscriminator: "spatialSoundToggle")]
+[JsonDerivedType(typeof(MonoAudioToggleConfig), typeDiscriminator: "monoAudioToggle")]
+[JsonDerivedType(typeof(ColorFiltersToggleConfig), typeDiscriminator: "colorFiltersToggle")]
+[JsonDerivedType(typeof(GameModeToggleConfig), typeDiscriminator: "gameModeToggle")]
 [JsonDerivedType(typeof(BluetoothConfig), typeDiscriminator: "bluetooth")]
 [JsonDerivedType(typeof(MusicConfig), typeDiscriminator: "music")]
 [JsonDerivedType(typeof(AudioVisualizerConfig), typeDiscriminator: "audioVisualizer")]
@@ -103,6 +116,19 @@ public abstract class WidgetConfig
         WidgetKind.Lock => new LockConfig(),
         WidgetKind.SignOut => new SignOutConfig(),
         WidgetKind.ScreenOff => new ScreenOffConfig(),
+        WidgetKind.WifiToggle => new WifiToggleConfig(),
+        WidgetKind.BluetoothToggle => new BluetoothToggleConfig(),
+        WidgetKind.AirplaneModeToggle => new AirplaneModeToggleConfig(),
+        WidgetKind.EnergySaverToggle => new EnergySaverToggleConfig(),
+        WidgetKind.NightLightToggle => new NightLightToggleConfig(),
+        WidgetKind.RotationLockToggle => new RotationLockToggleConfig(),
+        WidgetKind.DoNotDisturbToggle => new DoNotDisturbToggleConfig(),
+        WidgetKind.SoundToggle => new SoundToggleConfig(),
+        WidgetKind.MicrophoneToggle => new MicrophoneToggleConfig(),
+        WidgetKind.SpatialSoundToggle => new SpatialSoundToggleConfig(),
+        WidgetKind.MonoAudioToggle => new MonoAudioToggleConfig(),
+        WidgetKind.ColorFiltersToggle => new ColorFiltersToggleConfig(),
+        WidgetKind.GameModeToggle => new GameModeToggleConfig(),
         WidgetKind.Bluetooth => new BluetoothConfig(),
         WidgetKind.Music => new MusicConfig(),
         WidgetKind.AudioVisualizer => new AudioVisualizerConfig(),

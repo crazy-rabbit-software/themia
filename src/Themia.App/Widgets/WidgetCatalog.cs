@@ -159,6 +159,9 @@ internal enum WidgetCategory
     Accounts,
     System,
     Power,
+
+    /// <summary>[S-3900] The quick-setting toggles, after Power.</summary>
+    QuickSettings,
     Information,
     Media,
     Launch,
@@ -221,6 +224,20 @@ internal static class WidgetCatalog
         new(WidgetKind.Lock, Str.Power_Action_Lock, Str.WidgetsC_Power_Desc_Lock, Glyphs.Lock, 120, 120, WidgetCategory.Power),
         new(WidgetKind.SignOut, Str.Power_Action_SignOut, Str.WidgetsC_Power_Desc_SignOut, Glyphs.SignOut, 120, 120, WidgetCategory.Power),
         new(WidgetKind.ScreenOff, Str.Power_Action_ScreenOff, Str.WidgetsC_Power_Desc_ScreenOff, Glyphs.Display, 120, 120, WidgetCategory.Power),
+        // [S-3900] One widget per quick setting, each a single switch, in their own section.
+        new(WidgetKind.WifiToggle, Str.Toggles_Wifi_Label, Str.Toggles_Wifi_Desc, Glyphs.Wifi, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.BluetoothToggle, Str.Toggles_Bluetooth_Label, Str.Toggles_Bluetooth_Desc, Glyphs.Bluetooth, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.AirplaneModeToggle, Str.Toggles_AirplaneMode_Label, Str.Toggles_AirplaneMode_Desc, Glyphs.Airplane, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.EnergySaverToggle, Str.Toggles_EnergySaver_Label, Str.Toggles_EnergySaver_Desc, Glyphs.EnergySaver, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.NightLightToggle, Str.Toggles_NightLight_Label, Str.Toggles_NightLight_Desc, Glyphs.NightLight, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.RotationLockToggle, Str.Toggles_RotationLock_Label, Str.Toggles_RotationLock_Desc, Glyphs.RotationLock, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.DoNotDisturbToggle, Str.Toggles_DoNotDisturb_Label, Str.Toggles_DoNotDisturb_Desc, Glyphs.QuietHours, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.SoundToggle, Str.Toggles_Sound_Label, Str.Toggles_Sound_Desc, Glyphs.Volume3, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.MicrophoneToggle, Str.Toggles_Microphone_Label, Str.Toggles_Microphone_Desc, Glyphs.Microphone, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.SpatialSoundToggle, Str.Toggles_SpatialSound_Label, Str.Toggles_SpatialSound_Desc, Glyphs.SpatialSound, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.MonoAudioToggle, Str.Toggles_MonoAudio_Label, Str.Toggles_MonoAudio_Desc, Glyphs.MonoAudio, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.ColorFiltersToggle, Str.Toggles_ColorFilters_Label, Str.Toggles_ColorFilters_Desc, Glyphs.ColorFilters, 120, 120, WidgetCategory.QuickSettings),
+        new(WidgetKind.GameModeToggle, Str.Toggles_GameMode_Label, Str.Toggles_GameMode_Desc, Glyphs.GameMode, 120, 120, WidgetCategory.QuickSettings),
         new(WidgetKind.Bluetooth, Str.Widget_Bluetooth_Label, Str.WidgetsA_Catalog_Bluetooth_Description, Glyphs.Bluetooth, 300, 240, WidgetCategory.System),
         new(WidgetKind.Music, Str.WidgetsA_Catalog_Music_Label, Str.WidgetsA_Catalog_Music_Description, Glyphs.Music, 340, 160, WidgetCategory.Media),
         // [S-3200] The spectrum, split out of Music, beside it.
@@ -247,6 +264,7 @@ internal static class WidgetCatalog
         WidgetCategory.Accounts => Str.WidgetsA_Catalog_Category_Accounts,
         WidgetCategory.System => Str.Category_System,
         WidgetCategory.Power => Str.WidgetsA_Catalog_Category_Power,
+        WidgetCategory.QuickSettings => Str.Toggles_Category,
         WidgetCategory.Information => Str.WidgetsA_Catalog_Category_Information,
         WidgetCategory.Media => Str.WidgetsA_Catalog_Category_Media,
         WidgetCategory.Launch => Str.WidgetsA_Catalog_Category_Launch,
@@ -326,6 +344,7 @@ internal static class WidgetCatalog
         WidgetKind.Volume => new VolumeView(),
         WidgetKind.Shutdown or WidgetKind.Restart or WidgetKind.Sleep or WidgetKind.Hibernate
             or WidgetKind.Lock or WidgetKind.SignOut or WidgetKind.ScreenOff => new PowerButtonView(kind),
+        _ when QuickToggleRules.ForKind(kind) is not null => new QuickToggleView(kind),
         WidgetKind.Bluetooth => new BluetoothView(),
         WidgetKind.Music => new MusicView(),
         WidgetKind.AudioVisualizer => new AudioVisualizerView(),

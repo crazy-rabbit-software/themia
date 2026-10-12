@@ -115,6 +115,21 @@ internal static class Glyphs
     public static readonly string Mouse = From(0xE962);
     public static readonly string Game = From(0xE7FC);
     public static readonly string Bluetooth = From(0xE702);
+
+    // [S-3902] The quick-setting toggles, as Windows 11's own quick settings draw them (Karpo's set).
+    public static readonly string Wifi = From(0xE701);
+    public static readonly string Airplane = From(0xE709);
+    public static readonly string EnergySaver = From(0xEC0A);
+    public static readonly string NightLight = From(0xE708);
+    public static readonly string RotationLock = From(0xE755);
+    public static readonly string QuietHours = From(0xF285);
+    public static readonly string Microphone = From(0xE720);
+    public static readonly string MicrophoneOff = From(0xEC54);
+    public static readonly string SpatialSound = From(0xED33);
+    public static readonly string MonoAudio = From(0xE15D);
+    public static readonly string ColorFilters = From(0xE2B1);
+    /// <summary>Karpo's F7FC is not in Segoe Fluent Icons here (drew a box): the controller.</summary>
+    public static readonly string GameMode = From(0xE7FC);
     public static readonly string Weather = From(0xE753);
     public static readonly string Forecast = From(0xE9CA);
 

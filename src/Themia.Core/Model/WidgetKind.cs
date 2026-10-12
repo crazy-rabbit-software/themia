@@ -176,6 +176,45 @@ public enum WidgetKind
 
     /// <summary>[S-3320] The apps used, busiest first, with their time and limits.</summary>
     ScreenTimeApps = 82,
+
+    /// <summary>[S-3900] Quick setting: the Wi-Fi radio on or off.</summary>
+    WifiToggle = 83,
+
+    /// <summary>[S-3900] Quick setting: the Bluetooth radio on or off.</summary>
+    BluetoothToggle = 84,
+
+    /// <summary>[S-3900] Quick setting: airplane mode.</summary>
+    AirplaneModeToggle = 85,
+
+    /// <summary>[S-3900] Quick setting: energy saver.</summary>
+    EnergySaverToggle = 86,
+
+    /// <summary>[S-3900] Quick setting: night light.</summary>
+    NightLightToggle = 87,
+
+    /// <summary>[S-3900] Quick setting: rotation lock.</summary>
+    RotationLockToggle = 88,
+
+    /// <summary>[S-3900] Quick setting: do not disturb.</summary>
+    DoNotDisturbToggle = 89,
+
+    /// <summary>[S-3900] Quick setting: the default output muted or not.</summary>
+    SoundToggle = 90,
+
+    /// <summary>[S-3900] Quick setting: the default microphone muted or not.</summary>
+    MicrophoneToggle = 91,
+
+    /// <summary>[S-3900] Quick setting: spatial sound (Windows Sonic) on the default output.</summary>
+    SpatialSoundToggle = 92,
+
+    /// <summary>[S-3900] Quick setting: mono audio.</summary>
+    MonoAudioToggle = 93,
+
+    /// <summary>[S-3900] Quick setting: color filters.</summary>
+    ColorFiltersToggle = 94,
+
+    /// <summary>[S-3900] Quick setting: game mode.</summary>
+    GameModeToggle = 95,
 }
 
 /// <summary>How a countdown renders the time it has left. [C-11]</summary>

@@ -68,11 +68,15 @@ public sealed class WidgetInstance
     /// [S-3200] So does the audio visualizer: the bars are the widget, and a title over them says
     /// nothing the bars do not.
     /// </para>
+    /// <para>
+    /// [S-3901] And the quick-setting toggles: the tile is the switch, its name under the icon.
+    /// </para>
     /// </summary>
     public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
     {
         WidgetKind.Clock or WidgetKind.AudioVisualizer => HeaderPlacement.Hidden,
         _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
+        _ when Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
         _ => HeaderPlacement.Top,
     };
 
