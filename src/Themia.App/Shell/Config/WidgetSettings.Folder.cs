@@ -93,76 +93,61 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Folder_View_Label.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.WidgetsB_Settings_Folder_Layout_Label.Text(), null,
-            FluentLayout.Choice(
-                [(FolderViewMode.List, Str.CtxMenu_List.Text()), (FolderViewMode.Details, Str.CtxMenu_Details.Text()), (FolderViewMode.Grid, Str.CtxMenu_Grid.Text()), (FolderViewMode.Icons, Str.WidgetsB_Settings_Folder_Icons.Text())],
-                config.View,
-                value => { config.View = value; save(); }),
-            "view mode", "grid", "details", "icons"));
+        // [S-4121] The kind is the layout, so the page offers only what that layout draws.
+        switch (config)
+        {
+            case FolderListConfig list:
+                rows.Add(RowSizeRow(list.ItemSize, value => { list.ItemSize = value; save(); }));
+                rows.Add(ExtensionsRow(list.ShowExtensions, value => { list.ShowExtensions = value; save(); }));
+                break;
 
-        rows.Add(FluentLayout.Row(Glyphs.TextSize, Str.WidgetsB_Settings_Folder_RowSize_Label.Text(), Str.WidgetsB_Settings_Folder_RowSize_Desc.Text(),
-            FluentLayout.Choice(
-                [(FolderItemSize.ExtraSmall, Str.WidgetsB_Settings_Folder_ExtraSmall.Text()), (FolderItemSize.Small, Str.Folder_Small.Text()), (FolderItemSize.Medium, Str.Folder_Medium.Text()), (FolderItemSize.Large, Str.Folder_Large.Text())],
-                config.ItemSize,
-                value => { config.ItemSize = value; save(); }),
-            "density", "item size"));
+            case FolderDetailsConfig details:
+                rows.Add(RowSizeRow(details.ItemSize, value => { details.ItemSize = value; save(); }));
+                rows.Add(FluentLayout.Expander(Glyphs.ColumnsLayout, Str.WidgetsB_Settings_Folder_Columns_Label.Text(),
+                    Str.WidgetsB_Settings_Folder_Columns_Desc.Text(),
+                    null,
+                    [.. FolderColumns.All.Select(column => FluentLayout.Row(Glyphs.ColumnsLayout, FolderColumns.Title(column), ColumnHint(column),
+                        FluentLayout.Toggle(details.Columns.Contains(column), value =>
+                        {
+                            if (value != details.Columns.Contains(column))
+                            {
+                                details.Columns = FolderColumns.Toggle(details.Columns, column);
+                                save();
+                            }
+                        })))]));
+                rows.Add(ExtensionsRow(details.ShowExtensions, value => { details.ShowExtensions = value; save(); }));
+                break;
 
-        rows.Add(FluentLayout.Expander(Glyphs.GridLayout, Str.WidgetsB_Settings_Folder_TileSize_Label.Text(), Str.WidgetsB_Settings_Folder_TileSize_Desc.Text(),
-            FluentLayout.Choice(
-                [(FolderTileSize.Small, Str.Folder_Small.Text()), (FolderTileSize.Medium, Str.Folder_Medium.Text()), (FolderTileSize.Large, Str.Folder_Large.Text())],
-                config.TileSize,
-                value => { config.TileSize = value; save(); }),
-            [
-                FluentLayout.Row(Glyphs.Fit, Str.WidgetsB_Settings_Folder_Stretch_Label.Text(),
-                    Str.WidgetsB_Settings_Folder_Stretch_Desc.Text(),
-                    FluentLayout.Toggle(config.StretchTiles, value => { config.StretchTiles = value; save(); })),
-            ]));
+            case FolderGridConfig grid:
+                rows.Add(TileSizeRow(grid.TileSize, value => { grid.TileSize = value; save(); }));
+                rows.Add(ExtensionsRow(grid.ShowExtensions, value => { grid.ShowExtensions = value; save(); }));
+                break;
 
-        rows.Add(FluentLayout.Expander(Glyphs.ColumnsLayout, Str.WidgetsB_Settings_Folder_Columns_Label.Text(),
-            Str.WidgetsB_Settings_Folder_Columns_Desc.Text(),
-            null,
-            [.. FolderColumns.All.Select(column => FluentLayout.Row(Glyphs.ColumnsLayout, FolderColumns.Title(column), ColumnHint(column),
-                FluentLayout.Toggle(config.Columns.Contains(column), value =>
-                {
-                    if (value != config.Columns.Contains(column))
-                    {
-                        config.Columns = FolderColumns.Toggle(config.Columns, column);
-                        save();
-                    }
-                })))]));
+            case FolderIconsConfig icons:
+                rows.Add(TileSizeRow(icons.TileSize, value => { icons.TileSize = value; save(); }));
+                break;
+        }
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Folder_Contents.Text()));
 
-        // [S-3795] The order folds under its key; the filters under one group.
-        rows.Add(FluentLayout.Expander(Glyphs.Sort, Str.WidgetsB_Settings_Folder_SortBy_Label.Text(), null,
-            FluentLayout.Choice(
-                [(FolderSort.Name, Str.Folder_ColName.Text()), (FolderSort.Modified, Str.WidgetsB_Settings_Folder_DateModified.Text()), (FolderSort.Size, Str.Folder_ColSize.Text())],
-                config.Sort,
-                value => { config.Sort = value; save(); }),
-            [
-                FluentLayout.Row(Glyphs.MoveDown, Str.WidgetsB_Settings_Folder_Reverse_Label.Text(), null,
-                    FluentLayout.Toggle(config.Descending, value => { config.Descending = value; save(); })),
-                FluentLayout.Row(Glyphs.Folder, Str.WidgetsB_Settings_Folder_FoldersFirst_Label.Text(), null,
-                    FluentLayout.Toggle(config.FoldersFirst, value => { config.FoldersFirst = value; save(); })),
-            ]));
-
-        var filter = new TextBox { Text = config.Filter, Width = 260, PlaceholderText = Str.Folder_FilterPlaceholder.Text() };
-        filter.LostFocus += (_, _) =>
+        // Details sorts from its column headers; a sort row would say the same thing twice.
+        if (config.View != FolderViewMode.Details)
         {
-            if (filter.Text != config.Filter)
-            {
-                config.Filter = filter.Text;
-                save();
-            }
-        };
+            // [S-3795] The order folds under its key.
+            rows.Add(FluentLayout.Expander(Glyphs.Sort, Str.WidgetsB_Settings_Folder_SortBy_Label.Text(), null,
+                FluentLayout.Choice(
+                    [(FolderSort.Name, Str.Folder_ColName.Text()), (FolderSort.Modified, Str.WidgetsB_Settings_Folder_DateModified.Text()), (FolderSort.Size, Str.Folder_ColSize.Text())],
+                    config.Sort,
+                    value => { config.Sort = value; save(); }),
+                [
+                    FluentLayout.Row(Glyphs.MoveDown, Str.WidgetsB_Settings_Folder_Reverse_Label.Text(), null,
+                        FluentLayout.Toggle(config.Descending, value => { config.Descending = value; save(); })),
+                ]));
+        }
 
-        rows.Add(FluentLayout.Expander(Glyphs.Search, Str.Folder_Filter_Label.Text(), Str.WidgetsB_Settings_Folder_Filter_Desc.Text(), filter,
-            [
-                FluentLayout.Row(Glyphs.Hidden, Str.WidgetsB_Folder_ShowHiddenItems.Text(), null,
-                    FluentLayout.Toggle(config.ShowHidden, value => { config.ShowHidden = value; save(); })),
-                FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(), null,
-                    FluentLayout.Toggle(config.ShowExtensions, value => { config.ShowExtensions = value; save(); })),
-            ]));
+        rows.Add(FluentLayout.Row(Glyphs.Hidden, Str.WidgetsB_Folder_ShowHiddenItems.Text(), null,
+            FluentLayout.Toggle(config.ShowHidden, value => { config.ShowHidden = value; save(); }),
+            "hidden files", "system files"));
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Folder_Opening.Text()));
 
@@ -181,6 +166,25 @@ internal static partial class WidgetSettings
                 value => { config.Navigation = value; save(); }),
             "navigation", "browse"));
     }
+
+    private static FrameworkElement RowSizeRow(FolderItemSize current, Action<FolderItemSize> set)
+        => FluentLayout.Row(Glyphs.TextSize, Str.WidgetsB_Settings_Folder_RowSize_Label.Text(), Str.WidgetsB_Settings_Folder_RowSize_Desc.Text(),
+            FluentLayout.Choice(
+                [(FolderItemSize.ExtraSmall, Str.WidgetsB_Settings_Folder_ExtraSmall.Text()), (FolderItemSize.Small, Str.Folder_Small.Text()), (FolderItemSize.Medium, Str.Folder_Medium.Text()), (FolderItemSize.Large, Str.Folder_Large.Text())],
+                current,
+                set),
+            "density", "item size");
+
+    private static FrameworkElement TileSizeRow(FolderTileSize current, Action<FolderTileSize> set)
+        => FluentLayout.Row(Glyphs.GridLayout, Str.WidgetsB_Settings_Folder_TileSize_Label.Text(), Str.WidgetsB_Settings_Folder_TileSize_Desc.Text(),
+            FluentLayout.Choice(
+                [(FolderTileSize.Small, Str.Folder_Small.Text()), (FolderTileSize.Medium, Str.Folder_Medium.Text()), (FolderTileSize.Large, Str.Folder_Large.Text())],
+                current,
+                set),
+            "tile size", "icon size");
+
+    private static FrameworkElement ExtensionsRow(bool current, Action<bool> set)
+        => FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(), null, FluentLayout.Toggle(current, set), "file extensions");
 
     private static string ColumnHint(FolderColumn column) => column switch
     {

@@ -1,9 +1,10 @@
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-3701] What the edit bar's selection group offers for the selection on one display: how many
-/// widgets it acts on, their header and background (null where they differ), and for exactly one
-/// widget its title. <see cref="None"/> hides the group.
+/// [S-3701] What the selected widget's properties strip ([S-3707]) offers for the selection on one
+/// display: how many widgets it acts on, their header and background (null where they differ),
+/// whether a header can be set at all ([S-3711]), and for exactly one widget its title.
+/// <see cref="None"/> hides the strip.
 /// </summary>
 /// <param name="Count">The selected widgets in the view the display shows.</param>
 /// <param name="Header">Their header placement, or null when they differ.</param>
@@ -11,15 +12,17 @@ namespace Themia.Core.Model;
 /// <param name="TitleWidgetId">The one widget whose title the group edits; null with several.</param>
 /// <param name="TitleKind">That widget's kind, whose name is the title's placeholder.</param>
 /// <param name="Label">That widget's own title, null for the kind's name.</param>
+/// <param name="HasHeader">[S-3711] Whether the Header choice shows: every selected widget can have a header.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
     WidgetSurface? Surface,
     string? TitleWidgetId,
     WidgetKind? TitleKind,
-    string? Label)
+    string? Label,
+    bool HasHeader = true)
 {
-    public static readonly QuickSetOffer None = new(0, null, null, null, null, null);
+    public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
     /// <summary>Whether the group shows at all.</summary>
     public bool Shows => Count > 0;
@@ -29,7 +32,7 @@ public sealed record QuickSetOffer(
 }
 
 /// <summary>
-/// [S-3700]..[S-3705] The rules behind the edit bar's selection group: which controls show for a
+/// [S-3701]..[S-3711] The rules behind the properties strip: which controls show for a
 /// selection, what a mixed selection reads as, what a typed title stores, and applying a choice to
 /// every selected widget. Pure; the host runs the writes through its one mutation path.
 /// </summary>
@@ -39,7 +42,8 @@ public static class QuickSet
     /// [S-3701]/[S-3702] The offer for the display showing <paramref name="shownViewId"/>: nothing
     /// unless the selection is in that view; with one widget, header, background and title; with
     /// several, header and background only (a title is the widget's own name, so one typed for
-    /// many would make them indistinguishable).
+    /// many would make them indistinguishable). [S-3711] No header choice when any of them can
+    /// never have a header: the strip shows what all of them share.
     /// </summary>
     public static QuickSetOffer For(AppState state, WidgetSelection selection, string? shownViewId)
     {
@@ -59,16 +63,17 @@ public static class QuickSet
             return QuickSetOffer.None;
         }
 
-        var header = Common(widgets.Select(w => w.Header));
+        var hasHeader = widgets.TrueForAll(w => WidgetInstance.CanHaveHeader(w.Kind));
+        var header = hasHeader ? Common(widgets.Select(w => w.Header)) : null;
         var surface = Common(widgets.Select(w => w.Surface));
 
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label);
+            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label, hasHeader);
         }
 
-        return new QuickSetOffer(widgets.Count, header, surface, null, null, null);
+        return new QuickSetOffer(widgets.Count, header, surface, null, null, null, hasHeader);
     }
 
     /// <summary>[S-3703] The one value all of <paramref name="values"/> share; null when they differ or there are none.</summary>
@@ -109,9 +114,12 @@ public static class QuickSet
         return text;
     }
 
-    /// <summary>[S-3703] Set the header of every selected widget of <paramref name="view"/>. Returns how many changed.</summary>
+    /// <summary>
+    /// [S-3703] Set the header of every selected widget of <paramref name="view"/>. Returns how many
+    /// changed. [S-3711] A widget that can never have a header is left headerless.
+    /// </summary>
     public static int SetHeader(ViewState view, IEnumerable<string> ids, HeaderPlacement header)
-        => Apply(view, ids, w => w.Header == header ? false : Set(() => w.Header = header));
+        => Apply(view, ids, w => w.Header == header || !WidgetInstance.CanHaveHeader(w.Kind) ? false : Set(() => w.Header = header));
 
     /// <summary>[S-3703] Set the background of every selected widget of <paramref name="view"/>. Returns how many changed.</summary>
     public static int SetSurface(ViewState view, IEnumerable<string> ids, WidgetSurface surface)

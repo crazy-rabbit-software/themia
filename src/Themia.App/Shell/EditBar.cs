@@ -18,10 +18,6 @@ namespace Themia.App.Shell;
 /// <param name="FillViews">Refills the View menu each time it opens, with the views as they are then.</param>
 /// <param name="SnapOn">[S-905] Whether grid snap is on now.</param>
 /// <param name="SetSnap">Turns grid snap on or off.</param>
-/// <param name="SetHeader">[S-3703] The selected widgets' header placement.</param>
-/// <param name="SetSurface">[S-3703] The selected widgets' background.</param>
-/// <param name="SetTitle">[S-3704] One widget's title, by id, as typed.</param>
-/// <param name="ReleaseFocus">[S-3704] Hands the keyboard back to the surface after the title box, so the edit keys work again.</param>
 internal sealed record EditBarCommands(
     Func<Flyout> AddFlyout,
     Action<MenuFlyout> FillViews,
@@ -29,19 +25,14 @@ internal sealed record EditBarCommands(
     Action<bool> SetSnap,
     Action Settings,
     Action Exit,
-    Action Done,
-    Action<HeaderPlacement> SetHeader,
-    Action<WidgetSurface> SetSurface,
-    Action<string, string?> SetTitle,
-    Action ReleaseFocus);
+    Action Done);
 
 /// <summary>
 /// [S-3500] The edit bar: a compact Windows 11 command bar at the top centre of each display's work
 /// area in edit mode, after Karpo's edit bar. Labelled commands for arranging first — Add widget (its
 /// "+" in the accent), View, Snap — a hairline, then the icon-only ones whose words are their
-/// tooltips: More (Exit, [S-67]), Settings and Done. [S-3700] With widgets selected on this display a
-/// second hairline and the selection group join the arranging commands: the title box (one widget),
-/// Header and Background. 40 DIPs tall: 32-DIP buttons in a 4-DIP padding
+/// tooltips: More (Exit, [S-67]), Settings and Done. The selected widgets' header, background and
+/// title are not here but on the strip by the selection ([S-3707]). 40 DIPs tall: 32-DIP buttons in a 4-DIP padding
 /// with 4 between them, no fill at rest and the subtle fills under the pointer and pressed, on the
 /// flyouts' acrylic with their stroke, overlay corners and shadow.
 /// <para>
@@ -63,26 +54,7 @@ internal sealed partial class EditBar : Grid
     /// <summary>The bar's lift: the depth Windows gives a flyout, which casts its shadow.</summary>
     private const float Elevation = 32;
 
-    /// <summary>[S-3702] The title box's width: a long widget name without crowding the bar.</summary>
-    private const double TitleWidth = 168;
-
     private ToggleButton? _snap;
-
-    private EditBarCommands? _commands;
-
-    /// <summary>[S-3700] The selection group; collapsed, with the hairline before it, when nothing is selected here.</summary>
-    private readonly StackPanel _group = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
-
-    private Rectangle? _groupDivider;
-
-    private QuickSetOffer _offer = QuickSetOffer.None;
-
-    /// <summary>The title box while one widget is selected, the widget it names and what it last committed.</summary>
-    private TextBox? _title;
-
-    private string? _titleId;
-
-    private string _titleCommitted = string.Empty;
 
     /// <summary>[S-918] The View menu, and the most it may be tall (the work area below the bar).</summary>
     private MenuFlyout? _viewMenu;
@@ -94,7 +66,7 @@ internal sealed partial class EditBar : Grid
         Frame(_frame);
         Children.Add(_frame);
 
-        // A press on the bar's padding or the group's words is the bar's: it must not reach the
+        // A press on the bar's padding is the bar's: it must not reach the
         // surface, whose press on empty space starts a rubber band and clears the selection.
         _frame.PointerPressed += (_, e) => e.Handled = true;
         HorizontalAlignment = HorizontalAlignment.Center;
@@ -140,9 +112,8 @@ internal sealed partial class EditBar : Grid
     public void Fill(EditBarCommands commands)
     {
         ArgumentNullException.ThrowIfNull(commands);
-        _commands = commands;
 
-        var add =new DropDownButton { Content = Labelled(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), accent: true), Flyout = commands.AddFlyout() };
+        var add = new DropDownButton { Content = Labelled(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), accent: true), Flyout = commands.AddFlyout() };
         Subtle(add);
         AutomationProperties.SetName(add, Str.Shell_Toolbar_AddWidget.Text());
 
@@ -173,217 +144,12 @@ internal sealed partial class EditBar : Grid
         IconOnly(done, Str.Common_Done.Text());
         done.Click += (_, _) => commands.Done();
 
-        // The group moves into the new row; its old row goes with the old buttons.
-        if (_group.Parent is Panel old)
-        {
-            old.Children.Remove(_group);
-        }
-
-        _groupDivider = Divider();
         _frame.Child = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = Fluent.Space1,
-            Children = { add, views, _snap, _groupDivider, _group, Divider(), more, settings, done },
+            Children = { add, views, _snap, Divider(), more, settings, done },
         };
-
-        BuildGroup();
-    }
-
-    /// <summary>
-    /// [S-3700]..[S-3702] Show the selection group for what is selected on this display. The title
-    /// box is left alone while it is typed in for the same widget (a change elsewhere must not wipe
-    /// a half-typed title); Header and Background read the offer as their menus open.
-    /// </summary>
-    public void ShowSelection(QuickSetOffer offer)
-    {
-        ArgumentNullException.ThrowIfNull(offer);
-
-        var previous = _offer;
-        _offer = offer;
-
-        var sameShape = previous.Shows == offer.Shows
-            && string.Equals(previous.TitleWidgetId, offer.TitleWidgetId, StringComparison.Ordinal)
-            && (offer.HasTitle || previous.Count == offer.Count);
-
-        if (!sameShape)
-        {
-            BuildGroup();
-            return;
-        }
-
-        // The same widget: its title may have changed (an undo, the box's own commit).
-        if (_title is { } title && title.FocusState == FocusState.Unfocused)
-        {
-            _titleCommitted = offer.Label ?? string.Empty;
-            title.Text = _titleCommitted;
-        }
-    }
-
-    private void BuildGroup()
-    {
-        CommitTitleLater();
-
-        _group.Children.Clear();
-        _title = null;
-        _titleId = null;
-
-        var shows = _offer.Shows && _commands is not null;
-        _group.Visibility = shows ? Visibility.Visible : Visibility.Collapsed;
-        if (_groupDivider is not null)
-        {
-            _groupDivider.Visibility = _group.Visibility;
-        }
-
-        if (!shows || _commands is not { } commands)
-        {
-            return;
-        }
-
-        if (_offer is { TitleWidgetId: { } id, TitleKind: { } kind })
-        {
-            _group.Children.Add(TitleBox(commands, id, WidgetCatalog.Definition(kind).Label, _offer.Label));
-        }
-        else
-        {
-            // [S-3702] Several: no title, but how many the two choices reach.
-            var count = Fluent.Text(FluentType.Body);
-            count.Text = Str.Shell_EditBar_Selected.Plural(_offer.Count);
-            count.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
-            count.VerticalAlignment = VerticalAlignment.Center;
-            count.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
-            _group.Children.Add(count);
-        }
-
-        _group.Children.Add(Choice(
-            (Glyphs.HeaderBottom, true),
-            Str.App_ConfigHeaderLabel.Text(),
-            [
-                (HeaderPlacement.Top, (Glyphs.HeaderBottom, true), Str.Group_HeaderSide_Top.Text()),
-                (HeaderPlacement.Bottom, (Glyphs.HeaderBottom, false), Str.Group_HeaderSide_Bottom.Text()),
-                (HeaderPlacement.Hidden, (Glyphs.Hide, false), Str.Toggle_Hidden.Text()),
-            ],
-            () => _offer.Header,
-            commands.SetHeader));
-
-        _group.Children.Add(Choice(
-            (Glyphs.Surface, false),
-            Str.Settings_Style_BgLabel.Text(),
-            [
-                (WidgetSurface.Card, null, Str.Shell_Widget_Card.Text()),
-                (WidgetSurface.Translucent, null, Str.Shell_Widget_Translucent.Text()),
-                (WidgetSurface.Transparent, null, Str.Settings_Style_None.Text()),
-            ],
-            () => _offer.Surface,
-            commands.SetSurface));
-    }
-
-    /// <summary>
-    /// [S-3704] The title, edited in place: the kind's name as the placeholder, Enter (or leaving
-    /// the box) commits, Escape puts back what was there. While it has the focus the edit keys do
-    /// not fire ([S-804]); Enter and Escape hand the keyboard back to the surface.
-    /// </summary>
-    private TextBox TitleBox(EditBarCommands commands, string widgetId, string defaultTitle, string? label)
-    {
-        _titleId = widgetId;
-        _titleCommitted = label ?? string.Empty;
-
-        var box = new TextBox
-        {
-            Text = _titleCommitted,
-            PlaceholderText = defaultTitle,
-            Width = TitleWidth,
-            MinHeight = ButtonSize,
-            Height = ButtonSize,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        ToolTipService.SetToolTip(box, Str.Group_Title_Label.Text());
-        AutomationProperties.SetName(box, Str.Group_Title_Label.Text());
-
-        box.KeyDown += (_, e) =>
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                CommitTitle(box, widgetId, commands);
-                commands.ReleaseFocus();
-                e.Handled = true;
-            }
-            else if (e.Key == Windows.System.VirtualKey.Escape)
-            {
-                box.Text = _titleCommitted;
-                commands.ReleaseFocus();
-                e.Handled = true;
-            }
-        };
-
-        box.LostFocus += (_, _) => CommitTitle(box, widgetId, commands);
-
-        _title = box;
-        return box;
-    }
-
-    private void CommitTitle(TextBox box, string widgetId, EditBarCommands commands)
-    {
-        // A box already replaced handed its text over in CommitTitleLater.
-        if (!ReferenceEquals(box, _title) || string.Equals(box.Text, _titleCommitted, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _titleCommitted = box.Text;
-        commands.SetTitle(widgetId, box.Text);
-    }
-
-    /// <summary>
-    /// The group is rebuilt (another widget picked) while the title box holds typing: keep it,
-    /// after this pass — committing now would run a mutation inside the selection change.
-    /// </summary>
-    private void CommitTitleLater()
-    {
-        if (_title is not { } box || _titleId is not { } id || _commands is not { } commands
-            || string.Equals(box.Text, _titleCommitted, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var text = box.Text;
-        _ = DispatcherQueue.TryEnqueue(() => commands.SetTitle(id, text));
-    }
-
-    /// <summary>
-    /// [S-3702]/[S-3703] A choice on the bar: a labelled drop-down whose menu ticks the selection's
-    /// value, built as it opens. A mixed selection ticks nothing; picking one sets it on them all.
-    /// </summary>
-    private static DropDownButton Choice<T>((string Glyph, bool Turned) glyph, string label, (T Value, (string Glyph, bool Turned)? Icon, string Text)[] options, Func<T?> current, Action<T> set)
-        where T : struct, Enum
-    {
-        var menu = new MenuFlyout();
-        menu.Opening += (_, _) =>
-        {
-            menu.Items.Clear();
-            var now = current();
-            foreach (var (value, icon, text) in options)
-            {
-                var item = new RadioMenuFlyoutItem
-                {
-                    Text = text,
-                    GroupName = label,
-                    IsChecked = now is { } v && EqualityComparer<T>.Default.Equals(v, value),
-                    Icon = icon is { } i ? Icon(i.Glyph, i.Turned) : null,
-                };
-
-                var chosen = value;
-                item.Click += (_, _) => set(chosen);
-                menu.Items.Add(item);
-            }
-        };
-
-        var content = Labelled(glyph.Glyph, label, accent: false);
-        content.Children[0] = Icon(glyph.Glyph, glyph.Turned, Fluent.IconSize);
-        var button = new DropDownButton { Content = content, Flyout = menu };
-        Subtle(button);
-        AutomationProperties.SetName(button, label);
-        return button;
     }
 
     /// <summary>The Add widget button's width, for the render to hang the menu under it.</summary>
@@ -438,9 +204,9 @@ internal sealed partial class EditBar : Grid
     }
 
     /// <summary>
-    /// A glyph, or the same glyph turned over (Segoe has "DockBottom" but no "DockTop", [S-3702]).
+    /// A glyph, or the same glyph turned over (Segoe has "DockBottom" but no "DockTop", [S-3702]); the strip's too.
     /// </summary>
-    private static FontIcon Icon(string glyph, bool turned, double? size = null)
+    internal static FontIcon Icon(string glyph, bool turned, double? size = null)
     {
         var icon = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, VerticalAlignment = VerticalAlignment.Center });
         if (size is { } s)
@@ -458,7 +224,7 @@ internal sealed partial class EditBar : Grid
     }
 
     /// <summary>A labelled command's content: a 16-DIP glyph, 8 DIPs, then its words in Body.</summary>
-    private static StackPanel Labelled(string glyph, string text, bool accent)
+    internal static StackPanel Labelled(string glyph, string text, bool accent)
     {
         var words = Fluent.Text(FluentType.Body);
         words.Text = text;
@@ -490,7 +256,7 @@ internal sealed partial class EditBar : Grid
     /// the template's own resource keys: the visual states set those fills on the inner border and
     /// would outrank a local Background.
     /// </summary>
-    private static void Subtle(ButtonBase button)
+    internal static void Subtle(ButtonBase button)
     {
         button.Height = ButtonSize;
         button.MinWidth = 0;

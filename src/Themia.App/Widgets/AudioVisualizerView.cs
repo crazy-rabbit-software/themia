@@ -10,7 +10,8 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-3200] The audio visualizer: the spectrum of whatever the PC is playing, and nothing else.
+/// [S-3200] [S-3210] The audio visualizer: the spectrum of whatever the PC is playing, and nothing
+/// else, in the design its kind names; one view and one drawing (<see cref="SpectrumCanvas"/>) for all five.
 /// <para>
 /// The bars come from the one shared loopback capture (<see cref="AudioLoopback"/>, [S-3203]),
 /// held exactly while this tile can be seen: attached, in the tree, not a preview. Game mode
@@ -22,7 +23,8 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
 {
     private const string Scope = "visualizer";
 
-    private readonly SpectrumBars _bars = new();
+    private readonly VisualizerStyle _style;
+    private readonly SpectrumCanvas _bars;
     private readonly StackPanel _unavailable;
 
     private DispatcherQueue? _queue;
@@ -32,13 +34,16 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
     private bool _detached = true;
     private bool _preview;
 
-    public AudioVisualizerView()
+    public AudioVisualizerView(WidgetKind kind)
     {
+        _style = VisualizerLayout.StyleOf(kind) ?? VisualizerStyle.Bars;
+        _bars = new SpectrumCanvas(_style);
+
         // [S-1113] A spectrum is an axis (low to high), not text: left to right in every language.
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
 
         var message = new TextBlock { Text = Str.WidgetsC_Visualizer_Unavailable.Text() };
-        _unavailable = Fluent.EmptyState(WidgetCatalog.Definition(WidgetKind.AudioVisualizer).Glyph, message, out _);
+        _unavailable = Fluent.EmptyState(WidgetCatalog.Definition(kind).Glyph, message, out _);
         _unavailable.Visibility = Visibility.Collapsed;
 
         Children.Add(_bars);
@@ -67,7 +72,7 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
     {
     }
 
-    public void ApplySize(WidgetArea area) => _bars.Arrange(VisualizerLayout.Plan(area));
+    public void ApplySize(WidgetArea area) => _bars.Arrange(VisualizerLayout.Plan(area, _style));
 
     /// <summary>
     /// [S-3203] Hold the capture while the bars can be seen, and let it go otherwise; the last tile

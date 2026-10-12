@@ -47,17 +47,18 @@ public static class TextDirection
     /// [S-1114] The language tag text is laid out with. Besides hyphenation it is what DirectWrite
     /// picks fallback fonts by, so each is the language with its main region: Devanagari (hi, mr)
     /// and Bengali come out in Nirmala UI, Arabic, Urdu, Cyrillic and Vietnamese in Segoe UI,
-    /// Japanese in Yu Gothic UI, Simplified Chinese in Microsoft YaHei UI. Urdu is not asked for a
-    /// Nastaliq face: Windows installs "Urdu Typesetting" only with the Urdu language pack, and its
+    /// Japanese in Yu Gothic UI, Simplified Chinese in Microsoft YaHei UI, Korean (ko-KR) in Malgun
+    /// Gothic, Traditional Chinese (zh-TW) in Microsoft JhengHei UI; Dutch and Turkish stay in
+    /// Segoe UI. Urdu is not asked for a Nastaliq face: Windows installs "Urdu Typesetting" only with the Urdu language pack, and its
     /// tall lines would overflow every height the widgets budget in line heights.
     /// <para>
-    /// The region also decides the digits: <see cref="LocaleFormat"/> writes Latin digits and
-    /// DirectWrite substitutes them as Windows does for that region. Arabic is laid out as Saudi
-    /// Arabia, whose Windows default is Arabic-Indic digits in Arabic text (٢٠٪), and they keep the
-    /// Latin digits' advance. Bengali is laid out as India (bn-IN), not Bangladesh: Windows' bn-BD
-    /// default is Bengali digits, which run about a quarter wider than the Latin advance every
-    /// widget's type ladder is measured on and clipped the tall clock. Every other language here
-    /// keeps Latin digits, as Windows does for its region.
+    /// The region does not decide the digits ([S-1115]): DirectWrite's contextual substitution
+    /// follows the neighbouring script, so a time beside a Latin word ("09:00–09:15 · Teams") came
+    /// out Latin in Arabic. <see cref="LocaleFormat"/> writes Arabic's own digits into the text
+    /// instead. Bengali is laid out as India (bn-IN), not Bangladesh, and keeps Latin digits:
+    /// Windows' bn-BD default is Bengali digits, which run about a quarter wider than the Latin
+    /// advance every widget's type ladder is measured on and clipped the tall clock. Urdu keeps
+    /// Latin digits, as Windows' ur-PK default and CLDR do; so does every other language here.
     /// </para>
     /// </summary>
     public static string LayoutTag(Locale locale) => locale switch
@@ -72,6 +73,10 @@ public static class TextDirection
         Locale.Ur => "ur-PK",
         Locale.Mr => "mr-IN",
         Locale.Vi => "vi-VN",
+        Locale.Ko => "ko-KR",
+        Locale.Nl => "nl-NL",
+        Locale.Tr => "tr-TR",
+        Locale.ZhHant => "zh-TW",
         _ => LanguageResolver.Code(locale),
     };
 }

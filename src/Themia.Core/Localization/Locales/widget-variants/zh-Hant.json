@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "頻譜長條",
+  "variants.visualizer.bars.desc": "隨這台電腦播放的所有聲音跳動的長條",
+  "variants.visualizer.mirror.label": "鏡像頻譜",
+  "variants.visualizer.mirror.desc": "從中線向兩側延伸的長條",
+  "variants.visualizer.wave.label": "頻譜波形",
+  "variants.visualizer.wave.desc": "隨這台電腦播放的聲音起伏的平滑波形",
+  "variants.visualizer.dots.label": "LED 頻譜",
+  "variants.visualizer.dots.desc": "一列列燈號，就像高傳真音響的音量表",
+  "variants.visualizer.radial.label": "環形頻譜",
+  "variants.visualizer.radial.desc": "環繞圓環排列、左右對稱的長條",
+  "variants.folder.list.label": "資料夾清單",
+  "variants.folder.list.desc": "以清單顯示資料夾中的檔案",
+  "variants.folder.details.label": "資料夾詳細資料",
+  "variants.folder.details.desc": "以含欄位的表格顯示資料夾中的檔案",
+  "variants.folder.grid.label": "資料夾格線",
+  "variants.folder.grid.desc": "以含縮圖的磚塊顯示資料夾中的檔案",
+  "variants.folder.icons.label": "資料夾圖示",
+  "variants.folder.icons.desc": "只以圖示顯示資料夾中的檔案，就像桌面一樣"
+}

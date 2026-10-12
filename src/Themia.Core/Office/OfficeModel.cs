@@ -33,6 +33,12 @@ public sealed record CalendarEvent
     /// <summary>The provider's own page for the event; null for CalDAV, which has none.</summary>
     public string? WebLink { get; init; }
 
+    /// <summary>[S-4822] The online meeting's join link, already through <see cref="MeetingLinks"/>; null when there is none.</summary>
+    public string? JoinUrl { get; init; }
+
+    /// <summary>[S-4821] The signed-in user declined it (Graph's or Google's response status). CalDAV cannot say.</summary>
+    public bool Declined { get; init; }
+
     /// <summary>The account it came from; stamped by the widget, which knows which target it asked.</summary>
     public string AccountId { get; init; } = string.Empty;
 

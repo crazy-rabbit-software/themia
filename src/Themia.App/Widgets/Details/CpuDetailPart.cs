@@ -8,7 +8,7 @@ namespace Themia.App.Widgets.Details;
 
 /// <summary>
 /// [S-2405] The processor's speed, cores, processes and uptime; the header names the processor. The
-/// load is the CPU meter's own feed and the counts the memory details' one, at this widget's cadence:
+/// load is the CPU meter's own feed and the counts the memory details' one:
 /// the hub reads both before the processor on a tick ([S-2501]), so the sheet is one tick's figures and
 /// the CPU baseline is never moved by a second reader.
 /// </summary>
@@ -26,13 +26,11 @@ internal sealed class CpuDetailPart : DetailPart
     public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
-        var interval = Interval(config);
-
         // The load and the counts only need to be read; the processor's read, last of the three on a
         // tick, is what presents the sheet.
-        _load.Hold(hub, Sources.Cpu, interval, static _ => { });
-        _counts.Hold(hub, Sources.Performance, interval, static _ => { });
-        _processor.Hold(hub, Sources.Processor, interval, _ => Show());
+        _load.Hold(hub, Sources.Cpu, static _ => { });
+        _counts.Hold(hub, Sources.Performance, static _ => { });
+        _processor.Hold(hub, Sources.Processor, _ => Show());
         Show();
     }
 
@@ -79,7 +77,7 @@ internal sealed class MemoryDetailPart : DetailPart
     public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
-        _figures.Hold(hub, Sources.Performance, Interval(config), _ => Show());
+        _figures.Hold(hub, Sources.Performance, _ => Show());
         Show();
     }
 

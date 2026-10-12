@@ -18,21 +18,20 @@ public static class FolderRules
     /// <param name="entries">Everything the enumeration returned, in whatever order it returned it.</param>
     /// <param name="sort">Which column orders the list.</param>
     /// <param name="descending">Reverse the chosen column. Never reverses the folders-first grouping.</param>
-    /// <param name="foldersFirst">Put directories above files, as Explorer does.</param>
     /// <param name="showHidden">Include entries Windows marks hidden or system.</param>
     /// <param name="maxCount">How many rows to keep. At least one; a cap of nothing is a blank tile.</param>
+    /// <remarks>[S-4121] Folders always come first, as in Explorer: the switch for it is gone.</remarks>
     public static IReadOnlyList<FolderEntry> Arrange(
         IReadOnlyList<FolderEntry> entries,
         FolderSort sort,
         bool descending,
-        bool foldersFirst,
         bool showHidden,
         int maxCount)
     {
         ArgumentNullException.ThrowIfNull(entries);
 
         var cap = Math.Max(1, maxCount);
-        var comparer = new EntryComparer(sort, descending, foldersFirst);
+        var comparer = new EntryComparer(sort, descending);
 
         // OrderBy is a stable sort, so two entries this comparer calls equal keep the order the
         // enumeration gave them. That matters: an unstable sort would let a tick that changed
@@ -83,13 +82,13 @@ public static class FolderRules
         return true;
     }
 
-    private sealed class EntryComparer(FolderSort sort, bool descending, bool foldersFirst) : IComparer<FolderEntry>
+    private sealed class EntryComparer(FolderSort sort, bool descending) : IComparer<FolderEntry>
     {
         public int Compare(FolderEntry x, FolderEntry y)
         {
             // Grouping first, and outside the direction: Explorer keeps folders on top whether the
             // sort runs up or down, because the grouping is not part of the column being sorted.
-            if (foldersFirst && x.IsDirectory != y.IsDirectory)
+            if (x.IsDirectory != y.IsDirectory)
             {
                 return x.IsDirectory ? -1 : 1;
             }

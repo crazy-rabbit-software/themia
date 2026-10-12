@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
 
@@ -216,9 +217,16 @@ internal sealed partial class DetailView : IWidgetKeys
         }
     }
 
-    /// <summary>One list row: the name, the figures at the right, an optional line and bar under them.</summary>
+    /// <summary>
+    /// One list row: an optional icon (an adapter's kind, a program's own icon, [S-2416], [S-2433]),
+    /// the name, the figures at the right, an optional line and bar under them.
+    /// </summary>
     private sealed class ListRow
     {
+        private readonly FontIcon _symbol = Fluent.Icon(Glyphs.Program);
+        private readonly Image _image = new() { Width = Fluent.IconSize, Height = Fluent.IconSize, Stretch = Stretch.Uniform };
+        private readonly Grid _icon = new() { Width = Fluent.IconSize, Height = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center };
+        private string? _iconPath;
         private readonly TextBlock _name = Fluent.Text(FluentType.Body);
         private readonly TextBlock _second = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
         private readonly TextBlock _value = Fluent.Text(FluentType.Body);
@@ -231,6 +239,7 @@ internal sealed partial class DetailView : IWidgetKeys
             Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_second, FontNumeralAlignment.Tabular);
 
             var grid = new Grid { RowSpacing = 2 };
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -247,14 +256,25 @@ internal sealed partial class DetailView : IWidgetKeys
             _value.MinWidth = Fluent.Space6 * 2;
             _value.TextAlignment = TextAlignment.Right;
 
-            Grid.SetColumn(_second, 1);
-            Grid.SetColumn(_value, 2);
+            // The icon sits in its own column, centred on the name and the line under it, as a
+            // Windows 11 list row's leading icon does; the text column starts after one gap.
+            _icon.Children.Add(_symbol);
+            _icon.Children.Add(_image);
+            _icon.Margin = new Thickness(0, 0, Fluent.Space3, 0);
+            _icon.Visibility = Visibility.Collapsed;
+            Grid.SetRowSpan(_icon, 2);
+            Grid.SetColumn(_name, 1);
+            Grid.SetColumn(_second, 2);
+            Grid.SetColumn(_value, 3);
             Grid.SetRow(_detail, 1);
+            Grid.SetColumn(_detail, 1);
             Grid.SetColumnSpan(_detail, 3);
             Grid.SetRow(_bar, 2);
+            Grid.SetColumn(_bar, 1);
             Grid.SetColumnSpan(_bar, 3);
             _bar.Margin = new Thickness(0, 2, 0, 0);
 
+            grid.Children.Add(_icon);
             grid.Children.Add(_name);
             grid.Children.Add(_second);
             grid.Children.Add(_value);
@@ -309,11 +329,63 @@ internal sealed partial class DetailView : IWidgetKeys
             _detail.Text = row.Detail ?? string.Empty;
             _detail.Visibility = row.Detail is null ? Visibility.Collapsed : Visibility.Visible;
 
+            ShowIcon(row);
+
             _bar.Visibility = row.Fraction is null ? Visibility.Collapsed : Visibility.Visible;
             _bar.Value = row.Fraction ?? 0;
             _bar.Foreground = owner.PressureBrush(row.Pressure);
             ToolTipService.SetToolTip(Root, row.Detail is null ? null : $"{row.Name} · {row.Detail}");
         }
+
+        /// <summary>
+        /// [S-2433] The row's symbol at once, and the file's own icon over it once it is extracted —
+        /// asked only when the row shows another file than before (rows are reused by position and a
+        /// list reorders every read), cached by path and size in <see cref="AppIcons"/>.
+        /// </summary>
+        private void ShowIcon(DetailRow row)
+        {
+            _icon.Visibility = row.Symbol == RowSymbol.None && row.IconPath is null ? Visibility.Collapsed : Visibility.Visible;
+            _symbol.Glyph = Glyph(row.Symbol);
+
+            if (string.Equals(_iconPath, row.IconPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            _iconPath = row.IconPath;
+            _image.Source = null;
+            _symbol.Visibility = Visibility.Visible;
+
+            if (row.IconPath is { } path)
+            {
+                _ = LoadIconAsync(path);
+            }
+        }
+
+        private async Task LoadIconAsync(string path)
+        {
+            // Decoded at the row's size on this display, so a 16 DIP icon stays sharp at 200%.
+            var scale = Root.XamlRoot?.RasterizationScale ?? 2;
+            var image = await AppIcons.GetAsync(path, (int)Math.Ceiling(Fluent.IconSize * Math.Max(1, scale))).ConfigureAwait(true);
+
+            // A row that has moved on to another process while this was extracted keeps its own.
+            if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            _image.Source = image;
+            _symbol.Visibility = Visibility.Collapsed;
+        }
+
+        private static string Glyph(RowSymbol symbol) => symbol switch
+        {
+            RowSymbol.Wired => Glyphs.Ethernet,
+            RowSymbol.Wireless => Glyphs.Wifi,
+            RowSymbol.Cellular => Glyphs.Signal,
+            RowSymbol.Network => Glyphs.Network,
+            _ => Glyphs.Program,
+        };
     }
 
     private readonly Brush _accentBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);

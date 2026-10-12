@@ -109,23 +109,17 @@
   },
   "widgetsB.settings.folder.browse": "Duyệt…",
   "widgetsB.settings.folder.folder.desc": "Thư mục cần liệt kê. Để trống để dùng thư mục người dùng của bạn",
-  "widgetsB.settings.folder.layout.label": "Bố cục",
-  "widgetsB.settings.folder.icons": "Biểu tượng",
   "widgetsB.settings.folder.rowSize.label": "Kích thước hàng",
   "widgetsB.settings.folder.rowSize.desc": "Độ cao của hàng trong kiểu danh sách và chi tiết",
   "widgetsB.settings.folder.extraSmall": "Rất nhỏ",
   "widgetsB.settings.folder.tileSize.label": "Kích thước ô",
   "widgetsB.settings.folder.tileSize.desc": "Độ lớn của ô trong kiểu lưới và biểu tượng",
-  "widgetsB.settings.folder.stretch.label": "Kéo giãn ô cho đầy",
-  "widgetsB.settings.folder.stretch.desc": "Khi mọi ô đều vừa, các hàng chia đều chiều cao tiện ích",
   "widgetsB.settings.folder.columns.label": "Cột chi tiết",
   "widgetsB.settings.folder.columns.desc": "Hiện sau tên, trong phạm vi còn chỗ",
   "widgetsB.settings.folder.contents": "Nội dung",
   "widgetsB.settings.folder.sortBy.label": "Sắp xếp theo",
   "widgetsB.settings.folder.dateModified": "Ngày sửa",
   "widgetsB.settings.folder.reverse.label": "Đảo ngược thứ tự",
-  "widgetsB.settings.folder.foldersFirst.label": "Thư mục trước",
-  "widgetsB.settings.folder.filter.desc": "Chỉ các tên chứa một trong những từ này, cách nhau bằng dấu phẩy",
   "widgetsB.settings.folder.opening": "Mở",
   "widgetsB.settings.folder.openWith.label": "Mở mục bằng",
   "widgetsB.settings.folder.doubleClick": "Nhấp đúp",
@@ -287,9 +281,6 @@
   "widgetsB.ping.online": "Trực tuyến",
   "widgetsB.ping.offline": "Ngoại tuyến",
   "widgetsB.ping.checking": "Đang kiểm tra…",
-  "widgetsB.meters.spanSeconds": {
-    "other": "{count} giây"
-  },
   "widgetsB.meters.spanMinutes": {
     "other": "{count} phút"
   },

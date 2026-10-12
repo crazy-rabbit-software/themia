@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Taşımak için bir görünümü başka birinin üzerine sürükleyin veya bir görünümde Alt+Shift+Yukarı ya da Aşağı tuşlarına basın.",
+  "shell.list.reorderHint": "Taşımak için bir öğeyi başka birinin üzerine sürükleyin veya bir öğede Alt+Shift+Yukarı ya da Aşağı tuşlarına basın.",
+  "shell.view.colour": "Renk",
+  "shell.view.colourDesc": "Simgenin görünüm çubuğundaki ve bu penceredeki rengi",
+  "shell.view.colourDefault": "Metin rengi",
+  "shell.appearance.themeColours": "Tema ve renkler",
+  "shell.appearance.cards": "Pencere öğesi kartları",
+  "shell.appearance.cardsDesc": "Kenarlık, köşeler ve dış çizgi",
+  "shell.appearance.textAndSize": "Metin ve boyut",
+  "shell.appearance.textAndSizeDesc": "Yazı tipi, metin boyutu ve pencere öğesi ölçeği",
+  "shell.appearance.layoutDesc": "Pencere öğeleri arasındaki boşluk ve ızgaraya yaslama",
+  "shell.net.blockedLocal": "{host} yerel ağda. Themia oraya yalnızca kendiniz yazdığınız bir adres için gider",
+  "shell.accounts.stats.mail": "Posta",
+  "shell.accounts.stats.calendar": "Takvim",
+  "shell.accounts.stats.contacts": "Kişiler",
+  "shell.accounts.stats.tasks": "Görevler",
+  "shell.accounts.stats.messages": {
+    "one": "{count} ileti",
+    "other": "{count} ileti"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} etkinlik",
+    "other": "{count} etkinlik"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} kişi",
+    "other": "{count} kişi"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} görev",
+    "other": "{count} görev"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} klasörde",
+    "other": "{count} klasörde"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} takvimde",
+    "other": "{count} takvimde"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} listede",
+    "other": "{count} listede"
+  },
+  "shell.accounts.stats.synced": "eşitlendi: {time}",
+  "shell.accounts.stats.neverSynced": "henüz eşitlenmedi",
+  "shell.accounts.stats.nothing": "Bu bilgisayarda henüz hiçbir şey depolanmadı",
+  "shell.accounts.nicknameDesc": "Pencere öğelerinin bu hesap için gösterdiği ad",
+  "shell.accounts.reconnect": "Yeniden oturum açın",
+  "shell.accounts.reconnectButton": "Oturum aç",
+  "shell.accounts.signOutDesc": "Hesabı ve bu bilgisayarda ondan eşitlenen her şeyi unutur",
+  "shell.accounts.needsSignIn": "Yeniden oturum açmanız gerekiyor"
+}

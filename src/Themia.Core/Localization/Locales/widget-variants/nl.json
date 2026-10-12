@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "Spectrumbalken",
+  "variants.visualizer.bars.desc": "Balken die meebewegen met alles wat deze pc afspeelt",
+  "variants.visualizer.mirror.label": "Gespiegeld spectrum",
+  "variants.visualizer.mirror.desc": "Balken die vanaf de middellijn naar beide kanten groeien",
+  "variants.visualizer.wave.label": "Spectrumgolf",
+  "variants.visualizer.wave.desc": "Een vloeiende golf die meegaat met alles wat deze pc afspeelt",
+  "variants.visualizer.dots.label": "LED-spectrum",
+  "variants.visualizer.dots.desc": "Kolommen lampjes, zoals een hifi-niveaumeter",
+  "variants.visualizer.radial.label": "Rond spectrum",
+  "variants.visualizer.radial.desc": "Balken rond een ring, links en rechts gespiegeld",
+  "variants.folder.list.label": "Mappenlijst",
+  "variants.folder.list.desc": "De bestanden van een map als lijst",
+  "variants.folder.details.label": "Mapdetails",
+  "variants.folder.details.desc": "De bestanden van een map in een tabel met kolommen",
+  "variants.folder.grid.label": "Mappenraster",
+  "variants.folder.grid.desc": "De bestanden van een map als tegels met miniaturen",
+  "variants.folder.icons.label": "Mappictogrammen",
+  "variants.folder.icons.desc": "De bestanden van een map alleen als pictogrammen, zoals op het bureaublad"
+}

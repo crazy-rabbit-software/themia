@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "বছরের অগ্রগতি",
+  "yearProgress.desc": "দিন, সপ্তাহ, মাস ও বছরের কতটা পেরিয়ে গেছে",
+  "yearProgress.day": "দিন",
+  "yearProgress.week": "সপ্তাহ",
+  "yearProgress.month": "মাস",
+  "yearProgress.year": "বছর",
+  "yearProgress.left": "{time} বাকি",
+  "yearProgress.weekNumber": "সপ্তাহ {number}",
+  "yearProgress.dayOf": "{days} দিনের মধ্যে দিন {day}",
+  "meeting.label": "পরবর্তী মিটিং",
+  "meeting.desc": "আপনার পরবর্তী ইভেন্ট, অনলাইন মিটিংয়ের জন্য যোগ দিন বোতামসহ",
+  "meeting.join": "যোগ দিন",
+  "meeting.joinTip": "অনলাইন মিটিংয়ে যোগ দিন",
+  "meeting.nowEnds": "এখন · {time}-এ শেষ",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "সামনে কিছু নেই",
+  "recentFiles.label": "সাম্প্রতিক ফাইল",
+  "recentFiles.desc": "আপনার শেষ খোলা ফাইলগুলো",
+  "recentFiles.empty": "সম্প্রতি কিছু খোলা হয়নি",
+  "recentFiles.unreadable": "Windows-এর সাম্প্রতিক আইটেম পড়া যায়নি",
+  "recentFiles.remove": "তালিকা থেকে সরান",
+  "recycleBin.desc": "রিসাইকেল বিন কতটা ভরা, খালি করার বোতামসহ",
+  "recycleBin.empty": "খালি করুন",
+  "recycleBin.emptyEllipsis": "রিসাইকেল বিন খালি করুন…",
+  "recycleBin.isEmpty": "কোনো আইটেম নেই",
+  "recycleBin.items": {
+    "one": "{count}টি আইটেম",
+    "other": "{count}টি আইটেম"
+  },
+  "recycleBin.open": "রিসাইকেল বিন খুলুন"
+}

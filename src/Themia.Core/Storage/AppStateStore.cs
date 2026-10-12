@@ -616,6 +616,13 @@ public sealed class AppStateStore : IAsyncDisposable
                 repairs.Add($"widget '{widget.Id}' had an unknown header placement");
             }
 
+            // [S-3711] A kind that can never have a header is stored without one.
+            if (!WidgetInstance.CanHaveHeader(widget.Kind) && widget.Header != HeaderPlacement.Hidden)
+            {
+                widget.Header = HeaderPlacement.Hidden;
+                repairs.Add($"widget '{widget.Id}' ({widget.Kind}) cannot have a header");
+            }
+
             var settled = GridGeometry.Clamp(widget.Rect, unit);
             if (settled != widget.Rect)
             {

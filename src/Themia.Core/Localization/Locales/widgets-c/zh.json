@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name}（{keys}）",
   "widgetsC.notes.editor.undo": "撤销",
   "widgetsC.notes.editor.redo": "重做",
+  "widgetsC.notes.editor.moreFormatting": "更多格式",
   "widgetsC.notes.words": {
     "other": "{count} 个词"
   },
@@ -409,8 +410,6 @@
   "widgetsC.agenda.desc": "接下来的安排，按天列出",
   "widgetsC.moon.label": "月亮",
   "widgetsC.moon.desc": "月相、月出和月落",
-  "widgetsC.visualizer.label": "音频可视化",
-  "widgetsC.visualizer.desc": "随此电脑播放的一切声音跳动的条形",
   "widgetsC.visualizer.unavailable": "音频输出不可用",
   "widgetsC.moon.rise": "月出",
   "widgetsC.moon.set": "月落",
@@ -449,6 +448,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows 红色",
   "widgetsC.stocks.settings.symbolRefused": "请选择搜索结果或输入代码：仅限字母、数字和 . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{exchange} 上的{class}",
+  "widgetsC.stocks.settings.holding.label": "持有数量",
+  "widgetsC.stocks.settings.holding.desc": "你持有的数量；小组件会显示其市值。留空则不显示",
+  "widgetsC.stocks.settings.holding.refused": "请输入 0 或更大的数量，例如 {example}",
+  "widgetsC.stocks.holding.line": "持有 {amount} · {value}",
   "widgetsC.location.recycleBin": "回收站",
   "widgetsC.location.thisPc": "此电脑",
   "widgetsC.location.downloads": "下载",

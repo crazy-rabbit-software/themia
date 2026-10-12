@@ -9,6 +9,7 @@ using Themia.App.Services.SystemData;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -47,7 +48,7 @@ internal sealed partial class GpuView
         public Panel(int index)
         {
             _index = index;
-            _spark = new SparkBand(_config.GraphCapacity);
+            _spark = new SparkBand(Capacity(_config));
 
             _hero.Text = "--";
             _hero.Foreground = UnavailableBrush;
@@ -84,14 +85,15 @@ internal sealed partial class GpuView
             _config = config;
             _stacked = stacked;
 
-            // [S-1200] The chart holds the configured span at the configured refresh; a longer span
-            // shows the longer history the hub holds at once.
-            var grew = config.GraphCapacity > _spark.Capacity;
-            _spark.Capacity = config.GraphCapacity;
+            // [S-1200] The chart holds the configured span; a longer span shows the longer history the
+            // hub holds at once.
+            var capacity = Capacity(config);
+            var grew = capacity > _spark.Capacity;
+            _spark.Capacity = capacity;
 
             if (grew && _watch is not null)
             {
-                _spark.Load(_watch.History(_spark.Capacity));
+                _spark.Load(_watch.History(_spark.Capacity), _watch.Added);
             }
 
             _name.Visibility = stacked ? Visibility.Visible : Visibility.Collapsed;
@@ -100,25 +102,28 @@ internal sealed partial class GpuView
         }
 
         /// <summary>
-        /// [S-2504] Watch this adapter's series at <paramref name="interval"/> (again when the cadence
-        /// changed): the history so far and the newest load at once, each read after through the watch.
+        /// [S-2504] Watch this adapter's series, once: the history so far and the newest load at once,
+        /// each read after through the watch.
         /// </summary>
-        public void Watch(SystemHub hub, TimeSpan interval, bool cadenceChanged)
+        public void Watch(SystemHub hub)
         {
-            if (_watch is not null && !cadenceChanged)
+            if (_watch is not null)
             {
                 return;
             }
 
-            _watch?.Dispose();
-            _watch = hub.WatchSeries(Sources.Gpu, interval, _index.ToString(System.Globalization.CultureInfo.InvariantCulture), OnUpdate);
-            _spark.Load(_watch.History(_spark.Capacity));
+            var key = FeedKey.Create(SystemSource.Gpu);
+            _watch = hub.WatchSeries(new SeriesInterest(key, _index.ToString(System.Globalization.CultureInfo.InvariantCulture)), OnUpdate);
+            _spark.Load(_watch.History(_spark.Capacity), _watch.Added);
 
             if (_watch.Latest is { } latest)
             {
                 ShowLoad(latest);
             }
         }
+
+        /// <summary>[S-1121] The span in points: the GPU is read every tick.</summary>
+        private static int Capacity(GpuConfig config) => MeterTiming.Points(config.GraphSpanSeconds, SystemCadence.PeriodSeconds(SystemSource.Gpu));
 
         public void Unwatch()
         {

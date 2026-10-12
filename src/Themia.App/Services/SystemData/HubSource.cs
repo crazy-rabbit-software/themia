@@ -68,23 +68,3 @@ internal abstract class HubSource<T> : HubSource
     public virtual MeterSample Project(T snapshot, string instance)
         => throw new NotSupportedException($"{GetType().Name} has no charted series");
 }
-
-/// <summary>
-/// [S-2504] Which series a meter shows: a source at a cadence, an instance within it (a drive, an
-/// adapter) and a target (a ping host). Compared by value, so a view watches again only when its
-/// config names a different series; a different one has its own history in the hub.
-/// </summary>
-internal abstract record MeterSeries(FeedKey Key, string Instance)
-{
-    /// <summary>Watch the series in <paramref name="hub"/>.</summary>
-    public abstract SeriesWatch Watch(SystemHub hub, Action<SeriesUpdate> onUpdate);
-
-    public static MeterSeries Of<T>(SourceId<T> source, TimeSpan interval, string instance = "", string? target = null)
-        => new Typed<T>(source, FeedKey.Create(source.Source, interval, target), instance);
-
-    private sealed record Typed<T>(SourceId<T> Source, FeedKey Key, string Instance) : MeterSeries(Key, Instance)
-    {
-        public override SeriesWatch Watch(SystemHub hub, Action<SeriesUpdate> onUpdate)
-            => hub.WatchSeries(Source, Key.Interval, Instance, onUpdate, Key.Target);
-    }
-}

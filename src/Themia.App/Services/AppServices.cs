@@ -60,6 +60,9 @@ internal static class AppServices
     /// </summary>
     public static GalleryService? Gallery { get; internal set; }
 
+    /// <summary>[S-4623] The app's one alarm service: what each alarm is doing, snooze and dismiss. Null before the host has started (and in a debug render).</summary>
+    public static AlarmService? Alarms { get; internal set; }
+
     /// <summary>
     /// [S-546] Where Mail widgets read from: the host's one <see cref="Mail.MailService"/>.
     /// Null before the host has started.

@@ -5,14 +5,14 @@ namespace Themia.Core.Localization;
 /// <c>InvariantGlobalization</c> (no ICU, no <c>CultureInfo</c> data — S-54). Transcribed from CLDR
 /// (the data Windows, ICU and browsers use) for each language's main region: en = US,
 /// pt = Brazil, zh = Simplified/China, es = Spain, ar = Saudi Arabia (with the Gregorian month
-/// names Egypt and the Levant use), bn = Bangladesh, ur = Pakistan, hi and mr = India, the rest
-/// their home country.
+/// names Egypt and the Levant use), bn = Bangladesh, ur = Pakistan, hi and mr = India, ko = Korea, nl = the Netherlands, tr = Turkey,
+/// zh-Hant = Taiwan, the rest their home country.
 /// <para>
-/// [S-1112] Every pattern writes Latin digits (0–9). What is drawn is decided at layout, the way
-/// Windows decides it: DirectWrite substitutes digits for the region of the tag text is laid out
-/// with ([S-1114]), so Arabic shows Arabic-Indic digits and the rest Latin.
-/// Keeping the data Latin means one formatter, comparable strings in the tests, and no widget
-/// parsing a number it drew.
+/// [S-1115] Every pattern is written with Latin digits (0–9); a language that writes its own
+/// (<see cref="DigitZero"/>: Arabic) has them swapped in as the last step of formatting, so the
+/// patterns stay comparable and every language shares one formatter. The swap is in the text, not
+/// left to DirectWrite's contextual substitution, which follows the neighbouring script and drew
+/// "09:00–09:15 · Teams" with Latin digits.
 /// </para>
 /// <para>
 /// Patterns use CLDR letters: <c>d dd</c> day, <c>M MM</c> month number, <c>MMM MMMM</c> month name
@@ -68,6 +68,12 @@ internal sealed class LocaleData
 
     public required DayOfWeek FirstDayOfWeek { get; init; }
 
+    /// <summary>
+    /// [S-1115] The language's own zero when it writes its own digits (Arabic-Indic U+0660 for
+    /// Arabic); null for Latin digits. The ten digits follow it in Unicode.
+    /// </summary>
+    public char? DigitZero { get; init; }
+
     public required string Now { get; init; }
 
     /// <summary>Relative times, by <see cref="RelativeUnit"/>: long ("3 minutes ago") and short ("3 min. ago").</summary>
@@ -93,6 +99,10 @@ internal sealed class LocaleData
         Locale.Ur => Ur,
         Locale.Mr => Mr,
         Locale.Vi => Vi,
+        Locale.Ko => Ko,
+        Locale.Nl => Nl,
+        Locale.Tr => Tr,
+        Locale.ZhHant => ZhHant,
         _ => En,
     };
 
@@ -526,9 +536,13 @@ internal sealed class LocaleData
         Uses24Hour = false,
         Am = "ص",
         Pm = "م",
-        Decimal = '.',
-        Group = ",",
-        Percent = "{0}%",
+
+        // [S-1115] Arabic-Indic digits with their own separators (CLDR's "arab" numbering), written
+        // into the text rather than left to the layout's substitution.
+        Decimal = '٫',
+        Group = "٬",
+        Percent = "{0}٪",
+        DigitZero = '٠',
         FirstDayOfWeek = DayOfWeek.Sunday,
         Now = "الآن",
         Relative = ArabicRelative,
@@ -755,6 +769,149 @@ internal sealed class LocaleData
         Now = "bây giờ",
         Relative = VietnameseRelative,
         RelativeShort = VietnameseRelative,
+    };
+
+    // ko-KR. Korean writes the month as a number ("10월") and has no plural.
+    private static readonly RelativeForms[] KoreanRelative =
+    [
+        R(P1("{0}분 전"), P1("{0}분 후")),
+        R(P1("{0}시간 전"), P1("{0}시간 후")),
+        R(P1("{0}일 전"), P1("{0}일 후")),
+        R(P1("{0}주 전"), P1("{0}주 후")),
+        R(P1("{0}개월 전"), P1("{0}개월 후")),
+        R(P1("{0}년 전"), P1("{0}년 후")),
+    ];
+
+    private static readonly LocaleData Ko = new()
+    {
+        Months = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+        MonthsShort = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+        Weekdays = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
+        WeekdaysShort = ["일", "월", "화", "수", "목", "금", "토"],
+        WeekdaysNarrow = ["일", "월", "화", "수", "목", "금", "토"],
+        DatePatterns = ["y. M. d.", "y. M. d.", "y년 M월 d일", "y년 M월 d일 EEEE", "MMMM d일", "MMM d일", "y년 MMMM", "MMM d일 (EEE)"],
+        Time24 = "H:mm",
+        Time12 = "a h:mm",
+        Uses24Hour = false,
+        Am = "오전",
+        Pm = "오후",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "지금",
+        Relative = KoreanRelative,
+        RelativeShort = KoreanRelative,
+    };
+
+    private static readonly LocaleData Nl = new()
+    {
+        Months = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"],
+        MonthsShort = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"],
+        Weekdays = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"],
+        WeekdaysShort = ["zo", "ma", "di", "wo", "do", "vr", "za"],
+        WeekdaysNarrow = ["Z", "M", "D", "W", "D", "V", "Z"],
+        DatePatterns = ["dd-MM-y", "d MMM y", "d MMMM y", "EEEE d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "a.m.",
+        Pm = "p.m.",
+        Decimal = ',',
+        Group = ".",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "nu",
+        Relative =
+        [
+            R(P("{0} minuut geleden", "{0} minuten geleden"), P("over {0} minuut", "over {0} minuten")),
+            R(P1("{0} uur geleden"), P1("over {0} uur")),
+            R(P("{0} dag geleden", "{0} dagen geleden"), P("over {0} dag", "over {0} dagen")),
+            R(P("{0} week geleden", "{0} weken geleden"), P("over {0} week", "over {0} weken")),
+            R(P("{0} maand geleden", "{0} maanden geleden"), P("over {0} maand", "over {0} maanden")),
+            R(P1("{0} jaar geleden"), P1("over {0} jaar")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} min geleden"), P1("over {0} min")),
+            R(P1("{0} uur geleden"), P1("over {0} uur")),
+            R(P("{0} dag geleden", "{0} dagen geleden"), P("over {0} dag", "over {0} dagen")),
+            R(P1("{0} wk geleden"), P1("over {0} wk")),
+            R(P1("{0} mnd geleden"), P1("over {0} mnd")),
+            R(P1("{0} jr geleden"), P1("over {0} jr")),
+        ],
+    };
+
+    // tr-TR. A Turkish noun stays singular after a number ("3 dakika"), so one and other read alike.
+    private static readonly LocaleData Tr = new()
+    {
+        Months = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
+        MonthsShort = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"],
+        Weekdays = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"],
+        WeekdaysShort = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"],
+        WeekdaysNarrow = ["P", "P", "S", "Ç", "P", "C", "C"],
+        DatePatterns = ["d.MM.y", "d MMM y", "d MMMM y", "d MMMM y EEEE", "d MMMM", "d MMM", "MMMM y", "d MMM EEE"],
+        Time24 = "HH:mm",
+        Time12 = "a h:mm",
+        Uses24Hour = true,
+        Am = "ÖÖ",
+        Pm = "ÖS",
+        Decimal = ',',
+        Group = ".",
+        Percent = "%{0}",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "şimdi",
+        Relative =
+        [
+            R(P1("{0} dakika önce"), P1("{0} dakika sonra")),
+            R(P1("{0} saat önce"), P1("{0} saat sonra")),
+            R(P1("{0} gün önce"), P1("{0} gün sonra")),
+            R(P1("{0} hafta önce"), P1("{0} hafta sonra")),
+            R(P1("{0} ay önce"), P1("{0} ay sonra")),
+            R(P1("{0} yıl önce"), P1("{0} yıl sonra")),
+        ],
+        RelativeShort =
+        [
+            R(P1("{0} dk. önce"), P1("{0} dk. sonra")),
+            R(P1("{0} sa. önce"), P1("{0} sa. sonra")),
+            R(P1("{0} gün önce"), P1("{0} gün sonra")),
+            R(P1("{0} hf. önce"), P1("{0} hf. sonra")),
+            R(P1("{0} ay önce"), P1("{0} ay sonra")),
+            R(P1("{0} yıl önce"), P1("{0} yıl sonra")),
+        ],
+    };
+
+    // zh-Hant as written in Taiwan (zh-TW): the 12-hour clock, Sunday first, 週 for the weekday.
+    private static readonly RelativeForms[] TraditionalChineseRelative =
+    [
+        R(P1("{0} 分鐘前"), P1("{0} 分鐘後")),
+        R(P1("{0} 小時前"), P1("{0} 小時後")),
+        R(P1("{0} 天前"), P1("{0} 天後")),
+        R(P1("{0} 週前"), P1("{0} 週後")),
+        R(P1("{0} 個月前"), P1("{0} 個月後")),
+        R(P1("{0} 年前"), P1("{0} 年後")),
+    ];
+
+    private static readonly LocaleData ZhHant = new()
+    {
+        Months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+        MonthsShort = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+        Weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+        WeekdaysShort = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"],
+        WeekdaysNarrow = ["日", "一", "二", "三", "四", "五", "六"],
+        DatePatterns = ["y/M/d", "y年M月d日", "y年M月d日", "y年M月d日 EEEE", "M月d日", "M月d日", "y年M月", "M月d日 EEE"],
+        Time24 = "HH:mm",
+        Time12 = "ah:mm",
+        Uses24Hour = false,
+        Am = "上午",
+        Pm = "下午",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "現在",
+        Relative = TraditionalChineseRelative,
+        RelativeShort = TraditionalChineseRelative,
     };
 }
 

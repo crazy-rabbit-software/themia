@@ -310,8 +310,8 @@ public sealed class GalleryMemoryTests
     }
 
     [Fact]
-    public void S3413_the_gallery_lingers_as_long_as_the_system_feeds()
-        => Assert.Equal(SystemData.FeedTable<object>.Linger, new LingerTable<string, object>(_ => new object()).Linger);
+    public void S3413_the_gallery_lingers_two_minutes()
+        => Assert.Equal(TimeSpan.FromMinutes(2), new LingerTable<string, object>(_ => new object()).Linger);
 
     [Fact]
     public void S3413_a_double_release_and_a_clock_running_backwards_change_nothing()

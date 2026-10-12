@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "شائعة",
+  "addMenu.browse": "استعراض",
+  "addMenu.subject.time": "الوقت",
+  "addMenu.subject.calendar": "التقويم والبريد",
+  "addMenu.subject.weather": "الطقس والسماء",
+  "addMenu.subject.markets": "الأخبار والأسواق",
+  "addMenu.subject.media": "الموسيقى والوسائط",
+  "addMenu.subject.notes": "الملاحظات والأدوات",
+  "addMenu.subject.files": "الملفات والتطبيقات",
+  "addMenu.subject.system": "النظام",
+  "addMenu.subject.devices": "الأجهزة والطاقة",
+  "addMenu.subject.more": "المزيد",
+  "addMenu.family.calendar": "التقويم",
+  "addMenu.family.visualizer": "المؤثرات المرئية",
+  "addMenu.family.folder": "مجلد",
+  "addMenu.family.screenTime": "وقت الشاشة",
+  "addMenu.family.powerButtons": "أزرار الطاقة"
+}

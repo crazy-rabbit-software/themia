@@ -158,6 +158,23 @@ internal static class ShellLauncher
     }
 
     /// <summary>
+    /// [S-4822] Join an online meeting: an http(s), <c>msteams:</c> or <c>zoommtg:</c> link made by
+    /// <see cref="Themia.Core.Office.MeetingLinks"/>, whose gate is re-applied to the literal string.
+    /// The default handler opens it (Teams or Zoom when installed, else the browser). Its own allow
+    /// list, like mail and calendar links.
+    /// </summary>
+    public static LaunchOutcome OpenMeetingLink(string? link)
+    {
+        if (!Themia.Core.Office.MeetingLinks.IsLaunchable(link))
+        {
+            Log.Warn(Scope, $"refused to open meeting link '{Excerpt(link)}'");
+            return LaunchOutcome.Refused;
+        }
+
+        return Launch(link!);
+    }
+
+    /// <summary>
     /// [S-547] / [S-1268] Whether Outlook for Windows' <c>ms-outlook:</c> protocol is registered, so
     /// mail and calendar items can hand off to it. Read once per run: installing Outlook mid-session
     /// is rare, and the registry is not worth asking on every click.
@@ -210,6 +227,55 @@ internal static class ShellLauncher
         }
 
         return Launch(page.OriginalString);
+    }
+
+    /// <summary>
+    /// [S-4406] Start an app by its AppUserModelID, as its Apps-folder item: a packaged app and a Start
+    /// menu desktop app alike. Its own allow list (<see cref="NotificationRules.AppTarget"/>), checked on
+    /// the literal string, because an AUMID is not a shell name (it carries <c>!</c> and <c>\</c>).
+    /// </summary>
+    public static LaunchOutcome OpenApp(string? appUserModelId)
+    {
+        if (NotificationRules.AppTarget(appUserModelId) is not { } target)
+        {
+            Log.Warn(Scope, $"refused to open '{Excerpt(appUserModelId)}' as an app");
+            return LaunchOutcome.Refused;
+        }
+
+        return Launch(target);
+    }
+
+    /// <summary>
+    /// [S-4661] Eject a drive with the shell's own verb on its root — what Explorer's "Eject" runs (and
+    /// Karpo's): Windows flushes the volume, tells whatever still has it open, and says how it went
+    /// in its own notice, so nothing here claims an outcome. Only a drive root is accepted
+    /// (<see cref="DiskRules.Root"/>). Runs on the pool: the verb flushes before it returns.
+    /// </summary>
+    public static void Eject(string? root)
+    {
+        if (DiskRules.Root(root) is not { } drive)
+        {
+            Log.Warn(Scope, $"refused to eject '{Excerpt(root)}': not a drive");
+            return;
+        }
+
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                using var process = Process.Start(new ProcessStartInfo { FileName = drive, Verb = "eject", UseShellExecute = true });
+                Log.Info(Scope, $"asked the shell to eject {drive}");
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
+            {
+                Log.Warn(Scope, $"the shell would not eject {drive}", ex);
+            }
+            catch (Exception ex)
+            {
+                // A pool thread: nothing may escape it.
+                Log.Error(Scope, $"ejecting {drive} threw", ex);
+            }
+        });
     }
 
     /// <summary>

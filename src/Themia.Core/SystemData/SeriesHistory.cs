@@ -37,12 +37,20 @@ public sealed class SampleRing<T>
     /// <summary>How many it holds now.</summary>
     public int Count { get; private set; }
 
+    /// <summary>
+    /// How many points were ever added (not reset by forgetting the oldest): a point's absolute
+    /// position, so a chart that folds points into buckets keeps each bucket's members fixed ([S-1121]).
+    /// </summary>
+    public long Added { get; private set; }
+
     /// <summary>The newest, or null when empty.</summary>
     public T? Latest => Count == 0 ? null : _items[(_start + Count - 1) % _items.Length];
 
     /// <summary>Add the newest point; a full ring forgets its oldest.</summary>
     public void Add(T item)
     {
+        Added++;
+
         if (Count < _items.Length)
         {
             _items[(_start + Count) % _items.Length] = item;
@@ -58,6 +66,7 @@ public sealed class SampleRing<T>
     {
         _start = 0;
         Count = 0;
+        Added = 0;
     }
 
     /// <summary>The newest <paramref name="max"/> points (all of them when fewer), oldest first, as a copy.</summary>
@@ -80,9 +89,13 @@ public sealed class SampleRing<T>
 public static class SeriesHistory
 {
     /// <summary>
-    /// Every series holds as many points as the longest chart any config can ask for
-    /// (<see cref="MeterTiming.MaxCapacity"/>: span over interval, capped) and as many probes as the
-    /// widest ping statistics window, so a span made longer shows the longer history at once.
+    /// Every series of a source holds the longest history any chart can ask for
+    /// (<see cref="MeterTiming.MaxSpanSeconds"/> at the source's spacing), and a ping series at least
+    /// the widest statistics window, so a span made longer shows the longer history at once.
     /// </summary>
-    public const int Capacity = MeterTiming.MaxCapacity;
+    public static int Capacity(SystemSource source)
+    {
+        var points = MeterTiming.MaxSpanSeconds / SystemCadence.PeriodSeconds(source);
+        return source == SystemSource.Ping ? Math.Max(points, Model.PingDetailsConfig.MaxWindow) : points;
+    }
 }

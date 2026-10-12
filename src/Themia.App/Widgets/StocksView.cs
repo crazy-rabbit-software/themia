@@ -1,6 +1,7 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Run = Microsoft.UI.Xaml.Documents.Run;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Web;
@@ -33,28 +34,20 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private const string Scope = "stocks";
 
     private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly TextBlock _price = Fluent.Text(FluentType.Subtitle);
-    private readonly TextBlock _change = Fluent.Text(FluentType.Body);
-    private readonly TextBlock _currency = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly TextBlock _phase = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly FontIcon _phaseIcon = Fluent.Icon(Glyphs.Moon, "TextFillColorTertiaryBrush", 12);
+    // [S-667] The shared hero readout: the price with its currency smaller beside it, the change
+    // and the session on its baseline (or on a line under it), then the holding and the extended
+    // print as its caption lines.
+    private readonly HeroReadout _hero = new();
+    private readonly TextBlock _holding;
+    private readonly TextBlock _extended;
+    private readonly Run _change = new();
+    private readonly Run _phaseIcon;
+    private readonly Run _phase = new();
+    private string _changeText = string.Empty;
+    private string _phaseText = string.Empty;
+    private bool _phaseShown;
+    private string _phaseGlyph = Glyphs.Moon;
 
-    // A Grid, not a horizontal StackPanel: the label has to learn its width to end in an ellipsis
-    // rather than be cut mid-word ("Market c") at the edge of a narrow tile. [S-657]
-    private readonly Grid _phaseBadge = new()
-    {
-        ColumnSpacing = Fluent.Space1,
-        ColumnDefinitions =
-        {
-            new ColumnDefinition { Width = GridLength.Auto },
-            new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-        },
-    };
-
-    private readonly Grid _readout = new();
-    private readonly Grid _extras = new();
-    private readonly StackPanel _readoutColumn = new();
-    private readonly TextBlock _extended = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private readonly StackPanel _emptyState;
     private readonly TextBlock _emptyMessage = new();
 
@@ -100,7 +93,8 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
         _direction = _flatBrush;
 
-        BuildReadout();
+        _phaseIcon = WidgetParts.GlyphRun(Glyphs.Moon, _freshBrush);
+        BuildReadout(out _holding, out _extended);
         BuildChart();
 
         _emptyState = Fluent.EmptyState(Glyphs.Stocks, _emptyMessage, out _);
@@ -108,7 +102,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         SetRowSpan(_emptyState, 2);
         SetColumnSpan(_emptyState, 2);
 
-        Children.Add(_readoutColumn);
+        Children.Add(_hero);
         Children.Add(_chart);
         Children.Add(_emptyState);
     }
@@ -123,56 +117,13 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.EffectiveSymbol.Length == 0 ? [] : [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))];
 
-    private void BuildReadout()
+    private void BuildReadout(out TextBlock holding, out TextBlock extended)
     {
-        _price.VerticalAlignment = VerticalAlignment.Bottom;
-        _change.VerticalAlignment = VerticalAlignment.Bottom;
-        _currency.VerticalAlignment = VerticalAlignment.Bottom;
-        _currency.Margin = new Thickness(Fluent.Space2, 0, 0, Fluent.Space1);
-
-        _phaseIcon.VerticalAlignment = VerticalAlignment.Center;
-        _phase.VerticalAlignment = VerticalAlignment.Center;
-        _phase.TextTrimming = TextTrimming.CharacterEllipsis;
-        _phaseBadge.VerticalAlignment = VerticalAlignment.Bottom;
-        _phaseBadge.Margin = new Thickness(Fluent.Space3, 0, 0, Fluent.Space1);
-        _phaseBadge.Visibility = Visibility.Collapsed;
-        SetColumn(_phaseIcon, 0);
-        SetColumn(_phase, 1);
-        _phaseBadge.Children.Add(_phaseIcon);
-        _phaseBadge.Children.Add(_phase);
-
-        // Grids rather than horizontal StackPanels: a StackPanel measures its children with
-        // unbounded width, so nothing beside the price ever learns how much room is left and its
-        // trimming never fires. The change, currency and session badge travel together: beside the
-        // price where they fit, on their own line under it where they do not ([S-657]).
-        _extras.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _extras.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _extras.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _extras.VerticalAlignment = VerticalAlignment.Bottom;
-
-        SetColumn(_change, 0);
-        SetColumn(_currency, 1);
-        SetColumn(_phaseBadge, 2);
-        _extras.Children.Add(_change);
-        _extras.Children.Add(_currency);
-        _extras.Children.Add(_phaseBadge);
-
-        _readout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _readout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _readout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _readout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-        SetColumn(_price, 0);
-        SetColumn(_extras, 1);
-        _readout.Children.Add(_price);
-        _readout.Children.Add(_extras);
-
-        _extended.TextTrimming = TextTrimming.CharacterEllipsis;
-        _extended.Visibility = Visibility.Collapsed;
-
-        _readoutColumn.Children.Add(_readout);
-        _readoutColumn.Children.Add(_extended);
-        _readoutColumn.Margin = new Thickness(StockLayout.Inset, Fluent.Space1, StockLayout.Inset, 0);
+        holding = _hero.AddLine(FluentType.Caption);
+        extended = _hero.AddLine(FluentType.Caption);
+        holding.Visibility = Visibility.Collapsed;
+        extended.Visibility = Visibility.Collapsed;
+        _hero.Margin = new Thickness(StockLayout.Inset, Fluent.Space1, StockLayout.Inset, 0);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -250,6 +201,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         var now = DateTimeOffset.Now;
         UpdatePhase(quote, now);
         UpdateFreshness(_quote, now);
+        Lay(quote);
     }
 
     /// <summary>
@@ -328,18 +280,18 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             };
 
             _emptyState.Visibility = Visibility.Visible;
-            _readoutColumn.Visibility = Visibility.Collapsed;
+            _hero.Visibility = Visibility.Collapsed;
             _chart.Visibility = Visibility.Collapsed;
             _freshness.Text = string.Empty;
             return;
         }
 
         _emptyState.Visibility = Visibility.Collapsed;
-        _readoutColumn.Visibility = Visibility.Visible;
+        _hero.Visibility = Visibility.Visible;
 
-        _price.Text = MarketQuote.Price(quote.Price, quote.PriceHint);
-        _change.Text = MarketQuote.ChangePercent(quote.ChangePercent);
-        _currency.Text = quote.Currency;
+        var price = MarketQuote.Price(quote.Price, quote.PriceHint);
+        _hero.SetValue(price, quote.Currency, spaced: true);
+        _changeText = MarketQuote.ChangePercent(quote.ChangePercent);
 
         _direction = quote.ChangePercent switch
         {
@@ -349,6 +301,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         };
 
         _change.Foreground = _direction;
+        var holding = UpdateHolding(quote);
 
         var phase = UpdatePhase(quote, now);
         var extended = _config.WantsPrePost
@@ -359,9 +312,9 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         UpdateFreshness(held, now);
 
         var chart = _config.ShowSparkline && quote.Bars.Count >= 2;
-        var extras = _change.Text.Length + 1 + _currency.Text.Length;
+        var extras = _changeText.Length + 1 + quote.Currency.Length;
 
-        _plan = StockLayout.Plan(_area, new StockInputs(_price.Text.Length, extras, chart, extended is not null, _config.ShowMinMax));
+        _plan = StockLayout.Plan(_area, new StockInputs(price.Length, extras, chart, extended is not null, _config.ShowMinMax, holding));
         Lay(quote);
     }
 
@@ -370,36 +323,47 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     {
         var plan = _plan;
 
-        _price.Apply(plan.Price);
-        _change.Apply(plan.Change);
-        _currency.Visibility = plan.Currency ? Visibility.Visible : Visibility.Collapsed;
-        _phase.Visibility = plan.BadgeText ? Visibility.Visible : Visibility.Collapsed;
+        _hero.ShowUnit(plan.Currency);
+        _holding.Visibility = plan.Holding && _holding.Inlines.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         _extended.Visibility = plan.ExtendedLine && _extended.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
-        // The change, currency and badge: beside the price or on their own line under it.
-        var under = plan.ExtrasUnder;
-        Grid.SetRow(_extras, under ? 1 : 0);
-        Grid.SetColumn(_extras, under ? 0 : 1);
-        Grid.SetColumnSpan(_extras, under ? 2 : 1);
-        _change.Margin = new Thickness(under ? 0 : Fluent.Space2, 0, 0, under ? 0 : Fluent.Space1);
+        // The change and the session: on the price's baseline, or on their own line under it.
+        var beside = !plan.ExtrasUnder;
+        _change.Text = (beside ? "  " : string.Empty) + _changeText;
+        var trailing = new List<Run> { _change };
+
+        if (_phaseShown)
+        {
+            _phaseIcon.Text = "  " + _phaseGlyph;
+            trailing.Add(_phaseIcon);
+
+            if (plan.BadgeText)
+            {
+                _phase.Text = " " + _phaseText;
+                trailing.Add(_phase);
+            }
+        }
+
+        _hero.SetTrailing(trailing);
+        _hero.Lay(plan.Price, icon: false, trailingBeside: beside, linesBeside: false);
 
         if (plan.Beside)
         {
             // A strip: the readout is a column on the left, the chart has the strip's height.
             ColumnDefinitions[0].Width = new GridLength(plan.ReadoutWidth + (2 * StockLayout.Inset));
             ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
-            Place(_readoutColumn, 0, 0, 2, 1);
-            _readoutColumn.VerticalAlignment = VerticalAlignment.Center;
+            Place(_hero, 0, 0, 2, 1);
+            _hero.VerticalAlignment = VerticalAlignment.Center;
             Place(_chart, 0, 1, 2, 1);
         }
         else
         {
             ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
             ColumnDefinitions[1].Width = GridLength.Auto;
-            Place(_readoutColumn, 0, 0, plan.Chart ? 1 : 2, 2);
+            Place(_hero, 0, 0, plan.Chart ? 1 : 2, 2);
 
             // Without a chart the price is the tile: centred in it rather than stranded at the top.
-            _readoutColumn.VerticalAlignment = plan.Chart ? VerticalAlignment.Top : VerticalAlignment.Center;
+            _hero.VerticalAlignment = plan.Chart ? VerticalAlignment.Top : VerticalAlignment.Center;
             Place(_chart, 1, 0, 1, 2);
         }
 
@@ -411,6 +375,31 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             UpdateLabels(quote);
             RedrawChart();
         }
+    }
+
+    /// <summary>
+    /// [S-2777] The holding's caption: what the shares owned are worth now and how much that moved
+    /// over the shown period, in the quote's currency ("10 held · 4,202.70 USD  +82.95"; the amount
+    /// is dropped where the line is narrow). False when there is no holding or nothing to price it.
+    /// </summary>
+    private bool UpdateHolding(TickerQuote quote)
+    {
+        _holding.Inlines.Clear();
+
+        var locale = Strings.Current;
+        if (_config.SharesOwned is not { } owned || StockHolding.Worth(owned, quote.Price, quote.Currency) is not { } worth)
+        {
+            return false;
+        }
+
+        _holding.Inlines.Add(new Run { Text = StockHolding.Caption(locale, owned, worth, _area.Width) });
+
+        if (StockHolding.Change(owned, quote.Price, quote.ChangePercent, quote.Currency) is { } move)
+        {
+            _holding.Inlines.Add(WidgetParts.Run("  " + StockHolding.SignedSum(locale, move), _direction));
+        }
+
+        return true;
     }
 
     private static void Place(FrameworkElement element, int row, int column, int rowSpan, int columnSpan)
@@ -429,32 +418,26 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private MarketPhase UpdatePhase(TickerQuote quote, DateTimeOffset now)
     {
         var phase = MarketQuote.Phase(quote.Sessions, now);
+        var label = !_config.ShowMarketState || _config.Market == QuoteMarket.Crypto ? string.Empty : MarketQuote.PhaseLabel(phase);
 
-        if (!_config.ShowMarketState || _config.Market == QuoteMarket.Crypto)
+        _phaseShown = label.Length > 0;
+        _phaseText = label;
+
+        if (!_phaseShown)
         {
-            _phaseBadge.Visibility = Visibility.Collapsed;
-            return phase;
-        }
-
-        var label = MarketQuote.PhaseLabel(phase);
-
-        if (label.Length == 0)
-        {
-            _phaseBadge.Visibility = Visibility.Collapsed;
+            ToolTipService.SetToolTip(_hero.ValueLine, null);
             return phase;
         }
 
         var accent = _config.WantsPrePost && phase is MarketPhase.Pre or MarketPhase.Post && quote.HasPrePost;
         var brush = accent ? _accentBrush : _freshBrush;
 
-        _phase.Text = label;
         _phase.Foreground = brush;
-        _phaseIcon.Glyph = phase == MarketPhase.Closed ? Glyphs.Moon : Glyphs.Sun;
+        _phaseGlyph = phase == MarketPhase.Closed ? Glyphs.Moon : Glyphs.Sun;
         _phaseIcon.Foreground = brush;
-        _phaseBadge.Visibility = Visibility.Visible;
 
-        // [S-1309] The badge names the exchange's zone, so "closed" reads against its clock.
-        ToolTipService.SetToolTip(_phaseBadge, Str.WidgetsC_Stocks_PhaseTooltip.Format(("phase", label), ("zone", ExchangeTime.ZoneNote(quote.ZoneName))));
+        // [S-1309] The session names the exchange's zone, so "closed" reads against its clock.
+        ToolTipService.SetToolTip(_hero.ValueLine, Str.WidgetsC_Stocks_PhaseTooltip.Format(("phase", label), ("zone", ExchangeTime.ZoneNote(quote.ZoneName))));
         return phase;
     }
 

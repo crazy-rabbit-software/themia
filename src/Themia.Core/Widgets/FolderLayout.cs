@@ -5,11 +5,10 @@ namespace Themia.Core.Widgets;
 /// <summary>[S-1323] How tiles sit in the grid and icons views.</summary>
 /// <param name="Columns">Tiles per row: as many minimum-width tiles as fit, at least one.</param>
 /// <param name="CellWidth">Each tile stretched so the row fills the width exactly.</param>
-/// <param name="CellHeight">The preset height, or the height shared out when stretching.</param>
+/// <param name="CellHeight">The preset height.</param>
 /// <param name="Rows">How many rows the items take.</param>
-/// <param name="Stretched">Rows share the height (every tile fits without scrolling).</param>
 /// <param name="Icon">The icon (and thumbnail) size inside a tile.</param>
-public readonly record struct GridPlan(int Columns, double CellWidth, double CellHeight, int Rows, bool Stretched, double Icon);
+public readonly record struct GridPlan(int Columns, double CellWidth, double CellHeight, int Rows, double Icon);
 
 /// <summary>[S-1326] Which header buttons the card's header has room for, beside the title.</summary>
 public readonly record struct FolderHeaderPlan(bool Up, bool Back, bool Search, bool Sort, bool Forward, bool Git, bool Home)
@@ -83,11 +82,10 @@ public static class FolderLayout
     };
 
     /// <summary>
-    /// [S-1323] Tiles for <paramref name="count"/> items in a box. Icons-only tiles shrink to the icon
-    /// plus padding. Stretch shares the height out only when every row fits, as the original's
-    /// <c>effectiveStretchHeight</c>; otherwise the preset height holds and the grid scrolls.
+    /// [S-1323] Tiles for <paramref name="count"/> items in a row of <paramref name="width"/>. Icons-only
+    /// tiles shrink to the icon plus padding; the preset height holds and the grid scrolls.
     /// </summary>
-    public static GridPlan Grid(double width, double height, int count, FolderTileSize size, bool labelled, bool stretch)
+    public static GridPlan Grid(double width, int count, FolderTileSize size, bool labelled)
     {
         var (column, row, icon) = Tile(size);
 
@@ -100,11 +98,8 @@ public static class FolderLayout
         var columns = Math.Max(1, (int)Math.Floor((Math.Max(width, 0) + Disclosure.Tolerance) / column));
         var cellWidth = width > 0 ? width / columns : column;
         var rows = count <= 0 ? 0 : (count + columns - 1) / columns;
-        var fits = rows > 0 && rows * row <= height + Disclosure.Tolerance;
-        var stretched = stretch && fits;
-        var cellHeight = stretched ? height / rows : row;
 
-        return new GridPlan(columns, cellWidth, cellHeight, rows, stretched, icon);
+        return new GridPlan(columns, cellWidth, row, rows, icon);
     }
 
     /// <summary>One layout pass. <paramref name="area"/> is the view's slot (the card below its header).</summary>
@@ -113,11 +108,11 @@ public static class FolderLayout
         ArgumentNullException.ThrowIfNull(config);
 
         var grid = config.View is FolderViewMode.Grid or FolderViewMode.Icons;
-        var rowHeight = RowHeight(config.ItemSize);
+        var rowHeight = RowHeight(config.Rows);
         var room = new Disclosure(area);
 
         // Rung 0: one row of something. Tiles reserve their own height, rows theirs.
-        var tileSize = config.TileSize;
+        var tileSize = config.Tiles;
 
         if (grid && area.WidthClass >= SizeClass.Huge && tileSize < FolderTileSize.Large)
         {
@@ -126,7 +121,7 @@ public static class FolderLayout
 
         var labelled = config.View == FolderViewMode.Grid;
         var firstRow = grid
-            ? Math.Min(Grid(area.Width, double.MaxValue, 1, tileSize, labelled, false).CellHeight, Math.Max(area.Height, 0))
+            ? Math.Min(Grid(area.Width, 1, tileSize, labelled).CellHeight, Math.Max(area.Height, 0))
             : rowHeight;
 
         room.Reserve(firstRow);
@@ -137,15 +132,10 @@ public static class FolderLayout
         var big = area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
         var breadcrumb = big && room.Take(BreadcrumbHeight + (2 * rowHeight));
 
-        // The rows got what is left; the rungs above each kept two rows back so a big tile never
-        // trades its list for chrome. Hand those back now the chrome is settled.
-        var listHeight = room.Remaining + firstRow
-            + (header ? rowHeight : 0) + (breadcrumb ? 2 * rowHeight : 0);
-
-        var textWidth = area.Width - (2 * RowInset) - IconLead(config.ItemSize);
+        var textWidth = area.Width - (2 * RowInset) - IconLead(config.Rows);
 
         IReadOnlyList<FolderColumn> columns = details
-            ? FolderColumns.Fit(config.Columns, textWidth)
+            ? FolderColumns.Fit(config.DetailColumns, textWidth)
             : grid ? [] : ListColumns(area, textWidth);
 
         return new FolderPlan(
@@ -154,9 +144,9 @@ public static class FolderLayout
             header,
             columns,
             rowHeight,
-            IconSize(config.ItemSize),
-            config.ItemSize <= FolderItemSize.Small,
-            grid ? Grid(area.Width - 8, listHeight, count, tileSize, labelled, config.StretchTiles) : null,
+            IconSize(config.Rows),
+            config.Rows <= FolderItemSize.Small,
+            grid ? Grid(area.Width - 8, count, tileSize, labelled) : null,
             Header(area.Width, config.View, navigate, hasGit));
     }
 

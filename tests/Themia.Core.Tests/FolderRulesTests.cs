@@ -25,10 +25,9 @@ public class FolderRulesTests
         IReadOnlyList<FolderEntry> entries,
         FolderSort sort = FolderSort.Name,
         bool descending = false,
-        bool foldersFirst = false,
         bool showHidden = true,
         int maxCount = 100)
-        => FolderRules.Arrange(entries, sort, descending, foldersFirst, showHidden, maxCount);
+        => FolderRules.Arrange(entries, sort, descending, showHidden, maxCount);
 
     // ---- one key at a time, both directions ------------------------------------------------
 
@@ -69,8 +68,8 @@ public class FolderRulesTests
     {
         var entries = new[] { File("zz", size: 1, day: 1), Dir("aa", day: 9), File("aa-file", size: 9, day: 5), Dir("zz-dir", day: 2) };
 
-        var ascending = Arrange(entries, sort, descending: false, foldersFirst: true);
-        var descending = Arrange(entries, sort, descending: true, foldersFirst: true);
+        var ascending = Arrange(entries, sort, descending: false);
+        var descending = Arrange(entries, sort, descending: true);
 
         // The grouping is not part of the column being sorted, so reversing the column must not
         // flip it. Explorer behaves the same way.
@@ -84,18 +83,18 @@ public class FolderRulesTests
         var entries = new[] { File("b-file"), Dir("z-dir"), File("a-file"), Dir("a-dir") };
 
         Assert.Equal(["a-dir", "z-dir", "a-file", "b-file"],
-            Names(Arrange(entries, foldersFirst: true)));
+            Names(Arrange(entries)));
 
         Assert.Equal(["z-dir", "a-dir", "b-file", "a-file"],
-            Names(Arrange(entries, descending: true, foldersFirst: true)));
+            Names(Arrange(entries, descending: true)));
     }
 
     [Fact]
-    public void Without_folders_first_a_directory_is_just_another_row()
+    public void S4121_folders_always_come_first_there_is_no_switch_for_it()
     {
         var entries = new[] { File("b"), Dir("c"), File("a") };
 
-        Assert.Equal(["a", "b", "c"], Names(Arrange(entries, foldersFirst: false)));
+        Assert.Equal(["c", "a", "b"], Names(Arrange(entries)));
     }
 
     [Fact]
@@ -105,7 +104,7 @@ public class FolderRulesTests
         // still listed: dropping a row because its column is blank is not a sort.
         var entries = new[] { File("big", size: 5_000), Dir("folder"), File("empty", size: 0) };
 
-        var ordered = Arrange(entries, FolderSort.Size, foldersFirst: false);
+        var ordered = Arrange(entries, FolderSort.Size);
 
         Assert.Equal(3, ordered.Count);
         Assert.Equal("big", ordered[^1].Name);

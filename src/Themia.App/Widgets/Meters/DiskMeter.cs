@@ -29,17 +29,6 @@ internal sealed class DiskMeter : MeterPart
     /// <summary>[S-1821] Against the window's peak, rounded up to a doubling of 1 MB/s.</summary>
     public override ChartScale Scale => DiskRules.Scale;
 
-    /// <summary>
-    /// [S-1160] [S-1822] One series per drive and one for every drive together: a different drive is a
-    /// different measurement with its own history (the original's [S-22]).
-    /// </summary>
-    public override MeterSeries Series(WidgetConfig config)
-    {
-        var disk = config as DiskConfig ?? new DiskConfig();
-        var root = DiskRules.Root(disk.Drive) ?? DiskMetrics.SystemRoot;
-        return MeterSeries.Of(Sources.DiskActivity, Interval(config), disk.Scope == DiskScope.AllDrives ? Sources.AllDrives : root);
-    }
-
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {
         _config = config as DiskConfig ?? new DiskConfig();
@@ -73,7 +62,7 @@ internal sealed class DiskMeter : MeterPart
             return Str.WidgetsB_Disk_AllDrives.Text();
         }
 
-        foreach (var volume in DiskMetrics.Volumes(refresh: false))
+        foreach (var volume in DiskMetrics.Volumes())
         {
             if (string.Equals(volume.Root, _root, StringComparison.OrdinalIgnoreCase))
             {

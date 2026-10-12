@@ -32,7 +32,7 @@ internal sealed partial class DesktopWindow
     /// desktop, and the settings window covers the desktop.
     /// <para>
     /// Its content is rebuilt every time it opens, so the names follow a language switch ([S-1109]),
-    /// new kinds in the catalogue appear, and the columns fit this display's work area ([S-3503]).
+    /// new kinds in the catalogue appear, and the cascade fits this display's work area ([S-3512]).
     /// </para>
     /// </summary>
     private Flyout BuildAddFlyout()
@@ -65,7 +65,7 @@ internal sealed partial class DesktopWindow
                 area.Height);
         };
 
-        // [S-3505] Typing searches at once: the caret is in the box as soon as the picker is open.
+        // [S-3514] Typing searches at once: the caret is in the box as soon as the picker is open.
         flyout.Opened += (_, _) => (flyout.Content as WidgetPicker)?.FocusSearch();
         return flyout;
     }
@@ -254,6 +254,7 @@ internal sealed partial class DesktopWindow
             _placementHintText.Text = Str.Shell_Place_Hint.Format(("action", PlacementVerb(placing)));
             _placementHint.Visibility = Visibility.Visible;
             _toolbar.Visibility = Visibility.Collapsed;
+            PlaceProperties();
 
             // The command was given with the pointer already somewhere: show the ghost there at once
             // rather than waiting for the first move.
@@ -271,6 +272,7 @@ internal sealed partial class DesktopWindow
 
         _placementHint.Visibility = Visibility.Collapsed;
         _toolbar.Visibility = EditMode ? Visibility.Visible : Visibility.Collapsed;
+        PlaceProperties();
         HideGhost();
     }
 

@@ -18,9 +18,9 @@ public class WidgetSetupTests
     /// <summary>Every kind whose default config needs setting up, with nothing signed in.</summary>
     private static readonly WidgetKind[] NeedSetupByDefault =
     [
-        WidgetKind.Countdown, WidgetKind.Rss, WidgetKind.Stocks, WidgetKind.WeatherNow, WidgetKind.WeatherForecast,
+        WidgetKind.Countdown, WidgetKind.Rss, WidgetKind.Stocks, WidgetKind.WeatherNow, WidgetKind.WeatherForecast, WidgetKind.AirQuality, WidgetKind.RainNextHour,
         WidgetKind.VideoStream, WidgetKind.Gallery,
-        WidgetKind.Email, WidgetKind.MonthCalendar, WidgetKind.WeekCalendar, WidgetKind.DayCalendar, WidgetKind.YearCalendar, WidgetKind.Agenda,
+        WidgetKind.Email, WidgetKind.MonthCalendar, WidgetKind.WeekCalendar, WidgetKind.DayCalendar, WidgetKind.YearCalendar, WidgetKind.Agenda, WidgetKind.NextMeeting,
         WidgetKind.Contacts, WidgetKind.Tasks,
     ];
 

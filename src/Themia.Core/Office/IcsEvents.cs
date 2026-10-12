@@ -423,7 +423,7 @@ public static class IcsEvents
             item = new CalendarEvent { Id = id, Subject = raw.Subject, Start = start, End = end };
         }
 
-        into.Add(item with { Location = raw.Location, Organizer = raw.Organizer });
+        into.Add(item with { Location = raw.Location, Organizer = raw.Organizer, JoinUrl = raw.JoinUrl });
         return true;
     }
 
@@ -436,6 +436,7 @@ public static class IcsEvents
         TimeSpan? Duration,
         string? Location,
         string? Organizer,
+        string? JoinUrl,
         bool Cancelled,
         RecurrenceRule? Rule,
         IReadOnlyList<IcalTime> ExDates,
@@ -469,6 +470,13 @@ public static class IcsEvents
                 Ical.ParseDuration(vevent.First("DURATION")?.Value),
                 vevent.Text("LOCATION"),
                 OrganizerOf(vevent.First("ORGANIZER")),
+
+                // [S-4822] Exchange and Google write the meeting's link in their own properties;
+                // failing those, a meeting service's link in the location or the description.
+                MeetingLinks.Find(
+                    [vevent.Text("X-MICROSOFT-SKYPETEAMSMEETINGURL"), vevent.Text("X-GOOGLE-CONFERENCE"), vevent.Text("X-MICROSOFT-ONLINEMEETINGCONFLINK")],
+                    vevent.Text("LOCATION"),
+                    vevent.Text("DESCRIPTION")),
                 string.Equals(vevent.First("STATUS")?.Value.Trim(), "CANCELLED", StringComparison.OrdinalIgnoreCase),
                 RecurrenceRule.Parse(vevent.First("RRULE")?.Value),
                 Times(vevent, "EXDATE"),

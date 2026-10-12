@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "Deshacer",
   "widgetsC.notes.editor.redo": "Rehacer",
+  "widgetsC.notes.editor.moreFormatting": "Más formato",
   "widgetsC.notes.words": {
     "one": "{count} palabra",
     "other": "{count} palabras"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "Lo que viene, día a día",
   "widgetsC.moon.label": "Luna",
   "widgetsC.moon.desc": "Fase, salida y puesta de la luna",
-  "widgetsC.visualizer.label": "Visualizador de audio",
-  "widgetsC.visualizer.desc": "Barras que se mueven con todo lo que reproduce este equipo",
   "widgetsC.visualizer.unavailable": "Salida de audio no disponible",
   "widgetsC.moon.rise": "Salida de la luna",
   "widgetsC.moon.set": "Puesta de la luna",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Rojo de Windows",
   "widgetsC.stocks.settings.symbolRefused": "Elige un resultado de búsqueda o escribe un símbolo: solo letras, dígitos y . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{class} en {exchange}",
+  "widgetsC.stocks.settings.holding.label": "Cantidad en propiedad",
+  "widgetsC.stocks.settings.holding.desc": "Cuántas tienes; el widget muestra lo que valen. Vacío lo oculta",
+  "widgetsC.stocks.settings.holding.refused": "Escribe una cantidad de 0 o más, como {example}",
+  "widgetsC.stocks.holding.line": "{amount} en cartera · {value}",
   "widgetsC.location.recycleBin": "Papelera de reciclaje",
   "widgetsC.location.thisPc": "Este equipo",
   "widgetsC.location.downloads": "Descargas",

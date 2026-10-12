@@ -61,7 +61,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     private IWidgetSurface? _surfaceHost;
     private Ticker? _ticker;
     private IDisposable? _healthTick;
-    private IDisposable? _binTick;
+    private IDisposable? _binWatch;
     private WidgetArea _area;
     private CellShape _shape;
     private string _query = string.Empty;
@@ -270,16 +270,16 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         var bin = _config.Items.Any(item => ShortcutRules.IsRecycleBin(item.Target));
 
-        if (bin && _binTick is null)
+        if (bin && _binWatch is null)
         {
             RecycleBinStatus.Changed += OnBinChanged;
-            _binTick = _ticker.Subscribe(RecycleBinStatus.Interval, RecycleBinStatus.Refresh);
+            _binWatch = RecycleBinStatus.Watch();
         }
-        else if (!bin && _binTick is not null)
+        else if (!bin && _binWatch is not null)
         {
             RecycleBinStatus.Changed -= OnBinChanged;
-            _binTick.Dispose();
-            _binTick = null;
+            _binWatch.Dispose();
+            _binWatch = null;
         }
     }
 
@@ -541,11 +541,11 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         _healthTick?.Dispose();
         _healthTick = null;
 
-        if (_binTick is not null)
+        if (_binWatch is not null)
         {
             RecycleBinStatus.Changed -= OnBinChanged;
-            _binTick.Dispose();
-            _binTick = null;
+            _binWatch.Dispose();
+            _binWatch = null;
         }
 
         _search.TextChanged -= OnSearchChanged;

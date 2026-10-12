@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "Yıl ilerlemesi",
+  "yearProgress.desc": "Günün, haftanın, ayın ve yılın ne kadarının geçtiği",
+  "yearProgress.day": "Gün",
+  "yearProgress.week": "Hafta",
+  "yearProgress.month": "Ay",
+  "yearProgress.year": "Yıl",
+  "yearProgress.left": "{time} kaldı",
+  "yearProgress.weekNumber": "{number}. hafta",
+  "yearProgress.dayOf": "{days} günün {day}. günü",
+  "meeting.label": "Sonraki toplantı",
+  "meeting.desc": "Sonraki etkinliğiniz, çevrimiçi toplantılar için Katıl düğmesiyle",
+  "meeting.join": "Katıl",
+  "meeting.joinTip": "Çevrimiçi toplantıya katıl",
+  "meeting.nowEnds": "Şimdi · {time} bitiyor",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Yaklaşan bir şey yok",
+  "recentFiles.label": "Son dosyalar",
+  "recentFiles.desc": "En son açtığınız dosyalar",
+  "recentFiles.empty": "Son zamanlarda hiçbir şey açılmadı",
+  "recentFiles.unreadable": "Windows'un son öğeleri okunamadı",
+  "recentFiles.remove": "Listeden kaldır",
+  "recycleBin.desc": "Geri Dönüşüm Kutusu'nun doluluğu, Boşalt düğmesiyle",
+  "recycleBin.empty": "Boşalt",
+  "recycleBin.emptyEllipsis": "Geri Dönüşüm Kutusu'nu boşalt…",
+  "recycleBin.isEmpty": "Öğe yok",
+  "recycleBin.items": {
+    "one": "{count} öğe",
+    "other": "{count} öğe"
+  },
+  "recycleBin.open": "Geri Dönüşüm Kutusu'nu aç"
+}

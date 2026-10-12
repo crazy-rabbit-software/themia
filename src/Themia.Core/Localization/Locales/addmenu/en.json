@@ -1,0 +1,19 @@
+{
+  "addMenu.popular": "Popular",
+  "addMenu.browse": "Browse",
+  "addMenu.subject.time": "Time",
+  "addMenu.subject.calendar": "Calendar & mail",
+  "addMenu.subject.weather": "Weather & sky",
+  "addMenu.subject.markets": "News & markets",
+  "addMenu.subject.media": "Music & media",
+  "addMenu.subject.notes": "Notes & tools",
+  "addMenu.subject.files": "Files & apps",
+  "addMenu.subject.system": "System",
+  "addMenu.subject.devices": "Devices & power",
+  "addMenu.subject.more": "More",
+  "addMenu.family.calendar": "Calendar",
+  "addMenu.family.visualizer": "Visualizer",
+  "addMenu.family.folder": "Folder",
+  "addMenu.family.screenTime": "Screen time",
+  "addMenu.family.powerButtons": "Power buttons"
+}

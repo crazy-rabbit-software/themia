@@ -22,6 +22,35 @@ internal static partial class SystemRegion
     public static RegionValues Read(RegionValues fallback)
         => RegionFormat.FromWindows(Text(LocaleSShortTime), Number(LocaleIFirstDayOfWeek), Number(LocaleIMeasure), fallback);
 
+    private static bool _countryWarned;
+
+    /// <summary>
+    /// [S-5143] The Windows region (Settings › Time &amp; language › Region) as an ISO 3166 code, for
+    /// the exchange-rate widget's base currency; empty when Windows does not say (a UN M.49 area code
+    /// is not a country and reads as none).
+    /// </summary>
+    public static unsafe string Country()
+    {
+        const int Capacity = 16;
+        var buffer = stackalloc char[Capacity];
+
+        var written = GetUserDefaultGeoName(buffer, Capacity);
+        if (written <= 1)
+        {
+            // Read on every state change: said once, not once per drag frame.
+            if (!_countryWarned)
+            {
+                _countryWarned = true;
+                Log.Warn(Scope, $"could not read the Windows region (error {Marshal.GetLastPInvokeError()}); the euro is the default base");
+            }
+
+            return string.Empty;
+        }
+
+        var name = new string(buffer, 0, written - 1);
+        return name.Length == 2 && char.IsAsciiLetter(name[0]) && char.IsAsciiLetter(name[1]) ? name : string.Empty;
+    }
+
     private static int? Number(uint type)
         => int.TryParse(Text(type), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var value) ? value : null;
 
@@ -44,4 +73,7 @@ internal static partial class SystemRegion
 
     [LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     private static unsafe partial int GetLocaleInfoEx(string? localeName, uint lcType, char* data, int capacity);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    private static unsafe partial int GetUserDefaultGeoName(char* geoName, int capacity);
 }

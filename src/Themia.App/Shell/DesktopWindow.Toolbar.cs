@@ -16,24 +16,17 @@ internal sealed partial class DesktopWindow
         SetSnap: on => _host.Mutate(state => state.Design.GridSnap = on),
         Settings: _host.ShowSettings,
         Exit: () => _host.RequestExit(),
-        Done: () => _host.SetEditMode(false),
-        SetHeader: _host.SetSelectedHeader,
-        SetSurface: _host.SetSelectedSurface,
-        SetTitle: _host.SetTitle,
-        ReleaseFocus: () => _root.Focus(Microsoft.UI.Xaml.FocusState.Programmatic));
+        Done: () => _host.SetEditMode(false));
 
     /// <summary>
     /// [S-905] The bar's switches follow a change made elsewhere (Settings, an import), and
-    /// [S-3701] its selection group the selection's widgets as they are now (an undo, another display).
+    /// [S-3701] the properties strip the selection's widgets as they are now (an undo, another display).
     /// </summary>
     private void SyncToolbar()
     {
         _toolbar.SyncSnap(Design.GridSnap);
-        SyncSelectionGroup();
+        SyncProperties();
     }
-
-    /// <summary>[S-3701] The selection group shows what is selected in the view this display shows, and nothing otherwise.</summary>
-    private void SyncSelectionGroup() => _toolbar.ShowSelection(_host.QuickSetFor(CurrentViewId));
 
     private void FillViewFlyout(MenuFlyout flyout)
     {

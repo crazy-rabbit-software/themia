@@ -35,6 +35,4 @@ internal sealed class BatteryMeter : MeterPart
         => reading is { Available: true, Fraction: { } fraction }
             ? (reading.Charging ? ChargingLevels : Levels)[BatteryRules.Level((int)Math.Round(fraction * 100))]
             : null;
-
-    public override MeterSeries Series(WidgetConfig config) => MeterSeries.Of(Sources.Battery, Interval(config));
 }

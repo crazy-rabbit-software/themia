@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "पूर्ववत करें",
   "widgetsC.notes.editor.redo": "फिर से करें",
+  "widgetsC.notes.editor.moreFormatting": "और फ़ॉर्मैटिंग",
   "widgetsC.notes.words": {
     "one": "{count} शब्द",
     "other": "{count} शब्द"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "दिन-ब-दिन आगे क्या है",
   "widgetsC.moon.label": "चंद्रमा",
   "widgetsC.moon.desc": "चंद्रमा की कला, उदय और अस्त",
-  "widgetsC.visualizer.label": "ऑडियो विज़ुअलाइज़र",
-  "widgetsC.visualizer.desc": "इस PC पर जो भी चले, उसके साथ हिलती बार",
   "widgetsC.visualizer.unavailable": "ऑडियो आउटपुट अनुपलब्ध",
   "widgetsC.moon.rise": "चंद्रोदय",
   "widgetsC.moon.set": "चंद्रास्त",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows लाल",
   "widgetsC.stocks.settings.symbolRefused": "कोई खोज परिणाम चुनें, या सिंबल लिखें: केवल अक्षर, अंक और . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{exchange} पर {class}",
+  "widgetsC.stocks.settings.holding.label": "स्वामित्व वाली मात्रा",
+  "widgetsC.stocks.settings.holding.desc": "आपके पास कितने हैं; विजेट उनका मूल्य दिखाता है। खाली छोड़ने पर छिपा रहता है",
+  "widgetsC.stocks.settings.holding.refused": "0 या अधिक की मात्रा लिखें, जैसे {example}",
+  "widgetsC.stocks.holding.line": "{amount} धारित · {value}",
   "widgetsC.location.recycleBin": "रीसायकल बिन",
   "widgetsC.location.thisPc": "यह PC",
   "widgetsC.location.downloads": "डाउनलोड",

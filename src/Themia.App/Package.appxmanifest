@@ -21,9 +21,11 @@
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap desktop rescap">
+  IgnorableNamespaces="uap uap3 desktop com rescap">
 
   <Identity
     Name="LometicsGmbH.Themia.RESERVE"
@@ -70,6 +72,22 @@
         <desktop:Extension Category="windows.startupTask">
           <desktop:StartupTask TaskId="ThemiaStartup" Enabled="false" DisplayName="Themia" />
         </desktop:Extension>
+
+        <!--
+          [S-4626] The alarm's notification and its Snooze / Dismiss buttons (AppNotificationManager):
+          a packaged app's notifications are activated through this COM class. While Themia runs the
+          activation reaches the running copy; the id is only this package's.
+        -->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="Themia.exe" Arguments="----AppNotificationActivated:" DisplayName="Themia notifications">
+              <com:Class Id="B0BA26FC-C807-4D7C-ACCE-3332E2A1DF5D" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+        <desktop:Extension Category="windows.toastNotificationActivation">
+          <desktop:ToastNotificationActivation ToastActivatorCLSID="B0BA26FC-C807-4D7C-ACCE-3332E2A1DF5D" />
+        </desktop:Extension>
       </Extensions>
     </Application>
   </Applications>
@@ -84,6 +102,8 @@
     broad capability.
   -->
   <Capabilities>
+    <!-- [S-4401] The notifications widget reads and clears Windows' notification list (UserNotificationListener). -->
+    <uap3:Capability Name="userNotificationListener" />
     <rescap:Capability Name="runFullTrust" />
     <DeviceCapability Name="radios" />
     <DeviceCapability Name="bluetooth" />

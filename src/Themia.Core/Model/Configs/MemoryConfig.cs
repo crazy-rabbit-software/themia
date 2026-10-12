@@ -6,7 +6,7 @@ namespace Themia.Core.Model;
 public sealed class MemoryConfig : GaugeConfig
 {
     public MemoryConfig()
-        : base(intervalSeconds: 1, graphSpanSeconds: 60)
+        : base(graphSpanSeconds: 60)
     {
     }
 

@@ -20,13 +20,12 @@ public class BluetoothLadderTests
     private static BluetoothRowPlan Plan(WidgetArea area, int count) => BluetoothLayout.Plan(area, area.Height - 14, count);
 
     [Fact]
-    public void S1254_XS_is_one_line_rows_without_the_word_or_bar()
+    public void S1254_XS_is_one_line_rows_without_the_word()
     {
         var plan = Plan(Xs, 10);
 
         Assert.False(plan.TwoLine);
         Assert.False(plan.StatusWord);
-        Assert.False(plan.BatteryBar);
         Assert.False(plan.BatteryColumn);
         Assert.False(plan.SignalColumn);
         Assert.Equal(BluetoothLayout.CompactRowHeight, plan.RowHeight);
@@ -34,15 +33,25 @@ public class BluetoothLadderTests
     }
 
     [Fact]
-    public void S1254_M_carries_the_status_word_and_Wide_the_battery_bar()
+    public void S1254_M_carries_the_status_word_and_Wide_the_signal()
     {
         Assert.True(Plan(M, 10).StatusWord);
         Assert.True(Plan(M, 10).BatteryColumn);
         Assert.False(Plan(M, 10).SignalColumn);
         Assert.True(Plan(Wide, 10).SignalColumn);
-        Assert.False(Plan(M, 10).BatteryBar);
-        Assert.True(Plan(Wide, 10).BatteryBar);
         Assert.False(Plan(Wide, 10).TwoLine);
+    }
+
+    [Fact]
+    public void S3961_a_wide_two_line_row_keeps_the_battery_percentage_in_its_own_column()
+    {
+        // [S-3961] No bar: the percentage alone. A two-line row wide enough for the signal keeps
+        // battery and signal in columns; a narrower one puts them in its second line.
+        Assert.True(Plan(L, 10).TwoLine);
+        Assert.True(Plan(L, 10).FactColumns);
+        Assert.True(Plan(Tall, 10).TwoLine);
+        Assert.False(Plan(Tall, 10).FactColumns);
+        Assert.False(Plan(M, 10).FactColumns);
     }
 
     [Fact]

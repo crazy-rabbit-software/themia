@@ -3,6 +3,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.Core.Diagnostics;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Services;
 
@@ -162,7 +163,7 @@ internal static partial class AppIcons
         {
             var iid = ImageFactoryIid;
 
-            if (SHCreateItemFromParsingName(path, 0, &iid, &factory) < 0 || factory == 0)
+            if (SHCreateItemFromParsingName(ShellNameFor(path), 0, &iid, &factory) < 0 || factory == 0)
             {
                 return null;
             }
@@ -203,6 +204,42 @@ internal static partial class AppIcons
             {
                 CoUninitialize();
             }
+        }
+    }
+
+    /// <summary>
+    /// [S-3960] The shell name whose icon stands for <paramref name="path"/>: a packaged app's
+    /// executable is asked for as its Apps-folder item (<c>shell:AppsFolder\&lt;AUMID&gt;</c>, from the
+    /// package's manifest), which draws the package's logo; the file itself often has no icon
+    /// (WhatsApp.Root.exe) and drew the blank program icon. Everything else is asked for as it is.
+    /// Runs inside the extraction, so the manifest is read once per cached (path, size).
+    /// </summary>
+    private static string ShellNameFor(string path)
+        => PackagedApps.PackageOf(path) is null ? path : PackagedApps.AppsFolderTarget(path, ReadManifest) ?? path;
+
+    /// <summary>A package's manifest text; null when there is none (quietly) or it cannot be read (logged).</summary>
+    private static string? ReadManifest(string file)
+    {
+        try
+        {
+            var info = new FileInfo(file);
+            if (!info.Exists)
+            {
+                return null;
+            }
+
+            if (info.Length > PackagedApps.MaxManifestCharacters * 4L)
+            {
+                Log.Warn(Scope, $"the package manifest {file} is {info.Length} bytes; not read");
+                return null;
+            }
+
+            return File.ReadAllText(file);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            Log.Warn(Scope, $"could not read the package manifest {file}", ex);
+            return null;
         }
     }
 

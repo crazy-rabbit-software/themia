@@ -35,8 +35,9 @@ public sealed class GpuLayoutTests
     [Fact]
     public void S1200_the_chart_holds_the_span_at_the_refresh()
     {
+        // [S-2503] Read every tick like every other source: five minutes is 300 points.
         var config = new GpuConfig { GraphSpanSeconds = 300 };
 
-        Assert.Equal(150, config.GraphCapacity);
+        Assert.Equal(300, MeterTiming.Points(config.GraphSpanSeconds, Themia.Core.SystemData.SystemCadence.PeriodSeconds(Themia.Core.SystemData.SystemSource.Gpu)));
     }
 }

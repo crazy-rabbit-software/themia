@@ -101,6 +101,9 @@ internal sealed partial class DesktopWindow
             return;
         }
 
+        // [S-3710] The strip steps aside while the selection is dragged, and comes back where it lands.
+        HoldProperties(true);
+
         var delta = BlockGeometry.Move([.. move.Cards.Select(c => c.Start)], dxFrac, dyFrac, metrics, snap);
         foreach (var (moving, start) in move.Cards)
         {
@@ -132,6 +135,9 @@ internal sealed partial class DesktopWindow
         {
             moving.SetLeaving(false);
         }
+
+        // Back before the geometry commits, whose state change places it where the widgets landed.
+        HoldProperties(false);
 
         if (move.Payload is { } payload && TryHandOff(payload))
         {

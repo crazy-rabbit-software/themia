@@ -116,6 +116,10 @@ internal static class Glyphs
     public static readonly string Game = From(0xE7FC);
     public static readonly string Bluetooth = From(0xE702);
 
+    // [S-2416] [S-2433] The system details' list rows: an adapter by kind, a program without an icon.
+    public static readonly string Ethernet = From(0xE839);
+    public static readonly string Program = From(0xECAA);
+
     // [S-3902] The quick-setting toggles, as Windows 11's own quick settings draw them (Karpo's set).
     public static readonly string Wifi = From(0xE701);
     public static readonly string Airplane = From(0xE709);
@@ -156,6 +160,11 @@ internal static class Glyphs
     public static readonly string ColumnsLayout = From(0xE8C0);
     public static readonly string GridLayout = From(0xE8A9);
     public static readonly string Stocks = From(0xEB05);
+
+    // [S-5100] [S-5140] Checked on a rendered sheet of SegoeIcons.ttf: a leaf (air quality, pollen)
+    // and two arrows round a coin (exchange rates). Rain uses the weather set's Rain.
+    public static readonly string AirQuality = From(0xEC0A);
+    public static readonly string ExchangeRates = From(0xE9A1);
     public static readonly string Rss = From(0xE8F1);
     public static readonly string Apps = From(0xE71D);
     public static readonly string Search = From(0xE721);
@@ -168,6 +177,15 @@ internal static class Glyphs
 
     /// <summary>[S-3200] The audio visualizer: Equalizer (E9E9) is the mixer's, so the sound-settings wave.</summary>
     public static readonly string Visualizer = From(0xE7F3);
+    /// <summary>[S-3210] The other visualizer designs, by FluentIconData's names: MixVolumes, Diagnostic (a pulse line), GridViewSmall, Brightness (rays round a ring; ProgressRingDots read as a spinner).</summary>
+    public static readonly string VisualizerMirror = From(0xF4C3);
+    public static readonly string VisualizerWave = From(0xE9D9);
+    public static readonly string VisualizerDots = From(0xF232);
+    public static readonly string VisualizerRadial = From(0xE706);
+    /// <summary>[S-4120] The folder layouts after the list (which keeps <see cref="Folder"/>): FolderHorizontal (List read as a menu), Tiles, GridView.</summary>
+    public static readonly string FolderDetails = From(0xF12B);
+    public static readonly string FolderGrid = From(0xECA5);
+    public static readonly string FolderIcons = From(0xF0E2);
     public static readonly string Group = From(0xF168);
 
     // The system widgets: mixer and screen time (the GPU glyph sits with the other meters).
@@ -178,6 +196,15 @@ internal static class Glyphs
     public static readonly string ScreenTimeChart = From(0xE9D2);
     public static readonly string ScreenTimeDonut = From(0xEB05);
     public static readonly string Bell = From(0xEA8F);
+
+    // [S-4400] [S-4420] [S-4440] Windows' own panels, as Karpo draws them: the bell, Focus' target, the sun.
+    public static readonly string Notifications = From(0xEA8F);
+    public static readonly string Focus = From(0xF272);
+    public static readonly string Brightness = From(0xE706);
+
+    /// <summary>A minus and Stop, for the focus session's stepper and its end.</summary>
+    public static readonly string Minus = From(0xE738);
+    public static readonly string Stop = From(0xE71A);
     public static readonly string Hide = From(0xED1A);
 
     /// <summary>
@@ -280,6 +307,36 @@ internal static class Glyphs
 
     /// <inheritdoc cref="SplitSideBySide"/>
     public static readonly string SplitStacked = From(0xE90E);
+
+    /// <summary>[S-4800] Year progress (Segoe "DateTime").</summary>
+    public static readonly string YearProgress = From(0xEC92);
+
+    /// <summary>[S-4820] Next meeting and its Join button (Segoe "VideoChat").</summary>
+    public static readonly string Meeting = From(0xE8AA);
+
+    /// <summary>[S-4840] Recent files (Segoe "History").</summary>
+    public static readonly string RecentFiles = From(0xE81C);
+
+    /// <summary>[S-4860] The Recycle Bin (Segoe "Delete", the bin Windows draws).</summary>
+    public static readonly string RecycleBin = From(0xE74D);
+
+    /// <summary>[S-4600] The stopwatch (Segoe "Stopwatch"); the pomodoro's break shows the same face as <see cref="Timer"/>.</summary>
+    public static readonly string Stopwatch = From(0xE916);
+
+    /// <summary>[S-4601] A lap (Segoe "Flag"), as Windows' Clock marks one.</summary>
+    public static readonly string Lap = From(0xE7C1);
+
+    /// <summary>[S-4620] The alarm: Segoe has no alarm clock, so the clock with its arrow round (Karpo's choice); the bell is the notifications'.</summary>
+    public static readonly string Alarm = From(0xECC5);
+
+    /// <summary>[S-4660] A USB stick (Segoe "USB"): the removable drives.</summary>
+    public static readonly string Usb = From(0xE88E);
+
+    /// <summary>[S-4670] A mapped network drive (Segoe "MapDrive").</summary>
+    public static readonly string NetworkDrive = From(0xE8CE);
+
+    /// <summary>[S-4670] An optical drive (Segoe "CD").</summary>
+    public static readonly string Disc = From(0xE958);
 
     private static string From(int codePoint) => char.ConvertFromUtf32(codePoint);
 }

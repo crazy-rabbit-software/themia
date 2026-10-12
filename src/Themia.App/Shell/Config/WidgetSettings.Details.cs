@@ -73,7 +73,7 @@ internal static partial class WidgetSettings
     {
         rows.Add(FluentLayout.Header(Str.Details_Settings_Disk_Drives.Text()));
 
-        var volumes = DiskMetrics.Volumes(refresh: true);
+        var volumes = DriveRules.LocalVolumes(Services.Drives.DriveService.Shared.Now());
         var known = volumes.Select(v => v.Root).ToList();
         var offered = known.Concat(config.Drives.Where(d => !known.Contains(d, StringComparer.OrdinalIgnoreCase))).ToList();
         var toggles = new List<Microsoft.UI.Xaml.Controls.ToggleSwitch>();

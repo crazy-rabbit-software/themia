@@ -8,39 +8,31 @@ internal readonly record struct SeriesUpdate(MeterReading Reading, SeriesPoint? 
 
 internal sealed partial class SystemHub
 {
-    /// <summary>One feed: a source at a cadence, its newest snapshot, its watchers and its charted series.</summary>
-    internal abstract class Feed(FeedKey key, Runner runner)
+    /// <summary>One feed: an open source, its newest snapshot, its watchers and its charted series.</summary>
+    internal abstract class Feed(FeedKey key)
     {
-        public FeedKey Key { get; } = key;
+        private readonly HashSet<string> _wanted = new(StringComparer.Ordinal);
 
-        public Runner Runner { get; } = runner;
+        public FeedKey Key { get; } = key;
 
         /// <summary>The period index of the last due read ([S-2503]); none yet at first.</summary>
         public long LastPeriod { get; set; } = long.MinValue;
 
-        /// <summary>[S-2507] A read was asked for and its answer has not been delivered yet.</summary>
-        public bool Pending { get; set; }
-
-        /// <summary>Whether that answer is a cadence read, which adds a point to the history.</summary>
-        public bool PendingPoint { get; set; }
-    }
-
-    internal sealed class Feed<T>(FeedKey key, Runner<T> runner) : Feed(key, runner)
-    {
-        public new Runner<T> Runner { get; } = runner;
-
-        public bool HasValue { get; set; }
-
-        public T Value { get; set; } = default!;
-
-        public List<FeedWatch<T>> Watches { get; } = [];
+        public bool Closed { get; protected set; }
 
         public Dictionary<string, Series> Series { get; } = new(StringComparer.Ordinal);
 
+        /// <summary>The newest snapshot's reading for a series instance, or null before the first read.</summary>
+        protected abstract MeterReading? Latest(string instance);
+
+        /// <summary>Read once; <paramref name="point"/> when the answer adds a point to every series' history.</summary>
+        public abstract void Read(bool point);
+
+        public abstract void Close();
+
         /// <summary>
-        /// The series for an instance, made on first ask. It lives as long as its feed (instances are
-        /// drives and adapters: a handful), so flipping a meter between two drives keeps both histories.
-        /// A new series gets the newest snapshot's reading at once, without a point.
+        /// The series for an instance, made on first ask (a watch, or the state wanting it). A new
+        /// series gets the newest snapshot's reading at once, without a point.
         /// </summary>
         public Series SeriesFor(string instance)
         {
@@ -49,58 +41,54 @@ internal sealed partial class SystemHub
                 return series;
             }
 
-            series = new Series(instance);
+            series = new Series(instance, SeriesHistory.Capacity(Key.Source)) { Latest = Latest(instance) };
             Series[instance] = series;
+            return series;
+        }
 
-            if (HasValue)
+        /// <summary>[S-2513] The instances the state charts: each kept (its history accruing), any other one dropped once no watch shows it.</summary>
+        public void WantSeries(IEnumerable<string> instances)
+        {
+            _wanted.Clear();
+            _wanted.UnionWith(instances);
+
+            foreach (var instance in _wanted)
             {
-                series.Latest = Runner.Project(Value, instance).Reading;
+                SeriesFor(instance);
             }
 
-            return series;
+            foreach (var series in Series.Values.ToArray())
+            {
+                Release(series);
+            }
+        }
+
+        /// <summary>Drop a series nothing wants or watches (a drive the meter no longer shows).</summary>
+        public void Release(Series series)
+        {
+            if (series.Watches.Count == 0 && !_wanted.Contains(series.Instance))
+            {
+                Series.Remove(series.Instance);
+            }
         }
     }
 
-    /// <summary>[S-2504] One charted series: its history ring and newest reading, kept here so a view built again reads the same.</summary>
-    internal sealed class Series(string instance)
-    {
-        public string Instance { get; } = instance;
-
-        public SampleRing<SeriesPoint> Ring { get; } = new(SeriesHistory.Capacity);
-
-        public MeterReading? Latest { get; set; }
-
-        public List<SeriesWatch> Watches { get; } = [];
-    }
-
-    /// <summary>One open source and the feeds that read it.</summary>
-    internal abstract class Runner(SystemSource source, string target)
-    {
-        public SystemSource Source { get; } = source;
-
-        public string Target { get; } = target;
-
-        public List<Feed> Feeds { get; } = [];
-
-        public bool Closed { get; protected set; }
-
-        public abstract Feed NewFeed(FeedKey key);
-
-        /// <summary>Read once for <paramref name="feeds"/>; <paramref name="point"/> when it is their cadence read.</summary>
-        public abstract void Read(IReadOnlyList<Feed> feeds, bool point);
-
-        public abstract void Close();
-    }
-
-    internal sealed class Runner<T>(SystemSource source, string target, HubSource<T> reader) : Runner(source, target)
+    internal sealed class Feed<T>(FeedKey key, HubSource<T> reader) : Feed(key)
     {
         // The token source is both the cancel handle and the "a read is out" flag ([S-2507]).
         private CancellationTokenSource? _inFlight;
+        private bool _pendingPoint;
         private string? _fault;
 
-        public override Feed NewFeed(FeedKey key) => new Feed<T>(key, this);
+        public bool HasValue { get; private set; }
 
-        public MeterSample Project(T value, string instance)
+        public T Value { get; private set; } = default!;
+
+        public List<FeedWatch<T>> Watches { get; } = [];
+
+        protected override MeterReading? Latest(string instance) => HasValue ? Project(Value, instance).Reading : null;
+
+        private MeterSample Project(T value, string instance)
         {
             try
             {
@@ -108,27 +96,23 @@ internal sealed partial class SystemHub
             }
             catch (Exception ex)
             {
-                Log.Error(Scope, $"could not project {Source} series '{instance}'", ex);
+                Log.Error(Scope, $"could not project {Key} series '{instance}'", ex);
                 return new MeterSample(Failed(), null);
             }
         }
 
-        public override void Read(IReadOnlyList<Feed> feeds, bool point)
+        public override void Read(bool point)
         {
             if (Closed)
             {
                 return;
             }
 
-            foreach (var feed in feeds)
-            {
-                feed.Pending = true;
-                feed.PendingPoint |= point;
-            }
-
             if (reader.IsAsync)
             {
                 // [S-2507] One read at a time: a tick while one is out is served by its answer.
+                _pendingPoint |= point;
+
                 if (_inFlight is null)
                 {
                     _ = ReadAsync();
@@ -147,11 +131,10 @@ internal sealed partial class SystemHub
             catch (Exception ex)
             {
                 Note(ex);
-                ClearPending();
                 return;
             }
 
-            Deliver(value);
+            Deliver(value, point);
         }
 
         private async Task ReadAsync()
@@ -170,7 +153,9 @@ internal sealed partial class SystemHub
                 }
 
                 Note(null);
-                Deliver(value);
+                var point = _pendingPoint;
+                _pendingPoint = false;
+                Deliver(value, point);
             }
             catch (OperationCanceledException)
             {
@@ -180,7 +165,7 @@ internal sealed partial class SystemHub
             {
                 // Fire-and-forget from a tick: an escape here would go unobserved.
                 Note(ex);
-                ClearPending();
+                _pendingPoint = false;
             }
             finally
             {
@@ -208,61 +193,41 @@ internal sealed partial class SystemHub
 
             if (error is null)
             {
-                Log.Info(Scope, $"{Source} reads again");
+                Log.Info(Scope, $"{Key} reads again");
             }
             else
             {
-                Log.Error(Scope, $"could not read {Source}", error);
+                Log.Error(Scope, $"could not read {Key}", error);
             }
         }
 
-        private void ClearPending()
+        /// <summary>One snapshot: its series (a point each on a cadence read), then its watchers.</summary>
+        private void Deliver(T value, bool point)
         {
-            foreach (var feed in Feeds)
+            HasValue = true;
+            Value = value;
+
+            foreach (var series in Series.Values.ToArray())
             {
-                feed.Pending = false;
-                feed.PendingPoint = false;
+                var sample = Project(value, series.Instance);
+                var added = point ? sample.Point : null;
+
+                series.Latest = sample.Reading;
+
+                if (added is { } p)
+                {
+                    series.Ring.Add(p);
+                }
+
+                foreach (var watch in series.Watches.ToArray())
+                {
+                    watch.Notify(new SeriesUpdate(sample.Reading, added));
+                }
             }
-        }
 
-        /// <summary>One snapshot to every feed that asked: its series (a point each on a cadence read), then its watchers.</summary>
-        private void Deliver(T value)
-        {
-            foreach (var feed in Feeds.ToArray())
+            foreach (var watch in Watches.ToArray())
             {
-                if (!feed.Pending || feed is not Feed<T> typed)
-                {
-                    continue;
-                }
-
-                var point = feed.PendingPoint;
-                feed.Pending = false;
-                feed.PendingPoint = false;
-                typed.HasValue = true;
-                typed.Value = value;
-
-                foreach (var series in typed.Series.Values)
-                {
-                    var sample = Project(value, series.Instance);
-                    var added = point ? sample.Point : null;
-
-                    series.Latest = sample.Reading;
-
-                    if (added is { } p)
-                    {
-                        series.Ring.Add(p);
-                    }
-
-                    foreach (var watch in series.Watches.ToArray())
-                    {
-                        watch.Notify(new SeriesUpdate(sample.Reading, added));
-                    }
-                }
-
-                foreach (var watch in typed.Watches.ToArray())
-                {
-                    watch.Notify(value);
-                }
+                watch.Notify(value);
             }
         }
 
@@ -286,9 +251,21 @@ internal sealed partial class SystemHub
             }
             catch (Exception ex)
             {
-                Log.Error(Scope, $"closing {Source} failed", ex);
+                Log.Error(Scope, $"closing {Key} failed", ex);
             }
         }
+    }
+
+    /// <summary>[S-2504] One charted series: its history ring and newest reading, kept here so a view built again reads the same.</summary>
+    internal sealed class Series(string instance, int capacity)
+    {
+        public string Instance { get; } = instance;
+
+        public SampleRing<SeriesPoint> Ring { get; } = new(capacity);
+
+        public MeterReading? Latest { get; set; }
+
+        public List<SeriesWatch> Watches { get; } = [];
     }
 }
 
@@ -317,7 +294,7 @@ internal sealed class FeedWatch<T> : IDisposable
     /// <summary>The newest snapshot; meaningful only when <see cref="HasValue"/>.</summary>
     public T Value => _feed.Value;
 
-    /// <summary>[S-2510] Read now (a Refresh command): a new reading, no chart point.</summary>
+    /// <summary>[S-2510] Read now (a Refresh command).</summary>
     public void Refresh()
     {
         if (!_disposed)
@@ -375,9 +352,7 @@ internal sealed class SeriesWatch : IDisposable
         _faults = faults;
     }
 
-    public FeedKey Key => _feed.Key;
-
-    public string Instance => _series.Instance;
+    public SeriesInterest Interest => new(_feed.Key, _series.Instance);
 
     /// <summary>The newest reading, or null before the first read has come back.</summary>
     public MeterReading? Latest => _series.Latest;
@@ -385,10 +360,13 @@ internal sealed class SeriesWatch : IDisposable
     /// <summary>How many points the history holds.</summary>
     public int Count => _series.Ring.Count;
 
+    /// <summary>How many points were ever added: the newest point's absolute position ([S-1121]).</summary>
+    public long Added => _series.Ring.Added;
+
     /// <summary>The newest <paramref name="max"/> points, oldest first (a copy).</summary>
     public SeriesPoint[] History(int max) => _series.Ring.Newest(max);
 
-    /// <summary>[S-2510] Read now: a probe unless one is out; a new reading, no chart point.</summary>
+    /// <summary>[S-2510] Read now: a probe unless one is out.</summary>
     public void Refresh()
     {
         if (!_disposed)
@@ -423,6 +401,7 @@ internal sealed class SeriesWatch : IDisposable
 
         _disposed = true;
         _series.Watches.Remove(this);
+        _feed.Release(_series);
         _hub.Leave(_feed);
     }
 }

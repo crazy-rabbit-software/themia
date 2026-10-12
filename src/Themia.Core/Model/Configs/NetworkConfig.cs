@@ -9,7 +9,7 @@ namespace Themia.Core.Model;
 public sealed class NetworkConfig : GaugeConfig
 {
     public NetworkConfig()
-        : base(intervalSeconds: 1, graphSpanSeconds: 60)
+        : base(graphSpanSeconds: 60)
     {
     }
 

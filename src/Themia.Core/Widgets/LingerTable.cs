@@ -1,11 +1,10 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-2505] [S-3413] Shared things counted by who holds them: made by the first holder, kept while
-/// any holds it, and kept <see cref="Linger"/> after the last one leaves, so a view switch, or a card
-/// built again within it, finds what it left (a chart's history, a folder's pictures). Then the
-/// owner drops it. Monotonic milliseconds throughout; touched on one thread (the UI thread). The
-/// system hub's feeds (<c>FeedTable</c>) and the gallery's sources are both kept in one.
+/// [S-3413] Shared things counted by who holds them: made by the first holder, kept while any holds
+/// it, and kept <see cref="Linger"/> after the last one leaves, so a view switch, or a card built
+/// again within it, finds what it left (a folder's pictures). Then the owner drops it. Monotonic
+/// milliseconds throughout; touched on one thread (the UI thread). The gallery's sources are kept in one.
 /// </summary>
 /// <typeparam name="TKey">What identifies a shared thing: everything that changes what it holds.</typeparam>
 /// <typeparam name="TValue">What the owner keeps for it.</typeparam>

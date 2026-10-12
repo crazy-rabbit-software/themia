@@ -27,7 +27,7 @@ internal sealed class GpuDetailPart : DetailPart
         _config = config as GpuDetailsConfig ?? new GpuDetailsConfig();
 
         // Another adapter is the same snapshot, picked again: shown at once.
-        _gpu.Hold(hub, Sources.Gpu, _config.TickInterval, _ => Show());
+        _gpu.Hold(hub, Sources.Gpu, _ => Show());
         Show();
     }
 

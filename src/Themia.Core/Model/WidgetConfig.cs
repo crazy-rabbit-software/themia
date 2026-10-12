@@ -28,8 +28,14 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(PomodoroConfig), typeDiscriminator: "pomodoro")]
 [JsonDerivedType(typeof(SunConfig), typeDiscriminator: "sun")]
 [JsonDerivedType(typeof(MoonConfig), typeDiscriminator: "moon")]
-[JsonDerivedType(typeof(FolderConfig), typeDiscriminator: "folder")]
+[JsonDerivedType(typeof(FolderListConfig), typeDiscriminator: "folder")]
+[JsonDerivedType(typeof(FolderDetailsConfig), typeDiscriminator: "folderDetails")]
+[JsonDerivedType(typeof(FolderGridConfig), typeDiscriminator: "folderGrid")]
+[JsonDerivedType(typeof(FolderIconsConfig), typeDiscriminator: "folderIcons")]
 [JsonDerivedType(typeof(VolumeConfig), typeDiscriminator: "volume")]
+[JsonDerivedType(typeof(NotificationsConfig), typeDiscriminator: "notifications")]
+[JsonDerivedType(typeof(FocusSessionConfig), typeDiscriminator: "focusSession")]
+[JsonDerivedType(typeof(BrightnessConfig), typeDiscriminator: "brightness")]
 [JsonDerivedType(typeof(ShutdownConfig), typeDiscriminator: "shutdown")]
 [JsonDerivedType(typeof(RestartConfig), typeDiscriminator: "restart")]
 [JsonDerivedType(typeof(SleepConfig), typeDiscriminator: "sleep")]
@@ -53,9 +59,16 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(BluetoothConfig), typeDiscriminator: "bluetooth")]
 [JsonDerivedType(typeof(MusicConfig), typeDiscriminator: "music")]
 [JsonDerivedType(typeof(AudioVisualizerConfig), typeDiscriminator: "audioVisualizer")]
+[JsonDerivedType(typeof(VisualizerMirrorConfig), typeDiscriminator: "visualizerMirror")]
+[JsonDerivedType(typeof(VisualizerWaveConfig), typeDiscriminator: "visualizerWave")]
+[JsonDerivedType(typeof(VisualizerDotsConfig), typeDiscriminator: "visualizerDots")]
+[JsonDerivedType(typeof(VisualizerRadialConfig), typeDiscriminator: "visualizerRadial")]
 [JsonDerivedType(typeof(WeatherNowConfig), typeDiscriminator: "weatherNow")]
 [JsonDerivedType(typeof(WeatherForecastConfig), typeDiscriminator: "weatherForecast")]
 [JsonDerivedType(typeof(StocksConfig), typeDiscriminator: "stocks")]
+[JsonDerivedType(typeof(AirQualityConfig), typeDiscriminator: "airQuality")]
+[JsonDerivedType(typeof(RainNextHourConfig), typeDiscriminator: "rainNextHour")]
+[JsonDerivedType(typeof(ExchangeRatesConfig), typeDiscriminator: "exchangeRates")]
 [JsonDerivedType(typeof(RssConfig), typeDiscriminator: "rss")]
 [JsonDerivedType(typeof(ShortcutsConfig), typeDiscriminator: "shortcuts")]
 [JsonDerivedType(typeof(ClipboardConfig), typeDiscriminator: "clipboard")]
@@ -77,6 +90,14 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(BatteryDetailsConfig), typeDiscriminator: "batteryDetails")]
 [JsonDerivedType(typeof(PingDetailsConfig), typeDiscriminator: "pingDetails")]
 [JsonDerivedType(typeof(GpuDetailsConfig), typeDiscriminator: "gpuDetails")]
+[JsonDerivedType(typeof(StopwatchConfig), typeDiscriminator: "stopwatch")]
+[JsonDerivedType(typeof(AlarmConfig), typeDiscriminator: "alarm")]
+[JsonDerivedType(typeof(RemovableDrivesConfig), typeDiscriminator: "removableDrives")]
+[JsonDerivedType(typeof(DriveConfig), typeDiscriminator: "drive")]
+[JsonDerivedType(typeof(YearProgressConfig), typeDiscriminator: "yearProgress")]
+[JsonDerivedType(typeof(NextMeetingConfig), typeDiscriminator: "nextMeeting")]
+[JsonDerivedType(typeof(RecentFilesConfig), typeDiscriminator: "recentFiles")]
+[JsonDerivedType(typeof(RecycleBinConfig), typeDiscriminator: "recycleBin")]
 public abstract class WidgetConfig
 {
     /// <summary>The kind this config belongs to. Used to detect a config/kind mismatch on load.</summary>
@@ -107,8 +128,14 @@ public abstract class WidgetConfig
         WidgetKind.Pomodoro => new PomodoroConfig(),
         WidgetKind.Sun => new SunConfig(),
         WidgetKind.Moon => new MoonConfig(),
-        WidgetKind.Folder => new FolderConfig(),
+        WidgetKind.Folder => new FolderListConfig(),
+        WidgetKind.FolderDetails => new FolderDetailsConfig(),
+        WidgetKind.FolderGrid => new FolderGridConfig(),
+        WidgetKind.FolderIcons => new FolderIconsConfig(),
         WidgetKind.Volume => new VolumeConfig(),
+        WidgetKind.Notifications => new NotificationsConfig(),
+        WidgetKind.FocusSession => new FocusSessionConfig(),
+        WidgetKind.Brightness => new BrightnessConfig(),
         WidgetKind.Shutdown => new ShutdownConfig(),
         WidgetKind.Restart => new RestartConfig(),
         WidgetKind.Sleep => new SleepConfig(),
@@ -132,9 +159,16 @@ public abstract class WidgetConfig
         WidgetKind.Bluetooth => new BluetoothConfig(),
         WidgetKind.Music => new MusicConfig(),
         WidgetKind.AudioVisualizer => new AudioVisualizerConfig(),
+        WidgetKind.VisualizerMirror => new VisualizerMirrorConfig(),
+        WidgetKind.VisualizerWave => new VisualizerWaveConfig(),
+        WidgetKind.VisualizerDots => new VisualizerDotsConfig(),
+        WidgetKind.VisualizerRadial => new VisualizerRadialConfig(),
         WidgetKind.WeatherNow => new WeatherNowConfig(),
         WidgetKind.WeatherForecast => new WeatherForecastConfig(),
         WidgetKind.Stocks => new StocksConfig(),
+        WidgetKind.AirQuality => new AirQualityConfig(),
+        WidgetKind.RainNextHour => new RainNextHourConfig(),
+        WidgetKind.ExchangeRates => new ExchangeRatesConfig(),
         WidgetKind.Rss => new RssConfig(),
         WidgetKind.Shortcuts => ShortcutsConfig.CreateDefault(),
         WidgetKind.Clipboard => new ClipboardConfig(),
@@ -156,6 +190,14 @@ public abstract class WidgetConfig
         WidgetKind.BatteryDetails => new BatteryDetailsConfig(),
         WidgetKind.PingDetails => new PingDetailsConfig(),
         WidgetKind.GpuDetails => new GpuDetailsConfig(),
+        WidgetKind.Stopwatch => new StopwatchConfig(),
+        WidgetKind.Alarm => new AlarmConfig(),
+        WidgetKind.RemovableDrives => new RemovableDrivesConfig(),
+        WidgetKind.Drive => new DriveConfig(),
+        WidgetKind.YearProgress => new YearProgressConfig(),
+        WidgetKind.NextMeeting => new NextMeetingConfig(),
+        WidgetKind.RecentFiles => new RecentFilesConfig(),
+        WidgetKind.RecycleBin => new RecycleBinConfig(),
         _ => new ClockConfig(),
     };
 

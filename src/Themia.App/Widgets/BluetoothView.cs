@@ -2,7 +2,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
@@ -27,7 +26,9 @@ namespace Themia.App.Widgets;
 /// <para>
 /// <b>Ladder</b> ([S-1254], <see cref="BluetoothLayout"/>): every whole row the tile has, up to the
 /// ceiling; the battery % from 180 px; the status word from 260 px; a second line (kind · state ·
-/// battery · signal) on tall tiles; a battery bar from 400 px; "2 connected" in the header and two columns on the largest.
+/// battery · signal) on tall tiles; "2 connected" in the header and two columns on the largest. The
+/// battery is its percentage alone and the row has no connection dot ([S-3961]): a connected device's
+/// icon is in the primary text colour, a merely paired one's in the secondary.
 /// A short list on a large tile stays a short list: no detail panel under it ([S-1569] retired).
 /// Every empty list says which empty list it is.
 /// </para>
@@ -35,14 +36,6 @@ namespace Themia.App.Widgets;
 internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
 {
     private const string Scope = "bluetooth";
-
-    /// <summary>The connection dot's diameter. Fluent's smallest meaningful mark.</summary>
-    private const double DotSize = Fluent.Space2;
-
-    /// <summary>The battery bar: a short track, the height of Fluent's progress bar.</summary>
-    private const double BarWidth = 40;
-
-    private const double BarHeight = 4;
 
     // Segoe Fluent Icons code points this view needs beyond the shared table.
     private static readonly string[] KindGlyphs =
@@ -71,11 +64,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
     // row alive and re-lights it after the list has been redrawn.
     private readonly List<IDisposable> _hovers = [];
 
-    private readonly Brush _connectedBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _pairedBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-    // [S-837] The battery bar stands for a progress bar, whose track is a control's strong rest fill;
-    // the disabled fill read as a bar that was switched off.
-    private readonly Brush _trackBrush = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
     private readonly Brush _lowBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
 
     private Ticker? _ticker;
@@ -387,7 +375,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
                 new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = GridLength.Auto },
             },
         };
 
@@ -403,10 +390,10 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
             grid.Children.Add(icon);
         }
 
-        // On a two-line row the facts go under the name, except the ones a wide row has its own
-        // column for: a battery bar reads better than "80%" buried in a sentence.
-        var batteryColumn = _config.ShowBattery && plan.BatteryColumn && (!plan.TwoLine || plan.BatteryBar);
-        var signalColumn = _config.ShowSignal && plan.SignalColumn && (!plan.TwoLine || plan.BatteryBar);
+        // On a two-line row the facts go under the name, except where a wide row has columns for
+        // them: "80%" lined up down the list reads better than buried in a sentence.
+        var batteryColumn = _config.ShowBattery && plan.BatteryColumn && (!plan.TwoLine || plan.FactColumns);
+        var signalColumn = _config.ShowSignal && plan.SignalColumn && (!plan.TwoLine || plan.FactColumns);
 
         var name = Fluent.Text(FluentType.Body);
         name.Text = device.Name;
@@ -430,7 +417,8 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         // than no column, and "--" would read as a battery at zero.
         if (batteryColumn && BluetoothRules.BatteryLabel(device.BatteryPercent, Strings.Current) is { } battery && device.BatteryPercent is { } percent)
         {
-            FrameworkElement level = plan.BatteryBar ? BatteryWithBar(percent, battery) : BatteryText(percent, battery);
+            // [S-3961] The percentage alone: no level bar beside it.
+            var level = BatteryText(percent, battery);
             SetColumn(level, 2);
             grid.Children.Add(level);
         }
@@ -442,28 +430,12 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
             grid.Children.Add(strength);
         }
 
-        if (_config.ShowConnection)
+        // [S-3961] The state in words where the row has room; no dot beside it.
+        if (_config.ShowConnection && plan.StatusWord)
         {
-            if (plan.StatusWord)
-            {
-                var state = Detail(BluetoothRules.ConnectionLabel(device.Connected, Strings.Current));
-                SetColumn(state, 4);
-                grid.Children.Add(state);
-            }
-
-            // The dot is a colour from the theme, never a literal: accent for connected, the
-            // disabled text colour for merely paired, both of which follow light and dark.
-            var dot = new Ellipse
-            {
-                Width = DotSize,
-                Height = DotSize,
-                Fill = device.Connected ? _connectedBrush : _pairedBrush,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(Fluent.Space2, 0, 0, 0),
-            };
-
-            SetColumn(dot, 5);
-            grid.Children.Add(dot);
+            var state = Detail(BluetoothRules.ConnectionLabel(device.Connected, Strings.Current));
+            SetColumn(state, 4);
+            grid.Children.Add(state);
         }
 
         var row = Fluent.Row(grid);
@@ -472,48 +444,10 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
         _hovers.Add(Fluent.Hover(row));
 
-        // Everything the row knows, in words, for a reader who cannot see the dot or the bar.
+        // Everything the row knows, in words, for a reader who cannot see the icon's colour.
         ToolTipService.SetToolTip(row, $"{device.Name} · {BluetoothRules.DetailLine(device, true, true, true, Strings.Current)}");
 
         return row;
-    }
-
-    /// <summary>
-    /// [S-1254] The battery as a short level bar beside its percentage, on a row wide enough to
-    /// carry both. Bar and number turn critical at 20% and below, like the system tray's ([S-3254]).
-    /// </summary>
-    private StackPanel BatteryWithBar(int percent, string label)
-    {
-        var fill = new Rectangle
-        {
-            Width = BarWidth * Math.Clamp(percent, 0, 100) / 100.0,
-            Height = BarHeight,
-            RadiusX = BarHeight / 2,
-            RadiusY = BarHeight / 2,
-            Fill = BluetoothRules.IsLowBattery(percent) ? _lowBrush : _connectedBrush,
-            HorizontalAlignment = HorizontalAlignment.Left,
-        };
-
-        var track = new Grid
-        {
-            Width = BarWidth,
-            Height = BarHeight,
-            CornerRadius = new CornerRadius(BarHeight / 2),
-            Background = _trackBrush,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { fill },
-        };
-
-        var text = BatteryText(percent, label);
-        text.MinWidth = 32;
-
-        return new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(Fluent.Space2, 0, 0, 0),
-            Children = { track, text },
-        };
     }
 
     /// <summary>[S-3254] The battery percentage as a detail column, in the critical colour when low.</summary>

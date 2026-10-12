@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "Populair",
+  "addMenu.browse": "Bladeren",
+  "addMenu.subject.time": "Tijd",
+  "addMenu.subject.calendar": "Agenda en e-mail",
+  "addMenu.subject.weather": "Weer en lucht",
+  "addMenu.subject.markets": "Nieuws en markten",
+  "addMenu.subject.media": "Muziek en media",
+  "addMenu.subject.notes": "Notities en tools",
+  "addMenu.subject.files": "Bestanden en apps",
+  "addMenu.subject.system": "Systeem",
+  "addMenu.subject.devices": "Apparaten en energie",
+  "addMenu.subject.more": "Meer",
+  "addMenu.family.calendar": "Agenda",
+  "addMenu.family.visualizer": "Visualisatie",
+  "addMenu.family.folder": "Map",
+  "addMenu.family.screenTime": "Schermtijd",
+  "addMenu.family.powerButtons": "Aan/uit-knoppen"
+}

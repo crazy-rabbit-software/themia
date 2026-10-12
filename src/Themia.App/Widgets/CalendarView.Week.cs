@@ -157,7 +157,7 @@ internal sealed partial class CalendarView
         }
 
         var number = Fluent.Text(FluentType.BodyStrong, isToday ? "TextOnAccentFillColorPrimaryBrush" : "TextFillColorPrimaryBrush");
-        number.Text = day.Day.ToString(CultureInfo.InvariantCulture);
+        number.Text = LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture));
         number.HorizontalAlignment = HorizontalAlignment.Center;
         number.TextTrimming = TextTrimming.None;
         Typography.SetNumeralAlignment(number, FontNumeralAlignment.Tabular);
@@ -251,7 +251,7 @@ internal sealed partial class CalendarView
         if (rest > 0)
         {
             var more = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            more.Text = $"+{rest.ToString(CultureInfo.InvariantCulture)}";
+            more.Text = LocaleFormat.Digits(Strings.Current, $"+{rest.ToString(CultureInfo.InvariantCulture)}");
             more.HorizontalAlignment = HorizontalAlignment.Center;
             column.Children.Add(more);
         }
@@ -355,7 +355,7 @@ internal sealed partial class CalendarView
         for (var h = window.First; h < window.End; h++)
         {
             var label = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            label.Text = h.ToString("00", CultureInfo.InvariantCulture) + (long_ ? ":00" : string.Empty);
+            label.Text = LocaleFormat.Digits(Strings.Current, h.ToString("00", CultureInfo.InvariantCulture) + (long_ ? ":00" : string.Empty));
             label.TextTrimming = TextTrimming.None;
             Canvas.SetLeft(label, Fluent.Space1);
             Canvas.SetTop(label, ((h - window.First) * window.HourHeight) + 1);

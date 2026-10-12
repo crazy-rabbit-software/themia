@@ -245,13 +245,18 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1975] F6 walks the surface's panes: the widgets, the toolbar, the view bar (when it shows),
+    /// [S-1975] F6 walks the surface's panes: the widgets, the toolbar, the properties strip ([S-3707], while it shows), the view bar (when it shows),
     /// the notices (while there are any), and round again; Shift+F6 the other way. A pane lands on its first control; the widgets
     /// on the selected one, else the surface itself.
     /// </summary>
     private void SwitchPane(bool backwards)
     {
         var panes = new List<FrameworkElement?> { null, _toolbar };
+        if (_properties.Visibility == Visibility.Visible)
+        {
+            panes.Add(_properties);
+        }
+
         if (_viewBar.Visibility == Visibility.Visible)
         {
             panes.Add(_viewBar);
@@ -286,8 +291,8 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>Whether the keyboard is on the surface's chrome (the toolbar, the view bar, a notice) rather than the widgets.</summary>
-    private bool FocusOnChrome() => FocusIsIn(_toolbar) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
+    /// <summary>Whether the keyboard is on the surface's chrome (the toolbar, the properties strip, the view bar, a notice) rather than the widgets.</summary>
+    private bool FocusOnChrome() => FocusIsIn(_toolbar) || FocusIsIn(_properties) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
 
     /// <summary>Whether the focused element is <paramref name="container"/> or inside it.</summary>
     private bool FocusIsIn(DependencyObject container)

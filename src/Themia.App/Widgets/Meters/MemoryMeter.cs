@@ -12,6 +12,4 @@ internal sealed class MemoryMeter : MeterPart
 
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Usage, reading.Available ? reading.Fraction : null);
-
-    public override MeterSeries Series(WidgetConfig config) => MeterSeries.Of(Sources.Memory, Interval(config));
 }

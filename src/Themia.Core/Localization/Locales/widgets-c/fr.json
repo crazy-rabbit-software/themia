@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "Annuler",
   "widgetsC.notes.editor.redo": "Rétablir",
+  "widgetsC.notes.editor.moreFormatting": "Plus de mise en forme",
   "widgetsC.notes.words": {
     "one": "{count} mot",
     "other": "{count} mots"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "Ce qui arrive, jour après jour",
   "widgetsC.moon.label": "Lune",
   "widgetsC.moon.desc": "Phase, lever et coucher de la lune",
-  "widgetsC.visualizer.label": "Visualiseur audio",
-  "widgetsC.visualizer.desc": "Des barres qui bougent avec tout ce que joue ce PC",
   "widgetsC.visualizer.unavailable": "Sortie audio indisponible",
   "widgetsC.moon.rise": "Lever de la lune",
   "widgetsC.moon.set": "Coucher de la lune",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Rouge Windows",
   "widgetsC.stocks.settings.symbolRefused": "Choisissez un résultat de recherche ou tapez un symbole : lettres, chiffres et . - ^ = uniquement",
   "widgetsC.stocks.settings.classOnExchange": "{class} sur {exchange}",
+  "widgetsC.stocks.settings.holding.label": "Quantité détenue",
+  "widgetsC.stocks.settings.holding.desc": "Combien vous en détenez ; le widget affiche leur valeur. Vide la masque",
+  "widgetsC.stocks.settings.holding.refused": "Saisissez une quantité de 0 ou plus, par ex. {example}",
+  "widgetsC.stocks.holding.line": "{amount} détenus · {value}",
   "widgetsC.location.recycleBin": "Corbeille",
   "widgetsC.location.thisPc": "Ce PC",
   "widgetsC.location.downloads": "Téléchargements",

@@ -4,21 +4,11 @@ using Themia.Core.Widgets;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-2400] What every system detail widget shares: how often it reads, fixed per kind ([S-3793]).
-/// A detail widget draws no history (that is the meter's, [S-1762]), so it has no chart settings.
+/// [S-2400] What every system detail widget shares. It reads on the hub's one cadence ([S-2503]) and
+/// draws no history (that is the meter's, [S-1762]), so it has no timing or chart settings.
 /// </summary>
 public abstract class DetailConfig : WidgetConfig
 {
-    /// <param name="intervalSeconds">This kind's cadence: how fast its figures actually move.</param>
-    protected DetailConfig(int intervalSeconds) => IntervalSeconds = intervalSeconds;
-
-    /// <summary>[S-2401] [S-3793] Seconds between reads: the kind's own, fixed.</summary>
-    [JsonIgnore]
-    public int IntervalSeconds { get; }
-
-    [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromSeconds(IntervalSeconds);
-
     /// <summary>Nothing shared can be out of range. Kinds append their own repairs.</summary>
     public override IReadOnlyList<string> Repair() => [];
 }
@@ -26,12 +16,6 @@ public abstract class DetailConfig : WidgetConfig
 /// <summary>[S-2405] The processor's figures beside its load: speed, cores, processes, uptime.</summary>
 public sealed class CpuDetailsConfig : DetailConfig
 {
-    /// <summary>Speed moves every second; two is enough to read it.</summary>
-    public CpuDetailsConfig()
-        : base(intervalSeconds: 2)
-    {
-    }
-
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.CpuDetails;
 
@@ -45,11 +29,6 @@ public sealed class CpuDetailsConfig : DetailConfig
 /// <summary>[S-2408] Memory in use, available, committed, cached, the pools and the page file.</summary>
 public sealed class MemoryDetailsConfig : DetailConfig
 {
-    public MemoryDetailsConfig()
-        : base(intervalSeconds: 2)
-    {
-    }
-
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.MemoryDetails;
 
@@ -76,11 +55,6 @@ public sealed class TopProcessesConfig : DetailConfig
 {
     /// <summary>The most rows the list ever holds; a ceiling, not a target ([S-2412]).</summary>
     public const int MaxRowsLimit = 50;
-
-    public TopProcessesConfig()
-        : base(intervalSeconds: 2)
-    {
-    }
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.TopProcesses;
@@ -130,11 +104,6 @@ public sealed class TopProcessesConfig : DetailConfig
 /// <summary>[S-2415] Down and up, the session's totals, the addresses and every adapter.</summary>
 public sealed class NetworkDetailsConfig : DetailConfig
 {
-    public NetworkDetailsConfig()
-        : base(intervalSeconds: 1)
-    {
-    }
-
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.NetworkDetails;
 
@@ -154,12 +123,6 @@ public sealed class NetworkDetailsConfig : DetailConfig
 /// <summary>[S-2420] Free and used space, one row per drive.</summary>
 public sealed class DiskSpaceConfig : DetailConfig
 {
-    /// <summary>Space changes slowly; half a minute is plenty, and a walk wakes no drive ([S-1162]).</summary>
-    public DiskSpaceConfig()
-        : base(intervalSeconds: 30)
-    {
-    }
-
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.DiskSpace;
 
@@ -192,11 +155,6 @@ public sealed class DiskSpaceConfig : DetailConfig
 /// <summary>[S-2423] What the battery itself reports: status, time, health, cycles, voltage, rate.</summary>
 public sealed class BatteryDetailsConfig : DetailConfig
 {
-    public BatteryDetailsConfig()
-        : base(intervalSeconds: 15)
-    {
-    }
-
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.BatteryDetails;
 
@@ -213,11 +171,6 @@ public sealed class PingDetailsConfig : DetailConfig
     public const int MinWindow = 5;
 
     public const int MaxWindow = 500;
-
-    public PingDetailsConfig()
-        : base(intervalSeconds: 10)
-    {
-    }
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.PingDetails;
@@ -264,11 +217,6 @@ public sealed class PingDetailsConfig : DetailConfig
 /// <summary>[S-2430] One adapter's memory and sensors.</summary>
 public sealed class GpuDetailsConfig : DetailConfig
 {
-    public GpuDetailsConfig()
-        : base(intervalSeconds: 2)
-    {
-    }
-
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.GpuDetails;
 

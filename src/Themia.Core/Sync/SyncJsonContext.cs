@@ -17,6 +17,9 @@ public sealed class WebShelf : ISyncShelf
     /// <summary>The weather cache's owner name.</summary>
     public const string WeatherOwner = "web:weather-cache";
 
+    /// <summary>[S-5161] The air, rain and exchange-rate cache's owner name.</summary>
+    public const string OnlineOwner = "web:online-cache";
+
     public int SchemaVersion { get; set; } = Version;
 
     public string Owner { get; set; } = string.Empty;

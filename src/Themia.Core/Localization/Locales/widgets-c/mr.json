@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "पूर्ववत करा",
   "widgetsC.notes.editor.redo": "पुन्हा करा",
+  "widgetsC.notes.editor.moreFormatting": "आणखी फॉरमॅटिंग",
   "widgetsC.notes.words": {
     "one": "{count} शब्द",
     "other": "{count} शब्द"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "दिवसागणिक येणारे कार्यक्रम",
   "widgetsC.moon.label": "चंद्र",
   "widgetsC.moon.desc": "चंद्राची कला, उदय आणि अस्त",
-  "widgetsC.visualizer.label": "ऑडिओ व्हिज्युअलायझर",
-  "widgetsC.visualizer.desc": "हा PC जे वाजवतो त्यासोबत हलणारे बार",
   "widgetsC.visualizer.unavailable": "ऑडिओ आउटपुट अनुपलब्ध",
   "widgetsC.moon.rise": "चंद्रोदय",
   "widgetsC.moon.set": "चंद्रास्त",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows लाल",
   "widgetsC.stocks.settings.symbolRefused": "शोध परिणाम निवडा, किंवा चिन्ह टाइप करा: फक्त अक्षरे, अंक आणि . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{exchange} वर {class}",
+  "widgetsC.stocks.settings.holding.label": "मालकीची संख्या",
+  "widgetsC.stocks.settings.holding.desc": "तुमच्याकडे किती आहेत; विजेट त्यांचे मूल्य दाखवते. रिकामे ठेवल्यास लपते",
+  "widgetsC.stocks.settings.holding.refused": "0 किंवा अधिक संख्या लिहा, उदा. {example}",
+  "widgetsC.stocks.holding.line": "{amount} धारित · {value}",
   "widgetsC.location.recycleBin": "रीसायकल बिन",
   "widgetsC.location.thisPc": "हा PC",
   "widgetsC.location.downloads": "डाउनलोड",

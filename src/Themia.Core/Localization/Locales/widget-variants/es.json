@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "Barras de espectro",
+  "variants.visualizer.bars.desc": "Barras que se mueven con todo lo que reproduce este equipo",
+  "variants.visualizer.mirror.label": "Espectro reflejado",
+  "variants.visualizer.mirror.desc": "Barras que crecen hacia ambos lados desde la línea central",
+  "variants.visualizer.wave.label": "Onda de espectro",
+  "variants.visualizer.wave.desc": "Una onda suave que sigue todo lo que reproduce este equipo",
+  "variants.visualizer.dots.label": "Espectro LED",
+  "variants.visualizer.dots.desc": "Columnas de luces, como un medidor de nivel de alta fidelidad",
+  "variants.visualizer.radial.label": "Espectro circular",
+  "variants.visualizer.radial.desc": "Barras alrededor de un anillo, reflejadas a izquierda y derecha",
+  "variants.folder.list.label": "Lista de carpeta",
+  "variants.folder.list.desc": "Los archivos de una carpeta en una lista",
+  "variants.folder.details.label": "Detalles de carpeta",
+  "variants.folder.details.desc": "Los archivos de una carpeta en una tabla con columnas",
+  "variants.folder.grid.label": "Cuadrícula de carpeta",
+  "variants.folder.grid.desc": "Los archivos de una carpeta como mosaicos con miniaturas",
+  "variants.folder.icons.label": "Iconos de carpeta",
+  "variants.folder.icons.desc": "Los archivos de una carpeta solo como iconos, como en el escritorio"
+}

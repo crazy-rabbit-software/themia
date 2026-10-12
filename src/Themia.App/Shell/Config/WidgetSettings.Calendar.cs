@@ -55,6 +55,13 @@ internal static partial class WidgetSettings
             () => config.AccountIds, ids => config.AccountIds = ids, SaveAndRedraw,
             account => CalendarPicker(account, config, SaveAndRedraw, pickers));
 
+        // [S-4826] Next meeting chooses its accounts and calendars like every calendar, and has no
+        // display rows: birthdays are all-day, never a meeting.
+        if (config is NextMeetingConfig)
+        {
+            return;
+        }
+
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
         // [S-3601] Only what this kind uses. The week start is every calendar's ([S-3770]).

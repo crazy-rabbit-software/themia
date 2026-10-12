@@ -17,9 +17,10 @@ namespace Themia.App.Widgets;
 /// not as an empty hole under the reading.
 /// <para>
 /// [S-1126] Up to two series — download and upload, reads and writes — the first filled, the second
-/// a line over it. It holds <see cref="Capacity"/> samples (the span setting over the refresh) and
-/// draws as many of the newest as its width has slots for (<see cref="MeterTiming.Window"/>), against
-/// a <see cref="ChartScale"/>: 100% for a share, the visible window's peak for a rate.
+/// a line over it. It holds <see cref="Capacity"/> samples (the span setting at the source's spacing)
+/// and, when its width has fewer slots than that, folds neighbouring samples into one slot
+/// (<see cref="MeterTiming.Fold"/>: the mean of a share, the peak of a rate), so the whole span is
+/// always on screen, against a <see cref="ChartScale"/>: 100% for a share, the visible peak for a rate.
 /// </para>
 /// <para>
 /// One element for every chart in the app (the meters and the GPU tile) so they read as one family
@@ -35,11 +36,12 @@ internal sealed partial class SparkBand : Grid
     private readonly Queue<double> _first;
     private readonly Queue<double> _second;
     private int _capacity;
+    private long _added;
     private ChartScale _scale;
 
     public SparkBand(int capacity, ChartScale? scale = null)
     {
-        _capacity = Math.Clamp(capacity, 2, MeterTiming.MaxCapacity);
+        _capacity = Math.Clamp(capacity, 2, MeterTiming.MaxSpanSeconds);
         _first = new Queue<double>(_capacity);
         _second = new Queue<double>(_capacity);
         _scale = scale ?? ChartScale.Share;
@@ -82,7 +84,7 @@ internal sealed partial class SparkBand : Grid
         get => _capacity;
         set
         {
-            var capacity = Math.Clamp(value, 2, MeterTiming.MaxCapacity);
+            var capacity = Math.Clamp(value, 2, MeterTiming.MaxSpanSeconds);
 
             if (capacity == _capacity)
             {
@@ -111,9 +113,6 @@ internal sealed partial class SparkBand : Grid
             Redraw();
         }
     }
-
-    /// <summary>How many of the newest samples the band draws at its current width.</summary>
-    public int Window => MeterTiming.Window(_capacity, ActualWidth);
 
     /// <summary>Paint the first series in another colour — a pressure colour, for instance.</summary>
     public void SetBrush(Brush brush)
@@ -150,17 +149,21 @@ internal sealed partial class SparkBand : Grid
 
         _first.Enqueue(first);
         _second.Enqueue(second is { } s && double.IsFinite(s) ? s : double.NaN);
+        _added++;
         Redraw();
     }
 
     /// <summary>
     /// [S-2504] Draw a series' history as the hub holds it, oldest first, replacing what the band held:
     /// a band built again (a view switch, edit mode) starts from the history, not from empty.
+    /// <paramref name="added"/> is how many points the series ever had, so folded slots keep their
+    /// members ([S-1121]); null counts these.
     /// </summary>
-    public void Load(IReadOnlyList<SeriesPoint> points)
+    public void Load(IReadOnlyList<SeriesPoint> points, long? added = null)
     {
         _first.Clear();
         _second.Clear();
+        _added = added ?? points.Count;
 
         for (var i = Math.Max(0, points.Count - _capacity); i < points.Count; i++)
         {
@@ -183,6 +186,7 @@ internal sealed partial class SparkBand : Grid
     {
         _first.Clear();
         _second.Clear();
+        _added = 0;
         Redraw();
     }
 
@@ -207,12 +211,22 @@ internal sealed partial class SparkBand : Grid
             return;
         }
 
-        // The newest samples, as many as this chart's width has slots for.
-        var window = MeterTiming.Window(_capacity, width);
-        var first = _first.ToArray().AsSpan();
-        var second = _second.ToArray().AsSpan();
+        // [S-1121] The whole span, folded into the slots this width has: a slot is a fixed run of
+        // points (by their absolute position), its peak on a rate chart and its mean on a share.
+        var size = MeterTiming.BucketSize(_capacity, width);
+        var window = MeterTiming.Slots(_capacity, size);
+        var first = MeterTiming.Fold(_first.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
+        var second = MeterTiming.Fold(_second.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
         first = first[Math.Max(0, first.Length - window)..];
         second = second[Math.Max(0, second.Length - window)..];
+
+        if (first.Length < 2)
+        {
+            _line.Points.Clear();
+            _fill.Points.Clear();
+            _secondLine.Points.Clear();
+            return;
+        }
 
         var ceiling = _scale.Ceiling(first, second);
 

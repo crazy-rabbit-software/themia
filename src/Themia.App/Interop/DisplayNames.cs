@@ -6,7 +6,8 @@ namespace Themia.App.Interop;
 /// <summary>What the display configuration API says about one GDI display.</summary>
 /// <param name="FriendlyName">The monitor's product name, or empty when it reports none.</param>
 /// <param name="DevicePath">The monitor's device interface path, or empty when it has none ([S-842]).</param>
-internal readonly record struct DisplayDescriptor(string FriendlyName, string DevicePath);
+/// <param name="BuiltIn">[S-4441] A laptop's or tablet's own panel (internal, LVDS or embedded DisplayPort), whose brightness is Windows' power policy's.</param>
+internal readonly record struct DisplayDescriptor(string FriendlyName, string DevicePath, bool BuiltIn = false);
 
 /// <summary>
 /// The name a person would recognise for a display, and the path that identifies it.
@@ -87,7 +88,7 @@ internal static partial class DisplayNames
                     continue;
                 }
 
-                names[gdi] = new DisplayDescriptor(target.MonitorFriendlyDeviceName.Trim(), target.MonitorDevicePath.Trim());
+                names[gdi] = new DisplayDescriptor(target.MonitorFriendlyDeviceName.Trim(), target.MonitorDevicePath.Trim(), IsBuiltIn(target.OutputTechnology));
             }
         }
         catch (Exception ex)
@@ -155,6 +156,9 @@ internal static partial class DisplayNames
             $"target {sizeof(TargetDeviceName)}); displays fall back to their ordinal names");
         return false;
     }
+
+    /// <summary>DISPLAYCONFIG_OUTPUT_TECHNOLOGY_INTERNAL, _LVDS, _DISPLAYPORT_EMBEDDED, _UDI_EMBEDDED.</summary>
+    private static bool IsBuiltIn(uint technology) => technology is 0x80000000 or 6 or 11 or 13;
 
     private static DeviceInfoHeader Header(int type, int size, Luid adapterId, uint id) => new()
     {

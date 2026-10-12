@@ -12,6 +12,4 @@ internal sealed class CpuMeter : MeterPart
 
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Usage, reading.Available ? reading.Fraction : null);
-
-    public override MeterSeries Series(WidgetConfig config) => MeterSeries.Of(Sources.Cpu, Interval(config));
 }

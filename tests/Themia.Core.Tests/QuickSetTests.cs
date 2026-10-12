@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>The edit bar's selection group ([S-3700]..[S-3705]).</summary>
+/// <summary>The selected widgets' properties strip ([S-3701]..[S-3705], [S-3711]).</summary>
 public sealed class QuickSetTests
 {
     private static WidgetInstance Widget(WidgetKind kind, string id)
@@ -156,5 +156,77 @@ public sealed class QuickSetTests
         Assert.True(QuickSet.SetTitle(view, "a", "", "Clock"));
         Assert.Null(clock.Label);
         Assert.False(QuickSet.SetTitle(view, "gone", "x", "Clock"));
+    }
+
+    [Fact]
+    public void S3711_a_toggle_offers_no_header_choice()
+    {
+        var (state, view, _) = State(Widget(WidgetKind.WifiToggle, "t"));
+
+        var offer = QuickSet.For(state, Selecting(view, "t"), view.Id);
+
+        Assert.True(offer.Shows);
+        Assert.True(offer.HasTitle);
+        Assert.False(offer.HasHeader);
+        Assert.Null(offer.Header);
+    }
+
+    [Fact]
+    public void S3711_a_selection_with_a_toggle_in_it_shows_only_what_all_share()
+    {
+        var (state, view, _) = State(Widget(WidgetKind.Cpu, "a"), Widget(WidgetKind.BluetoothToggle, "t"));
+
+        var offer = QuickSet.For(state, Selecting(view, "a", "t"), view.Id);
+
+        Assert.False(offer.HasHeader);
+        Assert.Equal(WidgetSurface.Card, offer.Surface);
+        Assert.True(QuickSet.For(state, Selecting(view, "a"), view.Id).HasHeader);
+    }
+
+    [Fact]
+    public void S3711_setting_a_header_never_reaches_a_toggle()
+    {
+        var cpu = Widget(WidgetKind.Cpu, "a");
+        var toggle = Widget(WidgetKind.WifiToggle, "t");
+        var (_, view, _) = State(cpu, toggle);
+
+        Assert.Equal(1, QuickSet.SetHeader(view, ["a", "t"], HeaderPlacement.Bottom));
+        Assert.Equal(HeaderPlacement.Bottom, cpu.Header);
+        Assert.Equal(HeaderPlacement.Hidden, toggle.Header);
+    }
+
+    [Fact]
+    public void S3711_every_toggle_kind_is_headerless_and_other_kinds_may_have_one()
+    {
+        foreach (var kind in Enum.GetValues<WidgetKind>())
+        {
+            var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null;
+            Assert.Equal(!toggle, WidgetInstance.CanHaveHeader(kind));
+            if (toggle)
+            {
+                var widget = Widget(kind, "t");
+                Assert.Equal(HeaderPlacement.Hidden, widget.Header);
+                widget.Header = HeaderPlacement.Top;
+                Assert.Equal(HeaderPlacement.Hidden, widget.ShownHeader);
+            }
+        }
+
+        var cpu = Widget(WidgetKind.Cpu, "a");
+        cpu.Header = HeaderPlacement.Bottom;
+        Assert.Equal(HeaderPlacement.Bottom, cpu.ShownHeader);
+    }
+
+    [Fact]
+    public void S3711_load_validation_takes_the_header_off_a_toggle_loudly()
+    {
+        var state = AppState.CreateDefault();
+        var toggle = WidgetInstance.Create(WidgetKind.MonoAudioToggle, new FracRect(0.1, 0.1, 0.1, 0.1));
+        toggle.Header = HeaderPlacement.Top;
+        state.Views[0].Widgets.Add(toggle);
+
+        var repairs = Themia.Core.Storage.AppStateStore.Validate(state);
+
+        Assert.Equal(HeaderPlacement.Hidden, toggle.Header);
+        Assert.Contains(repairs, r => r.Contains("cannot have a header", StringComparison.Ordinal));
     }
 }

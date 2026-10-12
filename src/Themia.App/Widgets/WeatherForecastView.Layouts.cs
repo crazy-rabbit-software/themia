@@ -13,6 +13,12 @@ internal sealed partial class WeatherForecastView
     /// <summary>The bar's own thickness. Fluent's hairline would read as a scratch at this length.</summary>
     private const double BarThickness = Fluent.Space1;
 
+    /// <summary>
+    /// The rows' padding: 4 above, so today's highlight does not butt against the header, and the
+    /// rest of <see cref="WeatherForecastLayout.ListPadding"/> below.
+    /// </summary>
+    private static readonly Thickness ListInset = new(0, Fluent.Space1, 0, WeatherForecastLayout.ListPadding - Fluent.Space1);
+
     // ---- Rows [S-725] ------------------------------------------------------------------------
 
     private FrameworkElement BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
@@ -25,7 +31,7 @@ internal sealed partial class WeatherForecastView
     {
         var grid = new Grid
         {
-            Padding = WidgetLayout.ListInset,
+            Padding = ListInset,
             VerticalAlignment = VerticalAlignment.Top,
             Height = (plan.RowHeight * days.Count) + WeatherForecastLayout.ListPadding,
         };
@@ -54,7 +60,7 @@ internal sealed partial class WeatherForecastView
         return new ScrollViewer
         {
             Content = list,
-            Padding = WidgetLayout.ListInset,
+            Padding = ListInset,
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
@@ -71,8 +77,22 @@ internal sealed partial class WeatherForecastView
         ToolTipService.SetToolTip(row, Describe(day));
 
         // [S-727] Today carries a quiet fill under its row, as well as its accent label; the hover
-        // fill sits on top of it.
-        return day.Day == today ? new Border { Background = _todayFill, Child = row } : row;
+        // fill sits on top of it. Inset and rounded as Windows draws a selected list item, the
+        // row's own padding less that inset so its text stays in line with the other days'.
+        if (day.Day != today)
+        {
+            return row;
+        }
+
+        row.Padding = new Thickness(Fluent.Space4 - Fluent.Space1, 0, Fluent.Space4 - Fluent.Space1, 0);
+        row.CornerRadius = new CornerRadius(Fluent.ControlRadius);
+        return new Border
+        {
+            Background = _todayFill,
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
+            Child = row,
+        };
     }
 
     private Grid OneLineRow(ForecastDay day, DateOnly today, Range range, ForecastRowsPlan plan)
@@ -80,7 +100,9 @@ internal sealed partial class WeatherForecastView
         var showRain = plan.Precipitation && _config.ShowPrecipitation;
 
         var label = DayText(day, today, FluentType.Body);
-        label.MinWidth = 44;
+        // The weekday column, so the glyphs line up down the list; a list too narrow for the glyph
+        // has only the day and the high, and gives the day what it needs.
+        label.MinWidth = plan.IconAndLow ? PartMetrics.DayLabelWidth : 0;
 
         var grid = new Grid { VerticalAlignment = VerticalAlignment.Center };
         var column = 0;
@@ -147,10 +169,10 @@ internal sealed partial class WeatherForecastView
 
         if (plan.IconAndLow)
         {
-            Add(Number(WeatherReport.Degrees(day.Low), "TextFillColorSecondaryBrush"), GridLength.Auto);
+            Add(Low(day), GridLength.Auto);
         }
 
-        Add(Number(WeatherReport.Degrees(day.High), "TextFillColorPrimaryBrush"), GridLength.Auto);
+        Add(High(day), GridLength.Auto);
         return grid;
     }
 
@@ -191,12 +213,12 @@ internal sealed partial class WeatherForecastView
         if (plan.IconAndLow)
         {
             Put(DayIcon(day), 0, 1);
-            Put(Number(WeatherReport.Degrees(day.Low), "TextFillColorSecondaryBrush"), 0, 2);
+            Put(Low(day), 0, 2);
         }
 
-        Put(Number(WeatherReport.Degrees(day.High), "TextFillColorPrimaryBrush"), 0, 3);
+        Put(High(day), 0, 3);
 
-        var sky = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+        var sky = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
         sky.Text = WeatherReport.Describe(day.Code);
         sky.TextTrimming = TextTrimming.CharacterEllipsis;
         Put(sky, 1, 0, 3);
@@ -209,10 +231,11 @@ internal sealed partial class WeatherForecastView
         return grid;
     }
 
+    /// <summary>[S-669] The sky's glyph, a step larger than a line's: it is the row's picture.</summary>
     private static FontIcon DayIcon(ForecastDay day)
     {
-        var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush");
-        icon.Margin = new Thickness(Fluent.Space3, 0, Fluent.Space3, 0);
+        var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", PartMetrics.DayIcon);
+        icon.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
         return icon;
     }
 
@@ -265,12 +288,12 @@ internal sealed partial class WeatherForecastView
 
         if (plan.Icon)
         {
-            Add(Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", 20), GridLength.Auto);
+            Add(Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", PartMetrics.DayIcon), GridLength.Auto);
         }
 
         if (plan.Description)
         {
-            var sky = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+            var sky = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
             sky.Text = WeatherReport.Describe(day.Code);
             sky.TextTrimming = TextTrimming.CharacterEllipsis;
             sky.MaxWidth = plan.ColumnWidth - Fluent.Space1;
@@ -281,18 +304,18 @@ internal sealed partial class WeatherForecastView
         high.Text = WeatherReport.Degrees(day.High);
         Add(high, GridLength.Auto);
 
-        if (plan.Bar && day.Low is { } low && day.High is { } highValue)
+        var bar = plan.Bar && day.Low is { } low && day.High is { } highValue
+            ? VerticalBar(low, highValue, range)
+            : null;
+
+        if (bar is not null)
         {
-            Add(VerticalBar(low, highValue, range), new GridLength(1, GridUnitType.Star));
-        }
-        else
-        {
-            parts.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            Add(bar, new GridLength(1, GridUnitType.Star));
         }
 
         if (plan.Low)
         {
-            var lowText = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+            var lowText = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
             lowText.Text = WeatherReport.Degrees(day.Low);
             Add(lowText, GridLength.Auto);
         }
@@ -317,10 +340,17 @@ internal sealed partial class WeatherForecastView
             Add(wind, new GridLength(FluentType.Caption.LineHeight));
         }
 
+        // Without a bar the slack goes under the column, so the low sits right under the high
+        // instead of at the foot of the tile with a gap between them.
+        if (bar is null)
+        {
+            parts.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        }
+
         var host = new Border
         {
             Child = parts,
-            Padding = new Thickness(Fluent.Space1, Fluent.Space1, Fluent.Space1, Fluent.Space1),
+            Padding = new Thickness(Fluent.Space1, Fluent.Space2, Fluent.Space1, Fluent.Space2),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             Background = day.Day == today ? _todayFill : null,
         };
@@ -387,12 +417,13 @@ internal sealed partial class WeatherForecastView
         };
 
         var label = DayText(day, today, FluentType.BodyStrong);
-        var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", 20);
+        var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", PartMetrics.DayIcon);
         SetColumn(icon, 1);
         top.Children.Add(label);
         top.Children.Add(icon);
 
-        var stack = new StackPanel { Spacing = Fluent.Space1, VerticalAlignment = VerticalAlignment.Center, Children = { top } };
+        // Top-aligned: centred, a card with fewer lines (a dry day) sat lower than its neighbours.
+        var stack = new StackPanel { Spacing = Fluent.Space1, VerticalAlignment = VerticalAlignment.Top, Children = { top } };
 
         if (plan.Description)
         {
@@ -408,7 +439,7 @@ internal sealed partial class WeatherForecastView
         }
 
         var temps = Fluent.Text(FluentType.Body);
-        temps.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = WeatherReport.Degrees(day.High) });
+        temps.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = WeatherReport.Degrees(day.High), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold });
         temps.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run
         {
             Text = "  " + WeatherReport.Degrees(day.Low),
@@ -566,16 +597,19 @@ internal sealed partial class WeatherForecastView
         CornerRadius = new CornerRadius(BarThickness / 2),
     };
 
-    private static TextBlock Number(string text, string colorKey)
+    /// <summary>[S-669] The day's high: the row's strong figure, in the shared figure column.</summary>
+    private static TextBlock High(ForecastDay day)
     {
-        var block = Fluent.Text(FluentType.Body, colorKey);
-        block.Text = text;
-        block.TextAlignment = TextAlignment.Right;
-        block.MinWidth = 34;
+        var block = WidgetParts.Figure(WeatherReport.Degrees(day.High), FluentType.BodyStrong);
         block.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
+        return block;
+    }
 
-        // Tabular figures, so the column of temperatures lines up down the list.
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(block, FontNumeralAlignment.Tabular);
+    /// <summary>[S-669] The day's low: the same column, regular and secondary, as Windows sets a range.</summary>
+    private static TextBlock Low(ForecastDay day)
+    {
+        var block = WidgetParts.Figure(WeatherReport.Degrees(day.Low), FluentType.Body, "TextFillColorSecondaryBrush");
+        block.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
         return block;
     }
 }

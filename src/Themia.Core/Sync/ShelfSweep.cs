@@ -19,7 +19,7 @@ public static partial class ShelfSweep
     /// The web caches' shelves are shared by every widget of their kind (one owner each, entries
     /// bounded and aged out on load, [S-1300], [S-729]), so they are never orphans.
     /// </summary>
-    private static readonly string[] WebOwners = [WebShelf.NetworkOwner, WebShelf.WeatherOwner];
+    private static readonly string[] WebOwners = [WebShelf.NetworkOwner, WebShelf.WeatherOwner, WebShelf.OnlineOwner];
 
     /// <summary>
     /// [S-2666] Whether the account list can be trusted to say who does not exist. Only a file that

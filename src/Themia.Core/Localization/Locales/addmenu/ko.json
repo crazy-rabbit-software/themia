@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "인기",
+  "addMenu.browse": "찾아보기",
+  "addMenu.subject.time": "시간",
+  "addMenu.subject.calendar": "일정 및 메일",
+  "addMenu.subject.weather": "날씨 및 하늘",
+  "addMenu.subject.markets": "뉴스 및 시장",
+  "addMenu.subject.media": "음악 및 미디어",
+  "addMenu.subject.notes": "메모 및 도구",
+  "addMenu.subject.files": "파일 및 앱",
+  "addMenu.subject.system": "시스템",
+  "addMenu.subject.devices": "장치 및 전원",
+  "addMenu.subject.more": "더 보기",
+  "addMenu.family.calendar": "일정",
+  "addMenu.family.visualizer": "비주얼라이저",
+  "addMenu.family.folder": "폴더",
+  "addMenu.family.screenTime": "스크린 타임",
+  "addMenu.family.powerButtons": "전원 버튼"
+}

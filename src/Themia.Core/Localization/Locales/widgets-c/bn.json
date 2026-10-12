@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "পূর্বাবস্থায় ফেরান",
   "widgetsC.notes.editor.redo": "আবার করুন",
+  "widgetsC.notes.editor.moreFormatting": "আরও ফরম্যাটিং",
   "widgetsC.notes.words": {
     "one": "{count}টি শব্দ",
     "other": "{count}টি শব্দ"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "সামনে কী আসছে, দিনে দিনে",
   "widgetsC.moon.label": "চাঁদ",
   "widgetsC.moon.desc": "চাঁদের কলা, উদয় ও অস্ত",
-  "widgetsC.visualizer.label": "অডিও ভিজ্যুয়ালাইজার",
-  "widgetsC.visualizer.desc": "এই PC যা চালায় তার সঙ্গে নড়া বার",
   "widgetsC.visualizer.unavailable": "অডিও আউটপুট অনুপলব্ধ",
   "widgetsC.moon.rise": "চন্দ্রোদয়",
   "widgetsC.moon.set": "চন্দ্রাস্ত",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows লাল",
   "widgetsC.stocks.settings.symbolRefused": "একটি অনুসন্ধান ফলাফল বেছে নিন, বা প্রতীক লিখুন: শুধু অক্ষর, অঙ্ক এবং . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{exchange}-এ {class}",
+  "widgetsC.stocks.settings.holding.label": "মালিকানাধীন পরিমাণ",
+  "widgetsC.stocks.settings.holding.desc": "আপনার কাছে কতগুলি আছে; উইজেট তাদের মূল্য দেখায়। খালি রাখলে লুকানো থাকে",
+  "widgetsC.stocks.settings.holding.refused": "0 বা তার বেশি পরিমাণ লিখুন, যেমন {example}",
+  "widgetsC.stocks.holding.line": "{amount} ধারণকৃত · {value}",
   "widgetsC.location.recycleBin": "রিসাইকেল বিন",
   "widgetsC.location.thisPc": "এই PC",
   "widgetsC.location.downloads": "ডাউনলোড",

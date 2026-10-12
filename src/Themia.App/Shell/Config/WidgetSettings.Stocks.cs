@@ -48,6 +48,9 @@ internal static partial class WidgetSettings
             Str.Stocks_ExtendedHoursDesc.Text(),
             FluentLayout.Toggle(config.ShowExtendedHours, value => { config.ShowExtendedHours = value; save(); })));
 
+        // [S-2776] How many the user owns: the holding's worth under the price.
+        rows.Add(HoldingRow(config, save));
+
         // [S-3795] The chart's rows fold under its own switch.
         rows.Add(FluentLayout.Expander(Glyphs.Motion, Str.WidgetsC_Stocks_Settings_ShowChart_Label.Text(), Str.WidgetsC_Stocks_Settings_ShowChart_Desc.Text(),
             FluentLayout.Toggle(config.ShowSparkline, value => { config.ShowSparkline = value; save(); }),
@@ -78,6 +81,57 @@ internal static partial class WidgetSettings
                     value => { config.DownColor = value; save(); },
                     new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsRed.Text(), DefaultColor = () => ThemeColor("SystemFillColorCriticalBrush") }),
             ]));
+    }
+
+    /// <summary>
+    /// [S-2776] "Shares owned": an amount in the language's own decimals, refused rather than
+    /// coerced (<see cref="StockHolding.TryParse"/>), as every field that can be wrong reports: the
+    /// typed text stays, the reason is said under it, the setting keeps its last good value. Empty
+    /// or 0 is no holding.
+    /// </summary>
+    private static Border HoldingRow(StocksConfig config, Action save)
+    {
+        var locale = Strings.Current;
+        var box = new TextBox
+        {
+            Text = config.SharesOwned is { } owned ? StockHolding.Amount(locale, owned) : string.Empty,
+            MinWidth = 160,
+            PlaceholderText = StockHolding.Amount(locale, 0),
+            InputScope = new Microsoft.UI.Xaml.Input.InputScope { Names = { new Microsoft.UI.Xaml.Input.InputScopeName(Microsoft.UI.Xaml.Input.InputScopeNameValue.Number) } },
+        };
+
+        var verdict = FluentLayout.Verdict();
+
+        void Commit()
+        {
+            if (!StockHolding.TryParse(Strings.Current, box.Text, out var amount))
+            {
+                FluentLayout.Refuse(verdict, Str.WidgetsC_Stocks_Settings_Holding_Refused.Format(("example", StockHolding.Amount(Strings.Current, 12.5))));
+                return;
+            }
+
+            FluentLayout.Confirm(verdict, string.Empty);
+            box.Text = amount is { } kept ? StockHolding.Amount(Strings.Current, kept) : string.Empty;
+
+            if (amount != config.SharesOwned)
+            {
+                config.SharesOwned = amount;
+                save();
+            }
+        }
+
+        box.LostFocus += (_, _) => Commit();
+        box.KeyDown += (_, args) =>
+        {
+            if (args.Key == Windows.System.VirtualKey.Enter)
+            {
+                Commit();
+                args.Handled = true;
+            }
+        };
+
+        return FluentLayout.FieldRow(Glyphs.Calculator, Str.WidgetsC_Stocks_Settings_Holding_Label.Text(),
+            Str.WidgetsC_Stocks_Settings_Holding_Desc.Text(), box, verdict);
     }
 
     /// <summary>

@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "Słupki widma",
+  "variants.visualizer.bars.desc": "Paski poruszające się w rytm wszystkiego, co gra ten komputer",
+  "variants.visualizer.mirror.label": "Widmo lustrzane",
+  "variants.visualizer.mirror.desc": "Paski rosnące w obie strony od linii środkowej",
+  "variants.visualizer.wave.label": "Fala widma",
+  "variants.visualizer.wave.desc": "Płynna fala podążająca za wszystkim, co gra ten komputer",
+  "variants.visualizer.dots.label": "Widmo LED",
+  "variants.visualizer.dots.desc": "Kolumny światełek jak we wskaźniku poziomu hi-fi",
+  "variants.visualizer.radial.label": "Widmo kołowe",
+  "variants.visualizer.radial.desc": "Paski wokół pierścienia, odbite lustrzanie w lewo i w prawo",
+  "variants.folder.list.label": "Lista folderu",
+  "variants.folder.list.desc": "Pliki folderu w postaci listy",
+  "variants.folder.details.label": "Szczegóły folderu",
+  "variants.folder.details.desc": "Pliki folderu w tabeli z kolumnami",
+  "variants.folder.grid.label": "Siatka folderu",
+  "variants.folder.grid.desc": "Pliki folderu jako kafelki z miniaturami",
+  "variants.folder.icons.label": "Ikony folderu",
+  "variants.folder.icons.desc": "Pliki folderu tylko jako ikony, jak na pulpicie"
+}

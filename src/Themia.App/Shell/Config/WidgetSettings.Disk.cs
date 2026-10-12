@@ -43,7 +43,7 @@ internal static partial class WidgetSettings
             (All, Str.WidgetsB_Disk_AllDrives.Text()),
         };
 
-        foreach (var volume in DiskMetrics.Volumes(refresh: true))
+        foreach (var volume in DriveRules.LocalVolumes(Services.Drives.DriveService.Shared.Now()))
         {
             options.Add((volume.Root, DiskRules.Title(volume)));
         }

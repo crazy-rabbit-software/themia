@@ -18,7 +18,7 @@ public enum PluralCategory
 /// Why it is not "1 → one, else other": French and Portuguese say "0 fichier" (0 is singular),
 /// Polish has three forms (1 plik, 2–4 pliki, 5+ plików, but 22 pliki), Russian three on other
 /// numbers (1 файл, 2 файла, 5 файлов, but 21 файл), Arabic six (0, 1, 2, 3–10, 11–99, 100…), and
-/// Japanese, Chinese, Indonesian and Vietnamese have no plural at all. A string that ignores this reads wrong to every Polish user.
+/// Japanese, Chinese, Korean, Indonesian and Vietnamese have no plural at all. A string that ignores this reads wrong to every Polish user.
 /// </para>
 /// </summary>
 public static class PluralRules
@@ -34,6 +34,8 @@ public static class PluralRules
             case Locale.Zh:
             case Locale.Id:
             case Locale.Vi:
+            case Locale.Ko:
+            case Locale.ZhHant:
                 return PluralCategory.Other;
 
             case Locale.Fr:
@@ -96,7 +98,7 @@ public static class PluralRules
             }
 
             default:
-                // en, de, es, it, ur, mr: n = 1.
+                // en, de, es, it, ur, mr, nl, tr: n = 1.
                 return n == 1 ? PluralCategory.One : PluralCategory.Other;
         }
     }
@@ -104,7 +106,7 @@ public static class PluralRules
     /// <summary>The categories a language uses for whole numbers (what a translator must supply).</summary>
     public static IReadOnlyList<PluralCategory> Categories(Locale locale) => locale switch
     {
-        Locale.Ja or Locale.Zh or Locale.Id or Locale.Vi => [PluralCategory.Other],
+        Locale.Ja or Locale.Zh or Locale.Id or Locale.Vi or Locale.Ko or Locale.ZhHant => [PluralCategory.Other],
         Locale.Pl or Locale.Ru => [PluralCategory.One, PluralCategory.Few, PluralCategory.Many, PluralCategory.Other],
         Locale.Ar => [PluralCategory.Zero, PluralCategory.One, PluralCategory.Two, PluralCategory.Few, PluralCategory.Many, PluralCategory.Other],
         _ => [PluralCategory.One, PluralCategory.Other],

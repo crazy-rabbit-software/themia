@@ -18,21 +18,22 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1320_defaults_match_the_original()
     {
-        var config = new FolderConfig();
+        var config = new FolderListConfig();
 
         Assert.Equal(FolderViewMode.List, config.View);
         Assert.Equal(FolderItemSize.Medium, config.ItemSize);
-        Assert.Equal(FolderTileSize.Small, config.TileSize);
         Assert.Equal(FolderNavigation.Explorer, config.Navigation);
         Assert.Equal(ItemClickMode.Double, config.ClickMode);
         Assert.False(config.ShowExtensions);
-        Assert.Equal([FolderColumn.Size, FolderColumn.Modified, FolderColumn.Type], config.Columns);
+        Assert.Equal([FolderColumn.Size, FolderColumn.Modified, FolderColumn.Type], new FolderDetailsConfig().Columns);
+        Assert.Equal(FolderTileSize.Small, new FolderIconsConfig().TileSize);
+        Assert.Equal(FolderTileSize.Medium, new FolderGridConfig().TileSize);
     }
 
     [Fact]
     public void S1320_repair_drops_unknown_and_repeated_columns_and_says_so()
     {
-        var config = new FolderConfig { Columns = [FolderColumn.Git, (FolderColumn)42, FolderColumn.Git, FolderColumn.Size] };
+        var config = new FolderDetailsConfig { Columns = [FolderColumn.Git, (FolderColumn)42, FolderColumn.Git, FolderColumn.Size] };
 
         var notes = config.Repair();
 
@@ -43,8 +44,8 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1320_clone_does_not_share_the_column_list()
     {
-        var config = new FolderConfig();
-        var copy = (FolderConfig)config.Clone();
+        var config = new FolderDetailsConfig();
+        var copy = (FolderDetailsConfig)config.Clone();
 
         copy.Columns.Add(FolderColumn.Git);
 
@@ -96,13 +97,13 @@ public sealed class FolderBrowserTests
     }
 
     [Fact]
-    public void S1321_filter_and_search_must_both_pass()
+    public void S1321_the_search_keeps_names_matching_any_keyword()
     {
-        FolderEntry[] entries = [File("a report.pdf"), File("b report.docx"), File("c.pdf")];
+        FolderEntry[] entries = [File("a report.pdf"), File("b report.docx"), File("c.txt")];
 
-        var shown = FolderFilter.Apply(entries, "report", "pdf");
-
-        Assert.Equal(["a report.pdf"], shown.Select(e => e.Name));
+        Assert.Equal(["a report.pdf", "b report.docx"], FolderFilter.Apply(entries, "report").Select(e => e.Name));
+        Assert.Equal(["a report.pdf", "c.txt"], FolderFilter.Apply(entries, "pdf, txt").Select(e => e.Name));
+        Assert.Same(entries, FolderFilter.Apply(entries, "  "));
     }
 
     // ---- names ----------------------------------------------------------------------------------
@@ -642,7 +643,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_tiles_stretch_to_fill_the_row()
     {
-        var plan = FolderLayout.Grid(width: 330, height: 1000, count: 7, FolderTileSize.Small, labelled: true, stretch: false);
+        var plan = FolderLayout.Grid(width: 330, count: 7, FolderTileSize.Small, labelled: true);
 
         Assert.Equal(4, plan.Columns);
         Assert.Equal(82.5, plan.CellWidth);
@@ -651,21 +652,18 @@ public sealed class FolderBrowserTests
     }
 
     [Fact]
-    public void S1323_stretch_shares_the_height_only_when_everything_fits()
+    public void S4121_tiles_keep_their_preset_height_there_is_no_stretch()
     {
-        var fits = FolderLayout.Grid(320, 400, 8, FolderTileSize.Small, true, stretch: true);
-        Assert.True(fits.Stretched);
-        Assert.Equal(200, fits.CellHeight);
-
-        var scrolls = FolderLayout.Grid(320, 100, 8, FolderTileSize.Small, true, stretch: true);
-        Assert.False(scrolls.Stretched);
-        Assert.Equal(90, scrolls.CellHeight);
+        // A grid that would fit twice over still draws its preset rows and leaves the rest empty.
+        var plan = FolderLayout.Grid(320, 8, FolderTileSize.Small, true);
+        Assert.Equal(90, plan.CellHeight);
+        Assert.Equal(2, plan.Rows);
     }
 
     [Fact]
     public void S1323_icons_view_packs_tiles_to_the_icon()
     {
-        var plan = FolderLayout.Grid(560, 400, 20, FolderTileSize.Small, labelled: false, stretch: false);
+        var plan = FolderLayout.Grid(560, 20, FolderTileSize.Small, labelled: false);
 
         Assert.Equal(56, plan.CellHeight);
         Assert.Equal(10, plan.Columns);
@@ -673,7 +671,7 @@ public sealed class FolderBrowserTests
 
     [Fact]
     public void S1323_a_narrow_box_still_gets_one_column()
-        => Assert.Equal(1, FolderLayout.Grid(30, 100, 3, FolderTileSize.Large, true, false).Columns);
+        => Assert.Equal(1, FolderLayout.Grid(30, 3, FolderTileSize.Large, true).Columns);
 
     [Fact]
     public void S1323_list_columns_grow_with_the_width()
@@ -687,7 +685,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_chrome_appears_on_big_tiles_only()
     {
-        var config = new FolderConfig { View = FolderViewMode.Details };
+        var config = new FolderDetailsConfig();
 
         var small = FolderLayout.Plan(new WidgetArea(200, 106), config, 20, searchOpen: false, navigate: true, hasGit: false);
         Assert.False(small.Breadcrumb);
@@ -699,22 +697,20 @@ public sealed class FolderBrowserTests
     }
 
     [Fact]
-    public void S1323_a_big_tile_has_no_status_footer_and_the_list_keeps_its_height()
+    public void S1323_a_big_tile_has_a_breadcrumb_and_no_column_header_outside_details()
     {
-        // The "24 items · 2 selected" footer is retired (concise widgets): under the breadcrumb,
-        // every DIP is the list's.
-        var config = new FolderConfig { View = FolderViewMode.Grid, StretchTiles = true };
-        var plan = FolderLayout.Plan(new WidgetArea(800, 516), config, 6, false, true, false);
+        var plan = FolderLayout.Plan(new WidgetArea(800, 516), new FolderGridConfig(), 6, false, true, false);
 
         Assert.True(plan.Breadcrumb);
-        Assert.True(plan.Grid is { Stretched: true });
-        Assert.Equal(516 - FolderLayout.BreadcrumbHeight, plan.Grid!.Value.CellHeight * plan.Grid.Value.Rows, 3);
+        Assert.False(plan.ColumnHeader);
+        Assert.Empty(plan.Columns);
+        Assert.NotNull(plan.Grid);
     }
 
     [Fact]
     public void S1323_an_open_search_box_is_shown_before_the_column_header()
     {
-        var config = new FolderConfig { View = FolderViewMode.Details };
+        var config = new FolderDetailsConfig();
 
         var plan = FolderLayout.Plan(new WidgetArea(300, 80), config, 20, searchOpen: true, navigate: false, hasGit: false);
 
@@ -725,7 +721,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_xl_grid_tiles_are_one_size_larger()
     {
-        var config = new FolderConfig { View = FolderViewMode.Grid };
+        var config = new FolderGridConfig { TileSize = FolderTileSize.Small };
 
         var plan = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, false, false, false);
 

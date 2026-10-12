@@ -5,9 +5,9 @@ namespace Themia.Core.Model;
 /// <summary>[S-1140] Processor load: the reading and its history, nothing else ([S-1762]).</summary>
 public sealed class CpuConfig : GaugeConfig
 {
-    /// <summary>Load is only honest at a one-second cadence; a minute of history.</summary>
+    /// <summary>A minute of history, as Task Manager shows.</summary>
     public CpuConfig()
-        : base(intervalSeconds: 1, graphSpanSeconds: 60)
+        : base(graphSpanSeconds: 60)
     {
     }
 

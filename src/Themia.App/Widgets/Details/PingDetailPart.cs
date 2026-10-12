@@ -3,6 +3,7 @@ using Themia.App.Services.SystemData;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets.Details;
@@ -10,7 +11,7 @@ namespace Themia.App.Widgets.Details;
 /// <summary>
 /// [S-2426]..[S-2429] Latency statistics over the latest probes of one host: the newest answer,
 /// average, range, jitter and loss. [S-2508] The probes are the hub's prober for the host, the same
-/// one a ping meter on that host and cadence charts: one probe out at a time, a late answer from a
+/// one a ping meter on that host charts: one probe out at a time, a late answer from a
 /// host the user has since changed belongs to the old host's prober ([S-106], [S-107]), and the window
 /// is the prober's history, so the statistics survive a view switch.
 /// </summary>
@@ -18,7 +19,7 @@ internal sealed class PingDetailPart : DetailPart
 {
     private PingDetailsConfig _config = new();
     private SeriesWatch? _watch;
-    private MeterSeries? _series;
+    private SeriesInterest? _series;
     private IDetailHost? _host;
 
     public override WidgetKind Kind => WidgetKind.PingDetails;
@@ -33,15 +34,15 @@ internal sealed class PingDetailPart : DetailPart
         // [S-1173] The header names the host as the user does.
         host.SetTitle(_config.EffectiveHost);
 
-        // A different host or cadence is a different prober, with its own window; a different window
-        // size is the same probes counted again.
-        var series = MeterSeries.Of(Sources.Ping, _config.TickInterval, target: _config.EffectiveHost);
+        // A different host is a different prober, with its own window; a different window size is
+        // the same probes counted again. The series is the one the state asks the hub for ([S-2513]).
+        var series = SystemInterests.For(_config, DiskMetrics.SystemRoot).Series[0];
 
         if (_watch is null || series != _series)
         {
             _watch?.Dispose();
             _series = series;
-            _watch = series.Watch(hub, _ => Show());
+            _watch = hub.WatchSeries(series, _ => Show());
         }
 
         Show();

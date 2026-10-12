@@ -1,0 +1,31 @@
+{
+  "yearProgress.label": "年の進み具合",
+  "yearProgress.desc": "今日・今週・今月・今年がどれだけ過ぎたか",
+  "yearProgress.day": "日",
+  "yearProgress.week": "週",
+  "yearProgress.month": "月",
+  "yearProgress.year": "年",
+  "yearProgress.left": "残り {time}",
+  "yearProgress.weekNumber": "第 {number} 週",
+  "yearProgress.dayOf": "{days} 日中 {day} 日目",
+  "meeting.label": "次の会議",
+  "meeting.desc": "次の予定。オンライン会議には参加ボタン付き",
+  "meeting.join": "参加",
+  "meeting.joinTip": "オンライン会議に参加",
+  "meeting.nowEnds": "進行中 · {time} に終了",
+  "meeting.dayTime": "{day} {time}",
+  "meeting.none": "予定はありません",
+  "recentFiles.label": "最近使ったファイル",
+  "recentFiles.desc": "最後に開いたファイル",
+  "recentFiles.empty": "最近開いたものはありません",
+  "recentFiles.unreadable": "Windows の最近使った項目を読み取れませんでした",
+  "recentFiles.remove": "一覧から削除",
+  "recycleBin.desc": "ごみ箱の使用量と、空にするボタン",
+  "recycleBin.empty": "空にする",
+  "recycleBin.emptyEllipsis": "ごみ箱を空にする…",
+  "recycleBin.isEmpty": "項目なし",
+  "recycleBin.items": {
+    "other": "{count} 個の項目"
+  },
+  "recycleBin.open": "ごみ箱を開く"
+}

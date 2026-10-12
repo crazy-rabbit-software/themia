@@ -112,12 +112,13 @@ internal sealed partial class CalendarView
 
     /// <summary>
     /// [S-571] The widest thing the time column shows, measured in the current language: "All day"
-    /// and "Now" run far longer than a clock in some languages ("Toute la journée", "طوال اليوم").
+    /// and "Now" run far longer than a clock in some languages ("Toute la journée", "طوال اليوم"). The clock is
+    /// written as the rows write it, in the language's digits and separator ("٠٠:٠٠", "00.00").
     /// </summary>
     private static double WidestTimeLabel()
     {
         var widest = 0.0;
-        foreach (var (type, label) in new[] { (FluentType.Body, Str.Calendar_AllDay.Text()), (FluentType.BodyStrong, Str.WidgetsA_Calendar_Now.Text()), (FluentType.Body, "00:00") })
+        foreach (var (type, label) in new[] { (FluentType.Body, Str.Calendar_AllDay.Text()), (FluentType.BodyStrong, Str.WidgetsA_Calendar_Now.Text()), (FluentType.Body, LocaleFormat.Time(Strings.Current, TimeOnly.MinValue, HourCycle.H24)) })
         {
             var probe = Fluent.Text(type);
             probe.Language = UiLanguage.Tag(Strings.Current);

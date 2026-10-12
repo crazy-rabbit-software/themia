@@ -5,9 +5,9 @@ namespace Themia.Core.Model;
 /// <summary>[S-1180] Charge level: the reading with the battery icon, and its history ([S-1762]).</summary>
 public sealed class BatteryConfig : GaugeConfig
 {
-    /// <summary>Charge moves slowly: every fifteen seconds, five minutes of history.</summary>
+    /// <summary>Charge moves slowly: a quarter of an hour of history.</summary>
     public BatteryConfig()
-        : base(intervalSeconds: 15, graphSpanSeconds: 300)
+        : base(graphSpanSeconds: 900)
     {
     }
 

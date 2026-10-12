@@ -6,13 +6,15 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Widgets;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-3506] Debug only: draw the edit bar's open add menu to a PNG, off-screen, like the other debug
-/// renders. <c>Themia.exe --picker-png &lt;out.png&gt; [--search text] [--theme light|dark]</c>.
+/// renders. <c>Themia.exe --picker-png &lt;out.png&gt; [--search text] [--open Subject[/Family]] [--theme light|dark]</c>:
+/// <c>--open</c> opens the cascade by folder names (<see cref="AddFolderId"/>), e.g. <c>CalendarMail/CalendarLayouts</c>.
 /// <para>
 /// The menu lives in a flyout on a desktop surface, which a render cannot open without the user's
 /// desktop; <see cref="WidgetPicker"/> is drawn here inside a stand-in for the flyout's presenter
@@ -33,13 +35,14 @@ internal static class PickerRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, "usage: --picker-png <out.png> [--search text] [--theme light|dark]");
+            Log.Error(Scope, "usage: --picker-png <out.png> [--search text] [--open Subject[/Family]] [--theme light|dark]");
             app.Exit();
             return true;
         }
 
         var outPath = System.IO.Path.GetFullPath(args[at + 1]);
         var search = Option(args, "--search");
+        var open = Option(args, "--open");
 
         _ = dispatcher.TryEnqueue(async () =>
         {
@@ -71,6 +74,12 @@ internal static class PickerRender
 
                 await Task.Delay(500).ConfigureAwait(true);
 
+                if (open is not null)
+                {
+                    picker.OpenPath([.. open.Split('/').Select(Folder)]);
+                    await Task.Delay(300).ConfigureAwait(true);
+                }
+
                 if (search is not null)
                 {
                     picker.SetQuery(search);
@@ -95,7 +104,7 @@ internal static class PickerRender
         return true;
     }
 
-    /// <summary>The work area the render's menu is fitted to ([S-3503]).</summary>
+    /// <summary>The work area the render's menu is fitted to ([S-3512]).</summary>
     internal const double WorkWidth = 1920;
 
     internal const double WorkHeight = 1032;
@@ -112,6 +121,18 @@ internal static class PickerRender
         HorizontalAlignment = HorizontalAlignment.Left,
         VerticalAlignment = VerticalAlignment.Top,
     };
+
+    /// <summary>A folder by its name; an unknown name is logged and opens nothing.</summary>
+    private static AddFolderId Folder(string name)
+    {
+        if (Enum.TryParse<AddFolderId>(name, ignoreCase: true, out var id))
+        {
+            return id;
+        }
+
+        Log.Warn(Scope, $"--open: no folder called '{name}'");
+        return AddFolderId.Popular;
+    }
 
     private static string? Option(string[] args, string name)
     {

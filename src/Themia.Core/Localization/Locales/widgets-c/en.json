@@ -3,6 +3,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "Undo",
   "widgetsC.notes.editor.redo": "Redo",
+  "widgetsC.notes.editor.moreFormatting": "More formatting",
   "widgetsC.notes.words": {
     "one": "{count} word",
     "other": "{count} words"
@@ -416,8 +417,6 @@
   "widgetsC.agenda.desc": "What is coming up, day by day",
   "widgetsC.moon.label": "Moon",
   "widgetsC.moon.desc": "The moon's phase, rise and set",
-  "widgetsC.visualizer.label": "Audio visualizer",
-  "widgetsC.visualizer.desc": "Bars that move with whatever this PC plays",
   "widgetsC.visualizer.unavailable": "Audio output unavailable",
   "widgetsC.moon.rise": "Moonrise",
   "widgetsC.moon.set": "Moonset",
@@ -459,6 +458,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows red",
   "widgetsC.stocks.settings.symbolRefused": "Pick a search result, or type a symbol: letters, digits and . - ^ = only",
   "widgetsC.stocks.settings.classOnExchange": "{class} on {exchange}",
+  "widgetsC.stocks.settings.holding.label": "Shares owned",
+  "widgetsC.stocks.settings.holding.desc": "How many you hold; the widget shows what they are worth. Empty hides it",
+  "widgetsC.stocks.settings.holding.refused": "Type an amount of 0 or more, such as {example}",
+  "widgetsC.stocks.holding.line": "{amount} held · {value}",
   "widgetsC.location.recycleBin": "Recycle Bin",
   "widgetsC.location.thisPc": "This PC",
   "widgetsC.location.downloads": "Downloads",

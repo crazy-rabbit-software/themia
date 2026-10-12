@@ -69,16 +69,31 @@ public sealed class WidgetInstance
     /// nothing the bars do not.
     /// </para>
     /// <para>
-    /// [S-3901] And the quick-setting toggles: the tile is the switch, its name under the icon.
+    /// [S-3901] And the quick-setting toggles, which never have one ([S-3711]).
     /// </para>
     /// </summary>
     public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
     {
-        WidgetKind.Clock or WidgetKind.AudioVisualizer => HeaderPlacement.Hidden,
+        _ when !CanHaveHeader(kind) => HeaderPlacement.Hidden,
+        WidgetKind.Clock => HeaderPlacement.Hidden,
+        _ when Themia.Core.Widgets.VisualizerLayout.StyleOf(kind) is not null => HeaderPlacement.Hidden,
         _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
-        _ when Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
         _ => HeaderPlacement.Top,
     };
+
+    /// <summary>
+    /// [S-3711] Whether a widget of <paramref name="kind"/> may have a header at all. The
+    /// quick-setting toggles never do ([S-3901]): the whole tile is the switch and its name is
+    /// under the icon, so a header would only repeat it and take a third of a 120-DIP tile.
+    /// </summary>
+    public static bool CanHaveHeader(WidgetKind kind) => Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is null;
+
+    /// <summary>
+    /// [S-3711]/[S-3712] Where the header is drawn: the stored placement, or hidden for a kind that
+    /// can never have one, whatever the file says.
+    /// </summary>
+    [JsonIgnore]
+    public HeaderPlacement ShownHeader => CanHaveHeader(Kind) ? Header : HeaderPlacement.Hidden;
 
     public WidgetInstance Clone() => new()
     {

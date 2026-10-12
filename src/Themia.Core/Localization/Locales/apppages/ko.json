@@ -1,0 +1,48 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "보기를 다른 보기 위로 끌어 이동하거나, 보기에서 Alt+Shift+위쪽 또는 아래쪽 화살표를 누르세요.",
+  "shell.list.reorderHint": "항목을 다른 항목 위로 끌어 이동하거나, 항목에서 Alt+Shift+위쪽 또는 아래쪽 화살표를 누르세요.",
+  "shell.view.colour": "색",
+  "shell.view.colourDesc": "보기 표시줄과 이 창에 표시되는 아이콘 색",
+  "shell.view.colourDefault": "텍스트 색",
+  "shell.appearance.themeColours": "테마 및 색",
+  "shell.appearance.cards": "위젯 카드",
+  "shell.appearance.cardsDesc": "테두리, 모서리 및 윤곽선",
+  "shell.appearance.textAndSize": "텍스트 및 크기",
+  "shell.appearance.textAndSizeDesc": "글꼴, 텍스트 크기 및 위젯 배율",
+  "shell.appearance.layoutDesc": "위젯 간격 및 그리드에 맞추기",
+  "shell.net.blockedLocal": "{host}은(는) 로컬 네트워크에 있습니다. Themia는 직접 입력한 주소일 때만 연결합니다",
+  "shell.accounts.stats.mail": "메일",
+  "shell.accounts.stats.calendar": "일정",
+  "shell.accounts.stats.contacts": "연락처",
+  "shell.accounts.stats.tasks": "작업",
+  "shell.accounts.stats.messages": {
+    "other": "메시지 {count}개"
+  },
+  "shell.accounts.stats.events": {
+    "other": "일정 {count}개"
+  },
+  "shell.accounts.stats.people": {
+    "other": "연락처 {count}개"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "작업 {count}개"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "폴더 {count}개에"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "캘린더 {count}개에"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "목록 {count}개에"
+  },
+  "shell.accounts.stats.synced": "{time}에 동기화됨",
+  "shell.accounts.stats.neverSynced": "아직 동기화되지 않음",
+  "shell.accounts.stats.nothing": "아직 이 PC에 저장된 항목이 없습니다",
+  "shell.accounts.nicknameDesc": "위젯에 표시되는 이 계정의 이름",
+  "shell.accounts.reconnect": "다시 로그인",
+  "shell.accounts.reconnectButton": "로그인",
+  "shell.accounts.signOutDesc": "계정과 이 PC에 동기화된 모든 항목을 삭제합니다",
+  "shell.accounts.needsSignIn": "다시 로그인해야 합니다"
+}

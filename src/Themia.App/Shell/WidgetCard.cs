@@ -391,7 +391,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             : !string.IsNullOrWhiteSpace(_viewTitle) ? _viewTitle
             : WidgetCatalog.Definition(Model.Kind).Label;
 
-        var placement = Model.Header;
+        var placement = Model.ShownHeader;
 
         // Shed it on a tile too short to carry it, here rather than in twenty views: below this
         // the label is taking the room the content needs, and every widget drew the same
@@ -511,7 +511,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         var design = _host.Design;
         var r = DesignLook.CornerRadius(design.CornerRadiusPx);
 
-        var radius = Model.Header == HeaderPlacement.Bottom ? new CornerRadius(0, 0, r, r) : new CornerRadius(r, r, 0, 0);
+        var radius = Model.ShownHeader == HeaderPlacement.Bottom ? new CornerRadius(0, 0, r, r) : new CornerRadius(r, r, 0, 0);
 
         var own = DesignApplier.UserBrush(design.HeaderBackgroundColor);
         var surface = DesignLook.FillOpacity(Model.Surface, design.SurfaceOpacity);
@@ -535,7 +535,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         // [S-836] Inside a solid stroke on the card's three outer edges, as the body's tint is.
         var t = TintInset();
         var ri = Math.Max(0, r - t);
-        (_headerTint.Margin, _headerTint.CornerRadius) = Model.Header == HeaderPlacement.Bottom
+        (_headerTint.Margin, _headerTint.CornerRadius) = Model.ShownHeader == HeaderPlacement.Bottom
             ? (new Thickness(t, 0, t, t), new CornerRadius(0, 0, ri, ri))
             : (new Thickness(t, t, t, 0), new CornerRadius(ri, ri, 0, 0));
     }
@@ -561,7 +561,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         }
 
         var r = DesignLook.CornerRadius(_host.Design.CornerRadiusPx);
-        var edge = _headerBand.Visibility == Visibility.Visible ? Model.Header : HeaderPlacement.Hidden;
+        var edge = _headerBand.Visibility == Visibility.Visible ? Model.ShownHeader : HeaderPlacement.Hidden;
 
         var (row, rowSpan, radius) = edge switch
         {

@@ -61,7 +61,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-1113] The language on the whole surface, its direction only on the parts that are text:
-    /// the edit bar, the view bar, the placement hint, the notices and the menu anchor (each card
+    /// the edit bar, the properties strip, the view bar, the placement hint, the notices and the menu anchor (each card
     /// sets its own as it is built). The surface root and its canvases stay left to right — they
     /// are where things are on the screen, and a widget does not move when the language changes.
     /// </summary>
@@ -70,6 +70,7 @@ internal sealed partial class DesktopWindow
         UiLanguage.ApplyLanguageOnly(_root);
         UiLanguage.ApplyFlow(_menuAnchor);
         UiLanguage.ApplyFlow(_toolbar);
+        UiLanguage.ApplyFlow(_properties);
         UiLanguage.ApplyFlow(_viewBar);
         UiLanguage.ApplyFlow(_placementHint);
         UiLanguage.ApplyFlow(_noticeLayer);
@@ -79,6 +80,10 @@ internal sealed partial class DesktopWindow
     private Windows.Foundation.Point OnMenuAnchor(Windows.Foundation.Point at)
         => _root.TransformToVisual(_menuAnchor).TransformPoint(at);
 
-    /// <summary>The edit bar's buttons and its add menu, built again in the current language.</summary>
-    private void RebuildToolbar() => _toolbar.Fill(ToolbarCommands());
+    /// <summary>The edit bar's buttons and its add menu, and the properties strip, built again in the current language.</summary>
+    private void RebuildToolbar()
+    {
+        _toolbar.Fill(ToolbarCommands());
+        _properties.Fill(PropertiesCommands());
+    }
 }

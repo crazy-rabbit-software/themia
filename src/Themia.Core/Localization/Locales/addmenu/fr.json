@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "Populaires",
+  "addMenu.browse": "Parcourir",
+  "addMenu.subject.time": "Heure",
+  "addMenu.subject.calendar": "Calendrier et courrier",
+  "addMenu.subject.weather": "Météo et ciel",
+  "addMenu.subject.markets": "Actualités et marchés",
+  "addMenu.subject.media": "Musique et médias",
+  "addMenu.subject.notes": "Notes et outils",
+  "addMenu.subject.files": "Fichiers et applis",
+  "addMenu.subject.system": "Système",
+  "addMenu.subject.devices": "Appareils et alimentation",
+  "addMenu.subject.more": "Plus",
+  "addMenu.family.calendar": "Calendrier",
+  "addMenu.family.visualizer": "Visualiseur",
+  "addMenu.family.folder": "Dossier",
+  "addMenu.family.screenTime": "Temps d’écran",
+  "addMenu.family.powerButtons": "Boutons d’alimentation"
+}

@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
 
@@ -152,7 +153,7 @@ internal sealed partial class CalendarView
         var number = Fluent.Text(
             FluentType.Caption,
             isToday ? "TextOnAccentFillColorPrimaryBrush" : inMonth ? "TextFillColorPrimaryBrush" : "TextFillColorDisabledBrush");
-        number.Text = day.Day.ToString(CultureInfo.InvariantCulture);
+        number.Text = LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture));
         Typography.SetNumeralAlignment(number, FontNumeralAlignment.Tabular);
         number.TextTrimming = TextTrimming.None;
         if (line < FluentType.Caption.LineHeight)
@@ -227,7 +228,7 @@ internal sealed partial class CalendarView
         if (hidden > 0)
         {
             var more = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            more.Text = $"+{hidden.ToString(CultureInfo.InvariantCulture)}";
+            more.Text = LocaleFormat.Digits(Strings.Current, $"+{hidden.ToString(CultureInfo.InvariantCulture)}");
             more.HorizontalAlignment = HorizontalAlignment.Right;
             more.TextTrimming = TextTrimming.None;
             SetColumn(more, 1);

@@ -32,9 +32,11 @@ public static class ClockFormatter
         var hour24 = local.Hour;
         var hour = use24Hour ? hour24 : ToTwelveHour(hour24);
 
-        var time = config.ShowSeconds
+        // [S-1115] In the language's own digits (Arabic ٠٩:٤١), one for one, so the readout keeps
+        // the character count the clock's type ladder sizes it by.
+        var time = LocaleFormat.Digits(locale, config.ShowSeconds
             ? $"{Pad(hour, use24Hour)}:{local.Minute:D2}:{local.Second:D2}"
-            : $"{Pad(hour, use24Hour)}:{local.Minute:D2}";
+            : $"{Pad(hour, use24Hour)}:{local.Minute:D2}");
 
         var data = LocaleData.For(locale);
         var meridiem = use24Hour ? null : (hour24 < 12 ? data.Am : data.Pm);
@@ -93,6 +95,7 @@ public static class ClockFormatter
     /// <summary>
     /// [S-1485] "UTC+2", "UTC+5:30", "UTC−3" from UTC; "+8h local", "−5:30h local", "same as local"
     /// from the machine's zone. Minus is U+2212, the typographic sign, as the original wrote it.
+    /// The UTC form stays Latin beside "UTC"; the local one takes the language's digits ([S-1115]).
     /// </summary>
     public static string? OffsetText(TimeSpan zoneOffset, TimeSpan localOffset, ClockOffsetMode mode, Locale locale)
     {
@@ -105,7 +108,7 @@ public static class ClockFormatter
                 var difference = zoneOffset - localOffset;
                 return difference == TimeSpan.Zero
                     ? Strings.Get(locale, Str.WidgetsA_Clock_Offset_SameAsLocal)
-                    : Strings.Format(locale, Str.WidgetsA_Clock_Offset_FromLocal, ("offset", Signed(difference)));
+                    : Strings.Format(locale, Str.WidgetsA_Clock_Offset_FromLocal, ("offset", LocaleFormat.Digits(locale, Signed(difference))));
 
             default:
                 return null;

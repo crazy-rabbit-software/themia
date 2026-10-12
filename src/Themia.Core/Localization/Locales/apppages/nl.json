@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "Sleep een weergave op een andere om hem te verplaatsen, of druk op Alt+Shift+Pijl-omhoog of Pijl-omlaag op een weergave.",
+  "shell.list.reorderHint": "Sleep een item op een ander om het te verplaatsen, of druk op Alt+Shift+Pijl-omhoog of Pijl-omlaag op een item.",
+  "shell.view.colour": "Kleur",
+  "shell.view.colourDesc": "De kleur van het pictogram in de weergavebalk en in dit venster",
+  "shell.view.colourDefault": "Tekstkleur",
+  "shell.appearance.themeColours": "Thema en kleuren",
+  "shell.appearance.cards": "Widgetkaarten",
+  "shell.appearance.cardsDesc": "Rand, hoeken en omtrek",
+  "shell.appearance.textAndSize": "Tekst en grootte",
+  "shell.appearance.textAndSizeDesc": "Lettertype, tekstgrootte en widgetschaal",
+  "shell.appearance.layoutDesc": "Ruimte tussen widgets en uitlijnen op het raster",
+  "shell.net.blockedLocal": "{host} staat in het lokale netwerk. Themia gaat daar alleen heen voor een adres dat je zelf hebt getypt",
+  "shell.accounts.stats.mail": "E-mail",
+  "shell.accounts.stats.calendar": "Agenda",
+  "shell.accounts.stats.contacts": "Contactpersonen",
+  "shell.accounts.stats.tasks": "Taken",
+  "shell.accounts.stats.messages": {
+    "one": "{count} bericht",
+    "other": "{count} berichten"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} afspraak",
+    "other": "{count} afspraken"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} contactpersoon",
+    "other": "{count} contactpersonen"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} taak",
+    "other": "{count} taken"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "in {count} map",
+    "other": "in {count} mappen"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "in {count} agenda",
+    "other": "in {count} agenda's"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "in {count} lijst",
+    "other": "in {count} lijsten"
+  },
+  "shell.accounts.stats.synced": "gesynchroniseerd {time}",
+  "shell.accounts.stats.neverSynced": "nog niet gesynchroniseerd",
+  "shell.accounts.stats.nothing": "Nog niets opgeslagen op deze pc",
+  "shell.accounts.nicknameDesc": "De naam die widgets voor dit account tonen",
+  "shell.accounts.reconnect": "Opnieuw aanmelden",
+  "shell.accounts.reconnectButton": "Aanmelden",
+  "shell.accounts.signOutDesc": "Vergeet het account en alles wat ervan is gesynchroniseerd op deze pc",
+  "shell.accounts.needsSignIn": "Je moet je opnieuw aanmelden"
+}

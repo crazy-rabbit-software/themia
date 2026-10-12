@@ -9,9 +9,9 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class GpuConfig : GaugeConfig
 {
-    /// <summary>[S-436] Every two seconds; a minute of history.</summary>
+    /// <summary>[S-436] A minute of history.</summary>
     public GpuConfig()
-        : base(intervalSeconds: 2, graphSpanSeconds: 60)
+        : base(graphSpanSeconds: 60)
     {
     }
 

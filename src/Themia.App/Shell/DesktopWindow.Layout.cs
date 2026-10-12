@@ -69,7 +69,7 @@ internal sealed partial class DesktopWindow
             card.ApplySelection();
         }
 
-        SyncSelectionGroup();
+        SyncProperties();
     }
 
     private void OnStateChanged()
@@ -101,6 +101,7 @@ internal sealed partial class DesktopWindow
 
         // [S-907] The bar gains its grip in edit mode, or appears faded where the user hid it.
         RefreshViewBar();
+        PlaceProperties();
         ApplyHitRegion();
 
         if (editing)
@@ -143,6 +144,7 @@ internal sealed partial class DesktopWindow
         }
 
         PositionCard(card, card.Model.Rect);
+        PlaceProperties();
         ApplyHitRegion();
     }
 
@@ -219,6 +221,7 @@ internal sealed partial class DesktopWindow
 
         ApplyChromeInsets();
         RefreshViewBar();
+        PlaceProperties();
         ApplyHitRegion();
 
         if (EditMode)

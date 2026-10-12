@@ -30,13 +30,37 @@ internal static unsafe partial class CuePlayer
 
     private const uint SndMemory = 0x0004;
 
+    /// <summary>[S-4626] Play until stopped: the alarm's ring.</summary>
+    private const uint SndLoop = 0x0008;
+
     private static readonly Lock Gate = new();
 
     /// <summary>The buffer the sound driver may still be reading, or null.</summary>
     private static void* _current;
 
     /// <summary>Play <paramref name="wave"/>, stopping any cue still sounding. An empty wave only stops.</summary>
-    public static void Play(byte[] wave)
+    public static void Play(byte[] wave) => Play(wave, loop: false);
+
+    /// <summary>[S-4626] Play <paramref name="wave"/> over and over until <see cref="Stop"/> or the next cue: an alarm ringing.</summary>
+    public static void PlayLooping(byte[] wave) => Play(wave, loop: true);
+
+    /// <summary>Stop whatever is sounding.</summary>
+    public static void Stop()
+    {
+        lock (Gate)
+        {
+            try
+            {
+                StopLocked();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, "stopping a cue threw", ex);
+            }
+        }
+    }
+
+    private static void Play(byte[] wave, bool loop)
     {
         ArgumentNullException.ThrowIfNull(wave);
 
@@ -54,7 +78,7 @@ internal static unsafe partial class CuePlayer
                 var buffer = NativeMemory.Alloc((nuint)wave.Length);
                 wave.AsSpan().CopyTo(new Span<byte>(buffer, wave.Length));
 
-                if (PlaySound((nint)buffer, 0, SndMemory | SndAsync | SndNoDefault))
+                if (PlaySound((nint)buffer, 0, SndMemory | SndAsync | SndNoDefault | (loop ? SndLoop : 0)))
                 {
                     _current = buffer;
                     return;

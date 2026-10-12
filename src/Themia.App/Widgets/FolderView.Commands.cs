@@ -286,7 +286,7 @@ internal sealed partial class FolderView
     {
         CancelRename();
 
-        var shown = FileNames.Display(visual.Entry.Name, visual.Entry.IsDirectory, _config.ShowExtensions);
+        var shown = FileNames.Display(visual.Entry.Name, visual.Entry.IsDirectory, _config.Extensions);
         var box = new TextBox
         {
             Text = shown,
@@ -339,7 +339,7 @@ internal sealed partial class FolderView
 
         _renaming = null;
         var entry = session.Visual.Entry;
-        var name = FileNames.FromEdited(entry.Name, session.Box.Text, entry.IsDirectory, _config.ShowExtensions);
+        var name = FileNames.FromEdited(entry.Name, session.Box.Text, entry.IsDirectory, _config.Extensions);
         EndRename(session);
 
         if (string.Equals(name, entry.Name, StringComparison.Ordinal))

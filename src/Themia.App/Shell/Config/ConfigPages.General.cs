@@ -35,7 +35,7 @@ internal static partial class ConfigPages
     }
 
     /// <summary>
-    /// [S-1109] The app's language: Windows' own by default, or one of the seventeen, switching live.
+    /// [S-1109] The app's language: Windows' own by default, or one of the twenty-one, switching live.
     /// Each language is listed by its own name ("Deutsch", "日本語"), the same in every language, so
     /// someone who landed in a language they cannot read still finds theirs.
     /// </summary>
@@ -53,6 +53,7 @@ internal static partial class ConfigPages
             (AppLanguage.Polish, Str.Settings_Language_Polish.Text()),
             (AppLanguage.Japanese, Str.Settings_Language_Japanese.Text()),
             (AppLanguage.Chinese, Str.Settings_Language_Chinese.Text()),
+            (AppLanguage.ChineseTraditional, Str.Settings_Language_ChineseTraditional.Text()),
             (AppLanguage.Hindi, Str.Settings_Language_Hindi.Text()),
             (AppLanguage.Arabic, Str.Settings_Language_Arabic.Text()),
             (AppLanguage.Bengali, Str.Settings_Language_Bengali.Text()),
@@ -61,6 +62,9 @@ internal static partial class ConfigPages
             (AppLanguage.Urdu, Str.Settings_Language_Urdu.Text()),
             (AppLanguage.Marathi, Str.Settings_Language_Marathi.Text()),
             (AppLanguage.Vietnamese, Str.Settings_Language_Vietnamese.Text()),
+            (AppLanguage.Korean, Str.Settings_Language_Korean.Text()),
+            (AppLanguage.Dutch, Str.Settings_Language_Dutch.Text()),
+            (AppLanguage.Turkish, Str.Settings_Language_Turkish.Text()),
         };
 
         return FluentLayout.Row(Glyphs.Language, Str.Settings_Language_Label.Text(), Str.Settings_Language_Desc.Text(),

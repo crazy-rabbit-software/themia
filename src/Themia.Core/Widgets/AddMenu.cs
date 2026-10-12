@@ -1,270 +1,189 @@
+using Themia.Core.Model;
+
 namespace Themia.Core.Widgets;
 
-/// <summary>One line of the add menu: a section's heading (<see cref="Entry"/> −1) or one of its entries.</summary>
-/// <param name="Section">The section, in the order the menu shows them.</param>
-/// <param name="Entry">The entry inside its section, or −1 for the section's heading.</param>
-public readonly record struct AddMenuLine(int Section, int Entry)
-{
-    public bool IsHeading => Entry < 0;
-}
+/// <summary>A row of the menu as shown: its column (the top columns first, then each open submenu) and its row.</summary>
+public readonly record struct AddSpot(int Column, int Row);
 
 /// <summary>
-/// [S-3502] The add menu laid out: its columns, top to bottom, each a list of lines, and where every
-/// entry stands. Entries are counted in reading order (down a column, then on into the next), the
-/// order the keys walk.
+/// [S-3514] Where the add menu's tree stands: which folders are open, as a cascade, and where the
+/// highlight is. <see cref="Open"/> lists the folder rows opened, outermost first: the first in a top
+/// column, each next one in the submenu the one before opened (column <c>top + i - 1</c>).
+/// <see cref="Cursor"/> null is "on the search box".
 /// </summary>
-public sealed class AddMenuGrid
+public sealed record AddMenuNav(IReadOnlyList<AddSpot> Open, AddSpot? Cursor)
 {
-    private readonly (int Column, int Row)[] _spots;
-
-    internal AddMenuGrid(IReadOnlyList<IReadOnlyList<AddMenuLine>> columns, int rowsPerColumn)
-    {
-        Columns = columns;
-        RowsPerColumn = rowsPerColumn;
-
-        var spots = new List<(int, int)>();
-        for (var c = 0; c < columns.Count; c++)
-        {
-            for (var r = 0; r < columns[c].Count; r++)
-            {
-                if (!columns[c][r].IsHeading)
-                {
-                    spots.Add((c, r));
-                }
-            }
-        }
-
-        _spots = [.. spots];
-    }
-
-    /// <summary>The columns, left to right, each its lines top to bottom.</summary>
-    public IReadOnlyList<IReadOnlyList<AddMenuLine>> Columns { get; }
-
-    /// <summary>The most lines a column may hold: the menu's height in lines.</summary>
-    public int RowsPerColumn { get; }
-
-    /// <summary>How many entries (not headings) the menu shows.</summary>
-    public int EntryCount => _spots.Length;
-
-    /// <summary>Where the <paramref name="entry"/>th entry in reading order stands.</summary>
-    public (int Column, int Row) SpotOf(int entry) => _spots[entry];
-
-    /// <summary>The line of the <paramref name="entry"/>th entry in reading order.</summary>
-    public AddMenuLine LineOf(int entry)
-    {
-        var (column, row) = _spots[entry];
-        return Columns[column][row];
-    }
-
-    /// <summary>The reading-order number of the entry at a column and row, or −1 for a heading or nothing.</summary>
-    public int EntryAt(int column, int row)
-    {
-        for (var i = 0; i < _spots.Length; i++)
-        {
-            if (_spots[i] == (column, row))
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
+    /// <summary>Nothing open, the search box has the keys: how the menu opens.</summary>
+    public static AddMenuNav Start { get; } = new([], null);
 }
 
-/// <summary>
-/// [S-3502..S-3505] The rules of the edit bar's add menu ([S-3501]): how its sections flow through
-/// columns, how many columns it takes on a screen, what a search leaves and in which order, and how
-/// the arrow keys move through it. Pure, so the dropdown is a drawing of what these return.
-/// <para>
-/// The sections flow as a newspaper's columns (after Karpo's add list): down one column and on at the
-/// top of the next, a section carrying on where its column ends, so a long section (System) does not
-/// make one column three times the height of the rest. A heading is never the last line of a column,
-/// where it would head nothing.
-/// </para>
-/// </summary>
-public static class AddMenuLayout
+/// <summary>What a key did in the add menu.</summary>
+public enum AddMenuAction
 {
-    /// <summary>[S-3503] The most columns the menu spreads across, however wide the screen.</summary>
-    public const int MostColumns = 6;
+    /// <summary>Not the menu's: the search box's own (the caret, a typed space).</summary>
+    Unhandled,
 
-    /// <summary>[S-3503] The share of the work area's height the menu's lines may take before it takes another column.</summary>
-    public const double MostHeightShare = 0.7;
+    /// <summary>The menu moved, opened or closed a submenu.</summary>
+    Moved,
 
-    /// <summary>[S-3503] The share of the work area's width the columns may take: never all of it.</summary>
-    public const double MostWidthShare = 0.75;
+    /// <summary>Add the widget on the cursor (<see cref="AddMenuStep.Kind"/>).</summary>
+    Pick,
 
-    /// <summary>
-    /// [S-3502] Flow the sections through columns of at most <paramref name="rowsPerColumn"/> lines,
-    /// each section a heading line and then its entries. A section with no entries is left out, heading
-    /// and all. Takes as many columns as that needs.
-    /// </summary>
-    /// <param name="sections">Each section's number of entries, in the order shown.</param>
-    /// <param name="rowsPerColumn">Lines per column; at least two, so a heading always has room for an entry under it.</param>
-    public static AddMenuGrid Flow(IReadOnlyList<int> sections, int rowsPerColumn)
-    {
-        ArgumentNullException.ThrowIfNull(sections);
-        ArgumentOutOfRangeException.ThrowIfLessThan(rowsPerColumn, 2);
-
-        var columns = new List<List<AddMenuLine>>();
-        List<AddMenuLine>? column = null;
-
-        for (var s = 0; s < sections.Count; s++)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegative(sections[s]);
-            if (sections[s] == 0)
-            {
-                continue;
-            }
-
-            // A heading needs its first entry under it in the same column.
-            if (column is null || column.Count + 2 > rowsPerColumn)
-            {
-                column = [];
-                columns.Add(column);
-            }
-
-            column.Add(new AddMenuLine(s, -1));
-
-            for (var e = 0; e < sections[s]; e++)
-            {
-                if (column.Count >= rowsPerColumn)
-                {
-                    column = [];
-                    columns.Add(column);
-                }
-
-                column.Add(new AddMenuLine(s, e));
-            }
-        }
-
-        return new AddMenuGrid([.. columns], rowsPerColumn);
-    }
-
-    /// <summary>
-    /// [S-3502] The fewest lines per column that fit the sections into <paramref name="columns"/>
-    /// columns: the columns as even as the headings allow.
-    /// </summary>
-    public static int RowsFor(IReadOnlyList<int> sections, int columns)
-    {
-        ArgumentNullException.ThrowIfNull(sections);
-        ArgumentOutOfRangeException.ThrowIfLessThan(columns, 1);
-
-        var lines = Lines(sections);
-        var rows = Math.Max(2, (lines + columns - 1) / columns);
-
-        // A heading pushed to the next column can cost a column; one more line each wins it back.
-        // Terminates: at `lines` rows everything is one column.
-        while (rows < lines && Flow(sections, rows).Columns.Count > columns)
-        {
-            rows++;
-        }
-
-        return rows;
-    }
-
-    /// <summary>
-    /// [S-3503] How many columns the menu takes, and their height in lines, in a work area of
-    /// <paramref name="areaWidth"/> × <paramref name="areaHeight"/>: the fewest columns that keep the
-    /// lines within <see cref="MostHeightShare"/> of the height, up to <see cref="MostColumns"/> and to
-    /// as many as <see cref="MostWidthShare"/> of the width holds. Where even those do not, it takes
-    /// them, and the menu scrolls.
-    /// </summary>
-    /// <param name="sections">Each section's number of entries.</param>
-    /// <param name="columnWidth">One column's width, in the unit of the area.</param>
-    /// <param name="columnGap">The space between two columns.</param>
-    /// <param name="lineHeight">One line's height (a heading's and an entry's are one).</param>
-    public static (int Columns, int Rows) Fit(IReadOnlyList<int> sections, double areaWidth, double areaHeight, double columnWidth, double columnGap, double lineHeight)
-    {
-        ArgumentNullException.ThrowIfNull(sections);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(columnWidth);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lineHeight);
-
-        var across = (int)Math.Floor(((Math.Max(0, areaWidth) * MostWidthShare) + columnGap) / (columnWidth + columnGap));
-        var most = Math.Clamp(across, 1, MostColumns);
-        var tallest = Math.Max(2, (int)Math.Floor(Math.Max(0, areaHeight) * MostHeightShare / lineHeight));
-
-        for (var c = 1; c <= most; c++)
-        {
-            var rows = RowsFor(sections, c);
-            if (rows <= tallest)
-            {
-                return (Flow(sections, rows).Columns.Count, rows);
-            }
-        }
-
-        var fallback = RowsFor(sections, most);
-        return (Flow(sections, fallback).Columns.Count, fallback);
-    }
-
-    /// <summary>
-    /// [S-3504] What the menu lists for a query, grouped into its sections. With nothing typed: every
-    /// item, in its sections, both in the order given (the catalogue's). With a query: only the items
-    /// <see cref="WidgetSearch"/> matches, best first — the sections ordered by their best match and the
-    /// items inside each by rank — so the first entry in reading order is the best match.
-    /// </summary>
-    public static List<(TSection Section, List<T> Items)> Filter<T, TSection>(IEnumerable<(IndexedWidget Index, T Value, TSection Section)> items, string? query)
-        where TSection : notnull
-    {
-        ArgumentNullException.ThrowIfNull(items);
-
-        var all = items.ToList();
-        IEnumerable<(T Value, TSection Section)> ordered = WidgetSearch.Tokenize(query).Length == 0
-            ? all.Select(item => (item.Value, item.Section))
-            : WidgetSearch.Rank(all.Select(item => (item.Index, (item.Value, item.Section))), query);
-
-        var result = new List<(TSection Section, List<T> Items)>();
-        var at = new Dictionary<TSection, int>();
-
-        foreach (var (value, section) in ordered)
-        {
-            if (!at.TryGetValue(section, out var index))
-            {
-                index = result.Count;
-                at[section] = index;
-                result.Add((section, []));
-            }
-
-            result[index].Items.Add(value);
-        }
-
-        return result;
-    }
-
-    private static int Lines(IReadOnlyList<int> sections)
-    {
-        var lines = 0;
-        foreach (var count in sections)
-        {
-            lines += count > 0 ? count + 1 : 0;
-        }
-
-        return lines;
-    }
+    /// <summary>Close the menu: Escape with nothing open.</summary>
+    Close,
 }
 
+/// <summary>The menu after a key, and what to do.</summary>
+public readonly record struct AddMenuStep(AddMenuNav Nav, AddMenuAction Action, WidgetKind Kind = default);
+
 /// <summary>
-/// [S-3505] The add menu's keys, after Karpo's: the highlight is a number in reading order, −1 for
-/// "on the search box". Up and Down walk reading order — on into the next column at a column's foot,
-/// back into the box above the first entry. Left and Right go to the nearest entry of the column
-/// beside, by row. Home and End go to the first and last entry. In the box (−1), Left, Right, Home
-/// and End are the text's own (the caret), so they are not the menu's.
+/// [S-3514] The add menu's tree walked, pure, so the dropdown is a drawing of what these return:
+/// which columns show for a state, what the pointer does, and what each key does.
 /// </summary>
 public static class AddMenuKeys
 {
-    /// <summary>The highlight after <paramref name="key"/>, or null when the key is not the menu's.</summary>
-    /// <param name="grid">The menu as shown.</param>
-    /// <param name="current">The highlighted entry, or −1 on the search box.</param>
-    public static int? Move(AddMenuGrid grid, int current, WidgetKey key)
+    /// <summary>
+    /// The columns shown, left to right: the top columns, then each open folder's rows. An open
+    /// spot that names no folder (the tree changed under it) ends the cascade there.
+    /// </summary>
+    public static IReadOnlyList<IReadOnlyList<AddRow>> Columns(IReadOnlyList<AddColumn> top, AddMenuNav nav)
     {
-        ArgumentNullException.ThrowIfNull(grid);
+        ArgumentNullException.ThrowIfNull(top);
+        ArgumentNullException.ThrowIfNull(nav);
 
-        var count = grid.EntryCount;
-        if (current >= count)
+        var columns = new List<IReadOnlyList<AddRow>>(top.Select(column => column.Rows));
+        foreach (var spot in nav.Open)
         {
-            current = count - 1;
+            if (FolderAt(columns, spot) is not { } folder)
+            {
+                break;
+            }
+
+            columns.Add(folder.Rows);
         }
 
-        if (count == 0)
+        return columns;
+    }
+
+    /// <summary>The open folders, outermost first, as far as they name folders.</summary>
+    public static IReadOnlyList<AddFolder> OpenFolders(IReadOnlyList<AddColumn> top, AddMenuNav nav)
+    {
+        ArgumentNullException.ThrowIfNull(nav);
+
+        var columns = Columns(top, nav);
+        var open = new List<AddFolder>();
+        foreach (var spot in nav.Open)
+        {
+            if (FolderAt(columns, spot) is not { } folder)
+            {
+                break;
+            }
+
+            open.Add(folder);
+        }
+
+        return open;
+    }
+
+    /// <summary>
+    /// [S-3514] The pointer rested on (or clicked) a row: the submenus of its column and beyond close,
+    /// a folder row opens its own, and the highlight goes to it.
+    /// </summary>
+    public static AddMenuNav Point(IReadOnlyList<AddColumn> top, AddMenuNav nav, AddSpot spot)
+    {
+        ArgumentNullException.ThrowIfNull(top);
+        ArgumentNullException.ThrowIfNull(nav);
+
+        var columns = Columns(top, nav);
+        if (RowAt(columns, spot) is not { } row || row is AddRule)
+        {
+            return nav;
+        }
+
+        var open = Below(top, nav, spot.Column);
+        if (row is AddFolder)
+        {
+            open = [.. open, spot];
+        }
+
+        return new AddMenuNav(open, spot);
+    }
+
+    /// <summary>[S-3514] What <paramref name="key"/> does in the tree (nothing typed in the search box).</summary>
+    public static AddMenuStep Move(IReadOnlyList<AddColumn> top, AddMenuNav nav, WidgetKey key)
+    {
+        ArgumentNullException.ThrowIfNull(top);
+        ArgumentNullException.ThrowIfNull(nav);
+
+        var columns = Columns(top, nav);
+        if (nav.Cursor is not { } cursor || RowAt(columns, cursor) is null)
+        {
+            return key switch
+            {
+                WidgetKey.Down when First(columns, 0) is { } first => Moved(nav with { Cursor = first }),
+                WidgetKey.Up or WidgetKey.Down => Moved(nav with { Cursor = null }),
+                WidgetKey.Escape => Escape(top, nav with { Cursor = null }),
+                _ => new AddMenuStep(nav, AddMenuAction.Unhandled),
+            };
+        }
+
+        var row = RowAt(columns, cursor)!;
+        var isTop = cursor.Column < top.Count;
+
+        switch (key)
+        {
+            case WidgetKey.Down:
+                return Moved(Vertical(top, nav, Step(columns, cursor, +1) ?? cursor));
+
+            case WidgetKey.Up:
+                return Step(columns, cursor, -1) is { } above
+                    ? Moved(Vertical(top, nav, above))
+                    : Moved(isTop ? new AddMenuNav(Below(top, nav, cursor.Column), null) : nav);
+
+            case WidgetKey.Home when First(columns, cursor.Column) is { } first:
+                return Moved(Vertical(top, nav, first));
+
+            case WidgetKey.End when Last(columns, cursor.Column) is { } last:
+                return Moved(Vertical(top, nav, last));
+
+            case WidgetKey.Right or WidgetKey.Enter or WidgetKey.Space when row is AddFolder:
+                return Moved(Enter(top, nav, cursor));
+
+            case WidgetKey.Enter or WidgetKey.Space when row is AddPick pick:
+                return new AddMenuStep(nav, AddMenuAction.Pick, pick.Kind);
+
+            case WidgetKey.Right when isTop && cursor.Column + 1 < top.Count:
+                return Moved(Across(top, nav, cursor, cursor.Column + 1));
+
+            case WidgetKey.Right:
+                return Moved(nav);
+
+            case WidgetKey.Left when !isTop:
+                return Moved(Back(top, nav, cursor.Column));
+
+            case WidgetKey.Left when cursor.Column > 0:
+                return Moved(Across(top, nav, cursor, cursor.Column - 1));
+
+            case WidgetKey.Left:
+                return Moved(nav);
+
+            case WidgetKey.Escape:
+                return Escape(top, nav);
+
+            default:
+                return new AddMenuStep(nav, AddMenuAction.Unhandled);
+        }
+    }
+
+    /// <summary>
+    /// [S-3515] The search's results, a flat list: Down from the box to the first, Up from the first
+    /// back to the box, Home and End on a row to the ends. In the box, the caret keeps Left, Right,
+    /// Home and End. Returns the new highlight (−1 the box), or null when the key is not the list's.
+    /// </summary>
+    public static int? MoveInList(int count, int current, WidgetKey key)
+    {
+        current = Math.Min(current, count - 1);
+        if (count <= 0)
         {
             return key is WidgetKey.Up or WidgetKey.Down ? -1 : null;
         }
@@ -275,41 +194,117 @@ public static class AddMenuKeys
             WidgetKey.Up => current <= 0 ? -1 : current - 1,
             WidgetKey.Home when current >= 0 => 0,
             WidgetKey.End when current >= 0 => count - 1,
-            WidgetKey.Left when current >= 0 => Beside(grid, current, -1),
-            WidgetKey.Right when current >= 0 => Beside(grid, current, +1),
             _ => null,
         };
     }
 
-    /// <summary>The entry in the column <paramref name="step"/> away whose row is nearest; ties go up. Stays at the edges.</summary>
-    private static int Beside(AddMenuGrid grid, int current, int step)
+    private static AddMenuStep Moved(AddMenuNav nav) => new(nav, AddMenuAction.Moved);
+
+    /// <summary>Escape closes the innermost submenu (the highlight going back to its row if it was in it); with none open, the menu.</summary>
+    private static AddMenuStep Escape(IReadOnlyList<AddColumn> top, AddMenuNav nav)
     {
-        var (column, row) = grid.SpotOf(current);
-        var target = column + step;
-        if (target < 0 || target >= grid.Columns.Count)
+        var open = OpenFolders(top, nav).Count;
+        if (open == 0)
         {
-            return current;
+            return new AddMenuStep(nav, AddMenuAction.Close);
         }
 
-        var best = -1;
-        var bestDistance = int.MaxValue;
-        var lines = grid.Columns[target];
+        var parent = nav.Open[open - 1];
+        var closing = top.Count + open - 1;
+        var cursor = nav.Cursor is { } at && at.Column >= closing ? parent : nav.Cursor;
+        return Moved(new AddMenuNav([.. nav.Open.Take(open - 1)], cursor));
+    }
 
-        for (var r = 0; r < lines.Count; r++)
+    /// <summary>Open the folder at <paramref name="spot"/> and go to its first row.</summary>
+    private static AddMenuNav Enter(IReadOnlyList<AddColumn> top, AddMenuNav nav, AddSpot spot)
+    {
+        var opened = Point(top, nav, spot);
+        var column = top.Count + opened.Open.Count - 1;
+        return First(Columns(top, opened), column) is { } first ? opened with { Cursor = first } : opened;
+    }
+
+    /// <summary>Close the submenu in <paramref name="column"/> (and any beyond it); the highlight goes back to the row that opened it.</summary>
+    private static AddMenuNav Back(IReadOnlyList<AddColumn> top, AddMenuNav nav, int column)
+    {
+        var index = column - top.Count;
+        var parent = nav.Open[index];
+        return new AddMenuNav([.. nav.Open.Take(index)], parent);
+    }
+
+    /// <summary>To the nearest row of the top column <paramref name="target"/>, every submenu closed.</summary>
+    private static AddMenuNav Across(IReadOnlyList<AddColumn> top, AddMenuNav nav, AddSpot from, int target)
+    {
+        var closed = new AddMenuNav([], from);
+        var columns = Columns(top, closed);
+        return Nearest(columns, target, from.Row) is { } spot ? closed with { Cursor = spot } : nav;
+    }
+
+    /// <summary>A move up or down a column: the submenus opened from it or beyond close.</summary>
+    private static AddMenuNav Vertical(IReadOnlyList<AddColumn> top, AddMenuNav nav, AddSpot to) =>
+        to == nav.Cursor ? nav : new AddMenuNav(Below(top, nav, to.Column), to);
+
+    /// <summary>The open spots that stand left of <paramref name="column"/>: what stays when a row in it is chosen.</summary>
+    private static AddSpot[] Below(IReadOnlyList<AddColumn> top, AddMenuNav nav, int column)
+    {
+        // A top column's row closes every submenu: the cascade hangs off one top row at a time.
+        if (column < top.Count)
         {
-            if (lines[r].IsHeading)
+            return [];
+        }
+
+        // The submenu in column c was opened by Open[c - top]: it and those before it stay.
+        return [.. nav.Open.Take(column - top.Count + 1)];
+    }
+
+    private static AddRow? RowAt(IReadOnlyList<IReadOnlyList<AddRow>> columns, AddSpot spot) =>
+        spot.Column >= 0 && spot.Column < columns.Count && spot.Row >= 0 && spot.Row < columns[spot.Column].Count
+            ? columns[spot.Column][spot.Row]
+            : null;
+
+    private static AddFolder? FolderAt(IReadOnlyList<IReadOnlyList<AddRow>> columns, AddSpot spot) => RowAt(columns, spot) as AddFolder;
+
+    private static AddSpot? Step(IReadOnlyList<IReadOnlyList<AddRow>> columns, AddSpot from, int step)
+    {
+        var rows = columns[from.Column];
+        for (var r = from.Row + step; r >= 0 && r < rows.Count; r += step)
+        {
+            if (rows[r] is not AddRule)
+            {
+                return new AddSpot(from.Column, r);
+            }
+        }
+
+        return null;
+    }
+
+    private static AddSpot? First(IReadOnlyList<IReadOnlyList<AddRow>> columns, int column) =>
+        column < columns.Count ? Step(columns, new AddSpot(column, -1), +1) : null;
+
+    private static AddSpot? Last(IReadOnlyList<IReadOnlyList<AddRow>> columns, int column) =>
+        column < columns.Count ? Step(columns, new AddSpot(column, columns[column].Count), -1) : null;
+
+    /// <summary>The row of <paramref name="column"/> nearest <paramref name="row"/>; ties go up.</summary>
+    private static AddSpot? Nearest(IReadOnlyList<IReadOnlyList<AddRow>> columns, int column, int row)
+    {
+        if (column < 0 || column >= columns.Count)
+        {
+            return null;
+        }
+
+        AddSpot? best = null;
+        var distance = int.MaxValue;
+        var rows = columns[column];
+        for (var r = 0; r < rows.Count; r++)
+        {
+            if (rows[r] is AddRule || Math.Abs(r - row) >= distance)
             {
                 continue;
             }
 
-            var distance = Math.Abs(r - row);
-            if (distance < bestDistance)
-            {
-                bestDistance = distance;
-                best = grid.EntryAt(target, r);
-            }
+            distance = Math.Abs(r - row);
+            best = new AddSpot(column, r);
         }
 
-        return best >= 0 ? best : current;
+        return best;
     }
 }

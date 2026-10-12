@@ -4,12 +4,12 @@ using Themia.Core.Model;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-3703]/[S-3704] The edit bar's selection group writes: header, background and title of the
+/// [S-3703]/[S-3704] The properties strip's writes ([S-3707]): header, background and title of the
 /// selected widgets, each through <see cref="Mutate"/> as one undo step.
 /// </summary>
 internal sealed partial class AppHost
 {
-    /// <summary>[S-3701] What the group offers on the display showing <paramref name="shownViewId"/>.</summary>
+    /// <summary>[S-3701] What the strip offers on the display showing <paramref name="shownViewId"/>.</summary>
     public QuickSetOffer QuickSetFor(string shownViewId) => QuickSet.For(State, Selection, shownViewId);
 
     /// <summary>[S-3703] Every selected widget's header, in one step.</summary>

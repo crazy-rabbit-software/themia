@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "Phổ biến",
+  "addMenu.browse": "Duyệt",
+  "addMenu.subject.time": "Thời gian",
+  "addMenu.subject.calendar": "Lịch và thư",
+  "addMenu.subject.weather": "Thời tiết và bầu trời",
+  "addMenu.subject.markets": "Tin tức và thị trường",
+  "addMenu.subject.media": "Nhạc và phương tiện",
+  "addMenu.subject.notes": "Ghi chú và công cụ",
+  "addMenu.subject.files": "Tệp và ứng dụng",
+  "addMenu.subject.system": "Hệ thống",
+  "addMenu.subject.devices": "Thiết bị và nguồn",
+  "addMenu.subject.more": "Thêm",
+  "addMenu.family.calendar": "Lịch",
+  "addMenu.family.visualizer": "Trình hiển thị",
+  "addMenu.family.folder": "Thư mục",
+  "addMenu.family.screenTime": "Thời gian sử dụng",
+  "addMenu.family.powerButtons": "Nút nguồn"
+}

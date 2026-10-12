@@ -139,7 +139,8 @@ public static class PlaceQuery
     }
 
     /// <summary>The geocoder's language parameter for the app's language.</summary>
-    public static string LanguageCode(Locale locale) => LanguageResolver.Code(locale);
+    /// <remarks>The geocoder knows Chinese as one language, <c>zh</c>, in either script.</remarks>
+    public static string LanguageCode(Locale locale) => locale == Locale.ZhHant ? "zh" : LanguageResolver.Code(locale);
 
     /// <summary>One cache entry per question: the same words in any case, in one language.</summary>
     public static string CacheKey(string query, Locale locale)

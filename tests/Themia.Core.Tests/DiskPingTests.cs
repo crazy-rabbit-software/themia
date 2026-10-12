@@ -201,6 +201,6 @@ public sealed class DiskPingTests
         var config = (PingConfig)ConfigJson.Read("Ping", """{ "kind": "ping", "host": "8.8.8.8", "hostLabel": "DNS", "intervalSeconds": 300 }""");
 
         Assert.Equal("8.8.8.8", config.EffectiveHost);
-        Assert.Equal(10, config.IntervalSeconds);
+        Assert.Empty(config.Repair());
     }
 }

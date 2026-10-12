@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "Pencere öğeleri",
+  "widgetPrefs.subtitle": "Tüm pencere öğelerinin paylaştığı biçimler ve güncellemeler",
+  "widgetPrefs.region.header": "Bölgesel biçim",
+  "widgetPrefs.region.clock": "Saat biçimi",
+  "widgetPrefs.region.clock12": "12 saat",
+  "widgetPrefs.region.clock24": "24 saat",
+  "widgetPrefs.followWindows": "Windows ayarı ({value})",
+  "widgetPrefs.updates.header": "Güncellemeler",
+  "widgetPrefs.updates.note": "Pencere öğelerinin çevrimiçi hizmetlere ne sıklıkla sorduğu. Bir pencere öğesinde Yenile hemen sorar.",
+  "widgetPrefs.updates.weather": "Hava durumu",
+  "widgetPrefs.updates.markets": "Hisseler",
+  "widgetPrefs.updates.feeds": "Haber akışları",
+  "widgetPrefs.updates.accounts": "Posta, takvimler ve görevler",
+  "widgetPrefs.updates.everyHours": {
+    "one": "{count} saatte bir",
+    "other": "{count} saatte bir"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows konumları"
+}

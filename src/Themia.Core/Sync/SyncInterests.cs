@@ -53,6 +53,15 @@ public sealed record SyncInterests(
     /// </summary>
     public TimeSpan AccountInterval { get; init; } = UpdateCadence.Interval(new RefreshPreferences(), UpdateSource.Accounts);
 
+    /// <summary>[S-5101] Every air quality widget's place.</summary>
+    public IReadOnlyList<AirInterest> Air { get; init; } = [];
+
+    /// <summary>[S-5121] Every rain widget's place.</summary>
+    public IReadOnlyList<RainInterest> Rain { get; init; } = [];
+
+    /// <summary>[S-5147] The ECB table, when any exchange-rates widget is in a view.</summary>
+    public RatesInterest? Rates { get; init; }
+
     /// <summary>
     /// Everything that changes what is synced, as one string: the state changes sixty times a second
     /// during a drag, and the services only need to hear when this does.
@@ -105,6 +114,23 @@ public sealed record SyncInterests(
             text.Append("q|").Append(q.Symbol).Append('|').Append(q.Market).Append('|').Append(q.Range).Append('|').Append(q.PrePost).Append('|').Append(q.Interval.Ticks).Append('#');
         }
 
+        foreach (var a in Air)
+        {
+            text.Append("aq|").Append(a.Latitude.ToString("R", CultureInfo.InvariantCulture))
+                .Append(',').Append(a.Longitude.ToString("R", CultureInfo.InvariantCulture)).Append('|').Append(a.Interval.Ticks).Append('#');
+        }
+
+        foreach (var r in Rain)
+        {
+            text.Append("rn|").Append(r.Latitude.ToString("R", CultureInfo.InvariantCulture))
+                .Append(',').Append(r.Longitude.ToString("R", CultureInfo.InvariantCulture)).Append('|').Append(r.Interval.Ticks).Append('#');
+        }
+
+        if (Rates is { } rates)
+        {
+            text.Append("fx|").Append(rates.Interval.Ticks).Append('#');
+        }
+
         return text.ToString();
     }
 
@@ -119,6 +145,9 @@ public sealed record SyncInterests(
         var feeds = new List<FeedInterest>();
         var weather = new List<WeatherInterest>();
         var quotes = new List<QuoteInterest>();
+        var airs = new List<AirInterest>();
+        var rains = new List<RainInterest>();
+        RatesInterest? rates = null;
 
         // [S-3770] [S-3780] The shared unit and cadences, from the state itself rather than from what
         // the app last put in force, so the sync follows a change on the same state change.
@@ -155,6 +184,27 @@ public sealed record SyncInterests(
 
                     break;
 
+                // [S-5101] [S-5121] Before the weather case: these are weather-family configs too.
+                case AirQualityConfig air:
+                    if (OnlineCadence.For(air, OnlineCadence.Air(refresh)) is { } airWants)
+                    {
+                        airs.Add(airWants);
+                    }
+
+                    break;
+
+                case RainNextHourConfig rain:
+                    if (OnlineCadence.For(rain, OnlineCadence.Rain(refresh)) is { } rainWants)
+                    {
+                        rains.Add(rainWants);
+                    }
+
+                    break;
+
+                case ExchangeRatesConfig:
+                    rates = new RatesInterest(OnlineCadence.Rates);
+                    break;
+
                 case WeatherConfig place when For(place, unit, UpdateCadence.Interval(refresh, UpdateSource.Weather)) is { } wants:
                     weather.Add(wants);
                     break;
@@ -165,7 +215,13 @@ public sealed record SyncInterests(
             }
         }
 
-        return new SyncInterests(mail, calendar, contacts, tasks, feeds, weather, quotes) { AccountInterval = accounts };
+        return new SyncInterests(mail, calendar, contacts, tasks, feeds, weather, quotes)
+        {
+            AccountInterval = accounts,
+            Air = airs,
+            Rain = rains,
+            Rates = rates,
+        };
     }
 
     /// <summary>
@@ -181,6 +237,12 @@ public sealed record SyncInterests(
         ArgumentNullException.ThrowIfNull(config);
 
         if (!WebInput.AreCoordinates(config.Latitude, config.Longitude))
+        {
+            return null;
+        }
+
+        // [S-5101] [S-5121] Only the two weather widgets ask for weather; their siblings ask their own.
+        if (config is not (WeatherNowConfig or WeatherForecastConfig))
         {
             return null;
         }

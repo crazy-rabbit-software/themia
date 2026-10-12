@@ -40,7 +40,7 @@ public sealed record WeatherNowPlan(
 /// [S-723] The current-conditions widget's disclosure ladder, as a pure function of its slot.
 /// <list type="number">
 /// <item>Always: the temperature (and the sky, beside or under it).</item>
-/// <item>A strip puts the readings in a column <i>beside</i> the reading, where they cost no height.</item>
+/// <item>A strip, or a tile Expanded wide (not tall), puts the readings in a column <i>beside</i> the reading, where they cost no height.</item>
 /// <item>A tall column stacks them as rows under it.</item>
 /// <item>Anything else: a row of cells once the slot is Regular high, else one "Feels" token.</item>
 /// <item>Today's high and low.</item>
@@ -54,14 +54,17 @@ public static class WeatherNowLayout
     /// <summary>The view's own inset either side; the facts and the reading are measured inside it.</summary>
     public const double Inset = 16;
 
-    /// <summary>The inset above and below.</summary>
-    public const double VerticalInset = 8;
+    /// <summary>
+    /// The inset above and below. 12, not 8: the bottom row of readings used to run to within a few
+    /// pixels of the card's edge, closer than anything else on the desktop sits to it.
+    /// </summary>
+    public const double VerticalInset = 12;
 
     /// <summary>Between two parts of the ladder.</summary>
     public const double Gap = 8;
 
-    /// <summary>A cell: a caption label over a strong body value.</summary>
-    public const double CellHeight = 36;
+    /// <summary>A cell: a caption label over a strong body value ([S-668]).</summary>
+    public static double CellHeight => PartMetrics.StatCell;
 
     /// <summary>The narrowest a cell still reads ("Humidity" / "63%").</summary>
     public const double CellMinWidth = 88;
@@ -69,14 +72,8 @@ public static class WeatherNowLayout
     /// <summary>Space between two cells.</summary>
     public const double CellGap = 8;
 
-    /// <summary>A label/value line in the Side column.</summary>
-    public const double SideLine = 20;
-
-    /// <summary>Between two Side lines.</summary>
-    public const double SideGap = 4;
-
-    /// <summary>A Stack row, edge to edge.</summary>
-    public const double StackRow = 28;
+    /// <summary>A label/value line, beside the reading or under it: one stat line for both ([S-668]).</summary>
+    public static double StatLine => PartMetrics.StatLine;
 
     /// <summary>The most Stack rows: past this the reading is worth more than an eighth fact.</summary>
     public const int StackMax = 8;
@@ -108,12 +105,17 @@ public static class WeatherNowLayout
         var sideWidth = 0.0;
         facts = Math.Max(0, facts);
 
-        if (slot.Shape == AreaShape.Wide && slot.WidthClass >= SizeClass.Regular && facts > 0)
+        var strip = slot.Shape == AreaShape.Wide && slot.WidthClass >= SizeClass.Regular;
+        var broad = slot.WidthClass >= SizeClass.Expanded && slot.Shape != AreaShape.Tall && slot.HeightClass >= SizeClass.Regular;
+
+        if ((strip || broad) && facts > 0)
         {
-            // A strip: a column beside the reading, as many lines as its height holds.
+            // A strip, or a tile wide enough for two columns: the readings beside the reading, as
+            // many lines as the height holds, in one column while they fit and two only when not.
+            // Under the reading they left a dead band between the two at L and XL.
             sideWidth = Math.Clamp(box.Width * 0.4, 150, 320);
-            columns = sideWidth >= (2 * 140) + Gap ? 2 : 1;
-            var lines = Disclosure.WholeRows(box.Height, SideLine, SideGap);
+            var lines = Disclosure.WholeRows(box.Height, StatLine);
+            columns = lines < facts && sideWidth >= (2 * 140) + Gap ? 2 : 1;
             count = Math.Min(facts, lines * columns);
 
             if (count > 0)
@@ -133,7 +135,7 @@ public static class WeatherNowLayout
         {
             // A column has the height and not the width: today's line first, then the rows.
             highLow = hasToday && room.Take(FluentType.Caption.LineHeight);
-            count = room.TakeRows(StackRow, Math.Min(facts, StackMax));
+            count = room.TakeRows(StatLine, Math.Min(facts, StackMax));
 
             if (count > 0)
             {
@@ -224,8 +226,11 @@ public static class WeatherForecastLayout
 
     public const double RowMinCompact = 32;
 
-    /// <summary>Past this a stretched row stops growing: an 80px row with one line on it is a gap.</summary>
-    public const double RowMax = 80;
+    /// <summary>
+    /// Past this a stretched row stops growing: the height of Windows' two-line list item. At 80 a
+    /// row with one line on it was mostly gap, and the week read as seven islands.
+    /// </summary>
+    public const double RowMax = 56;
 
     /// <summary>A row at least this tall carries a second line (the sky, the precipitation).</summary>
     public const double TwoLineRow = 46;

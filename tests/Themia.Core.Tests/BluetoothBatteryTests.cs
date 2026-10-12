@@ -83,7 +83,6 @@ public class BluetoothBatteryTests
 
         Assert.True(plan.BatteryColumn);
         Assert.False(plan.StatusWord);
-        Assert.False(plan.BatteryBar);
     }
 
     [Theory]

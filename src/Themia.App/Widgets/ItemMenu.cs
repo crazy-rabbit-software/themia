@@ -204,14 +204,20 @@ internal static class ItemMenu
     /// <summary>
     /// Open the menu at a point of <paramref name="target"/> (or against its edge when null, for a
     /// menu opened from the keyboard). False, and nothing shown, when there is nothing in it.
+    /// <paramref name="closed"/> runs once when the menu closes, for an anchor that must stay while it is open.
     /// </summary>
-    public static bool ShowAt(DependencyObject target, Point? at, IEnumerable<ItemMenuEntry> entries)
+    public static bool ShowAt(DependencyObject target, Point? at, IEnumerable<ItemMenuEntry> entries, Action? closed = null)
     {
         ArgumentNullException.ThrowIfNull(target);
 
         if (Build(entries) is not { } menu)
         {
             return false;
+        }
+
+        if (closed is not null)
+        {
+            menu.Closed += (_, _) => Run(closed);
         }
 
         // Standard, not transient: the menu takes the keyboard, so arrows, Enter and Escape work in
@@ -234,7 +240,7 @@ internal static class ItemMenu
     }
 
     /// <summary>Open the menu against <paramref name="anchor"/>, as the Menu key or Shift+F10 does.</summary>
-    public static bool Open(FrameworkElement anchor, IEnumerable<ItemMenuEntry> entries) => ShowAt(anchor, null, entries);
+    public static bool Open(FrameworkElement anchor, IEnumerable<ItemMenuEntry> entries, Action? closed = null) => ShowAt(anchor, null, entries, closed);
 
     /// <summary>
     /// Give <paramref name="target"/> a menu whose entries are read fresh on every right-tap (so a

@@ -56,6 +56,10 @@ public sealed class TextDirectionTests
     [InlineData(Locale.Ru, "ru-RU")]
     [InlineData(Locale.Vi, "vi-VN")]
     [InlineData(Locale.Id, "id-ID")]
+    [InlineData(Locale.Ko, "ko-KR")]
+    [InlineData(Locale.Nl, "nl-NL")]
+    [InlineData(Locale.Tr, "tr-TR")]
+    [InlineData(Locale.ZhHant, "zh-TW")]
     public void S1114_layout_tags_carry_the_region_the_font_fallback_needs(Locale locale, string tag)
         => Assert.Equal(tag, TextDirection.LayoutTag(locale));
 

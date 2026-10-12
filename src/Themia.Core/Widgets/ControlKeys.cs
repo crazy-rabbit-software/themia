@@ -26,6 +26,9 @@ public enum ControlKey
 
     /// <summary>Back to the start (the pomodoro's reset).</summary>
     Reset,
+
+    /// <summary>[S-4604] End a lap (the stopwatch).</summary>
+    Lap,
 }
 
 /// <summary>
@@ -56,6 +59,27 @@ public static class ControlKeys
     {
         WidgetKey.Right or WidgetKey.Space or WidgetKey.Enter => ControlKey.Next,
         WidgetKey.Left => ControlKey.Previous,
+        _ => ControlKey.None,
+    };
+
+    /// <summary>
+    /// [S-4604] Stopwatch: Space or Enter starts and pauses (the accent button), Right ends a lap and
+    /// Home resets, as on the pomodoro. The letters L and R do the same through type-ahead
+    /// (<see cref="StopwatchLetter(char)"/>), the keys Windows' Clock app uses.
+    /// </summary>
+    public static ControlKey Stopwatch(WidgetKey key) => key switch
+    {
+        WidgetKey.Space or WidgetKey.Enter => ControlKey.Toggle,
+        WidgetKey.Right => ControlKey.Lap,
+        WidgetKey.Home => ControlKey.Reset,
+        _ => ControlKey.None,
+    };
+
+    /// <summary>[S-4604] Stopwatch letters: L a lap, R reset, either case.</summary>
+    public static ControlKey StopwatchLetter(char character) => char.ToUpperInvariant(character) switch
+    {
+        'L' => ControlKey.Lap,
+        'R' => ControlKey.Reset,
         _ => ControlKey.None,
     };
 

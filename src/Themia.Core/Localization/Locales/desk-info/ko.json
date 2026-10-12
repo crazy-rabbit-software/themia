@@ -1,0 +1,31 @@
+{
+  "yearProgress.label": "연간 진행률",
+  "yearProgress.desc": "오늘, 이번 주, 이번 달, 올해가 얼마나 지났는지",
+  "yearProgress.day": "일",
+  "yearProgress.week": "주",
+  "yearProgress.month": "월",
+  "yearProgress.year": "년",
+  "yearProgress.left": "{time} 남음",
+  "yearProgress.weekNumber": "{number}주차",
+  "yearProgress.dayOf": "{days}일 중 {day}일째",
+  "meeting.label": "다음 모임",
+  "meeting.desc": "다음 일정과 온라인 모임 참가 단추",
+  "meeting.join": "참가",
+  "meeting.joinTip": "온라인 모임에 참가",
+  "meeting.nowEnds": "진행 중 · {time}에 종료",
+  "meeting.dayTime": "{day} {time}",
+  "meeting.none": "예정된 일정 없음",
+  "recentFiles.label": "최근 파일",
+  "recentFiles.desc": "마지막으로 연 파일",
+  "recentFiles.empty": "최근에 연 항목 없음",
+  "recentFiles.unreadable": "Windows 최근 항목을 읽을 수 없음",
+  "recentFiles.remove": "목록에서 제거",
+  "recycleBin.desc": "휴지통 사용량과 비우기 단추",
+  "recycleBin.empty": "비우기",
+  "recycleBin.emptyEllipsis": "휴지통 비우기…",
+  "recycleBin.isEmpty": "항목 없음",
+  "recycleBin.items": {
+    "other": "항목 {count}개"
+  },
+  "recycleBin.open": "휴지통 열기"
+}

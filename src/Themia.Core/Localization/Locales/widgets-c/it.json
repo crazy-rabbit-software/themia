@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "Annulla",
   "widgetsC.notes.editor.redo": "Ripeti",
+  "widgetsC.notes.editor.moreFormatting": "Altra formattazione",
   "widgetsC.notes.words": {
     "one": "{count} parola",
     "other": "{count} parole"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "Cosa ti aspetta, giorno per giorno",
   "widgetsC.moon.label": "Luna",
   "widgetsC.moon.desc": "Fase, sorgere e tramonto della luna",
-  "widgetsC.visualizer.label": "Visualizzatore audio",
-  "widgetsC.visualizer.desc": "Barre che si muovono con tutto ciò che riproduce questo PC",
   "widgetsC.visualizer.unavailable": "Uscita audio non disponibile",
   "widgetsC.moon.rise": "Sorgere della luna",
   "widgetsC.moon.set": "Tramonto della luna",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Rosso di Windows",
   "widgetsC.stocks.settings.symbolRefused": "Scegli un risultato di ricerca o digita un simbolo: solo lettere, cifre e . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{class} su {exchange}",
+  "widgetsC.stocks.settings.holding.label": "Quantità posseduta",
+  "widgetsC.stocks.settings.holding.desc": "Quante ne possiedi; il widget mostra quanto valgono. Vuoto la nasconde",
+  "widgetsC.stocks.settings.holding.refused": "Inserisci una quantità pari o superiore a 0, ad esempio {example}",
+  "widgetsC.stocks.holding.line": "{amount} posseduti · {value}",
   "widgetsC.location.recycleBin": "Cestino",
   "widgetsC.location.thisPc": "Questo PC",
   "widgetsC.location.downloads": "Download",

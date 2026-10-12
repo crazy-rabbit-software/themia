@@ -36,7 +36,8 @@ internal sealed partial class StocksView : IWidgetPreviewState
         var trace = MarketQuote.Trace(bars, bars[^1].Close, null);
         var quote = new TickerQuote("MSFT", "Microsoft Corporation", bars[^1].Close, trace.ChangePercent, "USD", 2, trace.Bars, TradingSessions.None);
 
-        _config = new StocksConfig { Symbol = "MSFT", ShowMinMax = true };
+        // [S-2777] "quote" holds ten shares, so the holding's caption can be looked at; "falling" none.
+        _config = new StocksConfig { Symbol = "MSFT", ShowMinMax = true, SharesOwned = rising ? 10 : null };
         _applied = (StocksConfig)_config.Clone();
         _want = null;
         _quote = new Fetched<TickerQuote>(FetchStatus.Ok, quote, null, DateTimeOffset.Now);

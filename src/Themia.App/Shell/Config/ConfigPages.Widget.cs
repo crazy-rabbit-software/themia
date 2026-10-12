@@ -176,6 +176,14 @@ internal static partial class ConfigPages
                 WidgetSettings.Pomodoro(rows, pomodoro, Save);
                 break;
 
+            case AlarmConfig alarm:
+                WidgetSettings.Alarm(rows, alarm, Save);
+                break;
+
+            case DriveConfig drive:
+                WidgetSettings.Drive(rows, drive, Save);
+                break;
+
             case SunConfig sun:
                 WidgetSettings.Sun(rows, sun, Save);
                 break;
@@ -192,6 +200,14 @@ internal static partial class ConfigPages
                 WidgetSettings.Volume(rows, volume, Save);
                 break;
 
+            case FocusSessionConfig focus:
+                WidgetSettings.FocusSession(rows, focus, Save);
+                break;
+
+            case BrightnessConfig brightness:
+                WidgetSettings.Brightness(rows, brightness, Save);
+                break;
+
             case BluetoothConfig bluetooth:
                 WidgetSettings.Bluetooth(rows, bluetooth, Save);
                 break;
@@ -206,6 +222,18 @@ internal static partial class ConfigPages
 
             case WeatherForecastConfig weatherForecast:
                 WidgetSettings.WeatherForecast(rows, weatherForecast, Save);
+                break;
+
+            case AirQualityConfig air:
+                WidgetSettings.AirQuality(rows, air, Save);
+                break;
+
+            case RainNextHourConfig rain:
+                WidgetSettings.RainNextHour(rows, rain, Save);
+                break;
+
+            case ExchangeRatesConfig rates:
+                WidgetSettings.ExchangeRates(rows, rates, Save);
                 break;
 
             case StocksConfig stocks:

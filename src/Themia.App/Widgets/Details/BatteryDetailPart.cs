@@ -18,7 +18,6 @@ internal sealed class BatteryDetailPart : DetailPart
     private readonly WatchSlot<BatteryPack?> _pack = new();
     private SystemHub? _hub;
     private IDetailHost? _host;
-    private TimeSpan _interval;
 
     public override WidgetKind Kind => WidgetKind.BatteryDetails;
 
@@ -28,8 +27,7 @@ internal sealed class BatteryDetailPart : DetailPart
     {
         _hub = hub;
         _host = host;
-        _interval = Interval(config);
-        _power.Hold(hub, Sources.Battery, _interval, _ => Show());
+        _power.Hold(hub, Sources.Battery, _ => Show());
         Show();
     }
 
@@ -50,7 +48,7 @@ internal sealed class BatteryDetailPart : DetailPart
         if (power.HasBattery)
         {
             // Read in the same pass when the battery first shows up ([S-2506]); presents again then.
-            _pack.Hold(hub, Sources.BatteryPack, _interval, _ => Show());
+            _pack.Hold(hub, Sources.BatteryPack, _ => Show());
         }
         else
         {

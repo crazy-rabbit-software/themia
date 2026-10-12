@@ -113,6 +113,21 @@ public class ClockFormatterTests
         Assert.Null(reading.Meridiem);
     }
 
+    /// <summary>
+    /// [S-1115] Arabic's own digits, one for one: the readout keeps the character count the hero
+    /// type ladder sizes it by, with seconds too.
+    /// </summary>
+    [Fact]
+    public void S1115_an_arabic_clock_reads_in_arabic_digits_at_the_same_length()
+    {
+        var latin = ClockFormatter.Read(At(9, 5, 7), Utc(c => c.ShowSeconds = true), Locale.En, use24Hour: true);
+        var arabic = ClockFormatter.Read(At(9, 5, 7), Utc(c => c.ShowSeconds = true), Locale.Ar, use24Hour: true);
+
+        Assert.Equal("٠٩:٠٥:٠٧", arabic.Time);
+        Assert.Equal(latin.Time.Length, arabic.Time.Length);
+        Assert.Equal("9:05", ClockFormatter.Read(At(9, 5), Utc(), Locale.Ur, use24Hour: false).Time);
+    }
+
     [Fact]
     public void Twelve_hour_time_is_not_padded_and_carries_a_meridiem()
     {

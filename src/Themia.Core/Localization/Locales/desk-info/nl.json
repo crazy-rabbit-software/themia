@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "Jaarvoortgang",
+  "yearProgress.desc": "Hoeveel van de dag, week, maand en het jaar voorbij is",
+  "yearProgress.day": "Dag",
+  "yearProgress.week": "Week",
+  "yearProgress.month": "Maand",
+  "yearProgress.year": "Jaar",
+  "yearProgress.left": "Nog {time}",
+  "yearProgress.weekNumber": "Week {number}",
+  "yearProgress.dayOf": "Dag {day} van {days}",
+  "meeting.label": "Volgende vergadering",
+  "meeting.desc": "Je volgende afspraak, met Deelnemen voor onlinevergaderingen",
+  "meeting.join": "Deelnemen",
+  "meeting.joinTip": "Deelnemen aan de onlinevergadering",
+  "meeting.nowEnds": "Nu · eindigt om {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Niets gepland",
+  "recentFiles.label": "Recente bestanden",
+  "recentFiles.desc": "De bestanden die je het laatst hebt geopend",
+  "recentFiles.empty": "Onlangs niets geopend",
+  "recentFiles.unreadable": "De recente items van Windows konden niet worden gelezen",
+  "recentFiles.remove": "Uit lijst verwijderen",
+  "recycleBin.desc": "Hoe vol de Prullenbak is, met Leegmaken",
+  "recycleBin.empty": "Leegmaken",
+  "recycleBin.emptyEllipsis": "Prullenbak leegmaken…",
+  "recycleBin.isEmpty": "Geen items",
+  "recycleBin.items": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "recycleBin.open": "Prullenbak openen"
+}

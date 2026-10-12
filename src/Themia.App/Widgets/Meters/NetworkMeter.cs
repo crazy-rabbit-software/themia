@@ -18,6 +18,4 @@ internal sealed class NetworkMeter : MeterPart
 
     /// <summary>[S-1124] Against the visible window's peak, never the session's; floor 1 KB/s.</summary>
     public override ChartScale Scale => ChartScale.Peak(Sources.NetworkChartFloor);
-
-    public override MeterSeries Series(WidgetConfig config) => MeterSeries.Of(Sources.Network, Interval(config));
 }

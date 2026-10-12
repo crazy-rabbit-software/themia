@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "よく使う",
+  "addMenu.browse": "参照",
+  "addMenu.subject.time": "時刻",
+  "addMenu.subject.calendar": "カレンダーとメール",
+  "addMenu.subject.weather": "天気と空",
+  "addMenu.subject.markets": "ニュースとマーケット",
+  "addMenu.subject.media": "音楽とメディア",
+  "addMenu.subject.notes": "メモとツール",
+  "addMenu.subject.files": "ファイルとアプリ",
+  "addMenu.subject.system": "システム",
+  "addMenu.subject.devices": "デバイスと電源",
+  "addMenu.subject.more": "その他",
+  "addMenu.family.calendar": "カレンダー",
+  "addMenu.family.visualizer": "ビジュアライザー",
+  "addMenu.family.folder": "フォルダー",
+  "addMenu.family.screenTime": "スクリーンタイム",
+  "addMenu.family.powerButtons": "電源ボタン"
+}

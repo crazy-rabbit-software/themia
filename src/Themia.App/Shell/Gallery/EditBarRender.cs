@@ -5,8 +5,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
+using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Windows.Foundation;
@@ -19,9 +21,11 @@ namespace Themia.App.Shell.Gallery;
 /// off-screen, to PNGs. <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark]</c> writes
 /// <c>editbar-&lt;theme&gt;.png</c> (snap on), <c>editbar-&lt;theme&gt;-snapoff.png</c>,
 /// <c>editbar-&lt;theme&gt;-add.png</c> (the add menu open under Add widget, as the flyout hangs) and
-/// <c>editbar-&lt;theme&gt;-placing.png</c> (the placement line in the bar's place), and [S-3706]
-/// <c>editbar-&lt;theme&gt;-selected.png</c> / <c>editbar-&lt;theme&gt;-selected-many.png</c> (the
-/// selection group for one clock, and for three widgets of mixed headers).
+/// <c>editbar-&lt;theme&gt;-placing.png</c> (the placement line in the bar's place), and [S-3713]
+/// the properties strip on a stand-in display with real cards in edit mode:
+/// <c>props-&lt;theme&gt;-above.png</c>, <c>-below.png</c> (a widget at the top edge of the
+/// display), <c>-many.png</c> (three of mixed headers), <c>-toggle.png</c> (no Header choice) and
+/// <c>-hidden.png</c> (header hidden, beside the same widget with one).
 /// </summary>
 internal static class EditBarRender
 {
@@ -31,6 +35,9 @@ internal static class EditBarRender
     private const double ScreenWidth = 1280;
     private const double ScreenHeight = 140;
     private const double OpenHeight = 900;
+
+    /// <summary>[S-3713] The stand-in display the strip is drawn on.</summary>
+    private const double PropsHeight = 560;
 
     /// <summary>
     /// The <c>--theme</c> of this render or of <c>--picker-png</c> / <c>--viewbar-png</c>, read before the app's resources
@@ -81,6 +88,7 @@ internal static class EditBarRender
         _ = dispatcher.TryEnqueue(async () =>
         {
             Window? window = null;
+            Ticker? ticker = null;
 
             try
             {
@@ -125,13 +133,8 @@ internal static class EditBarRender
                 EditBar.Frame(line);
                 await Shot(screen, line, null, outDir, $"editbar-{theme}-placing.png").ConfigureAwait(true);
 
-                var one = Bar(snapOn: true);
-                one.ShowSelection(new QuickSetOffer(1, HeaderPlacement.Hidden, WidgetSurface.Card, "render", WidgetKind.Clock, null));
-                await Shot(screen, one, null, outDir, $"editbar-{theme}-selected.png").ConfigureAwait(true);
-
-                var many = Bar(snapOn: true);
-                many.ShowSelection(new QuickSetOffer(3, null, WidgetSurface.Translucent, null, null, null));
-                await Shot(screen, many, null, outDir, $"editbar-{theme}-selected-many.png").ConfigureAwait(true);
+                ticker = new Ticker(dispatcher);
+                await PropsShots(screen, ticker, outDir, theme).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -139,6 +142,7 @@ internal static class EditBarRender
             }
             finally
             {
+                ticker?.Dispose();
                 window?.Close();
                 app.Exit();
             }
@@ -154,11 +158,7 @@ internal static class EditBarRender
         SetSnap: _ => { },
         Settings: () => { },
         Exit: () => { },
-        Done: () => { },
-        SetHeader: _ => { },
-        SetSurface: _ => { },
-        SetTitle: (_, _) => { },
-        ReleaseFocus: () => { })));
+        Done: () => { })));
 
     /// <summary>[S-1113] The bar flows with the language, as the desktop sets it; the screen around it does not.</summary>
     private static EditBar Flowing(EditBar bar)
@@ -199,6 +199,106 @@ internal static class EditBarRender
         var path = System.IO.Path.Combine(outDir, name);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
+    }
+
+    /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
+    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null);
+
+    /// <summary>[S-3713] The strip against real cards in edit mode, each case on the stand-in display.</summary>
+    private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
+    {
+        PropsCard[][] cases =
+        [
+            [new(WidgetKind.Clock, 500, 260, 280, 180, HeaderPlacement.Top, true, "Zürich")],
+            [new(WidgetKind.Countdown, 980, 16, 280, 180, HeaderPlacement.Top, true)],
+            [
+                new(WidgetKind.Clock, 300, 200, 220, 160, HeaderPlacement.Top, true),
+                new(WidgetKind.Countdown, 540, 240, 260, 180, HeaderPlacement.Bottom, true),
+                new(WidgetKind.Clock, 820, 200, 200, 140, HeaderPlacement.Hidden, true),
+            ],
+            [new(WidgetKind.WifiToggle, 580, 260, 120, 120, HeaderPlacement.Hidden, true)],
+            [
+                new(WidgetKind.Countdown, 360, 260, 280, 180, HeaderPlacement.Hidden, true),
+                new(WidgetKind.Countdown, 680, 260, 280, 180, HeaderPlacement.Top, false),
+            ],
+        ];
+        string[] names = ["above", "below", "many", "toggle", "hidden"];
+
+        for (var i = 0; i < cases.Length; i++)
+        {
+            await PropsShot(screen, ticker, cases[i], System.IO.Path.Combine(outDir, $"props-{theme}-{names[i]}.png")).ConfigureAwait(true);
+        }
+    }
+
+    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path)
+    {
+        screen.Children.Clear();
+        screen.Height = PropsHeight;
+
+        var canvas = new Canvas();
+        screen.Children.Add(canvas);
+
+        var bar = Bar(snapOn: true);
+        canvas.Children.Add(bar);
+        bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var barRect = new PixelRect(Math.Round((ScreenWidth - bar.DesiredSize.Width) / 2), Fluent.Space2, bar.DesiredSize.Width, bar.DesiredSize.Height);
+        Canvas.SetLeft(bar, barRect.X);
+        Canvas.SetTop(bar, barRect.Y);
+
+        var view = ViewState.Create("render");
+        var widgets = new List<(WidgetInstance Model, PropsCard Spec)>();
+        foreach (var spec in layout)
+        {
+            var model = WidgetInstance.Create(spec.Kind, new FracRect(0, 0, 0.1, 0.1));
+            model.Header = spec.Header;
+            model.Label = spec.Label;
+            view.Widgets.Add(model);
+            widgets.Add((model, spec));
+        }
+
+        var selected = widgets.Where(w => w.Spec.Selected).Select(w => w.Model.Id).ToList();
+        var host = new NoticeRender.RenderCardHost(ticker) { EditMode = true, Selected = new HashSet<string>(selected, StringComparer.Ordinal) };
+
+        var cards = new List<WidgetCard>();
+        foreach (var (model, spec) in widgets)
+        {
+            var card = new WidgetCard(host, model) { Width = spec.W, Height = spec.H };
+            card.ApplyGap(0);
+            card.ApplyEditMode(true);
+            card.ApplySelection();
+            Canvas.SetLeft(card, spec.X);
+            Canvas.SetTop(card, spec.Y);
+            canvas.Children.Add(card);
+            cards.Add(card);
+        }
+
+        var state = new AppState { Views = [view] };
+        var selection = new WidgetSelection();
+        selection.Replace(view.Id, selected);
+
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }));
+        UiLanguage.ApplyFlow(strip);
+        strip.ShowSelection(QuickSet.For(state, selection, view.Id));
+        strip.Visibility = Visibility.Visible;
+        canvas.Children.Add(strip);
+        strip.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+        var target = StripPlacement.Bounds(widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H)));
+        if (target is { } box)
+        {
+            var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, new PixelRect(0, 0, ScreenWidth, PropsHeight), [barRect]);
+            Canvas.SetLeft(strip, Math.Round(spot.X));
+            Canvas.SetTop(strip, Math.Round(spot.Y));
+        }
+
+        await Task.Delay(800).ConfigureAwait(true);
+        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
+        Console.WriteLine($"editbar: wrote {path}");
+
+        foreach (var card in cards)
+        {
+            card.Detach();
+        }
     }
 
     private static string? Option(string[] args, string name)

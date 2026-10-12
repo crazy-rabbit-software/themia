@@ -239,7 +239,11 @@ internal static class NoticeRender
 
         public Ticker Ticker => ticker;
 
-        public bool EditMode => false;
+        /// <summary>[S-3713] Edit mode, for the properties strip's render; false elsewhere.</summary>
+        public bool EditMode { get; init; }
+
+        /// <summary>[S-3713] The ids drawn selected; none elsewhere.</summary>
+        public IReadOnlySet<string> Selected { get; init; } = new HashSet<string>();
 
         public ViewState? ViewForCards => null;
 
@@ -272,10 +276,10 @@ internal static class NoticeRender
 
         public void RequestEditMode(bool enabled)
         {
-            // ignore: never in edit mode
+            // ignore: a render's edit mode is fixed
         }
 
-        public bool IsSelected(WidgetCard card) => false;
+        public bool IsSelected(WidgetCard card) => Selected.Contains(card.Model.Id);
 
         public void RequestSelect(WidgetCard card)
         {

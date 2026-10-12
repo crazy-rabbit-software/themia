@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "Widgets",
+  "widgetPrefs.subtitle": "Notaties en updates die alle widgets delen",
+  "widgetPrefs.region.header": "Landnotatie",
+  "widgetPrefs.region.clock": "Tijdnotatie",
+  "widgetPrefs.region.clock12": "12-uursnotatie",
+  "widgetPrefs.region.clock24": "24-uursnotatie",
+  "widgetPrefs.followWindows": "Windows-instelling ({value})",
+  "widgetPrefs.updates.header": "Updates",
+  "widgetPrefs.updates.note": "Hoe vaak widgets onlineservices raadplegen. Vernieuwen op een widget vraagt het meteen op.",
+  "widgetPrefs.updates.weather": "Weer",
+  "widgetPrefs.updates.markets": "Aandelen",
+  "widgetPrefs.updates.feeds": "Nieuwsfeeds",
+  "widgetPrefs.updates.accounts": "E-mail, agenda's en taken",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Om de {count} uur",
+    "other": "Om de {count} uur"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows-locaties"
+}

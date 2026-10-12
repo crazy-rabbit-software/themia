@@ -40,6 +40,11 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly Canvas _widgetLayer;
     private readonly Path _gridOverlay;
     private readonly EditBar _toolbar;
+
+    /// <summary>[S-3707] The selected widgets' properties strip, on its own layer over the cards and under the edit bar.</summary>
+    private readonly PropertiesStrip _properties;
+
+    private readonly Canvas _propertiesLayer = new();
     private readonly Border _placementHint;
     private readonly TextBlock _placementHintText;
     private readonly Canvas _ghostLayer;
@@ -84,6 +89,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         };
 
         _toolbar = BuildToolbar();
+        _properties = BuildProperties();
+        _propertiesLayer.Children.Add(_properties);
 
         // [S-906] The view bar sits on its own layer, over the widgets and under the toolbar.
         _viewBar = new ViewBar(this) { Visibility = Visibility.Collapsed };
@@ -102,7 +109,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = new SolidColorBrush(Colors.Transparent),
-            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _barLayer, _ghostLayer, _toolbar, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _barLayer, _ghostLayer, _propertiesLayer, _toolbar, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.
@@ -237,13 +244,20 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     }
 
     /// <summary>A resize in progress: follow it. Moves go through <see cref="PreviewMove"/>.</summary>
-    public void OnGeometryPreview(WidgetCard card) => PositionCard(card, card.LiveRect);
+    public void OnGeometryPreview(WidgetCard card)
+    {
+        PositionCard(card, card.LiveRect);
+
+        // [S-3710] The strip steps aside while the widget is resized.
+        HoldProperties(true);
+    }
 
     /// <summary>A resize ended: persist it, as one undo step ([S-884]). A resize never leaves its screen ([S-78]).</summary>
     public void OnGeometryCommitted(WidgetCard card)
     {
         PositionCard(card, card.LiveRect);
         _host.CommitGeometry(UndoAction.Resize);
+        HoldProperties(false);
     }
 
     /// <summary>Where a physical screen point falls on this display, as a fraction of the whole monitor.</summary>

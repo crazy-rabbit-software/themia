@@ -78,6 +78,12 @@ public sealed class StoredEvent
     public string? Organizer { get; set; }
 
     public string? WebLink { get; set; }
+
+    /// <summary>[S-4822] The join link, through <see cref="MeetingLinks"/> again when read back.</summary>
+    public string? JoinUrl { get; set; }
+
+    /// <summary>[S-4821] The user declined it.</summary>
+    public bool Declined { get; set; }
 }
 
 public sealed class StoredBirthday
@@ -149,6 +155,8 @@ public static class OfficeShelves
         Location = CutOrNull(item.Location),
         Organizer = CutOrNull(item.Organizer),
         WebLink = item.WebLink is { Length: <= MaxLink } link ? link : null,
+        JoinUrl = MeetingLinks.IsLaunchable(item.JoinUrl) ? item.JoinUrl : null,
+        Declined = item.Declined,
     };
 
     public static CalendarEvent Restore(StoredEvent item) => new()
@@ -161,6 +169,8 @@ public static class OfficeShelves
         Location = item.Location,
         Organizer = item.Organizer,
         WebLink = item.WebLink,
+        JoinUrl = item.JoinUrl,
+        Declined = item.Declined,
     };
 
     public static StoredCalendar Store(CalendarInfo calendar) => new()
@@ -261,6 +271,8 @@ public static class OfficeShelves
                     Location = CutOrNull(item.Location),
                     Organizer = CutOrNull(item.Organizer),
                     WebLink = item.WebLink is { Length: <= MaxLink } link ? link : null,
+                    JoinUrl = MeetingLinks.IsLaunchable(item.JoinUrl) ? item.JoinUrl : null,
+                    Declined = item.Declined,
                 });
             }
 

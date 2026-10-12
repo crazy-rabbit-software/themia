@@ -1,0 +1,31 @@
+{
+  "yearProgress.label": "Progres tahun",
+  "yearProgress.desc": "Seberapa banyak hari, minggu, bulan, dan tahun ini yang telah berlalu",
+  "yearProgress.day": "Hari",
+  "yearProgress.week": "Minggu",
+  "yearProgress.month": "Bulan",
+  "yearProgress.year": "Tahun",
+  "yearProgress.left": "Tersisa {time}",
+  "yearProgress.weekNumber": "Minggu {number}",
+  "yearProgress.dayOf": "Hari {day} dari {days}",
+  "meeting.label": "Rapat berikutnya",
+  "meeting.desc": "Acara Anda berikutnya, dengan Gabung untuk rapat online",
+  "meeting.join": "Gabung",
+  "meeting.joinTip": "Gabung ke rapat online",
+  "meeting.nowEnds": "Sekarang · berakhir {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Tidak ada acara mendatang",
+  "recentFiles.label": "File terbaru",
+  "recentFiles.desc": "File yang terakhir Anda buka",
+  "recentFiles.empty": "Tidak ada yang dibuka baru-baru ini",
+  "recentFiles.unreadable": "Item terbaru Windows tidak dapat dibaca",
+  "recentFiles.remove": "Hapus dari daftar",
+  "recycleBin.desc": "Seberapa penuh Recycle Bin, dengan Kosongkan",
+  "recycleBin.empty": "Kosongkan",
+  "recycleBin.emptyEllipsis": "Kosongkan Recycle Bin…",
+  "recycleBin.isEmpty": "Tidak ada item",
+  "recycleBin.items": {
+    "other": "{count} item"
+  },
+  "recycleBin.open": "Buka Recycle Bin"
+}

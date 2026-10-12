@@ -9,6 +9,7 @@ using Themia.App.Widgets.Meters;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -62,7 +63,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private WidgetConfig _config;
     private SeriesWatch? _watch;
-    private MeterSeries? _series;
+    private SeriesInterest? _series;
 
     // The ramp step currently applied. Kept so a sample that lands on the same step does not touch
     // the text block at all: re-applying a font size is a layout invalidation the tile does not need.
@@ -213,14 +214,16 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
         _part.ApplyConfig(_config, this);
 
-        var capacity = gauge?.GraphCapacity ?? 60;
+        // [S-1121] The span at the series' spacing ([S-2512]: a ping point is five seconds).
+        var series = _part.Series(_config);
+        var capacity = MeterTiming.Points(gauge?.GraphSpanSeconds ?? 60, series.Key.PeriodSeconds);
         var grew = capacity > _band.Capacity;
         _band.Capacity = capacity;
 
-        if (!Rewatch() && grew && _watch is not null)
+        if (!Rewatch(series) && grew && _watch is not null)
         {
             // [S-2504] A longer span shows the longer history the hub already holds, at once.
-            _band.Load(_watch.History(capacity));
+            _band.Load(_watch.History(capacity), _watch.Added);
         }
 
         Lay();
@@ -228,18 +231,15 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
     /// <summary>
     /// [S-2504] Watch the series the config names, only when it names a different one: dragging a
-    /// settings slider must not drop and remake the watch. A different series (a new cadence, drive or
-    /// host) is a different history, so the fixed-slot x-axis never mixes two spacings ([S-1120]).
-    /// True when it watched again.
+    /// settings slider must not drop and remake the watch. A different series (a new drive or host) is
+    /// a different history. True when it watched again.
     /// </summary>
-    private bool Rewatch()
+    private bool Rewatch(SeriesInterest series)
     {
         if (_detached)
         {
             return false;
         }
-
-        var series = _part.Series(_config);
 
         if (_watch is not null && series == _series)
         {
@@ -259,11 +259,11 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
             return true;
         }
 
-        _watch = series.Watch(hub, OnUpdate);
+        _watch = hub.WatchSeries(series, OnUpdate);
 
         // [S-2506] The watch never calls back from inside Watch: the history so far and the newest
         // reading are read here, so a meter built again (a view switch, edit mode) shows them at once.
-        _band.Load(_watch.History(_band.Capacity));
+        _band.Load(_watch.History(_band.Capacity), _watch.Added);
         Present(_watch.Latest ?? _part.Waiting);
         return true;
     }
@@ -337,8 +337,8 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         _detached = true;
 
-        // [S-2505] The series and its history stay in the hub (lingering when this was the last
-        // meter showing it), so the meter built in this one's place picks them up.
+        // [S-2513] The series and its history stay in the hub while the state wants them, so the
+        // meter built in this one's place (a view switch, edit mode) picks them up.
         _watch?.Dispose();
         _watch = null;
         _series = null;

@@ -303,29 +303,28 @@ public sealed class NoteStoreTests : IDisposable
     {
         foreach (var plan in new[] { Plan(120, 120), Plan(200, 150) })
         {
-            Assert.False(plan.Toolbar);
             Assert.False(plan.Status);
             Assert.True(plan.TextLines >= NotesLayout.MinTextLines);
         }
     }
 
     [Fact]
-    public void S1363_m_and_wide_add_the_toolbar_without_a_status_line()
+    public void S3963_the_body_gives_no_row_to_a_formatting_bar()
     {
+        // [S-3963] The bar lives in the header: at M and on a wide strip the body is the text alone,
+        // as many lines as the box holds.
         var m = Plan(320, 240);
         var wide = Plan(480, 160);
 
-        Assert.Equal(NotesLayout.AllButtons, m.ToolbarButtons);
-        Assert.Equal(NotesLayout.AllButtons, wide.ToolbarButtons);
         Assert.False(m.Status);
         Assert.False(wide.Status);
+        Assert.Equal(NotesLayout.MinTextLines + Disclosure.WholeRows((240 - 44 - 32) - (18 * NotesLayout.MinTextLines), 18), m.TextLines);
     }
 
     [Fact]
-    public void S1363_tall_sheds_buttons_by_width_and_counts_words()
+    public void S1363_tall_counts_words()
     {
         var tall = Plan(200, 400);
-        Assert.InRange(tall.ToolbarButtons, NotesLayout.MinButtons, NotesLayout.AllButtons - 1);
         Assert.True(tall.Status);
         Assert.False(tall.StatusDetail);
     }
@@ -338,7 +337,6 @@ public sealed class NoteStoreTests : IDisposable
 
         Assert.True(l.StatusDetail);
         Assert.True(xl.StatusDetail);
-        Assert.Equal(NotesLayout.AllButtons, xl.ToolbarButtons);
         Assert.True(xl.TextLines > l.TextLines);
     }
 
@@ -355,7 +353,40 @@ public sealed class NoteStoreTests : IDisposable
 
     [Fact]
     public void S1363_unmeasured_shows_the_text_only()
-        => Assert.False(NotesLayout.Plan(default, 16, 8, 18, 16).Toolbar);
+        => Assert.False(NotesLayout.Plan(default, 16, 8, 18, 16).Status);
+
+    [Theory]
+    [InlineData(400, true, 9, false)]
+    [InlineData(800, true, 9, false)]
+    [InlineData(320, true, 5, true)]
+    [InlineData(240, true, 2, true)]
+    [InlineData(180, true, 0, true)]
+    [InlineData(170, false, 0, true)]
+    [InlineData(120, false, 0, false)]
+    public void S3963_the_header_bar_keeps_what_fits_and_folds_the_rest_into_more(double width, bool picker, int inline, bool overflow)
+    {
+        var bar = NotesLayout.HeaderBar(width, picker);
+
+        Assert.Equal(inline, bar.Inline);
+        Assert.Equal(overflow, bar.Overflow);
+    }
+
+    [Fact]
+    public void S3963_the_header_bar_never_takes_the_titles_minimum()
+    {
+        for (var width = 100.0; width <= 900; width += 7)
+        {
+            var bar = NotesLayout.HeaderBar(width, picker: true);
+            var used = bar.Width;
+
+            Assert.True(used <= Math.Max(0, width - NotesLayout.HeaderReserve(picker: true)), $"{width}: {used}");
+            Assert.InRange(bar.Inline, 0, NotesLayout.AllButtons);
+            Assert.True(bar.Overflow == (bar.Inline < NotesLayout.AllButtons && bar.Shown), $"{width}");
+        }
+
+        Assert.False(NotesLayout.HeaderBar(double.NaN, picker: true).Shown);
+        Assert.False(NotesLayout.HeaderBar(0, picker: true).Shown);
+    }
 
     private sealed class StepClock(DateTimeOffset now) : TimeProvider
     {

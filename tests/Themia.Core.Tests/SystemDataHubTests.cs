@@ -1,13 +1,14 @@
+using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>The system data hub's rules (S-2500..S-2511): keys, cadence, history, holding and linger.</summary>
+/// <summary>The system data hub's rules (S-2500..S-2513): keys, the one cadence, history, interests and holding.</summary>
 public sealed class SystemDataHubTests
 {
-    private static readonly long LingerMs = (long)FeedTable<object>.Linger.TotalMilliseconds;
+    private const string Root = "C:\\";
 
     // ---- S-2501: the read order ----------------------------------------------------------------
 
@@ -27,14 +28,14 @@ public sealed class SystemDataHubTests
     public void S2501_feeds_are_listed_in_read_order()
     {
         var table = new FeedTable<object>(_ => new object());
-        table.Join(FeedKey.Create(SystemSource.Processor, TimeSpan.FromSeconds(2)), out _);
-        table.Join(FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(10), "b.example"), out _);
-        table.Join(FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(2)), out _);
-        table.Join(FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(10), "a.example"), out _);
+        table.Join(FeedKey.Create(SystemSource.Processor), out _);
+        table.Join(FeedKey.Create(SystemSource.Ping, "b.example"), out _);
+        table.Join(FeedKey.Create(SystemSource.Cpu), out _);
+        table.Want([FeedKey.Create(SystemSource.Ping, "a.example")], out _);
 
         var order = table.Ordered().Select(e => e.Key.ToString()).ToArray();
 
-        Assert.Equal(["Cpu@2s", "Processor@2s", "Ping(a.example)@10s", "Ping(b.example)@10s"], order);
+        Assert.Equal(["Cpu", "Processor", "Ping(a.example)", "Ping(b.example)"], order);
     }
 
     // ---- S-2502: feed keys ---------------------------------------------------------------------
@@ -42,113 +43,93 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2502_one_host_however_it_is_typed_is_one_prober()
     {
-        var a = FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(10), " Example.COM ");
-        var b = FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(10), "example.com");
+        var a = FeedKey.Create(SystemSource.Ping, " Example.COM ");
+        var b = FeedKey.Create(SystemSource.Ping, "example.com");
 
         Assert.Equal(a, b);
         Assert.Equal("example.com", a.Target);
     }
 
     [Fact]
-    public void S2502_another_cadence_or_host_is_another_feed()
+    public void S2502_another_host_or_source_is_another_feed()
     {
-        var ten = FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(10), "example.com");
+        var ping = FeedKey.Create(SystemSource.Ping, "example.com");
 
-        Assert.NotEqual(ten, FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(5), "example.com"));
-        Assert.NotEqual(ten, FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(10), "example.org"));
-        Assert.NotEqual(ten, FeedKey.Create(SystemSource.Network, TimeSpan.FromSeconds(10)));
+        Assert.NotEqual(ping, FeedKey.Create(SystemSource.Ping, "example.org"));
+        Assert.NotEqual(ping, FeedKey.Create(SystemSource.Network));
     }
-
-    [Theory]
-    [InlineData(0.2, 1)]
-    [InlineData(1.4, 1)]
-    [InlineData(2.5, 3)]
-    [InlineData(120, 120)]
-    [InlineData(300, 300)]
-    public void S2502_a_cadence_is_whole_seconds_at_least_one_and_never_capped_at_a_minute(double seconds, int expected)
-        => Assert.Equal(expected, HubCadence.Seconds(TimeSpan.FromSeconds(seconds)));
 
     [Fact]
     public void S2502_a_machine_source_has_no_target()
     {
-        Assert.Equal(string.Empty, FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1), "  ").Target);
-        Assert.Equal(string.Empty, FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1)).Target);
+        Assert.Equal(string.Empty, FeedKey.Create(SystemSource.Cpu, "  ").Target);
+        Assert.Equal(string.Empty, FeedKey.Create(SystemSource.Cpu).Target);
     }
 
-    // ---- S-2503: cadence arbitration -----------------------------------------------------------
-
-    [Theory]
-    [InlineData(new[] { 1 }, 1)]
-    [InlineData(new[] { 2, 3 }, 1)]
-    [InlineData(new[] { 2, 4, 6 }, 2)]
-    [InlineData(new[] { 5, 15, 10 }, 5)]
-    [InlineData(new[] { 10, 10 }, 10)]
-    [InlineData(new[] { 60 }, 60)]
-    public void S2503_the_hub_wakes_at_the_slowest_rate_that_lands_on_every_boundary(int[] intervals, int expected)
-        => Assert.Equal(TimeSpan.FromSeconds(expected), HubCadence.Arbitrate(intervals));
-
-    [Theory]
-    [InlineData(new[] { 90 }, 30)]
-    [InlineData(new[] { 120 }, 60)]
-    [InlineData(new[] { 300, 10 }, 10)]
-    [InlineData(new[] { 75 }, 15)]
-    public void S2503_a_cadence_over_a_minute_still_lands_on_its_boundaries_with_a_ticker_capped_at_one(int[] intervals, int expected)
-        => Assert.Equal(TimeSpan.FromSeconds(expected), HubCadence.Arbitrate(intervals));
+    // ---- S-2503 / S-2512: one cadence ----------------------------------------------------------
 
     [Fact]
-    public void S2503_nothing_to_read_is_no_cadence()
-        => Assert.Null(HubCadence.Arbitrate([]));
-
-    [Fact]
-    public void S2503_a_feed_is_due_once_per_period_of_its_own_cadence()
+    public void S2503_every_machine_source_is_read_every_second()
     {
-        var start = new DateTimeOffset(2026, 10, 11, 12, 0, 0, TimeSpan.Zero);
-        var last = long.MinValue;
-        var reads = new List<int>();
-
-        // The hub wakes every second (a 1 s feed elsewhere); a 3 s feed reads at 0, 3, 6, 9.
-        for (var s = 0; s < 10; s++)
+        foreach (var source in Enum.GetValues<SystemSource>().Where(s => s != SystemSource.Ping))
         {
-            if (HubCadence.IsDue(last, start.AddSeconds(s).AddMilliseconds(15), 3, out var period))
+            Assert.Equal(SystemCadence.TickSeconds, SystemCadence.PeriodSeconds(source));
+        }
+
+        Assert.Equal(TimeSpan.FromSeconds(1), SystemCadence.Tick);
+    }
+
+    [Fact]
+    public void S2512_a_ping_probes_every_fifth_tick_on_the_same_boundaries()
+    {
+        Assert.Equal(5, SystemCadence.PeriodSeconds(SystemSource.Ping));
+        Assert.Equal(0, SystemCadence.PingSeconds % SystemCadence.TickSeconds);
+
+        var start = new DateTimeOffset(2026, 10, 12, 12, 0, 0, TimeSpan.Zero);
+        long cpu = long.MinValue, ping = long.MinValue;
+        var cpuReads = new List<int>();
+        var pingReads = new List<int>();
+
+        for (var s = 0; s < 11; s++)
+        {
+            var now = start.AddSeconds(s).AddMilliseconds(15);
+
+            if (SystemCadence.IsDue(cpu, now, SystemSource.Cpu, out var c))
             {
-                last = period;
-                reads.Add(s);
+                cpu = c;
+                cpuReads.Add(s);
+            }
+
+            if (SystemCadence.IsDue(ping, now, SystemSource.Ping, out var p))
+            {
+                ping = p;
+                pingReads.Add(s);
             }
         }
 
-        Assert.Equal([0, 3, 6, 9], reads);
+        Assert.Equal(Enumerable.Range(0, 11), cpuReads);
+        Assert.Equal([0, 5, 10], pingReads);
+
+        // Every probe lands on a tick the other sources are read on.
+        Assert.All(pingReads, s => Assert.Contains(s, cpuReads));
     }
 
     [Fact]
-    public void S2503_a_feed_read_this_period_is_not_due_again_in_it()
+    public void S2503_a_source_read_this_second_is_not_due_again_in_it()
     {
-        var now = new DateTimeOffset(2026, 10, 11, 12, 0, 5, TimeSpan.Zero);
-        Assert.True(HubCadence.IsDue(long.MinValue, now, 5, out var period));
-        Assert.False(HubCadence.IsDue(period, now.AddMilliseconds(400), 5, out _));
-        Assert.True(HubCadence.IsDue(period, now.AddSeconds(5), 5, out _));
+        var now = new DateTimeOffset(2026, 10, 12, 12, 0, 5, TimeSpan.Zero);
+        Assert.True(SystemCadence.IsDue(long.MinValue, now, SystemSource.Memory, out var period));
+        Assert.False(SystemCadence.IsDue(period, now.AddMilliseconds(400), SystemSource.Memory, out _));
+        Assert.True(SystemCadence.IsDue(period, now.AddSeconds(1), SystemSource.Memory, out _));
     }
 
     [Fact]
-    public void S2503_the_feed_table_arbitrates_over_held_and_lingering_feeds()
+    public void S2503_a_clock_that_went_back_is_due_at_once()
     {
-        var table = new FeedTable<object>(_ => new object());
-        var two = FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(2));
-        var three = FeedKey.Create(SystemSource.Memory, TimeSpan.FromSeconds(3));
+        var now = new DateTimeOffset(2026, 10, 12, 12, 0, 5, TimeSpan.Zero);
+        SystemCadence.IsDue(long.MinValue, now, SystemSource.Cpu, out var period);
 
-        Assert.Null(table.Cadence);
-
-        table.Join(two, out _);
-        Assert.Equal(TimeSpan.FromSeconds(2), table.Cadence);
-
-        table.Join(three, out _);
-        Assert.Equal(TimeSpan.FromSeconds(1), table.Cadence);
-
-        // Lingering is still read, so it still counts.
-        table.Leave(three, 0);
-        Assert.Equal(TimeSpan.FromSeconds(1), table.Cadence);
-
-        table.Expire(LingerMs);
-        Assert.Equal(TimeSpan.FromSeconds(2), table.Cadence);
+        Assert.True(SystemCadence.IsDue(period, now.AddSeconds(-30), SystemSource.Cpu, out _));
     }
 
     // ---- S-2504: the history ring --------------------------------------------------------------
@@ -164,6 +145,7 @@ public sealed class SystemDataHubTests
         }
 
         Assert.Equal(3, ring.Count);
+        Assert.Equal(5, ring.Added);
         Assert.Equal(5, ring.Latest);
         Assert.Equal([3, 4, 5], ring.Newest(10));
         Assert.Equal([4, 5], ring.Newest(2));
@@ -191,6 +173,7 @@ public sealed class SystemDataHubTests
         ring.Clear();
 
         Assert.Equal(0, ring.Count);
+        Assert.Equal(0, ring.Added);
         Assert.Null(ring.Latest);
         Assert.Empty(ring.Newest(2));
 
@@ -199,11 +182,12 @@ public sealed class SystemDataHubTests
     }
 
     [Fact]
-    public void S2504_the_history_holds_the_longest_chart_and_the_widest_ping_window()
+    public void S2504_the_history_holds_the_longest_span_and_the_widest_ping_window()
     {
-        Assert.Equal(MeterTiming.MaxCapacity, SeriesHistory.Capacity);
-        Assert.True(SeriesHistory.Capacity >= Model.PingDetailsConfig.MaxWindow);
-        Assert.True(SeriesHistory.Capacity >= MeterTiming.Capacity(3600, 1));
+        Assert.Equal(MeterTiming.MaxSpanSeconds, SeriesHistory.Capacity(SystemSource.Cpu));
+        Assert.Equal(MeterTiming.Points(MeterTiming.SpanChoices.Max(), SystemCadence.TickSeconds), SeriesHistory.Capacity(SystemSource.Gpu));
+        Assert.Equal(MeterTiming.Points(MeterTiming.SpanChoices.Max(), SystemCadence.PingSeconds), SeriesHistory.Capacity(SystemSource.Ping));
+        Assert.True(SeriesHistory.Capacity(SystemSource.Ping) >= PingDetailsConfig.MaxWindow);
     }
 
     [Fact]
@@ -217,14 +201,14 @@ public sealed class SystemDataHubTests
         Assert.True(double.IsNaN(answered.Second));
     }
 
-    // ---- S-2505: holding and linger ------------------------------------------------------------
+    // ---- S-2505: wanted and held ---------------------------------------------------------------
 
     [Fact]
     public void S2505_every_widget_on_one_key_shares_one_feed()
     {
         var made = 0;
         var table = new FeedTable<object>(_ => { made++; return new object(); });
-        var key = FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1));
+        var key = FeedKey.Create(SystemSource.Cpu);
 
         var first = table.Join(key, out var created);
         Assert.True(created);
@@ -237,114 +221,212 @@ public sealed class SystemDataHubTests
     }
 
     [Fact]
-    public void S2505_a_feed_nobody_holds_lingers_and_a_returning_widget_gets_the_same_one()
+    public void S2505_a_feed_nobody_holds_or_wants_is_dropped_at_once()
     {
         var table = new FeedTable<object>(_ => new object());
-        var key = FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1));
+        var key = FeedKey.Create(SystemSource.Gpu);
         var feed = table.Join(key, out _);
+        table.Join(key, out _);
 
-        Assert.True(table.Leave(key, 1_000));
-        Assert.Equal(1, table.Lingering);
-        Assert.Empty(table.Expire(1_000 + LingerMs - 1));
-
-        // A view switch and back within the linger: the history is the same feed's.
-        Assert.Same(feed, table.Join(key, out var created));
-        Assert.False(created);
-        Assert.Equal(0, table.Lingering);
-
-        // Held again, the old linger no longer counts.
-        Assert.Empty(table.Expire(1_000 + (10 * LingerMs)));
-        Assert.Equal(1, table.Count);
-    }
-
-    [Fact]
-    public void S2505_a_feed_whose_linger_ran_out_is_dropped_and_comes_back_fresh()
-    {
-        var table = new FeedTable<object>(_ => new object());
-        var key = FeedKey.Create(SystemSource.Gpu, TimeSpan.FromSeconds(2));
-        var feed = table.Join(key, out _);
-        table.Leave(key, 5_000);
-
-        var expired = table.Expire(5_000 + LingerMs);
-
-        Assert.Single(expired);
-        Assert.Same(feed, expired[0].Value);
+        Assert.Null(table.Leave(key, out var known));
+        Assert.True(known);
+        Assert.Same(feed, table.Leave(key, out _));
         Assert.Equal(0, table.Count);
-        Assert.False(table.Reads(SystemSource.Gpu, string.Empty));
 
         Assert.NotSame(feed, table.Join(key, out var created));
         Assert.True(created);
     }
 
     [Fact]
-    public void S2505_a_feed_still_held_by_one_widget_never_expires()
+    public void S2505_a_wanted_feed_outlives_its_last_watch_with_its_history()
     {
         var table = new FeedTable<object>(_ => new object());
-        var key = FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1));
-        table.Join(key, out _);
-        table.Join(key, out _);
-        table.Leave(key, 0);
+        var key = FeedKey.Create(SystemSource.Cpu);
+        table.Want([key], out var created);
+        var feed = Assert.Single(created);
 
-        Assert.Empty(table.Expire(100 * LingerMs));
-        Assert.Equal(1, table.Holders(key));
+        // A view switch: the watch goes, the feed (and so its history) stays.
+        Assert.Same(feed, table.Join(key, out var made));
+        Assert.False(made);
+        Assert.Null(table.Leave(key, out _));
+        Assert.True(table.TryGet(key, out var kept));
+        Assert.Same(feed, kept);
+    }
+
+    [Fact]
+    public void S2505_a_feed_no_longer_wanted_goes_unless_a_watch_holds_it()
+    {
+        var table = new FeedTable<object>(_ => new object());
+        var cpu = FeedKey.Create(SystemSource.Cpu);
+        var gpu = FeedKey.Create(SystemSource.Gpu);
+        table.Want([cpu, gpu], out _);
+        table.Join(gpu, out _);
+
+        var dropped = table.Want([], out var created);
+
+        Assert.Empty(created);
+        Assert.Single(dropped);
+        Assert.False(table.TryGet(cpu, out _));
+        Assert.True(table.TryGet(gpu, out _));
+        Assert.False(table.IsWanted(gpu));
+
+        Assert.NotNull(table.Leave(gpu, out _));
+        Assert.Equal(0, table.Count);
+    }
+
+    [Fact]
+    public void S2505_wanting_the_same_again_makes_and_drops_nothing()
+    {
+        var table = new FeedTable<object>(_ => new object());
+        var keys = new[] { FeedKey.Create(SystemSource.Cpu), FeedKey.Create(SystemSource.Memory) };
+        table.Want(keys, out var first);
+
+        Assert.Equal(2, first.Count);
+        Assert.Empty(table.Want(keys, out var again));
+        Assert.Empty(again);
+        Assert.Equal(2, table.Wanted);
     }
 
     [Fact]
     public void S2505_letting_go_twice_or_of_an_unknown_feed_changes_nothing()
     {
         var table = new FeedTable<object>(_ => new object());
-        var key = FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1));
+        var key = FeedKey.Create(SystemSource.Cpu);
 
-        Assert.False(table.Leave(key, 0));
+        Assert.Null(table.Leave(key, out var known));
+        Assert.False(known);
 
-        table.Join(key, out _);
-        Assert.True(table.Leave(key, 0));
-        Assert.False(table.Leave(key, LingerMs / 2));
-
-        // The second release did not restart the linger.
-        Assert.Single(table.Expire(LingerMs));
-    }
-
-    [Fact]
-    public void S2505_a_clock_that_reads_before_the_release_does_not_end_the_linger()
-    {
-        var table = new FeedTable<object>(_ => new object());
-        var key = FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1));
-        table.Join(key, out _);
-        table.Leave(key, 10_000);
-
-        Assert.Empty(table.Expire(0));
+        table.Want([key], out _);
+        Assert.Null(table.Leave(key, out known));
+        Assert.False(known);
         Assert.Equal(1, table.Count);
-    }
-
-    [Fact]
-    public void S2505_a_source_is_read_while_any_feed_of_it_lives()
-    {
-        var table = new FeedTable<object>(_ => new object());
-        var a = FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(10), "example.com");
-        var b = FeedKey.Create(SystemSource.Ping, TimeSpan.FromSeconds(30), "example.com");
-        table.Join(a, out _);
-        table.Join(b, out _);
-        table.Leave(a, 0);
-        table.Expire(LingerMs);
-
-        Assert.True(table.Reads(SystemSource.Ping, "example.com"));
-        Assert.False(table.Reads(SystemSource.Ping, "example.org"));
-
-        table.Leave(b, 0);
-        table.Expire(LingerMs);
-        Assert.False(table.Reads(SystemSource.Ping, "example.com"));
     }
 
     [Fact]
     public void S2505_clearing_hands_back_every_feed()
     {
         var table = new FeedTable<object>(_ => new object());
-        table.Join(FeedKey.Create(SystemSource.Cpu, TimeSpan.FromSeconds(1)), out _);
-        table.Join(FeedKey.Create(SystemSource.Memory, TimeSpan.FromSeconds(1)), out _);
+        table.Join(FeedKey.Create(SystemSource.Cpu), out _);
+        table.Want([FeedKey.Create(SystemSource.Memory)], out _);
 
         Assert.Equal(2, table.Clear().Count);
         Assert.Equal(0, table.Count);
-        Assert.Null(table.Cadence);
+    }
+
+    // ---- S-2513: interests from the whole state ------------------------------------------------
+
+    private static AppState State(params WidgetConfig[][] views) => new()
+    {
+        Views =
+        [
+            .. views.Select((configs, v) => new ViewState
+            {
+                Id = $"v{v}",
+                Name = $"View {v}",
+                Widgets = [.. configs.Select((c, i) => new WidgetInstance { Id = $"w{v}-{i}", Kind = c.Kind, Config = c })],
+            }),
+        ],
+    };
+
+    [Fact]
+    public void S2513_every_views_system_widgets_are_read_from_the_start()
+    {
+        var state = State(
+            [new CpuConfig(), new ClockConfig()],
+            [new MemoryConfig(), new TopProcessesConfig(), new PingDetailsConfig { Host = "Example.com" }]);
+
+        var interests = SystemInterests.From(state, Root);
+
+        Assert.Equal(
+            [SystemSource.Cpu, SystemSource.Memory, SystemSource.Processes, SystemSource.Ping],
+            interests.Feeds.Select(k => k.Source));
+        Assert.Equal("example.com", interests.Feeds[^1].Target);
+
+        // The charts' histories start too, the statistics' window with them.
+        Assert.Equal(
+            [SystemSource.Cpu, SystemSource.Memory, SystemSource.Ping],
+            interests.Series.Select(s => s.Key.Source));
+    }
+
+    [Fact]
+    public void S2513_two_widgets_on_one_feed_want_it_once_and_a_ping_meter_shares_the_statistics_prober()
+    {
+        var state = State(
+            [new CpuConfig(), new CpuDetailsConfig(), new PingConfig { Host = "1.1.1.1" }],
+            [new CpuConfig(), new PingDetailsConfig { Host = " 1.1.1.1 " }]);
+
+        var interests = SystemInterests.From(state, Root);
+
+        Assert.Equal(
+            [SystemSource.Cpu, SystemSource.Performance, SystemSource.Processor, SystemSource.Ping],
+            interests.Feeds.Select(k => k.Source));
+        Assert.Equal(2, interests.Series.Count);
+    }
+
+    [Fact]
+    public void S2513_a_disk_meter_charts_its_drive_the_system_drive_or_every_drive()
+    {
+        var state = State([
+            new DiskConfig { Drive = "d" },
+            new DiskConfig(),
+            new DiskConfig { Scope = DiskScope.AllDrives },
+        ]);
+
+        var series = SystemInterests.From(state, Root).Series.Select(s => s.Instance).ToArray();
+
+        Assert.Equal([SystemInterests.AllDrives, "C:\\", "D:\\"], series);
+        Assert.Single(SystemInterests.From(state, Root).Feeds);
+    }
+
+    [Fact]
+    public void S2513_the_gpu_tile_charts_each_chosen_adapter_and_the_first_without_a_choice()
+    {
+        Assert.Equal(["0", "2"], SystemInterests.For(new GpuConfig { Adapters = [2, 0] }, Root).Series.Select(s => s.Instance).Order());
+        Assert.Equal(["0"], SystemInterests.For(new GpuConfig { Adapters = [] }, Root).Series.Select(s => s.Instance));
+    }
+
+    [Fact]
+    public void S2513_the_public_address_is_asked_only_while_a_widget_wants_it()
+    {
+        Assert.DoesNotContain(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkDetailsConfig(), Root).Feeds);
+        Assert.Contains(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkDetailsConfig { ShowPublicAddress = true }, Root).Feeds);
+    }
+
+    [Fact]
+    public void S2513_every_system_kind_reads_something_and_no_other_kind_does()
+    {
+        foreach (var kind in Enum.GetValues<WidgetKind>())
+        {
+            var config = WidgetConfig.CreateDefault(kind);
+            var wants = SystemInterests.For(config, Root);
+            var system = config is GaugeConfig or DetailConfig;
+
+            Assert.Equal(system, wants.Feeds.Count > 0);
+
+            // A charted series' feed is read too.
+            Assert.All(wants.Series, s => Assert.Contains(s.Key, wants.Feeds));
+        }
+    }
+
+    [Fact]
+    public void S2513_a_change_that_wants_the_same_is_no_change()
+    {
+        var state = State([new CpuConfig(), new MemoryDetailsConfig()]);
+        var before = SystemInterests.From(state, Root);
+
+        // Moving a widget or changing a span reads nothing new.
+        ((CpuConfig)state.Views[0].Widgets[0].Config).GraphSpanSeconds = 3600;
+        Assert.True(before.SameAs(SystemInterests.From(state, Root)));
+
+        state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Kind = WidgetKind.NetworkDetails, Config = new NetworkDetailsConfig() });
+        Assert.False(before.SameAs(SystemInterests.From(state, Root)));
+    }
+
+    [Fact]
+    public void S2513_a_state_without_system_widgets_reads_nothing()
+    {
+        var interests = SystemInterests.From(State([new ClockConfig()]), Root);
+
+        Assert.True(interests.SameAs(SystemInterests.None));
     }
 }

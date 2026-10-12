@@ -86,6 +86,13 @@ public sealed class StocksConfig : WidgetConfig
     public string DownColor { get; set; } = string.Empty;
 
     /// <summary>
+    /// [S-2776] How many of the instrument the user owns, for the holding's worth under the price.
+    /// Null (the default) is none and is not shown; a stored 0, negative or unusable amount is
+    /// repaired to none at load (<see cref="StockHolding.Normalise"/>).
+    /// </summary>
+    public double? SharesOwned { get; set; }
+
+    /// <summary>
     /// Whether the request asks for extended-hours bars: only where they exist (a listed symbol)
     /// and where they fit the chart (one and five days).
     /// </summary>
@@ -130,7 +137,7 @@ public sealed class StocksConfig : WidgetConfig
         DisplayName = string.Empty;
     }
 
-    /// <summary>A hand-edited colour that is not <c>#RRGGBB</c> goes back to the theme's.</summary>
+    /// <summary>A hand-edited colour that is not <c>#RRGGBB</c> goes back to the theme's; an unusable amount owned to none.</summary>
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
@@ -151,6 +158,13 @@ public sealed class StocksConfig : WidgetConfig
             set(normal);
         }
 
+        SharesOwned = StockHolding.Normalise(SharesOwned, out var problem);
+
+        if (problem is not null)
+        {
+            repairs.Add(problem);
+        }
+
         return repairs;
     }
 
@@ -166,5 +180,6 @@ public sealed class StocksConfig : WidgetConfig
         ShowMinMax = ShowMinMax,
         UpColor = UpColor,
         DownColor = DownColor,
+        SharesOwned = SharesOwned,
     };
 }

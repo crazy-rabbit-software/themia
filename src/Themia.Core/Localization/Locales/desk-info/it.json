@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "Avanzamento dell’anno",
+  "yearProgress.desc": "Quanto è passato del giorno, della settimana, del mese e dell’anno",
+  "yearProgress.day": "Giorno",
+  "yearProgress.week": "Settimana",
+  "yearProgress.month": "Mese",
+  "yearProgress.year": "Anno",
+  "yearProgress.left": "Mancano {time}",
+  "yearProgress.weekNumber": "Settimana {number}",
+  "yearProgress.dayOf": "Giorno {day} di {days}",
+  "meeting.label": "Prossima riunione",
+  "meeting.desc": "Il tuo prossimo evento, con Partecipa per le riunioni online",
+  "meeting.join": "Partecipa",
+  "meeting.joinTip": "Partecipa alla riunione online",
+  "meeting.nowEnds": "Ora · termina alle {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Nessun impegno in arrivo",
+  "recentFiles.label": "File recenti",
+  "recentFiles.desc": "Gli ultimi file che hai aperto",
+  "recentFiles.empty": "Nessun file aperto di recente",
+  "recentFiles.unreadable": "Impossibile leggere gli elementi recenti di Windows",
+  "recentFiles.remove": "Rimuovi dall’elenco",
+  "recycleBin.desc": "Quanto è pieno il Cestino, con Svuota",
+  "recycleBin.empty": "Svuota",
+  "recycleBin.emptyEllipsis": "Svuota Cestino…",
+  "recycleBin.isEmpty": "Nessun elemento",
+  "recycleBin.items": {
+    "one": "{count} elemento",
+    "other": "{count} elementi"
+  },
+  "recycleBin.open": "Apri Cestino"
+}

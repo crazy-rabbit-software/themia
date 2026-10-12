@@ -17,11 +17,10 @@ public enum DiskScope
 public sealed class DiskConfig : GaugeConfig
 {
     /// <summary>
-    /// Every five seconds over three minutes, the original's defaults. The history is on, as it was
-    /// there.
+    /// Five minutes of history. The history is on, as it was in the original.
     /// </summary>
     public DiskConfig()
-        : base(intervalSeconds: 5, graphSpanSeconds: 180)
+        : base(graphSpanSeconds: 300)
     {
     }
 

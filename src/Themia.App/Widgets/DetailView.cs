@@ -127,7 +127,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     {
         _detached = true;
 
-        // [S-2505] The feeds (and a ping window's probes) stay in the hub for the view built in this one's place.
+        // [S-2513] The feeds (and a ping window's probes) stay in the hub while the state wants them.
         _part.Detach();
         DetachList();
     }

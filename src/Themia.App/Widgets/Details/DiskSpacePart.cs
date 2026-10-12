@@ -8,13 +8,13 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets.Details;
 
 /// <summary>
-/// [S-2420]..[S-2422] Free and used space, one row per drive, named and walked by the disk meter's own
-/// volume list (re-walked at most every 30 s, so no drive is woken per tick), from the hub's disk space
-/// feed. Enter on a row opens the drive in Explorer.
+/// [S-2420]..[S-2422] Free and used space, one row per drive, from the hub's disk space feed, which
+/// carries the shared drive walk ([S-4655]: every 30 s and on a device change, so no drive is woken
+/// per tick). Enter on a row opens the drive in Explorer.
 /// </summary>
 internal sealed class DiskSpacePart : DetailPart
 {
-    private readonly WatchSlot<DiskSpaceSnapshot> _space = new();
+    private readonly WatchSlot<DiskSpaceSnapshot?> _space = new();
     private DiskSpaceConfig _config = new();
     private IDetailHost? _host;
 
@@ -35,18 +35,18 @@ internal sealed class DiskSpacePart : DetailPart
         _config = config as DiskSpaceConfig ?? new DiskSpaceConfig();
 
         // Another choice of drives is the same read, picked again: shown at once.
-        _space.Hold(hub, Sources.DiskSpace, _config.TickInterval, _ => Show());
+        _space.Hold(hub, Sources.DiskSpace, _ => Show());
         Show();
     }
 
     private void Show()
     {
-        if (_host is not { } host || !_space.HasValue)
+        // Before the first walk is in there is nothing to say about any drive yet.
+        if (_host is not { } host || !_space.HasValue || _space.Value is not { } snapshot)
         {
             return;
         }
 
-        var snapshot = _space.Value;
         var volumes = DiskSpaceRules.Select(snapshot.Walked, _config.Drives);
         var drives = new List<DriveSpace>(volumes.Count);
 

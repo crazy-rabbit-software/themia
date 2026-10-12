@@ -25,6 +25,12 @@ public enum Locale
     Ur = 14,
     Mr = 15,
     Vi = 16,
+    Ko = 17,
+    Nl = 18,
+    Tr = 19,
+
+    /// <summary>Traditional Chinese (Taiwan). <see cref="Zh"/> is Simplified.</summary>
+    ZhHant = 20,
 }
 
 /// <summary>[S-1108] Turning the language setting (and Windows' language list) into a <see cref="Locale"/>.</summary>
@@ -33,9 +39,15 @@ public static class LanguageResolver
     /// <summary>Every locale, in enum order.</summary>
     public static IReadOnlyList<Locale> All { get; } =
         [Locale.En, Locale.De, Locale.Es, Locale.Fr, Locale.It, Locale.Ja, Locale.Pl, Locale.Pt, Locale.Zh,
-         Locale.Hi, Locale.Ar, Locale.Bn, Locale.Ru, Locale.Id, Locale.Ur, Locale.Mr, Locale.Vi];
+         Locale.Hi, Locale.Ar, Locale.Bn, Locale.Ru, Locale.Id, Locale.Ur, Locale.Mr, Locale.Vi,
+         Locale.Ko, Locale.Nl, Locale.Tr, Locale.ZhHant];
 
-    /// <summary>The two-letter code, which is also the locale file's name (<c>de</c> → de.json).</summary>
+    /// <summary>
+    /// The language's code, which is also the locale file's name (<c>de</c> → de.json): two
+    /// letters, except Traditional Chinese, which is told apart by its script (<c>zh-Hant</c>).
+    /// <c>pt</c> is Brazilian Portuguese and <c>zh</c> Simplified Chinese (zh-Hans); each language
+    /// has one file, so the codes stay short.
+    /// </summary>
     public static string Code(Locale locale) => locale switch
     {
         Locale.De => "de",
@@ -54,6 +66,10 @@ public static class LanguageResolver
         Locale.Ur => "ur",
         Locale.Mr => "mr",
         Locale.Vi => "vi",
+        Locale.Ko => "ko",
+        Locale.Nl => "nl",
+        Locale.Tr => "tr",
+        Locale.ZhHant => "zh-Hant",
         _ => "en",
     };
 
@@ -89,6 +105,10 @@ public static class LanguageResolver
             AppLanguage.Urdu => Locale.Ur,
             AppLanguage.Marathi => Locale.Mr,
             AppLanguage.Vietnamese => Locale.Vi,
+            AppLanguage.Korean => Locale.Ko,
+            AppLanguage.Dutch => Locale.Nl,
+            AppLanguage.Turkish => Locale.Tr,
+            AppLanguage.ChineseTraditional => Locale.ZhHant,
             _ => FromSystem(preferredUiLanguages),
         };
     }
@@ -112,6 +132,10 @@ public static class LanguageResolver
         Locale.Ur => AppLanguage.Urdu,
         Locale.Mr => AppLanguage.Marathi,
         Locale.Vi => AppLanguage.Vietnamese,
+        Locale.Ko => AppLanguage.Korean,
+        Locale.Nl => AppLanguage.Dutch,
+        Locale.Tr => AppLanguage.Turkish,
+        Locale.ZhHant => AppLanguage.ChineseTraditional,
         _ => AppLanguage.English,
     };
 
@@ -133,8 +157,10 @@ public static class LanguageResolver
 
     /// <summary>
     /// A BCP-47 tag (<c>zh-CN</c>, <c>zh-Hant-TW</c>, <c>pt_BR</c>, <c>DE</c>) to a locale, by its
-    /// primary language subtag; null for a language Themia does not have. Every Chinese tag maps to
-    /// <see cref="Locale.Zh"/> (Simplified), as in the original (issue #63).
+    /// primary language subtag; null for a language Themia does not have. Chinese is told apart by
+    /// its script, as Windows and Karpo do: Traditional for <c>zh-Hant</c> and for <c>zh-TW</c>,
+    /// <c>zh-HK</c> and <c>zh-MO</c> without a script, Simplified for the rest (<c>zh-CN</c>,
+    /// <c>zh-SG</c>, <c>zh-Hans-HK</c>). Every Portuguese tag is the Brazilian table.
     /// </summary>
     public static Locale? FromTag(string? tag)
     {
@@ -143,18 +169,35 @@ public static class LanguageResolver
             return null;
         }
 
-        var span = tag.AsSpan().Trim();
-        var end = span.IndexOfAny('-', '_');
-        var primary = end < 0 ? span : span[..end];
+        var parts = tag.Trim().Split(['-', '_']);
+        var primary = parts[0];
+
+        if (primary.Equals("zh", StringComparison.OrdinalIgnoreCase))
+        {
+            return IsTraditionalChinese(parts) ? Locale.ZhHant : Locale.Zh;
+        }
 
         foreach (var locale in All)
         {
-            if (primary.Equals(Code(locale), StringComparison.OrdinalIgnoreCase))
+            if (locale != Locale.ZhHant && primary.Equals(Code(locale), StringComparison.OrdinalIgnoreCase))
             {
                 return locale;
             }
         }
 
         return null;
+    }
+
+    private static bool IsTraditionalChinese(string[] parts)
+    {
+        var script = parts.Skip(1).FirstOrDefault(p => p.Length == 4);
+        if (script is not null)
+        {
+            return script.Equals("Hant", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return parts.Skip(1).Any(p => p.Equals("TW", StringComparison.OrdinalIgnoreCase)
+            || p.Equals("HK", StringComparison.OrdinalIgnoreCase)
+            || p.Equals("MO", StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "元に戻す",
   "widgetsC.notes.editor.redo": "やり直し",
+  "widgetsC.notes.editor.moreFormatting": "その他の書式",
   "widgetsC.notes.words": {
     "other": "{count} 語"
   },
@@ -409,8 +410,6 @@
   "widgetsC.agenda.desc": "これからの予定を日ごとに",
   "widgetsC.moon.label": "月",
   "widgetsC.moon.desc": "月の満ち欠け、月の出と月の入り",
-  "widgetsC.visualizer.label": "オーディオビジュアライザー",
-  "widgetsC.visualizer.desc": "この PC で再生中の音に合わせて動くバー",
   "widgetsC.visualizer.unavailable": "オーディオ出力を利用できません",
   "widgetsC.moon.rise": "月の出",
   "widgetsC.moon.set": "月の入り",
@@ -449,6 +448,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows の赤",
   "widgetsC.stocks.settings.symbolRefused": "検索結果を選ぶか、銘柄コードを入力してください (英字、数字、. - ^ = のみ)",
   "widgetsC.stocks.settings.classOnExchange": "{exchange} の{class}",
+  "widgetsC.stocks.settings.holding.label": "保有数",
+  "widgetsC.stocks.settings.holding.desc": "保有している数。ウィジェットに評価額が表示されます。空欄で非表示",
+  "widgetsC.stocks.settings.holding.refused": "0 以上の数量を入力してください (例: {example})",
+  "widgetsC.stocks.holding.line": "{amount} 保有 · {value}",
   "widgetsC.location.recycleBin": "ごみ箱",
   "widgetsC.location.thisPc": "PC",
   "widgetsC.location.downloads": "ダウンロード",

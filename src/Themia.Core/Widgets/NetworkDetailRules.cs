@@ -74,15 +74,63 @@ public static class NetworkDetailRules
         return bytes.Length == 4 && bytes[0] == 169 && bytes[1] == 254;
     }
 
-    /// <summary>"↓ 1.2 MB/s  ↑ 30 KB/s".</summary>
-    public static string Rates(Locale locale, double down, double up)
-        => Strings.Format(locale, Str.Details_Network_Rates, ("down", Formatting.Rate(locale, down)), ("up", Formatting.Rate(locale, up)));
+    /// <summary>"↓ 1.2 MB/s".</summary>
+    public static string DownRate(Locale locale, double down)
+        => Strings.Format(locale, Str.Details_Network_DownRate, ("rate", Formatting.Rate(locale, down)));
+
+    /// <summary>"↑ 30 KB/s".</summary>
+    public static string UpRate(Locale locale, double up)
+        => Strings.Format(locale, Str.Details_Network_UpRate, ("rate", Formatting.Rate(locale, up)));
 
     /// <summary>
-    /// [S-2415] The sheet: download as the hero, upload under it, then what this session received and
-    /// sent, the busiest adapter's local address and (when asked for) the public address; one list row
-    /// per counted adapter, busiest first ([S-2416]), its rates and address. No sample yet is waiting;
-    /// a sample with no adapter is "No connection".
+    /// [S-2416] Whether an adapter earns a row: it has an address or has moved data since Themia
+    /// started. Windows keeps idle virtual adapters up (Wi-Fi Direct's "Local Area Connection* 10", a
+    /// switch with nothing on it); their zeros are still in the totals, but a row each is noise.
+    /// </summary>
+    public static bool Listed(InterfaceRate adapter, IReadOnlyDictionary<string, string> addresses)
+    {
+        ArgumentNullException.ThrowIfNull(addresses);
+        return addresses.ContainsKey(adapter.Id) || adapter.SessionDown > 0 || adapter.SessionUp > 0 || adapter.Total > 0;
+    }
+
+    /// <summary>[S-2415] A link speed as Windows Settings writes it: "1 Gbps", "2.5 Gbps", "866.7 Mbps", "100 Mbps".</summary>
+    public static string LinkSpeed(Locale locale, long bitsPerSecond)
+    {
+        if (bitsPerSecond <= 0)
+        {
+            return "--";
+        }
+
+        if (bitsPerSecond >= 1_000_000_000)
+        {
+            var gbps = bitsPerSecond / 1e9;
+            return Strings.Format(locale, Str.Details_Network_Gbps, ("value", LocaleFormat.Number(locale, gbps, Digits(gbps))));
+        }
+
+        var mbps = bitsPerSecond / 1e6;
+        return Strings.Format(locale, Str.Details_Network_Mbps, ("value", LocaleFormat.Number(locale, mbps, Digits(mbps))));
+    }
+
+    /// <summary>One decimal only when it says something: "866.7", but "100", not "100.0".</summary>
+    private static int Digits(double value) => Math.Round(value, 1) % 1 == 0 ? 0 : 1;
+
+    /// <summary>[S-2416] The row symbol for an adapter's kind.</summary>
+    public static RowSymbol Symbol(AdapterMedium medium) => medium switch
+    {
+        AdapterMedium.Ethernet => RowSymbol.Wired,
+        AdapterMedium.Wireless => RowSymbol.Wireless,
+        AdapterMedium.Cellular => RowSymbol.Cellular,
+        _ => RowSymbol.Network,
+    };
+
+    /// <summary>
+    /// [S-2415] The sheet, as Task Manager's Wi-Fi/Ethernet page reads: download as the hero, captioned
+    /// with the connection it comes over (the busiest adapter, "Download over Wi-Fi"); then upload,
+    /// the busiest adapter's local address, what this session received and sent, its link speed and
+    /// (when asked for) the public address — most wanted first, so a small tile keeps the rates. One
+    /// list row per counted adapter with an address or traffic, busiest first ([S-2416]): its kind's
+    /// icon, its name, download (and upload beside it on a wide row), and its address and link speed under it. No sample yet is waiting; a sample with no adapter is
+    /// "No connection".
     /// </summary>
     /// <param name="addresses">Each adapter's local address by its id, as <see cref="LocalAddress"/> chose it.</param>
     public static DetailSheet Sheet(Locale locale, ThroughputSample? sample, IReadOnlyDictionary<string, string> addresses, PublicAddressReading publicAddress)
@@ -94,16 +142,23 @@ public static class NetworkDetailRules
             return DetailSheet.Waiting;
         }
 
-        var facts = new List<DetailFact>(4)
+        var busiest = sample.Interfaces.Count > 0 ? sample.Interfaces[0] : (InterfaceRate?)null;
+        var facts = new List<DetailFact>(6)
         {
-            new(Strings.Get(locale, Str.Details_Network_Received), Formatting.Bytes(locale, sample.SessionDown)),
-            new(Strings.Get(locale, Str.Details_Network_Sent), Formatting.Bytes(locale, sample.SessionUp)),
+            new(Strings.Get(locale, Str.Details_Network_Upload), Formatting.Rate(locale, sample.Up)),
         };
 
-        var busiest = sample.Interfaces.FirstOrDefault(i => addresses.ContainsKey(i.Id));
-        if (busiest.Id is not null && addresses.TryGetValue(busiest.Id, out var local))
+        if (busiest is { } top && addresses.TryGetValue(top.Id, out var local))
         {
             facts.Add(new(Strings.Get(locale, Str.Details_Network_LocalAddress), local));
+        }
+
+        facts.Add(new(Strings.Get(locale, Str.Details_Network_Received), Formatting.Bytes(locale, sample.SessionDown)));
+        facts.Add(new(Strings.Get(locale, Str.Details_Network_Sent), Formatting.Bytes(locale, sample.SessionUp)));
+
+        if (busiest is { LinkBitsPerSecond: > 0 } link)
+        {
+            facts.Add(new(Strings.Get(locale, Str.Details_Network_LinkSpeed), LinkSpeed(locale, link.LinkBitsPerSecond)));
         }
 
         switch (publicAddress.State)
@@ -123,13 +178,35 @@ public static class NetworkDetailRules
         }
 
         var rows = sample.Interfaces
-            .Select(i => new DetailRow(i.Id, i.Name, Rates(locale, i.Down, i.Up), Detail: addresses.GetValueOrDefault(i.Id)))
+            .Where(i => Listed(i, addresses))
+            .Select(i => new DetailRow(
+                i.Id,
+                i.Name,
+                DownRate(locale, i.Down),
+                Second: UpRate(locale, i.Up),
+                Detail: AdapterLine(locale, addresses.GetValueOrDefault(i.Id), i.LinkBitsPerSecond),
+                Symbol: Symbol(i.Medium)))
             .ToList();
 
-        var caption = Strings.Format(locale, Str.Details_Network_Up, ("rate", Formatting.Rate(locale, sample.Up)));
+        if (busiest is not { } over)
+        {
+            return new DetailSheet("--", Strings.Get(locale, Str.Details_Network_NoConnection), facts, rows, HeroAvailable: false);
+        }
 
-        return sample.Interfaces.Count == 0
-            ? new DetailSheet("--", Strings.Get(locale, Str.Details_Network_NoConnection), facts, rows, HeroAvailable: false)
-            : new DetailSheet(Formatting.Rate(locale, sample.Down), caption, facts, rows);
+        var caption = Strings.Format(locale, Str.Details_Network_Over, ("adapter", over.Name));
+        return new DetailSheet(Formatting.Rate(locale, sample.Down), caption, facts, rows);
+    }
+
+    /// <summary>[S-2416] The line under an adapter: its address and link speed, whichever it has; null with neither.</summary>
+    public static string? AdapterLine(Locale locale, string? address, long linkBitsPerSecond)
+    {
+        var speed = linkBitsPerSecond > 0 ? LinkSpeed(locale, linkBitsPerSecond) : null;
+        return (address, speed) switch
+        {
+            ({ } a, { } s) => $"{a} · {s}",
+            ({ } a, null) => a,
+            (null, { } s) => s,
+            _ => null,
+        };
     }
 }

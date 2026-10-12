@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "常用",
+  "addMenu.browse": "浏览",
+  "addMenu.subject.time": "时间",
+  "addMenu.subject.calendar": "日历和邮件",
+  "addMenu.subject.weather": "天气和天空",
+  "addMenu.subject.markets": "新闻和市场",
+  "addMenu.subject.media": "音乐和媒体",
+  "addMenu.subject.notes": "便笺和工具",
+  "addMenu.subject.files": "文件和应用",
+  "addMenu.subject.system": "系统",
+  "addMenu.subject.devices": "设备和电源",
+  "addMenu.subject.more": "更多",
+  "addMenu.family.calendar": "日历",
+  "addMenu.family.visualizer": "可视化效果",
+  "addMenu.family.folder": "文件夹",
+  "addMenu.family.screenTime": "屏幕使用时间",
+  "addMenu.family.powerButtons": "电源按钮"
+}

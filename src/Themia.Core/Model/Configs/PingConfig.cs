@@ -8,9 +8,9 @@ public sealed class PingConfig : GaugeConfig
     /// <summary>A public resolver: reachable without configuration, and not a service this app talks to.</summary>
     public const string DefaultHost = "1.1.1.1";
 
-    /// <summary>Every ten seconds over twenty minutes: a probe is a packet to someone else's host.</summary>
+    /// <summary>A quarter of an hour of probes, one every five seconds ([S-2512]).</summary>
     public PingConfig()
-        : base(intervalSeconds: 10, graphSpanSeconds: 1200)
+        : base(graphSpanSeconds: 900)
     {
     }
 

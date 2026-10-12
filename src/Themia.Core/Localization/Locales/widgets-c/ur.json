@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "کالعدم کریں",
   "widgetsC.notes.editor.redo": "دوبارہ کریں",
+  "widgetsC.notes.editor.moreFormatting": "مزید فارمیٹنگ",
   "widgetsC.notes.words": {
     "one": "{count} لفظ",
     "other": "{count} الفاظ"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "آنے والی چیزیں، دن بہ دن",
   "widgetsC.moon.label": "چاند",
   "widgetsC.moon.desc": "چاند کا مرحلہ، طلوع اور غروب",
-  "widgetsC.visualizer.label": "آڈیو ویژولائزر",
-  "widgetsC.visualizer.desc": "بارز جو اس PC پر چلنے والی ہر آواز کے ساتھ حرکت کرتی ہیں",
   "widgetsC.visualizer.unavailable": "آڈیو آؤٹ پٹ دستیاب نہیں",
   "widgetsC.moon.rise": "طلوع ماہتاب",
   "widgetsC.moon.set": "غروب ماہتاب",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows سرخ",
   "widgetsC.stocks.settings.symbolRefused": "تلاش کا کوئی نتیجہ چنیں، یا علامت ٹائپ کریں: صرف حروف، ہندسے اور . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{exchange} پر {class}",
+  "widgetsC.stocks.settings.holding.label": "ملکیتی مقدار",
+  "widgetsC.stocks.settings.holding.desc": "آپ کے پاس کتنے ہیں؛ ویجیٹ ان کی مالیت دکھاتا ہے۔ خالی چھوڑنے پر چھپا رہتا ہے",
+  "widgetsC.stocks.settings.holding.refused": "0 یا اس سے زیادہ مقدار لکھیں، جیسے {example}",
+  "widgetsC.stocks.holding.line": "{amount} ملکیت · {value}",
   "widgetsC.location.recycleBin": "ری سائیکل بن",
   "widgetsC.location.thisPc": "یہ PC",
   "widgetsC.location.downloads": "ڈاؤن لوڈز",

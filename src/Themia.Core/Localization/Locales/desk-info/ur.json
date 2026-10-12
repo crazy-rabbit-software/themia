@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "سال کی پیش رفت",
+  "yearProgress.desc": "دن، ہفتے، مہینے اور سال کا کتنا حصہ گزر چکا ہے",
+  "yearProgress.day": "دن",
+  "yearProgress.week": "ہفتہ",
+  "yearProgress.month": "مہینہ",
+  "yearProgress.year": "سال",
+  "yearProgress.left": "{time} باقی",
+  "yearProgress.weekNumber": "ہفتہ {number}",
+  "yearProgress.dayOf": "{days} میں سے دن {day}",
+  "meeting.label": "اگلی میٹنگ",
+  "meeting.desc": "آپ کا اگلا ایونٹ، آن لائن میٹنگز کے لیے شامل ہوں کے ساتھ",
+  "meeting.join": "شامل ہوں",
+  "meeting.joinTip": "آن لائن میٹنگ میں شامل ہوں",
+  "meeting.nowEnds": "ابھی · {time} پر ختم",
+  "meeting.dayTime": "{day}، {time}",
+  "meeting.none": "آگے کچھ نہیں",
+  "recentFiles.label": "حالیہ فائلیں",
+  "recentFiles.desc": "وہ فائلیں جو آپ نے آخر میں کھولیں",
+  "recentFiles.empty": "حال ہی میں کچھ نہیں کھولا گیا",
+  "recentFiles.unreadable": "Windows کے حالیہ آئٹمز پڑھے نہیں جا سکے",
+  "recentFiles.remove": "فہرست سے ہٹائیں",
+  "recycleBin.desc": "ری سائیکل بن کتنا بھرا ہے، خالی کریں کے ساتھ",
+  "recycleBin.empty": "خالی کریں",
+  "recycleBin.emptyEllipsis": "ری سائیکل بن خالی کریں…",
+  "recycleBin.isEmpty": "کوئی آئٹم نہیں",
+  "recycleBin.items": {
+    "one": "{count} آئٹم",
+    "other": "{count} آئٹمز"
+  },
+  "recycleBin.open": "ری سائیکل بن کھولیں"
+}

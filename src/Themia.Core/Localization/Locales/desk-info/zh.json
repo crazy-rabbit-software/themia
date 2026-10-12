@@ -1,0 +1,31 @@
+{
+  "yearProgress.label": "年度进度",
+  "yearProgress.desc": "今天、本周、本月和今年已过去多少",
+  "yearProgress.day": "日",
+  "yearProgress.week": "周",
+  "yearProgress.month": "月",
+  "yearProgress.year": "年",
+  "yearProgress.left": "剩余 {time}",
+  "yearProgress.weekNumber": "第 {number} 周",
+  "yearProgress.dayOf": "第 {day} 天，共 {days} 天",
+  "meeting.label": "下一个会议",
+  "meeting.desc": "你的下一个日程，在线会议可直接加入",
+  "meeting.join": "加入",
+  "meeting.joinTip": "加入在线会议",
+  "meeting.nowEnds": "进行中 · {time} 结束",
+  "meeting.dayTime": "{day} {time}",
+  "meeting.none": "近期没有安排",
+  "recentFiles.label": "最近的文件",
+  "recentFiles.desc": "你最近打开的文件",
+  "recentFiles.empty": "最近没有打开任何内容",
+  "recentFiles.unreadable": "无法读取 Windows 的最近使用项目",
+  "recentFiles.remove": "从列表中删除",
+  "recycleBin.desc": "回收站已用空间，可一键清空",
+  "recycleBin.empty": "清空",
+  "recycleBin.emptyEllipsis": "清空回收站…",
+  "recycleBin.isEmpty": "没有项目",
+  "recycleBin.items": {
+    "other": "{count} 个项目"
+  },
+  "recycleBin.open": "打开回收站"
+}

@@ -17,7 +17,7 @@ namespace Themia.App.Widgets.Meters;
 /// (Online / Offline / Checking… on hover), a chart scaled to the window's slowest answer with
 /// unanswered probes on its baseline, and a Refresh command.
 /// <para>
-/// [S-2508] The probes are the hub's prober for this host and cadence, shared with every other ping
+/// [S-2508] The probes are the hub's prober for this host, shared with every other ping
 /// meter and ping statistics widget aimed at the same host: one probe out at a time, and a late
 /// answer from a host the user has since changed belongs to the old host's prober, never this chart.
 /// </para>
@@ -50,12 +50,6 @@ internal sealed class PingMeter : MeterPart
     public override MeterPressure PressureOf(MeterReading reading) => PingStats.Pressure(StatusOf(reading));
 
     public override FrameworkElement? HeaderTrailing => _dot;
-
-    public override MeterSeries Series(WidgetConfig config)
-    {
-        var ping = config as PingConfig ?? new PingConfig();
-        return MeterSeries.Of(Sources.Ping, TimeSpan.FromSeconds(ping.IntervalSeconds), target: ping.EffectiveHost);
-    }
 
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {

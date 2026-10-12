@@ -109,23 +109,17 @@
   },
   "widgetsB.settings.folder.browse": "Telusuri…",
   "widgetsB.settings.folder.folder.desc": "Folder mana yang dicantumkan. Biarkan kosong untuk folder pengguna Anda",
-  "widgetsB.settings.folder.layout.label": "Tata letak",
-  "widgetsB.settings.folder.icons": "Ikon",
   "widgetsB.settings.folder.rowSize.label": "Ukuran baris",
   "widgetsB.settings.folder.rowSize.desc": "Seberapa tinggi baris daftar dan detail",
   "widgetsB.settings.folder.extraSmall": "Sangat kecil",
   "widgetsB.settings.folder.tileSize.label": "Ukuran ubin",
   "widgetsB.settings.folder.tileSize.desc": "Seberapa besar ubin kisi dan ikon",
-  "widgetsB.settings.folder.stretch.label": "Regangkan ubin agar memenuhi",
-  "widgetsB.settings.folder.stretch.desc": "Jika semua ubin muat, baris berbagi tinggi widget",
   "widgetsB.settings.folder.columns.label": "Kolom detail",
   "widgetsB.settings.folder.columns.desc": "Ditampilkan setelah nama, sejauh ada ruang",
   "widgetsB.settings.folder.contents": "Isi",
   "widgetsB.settings.folder.sortBy.label": "Urutkan menurut",
   "widgetsB.settings.folder.dateModified": "Tanggal diubah",
   "widgetsB.settings.folder.reverse.label": "Balik urutan",
-  "widgetsB.settings.folder.foldersFirst.label": "Folder dulu",
-  "widgetsB.settings.folder.filter.desc": "Hanya nama dengan salah satu kata ini, dipisahkan koma",
   "widgetsB.settings.folder.opening": "Membuka",
   "widgetsB.settings.folder.openWith.label": "Buka item dengan",
   "widgetsB.settings.folder.doubleClick": "Klik ganda",
@@ -287,9 +281,6 @@
   "widgetsB.ping.online": "Online",
   "widgetsB.ping.offline": "Offline",
   "widgetsB.ping.checking": "Memeriksa…",
-  "widgetsB.meters.spanSeconds": {
-    "other": "{count} detik"
-  },
   "widgetsB.meters.spanMinutes": {
     "other": "{count} menit"
   },

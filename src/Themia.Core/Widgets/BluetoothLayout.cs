@@ -7,10 +7,10 @@ namespace Themia.Core.Widgets;
 /// <param name="TwoLine">Rows carry a second line (kind · connection · battery · signal).</param>
 /// <param name="RowHeight">One row's height.</param>
 /// <param name="VisibleRows">Whole rows per column the list shows before it scrolls.</param>
-/// <param name="StatusWord">"Connected"/"Paired" beside the dot (one-line rows only; two-line rows say it below).</param>
+/// <param name="StatusWord">"Connected"/"Paired" at the row's end (one-line rows only; two-line rows say it below).</param>
 /// <param name="BatteryColumn">The battery percentage in its own column (else, on a two-line row, in the second line; on a one-line row, the tooltip).</param>
 /// <param name="SignalColumn">The signal reading in its own column, likewise.</param>
-/// <param name="BatteryBar">A small level bar beside the battery percentage.</param>
+/// <param name="FactColumns">A two-line row keeps battery and signal in their own columns rather than in its second line.</param>
 /// <param name="Summary">"2 connected" in the header instead of the bare count.</param>
 public readonly record struct BluetoothRowPlan(
     int Columns,
@@ -20,14 +20,14 @@ public readonly record struct BluetoothRowPlan(
     bool StatusWord,
     bool BatteryColumn,
     bool SignalColumn,
-    bool BatteryBar,
+    bool FactColumns,
     bool Summary);
 
 /// <summary>
-/// [S-1254] The Bluetooth list's disclosure ladder. XS: icon, name, dot in as many rows as fit;
-/// from 180 px a row carries the battery % ([S-3253]); from 260 px the status word; from 400 px the signal and a battery
-/// bar; from Regular×Expanded rows grow a second line; the largest tiles split a long list into two
-/// columns. The
+/// [S-1254] The Bluetooth list's disclosure ladder. XS: icon and name in as many rows as fit;
+/// from 180 px a row carries the battery % ([S-3253]); from 260 px the status word; from 400 px the
+/// signal; from Regular×Expanded rows grow a second line; the largest tiles split a long list into two
+/// columns. No battery bar and no connection dot ([S-3961]): the percentage is text. The
 /// list itself takes every whole row the tile has — the row cap is a ceiling, not a target. A
 /// short list on a large tile stays a short list: the widget lists devices, nothing more.
 /// </summary>
@@ -44,7 +44,7 @@ public static class BluetoothLayout
     /// <summary>Below this list height rows go compact (<c>Fluent.CompactBelow</c>).</summary>
     public const double CompactBelow = 200;
 
-    /// <summary>A column at least this wide has room for the status word beside the dot.</summary>
+    /// <summary>A column at least this wide has room for the status word at the row's end.</summary>
     public const double StatusWordMinWidth = 260;
 
     /// <summary>
@@ -57,8 +57,8 @@ public static class BluetoothLayout
     /// <summary>A column at least this wide also has room for the signal reading.</summary>
     public const double SignalColumnMinWidth = 400;
 
-    /// <summary>A column at least this wide has room for a battery bar beside the percentage.</summary>
-    public const double BatteryBarMinWidth = 400;
+    /// <summary>A two-line row at least this wide keeps battery and signal in columns of their own.</summary>
+    public const double FactColumnsMinWidth = 400;
 
     /// <param name="area">The view's slot.</param>
     /// <param name="listHeight">The list's height (slot less its own padding).</param>
@@ -87,7 +87,7 @@ public static class BluetoothLayout
             StatusWord: measured && !twoLine && columnWidth >= StatusWordMinWidth,
             BatteryColumn: measured && columnWidth >= BatteryColumnMinWidth,
             SignalColumn: measured && columnWidth >= SignalColumnMinWidth,
-            BatteryBar: measured && columnWidth >= BatteryBarMinWidth,
+            FactColumns: measured && twoLine && columnWidth >= FactColumnsMinWidth,
             Summary: measured && area.WidthClass >= SizeClass.Expanded);
     }
 }

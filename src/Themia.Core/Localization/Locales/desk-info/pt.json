@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "Progresso do ano",
+  "yearProgress.desc": "Quanto já passou do dia, da semana, do mês e do ano",
+  "yearProgress.day": "Dia",
+  "yearProgress.week": "Semana",
+  "yearProgress.month": "Mês",
+  "yearProgress.year": "Ano",
+  "yearProgress.left": "Faltam {time}",
+  "yearProgress.weekNumber": "Semana {number}",
+  "yearProgress.dayOf": "Dia {day} de {days}",
+  "meeting.label": "Próxima reunião",
+  "meeting.desc": "Seu próximo evento, com Participar para reuniões online",
+  "meeting.join": "Participar",
+  "meeting.joinTip": "Participar da reunião online",
+  "meeting.nowEnds": "Agora · termina às {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Nada programado",
+  "recentFiles.label": "Arquivos recentes",
+  "recentFiles.desc": "Os últimos arquivos que você abriu",
+  "recentFiles.empty": "Nada aberto recentemente",
+  "recentFiles.unreadable": "Não foi possível ler os itens recentes do Windows",
+  "recentFiles.remove": "Remover da lista",
+  "recycleBin.desc": "Quanto a Lixeira ocupa, com Esvaziar",
+  "recycleBin.empty": "Esvaziar",
+  "recycleBin.emptyEllipsis": "Esvaziar Lixeira…",
+  "recycleBin.isEmpty": "Nenhum item",
+  "recycleBin.items": {
+    "one": "{count} item",
+    "other": "{count} itens"
+  },
+  "recycleBin.open": "Abrir Lixeira"
+}

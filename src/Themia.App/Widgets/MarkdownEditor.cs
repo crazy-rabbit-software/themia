@@ -98,6 +98,7 @@ internal sealed class MarkdownEditor
     private bool _flatHeadings;
     private bool _readOnly;
     private bool _detached;
+    private int _visibleButtons = NotesLayout.AllButtons;
 
     public MarkdownEditor()
     {
@@ -137,7 +138,7 @@ internal sealed class MarkdownEditor
     /// <summary>The text control. The view places it and gives it its chrome.</summary>
     public RichEditBox Box { get; }
 
-    /// <summary>[S-1365] The formatting bar. The view places it; <see cref="VisibleButtons"/> sheds it.</summary>
+    /// <summary>[S-1365] The formatting bar. The view places it (the card's header, [S-3963]); <see cref="VisibleButtons"/> sheds it.</summary>
     public StackPanel Toolbar { get; }
 
     /// <summary>The note as it stands, with <c>\n</c> line endings.</summary>
@@ -206,14 +207,43 @@ internal sealed class MarkdownEditor
     /// <summary>[S-1365] How many buttons the bar shows; the rest are shed by rank, most used kept.</summary>
     public int VisibleButtons
     {
+        get => _visibleButtons;
         set
         {
+            _visibleButtons = value;
             foreach (var (_, button, rank) in _buttons)
             {
                 button.Visibility = rank < value ? Visibility.Visible : Visibility.Collapsed;
             }
         }
     }
+
+    /// <summary>
+    /// [S-3963] The commands the bar has shed (rank at or past <see cref="VisibleButtons"/>), in the
+    /// bar's order, as menu entries for its "More" button: each runs on the note's selection.
+    /// </summary>
+    public IReadOnlyList<ItemMenuEntry> ShedCommands()
+    {
+        var (start, end) = Selection();
+        var marks = NoteEditing.ActiveMarks(_text, start, end);
+        var entries = new List<ItemMenuEntry>();
+
+        foreach (var (command, glyph, label, tip, rank) in BarButtons)
+        {
+            if (rank < _visibleButtons)
+            {
+                continue;
+            }
+
+            var run = command;
+            entries.Add(new ItemMenuEntry(glyph, tip(), () => Run(run), Disabled: _readOnly, Checked: IsOn(command, marks)));
+        }
+
+        return entries;
+    }
+
+    /// <summary>[S-1359] Light the bar for the caret now: it was hidden while the marks moved.</summary>
+    public void RefreshMarks() => UpdateMarks();
 
     /// <summary>
     /// [S-1348] Show <paramref name="text"/> as it is in the store — another note, or this note
@@ -746,7 +776,7 @@ internal sealed class MarkdownEditor
         {
             Orientation = Orientation.Horizontal,
             Spacing = NotesLayout.ButtonGap,
-            Height = NotesLayout.ToolbarHeight,
+            Height = NotesLayout.ButtonSize,
             VerticalAlignment = VerticalAlignment.Center,
         };
 
@@ -829,23 +859,25 @@ internal sealed class MarkdownEditor
 
         foreach (var (command, button, _) in _buttons)
         {
-            var on = command switch
-            {
-                NoteCommand.Heading => marks.Heading > 0,
-                NoteCommand.Bold => marks.Bold,
-                NoteCommand.Italic => marks.Italic,
-                NoteCommand.Strike => marks.Strike,
-                NoteCommand.Code => marks.Code,
-                NoteCommand.Bullet => marks.Block == NoteBlock.Bullet,
-                NoteCommand.Ordered => marks.Block == NoteBlock.Ordered,
-                NoteCommand.Task => marks.Block == NoteBlock.Task,
-                _ => marks.Block == NoteBlock.Quote,
-            };
+            var on = IsOn(command, marks);
 
             button.Background = FluentLayout.Themed(on ? "SubtleFillColorSecondaryBrush" : "SubtleFillColorTransparentBrush", Colors.Transparent);
             button.Foreground = FluentLayout.Themed(on ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
         }
     }
+
+    private static bool IsOn(NoteCommand command, NoteMarks marks) => command switch
+    {
+        NoteCommand.Heading => marks.Heading > 0,
+        NoteCommand.Bold => marks.Bold,
+        NoteCommand.Italic => marks.Italic,
+        NoteCommand.Strike => marks.Strike,
+        NoteCommand.Code => marks.Code,
+        NoteCommand.Bullet => marks.Block == NoteBlock.Bullet,
+        NoteCommand.Ordered => marks.Block == NoteBlock.Ordered,
+        NoteCommand.Task => marks.Block == NoteBlock.Task,
+        _ => marks.Block == NoteBlock.Quote,
+    };
 
     /// <summary>
     /// The note's own right-click menu, in place of the control's: that one carries Bold, Italic and

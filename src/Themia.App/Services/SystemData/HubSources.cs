@@ -12,7 +12,7 @@ internal readonly record struct PerformanceSnapshot(PerformanceFigures? Figures,
 /// <summary>[S-1161] [S-1162] The volumes as of the last walk, and the I/O counters' rates (null without counters).</summary>
 internal sealed record DiskSnapshot(IReadOnlyList<DiskVolume> Volumes, DiskActivity? Activity);
 
-/// <summary>[S-2420] [S-2422] The walked volumes and the space of each one the walk found ready, by root.</summary>
+/// <summary>[S-2420] [S-2422] [S-4655] The walked volumes and the space of each one the walk found ready, by root.</summary>
 internal sealed record DiskSpaceSnapshot(IReadOnlyList<DiskVolume> Walked, IReadOnlyDictionary<string, DriveSpace> Space);
 
 /// <summary>[S-2500] Every source the hub reads, by the snapshot it hands back.</summary>
@@ -24,7 +24,7 @@ internal static class Sources
     public static readonly SourceId<CpuFigures> Processor = new(SystemSource.Processor);
     public static readonly SourceId<IReadOnlyList<ProcessSample>?> Processes = new(SystemSource.Processes);
     public static readonly SourceId<DiskSnapshot> DiskActivity = new(SystemSource.DiskActivity);
-    public static readonly SourceId<DiskSpaceSnapshot> DiskSpace = new(SystemSource.DiskSpace);
+    public static readonly SourceId<DiskSpaceSnapshot?> DiskSpace = new(SystemSource.DiskSpace);
     public static readonly SourceId<IReadOnlyDictionary<string, string>> LocalAddresses = new(SystemSource.LocalAddresses);
     public static readonly SourceId<PublicAddressReading> PublicAddress = new(SystemSource.PublicAddress);
     public static readonly SourceId<ThroughputSample?> Network = new(SystemSource.Network);
@@ -36,7 +36,7 @@ internal static class Sources
     public static readonly SourceId<PingOutcome> Ping = new(SystemSource.Ping);
 
     /// <summary>The disk series of every drive together; any other disk instance is a drive root.</summary>
-    public const string AllDrives = "*";
+    public const string AllDrives = SystemInterests.AllDrives;
 
     /// <summary>[S-1124] The lowest top the network chart may have: 1 KB/s, so idle chatter stays a flat line (the original's floor).</summary>
     public const double NetworkChartFloor = 1024;
@@ -44,32 +44,27 @@ internal static class Sources
 
 internal sealed partial class SystemHub
 {
-    /// <summary>The reader for a source; opened here, on the first feed that reads it.</summary>
-    private static Runner OpenRunner(SystemSource source, string target)
+    /// <summary>The reader for a feed's source; opened here, when the feed is made.</summary>
+    private Feed OpenSource(FeedKey key) => key.Source switch
     {
-        Runner runner = source switch
-        {
-            SystemSource.Cpu => Make(source, target, new CpuSource()),
-            SystemSource.Memory => Make(source, target, new MemorySource()),
-            SystemSource.Performance => Make(source, target, new PerformanceSource()),
-            SystemSource.Processor => Make(source, target, new ProcessorSource()),
-            SystemSource.Processes => Make(source, target, new ProcessesSource()),
-            SystemSource.DiskActivity => Make(source, target, new DiskActivitySource()),
-            SystemSource.DiskSpace => Make(source, target, new DiskSpaceSource()),
-            SystemSource.LocalAddresses => Make(source, target, new LocalAddressesSource()),
-            SystemSource.PublicAddress => Make(source, target, new PublicAddressSource()),
-            SystemSource.Network => Make(source, target, new NetworkSource()),
-            SystemSource.Battery => Make(source, target, new BatterySource()),
-            SystemSource.BatteryPack => Make(source, target, new BatteryPackSource()),
-            SystemSource.Gpu => Make(source, target, new GpuSource()),
-            SystemSource.Ping => Make(source, target, new PingSource(target)),
-            _ => throw new ArgumentOutOfRangeException(nameof(source), source, "not a hub source"),
-        };
+        SystemSource.Cpu => Make(key, new CpuSource()),
+        SystemSource.Memory => Make(key, new MemorySource()),
+        SystemSource.Performance => Make(key, new PerformanceSource()),
+        SystemSource.Processor => Make(key, new ProcessorSource()),
+        SystemSource.Processes => Make(key, new ProcessesSource()),
+        SystemSource.DiskActivity => Make(key, new DiskActivitySource(_ticker)),
+        SystemSource.DiskSpace => Make(key, new DiskSpaceSource(_ticker, () => RefreshSource(SystemSource.DiskSpace))),
+        SystemSource.LocalAddresses => Make(key, new LocalAddressesSource()),
+        SystemSource.PublicAddress => Make(key, new PublicAddressSource()),
+        SystemSource.Network => Make(key, new NetworkSource()),
+        SystemSource.Battery => Make(key, new BatterySource()),
+        SystemSource.BatteryPack => Make(key, new BatteryPackSource()),
+        SystemSource.Gpu => Make(key, new GpuSource()),
+        SystemSource.Ping => Make(key, new PingSource(key.Target)),
+        _ => throw new ArgumentOutOfRangeException(nameof(key), key, "not a hub source"),
+    };
 
-        return runner;
-    }
-
-    private static Runner<T> Make<T>(SystemSource source, string target, HubSource<T> reader)
+    private static Feed<T> Make<T>(FeedKey key, HubSource<T> reader)
     {
         try
         {
@@ -78,10 +73,10 @@ internal sealed partial class SystemHub
         catch (Exception ex)
         {
             // Reads will say what is missing; the feed still exists so its widgets are not left hanging.
-            Log.Error(Scope, $"could not open {source}", ex);
+            Log.Error(Scope, $"could not open {key}", ex);
         }
 
-        return new Runner<T>(source, target, reader);
+        return new Feed<T>(key, reader);
     }
 
     // ---- sources --------------------------------------------------------------------------------
@@ -143,13 +138,21 @@ internal sealed partial class SystemHub
     }
 
     /// <summary>[S-1162] [S-1820] Reads and writes per drive; the instance is a root or <see cref="Sources.AllDrives"/>.</summary>
-    private sealed class DiskActivitySource : HubSource<DiskSnapshot>
+    private sealed class DiskActivitySource(Ticker ticker) : HubSource<DiskSnapshot>
     {
         private IDisposable? _counters;
+        private IDisposable? _drives;
 
-        public override void Open() => _counters = DiskMetrics.Acquire();
+        public override void Open()
+        {
+            _counters = DiskMetrics.Acquire();
 
-        public override DiskSnapshot Read() => new(DiskMetrics.Volumes(refresh: true), DiskMetrics.Activity());
+            // [S-4655] The volumes and labels are the shared walk's; held so it walks while the meter is
+            // wanted. A new walk needs no read of its own: the next tick (a second away) carries it.
+            _drives = Drives.DriveService.Shared.Watch(ticker, static () => { });
+        }
+
+        public override DiskSnapshot Read() => new(DiskMetrics.Volumes(), DiskMetrics.Activity());
 
         public override MeterSample Project(DiskSnapshot snapshot, string instance)
         {
@@ -179,63 +182,35 @@ internal sealed partial class SystemHub
         {
             _counters?.Dispose();
             _counters = null;
+            _drives?.Dispose();
+            _drives = null;
         }
     }
 
     /// <summary>
-    /// [S-2420] [S-2422] Free and used space of every drive the disk walk found ready, so no tick wakes a
-    /// sleeping drive; a widget picks its drives from it.
+    /// [S-2420] [S-2422] [S-4655] Free and used space of every local drive the shared drive walk found
+    /// ready (<see cref="Drives.DriveService"/>, the one place drives are walked: every 30 s and on a
+    /// device change, never per tick, so no tick wakes a sleeping drive). Null until its first walk is
+    /// in. A walk that changed something is read at once (<paramref name="walked"/>).
     /// </summary>
-    private sealed class DiskSpaceSource : HubSource<DiskSpaceSnapshot>
+    private sealed class DiskSpaceSource(Ticker ticker, Action walked) : HubSource<DiskSpaceSnapshot?>
     {
-        private string? _lastFailure;
+        private IDisposable? _drives;
 
-        public override DiskSpaceSnapshot Read()
+        public override void Open() => _drives = Drives.DriveService.Shared.Watch(ticker, walked);
+
+        public override DiskSpaceSnapshot? Read()
         {
-            var walked = DiskMetrics.Volumes(refresh: true);
-            var space = new Dictionary<string, DriveSpace>(walked.Count, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var volume in walked)
-            {
-                space[volume.Root] = ReadOne(volume);
-            }
-
-            return new DiskSpaceSnapshot(walked, space);
+            var service = Drives.DriveService.Shared;
+            return service.HasValue
+                ? new DiskSpaceSnapshot(DriveRules.LocalVolumes(service.Drives), DriveRules.LocalSpace(service.Drives))
+                : null;
         }
 
-        /// <summary>One drive's space, or a drive that did not answer (Total 0), logged once on a change.</summary>
-        private DriveSpace ReadOne(DiskVolume volume)
+        public override void Close()
         {
-            try
-            {
-                // Free to this user (quotas included), as Explorer counts it. The walk found the drive
-                // ready, so this is GetDiskFreeSpaceEx on a mounted volume, not a wake-up.
-                var drive = new DriveInfo(volume.Root);
-                return new DriveSpace(volume, (ulong)Math.Max(0, drive.TotalSize), (ulong)Math.Max(0, drive.AvailableFreeSpace));
-            }
-            catch (IOException ex)
-            {
-                Note($"{volume.Root} did not answer: {ex.Message}");
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Note($"{volume.Root} refused: {ex.Message}");
-            }
-            catch (ArgumentException ex)
-            {
-                Note($"{volume.Root} is not a drive: {ex.Message}");
-            }
-
-            return new DriveSpace(volume, 0, 0);
-        }
-
-        private void Note(string failure)
-        {
-            if (failure != _lastFailure)
-            {
-                _lastFailure = failure;
-                Log.Debug(Scope, failure);
-            }
+            _drives?.Dispose();
+            _drives = null;
         }
     }
 
@@ -327,10 +302,10 @@ internal sealed partial class SystemHub
         }
     }
 
-    /// <summary>[S-2423] What the battery device reports. A widget holds this feed only while there is a battery.</summary>
+    /// <summary>[S-2423] What the battery device reports, asked only while Windows says there is a battery: a desktop costs one status call.</summary>
     private sealed class BatteryPackSource : HubSource<BatteryPack?>
     {
-        public override BatteryPack? Read() => BatteryDevice.Read();
+        public override BatteryPack? Read() => SystemMetrics.Battery() is { HasBattery: true } ? BatteryDevice.Read() : null;
     }
 
     /// <summary>[S-431] Every adapter, on the pool, one sample at a time; the instance is an adapter's DXGI position.</summary>
@@ -380,7 +355,7 @@ internal sealed partial class SystemHub
     }
 
     /// <summary>
-    /// [S-2508] [S-106] [S-108] One prober per host and cadence, shared by the ping meter and the ping
+    /// [S-2508] [S-106] [S-108] One prober per host, probing every fifth tick ([S-2512]), shared by the ping meter and the ping
     /// statistics: one probe out at a time (the hub's single flight), and a transition logged once.
     /// </summary>
     private sealed class PingSource(string host) : HubSource<PingOutcome>

@@ -4,13 +4,25 @@ using Themia.Core.Localization;
 
 namespace Themia.Core.Widgets;
 
+/// <summary>[S-2416] What an adapter is, for its icon: Wi-Fi, a cable, a cellular modem, or anything else.</summary>
+public enum AdapterMedium
+{
+    Other = 0,
+    Ethernet = 1,
+    Wireless = 2,
+    Cellular = 3,
+}
+
 /// <summary>One adapter's cumulative byte counters at one instant.</summary>
 /// <param name="Id">Stable identity (the adapter GUID): a rename is still the same adapter.</param>
 /// <param name="Name">The friendly name ("Wi-Fi", "Ethernet").</param>
-public readonly record struct InterfaceCounters(string Id, string Name, long Received, long Sent);
+/// <param name="Medium">[S-2416] What kind of adapter it is.</param>
+/// <param name="Description">The hardware's name ("Intel(R) Wi-Fi 6E AX211 160MHz"), or null.</param>
+/// <param name="LinkBitsPerSecond">The negotiated link speed in bits a second; 0 when not reported.</param>
+public readonly record struct InterfaceCounters(string Id, string Name, long Received, long Sent, AdapterMedium Medium = AdapterMedium.Other, string? Description = null, long LinkBitsPerSecond = 0);
 
 /// <summary>One adapter's rates over the last interval, and what it moved since the meter started.</summary>
-public readonly record struct InterfaceRate(string Id, string Name, double Down, double Up, long SessionDown, long SessionUp)
+public readonly record struct InterfaceRate(string Id, string Name, double Down, double Up, long SessionDown, long SessionUp, AdapterMedium Medium = AdapterMedium.Other, string? Description = null, long LinkBitsPerSecond = 0)
 {
     public double Total => Down + Up;
 }
@@ -89,7 +101,7 @@ public sealed class ThroughputTracker
             _baselines[c.Id] = last with { Received = c.Received, Sent = c.Sent };
             down += rateDown;
             up += rateUp;
-            rates.Add(new InterfaceRate(c.Id, c.Name, rateDown, rateUp, last.SessionDown, last.SessionUp));
+            rates.Add(new InterfaceRate(c.Id, c.Name, rateDown, rateUp, last.SessionDown, last.SessionUp, c.Medium, c.Description, c.LinkBitsPerSecond));
         }
 
         // An adapter that went away keeps no baseline: if it comes back, its counters are new.
@@ -107,6 +119,19 @@ public sealed class ThroughputTracker
 /// <summary>[S-1190]..[S-1192] The network meter's rules as pure functions.</summary>
 public static class NetworkRules
 {
+    /// <summary>
+    /// [S-2416] An adapter's kind from its IANA interface type (<c>NetworkInterfaceType</c>): 6 and
+    /// the BCL's Ethernet variants (26 Ethernet3Megabit, 62 FastEthernetT, 69 FastEthernetFx, 117
+    /// GigabitEthernet) are a cable, 71 is Wi-Fi, 243/244 a cellular modem; anything else is "other".
+    /// </summary>
+    public static AdapterMedium MediumOf(int ianaType) => ianaType switch
+    {
+        6 or 26 or 62 or 69 or 117 => AdapterMedium.Ethernet,
+        71 => AdapterMedium.Wireless,
+        243 or 244 => AdapterMedium.Cellular,
+        _ => AdapterMedium.Other,
+    };
+
     /// <summary>
     /// [S-1192] A packet-capture filter mirror (Npcap/WinPcap binds one per adapter, e.g.
     /// "Ethernet-Npcap Packet Driver (NPCAP)-0000"): it re-reports the adapter beneath it, so

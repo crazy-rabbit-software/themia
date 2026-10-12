@@ -27,7 +27,7 @@ internal sealed partial class AccountOfficeSource
     private const int MaxEvents = OfficeShelves.MaxEvents;
 
     /// <summary>The event fields every Graph read asks for, so a calendar view and a re-read by id ([S-3610]) agree.</summary>
-    private const string GraphEventFields = "id,subject,start,end,isAllDay,isCancelled,location,organizer,webLink";
+    private const string GraphEventFields = "id,subject,start,end,isAllDay,isCancelled,location,organizer,webLink,onlineMeeting,onlineMeetingUrl,bodyPreview,responseStatus";
 
     /// <summary>A ceiling on contacts read for birthdays: the whole address book, within reason.</summary>
 

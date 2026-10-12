@@ -79,7 +79,8 @@ public enum RelativeUnit
 /// [S-1106] Dates, times, numbers and relative times per language, without <c>CultureInfo</c>: the
 /// app runs with <c>InvariantGlobalization</c>, so every name, pattern and separator comes from
 /// <see cref="LocaleData"/>. Pure functions of their arguments; the overloads without a locale use
-/// <see cref="Strings.Current"/>.
+/// <see cref="Strings.Current"/>. [S-1115] A language with its own digits (Arabic) gets them in
+/// every date, time and number written here.
 /// </summary>
 public static class LocaleFormat
 {
@@ -112,6 +113,9 @@ public static class LocaleFormat
 
     /// <summary>Whether the language normally shows times on the 24-hour clock.</summary>
     public static bool Uses24Hour(Locale locale) => LocaleData.For(locale).Uses24Hour;
+
+    /// <summary>[S-4603] The language's decimal sign, for a figure written by hand (the stopwatch's tenth).</summary>
+    public static char DecimalSeparator(Locale locale) => LocaleData.For(locale).Decimal;
 
     // -----------------------------------------------------------------------------------------
     // Dates and times
@@ -208,6 +212,27 @@ public static class LocaleFormat
     // Numbers
     // -----------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// [S-1115] Whether <paramref name="locale"/> writes its own digits rather than 0–9: Arabic
+    /// (Arabic-Indic ٠–٩). Urdu and Bengali keep Latin digits, as Windows does for ur-PK and the
+    /// clock's type ladder needs for Bengali ([S-1114]).
+    /// </summary>
+    public static bool HasNativeDigits(Locale locale) => LocaleData.For(locale).DigitZero is not null;
+
+    /// <summary>
+    /// [S-1115] <paramref name="text"/> with its ASCII digits written as <paramref name="locale"/>'s
+    /// own (Arabic "09:41" → "٠٩:٤١"); unchanged for a Latin-digit language. For numbers the app
+    /// composes itself; never for text that has to stay as typed (URLs, addresses, symbols, what
+    /// the user wrote). Every other character is left as it is, so the length never changes.
+    /// </summary>
+    public static string Digits(Locale locale, string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        var data = LocaleData.For(locale);
+        return data.DigitZero is null || !text.AsSpan().ContainsAnyInRange('0', '9') ? text : Native(data, new StringBuilder(text));
+    }
+
     public static string Integer(long value) => Integer(Strings.Current, value);
 
     /// <summary>A whole number with the language's grouping: 12,345 · 12.345 · 12 345 · 1,23,456.</summary>
@@ -284,7 +309,7 @@ public static class LocaleFormat
             sb.Append(data.Decimal).Append(fraction);
         }
 
-        return sb.ToString();
+        return Native(data, sb);
     }
 
     /// <summary>Render a CLDR-style pattern (see <see cref="LocaleData"/>) for a date and/or a time.</summary>
@@ -407,6 +432,25 @@ public static class LocaleFormat
                 default:
                     sb.Append(c, run);
                     break;
+            }
+        }
+
+        // The patterns and names carry no digits of their own in a language that swaps them, so
+        // every digit here is a field's.
+        return Native(data, sb);
+    }
+
+    /// <summary>[S-1115] The built text with the language's own digits, when it has some.</summary>
+    private static string Native(LocaleData data, StringBuilder sb)
+    {
+        if (data.DigitZero is { } zero)
+        {
+            for (var i = 0; i < sb.Length; i++)
+            {
+                if (char.IsAsciiDigit(sb[i]))
+                {
+                    sb[i] = (char)(zero + (sb[i] - '0'));
+                }
             }
         }
 

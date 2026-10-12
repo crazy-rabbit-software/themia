@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "Популярные",
+  "addMenu.browse": "Обзор",
+  "addMenu.subject.time": "Время",
+  "addMenu.subject.calendar": "Календарь и почта",
+  "addMenu.subject.weather": "Погода и небо",
+  "addMenu.subject.markets": "Новости и рынки",
+  "addMenu.subject.media": "Музыка и медиа",
+  "addMenu.subject.notes": "Заметки и инструменты",
+  "addMenu.subject.files": "Файлы и приложения",
+  "addMenu.subject.system": "Система",
+  "addMenu.subject.devices": "Устройства и питание",
+  "addMenu.subject.more": "Ещё",
+  "addMenu.family.calendar": "Календарь",
+  "addMenu.family.visualizer": "Визуализатор",
+  "addMenu.family.folder": "Папка",
+  "addMenu.family.screenTime": "Экранное время",
+  "addMenu.family.powerButtons": "Кнопки питания"
+}

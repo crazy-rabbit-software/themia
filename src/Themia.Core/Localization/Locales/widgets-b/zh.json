@@ -109,23 +109,17 @@
   },
   "widgetsB.settings.folder.browse": "浏览…",
   "widgetsB.settings.folder.folder.desc": "要列出的文件夹。留空则为你的用户文件夹",
-  "widgetsB.settings.folder.layout.label": "布局",
-  "widgetsB.settings.folder.icons": "图标",
   "widgetsB.settings.folder.rowSize.label": "行大小",
   "widgetsB.settings.folder.rowSize.desc": "列表和详细信息行的高度",
   "widgetsB.settings.folder.extraSmall": "超小",
   "widgetsB.settings.folder.tileSize.label": "磁贴大小",
   "widgetsB.settings.folder.tileSize.desc": "网格和图标磁贴的大小",
-  "widgetsB.settings.folder.stretch.label": "拉伸磁贴以填满",
-  "widgetsB.settings.folder.stretch.desc": "所有磁贴都能放下时，各行平分小组件的高度",
   "widgetsB.settings.folder.columns.label": "详细信息列",
   "widgetsB.settings.folder.columns.desc": "显示在名称后，放得下为止",
   "widgetsB.settings.folder.contents": "内容",
   "widgetsB.settings.folder.sortBy.label": "排序方式",
   "widgetsB.settings.folder.dateModified": "修改日期",
   "widgetsB.settings.folder.reverse.label": "倒序",
-  "widgetsB.settings.folder.foldersFirst.label": "文件夹优先",
-  "widgetsB.settings.folder.filter.desc": "仅含这些词之一的名称，用逗号分隔",
   "widgetsB.settings.folder.opening": "打开",
   "widgetsB.settings.folder.openWith.label": "打开项目的方式",
   "widgetsB.settings.folder.doubleClick": "双击",
@@ -287,9 +281,6 @@
   "widgetsB.ping.online": "在线",
   "widgetsB.ping.offline": "离线",
   "widgetsB.ping.checking": "正在检查…",
-  "widgetsB.meters.spanSeconds": {
-    "other": "{count} 秒"
-  },
   "widgetsB.meters.spanMinutes": {
     "other": "{count} 分钟"
   },

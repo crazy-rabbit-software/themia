@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "Progreso del año",
+  "yearProgress.desc": "Cuánto ha pasado del día, la semana, el mes y el año",
+  "yearProgress.day": "Día",
+  "yearProgress.week": "Semana",
+  "yearProgress.month": "Mes",
+  "yearProgress.year": "Año",
+  "yearProgress.left": "Quedan {time}",
+  "yearProgress.weekNumber": "Semana {number}",
+  "yearProgress.dayOf": "Día {day} de {days}",
+  "meeting.label": "Próxima reunión",
+  "meeting.desc": "Tu próximo evento, con Unirse para reuniones en línea",
+  "meeting.join": "Unirse",
+  "meeting.joinTip": "Unirse a la reunión en línea",
+  "meeting.nowEnds": "Ahora · termina a las {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Nada próximamente",
+  "recentFiles.label": "Archivos recientes",
+  "recentFiles.desc": "Los últimos archivos que abriste",
+  "recentFiles.empty": "No se ha abierto nada recientemente",
+  "recentFiles.unreadable": "No se pudieron leer los elementos recientes de Windows",
+  "recentFiles.remove": "Quitar de la lista",
+  "recycleBin.desc": "Cuánto ocupa la papelera de reciclaje, con Vaciar",
+  "recycleBin.empty": "Vaciar",
+  "recycleBin.emptyEllipsis": "Vaciar papelera de reciclaje…",
+  "recycleBin.isEmpty": "Sin elementos",
+  "recycleBin.items": {
+    "one": "{count} elemento",
+    "other": "{count} elementos"
+  },
+  "recycleBin.open": "Abrir papelera de reciclaje"
+}

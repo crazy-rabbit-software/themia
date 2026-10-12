@@ -24,30 +24,26 @@ public enum SystemSource
 }
 
 /// <summary>
-/// [S-2502] One feed of the hub: a source, the thing it is aimed at (a ping host; empty for every
-/// other source) and the cadence it is read at. Every widget asking for the same key shares one feed,
-/// one read per due tick and one history.
+/// [S-2502] One feed of the hub: a source and the thing it is aimed at (a ping host; empty for every
+/// other source). Every widget asking for the same key shares one feed, one read per due tick and one
+/// history. The cadence is not part of it: there is one ([S-2503]).
 /// </summary>
 /// <param name="Source">The source.</param>
 /// <param name="Target">What the source reads, normalised (a host, lower case); empty when it reads the machine.</param>
-/// <param name="IntervalSeconds">The cadence, whole seconds, at least one (<see cref="HubCadence.Seconds"/>).</param>
-public readonly record struct FeedKey(SystemSource Source, string Target, int IntervalSeconds)
+public readonly record struct FeedKey(SystemSource Source, string Target)
 {
-    /// <summary>The cadence as a span.</summary>
-    public TimeSpan Interval => TimeSpan.FromSeconds(IntervalSeconds);
-
     /// <summary>
-    /// The key for a source, target and interval: the target trimmed and lower-cased (a host name is
-    /// not case-sensitive, so "Example.com" and "example.com " are one prober), the interval in whole
-    /// seconds (<see cref="HubCadence.Seconds"/>).
+    /// The key for a source and target: the target trimmed and lower-cased (a host name is not
+    /// case-sensitive, so "Example.com" and "example.com " are one prober).
     /// </summary>
-    public static FeedKey Create(SystemSource source, TimeSpan interval, string? target = null)
-        => new(source, Normalise(target), HubCadence.Seconds(interval));
+    public static FeedKey Create(SystemSource source, string? target = null) => new(source, Normalise(target));
 
     /// <summary>A target as keys compare it.</summary>
     public static string Normalise(string? target)
         => string.IsNullOrWhiteSpace(target) ? string.Empty : target.Trim().ToLowerInvariant();
 
-    public override string ToString()
-        => Target.Length == 0 ? $"{Source}@{IntervalSeconds}s" : $"{Source}({Target})@{IntervalSeconds}s";
+    /// <summary>How far apart this feed's reads (and history points) are ([S-2512]).</summary>
+    public int PeriodSeconds => SystemCadence.PeriodSeconds(Source);
+
+    public override string ToString() => Target.Length == 0 ? Source.ToString() : $"{Source}({Target})";
 }

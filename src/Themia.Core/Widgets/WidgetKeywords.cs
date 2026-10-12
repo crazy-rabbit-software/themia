@@ -22,7 +22,10 @@ public static class WidgetKeywords
 {
     private static readonly Dictionary<WidgetKind, string[]> Keywords = new()
     {
-        [WidgetKind.Folder] = ["files", "explorer", "directory", "file browser", "documents", "downloads"],
+        [WidgetKind.Folder] = ["files", "explorer", "directory", "file browser", "documents", "downloads", "list"],
+        [WidgetKind.FolderDetails] = ["files", "explorer", "directory", "file browser", "documents", "downloads", "table", "columns"],
+        [WidgetKind.FolderGrid] = ["files", "explorer", "directory", "file browser", "pictures", "photos", "thumbnails", "tiles"],
+        [WidgetKind.FolderIcons] = ["files", "explorer", "directory", "file browser", "desktop icons", "launcher"],
         [WidgetKind.Email] = ["email", "inbox", "outlook", "gmail", "imap", "messages", "unread"],
         [WidgetKind.Contacts] = ["address book", "people", "phone numbers", "directory"],
         [WidgetKind.MonthCalendar] = ["calendar", "events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays"],
@@ -34,10 +37,17 @@ public static class WidgetKeywords
 
         [WidgetKind.WeatherNow] = ["temperature", "forecast", "rain", "wind", "humidity", "climate", "degrees"],
         [WidgetKind.WeatherForecast] = ["weather", "temperature", "rain", "week", "outlook", "climate", "degrees"],
+        [WidgetKind.AirQuality] = ["aqi", "pollution", "smog", "pm2.5", "particulates", "ozone", "uv", "sunburn", "pollen", "allergy", "hay fever"],
+        [WidgetKind.RainNextHour] = ["rain", "precipitation", "shower", "umbrella", "radar", "nowcast", "drizzle", "weather"],
+        [WidgetKind.ExchangeRates] = ["currency", "forex", "fx", "exchange", "money", "euro", "dollar", "franc", "pound", "ecb", "conversion"],
         [WidgetKind.Rss] = ["rss", "feed", "news", "headlines", "atom", "blog", "reader"],
         [WidgetKind.Stocks] = ["shares", "ticker", "market", "finance", "crypto", "bitcoin", "forex", "currency", "portfolio", "price"],
         [WidgetKind.VideoStream] = ["camera", "webcam", "cctv", "mjpeg", "live view", "printer"],
         [WidgetKind.AudioVisualizer] = ["spectrum", "equalizer", "equaliser", "visualiser", "bars", "audio", "sound", "music"],
+        [WidgetKind.VisualizerMirror] = ["spectrum", "equalizer", "equaliser", "visualiser", "mirrored", "symmetric", "audio", "sound", "music"],
+        [WidgetKind.VisualizerWave] = ["spectrum", "equalizer", "equaliser", "visualiser", "wave", "waveform", "curve", "audio", "sound", "music"],
+        [WidgetKind.VisualizerDots] = ["spectrum", "equalizer", "equaliser", "visualiser", "led", "dots", "vu meter", "audio", "sound", "music"],
+        [WidgetKind.VisualizerRadial] = ["spectrum", "equalizer", "equaliser", "visualiser", "circle", "radial", "ring", "audio", "sound", "music"],
         [WidgetKind.Music] = ["spotify", "player", "playback", "song", "track", "audio", "media controls", "now playing"],
 
         [WidgetKind.Cpu] = ["processor", "load", "usage", "performance", "cores", "task manager", "system monitor"],
@@ -56,10 +66,15 @@ public static class WidgetKeywords
         [WidgetKind.TopProcesses] = ["processes", "task manager", "apps", "cpu hog", "memory usage", "running"],
         [WidgetKind.NetworkDetails] = ["internet", "adapters", "ip address", "public ip", "wifi", "ethernet", "data used"],
         [WidgetKind.DiskSpace] = ["storage", "free space", "drives", "ssd", "hdd", "capacity"],
+        [WidgetKind.RemovableDrives] = ["usb", "usb stick", "flash drive", "sd card", "memory card", "external disk", "eject", "safely remove"],
+        [WidgetKind.Drive] = ["disk", "storage", "free space", "capacity", "ssd", "hdd", "network drive", "mapped drive", "nas", "share"],
         [WidgetKind.BatteryDetails] = ["power", "battery health", "wear", "cycles", "voltage", "laptop", "time remaining"],
         [WidgetKind.PingDetails] = ["latency", "jitter", "packet loss", "internet", "connection quality", "ms"],
         [WidgetKind.GpuDetails] = ["graphics", "vram", "video memory", "temperature", "fan", "nvidia", "amd"],
         [WidgetKind.Volume] = ["sound", "audio", "speaker", "mute", "loudness"],
+        // [S-4400] [S-4440] Windows' own notification list and display brightness.
+        [WidgetKind.Notifications] = ["notification center", "action center", "toasts", "alerts", "messages", "clear all"],
+        [WidgetKind.Brightness] = ["display", "screen", "dim", "monitor", "backlight", "ddc"],
         [WidgetKind.Mixer] = ["sound", "audio", "per app volume", "speaker", "levels", "faders"],
         [WidgetKind.Shutdown] = ["power", "shutdown", "power off", "turn off", "switch off"],
         [WidgetKind.Restart] = ["power", "reboot", "restart", "reset"],
@@ -92,10 +107,17 @@ public static class WidgetKeywords
         [WidgetKind.Gallery] = ["photos", "pictures", "images", "slideshow", "wallpaper", "bing"],
         [WidgetKind.Countdown] = ["timer", "days until", "deadline", "event", "anniversary", "birthday"],
         [WidgetKind.Pomodoro] = ["timer", "focus", "productivity", "work break", "tomato", "session"],
+        [WidgetKind.Stopwatch] = ["timer", "lap", "laps", "split", "chronometer", "elapsed", "count up"],
+        [WidgetKind.Alarm] = ["alarm clock", "wake up", "reminder", "ring", "snooze", "morning"],
+        [WidgetKind.FocusSession] = ["focus", "focus assist", "do not disturb", "dnd", "timer", "deep work", "concentrate"],
         [WidgetKind.HabitTracker] = ["streaks", "daily", "routine", "goals", "checklist", "tracker"],
         [WidgetKind.Quote] = ["inspiration", "daily quote", "saying", "motivation"],
         [WidgetKind.Sun] = ["sunrise", "sunset", "daylight", "golden hour", "dawn", "dusk", "solar noon", "astronomy"],
         [WidgetKind.Moon] = ["moon phase", "full moon", "new moon", "moonrise", "moonset", "lunar", "astronomy"],
+        [WidgetKind.YearProgress] = ["progress", "percent", "year", "month", "week", "day", "time passed", "elapsed"],
+        [WidgetKind.NextMeeting] = ["meeting", "join", "teams", "zoom", "google meet", "webex", "event", "calendar", "upcoming"],
+        [WidgetKind.RecentFiles] = ["recent", "recently opened", "history", "documents", "files", "quick access", "last opened"],
+        [WidgetKind.RecycleBin] = ["trash", "bin", "deleted", "empty", "restore", "wastebasket", "deleted files"],
     };
 
     /// <summary>
@@ -110,6 +132,7 @@ public static class WidgetKeywords
         [WidgetKind.DayCalendar] = ["Microsoft", "Google", "CalDAV"],
         [WidgetKind.YearCalendar] = ["Microsoft", "Google", "CalDAV"],
         [WidgetKind.Agenda] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.NextMeeting] = ["Microsoft", "Google", "CalDAV"],
 
         [WidgetKind.Contacts] = ["Microsoft", "Google", "CardDAV"],
         [WidgetKind.Tasks] = ["Microsoft", "Google"],

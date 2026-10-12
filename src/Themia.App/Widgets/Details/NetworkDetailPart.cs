@@ -29,21 +29,19 @@ internal sealed class NetworkDetailPart : DetailPart
     {
         _host = host;
         var network = config as NetworkDetailsConfig ?? new NetworkDetailsConfig();
-        var interval = network.TickInterval;
-
-        _addresses.Hold(hub, Sources.LocalAddresses, interval, static _ => { });
+        _addresses.Hold(hub, Sources.LocalAddresses, static _ => { });
 
         // [S-2417] The public lookup runs only while the setting is on.
         if (network.ShowPublicAddress)
         {
-            _public.Hold(hub, Sources.PublicAddress, interval, static _ => { });
+            _public.Hold(hub, Sources.PublicAddress, static _ => { });
         }
         else
         {
             _public.Release();
         }
 
-        _throughput.Hold(hub, Sources.Network, interval, _ => Show());
+        _throughput.Hold(hub, Sources.Network, _ => Show());
         Show();
     }
 

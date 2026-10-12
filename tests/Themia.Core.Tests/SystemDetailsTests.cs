@@ -130,16 +130,12 @@ public sealed class SystemDetailsTests
     // ---- [S-2401] configs ----------------------------------------------------------------------
 
     [Fact]
-    public void S3793_each_detail_kind_reads_at_its_own_fixed_cadence()
+    public void S2503_a_detail_kind_has_no_cadence_of_its_own_and_a_stored_one_is_not_read()
     {
-        Assert.Equal(2, new CpuDetailsConfig().IntervalSeconds);
-        Assert.Equal(30, new DiskSpaceConfig().IntervalSeconds);
-        Assert.Equal(10, new PingDetailsConfig().IntervalSeconds);
-
-        // A stored cadence (an older file, a hand edit) is not read: the kind's own wins, quietly.
+        // A hand-edited cadence is not a setting: the hub's one cadence reads every kind ([S-2503]).
         var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "intervalSeconds": 0 }""");
-        Assert.Equal(new TopProcessesConfig().IntervalSeconds, processes.IntervalSeconds);
         Assert.Empty(processes.Repair());
+        Assert.Null(typeof(DetailConfig).GetProperty("IntervalSeconds"));
     }
 
     [Fact]
@@ -334,7 +330,116 @@ public sealed class SystemDetailsTests
         Assert.Equal(3, ProcessTable.Rows(Locale.En, byMemory, ProcessSort.Memory, 0).Count);
     }
 
+    // ---- [S-2433] process icons ------------------------------------------------------------------
+
+    [Fact]
+    public void S2433_a_process_path_is_asked_once_per_process()
+    {
+        var asked = new List<int>();
+        var cache = new ProcessPathCache(pid => { asked.Add(pid); return pid == 4 ? null : $@"C:\Apps\{pid}.exe"; });
+        var app = new ProcessIdentity(10, 111);
+
+        Assert.Equal(@"C:\Apps\10.exe", cache.PathOf(app));
+        Assert.Equal(@"C:\Apps\10.exe", cache.PathOf(app));
+
+        // A process Windows will not open is remembered as such, not asked every read.
+        Assert.Null(cache.PathOf(new ProcessIdentity(4, 1)));
+        Assert.Null(cache.PathOf(new ProcessIdentity(4, 1)));
+
+        Assert.Equal([10, 4], asked);
+    }
+
+    [Fact]
+    public void S2433_a_reused_pid_is_another_process_and_an_exited_one_is_forgotten()
+    {
+        var asked = 0;
+        var cache = new ProcessPathCache(pid => { asked++; return $"p{asked}"; });
+
+        Assert.Equal("p1", cache.PathOf(new ProcessIdentity(10, 111)));
+        Assert.Equal("p2", cache.PathOf(new ProcessIdentity(10, 222)));
+
+        cache.Retain([new ProcessIdentity(10, 222)]);
+        Assert.Equal(1, cache.Count);
+        Assert.Equal("p2", cache.PathOf(new ProcessIdentity(10, 222)));
+    }
+
+    [Fact]
+    public void S2433_no_pid_is_no_path_and_asks_nothing()
+    {
+        var cache = new ProcessPathCache(_ => throw new InvalidOperationException("asked"));
+
+        Assert.Null(cache.PathOf(default));
+    }
+
+    [Fact]
+    public void S2433_a_group_takes_its_oldest_members_icon_and_every_row_leads_with_one()
+    {
+        ProcessSample[] samples =
+        [
+            new("chrome", 0.1, 100, Process: new ProcessIdentity(30, 500)),
+            new("chrome", 0.2, 300, Process: new ProcessIdentity(20, 100)),
+            new("code", 0.25, 50, Process: new ProcessIdentity(40, 300)),
+        ];
+
+        var grouped = ProcessTable.Rank(samples, ProcessSort.Cpu, group: true);
+        Assert.Equal(new ProcessIdentity(20, 100), grouped[0].Process);
+
+        var rows = ProcessTable.Rows(Locale.En, grouped, ProcessSort.Cpu, 0, s => s.Process.Pid == 20 ? @"C:\chrome.exe" : null);
+        Assert.Equal(@"C:\chrome.exe", rows[0].IconPath);
+        Assert.Null(rows[1].IconPath);
+        Assert.All(rows, r => Assert.Equal(RowSymbol.App, r.Symbol));
+    }
+
+    [Fact]
+    public void S2433_the_tracker_keeps_each_processs_identity()
+    {
+        var tracker = new ProcessTracker();
+        var sample = Assert.Single(tracker.Update([new ProcessEntry(9, "a", 100, 1_000, 0)], 0, 1));
+
+        Assert.Equal(new ProcessIdentity(9, 100), sample.Process);
+    }
+
     // ---- [S-2415]..[S-2419] network ------------------------------------------------------------
+
+    [Theory]
+    [InlineData(6, AdapterMedium.Ethernet)]
+    [InlineData(117, AdapterMedium.Ethernet)]
+    [InlineData(71, AdapterMedium.Wireless)]
+    [InlineData(243, AdapterMedium.Cellular)]
+    [InlineData(1, AdapterMedium.Other)]
+    public void S2416_an_adapters_kind_comes_from_its_interface_type(int iana, AdapterMedium medium)
+        => Assert.Equal(medium, NetworkRules.MediumOf(iana));
+
+    [Theory]
+    [InlineData(1_000_000_000L, "1 Gbps")]
+    [InlineData(2_500_000_000L, "2.5 Gbps")]
+    [InlineData(866_700_000L, "866.7 Mbps")]
+    [InlineData(100_000_000L, "100 Mbps")]
+    [InlineData(54_000_000L, "54 Mbps")]
+    [InlineData(0L, "--")]
+    public void S2415_a_link_speed_reads_as_windows_writes_it(long bits, string expected)
+        => Assert.Equal(expected, NetworkDetailRules.LinkSpeed(Locale.En, bits));
+
+    [Fact]
+    public void S2416_an_idle_adapter_without_an_address_gets_no_row_but_still_counts()
+    {
+        var idle = new InterfaceRate("v", "Local Area Connection* 10", 0, 0, 0, 0);
+        var busy = new InterfaceRate("w", "Wi-Fi", 100, 0, 100, 0, AdapterMedium.Wireless);
+        var sample = new ThroughputSample(100, 0, [busy, idle], 100, 0);
+        var sheet = NetworkDetailRules.Sheet(Locale.En, sample, new Dictionary<string, string>(), new PublicAddressReading(PublicAddressState.Off));
+
+        Assert.Equal("w", Assert.Single(sheet.Rows).Key);
+        Assert.True(NetworkDetailRules.Listed(idle, new Dictionary<string, string> { ["v"] = "192.168.137.1" }));
+    }
+
+    [Fact]
+    public void S2416_an_adapter_line_is_its_address_and_speed_whichever_it_has()
+    {
+        Assert.Equal("10.0.0.2 · 1 Gbps", NetworkDetailRules.AdapterLine(Locale.En, "10.0.0.2", 1_000_000_000));
+        Assert.Equal("10.0.0.2", NetworkDetailRules.AdapterLine(Locale.En, "10.0.0.2", 0));
+        Assert.Equal("1 Gbps", NetworkDetailRules.AdapterLine(Locale.En, null, 1_000_000_000));
+        Assert.Null(NetworkDetailRules.AdapterLine(Locale.En, null, 0));
+    }
 
     [Theory]
     [InlineData("203.0.113.42\n", "203.0.113.42")]
@@ -356,13 +461,19 @@ public sealed class SystemDetailsTests
     [Fact]
     public void S2415_S2416_the_sheet_lists_every_adapter_and_says_no_connection()
     {
-        var sample = new ThroughputSample(2048, 1024, [new InterfaceRate("w", "Wi-Fi", 2048, 1024, 10, 5)], 10, 5);
+        var sample = new ThroughputSample(2048, 1024, [new InterfaceRate("w", "Wi-Fi", 2048, 1024, 10, 5, AdapterMedium.Wireless, null, 866_700_000)], 10, 5);
         var sheet = NetworkDetailRules.Sheet(Locale.En, sample, new Dictionary<string, string> { ["w"] = "10.0.0.2" }, new PublicAddressReading(PublicAddressState.Off));
 
         Assert.Equal("2.0 KB/s", sheet.Hero);
+        Assert.Equal("Download over Wi-Fi", sheet.Caption);
+        Assert.Equal(("Upload", "1.0 KB/s"), (sheet.Facts[0].Label, sheet.Facts[0].Value));
         Assert.Contains(sheet.Facts, f => f.Value == "10.0.0.2");
+        Assert.Contains(sheet.Facts, f => f.Label == "Link speed" && f.Value == "866.7 Mbps");
         Assert.DoesNotContain(sheet.Facts, f => f.Label == "Public address");
-        Assert.Equal("10.0.0.2", Assert.Single(sheet.Rows).Detail);
+        var row = Assert.Single(sheet.Rows);
+        Assert.Equal("10.0.0.2 · 866.7 Mbps", row.Detail);
+        Assert.Equal(RowSymbol.Wireless, row.Symbol);
+        Assert.Equal(("↓ 2.0 KB/s", "↑ 1.0 KB/s"), (row.Value, row.Second));
 
         var none = NetworkDetailRules.Sheet(Locale.En, new ThroughputSample(0, 0, [], 0, 0), new Dictionary<string, string>(), new PublicAddressReading(PublicAddressState.Checking));
         Assert.Equal("No connection", none.Caption);

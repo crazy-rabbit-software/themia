@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "Populer",
+  "addMenu.browse": "Telusuri",
+  "addMenu.subject.time": "Waktu",
+  "addMenu.subject.calendar": "Kalender & email",
+  "addMenu.subject.weather": "Cuaca & langit",
+  "addMenu.subject.markets": "Berita & pasar",
+  "addMenu.subject.media": "Musik & media",
+  "addMenu.subject.notes": "Catatan & alat",
+  "addMenu.subject.files": "File & aplikasi",
+  "addMenu.subject.system": "Sistem",
+  "addMenu.subject.devices": "Perangkat & daya",
+  "addMenu.subject.more": "Lainnya",
+  "addMenu.family.calendar": "Kalender",
+  "addMenu.family.visualizer": "Visualizer",
+  "addMenu.family.folder": "Folder",
+  "addMenu.family.screenTime": "Waktu layar",
+  "addMenu.family.powerButtons": "Tombol daya"
+}

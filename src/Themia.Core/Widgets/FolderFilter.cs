@@ -1,7 +1,7 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-1321] The name filter (the setting) and the header search (typed at run time), ported from the
+/// [S-1321] The header search (typed at run time), ported from the
 /// original's <c>fileFilter.ts</c>: comma-separated keywords, OR semantics, case-insensitive
 /// substring match. Pure, so the matching is tested without a disk.
 /// </summary>
@@ -49,21 +49,20 @@ public static class FolderFilter
     }
 
     /// <summary>
-    /// The entries both filters keep: the configured filter and the header search apply together
-    /// (an item must pass each), so a search narrows what the filter already shows.
+    /// The entries the header search keeps. [S-4121] The search is the only filter: the stored
+    /// keyword filter setting is gone.
     /// </summary>
-    public static IReadOnlyList<FolderEntry> Apply(IReadOnlyList<FolderEntry> entries, string? filter, string? search)
+    public static IReadOnlyList<FolderEntry> Apply(IReadOnlyList<FolderEntry> entries, string? search)
     {
         ArgumentNullException.ThrowIfNull(entries);
 
-        var configured = Keywords(filter);
         var typed = Keywords(search);
 
-        if (configured.Count == 0 && typed.Count == 0)
+        if (typed.Count == 0)
         {
             return entries;
         }
 
-        return [.. entries.Where(e => Matches(e.Name, configured) && Matches(e.Name, typed))];
+        return [.. entries.Where(e => Matches(e.Name, typed))];
     }
 }

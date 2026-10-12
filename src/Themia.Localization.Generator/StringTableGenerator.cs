@@ -33,7 +33,8 @@ public sealed class StringTableGenerator : IIncrementalGenerator
         new[] { "en", "En" }, new[] { "de", "De" }, new[] { "es", "Es" }, new[] { "fr", "Fr" }, new[] { "it", "It" },
         new[] { "ja", "Ja" }, new[] { "pl", "Pl" }, new[] { "pt", "Pt" }, new[] { "zh", "Zh" }, new[] { "hi", "Hi" },
         new[] { "ar", "Ar" }, new[] { "bn", "Bn" }, new[] { "ru", "Ru" }, new[] { "id", "Id" }, new[] { "ur", "Ur" },
-        new[] { "mr", "Mr" }, new[] { "vi", "Vi" },
+        new[] { "mr", "Mr" }, new[] { "vi", "Vi" }, new[] { "ko", "Ko" }, new[] { "nl", "Nl" }, new[] { "tr", "Tr" },
+        new[] { "zh-hant", "ZhHant" },
     };
 
     /// <summary>CLDR plural categories, in the index order <c>PluralCategory</c> uses.</summary>
@@ -43,7 +44,7 @@ public sealed class StringTableGenerator : IIncrementalGenerator
 
     private static readonly DiagnosticDescriptor BadJson = Rule("THEMIALOC001", "Locale file is not valid JSON", "{0}: {1}");
     private static readonly DiagnosticDescriptor NoEnglish = Rule("THEMIALOC002", "en.json is missing", "Localization/Locales/en.json is missing; it is the master of the root file set");
-    private static readonly DiagnosticDescriptor UnknownLocale = Rule("THEMIALOC003", "Unknown locale file", "'{0}' is not one of the app's languages (en, de, es, fr, it, ja, pl, pt, zh, hi, ar, bn, ru, id, ur, mr, vi)");
+    private static readonly DiagnosticDescriptor UnknownLocale = Rule("THEMIALOC003", "Unknown locale file", "'{0}' is not one of the app's languages (en, de, es, fr, it, ja, pl, pt, zh, hi, ar, bn, ru, id, ur, mr, vi, ko, nl, tr, zh-Hant)");
     private static readonly DiagnosticDescriptor BadKey = Rule("THEMIALOC004", "Bad string key", "Key '{0}' must be dotted camelCase segments, e.g. settings.general.language");
     private static readonly DiagnosticDescriptor BadValue = Rule("THEMIALOC005", "Bad string value", "{0}: {1}");
     private static readonly DiagnosticDescriptor NotInEnglish = Rule("THEMIALOC006", "Key not in en.json", "{0} has '{1}', which {2} does not define (typo, stale key, or a key that belongs to another area)");

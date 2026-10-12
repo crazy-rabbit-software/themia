@@ -48,7 +48,7 @@ public enum WidgetKind
     Pomodoro = 14,
 
 
-    /// <summary>The contents of one folder on this machine.</summary>
+    /// <summary>[S-4120] The contents of one folder on this machine, as a list (the other layouts are their own kinds).</summary>
     Folder = 17,
 
     /// <summary>Master output level and mute.</summary>
@@ -150,7 +150,7 @@ public enum WidgetKind
     /// <summary>[S-3100] The moon's phase, rise and set, computed offline.</summary>
     Moon = 69,
 
-    /// <summary>[S-3200] The spectrum of whatever the PC plays, split out of Music.</summary>
+    /// <summary>[S-3200] The spectrum of whatever the PC plays, split out of Music: the Bars design ([S-3210]).</summary>
     AudioVisualizer = 70,
 
     /// <summary>[S-3600] The weeks of a month with their events. The five calendar widgets replace Calendar (10).</summary>
@@ -215,6 +215,69 @@ public enum WidgetKind
 
     /// <summary>[S-3900] Quick setting: game mode.</summary>
     GameModeToggle = 95,
+
+    /// <summary>[S-3210] The audio visualizer as bars symmetric around the centre line. Bars is <see cref="AudioVisualizer"/> (70).</summary>
+    VisualizerMirror = 110,
+
+    /// <summary>[S-3210] The audio visualizer as a smooth curve with the area under it filled.</summary>
+    VisualizerWave = 111,
+
+    /// <summary>[S-3210] The audio visualizer as columns of LED cells.</summary>
+    VisualizerDots = 112,
+
+    /// <summary>[S-3210] The audio visualizer as spokes around a ring.</summary>
+    VisualizerRadial = 113,
+
+    /// <summary>[S-4120] A folder as a table with columns. The list is <see cref="Folder"/>.</summary>
+    FolderDetails = 114,
+
+    /// <summary>[S-4120] A folder as labelled tiles (thumbnails for pictures).</summary>
+    FolderGrid = 115,
+
+    /// <summary>[S-4120] A folder as bare icons.</summary>
+    FolderIcons = 116,
+
+    /// <summary>[S-4600] Start, pause, laps; kept running across a restart.</summary>
+    Stopwatch = 117,
+
+    /// <summary>[S-4620] Alarms at a time of day, once or on chosen days, rung by the app's alarm service.</summary>
+    Alarm = 118,
+
+    /// <summary>[S-4660] USB sticks, cards and external disks, each with Eject.</summary>
+    RemovableDrives = 119,
+
+    /// <summary>[S-4670] One drive's space, file system and, for a mapped share, whether it is connected.</summary>
+    Drive = 120,
+
+    /// <summary>[S-4400] Windows' notification list, grouped by app, with dismiss and clear all.</summary>
+    Notifications = 121,
+
+    /// <summary>[S-4420] A focus session of N minutes that holds Windows' do not disturb while it runs.</summary>
+    FocusSession = 122,
+
+    /// <summary>[S-4440] The display brightness, one slider for every display (or the one it is on).</summary>
+    Brightness = 123,
+
+    /// <summary>[S-4800] How much of the day, week, month and year has passed.</summary>
+    YearProgress = 124,
+
+    /// <summary>[S-4820] The next (or running) event from the synced calendars, with Join for an online meeting.</summary>
+    NextMeeting = 125,
+
+    /// <summary>[S-4840] The files opened last, as Windows' Recent Items lists them.</summary>
+    RecentFiles = 126,
+
+    /// <summary>[S-4860] The Recycle Bin's size and item count, with Empty.</summary>
+    RecycleBin = 127,
+
+    /// <summary>[S-5100] Air quality index, UV and pollen at a place, from open-meteo.</summary>
+    AirQuality = 128,
+
+    /// <summary>[S-5120] Rain in the next two hours, in 15-minute steps, from open-meteo.</summary>
+    RainNextHour = 129,
+
+    /// <summary>[S-5140] The ECB's reference exchange rates for a base currency, with the day's change.</summary>
+    ExchangeRates = 130,
 }
 
 /// <summary>How a countdown renders the time it has left. [C-11]</summary>

@@ -79,6 +79,11 @@ internal sealed partial class AppHost : IDisposable
         Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(state));
         StateChanged += () => Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(State));
 
+        // [S-2513] The system hub reads what every view's system widgets need from the start, so a
+        // view switched to shows its charts with their history and its details already read.
+        _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(state, DiskMetrics.SystemRoot));
+        StateChanged += () => _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(State, DiskMetrics.SystemRoot));
+
         // [S-2607] Signing out takes the account's synced data with it.
         Accounts.SignedOut += Sync.Purge;
 
@@ -240,12 +245,16 @@ internal sealed partial class AppHost : IDisposable
         // render finds them.
         Services.Web.NetworkCache.Persist(Sync.Vault);
         Services.Web.WeatherService.Persist(Sync.Vault);
+        Services.Web.OnlineService.Persist(Sync.Vault);
 
         // [S-2661] [S-2663] The feeds, readings, forecasts and quotes of every web widget in every
         // view, kept fresh in the background. Only the app starts them, after the request guard
         // knows the user's choice and the caches are restored: never a debug render.
         AppServices.Feeds = new Web.FeedSync(Sync, Ticker);
         AppServices.WebSync = new Web.WebSync(Sync, Ticker);
+
+        // [S-4623] Alarms ring whether or not a widget shows them, from the first moment.
+        StartAlarms();
 
         // [S-890] Counted before the surfaces exist: a start that dies building them leaves its count.
         BeginStartGuard();
@@ -375,6 +384,7 @@ internal sealed partial class AppHost : IDisposable
         AppServices.Sync = null;
         Sync.Dispose();
         License.Dispose();
+        StopAlarms();
 
         // [S-459] Accrues up to now and writes the history synchronously: the process is ending.
         AppServices.ScreenTime = null;
@@ -388,7 +398,7 @@ internal sealed partial class AppHost : IDisposable
         // After the surfaces: every card has left its board.
         AppServices.Links = null;
 
-        // After the surfaces: their views have let go, so this closes whatever is still lingering.
+        // After the surfaces: their views have let go, so this closes what the state still wanted.
         AppServices.System = null;
         _system.Dispose();
         AppServices.Gallery = null;

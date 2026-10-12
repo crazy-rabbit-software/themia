@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "مقبول",
+  "addMenu.browse": "براؤز کریں",
+  "addMenu.subject.time": "وقت",
+  "addMenu.subject.calendar": "کیلنڈر اور میل",
+  "addMenu.subject.weather": "موسم اور آسمان",
+  "addMenu.subject.markets": "خبریں اور مارکیٹیں",
+  "addMenu.subject.media": "موسیقی اور میڈیا",
+  "addMenu.subject.notes": "نوٹس اور ٹولز",
+  "addMenu.subject.files": "فائلیں اور ایپس",
+  "addMenu.subject.system": "سسٹم",
+  "addMenu.subject.devices": "آلات اور پاور",
+  "addMenu.subject.more": "مزید",
+  "addMenu.family.calendar": "کیلنڈر",
+  "addMenu.family.visualizer": "ویژولائزر",
+  "addMenu.family.folder": "فولڈر",
+  "addMenu.family.screenTime": "اسکرین ٹائم",
+  "addMenu.family.powerButtons": "پاور بٹن"
+}

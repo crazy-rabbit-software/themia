@@ -43,7 +43,6 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
     private IWidgetSurface? _surface;
     private GpuConfig _config = new();
     private FeedWatch<GpuSnapshot>? _snapshots;
-    private TimeSpan _interval;
     private List<int> _selection = [];
     private WidgetArea _area;
 
@@ -127,8 +126,8 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
     }
 
     /// <summary>
-    /// [S-2504] Watch the GPU feed at the configured cadence, and each panel its adapter's series — only
-    /// when the cadence or the panels changed, so a settings slider does not drop the watches.
+    /// [S-2504] Watch the GPU feed, and each panel its adapter's series — only when nothing is watched
+    /// yet or the panels changed, so a settings slider does not drop the watches.
     /// </summary>
     private void Rewatch(bool panelsChanged)
     {
@@ -137,10 +136,9 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
             return;
         }
 
-        var interval = _config.TickInterval;
-        var cadenceChanged = _snapshots is null || interval != _interval;
+        var first = _snapshots is null;
 
-        if (!cadenceChanged && !panelsChanged)
+        if (!first && !panelsChanged)
         {
             return;
         }
@@ -151,16 +149,11 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
             return;
         }
 
-        if (cadenceChanged)
-        {
-            _snapshots?.Dispose();
-            _interval = interval;
-            _snapshots = hub.Watch(Sources.Gpu, interval, OnSnapshot);
-        }
+        _snapshots ??= hub.Watch(Sources.Gpu, OnSnapshot);
 
         foreach (var panel in _shown)
         {
-            panel.Watch(hub, interval, cadenceChanged);
+            panel.Watch(hub);
         }
     }
 
@@ -247,10 +240,9 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
     {
         _detached = true;
 
-        // [S-2505] The adapters' histories stay in the hub for the tile built in this one's place.
+        // [S-2513] The adapters' histories stay in the hub for the tile built in this one's place.
         _snapshots?.Dispose();
         _snapshots = null;
-        _interval = TimeSpan.Zero;
 
         foreach (var panel in _shown)
         {

@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.nav": "小工具",
+  "widgetPrefs.subtitle": "所有小工具共用的格式和更新",
+  "widgetPrefs.region.header": "地區格式",
+  "widgetPrefs.region.clock": "時間格式",
+  "widgetPrefs.region.clock12": "12 小時制",
+  "widgetPrefs.region.clock24": "24 小時制",
+  "widgetPrefs.followWindows": "Windows 設定 ({value})",
+  "widgetPrefs.updates.header": "更新",
+  "widgetPrefs.updates.note": "小工具查詢線上服務的頻率。在小工具上按「重新整理」會立即查詢。",
+  "widgetPrefs.updates.weather": "天氣",
+  "widgetPrefs.updates.markets": "股票",
+  "widgetPrefs.updates.feeds": "新聞摘要",
+  "widgetPrefs.updates.accounts": "郵件、行事曆和工作",
+  "widgetPrefs.updates.everyHours": {
+    "other": "每 {count} 小時"
+  },
+  "widgetsC.shortcuts.settings.locations": "Windows 位置"
+}

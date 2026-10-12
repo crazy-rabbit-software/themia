@@ -188,6 +188,12 @@ public sealed class LocalizationTests
     [InlineData(Locale.Ur, 1, PluralCategory.One)]
     [InlineData(Locale.Id, 1, PluralCategory.Other)]
     [InlineData(Locale.Vi, 1, PluralCategory.Other)]
+    [InlineData(Locale.Ko, 1, PluralCategory.Other)]
+    [InlineData(Locale.ZhHant, 1, PluralCategory.Other)]
+    [InlineData(Locale.Nl, 1, PluralCategory.One)]
+    [InlineData(Locale.Nl, 0, PluralCategory.Other)]
+    [InlineData(Locale.Tr, 1, PluralCategory.One)]
+    [InlineData(Locale.Tr, 2, PluralCategory.Other)]
     public void S1103_plural_category_per_language(Locale locale, long count, PluralCategory expected)
         => Assert.Equal(expected, PluralRules.For(locale, count));
 
@@ -212,10 +218,11 @@ public sealed class LocalizationTests
         Assert.Equal("3 приложения", Strings.Plural(Locale.Ru, Str.Shortcut_AppCount, 3));
         Assert.Equal("5 приложений", Strings.Plural(Locale.Ru, Str.Shortcut_AppCount, 5));
         Assert.Equal("21 приложение", Strings.Plural(Locale.Ru, Str.Shortcut_AppCount, 21));
-        Assert.Equal("2 تطبيقان", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 2));
-        Assert.Equal("5 تطبيقات", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 5));
-        Assert.Equal("11 تطبيقًا", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 11));
-        Assert.Equal("100 تطبيق", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 100));
+        // The count goes through LocaleFormat, so Arabic gets Arabic-Indic digits ([S-1115]).
+        Assert.Equal("٢ تطبيقان", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 2));
+        Assert.Equal("٥ تطبيقات", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 5));
+        Assert.Equal("١١ تطبيقًا", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 11));
+        Assert.Equal("١٠٠ تطبيق", Strings.Plural(Locale.Ar, Str.Shortcut_AppCount, 100));
     }
 
     [Fact]
@@ -370,7 +377,19 @@ public sealed class LocalizationTests
     [Theory]
     [InlineData("zh-CN", Locale.Zh)]
     [InlineData("zh-Hans-CN", Locale.Zh)]
-    [InlineData("zh-TW", Locale.Zh)]
+    [InlineData("zh-TW", Locale.ZhHant)]
+    [InlineData("zh-HK", Locale.ZhHant)]
+    [InlineData("zh-MO", Locale.ZhHant)]
+    [InlineData("zh-Hant", Locale.ZhHant)]
+    [InlineData("zh-Hant-TW", Locale.ZhHant)]
+    [InlineData("zh_TW", Locale.ZhHant)]
+    [InlineData("zh-Hans-HK", Locale.Zh)]
+    [InlineData("zh-SG", Locale.Zh)]
+    [InlineData("zh", Locale.Zh)]
+    [InlineData("ko-KR", Locale.Ko)]
+    [InlineData("nl-NL", Locale.Nl)]
+    [InlineData("nl-BE", Locale.Nl)]
+    [InlineData("tr-TR", Locale.Tr)]
     [InlineData("de-CH", Locale.De)]
     [InlineData("DE", Locale.De)]
     [InlineData("pt_BR", Locale.Pt)]
@@ -393,7 +412,7 @@ public sealed class LocalizationTests
         => Assert.Equal(expected, LanguageResolver.FromTag(tag));
 
     [Theory]
-    [InlineData("nl-NL")]
+    [InlineData("sv-SE")]
     [InlineData("")]
     [InlineData("dei")]
     [InlineData("-de")]
@@ -403,17 +422,17 @@ public sealed class LocalizationTests
     [Fact]
     public void S1108_system_takes_the_first_supported_preference_else_english()
     {
-        Assert.Equal(Locale.De, LanguageResolver.Resolve(AppLanguage.System, ["nl-NL", "de-DE", "fr-FR"]));
-        Assert.Equal(Locale.En, LanguageResolver.Resolve(AppLanguage.System, ["nl-NL", "sv-SE"]));
+        Assert.Equal(Locale.De, LanguageResolver.Resolve(AppLanguage.System, ["sv-SE", "de-DE", "fr-FR"]));
+        Assert.Equal(Locale.En, LanguageResolver.Resolve(AppLanguage.System, ["sv-SE", "fi-FI"]));
         Assert.Equal(Locale.En, LanguageResolver.Resolve(AppLanguage.System, []));
         Assert.Equal(Locale.Ja, LanguageResolver.Resolve(AppLanguage.Japanese, ["de-DE"]));
         Assert.Equal(Locale.En, LanguageResolver.Resolve(AppLanguage.English, ["de-DE"]));
     }
 
     [Fact]
-    public void S1112_seventeen_languages_and_each_setting_round_trips()
+    public void S1112_twenty_one_languages_and_each_setting_round_trips()
     {
-        Assert.Equal(17, LanguageResolver.All.Count);
+        Assert.Equal(21, LanguageResolver.All.Count);
         Assert.Equal(LanguageResolver.All.Count, Enum.GetValues<Locale>().Length);
         Assert.Equal(LanguageResolver.All.Count + 1, Enum.GetValues<AppLanguage>().Length);
         foreach (var locale in LanguageResolver.All)
@@ -450,13 +469,17 @@ public sealed class LocalizationTests
     [InlineData(Locale.Pt, "04/10/2026", "4 de out. de 2026", "4 de outubro de 2026", "domingo, 4 de outubro de 2026", "4 de outubro", "4 de out.", "outubro de 2026", "dom., 4 de out.")]
     [InlineData(Locale.Zh, "2026/10/4", "2026年10月4日", "2026年10月4日", "2026年10月4日星期日", "10月4日", "10月4日", "2026年10月", "10月4日周日")]
     [InlineData(Locale.Hi, "4/10/2026", "4 अक्तू॰ 2026", "4 अक्तूबर 2026", "रविवार, 4 अक्तूबर 2026", "4 अक्तूबर", "4 अक्तू॰", "अक्तूबर 2026", "रवि, 4 अक्तू॰")]
-    [InlineData(Locale.Ar, "4/10/2026", "04/10/2026", "4 أكتوبر 2026", "الأحد، 4 أكتوبر 2026", "4 أكتوبر", "4 أكتوبر", "أكتوبر 2026", "الأحد، 4 أكتوبر")]
+    [InlineData(Locale.Ar, "٤/١٠/٢٠٢٦", "٠٤/١٠/٢٠٢٦", "٤ أكتوبر ٢٠٢٦", "الأحد، ٤ أكتوبر ٢٠٢٦", "٤ أكتوبر", "٤ أكتوبر", "أكتوبر ٢٠٢٦", "الأحد، ٤ أكتوبر")]
     [InlineData(Locale.Bn, "4/10/2026", "4 অক্টো, 2026", "4 অক্টোবর, 2026", "রবিবার, 4 অক্টোবর, 2026", "4 অক্টোবর", "4 অক্টো", "অক্টোবর 2026", "রবি, 4 অক্টো")]
     [InlineData(Locale.Ru, "04.10.2026", "4 окт. 2026 г.", "4 октября 2026 г.", "воскресенье, 4 октября 2026 г.", "4 октября", "4 окт.", "октябрь 2026 г.", "вс, 4 окт.")]
     [InlineData(Locale.Id, "04/10/2026", "4 Okt 2026", "4 Oktober 2026", "Minggu, 04 Oktober 2026", "4 Oktober", "4 Okt", "Oktober 2026", "Min, 4 Okt")]
     [InlineData(Locale.Ur, "4/10/2026", "4 اکتوبر، 2026", "4 اکتوبر، 2026", "اتوار، 4 اکتوبر، 2026", "4 اکتوبر", "4 اکتوبر", "اکتوبر 2026", "اتوار، 4 اکتوبر")]
     [InlineData(Locale.Mr, "4/10/2026", "4 ऑक्टो, 2026", "4 ऑक्टोबर, 2026", "रविवार, 4 ऑक्टोबर, 2026", "4 ऑक्टोबर", "4 ऑक्टो", "ऑक्टोबर 2026", "रवि, 4 ऑक्टो")]
     [InlineData(Locale.Vi, "04/10/2026", "4 thg 10, 2026", "4 tháng 10, 2026", "Chủ Nhật, 4 tháng 10, 2026", "4 tháng 10", "4 thg 10", "Tháng 10 năm 2026", "CN, 4 thg 10")]
+    [InlineData(Locale.Ko, "2026. 10. 4.", "2026. 10. 4.", "2026년 10월 4일", "2026년 10월 4일 일요일", "10월 4일", "10월 4일", "2026년 10월", "10월 4일 (일)")]
+    [InlineData(Locale.Nl, "04-10-2026", "4 okt 2026", "4 oktober 2026", "zondag 4 oktober 2026", "4 oktober", "4 okt", "oktober 2026", "zo 4 okt")]
+    [InlineData(Locale.Tr, "4.10.2026", "4 Eki 2026", "4 Ekim 2026", "4 Ekim 2026 Pazar", "4 Ekim", "4 Eki", "Ekim 2026", "4 Eki Paz")]
+    [InlineData(Locale.ZhHant, "2026/10/4", "2026年10月4日", "2026年10月4日", "2026年10月4日 星期日", "10月4日", "10月4日", "2026年10月", "10月4日 週日")]
     public void S1106_dates_per_language(Locale locale, string shortDate, string medium, string longDate, string full, string monthDay, string monthDayShort, string monthYear, string weekdayShort)
     {
         Assert.Equal(shortDate, LocaleFormat.Date(locale, Sunday, DateStyle.Short));
@@ -480,13 +503,17 @@ public sealed class LocalizationTests
     [InlineData(Locale.Pt, "15:05", "15:05", "15:05:09", "12:30 AM")]
     [InlineData(Locale.Zh, "15:05", "15:05", "15:05:09", "上午12:30")]
     [InlineData(Locale.Hi, "3:05 pm", "15:05", "3:05:09 pm", "12:30 am")]
-    [InlineData(Locale.Ar, "3:05 م", "15:05", "3:05:09 م", "12:30 ص")]
+    [InlineData(Locale.Ar, "٣:٠٥ م", "١٥:٠٥", "٣:٠٥:٠٩ م", "١٢:٣٠ ص")]
     [InlineData(Locale.Bn, "3:05 PM", "15:05", "3:05:09 PM", "12:30 AM")]
     [InlineData(Locale.Ru, "15:05", "15:05", "15:05:09", "12:30 AM")]
     [InlineData(Locale.Id, "15.05", "15.05", "15.05.09", "12.30 AM")]
     [InlineData(Locale.Ur, "3:05 PM", "15:05", "3:05:09 PM", "12:30 AM")]
     [InlineData(Locale.Mr, "3:05 PM", "15:05", "3:05:09 PM", "12:30 AM")]
     [InlineData(Locale.Vi, "15:05", "15:05", "15:05:09", "12:30 SA")]
+    [InlineData(Locale.Ko, "오후 3:05", "15:05", "오후 3:05:09", "오전 12:30")]
+    [InlineData(Locale.Nl, "15:05", "15:05", "15:05:09", "12:30 a.m.")]
+    [InlineData(Locale.Tr, "15:05", "15:05", "15:05:09", "ÖÖ 12:30")]
+    [InlineData(Locale.ZhHant, "下午3:05", "15:05", "下午3:05:09", "上午12:30")]
     public void S1106_times_per_language(Locale locale, string localeDefault, string h24, string withSeconds, string halfPastMidnight12)
     {
         var afternoon = new TimeOnly(15, 5, 9);
@@ -518,13 +545,17 @@ public sealed class LocalizationTests
     [InlineData(Locale.Pt, "1.234.567,89", "1.234", "-1.234,5")]
     [InlineData(Locale.Zh, "1,234,567.89", "1,234", "-1,234.5")]
     [InlineData(Locale.Hi, "12,34,567.89", "1,234", "-1,234.5")]
-    [InlineData(Locale.Ar, "1,234,567.89", "1,234", "-1,234.5")]
+    [InlineData(Locale.Ar, "١٬٢٣٤٬٥٦٧٫٨٩", "١٬٢٣٤", "-١٬٢٣٤٫٥")]
     [InlineData(Locale.Bn, "12,34,567.89", "1,234", "-1,234.5")]
     [InlineData(Locale.Ru, "1\u00A0234\u00A0567,89", "1\u00A0234", "-1\u00A0234,5")]
     [InlineData(Locale.Id, "1.234.567,89", "1.234", "-1.234,5")]
     [InlineData(Locale.Ur, "1,234,567.89", "1,234", "-1,234.5")]
     [InlineData(Locale.Mr, "12,34,567.89", "1,234", "-1,234.5")]
     [InlineData(Locale.Vi, "1.234.567,89", "1.234", "-1.234,5")]
+    [InlineData(Locale.Ko, "1,234,567.89", "1,234", "-1,234.5")]
+    [InlineData(Locale.Nl, "1.234.567,89", "1.234", "-1.234,5")]
+    [InlineData(Locale.Tr, "1.234.567,89", "1.234", "-1.234,5")]
+    [InlineData(Locale.ZhHant, "1,234,567.89", "1,234", "-1,234.5")]
     public void S1106_numbers_per_language(Locale locale, string big, string fourDigits, string negative)
     {
         Assert.Equal(big, LocaleFormat.Number(locale, 1234567.891, 2));
@@ -552,6 +583,8 @@ public sealed class LocalizationTests
         Assert.Equal("123", LocaleFormat.Integer(Locale.Bn, 123));
         Assert.Equal("-12,34,567", LocaleFormat.Integer(Locale.Hi, -1234567));
         Assert.Equal($"42{Nbsp}%", LocaleFormat.Percent(Locale.Ru, 42));
+        Assert.Equal("%42", LocaleFormat.Percent(Locale.Tr, 42));
+        Assert.Equal("٤٢٪", LocaleFormat.Percent(Locale.Ar, 42));
     }
 
     [Fact]
@@ -584,6 +617,10 @@ public sealed class LocalizationTests
     [InlineData(Locale.Ur, "جنوری", "جنوری", "پیر", "پیر", "پ", DayOfWeek.Monday)]
     [InlineData(Locale.Mr, "जानेवारी", "जाने", "सोमवार", "सोम", "सो", DayOfWeek.Sunday)]
     [InlineData(Locale.Vi, "Tháng 1", "Thg 1", "Thứ Hai", "Th 2", "T2", DayOfWeek.Monday)]
+    [InlineData(Locale.Ko, "1월", "1월", "월요일", "월", "월", DayOfWeek.Sunday)]
+    [InlineData(Locale.Nl, "januari", "jan", "maandag", "ma", "M", DayOfWeek.Monday)]
+    [InlineData(Locale.Tr, "Ocak", "Oca", "Pazartesi", "Pzt", "P", DayOfWeek.Monday)]
+    [InlineData(Locale.ZhHant, "1月", "1月", "星期一", "週一", "一", DayOfWeek.Sunday)]
     public void S1106_names_and_first_day_per_language(Locale locale, string january, string jan, string monday, string mon, string m, DayOfWeek firstDay)
     {
         Assert.Equal(january, LocaleFormat.MonthName(locale, 1));
@@ -646,13 +683,17 @@ public sealed class LocalizationTests
     [InlineData(Locale.Pt, "há 3 minutos", "há 1 minuto", "em 2 dias", "agora")]
     [InlineData(Locale.Zh, "3分钟前", "1分钟前", "2天后", "现在")]
     [InlineData(Locale.Hi, "3 मिनट पहले", "1 मिनट पहले", "2 दिन में", "अभी")]
-    [InlineData(Locale.Ar, "قبل 3 دقائق", "قبل دقيقة واحدة", "خلال يومين", "الآن")]
+    [InlineData(Locale.Ar, "قبل ٣ دقائق", "قبل دقيقة واحدة", "خلال يومين", "الآن")]
     [InlineData(Locale.Bn, "3 মিনিট আগে", "1 মিনিট আগে", "2 দিনের মধ্যে", "এখন")]
     [InlineData(Locale.Ru, "3 минуты назад", "1 минуту назад", "через 2 дня", "сейчас")]
     [InlineData(Locale.Id, "3 menit yang lalu", "1 menit yang lalu", "dalam 2 hari", "sekarang")]
     [InlineData(Locale.Ur, "3 منٹ پہلے", "1 منٹ پہلے", "2 دن میں", "ابھی")]
     [InlineData(Locale.Mr, "3 मिनिटांपूर्वी", "1 मिनिटापूर्वी", "2 दिवसांमध्ये", "आत्ता")]
     [InlineData(Locale.Vi, "3 phút trước", "1 phút trước", "sau 2 ngày", "bây giờ")]
+    [InlineData(Locale.Ko, "3분 전", "1분 전", "2일 후", "지금")]
+    [InlineData(Locale.Nl, "3 minuten geleden", "1 minuut geleden", "over 2 dagen", "nu")]
+    [InlineData(Locale.Tr, "3 dakika önce", "1 dakika önce", "2 gün sonra", "şimdi")]
+    [InlineData(Locale.ZhHant, "3 分鐘前", "1 分鐘前", "2 天後", "現在")]
     public void S1107_relative_times_per_language(Locale locale, string threeMinutesAgo, string oneMinuteAgo, string inTwoDays, string now)
     {
         var at = new DateTimeOffset(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
@@ -678,8 +719,70 @@ public sealed class LocalizationTests
         Assert.Equal("5 минут назад", LocaleFormat.Relative(Locale.Ru, RelativeUnit.Minute, -5));
         Assert.Equal("21 минуту назад", LocaleFormat.Relative(Locale.Ru, RelativeUnit.Minute, -21));
         Assert.Equal("через 5 лет", LocaleFormat.Relative(Locale.Ru, RelativeUnit.Year, 5));
-        Assert.Equal("قبل 11 دقيقة", LocaleFormat.Relative(Locale.Ar, RelativeUnit.Minute, -11));
-        Assert.Equal("قبل 100 يوم", LocaleFormat.Relative(Locale.Ar, RelativeUnit.Day, -100));
+        Assert.Equal("قبل ١١ دقيقة", LocaleFormat.Relative(Locale.Ar, RelativeUnit.Minute, -11));
+        Assert.Equal("قبل ١٠٠ يوم", LocaleFormat.Relative(Locale.Ar, RelativeUnit.Day, -100));
+    }
+
+    // -----------------------------------------------------------------------------------------
+    // [S-1115] Native digits
+    // -----------------------------------------------------------------------------------------
+
+    [Fact]
+    public void S1115_only_arabic_writes_its_own_digits()
+    {
+        Assert.Equal([Locale.Ar], LanguageResolver.All.Where(LocaleFormat.HasNativeDigits));
+        Assert.Equal("٠١٢٣٤٥٦٧٨٩", LocaleFormat.Digits(Locale.Ar, "0123456789"));
+        Assert.Equal("0123456789", LocaleFormat.Digits(Locale.Ur, "0123456789"));
+        Assert.Equal("0123456789", LocaleFormat.Digits(Locale.Bn, "0123456789"));
+        Assert.Equal("09:41", LocaleFormat.Digits(Locale.En, "09:41"));
+    }
+
+    [Fact]
+    public void S1115_mapping_touches_only_ascii_digits_and_keeps_the_length()
+    {
+        const string mixed = "UTC+5:30 Teams ٣ x9";
+        var mapped = LocaleFormat.Digits(Locale.Ar, mixed);
+        Assert.Equal("UTC+٥:٣٠ Teams ٣ x٩", mapped);
+        Assert.Equal(mixed.Length, mapped.Length);
+        Assert.Equal(string.Empty, LocaleFormat.Digits(Locale.Ar, string.Empty));
+    }
+
+    /// <summary>
+    /// Regression: an agenda row's "09:00–09:15 · Teams" came out with Latin digits in Arabic,
+    /// because the layout's contextual substitution follows the Latin word beside the time.
+    /// </summary>
+    [Fact]
+    public void S1115_a_time_range_beside_latin_text_keeps_arabic_digits()
+    {
+        var start = LocaleFormat.Time(Locale.Ar, new TimeOnly(9, 0), HourCycle.H24);
+        var end = LocaleFormat.Time(Locale.Ar, new TimeOnly(9, 15), HourCycle.H24);
+        var row = $"{start}–{end} · Teams";
+
+        Assert.Equal("٠٩:٠٠–٠٩:١٥ · Teams", row);
+        Assert.DoesNotContain(row, char.IsAsciiDigit);
+    }
+
+    [Fact]
+    public void S1115_every_arabic_format_is_free_of_latin_digits()
+    {
+        var at = new DateTimeOffset(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
+        foreach (var style in Enum.GetValues<DateStyle>())
+        {
+            Assert.DoesNotContain(LocaleFormat.Date(Locale.Ar, Sunday, style), char.IsAsciiDigit);
+        }
+
+        Assert.DoesNotContain(LocaleFormat.Time(Locale.Ar, new TimeOnly(23, 59, 58), HourCycle.H12, seconds: true), char.IsAsciiDigit);
+        Assert.DoesNotContain(LocaleFormat.Relative(Locale.Ar, at.AddDays(-12), at), char.IsAsciiDigit);
+        Assert.DoesNotContain(LocaleFormat.Number(Locale.Ar, 1234567.25, 2), char.IsAsciiDigit);
+        Assert.DoesNotContain(Strings.Format(Locale.Ar, Str.WidgetsB_Time_MinutesCompact, ("count", 42L)), char.IsAsciiDigit);
+    }
+
+    [Fact]
+    public void S1115_latin_digit_languages_are_unchanged()
+    {
+        Assert.Equal("09:00", LocaleFormat.Time(Locale.Ur, new TimeOnly(9, 0), HourCycle.H24));
+        Assert.Equal("09:00", LocaleFormat.Time(Locale.Bn, new TimeOnly(9, 0), HourCycle.H24));
+        Assert.Equal("1,234", LocaleFormat.Integer(Locale.Ur, 1234));
     }
 }
 

@@ -74,27 +74,46 @@ public class WeatherLayoutTests
     }
 
     [Fact]
-    public void S723_a_large_tile_has_no_hourly_chart_and_the_reading_takes_the_room()
+    public void S723_a_large_tile_puts_the_readings_beside_the_reading_not_under_a_dead_band()
     {
-        // The next hours are the forecast widget's job (user decision, concise widgets): what the
-        // cells and today's line leave goes to the reading, uncapped.
+        // [S-668] Under the reading the cells left a band of nothing between the number and them at
+        // L; beside it they are one column of stat lines and the reading keeps the height.
         var plan = Now(L);
 
-        Assert.Equal(WeatherDetailMode.Cells, plan.Detail);
+        Assert.Equal(WeatherDetailMode.Side, plan.Detail);
+        Assert.Equal(1, plan.FactColumns);
+        Assert.Equal(10, plan.FactCount);
+        Assert.True(plan.HighLow);
         Assert.True(plan.HeroRoom > 92 + 20 + 16, $"hero {plan.HeroRoom}");
     }
 
     [Fact]
-    public void S723_the_largest_tile_adds_a_second_row_of_cells_and_no_next_days()
+    public void S723_the_largest_tile_shows_every_reading_and_no_next_days()
     {
         // The next days are the forecast widget's job: the largest tile gives the room to the
         // readings and the reading instead (user decision, concise widgets).
         var plan = Now(Xl);
 
-        Assert.Equal(WeatherDetailMode.Cells, plan.Detail);
+        Assert.Equal(WeatherDetailMode.Side, plan.Detail);
         Assert.Equal(10, plan.FactCount);
-        Assert.True(plan.HeroRoom > Now(L).HeroRoom);
+        Assert.True(plan.HeroRoom >= Now(L).HeroRoom);
     }
+
+    [Theory]
+    [InlineData(560, 376)]
+    [InlineData(800, 516)]
+    [InlineData(480, 116)]
+    public void S723_the_readings_beside_never_overrun_the_tile(double width, double height)
+    {
+        var plan = Now(new WidgetArea(width, height));
+        var perColumn = (plan.FactCount + plan.FactColumns - 1) / plan.FactColumns;
+
+        Assert.True(perColumn * WeatherNowLayout.StatLine <= height - (2 * WeatherNowLayout.VerticalInset) + 0.5);
+    }
+
+    [Fact]
+    public void S723_a_medium_tile_keeps_its_cells_under_the_reading()
+        => Assert.Equal(WeatherDetailMode.Cells, Now(M).Detail);
 
     [Fact]
     public void S723_growing_a_square_tile_only_ever_adds_readings()

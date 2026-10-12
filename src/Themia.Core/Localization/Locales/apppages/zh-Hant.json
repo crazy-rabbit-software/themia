@@ -1,0 +1,48 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.views.reorderHint": "將檢視拖曳到另一個檢視上即可移動，或在檢視上按 Alt+Shift+向上鍵或向下鍵。",
+  "shell.list.reorderHint": "將項目拖曳到另一個項目上即可移動，或在項目上按 Alt+Shift+向上鍵或向下鍵。",
+  "shell.view.colour": "色彩",
+  "shell.view.colourDesc": "圖示在檢視列和此視窗中的色彩",
+  "shell.view.colourDefault": "文字色彩",
+  "shell.appearance.themeColours": "佈景主題和色彩",
+  "shell.appearance.cards": "小工具卡片",
+  "shell.appearance.cardsDesc": "框線、圓角和外框",
+  "shell.appearance.textAndSize": "文字和大小",
+  "shell.appearance.textAndSizeDesc": "字型、文字大小和小工具縮放",
+  "shell.appearance.layoutDesc": "小工具間距和對齊格線",
+  "shell.net.blockedLocal": "{host} 位於區域網路。Themia 只會連線到您親自輸入的位址",
+  "shell.accounts.stats.mail": "郵件",
+  "shell.accounts.stats.calendar": "行事曆",
+  "shell.accounts.stats.contacts": "連絡人",
+  "shell.accounts.stats.tasks": "工作",
+  "shell.accounts.stats.messages": {
+    "other": "{count} 封郵件"
+  },
+  "shell.accounts.stats.events": {
+    "other": "{count} 個活動"
+  },
+  "shell.accounts.stats.people": {
+    "other": "{count} 位連絡人"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "{count} 項工作"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "在 {count} 個資料夾中"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "在 {count} 個行事曆中"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "在 {count} 個清單中"
+  },
+  "shell.accounts.stats.synced": "{time}同步",
+  "shell.accounts.stats.neverSynced": "尚未同步",
+  "shell.accounts.stats.nothing": "此電腦上尚未儲存任何內容",
+  "shell.accounts.nicknameDesc": "小工具為此帳戶顯示的名稱",
+  "shell.accounts.reconnect": "重新登入",
+  "shell.accounts.reconnectButton": "登入",
+  "shell.accounts.signOutDesc": "移除此帳戶，以及此電腦上從該帳戶同步的所有內容",
+  "shell.accounts.needsSignIn": "需要重新登入"
+}

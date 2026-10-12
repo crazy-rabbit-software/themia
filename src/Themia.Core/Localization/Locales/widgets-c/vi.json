@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "Hoàn tác",
   "widgetsC.notes.editor.redo": "Làm lại",
+  "widgetsC.notes.editor.moreFormatting": "Định dạng khác",
   "widgetsC.notes.words": {
     "other": "{count} từ"
   },
@@ -409,8 +410,6 @@
   "widgetsC.agenda.desc": "Những gì sắp diễn ra, theo từng ngày",
   "widgetsC.moon.label": "Mặt trăng",
   "widgetsC.moon.desc": "Pha trăng, giờ trăng mọc và lặn",
-  "widgetsC.visualizer.label": "Hiển thị âm thanh",
-  "widgetsC.visualizer.desc": "Các thanh chuyển động theo âm thanh PC này phát",
   "widgetsC.visualizer.unavailable": "Đầu ra âm thanh không khả dụng",
   "widgetsC.moon.rise": "Trăng mọc",
   "widgetsC.moon.set": "Trăng lặn",
@@ -449,6 +448,10 @@
   "widgetsC.stocks.settings.windowsRed": "Đỏ Windows",
   "widgetsC.stocks.settings.symbolRefused": "Chọn một kết quả tìm kiếm, hoặc nhập mã: chỉ chữ, số và . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{class} trên {exchange}",
+  "widgetsC.stocks.settings.holding.label": "Số lượng sở hữu",
+  "widgetsC.stocks.settings.holding.desc": "Số lượng bạn nắm giữ; tiện ích hiển thị giá trị của chúng. Để trống để ẩn",
+  "widgetsC.stocks.settings.holding.refused": "Nhập số lượng từ 0 trở lên, ví dụ {example}",
+  "widgetsC.stocks.holding.line": "Nắm giữ {amount} · {value}",
   "widgetsC.location.recycleBin": "Thùng rác",
   "widgetsC.location.thisPc": "PC này",
   "widgetsC.location.downloads": "Tải xuống",

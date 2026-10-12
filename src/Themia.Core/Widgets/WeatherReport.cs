@@ -118,6 +118,20 @@ public static class WeatherReport
         return $"{Whole(number)}{UnitSymbol(unit)}";
     }
 
+    /// <summary>
+    /// [S-667] A temperature split for the hero readout: the number ("14", "-3") and the unit
+    /// ("°C") it is drawn smaller beside. "--" and no unit when there is no reading.
+    /// </summary>
+    public static (string Number, string Unit) TemperatureParts(double? value, TemperatureUnit unit)
+    {
+        if (value is not { } number || !double.IsFinite(number))
+        {
+            return ("--", string.Empty);
+        }
+
+        return (Whole(number), UnitSymbol(unit));
+    }
+
     /// <summary>A temperature with no unit, for a column where the unit is on the heading.</summary>
     public static string Degrees(double? value)
     {

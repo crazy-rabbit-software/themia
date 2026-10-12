@@ -1,0 +1,205 @@
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Themia.App.Services;
+using Themia.App.Widgets;
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Core.Widgets;
+using Windows.System;
+
+namespace Themia.App.Shell.Config;
+
+/// <summary>
+/// [S-4631] The Alarm settings: the alarms (each its time, its name, the days it repeats on and its
+/// switch), then the sound, its level and the snooze. Every row writes the live config and saves; the
+/// save is a state change, which the alarm service syncs from at once.
+/// </summary>
+internal static partial class WidgetSettings
+{
+    public static void Alarm(List<FrameworkElement> rows, AlarmConfig config, Action save)
+    {
+        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(save);
+
+        rows.Add(FluentLayout.Header(Str.Alarm_Settings_Section.Text()));
+
+        FluentLayout.ListEditor(rows, new ListEditorOptions<AlarmEntry>
+        {
+            Items = config.Alarms,
+            Save = save,
+            EmptyText = Str.Alarm_Settings_Empty.Text(),
+            AddTitle = Str.Alarm_Settings_Add_Label.Text(),
+            AddDescription = Str.Alarm_Settings_Add_Desc.Text(),
+            AddAction = Str.Common_Add.Text(),
+            RemoveTooltip = Str.Alarm_Settings_Remove.Text(),
+            Capacity = AlarmConfig.MostAlarms,
+
+            // A new alarm is on: adding one is asking for it to ring.
+            Create = () => new AlarmEntry { On = true },
+            Body = alarm => AlarmBody(alarm, save),
+        });
+
+        // [S-4627] Said where alarms are set: they ring only while Themia runs.
+        rows.Add(FluentLayout.Note(Str.Alarm_Settings_WhileRunning.Text()));
+
+        FrameworkElement? volumeRow = null;
+        rows.Add(FluentLayout.Row(Glyphs.Sound, Str.Alarm_Settings_Sound_Label.Text(), Str.Alarm_Settings_Sound_Desc.Text(),
+            FluentLayout.Choice(
+                PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound))).ToArray(),
+                config.Sound,
+                value =>
+                {
+                    config.Sound = value;
+                    save();
+                    volumeRow!.Visibility = value == AlarmSound.Off ? Visibility.Collapsed : Visibility.Visible;
+                    PreviewRing(config);
+                }),
+            "ringtone", "ring", "sound"));
+
+        volumeRow = FluentLayout.Row(Glyphs.Volume, Str.Alarm_Settings_Volume_Label.Text(), Str.Alarm_Settings_Volume_Desc.Text(),
+            FluentLayout.Slider(config.EffectiveVolume, 0, 100, 1, "%",
+                value => { config.Volume = (int)Math.Round(value); save(); PreviewRing(config); }),
+            "volume", "loud");
+        volumeRow.Visibility = config.Sound == AlarmSound.Off ? Visibility.Collapsed : Visibility.Visible;
+        rows.Add(volumeRow);
+
+        rows.Add(FluentLayout.Row(Glyphs.Alarm, Str.Alarm_Settings_Snooze_Label.Text(), Str.Alarm_Settings_Snooze_Desc.Text(),
+            FluentLayout.Slider(Math.Clamp(config.SnoozeMinutes, AlarmConfig.MinSnooze, AlarmConfig.MaxSnooze), AlarmConfig.MinSnooze, AlarmConfig.MaxSnooze, 1,
+                Str.WidgetsC_Pomodoro_MinutesUnit.Text(),
+                value => { config.SnoozeMinutes = (int)Math.Round(value); save(); }),
+            "snooze"));
+
+        // Played once, not looped: a choice made by ear, and the single-flight player stops it at the next.
+        static void PreviewRing(AlarmConfig config)
+            => CuePlayer.Play(PomodoroSounds.Wave(config.Sound, PomodoroPhase.Work, config.EffectiveVolume));
+    }
+
+    /// <summary>One alarm's editor: its switch and time, its name, and the days it repeats on.</summary>
+    private static FrameworkElement AlarmBody(AlarmEntry alarm, Action save)
+    {
+        var locale = Strings.Current;
+        var minutes = AlarmTimes.Minutes(alarm.Time);
+
+        var time = new TimePicker
+        {
+            SelectedTime = TimeSpan.FromMinutes(minutes),
+            ClockIdentifier = LocaleFormat.Uses24Hour(locale) ? "24HourClock" : "12HourClock",
+            MinuteIncrement = 1,
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+
+        time.SelectedTimeChanged += (_, _) =>
+        {
+            // A cleared picker leaves the alarm where it was.
+            if (time.SelectedTime is not { } picked)
+            {
+                return;
+            }
+
+            var text = AlarmTimes.Text((int)Math.Round(picked.TotalMinutes));
+            if (text == alarm.Time)
+            {
+                return;
+            }
+
+            alarm.Time = text;
+            save();
+        };
+
+        var on = FluentLayout.Toggle(alarm.On, value =>
+        {
+            alarm.On = value;
+            save();
+        });
+
+        var label = new TextBox
+        {
+            Text = alarm.Label,
+            PlaceholderText = Str.Alarm_Settings_NamePlaceholder.Text(),
+            MaxLength = AlarmEntry.MostName,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+        };
+
+        // On lost focus and on Enter, never per keystroke.
+        void CommitLabel()
+        {
+            var text = label.Text.Trim();
+            if (text == alarm.Label)
+            {
+                return;
+            }
+
+            alarm.Label = text;
+            save();
+        }
+
+        label.LostFocus += (_, _) => CommitLabel();
+        label.KeyDown += (_, args) =>
+        {
+            if (args.Key == VirtualKey.Enter)
+            {
+                CommitLabel();
+                args.Handled = true;
+            }
+        };
+
+        // [S-4621] A button per day, in the language's week.
+        var days = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
+        foreach (var day in AlarmDays.From(LocaleFormat.FirstDayOfWeek(locale)))
+        {
+            var button = new ToggleButton
+            {
+                Content = LocaleFormat.WeekdayName(locale, day, NameWidth.Short),
+                IsChecked = AlarmDays.Has(AlarmDays.Mask(alarm.Days), day),
+                MinWidth = 44,
+                Padding = new Thickness(Fluent.Space1, Fluent.Space1, Fluent.Space1, Fluent.Space1),
+            };
+
+            var each = day;
+            button.Click += (_, _) =>
+            {
+                var mask = AlarmDays.Mask(alarm.Days);
+                mask = button.IsChecked == true ? mask | AlarmDays.Bit(each) : mask & ~AlarmDays.Bit(each);
+                alarm.Days = AlarmDays.Of(mask);
+                save();
+            };
+
+            days.Children.Add(button);
+        }
+
+        var top = new Grid { ColumnSpacing = Fluent.Space2 };
+        // The picker at its own width (hours, minutes and, on a 12-hour clock, AM/PM); the name takes the rest.
+        top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        Grid.SetColumn(label, 1);
+        Grid.SetColumn(on, 2);
+        on.VerticalAlignment = VerticalAlignment.Center;
+        top.Children.Add(time);
+        top.Children.Add(label);
+        top.Children.Add(on);
+
+        var repeat = Fluent.Text(Themia.Core.Widgets.FluentType.Caption, "TextFillColorSecondaryBrush");
+        repeat.Text = Str.Alarm_Settings_Repeat.Text();
+        repeat.Margin = new Thickness(0, Fluent.Space2, 0, Fluent.Space1);
+
+        return new StackPanel
+        {
+            Children =
+            {
+                top,
+                repeat,
+                new ScrollViewer
+                {
+                    Content = days,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                    HorizontalScrollMode = ScrollMode.Auto,
+                    VerticalScrollMode = ScrollMode.Disabled,
+                },
+            },
+        };
+    }
+}

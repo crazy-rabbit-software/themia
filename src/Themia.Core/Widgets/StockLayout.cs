@@ -6,12 +6,14 @@ namespace Themia.Core.Widgets;
 /// <param name="Chart">A chart is wanted and there are at least two bars.</param>
 /// <param name="Extended">An extended-hours print is to be shown.</param>
 /// <param name="MinMax">The high and low markers are switched on.</param>
+/// <param name="Holding">[S-2777] A holding is set and priced: its worth wants a caption line.</param>
 public readonly record struct StockInputs(
     double PriceCharacters,
     double ExtrasCharacters,
     bool Chart,
     bool Extended,
-    bool MinMax);
+    bool MinMax,
+    bool Holding = false);
 
 /// <summary>One layout of the stock widget.</summary>
 public readonly record struct StockPlan(
@@ -26,7 +28,8 @@ public readonly record struct StockPlan(
     bool Chart,
     double ChartHeight,
     bool Labels,
-    bool MinMax);
+    bool MinMax,
+    bool Holding = false);
 
 /// <summary>
 /// [S-1311] The stock widget's disclosure ladder, replacing the fixed chart band (34% of the tile,
@@ -34,6 +37,7 @@ public readonly record struct StockPlan(
 /// <list type="number">
 /// <item>Rung 0 at every size: the price and its signed, coloured change.</item>
 /// <item>The currency and the session glyph from 180px wide; the session's words from 300px.</item>
+/// <item>[S-2777] The holding's worth and move, one caption under the price, from 180px wide.</item>
 /// <item>The extended-hours print under the price, when there is one and a line for it.</item>
 /// <item>The chart, at least 24px, full-bleed: edge to edge and down to the card's bottom edge. The
 /// start and end times (only those) from 128px of height, drawn inside the chart's bottom band;
@@ -52,6 +56,9 @@ public static class StockLayout
     public const double Inset = 16;
     public const double Gap = 4;
     public const double MinChart = 24;
+
+    /// <summary>[S-2777] Below this a tile is the price and its change: the holding is shed first.</summary>
+    public const double HoldingMinWidth = 180;
 
     private static double LabelLine => FluentType.Caption.LineHeight;
 
@@ -76,6 +83,7 @@ public static class StockLayout
             var room = new Disclosure(readout, Math.Max(0, area.Height - (2 * Gap)), Gap);
             room.Reserve(FluentType.Subtitle.LineHeight);
             room.Reserve(FluentType.Body.LineHeight);
+            var holdingBeside = input.Holding && room.Take(LabelLine);
             var extendedBeside = input.Extended && room.Take(LabelLine);
 
             var price = FluentType.Fit(readout, FluentType.Subtitle.LineHeight + room.Remaining, chars, FluentType.Subtitle, Cap(area));
@@ -84,7 +92,7 @@ public static class StockLayout
             var labels = area.Height >= 96;
 
             return new StockPlan(price, ChangeStep(price), true, currency, true, true, readout, extendedBeside,
-                true, chart, labels, input.MinMax && chart >= 48);
+                true, chart, labels, input.MinMax && chart >= 48, holdingBeside);
         }
 
         var budget = new Disclosure(area.Width, Math.Max(0, area.Height - Gap), Gap);
@@ -101,6 +109,7 @@ public static class StockLayout
             budget.Reserve(FluentType.Body.LineHeight);
         }
 
+        var holding = input.Holding && area.Width >= HoldingMinWidth && budget.Take(LabelLine);
         var extended = input.Extended && budget.Take(LabelLine);
 
         var chartWanted = input.Chart && budget.Take(MinChart);
@@ -143,15 +152,15 @@ public static class StockLayout
             chartWanted,
             chartHeight,
             labelsLine,
-            input.MinMax && chartWanted && chartHeight >= 48);
+            input.MinMax && chartWanted && chartHeight >= 48,
+            holding);
     }
 
     /// <summary>
     /// The change steps once, with the price, rather than sliding: next to a 28px number a 14px
     /// line is right, next to a 68px one it is a footnote.
     /// </summary>
-    public static TypeStep ChangeStep(TypeStep price)
-        => price.FontSize >= FluentType.Title.FontSize ? FluentType.BodyLarge : FluentType.Body;
+    public static TypeStep ChangeStep(TypeStep price) => HeroLayout.TrailingStep(price);
 
     /// <summary>How large the price may grow while a chart shares the tile, by the tile's smaller class.</summary>
     private static TypeStep Cap(WidgetArea area) => area.Least switch

@@ -34,6 +34,14 @@ internal sealed unsafe class CommandWindow : IDisposable
     private const uint WmDpiChanged = 0x02E0;
     private const nint SpiSetWorkArea = 0x002F;
 
+    private const uint WmTimeChange = 0x001E;
+    private const uint WmPowerBroadcast = 0x0218;
+    private const uint WmDeviceChange = 0x0219;
+    private const nint PbtResumeSuspend = 0x0007;
+    private const nint PbtResumeAutomatic = 0x0012;
+    private const nint DbtDeviceArrival = 0x8000;
+    private const nint DbtDeviceRemoveComplete = 0x8004;
+
     private static CommandWindow? _instance;
     private static ushort _atom;
 
@@ -54,6 +62,9 @@ internal sealed unsafe class CommandWindow : IDisposable
 
     /// <summary>[S-1011] Registered for session notifications, so <see cref="Dispose"/> unregisters.</summary>
     private bool _sessionRegistered;
+
+    /// <summary>[S-1389] The shell's Recycle Bin notifications to this window; null when the shell refused them.</summary>
+    private RecycleBinNotifications? _recycleBin;
     private bool _disposed;
 
     /// <summary>Raised when the user asks for edit mode, by hotkey or by launching the app again.</summary>
@@ -70,6 +81,21 @@ internal sealed unsafe class CommandWindow : IDisposable
     /// </para>
     /// </summary>
     public event Action? DisplaysChanged;
+
+    /// <summary>
+    /// [S-4655] A volume arrived or left, or a network drive was mapped or dropped: Windows broadcasts
+    /// <c>WM_DEVICECHANGE</c> (DBT_DEVICEARRIVAL / DBT_DEVICEREMOVECOMPLETE) to every top-level window. UI thread.
+    /// </summary>
+    public event Action? VolumesChanged;
+
+    /// <summary>[S-1389] [S-4863] The shell said the Recycle Bin changed (an item in or out, emptied). UI thread.</summary>
+    public event Action? RecycleBinChanged;
+
+    /// <summary>[S-4623] Windows' clock or time zone changed (<c>WM_TIMECHANGE</c>). UI thread.</summary>
+    public event Action? TimeChanged;
+
+    /// <summary>[S-4623] The PC woke from sleep or hibernation (<c>WM_POWERBROADCAST</c> resume). UI thread.</summary>
+    public event Action? Resumed;
 
     /// <summary>[S-1011] The session was unlocked (only that change: not lock, logon or a remote connect). On the UI thread.</summary>
     public event Action? SessionUnlocked;
@@ -187,6 +213,9 @@ internal sealed unsafe class CommandWindow : IDisposable
             Log.Warn(Scope, $"could not listen for the session unlock (win32 {Marshal.GetLastWin32Error()}); the unlock animation will not play");
         }
 
+        // [S-1389] Logged by Register when the shell refuses: the bin is then asked only when a widget shows it.
+        _recycleBin = RecycleBinNotifications.Register(_hwnd);
+
         return true;
     }
 
@@ -238,10 +267,30 @@ internal sealed unsafe class CommandWindow : IDisposable
                     return 0;
                 }
 
+                if (msg == RecycleBinNotifications.Message)
+                {
+                    self.RecycleBinChanged?.Invoke();
+                    return 0;
+                }
+
                 if (SessionNotifications.IsUnlock(msg, wParam))
                 {
                     self.SessionUnlocked?.Invoke();
                     return 0;
+                }
+
+                // Not handled either: DefWindowProc answers each as usual (TRUE for a device query).
+                if (msg == WmDeviceChange && wParam is DbtDeviceArrival or DbtDeviceRemoveComplete)
+                {
+                    self.VolumesChanged?.Invoke();
+                }
+                else if (msg == WmTimeChange)
+                {
+                    self.TimeChanged?.Invoke();
+                }
+                else if (msg == WmPowerBroadcast && wParam is PbtResumeAutomatic or PbtResumeSuspend)
+                {
+                    self.Resumed?.Invoke();
                 }
 
                 if (msg == WmDisplayChange
@@ -292,6 +341,9 @@ internal sealed unsafe class CommandWindow : IDisposable
 
             _sessionRegistered = false;
         }
+
+        _recycleBin?.Dispose();
+        _recycleBin = null;
 
         if (_hwnd != 0)
         {

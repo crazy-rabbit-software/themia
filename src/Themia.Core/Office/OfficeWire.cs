@@ -70,6 +70,36 @@ public sealed class GraphEvent
 
     [JsonPropertyName("webLink")]
     public string? WebLink { get; set; }
+
+    /// <summary>[S-4822] The Teams (or other provider's) meeting, when the event is an online meeting.</summary>
+    [JsonPropertyName("onlineMeeting")]
+    public GraphOnlineMeeting? OnlineMeeting { get; set; }
+
+    /// <summary>[S-4822] The older single join link some events still carry instead.</summary>
+    [JsonPropertyName("onlineMeetingUrl")]
+    public string? OnlineMeetingUrl { get; set; }
+
+    /// <summary>[S-4822] The first 255 characters of the body as text, searched for a join link.</summary>
+    [JsonPropertyName("bodyPreview")]
+    public string? BodyPreview { get; set; }
+
+    /// <summary>[S-4821] The signed-in user's answer to the invitation.</summary>
+    [JsonPropertyName("responseStatus")]
+    public GraphResponseStatus? ResponseStatus { get; set; }
+}
+
+/// <summary>A Graph <c>onlineMeetingInfo</c>.</summary>
+public sealed class GraphOnlineMeeting
+{
+    [JsonPropertyName("joinUrl")]
+    public string? JoinUrl { get; set; }
+}
+
+/// <summary>A Graph <c>responseStatus</c>: <c>none</c>, <c>organizer</c>, <c>accepted</c>, <c>declined</c>, …</summary>
+public sealed class GraphResponseStatus
+{
+    [JsonPropertyName("response")]
+    public string? Response { get; set; }
 }
 
 /// <summary>One entry of Graph <c>/me/calendars</c>.</summary>
@@ -168,6 +198,49 @@ public sealed class GoogleEvent
 
     [JsonPropertyName("organizer")]
     public GooglePerson? Organizer { get; set; }
+
+    /// <summary>[S-4822] The Google Meet link of an event with a Meet room.</summary>
+    [JsonPropertyName("hangoutLink")]
+    public string? HangoutLink { get; set; }
+
+    /// <summary>[S-4822] The conference (Meet, or an add-on's Zoom or Teams) and how to join it.</summary>
+    [JsonPropertyName("conferenceData")]
+    public GoogleConferenceData? ConferenceData { get; set; }
+
+    /// <summary>[S-4822] The description, searched for a join link when the conference fields have none.</summary>
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    /// <summary>[S-4821] The guests; the one marked <c>self</c> is the signed-in user.</summary>
+    [JsonPropertyName("attendees")]
+    public List<GoogleAttendee?>? Attendees { get; set; }
+}
+
+/// <summary>A Google Calendar <c>conferenceData</c>.</summary>
+public sealed class GoogleConferenceData
+{
+    [JsonPropertyName("entryPoints")]
+    public List<GoogleEntryPoint?>? EntryPoints { get; set; }
+}
+
+/// <summary>One way into a conference: <c>video</c>, <c>phone</c>, <c>sip</c> or <c>more</c>.</summary>
+public sealed class GoogleEntryPoint
+{
+    [JsonPropertyName("entryPointType")]
+    public string? EntryPointType { get; set; }
+
+    [JsonPropertyName("uri")]
+    public string? Uri { get; set; }
+}
+
+/// <summary>One guest of a Google event.</summary>
+public sealed class GoogleAttendee
+{
+    [JsonPropertyName("self")]
+    public bool Self { get; set; }
+
+    [JsonPropertyName("responseStatus")]
+    public string? ResponseStatus { get; set; }
 }
 
 /// <summary>One item of Google Calendar <c>calendarList.list</c>.</summary>
@@ -304,6 +377,8 @@ public static class OfficeWire
             Location = Blank(item.Location?.DisplayName),
             Organizer = Blank(item.Organizer?.EmailAddress?.Name) ?? Blank(item.Organizer?.EmailAddress?.Address),
             WebLink = Blank(item.WebLink),
+            JoinUrl = MeetingLinks.Find([item.OnlineMeeting?.JoinUrl, item.OnlineMeetingUrl], item.Location?.DisplayName, item.BodyPreview),
+            Declined = string.Equals(item.ResponseStatus?.Response, "declined", StringComparison.OrdinalIgnoreCase),
         };
     }
 
@@ -340,6 +415,11 @@ public static class OfficeWire
             Location = Blank(item.Location),
             Organizer = Blank(item.Organizer?.DisplayName) ?? Blank(item.Organizer?.Email),
             WebLink = Blank(item.HtmlLink),
+            JoinUrl = MeetingLinks.Find(
+                [item.HangoutLink, .. (item.ConferenceData?.EntryPoints ?? []).Where(p => string.Equals(p?.EntryPointType, "video", StringComparison.OrdinalIgnoreCase)).Select(p => p?.Uri)],
+                item.Location,
+                item.Description),
+            Declined = item.Attendees?.Any(a => a is { Self: true } && string.Equals(a.ResponseStatus, "declined", StringComparison.OrdinalIgnoreCase)) == true,
         };
     }
 

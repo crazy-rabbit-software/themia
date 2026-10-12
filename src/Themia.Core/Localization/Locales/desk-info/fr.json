@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "Progression de l’année",
+  "yearProgress.desc": "Ce qui s’est écoulé de la journée, de la semaine, du mois et de l’année",
+  "yearProgress.day": "Jour",
+  "yearProgress.week": "Semaine",
+  "yearProgress.month": "Mois",
+  "yearProgress.year": "Année",
+  "yearProgress.left": "Reste {time}",
+  "yearProgress.weekNumber": "Semaine {number}",
+  "yearProgress.dayOf": "Jour {day} sur {days}",
+  "meeting.label": "Prochaine réunion",
+  "meeting.desc": "Votre prochain événement, avec Rejoindre pour les réunions en ligne",
+  "meeting.join": "Rejoindre",
+  "meeting.joinTip": "Rejoindre la réunion en ligne",
+  "meeting.nowEnds": "Maintenant · se termine à {time}",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "Rien de prévu",
+  "recentFiles.label": "Fichiers récents",
+  "recentFiles.desc": "Les derniers fichiers que vous avez ouverts",
+  "recentFiles.empty": "Rien d’ouvert récemment",
+  "recentFiles.unreadable": "Impossible de lire les éléments récents de Windows",
+  "recentFiles.remove": "Supprimer de la liste",
+  "recycleBin.desc": "Le remplissage de la Corbeille, avec Vider",
+  "recycleBin.empty": "Vider",
+  "recycleBin.emptyEllipsis": "Vider la Corbeille…",
+  "recycleBin.isEmpty": "Aucun élément",
+  "recycleBin.items": {
+    "one": "{count} élément",
+    "other": "{count} éléments"
+  },
+  "recycleBin.open": "Ouvrir la Corbeille"
+}

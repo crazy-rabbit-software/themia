@@ -18,7 +18,71 @@ public readonly record struct ProcessEntry(int Pid, string Name, long CreateTime
 /// <param name="Cpu">Share of the whole machine since the last read, 0..1.</param>
 /// <param name="Memory">Private working set in bytes.</param>
 /// <param name="Count">How many processes the row stands for (1 ungrouped).</param>
-public readonly record struct ProcessSample(string Name, double Cpu, long Memory, int Count = 1);
+/// <param name="Process">[S-2433] Whose executable the row's icon is (a group's first member); default when unknown.</param>
+public readonly record struct ProcessSample(string Name, double Cpu, long Memory, int Count = 1, ProcessIdentity Process = default);
+
+/// <summary>[S-2414] [S-2433] A process as Windows tells two apart: its pid and when it started (a pid is reused within seconds).</summary>
+public readonly record struct ProcessIdentity(int Pid, long CreateTime);
+
+/// <summary>
+/// [S-2433] Where each listed process's executable is, asked once per process: the path is a kernel
+/// query on a handle, so a list read every second asks only about processes it has not seen before,
+/// and forgets those that have exited. A process Windows will not open (protected, elevated) is
+/// remembered as having no path, so it is not asked again either. One thread (the UI thread's tick).
+/// </summary>
+public sealed class ProcessPathCache
+{
+    /// <summary>A machine runs a few hundred processes; past this the cache starts over rather than grow.</summary>
+    public const int Limit = 2048;
+
+    private readonly Func<int, string?> _resolve;
+    private readonly Dictionary<ProcessIdentity, string?> _paths = [];
+
+    /// <param name="resolve">The executable's path for a pid, or null; called at most once per process.</param>
+    public ProcessPathCache(Func<int, string?> resolve)
+    {
+        ArgumentNullException.ThrowIfNull(resolve);
+        _resolve = resolve;
+    }
+
+    public int Count => _paths.Count;
+
+    /// <summary>The executable of <paramref name="process"/>, or null (unknown, or not to be had).</summary>
+    public string? PathOf(ProcessIdentity process)
+    {
+        if (process.Pid <= 0)
+        {
+            return null;
+        }
+
+        if (_paths.TryGetValue(process, out var known))
+        {
+            return known;
+        }
+
+        if (_paths.Count >= Limit)
+        {
+            _paths.Clear();
+        }
+
+        var path = _resolve(process.Pid);
+        path = string.IsNullOrWhiteSpace(path) ? null : path;
+        _paths[process] = path;
+        return path;
+    }
+
+    /// <summary>Forget every process not in <paramref name="living"/> (the latest snapshot): an exited process's pid will be someone else's.</summary>
+    public void Retain(IEnumerable<ProcessIdentity> living)
+    {
+        ArgumentNullException.ThrowIfNull(living);
+        var keep = new HashSet<ProcessIdentity>(living);
+
+        foreach (var process in _paths.Keys.Where(p => !keep.Contains(p)).ToList())
+        {
+            _paths.Remove(process);
+        }
+    }
+}
 
 /// <summary>
 /// [S-2410]..[S-2414] The process list's rules: reading the kernel's snapshot, turning cumulative
@@ -150,7 +214,7 @@ public static class ProcessTable
         {
             rows = samples
                 .GroupBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
-                .Select(g => new ProcessSample(g.First().Name, Math.Min(1, g.Sum(s => s.Cpu)), g.Sum(s => s.Memory), g.Sum(s => s.Count)));
+                .Select(g => new ProcessSample(g.First().Name, Math.Min(1, g.Sum(s => s.Cpu)), g.Sum(s => s.Memory), g.Sum(s => s.Count), FirstKnown(g)));
         }
 
         return sort == ProcessSort.Memory
@@ -158,11 +222,20 @@ public static class ProcessTable
             : [.. rows.OrderByDescending(s => s.Cpu).ThenByDescending(s => s.Memory).ThenBy(s => s.Name, StringComparer.OrdinalIgnoreCase)];
     }
 
+    /// <summary>A group's icon is its oldest member's: the browser's main process, not a helper that comes and goes.</summary>
+    private static ProcessIdentity FirstKnown(IEnumerable<ProcessSample> group)
+    {
+        var known = group.Where(s => s.Process.Pid > 0).ToList();
+        return known.Count == 0 ? default : known.MinBy(s => s.Process.CreateTime).Process;
+    }
+
     /// <summary>
     /// [S-2412] The rows to list: the ranking cut to <paramref name="maxRows"/> (0 = no ceiling), the
     /// ranked figure first and the other beside it. A group of several shows its count after the name.
+    /// [S-2433] Each row leads with its executable's icon (<paramref name="iconPath"/>), or the
+    /// program symbol when the path cannot be had.
     /// </summary>
-    public static List<DetailRow> Rows(Locale locale, IReadOnlyList<ProcessSample> ranked, ProcessSort sort, int maxRows)
+    public static List<DetailRow> Rows(Locale locale, IReadOnlyList<ProcessSample> ranked, ProcessSort sort, int maxRows, Func<ProcessSample, string?>? iconPath = null)
     {
         ArgumentNullException.ThrowIfNull(ranked);
         var take = maxRows > 0 ? Math.Min(maxRows, ranked.Count) : ranked.Count;
@@ -174,9 +247,10 @@ public static class ProcessTable
             var cpu = Formatting.Percent(locale, s.Cpu);
             var memory = Formatting.Bytes(locale, s.Memory);
             var name = s.Count > 1 ? $"{s.Name} ({LocaleFormat.Integer(locale, s.Count)})" : s.Name;
+            var icon = iconPath?.Invoke(s);
             rows.Add(sort == ProcessSort.Memory
-                ? new DetailRow(s.Name, name, memory, cpu)
-                : new DetailRow(s.Name, name, cpu, memory));
+                ? new DetailRow(s.Name, name, memory, cpu, Symbol: RowSymbol.App, IconPath: icon)
+                : new DetailRow(s.Name, name, cpu, memory, Symbol: RowSymbol.App, IconPath: icon));
         }
 
         return rows;
@@ -212,7 +286,7 @@ public sealed class ProcessTracker
                 : 0;
 
             seen[e.Pid] = (e.CreateTime, e.CpuTicks);
-            samples.Add(new ProcessSample(e.Name, cpu, e.PrivateBytes));
+            samples.Add(new ProcessSample(e.Name, cpu, e.PrivateBytes, Process: new ProcessIdentity(e.Pid, e.CreateTime)));
         }
 
         _last.Clear();

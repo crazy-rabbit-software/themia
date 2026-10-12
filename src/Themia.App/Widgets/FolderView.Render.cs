@@ -336,9 +336,9 @@ internal sealed partial class FolderView
             return;
         }
 
-        var keywords = FolderFilter.Apply(_snapshot.Entries, _config.Filter, _search);
+        var keywords = FolderFilter.Apply(_snapshot.Entries, _search);
         _total = keywords.Count(e => _config.ShowHidden || !e.Hidden);
-        _shown = FolderRules.Arrange(keywords, _config.Sort, _config.Descending, _config.FoldersFirst, _config.ShowHidden, RenderCap);
+        _shown = FolderRules.Arrange(keywords, _config.Sort, _config.Descending, _config.ShowHidden, RenderCap);
         _selection.SetOrder([.. _shown.Select(e => e.FullPath)]);
 
         if (_area.IsMeasured)
@@ -355,7 +355,7 @@ internal sealed partial class FolderView
 
         if (status == FolderListingStatus.Ok && _shown.Count == 0)
         {
-            ShowMessage(_search.Length > 0 || _config.Filter.Trim().Length > 0
+            ShowMessage(_search.Length > 0
                 ? Str.WidgetsB_Folder_NoMatches.Text()
                 : Str.WidgetsB_Folder_Status_Empty.Text());
             return;
@@ -419,7 +419,7 @@ internal sealed partial class FolderView
     private (double Extent, int Columns) ItemExtent()
         => _plan?.Grid is { } grid
             ? (grid.CellHeight, Math.Max(1, grid.Columns))
-            : (_plan?.RowHeight ?? FolderLayout.RowHeight(_config.ItemSize), 1);
+            : (_plan?.RowHeight ?? FolderLayout.RowHeight(_config.Rows), 1);
 
     /// <summary>The DIPs of list in view: the scroller's once it is measured, the tile's before.</summary>
     private double Viewport() => _scroll.ViewportHeight > 0 ? _scroll.ViewportHeight : _area.Height;
@@ -584,8 +584,8 @@ internal sealed partial class FolderView
 
     private ItemVisual BuildRow(FolderEntry entry, int index, FolderPlan? plan, DateTimeOffset now)
     {
-        var rowHeight = plan?.RowHeight ?? FolderLayout.RowHeight(_config.ItemSize);
-        var iconSize = plan?.IconSize ?? FolderLayout.IconSize(_config.ItemSize);
+        var rowHeight = plan?.RowHeight ?? FolderLayout.RowHeight(_config.Rows);
+        var iconSize = plan?.IconSize ?? FolderLayout.IconSize(_config.Rows);
         var columns = plan?.Columns ?? [];
 
         var (iconBox, image, glyph) = IconBox(entry, iconSize);
@@ -707,7 +707,7 @@ internal sealed partial class FolderView
     }
 
     private string FileNamesDisplay(FolderEntry entry)
-        => Themia.Core.Files.FileNames.Display(entry.Name, entry.IsDirectory, _config.ShowExtensions);
+        => Themia.Core.Files.FileNames.Display(entry.Name, entry.IsDirectory, _config.Extensions);
 
     /// <summary>The "+N more" row past the render cap: opens the folder in Explorer, where all of it is.</summary>
     private Border MoreRow(int more)
@@ -735,7 +735,7 @@ internal sealed partial class FolderView
         var name = Fluent.Text(FluentType.Caption);
         name.Text = FileNamesDisplay(entry);
         name.TextWrapping = TextWrapping.Wrap;
-        name.MaxLines = _config.TileSize == FolderTileSize.Large ? 3 : 2;
+        name.MaxLines = _config.Tiles == FolderTileSize.Large ? 3 : 2;
         name.TextAlignment = TextAlignment.Center;
         name.TextTrimming = TextTrimming.CharacterEllipsis;
         name.HorizontalAlignment = HorizontalAlignment.Center;

@@ -1,0 +1,20 @@
+{
+  "$comment": "New strings in this file are machine-written and need native review.",
+  "addMenu.popular": "Popüler",
+  "addMenu.browse": "Göz at",
+  "addMenu.subject.time": "Saat",
+  "addMenu.subject.calendar": "Takvim ve posta",
+  "addMenu.subject.weather": "Hava ve gökyüzü",
+  "addMenu.subject.markets": "Haberler ve piyasalar",
+  "addMenu.subject.media": "Müzik ve medya",
+  "addMenu.subject.notes": "Notlar ve araçlar",
+  "addMenu.subject.files": "Dosyalar ve uygulamalar",
+  "addMenu.subject.system": "Sistem",
+  "addMenu.subject.devices": "Cihazlar ve güç",
+  "addMenu.subject.more": "Daha fazla",
+  "addMenu.family.calendar": "Takvim",
+  "addMenu.family.visualizer": "Görselleştirici",
+  "addMenu.family.folder": "Klasör",
+  "addMenu.family.screenTime": "Ekran süresi",
+  "addMenu.family.powerButtons": "Güç düğmeleri"
+}

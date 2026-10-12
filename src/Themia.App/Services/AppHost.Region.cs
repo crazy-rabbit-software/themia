@@ -1,6 +1,7 @@
 using Themia.App.Interop;
 using Themia.Core.Localization;
 using Themia.Core.Sync;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Services;
 
@@ -26,6 +27,7 @@ internal sealed partial class AppHost
     private void ApplyRegion()
     {
         RegionFormat.SetWindows(SystemRegion.Read(RegionFormat.Language(Strings.Current)));
+        RegionCurrency.Country = SystemRegion.Country();
         RegionFormat.Apply(RegionFormat.For(State.Preferences.Region));
         UpdateCadence.Current = State.Preferences.Refresh;
     }

@@ -49,7 +49,7 @@ internal static class NetworkThroughput
                 }
 
                 var stats = nic.GetIPStatistics();
-                counters.Add(new InterfaceCounters(nic.Id, nic.Name, stats.BytesReceived, stats.BytesSent));
+                counters.Add(new InterfaceCounters(nic.Id, nic.Name, stats.BytesReceived, stats.BytesSent, NetworkRules.MediumOf((int)nic.NetworkInterfaceType), nic.Description, Math.Max(0, nic.Speed)));
             }
         }
         catch (NetworkInformationException ex)

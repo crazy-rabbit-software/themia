@@ -74,9 +74,6 @@ internal abstract class DetailPart
     /// <summary>Let go of every feed. Safe twice.</summary>
     public abstract void Detach();
 
-    /// <summary>The cadence a detail config asks for ([S-2401]).</summary>
-    protected static TimeSpan Interval(WidgetConfig config) => (config as DetailConfig)?.TickInterval ?? TimeSpan.FromSeconds(2);
-
     /// <summary>The part for a detail kind.</summary>
     public static DetailPart For(WidgetKind kind) => kind switch
     {

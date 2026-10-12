@@ -4,7 +4,7 @@ namespace Themia.App.Services.SystemData;
 
 /// <summary>
 /// One watch a widget holds on a hub feed, watched again only when the feed it names changes (a new
-/// cadence, a new host), so a config touch that changes nothing the feed depends on keeps the watch.
+/// host), so a config touch that changes nothing the feed depends on keeps the watch.
 /// </summary>
 /// <typeparam name="T">The feed's snapshot.</typeparam>
 internal sealed class WatchSlot<T>
@@ -20,10 +20,10 @@ internal sealed class WatchSlot<T>
     /// <summary>The newest snapshot; meaningful only when <see cref="HasValue"/>.</summary>
     public T Value => _watch is { } watch ? watch.Value : default!;
 
-    /// <summary>Hold <paramref name="source"/> at <paramref name="interval"/>, unless that is held already. True when it watched anew.</summary>
-    public bool Hold(SystemHub hub, SourceId<T> source, TimeSpan interval, Action<T> onSample, string? target = null)
+    /// <summary>Hold <paramref name="source"/>, unless that is held already. True when it watched anew.</summary>
+    public bool Hold(SystemHub hub, SourceId<T> source, Action<T> onSample, string? target = null)
     {
-        var key = FeedKey.Create(source.Source, interval, target);
+        var key = FeedKey.Create(source.Source, target);
 
         if (_watch is not null && _watch.Key == key)
         {
@@ -31,7 +31,7 @@ internal sealed class WatchSlot<T>
         }
 
         _watch?.Dispose();
-        _watch = hub.Watch(source, interval, onSample, target);
+        _watch = hub.Watch(source, onSample, target);
         return true;
     }
 

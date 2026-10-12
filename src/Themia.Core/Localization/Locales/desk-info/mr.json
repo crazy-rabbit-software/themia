@@ -1,0 +1,32 @@
+{
+  "yearProgress.label": "वर्षाची प्रगती",
+  "yearProgress.desc": "दिवस, आठवडा, महिना आणि वर्ष यांपैकी किती भाग सरला आहे",
+  "yearProgress.day": "दिवस",
+  "yearProgress.week": "आठवडा",
+  "yearProgress.month": "महिना",
+  "yearProgress.year": "वर्ष",
+  "yearProgress.left": "{time} शिल्लक",
+  "yearProgress.weekNumber": "आठवडा {number}",
+  "yearProgress.dayOf": "{days} पैकी दिवस {day}",
+  "meeting.label": "पुढील मीटिंग",
+  "meeting.desc": "तुमचा पुढील इव्हेंट, ऑनलाइन मीटिंगसाठी सामील व्हा बटणासह",
+  "meeting.join": "सामील व्हा",
+  "meeting.joinTip": "ऑनलाइन मीटिंगमध्ये सामील व्हा",
+  "meeting.nowEnds": "आता · {time} ला संपेल",
+  "meeting.dayTime": "{day}, {time}",
+  "meeting.none": "पुढे काहीही नाही",
+  "recentFiles.label": "अलीकडील फायली",
+  "recentFiles.desc": "तुम्ही अलीकडे उघडलेल्या फायली",
+  "recentFiles.empty": "अलीकडे काहीही उघडले नाही",
+  "recentFiles.unreadable": "Windows चे अलीकडील आयटम वाचता आले नाहीत",
+  "recentFiles.remove": "सूचीतून काढा",
+  "recycleBin.desc": "रीसायकल बिन किती भरले आहे, रिकामे करा पर्यायासह",
+  "recycleBin.empty": "रिकामे करा",
+  "recycleBin.emptyEllipsis": "रीसायकल बिन रिकामे करा…",
+  "recycleBin.isEmpty": "कोणतेही आयटम नाहीत",
+  "recycleBin.items": {
+    "one": "{count} आयटम",
+    "other": "{count} आयटम"
+  },
+  "recycleBin.open": "रीसायकल बिन उघडा"
+}

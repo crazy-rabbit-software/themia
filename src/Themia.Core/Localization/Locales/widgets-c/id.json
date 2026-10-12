@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "Urungkan",
   "widgetsC.notes.editor.redo": "Ulangi",
+  "widgetsC.notes.editor.moreFormatting": "Format lainnya",
   "widgetsC.notes.words": {
     "other": "{count} kata"
   },
@@ -409,8 +410,6 @@
   "widgetsC.agenda.desc": "Apa yang akan datang, hari demi hari",
   "widgetsC.moon.label": "Bulan",
   "widgetsC.moon.desc": "Fase, terbit, dan terbenam bulan",
-  "widgetsC.visualizer.label": "Visualisasi audio",
-  "widgetsC.visualizer.desc": "Batang yang bergerak mengikuti apa pun yang diputar PC ini",
   "widgetsC.visualizer.unavailable": "Output audio tidak tersedia",
   "widgetsC.moon.rise": "Bulan terbit",
   "widgetsC.moon.set": "Bulan terbenam",
@@ -449,6 +448,10 @@
   "widgetsC.stocks.settings.windowsRed": "Merah Windows",
   "widgetsC.stocks.settings.symbolRefused": "Pilih hasil pencarian, atau ketik simbol: hanya huruf, angka, dan . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{class} di {exchange}",
+  "widgetsC.stocks.settings.holding.label": "Jumlah dimiliki",
+  "widgetsC.stocks.settings.holding.desc": "Berapa yang Anda miliki; widget menampilkan nilainya. Kosongkan untuk menyembunyikan",
+  "widgetsC.stocks.settings.holding.refused": "Ketik jumlah 0 atau lebih, misalnya {example}",
+  "widgetsC.stocks.holding.line": "{amount} dimiliki · {value}",
   "widgetsC.location.recycleBin": "Tempat Sampah",
   "widgetsC.location.thisPc": "PC Ini",
   "widgetsC.location.downloads": "Unduhan",

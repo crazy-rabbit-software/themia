@@ -20,6 +20,9 @@ internal sealed class WebSync : IDisposable
     private readonly AnswerSync<CurrentWeather> _readings;
     private readonly AnswerSync<Forecast> _forecasts;
     private readonly AnswerSync<TickerQuote> _quotes;
+    private readonly AnswerSync<AirReading> _air;
+    private readonly AnswerSync<RainNowcast> _rain;
+    private readonly AnswerSync<RateTable> _rates;
     private bool _disposed;
 
     public WebSync(SyncHost sync, Ticker ticker)
@@ -28,6 +31,9 @@ internal sealed class WebSync : IDisposable
         _readings = new AnswerSync<CurrentWeather>("weather", ticker);
         _forecasts = new AnswerSync<Forecast>("forecast", ticker);
         _quotes = new AnswerSync<TickerQuote>("stocks", ticker);
+        _air = new AnswerSync<AirReading>("air", ticker);
+        _rain = new AnswerSync<RainNowcast>("rain", ticker);
+        _rates = new AnswerSync<RateTable>("rates", ticker);
         _sync.InterestsChanged += Reconcile;
         _sync.NetworkAvailable += Wake;
         Reconcile();
@@ -44,6 +50,9 @@ internal sealed class WebSync : IDisposable
             _readings.Updated += value;
             _forecasts.Updated += value;
             _quotes.Updated += value;
+            _air.Updated += value;
+            _rain.Updated += value;
+            _rates.Updated += value;
         }
 
         remove
@@ -51,6 +60,9 @@ internal sealed class WebSync : IDisposable
             _readings.Updated -= value;
             _forecasts.Updated -= value;
             _quotes.Updated -= value;
+            _air.Updated -= value;
+            _rain.Updated -= value;
+            _rates.Updated -= value;
         }
     }
 
@@ -68,6 +80,62 @@ internal sealed class WebSync : IDisposable
         ArgumentNullException.ThrowIfNull(want);
         return MarketService.Key(want.Symbol, want.Market, want.Range, want.PrePost);
     }
+
+    /// <summary>[S-5101] The key an air widget's answer is synced under.</summary>
+    public static string Key(AirInterest want)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        return OnlineService.AirKey(want.Latitude, want.Longitude);
+    }
+
+    /// <summary>[S-5121] The key a rain widget's answer is synced under.</summary>
+    public static string Key(RainInterest want)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        return OnlineService.RainKey(want.Latitude, want.Longitude);
+    }
+
+    /// <summary>[S-5147] The one key every exchange-rates widget shares.</summary>
+    public static string RatesKey => OnlineService.RatesKey;
+
+    public Fetched<AirReading>? Air(AirInterest want)
+        => _air.Answer(Key(want)) ?? OnlineService.PeekAir(want.Latitude, want.Longitude);
+
+    public Fetched<RainNowcast>? Rain(RainInterest want)
+        => _rain.Answer(Key(want)) ?? OnlineService.PeekRain(want.Latitude, want.Longitude);
+
+    public Fetched<RateTable>? Rates() => _rates.Answer(RatesKey) ?? OnlineService.PeekRates();
+
+    public void Show(AirInterest want, bool refresh)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        Go(_air, AirWant(want), refresh);
+    }
+
+    public void Show(RainInterest want, bool refresh)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        Go(_rain, RainWant(want), refresh);
+    }
+
+    public void ShowRates(bool refresh) => Go(_rates, RatesWant(new RatesInterest(OnlineCadence.Rates)), refresh);
+
+    private static AnswerWant<AirReading> AirWant(AirInterest a)
+        => new(
+            Key(a),
+            a.Interval,
+            (freshFor, force) => OnlineService.AirAsync(a.Latitude, a.Longitude, freshFor, force),
+            () => OnlineService.PeekAir(a.Latitude, a.Longitude));
+
+    private static AnswerWant<RainNowcast> RainWant(RainInterest r)
+        => new(
+            Key(r),
+            r.Interval,
+            (freshFor, force) => OnlineService.RainAsync(r.Latitude, r.Longitude, freshFor, force),
+            () => OnlineService.PeekRain(r.Latitude, r.Longitude));
+
+    private static AnswerWant<RateTable> RatesWant(RatesInterest r)
+        => new(RatesKey, r.Interval, (freshFor, force) => OnlineService.RatesAsync(freshFor, force), OnlineService.PeekRates);
 
     /// <summary>
     /// What a widget draws: the newest good answer (a stored one before the first sync of this run),
@@ -161,6 +229,9 @@ internal sealed class WebSync : IDisposable
         _readings.Reconcile(interests.Weather.Where(w => w.ForecastDays is null).Select(ReadingWant));
         _forecasts.Reconcile(interests.Weather.Where(w => w.ForecastDays is not null).Select(ForecastWant));
         _quotes.Reconcile(interests.Quotes.Select(QuoteWant));
+        _air.Reconcile(interests.Air.Select(AirWant));
+        _rain.Reconcile(interests.Rain.Select(RainWant));
+        _rates.Reconcile(interests.Rates is { } rates ? [RatesWant(rates)] : []);
     }
 
     private void Wake()
@@ -168,6 +239,9 @@ internal sealed class WebSync : IDisposable
         _readings.Wake();
         _forecasts.Wake();
         _quotes.Wake();
+        _air.Wake();
+        _rain.Wake();
+        _rates.Wake();
     }
 
     public void Dispose()
@@ -183,5 +257,8 @@ internal sealed class WebSync : IDisposable
         _readings.Dispose();
         _forecasts.Dispose();
         _quotes.Dispose();
+        _air.Dispose();
+        _rain.Dispose();
+        _rates.Dispose();
     }
 }

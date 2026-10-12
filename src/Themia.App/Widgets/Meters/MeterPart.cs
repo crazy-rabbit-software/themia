@@ -1,6 +1,7 @@
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets.Meters;
@@ -55,8 +56,11 @@ internal abstract class MeterPart
     /// </summary>
     public virtual string? Badge(MeterReading reading) => null;
 
-    /// <summary>[S-2504] The hub series this config shows. A different one is a different history.</summary>
-    public abstract MeterSeries Series(WidgetConfig config);
+    /// <summary>
+    /// [S-2504] [S-2513] The hub series this config shows: the one the state asks the hub for, so
+    /// the history is there from app start. A different one is a different history.
+    /// </summary>
+    public SeriesInterest Series(WidgetConfig config) => SystemInterests.For(config, DiskMetrics.SystemRoot).Series[0];
 
     /// <summary>Take a new config (it is already the right kind): a title, a drive.</summary>
     public virtual void ApplyConfig(WidgetConfig config, IMeterHost host)
@@ -73,9 +77,6 @@ internal abstract class MeterPart
 
     /// <summary>[S-1167] An element for the right of the card's header (a status dot), or null. Read once.</summary>
     public virtual Microsoft.UI.Xaml.FrameworkElement? HeaderTrailing => null;
-
-    /// <summary>The cadence a meter config asks for ([S-1120]).</summary>
-    protected static TimeSpan Interval(WidgetConfig config) => (config as GaugeConfig)?.TickInterval ?? TimeSpan.FromSeconds(1);
 
     /// <summary>The part for a meter kind.</summary>
     public static MeterPart For(WidgetKind kind) => kind switch

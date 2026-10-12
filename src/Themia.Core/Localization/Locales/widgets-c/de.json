@@ -4,6 +4,7 @@
   "widgetsC.notes.editor.withShortcut": "{name} ({keys})",
   "widgetsC.notes.editor.undo": "Rückgängig",
   "widgetsC.notes.editor.redo": "Wiederholen",
+  "widgetsC.notes.editor.moreFormatting": "Weitere Formatierung",
   "widgetsC.notes.words": {
     "one": "{count} Wort",
     "other": "{count} Wörter"
@@ -417,8 +418,6 @@
   "widgetsC.agenda.desc": "Was als Nächstes ansteht, Tag für Tag",
   "widgetsC.moon.label": "Mond",
   "widgetsC.moon.desc": "Mondphase, Mondaufgang und Monduntergang",
-  "widgetsC.visualizer.label": "Audio-Visualisierung",
-  "widgetsC.visualizer.desc": "Balken, die sich mit allem bewegen, was dieser PC wiedergibt",
   "widgetsC.visualizer.unavailable": "Audioausgabe nicht verfügbar",
   "widgetsC.moon.rise": "Mondaufgang",
   "widgetsC.moon.set": "Monduntergang",
@@ -460,6 +459,10 @@
   "widgetsC.stocks.settings.windowsRed": "Windows-Rot",
   "widgetsC.stocks.settings.symbolRefused": "Wähle ein Suchergebnis aus oder gib ein Symbol ein: nur Buchstaben, Ziffern und . - ^ =",
   "widgetsC.stocks.settings.classOnExchange": "{class} ({exchange})",
+  "widgetsC.stocks.settings.holding.label": "Anzahl im Besitz",
+  "widgetsC.stocks.settings.holding.desc": "Wie viele Sie halten; das Widget zeigt ihren Wert. Leer blendet ihn aus",
+  "widgetsC.stocks.settings.holding.refused": "Geben Sie eine Menge ab 0 ein, z. B. {example}",
+  "widgetsC.stocks.holding.line": "{amount} im Besitz · {value}",
   "widgetsC.location.recycleBin": "Papierkorb",
   "widgetsC.location.thisPc": "Dieser PC",
   "widgetsC.location.downloads": "Downloads",

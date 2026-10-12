@@ -19,10 +19,8 @@ internal sealed partial class SystemHub
     /// <summary>Listen to exactly the events an open source wants; called whenever a source opens or closes.</summary>
     private void UpdateEventHooks()
     {
-        var wantPower = !_disposed && (_runners.ContainsKey((SystemSource.Battery, string.Empty)) || _runners.ContainsKey((SystemSource.BatteryPack, string.Empty)));
-        var wantNetwork = !_disposed && (_runners.ContainsKey((SystemSource.Network, string.Empty))
-            || _runners.ContainsKey((SystemSource.LocalAddresses, string.Empty))
-            || _runners.ContainsKey((SystemSource.PublicAddress, string.Empty)));
+        var wantPower = !_disposed && _order.Any(f => f.Key.Source is SystemSource.Battery or SystemSource.BatteryPack);
+        var wantNetwork = !_disposed && _order.Any(f => f.Key.Source is SystemSource.Network or SystemSource.LocalAddresses or SystemSource.PublicAddress);
 
         if (wantPower != _powerHooked)
         {
@@ -65,7 +63,7 @@ internal sealed partial class SystemHub
         }
         catch (Exception ex)
         {
-            // Without the events the battery still reads at its cadence; it only reacts later.
+            // Without the events the battery still reads every tick; it only reacts a little later.
             Log.Warn(Scope, $"could not {(hook ? "listen to" : "stop listening to")} power events", ex);
             _powerHooked = hook;
         }

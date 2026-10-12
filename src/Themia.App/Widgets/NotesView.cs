@@ -25,8 +25,9 @@ namespace Themia.App.Widgets;
 /// <para>
 /// The editing itself is <see cref="MarkdownEditor"/>; this view binds it to the pool, saves on a
 /// debounce and on blur and detach, and lays the parts out by the ladder in <see cref="NotesLayout"/>:
-/// text, then the formatting bar, then a status line. It shows the one note at every size; another
-/// note is picked from the header (<see cref="HeaderTrailing"/>), never from a list beside the text.
+/// text, then a status line. The formatting bar stands in the card's header while the note is being
+/// edited ([S-3963]), beside the note picker. It shows the one note at every size; another note is
+/// picked from the header (<see cref="HeaderTrailing"/>), never from a list beside the text.
 /// </para>
 /// </summary>
 internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetHeaderContent
@@ -64,6 +65,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private readonly TextBlock _status;
     private readonly TextBlock _messageText;
     private readonly Border _message;
+
+    /// <summary>[S-3963] The header's trailing part: the formatting bar, its "More" button, the picker.</summary>
+    private readonly StackPanel _headerBar;
+    private readonly Button _more;
     private readonly DispatcherQueueTimer? _saveTimer;
 
     private IWidgetSurface? _surface;
@@ -72,10 +77,21 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private string? _shownId;
     private NoteState _state = NoteState.Unbound;
     private WidgetArea _area;
-    private NotesLayoutPlan _plan = new(0, false, false, 0, NotesLayout.MinTextLines);
+    private NotesLayoutPlan _plan = new(false, false, 0, NotesLayout.MinTextLines);
     private bool _dirty;
     private bool _resolving;
     private bool _editorFocused;
+
+    /// <summary>[S-3963] The "More" menu is open: the bar stays while the note's focus is in it.</summary>
+    private bool _moreOpen;
+
+    /// <summary>A debug render's "editing" state: the bar as it stands while the note has the caret.</summary>
+#if DEBUG
+    private bool _previewEditing;
+#else
+    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
+    private bool _previewEditing => false;
+#endif
     private bool _detached;
 
     public NotesView()
@@ -83,7 +99,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         // The card no longer pads its content; a view that is not a list carries its own inset.
         Padding = WidgetLayout.Inset;
 
-        _body.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                              // bar
         _body.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });         // text
         _body.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                              // status
 
@@ -103,14 +118,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
             Visibility = Visibility.Collapsed,
         };
 
-        _editor.Toolbar.Margin = new Thickness(0, 0, 0, Fluent.Space2);
-        _editor.Toolbar.HorizontalAlignment = HorizontalAlignment.Left;
-
-        SetRow(_editor.Toolbar, 0);
-        SetRow(_editor.Box, 1);
-        SetRow(_message, 1);
-        SetRow(_status, 2);
-        _body.Children.Add(_editor.Toolbar);
+        SetRow(_editor.Box, 0);
+        SetRow(_message, 0);
+        SetRow(_status, 1);
         _body.Children.Add(_editor.Box);
         _body.Children.Add(_message);
         _body.Children.Add(_status);
@@ -118,6 +128,19 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         Children.Add(_body);
 
         BuildPicker();
+
+        _more = BuildMore();
+
+        // [S-3963] The bar on the header's title line: its buttons are taller than the line, so the
+        // negative margin keeps the header the height it has without them, and focusing the note
+        // never moves the text.
+        _headerBar = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = NotesLayout.ButtonGap,
+            Margin = new Thickness(NotesLayout.TitleGap, -Fluent.Space1 / 2, 0, -Fluent.Space1 / 2),
+            Children = { _editor.Toolbar, _more, _picker },
+        };
 
         _editor.TextEdited += OnTextEdited;
         _editor.Box.GotFocus += OnEditorGotFocus;
@@ -141,13 +164,14 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         Lay();
     }
 
-    /// <summary>[S-1364] The note picker, in the card's header.</summary>
-    public FrameworkElement? HeaderTrailing => _picker;
+    /// <summary>[S-1364] The note picker and [S-3963] the formatting bar, in the card's header.</summary>
+    public FrameworkElement? HeaderTrailing => _headerBar;
 
     /// <summary>
     /// [S-129] A Windows 11 text field with no chrome at rest, so the note reads as writing on the
-    /// card — and with the stock subtle fill under the pointer and the accent line when it has focus,
-    /// so it still reads as something you can type in.
+    /// card — and [S-3962] none under the pointer either: the field does not light up as the pointer
+    /// crosses it. Focus keeps the stock subtle fill and the accent line, so the keyboard's place is
+    /// still shown and the note still reads as something you are typing in.
     /// <para>
     /// The brushes are replaced through the control's own resource keys, not through its
     /// <c>Background</c>: the stock template's visual states assign the pointer-over and focused
@@ -160,12 +184,12 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         var box = _editor.Box;
         var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var hover = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
+        var focusFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
         var focus = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
         box.Resources["TextControlBackground"] = clear;
-        box.Resources["TextControlBackgroundPointerOver"] = hover;
-        box.Resources["TextControlBackgroundFocused"] = hover;
+        box.Resources["TextControlBackgroundPointerOver"] = clear;
+        box.Resources["TextControlBackgroundFocused"] = focusFill;
         box.Resources["TextControlBackgroundDisabled"] = clear;
         box.Resources["TextControlBackgroundReadOnly"] = clear;
 
@@ -181,7 +205,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         box.CornerRadius = new CornerRadius(Fluent.ControlRadius);
 
         // The fill is inset from the text by one grid unit and the field pulled back out by the same,
-        // so the hover highlight has room to breathe while the words stay where the inset put them.
+        // so the focus fill has room to breathe while the words stay where the inset put them.
         box.Padding = new Thickness(Fluent.Space1);
         box.Margin = new Thickness(-Fluent.Space1);
         box.MinHeight = 0;
@@ -217,6 +241,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _editor.RefreshTexts();
         ApplyPickerTexts();
+        ApplyMoreTexts(_more);
         UpdateMessage();
         UpdateStatus();
     }
@@ -408,6 +433,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _editorFocused = true;
         UpdateKeyboard();
+        UpdateBar();
     }
 
     private void OnEditorLostFocus(object sender, RoutedEventArgs args)
@@ -415,6 +441,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         _editorFocused = false;
         Flush();
         UpdateKeyboard();
+        UpdateBar();
     }
 
     /// <summary>Typing asks for the keyboard: the editor, and the picker's rename box.</summary>
@@ -485,14 +512,94 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         var lineHeight = _config.EffectiveFontSizePx * FluentType.Body.LineHeight / FluentType.Body.FontSize;
         _plan = NotesLayout.Plan(_area, WidgetLayout.ContentInset, Fluent.Space2, lineHeight, FluentType.Caption.LineHeight);
 
-        var editable = Editable;
         _editor.FlatHeadings = _area.WidthClass == SizeClass.Compact;
-        _editor.Toolbar.Visibility = _plan.Toolbar && editable ? Visibility.Visible : Visibility.Collapsed;
-        _editor.VisibleButtons = _plan.ToolbarButtons;
-        _status.Visibility = _plan.Status && editable ? Visibility.Visible : Visibility.Collapsed;
+        _status.Visibility = _plan.Status && Editable ? Visibility.Visible : Visibility.Collapsed;
 
         UpdatePicker();
+        UpdateBar();
         UpdateStatus();
+    }
+
+    /// <summary>
+    /// [S-3963] The formatting bar in the header, while the note is being edited: the caret is in it,
+    /// or its "More" menu is open. At rest the header is the note's title and picker, as every card's
+    /// is; the bar comes with the caret, where formatting is wanted. As many buttons as the header
+    /// holds (<see cref="NotesLayout.HeaderBar"/>), the rest behind "More". A hidden header
+    /// ([S-3964]) takes the bar with it; the keyboard shortcuts still work.
+    /// </summary>
+    private void UpdateBar()
+    {
+        if (_detached)
+        {
+            return;
+        }
+
+        var bar = NotesLayout.HeaderBar(_area.IsMeasured ? _area.Width : 0, _picker.Visibility == Visibility.Visible);
+        var editing = Editable && !_editor.IsReadOnly && (_editorFocused || _moreOpen || _previewEditing);
+
+        _editor.VisibleButtons = bar.Inline;
+        _editor.Toolbar.Visibility = editing && bar.Inline > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _more.Visibility = editing && bar.Overflow ? Visibility.Visible : Visibility.Collapsed;
+
+        if (_editor.Toolbar.Visibility == Visibility.Visible)
+        {
+            // The marks moved while the bar was away; light it for the caret now.
+            _editor.RefreshMarks();
+        }
+    }
+
+    /// <summary>[S-3963] The "More" button: the commands the header had no room for, as a menu.</summary>
+    private Button BuildMore()
+    {
+        var more = new Button
+        {
+            Content = new FontIcon { Glyph = Glyphs.More, FontSize = Fluent.IconSize },
+            Width = NotesLayout.ButtonSize,
+            Height = NotesLayout.ButtonSize,
+            Padding = new Thickness(0),
+            BorderThickness = new Thickness(0),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray),
+            VerticalAlignment = VerticalAlignment.Center,
+            Visibility = Visibility.Collapsed,
+
+            // [S-1365] Like the bar's buttons: the note keeps the focus and its selection.
+            IsTabStop = false,
+            AllowFocusOnInteraction = false,
+        };
+
+        ApplyMoreTexts(more);
+        more.Click += OnMoreClick;
+        return more;
+    }
+
+    private static void ApplyMoreTexts(Button more)
+    {
+        ToolTipService.SetToolTip(more, Str.WidgetsC_Notes_Editor_MoreFormatting.Text());
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(more, Str.WidgetsC_Notes_Editor_MoreFormatting.Text());
+    }
+
+    private void OnMoreClick(object sender, RoutedEventArgs args)
+    {
+        if (_detached || !Editable)
+        {
+            return;
+        }
+
+        // Set before the menu takes the focus, so the note's blur leaves the bar (and this anchor) standing.
+        _moreOpen = true;
+
+        if (!ItemMenu.Open(_more, _editor.ShedCommands(), OnMoreClosed))
+        {
+            _moreOpen = false;
+        }
+    }
+
+    private void OnMoreClosed()
+    {
+        _moreOpen = false;
+        UpdateBar();
     }
 
     public void Detach()
@@ -523,6 +630,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         _editor.Box.GotFocus -= OnEditorGotFocus;
         _editor.Box.LostFocus -= OnEditorLostFocus;
         _editor.Detach();
+        _more.Click -= OnMoreClick;
         DetachPicker();
         _surface?.RequestTextInput(false);
     }
