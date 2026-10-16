@@ -25,10 +25,13 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
     private static readonly Guid SettingsClass = new("F53321FA-34F8-4B7F-B9A3-361877CB94CF");
     private static readonly Guid SettingsInterface = new("6BFF4732-81EC-4FFB-AE67-B6C1BC29631F");
 
+    /// <summary>
+    /// The key holding the CloudStore value's key, watched with everything under it: the value's key
+    /// written again from scratch is heard as well as the value changing ([S-3921]).
+    /// </summary>
     private const string StateKey =
         @"Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\DefaultAccount\Current\"
-        + @"default$windows.data.donotdisturb.quiethourssettings\"
-        + @"windows.data.donotdisturb.quiethourssettings";
+        + @"default$windows.data.donotdisturb.quiethourssettings";
 
     private const int SlotUserSelected = 3;
     private const int SlotPutUserSelected = 4;
@@ -43,7 +46,7 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
 
     public override void Start() => OffThread("following do not disturb", () =>
     {
-        var watch = RegistryWatch.Open(RegistryHive.CurrentUser, StateKey, Read);
+        var watch = RegistryWatch.Open(RegistryHive.CurrentUser, StateKey, Read, subtree: true);
         lock (_gate)
         {
             if (Disposed)
@@ -104,10 +107,11 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
             return;
         }
 
+        var read = BeginRead();
         var settings = Make();
         if (settings == 0)
         {
-            Publish(ToggleReading.Blocked(ToggleBlock.NoSwitch));
+            Publish(ToggleReading.Blocked(ToggleBlock.NoSwitch), read);
             return;
         }
 
@@ -115,7 +119,7 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
         {
             var off = Text(settings, SlotOffProfile);
             var active = Text(settings, SlotActive) ?? off;
-            Publish(ToggleReading.Of(QuickToggleRules.DoNotDisturbOn(active, off)));
+            Publish(ToggleReading.Of(QuickToggleRules.DoNotDisturbOn(active, off)), read);
         }
         finally
         {

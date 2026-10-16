@@ -5933,14 +5933,16 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   switching each radio by hand is not ported (one path): without the service, `NoSwitch`.
 - **[S-3911]** Energy saver: `GUID_ENERGY_SAVER_STATUS` through `PowerSettingRegisterNotification`
   (callback; 1 standard and 2 high savings are on), Windows 11 24H2 and later only (`NotOnWindows`
-  elsewhere). Night light: the Display handler for state and switch, followed through the
-  CloudStore blue-light value; Karpo's hand-written Bond rewrite of that value is not ported.
+  elsewhere). Night light: switched through the Display handler; its state is the CloudStore
+  blue-light value, read and followed ([S-3919]); Karpo's hand-written Bond rewrite of that value is
+  not ported.
 - **[S-3912]** Rotation lock: `GetAutoRotationState` read as Windows' handler reads it (no sensor or
   not supported: no hardware; remote, multimon, docked, laptop: not now; else locked while disabled),
   switched by `SetAutoRotation` (user32 ordinal 2507), followed through HKLM `…\AutoRotation`.
 - **[S-3913]** Do not disturb: `IQuietHoursSettings` (WpnUserService, undocumented). On while the
   active profile is not the off profile; on sets the user's profile to PriorityOnly, off sets it back
-  and turns off a rule holding it on. Heard through the CloudStore quiet-hours value; a rule turning
+  and turns off a rule holding it on. Heard through the CloudStore quiet-hours value (its key's
+  holder watched with everything under it, [S-3921]); a rule turning
   it on or off by itself (a game, the schedule) shows when the pointer next comes by (Karpo's
   `NotificationModeChanged` needs a Windows 11 SDK projection this build does not target).
 - **[S-3914]** Sound: the default output's mute through the shared Core Audio worker ([S-1220]).
@@ -5952,7 +5954,23 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
 - **[S-3915]** Game mode (`HKCU\Software\Microsoft\GameBar\AutoGameModeEnabled`, absent is on), color
   filters (`…\ColorFiltering\Active`, absent is off; the filter is Windows' last one) and mono audio
   (`…\Multimedia\Audio\AccessibilityMonoMixState`, absent is off) are read from those DWORDs, watched
-  (a key not there yet is waited for at its parent), and switched through their handlers.
+  (a key not there yet is waited for at its parent, [S-3921]), and switched through their handlers.
+- **[S-3919]** Night light's state is the CloudStore value (`…\default$windows.data.bluelightreduction.bluelightreductionstate\…`
+  "Data"), read as Bond compact binary v1 (`NightLightValue`: the state's field 0 present is on; field
+  10 optional; anything not exactly that shape reads as unknown, never off), never written. The
+  Display handler's answer is used only where the value does not read: its item, made once per run,
+  kept saying the old state after a switch in Windows' panel, Settings or the schedule (the reported
+  bug). After Themia's own switch the tile shows where it went until the value moves from what it was
+  just before; any other value then stands (`NightLightFollow`). The value's holder key is watched
+  with everything under it.
+- **[S-3920]** Readings are taken in order (`ReadingOrder`): every read takes a ticket before asking
+  Windows, and a reading older than the one last shown is dropped, so two quick changes made
+  elsewhere (or a notification and the switch's own read) can never end on the earlier state.
+- **[S-3921]** A registry watch (`RegNotifyChangeKeyValue`, one-shot) is armed again before the owner
+  reads. A key that is not there (or went: the CloudStore writes a key again from scratch) is waited
+  for at its parent, the parent armed first and the key looked for after it, and on a parent's
+  signal the parent asked again before the key is looked for (`KeyFollow`), so a key coming back in
+  between is never lost behind a parent that will not signal again.
 - **[S-3916]** Styles ([S-6000]): one `QuickToggleStyle` on the base `QuickToggleConfig`, shared by
   all thirteen kinds (never an enum per kind): **Tile** (the default, [S-3904]..[S-3906]), **Round
   button** (`round`, [S-3917]) and **Switch** ([S-3918]). Every style is drawn over the same whole-tile

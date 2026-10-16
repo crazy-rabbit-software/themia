@@ -1,47 +1,60 @@
 using Microsoft.Win32;
 using Themia.Core.Diagnostics;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Toggles;
 
 /// <summary>
 /// [S-3907] A registry key followed for changes, for what Windows keeps there and announces nowhere
-/// else an app can hear: the radio management service's state, a setting's DWORD, the rotation key.
-/// <c>RegNotifyChangeKeyValue</c> signals an event, the pool waits on it, and the watch is armed
-/// again before the change is passed on, so a change made meanwhile is not lost. Thread-agnostic: the
-/// pool thread that armed it may be gone by the time the key changes.
+/// else an app can hear: the radio management service's state, a setting's DWORD, the rotation key, a
+/// CloudStore value. <c>RegNotifyChangeKeyValue</c> signals an event, the pool waits on it, and the
+/// watch is armed again before the change is passed on, so a change made meanwhile is not lost.
+/// Thread-agnostic: the pool thread that armed it may be gone by the time the key changes.
 /// <para>
-/// A key that is not there yet (color filters' key, before they were first used) is waited for at
-/// its parent: when something under the parent changes and the key has appeared, the key itself is
-/// watched from then on, and the owner told. Nothing here reads a value: the owner reads what it needs.
+/// A key that is not there (color filters' key before they were first used, a CloudStore key written
+/// again from scratch) is waited for at its parent; the steps, and the order that keeps a key coming
+/// back in between from being lost, are <see cref="KeyFollow"/> ([S-3921]). Signals are taken one at a
+/// time. Nothing here reads a value: the owner reads what it needs.
 /// </para>
 /// </summary>
-internal sealed class RegistryWatch : IDisposable
+internal sealed class RegistryWatch : IDisposable, IKeyArms
 {
     private const string Scope = "toggles";
 
     private readonly RegistryHive _hive;
     private readonly string _path;
+    private readonly bool _subtree;
     private readonly Action _changed;
     private readonly Lock _gate = new();
+
+    // Held for one signal's steps, so two signals of one watch never re-arm it at once.
+    private readonly Lock _steps = new();
     private Armed? _armed;
-    private bool _onParent;
+    private KeyWatched _at = KeyWatched.Nothing;
     private bool _disposed;
 
-    private RegistryWatch(RegistryHive hive, string path, Action changed)
+    private RegistryWatch(RegistryHive hive, string path, bool subtree, Action changed)
     {
         _hive = hive;
         _path = path;
+        _subtree = subtree;
         _changed = changed;
     }
 
     /// <summary>
-    /// Follow <paramref name="path"/> under <paramref name="hive"/> (64-bit view); <paramref name="changed"/>
-    /// comes on a pool thread after each change. Null where neither the key nor its parent can be watched.
+    /// Follow <paramref name="path"/> under <paramref name="hive"/> (64-bit view), with every key under it
+    /// where <paramref name="subtree"/>; <paramref name="changed"/> comes on a pool thread after each
+    /// change. Null where neither the key nor its parent can be watched.
     /// </summary>
-    public static RegistryWatch? Open(RegistryHive hive, string path, Action changed)
+    public static RegistryWatch? Open(RegistryHive hive, string path, Action changed, bool subtree = false)
     {
-        var watch = new RegistryWatch(hive, path, changed);
-        if (watch.ArmKey() || watch.ArmParent())
+        var watch = new RegistryWatch(hive, path, subtree, changed);
+        lock (watch._steps)
+        {
+            watch._at = KeyFollow.Open(watch);
+        }
+
+        if (watch._at != KeyWatched.Nothing)
         {
             return watch;
         }
@@ -51,22 +64,20 @@ internal sealed class RegistryWatch : IDisposable
         return null;
     }
 
-    private bool ArmKey()
-    {
-        var key = OpenKey(_path);
-        if (key is null)
-        {
-            return false;
-        }
+    bool IKeyArms.ArmKey() => OpenKey(_path) is { } key && Arm(key, _subtree);
 
-        return Arm(key, parent: false);
-    }
-
-    private bool ArmParent()
+    bool IKeyArms.ArmParent()
     {
         var cut = _path.LastIndexOf('\\');
-        var key = cut > 0 ? OpenKey(_path[..cut]) : null;
-        return key is not null && Arm(key, parent: true);
+        return cut > 0 && OpenKey(_path[..cut]) is { } key && Arm(key, subtree: false);
+    }
+
+    bool IKeyArms.AskAgain()
+    {
+        lock (_gate)
+        {
+            return !_disposed && _armed is { } armed && armed.Ask(this);
+        }
     }
 
     private RegistryKey? OpenKey(string path)
@@ -83,19 +94,13 @@ internal sealed class RegistryWatch : IDisposable
         }
     }
 
-    /// <summary>Take <paramref name="key"/> and ask for its next change; false (and the key closed) where Windows refused.</summary>
-    private bool Arm(RegistryKey key, bool parent)
+    /// <summary>Take <paramref name="key"/> in place of what was armed and ask for its next change; false (and the key closed) where Windows refused.</summary>
+    private bool Arm(RegistryKey key, bool subtree)
     {
-        var armed = new Armed(key);
+        var armed = new Armed(key, subtree);
         lock (_gate)
         {
-            if (_disposed)
-            {
-                armed.Dispose();
-                return false;
-            }
-
-            if (!armed.Ask(this))
+            if (_disposed || !armed.Ask(this))
             {
                 armed.Dispose();
                 return false;
@@ -103,7 +108,6 @@ internal sealed class RegistryWatch : IDisposable
 
             _armed?.Dispose();
             _armed = armed;
-            _onParent = parent;
             return true;
         }
     }
@@ -113,55 +117,29 @@ internal sealed class RegistryWatch : IDisposable
     {
         try
         {
-            bool parent;
-            lock (_gate)
+            bool tell;
+            lock (_steps)
             {
-                if (_disposed || !ReferenceEquals(which, _armed))
-                {
-                    return;
-                }
-
-                parent = _onParent;
-            }
-
-            if (parent)
-            {
-                // Something under the parent changed: once the key is there, it is watched instead.
-                if (ArmKey())
-                {
-                    _changed();
-                    return;
-                }
-
                 lock (_gate)
                 {
-                    if (!_disposed && ReferenceEquals(which, _armed) && !which.Ask(this))
+                    if (_disposed || !ReferenceEquals(which, _armed))
                     {
-                        Log.Warn(Scope, $"stopped waiting for {_hive}\\{_path} to appear");
+                        return;
                     }
                 }
 
-                return;
-            }
-
-            bool again;
-            lock (_gate)
-            {
-                if (_disposed || !ReferenceEquals(which, _armed))
+                var was = _at;
+                (_at, tell) = KeyFollow.Heard(was, this);
+                if (_at == KeyWatched.Nothing && was != KeyWatched.Nothing)
                 {
-                    return;
+                    Log.Warn(Scope, $"stopped following {_hive}\\{_path}: changes made elsewhere will show on the next look");
                 }
-
-                again = which.Ask(this);
             }
 
-            if (!again)
+            if (tell)
             {
-                // The key went (deleted with its tree): wait for it at the parent again.
-                _ = ArmParent();
+                _changed();
             }
-
-            _changed();
         }
         catch (Exception ex)
         {
@@ -188,19 +166,19 @@ internal sealed class RegistryWatch : IDisposable
     }
 
     /// <summary>One key, its event and its registered wait: freed together, on every path.</summary>
-    private sealed class Armed(RegistryKey key) : IDisposable
+    private sealed class Armed(RegistryKey key, bool subtree) : IDisposable
     {
         private readonly AutoResetEvent _signal = new(false);
         private RegisteredWaitHandle? _wait;
 
-        /// <summary>Asks for the next change of the key; false where Windows refused.</summary>
+        /// <summary>Asks for the next change of the key; false where Windows refused (the key was deleted).</summary>
         public bool Ask(RegistryWatch owner)
         {
             _wait?.Unregister(null);
             _wait = null;
 
             var filter = ToggleNative.RegNotifyName | ToggleNative.RegNotifyLastSet | ToggleNative.RegNotifyThreadAgnostic;
-            if (ToggleNative.RegNotifyChangeKeyValue(key.Handle, subtree: false, filter, _signal.SafeWaitHandle, asynchronous: true) != 0)
+            if (ToggleNative.RegNotifyChangeKeyValue(key.Handle, subtree, filter, _signal.SafeWaitHandle, asynchronous: true) != 0)
             {
                 return false;
             }

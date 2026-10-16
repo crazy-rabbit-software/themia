@@ -72,20 +72,21 @@ internal sealed unsafe class EnergySaverToggleSource : ToggleSource
             return;
         }
 
+        var read = BeginRead();
         if (Volatile.Read(ref _registration) == 0)
         {
-            Publish(ToggleReading.Blocked(ToggleBlock.NotOnWindows));
+            Publish(ToggleReading.Blocked(ToggleBlock.NotOnWindows), read);
             return;
         }
 
         if (_handler is null)
         {
-            Publish(ToggleReading.Blocked(ToggleBlock.NoSwitch));
+            Publish(ToggleReading.Blocked(ToggleBlock.NoSwitch), read);
             return;
         }
 
         var status = Volatile.Read(ref _status);
-        Publish(status >= 0 && QuickToggleRules.EnergySaverFrom((uint)status) is { } on ? ToggleReading.Of(on) : ToggleReading.Pending);
+        Publish(status >= 0 && QuickToggleRules.EnergySaverFrom((uint)status) is { } on ? ToggleReading.Of(on) : ToggleReading.Pending, read);
     }
 
     /// <summary>Windows' callback: a power setting changed. Nothing may escape into the power manager.</summary>

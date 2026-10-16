@@ -109,6 +109,7 @@ internal sealed class SpatialToggleSource : ToggleSource
 
     private void Read()
     {
+        var read = BeginRead();
         SpatialAudioDeviceConfiguration? configuration;
         lock (_gate)
         {
@@ -122,7 +123,7 @@ internal sealed class SpatialToggleSource : ToggleSource
 
         if (configuration is null)
         {
-            Publish(ToggleReading.Blocked(ToggleBlock.NoDevice));
+            Publish(ToggleReading.Blocked(ToggleBlock.NoDevice), read);
             return;
         }
 
@@ -130,16 +131,16 @@ internal sealed class SpatialToggleSource : ToggleSource
         {
             if (!configuration.IsSpatialAudioSupported || !configuration.IsSpatialAudioFormatSupported(SpatialAudioFormatSubtype.WindowsSonic))
             {
-                Publish(ToggleReading.Blocked(ToggleBlock.NotSupported));
+                Publish(ToggleReading.Blocked(ToggleBlock.NotSupported), read);
                 return;
             }
 
-            Publish(ToggleReading.Of(!QuickToggleRules.SpatialIsOff(configuration.ActiveSpatialAudioFormat)));
+            Publish(ToggleReading.Of(!QuickToggleRules.SpatialIsOff(configuration.ActiveSpatialAudioFormat)), read);
         }
         catch (Exception ex)
         {
             Log.Warn(Scope, $"the output's spatial sound could not be read: {ex.Message}");
-            Publish(ToggleReading.Pending);
+            Publish(ToggleReading.Pending, read);
         }
     }
 

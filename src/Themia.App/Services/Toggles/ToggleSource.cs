@@ -22,6 +22,7 @@ internal abstract class ToggleSource : IDisposable
     protected const string Scope = "toggles";
 
     private readonly Lock _gate = new();
+    private readonly ReadingOrder _order = new();
     private ToggleReading _reading = ToggleReading.Pending;
 
     /// <summary>The reading moved. From any thread; the hub carries it to each widget's.</summary>
@@ -77,12 +78,26 @@ internal abstract class ToggleSource : IDisposable
     /// <summary>Let go of everything followed. Called once.</summary>
     protected abstract void Stop();
 
-    /// <summary>Take a new reading; tell the widgets when it moved.</summary>
-    protected void Publish(ToggleReading reading)
+    /// <summary>
+    /// [S-3920] A ticket for a read about to ask Windows, taken before asking: its reading is then
+    /// published with it, and dropped where a read that began later has already been shown.
+    /// </summary>
+    protected long BeginRead() => _order.Begin();
+
+    /// <summary>Take a reading not asked of Windows just now (a fact found at start); tell the widgets when it moved.</summary>
+    protected void Publish(ToggleReading reading) => Publish(reading, BeginRead());
+
+    /// <summary>Take the reading of the read holding <paramref name="read"/> (<see cref="BeginRead"/>); tell the widgets when it moved.</summary>
+    protected void Publish(ToggleReading reading, long read)
     {
         bool moved;
         lock (_gate)
         {
+            if (!_order.Accept(read))
+            {
+                return;
+            }
+
             moved = reading != _reading;
             _reading = reading;
         }

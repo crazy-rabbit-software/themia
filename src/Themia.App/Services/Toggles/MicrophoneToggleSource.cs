@@ -149,6 +149,7 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
 
     private void Read()
     {
+        var read = BeginRead();
         int result, muted = 0;
         lock (_gate)
         {
@@ -160,7 +161,7 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
             result = ((delegate* unmanaged[Stdcall]<nint, int*, int>)ToggleNative.Slot(_volume, SlotGetMute))(_volume, &muted);
         }
 
-        Publish(result >= 0 ? ToggleReading.Of(muted == 0) : ToggleReading.Pending);
+        Publish(result >= 0 ? ToggleReading.Of(muted == 0) : ToggleReading.Pending, read);
     }
 
     /// <summary>Under the lock.</summary>

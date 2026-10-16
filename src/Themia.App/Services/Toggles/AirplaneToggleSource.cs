@@ -95,6 +95,7 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
     /// <summary>Asks the service where it stands; on the pool.</summary>
     private void Read()
     {
+        var read = BeginRead();
         int asked, enabled = 0, hardware = 0, reason = 0;
         lock (_gate)
         {
@@ -106,7 +107,7 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
             asked = ((delegate* unmanaged[Stdcall]<nint, int*, int*, int*, int>)ToggleNative.Slot(_manager, SlotGetState))(_manager, &enabled, &hardware, &reason);
         }
 
-        Publish(QuickToggleRules.AirplaneFrom(asked, enabled) is { } on ? ToggleReading.Of(on) : ToggleReading.Pending);
+        Publish(QuickToggleRules.AirplaneFrom(asked, enabled) is { } on ? ToggleReading.Of(on) : ToggleReading.Pending, read);
     }
 
     protected override void Stop()

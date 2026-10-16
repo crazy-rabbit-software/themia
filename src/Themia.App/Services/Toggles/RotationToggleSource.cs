@@ -63,8 +63,9 @@ internal sealed unsafe class RotationToggleSource : ToggleSource
             return;
         }
 
+        var read = BeginRead();
         uint state = 0;
-        Publish(QuickToggleRules.Rotation(ToggleNative.GetAutoRotationState(&state) ? state : null));
+        Publish(QuickToggleRules.Rotation(ToggleNative.GetAutoRotationState(&state) ? state : null), read);
     }
 
     protected override void Stop()

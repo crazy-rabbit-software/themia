@@ -34,7 +34,7 @@ internal sealed class SettingToggleSource(SettingPlace place) : ToggleSource
     private readonly Lock _gate = new();
     private SettingHandler? _handler;
     private RegistryWatch? _watch;
-    private bool _usable = true;
+    private volatile bool _usable = true;
     private volatile bool _looked;
 
     public override void Start() => OffThread("finding its handler", () =>
@@ -91,15 +91,17 @@ internal sealed class SettingToggleSource(SettingPlace place) : ToggleSource
             return;
         }
 
+        var read = BeginRead();
+
         if (_handler is null)
         {
-            Publish(ToggleReading.Blocked(ToggleBlock.NoSwitch));
+            Publish(ToggleReading.Blocked(ToggleBlock.NoSwitch), read);
             return;
         }
 
         if (!_usable)
         {
-            Publish(ToggleReading.Blocked(ToggleBlock.TurnedOff));
+            Publish(ToggleReading.Blocked(ToggleBlock.TurnedOff), read);
             return;
         }
 
@@ -112,11 +114,11 @@ internal sealed class SettingToggleSource(SettingPlace place) : ToggleSource
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {
             Log.Warn(Scope, $"cannot read {place.Value}: {ex.Message}");
-            Publish(ToggleReading.Pending);
+            Publish(ToggleReading.Pending, read);
             return;
         }
 
-        Publish(QuickToggleRules.DwordSetting(value, place.Absent) is { } on ? ToggleReading.Of(on) : ToggleReading.Pending);
+        Publish(QuickToggleRules.DwordSetting(value, place.Absent) is { } on ? ToggleReading.Of(on) : ToggleReading.Pending, read);
     }
 
     protected override void Stop()

@@ -70,6 +70,7 @@ internal sealed class RadioToggleSource(RadioKind kind) : ToggleSource
     /// <summary>Read where the radio stands; here, on its own thread. Never throws (an event handler).</summary>
     private void Note(Radio radio)
     {
+        var read = BeginRead();
         try
         {
             Publish(radio.State switch
@@ -80,13 +81,13 @@ internal sealed class RadioToggleSource(RadioKind kind) : ToggleSource
                 // Disabled: a hardware switch or the driver holds it off; Windows' own tile cannot switch it either.
                 RadioState.Disabled => ToggleReading.Blocked(ToggleBlock.TurnedOff),
                 _ => ToggleReading.Pending,
-            });
+            }, read);
         }
         catch (Exception ex)
         {
             // A radio going away while it is read is what switching one off can look like.
             Log.Debug(Scope, $"the {kind} radio could not be read: {ex.Message}");
-            Publish(ToggleReading.Pending);
+            Publish(ToggleReading.Pending, read);
         }
     }
 
