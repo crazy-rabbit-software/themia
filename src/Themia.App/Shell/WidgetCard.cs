@@ -683,17 +683,17 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     {
         _editOutline.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
         _handles.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
-
-        // [S-1751] In edit mode the view is inert, all of it, for every widget: presses, right-clicks,
-        // long presses and hovers fall through to the card (its transparent background) and select,
-        // drag or open the card menu. Each view guarding itself left Mail's message menu reachable.
-        _surface.IsHitTestVisible = CardGestures.ContentTakesInput(editing);
         ApplySelection();
         ApplyHidden();
 
         // Outside edit mode the card must not eat pointer input at all: a clock is something you
         // look at, and the desktop underneath stays usable.
         IsHitTestVisible = true;
+
+        // [S-1751] In edit mode the view is inert, all of it, for every widget: presses, right-clicks,
+        // long presses and hovers fall through to the card (its transparent background) and select,
+        // drag or open the card menu. Each view guarding itself left Mail's message menu reachable.
+        _surface.IsHitTestVisible = CardGestures.ContentTakesInput(editing);
         ProtectedCursor = editing
             ? InputSystemCursor.Create(InputSystemCursorShape.SizeAll)
             : InputSystemCursor.Create(InputSystemCursorShape.Arrow);

@@ -6332,6 +6332,12 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   window is open ([S-1745]) and every other way in do nothing for it. Whether a page has rows is read
   off the page builder itself (a throwaway widget of the kind, once per kind), never a list kept
   beside the pages, so the two cannot drift. The edit bar has no per-widget Settings button.
+- **[S-1751]** In edit mode a widget's own content is inert (`CardGestures.ContentTakesInput`): the
+  card turns hit-testing off for its header and view, every widget's alike, so a press, right-click,
+  long press or hover lands on the card and selects, drags ([S-1745]) or opens the card menu
+  ([S-1743]). No item menu (a mail, a file, a shortcut, a task), hover action, row click, button or
+  drag out of a widget fires there; outside edit mode they all work as before. One guard on the card,
+  not one per view.
 
 Needs a live pass (pointer and focus on the real desktop): the surface menu opening only on empty
 surface and at the pointer, Add widget's picker at the click then placing, the right-click that
@@ -6400,12 +6406,6 @@ the display's scale, the second page on a small or scaled display, the refusal w
 
 Owning files: `Themia.Core/Widgets/WidgetSetup.cs`, `Themia.App/Shell/WidgetCard.Setup.cs`,
 `Themia.App/Widgets/SetupPrompt.cs`. The section also records the removal of the debug widget
-- **[S-1751]** In edit mode a widget's own content is inert (`CardGestures.ContentTakesInput`): the
-  card turns hit-testing off for its header and view, every widget's alike, so a press, right-click,
-  long press or hover lands on the card and selects, drags ([S-1745]) or opens the card menu
-  ([S-1743]). No item menu (a mail, a file, a shortcut, a task), hover action, row click, button or
-  drag out of a widget fires there; outside edit mode they all work as before. One guard on the card,
-  not one per view.
 gallery ([S-1863]).
 
 - **[S-1860]** A widget that can show nothing useful until it is configured needs setting up, decided

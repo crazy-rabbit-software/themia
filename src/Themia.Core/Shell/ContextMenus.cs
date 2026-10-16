@@ -304,6 +304,9 @@ public static class CardGestures
     /// <summary>
     /// [S-1745] Whether a click shows the widget's page in the settings window: only a plain click,
     /// and only when the window is already open; a click never opens it.
+    /// </summary>
+    public static bool FollowsInSettings(CardPress press, bool travelled, bool released, bool settingsOpen)
+        => settingsOpen && IsClick(press, travelled, released);
 
     /// <summary>
     /// [S-1751] Whether the widget's own content (header and view) takes pointer input. In edit mode
@@ -311,7 +314,4 @@ public static class CardGestures
     /// a row's, a button's or an item menu's.
     /// </summary>
     public static bool ContentTakesInput(bool editMode) => !editMode;
-    /// </summary>
-    public static bool FollowsInSettings(CardPress press, bool travelled, bool released, bool settingsOpen)
-        => settingsOpen && IsClick(press, travelled, released);
 }
