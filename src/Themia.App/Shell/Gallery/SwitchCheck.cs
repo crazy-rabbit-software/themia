@@ -19,6 +19,11 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1883] Debug only: <c>Themia.exe --switch-check &lt;rounds&gt; [&lt;out.txt&gt;] [--ordinary | --show &lt;view&gt;] [--per-view] [--dwell ms]</c>
 /// measures what switching views costs and whether it leaks.
+/// <c>[--state &lt;state.json&gt;]</c> takes the views from a copy of a state file (read, never written).
+/// <c>--busy &lt;pictures&gt; [--stream &lt;url&gt;] [--soak s]</c> ([S-6601]) is the long-running desktop
+/// instead: two 2560x1440 stand-in displays, one with seven galleries over a picture folder, one with
+/// a video stream, the visualizer and the system widgets, measured every 30 s for <c>--soak</c>
+/// seconds, then the showcase views switched through on the first display <c>rounds</c> times.
 /// <para>
 /// A real <see cref="AppHost"/> over a detached state store (nothing is saved; the user's state,
 /// accounts and caches are never read) and a real <see cref="DesktopWindow"/> on a stand-in display
@@ -42,6 +47,7 @@ internal static class SwitchCheck
     private const string Scope = "switch-check";
     private const string Flag = "--switch-check";
     private const string DisplayId = "switch-check-display";
+    private const string SecondId = "switch-check-display-2";
 
     /// <summary>The stand-in display, in physical pixels, far outside every real one.</summary>
     private const int Width = 1920;
@@ -75,15 +81,31 @@ internal static class SwitchCheck
         var showAt = Array.IndexOf(args, "--show");
         var show = showAt >= 0 && showAt + 1 < args.Length ? args[showAt + 1] : null;
 
-        _ = RunAsync(app, dispatcher, rounds, outPath, ordinary, dwell, args.Contains("--per-view"), show);
+        var options = new Options(
+            ArgAfter(args, "--state"),
+            ArgAfter(args, "--busy"),
+            ArgAfter(args, "--stream"),
+            int.TryParse(ArgAfter(args, "--soak"), out var soak) && soak >= 0 ? soak : 0);
+
+        _ = RunAsync(app, dispatcher, rounds, outPath, ordinary, dwell, args.Contains("--per-view"), show, options);
         return true;
     }
 
-    private static async Task RunAsync(Application app, DispatcherQueue dispatcher, int rounds, string? outPath, bool ordinary, int dwell, bool byView, string? show)
+    private static string? ArgAfter(string[] args, string flag)
+    {
+        var at = Array.IndexOf(args, flag);
+        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
+    }
+
+    /// <summary>The state to take the views from, and the long-running desktop ([S-6601]).</summary>
+    private sealed record Options(string? StatePath, string? Pictures, string? Stream, int SoakSeconds);
+
+    private static async Task RunAsync(Application app, DispatcherQueue dispatcher, int rounds, string? outPath, bool ordinary, int dwell, bool byView, string? show, Options options)
     {
         var lines = new List<string>();
         AppHost? host = null;
         DesktopWindow? surface = null;
+        DesktopWindow? second = null;
 
         void Say(string line)
         {
@@ -94,13 +116,22 @@ internal static class SwitchCheck
         try
         {
             var statePath = Path.Combine(Path.GetTempPath(), "themia-switch-check", "state.json");
-            var monitor = StandIn();
-            var screen = new ScreenMetrics(Width, Height) { Allowed = GridGeometry.AllowedArea(monitor.Info.Bounds, monitor.Info.WorkArea) };
+            var busy = options.Pictures is not null;
+            var (width, height) = busy ? (2560, 1440) : (Width, Height);
+            var monitor = StandIn(DisplayId, Left, width, height);
+            var screen = new ScreenMetrics(width, height) { Allowed = GridGeometry.AllowedArea(monitor.Info.Bounds, monitor.Info.WorkArea) };
 
             var empty = ViewState.Create("Empty");
             var state = new AppState { Views = [empty], ActiveViewId = empty.Id };
 
-            if (ordinary)
+            if (options.StatePath is { } source)
+            {
+                // A copy of a state file: parsed with the app's own trust boundary, never written back.
+                state = AppStateStore.Parse(File.ReadAllText(source)).State
+                    ?? throw new InvalidDataException($"{source} is not a state document");
+                state.Views.Add(empty);
+            }
+            else if (ordinary)
             {
                 state.Views.Insert(0, OrdinaryView());
             }
@@ -110,15 +141,42 @@ internal static class SwitchCheck
                 ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx));
             }
 
+            ViewState? galleries = null;
+            ViewState? feeds = null;
+
+            if (busy)
+            {
+                (galleries, feeds) = BusyViews(Path.GetFullPath(options.Pictures!), options.Stream);
+                state.Views.Insert(0, feeds);
+                state.Views.Insert(0, galleries);
+            }
+
             state.ShowViewOn(DisplayId, empty.Id);
+            if (busy)
+            {
+                state.ShowViewOn(SecondId, empty.Id);
+            }
 
             host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
             surface = new DesktopWindow(host, monitor);
             surface.ShowSurface();
+
+            if (busy)
+            {
+                second = new DesktopWindow(host, StandIn(SecondId, Left + width + 100, width, height));
+                second.ShowSurface();
+            }
+
             await Task.Delay(1000).ConfigureAwait(true);
 
             Say($"switch-check: {state.Views.Count} views, {state.Views.Sum(v => v.Widgets.Count)} widgets, dwell {dwell} ms");
             Say(Measure("start (empty view)", host));
+
+            if (busy)
+            {
+                await SoakAsync(host, state, galleries!, feeds!, empty, options.SoakSeconds, rounds, dwell, Say).ConfigureAwait(true);
+                return;
+            }
 
             if (ordinary || show is not null)
             {
@@ -210,6 +268,7 @@ internal static class SwitchCheck
         }
         finally
         {
+            second?.CloseSurface();
             surface?.CloseSurface();
             host?.Dispose();
 
@@ -244,15 +303,15 @@ internal static class SwitchCheck
     /// views attached must be exactly the live widgets ([S-1880]) and no card of another view may be
     /// alive. A breach is printed as LEAK.
     /// </summary>
-    private static string Measure(string label, AppHost host, ViewState? shown = null)
+    private static string Measure(string label, AppHost host, ViewState? shown = null, ViewState? alsoShown = null)
     {
         Collect();
 
         using var process = Process.GetCurrentProcess();
         process.Refresh();
         var mb = 1024.0 * 1024.0;
-        var expected = shown?.Widgets.Count ?? 0;
-        var live = WidgetLiveness.Live(host.State, [DisplayId], AccountFeatures.None).Count;
+        var expected = (shown?.Widgets.Count ?? 0) + (alsoShown?.Widgets.Count ?? 0);
+        var live = WidgetLiveness.Live(host.State, [DisplayId, SecondId], AccountFeatures.None).Count;
         var cards = LiveCensus.LiveCards();
 
         // [S-2511] The system hub's one subscription is its own ([S-2503]), not a widget's.
@@ -265,7 +324,7 @@ internal static class SwitchCheck
             $"views attached {LiveCensus.Attached,4} (live {live})  ticks {host.Ticker.SubscriptionCount,3}  " +
             $"system feeds {system?.FeedCount ?? 0,3} (wanted {system?.WantedCount ?? 0}, series {system?.SeriesCount ?? 0})  " +
             $"gallery sources {AppServices.Gallery?.SourceCount ?? 0,2} (lingering {AppServices.Gallery?.LingeringCount ?? 0}, pictures {AppServices.Gallery?.Pictures.Count ?? 0}, {(AppServices.Gallery?.Pictures.Bytes ?? 0) / mb:0.0} MB)  " +
-            $"threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
+            $"icons {AppIcons.Count,3}  threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
     }
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
@@ -283,11 +342,101 @@ internal static class SwitchCheck
     }
 
     /// <summary>One display nobody can see: no real monitor is anywhere near (-32000, -32000).</summary>
-    private static MonitorTarget StandIn()
+    private static MonitorTarget StandIn(string id = DisplayId, int left = Left, int width = Width, int height = Height)
     {
-        var bounds = new Win32.Rect { Left = Left, Top = Top, Right = Left + Width, Bottom = Top + Height };
+        var bounds = new Win32.Rect { Left = left, Top = Top, Right = left + width, Bottom = Top + height };
         var work = bounds with { Bottom = bounds.Bottom - 48 };
-        return new MonitorTarget(DisplayId, IdResolved: true, "switch-check", bounds, work, IsPrimary: false);
+        return new MonitorTarget(id, IdResolved: true, "switch-check", bounds, work, IsPrimary: false);
+    }
+
+    /// <summary>
+    /// [S-6601] The long-running desktop: both busy views shown, measured every 30 s for
+    /// <paramref name="soakSeconds"/>; then the showcase views switched through on the first display
+    /// <paramref name="rounds"/> times while the second keeps its view; then both displays emptied.
+    /// </summary>
+    private static async Task SoakAsync(AppHost host, AppState state, ViewState galleries, ViewState feeds, ViewState empty, int soakSeconds, int rounds, int dwell, Action<string> say)
+    {
+        host.ShowView(DisplayId, galleries.Id);
+        host.ShowView(SecondId, feeds.Id);
+        await Task.Delay(5000).ConfigureAwait(true);
+        say(Measure("busy views shown", host, galleries, feeds));
+
+        var watch = Stopwatch.StartNew();
+        while (watch.Elapsed.TotalSeconds < soakSeconds)
+        {
+            await Task.Delay(30_000).ConfigureAwait(true);
+            say(Measure($"busy views after {watch.Elapsed.TotalSeconds:0} s", host, galleries, feeds));
+        }
+
+        var showcase = state.Views.Where(v => v != galleries && v != feeds && v != empty).ToList();
+        for (var round = 1; round <= rounds && showcase.Count > 0; round++)
+        {
+            foreach (var view in showcase)
+            {
+                host.ShowView(DisplayId, view.Id);
+                await Task.Delay(dwell).ConfigureAwait(true);
+            }
+
+            host.ShowView(DisplayId, galleries.Id);
+            await Task.Delay(3000).ConfigureAwait(true);
+            say(Measure($"showcase round {round}, busy views back", host, galleries, feeds));
+        }
+
+        host.ShowView(DisplayId, empty.Id);
+        host.ShowView(SecondId, empty.Id);
+        await Task.Delay(2000).ConfigureAwait(true);
+        say(Measure("both displays empty", host));
+    }
+
+    /// <summary>
+    /// [S-6601] The user's kind of desktop: seven galleries in every style over one picture folder on
+    /// one display; on the other a video stream (when given), the visualizer, top processes and the
+    /// system meters.
+    /// </summary>
+    private static (ViewState Galleries, ViewState Feeds) BusyViews(string pictures, string? stream)
+    {
+        var galleries = ViewState.Create("Busy galleries");
+        GalleryStyle[] styles = [GalleryStyle.Slideshow, GalleryStyle.Grid, GalleryStyle.Scatter, GalleryStyle.Mosaic, GalleryStyle.Slideshow, GalleryStyle.Grid, GalleryStyle.Mosaic];
+        FracRect[] places =
+        [
+            new(0.02, 0.04, 0.30, 0.30), new(0.34, 0.04, 0.30, 0.45), new(0.66, 0.04, 0.32, 0.30),
+            new(0.02, 0.38, 0.30, 0.30), new(0.66, 0.38, 0.32, 0.30), new(0.02, 0.72, 0.46, 0.25),
+            new(0.50, 0.72, 0.48, 0.25),
+        ];
+
+        for (var i = 0; i < styles.Length; i++)
+        {
+            var widget = WidgetInstance.Create(WidgetKind.Gallery, places[i]);
+            widget.Config = new GalleryConfig { Path = pictures, Style = styles[i], SlideshowSeconds = 5 };
+            galleries.Widgets.Add(widget);
+        }
+
+        var feeds = ViewState.Create("Busy feeds");
+        (WidgetKind Kind, FracRect Rect)[] layout =
+        [
+            (WidgetKind.VideoStream, new FracRect(0.02, 0.04, 0.40, 0.40)),
+            (WidgetKind.AudioVisualizer, new FracRect(0.44, 0.04, 0.30, 0.20)),
+            (WidgetKind.TopProcesses, new FracRect(0.76, 0.04, 0.22, 0.60)),
+            (WidgetKind.Cpu, new FracRect(0.44, 0.26, 0.14, 0.18)),
+            (WidgetKind.Memory, new FracRect(0.60, 0.26, 0.14, 0.18)),
+            (WidgetKind.Network, new FracRect(0.02, 0.48, 0.20, 0.18)),
+            (WidgetKind.CpuDetails, new FracRect(0.24, 0.48, 0.24, 0.30)),
+            (WidgetKind.ScreenTimeChart, new FracRect(0.50, 0.48, 0.24, 0.30)),
+            (WidgetKind.Clock, new FracRect(0.02, 0.70, 0.20, 0.14)),
+        ];
+
+        foreach (var (kind, rect) in layout)
+        {
+            var widget = WidgetInstance.Create(kind, rect);
+            if (kind == WidgetKind.VideoStream && stream is not null)
+            {
+                widget.Config = new VideoStreamConfig { Url = stream };
+            }
+
+            feeds.Widgets.Add(widget);
+        }
+
+        return (galleries, feeds);
     }
 
     /// <summary>[S-1885] An everyday desktop: eight widgets of the kinds people keep on it.</summary>

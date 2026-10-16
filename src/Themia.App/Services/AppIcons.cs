@@ -41,6 +41,9 @@ internal static partial class AppIcons
     private static readonly Dictionary<string, ImageSource?> Ready = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, Task<Pixels?>> Pending = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Icons held (diagnostics: the switch check).</summary>
+    public static int Count => Ready.Count;
+
     /// <summary>
     /// One extraction at a time. The shell answers E_PENDING to concurrent first-time icon requests
     /// (its icon cache is still filling for the first one), so asking one by one is what makes the
