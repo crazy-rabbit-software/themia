@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "ড্রাইভ",
   "shell.meters.drive.desc": "যে ড্রাইভের রিড ও রাইট সংখ্যায় দেখানো হয়",
   "shell.meters.systemDrive": "সিস্টেম ড্রাইভ ({drive})",
-  "shell.meters.gpuDescription": "প্রতি অ্যাডাপ্টারে গ্রাফিক্স লোড",
+  "shell.meters.gpuDescription": "একটি গ্রাফিক্স কার্ডের লোড",
   "shell.meters.batteryDescription": "চার্জের মাত্রা",
   "shell.appearance.headerFade": "হেডার স্ট্রিপ কতটা নিরেট; {percent} উইজেটের সঙ্গে মেলে",
   "shell.views.add": "ভিউ যোগ করুন",

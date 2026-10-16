@@ -93,7 +93,7 @@ public enum WidgetKind
     /// <summary>A live camera picture: MJPEG, a polled snapshot, or a stream Windows can play.</summary>
     VideoStream = 42,
 
-    /// <summary>Graphics load and video memory, per adapter.</summary>
+    /// <summary>[S-433] Graphics load of one adapter (one widget per adapter).</summary>
     Gpu = 39,
 
     /// <summary>Per-application volume for the default output device.</summary>

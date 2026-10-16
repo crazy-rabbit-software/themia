@@ -641,7 +641,7 @@
   "shell.meters.drive.label": "Диск",
   "shell.meters.drive.desc": "Диск, чтение и запись которого показываются",
   "shell.meters.systemDrive": "Системный диск ({drive})",
-  "shell.meters.gpuDescription": "Нагрузка на графику по адаптерам",
+  "shell.meters.gpuDescription": "Нагрузка одной видеокарты",
   "shell.meters.batteryDescription": "Уровень заряда",
   "shell.appearance.headerFade": "Насколько плотна полоса заголовка; {percent} — как у виджета",
   "shell.views.add": "Добавить вид",

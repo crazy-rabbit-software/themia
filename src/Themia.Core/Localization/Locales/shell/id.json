@@ -584,7 +584,7 @@
   "shell.meters.drive.label": "Drive",
   "shell.meters.drive.desc": "Drive yang baca dan tulisnya menjadi angka",
   "shell.meters.systemDrive": "Drive sistem ({drive})",
-  "shell.meters.gpuDescription": "Beban grafis, per adaptor",
+  "shell.meters.gpuDescription": "Beban satu kartu grafis",
   "shell.meters.batteryDescription": "Tingkat daya",
   "shell.appearance.headerFade": "Seberapa pekat strip header; {percent} sama dengan widget",
   "shell.views.add": "Tambah tampilan",

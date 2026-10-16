@@ -584,7 +584,7 @@
   "shell.meters.drive.label": "ドライブ",
   "shell.meters.drive.desc": "読み取りと書き込みを数値で表示するドライブ",
   "shell.meters.systemDrive": "システム ドライブ ({drive})",
-  "shell.meters.gpuDescription": "アダプターごとのグラフィックス負荷",
+  "shell.meters.gpuDescription": "1 枚のグラフィックス カードの負荷",
   "shell.meters.batteryDescription": "充電レベル",
   "shell.appearance.headerFade": "ヘッダー帯の不透明度。{percent} でウィジェットと同じになります",
   "shell.views.add": "ビューを追加",

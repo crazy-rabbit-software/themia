@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "ड्राइव",
   "shell.meters.drive.desc": "वह ड्राइव जिसके रीड और राइट संख्या में दिखते हैं",
   "shell.meters.systemDrive": "सिस्टम ड्राइव ({drive})",
-  "shell.meters.gpuDescription": "ग्राफ़िक्स लोड, प्रति एडेप्टर",
+  "shell.meters.gpuDescription": "एक ग्राफ़िक्स कार्ड का लोड",
   "shell.meters.batteryDescription": "चार्ज स्तर",
   "shell.appearance.headerFade": "हेडर पट्टी कितनी ठोस हो; {percent} विजेट से मेल खाता है",
   "shell.views.add": "व्यू जोड़ें",

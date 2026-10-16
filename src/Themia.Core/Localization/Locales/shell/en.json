@@ -602,7 +602,7 @@
   "shell.meters.drive.label": "Drive",
   "shell.meters.drive.desc": "The drive whose reads and writes are the number",
   "shell.meters.systemDrive": "System drive ({drive})",
-  "shell.meters.gpuDescription": "Graphics load, per adapter",
+  "shell.meters.gpuDescription": "Load of one graphics card",
   "shell.meters.batteryDescription": "Charge level",
   "shell.appearance.headerFade": "How solid the header strip is; {percent} matches the widget",
   "shell.views.add": "Add view",

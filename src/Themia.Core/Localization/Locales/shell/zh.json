@@ -584,7 +584,7 @@
   "shell.meters.drive.label": "驱动器",
   "shell.meters.drive.desc": "以数字显示读写速度的驱动器",
   "shell.meters.systemDrive": "系统驱动器 ({drive})",
-  "shell.meters.gpuDescription": "每个适配器的图形负载",
+  "shell.meters.gpuDescription": "单张显卡的负载",
   "shell.meters.batteryDescription": "电量",
   "shell.appearance.headerFade": "标题栏的不透明度；{percent} 与小组件一致",
   "shell.views.add": "添加视图",

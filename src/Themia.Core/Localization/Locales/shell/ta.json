@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "இயக்ககம்",
   "shell.meters.drive.desc": "எந்த இயக்ககத்தின் வாசிப்பும் எழுதுதலும் எண்ணாகக் காட்டப்படும்",
   "shell.meters.systemDrive": "சிஸ்டம் இயக்ககம் ({drive})",
-  "shell.meters.gpuDescription": "அடாப்டர் வாரியாக, கிராஃபிக்ஸ் சுமை",
+  "shell.meters.gpuDescription": "ஒரு கிராஃபிக்ஸ் அட்டையின் சுமை",
   "shell.meters.batteryDescription": "சார்ஜ் நிலை",
   "shell.appearance.headerFade": "தலைப்புப் பட்டை எவ்வளவு திடமானது; {percent} விட்ஜெட்டுக்குப் பொருந்தும்",
   "shell.views.add": "காட்சியைச் சேர்",

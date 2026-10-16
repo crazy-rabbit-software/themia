@@ -86,8 +86,12 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     private bool _preview;
     private bool _hidden;
 
+#if DEBUG
     /// <summary>Debug renders only: a sample track is on screen, and the real session must not replace it.</summary>
     private bool _frozen;
+#else
+    private const bool _frozen = false;
+#endif
 
     public MusicView()
     {

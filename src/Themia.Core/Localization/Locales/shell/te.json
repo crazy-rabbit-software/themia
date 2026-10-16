@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "డ్రైవ్",
   "shell.meters.drive.desc": "రీడ్‌లు మరియు రైట్‌లు సంఖ్యగా చూపబడే డ్రైవ్",
   "shell.meters.systemDrive": "సిస్టమ్ డ్రైవ్ ({drive})",
-  "shell.meters.gpuDescription": "ప్రతి అడాప్టర్‌కు గ్రాఫిక్స్ లోడ్",
+  "shell.meters.gpuDescription": "ఒక గ్రాఫిక్స్ కార్డ్ లోడ్",
   "shell.meters.batteryDescription": "ఛార్జ్ స్థాయి",
   "shell.appearance.headerFade": "హెడర్ పట్టీ ఎంత దృఢంగా ఉంటుంది; {percent} విడ్జెట్‌కు సరిపోతుంది",
   "shell.views.add": "వీక్షణను జోడించు",

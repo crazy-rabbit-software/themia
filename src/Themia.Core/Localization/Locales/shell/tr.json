@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "Sürücü",
   "shell.meters.drive.desc": "Okuma ve yazmaları gösterilen sürücü",
   "shell.meters.systemDrive": "Sistem sürücüsü ({drive})",
-  "shell.meters.gpuDescription": "Bağdaştırıcı başına grafik yükü",
+  "shell.meters.gpuDescription": "Tek bir ekran kartının yükü",
   "shell.meters.batteryDescription": "Şarj düzeyi",
   "shell.appearance.headerFade": "Başlık şeridinin ne kadar opak olduğu; {percent} pencere öğesiyle eşleşir",
   "shell.views.add": "Görünüm ekle",

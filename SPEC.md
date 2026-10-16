@@ -16,11 +16,11 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon (two widgets, SKY-SPLIT); Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
+- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -1814,10 +1814,10 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   calendar-query`) accounts. An all-day event is held as two dates (first day, exclusive end) and is
   never converted between zones; a timed one as two instants. Clicking an event opens its provider
   page (CalDAV has none: tooltip only).
-- **[S-561]** Config, shared by the five calendar kinds ([S-3601]): `accountIds`, `calendars`,
-  `calendarColors`, `showBirthdays` (on); the week adds `days` and `firstDay` ([S-3637]), the agenda
-  `agendaCount` (1–100, 20) and `agendaDays` ([S-3636]). No `layout`: the kind is the layout
-  ([S-3600]). The context menu offers Refresh.
+- **[S-561]** Config, one for every calendar style ([S-3601], [S-3641]): `accountIds`, `calendars`,
+  `calendarColors`, `showBirthdays` (on); the week style adds `days` and `firstDay` ([S-3637]), the agenda
+  `agendaCount` (1–100, 20) and `agendaDays` ([S-3636]). No `layout`: the style is the layout
+  ([S-3640]). The context menu offers Refresh.
 - **[S-562]** An empty `accountIds` means every calendar account (later ones too — the Mail
   pattern); settings offer "Every calendar account" or a choice where the last cannot be turned off.
   Chosen accounts that were signed out are skipped; when none are left the widget says so with a
@@ -3680,6 +3680,49 @@ Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMete
   network's connection, addresses, public IP, session totals and adapters list ([S-1762]); RX green /
   TX accent colours (the chart's two-series styling is the framework's).
 
+### The network, disk, battery and ping styles
+
+Styles ([S-6000]) of the I/O meters, on the shared `MeterView` (`MeterLook`, [S-6300]): a look that
+draws the reading itself is a `MeterStyleFace` (`Widgets/Meters/MeterStyleFace.cs`,
+`MeterView.Faces.cs`); its rules are Core's `MeterStyleFaces.cs`. The hub, the series and their
+history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
+
+- **[S-6261]** A picture style (the battery, the signal bars) is the picture and the figure: the figure
+  at the tier's step ([S-3860]) on the line under the picture, beside it on a wide strip (at most 45 %
+  of the width), the picture as large as the rest allows at its own aspect (`PictureFace`); a picture
+  under 20 DIPs is not drawn and the figure stands alone.
+- **[S-6262]** **Battery** (battery): a battery drawn as Windows' battery glyph is: a rounded body
+  twice as wide as tall, a cap at its right (a tenth of its height wide, two fifths tall, centred), a
+  secondary-colour outline and, inside it clear of the outline, a fill from the left to the charge in
+  the charge's pressure colour ([S-1187]); any charge above 0 is at least a stroke wide. While
+  charging the lightning bolt stands in the middle of the fill box (`BatteryShape`).
+- **[S-6263]** **Signal bars** (ping): four bars rising left to right on one baseline, as Windows'
+  Wi-Fi signal, as many lit in the status colour ([S-1170]) as the last answer earns: up to 50 ms 4
+  bars, up to 100 ms 3, up to 200 ms 2, slower 1, an unanswered probe or none yet 0
+  (`PingSignal.Thresholds`); the rest are the track. The latency is the figure.
+- **[S-6264]** **Numbers** (network): download and upload, each behind its arrow in the meter's
+  colour, both at one step, as large as the tile allows (to Display and grown past it as a lone
+  reading, [S-1762]), stacked or side by side, whichever draws them larger, a tie stacked
+  (`MeterNumbers`). No history.
+- **[S-6265]** **Bars** (disk): the total rate as the reading, and under it a labelled row for reads
+  and one for writes ("Read  42 MB/s"), each with a bar (the shared bar rows, [S-6304]).
+- **[S-6266]** **Ring** (battery): a ring of the charge in its colour (the shared `RingPart`,
+  [S-6060]), as large as the tile allows, the figure in its hole at the largest step a chord through
+  it takes (`RingFace.Figure`). A ring face with lines (the drive's, [S-6274]) puts them beside the
+  ring on a wide strip when 120 DIPs are left for them, else under it, each only where it fits whole;
+  the ring keeps at least 48 DIPs.
+- **[S-6267]** Only the graph style draws the history (`GaugeConfig.DrawsHistory`); a styled meter's
+  page offers no Show history switch ([S-1122]), the chart span stays.
+- **[S-6270]** Network: `NetworkConfig.Style`, **Graph** ([S-1191]) and **Numbers** ([S-6264]).
+- **[S-6271]** Disk: `DiskConfig.Style`, **Graph** ([S-1820]) and **Bars** ([S-6265]). A bar's share
+  is its rate against the top the graph would have: the doubling of 1 MB/s past the peak of the last
+  minute's totals and this sample's ([S-1821], `DiskRules.BarShares`), so idle reads as a sliver; the
+  window starts again when the drive or the scope changes.
+- **[S-6272]** Battery: `BatteryConfig.Style`, **Graph** ([S-1187]), **Battery** ([S-6262]) and
+  **Ring** ([S-6266]). No battery is the empty state in every style ([S-82a]).
+- **[S-6273]** Ping: `PingConfig.Style`, **Graph** ([S-1172]) and **Signal bars** ([S-6263]); the
+  header's status dot and Refresh are the same in both.
+
 ## GPU and screen time: the whole tile (SYS-P4)
 
 Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core `GpuRules`,
@@ -3791,49 +3834,6 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
 `MemoryDetailRules`, `ProcessTable`, `NetworkDetailRules`, `BatteryDetailRules`,
 `PingWindow`, `GpuDetailRules`; configs in `Model/Configs/DetailConfigs.cs`); settings
 `WidgetSettings.Details.cs`. Tests `SystemDetailsTests` (`S24xx_`). Strings in `Locales/widgets-details`.
-### The network, disk, battery and ping styles
-
-Styles ([S-6000]) of the I/O meters, on the shared `MeterView` (`MeterLook`, [S-6300]): a look that
-draws the reading itself is a `MeterStyleFace` (`Widgets/Meters/MeterStyleFace.cs`,
-`MeterView.Faces.cs`); its rules are Core's `MeterStyleFaces.cs`. The hub, the series and their
-history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
-
-- **[S-6261]** A picture style (the battery, the signal bars) is the picture and the figure: the figure
-  at the tier's step ([S-3860]) on the line under the picture, beside it on a wide strip (at most 45 %
-  of the width), the picture as large as the rest allows at its own aspect (`PictureFace`); a picture
-  under 20 DIPs is not drawn and the figure stands alone.
-- **[S-6262]** **Battery** (battery): a battery drawn as Windows' battery glyph is: a rounded body
-  twice as wide as tall, a cap at its right (a tenth of its height wide, two fifths tall, centred), a
-  secondary-colour outline and, inside it clear of the outline, a fill from the left to the charge in
-  the charge's pressure colour ([S-1187]); any charge above 0 is at least a stroke wide. While
-  charging the lightning bolt stands in the middle of the fill box (`BatteryShape`).
-- **[S-6263]** **Signal bars** (ping): four bars rising left to right on one baseline, as Windows'
-  Wi-Fi signal, as many lit in the status colour ([S-1170]) as the last answer earns: up to 50 ms 4
-  bars, up to 100 ms 3, up to 200 ms 2, slower 1, an unanswered probe or none yet 0
-  (`PingSignal.Thresholds`); the rest are the track. The latency is the figure.
-- **[S-6264]** **Numbers** (network): download and upload, each behind its arrow in the meter's
-  colour, both at one step, as large as the tile allows (to Display and grown past it as a lone
-  reading, [S-1762]), stacked or side by side, whichever draws them larger, a tie stacked
-  (`MeterNumbers`). No history.
-- **[S-6265]** **Bars** (disk): the total rate as the reading, and under it a labelled row for reads
-  and one for writes ("Read  42 MB/s"), each with a bar (the shared bar rows, [S-6304]).
-- **[S-6266]** **Ring** (battery): a ring of the charge in its colour (the shared `RingPart`,
-  [S-6060]), as large as the tile allows, the figure in its hole at the largest step a chord through
-  it takes (`RingFace.Figure`). A ring face with lines (the drive's, [S-6274]) puts them beside the
-  ring on a wide strip when 120 DIPs are left for them, else under it, each only where it fits whole;
-  the ring keeps at least 48 DIPs.
-- **[S-6267]** Only the graph style draws the history (`GaugeConfig.DrawsHistory`); a styled meter's
-  page offers no Show history switch ([S-1122]), the chart span stays.
-- **[S-6270]** Network: `NetworkConfig.Style`, **Graph** ([S-1191]) and **Numbers** ([S-6264]).
-- **[S-6271]** Disk: `DiskConfig.Style`, **Graph** ([S-1820]) and **Bars** ([S-6265]). A bar's share
-  is its rate against the top the graph would have: the doubling of 1 MB/s past the peak of the last
-  minute's totals and this sample's ([S-1821], `DiskRules.BarShares`), so idle reads as a sliver; the
-  window starts again when the drive or the scope changes.
-- **[S-6272]** Battery: `BatteryConfig.Style`, **Graph** ([S-1187]), **Battery** ([S-6262]) and
-  **Ring** ([S-6266]). No battery is the empty state in every style ([S-82a]).
-- **[S-6273]** Ping: `PingConfig.Style`, **Graph** ([S-1172]) and **Signal bars** ([S-6263]); the
-  header's status dot and Refresh are the same in both.
-
 
 - **[S-2400]** A detail widget is a hero (its main figure), a caption saying what it is of, facts in
   priority order and, for some kinds, a list. No "which facts" settings: the tile shows more as it grows.
@@ -5350,6 +5350,29 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   filters (`…\ColorFiltering\Active`, absent is off; the filter is Windows' last one) and mono audio
   (`…\Multimedia\Audio\AccessibilityMonoMixState`, absent is off) are read from those DWORDs, watched
   (a key not there yet is waited for at its parent), and switched through their handlers.
+- **[S-3916]** Styles ([S-6000]): one `QuickToggleStyle` on the base `QuickToggleConfig`, shared by
+  all thirteen kinds (never an enum per kind): **Tile** (the default, [S-3904]..[S-3906]), **Round
+  button** (`round`, [S-3917]) and **Switch** ([S-3918]). Every style is drawn over the same whole-tile
+  hit target, so the click gate ([S-3905]), Space/Enter under the lease, edit mode, the tooltip and
+  "never a header" ([S-3901]) are the same in each; only the drawing differs.
+- **[S-3917]** Round button (`RoundButtonFace`, the part the power widgets' Round style shares,
+  [S-1919]): a circle holding the icon, the name under it (Caption to Subtitle, about a sixth of the
+  height) from Regular width; XS is the circle alone. The circle takes the rest of the box (32–320,
+  even, 0.85 of the room), the icon two fifths of it; L and XL get a bigger button, never more parts.
+  On, the circle is `AccentFillColorDefault` (Secondary on hover, Tertiary pressed) with the icon in
+  `TextOnAccentFillColorPrimary`; off, `ControlFillColorDefault` with a control stroke (Secondary
+  and Tertiary fills on hover and press); not known, the secondary text colour; unavailable,
+  `ControlFillColorDisabled` and the disabled text colour. The tile behind it stays clear.
+- **[S-3918]** Switch (`SwitchFace`): Windows' toggle switch drawn (not a `ToggleSwitch`, which would
+  take the press): a pill track, Windows' 40×20 in half steps up to 3×, as high as the name's line;
+  off, the `ControlAltFillColorSecondary` track with a strong stroke and the knob left; on, the
+  accent track with the knob right in the on-accent colour; under the pointer the knob grows (12 to
+  14 of 20) and the tile takes the subtle fill, as a Settings card does; unavailable, the disabled
+  track, stroke and knob, "Unavailable" beside it. Ladder: XS, the icon over the switch (the icon
+  names it); a tile or a column, the name (Caption to TitleLarge) with the switch and its state line
+  ("[switch] On") under it, and an icon above the name where at least 24 DIPs are left for it; a wide
+  strip, a Settings row: icon and name left, "On [switch]" right, the state dropped before the icon
+  where the width runs out. Planned for the language's longest state line, so switching moves nothing.
 - Needs a live pass on real hardware: every switch is untested against this PC's state by design
   (no test touches the user's radios or settings).
 
@@ -6351,6 +6374,11 @@ retired with them and are not reused.
   [S-1290]..[S-1294], [S-1449]..[S-1455], [S-1562], [S-1565], [S-1566], [S-1570], [S-1573], and the
   sections on the developer widgets, the GitHub widgets, the calculator keypad and colour swatch
   modes (PK), Apps/Search/Help/Themia (PI-A) and the view switcher (PI-B).
+- **[S-6275]** Removed (user decision 2026-10-16): Disk space, the list of every drive's space. Drive
+  ([S-4670]) covers it, one drive per card; the disk meter stays throughput. Gone with it: its kind,
+  config, part, settings rows, catalogue and add-menu entries (the disk meter is now a plain entry of
+  System), the hub's disk-space source, `DiskSpaceRules`, its strings in every language and its tests;
+  retired [S-2420]..[S-2422].
 - **[S-1903]** The model is flat: a widget has no parent, and nothing holds other widgets. There is no
   "Move into", no dropping a widget into another, no picker target but the desktop, and no side
   header (`HeaderPlacement` is Top, Bottom or Hidden). A selection is copied, moved, layered and
@@ -6520,11 +6548,6 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   of another scope, stale ([S-2682]) or refused by the provider (410 Gone; a 400 naming the token,
   as Google People's "Sync token is expired") means a full read within the bounds at once, which
   starts a new cursor; a refusal is logged once at Info, a scope change or the daily resync at Debug.
-- **[S-6275]** Removed (user decision 2026-10-16): Disk space, the list of every drive's space. Drive
-  ([S-4670]) covers it, one drive per card; the disk meter stays throughput. Gone with it: its kind,
-  config, part, settings rows, catalogue and add-menu entries (the disk meter is now a plain entry of
-  System), the hub's disk-space source, `DiskSpaceRules`, its strings in every language and its tests;
-  retired [S-2420]..[S-2422].
   A refusal is never the account's failure. Any other refusal of the change request itself is
   [S-2690]'s.
 - **[S-2682]** However well deltas go, everything is read in full again once its chain is a day old
@@ -6973,6 +6996,11 @@ Not ported: Karpo's 100 ms tick in an open folder; a running time here is whole 
   the height for them. A mapped share Windows cannot reach is drawn as Explorer draws it (Karpo §75):
   the cross, "Disconnected network drive", no bar.
 - **[S-4673]** Narrow, the space line is "57% used".
+- **[S-6274]** Styles ([S-6000], `DriveConfig.Style`): **Bar** (the card above) and **Ring**: the used
+  share as a ring in the bar's colours (the shared `RingPart`, [S-6060]) with the share inside it
+  ("--" dimmed with no figures), the name (or "Disconnected network drive") and the space line beside
+  the ring on a wide strip, under it otherwise, as far as they fit; the ring takes the rest
+  (`RingFace`, [S-6266]). The settings, the menu and the drive walk are the same for both.
 - **[S-4674]** Settings: the drive — the system drive (by name), every drive the walk lists (shares
   included, never waited for), and a chosen drive that is gone as "not connected". The card menu has Open
   in Explorer, Eject for a removable drive, and Refresh.
@@ -7160,11 +7188,6 @@ Tests: `tests/Themia.Core.Tests/WeekPlannerTests.cs`. Issue #160.
   calendar widgets' seam (`ICalendarData`, [S-2701]); tasks through the shared `TaskService`
   ([S-591]); the widget fetches nothing itself (a 5-minute poll of the synced store, the accounts'
   change events, a minute tick to redraw).
-- **[S-6274]** Styles ([S-6000], `DriveConfig.Style`): **Bar** (the card above) and **Ring**: the used
-  share as a ring in the bar's colours (the shared `RingPart`, [S-6060]) with the share inside it
-  ("--" dimmed with no figures), the name (or "Disconnected network drive") and the space line beside
-  the ring on a wide strip, under it otherwise, as far as they fit; the ring takes the rest
-  (`RingFace`, [S-6266]). The settings, the menu and the drive walk are the same for both.
 - **[S-5321]** A rolling week: today and the six days after (`WeekPlannerRules.Range`), fetched whole
   whatever the size shows. Days stand side by side as the width allows (140 DIP a column, 8 apart, up
   to seven). One column: today alone on a Compact-height tile (no heading), else the days stacked

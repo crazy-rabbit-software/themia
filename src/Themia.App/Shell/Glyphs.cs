@@ -47,11 +47,6 @@ internal static class Glyphs
     public static readonly string Calendar = From(0xE787);
 
     public static readonly string Mail = From(0xE715);
-
-    /// <summary>[S-6264] [S-6262] The network numbers' download and upload, and the battery style's charging bolt (LightningBolt).</summary>
-    public static readonly string Download = From(0xE896);
-    public static readonly string Upload = From(0xE898);
-    public static readonly string ChargingBolt = From(0xE945);
     public static readonly string Unread = From(0xE8BD);
     public static readonly string Count = From(0xE8FD);
     public static readonly string Preview = From(0xE7C3);
@@ -61,6 +56,11 @@ internal static class Glyphs
     public static readonly string Disk = From(0xEDA2);
     public static readonly string Battery = From(0xE83F);
     public static readonly string Network = From(0xE968);
+
+    /// <summary>[S-6264] [S-6262] The network numbers' download and upload, and the battery style's charging bolt (LightningBolt).</summary>
+    public static readonly string Download = From(0xE896);
+    public static readonly string Upload = From(0xE898);
+    public static readonly string ChargingBolt = From(0xE945);
     public static readonly string Volume = From(0xE767);
     public static readonly string Gpu = From(0xF211);
     public static readonly string Contact = From(0xE77B);

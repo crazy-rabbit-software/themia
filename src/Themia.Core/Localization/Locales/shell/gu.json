@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "ડ્રાઇવ",
   "shell.meters.drive.desc": "જે ડ્રાઇવના રીડ અને રાઇટ સંખ્યા તરીકે બતાવાય છે",
   "shell.meters.systemDrive": "સિસ્ટમ ડ્રાઇવ ({drive})",
-  "shell.meters.gpuDescription": "ગ્રાફિક્સ લોડ, દરેક ઍડૅપ્ટર માટે",
+  "shell.meters.gpuDescription": "એક ગ્રાફિક્સ કાર્ડનો લોડ",
   "shell.meters.batteryDescription": "ચાર્જ સ્તર",
   "shell.appearance.headerFade": "હેડર પટ્ટી કેટલી ઘન છે; {percent} વિજેટ સાથે મેળ ખાય છે",
   "shell.views.add": "વ્યૂ ઉમેરો",

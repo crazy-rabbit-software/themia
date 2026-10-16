@@ -584,7 +584,7 @@
   "shell.meters.drive.label": "磁碟機",
   "shell.meters.drive.desc": "以數字顯示其讀寫速度的磁碟機",
   "shell.meters.systemDrive": "系統磁碟機 ({drive})",
-  "shell.meters.gpuDescription": "每個介面卡的圖形負載",
+  "shell.meters.gpuDescription": "單張顯示卡的負載",
   "shell.meters.batteryDescription": "電量",
   "shell.appearance.headerFade": "標題列的不透明程度；{percent} 與小工具相同",
   "shell.views.add": "新增檢視",

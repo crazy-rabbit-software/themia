@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "Station",
   "shell.meters.drive.desc": "Het station waarvan de lees- en schrijfbewerkingen het getal vormen",
   "shell.meters.systemDrive": "Systeemstation ({drive})",
-  "shell.meters.gpuDescription": "Grafische belasting, per adapter",
+  "shell.meters.gpuDescription": "Belasting van één grafische kaart",
   "shell.meters.batteryDescription": "Laadniveau",
   "shell.appearance.headerFade": "Hoe dekkend de koptekststrook is; {percent} komt overeen met de widget",
   "shell.views.add": "Weergave toevoegen",

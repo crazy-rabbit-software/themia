@@ -603,7 +603,7 @@
   "shell.meters.drive.label": "درایو",
   "shell.meters.drive.desc": "درایوی که خواندن و نوشتن آن عدد نمایش‌داده‌شده است",
   "shell.meters.systemDrive": "درایو سیستم ({drive})",
-  "shell.meters.gpuDescription": "بار گرافیکی، برای هر آداپتور",
+  "shell.meters.gpuDescription": "بار یک کارت گرافیک",
   "shell.meters.batteryDescription": "سطح شارژ",
   "shell.appearance.headerFade": "نوار سرصفحه چقدر پررنگ باشد؛ {percent} با ویجت یکسان است",
   "shell.views.add": "افزودن نما",
