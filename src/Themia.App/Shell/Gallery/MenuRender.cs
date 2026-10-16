@@ -2,6 +2,7 @@
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
@@ -10,6 +11,7 @@ using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
@@ -151,6 +153,11 @@ internal static class MenuRender
                 await RenderAsync(root, folder, System.IO.Path.Combine(outDir, "folder-folder.png")).ConfigureAwait(true);
                 await RenderAsync(root, background, System.IO.Path.Combine(outDir, "folder-background.png")).ConfigureAwait(true);
                 folderView.Detach();
+
+                // [S-6520] [S-404] The properties panel's Header menu, opened from its own drop-down
+                // for a widget whose header is on the left, so Left is ticked.
+                notes.Header = HeaderPlacement.Left;
+                await HeaderMenuAsync(root, view, notes, System.IO.Path.Combine(outDir, "props-header.png")).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -176,6 +183,58 @@ internal static class MenuRender
             return;
         }
 
+        await ShowAndSaveAsync(root, menu, path).ConfigureAwait(true);
+    }
+
+    /// <summary>A real properties panel for <paramref name="widget"/>, and the menu its Header drop-down opens.</summary>
+    private static async Task HeaderMenuAsync(Grid root, ViewState view, WidgetInstance widget, string path)
+    {
+        var selection = new WidgetSelection();
+        selection.Replace(view.Id, [widget.Id]);
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }));
+        UiLanguage.ApplyFlow(strip);
+        strip.ShowSelection(QuickSet.For(new AppState { Views = [view] }, selection, view.Id));
+        strip.Visibility = Visibility.Visible;
+        var holder = new Canvas { Children = { strip } };
+        root.Children.Add(holder);
+        await Task.Delay(300).ConfigureAwait(true);
+
+        var label = Str.App_ConfigHeaderLabel.Text();
+        if (Find<DropDownButton>(strip, b => AutomationProperties.GetName(b) == label) is not { Flyout: { } menu })
+        {
+            Log.Error(Scope, "the properties panel has no Header drop-down");
+            Console.WriteLine($"menu: no Header drop-down for {path}");
+            root.Children.Remove(holder);
+            return;
+        }
+
+        await ShowAndSaveAsync(root, menu, path).ConfigureAwait(true);
+        root.Children.Remove(holder);
+    }
+
+    private static T? Find<T>(DependencyObject node, Func<T, bool> match)
+        where T : DependencyObject
+    {
+        if (node is T hit && match(hit))
+        {
+            return hit;
+        }
+
+        var count = VisualTreeHelper.GetChildrenCount(node);
+        for (var i = 0; i < count; i++)
+        {
+            if (Find(VisualTreeHelper.GetChild(node, i), match) is { } found)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Open the menu inside the window, draw the popup's content, close it.</summary>
+    private static async Task ShowAndSaveAsync(Grid root, FlyoutBase menu, string path)
+    {
         menu.ShouldConstrainToRootBounds = true;
         menu.ShowAt(root, new FlyoutShowOptions { Position = new Point(16, 16), ShowMode = FlyoutShowMode.Standard });
         await Task.Delay(700).ConfigureAwait(true);

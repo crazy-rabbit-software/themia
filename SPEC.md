@@ -801,8 +801,8 @@ tests `SkyWidgetsTests` (`S310x_`).
   The only thing it cannot know is what goes on the right — a badge, a count, a busy ring — so that
   is the whole of what a view contributes, through `IWidgetHeaderContent`. It is read **once**, when
   the header is built, so the element has to exist by then.
-- **[S-401]** Header placement is per widget: top, bottom, or hidden, set on the properties strip
-  ([S-3707]). Switching it moves a row index, not a rebuild, so it costs nothing and cannot restart
+- **[S-401]** Header placement is per widget: top, bottom, left, right ([S-404]) or hidden, set on the properties strip
+  ([S-3707]). Switching it moves a grid cell, not a rebuild, so it costs nothing and cannot restart
   what the widget is doing. Hidden takes the whole header away, its icon, title and trailing part
   with it, at every size: the header's row is sized to its content and collapses to nothing, so the
   widget's content gets the whole card, and no other part keeps room for a title ([S-3712]). A kind
@@ -811,6 +811,35 @@ tests `SkyWidgetsTests` (`S310x_`).
   had independently drawn that conclusion with a slightly different threshold.
 - **[S-403]** The title is the user's own when they set one (on the properties strip, [S-3704]), otherwise the catalogue's. A widget has
   no say in it: a view that wants to label itself differently is a view that has drifted.
+- **[S-404]** **Left** and **Right** stand the header as a strip down that edge of the card, as thick
+  as a top header is high (it is the same header, measured against the card's height). The card's
+  content is a 3 × 3 grid (auto, star, auto both ways, `HeaderStrip`): the view always sits in the
+  middle cell, a top or bottom strip takes the whole outer row, a side strip the whole outer column,
+  so the content area is the card less the strip's width and the size ladder ([S-660]) classifies on
+  that box. A side strip sheds ([S-402]) on a card too narrow for it (`HeaderStrip.Sheds`: the axis
+  the strip eats), a top or bottom one on a card too short. Debug: `--widget-png <Kind> <out.png>
+  --header top|bottom|left|right|hidden` draws the cards with that header; `--menu-png` writes
+  `props-header.png`, the properties panel's Header menu opened from its drop-down, Left ticked.
+- **[S-405]** On the left the header is turned a quarter **counter-clockwise** (it reads bottom to
+  top, its icon at the bottom, as a book's spine and a vertical tab on the left read); on the right a
+  quarter **clockwise** (top to bottom, icon at the top). Either way the tops of the letters face out
+  of the card (`HeaderStrip.Turn`, `Rotation`). WinUI has no layout transform, so `TurnedHeader`
+  measures the header against the strip's length, takes its height as the strip's width, and turns
+  it into place with a render transform, which turns its hit-testing with it.
+- **[S-406]** Left and Right are **physical** edges in every language: in a right-to-left language a
+  left header is still on the left (the card's flow mirrors, so it is the flow's end there,
+  `HeaderStrip.Edge`), and the turn is the same. Turned, the header is laid out left to right in
+  every language (icon first, so at the bottom on the left edge and the top on the right); the
+  title's own text still runs in its script's direction. A flat header flows with the card as before.
+- **[S-407]** A side strip has the card's two corners on its edge and the body the other two
+  (`StripCorners`, `BodyCorners`); its fill follows the header fill rules of a top one ([S-828],
+  [S-1761]: its own colour at the header opacity, or the widget's fill faded by it), the Fluent tint
+  stops inside a solid stroke on its three outer sides ([S-836]), and the body's base reaches one DIP
+  under it on the seam.
+- **[S-408]** A side strip is the **icon and the title** only (concise first): the header's trailing
+  part (a badge, a caption, a picker, Notes' formatting bar) is sized by its view for a header as
+  wide as the content, and along a strip it would be measured against the card's height and read
+  sideways. It stays with the view and comes back with a top or bottom header.
 
 ## Adding a widget
 
@@ -970,7 +999,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   in the secondary text colour, then its control in a 176-DIP column (32-DIP drop-downs and box),
   4 DIPs between rows, after Karpo's properties panel (§145). Style, Header, Background and Item
   opacity are drop-downs that show the current value's icon and words (a dash for a mixed
-  selection) and whose menus tick it (Header: Top, Bottom, Hidden with their icons; Background:
+  selection) and whose menus tick it (Header: Top, Bottom, Left, Right, Hidden with their icons; Background:
   Card, Translucent, None), built as they open; Item background is the colour control ([S-1549]);
   Settings is a full-width row with the gear and its word. A press on its padding or words stays
   on it, so it never starts a rubber band or clears the selection. It is inside the work area
@@ -6809,7 +6838,7 @@ retired with them and are not reused.
   retired [S-2420]..[S-2422].
 - **[S-1903]** The model is flat: a widget has no parent, and nothing holds other widgets. There is no
   "Move into", no dropping a widget into another, no picker target but the desktop, and no side
-  header (`HeaderPlacement` is Top, Bottom or Hidden). A selection is copied, moved, layered and
+  header (`HeaderPlacement` is Top, Bottom, Left, Right or Hidden). A selection is copied, moved, layered and
   deleted widget by widget.
 
 ## Offline sync (SYNC)

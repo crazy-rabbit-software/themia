@@ -206,6 +206,11 @@ internal static class Glyphs
     /// </summary>
     public static readonly string HeaderBottom = From(0xE90E);
 
+    /// <summary>[S-404] A header down the left or right edge: Segoe "DockLeft" and "DockRight".</summary>
+    public static readonly string HeaderLeft = From(0xE90C);
+
+    public static readonly string HeaderRight = From(0xE90D);
+
     // The camera widget, and a web address wherever one is shown.
     public static readonly string Video = From(0xE714);
     public static readonly string Globe = From(0xE774);

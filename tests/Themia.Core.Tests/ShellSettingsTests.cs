@@ -92,6 +92,16 @@ public sealed class ShellSettingsTests : IDisposable
         Assert.Equal(HeaderPlacement.Top, state.Views[0].Widgets[0].Header);
     }
 
+    [Theory]
+    [InlineData("Left", HeaderPlacement.Left)]
+    [InlineData("Right", HeaderPlacement.Right)]
+    public void S404_a_side_header_loads_as_saved(string stored, HeaderPlacement expected)
+    {
+        var state = Parse(StateFile.Replace("\"kind\": \"Clock\",", $"\"kind\": \"Clock\", \"header\": \"{stored}\",", StringComparison.Ordinal));
+
+        Assert.Equal(expected, state.Views[0].Widgets[0].Header);
+    }
+
     // -----------------------------------------------------------------------------------------
     // [S-702..S-705] The new fields
     // -----------------------------------------------------------------------------------------

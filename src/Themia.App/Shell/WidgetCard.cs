@@ -165,6 +165,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     private readonly Border _headerTint = new() { IsHitTestVisible = false };
 
+    /// <summary>[S-405] Stands the header on end for a strip down a side edge.</summary>
+    private readonly TurnedHeader _headerTurn;
+
     /// <summary>[S-873] The view asked to paint nothing (outside edit mode).</summary>
     private bool _hidden;
 
@@ -229,7 +232,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             Padding = Fluent.HeaderMargin,
         };
 
-        _headerBand = new Grid { Children = { _headerBase, _headerTint, _headerHost } };
+        _headerTurn = new TurnedHeader(_headerHost);
+        _headerBand = new Grid { Children = { _headerBase, _headerTint, _headerTurn } };
 
         // The view is bound and attached only once the header exists. A view that names itself
         // during Attach - a weather tile knows its place, a folder listing knows its folder -
@@ -266,8 +270,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // that padded everything pushed every list row away from the edge and stopped its hover
         // highlight short of it, so a row read as a box inside a box rather than as a row. See
         // WidgetLayout.
-        // Two rows, one of which is always empty: the header sits in whichever one its placement
-        // asks for, so switching it costs a row index rather than a rebuild.
+        // Auto, star, auto both ways, the outer ones empty but for the header: it takes the whole
+        // outer row or column its placement asks for ([S-404], HeaderStrip), and the view stays in
+        // the middle cell, so switching it costs a cell rather than a rebuild.
         var content = new Grid
         {
             RowDefinitions =
@@ -276,9 +281,15 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                 new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
                 new RowDefinition { Height = GridLength.Auto },
             },
+            ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                new ColumnDefinition { Width = GridLength.Auto },
+            },
         };
 
-        Grid.SetRow(_view, 1);
+        Place(_view, HeaderStrip.ViewCell);
 
         // [S-1761] The widget's fill paints the body only, under the view; the header strip has a
         // fill of its own (_headerBase/_headerTint), so the header opacity can fade it alone. Painted
@@ -390,7 +401,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // the label is taking the room the content needs, and every widget drew the same
         // conclusion separately with a slightly different threshold. A size of zero is a card
         // that has not been measured yet, not a short one.
-        var tooShort = ActualHeight > 0 && ActualHeight < Fluent.HeaderHidesBelow;
+        // [S-404] A strip down a side sheds on a card too narrow for it instead.
+        var tooShort = HeaderStrip.Sheds(placement, ActualWidth, ActualHeight, Fluent.HeaderHidesBelow);
         var hidden = placement == HeaderPlacement.Hidden || tooShort;
 
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
@@ -402,7 +414,16 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
 
         var far = placement == HeaderPlacement.Bottom;
-        Grid.SetRow(_headerBand, far ? 2 : 0);
+        Place(_headerBand, HeaderStrip.StripCell(ShownEdge));
+
+        // [S-406] Turned on a side, the header is laid out left to right (the turn is physical, and a
+        // mirrored element's render transform turns about the mirrored origin); flat, it flows with the card.
+        _headerTurn.FlowDirection = HeaderStrip.IsSide(placement) ? FlowDirection.LeftToRight : FlowDirection;
+        _headerTurn.Turn = HeaderStrip.Turn(placement);
+
+        // [S-408] A side strip is the icon and the title: the trailing column is closed, not the
+        // view's element hidden, which views show and hide for their own reasons.
+        _header.ColumnDefinitions[2].MaxWidth = HeaderStrip.ShowsTrailing(placement) ? double.PositiveInfinity : 0;
 
         _headerHost.Padding = far ? new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space4)
             : Fluent.HeaderMargin;
@@ -509,7 +530,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var design = _host.Design;
         var r = DesignLook.CornerRadius(design.CornerRadiusPx);
 
-        var radius = Model.ShownHeader == HeaderPlacement.Bottom ? new CornerRadius(0, 0, r, r) : new CornerRadius(r, r, 0, 0);
+        // [S-407] The strip's outer corners. The header inside a side strip is turned, its top
+        // facing out, so its own fill rounds its top corners as a top header's does.
+        var edge = ShownEdge;
+        var radius = Round(HeaderStrip.StripCorners(edge), r);
+        var hostRadius = HeaderStrip.IsSide(Model.ShownHeader) ? Round(HeaderStrip.StripCorners(HeaderEdge.Top), r) : radius;
 
         var own = DesignApplier.UserBrush(design.HeaderBackgroundColor);
         var surface = DesignLook.FillOpacity(Model.Surface, design.SurfaceOpacity);
@@ -517,7 +542,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var custom = DesignApplier.UserBrush(design.WidgetBackgroundColor);
 
         _headerHost.Background = own is null ? null : DesignApplier.UserBrush(design.HeaderBackgroundColor, opacity);
-        _headerHost.CornerRadius = radius;
+        _headerHost.CornerRadius = hostRadius;
 
         // Shared with the widget: the same base and Fluent lift as the body, faded on their own.
         _headerBase.Background = own is null && surface > 0
@@ -533,9 +558,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-836] Inside a solid stroke on the card's three outer edges, as the body's tint is.
         var t = TintInset();
         var ri = Math.Max(0, r - t);
-        (_headerTint.Margin, _headerTint.CornerRadius) = Model.ShownHeader == HeaderPlacement.Bottom
-            ? (new Thickness(t, 0, t, t), new CornerRadius(0, 0, ri, ri))
-            : (new Thickness(t, t, t, 0), new CornerRadius(ri, ri, 0, 0));
+        (_headerTint.Margin, _headerTint.CornerRadius) = (Inset(HeaderStrip.StripSides(edge), t), Round(HeaderStrip.StripCorners(edge), ri));
     }
 
     /// <summary>[S-836] How far the Fluent tint stops short of the card's edge for the current border.</summary>
@@ -559,19 +582,12 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
 
         var r = DesignLook.CornerRadius(_host.Design.CornerRadiusPx);
-        var edge = _headerBand.Visibility == Visibility.Visible ? Model.ShownHeader : HeaderPlacement.Hidden;
-
-        var (row, rowSpan, radius) = edge switch
-        {
-            HeaderPlacement.Top => (1, 2, new CornerRadius(0, 0, r, r)),
-            HeaderPlacement.Bottom => (0, 2, new CornerRadius(r, r, 0, 0)),
-            _ => (0, 3, new CornerRadius(r)),
-        };
+        var edge = _headerBand.Visibility == Visibility.Visible ? ShownEdge : HeaderEdge.None;
+        var radius = Round(HeaderStrip.BodyCorners(edge), r);
 
         foreach (var layer in new[] { _fill, _tint })
         {
-            Grid.SetRow(layer, row);
-            Grid.SetRowSpan(layer, rowSpan);
+            Place(layer, HeaderStrip.BodyCell(edge));
             layer.CornerRadius = radius;
         }
 
@@ -579,22 +595,12 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // does, so the stroke composites over the base alone; its corners are the inner radius.
         var t = TintInset();
         var ri = Math.Max(0, r - t);
-        (_tint.Margin, _tint.CornerRadius) = edge switch
-        {
-            HeaderPlacement.Top => (new Thickness(t, 0, t, t), new CornerRadius(0, 0, ri, ri)),
-            HeaderPlacement.Bottom => (new Thickness(t, t, t, 0), new CornerRadius(ri, ri, 0, 0)),
-            _ => (new Thickness(t), new CornerRadius(ri)),
-        };
+        (_tint.Margin, _tint.CornerRadius) = (Inset(HeaderStrip.BodySides(edge), t), Round(HeaderStrip.BodyCorners(edge), ri));
 
         // The base reaches one DIP under the header strip, which is painted over it: two fills that
         // only meet at an edge leave an anti-aliased seam of desktop between them wherever that edge
         // falls between pixels (a widget scale, an intro's scale, a fractional DPI).
-        _fill.Margin = edge switch
-        {
-            HeaderPlacement.Top => new Thickness(0, -1, 0, 0),
-            HeaderPlacement.Bottom => new Thickness(0, 0, 0, -1),
-            _ => new Thickness(0),
-        };
+        _fill.Margin = Inset(HeaderStrip.Seam(edge), -1);
     }
 
     /// <summary>
