@@ -627,6 +627,7 @@ internal sealed partial class HabitTrackerView
             Host.IsTabStop = true;
             Host.UseSystemFocusVisuals = true;
             Host.Tapped += OnRowTapped;
+            WidgetItems.Mark(Host); // [S-814]
             Host.LostFocus += OnLostFocus;
 
             _hover = Fluent.Hover(Host);

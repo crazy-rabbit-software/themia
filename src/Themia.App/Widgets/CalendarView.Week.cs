@@ -105,6 +105,7 @@ internal sealed partial class CalendarView
             }
 
             header.Tapped += (_, _) => ToggleDay(day);
+            WidgetItems.Mark(header); // [S-814]
 
 
             SetColumn(header, first + c);

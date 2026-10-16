@@ -127,6 +127,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
         _root.PointerPressed += OnRootPointerPressed;
         AttachShellCleanup();
+        AttachSession();
         _root.PointerMoved += OnRootPointerMoved;
         _root.PointerExited += OnRootPointerExited;
         _root.PointerReleased += OnRootPointerReleased;

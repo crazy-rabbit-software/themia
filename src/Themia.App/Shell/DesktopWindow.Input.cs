@@ -184,13 +184,11 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-802] The lease left <paramref name="card"/>: its view drops its cursor (Escape), a caret left
-    /// in it stops blinking, and the surface goes back to never taking focus.
+    /// [S-802] The lease left <paramref name="card"/>: a caret left in it stops blinking, and the surface
+    /// goes back to never taking focus. Its view drops its cursor through the session ([S-813]).
     /// </summary>
     internal void KeyboardLost(WidgetCard card)
     {
-        card.SendKey(WidgetKey.Escape);
-
         if (_closed)
         {
             return;

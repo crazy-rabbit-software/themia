@@ -26,6 +26,9 @@ internal static class RowFocus
     {
         row.BorderThickness = new Thickness(Ring);
         row.BorderBrush = Transparent();
+
+        // [S-814] A row with a focus ring is an item: a press on it is not a press on the background.
+        WidgetItems.Mark(row);
     }
 
     /// <summary>Show or hide the ring on a prepared row.</summary>

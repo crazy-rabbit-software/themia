@@ -20,9 +20,10 @@ public interface IWidgetKeys
     /// Act on a key; return whether it was used (an unused key goes on to the surface, so Tab can
     /// still move focus). Keys never arrive while a text box has focus: the box owns them.
     /// <para>
-    /// <see cref="WidgetKey.Escape"/> also arrives whenever the lease ends some other way — a click
-    /// elsewhere, the surface losing activation, edit mode — so dropping the cursor or selection on
-    /// Escape is the one place a view clears it. It may arrive after <see cref="IWidgetView.Detach"/>
+    /// <see cref="WidgetKey.Escape"/> also arrives whenever the user is done with the widget some other
+    /// way ([S-813]..[S-815]) — a press on its background, on another widget, outside Themia (the
+    /// desktop, the taskbar, another app), another app taking the foreground, edit mode — so dropping
+    /// the cursor or selection on Escape is the one place a view clears it. It may arrive after <see cref="IWidgetView.Detach"/>
     /// and with nothing selected; both must be harmless.
     /// </para>
     /// </summary>

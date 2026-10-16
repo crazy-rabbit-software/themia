@@ -668,6 +668,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     {
         ToolTipService.SetToolTip(element, Describe(item));
         LinkEvent(element, item);
+        WidgetItems.Mark(element); // [S-814]
 
         if (item.WebLink is not null || (_providers.TryGetValue(item.AccountId, out var provider) && provider == AccountProvider.Microsoft))
         {

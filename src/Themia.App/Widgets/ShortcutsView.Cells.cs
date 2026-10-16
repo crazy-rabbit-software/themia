@@ -411,6 +411,7 @@ internal sealed partial class ShortcutsView
         root.PointerCaptureLost += OnCellExited;
         root.PointerCanceled += OnCellExited;
         root.PointerPressed += OnCellPressed;
+        WidgetItems.Mark(root); // [S-814] a press here is the cell's, not the background's
         root.Tapped += OnCellTapped;
         root.DoubleTapped += OnCellDoubleTapped;
         root.RightTapped += OnCellRightTapped;

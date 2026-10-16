@@ -87,6 +87,7 @@ internal sealed partial class CalendarView
                 var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, _selected == day, fit, showColors, dotLimit);
 
                 cell.Tapped += (_, _) => ToggleDay(day);
+                WidgetItems.Mark(cell); // [S-814] a press on a day is the day's toggle
 
 
                 if (count > 0)

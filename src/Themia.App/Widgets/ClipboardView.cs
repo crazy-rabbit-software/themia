@@ -293,6 +293,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         // A single click, and deliberately so: this widget opens nothing. The worst a mis-click can
         // do is put something back on the clipboard.
         row.Tapped += OnRowTapped;
+        WidgetItems.Mark(row); // [S-814]
 
         ToolTipService.SetToolTip(row, ClipboardFormatting.Describe(entry.Text, Strings.Current));
         return row;

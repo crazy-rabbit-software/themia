@@ -223,6 +223,7 @@ internal sealed partial class TasksView
         _hovers.Add(Fluent.Hover(row));
         _rows.Add((row, marker));
 
+        WidgetItems.Mark(row); // [S-814]
         row.Tapped += OnRowTapped;
         row.DoubleTapped += OnRowDoubleTapped;
         row.RightTapped += OnRowRightTapped;

@@ -989,6 +989,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         _hovers.Add(Fluent.Hover(row));
         _rows[contact.Id] = row;
         ToolTipService.SetToolTip(row, Tooltip(contact));
+        WidgetItems.Mark(row); // [S-814]
 
         row.Tapped += (_, args) =>
         {

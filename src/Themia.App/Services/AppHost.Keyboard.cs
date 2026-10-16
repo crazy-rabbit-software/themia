@@ -51,10 +51,18 @@ internal sealed partial class AppHost
         => ApplyLease(surface, _keyboard.Type(card, typing, card.TakesKeys));
 
     /// <summary>[S-802] Escape reached the holder's surface.</summary>
-    public void KeyboardEscape() => ApplyLease(null, _keyboard.Escape());
+    public void KeyboardEscape()
+    {
+        ApplyLease(null, _keyboard.Escape());
+        FinishSession();
+    }
 
     /// <summary>[S-802] A card left its surface (deleted, its view switched away, the surface rebuilt).</summary>
-    public void KeyboardRemoved(WidgetCard card) => ApplyLease(null, _keyboard.Remove(card));
+    public void KeyboardRemoved(WidgetCard card)
+    {
+        ApplyLease(null, _keyboard.Remove(card));
+        RemoveFromSession(card);
+    }
 
     /// <summary>
     /// [S-802] The lease ends if <paramref name="surface"/> holds it: the surface lost activation (a
@@ -67,6 +75,8 @@ internal sealed partial class AppHost
         {
             ApplyLease(null, _keyboard.Clear());
         }
+
+        LeaveSessionOn(surface);
     }
 
     private void ApplyLease(DesktopWindow? gainedOn, LeaseChange<WidgetCard> change)
@@ -82,6 +92,14 @@ internal sealed partial class AppHost
         {
             _keyboardSurface = null;
             lostOn?.KeyboardLost(lost);
+
+            // [S-813] The session drops the selection of the widget the user is working in, on every
+            // way the lease ends for it too; a holder the session does not know (a text box focused
+            // without a press) is told here instead, so no view keeps a cursor without the keyboard.
+            if (!ReferenceEquals(lost, _session.Active))
+            {
+                lost.SendKey(WidgetKey.Escape);
+            }
         }
 
         if (change.Gained is { } gained && gainedOn is not null)

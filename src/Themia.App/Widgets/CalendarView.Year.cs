@@ -138,6 +138,7 @@ internal sealed partial class CalendarView
 
             // [S-3620] A click on a day selects it for the calendars on the view.
             element.Tapped += (_, _) => ToggleDay(day);
+            WidgetItems.Mark(element); // [S-814]
 
             SetRow(element, row0 + (i / 7));
             SetColumn(element, i % 7);

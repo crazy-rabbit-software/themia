@@ -3430,12 +3430,12 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   order; a late blur from a previous holder changes nothing.
 - **[S-802]** The lease ends on Escape (which also hands the keyboard back to the window that was
   foreground when the lease began, if the surface is still foreground), on a press on any other card,
-  on the surface losing activation (a click on the desktop or another app, Alt+Tab — the "click
-  outside" signal, no global mouse hook), when the holder's card leaves its surface, on entering edit
-  mode and when the surface closes. Only Escape gives the keyboard back: after a click elsewhere the
-  click already put it where the user wants, and a launched app must not be raced. Every end sends
-  the old holder's view `WidgetKey.Escape`, the one place a view drops its cursor or selection, and
-  moves XAML focus out of its card so no caret is left blinking.
+  on the surface losing activation (Alt+Tab, the settings window), on a press outside every surface
+  ([S-815]), when the holder's card leaves its surface, on entering edit mode and when the surface
+  closes. Only Escape gives the keyboard back: after a click elsewhere the click already put it where
+  the user wants, and a launched app must not be raced. Every end moves XAML focus out of the old
+  holder's card so no caret is left blinking; its view hears `WidgetKey.Escape` through the session
+  ([S-813]), or directly when the session does not know the holder (a box focused without a press).
 - **[S-803]** Keys: arrows, Page Up/Down, Home/End, Tab / Shift+Tab, Enter, Space, Delete, F2
   (Rename), the Menu key / Shift+F10 (Menu), Escape. Ctrl and Alt chords are never widget keys;
   Shift+Delete, Shift+Space and Shift+F2 are not either. A view returns whether it used the key; an
@@ -3472,6 +3472,31 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 - **[S-1980]** Type-ahead (`TypeAhead`): characters typed within a second of each other build one
   prefix; the cursor goes to the first name starting with it, searching from the cursor itself and
   wrapping, ignoring case. One letter repeated ("ss") steps through the names starting with it. A
+- **[S-813]** One interaction session, app-wide (Core `WidgetSession<T>`, tests `WidgetSessionTests`;
+  `AppHost.Session.cs`, `DesktopWindow.Session.cs`): from a press on any surface until the user is done.
+  It names the widget being worked in — every widget, keys or not — and is the one rule for when a
+  selection or cursor goes: its view hears `WidgetKey.Escape` (`IWidgetKeys`) whenever the session
+  leaves it. A refused foreground ([S-800]) no longer drops the selection the click just made.
+- **[S-814]** A press inside the active widget on its **background** (not an item, not a control,
+  not a press a handler took) clears its selection; with Ctrl or Shift held (extending), or while the
+  user is typing in it, nothing changes. Items are marked once (`WidgetItems.Mark`; `RowFocus.Prepare`
+  marks every ring-carrying row; Shortcuts cells, Tasks, Habits, Contacts and Clipboard rows, Calendar
+  days and events mark theirs). A press on another widget, or on the chrome (view bar), leaves the
+  active widget: its selection clears, on any display.
+- **[S-815]** The session ends — selection cleared, lease ended without giving the keyboard back — on
+  a press outside every Themia window (the desktop, the taskbar, another app, empty surface that
+  clicks through), on another app taking the foreground (unless it was Start or Search handing it
+  back after our own click closed them, [S-938]), on Escape, edit mode and the widget going away.
+  The outside press is heard by `OutsideClickWatcher`: a low-level mouse hook plus the foreground
+  WinEvent, installed only while a session is open, on a thread of its own that only pumps messages
+  (a busy UI thread never stalls the system's mouse), its callbacks catch and log, both removed on
+  that thread. A hook because nothing else sees a press on the window that already has the
+  foreground — on a desktop-widget app, usually the desktop.
+- **[S-816]** The same signal closes menus: a press outside closes every open light-dismiss popup
+  (item menus, the card menu, view-bar menus, the add menu, confirmations, flyouts) on every surface;
+  a press on one surface closes the others' (its own light dismiss handles its own). Popups that are
+  not light-dismiss (the scratchpad's full-screen page) stay. Live-check only: a Debug render cannot
+  show light dismiss.
   control character never types; a space only inside a prefix (a lone Space is the widget's key). No
   match leaves the cursor, and the character is still used. Escape (every lease end) forgets it.
 - **[S-1996]** Widgets deliberately without keys: Clock, Sun, Moon, Weather now and forecast, Stocks
@@ -6272,6 +6297,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   and writes each open popup to a PNG.
 - **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the
   pointer), as Explorer's does, and flips only to stay on screen. A menu opened from the keyboard sits
+- Every one of these menus closes on a press anywhere else on screen, the desktop and other apps
+  included ([S-816]).
   under its anchor's left edge.
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
   or the point of a right-click on the surface — and flips above only
