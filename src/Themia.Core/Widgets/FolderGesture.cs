@@ -9,7 +9,7 @@ public enum GestureStep
     /// <summary>The press on an item moved past the dead zone: hand <see cref="FolderGesture.DragPaths"/> to an OLE drag.</summary>
     StartDrag,
 
-    /// <summary>The press on the background is a rubber band: paint <see cref="FolderGesture.BandRect"/>.</summary>
+    /// <summary>The press on the background (or an item's empty part, [S-6412]) is a rubber band: paint <see cref="FolderGesture.BandRect"/>.</summary>
     Band,
 }
 
@@ -70,16 +70,16 @@ public sealed class FolderGesture
 
     /// <summary>
     /// A left press. Wipes every earlier candidate and suppress flag first, then arms exactly one:
-    /// a drag candidate on an item, a band candidate on the background. Returns the generation the
-    /// gesture owns.
+    /// a drag candidate on an item's icon or name, a band candidate on the background or an item's
+    /// empty part ([S-6412]). Returns the generation the gesture owns.
     /// </summary>
-    public int BeginPress(double x, double y, bool onItem, IReadOnlyList<string>? paths = null)
+    public int BeginPress(double x, double y, FolderPress press, IReadOnlyList<string>? paths = null)
     {
         Reset();
         DragWasActive = false;
         BandWasActive = false;
 
-        if (onItem)
+        if (press == FolderPress.Item)
         {
             _fileStart = (x, y);
             DragPaths = paths ?? [];

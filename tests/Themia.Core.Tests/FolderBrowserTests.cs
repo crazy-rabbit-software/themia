@@ -271,10 +271,10 @@ public sealed class FolderBrowserTests
         var s = Selection(5);
         s.Click(0, false, false);
 
-        s.Band([2, 3], before: [@"C:\Root\0"]);
+        s.Band([2, 3], before: [@"C:\Root\0"], BandMode.Add);
         Assert.Equal([@"C:\Root\0", @"C:\Root\2", @"C:\Root\3"], s.Selected);
 
-        s.Band([3], before: null);
+        s.Band([3], before: null, BandMode.Replace);
         Assert.Equal([@"C:\Root\3"], s.Selected);
     }
 
@@ -284,7 +284,7 @@ public sealed class FolderBrowserTests
     public void S1328_movement_inside_the_dead_zone_stays_a_click()
     {
         var g = new FolderGesture();
-        g.BeginPress(10, 10, onItem: true, [@"C:\a"]);
+        g.BeginPress(10, 10, FolderPress.Item, [@"C:\a"]);
 
         Assert.Equal(GestureStep.Idle, g.Move(13, 13));
         Assert.Equal((false, false), g.Release());
@@ -294,7 +294,7 @@ public sealed class FolderBrowserTests
     public void S1328_a_press_on_an_item_becomes_a_drag_once_and_suppresses_the_click()
     {
         var g = new FolderGesture();
-        g.BeginPress(10, 10, onItem: true, [@"C:\a"]);
+        g.BeginPress(10, 10, FolderPress.Item, [@"C:\a"]);
 
         Assert.Equal(GestureStep.StartDrag, g.Move(20, 10));
         Assert.Equal([@"C:\a"], g.DragPaths);
@@ -306,7 +306,7 @@ public sealed class FolderBrowserTests
     public void S1328_a_band_once_started_stays_a_band()
     {
         var g = new FolderGesture();
-        g.BeginPress(0, 0, onItem: false);
+        g.BeginPress(0, 0, FolderPress.Background);
 
         Assert.Equal(GestureStep.Band, g.Move(10, 10));
         Assert.Equal(GestureStep.Band, g.Move(1, 1));
@@ -319,10 +319,10 @@ public sealed class FolderBrowserTests
     {
         // #58: an aborted gesture left its origin; the next press must measure from its own.
         var g = new FolderGesture();
-        g.BeginPress(0, 0, onItem: true, [@"C:\a"]);
+        g.BeginPress(0, 0, FolderPress.Item, [@"C:\a"]);
         var stale = g.Generation;
 
-        g.BeginPress(500, 500, onItem: true, [@"C:\b"]);
+        g.BeginPress(500, 500, FolderPress.Item, [@"C:\b"]);
 
         Assert.NotEqual(stale, g.Generation);
         Assert.Equal(GestureStep.Idle, g.Move(502, 502));
@@ -333,7 +333,7 @@ public sealed class FolderBrowserTests
     public void S1328_release_resets_and_moves_after_it_do_nothing()
     {
         var g = new FolderGesture();
-        g.BeginPress(0, 0, onItem: false);
+        g.BeginPress(0, 0, FolderPress.Background);
         var generation = g.Generation;
 
         g.Release();

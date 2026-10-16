@@ -216,16 +216,17 @@ public sealed class FolderSelection
     }
 
     /// <summary>
-    /// [S-1328] A rubber band covering <paramref name="hits"/> (row indices). Additive (Ctrl) keeps
-    /// what was selected when the band started (<paramref name="before"/>).
+    /// [S-1328] A rubber band covering <paramref name="hits"/> (row indices), combined with what was
+    /// selected when it started (<paramref name="before"/>) as <paramref name="mode"/> says ([S-6413]):
+    /// replace, add (Shift) or toggle each covered item (Ctrl). The focus goes to the last covered item.
     /// </summary>
-    public void Band(IEnumerable<int> hits, IReadOnlyCollection<string>? before)
+    public void Band(IEnumerable<int> hits, IReadOnlyCollection<string>? before, BandMode mode)
     {
         ArgumentNullException.ThrowIfNull(hits);
 
         _selected.Clear();
 
-        if (before is not null)
+        if (mode != BandMode.Replace && before is not null)
         {
             _selected.UnionWith(before);
         }
@@ -234,11 +235,23 @@ public sealed class FolderSelection
 
         foreach (var i in hits)
         {
-            if (InRange(i))
+            if (!InRange(i))
             {
-                _selected.Add(_order[i]);
-                last = _order[i];
+                continue;
             }
+
+            var path = _order[i];
+
+            if (mode == BandMode.Toggle && before is not null && before.Contains(path, StringComparer.OrdinalIgnoreCase))
+            {
+                _selected.Remove(path);
+            }
+            else
+            {
+                _selected.Add(path);
+            }
+
+            last = path;
         }
 
         if (last is not null)

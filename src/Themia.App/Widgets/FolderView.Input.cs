@@ -23,11 +23,19 @@ internal sealed partial class FolderView : IWidgetDropTarget
     /// <summary>A press on an already-selected item: the selection is narrowed on release, not press, so a multi-item drag keeps it.</summary>
     private int? _deferredClick;
 
-    /// <summary>The selection when an additive (Ctrl) rubber band started.</summary>
+    /// <summary>The selection when a Shift or Ctrl rubber band started ([S-6413]).</summary>
     private IReadOnlyCollection<string>? _bandBefore;
 
-    /// <summary>Each item's box in the scroll content's coordinates, taken when a band starts.</summary>
-    private List<(int Index, Rect Box)> _bandBoxes = [];
+    private BandMode _bandMode;
+
+    /// <summary>[S-6412] The item whose empty part was pressed: a click there selects it on release.</summary>
+    private int? _blankPress;
+
+    /// <summary>[S-6415] The band's pointer in the scroller's own coordinates, for the edge scroll.</summary>
+    private Point _bandPointer;
+
+    private bool _bandTicking;
+    private TimeSpan? _bandFrame;
 
     /// <summary>The cursor ring shows only once the keys have moved it, as Explorer's focus rectangle.</summary>
     private bool _keyboardActive;
@@ -121,8 +129,15 @@ internal sealed partial class FolderView : IWidgetDropTarget
         var shift = e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift);
         var visual = VisualAt(e.OriginalSource);
         _keyboardActive = false;
+        _blankPress = null;
 
-        if (visual is not null)
+        // [S-6412] Only the icon and the name carry the item; the rest of a row or tile starts a band.
+        var source = e.OriginalSource as DependencyObject;
+        var press = FolderLasso.Classify(
+            visual is not null,
+            visual is not null && (IsWithin(source, visual.IconBox) || IsWithin(source, visual.Name)));
+
+        if (visual is not null && press == FolderPress.Item)
         {
             if (!ctrl && !shift && _selection.IsSelected(visual.Entry.FullPath))
             {
@@ -135,14 +150,15 @@ internal sealed partial class FolderView : IWidgetDropTarget
             }
 
             var paths = _selection.IsSelected(visual.Entry.FullPath) ? _selection.Selected : [visual.Entry.FullPath];
-            _gesture.BeginPress(point.Position.X, point.Position.Y, onItem: true, paths);
+            _gesture.BeginPress(point.Position.X, point.Position.Y, FolderPress.Item, paths);
         }
         else
         {
             _deferredClick = null;
-            _bandBefore = ctrl ? [.. _selection.Selected] : null;
-            _gesture.BeginPress(point.Position.X, point.Position.Y, onItem: false);
-            _bandBoxes = [.. _visuals.Select(v => (v.Index, v.Root.TransformToVisual(_scrollContent).TransformBounds(new Rect(0, 0, v.Root.ActualWidth, v.Root.ActualHeight))))];
+            _blankPress = visual?.Index;
+            _bandMode = FolderLasso.Mode(ctrl, shift);
+            _bandBefore = _bandMode == BandMode.Replace ? null : [.. _selection.Selected];
+            _gesture.BeginPress(point.Position.X, point.Position.Y, press);
         }
 
         RefreshSelectionVisuals();
@@ -176,7 +192,10 @@ internal sealed partial class FolderView : IWidgetDropTarget
                     _scrollContent.CapturePointer(e.Pointer);
                 }
 
+                _blankPress = null;
+                _bandPointer = e.GetCurrentPoint(_scroll).Position;
                 DrawBand(_gesture.BandRect);
+                UpdateBandScroll();
                 break;
         }
     }
@@ -186,6 +205,8 @@ internal sealed partial class FolderView : IWidgetDropTarget
         var (wasDrag, wasBand) = _gesture.Release();
         HideBand();
         _scrollContent.ReleasePointerCaptures();
+        var blank = _blankPress;
+        _blankPress = null;
 
         if (wasDrag || wasBand)
         {
@@ -195,6 +216,16 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
         var ctrl = e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control);
         var shift = e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift);
+
+        if (blank is { } pressed && pressed < _visuals.Count)
+        {
+            // [S-6412] A click beside the name selects the item, as Explorer's full-row select; it
+            // never opens (single-click mode opens from the icon or the name).
+            _selection.Click(pressed, ctrl, shift);
+            RefreshSelectionVisuals();
+            return;
+        }
+
         var visual = VisualAt(e.OriginalSource);
 
         if (visual is null)
@@ -230,6 +261,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     {
         _gesture.Release();
         _deferredClick = null;
+        _blankPress = null;
         HideBand();
     }
 
@@ -242,21 +274,106 @@ internal sealed partial class FolderView : IWidgetDropTarget
         }
     }
 
-    /// <summary>[S-1328] Draw the band and select what it covers.</summary>
-    private void DrawBand(BandRect rect)
+    /// <summary>
+    /// [S-1328] Draw the band and select what it covers. The cover is worked out from the layout's
+    /// cells ([S-6414]), so rows the list has not built yet ([S-1887]) are selected too.
+    /// </summary>
+    private void DrawBand(BandRect raw)
     {
+        var rect = FolderLasso.Clamp(raw, _scrollContent.ActualWidth, _scrollContent.ActualHeight);
         Canvas.SetLeft(_band, rect.Left);
         Canvas.SetTop(_band, rect.Top);
         _band.Width = Math.Max(1, rect.Width);
         _band.Height = Math.Max(1, rect.Height);
         _band.Visibility = Visibility.Visible;
 
-        var hits = _bandBoxes.Where(b => rect.Hits(b.Box.X, b.Box.Y, b.Box.Width, b.Box.Height)).Select(b => b.Index);
-        _selection.Band(hits, _bandBefore);
+        var (columns, cellWidth, cellHeight) = _plan?.Grid is { } grid
+            ? (Math.Max(1, grid.Columns), grid.CellWidth, grid.CellHeight)
+            : (1, _items.ActualWidth, _plan?.RowHeight ?? FolderLayout.RowHeight(_config.Rows));
+
+        _selection.Band(FolderLasso.Hits(rect, _shown.Count, columns, cellWidth, cellHeight), _bandBefore, _bandMode);
         RefreshSelectionVisuals();
     }
 
-    private void HideBand() => _band.Visibility = Visibility.Collapsed;
+    private void HideBand()
+    {
+        _band.Visibility = Visibility.Collapsed;
+        StopBandScroll();
+    }
+
+    // ---- the band's edge scroll ([S-6415]) ------------------------------------------------------
+
+    /// <summary>Run the frame tick only while the band's pointer is in an edge zone; stop it otherwise.</summary>
+    private void UpdateBandScroll()
+    {
+        var scrolls = _gesture.BandWasActive && _gesture.Pressed
+            && FolderLasso.ScrollVelocity(_bandPointer.Y, _scroll.ActualHeight) != 0;
+
+        if (scrolls && !_bandTicking)
+        {
+            _bandTicking = true;
+            _bandFrame = null;
+            CompositionTarget.Rendering += OnBandFrame;
+        }
+        else if (!scrolls)
+        {
+            StopBandScroll();
+        }
+    }
+
+    private void StopBandScroll()
+    {
+        if (_bandTicking)
+        {
+            _bandTicking = false;
+            CompositionTarget.Rendering -= OnBandFrame;
+        }
+    }
+
+    /// <summary>One frame of edge scroll: move the list, then stretch the band to where the pointer now is over the content.</summary>
+    private void OnBandFrame(object? sender, object args)
+    {
+        try
+        {
+            if (_detached || !_gesture.Pressed)
+            {
+                StopBandScroll();
+                return;
+            }
+
+            var now = (args as RenderingEventArgs)?.RenderingTime ?? TimeSpan.Zero;
+            var seconds = _bandFrame is { } last ? (now - last).TotalSeconds : 0;
+            _bandFrame = now;
+
+            var velocity = FolderLasso.ScrollVelocity(_bandPointer.Y, _scroll.ActualHeight);
+            if (velocity == 0)
+            {
+                StopBandScroll();
+                return;
+            }
+
+            var from = _scroll.VerticalOffset;
+            var to = FolderLasso.Step(from, velocity, seconds, _scroll.ScrollableHeight);
+
+            if (to != from)
+            {
+                _scroll.ChangeView(null, to, null, disableAnimation: true);
+            }
+
+            // The transform still has this frame's offset; the content point is where the new one puts it.
+            var at = _scroll.TransformToVisual(_scrollContent).TransformPoint(_bandPointer);
+            if (_gesture.Move(at.X, at.Y + (to - from)) == GestureStep.Band)
+            {
+                DrawBand(_gesture.BandRect);
+            }
+        }
+        catch (Exception ex)
+        {
+            // A frame callback: nothing may escape to the compositor.
+            StopBandScroll();
+            Themia.Core.Diagnostics.Log.Error(Scope, "the band's edge scroll failed", ex);
+        }
+    }
 
     // ---- selection visuals ----------------------------------------------------------------------
 

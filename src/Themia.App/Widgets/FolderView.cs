@@ -490,6 +490,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         _scrollContent.RightTapped -= OnBackgroundRightTapped;
         _scrollContent.DoubleTapped -= OnDoubleTapped;
         _scrollContent.PointerEntered -= OnPointerEntered;
+        StopBandScroll();
     }
 
     private void OnPointerEntered(object sender, PointerRoutedEventArgs e)

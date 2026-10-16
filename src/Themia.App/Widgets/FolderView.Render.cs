@@ -173,7 +173,7 @@ internal sealed partial class FolderView
             Child = new Border
             {
                 Background = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-                Opacity = 0.15,
+                Opacity = 0.25,
             },
             Visibility = Visibility.Collapsed,
             IsHitTestVisible = false,
@@ -196,7 +196,11 @@ internal sealed partial class FolderView
 
         // [S-1887] Rows are built as the list scrolls toward them, and when the tile grows.
         _scroll.ViewChanged += (_, _) => RealizeMore();
-        _scroll.SizeChanged += (_, _) => RealizeMore();
+        _scroll.SizeChanged += (_, _) =>
+        {
+            FillViewport();
+            RealizeMore();
+        };
 
         _message = new TextBlock();
         _messageHost = new Border
@@ -283,8 +287,16 @@ internal sealed partial class FolderView
         _searchBox.Visibility = plan.SearchBox ? Visibility.Visible : Visibility.Collapsed;
         _columnHeader.Visibility = plan.ColumnHeader ? Visibility.Visible : Visibility.Collapsed;
         _scroll.Padding = plan.Grid is null ? WidgetLayout.ListInset : new Thickness(4, 2, 4, Fluent.Space2);
+        FillViewport();
         ApplyHeader();
     }
+
+    /// <summary>
+    /// [S-6412] The content is at least the viewport tall, so the empty space under a short listing
+    /// takes presses and a band can be drawn down to the bottom.
+    /// </summary>
+    private void FillViewport()
+        => _scrollContent.MinHeight = Math.Max(0, _scroll.ActualHeight - _scroll.Padding.Top - _scroll.Padding.Bottom);
 
     /// <summary>[S-1326] The header's buttons and git badge, by the plan and by what history allows.</summary>
     private void ApplyHeader()
@@ -593,6 +605,9 @@ internal sealed partial class FolderView
         var name = Fluent.Text(plan?.SmallText == true ? FluentType.Caption : FluentType.Body);
         name.Text = FileNamesDisplay(entry);
         name.VerticalAlignment = VerticalAlignment.Center;
+
+        // [S-6412] As wide as its text: the rest of the row is empty space a band can start from.
+        name.HorizontalAlignment = HorizontalAlignment.Left;
 
         var nameCell = new Grid { Children = { name } };
 
