@@ -10,8 +10,10 @@ namespace Themia.Core.Widgets;
 /// <para>
 /// Positions are in DIPs, measured against the newest point minus <c>lag</c> samples (1 just after a
 /// point arrives, 0 once the step has played out or when nothing animates). A folded slot ([S-1121])
-/// stands at the time of its last member, so the slot still filling is always at or beyond the right
-/// edge and nothing on screen changes value as points arrive ([S-1829]).
+/// stands at the time of its last member and is drawn only once that member has arrived: a slot still
+/// filling changes value with every point, and the segment into it would show that at the right edge.
+/// So a folded chart is a further slot less one sample behind, which puts a slot that just finished a
+/// whole slot beyond the right edge, from where it slides in over its points' periods ([S-1829]).
 /// </para>
 /// </summary>
 public static class SparkScroll
@@ -36,13 +38,15 @@ public static class SparkScroll
     /// [S-1826] The x of folded slot <paramref name="bucket"/> (its absolute id, [S-1121]) when the
     /// series' newest point is number <paramref name="newest"/> (0-based) and the chart is
     /// <paramref name="lag"/> samples behind it. With no lag and no folding this is
-    /// <see cref="Sparkline.PlotX"/>: the newest point half a stroke inside the right edge.
+    /// <see cref="Sparkline.PlotX"/>: the newest point half a stroke inside the right edge. [S-1829] A
+    /// folded chart stands <c>size − 1</c> samples further behind, so the newest finished slot is never
+    /// left of the right edge and one that just finished is a whole slot beyond it.
     /// </summary>
     public static double PlotX(long bucket, long newest, int size, int window, double width, double stroke, double lag)
     {
         var fold = Math.Max(1, size);
         var right = width - (Math.Max(0, stroke) / 2);
-        var behind = newest - lag - (((bucket + 1) * fold) - 1);
+        var behind = newest - lag - (fold - 1) - (((bucket + 1) * fold) - 1);
         return right - (behind * Step(fold, window, width, stroke));
     }
 
@@ -50,7 +54,9 @@ public static class SparkScroll
     /// [S-1826] Where each of <paramref name="buckets"/> folded slots is drawn (oldest first; the
     /// newest holds point <paramref name="added"/> − 1), and how many of the oldest to leave out: every
     /// slot from the last one at or left of the chart's left edge is kept, so the line reaches the
-    /// edge while it slides, and anything older is not drawn. Empty on an unmeasured chart.
+    /// edge while it slides, and anything older is not drawn. [S-1829] The newest slot is left out
+    /// too while it is still filling: <c>X</c> covers slots <c>Skip</c> to <c>Skip + X.Length − 1</c>.
+    /// Empty on an unmeasured chart.
     /// </summary>
     public static (int Skip, double[] X) Layout(int buckets, long added, int size, int window, double width, double stroke, double lag)
     {
@@ -62,10 +68,11 @@ public static class SparkScroll
         var fold = Math.Max(1, size);
         var newest = added - 1;
         var last = newest / fold;
-        var x = new double[buckets];
+        var finished = added % fold == 0 ? buckets : buckets - 1;
+        var x = new double[Math.Max(0, finished)];
         var skip = 0;
 
-        for (var i = 0; i < buckets; i++)
+        for (var i = 0; i < x.Length; i++)
         {
             x[i] = PlotX(last - (buckets - 1 - i), newest, fold, window, width, stroke, lag);
 
@@ -80,9 +87,10 @@ public static class SparkScroll
 
     /// <summary>
     /// [S-1826] How many more points than its span a chart holds: the slot sliding out at the left
-    /// edge, plus the newest beyond the right one. At least 2, a folded chart one slot's worth more.
+    /// edge, the newest beyond the right one and, folded ([S-1829]), the slot still filling and the
+    /// slot's further lag. At least 2.
     /// </summary>
-    public static int Lead(int size) => Math.Max(1, size) + 1;
+    public static int Lead(int size) => (3 * Math.Max(1, size)) - 1;
 
     /// <summary>
     /// [S-1827] [S-1828] How a chart draws after <paramref name="change"/>: a new point with animation

@@ -47,15 +47,16 @@ internal sealed partial class SparkBand : Grid
     private readonly Rectangle _baseline = new() { Height = 1, VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Bottom };
     private readonly Queue<double> _first;
     private readonly Queue<double> _second;
-    // [S-1826] The traces, in the one container the slide translates; the baseline stays put.
-    private readonly Grid _plot = new();
+    // [S-1826] The traces, in the one container the slide translates; the baseline stays put. A
+    // Canvas, not a Grid: a Grid arranges the shapes at the band's size and clips them there in their
+    // own coordinates, so the point drawn beyond the right edge was cut off and slid in as a gap,
+    // and the next point then appeared at the edge. The band's own clip is the one edge.
+    private readonly Canvas _plot = new();
     private readonly RectangleGeometry _clip = new();
     private int _capacity;
     private long _added;
     private ChartScale _scale;
 
-    // [S-1826] Points held beyond the span (the slot sliding out, the newest beyond the edge), for this width.
-    private int _lead = SparkScroll.Lead(1);
     private int _periodSeconds = SystemCadence.TickSeconds;
     private Visual? _visual;
     private ScalarKeyFrameAnimation? _slide;
@@ -126,7 +127,7 @@ internal sealed partial class SparkBand : Grid
     /// [S-1826] How many of a history's newest points <see cref="Load"/> keeps: the span and the lead
     /// (the slot sliding out at the left, the newest beyond the right edge).
     /// </summary>
-    public int Holds => _capacity + _lead;
+    public int Holds => _capacity + SparkScroll.Lead(MeterTiming.BucketSize(_capacity, ActualWidth));
 
     /// <summary>How many samples the band holds. Shrinking it drops the oldest; growing keeps them all.</summary>
     public int Capacity
@@ -253,9 +254,11 @@ internal sealed partial class SparkBand : Grid
             && SystemMotion.AnimationsEnabled;
         var frame = SparkScroll.Plan(change, animates);
 #if DEBUG
-        if (PreviewProgress is { } progress)
+        // A still of the live slide: the geometry just after a point, translated part of the way.
+        var preview = PreviewProgress is { } progress ? Math.Clamp(progress, 0, 1) : (double?)null;
+        if (preview is not null)
         {
-            frame = new SparkFrame(1 - Math.Clamp(progress, 0, 1), false);
+            frame = new SparkFrame(1, false);
         }
 #endif
 
@@ -275,7 +278,6 @@ internal sealed partial class SparkBand : Grid
         // points (by their absolute position), its peak on a rate chart and its mean on a share.
         var size = MeterTiming.BucketSize(_capacity, width);
         var window = MeterTiming.Slots(_capacity, size);
-        _lead = SparkScroll.Lead(size);
         var first = MeterTiming.Fold(_first.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
         var second = MeterTiming.Fold(_second.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
 
@@ -286,10 +288,17 @@ internal sealed partial class SparkBand : Grid
 
         // [S-1826] Each slot's x at this lag; the slots wholly past the left edge are left out.
         var (skip, xs) = SparkScroll.Layout(first.Length, _added, size, window, width, inset, frame.Lag);
-        first = first[skip..];
-        second = second[Math.Min(skip, second.Length)..];
+        // [S-1829] A slot still filling is not among them.
+        if (skip + xs.Length > first.Length || skip + xs.Length > second.Length)
+        {
+            ClearTraces();
+            return;
+        }
 
-        if (first.Length < 2 || xs.Length != first.Length)
+        first = first.Slice(skip, xs.Length);
+        second = second.Slice(skip, xs.Length);
+
+        if (first.Length < 2)
         {
             ClearTraces();
             return;
@@ -322,6 +331,12 @@ internal sealed partial class SparkBand : Grid
         {
             StartSlide(SparkScroll.Step(size, window, width, inset) * frame.Lag);
         }
+#if DEBUG
+        else if (preview is { } through)
+        {
+            HoldSlide(SparkScroll.Step(size, window, width, inset) * through);
+        }
+#endif
     }
 
     private void ClearTraces()
@@ -343,6 +358,26 @@ internal sealed partial class SparkBand : Grid
         _visual.Properties.InsertVector3("Translation", Vector3.Zero);
     }
 
+#if DEBUG
+    /// <summary>Debug renders: the traces translated <paramref name="distance"/> DIPs left, still, as a slide stands part-way.</summary>
+    private void HoldSlide(double distance)
+    {
+        EnsureVisual().Properties.InsertVector3("Translation", new Vector3((float)-distance, 0, 0));
+    }
+#endif
+
+    private Visual EnsureVisual()
+    {
+        if (_visual is null)
+        {
+            ElementCompositionPreview.SetIsTranslationEnabled(_plot, true);
+            _visual = ElementCompositionPreview.GetElementVisual(_plot);
+            _visual.Properties.InsertVector3("Translation", Vector3.Zero);
+        }
+
+        return _visual;
+    }
+
     /// <summary>
     /// [S-1826] Slide the traces <paramref name="distance"/> DIPs left over one period, linearly, on
     /// the compositor: no per-frame work on the UI thread. The animation is made once and reused.
@@ -354,16 +389,11 @@ internal sealed partial class SparkBand : Grid
             return;
         }
 
-        if (_visual is null)
-        {
-            ElementCompositionPreview.SetIsTranslationEnabled(_plot, true);
-            _visual = ElementCompositionPreview.GetElementVisual(_plot);
-            _visual.Properties.InsertVector3("Translation", Vector3.Zero);
-        }
+        var visual = EnsureVisual();
 
         if (_slide is null || distance != _slideDistance || _periodSeconds != _slidePeriod)
         {
-            var compositor = _visual.Compositor;
+            var compositor = visual.Compositor;
             var linear = compositor.CreateLinearEasingFunction();
             _slide ??= compositor.CreateScalarKeyFrameAnimation();
             _slide.InsertKeyFrame(0f, 0f, linear);
@@ -373,7 +403,7 @@ internal sealed partial class SparkBand : Grid
             _slidePeriod = _periodSeconds;
         }
 
-        _visual.StartAnimation("Translation.X", _slide);
+        visual.StartAnimation("Translation.X", _slide);
     }
 
     /// <summary>A series as points, at the slots' x from <see cref="SparkScroll.Layout"/>; gaps are skipped.</summary>

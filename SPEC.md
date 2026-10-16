@@ -2764,12 +2764,18 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
 - **[S-1828]** With Windows' **Animation effects** off ([S-1010]; the app has no motion switch of its
   own beyond the intros) or the band not shown, a point draws settled: no lag, today's one step per
   point. Read at each point, so flipping the setting applies to the next one.
-- **[S-1829]** A folded slot ([S-1121]) stands at the time of its last member, so the slot still
-  taking points is always at or beyond the right edge and nothing on screen changes value as points
-  arrive; a folded chart slides a slot over its points' periods. A rate chart's top is the drawn
+- **[S-1829]** A folded slot ([S-1121]) stands at the time of its last member and is **drawn only once
+  that member has arrived**: a slot still taking points changes value with each one, and the segment
+  into it would show that at the right edge. A folded chart therefore stands a further slot less one
+  sample behind, so a slot that just finished starts a whole slot beyond the right edge and slides in
+  over its points' periods, one sample step per point; nothing on screen changes value as points
+  arrive. The traces sit in a `Canvas`, not a `Grid`: a Grid arranges its shapes at the band's size
+  and clips them there in their own coordinates, so the point beyond the right edge was cut off,
+  slid in as a gap, and the next point appeared at the edge. The band's own clip is the only edge. A rate chart's top is the drawn
   slots' peak, the newest beyond the edge included, so the scale is in place before that point
   slides into view. Debug renders draw a fixed point of the slide: `--widget-png <Kind> --state
-  history --progress 0..1` (0 just after a point, 1 settled).
+  history --progress 0..1 [--span s]` (0 just after a point, 1 slid one step; the geometry of a
+  point's arrival under the translation the slide has reached, so the still shows what is clipped).
 - **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
   (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
   same hero readout in every style. One shared set of parts draws them for every meter

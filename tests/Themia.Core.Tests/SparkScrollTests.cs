@@ -98,6 +98,75 @@ public sealed class SparkScrollTests
         }
     }
 
+    [Theory]
+    [InlineData(1, 60, 120.0)]   // a minute unfolded
+    [InlineData(1, 60, 300.0)]
+    [InlineData(2, 60, 60.0)]    // a minute folded into a narrow chart
+    [InlineData(24, 3600, 300.0)] // an hour folded into a tile
+    [InlineData(5, 300, 120.0)]
+    public void S1829_the_slide_shows_only_finished_slots_and_moves_by_their_spacing(int size, int span, double width)
+    {
+        // Point after point through several slots: what slides into view must already be final
+        // (a slot still filling changes value with every point), the slid frame must be exactly the
+        // next point's rebuilt one, and whatever enters does so from beyond the right edge.
+        var window = MeterTiming.Slots(span, size);
+        var lead = SparkScroll.Lead(size);
+        var step = SparkScroll.Step(size, window, width, Stroke);
+
+        for (long added = 4 * span; added < (4 * span) + (3 * size) + 2; added++)
+        {
+            var before = Drawn(added, size, span + lead, window, width, lag: 0);
+            var after = Drawn(added + 1, size, span + lead, window, width, lag: 1);
+            var newest = added; // 0-based index of the point just added
+
+            foreach (var (bucket, x) in after)
+            {
+                // Finished: its last member has arrived.
+                Assert.True(((bucket + 1) * size) - 1 <= newest, $"slot {bucket} is still filling at point {newest}");
+
+                if (before.TryGetValue(bucket, out var was))
+                {
+                    Assert.Equal(was, x, 9);
+                }
+                else if (x > 0)
+                {
+                    // New on the right: it starts wholly beyond the chart, not inside it.
+                    Assert.True(x >= width + 0.5, $"slot {bucket} enters at {x}, inside a {width} chart");
+                }
+
+                // The slide is one sample step; settled is that far left of the rebuilt frame.
+                var settled = SparkScroll.PlotX(bucket, newest, size, window, width, Stroke, 0);
+                Assert.Equal(x - step, settled, 9);
+            }
+
+            // The line still reaches the right edge (half a stroke in, [S-1824]) and the left one.
+            Assert.True(after.Values.Max() >= width - (Stroke / 2) - 1e-9);
+            Assert.True(after.Values.Min() <= 0);
+
+            // The leftmost slot drawn is a whole one, not a part the held history cut.
+            var oldestHeld = added + 1 - (span + lead);
+            Assert.True(after.Keys.Min() * size >= oldestHeld, $"slot {after.Keys.Min()} is cut at the left");
+        }
+    }
+
+    /// <summary>The slots a chart of the newest <paramref name="held"/> of <paramref name="added"/> points draws, by absolute id.</summary>
+    private static Dictionary<long, double> Drawn(long added, int size, int held, int window, double width, double lag)
+    {
+        var count = (int)Math.Min(added, held);
+        var first = added - count;
+        var buckets = (int)(((added - 1) / size) - (first / size) + 1);
+        var (skip, x) = SparkScroll.Layout(buckets, added, size, window, width, Stroke, lag);
+        var oldest = first / size;
+        var drawn = new Dictionary<long, double>();
+
+        for (var i = 0; i < x.Length; i++)
+        {
+            drawn[oldest + skip + i] = x[i];
+        }
+
+        return drawn;
+    }
+
     [Fact]
     public void S1826_keeps_one_slot_past_the_left_edge_and_drops_older()
     {
@@ -131,10 +200,10 @@ public sealed class SparkScrollTests
     }
 
     [Fact]
-    public void S1826_holds_the_newest_and_one_slot_more()
+    public void S1826_holds_the_newest_and_the_folded_slots_beyond_the_edges()
     {
         Assert.Equal(2, SparkScroll.Lead(1));
-        Assert.Equal(13, SparkScroll.Lead(12));
+        Assert.Equal(35, SparkScroll.Lead(12));
         Assert.Equal(2, SparkScroll.Lead(0));
     }
 
