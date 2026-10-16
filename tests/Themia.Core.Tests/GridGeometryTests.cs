@@ -8,16 +8,16 @@ public class GridGeometryTests
     private static readonly ScreenMetrics Screen = new(1920, 1080);
 
     [Fact]
-    public void S09_clamps_a_widget_fully_on_screen()
+    public void S09_S6608_a_widget_hanging_over_the_corner_stays_where_it_is_and_one_pushed_away_comes_back_in_reach()
     {
-        var offRight = new FracRect(0.9, 0.9, 0.3, 0.3);
+        var overhanging = new FracRect(0.9, 0.9, 0.3, 0.3);
+        Assert.Equal(overhanging, GridGeometry.Clamp(overhanging, Screen));
 
-        var clamped = GridGeometry.Clamp(offRight, Screen);
+        var clamped = GridGeometry.Clamp(new FracRect(5, 5, 0.3, 0.3), Screen);
 
-        Assert.True(clamped.X >= 0);
-        Assert.True(clamped.Y >= 0);
-        Assert.True(clamped.Right <= 1.0000001);
-        Assert.True(clamped.Bottom <= 1.0000001);
+        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Width), clamped.X, 9);
+        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Height), clamped.Y, 9);
+        Assert.Equal(0.3, clamped.W, 9);
     }
 
     [Fact]
@@ -230,14 +230,14 @@ public class GridGeometryTests
     }
 
     [Fact]
-    public void S11_placement_at_a_screen_corner_is_still_fully_on_screen()
+    public void S11_S6608_placement_at_a_screen_corner_hangs_over_it_but_stays_in_reach()
     {
         var placed = GridGeometry.PlaceAt(0.0, 0.0, 320, 160, Screen, snapEnabled: true);
 
-        Assert.True(placed.X >= 0);
-        Assert.True(placed.Y >= 0);
-        Assert.True(placed.Right <= 1.0000001);
-        Assert.True(placed.Bottom <= 1.0000001);
+        Assert.True(placed.X < 0);
+        Assert.True(placed.Y < 0);
+        Assert.True(placed.Right * Screen.Width >= GridGeometry.MinVisiblePx - 0.001);
+        Assert.True(placed.Bottom * Screen.Height >= GridGeometry.MinVisiblePx - 0.001);
     }
 
     [Fact]

@@ -46,27 +46,91 @@ public static class GridGeometry
     }
 
     /// <summary>
-    /// [S-09] Clamp a rect fully inside the screen's allowed area ([S-841]: the work area, so off the
-    /// taskbar) and above the [S-08] size floor. A rect bigger than the allowed area shrinks to it; a
-    /// rect outside it slides back in, keeping its size. Total: a non-finite or inverted input
-    /// collapses to a valid rect instead of propagating NaN into storage, and an allowed area
-    /// narrower than the floor still yields a floor-sized rect on the screen.
+    /// [S-6608] How much of a widget always stays on the allowed area, in DIPs, on each axis: the
+    /// [S-08] floor, so a floor-sized widget is never cut at all and a bigger one always leaves a
+    /// whole minimum widget's worth to see, grab and drag back. A widget smaller than this (only
+    /// possible on an allowed area narrower than the floor) keeps what the area can hold.
+    /// </summary>
+    public const double MinVisiblePx = MinWidgetPx;
+
+    /// <summary>
+    /// [S-6609] How close, in DIPs, a dragged edge must come to an allowed-area edge to land flush
+    /// on it while the snap aid is on. Under one grid cell ([S-06b]), so a widget can still sit one
+    /// cell in from the edge; enough to catch an edge the grid does not reach (a taskbar's top is
+    /// rarely on a grid line), now that the edge no longer stops a drag by itself.
+    /// </summary>
+    public const double EdgeMagnetPx = 8;
+
+    /// <summary>
+    /// [S-09]/[S-6608] Keep a rect reachable: above the [S-08] size floor, never bigger than the
+    /// screen's allowed area ([S-841]: the work area, so off the taskbar), and overlapping that area
+    /// by at least <see cref="MinVisiblePx"/> on each axis. Past that it may hang over any edge; the
+    /// surface clips it there. A rect pushed further slides back just far enough, keeping its size.
+    /// Total: a non-finite or inverted input collapses to a valid rect instead of propagating NaN
+    /// into storage.
     /// </summary>
     public static FracRect Clamp(FracRect r, ScreenMetrics screen)
     {
         var (minW, minH) = MinFraction(screen);
         var a = screen.Allowed;
 
-        var w = r.IsFinite ? Math.Clamp(r.W, minW, Math.Max(minW, a.W)) : minW;
-        var h = r.IsFinite ? Math.Clamp(r.H, minH, Math.Max(minH, a.H)) : minH;
-        var x = r.IsFinite ? Math.Clamp(r.X, a.X, Math.Max(a.X, a.Right - w)) : a.X;
-        var y = r.IsFinite ? Math.Clamp(r.Y, a.Y, Math.Max(a.Y, a.Bottom - h)) : a.Y;
+        if (!r.IsFinite)
+        {
+            return new FracRect(a.X, a.Y, minW, minH);
+        }
 
-        // Only reachable when the allowed area is narrower than the floor: stay on the screen.
-        x = Math.Clamp(x, 0, Math.Max(0, 1 - w));
-        y = Math.Clamp(y, 0, Math.Max(0, 1 - h));
+        var w = Math.Clamp(r.W, minW, Math.Max(minW, a.W));
+        var h = Math.Clamp(r.H, minH, Math.Max(minH, a.H));
+        var (keepX, keepY) = Keep(screen, w, h);
+
+        var x = Between(r.X, a.X + keepX - w, a.Right - keepX);
+        var y = Between(r.Y, a.Y + keepY - h, a.Bottom - keepY);
 
         return new FracRect(x, y, w, h);
+    }
+
+    /// <summary>
+    /// [S-6608] The overlap, as fractions of the screen, a rect of this size must keep with the
+    /// allowed area: <see cref="MinVisiblePx"/>, but never more than the rect or the area itself.
+    /// </summary>
+    public static (double X, double Y) Keep(ScreenMetrics screen, double w, double h)
+    {
+        var a = screen.Allowed;
+        var (px, py) = screen.IsUsable ? (MinVisiblePx / screen.Width, MinVisiblePx / screen.Height) : (0.01, 0.01);
+        return (Math.Max(0, Math.Min(px, Math.Min(w, a.W))), Math.Max(0, Math.Min(py, Math.Min(h, a.H))));
+    }
+
+    /// <summary>A clamp that cannot throw: a range left empty by a rounding error yields its low end.</summary>
+    internal static double Between(double value, double lo, double hi)
+        => Math.Max(lo, Math.Min(value, Math.Max(lo, hi)));
+
+    /// <summary>
+    /// [S-6609] A moved edge under the snap aid: flush on an allowed-area edge it is within
+    /// <see cref="EdgeMagnetPx"/> of (judged on the raw position, before the grid rounds it away),
+    /// else on the nearest of <paramref name="lines"/> grid lines.
+    /// </summary>
+    internal static double SnapEdge(double raw, double areaStart, double areaEnd, int lines, double screenPx)
+        => SnapStart(raw, 0, areaStart, areaEnd, lines, screenPx);
+
+    /// <summary>
+    /// [S-6609] A moved rect's start under the snap aid: its start edge flush on the area's start, or
+    /// its end edge (start + <paramref name="size"/>) flush on the area's end, when either is within
+    /// <see cref="EdgeMagnetPx"/>; else the start snaps to the grid.
+    /// </summary>
+    internal static double SnapStart(double rawStart, double size, double areaStart, double areaEnd, int lines, double screenPx)
+    {
+        var magnet = screenPx > 0 ? EdgeMagnetPx / screenPx : 0;
+        if (Math.Abs(rawStart - areaStart) <= magnet)
+        {
+            return areaStart;
+        }
+
+        if (Math.Abs(rawStart + size - areaEnd) <= magnet)
+        {
+            return areaEnd - size;
+        }
+
+        return Math.Round(rawStart * lines) / lines;
     }
 
     /// <summary>[S-06] Round a rect onto the snap grid. Storage stays the raw fraction.</summary>
@@ -89,53 +153,78 @@ public static class GridGeometry
     }
 
     /// <summary>
-    /// Snap when the aid is enabled (Alt suppresses it mid-drag), then always clamp.
+    /// Snap when the aid is enabled (Alt suppresses it mid-drag), then always keep the rect
+    /// reachable ([S-09]/[S-6608]). The aid is the grid ([S-06]) with the allowed area's edges as a
+    /// magnet ([S-6609]).
     /// <para>
     /// [S-31a] A resize passes its handle. Then only the edges that handle moves are snapped and
-    /// kept inside the allowed area; the anchored edges stay exactly where they were. Snapping the
-    /// whole rect instead rounded the anchored edge too, and clamping the whole rect pushed a widget
-    /// whose bottom edge was dragged into the taskbar upwards instead of stopping the edge at it.
+    /// limited; the anchored edges stay exactly where they were. Snapping the whole rect instead
+    /// rounded the anchored edge too, and clamping the whole rect pushed the widget about instead
+    /// of stopping the moved edge.
     /// </para>
     /// </summary>
     public static FracRect Settle(FracRect r, ScreenMetrics screen, bool snapEnabled, ResizeHandle? resizing = null)
     {
-        if (resizing is not { } handle || !r.IsFinite)
+        if (!r.IsFinite)
         {
-            return Clamp(snapEnabled ? Snap(r, screen) : r, screen);
+            return Clamp(r, screen);
         }
 
         var (cols, rows) = GridDims(screen);
-        var (minW, minH) = MinFraction(screen);
         var a = screen.Allowed;
+
+        if (resizing is not { } handle)
+        {
+            if (!snapEnabled)
+            {
+                return Clamp(r, screen);
+            }
+
+            var snapped = Snap(r, screen);
+            return Clamp(snapped with
+            {
+                X = SnapStart(r.X, snapped.W, a.X, a.Right, cols, screen.Width),
+                Y = SnapStart(r.Y, snapped.H, a.Y, a.Bottom, rows, screen.Height),
+            }, screen);
+        }
+
+        var (minW, minH) = MinFraction(screen);
+        var (keepX, keepY) = Keep(screen, double.PositiveInfinity, double.PositiveInfinity);
 
         double left = r.X, top = r.Y, right = r.Right, bottom = r.Bottom;
 
+        // Each moved edge: snapped, then stopped before the widget outgrows the allowed area or
+        // leaves less than the visible minimum on it, and the [S-08] floor last so it always wins.
         if (MovesLeft(handle))
         {
-            left = Math.Max(a.X, snapEnabled ? Math.Round(left * cols) / cols : left);
+            left = snapEnabled ? SnapEdge(left, a.X, a.Right, cols, screen.Width) : left;
+            left = Math.Min(Math.Max(left, right - a.W), a.Right - keepX);
             left = Math.Min(left, right - minW);
         }
 
         if (MovesRight(handle))
         {
-            right = Math.Min(a.Right, snapEnabled ? Math.Round(right * cols) / cols : right);
+            right = snapEnabled ? SnapEdge(right, a.X, a.Right, cols, screen.Width) : right;
+            right = Math.Max(Math.Min(right, left + a.W), a.X + keepX);
             right = Math.Max(right, left + minW);
         }
 
         if (MovesTop(handle))
         {
-            top = Math.Max(a.Y, snapEnabled ? Math.Round(top * rows) / rows : top);
+            top = snapEnabled ? SnapEdge(top, a.Y, a.Bottom, rows, screen.Height) : top;
+            top = Math.Min(Math.Max(top, bottom - a.H), a.Bottom - keepY);
             top = Math.Min(top, bottom - minH);
         }
 
         if (MovesBottom(handle))
         {
-            bottom = Math.Min(a.Bottom, snapEnabled ? Math.Round(bottom * rows) / rows : bottom);
+            bottom = snapEnabled ? SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height) : bottom;
+            bottom = Math.Max(Math.Min(bottom, top + a.H), a.Y + keepY);
             bottom = Math.Max(bottom, top + minH);
         }
 
-        // Whatever is still outside — an anchored edge the taskbar has since grown over — is the
-        // ordinary clamp's to fix.
+        // Whatever is still out of reach (an anchored edge the taskbar has since grown over far
+        // enough to hide the rest) is the ordinary clamp's to fix.
         return Clamp(FracRect.FromEdges(left, top, right, bottom), screen);
     }
 
@@ -251,8 +340,9 @@ public static class GridGeometry
         => h is ResizeHandle.BottomLeft or ResizeHandle.Bottom or ResizeHandle.BottomRight;
 
     /// <summary>
-    /// [S-11] Placement: centre a default-sized widget on the drop point, then snap and clamp — into
-    /// the allowed area, so a widget dropped on the taskbar lands just above it ([S-841]).
+    /// [S-11] Placement: centre a default-sized widget on the drop point, then settle it as a drag
+    /// does: near an edge it may hang over it, but always keeps the visible minimum on the allowed
+    /// area ([S-6608]).
     /// </summary>
     public static FracRect PlaceAt(
         double xFrac,

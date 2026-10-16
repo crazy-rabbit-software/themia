@@ -83,6 +83,10 @@ public static class StripPlacement
         width = Math.Max(0, width);
         height = Math.Max(0, height);
 
+        // [S-6610] A selection hanging over the area's edge ([S-6608]) is anchored by the part of it
+        // that shows: beside an edge that is off the screen the panel could never stand.
+        target = GridGeometry.Intersect(target, area) ?? target;
+
         var areaRight = area.X + area.Width;
         var areaBottom = area.Y + area.Height;
         var targetRight = target.X + target.Width;

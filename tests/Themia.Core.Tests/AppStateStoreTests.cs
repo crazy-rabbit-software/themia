@@ -197,16 +197,31 @@ public sealed class AppStateStoreTests : IDisposable
     }
 
     [Fact]
-    public void Validate_pulls_an_off_screen_widget_back_into_bounds()
+    public void Validate_S6608_pulls_an_off_screen_widget_back_into_reach()
     {
         var state = AppState.CreateDefault();
         var widget = state.ActiveView().Widgets[0];
-        widget.Rect = new FracRect(5, 5, 0.2, 0.2);
+        widget.Rect = new FracRect(5, -5, 0.2, 0.2);
 
         AppStateStore.Validate(state);
 
-        Assert.True(widget.Rect.Right <= 1.0000001);
-        Assert.True(widget.Rect.Bottom <= 1.0000001);
+        // Against the 1920 × 1080 reference screen: the visible minimum stays on it, no more.
+        Assert.Equal(1 - (GridGeometry.MinVisiblePx / 1920), widget.Rect.X, 9);
+        Assert.Equal(GridGeometry.MinVisiblePx / 1080, widget.Rect.Bottom, 9);
+        Assert.Equal(0.2, widget.Rect.W, 9);
+    }
+
+    [Fact]
+    public void Validate_S6608_leaves_a_widget_hanging_over_the_edge_where_it_is()
+    {
+        var state = AppState.CreateDefault();
+        var widget = state.ActiveView().Widgets[0];
+        var overhanging = new FracRect(-0.1, 0.9, 0.2, 0.2);
+        widget.Rect = overhanging;
+
+        AppStateStore.Validate(state);
+
+        Assert.Equal(overhanging, widget.Rect);
     }
 
     [Fact]

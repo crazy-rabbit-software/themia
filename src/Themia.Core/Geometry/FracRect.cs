@@ -44,9 +44,9 @@ public readonly record struct ScreenMetrics(double Width, double Height)
 
     /// <summary>
     /// [S-841] The part of the screen <b>new</b> geometry may occupy — the display's work area, as a
-    /// fraction of the whole screen. Placement, drag, resize, paste and drop are clamped into it, so
-    /// nothing is put under the taskbar; rendering ignores it, so a taskbar change never moves what
-    /// is already there. Defaults to the whole screen; anything unusable (non-finite, empty, wholly
+    /// fraction of the whole screen. Placement, drag, resize, paste and drop keep at least the
+    /// visible minimum on it ([S-6608]), so nothing is lost under the taskbar or past the screen's
+    /// edge; rendering ignores it, so a taskbar change never moves what is already there. Defaults to the whole screen; anything unusable (non-finite, empty, wholly
     /// off-screen) also means the whole screen rather than a rect nothing fits in.
     /// </summary>
     public FracRect Allowed

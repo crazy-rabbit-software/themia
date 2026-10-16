@@ -180,15 +180,19 @@ public sealed class ShellKeyboardTests
     }
 
     [Fact]
-    public void S1970_a_block_moves_together_and_stops_at_the_edge_whole()
+    public void S1970_S6608_a_block_moves_together_past_the_edge_and_stops_whole_at_the_visible_minimum()
     {
         FracRect[] block = [new(0.0, 0.1, 0.1, 0.1), new(0.3, 0.1, 0.1, 0.1)];
 
         var moved = KeyboardNudge.Move(block, NudgeDirection.Left, NudgeStep.Cell, Screen, snapEnabled: true);
 
-        // The left one is at the edge already, so neither moves: the block never pulls apart.
-        Near(0.0, moved[0].X);
-        Near(0.3, moved[1].X);
+        // Over the edge by one cell, both of them: the block never pulls apart.
+        Near(-0.01, moved[0].X);
+        Near(0.29, moved[1].X);
+
+        var far = KeyboardNudge.Move(block, NudgeDirection.Left, NudgeStep.Far, Screen, snapEnabled: true);
+        Near(0.032, far[0].Right);
+        Near(0.3, far[1].X - far[0].X);
 
         var right = KeyboardNudge.Move(block, NudgeDirection.Right, NudgeStep.Cell, Screen, snapEnabled: true);
         Near(0.01, right[0].X);
@@ -196,12 +200,12 @@ public sealed class ShellKeyboardTests
     }
 
     [Fact]
-    public void S1970_the_work_area_stops_a_move()
+    public void S1970_S6608_a_move_past_the_work_area_keeps_the_visible_minimum_on_it()
     {
         var screen = Screen with { Allowed = new FracRect(0, 0, 1, 0.9) };
         var moved = KeyboardNudge.Move([new FracRect(0.2, 0.8, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, screen, snapEnabled: true);
 
-        Near(0.8, moved[0].Y);
+        Near(0.9 - (32.0 / 500), moved[0].Y);
     }
 
     [Fact]
@@ -232,14 +236,14 @@ public sealed class ShellKeyboardTests
     }
 
     [Fact]
-    public void S1971_a_grow_stops_at_the_screen_edge()
+    public void S1971_S6608_a_grow_may_pass_the_screen_edge()
     {
         var rect = new FracRect(0.85, 0.2, 0.1, 0.1);
 
         var grown = KeyboardNudge.Resize(rect, NudgeDirection.Right, NudgeStep.Far, Screen, snapEnabled: true);
 
         Near(0.85, grown.X);
-        Near(1.0, grown.Right);
+        Near(1.05, grown.Right);
     }
 
     [Fact]

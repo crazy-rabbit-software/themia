@@ -94,7 +94,7 @@ public class WorkAreaGeometryTests
 
     [Theory]
     [MemberData(nameof(Edges))]
-    public void S841_a_widget_dragged_onto_the_taskbar_stops_flush_against_it(string edge, PixelRect work)
+    public void S6608_a_widget_dragged_onto_any_taskbar_keeps_the_visible_minimum_off_it(string edge, PixelRect work)
     {
         var screen = WithTaskbar(work);
         var a = screen.Allowed;
@@ -104,37 +104,41 @@ public class WorkAreaGeometryTests
 
         foreach (var pushed in new[]
                  {
-                     new FracRect(0.4, 0.98, w, h), new FracRect(0.4, -0.05, w, h),
-                     new FracRect(-0.05, 0.4, w, h), new FracRect(0.98, 0.4, w, h),
+                     new FracRect(0.4, 1.5, w, h), new FracRect(0.4, -1.5, w, h),
+                     new FracRect(-1.5, 0.4, w, h), new FracRect(1.5, 0.4, w, h),
                  })
         {
             var settled = GridGeometry.Settle(pushed, screen, snapEnabled: true);
 
-            Assert.True(settled.X >= a.X - Eps && settled.Right <= a.Right + Eps, edge);
-            Assert.True(settled.Y >= a.Y - Eps && settled.Bottom <= a.Bottom + Eps, edge);
+            var overlapX = (Math.Min(settled.Right, a.Right) - Math.Max(settled.X, a.X)) * 1920;
+            var overlapY = (Math.Min(settled.Bottom, a.Bottom) - Math.Max(settled.Y, a.Y)) * 1080;
+            Assert.True(overlapX >= GridGeometry.MinVisiblePx - 1e-6, edge);
+            Assert.True(overlapY >= GridGeometry.MinVisiblePx - 1e-6, edge);
             Assert.Equal(pushed.W, settled.W, 6);
             Assert.Equal(pushed.H, settled.H, 6);
         }
     }
 
     [Fact]
-    public void S841_a_bottom_taskbar_stops_a_widget_at_its_top_edge_exactly()
+    public void S6609_a_widget_dragged_just_past_a_bottom_taskbar_lands_flush_on_its_top_edge()
     {
         var screen = WithTaskbar(BottomTaskbar);
+        const double h = 100.0 / 1080;
 
-        var settled = GridGeometry.Settle(new FracRect(0.4, 0.95, 0.1, 0.1), screen, snapEnabled: true);
+        // 5 DIPs over the taskbar: inside the magnet.
+        var settled = GridGeometry.Settle(new FracRect(0.4, (1037.0 / 1080) - h, 0.1, h), screen, snapEnabled: true);
 
         Assert.Equal(1032.0 / 1080, settled.Bottom, 9);
     }
 
     [Fact]
-    public void S11_S841_placing_a_widget_on_the_taskbar_lands_it_just_above()
+    public void S11_S6608_placing_a_widget_on_the_taskbar_keeps_the_visible_minimum_above_it()
     {
         var screen = WithTaskbar(BottomTaskbar);
 
-        var placed = GridGeometry.PlaceAt(0.5, 0.99, 200, 150, screen, snapEnabled: true);
+        var placed = GridGeometry.PlaceAt(0.5, 1.0, 200, 150, screen, snapEnabled: true);
 
-        Assert.True(placed.Bottom <= screen.Allowed.Bottom + Eps);
+        Assert.Equal(screen.Allowed.Bottom - (GridGeometry.MinVisiblePx / 1080), placed.Y, 9);
         Assert.Equal(150.0 / 1080, placed.H, 9);
     }
 
@@ -183,7 +187,7 @@ public class WorkAreaGeometryTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void S31a_dragging_the_bottom_edge_into_the_taskbar_stops_the_edge_without_moving_the_top(bool snap)
+    public void S31a_S6608_dragging_the_bottom_edge_past_the_taskbar_moves_only_that_edge(bool snap)
     {
         var screen = WithTaskbar(BottomTaskbar);
         var start = new FracRect(0.2, 0.7, 0.2, 0.15);
@@ -192,14 +196,15 @@ public class WorkAreaGeometryTests
         var settled = GridGeometry.Settle(dragged, screen, snap, ResizeHandle.Bottom);
 
         Assert.Equal(start.Y, settled.Y, 12);
-        Assert.Equal(screen.Allowed.Bottom, settled.Bottom, 9);
+        Assert.Equal(1.05, settled.Bottom, 2);
+        Assert.True(settled.Bottom > screen.Allowed.Bottom);
         Assert.Equal(start.X, settled.X, 12);
         Assert.Equal(start.W, settled.W, 12);
     }
 
     [Theory]
     [MemberData(nameof(Edges))]
-    public void S31a_a_resize_toward_any_taskbar_edge_stops_at_it(string edge, PixelRect work)
+    public void S31a_S6608_a_resize_toward_any_edge_keeps_the_anchored_corner_and_grows_no_bigger_than_the_work_area(string edge, PixelRect work)
     {
         var screen = WithTaskbar(work);
         var a = screen.Allowed;
@@ -212,8 +217,17 @@ public class WorkAreaGeometryTests
         {
             var settled = GridGeometry.Settle(GridGeometry.Resize(start, handle, dx, dy, screen), screen, true, handle);
 
-            Assert.True(settled.X >= a.X - Eps && settled.Y >= a.Y - Eps, edge);
-            Assert.True(settled.Right <= a.Right + Eps && settled.Bottom <= a.Bottom + Eps, edge);
+            Assert.True(settled.W <= a.W + Eps && settled.H <= a.H + Eps, edge);
+            if (handle == ResizeHandle.TopLeft)
+            {
+                Assert.Equal(start.Right, settled.Right, 12);
+                Assert.Equal(start.Bottom, settled.Bottom, 12);
+            }
+            else
+            {
+                Assert.Equal(start.X, settled.X, 12);
+                Assert.Equal(start.Y, settled.Y, 12);
+            }
         }
     }
 

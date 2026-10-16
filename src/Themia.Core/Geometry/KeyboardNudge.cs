@@ -5,8 +5,8 @@ namespace Themia.Core.Geometry;
 /// <summary>
 /// [S-1970]..[S-1972] The arrow keys in edit mode: move the selection as one block, or resize every
 /// selected widget by its right or bottom edge. Built on the drag's own rules, so a key lands
-/// exactly where a drag of the same distance would: the block snapped and slid into the allowed
-/// area ([S-1584]), a resize settling only the edge it moves ([S-31a]).
+/// exactly where a drag of the same distance would: the block snapped and kept in reach of the
+/// allowed area ([S-1584], [S-6608]), a resize settling only the edge it moves ([S-31a]).
 /// </summary>
 public static class KeyboardNudge
 {
@@ -55,8 +55,8 @@ public static class KeyboardNudge
 
     /// <summary>
     /// [S-1971] Resize one rect one press: Right and Down grow it, Left and Up shrink it, always by the
-    /// right or bottom edge so the top-left corner stays put. The [S-08] floor and the allowed area
-    /// stop the edge.
+    /// right or bottom edge so the top-left corner stays put. The [S-08] floor and the visible
+    /// minimum ([S-6608]) stop the edge.
     /// </summary>
     public static FracRect Resize(FracRect rect, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, bool snapEnabled)
     {

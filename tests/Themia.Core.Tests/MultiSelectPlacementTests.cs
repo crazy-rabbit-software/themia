@@ -177,28 +177,28 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1584_a_block_is_clamped_as_a_whole_so_offsets_survive_the_edge()
+    public void S1584_S6608_a_block_is_stopped_as_a_whole_so_offsets_survive_the_edge()
     {
         FracRect[] start = [new(0.6, 0.1, 0.1, 0.1), new(0.8, 0.1, 0.1, 0.1)];
 
-        // Far past the right edge: the block stops with its right side on the edge.
+        // Far past the right edge: the block stops when its leading widget keeps the visible minimum.
         var delta = BlockGeometry.Move(start, 0.5, 0, Screen, snapEnabled: false);
         var moved = start.Select(r => BlockGeometry.Apply(r, delta, Screen)).ToList();
 
-        Assert.Equal(1.0, moved[1].Right, 9);
+        Assert.Equal(1 - 0.032, moved[1].X, 9);
         Assert.Equal(0.2, moved[1].X - moved[0].X, 9);
     }
 
     [Fact]
-    public void S1584_a_block_is_kept_inside_the_work_area()
+    public void S1584_S6608_the_work_area_stops_a_block_at_its_first_widget_to_reach_the_minimum()
     {
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 0.9) };
         FracRect[] start = [new(0.1, 0.5, 0.1, 0.1), new(0.1, 0.7, 0.1, 0.1)];
 
         var delta = BlockGeometry.Move(start, 0, 0.5, screen, snapEnabled: false);
 
-        Assert.Equal(0.9, BlockGeometry.Apply(start[1], delta, screen).Bottom, 9);
-        Assert.Equal(0.6, BlockGeometry.Apply(start[0], delta, screen).Y, 9);
+        Assert.Equal(0.9 - 0.032, BlockGeometry.Apply(start[1], delta, screen).Y, 9);
+        Assert.Equal(0.7 - 0.032, BlockGeometry.Apply(start[0], delta, screen).Y, 9);
     }
 
     [Fact]
@@ -217,15 +217,17 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1584_a_block_bigger_than_the_screen_sits_at_the_top_left_and_each_widget_stays_on_it()
+    public void S1584_S6608_a_block_wider_than_the_screen_moves_until_one_widget_would_leave_reach()
     {
         FracRect[] start = [new(0.0, 0.0, 0.6, 0.2), new(0.7, 0.0, 0.6, 0.2)];
 
-        var delta = BlockGeometry.Move(start, 0.3, 0, Screen, snapEnabled: false);
-        var moved = start.Select(r => BlockGeometry.Apply(r, delta, Screen)).ToList();
+        var right = BlockGeometry.Move(start, 0.3, 0, Screen, snapEnabled: false);
+        var left = BlockGeometry.Move(start, -1, 0, Screen, snapEnabled: false);
 
-        Assert.Equal(0.0, moved[0].X, 9);
-        Assert.True(moved[1].Right <= 1.0000001);
+        // Rightwards the right widget stops first, leftwards the left one; the offset never changes.
+        Assert.Equal(1 - 0.032, BlockGeometry.Apply(start[1], right, Screen).X, 9);
+        Assert.Equal(0.032, BlockGeometry.Apply(start[0], left, Screen).Right, 9);
+        Assert.Equal(0.7, BlockGeometry.Apply(start[1], left, Screen).X - BlockGeometry.Apply(start[0], left, Screen).X, 9);
     }
 
     [Fact]
@@ -298,13 +300,14 @@ public sealed class MultiSelectPlacementTests
     }
 
     [Fact]
-    public void S1587_a_new_widget_on_the_taskbar_lands_just_above_it()
+    public void S1587_S6608_a_new_widget_on_the_taskbar_keeps_the_visible_minimum_above_it()
     {
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 0.95) };
 
         var rect = PlacementPayload.ForNew(WidgetKind.Clock, 200, 100).Plan(0.5, 0.99, screen, snapEnabled: false).Added[0].Rect;
 
-        Assert.Equal(0.95, rect.Bottom, 9);
+        Assert.Equal(0.95 - 0.032, rect.Y, 9);
+        Assert.Equal(0.1, rect.H, 9);
     }
 
     [Fact]

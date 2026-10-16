@@ -170,33 +170,32 @@ public class WidgetClipboardTests
     }
 
     [Fact]
-    public void S74_a_paste_at_a_screen_corner_is_clamped_fully_on_screen()
+    public void S74_S6608_a_paste_beyond_a_screen_corner_keeps_the_visible_minimum_on_it()
     {
         var (_, view, widget) = Fixture();
         widget.Rect = new FracRect(0.1, 0.1, 0.3, 0.3);
         var clipboard = new WidgetClipboard();
         clipboard.Copy(view, [widget.Id]);
 
-        var rect = Paste(clipboard, 1.0, 1.0, snap: true).Added[0].Rect;
+        var rect = Paste(clipboard, 1.5, 1.5, snap: true).Added[0].Rect;
 
-        Assert.True(rect.X >= 0);
-        Assert.True(rect.Y >= 0);
-        Assert.True(rect.Right <= 1.0000001);
-        Assert.True(rect.Bottom <= 1.0000001);
+        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Width), rect.X, 9);
+        Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Height), rect.Y, 9);
     }
 
     [Fact]
-    public void S74_pasting_onto_a_differently_shaped_display_still_lands_on_screen()
+    public void S74_S6608_pasting_onto_a_differently_shaped_display_still_lands_in_reach()
     {
         var (_, view, widget) = Fixture();
         widget.Rect = new FracRect(0.4, 0.4, 0.5, 0.5);
         var clipboard = new WidgetClipboard();
         clipboard.Copy(view, [widget.Id]);
 
-        var rect = Paste(clipboard, 0.9, 0.9, new ScreenMetrics(1080, 1920)).Added[0].Rect;
+        var portrait = new ScreenMetrics(1080, 1920);
+        var rect = Paste(clipboard, 1.4, 1.4, portrait).Added[0].Rect;
 
-        Assert.True(rect.Right <= 1.0000001);
-        Assert.True(rect.Bottom <= 1.0000001);
+        Assert.True((1 - rect.X) * portrait.Width >= GridGeometry.MinVisiblePx - 1e-6);
+        Assert.True((1 - rect.Y) * portrait.Height >= GridGeometry.MinVisiblePx - 1e-6);
     }
 
     [Fact]

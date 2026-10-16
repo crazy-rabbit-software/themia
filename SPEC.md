@@ -27,8 +27,9 @@ Sections, grouped by area (file order below; search for the heading).
 
 ## Geometry model
 
-- **[S-01]** A widget's position and size are stored as **fractions of its screen**: `x, y ∈ [0, 1]`
-  is the top-left corner, `w, h ∈ (0, 1]` the size. `x`/`w` are fractions of screen **width**,
+- **[S-01]** A widget's position and size are stored as **fractions of its screen**: `x, y` is the
+  top-left corner (below 0 or near 1 for a widget hanging over an edge, [S-6608]), `w, h ∈ (0, 1]`
+  the size. `x`/`w` are fractions of screen **width**,
   `y`/`h` of screen **height** — independent axes, so aspect distortion across screens is accepted,
   not corrected. "The screen" is the **whole monitor**, taskbar included, never the work area
   ([S-840]).
@@ -66,20 +67,43 @@ Sections, grouped by area (file order below; search for the heading).
 
 ## Constraints
 
-- **[S-08]** Minimum widget size is a **pixel floor** (`MinWidgetPx`, 64 DIP), converted to a
+- **[S-08]** Minimum widget size is a **pixel floor** (`MinWidgetPx`, 32 DIP, [S-06b]), converted to a
   fractional floor at the moment of resize, so it means the same physical size on every monitor.
-- **[S-09]** Widgets are clamped fully on-screen (`0 ≤ x`, `0 ≤ y`, `x + w ≤ 1`, `y + h ≤ 1`) at
-  load, and into the display's **work area** for drag, resize, placement, paste and drop ([S-841]).
-  Clamping is **total**: a non-finite or inverted rect collapses to
-  a valid one rather than propagating NaN into storage.
+- **[S-09]** Widgets are kept **in reach** (`GridGeometry.Clamp`), not inside: at load against the
+  whole screen, and against the display's **work area** for drag, resize, placement, paste, drop and
+  the arrow keys ([S-841]), each by the one rule of [S-6608]. No widget is ever bigger than that area.
+  Clamping is **total**: a non-finite or inverted rect collapses to a valid one rather than
+  propagating NaN into storage.
+- **[S-6608]** A widget may hang over **any edge** of its display, but always keeps at least
+  `MinVisiblePx` (**32 DIP**, the [S-08] floor) of itself on the allowed area on each axis: a
+  floor-sized widget is never cut at all, a bigger one always leaves a whole minimum widget's worth
+  to see, grab and drag back. Pushed further, it slides back just that far, keeping its size; a
+  resize stops the moved edge there. The minimum is kept on the **work area**, so nothing can be lost
+  under the taskbar either; an area narrower than it keeps what it can hold. It is DIPs, so the
+  same at any display scale. The surface clips the overhang at the work area ([S-851]): the hit
+  region, the markers and the painting stop there. One surface per display ([S-21], [S-23]) means a widget
+  hanging over the edge **towards a neighbouring monitor is clipped at its own monitor's edge** and not
+  shown on the neighbour; moving it there is the hand-off of [S-76]. The rule holds at the moment of
+  the gesture and at load (against a 1920 × 1080 reference): stored fractions scale with the display
+  ([S-02]) and nothing re-settles on a display change ([S-841]), so on a much smaller display the
+  overhang scales with it. (Tests `S6608_`.)
+- **[S-6609]** While the snap aid is on ([S-06], Alt suspends it), the work area's edges are a
+  **magnet**: a moved rect, block or resized edge within `EdgeMagnetPx` (**8 DIP**, under one grid
+  cell) of one lands flush on it, judged on the raw position before the grid rounds it; past that the
+  drag goes on over the edge. It catches an edge the grid misses (a taskbar's top is rarely on a grid
+  line), now that the edge no longer stops a drag by itself. (Tests `S6609_`.)
+- **[S-6610]** The properties panel ([S-3708]) anchors to the **part of the selection that shows**
+  (its box cut to the work area), so it stands beside the visible part of a widget hanging over an
+  edge and never beside an edge that is off the screen. (Tests `S6610_`.)
 - **[S-31]** Edit mode draws **eight** handles: four corners and four sides. A corner drags one edge
   on each axis; a side handle drags **only its own edge**, leaving the opposite edge and the whole
   other axis untouched. An edge dragged past its opposite stops at the [S-08] floor instead of
   inverting the rect.
-- **[S-31a]** Settling a resize snaps and clamps **only the edges the handle moves**: a moved edge
-  rounds to the grid and stops at the work-area edge; an anchored edge never moves. Snapping the whole
-  rect rounded the anchored edge too, and clamping the whole rect pushed a widget whose bottom edge
-  was dragged into the taskbar upwards instead of stopping the edge at it.
+- **[S-31a]** Settling a resize snaps and limits **only the edges the handle moves**: a moved edge
+  rounds to the grid (or lands on a work-area edge within the magnet, [S-6609]), may pass the
+  work-area edge, and stops where the widget would outgrow the work area or keep less than the visible
+  minimum on it ([S-6608]); an anchored edge never moves. Snapping the whole rect rounded the anchored
+  edge too, and clamping the whole rect pushed the widget about instead of stopping the moved edge.
 - **[S-31b]** Edit mode draws no outline round a widget. The eight handles are its markers
   (`EditMarkers`): a **square-cornered L-bracket** at each corner (arms 14 DIPs, never rounded, whatever
   the card's radius) and a **16-DIP bar** at the centre of each edge, 3 DIPs thick, flush inside the
@@ -98,8 +122,9 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-10]** A widget definition declares its default size in **pixels**. At placement that is
   converted to a fraction of the current screen, so a newly dropped widget has a consistent physical
   size on any monitor, and scales per [S-02] thereafter.
-- **[S-11]** Placement centres the widget on the drop point, then snaps ([S-06]) and clamps ([S-09])
-  into the work area, so a widget dropped on the taskbar lands just above it.
+- **[S-11]** Placement centres the widget on the drop point, then snaps ([S-06], [S-6609]) and keeps
+  it in reach ([S-09]): one dropped near an edge or on the taskbar may hang over it, but keeps the
+  visible minimum on the work area ([S-6608]). The ghost shows exactly that.
 
 ## Views & displays
 
@@ -495,11 +520,11 @@ busy desktop ([S-6601]), Debug, private bytes.
   to that display's surface, keeping their identity ([S-1591]). Only when the destination shows a
   **different** view — when both show the same view the widgets are already on both, so moving them
   would be a no-op that rewrote their positions against the wrong screen.
-- **[S-77]** The drop **point**, not the dragged rects, decides the destination: those are clamped to
-  their own screen ([S-09]) and so can never reach across the display boundary. The held widget's
-  centre goes to the point, the others keep their offsets to it, and the block is clamped into the
-  destination's work area as a whole: a point over the taskbar counts as that display and the block
-  lands just above it ([S-841]).
+- **[S-77]** The drop **point**, not the dragged rects, decides the destination: those are kept in
+  reach of their own screen ([S-09]) and are clipped at its edge ([S-6608]), so they never show on
+  the next display. The held widget's centre goes to the point, the others keep their offsets to it,
+  and the block is kept in reach of the destination's work area as a whole: a point over the taskbar
+  counts as that display and the block keeps the visible minimum above it ([S-841]).
 - **[S-78]** While widgets are dragged, a **ghost** shows where they would land — one outline per
   widget — on the display under the pointer, only when that display would really receive them
   ([S-76]), with the cards on the screen they are leaving faded. Only a move hands widgets across; a
@@ -3517,10 +3542,11 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   the fractions followed the work area, so every taskbar change moved every widget.
 - **[S-841]** The **work area** is the region *new* geometry may use: `ScreenMetrics.Allowed`, the
   work area as a fraction of the monitor (`GridGeometry.AllowedArea`). Placement, drag, resize, paste,
-  drop and duplicate settle into it, so nothing is put under the taskbar; a rect that does not fit
-  shrinks to it, one outside slides in keeping its size, and one dragged against the taskbar stops
-  flush with it. A widget the taskbar later grows over **stays where it is**: load validation clamps
-  to the whole screen only, and nothing re-clamps on a display change. An unusable work area
+  drop and duplicate settle against it ([S-6608]), so nothing is lost under the taskbar; a rect that
+  does not fit shrinks to it, one pushed out of reach slides back to the visible minimum keeping its
+  size, and one dragged just past the taskbar's edge lands flush with it ([S-6609]). A widget the
+  taskbar later grows over **stays where it is**: load validation keeps it in reach of the whole
+  screen only, and nothing re-settles on a display change. An unusable work area
   (non-finite, empty, off the monitor) allows the whole screen. An auto-hidden taskbar reserves
   nothing, so the whole screen is allowed.
 - **[S-842]** A display's id is its monitor **device interface path** (from
@@ -3981,12 +4007,14 @@ there: Themia never takes a key from the app the user is typing in.
   shows Ctrl+N. (Tests `S1998_`.)
 - **[S-1970]** In edit mode an arrow moves **every selected widget on this display** one snap cell
   ([S-06b]) as one block, by the drag's rules ([S-1584]): the block's corner snapped when the grid
-  is on, the block slid into the work area, never pulled apart at an edge. An off-grid widget lands
+  is on, the block free to hang over an edge until a widget would keep less than the visible
+  minimum ([S-6608]), never pulled apart at an edge. An off-grid widget lands
   on the next line in the arrow's direction, never back where it was. Nothing selected, or a ghost
   being placed: the arrows do nothing.
 - **[S-1971]** **Shift** + arrow resizes instead, each selected widget on its own, always by its
   **right or bottom edge** (Right / Down grow, Left / Up shrink), so the top-left corner stays put.
-  Only the moved edge snaps ([S-31a]); the [S-08] floor and the work-area edge stop it. Shift was
+  Only the moved edge snaps ([S-31a]); the [S-08] floor and the visible minimum ([S-6608]) stop it,
+  and it may grow past the work-area edge. Shift was
   chosen over a bigger step because one modifier per meaning (Ctrl = far, Alt = fine) combines.
 - **[S-1972]** **Ctrl** makes the step ten cells, **Alt** one DIP with the grid suspended (as Alt
   suspends it for a drag, [S-06]). Ctrl+Alt is never a shortcut (AltGr). One press-and-hold is
@@ -5301,9 +5329,10 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   deleted or leaves the view leaves the selection with the change. Escape clears the selection
   before a second Escape leaves edit mode.
 - **[S-1584]** Dragging a selected card moves **every selected widget on that display** by one
-  translation: the block's bounding box is moved, its top-left snapped to the grid
-  ([S-06], Alt suspends it) and the box slid into the work area ([S-841]) — never resized — and each
-  rect is then kept on screen ([S-09]). Offsets between the widgets never change. Resizing is per
+  translation: the block's bounding box is moved, its top-left snapped to the grid or an edge flush
+  on the work area's ([S-06], [S-6609], Alt suspends both), and the move stops where the first of its
+  widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
+  each rect is then kept in reach ([S-09]). Offsets between the widgets never change. Resizing is per
   card and narrows the selection to it.
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
