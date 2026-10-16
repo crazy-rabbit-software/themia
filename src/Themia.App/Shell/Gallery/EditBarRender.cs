@@ -137,6 +137,7 @@ internal static class EditBarRender
 
                 ticker = new Ticker(dispatcher);
                 await PropsShots(screen, ticker, outDir, theme).ConfigureAwait(true);
+                await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -295,6 +296,76 @@ internal static class EditBarRender
             var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, new PixelRect(0, 0, ScreenWidth, PropsHeight), [barRect]);
             Canvas.SetLeft(strip, Math.Round(spot.X));
             Canvas.SetTop(strip, Math.Round(spot.Y));
+        }
+
+        await Task.Delay(800).ConfigureAwait(true);
+        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
+        Console.WriteLine($"editbar: wrote {path}");
+
+        foreach (var card in cards)
+        {
+            card.Detach();
+        }
+    }
+
+    /// <summary>
+    /// [S-31b]/[S-31c] The edit markers on real cards: <c>marks-&lt;theme&gt;-r4.png</c> and <c>-r16.png</c>
+    /// (a selected card, an unselected one and an XS tile at that corner radius) and <c>-multi.png</c>
+    /// (three selected beside one that is not).
+    /// </summary>
+    private static async Task MarkerShots(Grid screen, Ticker ticker, string outDir, string theme)
+    {
+        PropsCard[] mixed =
+        [
+            new(WidgetKind.Clock, 120, 120, 280, 180, HeaderPlacement.Top, true),
+            new(WidgetKind.Countdown, 460, 140, 240, 160, HeaderPlacement.Top, false),
+            new(WidgetKind.WifiToggle, 760, 160, 64, 64, HeaderPlacement.Hidden, true),
+            new(WidgetKind.WifiToggle, 860, 160, 64, 64, HeaderPlacement.Hidden, false),
+        ];
+        PropsCard[] multi =
+        [
+            new(WidgetKind.Clock, 120, 120, 240, 160, HeaderPlacement.Top, true),
+            new(WidgetKind.Countdown, 380, 120, 240, 160, HeaderPlacement.Top, true),
+            new(WidgetKind.Clock, 640, 120, 200, 160, HeaderPlacement.Hidden, true),
+            new(WidgetKind.Countdown, 880, 120, 240, 160, HeaderPlacement.Top, false),
+        ];
+
+        await MarkerShot(screen, ticker, mixed, 4, System.IO.Path.Combine(outDir, $"marks-{theme}-r4.png")).ConfigureAwait(true);
+        await MarkerShot(screen, ticker, mixed, 16, System.IO.Path.Combine(outDir, $"marks-{theme}-r16.png")).ConfigureAwait(true);
+        await MarkerShot(screen, ticker, multi, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-multi.png")).ConfigureAwait(true);
+    }
+
+    private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path)
+    {
+        screen.Children.Clear();
+        screen.Height = 420;
+
+        var canvas = new Canvas();
+        screen.Children.Add(canvas);
+
+        var models = layout.Select(spec => (Model: WidgetInstance.Create(spec.Kind, new FracRect(0, 0, 0.1, 0.1)), Spec: spec)).ToList();
+        foreach (var (model, spec) in models)
+        {
+            model.Header = spec.Header;
+        }
+
+        var host = new NoticeRender.RenderCardHost(ticker)
+        {
+            EditMode = true,
+            Design = new DesignState { CornerRadiusPx = radius },
+            Selected = new HashSet<string>(models.Where(m => m.Spec.Selected).Select(m => m.Model.Id), StringComparer.Ordinal),
+        };
+
+        var cards = new List<WidgetCard>();
+        foreach (var (model, spec) in models)
+        {
+            var card = new WidgetCard(host, model) { Width = spec.W, Height = spec.H };
+            card.ApplyGap(0);
+            card.ApplyEditMode(true);
+            Canvas.SetLeft(card, spec.X);
+            Canvas.SetTop(card, spec.Y);
+            canvas.Children.Add(card);
+            cards.Add(card);
         }
 
         await Task.Delay(800).ConfigureAwait(true);

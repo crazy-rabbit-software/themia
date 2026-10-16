@@ -80,6 +80,18 @@ Sections, grouped by area (file order below; search for the heading).
   rounds to the grid and stops at the work-area edge; an anchored edge never moves. Snapping the whole
   rect rounded the anchored edge too, and clamping the whole rect pushed a widget whose bottom edge
   was dragged into the taskbar upwards instead of stopping the edge at it.
+- **[S-31b]** Edit mode draws no outline round a widget. The eight handles are its markers
+  (`EditMarkers`): a **square-cornered L-bracket** at each corner (arms 14 DIPs, never rounded, whatever
+  the card's radius) and a **16-DIP bar** at the centre of each edge, 3 DIPs thick, flush inside the
+  cell bounds, each over a 1-DIP contrast halo (`SolidBackgroundFillColorBase`) so it reads on any
+  wallpaper. A side too short for two arms, a bar and 4-DIP gaps shrinks the arms and bar alike (never
+  below the thickness). Every edge lands on a device pixel at the window's scale. A handle's grip is
+  its ink plus the old 10-DIP square on its corner or edge midpoint; grips never overlap. Cursors and
+  the keyboard resize are unchanged. (Tests `S31b_`.)
+- **[S-31c]** Every widget in edit mode shows its markers: a selected one in the accent
+  (`AccentFillColorDefault`), every other one in the neutral strong stroke (`ControlStrongFillColorDefault`).
+  Each widget of a multi-selection shows accent markers. `--editbar-png` writes `marks-<theme>-r4.png`,
+  `-r16.png` and `-multi.png`.
 
 ## Defaults & placement
 
@@ -4191,7 +4203,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-6480]** `--widget-png … --design key=value,...` draws the cards with appearance values (`border`,
   `borderWidth`, `borderOpacity`, `borderColor`, `radius`, `background`, `opacity`, `header`,
   `headerOpacity`, `accent`, `font`, `preset`), so a look is checked without the settings window.
-- **[S-825]** Corner radius 0..32 on the fill, tint, border, content clip and edit outline.
+- **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip. The edit markers stay square ([S-31b]).
 - **[S-826]** Font: `system` (Segoe UI Variable), `sans` (Arial), `serif` (Georgia), `mono` (Cascadia
   Mono, Consolas), or any installed family name; a value that is not a plausible family name is the
   system font. Applied to the card content through a presenter, so text inherits it; icon glyphs
@@ -4832,7 +4844,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   Shift held at the press it adds to the selection on that display; without, it starts from nothing
   (a click on empty surface clears the selection). A card that draws nothing is not picked.
 - **[S-1582]** **Ctrl+A** selects every widget on the display under the pointer.
-- **[S-1583]** Every selected card shows it (2-px outline, full-strength handles). A widget that is
+- **[S-1583]** Every selected card shows it (accent markers, [S-31c]). A widget that is
   deleted or leaves the view leaves the selection with the change. Escape clears the selection
   before a second Escape leaves edit mode.
 - **[S-1584]** Dragging a selected card moves **every selected widget on that display** by one

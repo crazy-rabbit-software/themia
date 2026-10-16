@@ -134,7 +134,6 @@ internal interface IWidgetCardHost
 internal sealed partial class WidgetCard : Grid, IWidgetSurface
 {
     private const string Scope = "card";
-    private const double HandleSize = 10;
 
     private readonly IWidgetCardHost _host;
     private readonly Border _fill;
@@ -171,8 +170,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     /// <summary>A title the view worked out for itself, beaten only by one the user typed.</summary>
     private string? _viewTitle;
 
-    private readonly Border _editOutline;
-    private readonly Grid _handles;
     /// <summary>The widget's view, or its error card ([S-891]) when the view failed. Swapped by a retry.</summary>
     private FrameworkElement _view;
 
@@ -307,25 +304,15 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
 
         _surface.SizeChanged += (_, _) => FitContent();
 
-        _editOutline = new Border
-        {
-            BorderThickness = new Thickness(1),
-            BorderBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-            Background = null,
-            IsHitTestVisible = false,
-            Visibility = Visibility.Collapsed,
-        };
-
         // [S-1113] The card's content (header, view, its menus) flows with the language; the resize
         // grips are physical corners and keep their places, so a drag on the left grip still moves
         // the left edge.
         UiLanguage.ApplyFlow(this);
-        _handles = UiLanguage.KeepLeftToRight(BuildHandles());
+        _markers = UiLanguage.KeepLeftToRight(BuildMarkers());
 
         Children.Add(_surface);
         Children.Add(_stroke);
-        Children.Add(_editOutline);
-        Children.Add(_handles);
+        Children.Add(_markers);
 
         Background = new SolidColorBrush(Colors.Transparent); // makes the whole card hit-testable for drags
 
@@ -432,7 +419,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         // graph reaches the bottom and both sides - is clipped to the card's corners instead of
         // squaring them off.
         _surface.CornerRadius = radius;
-        _editOutline.CornerRadius = radius;
 
         // [S-823] The card paints its OWN base, rather than relying on a window background.
         //
@@ -667,16 +653,12 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     /// </summary>
     public void ApplySelection()
     {
-        var selected = _host.IsSelected(this);
-        _editOutline.BorderThickness = new Thickness(selected ? 2 : 1);
-        _editOutline.Opacity = selected ? 1.0 : 0.55;
-        _handles.Opacity = selected ? 1.0 : 0.55;
+        PaintMarkers(_host.IsSelected(this));
     }
 
     public void ApplyEditMode(bool editing)
     {
-        _editOutline.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
-        _handles.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
+        _markers.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
         ApplySelection();
         ApplyHidden();
 
@@ -768,7 +750,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
     /// <summary>
     /// Inset the painted surface inside the cell by half the gap.
     /// <para>
-    /// Applied to the fill and the content only. The edit outline and the handles stay on the cell
+    /// Applied to the fill and the content only. The edit markers ([S-31b]) stay on the cell
     /// bounds, which is why they sit slightly outside the widget's visible border — they mark the
     /// space the widget actually owns, and that is the thing being dragged.
     /// </para>
@@ -793,7 +775,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
 
     /// <summary>
     /// [S-1007] Lay an intro's cover (the hacker tile) over the painted surface, under the edit
-    /// outline and the handles, or take it away with null. Never hit-testable: the widget under it is
+    /// markers, or take it away with null. Never hit-testable: the widget under it is
     /// live and takes clicks from the first frame ([S-1013]).
     /// </summary>
     public void SetMotionCover(FrameworkElement? cover)
@@ -811,70 +793,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
 
         cover.Margin = _surface.Margin;
         cover.IsHitTestVisible = false;
-        Children.Insert(Children.IndexOf(_editOutline), cover);
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // Handles
-    // -----------------------------------------------------------------------------------------
-
-    private Grid BuildHandles()
-    {
-        // A 3x3 grid places all eight handles without any arithmetic: the outer tracks are handle
-        // sized, the centre track takes the rest, and a negative margin straddles each edge.
-        var grid = new Grid
-        {
-            Visibility = Visibility.Collapsed,
-            RowDefinitions =
-            {
-                new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-                new RowDefinition { Height = GridLength.Auto },
-            },
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
-
-        Add(grid, ResizeHandle.TopLeft, 0, 0, InputSystemCursorShape.SizeNorthwestSoutheast);
-        Add(grid, ResizeHandle.Top, 0, 1, InputSystemCursorShape.SizeNorthSouth);
-        Add(grid, ResizeHandle.TopRight, 0, 2, InputSystemCursorShape.SizeNortheastSouthwest);
-        Add(grid, ResizeHandle.Left, 1, 0, InputSystemCursorShape.SizeWestEast);
-        Add(grid, ResizeHandle.Right, 1, 2, InputSystemCursorShape.SizeWestEast);
-        Add(grid, ResizeHandle.BottomLeft, 2, 0, InputSystemCursorShape.SizeNortheastSouthwest);
-        Add(grid, ResizeHandle.Bottom, 2, 1, InputSystemCursorShape.SizeNorthSouth);
-        Add(grid, ResizeHandle.BottomRight, 2, 2, InputSystemCursorShape.SizeNorthwestSoutheast);
-
-        return grid;
-
-        void Add(Grid parent, ResizeHandle handle, int row, int column, InputSystemCursorShape cursor)
-        {
-            var dot = new ResizeHandleDot
-            {
-                Width = HandleSize,
-                Height = HandleSize,
-                CornerRadius = new CornerRadius(HandleSize / 2),
-                Background = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-                BorderBrush = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.White),
-                BorderThickness = new Thickness(1.5),
-                Margin = new Thickness(
-                    column == 0 ? -HandleSize / 2 : 0,
-                    row == 0 ? -HandleSize / 2 : 0,
-                    column == 2 ? -HandleSize / 2 : 0,
-                    row == 2 ? -HandleSize / 2 : 0),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Tag = handle,
-            };
-
-            dot.SetCursorShape(cursor);
-            Grid.SetRow(dot, row);
-            Grid.SetColumn(dot, column);
-            parent.Children.Add(dot);
-        }
+        Children.Insert(Children.IndexOf(_markers), cover);
     }
 
     // -----------------------------------------------------------------------------------------
