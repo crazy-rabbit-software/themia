@@ -85,7 +85,7 @@ internal sealed partial class WeatherNowView
             _bigStack.Orientation = Orientation.Vertical;
             _bigValue.FontWeight = FontWeights.Light;
             _bigUnit.FontWeight = FontWeights.Light;
-            _bigText.HorizontalAlignment = HorizontalAlignment.Center;
+            _bigText.HorizontalAlignment = Aligned.Horizontal(_align);
         }
         else
         {
@@ -97,10 +97,10 @@ internal sealed partial class WeatherNowView
                 ? new Thickness(0, 0, 0, WeatherNowLayout.Gap)
                 : new Thickness(0, 0, WeatherNowStyles.IconGap, 0);
             _bigStack.Orientation = plan.Stacked ? Orientation.Vertical : Orientation.Horizontal;
-            _bigText.HorizontalAlignment = plan.Stacked ? HorizontalAlignment.Center : HorizontalAlignment.Left;
+            _bigText.HorizontalAlignment = plan.Stacked ? Aligned.Horizontal(_align) : HorizontalAlignment.Left;
             _bigCondition.Visibility = plan.Condition && _bigCondition.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
             _bigRange.Visibility = plan.HighLow ? Visibility.Visible : Visibility.Collapsed;
-            _bigCondition.TextAlignment = _bigRange.TextAlignment = plan.Stacked ? TextAlignment.Center : TextAlignment.Left;
+            _bigCondition.TextAlignment = _bigRange.TextAlignment = plan.Stacked ? Aligned.Text(_align) : TextAlignment.Left;
             _bigValue.FontWeight = step.SemiBold ? FontWeights.SemiBold : FontWeights.Normal;
             _bigUnit.FontWeight = FontWeights.Normal;
         }
@@ -108,6 +108,11 @@ internal sealed partial class WeatherNowView
         _bigTemperature.LineHeight = step.LineHeight;
         _bigValue.FontSize = step.FontSize;
         _bigUnit.FontSize = HeroLayout.UnitStep(step).FontSize;
-        _bigTemperature.TextAlignment = _bigText.HorizontalAlignment == HorizontalAlignment.Center ? TextAlignment.Center : TextAlignment.Left;
+        // [S-6583] The block sits where the widget's alignment puts it; in a column its lines and the
+        // glyph over them follow it, beside the glyph the text reads from the glyph outwards.
+        var column = _bigStack.Orientation == Orientation.Vertical;
+        _bigStack.HorizontalAlignment = Aligned.Horizontal(_align);
+        _bigIcon.HorizontalAlignment = Aligned.Horizontal(_align);
+        _bigTemperature.TextAlignment = column ? Aligned.Text(_align) : TextAlignment.Left;
     }
 }

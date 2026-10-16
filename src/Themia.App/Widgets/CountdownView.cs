@@ -25,7 +25,7 @@ namespace Themia.App.Widgets;
 /// cards draws the text.
 /// </para>
 /// </summary>
-internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAware
+internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAware, IWidgetAligned
 {
     private const double ProgressHeight = 4;
 
@@ -111,6 +111,21 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         Rebuild();
     }
 
+    /// <summary>[S-6583] Where the name, the time left, the date and the bar sit: the widget's alignment, from the start by default ([S-6582]).</summary>
+    private ContentAlign _align = ContentAlign.Left;
+
+    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        Rebuild();
+    }
+
     /// <inheritdoc />
     public void ApplySize(WidgetArea area)
     {
@@ -170,15 +185,16 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
         _hero.Visibility = Visibility.Visible;
 
-        // A small tile centres its one readout; a large one reads from the left.
-        var centred = _area.Least == SizeClass.Compact;
-        _hero.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Stretch;
-        _ring.Root.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Left;
-        _flipRow.HorizontalAlignment = _ring.Root.HorizontalAlignment;
+        // [S-6583] The readout where the widget's alignment puts it, at every size: the column
+        // stretches (so the bar keeps the width), its lines, the ring and the cards follow.
+        var place = Aligned.Horizontal(_align);
+        _hero.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _ring.Root.HorizontalAlignment = place;
+        _flipRow.HorizontalAlignment = place;
         _hero.Margin = new Thickness(WidgetLayout.ContentInset, 0, WidgetLayout.ContentInset, 0);
         foreach (var text in (TextBlock[])[_heroLabel, _heroValue, _heroDate])
         {
-            text.TextAlignment = centred ? TextAlignment.Center : TextAlignment.Left;
+            text.TextAlignment = Aligned.Text(_align);
         }
 
         if (!_area.IsMeasured)

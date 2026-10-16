@@ -20,9 +20,9 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Widget_Clock_Label.Text()));
 
-        // [S-6536] The style is the properties panel's. [S-6074] Only the
-        // rows the style draws: the date style has no time, date line, label or offset, and the
-        // minimal clock is the time alone, so where it sits and whose time it is are all they offer.
+        // [S-6536] The style and the alignment ([S-6584]) are the properties panel's. [S-6074] Only
+        // the rows the style draws: the date style has no time, date line, label or offset, and the
+        // minimal clock is the time alone, so whose time it is is all they offer.
         if (clock.Offers(ClockSetting.Seconds))
         {
             rows.Add(FluentLayout.Row(Glyphs.Timer, Str.Clock_SecondsLabel.Text(),
@@ -35,12 +35,6 @@ internal static partial class WidgetSettings
             rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Clock_DateLabel.Text(), null,
                 FluentLayout.Toggle(clock.ShowDate, value => { clock.ShowDate = value; save(); })));
         }
-
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.Clock_AlignLabel.Text(), null,
-            FluentLayout.Choice(
-                [(ClockAlign.Left, Str.Clock_AlignLeft.Text()), (ClockAlign.Center, Str.Clock_AlignCenter.Text()), (ClockAlign.Right, Str.Clock_AlignRight.Text())],
-                clock.Align,
-                value => { clock.Align = value; save(); })));
 
         // [S-1476] The place and the date larger (user request: both were hard to read) or smaller.
         if (clock.Offers(ClockSetting.TextSize))

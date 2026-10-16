@@ -6,6 +6,7 @@ using Run = Microsoft.UI.Xaml.Documents.Run;
 using Typography = Microsoft.UI.Xaml.Documents.Typography;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -27,6 +28,11 @@ namespace Themia.App.Widgets;
 /// The control only draws. Which step, whether the glyph shows and where the lines go are the
 /// caller's ladder's decisions (<see cref="Lay"/>), measured with <see cref="HeroLayout"/>.
 /// </para>
+/// <para>
+/// [S-6583] The value's row (glyph, value, lines beside) is a grid of its own over the lines
+/// under, so <see cref="Align"/> can set it at the start, the middle or the end of the readout's
+/// width and the lines under it with it, whichever of the two is wider.
+/// </para>
 /// </summary>
 internal sealed partial class HeroReadout : Grid
 {
@@ -42,16 +48,19 @@ internal sealed partial class HeroReadout : Grid
     private readonly Run _unit = new();
     private readonly TextBlock _trailingLine;
     private readonly StackPanel _lines = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly Grid _top = new();
     private readonly StackPanel _under = new();
     private readonly List<Run> _trailing = [];
     private bool _unitSpaced;
     private string _unitText = string.Empty;
+    private ContentAlign _align = ContentAlign.Left;
+    private bool _linesBeside;
 
     public HeroReadout()
     {
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -74,12 +83,12 @@ internal sealed partial class HeroReadout : Grid
 
         SetColumn(Icon, 0);
         SetColumn(_line, 1);
-        SetColumnSpan(_under, 3);
         SetRow(_under, 1);
-        Children.Add(Icon);
-        Children.Add(_line);
+        _top.Children.Add(Icon);
+        _top.Children.Add(_line);
+        _top.Children.Add(_lines);
+        Children.Add(_top);
         Children.Add(_under);
-        Children.Add(_lines);
     }
 
     /// <summary>The leading glyph (hidden until <see cref="Lay"/> shows it). The caller sets its glyph.</summary>
@@ -112,10 +121,32 @@ internal sealed partial class HeroReadout : Grid
         _trailing.AddRange(runs);
     }
 
+    /// <summary>
+    /// [S-6583] Where the value's row and the lines under it sit across the readout: the start edge
+    /// (the default), the middle or the end. Lines beside the value still read from it outwards.
+    /// </summary>
+    public void Align(ContentAlign align)
+    {
+        _align = align;
+        _top.HorizontalAlignment = align == ContentAlign.Left ? HorizontalAlignment.Stretch : Aligned.Horizontal(align);
+        AlignLines();
+    }
+
+    private void AlignLines()
+    {
+        var under = Aligned.Text(_align);
+        _trailingLine.TextAlignment = under;
+        foreach (var line in _lines.Children.OfType<TextBlock>())
+        {
+            line.TextAlignment = _linesBeside ? TextAlignment.Left : under;
+        }
+    }
+
     /// <summary>A caption line, beside or under the value per <see cref="Lay"/>, in the order added.</summary>
     public TextBlock AddLine(TypeStep step, string colorKey = "TextFillColorSecondaryBrush")
     {
         var line = Fluent.Text(step, colorKey);
+        line.TextAlignment = _linesBeside ? TextAlignment.Left : Aligned.Text(_align);
         _lines.Children.Add(line);
         return line;
     }
@@ -166,7 +197,7 @@ internal sealed partial class HeroReadout : Grid
         // The lines: a column beside the value, or the rest of the stack under it.
         // Out of both holders by hand: Parent is not reliable before the readout is in the live
         // tree (a meter lays out while it attaches), and adding a child twice throws.
-        Children.Remove(_lines);
+        _top.Children.Remove(_lines);
         _under.Children.Remove(_lines);
 
         if (linesBeside)
@@ -176,7 +207,7 @@ internal sealed partial class HeroReadout : Grid
             SetRow(_lines, 0);
             SetColumn(_lines, 2);
             SetColumnSpan(_lines, 1);
-            Children.Add(_lines);
+            _top.Children.Add(_lines);
         }
         else
         {
@@ -188,6 +219,9 @@ internal sealed partial class HeroReadout : Grid
         _under.Visibility = _trailingLine.Visibility == Visibility.Visible || !linesBeside
             ? Visibility.Visible
             : Visibility.Collapsed;
+
+        _linesBeside = linesBeside;
+        AlignLines();
     }
 
     /// <summary>Take the token's runs out of whichever block holds them, so they can move.</summary>

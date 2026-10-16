@@ -30,15 +30,6 @@ public enum ClockStyle
     Date = 6,
 }
 
-/// <summary>[S-1484] Where the clock's column sits across the tile.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ClockAlign>))]
-public enum ClockAlign
-{
-    Center = 0,
-    Left = 1,
-    Right = 2,
-}
-
 /// <summary>
 /// [S-1476] How large the clock sets the place label and the date (and the offset line) against
 /// the time: a step of the type ramp down or up, never a free size.
@@ -122,8 +113,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     /// <summary>[S-1482] The label over the time. Empty: the zone's city, or nothing for the local zone.</summary>
     public string? CustomLabel { get; set; }
 
-    public ClockAlign Align { get; set; } = ClockAlign.Center;
-
     public ClockOffsetMode OffsetMode { get; set; } = ClockOffsetMode.None;
 
     /// <summary>[S-1476] The label and date size (user request: both were hard to read).</summary>
@@ -136,7 +125,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         ShowDate = ShowDate,
         TimeZoneId = TimeZoneId,
         CustomLabel = CustomLabel,
-        Align = Align,
         OffsetMode = OffsetMode,
         TextSize = TextSize,
     };
@@ -154,7 +142,8 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     /// <summary>
     /// [S-6074] The rows the page offers: seconds where the face ticks them; the date, text size,
     /// label and offset lines wherever there are lines under the time, so neither on the minimal
-    /// clock ([S-6014]) nor on the date style ([S-5303]). Align and the zone apply to every style.
+    /// clock ([S-6014]) nor on the date style ([S-5303]). The zone applies to every style; the alignment
+    /// is the properties panel's ([S-6580]).
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<ClockSetting> ShownSettings => Style switch
@@ -188,12 +177,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
-
-        if (!Enum.IsDefined(Align))
-        {
-            repairs.Add($"clock alignment {(int)Align} unknown; centred");
-            Align = ClockAlign.Center;
-        }
 
         if (!Enum.IsDefined(OffsetMode))
         {

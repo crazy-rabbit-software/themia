@@ -1,0 +1,8 @@
+{
+  "widget.align.label": "配置",
+  "widget.align.left": "左",
+  "widget.align.center": "中央",
+  "widget.align.right": "右",
+  "widget.align.none": "このウィジェットには配置できる内容がありません",
+  "widget.align.noStyle": "このスタイルでは使用できません"
+}

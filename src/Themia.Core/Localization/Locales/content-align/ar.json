@@ -1,0 +1,8 @@
+{
+  "widget.align.label": "المحاذاة",
+  "widget.align.left": "يسار",
+  "widget.align.center": "وسط",
+  "widget.align.right": "يمين",
+  "widget.align.none": "لا يحتوي هذا العنصر على ما يمكن محاذاته",
+  "widget.align.noStyle": "غير متاح في هذا النمط"
+}

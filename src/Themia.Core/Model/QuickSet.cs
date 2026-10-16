@@ -21,6 +21,9 @@ namespace Themia.Core.Model;
 /// <param name="HasItems">[S-6571] Whether any selected widget has items ([S-6570]); the Item background row is greyed without.</param>
 /// <param name="Scale">[S-6531] Their own content scale, or null when they differ.</param>
 /// <param name="ItemText">[S-6544] Their own item text colour (empty: they follow the app-wide one), or null when they differ.</param>
+/// <param name="CanAlign">[S-6584] Whether any selected widget can align its content in its style ([S-6581]); the Alignment row is greyed without.</param>
+/// <param name="Align">[S-6584] Where the widgets that can align draw their content, or null when they differ.</param>
+/// <param name="AlignKind">[S-6584] Whether any selected widget's kind aligns in another style: why the row is greyed.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
@@ -34,7 +37,10 @@ public sealed record QuickSetOffer(
     FillChoice? Items = null,
     bool HasItems = true,
     double? Scale = 1.0,
-    string? ItemText = "")
+    string? ItemText = "",
+    bool CanAlign = false,
+    ContentAlign? Align = null,
+    bool AlignKind = false)
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -99,13 +105,19 @@ public static class QuickSet
         var scale = Common(widgets.Select(w => WidgetScale.Normalise(w.Scale)));
         var itemText = CommonItemText(hasItems ? withItems : widgets);
 
+        // [S-6584] The alignment the widgets that can align draw with: the others have none to show.
+        var aligned = widgets.Where(ContentAlignment.Applies).ToList();
+        var canAlign = aligned.Count > 0;
+        var align = canAlign ? Common(aligned.Select(ContentAlignment.Shown)) : null;
+        var alignKind = widgets.Exists(w => ContentAlignment.Offers(w.Kind));
+
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, alignKind);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, alignKind);
     }
 
     /// <summary>
@@ -247,6 +259,13 @@ public static class QuickSet
         var value = WidgetScale.Normalise(scale);
         return Apply(view, ids, w => !w.Scale.Equals(value) && Set(() => w.Scale = value));
     }
+
+    /// <summary>
+    /// [S-6584] Set where every selected widget of <paramref name="view"/> that can align in its
+    /// style ([S-6581]) draws its content. The others are left as they are. Returns how many changed.
+    /// </summary>
+    public static int SetAlign(ViewState view, IEnumerable<string> ids, ContentAlign align)
+        => Apply(view, ids, w => ContentAlignment.Applies(w) && w.Align != align && Set(() => w.Align = align));
 
     /// <summary>[S-3704] Set one widget's title from what was typed. False when nothing changed or the widget is gone.</summary>
     public static bool SetTitle(ViewState view, string widgetId, string? typed, string defaultTitle)

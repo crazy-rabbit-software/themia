@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// today ringed in the accent, the month's name over them where it fits.
 /// </para>
 /// </summary>
-internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware
+internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetAligned
 {
     private readonly SkyMoonDisc _disc = new();
     private readonly TextBlock _name = Fluent.Text(MoonLayout.NameStep);
@@ -150,6 +150,21 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         Lay();
     }
 
+    /// <summary>[S-6583] Where the disc and its name over the rows sit: the widget's alignment, centred by default ([S-6582]).</summary>
+    private ContentAlign _align = ContentAlign.Center;
+
+    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        Lay();
+    }
+
     /// <summary>[S-663] The card's word on how much room there is.</summary>
     public void ApplySize(WidgetArea area)
     {
@@ -205,12 +220,13 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         discRoot.VerticalAlignment = VerticalAlignment.Center;
         _stack.VerticalAlignment = VerticalAlignment.Center;
 
-        // Disc left and the text beside it on a strip; else the disc over the text, both centred.
+        // Disc left and the text beside it on a strip; else the disc over the text, both where the
+        // widget's alignment puts them ([S-6583], centred by default). The rows keep the width.
         Grid.SetRow(discRoot, 0);
         Grid.SetRowSpan(discRoot, side ? 2 : 1);
         Grid.SetColumn(discRoot, 0);
         Grid.SetColumnSpan(discRoot, side ? 1 : 2);
-        discRoot.HorizontalAlignment = side ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+        discRoot.HorizontalAlignment = side ? HorizontalAlignment.Left : Aligned.Horizontal(_align);
         discRoot.Margin = side
             ? new Thickness(Fluent.Space4, 0, MoonLayout.Gap, 0)
             : new Thickness(Fluent.Space4, 0, Fluent.Space4, _text.Visibility == Visibility.Visible || _plan.Rows > 0 ? MoonLayout.Gap : 0);
@@ -222,7 +238,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
         // On a strip the rows run to the card's right edge; the text keeps the inset where it sits.
         _text.Margin = side ? new Thickness(0, 0, Fluent.Space4, 0) : new Thickness(Fluent.Space4, 0, Fluent.Space4, 0);
-        _name.HorizontalAlignment = side ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+        _name.HorizontalAlignment = side ? HorizontalAlignment.Left : Aligned.Horizontal(_align);
         _percent.HorizontalAlignment = _name.HorizontalAlignment;
         _rowGrid.Margin = side ? new Thickness(-Fluent.Space4, 0, 0, 0) : new Thickness(0);
 

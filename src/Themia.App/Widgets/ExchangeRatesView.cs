@@ -20,7 +20,7 @@ namespace Themia.App.Widgets;
 /// tile allows ([S-5146]). Chart: the same readout over (or on a strip beside) its 90 days
 /// ([S-6168]). The header names the pair and says which day's rate this is.
 /// </summary>
-internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly HeroReadout _hero = new();
@@ -112,6 +112,22 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         _config = config as ExchangeRatesConfig ?? new ExchangeRatesConfig();
         PublishTitle();
         Reload(force: false);
+    }
+
+    /// <summary>[S-6583] Where the rate and its change sit: the widget's alignment, from the start by default ([S-6582]).</summary>
+    private ContentAlign _align = ContentAlign.Left;
+
+    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        _hero.Align(align);
+        Render();
     }
 
     public void ApplySize(WidgetArea area)

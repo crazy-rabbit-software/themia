@@ -172,6 +172,21 @@ internal sealed partial class EditBar : Grid
     {
         var toggle = new ToggleButton { IsChecked = commands.SnapOn, Content = Labelled(Glyphs.Grid, Str.Shell_Toolbar_Snap.Text(), accent: false) };
         Subtle(toggle);
+        Lit(toggle);
+
+        ToolTipService.SetToolTip(toggle, Str.Shell_Toolbar_SnapTip.Text());
+        AutomationProperties.SetName(toggle, Str.Shell_Toolbar_SnapName.Text());
+        toggle.Click += (_, _) => commands.SetSnap(toggle.IsChecked == true);
+        return toggle;
+    }
+
+    /// <summary>
+    /// [S-905] [S-6584] A toggle that is on lit with the accent, as Windows lights one: the snap
+    /// toggle, the properties panel's alignment. Through the template's resource keys, as <see cref="Subtle"/>.
+    /// </summary>
+    internal static void Lit(ToggleButton toggle)
+    {
+        ArgumentNullException.ThrowIfNull(toggle);
 
         var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         var accentHover = FluentLayout.Themed("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
@@ -186,11 +201,6 @@ internal sealed partial class EditBar : Grid
         toggle.Resources["ToggleButtonForegroundChecked"] = onAccent;
         toggle.Resources["ToggleButtonForegroundCheckedPointerOver"] = onAccent;
         toggle.Resources["ToggleButtonForegroundCheckedPressed"] = onAccent;
-
-        ToolTipService.SetToolTip(toggle, Str.Shell_Toolbar_SnapTip.Text());
-        AutomationProperties.SetName(toggle, Str.Shell_Toolbar_SnapName.Text());
-        toggle.Click += (_, _) => commands.SetSnap(toggle.IsChecked == true);
-        return toggle;
     }
 
     /// <summary>The overflow: quitting, which has nowhere else to live with no tray menu ([S-64]).</summary>

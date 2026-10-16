@@ -653,6 +653,12 @@ public sealed class AppStateStore : IAsyncDisposable
                 repairs.Add($"widget '{widget.Id}': {scale}");
             }
 
+            // [S-6585] An alignment outside the set, or on a kind with nothing to align: the kind's default.
+            if (ContentAlignment.Repair(widget) is { } align)
+            {
+                repairs.Add($"widget '{widget.Id}': {align}");
+            }
+
             if (!Enum.IsDefined(widget.Header))
             {
                 widget.Header = HeaderPlacement.Top;

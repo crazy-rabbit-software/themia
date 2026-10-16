@@ -1,0 +1,8 @@
+{
+  "widget.align.label": "Выравнивание",
+  "widget.align.left": "По левому краю",
+  "widget.align.center": "По центру",
+  "widget.align.right": "По правому краю",
+  "widget.align.none": "В этом виджете нечего выравнивать",
+  "widget.align.noStyle": "Недоступно в этом стиле"
+}

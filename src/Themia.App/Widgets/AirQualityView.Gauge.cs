@@ -59,6 +59,11 @@ internal sealed partial class AirQualityView
         _gaugeBand.Visibility = plan.Band ? Visibility.Visible : Visibility.Collapsed;
         _gaugeBand.Margin = new Thickness(0, OnlineLayouts.Gap, 0, 0);
 
+        // [S-6583] The gauge and its band where the widget's alignment puts them.
+        _gaugeBox.HorizontalAlignment = Aligned.Horizontal(_align);
+        _gaugeBand.HorizontalAlignment = Aligned.Horizontal(_align);
+        _gaugeBand.TextAlignment = Aligned.Text(_align);
+
         if (geometry is { } g)
         {
             dial.Visibility = Visibility.Visible;

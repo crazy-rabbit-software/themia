@@ -1012,7 +1012,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: a Title row (a box 32 tall, the kind's name as its placeholder), then
-  Style ([S-6007]), Header, Background, Item background ([S-6521]), Item text ([S-6544]) and Scale ([S-6531]), and the
+  Style ([S-6007]), Header, Alignment ([S-6584]), Background, Item background ([S-6521]), Item text ([S-6544]) and Scale ([S-6531]), and the
   More settings row ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind
   only), Header, Background, Item background, Item text and Scale, and **no title** and no More settings: a title names one widget, so
   one typed for many would make them indistinguishable.
@@ -1130,6 +1130,43 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   widget's own and stays. The page's signature ([S-1721]) leaves the scale out, so a pick on the
   panel does not rebuild an open page; a style pick still rebuilds it when the page's shape changes
   ([S-6071]). Settings export and import carry all of them as before: they are the instance's.
+- **[S-6580]** Each widget has an **alignment** of its own (`WidgetInstance.Align`, `ContentAlign`
+  Left / Center / Right, a closed set saved by name): where its content block sits across its card.
+  Left and Right are the reading direction's start and end, as Windows aligns text. None stored (the
+  default) means the kind's own place ([S-6582]), so a widget never given one does not move; a copy
+  keeps it. It moves the block the size ladder ([S-660]) built, never what the ladder shows.
+- **[S-6581]** Only a widget whose content is **one block** aligns (`ContentAlignment.Applies`, one
+  Core list; `ContentAlignmentTests` checks it against the views that implement `IWidgetAligned`):
+  every style of the Clock, Weather now, Air quality, Countdown and Quote; the Number style of
+  Exchange rates and Stocks; the Moon's Disc. Not lists, grids, calendars, mail, folders, charts,
+  meters (a reading over its graph), mixers, timers with their controls, button and toggle tiles:
+  they fill the card or are the card. A style that fills the card (a rate's or a stock's chart, the
+  moon's month) does not align either.
+- **[S-6582]** Without a choice each widget sits where it always drew: centred — the Clock, the
+  Moon's disc, Weather now's Large icon and Minimal styles, Air quality's Gauge; from the start —
+  everything else (Weather now Standard, Air quality Number, the rate, the price, the Countdown, the
+  Quote). The Countdown no longer centres itself on a Compact tile: one rule at every size.
+- **[S-6583]** The card hands its view the alignment it draws (`ContentAlignment.Shown`: the own
+  choice, else the kind's default for its style, and the default for a value outside the set or a
+  style that does not align) before the view attaches and before every config it hears. In the
+  view: the clock's column; the weather's and air quality's reading (the shared hero readout,
+  [S-667]: its value row and the lines under it together; lines beside the value still read from
+  it), the readings under it keep their grid; the large-icon and minimal reading and the gauge; the
+  rate and the price; the countdown's lines, ring and cards; the quote's mark, lines and author; the
+  moon's disc and name over its rows (beside the disc on a strip the text still reads from it).
+- **[S-6584]** The properties panel's **Alignment** row, after Header: three icon buttons across the
+  control column (Segoe AlignLeft, AlignCenter, AlignRight; the word as tooltip and name), the
+  current one lit with the accent, none for a mixed selection. A press sets every selected widget
+  that aligns in its style (`QuickSet.SetAlign`; the others keep theirs) in one `Mutate`, one undo
+  step. Where none does, the row is greyed as the item rows are ([S-6571]), its tooltip "This widget
+  has nothing to align", or "Not available in this style" when the kind aligns in another style. Not
+  on any settings page ([S-6536]): the clock's page lost its Alignment row.
+- **[S-6585]** Load validation drops an alignment outside the set, or one on a kind that never
+  aligns, and says so; one on a style that does not align is kept for the style that does.
+- **[S-6586]** Debug: `--widget-png <Kind> <out.png> --align left|center|right` draws the cards with
+  that alignment; `--editbar-png` also writes `props-<theme>-align.png` (a clock aligned right),
+  `-alignmany.png` (a clock and a quote of different alignments: none lit) and `-alignstyle.png`
+  (the moon's month: the row greyed).
 - **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the panel beside
   real cards in edit mode on a stand-in display: `props-<theme>-right.png` (one flip clock in the
   middle with a title, an item colour of its own and a scale of 125 %: Style with the flip icon,
@@ -3490,7 +3527,8 @@ Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
 - **[S-1447]** Countdown ladder: the readout is the whole tile. The name and the duration always;
   the target's date from the Regular height; the progress bar on L/XL (`CountdownLayout.ShowsProgress`,
   Expanded both ways), each as it fits; the duration takes the rest (`FluentType.Hero`, sized for
-  the format's widest text). A tile Compact either way centres it; a larger one reads from the left.
+  the format's widest text). It sits where the widget's alignment puts it ([S-6580], Left by default),
+  at every size: the column keeps the tile's width, so the bar does too.
   The whole instant is the tooltip.
 - **[S-1448]** `CountdownConfig.Created` (set with the target in settings): L/XL draw a progress bar
   under the readout from then to the target. Unknown (unset) or not before the target: no bar.
@@ -5704,8 +5742,9 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   its own in a tall column when that draws the digits larger. The AM/PM marker counts towards the readout's width by its own
   length (`ClockFormatter.MeridiemCharacters`), never less than "PM"'s budget: Tamil's "பிற்பகல்" is
   about four times as wide as "PM".
-- **[S-1484]** Alignment Left / Centre / Right for the whole column (original S-25/S-26). Beside an
-  analog dial the text stays left-aligned to the dial.
+- **[S-1484]** Alignment Left / Centre / Right for the whole column (original S-25/S-26), centred by
+  default; set on the properties panel as every widget's alignment is ([S-6580]), not on the clock's
+  page. Beside an analog dial the text stays left-aligned to the dial.
 - **[S-1485]** Offset line None / From UTC ("UTC+2", "UTC+5:30", "UTC−3") / From local ("+8h local",
   "same as local"), minus as U+2212 (original S-08/S-16/S-23). On a wide digital strip it joins the
   date line.

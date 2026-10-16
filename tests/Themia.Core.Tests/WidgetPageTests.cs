@@ -30,9 +30,9 @@ public sealed partial class WidgetPageTests
 
     /// <summary>
     /// The panel's own words and writers: its row names (Title, Style, Header, Background, Item
-    /// background, Item text, Scale) and what writes a style or a scale.
+    /// background, Item text, Scale, Alignment) and what writes a style, a scale or an alignment.
     /// </summary>
-    [GeneratedRegex(@"Str\.(Group_Title_Label|Styles_Label|App_ConfigHeaderLabel|Settings_Style_BgLabel|Shell_Items_Background|Shell_Items_TextShort|Widget_Scale_Label)\b|WidgetStyles\.Set\(|WidgetScale\.")]
+    [GeneratedRegex(@"Str\.(Group_Title_Label|Styles_Label|App_ConfigHeaderLabel|Settings_Style_BgLabel|Shell_Items_Background|Shell_Items_TextShort|Widget_Scale_Label|Widget_Align_Label)\b|WidgetStyles\.Set\(|WidgetScale\.|QuickSet\.SetAlign\(|\.Align\s*=")]
     private static partial Regex PanelProperty();
 
     private static IEnumerable<string> PageSources()

@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// per click for something that is supposed to come back to today's quote in the morning.
 /// </para>
 /// </summary>
-internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetAligned
 {
     private readonly Button _next;
 
@@ -290,6 +290,21 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         Lay();
     }
 
+    /// <summary>[S-6583] Where the mark, the quote and its author sit: the widget's alignment, from the start by default ([S-6582]).</summary>
+    private ContentAlign _align = ContentAlign.Left;
+
+    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        Lay();
+    }
+
     /// <summary>[S-663] The card's word on how much room the quote has.</summary>
     public void ApplySize(WidgetArea area)
     {
@@ -312,6 +327,11 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         {
             return;
         }
+
+        // [S-6583] The mark, the quote's lines and the author where the widget's alignment puts them.
+        _mark.HorizontalAlignment = Aligned.Horizontal(_align);
+        _text.TextAlignment = Aligned.Text(_align);
+        _author.TextAlignment = Aligned.Text(_align);
 
         // [S-6405] The large mark takes its row off the top before the quote is fitted to the rest.
         var marks = _config.Style == QuoteStyle.Marks;

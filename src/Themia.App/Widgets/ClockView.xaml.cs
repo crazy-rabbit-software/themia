@@ -34,7 +34,7 @@ namespace Themia.App.Widgets;
 /// the weekday, the day of the month large and the month, in the clock's zone, and no time.
 /// </para>
 /// </summary>
-public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAware
+public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAware, IWidgetAligned
 {
     /// <summary>The longest long date: "Wednesday, 30 September".</summary>
     private const int LongDateCharacters = 23;
@@ -200,6 +200,21 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
         Lay();
         Resubscribe();
+    }
+
+    /// <summary>[S-6583] Where the column sits: the widget's own alignment, centred by default ([S-6582]).</summary>
+    private ContentAlign _align = ContentAlign.Center;
+
+    /// <summary>[S-1484] [S-6583] The widget's alignment, from the properties panel.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        Lay();
     }
 
     /// <summary>[S-663] The card's word on how much room the clock has.</summary>
@@ -541,17 +556,13 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     private static double HalfLeading(TypeStep step) => (step.LineHeight - step.FontSize) / 2;
 
     /// <summary>
-    /// [S-1484] Left, centre or right, for the whole column and every line in it. Beside a dial the
-    /// text reads from the dial outwards, so it stays left-aligned to it; the alignment places the pair.
+    /// [S-1484] Left, centre or right ([S-6583]), for the whole column and every line in it. Beside a
+    /// dial the text reads from the dial outwards, so it stays left-aligned to it; the alignment places the pair.
     /// </summary>
     private void ApplyAlignment()
     {
-        var (horizontal, text) = _config.Align switch
-        {
-            ClockAlign.Left => (HorizontalAlignment.Left, TextAlignment.Left),
-            ClockAlign.Right => (HorizontalAlignment.Right, TextAlignment.Right),
-            _ => (HorizontalAlignment.Center, TextAlignment.Center),
-        };
+        var horizontal = Aligned.Horizontal(_align);
+        var text = Aligned.Text(_align);
 
         Stack.HorizontalAlignment = horizontal;
         TimeRow.HorizontalAlignment = horizontal;

@@ -123,6 +123,36 @@ internal sealed partial class WidgetCard
         }
     }
 
+    /// <summary>
+    /// [S-6583] Tell a view that aligns where its content sits now: the widget's own choice, or its
+    /// kind's default for its style. Before it attaches (so its first layout is aligned) and before
+    /// every config it hears, as a style change can make the alignment apply or not. Guarded like
+    /// Attach: a view that throws becomes its error card.
+    /// </summary>
+    private void ApplyAlign(bool building)
+    {
+        if (_view is not IWidgetAligned aligned)
+        {
+            return;
+        }
+
+        try
+        {
+            aligned.ApplyAlign(ContentAlignment.Shown(Model));
+        }
+        catch (Exception ex)
+        {
+            if (building)
+            {
+                _view = Failed(ex, "aligning its content");
+            }
+            else
+            {
+                Replace(Failed(ex, "aligning its content"));
+            }
+        }
+    }
+
     private void ApplyViewConfig()
     {
         // [S-1881] A parked view hears nothing; it is built afresh with the config once it runs.

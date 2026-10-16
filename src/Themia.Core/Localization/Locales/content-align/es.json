@@ -1,0 +1,8 @@
+{
+  "widget.align.label": "Alineación",
+  "widget.align.left": "Izquierda",
+  "widget.align.center": "Centro",
+  "widget.align.right": "Derecha",
+  "widget.align.none": "Este widget no tiene nada que alinear",
+  "widget.align.noStyle": "No disponible en este estilo"
+}

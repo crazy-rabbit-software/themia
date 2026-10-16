@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// gauge style ([S-6170]) puts the index on a half-circle gauge instead of the number.
 /// </summary>
 internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions
+    IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     /// <summary>The widest index this widget prints ("500") and its unit ("US AQI").</summary>
     private const double ValueCharacters = 3;
@@ -45,6 +45,9 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
     private FetchStatus _status = FetchStatus.Loading;
     private Fetched<AirReading>? _reading;
     private WidgetArea _area;
+
+    /// <summary>[S-6583] Where the index sits: from the start in the number style, centred on the gauge by default.</summary>
+    private ContentAlign _align = ContentAlign.Left;
     private bool _detached;
 
     public AirQualityView()
@@ -124,6 +127,19 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
         Resubscribe();
         Reload(force: false);
+    }
+
+    /// <summary>[S-6583] The index (or the gauge) at the start, the middle or the end; the readings keep their grid.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        _hero.Align(align);
+        Render();
     }
 
     public void ApplySize(WidgetArea area)

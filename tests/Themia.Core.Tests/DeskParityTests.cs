@@ -139,7 +139,6 @@ public sealed class DeskParityTests
     {
         var config = new ClockConfig
         {
-            Align = (ClockAlign)9,
             OffsetMode = (ClockOffsetMode)9,
             TimeZoneId = "Atlantis/Capital",
             CustomLabel = new string('x', 80),
@@ -147,8 +146,7 @@ public sealed class DeskParityTests
 
         var repairs = config.Repair();
 
-        Assert.Equal(4, repairs.Count);
-        Assert.Equal(ClockAlign.Center, config.Align);
+        Assert.Equal(3, repairs.Count);
         Assert.Equal(ClockOffsetMode.None, config.OffsetMode);
         Assert.Null(config.TimeZoneId);
         Assert.Equal(ClockConfig.MaxLabelLength, config.CustomLabel!.Length);
@@ -164,14 +162,12 @@ public sealed class DeskParityTests
         var clone = (ClockConfig)new ClockConfig
         {
             Style = ClockStyle.Stacked,
-            Align = ClockAlign.Right,
             OffsetMode = ClockOffsetMode.Local,
             CustomLabel = "Home",
             TimeZoneId = "Asia/Tokyo",
         }.Clone();
 
         Assert.Equal(ClockStyle.Stacked, clone.Style);
-        Assert.Equal(ClockAlign.Right, clone.Align);
         Assert.Equal(ClockOffsetMode.Local, clone.OffsetMode);
         Assert.Equal("Home", clone.CustomLabel);
         Assert.Equal("Asia/Tokyo", clone.TimeZoneId);

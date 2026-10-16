@@ -5,7 +5,7 @@ namespace Themia.App.Services;
 
 /// <summary>
 /// [S-3703]/[S-3704] The properties panel's writes ([S-3707]): header, background, item background
-/// ([S-6521]), scale ([S-6531]) and title of the selected widgets, each through <see cref="Mutate"/> as one undo step.
+/// ([S-6521]), scale ([S-6531]), alignment ([S-6584]) and title of the selected widgets, each through <see cref="Mutate"/> as one undo step.
 /// </summary>
 internal sealed partial class AppHost
 {
@@ -59,6 +59,16 @@ internal sealed partial class AppHost
         {
             var ids = Selection.Ids.ToList();
             Mutate(_ => QuickSet.SetScale(view, ids, scale));
+        }
+    }
+
+    /// <summary>[S-6584] Where every selected widget that can align ([S-6581]) draws its content, in one step.</summary>
+    public void SetSelectedAlign(ContentAlign align)
+    {
+        if (SelectionView is { } view)
+        {
+            var ids = Selection.Ids.ToList();
+            Mutate(_ => QuickSet.SetAlign(view, ids, align));
         }
     }
 

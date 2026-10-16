@@ -29,7 +29,7 @@ namespace Themia.App.Widgets;
 /// </para>
 /// </summary>
 internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions
+    IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     private const string Scope = "weather";
 
@@ -91,6 +91,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private Fetched<CurrentWeather>? _reading;
     private IReadOnlyList<WeatherFact> _facts = [];
     private WidgetArea _area;
+
+    /// <summary>[S-6583] Where the reading sits: the widget's alignment, from the start by default in the standard style.</summary>
+    private ContentAlign _align = ContentAlign.Left;
     private WeatherNowPlan? _built;
     private bool _detached;
 
@@ -201,6 +204,19 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     }
 
     /// <summary>[S-663] The card's word on how much room the widget has.</summary>
+    /// <summary>[S-6583] The reading at the start, the middle or the end; the readings under it keep their grid.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        _hero.Align(align);
+        Lay();
+    }
+
     public void ApplySize(WidgetArea area)
     {
         _area = area;

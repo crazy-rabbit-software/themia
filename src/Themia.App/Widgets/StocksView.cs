@@ -29,7 +29,7 @@ namespace Themia.App.Widgets;
 /// </para>
 /// </summary>
 internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions
+    IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     private const string Scope = "stocks";
 
@@ -158,6 +158,22 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     {
         _surface = surface;
         PublishTitle();
+    }
+
+    /// <summary>[S-6583] Where the price and its change sit: the widget's alignment, from the start by default ([S-6582]).</summary>
+    private ContentAlign _align = ContentAlign.Left;
+
+    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    public void ApplyAlign(ContentAlign align)
+    {
+        if (align == _align)
+        {
+            return;
+        }
+
+        _align = align;
+        _hero.Align(align);
+        Render();
     }
 
     public void ApplySize(WidgetArea area)

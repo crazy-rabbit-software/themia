@@ -53,6 +53,14 @@ public sealed class WidgetInstance
     /// </summary>
     public double Scale { get; set; } = 1.0;
 
+    /// <summary>
+    /// [S-6580] Where this widget's content sits across its card, or null (the default) for where the
+    /// kind draws it (<see cref="Themia.Core.Widgets.ContentAlignment.Default"/>), so a widget that was
+    /// never given one does not move. Set on the properties panel ([S-6584]); read through
+    /// <see cref="Themia.Core.Widgets.ContentAlignment.Shown"/>.
+    /// </summary>
+    public ContentAlign? Align { get; set; }
+
     /// <summary>Never null after a successful load; a missing or mismatched config is repaired to the kind's default.</summary>
     public required WidgetConfig Config { get; set; }
 
@@ -139,6 +147,7 @@ public sealed class WidgetInstance
         ItemBackground = ItemBackground.Clone(),
         ItemTextColor = ItemTextColor,
         Scale = Scale,
+        Align = Align,
         Config = Config.Clone(),
         X = X,
         Y = Y,

@@ -241,6 +241,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // threw a NullReferenceException on the UI thread that took the whole surface down.
         // [S-891] A view that throws here, or on the first tick it asks for, is swapped for its
         // error card before the card is assembled, so the card is built around whichever it is.
+        // [S-6583] Aligned first, so the first layout it does sits where the widget asks.
+        ApplyAlign(building: true);
         AttachView();
 
         // Fill and content are separate borders so the surface opacity setting fades the card
@@ -709,6 +711,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     {
         // Before the view re-lays itself out from the ramp, or its fresh sizes would be scaled twice.
         ApplyTextScale();
+
+        // [S-6583] The alignment lives on the instance; a style change can also make it apply or not.
+        ApplyAlign(building: false);
 
         // [S-891] Guarded like Attach: a view that throws on its new settings becomes its error card.
         ApplyViewConfig();

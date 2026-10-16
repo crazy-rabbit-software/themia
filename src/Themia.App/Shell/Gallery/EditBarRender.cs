@@ -31,7 +31,8 @@ namespace Themia.App.Shell.Gallery;
 /// (backgrounds Default, Transparent and a colour at 50 %, item backgrounds Default, Transparent and
 /// a colour), <c>-noitems.png</c> (a stopwatch: the Item background row greyed) and
 /// <c>-picker.png</c> (the Background control's panel open beside the panel: Transparent and the
-/// opacity slider) — all over a busy stand-in wallpaper, so the panel's surface is judged against
+/// opacity slider), [S-6586] <c>-align.png</c> (a clock aligned right), <c>-alignmany.png</c> (a clock
+/// and a quote of different alignments) and <c>-alignstyle.png</c> (the moon's month: the row greyed) — all over a busy stand-in wallpaper, so the panel's surface is judged against
 /// one ([S-3715]).
 /// </summary>
 internal static class EditBarRender
@@ -211,7 +212,7 @@ internal static class EditBarRender
     }
 
     /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null);
+    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null);
 
     /// <summary>[S-3713] The panel beside real cards in edit mode, each case on the stand-in display.</summary>
     private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
@@ -244,8 +245,17 @@ internal static class EditBarRender
 
             // [S-6571] A stopwatch has no items: the row is greyed.
             [new(WidgetKind.Stopwatch, 500, 200, 280, 180, HeaderPlacement.Top, true)],
+
+            // [S-6584] A clock aligned right: Right lit. Two of different alignments: none lit. The
+            // moon's month style: the row greyed, "Not available in this style".
+            [new(WidgetKind.Clock, 500, 200, 300, 180, HeaderPlacement.Top, true, "Right", Align: ContentAlign.Right)],
+            [
+                new(WidgetKind.Clock, 300, 200, 280, 160, HeaderPlacement.Top, true, "Left", Align: ContentAlign.Left),
+                new(WidgetKind.Quote, 620, 200, 320, 180, HeaderPlacement.Top, true, Align: ContentAlign.Right),
+            ],
+            [new(WidgetKind.Moon, 500, 200, 280, 220, HeaderPlacement.Top, true, Style: (int)MoonStyle.PhaseMonth)],
         ];
-        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills", "noitems"];
+        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills", "noitems", "align", "alignmany", "alignstyle"];
 
         for (var i = 0; i < cases.Length; i++)
         {
@@ -346,6 +356,7 @@ internal static class EditBarRender
             model.Background = spec.Background?.Clone() ?? new FillChoice();
             model.Scale = spec.Scale;
             model.ItemTextColor = spec.ItemText;
+            model.Align = spec.Align;
             if (spec.Style is { } style)
             {
                 WidgetStyles.Set(model.Config, style); // [S-6007] the strip's Style shows the current one's icon

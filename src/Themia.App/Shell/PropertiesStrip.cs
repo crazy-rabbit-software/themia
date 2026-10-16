@@ -22,6 +22,7 @@ namespace Themia.App.Shell;
 /// <param name="SetItemTextColor">[S-6544] The selected widgets' own item text colour, or empty for the app-wide one.</param>
 /// <param name="SetScale">[S-6531] The selected widgets' own content scale, as a factor.</param>
 /// <param name="HasSettings">[S-1750] Whether one widget, by id, has a settings page in its current style and state.</param>
+/// <param name="SetAlign">[S-6584] Where the selected widgets that can align draw their content. A render's stand-in may leave it out.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
     Action<FillChoice> SetBackground,
@@ -32,13 +33,14 @@ internal sealed record PropertiesCommands(
     Action<FillChoice> SetItemBackground,
     Action<string> SetItemTextColor,
     Action<double> SetScale,
-    Func<string, bool> HasSettings);
+    Func<string, bool> HasSettings,
+    Action<ContentAlign>? SetAlign = null);
 
 /// <summary>
 /// [S-3707] The selected widgets' properties panel: a small panel on a flyout's surface ([S-3715])
 /// standing beside the selection, centred on it ([S-3708], [S-3714]), one row per property, its name before its control — Title (one
 /// widget) or "N selected", Style (one kind with styles, [S-6007]), Header (where every selected
-/// widget can have one, [S-3711]), Background and Item background (one fill control each, [S-6566];
+/// widget can have one, [S-3711]), Alignment (greyed where nothing selected aligns, [S-6584]), Background and Item background (one fill control each, [S-6566];
 /// the item row greyed for widgets without items, [S-6571]), Item text ([S-6544]), Scale ([S-6531]),
 /// then More settings (one widget with a page, [S-6009]). After Karpo's
 /// properties panel (docs/widgets.md §145): the selection's own properties, where the selection is.
@@ -81,6 +83,9 @@ internal sealed partial class PropertiesStrip : Grid
     private StackPanel? _headerValue;
 
     private StackPanel? _scaleValue;
+
+    /// <summary>[S-6584] The Alignment row's three buttons, Left, Center and Right, ticked in place.</summary>
+    private ToggleButton[]? _alignButtons;
 
     public PropertiesStrip(PropertiesCommands commands)
     {
@@ -139,6 +144,8 @@ internal sealed partial class PropertiesStrip : Grid
             && string.Equals(previous.TitleWidgetId, offer.TitleWidgetId, StringComparison.Ordinal)
             && (offer.HasTitle || previous.Count == offer.Count)
             && previous.HasItems == offer.HasItems
+            && previous.CanAlign == offer.CanAlign
+            && previous.AlignKind == offer.AlignKind
             && SameFill(previous.Background, offer.Background)
             && SameFill(previous.Items, offer.Items)
             && string.Equals(previous.ItemText, offer.ItemText, StringComparison.Ordinal)
@@ -176,6 +183,7 @@ internal sealed partial class PropertiesStrip : Grid
         _rows.Children.Clear();
         _rows.RowDefinitions.Clear();
         _styleValue = _headerValue = _scaleValue = null;
+        _alignButtons = null;
         _title = null;
         _titleId = null;
 
@@ -215,6 +223,12 @@ internal sealed partial class PropertiesStrip : Grid
                 out var headerValue));
             _headerValue = headerValue;
         }
+
+        // [S-6584] Where the content sits across the card, beside where the header sits. Greyed when
+        // nothing selected can align in its style ([S-6581]), as the item rows are without items.
+        var align = AlignChoice(commands);
+        Unavailable(AddRow(Str.Widget_Align_Label.Text(), align), align, _offer.CanAlign,
+            _offer.AlignKind ? Str.Widget_Align_NoStyle.Text() : Str.Widget_Align_None.Text());
 
         // [S-6566] The widgets' own background and item background: one fill control each, Default
         // for the app-wide one. [S-6571] The item row is greyed for widgets that have no items.
@@ -257,14 +271,33 @@ internal sealed partial class PropertiesStrip : Grid
     /// disabled control takes no pointer, so the name carries it where the pointer can find it).
     /// </summary>
     private void NoItems(TextBlock? label, Control control)
+        => Unavailable(label, control, _offer.HasItems, Str.Shell_Fill_NoItems.Text());
+
+    /// <summary>
+    /// [S-6571] [S-6584] Grey a row out unless <paramref name="available"/>: its control (or each
+    /// control in a row of them) disabled, its name in the disabled text colour, and
+    /// <paramref name="why"/> as the tooltip of both.
+    /// </summary>
+    private static void Unavailable(TextBlock? label, FrameworkElement control, bool available, string why)
     {
-        if (_offer.HasItems)
+        if (available)
         {
             return;
         }
 
-        var why = Str.Shell_Fill_NoItems.Text();
-        control.IsEnabled = false;
+        if (control is Control single)
+        {
+            single.IsEnabled = false;
+        }
+        else if (control is Panel panel)
+        {
+            foreach (var part in panel.Children.OfType<Control>())
+            {
+                part.IsEnabled = false;
+                ToolTipService.SetToolTip(part, why);
+            }
+        }
+
         ToolTipService.SetToolTip(control, why);
         AutomationProperties.SetHelpText(control, why);
         if (label is not null)
@@ -324,6 +357,69 @@ internal sealed partial class PropertiesStrip : Grid
         if (_scaleValue is not null)
         {
             Show(_scaleValue, Glyphs.Scale, false, _offer.Scale is { } scale ? ScaleText(scale) : Mixed);
+        }
+
+        if (_alignButtons is { } buttons)
+        {
+            TickAlign(buttons, _offer.CanAlign ? _offer.Align : null);
+        }
+    }
+
+    private static (ContentAlign Value, string Glyph, Str Name)[] AlignOptions() =>
+    [
+        (ContentAlign.Left, Glyphs.AlignLeft, Str.Widget_Align_Left),
+        (ContentAlign.Center, Glyphs.AlignCenter, Str.Widget_Align_Center),
+        (ContentAlign.Right, Glyphs.AlignRight, Str.Widget_Align_Right),
+    ];
+
+    /// <summary>
+    /// [S-6584] The Alignment choice: three icon buttons across the controls' column, Left, Center
+    /// and Right (Segoe's align glyphs, the word as tooltip and name), the current one lit with the
+    /// accent as Windows lights a toggle that is on; none for a mixed selection. A press sets it on
+    /// every selected widget that can align, one undo step; pressing the lit one keeps it lit.
+    /// </summary>
+    private Grid AlignChoice(PropertiesCommands commands)
+    {
+        var options = AlignOptions();
+        var row = new Grid { ColumnSpacing = Fluent.Space1, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var buttons = new ToggleButton[options.Length];
+
+        for (var i = 0; i < options.Length; i++)
+        {
+            var (value, glyph, name) = options[i];
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var button = new ToggleButton { Content = EditBar.Icon(glyph, false, Fluent.IconSize) };
+            EditBar.Subtle(button);
+            EditBar.Lit(button);
+            button.HorizontalAlignment = HorizontalAlignment.Stretch;
+            button.Padding = new Thickness(0);
+            AutomationProperties.SetName(button, name.Text());
+            ToolTipService.SetToolTip(button, name.Text());
+
+            var chosen = value;
+            button.Click += (_, _) =>
+            {
+                // The press toggled it; the choice is the one pressed, lit whatever it was before.
+                TickAlign(buttons, chosen);
+                commands.SetAlign?.Invoke(chosen);
+            };
+
+            Grid.SetColumn(button, i);
+            row.Children.Add(button);
+            buttons[i] = button;
+        }
+
+        _alignButtons = buttons;
+        return row;
+    }
+
+    private static void TickAlign(ToggleButton[] buttons, ContentAlign? current)
+    {
+        var options = AlignOptions();
+        for (var i = 0; i < buttons.Length; i++)
+        {
+            buttons[i].IsChecked = current == options[i].Value;
         }
     }
 
