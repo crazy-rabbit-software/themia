@@ -69,6 +69,12 @@ public enum WidgetKey
     /// <summary>[S-1327] Ctrl+A: select every item.</summary>
     SelectAll,
 
+    /// <summary>[S-6417] Ctrl+Shift+C: copy the selected items' paths, as Explorer's Copy as path.</summary>
+    CopyAsPath,
+
+    /// <summary>[S-6417] Alt+Enter: the selected items' properties, as Explorer's.</summary>
+    Properties,
+
     /// <summary>[S-1327] Backspace: back through the widget's own history.</summary>
     Back,
 

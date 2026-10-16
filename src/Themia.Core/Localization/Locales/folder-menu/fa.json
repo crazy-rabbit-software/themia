@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "کپی به‌عنوان مسیر",
   "folderMenu.openWith": "باز کردن با",
   "folderMenu.chooseAnotherApp": "انتخاب برنامه دیگر",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "فایل ZIP ایجاد نشد.",
   "folderMenu.shellFailed": "Windows نتوانست این کار را برای این مورد انجام دهد."
 }

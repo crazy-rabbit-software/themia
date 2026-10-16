@@ -44,20 +44,6 @@ public enum FolderCommand
     OpenInExplorer,
 }
 
-/// <summary>A key the widget answers, as a menu shows it beside the command that does the same ([S-6417]).</summary>
-public enum FolderAccelerator
-{
-    None,
-    Enter,
-    CtrlX,
-    CtrlC,
-    CtrlV,
-    CtrlA,
-    F2,
-    Delete,
-    ShiftF10,
-}
-
 /// <summary>One line of a folder menu: the command and whether it can be clicked now.</summary>
 public readonly record struct FolderMenuLine(FolderCommand Command, bool Enabled = true)
 {
@@ -209,21 +195,23 @@ public static class FolderMenu
     };
 
     /// <summary>
-    /// [S-6417] The key shown beside a command: only keys the widget itself answers ([S-1327]), so
-    /// Explorer's Ctrl+Shift+C and Alt+Enter, chords that never reach a widget, are not shown.
-    /// Shift+F10 opens the shell's menu, as in Explorer.
+    /// [S-6417] The key shown beside a command, Explorer's own: only keys the widget itself answers
+    /// through the lease ([S-1327]), Ctrl+Shift+C and Alt+Enter included. Shift+F10 opens the
+    /// shell's menu, as in Explorer.
     /// </summary>
-    public static FolderAccelerator Accelerator(FolderCommand command) => command switch
+    public static KeyChord? Accelerator(FolderCommand command) => command switch
     {
-        FolderCommand.Open => FolderAccelerator.Enter,
-        FolderCommand.Cut => FolderAccelerator.CtrlX,
-        FolderCommand.Copy => FolderAccelerator.CtrlC,
-        FolderCommand.Paste => FolderAccelerator.CtrlV,
-        FolderCommand.SelectAll => FolderAccelerator.CtrlA,
-        FolderCommand.Rename => FolderAccelerator.F2,
-        FolderCommand.Delete => FolderAccelerator.Delete,
-        FolderCommand.ShowMoreOptions => FolderAccelerator.ShiftF10,
-        _ => FolderAccelerator.None,
+        FolderCommand.Open => KeyChord.Plain(ChordKey.Enter),
+        FolderCommand.Cut => KeyChord.Ctrl(ChordKey.X),
+        FolderCommand.Copy => KeyChord.Ctrl(ChordKey.C),
+        FolderCommand.Paste => KeyChord.Ctrl(ChordKey.V),
+        FolderCommand.SelectAll => KeyChord.Ctrl(ChordKey.A),
+        FolderCommand.Rename => KeyChord.Plain(ChordKey.F2),
+        FolderCommand.Delete => KeyChord.Plain(ChordKey.Delete),
+        FolderCommand.CopyAsPath => KeyChord.CtrlShift(ChordKey.C),
+        FolderCommand.Properties => KeyChord.Alt(ChordKey.Enter),
+        FolderCommand.ShowMoreOptions => KeyChord.Shift(ChordKey.F10),
+        _ => null,
     };
 
     /// <summary>What Explorer pins to Start: a folder, a program or a shortcut.</summary>

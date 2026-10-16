@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "మార్గంగా కాపీ చేయి",
   "folderMenu.openWith": "దీనితో తెరువు",
   "folderMenu.chooseAnotherApp": "మరొక యాప్‌ను ఎంచుకోండి",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "ZIP ఫైల్‌ను సృష్టించడం సాధ్యపడలేదు.",
   "folderMenu.shellFailed": "ఈ అంశం కోసం Windows దాన్ని చేయలేకపోయింది."
 }

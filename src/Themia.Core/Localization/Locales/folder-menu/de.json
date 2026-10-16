@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Als Pfad kopieren",
   "folderMenu.openWith": "Öffnen mit",
   "folderMenu.chooseAnotherApp": "Andere App auswählen",
-  "folderMenu.key.enter": "Eingabe",
-  "folderMenu.key.shiftF10": "Umschalt+F10",
   "folderMenu.zipFailed": "Die ZIP-Datei konnte nicht erstellt werden.",
   "folderMenu.shellFailed": "Windows konnte das für dieses Element nicht ausführen."
 }

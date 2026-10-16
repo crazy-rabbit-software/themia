@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Kopyahin bilang path",
   "folderMenu.openWith": "Buksan gamit ang",
   "folderMenu.chooseAnotherApp": "Pumili ng ibang app",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "Hindi magawa ang ZIP file.",
   "folderMenu.shellFailed": "Hindi iyon magawa ng Windows para sa item na ito."
 }

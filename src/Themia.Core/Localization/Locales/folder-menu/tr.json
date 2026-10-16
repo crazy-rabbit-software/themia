@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Yol olarak kopyala",
   "folderMenu.openWith": "Birlikte aç",
   "folderMenu.chooseAnotherApp": "Başka bir uygulama seç",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "ZIP dosyası oluşturulamadı.",
   "folderMenu.shellFailed": "Windows bu öğe için bunu yapamadı."
 }

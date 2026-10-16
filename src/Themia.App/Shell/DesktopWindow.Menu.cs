@@ -84,12 +84,12 @@ internal sealed partial class DesktopWindow
             entries.Add(item.Command switch
             {
                 ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), actions.Paste, Disabled: disabled, Quick: item.Quick,
-                    Shortcut: Str.Shell_Key_CtrlPlus.Format(("key", "V"))),
+                    Shortcut: KeyChord.Ctrl(ChordKey.V)),
                 ShellCommand.Settings => new(Glyphs.Settings, Str.Common_Settings.Text(), actions.Settings, Quick: item.Quick),
                 ShellCommand.AddWidget => new(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), actions.AddWidget,
-                    Shortcut: Str.Shell_Key_CtrlPlus.Format(("key", "N"))),
+                    Shortcut: KeyChord.Ctrl(ChordKey.N)),
                 ShellCommand.SelectAll => new(Glyphs.SelectAll, Str.Shell_Menu_SelectAll.Text(), actions.SelectAll, Disabled: disabled,
-                    Shortcut: Str.Shell_Key_CtrlPlus.Format(("key", "A"))),
+                    Shortcut: KeyChord.Ctrl(ChordKey.A)),
                 ShellCommand.SnapToGrid => new(Glyphs.Grid, Str.Shell_Toolbar_SnapName.Text(), actions.ToggleSnap, Checked: item.Checked == true),
                 ShellCommand.ToggleEditMode => new(Glyphs.Done, Str.Shell_Card_DoneEditing.Text(), actions.Done),
                 _ => ItemMenuEntry.Separator,

@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "பாதையாக நகலெடு",
   "folderMenu.openWith": "இதைக் கொண்டு திற",
   "folderMenu.chooseAnotherApp": "வேறு பயன்பாட்டைத் தேர்ந்தெடு",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "ZIP கோப்பை உருவாக்க முடியவில்லை.",
   "folderMenu.shellFailed": "இந்த உருப்படிக்கு Windows அதைச் செய்ய முடியவில்லை."
 }

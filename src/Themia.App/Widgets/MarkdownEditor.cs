@@ -67,8 +67,8 @@ internal sealed class MarkdownEditor
     private static readonly (NoteCommand Command, string? Glyph, string? Label, Func<string> Tip, int Rank)[] BarButtons =
     [
         (NoteCommand.Heading, null, "H", () => Str.WidgetsC_Notes_Editor_HeadingTip.Text(), 4),
-        (NoteCommand.Bold, Glyphs.Bold, null, () => WithShortcut(Str.Widget_Notes_Fmt_Bold, "Ctrl+B"), 0),
-        (NoteCommand.Italic, Glyphs.Italic, null, () => WithShortcut(Str.Widget_Notes_Fmt_Italic, "Ctrl+I"), 1),
+        (NoteCommand.Bold, Glyphs.Bold, null, () => WithShortcut(Str.Widget_Notes_Fmt_Bold, KeyChord.Ctrl(ChordKey.B)), 0),
+        (NoteCommand.Italic, Glyphs.Italic, null, () => WithShortcut(Str.Widget_Notes_Fmt_Italic, KeyChord.Ctrl(ChordKey.I)), 1),
         (NoteCommand.Strike, Glyphs.Strikethrough, null, () => Str.Widget_Notes_Fmt_Strike.Text(), 5),
         (NoteCommand.Code, Glyphs.Code, null, () => Str.Widget_Notes_Fmt_Code.Text(), 6),
         (NoteCommand.Bullet, Glyphs.BulletList, null, () => Str.Widget_Notes_Fmt_Bullet.Text(), 3),
@@ -813,8 +813,8 @@ internal sealed class MarkdownEditor
     }
 
     /// <summary>"Bold (Ctrl+B)": a command's name with its key, in the language's word order.</summary>
-    private static string WithShortcut(Str name, string keys)
-        => Str.WidgetsC_Notes_Editor_WithShortcut.Format(("name", name.Text()), ("keys", keys));
+    private static string WithShortcut(Str name, KeyChord keys)
+        => Str.WidgetsC_Notes_Editor_WithShortcut.Format(("name", name.Text()), ("keys", KeyChordText.Format(keys)));
 
     /// <summary>
     /// [S-1110] Re-read the texts this editor set once (the bar's tooltips, the placeholder) after

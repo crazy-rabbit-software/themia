@@ -817,7 +817,8 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1327_other_chords_still_do_not()
     {
-        Assert.Null(WidgetKeys.FromVirtualKey(0x43, shift: true, ctrl: true, alt: false));
+        // Ctrl+Shift+C is Explorer's Copy as path ([S-6417]); Ctrl+Shift with any other letter is not a widget's.
+        Assert.Null(WidgetKeys.FromVirtualKey(0x58, shift: true, ctrl: true, alt: false));
         Assert.Null(WidgetKeys.FromVirtualKey(0x43, shift: false, ctrl: true, alt: true));
         Assert.Null(WidgetKeys.FromVirtualKey(0x44, shift: false, ctrl: true, alt: false));
         Assert.Null(WidgetKeys.FromVirtualKey(0x43, shift: false, ctrl: false, alt: false));

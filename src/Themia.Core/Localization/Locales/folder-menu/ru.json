@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Копировать как путь",
   "folderMenu.openWith": "Открыть с помощью",
   "folderMenu.chooseAnotherApp": "Выбрать другое приложение",
-  "folderMenu.key.enter": "Ввод",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "Не удалось создать ZIP-файл.",
   "folderMenu.shellFailed": "Windows не удалось выполнить это действие для этого элемента."
 }

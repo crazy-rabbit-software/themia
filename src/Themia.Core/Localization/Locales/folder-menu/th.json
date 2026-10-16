@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "คัดลอกเป็นเส้นทาง",
   "folderMenu.openWith": "เปิดด้วย",
   "folderMenu.chooseAnotherApp": "เลือกแอปอื่น",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "ไม่สามารถสร้างไฟล์ ZIP ได้",
   "folderMenu.shellFailed": "Windows ไม่สามารถทำเช่นนั้นกับรายการนี้ได้"
 }

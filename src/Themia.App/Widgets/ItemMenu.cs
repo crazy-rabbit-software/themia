@@ -29,7 +29,10 @@ namespace Themia.App.Widgets;
 /// [S-1740] The Windows 11 icon-row command this entry is (Cut, Copy, Paste, Rename, Share,
 /// Duplicate, Settings, Delete). <see cref="ContextMenuLayout"/> decides whether it goes to the row.
 /// </param>
-/// <param name="Shortcut">The key that does the same, shown beside the label ("Ctrl+C"); text only.</param>
+/// <param name="Shortcut">
+/// [S-1753] The key that does the same, shown beside the label as Windows writes it ("Ctrl+C",
+/// <see cref="KeyChordText"/>); shown only, never registered.
+/// </param>
 /// <param name="IconFile">
 /// [S-6416] A file whose shell icon is the line's icon, in place of <paramref name="Glyph"/> (an app in
 /// "Open with", as Explorer draws it).
@@ -43,7 +46,7 @@ internal readonly record struct ItemMenuEntry(
     bool? Checked = null,
     IReadOnlyList<ItemMenuEntry>? Children = null,
     QuickCommand? Quick = null,
-    string? Shortcut = null,
+    KeyChord? Shortcut = null,
     string? IconFile = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
@@ -164,9 +167,9 @@ internal static class ItemMenu
             item.IsEnabled = !entry.Disabled;
             item.Icon = IconFor(entry);
 
-            if (entry.Shortcut is not null)
+            if (entry.Shortcut is { } chord)
             {
-                item.KeyboardAcceleratorTextOverride = entry.Shortcut;
+                item.KeyboardAcceleratorTextOverride = KeyChordText.Format(chord);
             }
 
             if (entry.Danger)
@@ -276,21 +279,22 @@ internal static class ItemMenu
         var button = new AppBarButton
         {
             Label = entry.Text,
-            Icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph ?? QuickGlyph(entry.Quick) }),
+            Icon = IconFor(entry with { Glyph = entry.Glyph ?? QuickGlyph(entry.Quick) }),
             IsEnabled = !entry.Disabled,
 
             // Icons alone, as Explorer's row: the label is the tooltip and the accessible name.
             LabelPosition = CommandBarLabelPosition.Collapsed,
         };
 
-        ToolTipService.SetToolTip(button, entry.Shortcut is { } keys
+        var keys = entry.Shortcut is { } chord ? KeyChordText.Format(chord) : null;
+        ToolTipService.SetToolTip(button, keys is not null
             ? Str.Shell_Menu_LabelWithShortcut.Format(("label", entry.Text), ("shortcut", keys))
             : entry.Text);
         AutomationProperties.SetName(button, entry.Text);
 
-        if (entry.Shortcut is not null)
+        if (keys is not null)
         {
-            AutomationProperties.SetAcceleratorKey(button, entry.Shortcut);
+            AutomationProperties.SetAcceleratorKey(button, keys);
         }
 
         Wire(menu, button, entry.Action);
@@ -326,17 +330,18 @@ internal static class ItemMenu
             }
         }
 
-        if (entry.Shortcut is not null)
+        if (entry.Shortcut is { } chord)
         {
             // Text only: the accelerators are handled where the menu's owner listens for keys, so
             // registering real KeyboardAccelerators here would double-fire them.
+            var keys = KeyChordText.Format(chord);
             if (button is not null)
             {
-                button.KeyboardAcceleratorTextOverride = entry.Shortcut;
+                button.KeyboardAcceleratorTextOverride = keys;
             }
             else
             {
-                toggle!.KeyboardAcceleratorTextOverride = entry.Shortcut;
+                toggle!.KeyboardAcceleratorTextOverride = keys;
             }
         }
 
@@ -396,7 +401,11 @@ internal static class ItemMenu
         }
     }
 
-    /// <summary>A list line's icon: the shell icon of its <see cref="ItemMenuEntry.IconFile"/>, else its glyph, else none.</summary>
+    /// <summary>
+    /// A line's icon: the shell icon of its <see cref="ItemMenuEntry.IconFile"/>; else, for a line that
+    /// can be clicked, File Explorer's two-tone picture of its glyph ([S-1754]); else the glyph
+    /// itself (greyed by the menu when disabled); else none.
+    /// </summary>
     private static IconElement? IconFor(ItemMenuEntry entry)
     {
         if (entry.IconFile is { } file)
@@ -406,7 +415,12 @@ internal static class ItemMenu
             return image;
         }
 
-        return entry.Glyph is null ? null : UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
+        if (entry.Glyph is null)
+        {
+            return null;
+        }
+
+        return entry.Disabled ? UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph }) : MenuArtIcons.IconOrGlyph(entry.Glyph);
     }
 
     /// <summary>The file's icon into <paramref name="image"/> when it arrives; a file with none keeps the line bare.</summary>

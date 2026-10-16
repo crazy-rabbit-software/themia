@@ -198,7 +198,7 @@ internal sealed partial class AppHost
         {
             Notices.Show(new Notice(NoticeKind.Info, Str.Shell_Undo_Stale.Text())
             {
-                Message = Str.Shell_Undo_StaleBody.Format(("keys", Str.Shell_Key_CtrlPlus.Format(("key", "Z")))),
+                Message = Str.Shell_Undo_StaleBody.Format(("keys", KeyChordText.Format(KeyChord.Ctrl(ChordKey.Z)))),
                 Key = UndoNoticeKey,
             });
             return;

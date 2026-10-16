@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "પાથ તરીકે કૉપિ કરો",
   "folderMenu.openWith": "આની સાથે ખોલો",
   "folderMenu.chooseAnotherApp": "બીજી ઍપ પસંદ કરો",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "ZIP ફાઇલ બનાવી શકાઈ નહીં.",
   "folderMenu.shellFailed": "Windows આ આઇટમ માટે તે કરી શક્યું નહીં."
 }

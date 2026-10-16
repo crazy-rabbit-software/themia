@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "複製路徑",
   "folderMenu.openWith": "開啟檔案",
   "folderMenu.chooseAnotherApp": "選擇其他應用程式",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "無法建立 ZIP 檔案。",
   "folderMenu.shellFailed": "Windows 無法對此項目執行該動作。"
 }

@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Kopiuj jako ścieżkę",
   "folderMenu.openWith": "Otwórz za pomocą",
   "folderMenu.chooseAnotherApp": "Wybierz inną aplikację",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "Nie można utworzyć pliku ZIP.",
   "folderMenu.shellFailed": "System Windows nie mógł tego zrobić dla tego elementu."
 }

@@ -118,35 +118,41 @@ public sealed class FolderMenuTests
     [Fact]
     public void S6417_every_key_a_menu_shows_is_one_the_widget_answers()
     {
-        // The virtual key and modifiers of each accelerator; the lease must turn each into a key.
-        (int Vk, bool Shift, bool Ctrl)? Press(FolderAccelerator accelerator) => accelerator switch
+        // The virtual key of each chord key a folder menu uses; the lease must turn each chord into a key.
+        int Vk(ChordKey key) => key switch
         {
-            FolderAccelerator.Enter => (0x0D, false, false),
-            FolderAccelerator.CtrlX => (0x58, false, true),
-            FolderAccelerator.CtrlC => (0x43, false, true),
-            FolderAccelerator.CtrlV => (0x56, false, true),
-            FolderAccelerator.CtrlA => (0x41, false, true),
-            FolderAccelerator.F2 => (0x71, false, false),
-            FolderAccelerator.Delete => (0x2E, false, false),
-            FolderAccelerator.ShiftF10 => (0x79, true, false),
-            _ => null,
+            ChordKey.Enter => 0x0D,
+            ChordKey.Delete => 0x2E,
+            ChordKey.F2 => 0x71,
+            ChordKey.F10 => 0x79,
+            >= ChordKey.A and <= ChordKey.Z => 0x41 + (key - ChordKey.A),
+            _ => throw new InvalidOperationException($"no virtual key for {key} in this test"),
         };
 
         foreach (var command in Enum.GetValues<FolderCommand>())
         {
-            var accelerator = FolderMenu.Accelerator(command);
-
-            if (accelerator == FolderAccelerator.None)
+            if (FolderMenu.Accelerator(command) is not { } chord)
             {
                 continue;
             }
 
-            var (vk, shift, ctrl) = Press(accelerator)!.Value;
-            Assert.NotNull(WidgetKeys.FromVirtualKey(vk, shift, ctrl, alt: false));
+            var m = chord.Modifiers;
+            Assert.NotNull(WidgetKeys.FromVirtualKey(Vk(chord.Key), m.HasFlag(ChordModifiers.Shift), m.HasFlag(ChordModifiers.Ctrl), m.HasFlag(ChordModifiers.Alt)));
         }
+    }
 
-        Assert.Equal(FolderAccelerator.None, FolderMenu.Accelerator(FolderCommand.CopyAsPath));
-        Assert.Equal(FolderAccelerator.None, FolderMenu.Accelerator(FolderCommand.Properties));
+    [Fact]
+    public void S6417_the_keys_are_explorers()
+    {
+        Assert.Equal(KeyChord.Plain(ChordKey.Enter), FolderMenu.Accelerator(FolderCommand.Open));
+        Assert.Equal(KeyChord.CtrlShift(ChordKey.C), FolderMenu.Accelerator(FolderCommand.CopyAsPath));
+        Assert.Equal(KeyChord.Alt(ChordKey.Enter), FolderMenu.Accelerator(FolderCommand.Properties));
+        Assert.Equal(KeyChord.Shift(ChordKey.F10), FolderMenu.Accelerator(FolderCommand.ShowMoreOptions));
+        Assert.Equal(KeyChord.Plain(ChordKey.Delete), FolderMenu.Accelerator(FolderCommand.Delete));
+        Assert.Null(FolderMenu.Accelerator(FolderCommand.Share));
+        Assert.Equal(WidgetKey.CopyAsPath, WidgetKeys.FromVirtualKey(0x43, shift: true, ctrl: true, alt: false));
+        Assert.Equal(WidgetKey.Properties, WidgetKeys.FromVirtualKey(0x0D, shift: false, ctrl: false, alt: true));
+        Assert.Null(WidgetKeys.FromVirtualKey(0x0D, shift: true, ctrl: false, alt: true));
     }
 
     [Fact]

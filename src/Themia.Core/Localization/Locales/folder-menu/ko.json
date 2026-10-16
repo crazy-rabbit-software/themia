@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "경로로 복사",
   "folderMenu.openWith": "연결 프로그램",
   "folderMenu.chooseAnotherApp": "다른 앱 선택",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "ZIP 파일을 만들 수 없습니다.",
   "folderMenu.shellFailed": "Windows에서 이 항목에 대해 해당 작업을 수행할 수 없습니다."
 }

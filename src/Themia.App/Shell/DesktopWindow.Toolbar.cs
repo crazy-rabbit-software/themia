@@ -53,14 +53,14 @@ internal sealed partial class DesktopWindow
 
         flyout.Items.Add(new MenuFlyoutSeparator());
 
-        var add = new MenuFlyoutItem { Text = Str.Shell_View_New.Text(), Icon = new FontIcon { Glyph = Glyphs.Add } };
+        var add = new MenuFlyoutItem { Text = Str.Shell_View_New.Text(), Icon = MenuArtIcons.IconOrGlyph(Glyphs.Add) };
         // [S-1065] The free-tier view limit; a refusal says why in a notice ([S-881]).
         add.Click += (_, _) => _host.AddView(_monitor.Id);
 
         flyout.Items.Add(add);
 
         // [S-900] A copy of the view this display shows, shown here in its place.
-        var duplicate = new MenuFlyoutItem { Text = Str.Shell_View_DuplicateThis.Text(), Icon = new FontIcon { Glyph = Glyphs.Copy } };
+        var duplicate = new MenuFlyoutItem { Text = Str.Shell_View_DuplicateThis.Text(), Icon = MenuArtIcons.IconOrGlyph(Glyphs.Copy) };
         duplicate.Click += (_, _) => _host.DuplicateView(shownId, _monitor.Id);
         flyout.Items.Add(duplicate);
     }

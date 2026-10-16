@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "パスのコピー",
   "folderMenu.openWith": "プログラムから開く",
   "folderMenu.chooseAnotherApp": "別のアプリを選択",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "ZIP ファイルを作成できませんでした。",
   "folderMenu.shellFailed": "この項目では Windows がその操作を実行できませんでした。"
 }

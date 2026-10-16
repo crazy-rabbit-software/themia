@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Kopiëren als pad",
   "folderMenu.openWith": "Openen met",
   "folderMenu.chooseAnotherApp": "Een andere app kiezen",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "Het ZIP-bestand kan niet worden gemaakt.",
   "folderMenu.shellFailed": "Windows kan dat niet doen voor dit item."
 }

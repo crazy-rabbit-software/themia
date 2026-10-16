@@ -464,10 +464,10 @@ internal sealed partial class FolderView
             FolderCommand.PinToQuickAccess => new(Glyphs.Pin, Str.FolderMenu_PinToQuickAccess.Text(), () => RunShellVerb(paths, "pintohome")),
             FolderCommand.PinToStart => new(Glyphs.Pin, Str.FolderMenu_PinToStart.Text(), () => RunShellVerb(paths, "pintostartscreen")),
             FolderCommand.CompressToZip => new(Glyphs.ZipFolder, Str.FolderMenu_CompressToZip.Text(), () => _ = CompressAsync(selected)),
-            FolderCommand.CopyAsPath => new(Glyphs.Link, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths(paths)),
+            FolderCommand.CopyAsPath => new(Glyphs.CopyAsPath, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths(paths), Shortcut: keys),
             FolderCommand.KeepOnDevice => new(Glyphs.Pin, Str.WidgetsB_Folder_KeepOnDevice.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Pin)),
             FolderCommand.FreeUpSpace => new(Glyphs.Unpin, Str.WidgetsB_Folder_FreeUpSpace.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Unpin)),
-            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => ShellFileOps.Properties(paths)),
+            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => ShellFileOps.Properties(paths), Shortcut: keys),
             FolderCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(paths), Shortcut: keys),
             _ => ItemMenuEntry.Separator,
         };
@@ -519,7 +519,7 @@ internal sealed partial class FolderView
             FolderCommand.Refresh => new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: false)),
             FolderCommand.New => new(Glyphs.Add, Str.WidgetsB_Folder_New.Text(), null, Disabled: disabled, Children: NewEntries()),
             FolderCommand.OpenInExplorer => new(Glyphs.FolderOpen, Str.Folder_OpenInExplorer.Text(), () => ShellFileOps.Open(here), Disabled: disabled),
-            FolderCommand.CopyAsPath => new(Glyphs.Link, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths([here]), Disabled: disabled),
+            FolderCommand.CopyAsPath => new(Glyphs.CopyAsPath, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths([here]), Disabled: disabled),
             FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => ShellFileOps.Properties([here]), Disabled: disabled),
             FolderCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(null), Disabled: disabled, Shortcut: keys),
             _ => ItemMenuEntry.Separator,
@@ -542,18 +542,21 @@ internal sealed partial class FolderView
     }
 
     /// <summary>[S-6417] The key a menu line shows: only those the widget answers.</summary>
-    private static string? Accelerator(FolderCommand command) => FolderMenu.Accelerator(command) switch
+    private static KeyChord? Accelerator(FolderCommand command) => FolderMenu.Accelerator(command);
+
+    /// <summary>[S-6417] Alt+Enter: the selection's properties, or the shown folder's when nothing is selected.</summary>
+    private void ShowProperties()
     {
-        FolderAccelerator.Enter => Str.FolderMenu_Key_Enter.Text(),
-        FolderAccelerator.CtrlX => Str.Shell_Key_CtrlPlus.Format(("key", "X")),
-        FolderAccelerator.CtrlC => Str.Shell_Key_CtrlPlus.Format(("key", "C")),
-        FolderAccelerator.CtrlV => Str.Shell_Key_CtrlPlus.Format(("key", "V")),
-        FolderAccelerator.CtrlA => Str.Shell_Key_CtrlPlus.Format(("key", "A")),
-        FolderAccelerator.F2 => "F2",
-        FolderAccelerator.Delete => Str.Shell_Key_Delete.Text(),
-        FolderAccelerator.ShiftF10 => Str.FolderMenu_Key_ShiftF10.Text(),
-        _ => null,
-    };
+        var paths = _selection.Selected;
+        if (paths.Count > 0)
+        {
+            ShellFileOps.Properties(paths);
+        }
+        else if (CurrentPath.Length > 0)
+        {
+            ShellFileOps.Properties([CurrentPath]);
+        }
+    }
 
     /// <summary>[S-6416] One of the shell's own commands (Share, the pins); said at the widget when Windows has none here.</summary>
     private void RunShellVerb(IReadOnlyList<string> paths, string verb)

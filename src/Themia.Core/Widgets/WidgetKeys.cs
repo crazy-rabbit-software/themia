@@ -44,7 +44,7 @@ public static class WidgetKeys
     {
         // [S-1327] The four clipboard chords are the one exception: in a file list they are what
         // the user expects, and a view without a clipboard does not answer them, so they carry on
-        // to wherever they went before. Ctrl alone — Ctrl+Shift+C is somebody else's shortcut.
+        // to wherever they went before.
         if (ctrl && !alt && !shift)
         {
             return virtualKey switch
@@ -55,6 +55,18 @@ public static class WidgetKeys
                 VkA => WidgetKey.SelectAll,
                 _ => null,
             };
+        }
+
+        // [S-6417] Explorer's two other file chords, Copy as path and Properties: a view without
+        // them does not answer, and the chord carries on as before.
+        if (ctrl && shift && !alt && virtualKey == VkC)
+        {
+            return WidgetKey.CopyAsPath;
+        }
+
+        if (alt && !ctrl && !shift && virtualKey == VkReturn)
+        {
+            return WidgetKey.Properties;
         }
 
         // [S-3802] Alt+Shift+Up / Down is the reorder shortcut of every list that is dragged into

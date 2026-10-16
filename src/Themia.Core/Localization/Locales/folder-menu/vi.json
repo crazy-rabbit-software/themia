@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Sao chép dưới dạng đường dẫn",
   "folderMenu.openWith": "Mở bằng",
   "folderMenu.chooseAnotherApp": "Chọn ứng dụng khác",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "Không thể tạo tệp ZIP.",
   "folderMenu.shellFailed": "Windows không thể thực hiện thao tác đó cho mục này."
 }

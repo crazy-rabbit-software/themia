@@ -118,17 +118,17 @@ internal static class MenuRender
                 // An item menu in File Explorer's shape: the row on top, a submenu and a danger entry below.
                 List<ItemMenuEntry> item =
                 [
-                    new(Glyphs.Open, "Open", noop),
+                    new(Glyphs.Open, "Open", noop, Shortcut: KeyChord.Plain(ChordKey.Enter)),
                     new(Glyphs.Folder, "Show in Explorer", noop),
                     ItemMenuEntry.Separator,
-                    new(Glyphs.Cut, "Cut", noop, Quick: QuickCommand.Cut),
-                    new(Glyphs.Copy, "Copy", noop, Quick: QuickCommand.Copy),
+                    new(Glyphs.Cut, "Cut", noop, Quick: QuickCommand.Cut, Shortcut: KeyChord.Ctrl(ChordKey.X)),
+                    new(Glyphs.Copy, "Copy", noop, Quick: QuickCommand.Copy, Shortcut: KeyChord.Ctrl(ChordKey.C)),
                     new(Glyphs.Paste, "Paste", noop, Disabled: true, Quick: QuickCommand.Paste),
                     new(Glyphs.Rename, "Rename", noop, Quick: QuickCommand.Rename),
                     new(Glyphs.Delete, "Delete", noop, Danger: true, Quick: QuickCommand.Delete),
                     ItemMenuEntry.Separator,
                     new(Glyphs.Add, "New", null, Children: [new(Glyphs.NewFolder, "Folder", noop)]),
-                    new(Glyphs.Info, "Properties", noop),
+                    new(Glyphs.Properties, "Properties", noop, Shortcut: KeyChord.Alt(ChordKey.Enter)),
                 ];
                 await RenderAsync(root, item, System.IO.Path.Combine(outDir, "item.png")).ConfigureAwait(true);
 

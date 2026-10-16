@@ -1064,17 +1064,15 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // language rather than a verb with a count glued on.
         string Verb(Str one, Str many) => count > 1 ? many.Plural(count) : one.Text();
 
-        // Key names as Windows prints them in the language's menus: "Strg+C" in German.
-        static string Ctrl(string key) => Str.Shell_Key_CtrlPlus.Format(("key", key));
-
+        // [S-1753] Shortcuts are chords; the menu writes them as Windows does ("Strg+C" in German).
         var disabled = !item.Enabled;
         return item.Command switch
         {
-            ShellCommand.Cut => new(Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), () => _host.RequestCut(this), Quick: item.Quick, Shortcut: Ctrl("X")),
-            ShellCommand.Copy => new(Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), () => _host.RequestCopy(this), Quick: item.Quick, Shortcut: Ctrl("C")),
-            ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), _host.RequestPaste, Disabled: disabled, Quick: item.Quick, Shortcut: Ctrl("V")),
+            ShellCommand.Cut => new(Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), () => _host.RequestCut(this), Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.X)),
+            ShellCommand.Copy => new(Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), () => _host.RequestCopy(this), Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.C)),
+            ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), _host.RequestPaste, Disabled: disabled, Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.V)),
             ShellCommand.Configure => new(Glyphs.Settings, Str.CtxMenu_Configure.Text(), () => _host.RequestConfigure(this), Quick: item.Quick),
-            ShellCommand.Delete => new(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: Str.Shell_Key_Delete.Text()),
+            ShellCommand.Delete => new(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: KeyChord.Plain(ChordKey.Delete)),
             ShellCommand.BringToFront => new(Glyphs.MoveUp, Str.Shell_Card_BringToFront.Text(), () => _host.RequestZOrder(this, front: true), Disabled: disabled),
             ShellCommand.SendToBack => new(Glyphs.MoveDown, Str.Shell_Card_SendToBack.Text(), () => _host.RequestZOrder(this, front: false), Disabled: disabled),
             ShellCommand.ToggleEditMode => _host.EditMode

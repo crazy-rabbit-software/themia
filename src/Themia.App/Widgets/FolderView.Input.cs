@@ -514,6 +514,16 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 _ = PasteAsync(CurrentPath);
                 return true;
 
+            case WidgetKey.CopyAsPath:
+                // [S-6417] Explorer's Ctrl+Shift+C: the selection's paths, quoted, or nothing with none.
+                CopyPaths(_selection.Selected);
+                return true;
+
+            case WidgetKey.Properties:
+                // [S-6417] Explorer's Alt+Enter: the selection's properties, or this folder's with none.
+                ShowProperties();
+                return true;
+
             case WidgetKey.SelectAll:
                 _selection.SelectAll();
                 RefreshSelectionVisuals();

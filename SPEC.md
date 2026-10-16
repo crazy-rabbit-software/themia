@@ -6497,9 +6497,11 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   (quoted), Properties (Explorer's wrench); the cloud pins (a cloud item selected); Show more options. A shell verb the
   shell does not offer here (an already pinned folder) says so at the widget. Not ported, as not Explorer's built-ins:
   Open in Terminal, Open in new tab; app-added lines live under Show more options.
-- **[S-6417]** Keys beside the lines are only keys the widget answers through the lease ([S-1327]): Enter, Ctrl+X/C/V/A,
-  F2, Del, and Shift+F10 on Show more options, which opens the shell's full menu as in Explorer (the Menu key opens
-  ours). Explorer's Ctrl+Shift+C and Alt+Enter are not shown: those chords never reach a widget.
+- **[S-6417]** Keys beside the lines are Explorer's, and only keys the widget answers through the lease ([S-1327]):
+  Enter, Ctrl+X/C/V/A, F2, Delete, Ctrl+Shift+C on Copy as path (the selection's quoted paths), Alt+Enter on Properties
+  (the selection's, or the shown folder's with nothing selected), and Shift+F10 on Show more options, which opens the
+  shell's full menu as in Explorer (the Menu key opens ours). Written by [S-1753] (user report 2026-10-16: the
+  shortcut naming did not match Explorer's).
 - **[S-6418]** Background menu (`FolderMenu.Background`): Paste, Select all; Up (navigate mode), Refresh; New >; Open in
   Explorer, Copy as path, Properties; Show more options. Its lone Paste stays a labelled line ([S-1741]). No View or
   Sort submenus, though Explorer has them: how a widget looks is its settings' ([S-1746]).
@@ -6755,7 +6757,8 @@ Every right-click menu in the app — a widget's card, an item inside a widget, 
 mode, a view chip, the settings window — and how a click on a card in edit mode reaches the settings.
 Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMenus`, `CardGestures`);
 `Widgets/ItemMenu.cs` (the one builder), `WidgetCard.cs` (card menu, click), `DesktopWindow.Menu.cs`
-(surface menu), `Gallery/MenuRender.cs`. Tests: `ContextMenuTests`.
+(surface menu), `Gallery/MenuRender.cs`; `Shell/KeyChord.cs`, `Shell/MenuArt.cs` (Core) and `Shell/MenuArtIcons.cs`.
+Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
 
 - Every one of these menus closes on a press anywhere else on screen, the desktop and other apps
   included ([S-816]).
@@ -6763,8 +6766,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   the common commands as a **row of icons** on top and the labelled list below. The row's commands
   and order: Cut, Copy, Paste, Rename, Share (the folder widget's files, [S-6416]), Duplicate (items and views only,
   never a widget, [S-1743]),
-  Settings, Delete. Each icon has its label as tooltip
-  (with the shortcut, "Copy (Ctrl+C)") and as its accessible name. A disabled command stays in its
+  Settings, Delete. Each icon (Explorer's picture, [S-1754]) has its label as tooltip
+  (with the shortcut, "Copy (Ctrl+C)", [S-1753]) and as its accessible name. A disabled command stays in its
   place, greyed, so the row never shifts. A second entry claiming the same command, a toggle and a
   submenu stay in the list. `ItemMenu` is the only code that builds a context menu; no view builds a
   `MenuFlyout` for one by hand.
@@ -6801,6 +6804,27 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 - **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the
   pointer), as Explorer's does, and flips only to stay on screen. A menu opened from the keyboard sits
   under its anchor's left edge.
+- **[S-1753]** Every shortcut a menu shows (beside a line, in an icon's tooltip "Cut (Ctrl+X)", a notice's "Ctrl+Z")
+  is a `KeyChord` written by the one formatter `KeyChordText` (Core), the way Windows 11 and File Explorer write it:
+  modifiers Ctrl, Alt, Shift in that order, then the key, joined by "+" ("Ctrl+Shift+C", "Alt+Enter", "Shift+F10",
+  "Delete", not "Del"). The modifier words and Enter / Delete come from the language layer as Windows localizes
+  them ("Strg+Umschalt+C", "Entf", "Maj+F10"); letters and F1..F12 are written as on the key. No caller types
+  shortcut text.
+- **[S-1754]** Menu icons are File Explorer's two-tone pictures (grey body, blue part; user report 2026-10-16: our
+  one-colour glyphs did not look like Explorer's): a line whose Segoe glyph shows a picture Explorer has (Cut, Copy,
+  Paste, Rename, Share, Delete, Settings, open, open with, new window, file location, pin, ZIP, copy as path, link,
+  properties, show more options, new, new folder, select all, align to grid, refresh, undo, redo, sort, view;
+  `MenuArtRules.ForGlyph`) draws Explorer's picture in the icon row and the list, in the theme the menu draws in.
+  Every other line keeps its glyph, as Explorer's own lines without art do. A disabled line keeps the glyph (greyed
+  by the menu), and so do high contrast (the glyph follows the user's contrast colours) and a glyph that turns
+  round right to left. The view drop-down's New view / Duplicate use the same pictures.
+- **[S-1755]** The pictures are Windows', never shipped with Themia: the standard-contrast `theme-light` /
+  `theme-dark` SVGs under `%WINDIR%\SystemApps\MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\FileExplorerExtensions\Assets\images`,
+  one file per picture (`MenuArtRules.FileName`), each read once per theme and kept. A Windows without
+  them (older builds) keeps the glyphs everywhere; logged once, as absent, not as an error.
+- **[S-1756]** A picture file is a trust boundary: drawn only when it is at most 64 KB of UTF-8 with an `<svg>`
+  root and no script, external reference, entity or foreign object (`MenuArtRules.IsPlausibleSvg`); anything
+  else, a read error or a picture that does not decode is logged and the line keeps its glyph.
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
   or the point of a right-click on the surface — and flips above only
   when there is no room below.

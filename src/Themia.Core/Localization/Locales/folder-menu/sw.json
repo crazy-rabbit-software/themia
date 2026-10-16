@@ -9,8 +9,6 @@
   "folderMenu.copyAsPath": "Nakili kama njia",
   "folderMenu.openWith": "Fungua kwa",
   "folderMenu.chooseAnotherApp": "Chagua programu nyingine",
-  "folderMenu.key.enter": "Enter",
-  "folderMenu.key.shiftF10": "Shift+F10",
   "folderMenu.zipFailed": "Faili ya ZIP haikuweza kuundwa.",
   "folderMenu.shellFailed": "Windows haikuweza kufanya hivyo kwa kipengee hiki."
 }
