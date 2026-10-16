@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Xunit;
@@ -20,7 +21,7 @@ public sealed class TaskLayoutTests
     private static readonly WidgetArea L = new(560, 376);
     private static readonly WidgetArea XL = new(800, 516);
 
-    private static TaskLayoutPlan Plan(WidgetArea area, int count = 7, bool today = false, TaskViewMode mode = TaskViewMode.List, int lines = 2)
+    private static TaskLayoutPlan Plan(WidgetArea area, int count = 7, bool today = false, TasksStyle mode = TasksStyle.List, int lines = 2)
         => TaskLayout.Plan(area, new TaskLayoutInput(count, Writable: true, today, ShowDueDate: true, mode, lines), Row, CompactRow);
 
     [Fact]
@@ -61,7 +62,7 @@ public sealed class TaskLayoutTests
         Assert.True(Plan(M).AddRow);
         Assert.True(Plan(M).CompactRows);
         Assert.False(Plan(M).DueBeside);
-        Assert.True(Plan(M, mode: TaskViewMode.Compact).DueBeside);
+        Assert.True(Plan(M, mode: TasksStyle.Compact).DueBeside);
     }
 
     [Fact]
@@ -98,7 +99,7 @@ public sealed class TaskLayoutTests
     [Fact]
     public void S780_an_unwritable_list_has_no_add_row()
     {
-        var readOnly = TaskLayout.Plan(L, new TaskLayoutInput(5, Writable: false, false, true, TaskViewMode.List, 2), Row, CompactRow);
+        var readOnly = TaskLayout.Plan(L, new TaskLayoutInput(5, Writable: false, false, true, TasksStyle.List, 2), Row, CompactRow);
         Assert.False(readOnly.AddRow);
     }
 
@@ -107,7 +108,7 @@ public sealed class TaskLayoutTests
     {
         Assert.True(Plan(XS, count: 0).AddRow);
         Assert.True(Plan(Wide, count: 0).AddRow);
-        var readOnly = TaskLayout.Plan(XS, new TaskLayoutInput(0, Writable: false, false, true, TaskViewMode.List, 2), Row, CompactRow);
+        var readOnly = TaskLayout.Plan(XS, new TaskLayoutInput(0, Writable: false, false, true, TasksStyle.List, 2), Row, CompactRow);
         Assert.False(readOnly.AddRow);
     }
 

@@ -386,7 +386,7 @@ internal sealed partial class ShortcutsView
     }
 
     /// <summary>How many items an Up / Down step skips: the grid's columns, or the list's.</summary>
-    private int Columns() => _config.View == ShortcutViewMode.Grid
+    private int Columns() => _config.Style == ShortcutsStyle.Grid
         ? Math.Max(1, _shape.Tiles.Columns)
         : Math.Max(1, _shape.Rows.Columns);
 

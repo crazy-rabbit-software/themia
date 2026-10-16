@@ -29,6 +29,17 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly Button _next;
 
     private readonly TextBlock _text = Fluent.Text(FluentType.Body);
+
+    /// <summary>[S-6405] The large-marks style's opening mark, in the accent, over the quote.</summary>
+    private readonly FontIcon _mark = new()
+    {
+        Glyph = Glyphs.Quote,
+        Foreground = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.SteelBlue),
+        HorizontalAlignment = HorizontalAlignment.Left,
+        MirroredWhenRightToLeft = true,
+        Visibility = Visibility.Collapsed,
+    };
+
     private readonly TextBlock _author = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private readonly Grid _body;
 
@@ -85,11 +96,14 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
             {
                 new RowDefinition { Height = GridLength.Auto },
                 new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = GridLength.Auto },
             },
         };
 
-        SetRow(_text, 0);
-        SetRow(_author, 1);
+        SetRow(_mark, 0);
+        SetRow(_text, 1);
+        SetRow(_author, 2);
+        grid.Children.Add(_mark);
         grid.Children.Add(_text);
         grid.Children.Add(_author);
 
@@ -271,7 +285,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         // that says so.
         _next.IsEnabled = quotes.Count > 1;
 
-        _text.Text = QuoteLayout.Quoted(quote.Text);
+        _text.Text = QuoteLayout.Set(Strings.Current, quote.Text, _config.Style);
         _author.Text = QuoteLayout.Attribution(quote.Author);
         _author.Visibility = _config.ShowAuthor && _author.Text.Length > 0
             ? Visibility.Visible
@@ -301,6 +315,18 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         if (!_area.IsMeasured || characters == 0)
         {
             return;
+        }
+
+        // [S-6405] The large mark takes its row off the top before the quote is fitted to the rest.
+        var marks = _config.Style == QuoteStyle.Marks;
+        _mark.Visibility = Show(marks);
+        if (marks)
+        {
+            var mark = QuoteLayout.MarkSize(_area);
+            _mark.FontSize = mark;
+            _mark.Height = mark;
+            _mark.Margin = new Thickness(0, 0, 0, Fluent.Space1);
+            box = new WidgetArea(box.Width, Math.Max(0, box.Height - mark - Fluent.Space1));
         }
 
         var wantAuthor = _config.ShowAuthor && _author.Text.Length > 0;

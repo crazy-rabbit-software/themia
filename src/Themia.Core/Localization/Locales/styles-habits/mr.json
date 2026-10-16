@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "ठिपके",
+  "styles.habits.heatmap": "हीटमॅप",
+  "styles.habits.checklist": "तपासणी यादी",
+  "styles.habits.cell": "{period}: {count} पैकी {done}"
+}

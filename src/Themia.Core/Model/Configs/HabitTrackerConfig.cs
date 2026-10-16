@@ -1,7 +1,22 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
+
+/// <summary>[S-6408] The Habits widget's styles: the same list and log, three ways of drawing them.</summary>
+[JsonConverter(typeof(StyleJsonConverter<HabitTrackerStyle>))]
+public enum HabitTrackerStyle
+{
+    /// <summary>A row per habit: box, name, run and history dots ([S-1427]).</summary>
+    Dots = 0,
+
+    /// <summary>[S-6409] A calendar grid of the last weeks, per habit or for the whole list, by size.</summary>
+    Heatmap = 1,
+
+    /// <summary>[S-6410] The current period only: each name with its box, nothing else.</summary>
+    Checklist = 2,
+}
 
 /// <summary>
 /// [S-1420] Which habit list a Habits widget shows, and how.
@@ -12,7 +27,7 @@ namespace Themia.Core.Model;
 /// copying a widget copies the pointer, never a second diverging copy of the history.
 /// </para>
 /// </summary>
-public sealed class HabitTrackerConfig : WidgetConfig
+public sealed class HabitTrackerConfig : WidgetConfig, IStyled
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.HabitTracker;
@@ -23,6 +38,31 @@ public sealed class HabitTrackerConfig : WidgetConfig
     /// the widget asks for one rather than showing somebody else's habits.
     /// </summary>
     public string ListId { get; set; } = string.Empty;
+
+    /// <summary>[S-6408] Dots, heatmap or checklist: the widget's style.</summary>
+    public HabitTrackerStyle Style { get; set; } = HabitTrackerStyle.Dots;
+
+    private static readonly StyleOption[] HabitStyles =
+    [
+        StyleOption.Of(HabitTrackerStyle.Dots, Str.Styles_Habits_Dots, 0xF127),
+        StyleOption.Of(HabitTrackerStyle.Heatmap, Str.Styles_Habits_Heatmap, 0xF232),
+        StyleOption.Of(HabitTrackerStyle.Checklist, Str.Styles_Habits_Checklist, 0xE9D5),
+    ];
+
+    IReadOnlyList<StyleOption> IStyled.Styles => HabitStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (HabitTrackerStyle)value;
+    }
+
+    /// <summary>
+    /// [S-6408] Whether the streak and history settings mean anything: only the dots draw a run and a
+    /// strip. The page offers them for that style alone; the values are kept for when it comes back.
+    /// </summary>
+    [JsonIgnore]
+    public bool UsesRowExtras => Style == HabitTrackerStyle.Dots;
 
     /// <summary>[S-1422] How often the boxes clear. Per widget, as in the original: the log keeps every cadence's keys.</summary>
     public HabitPeriod Period { get; set; } = HabitPeriod.Daily;
@@ -51,6 +91,7 @@ public sealed class HabitTrackerConfig : WidgetConfig
 
     public override WidgetConfig Clone() => new HabitTrackerConfig
     {
+        Style = Style,
         ListId = ListId,
         Period = Period,
         CustomMinutes = CustomMinutes,

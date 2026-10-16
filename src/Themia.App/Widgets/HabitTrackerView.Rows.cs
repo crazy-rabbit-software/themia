@@ -234,7 +234,8 @@ internal sealed partial class HabitTrackerView
     /// </summary>
     public bool HandleKey(WidgetKey key)
     {
-        if (_detached)
+        // [S-6409] The heatmap has no rows to move between: its keys stay the shell's.
+        if (_detached || IsHeatmap)
         {
             return false;
         }

@@ -99,7 +99,7 @@ internal sealed partial class GalleryView
             return; // Not arranged yet; ApplySize brings us straight back.
         }
 
-        var plan = GalleryPlan.For(_area, _config.Layout, _config.IsSingleSource, _pictures.Count, Gap);
+        var plan = GalleryPlan.For(_area, _config.Style, _config.IsSingleSource, _pictures.Count, Gap);
         _plan = plan;
 
         _index = Math.Clamp(_index, 0, _pictures.Count - 1);

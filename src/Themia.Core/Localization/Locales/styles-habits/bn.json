@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "বিন্দু",
+  "styles.habits.heatmap": "হিটম্যাপ",
+  "styles.habits.checklist": "চেকলিস্ট",
+  "styles.habits.cell": "{period}: {count}টির মধ্যে {done}টি"
+}

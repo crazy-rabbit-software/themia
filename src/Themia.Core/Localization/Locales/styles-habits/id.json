@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "Titik",
+  "styles.habits.heatmap": "Peta panas",
+  "styles.habits.checklist": "Daftar periksa",
+  "styles.habits.cell": "{period}: {done} dari {count}"
+}

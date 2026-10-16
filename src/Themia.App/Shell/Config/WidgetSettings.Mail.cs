@@ -48,83 +48,53 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Email_Display.Text()));
 
-        // The rows that only mean something in one view come and go with it.
-        var listOnly = new List<FrameworkElement>();
-        var previewOnly = new List<FrameworkElement>();
-        var rowOnly = new List<FrameworkElement>();
+        // [S-6403] The view is the widget's style (the shared Style row at the top of the page):
+        // only what that style draws with is offered here, and picking another style rebuilds the
+        // page ([S-6010]).
+        var own = EmailConfig.SettingsFor(email.Style);
 
-        void ShowForView()
+        if (own.Contains(EmailSetting.ListFields))
         {
-            var row = email.ViewMode == MailViewMode.Row;
-            var previewLines = email.ViewMode == MailViewMode.List && email.EffectiveListFields.Contains(MailListField.Preview);
-
-            foreach (var element in listOnly)
+            // [S-543] The optional lines of the list and compact styles. Sender and time always show.
+            foreach (var (field, glyph, title, description) in new[]
             {
-                element.Visibility = row ? Visibility.Collapsed : Visibility.Visible;
-            }
-
-            foreach (var element in previewOnly)
+                (MailListField.Subject, Glyphs.Mail, Str.WidgetsB_Settings_Email_ShowSubject.Text(), (string?)null),
+                (MailListField.Account, Glyphs.Contact, Str.WidgetsB_Settings_Email_ShowAccount_Label.Text(), Str.WidgetsB_Settings_Email_ShowAccount_Desc.Text()),
+            })
             {
-                element.Visibility = previewLines ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            foreach (var element in rowOnly)
-            {
-                element.Visibility = row ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.Email_View_Label.Text(),
-            Str.WidgetsB_Settings_Email_View_Desc.Text(),
-            FluentLayout.Choice<MailViewMode>(
-                [(MailViewMode.List, Str.CtxMenu_List.Text()), (MailViewMode.Compact, Str.CtxMenu_Compact.Text()), (MailViewMode.Row, Str.CtxMenu_Row.Text())],
-                email.ViewMode,
-                value => { email.ViewMode = value; save(); ShowForView(); })));
-
-        // [S-543] The optional lines of the list and compact views. Sender and time always show.
-        foreach (var (field, glyph, title, description) in new[]
-        {
-            (MailListField.Subject, Glyphs.Mail, Str.WidgetsB_Settings_Email_ShowSubject.Text(), (string?)null),
-            (MailListField.Preview, Glyphs.Preview, Str.WidgetsB_Settings_Email_ShowPreview_Label.Text(), Str.WidgetsB_Settings_Email_ShowPreview_Desc.Text()),
-            (MailListField.Account, Glyphs.Contact, Str.WidgetsB_Settings_Email_ShowAccount_Label.Text(), Str.WidgetsB_Settings_Email_ShowAccount_Desc.Text()),
-        })
-        {
-            var toggle = FluentLayout.Toggle(email.EffectiveListFields.Contains(field), on =>
-            {
-                var fields = email.EffectiveListFields.ToList();
-                fields.Remove(field);
-                if (on)
+                rows.Add(FluentLayout.Row(glyph, title, description, FluentLayout.Toggle(email.EffectiveListFields.Contains(field), on =>
                 {
-                    fields.Add(field);
-                }
+                    var fields = email.EffectiveListFields.ToList();
+                    fields.Remove(field);
+                    if (on)
+                    {
+                        fields.Add(field);
+                    }
 
-                // Kept in the canonical order, so the file reads the same however it was toggled.
-                email.ListFields = [.. EmailConfig.DefaultListFields.Where(fields.Contains)];
-                save();
-                ShowForView();
-            });
-
-            var row = FluentLayout.Row(glyph, title, description, toggle);
-            listOnly.Add(row);
-            rows.Add(row);
+                    // Kept in the canonical order, so the file reads the same however it was toggled.
+                    email.ListFields = [.. EmailConfig.DefaultListFields.Where(fields.Contains)];
+                    save();
+                })));
+            }
         }
 
-        var lines = FluentLayout.Row(Glyphs.Wrap, Str.Email_PreviewLines_Label.Text(), Str.WidgetsB_Settings_Email_PreviewLines_Desc.Text(),
-            FluentLayout.Slider(email.EffectivePreviewLines, 1, 5, 1, string.Empty,
-                value => { email.PreviewLines = (int)Math.Round(value); save(); }));
-        previewOnly.Add(lines);
-        rows.Add(lines);
+        if (own.Contains(EmailSetting.PreviewLines))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Wrap, Str.Email_PreviewLines_Label.Text(), Str.WidgetsB_Settings_Email_PreviewLines_Desc.Text(),
+                FluentLayout.Slider(email.EffectivePreviewLines, 1, 5, 1, string.Empty,
+                    value => { email.PreviewLines = (int)Math.Round(value); save(); })));
+        }
 
-        var columnsHeader = FluentLayout.Note(Str.WidgetsB_Settings_Email_ColumnsNote.Text());
-        rowOnly.Add(columnsHeader);
-        rows.Add(columnsHeader);
+        if (!own.Contains(EmailSetting.Columns))
+        {
+            return;
+        }
+
+        rows.Add(FluentLayout.Note(Str.WidgetsB_Settings_Email_ColumnsNote.Text()));
 
         var columns = new StackPanel { Spacing = Fluent.Space1 };
-        rowOnly.Add(columns);
         rows.Add(columns);
         MailColumnRows(columns, email, save);
-
-        ShowForView();
     }
 
     /// <summary>

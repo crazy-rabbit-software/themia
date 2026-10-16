@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "બિંદુઓ",
+  "styles.habits.heatmap": "હીટમેપ",
+  "styles.habits.checklist": "ચેકલિસ્ટ",
+  "styles.habits.cell": "{period}: {count} માંથી {done}"
+}

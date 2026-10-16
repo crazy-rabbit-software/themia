@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "점",
+  "styles.habits.heatmap": "히트맵",
+  "styles.habits.checklist": "체크리스트",
+  "styles.habits.cell": "{period}: {count}개 중 {done}개"
+}

@@ -156,7 +156,7 @@ internal sealed partial class GalleryView
     /// Left / Right step, Space pauses the slideshow, Home / End go to the first and last picture,
     /// Enter opens the one shown. The other layouts show every picture at once and have nothing to step.
     /// </summary>
-    public bool WantsKeys => _config.Layout == GalleryLayout.Slideshow && _pictures.Count > 0;
+    public bool WantsKeys => _config.Style == GalleryStyle.Slideshow && _pictures.Count > 0;
 
     /// <inheritdoc cref="WantsKeys"/>
     public bool HandleKey(WidgetKey key)

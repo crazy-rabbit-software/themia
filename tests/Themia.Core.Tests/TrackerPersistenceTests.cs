@@ -76,7 +76,7 @@ public sealed class TrackerPersistenceTests : IDisposable
         {
             gallery.Path = @"C:\Users\me\Pictures";
             gallery.Recursive = true;
-            gallery.Layout = GalleryLayout.Grid;
+            gallery.Style = GalleryStyle.Grid;
             gallery.Fit = GalleryFit.Fit;
             gallery.Shuffle = false;
             gallery.SlideshowSeconds = 45;
@@ -85,7 +85,7 @@ public sealed class TrackerPersistenceTests : IDisposable
 
         Assert.Equal(@"C:\Users\me\Pictures", config.Path);
         Assert.True(config.Recursive);
-        Assert.Equal(GalleryLayout.Grid, config.Layout);
+        Assert.Equal(GalleryStyle.Grid, config.Style);
         Assert.Equal(GalleryFit.Fit, config.Fit);
         Assert.False(config.Shuffle);
         Assert.Equal(45, config.SlideshowSeconds);

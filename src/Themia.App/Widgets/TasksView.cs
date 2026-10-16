@@ -608,7 +608,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-780] The ladder for the slot the card gave this view, and the rows there are to show.</summary>
     private TaskLayoutPlan Plan(int count) => TaskLayout.Plan(
         _area,
-        new TaskLayoutInput(count, CanAdd, _feed?.IsToday == true, _config.ShowDueDate, _config.ViewMode, _config.EffectiveTitleLines),
+        new TaskLayoutInput(count, CanAdd, _feed?.IsToday == true, _config.ShowDueDate, _config.Style, _config.EffectiveTitleLines),
         Fluent.RowHeight,
         Fluent.RowHeightCompact);
 

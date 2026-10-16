@@ -1,5 +1,9 @@
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Themia.App.Shell;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
@@ -17,6 +21,7 @@ namespace Themia.App.Widgets;
 /// <item>L, XL: large art beside a column of title, artist, album and a larger transport; the seek
 /// bar and its times along the bottom. No "Playing · app" line (concise widgets).</item>
 /// </list>
+/// [S-6406] Text only is the same ladder with no art; Cover ([S-6407]) has its own pass.
 /// </summary>
 internal sealed partial class MusicView
 {
@@ -31,6 +36,12 @@ internal sealed partial class MusicView
 
     /// <summary>Narrower than this, the title cannot be read beside the transport.</summary>
     private const double LinesMinimumWidth = 120;
+
+    /// <summary>[S-6407] The Cover style's foot never takes more than this share of the card: the art is the widget.</summary>
+    private const double CoverFootShare = 0.6;
+
+    /// <summary>[S-6407] The scrim's opacity under the lines, over the theme's own base fill.</summary>
+    private const byte ScrimAlpha = 0xD0;
 
     /// <summary>"1:02:30": the widest time label, so the bar beside it does not shift as the time changes.</summary>
     private const int TimeCharacters = 7;
@@ -66,7 +77,14 @@ internal sealed partial class MusicView
 
         SizeTransport(side);
 
-        if (area.WidthClass == SizeClass.Compact)
+        // [S-6406] Rounded art beside the lines in Artwork; Cover lays the art under everything.
+        _artHost.CornerRadius = new CornerRadius(_config.Style == MusicStyle.Cover ? 0 : Fluent.ControlRadius);
+
+        if (_config.Style == MusicStyle.Cover)
+        {
+            LayCover(area, side);
+        }
+        else if (area.WidthClass == SizeClass.Compact)
         {
             LayStack(area, box, padY, side, centred: false, playOnly: true);
         }
@@ -104,7 +122,7 @@ internal sealed partial class MusicView
         var times = bar && area.HeightClass >= SizeClass.Regular && room.Take(FluentType.Caption.LineHeight);
 
         var art = 0.0;
-        if (_config.ShowAlbumArt && area.HeightClass >= SizeClass.Regular)
+        if (ArtBeside && area.HeightClass >= SizeClass.Regular)
         {
             var wanted = Math.Min(box.Width, Math.Min(HeroArtMaximum, (room.Remaining - gap) * 0.75));
             if (wanted >= ArtMinimum && room.Take(wanted))
@@ -204,7 +222,7 @@ internal sealed partial class MusicView
 
         // The art is as tall as the body allows, within bounds; on a wide strip it is the whole body.
         var art = 0.0;
-        if (_config.ShowAlbumArt)
+        if (ArtBeside)
         {
             art = Math.Min(RowArtMaximum, Math.Min(bodyHeight, box.Width * 0.35));
 
@@ -284,7 +302,7 @@ internal sealed partial class MusicView
         }
 
         var bodyHeight = Math.Max(0, box.Height - footer);
-        var art = _config.ShowAlbumArt ? Math.Min(HeroArtMaximum, Math.Min(bodyHeight, box.Width * 0.5)) : 0;
+        var art = ArtBeside ? Math.Min(HeroArtMaximum, Math.Min(bodyHeight, box.Width * 0.5)) : 0;
 
         if (art > 0)
         {
@@ -342,6 +360,116 @@ internal sealed partial class MusicView
             var width = TransportWidth(side, playOnly: false);
             Place(_transport, colX, y, width, side);
         }
+    }
+
+    /// <summary>[S-6406] Whether the ladders above draw the art: the Artwork style; Text only never does.</summary>
+    private bool ArtBeside => _config.Style == MusicStyle.Artwork;
+
+    /// <summary>
+    /// [S-6407] Cover: the art fills the card edge to edge, and the lines (title, then the artist where
+    /// it fits) with the transport beside them sit at its foot over a scrim, the seek bar under them
+    /// (its times beside it from Expanded width). A narrow card keeps play/pause alone; the foot never
+    /// takes more than <see cref="CoverFootShare"/> of the card, the subtitle and the bar giving way
+    /// first. L and XL set the title a step larger.
+    /// </summary>
+    private void LayCover(WidgetArea area, double side)
+    {
+        Place(_artHost, 0, 0, area.Width, area.Height);
+
+        var pad = area.WidthClass == SizeClass.Compact ? Fluent.Space3 : Fluent.Space4;
+        var width = Math.Max(0, area.Width - (2 * pad));
+        var gap = Fluent.Space2;
+        var large = area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
+
+        var titleStep = large ? FluentType.Strong(FluentType.Subtitle) : FluentType.BodyStrong;
+        var subtitleStep = large ? FluentType.BodyLarge : FluentType.Caption;
+
+        var transport = _config.ShowTransport;
+        var playOnly = area.WidthClass == SizeClass.Compact;
+        var transportWidth = transport ? TransportWidth(side, playOnly) : 0;
+        if (transport && !playOnly && width - transportWidth - Fluent.Space3 < LinesMinimumWidth)
+        {
+            playOnly = true;
+            transportWidth = TransportWidth(side, playOnly: true);
+        }
+
+        var linesWidth = Math.Max(0, width - (transport ? transportWidth + Fluent.Space3 : 0));
+        var buttons = transport ? side : 0;
+
+        var room = new Disclosure(width, (area.Height * CoverFootShare) - (2 * pad), gap);
+        room.Reserve(Math.Max(titleStep.LineHeight, buttons));
+        var subtitle = _now.Subtitle.Length > 0
+            && room.Take(Math.Max(0, titleStep.LineHeight + Fluent.Space1 + subtitleStep.LineHeight - Math.Max(titleStep.LineHeight, buttons)));
+        var timesBeside = area.WidthClass >= SizeClass.Expanded;
+        var barRow = timesBeside ? Math.Max(MusicSeekBar.BarHeight, FluentType.Caption.LineHeight) : MusicSeekBar.BarHeight;
+        var bar = _config.ShowProgress && room.Take(barRow);
+
+        _track.Apply(titleStep);
+        _subtitle.Apply(subtitleStep);
+
+        var linesHeight = titleStep.LineHeight + (subtitle ? Fluent.Space1 + subtitleStep.LineHeight : 0);
+        var blockHeight = Math.Max(linesHeight, buttons);
+        var foot = pad + blockHeight + (bar ? gap + barRow : 0) + pad;
+
+        var bottom = area.Height - pad;
+        if (bar)
+        {
+            if (timesBeside)
+            {
+                PlaceTimesBeside(pad, bottom - barRow, width);
+            }
+            else
+            {
+                Place(_seek, pad, bottom - barRow, width, MusicSeekBar.BarHeight);
+            }
+
+            bottom -= barRow + gap;
+        }
+
+        var blockTop = bottom - blockHeight;
+        var y = blockTop + ((blockHeight - linesHeight) / 2);
+        PlaceText(_track, pad, y, linesWidth, titleStep.LineHeight, TextAlignment.Left);
+
+        if (subtitle)
+        {
+            PlaceText(_subtitle, pad, y + titleStep.LineHeight + Fluent.Space1, linesWidth, subtitleStep.LineHeight, TextAlignment.Left);
+        }
+
+        if (transport)
+        {
+            Place(_transport, pad + width - transportWidth, blockTop + ((blockHeight - side) / 2), transportWidth, side);
+            SetPlayOnly(playOnly);
+        }
+
+        // The scrim fades in over a band as tall as the foot above it, eased, so the art never ends at a line.
+        var fade = Math.Min(foot, Math.Max(0, area.Height - foot));
+        var scrimHeight = Math.Min(area.Height, foot + fade);
+        _scrim.Background = ScrimBrush(scrimHeight > 0 ? fade / scrimHeight : 0);
+        Place(_scrim, 0, area.Height - scrimHeight, area.Width, scrimHeight);
+    }
+
+    /// <summary>
+    /// [S-6407] A top-to-bottom fade from clear to the theme's own base fill: the primary and
+    /// secondary text keep their theme colours and read over any art, light or dark.
+    /// </summary>
+    private static LinearGradientBrush ScrimBrush(double fadeShare)
+    {
+        var basis = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black) is SolidColorBrush solid ? solid.Color : Colors.Black;
+        var clear = Windows.UI.Color.FromArgb(0, basis.R, basis.G, basis.B);
+        var dense = Windows.UI.Color.FromArgb(ScrimAlpha, basis.R, basis.G, basis.B);
+
+        return new LinearGradientBrush
+        {
+            StartPoint = new Windows.Foundation.Point(0, 0),
+            EndPoint = new Windows.Foundation.Point(0, 1),
+            GradientStops =
+            {
+                new GradientStop { Color = clear, Offset = 0 },
+                new GradientStop { Color = Windows.UI.Color.FromArgb(ScrimAlpha / 4, basis.R, basis.G, basis.B), Offset = Math.Clamp(fadeShare / 2, 0, 1) },
+                new GradientStop { Color = dense, Offset = Math.Clamp(fadeShare, 0, 1) },
+                new GradientStop { Color = dense, Offset = 1 },
+            },
+        };
     }
 
     // ---- placing ---------------------------------------------------------------------------------

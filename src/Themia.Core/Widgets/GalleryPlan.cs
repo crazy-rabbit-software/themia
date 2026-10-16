@@ -44,7 +44,7 @@ public sealed record GalleryPlan(
     /// <param name="singleSource">File or photo of the day: always one still picture.</param>
     /// <param name="available">How many pictures the scan produced.</param>
     /// <param name="gap">The gap between parts.</param>
-    public static GalleryPlan For(WidgetArea area, GalleryLayout layout, bool singleSource, int available, double gap)
+    public static GalleryPlan For(WidgetArea area, GalleryStyle layout, bool singleSource, int available, double gap)
     {
         var width = Math.Max(0, area.Width);
         var height = Math.Max(0, area.Height);
@@ -56,13 +56,13 @@ public sealed record GalleryPlan(
 
         switch (layout)
         {
-            case GalleryLayout.Grid:
+            case GalleryStyle.Grid:
                 return Many(GalleryMode.Grid, GalleryArrangement.GridCapacity(width, height, gap), area, available);
 
-            case GalleryLayout.Scatter:
+            case GalleryStyle.Scatter:
                 return Many(GalleryMode.Scatter, GalleryArrangement.ScatterCapacity(width, height), area, available);
 
-            case GalleryLayout.Mosaic:
+            case GalleryStyle.Mosaic:
                 return Many(GalleryMode.Mosaic, GalleryArrangement.MosaicCapacity(width, height), area, available);
 
             default:

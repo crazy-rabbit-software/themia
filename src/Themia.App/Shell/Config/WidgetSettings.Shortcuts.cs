@@ -27,13 +27,6 @@ internal static partial class WidgetSettings
     private const string LauncherScope = "shortcut-settings";
 
     // Built per page, not cached: the labels follow the language the page is built in.
-    private static (ShortcutViewMode, string)[] ShortcutViews() =>
-    [
-        (ShortcutViewMode.Grid, Str.WidgetsC_Shortcuts_Settings_View_Tiles.Text()),
-        (ShortcutViewMode.List, Str.CtxMenu_List.Text()),
-        (ShortcutViewMode.Details, Str.CtxMenu_Details.Text()),
-    ];
-
     private static (ShortcutItemSize, string)[] ShortcutSizes() =>
     [
         (ShortcutItemSize.Small, Str.Folder_Small.Text()),
@@ -55,23 +48,26 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
-        // [S-3795] The view, with what sizes it, folded under it.
-        rows.Add(FluentLayout.Expander(Glyphs.GridLayout, Str.Apps_ViewLabel.Text(), null,
-            FluentLayout.Choice(ShortcutViews(), config.View, value => { config.View = value; save(); }),
-            [
-                FluentLayout.Row(Glyphs.Scale, Str.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
-                    Str.WidgetsC_Shortcuts_Settings_TileSize_Desc.Text(),
-                    FluentLayout.Choice(ShortcutSizes(), config.GridSize, value => { config.GridSize = value; save(); })),
-                FluentLayout.Row(Glyphs.TextSize, Str.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(),
-                    Str.WidgetsC_Shortcuts_Settings_RowSize_Desc.Text(),
-                    FluentLayout.Choice(ShortcutSizes(), config.ListSize, value => { config.ListSize = value; save(); })),
-                FluentLayout.Row(Glyphs.Preview, Str.CtxMenu_IconOnly.Text(),
-                    Str.WidgetsC_Shortcuts_Settings_IconsOnly_Desc.Text(),
-                    FluentLayout.Toggle(config.GridIconOnly, value => { config.GridIconOnly = value; save(); })),
-                FluentLayout.Row(Glyphs.Fit, Str.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
-                    Str.WidgetsC_Shortcuts_Settings_Stretch_Desc.Text(),
-                    FluentLayout.Toggle(config.GridStretchHeight, value => { config.GridStretchHeight = value; save(); })),
-            ]));
+        // [S-6401] The view is the widget's style (the shared Style row); only what that style draws
+        // with is offered here, and picking another style rebuilds the page ([S-6010]).
+        if (config.UsesTileSettings)
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Scale, Str.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
+                Str.WidgetsC_Shortcuts_Settings_TileSize_Desc.Text(),
+                FluentLayout.Choice(ShortcutSizes(), config.GridSize, value => { config.GridSize = value; save(); })));
+            rows.Add(FluentLayout.Row(Glyphs.Preview, Str.CtxMenu_IconOnly.Text(),
+                Str.WidgetsC_Shortcuts_Settings_IconsOnly_Desc.Text(),
+                FluentLayout.Toggle(config.GridIconOnly, value => { config.GridIconOnly = value; save(); })));
+            rows.Add(FluentLayout.Row(Glyphs.Fit, Str.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
+                Str.WidgetsC_Shortcuts_Settings_Stretch_Desc.Text(),
+                FluentLayout.Toggle(config.GridStretchHeight, value => { config.GridStretchHeight = value; save(); })));
+        }
+        else
+        {
+            rows.Add(FluentLayout.Row(Glyphs.TextSize, Str.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(),
+                Str.WidgetsC_Shortcuts_Settings_RowSize_Desc.Text(),
+                FluentLayout.Choice(ShortcutSizes(), config.ListSize, value => { config.ListSize = value; save(); })));
+        }
 
         rows.Add(FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(),
             Str.WidgetsC_Shortcuts_Settings_ShowExtensions_Desc.Text(),

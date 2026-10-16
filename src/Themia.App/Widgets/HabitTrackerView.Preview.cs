@@ -2,6 +2,7 @@
 using Themia.App.Services.Habits;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Habits;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
@@ -13,13 +14,22 @@ internal sealed partial class HabitTrackerView : IWidgetPreviewState
 {
     private const string PreviewListId = "preview-list";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["habits", "few", "empty"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "habits", "few", "empty"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         var today = Bucket(DateTimeOffset.Now).Key;
         Habit[]? habits = state switch
         {
+            // [S-6006] Five habits with a year of uneven history, for every style's render.
+            "sample" =>
+            [
+                new("h1", "Drink water", History(0, 9, 10)),
+                new("h2", "Read 20 pages", History(1, 6, 10)),
+                new("h3", "Stretch", History(2, 4, 10)),
+                new("h4", "Walk 8000 steps", History(3, 7, 10)),
+                new("h5", "Journal", History(4, 3, 10)),
+            ],
             "habits" =>
             [
                 new("h1", "Drink water", [today]),
@@ -54,6 +64,25 @@ internal sealed partial class HabitTrackerView : IWidgetPreviewState
         ResolveList();
         Render();
         return Task.CompletedTask;
+    }
+
+    /// <summary>A year of periods back from now, done on <paramref name="of"/> of every <paramref name="every"/>, the pattern shifted by <paramref name="seed"/>.</summary>
+    private string[] History(int seed, int of, int every)
+    {
+        var keys = new List<string>();
+        var cursor = Bucket(DateTimeOffset.Now);
+
+        for (var i = 0; i < 370; i++)
+        {
+            if ((((i * 7) + (seed * 3) + (i / 11)) % every) < of)
+            {
+                keys.Add(cursor.Key);
+            }
+
+            cursor = HabitPeriods.Previous(cursor, _config.Cadence, TimeZoneInfo.Local);
+        }
+
+        return [.. keys];
     }
 }
 #endif

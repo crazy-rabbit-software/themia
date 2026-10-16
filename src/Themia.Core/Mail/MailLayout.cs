@@ -64,13 +64,13 @@ public static class MailLayout
 
         var envelope = width >= EnvelopeNeedsWidth;
 
-        if (config.ViewMode != MailViewMode.Row
+        if (config.Style != EmailStyle.Table
             && (width >= InlineFromWidth || (width >= InlineStripWidth && height < InlineStripBelowHeight)))
         {
             var account = config.Shows(MailListField.Account) && width >= InlineAccountNeedsWidth;
             return new MailRowLayout(
                 config.Shows(MailListField.Subject),
-                config.Shows(MailListField.Preview) && width >= InlinePreviewNeedsWidth,
+                config.ShowsPreview && width >= InlinePreviewNeedsWidth,
                 1,
                 account,
                 Time: true,
@@ -78,7 +78,7 @@ public static class MailLayout
                 Envelope: envelope);
         }
 
-        var preview = config.Shows(MailListField.Preview) && height >= PreviewNeedsHeight && width >= 180;
+        var preview = config.ShowsPreview && height >= PreviewNeedsHeight && width >= 180;
         var lines = preview ? (height < 2 * PreviewNeedsHeight ? 1 : config.EffectivePreviewLines) : 0;
 
         var tag = config.Shows(MailListField.Account) && width >= AccountNeedsWidth;

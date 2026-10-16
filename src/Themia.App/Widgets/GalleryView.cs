@@ -300,7 +300,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
 
     /// <summary>A folder in the slideshow layout with more than one picture to move between.</summary>
     private bool IsSlideshow => !_config.IsSingleSource
-        && _config.Layout == GalleryLayout.Slideshow
+        && _config.Style == GalleryStyle.Slideshow
         && _scan.Status == GalleryStatus.Ok
         && _pictures.Count > 1;
 

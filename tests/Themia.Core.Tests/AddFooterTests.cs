@@ -75,7 +75,7 @@ public sealed class AddFooterTests
             foreach (var count in new[] { 0, 3 })
             {
                 var habits = HabitLayout.Plan(area, new HabitLayoutInput(count, true, true, 7), 40, 32).AddRow;
-                var tasks = TaskLayout.Plan(area, new TaskLayoutInput(count, true, false, true, TaskViewMode.List, 2), 40, 32).AddRow;
+                var tasks = TaskLayout.Plan(area, new TaskLayoutInput(count, true, false, true, Themia.Core.Model.TasksStyle.List, 2), 40, 32).AddRow;
                 Assert.Equal(habits, tasks);
             }
         }

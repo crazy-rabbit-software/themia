@@ -1,11 +1,16 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
-/// <summary>How the pictures are laid out on the card.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<GalleryLayout>))]
-public enum GalleryLayout
+/// <summary>
+/// [S-6402] How the pictures are laid out on the card: the gallery's styles, what was its Layout
+/// setting. A folder's choice: one picture file and the photo of the day are drawn whole whatever
+/// the style ([S-762]).
+/// </summary>
+[JsonConverter(typeof(StyleJsonConverter<GalleryStyle>))]
+public enum GalleryStyle
 {
     /// <summary>One picture at a time, filling the card, advancing on a timer.</summary>
     Slideshow = 0,
@@ -55,7 +60,7 @@ public enum GalleryFit
 /// desktop in front of whoever walks past, is a different kind of mistake.
 /// </para>
 /// </summary>
-public sealed class GalleryConfig : WidgetConfig
+public sealed class GalleryConfig : WidgetConfig, IStyled
 {
     /// <summary>
     /// [S-1620] The fewest seconds a slide can be held: one, as in the original (its S-09/S-18).
@@ -95,7 +100,24 @@ public sealed class GalleryConfig : WidgetConfig
     /// <summary>Include pictures in folders below this one.</summary>
     public bool Recursive { get; set; }
 
-    public GalleryLayout Layout { get; set; } = GalleryLayout.Slideshow;
+    /// <summary>[S-6402] Slideshow, grid, scatter or mosaic: the gallery's style.</summary>
+    public GalleryStyle Style { get; set; } = GalleryStyle.Slideshow;
+
+    private static readonly StyleOption[] GalleryStyles =
+    [
+        StyleOption.Of(GalleryStyle.Slideshow, Str.Gallery_ModeSlideshow, 0xE786),
+        StyleOption.Of(GalleryStyle.Grid, Str.Gallery_ModeGrid, 0xF0E2),
+        StyleOption.Of(GalleryStyle.Scatter, Str.Gallery_ModeScatter, 0xE7AA),
+        StyleOption.Of(GalleryStyle.Mosaic, Str.Gallery_ModeMosaic, 0xECA5),
+    ];
+
+    IReadOnlyList<StyleOption> IStyled.Styles => GalleryStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (GalleryStyle)value;
+    }
 
     public GalleryFit Fit { get; set; } = GalleryFit.Fill;
 
@@ -164,7 +186,7 @@ public sealed class GalleryConfig : WidgetConfig
         Path = Path,
         FilePath = FilePath,
         Recursive = Recursive,
-        Layout = Layout,
+        Style = Style,
         Fit = Fit,
         Shuffle = Shuffle,
         SlideshowSeconds = SlideshowSeconds,

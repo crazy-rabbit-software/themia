@@ -25,18 +25,20 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
         @"C:\Windows\notepad.exe", @"C:\Windows\explorer.exe", @"C:\ProgramData", @"C:\Windows\Fonts",
     ];
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["grid3", "grid7", "grid20", "list7", "details7"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "grid3", "grid7", "grid20", "list7", "details7"];
 
     public Task ShowPreviewStateAsync(string state)
     {
+        // [S-6006] "sample": seven items in whatever style the render chose (--style).
         var (view, count) = state switch
         {
-            "grid3" => (ShortcutViewMode.Grid, 3),
-            "grid7" => (ShortcutViewMode.Grid, 7),
-            "grid20" => (ShortcutViewMode.Grid, 20),
-            "list7" => (ShortcutViewMode.List, 7),
-            "details7" => (ShortcutViewMode.Details, 7),
-            _ => (ShortcutViewMode.Grid, 0),
+            "sample" => (_config.Style, 7),
+            "grid3" => (ShortcutsStyle.Grid, 3),
+            "grid7" => (ShortcutsStyle.Grid, 7),
+            "grid20" => (ShortcutsStyle.Grid, 20),
+            "list7" => (ShortcutsStyle.List, 7),
+            "details7" => (ShortcutsStyle.Details, 7),
+            _ => (ShortcutsStyle.Grid, 0),
         };
 
         if (count == 0)
@@ -47,7 +49,7 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
         var targets = PreviewShellNames.Select(LaunchTargets.ShellTarget).Concat(PreviewPaths).Take(count);
         ApplyConfig(new ShortcutsConfig
         {
-            View = view,
+            Style = view,
             Items = targets.Select(target => ShortcutItem.Create(target)).ToList(),
         });
 

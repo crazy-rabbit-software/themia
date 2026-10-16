@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "Noktalar",
+  "styles.habits.heatmap": "Isı haritası",
+  "styles.habits.checklist": "Kontrol listesi",
+  "styles.habits.cell": "{period}: {count} içinden {done}"
+}

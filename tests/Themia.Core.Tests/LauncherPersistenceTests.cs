@@ -64,7 +64,7 @@ public sealed class LauncherPersistenceTests : IDisposable
         var config = new ShortcutsConfig
         {
             ClickMode = ItemClickMode.Single,
-            View = ShortcutViewMode.Details,
+            Style = ShortcutsStyle.Details,
             GridSize = ShortcutItemSize.Large,
             ListSize = ShortcutItemSize.Small,
             GridIconOnly = true,
@@ -79,7 +79,7 @@ public sealed class LauncherPersistenceTests : IDisposable
         var reloaded = Assert.IsType<ShortcutsConfig>(await RoundTripAsync(config));
 
         Assert.Equal(ItemClickMode.Single, reloaded.ClickMode);
-        Assert.Equal(ShortcutViewMode.Details, reloaded.View);
+        Assert.Equal(ShortcutsStyle.Details, reloaded.Style);
         Assert.Equal(ShortcutItemSize.Large, reloaded.GridSize);
         Assert.Equal(ShortcutItemSize.Small, reloaded.ListSize);
         Assert.True(reloaded.GridIconOnly);

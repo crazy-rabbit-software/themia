@@ -1,7 +1,20 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Tasks;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
+
+/// <summary>
+/// [S-602] [S-6400] The Tasks widget's styles: how a row lays out its due date, under the title
+/// (List) or beside it on one line (Compact). What was its Layout setting.
+/// </summary>
+[JsonConverter(typeof(StyleJsonConverter<TasksStyle>))]
+public enum TasksStyle
+{
+    List = 0,
+    Compact = 1,
+}
 
 /// <summary>
 /// [S-590] A task list: from a Microsoft or Google account through Themia's own sign-in, or a list
@@ -13,7 +26,7 @@ namespace Themia.Core.Model;
 /// quietly swapped for another — that widget says so instead.
 /// </para>
 /// </summary>
-public sealed class TasksConfig : WidgetConfig
+public sealed class TasksConfig : WidgetConfig, IStyled
 {
     private List<string> _taskOrder = [];
 
@@ -40,8 +53,22 @@ public sealed class TasksConfig : WidgetConfig
     /// <summary>Show each task's due date.</summary>
     public bool ShowDueDate { get; set; } = true;
 
-    /// <summary>[S-602] Due date under the title, or beside it.</summary>
-    public TaskViewMode ViewMode { get; set; } = TaskViewMode.List;
+    /// <summary>[S-602] [S-6400] Due date under the title, or beside it: the widget's style.</summary>
+    public TasksStyle Style { get; set; } = TasksStyle.List;
+
+    private static readonly StyleOption[] TasksStyles =
+    [
+        StyleOption.Of(TasksStyle.List, Str.WidgetsC_Tasks_Settings_Layout_List, 0xE8FD),
+        StyleOption.Of(TasksStyle.Compact, Str.WidgetsC_Tasks_Settings_Layout_Compact, 0xEA37),
+    ];
+
+    IReadOnlyList<StyleOption> IStyled.Styles => TasksStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (TasksStyle)value;
+    }
 
     /// <summary>[S-601] Lines a title wraps to before it is cut. Clamped on read.</summary>
     public int TitleLines { get; set; } = TaskRules.TitleLinesDefault;
@@ -122,11 +149,6 @@ public sealed class TasksConfig : WidgetConfig
             repairs.Add("a Tasks widget named an unknown source; it reads an account again");
         }
 
-        if (!Enum.IsDefined(ViewMode))
-        {
-            ViewMode = TaskViewMode.List;
-        }
-
         var order = TaskRules.CleanOrder(TaskOrder);
         if (order.Count != TaskOrder.Count)
         {
@@ -146,7 +168,7 @@ public sealed class TasksConfig : WidgetConfig
         LocalListId = LocalListId,
         ShowCompleted = ShowCompleted,
         ShowDueDate = ShowDueDate,
-        ViewMode = ViewMode,
+        Style = Style,
         TitleLines = TitleLines,
         NewOnTop = NewOnTop,
         DueFilter = DueFilter,

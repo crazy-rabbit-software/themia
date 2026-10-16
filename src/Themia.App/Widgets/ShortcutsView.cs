@@ -423,16 +423,16 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         CellShape shape;
 
-        if (_config.View == ShortcutViewMode.Grid)
+        if (_config.Style == ShortcutsStyle.Grid)
         {
             var size = ShortcutLayout.GridSize(_config.GridSize, area);
             var tiles = ShortcutLayout.Grid(width, height, visible.Count, size, _config.GridIconOnly,
                 _config.GridStretchHeight, ShortcutLayout.GridDetail(area));
-            shape = new CellShape(_config.View, tiles, default, visible.Count, width);
+            shape = new CellShape(_config.Style, tiles, default, visible.Count, width);
         }
         else
         {
-            var rows = ShortcutLayout.Rows(area, _config.ListSize, _config.View == ShortcutViewMode.Details);
+            var rows = ShortcutLayout.Rows(area, _config.ListSize, _config.Style == ShortcutsStyle.Details);
 
             // The column header costs a row of the list; only where the list keeps two more.
             if (rows.ColumnHeader && Disclosure.WholeRows(height - FluentType.Caption.LineHeight - Fluent.Space2, rows.RowHeight) < 2)
@@ -440,7 +440,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
                 rows = rows with { ColumnHeader = false };
             }
 
-            shape = new CellShape(_config.View, default, rows, visible.Count, width);
+            shape = new CellShape(_config.Style, default, rows, visible.Count, width);
         }
 
         _surface.MinHeight = height;
@@ -457,7 +457,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     }
 
     /// <summary>The padding around the items: tiles keep a margin from the card edge, rows go edge to edge.</summary>
-    private Thickness Inset() => _config.View == ShortcutViewMode.Grid
+    private Thickness Inset() => _config.Style == ShortcutsStyle.Grid
         ? new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space2)
         : WidgetLayout.ListInset;
 
@@ -568,5 +568,5 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     }
 
     /// <summary>What the cells were last built for; a different one rebuilds them.</summary>
-    private readonly record struct CellShape(ShortcutViewMode View, ShortcutTilePlan Tiles, ShortcutRowPlan Rows, int Count, double Width);
+    private readonly record struct CellShape(ShortcutsStyle View, ShortcutTilePlan Tiles, ShortcutRowPlan Rows, int Count, double Width);
 }

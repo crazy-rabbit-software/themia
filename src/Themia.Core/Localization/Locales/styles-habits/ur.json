@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "نقطے",
+  "styles.habits.heatmap": "حرارتی نقشہ",
+  "styles.habits.checklist": "چیک لسٹ",
+  "styles.habits.cell": "{period}: {count} میں سے {done}"
+}

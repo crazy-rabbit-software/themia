@@ -1,3 +1,4 @@
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Tasks;
@@ -22,7 +23,7 @@ public enum DueDetail
 /// <param name="Count">Rows to draw.</param>
 /// <param name="Writable">Whether a task can be added to this list (the add row has a purpose).</param>
 /// <param name="IsToday">The Today view, whose rows come from several lists.</param>
-public readonly record struct TaskLayoutInput(int Count, bool Writable, bool IsToday, bool ShowDueDate, TaskViewMode Mode, int TitleLines);
+public readonly record struct TaskLayoutInput(int Count, bool Writable, bool IsToday, bool ShowDueDate, TasksStyle Mode, int TitleLines);
 
 /// <summary>
 /// [S-780] One layout pass's decisions for the Tasks widget: everything that depends on the size of
@@ -131,7 +132,7 @@ public static class TaskLayout
             : area.AtLeast(SizeClass.Expanded, SizeClass.Expanded) ? DueDetail.Long
             : DueDetail.Short;
 
-        var beside = columnWidth >= NarrowBelow && (input.Mode == TaskViewMode.Compact || area.WidthClass >= SizeClass.Expanded);
+        var beside = columnWidth >= NarrowBelow && (input.Mode == TasksStyle.Compact || area.WidthClass >= SizeClass.Expanded);
 
         return new TaskLayoutPlan(
             CompactRows: compact,

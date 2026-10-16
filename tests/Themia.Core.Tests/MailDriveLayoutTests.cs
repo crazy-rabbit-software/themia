@@ -101,7 +101,7 @@ public sealed class MailDriveLayoutTests
         Assert.False(MailLayout.Rows(config, 200, 356).Inline);   // Tall
 
         // The row view is one line already; it keeps its columns.
-        Assert.False(MailLayout.Rows(new EmailConfig { ViewMode = MailViewMode.Row }, 800, 516).Inline);
+        Assert.False(MailLayout.Rows(new EmailConfig { Style = EmailStyle.Table }, 800, 516).Inline);
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public sealed class MailDriveLayoutTests
         Assert.Equal(1, xl.PreviewLines);
 
         // The compact view never shows a preview, on one line or two.
-        Assert.False(MailLayout.Rows(new EmailConfig { ViewMode = MailViewMode.Compact }, 800, 516).Preview);
+        Assert.False(MailLayout.Rows(new EmailConfig { Style = EmailStyle.Compact }, 800, 516).Preview);
     }
 
     [Fact]

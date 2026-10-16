@@ -91,6 +91,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         Children.Add(_scroll);
         Children.Add(_emptyHost);
         Children.Add(_addRow.Element);
+        BuildHeatmap();
     }
 
     /// <summary>The "3/5" count, in the card's header.</summary>
@@ -236,6 +237,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 
         var cadence = _config.Cadence;
         var doneNow = 0;
+        var checklist = _config.Style == HabitTrackerStyle.Checklist;
 
         for (var i = 0; i < _rows.Count; i++)
         {
@@ -246,7 +248,8 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
                 doneNow++;
             }
 
-            _rows[i].Update(habits[i], log, _current, cadence, _config.EffectiveHistoryDots, _config.ShowStreak);
+            // [S-6410] A checklist is the current period alone: no run and no history to work out.
+            _rows[i].Update(habits[i], log, _current, cadence, checklist ? 0 : _config.EffectiveHistoryDots, !checklist && _config.ShowStreak);
         }
 
         _done.Text = habits.Count == 0 ? string.Empty : string.Create(CultureInfo.InvariantCulture, $"{doneNow}/{habits.Count}");
@@ -284,16 +287,22 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         }
 
         var count = Habits.Count;
+
+        // [S-6409] The heatmap draws the history, not rows: no add footer beside it, except under
+        // an empty list, which has nothing to draw and still needs a way to add its first habit.
+        var heat = IsHeatmap;
         var plan = HabitLayout.Plan(
             _area,
-            new HabitLayoutInput(count, Writable, _config.ShowStreak, _config.EffectiveHistoryDots),
+            new HabitLayoutInput(count, Writable && (!heat || count == 0), _config.ShowStreak, _config.EffectiveHistoryDots,
+                Checklist: _config.Style == HabitTrackerStyle.Checklist),
             Fluent.RowHeight,
             Fluent.RowHeightCompact);
 
         _plan = plan;
 
         _emptyHost.Visibility = count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        _scroll.Visibility = count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        _scroll.Visibility = count == 0 || heat ? Visibility.Collapsed : Visibility.Visible;
+        LayHeatmap(count);
 
         // The rows sit at the top of the tile and the add footer at its bottom ([S-3850]); under a
         // list that all fits, the room between stays empty: nothing but the habits fills it. An
@@ -339,6 +348,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 
         _rows.Clear();
         _list.Children.Clear();
+        ClearHeatmap();
         DetachAddRow();
         _ticker = null;
         _surface?.RequestTextInput(false);

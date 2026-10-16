@@ -177,7 +177,7 @@ public class GalleryLayoutTests
     {
         var area = new WidgetArea(width, height);
 
-        foreach (var layout in Enum.GetValues<GalleryLayout>())
+        foreach (var layout in Enum.GetValues<GalleryStyle>())
         {
             var plan = GalleryPlan.For(area, layout, singleSource: false, available: 24, Gap);
 
@@ -192,7 +192,7 @@ public class GalleryLayoutTests
     {
         var xs = new WidgetArea(120, 76);
 
-        foreach (var layout in Enum.GetValues<GalleryLayout>())
+        foreach (var layout in Enum.GetValues<GalleryStyle>())
         {
             var plan = GalleryPlan.For(xs, layout, false, 24, Gap);
             Assert.Equal(1, plan.Pictures);
@@ -206,7 +206,7 @@ public class GalleryLayoutTests
     {
         // The "up next" thumbnails are retired (concise widgets): the slide is the whole slot at
         // every size, a wide strip and a tall column included.
-        GalleryPlan At(double w, double h) => GalleryPlan.For(new WidgetArea(w, h), GalleryLayout.Slideshow, false, 24, Gap);
+        GalleryPlan At(double w, double h) => GalleryPlan.For(new WidgetArea(w, h), GalleryStyle.Slideshow, false, 24, Gap);
 
         var s = At(200, 106);
         Assert.True(s.Counter && s.Controls);
@@ -227,11 +227,11 @@ public class GalleryLayoutTests
         var area = new WidgetArea(width, height);
 
         // A single source (a file, the photo of the day) is the picture and nothing else.
-        var single = GalleryPlan.For(area, GalleryLayout.Grid, singleSource: true, available: 1, Gap);
+        var single = GalleryPlan.For(area, GalleryStyle.Grid, singleSource: true, available: 1, Gap);
         Assert.Equal(GalleryMode.Single, single.Mode);
         Assert.Equal(height, single.MainHeight, 3);
 
-        foreach (var layout in Enum.GetValues<GalleryLayout>())
+        foreach (var layout in Enum.GetValues<GalleryStyle>())
         {
             // No file name under a slide at any size: the picture keeps all the height.
             var plan = GalleryPlan.For(area, layout, singleSource: false, available: 24, Gap);
@@ -242,7 +242,7 @@ public class GalleryLayoutTests
     [Fact]
     public void S767_layouts_show_more_pictures_as_the_card_grows()
     {
-        foreach (var layout in new[] { GalleryLayout.Grid, GalleryLayout.Scatter, GalleryLayout.Mosaic })
+        foreach (var layout in new[] { GalleryStyle.Grid, GalleryStyle.Scatter, GalleryStyle.Mosaic })
         {
             var m = GalleryPlan.For(new WidgetArea(320, 196), layout, false, 24, Gap).Pictures;
             var l = GalleryPlan.For(new WidgetArea(560, 376), layout, false, 24, Gap).Pictures;
@@ -256,7 +256,7 @@ public class GalleryLayoutTests
 
     [Fact]
     public void S767_a_layout_never_asks_for_more_pictures_than_the_scan_found()
-        => Assert.Equal(3, GalleryPlan.For(new WidgetArea(800, 516), GalleryLayout.Grid, false, 3, Gap).Pictures);
+        => Assert.Equal(3, GalleryPlan.For(new WidgetArea(800, 516), GalleryStyle.Grid, false, 3, Gap).Pictures);
 
     // -----------------------------------------------------------------------------------------
     // [S-762] the photo of the day
@@ -372,14 +372,14 @@ public class GalleryLayoutTests
         {
             Source = GallerySource.File,
             FilePath = @"C:\Pictures\a.jpg",
-            Layout = GalleryLayout.Mosaic,
+            Style = GalleryStyle.Mosaic,
         };
 
         var clone = (GalleryConfig)config.Clone();
 
         Assert.Equal(GallerySource.File, clone.Source);
         Assert.Equal(@"C:\Pictures\a.jpg", clone.FilePath);
-        Assert.Equal(GalleryLayout.Mosaic, clone.Layout);
+        Assert.Equal(GalleryStyle.Mosaic, clone.Style);
         Assert.True(clone.IsSingleSource);
     }
 

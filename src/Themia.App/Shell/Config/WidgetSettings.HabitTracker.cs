@@ -116,18 +116,22 @@ internal static partial class WidgetSettings
 
         rows.Add(interval);
 
-        rows.Add(FluentLayout.Row(Glyphs.Done, Str.WidgetsB_Settings_Habits_Streaks_Label.Text(), Str.WidgetsB_Settings_Habits_Streaks_Desc.Text(),
-            FluentLayout.Toggle(config.ShowStreak, value => { config.ShowStreak = value; save(); })));
+        // [S-6408] The run and the dots are the Dots style's own; another style rebuilds the page without them ([S-6010]).
+        if (config.UsesRowExtras)
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Done, Str.WidgetsB_Settings_Habits_Streaks_Label.Text(), Str.WidgetsB_Settings_Habits_Streaks_Desc.Text(),
+                FluentLayout.Toggle(config.ShowStreak, value => { config.ShowStreak = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Habits_History_Label.Text(),
-            Str.WidgetsB_Settings_Habits_History_Desc.Format(("zero", 0)),
-            FluentLayout.Slider(
-                config.EffectiveHistoryDots,
-                0,
-                HabitRules.MaxHistory,
-                1,
-                string.Empty,
-                value => { config.HistoryDots = (int)Math.Round(value); save(); })));
+            rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Habits_History_Label.Text(),
+                Str.WidgetsB_Settings_Habits_History_Desc.Format(("zero", 0)),
+                FluentLayout.Slider(
+                    config.EffectiveHistoryDots,
+                    0,
+                    HabitRules.MaxHistory,
+                    1,
+                    string.Empty,
+                    value => { config.HistoryDots = (int)Math.Round(value); save(); })));
+        }
 
         // [S-1430] The way to the file itself, for a backup or another program: the habits are kept
         // in plain JSON beside the settings file, a folder nobody finds on their own.

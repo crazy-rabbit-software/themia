@@ -1511,10 +1511,17 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   the same newest N [S-17]. The card title is the folder; the header carries the unread badge
   [S-02], a warning glyph naming an account that failed or needs signing in (tap → Accounts), and a
   busy ring only for a refresh the user asked for. The card menu offers Refresh, Write email
-  ([S-558]) and the five folders [S-20]; the view and the order are settings only ([S-1746]).
-- **[S-543]** List fields Subject / Preview / Account, default all on; Preview only in the list view;
-  the account tag shows whenever chosen [S-43]. Row columns From, Subject, Date, Preview, Account,
-  reorderable, at least one on [S-16].
+  ([S-558]) and the five folders [S-20]; the style ([S-6403]) and the order are settings only ([S-1746]).
+- **[S-543]** List fields Subject / Account, default both on (the preview is the List style's own
+  line, [S-6403]); the account tag shows whenever chosen [S-43]. Table columns From, Subject, Date,
+  Preview, Account, reorderable, at least one on [S-16].
+- **[S-6403]** Mail's styles ([S-6000]), `EmailConfig.Style` (`EmailStyle`, `"style": "list"`):
+  **List with preview** (sender + time, subject, `PreviewLines` lines of preview), **Compact list**
+  (sender + time, subject) and **Table** (one line of the user's columns under a header row), in
+  that order: what were the view setting and the list fields' Preview switch (List without the
+  preview was Compact, so the switch is gone). The rest stay settings, shown only for the style that
+  draws with them (`EmailConfig.SettingsFor`): Subject / Account for List and Compact, Preview
+  lines for List, the columns for Table. A hand-edited `"preview"` list field is dropped.
 - **[S-544]** Message right-click: Open, Reply, Mark read/unread, Archive, Move to Junk, Copy subject,
   Delete [S-21]. Gmail is read through `gmail.readonly`, so its messages offer only Open, Reply and
   Copy [S-22]. Delete moves to Deleted (Graph move, IMAP UID MOVE); only a message already in Deleted
@@ -1661,7 +1668,7 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
   the title alone, its body written with a JSON writer so a quote cannot break out.
 - **[S-601]** A title wraps to "Title lines" (1–6, default 2; two at most on a compact row) and is
   then cut with an ellipsis; the tooltip carries the whole title, its state, due date and priority.
-- **[S-602]** Layout: List puts the due date under the title, Compact beside it (under it anyway in a
+- **[S-602]** Style ([S-6400]): List puts the due date under the title, Compact beside it (under it anyway in a
   column under 240px wide). Rows are Fluent's fixed heights at minimum and grow only for a wrapped
   title; an important task's title is semibold. The size ladder is [S-780].
 - **[S-603]** Lists on this PC are one pool in `tasks.json` beside the state (`schemaVersion` 1),
@@ -1724,6 +1731,8 @@ Drag-to-reorder, keyboard navigation, Tab between editors, the scroll fade and t
 ported in [S-781]..[S-788].
 
 ## Calendar and contacts
+- **[S-6400]** Tasks' styles ([S-6000]), `TasksConfig.Style` (`TasksStyle`, `"style": "list"`):
+  **List** and **Compact** ([S-602]), what was its Layout setting; no other look option exists.
 
 The classic Calendar and Contacts widgets, on Themia's own accounts ([S-529]) instead of the earlier hub
 hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services/Office`, the views in
@@ -2053,6 +2062,11 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
 - **[S-3412]** Each widget keeps its place by widget id for the session, never persisted
   (`GalleryPositions`, at most 256 widgets): the picture on show, its position, the seed its
   selection and scatter / mosaic are dealt from, and whether it was paused. Built again, it comes back
+- **[S-6402]** The gallery's styles ([S-6000]) are its layouts, `GalleryConfig.Style`
+  (`GalleryStyle`, `"style": "slideshow"`): **Slideshow**, **Grid**, **Scatter** ([S-764]) and
+  **Mosaic** ([S-765]), in that order; the Layout row is gone. A folder's choice: one picture file
+  and the photo of the day are drawn whole in any style ([S-762]). The slide time shows on the page
+  for Slideshow only and the fit for every style but Mosaic; another style rebuilds the page.
   on that picture (found by path wherever it is now, else the same position kept inside the list)
   and the slideshow continues from it. The seed is dealt again only by "Refresh images" and, for a
   shuffled folder larger than the widget shows, by the refresh interval (so in time it shows all of
@@ -2683,7 +2697,23 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
   (`HabitLayout.Decide`, clamped; from no row, the first).
 - **[S-1429]** Settings: the list picker/editor (pick, rename as typed, habit count, add, delete
   — always confirmed, empty or not, original S-24), Resets, Interval (custom only), Show streaks,
-  History. Renaming a list retitles every widget showing it.
+  History (both for the Dots style only, [S-6408]). Renaming a list retitles every widget showing it.
+- **[S-6408]** Habits' styles ([S-6000]), `HabitTrackerConfig.Style` (`HabitTrackerStyle`,
+  `"style": "dots"`): **Dots** (the rows of [S-1427]), **Heatmap** and **Checklist**, in that
+  order, over the same list, log and cadence. Show streaks and History are the Dots style's own
+  (`UsesRowExtras`); the page offers them for it alone and keeps their values.
+- **[S-6409]** Heatmap (`HabitHeatmap`): GitHub's calendar over the log, columns of seven periods,
+  the newest on the right. Under a daily cadence the rows are the weekdays from the language's first
+  day, so a column is a calendar week and the days still to come this week are blank; any other
+  cadence fills its last column to the current period. Decided by size: when every habit's name
+  (Body) and its own seven-row grid of at least 4 weeks of 6-DIP cells fit, each habit gets one (a
+  done period in the accent, the current period's cell ticking it as its box does); otherwise the
+  list shares one grid, each cell shaded in four steps by the share of habits done (rounded up) and
+  its tooltip naming the period and "3 of 5". Room goes to bigger cells (2-DIP gaps, at most 20), then
+  more weeks (at most 53). No add footer beside it (except under an empty list) and no row keys.
+- **[S-6410]** Checklist: the current period only, each habit's box and name (`HabitLayoutInput.Checklist`):
+  no run, dots, rate or best run at any size; the rows, the add footer and the keys are the Dots
+  style's ([S-1427], [S-1428]).
 - **[S-1430]** Settings end with "Data folder" (issue #154): **Open in Explorer** opens the folder
   holding `habits.json` (`HabitPool.FilePath`, through `ShellLauncher.OpenContainingFolder`, so it is
   classified like every other launch), for a backup or another program. Off when the pool has no
@@ -4270,8 +4300,8 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
 - **[S-1988]** *(Retired with the detail panel: the Bluetooth list takes no lease keys.)*
 - **[S-1571]** *(Retired: no summary line or strip at any size, [S-1427]; the header's "3/5" keeps
   the count.)*
-- **[S-1380]** Config (original S-21..S-23, S-33, S-46..S-48, S-71): `View` Grid (default) / List /
-  Details, `GridSize` and `ListSize` Small / Medium / Large, `GridStretchHeight`, `GridIconOnly`,
+- **[S-1380]** Config (original S-21..S-23, S-33, S-46..S-48, S-71): `Style` Grid (default) / List /
+  Details ([S-6401]), `GridSize` and `ListSize` Small / Medium / Large, `GridStretchHeight`, `GridIconOnly`,
   `ShowFileExtension`, `ClickMode` (shared `ItemClickMode`, Double by default). Enums are written as
   names; `Repair` brings unknown values back, drops null items and mends blank or repeated ids.
   `ShowTarget` and `OpenOnSingleClick` are gone (the details view and `ClickMode` replace them).
@@ -4359,6 +4389,10 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
   the public address) and the `AccountHttp` client (sign-in, token refresh, Microsoft Graph,
   Google, CalDAV/CardDAV) — and every
   connection it opens goes through one `ConnectCallback`. IMAP (account check and every sync) opens
+- **[S-6401]** Shortcuts' styles ([S-6000]) are its views, `ShortcutsConfig.Style`
+  (`ShortcutsStyle`, `"style": "grid"`): **Tiles** (Grid), **List** and **Details**, in that order;
+  the View expander is gone. The page offers the tile size, icons only and stretch for Tiles
+  (`UsesTileSettings`), the row size for List and Details.
   through `GuardedTcp.OpenTlsAsync`. Both end in `NetGuard.OpenSocketAsync`. A refusal is a
   `NetRefusedException` carrying the sentence ("x is on the local network. Themia goes there only
   for an address you typed yourself"): `FetchStatus.Refused` in a widget, `AccountError.Refused`
@@ -4842,6 +4876,17 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   reads. `Oscilloscope.Trace` shows the newest 512 samples (about 11 ms at 48 kHz) from the newest
   rising zero crossing that still leaves a whole span after it (else the newest span), so a steady
   tone stands still; each point is the loudest sample of its stretch, square-root compressed with
+- **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
+  `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
+  **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
+  art", which is gone. Transport, progress and hide-when-idle stay settings for every style.
+- **[S-6407]** Full artwork: the art fills the card edge to edge (cropped to fill; the music glyph
+  on the control fill without one), and the title (BodyStrong, Subtitle at L/XL) with the artist
+  where it fits, the transport beside them (play/pause alone on a Compact-wide card or when the
+  lines would get under 120 DIPs) and the seek bar under them (its times beside it from Expanded
+  width) sit at its foot over a scrim: the theme's own base fill fading in, eased, over a band as tall as the foot, to 80 %,
+  so the text keeps its theme colours on any art. The foot never takes more than 60 % of the card;
+  the artist and then the bar give way first.
   its sign, as the bands are; bad samples are silence. The other designs read the bands only.
 - **[S-3215]** While sound arrives the line is the fresh trace; when it stops the line fades ×0.8 a
   frame and points under 0.01 are zero, so it lies flat (the design's idle, [S-3206]) in about half
@@ -5143,6 +5188,12 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   `NotNow` (rotation while docked, on several screens, as a laptop, remote), `NoSwitch` (Windows'
   interface or Settings handler is not there for an app), `NotSupported` (the output cannot do
   spatial sound), `TurnedOff` (Windows says the setting does not apply, or a radio's hardware switch
+- **[S-6404]** Quote's styles ([S-6000]), `QuoteConfig.Style` (`QuoteStyle`, `"style": "plain"`):
+  **Plain** (the quote in the language's own marks) and **Large quotation marks**, in that order.
+- **[S-6405]** Large quotation marks: one opening mark (the Quote glyph, mirrored right to left) in
+  the accent above the quote, a ramp step by the card's smaller side (Title up to Regular,
+  TitleLarge at Expanded, Display at Huge, `QuoteLayout.MarkSize`); its row is taken off the top
+  before the quote is fitted to the rest ([S-1496]), and the quote then carries no inline marks.
   holds it). Nothing ever elevates: what needs more than the user's rights is one of these.
 - **[S-3904]** The tile is a Windows 11 quick-settings button over the whole content area, inside the
   card's own fill and corners: on, `AccentFillColorDefault` (Secondary on hover, Tertiary pressed)

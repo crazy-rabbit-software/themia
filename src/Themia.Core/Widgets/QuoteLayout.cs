@@ -92,6 +92,25 @@ public static class QuoteLayout
     }
 
     /// <summary>
+    /// [S-6405] The size of the large-marks style's opening mark, a step of the type ramp chosen by
+    /// the card's smaller side: Title up to Regular, TitleLarge at Expanded, Display at Huge. The
+    /// mark is an ornament over the quote, so it grows with the card rather than with the text.
+    /// </summary>
+    public static double MarkSize(WidgetArea area) => area.Least switch
+    {
+        SizeClass.Huge => FluentType.Display.FontSize,
+        SizeClass.Expanded => FluentType.TitleLarge.FontSize,
+        _ => FluentType.Title.FontSize,
+    };
+
+    /// <summary>
+    /// [S-6404] The quote as the style sets it: in the language's own marks for Plain, bare under
+    /// the large mark for Marks (a mark at each end as well would say it twice).
+    /// </summary>
+    public static string Set(Locale locale, string? text, Model.QuoteStyle style)
+        => style == Model.QuoteStyle.Marks ? text?.Trim() ?? string.Empty : Quoted(locale, text);
+
+    /// <summary>
     /// The attribution line, em-dashed the way a pull quote is set. An anonymous quote gets no line
     /// at all rather than a dash with nothing after it.
     /// </summary>

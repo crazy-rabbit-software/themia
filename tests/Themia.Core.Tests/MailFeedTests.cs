@@ -322,21 +322,41 @@ public class MailFeedTests
         => Assert.Equal(expected, MailLinks.IsLaunchable(link));
 
     [Fact]
-    public void S543_list_fields_gate_by_view()
+    public void S6403_the_preview_is_the_list_styles_own_line_and_the_fields_are_subject_and_account()
     {
         var config = new EmailConfig();
         Assert.True(config.Shows(MailListField.Subject));
-        Assert.True(config.Shows(MailListField.Preview));
+        Assert.True(config.ShowsPreview);
         Assert.True(config.Shows(MailListField.Account));
 
-        config.ViewMode = MailViewMode.Compact;
-        Assert.False(config.Shows(MailListField.Preview));
+        config.Style = EmailStyle.Compact;
+        Assert.False(config.ShowsPreview);
         Assert.True(config.Shows(MailListField.Account));
 
-        config.ViewMode = MailViewMode.List;
+        config.Style = EmailStyle.Table;
+        Assert.False(config.ShowsPreview);
+
+        config.Style = EmailStyle.List;
         config.ListFields = [MailListField.Subject];
         Assert.False(config.Shows(MailListField.Account));
         Assert.Equal(EmailConfig.DefaultColumns, config.EffectiveColumns);
+    }
+
+    [Theory]
+    [InlineData(EmailStyle.List, new[] { EmailSetting.ListFields, EmailSetting.PreviewLines })]
+    [InlineData(EmailStyle.Compact, new[] { EmailSetting.ListFields })]
+    [InlineData(EmailStyle.Table, new[] { EmailSetting.Columns })]
+    public void S6403_the_page_offers_only_what_the_style_draws_with(EmailStyle style, EmailSetting[] expected)
+        => Assert.Equal(expected, EmailConfig.SettingsFor(style));
+
+    [Fact]
+    public void S6403_an_old_preview_field_in_a_hand_edited_file_is_dropped_not_refused()
+    {
+        var document = StateWithMail("""{"kind":"email","listFields":["subject","preview","account"]}""");
+
+        var config = MailOf(AppStateStore.Parse(document.ToJsonString()).State!);
+
+        Assert.Equal([MailListField.Subject, MailListField.Account], config.ListFields);
     }
 
     /// <summary>A state document holding one Mail widget whose config is <paramref name="configJson"/>, plus a clock.</summary>
@@ -365,9 +385,9 @@ public class MailFeedTests
             AccountIds = ["w"],
             Folder = MailFolder.Junk,
             MaxCount = 25,
-            ViewMode = MailViewMode.Row,
+            Style = EmailStyle.Table,
             SortOrder = MailSortOrder.OldestFirst,
-            ListFields = [MailListField.Preview],
+            ListFields = [MailListField.Account],
             RowColumns = [MailColumn.Date, MailColumn.From],
         };
         state.Views[0].Widgets.Add(widget);
@@ -375,7 +395,7 @@ public class MailFeedTests
         var json = SettingsTransfer.Serialize(state);
 
         Assert.Contains("\"folder\": \"junkemail\"", json, StringComparison.Ordinal);
-        Assert.Contains("\"viewMode\": \"row\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"style\": \"table\"", json, StringComparison.Ordinal);
         Assert.Contains("\"sortOrder\": \"asc\"", json, StringComparison.Ordinal);
         Assert.DoesNotContain("collectionId", json, StringComparison.Ordinal);
 
@@ -383,7 +403,8 @@ public class MailFeedTests
         var back = MailOf(parsed.State!);
         Assert.Equal(MailFolder.Junk, back.Folder);
         Assert.Equal([MailColumn.Date, MailColumn.From], back.RowColumns);
-        Assert.Equal([MailListField.Preview], back.ListFields);
+        Assert.Equal([MailListField.Account], back.ListFields);
+        Assert.Equal(EmailStyle.Table, back.Style);
         Assert.Equal(["w"], back.AccountIds);
         Assert.Equal(25, back.MaxCount);
         Assert.DoesNotContain(parsed.Repairs, r => r.Contains("mail", StringComparison.Ordinal));
@@ -393,7 +414,7 @@ public class MailFeedTests
     public void S540_unknown_values_fall_back_instead_of_refusing_the_file()
     {
         var document = StateWithMail("""
-            {"kind":"email","accountIds":"not-a-list","folder":"nonsense","viewMode":7,"sortOrder":"sideways",
+            {"kind":"email","accountIds":"not-a-list","folder":"nonsense","style":7,"sortOrder":"sideways",
              "listFields":["subject","bogus"],"rowColumns":[],"maxCount":500,"previewLines":0}
             """);
 
@@ -403,7 +424,7 @@ public class MailFeedTests
         Assert.Equal(AppState.CreateDefault().Views[0].Widgets.Count + 2, parsed.State!.Views[0].Widgets.Count);
         var config = MailOf(parsed.State);
         Assert.Equal(MailFolder.Inbox, config.Folder);
-        Assert.Equal(MailViewMode.List, config.ViewMode);
+        Assert.Equal(EmailStyle.List, config.Style);
         Assert.Equal(MailSortOrder.NewestFirst, config.SortOrder);
         Assert.Equal([MailListField.Subject], config.ListFields);
         Assert.Null(config.RowColumns);
@@ -437,7 +458,7 @@ public class MailLayoutTests
         Assert.False(MailLayout.Rows(config, 100, 80).Time);
 
         // Compact view never previews.
-        config.ViewMode = MailViewMode.Compact;
+        config.Style = EmailStyle.Compact;
         Assert.False(MailLayout.Rows(config, 560, 380).Preview);
     }
 

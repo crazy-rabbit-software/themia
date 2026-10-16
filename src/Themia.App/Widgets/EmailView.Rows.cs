@@ -415,7 +415,7 @@ internal sealed partial class EmailView
         var row = Fluent.Row(content, _shape.Compact);
         RowFocus.Prepare(row);
 
-        if (_config.ViewMode == MailViewMode.Row || _shape.Rows.Inline)
+        if (_config.Style == EmailStyle.Table || _shape.Rows.Inline)
         {
             row.MinHeight = Fluent.RowHeightCompact;
         }

@@ -74,7 +74,7 @@ internal sealed partial class ShortcutsView
         _panel.ColumnDefinitions.Clear();
         _panel.Padding = Inset();
 
-        if (_config.View == ShortcutViewMode.Grid)
+        if (_config.Style == ShortcutsStyle.Grid)
         {
             RenderGrid(visible, _shape.Tiles);
         }
@@ -170,7 +170,7 @@ internal sealed partial class ShortcutsView
     {
         _panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         _panel.VerticalAlignment = VerticalAlignment.Top;
-        var details = _config.View == ShortcutViewMode.Details;
+        var details = _config.Style == ShortcutsStyle.Details;
         _panel.ColumnSpacing = 0;
         _panel.RowSpacing = 0;
 

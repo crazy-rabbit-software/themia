@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "Точки",
+  "styles.habits.heatmap": "Тепловая карта",
+  "styles.habits.checklist": "Чек-лист",
+  "styles.habits.cell": "{period}: {done} из {count}"
+}

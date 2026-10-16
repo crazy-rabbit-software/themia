@@ -297,13 +297,13 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         var height = _area.Height;
         var compact = height > 0 && height < Fluent.CompactBelow;
         var rows = MailLayout.Rows(_config, width, height);
-        var columns = _config.ViewMode == MailViewMode.Row ? MailLayout.Columns(_config.EffectiveColumns, InnerWidth(width, rows.Envelope), Fluent.Space2) : [];
+        var columns = _config.Style == EmailStyle.Table ? MailLayout.Columns(_config.EffectiveColumns, InnerWidth(width, rows.Envelope), Fluent.Space2) : [];
 
         var room = new Disclosure(_area);
         var rowHeight = RowHeight(rows, compact);
         room.Reserve(rowHeight);
 
-        var header = _config.ViewMode == MailViewMode.Row && height >= ColumnHeaderNeedsHeight
+        var header = _config.Style == EmailStyle.Table && height >= ColumnHeaderNeedsHeight
             && room.Take(FluentType.Caption.LineHeight + Fluent.Space1);
 
         var more = room.TakeRows(rowHeight, 49);
@@ -327,7 +327,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     /// </summary>
     private double RowHeight(MailRowLayout rows, bool compact)
     {
-        if (_config.ViewMode == MailViewMode.Row || rows.Inline)
+        if (_config.Style == EmailStyle.Table || rows.Inline)
         {
             return Fluent.RowHeightCompact;
         }
@@ -398,7 +398,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         var labels = accounts.ToDictionary(a => a.Id, a => a.Label, StringComparer.Ordinal);
         var now = DateTimeOffset.Now;
 
-        if (_config.ViewMode == MailViewMode.Row)
+        if (_config.Style == EmailStyle.Table)
         {
             var columns = MailLayout.Columns(_config.EffectiveColumns, InnerWidth(_area.Width, _shape.Rows.Envelope), Fluent.Space2);
             BuildColumnHeader(columns);

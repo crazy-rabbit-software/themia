@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "圆点",
+  "styles.habits.heatmap": "热力图",
+  "styles.habits.checklist": "清单",
+  "styles.habits.cell": "{period}：{done}/{count}"
+}

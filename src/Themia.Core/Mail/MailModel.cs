@@ -24,15 +24,6 @@ public enum MailFolder
     Archive,
 }
 
-/// <summary>[S-542] How the list draws a message: three lines, two lines, or one line of columns.</summary>
-[JsonConverter(typeof(MailViewModeConverter))]
-public enum MailViewMode
-{
-    List,
-    Compact,
-    Row,
-}
-
 /// <summary>[S-542] Newest first or oldest first, over the same newest N messages.</summary>
 [JsonConverter(typeof(MailSortOrderConverter))]
 public enum MailSortOrder
@@ -41,11 +32,13 @@ public enum MailSortOrder
     OldestFirst,
 }
 
-/// <summary>[S-543] The optional lines of the list and compact views. Sender and time always show.</summary>
+/// <summary>
+/// [S-543] The optional lines of the list and compact styles. Sender and time always show; the
+/// preview is the List style's own line ([S-6403]), not a field.
+/// </summary>
 public enum MailListField
 {
     Subject,
-    Preview,
     Account,
 }
 
@@ -154,21 +147,6 @@ public static class MailNames
         _ => Str.Email_FolderInbox,
     });
 
-    public static string Wire(this MailViewMode mode) => mode switch
-    {
-        MailViewMode.Compact => "compact",
-        MailViewMode.Row => "row",
-        _ => "list",
-    };
-
-    public static MailViewMode? ParseViewMode(string? wire) => wire?.Trim().ToLowerInvariant() switch
-    {
-        "list" => MailViewMode.List,
-        "compact" => MailViewMode.Compact,
-        "row" => MailViewMode.Row,
-        _ => null,
-    };
-
     public static string Wire(this MailSortOrder order) => order == MailSortOrder.OldestFirst ? "asc" : "desc";
 
     public static MailSortOrder? ParseSortOrder(string? wire) => wire?.Trim().ToLowerInvariant() switch
@@ -180,7 +158,6 @@ public static class MailNames
 
     public static string Wire(this MailListField field) => field switch
     {
-        MailListField.Preview => "preview",
         MailListField.Account => "account",
         _ => "subject",
     };
@@ -188,7 +165,6 @@ public static class MailNames
     public static MailListField? ParseListField(string? wire) => wire?.Trim().ToLowerInvariant() switch
     {
         "subject" => MailListField.Subject,
-        "preview" => MailListField.Preview,
         "account" => MailListField.Account,
         _ => null,
     };
@@ -282,17 +258,6 @@ public sealed class MailFolderConverter : LenientWireConverter<MailFolder>
     protected override MailFolder? Parse(string? wire) => MailNames.ParseFolder(wire);
 
     protected override string Write(MailFolder value) => value.Wire();
-}
-
-public sealed class MailViewModeConverter : LenientWireConverter<MailViewMode>
-{
-    protected override string What => "view";
-
-    protected override MailViewMode Fallback => MailViewMode.List;
-
-    protected override MailViewMode? Parse(string? wire) => MailNames.ParseViewMode(wire);
-
-    protected override string Write(MailViewMode value) => value.Wire();
 }
 
 public sealed class MailSortOrderConverter : LenientWireConverter<MailSortOrder>

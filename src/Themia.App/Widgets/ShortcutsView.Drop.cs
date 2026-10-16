@@ -171,7 +171,7 @@ internal sealed partial class ShortcutsView
     private string? BeforeAt(Point point)
     {
         var order = Order();
-        var grid = _config.View == ShortcutViewMode.Grid;
+        var grid = _config.Style == ShortcutsStyle.Grid;
 
         for (var i = 0; i < _cells.Count; i++)
         {

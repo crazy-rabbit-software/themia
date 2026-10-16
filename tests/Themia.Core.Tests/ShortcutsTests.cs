@@ -15,7 +15,7 @@ public sealed class ShortcutsTests
     {
         var config = new ShortcutsConfig();
 
-        Assert.Equal(ShortcutViewMode.Grid, config.View);
+        Assert.Equal(ShortcutsStyle.Grid, config.Style);
         Assert.Equal(ShortcutItemSize.Medium, config.GridSize);
         Assert.Equal(ShortcutItemSize.Medium, config.ListSize);
         Assert.Equal(ItemClickMode.Double, config.ClickMode);
@@ -29,7 +29,6 @@ public sealed class ShortcutsTests
     {
         var config = new ShortcutsConfig
         {
-            View = (ShortcutViewMode)9,
             GridSize = (ShortcutItemSize)9,
             ListSize = (ShortcutItemSize)(-1),
             ClickMode = (ItemClickMode)5,
@@ -44,7 +43,6 @@ public sealed class ShortcutsTests
         var repairs = config.Repair();
 
         Assert.NotEmpty(repairs);
-        Assert.Equal(ShortcutViewMode.Grid, config.View);
         Assert.Equal(ShortcutItemSize.Medium, config.GridSize);
         Assert.Equal(ShortcutItemSize.Medium, config.ListSize);
         Assert.Equal(ItemClickMode.Double, config.ClickMode);
@@ -70,7 +68,7 @@ public sealed class ShortcutsTests
     {
         var config = new ShortcutsConfig
         {
-            View = ShortcutViewMode.List,
+            Style = ShortcutsStyle.List,
             GridSize = ShortcutItemSize.Small,
             ListSize = ShortcutItemSize.Large,
             GridIconOnly = true,
@@ -81,7 +79,7 @@ public sealed class ShortcutsTests
 
         var copy = Assert.IsType<ShortcutsConfig>(config.Clone());
 
-        Assert.Equal(config.View, copy.View);
+        Assert.Equal(config.Style, copy.Style);
         Assert.Equal(config.GridSize, copy.GridSize);
         Assert.Equal(config.ListSize, copy.ListSize);
         Assert.True(copy.GridIconOnly);

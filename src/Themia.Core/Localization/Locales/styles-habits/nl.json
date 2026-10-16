@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "Stippen",
+  "styles.habits.heatmap": "Heatmap",
+  "styles.habits.checklist": "Checklist",
+  "styles.habits.cell": "{period}: {done} van {count}"
+}

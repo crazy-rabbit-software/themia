@@ -1,11 +1,15 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-1380] How the Shortcuts widget lays its items out (original S-22).</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ShortcutViewMode>))]
-public enum ShortcutViewMode
+/// <summary>
+/// [S-1380] [S-6401] How the Shortcuts widget lays its items out (original S-22): its styles, what
+/// was its View setting.
+/// </summary>
+[JsonConverter(typeof(StyleJsonConverter<ShortcutsStyle>))]
+public enum ShortcutsStyle
 {
     /// <summary>Tiles: the icon with the name centred under it. The original's default.</summary>
     Grid = 0,
@@ -93,15 +97,34 @@ public sealed class ShortcutItem
 /// <summary>
 /// An ordered list of shortcuts and how to draw them.
 /// </summary>
-public sealed class ShortcutsConfig : WidgetConfig
+public sealed class ShortcutsConfig : WidgetConfig, IStyled
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Shortcuts;
 
     public List<ShortcutItem> Items { get; set; } = [];
 
-    /// <summary>[S-1380] Grid (default), list or details.</summary>
-    public ShortcutViewMode View { get; set; } = ShortcutViewMode.Grid;
+    /// <summary>[S-1380] [S-6401] Grid (default), list or details: the widget's style.</summary>
+    public ShortcutsStyle Style { get; set; } = ShortcutsStyle.Grid;
+
+    private static readonly StyleOption[] ShortcutsStyles =
+    [
+        StyleOption.Of(ShortcutsStyle.Grid, Str.WidgetsC_Shortcuts_Settings_View_Tiles, 0xECA5),
+        StyleOption.Of(ShortcutsStyle.List, Str.CtxMenu_List, 0xEA37),
+        StyleOption.Of(ShortcutsStyle.Details, Str.CtxMenu_Details, 0xF12B),
+    ];
+
+    IReadOnlyList<StyleOption> IStyled.Styles => ShortcutsStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (ShortcutsStyle)value;
+    }
+
+    /// <summary>[S-6401] The look settings the current style draws with; the page shows only these.</summary>
+    [JsonIgnore]
+    public bool UsesTileSettings => Style == ShortcutsStyle.Grid;
 
     /// <summary>[S-1380] Tile size in the grid (original <c>gridItemSize</c>).</summary>
     public ShortcutItemSize GridSize { get; set; } = ShortcutItemSize.Medium;
@@ -147,12 +170,6 @@ public sealed class ShortcutsConfig : WidgetConfig
         if (Items.RemoveAll(item => item is null || item.Target is null || item.Label is null) > 0)
         {
             repairs.Add("Shortcuts widget had a broken item");
-        }
-
-        if (!Enum.IsDefined(View))
-        {
-            repairs.Add("Shortcuts widget had an unknown view");
-            View = ShortcutViewMode.Grid;
         }
 
         if (!Enum.IsDefined(GridSize))
@@ -215,7 +232,7 @@ public sealed class ShortcutsConfig : WidgetConfig
     {
         var copy = new ShortcutsConfig
         {
-            View = View,
+            Style = Style,
             GridSize = GridSize,
             ListSize = ListSize,
             GridStretchHeight = GridStretchHeight,

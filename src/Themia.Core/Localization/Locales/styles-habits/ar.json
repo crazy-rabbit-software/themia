@@ -1,0 +1,6 @@
+{
+  "styles.habits.dots": "نقاط",
+  "styles.habits.heatmap": "خريطة حرارية",
+  "styles.habits.checklist": "قائمة تحقق",
+  "styles.habits.cell": "{period}: {done} من {count}"
+}

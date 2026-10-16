@@ -40,6 +40,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly Canvas _canvas = new();
 
     private readonly Border _artHost;
+
+    /// <summary>[S-6407] The Cover style's gradient under the lines and the transport, so they read over any art.</summary>
+    private readonly Border _scrim = new() { IsHitTestVisible = false };
     private readonly Image _art = new();
     private readonly FontIcon _artPlaceholder;
 
@@ -82,6 +85,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     private bool _detached;
     private bool _preview;
     private bool _hidden;
+
+    /// <summary>Debug renders only: a sample track is on screen, and the real session must not replace it.</summary>
+    private bool _frozen;
 
     public MusicView()
     {
@@ -138,7 +144,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         _empty = Fluent.EmptyState(definition.Glyph, _emptyMessage, out _);
         _empty.Visibility = Visibility.Collapsed;
 
-        foreach (var part in new FrameworkElement[] { _artHost, _track, _subtitle, _album, _transport, _seek, _elapsed, _total })
+        foreach (var part in new FrameworkElement[] { _artHost, _scrim, _track, _subtitle, _album, _transport, _seek, _elapsed, _total })
         {
             part.Visibility = Visibility.Collapsed;
             _canvas.Children.Add(part);
@@ -168,6 +174,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         _ticker = ticker;
         _detached = false;
         _queue = DispatcherQueue;
+
+        // [S-6407] The scrim is built from the theme's own base fill, so it is redrawn with the theme.
+        ActualThemeChanged += OnThemeChanged;
 
         _session ??= new MediaSession(OnSessionChanged);
 
@@ -201,7 +210,8 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         _config = config as MusicConfig ?? new MusicConfig();
 
-        if (!_config.ShowAlbumArt)
+        // [S-6406] Text only draws no art, so none is held or fetched.
+        if (!_config.ShowsArt)
         {
             ClearArtwork();
         }
@@ -270,7 +280,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private void Reload()
     {
-        if (_detached || _session is null)
+        if (_detached || _frozen || _session is null)
         {
             return;
         }
@@ -305,7 +315,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
             _now = now;
             Present();
 
-            if (_config.ShowAlbumArt && now.HasTrack && now.TrackKey != _artKey)
+            if (_config.ShowsArt && now.HasTrack && now.TrackKey != _artKey)
             {
                 await LoadArtworkAsync(now.TrackKey, generation, cts.Token).ConfigureAwait(true);
             }
@@ -348,7 +358,12 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         }
 
         var bytes = await session.ReadArtworkAsync(token).ConfigureAwait(true);
+        await ShowArtworkAsync(bytes, key, generation).ConfigureAwait(true);
+    }
 
+    /// <summary>Decode <paramref name="bytes"/> and put them on screen as the art of <paramref name="key"/>.</summary>
+    private async Task ShowArtworkAsync(byte[]? bytes, string key, int generation)
+    {
         if (_detached || generation != _generation)
         {
             return;
@@ -620,9 +635,12 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         }
     }
 
+    private void OnThemeChanged(FrameworkElement sender, object args) => Lay();
+
     public void Detach()
     {
         _detached = true;
+        ActualThemeChanged -= OnThemeChanged;
 
         _subscription?.Dispose();
         _subscription = null;

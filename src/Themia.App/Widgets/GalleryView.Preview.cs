@@ -13,7 +13,7 @@ internal sealed partial class GalleryView : IWidgetPreviewState
 {
     private const string PreviewFolder = @"C:\Windows\Web\Wallpaper";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["slideshow", "grid", "scatter", "mosaic", "file", "sticker"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "slideshow", "grid", "scatter", "mosaic", "file", "sticker"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -33,14 +33,16 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             return;
         }
 
+        // [S-6006] "sample": Windows' wallpapers in whatever style the render chose (--style).
         var (source, layout) = state switch
         {
-            "slideshow" => (GallerySource.Folder, GalleryLayout.Slideshow),
-            "grid" => (GallerySource.Folder, GalleryLayout.Grid),
-            "scatter" => (GallerySource.Folder, GalleryLayout.Scatter),
-            "mosaic" => (GallerySource.Folder, GalleryLayout.Mosaic),
-            "file" => (GallerySource.File, GalleryLayout.Slideshow),
-            _ => ((GallerySource?)null, GalleryLayout.Slideshow),
+            "sample" => (GallerySource.Folder, _config.Style),
+            "slideshow" => (GallerySource.Folder, GalleryStyle.Slideshow),
+            "grid" => (GallerySource.Folder, GalleryStyle.Grid),
+            "scatter" => (GallerySource.Folder, GalleryStyle.Scatter),
+            "mosaic" => (GallerySource.Folder, GalleryStyle.Mosaic),
+            "file" => (GallerySource.File, GalleryStyle.Slideshow),
+            _ => ((GallerySource?)null, GalleryStyle.Slideshow),
         };
 
         if (source is not { } chosen)
@@ -69,7 +71,7 @@ internal sealed partial class GalleryView : IWidgetPreviewState
         // handed in, and only the decoding goes through the shared cache.
         _watch?.Dispose();
         _watch = null;
-        _config = new GalleryConfig { Source = chosen, Layout = layout, Path = PreviewFolder, FilePath = paths.FirstOrDefault() ?? string.Empty, Shuffle = false };
+        _config = new GalleryConfig { Source = chosen, Style = layout, Path = PreviewFolder, FilePath = paths.FirstOrDefault() ?? string.Empty, Shuffle = false };
         PublishTitle();
         _scan = new GalleryScan(paths.Count == 0 ? GalleryStatus.NoImages : GalleryStatus.Ok, paths);
         Select(keepPath: null, index: 0);

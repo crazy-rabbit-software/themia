@@ -17,14 +17,6 @@ public enum TaskSource
     Local = 1,
 }
 
-/// <summary>[S-602] How a row lays out its due date: under the title, or beside it on one line.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<TaskViewMode>))]
-public enum TaskViewMode
-{
-    List = 0,
-    Compact = 1,
-}
-
 /// <summary>
 /// One task, as both providers and the local store are reduced to it.
 /// <para>

@@ -7,7 +7,8 @@ namespace Themia.Core.Habits;
 /// <param name="Writable">Whether a habit can be added (a list is chosen and the pool is writable).</param>
 /// <param name="ShowStreak">The "Show streaks" setting.</param>
 /// <param name="HistoryDots">The configured dot count, already clamped.</param>
-public readonly record struct HabitLayoutInput(int Count, bool Writable, bool ShowStreak, int HistoryDots);
+/// <param name="Checklist">[S-6410] The checklist style: the current period only, so nothing beside the names.</param>
+public readonly record struct HabitLayoutInput(int Count, bool Writable, bool ShowStreak, int HistoryDots, bool Checklist = false);
 
 /// <summary>
 /// [S-1427] One layout pass's decisions for the Habits widget, made together so the rows and the
@@ -109,7 +110,8 @@ public static class HabitLayout
         var count = Math.Max(0, input.Count);
 
         // ---- width: the parts beside each name, in priority order ---------------------------------
-        var spare = area.Width - (2 * inset) - BoxWidth - NameMinWidth;
+        // [S-6410] A checklist is the box and the name: no run, dots, rate or best run at any size.
+        var spare = input.Checklist ? -1 : area.Width - (2 * inset) - BoxWidth - NameMinWidth;
 
         var streak = input.ShowStreak && area.WidthClass >= SizeClass.Regular && Spend(ref spare, StreakNumberWidth);
         var words = streak && area.WidthClass >= SizeClass.Expanded && Spend(ref spare, StreakWordsWidth - StreakNumberWidth - ColumnGap);

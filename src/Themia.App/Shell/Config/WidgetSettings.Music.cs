@@ -21,9 +21,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Music_Header.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Gallery, Str.Music_AlbumArtLabel.Text(),
-            Str.WidgetsB_Settings_Music_AlbumArt_Desc.Text(),
-            FluentLayout.Toggle(config.ShowAlbumArt, value => { config.ShowAlbumArt = value; save(); })));
+        // [S-6406] Whether the art shows, and how, is the widget's style: the shared Style row.
 
         rows.Add(FluentLayout.Row(Glyphs.Play, Str.WidgetsB_Settings_Music_Transport_Label.Text(),
             Str.WidgetsB_Settings_Music_Transport_Desc.Text(),

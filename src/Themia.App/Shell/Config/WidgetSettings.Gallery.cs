@@ -58,7 +58,7 @@ internal static partial class WidgetSettings
 
             foreach (var row in slideshowOnly)
             {
-                row.Visibility = folder && config.Layout == GalleryLayout.Slideshow ? Visibility.Visible : Visibility.Collapsed;
+                row.Visibility = folder && config.Style == GalleryStyle.Slideshow ? Visibility.Visible : Visibility.Collapsed;
             }
 
             var file = config.Source == GallerySource.File;
@@ -77,7 +77,7 @@ internal static partial class WidgetSettings
 
             // [S-15] A mosaic always crops to fill, so the choice would do nothing there; [S-774] nor
             // would it on a sticker, which is always whole.
-            fitRow!.Visibility = (folder && config.Layout == GalleryLayout.Mosaic) || config.IsSticker ? Visibility.Collapsed : Visibility.Visible;
+            fitRow!.Visibility = (folder && config.Style == GalleryStyle.Mosaic) || config.IsSticker ? Visibility.Collapsed : Visibility.Visible;
         }
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Gallery_Gallery.Text()));
@@ -102,13 +102,9 @@ internal static partial class WidgetSettings
         rows.Add(recursive);
         folderOnly.Add(recursive);
 
-        var layout = FluentLayout.Row(Glyphs.Grid, Str.Gallery_LayoutLabel.Text(), Str.WidgetsB_Settings_Gallery_Layout_Desc.Text(),
-            FluentLayout.Choice(
-                [(GalleryLayout.Slideshow, Str.Gallery_ModeSlideshow.Text()), (GalleryLayout.Grid, Str.Gallery_ModeGrid.Text()), (GalleryLayout.Scatter, Str.Gallery_ModeScatter.Text()), (GalleryLayout.Mosaic, Str.Gallery_ModeMosaic.Text())],
-                config.Layout,
-                value => { config.Layout = value; save(); Update(); }));
-        rows.Add(layout);
-        folderOnly.Add(layout);
+        // [S-6402] The layout is the gallery's style: the shared Style row at the top of the page.
+        // The rows that depend on it (the slide time, the fit) follow it when the page is rebuilt
+        // for a new style ([S-6010]).
 
         var slide = FluentLayout.Row(Glyphs.Timer, Str.WidgetsB_Settings_Gallery_Slide_Label.Text(), Str.WidgetsB_Settings_Gallery_Slide_Desc.Text(),
             FluentLayout.Slider(config.EffectiveSlideshowSeconds, GalleryConfig.MinSlideSeconds, 120, 1, "s",

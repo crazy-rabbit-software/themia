@@ -66,11 +66,7 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), Str.WidgetsC_Tasks_Settings_ShowDue_Desc.Text(),
             FluentLayout.Toggle(config.ShowDueDate, value => { config.ShowDueDate = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.WidgetsC_Tasks_Settings_Layout_Label.Text(), Str.WidgetsC_Tasks_Settings_Layout_Desc.Text(),
-            FluentLayout.Choice<TaskViewMode>(
-                [(TaskViewMode.List, Str.WidgetsC_Tasks_Settings_Layout_List.Text()), (TaskViewMode.Compact, Str.WidgetsC_Tasks_Settings_Layout_Compact.Text())],
-                config.ViewMode,
-                value => { config.ViewMode = value; save(); })));
+        // [S-6400] List or Compact is the widget's style: the shared Style row at the top of the page.
 
         rows.Add(FluentLayout.Row(Glyphs.Wrap, Str.Todo_TitleLines_Label.Text(), Str.WidgetsC_Tasks_Settings_TitleLines_Desc.Text(),
             FluentLayout.Slider(config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1, string.Empty,

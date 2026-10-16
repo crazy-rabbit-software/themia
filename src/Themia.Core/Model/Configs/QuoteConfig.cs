@@ -1,7 +1,19 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
+
+/// <summary>[S-6404] The quote's styles: the same quote and attribution, two ways of setting them.</summary>
+[JsonConverter(typeof(StyleJsonConverter<QuoteStyle>))]
+public enum QuoteStyle
+{
+    /// <summary>The quote in the language's own inline marks (“…”, „…“, « … »).</summary>
+    Plain = 0,
+
+    /// <summary>[S-6405] One large opening mark in the accent above the quote, which then has no inline marks.</summary>
+    Marks = 1,
+}
 
 /// <summary>One quote, as stored.</summary>
 public sealed class QuoteItem
@@ -22,7 +34,7 @@ public sealed class QuoteItem
 /// with no network and keeps working on a laptop in a tunnel.
 /// </para>
 /// </summary>
-public sealed class QuoteConfig : WidgetConfig
+public sealed class QuoteConfig : WidgetConfig, IStyled
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Quote;
@@ -33,6 +45,23 @@ public sealed class QuoteConfig : WidgetConfig
         {
             Quotes.Add(new QuoteItem { Text = quote.Text, Author = quote.Author });
         }
+    }
+
+    /// <summary>[S-6404] Plain or large marks: the widget's style.</summary>
+    public QuoteStyle Style { get; set; } = QuoteStyle.Plain;
+
+    private static readonly StyleOption[] QuoteStyles =
+    [
+        StyleOption.Of(QuoteStyle.Plain, Str.Styles_Quote_Plain, 0xEC34),
+        StyleOption.Of(QuoteStyle.Marks, Str.Styles_Quote_Marks, 0xE9B2),
+    ];
+
+    IReadOnlyList<StyleOption> IStyled.Styles => QuoteStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (QuoteStyle)value;
     }
 
     /// <summary>The user's list, in order.</summary>
@@ -84,6 +113,7 @@ public sealed class QuoteConfig : WidgetConfig
         // Not the seeding constructor: see ColorSwatchConfig.Clone.
         var copy = new QuoteConfig
         {
+            Style = Style,
             Cadence = Cadence,
             Shuffle = Shuffle,
             Seed = Seed,
