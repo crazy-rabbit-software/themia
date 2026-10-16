@@ -1671,6 +1671,8 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
 - **[S-602]** Style ([S-6400]): List puts the due date under the title, Compact beside it (under it anyway in a
   column under 240px wide). Rows are Fluent's fixed heights at minimum and grow only for a wrapped
   title; an important task's title is semibold. The size ladder is [S-780].
+- **[S-6400]** Tasks' styles ([S-6000]), `TasksConfig.Style` (`TasksStyle`, `"style": "list"`):
+  **List** and **Compact** ([S-602]), what was its Layout setting; no other look option exists.
 - **[S-603]** Lists on this PC are one pool in `tasks.json` beside the state (`schemaVersion` 1),
   shared by every widget: renaming a list retitles each widget showing it, and deleting a widget keeps
   its tasks. Load validates every entry (a list needs a non-empty id and a name, a task an id and a
@@ -1731,8 +1733,6 @@ Drag-to-reorder, keyboard navigation, Tab between editors, the scroll fade and t
 ported in [S-781]..[S-788].
 
 ## Calendar and contacts
-- **[S-6400]** Tasks' styles ([S-6000]), `TasksConfig.Style` (`TasksStyle`, `"style": "list"`):
-  **List** and **Compact** ([S-602]), what was its Layout setting; no other look option exists.
 
 The classic Calendar and Contacts widgets, on Themia's own accounts ([S-529]) instead of the earlier hub
 hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services/Office`, the views in
@@ -2001,6 +2001,11 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
 - **[S-765]** Mosaic: the card cut recursively, the first half of the pictures getting a 35–65%
   share, across the longer side (the original alternated; same on a square, no slivers on a strip).
   Cells tile the card exactly with no gaps; always cropped to fill. About one cell per 9,000 DIP².
+- **[S-6402]** The gallery's styles ([S-6000]) are its layouts, `GalleryConfig.Style`
+  (`GalleryStyle`, `"style": "slideshow"`): **Slideshow**, **Grid**, **Scatter** ([S-764]) and
+  **Mosaic** ([S-765]), in that order; the Layout row is gone. A folder's choice: one picture file
+  and the photo of the day are drawn whole in any style ([S-762]). The slide time shows on the page
+  for Slideshow only and the fit for every style but Mosaic; another style rebuilds the page.
 - **[S-766]** Grid: about one 120-DIP tile per slot (max 24), shaped so tiles are closest to square
   with a small penalty per empty cell.
 - **[S-767]** The ladder (`GalleryPlan`): any layout with room for only one picture is that picture
@@ -2062,11 +2067,6 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
 - **[S-3412]** Each widget keeps its place by widget id for the session, never persisted
   (`GalleryPositions`, at most 256 widgets): the picture on show, its position, the seed its
   selection and scatter / mosaic are dealt from, and whether it was paused. Built again, it comes back
-- **[S-6402]** The gallery's styles ([S-6000]) are its layouts, `GalleryConfig.Style`
-  (`GalleryStyle`, `"style": "slideshow"`): **Slideshow**, **Grid**, **Scatter** ([S-764]) and
-  **Mosaic** ([S-765]), in that order; the Layout row is gone. A folder's choice: one picture file
-  and the photo of the day are drawn whole in any style ([S-762]). The slide time shows on the page
-  for Slideshow only and the fit for every style but Mosaic; another style rebuilds the page.
   on that picture (found by path wherever it is now, else the same position kept inside the list)
   and the slideshow continues from it. The seed is dealt again only by "Refresh images" and, for a
   shuffled folder larger than the widget shows, by the refresh interval (so in time it shows all of
@@ -4305,6 +4305,10 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   `ShowFileExtension`, `ClickMode` (shared `ItemClickMode`, Double by default). Enums are written as
   names; `Repair` brings unknown values back, drops null items and mends blank or repeated ids.
   `ShowTarget` and `OpenOnSingleClick` are gone (the details view and `ClickMode` replace them).
+- **[S-6401]** Shortcuts' styles ([S-6000]) are its views, `ShortcutsConfig.Style`
+  (`ShortcutsStyle`, `"style": "grid"`): **Tiles** (Grid), **List** and **Details**, in that order;
+  the View expander is gone. The page offers the tile size, icons only and stretch for Tiles
+  (`UsesTileSettings`), the row size for List and Details.
 - **[S-1381]** Display name: label, else host without `www.`, else the Windows location's name, else
   the file name without its extension unless `ShowFileExtension` (original S-05, S-18, S-48).
 - **[S-1382]** Grid ladder (`ShortcutLayout.Grid`): tiles keep the chosen size and the columns share
@@ -4389,10 +4393,6 @@ client factory, connect callback, per-request check), `src/Themia.App/Services/N
   the public address) and the `AccountHttp` client (sign-in, token refresh, Microsoft Graph,
   Google, CalDAV/CardDAV) — and every
   connection it opens goes through one `ConnectCallback`. IMAP (account check and every sync) opens
-- **[S-6401]** Shortcuts' styles ([S-6000]) are its views, `ShortcutsConfig.Style`
-  (`ShortcutsStyle`, `"style": "grid"`): **Tiles** (Grid), **List** and **Details**, in that order;
-  the View expander is gone. The page offers the tile size, icons only and stretch for Tiles
-  (`UsesTileSettings`), the row size for List and Details.
   through `GuardedTcp.OpenTlsAsync`. Both end in `NetGuard.OpenSocketAsync`. A refusal is a
   `NetRefusedException` carrying the sentence ("x is on the local network. Themia goes there only
   for an address you typed yourself"): `FetchStatus.Refused` in a widget, `AccountError.Refused`
@@ -4792,6 +4792,17 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   on a wide one); M art + lines + transport, seek bar with the times under it; Tall stacked like
   the media flyout (art, lines, seek, times, transport); L/XL art up to half the width beside
   title/artist/album/40px transport, seek row with times along the bottom. No spectrum ([S-3200]).
+- **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
+  `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
+  **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
+  art", which is gone. Transport, progress and hide-when-idle stay settings for every style.
+- **[S-6407]** Full artwork: the art fills the card edge to edge (cropped to fill; the music glyph
+  on the control fill without one), and the title (BodyStrong, Subtitle at L/XL) with the artist
+  where it fits, the transport beside them (play/pause alone on a Compact-wide card or when the
+  lines would get under 120 DIPs) and the seek bar under them (its times beside it from Expanded
+  width) sit at its foot over a scrim: the theme's own base fill fading in, eased, over a band as tall as the foot, to 80 %,
+  so the text keeps its theme colours on any art. The foot never takes more than 60 % of the card;
+  the artist and then the bar give way first.
 - Not ported: the compact-header default of the original's [S-21] (WinUI header modes differ);
   `pollInterval` (legacy, unused).
   Not live-verified: actual sound output of the cues and the preview, single-flight stop, seeking
@@ -4876,17 +4887,6 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   reads. `Oscilloscope.Trace` shows the newest 512 samples (about 11 ms at 48 kHz) from the newest
   rising zero crossing that still leaves a whole span after it (else the newest span), so a steady
   tone stands still; each point is the loudest sample of its stretch, square-root compressed with
-- **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
-  `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
-  **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
-  art", which is gone. Transport, progress and hide-when-idle stay settings for every style.
-- **[S-6407]** Full artwork: the art fills the card edge to edge (cropped to fill; the music glyph
-  on the control fill without one), and the title (BodyStrong, Subtitle at L/XL) with the artist
-  where it fits, the transport beside them (play/pause alone on a Compact-wide card or when the
-  lines would get under 120 DIPs) and the seek bar under them (its times beside it from Expanded
-  width) sit at its foot over a scrim: the theme's own base fill fading in, eased, over a band as tall as the foot, to 80 %,
-  so the text keeps its theme colours on any art. The foot never takes more than 60 % of the card;
-  the artist and then the bar give way first.
   its sign, as the bands are; bad samples are silence. The other designs read the bands only.
 - **[S-3215]** While sound arrives the line is the fresh trace; when it stops the line fades ×0.8 a
   frame and points under 0.01 are zero, so it lies flat (the design's idle, [S-3206]) in about half
@@ -5101,6 +5101,12 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
 - **[S-1496]** Quote ladder on `IWidgetSizeAware` + `Disclosure`: quote (Caption floor) → author;
   the author goes when the quote would not fit. Nothing else at any size: the rotation caption
   ("Quote of the day · 3 of 16") is retired, a larger tile sets the quote larger. Ceiling TitleLarge, Display on a Huge × Huge tile (replaces S-653's cap there).
+- **[S-6404]** Quote's styles ([S-6000]), `QuoteConfig.Style` (`QuoteStyle`, `"style": "plain"`):
+  **Plain** (the quote in the language's own marks) and **Large quotation marks**, in that order.
+- **[S-6405]** Large quotation marks: one opening mark (the Quote glyph, mirrored right to left) in
+  the accent above the quote, a ramp step by the card's smaller side (Title up to Regular,
+  TitleLarge at Expanded, Display at Huge, `QuoteLayout.MarkSize`); its row is taken off the top
+  before the quote is fitted to the rest ([S-1496]), and the quote then carries no inline marks.
 - **[S-1497]** Scratchpad ink bar (original S-02 toolbar): six preset inks (`InkPalette`, shared
   with the settings picker) and the original's three nibs 2/4/8 px at the foot of the pad from
   Regular × Regular; nibs only when the width holds both; nothing more on a larger pad (the stroke
@@ -5188,12 +5194,6 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   `NotNow` (rotation while docked, on several screens, as a laptop, remote), `NoSwitch` (Windows'
   interface or Settings handler is not there for an app), `NotSupported` (the output cannot do
   spatial sound), `TurnedOff` (Windows says the setting does not apply, or a radio's hardware switch
-- **[S-6404]** Quote's styles ([S-6000]), `QuoteConfig.Style` (`QuoteStyle`, `"style": "plain"`):
-  **Plain** (the quote in the language's own marks) and **Large quotation marks**, in that order.
-- **[S-6405]** Large quotation marks: one opening mark (the Quote glyph, mirrored right to left) in
-  the accent above the quote, a ramp step by the card's smaller side (Title up to Regular,
-  TitleLarge at Expanded, Display at Huge, `QuoteLayout.MarkSize`); its row is taken off the top
-  before the quote is fitted to the rest ([S-1496]), and the quote then carries no inline marks.
   holds it). Nothing ever elevates: what needs more than the user's rights is one of these.
 - **[S-3904]** The tile is a Windows 11 quick-settings button over the whole content area, inside the
   card's own fill and corners: on, `AccentFillColorDefault` (Secondary on hover, Tertiary pressed)
