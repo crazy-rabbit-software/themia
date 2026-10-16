@@ -5372,8 +5372,8 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1064]** Tier: no package identity: **Unrestricted** ("Developer build"); the Store's "owned":
   Pro; "not owned": Free; no answer: Pro only inside the offline grace, else Free. An unknown or
   corrupt state never unlocks Pro.
-- **[S-1065]** Free tier: every widget type, at most **10 widgets** (all views) and **2 views**, as
-  the original. Gates at every create: placement start and landing, paste (net of a cut's original;
+- **[S-1065]** Free tier: every widget type, at most **20 widgets** (all views) and **2 views** (the
+  original allowed 10 widgets; raised so the first-run seed, [S-893], leaves room to add). Gates at every create: placement start and landing, paste (net of a cut's original;
   a selection pastes whole or not at all), duplicate and new view. A newly seen display creates nothing ([S-1705]), so it needs no gate. A refusal creates nothing and says why in a notice ([S-881]) whose "See plans"
   opens Settings › License, which repeats it once. Nothing
   is ever deleted or hidden for being over the limit; moving, editing and deleting are never gated.
@@ -6509,8 +6509,7 @@ breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout
   the weather has no place and shows its setup ([S-2848]), Calendar and Tasks show Set up until an
   account exists ([S-1860]), the note is made on first show ([S-1346]), every id is new on each
   call. Every widget is inside the screen, none overlaps another, and load validation changes
-  nothing. The two views fit the free tier's view limit; with 17 widgets they are over its widget
-  limit ([S-1065]), which deletes nothing but refuses a new widget until there are fewer than 10.
+  nothing. The two views and 17 widgets fit the free tier ([S-1065]), with room to add a widget.
 - Not ported: the original's pending-operation framework (an operation that resolves later; nothing
   here records one yet, and file operations will add their own step when they need it), and
   per-window boot counters (one process here, so one counter).

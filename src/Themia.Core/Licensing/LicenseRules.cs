@@ -110,7 +110,7 @@ public readonly record struct LicenseUsage(int Widgets, int Views)
 public static class LicenseRules
 {
     /// <summary>Widgets the free tier may hold, across all views.</summary>
-    public const int FreeWidgetLimit = 10;
+    public const int FreeWidgetLimit = 20;
 
     /// <summary>Views the free tier may hold.</summary>
     public const int FreeViewLimit = 2;

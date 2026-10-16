@@ -99,14 +99,22 @@ public sealed class LicensingTests
     }
 
     [Fact]
-    public void S1065_free_tier_refuses_the_eleventh_widget_and_third_view()
+    public void S1065_free_tier_refuses_the_twenty_first_widget_and_third_view()
     {
-        var nine = new LicenseUsage(9, 1);
-        Assert.False(LicenseRules.WouldExceed(LicenseTier.Free, nine, 1));
-        Assert.True(LicenseRules.WouldExceed(LicenseTier.Free, new LicenseUsage(10, 1), 1));
+        var nineteen = new LicenseUsage(19, 1);
+        Assert.False(LicenseRules.WouldExceed(LicenseTier.Free, nineteen, 1));
+        Assert.True(LicenseRules.WouldExceed(LicenseTier.Free, new LicenseUsage(20, 1), 1));
 
         // A paste of a group is all or nothing.
-        Assert.True(LicenseRules.WouldExceed(LicenseTier.Free, new LicenseUsage(8, 1), 3));
+        Assert.True(LicenseRules.WouldExceed(LicenseTier.Free, new LicenseUsage(18, 1), 3));
+    }
+
+    [Fact]
+    public void S1065_the_first_run_seed_fits_the_free_tier()
+    {
+        var usage = LicenseUsage.Of(AppState.CreateDefault());
+        Assert.False(LicenseRules.WouldExceed(LicenseTier.Free, usage, 1, 0));
+        Assert.True(usage.Views <= LicenseRules.FreeViewLimit);
 
         Assert.False(LicenseRules.WouldExceed(LicenseTier.Free, new LicenseUsage(0, 1), 0, 1));
         Assert.True(LicenseRules.WouldExceed(LicenseTier.Free, new LicenseUsage(0, 2), 0, 1));
