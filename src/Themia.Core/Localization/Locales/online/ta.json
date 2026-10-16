@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows பிராந்தியம் ({code})",
   "online.rates.settings.quotes.label": "நாணயங்கள்",
   "online.rates.settings.quotes.desc": "பொருந்தும் அளவு, தேர்ந்தெடுத்த வரிசையில்",
-  "online.rates.settings.quotes.all": "எல்லா நாணயங்களும்",
-  "online.rates.settings.chart.label": "{days}-நாள் விளக்கப்படம்",
-  "online.rates.settings.chart.desc": "இடம் இருக்கும் இடத்தில், ஒவ்வொரு விகிதத்தின் கீழும்"
+  "online.rates.settings.quotes.all": "எல்லா நாணயங்களும்"
 }

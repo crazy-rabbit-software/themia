@@ -122,10 +122,11 @@ internal sealed partial class HeroReadout : Grid
 
     /// <summary>
     /// Draw at <paramref name="step"/>. The glyph grows with the value; the token stands on the
-    /// value's baseline or on a line of its own under it; the lines stand beside the value
-    /// (centred on it) or under it.
+    /// value's baseline or on a line of its own under it, at <see cref="HeroLayout.TrailingStep"/>
+    /// unless the caller's style gives it a step of its own (<paramref name="trailing"/>, [S-6166]);
+    /// the lines stand beside the value (centred on it) or under it.
     /// </summary>
-    public void Lay(TypeStep step, bool icon, bool trailingBeside, bool linesBeside)
+    public void Lay(TypeStep step, bool icon, bool trailingBeside, bool linesBeside, TypeStep? trailing = null)
     {
         _line.LineHeight = step.LineHeight;
         _value.FontSize = step.FontSize;
@@ -137,7 +138,7 @@ internal sealed partial class HeroReadout : Grid
 
         // The token: on the value's baseline, or the first line under it.
         Detach(_trailing);
-        var trailingStep = HeroLayout.TrailingStep(step);
+        var trailingStep = trailing ?? HeroLayout.TrailingStep(step);
 
         if (trailingBeside)
         {

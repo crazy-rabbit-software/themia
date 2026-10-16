@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Região do Windows ({code})",
   "online.rates.settings.quotes.label": "Moedas",
   "online.rates.settings.quotes.desc": "Tantas quantas couberem, pela ordem escolhida",
-  "online.rates.settings.quotes.all": "Todas as moedas",
-  "online.rates.settings.chart.label": "Gráfico de {days} dias",
-  "online.rates.settings.chart.desc": "Por baixo de cada taxa, se houver espaço"
+  "online.rates.settings.quotes.all": "Todas as moedas"
 }

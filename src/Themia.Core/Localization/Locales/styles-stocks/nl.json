@@ -1,0 +1,6 @@
+{
+  "styles.stocks.chart": "Grafiek",
+  "styles.stocks.number": "Getal",
+  "styles.stocks.options": "Periode en kleuren",
+  "styles.stocks.optionsDesc": "Periode van de wijziging, markeringen in de grafiek en kleuren"
+}

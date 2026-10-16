@@ -893,7 +893,7 @@ A different look of the same widget with the same data and the same settings, ch
 widget on the properties strip or at the top of its settings page. Owning files:
 `Themia.Core/Widgets/WidgetStyles.cs` (the registry), each styled kind's config (its style enum),
 `Themia.App/Shell/PropertiesStrip.cs`, `Themia.App/Shell/Config/ConfigPages.Widget.cs`. Tests:
-`WidgetStylesTests`.
+`WidgetStylesTests`; the weather, forecast, stock, exchange-rate and air styles in `WeatherStylesTests`.
 
 - **[S-6000]** A kind's styles are one setting: where a kind already had a look option (the clock's
   face, a gallery's layout, a forecast's layout), that option **is** the style, never a second
@@ -2108,9 +2108,8 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   run within 4px of the card's edge). No next-days strip and no next-24-hours chart at any size (retired, [S-666]:
   the hours and the days are the forecast widget's job); what the rungs leave is the reading's.
   "Show detail" off = the reading alone at every size.
-- **[S-724]** Forecast layout setting `Layout` = Auto | Rows | Columns | Grid (default Auto: columns
-  on a strip of width ≥ Regular, rows elsewhere); the user's choice always wins. Chosen in the settings
-  only ([S-1746]).
+- **[S-724]** The forecast's look is its style ([S-6163]): Rows (the default), Columns or the
+  temperature curve; what was its layout setting.
 - **[S-725]** Rows: stretched to fill the tile when every day fits at the row floor (40, or 32
   compact under a 200px list), capped at 56 (a two-line list item's height; at 80 a one-line row was
   mostly gap), else scrolling (hidden bar); the list is padded 4 above and 10 below. Rows use the
@@ -2121,12 +2120,11 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   repeated the first row, concise widgets).
 - **[S-726]** Columns: day + high always, then (by height) icon, low, a vertical range bar that takes
   the leftover, precipitation, sky (column ≥ 72), and at H ≥ Expanded the chance and the wind;
-  scroll sideways below 56px a column. Grid: 1 card across ≤ 220, else 2..4; cards stretch to fill or
-  scroll at 64; each card: day + icon, high/low, then bar, sky, precipitation "mm", chance · wind, sun.
-- **[S-727]** Today is marked by an accent, semibold label and a quiet fill under its row, column or
-  card; a row's fill is inset 4 either side with the control radius, as Windows draws a selected
+  scroll sideways below 56px a column.
+- **[S-727]** Today is marked by an accent, semibold label and a quiet fill under its row or
+  column; a row's fill is inset 4 either side with the control radius, as Windows draws a selected
   list item, its text kept in line with the other days'. In a column the low stands right under
-  the high; without a range bar the slack goes under the column, not between them. Precipitation is a droplet and the amount ("0.3"; "0.3 mm" in the grid), blank on a dry day.
+  the high; without a range bar the slack goes under the column, not between them. Precipitation is a droplet and the amount ("0.3"; "0.3 mm" under a curve column ≥ 72), blank on a dry day.
 - **[S-728]** `HideLocation` ("Location name" switch, both widgets): off leaves the header to the
   catalogue label; on, the title is the chosen place's city (first part of `LocationName`); before a
   pick there is none (the typed query is not kept, [S-2846]). A user label still wins.
@@ -2139,6 +2137,31 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   reads or writes it.
 - **[S-730]** "Refresh" in both widgets' menus resets the back-off and bypasses cache freshness
   (`WebCache.GetAsync(force)`), still joining a request already in flight.
+- **[S-6160]** The current conditions' styles ([S-6000]), `WeatherNowConfig.Style`
+  (`WeatherNowStyle`): **Standard** (the ladder, [S-723]), **Large icon** and **Minimal**, in that
+  order. "Show detail" is the standard style's; the place and the location name are every style's.
+- **[S-6161]** **Large icon** (`WeatherNowStyles.LargeIcon`): the sky's glyph is the picture, as tall
+  as the inset box (at most 42 % of its width, 24..200), the temperature beside it in the width left
+  (Subtitle to Display, then grown to 1.5×); the condition, then today's range, under the
+  temperature where the height has their lines. A tall column puts the glyph above (70 % of the
+  width, 60 % of the height left) and the text centred under it. No readings at any size.
+- **[S-6162]** **Minimal** (`WeatherNowStyles.Minimal`): the temperature and its unit alone, in
+  Segoe's light weight, as large as the inset box holds it (the ramp, then Display scaled to the
+  box, as the minimal clock, [S-6014]); no glyph, condition, range or readings.
+- **[S-6163]** The forecast's styles, `WeatherForecastConfig.Style` (`ForecastStyle`): **Rows**
+  ([S-725], the default), **Columns** ([S-726]) and **Temperature curve**. What was the `Layout`
+  setting: its Automatic (rows that turned into columns on a strip) and Grid (the columns wrapped
+  into cards) are gone; the style is the user's choice at every size.
+- **[S-6164]** **Temperature curve** (`ForecastCurve`): the days as columns (at least 48 wide;
+  as many of the first days as fit, never scrolled, never more than the forecast has), each with
+  its label; under them one chart across the columns: each day's high a dot on its column's middle
+  with its figure over it, joined by a smooth curve in the accent colour, monotone between two
+  days (Fritsch–Carlson, so its top is a day's high, never a bump the forecast did not say). Then
+  by height: the sky's glyph under the label, the lows as a second curve under the highs on the
+  same scale (tertiary colour, figures under their dots), the precipitation under each column (if
+  shown). With the lows the scale is the coldest low to the warmest high; without, the highs' own
+  range; one temperature all week is a flat line in the middle. A day without a value breaks the
+  curve. Time runs left to right in every language; today has its quiet fill under its column.
 - **[S-731]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-732]** *(Retired by [S-2840]..[S-2846]: the two-row search, its separate results drop-down
   and the "Change" button that cleared the place are gone.)*
@@ -3803,6 +3826,14 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   the **Timeframe** row in the widget's settings (`Range`, default 1 day). What they took goes to the
   chart. Those facts are not parsed or cached either (`QuoteStats` is gone; the previous close is
   read only as the change's baseline, [S-2775]).
+- **[S-6165]** The stock widget's styles ([S-6000]), `StocksConfig.Style` (`StocksStyle`): **Chart**
+  ([S-1311], the default) and **Number**; what was its "Show chart" switch. The period, the
+  markers and the colours are every style's (one "Period and colours" group, [S-3795]).
+- **[S-6166]** **Number** (`StockLayout.Plan` with `Number`): no chart at any size; the price and,
+  on a line of its own under it, the change, both as large as the tile holds: the price on the ramp
+  from Subtitle to Display and then Display grown in tenths to 1.5×, the change at the largest ramp
+  step within half the price, never under Body (`NumberChangeStep`); the holding and the extended
+  print keep their caption lines under them. Centred in the tile.
 - **[S-2775]** One baseline for the colour, the change and the line (`MarketQuote.Trace`): the
   change is the price against the start of the shown range, and the line starts at that same
   point, so a falling colour never sits over a rising line. A listed symbol's baseline is Yahoo's
@@ -6373,8 +6404,8 @@ Strings in `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
   ([S-470]): it is how a camera is read, not how often a service is asked.
 - **[S-3794]** Bluetooth: no device-count and no refresh setting; the list holds at most 30 devices
   and fills the tile.
-- **[S-3795]** Long widget pages fold related rows into `FluentLayout.Expander` groups: Stocks' chart
-  (timeframe, high and low, colours, under the Show chart switch); the clock's zone (label, offset);
+- **[S-3795]** Long widget pages fold related rows into `FluentLayout.Expander` groups: Stocks' period and
+  colours (timeframe, high and low, colours; whether a chart is drawn is the style, [S-6165]); the clock's zone (label, offset);
   Shortcuts' view (tile and row size, icon only, stretch) and the Windows locations; Folder's sort
   (reverse, folders first) and filter (hidden items, extensions). Descriptions are one short line,
   or none where the title says it. Repeated actions are not repeated: Folder's "Open in File
@@ -6726,6 +6757,15 @@ Air quality (`AirQuality`, 128):
 - **[S-5109]** Once every reading is shown, the next rung is the band strip: six equal segments in
   their status colours, a marker at the index (placed linearly inside its band; the open last band
   as wide as the one before), the breakpoints under it in Caption.
+- **[S-6169]** The air widget's styles ([S-6000]), `AirQualityConfig.Style` (`AirQualityStyle`):
+  **Number** ([S-5107], the default) and **Gauge**.
+- **[S-6170]** **Gauge** (`OnlineLayouts.AirGauge`): the meters' half-circle gauge ([S-6302],
+  `GaugeDial`) filled to the index's place on the six equal bands (`AirQualityRules.ScalePosition`,
+  the strip's own mapping, [S-5109]) in the band's status colour, the index in its bowl
+  (`GaugeLayout.Reading`); then the band's words on a line under it; then the readings in the
+  number style's order, as a column beside the gauge on a strip (≥ 360 wide, two columns from
+  640) or as stat lines under it on a tall column while the gauge keeps the column's width. No band
+  strip (the gauge is the scale). A box too small for a gauge is the index alone.
 
 Rain next hour (`RainNextHour`, 129):
 
@@ -6778,14 +6818,22 @@ Exchange rates (`ExchangeRates`, 130):
 - **[S-5146]** Ladder (`OnlineLayouts.Rates`): under 160 wide or two compact rows tall, the first
   currency as the hero (rate, code, day change, "per CHF"). From the regular height the hero (from
   280 tall at the step its width allows, up to Title Large), the
-  others as rows (code, rate, change; compact rows under 200 tall), and the first currency's 90-day
-  chart filled under the line in the rest; below that every currency is a row, with a small 90-day
+  others as rows (code, rate, change; compact rows under 200 tall); below that every currency is a row, with a small 90-day
   line from 300 wide. Up is the success colour, down critical. The header reads "ECB, 9 Oct"
   (the rates' day) in the caution colour when the last refresh failed or the table was restored.
 - **[S-5147]** One `RatesInterest` for all exchange-rate widgets; asked every three hours, no setting
   (`OnlineCadence.Rates`): the ECB publishes once per working day around 16:00 CET.
 - **[S-5148]** Settings: Base currency (Windows region first, naming it), Currencies (one
-  several-of-many row), 90-day chart, and the source line.
+  several-of-many row), and the source line.
+- **[S-6167]** The exchange-rate widget's styles ([S-6000]), `ExchangeRatesConfig.Style`
+  (`ExchangeRatesStyle`): **List** ([S-5146], the default) and **Chart**; what was its "90-day chart"
+  switch. The list no longer draws the first currency's chart: that is the chart style.
+- **[S-6168]** **Chart** (`OnlineLayouts.Rates`): the **first** currency of the list alone, as the
+  hero (rate, code, day change, "per CHF"; up to the tier step, [S-3860]), and its 90 days filled
+  under the line in what the hero leaves (the hero takes 40 % of the spare height), edge to edge
+  and down to the card's bottom; a strip (≥ 400 wide, 2:1) puts the hero in a column on the left
+  (42 % of the width, 150..280) beside a chart of the strip's height. Where the chart would have
+  under 56, the hero alone. No other currency is drawn.
 
 Shared:
 

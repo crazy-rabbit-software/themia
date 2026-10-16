@@ -7,7 +7,7 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
-/// <summary>The forecast's three layouts. [S-725]..[S-727]</summary>
+/// <summary>The forecast's rows and columns. [S-725]..[S-727]</summary>
 internal sealed partial class WeatherForecastView
 {
     /// <summary>The bar's own thickness. Fluent's hairline would read as a scratch at this length.</summary>
@@ -358,132 +358,6 @@ internal sealed partial class WeatherForecastView
         ToolTipService.SetToolTip(host, Describe(day));
         return host;
     }
-
-    // ---- Grid [S-726] ------------------------------------------------------------------------
-
-    private FrameworkElement BuildGrid(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastGridPlan plan)
-    {
-        var grid = new Grid
-        {
-            Padding = new Thickness(Fluent.Space2),
-            ColumnSpacing = Fluent.Space2,
-            RowSpacing = Fluent.Space2,
-        };
-
-        for (var c = 0; c < plan.Columns; c++)
-        {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
-
-        for (var r = 0; r < plan.Rows; r++)
-        {
-            grid.RowDefinitions.Add(new RowDefinition
-            {
-                Height = plan.Scroll ? new GridLength(plan.CardHeight) : new GridLength(1, GridUnitType.Star),
-            });
-        }
-
-        for (var i = 0; i < days.Count; i++)
-        {
-            var card = BuildCard(days[i], today, range, plan);
-            SetColumn(card, i % plan.Columns);
-            SetRow(card, i / plan.Columns);
-            grid.Children.Add(card);
-        }
-
-        if (!plan.Scroll)
-        {
-            return grid;
-        }
-
-        return new ScrollViewer
-        {
-            Content = grid,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-        };
-    }
-
-    private Border BuildCard(ForecastDay day, DateOnly today, Range range, ForecastGridPlan plan)
-    {
-        var top = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
-
-        var label = DayText(day, today, FluentType.BodyStrong);
-        var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", PartMetrics.DayIcon);
-        SetColumn(icon, 1);
-        top.Children.Add(label);
-        top.Children.Add(icon);
-
-        // Top-aligned: centred, a card with fewer lines (a dry day) sat lower than its neighbours.
-        var stack = new StackPanel { Spacing = Fluent.Space1, VerticalAlignment = VerticalAlignment.Top, Children = { top } };
-
-        if (plan.Description)
-        {
-            var sky = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            sky.Text = WeatherReport.Describe(day.Code);
-            sky.TextTrimming = TextTrimming.CharacterEllipsis;
-            stack.Children.Add(sky);
-        }
-
-        if (plan.Bar && day.Low is { } low && day.High is { } high)
-        {
-            stack.Children.Add(HorizontalBar(low, high, range));
-        }
-
-        var temps = Fluent.Text(FluentType.Body);
-        temps.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = WeatherReport.Degrees(day.High), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold });
-        temps.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run
-        {
-            Text = "  " + WeatherReport.Degrees(day.Low),
-            Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Microsoft.UI.Colors.Gray),
-        });
-        stack.Children.Add(temps);
-
-        if (plan.Precipitation && _config.ShowPrecipitation && WeatherReport.Precipitation(day.Precipitation).Length > 0)
-        {
-            var rain = Rain(day.Precipitation, withUnit: true);
-            rain.HorizontalAlignment = HorizontalAlignment.Left;
-            stack.Children.Add(rain);
-        }
-
-        // A tall card: the chance and the wind, then the sun's times.
-        if (plan.Extras && JoinNonEmpty(WeatherReport.Chance(day.PrecipitationChance), day.WindMax is null ? string.Empty : WeatherReport.Wind(day.WindMax)) is { Length: > 0 } extras)
-        {
-            var line = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            line.Text = extras;
-            line.TextTrimming = TextTrimming.CharacterEllipsis;
-            stack.Children.Add(line);
-        }
-
-        if (plan.Sun && day.Sunrise is not null && day.Sunset is not null)
-        {
-            var sun = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            sun.Text = $"{WeatherReport.Clock(day.Sunrise)} – {WeatherReport.Clock(day.Sunset)}";
-            stack.Children.Add(sun);
-        }
-
-        var card = new Border
-        {
-            Child = stack,
-            Padding = new Thickness(Fluent.Space3, Fluent.Space2, Fluent.Space3, Fluent.Space2),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = day.Day == today ? _todayFill : _cardFill,
-        };
-
-        ToolTipService.SetToolTip(card, Describe(day));
-        return card;
-    }
-
-    private static string JoinNonEmpty(params string[] parts)
-        => string.Join(" · ", parts.Where(part => part.Length > 0 && part != "--"));
 
     // ---- parts -------------------------------------------------------------------------------
 

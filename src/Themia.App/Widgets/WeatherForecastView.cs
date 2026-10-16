@@ -13,14 +13,13 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The next few days, from open-meteo's daily block, in one of three layouts ([S-724]): a Windows 11
-/// list of rows, the days side by side as columns, or a grid of cards. <c>Auto</c> picks columns on
-/// a strip and rows elsewhere; the user's own choice always wins.
+/// The next few days, from open-meteo's daily block, in one of three styles ([S-6163]): a Windows 11
+/// list of rows, the days side by side as columns, or the highs and lows as a temperature curve.
 /// <para>
-/// Each layout has its own ladder (<see cref="WeatherForecastLayout"/>): rows stretch to fill the
-/// tile when the days fit ([S-31] of the original) and gain the sky, a range bar, the precipitation
-/// and its chance as the width allows; at the largest size a Today panel stands beside them. The
-/// user's day count is the cap — days are never invented to fill space.
+/// Each style has its own ladder (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>):
+/// rows stretch to fill the tile when the days fit ([S-31] of the original) and gain the sky, a range
+/// bar, the precipitation and its chance as the width allows. The user's day count is the cap —
+/// days are never invented to fill space.
 /// </para>
 /// <para>
 /// The bar on each day is scaled against the whole forecast rather than that day's own range: a
@@ -45,7 +44,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private readonly Brush _trackBrush = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
     private readonly Brush _barBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly Brush _todayFill = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Transparent);
-    private readonly Brush _cardFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Transparent);
 
 
     private Ticker? _ticker;
@@ -72,8 +70,8 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private Fetched<Forecast>? _forecast;
     private WidgetArea _area;
 
-    /// <summary>What is on screen: the layout, its plan and the day the labels were computed for.</summary>
-    private (ForecastLayout Layout, object Plan, DateOnly Today, bool Precipitation)? _built;
+    /// <summary>What is on screen: the style, its plan and the day the labels were computed for.</summary>
+    private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation)? _built;
     private bool _detached;
 
     public WeatherForecastView()
@@ -92,7 +90,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     public FrameworkElement? HeaderTrailing => _freshness;
 
     /// <summary>
-    /// [S-730] Refresh. [S-1746] The layout is how the widget looks: it is chosen in its settings only.
+    /// [S-730] Refresh. The style is chosen on the properties strip and the settings page ([S-6007]).
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))] : [];
@@ -144,7 +142,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         PublishTitle();
 
         // Only the fields that change what comes back make another forecast. Toggling the
-        // precipitation column or the layout redraws the days already in hand.
+        // precipitation column or the style redraws the days already in hand.
         var placeChanged = previous.Latitude != next.Latitude
             || previous.Longitude != next.Longitude
             || previous.EffectiveDays != next.EffectiveDays;
@@ -293,7 +291,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
             : Str.WidgetsC_Weather_Tooltip_Updated.Format(("age", inline)));
     }
 
-    /// <summary>Pick the layout and its plan for the current area, and rebuild only if either changed.</summary>
+    /// <summary>Pick the style's plan for the current area, and rebuild only if it changed.</summary>
     private void Lay()
     {
         if (_detached || _forecast?.Value?.Days is not { Count: > 0 } days || !_area.IsMeasured)
@@ -301,20 +299,20 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
             return;
         }
 
-        var layout = WeatherForecastLayout.Resolve(_config.Layout, _area);
-        object plan = layout switch
+        var style = _config.Style;
+        object plan = style switch
         {
-            ForecastLayout.Columns => WeatherForecastLayout.Columns(_area, days.Count),
-            ForecastLayout.Grid => WeatherForecastLayout.Grid(_area, days.Count),
+            ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, days.Count),
+            ForecastStyle.Curve => ForecastCurve.Plan(_area, days.Count, _config.ShowPrecipitation),
             _ => WeatherForecastLayout.Rows(_area, days.Count),
         };
 
         // One clock reading for the whole build, so a forecast drawn across midnight cannot label
         // two different days "Today".
         var today = DateOnly.FromDateTime(DateTime.Now);
-        var key = (layout, plan, today, _config.ShowPrecipitation);
+        var key = (style, plan, today, _config.ShowPrecipitation);
 
-        if (_built is { } built && built.Layout == key.layout && Equals(built.Plan, key.plan)
+        if (_built is { } built && built.Style == key.style && Equals(built.Plan, key.plan)
             && built.Today == key.today && built.Precipitation == key.ShowPrecipitation)
         {
             return;
@@ -329,7 +327,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         _body.Children.Add(plan switch
         {
             ForecastColumnsPlan columns => BuildColumns(days, today, range, columns),
-            ForecastGridPlan grid => BuildGrid(days, today, range, grid),
+            ForecastCurvePlan curve => BuildCurve(days, today, curve),
             ForecastRowsPlan rows => BuildRows(days, today, range, rows),
             _ => new Grid(),
         });

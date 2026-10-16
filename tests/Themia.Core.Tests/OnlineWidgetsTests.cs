@@ -536,14 +536,13 @@ public sealed class OnlineWidgetsTests
     }
 
     [Fact]
-    public void S5146_the_rates_ladder_goes_from_hero_to_rows_to_hero_and_chart()
+    public void S5146_the_rates_list_goes_from_hero_to_rows_to_hero_over_rows()
     {
         var floor = FluentType.Title.LineHeight + FluentType.Caption.LineHeight;
 
-        var small = OnlineLayouts.Rates(new WidgetArea(160, 120), 3, true, floor);
-        var strip = OnlineLayouts.Rates(new WidgetArea(440, 116), 3, true, floor);
-        var large = OnlineLayouts.Rates(new WidgetArea(420, 420), 3, true, floor);
-        var noChart = OnlineLayouts.Rates(new WidgetArea(420, 420), 3, false, floor);
+        var small = OnlineLayouts.Rates(new WidgetArea(160, 120), 3, ExchangeRatesStyle.List, floor);
+        var strip = OnlineLayouts.Rates(new WidgetArea(440, 116), 3, ExchangeRatesStyle.List, floor);
+        var large = OnlineLayouts.Rates(new WidgetArea(420, 420), 3, ExchangeRatesStyle.List, floor);
 
         Assert.True(small.Hero);
         Assert.Equal(0, small.Rows);
@@ -552,8 +551,10 @@ public sealed class OnlineWidgetsTests
         Assert.True(strip.RowSparkWidth > 0);
         Assert.True(large.Hero);
         Assert.Equal(2, large.Rows);
-        Assert.True(large.ChartHeight >= OnlineLayouts.HeroChartMin);
-        Assert.Equal(0, noChart.ChartHeight);
+        Assert.True(large.RowSparkWidth > 0);
+
+        // [S-6168] The first currency's chart is the chart style's, never the list's.
+        Assert.Equal(0, large.ChartHeight);
     }
 
     // ---- offline store -------------------------------------------------------------------------
@@ -592,7 +593,7 @@ public sealed class OnlineWidgetsTests
     public void S5100_the_configs_round_trip_and_clone()
     {
         var air = new AirQualityConfig { Latitude = 1, Longitude = 2, LocationName = "X", Scale = AirQualityScale.Us };
-        var rates = new ExchangeRatesConfig { BaseCurrency = "CHF", Currencies = ["USD"], ShowChart = false };
+        var rates = new ExchangeRatesConfig { BaseCurrency = "CHF", Currencies = ["USD"], Style = ExchangeRatesStyle.Chart };
 
         var airCopy = (AirQualityConfig)air.Clone();
         var ratesCopy = (ExchangeRatesConfig)rates.Clone();
@@ -601,7 +602,7 @@ public sealed class OnlineWidgetsTests
         Assert.Equal(AirQualityScale.Us, airCopy.Scale);
         Assert.Equal(2, airCopy.Longitude);
         Assert.Equal(["USD"], ratesCopy.Currencies);
-        Assert.False(ratesCopy.ShowChart);
+        Assert.Equal(ExchangeRatesStyle.Chart, ratesCopy.Style);
         Assert.Equal(WidgetKind.RainNextHour, new RainNextHourConfig().Kind);
     }
 }

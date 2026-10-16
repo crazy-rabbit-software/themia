@@ -1,0 +1,6 @@
+{
+  "styles.stocks.chart": "চার্ট",
+  "styles.stocks.number": "সংখ্যা",
+  "styles.stocks.options": "সময়কাল ও রং",
+  "styles.stocks.optionsDesc": "পরিবর্তনের সময়কাল, চার্টের চিহ্ন ও রং"
+}

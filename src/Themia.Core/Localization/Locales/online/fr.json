@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Région Windows ({code})",
   "online.rates.settings.quotes.label": "Devises",
   "online.rates.settings.quotes.desc": "Autant que la place le permet, dans l’ordre choisi",
-  "online.rates.settings.quotes.all": "Toutes les devises",
-  "online.rates.settings.chart.label": "Graphique sur {days} jours",
-  "online.rates.settings.chart.desc": "Sous chaque taux, s’il y a de la place"
+  "online.rates.settings.quotes.all": "Toutes les devises"
 }

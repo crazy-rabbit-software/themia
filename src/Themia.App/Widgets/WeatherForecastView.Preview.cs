@@ -7,26 +7,17 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): a fixture week for Zürich, so each layout's ladder can be looked
-/// at without a place, the network or the sync service. Nothing is fetched or saved.
-/// <c>sample</c> lets the tile pick its layout; <c>rows</c>, <c>columns</c> and <c>grid</c> force one.
+/// Debug renders only ([S-1917]): a fixture week for Zürich, so each style's ladder can be looked at
+/// without a place, the network or the sync service. Nothing is fetched or saved. <c>sample</c>
+/// keeps the card's style ([S-6006]: <c>--style rows|columns|curve</c>).
 /// </summary>
 internal sealed partial class WeatherForecastView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "rows", "columns", "grid"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        var layout = state switch
-        {
-            "sample" => ForecastLayout.Auto,
-            "rows" => ForecastLayout.Rows,
-            "columns" => ForecastLayout.Columns,
-            "grid" => ForecastLayout.Grid,
-            _ => (ForecastLayout?)null,
-        };
-
-        if (layout is not { } chosen)
+        if (state != "sample")
         {
             return Task.CompletedTask;
         }
@@ -36,7 +27,7 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
             Latitude = 47.37,
             Longitude = 8.54,
             LocationName = "Zürich, Zurich, Switzerland",
-            Layout = chosen,
+            Style = _config.Style,
         };
 
         _applied = (WeatherForecastConfig)_config.Clone();

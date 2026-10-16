@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Rehiyon ng Windows ({code})",
   "online.rates.settings.quotes.label": "Mga currency",
   "online.rates.settings.quotes.desc": "Hangga't kasya, ayon sa pagkakapili",
-  "online.rates.settings.quotes.all": "Lahat ng currency",
-  "online.rates.settings.chart.label": "{days}-araw na chart",
-  "online.rates.settings.chart.desc": "Sa ilalim ng bawat rate, kung may puwang"
+  "online.rates.settings.quotes.all": "Lahat ng currency"
 }

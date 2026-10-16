@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "ภูมิภาคของ Windows ({code})",
   "online.rates.settings.quotes.label": "สกุลเงิน",
   "online.rates.settings.quotes.desc": "แสดงเท่าที่พื้นที่พอ ตามลำดับที่เลือก",
-  "online.rates.settings.quotes.all": "สกุลเงินทั้งหมด",
-  "online.rates.settings.chart.label": "แผนภูมิ {days} วัน",
-  "online.rates.settings.chart.desc": "ใต้อัตราแต่ละรายการ เมื่อมีพื้นที่"
+  "online.rates.settings.quotes.all": "สกุลเงินทั้งหมด"
 }

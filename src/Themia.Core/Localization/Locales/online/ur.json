@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows علاقہ ({code})",
   "online.rates.settings.quotes.label": "کرنسیاں",
   "online.rates.settings.quotes.desc": "جتنی سما سکیں، چنی گئی ترتیب میں",
-  "online.rates.settings.quotes.all": "تمام کرنسیاں",
-  "online.rates.settings.chart.label": "{days} دن کا چارٹ",
-  "online.rates.settings.chart.desc": "جگہ ہو تو ہر شرح کے نیچے"
+  "online.rates.settings.quotes.all": "تمام کرنسیاں"
 }

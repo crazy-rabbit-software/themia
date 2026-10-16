@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Eneo la Windows ({code})",
   "online.rates.settings.quotes.label": "Sarafu",
   "online.rates.settings.quotes.desc": "Nyingi kadiri zinavyotosha, kwa mpangilio uliochagua",
-  "online.rates.settings.quotes.all": "Sarafu zote",
-  "online.rates.settings.chart.label": "Chati ya siku {days}",
-  "online.rates.settings.chart.desc": "Chini ya kila kiwango, palipo na nafasi"
+  "online.rates.settings.quotes.all": "Sarafu zote"
 }

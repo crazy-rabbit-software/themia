@@ -311,10 +311,12 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         UpdateExtended(quote, extended);
         UpdateFreshness(held, now);
 
-        var chart = _config.ShowSparkline && quote.Bars.Count >= 2;
+        // [S-6165] The chart style draws the period's line; the number style the price and change alone.
+        var number = _config.Style == StocksStyle.Number;
+        var chart = !number && quote.Bars.Count >= 2;
         var extras = _changeText.Length + 1 + quote.Currency.Length;
 
-        _plan = StockLayout.Plan(_area, new StockInputs(price.Length, extras, chart, extended is not null, _config.ShowMinMax, holding));
+        _plan = StockLayout.Plan(_area, new StockInputs(price.Length, extras, chart, extended is not null, _config.ShowMinMax, holding, number));
         Lay(quote);
     }
 
@@ -345,7 +347,8 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         }
 
         _hero.SetTrailing(trailing);
-        _hero.Lay(plan.Price, icon: false, trailingBeside: beside, linesBeside: false);
+        _hero.Lay(plan.Price, icon: false, trailingBeside: beside, linesBeside: false,
+            _config.Style == StocksStyle.Number ? plan.Change : null);
 
         if (plan.Beside)
         {
@@ -364,6 +367,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
             // Without a chart the price is the tile: centred in it rather than stranded at the top.
             _hero.VerticalAlignment = plan.Chart ? VerticalAlignment.Top : VerticalAlignment.Center;
+            _hero.Margin = new Thickness(StockLayout.Inset, plan.Chart ? Fluent.Space1 : 0, StockLayout.Inset, 0);
             Place(_chart, 1, 0, 1, 2);
         }
 

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
@@ -37,6 +38,17 @@ public enum QuoteRange
     TenYears = 8,
 }
 
+/// <summary>[S-6165] The stock widget's styles: the same quote, two looks. What was its chart switch.</summary>
+[JsonConverter(typeof(StyleJsonConverter<StocksStyle>))]
+public enum StocksStyle
+{
+    /// <summary>[S-1311] The price and its change over the period's chart.</summary>
+    Chart = 0,
+
+    /// <summary>[S-6166] The price and its change large, no chart.</summary>
+    Number = 1,
+}
+
 /// <summary>
 /// One instrument's price, change and recent shape.
 /// <para>
@@ -45,8 +57,14 @@ public enum QuoteRange
 /// then be the size its reader wants.
 /// </para>
 /// </summary>
-public sealed class StocksConfig : WidgetConfig
+public sealed class StocksConfig : WidgetConfig, IStyled
 {
+    private static readonly StyleOption[] StockStyles =
+    [
+        StyleOption.Of(StocksStyle.Chart, Str.Styles_Stocks_Chart, 0xE9D2),
+        StyleOption.Of(StocksStyle.Number, Str.Styles_Stocks_Number, 0xE75F),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Stocks;
 
@@ -65,7 +83,16 @@ public sealed class StocksConfig : WidgetConfig
 
     public QuoteRange Range { get; set; } = QuoteRange.Day;
 
-    public bool ShowSparkline { get; set; } = true;
+    /// <summary>[S-6165] The widget's look: the chart, or the number alone.</summary>
+    public StocksStyle Style { get; set; } = StocksStyle.Chart;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => StockStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (StocksStyle)value;
+    }
 
     /// <summary>Say so when the listing exchange is shut. Crypto is never marked: it trades all week.</summary>
     public bool ShowMarketState { get; set; } = true;
@@ -174,7 +201,7 @@ public sealed class StocksConfig : WidgetConfig
         Market = Market,
         DisplayName = DisplayName,
         Range = Range,
-        ShowSparkline = ShowSparkline,
+        Style = Style,
         ShowMarketState = ShowMarketState,
         ShowExtendedHours = ShowExtendedHours,
         ShowMinMax = ShowMinMax,

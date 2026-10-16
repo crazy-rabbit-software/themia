@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows પ્રદેશ ({code})",
   "online.rates.settings.quotes.label": "ચલણો",
   "online.rates.settings.quotes.desc": "જેટલાં સમાય તેટલાં, પસંદ કરેલા ક્રમમાં",
-  "online.rates.settings.quotes.all": "બધાં ચલણો",
-  "online.rates.settings.chart.label": "{days}-દિવસનો ચાર્ટ",
-  "online.rates.settings.chart.desc": "દરેક દર નીચે, જ્યાં જગ્યા હોય ત્યાં"
+  "online.rates.settings.quotes.all": "બધાં ચલણો"
 }

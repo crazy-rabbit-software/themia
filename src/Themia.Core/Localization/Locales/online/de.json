@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows-Region ({code})",
   "online.rates.settings.quotes.label": "Währungen",
   "online.rates.settings.quotes.desc": "So viele wie passen, in der gewählten Reihenfolge",
-  "online.rates.settings.quotes.all": "Alle Währungen",
-  "online.rates.settings.chart.label": "{days}-Tage-Diagramm",
-  "online.rates.settings.chart.desc": "Unter jedem Kurs, wo Platz ist"
+  "online.rates.settings.quotes.all": "Alle Währungen"
 }

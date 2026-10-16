@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
@@ -17,22 +18,61 @@ public enum AirQualityScale
     Us = 2,
 }
 
+/// <summary>[S-6169] The air widget's styles: the same reading, two looks.</summary>
+[JsonConverter(typeof(StyleJsonConverter<AirQualityStyle>))]
+public enum AirQualityStyle
+{
+    /// <summary>[S-5107] The index and its band as a number, on the ladder.</summary>
+    Number = 0,
+
+    /// <summary>[S-6170] The index on an arc of its six bands.</summary>
+    Gauge = 1,
+}
+
+/// <summary>[S-6167] The exchange-rate widget's styles: the same rates, two looks. What was its chart switch.</summary>
+[JsonConverter(typeof(StyleJsonConverter<ExchangeRatesStyle>))]
+public enum ExchangeRatesStyle
+{
+    /// <summary>[S-5146] The first currency over the others as rows.</summary>
+    List = 0,
+
+    /// <summary>[S-6168] The first currency large, with its 90-day line.</summary>
+    Chart = 1,
+}
+
 /// <summary>
 /// [S-5100] Air quality, UV and pollen at a place. A weather-family widget: the same place picker and
 /// the same header rule ([S-728]), so it derives from <see cref="WeatherConfig"/>; the sync tells the
 /// kinds apart ([S-5101]).
 /// </summary>
-public sealed class AirQualityConfig : WeatherConfig
+public sealed class AirQualityConfig : WeatherConfig, IStyled
 {
+    private static readonly StyleOption[] AirStyles =
+    [
+        StyleOption.Of(AirQualityStyle.Number, Str.Styles_Air_Number, 0xE75F),
+        StyleOption.Of(AirQualityStyle.Gauge, Str.Styles_Air_Gauge, 0xEC4A),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.AirQuality;
+
+    /// <summary>[S-6169] The widget's look.</summary>
+    public AirQualityStyle Style { get; set; } = AirQualityStyle.Number;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => AirStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (AirQualityStyle)value;
+    }
 
     /// <summary>[S-5103] Auto picks by the place, not by the user's region: the index is about the air there.</summary>
     public AirQualityScale Scale { get; set; } = AirQualityScale.Auto;
 
     public override WidgetConfig Clone()
     {
-        var copy = new AirQualityConfig { Scale = Scale };
+        var copy = new AirQualityConfig { Scale = Scale, Style = Style };
         CopyTo(copy);
         return copy;
     }
@@ -67,8 +107,14 @@ public sealed class RainNextHourConfig : WeatherConfig
 /// <summary>
 /// [S-5140] The ECB's reference rates for one base currency against a short list of others.
 /// </summary>
-public sealed class ExchangeRatesConfig : WidgetConfig
+public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
 {
+    private static readonly StyleOption[] RateStyles =
+    [
+        StyleOption.Of(ExchangeRatesStyle.List, Str.Styles_Rates_List, 0xEA37),
+        StyleOption.Of(ExchangeRatesStyle.Chart, Str.Styles_Rates_Chart, 0xE9D2),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ExchangeRates;
 
@@ -78,8 +124,16 @@ public sealed class ExchangeRatesConfig : WidgetConfig
     /// <summary>[S-5143] The currencies priced in the base, in the order shown.</summary>
     public List<string> Currencies { get; set; } = [.. ExchangeRules.DefaultQuotes];
 
-    /// <summary>[S-5146] The 90-day line under each rate, where there is room.</summary>
-    public bool ShowChart { get; set; } = true;
+    /// <summary>[S-6167] The widget's look: the list, or the first currency's chart.</summary>
+    public ExchangeRatesStyle Style { get; set; } = ExchangeRatesStyle.List;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => RateStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (ExchangeRatesStyle)value;
+    }
 
     /// <summary>The base in force: the stored one, or the Windows region's currency ([S-5143]).</summary>
     [JsonIgnore]
@@ -100,7 +154,7 @@ public sealed class ExchangeRatesConfig : WidgetConfig
     {
         BaseCurrency = BaseCurrency,
         Currencies = [.. Currencies],
-        ShowChart = ShowChart,
+        Style = Style,
     };
 
     /// <summary>[S-5144] Codes the ECB does not publish are dropped, loudly; an empty list is the default.</summary>

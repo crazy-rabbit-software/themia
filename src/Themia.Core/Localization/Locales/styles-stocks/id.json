@@ -1,0 +1,6 @@
+{
+  "styles.stocks.chart": "Grafik",
+  "styles.stocks.number": "Angka",
+  "styles.stocks.options": "Periode dan warna",
+  "styles.stocks.optionsDesc": "Periode perubahan, penanda grafik, dan warna"
+}

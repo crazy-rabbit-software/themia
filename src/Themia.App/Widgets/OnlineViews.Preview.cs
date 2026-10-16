@@ -32,7 +32,7 @@ internal sealed partial class AirQualityView : IWidgetPreviewState
                   + ",\"alder_pollen\":0,\"birch_pollen\":0,\"grass_pollen\":12,\"mugwort_pollen\":0.2,\"olive_pollen\":0,\"ragweed_pollen\":0")
             + "}}";
 
-        _config = new AirQualityConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Zurich, Switzerland" };
+        _config = new AirQualityConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Zurich, Switzerland", Style = _config.Style };
         _applied = (AirQualityConfig)_config.Clone();
         _want = null;
         _reading = new Fetched<AirReading>(FetchStatus.Ok, AirQualityWire.Parse(json).Value, null, DateTimeOffset.Now.AddMinutes(-12));
@@ -111,7 +111,7 @@ internal sealed partial class ExchangeRatesView : IWidgetPreviewState
 
         xml.Append("</Cube></Envelope>");
 
-        _config = new ExchangeRatesConfig { BaseCurrency = "CHF", Currencies = ["EUR", "USD", "GBP", "JPY", "SEK"] };
+        _config = new ExchangeRatesConfig { BaseCurrency = "CHF", Currencies = ["EUR", "USD", "GBP", "JPY", "SEK"], Style = _config.Style };
         _table = new Fetched<RateTable>(FetchStatus.Ok, EcbWire.Parse(xml.ToString()).Value, null, DateTimeOffset.Now.AddHours(-2));
         _web = null;
         PublishTitle();

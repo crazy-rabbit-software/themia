@@ -309,14 +309,13 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
             _emptyIcon.Glyph = Glyphs.Weather;
             _emptyState.Visibility = Visibility.Visible;
-            Collapse(_group);
+            Collapse(_group, _styled);
             _freshness.Text = string.Empty;
             _built = null;
             return;
         }
 
         _emptyState.Visibility = Visibility.Collapsed;
-        _group.Visibility = Visibility.Visible;
 
         var (number, unit) = WeatherReport.TemperatureParts(reading.Temperature, Unit);
         _hero.SetValue(number, unit, spaced: false);
@@ -354,11 +353,20 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     /// </summary>
     private void Lay()
     {
-        if (_detached || _reading?.Value is null || !_area.IsMeasured)
+        if (_detached || _reading?.Value is not { } reading || !_area.IsMeasured)
         {
             return;
         }
 
+        // [S-6160] The other styles draw the same reading in a panel of their own.
+        if (_config.Style != WeatherNowStyle.Standard)
+        {
+            _built = null;
+            LayStyled(reading);
+            return;
+        }
+
+        ShowStyle(standard: true);
         var width = Math.Max(0, _area.Width - (2 * WeatherNowLayout.Inset));
         var hasToday = _highLow.Text.Length > 0;
 

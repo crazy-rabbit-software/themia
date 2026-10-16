@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows bölgesi ({code})",
   "online.rates.settings.quotes.label": "Para birimleri",
   "online.rates.settings.quotes.desc": "Sığdığı kadar, seçilen sırayla",
-  "online.rates.settings.quotes.all": "Tüm para birimleri",
-  "online.rates.settings.chart.label": "{days} günlük grafik",
-  "online.rates.settings.chart.desc": "Yer varsa her kurun altında"
+  "online.rates.settings.quotes.all": "Tüm para birimleri"
 }

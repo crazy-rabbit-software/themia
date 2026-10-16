@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Area geografica di Windows ({code})",
   "online.rates.settings.quotes.label": "Valute",
   "online.rates.settings.quotes.desc": "Quante ne entrano, nell’ordine scelto",
-  "online.rates.settings.quotes.all": "Tutte le valute",
-  "online.rates.settings.chart.label": "Grafico a {days} giorni",
-  "online.rates.settings.chart.desc": "Sotto ogni tasso, se c’è spazio"
+  "online.rates.settings.quotes.all": "Tutte le valute"
 }

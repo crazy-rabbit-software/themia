@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Yankin Windows ({code})",
   "online.rates.settings.quotes.label": "Kuɗaɗe",
   "online.rates.settings.quotes.desc": "Gwargwadon yadda suka dace, a tsarin da aka zaɓa",
-  "online.rates.settings.quotes.all": "Duk kuɗaɗe",
-  "online.rates.settings.chart.label": "Jadawalin kwana {days}",
-  "online.rates.settings.chart.desc": "A ƙarƙashin kowane farashi, inda akwai wuri"
+  "online.rates.settings.quotes.all": "Duk kuɗaɗe"
 }

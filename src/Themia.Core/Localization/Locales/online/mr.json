@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows प्रदेश ({code})",
   "online.rates.settings.quotes.label": "चलने",
   "online.rates.settings.quotes.desc": "जितकी बसतील, निवडलेल्या क्रमाने",
-  "online.rates.settings.quotes.all": "सर्व चलने",
-  "online.rates.settings.chart.label": "{days} दिवसांचा तक्ता",
-  "online.rates.settings.chart.desc": "जागा असल्यास प्रत्येक दराखाली"
+  "online.rates.settings.quotes.all": "सर्व चलने"
 }

@@ -1,0 +1,6 @@
+{
+  "styles.stocks.chart": "График",
+  "styles.stocks.number": "Число",
+  "styles.stocks.options": "Период и цвета",
+  "styles.stocks.optionsDesc": "Период изменения, отметки на графике и цвета"
+}

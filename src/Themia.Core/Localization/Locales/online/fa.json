@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "منطقه Windows ({code})",
   "online.rates.settings.quotes.label": "ارزها",
   "online.rates.settings.quotes.desc": "هر تعداد که جا شود، به ترتیب انتخاب",
-  "online.rates.settings.quotes.all": "همه ارزها",
-  "online.rates.settings.chart.label": "نمودار {days} روزه",
-  "online.rates.settings.chart.desc": "زیر هر نرخ، هر جا که جا باشد"
+  "online.rates.settings.quotes.all": "همه ارزها"
 }

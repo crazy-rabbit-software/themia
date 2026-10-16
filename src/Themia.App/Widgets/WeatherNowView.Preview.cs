@@ -21,7 +21,7 @@ internal sealed partial class WeatherNowView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        _config = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Zurich, Switzerland" };
+        _config = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Zurich, Switzerland", Style = _config.Style };
         _applied = (WeatherNowConfig)_config.Clone();
         _want = null;
         _reading = new Fetched<CurrentWeather>(FetchStatus.Ok, SampleReading(), null, DateTimeOffset.Now.AddMinutes(-4));

@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows-regio ({code})",
   "online.rates.settings.quotes.label": "Valuta's",
   "online.rates.settings.quotes.desc": "Zoveel als er passen, in de gekozen volgorde",
-  "online.rates.settings.quotes.all": "Alle valuta's",
-  "online.rates.settings.chart.label": "Grafiek van {days} dagen",
-  "online.rates.settings.chart.desc": "Onder elke koers, als er ruimte is"
+  "online.rates.settings.quotes.all": "Alle valuta's"
 }

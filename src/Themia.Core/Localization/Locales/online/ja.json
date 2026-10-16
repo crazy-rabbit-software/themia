@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows の地域 ({code})",
   "online.rates.settings.quotes.label": "通貨",
   "online.rates.settings.quotes.desc": "表示できるだけ、選んだ順に",
-  "online.rates.settings.quotes.all": "すべての通貨",
-  "online.rates.settings.chart.label": "{days} 日間のグラフ",
-  "online.rates.settings.chart.desc": "スペースがあれば各レートの下に"
+  "online.rates.settings.quotes.all": "すべての通貨"
 }

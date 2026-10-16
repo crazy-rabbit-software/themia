@@ -13,7 +13,8 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-5100] Air quality at a place: the index and its band as the hero (XS), then UV, PM2.5, pollen,
 /// PM10, ozone, the other index and each pollen in the air as stat cells, lines or a side column as the tile grows ([S-5107]). The band is
-/// written in a Fluent status colour and in words, so the colour is never the only carrier.
+/// written in a Fluent status colour and in words, so the colour is never the only carrier. The
+/// gauge style ([S-6170]) puts the index on a half-circle gauge instead of the number.
 /// </summary>
 internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions
@@ -260,7 +261,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
                 : _reading is not null ? FetchState.Message(FetchStatus.Empty)
                 : FetchState.Message(_status);
             _emptyState.Visibility = Visibility.Visible;
-            _hero.Visibility = _below.Visibility = _side.Visibility = Visibility.Collapsed;
+            _hero.Visibility = _below.Visibility = _side.Visibility = _gauge.Visibility = Visibility.Collapsed;
             _freshness.Text = string.Empty;
             return;
         }
@@ -286,6 +287,15 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
             return;
         }
 
+        // [S-6169] The gauge style draws the same reading on the meters' gauge.
+        if (_config.Style == AirQualityStyle.Gauge)
+        {
+            LayGauge(facts, scale, index, OnlineParts.Tone(AirQualityRules.Tone(AirQualityRules.Band(scale, index))));
+            return;
+        }
+
+        HideGauge();
+        _hero.Visibility = Visibility.Visible;
         var width = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
         var bandBeside = BandFitsBeside(width, FluentType.Subtitle);
         var floor = FluentType.Subtitle.LineHeight + (bandBeside ? 0 : FluentType.Body.LineHeight);

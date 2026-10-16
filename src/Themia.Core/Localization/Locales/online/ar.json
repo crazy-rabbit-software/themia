@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "منطقة Windows ({code})",
   "online.rates.settings.quotes.label": "العملات",
   "online.rates.settings.quotes.desc": "بقدر ما يتسع، بالترتيب المختار",
-  "online.rates.settings.quotes.all": "كل العملات",
-  "online.rates.settings.chart.label": "مخطط {days} يومًا",
-  "online.rates.settings.chart.desc": "تحت كل سعر، إن توفرت مساحة"
+  "online.rates.settings.quotes.all": "كل العملات"
 }

@@ -1,0 +1,6 @@
+{
+  "styles.stocks.chart": "แผนภูมิ",
+  "styles.stocks.number": "ตัวเลข",
+  "styles.stocks.options": "ช่วงเวลาและสี",
+  "styles.stocks.optionsDesc": "ช่วงเวลาของการเปลี่ยนแปลง เครื่องหมายบนแผนภูมิ และสี"
+}

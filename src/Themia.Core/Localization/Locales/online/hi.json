@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows क्षेत्र ({code})",
   "online.rates.settings.quotes.label": "मुद्राएँ",
   "online.rates.settings.quotes.desc": "जितनी समाएँ, चुने गए क्रम में",
-  "online.rates.settings.quotes.all": "सभी मुद्राएँ",
-  "online.rates.settings.chart.label": "{days} दिन का चार्ट",
-  "online.rates.settings.chart.desc": "जगह हो तो हर दर के नीचे"
+  "online.rates.settings.quotes.all": "सभी मुद्राएँ"
 }

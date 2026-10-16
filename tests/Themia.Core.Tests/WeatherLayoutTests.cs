@@ -144,22 +144,6 @@ public class WeatherLayoutTests
     // ---- forecast [S-724]..[S-726] -------------------------------------------------------
 
     [Fact]
-    public void S724_auto_is_columns_on_a_strip_and_rows_elsewhere()
-    {
-        Assert.Equal(ForecastLayout.Columns, WeatherForecastLayout.Resolve(ForecastLayout.Auto, Wide));
-        Assert.Equal(ForecastLayout.Rows, WeatherForecastLayout.Resolve(ForecastLayout.Auto, M));
-        Assert.Equal(ForecastLayout.Rows, WeatherForecastLayout.Resolve(ForecastLayout.Auto, Tall));
-    }
-
-    [Fact]
-    public void S724_the_user_s_layout_always_wins()
-    {
-        Assert.Equal(ForecastLayout.Grid, WeatherForecastLayout.Resolve(ForecastLayout.Grid, Wide));
-        Assert.Equal(ForecastLayout.Rows, WeatherForecastLayout.Resolve(ForecastLayout.Rows, Wide));
-        Assert.Equal(ForecastLayout.Columns, WeatherForecastLayout.Resolve(ForecastLayout.Columns, Tall));
-    }
-
-    [Fact]
     public void S725_rows_stretch_to_fill_when_the_days_fit()
     {
         var plan = WeatherForecastLayout.Rows(Tall, 7);
@@ -245,27 +229,6 @@ public class WeatherLayoutTests
         Assert.True(plan.Wind);
     }
 
-    [Fact]
-    public void S726_the_grid_is_one_card_across_on_a_narrow_tile_and_more_on_a_wide_one()
-    {
-        Assert.Equal(1, WeatherForecastLayout.Grid(Tall, 7).Columns);
-        Assert.Equal(2, WeatherForecastLayout.Grid(M, 7).Columns);
-        Assert.Equal(4, WeatherForecastLayout.Grid(Xl, 7).Columns);
-        Assert.Equal(2, WeatherForecastLayout.Grid(Xl, 7).Rows);
-    }
-
-    [Fact]
-    public void S726_a_tall_card_adds_its_extras_and_a_short_one_sheds_them()
-    {
-        var big = WeatherForecastLayout.Grid(Xl, 7);
-        Assert.True(big.Extras);
-        Assert.True(big.Sun);
-
-        var small = WeatherForecastLayout.Grid(S, 7);
-        Assert.False(small.Description);
-        Assert.False(small.Extras);
-    }
-
     // ---- facts [S-722] -------------------------------------------------------------------
 
     [Fact]
@@ -345,6 +308,6 @@ public class WeatherLayoutTests
     }
 
     [Fact]
-    public void S724_the_layout_survives_a_clone()
-        => Assert.Equal(ForecastLayout.Grid, ((WeatherForecastConfig)new WeatherForecastConfig { Layout = ForecastLayout.Grid }.Clone()).Layout);
+    public void S6163_the_style_survives_a_clone()
+        => Assert.Equal(ForecastStyle.Curve, ((WeatherForecastConfig)new WeatherForecastConfig { Style = ForecastStyle.Curve }.Clone()).Style);
 }

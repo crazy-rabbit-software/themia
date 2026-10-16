@@ -110,9 +110,6 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.ExchangeRates, Str.Online_Rates_Settings_Quotes_Label.Text(), Str.Online_Rates_Settings_Quotes_Desc.Text(),
             currencies, [.. ExchangeRules.Published]));
 
-        rows.Add(FluentLayout.Row(Glyphs.Stocks, Str.Online_Rates_Settings_Chart_Label.Format(("days", ExchangeRules.HistoryDays)), Str.Online_Rates_Settings_Chart_Desc.Text(),
-            FluentLayout.Toggle(config.ShowChart, value => { config.ShowChart = value; save(); })));
-
         // The ECB's terms: free reuse, with the source named.
         rows.Add(FluentLayout.Note(Str.Online_Source.Format(("name", "European Central Bank"))));
     }

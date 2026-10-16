@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows ਖੇਤਰ ({code})",
   "online.rates.settings.quotes.label": "ਮੁਦਰਾਵਾਂ",
   "online.rates.settings.quotes.desc": "ਜਿੰਨੀਆਂ ਸਮਾ ਸਕਣ, ਚੁਣੇ ਗਏ ਕ੍ਰਮ ਵਿੱਚ",
-  "online.rates.settings.quotes.all": "ਸਾਰੀਆਂ ਮੁਦਰਾਵਾਂ",
-  "online.rates.settings.chart.label": "{days}-ਦਿਨਾ ਚਾਰਟ",
-  "online.rates.settings.chart.desc": "ਹਰ ਦਰ ਦੇ ਹੇਠਾਂ, ਜਿੱਥੇ ਥਾਂ ਹੋਵੇ"
+  "online.rates.settings.quotes.all": "ਸਾਰੀਆਂ ਮੁਦਰਾਵਾਂ"
 }

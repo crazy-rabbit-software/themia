@@ -203,20 +203,8 @@ public sealed record ForecastColumnsPlan(
     bool Chance,
     bool Wind);
 
-/// <summary>What one forecast card carries in the grid. [S-726]</summary>
-public sealed record ForecastGridPlan(
-    int Columns,
-    int Rows,
-    double CardHeight,
-    bool Scroll,
-    bool Bar,
-    bool Description,
-    bool Precipitation,
-    bool Extras,
-    bool Sun);
-
 /// <summary>
-/// [S-724]..[S-726] The forecast widget's three layouts and the ladder inside each, as pure
+/// [S-724]..[S-726] [S-6164] The forecast widget's three styles and the ladder inside each, as pure
 /// functions of the slot and the number of days.
 /// </summary>
 public static class WeatherForecastLayout
@@ -249,29 +237,6 @@ public static class WeatherForecastLayout
 
     /// <summary>Between two parts of a column.</summary>
     public const double ColumnGap = 4;
-
-    /// <summary>A grid card's floor.</summary>
-    public const double CardMin = 64;
-
-    /// <summary>The narrowest a grid card can be.</summary>
-    public const double CardMinWidth = 140;
-
-    /// <summary>
-    /// The layout to draw: the user's choice, or for <see cref="ForecastLayout.Auto"/> columns on
-    /// a strip (which has the width for a week side by side and the height for three rows) and rows
-    /// everywhere else.
-    /// </summary>
-    public static ForecastLayout Resolve(ForecastLayout configured, WidgetArea slot)
-    {
-        if (configured is ForecastLayout.Rows or ForecastLayout.Columns or ForecastLayout.Grid)
-        {
-            return configured;
-        }
-
-        return slot.Shape == AreaShape.Wide && slot.WidthClass >= SizeClass.Regular
-            ? ForecastLayout.Columns
-            : ForecastLayout.Rows;
-    }
 
     /// <summary>
     /// The rows ladder: which columns a row carries and how tall rows are. The rows are the whole
@@ -328,31 +293,5 @@ public static class WeatherForecastLayout
         var wind = chance && room.Take(FluentType.Caption.LineHeight, ColumnDescriptionMin);
 
         return new ForecastColumnsPlan(columnWidth, scroll, icon, low, bar, precipitation, description, chance, wind);
-    }
-
-    /// <summary>The grid ladder: cards across, and what each card has the height for.</summary>
-    public static ForecastGridPlan Grid(WidgetArea slot, int days)
-    {
-        days = Math.Max(1, days);
-        var width = Math.Max(0, slot.Width - (2 * 8));
-        var columns = width <= 220 ? 1 : Math.Clamp((int)Math.Floor(width / (CardMinWidth + 8)), 2, 4);
-        columns = Math.Min(columns, days);
-        var rows = (days + columns - 1) / columns;
-
-        var height = Math.Max(0, slot.Height - (2 * 8));
-        var natural = (height - ((rows - 1) * 8)) / rows;
-        var scroll = natural < CardMin;
-        var cardHeight = scroll ? CardMin : natural;
-
-        // The card: day + glyph, high/low; then the bar, the sky, the precipitation.
-        var room = new Disclosure((width - ((columns - 1) * 8)) / columns, cardHeight - 16, 4);
-        room.Reserve(20 + FluentType.Body.LineHeight);
-        var bar = room.Take(4);
-        var description = room.Take(FluentType.Caption.LineHeight);
-        var precipitation = room.Take(FluentType.Caption.LineHeight);
-        var extras = room.Take(FluentType.Caption.LineHeight);
-        var sun = room.Take(FluentType.Caption.LineHeight);
-
-        return new ForecastGridPlan(columns, rows, cardHeight, scroll, bar, description, precipitation, extras, sun);
     }
 }

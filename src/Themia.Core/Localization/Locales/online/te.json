@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows ప్రాంతం ({code})",
   "online.rates.settings.quotes.label": "కరెన్సీలు",
   "online.rates.settings.quotes.desc": "సరిపోయినన్ని, ఎంచుకున్న క్రమంలో",
-  "online.rates.settings.quotes.all": "అన్ని కరెన్సీలు",
-  "online.rates.settings.chart.label": "{days}-రోజుల చార్ట్",
-  "online.rates.settings.chart.desc": "స్థలం ఉన్న చోట, ప్రతి రేటు కింద"
+  "online.rates.settings.quotes.all": "అన్ని కరెన్సీలు"
 }

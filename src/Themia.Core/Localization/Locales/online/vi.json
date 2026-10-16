@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Khu vực Windows ({code})",
   "online.rates.settings.quotes.label": "Tiền tệ",
   "online.rates.settings.quotes.desc": "Bao nhiêu vừa chỗ, theo thứ tự đã chọn",
-  "online.rates.settings.quotes.all": "Tất cả tiền tệ",
-  "online.rates.settings.chart.label": "Biểu đồ {days} ngày",
-  "online.rates.settings.chart.desc": "Dưới mỗi tỷ giá, nếu còn chỗ"
+  "online.rates.settings.quotes.all": "Tất cả tiền tệ"
 }

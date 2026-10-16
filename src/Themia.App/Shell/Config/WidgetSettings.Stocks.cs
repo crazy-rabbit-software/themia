@@ -51,9 +51,10 @@ internal static partial class WidgetSettings
         // [S-2776] How many the user owns: the holding's worth under the price.
         rows.Add(HoldingRow(config, save));
 
-        // [S-3795] The chart's rows fold under its own switch.
-        rows.Add(FluentLayout.Expander(Glyphs.Motion, Str.WidgetsC_Stocks_Settings_ShowChart_Label.Text(), Str.WidgetsC_Stocks_Settings_ShowChart_Desc.Text(),
-            FluentLayout.Toggle(config.ShowSparkline, value => { config.ShowSparkline = value; save(); }),
+        // [S-3795] The period, the chart's markers and the colours fold under one row; whether the
+        // chart is drawn at all is the style ([S-6165]).
+        rows.Add(FluentLayout.Expander(Glyphs.Motion, Str.Styles_Stocks_Options.Text(), Str.Styles_Stocks_OptionsDesc.Text(),
+            null,
             [
                 FluentLayout.Row(Glyphs.Hours, Str.Stocks_Timeframe.Text(), null,
                     FluentLayout.Choice(

@@ -1,6 +1,22 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
+
+/// <summary>[S-6160] The current conditions' styles: the same reading, three looks.</summary>
+[JsonConverter(typeof(StyleJsonConverter<WeatherNowStyle>))]
+public enum WeatherNowStyle
+{
+    /// <summary>[S-723] The reading and its readings, on the ladder.</summary>
+    Standard = 0,
+
+    /// <summary>[S-6161] The sky's glyph large, the temperature beside it.</summary>
+    LargeIcon = 1,
+
+    /// <summary>[S-6162] The temperature alone, in a light weight.</summary>
+    Minimal = 2,
+}
 
 /// <summary>Which scale temperatures are asked for and shown in.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<TemperatureUnit>))]
@@ -85,17 +101,35 @@ public abstract class WeatherConfig : WidgetConfig
 }
 
 /// <summary>Conditions right now, from open-meteo's <c>current</c> block.</summary>
-public sealed class WeatherNowConfig : WeatherConfig
+public sealed class WeatherNowConfig : WeatherConfig, IStyled
 {
+    private static readonly StyleOption[] NowStyles =
+    [
+        StyleOption.Of(WeatherNowStyle.Standard, Str.Styles_WeatherNow_Standard, 0xE753),
+        StyleOption.Of(WeatherNowStyle.LargeIcon, Str.Styles_WeatherNow_LargeIcon, 0xE706),
+        StyleOption.Of(WeatherNowStyle.Minimal, Str.Styles_WeatherNow_Minimal, 0xE738),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WeatherNow;
+
+    /// <summary>[S-6160] The widget's look.</summary>
+    public WeatherNowStyle Style { get; set; } = WeatherNowStyle.Standard;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => NowStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (WeatherNowStyle)value;
+    }
 
     /// <summary>Show the feels-like, humidity and wind line under the temperature.</summary>
     public bool ShowDetails { get; set; } = true;
 
     public override WidgetConfig Clone()
     {
-        var copy = new WeatherNowConfig { ShowDetails = ShowDetails };
+        var copy = new WeatherNowConfig { Style = Style, ShowDetails = ShowDetails };
         CopyTo(copy);
         return copy;
     }

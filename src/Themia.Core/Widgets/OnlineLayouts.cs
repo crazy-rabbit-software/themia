@@ -1,3 +1,5 @@
+using Themia.Core.Model;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>Where the air widget puts its readings ([S-5107]).</summary>
@@ -40,7 +42,20 @@ public sealed record RainPlan(double HeadlineRoom, bool Caption, double ChartHei
 /// <param name="RowHeight">The rows' height: the standard row, or the compact one on a short tile.</param>
 /// <param name="RowSparkWidth">The width of the line in each row; 0 for none.</param>
 /// <param name="ChartHeight">The hero's 90-day chart under everything else; 0 for none.</param>
-public sealed record RatesPlan(bool Hero, double HeroRoom, int Rows, double RowHeight, double RowSparkWidth, double ChartHeight);
+/// <param name="Beside">[S-6168] A strip: the hero is a column on the left, the chart beside it with the strip's height.</param>
+/// <param name="HeroWidth">[S-6168] The hero column's width when <paramref name="Beside"/>; else 0.</param>
+public sealed record RatesPlan(bool Hero, double HeroRoom, int Rows, double RowHeight, double RowSparkWidth, double ChartHeight,
+    bool Beside = false, double HeroWidth = 0);
+
+/// <summary>What the gauge style draws at one size ([S-6170]).</summary>
+/// <param name="GaugeWidth">The box the half-circle gauge is fitted into (<see cref="GaugeLayout.Fit"/>).</param>
+/// <param name="GaugeHeight">Its height.</param>
+/// <param name="Band">The band's words, a line under the gauge.</param>
+/// <param name="Facts">How the readings stand: none, lines under the gauge, or a column beside it.</param>
+/// <param name="Count">How many readings, in priority order.</param>
+/// <param name="Columns">Columns of the side readings.</param>
+/// <param name="SideWidth">The side column's width, on a strip.</param>
+public sealed record AirGaugePlan(double GaugeWidth, double GaugeHeight, bool Band, AirFacts Facts, int Count, int Columns, double SideWidth);
 
 /// <summary>
 /// [S-5107] [S-5126] [S-5146] The size ladders of the three online widgets (S-660..S-665): classify on
@@ -54,6 +69,9 @@ public static class OnlineLayouts
     public const double VerticalInset = 12;
 
     public const double Gap = 8;
+
+    /// <summary>Between the hero and a side column of readings (<c>Fluent.Space4</c> in the app).</summary>
+    public const double SideGap = 16;
 
     /// <summary>Fluent's list row heights (<c>Fluent.RowHeight</c> / <c>RowHeightCompact</c> in the app).</summary>
     public const double RowHeight = 40;
@@ -122,6 +140,47 @@ public static class OnlineLayouts
     }
 
     /// <summary>
+    /// [S-6170] The gauge style's ladder: the half-circle gauge ([S-6302], the meters' own) is the
+    /// hero, the index in its bowl; then the band's words on a line under it; then the readings, in
+    /// a column beside it on a strip (at least 360 wide, as the number style's, [S-5107]) or as stat
+    /// lines under it on a tall column while the gauge keeps the column's width. What the rungs
+    /// leave is the gauge's.
+    /// </summary>
+    public static AirGaugePlan AirGauge(WidgetArea area, int facts)
+    {
+        if (!area.IsMeasured)
+        {
+            return new AirGaugePlan(0, 0, false, AirFacts.None, 0, 0, 0);
+        }
+
+        var box = area.Deflate(Inset, VerticalInset);
+        var band = FluentType.Body.LineHeight + Gap;
+        var floor = GaugeLayout.MinRadius * (1 + GaugeLayout.ThicknessShare);
+        facts = Math.Max(0, facts);
+
+        if (facts > 0 && area.Shape == AreaShape.Wide && box.Width >= 360)
+        {
+            var columns = box.Width >= 640 ? 2 : 1;
+            var sideWidth = Math.Min(box.Width * (columns == 2 ? 0.6 : 0.5), columns * 220.0);
+            var rows = Disclosure.WholeRows(box.Height, PartMetrics.StatLine);
+            var count = Math.Min(facts, rows * columns);
+            var withBand = box.Height - band >= floor;
+            return new AirGaugePlan(box.Width - sideWidth - SideGap, box.Height - (withBand ? band : 0), withBand,
+                count > 0 ? AirFacts.Side : AirFacts.None, count, count > 0 ? columns : 0, count > 0 ? sideWidth : 0);
+        }
+
+        var room = new Disclosure(box.Width, box.Height, Gap);
+        var tall = facts > 0 && area.Shape == AreaShape.Tall;
+        // A column: the gauge as wide as the column (its height about half its width), at most half the height.
+        room.Reserve(tall ? Math.Max(floor, Math.Min(box.Width * (1 + GaugeLayout.ThicknessShare) / (2 + GaugeLayout.ThicknessShare), box.Height * 0.5)) : floor);
+        var shown = room.Take(FluentType.Body.LineHeight);
+        var lines = tall && shown ? room.TakeRows(PartMetrics.StatLine, facts) : 0;
+        var used = (shown ? band : 0) + (lines > 0 ? (lines * PartMetrics.StatLine) + Gap : 0);
+        return new AirGaugePlan(box.Width, Math.Max(0, box.Height - used), shown,
+            lines > 0 ? AirFacts.Lines : AirFacts.None, lines, lines > 0 ? 1 : 0, 0);
+    }
+
+    /// <summary>
     /// [S-5126] The headline is reserved; then the caption line; then the bar timeline (bars and a
     /// Caption line of times) where at least <see cref="ChartMin"/> of bars fit, and the timeline
     /// takes the rest. The caller sizes the headline by its width before asking (its floor), so a
@@ -153,12 +212,13 @@ public static class OnlineLayouts
     }
 
     /// <summary>
-    /// [S-5146] A tile under two compact rows tall (or under 160 wide) is the first currency as a
-    /// hero. From the regular height up the first currency is the hero and the rest are rows under
-    /// it, and a 90-day chart of the first takes what is left; below that, every currency is a row.
-    /// Rows carry a small line of their own from 300 wide, where it does not crowd the figures.
+    /// [S-5146] The list style: a tile under two compact rows tall (or under 160 wide) is the first
+    /// currency as a hero. From the regular height up the first currency is the hero and the rest are
+    /// rows under it; below that, every currency is a row. Rows carry a small line of their own from
+    /// 300 wide, where it does not crowd the figures. The first currency's chart is the Chart
+    /// style's ([S-6168]), never the list's.
     /// </summary>
-    public static RatesPlan Rates(WidgetArea area, int pairs, bool chart, double heroFloor)
+    public static RatesPlan Rates(WidgetArea area, int pairs, ExchangeRatesStyle style, double heroFloor)
     {
         if (!area.IsMeasured || pairs <= 0)
         {
@@ -167,9 +227,15 @@ public static class OnlineLayouts
 
         var box = area.Deflate(0, VerticalInset);
         var width = box.Width - (2 * Inset);
+
+        if (style == ExchangeRatesStyle.Chart)
+        {
+            return RatesChart(area, box, width, heroFloor);
+        }
+
         var compact = area.Height < CompactBelow;
         var rowHeight = compact ? RowHeightCompact : RowHeight;
-        var spark = chart && width >= 300 ? Math.Clamp(width * 0.28, 48, 160) : 0;
+        var spark = width >= 300 ? Math.Clamp(width * 0.28, 48, 160) : 0;
 
         if (width < 160 || box.Height < 2 * RowHeightCompact)
         {
@@ -181,15 +247,38 @@ public static class OnlineLayouts
             var room = new Disclosure(box.Width, box.Height, Gap);
             room.Reserve(heroFloor);
             var rows = pairs > 1 ? room.TakeRows(rowHeight, pairs - 1) : 0;
-            var heroChart = chart && room.Fits(HeroChartMin) ? room.Remaining - (rows > 0 || heroFloor > 0 ? Gap : 0) : 0;
-            if (heroChart > 0)
-            {
-                room.Take(heroChart);
-            }
-
-            return new RatesPlan(true, heroFloor + room.Remaining, rows, rowHeight, heroChart > 0 ? 0 : spark, heroChart);
+            return new RatesPlan(true, heroFloor + room.Remaining, rows, rowHeight, spark, 0);
         }
 
         return new RatesPlan(false, 0, Math.Min(pairs, Disclosure.WholeRows(box.Height, rowHeight)), rowHeight, spark, 0);
+    }
+
+    /// <summary>
+    /// [S-6168] The chart style: the first currency large, and its 90 days in what the hero leaves,
+    /// edge to edge and down to the card's bottom; on a strip (at least 400 wide, 2:1) the hero is a
+    /// column beside a chart of the strip's height. No other currency is drawn. Where the chart would
+    /// have under <see cref="HeroChartMin"/>, the hero alone.
+    /// </summary>
+    private static RatesPlan RatesChart(WidgetArea area, WidgetArea box, double width, double heroFloor)
+    {
+        if (area.Shape == AreaShape.Wide && area.Width >= 400)
+        {
+            var column = Math.Clamp(width * 0.42, 150, 280);
+            return new RatesPlan(true, box.Height, 0, RowHeight, 0, Math.Max(HeroChartMin, area.Height), Beside: true, HeroWidth: column);
+        }
+
+        var room = new Disclosure(box.Width, box.Height, Gap);
+        room.Reserve(heroFloor);
+
+        if (width < 160 || !room.Fits(HeroChartMin))
+        {
+            return new RatesPlan(true, box.Height, 0, RowHeight, 0, 0);
+        }
+
+        // The hero grows into a share of what is spare, the chart takes the rest (the stock rule, [S-1311]).
+        var spare = Math.Max(0, room.Remaining - Gap - HeroChartMin);
+        var heroRoom = heroFloor + (spare * 0.4);
+        var chart = area.Height - VerticalInset - heroRoom - Gap;
+        return new RatesPlan(true, heroRoom, 0, RowHeight, 0, chart);
     }
 }

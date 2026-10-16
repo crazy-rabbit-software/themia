@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Wilayah Windows ({code})",
   "online.rates.settings.quotes.label": "Mata uang",
   "online.rates.settings.quotes.desc": "Sebanyak yang muat, sesuai urutan pilihan",
-  "online.rates.settings.quotes.all": "Semua mata uang",
-  "online.rates.settings.chart.label": "Grafik {days} hari",
-  "online.rates.settings.chart.desc": "Di bawah setiap kurs, jika ada ruang"
+  "online.rates.settings.quotes.all": "Semua mata uang"
 }

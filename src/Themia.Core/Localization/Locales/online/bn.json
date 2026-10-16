@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows অঞ্চল ({code})",
   "online.rates.settings.quotes.label": "মুদ্রা",
   "online.rates.settings.quotes.desc": "যতগুলো ধরে, বেছে নেওয়া ক্রমে",
-  "online.rates.settings.quotes.all": "সব মুদ্রা",
-  "online.rates.settings.chart.label": "{days} দিনের চার্ট",
-  "online.rates.settings.chart.desc": "জায়গা থাকলে প্রতিটি হারের নিচে"
+  "online.rates.settings.quotes.all": "সব মুদ্রা"
 }

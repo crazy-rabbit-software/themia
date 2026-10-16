@@ -15,10 +15,11 @@ using Windows.Foundation;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-5140] The ECB's reference rates for a base currency: the first currency as the hero readout
-/// with its day change (the shared <see cref="HeroReadout"/>), the others as rows with their own
-/// change and, where there is room, a small 90-day line; on a large tile the first currency's 90 days
-/// as a chart under the rows ([S-5146]). The header says which day's rates these are.
+/// [S-5140] The ECB's reference rates for a base currency, in one of two styles ([S-6167]). List: the
+/// first currency as the hero readout with its day change (the shared <see cref="HeroReadout"/>), the
+/// others as rows with their own change and, where there is room, a small 90-day line ([S-5146]).
+/// Chart: the first currency alone, large, over (or on a strip beside) its 90 days ([S-6168]). The
+/// header says which day's rates these are.
 /// </summary>
 internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
 {
@@ -45,6 +46,8 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
         _perBase = _hero.AddLine(FluentType.Caption);
         _hero.Margin = new Thickness(OnlineLayouts.Inset, OnlineLayouts.VerticalInset, OnlineLayouts.Inset, 0);
@@ -52,6 +55,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
 
         _rows.Margin = new Thickness(0, 0, 0, Fluent.Space1);
         SetRow(_rows, 1);
+        SetColumnSpan(_rows, 2);
 
         // [S-1113] Time runs left to right in every language.
         _chart.FlowDirection = FlowDirection.LeftToRight;
@@ -61,6 +65,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
 
         _emptyState = Fluent.EmptyState(Glyphs.ExchangeRates, _emptyMessage, out _);
         SetRowSpan(_emptyState, 3);
+        SetColumnSpan(_emptyState, 2);
 
         Children.Add(_hero);
         Children.Add(_rows);
@@ -109,7 +114,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     /// <summary>[S-5146] The header names the base: "Exchange rates · CHF" (a typed title wins, as everywhere).</summary>
     private void PublishTitle() => _surface?.SetHeaderTitle($"{Str.Online_Rates_Label.Text()} · {_config.EffectiveBase}");
 
-    /// <summary>The base, the currencies or the chart switch: all drawn from the one table in hand.</summary>
+    /// <summary>The base, the currencies or the style: all drawn from the one table in hand.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ExchangeRatesConfig ?? new ExchangeRatesConfig();
@@ -210,13 +215,26 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
             ? HeroLayout.Fit(heroWidth, FluentType.TitleLarge.LineHeight, ExchangeRules.RateCharacters, 3, FluentType.Subtitle, FluentType.TitleLarge)
             : FluentType.Subtitle;
         var heroFloor = heroStep.LineHeight + FluentType.Caption.LineHeight;
-        var plan = OnlineLayouts.Rates(_area, pairs.Length, _config.ShowChart, heroFloor);
+        var plan = OnlineLayouts.Rates(_area, pairs.Length, _config.Style, heroFloor);
         var first = pairs[0];
+
+        // [S-6168] A strip in the chart style: the hero a column on the left, the chart beside it.
+        ColumnDefinitions[0].Width = plan.Beside ? new GridLength(plan.HeroWidth + (2 * OnlineLayouts.Inset)) : new GridLength(1, GridUnitType.Star);
+        ColumnDefinitions[1].Width = plan.Beside ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        SetRow(_chart, plan.Beside ? 0 : 2);
+        SetRowSpan(_chart, plan.Beside ? 3 : 1);
+        SetColumn(_chart, plan.Beside ? 1 : 0);
+        SetColumnSpan(_chart, plan.Beside ? 1 : 2);
+        SetRowSpan(_hero, plan.Beside ? 3 : 1);
+        _chart.Margin = new Thickness(0, plan.Beside ? 0 : OnlineLayouts.Gap, 0, 0);
+        _hero.Margin = new Thickness(OnlineLayouts.Inset, plan.Beside ? 0 : OnlineLayouts.VerticalInset, OnlineLayouts.Inset, 0);
 
         _hero.Visibility = plan.Hero ? Visibility.Visible : Visibility.Collapsed;
         if (plan.Hero)
         {
-            ShowHero(first.Quote, first.Rate, plan.HeroRoom);
+            // The chart style's hero is the widget: it may grow to the tier's step ([S-3860]).
+            var ceiling = _config.Style == ExchangeRatesStyle.Chart ? HeroLayout.TierStep(_area) : FluentType.TitleLarge;
+            ShowHero(first.Quote, first.Rate, plan.HeroRoom, plan.Beside ? plan.HeroWidth : heroWidth, ceiling);
         }
 
         _rows.Children.Clear();
@@ -230,18 +248,17 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
 
         _chartRate = plan.ChartHeight > 0 ? first.Rate : null;
         _chart.Visibility = _chartRate is not null ? Visibility.Visible : Visibility.Collapsed;
-        RowDefinitions[0].Height = plan.Hero && plan.Rows == 0 && plan.ChartHeight == 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        RowDefinitions[2].Height = plan.Hero && plan.Rows == 0 && plan.ChartHeight == 0 ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
+        var alone = plan.Hero && plan.Rows == 0 && (plan.ChartHeight == 0 || plan.Beside);
+        RowDefinitions[0].Height = alone ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        RowDefinitions[2].Height = alone ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
         DrawChart();
     }
 
     private PairRate? _chartRate;
 
     /// <summary>The first currency, big: the rate, its code, the day change beside it, "per CHF" under.</summary>
-    private void ShowHero(string quote, PairRate? rate, double room)
+    private void ShowHero(string quote, PairRate? rate, double room, double width, TypeStep ceiling)
     {
-        var width = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
-
         if (rate is null)
         {
             _hero.SetValue(quote, string.Empty, spaced: false);
@@ -261,11 +278,11 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
             + FluentType.EstimateWidth(HeroLayout.TrailingStep(s), 7) <= width;
 
         var lines = room - FluentType.Caption.LineHeight;
-        var step = HeroLayout.Fit(width, lines, ExchangeRules.RateCharacters, 3, FluentType.Subtitle, FluentType.TitleLarge);
+        var step = HeroLayout.Fit(width, lines, ExchangeRules.RateCharacters, 3, FluentType.Subtitle, ceiling);
         var beside = Beside(step);
         if (!beside)
         {
-            step = HeroLayout.Fit(width, lines - HeroLayout.TrailingStep(step).LineHeight, ExchangeRules.RateCharacters, 3, FluentType.Subtitle, FluentType.TitleLarge);
+            step = HeroLayout.Fit(width, lines - HeroLayout.TrailingStep(step).LineHeight, ExchangeRules.RateCharacters, 3, FluentType.Subtitle, ceiling);
             beside = Beside(step);
         }
 

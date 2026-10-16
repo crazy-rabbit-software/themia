@@ -7,13 +7,15 @@ namespace Themia.Core.Widgets;
 /// <param name="Extended">An extended-hours print is to be shown.</param>
 /// <param name="MinMax">The high and low markers are switched on.</param>
 /// <param name="Holding">[S-2777] A holding is set and priced: its worth wants a caption line.</param>
+/// <param name="Number">[S-6166] The Number style: no chart, the price and its change large.</param>
 public readonly record struct StockInputs(
     double PriceCharacters,
     double ExtrasCharacters,
     bool Chart,
     bool Extended,
     bool MinMax,
-    bool Holding = false);
+    bool Holding = false,
+    bool Number = false);
 
 /// <summary>One layout of the stock widget.</summary>
 public readonly record struct StockPlan(
@@ -75,6 +77,11 @@ public static class StockLayout
         var text = Math.Max(0, area.Width - (2 * Inset));
         var currency = area.Width >= 180;
         var badgeText = area.Width >= 300;
+
+        if (input.Number)
+        {
+            return NumberPlan(area, input, chars, text, currency, badgeText);
+        }
 
         // A strip: readout on the left, the chart beside it with the strip's whole height.
         if (input.Chart && area.Shape == AreaShape.Wide && area.Width >= 400)
@@ -154,6 +161,76 @@ public static class StockLayout
             labelsLine,
             input.MinMax && chartWanted && chartHeight >= 48,
             holding);
+    }
+
+    /// <summary>
+    /// [S-6166] The Number style: the price and, on its own line under it, the change, both as large
+    /// as the tile holds (the price to Display and past it by <see cref="HeroLayout.MaxGrowth"/>, the
+    /// change at <see cref="NumberChangeStep"/>); the holding and the extended print keep their
+    /// caption lines under them. No chart at any size.
+    /// </summary>
+    private static StockPlan NumberPlan(WidgetArea area, StockInputs input, double chars, double text, bool currency, bool badgeText)
+    {
+        var budget = new Disclosure(area.Width, Math.Max(0, area.Height - (2 * Gap)), Gap);
+        budget.Reserve(FluentType.Subtitle.LineHeight);
+        budget.Reserve(NumberChangeStep(FluentType.Subtitle).LineHeight);
+        var holding = input.Holding && area.Width >= HoldingMinWidth && budget.Take(LabelLine);
+        var extended = input.Extended && budget.Take(LabelLine);
+
+        var room = FluentType.Subtitle.LineHeight + NumberChangeStep(FluentType.Subtitle).LineHeight + Gap + Math.Max(0, budget.Remaining);
+        var price = FluentType.Subtitle;
+
+        foreach (var candidate in NumberSteps())
+        {
+            var change = NumberChangeStep(candidate);
+            var fits = candidate.LineHeight + Gap + change.LineHeight <= room + Disclosure.Tolerance
+                && FluentType.EstimateWidth(candidate, chars) <= text
+                && FluentType.EstimateWidth(change, input.ExtrasCharacters) <= text;
+
+            if (fits)
+            {
+                price = candidate;
+            }
+        }
+
+        return new StockPlan(price, NumberChangeStep(price), true, currency, badgeText, false, text, extended,
+            false, 0, false, false, holding);
+    }
+
+    /// <summary>The steps the Number style's price may take: the ramp from Subtitle, then Display grown in tenths.</summary>
+    private static IEnumerable<TypeStep> NumberSteps()
+    {
+        foreach (var step in FluentType.Ramp)
+        {
+            if (step.FontSize >= FluentType.Subtitle.FontSize && step.FontSize <= FluentType.Display.FontSize)
+            {
+                yield return step;
+            }
+        }
+
+        for (var factor = 1.1; factor <= HeroLayout.MaxGrowth + 1e-9; factor += 0.1)
+        {
+            yield return FluentType.Scaled(FluentType.Display, factor);
+        }
+    }
+
+    /// <summary>
+    /// [S-6166] The Number style's change: the largest ramp step no bigger than half the price, never
+    /// under Body, so a 68px price carries a 28px change rather than a footnote.
+    /// </summary>
+    public static TypeStep NumberChangeStep(TypeStep price)
+    {
+        var chosen = FluentType.Body;
+
+        foreach (var step in FluentType.Ramp)
+        {
+            if (step.FontSize <= price.FontSize * 0.5 && step.FontSize > chosen.FontSize)
+            {
+                chosen = step;
+            }
+        }
+
+        return chosen;
     }
 
     /// <summary>

@@ -1,0 +1,6 @@
+{
+  "styles.stocks.chart": "グラフ",
+  "styles.stocks.number": "数値",
+  "styles.stocks.options": "期間と色",
+  "styles.stocks.optionsDesc": "変化の期間、グラフのマーカー、色"
+}

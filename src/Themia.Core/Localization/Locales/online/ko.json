@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows 지역 ({code})",
   "online.rates.settings.quotes.label": "통화",
   "online.rates.settings.quotes.desc": "들어가는 만큼, 고른 순서대로",
-  "online.rates.settings.quotes.all": "모든 통화",
-  "online.rates.settings.chart.label": "{days}일 차트",
-  "online.rates.settings.chart.desc": "공간이 있으면 각 환율 아래에"
+  "online.rates.settings.quotes.all": "모든 통화"
 }

@@ -62,7 +62,5 @@
   "online.rates.settings.base.region": "Windows 区域 ({code})",
   "online.rates.settings.quotes.label": "货币",
   "online.rates.settings.quotes.desc": "按所选顺序，放得下多少显示多少",
-  "online.rates.settings.quotes.all": "所有货币",
-  "online.rates.settings.chart.label": "{days} 天图表",
-  "online.rates.settings.chart.desc": "有空间时显示在每个汇率下方"
+  "online.rates.settings.quotes.all": "所有货币"
 }
