@@ -267,7 +267,7 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     /// <summary>
     /// [S-3601] [S-6070] The rows the settings page shows for the current style after the accounts,
     /// in page order: only what that style uses (birthdays follow for every style). Picking another
-    /// style rebuilds the page ([S-6010]).
+    /// style rebuilds the page ([S-6071]).
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<CalendarSetting> ShownSettings => Style switch

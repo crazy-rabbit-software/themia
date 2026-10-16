@@ -119,12 +119,6 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         ? [TasksSetting.DueDate, TasksSetting.DueFilter, TasksSetting.ImportantOnly]
         : [];
 
-    /// <summary>
-    /// [S-6072] The two styles differ only in where a row's due date goes ([S-602]): with no due
-    /// dates drawn they are the same list, so the Style row is not offered.
-    /// </summary>
-    bool IShownSettings.OffersStyle => Source == TaskSource.Account && ShowDueDate;
-
     /// <summary>The most a text filter holds: a few words, not a document.</summary>
     public const int TextFilterMax = 100;
 

@@ -13,12 +13,6 @@ public interface IShownSettings
 {
     /// <summary>The rows offered now as one comparable string; part of the page's shape ([S-6071]).</summary>
     string ShownSettingsKey { get; }
-
-    /// <summary>
-    /// [S-6072] Whether the shared Style row ([S-6010]) changes anything now: false where the
-    /// current state draws every style the same.
-    /// </summary>
-    bool OffersStyle => true;
 }
 
 /// <summary>
@@ -45,16 +39,9 @@ public static class SettingRules
         return config.ShownSettings.Contains(setting);
     }
 
-    /// <summary>[S-6072] Whether the page offers the shared Style row: the kind has styles and they differ now.</summary>
-    public static bool OffersStyle(WidgetConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return WidgetStyles.Offers(config.Kind) && (config is not IShownSettings rule || rule.OffersStyle);
-    }
-
     /// <summary>
-    /// [S-6071] A widget page's shape: its style, whether the Style row is offered and which
-    /// conditional rows are. A change to any of it (a style picked, a parent switch turned on)
+    /// [S-6071] A widget page's shape: its style (picked on the properties panel, [S-6536]) and
+    /// which conditional rows are offered. A change to any of it (a style picked, a parent switch turned on)
     /// builds the page again; any other edit leaves the page, and the control under the hand, alone.
     /// </summary>
     public static string Shape(WidgetConfig config)
@@ -63,6 +50,6 @@ public static class SettingRules
 
         var style = WidgetStyles.Current(config) is { } value ? value.ToString(CultureInfo.InvariantCulture) : string.Empty;
         var rows = config is IShownSettings rule ? rule.ShownSettingsKey : string.Empty;
-        return style + "|" + (OffersStyle(config) ? "s" : "-") + "|" + rows;
+        return style + "|" + rows;
     }
 }

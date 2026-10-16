@@ -43,9 +43,8 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Email_Display.Text()));
 
-        // [S-6403] The view is the widget's style (the shared Style row at the top of the page):
-        // only what that style draws with is offered here, and picking another style rebuilds the
-        // page ([S-6010]).
+        // [S-6403] The view is the widget's style (on the properties panel, [S-6536]): only what
+        // that style draws with is offered here, and picking another style rebuilds the page ([S-6071]).
         if (email.Offers(EmailSetting.ListFields))
         {
             // [S-543] The optional lines of the list and compact styles. Sender and time always show.

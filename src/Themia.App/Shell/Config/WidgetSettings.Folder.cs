@@ -93,7 +93,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Folder_View_Label.Text()));
 
-        // [S-4121] Only what the style draws; picking another style rebuilds the page ([S-6010]).
+        // [S-4121] Only what the style draws; picking another style rebuilds the page ([S-6071]).
         if (config.Offers(FolderSetting.RowSize))
         {
             rows.Add(RowSizeRow(config.ItemSize, value => { config.ItemSize = value; save(); }));

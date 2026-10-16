@@ -59,7 +59,7 @@ internal sealed partial class ConfigWindow
     /// <summary>A catch-up is queued; the state changes before it runs fold into it.</summary>
     private bool _syncQueued;
 
-    /// <summary>[S-6010] A widget page's rebuild for its new style is queued.</summary>
+    /// <summary>[S-6071] A widget page's rebuild for its new style is queued.</summary>
     private bool _restyleQueued;
 
     public ConfigWindow(AppHost host)
@@ -193,7 +193,7 @@ internal sealed partial class ConfigWindow
     }
 
     /// <summary>
-    /// [S-6010] [S-6071] A widget page whose style was picked, or whose switch other rows depend on
+    /// [S-6071] A widget page whose style was picked, or whose switch other rows depend on
     /// was turned, shows the rows that now apply: built again once the pick has finished, since
     /// rebuilding inside it would tear down the control raising it. The groups that were open stay
     /// open and the focus goes back to the row that had it, so a keyboard user stays on the switch

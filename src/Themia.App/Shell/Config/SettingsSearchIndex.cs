@@ -93,6 +93,12 @@ internal sealed class SettingsSearchIndex(AppHost host)
             SettingsPage page;
             try
             {
+                // [S-1750] A widget with no page in this shape has nothing to find.
+                if (!ConfigPages.HasWidgetSettings(group.First().Widget))
+                {
+                    continue;
+                }
+
                 page = ConfigPages.BuildWidgetForIndex(group.First().Widget);
             }
             catch (Exception ex)

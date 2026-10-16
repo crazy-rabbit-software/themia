@@ -375,7 +375,8 @@ internal static class EditBarRender
         var selection = new WidgetSelection();
         selection.Replace(view.Id, selected);
 
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }));
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { },
+            id => view.Find(id) is { } found && Config.ConfigPages.HasWidgetSettings(found)));
         UiLanguage.ApplyFlow(strip);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));
         strip.Visibility = Visibility.Visible;

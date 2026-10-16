@@ -68,7 +68,7 @@ internal static partial class WidgetSettings
                 FluentLayout.Toggle(config.Recursive, value => { config.Recursive = value; save(); })));
         }
 
-        // [S-6402] The layout is the gallery's style: the shared Style row at the top of the page.
+        // [S-6402] The layout is the gallery's style, picked on the properties panel ([S-6536]).
         if (config.Offers(GallerySetting.SlideSeconds))
         {
             rows.Add(FluentLayout.Row(Glyphs.Timer, Str.WidgetsB_Settings_Gallery_Slide_Label.Text(), Str.WidgetsB_Settings_Gallery_Slide_Desc.Text(),

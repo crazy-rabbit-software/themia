@@ -6,8 +6,8 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3100] The Sun rows: the place, then the Events switch. How the day is drawn is the shared
-/// Style row ([S-6045], [S-6010]), what was the sun path mode.
+/// [S-3100] The Sun rows: the place, then the Events switch. How the day is drawn is the style
+/// ([S-6045]), picked on the properties panel, what was the sun path mode.
 /// </summary>
 internal static partial class WidgetSettings
 {

@@ -20,7 +20,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Widget_Clock_Label.Text()));
 
-        // [S-6010] The style is the shared Style row the page builder puts first. [S-6074] Only the
+        // [S-6536] The style is the properties panel's. [S-6074] Only the
         // rows the style draws: the date style has no time, date line, label or offset, and the
         // minimal clock is the time alone, so where it sits and whose time it is are all they offer.
         if (clock.Offers(ClockSetting.Seconds))

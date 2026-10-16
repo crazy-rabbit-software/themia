@@ -48,8 +48,8 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
-        // [S-6401] The view is the widget's style (the shared Style row); only what that style draws
-        // with is offered here, and picking another style rebuilds the page ([S-6010], [S-6074]).
+        // [S-6401] The view is the widget's style (on the properties panel); only what that style draws
+        // with is offered here, and picking another style rebuilds the page ([S-6071], [S-6074]).
         if (config.Offers(ShortcutsSetting.TileSize))
         {
             rows.Add(FluentLayout.Row(Glyphs.Scale, Str.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),

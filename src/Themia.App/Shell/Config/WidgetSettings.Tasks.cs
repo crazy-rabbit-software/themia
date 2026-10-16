@@ -71,8 +71,7 @@ internal static partial class WidgetSettings
                 FluentLayout.Toggle(config.ShowDueDate, value => { config.ShowDueDate = value; save(); })));
         }
 
-        // [S-6400] List or Compact is the widget's style: the shared Style row at the top of the page,
-        // offered while due dates are drawn, the one thing the styles lay out differently ([S-6072]).
+        // [S-6400] List or Compact is the widget's style, picked on the properties panel ([S-6536]).
 
         rows.Add(FluentLayout.Row(Glyphs.Wrap, Str.Todo_TitleLines_Label.Text(), Str.WidgetsC_Tasks_Settings_TitleLines_Desc.Text(),
             FluentLayout.Slider(config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1, string.Empty,

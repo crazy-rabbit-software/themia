@@ -60,13 +60,6 @@ public class SettingRulesTests
     public void S6074_the_gallery_offers_what_its_source_layout_and_outline_use(GallerySource source, GalleryStyle style, bool outline, GallerySetting[] rows)
         => Assert.Equal(rows, new GalleryConfig { Source = source, Style = style, Outline = outline }.ShownSettings);
 
-    [Theory]
-    [InlineData(GallerySource.Folder, true)]
-    [InlineData(GallerySource.File, false)]
-    [InlineData(GallerySource.Bing, false)]
-    public void S6072_one_picture_draws_alike_in_every_layout_so_the_gallery_offers_no_style(GallerySource source, bool style)
-        => Assert.Equal(style, SettingRules.OffersStyle(new GalleryConfig { Source = source }));
-
     [Fact]
     public void S6074_a_grid_of_icons_alone_draws_no_names_so_no_extensions()
     {
@@ -160,18 +153,13 @@ public class SettingRulesTests
     }
 
     [Fact]
-    public void S6074_due_dates_and_importance_are_an_accounts_and_the_style_needs_due_dates()
+    public void S6074_due_dates_and_importance_are_an_accounts()
     {
         var account = new TasksConfig { Source = TaskSource.Account, ShowDueDate = true };
         Assert.Equal([TasksSetting.DueDate, TasksSetting.DueFilter, TasksSetting.ImportantOnly], account.ShownSettings);
-        Assert.True(SettingRules.OffersStyle(account));
-
-        account.ShowDueDate = false;
-        Assert.False(SettingRules.OffersStyle(account));
 
         var local = new TasksConfig { Source = TaskSource.Local, ShowDueDate = true };
         Assert.Empty(local.ShownSettings);
-        Assert.False(SettingRules.OffersStyle(local));
     }
 
     [Fact]
@@ -207,13 +195,6 @@ public class SettingRulesTests
         Assert.Equal([ScreenTimeSetting.DailyLimit], new ScreenTimeDonutConfig().ShownSettings);
         Assert.Equal([ScreenTimeSetting.AppLimits], new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Day }.ShownSettings);
         Assert.Equal([ScreenTimeSetting.AppLimits, ScreenTimeSetting.Average], new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week }.ShownSettings);
-    }
-
-    [Fact]
-    public void S6072_a_kind_without_styles_offers_no_style_row()
-    {
-        Assert.False(SettingRules.OffersStyle(new AlarmConfig()));
-        Assert.True(SettingRules.OffersStyle(new ClockConfig()));
     }
 
     [Fact]
@@ -257,7 +238,6 @@ public class SettingRulesTests
         {
             var json = JsonSerializer.Serialize(WidgetConfig.CreateDefault(kind), AppStateJsonContext.Default.WidgetConfig);
             Assert.DoesNotContain("shownSettings", json, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("offersStyle", json, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

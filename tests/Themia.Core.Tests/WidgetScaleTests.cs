@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>One widget's own content scale ([S-6530]..[S-6534]).</summary>
+/// <summary>One widget's own content scale ([S-6530]..[S-6533], [S-6536]).</summary>
 public sealed class WidgetScaleTests
 {
     private static string StateFile(string scale) => $$"""
@@ -180,13 +180,13 @@ public sealed class WidgetScaleTests
     }
 
     [Fact]
-    public void S6534_a_scale_change_is_part_of_the_widget_page_signature()
+    public void S6536_the_settings_page_shows_no_scale_so_a_scale_change_does_not_rebuild_it()
     {
         var (state, view) = State(Widget("a"));
         var before = SettingsPageSync.Signature(state, SettingsScope.Widget, "a");
 
         view.Find("a")!.Scale = 1.25;
 
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Widget, "a"));
+        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Widget, "a"));
     }
 }

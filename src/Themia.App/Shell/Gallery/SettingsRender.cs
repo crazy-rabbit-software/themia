@@ -388,7 +388,7 @@ internal static class SettingsRender
     /// <summary>
     /// The demo profile's widget of <paramref name="kind"/>; <c>--config</c> writes the given fields
     /// over its config (<c>{"shuffle":true}</c>, read and repaired as the state file is), and
-    /// <c>--style</c> then sets its style ([S-6010], [S-6070]: the page shows
+    /// <c>--style</c> then sets its style ([S-6070]: the page shows
     /// the rows that style and state offer).
     /// </summary>
     private static WidgetInstance DemoWidget(AppHost host, WidgetKind kind, string? style, string? config)

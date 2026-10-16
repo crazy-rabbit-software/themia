@@ -240,9 +240,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         }
     }
 
-    /// <summary>[S-6072] A picture file and the photo of the day are one picture: every layout draws it the same.</summary>
-    bool IShownSettings.OffersStyle => Source == GallerySource.Folder;
-
     [JsonIgnore]
     public int EffectiveMaxImages => Math.Clamp(MaxImages, 1, MaxImageCount);
 

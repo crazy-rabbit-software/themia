@@ -21,7 +21,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Music_Header.Text()));
 
-        // [S-6406] Whether the art shows, and how, is the widget's style: the shared Style row.
+        // [S-6406] Whether the art shows, and how, is the widget's style, on the properties panel.
 
         rows.Add(FluentLayout.Row(Glyphs.Play, Str.WidgetsB_Settings_Music_Transport_Label.Text(),
             Str.WidgetsB_Settings_Music_Transport_Desc.Text(),

@@ -191,7 +191,8 @@ internal static class MenuRender
     {
         var selection = new WidgetSelection();
         selection.Replace(view.Id, [widget.Id]);
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }));
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { },
+            id => view.Find(id) is { } found && Config.ConfigPages.HasWidgetSettings(found)));
         UiLanguage.ApplyFlow(strip);
         strip.ShowSelection(QuickSet.For(new AppState { Views = [view] }, selection, view.Id));
         strip.Visibility = Visibility.Visible;

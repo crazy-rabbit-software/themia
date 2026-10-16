@@ -66,7 +66,7 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
         // [S-3601] Only what the calendar's style uses; picking another style rebuilds the page
-        // ([S-6010]). The week start is every calendar's ([S-3770]).
+        // ([S-6071]). The week start is every calendar's ([S-3770]).
         if (config is CalendarWidgetConfig calendar)
         {
             foreach (var setting in calendar.ShownSettings)

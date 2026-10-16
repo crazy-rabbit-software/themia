@@ -1,5 +1,4 @@
 {
   "$englishOnly": [],
-  "widget.scale.label": "Scale",
-  "widget.scale.desc": "Makes this widget's content bigger or smaller, on top of the display's scale"
+  "widget.scale.label": "Scale"
 }

@@ -8,6 +8,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
@@ -47,15 +48,19 @@ internal static partial class ConfigPages
     }
 
     /// <summary>
-    /// [S-1750] Whether a kind's page has anything on it. Read off the rows the page builder makes
-    /// for a throwaway widget of that kind (as the search index does), never a list kept beside the
-    /// pages, so a kind that gains or loses its last row cannot disagree with its menus. Built once
-    /// per kind and remembered: the rows of a kind's page are the same for each of its widgets.
-    /// UI thread only, like the pages.
+    /// [S-1750] Whether a widget's page has anything on it. Read off the rows the page builder makes
+    /// for a throwaway widget of the same kind and page shape ([S-6071]: its style and the rows that
+    /// style and state offer), as the search index does, never a list kept beside the pages, so a
+    /// kind that gains or loses its last row cannot disagree with its menus; a meter whose style
+    /// draws no history has no page, the same meter as a graph has one. Built once per kind and
+    /// shape and remembered. UI thread only, like the pages.
     /// </summary>
-    internal static bool HasWidgetSettings(WidgetKind kind)
+    internal static bool HasWidgetSettings(WidgetInstance like)
     {
-        if (HasSettingsByKind.TryGetValue(kind, out var known))
+        ArgumentNullException.ThrowIfNull(like);
+
+        var key = (like.Kind, SettingRules.Shape(like.Config));
+        if (HasSettingsByShape.TryGetValue(key, out var known))
         {
             return known;
         }
@@ -63,78 +68,31 @@ internal static partial class ConfigPages
         bool has;
         try
         {
-            var widget = WidgetInstance.Create(kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1));
+            var widget = WidgetInstance.Create(like.Kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1));
+            widget.Config = like.Config.Clone();
             has = WidgetRows(widget, _ => { }, () => { }).Count > 0;
         }
         catch (Exception ex)
         {
             // Offer the page rather than hide settings that may well exist.
-            Log.Error(Scope, $"could not read the rows of the {kind} settings page", ex);
+            Log.Error(Scope, $"could not read the rows of the {like.Kind} settings page", ex);
             return true;
         }
 
-        HasSettingsByKind[kind] = has;
+        HasSettingsByShape[key] = has;
         return has;
     }
 
-    private static readonly Dictionary<WidgetKind, bool> HasSettingsByKind = [];
+    private static readonly Dictionary<(WidgetKind Kind, string Shape), bool> HasSettingsByShape = [];
 
-    /// <summary>[S-6010] The Style row: the kind's styles by name, writing the live config and saving.</summary>
-    private static Border? StyleRow(WidgetConfig config, Action save)
-    {
-        if (WidgetStyles.Current(config) is not { } current)
-        {
-            return null;
-        }
-
-        var styles = WidgetStyles.For(config.Kind);
-        var shown = styles.FirstOrDefault(s => s.Value == current);
-        var glyph = char.ConvertFromUtf32(shown.Glyph != 0 ? shown.Glyph : styles[0].Glyph);
-
-        return FluentLayout.Row(glyph, Str.Styles_Label.Text(), null,
-            FluentLayout.Choice(
-                [.. styles.Select(s => (s.Value, s.Label.Text()))],
-                current,
-                value =>
-                {
-                    if (WidgetStyles.Set(config, value))
-                    {
-                        save();
-                    }
-                }));
-    }
-
-    /// <summary>[S-6534] The widget's own content scale, 50–200 % in 5 % steps, writing the instance and saving.</summary>
-    private static Border ScaleRow(WidgetInstance widget, Action save)
-        => FluentLayout.Row(Glyphs.Scale, Str.Widget_Scale_Label.Text(), Str.Widget_Scale_Desc.Text(),
-            FluentLayout.Slider(
-                WidgetScale.Percent(widget.Scale),
-                WidgetScale.Min * 100,
-                WidgetScale.Max * 100,
-                WidgetScale.Step * 100,
-                "%",
-                value =>
-                {
-                    var scale = WidgetScale.Normalise(value / 100);
-                    if (!scale.Equals(widget.Scale))
-                    {
-                        widget.Scale = scale;
-                        save();
-                    }
-                }),
-            "zoom", "size", "text size", "magnify", "scale");
-
+    /// <summary>
+    /// [S-6536] The widget's own options and nothing else: its title, style, header, background,
+    /// item background, item text and scale are the properties panel's ([S-3707]), their one place.
+    /// </summary>
     private static SettingsPage WidgetPage(WidgetInstance widget, Action<ConfigTarget> navigate, Action save)
     {
         var definition = WidgetCatalog.Definition(widget.Kind);
         var rows = WidgetRows(widget, navigate, save);
-
-        // [S-6534] Every page has the widget's own Scale, the last row of its first section (what it
-        // shows). Added here, not in WidgetRows, so a kind with no rows of its own still has no page
-        // ([S-1750]); its scale is on the properties panel.
-        var section = rows.Count > 1 ? rows.FindIndex(1, FluentLayout.IsHeader) : -1;
-        rows.Insert(section < 0 ? rows.Count : section, ScaleRow(widget, save));
-
         return Page(string.IsNullOrWhiteSpace(widget.Label) ? definition.Label : widget.Label!, rows, definition.Description);
     }
 
@@ -336,20 +294,13 @@ internal static partial class ConfigPages
                 break;
         }
 
-        // [S-6010] A kind with styles: one Style row, the same on every such page, the first row
-        // under the kind's own heading. Built here from the registry, never by a page; left out
-        // while the config's state draws every style the same ([S-6072]).
-        if (SettingRules.OffersStyle(widget.Config) && StyleRow(widget.Config, Save) is { } style)
-        {
-            rows.Insert(rows.Count > 0 && FluentLayout.IsHeader(rows[0]) ? 1 : 0, style);
-        }
-
         // Every widget page is laid out the same way: what it shows, then how it behaves, then how
         // often it updates, and destructive actions last. A row the widget built with
         // FluentLayout.DangerRow is lifted out of wherever it sat and into the one danger section
         // below, so nothing that cannot be undone is left sitting between two switches. [S-3705]
-        // The card itself (header, background, title) is set on the edit bar, and the widget is
-        // deleted from its card menu or the Delete key: neither has a row here.
+        // The card itself (title, style, header, background, items, scale) is set on the
+        // properties panel ([S-6536]), and the widget is deleted from its card menu or the Delete
+        // key: neither has a row here.
         var danger = rows.FindAll(FluentLayout.IsDanger);
         rows.RemoveAll(FluentLayout.IsDanger);
 
@@ -359,6 +310,9 @@ internal static partial class ConfigPages
             rows.AddRange(danger);
         }
 
-        return rows;
+        // [S-1752] No heading over nothing: a section whose rows this style or state leaves out
+        // goes with them, and a page of headings alone is no page ([S-1750]).
+        var keep = PageSections.Keep([.. rows.Select(FluentLayout.IsHeader)]);
+        return [.. keep.Select(i => rows[i])];
     }
 }

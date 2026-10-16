@@ -202,7 +202,7 @@ internal sealed partial class AppHost
     public bool HasSettings(ConfigTarget target)
         => target is not ConfigTarget.Widget { WidgetId: var id }
             || Find(id) is not { Widget: var widget }
-            || ConfigPages.HasWidgetSettings(widget.Kind);
+            || ConfigPages.HasWidgetSettings(widget);
 
     /// <summary>Delete a view and everything in it, repairing anything that pointed at it.</summary>
     public void DeleteView(string viewId)

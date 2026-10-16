@@ -989,7 +989,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   click on another widget still lands, on the widget it was typed for. A change made elsewhere
   never replaces text half typed in the box.
 - **[S-3705]** The widget settings page has no Header, Background or Title row and no Delete row
-  (its one card row is Scale, [S-6534]): it holds the widget's own options, then a Danger section only when the widget has a danger row
+  and no Style, Item background, Item text or Scale row either ([S-6536]): it holds the widget's own options, then a Danger section only when the widget has a danger row
   (`FluentLayout.DangerRow`, e.g. clearing the clipboard history). Delete stays on the card menu, the Delete key and
   the undo notice ([S-1743]).
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
@@ -1071,7 +1071,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-6531]** The properties panel's **Scale** row, after Item background and Item text,
   before Settings: a drop-down showing the scale's icon and percentage (a dash when the selected
   widgets differ, `QuickSet.Common` over the stored values) whose menu offers 75, 90, 100, 110,
-  125 and 150 % (`WidgetScale.Steps`) and ticks the current one; a scale the settings page set
+  125 and 150 % (`WidgetScale.Steps`) and ticks the current one; a scale between them (an imported or hand-edited one)
   between them is listed in its place (`WidgetScale.Offered`), so the menu always shows what the
   widget has. A pick sets every selected widget (`QuickSet.SetScale`) in one `Mutate`, one undo step.
 - **[S-6532]** The scale a card's content is drawn at (`WidgetScale.Effective`) is the display's
@@ -1081,13 +1081,17 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   discloses on the scaled box — a widget at 150 % shows what a smaller card would ([S-663]).
 - **[S-6533]** Load validation repairs a stored scale outside 50–200 % or off the 5 % grain to the
   nearest one it may hold, and says so; a file without one reads as 100 %.
-- **[S-6534]** Every widget settings page has a **Scale** row (a slider, 50–200 % in 5 % steps,
-  writing the widget and saving like the page's other rows), the last row of the page's first
-  section. It is added by the page, not the kind's rows, so a kind with no rows of its own still
-  has no page ([S-1750]); its scale is on the panel. The scale is part of the page's signature
-  ([S-1721]), so a change on the panel shows on an open page.
+- **[S-6534]** *(Retired by [S-6536]: the settings page has no Scale row; the panel is the scale's one place.)*
 - **[S-6535]** Debug: `--widget-png <Kind> <out.png> --scale <f>` draws the cards at that widget
   scale, through the same content transform.
+- **[S-6536]** The properties panel is the **one place** for what it sets (user request
+  2026-10-16): no widget settings page has a Title, Style, Header, Background, Item background, Item
+  text or Scale row (`WidgetPageTests` checks the page builder's source for the panel's row names and
+  for a style or scale writer). The page holds only the widget's own options, so settings search
+  never finds those rows for a widget; the app-wide Widget scale (Appearance, Displays) is not the
+  widget's own and stays. The page's signature ([S-1721]) leaves the scale out, so a pick on the
+  panel does not rebuild an open page; a style pick still rebuilds it when the page's shape changes
+  ([S-6071]). Settings export and import carry all of them as before: they are the instance's.
 - **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the panel beside
   real cards in edit mode on a stand-in display: `props-<theme>-right.png` (one flip clock in the
   middle with a title, an item colour of its own and a scale of 125 %: Style with the flip icon,
@@ -1111,7 +1115,7 @@ landing as one undo step ([S-6567]).
 ## Widget styles (STYLES)
 
 A different look of the same widget with the same data and the same settings, chosen next to the
-widget on the properties strip or at the top of its settings page. Owning files:
+widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files:
 `Themia.Core/Widgets/WidgetStyles.cs` (the registry), each styled kind's config (its style enum),
 `Themia.App/Shell/PropertiesStrip.cs`, `Themia.App/Shell/Config/ConfigPages.Widget.cs`. Tests:
 `WidgetStylesTests`; the weather, forecast, stock, exchange-rate and air styles in `WeatherStylesTests`.
@@ -1145,8 +1149,8 @@ widget on the properties strip or at the top of its settings page. Owning files:
 - **[S-6008]** A pick sets the style of every selected widget (`QuickSet.SetStyle`) in one `Mutate`:
   one undo step however many it reached.
 - **[S-6009]** The panel ends with a **Settings** row (the gear and the word, the panel's width) that
-  opens the widget's settings page; one widget only, and only when its kind has a settings page
-  ([S-1750]). Several selected: no gear (which one's page would it be).
+  opens the widget's settings page; one widget only, and only when its page has rows in its current
+  style and state ([S-1750]): a style picked on the panel can bring the row or take it away. Several selected: no gear (which one's page would it be).
 - **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry
   `RingArc`): a track in the control's strong rest fill, the arc in a brush the widget gives,
   clockwise from twelve, round caps, nothing under 0.05 % and the whole ring from 99.95 % (two half
@@ -1156,12 +1160,9 @@ widget on the properties strip or at the top of its settings page. Owning files:
   month): every column count is tried and the one whose square cells are largest kept, on a tie
   the one with fewer empty cells in the last row; the gap is a quarter of the pitch, so a larger
   tile spaces the dots in proportion.
-- **[S-6010]** Every styled kind's settings page has one **Style** row, the first under the kind's
-  heading, built by the shared widget-page builder from the registry (a choice of the style names),
-  never by the page itself; it writes the live config and saves, as every widget row does. A
-  widget page's shape is its style (`SettingsPageSync.Shape`), so a pick builds the page again (once
-  the drop-down's own event has finished): a kind whose styles use different settings shows only the
-  current style's rows ([S-3641], [S-4121]).
+- **[S-6010]** *(Retired by [S-6536]: the settings page has no Style row; the style is picked on the
+  properties panel only. A widget page's shape is still its style, so a pick there rebuilds an open
+  page whose rows differ by style, [S-6071].)*
 - **[S-6070]** A settings page offers only the rows that change what its widget visibly does or
   shows in its current style and state (user rule). The rule is one Core property per config,
   `IShownSettings<TSetting>.ShownSettings` (the kind's own `<Kind>Setting` enum, page order), read on
@@ -1171,13 +1172,11 @@ widget on the properties strip or at the top of its settings page. Owning files:
   not a state here: a row a small tile sheds ([S-660]) is still offered. A rule never reads a
   slider's or a text box's value, so dragging or typing never rebuilds the page under the hand.
 - **[S-6071]** A widget page's shape (`SettingRules.Shape`, read by `SettingsPageSync.Shape`) is its
-  style, whether the Style row is offered, and the rows offered. A pick or a switch that changes it
+  style (picked on the properties panel, [S-6536]) and the rows offered. A pick or a switch that changes it
   builds the page again once its own event has finished (`QueueRestyle`), with the scroll kept,
   the expanders that were open opened again and the focus back on the row that had it.
-- **[S-6072]** `IShownSettings.OffersStyle`: the shared Style row is left out while the config's
-  state draws every style the same: a gallery of one picture file or the photo of the day (the
-  layouts are a folder's), and tasks without due dates (a list on this PC, or "Show due date" off:
-  the styles differ only in where the due date goes).
+- **[S-6072]** *(Retired by [S-6536]: with no Style row on the page there is nothing to leave out;
+  `IShownSettings.OffersStyle` is gone.)*
 - **[S-6073]** The settings search indexes one page per kind **and page shape** in use, built over a
   copy of a widget of that shape (`ConfigPages.BuildWidgetForIndex`), so a row one widget's style or
   state leaves out is not found for it.
@@ -3296,7 +3295,7 @@ for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `Offic
   (`Period`: a month, day or year is the week start alone). The settings page shows only the
   current style's rows (`CalendarWidgetConfig.ShownSettings`, [S-6070]): Week: "Starts on" and "Days shown";
   Agenda: its date range and "Agenda events"; Month, Day, Year: none; then birthdays for every style.
-  Picking another style rebuilds the page ([S-6010]).
+  Picking another style rebuilds the page ([S-6071]).
 
 Provider events ([S-560], [S-565]), as real calendars send them:
 
@@ -5395,7 +5394,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   draws it. Listed under Media beside Music; glyph `Glyphs.Visualizer` (E7F3; Equalizer is the
   mixer's). Six styles ([S-3216]). Headerless, whatever the style ([S-700], [S-3711]). No settings
   but its style: the spectrum in Music was an on/off switch and nothing else, and placing the
-  widget is that switch now; the page carries only the Style row ([S-6010]). Accent fill (`AccentFillColorDefaultBrush`), never a typed colour.
+  widget is that switch now, and its style is on the properties panel ([S-6536]), so it has no settings page ([S-1750]). Accent fill (`AccentFillColorDefaultBrush`), never a typed colour.
 - **[S-3201]** The analyser (was [S-1470]): WASAPI loopback of the default render endpoint
   (console role), mixed to mono, Hann-windowed 1024-point FFT, 24 log bands from bin 1 to Nyquist,
   sqrt compression ×3.5, clamped 0..1 — the original's. Float32/Int16/Int32 mix formats; anything
@@ -5768,7 +5767,7 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   Microphone (the default microphone's mute), Spatial sound, Mono audio, Color filters, Game mode.
   The kind maps to its `QuickToggle` in Core (`QuickToggleRules.ForKind`/`KindOf`); one view serves
   all thirteen. Each has a config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
-  one setting is the style ([S-3916]), so its settings page is the Style row alone ([S-6010]); it
+  one setting is the style ([S-3916]), picked on the properties panel ([S-6536]), so it has no settings page ([S-1750]); it
   never needs setting up. The picker names it "<name> on/off" so it never
   reads as another widget ("Bluetooth on/off" beside the Bluetooth devices widget); the tile says the
   name alone. Not ported from Karpo: its row of several toggles in one widget, mobile hotspot, VPN and
@@ -6508,7 +6507,7 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   columns, file extensions; no sort row (its column headers sort, saved). Grid: tile size, file
   extensions, Sort by + Reverse. Icons: tile size, Sort by + Reverse; no extensions (it draws no
   names; a rename there edits the stem). One tile size for grid and icons (default Medium). Picking
-  another style rebuilds the page ([S-6010]). Retired for every style: the stored keyword filter (the
+  another style rebuilds the page ([S-6071]). Retired for every style: the stored keyword filter (the
   header search covers it), Folders first (always on), Stretch tiles (tiles keep their preset height).
 - **[S-4122]** Debug renders: `--widget-png Folder <out> --style list|details|grid|icons --state web|wallpapers`
   lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile;
@@ -6781,12 +6780,20 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
   or the point of a right-click on the surface — and flips above only
   when there is no room below.
-- **[S-1750]** A widget whose settings page would have no rows (the CPU, memory and battery details,
-  the audio visualizer, the seven power buttons, the thirteen quick-setting toggles; the GPU details on a PC with one adapter) has no
-  Settings: the card menu leaves it out of the row, and Enter ([S-1974]), a click while the settings
-  window is open ([S-1745]) and every other way in do nothing for it. Whether a page has rows is read
-  off the page builder itself (a throwaway widget of the kind, once per kind), never a list kept
-  beside the pages, so the two cannot drift. The edit bar has no per-widget Settings button.
+- **[S-1750]** A widget whose settings page would have no rows has no Settings: the card menu
+  leaves it out of the row, the properties panel has no More settings row ([S-6009]), and Enter
+  ([S-1974]), a click while the settings window is open ([S-1745]), the settings search and every
+  other way in do nothing for it. With the panel's properties off the page ([S-6536]) that is the
+  CPU, memory and battery details, the audio visualizer, the seven power buttons, the thirteen
+  quick-setting toggles, Year progress, Stopwatch, Removable drives, Notifications, Recent files and
+  the Recycle bin; the GPU details on a PC with one adapter; and the CPU, memory, battery and network
+  meters in a style that draws no history (their page is the history's span, [S-6074]). Whether a
+  page has rows is read off the page builder itself (a throwaway widget of the same kind and page
+  shape, [S-6071], once per kind and shape), never a list kept beside the pages, so the two cannot
+  drift. The edit bar has no per-widget Settings button.
+- **[S-1752]** A section heading with no row under it before the next heading or the page's end is
+  left out (`PageSections.Keep`), so a style that offers none of a section's rows leaves no heading
+  over nothing, and a page of headings alone has no rows ([S-1750]).
 - **[S-1751]** In edit mode a widget's own content is inert (`CardGestures.ContentTakesInput`): the
   card turns hit-testing off for its header and view, every widget's alike, so a press, right-click,
   long press or hover lands on the card and selects, drags ([S-1745]) or opens the card menu
@@ -7269,8 +7276,8 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
 Owning files: `Themia.Core/Widgets/TimeProgress.cs`, `Themia.App/Widgets/YearProgressView*.cs`.
 
 - **[S-4800]** `YearProgress` (124): how much of the day, week, month and year has passed, each a
-  label, a percentage and a bar. Its one setting is its style ([S-6040], the shared Style row,
-  [S-6010]): the week start and the clock are the regional settings ([S-3770]).
+  label, a percentage and a bar. Its one setting is its style ([S-6040], on the properties panel,
+  [S-6536]), so it has no settings page ([S-1750]): the week start and the clock are the regional settings ([S-3770]).
 - **[S-4801]** A span runs from one local midnight to the next one after it (`CalendarRules.LocalMidnight`),
   and its fraction is elapsed over real length in instants (`TimeProgress.Of`): a 23-hour
   spring-forward day is half gone at 12:30, a 25-hour one is 25 hours, a leap year 366 days,

@@ -13,10 +13,6 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(battery);
         ArgumentNullException.ThrowIfNull(save);
 
-        // [S-6010] The kind's heading, so the shared Style row is the first row under it, also in
-        // a look whose page has no history rows ([S-6074]).
-        rows.Add(FluentLayout.Header(Themia.App.Widgets.WidgetCatalog.Definition(battery.Kind).Label));
-
         MeterRows(rows, battery, save);
     }
 }

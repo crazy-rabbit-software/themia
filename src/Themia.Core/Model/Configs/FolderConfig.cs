@@ -129,7 +129,7 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
 
     /// <summary>
     /// [S-4121] [S-4122] [S-6070] The rows the settings page shows for the current style, in page
-    /// order: only what that style draws. Picking another style rebuilds the page ([S-6010]).
+    /// order: only what that style draws. Picking another style rebuilds the page ([S-6071]).
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<FolderSetting> ShownSettings => Style switch

@@ -33,7 +33,8 @@ internal sealed partial class DesktopWindow
         OpenSettings: id => _host.ShowConfig(new Config.ConfigTarget.Widget(id)),
         SetItemBackground: _host.SetSelectedItemBackground,
         SetItemTextColor: _host.SetSelectedItemTextColor,
-        SetScale: _host.SetSelectedScale);
+        SetScale: _host.SetSelectedScale,
+        HasSettings: id => _host.HasSettings(new Config.ConfigTarget.Widget(id)));
 
     /// <summary>[S-3701] The strip shows what is selected in the view this display shows, and nothing otherwise.</summary>
     private void SyncProperties()

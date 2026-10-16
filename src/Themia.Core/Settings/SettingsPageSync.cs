@@ -68,7 +68,7 @@ public static class SettingsPageSync
     /// (Add view, Duplicate, Delete, Move up, a drag, switching a display off), and the page has to
     /// show the group it added or drop the one it deleted. A rename or a new icon keeps the shape:
     /// those update their own group in place, so the box being typed in is never torn down.
-    /// [S-6010] [S-6071] A widget page's shape (<paramref name="id"/>) is its style and the rows its
+    /// [S-6071] A widget page's shape (<paramref name="id"/>) is its style and the rows its
     /// config offers now (<see cref="Themia.Core.Widgets.SettingRules.Shape"/>): picking another style
     /// or turning on a switch that other rows depend on builds the page again. Empty for every
     /// other scope.
@@ -177,7 +177,10 @@ public static class SettingsPageSync
         return text.Append("\nnew ").Append(state.DefaultViewForNewDisplays).ToString();
     }
 
-    /// <summary>The widget's config, label, background, header and scale ([S-6534]) — not its position or size.</summary>
+    /// <summary>
+    /// The widget's config, label, background and header — not its position or size, and not its
+    /// scale, which only the properties panel shows ([S-6536]).
+    /// </summary>
     private static string WidgetSignature(AppState state, string? id)
     {
         foreach (var view in state.Views)
@@ -191,7 +194,6 @@ public static class SettingsPageSync
                         .Append(widget.Background.Kind).Append(' ').Append(widget.Background.Colour).Append(' ')
                         .Append(widget.Background.Opacity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)).Append('\n')
                         .Append(widget.Header).Append('\n')
-                        .Append(widget.Scale.ToString("R", System.Globalization.CultureInfo.InvariantCulture)).Append('\n')
                         .Append(JsonSerializer.Serialize(widget.Config, AppStateJsonContext.Default.WidgetConfig))
                         .ToString();
                 }

@@ -1,7 +1,7 @@
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-6530]..[S-6534] One widget's own content scale (<see cref="WidgetInstance.Scale"/>): what it
+/// [S-6530]..[S-6533] One widget's own content scale (<see cref="WidgetInstance.Scale"/>): what it
 /// may hold, what the properties panel offers, how a hand-edited value is repaired, and how it
 /// combines with the display's and the app-wide widget scale ([S-850]). Pure.
 /// </summary>

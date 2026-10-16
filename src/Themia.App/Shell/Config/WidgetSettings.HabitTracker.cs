@@ -116,7 +116,7 @@ internal static partial class WidgetSettings
             rows.Add(FluentLayout.FieldRow(Glyphs.Countdown, Str.HabitTracker_IntervalLabel.Text(), Str.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)), minutes, verdict));
         }
 
-        // [S-6408] The run and the dots are the Dots style's own; another style rebuilds the page without them ([S-6010]).
+        // [S-6408] The run and the dots are the Dots style's own; another style rebuilds the page without them ([S-6071]).
         if (config.Offers(HabitsSetting.Streak))
         {
             rows.Add(FluentLayout.Row(Glyphs.Done, Str.WidgetsB_Settings_Habits_Streaks_Label.Text(), Str.WidgetsB_Settings_Habits_Streaks_Desc.Text(),

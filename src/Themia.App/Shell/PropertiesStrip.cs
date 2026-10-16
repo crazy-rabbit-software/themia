@@ -21,6 +21,7 @@ namespace Themia.App.Shell;
 /// <param name="SetItemBackground">[S-6521] The selected widgets' own item background (those with items, [S-6571]).</param>
 /// <param name="SetItemTextColor">[S-6544] The selected widgets' own item text colour, or empty for the app-wide one.</param>
 /// <param name="SetScale">[S-6531] The selected widgets' own content scale, as a factor.</param>
+/// <param name="HasSettings">[S-1750] Whether one widget, by id, has a settings page in its current style and state.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
     Action<FillChoice> SetBackground,
@@ -30,7 +31,8 @@ internal sealed record PropertiesCommands(
     Action<string> OpenSettings,
     Action<FillChoice> SetItemBackground,
     Action<string> SetItemTextColor,
-    Action<double> SetScale);
+    Action<double> SetScale,
+    Func<string, bool> HasSettings);
 
 /// <summary>
 /// [S-3707] The selected widgets' properties panel: a small panel on a flyout's surface ([S-3715])
@@ -38,7 +40,7 @@ internal sealed record PropertiesCommands(
 /// widget) or "N selected", Style (one kind with styles, [S-6007]), Header (where every selected
 /// widget can have one, [S-3711]), Background and Item background (one fill control each, [S-6566];
 /// the item row greyed for widgets without items, [S-6571]), Item text ([S-6544]), Scale ([S-6531]),
-/// then Settings (one widget with a page, [S-6009]). After Karpo's
+/// then More settings (one widget with a page, [S-6009]). After Karpo's
 /// properties panel (docs/widgets.md §145): the selection's own properties, where the selection is.
 /// </summary>
 internal sealed partial class PropertiesStrip : Grid
@@ -62,6 +64,9 @@ internal sealed partial class PropertiesStrip : Grid
     private PropertiesCommands _commands;
 
     private QuickSetOffer _offer = QuickSetOffer.None;
+
+    /// <summary>[S-6009] Whether the one selected widget has a settings page now ([S-1750]).</summary>
+    private bool _hasSettings;
 
     /// <summary>The title box while one widget is selected, the widget it names and what it last committed.</summary>
     private TextBox? _title;
@@ -121,7 +126,11 @@ internal sealed partial class PropertiesStrip : Grid
         ArgumentNullException.ThrowIfNull(offer);
 
         var previous = _offer;
+        var hadSettings = _hasSettings;
         _offer = offer;
+
+        // [S-1750] A style picked here can give the widget a page or take it away (a meter's graph).
+        _hasSettings = offer.TitleWidgetId is { } id && _commands.HasSettings(id);
 
         // [S-6566] The fill rows are rebuilt whenever a fill moved: each fill control keeps its own value.
         var sameShape = previous.Shows == offer.Shows
@@ -132,7 +141,8 @@ internal sealed partial class PropertiesStrip : Grid
             && previous.HasItems == offer.HasItems
             && SameFill(previous.Background, offer.Background)
             && SameFill(previous.Items, offer.Items)
-            && string.Equals(previous.ItemText, offer.ItemText, StringComparison.Ordinal);
+            && string.Equals(previous.ItemText, offer.ItemText, StringComparison.Ordinal)
+            && hadSettings == _hasSettings;
 
         if (!sameShape)
         {
@@ -220,7 +230,7 @@ internal sealed partial class PropertiesStrip : Grid
         AddRow(Str.Widget_Scale_Label.Text(), ScaleChoice(commands));
 
         // [S-6009] The widget's settings, one widget only and only when its page has rows ([S-1750]).
-        if (_offer is { TitleWidgetId: { } settingsId, TitleKind: { } settingsKind } && Config.ConfigPages.HasWidgetSettings(settingsKind))
+        if (_offer is { TitleWidgetId: { } settingsId } && _hasSettings)
         {
             var gear = new Button
             {

@@ -1033,7 +1033,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
             SelectionCount: _host.SelectionCount,
             CanPaste: _host.CanPaste,
-            HasSettings: Themia.App.Shell.Config.ConfigPages.HasWidgetSettings(Model.Kind));
+            HasSettings: Themia.App.Shell.Config.ConfigPages.HasWidgetSettings(Model));
 
         var entries = new List<ItemMenuEntry>();
         foreach (var item in ShellMenus.ForCard(facts))
