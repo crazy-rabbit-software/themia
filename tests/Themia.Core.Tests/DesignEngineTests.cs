@@ -173,9 +173,10 @@ public sealed class DesignEngineTests
     {
         var design = new DesignState();
 
-        // OverlayCornerRadius 8, a 1px CardStrokeColorDefault stroke at full strength, the Fluent
-        // fill (no colour of the user's own), opaque, and the Windows accent.
-        Assert.Equal(8, design.CornerRadiusPx);
+        // [S-6482] 4px corners (the user's choice over Fluent's OverlayCornerRadius 8), a 1px
+        // CardStrokeColorDefault stroke at full strength, the Fluent fill (no colour of the user's
+        // own), opaque, and the Windows accent.
+        Assert.Equal(4, design.CornerRadiusPx);
         Assert.Equal(WidgetBorderStyle.Solid, design.BorderStyle);
         Assert.Equal(1, design.BorderWidthPx);
         Assert.Equal(1, design.BorderOpacity);
@@ -294,7 +295,8 @@ public sealed class DesignEngineTests
     [InlineData(8, 8)]
     [InlineData(-4, 0)]
     [InlineData(99, 32)]
-    [InlineData(double.PositiveInfinity, 8)]
+    [InlineData(double.PositiveInfinity, 4)]
+    [InlineData(double.NaN, 4)]
     public void S825_corner_radius_clamps(double setting, double expected)
         => Assert.Equal(expected, DesignLook.CornerRadius(setting));
 
@@ -375,6 +377,65 @@ public sealed class DesignEngineTests
 
         design.CornerRadiusPx += 1;
         Assert.Null(DesignPresets.Match(design));
+    }
+
+    [Fact]
+    public void S6482_the_default_preset_has_4px_corners_and_the_others_keep_their_own()
+    {
+        Assert.Equal(4, DesignPresets.Get(DesignPresetId.Default).Values.CornerRadiusPx);
+        Assert.Equal(6, DesignPresets.Get(DesignPresetId.Midnight).Values.CornerRadiusPx);
+        Assert.Equal(12, DesignPresets.Get(DesignPresetId.Daylight).Values.CornerRadiusPx);
+        Assert.Equal(18, DesignPresets.Get(DesignPresetId.Glass).Values.CornerRadiusPx);
+        Assert.Equal(0, DesignPresets.Get(DesignPresetId.Terminal).Values.CornerRadiusPx);
+        Assert.Equal(4, DesignPresets.Get(DesignPresetId.Paper).Values.CornerRadiusPx);
+    }
+
+    // ---- [S-6483] confirm before a preset replaces a custom look ------------------------------------
+
+    [Fact]
+    public void S6483_a_design_that_is_a_preset_loses_nothing_to_another()
+    {
+        var design = new DesignState();
+        Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Midnight));
+
+        DesignPresets.Apply(design, DesignPresetId.Glass);
+        Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Paper));
+        Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Default));
+    }
+
+    [Theory]
+    [InlineData(nameof(DesignState.BorderColor))]
+    [InlineData(nameof(DesignState.BorderWidthPx))]
+    [InlineData(nameof(DesignState.CornerRadiusPx))]
+    [InlineData(nameof(DesignState.WidgetBackgroundColor))]
+    [InlineData(nameof(DesignState.Theme))]
+    [InlineData(nameof(DesignState.WidgetGapPx))]
+    public void S6483_a_customised_design_is_replaced_by_any_preset(string field)
+    {
+        var design = new DesignState();
+        DesignPresets.Apply(design, DesignPresetId.Midnight);
+        switch (field)
+        {
+            case nameof(DesignState.BorderColor): design.BorderColor = "#FF0000"; break;
+            case nameof(DesignState.BorderWidthPx): design.BorderWidthPx = 3; break;
+            case nameof(DesignState.CornerRadiusPx): design.CornerRadiusPx = 20; break;
+            case nameof(DesignState.WidgetBackgroundColor): design.WidgetBackgroundColor = "#123456"; break;
+            case nameof(DesignState.Theme): design.Theme = AppTheme.Light; break;
+            case nameof(DesignState.WidgetGapPx): design.WidgetGapPx = 30; break;
+        }
+
+        foreach (var preset in DesignPresets.All)
+        {
+            Assert.True(DesignPresets.ReplacesCustomLook(design, preset.Id), $"{field} → {preset.Id}");
+        }
+    }
+
+    [Fact]
+    public void S6483_unowned_fields_are_not_a_custom_look()
+    {
+        // Text size, widget scale and motion are the user's own and no preset touches them.
+        var design = new DesignState { FontScale = 1.5, UiScale = 2, IntroAnimation = IntroAnimation.Fade, GridSnap = false };
+        Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Terminal));
     }
 
     [Fact]

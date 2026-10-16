@@ -166,14 +166,53 @@ internal static partial class ConfigPages
                 return;
             }
 
-            host.Mutate(s => DesignPresets.Apply(s.Design, (DesignPresetId)value));
-
-            // After the selection change has finished: rebuilding inside it would tear down the
-            // combo box that is still raising the event.
-            if (page.DispatcherQueue is not { } queue || !queue.TryEnqueue(() => FillAppearance(page, host)))
-            {
-                Log.Warn(Scope, "could not refresh the Appearance page after a preset; reopen it to see the values");
-            }
+            _ = PickPresetAsync(page, host, (DesignPresetId)value);
         });
+    }
+
+    /// <summary>
+    /// [S-6483] Apply a picked preset, first asking when it would overwrite a look the user made
+    /// (the design reads as Custom). Cancel changes nothing, and the rebuilt page shows Custom again.
+    /// Its own method rather than an async lambda on the event: an exception out of an async void
+    /// handler would take the process with it.
+    /// </summary>
+    private static async Task PickPresetAsync(SettingsPage page, AppHost host, DesignPresetId id)
+    {
+        try
+        {
+            if (DesignPresets.ReplacesCustomLook(host.State.Design, id))
+            {
+                var replace = await FluentLayout.ConfirmAsync(
+                    page,
+                    Str.Shell_Appearance_ReplaceLook_Title.Text(),
+                    Str.Shell_Appearance_ReplaceLook_Body.Format(("preset", DesignPresets.Get(id).Label)),
+                    Str.Shell_Appearance_ReplaceLook_Action.Text()).ConfigureAwait(true);
+
+                if (!replace)
+                {
+                    RefreshAppearance(page, host);
+                    return;
+                }
+            }
+
+            host.Mutate(s => DesignPresets.Apply(s.Design, id));
+            RefreshAppearance(page, host);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"could not apply the {id} style", ex);
+        }
+    }
+
+    /// <summary>
+    /// Rebuild the page after the selection change has finished: rebuilding inside it would tear down
+    /// the combo box that is still raising the event.
+    /// </summary>
+    private static void RefreshAppearance(SettingsPage page, AppHost host)
+    {
+        if (page.DispatcherQueue is not { } queue || !queue.TryEnqueue(() => FillAppearance(page, host)))
+        {
+            Log.Warn(Scope, "could not refresh the Appearance page after a preset; reopen it to see the values");
+        }
     }
 }

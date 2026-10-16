@@ -166,6 +166,18 @@ public static class DesignPresets
         return null;
     }
 
+    /// <summary>
+    /// [S-6483] Whether picking <paramref name="target"/> would throw away a look the user made: the
+    /// design matches no preset (it reads as Custom), so its owned fields exist nowhere else and a
+    /// preset overwrites them for good. A design that is a preset loses nothing — that preset can be
+    /// picked again — and fields no preset owns (text size, widget scale, motion) never count.
+    /// </summary>
+    public static bool ReplacesCustomLook(DesignState design, DesignPresetId target)
+    {
+        ArgumentNullException.ThrowIfNull(design);
+        return Match(design) is null && !Same(ValuesOf(design), Get(target).Values);
+    }
+
     private static bool Same(DesignPresetValues a, DesignPresetValues b)
         => a.Theme == b.Theme
             && SameText(a.PrimaryColor, b.PrimaryColor)

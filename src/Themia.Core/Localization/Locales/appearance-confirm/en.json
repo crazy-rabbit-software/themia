@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "Replace your custom look?",
+  "shell.appearance.replaceLook.body": "{preset} replaces your theme, colours, font, border, corners and spacing. Text size, widget scale and motion stay as they are.",
+  "shell.appearance.replaceLook.action": "Replace"
+}

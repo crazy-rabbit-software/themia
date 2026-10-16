@@ -4181,6 +4181,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   a header colour at the header opacity, or the widget's fill and Fluent lift at the widget's opacity
   times the header opacity (`DesignLook.HeaderFillOpacity`). 100 % looks as before; 0 % leaves the
   strip clear over the desktop. The body's base reaches 1 DIP under the strip, so no anti-aliased seam
+- **[S-6482]** The default corner radius is 4px (`DesignState.DefaultCornerRadiusPx`; a radius that is
+  not a number loads as 4), by the user's decision: Fluent gives an overlay card 8px. The Default
+  preset reads it from a fresh design ([S-831]); the other presets keep their own (Midnight 6,
+  Daylight 12, Glass 18, Terminal 0, Paper 4), none of which mirrored the old 8.
   opens between the two where their edge falls between pixels (widget scale, an intro, fractional DPI).
 - **[S-829]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-830]** Design presets (the original's six): Default, Midnight, Daylight, Glass, Terminal, Paper.
@@ -4195,7 +4199,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   resources (WinUI 1.8 `generic.xaml`, read by key through `FluentLayout.Themed`, never copied):
   card = `CardBackgroundFillColorDefault` (#0DFFFFFF dark / #B3FFFFFF light) over
   `SolidBackgroundFillColorBase` (#202020 / #F3F3F3), i.e. #2B2B2B / #FBFBFB; a 1px
-  `CardStrokeColorDefault` (#19000000 / #0F000000); `OverlayCornerRadius` 8 for the card, 4
+  `CardStrokeColorDefault` (#19000000 / #0F000000); a 4px card corner ([S-6482]: the user's
+  decision over `OverlayCornerRadius` 8, which the `--reference` card still draws), 4
   (`ControlCornerRadius`) for controls and row highlights; text `TextFillColorPrimary/Secondary/
   Tertiary`; accent `AccentFillColorDefault` (Light2 dark / Dark1 light); status
   `SystemFillColorSuccess/Caution/Critical` (#6CCB5F/#FCE100/#FF99A4 dark, #0F7B0F/#9D5D00/#C42B1C
@@ -4207,6 +4212,12 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   [Typography](https://learn.microsoft.com/windows/apps/design/signature-experiences/typography),
   [Widget design fundamentals](https://learn.microsoft.com/windows/apps/design/widgets/widgets-design-fundamentals),
   and the Adaptive Cards designer's Widgets Board host
+- **[S-6483]** Picking a preset while the design reads as Custom first asks (the settings window's
+  `ContentDialog`, `FluentLayout.ConfirmAsync`): "Replace your custom look?", naming the preset and
+  what it replaces (theme, colours, font, border, corners, spacing) and what stays (text size, widget
+  scale, motion); Replace, or Cancel (the default button, Escape). Cancel writes nothing and the page
+  shows Custom again. A design that is a preset is never asked about: nothing of the user's is lost.
+  The rule is `DesignPresets.ReplacesCustomLook`.
   ([widget-dark.json](https://github.com/microsoft/AdaptiveCards/blob/main/samples/HostConfig/widget-dark.json)),
   whose card (#2C2C2C / #F6F6F6, 1px #19000000 / #0F000000, radius 8) is a CSS approximation of
   the same tokens; the theme resources win where the two differ. Deliberate differences: no card

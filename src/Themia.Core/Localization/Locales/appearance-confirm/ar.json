@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "هل تريد استبدال مظهرك المخصص؟",
+  "shell.appearance.replaceLook.body": "سيستبدل {preset} السمة والألوان والخط والحد والزوايا والتباعد. يبقى حجم النص وتحجيم الأدوات والحركة كما هي.",
+  "shell.appearance.replaceLook.action": "استبدال"
+}

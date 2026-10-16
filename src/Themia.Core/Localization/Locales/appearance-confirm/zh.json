@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "要替换你的自定义外观吗?",
+  "shell.appearance.replaceLook.body": "{preset} 将替换你的主题、颜色、字体、边框、圆角和间距。文字大小、小组件缩放和动画保持不变。",
+  "shell.appearance.replaceLook.action": "替换"
+}

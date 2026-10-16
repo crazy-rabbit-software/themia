@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "Zastąpić własny wygląd?",
+  "shell.appearance.replaceLook.body": "{preset} zastąpi motyw, kolory, czcionkę, obramowanie, narożniki i odstępy. Rozmiar tekstu, skala widżetów i animacje pozostaną bez zmian.",
+  "shell.appearance.replaceLook.action": "Zastąp"
+}

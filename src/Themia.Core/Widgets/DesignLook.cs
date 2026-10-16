@@ -227,9 +227,9 @@ public static class DesignLook
         return new RgbColor(Mix(alpha, top.R, under.R), Mix(alpha, top.G, under.G), Mix(alpha, top.B, under.B));
     }
 
-    /// <summary>[S-825] A corner radius from the setting: 0..32, not finite is the default 8.</summary>
+    /// <summary>[S-825] A corner radius from the setting: 0..32, not finite is the default ([S-6482], 4).</summary>
     public static double CornerRadius(double radiusPx)
-        => Math.Clamp(double.IsFinite(radiusPx) ? radiusPx : 8, 0, 32);
+        => Math.Clamp(double.IsFinite(radiusPx) ? radiusPx : DesignState.DefaultCornerRadiusPx, 0, 32);
 
     /// <summary>
     /// [S-826] The font family to draw widget text in, or null for the system's own (Segoe UI

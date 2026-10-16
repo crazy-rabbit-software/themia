@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "カスタムの外観を置き換えますか?",
+  "shell.appearance.replaceLook.body": "{preset} によって、テーマ、色、フォント、枠線、角、間隔が置き換えられます。文字サイズ、ウィジェットの拡大率、アニメーションはそのままです。",
+  "shell.appearance.replaceLook.action": "置き換える"
+}

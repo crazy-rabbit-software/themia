@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "Remplacer votre apparence personnalisée ?",
+  "shell.appearance.replaceLook.body": "{preset} remplace votre thème, vos couleurs, la police, la bordure, les coins et l’espacement. La taille du texte, l’échelle des widgets et les animations restent inchangées.",
+  "shell.appearance.replaceLook.action": "Remplacer"
+}

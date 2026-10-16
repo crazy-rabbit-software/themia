@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "사용자 지정 모양을 바꾸시겠습니까?",
+  "shell.appearance.replaceLook.body": "{preset}이(가) 테마, 색, 글꼴, 테두리, 모서리, 간격을 바꿉니다. 텍스트 크기, 위젯 배율, 애니메이션은 그대로 유지됩니다.",
+  "shell.appearance.replaceLook.action": "바꾸기"
+}

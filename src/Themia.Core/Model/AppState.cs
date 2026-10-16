@@ -174,8 +174,14 @@ public sealed class DesignState
     /// <summary>[S-06] Snap-to-grid aid for drag, resize and placement.</summary>
     public bool GridSnap { get; set; } = true;
 
-    /// <summary>Corner radius of a widget card, in device-independent pixels.</summary>
-    public double CornerRadiusPx { get; set; } = 8;
+    /// <summary>
+    /// Corner radius of a widget card, in device-independent pixels. [S-6482] 4 by the user's
+    /// decision, not Fluent's 8px OverlayCornerRadius.
+    /// </summary>
+    public double CornerRadiusPx { get; set; } = DefaultCornerRadiusPx;
+
+    /// <summary>[S-6482] The default card corner radius.</summary>
+    public const double DefaultCornerRadiusPx = 4;
 
     /// <summary>Widget card fill, as <c>#RRGGBB</c>. Empty uses the theme's surface colour.</summary>
     public string WidgetBackgroundColor { get; set; } = string.Empty;

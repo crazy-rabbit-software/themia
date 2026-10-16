@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "แทนที่รูปลักษณ์ที่คุณกำหนดเองหรือไม่",
+  "shell.appearance.replaceLook.body": "{preset} จะแทนที่ธีม สี แบบอักษร เส้นขอบ มุม และระยะห่างของคุณ ขนาดข้อความ มาตราส่วนวิดเจ็ต และภาพเคลื่อนไหวจะยังคงเดิม",
+  "shell.appearance.replaceLook.action": "แทนที่"
+}

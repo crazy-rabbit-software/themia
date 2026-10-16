@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "Заменить ваше оформление?",
+  "shell.appearance.replaceLook.body": "{preset} заменит тему, цвета, шрифт, рамку, углы и отступы. Размер текста, масштаб виджетов и анимации останутся прежними.",
+  "shell.appearance.replaceLook.action": "Заменить"
+}

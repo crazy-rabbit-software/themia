@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "要取代你的自訂外觀嗎?",
+  "shell.appearance.replaceLook.body": "{preset} 會取代你的佈景主題、色彩、字型、框線、圓角和間距。文字大小、小工具縮放和動畫維持不變。",
+  "shell.appearance.replaceLook.action": "取代"
+}
