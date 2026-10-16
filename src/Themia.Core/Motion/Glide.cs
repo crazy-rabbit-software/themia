@@ -1,3 +1,5 @@
+using Themia.Core.Model;
+
 namespace Themia.Core.Motion;
 
 /// <summary>[S-6323] What a live readout does with a new value.</summary>
@@ -36,6 +38,15 @@ public static class Glide
 
     /// <summary>A boundary reached within rounding (a sixth of a second is not exact in binary) counts as reached.</summary>
     private const double Slack = 1e-9;
+
+    /// <summary>
+    /// [S-6329] Whether live values move smoothly now — readouts glide ([S-6323]) and history charts
+    /// scroll ([S-1826]): only with Windows' animation effects on ([S-6326], [S-1828]) <b>and</b> the
+    /// user's Smooth value changes switch on (<see cref="DesignState.SmoothValues"/>). No design yet
+    /// (before the first apply) is the default, on. The one answer both motions ask.
+    /// </summary>
+    public static bool Smooth(DesignState? design, bool windowsAnimations)
+        => windowsAnimations && (design?.SmoothValues ?? true);
 
     /// <summary>
     /// [S-6324] [S-6326] Glide only between two numbers, and only with Windows' animation effects on

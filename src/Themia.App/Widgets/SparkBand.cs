@@ -6,7 +6,6 @@ using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
-using Themia.App.Shell.Motion;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Windows.Foundation;
@@ -247,11 +246,12 @@ internal sealed partial class SparkBand : Grid
 
     private void Redraw(SparkChange change)
     {
-        // [S-1827] [S-1828] Only a new point on a shown band with animation effects on slides; every
-        // other drawing is settled, the newest point at the right edge.
+        // [S-1827] [S-1828] [S-6329] Only a new point on a shown band with smooth motion on (Windows'
+        // animation effects and the user's Smooth value changes) slides; every other drawing is
+        // settled, the newest point at the right edge.
         var animates = change == SparkChange.Point
             && Visibility == Microsoft.UI.Xaml.Visibility.Visible
-            && SystemMotion.AnimationsEnabled;
+            && GlideMotion.Smooth;
         var frame = SparkScroll.Plan(change, animates);
 #if DEBUG
         // A still of the live slide: the geometry just after a point, translated part of the way.

@@ -11,6 +11,7 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-1014] The Motion section of the Appearance page: the startup, unlock and view-change intros,
 /// each with the same controls — a style, a length and a ▶ replay. Any change replays that moment on the desktop, so the user sees what they picked.
+/// Then [S-6329] the Smooth value changes switch: live readouts glide and history charts scroll, or both jump.
 /// Deliberately not part of a design preset: motion is the user's accessibility choice.
 /// </summary>
 internal static partial class ConfigPages
@@ -42,6 +43,11 @@ internal static partial class ConfigPages
 
         yield return MotionMoment(host, IntroMode.Transition, Glyphs.View, Str.Shell_Motion_Transition.Text(),
             Str.Shell_Motion_TransitionDesc.Text());
+
+        // [S-6329] Live values: readouts glide and history charts scroll, or both jump.
+        yield return FluentLayout.Row(Glyphs.Gauge, Str.Shell_Motion_SmoothValues.Text(), Str.Shell_Motion_SmoothValuesDesc.Text(),
+            FluentLayout.Toggle(host.State.Design.SmoothValues, value => host.Mutate(s => s.Design.SmoothValues = value)),
+            "animation", "interpolate", "glide", "scroll", "graph");
 
         // [S-1010] Said, not hidden: with Windows' animation effects off nothing here plays.
         if (!Motion.SystemMotion.AnimationsEnabled)

@@ -1,0 +1,4 @@
+{
+  "shell.motion.smoothValues": "Płynne zmiany wartości",
+  "shell.motion.smoothValuesDesc": "Liczby, wypełnienia i kolory płynnie przechodzą do każdego nowego odczytu, a wykresy się przewijają. Wyłączone: przeskakują"
+}

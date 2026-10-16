@@ -19,22 +19,25 @@ namespace Themia.App.Widgets;
 //                independent Storyboard animation, nothing per frame on the UI thread.
 //   ColorGlide   a brush of its own whose colour the compositor animates along the OKLab path.
 // Each takes the new value with the period it should glide over (the series' period, [S-1826]);
-// with Windows' animation effects off, or from or to "no value", it jumps as before.
+// with Windows' animation effects or the user's Smooth value changes off ([S-6329]), or from or to
+// "no value", it jumps as before.
 
-/// <summary>[S-6326] Whether readouts glide now: Windows' animation effects, read at most once a second.</summary>
+/// <summary>[S-6326] [S-6329] Whether live values move smoothly now: readouts glide and history charts scroll.</summary>
 internal static class GlideMotion
 {
     private static long _readAt = long.MinValue;
-    private static bool _enabled = true;
+    private static bool _windows = true;
 
     /// <summary>The period every glide on the hub's cadence takes ([S-2503]).</summary>
     public static TimeSpan Tick { get; } = TimeSpan.FromSeconds(Core.SystemData.SystemCadence.TickSeconds);
 
     /// <summary>
-    /// [S-6326] Windows' Animation effects ([S-1010]). Read per glide but asked of Windows at most once
-    /// a second: a core grid starts dozens of glides a second, and the switch is a person's.
+    /// [S-6326] [S-6329] Windows' Animation effects ([S-1010]) and the user's own switch
+    /// (<c>DesignState.SmoothValues</c>), through <see cref="Glide.Smooth"/>. Read per glide; Windows
+    /// is asked at most once a second (a core grid starts dozens of glides a second), the user's
+    /// switch every time, so turning it off stops the very next reading's glide.
     /// </summary>
-    public static bool Animations
+    public static bool Smooth
     {
         get
         {
@@ -43,10 +46,10 @@ internal static class GlideMotion
             if (now - _readAt >= Stopwatch.Frequency)
             {
                 _readAt = now;
-                _enabled = SystemMotion.AnimationsEnabled;
+                _windows = SystemMotion.AnimationsEnabled;
             }
 
-            return _enabled;
+            return Glide.Smooth(Shell.DesignApplier.Current, _windows);
         }
     }
 
@@ -61,7 +64,7 @@ internal static class GlideMotion
     /// <summary>What a readout does with a new value now: the rule, the switch, and a debug still.</summary>
     public static GlideMove Plan(double? from, double? to, bool settle)
     {
-        var move = Glide.Plan(!settle && Animations, from, to);
+        var move = Glide.Plan(!settle && Smooth, from, to);
 #if DEBUG
         if (PreviewProgress is not null && move == GlideMove.Jump && !settle && from is not null && to is not null)
         {

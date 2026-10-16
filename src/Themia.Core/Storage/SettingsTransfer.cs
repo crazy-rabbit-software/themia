@@ -456,6 +456,7 @@ public static class SettingsTransfer
         Line(Str.Shell_Transfer_TransitionLength, old.TransitionAnimationMs, @new.TransitionAnimationMs, Ms);
         Line(Str.Shell_Motion_Unlock, old.UnlockAnimation, @new.UnlockAnimation, Intro);
         Line(Str.Shell_Transfer_UnlockLength, old.UnlockAnimationMs, @new.UnlockAnimationMs, Ms);
+        Line(Str.Shell_Motion_SmoothValues, old.SmoothValues, @new.SmoothValues, OnOff);
     }
 
     private static void ComparePreferences(Locale locale, AppPreferences old, AppPreferences @new, List<string> changes)

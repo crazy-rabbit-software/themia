@@ -1,0 +1,4 @@
+{
+  "shell.motion.smoothValues": "平滑數值變化",
+  "shell.motion.smoothValuesDesc": "數字、填色和顏色平滑過渡到每個新讀數，圖表平滑捲動。關閉後直接跳變"
+}

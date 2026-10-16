@@ -1,0 +1,4 @@
+{
+  "shell.motion.smoothValues": "Cambios de valor suaves",
+  "shell.motion.smoothValuesDesc": "Los números, rellenos y colores se deslizan hacia cada nueva lectura y los gráficos se desplazan. Desactivado, saltan"
+}

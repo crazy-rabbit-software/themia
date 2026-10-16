@@ -2829,9 +2829,9 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   edge, still — which is where a finished slide stands, so nothing jumps when a meter is built
   again and the next point slides on from there. A paused series (a parked view, a slow probe)
   simply ends its slide settled and waits; a point that arrives before a slide ends replaces it.
-- **[S-1828]** With Windows' **Animation effects** off ([S-1010]; the app has no motion switch of its
-  own beyond the intros) or the band not shown, a point draws settled: no lag, today's one step per
-  point. Read at each point, so flipping the setting applies to the next one.
+- **[S-1828]** With Windows' **Animation effects** off ([S-1010]), the user's **Smooth value
+  changes** off ([S-6329]) or the band not shown, a point draws settled: no lag, today's one step per
+  point. Read at each point, so flipping either setting applies to the next one.
 - **[S-1829]** A folded slot ([S-1121]) stands at the time of its last member and is **drawn only once
   that member has arrived**: a slot still taking points changes value with each one, and the segment
   into it would show that at the right edge. A folded chart therefore stands a further slot less one
@@ -2863,8 +2863,9 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   formatter and landing on the reading's own text. It is redrawn only when its next step is due
   (`Glide.NextChange`): one shared one-shot timer (`GlideClock`) armed for the earliest due step,
   idle once every readout shows its target; no frame callback, no repeating timer.
-- **[S-6326]** With Windows' **Animation effects** off ([S-1010]) every readout jumps as before. Read
-  per glide (asked of Windows at most once a second), so flipping it applies to the next reading.
+- **[S-6326]** With Windows' **Animation effects** off ([S-1010]) or **Smooth value changes** off
+  ([S-6329]) every readout jumps as before. Read per glide (Windows asked at most once a second, the
+  user's switch every time), so flipping either applies to the next reading.
 - **[S-6327]** Colours glide through OKLab (`OkLab.Mix`): accent to caution passes even-lightness
   colours, not sRGB's muddy middle; the compositor plays four straight key-framed segments along that
   path (`ColorGlide`, a brush of the readout's own). Fills, shades and transforms (a bar's scale, a
@@ -2873,6 +2874,15 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
 - **[S-6328]** Debug renders draw a fixed point of every glide: `--widget-png <Kind> --state sample
   --tween 0..1` draws the sample from a reading a third as large (items shifted by five) that far
   towards it.
+- **[S-6329]** **Smooth value changes** (user request 2026-10-16), Settings › Appearance › Motion,
+  a toggle, **on by default** (`DesignState.SmoothValues`): one switch for every smooth motion of a
+  live value, the readouts' glides ([S-6323]..[S-6327]) **and** the history charts' scroll ([S-1826]),
+  since the two are one motion (a number reaches a reading as its point reaches the edge) and one
+  without the other would put them a period apart. Off, values, colours and charts jump to each
+  reading, as with Windows' animation effects off. Both ask one rule (`Glide.Smooth`: Windows'
+  animation effects and the switch). Not the clock's flip or the intros: those are a style's or a
+  moment's motion, not a value's. Like the intros, not part of a design preset ([S-1014]). Debug
+  stills (`--tween`, `--progress`) draw regardless.
 - **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
   (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
   same hero readout in every style. One shared set of parts draws them for every meter
@@ -6610,7 +6620,8 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   hit region, drag geometry and saved rects never see a half-animated box, and every widget takes clicks
   from the first frame. The show ends on its animations' completion (one scoped batch), not a timer.
 - **[S-1014]** Settings › Appearance › Motion: one expander per moment (Startup, Unlock, View change)
-  with the style, the length of the whole animation (100..5000 ms) and a ▶ replay. Any change replays
+  with the style, the length of the whole animation (100..5000 ms) and a ▶ replay, then the Smooth
+  value changes toggle ([S-6329]). Any change replays
   that moment on the desktop. The startup sound ([S-1008], [S-1009]) is removed.
 - **[S-1015]** Every intro runs on the compositor (`MotionKit`): keyframe and expression animations,
   no per-frame managed timer, no layout pass, no redraw of a widget.

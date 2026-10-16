@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "shell.motion.smoothValues": "Smooth value changes",
+  "shell.motion.smoothValuesDesc": "Numbers, fills and colours glide to each new reading and graphs scroll. Off, they jump"
+}
