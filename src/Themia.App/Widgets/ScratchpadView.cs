@@ -212,54 +212,13 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     }
 
     /// <summary>
-    /// Clearing throws away work that has no other copy, so it asks first.
-    /// <para>
-    /// A flyout rather than a <c>ContentDialog</c>: the widget surface is a
-    /// <c>WS_EX_NOACTIVATE</c> window that never becomes foreground, and a flyout is the popup the
-    /// card already opens its context menu with there. The undo stack survives a clear, but only
-    /// until the app closes, so this is still the last word on a drawing.
-    /// </para>
+    /// Clearing throws away work that has no other copy, so it asks first, through the widgets' one
+    /// confirmation ([S-1500]): a popup of its own, so the surface's region does not clip it to the
+    /// tile. The undo stack survives a clear, but only until the app closes, so this is still the
+    /// last word on a drawing.
     /// </summary>
     private Flyout BuildClearConfirmation()
-    {
-        var message = Fluent.Text(FluentType.Body);
-        message.Text = Str.WidgetsC_Scratchpad_ClearConfirm.Text();
-        message.TextWrapping = TextWrapping.Wrap;
-        message.TextTrimming = TextTrimming.None;
-
-        var confirm = new Button { Content = Str.Common_Clear.Text() };
-        var cancel = new Button { Content = Str.Common_Cancel.Text() };
-
-        var flyout = new Flyout
-        {
-            Content = new StackPanel
-            {
-                Spacing = Fluent.Space3,
-                MaxWidth = 240,
-                Children =
-                {
-                    message,
-                    new StackPanel
-                    {
-                        Orientation = Orientation.Horizontal,
-                        Spacing = Fluent.Space2,
-                        HorizontalAlignment = HorizontalAlignment.Right,
-                        Children = { confirm, cancel },
-                    },
-                },
-            },
-        };
-
-        confirm.Click += (_, _) =>
-        {
-            flyout.Hide();
-            ClearAll();
-        };
-
-        cancel.Click += (_, _) => flyout.Hide();
-
-        return flyout;
-    }
+        => ConfirmFlyout.Create(Str.WidgetsC_Scratchpad_ClearConfirm.Text(), Str.Common_Clear.Text(), ClearAll);
 
     // -----------------------------------------------------------------------------------------
     // Lifecycle

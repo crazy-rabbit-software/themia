@@ -165,7 +165,9 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         _icon.Show(drive, iconSize);
         _top.Visibility = top ? Visibility.Visible : Visibility.Collapsed;
         _kind.Apply(large ? FluentType.BodyLarge : FluentType.Body);
-        _kind.Text = DriveRules.Description(locale, drive);
+        // [S-4671] The card starts headerless ([S-4675]), so the body names the drive; a drive Windows
+        // cannot reach says why instead ("Disconnected network drive"), its name is in the tooltip.
+        _kind.Text = drive.State == DriveState.Disconnected ? DriveRules.Description(locale, drive) : DriveRules.Title(locale, drive);
         _kind.Visibility = narrow ? Visibility.Collapsed : Visibility.Visible;
         _used.Apply(large ? FluentType.Subtitle : FluentType.BodyStrong);
         _used.Text = drive.UsedFraction is { } used ? Formatting.Percent(locale, used) : string.Empty;
@@ -196,7 +198,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
             Fact(3, Str.Drives_Fact_FileSystem, drive.FileSystem.Length > 0 ? drive.FileSystem : "--");
         }
 
-        ToolTipService.SetToolTip(this, $"{DriveRules.Title(locale, drive)} · {DriveRules.SpaceLine(locale, drive)}");
+        ToolTipService.SetToolTip(this, $"{DriveRules.Title(locale, drive)} · {DriveRules.Description(locale, drive)} · {DriveRules.SpaceLine(locale, drive)}");
     }
 
     private void Fact(int index, Str label, string value)

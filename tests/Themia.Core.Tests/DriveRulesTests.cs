@@ -145,4 +145,8 @@ public sealed class DriveRulesTests
         Assert.NotEmpty(bad.Repair());
         Assert.Equal(string.Empty, bad.Drive);
     }
+
+    [Fact]
+    public void S4675_a_new_drive_card_starts_without_a_header()
+        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(WidgetKind.Drive));
 }

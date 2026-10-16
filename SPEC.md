@@ -4945,6 +4945,14 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   units; another shape would stretch them), as large as the display holds. The tile's button
   leaves it; so does the widget detaching (a view switch, a removal). Needs a live pass: pointer and
   pen input in the popup, a top or side taskbar, mixed DPI.
+- **[S-1500]** Clear asks first (user bug: the question was clipped to the tile), through the
+  widgets' one confirmation `ConfirmFlyout` (also the folder's delete, [S-1330]): the question, the
+  action (accent) and Cancel, beside the button. It is never constrained to the root: inside the
+  surface's window the region ([S-851]) clips it to the card, so it opens as its own popup window,
+  which the framework keeps in the display's work area, flipping to the side with room — at any tile
+  size, either theme, either direction. Escape, a click elsewhere or Cancel are "no". The clear is
+  in the header from three tools' width ([S-651]); in full screen it is always there. Tests read the
+  source (`ConfirmFlyoutTests`); a live pass checks it on a small tile at a display edge.
 
 
 ## Device and location (DEVICE-AND-LOCATION)

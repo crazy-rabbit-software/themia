@@ -214,41 +214,13 @@ internal sealed partial class FolderView
     }
 
     /// <summary>
-    /// A small confirmation at the widget itself — not a dialog over the whole desktop surface, which
-    /// is the size of the monitor. Escape, a click elsewhere or Cancel are all "no".
+    /// A small confirmation at the widget itself ([S-1500]) — not a dialog over the whole desktop
+    /// surface, which is the size of the monitor. Escape, a click elsewhere or Cancel are all "no".
     /// </summary>
     private Task<bool> ConfirmAsync(string question, string action)
     {
         var answer = new TaskCompletionSource<bool>();
-
-        var text = Fluent.Text(FluentType.Body);
-        text.Text = question;
-        text.TextWrapping = TextWrapping.Wrap;
-        text.MaxWidth = 260;
-
-        var yes = new Button { Content = action, Style = Application.Current.Resources["AccentButtonStyle"] as Style };
-        var no = new Button { Content = Str.Common_Cancel.Text() };
-
-        var flyout = new Flyout
-        {
-            Content = new StackPanel
-            {
-                Spacing = Fluent.Space3,
-                Children =
-                {
-                    text,
-                    new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, HorizontalAlignment = HorizontalAlignment.Right, Children = { yes, no } },
-                },
-            },
-            Placement = FlyoutPlacementMode.Bottom,
-        };
-
-        yes.Click += (_, _) =>
-        {
-            answer.TrySetResult(true);
-            flyout.Hide();
-        };
-        no.Click += (_, _) => flyout.Hide();
+        var flyout = ConfirmFlyout.Create(question, action, () => answer.TrySetResult(true), FlyoutPlacementMode.Bottom);
         flyout.Closed += (_, _) => answer.TrySetResult(false);
 
         try

@@ -210,6 +210,33 @@ internal static class WidgetRender
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
                 await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
                 Console.WriteLine($"widget: wrote {outPath}");
+
+                // A state that opens a popup (a confirmation) is not part of the page's bitmap: each
+                // open one is written beside it as <name>-popup<n>.png.
+                var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(page.XamlRoot);
+                for (var i = 0; i < popups.Count; i++)
+                {
+                    if (popups[i].Child is not UIElement content)
+                    {
+                        continue;
+                    }
+
+                    var target = System.IO.Path.ChangeExtension(outPath, null) + $"-popup{i}.png";
+                    try
+                    {
+                        // A flyout's presenter carries a system backdrop, which a bitmap cannot draw:
+                        // draw what it presents.
+                        var drawn = content is ContentControl { Content: UIElement presented } ? presented : content;
+                        await RenderPng.SaveAsync(drawn, target).ConfigureAwait(true);
+                        Console.WriteLine($"widget: wrote {target}");
+                    }
+                    catch (Exception ex)
+                    {
+                        // A popup with nothing laid out (a closing tooltip) cannot be drawn; the page already was.
+                        Log.Warn(Scope, $"popup {i} could not be drawn", ex);
+                        Console.WriteLine($"widget: popup {i} could not be drawn: {ex.Message}");
+                    }
+                }
             }
             catch (Exception ex)
             {
