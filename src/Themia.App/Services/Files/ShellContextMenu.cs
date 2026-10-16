@@ -46,27 +46,101 @@ internal static unsafe partial class ShellContextMenu
     /// <summary>The shell's menu for <paramref name="paths"/> at a screen point; the chosen command runs.</summary>
     public static void ShowForItems(IReadOnlyList<string> paths, int screenX, int screenY, nint owner)
     {
+        using var owned = ItemsMenu(paths);
+
+        if (!owned.IsNull)
+        {
+            Track(owned.Pointer, CmfNormal | CmfExplore | CmfCanRename, screenX, screenY, owner);
+        }
+    }
+
+    /// <summary>
+    /// [S-6416] Run one of the shell's own commands on <paramref name="paths"/> by its canonical verb
+    /// ("pintohome", "pintostartscreen", "Windows.ModernShare"), as its line in the full menu would.
+    /// False (logged) when the shell has no such command for these items.
+    /// </summary>
+    public static bool InvokeVerb(IReadOnlyList<string> paths, string verb, nint owner)
+    {
+        using var owned = ItemsMenu(paths);
+
+        if (owned.IsNull)
+        {
+            return false;
+        }
+
+        var popup = CreatePopupMenu();
+
+        if (popup == 0)
+        {
+            return false;
+        }
+
+        var ansi = Marshal.StringToHGlobalAnsi(verb);
+
+        try
+        {
+            // The handlers fill their commands in on QueryContextMenu; a verb is only known after it.
+            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)(*(nint**)owned.Pointer)[3];
+            var hr = query(owned.Pointer, popup, 0, FirstCommand, LastCommand, CmfNormal | CmfExplore);
+
+            if (hr < 0)
+            {
+                Log.Warn(Scope, $"QueryContextMenu failed for '{verb}' (0x{hr:X8})");
+                return false;
+            }
+
+            var info = new InvokeInfo
+            {
+                Size = (uint)sizeof(InvokeInfo),
+                Window = owner,
+                Verb = ansi,
+                Show = 1, // SW_SHOWNORMAL
+            };
+
+            // IContextMenu::InvokeCommand is slot 4.
+            var invoke = (delegate* unmanaged[Stdcall]<nint, InvokeInfo*, int>)(*(nint**)owned.Pointer)[4];
+            hr = invoke(owned.Pointer, &info);
+
+            if (hr < 0)
+            {
+                Log.Warn(Scope, $"the shell has no '{verb}' for {paths.Count} item(s) (0x{hr:X8})");
+                return false;
+            }
+
+            return true;
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(ansi);
+            DestroyMenu(popup);
+        }
+    }
+
+    /// <summary>The shell's <c>IContextMenu</c> for <paramref name="paths"/>, or a null ref (logged).</summary>
+    private static DragDropInterop.ComRef ItemsMenu(IReadOnlyList<string> paths)
+    {
         using var array = DragDropInterop.CreateItemArray(paths);
 
         if (array.IsNull)
         {
-            return;
+            return default;
         }
 
         nint menu;
         var bhid = BhidSfUiObject;
         var iid = IidContextMenu;
+
+        // IShellItemArray::BindToHandler is slot 3.
         var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)array.Pointer)[3];
         var hr = bind(array.Pointer, 0, &bhid, &iid, &menu);
 
         if (hr < 0 || menu == 0)
         {
             Log.Warn(Scope, $"no shell menu for {paths.Count} item(s) (0x{hr:X8})");
-            return;
+            return default;
         }
 
-        using var owned = new DragDropInterop.ComRef(menu);
-        Track(menu, CmfNormal | CmfExplore | CmfCanRename, screenX, screenY, owner);
+        return new DragDropInterop.ComRef(menu);
     }
 
     /// <summary>The shell's menu for the background of <paramref name="folder"/> (New, View, Paste…).</summary>

@@ -26,10 +26,14 @@ namespace Themia.App.Widgets;
 /// is ignored) — e.g. a destructive command one level down, so a stray click cannot reach it.
 /// </param>
 /// <param name="Quick">
-/// [S-1740] The Windows 11 icon-row command this entry is (Cut, Copy, Paste, Rename, Duplicate,
-/// Settings, Delete). <see cref="ContextMenuLayout"/> decides whether it goes to the row.
+/// [S-1740] The Windows 11 icon-row command this entry is (Cut, Copy, Paste, Rename, Share,
+/// Duplicate, Settings, Delete). <see cref="ContextMenuLayout"/> decides whether it goes to the row.
 /// </param>
 /// <param name="Shortcut">The key that does the same, shown beside the label ("Ctrl+C"); text only.</param>
+/// <param name="IconFile">
+/// [S-6416] A file whose shell icon is the line's icon, in place of <paramref name="Glyph"/> (an app in
+/// "Open with", as Explorer draws it).
+/// </param>
 internal readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -39,7 +43,8 @@ internal readonly record struct ItemMenuEntry(
     bool? Checked = null,
     IReadOnlyList<ItemMenuEntry>? Children = null,
     QuickCommand? Quick = null,
-    string? Shortcut = null)
+    string? Shortcut = null,
+    string? IconFile = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
@@ -146,11 +151,7 @@ internal static class ItemMenu
             var entry = list[index];
             if (entry.Children is { } children)
             {
-                var sub = new MenuFlyoutSubItem { Text = entry.Text, IsEnabled = !entry.Disabled };
-                if (entry.Glyph is not null)
-                {
-                    sub.Icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
-                }
+                var sub = new MenuFlyoutSubItem { Text = entry.Text, IsEnabled = !entry.Disabled, Icon = IconFor(entry) };
 
                 var inner = children.ToList();
                 FillList(sub.Items, inner, ContextMenuLayout.Split([.. inner.Select(e => e.IsSeparator ? MenuLine.Separator : MenuLine.Entry())]));
@@ -161,11 +162,7 @@ internal static class ItemMenu
             MenuFlyoutItem item = entry.Checked is { } isChecked ? new ToggleMenuFlyoutItem { IsChecked = isChecked } : new MenuFlyoutItem();
             item.Text = entry.Text;
             item.IsEnabled = !entry.Disabled;
-
-            if (entry.Glyph is not null)
-            {
-                item.Icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
-            }
+            item.Icon = IconFor(entry);
 
             if (entry.Shortcut is not null)
             {
@@ -317,9 +314,8 @@ internal static class ItemMenu
 
         var element = (Control?)button ?? toggle!;
 
-        if (entry.Glyph is not null)
+        if (IconFor(entry) is { } icon)
         {
-            var icon = UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
             if (button is not null)
             {
                 button.Icon = icon;
@@ -400,6 +396,35 @@ internal static class ItemMenu
         }
     }
 
+    /// <summary>A list line's icon: the shell icon of its <see cref="ItemMenuEntry.IconFile"/>, else its glyph, else none.</summary>
+    private static IconElement? IconFor(ItemMenuEntry entry)
+    {
+        if (entry.IconFile is { } file)
+        {
+            var image = new ImageIcon { Width = 16, Height = 16 };
+            _ = LoadIconAsync(image, file);
+            return image;
+        }
+
+        return entry.Glyph is null ? null : UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph });
+    }
+
+    /// <summary>The file's icon into <paramref name="image"/> when it arrives; a file with none keeps the line bare.</summary>
+    private static async Task LoadIconAsync(ImageIcon image, string file)
+    {
+        try
+        {
+            var pixels = (int)Math.Round(16 * (image.XamlRoot?.RasterizationScale ?? 1.5));
+            var entry = new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, false, 0, default, false);
+            image.Source = await Themia.App.Services.Files.FileIcons.IconAsync(entry, Math.Max(16, pixels)).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            // Fire-and-forget from a menu being built: nothing may escape.
+            Log.Warn(Scope, "a menu line's icon could not be loaded", ex);
+        }
+    }
+
     /// <summary>The icon a quick command has when its caller gave none.</summary>
     private static string QuickGlyph(QuickCommand? quick) => quick switch
     {
@@ -407,6 +432,7 @@ internal static class ItemMenu
         QuickCommand.Copy => Glyphs.Copy,
         QuickCommand.Paste => Glyphs.Paste,
         QuickCommand.Rename => Glyphs.Rename,
+        QuickCommand.Share => Glyphs.Share,
         QuickCommand.Duplicate => Glyphs.Duplicate,
         QuickCommand.Settings => Glyphs.Settings,
         QuickCommand.Delete => Glyphs.Delete,

@@ -934,6 +934,7 @@ public sealed class LocalizationTests
         "widgetsC.videoStream.settings.address.desc", // MP4
         "widgetsC.notes.editor.headingTip",    // H1, H2, H3
         "widgetsC.tasks.rowHint",              // the F2 key
+        "folderMenu.key.shiftF10",             // the F10 key ([S-6417])
     ];
 
     [Theory]

@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "folderMenu.share": "แชร์",
+  "folderMenu.openInNewWindow": "เปิดในหน้าต่างใหม่",
+  "folderMenu.openFileLocation": "เปิดตำแหน่งที่ตั้งไฟล์",
+  "folderMenu.pinToQuickAccess": "ปักหมุดไปยังการเข้าถึงด่วน",
+  "folderMenu.pinToStart": "ปักหมุดไปยังเริ่ม",
+  "folderMenu.compressToZip": "บีบอัดเป็นไฟล์ ZIP",
+  "folderMenu.copyAsPath": "คัดลอกเป็นเส้นทาง",
+  "folderMenu.openWith": "เปิดด้วย",
+  "folderMenu.chooseAnotherApp": "เลือกแอปอื่น",
+  "folderMenu.key.enter": "Enter",
+  "folderMenu.key.shiftF10": "Shift+F10",
+  "folderMenu.zipFailed": "ไม่สามารถสร้างไฟล์ ZIP ได้",
+  "folderMenu.shellFailed": "Windows ไม่สามารถทำเช่นนั้นกับรายการนี้ได้"
+}

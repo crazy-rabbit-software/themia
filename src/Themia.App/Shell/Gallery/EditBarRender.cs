@@ -41,12 +41,13 @@ internal static class EditBarRender
     private const double PropsHeight = 560;
 
     /// <summary>
-    /// The <c>--theme</c> of this render or of <c>--picker-png</c> / <c>--viewbar-png</c>, read before the app's resources
+    /// The <c>--theme</c> of this render or of <c>--picker-png</c> / <c>--viewbar-png</c> / <c>--menu-png</c>, read before the app's resources
     /// load: the bar's brushes come from the application theme.
     /// </summary>
     public static ApplicationTheme? RequestedTheme(string[] args)
     {
-        if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, "--picker-png") < 0 && Array.IndexOf(args, "--viewbar-png") < 0)
+        if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, "--picker-png") < 0 && Array.IndexOf(args, "--viewbar-png") < 0
+            && Array.IndexOf(args, "--menu-png") < 0)
         {
             return null;
         }

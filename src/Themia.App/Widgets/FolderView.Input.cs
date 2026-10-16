@@ -488,7 +488,16 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 return true;
 
             case WidgetKey.Menu:
-                ShowMenuFromKeyboard();
+                // [S-6417] Shift+F10 is Explorer's way to the full shell menu; the Menu key opens ours.
+                if (ShiftDown())
+                {
+                    ShowShellMenuFromKeyboard();
+                }
+                else
+                {
+                    ShowMenuFromKeyboard();
+                }
+
                 return true;
 
             case WidgetKey.Copy:

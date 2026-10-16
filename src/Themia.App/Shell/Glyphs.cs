@@ -298,6 +298,21 @@ internal static class Glyphs
     /// <summary>[S-1323] The breadcrumb's separator.</summary>
     public static readonly string ChevronRight = From(0xE76C);
 
+    /// <summary>[S-6416] Explorer's menu: Share (Segoe "Share").</summary>
+    public static readonly string Share = From(0xE72D);
+
+    /// <summary>[S-6416] "Compress to ZIP file" (Segoe "ZipFolder").</summary>
+    public static readonly string ZipFolder = From(0xF012);
+
+    /// <summary>[S-6416] Properties, drawn as Explorer's menu draws it: a wrench (Segoe "Repair").</summary>
+    public static readonly string Properties = From(0xE90F);
+
+    /// <summary>[S-6416] "Open in new window" (Segoe "NewWindow").</summary>
+    public static readonly string NewWindow = From(0xE78B);
+
+    /// <summary>[S-6416] "Open file location" (Segoe "FolderOpen").</summary>
+    public static readonly string FolderOpen = From(0xE838);
+
     /// <summary>[S-1405] An app layout (Segoe "Tiles").</summary>
     public static readonly string AppLayout = From(0xECA5);
 

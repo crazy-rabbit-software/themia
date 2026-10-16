@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "folderMenu.share": "Bagikan",
+  "folderMenu.openInNewWindow": "Buka di jendela baru",
+  "folderMenu.openFileLocation": "Buka lokasi file",
+  "folderMenu.pinToQuickAccess": "Sematkan ke Akses cepat",
+  "folderMenu.pinToStart": "Sematkan ke Mulai",
+  "folderMenu.compressToZip": "Kompres ke file ZIP",
+  "folderMenu.copyAsPath": "Salin sebagai jalur",
+  "folderMenu.openWith": "Buka dengan",
+  "folderMenu.chooseAnotherApp": "Pilih aplikasi lain",
+  "folderMenu.key.enter": "Enter",
+  "folderMenu.key.shiftF10": "Shift+F10",
+  "folderMenu.zipFailed": "File ZIP tidak dapat dibuat.",
+  "folderMenu.shellFailed": "Windows tidak dapat melakukannya untuk item ini."
+}

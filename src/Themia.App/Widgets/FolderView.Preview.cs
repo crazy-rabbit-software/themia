@@ -13,6 +13,34 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class FolderView : IWidgetPreviewState
 {
+    /// <summary>
+    /// [S-1747] For <c>--menu-png</c>: the real item menus of the first file in the wallpapers and of
+    /// the first folder in <c>%WINDIR%\Web</c>, the background menu, and the file's Open with submenu,
+    /// built by the same code a right-click runs.
+    /// </summary>
+    internal async Task<(List<ItemMenuEntry> File, List<ItemMenuEntry> OpenWith, List<ItemMenuEntry> Folder, List<ItemMenuEntry> Background)> PreviewMenusAsync()
+    {
+        await ShowPreviewStateAsync("wallpapers").ConfigureAwait(true);
+        var file = MenuFor(_shown.FirstOrDefault(e => !e.IsDirectory));
+        var openWith = _shown.FirstOrDefault(e => !e.IsDirectory) is { FullPath: { } path } ? OpenWithEntries(path) : [];
+
+        await ShowPreviewStateAsync("web").ConfigureAwait(true);
+        var folder = MenuFor(_shown.FirstOrDefault(e => e.IsDirectory));
+        _selection.Clear();
+        return (file, openWith, folder, BackgroundEntries());
+    }
+
+    private List<ItemMenuEntry> MenuFor(FolderEntry entry)
+    {
+        if (entry.FullPath is null)
+        {
+            return [];
+        }
+
+        _selection.SelectOnly(entry.FullPath);
+        return ItemEntries();
+    }
+
     public IReadOnlyList<string> PreviewStates { get; } = ["web", "wallpapers", "lasso"];
 
     public async Task ShowPreviewStateAsync(string state)

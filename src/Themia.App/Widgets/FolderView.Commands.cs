@@ -405,6 +405,15 @@ internal sealed partial class FolderView
         }
     }
 
+    /// <summary>[S-6417] Shift+F10: the shell's full menu for the selection (or the folder), at the focused item.</summary>
+    private void ShowShellMenuFromKeyboard()
+    {
+        var focus = _selection.FocusIndex;
+        FrameworkElement anchor = focus >= 0 && focus < _visuals.Count ? _visuals[focus].Root : this;
+        RememberMenuPoint(anchor, new Windows.Foundation.Point(anchor.ActualWidth / 2, anchor.ActualHeight / 2));
+        ShowShellMenu(_selection.IsEmpty ? null : _selection.Selected);
+    }
+
     private void ShowMenuFromKeyboard()
     {
         var focus = _selection.FocusIndex;
@@ -415,96 +424,183 @@ internal sealed partial class FolderView
         ItemMenu.Open(anchor, entries);
     }
 
-    /// <summary>[S-1330] The item menu: Explorer's, in Explorer's order.</summary>
+    /// <summary>
+    /// [S-6416] The item menu, as Windows 11's File Explorer draws it: which commands, in which
+    /// order, is <see cref="FolderMenu.Item"/>'s (tested in Core); this maps each to its icon, label,
+    /// key and action, and <see cref="ItemMenu"/> puts the row commands into the icon row.
+    /// </summary>
     private List<ItemMenuEntry> ItemEntries()
     {
         var selected = SelectedEntries();
         var paths = selected.Select(e => e.FullPath).ToList();
+        var single = selected.Count == 1 ? selected[0] : (FolderEntry?)null;
+
+        return [.. FolderMenu.Item(selected, Navigates, FileClipboard.HasFiles).Select(line => ItemEntry(line, selected, paths, single))];
+    }
+
+    private ItemMenuEntry ItemEntry(FolderMenuLine line, List<FolderEntry> selected, List<string> paths, FolderEntry? single)
+    {
         var count = selected.Count;
         var several = count > 1;
-        var single = count == 1 ? selected[0] : (FolderEntry?)null;
-        var hasCloud = selected.Any(e => CloudBadges.State(e.Attributes) != CloudState.None);
+        var disabled = !line.Enabled;
+        var keys = Accelerator(line.Command);
+        var quick = FolderMenu.Quick(line.Command);
 
-        var entries = new List<ItemMenuEntry>
+        return line.Command switch
         {
-            new(Glyphs.Open, Str.CtxMenu_Open.Text(), OpenSelection),
+            FolderCommand.Separator => ItemMenuEntry.Separator,
+            FolderCommand.Cut => new(Glyphs.Cut, several ? Str.WidgetsB_Folder_CutCount.Format(("count", count)) : Str.CtxMenu_Cut.Text(), () => CopySelection(cut: true), Quick: quick, Shortcut: keys),
+            FolderCommand.Copy => new(Glyphs.Copy, several ? Str.WidgetsB_Folder_CopyCount.Format(("count", count)) : Str.CtxMenu_Copy.Text(), () => CopySelection(cut: false), Quick: quick, Shortcut: keys),
+
+            // Into the folder that was right-clicked, as Explorer's Paste on a folder does.
+            FolderCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), () => _ = PasteAsync(single?.FullPath ?? CurrentPath), Disabled: disabled, Quick: quick, Shortcut: keys),
+            FolderCommand.Rename => new(Glyphs.Rename, Str.WidgetsB_Folder_Rename.Text(), RenameSelection, Quick: quick, Shortcut: keys),
+            FolderCommand.Share => new(Glyphs.Share, Str.FolderMenu_Share.Text(), () => RunShellVerb(paths, "Windows.ModernShare"), Quick: quick),
+            FolderCommand.Delete => new(Glyphs.Delete, several ? Str.WidgetsB_Folder_DeleteCount.Format(("count", count)) : Str.Common_Delete.Text(), () => _ = DeleteSelectionAsync(), Danger: true, Quick: quick, Shortcut: keys),
+            FolderCommand.Open => new(single is { IsDirectory: true } ? Glyphs.FolderOpen : Glyphs.Open, Str.CtxMenu_Open.Text(), OpenSelection, Shortcut: keys),
+            FolderCommand.OpenWith => new(Glyphs.OpenWith, Str.FolderMenu_OpenWith.Text(), null, Children: OpenWithEntries(single!.Value.FullPath)),
+            FolderCommand.OpenInNewWindow => new(Glyphs.NewWindow, Str.FolderMenu_OpenInNewWindow.Text(), () => ShellFileOps.Open(single!.Value.FullPath)),
+            FolderCommand.OpenFileLocation => new(Glyphs.Folder, Str.FolderMenu_OpenFileLocation.Text(), () => ShellFileOps.ShowInExplorer(paths)),
+            FolderCommand.PinToQuickAccess => new(Glyphs.Pin, Str.FolderMenu_PinToQuickAccess.Text(), () => RunShellVerb(paths, "pintohome")),
+            FolderCommand.PinToStart => new(Glyphs.Pin, Str.FolderMenu_PinToStart.Text(), () => RunShellVerb(paths, "pintostartscreen")),
+            FolderCommand.CompressToZip => new(Glyphs.ZipFolder, Str.FolderMenu_CompressToZip.Text(), () => _ = CompressAsync(selected)),
+            FolderCommand.CopyAsPath => new(Glyphs.Link, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths(paths)),
+            FolderCommand.KeepOnDevice => new(Glyphs.Pin, Str.WidgetsB_Folder_KeepOnDevice.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Pin)),
+            FolderCommand.FreeUpSpace => new(Glyphs.Unpin, Str.WidgetsB_Folder_FreeUpSpace.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Unpin)),
+            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => ShellFileOps.Properties(paths)),
+            FolderCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(paths), Shortcut: keys),
+            _ => ItemMenuEntry.Separator,
         };
+    }
 
-        if (single is { IsDirectory: false } file)
-        {
-            entries.Add(new(Glyphs.OpenWith, Str.Folder_OpenWith.Text(), () => ShellFileOps.OpenWith(file.FullPath)));
-        }
-
-        entries.Add(new(Glyphs.Folder, Str.WidgetsB_Folder_ShowInExplorer.Text(), () => ShellFileOps.ShowInExplorer(paths)));
-        entries.Add(ItemMenuEntry.Separator);
-        entries.Add(new(Glyphs.Cut, several ? Str.WidgetsB_Folder_CutCount.Format(("count", count)) : Str.CtxMenu_Cut.Text(), () => CopySelection(cut: true), Quick: QuickCommand.Cut));
-        entries.Add(new(Glyphs.Copy, several ? Str.WidgetsB_Folder_CopyCount.Format(("count", count)) : Str.CtxMenu_Copy.Text(), () => CopySelection(cut: false), Quick: QuickCommand.Copy));
-
-        // Paste into the folder that was right-clicked, as Explorer's "Paste" on a folder does.
-        var pasteTarget = single is { IsDirectory: true } folder ? folder.FullPath : CurrentPath;
-        entries.Add(new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), () => _ = PasteAsync(pasteTarget), Disabled: !FileClipboard.HasFiles || pasteTarget.Length == 0, Quick: QuickCommand.Paste));
-        entries.Add(new(Glyphs.Link, Str.Folder_CopyPath.Text(), () => CopyPaths(paths)));
-        entries.Add(ItemMenuEntry.Separator);
-
-        if (single is { } one && _visuals.FirstOrDefault(v => v.Entry.FullPath == one.FullPath) is { } visual)
-        {
-            entries.Add(new(Glyphs.Rename, Str.WidgetsB_Folder_Rename.Text(), () => BeginRename(visual), Quick: QuickCommand.Rename));
-        }
-
-        entries.Add(new(Glyphs.Delete, several ? Str.WidgetsB_Folder_DeleteCount.Format(("count", count)) : Str.Common_Delete.Text(), () => _ = DeleteSelectionAsync(), Danger: true, Quick: QuickCommand.Delete));
-
-        if (hasCloud)
-        {
-            entries.Add(ItemMenuEntry.Separator);
-            entries.Add(new(Glyphs.Pin, Str.WidgetsB_Folder_KeepOnDevice.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Pin)));
-            entries.Add(new(Glyphs.Unpin, Str.WidgetsB_Folder_FreeUpSpace.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Unpin)));
-        }
+    /// <summary>
+    /// [S-6416] "Open with": the apps Windows recommends for the file, with their icons, then
+    /// "Choose another app" (Windows' own dialog), as Explorer's submenu.
+    /// </summary>
+    private static List<ItemMenuEntry> OpenWithEntries(string path)
+    {
+        var entries = OpenWithApps.For(path)
+            .Select(app => new ItemMenuEntry(Glyphs.Open, app.Label, () => OpenWithApps.Open(path, app.Name), IconFile: app.IconFile))
+            .ToList();
 
         entries.Add(ItemMenuEntry.Separator);
-        entries.Add(new(Glyphs.Info, Str.Folder_Properties.Text(), () => ShellFileOps.Properties(paths)));
-        entries.Add(new(Glyphs.More, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(paths)));
+        entries.Add(new(Glyphs.OpenWith, Str.FolderMenu_ChooseAnotherApp.Text(), () => ShellFileOps.OpenWith(path)));
         return entries;
     }
 
-    /// <summary>[S-1331] The background menu: paste, select all, copy path, New, open, properties, refresh.</summary>
+    /// <summary>[S-6418] The background menu: <see cref="FolderMenu.Background"/>'s commands, drawn as the item menu's.</summary>
     private List<ItemMenuEntry> BackgroundEntries()
     {
         var here = CurrentPath;
-        var available = here.Length > 0 && _snapshot.Status is FolderListingStatus.Ok or FolderListingStatus.Empty;
+        var facts = new FolderBackgroundFacts(
+            HasPath: here.Length > 0,
+            Listed: here.Length > 0 && _snapshot.Status is FolderListingStatus.Ok or FolderListingStatus.Empty,
+            HasItems: _shown.Count > 0,
+            ClipboardHasFiles: FileClipboard.HasFiles,
+            CanGoUp: Navigates && _history.CanGoUp);
 
-        var templates = ShellNewTemplates.GetAsync() is { IsCompletedSuccessfully: true } done ? done.Result : [];
-        var newItems = new List<ItemMenuEntry> { new(Glyphs.NewFolder, Str.CtxMenu_Folder.Text(), NewFolder) };
+        return [.. FolderMenu.Background(facts).Select(line => BackgroundEntry(line, here))];
+    }
 
-        if (templates.Count > 0)
+    private ItemMenuEntry BackgroundEntry(FolderMenuLine line, string here)
+    {
+        var disabled = !line.Enabled;
+        var keys = Accelerator(line.Command);
+
+        return line.Command switch
         {
-            newItems.Add(ItemMenuEntry.Separator);
-            newItems.AddRange(templates.Select(t => new ItemMenuEntry(Glyphs.File, t.Label, () => NewFile(t))));
-        }
-
-        var entries = new List<ItemMenuEntry>
-        {
-            new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), () => _ = PasteAsync(here), Disabled: !available || !FileClipboard.HasFiles, Quick: QuickCommand.Paste),
-            new(Glyphs.Done, Str.WidgetsB_Folder_SelectAll.Text(), () =>
+            FolderCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), () => _ = PasteAsync(here), Disabled: disabled, Quick: QuickCommand.Paste, Shortcut: keys),
+            FolderCommand.SelectAll => new(Glyphs.SelectAll, Str.WidgetsB_Folder_SelectAll.Text(), () =>
             {
                 _selection.SelectAll();
                 RefreshSelectionVisuals();
-            }, Disabled: _shown.Count == 0),
-            new(Glyphs.Link, Str.Folder_CopyPath.Text(), () => CopyPaths([here]), Disabled: here.Length == 0),
-            ItemMenuEntry.Separator,
-            new(Glyphs.Add, Str.WidgetsB_Folder_New.Text(), null, Disabled: !available, Children: newItems),
-            ItemMenuEntry.Separator,
+            }, Disabled: disabled, Shortcut: keys),
+            FolderCommand.Up => new(Glyphs.MoveUp, Str.WidgetsB_Folder_Up.Text(), GoUp),
+            FolderCommand.Refresh => new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: false)),
+            FolderCommand.New => new(Glyphs.Add, Str.WidgetsB_Folder_New.Text(), null, Disabled: disabled, Children: NewEntries()),
+            FolderCommand.OpenInExplorer => new(Glyphs.FolderOpen, Str.Folder_OpenInExplorer.Text(), () => ShellFileOps.Open(here), Disabled: disabled),
+            FolderCommand.CopyAsPath => new(Glyphs.Link, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths([here]), Disabled: disabled),
+            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => ShellFileOps.Properties([here]), Disabled: disabled),
+            FolderCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(null), Disabled: disabled, Shortcut: keys),
+            _ => ItemMenuEntry.Separator,
         };
+    }
 
-        if (Navigates && _history.CanGoUp)
+    /// <summary>[S-1331] New: Folder, then the ShellNew templates.</summary>
+    private List<ItemMenuEntry> NewEntries()
+    {
+        var templates = ShellNewTemplates.GetAsync() is { IsCompletedSuccessfully: true } done ? done.Result : [];
+        var entries = new List<ItemMenuEntry> { new(Glyphs.NewFolder, Str.CtxMenu_Folder.Text(), NewFolder) };
+
+        if (templates.Count > 0)
         {
-            entries.Add(new(Glyphs.MoveUp, Str.WidgetsB_Folder_Up.Text(), GoUp));
+            entries.Add(ItemMenuEntry.Separator);
+            entries.AddRange(templates.Select(t => new ItemMenuEntry(Glyphs.File, t.Label, () => NewFile(t))));
         }
 
-        entries.Add(new(Glyphs.OpenExternal, Str.Folder_OpenInExplorer.Text(), () => ShellFileOps.Open(here), Disabled: here.Length == 0));
-        entries.Add(new(Glyphs.Info, Str.Folder_Properties.Text(), () => ShellFileOps.Properties([here]), Disabled: here.Length == 0));
-        entries.Add(new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: false)));
-        entries.Add(new(Glyphs.More, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(null), Disabled: here.Length == 0));
         return entries;
+    }
+
+    /// <summary>[S-6417] The key a menu line shows: only those the widget answers.</summary>
+    private static string? Accelerator(FolderCommand command) => FolderMenu.Accelerator(command) switch
+    {
+        FolderAccelerator.Enter => Str.FolderMenu_Key_Enter.Text(),
+        FolderAccelerator.CtrlX => Str.Shell_Key_CtrlPlus.Format(("key", "X")),
+        FolderAccelerator.CtrlC => Str.Shell_Key_CtrlPlus.Format(("key", "C")),
+        FolderAccelerator.CtrlV => Str.Shell_Key_CtrlPlus.Format(("key", "V")),
+        FolderAccelerator.CtrlA => Str.Shell_Key_CtrlPlus.Format(("key", "A")),
+        FolderAccelerator.F2 => "F2",
+        FolderAccelerator.Delete => Str.Shell_Key_Delete.Text(),
+        FolderAccelerator.ShiftF10 => Str.FolderMenu_Key_ShiftF10.Text(),
+        _ => null,
+    };
+
+    /// <summary>[S-6416] One of the shell's own commands (Share, the pins); said at the widget when Windows has none here.</summary>
+    private void RunShellVerb(IReadOnlyList<string> paths, string verb)
+    {
+        if (!ShellContextMenu.InvokeVerb(paths, verb, Window()))
+        {
+            ShowNote(this, Str.FolderMenu_ShellFailed.Text());
+        }
+    }
+
+    /// <summary>
+    /// [S-6419] Compress to ZIP file: one new ZIP beside the items, named after the one the menu was
+    /// opened on, then renamed in place as Explorer does.
+    /// </summary>
+    private async Task CompressAsync(List<FolderEntry> selected)
+    {
+        try
+        {
+            var here = CurrentPath;
+
+            if (selected.Count == 0 || here.Length == 0)
+            {
+                return;
+            }
+
+            var named = _selection.Focus is { } focus && selected.FirstOrDefault(e => string.Equals(e.FullPath, focus, StringComparison.OrdinalIgnoreCase)) is { Name.Length: > 0 } focused
+                ? focused
+                : selected[0];
+            var name = FolderMenu.ZipName(named, _snapshot.Entries.Select(e => e.Name));
+            var zip = await ZipFiles.CompressAsync([.. selected.Select(e => e.FullPath)], Path.Combine(here, name)).ConfigureAwait(true);
+
+            if (zip is null)
+            {
+                ShowNote(this, Str.FolderMenu_ZipFailed.Text());
+                return;
+            }
+
+            if (!_detached && string.Equals(here, CurrentPath, StringComparison.OrdinalIgnoreCase))
+            {
+                _renameAfterLoad = zip;
+                Reload(force: false);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "compressing failed", ex);
+        }
     }
 
     /// <summary>

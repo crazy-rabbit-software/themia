@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "folderMenu.share": "Teilen",
+  "folderMenu.openInNewWindow": "In neuem Fenster öffnen",
+  "folderMenu.openFileLocation": "Dateipfad öffnen",
+  "folderMenu.pinToQuickAccess": "An Schnellzugriff anheften",
+  "folderMenu.pinToStart": "An Start anheften",
+  "folderMenu.compressToZip": "In ZIP-Datei komprimieren",
+  "folderMenu.copyAsPath": "Als Pfad kopieren",
+  "folderMenu.openWith": "Öffnen mit",
+  "folderMenu.chooseAnotherApp": "Andere App auswählen",
+  "folderMenu.key.enter": "Eingabe",
+  "folderMenu.key.shiftF10": "Umschalt+F10",
+  "folderMenu.zipFailed": "Die ZIP-Datei konnte nicht erstellt werden.",
+  "folderMenu.shellFailed": "Windows konnte das für dieses Element nicht ausführen."
+}

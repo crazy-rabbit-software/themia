@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "folderMenu.share": "مشاركة",
+  "folderMenu.openInNewWindow": "فتح في نافذة جديدة",
+  "folderMenu.openFileLocation": "فتح موقع الملف",
+  "folderMenu.pinToQuickAccess": "تثبيت في الوصول السريع",
+  "folderMenu.pinToStart": "تثبيت في البدء",
+  "folderMenu.compressToZip": "ضغط إلى ملف ZIP",
+  "folderMenu.copyAsPath": "نسخ كمسار",
+  "folderMenu.openWith": "فتح باستخدام",
+  "folderMenu.chooseAnotherApp": "اختيار تطبيق آخر",
+  "folderMenu.key.enter": "Enter",
+  "folderMenu.key.shiftF10": "Shift+F10",
+  "folderMenu.zipFailed": "تعذر إنشاء ملف ZIP.",
+  "folderMenu.shellFailed": "تعذر على Windows القيام بذلك لهذا العنصر."
+}

@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "folderMenu.share": "Chia sẻ",
+  "folderMenu.openInNewWindow": "Mở trong cửa sổ mới",
+  "folderMenu.openFileLocation": "Mở vị trí tệp",
+  "folderMenu.pinToQuickAccess": "Ghim vào Truy nhập nhanh",
+  "folderMenu.pinToStart": "Ghim vào Bắt đầu",
+  "folderMenu.compressToZip": "Nén thành tệp ZIP",
+  "folderMenu.copyAsPath": "Sao chép dưới dạng đường dẫn",
+  "folderMenu.openWith": "Mở bằng",
+  "folderMenu.chooseAnotherApp": "Chọn ứng dụng khác",
+  "folderMenu.key.enter": "Enter",
+  "folderMenu.key.shiftF10": "Shift+F10",
+  "folderMenu.zipFailed": "Không thể tạo tệp ZIP.",
+  "folderMenu.shellFailed": "Windows không thể thực hiện thao tác đó cho mục này."
+}

@@ -6003,13 +6003,32 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   sequence number is still the cut's.
 - **[S-1330]** Shell operations through `IFileOperation` on one STA worker (undoable in Explorer; the shell's progress and
   conflict UI): copy, move, rename, and delete = **Recycle Bin only** (`FOFX_RECYCLEONDELETE|FOF_ALLOWUNDO|FOF_WANTNUKEWARNING`)
-  after a confirmation flyout at the widget. Item menu: Open, Open with…, Show in Explorer, Cut, Copy, Paste (into a
-  right-clicked folder), Copy path (quoted), Rename, Delete, cloud pin, Properties, Show more options (the shell's own
-  `IContextMenu`; the owner window is subclassed for the menu's life so Send to / Open with fill in).
-- **[S-1331]** Background menu: Paste, Select all, Copy path, New > Folder + ShellNew templates (NullFile/FileName/Data;
-  Command entries skipped), Up, Open in Explorer, Properties, Refresh, Show more options. New items get the next free
+  after a confirmation flyout at the widget. The item menu is [S-6416]'s; Show more options is the shell's own
+  `IContextMenu` (the owner window is subclassed for the menu's life so Send to / Open with fill in).
+- **[S-1331]** Background menu ([S-6418]): New > Folder + ShellNew templates (NullFile/FileName/Data;
+  Command entries skipped). New items get the next free
   "New folder (2)" name and start an in-place rename; rename edits the stem when extensions are hidden, validates Windows
   name rules and keeps the item selected.
+- **[S-6416]** The item menu is Windows 11 File Explorer's (user report 2026-10-16: it did not look like it), its
+  commands per selection from `FolderMenu.Item` (Core, tested), drawn by `ItemMenu` ([S-1740]). Icon row: Cut, Copy,
+  Paste (a single folder, the paste target; greyed with nothing to paste), Rename (one item), Share (files only, the
+  shell's `Windows.ModernShare`), Delete. List: Open (a file's glyph, an open folder's), Open with > (one file: the apps
+  `SHAssocEnumHandlers` recommends, at most 8, with their icons when the icon is an exe on disk, then Choose another app),
+  Open in new window (one folder, navigate mode: Explorer), Open file location, Pin to Quick access (folders, shell
+  verb `pintohome`), Pin to Start (one folder, exe or shortcut, `pintostartscreen`), Compress to ZIP file, Copy as path
+  (quoted), Properties (Explorer's wrench); the cloud pins (a cloud item selected); Show more options. A shell verb the
+  shell does not offer here (an already pinned folder) says so at the widget. Not ported, as not Explorer's built-ins:
+  Open in Terminal, Open in new tab; app-added lines live under Show more options.
+- **[S-6417]** Keys beside the lines are only keys the widget answers through the lease ([S-1327]): Enter, Ctrl+X/C/V/A,
+  F2, Del, and Shift+F10 on Show more options, which opens the shell's full menu as in Explorer (the Menu key opens
+  ours). Explorer's Ctrl+Shift+C and Alt+Enter are not shown: those chords never reach a widget.
+- **[S-6418]** Background menu (`FolderMenu.Background`): Paste, Select all; Up (navigate mode), Refresh; New >; Open in
+  Explorer, Copy as path, Properties; Show more options. Its lone Paste stays a labelled line ([S-1741]). No View or
+  Sort submenus, though Explorer has them: how a widget looks is its settings' ([S-1746]).
+- **[S-6419]** Compress to ZIP file (`ZipFiles`, `System.IO.Compression`, off the UI thread): one new ZIP beside the
+  items, folders with all they hold (hidden files too; directory links not followed), named after the item the menu was
+  opened on without its extension, made unique ("a (2).zip", `FolderMenu.ZipName`), then renamed in place as Explorer
+  does. A failure removes the half-written ZIP (its own output, nothing of the user's) and says so at the widget.
 - **[S-1332]** Drag out: an OLE drag of the shell data object with our `IDropSource` (`SHDoDragDrop`), posted after the
   pointer handler. Drop in: through the surface's OLE target ([S-1020]..[S-1024], `IWidgetDropTarget`): plain drop moves,
   Ctrl copies, into the folder row under the pointer (accent ring) or the folder on screen, carried out by that folder's
@@ -6261,7 +6280,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 
 - **[S-1740]** One menu, Windows 11 File Explorer style: a `CommandBarFlyout`, always expanded, with
   the common commands as a **row of icons** on top and the labelled list below. The row's commands
-  and order: Cut, Copy, Paste, Rename, Duplicate (items and views only, never a widget, [S-1743]),
+  and order: Cut, Copy, Paste, Rename, Share (the folder widget's files, [S-6416]), Duplicate (items and views only,
+  never a widget, [S-1743]),
   Settings, Delete. Each icon has its label as tooltip
   (with the shortcut, "Copy (Ctrl+C)") and as its accessible name. A disabled command stays in its
   place, greyed, so the row never shifts. A second entry claiming the same command, a toggle and a
@@ -6292,8 +6312,9 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   the widget's settings page only (each one already has a row there); the card's own header,
   background and title are set on its properties strip ([S-3707]). The menus keep commands the user
   runs while looking at the widget: refresh, pause, open, which folder, the click mode, search.
-- **[S-1747]** Debug: `--menu-png <outDir>` opens the card menu (edit mode, one
-  widget; desktop, three widgets), the surface menu and two sample item menus for real, off-screen,
+- **[S-1747]** Debug: `--menu-png <outDir> [--theme light|dark]` opens the card menu (edit mode, one
+  widget; desktop, three widgets), the surface menu, two sample item menus and the folder widget's file, Open with,
+  folder and background menus (a real view over read-only Windows folders) for real, off-screen,
   and writes each open popup to a PNG.
 - **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the
   pointer), as Explorer's does, and flips only to stay on screen. A menu opened from the keyboard sits

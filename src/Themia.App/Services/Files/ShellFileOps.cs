@@ -260,7 +260,8 @@ internal static unsafe partial class ShellFileOps
         return FileOpOutcome.Done;
     }
 
-    private static void Notify(IReadOnlyList<string> folders)
+    /// <summary>Say which folders changed; also for operations outside the queue (a ZIP, [S-6419]).</summary>
+    internal static void Notify(IReadOnlyList<string> folders)
     {
         try
         {

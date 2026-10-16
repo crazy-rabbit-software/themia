@@ -3,8 +3,8 @@ namespace Themia.Core.Shell;
 /// <summary>
 /// [S-1740] The commands Windows 11 draws as a row of icons above a context menu's list, in the
 /// order the row shows them. File Explorer's row is Cut, Copy, (Paste), Rename, Share, Delete;
-/// Themia has no Share and adds Duplicate (views and items, not widgets) and Settings, which its
-/// items use as often.
+/// Themia adds Duplicate (views and items, not widgets) and Settings, which its items use as often.
+/// Share is the folder widget's, for files ([S-6416]).
 /// </summary>
 public enum QuickCommand
 {
@@ -12,6 +12,7 @@ public enum QuickCommand
     Copy,
     Paste,
     Rename,
+    Share,
     Duplicate,
     Settings,
     Delete,

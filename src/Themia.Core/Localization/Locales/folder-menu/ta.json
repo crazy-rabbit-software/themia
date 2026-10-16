@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "folderMenu.share": "பகிர்",
+  "folderMenu.openInNewWindow": "புதிய சாளரத்தில் திற",
+  "folderMenu.openFileLocation": "கோப்பு இருப்பிடத்தைத் திற",
+  "folderMenu.pinToQuickAccess": "விரைவு அணுகலில் பின் செய்",
+  "folderMenu.pinToStart": "தொடக்கத்தில் பின் செய்",
+  "folderMenu.compressToZip": "ZIP கோப்பாகச் சுருக்கு",
+  "folderMenu.copyAsPath": "பாதையாக நகலெடு",
+  "folderMenu.openWith": "இதைக் கொண்டு திற",
+  "folderMenu.chooseAnotherApp": "வேறு பயன்பாட்டைத் தேர்ந்தெடு",
+  "folderMenu.key.enter": "Enter",
+  "folderMenu.key.shiftF10": "Shift+F10",
+  "folderMenu.zipFailed": "ZIP கோப்பை உருவாக்க முடியவில்லை.",
+  "folderMenu.shellFailed": "இந்த உருப்படிக்கு Windows அதைச் செய்ய முடியவில்லை."
+}

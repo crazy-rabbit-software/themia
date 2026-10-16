@@ -1,0 +1,15 @@
+{
+  "folderMenu.share": "Share",
+  "folderMenu.openInNewWindow": "Open in new window",
+  "folderMenu.openFileLocation": "Open file location",
+  "folderMenu.pinToQuickAccess": "Pin to Quick access",
+  "folderMenu.pinToStart": "Pin to Start",
+  "folderMenu.compressToZip": "Compress to ZIP file",
+  "folderMenu.copyAsPath": "Copy as path",
+  "folderMenu.openWith": "Open with",
+  "folderMenu.chooseAnotherApp": "Choose another app",
+  "folderMenu.key.enter": "Enter",
+  "folderMenu.key.shiftF10": "Shift+F10",
+  "folderMenu.zipFailed": "The ZIP file could not be created.",
+  "folderMenu.shellFailed": "Windows could not do that for this item."
+}

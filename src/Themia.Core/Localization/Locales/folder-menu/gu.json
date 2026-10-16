@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "folderMenu.share": "શેર કરો",
+  "folderMenu.openInNewWindow": "નવી વિન્ડોમાં ખોલો",
+  "folderMenu.openFileLocation": "ફાઇલનું સ્થાન ખોલો",
+  "folderMenu.pinToQuickAccess": "ઝડપી ઍક્સેસ પર પિન કરો",
+  "folderMenu.pinToStart": "પ્રારંભ પર પિન કરો",
+  "folderMenu.compressToZip": "ZIP ફાઇલમાં સંકુચિત કરો",
+  "folderMenu.copyAsPath": "પાથ તરીકે કૉપિ કરો",
+  "folderMenu.openWith": "આની સાથે ખોલો",
+  "folderMenu.chooseAnotherApp": "બીજી ઍપ પસંદ કરો",
+  "folderMenu.key.enter": "Enter",
+  "folderMenu.key.shiftF10": "Shift+F10",
+  "folderMenu.zipFailed": "ZIP ફાઇલ બનાવી શકાઈ નહીં.",
+  "folderMenu.shellFailed": "Windows આ આઇટમ માટે તે કરી શક્યું નહીં."
+}

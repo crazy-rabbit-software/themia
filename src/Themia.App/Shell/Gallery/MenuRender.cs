@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug only: draw the context menus ([S-1740]..[S-1744]) to PNGs, off-screen.
-/// <c>Themia.exe --menu-png &lt;outDir&gt;</c>. Menus draw in the app's theme (a popup does not
+/// <c>Themia.exe --menu-png &lt;outDir&gt; [--theme light|dark]</c>. Menus draw in the app's theme (a popup does not
 /// follow an element's <c>RequestedTheme</c>), on a transparent background (acrylic does not render).
 /// <para>
 /// Each menu is opened for real — the same <see cref="ItemMenu"/> a right-click opens — on a window
@@ -58,6 +58,8 @@ internal static class MenuRender
             try
             {
                 System.IO.Directory.CreateDirectory(outDir);
+
+                EditBarRender.ApplyDesignTheme(app);
 
                 var root = new Grid
                 {
@@ -137,6 +139,18 @@ internal static class MenuRender
                     new(Glyphs.Delete, "Delete", noop, Danger: true, Quick: QuickCommand.Delete),
                 ];
                 await RenderAsync(root, lone, System.IO.Path.Combine(outDir, "item-lone.png")).ConfigureAwait(true);
+
+                // [S-6416]..[S-6418] The folder widget's own menus, from a real view over read-only
+                // Windows folders: a file's, its Open with submenu, a folder's, and the background's.
+                var folderView = new FolderView();
+                folderView.Attach(ticker, new FolderConfig());
+                root.Children.Add(new Border { Width = 1, Height = 1, Child = folderView });
+                var (file, openWith, folder, background) = await folderView.PreviewMenusAsync().ConfigureAwait(true);
+                await RenderAsync(root, file, System.IO.Path.Combine(outDir, "folder-file.png")).ConfigureAwait(true);
+                await RenderAsync(root, openWith, System.IO.Path.Combine(outDir, "folder-openwith.png")).ConfigureAwait(true);
+                await RenderAsync(root, folder, System.IO.Path.Combine(outDir, "folder-folder.png")).ConfigureAwait(true);
+                await RenderAsync(root, background, System.IO.Path.Combine(outDir, "folder-background.png")).ConfigureAwait(true);
+                folderView.Detach();
             }
             catch (Exception ex)
             {
