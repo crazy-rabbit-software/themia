@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "Achtergrond van items",
+  "shell.items.backgroundDesc": "Waarmee rijen, tegels en chips in widgets zijn gevuld, los van de achtergrond van de widget",
+  "shell.items.colour": "Kleur van items",
+  "shell.items.opacity": "Dekking van items"
+}

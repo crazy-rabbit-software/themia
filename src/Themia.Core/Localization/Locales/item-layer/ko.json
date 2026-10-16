@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "항목 배경",
+  "shell.items.backgroundDesc": "위젯 안의 행, 타일, 칩을 채우는 색으로, 위젯 자체의 배경과 별개입니다",
+  "shell.items.colour": "항목 색",
+  "shell.items.opacity": "항목 불투명도"
+}

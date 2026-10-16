@@ -41,10 +41,10 @@ internal sealed class FlipCard
     {
         _face = new Border
         {
-            Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.DimGray),
             BorderBrush = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray),
             BorderThickness = new Thickness(Hairline),
         };
+        ItemFill.Paint(_face, ItemRole.Chip);
 
         _digits = new TextBlock
         {

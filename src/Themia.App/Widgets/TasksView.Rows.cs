@@ -276,7 +276,7 @@ internal sealed partial class TasksView
             BorderThickness = new Thickness(task.Completed ? 0 : 1),
             Background = task.Completed
                 ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-                : Fluent.RowRest(),
+                : Fluent.Clear(),
             Tag = task,
         };
 

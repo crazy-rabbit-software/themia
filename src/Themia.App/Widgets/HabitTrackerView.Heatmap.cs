@@ -24,7 +24,6 @@ internal sealed partial class HabitTrackerView
     private readonly List<Border> _heatCells = [];
     private readonly List<TextBlock> _heatNames = [];
     private readonly Brush _heatFill = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _heatBlank = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
     private (bool PerHabit, int Weeks, double Cell, int Habits) _heatShape;
 
     private bool IsHeatmap => _config.Style == HabitTrackerStyle.Heatmap;
@@ -131,7 +130,16 @@ internal sealed partial class HabitTrackerView
     /// <summary>Accent at the level's share of full strength; none done is the empty slot the dots use.</summary>
     private void Shade(Border cell, int level)
     {
-        cell.Background = level == 0 ? _heatBlank : _heatFill;
+        // [S-6513] An empty slot is the item layer's track.
+        if (level == 0)
+        {
+            ItemFill.Paint(cell, ItemRole.Track);
+        }
+        else
+        {
+            cell.Background = _heatFill;
+        }
+
         cell.Opacity = level == 0 ? 1 : (double)level / HabitHeatmap.Levels;
     }
 

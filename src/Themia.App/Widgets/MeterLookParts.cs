@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 //              SetItem(i, double? fraction, Brush brush, string? label = null, string? value = null);
 //              LayColumns(BarColumnsPlan) | LayRows(BarRowsPlan)
 //   TileGrid   new(); SetCount(n); SetItem(i, LoadShade); Lay(TileGridPlan)
-//   MeterBrushes.Pressure(MeterPressure), .Track, .Unknown
+//   MeterBrushes.Pressure(MeterPressure); tracks and no-reading cells are item fills ([S-6513])
 // None of them is hit-testable, and each is flow-direction left to right ([S-1113]: a gauge fills
 // clockwise and the first core is on the left in every language).
 
@@ -33,11 +33,10 @@ internal static class MeterBrushes
     private static readonly Brush Critical = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
     private static readonly Brush Success = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
 
-    /// <summary>[S-837] The empty part of a gauge or bar (the free share, the idle time): a progress bar's track, never the disabled fill.</summary>
-    public static Brush Track { get; } = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
-
-    /// <summary>An item with no reading.</summary>
-    public static Brush Unknown { get; } = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
+    // [S-837] The empty part of a gauge or bar (the free share, the idle time) is a progress bar's
+    // track, never the disabled fill; an item with no reading is the disabled track. Both are the
+    // item layer's track ([S-6513]), painted per element through ItemFill, so a widget's own item
+    // layer reaches them.
 
     /// <summary>[S-1123] The pressure colours every meter shares.</summary>
     public static Brush Pressure(MeterPressure pressure) => pressure switch
@@ -65,7 +64,7 @@ internal sealed partial class GaugeDial : Grid
     {
         FlowDirection = FlowDirection.LeftToRight;
         IsHitTestVisible = false;
-        _track.Stroke = MeterBrushes.Track;
+        ItemFill.PaintStroke(_track, ItemRole.Track);
         _value.Stroke = MeterBrushes.Pressure(MeterPressure.Normal);
         Children.Add(_track);
         Children.Add(_value);
@@ -195,8 +194,8 @@ internal sealed partial class BarList : Grid
         }
     }
 
-    /// <summary>One item's share (null: no reading, the track alone), its brush, and a row's label and value.</summary>
-    public void SetItem(int index, double? fraction, Brush brush, string? label = null, string? value = null)
+    /// <summary>One item's share (null: no reading, the track alone), its brush (null: no reading, the disabled track), and a row's label and value.</summary>
+    public void SetItem(int index, double? fraction, Brush? brush, string? label = null, string? value = null)
     {
         if ((uint)index < (uint)_items.Count)
         {
@@ -246,11 +245,9 @@ internal sealed partial class BarList : Grid
             _shape = shape;
             // [S-6303] A column's track is the chart's wash, not a progress bar's: sixteen strong
             // tracks side by side outshout the loads. A row's is the progress track ([S-837]).
-            _track.Children.Add(new Rectangle
-            {
-                Fill = MeterBrushes.Track,
-                Opacity = shape == BarListShape.Columns ? ColumnTrackOpacity : 1,
-            });
+            var trackFill = new Rectangle { Opacity = shape == BarListShape.Columns ? ColumnTrackOpacity : 1 };
+            ItemFill.Paint(trackFill, ItemRole.Track);
+            _track.Children.Add(trackFill);
             _track.CornerRadius = new CornerRadius(shape == BarListShape.Columns ? 2 : Fluent.ControlRadius);
             _fill.HorizontalAlignment = shape == BarListShape.Columns ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
             _fill.VerticalAlignment = shape == BarListShape.Columns ? VerticalAlignment.Bottom : VerticalAlignment.Stretch;
@@ -284,9 +281,13 @@ internal sealed partial class BarList : Grid
 
         public FrameworkElement Root { get; }
 
-        public void Set(double? fraction, Brush brush, string? label, string? value)
+        public void Set(double? fraction, Brush? brush, string? label, string? value)
         {
-            if (!ReferenceEquals(_fill.Fill, brush))
+            if (brush is null)
+            {
+                ItemFill.Paint(_fill, ItemRole.Track, ItemState.Disabled);
+            }
+            else if (!ReferenceEquals(_fill.Fill, brush))
             {
                 _fill.Fill = brush;
             }
@@ -362,7 +363,8 @@ internal sealed partial class TileGrid : Grid
 
         while (_tiles.Count < count)
         {
-            var tile = new Border { CornerRadius = new CornerRadius(2), Background = MeterBrushes.Unknown, Opacity = LoadTint.Faintest };
+            var tile = new Border { CornerRadius = new CornerRadius(2), Opacity = LoadTint.Faintest };
+            ItemFill.Paint(tile, ItemRole.Track, ItemState.Disabled);
             _tiles.Add(tile);
             Children.Add(tile);
         }
@@ -378,9 +380,11 @@ internal sealed partial class TileGrid : Grid
         }
 
         var tile = _tiles[index];
-        var brush = shade.Known ? MeterBrushes.Pressure(shade.Pressure) : MeterBrushes.Unknown;
-
-        if (!ReferenceEquals(tile.Background, brush))
+        if (!shade.Known)
+        {
+            ItemFill.Paint(tile, ItemRole.Track, ItemState.Disabled);
+        }
+        else if (MeterBrushes.Pressure(shade.Pressure) is var brush && !ReferenceEquals(tile.Background, brush))
         {
             tile.Background = brush;
         }

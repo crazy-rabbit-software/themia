@@ -67,7 +67,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         _status.MaxLines = 1;
 
         // [S-837] The ring stands for a progress ring: the strong rest fill, the accent for what has gone.
-        _track.Stroke = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
+        ItemFill.PaintStroke(_track, ItemRole.Track);
         _arc.Stroke = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         _arc.StrokeStartLineCap = PenLineCap.Round;
         _arc.StrokeEndLineCap = PenLineCap.Round;

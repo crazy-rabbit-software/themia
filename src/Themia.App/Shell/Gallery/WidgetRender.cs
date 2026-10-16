@@ -43,6 +43,9 @@ internal static class WidgetRender
     private const string Scope = "widget-render";
     private const string Flag = "--widget-png";
 
+    /// <summary>[S-6517] The background the render's cards are drawn with (<c>--surface</c>).</summary>
+    private static WidgetSurface _surface = WidgetSurface.Card;
+
     /// <summary>Space between frames and around the page, in DIPs.</summary>
     private const double Gap = 24;
 
@@ -89,6 +92,14 @@ internal static class WidgetRender
 
         var outPath = System.IO.Path.GetFullPath(args[at + 2]);
         var state = Option(args, "--state");
+
+        // [S-6517] --surface card|translucent|none: the cards' background, to see the items' own layer.
+        _surface = Option(args, "--surface")?.ToLowerInvariant() switch
+        {
+            "translucent" => WidgetSurface.Translucent,
+            "none" or "transparent" => WidgetSurface.Transparent,
+            _ => WidgetSurface.Card,
+        };
 
         // [S-6006] Any styled kind in one of its styles; a wrong name prints the kind's styles.
         int? style = null;
@@ -312,6 +323,7 @@ internal static class WidgetRender
                 page.Children.Add(label);
 
                 var model = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
+                model.Surface = _surface;
                 if (style is { } chosen)
                 {
                     WidgetStyles.Set(model.Config, chosen);

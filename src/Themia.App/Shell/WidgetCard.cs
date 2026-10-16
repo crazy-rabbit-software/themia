@@ -131,11 +131,15 @@ internal interface IWidgetCardHost
 /// One widget on the desktop: the Fluent card chrome, the drag and resize affordances, and the
 /// right-click menu. The widget's own view is dropped inside and knows nothing about input.
 /// </summary>
-internal sealed partial class WidgetCard : Grid, IWidgetSurface
+internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwner
 {
     private const string Scope = "card";
 
     private readonly IWidgetCardHost _host;
+
+    /// <summary>[S-6512] The item fills of this widget's view, from its own item layer or the app-wide one.</summary>
+    private readonly ItemPalette _items = new();
+
     private readonly Border _fill;
     private readonly Border _tint;
     private readonly Border _surface;
@@ -200,6 +204,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
 #if DEBUG
         Gallery.LiveCensus.CardBuilt(this);
 #endif
+
+        // [S-6512] The item fills are right before the view paints its first item, and what the view
+        // paints while the card is built (it attaches in here too) is drawn from them.
+        _items.Apply(ItemLook.Effective(host.Design, model), DesignApplier.IsDark);
+        using var building = ItemPalette.Building(_items);
 
         // [S-891] Guarded: a view that throws while being built becomes an error card, not a hole.
         _view = CreateView(model.Kind);
@@ -348,6 +357,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
 
     public WidgetInstance Model { get; }
 
+    /// <inheritdoc />
+    public ItemPalette Items => _items;
+
     /// <summary>The widget's own view, so the surface can ask what it takes (a drop, keys).</summary>
     public FrameworkElement View => _view;
 
@@ -412,6 +424,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         var design = _host.Design;
         var radiusPx = DesignLook.CornerRadius(design.CornerRadiusPx);
         var radius = new CornerRadius(radiusPx);
+
+        // [S-6510] The second layer: the view's items, on their own colour whatever the card's fill.
+        _items.Apply(ItemLook.Effective(design, Model), DesignApplier.IsDark);
 
         ApplyBodyFill();
 

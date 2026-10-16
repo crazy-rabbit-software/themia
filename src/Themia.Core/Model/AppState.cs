@@ -27,6 +27,12 @@ public sealed class WidgetInstance
     /// <summary>Where the widget's header sits. A per-widget choice, like the surface.</summary>
     public HeaderPlacement Header { get; set; } = HeaderPlacement.Top;
 
+    /// <summary>
+    /// [S-6512] This widget's own item background, or null (the default) to follow the app-wide one
+    /// (<see cref="DesignState.ItemBackground"/>). Set on the properties panel ([S-6520]).
+    /// </summary>
+    public ItemLayer? ItemBackground { get; set; }
+
     /// <summary>Never null after a successful load; a missing or mismatched config is repaired to the kind's default.</summary>
     public required WidgetConfig Config { get; set; }
 
@@ -110,6 +116,7 @@ public sealed class WidgetInstance
         Label = Label,
         Surface = Surface,
         Header = Header,
+        ItemBackground = ItemBackground?.Clone(),
         Config = Config.Clone(),
         X = X,
         Y = Y,
@@ -189,6 +196,12 @@ public sealed class DesignState
     /// <summary>Opacity applied to every widget card, 0.2 to 1.0.</summary>
     public double SurfaceOpacity { get; set; } = 1.0;
 
+    /// <summary>
+    /// [S-6510] The app-wide item background: what the items inside every card are filled with, apart
+    /// from the card's own fill. The default keeps each item's Fluent fill.
+    /// </summary>
+    public ItemLayer ItemBackground { get; set; } = new();
+
     /// <summary>Accent override, as <c>#RRGGBB</c>. Empty follows the Windows accent colour.</summary>
     public string PrimaryColor { get; set; } = string.Empty;
 
@@ -238,6 +251,7 @@ public sealed class DesignState
         CornerRadiusPx = CornerRadiusPx,
         WidgetBackgroundColor = WidgetBackgroundColor,
         SurfaceOpacity = SurfaceOpacity,
+        ItemBackground = ItemBackground.Clone(),
         PrimaryColor = PrimaryColor,
         BorderStyle = BorderStyle,
         BorderWidthPx = BorderWidthPx,

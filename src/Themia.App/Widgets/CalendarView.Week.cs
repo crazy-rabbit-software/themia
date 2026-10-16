@@ -289,10 +289,10 @@ internal sealed partial class CalendarView
             Child = stack,
             Padding = new Thickness(3, 1, 2, 1),
             CornerRadius = new CornerRadius(2),
-            Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray),
             BorderThickness = new Thickness(2, 0, 0, 0),
             BorderBrush = showColors ? ColorOf(e) : Accent(),
         };
+        ItemFill.Paint(chip, ItemRole.Chip);
 
         if (stacked)
         {

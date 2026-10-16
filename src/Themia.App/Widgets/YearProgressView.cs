@@ -310,7 +310,7 @@ internal sealed partial class YearProgressView : Grid, IWidgetView, IWidgetSizeA
 
         var done = FluentLayout.Themed("TextFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
         var current = FluentLayout.Themed("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
-        var ahead = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Microsoft.UI.Colors.Gray);
+        var ahead = ItemFill.For(this, ItemRole.Track, ItemState.Disabled);
         var inset = (grid.Pitch - grid.Diameter) / 2;
 
         for (var day = 0; day < year.Days; day++)

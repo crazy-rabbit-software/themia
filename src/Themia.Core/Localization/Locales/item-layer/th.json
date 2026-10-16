@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "พื้นหลังรายการ",
+  "shell.items.backgroundDesc": "สีเติมของแถว ไทล์ และชิปภายในวิดเจ็ต แยกจากพื้นหลังของวิดเจ็ตเอง",
+  "shell.items.colour": "สีรายการ",
+  "shell.items.opacity": "ความทึบของรายการ"
+}

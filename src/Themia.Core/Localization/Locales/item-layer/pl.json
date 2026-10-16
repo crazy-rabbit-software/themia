@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "Tło elementów",
+  "shell.items.backgroundDesc": "Wypełnienie wierszy, kafelków i etykiet w widżetach, niezależne od tła samego widżetu",
+  "shell.items.colour": "Kolor elementów",
+  "shell.items.opacity": "Krycie elementów"
+}

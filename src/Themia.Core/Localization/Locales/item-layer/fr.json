@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "Arrière-plan des éléments",
+  "shell.items.backgroundDesc": "Le remplissage des lignes, vignettes et puces dans les widgets, indépendant de l'arrière-plan du widget",
+  "shell.items.colour": "Couleur des éléments",
+  "shell.items.opacity": "Opacité des éléments"
+}

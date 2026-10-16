@@ -122,8 +122,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     private static Button CommandButton(string glyph, string tooltip)
     {
         var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var hover = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-        var pressed = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.DimGray);
 
         var button = new Button
         {
@@ -135,10 +133,8 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
             VerticalAlignment = VerticalAlignment.Center,
         };
 
-        button.Resources["ButtonBackground"] = clear;
-        button.Resources["ButtonBackgroundPointerOver"] = hover;
-        button.Resources["ButtonBackgroundPressed"] = pressed;
-        button.Resources["ButtonBackgroundDisabled"] = clear;
+        // [S-6513] The fills are the item layer's row, in each state.
+        ItemFill.Button(button, "Button");
         button.Resources["ButtonBorderBrush"] = clear;
         button.Resources["ButtonBorderBrushPointerOver"] = clear;
         button.Resources["ButtonBorderBrushPressed"] = clear;

@@ -160,10 +160,10 @@ internal sealed partial class RssView
         {
             Child = stack,
             Padding = new Thickness(Fluent.Space4, FeedLayout.RowPadding, Fluent.Space4, FeedLayout.RowPadding),
-            Background = Fluent.RowRest(),
             Tag = index,
         };
 
+        ItemFill.Paint(row, ItemRole.Row);
         RowFocus.Prepare(row);
         _rowHooks.Add(Fluent.Hover(row));
         _rowHooks.Add(ItemMenu.Attach(row, () => MenuFor(entry)));

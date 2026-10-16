@@ -427,9 +427,11 @@ internal sealed partial class FolderView : IWidgetDropTarget
         var focused = _keyboardActive && string.Equals(_selection.Focus, visual.Entry.FullPath, StringComparison.OrdinalIgnoreCase);
         var tile = visual.Pill is null;
 
-        visual.Root.Background = selected && visual.Hovered
-            ? FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Gray)
-            : selected || visual.Hovered ? Fluent.RowHover() : Fluent.RowRest();
+        // [S-6513] The item layer's row, in the item's state.
+        ItemFill.Paint(visual.Root, ItemRole.Row, selected && visual.Hovered ? ItemState.SelectedHover
+            : selected ? ItemState.Selected
+            : visual.Hovered ? ItemState.Hover
+            : ItemState.Rest);
 
         if (visual.Pill is { } pill)
         {

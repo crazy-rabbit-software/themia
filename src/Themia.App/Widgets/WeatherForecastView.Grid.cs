@@ -70,8 +70,6 @@ internal sealed partial class WeatherForecastView
 
         var host = new Border
         {
-            // [S-727] Today has the quiet fill its row or column has in the other styles.
-            Background = day.Day == today ? _todayFill : null,
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             Padding = new Thickness(ForecastGrid.CellSidePadding, ForecastGrid.CellPadding, ForecastGrid.CellSidePadding, ForecastGrid.CellPadding),
             Child = new StackPanel
@@ -81,6 +79,12 @@ internal sealed partial class WeatherForecastView
                 Children = { label, icon, figures },
             },
         };
+
+        // [S-727] Today is a selected chip, as its row or column is in the other styles.
+        if (day.Day == today)
+        {
+            ItemFill.Paint(host, ItemRole.Chip, ItemState.Selected);
+        }
 
         ToolTipService.SetToolTip(host, Describe(day));
         return host;

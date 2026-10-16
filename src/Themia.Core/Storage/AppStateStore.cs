@@ -318,6 +318,10 @@ public sealed class AppStateStore : IAsyncDisposable
         design.PrimaryColor = Widgets.HexColor.Normalise(design.PrimaryColor);
         design.BorderColor = Widgets.HexColor.Normalise(design.BorderColor);
 
+        // [S-6511] The item layer, on the same terms: a bad colour is the theme's, the opacity 0..1.
+        design.ItemBackground ??= new ItemLayer();
+        repairs.AddRange(design.ItemBackground.Repair());
+
         if (string.IsNullOrWhiteSpace(design.FontFamily))
         {
             design.FontFamily = "system";
@@ -622,6 +626,15 @@ public sealed class AppStateStore : IAsyncDisposable
             {
                 widget.Surface = WidgetSurface.Card;
                 repairs.Add($"widget '{widget.Id}' had an unknown surface");
+            }
+
+            // [S-6512] A widget's own item layer: repaired like the app-wide one; absent follows it.
+            if (widget.ItemBackground is { } items)
+            {
+                foreach (var repair in items.Repair())
+                {
+                    repairs.Add($"widget '{widget.Id}': {repair}");
+                }
             }
 
             if (!Enum.IsDefined(widget.Header))

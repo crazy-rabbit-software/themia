@@ -230,7 +230,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
         // The day bar: the night in the disabled control fill, the daylight the accent's lighter
         // step (so the sun's dot, in the accent itself, stands on it), the ticks the tertiary grey.
-        _barDay.Fill = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
+        ItemFill.Paint(_barDay, ItemRole.Track, ItemState.Disabled);
         _barLight.Fill = FluentLayout.Themed("AccentFillColorTertiaryBrush", Colors.LightSkyBlue);
         _riseTick.Stroke = _tertiary;
         _riseTick.StrokeThickness = Fluent.Hairline;

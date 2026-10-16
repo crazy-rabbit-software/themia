@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "Фон элементов",
+  "shell.items.backgroundDesc": "Заливка строк, плиток и меток внутри виджетов, отдельно от фона самого виджета",
+  "shell.items.colour": "Цвет элементов",
+  "shell.items.opacity": "Непрозрачность элементов"
+}

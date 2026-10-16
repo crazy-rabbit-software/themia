@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "Sfondo degli elementi",
+  "shell.items.backgroundDesc": "Il riempimento di righe, riquadri ed etichette nei widget, separato dallo sfondo del widget",
+  "shell.items.colour": "Colore degli elementi",
+  "shell.items.opacity": "Opacità degli elementi"
+}

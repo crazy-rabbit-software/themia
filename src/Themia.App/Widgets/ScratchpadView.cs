@@ -159,13 +159,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         };
 
         var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var hover = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-        var pressed = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.DimGray);
 
-        button.Resources["ButtonBackground"] = clear;
-        button.Resources["ButtonBackgroundPointerOver"] = hover;
-        button.Resources["ButtonBackgroundPressed"] = pressed;
-        button.Resources["ButtonBackgroundDisabled"] = clear;
+        // [S-6513] The fills are the item layer's row, in each state.
+        ItemFill.Button(button, "Button");
         button.Resources["ButtonBorderBrush"] = clear;
         button.Resources["ButtonBorderBrushPointerOver"] = clear;
         button.Resources["ButtonBorderBrushPressed"] = clear;
@@ -189,14 +185,11 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         };
 
         var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var hover = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-        var pressed = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.DimGray);
         var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         var accentHover = FluentLayout.Themed("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
 
-        button.Resources["ToggleButtonBackground"] = clear;
-        button.Resources["ToggleButtonBackgroundPointerOver"] = hover;
-        button.Resources["ToggleButtonBackgroundPressed"] = pressed;
+        // [S-6513] Unchecked, the fills are the item layer's row; checked, the accent's.
+        ItemFill.Button(button, "ToggleButton");
         button.Resources["ToggleButtonBackgroundChecked"] = accent;
         button.Resources["ToggleButtonBackgroundCheckedPointerOver"] = accentHover;
         button.Resources["ToggleButtonBackgroundCheckedPressed"] = accentHover;

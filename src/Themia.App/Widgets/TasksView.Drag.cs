@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Themia.Core.Tasks;
 using Windows.Foundation;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
@@ -99,7 +100,7 @@ internal sealed partial class TasksView
             _dragging = true;
             ToolTipService.SetToolTip(row, null);
             _rowsPanel.Lift(row);
-            row.Background = Fluent.RowHover();
+            ItemFill.Paint(row, ItemRole.Row, ItemState.Hover);
         }
 
         // One column: the row moves up and down only. Two: it follows the pointer between them.
@@ -162,7 +163,7 @@ internal sealed partial class TasksView
         _dragging = false;
         _dragEnded = true;
         row.ReleasePointerCaptures();
-        row.Background = Fluent.RowRest();
+        ItemFill.Paint(row, ItemRole.Row);
 
         var ids = _rowsPanel.InSlotOrder().OfType<Border>().Select(b => b.Tag).OfType<TaskItem>().Select(t => t.Id).ToList();
         _rowsPanel.Settle();

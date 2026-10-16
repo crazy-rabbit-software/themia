@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.Core.Habits;
 using Windows.Foundation;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
@@ -98,7 +99,7 @@ internal sealed partial class HabitTrackerView
             _dragFrom = _dragTo = _rows.IndexOf(row);
             _dragPitch = row.Host.ActualHeight;
             Canvas.SetZIndex(row.Host, 1);
-            row.Host.Background = Fluent.RowHover();
+            ItemFill.Paint(row.Host, ItemRole.Row, ItemState.Hover);
         }
 
         // Keep the lifted row inside the list: it may not be dragged off either end.
@@ -166,7 +167,7 @@ internal sealed partial class HabitTrackerView
 
         _dragging = false;
         row.Host.ReleasePointerCaptures();
-        row.Host.Background = Fluent.RowRest();
+        ItemFill.Paint(row.Host, ItemRole.Row);
         Canvas.SetZIndex(row.Host, 0);
 
         foreach (var each in _rows)

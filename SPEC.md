@@ -945,6 +945,14 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
+- **[S-6521]** **Item background** sets the selected widgets' own item layer ([S-6512]): the colour
+  control with **Default** (the app-wide item layer, its swatch the app-wide colour) and the colours
+  (`QuickSet.SetItemColor`). Default takes a widget's own layer away; a colour gives each widget a
+  layer of its own, keeping the opacity it had, or the app-wide opacity. While the widgets share a
+  layer of their own an **Item opacity** row follows (100, 80, 60, 40, 20 %; `SetItemOpacity`,
+  which never gives a widget following the app-wide layer one of its own). The offer reads the
+  shared layer, none, or mixed (`QuickSet.CommonItems`; own and none together are mixed). Each pick
+  is one `Mutate`, one undo step.
 - **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the strip against
   real cards in edit mode on a stand-in display: `props-<theme>-above.png` (one flip clock with a
   title: Style with the flip icon, and the gear),
@@ -4246,7 +4254,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   The opacity never swaps the ink, so fading is monotone; at the 1px hairline it is subtle by nature.
 - **[S-6480]** `--widget-png … --design key=value,...` draws the cards with appearance values (`border`,
   `borderWidth`, `borderOpacity`, `borderColor`, `radius`, `background`, `opacity`, `header`,
-  `headerOpacity`, `accent`, `font`, `preset`), so a look is checked without the settings window.
+  `headerOpacity`, `accent`, `font`, `items`, `itemOpacity`, `preset`), so a look is checked without
+  the settings window.
 - **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip. The edit markers stay square ([S-31b]).
 - **[S-826]** Font: `system` (Segoe UI Variable), `sans` (Arial), `serif` (Georgia), `mono` (Cascadia
   Mono, Consolas), or any installed family name; a value that is not a plausible family name is the
@@ -4271,9 +4280,9 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   opens between the two where their edge falls between pixels (widget scale, an intro, fractional DPI).
 - **[S-829]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-830]** Design presets (the original's six): Default, Midnight, Daylight, Glass, Terminal, Paper.
-  Each owns 13 fields (theme, accent, font, widget fill + opacity, header fill + opacity, border
-  style/width/colour/opacity, corner radius, widget gap) and never widget scale, text size or
-  motion.
+  Each owns 15 fields (theme, accent, font, widget fill + opacity, header fill + opacity, border
+  style/width/colour/opacity, corner radius, widget gap, item colour + opacity, [S-6515]) and
+  never widget scale, text size or motion.
 - **[S-831]** Default is read from a fresh `DesignState`, so a fresh install reads as Default.
 - **[S-832]** Applying a preset writes its fields in one mutation and leaves every other field alone.
 - **[S-833]** The picker shows the matching preset, or Custom; only owned fields are compared, colours
@@ -4307,6 +4316,44 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   shadow (the surface is clipped to the cards by `SetWindowRgn`, so a shadow outside them cannot
   show), and the header is Body Strong in the secondary colour ending 44px down rather than the
   board's own 48px attribution strip (the board draws that strip itself; it is not a widget's).
+- **[S-6510]** **Two layers.** The card's background ([S-823]: Card, Translucent or None, its colour
+  and opacity) and the **item background** — what the things a widget draws inside its card are
+  filled with — are apart: a widget whose card is None still shows its items on the item layer.
+  The item layer is a colour (`#RRGGBB`, empty = each item keeps its own Fluent fill) and an
+  opacity 0..1 (`ItemLayer`), app-wide on the design (`DesignState.ItemBackground`). The default
+  layer (empty, 100 %) draws exactly the fills the widgets drew before it existed ([S-6514]).
+- **[S-6511]** On load a colour that is not one is the theme's, and an opacity that is not a number is
+  100 % and the rest is clamped to 0..1, loudly (`ItemLayer.Repair`); a missing app-wide layer is the
+  default.
+- **[S-6512]** A widget may have a layer of its own (`WidgetInstance.ItemBackground`, null =
+  follows the app-wide one), set on the properties panel ([S-6521]). It wins whole, colour and
+  opacity together (`ItemLook.Effective`); a duplicated widget keeps a copy of it. Each card owns
+  one item palette (`Widgets/ItemPalette`) recoloured in place from its layer on every apply, so a
+  widget's layer reaches its items and no other widget's, and nothing is rebuilt.
+- **[S-6513]** One path for every item fill (`ItemFill.Paint`, `ItemFill.Button` for a button whose
+  fills are template resources, `ItemFill.For` for many alike): an item says its role — **Row** (list
+  rows, grid cells, crumbs, row buttons, a toggle's or power button's tile, the quote and scratchpad
+  commands), **Tile** (a round button's circle), **Chip** (calendar events and selected days, an
+  empty year day, a flip clock's card, the forecast's today), **Track** (meter bars, gauges, rings,
+  the seek bar, signal bars, habit dots and heat cells, the sun's night bar, the year's days ahead)
+  — and its state (Rest, Hover, Pressed, Selected, SelectedHover, Disabled), and the fill comes
+  from its card's palette (`ItemLook.Ink`). With a colour every role rests on it at the layer's
+  opacity; a state moves it toward the theme's contrast (white in dark, black in light): hover 8 %,
+  pressed 4 %, selected 14 %, selected under the pointer 20 %; a track stands 20 % off it; disabled is
+  the rest at half the opacity. Without one the Fluent fill is faded by the opacity. A surface that
+  is not an item (a list's scroll area, a whole view's hit area, a check ring) is `Fluent.Clear()`
+  and never takes the layer.
+- **[S-6514]** The default fills, by role (`ItemLook.ThemeKey`): Row `SubtleFillColorTransparent` /
+  `Secondary` (hover, selected) / `Tertiary` (pressed, selected under the pointer); Tile
+  `ControlFillColorDefault` / `Secondary` / `Tertiary` / `Disabled`; Chip `SubtleFillColorSecondary`
+  / `Tertiary` (any lit state); Track `ControlStrongFillColorDefault` / `Disabled`.
+- **[S-6515]** Presets own the item layer too ([S-830]). Default and four others keep the Fluent
+  fills; Glass gives its items a pane of their own (#2A3248 at 60 %), so rows and tiles still read on
+  its thin glass.
+- **[S-6516]** The Appearance page's **Item background** group: Item colour (the colour control,
+  Theme colour as its default) and Item opacity (0..100 %). Settings import names both changes.
+- **[S-6517]** Debug: `--design items=#RRGGBB,itemOpacity=…` sets the app-wide item layer of a
+  render ([S-6480]), and `--widget-png … --surface card|translucent|none` the cards' background.
 - **[S-836]** The card composites as a WinUI card does: the Fluent tint stops at a solid stroke's
   inner edge (`DesignLook.TintInset`; a `Border`'s background is `InnerBorderEdge`), so the stroke
   lies over the base alone (#1D1D1D / #E5E5E5 at 1px); dashed and dotted lines keep the tint

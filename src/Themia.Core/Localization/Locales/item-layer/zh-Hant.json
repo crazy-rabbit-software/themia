@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "項目背景",
+  "shell.items.backgroundDesc": "小工具內列、磚和標籤的填色，與小工具本身的背景分開",
+  "shell.items.colour": "項目色彩",
+  "shell.items.opacity": "項目不透明度"
+}

@@ -391,7 +391,7 @@ internal sealed partial class ShortcutsView
         };
 
         root.Tag = cell;
-        root.Background = Fluent.RowRest();
+        ItemFill.Paint(root, ItemRole.Row);
 
         if (!target.IsValid && !item.IsLayout)
         {
@@ -487,9 +487,10 @@ internal sealed partial class ShortcutsView
         var selected = _selection.Contains(cell.Item.Id);
         var cursor = _selection.Cursor == cell.Item.Id;
 
-        cell.Root.Background = selected
-            ? FluentLayout.Themed(cell.Hovered ? "SubtleFillColorTertiaryBrush" : "SubtleFillColorSecondaryBrush", Colors.Gray)
-            : cell.Hovered ? Fluent.RowHover() : Fluent.RowRest();
+        // [S-6513] The item layer's row, in the cell's state.
+        ItemFill.Paint(cell.Root, ItemRole.Row, selected ? (cell.Hovered ? ItemState.SelectedHover : ItemState.Selected)
+            : cell.Hovered ? ItemState.Hover
+            : ItemState.Rest);
 
         cell.Root.BorderBrush = selected || cursor
             ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)

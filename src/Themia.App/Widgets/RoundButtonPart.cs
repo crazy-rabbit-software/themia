@@ -88,6 +88,21 @@ internal sealed partial class RoundButtonPart : Grid
     public void Paint(Brush fill, Brush edge, string glyph, Brush icon, string text, Brush label, bool sentence = false)
     {
         _disc.Background = fill;
+        PaintFace(edge, glyph, icon, text, label, sentence);
+    }
+
+    /// <summary>
+    /// [S-6513] Paint one state with the circle as an item: a tile of the card's item layer in
+    /// <paramref name="face"/>, rather than a fill of its own (the accent, the critical tint).
+    /// </summary>
+    public void Paint(ItemState face, Brush edge, string glyph, Brush icon, string text, Brush label, bool sentence = false)
+    {
+        ItemFill.Paint(_disc, ItemRole.Tile, face);
+        PaintFace(edge, glyph, icon, text, label, sentence);
+    }
+
+    private void PaintFace(Brush edge, string glyph, Brush icon, string text, Brush label, bool sentence)
+    {
         _disc.BorderBrush = edge;
         _icon.Glyph = glyph;
         _icon.Foreground = icon;

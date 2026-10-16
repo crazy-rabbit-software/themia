@@ -15,7 +15,9 @@ public enum DesignPresetId
 }
 
 /// <summary>
-/// The look a preset sets: the thirteen appearance fields it owns, and nothing else. [S-830]
+/// The look a preset sets: the fifteen appearance fields it owns, and nothing else. [S-830]
+/// [S-6515] The last two are the item background ([S-6510]); a preset that does not name them
+/// leaves the items on their Fluent fills.
 /// </summary>
 public sealed record DesignPresetValues(
     AppTheme Theme,
@@ -30,7 +32,9 @@ public sealed record DesignPresetValues(
     string BorderColor,
     double BorderOpacity,
     double CornerRadiusPx,
-    double WidgetGapPx);
+    double WidgetGapPx,
+    string ItemColor = "",
+    double ItemOpacity = 1.0);
 
 /// <summary>One named look.</summary>
 public sealed record DesignPreset(DesignPresetId Id, Str LabelId, DesignPresetValues Values)
@@ -69,10 +73,11 @@ public static class DesignPresets
             AppTheme.Light, "#0078D4", DesignLook.SystemFont, "#FFFFFF", 0.86, "#F3F4F8", 0.92,
             WidgetBorderStyle.Solid, 1, "#000000", 0.1, 12, 14)),
 
-        // Heavy glass: very translucent, borderless, generously rounded.
+        // Heavy glass: very translucent, borderless, generously rounded. [S-6515] Its items keep a
+        // pane of their own, so rows and tiles still read on the thin glass.
         new(DesignPresetId.Glass, Str.Settings_Style_Preset_Name_Glass, new(
             AppTheme.Dark, "#8AD8FF", DesignLook.SystemFont, "#1B2030", 0.55, "#1B2030", 0.35,
-            WidgetBorderStyle.None, 0, "#FFFFFF", 0.25, 18, 16)),
+            WidgetBorderStyle.None, 0, "#FFFFFF", 0.25, 18, 16, "#2A3248", 0.6)),
 
         // Monospace, square, phosphor green.
         new(DesignPresetId.Terminal, Str.Settings_Style_Preset_Name_Terminal, new(
@@ -99,7 +104,7 @@ public static class DesignPresets
         return All[0];
     }
 
-    /// <summary>The thirteen owned fields of a design.</summary>
+    /// <summary>The fifteen owned fields of a design.</summary>
     public static DesignPresetValues ValuesOf(DesignState design)
     {
         ArgumentNullException.ThrowIfNull(design);
@@ -117,7 +122,9 @@ public static class DesignPresets
             design.BorderColor,
             design.BorderOpacity,
             design.CornerRadiusPx,
-            design.WidgetGapPx);
+            design.WidgetGapPx,
+            design.ItemBackground?.Color ?? string.Empty,
+            design.ItemBackground?.Opacity ?? 1.0);
     }
 
     /// <summary>
@@ -142,6 +149,7 @@ public static class DesignPresets
         design.BorderOpacity = v.BorderOpacity;
         design.CornerRadiusPx = v.CornerRadiusPx;
         design.WidgetGapPx = v.WidgetGapPx;
+        design.ItemBackground = new ItemLayer { Color = v.ItemColor, Opacity = v.ItemOpacity };
     }
 
     /// <summary>
@@ -191,7 +199,9 @@ public static class DesignPresets
             && SameText(a.BorderColor, b.BorderColor)
             && Near(a.BorderOpacity, b.BorderOpacity)
             && Near(a.CornerRadiusPx, b.CornerRadiusPx)
-            && Near(a.WidgetGapPx, b.WidgetGapPx);
+            && Near(a.WidgetGapPx, b.WidgetGapPx)
+            && SameText(a.ItemColor, b.ItemColor)
+            && Near(a.ItemOpacity, b.ItemOpacity);
 
     private static bool SameText(string? a, string? b)
         => string.Equals(a?.Trim() ?? string.Empty, b?.Trim() ?? string.Empty, StringComparison.OrdinalIgnoreCase);

@@ -56,7 +56,7 @@ internal sealed partial class MusicSeekBar : Grid
         _track.VerticalAlignment = VerticalAlignment.Center;
         // [S-837] A seek bar is a slider: WinUI's SliderTrackFill is ControlStrongFillColorDefault (the
         // disabled fill read as a slider that could not be dragged).
-        _track.Background = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
+        ItemFill.Paint(_track, ItemRole.Track);
 
         _fill.Height = TrackHeight;
         _fill.CornerRadius = new CornerRadius(TrackHeight / 2);

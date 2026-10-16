@@ -111,7 +111,7 @@ internal sealed partial class MeterView
 
             for (var i = 0; i < items.Count; i++)
             {
-                _bars.SetItem(i, items[i].Fraction, items[i].Fraction is null ? MeterBrushes.Unknown : MeterBrushes.Pressure(items[i].Pressure), items[i].Label, items[i].Value);
+                _bars.SetItem(i, items[i].Fraction, items[i].Fraction is null ? null : MeterBrushes.Pressure(items[i].Pressure), items[i].Label, items[i].Value);
             }
         }
         else if (_tiles is not null)

@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "आयटमची पार्श्वभूमी",
+  "shell.items.backgroundDesc": "विजेटमधील ओळी, टाइल्स आणि चिप्स यांचा भराव, विजेटच्या स्वतःच्या पार्श्वभूमीपासून वेगळा",
+  "shell.items.colour": "आयटमचा रंग",
+  "shell.items.opacity": "आयटमची अपारदर्शकता"
+}

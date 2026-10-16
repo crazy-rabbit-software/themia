@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "Fundo dos itens",
+  "shell.items.backgroundDesc": "O preenchimento de linhas, blocos e etiquetas dentro dos widgets, à parte do fundo do próprio widget",
+  "shell.items.colour": "Cor dos itens",
+  "shell.items.opacity": "Opacidade dos itens"
+}

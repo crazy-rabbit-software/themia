@@ -161,7 +161,7 @@ internal sealed partial class FolderView
             Padding = new Thickness(FolderLayout.RowInset, 0, FolderLayout.RowInset, 0),
             ColumnSpacing = FolderColumns.Gap,
             Visibility = Visibility.Collapsed,
-            Background = Fluent.RowRest(),
+            Background = Fluent.Clear(),
         };
         SetRow(_columnHeader, 2);
 
@@ -182,7 +182,7 @@ internal sealed partial class FolderView
 
         // Transparent, not null: the empty area below the items must still take presses (the band,
         // the background menu, a click that clears the selection) and drops.
-        _scrollContent = new Grid { Background = Fluent.RowRest(), Children = { _items, _bandLayer } };
+        _scrollContent = new Grid { Background = Fluent.Clear(), Children = { _items, _bandLayer } };
 
         _scroll = new ScrollViewer
         {
@@ -229,10 +229,10 @@ internal sealed partial class FolderView
             Child = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", 14),
             Padding = new Thickness(7),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = Fluent.RowRest(),
             Visibility = Visibility.Collapsed,
         };
 
+        ItemFill.Paint(button, ItemRole.Row);
         button.Tapped += (_, args) =>
         {
             args.Handled = true;
@@ -940,7 +940,7 @@ internal sealed partial class FolderView
         text.TextTrimming = TextTrimming.CharacterEllipsis;
         text.VerticalAlignment = VerticalAlignment.Center;
 
-        var cell = new Border { Child = text, Background = Fluent.RowRest() };
+        var cell = new Border { Child = text, Background = Fluent.Clear() };
         SetColumn(cell, column);
 
         if (sort is { } key)
@@ -1005,8 +1005,9 @@ internal sealed partial class FolderView
                 Child = text,
                 Padding = new Thickness(Fluent.Space1, 2, Fluent.Space1, 2),
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                Background = Fluent.RowRest(),
             };
+
+            ItemFill.Paint(crumb, ItemRole.Row);
 
             if (!last)
             {

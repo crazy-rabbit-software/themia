@@ -54,8 +54,6 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     private readonly DispatcherQueueTimer? _ringTimer;
 
     private readonly Brush _rest = new SolidColorBrush(Colors.Transparent);
-    private readonly Brush _hoverFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _pressedFill = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.DimGray);
     private readonly Brush _armedFill = FluentLayout.Themed("SystemFillColorCriticalBackgroundBrush", Colors.MistyRose);
     private readonly Brush _critical = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
     private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
@@ -67,7 +65,6 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     private readonly Brush _accentDisabled = FluentLayout.Themed("AccentFillColorDisabledBrush", Colors.Gray);
     private readonly Brush _onAccent = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);
     private readonly Brush _onAccentDisabled = FluentLayout.Themed("TextOnAccentFillColorDisabledBrush", Colors.White);
-    private readonly Brush _control = FluentLayout.Themed("ControlFillColorDefaultBrush", Colors.Gray);
     private readonly Brush _controlEdge = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray);
 
     private IWidgetSurface? _surface;
@@ -292,7 +289,8 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
         var name = PowerActionRules.Label(_action);
 
         string tooltip;
-        Brush fill;
+        Brush? fill = null;
+        var face = ItemState.Rest;
         Brush iconBrush;
         Brush labelBrush;
         var glyph = Glyph(_action);
@@ -302,7 +300,6 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
         {
             // [S-1914] Shown, but greyed and inert, with the reason on hover.
             tooltip = PowerActionRules.UnavailableHint;
-            fill = _rest;
             iconBrush = _disabled;
             labelBrush = _disabled;
         }
@@ -321,14 +318,14 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
             glyph = Glyphs.Warning;
             text = failure;
             tooltip = failure;
-            fill = _hover ? _hoverFill : _rest;
+            face = _hover ? ItemState.Hover : ItemState.Rest;
             iconBrush = _critical;
             labelBrush = _critical;
         }
         else
         {
             tooltip = name;
-            fill = _pressed ? _pressedFill : _hover ? _hoverFill : _rest;
+            face = _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest;
             iconBrush = _pressed ? _secondary : _primary;
             labelBrush = _pressed ? _secondary : _primary;
         }
@@ -344,7 +341,16 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
         }
         else
         {
-            Background = fill;
+            // [S-6513] The tile is an item of the card's item layer; armed, it is the critical tint.
+            if (fill is null)
+            {
+                ItemFill.Paint(this, ItemRole.Row, face);
+            }
+            else
+            {
+                Background = fill;
+            }
+
             _icon.Glyph = glyph;
             _icon.Foreground = iconBrush;
             _label.Text = text;
@@ -376,7 +382,7 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
         }
         else if (button.Failure is not null)
         {
-            _round.Paint(_control, _controlEdge, glyph, _critical, text, _critical, sentence: true);
+            _round.Paint(ItemState.Rest, _controlEdge, glyph, _critical, text, _critical, sentence: true);
         }
         else
         {

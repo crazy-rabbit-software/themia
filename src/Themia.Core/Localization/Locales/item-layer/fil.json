@@ -1,0 +1,6 @@
+{
+  "shell.items.background": "Background ng mga item",
+  "shell.items.backgroundDesc": "Ang laman ng mga row, tile at chip sa loob ng mga widget, hiwalay sa sariling background ng widget",
+  "shell.items.colour": "Kulay ng mga item",
+  "shell.items.opacity": "Opacity ng mga item"
+}

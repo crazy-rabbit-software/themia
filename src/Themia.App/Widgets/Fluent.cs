@@ -138,7 +138,8 @@ internal static class Fluent
 
     /// <summary>
     /// A list row, in the Windows 11 shape: a fixed height, the standard inset as its own padding so
-    /// it spans the full width of the widget, and a subtle fill under the pointer.
+    /// it spans the full width of the widget, and a subtle fill under the pointer. [S-6513] Its fill
+    /// is the item layer's row (<see cref="ItemFill"/>), not the card's.
     /// <para>
     /// No divider. Windows 11 lists separate rows with space and hover, not with a rule between every
     /// one — Settings, Explorer and the Widgets board all do it this way, and a ruled list is the
@@ -152,15 +153,12 @@ internal static class Fluent
             Child = content,
             MinHeight = compact ? RowHeightCompact : RowHeight,
             Padding = new Thickness(Space4, 0, Space4, 0),
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
         };
 
+        ItemFill.Paint(row, ItemRole.Row);
         content.VerticalAlignment = VerticalAlignment.Center;
         return row;
     }
-
-    /// <summary>The fill a row takes under the pointer.</summary>
-    public static Brush RowHover() => FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
 
     /// <summary>A 1px rule. Every tick, hairline and divider in the app is this thickness.</summary>
     public const double Hairline = 1;
@@ -276,9 +274,9 @@ internal static class Fluent
             _row.PointerCanceled += OnGone;
         }
 
-        private void OnEntered(object sender, PointerRoutedEventArgs args) => _row.Background = RowHover();
+        private void OnEntered(object sender, PointerRoutedEventArgs args) => ItemFill.Paint(_row, ItemRole.Row, ItemState.Hover);
 
-        private void OnGone(object sender, PointerRoutedEventArgs args) => _row.Background = RowRest();
+        private void OnGone(object sender, PointerRoutedEventArgs args) => ItemFill.Paint(_row, ItemRole.Row);
 
         public void Dispose()
         {
@@ -292,7 +290,7 @@ internal static class Fluent
             _row.PointerExited -= OnGone;
             _row.PointerCaptureLost -= OnGone;
             _row.PointerCanceled -= OnGone;
-            _row.Background = RowRest();
+            ItemFill.Paint(_row, ItemRole.Row);
         }
     }
 
@@ -306,6 +304,9 @@ internal static class Fluent
     /// <summary>A list's own padding: none either side so rows reach both edges, a little below.</summary>
     public static Thickness ListPadding { get; } = new(0, 0, 0, Space2);
 
-    /// <summary>The fill a row shows when it is not hovered: transparent, but a real brush.</summary>
-    public static Brush RowRest() => FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+    /// <summary>
+    /// A clear fill that still takes the pointer, for a surface that is not an item (a list's
+    /// scroll content, a whole view's hit area): never the item layer's, which would fill it.
+    /// </summary>
+    public static Brush Clear() => FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
 }

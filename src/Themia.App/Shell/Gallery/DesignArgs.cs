@@ -9,8 +9,8 @@ namespace Themia.App.Shell.Gallery;
 /// draws its cards with, so a border, radius or fill can be looked at without the settings window.
 /// Keys: <c>border</c> (none|solid|dashed|dotted), <c>borderWidth</c>, <c>borderOpacity</c> (0..1 or
 /// a percentage such as 25%), <c>borderColor</c> (#RRGGBB), <c>radius</c>, <c>background</c>,
-/// <c>opacity</c>, <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>preset</c>
-/// (applied first, so later keys refine it). An unknown key or a bad value is printed and skipped.
+/// <c>opacity</c>, <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
+/// <c>itemOpacity</c> (the item layer, [S-6510]), <c>preset</c> (applied first, so later keys refine it). An unknown key or a bad value is printed and skipped.
 /// </summary>
 internal static class DesignArgs
 {
@@ -79,6 +79,12 @@ internal static class DesignArgs
                 return true;
             case "font":
                 d.FontFamily = value;
+                return true;
+            case "items" or "itemcolor" or "itemcolour":
+                d.ItemBackground.Color = value;
+                return true;
+            case "itemopacity" when Fraction(value) is { } o:
+                d.ItemBackground.Opacity = o;
                 return true;
             default:
                 return false;

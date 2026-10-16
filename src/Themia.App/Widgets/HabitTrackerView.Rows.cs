@@ -545,8 +545,8 @@ internal sealed partial class HabitTrackerView
 
         private readonly Brush _filled = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         // [S-837] The empty dot must read as a slot on both themes (the alt fill is all but invisible on
-        // dark): a control's strong rest fill, not the disabled one, which read as a switched-off habit.
-        private readonly Brush _blank = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
+        // dark): a control's strong rest fill (the item layer's track, [S-6513]), not the disabled
+        // one, which read as a switched-off habit.
         private readonly Brush _stroke = FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
 
         private IReadOnlyList<HabitDot> _recent = [];
@@ -649,7 +649,7 @@ internal sealed partial class HabitTrackerView
             ToolTipService.SetToolTip(_name, _name.Text);
 
             _done = HabitRules.IsDone(log, current);
-            _box.Background = _done ? _filled : Fluent.RowRest();
+            _box.Background = _done ? _filled : Fluent.Clear();
             _box.BorderBrush = _stroke;
             _box.BorderThickness = new Thickness(_done ? 0 : 1);
             _tick.Visibility = _done ? Visibility.Visible : Visibility.Collapsed;
@@ -714,7 +714,15 @@ internal sealed partial class HabitTrackerView
             for (var i = 0; i < _recent.Count; i++)
             {
                 var dot = _recent[i];
-                _dots[i].Background = dot.Done ? _filled : _blank;
+                if (dot.Done)
+                {
+                    _dots[i].Background = _filled;
+                }
+                else
+                {
+                    ItemFill.Paint(_dots[i], ItemRole.Track);
+                }
+
 
                 var label = (dot.Done ? Str.WidgetsB_Habits_DotDone : Str.WidgetsB_Habits_DotNotDone).Format(("period", HabitPeriods.Describe(dot.Bucket, cadence)));
                 ToolTipService.SetToolTip(_dots[i], label);

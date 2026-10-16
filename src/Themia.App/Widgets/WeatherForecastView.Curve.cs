@@ -53,7 +53,8 @@ internal sealed partial class WeatherForecastView
             // [S-727] Today's quiet fill under its whole column, behind the chart.
             if (day.Day == today)
             {
-                var fill = new Border { Background = _todayFill, CornerRadius = new CornerRadius(Fluent.ControlRadius) };
+                var fill = new Border { CornerRadius = new CornerRadius(Fluent.ControlRadius) };
+                ItemFill.Paint(fill, ItemRole.Chip, ItemState.Selected);
                 SetColumn(fill, i);
                 SetRowSpan(fill, grid.RowDefinitions.Count);
                 grid.Children.Add(fill);

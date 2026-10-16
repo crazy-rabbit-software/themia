@@ -211,17 +211,22 @@ internal sealed partial class CalendarView
     {
         var side = Math.Max(2, cell - 1);
         var ring = isToday || isSelected;
-        return new Border
+        var square = new Border
         {
             Width = side,
             Height = side,
             CornerRadius = new CornerRadius(Math.Min(2, side / 4)),
-            Background = items.Count > 0
-                ? MarkOf(items[0], showColors)
-                : FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray),
+            Background = items.Count > 0 ? MarkOf(items[0], showColors) : null,
             BorderThickness = new Thickness(ring ? Math.Max(1, Math.Floor(side / 5)) : 0),
             BorderBrush = isSelected ? Accent() : isToday ? FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White) : null,
-
         };
+
+        // [S-6513] An empty day is a chip of the item layer; a day with something is its colour.
+        if (items.Count == 0)
+        {
+            ItemFill.Paint(square, ItemRole.Chip);
+        }
+
+        return square;
     }
 }

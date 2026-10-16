@@ -63,13 +63,14 @@ internal sealed partial class WeatherForecastView
 
         row.Padding = new Thickness(Fluent.Space4 - Fluent.Space1, 0, Fluent.Space4 - Fluent.Space1, 0);
         row.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        return new Border
+        var todayRow = new Border
         {
-            Background = _todayFill,
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
             Child = row,
         };
+        ItemFill.Paint(todayRow, ItemRole.Chip, ItemState.Selected);
+        return todayRow;
     }
 
     private Grid OneLineRow(ForecastDay day, DateOnly today, Range range, ForecastRowsPlan plan)
@@ -327,8 +328,12 @@ internal sealed partial class WeatherForecastView
             Child = parts,
             Padding = new Thickness(WeatherForecastLayout.ColumnPadding),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = day.Day == today ? _todayFill : null,
         };
+
+        if (day.Day == today)
+        {
+            ItemFill.Paint(host, ItemRole.Chip, ItemState.Selected);
+        }
 
         ToolTipService.SetToolTip(host, Describe(day));
         return host;
@@ -390,7 +395,8 @@ internal sealed partial class WeatherForecastView
     {
         var (start, end) = WeatherReport.RangeBar(low, high, range.Coldest, range.Warmest);
 
-        var track = Pill(_trackBrush, thickness);
+        var track = Pill(null, thickness);
+        ItemFill.Paint(track, ItemRole.Track);
         track.Height = thickness;
         var fill = Pill(_barBrush, thickness);
         fill.Height = thickness;
@@ -441,7 +447,8 @@ internal sealed partial class WeatherForecastView
     {
         var (start, end) = WeatherReport.RangeBar(low, high, range.Coldest, range.Warmest);
 
-        var track = Pill(_trackBrush, thickness);
+        var track = Pill(null, thickness);
+        ItemFill.Paint(track, ItemRole.Track);
         track.Width = thickness;
         var fill = Pill(_barBrush, thickness);
         fill.Width = thickness;
@@ -502,7 +509,7 @@ internal sealed partial class WeatherForecastView
         };
     }
 
-    private static Border Pill(Brush brush, double thickness) => new()
+    private static Border Pill(Brush? brush, double thickness) => new()
     {
         Background = brush,
         CornerRadius = new CornerRadius(thickness / 2),

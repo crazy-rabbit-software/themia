@@ -907,9 +907,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
                 Padding = new Thickness(Fluent.Space1, large ? Fluent.Space3 : 6, Fluent.Space1, large ? Fluent.Space3 : 6),
                 Margin = new Thickness(2),
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                Background = Fluent.RowRest(),
             };
 
+            ItemFill.Paint(card, ItemRole.Row);
             Wire(card, contact);
             SetRow(card, i / perRow);
             SetColumn(card, i % perRow);

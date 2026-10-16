@@ -121,6 +121,9 @@ internal static class DesignApplier
                 RefreshThemed();
             }
 
+            // [S-6510] The app-wide item layer, for an item painted before it stands in a card.
+            Widgets.ItemPalette.App.Apply(design.ItemBackground ?? new ItemLayer(), dark);
+
             var fontName = DesignLook.FontFamilyName(design.FontFamily);
             if (!string.Equals(fontName, _fontName, StringComparison.Ordinal) || (fontName is not null && ContentFont is null))
             {

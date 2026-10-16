@@ -41,10 +41,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
 
     private readonly Brush _freshBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
     private readonly Brush _staleBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
-    // [S-837] The range bar's track is a slider's (SliderTrackFill), not the disabled fill.
-    private readonly Brush _trackBrush = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
+    // [S-837] The range bar's track is a slider's (SliderTrackFill), not the disabled fill: the item
+    // layer's track ([S-6513]). Today's column or row is a selected chip of it.
     private readonly Brush _barBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _todayFill = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Transparent);
 
     /// <summary>[S-6172] The now dot's fill: the colour text takes on the accent, so it stands on the bar's fill.</summary>
     private readonly Brush _nowFill = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);

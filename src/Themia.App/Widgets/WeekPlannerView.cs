@@ -567,7 +567,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
             BorderBrush = overdue
                 ? FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed)
                 : FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray),
-            Background = Fluent.RowRest(),
+            Background = Fluent.Clear(),
         };
         ToolTipService.SetToolTip(ring, Str.WidgetsC_Tasks_MarkDone.Text());
         ring.Tapped += (_, args) =>
@@ -625,8 +625,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
             Child = line,
             Height = height,
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = Fluent.RowRest(),
         };
+        ItemFill.Paint(row, ItemRole.Row);
         _hovers.Add(Fluent.Hover(row));
         return row;
     }

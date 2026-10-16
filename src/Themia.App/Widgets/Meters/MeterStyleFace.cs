@@ -285,7 +285,8 @@ internal sealed partial class SignalFace : PictureFaceBase
 
         for (var i = 0; i < _bars.Length; i++)
         {
-            _bars[i] = new Rectangle { Fill = MeterBrushes.Track };
+            _bars[i] = new Rectangle();
+            ItemFill.Paint(_bars[i], ItemRole.Track);
             Picture.Children.Add(_bars[i]);
         }
     }
@@ -324,10 +325,13 @@ internal sealed partial class SignalFace : PictureFaceBase
     {
         for (var i = 0; i < _bars.Length; i++)
         {
-            var brush = i < _level && _lit is not null ? _lit : MeterBrushes.Track;
-            if (!ReferenceEquals(_bars[i].Fill, brush))
+            if (i >= _level || _lit is null)
             {
-                _bars[i].Fill = brush;
+                ItemFill.Paint(_bars[i], ItemRole.Track);
+            }
+            else if (!ReferenceEquals(_bars[i].Fill, _lit))
+            {
+                _bars[i].Fill = _lit;
             }
         }
     }

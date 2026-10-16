@@ -27,7 +27,6 @@ internal sealed partial class ScreenTimeAppsView
         private const double IconSize = Fluent.IconSize;
 
         private static readonly Brush TimeBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
-        private static readonly Brush SelectedBrush = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Gray);
 
         private readonly ScreenTimeAppsView _owner;
         private readonly Grid _icon = new() { Width = IconSize, Height = IconSize, VerticalAlignment = VerticalAlignment.Center };
@@ -158,9 +157,10 @@ internal sealed partial class ScreenTimeAppsView
         public void Mark(ScreenTimeEmphasis emphasis, bool selected, bool cursor)
         {
             Host.Opacity = emphasis == ScreenTimeEmphasis.Dimmed ? 0.45 : 1;
-            Host.Background = emphasis == ScreenTimeEmphasis.Lit ? Fluent.RowHover()
-                : selected ? SelectedBrush
-                : Fluent.RowRest();
+            // [S-6513] Selected keeps the lighter Fluent step it always had (SubtleFillColorTertiary).
+            ItemFill.Paint(Host, ItemRole.Row, emphasis == ScreenTimeEmphasis.Lit ? ItemState.Hover
+                : selected ? ItemState.SelectedHover
+                : ItemState.Rest);
             _pill.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
             RowFocus.Mark(Host, cursor);
         }

@@ -47,8 +47,6 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private readonly ToggleGate _switch = new();
 
     private readonly Brush _rest = new SolidColorBrush(Colors.Transparent);
-    private readonly Brush _hoverFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _pressedFill = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.DimGray);
     private readonly Brush _accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly Brush _accentHover = FluentLayout.Themed("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
     private readonly Brush _accentPressed = FluentLayout.Themed("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
@@ -57,10 +55,6 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
     private readonly Brush _secondary = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
     private readonly Brush _disabled = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _control = FluentLayout.Themed("ControlFillColorDefaultBrush", Colors.Gray);
-    private readonly Brush _controlHover = FluentLayout.Themed("ControlFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _controlPressed = FluentLayout.Themed("ControlFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _controlDisabled = FluentLayout.Themed("ControlFillColorDisabledBrush", Colors.Gray);
     private readonly Brush _controlEdge = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray);
 
     private IWidgetSurface? _surface;
@@ -310,7 +304,8 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     /// <summary>[S-3904] The tile: accent-filled while on, subtle fills while off, dimmed where unavailable.</summary>
     private void PaintTile(Locale locale, ToggleLook look)
     {
-        Brush fill;
+        Brush? fill;
+        var face = ItemState.Rest;
         Brush iconBrush;
         Brush nameBrush;
         Brush stateBrush;
@@ -325,28 +320,38 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
                 break;
 
             case ToggleLook.Unavailable:
-                fill = _rest;
+                fill = null;
                 iconBrush = _disabled;
                 nameBrush = _disabled;
                 stateBrush = _disabled;
                 break;
 
             case ToggleLook.Unknown:
-                fill = _rest;
+                fill = null;
                 iconBrush = _secondary;
                 nameBrush = _secondary;
                 stateBrush = _secondary;
                 break;
 
             default:
-                fill = _pressed ? _pressedFill : _hover ? _hoverFill : _rest;
+                fill = null;
+                face = ItemFace();
                 iconBrush = _pressed ? _secondary : _primary;
                 nameBrush = _pressed ? _secondary : _primary;
                 stateBrush = _secondary;
                 break;
         }
 
-        Background = fill;
+        // [S-6513] Off, the tile is an item of the card's item layer; on, it is the accent's.
+        if (fill is null)
+        {
+            ItemFill.Paint(this, ItemRole.Row, face);
+        }
+        else
+        {
+            Background = fill;
+        }
+
         _icon.Glyph = Glyph(_toggle, on: look != ToggleLook.Off);
         _icon.Foreground = iconBrush;
         _name.Text = QuickToggleRules.Name(locale, _toggle);
@@ -373,19 +378,21 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
                 break;
 
             case ToggleLook.Unavailable:
-                _round.Paint(_controlDisabled, _controlEdge, glyph, _disabled, name, _disabled);
+                _round.Paint(ItemState.Disabled, _controlEdge, glyph, _disabled, name, _disabled);
                 break;
 
             case ToggleLook.Unknown:
-                _round.Paint(_control, _controlEdge, glyph, _secondary, name, _secondary);
+                _round.Paint(ItemState.Rest, _controlEdge, glyph, _secondary, name, _secondary);
                 break;
 
             default:
-                var fill = _pressed ? _controlPressed : _hover ? _controlHover : _control;
-                _round.Paint(fill, _controlEdge, glyph, _pressed ? _secondary : _primary, name, _primary);
+                _round.Paint(ItemFace(), _controlEdge, glyph, _pressed ? _secondary : _primary, name, _primary);
                 break;
         }
     }
+
+    /// <summary>[S-6513] The tile's item state from the pointer: pressed, under it, or at rest.</summary>
+    private ItemState ItemFace() => _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest;
 
     // ---- input -------------------------------------------------------------------------------
 

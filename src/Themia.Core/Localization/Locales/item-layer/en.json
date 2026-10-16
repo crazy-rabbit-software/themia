@@ -1,0 +1,7 @@
+{
+  "$englishOnly": [],
+  "shell.items.background": "Item background",
+  "shell.items.backgroundDesc": "What rows, tiles and chips inside widgets are filled with, apart from the widget's own background",
+  "shell.items.colour": "Item colour",
+  "shell.items.opacity": "Item opacity"
+}

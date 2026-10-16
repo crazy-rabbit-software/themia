@@ -113,9 +113,9 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             Child = Fluent.Icon(Glyphs.Sort, "TextFillColorSecondaryBrush", 14),
             Padding = new Thickness(Fluent.Space1),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = Fluent.RowRest(),
             Visibility = Visibility.Collapsed,
         };
+        ItemFill.Paint(_sort, ItemRole.Row);
         _sort.Tapped += OnSortTapped;
         _sortHover = Fluent.Hover(_sort);
 
@@ -125,9 +125,9 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             Child = Fluent.Icon(Glyphs.MailCompose, "TextFillColorSecondaryBrush", 14),
             Padding = new Thickness(Fluent.Space1),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = Fluent.RowRest(),
             Visibility = Visibility.Collapsed,
         };
+        ItemFill.Paint(_compose, ItemRole.Row);
         _compose.Tapped += OnComposeTapped;
         _composeHover = Fluent.Hover(_compose);
 

@@ -77,6 +77,19 @@ internal static partial class ConfigPages
                             value => host.Mutate(s => s.Design.HeaderOpacity = value / 100))),
                 ]),
 
+            // [S-6516] The item background: the second layer, what the rows, tiles and chips inside
+            // every card are filled with, whatever the card's own background is.
+            FluentLayout.Expander(Glyphs.Surface, Str.Shell_Items_Background.Text(), Str.Shell_Items_BackgroundDesc.Text(), null,
+                [
+                    FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Shell_Items_Colour.Text(), null,
+                        design.ItemBackground.Color, value => host.Mutate(s => s.Design.ItemBackground.Color = value),
+                        new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text(), Presets = ColorPresets.Surfaces }),
+
+                    FluentLayout.Row(Glyphs.Opacity, Str.Shell_Items_Opacity.Text(), null,
+                        FluentLayout.Slider(design.ItemBackground.Opacity * 100, 0, 100, 5, "%",
+                            value => host.Mutate(s => s.Design.ItemBackground.Opacity = value / 100))),
+                ]),
+
             // The card's shape and its border: the border style is the group's headline.
             FluentLayout.Expander(Glyphs.Grid, Str.Shell_Appearance_Cards.Text(), Str.Shell_Appearance_CardsDesc.Text(),
                 FluentLayout.Choice(

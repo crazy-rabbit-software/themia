@@ -243,7 +243,7 @@ internal sealed partial class CalendarView
             stack.Children.Add(Dots(items, showColors, dotLimit));
         }
 
-        return new Border
+        var cell = new Border
         {
             Child = stack,
 
@@ -253,14 +253,21 @@ internal sealed partial class CalendarView
             Margin = density == MonthDensity.Number ? new Thickness(0) : new Thickness(CellMargin),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             VerticalAlignment = density == MonthDensity.Number ? VerticalAlignment.Center : VerticalAlignment.Stretch,
-            Background = chipped && isSelected
-                ? FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Transparent)
-                : FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = Fluent.Clear(),
 
             // Without chips nothing spans a cell, so the selected one is outlined whole.
             BorderThickness = new Thickness(!chipped && isSelected ? 1 : 0),
             BorderBrush = !chipped && isSelected ? Accent() : null,
         };
+
+        // [S-6513] A selected day holding chips is lit as a selected chip; the rest stay clear, so
+        // the chips on them read against the card, or against the item colour where it is set.
+        if (chipped && isSelected)
+        {
+            ItemFill.Paint(cell, ItemRole.Chip, ItemState.Selected);
+        }
+
+        return cell;
     }
 
     /// <summary>
@@ -280,8 +287,8 @@ internal sealed partial class CalendarView
             Height = chipLine - 1,
             Padding = new Thickness(3, 0, 2, 0),
             CornerRadius = new CornerRadius(bar.ContinuesBefore ? 0 : radius, bar.ContinuesAfter ? 0 : radius, bar.ContinuesAfter ? 0 : radius, bar.ContinuesBefore ? 0 : radius),
-            Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray),
         };
+        ItemFill.Paint(chip, ItemRole.Chip);
 
         if (item.Birthday is { } b)
         {

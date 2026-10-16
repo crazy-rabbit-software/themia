@@ -147,10 +147,10 @@ internal sealed partial class CalendarView
             Margin = new Thickness(0, 0, 0, 2),
             Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0),
             CornerRadius = new CornerRadius(before ? 0 : radius, after ? 0 : radius, after ? 0 : radius, before ? 0 : radius),
-            Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray),
             BorderThickness = new Thickness(before ? 0 : 3, 0, 0, 0),
             BorderBrush = MarkOf(item, showColors),
         };
+        ItemFill.Paint(bar, ItemRole.Chip);
 
         if (item.Birthday is { } b)
         {
@@ -238,10 +238,10 @@ internal sealed partial class CalendarView
             VerticalAlignment = VerticalAlignment.Top,
             Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
             CornerRadius = new CornerRadius(lineHeight > CalendarFit.ChipLine ? Fluent.ControlRadius : 2),
-            Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray),
             BorderThickness = new Thickness(2, 0, 0, 0),
             BorderBrush = MarkOf(item, showColors),
         };
+        ItemFill.Paint(chip, ItemRole.Chip);
 
         if (item.Birthday is { } b)
         {
@@ -302,10 +302,10 @@ internal sealed partial class CalendarView
             Child = stack,
             Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray),
             BorderThickness = new Thickness(2, 0, 0, 0),
             BorderBrush = showColors ? ColorOf(e) : Accent(),
         };
+        ItemFill.Paint(block, ItemRole.Chip);
 
         MakeOpenable(block, e);
         return block;

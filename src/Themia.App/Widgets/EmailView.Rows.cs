@@ -402,10 +402,10 @@ internal sealed partial class EmailView
             Width = QuickActionSize,
             Height = QuickActionSize,
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = Fluent.RowRest(),
             VerticalAlignment = VerticalAlignment.Center,
         };
 
+        ItemFill.Paint(button, ItemRole.Row);
         ToolTipService.SetToolTip(button, text);
         _hovers.Add(Fluent.Hover(button));
         button.Tapped += (_, args) =>
