@@ -2,5 +2,6 @@
   "styles.cpu.graph": "Jadawali",
   "styles.cpu.cores": "Duk kwayoyi",
   "styles.cpu.grid": "Grid na kwayoyi",
-  "styles.cpu.gauge": "Ma'auni"
+  "styles.cpu.gauge": "Ma'auni",
+  "styles.cpu.coreGraphs": "Jadawalin kwayoyi"
 }

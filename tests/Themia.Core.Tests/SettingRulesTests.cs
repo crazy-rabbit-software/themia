@@ -83,7 +83,7 @@ public class SettingRulesTests
     [InlineData(WidgetKind.Network)]
     [InlineData(WidgetKind.Battery)]
     [InlineData(WidgetKind.Ping)]
-    public void S6074_a_meter_offers_its_chart_span_in_its_graph_style_only(WidgetKind kind)
+    public void S6074_a_meter_offers_its_chart_span_only_in_the_styles_that_draw_a_history(WidgetKind kind)
     {
         var gauge = Assert.IsAssignableFrom<GaugeConfig>(WidgetConfig.CreateDefault(kind));
 
@@ -91,7 +91,10 @@ public class SettingRulesTests
         {
             WidgetStyles.Set(gauge, style.Value);
             Assert.Equal(style.Value, WidgetStyles.Current(gauge));
-            Assert.Equal(style.Value == 0 ? [MeterSetting.Span] : (MeterSetting[])[], gauge.ShownSettings);
+
+            // The graph, and the CPU's core graphs ([S-6317]): a history per core.
+            var history = style.Value == 0 || (kind == WidgetKind.Cpu && style.Value == (int)CpuStyle.CoreGraphs);
+            Assert.Equal(history ? [MeterSetting.Span] : (MeterSetting[])[], gauge.ShownSettings);
         }
     }
 

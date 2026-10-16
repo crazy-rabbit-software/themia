@@ -84,6 +84,7 @@ internal sealed partial class SystemHub : IDisposable
         foreach (var feed in _order)
         {
             feed.WantSeries(interests.Series.Where(s => s.Key == feed.Key).Select(s => s.Instance));
+            feed.Want(interests);
         }
 
         if (created.Count > 0)
@@ -160,6 +161,7 @@ internal sealed partial class SystemHub : IDisposable
     private Feed OpenFeed(FeedKey key)
     {
         var feed = OpenSource(key);
+        feed.Want(_interests);
         _order.Add(feed);
         _order.Sort(static (a, b) => a.Key.Source != b.Key.Source
             ? a.Key.Source.CompareTo(b.Key.Source)

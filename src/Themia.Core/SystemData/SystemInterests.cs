@@ -22,6 +22,13 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
     public static SystemInterests None { get; } = new([], []);
 
     /// <summary>
+    /// [S-6318] The longest Core graphs span in any view, in seconds (0: no widget shows the style):
+    /// how much of every processor's history the hub's <c>CpuCores</c> source keeps
+    /// (<see cref="CoreHistory.CapacityFor"/>), never an hour by default.
+    /// </summary>
+    public int CoreHistorySeconds { get; init; }
+
+    /// <summary>
     /// Every view's widgets, deduplicated and in read order, so two states that want the same thing
     /// compare equal (<see cref="SameAs"/>) and the hub hears only of real changes.
     /// </summary>
@@ -32,6 +39,7 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
 
         var feeds = new HashSet<FeedKey>();
         var series = new HashSet<SeriesInterest>();
+        var coreSeconds = 0;
 
         foreach (var widget in state.Views.SelectMany(v => v.Widgets))
         {
@@ -40,12 +48,16 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
                 var wants = For(config, systemRoot);
                 feeds.UnionWith(wants.Feeds);
                 series.UnionWith(wants.Series);
+                coreSeconds = Math.Max(coreSeconds, wants.CoreHistorySeconds);
             }
         }
 
         return new SystemInterests(
             [.. feeds.OrderBy(k => k.Source).ThenBy(k => k.Target, StringComparer.Ordinal)],
-            [.. series.OrderBy(s => s.Key.Source).ThenBy(s => s.Key.Target, StringComparer.Ordinal).ThenBy(s => s.Instance, StringComparer.Ordinal)]);
+            [.. series.OrderBy(s => s.Key.Source).ThenBy(s => s.Key.Target, StringComparer.Ordinal).ThenBy(s => s.Instance, StringComparer.Ordinal)])
+        {
+            CoreHistorySeconds = coreSeconds,
+        };
     }
 
     /// <summary>
@@ -58,9 +70,13 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
 
         switch (config)
         {
-            case CpuConfig { ShowsCores: true }:
-                // [S-6310] The core styles read each processor too, beside the total and its history.
-                return new SystemInterests([FeedKey.Create(SystemSource.Cpu), FeedKey.Create(SystemSource.CpuCores)], [new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty)]);
+            case CpuConfig { ShowsCores: true } cpu:
+                // [S-6310] The core styles read each processor too, beside the total and its history;
+                // [S-6318] the core graphs keep each processor's history for their span.
+                return new SystemInterests([FeedKey.Create(SystemSource.Cpu), FeedKey.Create(SystemSource.CpuCores)], [new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty)])
+                {
+                    CoreHistorySeconds = cpu.ChartsCores ? Math.Max(1, cpu.GraphSpanSeconds) : 0,
+                };
             case CpuConfig:
                 return Chart(SystemSource.Cpu);
             case MemoryConfig:
@@ -108,7 +124,7 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
 
     /// <summary>Whether two sets want the same feeds and series.</summary>
     public bool SameAs(SystemInterests other)
-        => other is not null && Feeds.SequenceEqual(other.Feeds) && Series.SequenceEqual(other.Series);
+        => other is not null && Feeds.SequenceEqual(other.Feeds) && Series.SequenceEqual(other.Series) && CoreHistorySeconds == other.CoreHistorySeconds;
 
     private static SystemInterests Chart(SystemSource source, string instance = "") => Chart(FeedKey.Create(source), instance);
 

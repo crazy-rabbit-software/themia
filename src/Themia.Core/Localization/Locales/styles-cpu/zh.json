@@ -2,5 +2,6 @@
   "styles.cpu.graph": "图表",
   "styles.cpu.cores": "所有核心",
   "styles.cpu.grid": "核心网格",
-  "styles.cpu.gauge": "仪表"
+  "styles.cpu.gauge": "仪表",
+  "styles.cpu.coreGraphs": "核心图表"
 }

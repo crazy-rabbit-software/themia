@@ -2,5 +2,6 @@
   "styles.cpu.graph": "Grafik",
   "styles.cpu.cores": "Tüm çekirdekler",
   "styles.cpu.grid": "Çekirdek ızgarası",
-  "styles.cpu.gauge": "Gösterge"
+  "styles.cpu.gauge": "Gösterge",
+  "styles.cpu.coreGraphs": "Çekirdek grafikleri"
 }

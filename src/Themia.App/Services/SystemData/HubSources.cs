@@ -12,6 +12,13 @@ internal readonly record struct PerformanceSnapshot(PerformanceFigures? Figures,
 /// <summary>[S-1161] [S-1162] The volumes as of the last walk, and the I/O counters' rates (null without counters).</summary>
 internal sealed record DiskSnapshot(IReadOnlyList<DiskVolume> Volumes, DiskActivity? Activity);
 
+/// <summary>
+/// [S-6310] [S-6318] Each logical processor's load, 0..1, in processor order (null for a core with
+/// no reading), and every core's history as the source keeps it: empty unless a Core graphs widget
+/// wants it ([S-2513]). Read on the UI thread only, as every hub snapshot is.
+/// </summary>
+internal sealed record CoreLoads(IReadOnlyList<double?> Loads, CoreHistory History);
+
 /// <summary>[S-2500] Every source the hub reads, by the snapshot it hands back.</summary>
 internal static class Sources
 {
@@ -20,8 +27,8 @@ internal static class Sources
     public static readonly SourceId<PerformanceSnapshot> Performance = new(SystemSource.Performance);
     public static readonly SourceId<CpuFigures> Processor = new(SystemSource.Processor);
 
-    /// <summary>[S-6310] Each logical processor's load, 0..1, in processor order; null for a core with no reading.</summary>
-    public static readonly SourceId<IReadOnlyList<double?>> CpuCores = new(SystemSource.CpuCores);
+    /// <summary>[S-6310] Each logical processor's load and, for the core graphs, their history ([S-6318]).</summary>
+    public static readonly SourceId<CoreLoads> CpuCores = new(SystemSource.CpuCores);
 
     public static readonly SourceId<IReadOnlyList<ProcessSample>?> Processes = new(SystemSource.Processes);
     public static readonly SourceId<DiskSnapshot> DiskActivity = new(SystemSource.DiskActivity);

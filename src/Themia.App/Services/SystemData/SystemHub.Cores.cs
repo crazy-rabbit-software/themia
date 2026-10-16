@@ -1,4 +1,5 @@
 using Themia.Core.Diagnostics;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services.SystemData;
@@ -10,13 +11,22 @@ internal sealed partial class SystemHub
     /// one PDH query (<c>\Processor Information(*)\% Processor Time</c>), opened when the first such
     /// widget wants it and closed with the feed ([S-2505]), read once per tick for all of them
     /// ([S-2501]). Empty when Windows has no such counter, which the styles draw as the reading alone.
+    /// <para>
+    /// [S-6318] Every read is a sample (a rate counter rates since the last collection), so each one
+    /// is added to every core's history, which holds the longest Core graphs span the views want
+    /// (<see cref="CoreHistory.CapacityFor"/>) and nothing while no widget shows the style.
+    /// </para>
     /// </summary>
-    private sealed class CpuCoresSource : HubSource<IReadOnlyList<double?>>
+    private sealed class CpuCoresSource : HubSource<CoreLoads>
     {
         private const string CoresScope = "cpu-cores";
 
+        private readonly CoreHistory _history = new();
         private PdhQuery? _query;
         private PdhCounter? _counter;
+
+        public override void Want(SystemInterests interests)
+            => _history.Resize(CoreHistory.CapacityFor(interests.CoreHistorySeconds));
 
         public override void Open()
         {
@@ -39,15 +49,17 @@ internal sealed partial class SystemHub
             _query.Collect();
         }
 
-        public override IReadOnlyList<double?> Read()
+        public override CoreLoads Read()
         {
             if (_query is not { } query || _counter is not { } counter)
             {
-                return [];
+                return new CoreLoads([], _history);
             }
 
             query.Collect();
-            return CpuCoreRules.Loads(query.Doubles(counter));
+            var loads = CpuCoreRules.Loads(query.Doubles(counter));
+            _history.Add(loads);
+            return new CoreLoads(loads, _history);
         }
 
         public override void Close()
@@ -55,6 +67,7 @@ internal sealed partial class SystemHub
             _query?.Dispose();
             _query = null;
             _counter = null;
+            _history.Resize(0);
         }
     }
 }

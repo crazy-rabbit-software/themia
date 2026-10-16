@@ -13,9 +13,9 @@ public sealed class MeterStylesTests
     // ---- the styles themselves -----------------------------------------------------------------
 
     [Fact]
-    public void S6311_the_cpu_offers_graph_all_cores_core_grid_and_gauge_in_that_order()
+    public void S6311_the_cpu_offers_graph_all_cores_core_grid_gauge_and_core_graphs_in_that_order()
     {
-        Assert.Equal(["graph", "cores", "grid", "gauge"], WidgetStyles.For(WidgetKind.Cpu).Select(s => s.Name));
+        Assert.Equal(["graph", "cores", "grid", "gauge", "coreGraphs"], WidgetStyles.For(WidgetKind.Cpu).Select(s => s.Name));
         Assert.Equal(CpuStyle.Graph, new CpuConfig().Style);
     }
 
@@ -57,6 +57,7 @@ public sealed class MeterStylesTests
 
         Assert.True(ReadsCores(CpuStyle.Cores));
         Assert.True(ReadsCores(CpuStyle.Grid));
+        Assert.True(ReadsCores(CpuStyle.CoreGraphs));
         Assert.False(ReadsCores(CpuStyle.Graph));
         Assert.False(ReadsCores(CpuStyle.Gauge));
 

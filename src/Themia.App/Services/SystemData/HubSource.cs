@@ -40,6 +40,14 @@ internal abstract class HubSource
     {
     }
 
+    /// <summary>
+    /// [S-2513] What the widgets of every view want, on every change of it and when the feed is
+    /// made: for a source that keeps something sized by it (the cores' history, [S-6318]).
+    /// </summary>
+    public virtual void Want(SystemInterests interests)
+    {
+    }
+
     /// <summary>Give it back; nothing reads after this. Called once.</summary>
     public virtual void Close()
     {

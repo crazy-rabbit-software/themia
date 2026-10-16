@@ -2,5 +2,6 @@
   "styles.cpu.graph": "رسم بياني",
   "styles.cpu.cores": "كل الأنوية",
   "styles.cpu.grid": "شبكة الأنوية",
-  "styles.cpu.gauge": "مقياس"
+  "styles.cpu.gauge": "مقياس",
+  "styles.cpu.coreGraphs": "رسوم بيانية للأنوية"
 }

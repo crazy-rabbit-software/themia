@@ -2,5 +2,6 @@
   "styles.cpu.graph": "กราฟ",
   "styles.cpu.cores": "ทุกคอร์",
   "styles.cpu.grid": "ตารางคอร์",
-  "styles.cpu.gauge": "มาตรวัด"
+  "styles.cpu.gauge": "มาตรวัด",
+  "styles.cpu.coreGraphs": "กราฟคอร์"
 }

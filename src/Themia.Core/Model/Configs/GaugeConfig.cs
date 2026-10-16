@@ -39,8 +39,12 @@ public abstract class GaugeConfig : WidgetConfig, IShownSettings<MeterSetting>
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore]
     public IReadOnlyList<MeterSetting> ShownSettings => WidgetStyles.Offers(Kind)
-        ? WidgetStyles.Current(this) is null or 0 ? [MeterSetting.Span] : []
+        ? StyleChartsHistory ? [MeterSetting.Span] : []
         : ShowGraph ? [MeterSetting.History, MeterSetting.Span] : [MeterSetting.History];
+
+    /// <summary>[S-6074] Whether the current style draws a history (and so offers its span): the graph style, the first.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    protected virtual bool StyleChartsHistory => WidgetStyles.Current(this) is null or 0;
 
     /// <summary>[S-1121] How much history the chart spans, in seconds: one of <see cref="MeterTiming.SpanChoices"/>.</summary>
     public int GraphSpanSeconds { get; set; }

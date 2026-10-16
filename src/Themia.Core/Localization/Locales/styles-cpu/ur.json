@@ -2,5 +2,6 @@
   "styles.cpu.graph": "گراف",
   "styles.cpu.cores": "تمام کورز",
   "styles.cpu.grid": "کور گرڈ",
-  "styles.cpu.gauge": "گیج"
+  "styles.cpu.gauge": "گیج",
+  "styles.cpu.coreGraphs": "کور گراف"
 }

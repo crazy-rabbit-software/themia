@@ -3374,7 +3374,7 @@ Countdown C-61 keep-open (above).
   only while a widget in some view has a core style (`SystemInterests`, [S-2513]) and closed with
   the feed. No counter: the core styles show the reading alone.
 - **[S-6311]** CPU styles, `CpuConfig.Style` (`CpuStyle`): **Graph** ([S-1762]), **All cores**
-  ([S-6312]), **Core grid** ([S-6313]), **Gauge** ([S-6302]).
+  ([S-6312]), **Core grid** ([S-6313]), **Gauge** ([S-6302]), **Core graphs** ([S-6317]).
 - **[S-6312]** **All cores**: a column per logical processor ([S-6303]), each in its own pressure colour.
 - **[S-6313]** **Core grid**: a tile per logical processor ([S-6305]), shaded by its load ([S-6301]).
 - **[S-6314]** **Gauge** (CPU, memory, GPU): the reading inside the shared gauge ([S-6302]).
@@ -3436,6 +3436,24 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   the burst; a later message queues the next. It is subscribed before the first surface is built, so
   a change during startup is heard.
 - **[S-849]** Each pass also checks every surface's window rect against its monitor and re-places one
+- **[S-6317]** **Core graphs** (`CpuStyle.CoreGraphs`, user request 2026-10-16): the reading over a
+  tile per logical processor in the Core grid's arrangement ([S-6305], `BarLayout.Tiles`), each
+  that core's history drawn by the shared `SparkBand` edge to edge in its tile (sliding as the main
+  graph does, [S-1826]) in its load's pressure colour over the columns' faint track, its load above
+  the line at the top left (`CoreGraphGrid`). The Chart span applies (the span row is offered in this
+  style as in Graph, `GaugeConfig.StyleChartsHistory`). Debug: `--style coregraphs --state history`
+  draws sixteen fixture cores.
+- **[S-6318]** The per-core history is the hub's, not the view's: the `CpuCores` source keeps one
+  ring for every core together (`CoreHistory`, a `float` per core per second, an unknown load a gap),
+  filled by the same once-a-tick read the other core styles share ([S-2501]), so a meter built again
+  draws every core's history at once ([S-2504]). Unlike a charted series it is not an hour by
+  default: it holds the longest Core graphs span any view shows (`SystemInterests.CoreHistorySeconds`,
+  [S-2513]) plus the slide's lead on a 24-DIP tile (`CoreHistory.CapacityFor`), and nothing while no
+  widget shows the style. Cost: a minute on 16 cores is about 4 KB, an hour on 32 cores about 470 KB.
+  A read with another number of processors starts it again; a shorter span keeps the newest.
+- **[S-6319]** A tile's figure takes the largest step (Caption, Body, BodyLarge, Subtitle) whose line
+  is at most 40 % of the tile's height and whose widest figure ("100%") fits inside a 4-DIP inset;
+  a smaller tile is its history alone (`CoreGraphLayout.Tile`). Room at L/XL is a larger figure.
   that moved. A display-scale change resizes windows to a rect Windows scales from the old one; the
   surface's rasterization-scale change requests a pass so it is put back over its monitor.
 - **[S-850]** Per-display **widget scale** (`MonitorScales`, 50–200 %, 100 % stored as no entry)

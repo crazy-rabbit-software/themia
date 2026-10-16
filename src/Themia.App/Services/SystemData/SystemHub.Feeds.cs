@@ -30,6 +30,9 @@ internal sealed partial class SystemHub
 
         public abstract void Close();
 
+        /// <summary>[S-2513] Hand the source what the views want (<see cref="HubSource.Want"/>).</summary>
+        public abstract void Want(SystemInterests interests);
+
         /// <summary>
         /// The series for an instance, made on first ask (a watch, or the state wanting it). A new
         /// series gets the newest snapshot's reading at once, without a point.
@@ -228,6 +231,23 @@ internal sealed partial class SystemHub
             foreach (var watch in Watches.ToArray())
             {
                 watch.Notify(value);
+            }
+        }
+
+        public override void Want(SystemInterests interests)
+        {
+            if (Closed)
+            {
+                return;
+            }
+
+            try
+            {
+                reader.Want(interests);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, $"{Key} could not take the views' interests", ex);
             }
         }
 

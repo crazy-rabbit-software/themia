@@ -324,3 +324,49 @@ public static class BarLayout
             .First().Plan;
     }
 }
+
+/// <summary>[S-6319] What one Core graphs tile shows besides its history: its load's figure, at a step, or none.</summary>
+/// <param name="Figure">The figure's step; null when the tile is too small for one.</param>
+/// <param name="Inset">Between the figure and the tile's top and leading edges.</param>
+public readonly record struct CoreGraphTilePlan(TypeStep? Figure, double Inset);
+
+/// <summary>
+/// [S-6317] [S-6319] The Core graphs style: the tiles are the Core grid's ([S-6305],
+/// <see cref="BarLayout.Tiles"/>), each a core's history edge to edge with its load in a line above
+/// it at the top left. Room at L/XL is a larger figure, nothing more ([S-666]).
+/// </summary>
+public static class CoreGraphLayout
+{
+    /// <summary>Between the figure and the tile's edges.</summary>
+    public const double Inset = 4;
+
+    /// <summary>The most of a tile's height the figure's line may take: the rest is the history's.</summary>
+    public const double FigureShare = 0.4;
+
+    /// <summary>The steps a figure climbs, smallest first.</summary>
+    private static readonly TypeStep[] Steps = [FluentType.Caption, FluentType.Body, FluentType.BodyLarge, FluentType.Subtitle];
+
+    /// <summary>
+    /// [S-6319] A tile's figure: the largest step whose line takes at most <see cref="FigureShare"/>
+    /// of the tile's height and whose widest figure (<paramref name="figureCharacters"/>, "100%")
+    /// fits the width inside the inset; none when even a caption does not, and the tile is its history alone.
+    /// </summary>
+    public static CoreGraphTilePlan Tile(double width, double height, double figureCharacters)
+    {
+        TypeStep? chosen = null;
+
+        if (double.IsFinite(width) && double.IsFinite(height))
+        {
+            foreach (var step in Steps)
+            {
+                if (step.LineHeight <= height * FigureShare
+                    && FluentType.EstimateWidth(step, figureCharacters) + (2 * Inset) <= width)
+                {
+                    chosen = step;
+                }
+            }
+        }
+
+        return new CoreGraphTilePlan(chosen, Inset);
+    }
+}

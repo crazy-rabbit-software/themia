@@ -2,5 +2,6 @@
   "styles.cpu.graph": "Gráfico",
   "styles.cpu.cores": "Todos os núcleos",
   "styles.cpu.grid": "Grade de núcleos",
-  "styles.cpu.gauge": "Medidor"
+  "styles.cpu.gauge": "Medidor",
+  "styles.cpu.coreGraphs": "Gráficos de núcleos"
 }

@@ -2,5 +2,6 @@
   "styles.cpu.graph": "График",
   "styles.cpu.cores": "Все ядра",
   "styles.cpu.grid": "Сетка ядер",
-  "styles.cpu.gauge": "Шкала"
+  "styles.cpu.gauge": "Шкала",
+  "styles.cpu.coreGraphs": "Графики ядер"
 }
