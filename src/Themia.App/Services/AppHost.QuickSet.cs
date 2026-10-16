@@ -4,8 +4,8 @@ using Themia.Core.Model;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-3703]/[S-3704] The properties strip's writes ([S-3707]): header, background and title of the
-/// selected widgets, each through <see cref="Mutate"/> as one undo step.
+/// [S-3703]/[S-3704] The properties panel's writes ([S-3707]): header, background, item background
+/// ([S-6521]) and title of the selected widgets, each through <see cref="Mutate"/> as one undo step.
 /// </summary>
 internal sealed partial class AppHost
 {
@@ -29,6 +29,26 @@ internal sealed partial class AppHost
         {
             var ids = Selection.Ids.ToList();
             Mutate(_ => QuickSet.SetSurface(view, ids, surface));
+        }
+    }
+
+    /// <summary>[S-6521] Every selected widget's own item colour, or empty for the app-wide item layer, in one step.</summary>
+    public void SetSelectedItemColor(string hex)
+    {
+        if (SelectionView is { } view)
+        {
+            var ids = Selection.Ids.ToList();
+            Mutate(s => QuickSet.SetItemColor(view, ids, hex, s.Design.ItemBackground));
+        }
+    }
+
+    /// <summary>[S-6521] Every selected widget's own item opacity, in one step; one following the app-wide layer keeps following it.</summary>
+    public void SetSelectedItemOpacity(double opacity)
+    {
+        if (SelectionView is { } view)
+        {
+            var ids = Selection.Ids.ToList();
+            Mutate(_ => QuickSet.SetItemOpacity(view, ids, opacity));
         }
     }
 

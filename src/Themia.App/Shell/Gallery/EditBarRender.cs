@@ -23,9 +23,10 @@ namespace Themia.App.Shell.Gallery;
 /// <c>editbar-&lt;theme&gt;.png</c> (snap on), <c>editbar-&lt;theme&gt;-snapoff.png</c>,
 /// <c>editbar-&lt;theme&gt;-add.png</c> (the add menu open under Add widget, as the flyout hangs) and
 /// <c>editbar-&lt;theme&gt;-placing.png</c> (the placement line in the bar's place), and [S-3713]
-/// the properties strip on a stand-in display with real cards in edit mode:
-/// <c>props-&lt;theme&gt;-above.png</c>, <c>-below.png</c> (a widget at the top edge of the
-/// display), <c>-many.png</c> (three of mixed headers), <c>-toggle.png</c> (no Header choice) and
+/// the properties panel on a stand-in display with real cards in edit mode:
+/// <c>props-&lt;theme&gt;-right.png</c> (a widget in the middle, of its own item colour),
+/// <c>-left.png</c> (a widget at the right edge), <c>-below.png</c> (a widget spanning the width),
+/// <c>-many.png</c> (three of mixed headers), <c>-toggle.png</c> (no Header choice) and
 /// <c>-hidden.png</c> (header hidden, beside the same widget with one).
 /// </summary>
 internal static class EditBarRender
@@ -205,15 +206,17 @@ internal static class EditBarRender
     }
 
     /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null);
+    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null);
 
-    /// <summary>[S-3713] The strip against real cards in edit mode, each case on the stand-in display.</summary>
+    /// <summary>[S-3713] The panel beside real cards in edit mode, each case on the stand-in display.</summary>
     private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
     {
         PropsCard[][] cases =
         [
-            [new(WidgetKind.Clock, 500, 260, 280, 180, HeaderPlacement.Top, true, "Zürich", (int)ClockStyle.Flip)],
-            [new(WidgetKind.Countdown, 980, 16, 280, 180, HeaderPlacement.Top, true)],
+            // [S-6521] A widget of its own item colour: the Item opacity row shows.
+            [new(WidgetKind.Clock, 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", (int)ClockStyle.Flip, "#2A3248")],
+            [new(WidgetKind.Countdown, 980, 160, 280, 180, HeaderPlacement.Top, true)],
+            [new(WidgetKind.Shortcuts, 16, 72, 1248, 150, HeaderPlacement.Top, true)],
             [
                 new(WidgetKind.Clock, 300, 200, 220, 160, HeaderPlacement.Top, true),
                 new(WidgetKind.Countdown, 540, 240, 260, 180, HeaderPlacement.Bottom, true),
@@ -225,7 +228,7 @@ internal static class EditBarRender
                 new(WidgetKind.Countdown, 680, 260, 280, 180, HeaderPlacement.Top, false),
             ],
         ];
-        string[] names = ["above", "below", "many", "toggle", "hidden"];
+        string[] names = ["right", "left", "below", "many", "toggle", "hidden"];
 
         for (var i = 0; i < cases.Length; i++)
         {
@@ -255,6 +258,7 @@ internal static class EditBarRender
             var model = WidgetInstance.Create(spec.Kind, new FracRect(0, 0, 0.1, 0.1));
             model.Header = spec.Header;
             model.Label = spec.Label;
+            model.ItemBackground = spec.ItemColor is { } items ? new ItemLayer { Color = items, Opacity = 0.8 } : null;
             if (spec.Style is { } style)
             {
                 WidgetStyles.Set(model.Config, style); // [S-6007] the strip's Style shows the current one's icon
@@ -283,7 +287,7 @@ internal static class EditBarRender
         var selection = new WidgetSelection();
         selection.Replace(view.Id, selected);
 
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }));
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }));
         UiLanguage.ApplyFlow(strip);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));
         strip.Visibility = Visibility.Visible;
@@ -293,7 +297,7 @@ internal static class EditBarRender
         var target = StripPlacement.Bounds(widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H)));
         if (target is { } box)
         {
-            var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, new PixelRect(0, 0, ScreenWidth, PropsHeight), [barRect]);
+            var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, new PixelRect(0, 0, ScreenWidth, PropsHeight), [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
             Canvas.SetLeft(strip, Math.Round(spot.X));
             Canvas.SetTop(strip, Math.Round(spot.Y));
         }

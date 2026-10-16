@@ -1,34 +1,41 @@
 namespace Themia.Core.Geometry;
 
-/// <summary>[S-3708] Which side of the selection the properties strip stands on.</summary>
+/// <summary>[S-3708] Which side of the selection the properties panel stands on, on the screen.</summary>
 public enum StripSide
 {
-    /// <summary>Above the selection's top edge: the first choice.</summary>
-    Above,
+    /// <summary>Beside the selection's right edge: the first choice left to right.</summary>
+    Right,
 
-    /// <summary>Below its bottom edge: no room above.</summary>
+    /// <summary>Beside its left edge: the first choice right to left, the second otherwise.</summary>
+    Left,
+
+    /// <summary>Under its bottom edge: neither side has room.</summary>
     Below,
 
-    /// <summary>Neither side has room (the selection fills the work area's height): over its edge, inside the work area.</summary>
+    /// <summary>Over its top edge: no side and no room below.</summary>
+    Above,
+
+    /// <summary>Nowhere has room (the selection fills the work area): over the selection's end corner, inside the work area.</summary>
     Over,
 }
 
-/// <summary>[S-3708] Where the strip goes: its top-left corner in the surface's DIPs, and the side it took.</summary>
+/// <summary>[S-3708] Where the panel goes: its top-left corner in the surface's DIPs, and the side it took.</summary>
 public readonly record struct StripSpot(double X, double Y, StripSide Side);
 
 /// <summary>
-/// [S-3708]/[S-3709] Where the properties strip of the selected widgets stands: against the
-/// selection's bounding box, above it, or below it where there is no room above, never over the
-/// widgets' content while either side has room, always inside the display's work area, and never on
-/// the edit bar or the view bar. Pure: the surface measures the strip and asks.
+/// [S-3708]/[S-3709] Where the properties panel of the selected widgets stands: beside the
+/// selection's bounding box — at its end side (right, or left right to left), else its start side —
+/// and only above or below it when neither side has room; never over the widgets while anywhere
+/// has room, always inside the display's work area, and never on the edit bar or the view bar.
+/// Pure: the surface measures the panel and asks.
 /// </summary>
 public static class StripPlacement
 {
-    /// <summary>[S-3708] The gap between the strip and the selection's painted edge, as a flyout's from its anchor.</summary>
+    /// <summary>[S-3708] The gap between the panel and the selection's painted edge, as a flyout's from its anchor.</summary>
     public const double Gap = 8;
 
     /// <summary>
-    /// [S-3709] The box the strip is anchored to: the union of the selected widgets' painted rects
+    /// [S-3709] The box the panel is anchored to: the union of the selected widgets' painted rects
     /// on this display. Null for none.
     /// </summary>
     public static PixelRect? Bounds(IEnumerable<PixelRect> rects)
@@ -54,15 +61,22 @@ public static class StripPlacement
     }
 
     /// <summary>
-    /// [S-3708] Place a strip of <paramref name="width"/> × <paramref name="height"/> against
-    /// <paramref name="target"/> inside <paramref name="area"/>. Centred on the target and slid along
-    /// to stay inside the area (its start edge wins when it is wider than the area). Above the
-    /// target, <see cref="Gap"/> off its top edge, when that is inside the area and clear of every
-    /// rect in <paramref name="avoid"/>; else below, the same gap off its bottom edge, on the same
-    /// terms; else over the target's edge on the side with more room (ties go below, away from the
-    /// edit bar at the top), pressed into the area.
+    /// [S-3708] Place a panel of <paramref name="width"/> × <paramref name="height"/> against
+    /// <paramref name="target"/> inside <paramref name="area"/>, clear of every rect in
+    /// <paramref name="avoid"/>. In order:
+    /// <list type="number">
+    /// <item>Beside the end side (<see cref="StripSide.Right"/>, or <see cref="StripSide.Left"/>
+    /// when <paramref name="rightToLeft"/>), <see cref="Gap"/> off the edge, its top level with the
+    /// target's and slid down or up to stay inside the area; where that meets a rect to avoid, just
+    /// under or over that rect instead.</item>
+    /// <item>Beside the start side, on the same terms.</item>
+    /// <item>Below the target, the gap off its bottom edge, its start edge level with the target's
+    /// and slid along to stay inside the area; then above it.</item>
+    /// <item>Over the target's top end corner, pressed into the area: the one case it covers the
+    /// widgets, when they leave no room anywhere.</item>
+    /// </list>
     /// </summary>
-    public static StripSpot Place(PixelRect target, double width, double height, PixelRect area, IReadOnlyList<PixelRect> avoid)
+    public static StripSpot Place(PixelRect target, double width, double height, PixelRect area, IReadOnlyList<PixelRect> avoid, bool rightToLeft = false)
     {
         ArgumentNullException.ThrowIfNull(avoid);
 
@@ -71,27 +85,86 @@ public static class StripPlacement
 
         var areaRight = area.X + area.Width;
         var areaBottom = area.Y + area.Height;
+        var targetRight = target.X + target.Width;
+        var targetBottom = target.Y + target.Height;
 
-        var x = target.X + ((target.Width - width) / 2);
-        x = Math.Max(area.X, Math.Min(x, areaRight - width));
+        var rightX = targetRight + Gap;
+        var leftX = target.X - Gap - width;
+        StripSide[] sides = rightToLeft ? [StripSide.Left, StripSide.Right] : [StripSide.Right, StripSide.Left];
+
+        foreach (var side in sides)
+        {
+            var x = side == StripSide.Right ? rightX : leftX;
+            if (x < area.X || x + width > areaRight)
+            {
+                continue;
+            }
+
+            if (Beside(x, target.Y, width, height, area, avoid) is { } y)
+            {
+                return new StripSpot(x, y, side);
+            }
+        }
+
+        // Under or over: the start edge level with the target's, slid along inside the area.
+        var alongX = rightToLeft ? targetRight - width : target.X;
+        alongX = Math.Max(area.X, Math.Min(alongX, areaRight - width));
+
+        var below = targetBottom + Gap;
+        if (below >= area.Y && below + height <= areaBottom && Clear(new PixelRect(alongX, below, width, height), avoid))
+        {
+            return new StripSpot(alongX, below, StripSide.Below);
+        }
 
         var above = target.Y - Gap - height;
-        if (above >= area.Y && above + height <= areaBottom && Clear(new PixelRect(x, above, width, height), avoid))
+        if (above >= area.Y && above + height <= areaBottom && Clear(new PixelRect(alongX, above, width, height), avoid))
         {
-            return new StripSpot(x, above, StripSide.Above);
+            return new StripSpot(alongX, above, StripSide.Above);
         }
 
-        var below = target.Y + target.Height + Gap;
-        if (below >= area.Y && below + height <= areaBottom && Clear(new PixelRect(x, below, width, height), avoid))
+        // Nowhere: inside the target's top end corner, pressed into the area.
+        var overX = rightToLeft ? target.X + Gap : targetRight - Gap - width;
+        overX = Math.Max(area.X, Math.Min(overX, areaRight - width));
+        var overY = Math.Max(area.Y, Math.Min(target.Y + Gap, areaBottom - height));
+        return new StripSpot(overX, overY, StripSide.Over);
+    }
+
+    /// <summary>
+    /// The top of a panel standing in the column at <paramref name="x"/>: level with
+    /// <paramref name="preferredY"/>, pressed into the area; where that meets a rect to avoid, just
+    /// under it, else just over it. Null when the column has no clear place.
+    /// </summary>
+    private static double? Beside(double x, double preferredY, double width, double height, PixelRect area, IReadOnlyList<PixelRect> avoid)
+    {
+        var areaBottom = area.Y + area.Height;
+        if (height > area.Height)
         {
-            return new StripSpot(x, below, StripSide.Below);
+            return null;
         }
 
-        var roomAbove = target.Y - area.Y;
-        var roomBelow = areaBottom - (target.Y + target.Height);
-        var y = roomAbove > roomBelow ? Math.Max(area.Y, above) : Math.Min(areaBottom - height, below);
-        y = Math.Max(area.Y, Math.Min(y, areaBottom - height));
-        return new StripSpot(x, y, StripSide.Over);
+        double Pressed(double y) => Math.Max(area.Y, Math.Min(y, areaBottom - height));
+
+        var first = Pressed(preferredY);
+        var others = new List<double>();
+        foreach (var other in avoid)
+        {
+            others.Add(Pressed(other.Y + other.Height + Gap));
+            others.Add(Pressed(other.Y - Gap - height));
+        }
+
+        // The nearest clear place to where it would rather stand.
+        others.Sort((a, b) => Math.Abs(a - first).CompareTo(Math.Abs(b - first)));
+        others.Insert(0, first);
+
+        foreach (var y in others)
+        {
+            if (Clear(new PixelRect(x, y, width, height), avoid))
+            {
+                return y;
+            }
+        }
+
+        return null;
     }
 
     private static bool Clear(PixelRect strip, IReadOnlyList<PixelRect> avoid)

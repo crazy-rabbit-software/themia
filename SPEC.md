@@ -882,8 +882,8 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 ### The selected widget's properties strip (QUICKSET)
 
 How a widget's card looks — its header, its background, its title — is set where the widget is, in
-edit mode, not on its settings page, and not on the edit bar: on a strip that stands against the
-selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §145: a click in edit mode
+edit mode, not on its settings page, and not on the edit bar: on a small panel that stands beside
+the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §145: a click in edit mode
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
 files: `Shell/PropertiesStrip.cs`, `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
@@ -896,10 +896,11 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-3701]** The strip shows on a display only while the selection ([S-1580]) has widgets in the
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
-- **[S-3702]** One widget: a title box (168 DIPs, 32 tall, the kind's name as its placeholder), then
-  Style ([S-6007]), Header and Background, and the settings gear ([S-6009]). Several: the words "N
-  selected", then Style (one kind only), Header and Background and **no title** and no gear: a title
-  names one widget, so one typed for many would make them indistinguishable.
+- **[S-3702]** One widget: a Title row (a box 32 tall, the kind's name as its placeholder), then
+  Style ([S-6007]), Header, Background and Item background ([S-6521]), and the Settings row
+  ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind only), Header,
+  Background and Item background, and **no title** and no Settings: a title names one widget, so
+  one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetSurface`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
@@ -915,22 +916,29 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   (`FluentLayout.DangerRow`, e.g. clearing the clipboard history). Delete stays on the card menu, the Delete key and
   the undo notice ([S-1743]).
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
-- **[S-3707]** The strip is a compact bar in the edit bar's look ([S-3500]: the flyouts' acrylic,
-  stroke, 8-DIP corners and shadow; 32-DIP controls in a 4-DIP padding), on its own layer over the
-  cards and under the edit bar, one per display. Header and Background are labelled drop-downs whose
-  menus tick the current value (Header: Top, Bottom, Hidden with their icons; Background: Card,
-  Translucent, None) and are built as they open. A press on its padding or words stays on it, so it
-  never starts a rubber band or clears the selection. It is inside the work area ([S-3708]), and in
-  edit mode the hit region is the whole work area ([S-851]), so it always takes its clicks. F6
-  reaches it after the edit bar while it shows ([S-1975]), and the keyboard on it counts as the
-  chrome's, not the widgets'.
-- **[S-3708]** Where it stands (`StripPlacement.Place`): centred on the selection's box (below),
-  slid along to stay inside the display's work area (its start edge wins when it is wider than the
-  area); **above** the box, 8 DIPs off its top edge, when that is inside the work area and clear of
-  the edit bar and the view bar; else **below**, 8 DIPs off the bottom edge, on the same terms.
-  Either way it never covers the widgets. Only a selection that leaves neither side room (a widget
-  the work area's full height) has it **over** its edge, on the side with more room, ties going to
-  the bottom (away from the edit bar), pressed inside the work area.
+- **[S-3707]** The strip is a small **panel** in the edit bar's look ([S-3500]: the flyouts'
+  acrylic, stroke, 8-DIP corners and shadow), on its own layer over the cards and under the edit
+  bar, one per display. **[S-6520]** Its entries stack, one row per property: the property's name
+  in the secondary text colour, then its control in a 176-DIP column (32-DIP drop-downs and box),
+  4 DIPs between rows, after Karpo's properties panel (§145). Style, Header, Background and Item
+  opacity are drop-downs that show the current value's icon and words (a dash for a mixed
+  selection) and whose menus tick it (Header: Top, Bottom, Hidden with their icons; Background:
+  Card, Translucent, None), built as they open; Item background is the colour control ([S-1549]);
+  Settings is a full-width row with the gear and its word. A press on its padding or words stays
+  on it, so it never starts a rubber band or clears the selection. It is inside the work area
+  ([S-3708]), and in edit mode the hit region is the whole work area ([S-851]), so it always takes
+  its clicks. F6 reaches it after the edit bar while it shows ([S-1975]), and the keyboard on it
+  counts as the chrome's, not the widgets': Tab goes round its controls and stays in it, Up and Down
+  move between its rows, and Escape hands the keyboard back to the surface.
+- **[S-3708]** Where it stands (`StripPlacement.Place`): **beside** the selection's box, 8 DIPs off
+  its edge — to its **right**, or to its **left** where the right has no room (right to left the
+  sides mirror: left first) — its top level with the box's and slid up to stay inside the display's
+  work area; where that meets the edit bar or the view bar, the nearest clear place in that column
+  (just under or over the bar). Only when neither side has room (a widget spanning the work area's
+  width) is it **below** the box, 8 DIPs off its bottom edge, its start edge level with the box's
+  and slid along inside the area, else **above** it on the same terms. It never covers the widgets
+  while anywhere has room; a selection that fills the work area has it **over** its top end corner,
+  pressed inside the area.
 - **[S-3709]** The box is the selected widgets' **painted** rects on this display (the gap is not
   the widget, [S-1585]), one widget's or the bounding box of several (`StripPlacement.Bounds`),
   where they are now, so it follows a nudge with the arrow keys, an undo and a paste.
@@ -953,10 +961,11 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   which never gives a widget following the app-wide layer one of its own). The offer reads the
   shared layer, none, or mixed (`QuickSet.CommonItems`; own and none together are mixed). Each pick
   is one `Mutate`, one undo step.
-- **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the strip against
-  real cards in edit mode on a stand-in display: `props-<theme>-above.png` (one flip clock with a
-  title: Style with the flip icon, and the gear),
-  `-below.png` (a widget at the top edge of the display), `-many.png` (three of mixed headers,
+- **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the panel beside
+  real cards in edit mode on a stand-in display: `props-<theme>-right.png` (one flip clock in the
+  middle with a title and an item colour of its own: Style with the flip icon, Item opacity, and
+  Settings), `-left.png` (a widget at the right edge of the display), `-below.png` (a widget
+  spanning the width), `-many.png` (three of mixed headers,
   "3 selected"), `-toggle.png` (a Wi-Fi toggle: no Header choice) and `-hidden.png` (header hidden,
   beside the same kind with a header).
 
@@ -994,14 +1003,14 @@ widget on the properties strip or at the top of its settings page. Owning files:
   of whatever the previous style built or subscribed.
 - **[S-6006]** Debug: `--widget-png <Kind> <out.png> --style <name>` draws any styled kind in one of
   its styles; a wrong name prints the kind's styles.
-- **[S-6007]** The properties strip ([S-3707]) shows **Style** first, a labelled drop-down with the
-  current style's icon, whose menu lists the kind's styles with icon and name, the current one
+- **[S-6007]** The properties panel ([S-3707]) shows **Style** first, a drop-down with the
+  current style's icon and name, whose menu lists the kind's styles with icon and name, the current one
   ticked, built as it opens, when every selected widget is of **one** kind and that kind offers
   styles (`QuickSetOffer.StyleKind`). Several of one kind with different styles tick nothing
   (`QuickSetOffer.Style` null). Mixed kinds: no Style.
 - **[S-6008]** A pick sets the style of every selected widget (`QuickSet.SetStyle`) in one `Mutate`:
   one undo step however many it reached.
-- **[S-6009]** The strip ends with a **settings gear** (icon only, "Settings" as its tooltip) that
+- **[S-6009]** The panel ends with a **Settings** row (the gear and the word, the panel's width) that
   opens the widget's settings page; one widget only, and only when its kind has a settings page
   ([S-1750]). Several selected: no gear (which one's page would it be).
 - **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry

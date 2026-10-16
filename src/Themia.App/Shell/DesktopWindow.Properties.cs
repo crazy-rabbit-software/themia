@@ -6,8 +6,8 @@ using Windows.Foundation;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3707]..[S-3710] The selected widgets' properties strip on this display: what it offers, where
-/// it stands against the selection, and stepping aside while the selection is dragged or resized.
+/// [S-3707]..[S-3710] The selected widgets' properties panel on this display: what it offers, where
+/// it stands beside the selection, and stepping aside while the selection is dragged or resized.
 /// </summary>
 internal sealed partial class DesktopWindow
 {
@@ -30,7 +30,9 @@ internal sealed partial class DesktopWindow
         SetTitle: _host.SetTitle,
         ReleaseFocus: () => _root.Focus(FocusState.Programmatic),
         SetStyle: _host.SetSelectedStyle,
-        OpenSettings: id => _host.ShowConfig(new Config.ConfigTarget.Widget(id)));
+        OpenSettings: id => _host.ShowConfig(new Config.ConfigTarget.Widget(id)),
+        SetItemColor: _host.SetSelectedItemColor,
+        SetItemOpacity: _host.SetSelectedItemOpacity);
 
     /// <summary>[S-3701] The strip shows what is selected in the view this display shows, and nothing otherwise.</summary>
     private void SyncProperties()
@@ -52,9 +54,9 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-3708]/[S-3710] Show the strip against the selection's box, above it or below it, inside the
-    /// work area and clear of the edit bar and the view bar; or hide it: outside edit mode, while
-    /// placing, while held, with nothing selected here.
+    /// [S-3708]/[S-3710] Show the panel beside the selection's box (its end side, else its start side,
+    /// else below or above it), inside the work area and clear of the edit bar and the view bar; or
+    /// hide it: outside edit mode, while placing, while held, with nothing selected here.
     /// </summary>
     private void PlaceProperties()
     {
@@ -82,7 +84,8 @@ internal sealed partial class DesktopWindow
             avoid.Add(bar);
         }
 
-        var spot = StripPlacement.Place(target, size.Width, size.Height, area, avoid);
+        // [S-3708] Right to left, the sides mirror: the panel stands on the selection's left first.
+        var spot = StripPlacement.Place(target, size.Width, size.Height, area, avoid, UiLanguage.Flow == FlowDirection.RightToLeft);
         Canvas.SetLeft(_properties, Math.Round(spot.X));
         Canvas.SetTop(_properties, Math.Round(spot.Y));
     }
