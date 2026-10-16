@@ -35,6 +35,7 @@ internal sealed unsafe class CommandWindow : IDisposable
     private const nint SpiSetWorkArea = 0x002F;
 
     private const uint WmTimeChange = 0x001E;
+    private const uint WmFontChange = 0x001D;
     private const uint WmPowerBroadcast = 0x0218;
     private const uint WmDeviceChange = 0x0219;
     private const nint PbtResumeSuspend = 0x0007;
@@ -98,6 +99,9 @@ internal sealed unsafe class CommandWindow : IDisposable
 
     /// <summary>[S-4623] Windows' clock or time zone changed (<c>WM_TIMECHANGE</c>). UI thread.</summary>
     public event Action? TimeChanged;
+
+    /// <summary>[S-6443] A font was installed or removed (<c>WM_FONTCHANGE</c>, broadcast to every top-level window). UI thread.</summary>
+    public event Action? FontsChanged;
 
     /// <summary>[S-4623] The PC woke from sleep or hibernation (<c>WM_POWERBROADCAST</c> resume). UI thread.</summary>
     public event Action? Resumed;
@@ -292,6 +296,10 @@ internal sealed unsafe class CommandWindow : IDisposable
                 else if (msg == WmTimeChange)
                 {
                     self.TimeChanged?.Invoke();
+                }
+                else if (msg == WmFontChange)
+                {
+                    self.FontsChanged?.Invoke();
                 }
                 else if (msg == WmPowerBroadcast && wParam is PbtResumeAutomatic or PbtResumeSuspend)
                 {

@@ -10,8 +10,10 @@ namespace Themia.App.Services;
 /// <para>
 /// GDI's <c>EnumFontFamiliesExW</c> rather than DirectWrite: it is one flat call with a plain
 /// callback, needs no COM vtable, and its family names are ones XAML's <c>FontFamily</c> resolves.
-/// The list is read once, off the UI thread, and cached: fonts installed mid-session are rare
-/// enough that reopening the app is a fair price, and Settings never re-enumerates on open.
+/// The list is read off the UI thread and cached, so Settings never re-enumerates on open. [S-6443]
+/// A font installed or removed while the app runs (Windows broadcasts <c>WM_FONTCHANGE</c> to the
+/// command window) drops the cache and raises <see cref="Changed"/>: an open picker reloads, a
+/// later one reads the new list.
 /// </para>
 /// </summary>
 internal static unsafe partial class SystemFonts
@@ -20,21 +22,42 @@ internal static unsafe partial class SystemFonts
 
     private const byte DefaultCharset = 1;
 
+    private const byte SymbolCharset = 2;
+
+    private const uint TrueTypeFontType = 4;
+
+    /// <summary>Where <c>NEWTEXTMETRICEXW.ntmFontSig.fsUsb[0]</c> sits: after the 76-byte <c>NEWTEXTMETRICW</c>.</summary>
+    private const int UnicodeSubsetsOffset = 76;
+
+    /// <summary><c>fsUsb[0]</c> bit 0: the font covers Basic Latin.</summary>
+    private const uint BasicLatin = 1;
+
     private const int LfFaceSize = 32;
 
-    private static Task<IReadOnlyList<string>>? _cache;
+    private static Task<InstalledFonts>? _cache;
 
-    /// <summary>The installed families, sorted and de-duplicated. Empty (logged) if GDI fails.</summary>
-    public static Task<IReadOnlyList<string>> LoadAsync() => _cache ??= Task.Run(Enumerate);
+    /// <summary>[S-6443] The installed fonts changed; <see cref="LoadAsync"/> now reads them afresh. UI thread.</summary>
+    public static event Action? Changed;
 
-    private static IReadOnlyList<string> Enumerate()
+    /// <summary>The installed families, sorted and de-duplicated, and which are symbol fonts. Empty (logged) if GDI fails.</summary>
+    public static Task<InstalledFonts> LoadAsync() => _cache ??= Task.Run(Enumerate);
+
+    /// <summary>[S-6443] <c>WM_FONTCHANGE</c>: forget the list and tell whoever shows it.</summary>
+    public static void FontsChanged()
     {
-        var names = new List<string>();
+        _cache = null;
+        Log.Info(Scope, "the installed fonts changed");
+        Changed?.Invoke();
+    }
+
+    private static InstalledFonts Enumerate()
+    {
+        var names = new List<(string, bool)>();
         var dc = GetDC(0);
         if (dc == 0)
         {
             Log.Warn(Scope, "no screen DC; the font list is only the presets");
-            return [];
+            return InstalledFonts.None;
         }
 
         var handle = GCHandle.Alloc(names);
@@ -54,9 +77,9 @@ internal static unsafe partial class SystemFonts
             _ = ReleaseDC(0, dc);
         }
 
-        var list = DesignLook.FontList(names);
-        Log.Info(Scope, $"{list.Count} installed font families");
-        return list;
+        var fonts = InstalledFonts.From(names);
+        Log.Info(Scope, $"{fonts.Families.Count} installed font families ({fonts.Symbol.Count} symbol)");
+        return fonts;
     }
 
     /// <summary>GDI's callback: one call per family and script. Must never let an exception out.</summary>
@@ -65,9 +88,9 @@ internal static unsafe partial class SystemFonts
     {
         try
         {
-            if (GCHandle.FromIntPtr(state).Target is List<string> names)
+            if (GCHandle.FromIntPtr(state).Target is List<(string, bool)> names)
             {
-                names.Add(new string(font->FaceName, 0, LfFaceSize).TrimEnd('\0').Split('\0')[0]);
+                names.Add((new string(font->FaceName, 0, LfFaceSize).TrimEnd('\0').Split('\0')[0], CannotSpell(font, metrics, type)));
             }
         }
         catch (Exception ex)
@@ -76,6 +99,22 @@ internal static unsafe partial class SystemFonts
         }
 
         return 1; // keep enumerating
+    }
+
+    /// <summary>
+    /// [S-6440] Whether the face cannot draw its own (Latin) name: a symbol-charset face (Wingdings), or
+    /// a TrueType/OpenType face whose Unicode signature lacks Basic Latin (Segoe Fluent Icons, which
+    /// keeps its glyphs in the private use area). Raster and vector faces report no signature.
+    /// </summary>
+    private static bool CannotSpell(LogFontW* font, void* metrics, uint type)
+    {
+        if (font->Charset == SymbolCharset)
+        {
+            return true;
+        }
+
+        return (type & TrueTypeFontType) != 0 && metrics is not null
+            && (*(uint*)((byte*)metrics + UnicodeSubsetsOffset) & BasicLatin) == 0;
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

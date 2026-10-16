@@ -5,7 +5,7 @@ namespace Themia.App.Services;
 /// <summary>
 /// [S-4623] The alarm service for the app's lifetime, and the system signals the drive and alarm
 /// widgets wait on: a volume arriving or leaving ([S-4655]), the Recycle Bin changing ([S-1389]), the clock or zone changing and the PC
-/// waking ([S-4623]). Only the app starts these — never a debug render.
+/// waking ([S-4623]), and fonts being installed for the font picker ([S-6443]). Only the app starts these — never a debug render.
 /// </summary>
 internal sealed partial class AppHost
 {
@@ -22,6 +22,7 @@ internal sealed partial class AppHost
         _command.Resumed += _alarms.Resumed;
         _command.VolumesChanged += DriveService.DevicesChanged;
         _command.RecycleBinChanged += RecycleBinStatus.BinChanged;
+        _command.FontsChanged += SystemFonts.FontsChanged;
 
         _alarms.Start();
     }
@@ -38,6 +39,7 @@ internal sealed partial class AppHost
         _command.Resumed -= alarms.Resumed;
         _command.VolumesChanged -= DriveService.DevicesChanged;
         _command.RecycleBinChanged -= RecycleBinStatus.BinChanged;
+        _command.FontsChanged -= SystemFonts.FontsChanged;
         AppServices.Alarms = null;
         alarms.Dispose();
         _alarms = null;

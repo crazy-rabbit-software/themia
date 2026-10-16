@@ -270,6 +270,30 @@ internal sealed partial class ConfigWindow
 
         foreach (var (row, _) in SettingsIndex.Collect(page))
         {
+            // [S-6442] The font picker: its real panel, with --font-query typed into its search box, in
+            // a flyout-like card under the element of the page that holds the row (an expander, opened).
+            if (row.Title == title && row.Control is { } fontRow && page is Panel fontPage
+                && TopLevel(fontPage, (DependencyObject?)row.Parent ?? row.Card) is { } fontHolder
+                && FontChoice.DebugPanel(fontRow, FontQuery()) is { } fonts)
+            {
+                if (row.Parent is { } expander)
+                {
+                    expander.IsExpanded = true;
+                }
+
+                fontPage.Children.Insert(fontPage.Children.IndexOf(fontHolder) + 1, new Border
+                {
+                    Child = fonts,
+                    Padding = new Thickness(Widgets.Fluent.Space2),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    CornerRadius = new CornerRadius(Widgets.Fluent.OverlayRadius),
+                    Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
+                    BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
+                    BorderThickness = new Thickness(1),
+                });
+                return true;
+            }
+
             // [S-1723] A drop-down list's popup cannot be captured, so its items are drawn the way the
             // list draws them — each in its own font — in a card under the row, following the list
             // as it fills.
@@ -342,6 +366,14 @@ internal sealed partial class ConfigWindow
         }
 
         return false;
+    }
+
+    /// <summary>Debug renders only: <c>--font-query text</c>, typed into the font picker's search box.</summary>
+    private static string? FontQuery()
+    {
+        var args = Environment.GetCommandLineArgs();
+        var at = Array.IndexOf(args, "--font-query");
+        return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
     }
 
     /// <summary>The child of <paramref name="page"/> that holds <paramref name="node"/>, or null.</summary>

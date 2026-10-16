@@ -2490,9 +2490,26 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   Views and Widgets in the main slot ([S-1830]); License and About in the footer. There is no Layout page: its two rows (gap between widgets, snap to grid) are the
   Layout section at the end of Appearance's look, before the motion rows. General has no Data
   section (it held only "open the data folder") and no Developer section.
-- **[S-1723]** Every font setting picks through one control, `FontChoice`: the presets, then the
-  installed families ([S-827]), each entry drawn in the font it names (a preset in the family it
-  maps to, [S-826]; the system entry in the UI's own). The closed box shows the name in the UI font.
+- **[S-1723]** Every font setting picks through one control, `FontChoice`: a drop-down button whose
+  flyout (`FontPicker`) is a search box over a virtualised list of the presets, then the installed
+  families ([S-827]), each entry drawn in the font it names (a preset in the family it maps to,
+  [S-826]; the system entry in the UI's own), the current one ticked and scrolled into view. The
+  closed button shows the name in the UI font. Beside it, "Add fonts" ([S-6443]).
+- **[S-6440]** The list (`FontSearch.Options`): the presets, then the installed families in order; a
+  set family that is not installed (removed since, or the list not read yet) right after the presets;
+  nothing listed twice; an implausible name adds nothing. A symbol or icon family (every GDI report
+  is the symbol charset or lacks Basic Latin: Wingdings, Segoe Fluent Icons) is named in the UI font.
+- **[S-6441]** The ticked entry is the one the setting names (case-insensitively), else the system font.
+- **[S-6442]** Search (`FontSearch.Filter`): case- and accent-insensitive, the query anywhere in the
+  name (also with spaces left out: "segoeui"); names starting with it first, then a word starting
+  with it, then the rest, each in list order. The system entry stays on top whatever is typed. Keys:
+  the caret is in the box when the flyout opens; typing on the list goes to the box; Down enters the
+  list, Up from its first row returns; Enter in the box takes the best match (`FontSearch.Best`: the
+  system entry only if its own name matched; nothing for a blank query or no match, which says so),
+  Enter on a row takes it; Escape closes.
+- **[S-6443]** "Add fonts" opens Windows Settings › Personalization › Fonts (`ms-settings:fonts`,
+  through `ShellLauncher.OpenWindowsSettings`). `WM_FONTCHANGE` on the command window drops the
+  cached family list: an open picker re-reads it and keeps its query, a later one reads the new set.
 - **[S-1724]** No developer mode and nothing behind one: no `DevMode` or `VerboseLogging`
   preference, no Logs page, no developer banner, no `--dev` render switch, and no Web element
   widget (the original's pre-release widget behind developer mode: its view, picker window,
@@ -4210,8 +4227,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   system font. Applied to the card content through a presenter, so text inherits it; icon glyphs
   name their own font and are untouched. Text boxes keep the control font.
 - **[S-827]** The font picker lists every installed family (GDI `EnumFontFamiliesExW`, off the UI
-  thread, once per process): vertical `@` faces dropped, duplicates folded, sorted. Each entry is
-  drawn in its own font ([S-1723]).
+  thread, cached until the installed fonts change, [S-6443]): vertical `@` faces dropped, duplicates
+  folded, sorted. Each entry is drawn in its own font ([S-1723]).
 - **[S-828]** Header background (empty = shares the widget's fill) and header opacity (0..1,
   [S-1761]); the strip reaches the card's edges and follows its corners.
 - **[S-1761]** The header opacity always fades the header strip (it did nothing while the header had
