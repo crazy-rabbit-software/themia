@@ -3055,9 +3055,12 @@ Shared dates and events on a view ([S-3300], [S-3311]):
   (preview from 440px), account from 560px, time. The row view is unchanged. A one-line row shows
   one preview line whatever `PreviewLines` says (that setting shapes the stacked rows).
 - **[S-1284]** The account tag and the tooltip name the account alone at every size (the provider
-  name, "Work (Microsoft)", is retired, [S-666]). On one-line rows from 720px the pointer swaps a
-  row's time for quick actions: mark read or unread, archive (not in Junk), delete — only where the
-  account allows changes ([S-544]).
+  name, "Work (Microsoft)", is retired, [S-666]). On one-line rows from 720px the pointer, or the
+  keyboard focus ([S-1288]), swaps a row's time for quick actions: mark read or unread, archive (not
+  in Junk), delete — only where the account allows changes ([S-544]). The swap moves nothing: the
+  time's slot is always as wide as the actions (`MailLayout.InlineBoxes`), the hidden time keeps
+  its box, and the buttons overhang the line instead of growing it, so every other part of the row
+  keeps its position and size and the row its height.
 - **[S-1285]** *(Retired: no folder summary ("4 unread of 1,661 in Inbox") under a large tile's
   list; the large tile shows more messages instead. The header badge keeps the unread count.)*
 - **[S-1286]** The count setting is a floor: the feed asks for `max(MaxCount, rows that fit)`, at most

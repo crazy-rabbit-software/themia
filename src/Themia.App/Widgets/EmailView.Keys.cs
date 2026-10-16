@@ -67,19 +67,19 @@ internal sealed partial class EmailView
 
         if (_focusKey is not null && _focusIndex >= 0 && _focusIndex < _rows.Count)
         {
-            RowFocus.Mark(_rows[_focusIndex], false);
+            MarkRow(_rows[_focusIndex], false);
         }
 
         _focusIndex = index;
         _focusKey = _shown[index].Key;
-        RowFocus.Mark(_rows[index], true);
+        MarkRow(_rows[index], true);
     }
 
     private void ReleaseFocus()
     {
         if (_focusKey is not null && _focusIndex >= 0 && _focusIndex < _rows.Count)
         {
-            RowFocus.Mark(_rows[_focusIndex], false);
+            MarkRow(_rows[_focusIndex], false);
         }
 
         _focusKey = null;

@@ -15,6 +15,13 @@ public readonly record struct MailRowLayout(
     bool Inline = false,
     bool Envelope = false);
 
+/// <summary>
+/// [S-1284] A one-line row's column widths, leading to trailing: the sender, the subject line, the
+/// account (0 when it is not shown) and the trailing slot that holds the time or, revealed, the
+/// quick actions in its place.
+/// </summary>
+public readonly record struct MailInlineBoxes(double Sender, double Line, double Account, double Slot);
+
 /// <summary>One row-view column at the width it gets: a fixed width, or a share of what is left.</summary>
 public readonly record struct MailColumnFit(MailColumn Column, double Width, double Star);
 
@@ -57,6 +64,31 @@ public static class MailLayout
 
     /// <summary>[S-1287] The share of the line a lone subject column may take before the preview joins it.</summary>
     public const double RoomySubjectShare = 0.4;
+
+    /// <summary>[S-1283] The narrowest a one-line row's time is drawn, so "now" and "12:45" line up.</summary>
+    public const double InlineTimeWidth = 36;
+
+    /// <summary>[S-1284] How wide a row of <paramref name="count"/> quick-action buttons is.</summary>
+    public static double QuickActionsWidth(int count, double button, double gap)
+        => count <= 0 ? 0 : (count * button) + ((count - 1) * gap);
+
+    /// <summary>
+    /// [S-1284] A one-line row's columns at <paramref name="inner"/> (the row's inner width). The
+    /// trailing slot is as wide as the wider of the time and the quick actions whether or not the
+    /// actions are showing, so revealing them under the pointer or the keyboard swaps the slot's
+    /// content and moves nothing else: the sender, the subject line and the account keep their
+    /// boxes, and the subject truncates in the same place.
+    /// </summary>
+    /// <param name="account">The account column's width; 0 when it is not shown.</param>
+    /// <param name="actions">The quick actions' width (<see cref="QuickActionsWidth"/>); 0 when the row has none.</param>
+    public static MailInlineBoxes InlineBoxes(double inner, double gap, double account, double actions)
+    {
+        var sender = Math.Clamp(inner * 0.24, 96, 200);
+        var slot = Math.Max(InlineTimeWidth, actions);
+        var gaps = (account > 0 ? 3 : 2) * gap;
+        var line = Math.Max(0, inner - sender - account - slot - gaps);
+        return new MailInlineBoxes(sender, line, account, slot);
+    }
 
     public static MailRowLayout Rows(EmailConfig config, double width, double height)
     {

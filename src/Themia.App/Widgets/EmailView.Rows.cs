@@ -30,6 +30,9 @@ internal sealed partial class EmailView
     /// <summary>The rows on screen, in list order, for the keyboard.</summary>
     private readonly List<Border> _rows = [];
 
+    /// <summary>[S-1284] The rows that carry quick actions, and what reveals them on each.</summary>
+    private readonly Dictionary<Border, QuickReveal> _reveals = [];
+
     /// <summary>The messages the rows show, in the same order.</summary>
     private IReadOnlyList<MailMessage> _shown = [];
 
@@ -99,9 +102,15 @@ internal sealed partial class EmailView
         var layout = _shape.Rows;
         var unread = !message.IsRead;
         var inner = InnerWidth(_area.Width, layout.Envelope);
+        var actions = _shape.QuickActions ? QuickActions(message) : null;
+
+        // [S-1284] The time's slot is as wide as the quick actions that replace it, revealed or not,
+        // so hover and the keyboard move nothing: the slot is at least that wide in both states and the
+        // hidden time keeps its box. The account keeps its own measured column.
+        var boxes = MailLayout.InlineBoxes(inner, Fluent.Space3, 0, actions is null ? 0 : MailLayout.QuickActionsWidth(actions.Children.Count, QuickActionSize, Fluent.Space1));
 
         var grid = new Grid { ColumnSpacing = Fluent.Space3 };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Clamp(inner * 0.24, 96, 200)) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(boxes.Sender) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -138,16 +147,16 @@ internal sealed partial class EmailView
         }
 
         var time = TimeText(message, now, full: false);
-        time.MinWidth = 36;
+        time.MinWidth = MailLayout.InlineTimeWidth;
         time.TextAlignment = TextAlignment.Right;
-        var end = _shape.QuickActions ? WithQuickActions(time, message) : time;
+        FrameworkElement end = actions is null ? time : new Grid { MinWidth = boxes.Slot, Children = { time, actions } };
         Grid.SetColumn(end, 3);
         grid.Children.Add(end);
 
         var row = WithBar(layout.Envelope ? WithEnvelope(grid, unread) : grid, unread);
 
-        // AddRow finds the time-or-actions cell here to swap them under the pointer.
-        row.Tag = end as Grid;
+        // AddRow finds the time-or-actions cell here to swap them under the pointer and the keyboard.
+        row.Tag = end is Grid cell ? new QuickReveal(cell) : null;
         return row;
     }
 
@@ -344,16 +353,22 @@ internal sealed partial class EmailView
         return grid;
     }
 
+    /// <summary>A quick-action button's side: the glyph and its padding, inside a compact row's height.</summary>
+    private const double QuickActionSize = QuickActionGlyph + (2 * Fluent.Space1);
+
+    private const double QuickActionGlyph = 14;
+
     /// <summary>
-    /// [S-1284] On the largest tile the pointer reveals a row's quick actions where its time was:
-    /// mark read or unread, archive, delete — only what the account allows, and nothing on a tile
-    /// that has no room for them (the menu always has them).
+    /// [S-1284] On the largest tile the pointer or the keyboard reveals a row's quick actions where
+    /// its time was: mark read or unread, archive, delete — only what the account allows, and
+    /// nothing on a tile that has no room for them (the menu always has them). Null when the
+    /// account allows no change.
     /// </summary>
-    private FrameworkElement WithQuickActions(TextBlock time, MailMessage message)
+    private StackPanel? QuickActions(MailMessage message)
     {
         if (!CanChange(message))
         {
-            return time;
+            return null;
         }
 
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, Visibility = Visibility.Collapsed };
@@ -369,17 +384,23 @@ internal sealed partial class EmailView
 
         actions.Children.Add(QuickAction(Glyphs.Delete, DeleteLabel(message), () => Change(message, MailChange.Delete)));
 
-        // Both in one cell; the row's pointer handlers swap them (see AddRow).
+        // In the time's cell, at its trailing end; the row's pointer and the keyboard swap them (see AddRow).
+        // The buttons are taller than the line they sit on; they overhang it rather than grow it,
+        // so the row's content (and the unread bar beside it) keeps its height when they show.
         actions.HorizontalAlignment = HorizontalAlignment.Right;
-        return new Grid { Children = { time, actions } };
+        actions.VerticalAlignment = VerticalAlignment.Center;
+        actions.Margin = new Thickness(0, -Fluent.Space1, 0, -Fluent.Space1);
+        return actions;
     }
 
     private Border QuickAction(string glyph, string text, Action action)
     {
         var button = new Border
         {
-            Child = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", 14),
+            Child = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", QuickActionGlyph),
             Padding = new Thickness(Fluent.Space1),
+            Width = QuickActionSize,
+            Height = QuickActionSize,
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             Background = Fluent.RowRest(),
             VerticalAlignment = VerticalAlignment.Center,
@@ -398,16 +419,60 @@ internal sealed partial class EmailView
         return button;
     }
 
-    /// <summary>Show a row's quick actions while the pointer is over it, its time otherwise.</summary>
-    private static void RevealQuickActions(Grid cell, bool shown)
+    /// <summary>The keyboard ring on a row, and with it the row's quick actions ([S-1284]).</summary>
+    private void MarkRow(Border row, bool focused)
     {
-        if (cell.Children is not [UIElement time, UIElement actions])
+        RowFocus.Mark(row, focused);
+
+        if (_reveals.TryGetValue(row, out var reveal))
         {
-            return;
+            reveal.Focused = focused;
+        }
+    }
+
+    /// <summary>
+    /// [S-1284] A row's quick actions show while the pointer is over the row or the keyboard is on
+    /// it, its time otherwise. Both sit in one slot as wide as the wider of them
+    /// (<see cref="MailLayout.InlineBoxes"/>), so the swap moves nothing else in the row.
+    /// </summary>
+    private sealed class QuickReveal(Grid cell)
+    {
+        private bool _hovered;
+        private bool _focused;
+
+        public bool Hovered
+        {
+            get => _hovered;
+            set
+            {
+                _hovered = value;
+                Apply();
+            }
         }
 
-        time.Visibility = shown ? Visibility.Collapsed : Visibility.Visible;
-        actions.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
+        public bool Focused
+        {
+            get => _focused;
+            set
+            {
+                _focused = value;
+                Apply();
+            }
+        }
+
+        private void Apply()
+        {
+            if (cell.Children is not [UIElement time, UIElement actions])
+            {
+                return;
+            }
+
+            var shown = _hovered || _focused;
+
+            // The time keeps its box (no collapse), so the slot is measured the same either way.
+            time.Opacity = shown ? 0 : 1;
+            actions.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 
     private void AddRow(Grid content, MailMessage message)
@@ -429,11 +494,12 @@ internal sealed partial class EmailView
 
         _hovers.Add(Fluent.Hover(row));
 
-        if (content.Tag is Grid quick)
+        if (content.Tag is QuickReveal reveal)
         {
-            row.PointerEntered += (_, _) => RevealQuickActions(quick, true);
-            row.PointerExited += (_, _) => RevealQuickActions(quick, false);
-            row.PointerCanceled += (_, _) => RevealQuickActions(quick, false);
+            _reveals.Add(row, reveal);
+            row.PointerEntered += (_, _) => reveal.Hovered = true;
+            row.PointerExited += (_, _) => reveal.Hovered = false;
+            row.PointerCanceled += (_, _) => reveal.Hovered = false;
         }
 
         // [S-1288] A click focuses the row for the keyboard; a double-click opens it.

@@ -164,4 +164,36 @@ public sealed class MailDriveLayoutTests
         MailColumn[] noSubject = [MailColumn.From, MailColumn.Date];
         Assert.Equal(noSubject, MailLayout.Columns(noSubject, 760, 8).Select(c => c.Column));
     }
+
+    // ---- [S-1284] quick actions overlay the time ----------------------------------------------------
+
+    [Theory]
+    [InlineData(720, 0, 3)]
+    [InlineData(720, 96, 3)]
+    [InlineData(1100, 120, 2)]
+    [InlineData(1600, 0, 3)]
+    public void S1284_revealing_the_quick_actions_moves_nothing_but_the_slot_content(double inner, double account, int buttons)
+    {
+        var actions = MailLayout.QuickActionsWidth(buttons, button: 22, gap: 4);
+
+        // The row is laid out once; hover and keyboard focus only swap what the trailing slot shows.
+        var boxes = MailLayout.InlineBoxes(inner, 12, account, actions);
+
+        // The slot is wide enough for either, so neither the time nor the actions overflow it ...
+        Assert.True(boxes.Slot >= MailLayout.InlineTimeWidth);
+        Assert.True(boxes.Slot >= actions, $"the actions ({actions}) overflow the slot ({boxes.Slot}) and push the line");
+
+        // ... and the columns fill the row exactly, so nothing beside the slot changes width.
+        var gaps = (account > 0 ? 3 : 2) * 12;
+        Assert.Equal(inner, boxes.Sender + boxes.Line + boxes.Account + boxes.Slot + gaps, 6);
+        Assert.Equal(account, boxes.Account);
+    }
+
+    [Fact]
+    public void S1284_a_row_without_actions_keeps_the_narrow_time_slot()
+    {
+        Assert.Equal(0, MailLayout.QuickActionsWidth(0, 22, 4));
+        Assert.Equal(MailLayout.InlineTimeWidth, MailLayout.InlineBoxes(800, 12, 0, 0).Slot);
+        Assert.Equal(74, MailLayout.QuickActionsWidth(3, 22, 4));
+    }
 }

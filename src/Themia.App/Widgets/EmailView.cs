@@ -477,6 +477,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _hovers.Clear();
         _times.Clear();
         _rows.Clear();
+        _reveals.Clear();
         _list.Children.Clear();
     }
 

@@ -12,10 +12,12 @@ namespace Themia.App.Widgets;
 /// <see cref="IMailSource"/>, so <c>--widget-png Email --state messages</c> draws the header's compose
 /// button ([S-558]) and the rows without an account. <c>accounts</c> reads two accounts, so the
 /// compose button asks which; <c>empty</c> is an empty folder, which still offers compose.
+/// <c>hovered</c> and <c>focused</c> are the messages with the first row under the pointer, or the
+/// second row under the keyboard, so its quick actions show ([S-1284]).
 /// </summary>
 internal sealed partial class EmailView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["messages", "accounts", "empty"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["messages", "accounts", "empty", "hovered", "focused"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -52,6 +54,16 @@ internal sealed partial class EmailView : IWidgetPreviewState
         _source = new PreviewMailSource(accounts, [.. messages.Where(m => accounts.Any(a => a.Id == m.AccountId))], now.AddMinutes(-3));
         Reopen();
         Render();
+
+        if (state == "hovered" && _rows.Count > 0 && _reveals.TryGetValue(_rows[0], out var reveal))
+        {
+            reveal.Hovered = true;
+        }
+        else if (state == "focused" && _rows.Count > 1)
+        {
+            FocusRow(1);
+        }
+
         return Task.CompletedTask;
     }
 
