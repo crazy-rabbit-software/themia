@@ -18,7 +18,7 @@ namespace Themia.App.Shell;
 /// <param name="ReleaseFocus">[S-3704] Hands the keyboard back to the surface after the title box, so the edit keys work again.</param>
 /// <param name="SetStyle">[S-6008] The selected widgets' style, by the style enum's value.</param>
 /// <param name="OpenSettings">[S-6009] Opens one widget's settings page, by id.</param>
-/// <param name="SetItemBackground">[S-6521] The selected widgets' own item background.</param>
+/// <param name="SetItemBackground">[S-6521] The selected widgets' own item background (those with items, [S-6571]).</param>
 /// <param name="SetItemTextColor">[S-6544] The selected widgets' own item text colour, or empty for the app-wide one.</param>
 /// <param name="SetScale">[S-6531] The selected widgets' own content scale, as a factor.</param>
 internal sealed record PropertiesCommands(
@@ -36,8 +36,8 @@ internal sealed record PropertiesCommands(
 /// [S-3707] The selected widgets' properties panel: a small panel on a flyout's surface ([S-3715])
 /// standing beside the selection, centred on it ([S-3708], [S-3714]), one row per property, its name before its control — Title (one
 /// widget) or "N selected", Style (one kind with styles, [S-6007]), Header (where every selected
-/// widget can have one, [S-3711]), Background and Item background (one fill control each, [S-6566]),
-/// Item text ([S-6544]), Scale ([S-6531]),
+/// widget can have one, [S-3711]), Background and Item background (one fill control each, [S-6566];
+/// the item row greyed for widgets without items, [S-6571]), Item text ([S-6544]), Scale ([S-6531]),
 /// then Settings (one widget with a page, [S-6009]). After Karpo's
 /// properties panel (docs/widgets.md §145): the selection's own properties, where the selection is.
 /// </summary>
@@ -129,6 +129,7 @@ internal sealed partial class PropertiesStrip : Grid
             && previous.StyleKind == offer.StyleKind
             && string.Equals(previous.TitleWidgetId, offer.TitleWidgetId, StringComparison.Ordinal)
             && (offer.HasTitle || previous.Count == offer.Count)
+            && previous.HasItems == offer.HasItems
             && SameFill(previous.Background, offer.Background)
             && SameFill(previous.Items, offer.Items)
             && string.Equals(previous.ItemText, offer.ItemText, StringComparison.Ordinal);
@@ -206,12 +207,14 @@ internal sealed partial class PropertiesStrip : Grid
         }
 
         // [S-6566] The widgets' own background and item background: one fill control each, Default
-        // for the app-wide one.
+        // for the app-wide one. [S-6571] The item row is greyed for widgets that have no items.
         AddRow(Str.Settings_Style_BgLabel.Text(), FillRow(Str.Settings_Style_BgLabel.Text(), _offer.Background, commands.SetBackground, AppBackgroundColour));
-        AddRow(Str.Shell_Items_Background.Text(), FillRow(Str.Shell_Items_Background.Text(), _offer.Items, commands.SetItemBackground, AppItemColour));
+        var items = FillRow(Str.Shell_Items_Background.Text(), _offer.Items, commands.SetItemBackground, AppItemColour);
+        NoItems(AddRow(Str.Shell_Items_Background.Text(), items), items);
 
         // [S-6544] The colour of the text on their items, "Default" for the app-wide one.
-        AddRow(Str.Shell_Items_TextShort.Text(), ItemTextChoice(commands));
+        var itemText = ItemTextChoice(commands);
+        NoItems(AddRow(Str.Shell_Items_TextShort.Text(), itemText), itemText);
 
         // [S-6531] The widgets' own content scale, after the look of the card it magnifies.
         AddRow(Str.Widget_Scale_Label.Text(), ScaleChoice(commands));
@@ -235,15 +238,39 @@ internal sealed partial class PropertiesStrip : Grid
         ShowValues();
     }
 
-    /// <summary>One row: the property's name in the secondary colour, then its control; no name spans both columns.</summary>
-    private void AddRow(string? label, FrameworkElement control)
+    /// <summary>
+    /// [S-6571] Grey an item row out when no selected widget has items: its control disabled, its
+    /// name in the disabled text colour, and "This widget has no items" as the tooltip of both (a
+    /// disabled control takes no pointer, so the name carries it where the pointer can find it).
+    /// </summary>
+    private void NoItems(TextBlock? label, Control control)
     {
+        if (_offer.HasItems)
+        {
+            return;
+        }
+
+        var why = Str.Shell_Fill_NoItems.Text();
+        control.IsEnabled = false;
+        ToolTipService.SetToolTip(control, why);
+        AutomationProperties.SetHelpText(control, why);
+        if (label is not null)
+        {
+            ToolTipService.SetToolTip(label, why);
+            label.Foreground = FluentLayout.Themed("TextFillColorDisabledBrush", Microsoft.UI.Colors.Gray);
+        }
+    }
+
+    /// <summary>One row: the property's name in the secondary colour, then its control; no name spans both columns. Returns the name.</summary>
+    private TextBlock? AddRow(string? label, FrameworkElement control)
+    {
+        TextBlock? name = null;
         var row = _rows.RowDefinitions.Count;
         _rows.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
         if (label is not null)
         {
-            var name = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+            name = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
             name.Text = label;
             name.VerticalAlignment = VerticalAlignment.Center;
             SetRow(name, row);
@@ -262,6 +289,7 @@ internal sealed partial class PropertiesStrip : Grid
         }
 
         _rows.Children.Add(control);
+        return name;
     }
 
     /// <summary>The choices' words for the values the selection has now; a mixed one says so with a dash.</summary>
@@ -393,7 +421,7 @@ internal sealed partial class PropertiesStrip : Grid
     /// [S-6544] The item text colour: the one colour control, "Default" (the app-wide item text
     /// colour) or a colour of the widgets' own. A mixed selection reads as Default until one is picked.
     /// </summary>
-    private FrameworkElement ItemTextChoice(PropertiesCommands commands)
+    private DropDownButton ItemTextChoice(PropertiesCommands commands)
     {
         var options = new ColorChoiceOptions
         {

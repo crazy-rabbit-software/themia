@@ -6,5 +6,6 @@
   "shell.items.textShort": "आइटम टेक्स्ट",
   "shell.fill.transparent": "पारदर्शी",
   "shell.fill.opacity": "अपारदर्शिता",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.noItems": "इस विजेट में कोई आइटम नहीं है"
 }

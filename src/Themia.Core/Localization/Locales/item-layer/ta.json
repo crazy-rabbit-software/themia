@@ -6,5 +6,6 @@
   "shell.items.textShort": "உருப்படி உரை",
   "shell.fill.transparent": "ஒளிபுகும்",
   "shell.fill.opacity": "ஒளிபுகாமை",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.noItems": "இந்த விட்ஜெட்டில் உருப்படிகள் இல்லை"
 }

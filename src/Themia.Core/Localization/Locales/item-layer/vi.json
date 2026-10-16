@@ -6,5 +6,6 @@
   "shell.items.textShort": "Chữ của mục",
   "shell.fill.transparent": "Trong suốt",
   "shell.fill.opacity": "Độ mờ đục",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.noItems": "Tiện ích này không có mục nào"
 }

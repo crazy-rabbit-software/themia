@@ -6,5 +6,6 @@
   "shell.items.textShort": "ข้อความของรายการ",
   "shell.fill.transparent": "โปร่งใส",
   "shell.fill.opacity": "ความทึบ",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.noItems": "วิดเจ็ตนี้ไม่มีรายการ"
 }

@@ -6,5 +6,6 @@
   "shell.items.textShort": "آئٹم کا متن",
   "shell.fill.transparent": "شفاف",
   "shell.fill.opacity": "غیر شفافیت",
-  "shell.fill.withOpacity": "{colour}، {percent}"
+  "shell.fill.withOpacity": "{colour}، {percent}",
+  "shell.fill.noItems": "اس ویجیٹ میں کوئی آئٹم نہیں ہے"
 }

@@ -17,7 +17,8 @@ namespace Themia.Core.Model;
 /// <param name="HasHeader">[S-3711] Whether the Header choice shows: every selected widget can have a header.</param>
 /// <param name="StyleKind">[S-6007] The one kind whose style the Style choice sets: every selected widget is of it and it has styles. Null hides the choice.</param>
 /// <param name="Style">[S-6007] Their style, or null when they differ.</param>
-/// <param name="Items">[S-6521] The own item background the widgets share, or null when they differ.</param>
+/// <param name="Items">[S-6521] The own item background the widgets with items share, or null when they differ.</param>
+/// <param name="HasItems">[S-6571] Whether any selected widget has items ([S-6570]); the Item background row is greyed without.</param>
 /// <param name="Scale">[S-6531] Their own content scale, or null when they differ.</param>
 /// <param name="ItemText">[S-6544] Their own item text colour (empty: they follow the app-wide one), or null when they differ.</param>
 public sealed record QuickSetOffer(
@@ -31,6 +32,7 @@ public sealed record QuickSetOffer(
     WidgetKind? StyleKind = null,
     int? Style = null,
     FillChoice? Items = null,
+    bool HasItems = true,
     double? Scale = 1.0,
     string? ItemText = "")
 {
@@ -88,19 +90,22 @@ public static class QuickSet
         var styleKind = widgets.TrueForAll(w => w.Kind == kind) && WidgetStyles.Offers(kind) ? kind : (WidgetKind?)null;
         var style = styleKind is null ? null : Common(widgets.Select(w => WidgetStyles.Current(w.Config) ?? 0));
 
-        var items = CommonFill(widgets.Select(w => w.ItemBackground));
+        // [S-6571] The item background of the widgets that have items: the others have none to show.
+        var withItems = widgets.Where(w => ItemKinds.Has(w.Kind)).ToList();
+        var hasItems = withItems.Count > 0;
+        var items = hasItems ? CommonFill(withItems.Select(w => w.ItemBackground)) : new FillChoice();
 
         // [S-6531] Read as stored, so two widgets at the same percentage always share it.
         var scale = Common(widgets.Select(w => WidgetScale.Normalise(w.Scale)));
-        var itemText = CommonItemText(widgets);
+        var itemText = CommonItemText(hasItems ? withItems : widgets);
 
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, scale, itemText);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, scale, itemText);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText);
     }
 
     /// <summary>
@@ -208,13 +213,15 @@ public static class QuickSet
         => Apply(view, ids, w => WidgetStyles.Set(w.Config, style));
 
     /// <summary>
-    /// [S-6521] Set the item background of every selected widget of <paramref name="view"/> to a
-    /// copy of <paramref name="fill"/>: Default follows the app-wide one again. Returns how many changed.
+    /// [S-6521] [S-6571] Set the item background of every selected widget of <paramref name="view"/>
+    /// that has items ([S-6570]) to a copy of <paramref name="fill"/>: Default follows the app-wide
+    /// one again. A widget without items is left as it is. Returns how many changed.
     /// </summary>
     public static int SetItemBackground(ViewState view, IEnumerable<string> ids, FillChoice fill)
     {
         ArgumentNullException.ThrowIfNull(fill);
-        return Apply(view, ids, w => !w.ItemBackground.SameAs(fill) && Set(() => w.ItemBackground = fill.Clone()));
+        return Apply(view, ids, w => ItemKinds.Has(w.Kind) && !w.ItemBackground.SameAs(fill)
+            && Set(() => w.ItemBackground = fill.Clone()));
     }
 
     /// <summary>
@@ -224,8 +231,10 @@ public static class QuickSet
     /// </summary>
     public static int SetItemTextColor(ViewState view, IEnumerable<string> ids, string? hex)
     {
+        // [S-6571] Like the item background, only on widgets that have items.
         var colour = HexColor.Normalise(hex);
-        return Apply(view, ids, w => !string.Equals(HexColor.Normalise(w.ItemTextColor), colour, StringComparison.Ordinal)
+        return Apply(view, ids, w => ItemKinds.Has(w.Kind)
+            && !string.Equals(HexColor.Normalise(w.ItemTextColor), colour, StringComparison.Ordinal)
             && Set(() => w.ItemTextColor = colour));
     }
 

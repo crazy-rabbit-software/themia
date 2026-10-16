@@ -6,5 +6,6 @@
   "shell.items.textShort": "Текст элементов",
   "shell.fill.transparent": "Прозрачный",
   "shell.fill.opacity": "Непрозрачность",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.noItems": "У этого виджета нет элементов"
 }

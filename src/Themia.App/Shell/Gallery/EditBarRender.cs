@@ -29,7 +29,8 @@ namespace Themia.App.Shell.Gallery;
 /// <c>-many.png</c> (three of mixed headers), <c>-toggle.png</c> (no Header choice) and
 /// <c>-hidden.png</c> (header hidden, beside the same widget with one), [S-6569] <c>-fills.png</c>
 /// (backgrounds Default, Transparent and a colour at 50 %, item backgrounds Default, Transparent and
-/// a colour) and <c>-picker.png</c> (the Background control's panel open beside the panel: Transparent and the
+/// a colour), <c>-noitems.png</c> (a stopwatch: the Item background row greyed) and
+/// <c>-picker.png</c> (the Background control's panel open beside the panel: Transparent and the
 /// opacity slider) — all over a busy stand-in wallpaper, so the panel's surface is judged against
 /// one ([S-3715]).
 /// </summary>
@@ -241,8 +242,10 @@ internal static class EditBarRender
                 new(WidgetKind.Clock, 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", (int)ClockStyle.Flip, Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
             ],
 
+            // [S-6571] A stopwatch has no items: the row is greyed.
+            [new(WidgetKind.Stopwatch, 500, 200, 280, 180, HeaderPlacement.Top, true)],
         ];
-        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills"];
+        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills", "noitems"];
 
         for (var i = 0; i < cases.Length; i++)
         {

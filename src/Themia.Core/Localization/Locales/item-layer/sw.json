@@ -6,5 +6,6 @@
   "shell.items.textShort": "Maandishi ya vipengee",
   "shell.fill.transparent": "Angavu",
   "shell.fill.opacity": "Uangavu",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.noItems": "Wijeti hii haina vipengee"
 }

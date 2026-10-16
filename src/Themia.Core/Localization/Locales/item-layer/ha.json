@@ -6,5 +6,6 @@
   "shell.items.textShort": "Rubutun abubuwa",
   "shell.fill.transparent": "Mai bayyanawa",
   "shell.fill.opacity": "Duhu",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.noItems": "Wannan widget ɗin ba shi da abubuwa"
 }
