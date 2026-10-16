@@ -27,6 +27,11 @@ namespace Themia.App.Widgets;
 /// notifications; the clicks go through <see cref="ToggleGate"/> ([S-3905]). A debug render never
 /// touches the machine ([S-1251]): it shows a made-up reading.
 /// </para>
+/// <para>
+/// <b>Styles</b> ([S-3916]): the same switch drawn as the tile, a round button or a Settings-style
+/// switch. Only the drawing differs; the whole slot stays the hit target in every style, so the
+/// click gate, the keys and edit mode are one path.
+/// </para>
 /// </summary>
 internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
@@ -38,6 +43,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private readonly FontIcon _icon;
     private readonly TextBlock _name = Fluent.Text(FluentType.Body);
     private readonly TextBlock _state = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+    private readonly RoundButtonPart _round;
     private readonly ToggleGate _switch = new();
 
     private readonly Brush _rest = new SolidColorBrush(Colors.Transparent);
@@ -51,10 +57,16 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
     private readonly Brush _secondary = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
     private readonly Brush _disabled = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _control = FluentLayout.Themed("ControlFillColorDefaultBrush", Colors.Gray);
+    private readonly Brush _controlHover = FluentLayout.Themed("ControlFillColorSecondaryBrush", Colors.Gray);
+    private readonly Brush _controlPressed = FluentLayout.Themed("ControlFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _controlDisabled = FluentLayout.Themed("ControlFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _controlEdge = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray);
 
     private IWidgetSurface? _surface;
     private ToggleLease? _lease;
     private ToggleReading _preview = ToggleReading.Of(false);
+    private QuickToggleStyle _style = QuickToggleStyle.Tile;
     private WidgetArea _area;
     private bool _hover;
     private bool _pressed;
@@ -83,6 +95,8 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         _words.Children.Add(_state);
         _face.Children.Add(_icon);
         _face.Children.Add(_words);
+        _round = new RoundButtonPart(Glyph(_toggle, on: true));
+        BuildSwitch();
         Children.Add(_face);
 
         // The whole slot is hit-testable, edge to edge: the tile is the switch.
@@ -130,11 +144,29 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         Strings.Changed += OnLanguage;
 
         AutomationProperties.SetName(this, QuickToggleRules.Name(_toggle));
-        Lay();
+        ApplyConfig(config);
     }
 
-    /// <summary>Nothing to configure ([S-3900]).</summary>
-    public void ApplyConfig(WidgetConfig config) => Paint();
+    /// <summary>[S-3916] The style is the only setting: the face of that style replaces the last one.</summary>
+    public void ApplyConfig(WidgetConfig config)
+    {
+        _style = config is QuickToggleConfig { Style: var style } && Enum.IsDefined(style) ? style : QuickToggleStyle.Tile;
+
+        UIElement face = _style switch
+        {
+            QuickToggleStyle.Round => _round,
+            QuickToggleStyle.Switch => _switchFace,
+            _ => _face,
+        };
+
+        if (Children.Count != 1 || Children[0] != face)
+        {
+            Children.Clear();
+            Children.Add(face);
+        }
+
+        Lay();
+    }
 
     /// <inheritdoc />
     public void ApplySize(WidgetArea area)
@@ -167,7 +199,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
 
     // ---- layout ------------------------------------------------------------------------------
 
-    /// <summary>[S-3906] Icon alone at XS, then the name, then the state; side by side in a strip.</summary>
+    /// <summary>The style's ladder over the box inside the inset.</summary>
     private void Lay()
     {
         if (_detached)
@@ -179,10 +211,32 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         var inset = compact ? Fluent.Space2 : Fluent.Space3;
         Padding = new Thickness(inset);
 
-        var locale = Strings.Current;
         var width = _area.Width - (2 * inset);
         var height = _area.Height - (2 * inset);
-        var plan = ToggleFace.Plan(_area, width, height, QuickToggleRules.Name(_toggle).Length, QuickToggleRules.LongestStateChars(locale));
+        var nameChars = QuickToggleRules.Name(_toggle).Length;
+
+        switch (_style)
+        {
+            case QuickToggleStyle.Round:
+                _round.Lay(RoundButtonFace.Plan(_area, width, height, nameChars), width);
+                break;
+
+            case QuickToggleStyle.Switch:
+                LaySwitch(SwitchFace.Plan(_area, width, height, nameChars, QuickToggleRules.LongestStateChars(Strings.Current)), width);
+                break;
+
+            default:
+                LayTile(width, height, nameChars);
+                break;
+        }
+
+        Paint();
+    }
+
+    /// <summary>[S-3906] Icon alone at XS, then the name, then the state; side by side in a strip.</summary>
+    private void LayTile(double width, double height, int nameChars)
+    {
+        var plan = ToggleFace.Plan(_area, width, height, nameChars, QuickToggleRules.LongestStateChars(Strings.Current));
 
         _icon.FontSize = plan.IconSize;
         _face.Orientation = plan.Row ? Orientation.Horizontal : Orientation.Vertical;
@@ -218,11 +272,9 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         {
             _state.Visibility = Visibility.Collapsed;
         }
-
-        Paint();
     }
 
-    /// <summary>[S-3904] The whole look from the reading, the switch on its way and the pointer.</summary>
+    /// <summary>The whole look from the reading, the switch on its way, the pointer and the style.</summary>
     private void Paint()
     {
         if (_detached)
@@ -233,8 +285,31 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         var locale = Strings.Current;
         var reading = Reading;
         var look = _switch.Look(reading);
-        var name = QuickToggleRules.Name(locale, _toggle);
 
+        switch (_style)
+        {
+            case QuickToggleStyle.Round:
+                PaintRound(locale, look);
+                break;
+
+            case QuickToggleStyle.Switch:
+                PaintSwitch(locale, look);
+                break;
+
+            default:
+                PaintTile(locale, look);
+                break;
+        }
+
+        var tooltip = QuickToggleRules.Tooltip(locale, _toggle, reading, look, _switch.Refused);
+        ToolTipService.SetToolTip(this, tooltip);
+        AutomationProperties.SetHelpText(this, tooltip);
+        AutomationProperties.SetItemStatus(this, QuickToggleRules.StateText(locale, look));
+    }
+
+    /// <summary>[S-3904] The tile: accent-filled while on, subtle fills while off, dimmed where unavailable.</summary>
+    private void PaintTile(Locale locale, ToggleLook look)
+    {
         Brush fill;
         Brush iconBrush;
         Brush nameBrush;
@@ -274,15 +349,42 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         Background = fill;
         _icon.Glyph = Glyph(_toggle, on: look != ToggleLook.Off);
         _icon.Foreground = iconBrush;
-        _name.Text = name;
+        _name.Text = QuickToggleRules.Name(locale, _toggle);
         _name.Foreground = nameBrush;
         _state.Text = QuickToggleRules.StateText(locale, look);
         _state.Foreground = stateBrush;
+    }
 
-        var tooltip = QuickToggleRules.Tooltip(locale, _toggle, reading, look, _switch.Refused);
-        ToolTipService.SetToolTip(this, tooltip);
-        AutomationProperties.SetHelpText(this, tooltip);
-        AutomationProperties.SetItemStatus(this, QuickToggleRules.StateText(locale, look));
+    /// <summary>
+    /// [S-3917] The round button: the circle accent-filled while on, a control fill while off (its
+    /// hover and pressed steps on the circle, not the tile), the disabled fill where unavailable.
+    /// </summary>
+    private void PaintRound(Locale locale, ToggleLook look)
+    {
+        Background = _rest;
+        var glyph = Glyph(_toggle, on: look != ToggleLook.Off);
+        var name = QuickToggleRules.Name(locale, _toggle);
+
+        switch (look)
+        {
+            case ToggleLook.On:
+                var accent = _pressed ? _accentPressed : _hover ? _accentHover : _accent;
+                _round.Paint(accent, accent, glyph, _onAccent, name, _primary);
+                break;
+
+            case ToggleLook.Unavailable:
+                _round.Paint(_controlDisabled, _controlEdge, glyph, _disabled, name, _disabled);
+                break;
+
+            case ToggleLook.Unknown:
+                _round.Paint(_control, _controlEdge, glyph, _secondary, name, _secondary);
+                break;
+
+            default:
+                var fill = _pressed ? _controlPressed : _hover ? _controlHover : _control;
+                _round.Paint(fill, _controlEdge, glyph, _pressed ? _secondary : _primary, name, _primary);
+                break;
+        }
     }
 
     // ---- input -------------------------------------------------------------------------------

@@ -2597,9 +2597,9 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
   description: **Shut down** (`Shutdown`), **Restart**, **Sleep**, **Hibernate**, **Lock**, **Sign
   out** (`SignOut`) and **Turn off display** (`ScreenOff`), in the add menu's Devices & power › Power buttons ([S-3511]), default size
   120×120. The kind maps to its `PowerAction` in Core (`PowerActionRules.ForKind`/`KindOf`); one
-  view (`PowerButtonView`) serves all seven. Each kind has an empty config of its own
-  (`ShutdownConfig` … `ScreenOffConfig`, base `PowerButtonConfig`): nothing to set beyond the card's
-  common settings, so the settings page shows only those, and a power widget never needs setting up.
+  view (`PowerButtonView`) serves all seven. Each kind has a config of its own (`ShutdownConfig` …
+  `ScreenOffConfig`, base `PowerButtonConfig`): nothing to set beyond the card's common settings and
+  the style ([S-1919]), so the settings page shows only those, and a power widget never needs setting up.
   There is no combined power tile, no power-state strip (source, plan, battery saver, time left), no
   power plans or timeouts, and no power-state sampling. A state file with the old `power` kind fails
   load validation like any unknown kind ([S-1050]).
@@ -2634,6 +2634,17 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
   `WidgetTiers` (or once at `w h`), labelled. `--state` asks a view that implements
   `IWidgetPreviewState` for an interaction state a render cannot click into — for the power widgets
   `hover`, `pressed`, `armed`, `failed`, `unavailable`. States, not sample data ([S-1863]).
+  `--style tile|round` draws either style ([S-6006]).
+- **[S-1919]** Styles ([S-6000]): one `PowerButtonStyle` on the base `PowerButtonConfig`, shared by all
+  seven kinds: **Tile** (the default, [S-1911], [S-1912]) and **Round button** (`round`), named,
+  labelled and drawn as the toggles' Round style ([S-3917], one `RoundButtonFace` and one round part
+  for both). The round button is an accent circle (`AccentFillColorDefault`, Secondary on hover,
+  Tertiary pressed) holding the icon in the on-accent colour, the name under it in the primary text
+  colour; armed, the circle takes the critical background, the icon the critical colour and the
+  draining ring runs round its rim, the sentence in the name's place (the label slot is planned for
+  the taller of the two, so arming moves nothing); failed, the warning glyph on a control fill;
+  unavailable, `AccentFillColorDisabled`. The whole tile stays the button: arming, edit mode and a
+  config change disarming it ([S-1913]) are the same in both styles.
 - **[S-1918]** *(Retired: the seven power widgets are one family of the add menu, Devices & power ›
   Power buttons, [S-3511].)*
 - **[S-1240]** *(Retired: one widget per action, [S-1910].)*
@@ -5207,9 +5218,17 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   action (accent) and Cancel, beside the button. It is never constrained to the root: inside the
   surface's window the region ([S-851]) clips it to the card, so it opens as its own popup window,
   which the framework keeps in the display's work area, flipping to the side with room — at any tile
-  size, either theme, either direction. Escape, a click elsewhere or Cancel are "no". The clear is
-  in the header from three tools' width ([S-651]); in full screen it is always there. Tests read the
-  source (`ConfirmFlyoutTests`); a live pass checks it on a small tile at a display edge.
+  size, either theme, either direction. Escape, a click elsewhere or Cancel are "no". It is every
+  widget's one way to ask (`ConfirmFlyout.AskAsync`, optionally with a detail line under the
+  question): the countdown's remove ([S-1445]), the clipboard's clear and the notes' delete
+  ([S-1364]) too, which were `ContentDialog`s centred on the monitor-sized surface and drawn inside
+  its region. No widget view and no part of the surface opens a `ContentDialog` (the settings window
+  may), and every flyout or menu a widget opens (a rename box, a note, `ItemMenu`) is its own popup
+  likewise. The clear is in the header from three tools' width ([S-651]); in full screen it is
+  always there. Tests read the source (`ConfirmFlyoutTests`); renders (`--state confirm` for
+  Scratchpad, Countdown, Clipboard, Notes) draw the question inside the render's
+  window, as a windowed popup cannot be drawn to a bitmap; a live pass checks it on a small tile at
+  a display edge.
 
 
 ## Device and location (DEVICE-AND-LOCATION)
@@ -5253,8 +5272,9 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   Energy saver, Night light, Rotation lock, Do not disturb, Sound (the default output's mute),
   Microphone (the default microphone's mute), Spatial sound, Mono audio, Color filters, Game mode.
   The kind maps to its `QuickToggle` in Core (`QuickToggleRules.ForKind`/`KindOf`); one view serves
-  all thirteen. Each has an empty config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`):
-  no settings page ([S-1750]), never needs setting up. The picker names it "<name> on/off" so it never
+  all thirteen. Each has a config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
+  one setting is the style ([S-3916]), so its settings page is the Style row alone ([S-6010]); it
+  never needs setting up. The picker names it "<name> on/off" so it never
   reads as another widget ("Bluetooth on/off" beside the Bluetooth devices widget); the tile says the
   name alone. Not ported from Karpo: its row of several toggles in one widget, mobile hotspot, VPN and
   nearby sharing (Karpo keeps those out of its toggles: they open lists or flyouts), live captions,
@@ -5299,7 +5319,7 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   a boolean) before use. The handlers live on one STA thread with a message loop, every call handed to
   it as a task; no wall-clock wait (Karpo's two-second start-up wait is not ported: whether a handler
   applies is asked when the pointer comes by).
-- **[S-3909]** Debug: `--widget-png <Kind> <out.png> [--theme light|dark] --state on|off|unavailable|unknown|hover|pressed|refused`.
+- **[S-3909]** Debug: `--widget-png <Kind> <out.png> [--theme light|dark] [--style tile|round|switch] --state on|off|unavailable|unknown|hover|pressed|refused`.
   A render reads nothing and switches nothing ([S-1251]); a click there flips a made-up reading.
 - **[S-3910]** Wi-Fi and Bluetooth: `Windows.Devices.Radios`, the radio of the kind found on the pool,
   `StateChanged` followed, `RequestAccessAsync` then `SetStateAsync` (Windows may refuse an app; the

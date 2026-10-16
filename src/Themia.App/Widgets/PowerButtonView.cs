@@ -29,6 +29,11 @@ namespace Themia.App.Widgets;
 /// and run on the second. The machine is touched only through <see cref="IPowerBackend"/>, which is
 /// inert until the card says this is a real widget on the desktop ([S-1251]).
 /// </para>
+/// <para>
+/// <b>Styles</b> ([S-1919]): the tile, or a round accent button (the part the toggles' Round style
+/// uses too). Only the drawing differs; the whole slot stays the hit target, so arming, edit mode
+/// and the click are one path.
+/// </para>
 /// </summary>
 internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
 {
@@ -41,15 +46,9 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     private readonly Grid _face = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly Grid _iconBox = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private readonly FontIcon _icon;
-    private readonly ProgressRing _ring = new()
-    {
-        IsIndeterminate = false,
-        Minimum = 0,
-        Maximum = 100,
-        IsActive = true,
-        Visibility = Visibility.Collapsed,
-        IsHitTestVisible = false,
-    };
+    private readonly ProgressRing _ring = ArmRing();
+    private readonly ProgressRing _roundRing = ArmRing();
+    private readonly RoundButtonPart _round;
 
     private readonly TextBlock _label = Fluent.Text(FluentType.Body);
     private readonly DispatcherQueueTimer? _ringTimer;
@@ -62,11 +61,20 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
     private readonly Brush _secondary = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
     private readonly Brush _disabled = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _accentHover = FluentLayout.Themed("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
+    private readonly Brush _accentPressed = FluentLayout.Themed("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
+    private readonly Brush _accentDisabled = FluentLayout.Themed("AccentFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _onAccent = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _onAccentDisabled = FluentLayout.Themed("TextOnAccentFillColorDisabledBrush", Colors.White);
+    private readonly Brush _control = FluentLayout.Themed("ControlFillColorDefaultBrush", Colors.Gray);
+    private readonly Brush _controlEdge = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray);
 
     private IWidgetSurface? _surface;
     private PowerButton? _button;
     private WidgetArea _area;
     private PowerFacePlan _plan;
+    private PowerButtonStyle _style = PowerButtonStyle.Tile;
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -96,6 +104,9 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
         _face.Children.Add(_iconBox);
         _face.Children.Add(_label);
         Children.Add(_face);
+
+        _round = new RoundButtonPart(Glyph(_action));
+        _round.Overlay(_roundRing);
 
         // The whole slot is hit-testable, edge to edge: the tile is the button.
         Background = _rest;
@@ -153,11 +164,39 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
         }
 
         AutomationProperties.SetName(this, PowerActionRules.Label(_action));
+        ApplyConfig(config);
+    }
+
+    /// <summary>
+    /// [S-1919] The style is the only setting: the face of that style replaces the last one. A
+    /// config change cannot leave the widget armed ([S-1913]).
+    /// </summary>
+    public void ApplyConfig(WidgetConfig config)
+    {
+        _style = config is PowerButtonConfig { Style: var style } && Enum.IsDefined(style) ? style : PowerButtonStyle.Tile;
+
+        UIElement face = _style == PowerButtonStyle.Round ? _round : _face;
+        if (Children.Count != 1 || Children[0] != face)
+        {
+            Children.Clear();
+            Children.Add(face);
+        }
+
+        _ringTimer?.Stop();
+        _button?.Disarm();
         Lay();
     }
 
-    /// <summary>Nothing to configure ([S-1910]); a config change cannot leave the widget armed.</summary>
-    public void ApplyConfig(WidgetConfig config) => Disarm();
+    /// <summary>The draining ring of an armed widget, one per face.</summary>
+    private static ProgressRing ArmRing() => new()
+    {
+        IsIndeterminate = false,
+        Minimum = 0,
+        Maximum = 100,
+        IsActive = true,
+        Visibility = Visibility.Collapsed,
+        IsHitTestVisible = false,
+    };
 
     /// <inheritdoc />
     public void ApplySize(WidgetArea area)
@@ -207,7 +246,17 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
 
         var name = PowerActionRules.Label(_action);
         var armedChars = PowerActionRules.NeedsArming(_action) ? PowerActionRules.ArmedLabel(_action).Length : 0;
-        _plan = PowerFace.Plan(_area, _area.Width - (2 * inset), _area.Height - (2 * inset), name.Length, armedChars);
+        var width = _area.Width - (2 * inset);
+        var height = _area.Height - (2 * inset);
+
+        if (_style == PowerButtonStyle.Round)
+        {
+            _round.Lay(RoundButtonFace.Plan(_area, width, height, name.Length, armedChars), width);
+            Paint();
+            return;
+        }
+
+        _plan = PowerFace.Plan(_area, width, height, name.Length, armedChars);
 
         _iconBox.Width = _plan.IconBox;
         _iconBox.Height = _plan.IconBox;
@@ -224,7 +273,7 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
             _label.Visibility = Visibility.Visible;
             _label.Margin = new Thickness(0, PowerFace.LabelGap, 0, 0);
             _label.Height = _plan.LabelSlot;
-            _label.MaxWidth = Math.Max(0, _area.Width - (2 * inset));
+            _label.MaxWidth = Math.Max(0, width);
         }
 
         Paint();
@@ -284,20 +333,56 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
             labelBrush = _pressed ? _secondary : _primary;
         }
 
-        Background = fill;
-        _icon.Glyph = glyph;
-        _icon.Foreground = iconBrush;
-        _label.Text = text;
-        _label.Foreground = labelBrush;
-        ApplyLabelStep(armed || button.Failure is not null);
+        var ring = _style == PowerButtonStyle.Round ? _roundRing : _ring;
+        ring.Visibility = armed ? Visibility.Visible : Visibility.Collapsed;
+        ring.Foreground = _critical;
+        ring.Value = button.ArmRemaining(now) * 100;
 
-        _ring.Visibility = armed ? Visibility.Visible : Visibility.Collapsed;
-        _ring.Foreground = _critical;
-        _ring.Value = button.ArmRemaining(now) * 100;
+        if (_style == PowerButtonStyle.Round)
+        {
+            PaintRound(button, armed, glyph, text);
+        }
+        else
+        {
+            Background = fill;
+            _icon.Glyph = glyph;
+            _icon.Foreground = iconBrush;
+            _label.Text = text;
+            _label.Foreground = labelBrush;
+            ApplyLabelStep(armed || button.Failure is not null);
+        }
 
         ToolTipService.SetToolTip(this, tooltip);
         AutomationProperties.SetHelpText(this, tooltip);
         AutomationProperties.SetItemStatus(this, armed ? Str.WidgetsC_Power_ArmedStatus.Text() : string.Empty);
+    }
+
+    /// <summary>
+    /// [S-1919] The round button: an accent circle (its hover and pressed steps on the circle, not the
+    /// tile); armed, the critical background with the ring draining round its rim; failed, the
+    /// warning glyph on a control fill; unavailable, the disabled accent.
+    /// </summary>
+    private void PaintRound(PowerButton button, bool armed, string glyph, string text)
+    {
+        Background = _rest;
+
+        if (!button.Available)
+        {
+            _round.Paint(_accentDisabled, _accentDisabled, glyph, _onAccentDisabled, text, _disabled);
+        }
+        else if (armed)
+        {
+            _round.Paint(_armedFill, _critical, glyph, _critical, text, _critical, sentence: true);
+        }
+        else if (button.Failure is not null)
+        {
+            _round.Paint(_control, _controlEdge, glyph, _critical, text, _critical, sentence: true);
+        }
+        else
+        {
+            var fill = _pressed ? _accentPressed : _hover ? _accentHover : _accent;
+            _round.Paint(fill, fill, glyph, _onAccent, text, _primary);
+        }
     }
 
     /// <summary>The name on its step; the armed sentence (or a failure) on its own, wrapping to two lines if planned.</summary>
