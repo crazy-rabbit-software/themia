@@ -3595,24 +3595,6 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   layouts take no keys.
 - **[S-812]** Tasks and Habits with the lease but no row focused: a movement key lands on an end
   (Up/Down/Home/Tab the first, End/Shift+Tab the last); Enter, Delete and F2 do nothing.
-
-Not wired here (lanes still running; see the WP11 report): Mail (`ListKey` handlers), Clipboard
-(`HandleKey(WidgetKey)` ready), Notes' list and Network drives.
-Not live-verified: focus taking, Alt+Tab, deactivation timing, IME (see the report).
-
-Key routing was fixed after this section was written: the holder now gets its keys in the tunnelling
-pass, before a `ScrollViewer` can take them ([S-860]).
-
-## Widget keys (WIDGET-KEYS)
-
-Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCursor`, `TaskLayout`,
-`HabitLayout`, `CalendarFit.Key`, `ContactRules.MoveSelection`, `AudioRules`, `ControlKeys`,
-`TypeAhead`; tests `WidgetKeyMapTests` and the per-widget suites); the views implement
-`IWidgetKeys` and only carry the answer out. Keys arrive through the lease ([S-800]..[S-812], [S-860]).
-
-- **[S-1980]** Type-ahead (`TypeAhead`): characters typed within a second of each other build one
-  prefix; the cursor goes to the first name starting with it, searching from the cursor itself and
-  wrapping, ignoring case. One letter repeated ("ss") steps through the names starting with it. A
 - **[S-813]** One interaction session, app-wide (Core `WidgetSession<T>`, tests `WidgetSessionTests`;
   `AppHost.Session.cs`, `DesktopWindow.Session.cs`): from a press on any surface until the user is done.
   It names the widget being worked in — every widget, keys or not — and is the one rule for when a
@@ -3638,6 +3620,24 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
   a press on one surface closes the others' (its own light dismiss handles its own). Popups that are
   not light-dismiss (the scratchpad's full-screen page) stay. Live-check only: a Debug render cannot
   show light dismiss.
+
+Not wired here (lanes still running; see the WP11 report): Mail (`ListKey` handlers), Clipboard
+(`HandleKey(WidgetKey)` ready), Notes' list and Network drives.
+Not live-verified: focus taking, Alt+Tab, deactivation timing, IME (see the report).
+
+Key routing was fixed after this section was written: the holder now gets its keys in the tunnelling
+pass, before a `ScrollViewer` can take them ([S-860]).
+
+## Widget keys (WIDGET-KEYS)
+
+Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCursor`, `TaskLayout`,
+`HabitLayout`, `CalendarFit.Key`, `ContactRules.MoveSelection`, `AudioRules`, `ControlKeys`,
+`TypeAhead`; tests `WidgetKeyMapTests` and the per-widget suites); the views implement
+`IWidgetKeys` and only carry the answer out. Keys arrive through the lease ([S-800]..[S-812], [S-860]).
+
+- **[S-1980]** Type-ahead (`TypeAhead`): characters typed within a second of each other build one
+  prefix; the cursor goes to the first name starting with it, searching from the cursor itself and
+  wrapping, ignoring case. One letter repeated ("ss") steps through the names starting with it. A
   control character never types; a space only inside a prefix (a lone Space is the widget's key). No
   match leaves the cursor, and the character is still used. Escape (every lease end) forgets it.
 - **[S-1996]** Widgets deliberately without keys: Clock, Sun, Moon, Weather now and forecast, Stocks
@@ -4332,6 +4332,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   `headerOpacity`, `accent`, `font`, `items`, `itemOpacity`, `preset`), so a look is checked without
   the settings window.
 - **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip. The edit markers stay square ([S-31b]).
+- **[S-6482]** The default corner radius is 4px (`DesignState.DefaultCornerRadiusPx`; a radius that is
+  not a number loads as 4), by the user's decision: Fluent gives an overlay card 8px. The Default
+  preset reads it from a fresh design ([S-831]); the other presets keep their own (Midnight 6,
+  Daylight 12, Glass 18, Terminal 0, Paper 4), none of which mirrored the old 8.
 - **[S-826]** Font: `system` (Segoe UI Variable), `sans` (Arial), `serif` (Georgia), `mono` (Cascadia
   Mono, Consolas), or any installed family name; a value that is not a plausible family name is the
   system font. Applied to the card content through a presenter, so text inherits it; icon glyphs
@@ -4348,10 +4352,6 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   a header colour at the header opacity, or the widget's fill and Fluent lift at the widget's opacity
   times the header opacity (`DesignLook.HeaderFillOpacity`). 100 % looks as before; 0 % leaves the
   strip clear over the desktop. The body's base reaches 1 DIP under the strip, so no anti-aliased seam
-- **[S-6482]** The default corner radius is 4px (`DesignState.DefaultCornerRadiusPx`; a radius that is
-  not a number loads as 4), by the user's decision: Fluent gives an overlay card 8px. The Default
-  preset reads it from a fresh design ([S-831]); the other presets keep their own (Midnight 6,
-  Daylight 12, Glass 18, Terminal 0, Paper 4), none of which mirrored the old 8.
   opens between the two where their edge falls between pixels (widget scale, an intro, fractional DPI).
 - **[S-829]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-830]** Design presets (the original's six): Default, Midnight, Daylight, Glass, Terminal, Paper.
@@ -4362,35 +4362,12 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-832]** Applying a preset writes its fields in one mutation and leaves every other field alone.
 - **[S-833]** The picker shows the matching preset, or Custom; only owned fields are compared, colours
   case-insensitively, numbers within 0.001.
-- **[S-835]** The default look is Windows 11's, value for value, with the framework's own theme
-  resources (WinUI 1.8 `generic.xaml`, read by key through `FluentLayout.Themed`, never copied):
-  card = `CardBackgroundFillColorDefault` (#0DFFFFFF dark / #B3FFFFFF light) over
-  `SolidBackgroundFillColorBase` (#202020 / #F3F3F3), i.e. #2B2B2B / #FBFBFB; a 1px
-  `CardStrokeColorDefault` (#19000000 / #0F000000); a 4px card corner ([S-6482]: the user's
-  decision over `OverlayCornerRadius` 8, which the `--reference` card still draws), 4
-  (`ControlCornerRadius`) for controls and row highlights; text `TextFillColorPrimary/Secondary/
-  Tertiary`; accent `AccentFillColorDefault` (Light2 dark / Dark1 light); status
-  `SystemFillColorSuccess/Caution/Critical` (#6CCB5F/#FCE100/#FF99A4 dark, #0F7B0F/#9D5D00/#C42B1C
-  light), which are also Stocks' rising/falling colours unless the user picks their own. Type ramp
-  and 16px inset as the Windows widget guidance (Caption 12/16 … Title 28/36, 16px margins). The
-  references: [Color](https://learn.microsoft.com/windows/apps/design/style/color),
-  [Geometry](https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry),
-  [Layering](https://learn.microsoft.com/windows/apps/design/signature-experiences/layering),
-  [Typography](https://learn.microsoft.com/windows/apps/design/signature-experiences/typography),
-  [Widget design fundamentals](https://learn.microsoft.com/windows/apps/design/widgets/widgets-design-fundamentals),
-  and the Adaptive Cards designer's Widgets Board host
 - **[S-6483]** Picking a preset while the design reads as Custom first asks (the settings window's
   `ContentDialog`, `FluentLayout.ConfirmAsync`): "Replace your custom look?", naming the preset and
   what it replaces (theme, colours, font, border, corners, spacing) and what stays (text size, widget
   scale, motion); Replace, or Cancel (the default button, Escape). Cancel writes nothing and the page
   shows Custom again. A design that is a preset is never asked about: nothing of the user's is lost.
   The rule is `DesignPresets.ReplacesCustomLook`.
-  ([widget-dark.json](https://github.com/microsoft/AdaptiveCards/blob/main/samples/HostConfig/widget-dark.json)),
-  whose card (#2C2C2C / #F6F6F6, 1px #19000000 / #0F000000, radius 8) is a CSS approximation of
-  the same tokens; the theme resources win where the two differ. Deliberate differences: no card
-  shadow (the surface is clipped to the cards by `SetWindowRgn`, so a shadow outside them cannot
-  show), and the header is Body Strong in the secondary colour ending 44px down rather than the
-  board's own 48px attribution strip (the board draws that strip itself; it is not a widget's).
 - **[S-6510]** **Two layers.** The card's background ([S-823]: Card, Translucent or None, its colour
   and opacity) and the **item background** — what the things a widget draws inside its card are
   filled with — are apart: a widget whose card is None still shows its items on the item layer.
@@ -4429,6 +4406,29 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   Theme colour as its default) and Item opacity (0..100 %). Settings import names both changes.
 - **[S-6517]** Debug: `--design items=#RRGGBB,itemOpacity=…` sets the app-wide item layer of a
   render ([S-6480]), and `--widget-png … --surface card|translucent|none` the cards' background.
+- **[S-835]** The default look is Windows 11's, value for value, with the framework's own theme
+  resources (WinUI 1.8 `generic.xaml`, read by key through `FluentLayout.Themed`, never copied):
+  card = `CardBackgroundFillColorDefault` (#0DFFFFFF dark / #B3FFFFFF light) over
+  `SolidBackgroundFillColorBase` (#202020 / #F3F3F3), i.e. #2B2B2B / #FBFBFB; a 1px
+  `CardStrokeColorDefault` (#19000000 / #0F000000); a 4px card corner ([S-6482]: the user's
+  decision over `OverlayCornerRadius` 8, which the `--reference` card still draws), 4
+  (`ControlCornerRadius`) for controls and row highlights; text `TextFillColorPrimary/Secondary/
+  Tertiary`; accent `AccentFillColorDefault` (Light2 dark / Dark1 light); status
+  `SystemFillColorSuccess/Caution/Critical` (#6CCB5F/#FCE100/#FF99A4 dark, #0F7B0F/#9D5D00/#C42B1C
+  light), which are also Stocks' rising/falling colours unless the user picks their own. Type ramp
+  and 16px inset as the Windows widget guidance (Caption 12/16 … Title 28/36, 16px margins). The
+  references: [Color](https://learn.microsoft.com/windows/apps/design/style/color),
+  [Geometry](https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry),
+  [Layering](https://learn.microsoft.com/windows/apps/design/signature-experiences/layering),
+  [Typography](https://learn.microsoft.com/windows/apps/design/signature-experiences/typography),
+  [Widget design fundamentals](https://learn.microsoft.com/windows/apps/design/widgets/widgets-design-fundamentals),
+  and the Adaptive Cards designer's Widgets Board host
+  ([widget-dark.json](https://github.com/microsoft/AdaptiveCards/blob/main/samples/HostConfig/widget-dark.json)),
+  whose card (#2C2C2C / #F6F6F6, 1px #19000000 / #0F000000, radius 8) is a CSS approximation of
+  the same tokens; the theme resources win where the two differ. Deliberate differences: no card
+  shadow (the surface is clipped to the cards by `SetWindowRgn`, so a shadow outside them cannot
+  show), and the header is Body Strong in the secondary colour ending 44px down rather than the
+  board's own 48px attribution strip (the board draws that strip itself; it is not a widget's).
 - **[S-836]** The card composites as a WinUI card does: the Fluent tint stops at a solid stroke's
   inner edge (`DesignLook.TintInset`; a `Border`'s background is `InnerBorderEdge`), so the stroke
   lies over the base alone (#1D1D1D / #E5E5E5 at 1px); dashed and dotted lines keep the tint
@@ -6469,6 +6469,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
 `Widgets/ItemMenu.cs` (the one builder), `WidgetCard.cs` (card menu, click), `DesktopWindow.Menu.cs`
 (surface menu), `Gallery/MenuRender.cs`. Tests: `ContextMenuTests`.
 
+- Every one of these menus closes on a press anywhere else on screen, the desktop and other apps
+  included ([S-816]).
 - **[S-1740]** One menu, Windows 11 File Explorer style: a `CommandBarFlyout`, always expanded, with
   the common commands as a **row of icons** on top and the labelled list below. The row's commands
   and order: Cut, Copy, Paste, Rename, Share (the folder widget's files, [S-6416]), Duplicate (items and views only,
@@ -6510,8 +6512,6 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   and writes each open popup to a PNG.
 - **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the
   pointer), as Explorer's does, and flips only to stay on screen. A menu opened from the keyboard sits
-- Every one of these menus closes on a press anywhere else on screen, the desktop and other apps
-  included ([S-816]).
   under its anchor's left edge.
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
   or the point of a right-click on the surface — and flips above only
