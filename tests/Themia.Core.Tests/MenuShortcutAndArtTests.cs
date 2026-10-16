@@ -114,4 +114,31 @@ public sealed class MenuShortcutAndArtTests
         Assert.False(MenuArtRules.IsPlausibleSvg(huge));
         Assert.False(MenuArtRules.IsPlausibleSvg([0x3C, 0x73, 0x76, 0x67, 0xFF, 0xFE, 0x3C, 0x2F, 0x73, 0x76, 0x67, 0x3E]));
     }
+
+    [Theory]
+    [InlineData(1.0, 16)]
+    [InlineData(1.25, 20)]
+    [InlineData(1.5, 24)]
+    [InlineData(1.75, 28)]
+    [InlineData(2.0, 32)]
+    [InlineData(1.33, 22)]
+    public void S1757_a_picture_rasterizes_at_the_icon_slot_at_the_screens_scale(double scale, int expected)
+        => Assert.Equal(expected, MenuArtRules.RasterPixels(scale));
+
+    [Theory]
+    [InlineData(0.0)]
+    [InlineData(-1.0)]
+    [InlineData(0.5)]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    public void S1757_an_unknown_scale_draws_the_slot_itself(double scale)
+        => Assert.Equal(16, MenuArtRules.RasterPixels(scale));
+
+    /// <summary>Regression (2026-10-17): with no raster size each picture drew at 2858² px, 32 MB.</summary>
+    [Theory]
+    [InlineData(4.0)]
+    [InlineData(178.6)]
+    [InlineData(1e9)]
+    public void S1757_the_raster_never_grows_past_a_menu_icon(double scale)
+        => Assert.Equal(MenuArtRules.MaxRasterPixels, MenuArtRules.RasterPixels(scale));
 }

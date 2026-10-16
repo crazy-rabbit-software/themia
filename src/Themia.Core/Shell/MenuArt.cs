@@ -44,6 +44,29 @@ public static class MenuArtRules
     /// <summary>[S-1756] Explorer's pictures are a few hundred bytes; anything far larger is not one.</summary>
     public const int MaxSvgBytes = 64 * 1024;
 
+    /// <summary>The menu icon slot in DIPs: Explorer's pictures are drawn on a 16×16 grid.</summary>
+    public const double SlotDips = 16;
+
+    /// <summary>The largest raster a picture gets, at 400 % scale: past that it is not a menu icon.</summary>
+    public const int MaxRasterPixels = 64;
+
+    /// <summary>
+    /// [S-1757] The square raster, in physical pixels, a picture is drawn at for a screen at
+    /// <paramref name="rasterizationScale"/>: the 16-DIP slot at that scale, rounded up, at least the
+    /// slot and at most <see cref="MaxRasterPixels"/>. Explorer's SVGs carry only a viewBox, and an
+    /// SVG source given no raster size draws at a screen-sized raster (2858² px, 32 MB each; user
+    /// report 2026-10-17: 1 GB after some menus).
+    /// </summary>
+    public static int RasterPixels(double rasterizationScale)
+    {
+        if (!double.IsFinite(rasterizationScale) || rasterizationScale <= 1)
+        {
+            return (int)SlotDips;
+        }
+
+        return (int)Math.Min(MaxRasterPixels, Math.Ceiling(SlotDips * rasterizationScale - 1e-9));
+    }
+
     /// <summary>
     /// [S-1754] The Explorer picture of a Segoe Fluent Icons glyph, or null for a glyph Explorer has
     /// no picture of (that line keeps its one-colour glyph, as Explorer's own lines without art do).

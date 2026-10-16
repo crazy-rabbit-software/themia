@@ -6961,6 +6961,10 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
 - **[S-1756]** A picture file is a trust boundary: drawn only when it is at most 64 KB of UTF-8 with an `<svg>`
   root and no script, external reference, entity or foreign object (`MenuArtRules.IsPlausibleSvg`); anything
   else, a read error or a picture that does not decode is logged and the line keeps its glyph.
+- **[S-1757]** A picture costs kilobytes: it is rasterized at the 16-DIP icon slot at its screen's scale, rounded up
+  and at most 64 px (`MenuArtRules.RasterPixels`), and decoded once per theme and raster size into one source every
+  menu line showing it shares. Explorer's SVGs carry only a viewBox, and a source given no raster size drew each
+  line at 2858² px, 32 MB held until a collection (user report 2026-10-17: 1 GB after opening some menus).
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
   or the point of a right-click on the surface — and flips above only
   when there is no room below.

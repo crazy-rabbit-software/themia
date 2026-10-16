@@ -158,6 +158,10 @@ internal static class MenuRender
                 // for a widget whose header is on the left, so Left is ticked.
                 notes.Header = HeaderPlacement.Left;
                 await HeaderMenuAsync(root, view, notes, System.IO.Path.Combine(outDir, "props-header.png")).ConfigureAwait(true);
+
+                // [S-1757] The menus' pictures must cost kilobytes, not a screen-sized raster each.
+                using var process = System.Diagnostics.Process.GetCurrentProcess();
+                Console.WriteLine($"menu: private {process.PrivateMemorySize64 / (1024.0 * 1024.0):0.0} MB after every menu");
             }
             catch (Exception ex)
             {

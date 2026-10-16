@@ -13,6 +13,12 @@ namespace Themia.App.Shell;
 /// shipped with Themia) and drawn as a menu line's icon in place of its one-colour glyph. Each
 /// picture is read and checked once per theme and kept; a Windows without them, high contrast, a
 /// disabled line and a glyph that turns round right to left keep the glyph.
+/// <para>
+/// [S-1757] Each picture is decoded once per theme and raster size into one shared
+/// <see cref="SvgImageSource"/> that every menu line showing it reuses, rasterized at the icon slot
+/// on its screen: the SVGs carry only a viewBox, and a source with no raster size draws at a
+/// screen-sized raster (32 MB per menu line, held until the next collection).
+/// </para>
 /// </summary>
 internal static class MenuArtIcons
 {
@@ -23,6 +29,9 @@ internal static class MenuArtIcons
 
     private static readonly Lock Gate = new();
     private static readonly Dictionary<(MenuArt Art, bool Dark), byte[]?> Cache = [];
+
+    /// <summary>The decoded pictures, shared by every line; UI thread only (all of Themia's windows are on it).</summary>
+    private static readonly Dictionary<(MenuArt Art, bool Dark, int Pixels), Task<SvgImageSource?>> Sources = [];
     private static readonly Windows.UI.ViewManagement.AccessibilitySettings Accessibility = new();
     private static bool _absentLogged;
 
@@ -52,23 +61,24 @@ internal static class MenuArtIcons
         }
 
         var icon = new ImageIcon { Width = Size, Height = Size };
-        bool? shown = null;
+        (bool Dark, int Pixels)? shown = null;
 
-        void Show(bool dark)
+        // Drawn once it is in its popup: only then are the theme it draws in and its screen's scale known.
+        void Show()
         {
-            if (shown == dark || Bytes(art, dark) is not { } bytes)
+            var dark = icon.ActualTheme == ElementTheme.Dark;
+            var pixels = MenuArtRules.RasterPixels(icon.XamlRoot?.RasterizationScale ?? 1);
+            if (shown == (dark, pixels) || Bytes(art, dark) is not { } bytes)
             {
                 return;
             }
 
-            shown = dark;
-            _ = LoadAsync(icon, art, dark, bytes);
+            shown = (dark, pixels);
+            _ = ShowAsync(icon, art, dark, pixels, bytes);
         }
 
-        // The app's theme until the icon is in its popup, then the theme it actually draws in.
-        Show(Application.Current?.RequestedTheme == ApplicationTheme.Dark);
-        icon.Loaded += (_, _) => Show(icon.ActualTheme == ElementTheme.Dark);
-        icon.ActualThemeChanged += (_, _) => Show(icon.ActualTheme == ElementTheme.Dark);
+        icon.Loaded += (_, _) => Show();
+        icon.ActualThemeChanged += (_, _) => Show();
         return icon;
     }
 
@@ -133,8 +143,32 @@ internal static class MenuArtIcons
         }
     }
 
-    /// <summary>Decode into the icon; a picture that fails is dropped from the cache so later menus keep the glyph.</summary>
-    private static async Task LoadAsync(ImageIcon icon, MenuArt art, bool dark, byte[] bytes)
+    /// <summary>The shared picture into the icon, decoding it on first use.</summary>
+    private static async Task ShowAsync(ImageIcon icon, MenuArt art, bool dark, int pixels, byte[] bytes)
+    {
+        try
+        {
+            var key = (art, dark, pixels);
+            if (!Sources.TryGetValue(key, out var pending))
+            {
+                pending = DecodeAsync(art, dark, pixels, bytes);
+                Sources[key] = pending;
+            }
+
+            if (await pending.ConfigureAwait(true) is { } source)
+            {
+                icon.Source = source;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fire-and-forget from a menu being shown: nothing may escape.
+            Log.Warn(Scope, "a menu picture could not be drawn", ex);
+        }
+    }
+
+    /// <summary>Decode once at the slot's raster; a picture that fails is dropped so later menus keep the glyph.</summary>
+    private static async Task<SvgImageSource?> DecodeAsync(MenuArt art, bool dark, int pixels, byte[] bytes)
     {
         try
         {
@@ -142,26 +176,26 @@ internal static class MenuArtIcons
             await stream.WriteAsync(bytes.AsBuffer());
             stream.Seek(0);
 
-            // No raster size: the image draws the vector at its own size and the screen's scale.
-            var source = new SvgImageSource();
+            // [S-1757] Set before the source: without it the viewBox-only SVG draws at a screen-sized raster.
+            var source = new SvgImageSource { RasterizePixelWidth = pixels, RasterizePixelHeight = pixels };
             var status = await source.SetSourceAsync(stream);
-            if (status != SvgImageSourceLoadStatus.Success)
+            if (status == SvgImageSourceLoadStatus.Success)
             {
-                Log.Warn(Scope, $"{MenuArtRules.FileName(art)} did not decode ({status}); later menus keep the glyph");
-                lock (Gate)
-                {
-                    Cache[(art, dark)] = null;
-                }
-
-                return;
+                return source;
             }
 
-            icon.Source = source;
+            Log.Warn(Scope, $"{MenuArtRules.FileName(art)} did not decode ({status}); later menus keep the glyph");
         }
         catch (Exception ex)
         {
-            // Fire-and-forget from a menu being built: nothing may escape.
-            Log.Warn(Scope, "a menu picture could not be drawn", ex);
+            Log.Warn(Scope, $"{MenuArtRules.FileName(art)} could not be decoded; later menus keep the glyph", ex);
         }
+
+        lock (Gate)
+        {
+            Cache[(art, dark)] = null;
+        }
+
+        return null;
     }
 }
