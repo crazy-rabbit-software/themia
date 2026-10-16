@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Xunit;
@@ -164,6 +165,19 @@ public sealed class DiskPingTests
         Assert.Equal("System (C:)", DiskRules.Title(new DiskVolume("C:\\", " System ", false)));
         Assert.Equal("Local Disk (D:)", DiskRules.Title(new DiskVolume("D:\\", "", false)));
         Assert.Equal("USB Drive (E:)", DiskRules.Title(new DiskVolume("E:\\", "", true)));
+    }
+
+    [Fact]
+    public void S1161_the_header_names_the_drive_or_all_drives()
+    {
+        DiskVolume[] volumes = [new("C:\\", "", false), new("D:\\", "Data", false)];
+
+        Assert.Equal("Local Disk (C:)", DiskRules.HeaderTitle(Locale.En, DiskScope.OneDrive, "C:\\", volumes));
+        Assert.Equal("Data (D:)", DiskRules.HeaderTitle(Locale.En, DiskScope.OneDrive, "d:\\", volumes));
+
+        // A drive the walk did not list is still named, by its letter.
+        Assert.Equal("F:", DiskRules.HeaderTitle(Locale.En, DiskScope.OneDrive, "F:\\", volumes));
+        Assert.Equal("All drives", DiskRules.HeaderTitle(Locale.En, DiskScope.AllDrives, "C:\\", volumes));
     }
 
     // ---- S-1166: the drives list -------------------------------------------------------------------

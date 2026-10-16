@@ -54,7 +54,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly Brush _cautionBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Orange);
     private readonly Brush _criticalBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
     private readonly Brush _successBrush = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
-    private readonly Brush _tokenBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
 
     private WidgetConfig _config;
     private SeriesWatch? _watch;
@@ -64,10 +63,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     // the text block at all: re-applying a font size is a layout invalidation the tile does not need.
     private TypeStep? _heroStep;
     private bool _badged;
-    private bool _tokenBeside = true;
-    private readonly Microsoft.UI.Xaml.Documents.Run _tokenGap;
     private string _shown = string.Empty;
-    private string? _token;
 
     private WidgetArea _area;
     private bool _graph;
@@ -93,7 +89,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _part = MeterPart.For(kind);
         _config = WidgetConfig.CreateDefault(kind);
         _band = new SparkBand(60, _part.Scale);
-        _tokenGap = WidgetParts.Run("  ", _tokenBrush);
 
         _reading.SetValue("--", string.Empty, false);
 
@@ -226,16 +221,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // [S-1824] Edge to edge either way; beside the reading its column's own inset separates the two.
         _band.Margin = side ? new Thickness(0) : new Thickness(0, Fluent.Space2, 0, 0);
 
-        // [S-1161] The token on the reading's baseline where it fits, else on its own line under it.
-        if (plan.Reading != _heroStep || plan.TokenBeside != _tokenBeside)
-        {
-            _heroStep = plan.Reading;
-            _tokenBeside = plan.TokenBeside;
-
-            // Beside, two spaces part it from the unit; under, it starts at the readout's left edge.
-            _tokenGap.Text = plan.TokenBeside ? "  " : string.Empty;
-            _reading.Lay(plan.Reading, _badged, trailingBeside: plan.TokenBeside, linesBeside: false);
-        }
+        ApplyHero(plan.Reading);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -252,7 +238,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _graph = gauge is { DrawsHistory: true };
 
         _part.ApplyConfig(_config, this);
-        ShowToken();
         UseLook(_part.Look(_config));
 
         // [S-1121] The span at the series' spacing ([S-2512]: a ping point is five seconds).
@@ -268,23 +253,6 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         }
 
         Lay();
-    }
-
-    /// <summary>[S-1161] The kind's word after the reading (the disk's drive), laid again only when it changed.</summary>
-    private void ShowToken()
-    {
-        var token = _part.Token;
-        if (token == _token)
-        {
-            return;
-        }
-
-        _token = token;
-        // The kind's glyph before the word, so "C:" does not read as the end of the unit.
-        _reading.SetTrailing(token is null
-            ? []
-            : [_tokenGap, WidgetParts.GlyphRun(WidgetCatalog.Definition(_kind).Glyph, _tokenBrush), WidgetParts.Run(" " + token, _tokenBrush)]);
-        _heroStep = null;
     }
 
     /// <summary>
@@ -367,7 +335,8 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // Unavailable is a colour, not an opacity. Pressure colours the chart, never the number,
         // which stays legible whatever the load. Why it is unavailable is said on hover.
         _reading.ValueLine.Foreground = reading.Available ? _readingBrush : _unavailableBrush;
-        ToolTipService.SetToolTip(_reading, reading.Available ? null : reading.Reason);
+        // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.
+        ToolTipService.SetToolTip(_reading, reading.Available ? _part.ReadingTip : reading.Reason);
 
         var pressure = Pressure(_part.PressureOf(reading));
         _band.SetBrush(pressure);

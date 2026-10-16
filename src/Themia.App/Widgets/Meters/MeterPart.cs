@@ -96,8 +96,8 @@ internal abstract class MeterPart
     public abstract WidgetKind Kind { get; }
 
     /// <summary>
-    /// [S-3860] The widest reading this kind can produce ("100%", German "100 %"), its number, unit
-    /// and token counted apart at the sizes they are drawn. The kind's worst case, never the live
+    /// [S-3860] The widest reading this kind can produce ("100%", German "100 %"), its number and
+    /// unit counted apart at the sizes they are drawn. The kind's worst case, never the live
     /// text, so the number does not change size between two samples.
     /// </summary>
     public virtual HeroBound Reading => HeroBound.Of(Formatting.Percent(1));
@@ -124,14 +124,10 @@ internal abstract class MeterPart
     public virtual bool HasBadge => false;
 
     /// <summary>
-    /// [S-1161] A short word on the reading's baseline after it, in the secondary colour behind the
-    /// kind's glyph (the disk meter's drive), or null. A kind with one counts it in
-    /// <see cref="Reading"/> (<see cref="TokenCharacters"/>).
+    /// [S-1161] The reading's tooltip while it is available: what the reading is about (the disk
+    /// meter's drive), so a card whose header is switched off still says it; null for none.
     /// </summary>
-    public virtual string? Token => null;
-
-    /// <summary>The token as <see cref="MeterView"/> draws it: two spaces, the kind's glyph, a space, the word.</summary>
-    protected double TokenCharacters => Token is { } token ? 4 + token.Length : 0;
+    public virtual string? ReadingTip => null;
 
     /// <summary>
     /// [S-2504] [S-2513] The hub series this config shows: the one the state asks the hub for, so

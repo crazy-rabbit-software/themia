@@ -195,17 +195,16 @@ public readonly record struct HeroText(string Value, string Unit, bool Spaced);
 
 /// <summary>
 /// [S-3860] The widest reading a hero is laid out for, in characters of each run as the readout
-/// draws it: the number at the value's step, the unit (with its space) at <see cref="HeroLayout.UnitStep"/>,
-/// the token on the baseline after them at <see cref="HeroLayout.TrailingStep"/>. A bound, never the
-/// live text, so the number does not change size between two samples.
+/// draws it: the number at the value's step, the unit (with its space) at <see cref="HeroLayout.UnitStep"/>.
+/// A bound, never the live text, so the number does not change size between two samples.
 /// </summary>
-public readonly record struct HeroBound(double Value, double Unit, double Token = 0)
+public readonly record struct HeroBound(double Value, double Unit)
 {
     /// <summary>The bound of a worst-case formatted reading ("100%", "1023 KB/s"), split as the readout splits it.</summary>
-    public static HeroBound Of(string worstCase, double tokenCharacters = 0)
+    public static HeroBound Of(string worstCase)
     {
         var text = HeroLayout.Split(worstCase);
         var unit = text.Unit.Length == 0 ? 0 : text.Unit.Length + (text.Spaced ? 1 : 0);
-        return new HeroBound(text.Value.Length, unit, tokenCharacters);
+        return new HeroBound(text.Value.Length, unit);
     }
 }

@@ -156,15 +156,15 @@ public sealed class MeterFaceTests
             || badged.Reading == FluentType.Subtitle);
     }
 
-    // The seven tiers as a meter is given them: under a header (Memory, CPU) and headerless (Disk, [S-700]).
+    // The seven tiers as a meter is given them: under its header, and with the header switched off.
     public static TheoryData<double, double> Tiers => new()
     {
         { 120, 76 }, { 200, 106 }, { 320, 196 }, { 480, 116 }, { 200, 356 }, { 560, 376 }, { 800, 516 },
         { 120, 120 }, { 200, 150 }, { 320, 240 }, { 480, 160 }, { 200, 400 }, { 560, 420 }, { 800, 560 },
     };
 
-    /// <summary>The disk's widest reading: "1023 KB/s", and its drive token ("  ", the glyph, " C:").</summary>
-    private static HeroBound Disk => HeroBound.Of(Formatting.Rate(1023 * 1024), 4 + "C:".Length);
+    /// <summary>The disk's widest reading: "1023 KB/s", the rate alone ([S-1161]: the drive is the header's).</summary>
+    private static HeroBound Disk => HeroBound.Of(Formatting.Rate(1023 * 1024));
 
     [Theory]
     [MemberData(nameof(Tiers))]
@@ -183,33 +183,31 @@ public sealed class MeterFaceTests
             return;
         }
 
+        // The rate's box is Memory's: the same step, column and history.
         Assert.Equal(memory.Reading, disk.Reading);
         Assert.Equal(memory.Arrangement, disk.Arrangement);
         Assert.Equal(memory.ReadingColumn, disk.ReadingColumn);
+        Assert.Equal(memory.GraphHeight, disk.GraphHeight);
     }
 
     [Theory]
     [MemberData(nameof(Tiers))]
-    public void S1161_the_drive_token_stands_beside_the_rate_only_where_it_fits_else_under_it(double width, double height)
+    public void S1161_the_disk_reading_is_the_rate_alone_with_no_drive_line_under_it(double width, double height)
     {
+        // The drive is the header's ([S-1161]): stacked, the history takes everything under the rate's one line.
         var plan = MeterFace.Plan(new WidgetArea(width, height), true, Disk, false, Gap, Floor);
-        var text = plan.ReadingColumn - (2 * Inset);
-        var line = HeroLayout.ValueWidth(plan.Reading, Disk.Value, Disk.Unit) + FluentType.EstimateWidth(HeroLayout.TrailingStep(plan.Reading), Disk.Token);
 
-        Assert.Equal(line <= text + 1e-6, plan.TokenBeside);
-
-        if (plan.Arrangement == MeterFaceArrangement.Stacked && !plan.TokenBeside)
+        if (plan.Arrangement == MeterFaceArrangement.Stacked)
         {
-            // The token's own line under the rate comes out of the history, never past the card's edge.
-            Assert.Equal(height, Top + plan.Reading.LineHeight + HeroLayout.TrailingStep(plan.Reading).LineHeight + Gap + plan.GraphHeight, 6);
+            Assert.Equal(height, Top + plan.Reading.LineHeight + Gap + plan.GraphHeight, 6);
         }
     }
 
     [Fact]
     public void S3860_a_bound_counts_the_number_and_its_unit_apart()
     {
-        Assert.Equal(new HeroBound(3, 1, 0), HeroBound.Of("100%"));
-        Assert.Equal(new HeroBound(4, 5, 6), HeroBound.Of("1023 KB/s", 6));
-        Assert.Equal(new HeroBound(2, 0, 0), HeroBound.Of("--"));
+        Assert.Equal(new HeroBound(3, 1), HeroBound.Of("100%"));
+        Assert.Equal(new HeroBound(4, 5), HeroBound.Of("1023 KB/s"));
+        Assert.Equal(new HeroBound(2, 0), HeroBound.Of("--"));
     }
 }

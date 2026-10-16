@@ -194,6 +194,31 @@ public static class DiskRules
 
     private static double Clean(double value) => double.IsFinite(value) && value > 0 ? value : 0;
 
+    /// <summary>
+    /// [S-1161] The disk meter's header title, the one place it names its drive: the drive as
+    /// Explorer names it (<see cref="Title(Locale, DiskVolume)"/>) from <paramref name="volumes"/>,
+    /// its letter ("C:") when the walk did not list it, "All drives" for every drive.
+    /// </summary>
+    public static string HeaderTitle(Locale locale, Themia.Core.Model.DiskScope scope, string root, IReadOnlyList<DiskVolume> volumes)
+    {
+        ArgumentNullException.ThrowIfNull(volumes);
+
+        if (scope == Themia.Core.Model.DiskScope.AllDrives)
+        {
+            return Strings.Get(locale, Str.WidgetsB_Disk_AllDrives);
+        }
+
+        foreach (var volume in volumes)
+        {
+            if (string.Equals(Instance(volume.Root), Instance(root), StringComparison.OrdinalIgnoreCase))
+            {
+                return Title(locale, volume);
+            }
+        }
+
+        return Instance(root);
+    }
+
     /// <summary>[S-1161] The header title, as Explorer names a drive: "System (C:)", "Local Disk (C:)", "USB Drive (E:)".</summary>
     public static string Title(DiskVolume volume) => Title(Strings.Current, volume);
 

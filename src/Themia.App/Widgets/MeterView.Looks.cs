@@ -175,7 +175,7 @@ internal sealed partial class MeterView
         _reading.Margin = new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, under);
 
         var step = GaugeLayout.Reading(g, _part.Reading, FluentType.Body, FluentType.Display);
-        ApplyHero(step, beside: MeterFace.TokenFits(step, 2 * g.InnerRadius, _part.Reading, _badged));
+        ApplyHero(step);
     }
 
     /// <summary>
@@ -240,7 +240,7 @@ internal sealed partial class MeterView
                 step = HeroLayout.Grow(step, width, room, _part.Reading.Value, _part.Reading.Unit);
                 var top = Math.Max(HeroLayout.TopInset, (_area.Height - step.LineHeight - Fluent.Space2 - block) / 2);
                 _reading.Margin = new Thickness(HeroLayout.SideInset, top, HeroLayout.SideInset, 0);
-                ApplyHero(step, MeterFace.TokenFits(step, width, _part.Reading, _badged));
+                ApplyHero(step);
             }
         }
         else if (_tiles is not null)
@@ -271,20 +271,18 @@ internal sealed partial class MeterView
             ? new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0)
             : new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
 
-        ApplyHero(plan.Reading, plan.TokenBeside);
+        ApplyHero(plan.Reading);
     }
 
-    /// <summary>[S-3860] The readout at a step, touched only when the step or the token's place changed.</summary>
-    private void ApplyHero(TypeStep step, bool beside)
+    /// <summary>[S-3860] The readout at a step, touched only when the step changed.</summary>
+    private void ApplyHero(TypeStep step)
     {
-        if (step == _heroStep && beside == _tokenBeside)
+        if (step == _heroStep)
         {
             return;
         }
 
         _heroStep = step;
-        _tokenBeside = beside;
-        _tokenGap.Text = beside ? "  " : string.Empty;
-        _reading.Lay(step, _badged, trailingBeside: beside, linesBeside: false);
+        _reading.Lay(step, _badged, trailingBeside: true, linesBeside: false);
     }
 }
