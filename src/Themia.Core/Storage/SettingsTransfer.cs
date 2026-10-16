@@ -431,6 +431,7 @@ public static class SettingsTransfer
         Line(Str.Settings_Style_WidgetOpacity_Label, old.SurfaceOpacity, @new.SurfaceOpacity, Percent);
         Line(Str.Shell_Items_Colour, old.ItemBackground.Color, @new.ItemBackground.Color, Colour);
         Line(Str.Shell_Items_Opacity, old.ItemBackground.Opacity, @new.ItemBackground.Opacity, Percent);
+        Line(Str.Shell_Items_Text, old.ItemTextColor, @new.ItemTextColor, Colour);
         Line(Str.Settings_Style_CornerRadius_Label, old.CornerRadiusPx, @new.CornerRadiusPx, Px);
         Line(Str.Settings_Style_Border, old.BorderStyle, @new.BorderStyle, Border);
         Line(Str.Settings_Style_BorderWidth_Label, old.BorderWidthPx, @new.BorderWidthPx, Px);

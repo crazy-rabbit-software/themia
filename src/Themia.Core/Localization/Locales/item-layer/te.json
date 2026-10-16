@@ -2,5 +2,8 @@
   "shell.items.background": "అంశాల నేపథ్యం",
   "shell.items.backgroundDesc": "విడ్జెట్‌లలోని వరుసలు, టైల్‌లు, చిప్‌ల నింపు, విడ్జెట్ సొంత నేపథ్యం నుండి వేరుగా",
   "shell.items.colour": "అంశాల రంగు",
-  "shell.items.opacity": "అంశాల అపారదర్శకత"
+  "shell.items.opacity": "అంశాల అపారదర్శకత",
+  "shell.items.text": "అంశం వచనం రంగు",
+  "shell.items.textDesc": "వరుసలు, టైల్స్, చిప్‌లపై వచనం మరియు చిహ్నాలు",
+  "shell.items.textShort": "అంశం వచనం"
 }

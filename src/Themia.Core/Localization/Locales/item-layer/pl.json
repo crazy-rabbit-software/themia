@@ -2,5 +2,8 @@
   "shell.items.background": "Tło elementów",
   "shell.items.backgroundDesc": "Wypełnienie wierszy, kafelków i etykiet w widżetach, niezależne od tła samego widżetu",
   "shell.items.colour": "Kolor elementów",
-  "shell.items.opacity": "Krycie elementów"
+  "shell.items.opacity": "Krycie elementów",
+  "shell.items.text": "Kolor tekstu elementów",
+  "shell.items.textDesc": "Tekst i ikony na wierszach, kafelkach i etykietach",
+  "shell.items.textShort": "Tekst elementów"
 }

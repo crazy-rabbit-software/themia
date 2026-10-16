@@ -2,5 +2,8 @@
   "shell.items.background": "Nền mục",
   "shell.items.backgroundDesc": "Phần tô của hàng, ô và nhãn bên trong tiện ích, tách biệt với nền của chính tiện ích",
   "shell.items.colour": "Màu mục",
-  "shell.items.opacity": "Độ mờ đục của mục"
+  "shell.items.opacity": "Độ mờ đục của mục",
+  "shell.items.text": "Màu chữ của mục",
+  "shell.items.textDesc": "Chữ và biểu tượng trên hàng, ô và chip",
+  "shell.items.textShort": "Chữ của mục"
 }

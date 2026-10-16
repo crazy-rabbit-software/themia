@@ -2,5 +2,8 @@
   "shell.items.background": "Latar item",
   "shell.items.backgroundDesc": "Isian baris, ubin, dan cip di dalam widget, terpisah dari latar widget itu sendiri",
   "shell.items.colour": "Warna item",
-  "shell.items.opacity": "Opasitas item"
+  "shell.items.opacity": "Opasitas item",
+  "shell.items.text": "Warna teks item",
+  "shell.items.textDesc": "Teks dan ikon pada baris, ubin, dan chip",
+  "shell.items.textShort": "Teks item"
 }

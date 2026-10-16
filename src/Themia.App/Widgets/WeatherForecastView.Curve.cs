@@ -65,6 +65,13 @@ internal sealed partial class WeatherForecastView
             SetColumn(label, i);
             grid.Children.Add(label);
 
+            // [S-6546] Today's column stands on its chip, laid beside its parts rather than round them.
+            var onChip = day.Day == today;
+            if (onChip)
+            {
+                ItemFill.OnItem(label);
+            }
+
             if (plan.Icon)
             {
                 var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", PartMetrics.DayIcon);
@@ -72,6 +79,10 @@ internal sealed partial class WeatherForecastView
                 SetRow(icon, 1);
                 SetColumn(icon, i);
                 grid.Children.Add(icon);
+                if (onChip)
+                {
+                    ItemFill.OnItem(icon);
+                }
             }
 
             if (plan.Precipitation)
@@ -81,6 +92,10 @@ internal sealed partial class WeatherForecastView
                 SetRow(rain, chartRow + 1);
                 SetColumn(rain, i);
                 grid.Children.Add(rain);
+                if (onChip)
+                {
+                    ItemFill.OnItem(rain);
+                }
             }
 
             // A hit target per column for the day's summary; the chart itself is not hit-testable.
@@ -112,10 +127,10 @@ internal sealed partial class WeatherForecastView
         double? now = todayIndex >= 0 ? _nowTemperature : null;
         var (coldest, warmest) = ForecastCurve.Scale((plan.Low ? highs.Concat(lows) : highs).Append(now));
 
-        Draw(canvas, ForecastCurve.Points(highs, coldest, warmest, plan.ColumnWidth, top, bottom), highs, _highBrush, above: true, plan.ColumnWidth);
+        Draw(canvas, ForecastCurve.Points(highs, coldest, warmest, plan.ColumnWidth, top, bottom), highs, _highBrush, above: true, plan.ColumnWidth, todayIndex);
         if (plan.Low)
         {
-            Draw(canvas, ForecastCurve.Points(lows, coldest, warmest, plan.ColumnWidth, top, bottom), lows, _lowBrush, above: false, plan.ColumnWidth);
+            Draw(canvas, ForecastCurve.Points(lows, coldest, warmest, plan.ColumnWidth, top, bottom), lows, _lowBrush, above: false, plan.ColumnWidth, todayIndex);
         }
 
         if (todayIndex >= 0)
@@ -173,7 +188,7 @@ internal sealed partial class WeatherForecastView
     }
 
     /// <summary>One curve: the smooth runs, a dot on each day and the day's figure over (or under) it.</summary>
-    private static void Draw(Canvas canvas, IReadOnlyList<CurvePoint?> points, List<double?> values, Brush brush, bool above, double columnWidth)
+    private static void Draw(Canvas canvas, IReadOnlyList<CurvePoint?> points, List<double?> values, Brush brush, bool above, double columnWidth, int todayIndex)
     {
         foreach (var run in ForecastCurve.Smooth(points))
         {
@@ -226,6 +241,12 @@ internal sealed partial class WeatherForecastView
             Canvas.SetLeft(text, i * columnWidth);
             Canvas.SetTop(text, above ? p.Y - (CurveDot / 2) - line : p.Y + (CurveDot / 2));
             canvas.Children.Add(text);
+
+            // [S-6546] Today's figures stand on its selected chip, which lies behind the chart.
+            if (i == todayIndex)
+            {
+                ItemFill.OnItem(text);
+            }
         }
     }
 }

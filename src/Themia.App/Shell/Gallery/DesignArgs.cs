@@ -10,7 +10,7 @@ namespace Themia.App.Shell.Gallery;
 /// Keys: <c>border</c> (none|solid|dashed|dotted), <c>borderWidth</c>, <c>borderOpacity</c> (0..1 or
 /// a percentage such as 25%), <c>borderColor</c> (#RRGGBB), <c>radius</c>, <c>background</c>,
 /// <c>opacity</c>, <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
-/// <c>itemOpacity</c> (the item layer, [S-6510]), <c>preset</c> (applied first, so later keys refine it). An unknown key or a bad value is printed and skipped.
+/// <c>itemOpacity</c> (the item layer, [S-6510]), <c>itemText</c> (its text colour, [S-6547]), <c>preset</c> (applied first, so later keys refine it). An unknown key or a bad value is printed and skipped.
 /// </summary>
 internal static class DesignArgs
 {
@@ -85,6 +85,9 @@ internal static class DesignArgs
                 return true;
             case "itemopacity" when Fraction(value) is { } o:
                 d.ItemBackground.Opacity = o;
+                return true;
+            case "itemtext" or "itemtextcolor" or "itemtextcolour":
+                d.ItemTextColor = value;
                 return true;
             default:
                 return false;

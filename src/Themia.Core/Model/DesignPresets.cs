@@ -15,9 +15,9 @@ public enum DesignPresetId
 }
 
 /// <summary>
-/// The look a preset sets: the fifteen appearance fields it owns, and nothing else. [S-830]
-/// [S-6515] The last two are the item background ([S-6510]); a preset that does not name them
-/// leaves the items on their Fluent fills.
+/// The look a preset sets: the sixteen appearance fields it owns, and nothing else. [S-830]
+/// [S-6515] The last three are the item layer: its background ([S-6510]) and its text colour
+/// ([S-6540]); a preset that does not name them leaves the items on their Fluent fills and text.
 /// </summary>
 public sealed record DesignPresetValues(
     AppTheme Theme,
@@ -34,7 +34,8 @@ public sealed record DesignPresetValues(
     double CornerRadiusPx,
     double WidgetGapPx,
     string ItemColor = "",
-    double ItemOpacity = 1.0);
+    double ItemOpacity = 1.0,
+    string ItemTextColor = "");
 
 /// <summary>One named look.</summary>
 public sealed record DesignPreset(DesignPresetId Id, Str LabelId, DesignPresetValues Values)
@@ -104,7 +105,7 @@ public static class DesignPresets
         return All[0];
     }
 
-    /// <summary>The fifteen owned fields of a design.</summary>
+    /// <summary>The sixteen owned fields of a design.</summary>
     public static DesignPresetValues ValuesOf(DesignState design)
     {
         ArgumentNullException.ThrowIfNull(design);
@@ -124,7 +125,8 @@ public static class DesignPresets
             design.CornerRadiusPx,
             design.WidgetGapPx,
             design.ItemBackground?.Color ?? string.Empty,
-            design.ItemBackground?.Opacity ?? 1.0);
+            design.ItemBackground?.Opacity ?? 1.0,
+            design.ItemTextColor ?? string.Empty);
     }
 
     /// <summary>
@@ -150,6 +152,7 @@ public static class DesignPresets
         design.CornerRadiusPx = v.CornerRadiusPx;
         design.WidgetGapPx = v.WidgetGapPx;
         design.ItemBackground = new ItemLayer { Color = v.ItemColor, Opacity = v.ItemOpacity };
+        design.ItemTextColor = v.ItemTextColor;
     }
 
     /// <summary>
@@ -201,7 +204,8 @@ public static class DesignPresets
             && Near(a.CornerRadiusPx, b.CornerRadiusPx)
             && Near(a.WidgetGapPx, b.WidgetGapPx)
             && SameText(a.ItemColor, b.ItemColor)
-            && Near(a.ItemOpacity, b.ItemOpacity);
+            && Near(a.ItemOpacity, b.ItemOpacity)
+            && SameText(a.ItemTextColor, b.ItemTextColor);
 
     private static bool SameText(string? a, string? b)
         => string.Equals(a?.Trim() ?? string.Empty, b?.Trim() ?? string.Empty, StringComparison.OrdinalIgnoreCase);

@@ -2,5 +2,8 @@
   "shell.items.background": "ਆਈਟਮ ਦਾ ਪਿਛੋਕੜ",
   "shell.items.backgroundDesc": "ਵਿਜੇਟਾਂ ਅੰਦਰ ਕਤਾਰਾਂ, ਟਾਈਲਾਂ ਅਤੇ ਚਿੱਪਾਂ ਦਾ ਭਰਾਅ, ਵਿਜੇਟ ਦੇ ਆਪਣੇ ਪਿਛੋਕੜ ਤੋਂ ਵੱਖ",
   "shell.items.colour": "ਆਈਟਮ ਦਾ ਰੰਗ",
-  "shell.items.opacity": "ਆਈਟਮ ਦੀ ਧੁੰਦਲਾਪਣ"
+  "shell.items.opacity": "ਆਈਟਮ ਦੀ ਧੁੰਦਲਾਪਣ",
+  "shell.items.text": "ਆਈਟਮ ਲਿਖਤ ਦਾ ਰੰਗ",
+  "shell.items.textDesc": "ਕਤਾਰਾਂ, ਟਾਈਲਾਂ ਅਤੇ ਚਿੱਪਾਂ ਉੱਤੇ ਲਿਖਤ ਅਤੇ ਆਈਕਨ",
+  "shell.items.textShort": "ਆਈਟਮ ਲਿਖਤ"
 }

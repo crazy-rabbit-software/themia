@@ -2,5 +2,8 @@
   "shell.items.background": "項目の背景",
   "shell.items.backgroundDesc": "ウィジェット内の行、タイル、チップの塗りつぶし。ウィジェット自体の背景とは別です",
   "shell.items.colour": "項目の色",
-  "shell.items.opacity": "項目の不透明度"
+  "shell.items.opacity": "項目の不透明度",
+  "shell.items.text": "項目の文字色",
+  "shell.items.textDesc": "行、タイル、チップ上のテキストとアイコン",
+  "shell.items.textShort": "項目の文字"
 }

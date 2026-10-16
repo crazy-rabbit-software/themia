@@ -322,6 +322,14 @@ public sealed class AppStateStore : IAsyncDisposable
         design.ItemBackground ??= new ItemLayer();
         repairs.AddRange(design.ItemBackground.Repair());
 
+        // [S-6543] The item text colour: a colour or empty (the theme's text colours), loudly.
+        var (itemText, itemTextRepair) = Widgets.ItemLook.RepairTextColour(design.ItemTextColor);
+        design.ItemTextColor = itemText;
+        if (itemTextRepair is not null)
+        {
+            repairs.Add(itemTextRepair);
+        }
+
         if (string.IsNullOrWhiteSpace(design.FontFamily))
         {
             design.FontFamily = "system";
@@ -635,6 +643,14 @@ public sealed class AppStateStore : IAsyncDisposable
                 {
                     repairs.Add($"widget '{widget.Id}': {repair}");
                 }
+            }
+
+            // [S-6543] A widget's own item text colour: a colour, or empty to follow the app-wide one.
+            var (ownText, ownTextRepair) = ItemLook.RepairTextColour(widget.ItemTextColor);
+            widget.ItemTextColor = ownText;
+            if (ownTextRepair is not null)
+            {
+                repairs.Add($"widget '{widget.Id}': {ownTextRepair}");
             }
 
             // [S-6533] A scale outside 50–200 % or off the 5 % grain: the nearest one it may hold.

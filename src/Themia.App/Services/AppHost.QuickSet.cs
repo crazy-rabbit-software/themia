@@ -52,6 +52,16 @@ internal sealed partial class AppHost
         }
     }
 
+    /// <summary>[S-6544] Every selected widget's own item text colour, or empty for the app-wide one, in one step.</summary>
+    public void SetSelectedItemTextColor(string hex)
+    {
+        if (SelectionView is { } view)
+        {
+            var ids = Selection.Ids.ToList();
+            Mutate(_ => QuickSet.SetItemTextColor(view, ids, hex));
+        }
+    }
+
     /// <summary>[S-6531] Every selected widget's own content scale, in one step.</summary>
     public void SetSelectedScale(double scale)
     {

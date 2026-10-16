@@ -206,7 +206,7 @@ internal static class EditBarRender
     }
 
     /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null, double Scale = 1.0);
+    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "");
 
     /// <summary>[S-3713] The panel beside real cards in edit mode, each case on the stand-in display.</summary>
     private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
@@ -214,7 +214,8 @@ internal static class EditBarRender
         PropsCard[][] cases =
         [
             // [S-6521] A widget of its own item colour: the Item opacity row shows. [S-6531] At 125 %.
-            [new(WidgetKind.Clock, 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", (int)ClockStyle.Flip, "#2A3248", 1.25)],
+            // [S-6544] Its own item text colour too: white figures on its dark flip cards in either theme.
+            [new(WidgetKind.Clock, 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", (int)ClockStyle.Flip, "#2A3248", 1.25, "#FFFFFF")],
             [new(WidgetKind.Countdown, 980, 160, 280, 180, HeaderPlacement.Top, true)],
             [new(WidgetKind.Shortcuts, 16, 72, 1248, 150, HeaderPlacement.Top, true)],
             [
@@ -260,6 +261,7 @@ internal static class EditBarRender
             model.Label = spec.Label;
             model.ItemBackground = spec.ItemColor is { } items ? new ItemLayer { Color = items, Opacity = 0.8 } : null;
             model.Scale = spec.Scale;
+            model.ItemTextColor = spec.ItemText;
             if (spec.Style is { } style)
             {
                 WidgetStyles.Set(model.Config, style); // [S-6007] the strip's Style shows the current one's icon
@@ -289,7 +291,7 @@ internal static class EditBarRender
         var selection = new WidgetSelection();
         selection.Replace(view.Id, selected);
 
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }));
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }));
         UiLanguage.ApplyFlow(strip);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));
         strip.Visibility = Visibility.Visible;

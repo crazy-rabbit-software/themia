@@ -37,6 +37,7 @@ internal static class Glyphs
     public static readonly string Opacity = From(0xE7E6);
     public static readonly string Surface = From(0xE8B9);
     public static readonly string Font = From(0xE8D2);
+    public static readonly string FontColour = From(0xE8D3);
     public static readonly string TextSize = From(0xE8E9);
     public static readonly string Scale = From(0xE8A9);
     public static readonly string Motion = From(0xE9D2);

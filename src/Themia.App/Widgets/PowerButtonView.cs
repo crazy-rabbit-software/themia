@@ -348,6 +348,7 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
             }
             else
             {
+                ItemFill.Release(this);
                 Background = fill;
             }
 
@@ -370,6 +371,8 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     /// </summary>
     private void PaintRound(PowerButton button, bool armed, string glyph, string text)
     {
+        // [S-6546] The round look draws no tile: only its circle is an item.
+        ItemFill.Release(this);
         Background = _rest;
 
         if (!button.Available)

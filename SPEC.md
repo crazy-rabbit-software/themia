@@ -897,9 +897,9 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: a Title row (a box 32 tall, the kind's name as its placeholder), then
-  Style ([S-6007]), Header, Background, Item background ([S-6521]) and Scale ([S-6531]), and the
+  Style ([S-6007]), Header, Background, Item background ([S-6521]), Item text ([S-6544]) and Scale ([S-6531]), and the
   Settings row ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind
-  only), Header, Background, Item background and Scale, and **no title** and no Settings: a title names one widget, so
+  only), Header, Background, Item background, Item text and Scale, and **no title** and no Settings: a title names one widget, so
   one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
@@ -961,6 +961,11 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   which never gives a widget following the app-wide layer one of its own). The offer reads the
   shared layer, none, or mixed (`QuickSet.CommonItems`; own and none together are mixed). Each pick
   is one `Mutate`, one undo step.
+- **[S-6544]** **Item text** follows (after Item opacity, before Scale): the colour control with
+  **Default** (the app-wide item text colour, its swatch that colour) and the colours
+  (`QuickSet.SetItemTextColor`); Default empties the widgets' own text colour, a colour sets it. It
+  never touches their item background. The offer reads the shared own colour, empty, or mixed (null,
+  shown as Default; `QuickSet.CommonItemText`). One pick, one undo step.
 - **[S-6530]** Each widget has a **scale of its own** (`WidgetInstance.Scale`, a factor, 1 = 100 %),
   50–200 % on a 5 % grain (`WidgetScale.Normalise`: clamped and rounded; not a number is 100 %).
   A new widget is at 100 %; a copy keeps its scale. It magnifies the whole card's content —
@@ -4355,8 +4360,9 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   opens between the two where their edge falls between pixels (widget scale, an intro, fractional DPI).
 - **[S-829]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-830]** Design presets (the original's six): Default, Midnight, Daylight, Glass, Terminal, Paper.
-  Each owns 15 fields (theme, accent, font, widget fill + opacity, header fill + opacity, border
-  style/width/colour/opacity, corner radius, widget gap, item colour + opacity, [S-6515]) and
+  Each owns 16 fields (theme, accent, font, widget fill + opacity, header fill + opacity, border
+  style/width/colour/opacity, corner radius, widget gap, item colour + opacity + text colour, [S-6515],
+  [S-6545]) and
   never widget scale, text size or motion.
 - **[S-831]** Default is read from a fresh `DesignState`, so a fresh install reads as Default.
 - **[S-832]** Applying a preset writes its fields in one mutation and leaves every other field alone.
@@ -4406,6 +4412,39 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   Theme colour as its default) and Item opacity (0..100 %). Settings import names both changes.
 - **[S-6517]** Debug: `--design items=#RRGGBB,itemOpacity=…` sets the app-wide item layer of a
   render ([S-6480]), and `--widget-png … --surface card|translucent|none` the cards' background.
+- **[S-6540]** **Item text colour.** The item layer has a text colour too: the colour of the text and
+  glyphs drawn on items (`#RRGGBB`, empty = the theme's text colours). App-wide on the design
+  (`DesignState.ItemTextColor`) and per widget (`WidgetInstance.ItemTextColor`, empty = follows the
+  app-wide one). Never automatic: no contrast is computed, the user picks it.
+- **[S-6541]** It resolves on its own, apart from the item background (`ItemLook.TextColour`): the
+  widget's own, else the app-wide one, else the theme's. A widget with a background of its own and
+  no text colour of its own takes the app-wide text colour, and the other way round. A stored value
+  that is not a colour reads as empty.
+- **[S-6542]** The Fluent hierarchy is kept (`ItemLook.TextInk`, `ItemTextTier`): without a colour each
+  tier is its `TextFillColorPrimary/Secondary/Tertiary/Disabled`; with one, primary is the colour at
+  full strength and the others the colour at Fluent's own alphas divided by its primary's (dark
+  #C5, #87, #5D of #FF; light #9E, #72, #5C of #E4: 77/53/36 % and 69/50/40 %). The item opacity never
+  fades the text.
+- **[S-6543]** On load a text colour that is not one is empty (the default), loudly, app-wide and per
+  widget (`ItemLook.RepairTextColour`); a missing one is empty, silently.
+- **[S-6545]** The Appearance page's Item background group has **Item text colour** (the colour
+  control, Theme colour as its default, the neutrals first). Presets own it and none sets one (Glass's
+  dark items read with the dark theme's white text). Settings import names the change.
+- **[S-6546]** **Where it reaches: what stands on an item.** One path: `ItemFill.Paint` of any role but
+  Track makes the element an item, and every text, glyph and shape inside it drawn in a theme text
+  colour (the four `TextFillColor*` tiers) is drawn in its card palette's text brush of that tier
+  (`ItemPalette.Text`). A colour the view sets later is inked as it is set (a property-changed watch),
+  new content when the item is painted again or loads; runs follow their text block. `ItemFill.Button`
+  sets the button's foreground resources too. What is laid over an item without being inside it says
+  so (`ItemFill.OnItem`: the round button's icon, a flip card's figures, the forecast's today column
+  and its curve figures); an item that stops being one says so (`ItemFill.Release`: a toggle or power
+  tile turned accent or critical, the round looks' tile). **Not reached:** the card's own text outside
+  items (the header, hero readouts such as a clock face, a meter's figure, a day number on a clear
+  calendar cell, an unselected forecast column), tracks, and any colour that is not a theme text
+  colour (accent, text on accent, status, event colours, the user's own).
+- **[S-6547]** Debug: `--design itemText=#RRGGBB` sets the app-wide item text colour of a render;
+  `--widget-png … --own-items #RRGGBB --own-item-text #RRGGBB` give the cards a layer and a text
+  colour of their own, the per-widget override.
 - **[S-835]** The default look is Windows 11's, value for value, with the framework's own theme
   resources (WinUI 1.8 `generic.xaml`, read by key through `FluentLayout.Themed`, never copied):
   card = `CardBackgroundFillColorDefault` (#0DFFFFFF dark / #B3FFFFFF light) over

@@ -3,5 +3,8 @@
   "shell.items.background": "Item background",
   "shell.items.backgroundDesc": "What rows, tiles and chips inside widgets are filled with, apart from the widget's own background",
   "shell.items.colour": "Item colour",
-  "shell.items.opacity": "Item opacity"
+  "shell.items.opacity": "Item opacity",
+  "shell.items.text": "Item text colour",
+  "shell.items.textDesc": "Text and icons on rows, tiles and chips",
+  "shell.items.textShort": "Item text"
 }

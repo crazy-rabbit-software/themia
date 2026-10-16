@@ -349,6 +349,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         }
         else
         {
+            ItemFill.Release(this);
             Background = fill;
         }
 
@@ -366,6 +367,8 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     /// </summary>
     private void PaintRound(Locale locale, ToggleLook look)
     {
+        // [S-6546] The round look draws no tile: only its circle is an item.
+        ItemFill.Release(this);
         Background = _rest;
         var glyph = Glyph(_toggle, on: look != ToggleLook.Off);
         var name = QuickToggleRules.Name(locale, _toggle);

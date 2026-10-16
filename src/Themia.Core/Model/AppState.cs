@@ -34,6 +34,14 @@ public sealed class WidgetInstance
     public ItemLayer? ItemBackground { get; set; }
 
     /// <summary>
+    /// [S-6540] The colour of the text and glyphs drawn on this widget's items, as <c>#RRGGBB</c>, or
+    /// empty (the default) to follow the app-wide one (<see cref="DesignState.ItemTextColor"/>). Apart
+    /// from <see cref="ItemBackground"/>: each resolves on its own ([S-6541]). Set on the properties
+    /// panel ([S-6544]).
+    /// </summary>
+    public string ItemTextColor { get; set; } = string.Empty;
+
+    /// <summary>
     /// [S-6530] This widget's own content scale, a factor (1 is 100 %): 0.5..2 on a 5 % grain
     /// (<see cref="WidgetScale"/>). It multiplies the display's scale ([S-6532]); like it, it magnifies
     /// what is inside the card, never the card's cell.
@@ -124,6 +132,7 @@ public sealed class WidgetInstance
         Surface = Surface,
         Header = Header,
         ItemBackground = ItemBackground?.Clone(),
+        ItemTextColor = ItemTextColor,
         Scale = Scale,
         Config = Config.Clone(),
         X = X,
@@ -210,6 +219,12 @@ public sealed class DesignState
     /// </summary>
     public ItemLayer ItemBackground { get; set; } = new();
 
+    /// <summary>
+    /// [S-6540] The app-wide colour of the text and glyphs drawn on items, as <c>#RRGGBB</c>. Empty (the
+    /// default) keeps the theme's text colours.
+    /// </summary>
+    public string ItemTextColor { get; set; } = string.Empty;
+
     /// <summary>Accent override, as <c>#RRGGBB</c>. Empty follows the Windows accent colour.</summary>
     public string PrimaryColor { get; set; } = string.Empty;
 
@@ -260,6 +275,7 @@ public sealed class DesignState
         WidgetBackgroundColor = WidgetBackgroundColor,
         SurfaceOpacity = SurfaceOpacity,
         ItemBackground = ItemBackground.Clone(),
+        ItemTextColor = ItemTextColor,
         PrimaryColor = PrimaryColor,
         BorderStyle = BorderStyle,
         BorderWidthPx = BorderWidthPx,

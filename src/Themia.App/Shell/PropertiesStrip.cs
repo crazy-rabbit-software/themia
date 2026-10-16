@@ -20,6 +20,7 @@ namespace Themia.App.Shell;
 /// <param name="OpenSettings">[S-6009] Opens one widget's settings page, by id.</param>
 /// <param name="SetItemColor">[S-6521] The selected widgets' own item colour, or empty for the app-wide item layer.</param>
 /// <param name="SetItemOpacity">[S-6521] The selected widgets' own item opacity, 0..1.</param>
+/// <param name="SetItemTextColor">[S-6544] The selected widgets' own item text colour, or empty for the app-wide one.</param>
 /// <param name="SetScale">[S-6531] The selected widgets' own content scale, as a factor.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
@@ -30,6 +31,7 @@ internal sealed record PropertiesCommands(
     Action<string> OpenSettings,
     Action<string> SetItemColor,
     Action<double> SetItemOpacity,
+    Action<string> SetItemTextColor,
     Action<double> SetScale);
 
 /// <summary>
@@ -37,7 +39,7 @@ internal sealed record PropertiesCommands(
 /// beside the selection ([S-3708]), one row per property, its name before its control — Title (one
 /// widget) or "N selected", Style (one kind with styles, [S-6007]), Header (where every selected
 /// widget can have one, [S-3711]), Background, Item background and, for a widget with a layer of its
-/// own, Item opacity ([S-6521]), Scale ([S-6531]), then Settings (one widget with a page, [S-6009]). After Karpo's
+/// own, Item opacity ([S-6521]), Item text ([S-6544]), Scale ([S-6531]), then Settings (one widget with a page, [S-6009]). After Karpo's
 /// properties panel (docs/widgets.md §145): the selection's own properties, where the selection is.
 /// </summary>
 internal sealed partial class PropertiesStrip : Grid
@@ -133,7 +135,8 @@ internal sealed partial class PropertiesStrip : Grid
             && string.Equals(previous.TitleWidgetId, offer.TitleWidgetId, StringComparison.Ordinal)
             && (offer.HasTitle || previous.Count == offer.Count)
             && previous.ItemsMixed == offer.ItemsMixed
-            && (previous.Items is null ? offer.Items is null : previous.Items.SameAs(offer.Items));
+            && (previous.Items is null ? offer.Items is null : previous.Items.SameAs(offer.Items))
+            && string.Equals(previous.ItemText, offer.ItemText, StringComparison.Ordinal);
 
         if (!sameShape)
         {
@@ -221,6 +224,9 @@ internal sealed partial class PropertiesStrip : Grid
         {
             AddRow(Str.Shell_Items_Opacity.Text(), ItemOpacityChoice(own.Opacity, commands));
         }
+
+        // [S-6544] The colour of the text on their items, "Default" for the app-wide one.
+        AddRow(Str.Shell_Items_TextShort.Text(), ItemTextChoice(commands));
 
         // [S-6531] The widgets' own content scale, after the look of the card it magnifies.
         AddRow(Str.Widget_Scale_Label.Text(), ScaleChoice(commands));
@@ -404,6 +410,33 @@ internal sealed partial class PropertiesStrip : Grid
         choice.Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
         return choice;
     }
+
+    /// <summary>
+    /// [S-6544] The item text colour: the one colour control, "Default" (the app-wide item text
+    /// colour) or a colour of the widgets' own. A mixed selection reads as Default until one is picked.
+    /// </summary>
+    private FrameworkElement ItemTextChoice(PropertiesCommands commands)
+    {
+        var options = new ColorChoiceOptions
+        {
+            DefaultLabel = Str.Common_Default.Text(),
+            Presets = ColorPresets.Surfaces,
+            DefaultColor = AppItemTextColour,
+        };
+
+        var choice = ColorChoice.Create(_offer.ItemText ?? string.Empty, commands.SetItemTextColor, options, Str.Shell_Items_TextShort.Text());
+        choice.MinWidth = 0;
+        choice.Height = EditBar.ButtonSize;
+        choice.HorizontalAlignment = HorizontalAlignment.Stretch;
+        choice.Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
+        return choice;
+    }
+
+    /// <summary>What the text "Default" paints its swatch with: the app-wide item text colour, or nothing (the theme's).</summary>
+    private static Windows.UI.Color? AppItemTextColour()
+        => DesignApplier.Current is { } design && HexColor.TryParse(design.ItemTextColor, out var r, out var g, out var b)
+            ? Windows.UI.Color.FromArgb(255, r, g, b)
+            : null;
 
     /// <summary>What "Default" paints its swatch with: the app-wide item colour, or nothing (the theme's fills).</summary>
     private static Windows.UI.Color? AppItemColour()

@@ -87,6 +87,9 @@ internal sealed partial class RoundButtonPart : Grid
     /// </summary>
     public void Paint(Brush fill, Brush edge, string glyph, Brush icon, string text, Brush label, bool sentence = false)
     {
+        // [S-6546] On a fill of its own the circle is no item, nor is the icon over it.
+        ItemFill.Release(_disc);
+        ItemFill.Release(_icon);
         _disc.Background = fill;
         PaintFace(edge, glyph, icon, text, label, sentence);
     }
@@ -98,6 +101,9 @@ internal sealed partial class RoundButtonPart : Grid
     public void Paint(ItemState face, Brush edge, string glyph, Brush icon, string text, Brush label, bool sentence = false)
     {
         ItemFill.Paint(_disc, ItemRole.Tile, face);
+
+        // [S-6546] The icon is laid over the circle, not inside it: it is the item's text all the same.
+        ItemFill.OnItem(_icon);
         PaintFace(edge, glyph, icon, text, label, sentence);
     }
 

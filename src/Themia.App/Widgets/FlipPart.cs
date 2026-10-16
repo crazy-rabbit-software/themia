@@ -63,6 +63,9 @@ internal sealed class FlipCard
         };
 
         Root = new Grid { Projection = _projection, Children = { _face, _digits, split } };
+
+        // [S-6546] The figures (and a caption a caller adds) are laid over the face, not inside it.
+        ItemFill.OnItem(Root);
     }
 
     /// <summary>The card; a caller may add a corner caption to it (the clock's AM/PM).</summary>

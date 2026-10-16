@@ -20,6 +20,7 @@ namespace Themia.Core.Model;
 /// <param name="Items">[S-6521] Their own item background, or null for the app-wide one (or when they differ, see <paramref name="ItemsMixed"/>).</param>
 /// <param name="ItemsMixed">[S-6521] They do not share one item background.</param>
 /// <param name="Scale">[S-6531] Their own content scale, or null when they differ.</param>
+/// <param name="ItemText">[S-6544] Their own item text colour (empty: they follow the app-wide one), or null when they differ.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
@@ -32,7 +33,8 @@ public sealed record QuickSetOffer(
     int? Style = null,
     ItemLayer? Items = null,
     bool ItemsMixed = false,
-    double? Scale = 1.0)
+    double? Scale = 1.0,
+    string? ItemText = "")
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -92,14 +94,15 @@ public static class QuickSet
 
         // [S-6531] Read as stored, so two widgets at the same percentage always share it.
         var scale = Common(widgets.Select(w => WidgetScale.Normalise(w.Scale)));
+        var itemText = CommonItemText(widgets);
 
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, itemsMixed, scale);
+            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, itemsMixed, scale, itemText);
         }
 
-        return new QuickSetOffer(widgets.Count, header, surface, null, null, null, hasHeader, styleKind, style, items, itemsMixed, scale);
+        return new QuickSetOffer(widgets.Count, header, surface, null, null, null, hasHeader, styleKind, style, items, itemsMixed, scale, itemText);
     }
 
     /// <summary>
@@ -126,6 +129,23 @@ public static class QuickSet
         }
 
         return (first?.Clone(), false);
+    }
+
+    /// <summary>
+    /// [S-6544] The item text colour the widgets share, normalised: empty when none has one of its
+    /// own, the colour when all have the same, null when they differ (one own and one following too).
+    /// </summary>
+    public static string? CommonItemText(IReadOnlyList<WidgetInstance> widgets)
+    {
+        ArgumentNullException.ThrowIfNull(widgets);
+
+        if (widgets.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var first = HexColor.Normalise(widgets[0].ItemTextColor);
+        return widgets.All(w => string.Equals(HexColor.Normalise(w.ItemTextColor), first, StringComparison.Ordinal)) ? first : null;
     }
 
     /// <summary>[S-3703] The one value all of <paramref name="values"/> share; null when they differ or there are none.</summary>
@@ -215,6 +235,18 @@ public static class QuickSet
     {
         var value = ItemLook.Opacity(opacity);
         return Apply(view, ids, w => w.ItemBackground is { } own && Math.Abs(own.Opacity - value) >= 0.001 && Set(() => own.Opacity = value));
+    }
+
+    /// <summary>
+    /// [S-6544] Set the item text colour of every selected widget of <paramref name="view"/>: a
+    /// colour of their own, or empty ("Default") to follow the app-wide one again. Apart from their
+    /// item background, which it never touches. Returns how many changed.
+    /// </summary>
+    public static int SetItemTextColor(ViewState view, IEnumerable<string> ids, string? hex)
+    {
+        var colour = HexColor.Normalise(hex);
+        return Apply(view, ids, w => !string.Equals(HexColor.Normalise(w.ItemTextColor), colour, StringComparison.Ordinal)
+            && Set(() => w.ItemTextColor = colour));
     }
 
     /// <summary>

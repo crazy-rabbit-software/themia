@@ -2,5 +2,8 @@
   "shell.items.background": "پس‌زمینه موارد",
   "shell.items.backgroundDesc": "رنگ پرکردن ردیف‌ها، کاشی‌ها و برچسب‌ها در ابزارک‌ها، جدا از پس‌زمینه خود ابزارک",
   "shell.items.colour": "رنگ موارد",
-  "shell.items.opacity": "کدری موارد"
+  "shell.items.opacity": "کدری موارد",
+  "shell.items.text": "رنگ متن موارد",
+  "shell.items.textDesc": "متن و نمادها روی ردیف‌ها، کاشی‌ها و برچسب‌ها",
+  "shell.items.textShort": "متن موارد"
 }

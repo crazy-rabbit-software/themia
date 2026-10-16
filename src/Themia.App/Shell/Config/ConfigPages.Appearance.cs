@@ -88,6 +88,11 @@ internal static partial class ConfigPages
                     FluentLayout.Row(Glyphs.Opacity, Str.Shell_Items_Opacity.Text(), null,
                         FluentLayout.Slider(design.ItemBackground.Opacity * 100, 0, 100, 5, "%",
                             value => host.Mutate(s => s.Design.ItemBackground.Opacity = value / 100))),
+
+                    // [S-6545] The text and glyphs on the items: the theme's text colours by default.
+                    FluentLayout.ColorPickerRow(Glyphs.FontColour, Str.Shell_Items_Text.Text(), Str.Shell_Items_TextDesc.Text(),
+                        design.ItemTextColor, value => host.Mutate(s => s.Design.ItemTextColor = value),
+                        new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text(), Presets = ColorPresets.Surfaces }),
                 ]),
 
             // The card's shape and its border: the border style is the group's headline.

@@ -207,7 +207,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // [S-6512] The item fills are right before the view paints its first item, and what the view
         // paints while the card is built (it attaches in here too) is drawn from them.
-        _items.Apply(ItemLook.Effective(host.Design, model), DesignApplier.IsDark);
+        _items.Apply(ItemLook.Effective(host.Design, model), ItemLook.TextColour(host.Design, model), DesignApplier.IsDark);
         using var building = ItemPalette.Building(_items);
 
         // [S-891] Guarded: a view that throws while being built becomes an error card, not a hole.
@@ -426,7 +426,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var radius = new CornerRadius(radiusPx);
 
         // [S-6510] The second layer: the view's items, on their own colour whatever the card's fill.
-        _items.Apply(ItemLook.Effective(design, Model), DesignApplier.IsDark);
+        _items.Apply(ItemLook.Effective(design, Model), ItemLook.TextColour(design, Model), DesignApplier.IsDark);
 
         ApplyBodyFill();
 
