@@ -1,8 +1,12 @@
+using System.Numerics;
 using Microsoft.UI;
+using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
+using Themia.App.Shell.Motion;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Windows.Foundation;
@@ -26,6 +30,14 @@ namespace Themia.App.Widgets;
 /// One element for every chart in the app (the meters and the GPU tile) so they read as one family
 /// and there is one drawing path to get right.
 /// </para>
+/// <para>
+/// [S-1826] It scrolls rather than steps: a new point is drawn one sample behind (just beyond the right
+/// edge) and the traces are slid left by one step over the series' period by a composition animation
+/// on their container's Translation, so between points nothing is redrawn on the UI thread. The next
+/// point rebuilds the geometry and resets the translation in the same frame (<see cref="SparkScroll"/>).
+/// The reading beside it is not delayed; only the line is a sample behind. The band clips to its own
+/// bounds, so the slot sliding out at the left and the newest point beyond the right never show.
+/// </para>
 /// </summary>
 internal sealed partial class SparkBand : Grid
 {
@@ -35,9 +47,28 @@ internal sealed partial class SparkBand : Grid
     private readonly Rectangle _baseline = new() { Height = 1, VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Bottom };
     private readonly Queue<double> _first;
     private readonly Queue<double> _second;
+    // [S-1826] The traces, in the one container the slide translates; the baseline stays put.
+    private readonly Grid _plot = new();
+    private readonly RectangleGeometry _clip = new();
     private int _capacity;
     private long _added;
     private ChartScale _scale;
+
+    // [S-1826] Points held beyond the span (the slot sliding out, the newest beyond the edge), for this width.
+    private int _lead = SparkScroll.Lead(1);
+    private int _periodSeconds = SystemCadence.TickSeconds;
+    private Visual? _visual;
+    private ScalarKeyFrameAnimation? _slide;
+    private double _slideDistance = double.NaN;
+    private int _slidePeriod;
+
+#if DEBUG
+    /// <summary>
+    /// Debug renders only: draw every band this far through its slide (0 = just after a point, the
+    /// newest beyond the right edge; 1 = settled), with no animation, so a still image shows the motion.
+    /// </summary>
+    public static double? PreviewProgress { get; set; }
+#endif
 
     public SparkBand(int capacity, ChartScale? scale = null)
     {
@@ -71,12 +102,31 @@ internal sealed partial class SparkBand : Grid
         _baseline.Fill = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray);
 
         IsHitTestVisible = false;
+        Clip = _clip;
+        _plot.Children.Add(_fill);
+        _plot.Children.Add(_line);
+        _plot.Children.Add(_secondLine);
         Children.Add(_baseline);
-        Children.Add(_fill);
-        Children.Add(_line);
-        Children.Add(_secondLine);
-        SizeChanged += (_, _) => Redraw();
+        Children.Add(_plot);
+        SizeChanged += (_, e) =>
+        {
+            _clip.Rect = new Rect(0, 0, e.NewSize.Width, e.NewSize.Height);
+            Redraw(SparkChange.Settle);
+        };
     }
+
+    /// <summary>[S-1826] Seconds between the series' points ([S-2512]: five for a ping): how long one slide takes.</summary>
+    public int PeriodSeconds
+    {
+        get => _periodSeconds;
+        set => _periodSeconds = Math.Max(1, value);
+    }
+
+    /// <summary>
+    /// [S-1826] How many of a history's newest points <see cref="Load"/> keeps: the span and the lead
+    /// (the slot sliding out at the left, the newest beyond the right edge).
+    /// </summary>
+    public int Holds => _capacity + _lead;
 
     /// <summary>How many samples the band holds. Shrinking it drops the oldest; growing keeps them all.</summary>
     public int Capacity
@@ -94,7 +144,7 @@ internal sealed partial class SparkBand : Grid
             _capacity = capacity;
             Trim(_first);
             Trim(_second);
-            Redraw();
+            Redraw(SparkChange.Settle);
         }
     }
 
@@ -110,7 +160,7 @@ internal sealed partial class SparkBand : Grid
             }
 
             _scale = value;
-            Redraw();
+            Redraw(SparkChange.Settle);
         }
     }
 
@@ -141,16 +191,12 @@ internal sealed partial class SparkBand : Grid
             return;
         }
 
-        if (_first.Count >= _capacity)
-        {
-            _first.Dequeue();
-            _second.Dequeue();
-        }
-
         _first.Enqueue(first);
         _second.Enqueue(second is { } s && double.IsFinite(s) ? s : double.NaN);
         _added++;
-        Redraw();
+        Trim(_first);
+        Trim(_second);
+        Redraw(SparkChange.Point);
     }
 
     /// <summary>
@@ -165,7 +211,7 @@ internal sealed partial class SparkBand : Grid
         _second.Clear();
         _added = added ?? points.Count;
 
-        for (var i = Math.Max(0, points.Count - _capacity); i < points.Count; i++)
+        for (var i = Math.Max(0, points.Count - Holds); i < points.Count; i++)
         {
             var point = points[i];
 
@@ -178,7 +224,7 @@ internal sealed partial class SparkBand : Grid
             _second.Enqueue(double.IsFinite(point.Second) ? point.Second : double.NaN);
         }
 
-        Redraw();
+        Redraw(SparkChange.Settle);
     }
 
     /// <summary>Forget the history: the next reading is of something else.</summary>
@@ -187,27 +233,41 @@ internal sealed partial class SparkBand : Grid
         _first.Clear();
         _second.Clear();
         _added = 0;
-        Redraw();
+        Redraw(SparkChange.Settle);
     }
 
     private void Trim(Queue<double> series)
     {
-        while (series.Count > _capacity)
+        while (series.Count > Holds)
         {
             series.Dequeue();
         }
     }
 
-    private void Redraw()
+    private void Redraw(SparkChange change)
     {
+        // [S-1827] [S-1828] Only a new point on a shown band with animation effects on slides; every
+        // other drawing is settled, the newest point at the right edge.
+        var animates = change == SparkChange.Point
+            && Visibility == Microsoft.UI.Xaml.Visibility.Visible
+            && SystemMotion.AnimationsEnabled;
+        var frame = SparkScroll.Plan(change, animates);
+#if DEBUG
+        if (PreviewProgress is { } progress)
+        {
+            frame = new SparkFrame(1 - Math.Clamp(progress, 0, 1), false);
+        }
+#endif
+
+        // The geometry and the translation change in the same frame: a slide still running stops here.
+        StopSlide();
+
         var width = ActualWidth;
         var height = ActualHeight;
 
         if (width <= 0 || height <= 0 || _first.Count < 2)
         {
-            _line.Points.Clear();
-            _fill.Points.Clear();
-            _secondLine.Points.Clear();
+            ClearTraces();
             return;
         }
 
@@ -215,27 +275,37 @@ internal sealed partial class SparkBand : Grid
         // points (by their absolute position), its peak on a rate chart and its mean on a share.
         var size = MeterTiming.BucketSize(_capacity, width);
         var window = MeterTiming.Slots(_capacity, size);
+        _lead = SparkScroll.Lead(size);
         var first = MeterTiming.Fold(_first.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
         var second = MeterTiming.Fold(_second.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
-        first = first[Math.Max(0, first.Length - window)..];
-        second = second[Math.Max(0, second.Length - window)..];
-
-        if (first.Length < 2)
-        {
-            _line.Points.Clear();
-            _fill.Points.Clear();
-            _secondLine.Points.Clear();
-            return;
-        }
-
-        var ceiling = _scale.Ceiling(first, second);
 
         // [S-1824] Inset by the stroke on every side, so 0%, 100% and the newest sample are never
         // clipped in half at the chart's edge.
         var inset = _line.StrokeThickness;
         var usable = Math.Max(1, height - inset);
 
-        var line = Trace(first, window, ceiling, width, inset, usable);
+        // [S-1826] Each slot's x at this lag; the slots wholly past the left edge are left out.
+        var (skip, xs) = SparkScroll.Layout(first.Length, _added, size, window, width, inset, frame.Lag);
+        first = first[skip..];
+        second = second[Math.Min(skip, second.Length)..];
+
+        if (first.Length < 2 || xs.Length != first.Length)
+        {
+            ClearTraces();
+            return;
+        }
+
+        // [S-1829] The scale is the drawn slots', the newest beyond the edge too, so it is in place
+        // before that point slides into view.
+        var ceiling = _scale.Ceiling(first, second);
+
+        var line = Trace(first, xs, ceiling, inset, usable);
+        if (line.Count == 0)
+        {
+            ClearTraces();
+            return;
+        }
+
         var fill = new PointCollection { new(line[0].X, height) };
         foreach (var point in line)
         {
@@ -246,15 +316,72 @@ internal sealed partial class SparkBand : Grid
 
         _line.Points = line;
         _fill.Points = fill;
-        _secondLine.Points = Trace(second, window, ceiling, width, inset, usable);
+        _secondLine.Points = Trace(second, xs, ceiling, inset, usable);
+
+        if (frame.Slides)
+        {
+            StartSlide(SparkScroll.Step(size, window, width, inset) * frame.Lag);
+        }
     }
 
-    /// <summary>A series as points. X from <see cref="Sparkline.PlotX"/>, which pins the newest to the right edge less half a stroke; gaps are skipped.</summary>
-    private static PointCollection Trace(ReadOnlySpan<double> samples, int window, double ceiling, double width, double inset, double usable)
+    private void ClearTraces()
+    {
+        _line.Points.Clear();
+        _fill.Points.Clear();
+        _secondLine.Points.Clear();
+    }
+
+    /// <summary>[S-1826] Stop a slide where it is and put the traces back at rest; the caller redraws them in the same frame.</summary>
+    private void StopSlide()
+    {
+        if (_visual is null)
+        {
+            return;
+        }
+
+        _visual.StopAnimation("Translation.X");
+        _visual.Properties.InsertVector3("Translation", Vector3.Zero);
+    }
+
+    /// <summary>
+    /// [S-1826] Slide the traces <paramref name="distance"/> DIPs left over one period, linearly, on
+    /// the compositor: no per-frame work on the UI thread. The animation is made once and reused.
+    /// </summary>
+    private void StartSlide(double distance)
+    {
+        if (!(distance > 0))
+        {
+            return;
+        }
+
+        if (_visual is null)
+        {
+            ElementCompositionPreview.SetIsTranslationEnabled(_plot, true);
+            _visual = ElementCompositionPreview.GetElementVisual(_plot);
+            _visual.Properties.InsertVector3("Translation", Vector3.Zero);
+        }
+
+        if (_slide is null || distance != _slideDistance || _periodSeconds != _slidePeriod)
+        {
+            var compositor = _visual.Compositor;
+            var linear = compositor.CreateLinearEasingFunction();
+            _slide ??= compositor.CreateScalarKeyFrameAnimation();
+            _slide.InsertKeyFrame(0f, 0f, linear);
+            _slide.InsertKeyFrame(1f, (float)-distance, linear);
+            _slide.Duration = TimeSpan.FromSeconds(_periodSeconds);
+            _slideDistance = distance;
+            _slidePeriod = _periodSeconds;
+        }
+
+        _visual.StartAnimation("Translation.X", _slide);
+    }
+
+    /// <summary>A series as points, at the slots' x from <see cref="SparkScroll.Layout"/>; gaps are skipped.</summary>
+    private static PointCollection Trace(ReadOnlySpan<double> samples, double[] xs, double ceiling, double inset, double usable)
     {
         var points = new PointCollection();
 
-        for (var i = 0; i < samples.Length; i++)
+        for (var i = 0; i < samples.Length && i < xs.Length; i++)
         {
             var fraction = ChartScale.Fraction(samples[i], ceiling);
             if (double.IsNaN(fraction))
@@ -262,9 +389,8 @@ internal sealed partial class SparkBand : Grid
                 continue;
             }
 
-            var x = Sparkline.PlotX(i, samples.Length, window, width, inset);
             var y = (inset / 2) + (Sparkline.SampleY(fraction) * usable);
-            points.Add(new Point(x, y));
+            points.Add(new Point(xs[i], y));
         }
 
         return points;

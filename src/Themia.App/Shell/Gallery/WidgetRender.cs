@@ -31,7 +31,7 @@ internal interface IWidgetPreviewState
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--style name] [--scale f] [--own-items #RRGGBB] [--own-item-text #RRGGBB]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// [--state name] [--progress 0..1] [--style name] [--scale f] [--own-items #RRGGBB] [--own-item-text #RRGGBB]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -92,14 +92,20 @@ internal static class WidgetRender
             || !Enum.IsDefined(kind)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--scale f] [--own-items #RRGGBB] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--scale f] [--own-items #RRGGBB] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--progress 0..1] [--style name] [--scale f] [--own-items #RRGGBB] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--progress 0..1] [--style name] [--scale f] [--own-items #RRGGBB] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
             app.Exit();
             return true;
         }
 
         var outPath = System.IO.Path.GetFullPath(args[at + 2]);
         var state = Option(args, "--state");
+
+        // [S-1826] --progress 0..1: every history chart drawn that far through its slide, still.
+        SparkBand.PreviewProgress = Option(args, "--progress") is { } progressText
+            && double.TryParse(progressText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var progress)
+                ? Math.Clamp(progress, 0, 1)
+                : null;
 
         // [S-6517] --surface card|translucent|none: the cards' background, to see the items' own layer.
         _surface = Option(args, "--surface")?.ToLowerInvariant() switch

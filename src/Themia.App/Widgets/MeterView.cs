@@ -246,10 +246,13 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         var grew = capacity > _band.Capacity;
         _band.Capacity = capacity;
 
+        // [S-1826] One slide per point: a second, or a ping's five.
+        _band.PeriodSeconds = series.Key.PeriodSeconds;
+
         if (!Rewatch(series) && grew && _watch is not null)
         {
             // [S-2504] A longer span shows the longer history the hub already holds, at once.
-            _band.Load(_watch.History(capacity), _watch.Added);
+            _band.Load(_watch.History(_band.Holds), _watch.Added);
         }
 
         Lay();
@@ -289,7 +292,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
         // [S-2506] The watch never calls back from inside Watch: the history so far and the newest
         // reading are read here, so a meter built again (a view switch, edit mode) shows them at once.
-        _band.Load(_watch.History(_band.Capacity), _watch.Added);
+        _band.Load(_watch.History(_band.Holds), _watch.Added);
         Present(_watch.Latest ?? _part.Waiting);
         return true;
     }

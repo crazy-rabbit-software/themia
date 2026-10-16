@@ -42,9 +42,9 @@ internal sealed partial class GpuView : IWidgetPreviewState
         public void ShowFixtureHistory()
         {
             Unwatch();
-            var points = new List<SeriesPoint>(_spark.Capacity);
+            var points = new List<SeriesPoint>(_spark.Holds);
 
-            for (var i = 0; i < _spark.Capacity; i++)
+            for (var i = 0; i < _spark.Holds; i++)
             {
                 points.Add(new SeriesPoint(0.4 + (Math.Sin(i / 5.0) * 0.25) + (Math.Sin(i / 1.7) * 0.08)));
             }

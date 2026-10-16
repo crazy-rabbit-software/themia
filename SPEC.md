@@ -2696,6 +2696,32 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   shared ticker keeps whole-second cadences under a minute (`TickSchedule.Normalise`; it used to
   collapse them all to one second), so a meter set to 5 s samples every 5 s and its chart spans
   its configured span.
+- **[S-1826]** **The history scrolls, it does not step** (user request 2026-10-16). Every `SparkBand`
+  (the meters, Battery and Ping included, and every GPU panel) draws its line **one sample behind**:
+  a new point is placed one sample step beyond the right edge and the traces are slid left by
+  exactly that step over the series' period (1 s; a ping's 5 s, [S-2512]) by a linear composition
+  animation on their container's `Translation`, so between points nothing is redrawn on the UI
+  thread. The next point rebuilds the geometry once and resets the translation in the same frame;
+  a point's x depends only on its distance from the newest (`SparkScroll.PlotX`), so the rebuilt
+  line lies where the slid one ended. The band holds `SparkScroll.Lead` points beyond its span (the
+  slot sliding out at the left, the newest beyond the right) and clips to its own bounds, so the
+  edge-to-edge look and the half-stroke right inset ([S-1824]) are what shows once a slide ends.
+  The reading is never delayed: only the line is a sample behind it. Not for charts of a fixed
+  range (Stocks, Exchange rates, the forecast curve, Screen time) or the audio visualizer.
+- **[S-1827]** Only a new point slides. A history loaded (a view switch, edit mode, a longer span),
+  a clear, a span or scale change and a resize draw **settled** — the newest point on the right
+  edge, still — which is where a finished slide stands, so nothing jumps when a meter is built
+  again and the next point slides on from there. A paused series (a parked view, a slow probe)
+  simply ends its slide settled and waits; a point that arrives before a slide ends replaces it.
+- **[S-1828]** With Windows' **Animation effects** off ([S-1010]; the app has no motion switch of its
+  own beyond the intros) or the band not shown, a point draws settled: no lag, today's one step per
+  point. Read at each point, so flipping the setting applies to the next one.
+- **[S-1829]** A folded slot ([S-1121]) stands at the time of its last member, so the slot still
+  taking points is always at or beyond the right edge and nothing on screen changes value as points
+  arrive; a folded chart slides a slot over its points' periods. A rate chart's top is the drawn
+  slots' peak, the newest beyond the edge included, so the scale is in place before that point
+  slides into view. Debug renders draw a fixed point of the slide: `--widget-png <Kind> --state
+  history --progress 0..1` (0 just after a point, 1 settled).
 - **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
   (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
   same hero readout in every style. One shared set of parts draws them for every meter

@@ -35,9 +35,9 @@ internal sealed partial class MeterView : IWidgetPreviewState
 
         // A share chart reads 0..1; a peak-scaled one only the shape, so any magnitude will do.
         var magnitude = _band.ValueScale == ChartScale.Share ? 1.0 : 1_000_000;
-        var points = new List<SeriesPoint>(_band.Capacity);
+        var points = new List<SeriesPoint>(_band.Holds);
 
-        for (var i = 0; i < _band.Capacity; i++)
+        for (var i = 0; i < _band.Holds; i++)
         {
             var first = 0.45 + (Math.Sin(i / 5.0) * 0.25) + (Math.Sin(i / 1.7) * 0.08);
             var second = 0.2 + (Math.Cos(i / 4.0) * 0.1);

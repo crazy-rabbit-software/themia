@@ -82,7 +82,7 @@ internal sealed partial class GpuView
 
             if (grew && _watch is not null)
             {
-                _spark.Load(_watch.History(_spark.Capacity), _watch.Added);
+                _spark.Load(_watch.History(_spark.Holds), _watch.Added);
             }
 
             UseStyle(config.Style);
@@ -101,7 +101,7 @@ internal sealed partial class GpuView
 
             var key = FeedKey.Create(SystemSource.Gpu);
             _watch = hub.WatchSeries(new SeriesInterest(key, _index.ToString(System.Globalization.CultureInfo.InvariantCulture)), OnUpdate);
-            _spark.Load(_watch.History(_spark.Capacity), _watch.Added);
+            _spark.Load(_watch.History(_spark.Holds), _watch.Added);
 
             if (_watch.Latest is { } latest)
             {
