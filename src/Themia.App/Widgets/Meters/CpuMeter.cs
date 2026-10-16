@@ -18,13 +18,19 @@ internal sealed class CpuMeter : MeterPart
         CpuStyle.Cores => MeterLook.Columns,
         CpuStyle.Grid => MeterLook.Tiles,
         CpuStyle.Gauge => MeterLook.Gauge,
-        CpuStyle.CoreGraphs => MeterLook.Tiles,
+        CpuStyle.CoreGraphs => MeterLook.Graphs,
         _ => MeterLook.Graph,
     };
 
-    /// <summary>[S-6310] Each logical processor, from the hub's one per-core read.</summary>
+    /// <summary>[S-6310] Each logical processor, from the hub's one per-core read; [S-6318] with each one's history.</summary>
     public override MeterItemsWatch? WatchItems(SystemHub hub, Action<IReadOnlyList<MeterItem>> onItems)
-        => MeterItemsWatch.Of(hub, Sources.CpuCores, cores => Items(cores.Loads), onItems);
+        => MeterItemsWatch.Of(
+            hub,
+            Sources.CpuCores,
+            cores => Items(cores.Loads),
+            onItems,
+            static (cores, core, max) => cores.History.Newest(core, max),
+            static cores => cores.History.Added);
 
     /// <summary>Sixteen cores, some idle, some busy, one pegged: every shade of the grid at once.</summary>
     public override IReadOnlyList<MeterItem> SampleItems => Items(

@@ -16,11 +16,13 @@ namespace Themia.App.Widgets;
 // BarLayout), so a CPU gauge and a battery gauge of one size are one gauge.
 //
 // API (kept stable; the other meters' styles build on it):
-//   GaugeDial  new(); Lay(GaugeGeometry); SetFraction(double? 0..1); SetBrush(Brush)
+//   GaugeDial  new(); Lay(GaugeGeometry); SetFraction(double? 0..1, settle); SetBrush(Brush, settle)
 //   BarList    new(BarListShape.Columns | Rows); SetCount(n);
-//              SetItem(i, double? fraction, Brush brush, string? label = null, string? value = null);
+//              SetItem(i, double? fraction, Brush brush, string? label = null, string? value = null, settle);
 //              LayColumns(BarColumnsPlan) | LayRows(BarRowsPlan)
-//   TileGrid   new(); SetCount(n); SetItem(i, LoadShade); Lay(TileGridPlan)
+//   TileGrid   new(); SetCount(n); SetItem(i, LoadShade, settle); Lay(TileGridPlan)
+// [S-6328] Each glides from the value it shows to the new one over GlidePeriod (Glides.cs): the
+// gauge's arc and colour, a bar's fill and colour, a tile's shade. settle: true shows it at once.
 //   MeterBrushes.Pressure(MeterPressure); tracks and no-reading cells are item fills ([S-6513])
 // None of them is hit-testable, and each is flow-direction left to right ([S-1113]: a gauge fills
 // clockwise and the first core is on the left in every language).
@@ -57,18 +59,34 @@ internal sealed partial class GaugeDial : Grid
 {
     private readonly Microsoft.UI.Xaml.Shapes.Path _track = new() { StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
     private readonly Microsoft.UI.Xaml.Shapes.Path _value = new() { StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
+    private readonly NumberGlide _sweep;
+    private readonly ColorGlide _colour = new();
     private GaugeGeometry _geometry;
     private double? _fraction;
+
+    /// <summary>[S-6328] A five-hundredth of the sweep: finer is not a pixel on any gauge.</summary>
+    private const double SweepResolution = 0.002;
 
     public GaugeDial()
     {
         FlowDirection = FlowDirection.LeftToRight;
         IsHitTestVisible = false;
         ItemFill.PaintStroke(_track, ItemRole.Track);
-        _value.Stroke = MeterBrushes.Pressure(MeterPressure.Normal);
+        _colour.Set(MeterBrushes.Pressure(MeterPressure.Normal), TimeSpan.Zero, settle: true);
+        _value.Stroke = _colour.Brush;
+        _sweep = new NumberGlide(
+            shown =>
+            {
+                _fraction = shown;
+                Redraw();
+            },
+            SweepResolution);
         Children.Add(_track);
         Children.Add(_value);
     }
+
+    /// <summary>[S-6328] How long the arc and its colour take to reach a new reading: the series' period.</summary>
+    public TimeSpan GlidePeriod { get; set; } = GlideMotion.Tick;
 
     /// <summary>The geometry to draw at; the dial takes its box's size.</summary>
     public void Lay(GaugeGeometry geometry)
@@ -87,26 +105,21 @@ internal sealed partial class GaugeDial : Grid
         Redraw();
     }
 
-    /// <summary>The share shown, 0..1; null (no reading) draws the track alone.</summary>
-    public void SetFraction(double? fraction)
+    /// <summary>The share shown, 0..1, glided to; null (no reading) draws the track alone at once.</summary>
+    public void SetFraction(double? fraction, bool settle = false)
     {
         var value = fraction is { } f && double.IsFinite(f) ? Math.Clamp(f, 0, 1) : (double?)null;
-        if (value == _fraction)
-        {
-            return;
-        }
+        _sweep.Set(value, GlidePeriod, settle);
 
-        _fraction = value;
-        Redraw();
-    }
-
-    public void SetBrush(Brush brush)
-    {
-        if (!ReferenceEquals(_value.Stroke, brush))
+        if (value is null && _fraction is not null)
         {
-            _value.Stroke = brush;
+            _fraction = null;
+            Redraw();
         }
     }
+
+    /// <summary>The arc's colour (a theme brush, read now), glided to through OKLab.</summary>
+    public void SetBrush(Brush brush, bool settle = false) => _colour.Set(brush, GlidePeriod, settle);
 
     private void Redraw()
     {
@@ -194,12 +207,15 @@ internal sealed partial class BarList : Grid
         }
     }
 
+    /// <summary>[S-6328] How long a bar's fill and colour take to reach a new reading: the series' period.</summary>
+    public TimeSpan GlidePeriod { get; set; } = GlideMotion.Tick;
+
     /// <summary>One item's share (null: no reading, the track alone), its brush (null: no reading, the disabled track), and a row's label and value.</summary>
-    public void SetItem(int index, double? fraction, Brush? brush, string? label = null, string? value = null)
+    public void SetItem(int index, double? fraction, Brush? brush, string? label = null, string? value = null, bool settle = false)
     {
         if ((uint)index < (uint)_items.Count)
         {
-            _items[index].Set(fraction, brush, label, value);
+            _items[index].Set(fraction, brush, label, value, GlidePeriod, settle);
         }
     }
 
@@ -227,32 +243,42 @@ internal sealed partial class BarList : Grid
         }
     }
 
-    /// <summary>One bar: a track and its fill, sized from the track's own size so no transform squashes its corners.</summary>
+    /// <summary>
+    /// One bar: a track and its fill. The fill covers the track and is scaled to the share from the
+    /// bottom (a column) or the leading edge (a row), so the compositor glides it ([S-6328]); the
+    /// track's rounded clip gives the fill its corners, so the scale squashes none.
+    /// </summary>
     private sealed class Item
     {
         /// <summary>The columns' track, as faint as the history's wash is against its line.</summary>
         private const double ColumnTrackOpacity = 0.3;
 
-        private readonly BarListShape _shape;
         private readonly Grid _track = new();
         private readonly Rectangle _fill = new();
+        private readonly ScaleTransform _scale = new() { ScaleX = 1, ScaleY = 1 };
+        private readonly DoubleGlide _grow;
+        private readonly ColorGlide _colour = new();
         private readonly TextBlock? _label;
         private readonly TextBlock? _value;
-        private double? _fraction;
+        private bool _coloured;
 
         public Item(BarListShape shape)
         {
-            _shape = shape;
             // [S-6303] A column's track is the chart's wash, not a progress bar's: sixteen strong
             // tracks side by side outshout the loads. A row's is the progress track ([S-837]).
             var trackFill = new Rectangle { Opacity = shape == BarListShape.Columns ? ColumnTrackOpacity : 1 };
             ItemFill.Paint(trackFill, ItemRole.Track);
             _track.Children.Add(trackFill);
             _track.CornerRadius = new CornerRadius(shape == BarListShape.Columns ? 2 : Fluent.ControlRadius);
-            _fill.HorizontalAlignment = shape == BarListShape.Columns ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
-            _fill.VerticalAlignment = shape == BarListShape.Columns ? VerticalAlignment.Bottom : VerticalAlignment.Stretch;
+            _fill.HorizontalAlignment = HorizontalAlignment.Stretch;
+            _fill.VerticalAlignment = VerticalAlignment.Stretch;
+            _fill.RenderTransform = _scale;
+            _fill.RenderTransformOrigin = shape == BarListShape.Columns ? new Point(0, 1) : new Point(0, 0);
+            _grow = shape == BarListShape.Columns
+                ? new DoubleGlide(_scale, ScaleTransform.ScaleYProperty, nameof(ScaleTransform.ScaleY))
+                : new DoubleGlide(_scale, ScaleTransform.ScaleXProperty, nameof(ScaleTransform.ScaleX));
+            _grow.Set(0, TimeSpan.Zero, settle: true);
             _track.Children.Add(_fill);
-            _track.SizeChanged += (_, _) => Size();
 
             if (shape == BarListShape.Columns)
             {
@@ -281,15 +307,23 @@ internal sealed partial class BarList : Grid
 
         public FrameworkElement Root { get; }
 
-        public void Set(double? fraction, Brush? brush, string? label, string? value)
+        public void Set(double? fraction, Brush? brush, string? label, string? value, TimeSpan period, bool settle)
         {
             if (brush is null)
             {
                 ItemFill.Paint(_fill, ItemRole.Track, ItemState.Disabled);
+                _coloured = false;
             }
-            else if (!ReferenceEquals(_fill.Fill, brush))
+            else
             {
-                _fill.Fill = brush;
+                // A bar coming back from no reading takes its colour at once: there was none to glide from.
+                _colour.Set(brush, period, settle || !_coloured);
+
+                if (!_coloured)
+                {
+                    _fill.Fill = _colour.Brush;
+                    _coloured = true;
+                }
             }
 
             if (_label is not null && _label.Text != (label ?? string.Empty))
@@ -302,12 +336,9 @@ internal sealed partial class BarList : Grid
                 _value.Text = value ?? string.Empty;
             }
 
+            // No reading is an empty bar at once, not one draining away.
             var share = fraction is { } f && double.IsFinite(f) ? Math.Clamp(f, 0, 1) : (double?)null;
-            if (share != _fraction)
-            {
-                _fraction = share;
-                Size();
-            }
+            _grow.Set(share ?? 0, period, settle || share is null);
         }
 
         public void LayRow(BarRowsPlan plan)
@@ -316,20 +347,6 @@ internal sealed partial class BarList : Grid
             _track.CornerRadius = new CornerRadius(Math.Min(Fluent.ControlRadius, plan.Thickness / 2));
             _label?.Apply(plan.Label);
             _value?.Apply(plan.Label);
-        }
-
-        private void Size()
-        {
-            var share = _fraction ?? 0;
-
-            if (_shape == BarListShape.Columns)
-            {
-                _fill.Height = Math.Max(0, _track.ActualHeight * share);
-            }
-            else
-            {
-                _fill.Width = Math.Max(0, _track.ActualWidth * share);
-            }
         }
     }
 }
@@ -341,7 +358,21 @@ internal sealed partial class BarList : Grid
 internal sealed partial class TileGrid : Grid
 {
     private readonly List<Border> _tiles = [];
+    private readonly List<Shade> _shades = [];
     private TileGridPlan _plan;
+
+    /// <summary>[S-6328] How long a tile's shade takes to reach a new load: the series' period.</summary>
+    public TimeSpan GlidePeriod { get; set; } = GlideMotion.Tick;
+
+    /// <summary>[S-6328] One tile's colour and strength, each gliding.</summary>
+    private sealed class Shade(Border tile)
+    {
+        public ColorGlide Colour { get; } = new();
+
+        public DoubleGlide Strength { get; } = new(tile, OpacityProperty, nameof(Opacity));
+
+        public bool Known { get; set; }
+    }
 
     public TileGrid()
     {
@@ -359,37 +390,42 @@ internal sealed partial class TileGrid : Grid
         {
             Children.Remove(_tiles[^1]);
             _tiles.RemoveAt(_tiles.Count - 1);
+            _shades.RemoveAt(_shades.Count - 1);
         }
 
         while (_tiles.Count < count)
         {
+            // [S-6328] A tile is always painted with its own gliding brush, the disabled track's
+            // colour until it has a reading: an item-layer brush put on it would be put back over
+            // the load's colour when the tile loads.
             var tile = new Border { CornerRadius = new CornerRadius(2), Opacity = LoadTint.Faintest };
-            ItemFill.Paint(tile, ItemRole.Track, ItemState.Disabled);
+            var shade = new Shade(tile);
+            shade.Colour.Set(ItemFill.For(this, ItemRole.Track, ItemState.Disabled), TimeSpan.Zero, settle: true);
+            tile.Background = shade.Colour.Brush;
             _tiles.Add(tile);
+            _shades.Add(shade);
             Children.Add(tile);
         }
 
         Place();
     }
 
-    public void SetItem(int index, LoadShade shade)
+    public void SetItem(int index, LoadShade shade, bool settle = false)
     {
         if ((uint)index >= (uint)_tiles.Count)
         {
             return;
         }
 
-        var tile = _tiles[index];
-        if (!shade.Known)
-        {
-            ItemFill.Paint(tile, ItemRole.Track, ItemState.Disabled);
-        }
-        else if (MeterBrushes.Pressure(shade.Pressure) is var brush && !ReferenceEquals(tile.Background, brush))
-        {
-            tile.Background = brush;
-        }
+        var glide = _shades[index];
 
-        tile.Opacity = shade.Strength;
+        // No reading is the disabled track at once; a tile coming back from it takes its colour at
+        // once too: there was no load to glide from.
+        var brush = shade.Known ? MeterBrushes.Pressure(shade.Pressure) : ItemFill.For(this, ItemRole.Track, ItemState.Disabled);
+        glide.Colour.Set(brush, GlidePeriod, settle || !shade.Known || !glide.Known);
+        glide.Known = shade.Known;
+
+        glide.Strength.Set(shade.Strength, GlidePeriod, settle);
     }
 
     public void Lay(TileGridPlan plan)

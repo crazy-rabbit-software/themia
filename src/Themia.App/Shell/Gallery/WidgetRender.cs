@@ -111,6 +111,12 @@ internal static class WidgetRender
                 ? Math.Clamp(progress, 0, 1)
                 : null;
 
+        // [S-6328] --tween 0..1: every readout's glide drawn that far between two readings, still.
+        GlideMotion.PreviewProgress = Option(args, "--tween") is { } tweenText
+            && double.TryParse(tweenText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var tween)
+                ? Math.Clamp(tween, 0, 1)
+                : null;
+
         // [S-6517] --surface card|translucent|none: the cards' background, to see the items' own layer.
         _surface = Option(args, "--surface")?.ToLowerInvariant() switch
         {

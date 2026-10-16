@@ -65,6 +65,12 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private bool _badged;
     private string _shown = string.Empty;
 
+    // [S-6325] The number glides from reading to reading over the series' period; the reading's own
+    // text is what it lands on.
+    private readonly NumberGlide _number;
+    private string _primary = string.Empty;
+    private TimeSpan _period = GlideMotion.Tick;
+
     private WidgetArea _area;
     private bool _graph;
     private bool _absent;
@@ -75,11 +81,19 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private GaugeDial? _dial;
     private BarList? _bars;
     private TileGrid? _tiles;
+    private CoreGraphGrid? _graphs;
     private MeterItemsWatch? _items;
     private IReadOnlyList<MeterItem> _itemList = [];
 
     // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
     private bool _detached = true;
+
+#if DEBUG
+    // Debug renders: a fixture state stands still; no live items are watched over it again.
+    private bool _frozen;
+#else
+    private const bool _frozen = false;
+#endif
 
     public MeterView(WidgetKind kind)
     {
@@ -89,6 +103,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _part = MeterPart.For(kind);
         _config = WidgetConfig.CreateDefault(kind);
         _band = new SparkBand(60, _part.Scale);
+        _number = new NumberGlide(ShowNumber, _part.Resolution);
 
         _reading.SetValue("--", string.Empty, false);
 
@@ -249,6 +264,22 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // [S-1826] One slide per point: a second, or a ping's five.
         _band.PeriodSeconds = series.Key.PeriodSeconds;
 
+        // [S-6323] Every readout glides over the same period.
+        _period = TimeSpan.FromSeconds(series.Key.PeriodSeconds);
+        ApplyPeriod();
+
+        // [S-6317] The core graphs span what the graph spans.
+        if (_graphs is not null && _graphs.Capacity != capacity)
+        {
+            var grewCores = capacity > _graphs.Capacity;
+            _graphs.Capacity = capacity;
+
+            if (grewCores)
+            {
+                LoadGraphs();
+            }
+        }
+
         if (!Rewatch(series) && grew && _watch is not null)
         {
             // [S-2504] A longer span shows the longer history the hub already holds, at once.
@@ -313,8 +344,11 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         }
     }
 
-    /// <summary>Put one reading on screen. The history is the series' and moves only with its points.</summary>
-    private void Present(MeterReading reading)
+    /// <summary>
+    /// Put one reading on screen. The history is the series' and moves only with its points; the
+    /// number, the gauge and the face glide to it ([S-6323]), or show it at once when <paramref name="settle"/>.
+    /// </summary>
+    private void Present(MeterReading reading, bool settle = false)
     {
         if (_detached)
         {
@@ -327,12 +361,17 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // rather than a dimmed "--".
         _absent = reading.Absent;
 
-        // [S-3860] The number and its smaller unit, split again only when the text changed.
-        if (reading.Primary != _shown)
+        // [S-6325] A number glides to the reading's own text; anything else ("--") is shown at once.
+        _primary = reading.Primary;
+
+        if (_part.Number(reading) is { } number)
         {
-            _shown = reading.Primary;
-            var text = HeroLayout.Split(reading.Primary);
-            _reading.SetValue(text.Value, text.Unit, text.Spaced);
+            _number.Set(number, _period, settle);
+        }
+        else
+        {
+            _number.Set(null, _period);
+            ShowText(reading.Primary);
         }
 
         // Unavailable is a colour, not an opacity. Pressure colours the chart, never the number,
@@ -345,11 +384,11 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _band.SetBrush(pressure);
 
         // [S-6302] The gauge is the reading's own share, in the colour the history would have.
-        _dial?.SetFraction(reading.Available ? reading.Fraction : null);
-        _dial?.SetBrush(pressure);
+        _dial?.SetFraction(reading.Available ? reading.Fraction : null, settle);
+        _dial?.SetBrush(pressure, settle);
 
         // [S-6261]..[S-6266] A face that draws the reading itself (numbers, a battery, a ring, signal bars).
-        _face?.Present(reading, pressure);
+        _face?.Present(reading, pressure, settle);
 
         var badge = _part.Badge(reading);
         var badged = badge is not null;
@@ -365,6 +404,45 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
             _badged = badged;
             _heroStep = null;
             Lay();
+        }
+    }
+
+    /// <summary>[S-6325] A number on its way: the reading's own text once it has arrived.</summary>
+    private void ShowNumber(double number)
+        => ShowText(_number.Target == number ? _primary : _part.Format(number));
+
+    /// <summary>[S-3860] The number and its smaller unit, split again only when the text changed.</summary>
+    private void ShowText(string primary)
+    {
+        if (primary != _shown)
+        {
+            _shown = primary;
+            var text = HeroLayout.Split(primary);
+            _reading.SetValue(text.Value, text.Unit, text.Spaced);
+        }
+    }
+
+    /// <summary>[S-6323] Each part's glides take the series' period.</summary>
+    private void ApplyPeriod()
+    {
+        if (_dial is not null)
+        {
+            _dial.GlidePeriod = _period;
+        }
+
+        if (_bars is not null)
+        {
+            _bars.GlidePeriod = _period;
+        }
+
+        if (_tiles is not null)
+        {
+            _tiles.GlidePeriod = _period;
+        }
+
+        if (_face is not null)
+        {
+            _face.GlidePeriod = _period;
         }
     }
 
@@ -390,5 +468,9 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _series = null;
         _items?.Dispose();
         _items = null;
+
+        // [S-6325] A parked view steps nothing.
+        _number.Stop();
+        _graphs?.Stop();
     }
 }

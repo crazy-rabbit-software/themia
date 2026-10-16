@@ -35,7 +35,7 @@ internal sealed partial class MeterView
         if (!_face.HasReading)
         {
             var reading = _watch?.Latest ?? _part.Waiting;
-            _face.Present(reading, Pressure(_part.PressureOf(reading)));
+            _face.Present(reading, Pressure(_part.PressureOf(reading)), settle: true);
         }
 
         if (_area.IsMeasured)

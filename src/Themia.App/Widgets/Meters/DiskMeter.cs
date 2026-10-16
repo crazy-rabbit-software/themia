@@ -34,6 +34,14 @@ internal sealed class DiskMeter : MeterPart
     /// </summary>
     public override HeroBound Reading => HeroBound.Of(Formatting.Rate(1023 * 1024));
 
+    /// <summary>[S-6325] The rate glides in bytes a second, each step written as the reading is (its unit with it).</summary>
+    public override double? Number(MeterReading reading) => reading.Available ? reading.Value : null;
+
+    public override string Format(double number) => Formatting.Rate(number);
+
+    /// <summary>A rate has no step of its own: only the glide's step limit.</summary>
+    public override double Resolution => 0;
+
     /// <summary>[S-1161] The header's title on the reading too: the drive with the header switched off.</summary>
     public override string? ReadingTip => Title();
 

@@ -43,6 +43,10 @@ internal sealed partial class GpuView
         private TypeStep? _heroStep;
         private string _shown = string.Empty;
 
+        // [S-6325] The load glides in whole percents to the reading's own text.
+        private NumberGlide? _number;
+        private string _primary = string.Empty;
+
         public Panel(int index)
         {
             _index = index;
@@ -116,6 +120,7 @@ internal sealed partial class GpuView
         {
             _watch?.Dispose();
             _watch = null;
+            _number?.Stop();
         }
 
         /// <summary>[S-430] The adapter's whole name, as the driver reports it, on the tile's tooltip (the header has the short one).</summary>
@@ -133,11 +138,17 @@ internal sealed partial class GpuView
 
         private void ShowLoad(MeterReading reading)
         {
-            if (reading.Primary != _shown)
+            _primary = reading.Primary;
+            _number ??= new NumberGlide(load => ShowText(_number!.Target == load ? _primary : Formatting.Percent(load)), 0.01);
+
+            if (reading.Available && reading.Fraction is { } fraction)
             {
-                _shown = reading.Primary;
-                var text = HeroLayout.Split(reading.Primary);
-                _hero.SetValue(text.Value, text.Unit, text.Spaced);
+                _number.Set(fraction, GlideMotion.Tick);
+            }
+            else
+            {
+                _number.Set(null, GlideMotion.Tick);
+                ShowText(reading.Primary);
             }
 
             _hero.ValueLine.Foreground = reading.Available ? ReadingBrush : UnavailableBrush;
@@ -152,6 +163,17 @@ internal sealed partial class GpuView
 
             // [S-6302] The gauge is the load's own share.
             _dial?.SetFraction(reading.Available ? reading.Fraction : null);
+        }
+
+        /// <summary>[S-3860] The number and its smaller unit, split again only when the text changed.</summary>
+        private void ShowText(string primary)
+        {
+            if (primary != _shown)
+            {
+                _shown = primary;
+                var text = HeroLayout.Split(primary);
+                _hero.SetValue(text.Value, text.Unit, text.Spaced);
+            }
         }
 
         /// <summary>

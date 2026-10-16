@@ -2805,6 +2805,35 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   slides into view. Debug renders draw a fixed point of the slide: `--widget-png <Kind> --state
   history --progress 0..1 [--span s]` (0 just after a point, 1 slid one step; the geometry of a
   point's arrival under the translation the slide has reached, so the still shows what is clipped).
+- **[S-6323]** **Readouts glide, they do not jump** (user request 2026-10-16). Every live readout
+  that moves with the hub's reads — a meter's number (every style, the faces' figures, the
+  network's two numbers, a core's figure), the gauge's and the ring's sweep, a bar's fill (cores,
+  memory, disk, GPU engines), the battery's fill, a core tile's shade and every one of their
+  pressure colours — moves from what it shows to the new reading **linearly over one period of its
+  series** (1 s; a ping's 5 s), the history's own motion ([S-1826]), so the number reaches a reading
+  as its point reaches the chart's edge (the reading is thus up to one period behind, as the line
+  is). Linear, not ease-out: readings come every period and an ease-out would rush and stall once a
+  second. A reading arriving mid-glide glides on from where the readout stands (`Core/Motion/Glide`,
+  App `Widgets/Glides.cs`: one helper for every readout).
+- **[S-6324]** Only numbers glide: a reading appearing, vanishing or becoming unavailable, a label, a
+  state (charging, the ping's signal bars, the absent battery) and the row texts ("Read 42 MB/s") are
+  shown at once (`Glide.Plan`).
+- **[S-6325]** A number counts in its own resolution (a whole percent; a whole millisecond; a rate in
+  its formatted unit) and at most 20 steps a second however far it goes (`Glide.Quantum`), each step
+  the value the line has reached rounded towards the target (`Glide.Shown`), written by the kind's own
+  formatter and landing on the reading's own text. It is redrawn only when its next step is due
+  (`Glide.NextChange`): one shared one-shot timer (`GlideClock`) armed for the earliest due step,
+  idle once every readout shows its target; no frame callback, no repeating timer.
+- **[S-6326]** With Windows' **Animation effects** off ([S-1010]) every readout jumps as before. Read
+  per glide (asked of Windows at most once a second), so flipping it applies to the next reading.
+- **[S-6327]** Colours glide through OKLab (`OkLab.Mix`): accent to caution passes even-lightness
+  colours, not sRGB's muddy middle; the compositor plays four straight key-framed segments along that
+  path (`ColorGlide`, a brush of the readout's own). Fills, shades and transforms (a bar's scale, a
+  tile's opacity) are independent compositor animations (`DoubleGlide`); only numbers and arcs are
+  stepped on the UI thread.
+- **[S-6328]** Debug renders draw a fixed point of every glide: `--widget-png <Kind> --state sample
+  --tween 0..1` draws the sample from a reading a third as large (items shifted by five) that far
+  towards it.
 - **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
   (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
   same hero readout in every style. One shared set of parts draws them for every meter

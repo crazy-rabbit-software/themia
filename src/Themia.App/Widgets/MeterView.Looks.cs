@@ -38,6 +38,8 @@ internal sealed partial class MeterView
             _dial = null;
             _bars = null;
             _tiles = null;
+            _graphs?.Stop();
+            _graphs = null;
             _face = null;
             _body = look switch
             {
@@ -45,8 +47,11 @@ internal sealed partial class MeterView
                 MeterLook.Columns => _bars = new BarList(BarListShape.Columns),
                 MeterLook.Rows => _bars = new BarList(BarListShape.Rows),
                 MeterLook.Tiles => _tiles = new TileGrid(),
+                MeterLook.Graphs => _graphs = new CoreGraphGrid { Capacity = _band.Capacity },
                 _ => _face = MeterStyleFace.For(look),
             };
+
+            ApplyPeriod();
 
             if (_body is not null)
             {
@@ -63,9 +68,9 @@ internal sealed partial class MeterView
     /// <summary>[S-6300] The items of a bar or tile look, from the hub; nothing for the history or the gauge.</summary>
     private void WatchItems()
     {
-        var wants = _look is MeterLook.Columns or MeterLook.Rows or MeterLook.Tiles;
+        var wants = _look is MeterLook.Columns or MeterLook.Rows or MeterLook.Tiles or MeterLook.Graphs;
 
-        if (!wants || _detached)
+        if (!wants || _detached || _frozen)
         {
             _items?.Dispose();
             _items = null;
@@ -87,7 +92,9 @@ internal sealed partial class MeterView
 
         if (_items?.Current is { } current)
         {
-            ShowItems(current);
+            // [S-2506] What is read so far, and (the core graphs) every item's history with it.
+            ShowItems(current, point: false, settle: true);
+            LoadGraphs();
         }
     }
 
@@ -95,12 +102,29 @@ internal sealed partial class MeterView
     {
         if (!_detached)
         {
-            ShowItems(items);
+            ShowItems(items, point: true);
         }
     }
 
-    /// <summary>Put the items on the bars or tiles; a different count is a different layout.</summary>
-    private void ShowItems(IReadOnlyList<MeterItem> items)
+    /// <summary>[S-6318] Every core's history as the hub keeps it, onto its tile.</summary>
+    private void LoadGraphs()
+    {
+        if (_graphs is null || _items is null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < _graphs.Count; i++)
+        {
+            _graphs.Load(i, _items.History(i, _graphs.Holds), _items.Added);
+        }
+    }
+
+    /// <summary>
+    /// Put the items on the bars or tiles, gliding to them ([S-6328]); a different count is a
+    /// different layout. <paramref name="point"/>: a new read, which the core graphs add to their lines.
+    /// </summary>
+    private void ShowItems(IReadOnlyList<MeterItem> items, bool point, bool settle = false)
     {
         var recount = items.Count != _itemList.Count;
         _itemList = items;
@@ -111,7 +135,7 @@ internal sealed partial class MeterView
 
             for (var i = 0; i < items.Count; i++)
             {
-                _bars.SetItem(i, items[i].Fraction, items[i].Fraction is null ? null : MeterBrushes.Pressure(items[i].Pressure), items[i].Label, items[i].Value);
+                _bars.SetItem(i, items[i].Fraction, items[i].Fraction is null ? null : MeterBrushes.Pressure(items[i].Pressure), items[i].Label, items[i].Value, settle);
             }
         }
         else if (_tiles is not null)
@@ -120,7 +144,23 @@ internal sealed partial class MeterView
 
             for (var i = 0; i < items.Count; i++)
             {
-                _tiles.SetItem(i, LoadTint.Of(items[i].Fraction));
+                _tiles.SetItem(i, LoadTint.Of(items[i].Fraction), settle);
+            }
+        }
+        else if (_graphs is not null)
+        {
+            _graphs.SetCount(items.Count);
+
+            // New tiles start from the cores' history, which already holds this read.
+            if (recount)
+            {
+                LoadGraphs();
+                point = false;
+            }
+
+            for (var i = 0; i < items.Count; i++)
+            {
+                _graphs.Show(i, items[i].Fraction, point, settle);
             }
         }
 
@@ -246,6 +286,11 @@ internal sealed partial class MeterView
         else if (_tiles is not null)
         {
             _tiles.Lay(BarLayout.Tiles(width, height, _tiles.Count));
+        }
+        else if (_graphs is not null)
+        {
+            // [S-6317] The Core grid's arrangement, each tile a core's history.
+            _graphs.Lay(BarLayout.Tiles(width, height, _graphs.Count));
         }
     }
 

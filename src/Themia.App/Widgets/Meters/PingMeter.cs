@@ -41,6 +41,13 @@ internal sealed class PingMeter : MeterPart
     /// <summary>"999 ms".</summary>
     public override HeroBound Reading => HeroBound.Of(Formatting.Latency(999));
 
+    /// <summary>[S-6325] The latency glides in whole milliseconds; an unanswered probe is not a number.</summary>
+    public override double? Number(MeterReading reading) => reading.Available ? reading.Value : null;
+
+    public override string Format(double number) => Formatting.Latency(number);
+
+    public override double Resolution => 1;
+
     /// <summary>[S-1172] Against the slowest answer on screen, as the original scaled it (floor 1 ms).</summary>
     public override ChartScale Scale => ChartScale.Peak(1);
 

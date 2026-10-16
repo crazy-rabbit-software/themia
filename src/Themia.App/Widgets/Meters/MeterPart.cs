@@ -49,6 +49,9 @@ internal enum MeterLook
 
     /// <summary>[S-6263] Signal bars by the reading's latency, the figure beside or under them.</summary>
     Signal = 8,
+
+    /// <summary>[S-6317] The reading over a tile per item, each the item's own history and figure.</summary>
+    Graphs = 9,
 }
 
 /// <summary>[S-6300] One item a bar or tile look draws: its share (null: no reading), its colour, and a row's words.</summary>
@@ -59,23 +62,43 @@ internal sealed class MeterItemsWatch : IDisposable
 {
     private readonly IDisposable _watch;
     private readonly Func<IReadOnlyList<MeterItem>?> _current;
+    private readonly Func<int, int, SeriesPoint[]>? _history;
+    private readonly Func<long>? _added;
 
-    public MeterItemsWatch(IDisposable watch, Func<IReadOnlyList<MeterItem>?> current)
+    public MeterItemsWatch(IDisposable watch, Func<IReadOnlyList<MeterItem>?> current, Func<int, int, SeriesPoint[]>? history = null, Func<long>? added = null)
     {
         _watch = watch;
         _current = current;
+        _history = history;
+        _added = added;
     }
 
     /// <summary>[S-2506] The items read so far, or null before the first read.</summary>
     public IReadOnlyList<MeterItem>? Current => _current();
 
+    /// <summary>[S-6318] An item's newest <paramref name="max"/> points as the hub keeps them, oldest first; empty for a kind that keeps none.</summary>
+    public SeriesPoint[] History(int item, int max) => _history?.Invoke(item, max) ?? [];
+
+    /// <summary>[S-1121] How many points the items' history ever had: the newest one's absolute position.</summary>
+    public long Added => _added?.Invoke() ?? 0;
+
     public void Dispose() => _watch.Dispose();
 
-    /// <summary>Items mapped from one hub source.</summary>
-    public static MeterItemsWatch Of<T>(SystemHub hub, SourceId<T> source, Func<T, IReadOnlyList<MeterItem>> map, Action<IReadOnlyList<MeterItem>> onItems)
+    /// <summary>Items mapped from one hub source, and the items' history when the source keeps one.</summary>
+    public static MeterItemsWatch Of<T>(
+        SystemHub hub,
+        SourceId<T> source,
+        Func<T, IReadOnlyList<MeterItem>> map,
+        Action<IReadOnlyList<MeterItem>> onItems,
+        Func<T, int, int, SeriesPoint[]>? history = null,
+        Func<T, long>? added = null)
     {
         var watch = hub.Watch(source, snapshot => onItems(map(snapshot)));
-        return new MeterItemsWatch(watch, () => watch.HasValue ? map(watch.Value) : null);
+        return new MeterItemsWatch(
+            watch,
+            () => watch.HasValue ? map(watch.Value) : null,
+            history is null ? null : (item, max) => watch.HasValue ? history(watch.Value, item, max) : [],
+            added is null ? null : () => watch.HasValue ? added(watch.Value) : 0);
     }
 }
 
@@ -163,6 +186,18 @@ internal abstract class MeterPart
 
     /// <summary>[S-6304] The widest row line a Rows look writes (label and value, in characters), for the rows' type step.</summary>
     public virtual double ItemLineCharacters => 0;
+
+    /// <summary>
+    /// [S-6325] The reading as the number its readout glides through, or null for one that is not a
+    /// number (unavailable, waiting): a share for a percentage meter, the value for the others.
+    /// </summary>
+    public virtual double? Number(MeterReading reading) => reading.Available && reading.Value is null ? reading.Fraction : null;
+
+    /// <summary>[S-6325] A number on the way to a reading, written as the reading is.</summary>
+    public virtual string Format(double number) => Formatting.Percent(number);
+
+    /// <summary>[S-6325] The number's own step: a whole percent of a share.</summary>
+    public virtual double Resolution => 0.01;
 
     /// <summary>[S-1917] Debug renders: fixed items for the bar and tile looks (<c>--state sample</c>).</summary>
     public virtual IReadOnlyList<MeterItem> SampleItems => [];
