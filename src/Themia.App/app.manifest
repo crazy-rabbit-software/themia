@@ -11,6 +11,15 @@
       -->
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
       <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+      <!--
+        [S-6604] The segment heap, as packaged UWP apps and Edge get it. A widget layer is mostly
+        native XAML (elements, text layouts, composition visuals) on the process heap, built and
+        released with every view, list and picture. The default NT heap keeps what it once committed:
+        in the switch check its committed size stayed at about 230 MB with 80 MB in use once both
+        displays were empty again. The segment heap gives freed pages back (111 MB committed, same
+        80 MB in use). Windows before 10 2004 ignores the element and keeps the NT heap.
+      -->
+      <heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
     </windowsSettings>
   </application>
 
