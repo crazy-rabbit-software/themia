@@ -6350,6 +6350,12 @@ the display's scale, the second page on a small or scaled display, the refusal w
 
 Owning files: `Themia.Core/Widgets/WidgetSetup.cs`, `Themia.App/Shell/WidgetCard.Setup.cs`,
 `Themia.App/Widgets/SetupPrompt.cs`. The section also records the removal of the debug widget
+- **[S-1751]** In edit mode a widget's own content is inert (`CardGestures.ContentTakesInput`): the
+  card turns hit-testing off for its header and view, every widget's alike, so a press, right-click,
+  long press or hover lands on the card and selects, drags ([S-1745]) or opens the card menu
+  ([S-1743]). No item menu (a mail, a file, a shortcut, a task), hover action, row click, button or
+  drag out of a widget fires there; outside edit mode they all work as before. One guard on the card,
+  not one per view.
 gallery ([S-1863]).
 
 - **[S-1860]** A widget that can show nothing useful until it is configured needs setting up, decided
