@@ -320,11 +320,11 @@ internal static class SwitchCheck
         var verdict = cards == expected && LiveCensus.Attached == live && host.Ticker.SubscriptionCount - hubTicks <= live ? string.Empty : "  LEAK";
 
         return $"{label,-40} ws {process.WorkingSet64 / mb,7:0.0} MB  private {process.PrivateMemorySize64 / mb,7:0.0} MB  " +
-            $"managed {GC.GetTotalMemory(forceFullCollection: false) / mb,6:0.0} MB  cards alive {cards,4} (shown {expected})  " +
+            $"managed {GC.GetTotalMemory(forceFullCollection: false) / mb,6:0.0} MB (committed {GC.GetGCMemoryInfo().TotalCommittedBytes / mb:0.0})  cards alive {cards,4} (shown {expected})  " +
             $"views attached {LiveCensus.Attached,4} (live {live})  ticks {host.Ticker.SubscriptionCount,3}  " +
             $"system feeds {system?.FeedCount ?? 0,3} (wanted {system?.WantedCount ?? 0}, series {system?.SeriesCount ?? 0})  " +
             $"gallery sources {AppServices.Gallery?.SourceCount ?? 0,2} (lingering {AppServices.Gallery?.LingeringCount ?? 0}, pictures {AppServices.Gallery?.Pictures.Count ?? 0}, {(AppServices.Gallery?.Pictures.Bytes ?? 0) / mb:0.0} MB)  " +
-            $"icons {AppIcons.Count,3}  threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
+            $"icons {AppIcons.Count,3}  {NativeHeaps.Describe()}  threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
     }
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
