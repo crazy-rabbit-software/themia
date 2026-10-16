@@ -41,8 +41,12 @@ public enum MoonStyle
 /// <summary>
 /// [S-3101] What the Sun and Moon widgets share: where the observer is. The astronomy runs offline
 /// from these coordinates; the place name is only the header's title.
+/// <para>
+/// [S-2848] A new tile starts at Zurich; a cleared place is null coordinates, written as null (not
+/// left out, which would read back as Zurich), and the tile waits for setup like a weather widget.
+/// </para>
 /// </summary>
-public abstract class SkyPlaceConfig : WidgetConfig
+public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
 {
     /// <summary>Zurich, the original's default.</summary>
     public const double DefaultLatitude = 47.37;
@@ -54,14 +58,31 @@ public abstract class SkyPlaceConfig : WidgetConfig
     /// <summary>A place name is a header title, not a document.</summary>
     public const int MaxPlaceLength = 80;
 
-    /// <summary>Degrees north, -90 to 90.</summary>
-    public double Latitude { get; set; } = DefaultLatitude;
+    /// <summary>Degrees north, -90 to 90, or null once the place is cleared ([S-2848]).</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public double? Latitude { get; set; } = DefaultLatitude;
 
-    /// <summary>Degrees east, -180 to 180.</summary>
-    public double Longitude { get; set; } = DefaultLongitude;
+    /// <summary>Degrees east, -180 to 180, or null once the place is cleared ([S-2848]).</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public double? Longitude { get; set; } = DefaultLongitude;
 
     /// <summary>The place name shown in the header.</summary>
     public string Place { get; set; } = DefaultPlace;
+
+    /// <summary>[S-2848] Whether a place is chosen. Zero is a real coordinate, so a null test.</summary>
+    [JsonIgnore]
+    public bool HasLocation => Latitude is { } lat
+        && Longitude is { } lon
+        && double.IsFinite(lat)
+        && double.IsFinite(lon);
+
+    /// <summary>[S-2848] No place: the tile waits for setup until one is picked or typed.</summary>
+    public void ClearLocation()
+    {
+        Latitude = null;
+        Longitude = null;
+        Place = string.Empty;
+    }
 
     /// <summary>
     /// A position in the sky is only interesting at minute granularity; the rest of the readout
@@ -75,20 +96,21 @@ public abstract class SkyPlaceConfig : WidgetConfig
     /// <see cref="Repair"/>: the widget draws every tick and must never throw on a value in memory.
     /// </summary>
     [JsonIgnore]
-    public double EffectiveLatitude => double.IsFinite(Latitude) ? Math.Clamp(Latitude, -90, 90) : DefaultLatitude;
+    public double EffectiveLatitude => Latitude is { } lat && double.IsFinite(lat) ? Math.Clamp(lat, -90, 90) : DefaultLatitude;
 
     [JsonIgnore]
-    public double EffectiveLongitude => double.IsFinite(Longitude) ? Math.Clamp(Longitude, -180, 180) : DefaultLongitude;
+    public double EffectiveLongitude => Longitude is { } lon && double.IsFinite(lon) ? Math.Clamp(lon, -180, 180) : DefaultLongitude;
 
     /// <summary>
     /// [S-3101] A coordinate that is not a number in range would put the observer somewhere they
-    /// never chose, so the pair goes back to the default place together, and says so.
+    /// never chose, so the pair goes back to the default place together, and says so. A null
+    /// coordinate is no place ([S-2848]), not a bad one: it is left for setup.
     /// </summary>
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
 
-        if (!InRange(Latitude, 90) || !InRange(Longitude, 180))
+        if ((Latitude is { } lat && !InRange(lat, 90)) || (Longitude is { } lon && !InRange(lon, 180)))
         {
             repairs.Add($"{Kind} coordinates out of range; {DefaultPlace}");
             Latitude = DefaultLatitude;

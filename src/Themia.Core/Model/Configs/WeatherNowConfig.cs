@@ -43,7 +43,7 @@ public enum TemperatureUnit
 /// "Springfield". The typed query is not kept at all ([S-2846]): half a word is not a place.
 /// </para>
 /// </summary>
-public abstract class WeatherConfig : WidgetConfig
+public abstract class WeatherConfig : WidgetConfig, IPlaced
 {
     /// <summary>Degrees north, or null when no location has been chosen. Zero is a real latitude.</summary>
     public double? Latitude { get; set; }
@@ -93,6 +93,14 @@ public abstract class WeatherConfig : WidgetConfig
         && Longitude is { } lon
         && double.IsFinite(lat)
         && double.IsFinite(lon);
+
+    /// <summary>[S-2848] No place: the widget waits for setup again, and asks for nothing.</summary>
+    public void ClearLocation()
+    {
+        Latitude = null;
+        Longitude = null;
+        LocationName = string.Empty;
+    }
 
     /// <summary>[S-3780] The shared weather cadence (Settings › Widgets), never faster than open-meteo's own cycle.</summary>
     [JsonIgnore]

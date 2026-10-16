@@ -722,14 +722,15 @@ tests `SkyWidgetsTests` (`S310x_`).
   number strip and the rows sunrise, sunset, daylight (+ change), solar noon, dawn, dusk ([S-3102]).
   **Moon** (`WidgetKind.Moon`, 240×220, moon glyph) is the moon: the disc, its phase's name, the lit
   percentage, moonrise, moonset and the next full or new moon ([S-3105]). Both sit in the add menu's
-  Weather & sky subject ([S-3511]), start headerless ([S-700]; a header given them is titled with the place), never need setting up (they
-  start at Zurich) and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
+  Weather & sky subject ([S-3511]), start headerless ([S-700]; a header given them is titled with the place), start at Zurich, so they
+  need setting up only once their place is cleared ([S-2848]), and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
   and share one settings block: city search ([S-1494], [S-2840]) and the validated exact
   coordinates ([S-171]). Sun adds the Events switch; Moon has nothing else (how each draws itself
   is its style, [S-6045], [S-6050]). `Repair` at load: a latitude or longitude that is not a number
-  in range sends both, and the name, back to Zurich; a place name over 80 characters is cut; each
+  in range sends both, and the name, back to Zurich (a `null` one is a cleared place, [S-2848], and
+  is left alone); a place name over 80 characters is cut; each
   repair is logged.
 - **[S-3102]** Sun ladder: [S-1492] without the moon — graphic (46 px floor, [S-170]) → strip →
   rows in priority sunrise, sunset, daylight (+change), solar noon (+altitude), dawn, dusk. One row
@@ -2533,9 +2534,8 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   label in full ("Zürich, Zurich, Switzerland") or "None chosen yet. Search for a city to set it.";
   the control is one search box (`AutoSuggestBox`, search glyph, "Search for a city", 300 wide). The
   box is only ever a question, never the choice: a pick stores coordinates + label, updates the
-  description and empties the box. No clear and no Change mode (a weather widget without a place has
-  nothing to show; a new one says so through its setup prompt). No "use my location": the app has
-  no location source.
+  description and empties the box. No Change mode; clearing is [S-2848]. No "use my location": the
+  app has no location source, and there is no app-wide default place to fall back to.
 - **[S-2841]** Queries (`PlaceQuery`, Core): trimmed, runs of whitespace made one space, cut at 80.
   Typing searches 300 ms after the last keystroke once 2+ characters; Enter or the search glyph
   searches at once from 1 (津 is a city); text without a letter says "Type a place name" and asks
@@ -2562,7 +2562,20 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   a place and must not title the widget).
 - **[S-2847]** Debug renders: `--settings-png Widget:<Kind> … [--place-chosen] [--place-query text
   [--place-reply results|none|offline|error|searching]]` draws the row chosen or not, and the open
-  list (`<out>-place.png`) against a fixture geocoder; nothing touches the network.
+  list (`<out>-place.png`) against a fixture geocoder; nothing touches the network. `--place-cleared`
+  (also on `--widget-png`) clears the demo widget's place ([S-2848]): a Sun or Moon starts at Zurich.
+- **[S-2848]** Clear (user requirement: a place can be cleared, not only overwritten). Every widget
+  about a place implements `IPlaced` (`HasLocation`, `ClearLocation`): current conditions, forecast,
+  air quality, rain, Sun and Moon. While a place is chosen the location row shows a clear button
+  (`Glyphs.Dismiss`, tooltip and name "Clear location") left of the search box; it forgets the
+  coordinates and the name (the location-name switch stays), saves, says "None chosen yet…", hides
+  itself and focuses the search. A cleared place is no place for every kind alike: the widget shows
+  its Set up button ([S-1860]) with its view parked ([S-1881]), asks the sync for nothing, and a later
+  pick starts a fresh view, so nothing fetched for the old place is drawn. No kind falls back to a
+  default. Sun and Moon still start at Zurich; cleared, their coordinates are stored as `null` (always
+  written, so they never read back as Zurich), their exact fields are empty (leaving an empty one is
+  not refused), and a place typed into the exact fields counts as chosen (named by its coordinates
+  when it has no name).
 - **[S-733]** Reading glyphs, checked against the font: droplet EB42, thermometer E9CA, wind E7BC;
   layouts: list E8FD, columns E8C0, grid E8A9.
 

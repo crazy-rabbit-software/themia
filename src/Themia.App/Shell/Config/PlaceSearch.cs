@@ -14,11 +14,12 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// What a settings page hands <see cref="PlaceSearch"/>: the place chosen now, and what to do when
-/// the user picks another. The search itself owns nothing in the config.
+/// the user picks another or clears it. The search itself owns nothing in the config.
 /// </summary>
 /// <param name="Chosen">The chosen place's label, or null when none is chosen yet.</param>
 /// <param name="Picked">A place was picked: store its coordinates and label, and save.</param>
-internal sealed record PlaceSearchBinding(string? Chosen, Action<PlaceMatch> Picked);
+/// <param name="Cleared">[S-2848] The place was cleared: forget it (<c>IPlaced.ClearLocation</c>), and save.</param>
+internal sealed record PlaceSearchBinding(string? Chosen, Action<PlaceMatch> Picked, Action Cleared);
 
 /// <summary>
 /// [S-2840] The location row, one piece for both weather widgets and Sun &amp; Moon: the row says
@@ -27,7 +28,7 @@ internal sealed record PlaceSearchBinding(string? Chosen, Action<PlaceMatch> Pic
 /// <para>
 /// The box never holds the choice: it is only ever a question. A pick replaces the choice at once
 /// and empties the box; there is no "Change" mode to enter and no way to leave a widget with half a
-/// choice. Everything the box can be told is said inside the suggestion list, where the eye already
+/// choice. [S-2848] While a place is chosen, a clear button beside the box forgets it. Everything the box can be told is said inside the suggestion list, where the eye already
 /// is: searching, the places ([S-2842]), no match, offline, failed ([S-2843]).
 /// </para>
 /// <para>
@@ -54,7 +55,11 @@ internal static class PlaceSearch
     internal static Action<string>? DebugType { get; private set; }
 #endif
 
-    public static void Add(List<FrameworkElement> rows, PlaceSearchBinding binding)
+    /// <returns>
+    /// Says a place chosen some other way (the Sun and Moon's exact fields): the description and the
+    /// clear button follow it.
+    /// </returns>
+    public static Action<string?> Add(List<FrameworkElement> rows, PlaceSearchBinding binding)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(binding);
@@ -71,7 +76,19 @@ internal static class PlaceSearch
 
         AutomationProperties.SetName(box, Str.Shell_Place_SearchPlaceholder.Text());
 
-        var row = FluentLayout.Row(Glyphs.Place, Str.Shell_Place_Location.Text(), Describe(binding.Chosen), box);
+        // [S-2848] Clear: only while there is a place to clear, so it never offers to do nothing.
+        var clear = FluentLayout.IconCommand(Glyphs.Dismiss, Str.Shell_Place_Clear.Text());
+        clear.Visibility = Chosen(binding.Chosen) ? Visibility.Visible : Visibility.Collapsed;
+
+        var control = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = Fluent.Space2,
+            VerticalAlignment = VerticalAlignment.Center,
+            Children = { clear, box },
+        };
+
+        var row = FluentLayout.Row(Glyphs.Place, Str.Shell_Place_Location.Text(), Describe(binding.Chosen), control);
 
         // One search at a time. A new one cancels the last, so a slow answer for "par" cannot land
         // on top of the results for "paris".
@@ -119,9 +136,25 @@ internal static class PlaceSearch
                 card.Description = Describe(place.Label);
             }
 
+            clear.Visibility = Visibility.Visible;
             box.Text = string.Empty;
             Close();
         }
+
+        clear.Click += (_, _) =>
+        {
+            Cancel();
+            binding.Cleared();
+
+            if (row.Child is SettingsCard card)
+            {
+                card.Description = Describe(null);
+            }
+
+            // The button goes with the place; focus moves to the search, the next thing to do.
+            clear.Visibility = Visibility.Collapsed;
+            box.Focus(FocusState.Programmatic);
+        };
 
         async Task RunAsync(string query)
         {
@@ -284,11 +317,23 @@ internal static class PlaceSearch
 #endif
 
         rows.Add(row);
+
+        return chosen =>
+        {
+            if (row.Child is SettingsCard card)
+            {
+                card.Description = Describe(chosen);
+            }
+
+            clear.Visibility = Chosen(chosen) ? Visibility.Visible : Visibility.Collapsed;
+        };
     }
+
+    private static bool Chosen(string? chosen) => !string.IsNullOrWhiteSpace(chosen);
 
     /// <summary>The row's description: the chosen place in full, or that there is none yet.</summary>
     private static string Describe(string? chosen)
-        => string.IsNullOrWhiteSpace(chosen) ? Str.Shell_Place_NotChosen.Text() : chosen;
+        => Chosen(chosen) ? chosen! : Str.Shell_Place_NotChosen.Text();
 
     /// <summary>[S-2842] A suggestion: the city on the first line, what sets it apart under it.</summary>
     private static ListViewItem PlaceItem(PlaceMatch place)

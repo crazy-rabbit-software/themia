@@ -33,7 +33,8 @@ public static class WidgetSetup
             QuoteConfig quote => quote.EffectiveQuotes.Count == 0,
             RssConfig rss => rss.ResolvedFeeds.Count == 0,
             StocksConfig stocks => string.IsNullOrWhiteSpace(stocks.Symbol),
-            WeatherConfig weather => !weather.HasLocation,
+            // [S-2848] Every widget about a place: none chosen, or cleared, is the Set up state.
+            IPlaced placed => !placed.HasLocation,
             VideoStreamConfig stream => stream.ResolvedUrl.Problem == WebUrlProblem.Empty,
             ShortcutsConfig shortcuts => shortcuts.Items.Count == 0,
             GalleryConfig gallery => gallery.Source switch

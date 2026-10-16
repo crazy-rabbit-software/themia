@@ -8,7 +8,8 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2847] The location row's states for <c>--settings-png</c>, without a network:
-/// <c>--place-chosen</c> gives the demo weather widget a place; <c>--place-query text</c> types into
+/// <c>--place-chosen</c> gives the demo widget a place; [S-2848] <c>--place-cleared</c> clears it (a
+/// Sun or Moon starts at Zurich), also for <c>--widget-png</c>; <c>--place-query text</c> types into
 /// the location search and submits; <c>--place-reply results|none|offline|error|searching</c> is what
 /// the stand-in geocoder answers (default results, from a fixed list of fixture places). The open
 /// suggestion list is written beside the page as <c>&lt;out&gt;-place.png</c>.
@@ -43,16 +44,11 @@ internal static class PlaceRender
     {
         ArgumentNullException.ThrowIfNull(host);
 
-        if (Array.IndexOf(Environment.GetCommandLineArgs(), "--place-chosen") >= 0 && kind is { } wanted)
+        if (kind is { } wanted)
         {
             foreach (var widget in host.State.Views.SelectMany(v => v.Widgets).Where(w => w.Kind == wanted))
             {
-                if (widget.Config is WeatherConfig weather)
-                {
-                    weather.Latitude = 47.3667;
-                    weather.Longitude = 8.55;
-                    weather.LocationName = "Zürich, Zurich, Switzerland";
-                }
+                Apply(widget.Config);
             }
         }
 
@@ -83,6 +79,39 @@ internal static class PlaceRender
                     return (places.Count == 0 ? PlaceOutcome.NoMatch : PlaceOutcome.Matches, places, null);
             }
         };
+    }
+
+    /// <summary>[S-2848] <c>--place-chosen</c> or <c>--place-cleared</c> on one widget's config.</summary>
+    public static void Apply(WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        var args = Environment.GetCommandLineArgs();
+
+        if (Array.IndexOf(args, "--place-cleared") >= 0 && config is IPlaced placed)
+        {
+            placed.ClearLocation();
+            return;
+        }
+
+        if (Array.IndexOf(args, "--place-chosen") < 0)
+        {
+            return;
+        }
+
+        switch (config)
+        {
+            case WeatherConfig weather:
+                weather.Latitude = 47.3667;
+                weather.Longitude = 8.55;
+                weather.LocationName = "Zürich, Zurich, Switzerland";
+                break;
+            case SkyPlaceConfig sky:
+                sky.Latitude = 47.3667;
+                sky.Longitude = 8.55;
+                sky.Place = "Zürich, Zurich, Switzerland";
+                break;
+        }
     }
 
     /// <summary>Once the page is laid out: type the query and submit it.</summary>

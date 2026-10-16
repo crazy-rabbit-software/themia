@@ -30,10 +30,10 @@ internal static partial class WidgetSettings
         var latitude = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
         var longitudeBox = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
 
-        // A Sun or Moon tile always has a place (it starts at Zurich); a pick replaces it and fills
-        // the exact fields below.
-        PlaceSearch.Add(rows, new PlaceSearchBinding(
-            config.Place,
+        // A Sun or Moon tile starts at Zurich; a pick replaces the place and fills the exact fields
+        // below. [S-2848] Clearing empties them too, and the tile waits for setup.
+        var shown = PlaceSearch.Add(rows, new PlaceSearchBinding(
+            SkyChosen(config),
             picked =>
             {
                 config.Latitude = picked.Latitude;
@@ -43,7 +43,22 @@ internal static partial class WidgetSettings
                 latitude.Text = FormatCoordinate(picked.Latitude);
                 longitudeBox.Text = FormatCoordinate(picked.Longitude);
                 save();
+            },
+            () =>
+            {
+                config.ClearLocation();
+                place.Text = string.Empty;
+                latitude.Text = string.Empty;
+                longitudeBox.Text = string.Empty;
+                save();
             }));
+
+        // A place typed into the exact fields is a place chosen too: the row above says so.
+        void Saved()
+        {
+            save();
+            shown(SkyChosen(config));
+        }
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_SunMoon_Settings_ExactCoordinates.Text()));
 
@@ -59,7 +74,7 @@ internal static partial class WidgetSettings
             }
 
             config.Place = text;
-            save();
+            Saved();
         };
 
         rows.Add(FluentLayout.Row(Glyphs.Place, Str.SunMoon_Place_Label.Text(), Str.SunMoon_Place_Desc.Text(), place));
@@ -68,10 +83,10 @@ internal static partial class WidgetSettings
             latitude,
             Str.SunMoon_Latitude_Label.Text(),
             Str.SunMoon_Latitude_Desc.Text(),
-            config.Latitude,
+            () => config.Latitude,
             -90,
             90,
-            value => { config.Latitude = value; save(); }));
+            value => { config.Latitude = value; Saved(); }));
 
         // [S-6074] Offered where the style reads it ([S-6050]: the month's phases do not).
         if (!longitude)
@@ -83,10 +98,26 @@ internal static partial class WidgetSettings
             longitudeBox,
             Str.SunMoon_Longitude_Label.Text(),
             Str.SunMoon_Longitude_Desc.Text(),
-            config.Longitude,
+            () => config.Longitude,
             -180,
             180,
-            value => { config.Longitude = value; save(); }));
+            value => { config.Longitude = value; Saved(); }));
+    }
+
+    /// <summary>
+    /// [S-2848] What the location row names: the place, or its coordinates when it has no name; null
+    /// when there is no place.
+    /// </summary>
+    private static string? SkyChosen(SkyPlaceConfig config)
+    {
+        if (!config.HasLocation)
+        {
+            return null;
+        }
+
+        return string.IsNullOrWhiteSpace(config.Place)
+            ? $"{FormatCoordinate(config.Latitude!.Value)}, {FormatCoordinate(config.Longitude!.Value)}"
+            : config.Place;
     }
 
     /// <summary>
@@ -102,18 +133,26 @@ internal static partial class WidgetSettings
         TextBox box,
         string title,
         string description,
-        double current,
+        Func<double?> current,
         double minimum,
         double maximum,
         Action<double> onChanged)
     {
-        box.Text = FormatCoordinate(current);
+        // [S-2848] No place: the field is empty, waiting for one.
+        box.Text = current() is { } known ? FormatCoordinate(known) : string.Empty;
 
         var verdict = FluentLayout.Verdict();
 
         void Commit()
         {
             var text = box.Text.Trim();
+
+            // [S-2848] Leaving an empty field of a cleared place is not an error: there is still none.
+            if (text.Length == 0 && current() is null)
+            {
+                FluentLayout.Confirm(verdict, string.Empty);
+                return;
+            }
 
             if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
                 && double.IsFinite(value)

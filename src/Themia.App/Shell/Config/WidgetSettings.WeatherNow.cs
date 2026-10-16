@@ -33,9 +33,9 @@ internal static partial class WidgetSettings
     }
 
     /// <summary>
-    /// [S-2840] The location row, shared by both weather widgets: the reusable
-    /// <see cref="PlaceSearch"/>, bound to a weather config. A pick replaces the place; there is no
-    /// clearing it, because a weather widget without a place has nothing to show.
+    /// [S-2840] The location row, shared by the weather family (current conditions, forecast, air
+    /// quality, rain): the reusable <see cref="PlaceSearch"/>, bound to a weather config. A pick
+    /// replaces the place; [S-2848] clearing it leaves the widget to its Set up state.
     /// </summary>
     private static void AddPlacePicker(List<FrameworkElement> rows, WeatherConfig config, Action save)
         => PlaceSearch.Add(rows, new PlaceSearchBinding(
@@ -45,6 +45,11 @@ internal static partial class WidgetSettings
                 config.Latitude = place.Latitude;
                 config.Longitude = place.Longitude;
                 config.LocationName = place.Label;
+                save();
+            },
+            () =>
+            {
+                config.ClearLocation();
                 save();
             }));
 
