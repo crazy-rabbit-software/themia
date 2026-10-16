@@ -6639,8 +6639,10 @@ Not ported: Karpo's 100 ms tick in an open folder; a running time here is whole 
 - **[S-4670]** Drive (add menu: Devices & power, [S-3511]): one drive (`drive`, a root; empty for the system drive; anything
   else is repaired to the system drive at load). A drive that is not there keeps its card, "Not
   connected".
-- **[S-4671]** The header is the drive's name ([S-4651]); the body its picture and kind, the used share,
-  the bar and the space line.
+- **[S-4671]** The body: the picture and the drive's name ([S-4651]; a disconnected share says
+  "Disconnected network drive" instead), the used share, the bar and the space line; the kind and
+  file system ([S-4652]) are in the tooltip. The header, when shown, carries the name too.
+- **[S-4675]** A new Drive card has no header (`WidgetInstance.DefaultHeader`): the body names the drive.
 - **[S-4672]** The ladder: the bar and the space line always; the picture row where it fits (24, 32, 48
   DIP by tier); Used, Free, Capacity and File system as four figures on a tile Regular both ways with
   the height for them. A mapped share Windows cannot reach is drawn as Explorer draws it (Karpo §75):
