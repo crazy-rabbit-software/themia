@@ -94,7 +94,11 @@ internal static unsafe partial class Win32
     [LibraryImport("user32.dll", SetLastError = true)]
     internal static partial uint SendInput(uint count, Input* inputs, int size);
 
-    [LibraryImport("user32.dll", EntryPoint = "SendMessageTimeoutW")]
+    /// <summary>The window the shell registered as the desktop: Explorer's <c>Progman</c>, or 0 when no shell runs.</summary>
+    [LibraryImport("user32.dll")]
+    internal static partial nint GetShellWindow();
+
+    [LibraryImport("user32.dll", EntryPoint = "SendMessageTimeoutW", SetLastError = true)]
     internal static partial nint SendMessageTimeout(nint hWnd, uint msg, nint wParam, nint lParam, uint flags, uint timeout, out nint result);
 
     /// <summary>The shell's attention state. Returns an HRESULT; the state is a <c>QUERY_USER_NOTIFICATION_STATE</c>.</summary>

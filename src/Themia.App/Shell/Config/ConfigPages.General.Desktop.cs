@@ -105,7 +105,8 @@ internal static partial class ConfigPages
     /// <summary>
     /// [S-930] Show or hide Windows' desktop icons. The switch adopts the live state when it comes on
     /// screen and whenever the icons are shown or hidden from anywhere — the desktop's own context
-    /// menu included ([S-932]) — and writes only when the user moves it ([S-931]).
+    /// menu included ([S-932]) — and only asks Windows when the user moves it ([S-931]). What it shows
+    /// and caches is always what Windows reached, never the position asked for ([S-939]).
     /// </summary>
     private static Border DesktopIconsRow(AppHost host)
     {
@@ -115,13 +116,16 @@ internal static partial class ConfigPages
 
         void Adopt()
         {
-            if (toggle is null)
+            // While a request is being applied the list shows and hides on the way; the worker's
+            // Settled reads the end state instead, so the switch never fights the user's hand.
+            if (toggle is null || DesktopIcons.Busy)
             {
                 return;
             }
 
             var live = DesktopIcons.AreVisible();
-            if (live is bool shown && toggle.IsOn != shown)
+            var shown = DesktopIconRules.Shown(live, host.State.Preferences.DesktopIconsVisible);
+            if (toggle.IsOn != shown)
             {
                 adopting = true;
                 toggle.IsOn = shown;
@@ -134,15 +138,21 @@ internal static partial class ConfigPages
             }
         }
 
-        toggle = FluentLayout.Toggle(DesktopIcons.AreVisible() ?? host.State.Preferences.DesktopIconsVisible, value =>
+        void OnSettled()
         {
-            if (adopting)
+            // Raised on the worker thread; the switch belongs to the UI thread.
+            if (toggle?.DispatcherQueue is not { } queue || !queue.TryEnqueue(Adopt))
             {
-                return;
+                Log.Debug("desktop-icons", "the settings page is gone; the switch reads the icons on the next visit");
             }
+        }
 
-            DesktopIcons.SetVisible(value);
-            host.Mutate(s => s.Preferences.DesktopIconsVisible = value, relayout: false);
+        toggle = FluentLayout.Toggle(DesktopIconRules.Shown(DesktopIcons.AreVisible(), host.State.Preferences.DesktopIconsVisible), value =>
+        {
+            if (!adopting)
+            {
+                DesktopIcons.Request(value);
+            }
         });
 
         // Listening only while on screen: the page is rebuilt on every visit and built off-screen by
@@ -151,10 +161,12 @@ internal static partial class ConfigPages
         toggle.Loaded += (_, _) =>
         {
             watch ??= DesktopIcons.Watch(Adopt);
+            DesktopIcons.Settled += OnSettled;
             Adopt();
         };
         toggle.Unloaded += (_, _) =>
         {
+            DesktopIcons.Settled -= OnSettled;
             watch?.Dispose();
             watch = null;
         };

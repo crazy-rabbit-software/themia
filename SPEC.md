@@ -5235,14 +5235,30 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
   any mode or monitor change the game made.
 - **[S-930]** "Show desktop icons" (original DI-01..05): posted as the shell's own command
   (`WM_COMMAND 0x7402` to `SHELLDLL_DefView`), so Explorer persists it and the desktop menu's check
-  mark agrees; Themia never re-asserts or restores it (it survives quitting Themia and reboots). The
-  shell windows are looked up on every use (Progman, or a WorkerW in between), never cached.
-- **[S-931]** The command is a toggle: posted only when the live state (`IsWindowVisible` of the icon
-  list) is known and differs; an unreadable shell posts nothing.
+  mark agrees; Themia never re-asserts or restores it (it survives quitting Themia, Explorer
+  restarts and reboots: Explorer persists it, so nothing is re-applied on `TaskbarCreated`). The
+  shell windows are looked up on every use, never cached: the shell's own `Progman`
+  (`GetShellWindow`), else a `WorkerW` in between (a child of Progman on 24H2+, top-level before),
+  and only a `SHELLDLL_DefView` of the shell's process that has its icon list
+  (`DesktopIconRules.ChooseView`) — another program's `Progman`/`WorkerW` never gets the command.
+- **[S-931]** The command is a toggle: sent only when the live state is known and differs; an
+  unreadable shell gets nothing. The live state is the icon list's own `WS_VISIBLE` bit, not
+  `IsWindowVisible` (which is also false while an ancestor is hidden, and then turned a "show" into
+  a hide).
 - **[S-932]** Windows owns the state; `Preferences.DesktopIconsVisible` is a first-paint cache. The
   switch adopts the live state on every visit and, while on screen, on the icon list's own
   `EVENT_OBJECT_SHOW/HIDE` (a WinEvent hook scoped to that one Explorer thread) — event-driven,
-  replacing the original's 1 s poll. Adopting writes only on a known disagreement.
+  replacing the original's 1 s poll. Adopting writes only on a known disagreement. The switch shows
+  the live state, else the cache — never a position nothing was done about.
+- **[S-939]** Applying the switch is single-flight and latest-wins (`DesktopIconRequests`): one
+  worker thread, a request made while it works replaces any still waiting, so quick off-on-off
+  flicks end as the switch was left. Each request sends the command at most once, with
+  `SendMessageTimeout` (abort-if-hung, 3 s bound) rather than `PostMessage`: a posted command is
+  still queued when the state is read back, so a quick second request toggled on a stale state
+  (lost or doubled toggles, the switch and the desktop out of step). The read after the handled
+  send confirms (`DesktopIconRules.Plan`); not found, not answered, or handled-but-unchanged is
+  logged as a warning and not retried. When the worker is done it raises `Settled` and the switch
+  adopts what Windows reached; while it works the hook's events are not adopted.
 - **[S-933]** Start with Windows, picked by package identity: unpackaged → `HKCU\…\Run\Themia`;
   packaged (MSIX) → the manifest's startup task, id `ThemiaStartup` (`Package.appxmanifest` declares
   `desktop:StartupTask TaskId="ThemiaStartup" Enabled="false"`). One switch, same states and advice.

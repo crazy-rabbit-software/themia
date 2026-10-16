@@ -15,7 +15,7 @@ namespace Themia.App.Interop;
 /// </para>
 /// <para>
 /// The shell's windows are looked up on every use rather than cached: Explorer restarts replace
-/// them, and a cached handle would post the command at a dead window. The lookup is two or three
+/// them, and a cached handle would send the command to a dead window. The lookup is a handful of
 /// <c>FindWindowEx</c> calls, and it only runs on a user action or a shell event.
 /// </para>
 /// </summary>
@@ -35,60 +35,179 @@ internal static unsafe class DesktopIcons
     /// </summary>
     public static (nint View, nint List)? Find()
     {
-        var view = Win32.FindWindowEx(Win32.FindWindow("Progman", null), 0, "SHELLDLL_DefView", null);
-
-        var worker = (nint)0;
-        while (view == 0)
+        // The shell's own Progman, not the first window of that class: any program may register a
+        // "Progman" or a "WorkerW" (a dock's stand-in shell windows, the shell's own worker windows
+        // in every process that uses it). Only views of the shell's process are candidates ([S-930]).
+        var progman = Win32.GetShellWindow();
+        if (progman == 0)
         {
-            worker = Win32.FindWindowEx(0, worker, "WorkerW", null);
-            if (worker == 0)
-            {
-                return null;
-            }
-
-            view = Win32.FindWindowEx(worker, 0, "SHELLDLL_DefView", null);
+            return null;
         }
 
-        // FindWindowEx ignores visibility, so the list is found whether the icons are shown or not.
-        var list = Win32.FindWindowEx(view, 0, "SysListView32", null);
-        return list == 0 ? null : (view, list);
+        Win32.GetWindowThreadProcessId(progman, out var shellPid);
+        if (shellPid == 0)
+        {
+            return null;
+        }
+
+        var found = new List<(nint View, nint List)>();
+        var candidates = new List<DesktopViewCandidate>();
+
+        void Consider(nint parent, bool underProgman)
+        {
+            var view = Win32.FindWindowEx(parent, 0, "SHELLDLL_DefView", null);
+            if (view == 0)
+            {
+                return;
+            }
+
+            Win32.GetWindowThreadProcessId(view, out var pid);
+
+            // FindWindowEx ignores visibility, so the list is found whether the icons are shown or not.
+            var list = Win32.FindWindowEx(view, 0, "SysListView32", null);
+            found.Add((view, list));
+            candidates.Add(new DesktopViewCandidate(underProgman, pid == shellPid, list != 0));
+        }
+
+        Consider(progman, underProgman: true);
+
+        // A WorkerW in between: a child of Progman on Windows 11 24H2 and later, top-level before.
+        for (var worker = Win32.FindWindowEx(progman, 0, "WorkerW", null); worker != 0; worker = Win32.FindWindowEx(progman, worker, "WorkerW", null))
+        {
+            Consider(worker, underProgman: false);
+        }
+
+        for (var worker = Win32.FindWindowEx(0, 0, "WorkerW", null); worker != 0; worker = Win32.FindWindowEx(0, worker, "WorkerW", null))
+        {
+            Consider(worker, underProgman: false);
+        }
+
+        var chosen = DesktopIconRules.ChooseView(candidates);
+        return chosen < 0 ? null : found[chosen];
+    }
+
+    /// <summary>
+    /// [S-931] The icon list's own <c>WS_VISIBLE</c> bit, or null when the window has gone (a live
+    /// list always has a style: it is a <c>WS_CHILD</c>).
+    /// </summary>
+    private static bool? IsShown(nint list)
+    {
+        var style = (uint)Win32.GetWindowLongPtr(list, Win32.GwlStyle);
+        return style == 0 ? null : DesktopIconRules.IsShown(style);
     }
 
     /// <summary>
     /// [S-931] Whether the icons are shown, or null when the shell cannot be found. Explorer hides the
-    /// list window itself, so its visibility <i>is</i> the state and is current the instant the shell
-    /// has handled the command — unlike the persisted flag, which Explorer writes lazily.
+    /// list window itself, so its own visible bit <i>is</i> the state and is current the instant the
+    /// shell has handled the command — unlike the persisted flag, which Explorer writes lazily.
+    /// Non-blocking: no message goes to Explorer, so the UI thread may call it.
     /// </summary>
-    public static bool? AreVisible() => Find() is { } shell ? Win32.IsWindowVisible(shell.List) : null;
+    public static bool? AreVisible() => Find() is { } shell ? IsShown(shell.List) : null;
+
+    /// <summary>Bounds the wait on a hung Explorer; a responsive one answers in milliseconds.</summary>
+    private const uint CommandTimeoutMs = 3000;
+
+    private static readonly DesktopIconRequests Requests = new();
+
+    /// <summary>[S-939] A request is being applied. The switch does not adopt the live state meanwhile.</summary>
+    public static bool Busy => Requests.Busy;
 
     /// <summary>
-    /// [S-931] Show or hide the icons. The command is a toggle with no "set" form, so it is posted
-    /// only when the live state is known and differs. Posted, never sent: the window lives in
-    /// Explorer, and a synchronous call would block on the shell's whole handling of the command.
+    /// [S-939] Raised on a worker thread once every request has been applied (or given up on, logged).
+    /// The switch reads the live state then. Subscribe while on screen only.
     /// </summary>
-    /// <returns>Whether the command was posted.</returns>
-    public static bool SetVisible(bool visible)
+    public static event Action? Settled;
+
+    /// <summary>
+    /// [S-939] Ask for the icons shown or hidden. Returns at once; one worker applies the requests,
+    /// latest wins, and raises <see cref="Settled"/> when it is done.
+    /// </summary>
+    public static void Request(bool visible)
     {
-        var shell = Find();
-        if (shell is null)
+        if (!Requests.Submit(visible))
         {
-            Log.Warn(Scope, "the desktop's icon view was not found; desktop icons left as they are");
-            return false;
+            return;
         }
 
-        if (!DesktopIconRules.NeedsToggle(Win32.IsWindowVisible(shell.Value.List), visible))
+        _ = Task.Run(static () =>
         {
-            return false;
-        }
+            while (Requests.Take() is bool target)
+            {
+                try
+                {
+                    Apply(target);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(Scope, "applying the desktop icons switch threw", ex);
+                }
+            }
 
-        if (!Win32.PostMessage(shell.Value.View, Win32.WmCommand, ToggleIconsCommand, 0))
+            try
+            {
+                Settled?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, "a desktop icons listener threw", ex);
+            }
+        });
+    }
+
+    /// <summary>
+    /// [S-931] [S-939] Bring the icons to <paramref name="visible"/>. The command is a toggle with no
+    /// "set" form, so it is sent only when the live state is known and differs, and at most once.
+    /// Sent, not posted, and bounded: a posted command is still queued in Explorer when the state is
+    /// read back, so the read cannot tell "done" from "not yet", and the next request would toggle on
+    /// a stale state. The send returns once Explorer has handled it; the read after it is the
+    /// confirmation. Blocking — the worker thread only.
+    /// </summary>
+    private static void Apply(bool visible)
+    {
+        var sent = false;
+        while (true)
         {
-            Log.Warn(Scope, $"could not post the desktop icons command (win32 {Marshal.GetLastWin32Error()})");
-            return false;
-        }
+            var shell = Find();
+            var live = shell is { } found ? IsShown(found.List) : null;
 
-        Log.Info(Scope, visible ? "showing desktop icons" : "hiding desktop icons");
-        return true;
+            switch (DesktopIconRules.Plan(live, visible, sent))
+            {
+                case DesktopIconStep.Done:
+                    if (sent)
+                    {
+                        Log.Info(Scope, visible ? "desktop icons shown" : "desktop icons hidden");
+                    }
+
+                    return;
+
+                case DesktopIconStep.Unreadable:
+                    Log.Warn(Scope, sent
+                        ? "the desktop's icon view went away after the desktop icons command; the switch shows what Windows reports next"
+                        : "the desktop's icon view was not found; desktop icons left as they are");
+                    return;
+
+                case DesktopIconStep.DidNotTake:
+                    Log.Warn(Scope, $"Explorer handled the desktop icons command but the icons are still {(live == true ? "shown" : "hidden")}; not toggling again");
+                    return;
+
+                case DesktopIconStep.Toggle:
+                    Marshal.SetLastPInvokeError(0);
+                    if (Win32.SendMessageTimeout(shell!.Value.View, Win32.WmCommand, ToggleIconsCommand, 0,
+                            Win32.SmtoAbortIfHung | Win32.SmtoBlock, CommandTimeoutMs, out _) == 0)
+                    {
+                        // A timeout may still be handled later; the list's show/hide event then tells the switch.
+                        Log.Warn(Scope, $"Explorer did not take the desktop icons command (win32 {Marshal.GetLastPInvokeError()}); desktop icons left as they are");
+                        return;
+                    }
+
+                    sent = true;
+                    break;
+
+                default:
+                    Log.Error(Scope, $"unknown desktop icons step for visible={visible}");
+                    return;
+            }
+        }
     }
 
     /// <summary>

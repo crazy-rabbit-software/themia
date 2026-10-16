@@ -116,20 +116,6 @@ public sealed class DesktopIntegrationTests
 
     // ---- Desktop icons ---------------------------------------------------------------------
 
-    [Theory]
-    [InlineData(true, true, false)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(false, false, false)]
-    public void S931_toggle_only_on_a_known_mismatch(bool live, bool wanted, bool expected)
-        => Assert.Equal(expected, DesktopIconRules.NeedsToggle(live, wanted));
-
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void S931_an_unreadable_shell_posts_nothing(bool wanted)
-        => Assert.False(DesktopIconRules.NeedsToggle(null, wanted));
-
     [Fact]
     public void S932_adopt_only_a_known_disagreeing_live_state()
     {
@@ -137,6 +123,102 @@ public sealed class DesktopIntegrationTests
         Assert.True(DesktopIconRules.Adopt(true, stored: false));
         Assert.Null(DesktopIconRules.Adopt(true, stored: true));
         Assert.Null(DesktopIconRules.Adopt(null, stored: false));
+    }
+
+    [Fact]
+    public void S932_the_switch_shows_the_live_state_or_the_cache_never_the_unapplied_request()
+    {
+        Assert.True(DesktopIconRules.Shown(true, stored: false));
+        Assert.False(DesktopIconRules.Shown(false, stored: true));
+        Assert.True(DesktopIconRules.Shown(null, stored: true));
+        Assert.False(DesktopIconRules.Shown(null, stored: false));
+    }
+
+    // Regression: the state was read with IsWindowVisible, which is false whenever an ancestor of
+    // the list is hidden; a "show" request then toggled shown icons off. Only the list's own bit counts.
+    [Theory]
+    [InlineData(0x56003A40u, true)]   // the list as read on a live desktop with icons shown
+    [InlineData(0x46003A40u, false)]  // the same list, hidden by "Show desktop icons" off
+    [InlineData(0x10000000u, true)]
+    [InlineData(0u, false)]
+    public void S931_the_state_is_the_icon_lists_own_visible_bit(uint style, bool shown)
+        => Assert.Equal(shown, DesktopIconRules.IsShown(style));
+
+    [Fact]
+    public void S930_the_view_under_progman_wins_over_one_under_a_workerw()
+    {
+        var found = new[]
+        {
+            new DesktopViewCandidate(UnderProgman: false, OwnedByShell: true, HasList: true),
+            new DesktopViewCandidate(UnderProgman: true, OwnedByShell: true, HasList: true),
+        };
+
+        Assert.Equal(1, DesktopIconRules.ChooseView(found));
+    }
+
+    [Fact]
+    public void S930_a_workerw_view_is_used_when_progman_has_none()
+    {
+        var found = new[]
+        {
+            new DesktopViewCandidate(UnderProgman: false, OwnedByShell: true, HasList: true),
+            new DesktopViewCandidate(UnderProgman: false, OwnedByShell: true, HasList: true),
+        };
+
+        Assert.Equal(0, DesktopIconRules.ChooseView(found));
+    }
+
+    [Fact]
+    public void S930_a_view_of_another_process_or_without_its_list_is_never_the_target()
+    {
+        Assert.Equal(-1, DesktopIconRules.ChooseView([]));
+        Assert.Equal(-1, DesktopIconRules.ChooseView([new DesktopViewCandidate(UnderProgman: true, OwnedByShell: false, HasList: true)]));
+        Assert.Equal(-1, DesktopIconRules.ChooseView([new DesktopViewCandidate(UnderProgman: true, OwnedByShell: true, HasList: false)]));
+        Assert.Equal(1, DesktopIconRules.ChooseView(
+        [
+            new DesktopViewCandidate(UnderProgman: true, OwnedByShell: false, HasList: true),
+            new DesktopViewCandidate(UnderProgman: false, OwnedByShell: true, HasList: true),
+        ]));
+    }
+
+    [Theory]
+    [InlineData(true, true, false, DesktopIconStep.Done)]
+    [InlineData(false, false, false, DesktopIconStep.Done)]
+    [InlineData(true, false, false, DesktopIconStep.Toggle)]
+    [InlineData(false, true, false, DesktopIconStep.Toggle)]
+    [InlineData(true, true, true, DesktopIconStep.Done)]
+    [InlineData(true, false, true, DesktopIconStep.DidNotTake)]
+    [InlineData(false, true, true, DesktopIconStep.DidNotTake)]
+    public void S939_one_toggle_per_request_and_the_read_after_it_confirms(bool live, bool wanted, bool sent, DesktopIconStep expected)
+        => Assert.Equal(expected, DesktopIconRules.Plan(live, wanted, sent));
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void S939_an_unreadable_shell_is_never_toggled(bool wanted, bool sent)
+        => Assert.Equal(DesktopIconStep.Unreadable, DesktopIconRules.Plan(null, wanted, sent));
+
+    [Fact]
+    public void S939_requests_start_one_worker_and_the_latest_wins()
+    {
+        var requests = new DesktopIconRequests();
+        Assert.False(requests.Busy);
+
+        Assert.True(requests.Submit(false));   // starts the worker
+        Assert.True(requests.Busy);
+        Assert.False(requests.Take());         // the worker takes "hide"
+
+        // Off-on-off while it works: no second worker, and only the last position is applied next.
+        Assert.False(requests.Submit(true));
+        Assert.False(requests.Submit(false));
+        Assert.False(requests.Submit(true));
+        Assert.True(requests.Take());
+        Assert.True(requests.Busy);
+
+        Assert.Null(requests.Take());          // nothing left: the worker stops
+        Assert.False(requests.Busy);
+
+        Assert.True(requests.Submit(false));   // the next request starts a worker again
     }
 
     // ---- Autostart -------------------------------------------------------------------------
