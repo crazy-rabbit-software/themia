@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "ठिकाण, तारीख आणि ऑफसेट ओळ किती मोठी असावी",
   "clockText.small": "लहान",
   "clockText.large": "मोठा",
-  "variants.visualizer.scope.label": "तरंगरूप",
-  "variants.visualizer.scope.desc": "ऑसिलोस्कोपप्रमाणे आवाजच रेखाटणारी रेषा",
   "planner.label": "साप्ताहिक नियोजक",
   "planner.desc": "पुढील दिवस त्यांच्या कार्यक्रमांसह, आणि आज काय देय आहे",
   "planner.tasksHeader": "आजची कार्ये",

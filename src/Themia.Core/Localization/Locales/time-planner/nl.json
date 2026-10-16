@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "Hoe groot de plaats, de datum en de verschilregel zijn",
   "clockText.small": "Klein",
   "clockText.large": "Groot",
-  "variants.visualizer.scope.label": "Golfvorm",
-  "variants.visualizer.scope.desc": "Een lijn die het geluid zelf tekent, als een oscilloscoop",
   "planner.label": "Weekplanner",
   "planner.desc": "De komende dagen met hun afspraken, en wat vandaag af moet",
   "planner.tasksHeader": "Taken van vandaag",

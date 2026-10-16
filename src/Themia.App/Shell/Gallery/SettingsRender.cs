@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -82,7 +83,7 @@ internal static class SettingsRender
 
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|Displays|Views|License|About|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name]");
+            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|Displays|Views|License|About|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name] [--style name]");
             app.Exit();
             return true;
         }
@@ -125,7 +126,8 @@ internal static class SettingsRender
             },
             Option(args, "--flyout"),
             double.TryParse(Option(args, "--width"), System.Globalization.CultureInfo.InvariantCulture, out var width) && width >= 320 ? width : WindowWidth,
-            Option(args, "--open"));
+            Option(args, "--open"),
+            Option(args, "--style"));
 
         _ = RenderAsync(app, dispatcher, request);
         return true;
@@ -148,7 +150,8 @@ internal static class SettingsRender
         AppTheme Theme,
         string? Flyout,
         double Width,
-        string? Open);
+        string? Open,
+        string? Style);
 
     private static string? Option(string[] args, string name)
     {
@@ -251,7 +254,7 @@ internal static class SettingsRender
 
             var target = WithOpenGroup(host, request.Page switch
             {
-                PageKind.Widget => new ConfigTarget.Widget(DemoWidget(host, request.Kind!.Value).Id),
+                PageKind.Widget => new ConfigTarget.Widget(DemoWidget(host, request.Kind!.Value, request.Style).Id),
                 _ => request.App!,
             }, request.Open);
 
@@ -380,13 +383,26 @@ internal static class SettingsRender
         host.Sync.Report(imap.Id, new(Themia.Core.Sync.SyncKind.Mail, 50, 1, now.AddDays(-2), 0));
     }
 
-    private static WidgetInstance DemoWidget(AppHost host, WidgetKind kind)
+    /// <summary>The demo profile's widget of <paramref name="kind"/>; <c>--style</c> sets its style first ([S-6010]: the page shows that style's rows).</summary>
+    private static WidgetInstance DemoWidget(AppHost host, WidgetKind kind, string? style)
     {
         var demo = host.State.Views.SelectMany(v => v.Widgets).FirstOrDefault(w => w.Kind == kind);
         if (demo is null)
         {
             demo = WidgetInstance.Create(kind, new FracRect(0.6, 0.6, 0.2, 0.2));
             host.State.Views[0].Widgets.Add(demo);
+        }
+
+        if (style is not null)
+        {
+            if (WidgetStyles.Find(kind, style) is { } found)
+            {
+                WidgetStyles.Set(demo.Config, found.Value);
+            }
+            else
+            {
+                Console.WriteLine($"settings: {kind} has no style '{style}' (has: {string.Join(", ", WidgetStyles.For(kind).Select(s => s.Name))})");
+            }
         }
 
         return demo;
@@ -443,7 +459,7 @@ internal static class SettingsRender
         var work = ViewState.Create("Work");
         work.Icon = "";
         work.Color = "#0099BC";
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.MonthCalendar, new FracRect(0.05, 0.08, 0.20, 0.30)));
+        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.05, 0.08, 0.20, 0.30)));
         work.Widgets.Add(WidgetInstance.Create(WidgetKind.Email, new FracRect(0.30, 0.08, 0.25, 0.30)));
 
         var evening = ViewState.Create("Evening");

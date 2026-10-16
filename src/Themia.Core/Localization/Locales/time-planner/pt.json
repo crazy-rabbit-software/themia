@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "O tamanho do local, da data e da linha de fuso",
   "clockText.small": "Pequeno",
   "clockText.large": "Grande",
-  "variants.visualizer.scope.label": "Forma de onda",
-  "variants.visualizer.scope.desc": "Uma linha que desenha o próprio som, como um osciloscópio",
   "planner.label": "Planejador semanal",
   "planner.desc": "Os próximos dias com seus eventos e o que vence hoje",
   "planner.tasksHeader": "Tarefas de hoje",

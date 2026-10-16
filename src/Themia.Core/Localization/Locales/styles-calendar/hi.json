@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "कैलेंडर",
+  "styles.calendar.desc": "आपके इवेंट और जन्मदिन माह, सप्ताह, दिन या वर्ष के अनुसार, या एजेंडा के रूप में",
+  "styles.calendar.month": "माह",
+  "styles.calendar.week": "सप्ताह",
+  "styles.calendar.day": "दिन",
+  "styles.calendar.year": "वर्ष",
+  "styles.calendar.agenda": "एजेंडा"
+}

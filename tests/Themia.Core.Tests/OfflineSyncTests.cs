@@ -771,7 +771,7 @@ public sealed class OfflineSyncTests : IDisposable
                     Name = "Two",
                     Widgets =
                     [
-                        new WidgetInstance { Id = "c", Kind = WidgetKind.MonthCalendar, Config = new MonthCalendarConfig { AccountIds = ["acc"] } },
+                        new WidgetInstance { Id = "c", Kind = WidgetKind.Calendar, Config = new CalendarWidgetConfig { AccountIds = ["acc"] } },
                         new WidgetInstance { Id = "p", Kind = WidgetKind.Contacts, Config = new ContactsConfig() },
                     ],
                 },

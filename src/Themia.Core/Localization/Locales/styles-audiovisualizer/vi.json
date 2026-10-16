@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "Trình hiển thị âm thanh",
+  "styles.audioVisualizer.desc": "Âm thanh PC này đang phát, dưới dạng thanh, sóng hoặc đường",
+  "styles.audioVisualizer.bars": "Thanh",
+  "styles.audioVisualizer.mirrored": "Đối xứng",
+  "styles.audioVisualizer.wave": "Sóng",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Tròn",
+  "styles.audioVisualizer.waveform": "Dạng sóng"
+}

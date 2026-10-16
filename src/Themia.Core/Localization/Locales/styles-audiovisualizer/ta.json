@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "ஆடியோ விஷுவலைசர்",
+  "styles.audioVisualizer.desc": "இந்த கணினி இயக்குவதைப் பட்டைகள், அலை அல்லது கோடாக",
+  "styles.audioVisualizer.bars": "பட்டைகள்",
+  "styles.audioVisualizer.mirrored": "பிரதிபலிப்பு",
+  "styles.audioVisualizer.wave": "அலை",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "வட்டம்",
+  "styles.audioVisualizer.waveform": "அலைவடிவம்"
+}

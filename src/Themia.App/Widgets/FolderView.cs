@@ -46,7 +46,6 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
     private Ticker? _ticker;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval;
-    private readonly FolderViewMode _view;
     private FolderConfig _config;
 
     /// <summary>
@@ -73,12 +72,11 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
 
     private GitRepoStatus? _git;
 
-    /// <summary>[S-4120] One view for the four folder kinds; the kind fixes the layout.</summary>
-    public FolderView(WidgetKind kind)
+    /// <summary>[S-4123] One view for the four folder styles; the config's style picks the layout ([S-6005]).</summary>
+    public FolderView()
     {
-        _view = FolderConfig.ViewOf(kind) ?? FolderViewMode.List;
-        _config = FolderConfig.For(_view);
-        _applied = FolderConfig.For(_view);
+        _config = new FolderConfig();
+        _applied = new FolderConfig();
 
         BuildChrome();
 
@@ -107,7 +105,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
 
     public void ApplyConfig(WidgetConfig config)
     {
-        var next = config as FolderConfig ?? FolderConfig.For(_view);
+        var next = config as FolderConfig ?? new FolderConfig();
         var previous = _applied;
 
         _config = next;
@@ -139,7 +137,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         }
         else
         {
-            // Order, hidden items, sizes, columns: all drawn from what is in hand.
+            // Order, hidden items, sizes, columns, the style: all drawn from what is in hand.
             Render();
         }
     }
@@ -357,8 +355,8 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         {
             // Asked whether the badge would have room if there were a repository, not whether it is
             // shown now: it is not shown until the status exists.
-            var wanted = (_area.IsMeasured && FolderLayout.Header(_area.Width, _config.View, Navigates, hasGit: true).Git)
-                || (_config.View == FolderViewMode.Details && _config.DetailColumns.Contains(FolderColumn.Git));
+            var wanted = (_area.IsMeasured && FolderLayout.Header(_area.Width, _config.Style, Navigates, hasGit: true).Git)
+                || (_config.Style == FolderStyle.Details && _config.DetailColumns.Contains(FolderColumn.Git));
 
             var status = wanted ? await GitStatus.GetAsync(path).ConfigureAwait(true) : null;
 

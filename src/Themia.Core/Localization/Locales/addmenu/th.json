@@ -12,9 +12,6 @@
   "addMenu.subject.system": "ระบบ",
   "addMenu.subject.devices": "อุปกรณ์และพลังงาน",
   "addMenu.subject.more": "เพิ่มเติม",
-  "addMenu.family.calendar": "ปฏิทิน",
-  "addMenu.family.visualizer": "ภาพแสดงเสียง",
-  "addMenu.family.folder": "โฟลเดอร์",
   "addMenu.family.screenTime": "เวลาหน้าจอ",
   "addMenu.family.powerButtons": "ปุ่มเปิด/ปิด"
 }

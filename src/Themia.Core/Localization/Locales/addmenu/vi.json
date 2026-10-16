@@ -12,9 +12,6 @@
   "addMenu.subject.system": "Hệ thống",
   "addMenu.subject.devices": "Thiết bị và nguồn",
   "addMenu.subject.more": "Thêm",
-  "addMenu.family.calendar": "Lịch",
-  "addMenu.family.visualizer": "Trình hiển thị",
-  "addMenu.family.folder": "Thư mục",
   "addMenu.family.screenTime": "Thời gian sử dụng",
   "addMenu.family.powerButtons": "Nút nguồn"
 }

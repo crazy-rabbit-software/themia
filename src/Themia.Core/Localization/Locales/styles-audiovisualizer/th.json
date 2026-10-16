@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "ภาพแสดงเสียง",
+  "styles.audioVisualizer.desc": "สิ่งที่พีซีนี้กำลังเล่น เป็นแท่ง คลื่น หรือเส้น",
+  "styles.audioVisualizer.bars": "แท่ง",
+  "styles.audioVisualizer.mirrored": "สะท้อน",
+  "styles.audioVisualizer.wave": "คลื่น",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "วงกลม",
+  "styles.audioVisualizer.waveform": "รูปคลื่น"
+}

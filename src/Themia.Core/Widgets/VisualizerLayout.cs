@@ -3,31 +3,6 @@ using Themia.Core.Model;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-3210] The audio visualizer's designs. Never persisted: each design is its own widget kind and
-/// <see cref="VisualizerLayout.StyleOf"/> maps the kind to its design.
-/// </summary>
-public enum VisualizerStyle
-{
-    /// <summary>Bars standing on the bottom edge.</summary>
-    Bars = 0,
-
-    /// <summary>Bars symmetric around the centre line.</summary>
-    Mirror = 1,
-
-    /// <summary>A smooth curve through the bands, the area under it filled.</summary>
-    Wave = 2,
-
-    /// <summary>Columns of LED cells, lit from the bottom.</summary>
-    Dots = 3,
-
-    /// <summary>Spokes around a ring, the spectrum mirrored left and right.</summary>
-    Radial = 4,
-
-    /// <summary>[S-3212] The waveform itself, a line moving about the centre: an oscilloscope, not a spectrum.</summary>
-    Scope = 5,
-}
-
-/// <summary>
 /// What the audio visualizer draws at one size. [S-3205] Edge to edge: the box is the whole content
 /// area, and the card's rounded corners clip what reaches them.
 /// </summary>
@@ -35,19 +10,19 @@ public enum VisualizerStyle
 /// <param name="Horizontal">The run lies along a tall column's height (levels grow from its start
 /// edge, bass at the bottom) rather than along a tile's or a strip's width.</param>
 /// <param name="Bars">How many bands are drawn (bars, columns, curve points; spokes per side for
-/// <see cref="VisualizerStyle.Radial"/>): a divisor of <see cref="Spectrum.Bands"/>.</param>
+/// <see cref="AudioVisualizerStyle.Radial"/>): a divisor of <see cref="Spectrum.Bands"/>.</param>
 /// <param name="Thickness">One bar's (column's, spoke's) thickness, DIPs.</param>
 /// <param name="Gap">The space between two bars (and two cells), DIPs.</param>
 /// <param name="Length">The room a level has to grow in, DIPs: the short axis of the box, a spoke's length.</param>
 /// <param name="Floor">The idle baseline as a fraction of <see cref="Length"/>: a quiet band is a stub, never nothing.</param>
-/// <param name="Cells">LED cells per column (<see cref="VisualizerStyle.Dots"/>), else 0.</param>
+/// <param name="Cells">LED cells per column (<see cref="AudioVisualizerStyle.Led"/>), else 0.</param>
 /// <param name="Cell">One cell's length along the column, DIPs.</param>
-/// <param name="Radius">The inner ring the spokes stand on (<see cref="VisualizerStyle.Radial"/>), DIPs.</param>
+/// <param name="Radius">The inner ring the spokes stand on (<see cref="AudioVisualizerStyle.Radial"/>), DIPs.</param>
 /// <param name="CenterX">The ring's centre, DIPs from the box's left.</param>
 /// <param name="CenterY">The ring's centre, DIPs from the box's top.</param>
-/// <param name="Run">[S-3213] The waveform's run along the long side (<see cref="VisualizerStyle.Scope"/>), DIPs; <see cref="Bars"/> is its point count there.</param>
+/// <param name="Run">[S-3213] The waveform's run along the long side (<see cref="AudioVisualizerStyle.Waveform"/>), DIPs; <see cref="Bars"/> is its point count there.</param>
 public readonly record struct VisualizerPlan(
-    VisualizerStyle Style,
+    AudioVisualizerStyle Style,
     bool Horizontal,
     int Bars,
     double Thickness,
@@ -62,7 +37,7 @@ public readonly record struct VisualizerPlan(
     double Run = 0);
 
 /// <summary>
-/// [S-3205] [S-3210] The audio visualizer's layout. The tile is the spectrum and nothing else, so the
+/// [S-3205] [S-3216] The audio visualizer's layout. The tile is the spectrum and nothing else, so the
 /// ladder has one part and the size decides its grain: the bands run along the tile's long side, as
 /// many as fit at <see cref="MinThickness"/> from <see cref="Counts"/>, and then they get thicker. The
 /// analyser has <see cref="Spectrum.Bands"/> bands, so a larger tile draws the same bands larger
@@ -95,20 +70,8 @@ public static class VisualizerLayout
     /// <summary>A spoke's share of its slot of the ring's circumference; the rest is the gap.</summary>
     public const double SpokeShare = 0.6;
 
-    /// <summary>[S-3210] The design a visualizer kind draws, or null for any other kind.</summary>
-    public static VisualizerStyle? StyleOf(WidgetKind kind) => kind switch
-    {
-        WidgetKind.AudioVisualizer => VisualizerStyle.Bars,
-        WidgetKind.VisualizerMirror => VisualizerStyle.Mirror,
-        WidgetKind.VisualizerWave => VisualizerStyle.Wave,
-        WidgetKind.VisualizerDots => VisualizerStyle.Dots,
-        WidgetKind.VisualizerRadial => VisualizerStyle.Radial,
-        WidgetKind.VisualizerScope => VisualizerStyle.Scope,
-        _ => null,
-    };
-
     /// <summary>Plan the design for the widget's content area, edge to edge.</summary>
-    public static VisualizerPlan Plan(WidgetArea area, VisualizerStyle style = VisualizerStyle.Bars)
+    public static VisualizerPlan Plan(WidgetArea area, AudioVisualizerStyle style = AudioVisualizerStyle.Bars)
     {
         if (!area.IsMeasured)
         {
@@ -117,8 +80,8 @@ public static class VisualizerLayout
 
         return style switch
         {
-            VisualizerStyle.Radial => PlanRadial(area),
-            VisualizerStyle.Scope => PlanScope(area),
+            AudioVisualizerStyle.Radial => PlanRadial(area),
+            AudioVisualizerStyle.Waveform => PlanScope(area),
             _ => PlanLinear(area, style),
         };
     }
@@ -141,10 +104,10 @@ public static class VisualizerLayout
         var across = horizontal ? area.Width : area.Height;
         var points = Math.Clamp((int)Math.Floor(along / ScopeStep) + 1, MinScopePoints, Oscilloscope.Points);
         var line = Math.Clamp(Math.Round(across / 60), 2, 4);
-        return new VisualizerPlan(VisualizerStyle.Scope, horizontal, points, line, 0, across, 0, Run: along);
+        return new VisualizerPlan(AudioVisualizerStyle.Waveform, horizontal, points, line, 0, across, 0, Run: along);
     }
 
-    private static VisualizerPlan PlanLinear(WidgetArea area, VisualizerStyle style)
+    private static VisualizerPlan PlanLinear(WidgetArea area, AudioVisualizerStyle style)
     {
         var horizontal = area.Shape == AreaShape.Tall;
         var along = horizontal ? area.Height : area.Width;
@@ -153,7 +116,7 @@ public static class VisualizerLayout
         // The gap grows with the run, so a large tile does not read as a fence of thin slits.
         var gap = Math.Clamp(Math.Round(along / 100), 2, 6);
         var bars = Counts[^1];
-        var least = style == VisualizerStyle.Dots ? MinLed : MinThickness;
+        var least = style == AudioVisualizerStyle.Led ? MinLed : MinThickness;
 
         foreach (var count in Counts)
         {
@@ -166,7 +129,7 @@ public static class VisualizerLayout
 
         var thickness = Math.Max(0, Thickness(along, bars, gap));
 
-        if (style == VisualizerStyle.Dots)
+        if (style == AudioVisualizerStyle.Led)
         {
             // Square cells where they fit, stretched a little so the column ends at the edge exactly.
             var cells = across > 0 && thickness > 0
@@ -197,7 +160,7 @@ public static class VisualizerLayout
         }
 
         var floor = length > 0 ? Math.Min(1, Baseline / length) : 1;
-        return new VisualizerPlan(VisualizerStyle.Radial, false, bars, Spoke(ring, bars), 0, length, floor,
+        return new VisualizerPlan(AudioVisualizerStyle.Radial, false, bars, Spoke(ring, bars), 0, length, floor,
             Radius: ring, CenterX: area.Width / 2, CenterY: area.Height / 2);
     }
 
@@ -207,7 +170,7 @@ public static class VisualizerLayout
     private static double Spoke(double ring, int perSide) => Math.Max(0, Math.PI * ring / perSide * SpokeShare);
 
     /// <summary>
-    /// [S-3210] The angle of spoke <paramref name="index"/> of <paramref name="perSide"/>, degrees
+    /// [S-3216] The angle of spoke <paramref name="index"/> of <paramref name="perSide"/>, degrees
     /// clockwise from the top: the bass at the top, the treble at the bottom, the right side positive
     /// and the left its mirror (negative).
     /// </summary>
@@ -217,7 +180,7 @@ public static class VisualizerLayout
         return left ? -angle : angle;
     }
 
-    /// <summary>[S-3210] How many of a column's <paramref name="cells"/> a level lights: at least one (the idle stub), at most all.</summary>
+    /// <summary>[S-3216] How many of a column's <paramref name="cells"/> a level lights: at least one (the idle stub), at most all.</summary>
     public static int LitCells(float level, int cells)
     {
         if (cells <= 0)
@@ -230,7 +193,7 @@ public static class VisualizerLayout
     }
 
     /// <summary>
-    /// [S-3210] The wave's curve: a Catmull-Rom spline through <paramref name="points"/> (y values at
+    /// [S-3216] The wave's curve: a Catmull-Rom spline through <paramref name="points"/> (y values at
     /// even steps across <paramref name="width"/>), as cubic Bézier controls, three points per segment
     /// written to <paramref name="controls"/> (c1, c2, end). Controls are clamped into 0..<paramref name="bottom"/>,
     /// so the curve (inside its controls' hull) never leaves the box however sharp a peak is.

@@ -18,7 +18,7 @@ public sealed class WeekPlannerConfig : CalendarConfig
 
     /// <summary>Days side by side, the classic week view's shape; never read to pick a range ([S-5321]).</summary>
     [JsonIgnore]
-    public override CalendarLayout Layout => CalendarLayout.Week;
+    public override CalendarStyle Layout => CalendarStyle.Week;
 
     /// <summary>[S-5324] List the tasks due today (and overdue) under today's events.</summary>
     public bool ShowTasks { get; set; } = true;

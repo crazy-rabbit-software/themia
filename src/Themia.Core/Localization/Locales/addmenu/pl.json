@@ -12,9 +12,6 @@
   "addMenu.subject.system": "System",
   "addMenu.subject.devices": "Urządzenia i zasilanie",
   "addMenu.subject.more": "Więcej",
-  "addMenu.family.calendar": "Kalendarz",
-  "addMenu.family.visualizer": "Wizualizacja",
-  "addMenu.family.folder": "Folder",
   "addMenu.family.screenTime": "Czas ekranu",
   "addMenu.family.powerButtons": "Przyciski zasilania"
 }

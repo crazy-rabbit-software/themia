@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "Audiovisualisatie",
+  "styles.audioVisualizer.desc": "Wat deze pc afspeelt, als balken, een golf of een lijn",
+  "styles.audioVisualizer.bars": "Balken",
+  "styles.audioVisualizer.mirrored": "Gespiegeld",
+  "styles.audioVisualizer.wave": "Golf",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Rond",
+  "styles.audioVisualizer.waveform": "Golfvorm"
+}

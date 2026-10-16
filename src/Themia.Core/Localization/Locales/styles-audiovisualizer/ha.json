@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "Mai nuna sauti",
+  "styles.audioVisualizer.desc": "Abin da wannan kwamfuta ke kunnawa, a matsayin sanduna, igiya ko layi",
+  "styles.audioVisualizer.bars": "Sanduna",
+  "styles.audioVisualizer.mirrored": "Madubi",
+  "styles.audioVisualizer.wave": "Igiya",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Zobe",
+  "styles.audioVisualizer.waveform": "Siffar sauti"
+}

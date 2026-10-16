@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "Độ lớn của địa điểm, ngày và dòng chênh lệch giờ",
   "clockText.small": "Nhỏ",
   "clockText.large": "Lớn",
-  "variants.visualizer.scope.label": "Dạng sóng",
-  "variants.visualizer.scope.desc": "Một đường vẽ chính âm thanh, như máy hiện sóng",
   "planner.label": "Kế hoạch tuần",
   "planner.desc": "Những ngày tới cùng sự kiện, và việc đến hạn hôm nay",
   "planner.tasksHeader": "Tác vụ hôm nay",

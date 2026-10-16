@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "Wizualizacja dźwięku",
+  "styles.audioVisualizer.desc": "To, co odtwarza ten komputer, jako słupki, fala lub linia",
+  "styles.audioVisualizer.bars": "Słupki",
+  "styles.audioVisualizer.mirrored": "Lustrzane",
+  "styles.audioVisualizer.wave": "Fala",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Kołowe",
+  "styles.audioVisualizer.waveform": "Przebieg fali"
+}

@@ -107,7 +107,7 @@ public static class FolderLayout
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        var grid = config.View is FolderViewMode.Grid or FolderViewMode.Icons;
+        var grid = config.Style is FolderStyle.Grid or FolderStyle.Icons;
         var rowHeight = RowHeight(config.Rows);
         var room = new Disclosure(area);
 
@@ -119,7 +119,7 @@ public static class FolderLayout
             tileSize++;
         }
 
-        var labelled = config.View == FolderViewMode.Grid;
+        var labelled = config.Style == FolderStyle.Grid;
         var firstRow = grid
             ? Math.Min(Grid(area.Width, 1, tileSize, labelled).CellHeight, Math.Max(area.Height, 0))
             : rowHeight;
@@ -127,7 +127,7 @@ public static class FolderLayout
         room.Reserve(firstRow);
 
         var search = searchOpen && room.Take(SearchHeight);
-        var details = config.View == FolderViewMode.Details;
+        var details = config.Style == FolderStyle.Details;
         var header = details && room.Take(ColumnHeaderHeight + rowHeight);
         var big = area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
         var breadcrumb = big && room.Take(BreadcrumbHeight + (2 * rowHeight));
@@ -147,7 +147,7 @@ public static class FolderLayout
             IconSize(config.Rows),
             config.Rows <= FolderItemSize.Small,
             grid ? Grid(area.Width - 8, count, tileSize, labelled) : null,
-            Header(area.Width, config.View, navigate, hasGit));
+            Header(area.Width, config.Style, navigate, hasGit));
     }
 
     /// <summary>
@@ -181,7 +181,7 @@ public static class FolderLayout
     /// (navigate mode), Search, Sort (not in details, whose column headers sort), Forward, the git
     /// badge, Home. <paramref name="width"/> is the card's width.
     /// </summary>
-    public static FolderHeaderPlan Header(double width, FolderViewMode view, bool navigate, bool hasGit)
+    public static FolderHeaderPlan Header(double width, FolderStyle view, bool navigate, bool hasGit)
     {
         // Card insets (2 × 16), the header icon and its gap (24), the title's minimum (72), the
         // busy ring's slot (20).
@@ -201,9 +201,9 @@ public static class FolderLayout
         var up = Take(navigate, HeaderButton);
         var back = Take(navigate, HeaderButton);
         var search = Take(true, HeaderButton);
-        var sort = Take(view != FolderViewMode.Details, HeaderButton);
+        var sort = Take(view != FolderStyle.Details, HeaderButton);
         var forward = Take(navigate, HeaderButton);
-        var git = Take(hasGit && (view is FolderViewMode.List or FolderViewMode.Details), GitBadgeWidth);
+        var git = Take(hasGit && (view is FolderStyle.List or FolderStyle.Details), GitBadgeWidth);
         var home = Take(navigate, HeaderButton);
 
         return new FolderHeaderPlan(up, back, search, sort, forward, git, home);

@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "Ses görselleştirici",
+  "styles.audioVisualizer.desc": "Bu bilgisayarın çaldığı ses; çubuk, dalga ya da çizgi olarak",
+  "styles.audioVisualizer.bars": "Çubuklar",
+  "styles.audioVisualizer.mirrored": "Yansımalı",
+  "styles.audioVisualizer.wave": "Dalga",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Dairesel",
+  "styles.audioVisualizer.waveform": "Dalga biçimi"
+}

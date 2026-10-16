@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "ਥਾਂ, ਤਾਰੀਖ ਅਤੇ ਆਫ਼ਸੈੱਟ ਲਾਈਨ ਕਿੰਨੀ ਵੱਡੀ ਹੋਵੇ",
   "clockText.small": "ਛੋਟਾ",
   "clockText.large": "ਵੱਡਾ",
-  "variants.visualizer.scope.label": "ਤਰੰਗ ਰੂਪ",
-  "variants.visualizer.scope.desc": "ਇੱਕ ਲਕੀਰ ਜੋ ਆਸਿਲੋਸਕੋਪ ਵਾਂਗ ਆਵਾਜ਼ ਨੂੰ ਹੀ ਖਿੱਚਦੀ ਹੈ",
   "planner.label": "ਹਫ਼ਤਾਵਾਰੀ ਯੋਜਨਾਕਾਰ",
   "planner.desc": "ਆਉਣ ਵਾਲੇ ਦਿਨ ਉਹਨਾਂ ਦੇ ਇਵੈਂਟਾਂ ਨਾਲ, ਅਤੇ ਅੱਜ ਕੀ ਬਕਾਇਆ ਹੈ",
   "planner.tasksHeader": "ਅੱਜ ਦੇ ਕੰਮ",

@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "Jak duże są miejsce, data i wiersz przesunięcia",
   "clockText.small": "Mały",
   "clockText.large": "Duży",
-  "variants.visualizer.scope.label": "Przebieg fali",
-  "variants.visualizer.scope.desc": "Linia, która kreśli sam dźwięk, jak oscyloskop",
   "planner.label": "Planer tygodnia",
   "planner.desc": "Najbliższe dni z wydarzeniami i to, co ma termin dzisiaj",
   "planner.tasksHeader": "Dzisiejsze zadania",

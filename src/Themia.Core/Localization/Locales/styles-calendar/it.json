@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "Calendario",
+  "styles.calendar.desc": "I tuoi eventi e compleanni per mese, settimana, giorno o anno, o come agenda",
+  "styles.calendar.month": "Mese",
+  "styles.calendar.week": "Settimana",
+  "styles.calendar.day": "Giorno",
+  "styles.calendar.year": "Anno",
+  "styles.calendar.agenda": "Agenda"
+}

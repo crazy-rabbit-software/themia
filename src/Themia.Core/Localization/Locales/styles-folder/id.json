@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "Folder",
+  "styles.folder.desc": "File dalam folder sebagai daftar, tabel, ubin, atau ikon",
+  "styles.folder.list": "Daftar",
+  "styles.folder.details": "Detail",
+  "styles.folder.grid": "Kisi",
+  "styles.folder.icons": "Ikon"
+}

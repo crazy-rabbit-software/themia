@@ -1,0 +1,10 @@
+{
+  "styles.audioVisualizer.label": "Audio visualizer",
+  "styles.audioVisualizer.desc": "Whatever this PC plays, as moving bars, a wave or a line",
+  "styles.audioVisualizer.bars": "Bars",
+  "styles.audioVisualizer.mirrored": "Mirrored",
+  "styles.audioVisualizer.wave": "Wave",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Radial",
+  "styles.audioVisualizer.waveform": "Waveform"
+}

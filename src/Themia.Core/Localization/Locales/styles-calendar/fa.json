@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "تقویم",
+  "styles.calendar.desc": "رویدادها و تولدهای شما به تفکیک ماه، هفته، روز یا سال، یا به شکل برنامه",
+  "styles.calendar.month": "ماه",
+  "styles.calendar.week": "هفته",
+  "styles.calendar.day": "روز",
+  "styles.calendar.year": "سال",
+  "styles.calendar.agenda": "برنامه"
+}

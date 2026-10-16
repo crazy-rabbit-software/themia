@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "ปฏิทิน",
+  "styles.calendar.desc": "กิจกรรมและวันเกิดของคุณตามเดือน สัปดาห์ วัน หรือปี หรือเป็นกำหนดการ",
+  "styles.calendar.month": "เดือน",
+  "styles.calendar.week": "สัปดาห์",
+  "styles.calendar.day": "วัน",
+  "styles.calendar.year": "ปี",
+  "styles.calendar.agenda": "กำหนดการ"
+}

@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "Kalenda",
+  "styles.calendar.desc": "Matukio na siku zako za kuzaliwa kwa mwezi, wiki, siku au mwaka, au kama ajenda",
+  "styles.calendar.month": "Mwezi",
+  "styles.calendar.week": "Wiki",
+  "styles.calendar.day": "Siku",
+  "styles.calendar.year": "Mwaka",
+  "styles.calendar.agenda": "Ajenda"
+}

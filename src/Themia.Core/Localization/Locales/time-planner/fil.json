@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "Gaano kalaki ang lugar, ang petsa at ang linya ng offset",
   "clockText.small": "Maliit",
   "clockText.large": "Malaki",
-  "variants.visualizer.scope.label": "Waveform",
-  "variants.visualizer.scope.desc": "Isang linyang gumuguhit ng mismong tunog, gaya ng oscilloscope",
   "planner.label": "Planner ng linggo",
   "planner.desc": "Ang mga susunod na araw kasama ang kanilang mga event, at ang dapat tapusin ngayon",
   "planner.tasksHeader": "Mga gawain ngayon",

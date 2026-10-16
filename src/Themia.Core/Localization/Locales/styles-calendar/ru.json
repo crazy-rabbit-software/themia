@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "Календарь",
+  "styles.calendar.desc": "Ваши события и дни рождения по месяцам, неделям, дням или годам либо списком",
+  "styles.calendar.month": "Месяц",
+  "styles.calendar.week": "Неделя",
+  "styles.calendar.day": "День",
+  "styles.calendar.year": "Год",
+  "styles.calendar.agenda": "Повестка"
+}

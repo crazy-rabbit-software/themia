@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "مجلد",
+  "styles.folder.desc": "ملفات المجلد كقائمة أو جدول أو مربعات أو أيقونات",
+  "styles.folder.list": "قائمة",
+  "styles.folder.details": "تفاصيل",
+  "styles.folder.grid": "شبكة",
+  "styles.folder.icons": "أيقونات"
+}

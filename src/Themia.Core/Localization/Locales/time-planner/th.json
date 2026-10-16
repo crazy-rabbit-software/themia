@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "ขนาดของสถานที่ วันที่ และบรรทัดเวลาต่าง",
   "clockText.small": "เล็ก",
   "clockText.large": "ใหญ่",
-  "variants.visualizer.scope.label": "รูปคลื่น",
-  "variants.visualizer.scope.desc": "เส้นที่วาดเสียงออกมาโดยตรง เหมือนออสซิลโลสโคป",
   "planner.label": "ตัววางแผนรายสัปดาห์",
   "planner.desc": "วันข้างหน้าพร้อมกิจกรรม และสิ่งที่ครบกำหนดวันนี้",
   "planner.tasksHeader": "งานวันนี้",

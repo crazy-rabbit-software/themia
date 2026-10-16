@@ -19,9 +19,9 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-560] Events from the user's Microsoft, Google and CalDAV calendars, through Themia's own
-/// accounts, with contacts' birthdays beside the events ([S-575]). [S-3600] One view for the five
-/// calendar widgets — month, week, day, year and agenda — each a kind of its own, so the layout is
-/// fixed when the view is made and never read from the config.
+/// accounts, with contacts' birthdays beside the events ([S-575]). [S-3640] One view for the
+/// calendar's five styles — month, week, day, year and agenda — read from the config; a style change
+/// re-draws, and the range, paging unit and keys follow it ([S-6005]).
 /// <para>
 /// [S-2700] The widget draws only its layout, at every size: a small month is a small month (dots,
 /// then bare numbers), never an agenda or a single event in its place. Each layout's fit is Core
@@ -55,12 +55,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly List<IDisposable> _hovers = [];
     private readonly Dictionary<string, Brush> _colorBrushes = new(StringComparer.Ordinal);
 
-    private readonly CalendarLayout _layout;
-
     private IWidgetSurface? _surface;
     private ICalendarData? _data;
     private IDisposable? _poll;
-    private CalendarConfig _config;
+    private CalendarWidgetConfig _config = new();
     private DateOnly _anchor = Today;
     private bool _followToday = true;
 
@@ -89,11 +87,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private bool _againForced;
     private bool _detached;
 
-    public CalendarView(CalendarLayout layout)
+    public CalendarView()
     {
-        _layout = layout;
-        _config = CalendarConfig.For(layout);
-
         _busy.Width = Fluent.IconSize;
         _busy.Height = Fluent.IconSize;
         _busy.IsActive = false;
@@ -134,7 +129,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     private static DateOnly Today => DateOnly.FromDateTime(DateTime.Now);
 
-    private CalendarLayout Layout => _layout;
+    private CalendarStyle Layout => _config.Style;
 
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _trailing;
@@ -148,7 +143,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-        _config = config as CalendarConfig ?? CalendarConfig.For(_layout);
+        _config = config as CalendarWidgetConfig ?? new CalendarWidgetConfig();
         UseData(OfficeSources.Current is { } source ? new OfficeCalendarData(source) : null);
 
         Strings.Changed += OnLanguage;
@@ -187,7 +182,13 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _config = config as CalendarConfig ?? CalendarConfig.For(_layout);
+        var before = Layout;
+        _config = config as CalendarWidgetConfig ?? new CalendarWidgetConfig();
+
+        if (Layout != before)
+        {
+            ChangedStyle();
+        }
 
         // Only a change to what is asked for is worth a round trip; a colour or the agenda count
         // re-draws what is in hand.
@@ -199,7 +200,33 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         Render();
     }
 
-    /// <summary>[S-561] Refresh. [S-3600] The layout is the widget's kind: another layout is another widget.</summary>
+    /// <summary>
+    /// [S-6005] Another style: the agenda starts on its first page, a dated style anchors on the
+    /// selected day (or keeps the anchor), and the view's links hear the new range ([S-3625]).
+    /// </summary>
+    private void ChangedStyle()
+    {
+        _agendaPage = 0;
+        _agendaJump = null;
+
+        if (_selected is { } day)
+        {
+            _anchor = CalendarShare.AnchorFor(Layout, _anchor, day);
+        }
+
+        _followToday = Layout == CalendarStyle.Agenda || InView(Today);
+
+        if (Layout == CalendarStyle.Agenda)
+        {
+            _member?.Clear(LinkTopics.VisibleRange);
+        }
+        else
+        {
+            PublishRange();
+        }
+    }
+
+    /// <summary>[S-561] Refresh. [S-3640] The layout is the widget's style, chosen on the strip or the settings page.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
 
     public void Detach()
@@ -372,12 +399,12 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private bool InView(DateOnly day) => CalendarRules.InView(Layout, _anchor, Today, _config.Period, day);
 
     /// <summary>Whether the today button would do anything: today is off screen, or the agenda is past its first page.</summary>
-    private bool AwayFromToday => Layout == CalendarLayout.Agenda ? _agendaPage > 0 : !InView(Today);
+    private bool AwayFromToday => Layout == CalendarStyle.Agenda ? _agendaPage > 0 : !InView(Today);
 
     /// <summary>[S-569] / [S-2709] One unit back or forward: the layout's period, or an agenda page.</summary>
     private void Navigate(int direction)
     {
-        if (Layout == CalendarLayout.Agenda)
+        if (Layout == CalendarStyle.Agenda)
         {
             _agendaPage = Math.Clamp(_agendaPage + Math.Sign(direction), 0, Math.Max(0, _agendaPages - 1));
             Render();
@@ -448,7 +475,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private bool OpenFirst()
     {
         var day = SelectedInView ? _selected!.Value : _anchor;
-        var first = Layout == CalendarLayout.Agenda
+        var first = Layout == CalendarStyle.Agenda
             ? _agendaFirst
             : CalendarRules.DayItems(_events, [], day, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
 
@@ -539,19 +566,19 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         switch (Layout)
         {
-            case CalendarLayout.Week:
+            case CalendarStyle.Week:
                 DrawWeek(width, height);
                 break;
 
-            case CalendarLayout.Day:
+            case CalendarStyle.Day:
                 DrawDay(width, height);
                 break;
 
-            case CalendarLayout.Year:
+            case CalendarStyle.Year:
                 DrawYear(width, height);
                 break;
 
-            case CalendarLayout.Agenda:
+            case CalendarStyle.Agenda:
                 DrawAgenda(width, height);
                 break;
 
@@ -572,7 +599,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private void ShowNavigation(bool ready)
     {
         var room = ready && (!_area.IsMeasured || _area.WidthClass > SizeClass.Compact);
-        var agenda = Layout == CalendarLayout.Agenda;
+        var agenda = Layout == CalendarStyle.Agenda;
 
         _back.Visibility = room && (!agenda || _agendaPage > 0) ? Visibility.Visible : Visibility.Collapsed;
         _forward.Visibility = room && (!agenda || _agendaPage < _agendaPages - 1) ? Visibility.Visible : Visibility.Collapsed;

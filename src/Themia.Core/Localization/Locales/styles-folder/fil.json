@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "Folder",
+  "styles.folder.desc": "Ang mga file ng folder bilang listahan, table, tile o icon",
+  "styles.folder.list": "Listahan",
+  "styles.folder.details": "Mga detalye",
+  "styles.folder.grid": "Grid",
+  "styles.folder.icons": "Mga icon"
+}

@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "حجم المكان والتاريخ وسطر فرق التوقيت",
   "clockText.small": "صغير",
   "clockText.large": "كبير",
-  "variants.visualizer.scope.label": "شكل الموجة",
-  "variants.visualizer.scope.desc": "خط يرسم الصوت نفسه، مثل راسم الذبذبات",
   "planner.label": "مخطط الأسبوع",
   "planner.desc": "الأيام القادمة بأحداثها، وما يستحق اليوم",
   "planner.tasksHeader": "مهام اليوم",

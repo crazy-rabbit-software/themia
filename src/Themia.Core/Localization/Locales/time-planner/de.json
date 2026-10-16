@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "Wie groß Ort, Datum und Zeitverschiebung angezeigt werden",
   "clockText.small": "Klein",
   "clockText.large": "Groß",
-  "variants.visualizer.scope.label": "Wellenform",
-  "variants.visualizer.scope.desc": "Eine Linie, die den Klang selbst nachzeichnet, wie ein Oszilloskop",
   "planner.label": "Wochenplaner",
   "planner.desc": "Die nächsten Tage mit ihren Terminen und was heute fällig ist",
   "planner.tasksHeader": "Heutige Aufgaben",

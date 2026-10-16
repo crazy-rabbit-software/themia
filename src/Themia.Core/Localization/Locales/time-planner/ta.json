@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "இடம், தேதி மற்றும் நேர வேறுபாட்டு வரி எவ்வளவு பெரியவை",
   "clockText.small": "சிறியது",
   "clockText.large": "பெரியது",
-  "variants.visualizer.scope.label": "அலைவடிவம்",
-  "variants.visualizer.scope.desc": "அலைக்காட்டியைப் போல ஒலியையே வரையும் ஒரு கோடு",
   "planner.label": "வாராந்திரத் திட்டமிடுபவர்",
   "planner.desc": "வரும் நாட்கள் அவற்றின் நிகழ்வுகளுடன், இன்று முடிக்க வேண்டியவை",
   "planner.tasksHeader": "இன்றைய பணிகள்",

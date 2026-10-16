@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "Папка",
+  "styles.folder.desc": "Файлы папки списком, таблицей, плитками или значками",
+  "styles.folder.list": "Список",
+  "styles.folder.details": "Подробности",
+  "styles.folder.grid": "Сетка",
+  "styles.folder.icons": "Значки"
+}

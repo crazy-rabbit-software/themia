@@ -218,7 +218,7 @@ public sealed class NoticesBootTests : IDisposable
 
         // The clock first, as on Home, so it is the one drawn on top.
         Assert.Equal(
-            [WidgetKind.Clock, WidgetKind.MonthCalendar, WidgetKind.Tasks, WidgetKind.Notes],
+            [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
             widgets.Select(w => w.Kind));
         Assert.DoesNotContain(widgets, w => w.Kind == WidgetKind.Folder);
         AssertInsideAndApart(widgets);
@@ -279,7 +279,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(2, loaded.State.Views.Count);
         Assert.Equal(3, loaded.State.Views[0].Widgets.Count);
         Assert.Equal(
-            [WidgetKind.Clock, WidgetKind.MonthCalendar, WidgetKind.Tasks, WidgetKind.Notes],
+            [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
             loaded.State.Views[1].Widgets.Select(w => w.Kind));
         Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[2].Config).Items.Count);
     }

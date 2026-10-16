@@ -3,8 +3,6 @@
   "clockText.sizeDesc": "Seberapa besar tempat, tanggal, dan baris selisih waktu",
   "clockText.small": "Kecil",
   "clockText.large": "Besar",
-  "variants.visualizer.scope.label": "Bentuk gelombang",
-  "variants.visualizer.scope.desc": "Garis yang menggambar suara itu sendiri, seperti osiloskop",
   "planner.label": "Perencana mingguan",
   "planner.desc": "Hari-hari mendatang dengan acaranya, dan yang jatuh tempo hari ini",
   "planner.tasksHeader": "Tugas hari ini",

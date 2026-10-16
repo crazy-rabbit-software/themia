@@ -15,7 +15,7 @@ public sealed class WidgetSearchTests
     [
         new("clock", ["Clock"], WidgetKeywords.For(WidgetKind.Clock),
             ["Clock for your timezone or any city in the world"], ["Others"]),
-        new("calendar", ["Calendar"], WidgetKeywords.For(WidgetKind.MonthCalendar),
+        new("calendar", ["Calendar"], WidgetKeywords.For(WidgetKind.Calendar),
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),
         new("weatherCurrent", ["Wetter", "Weather"], WidgetKeywords.For(WidgetKind.WeatherNow),
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
@@ -258,9 +258,31 @@ public sealed class WidgetSearchTests
 
         var google = WidgetSearch.Rank(docs, "google");
         Assert.Contains(WidgetKind.Email, google);
-        Assert.Contains(WidgetKind.MonthCalendar, google);
-        Assert.Contains(WidgetKind.Agenda, google);
+        Assert.Contains(WidgetKind.Calendar, google);
         Assert.Contains(WidgetKind.Contacts, google);
         Assert.Contains(WidgetKind.Tasks, google);
+    }
+
+    [Theory]
+    [InlineData("agenda", WidgetKind.Calendar)]
+    [InlineData("month calendar", WidgetKind.Calendar)]
+    [InlineData("year calendar", WidgetKind.Calendar)]
+    [InlineData("timeline", WidgetKind.Calendar)]
+    [InlineData("waveform", WidgetKind.AudioVisualizer)]
+    [InlineData("oscilloscope", WidgetKind.AudioVisualizer)]
+    [InlineData("led", WidgetKind.AudioVisualizer)]
+    [InlineData("radial", WidgetKind.AudioVisualizer)]
+    [InlineData("folder grid", WidgetKind.Folder)]
+    [InlineData("folder icons", WidgetKind.Folder)]
+    [InlineData("thumbnails", WidgetKind.Folder)]
+    public void S943_the_merged_kinds_are_found_by_their_former_names(string query, WidgetKind kind)
+    {
+        // [S-3640] [S-3216] [S-4123] What were widgets of their own are styles now: their names and
+        // words find the one widget. The label here is the kind's name, as in the catalogue.
+        var docs = Enum.GetValues<WidgetKind>()
+            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], WidgetKeywords.For(k), Providers: WidgetKeywords.Providers(k))), k))
+            .ToArray();
+
+        Assert.Contains(kind, WidgetSearch.Rank(docs, query));
     }
 }

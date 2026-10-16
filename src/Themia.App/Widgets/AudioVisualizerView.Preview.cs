@@ -36,7 +36,8 @@ internal sealed partial class AudioVisualizerView : IWidgetPreviewState
                 }
 
                 ShowAvailability(available: true);
-                _bars.SetFrame(new AudioFrame(bands, trace));
+                _last = new AudioFrame(bands, trace);
+                _bars.SetFrame(_last);
                 break;
 
             case "unavailable":

@@ -12,9 +12,6 @@
   "addMenu.subject.system": "সিস্টেম",
   "addMenu.subject.devices": "ডিভাইস ও পাওয়ার",
   "addMenu.subject.more": "আরও",
-  "addMenu.family.calendar": "ক্যালেন্ডার",
-  "addMenu.family.visualizer": "ভিজুয়ালাইজার",
-  "addMenu.family.folder": "ফোল্ডার",
   "addMenu.family.screenTime": "স্ক্রিন টাইম",
   "addMenu.family.powerButtons": "পাওয়ার বোতাম"
 }

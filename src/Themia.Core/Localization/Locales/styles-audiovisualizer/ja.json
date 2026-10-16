@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "オーディオ ビジュアライザー",
+  "styles.audioVisualizer.desc": "この PC で再生中の音を、バー、波、線で表示",
+  "styles.audioVisualizer.bars": "バー",
+  "styles.audioVisualizer.mirrored": "ミラー",
+  "styles.audioVisualizer.wave": "ウェーブ",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "円形",
+  "styles.audioVisualizer.waveform": "波形"
+}

@@ -187,7 +187,7 @@ internal sealed partial class WidgetPicker : Grid
 
     /// <summary>
     /// Open folders by name, outermost first, as the keys would, for the debug render
-    /// (<c>--open CalendarMail/CalendarLayouts</c>). Names that are not open-able here are skipped.
+    /// (<c>--open System/Processor</c>). Names that are not open-able here are skipped.
     /// </summary>
     internal void OpenPath(IReadOnlyList<AddFolderId> ids)
     {

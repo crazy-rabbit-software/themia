@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "Visualizer audio",
+  "styles.audioVisualizer.desc": "Apa yang diputar PC ini, sebagai batang, gelombang, atau garis",
+  "styles.audioVisualizer.bars": "Batang",
+  "styles.audioVisualizer.mirrored": "Cermin",
+  "styles.audioVisualizer.wave": "Gelombang",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Melingkar",
+  "styles.audioVisualizer.waveform": "Bentuk gelombang"
+}

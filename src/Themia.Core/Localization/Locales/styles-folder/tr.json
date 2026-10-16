@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "Klasör",
+  "styles.folder.desc": "Bir klasörün dosyaları liste, tablo, kutucuk ya da simge olarak",
+  "styles.folder.list": "Liste",
+  "styles.folder.details": "Ayrıntılar",
+  "styles.folder.grid": "Izgara",
+  "styles.folder.icons": "Simgeler"
+}

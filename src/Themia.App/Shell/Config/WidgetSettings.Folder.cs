@@ -93,45 +93,44 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Folder_View_Label.Text()));
 
-        // [S-4121] The kind is the layout, so the page offers only what that layout draws.
-        switch (config)
+        // [S-4121] Only what the style draws; picking another style rebuilds the page ([S-6010]).
+        var own = FolderConfig.SettingsFor(config.Style);
+
+        if (own.Contains(FolderSetting.RowSize))
         {
-            case FolderListConfig list:
-                rows.Add(RowSizeRow(list.ItemSize, value => { list.ItemSize = value; save(); }));
-                rows.Add(ExtensionsRow(list.ShowExtensions, value => { list.ShowExtensions = value; save(); }));
-                break;
+            rows.Add(RowSizeRow(config.ItemSize, value => { config.ItemSize = value; save(); }));
+        }
 
-            case FolderDetailsConfig details:
-                rows.Add(RowSizeRow(details.ItemSize, value => { details.ItemSize = value; save(); }));
-                rows.Add(FluentLayout.Expander(Glyphs.ColumnsLayout, Str.WidgetsB_Settings_Folder_Columns_Label.Text(),
-                    Str.WidgetsB_Settings_Folder_Columns_Desc.Text(),
-                    null,
-                    [.. FolderColumns.All.Select(column => FluentLayout.Row(Glyphs.ColumnsLayout, FolderColumns.Title(column), ColumnHint(column),
-                        FluentLayout.Toggle(details.Columns.Contains(column), value =>
+        if (own.Contains(FolderSetting.TileSize))
+        {
+            rows.Add(TileSizeRow(config.TileSize, value => { config.TileSize = value; save(); }));
+        }
+
+        if (own.Contains(FolderSetting.Columns))
+        {
+            rows.Add(FluentLayout.Expander(Glyphs.ColumnsLayout, Str.WidgetsB_Settings_Folder_Columns_Label.Text(),
+                Str.WidgetsB_Settings_Folder_Columns_Desc.Text(),
+                null,
+                [.. FolderColumns.All.Select(column => FluentLayout.Row(Glyphs.ColumnsLayout, FolderColumns.Title(column), ColumnHint(column),
+                    FluentLayout.Toggle(config.Columns.Contains(column), value =>
+                    {
+                        if (value != config.Columns.Contains(column))
                         {
-                            if (value != details.Columns.Contains(column))
-                            {
-                                details.Columns = FolderColumns.Toggle(details.Columns, column);
-                                save();
-                            }
-                        })))]));
-                rows.Add(ExtensionsRow(details.ShowExtensions, value => { details.ShowExtensions = value; save(); }));
-                break;
+                            config.Columns = FolderColumns.Toggle(config.Columns, column);
+                            save();
+                        }
+                    })))]));
+        }
 
-            case FolderGridConfig grid:
-                rows.Add(TileSizeRow(grid.TileSize, value => { grid.TileSize = value; save(); }));
-                rows.Add(ExtensionsRow(grid.ShowExtensions, value => { grid.ShowExtensions = value; save(); }));
-                break;
-
-            case FolderIconsConfig icons:
-                rows.Add(TileSizeRow(icons.TileSize, value => { icons.TileSize = value; save(); }));
-                break;
+        if (own.Contains(FolderSetting.Extensions))
+        {
+            rows.Add(ExtensionsRow(config.ShowExtensions, value => { config.ShowExtensions = value; save(); }));
         }
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Folder_Contents.Text()));
 
         // Details sorts from its column headers; a sort row would say the same thing twice.
-        if (config.View != FolderViewMode.Details)
+        if (own.Contains(FolderSetting.Sort))
         {
             // [S-3795] The order folds under its key.
             rows.Add(FluentLayout.Expander(Glyphs.Sort, Str.WidgetsB_Settings_Folder_SortBy_Label.Text(), null,

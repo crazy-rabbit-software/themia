@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "التقويم",
+  "styles.calendar.desc": "أحداثك وأعياد الميلاد حسب الشهر أو الأسبوع أو اليوم أو السنة، أو كجدول أعمال",
+  "styles.calendar.month": "شهر",
+  "styles.calendar.week": "أسبوع",
+  "styles.calendar.day": "يوم",
+  "styles.calendar.year": "سنة",
+  "styles.calendar.agenda": "جدول الأعمال"
+}

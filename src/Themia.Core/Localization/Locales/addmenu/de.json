@@ -12,9 +12,6 @@
   "addMenu.subject.system": "System",
   "addMenu.subject.devices": "Geräte & Energie",
   "addMenu.subject.more": "Mehr",
-  "addMenu.family.calendar": "Kalender",
-  "addMenu.family.visualizer": "Visualisierung",
-  "addMenu.family.folder": "Ordner",
   "addMenu.family.screenTime": "Bildschirmzeit",
   "addMenu.family.powerButtons": "Ein/Aus-Tasten"
 }

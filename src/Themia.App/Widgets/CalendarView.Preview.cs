@@ -7,10 +7,10 @@ using Themia.Core.Office;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2711], [S-3606]): every calendar kind over a fixed set of sample
+/// Debug renders only ([S-1917], [S-2711], [S-3606]): every calendar style over a fixed set of sample
 /// events around today — two calendars (so colours show), all-day events of one day and of several,
 /// a trip across a week's end, an overnight event, overlapping meetings, birthdays, and events across
-/// the year — through a fixture <see cref="ICalendarData"/>, so <c>--widget-png MonthCalendar
+/// the year — through a fixture <see cref="ICalendarData"/>, so <c>--widget-png Calendar --style month
 /// --state sample</c> draws what a signed-in calendar would without an account.
 /// </summary>
 internal sealed partial class CalendarView : IWidgetPreviewState
@@ -18,7 +18,7 @@ internal sealed partial class CalendarView : IWidgetPreviewState
     /// <summary>
     /// <c>sample</c>: the fixture; <c>selected</c>: the day after tomorrow selected on the view
     /// ([S-3620]); <c>linked</c>: another widget's pointer on the design review ([S-3623]);
-    /// <c>days</c>: the kind's own range ([S-2719], [S-3636]): the week the next four days from today,
+    /// <c>days</c>: the style's own range ([S-2719], [S-3636]): the week the next four days from today,
     /// the agenda today and tomorrow.
     /// </summary>
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked", "days"];
@@ -34,12 +34,11 @@ internal sealed partial class CalendarView : IWidgetPreviewState
 
         if (string.Equals(state, "days", StringComparison.OrdinalIgnoreCase))
         {
-            _config = _layout switch
-            {
-                CalendarLayout.Week => new WeekCalendarConfig { Days = 4, FirstDay = WeekFirstDay.Today },
-                CalendarLayout.Agenda => new AgendaConfig { AgendaDays = 2 },
-                _ => _config,
-            };
+            var days = (CalendarWidgetConfig)_config.Clone();
+            days.WeekDays = 4;
+            days.WeekFrom = WeekFirstDay.Today;
+            days.AgendaDays = 2;
+            _config = days;
         }
 
         UseData(new SampleCalendarData());

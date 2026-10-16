@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "கோப்புறை",
+  "styles.folder.desc": "கோப்புறையின் கோப்புகள் பட்டியல், அட்டவணை, ஓடுகள் அல்லது ஐகான்களாக",
+  "styles.folder.list": "பட்டியல்",
+  "styles.folder.details": "விவரங்கள்",
+  "styles.folder.grid": "கட்டம்",
+  "styles.folder.icons": "ஐகான்கள்"
+}
