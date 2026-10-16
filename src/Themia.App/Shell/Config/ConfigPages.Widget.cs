@@ -76,6 +76,31 @@ internal static partial class ConfigPages
 
     private static readonly Dictionary<WidgetKind, bool> HasSettingsByKind = [];
 
+    /// <summary>[S-6010] The Style row: the kind's styles by name, writing the live config and saving.</summary>
+    private static Border? StyleRow(WidgetConfig config, Action save)
+    {
+        if (WidgetStyles.Current(config) is not { } current)
+        {
+            return null;
+        }
+
+        var styles = WidgetStyles.For(config.Kind);
+        var shown = styles.FirstOrDefault(s => s.Value == current);
+        var glyph = char.ConvertFromUtf32(shown.Glyph != 0 ? shown.Glyph : styles[0].Glyph);
+
+        return FluentLayout.Row(glyph, Str.Styles_Label.Text(), null,
+            FluentLayout.Choice(
+                [.. styles.Select(s => (s.Value, s.Label.Text()))],
+                current,
+                value =>
+                {
+                    if (WidgetStyles.Set(config, value))
+                    {
+                        save();
+                    }
+                }));
+    }
+
     private static SettingsPage WidgetPage(WidgetInstance widget, Action<ConfigTarget> navigate, Action save)
     {
         var definition = WidgetCatalog.Definition(widget.Kind);
@@ -283,6 +308,13 @@ internal static partial class ConfigPages
 
             default:
                 break;
+        }
+
+        // [S-6010] A kind with styles: one Style row, the same on every such page, the first row
+        // under the kind's own heading. Built here from the registry, never by a page.
+        if (WidgetStyles.Offers(widget.Kind) && StyleRow(widget.Config, Save) is { } style)
+        {
+            rows.Insert(rows.Count > 0 && FluentLayout.IsHeader(rows[0]) ? 1 : 0, style);
         }
 
         // Every widget page is laid out the same way: what it shows, then how it behaves, then how

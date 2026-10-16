@@ -20,11 +20,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Widget_Clock_Label.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Clock, Str.Clock_StyleLabel.Text(), null,
-            FluentLayout.Choice(
-                [(ClockFace.Digital, Str.Clock_StyleDigital.Text()), (ClockFace.Analog, Str.Clock_StyleAnalog.Text()), (ClockFace.Stacked, Str.Clock_StyleStacked.Text())],
-                clock.Face,
-                value => { clock.Face = value; save(); })));
+        // [S-6010] The style is the shared Style row the page builder puts first.
 
         rows.Add(FluentLayout.Row(Glyphs.Timer, Str.Clock_SecondsLabel.Text(),
             Str.WidgetsA_Clock_Settings_Seconds_Desc.Text(),

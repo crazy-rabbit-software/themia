@@ -253,7 +253,6 @@
   "clock.tzCurrent": "Actuel : {city}",
   "clock.timezoneLabel": "Fuseau horaire",
   "clock.labelLabel": "Libellé",
-  "clock.styleLabel": "Style",
   "clock.styleDigital": "Numérique",
   "clock.styleAnalog": "Analogique",
   "clock.styleStacked": "Empilé",

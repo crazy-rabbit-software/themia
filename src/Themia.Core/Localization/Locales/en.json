@@ -254,7 +254,6 @@
   "clock.tzCurrent": "Current: {city}",
   "clock.timezoneLabel": "Timezone",
   "clock.labelLabel": "Label",
-  "clock.styleLabel": "Style",
   "clock.styleDigital": "Digital",
   "clock.styleAnalog": "Analog",
   "clock.styleStacked": "Stacked",

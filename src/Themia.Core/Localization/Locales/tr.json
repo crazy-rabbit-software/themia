@@ -254,7 +254,6 @@
   "clock.tzCurrent": "Geçerli: {city}",
   "clock.timezoneLabel": "Saat dilimi",
   "clock.labelLabel": "Etiket",
-  "clock.styleLabel": "Stil",
   "clock.styleDigital": "Dijital",
   "clock.styleAnalog": "Analog",
   "clock.styleStacked": "Üst üste",

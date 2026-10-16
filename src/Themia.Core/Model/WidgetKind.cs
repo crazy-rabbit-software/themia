@@ -331,17 +331,6 @@ public enum HeaderPlacement
     Hidden = 2,
 }
 
-/// <summary>How the clock renders its face.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ClockFace>))]
-public enum ClockFace
-{
-    Digital = 0,
-    Analog = 1,
-
-    /// <summary>[S-1483] Hours over minutes (over seconds), the original's third style.</summary>
-    Stacked = 2,
-}
-
 /// <summary>Light/dark selection. <c>System</c> follows the Windows app theme.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<AppTheme>))]
 public enum AppTheme

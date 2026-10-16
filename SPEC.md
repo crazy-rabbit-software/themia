@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -319,11 +319,57 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 - **[S-51]** Hands sweep rather than step: the hour hand advances with the minutes, the minute hand
   with the seconds.
 - **[S-52]** A clock without seconds (and with a digital face) asks for a **1-minute** cadence. An
-  analog face always needs seconds, because its second hand sweeps.
+  analog face always needs seconds, because its second hand sweeps. The word and minimal styles
+  never draw seconds, so they never wake for them ([S-6015]).
 - **[S-53]** An unknown or malformed time-zone id degrades to the local zone rather than throwing —
   this runs on every tick.
 - **[S-54]** Formatting is done explicitly, not with culture patterns: the app builds with
   `InvariantGlobalization`, so culture format strings would not honour the config.
+- **[S-6011]** The clock's styles ([S-6000]), `ClockConfig.Style` (`ClockStyle`, stored as
+  `"style": "digital"`; what was its face): **Digital**, **Analog**, **Stacked** ([S-1483]),
+  **Flip**, **Words** and **Minimal**, in that order. Every style keeps the clock's ladder
+  ([S-1487]): the face first, then the label, the date and the offset where they fit, the face
+  taking what they leave; the settings (seconds, date, zone, label, alignment, text size) are the
+  same for all six.
+- **[S-6012]** **Flip**: a split-flap card per part of the time (hours, minutes, and seconds when
+  shown), side by side, one above the other in a tall column, as large as the face's room allows;
+  a rounded card in the subtle fill with a hairline split across its middle, the digits the
+  largest step that fits ([S-641]), AM/PM a caption in the hours card's corner (left out on a card
+  under 96 DIPs). A card whose digits change on a tick turns over (folds away, 110 ms, and the new
+  digits fold in, 170 ms); a config, language or size change redraws without a turn, and nothing
+  turns while Windows' animation effects are off ([S-1010]).
+- **[S-6013]** **Words**: the time as a sentence in five-minute steps, in the current language
+  ("It's twenty to eleven", "Es ist zwanzig vor elf"), in the clock's own zone
+  (`ClockFormatter.Words`); the label and date rungs as for the digits. Composed by `WordClock`
+  ([S-6020]..[S-6024]).
+- **[S-6014]** **Minimal**: the digits in Segoe's light weight (AM/PM and seconds in it too) and
+  nothing else at any size: no label, date or offset, and no seconds ([S-6015]). It still stacks in
+  a tall column when that draws it larger ([S-1483]).
+- **[S-6015]** `ClockConfig.DrawsSeconds`: seconds are drawn (and asked for, [S-52]) only when they
+  are on and the style is not Words or Minimal.
+- **[S-6020]** `WordClock.Compose`: each language writes its own rules into its locale strings
+  (`Locales/wordclock/<code>.json`), never code. `wordClock.hours` is one or more hour forms (`;`
+  between forms, `|` between entries), each 12 entries (index 0 is twelve, then one to eleven;
+  indexed by the hour mod 12) or 24 (0 is midnight; so a language can say noon, midnight or a part
+  of the day: 午前/午後, Thai's six-hour periods, Swahili's hours from 7 am). `wordClock.m00` ..
+  `wordClock.m55` are one sentence per five minutes; in them `[h]` is the hour in form 1, `[n]` the
+  next hour in form 1, `[h2]`/`[n2]` form 2, and so on. Grammar a word cannot carry alone (case,
+  gender, article and verb agreement: "Es la una" / "Son las dos", the Turkish accusative and
+  dative, the Russian genitive ordinal, Hindi's डेढ़/ढाई) lives in the form entries. The markers
+  are not `{placeholders}`, so a language may name any form in any sentence ([S-1105]).
+- **[S-6021]** A time reads as the **nearest** five minutes (10:13 is "quarter past ten", 10:58
+  "eleven o'clock", 23:58 midnight's "twelve").
+- **[S-6022]** The sentence starts with a capital (Turkish `i` becomes `İ`); scripts without case
+  are left as written.
+- **[S-6023]** A malformed language (a form not 12 or 24 non-empty entries, a marker naming a form
+  that does not exist) is never shown half-filled: that sentence is English, logged. Every
+  language's strings are whole and fill all 288 steps of a day with no marker left (tested over all
+  thirty).
+- **[S-6024]** The type: the largest step (the ramp, then `TitleLarge` scaled, as [S-641]) at which
+  the language's **longest** sentence of the day, wrapped at words, fits the face's room
+  (`WordClock.Fit`, `WordClock.Longest`), so the text keeps its size through the day. Width is
+  estimated per character, a Han, kana or Hangul character as 1.75 average advances; a sentence
+  without spaces wraps anywhere, as the text block does.
 
 ## Failure rules
 
@@ -781,8 +827,9 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: a title box (168 DIPs, 32 tall, the kind's name as its placeholder), then
-  Header and Background. Several: the words "N selected", then Header and Background and **no title**:
-  a title names one widget, so one typed for many would make them indistinguishable.
+  Style ([S-6007]), Header and Background, and the settings gear ([S-6009]). Several: the words "N
+  selected", then Style (one kind only), Header and Background and **no title** and no gear: a title
+  names one widget, so one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetSurface`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
@@ -829,7 +876,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
 - **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the strip against
-  real cards in edit mode on a stand-in display: `props-<theme>-above.png` (one clock with a title),
+  real cards in edit mode on a stand-in display: `props-<theme>-above.png` (one flip clock with a
+  title: Style with the flip icon, and the gear),
   `-below.png` (a widget at the top edge of the display), `-many.png` (three of mixed headers,
   "3 selected"), `-toggle.png` (a Wi-Fi toggle: no Header choice) and `-hidden.png` (header hidden,
   beside the same kind with a header).
@@ -838,6 +886,53 @@ Needs a live pass: typing a title on the desktop (focus, IME, Enter / Escape / a
 card), a pick from the Header and Background menus on a multi-selection, and undo of each; the strip
 following a selection change, a drag and a resize (away, then back where they landed), at a top
 taskbar, by the edit bar, and on a second display at another DPI.
+
+## Widget styles (STYLES)
+
+A different look of the same widget with the same data and the same settings, chosen next to the
+widget on the properties strip or at the top of its settings page. Owning files:
+`Themia.Core/Widgets/WidgetStyles.cs` (the registry), each styled kind's config (its style enum),
+`Themia.App/Shell/PropertiesStrip.cs`, `Themia.App/Shell/Config/ConfigPages.Widget.cs`. Tests:
+`WidgetStylesTests`.
+
+- **[S-6000]** A kind's styles are one setting: where a kind already had a look option (the clock's
+  face, a gallery's layout, a forecast's layout), that option **is** the style, never a second
+  setting beside it. A style never adds or removes data, only how it is drawn.
+- **[S-6001]** A styled kind's config implements `IStyled` over its own int-backed enum
+  (`<Kind>Style`, property `Style`, the default the first value): `Styles` lists one
+  `StyleOption(Value, Name, Label, Glyph)` per style in menu order, the name camelCase (its wire
+  name), the label a `Str`, the glyph a Segoe Fluent Icons code point. `WidgetStyles` discovers every
+  styled kind from its default config (`WidgetConfig.CreateDefault`), never from a list kept beside
+  them, so giving a kind styles touches only its config, its view and its strings.
+- **[S-6002]** A kind offers a style choice when it has two styles or more (`WidgetStyles.Offers`).
+- **[S-6003]** `WidgetStyles.Set` writes only one of the kind's own styles, and reports whether
+  anything changed.
+- **[S-6004]** Stored as `"style": "<name>"` (`StyleJsonConverter`, which never throws: a throw in
+  one config refuses the whole state file). An unknown name, a number or any other token reads as
+  unknown, and load validation (`WidgetStyles.Repair`, for every styled kind at once) sets the
+  kind's first style and logs the repair.
+- **[S-6005]** A view receives a style change like any config change (`ApplyConfig`): it re-lays
+  itself for the style on the same responsive ladder ([S-660]..[S-666], concise first), and lets go
+  of whatever the previous style built or subscribed.
+- **[S-6006]** Debug: `--widget-png <Kind> <out.png> --style <name>` draws any styled kind in one of
+  its styles; a wrong name prints the kind's styles.
+- **[S-6007]** The properties strip ([S-3707]) shows **Style** first, a labelled drop-down with the
+  current style's icon, whose menu lists the kind's styles with icon and name, the current one
+  ticked, built as it opens, when every selected widget is of **one** kind and that kind offers
+  styles (`QuickSetOffer.StyleKind`). Several of one kind with different styles tick nothing
+  (`QuickSetOffer.Style` null). Mixed kinds: no Style.
+- **[S-6008]** A pick sets the style of every selected widget (`QuickSet.SetStyle`) in one `Mutate`:
+  one undo step however many it reached.
+- **[S-6009]** The strip ends with a **settings gear** (icon only, "Settings" as its tooltip) that
+  opens the widget's settings page; one widget only, and only when its kind has a settings page
+  ([S-1750]). Several selected: no gear (which one's page would it be).
+- **[S-6010]** Every styled kind's settings page has one **Style** row, the first under the kind's
+  heading, built by the shared widget-page builder from the registry (a choice of the style names),
+  never by the page itself; it writes the live config and saves, as every widget row does.
+
+Needs a live pass: picking a style on the strip for one widget and for several of one kind, the
+undo of it, the gear opening the right page, and the flip turning over on the desktop with Windows'
+animation effects on and off.
 
 ## About and the settings file
 
@@ -4783,7 +4878,7 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
 - **[S-1482]** Label over the time (original S-07/S-18/S-19): the custom label, else the city of a
   chosen zone, else none. Deliberate difference: choosing any city labels the clock, even one in the
   machine's own Windows zone (a Windows zone covers many cities). Labels are capped at 40 characters.
-- **[S-1483]** Style Digital / Analog / Stacked (original S-10..S-13). Stacked always stacks hours
+- **[S-1483]** Style Digital / Analog / Stacked (original S-10..S-13; three of the six styles now, [S-6011]). Stacked always stacks hours
   over minutes; seconds and AM/PM ride a step down beside the minutes. A digital face still stacks on
   its own in a tall column when that draws the digits larger. The AM/PM marker counts towards the readout's width by its own
   length (`ClockFormatter.MeridiemCharacters`), never less than "PM"'s budget: Tamil's "பிற்பகல்" is

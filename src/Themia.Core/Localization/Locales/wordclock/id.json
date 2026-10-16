@@ -1,0 +1,15 @@
+{
+  "wordClock.hours": "dua belas|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh|sebelas",
+  "wordClock.m00": "Jam [h] tepat",
+  "wordClock.m05": "Jam [h] lewat lima",
+  "wordClock.m10": "Jam [h] lewat sepuluh",
+  "wordClock.m15": "Jam [h] lewat seperempat",
+  "wordClock.m20": "Jam [h] lewat dua puluh",
+  "wordClock.m25": "Jam [h] lewat dua puluh lima",
+  "wordClock.m30": "Jam setengah [n]",
+  "wordClock.m35": "Jam [n] kurang dua puluh lima",
+  "wordClock.m40": "Jam [n] kurang dua puluh",
+  "wordClock.m45": "Jam [n] kurang seperempat",
+  "wordClock.m50": "Jam [n] kurang sepuluh",
+  "wordClock.m55": "Jam [n] kurang lima"
+}

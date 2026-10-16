@@ -254,7 +254,6 @@
   "clock.tzCurrent": "Huidig: {city}",
   "clock.timezoneLabel": "Tijdzone",
   "clock.labelLabel": "Label",
-  "clock.styleLabel": "Stijl",
   "clock.styleDigital": "Digitaal",
   "clock.styleAnalog": "Analoog",
   "clock.styleStacked": "Gestapeld",

@@ -253,7 +253,6 @@
   "clock.tzCurrent": "当前：{city}",
   "clock.timezoneLabel": "时区",
   "clock.labelLabel": "标签",
-  "clock.styleLabel": "样式",
   "clock.styleDigital": "数字",
   "clock.styleAnalog": "指针",
   "clock.styleStacked": "堆叠",

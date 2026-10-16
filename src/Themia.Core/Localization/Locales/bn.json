@@ -254,7 +254,6 @@
   "clock.tzCurrent": "বর্তমান: {city}",
   "clock.timezoneLabel": "সময় অঞ্চল",
   "clock.labelLabel": "লেবেল",
-  "clock.styleLabel": "স্টাইল",
   "clock.styleDigital": "ডিজিটাল",
   "clock.styleAnalog": "অ্যানালগ",
   "clock.styleStacked": "স্তরে স্তরে",

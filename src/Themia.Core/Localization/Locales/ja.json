@@ -253,7 +253,6 @@
   "clock.tzCurrent": "現在地: {city}",
   "clock.timezoneLabel": "タイムゾーン",
   "clock.labelLabel": "ラベル",
-  "clock.styleLabel": "スタイル",
   "clock.styleDigital": "デジタル",
   "clock.styleAnalog": "アナログ",
   "clock.styleStacked": "積み重ね",

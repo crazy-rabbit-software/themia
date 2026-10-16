@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Storage;
 
@@ -602,6 +603,12 @@ public sealed class AppStateStore : IAsyncDisposable
             foreach (var repair in widget.Config.Repair())
             {
                 repairs.Add($"widget '{widget.Id}': {repair}");
+            }
+
+            // [S-6004] A style the kind does not have: its first style. One rule for every styled kind.
+            if (WidgetStyles.Repair(widget.Config) is { } style)
+            {
+                repairs.Add($"widget '{widget.Id}': {style}");
             }
 
             if (!Enum.IsDefined(widget.Surface))

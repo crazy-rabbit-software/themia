@@ -1,0 +1,15 @@
+{
+  "wordClock.hours": "on iki|bir|iki|üç|dört|beş|altı|yedi|sekiz|dokuz|on|on bir;on ikiyi|biri|ikiyi|üçü|dördü|beşi|altıyı|yediyi|sekizi|dokuzu|onu|on biri;on ikiye|bire|ikiye|üçe|dörde|beşe|altıya|yediye|sekize|dokuza|ona|on bire",
+  "wordClock.m00": "Saat [h]",
+  "wordClock.m05": "Saat [h2] beş geçiyor",
+  "wordClock.m10": "Saat [h2] on geçiyor",
+  "wordClock.m15": "Saat [h2] çeyrek geçiyor",
+  "wordClock.m20": "Saat [h2] yirmi geçiyor",
+  "wordClock.m25": "Saat [h2] yirmi beş geçiyor",
+  "wordClock.m30": "Saat [h] buçuk",
+  "wordClock.m35": "Saat [n3] yirmi beş var",
+  "wordClock.m40": "Saat [n3] yirmi var",
+  "wordClock.m45": "Saat [n3] çeyrek var",
+  "wordClock.m50": "Saat [n3] on var",
+  "wordClock.m55": "Saat [n3] beş var"
+}

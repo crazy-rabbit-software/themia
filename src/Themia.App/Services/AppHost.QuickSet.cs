@@ -32,6 +32,16 @@ internal sealed partial class AppHost
         }
     }
 
+    /// <summary>[S-6008] Every selected widget's style, in one step. Only widgets of a kind with that style change.</summary>
+    public void SetSelectedStyle(int style)
+    {
+        if (SelectionView is { } view)
+        {
+            var ids = Selection.Ids.ToList();
+            Mutate(_ => QuickSet.SetStyle(view, ids, style));
+        }
+    }
+
     /// <summary>
     /// [S-3704] One widget's title, as typed. By id rather than the selection: the box commits as it
     /// loses focus, which can be after a click has already selected another widget.

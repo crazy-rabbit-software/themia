@@ -254,7 +254,6 @@
   "clock.tzCurrent": "Kasalukuyan: {city}",
   "clock.timezoneLabel": "Time zone",
   "clock.labelLabel": "Label",
-  "clock.styleLabel": "Estilo",
   "clock.styleDigital": "Digital",
   "clock.styleAnalog": "Analog",
   "clock.styleStacked": "Nakapatong",

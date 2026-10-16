@@ -1,0 +1,15 @@
+{
+  "wordClock.hours": "twaalf|één|twee|drie|vier|vijf|zes|zeven|acht|negen|tien|elf",
+  "wordClock.m00": "Het is [h] uur",
+  "wordClock.m05": "Het is vijf over [h]",
+  "wordClock.m10": "Het is tien over [h]",
+  "wordClock.m15": "Het is kwart over [h]",
+  "wordClock.m20": "Het is tien voor half [n]",
+  "wordClock.m25": "Het is vijf voor half [n]",
+  "wordClock.m30": "Het is half [n]",
+  "wordClock.m35": "Het is vijf over half [n]",
+  "wordClock.m40": "Het is tien over half [n]",
+  "wordClock.m45": "Het is kwart voor [n]",
+  "wordClock.m50": "Het is tien voor [n]",
+  "wordClock.m55": "Het is vijf voor [n]"
+}

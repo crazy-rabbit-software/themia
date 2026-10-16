@@ -1,10 +1,13 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.App.Shell.Motion;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -22,6 +25,12 @@ namespace Themia.App.Widgets;
 /// offset line. No week, day of the year or time zone line (concise widgets). A tall column stacks the hours over the minutes, which is the only
 /// way its width lets the digits grow. Whatever the rungs leave, the time (or the dial) fills. An
 /// analog dial on a wide strip puts its text beside the dial instead of under it.
+/// </para>
+/// <para>
+/// [S-6011] Six styles over the same ladder: the digital, stacked and minimal readouts share the
+/// digits; the analog dial is drawn in code; the word style is a wrapped sentence sized by the
+/// language's longest ([S-6013]); the flip style is a split-flap card per part of the time that
+/// turns over when it changes ([S-6012]). The minimal clock has no rungs at all ([S-6014]).
 /// </para>
 /// </summary>
 public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAware
@@ -55,6 +64,23 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     /// </summary>
     private const double Hairline = 1;
 
+    /// <summary>[S-6012] A flip card's height against its width, and the digits' share of the card.</summary>
+    private const double FlipAspect = 1.1;
+    private const double FlipDigitShare = 0.82;
+
+    /// <summary>[S-6012] Under this card height there is no corner left for AM/PM beside the digits.</summary>
+    private const double FlipMeridiemFloor = 96;
+
+    /// <summary>[S-6012] The two halves of a flip: the card folds away, then the new digits fold in.</summary>
+    private static readonly TimeSpan FlipFold = TimeSpan.FromMilliseconds(110);
+    private static readonly TimeSpan FlipOpen = TimeSpan.FromMilliseconds(170);
+
+    /// <summary>[S-6012] The flip style's cards: hours, minutes, and seconds when drawn.</summary>
+    private readonly List<FlipCard> _flipCards = [];
+
+    /// <summary>[S-6012] The AM/PM marker, in the corner of the hours card.</summary>
+    private readonly TextBlock _flipMeridiem = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Bottom };
+
     private Ticker? _ticker;
     private ClockConfig _config = new();
     private IDisposable? _subscription;
@@ -78,6 +104,15 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     private bool _offsetOnDate;
     private bool _side;
     private string? _label;
+
+#if DEBUG
+    /// <summary>A render's fixed instant (the <c>sample</c> preview state), so every style shows the same time.</summary>
+    private DateTimeOffset? _frozen;
+
+    private DateTimeOffset Now => _frozen ?? DateTimeOffset.UtcNow;
+#else
+    private static DateTimeOffset Now => DateTimeOffset.UtcNow;
+#endif
 
     public ClockView()
     {
@@ -119,14 +154,38 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         _label = ClockFormatter.Label(_config);
         LabelText.Text = _label ?? string.Empty;
 
-        var analog = _config.Face == ClockFace.Analog;
-        TimeRow.Visibility = analog ? Visibility.Collapsed : Visibility.Visible;
-        AnalogFace.Visibility = analog ? Visibility.Visible : Visibility.Collapsed;
+        // [S-6005] A style is a config value: show its face, and nothing of the others.
+        var style = _config.Style;
+        TimeRow.Visibility = Visible(style is ClockStyle.Digital or ClockStyle.Stacked or ClockStyle.Minimal);
+        AnalogFace.Visibility = Visible(style == ClockStyle.Analog);
+        WordsText.Visibility = Visible(style == ClockStyle.Word);
+        FlipRow.Visibility = Visible(style == ClockStyle.Flip);
         MeridiemText.Visibility = RegionFormat.Current.Use24Hour ? Visibility.Collapsed : Visibility.Visible;
+        _flipMeridiem.Visibility = MeridiemText.Visibility;
+
+        if (style != ClockStyle.Analog)
+        {
+            // A dial built for another style is let go, not kept hidden.
+            AnalogFace.Children.Clear();
+            _secondHand = null;
+            _analogDiameter = 0;
+        }
+
+        if (style != ClockStyle.Flip)
+        {
+            FlipRow.Children.Clear();
+            _flipCards.Clear();
+        }
+
+        // [S-6012] A changed config or language redraws the cards at once: only a tick flips them.
+        foreach (var card in _flipCards)
+        {
+            card.Shown = null;
+        }
 
         if (_secondHand is not null)
         {
-            _secondHand.Visibility = _config.ShowSeconds ? Visibility.Visible : Visibility.Collapsed;
+            _secondHand.Visibility = _config.DrawsSeconds ? Visibility.Visible : Visibility.Collapsed;
         }
 
         Lay();
@@ -152,7 +211,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     private void Lay()
     {
         var box = _area.Deflate(Root.Padding.Left, Root.Padding.Top);
-        var analog = _config.Face == ClockFace.Analog;
+        var analog = _config.Style == ClockStyle.Analog;
 
         // [S-1488] A dial on a strip: text beside it, not under it, or the dial is a postage stamp
         // in the middle of a band of nothing.
@@ -166,27 +225,35 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         }
         else
         {
-            LayColumn(box, analog);
+            LayColumn(box, _config.Style);
         }
 
         Render();
     }
 
     /// <summary>The ordinary column: label, face, then the rungs under it.</summary>
-    private void LayColumn(WidgetArea box, bool analog)
+    private void LayColumn(WidgetArea box, ClockStyle style)
     {
+        var analog = style == ClockStyle.Analog;
         var width = box.Width;
         var height = box.Height;
         var room = new Disclosure(box, Fluent.Space1);
 
         // The face at its smallest is always there; the rungs share what it leaves.
-        var floor = analog ? DialFloor
-            : _config.Face == ClockFace.Stacked ? 2 * FluentType.Subtitle.LineHeight
-            : FluentType.Subtitle.LineHeight;
+        var floor = style switch
+        {
+            ClockStyle.Analog => DialFloor,
+            ClockStyle.Stacked => 2 * FluentType.Subtitle.LineHeight,
+            ClockStyle.Word => 2 * FluentType.Body.LineHeight,
+            ClockStyle.Flip => 1.5 * FluentType.Subtitle.LineHeight,
+            _ => FluentType.Subtitle.LineHeight,
+        };
         room.Reserve(floor);
 
         // [S-1488] A dial on the smallest tile is the whole tile: no words under a 70px clock face.
-        var words = !analog || _area.WidthClass >= SizeClass.Regular || _area.HeightClass >= SizeClass.Regular;
+        // [S-6014] The minimal clock is the time alone at every size: no label, date or offset.
+        var words = style != ClockStyle.Minimal
+            && (!analog || _area.WidthClass >= SizeClass.Regular || _area.HeightClass >= SizeClass.Regular);
 
         // [S-1482] The label first: on a world clock "Tokyo" says more than the date does.
         // [S-1476] The label, the date and the offset at the widget's own text size.
@@ -220,13 +287,213 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // The face has what the rungs left, plus the minimum it reserved for itself.
         var faceHeight = room.Remaining + floor;
 
-        if (analog)
+        switch (style)
         {
-            SizeDial(Math.Min(width, faceHeight));
+            case ClockStyle.Analog:
+                SizeDial(Math.Min(width, faceHeight));
+                break;
+
+            case ClockStyle.Word:
+                SizeWords(width, faceHeight);
+                break;
+
+            case ClockStyle.Flip:
+                SizeFlip(width, faceHeight);
+                break;
+
+            default:
+                SizeDigits(width, faceHeight);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// [S-6013]/[S-6024] The sentence at the largest step the language's longest sentence fits at,
+    /// so the type keeps its size through the day; the room it leaves is the column's.
+    /// </summary>
+    private void SizeWords(double width, double height)
+    {
+        var step = WordClock.Fit(width, height, WordClock.Longest(Strings.Current), FluentType.Caption);
+        WordsText.Apply(step);
+        WordsText.MaxWidth = Math.Max(1, width);
+    }
+
+    /// <summary>
+    /// [S-6012] Split-flap cards, side by side (one above the other in a tall column), as large as
+    /// the face's room lets them be, the digits the largest step that fits a card.
+    /// </summary>
+    private void SizeFlip(double width, double height)
+    {
+        var count = _config.DrawsSeconds ? 3 : 2;
+        var vertical = _area.Shape == AreaShape.Tall;
+        var gap = Fluent.Space2;
+
+        double cardWidth;
+        double cardHeight;
+        if (vertical)
+        {
+            cardHeight = (height - (gap * (count - 1))) / count;
+            cardWidth = Math.Min(width, cardHeight * FlipAspect * 1.4);
+        }
+        else
+        {
+            cardWidth = (width - (gap * (count - 1))) / count;
+            cardHeight = Math.Min(height, cardWidth * FlipAspect);
+            cardWidth = Math.Min(cardWidth, cardHeight / FlipAspect * 1.2);
+        }
+
+        cardWidth = Math.Floor(Math.Max(1, cardWidth));
+        cardHeight = Math.Floor(Math.Max(1, cardHeight));
+
+        FlipRow.Orientation = vertical ? Orientation.Vertical : Orientation.Horizontal;
+        FlipRow.Spacing = gap;
+        EnsureFlipCards(count);
+
+        // The meridiem in the hours card's corner, a caption on a flip clock, never a third card;
+        // on a card too small to hold it beside the digits it is left out (the digits are the point).
+        var meridiem = !RegionFormat.Current.Use24Hour && cardHeight >= FlipMeridiemFloor;
+        _flipMeridiem.Visibility = Visible(meridiem);
+        var digits = FluentType.Hero(cardWidth * 0.86, cardHeight * (meridiem ? FlipDigitShare - 0.12 : FlipDigitShare), 2);
+        var radius = Math.Min(Fluent.OverlayRadius, cardHeight / 8);
+        foreach (var card in _flipCards)
+        {
+            card.Root.Width = cardWidth;
+            card.Root.Height = cardHeight;
+            card.Face.CornerRadius = new CornerRadius(radius);
+            card.Digits.Apply(digits);
+        }
+
+        var tag = FluentType.Fit(cardWidth * 0.4, cardHeight * 0.18, 2, FluentType.Caption, FluentType.BodyLarge);
+        _flipMeridiem.Apply(tag);
+        _flipMeridiem.Margin = new Thickness(Fluent.Space2, 0, 0, Fluent.Space1);
+    }
+
+    private void EnsureFlipCards(int count)
+    {
+        if (_flipCards.Count == count)
+        {
             return;
         }
 
-        SizeDigits(width, faceHeight);
+        FlipRow.Children.Clear();
+        _flipCards.Clear();
+        (_flipMeridiem.Parent as Panel)?.Children.Remove(_flipMeridiem);
+
+        for (var i = 0; i < count; i++)
+        {
+            var card = new FlipCard();
+            _flipCards.Add(card);
+            FlipRow.Children.Add(card.Root);
+        }
+
+        _flipMeridiem.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        _flipCards[0].Root.Children.Add(_flipMeridiem);
+    }
+
+    /// <summary>
+    /// [S-6012] Show <paramref name="text"/> on a card: at once when it is new or the card was just
+    /// redrawn, otherwise flipped over, unless Windows' animation effects are off ([S-1010]).
+    /// </summary>
+    private void Flip(FlipCard card, string text)
+    {
+        if (string.Equals(card.Shown, text, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var animate = card.Shown is not null && IsLoaded && SystemMotion.AnimationsEnabled;
+        card.Shown = text;
+        card.Running?.Stop();
+        card.Running = null;
+
+        if (!animate)
+        {
+            card.Projection.RotationX = 0;
+            card.Digits.Text = text;
+            return;
+        }
+
+        var fold = Turn(card.Projection, 0, -90, FlipFold, EasingMode.EaseIn);
+        fold.Completed += (_, _) =>
+        {
+            if (!ReferenceEquals(card.Running, fold))
+            {
+                return; // a newer flip or a redraw took over
+            }
+
+            card.Digits.Text = card.Shown ?? string.Empty;
+            var open = Turn(card.Projection, 90, 0, FlipOpen, EasingMode.EaseOut);
+            card.Running = open;
+            open.Begin();
+        };
+
+        card.Running = fold;
+        fold.Begin();
+    }
+
+    private static Storyboard Turn(PlaneProjection projection, double from, double to, TimeSpan duration, EasingMode easing)
+    {
+        var turn = new DoubleAnimation
+        {
+            From = from,
+            To = to,
+            Duration = new Duration(duration),
+            EasingFunction = new SineEase { EasingMode = easing },
+        };
+
+        Storyboard.SetTarget(turn, projection);
+        Storyboard.SetTargetProperty(turn, nameof(PlaneProjection.RotationX));
+        var board = new Storyboard();
+        board.Children.Add(turn);
+        return board;
+    }
+
+    /// <summary>
+    /// [S-6012] One split-flap card: a rounded face in the subtle fill, the digits centred, and the
+    /// hairline split across its middle that makes it a flap rather than a box.
+    /// </summary>
+    private sealed class FlipCard
+    {
+        public FlipCard()
+        {
+            Face = new Border
+            {
+                Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.DimGray),
+                BorderBrush = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray),
+                BorderThickness = new Thickness(Hairline),
+            };
+
+            Digits = new TextBlock
+            {
+                Foreground = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                LineStackingStrategy = LineStackingStrategy.BlockLineHeight,
+            };
+
+            var split = new Rectangle
+            {
+                Height = Hairline,
+                VerticalAlignment = VerticalAlignment.Center,
+                Fill = FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray),
+            };
+
+            Root = new Grid { Projection = Projection, Children = { Face, Digits, split } };
+        }
+
+        public Grid Root { get; }
+
+        public Border Face { get; }
+
+        public TextBlock Digits { get; }
+
+        public PlaneProjection Projection { get; } = new();
+
+        /// <summary>What the card says, or null when it is to be drawn at once (new, or redrawn).</summary>
+        public string? Shown { get; set; }
+
+        public Storyboard? Running { get; set; }
     }
 
     /// <summary>[S-1488] A dial on a strip: the dial takes the height, the text column the rest.</summary>
@@ -272,7 +539,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     {
         // "12:34:56" plus " PM" — the meridiem sits on the same line, so it counts towards the width, by its own length ("பிற்பகல்").
         var meridiem = RegionFormat.Current.Use24Hour ? 0 : ClockFormatter.MeridiemCharacters(Strings.Current, MeridiemScale, 3);
-        var characters = (_config.ShowSeconds ? 8 : 5) + meridiem;
+        var characters = (_config.DrawsSeconds ? 8 : 5) + meridiem;
         var timeStep = FluentType.Hero(width, timeHeight, characters);
 
         // A tall column is too narrow for "15:40" to be large on one line; the hours over the minutes
@@ -282,12 +549,12 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // ramp's 1.3 leading: two lines of figures with a ramp line's air between them read as two
         // separate numbers.
         var tail = !RegionFormat.Current.Use24Hour ? ClockFormatter.MeridiemCharacters(Strings.Current, StackedTailScale, 1.2)
-            : _config.ShowSeconds ? 1.2 : 0;
+            : _config.DrawsSeconds ? 1.2 : 0;
         var perLine = timeHeight / 2;
         var byWidth = FluentType.Hero(width, perLine * 2, 2 + tail);
         var stackedSize = Math.Min(byWidth.FontSize, perLine / StackedLeading);
         var stackedStep = new TypeStep(stackedSize, stackedSize * StackedLeading, true);
-        _stacked = _config.Face == ClockFace.Stacked
+        _stacked = _config.Style == ClockStyle.Stacked
             || (_area.Shape == AreaShape.Tall && stackedStep.FontSize > timeStep.FontSize * 1.2);
 
         if (_stacked)
@@ -297,6 +564,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
         TimeText.Apply(timeStep);
 
+
         // The meridiem is the largest ramp step that stays well under the readout: a clock whose
         // "PM" is as tall as its digits reads as two numbers. Stacked, the seconds share its step.
         var tailStep = _stacked
@@ -304,7 +572,15 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
             : FluentType.Fit(width, timeStep.FontSize * MeridiemScale, 2, FluentType.Caption, FluentType.Title);
         MeridiemText.Apply(tailStep);
         SecondsText.Apply(tailStep);
-        SecondsText.Visibility = _stacked && _config.ShowSeconds ? Visibility.Visible : Visibility.Collapsed;
+
+        // [S-6014] The minimal clock: the same digits, and what rides beside them, in Segoe's light weight.
+        if (_config.Style == ClockStyle.Minimal)
+        {
+            TimeText.FontWeight = FontWeights.Light;
+            MeridiemText.FontWeight = FontWeights.Light;
+            SecondsText.FontWeight = FontWeights.Light;
+        }
+        SecondsText.Visibility = _stacked && _config.DrawsSeconds ? Visibility.Visible : Visibility.Collapsed;
 
         // Both blocks are bottom-aligned, so lifting the tail by the difference in half-leading
         // sits its glyphs on the readout's baseline instead of under it.
@@ -331,6 +607,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         TimeRow.HorizontalAlignment = horizontal;
         AnalogFace.HorizontalAlignment = horizontal;
         TimeText.TextAlignment = text;
+        WordsText.TextAlignment = text;
+        WordsText.HorizontalAlignment = horizontal;
+        FlipRow.HorizontalAlignment = horizontal;
 
         var lines = _side ? HorizontalAlignment.Left : horizontal;
         var lineText = _side ? TextAlignment.Left : text;
@@ -467,7 +746,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         AddHand(hand, radius * 0.74, Math.Max(1.5, radius * 0.030), 0, _minuteRotation, radius);
 
         _secondHand = AddHand(accent, radius * 0.80, Math.Max(1, radius * 0.014), radius * 0.16, _secondRotation, radius);
-        _secondHand.Visibility = _config.ShowSeconds ? Visibility.Visible : Visibility.Collapsed;
+        _secondHand.Visibility = _config.DrawsSeconds ? Visibility.Visible : Visibility.Collapsed;
 
         var hubSize = Math.Max(4, radius * 0.10);
 
@@ -537,7 +816,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
     private void Render()
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = Now;
         var locale = Strings.Current;
         var reading = ClockFormatter.Read(now, _config, locale, RegionFormat.Current.Use24Hour);
         var offset = _showOffset || _offsetOnDate ? ClockFormatter.OffsetLine(now, _config, locale) : null;
@@ -546,7 +825,25 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var date = _shortDate ? ClockFormatter.ShortDate(now, _config, locale) : reading.Date ?? string.Empty;
         DateText.Text = _offsetOnDate && offset is not null ? $"{date} · {offset}" : date;
 
-        if (_config.Face != ClockFace.Analog)
+        if (_config.Style == ClockStyle.Word)
+        {
+            WordsText.Text = ClockFormatter.Words(now, _config, locale);
+            return;
+        }
+
+        if (_config.Style == ClockStyle.Flip)
+        {
+            var parts = reading.Time.Split(':');
+            for (var i = 0; i < _flipCards.Count && i < parts.Length; i++)
+            {
+                Flip(_flipCards[i], parts[i]);
+            }
+
+            _flipMeridiem.Text = reading.Meridiem ?? string.Empty;
+            return;
+        }
+
+        if (_config.Style != ClockStyle.Analog)
         {
             if (_stacked)
             {

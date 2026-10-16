@@ -139,7 +139,6 @@ public sealed class DeskParityTests
     {
         var config = new ClockConfig
         {
-            Face = (ClockFace)9,
             Align = (ClockAlign)9,
             OffsetMode = (ClockOffsetMode)9,
             TimeZoneId = "Atlantis/Capital",
@@ -148,8 +147,7 @@ public sealed class DeskParityTests
 
         var repairs = config.Repair();
 
-        Assert.Equal(5, repairs.Count);
-        Assert.Equal(ClockFace.Digital, config.Face);
+        Assert.Equal(4, repairs.Count);
         Assert.Equal(ClockAlign.Center, config.Align);
         Assert.Equal(ClockOffsetMode.None, config.OffsetMode);
         Assert.Null(config.TimeZoneId);
@@ -158,21 +156,21 @@ public sealed class DeskParityTests
 
     [Fact]
     public void S1486_a_sound_clock_needs_no_repair()
-        => Assert.Empty(new ClockConfig { TimeZoneId = "Asia/Tokyo", Face = ClockFace.Stacked, CustomLabel = "Tokyo" }.Repair());
+        => Assert.Empty(new ClockConfig { TimeZoneId = "Asia/Tokyo", Style = ClockStyle.Stacked, CustomLabel = "Tokyo" }.Repair());
 
     [Fact]
     public void S1483_the_new_options_survive_a_clone()
     {
         var clone = (ClockConfig)new ClockConfig
         {
-            Face = ClockFace.Stacked,
+            Style = ClockStyle.Stacked,
             Align = ClockAlign.Right,
             OffsetMode = ClockOffsetMode.Local,
             CustomLabel = "Home",
             TimeZoneId = "Asia/Tokyo",
         }.Clone();
 
-        Assert.Equal(ClockFace.Stacked, clone.Face);
+        Assert.Equal(ClockStyle.Stacked, clone.Style);
         Assert.Equal(ClockAlign.Right, clone.Align);
         Assert.Equal(ClockOffsetMode.Local, clone.OffsetMode);
         Assert.Equal("Home", clone.CustomLabel);

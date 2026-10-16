@@ -254,7 +254,6 @@
   "clock.tzCurrent": "Hiện tại: {city}",
   "clock.timezoneLabel": "Múi giờ",
   "clock.labelLabel": "Nhãn",
-  "clock.styleLabel": "Kiểu",
   "clock.styleDigital": "Số",
   "clock.styleAnalog": "Kim",
   "clock.styleStacked": "Xếp chồng",

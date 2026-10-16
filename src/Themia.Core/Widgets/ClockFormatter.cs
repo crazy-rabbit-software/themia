@@ -34,7 +34,7 @@ public static class ClockFormatter
 
         // [S-1115] In the language's own digits (Arabic ٠٩:٤١), one for one, so the readout keeps
         // the character count the clock's type ladder sizes it by.
-        var time = LocaleFormat.Digits(locale, config.ShowSeconds
+        var time = LocaleFormat.Digits(locale, config.DrawsSeconds
             ? $"{Pad(hour, use24Hour)}:{local.Minute:D2}:{local.Second:D2}"
             : $"{Pad(hour, use24Hour)}:{local.Minute:D2}");
 
@@ -74,6 +74,15 @@ public static class ClockFormatter
 
         var local = TimeZoneInfo.ConvertTime(utcNow, config.ResolveTimeZone());
         return LocaleFormat.Date(locale, DateOnly.FromDateTime(local.DateTime), DateStyle.WeekdayMonthDayShort);
+    }
+
+    /// <summary>[S-6013] The word clock's sentence for this instant, in the clock's zone and <paramref name="locale"/>.</summary>
+    public static string Words(DateTimeOffset utcNow, ClockConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        var local = TimeZoneInfo.ConvertTime(utcNow, config.ResolveTimeZone());
+        return WordClock.Compose(locale, local.Hour, local.Minute);
     }
 
     /// <summary>

@@ -1,0 +1,15 @@
+{
+  "wordClock.hours": "minuit|une heure|deux heures|trois heures|quatre heures|cinq heures|six heures|sept heures|huit heures|neuf heures|dix heures|onze heures|midi|une heure|deux heures|trois heures|quatre heures|cinq heures|six heures|sept heures|huit heures|neuf heures|dix heures|onze heures;demi|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie|demi|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie",
+  "wordClock.m00": "Il est [h]",
+  "wordClock.m05": "Il est [h] cinq",
+  "wordClock.m10": "Il est [h] dix",
+  "wordClock.m15": "Il est [h] et quart",
+  "wordClock.m20": "Il est [h] vingt",
+  "wordClock.m25": "Il est [h] vingt-cinq",
+  "wordClock.m30": "Il est [h] et [h2]",
+  "wordClock.m35": "Il est [n] moins vingt-cinq",
+  "wordClock.m40": "Il est [n] moins vingt",
+  "wordClock.m45": "Il est [n] moins le quart",
+  "wordClock.m50": "Il est [n] moins dix",
+  "wordClock.m55": "Il est [n] moins cinq"
+}

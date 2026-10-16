@@ -254,7 +254,6 @@
   "clock.tzCurrent": "目前：{city}",
   "clock.timezoneLabel": "時區",
   "clock.labelLabel": "標籤",
-  "clock.styleLabel": "樣式",
   "clock.styleDigital": "數位",
   "clock.styleAnalog": "指針",
   "clock.styleStacked": "堆疊",

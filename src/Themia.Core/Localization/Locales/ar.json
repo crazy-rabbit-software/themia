@@ -254,7 +254,6 @@
   "clock.tzCurrent": "الحالية: {city}",
   "clock.timezoneLabel": "المنطقة الزمنية",
   "clock.labelLabel": "التسمية",
-  "clock.styleLabel": "النمط",
   "clock.styleDigital": "رقمي",
   "clock.styleAnalog": "عقارب",
   "clock.styleStacked": "مكدس",

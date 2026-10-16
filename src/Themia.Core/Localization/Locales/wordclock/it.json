@@ -1,0 +1,15 @@
+{
+  "wordClock.hours": "È mezzanotte|È l'una|Sono le due|Sono le tre|Sono le quattro|Sono le cinque|Sono le sei|Sono le sette|Sono le otto|Sono le nove|Sono le dieci|Sono le undici|È mezzogiorno|È l'una|Sono le due|Sono le tre|Sono le quattro|Sono le cinque|Sono le sei|Sono le sette|Sono le otto|Sono le nove|Sono le dieci|Sono le undici",
+  "wordClock.m00": "[h] in punto",
+  "wordClock.m05": "[h] e cinque",
+  "wordClock.m10": "[h] e dieci",
+  "wordClock.m15": "[h] e un quarto",
+  "wordClock.m20": "[h] e venti",
+  "wordClock.m25": "[h] e venticinque",
+  "wordClock.m30": "[h] e mezza",
+  "wordClock.m35": "[n] meno venticinque",
+  "wordClock.m40": "[n] meno venti",
+  "wordClock.m45": "[n] meno un quarto",
+  "wordClock.m50": "[n] meno dieci",
+  "wordClock.m55": "[n] meno cinque"
+}

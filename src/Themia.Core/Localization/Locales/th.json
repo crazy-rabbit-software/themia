@@ -254,7 +254,6 @@
   "clock.tzCurrent": "ปัจจุบัน: {city}",
   "clock.timezoneLabel": "โซนเวลา",
   "clock.labelLabel": "ป้ายชื่อ",
-  "clock.styleLabel": "สไตล์",
   "clock.styleDigital": "ดิจิทัล",
   "clock.styleAnalog": "อนาล็อก",
   "clock.styleStacked": "ซ้อนกัน",

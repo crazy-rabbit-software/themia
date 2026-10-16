@@ -28,7 +28,9 @@ internal sealed partial class DesktopWindow
         SetHeader: _host.SetSelectedHeader,
         SetSurface: _host.SetSelectedSurface,
         SetTitle: _host.SetTitle,
-        ReleaseFocus: () => _root.Focus(FocusState.Programmatic));
+        ReleaseFocus: () => _root.Focus(FocusState.Programmatic),
+        SetStyle: _host.SetSelectedStyle,
+        OpenSettings: id => _host.ShowConfig(new Config.ConfigTarget.Widget(id)));
 
     /// <summary>[S-3701] The strip shows what is selected in the view this display shows, and nothing otherwise.</summary>
     private void SyncProperties()

@@ -254,7 +254,6 @@
   "clock.tzCurrent": "현재: {city}",
   "clock.timezoneLabel": "표준 시간대",
   "clock.labelLabel": "레이블",
-  "clock.styleLabel": "스타일",
   "clock.styleDigital": "디지털",
   "clock.styleAnalog": "아날로그",
   "clock.styleStacked": "세로 배치",

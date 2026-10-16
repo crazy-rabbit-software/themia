@@ -254,7 +254,6 @@
   "clock.tzCurrent": "Текущий: {city}",
   "clock.timezoneLabel": "Часовой пояс",
   "clock.labelLabel": "Подпись",
-  "clock.styleLabel": "Стиль",
   "clock.styleDigital": "Цифровые",
   "clock.styleAnalog": "Стрелочные",
   "clock.styleStacked": "В столбик",

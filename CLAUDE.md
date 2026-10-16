@@ -32,8 +32,9 @@ Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI 
 Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search t] [--land t]
            [--flyout row] [--width dips] [--open first|name] [--views n]      # Page: General..About, Displays, Views
            [--place-chosen] [--place-query t [--place-reply results|none|offline|error|searching]]   # place row [S-2847]
-Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--keys k1,k2|text:abc]
+Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc]
            # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
+           # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
 Themia.exe --editbar-png <outDir> [--theme light|dark]   # edit bar: snap on/off, add menu open, placing; --picker-png takes --theme too
@@ -139,6 +140,11 @@ a `WidgetSetup.Needed` rule if it shows nothing unconfigured, and a SPEC section
   and gets the lease on a click; a widget with a text box calls `IWidgetSurface.RequestTextInput`
   from GotFocus/LostFocus. The lease ends on Escape, a click elsewhere or deactivation. One key
   vocabulary: Core `WidgetKey`.
+- **Widget styles** ([S-6000]..[S-6010]): a look of the same data. The kind's config implements
+  `IStyled` over its own `<Kind>Style` enum (`[JsonConverter(typeof(StyleJsonConverter<…>))]`, property
+  `Style`, default first, copied in `Clone`); its labels go in a `Locales/styles-<kind>/` area. The
+  registry, the strip's Style choice, the settings row, load repair and `--style` find it on their own:
+  no shared line to edit. An existing look option becomes the style, never a second setting.
 - **Colours are never typed.** Use `FluentLayout.ColorPickerRow` / `ColorChoice` (swatch button, accent
   presets, custom `ColorPicker`). Stored as `#RRGGBB`.
 - **Settings rows** come only from `FluentLayout` (`SettingsCard`/`SettingsExpander`), so a restyle

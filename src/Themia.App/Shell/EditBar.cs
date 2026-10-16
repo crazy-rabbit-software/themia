@@ -241,7 +241,7 @@ internal sealed partial class EditBar : Grid
     }
 
     /// <summary>An icon-only command: square, its words the tooltip and the name a screen reader reads.</summary>
-    private static void IconOnly(Button button, string words)
+    internal static void IconOnly(Button button, string words)
     {
         Subtle(button);
         button.Width = ButtonSize;

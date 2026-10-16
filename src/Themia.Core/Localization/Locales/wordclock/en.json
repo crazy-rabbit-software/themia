@@ -1,0 +1,16 @@
+{
+  "$comment": "[S-6020] The Clock's word style. wordClock.hours: one or more hour forms separated by ';', each 12 entries (index 0 = twelve, then one..eleven) or 24 entries (index 0 = midnight .. 23) separated by '|'. wordClock.mNN: the sentence for NN minutes past the hour (rounded to the nearest five). In a sentence [h] is the hour in form 1, [n] the next hour in form 1, [h2]/[n2] form 2, and so on. The first letter of the result is capitalised.",
+  "wordClock.hours": "twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven",
+  "wordClock.m00": "It's [h] o'clock",
+  "wordClock.m05": "It's five past [h]",
+  "wordClock.m10": "It's ten past [h]",
+  "wordClock.m15": "It's quarter past [h]",
+  "wordClock.m20": "It's twenty past [h]",
+  "wordClock.m25": "It's twenty-five past [h]",
+  "wordClock.m30": "It's half past [h]",
+  "wordClock.m35": "It's twenty-five to [n]",
+  "wordClock.m40": "It's twenty to [n]",
+  "wordClock.m45": "It's quarter to [n]",
+  "wordClock.m50": "It's ten to [n]",
+  "wordClock.m55": "It's five to [n]"
+}

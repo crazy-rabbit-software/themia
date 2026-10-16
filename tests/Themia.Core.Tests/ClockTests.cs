@@ -207,11 +207,26 @@ public class ClockFormatterTests
     [Fact]
     public void A_clock_without_seconds_only_asks_to_be_woken_once_a_minute()
     {
-        Assert.Equal(TimeSpan.FromMinutes(1), new ClockConfig { ShowSeconds = false, Face = ClockFace.Digital }.TickInterval);
+        Assert.Equal(TimeSpan.FromMinutes(1), new ClockConfig { ShowSeconds = false, Style = ClockStyle.Digital }.TickInterval);
         Assert.Equal(TimeSpan.FromSeconds(1), new ClockConfig { ShowSeconds = true }.TickInterval);
 
         // An analog face sweeps its second hand, so it needs seconds regardless of the digital toggle.
-        Assert.Equal(TimeSpan.FromSeconds(1), new ClockConfig { ShowSeconds = false, Face = ClockFace.Analog }.TickInterval);
+        Assert.Equal(TimeSpan.FromSeconds(1), new ClockConfig { ShowSeconds = false, Style = ClockStyle.Analog }.TickInterval);
+    }
+
+    [Theory]
+    [InlineData(ClockStyle.Digital, true)]
+    [InlineData(ClockStyle.Stacked, true)]
+    [InlineData(ClockStyle.Flip, true)]
+    [InlineData(ClockStyle.Word, false)]
+    [InlineData(ClockStyle.Minimal, false)]
+    public void S6015_words_and_the_minimal_clock_never_draw_seconds_nor_wake_for_them(ClockStyle style, bool seconds)
+    {
+        var config = new ClockConfig { ShowSeconds = true, Style = style };
+
+        Assert.Equal(seconds, config.DrawsSeconds);
+        Assert.Equal(seconds ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1), config.TickInterval);
+        Assert.Equal(seconds ? 8 : 5, ClockFormatter.Read(DateTimeOffset.UtcNow, config, Themia.Core.Localization.Locale.En, use24Hour: true).Time.Length);
     }
 
     [Fact]

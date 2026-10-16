@@ -1,7 +1,31 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
+
+/// <summary>
+/// [S-6011] The clock's styles ([S-1483]): the same time, six looks. The first is the
+/// default; an unknown stored name is repaired to it ([S-6004]).
+/// </summary>
+[JsonConverter(typeof(StyleJsonConverter<ClockStyle>))]
+public enum ClockStyle
+{
+    Digital = 0,
+    Analog = 1,
+
+    /// <summary>[S-1483] Hours over minutes (over seconds), the original's third style.</summary>
+    Stacked = 2,
+
+    /// <summary>[S-6012] Split-flap cards, the hours and the minutes, that flip when they change.</summary>
+    Flip = 3,
+
+    /// <summary>[S-6013] The time in words, in five-minute steps ("It's quarter past ten").</summary>
+    Word = 4,
+
+    /// <summary>[S-6014] The time alone, in a thin weight: no date, label, seconds or offset.</summary>
+    Minimal = 5,
+}
 
 /// <summary>[S-1484] Where the clock's column sits across the tile.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<ClockAlign>))]
@@ -33,7 +57,7 @@ public enum ClockOffsetMode
     Local = 2,
 }
 
-public sealed class ClockConfig : WidgetConfig
+public sealed class ClockConfig : WidgetConfig, IStyled
 {
     /// <summary>[S-1482] A label longer than this is a sentence, not a place.</summary>
     public const int MaxLabelLength = 40;
@@ -41,7 +65,26 @@ public sealed class ClockConfig : WidgetConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Clock;
 
-    public ClockFace Face { get; set; } = ClockFace.Digital;
+    /// <summary>[S-6000] The clock's look; what was its face.</summary>
+    public ClockStyle Style { get; set; } = ClockStyle.Digital;
+
+    private static readonly StyleOption[] ClockStyles =
+    [
+        StyleOption.Of(ClockStyle.Digital, Str.Clock_StyleDigital, 0xEC92),
+        StyleOption.Of(ClockStyle.Analog, Str.Clock_StyleAnalog, 0xE917),
+        StyleOption.Of(ClockStyle.Stacked, Str.Clock_StyleStacked, 0xEA37),
+        StyleOption.Of(ClockStyle.Flip, Str.Styles_Clock_Flip, 0xE8A9),
+        StyleOption.Of(ClockStyle.Word, Str.Styles_Clock_Words, 0xE8D2),
+        StyleOption.Of(ClockStyle.Minimal, Str.Styles_Clock_Minimal, 0xE738),
+    ];
+
+    IReadOnlyList<StyleOption> IStyled.Styles => ClockStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (ClockStyle)value;
+    }
 
     public bool ShowSeconds { get; set; }
 
@@ -65,7 +108,7 @@ public sealed class ClockConfig : WidgetConfig
 
     public override WidgetConfig Clone() => new ClockConfig
     {
-        Face = Face,
+        Style = Style,
         ShowSeconds = ShowSeconds,
         ShowDate = ShowDate,
         TimeZoneId = TimeZoneId,
@@ -85,25 +128,29 @@ public sealed class ClockConfig : WidgetConfig
     [JsonIgnore]
     public bool IsWorldClock => ZoneCatalog.Resolve(TimeZoneId) is not null;
 
-    /// <summary>The tick cadence this config actually needs. A clock without seconds wakes once a minute.</summary>
+    /// <summary>
+    /// [S-6015] Whether this style draws seconds at all: words come in five-minute steps and the
+    /// minimal clock is the time alone ([S-6013], [S-6014]).
+    /// </summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => ShowSeconds || Face == ClockFace.Analog
+    public bool DrawsSeconds => ShowSeconds && Style is not (ClockStyle.Word or ClockStyle.Minimal);
+
+    /// <summary>
+    /// The tick cadence this config actually needs. A clock without seconds wakes once a minute; an
+    /// analog face sweeps its hands every second.
+    /// </summary>
+    [JsonIgnore]
+    public TimeSpan TickInterval => DrawsSeconds || Style == ClockStyle.Analog
         ? TimeSpan.FromSeconds(1)
         : TimeSpan.FromMinutes(1);
 
     /// <summary>
     /// [S-1486] Back inside the invariants after a hand edit: an enum value outside its set falls back
-    /// to the default, an id the catalog does not know means "local", and an over-long label is cut.
+    /// to the default (the style is the registry's, [S-6004]), an id the catalog does not know means "local", and an over-long label is cut.
     /// </summary>
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
-
-        if (!Enum.IsDefined(Face))
-        {
-            repairs.Add($"clock face {(int)Face} unknown; digital");
-            Face = ClockFace.Digital;
-        }
 
         if (!Enum.IsDefined(Align))
         {

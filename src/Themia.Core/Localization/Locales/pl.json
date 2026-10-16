@@ -253,7 +253,6 @@
   "clock.tzCurrent": "Bieżąca: {city}",
   "clock.timezoneLabel": "Strefa czasowa",
   "clock.labelLabel": "Etykieta",
-  "clock.styleLabel": "Styl",
   "clock.styleDigital": "Cyfrowy",
   "clock.styleAnalog": "Analogowy",
   "clock.styleStacked": "Piętrowy",

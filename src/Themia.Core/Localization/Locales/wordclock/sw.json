@@ -1,0 +1,15 @@
+{
+  "wordClock.hours": "sita|saba|nane|tisa|kumi|kumi na moja|kumi na mbili|moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|kumi|kumi na moja|kumi na mbili|moja|mbili|tatu|nne|tano;usiku|usiku|usiku|usiku|alfajiri|alfajiri|asubuhi|asubuhi|asubuhi|asubuhi|asubuhi|asubuhi|mchana|mchana|mchana|mchana|jioni|jioni|jioni|usiku|usiku|usiku|usiku|usiku",
+  "wordClock.m00": "Ni saa [h] [h2]",
+  "wordClock.m05": "Ni saa [h] na dakika tano [h2]",
+  "wordClock.m10": "Ni saa [h] na dakika kumi [h2]",
+  "wordClock.m15": "Ni saa [h] na robo [h2]",
+  "wordClock.m20": "Ni saa [h] na dakika ishirini [h2]",
+  "wordClock.m25": "Ni saa [h] na dakika ishirini na tano [h2]",
+  "wordClock.m30": "Ni saa [h] na nusu [h2]",
+  "wordClock.m35": "Ni saa [n] kasoro dakika ishirini na tano [n2]",
+  "wordClock.m40": "Ni saa [n] kasoro dakika ishirini [n2]",
+  "wordClock.m45": "Ni saa [n] kasoro robo [n2]",
+  "wordClock.m50": "Ni saa [n] kasoro dakika kumi [n2]",
+  "wordClock.m55": "Ni saa [n] kasoro dakika tano [n2]"
+}

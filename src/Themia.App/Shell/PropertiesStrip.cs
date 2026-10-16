@@ -14,16 +14,21 @@ namespace Themia.App.Shell;
 /// <param name="SetSurface">[S-3703] The selected widgets' background.</param>
 /// <param name="SetTitle">[S-3704] One widget's title, by id, as typed.</param>
 /// <param name="ReleaseFocus">[S-3704] Hands the keyboard back to the surface after the title box, so the edit keys work again.</param>
+/// <param name="SetStyle">[S-6008] The selected widgets' style, by the style enum's value.</param>
+/// <param name="OpenSettings">[S-6009] Opens one widget's settings page, by id.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
     Action<WidgetSurface> SetSurface,
     Action<string, string?> SetTitle,
-    Action ReleaseFocus);
+    Action ReleaseFocus,
+    Action<int> SetStyle,
+    Action<string> OpenSettings);
 
 /// <summary>
 /// [S-3707] The selected widgets' properties strip: a compact bar in the edit bar's look, standing
-/// against the selection ([S-3708]) — the title box (one widget) or "N selected", then Header
-/// (where every selected widget can have one, [S-3711]) and Background. After Karpo's properties
+/// against the selection ([S-3708]) — the title box (one widget) or "N selected", then Style (one
+/// kind with styles, [S-6007]), Header (where every selected widget can have one, [S-3711]),
+/// Background, and the gear that opens the widget's settings (one widget with a page, [S-6009]). After Karpo's properties
 /// panel (docs/widgets.md §145): the selection's own properties, where the selection is.
 /// </summary>
 internal sealed partial class PropertiesStrip : Grid
@@ -45,6 +50,9 @@ internal sealed partial class PropertiesStrip : Grid
     private string? _titleId;
 
     private string _titleCommitted = string.Empty;
+
+    /// <summary>[S-6007] The Style button's icon: the current style's, followed on an undo or a pick.</summary>
+    private FontIcon? _styleIcon;
 
     public PropertiesStrip(PropertiesCommands commands)
     {
@@ -86,6 +94,7 @@ internal sealed partial class PropertiesStrip : Grid
 
         var sameShape = previous.Shows == offer.Shows
             && previous.HasHeader == offer.HasHeader
+            && previous.StyleKind == offer.StyleKind
             && string.Equals(previous.TitleWidgetId, offer.TitleWidgetId, StringComparison.Ordinal)
             && (offer.HasTitle || previous.Count == offer.Count);
 
@@ -93,6 +102,11 @@ internal sealed partial class PropertiesStrip : Grid
         {
             Build();
             return;
+        }
+
+        if (_styleIcon is { } styleIcon)
+        {
+            styleIcon.Glyph = StyleGlyph(offer);
         }
 
         // The same widget: its title may have changed (an undo, the box's own commit).
@@ -108,6 +122,7 @@ internal sealed partial class PropertiesStrip : Grid
         CommitTitleLater();
 
         _row.Children.Clear();
+        _styleIcon = null;
         _title = null;
         _titleId = null;
 
@@ -130,6 +145,12 @@ internal sealed partial class PropertiesStrip : Grid
             count.VerticalAlignment = VerticalAlignment.Center;
             count.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
             _row.Children.Add(count);
+        }
+
+        // [S-6007] The look first: it changes the widget most. Only for one kind with styles.
+        if (_offer.StyleKind is { } styled)
+        {
+            _row.Children.Add(StyleChoice(styled, commands));
         }
 
         // [S-3711] Only where every selected widget can have a header: never for a toggle.
@@ -157,6 +178,65 @@ internal sealed partial class PropertiesStrip : Grid
             ],
             () => _offer.Surface,
             commands.SetSurface));
+
+        // [S-6009] The widget's settings, one widget only and only when its page has rows ([S-1750]).
+        if (_offer is { TitleWidgetId: { } settingsId, TitleKind: { } settingsKind } && Config.ConfigPages.HasWidgetSettings(settingsKind))
+        {
+            var gear = new Button { Content = EditBar.Icon(Glyphs.Settings, false, Fluent.IconSize) };
+            EditBar.IconOnly(gear, Str.Common_Settings.Text());
+            gear.Click += (_, _) => commands.OpenSettings(settingsId);
+            _row.Children.Add(gear);
+        }
+    }
+
+    /// <summary>The current style's icon; a mixed selection shows the kind's first.</summary>
+    private static string StyleGlyph(QuickSetOffer offer)
+    {
+        if (offer.StyleKind is not { } kind || WidgetStyles.For(kind) is not { Count: > 0 } styles)
+        {
+            return Glyphs.Settings;
+        }
+
+        var current = styles.FirstOrDefault(s => s.Value == offer.Style);
+        return char.ConvertFromUtf32(current.Glyph != 0 ? current.Glyph : styles[0].Glyph);
+    }
+
+    /// <summary>
+    /// [S-6007]/[S-6008] The Style choice: the kind's styles, each with its icon, the current one
+    /// ticked (none for a mixed selection), built as the menu opens. Picking one sets it on every
+    /// selected widget, one undo step. The button shows the current style's icon.
+    /// </summary>
+    private DropDownButton StyleChoice(WidgetKind kind, PropertiesCommands commands)
+    {
+        var styles = WidgetStyles.For(kind);
+        var label = Str.Styles_Label.Text();
+        var menu = new MenuFlyout();
+        menu.Opening += (_, _) =>
+        {
+            menu.Items.Clear();
+            var now = _offer.Style;
+            foreach (var style in styles)
+            {
+                var item = new RadioMenuFlyoutItem
+                {
+                    Text = style.Label.Text(),
+                    GroupName = label,
+                    IsChecked = now == style.Value,
+                    Icon = EditBar.Icon(char.ConvertFromUtf32(style.Glyph), false),
+                };
+
+                var chosen = style.Value;
+                item.Click += (_, _) => commands.SetStyle(chosen);
+                menu.Items.Add(item);
+            }
+        };
+
+        var content = EditBar.Labelled(StyleGlyph(_offer), label, accent: false);
+        _styleIcon = content.Children[0] as FontIcon;
+        var button = new DropDownButton { Content = content, Flyout = menu };
+        EditBar.Subtle(button);
+        AutomationProperties.SetName(button, label);
+        return button;
     }
 
     /// <summary>

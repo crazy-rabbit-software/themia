@@ -31,7 +31,7 @@ internal interface IWidgetPreviewState
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name]</c>. Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// [--state name] [--style name]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -81,14 +81,28 @@ internal static class WidgetRender
             || !Enum.IsDefined(kind)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--keys k1,k2|text:abc]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--keys k1,k2|text:abc]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc]");
             app.Exit();
             return true;
         }
 
         var outPath = System.IO.Path.GetFullPath(args[at + 2]);
         var state = Option(args, "--state");
+
+        // [S-6006] Any styled kind in one of its styles; a wrong name prints the kind's styles.
+        int? style = null;
+        if (Option(args, "--style") is { } styleName)
+        {
+            if (WidgetStyles.Find(kind, styleName) is { } found)
+            {
+                style = found.Value;
+            }
+            else
+            {
+                Console.WriteLine($"widget: {kind} has no style '{styleName}' (has: {string.Join(", ", WidgetStyles.For(kind).Select(s => s.Name))})");
+            }
+        }
         List<WidgetTier> tiers = Size(args, at + 3) is { } size
             ? [new WidgetTier($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
             : [.. WidgetTiers.All];
@@ -144,7 +158,7 @@ internal static class WidgetRender
                 AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 var host = new NoticeRender.RenderCardHost(ticker);
-                Place(page, host, kind, tiers, cards);
+                Place(page, host, kind, style, tiers, cards);
                 if (reference)
                 {
                     PlaceReference(page, tiers[0], width - Gap - tiers[0].Width);
@@ -245,7 +259,7 @@ internal static class WidgetRender
     }
 
     /// <summary>One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).</summary>
-    private static void Place(Canvas page, IWidgetCardHost host, WidgetKind kind, List<WidgetTier> tiers, List<WidgetCard> cards)
+    private static void Place(Canvas page, IWidgetCardHost host, WidgetKind kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
     {
         var rows = Rows(tiers);
         var x = new double[rows.Count];
@@ -267,7 +281,13 @@ internal static class WidgetRender
                 Canvas.SetTop(label, top[row]);
                 page.Children.Add(label);
 
-                var card = new WidgetCard(host, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)))
+                var model = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
+                if (style is { } chosen)
+                {
+                    WidgetStyles.Set(model.Config, chosen);
+                }
+
+                var card = new WidgetCard(host, model)
                 {
                     Width = tier.Width,
                     Height = tier.Height,

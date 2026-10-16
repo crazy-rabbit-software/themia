@@ -254,7 +254,6 @@
   "clock.tzCurrent": "தற்போது: {city}",
   "clock.timezoneLabel": "நேர மண்டலம்",
   "clock.labelLabel": "லேபிள்",
-  "clock.styleLabel": "நடை",
   "clock.styleDigital": "டிஜிட்டல்",
   "clock.styleAnalog": "அனலாக்",
   "clock.styleStacked": "அடுக்கியது",

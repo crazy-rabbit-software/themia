@@ -254,7 +254,6 @@
   "clock.tzCurrent": "Saat ini: {city}",
   "clock.timezoneLabel": "Zona waktu",
   "clock.labelLabel": "Label",
-  "clock.styleLabel": "Gaya",
   "clock.styleDigital": "Digital",
   "clock.styleAnalog": "Analog",
   "clock.styleStacked": "Bertumpuk",
