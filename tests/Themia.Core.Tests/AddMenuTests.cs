@@ -122,14 +122,14 @@ public sealed class AddMenuTests
     [Fact]
     public void S3511_a_folder_left_with_one_row_is_that_row_and_with_none_is_gone()
     {
-        // Only the calendar's month, and nothing of Weather: the calendar family folds to its one
+        // Only the processor's meter, and nothing of Weather: the processor family folds to its one
         // row, the subject keeps its other rows, and Weather is not there at all.
-        var offered = Every.Where(kind => kind is not (WidgetKind.Agenda or WidgetKind.WeekCalendar or WidgetKind.DayCalendar or WidgetKind.YearCalendar)
+        var offered = Every.Where(kind => kind is not (WidgetKind.CpuDetails or WidgetKind.TopProcesses)
             and not (WidgetKind.WeatherNow or WidgetKind.WeatherForecast or WidgetKind.RainNextHour or WidgetKind.AirQuality or WidgetKind.Sun or WidgetKind.Moon)).ToList();
         var browse = AddTree.On(offered)[1].Rows.OfType<AddFolder>().ToList();
 
-        var calendar = browse.Single(folder => folder.Shelf.Id == AddFolderId.CalendarMail);
-        Assert.Equal(new AddPick(WidgetKind.MonthCalendar, false), calendar.Rows[0]);
+        var system = browse.Single(folder => folder.Shelf.Id == AddFolderId.System);
+        Assert.Equal(new AddPick(WidgetKind.Cpu, false), system.Rows[0]);
         Assert.DoesNotContain(browse, folder => folder.Shelf.Id == AddFolderId.Weather);
     }
 
@@ -152,8 +152,8 @@ public sealed class AddMenuTests
     {
         var homes = AddTree.Homes(Menu);
 
-        var week = homes.Single(home => home.Kind == WidgetKind.WeekCalendar);
-        Assert.Equal([AddFolderId.CalendarMail, AddFolderId.CalendarLayouts], week.Path.Select(shelf => shelf.Id));
+        var details = homes.Single(home => home.Kind == WidgetKind.CpuDetails);
+        Assert.Equal([AddFolderId.System, AddFolderId.Processor], details.Path.Select(shelf => shelf.Id));
 
         var clock = homes.Single(home => home.Kind == WidgetKind.Clock);
         Assert.Equal([AddFolderId.Time], clock.Path.Select(shelf => shelf.Id));
@@ -210,14 +210,14 @@ public sealed class AddMenuTests
     [Fact]
     public void S3514_enter_on_a_family_opens_a_second_submenu_and_left_walks_back()
     {
-        var subject = SpotOf(AddFolderId.CalendarMail);
+        var subject = SpotOf(AddFolderId.System);
         var inSubject = Press(new AddMenuNav([], subject), WidgetKey.Enter).Nav;
 
-        // The calendar's layouts are the subject's first row.
+        // The processor's family is the subject's first row.
         var inFamily = Press(inSubject, WidgetKey.Enter).Nav;
         Assert.Equal([subject, new AddSpot(2, 0)], inFamily.Open);
         Assert.Equal(new AddSpot(3, 0), inFamily.Cursor);
-        Assert.Equal(AddFolderId.CalendarLayouts, AddMenuKeys.OpenFolders(Menu, inFamily)[^1].Shelf.Id);
+        Assert.Equal(AddFolderId.Processor, AddMenuKeys.OpenFolders(Menu, inFamily)[^1].Shelf.Id);
 
         var back = Press(inFamily, WidgetKey.Left).Nav;
         Assert.Equal([subject], back.Open);
@@ -360,5 +360,20 @@ public sealed class AddMenuTests
         // Neither side fits: the side with more room, pushed in.
         var wide = AddCascade.Beside(800, 1040, 200, 5, 1000, 300, backward: false, new PixelRect(0, 0, 1500, 1032));
         Assert.InRange(wide.Box.X, 0, 1500 - 1000);
+    }
+
+    [Fact]
+    public void S3511_the_merged_kinds_are_single_rows_and_popular_lists_the_calendar()
+    {
+        // [S-3640] [S-3216] [S-4123] The calendar, the visualizer and the folder are one widget each,
+        // their former variants styles: a row of their subject, never a family folder.
+        var homes = AddTree.Homes(Menu);
+        Assert.Equal([AddFolderId.CalendarMail], homes.Single(home => home.Kind == WidgetKind.Calendar).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.Media], homes.Single(home => home.Kind == WidgetKind.AudioVisualizer).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.Files], homes.Single(home => home.Kind == WidgetKind.Folder).Path.Select(shelf => shelf.Id));
+
+        var popular = AddTree.Popular.Rows.OfType<AddLeaf>().Select(leaf => leaf.Kind).ToList();
+        Assert.Contains(WidgetKind.Calendar, popular);
+        Assert.Equal(popular.Count, popular.Distinct().Count());
     }
 }

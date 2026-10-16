@@ -12,9 +12,6 @@
   "addMenu.subject.system": "시스템",
   "addMenu.subject.devices": "장치 및 전원",
   "addMenu.subject.more": "더 보기",
-  "addMenu.family.calendar": "일정",
-  "addMenu.family.visualizer": "비주얼라이저",
-  "addMenu.family.folder": "폴더",
   "addMenu.family.screenTime": "스크린 타임",
   "addMenu.family.powerButtons": "전원 버튼"
 }

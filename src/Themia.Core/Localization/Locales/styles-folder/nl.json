@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "Map",
+  "styles.folder.desc": "De bestanden van een map als lijst, tabel, tegels of pictogrammen",
+  "styles.folder.list": "Lijst",
+  "styles.folder.details": "Details",
+  "styles.folder.grid": "Raster",
+  "styles.folder.icons": "Pictogrammen"
+}

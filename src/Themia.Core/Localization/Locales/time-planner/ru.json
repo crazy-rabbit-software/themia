@@ -6,8 +6,6 @@
   "dateWidget.label": "Дата",
   "dateWidget.desc": "Сегодняшний день недели и дата — для обоев",
   "dateWidget.showYear": "Показывать год",
-  "variants.visualizer.scope.label": "Осциллограмма",
-  "variants.visualizer.scope.desc": "Линия, рисующая сам звук, как осциллограф",
   "planner.label": "Планировщик недели",
   "planner.desc": "Ближайшие дни с событиями и то, что нужно сделать сегодня",
   "planner.tasksHeader": "Задачи на сегодня",

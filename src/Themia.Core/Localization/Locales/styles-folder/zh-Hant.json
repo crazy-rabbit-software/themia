@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "資料夾",
+  "styles.folder.desc": "以清單、表格、磚或圖示顯示資料夾中的檔案",
+  "styles.folder.list": "清單",
+  "styles.folder.details": "詳細資料",
+  "styles.folder.grid": "格線",
+  "styles.folder.icons": "圖示"
+}

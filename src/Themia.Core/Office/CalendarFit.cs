@@ -827,9 +827,9 @@ public static class CalendarFit
     /// in the month and week; Home goes to today; Enter opens the cursor day's first event (the
     /// page's first in the agenda). A year has no events to open.
     /// </summary>
-    public static CalendarKeyCommand Key(WidgetKey key, CalendarLayout layout)
+    public static CalendarKeyCommand Key(WidgetKey key, CalendarStyle layout)
     {
-        var weeks = layout is CalendarLayout.Month or CalendarLayout.Week;
+        var weeks = layout is CalendarStyle.Month or CalendarStyle.Week;
 
         return key switch
         {
@@ -838,7 +838,7 @@ public static class CalendarFit
             WidgetKey.Up when weeks => CalendarKeyCommand.WeekBack,
             WidgetKey.Down when weeks => CalendarKeyCommand.WeekForward,
             WidgetKey.Home => CalendarKeyCommand.Today,
-            WidgetKey.Enter when layout != CalendarLayout.Year => CalendarKeyCommand.OpenFirst,
+            WidgetKey.Enter when layout != CalendarStyle.Year => CalendarKeyCommand.OpenFirst,
             _ => CalendarKeyCommand.None,
         };
     }

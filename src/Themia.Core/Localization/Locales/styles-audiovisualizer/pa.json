@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "ਆਡੀਓ ਵਿਜ਼ੁਅਲਾਈਜ਼ਰ",
+  "styles.audioVisualizer.desc": "ਇਹ ਪੀਸੀ ਜੋ ਚਲਾ ਰਿਹਾ ਹੈ, ਬਾਰ, ਲਹਿਰ ਜਾਂ ਲਕੀਰ ਵਜੋਂ",
+  "styles.audioVisualizer.bars": "ਬਾਰ",
+  "styles.audioVisualizer.mirrored": "ਸ਼ੀਸ਼ਾ",
+  "styles.audioVisualizer.wave": "ਲਹਿਰ",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "ਗੋਲ",
+  "styles.audioVisualizer.waveform": "ਤਰੰਗ ਰੂਪ"
+}

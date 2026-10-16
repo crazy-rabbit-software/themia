@@ -12,9 +12,6 @@
   "addMenu.subject.system": "Sistema",
   "addMenu.subject.devices": "Dispositivi e alimentazione",
   "addMenu.subject.more": "Altro",
-  "addMenu.family.calendar": "Calendario",
-  "addMenu.family.visualizer": "Visualizzatore",
-  "addMenu.family.folder": "Cartella",
   "addMenu.family.screenTime": "Tempo di utilizzo",
   "addMenu.family.powerButtons": "Pulsanti di alimentazione"
 }

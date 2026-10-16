@@ -6,8 +6,6 @@
   "dateWidget.label": "วันที่",
   "dateWidget.desc": "วันในสัปดาห์และวันที่ของวันนี้ ออกแบบมาสำหรับวอลเปเปอร์",
   "dateWidget.showYear": "แสดงปี",
-  "variants.visualizer.scope.label": "รูปคลื่น",
-  "variants.visualizer.scope.desc": "เส้นที่วาดเสียงออกมาโดยตรง เหมือนออสซิลโลสโคป",
   "planner.label": "ตัววางแผนรายสัปดาห์",
   "planner.desc": "วันข้างหน้าพร้อมกิจกรรม และสิ่งที่ครบกำหนดวันนี้",
   "planner.tasksHeader": "งานวันนี้",

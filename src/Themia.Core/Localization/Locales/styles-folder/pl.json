@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "Folder",
+  "styles.folder.desc": "Pliki folderu jako lista, tabela, kafelki lub ikony",
+  "styles.folder.list": "Lista",
+  "styles.folder.details": "Szczegóły",
+  "styles.folder.grid": "Siatka",
+  "styles.folder.icons": "Ikony"
+}

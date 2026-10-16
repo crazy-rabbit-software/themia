@@ -1,19 +1,23 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-3600] The five ways a calendar widget lays out time, one widget kind each
-/// (<see cref="CalendarConfig.Layout"/>). Never stored: the kind says it. Each sheds detail within
-/// itself at every size, never turning into another ([S-2700]).
+/// [S-3640] The five ways the calendar lays out time: its style ([S-6000]). The first is the
+/// default; an unknown stored name is repaired to it ([S-6004]). Each sheds detail within itself at
+/// every size, never turning into another ([S-2700]). The values are not the menu order
+/// (<see cref="CalendarWidgetConfig"/> lists Month, Week, Day, Year, Agenda).
 /// </summary>
-public enum CalendarLayout
+[JsonConverter(typeof(StyleJsonConverter<CalendarStyle>))]
+public enum CalendarStyle
 {
     /// <summary>The weeks of a month, the original's default.</summary>
     Month = 0,
 
-    /// <summary>Seven day columns.</summary>
+    /// <summary>Day columns, seven by default ([S-3637]).</summary>
     Week = 1,
 
     /// <summary>One day on an hour timeline.</summary>
@@ -24,6 +28,22 @@ public enum CalendarLayout
 
     /// <summary>The twelve months of a year as small grids.</summary>
     Year = 4,
+}
+
+/// <summary>[S-3601] A style's own row on the calendar's settings page, beside the accounts and birthdays every style shows.</summary>
+public enum CalendarSetting
+{
+    /// <summary>[S-3637] Week: where the first column is.</summary>
+    WeekFrom,
+
+    /// <summary>[S-3637] Week: how many day columns.</summary>
+    WeekDays,
+
+    /// <summary>[S-3636] Agenda: how many days ahead.</summary>
+    AgendaRange,
+
+    /// <summary>[S-571] Agenda: how many entries.</summary>
+    AgendaCount,
 }
 
 /// <summary>[S-564] Which day a week starts on: a closed set, never a stringly day name.</summary>
@@ -82,23 +102,13 @@ public enum ContactColumn
 /// [S-561] [S-3601] What every calendar widget shares: which accounts and calendars, their colours,
 /// and whether birthdays are shown. Data comes from Themia's own accounts ([S-529]). Every value is
 /// read leniently ([S-563]): a wrong one becomes its default rather than refusing the state file.
-/// Each of the five calendar kinds adds only what it uses.
+/// The calendar itself (<see cref="CalendarWidgetConfig"/>), Next meeting and the week planner build on it.
 /// </summary>
 public abstract class CalendarConfig : WidgetConfig
 {
-    /// <summary>[S-3600] The layout this kind draws: fixed by the kind, never stored.</summary>
+    /// <summary>[S-3640] The shape the widget draws: the calendar's style, a fixed one for the others. Never stored here.</summary>
     [JsonIgnore]
-    public abstract CalendarLayout Layout { get; }
-
-    /// <summary>[S-3600] A fresh config of the kind that draws <paramref name="layout"/>.</summary>
-    public static CalendarConfig For(CalendarLayout layout) => layout switch
-    {
-        CalendarLayout.Week => new WeekCalendarConfig(),
-        CalendarLayout.Day => new DayCalendarConfig(),
-        CalendarLayout.Year => new YearCalendarConfig(),
-        CalendarLayout.Agenda => new AgendaConfig(),
-        _ => new MonthCalendarConfig(),
-    };
+    public abstract CalendarStyle Layout { get; }
 
     /// <summary>[S-562] The accounts to show; empty means every calendar account.</summary>
     [JsonConverter(typeof(LenientIdListConverter))]
@@ -126,8 +136,8 @@ public abstract class CalendarConfig : WidgetConfig
     public WeekStartDay EffectiveWeekStart => Localization.RegionFormat.Current.WeekStart;
 
     /// <summary>
-    /// [S-568] Everything beside the kind and the anchor that decides the days the layout covers:
-    /// the week start, and the week's and the agenda's own lengths where the kind has them.
+    /// [S-568] Everything beside the style and the anchor that decides the days the layout covers:
+    /// the week start, and the week's and the agenda's own lengths where the style has them.
     /// </summary>
     [JsonIgnore]
     public virtual CalendarPeriod Period => new(EffectiveWeekStart);
@@ -167,161 +177,138 @@ public abstract class CalendarConfig : WidgetConfig
 }
 
 /// <summary>
-/// [S-3601] A calendar that draws weeks (month, week, year). Its week start is the shared regional
-/// setting ([S-3770]), so it adds no field of its own.
+/// [S-3640] The calendar: one widget, five styles (month, week, day, year, agenda), what were five
+/// kinds. It stores what every calendar shares and the union of what its styles use: the week's
+/// length and first column ([S-3637]) and the agenda's range and length ([S-3636], [S-571]). A
+/// style ignores the fields it does not use, and the settings page shows only its own
+/// (<see cref="SettingsFor"/>).
 /// </summary>
-public abstract class CalendarGridConfig : CalendarConfig
+public sealed class CalendarWidgetConfig : CalendarConfig, IStyled
 {
-}
+    /// <summary>[S-3637] A whole week of day columns, the week's default.</summary>
+    public const int WeekDefaultDays = 7;
 
-/// <summary>[S-3600] The month calendar.</summary>
-public sealed class MonthCalendarConfig : CalendarGridConfig
-{
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.MonthCalendar;
+    public const int WeekMinDays = 1;
 
-    [JsonIgnore]
-    public override CalendarLayout Layout => CalendarLayout.Month;
-
-    public override WidgetConfig Clone() => CopySharedTo(new MonthCalendarConfig());
-}
-
-/// <summary>
-/// [S-3600] The week calendar. [S-3637] Its own length and first column: a whole week (7) from the
-/// regional week start by default, a working week (5), or the next few days from today.
-/// </summary>
-public sealed class WeekCalendarConfig : CalendarGridConfig
-{
-    public const int DefaultDays = 7;
-
-    public const int MinDays = 1;
-
-    public const int MaxDays = 14;
+    public const int WeekMaxDays = 14;
 
     /// <summary>[S-3637] A working week, which settings name beside the whole one.</summary>
     public const int WorkWeekDays = 5;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.WeekCalendar;
-
-    [JsonIgnore]
-    public override CalendarLayout Layout => CalendarLayout.Week;
-
-    /// <summary>[S-3637] How many day columns, 1 to 14.</summary>
-    public int Days { get; set; } = DefaultDays;
-
-    /// <summary>[S-3637] Where the first column is: the week's first day, or today.</summary>
-    public WeekFirstDay FirstDay { get; set; } = WeekFirstDay.Week;
-
-    [JsonIgnore]
-    public int EffectiveDays => Math.Clamp(Days, MinDays, MaxDays);
-
-    [JsonIgnore]
-    public override CalendarPeriod Period => new(EffectiveWeekStart, EffectiveDays, FirstDay);
-
-    protected override void RepairOwn(List<string> repairs)
-    {
-        if (Days != EffectiveDays)
-        {
-            repairs.Add($"week calendar days {Days} was out of range");
-            Days = EffectiveDays;
-        }
-
-        if (!Enum.IsDefined(FirstDay))
-        {
-            repairs.Add("week calendar first day was not a known one");
-            FirstDay = WeekFirstDay.Week;
-        }
-    }
-
-    public override WidgetConfig Clone()
-    {
-        var copy = CopySharedTo(new WeekCalendarConfig());
-        copy.Days = Days;
-        copy.FirstDay = FirstDay;
-        return copy;
-    }
-}
-
-/// <summary>[S-3600] The year calendar.</summary>
-public sealed class YearCalendarConfig : CalendarGridConfig
-{
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.YearCalendar;
-
-    [JsonIgnore]
-    public override CalendarLayout Layout => CalendarLayout.Year;
-
-    public override WidgetConfig Clone() => CopySharedTo(new YearCalendarConfig());
-}
-
-/// <summary>[S-3600] The day calendar: one day, no week, so no week start.</summary>
-public sealed class DayCalendarConfig : CalendarConfig
-{
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.DayCalendar;
-
-    [JsonIgnore]
-    public override CalendarLayout Layout => CalendarLayout.Day;
-
-    public override WidgetConfig Clone() => CopySharedTo(new DayCalendarConfig());
-}
-
-/// <summary>[S-3600] The agenda: a list, so a length and a date range instead of a week start.</summary>
-public sealed class AgendaConfig : CalendarConfig
-{
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Agenda;
-
-    [JsonIgnore]
-    public override CalendarLayout Layout => CalendarLayout.Agenda;
-
-    public const int DefaultCount = 20;
+    public const int AgendaDefaultCount = 20;
 
     /// <summary>[S-3636] The agenda looks this many days ahead, today included, unless set otherwise.</summary>
-    public const int DefaultDays = 30;
+    public const int AgendaDefaultDays = 30;
 
-    public const int MinDays = 1;
+    public const int AgendaMinDays = 1;
 
     /// <summary>[S-3636] A year: as far as the shared source keeps events ([S-588]).</summary>
-    public const int MaxDays = 365;
+    public const int AgendaMaxDays = 365;
 
     /// <summary>[S-3636] The ranges settings offer by name: today, today and tomorrow, 3, 7 and 30 days; any other is custom.</summary>
-    public static IReadOnlyList<int> DayPresets { get; } = [1, 2, 3, 7, 30];
+    public static IReadOnlyList<int> AgendaDayPresets { get; } = [1, 2, 3, 7, 30];
 
-    /// <summary>[S-571] How many entries the agenda lists, 1 to 100.</summary>
-    public int AgendaCount { get; set; } = DefaultCount;
+    private static readonly StyleOption[] CalendarStyles =
+    [
+        StyleOption.Of(CalendarStyle.Month, Str.Styles_Calendar_Month, 0xE787),
+        StyleOption.Of(CalendarStyle.Week, Str.Styles_Calendar_Week, 0xE8C0),
+        StyleOption.Of(CalendarStyle.Day, Str.Styles_Calendar_Day, 0xE8BF),
+        StyleOption.Of(CalendarStyle.Year, Str.Styles_Calendar_Year, 0xEA89),
+        StyleOption.Of(CalendarStyle.Agenda, Str.Styles_Calendar_Agenda, 0xE8FD),
+    ];
 
-    /// <summary>[S-3636] How many days the agenda covers, today first, 1 to 365.</summary>
-    public int AgendaDays { get; set; } = DefaultDays;
+    [JsonIgnore]
+    public override WidgetKind Kind => WidgetKind.Calendar;
+
+    /// <summary>[S-3640] The layout; what were five widget kinds.</summary>
+    public CalendarStyle Style { get; set; } = CalendarStyle.Month;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => CalendarStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (CalendarStyle)value;
+    }
+
+    [JsonIgnore]
+    public override CalendarStyle Layout => Style;
+
+    /// <summary>[S-3637] Week: how many day columns, 1 to 14.</summary>
+    public int WeekDays { get; set; } = WeekDefaultDays;
+
+    /// <summary>[S-3637] Week: where the first column is, the week's first day or today.</summary>
+    public WeekFirstDay WeekFrom { get; set; } = WeekFirstDay.Week;
+
+    /// <summary>[S-571] Agenda: how many entries it lists, 1 to 100.</summary>
+    public int AgendaCount { get; set; } = AgendaDefaultCount;
+
+    /// <summary>[S-3636] Agenda: how many days it covers, today first, 1 to 365.</summary>
+    public int AgendaDays { get; set; } = AgendaDefaultDays;
+
+    [JsonIgnore]
+    public int EffectiveWeekDays => Math.Clamp(WeekDays, WeekMinDays, WeekMaxDays);
 
     [JsonIgnore]
     public int EffectiveAgendaCount => Math.Clamp(AgendaCount, 1, 100);
 
     [JsonIgnore]
-    public int EffectiveAgendaDays => Math.Clamp(AgendaDays, MinDays, MaxDays);
+    public int EffectiveAgendaDays => Math.Clamp(AgendaDays, AgendaMinDays, AgendaMaxDays);
 
+    /// <summary>[S-568] The style's own lengths only: a month, a day or a year is the week start alone.</summary>
     [JsonIgnore]
-    public override CalendarPeriod Period => new(EffectiveWeekStart, AgendaDays: EffectiveAgendaDays);
+    public override CalendarPeriod Period => Style switch
+    {
+        CalendarStyle.Week => new(EffectiveWeekStart, EffectiveWeekDays, WeekFrom),
+        CalendarStyle.Agenda => new(EffectiveWeekStart, AgendaDays: EffectiveAgendaDays),
+        _ => new(EffectiveWeekStart),
+    };
+
+    /// <summary>
+    /// [S-3601] The rows the settings page shows for <paramref name="style"/> after the accounts, in
+    /// page order: only what that style uses (birthdays follow for every style). Picking another
+    /// style rebuilds the page ([S-6010]).
+    /// </summary>
+    public static IReadOnlyList<CalendarSetting> SettingsFor(CalendarStyle style) => style switch
+    {
+        CalendarStyle.Week => [CalendarSetting.WeekFrom, CalendarSetting.WeekDays],
+        CalendarStyle.Agenda => [CalendarSetting.AgendaRange, CalendarSetting.AgendaCount],
+        _ => [],
+    };
 
     protected override void RepairOwn(List<string> repairs)
     {
+        if (WeekDays != EffectiveWeekDays)
+        {
+            repairs.Add($"calendar week days {WeekDays} was out of range");
+            WeekDays = EffectiveWeekDays;
+        }
+
+        if (!Enum.IsDefined(WeekFrom))
+        {
+            repairs.Add("calendar week first day was not a known one");
+            WeekFrom = WeekFirstDay.Week;
+        }
+
         if (AgendaCount != EffectiveAgendaCount)
         {
-            repairs.Add($"agenda count {AgendaCount} was out of range");
+            repairs.Add($"calendar agenda count {AgendaCount} was out of range");
             AgendaCount = EffectiveAgendaCount;
         }
 
         if (AgendaDays != EffectiveAgendaDays)
         {
-            repairs.Add($"agenda days {AgendaDays} was out of range");
+            repairs.Add($"calendar agenda days {AgendaDays} was out of range");
             AgendaDays = EffectiveAgendaDays;
         }
     }
 
     public override WidgetConfig Clone()
     {
-        var copy = CopySharedTo(new AgendaConfig());
+        var copy = CopySharedTo(new CalendarWidgetConfig());
+        copy.Style = Style;
+        copy.WeekDays = WeekDays;
+        copy.WeekFrom = WeekFrom;
         copy.AgendaCount = AgendaCount;
         copy.AgendaDays = AgendaDays;
         return copy;

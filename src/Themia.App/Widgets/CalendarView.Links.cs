@@ -110,7 +110,7 @@ internal sealed partial class CalendarView
     /// </summary>
     private void Follow(DateOnly day)
     {
-        if (Layout == CalendarLayout.Agenda)
+        if (Layout == CalendarStyle.Agenda)
         {
             _agendaJump = day;
             Render();
@@ -133,7 +133,7 @@ internal sealed partial class CalendarView
     /// <summary>[S-3625] Paged: say which days are on screen now. No other calendar moves for it.</summary>
     private void PublishRange()
     {
-        if (_member is not { } member || Layout == CalendarLayout.Agenda)
+        if (_member is not { } member || Layout == CalendarStyle.Agenda)
         {
             return;
         }

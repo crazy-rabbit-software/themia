@@ -302,17 +302,17 @@ public sealed class CalendarFitTests
     [Fact]
     public void S2710_EveryLayoutPagesByItsOwnUnit()
     {
-        Assert.Equal(CalendarKeyCommand.Back, CalendarFit.Key(WidgetKey.Left, CalendarLayout.Month));
-        Assert.Equal(CalendarKeyCommand.Forward, CalendarFit.Key(WidgetKey.Right, CalendarLayout.Year));
-        Assert.Equal(CalendarKeyCommand.Back, CalendarFit.Key(WidgetKey.PageUp, CalendarLayout.Agenda));
-        Assert.Equal(CalendarKeyCommand.WeekBack, CalendarFit.Key(WidgetKey.Up, CalendarLayout.Month));
-        Assert.Equal(CalendarKeyCommand.WeekForward, CalendarFit.Key(WidgetKey.Down, CalendarLayout.Week));
-        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Down, CalendarLayout.Day));
-        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Up, CalendarLayout.Year));
-        Assert.Equal(CalendarKeyCommand.Today, CalendarFit.Key(WidgetKey.Home, CalendarLayout.Agenda));
-        Assert.Equal(CalendarKeyCommand.OpenFirst, CalendarFit.Key(WidgetKey.Enter, CalendarLayout.Agenda));
-        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Enter, CalendarLayout.Year));
-        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Escape, CalendarLayout.Month));
+        Assert.Equal(CalendarKeyCommand.Back, CalendarFit.Key(WidgetKey.Left, CalendarStyle.Month));
+        Assert.Equal(CalendarKeyCommand.Forward, CalendarFit.Key(WidgetKey.Right, CalendarStyle.Year));
+        Assert.Equal(CalendarKeyCommand.Back, CalendarFit.Key(WidgetKey.PageUp, CalendarStyle.Agenda));
+        Assert.Equal(CalendarKeyCommand.WeekBack, CalendarFit.Key(WidgetKey.Up, CalendarStyle.Month));
+        Assert.Equal(CalendarKeyCommand.WeekForward, CalendarFit.Key(WidgetKey.Down, CalendarStyle.Week));
+        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Down, CalendarStyle.Day));
+        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Up, CalendarStyle.Year));
+        Assert.Equal(CalendarKeyCommand.Today, CalendarFit.Key(WidgetKey.Home, CalendarStyle.Agenda));
+        Assert.Equal(CalendarKeyCommand.OpenFirst, CalendarFit.Key(WidgetKey.Enter, CalendarStyle.Agenda));
+        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Enter, CalendarStyle.Year));
+        Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Escape, CalendarStyle.Month));
     }
 
     /// <summary>A wall-clock time on a day in the test zone.</summary>

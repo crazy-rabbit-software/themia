@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "Pasta",
+  "styles.folder.desc": "Os arquivos de uma pasta como lista, tabela, blocos ou ícones",
+  "styles.folder.list": "Lista",
+  "styles.folder.details": "Detalhes",
+  "styles.folder.grid": "Grade",
+  "styles.folder.icons": "Ícones"
+}

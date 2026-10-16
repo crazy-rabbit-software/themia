@@ -21,7 +21,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon (two widgets, SKY-SPLIT); Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts A: display and items (PC); Folder: the file browser (FOLDER); About and the settings file.
-- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar widgets: five kinds and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
+- **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
 
@@ -749,20 +749,22 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   and lines. Two top columns under their headings, **Popular** and **Browse**; Browse is a row per
   subject; inside a subject a **family** (one widget in several layouts or parts) is one row
   opening its own submenu. Never deeper than that. The catalogue has no sections of its own any more.
-- **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast, Month
-  calendar, Agenda, Mail, Tasks, Notes, Now playing, CPU, Folder list, Shortcuts. **Browse**, in
+- **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,
+  Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcuts. **Browse**, in
   order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session | year progress);
-  **Calendar & mail** (Calendar › month, agenda, week, day, year; next meeting, week planner | mail, tasks,
+  **Calendar & mail** (calendar, next meeting, week planner | mail, tasks,
   contacts | notifications); **Weather & sky** (weather, forecast, rain next hour, air quality | sun,
   moon); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
-  Visualizer › its six designs, volume, mixer | gallery, video stream); **Notes & tools** (notes,
-  scratchpad, clipboard | habits, quote); **Files & apps** (Folder › list, details, grid, icons;
+  audio visualizer, volume, mixer | gallery, video stream); **Notes & tools** (notes,
+  scratchpad, clipboard | habits, quote); **Files & apps** (folder,
   shortcuts, recent files, recycle bin); **System** (CPU › meter, details, top processes; Memory ›,
   GPU ›, Disk › meter and disk space, Network ›, Ping ›, each a meter and its details | Screen
   time › chart, donut, apps); **Devices & power** (Battery › meter and details, Power buttons › the
   seven | brightness, Bluetooth | drive, removable drives); **Quick settings** (the thirteen
   toggles: the radios | the sound | the screen | the PC). Every kind has exactly one home; only
-  Popular shows rows again. `AddTree.On` resolves the tree against the catalogue's kinds: a folder
+  Popular shows rows again. The calendar, the audio visualizer and the folder are one widget each,
+  their former variants its styles ([S-3640], [S-3216], [S-4123]): a row of their subject, and found
+  by the variants' old names too ([S-943]). `AddTree.On` resolves the tree against the catalogue's kinds: a folder
   left with one row is that row, with none it is gone, a line stands only between two rows, and a
   kind the tree does not know stands in **More** at Browse's end, never missing, while
   `AddMenuTests` fail until it has a home.
@@ -802,7 +804,7 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   properties strip, [S-3713]), and
   `--picker-png <out.png> [--search text] [--open Subject[/Family]] [--theme light|dark]` the open
   menu, `--open` opening the cascade by `AddFolderId` names
-  (`CalendarMail/CalendarLayouts`, `System/Processor`, `QuickSettings`); the render draws the
+  (`CalendarMail`, `System/Processor`, `QuickSettings`); the render draws the
   submenus on a layer over a 1280 × 800-DIP stand-in work area, where the popups would stand.
 
 Needs a live pass: the bar on every display at mixed DPI and with a top taskbar, the menu opening
@@ -928,7 +930,10 @@ widget on the properties strip or at the top of its settings page. Owning files:
   ([S-1750]). Several selected: no gear (which one's page would it be).
 - **[S-6010]** Every styled kind's settings page has one **Style** row, the first under the kind's
   heading, built by the shared widget-page builder from the registry (a choice of the style names),
-  never by the page itself; it writes the live config and saves, as every widget row does.
+  never by the page itself; it writes the live config and saves, as every widget row does. A
+  widget page's shape is its style (`SettingsPageSync.Shape`), so a pick builds the page again (once
+  the drop-down's own event has finished): a kind whose styles use different settings shows only the
+  current style's rows ([S-3641], [S-4121]).
 
 Needs a live pass: picking a style on the strip for one widget and for several of one kind, the
 undo of it, the gear opening the right page, and the flip turning over on the desktop with Windows'
@@ -2724,7 +2729,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   with the view's other calendars and kept across pages ([S-3624]).
 - **[S-1984]** *(Retired: Page Up / Page Down page every layout, [S-2710].)*
 - **[S-2700]** A calendar widget draws only its own layout (month, week, day, year or agenda: its
-  kind, [S-3600]), at every size. No size swaps it for another layout, adds an agenda beside a
+  style, [S-3640]), at every size. No size swaps it for another layout, adds an agenda beside a
   month, or shows a single "next event" instead: each layout sheds detail within itself
   (`CalendarFit`). Unmeasured, it draws the layout at its smallest.
 - **[S-2701]** The view reads its data through one seam, `ICalendarData.LoadAsync(config, first,
@@ -2768,7 +2773,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   the layout's unit (month, week, day, year, agenda page); Up / Down the cursor day a week (month,
   week); Home today; Enter the cursor day's first event (the agenda page's first; none in the year).
   The header's arrows hide on a Compact-width tile (the keys still page).
-- **[S-2711]** *(Retired: one widget with five layout states; each calendar kind has its own renders, [S-3606].)*
+- **[S-2711]** *(Retired: one widget with five layout states; each calendar style has its own renders, [S-3606].)*
 - **[S-2716]** Agenda day headings (`CalendarFit.AgendaHeading`): today and tomorrow are "Today" and
   "Tomorrow", any other day its date ("Tue, Oct 6"). Where the heading line holds the longest
   dated heading the language writes (every weekday and month, `AgendaHeadingDated`), the two named
@@ -2787,7 +2792,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   the day or runs past it is squared off with a chevron on that side, and from 200 px names its days
   ("Oct 6 – Oct 9"). Items past the bars share the last line ([S-2706]); a box too short for one bar
   keeps the one shared chip line, and one too short for that has no band (the hover lists them).
-- **[S-2719]** Week days (`CalendarRules.WeekFirst`, `WeekStep`): the week shows `days` columns
+- **[S-2719]** Week days (`CalendarRules.WeekFirst`, `WeekStep`): the week shows `weekDays` columns
   ([S-3637]) from the first day of the week or from today. Its periods are laid end to end from
   today (from today) or from the start of today's week, one step apart: its own length from today,
   else whole weeks (5 days step Monday to Monday, 14 days two weeks). The period on screen is the
@@ -2824,46 +2829,58 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   `TYPE` (so `TEL;CELL;PREF` is preferred). Lenient: a stray `=` stays.
 - **[S-1279]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 
-## Calendar widgets: five kinds and shared dates (CAL-SPLIT)
+## Calendar: five styles and shared dates (CAL-SPLIT)
 
-The calendar's layouts are five widgets, and the calendars on one view share the day selected and
+The calendar's layouts are its five styles, and the calendars on one view share the day selected and
 the event pointed at. Kinds and configs in Core `Model/WidgetKind.cs`, `Model/Configs/OfficeConfigs.cs`;
 the sharing rules in `Office/CalendarShare.cs`; provider reading in `Office/OfficeWire.cs`,
 `Office/CalendarRules.cs`, `Office/IcsEvents.cs`. One view, `CalendarView*.cs` (`CalendarView.Links.cs`
 for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `OfficeConfigTests`
-(`S36xx_`), `CalendarShareTests`, `CalendarProviderTests`.
+(`S36xx_`), `CalendarDaysTests`, `CalendarShareTests`, `CalendarProviderTests`.
 
-- **[S-3600]** Five widget kinds, each one layout: **Month calendar** (`MonthCalendar`, 340×260),
-  **Week calendar** (`WeekCalendar`, 480×300), **Day calendar** (`DayCalendar`, 280×340), **Year
-  calendar** (`YearCalendar`, 420×300) and **Agenda** (`Agenda`, 320×300), one family of the
-  add menu (Calendar & mail › Calendar, [S-3511]), each with its own glyph. They replace Calendar (10), whose `layout`
-  setting is gone: a state file holding one drops that widget at load like any unknown kind
-  ([S-1900], [S-1050]). The kind fixes the layout (`CalendarConfig.Layout`, never stored), and each
-  keeps its size ladder ([S-2702]..[S-2709]).
-- **[S-3601]** One settings builder for all five: accounts and their calendars with colours
-  ([S-562], [S-566], [S-567]) and birthdays, plus only what the kind uses: the week's first column
-  and days ([S-3637]), the agenda's date range ([S-3636]) and length. No calendar stores a week
-  start ([S-564]); a month, day or year config stores neither the week's nor the agenda's fields.
-- **[S-3602]** One data seam and one sync for all five ([S-2701], [S-588]): two calendar widgets on
+- **[S-3600]** *(Retired: five widget kinds, one per layout; they are one kind with five styles,
+  [S-3640].)*
+- **[S-3601]** One settings builder for every calendar widget (the calendar, Next meeting, the week
+  planner): accounts and their calendars with colours ([S-562], [S-566], [S-567]) and birthdays,
+  plus only what the calendar's style uses ([S-3641]). No calendar stores a week start ([S-564]).
+- **[S-3602]** One data seam and one sync for every style ([S-2701], [S-588]): two calendar widgets on
   a desktop ask the same shared source and store, never their own.
-- **[S-3606]** Debug renders: `--widget-png <Kind> <out> --state sample|selected|linked|days` for each
-  kind: the fixed sample (two calendars, a one-day and a four-day all-day event, a trip across a
+- **[S-3606]** Debug renders: `--widget-png Calendar <out> --style month|week|day|year|agenda
+  --state sample|selected|linked|days` for each style: the fixed sample (two calendars, a one-day and a four-day all-day event, a trip across a
   week's end, an overnight event, overlaps, a long title, birthdays, a year of meetings) through a
   fixture `ICalendarData`; `selected` selects the day after tomorrow as another widget would ([S-3620]);
-  `linked` puts another widget's pointer on one event ([S-3623]); `days` sets the kind's own range
+  `linked` puts another widget's pointer on one event ([S-3623]); `days` sets the style's own range
   (the week: the next four days from today; the agenda: today and tomorrow). A card that needs
   setting up runs its view for the preview (`WidgetCard.RunForPreview`).
-- **[S-3636]** The agenda's date range (`AgendaConfig.AgendaDays`, 1–365, 30): how many days it
+- **[S-3636]** The agenda's date range (`CalendarWidgetConfig.AgendaDays`, 1–365, 30): how many days it
   covers from today, today included; it replaces the fixed 30 days in the one range path
   (`CalendarRules.ViewRange`). Settings offer Today, Today and tomorrow, 3, 7 and 30 days, and Custom,
   which shows a number of days of its own; the length (`agendaCount`) still caps the entries within
   it. A value out of range is brought inside it at load and logged.
-- **[S-3637]** The week's own days (`WeekCalendarConfig`): `days` (1–14, 7) and `firstDay`
+- **[S-3637]** The week's own days (`CalendarWidgetConfig`): `weekDays` (1–14, 7) and `weekFrom`
   (`week`, the regional first day of the week, or `today`); a working week is 5 from the week
   start, the next days any count from today ([S-2719]). Settings: "Starts on" (First day of the week
   (Monday) or Today) and "Days shown". It overrides the regional week start for this widget only and
   stores no `weekStart`; out-of-range or unknown values fall back at load (days clamped, an unknown
   first day the week start).
+- **[S-3640]** One kind, **Calendar** (`Calendar`, 71, `CalendarWidgetConfig`, discriminator
+  `calendar`, 340×260, glyph E787, Popular and Calendar & mail's first row), with five styles
+  ([S-6000]; `CalendarStyle`, stored as `"style"`, menu order): **Month** (the default, E787),
+  **Week** (E8C0), **Day** (E8BF), **Year** (EA89) and **Agenda** (E8FD). Month calendar, Week
+  calendar, Day calendar, Year calendar and Agenda were five kinds (71..75); a state file holding one
+  drops that widget at load like any unknown kind ([S-1050]). The style is the layout
+  (`CalendarConfig.Layout`): each style keeps its own size ladder ([S-2702]..[S-2709]), and the
+  range it loads (`CalendarRules.ViewRange`), its paging unit (`Step`), its title and its keys
+  (`CalendarFit.Key`) follow it. A style change re-draws from the data in hand, loads the new range
+  when it differs, starts the agenda on its first page, anchors a dated style on the selected day
+  ([S-3621]) and publishes the new range (an agenda clears its own, [S-3625]); the selected day and
+  the hovered event keep working across calendars of any styles on a view ([S-3620]..[S-3624]).
+- **[S-3641]** The config holds what every style shares and the union of the styles' own fields
+  (`weekDays`, `weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
+  (`Period`: a month, day or year is the week start alone). The settings page shows only the
+  current style's rows (`CalendarWidgetConfig.SettingsFor`): Week: "Starts on" and "Days shown";
+  Agenda: its date range and "Agenda events"; Month, Day, Year: none; then birthdays for every style.
+  Picking another style rebuilds the page ([S-6010]).
 
 Provider events ([S-560], [S-565]), as real calendars send them:
 
@@ -4732,10 +4749,9 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 - **[S-3200]** `AudioVisualizer` (kind 70, `AudioVisualizerConfig`, discriminator
   `audioVisualizer`): the spectrum of whatever the PC plays, split out of Music, which no longer
   draws it. Listed under Media beside Music; glyph `Glyphs.Visualizer` (E7F3; Equalizer is the
-  mixer's). It is the Bars design of six ([S-3210]). Every design starts headerless ([S-700]). No
-  settings of its own: the spectrum in Music was an on/off switch and nothing else, and placing the
-  widget is that switch now (the design is the choice of widget); the page carries only the card's
-  appearance rows. Accent fill (`AccentFillColorDefaultBrush`), never a typed colour.
+  mixer's). Six styles ([S-3216]). Headerless, whatever the style ([S-700], [S-3711]). No settings
+  but its style: the spectrum in Music was an on/off switch and nothing else, and placing the
+  widget is that switch now; the page carries only the Style row ([S-6010]). Accent fill (`AccentFillColorDefaultBrush`), never a typed colour.
 - **[S-3201]** The analyser (was [S-1470]): WASAPI loopback of the default render endpoint
   (console role), mixed to mono, Hann-windowed 1024-point FFT, 24 log bands from bin 1 to Nyquist,
   sqrt compression ×3.5, clamped 0..1 — the original's. Float32/Int16/Int32 mix formats; anything
@@ -4770,31 +4786,18 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   every tile, no text; the LED columns light their first cell. Only a device the capture cannot
   reach ([S-3204]) shows a sentence instead ("Audio output unavailable", the empty-state shape,
   with the design's glyph); the spectrum comes back when the worker reaches it.
-- **[S-3207]** Debug renders cannot capture sound: `--widget-png <visualizer kind> --state playing`
+- **[S-3207]** Debug renders cannot capture sound: `--widget-png AudioVisualizer --style <name> --state playing`
   draws a still synthetic spectrum, `--state unavailable` the sentence.
-- **[S-3210]** Six designs (the sixth, the waveform, is [S-3212]), six kinds, one family of the add menu (Music & media › Visualizer, [S-3511]), sharing the one capture
-  ([S-3203]), the one grouping ([S-3205]), one view (`AudioVisualizerView(kind)`) and one drawing
-  (`SpectrumCanvas`, `VisualizerStyle` from `VisualizerLayout.StyleOf(kind)`, never stored; every
-  config stores its discriminator only): **Spectrum bars** (`AudioVisualizer`, 70,
-  `audioVisualizer`), **Mirrored spectrum** (`VisualizerMirror`, 110, bars growing both ways from
-  the centre line), **Spectrum wave** (`VisualizerWave`, 111, a Catmull-Rom curve through the bands
-  with the area under it at 35 % and a 2 DIP line; Bézier controls clamped into the box, so a peak
-  never leaves it), **LED spectrum** (`VisualizerDots`, 112, columns of about-square cells, at most
-  24, lit from the base, unlit cells at 18 %; a level lights ceil(level × cells), at least one),
-  **Radial spectrum** (`VisualizerRadial`, 113, 240×240 default; spokes standing on a ring at 42 %
-  of the half short side and reaching the nearer edge at full level, the bands top to bottom
-  down each side, the left the right's mirror; the per-side count the largest of 24/12/8/6 whose
-  spokes stay ≥ 3 DIP at the ring). Glyphs E7F3, F4C3 MixVolumes, E9D9 Diagnostic, F232
-  GridViewSmall, E706 Brightness.
+- **[S-3210]** *(Retired: six designs as six kinds, `VisualizerStyle` from the kind; they are one
+  kind with six styles, [S-3216].)*
 - **[S-3211]** A frame writes numbers only, never allocates: a scale per bar or spoke, the opacity of
   the LED cells whose state changed, the wave's Bézier points. Shapes are placed once per layout
   (the LED pool only grows), so the cost per frame is the same as the bars'.
-- **[S-3212]** A sixth design (issue #136, a line like an ECG that moves with the music):
-  **Waveform** (`VisualizerScope`, 132, `visualizerScope`, glyph E95E Health): not a spectrum but
-  the sound itself, one accent line (`AccentFillColorDefaultBrush`) swinging about the centre line,
-  like an oscilloscope. Same family, view, drawing and capture; never a header ([S-3711]); no
-  settings.
-- **[S-3213]** Its plan (`VisualizerLayout.Plan`, `VisualizerStyle.Scope`): along the long side like
+- **[S-3212]** The sixth style (issue #136, a line like an ECG that moves with the music):
+  **Waveform** (glyph E95E Health): not a spectrum but the sound itself, one accent line
+  (`AccentFillColorDefaultBrush`) swinging about the centre line, like an oscilloscope. Same view,
+  drawing and capture; never a header ([S-3711]).
+- **[S-3213]** Its plan (`VisualizerLayout.Plan`, `AudioVisualizerStyle.Waveform`): along the long side like
   the linear designs (down a Tall column), a point every 4 DIP (`ScopeStep`) from 16 up to the
   trace's 128 (`Oscilloscope.Points`), the line 2 to 4 DIP thick (short side / 60), the swing the
   short side less the line's half-thickness. `Oscilloscope.Resample` fits the 128-point trace to
@@ -4809,6 +4812,23 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 - **[S-3215]** While sound arrives the line is the fresh trace; when it stops the line fades ×0.8 a
   frame and points under 0.01 are zero, so it lies flat (the design's idle, [S-3206]) in about half
   a second; the worker delivers while the line or a bar moves, then goes idle as before ([S-3202]).
+- **[S-3216]** One kind, `AudioVisualizer` (70, `AudioVisualizerConfig`, `audioVisualizer`,
+  320×160), with six styles ([S-6000]; `AudioVisualizerStyle`, stored as `"style"`, menu order)
+  sharing the one capture ([S-3203]), the one grouping ([S-3205]), one view (`AudioVisualizerView`)
+  and one drawing (`SpectrumCanvas`): **Bars** (the default, E7F3), **Mirrored** (F4C3 MixVolumes,
+  bars growing both ways from the centre line), **Wave** (E9D9 Diagnostic, a Catmull-Rom curve
+  through the bands with the area under it at 35 % and a 2 DIP line; Bézier controls clamped into
+  the box, so a peak never leaves it), **LED** (F232 GridViewSmall, columns of about-square cells,
+  at most 24, lit from the base, unlit cells at 18 %; a level lights ceil(level × cells), at least
+  one), **Radial** (E706 Brightness; spokes standing on a ring at 42 % of the half short side and
+  reaching the nearer edge at full level, the bands top to bottom down each side, the left the
+  right's mirror; the per-side count the largest of 24/12/8/6 whose spokes stay ≥ 3 DIP at the ring)
+  and **Waveform** ([S-3212]). Spectrum bars, Mirrored spectrum, Spectrum wave, LED spectrum, Radial
+  spectrum and Waveform were six kinds (70, 110..113, 132); a state file holding one of the five
+  removed drops that widget at load ([S-1050]). Their names still find it in search ([S-943]).
+- **[S-3217]** A style change ([S-6005]) replaces the drawing with one of the new style, laid out
+  for the tile at once and drawn from the newest frame; the capture lease is held throughout, so
+  nothing restarts.
 - Not live-verified: loopback capture against real output and device-switch healing, the
   unavailable sentence on a machine with no output device, the idle cadence's CPU cost, and the
   capture stopping under game mode.
@@ -5668,17 +5688,17 @@ the original had is ported, what it never had is recorded here and not built.
 
 ## Folder: the file browser (FOLDER)
 
-Original: `widgets/office/folder` on `main` (SPEC S-01..S-67). Four kinds, one per layout ([S-4120]). View: `Widgets/FolderView{,.Render,.Input,.Commands}.cs`;
+Original: `widgets/office/folder` on `main` (SPEC S-01..S-67). One kind, four styles ([S-4123]). View: `Widgets/FolderView{,.Render,.Input,.Commands}.cs`;
 file interop services (reusable by Shortcuts and the shell): `Services/Files/{DragDropInterop,FileClipboard,ShellFileOps,
 ShellContextMenu,ShellNewTemplates,FolderWatch,FileIcons,GitStatus}.cs`; rules in Core `Widgets/Folder{Columns,Filter,
 Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,FileDescriptors,FileNames}.cs`; tests
 `FolderBrowserTests` (+ `FolderKindsTests`, `FolderRulesTests`, `FolderFormattingTests`, `FolderPathTests`).
 
-- **[S-1320]** Settings (orig. S-14..S-24, S-58), stored per kind ([S-4121]): `Path` (empty = profile), `ItemSize`
+- **[S-1320]** Settings (orig. S-14..S-24, S-58), one config for every style ([S-4121]): `Path` (empty = profile), `ItemSize`
   ExtraSmall/Small/Medium/Large (rows 24/28/32/40, icons 12/14/16/20), `TileSize` Small/Medium/Large (80x90/110x120/150x160,
   icons 32/48/64), `Columns` (ordered; default Size, Modified, Type; `Repair` drops unknown/repeats loudly),
   `Navigation` Explorer/Navigate, `ClickMode` (`ItemClickMode`, default Double), `Sort`/`Descending`,
-  `ShowHidden`, `ShowExtensions` (default off). `ShowDetail`/`MaxCount`, and since [S-4121] `View`, `StretchTiles`,
+  `ShowHidden`, `ShowExtensions` (default off), `Style`. `ShowDetail`/`MaxCount`, and since [S-4121] `View`, `StretchTiles`,
   `Filter` and `FoldersFirst`, are gone (no compatibility).
 - **[S-1321]** The header search (orig. S-21, S-50): comma-separated keywords, OR, case-insensitive substring; it is the
   only filter (the stored keyword filter is gone, [S-4121]). Names hide the extension unless `ShowExtensions` (folders and
@@ -5744,20 +5764,27 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   are settings only ([S-1746]).
 - **[S-1336]** Tests use made-up paths and byte buffers only; no test touches a real file.
 - **[S-1339]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-4120]** One widget kind per layout, one family of the add menu (Files & apps › Folder, [S-3511]), one view (`FolderView(kind)`) and one
-  settings builder (`WidgetSettings.Folder`) for all four: **Folder list** (`Folder`, 17, `folder`, `FolderListConfig`,
-  300×280), **Folder details** (`FolderDetails`, 114, `folderDetails`, 440×280), **Folder grid** (`FolderGrid`, 115,
-  `folderGrid`, 380×300) and **Folder icons** (`FolderIcons`, 116, `folderIcons`, 300×200). The layout follows from the
-  kind (`FolderConfig.View`, `FolderConfig.ViewOf(kind)`, never stored); the list keeps the original kind. Glyphs E8B7,
-  F12B FolderHorizontal, ECA5 Tiles, F0E2 GridView.
-- **[S-4121]** Each kind stores and shows only what its layout draws (user decision 2026-10-12). Every kind: the folder,
-  Open files with (double / single click), Open folders (Explorer / inside the widget), Show hidden items. List: row size,
-  file extensions, Sort by + Reverse. Details: row size, columns, file extensions; no sort row (its column headers sort,
-  saved). Grid: tile size (default Medium), file extensions, Sort by + Reverse. Icons: tile size (default Small), Sort by
-  + Reverse; no extensions (it draws no names; a rename there edits the stem). Retired for every kind: the stored keyword
-  filter (the header search covers it), Folders first (always on), Stretch tiles (tiles keep their preset height).
-- **[S-4122]** Debug renders: `--widget-png <Folder|FolderDetails|FolderGrid|FolderIcons> <out> --state web|wallpapers`
-  lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile.
+- **[S-4120]** *(Retired: one widget kind per layout; they are one kind with four styles, [S-4123].)*
+- **[S-4121]** Each style shows only what it draws (user decision 2026-10-12;
+  `FolderConfig.SettingsFor`), and the config holds the union, a style ignoring the rest (`Rows`,
+  `Tiles`, `Extensions`, `DetailColumns` read a neutral value where the style draws none). Every
+  style: the folder, Open files with (double / single click), Open folders (Explorer / inside the
+  widget), Show hidden items. List: row size, file extensions, Sort by + Reverse. Details: row size,
+  columns, file extensions; no sort row (its column headers sort, saved). Grid: tile size, file
+  extensions, Sort by + Reverse. Icons: tile size, Sort by + Reverse; no extensions (it draws no
+  names; a rename there edits the stem). One tile size for grid and icons (default Medium). Picking
+  another style rebuilds the page ([S-6010]). Retired for every style: the stored keyword filter (the
+  header search covers it), Folders first (always on), Stretch tiles (tiles keep their preset height).
+- **[S-4122]** Debug renders: `--widget-png Folder <out> --style list|details|grid|icons --state web|wallpapers`
+  lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile;
+  `--settings-png Widget:Folder <out> --style <name>` its settings page in that style.
+- **[S-4123]** One kind, **Folder** (`Folder`, 17, `FolderConfig`, `folder`, 300×280, glyph E8B7), with
+  four styles ([S-6000]; `FolderStyle`, stored as `"style"`, menu order): **List** (the default,
+  E8B7), **Details** (F12B FolderHorizontal), **Grid** (ECA5 Tiles) and **Icons** (F0E2 GridView).
+  One view (`FolderView`) reads the style from its config: a change re-lays and re-draws what is in
+  hand, the listing, selection and history kept. Folder details, Folder grid and Folder icons were
+  kinds of their own (114..116); a state file holding one drops that widget at load ([S-1050]).
+  Their names still find the folder in search ([S-943]).
 
 Not ported: header double-click opens Explorer (orig. S-07; the card owns the header, so "Open in Explorer" is in the card
 menu); image-item inline toggles (orig. S-29). Needs live verification: drag in/out with

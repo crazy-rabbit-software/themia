@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "ফোল্ডার",
+  "styles.folder.desc": "ফোল্ডারের ফাইল তালিকা, সারণি, টাইল বা আইকন হিসেবে",
+  "styles.folder.list": "তালিকা",
+  "styles.folder.details": "বিবরণ",
+  "styles.folder.grid": "গ্রিড",
+  "styles.folder.icons": "আইকন"
+}

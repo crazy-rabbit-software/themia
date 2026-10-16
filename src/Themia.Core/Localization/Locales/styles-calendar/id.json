@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "Kalender",
+  "styles.calendar.desc": "Acara dan ulang tahun Anda per bulan, minggu, hari, atau tahun, atau sebagai agenda",
+  "styles.calendar.month": "Bulan",
+  "styles.calendar.week": "Minggu",
+  "styles.calendar.day": "Hari",
+  "styles.calendar.year": "Tahun",
+  "styles.calendar.agenda": "Agenda"
+}

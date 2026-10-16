@@ -6,8 +6,6 @@
   "dateWidget.label": "Petsa",
   "dateWidget.desc": "Ang araw ng linggo at petsa ngayon, ginawa para sa wallpaper",
   "dateWidget.showYear": "Ipakita ang taon",
-  "variants.visualizer.scope.label": "Waveform",
-  "variants.visualizer.scope.desc": "Isang linyang gumuguhit ng mismong tunog, gaya ng oscilloscope",
   "planner.label": "Planner ng linggo",
   "planner.desc": "Ang mga susunod na araw kasama ang kanilang mga event, at ang dapat tapusin ngayon",
   "planner.tasksHeader": "Mga gawain ngayon",

@@ -6,8 +6,6 @@
   "dateWidget.label": "Data",
   "dateWidget.desc": "O dia da semana e a data de hoje, feitos para o papel de parede",
   "dateWidget.showYear": "Mostrar o ano",
-  "variants.visualizer.scope.label": "Forma de onda",
-  "variants.visualizer.scope.desc": "Uma linha que desenha o próprio som, como um osciloscópio",
   "planner.label": "Planejador semanal",
   "planner.desc": "Os próximos dias com seus eventos e o que vence hoje",
   "planner.tasksHeader": "Tarefas de hoje",

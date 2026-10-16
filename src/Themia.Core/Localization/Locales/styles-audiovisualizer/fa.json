@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "نمایشگر صدا",
+  "styles.audioVisualizer.desc": "آنچه این رایانه پخش می‌کند، به شکل میله، موج یا خط",
+  "styles.audioVisualizer.bars": "میله‌ها",
+  "styles.audioVisualizer.mirrored": "قرینه",
+  "styles.audioVisualizer.wave": "موج",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "دایره‌ای",
+  "styles.audioVisualizer.waveform": "شکل موج"
+}

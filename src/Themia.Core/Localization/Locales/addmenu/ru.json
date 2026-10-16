@@ -12,9 +12,6 @@
   "addMenu.subject.system": "Система",
   "addMenu.subject.devices": "Устройства и питание",
   "addMenu.subject.more": "Ещё",
-  "addMenu.family.calendar": "Календарь",
-  "addMenu.family.visualizer": "Визуализатор",
-  "addMenu.family.folder": "Папка",
   "addMenu.family.screenTime": "Экранное время",
   "addMenu.family.powerButtons": "Кнопки питания"
 }

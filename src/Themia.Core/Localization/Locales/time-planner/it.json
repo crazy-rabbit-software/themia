@@ -6,8 +6,6 @@
   "dateWidget.label": "Data",
   "dateWidget.desc": "Il giorno della settimana e la data di oggi, pensati per lo sfondo",
   "dateWidget.showYear": "Mostra l’anno",
-  "variants.visualizer.scope.label": "Forma d’onda",
-  "variants.visualizer.scope.desc": "Una linea che traccia il suono stesso, come un oscilloscopio",
   "planner.label": "Agenda settimanale",
   "planner.desc": "I prossimi giorni con i loro eventi e ciò che scade oggi",
   "planner.tasksHeader": "Attività di oggi",

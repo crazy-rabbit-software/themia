@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "오디오 비주얼라이저",
+  "styles.audioVisualizer.desc": "이 PC에서 재생 중인 소리를 막대, 파동 또는 선으로 표시",
+  "styles.audioVisualizer.bars": "막대",
+  "styles.audioVisualizer.mirrored": "미러",
+  "styles.audioVisualizer.wave": "파동",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "원형",
+  "styles.audioVisualizer.waveform": "파형"
+}

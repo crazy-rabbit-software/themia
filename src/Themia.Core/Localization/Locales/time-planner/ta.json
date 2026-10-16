@@ -6,8 +6,6 @@
   "dateWidget.label": "தேதி",
   "dateWidget.desc": "இன்றைய கிழமையும் தேதியும், வால்பேப்பருக்காக உருவாக்கப்பட்டது",
   "dateWidget.showYear": "ஆண்டைக் காட்டு",
-  "variants.visualizer.scope.label": "அலைவடிவம்",
-  "variants.visualizer.scope.desc": "அலைக்காட்டியைப் போல ஒலியையே வரையும் ஒரு கோடு",
   "planner.label": "வாராந்திரத் திட்டமிடுபவர்",
   "planner.desc": "வரும் நாட்கள் அவற்றின் நிகழ்வுகளுடன், இன்று முடிக்க வேண்டியவை",
   "planner.tasksHeader": "இன்றைய பணிகள்",

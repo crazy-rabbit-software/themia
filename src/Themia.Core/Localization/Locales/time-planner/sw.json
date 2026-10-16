@@ -6,8 +6,6 @@
   "dateWidget.label": "Tarehe",
   "dateWidget.desc": "Siku ya wiki na tarehe ya leo, imeundwa kwa ajili ya mandhari",
   "dateWidget.showYear": "Onyesha mwaka",
-  "variants.visualizer.scope.label": "Umbo la wimbi",
-  "variants.visualizer.scope.desc": "Mstari unaochora sauti yenyewe, kama osiloskopu",
   "planner.label": "Mpangaji wa wiki",
   "planner.desc": "Siku zijazo pamoja na matukio yake, na kinachopaswa kufanywa leo",
   "planner.tasksHeader": "Kazi za leo",

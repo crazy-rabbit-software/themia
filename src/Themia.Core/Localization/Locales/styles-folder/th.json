@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.folder.label": "โฟลเดอร์",
+  "styles.folder.desc": "ไฟล์ในโฟลเดอร์เป็นรายการ ตาราง ไทล์ หรือไอคอน",
+  "styles.folder.list": "รายการ",
+  "styles.folder.details": "รายละเอียด",
+  "styles.folder.grid": "ตาราง",
+  "styles.folder.icons": "ไอคอน"
+}

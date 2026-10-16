@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "Аудиовизуализатор",
+  "styles.audioVisualizer.desc": "То, что играет этот ПК, — столбцами, волной или линией",
+  "styles.audioVisualizer.bars": "Столбцы",
+  "styles.audioVisualizer.mirrored": "Зеркально",
+  "styles.audioVisualizer.wave": "Волна",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "Круг",
+  "styles.audioVisualizer.waveform": "Осциллограмма"
+}

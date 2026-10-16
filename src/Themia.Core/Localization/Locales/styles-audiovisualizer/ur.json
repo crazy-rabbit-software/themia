@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "آڈیو ویژولائزر",
+  "styles.audioVisualizer.desc": "یہ پی سی جو چلا رہا ہے، بارز، لہر یا لکیر کی صورت میں",
+  "styles.audioVisualizer.bars": "بارز",
+  "styles.audioVisualizer.mirrored": "عکسی",
+  "styles.audioVisualizer.wave": "لہر",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "دائروی",
+  "styles.audioVisualizer.waveform": "لہر کی شکل"
+}

@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "달력",
+  "styles.calendar.desc": "일정과 생일을 월, 주, 일, 연 또는 일정 목록으로 표시",
+  "styles.calendar.month": "월",
+  "styles.calendar.week": "주",
+  "styles.calendar.day": "일",
+  "styles.calendar.year": "연",
+  "styles.calendar.agenda": "일정 목록"
+}

@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "ক্যালেন্ডার",
+  "styles.calendar.desc": "আপনার ইভেন্ট ও জন্মদিন মাস, সপ্তাহ, দিন বা বছর অনুযায়ী, বা এজেন্ডা হিসেবে",
+  "styles.calendar.month": "মাস",
+  "styles.calendar.week": "সপ্তাহ",
+  "styles.calendar.day": "দিন",
+  "styles.calendar.year": "বছর",
+  "styles.calendar.agenda": "এজেন্ডা"
+}

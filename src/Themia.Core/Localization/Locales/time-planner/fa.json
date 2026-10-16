@@ -6,8 +6,6 @@
   "dateWidget.label": "تاریخ",
   "dateWidget.desc": "روز هفته و تاریخ امروز، ساخته‌شده برای تصویر زمینه",
   "dateWidget.showYear": "نمایش سال",
-  "variants.visualizer.scope.label": "شکل موج",
-  "variants.visualizer.scope.desc": "خطی که خودِ صدا را رسم می‌کند، مانند اسیلوسکوپ",
   "planner.label": "برنامه‌ریز هفته",
   "planner.desc": "روزهای پیش رو با رویدادهایشان، و آنچه امروز سررسید دارد",
   "planner.tasksHeader": "کارهای امروز",

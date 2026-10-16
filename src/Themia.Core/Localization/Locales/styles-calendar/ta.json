@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.calendar.label": "நாள்காட்டி",
+  "styles.calendar.desc": "உங்கள் நிகழ்வுகளும் பிறந்தநாள்களும் மாதம், வாரம், நாள், ஆண்டு வாரியாக அல்லது நிகழ்ச்சிநிரலாக",
+  "styles.calendar.month": "மாதம்",
+  "styles.calendar.week": "வாரம்",
+  "styles.calendar.day": "நாள்",
+  "styles.calendar.year": "ஆண்டு",
+  "styles.calendar.agenda": "நிகழ்ச்சிநிரல்"
+}

@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.label": "ఆడియో విజువలైజర్",
+  "styles.audioVisualizer.desc": "ఈ PC ప్లే చేస్తున్నది బార్‌లు, తరంగం లేదా గీతగా",
+  "styles.audioVisualizer.bars": "బార్‌లు",
+  "styles.audioVisualizer.mirrored": "ప్రతిబింబం",
+  "styles.audioVisualizer.wave": "తరంగం",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.radial": "వృత్తాకారం",
+  "styles.audioVisualizer.waveform": "తరంగ రూపం"
+}

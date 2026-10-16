@@ -12,9 +12,6 @@
   "addMenu.subject.system": "系統",
   "addMenu.subject.devices": "裝置和電源",
   "addMenu.subject.more": "更多",
-  "addMenu.family.calendar": "行事曆",
-  "addMenu.family.visualizer": "視覺效果",
-  "addMenu.family.folder": "資料夾",
   "addMenu.family.screenTime": "螢幕使用時間",
   "addMenu.family.powerButtons": "電源按鈕"
 }

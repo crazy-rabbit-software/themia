@@ -32,8 +32,8 @@ public static class CalendarShare
     /// week, day and year bring it into view (their anchor becomes it, so a month pages only when the
     /// day is in another month); the agenda keeps its own range and moves its page instead ([S-3622]).
     /// </summary>
-    public static DateOnly AnchorFor(CalendarLayout layout, DateOnly anchor, DateOnly selected)
-        => layout == CalendarLayout.Agenda ? anchor : selected;
+    public static DateOnly AnchorFor(CalendarStyle layout, DateOnly anchor, DateOnly selected)
+        => layout == CalendarStyle.Agenda ? anchor : selected;
 
     /// <summary>
     /// [S-3622] The agenda page that holds <paramref name="date"/>: the one whose rows include the first

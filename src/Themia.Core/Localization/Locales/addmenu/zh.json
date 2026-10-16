@@ -12,9 +12,6 @@
   "addMenu.subject.system": "系统",
   "addMenu.subject.devices": "设备和电源",
   "addMenu.subject.more": "更多",
-  "addMenu.family.calendar": "日历",
-  "addMenu.family.visualizer": "可视化效果",
-  "addMenu.family.folder": "文件夹",
   "addMenu.family.screenTime": "屏幕使用时间",
   "addMenu.family.powerButtons": "电源按钮"
 }
