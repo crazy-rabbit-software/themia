@@ -61,6 +61,10 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
     private MediaPlayerElement? _videoElement;
     private MediaPlayer? _player;
     private MediaSource? _videoSource;
+
+    /// <summary>[S-6602] The HLS source, kept to re-cap it when the tile changes size, and its renditions.</summary>
+    private AdaptiveMediaSource? _adaptive;
+    private IReadOnlyList<HlsVariant> _variants = [];
     private bool _showingVideo;
     private DecodeTarget _target = new(320, 240, StreamFit.Contain, false);
     private bool _detached;
@@ -270,6 +274,28 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
             (int)Math.Ceiling(_area.Height * scale),
             _config.EffectiveFit,
             VideoStreamRules.IsSideways(_config.EffectiveRotation));
+        CapBitrate();
+    }
+
+    /// <summary>
+    /// [S-6602] Cap the HLS player at the smallest rendition that fills the tile at its physical size
+    /// (turned sideways, the other way round); no cap when none does or the sizes are not declared.
+    /// </summary>
+    private void CapBitrate()
+    {
+        if (_adaptive is not { } adaptive)
+        {
+            return;
+        }
+
+        var (width, height) = _target.Sideways ? (_target.Height, _target.Width) : (_target.Width, _target.Height);
+        var cap = HlsVariants.CapFor(_variants, width, height, cover: _target.Fit != StreamFit.Contain);
+
+        if (adaptive.DesiredMaxBitrate != (uint?)cap)
+        {
+            adaptive.DesiredMaxBitrate = (uint?)cap;
+            Log.Debug(Scope, cap is { } bits ? $"capped at {bits} bit/s for {width}x{height}" : "not capped");
+        }
     }
 
     // ---- IStreamSink -----------------------------------------------------------------------------
@@ -316,7 +342,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         }
     }
 
-    void IStreamSink.OnVideo(Uri uri, StreamTransport transport)
+    void IStreamSink.OnVideo(Uri uri, StreamTransport transport, IReadOnlyList<HlsVariant> variants)
     {
         if (_detached || _session is null)
         {
@@ -324,6 +350,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         }
 
         _transport = transport;
+        _variants = variants;
         _ = PlayVideoAsync(uri, transport);
     }
 
@@ -350,6 +377,14 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
                 }
 
                 source = MediaSource.CreateFromAdaptiveMediaSource(adaptive.MediaSource);
+
+                // Re-pointed, paused or hidden while the playlist was opening: not this session's.
+                if (!_detached && ReferenceEquals(session, _session))
+                {
+                    _adaptive = adaptive.MediaSource;
+                    _adaptive.InitialBitrate = InitialFor(_adaptive);
+                    CapBitrate();
+                }
             }
             else
             {
@@ -376,6 +411,15 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
             Log.Warn(Scope, "could not start the video player", ex);
             VideoFailed(Str.WidgetsC_VideoStream_CannotPlay.Text());
         }
+    }
+
+    /// <summary>[S-6602] Start at the highest rendition under the cap rather than above it and stepping down.</summary>
+    private uint InitialFor(AdaptiveMediaSource adaptive)
+    {
+        var (width, height) = _target.Sideways ? (_target.Height, _target.Width) : (_target.Width, _target.Height);
+        var cap = HlsVariants.CapFor(_variants, width, height, cover: _target.Fit != StreamFit.Contain);
+        var fitting = adaptive.AvailableBitrates.Where(b => cap is not { } c || b <= c).ToList();
+        return fitting.Count > 0 ? fitting.Max() : adaptive.InitialBitrate;
     }
 
     private void EnsurePlayer()
@@ -482,6 +526,8 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         // The source holds the connection and, for HLS, the playlist's refresh timer.
         _videoSource?.Dispose();
         _videoSource = null;
+        _adaptive = null;
+        _variants = [];
 
         if (_videoElement is not null)
         {

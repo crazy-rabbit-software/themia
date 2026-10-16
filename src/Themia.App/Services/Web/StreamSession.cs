@@ -49,8 +49,11 @@ internal interface IStreamSink
     /// <summary>A decoded frame. The sink owns it and must dispose it.</summary>
     void OnFrame(SoftwareBitmap frame, FrameFacts facts);
 
-    /// <summary>The address is a video Windows can play itself; the sink takes it from here.</summary>
-    void OnVideo(Uri uri, StreamTransport transport);
+    /// <summary>
+    /// The address is a video Windows can play itself; the sink takes it from here. For an HLS master
+    /// playlist, <paramref name="variants"/> are its renditions ([S-6602]); otherwise empty.
+    /// </summary>
+    void OnVideo(Uri uri, StreamTransport transport, IReadOnlyList<HlsVariant> variants);
 }
 
 /// <summary>
@@ -287,9 +290,15 @@ internal sealed class StreamSession : IDisposable
                         return await ReadImageAsync(response, token).ConfigureAwait(false);
 
                     case StreamTransport.Video:
-                    case StreamTransport.Hls:
                         // The player opens its own connection; this one only had to say what it was.
-                        Post(() => _sink.OnVideo(_uri, transport));
+                        Post(() => _sink.OnVideo(_uri, transport, []));
+                        return (Outcome.Done, null);
+
+                    case StreamTransport.Hls:
+                        // [S-6602] The playlist is read here for its renditions, so the player can be
+                        // capped at the one the tile needs; the player opens its own connection.
+                        var variants = HlsVariants.Parse(await ReadPlaylistAsync(response, token).ConfigureAwait(false));
+                        Post(() => _sink.OnVideo(_uri, transport, variants));
                         return (Outcome.Done, null);
 
                     default:
@@ -366,6 +375,36 @@ internal sealed class StreamSession : IDisposable
         {
             ArrayPool<byte>.Shared.Return(buffer);
         }
+    }
+
+    /// <summary>
+    /// [S-6602] The playlist's text, or null when it is longer than a master playlist ever is
+    /// (<see cref="HlsVariants.MaxPlaylistChars"/>): then the player plays it uncapped.
+    /// </summary>
+    private static async Task<string?> ReadPlaylistAsync(HttpResponseMessage response, CancellationToken token)
+    {
+        if (response.Content.Headers.ContentLength is > HlsVariants.MaxPlaylistChars)
+        {
+            return null;
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
+        using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+        var buffer = new char[HlsVariants.MaxPlaylistChars + 1];
+        var read = 0;
+
+        while (read < buffer.Length)
+        {
+            var n = await reader.ReadAsync(buffer.AsMemory(read), token).ConfigureAwait(false);
+            if (n == 0)
+            {
+                break;
+            }
+
+            read += n;
+        }
+
+        return read > HlsVariants.MaxPlaylistChars ? null : new string(buffer, 0, read);
     }
 
     private async Task<(Outcome, string?)> ReadImageAsync(HttpResponseMessage response, CancellationToken token)
