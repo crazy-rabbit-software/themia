@@ -19,6 +19,7 @@ namespace Themia.Core.Model;
 /// <param name="Style">[S-6007] Their style, or null when they differ.</param>
 /// <param name="Items">[S-6521] Their own item background, or null for the app-wide one (or when they differ, see <paramref name="ItemsMixed"/>).</param>
 /// <param name="ItemsMixed">[S-6521] They do not share one item background.</param>
+/// <param name="Scale">[S-6531] Their own content scale, or null when they differ.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
@@ -30,7 +31,8 @@ public sealed record QuickSetOffer(
     WidgetKind? StyleKind = null,
     int? Style = null,
     ItemLayer? Items = null,
-    bool ItemsMixed = false)
+    bool ItemsMixed = false,
+    double? Scale = 1.0)
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -88,13 +90,16 @@ public static class QuickSet
 
         var (items, itemsMixed) = CommonItems(widgets);
 
+        // [S-6531] Read as stored, so two widgets at the same percentage always share it.
+        var scale = Common(widgets.Select(w => WidgetScale.Normalise(w.Scale)));
+
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, itemsMixed);
+            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, itemsMixed, scale);
         }
 
-        return new QuickSetOffer(widgets.Count, header, surface, null, null, null, hasHeader, styleKind, style, items, itemsMixed);
+        return new QuickSetOffer(widgets.Count, header, surface, null, null, null, hasHeader, styleKind, style, items, itemsMixed, scale);
     }
 
     /// <summary>
@@ -210,6 +215,16 @@ public static class QuickSet
     {
         var value = ItemLook.Opacity(opacity);
         return Apply(view, ids, w => w.ItemBackground is { } own && Math.Abs(own.Opacity - value) >= 0.001 && Set(() => own.Opacity = value));
+    }
+
+    /// <summary>
+    /// [S-6531] Set the content scale of every selected widget of <paramref name="view"/>, as stored
+    /// (<see cref="WidgetScale.Normalise"/>). Returns how many changed.
+    /// </summary>
+    public static int SetScale(ViewState view, IEnumerable<string> ids, double scale)
+    {
+        var value = WidgetScale.Normalise(scale);
+        return Apply(view, ids, w => !w.Scale.Equals(value) && Set(() => w.Scale = value));
     }
 
     /// <summary>[S-3704] Set one widget's title from what was typed. False when nothing changed or the widget is gone.</summary>

@@ -637,6 +637,12 @@ public sealed class AppStateStore : IAsyncDisposable
                 }
             }
 
+            // [S-6533] A scale outside 50–200 % or off the 5 % grain: the nearest one it may hold.
+            if (WidgetScale.Repair(widget) is { } scale)
+            {
+                repairs.Add($"widget '{widget.Id}': {scale}");
+            }
+
             if (!Enum.IsDefined(widget.Header))
             {
                 widget.Header = HeaderPlacement.Top;

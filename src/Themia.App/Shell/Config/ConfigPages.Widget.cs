@@ -104,10 +104,37 @@ internal static partial class ConfigPages
                 }));
     }
 
+    /// <summary>[S-6534] The widget's own content scale, 50–200 % in 5 % steps, writing the instance and saving.</summary>
+    private static Border ScaleRow(WidgetInstance widget, Action save)
+        => FluentLayout.Row(Glyphs.Scale, Str.Widget_Scale_Label.Text(), Str.Widget_Scale_Desc.Text(),
+            FluentLayout.Slider(
+                WidgetScale.Percent(widget.Scale),
+                WidgetScale.Min * 100,
+                WidgetScale.Max * 100,
+                WidgetScale.Step * 100,
+                "%",
+                value =>
+                {
+                    var scale = WidgetScale.Normalise(value / 100);
+                    if (!scale.Equals(widget.Scale))
+                    {
+                        widget.Scale = scale;
+                        save();
+                    }
+                }),
+            "zoom", "size", "text size", "magnify", "scale");
+
     private static SettingsPage WidgetPage(WidgetInstance widget, Action<ConfigTarget> navigate, Action save)
     {
         var definition = WidgetCatalog.Definition(widget.Kind);
         var rows = WidgetRows(widget, navigate, save);
+
+        // [S-6534] Every page has the widget's own Scale, the last row of its first section (what it
+        // shows). Added here, not in WidgetRows, so a kind with no rows of its own still has no page
+        // ([S-1750]); its scale is on the properties panel.
+        var section = rows.Count > 1 ? rows.FindIndex(1, FluentLayout.IsHeader) : -1;
+        rows.Insert(section < 0 ? rows.Count : section, ScaleRow(widget, save));
+
         return Page(string.IsNullOrWhiteSpace(widget.Label) ? definition.Label : widget.Label!, rows, definition.Description);
     }
 

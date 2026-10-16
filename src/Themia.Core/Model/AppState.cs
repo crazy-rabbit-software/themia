@@ -33,6 +33,13 @@ public sealed class WidgetInstance
     /// </summary>
     public ItemLayer? ItemBackground { get; set; }
 
+    /// <summary>
+    /// [S-6530] This widget's own content scale, a factor (1 is 100 %): 0.5..2 on a 5 % grain
+    /// (<see cref="WidgetScale"/>). It multiplies the display's scale ([S-6532]); like it, it magnifies
+    /// what is inside the card, never the card's cell.
+    /// </summary>
+    public double Scale { get; set; } = 1.0;
+
     /// <summary>Never null after a successful load; a missing or mismatched config is repaired to the kind's default.</summary>
     public required WidgetConfig Config { get; set; }
 
@@ -117,6 +124,7 @@ public sealed class WidgetInstance
         Surface = Surface,
         Header = Header,
         ItemBackground = ItemBackground?.Clone(),
+        Scale = Scale,
         Config = Config.Clone(),
         X = X,
         Y = Y,

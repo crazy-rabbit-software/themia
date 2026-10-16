@@ -897,9 +897,9 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: a Title row (a box 32 tall, the kind's name as its placeholder), then
-  Style ([S-6007]), Header, Background and Item background ([S-6521]), and the Settings row
-  ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind only), Header,
-  Background and Item background, and **no title** and no Settings: a title names one widget, so
+  Style ([S-6007]), Header, Background, Item background ([S-6521]) and Scale ([S-6531]), and the
+  Settings row ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind
+  only), Header, Background, Item background and Scale, and **no title** and no Settings: a title names one widget, so
   one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
@@ -911,8 +911,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   title or the kind's name itself. A commit that changes nothing records no step; one cut off by a
   click on another widget still lands, on the widget it was typed for. A change made elsewhere
   never replaces text half typed in the box.
-- **[S-3705]** The widget settings page has no Header, Background or Title row and no Delete row:
-  it holds the widget's own options, then a Danger section only when the widget has a danger row
+- **[S-3705]** The widget settings page has no Header, Background or Title row and no Delete row
+  (its one card row is Scale, [S-6534]): it holds the widget's own options, then a Danger section only when the widget has a danger row
   (`FluentLayout.DangerRow`, e.g. clearing the clipboard history). Delete stays on the card menu, the Delete key and
   the undo notice ([S-1743]).
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
@@ -961,11 +961,36 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   which never gives a widget following the app-wide layer one of its own). The offer reads the
   shared layer, none, or mixed (`QuickSet.CommonItems`; own and none together are mixed). Each pick
   is one `Mutate`, one undo step.
+- **[S-6530]** Each widget has a **scale of its own** (`WidgetInstance.Scale`, a factor, 1 = 100 %),
+  50–200 % on a 5 % grain (`WidgetScale.Normalise`: clamped and rounded; not a number is 100 %).
+  A new widget is at 100 %; a copy keeps its scale. It magnifies the whole card's content —
+  header, text, icons, padding, the [S-850] way — never the card's cell, which stays where it is
+  and the same size.
+- **[S-6531]** The properties panel's **Scale** row, after Item background (and Item opacity),
+  before Settings: a drop-down showing the scale's icon and percentage (a dash when the selected
+  widgets differ, `QuickSet.Common` over the stored values) whose menu offers 75, 90, 100, 110,
+  125 and 150 % (`WidgetScale.Steps`) and ticks the current one; a scale the settings page set
+  between them is listed in its place (`WidgetScale.Offered`), so the menu always shows what the
+  widget has. A pick sets every selected widget (`QuickSet.SetScale`) in one `Mutate`, one undo step.
+- **[S-6532]** The scale a card's content is drawn at (`WidgetScale.Effective`) is the display's
+  scale ([S-850]) × the app-wide widget scale (`Design.UiScale`) × the widget's own, each factor
+  that is not a positive number read as 1. It is the one input to the card's content transform:
+  the content is laid out at cell ÷ effective scale, so the size ladder ([S-660]) classifies and
+  discloses on the scaled box — a widget at 150 % shows what a smaller card would ([S-663]).
+- **[S-6533]** Load validation repairs a stored scale outside 50–200 % or off the 5 % grain to the
+  nearest one it may hold, and says so; a file without one reads as 100 %.
+- **[S-6534]** Every widget settings page has a **Scale** row (a slider, 50–200 % in 5 % steps,
+  writing the widget and saving like the page's other rows), the last row of the page's first
+  section. It is added by the page, not the kind's rows, so a kind with no rows of its own still
+  has no page ([S-1750]); its scale is on the panel. The scale is part of the page's signature
+  ([S-1721]), so a change on the panel shows on an open page.
+- **[S-6535]** Debug: `--widget-png <Kind> <out.png> --scale <f>` draws the cards at that widget
+  scale, through the same content transform.
 - **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the panel beside
   real cards in edit mode on a stand-in display: `props-<theme>-right.png` (one flip clock in the
-  middle with a title and an item colour of its own: Style with the flip icon, Item opacity, and
-  Settings), `-left.png` (a widget at the right edge of the display), `-below.png` (a widget
-  spanning the width), `-many.png` (three of mixed headers,
+  middle with a title, an item colour of its own and a scale of 125 %: Style with the flip icon,
+  Item opacity, Scale and Settings), `-left.png` (a widget at the right edge of the display),
+  `-below.png` (a widget spanning the width), `-many.png` (three of mixed headers and scales,
   "3 selected"), `-toggle.png` (a Wi-Fi toggle: no Header choice) and `-hidden.png` (header hidden,
   beside the same kind with a header).
 
@@ -3331,7 +3356,8 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
 - **[S-850]** Per-display **widget scale** (`MonitorScales`, 50–200 %, 100 % stored as no entry)
   magnifies widget content only: the card's cell stays where it is and the same size, the content is
   laid out at cell ÷ scale and render-scaled back up, so a view discloses less at a bigger scale
-  ([S-663]). The app-wide widget scale (`Design.UiScale`) multiplies in through the same path.
+  ([S-663]). The app-wide widget scale (`Design.UiScale`) and each widget's own ([S-6532])
+  multiply in through the same path.
 - **[S-851]** The hit region never covers the taskbar: it is cut to the work area in normal mode,
   and is the work area itself (not the whole window) in edit mode. A widget the taskbar has grown
   over is clipped there (`SetWindowRgn` clips painting as well as input) rather than moved. This

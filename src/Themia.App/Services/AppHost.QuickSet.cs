@@ -5,7 +5,7 @@ namespace Themia.App.Services;
 
 /// <summary>
 /// [S-3703]/[S-3704] The properties panel's writes ([S-3707]): header, background, item background
-/// ([S-6521]) and title of the selected widgets, each through <see cref="Mutate"/> as one undo step.
+/// ([S-6521]), scale ([S-6531]) and title of the selected widgets, each through <see cref="Mutate"/> as one undo step.
 /// </summary>
 internal sealed partial class AppHost
 {
@@ -49,6 +49,16 @@ internal sealed partial class AppHost
         {
             var ids = Selection.Ids.ToList();
             Mutate(_ => QuickSet.SetItemOpacity(view, ids, opacity));
+        }
+    }
+
+    /// <summary>[S-6531] Every selected widget's own content scale, in one step.</summary>
+    public void SetSelectedScale(double scale)
+    {
+        if (SelectionView is { } view)
+        {
+            var ids = Selection.Ids.ToList();
+            Mutate(_ => QuickSet.SetScale(view, ids, scale));
         }
     }
 

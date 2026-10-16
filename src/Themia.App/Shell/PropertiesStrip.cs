@@ -20,6 +20,7 @@ namespace Themia.App.Shell;
 /// <param name="OpenSettings">[S-6009] Opens one widget's settings page, by id.</param>
 /// <param name="SetItemColor">[S-6521] The selected widgets' own item colour, or empty for the app-wide item layer.</param>
 /// <param name="SetItemOpacity">[S-6521] The selected widgets' own item opacity, 0..1.</param>
+/// <param name="SetScale">[S-6531] The selected widgets' own content scale, as a factor.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
     Action<WidgetSurface> SetSurface,
@@ -28,14 +29,15 @@ internal sealed record PropertiesCommands(
     Action<int> SetStyle,
     Action<string> OpenSettings,
     Action<string> SetItemColor,
-    Action<double> SetItemOpacity);
+    Action<double> SetItemOpacity,
+    Action<double> SetScale);
 
 /// <summary>
 /// [S-3707] The selected widgets' properties panel: a small panel in the edit bar's look standing
 /// beside the selection ([S-3708]), one row per property, its name before its control — Title (one
 /// widget) or "N selected", Style (one kind with styles, [S-6007]), Header (where every selected
 /// widget can have one, [S-3711]), Background, Item background and, for a widget with a layer of its
-/// own, Item opacity ([S-6521]), then Settings (one widget with a page, [S-6009]). After Karpo's
+/// own, Item opacity ([S-6521]), Scale ([S-6531]), then Settings (one widget with a page, [S-6009]). After Karpo's
 /// properties panel (docs/widgets.md §145): the selection's own properties, where the selection is.
 /// </summary>
 internal sealed partial class PropertiesStrip : Grid
@@ -76,6 +78,8 @@ internal sealed partial class PropertiesStrip : Grid
     private StackPanel? _headerValue;
 
     private StackPanel? _surfaceValue;
+
+    private StackPanel? _scaleValue;
 
     public PropertiesStrip(PropertiesCommands commands)
     {
@@ -162,7 +166,7 @@ internal sealed partial class PropertiesStrip : Grid
 
         _rows.Children.Clear();
         _rows.RowDefinitions.Clear();
-        _styleValue = _headerValue = _surfaceValue = null;
+        _styleValue = _headerValue = _surfaceValue = _scaleValue = null;
         _title = null;
         _titleId = null;
 
@@ -217,6 +221,9 @@ internal sealed partial class PropertiesStrip : Grid
         {
             AddRow(Str.Shell_Items_Opacity.Text(), ItemOpacityChoice(own.Opacity, commands));
         }
+
+        // [S-6531] The widgets' own content scale, after the look of the card it magnifies.
+        AddRow(Str.Widget_Scale_Label.Text(), ScaleChoice(commands));
 
         // [S-6009] The widget's settings, one widget only and only when its page has rows ([S-1750]).
         if (_offer is { TitleWidgetId: { } settingsId, TitleKind: { } settingsKind } && Config.ConfigPages.HasWidgetSettings(settingsKind))
@@ -286,6 +293,11 @@ internal sealed partial class PropertiesStrip : Grid
         {
             var surface = Array.Find(SurfaceOptions(), o => o.Value == _offer.Surface);
             Show(_surfaceValue, Glyphs.Surface, false, _offer.Surface is null ? Mixed : surface.Text);
+        }
+
+        if (_scaleValue is not null)
+        {
+            Show(_scaleValue, Glyphs.Scale, false, _offer.Scale is { } scale ? ScaleText(scale) : Mixed);
         }
     }
 
@@ -422,6 +434,40 @@ internal sealed partial class PropertiesStrip : Grid
         Show(value, Glyphs.Opacity, false, LocaleFormat.Percent(Strings.Current, Math.Round(current * 100)));
         return button;
     }
+
+    /// <summary>
+    /// [S-6531] The widgets' own scale, in steps (<see cref="WidgetScale.Offered"/>), the current one
+    /// ticked (none for a mixed selection), built as the menu opens. One pick is one undo step.
+    /// </summary>
+    private DropDownButton ScaleChoice(PropertiesCommands commands)
+    {
+        var label = Str.Widget_Scale_Label.Text();
+        var menu = new MenuFlyout();
+        menu.Opening += (_, _) =>
+        {
+            menu.Items.Clear();
+            var now = _offer.Scale;
+            foreach (var step in WidgetScale.Offered(now))
+            {
+                var item = new RadioMenuFlyoutItem
+                {
+                    Text = ScaleText(step),
+                    GroupName = label,
+                    IsChecked = now is { } v && v.Equals(step),
+                };
+
+                var chosen = step;
+                item.Click += (_, _) => commands.SetScale(chosen);
+                menu.Items.Add(item);
+            }
+        };
+
+        var button = ValueButton(label, menu, out var value);
+        _scaleValue = value;
+        return button;
+    }
+
+    private static string ScaleText(double scale) => LocaleFormat.Percent(Strings.Current, WidgetScale.Percent(scale));
 
     /// <summary>
     /// [S-3704] The title, edited in place: the kind's name as the placeholder, Enter (or leaving

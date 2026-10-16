@@ -32,7 +32,8 @@ internal sealed partial class DesktopWindow
         SetStyle: _host.SetSelectedStyle,
         OpenSettings: id => _host.ShowConfig(new Config.ConfigTarget.Widget(id)),
         SetItemColor: _host.SetSelectedItemColor,
-        SetItemOpacity: _host.SetSelectedItemOpacity);
+        SetItemOpacity: _host.SetSelectedItemOpacity,
+        SetScale: _host.SetSelectedScale);
 
     /// <summary>[S-3701] The strip shows what is selected in the view this display shows, and nothing otherwise.</summary>
     private void SyncProperties()

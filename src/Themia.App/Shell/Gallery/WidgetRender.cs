@@ -31,7 +31,7 @@ internal interface IWidgetPreviewState
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--style name]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// [--state name] [--style name] [--scale f]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -45,6 +45,9 @@ internal static class WidgetRender
 
     /// <summary>[S-6517] The background the render's cards are drawn with (<c>--surface</c>).</summary>
     private static WidgetSurface _surface = WidgetSurface.Card;
+
+    /// <summary>[S-6535] The cards' own content scale (<c>--scale 1.5</c>), as stored.</summary>
+    private static double _scale = 1.0;
 
     /// <summary>Space between frames and around the page, in DIPs.</summary>
     private const double Gap = 24;
@@ -84,8 +87,8 @@ internal static class WidgetRender
             || !Enum.IsDefined(kind)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--scale f] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--scale f] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
             app.Exit();
             return true;
         }
@@ -100,6 +103,12 @@ internal static class WidgetRender
             "none" or "transparent" => WidgetSurface.Transparent,
             _ => WidgetSurface.Card,
         };
+
+        // [S-6535] --scale 0.75|1.5: the widget's own content scale, through the same path as on the desktop.
+        _scale = Option(args, "--scale") is { } scaleText
+            && double.TryParse(scaleText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scaleValue)
+                ? WidgetScale.Normalise(scaleValue)
+                : 1.0;
 
         // [S-6006] Any styled kind in one of its styles; a wrong name prints the kind's styles.
         int? style = null;
@@ -324,6 +333,7 @@ internal static class WidgetRender
 
                 var model = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
                 model.Surface = _surface;
+                model.Scale = _scale;
                 if (style is { } chosen)
                 {
                     WidgetStyles.Set(model.Config, chosen);
@@ -337,6 +347,7 @@ internal static class WidgetRender
 
                 // The size is the painted card: there is no neighbour for the gap to separate.
                 card.ApplyGap(0);
+                card.ApplyContentScale(WidgetScale.Effective(1, 1, model.Scale));
                 Canvas.SetLeft(card, x[row]);
                 Canvas.SetTop(card, top[row] + LabelHeight);
                 page.Children.Add(card);

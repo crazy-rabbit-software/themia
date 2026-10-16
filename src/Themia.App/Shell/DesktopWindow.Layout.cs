@@ -206,13 +206,11 @@ internal sealed partial class DesktopWindow
 
         ApplyPaintOrder(view);
 
-        var contentScale = ContentScale;
-
         foreach (var card in _cards)
         {
             card.ApplyEditMode(EditMode);
             card.ApplySelection();
-            card.ApplyContentScale(contentScale);
+            card.ApplyContentScale(ContentScale(card.Model));
             PositionCard(card, card.Model.Rect);
         }
 

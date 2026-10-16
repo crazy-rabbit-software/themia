@@ -220,17 +220,14 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public bool IsAlive => !_closed && Win32.IsWindow(_hwnd);
 
     /// <summary>
-    /// [S-850] How much this display magnifies widget content: its own scale times the app-wide widget
-    /// scale. Content only — a widget's cell stays where it is and the same size.
+    /// [S-850]/[S-6532] How much a widget's content is magnified on this display: the display's own
+    /// scale times the app-wide widget scale times the widget's own. Content only — a widget's cell
+    /// stays where it is and the same size.
     /// </summary>
-    private double ContentScale
+    private double ContentScale(WidgetInstance widget)
     {
-        get
-        {
-            var display = _host.State.MonitorScales.TryGetValue(_monitor.Id, out var own) && double.IsFinite(own) && own > 0 ? own : 1.0;
-            var app = double.IsFinite(Design.UiScale) && Design.UiScale > 0 ? Design.UiScale : 1.0;
-            return display * app;
-        }
+        var display = _host.State.MonitorScales.TryGetValue(_monitor.Id, out var own) ? own : 1.0;
+        return WidgetScale.Effective(display, Design.UiScale, widget.Scale);
     }
 
     /// <summary>The id of the view this surface is currently showing.</summary>
