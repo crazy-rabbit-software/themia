@@ -16,6 +16,12 @@ namespace Themia.App.Widgets;
 /// the shell's keyboard lease ([S-800]): Up/Down, Page Up/Down, Home/End, Enter to open where a row
 /// opens (a drive), Escape to let go. The focus follows its row's key across reads, so a list that
 /// reorders (processes) keeps the ring on the same process. Rows are reused by position.
+/// <para>
+/// [S-6603] Only the rows in view and one viewport below are built (<see cref="FolderRealize"/>, the
+/// folder widget's rule); the rest is a spacer of their height, so the scroll range is right. A
+/// scroll, the keyboard cursor or a taller tile builds more; nothing built is taken down. Every
+/// process as a row in every list was about 19 MB of native XAML per Top processes tile.
+/// </para>
 /// </summary>
 internal sealed partial class DetailView : IWidgetKeys
 {
@@ -31,6 +37,9 @@ internal sealed partial class DetailView : IWidgetKeys
 
     private readonly StackPanel _list = new();
     private readonly List<ListRow> _rows = [];
+
+    /// <summary>[S-6603] The height of the rows not built yet; always the list's last child.</summary>
+    private readonly Border _tail = new() { IsHitTestVisible = false };
     private readonly List<IDisposable> _hovers = [];
     private ScrollFade? _fade;
     private int _focus = -1;
@@ -39,6 +48,8 @@ internal sealed partial class DetailView : IWidgetKeys
     private void BuildList()
     {
         _scroll.Content = _list;
+        _list.Children.Add(_tail);
+        _scroll.ViewChanged += (_, _) => GrowList();
         _scroll.Visibility = Visibility.Collapsed;
         SetRow(_scroll, 2);
         SetColumnSpan(_scroll, 2);
@@ -89,18 +100,21 @@ internal sealed partial class DetailView : IWidgetKeys
         var count = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, _sheet.Rows.Count) : _sheet.Rows.Count;
         var compact = _part.ListRowHeight <= Fluent.RowHeightCompact;
         var wide = _area.Width >= SecondFrom;
+        var roomy = Roomy(count);
+        var rowHeight = RowHeight(roomy);
+        var built = FolderRealize.Target(count, _rows.Count, _scroll.VerticalOffset, _scroll.ViewportHeight, rowHeight, 1, _focus);
 
-        while (_rows.Count < count)
+        while (_rows.Count < built)
         {
             var row = new ListRow(_part.ListRowHeight, compact);
             row.Root.Tag = _rows.Count;
             row.Root.PointerPressed += OnRowPressed;
             _hovers.Add(Fluent.Hover(row.Root));
             _rows.Add(row);
-            _list.Children.Add(row.Root);
+            _list.Children.Insert(_list.Children.Count - 1, row.Root);
         }
 
-        var roomy = Roomy(count);
+        _tail.Height = FolderRealize.SpacerHeight(count, _rows.Count, rowHeight, 1);
 
         for (var i = 0; i < _rows.Count; i++)
         {
@@ -131,6 +145,27 @@ internal sealed partial class DetailView : IWidgetKeys
         }
 
         _fade?.Refresh();
+    }
+
+    /// <summary>[S-6603] A scroll came near the end of what is built: build further.</summary>
+    private void GrowList()
+    {
+        if (!_detached && _scroll.Visibility == Visibility.Visible && _tail.Height > 0)
+        {
+            FillList();
+        }
+    }
+
+    /// <summary>A row's height for the spacer: a built row as drawn, else the planned height.</summary>
+    private double RowHeight((double Height, TypeStep Value, double Bar)? roomy)
+    {
+        if (roomy is { } r)
+        {
+            return r.Height;
+        }
+
+        var drawn = _rows.Count > 0 ? _rows[0].Root.ActualHeight : 0;
+        return drawn > 0 ? drawn : _part.ListRowHeight;
     }
 
     /// <summary>
@@ -196,6 +231,12 @@ internal sealed partial class DetailView : IWidgetKeys
     {
         _focus = index;
         _focusKey = index >= 0 && index < _sheet.Rows.Count ? _sheet.Rows[index].Key : null;
+
+        // [S-6603] The cursor moved past what is built (End, Page down): build through it first.
+        if (index >= _rows.Count && index < ListCount)
+        {
+            FillList();
+        }
 
         for (var i = 0; i < _rows.Count; i++)
         {
