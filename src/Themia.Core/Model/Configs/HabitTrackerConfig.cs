@@ -18,6 +18,19 @@ public enum HabitTrackerStyle
     Checklist = 2,
 }
 
+/// <summary>[S-6074] The Habits rows that only some styles or periods use.</summary>
+public enum HabitsSetting
+{
+    /// <summary>The custom period's minutes: only under the custom period.</summary>
+    Interval,
+
+    /// <summary>The streak: the dots style's run.</summary>
+    Streak,
+
+    /// <summary>The history dots: the dots style's strip.</summary>
+    History,
+}
+
 /// <summary>
 /// [S-1420] Which habit list a Habits widget shows, and how.
 /// <para>
@@ -27,7 +40,7 @@ public enum HabitTrackerStyle
 /// copying a widget copies the pointer, never a second diverging copy of the history.
 /// </para>
 /// </summary>
-public sealed class HabitTrackerConfig : WidgetConfig, IStyled
+public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<HabitsSetting>
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.HabitTracker;
@@ -58,11 +71,30 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled
     }
 
     /// <summary>
-    /// [S-6408] Whether the streak and history settings mean anything: only the dots draw a run and a
-    /// strip. The page offers them for that style alone; the values are kept for when it comes back.
+    /// [S-6408] [S-6074] The rows the page offers: the custom minutes under the custom period, and
+    /// the streak and history only on the dots, the one style that draws a run and a strip. The
+    /// values are kept for when the period or the style comes back.
     /// </summary>
     [JsonIgnore]
-    public bool UsesRowExtras => Style == HabitTrackerStyle.Dots;
+    public IReadOnlyList<HabitsSetting> ShownSettings
+    {
+        get
+        {
+            var shown = new List<HabitsSetting>();
+            if (Cadence.Period == HabitPeriod.Custom)
+            {
+                shown.Add(HabitsSetting.Interval);
+            }
+
+            if (Style == HabitTrackerStyle.Dots)
+            {
+                shown.Add(HabitsSetting.Streak);
+                shown.Add(HabitsSetting.History);
+            }
+
+            return shown;
+        }
+    }
 
     /// <summary>[S-1422] How often the boxes clear. Per widget, as in the original: the log keeps every cadence's keys.</summary>
     public HabitPeriod Period { get; set; } = HabitPeriod.Daily;

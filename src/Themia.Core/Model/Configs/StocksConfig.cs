@@ -49,6 +49,19 @@ public enum StocksStyle
     Number = 1,
 }
 
+/// <summary>[S-6074] The stock's rows that only some styles, markets or periods use.</summary>
+public enum StocksSetting
+{
+    /// <summary>Dim when the market is closed: not for crypto.</summary>
+    MarketState,
+
+    /// <summary>Extended hours: a listed symbol over one or five days.</summary>
+    ExtendedHours,
+
+    /// <summary>The high and low markers: the chart style.</summary>
+    MinMax,
+}
+
 /// <summary>
 /// One instrument's price, change and recent shape.
 /// <para>
@@ -57,7 +70,7 @@ public enum StocksStyle
 /// then be the size its reader wants.
 /// </para>
 /// </summary>
-public sealed class StocksConfig : WidgetConfig, IStyled
+public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksSetting>
 {
     private static readonly StyleOption[] StockStyles =
     [
@@ -118,6 +131,37 @@ public sealed class StocksConfig : WidgetConfig, IStyled
     /// repaired to none at load (<see cref="StockHolding.Normalise"/>).
     /// </summary>
     public double? SharesOwned { get; set; }
+
+    /// <summary>
+    /// [S-6074] The rows the page offers: the market's open/closed dimming where a market closes
+    /// (not crypto, which trades round the clock), extended hours where they exist and fit (a listed
+    /// symbol over one or five days, <see cref="WantsPrePost"/>), and the high and low markers on
+    /// the chart style only.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<StocksSetting> ShownSettings
+    {
+        get
+        {
+            var shown = new List<StocksSetting>();
+            if (Market != QuoteMarket.Crypto)
+            {
+                shown.Add(StocksSetting.MarketState);
+            }
+
+            if (Market == QuoteMarket.Listed && Range is QuoteRange.Day or QuoteRange.FiveDays)
+            {
+                shown.Add(StocksSetting.ExtendedHours);
+            }
+
+            if (Style == StocksStyle.Chart)
+            {
+                shown.Add(StocksSetting.MinMax);
+            }
+
+            return shown;
+        }
+    }
 
     /// <summary>
     /// Whether the request asks for extended-hours bars: only where they exist (a listed symbol)

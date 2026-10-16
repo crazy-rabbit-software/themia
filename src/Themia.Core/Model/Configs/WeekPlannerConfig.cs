@@ -1,6 +1,14 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
+
+/// <summary>[S-6074] The planner's rows that depend on another setting.</summary>
+public enum WeekPlannerSetting
+{
+    /// <summary>The task account: only while the tasks show.</summary>
+    TaskAccount,
+}
 
 /// <summary>
 /// [S-5320] The week planner: the days ahead with their events, and under today the tasks due.
@@ -11,7 +19,7 @@ namespace Themia.Core.Model;
 /// shared task service, never a second fetch.
 /// </para>
 /// </summary>
-public sealed class WeekPlannerConfig : CalendarConfig
+public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlannerSetting>
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WeekPlanner;
@@ -25,6 +33,10 @@ public sealed class WeekPlannerConfig : CalendarConfig
 
     /// <summary>[S-5324] The task account; empty for the first account with tasks, as the Tasks widget's [S-590].</summary>
     public string TaskAccountId { get; set; } = string.Empty;
+
+    /// <summary>[S-6074] Which account the tasks come from matters only while they show.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<WeekPlannerSetting> ShownSettings => ShowTasks ? [WeekPlannerSetting.TaskAccount] : [];
 
     protected override void RepairOwn(List<string> repairs)
     {

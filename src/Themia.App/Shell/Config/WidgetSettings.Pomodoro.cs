@@ -29,8 +29,6 @@ internal static partial class WidgetSettings
 
         // [S-1460] Off or one of twelve ringtones, gentle to insistent; the volume row only while a
         // sound is chosen. Changing either previews the focus cue, so a choice is made by ear.
-        FrameworkElement? volumeRow = null;
-
         rows.Add(FluentLayout.Row(Glyphs.Sound, Str.Pomodoro_AlarmSound_Label.Text(), Str.Pomodoro_AlarmSound_Desc.Text(),
             FluentLayout.Choice(
                 PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound))).ToArray(),
@@ -39,15 +37,16 @@ internal static partial class WidgetSettings
                 {
                     config.Sound = value;
                     save();
-                    volumeRow!.Visibility = value == AlarmSound.Off ? Visibility.Collapsed : Visibility.Visible;
                     Preview(config);
                 })));
 
-        volumeRow = FluentLayout.Row(Glyphs.Volume, Str.Pomodoro_AlarmVolume_Label.Text(), Str.Pomodoro_AlarmVolume_Desc.Text(),
-            FluentLayout.Slider(config.EffectiveVolume, 0, 100, 1, "%",
-                value => { config.Volume = (int)Math.Round(value); save(); Preview(config); }));
-        volumeRow.Visibility = config.Sound == AlarmSound.Off ? Visibility.Collapsed : Visibility.Visible;
-        rows.Add(volumeRow);
+        // [S-6074] The volume only while a sound is chosen; choosing one builds the page again.
+        if (config.Offers(SoundSetting.Volume))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Volume, Str.Pomodoro_AlarmVolume_Label.Text(), Str.Pomodoro_AlarmVolume_Desc.Text(),
+                FluentLayout.Slider(config.EffectiveVolume, 0, 100, 1, "%",
+                    value => { config.Volume = (int)Math.Round(value); save(); Preview(config); })));
+        }
 
         // The player is single-flight: a slider drag restarts the cue rather than stacking copies.
         static void Preview(PomodoroConfig config)

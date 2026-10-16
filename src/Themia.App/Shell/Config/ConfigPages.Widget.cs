@@ -33,13 +33,16 @@ internal static partial class ConfigPages
     }
 
     /// <summary>
-    /// [S-1542] A kind's page built over a throwaway widget, for the search index only: the rows a
-    /// page of that kind has, without touching any real widget. Never shown and never saved — the
-    /// widget belongs to no view and its save does nothing.
+    /// [S-1542] [S-6073] A widget's page built over a throwaway copy of its config, for the search
+    /// index only: the rows its page has in its current style and state ([S-6070]), so search never
+    /// finds a row the page does not show, without touching the real widget. Never shown and never
+    /// saved — the copy belongs to no view and its save does nothing.
     /// </summary>
-    internal static SettingsPage BuildWidgetForIndex(AppHost host, WidgetKind kind)
+    internal static SettingsPage BuildWidgetForIndex(WidgetInstance like)
     {
-        var widget = WidgetInstance.Create(kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1));
+        ArgumentNullException.ThrowIfNull(like);
+        var widget = WidgetInstance.Create(like.Kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1));
+        widget.Config = like.Config.Clone();
         return WidgetPage(widget, _ => { }, () => { });
     }
 
@@ -307,8 +310,9 @@ internal static partial class ConfigPages
         }
 
         // [S-6010] A kind with styles: one Style row, the same on every such page, the first row
-        // under the kind's own heading. Built here from the registry, never by a page.
-        if (WidgetStyles.Offers(widget.Kind) && StyleRow(widget.Config, Save) is { } style)
+        // under the kind's own heading. Built here from the registry, never by a page; left out
+        // while the config's state draws every style the same ([S-6072]).
+        if (SettingRules.OffersStyle(widget.Config) && StyleRow(widget.Config, Save) is { } style)
         {
             rows.Insert(rows.Count > 0 && FluentLayout.IsHeader(rows[0]) ? 1 : 0, style);
         }

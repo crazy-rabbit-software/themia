@@ -7,6 +7,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -34,24 +35,28 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
-        var columnRows = new List<FrameworkElement>();
-
-        void ShowColumns()
-        {
-            foreach (var row in columnRows)
-            {
-                row.Visibility = config.EffectiveLayout == ContactsLayout.Details ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
         rows.Add(FluentLayout.Row(Glyphs.View, Str.WidgetsA_Contacts_Settings_Layout_Label.Text(),
             null,
             FluentLayout.Choice<ContactsLayout>(
                 [(ContactsLayout.List, Str.Apps_ViewList.Text()), (ContactsLayout.Compact, Str.Apps_ViewCompact.Text()), (ContactsLayout.Details, Str.CtxMenu_Details.Text()), (ContactsLayout.Grid, Str.Apps_ViewGrid.Text())],
                 config.EffectiveLayout,
-                value => { config.Layout = value; save(); ShowColumns(); })));
+                value => { config.Layout = value; save(); })));
 
-        // [S-582] The table's columns: canonical order, and the last one cannot be turned off.
+        // [S-582] The table's columns: canonical order, and the last one cannot be turned off. [S-6074]
+        // Offered on the details layout only; picking another builds the page again.
+        if (config.Offers(ContactsSetting.Columns))
+        {
+            ContactColumnRows(rows, config, save);
+        }
+
+        // [S-583] / [S-1276] At least five, in steps of five, and no upper bound, as the original.
+        rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Contacts_Settings_Count_Label.Text(),
+            Str.WidgetsA_Contacts_Settings_Count_Desc.Text(),
+            FluentLayout.Stepper(config.EffectiveCount, 5, 5, value => { config.Count = value; save(); })));
+    }
+
+    private static void ContactColumnRows(List<FrameworkElement> rows, ContactsConfig config, Action save)
+    {
         var toggles = new Dictionary<ContactColumn, ToggleSwitch>();
         var quiet = false;
 
@@ -77,17 +82,8 @@ internal static partial class WidgetSettings
             });
 
             toggles[column] = toggle;
-            var row = FluentLayout.Row(Glyphs.Grid, Str.WidgetsA_Contacts_Settings_Column.Format(("name", ContactRules.ColumnTitle(column, Strings.Current))), null, toggle);
-            columnRows.Add(row);
-            rows.Add(row);
+            rows.Add(FluentLayout.Row(Glyphs.Grid, Str.WidgetsA_Contacts_Settings_Column.Format(("name", ContactRules.ColumnTitle(column, Strings.Current))), null, toggle));
         }
-
-        // [S-583] / [S-1276] At least five, in steps of five, and no upper bound, as the original.
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Contacts_Settings_Count_Label.Text(),
-            Str.WidgetsA_Contacts_Settings_Count_Desc.Text(),
-            FluentLayout.Stepper(config.EffectiveCount, 5, 5, value => { config.Count = value; save(); })));
-
-        ShowColumns();
     }
 
     /// <summary>

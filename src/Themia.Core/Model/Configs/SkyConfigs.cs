@@ -4,6 +4,20 @@ using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
+/// <summary>[S-6074] The sun's rows that only some styles draw.</summary>
+public enum SunSetting
+{
+    /// <summary>The sunrise and sunset rows under the graphic: not the times style, which is them.</summary>
+    Events,
+}
+
+/// <summary>[S-6074] The moon's rows that only some styles read.</summary>
+public enum MoonSetting
+{
+    /// <summary>The longitude: the disc's rise and set.</summary>
+    Longitude,
+}
+
 /// <summary>
 /// [S-6045] How the Sun draws its day: the path across the sky, the day as a bar with sunrise and
 /// sunset on it, or the times alone (what was the hidden sun path).
@@ -115,7 +129,7 @@ public abstract class SkyPlaceConfig : WidgetConfig
 }
 
 /// <summary>[S-3100] The sun's day where the observer is: its path, rise, set and daylight.</summary>
-public sealed class SunConfig : SkyPlaceConfig, IStyled
+public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetting>
 {
     private static readonly StyleOption[] SunStyles =
     [
@@ -141,6 +155,10 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled
     /// <summary>[S-170] Show the sunrise/sunset/daylight rows.</summary>
     public bool ShowEvents { get; set; } = true;
 
+    /// <summary>[S-6074] The times style is the events alone, always drawn: the switch is the graphic styles' own.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<SunSetting> ShownSettings => Style == SunStyle.Times ? [] : [SunSetting.Events];
+
     public override WidgetConfig Clone() => CopyPlaceTo(new SunConfig
     {
         Style = Style,
@@ -149,7 +167,7 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled
 }
 
 /// <summary>[S-3100] The moon where the observer is: its phase, rise and set.</summary>
-public sealed class MoonConfig : SkyPlaceConfig, IStyled
+public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSetting>
 {
     private static readonly StyleOption[] MoonStyles =
     [
@@ -170,6 +188,13 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled
         get => (int)Style;
         set => Style = (MoonStyle)value;
     }
+
+    /// <summary>
+    /// [S-6074] The month's phases read only the latitude's sign (which way round a southern
+    /// observer sees the lit side); the longitude is the disc's, for the rise and set.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<MoonSetting> ShownSettings => Style == MoonStyle.Disc ? [MoonSetting.Longitude] : [];
 
     public override WidgetConfig Clone() => CopyPlaceTo(new MoonConfig { Style = Style });
 }

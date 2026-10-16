@@ -48,15 +48,19 @@ internal static partial class WidgetSettings
             FluentLayout.Toggle(config.Shuffle, value => { config.Shuffle = value; save(); })));
 
         // The shuffle is a pure function of a seed, so "reshuffle" is a new seed and nothing else.
-        // That is what makes the same quote come back on the same day on every machine.
-        var reshuffle = new Button { Content = Str.WidgetsC_Quote_Settings_Reshuffle_Label.Text() };
-        reshuffle.Click += (_, _) =>
+        // That is what makes the same quote come back on the same day on every machine. [S-6074]
+        // Without the shuffle the seed is never read, so the button is offered with it only.
+        if (config.Offers(QuoteSetting.Reshuffle))
         {
-            config.Seed = unchecked(config.Seed + 1);
-            save();
-        };
+            var reshuffle = new Button { Content = Str.WidgetsC_Quote_Settings_Reshuffle_Label.Text() };
+            reshuffle.Click += (_, _) =>
+            {
+                config.Seed = unchecked(config.Seed + 1);
+                save();
+            };
 
-        rows.Add(FluentLayout.Row(Glyphs.Reset, Str.WidgetsC_Quote_Settings_Reshuffle_Label.Text(), Str.WidgetsC_Quote_Settings_Reshuffle_Desc.Text(), reshuffle));
+            rows.Add(FluentLayout.Row(Glyphs.Reset, Str.WidgetsC_Quote_Settings_Reshuffle_Label.Text(), Str.WidgetsC_Quote_Settings_Reshuffle_Desc.Text(), reshuffle));
+        }
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_Quote_Settings_Updating.Text()));
 

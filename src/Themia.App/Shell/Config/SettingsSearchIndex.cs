@@ -7,6 +7,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -20,8 +21,8 @@ internal sealed record SettingHit(SettingEntry Entry, ConfigTarget Target, strin
 /// list written beside them. It is filled the first time the search box is used (every app page,
 /// Displays and Views included, and one page per widget kind in use, built off-screen and thrown away),
 /// refreshed with the live page each time a page is shown, and dropped when the navigation changes
-/// shape. A widget kind's rows are indexed once and offered for every widget of that kind, under
-/// "View › Widget", because the rows of a kind's page are the same for each of its widgets. A row in
+/// shape. A widget kind's rows are indexed once per page shape ([S-6071]) and offered for every
+/// widget of that kind and shape, under "View › Widget". A row in
 /// a group of the Displays or Views page is offered as "Views › Desktop" and opens that group ([S-1832]).
 /// </para>
 /// </summary>
@@ -83,19 +84,20 @@ internal sealed class SettingsSearchIndex(AppHost host)
             Build(new ConfigTarget.App(entry.Page));
         }
 
-        // One page per kind in use, offered for every widget of that kind.
+        // [S-6073] One page per kind and page shape in use, offered for every widget of that kind
+        // whose page has that shape: a row one widget's style or state leaves out is not found for it.
         foreach (var group in host.State.Views
                      .SelectMany(v => v.Widgets.Select(w => (View: v, Widget: w)))
-                     .GroupBy(x => x.Widget.Kind))
+                     .GroupBy(x => (x.Widget.Kind, Shape: SettingRules.Shape(x.Widget.Config))))
         {
             SettingsPage page;
             try
             {
-                page = ConfigPages.BuildWidgetForIndex(host, group.Key);
+                page = ConfigPages.BuildWidgetForIndex(group.First().Widget);
             }
             catch (Exception ex)
             {
-                Log.Error(Scope, $"could not index the {group.Key} settings", ex);
+                Log.Error(Scope, $"could not index the {group.Key.Kind} settings", ex);
                 continue;
             }
 

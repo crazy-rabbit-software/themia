@@ -29,7 +29,6 @@ internal static partial class WidgetSettings
         // [S-4627] Said where alarms are set: they ring only while Themia runs.
         rows.Add(FluentLayout.Note(Str.Alarm_Settings_WhileRunning.Text()));
 
-        FrameworkElement? volumeRow = null;
         rows.Add(FluentLayout.Row(Glyphs.Sound, Str.Alarm_Settings_Sound_Label.Text(), Str.Alarm_Settings_Sound_Desc.Text(),
             FluentLayout.Choice(
                 PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound))).ToArray(),
@@ -38,17 +37,18 @@ internal static partial class WidgetSettings
                 {
                     config.Sound = value;
                     save();
-                    volumeRow!.Visibility = value == AlarmSound.Off ? Visibility.Collapsed : Visibility.Visible;
                     PreviewRing(config);
                 }),
             "ringtone", "ring", "sound"));
 
-        volumeRow = FluentLayout.Row(Glyphs.Volume, Str.Alarm_Settings_Volume_Label.Text(), Str.Alarm_Settings_Volume_Desc.Text(),
-            FluentLayout.Slider(config.EffectiveVolume, 0, 100, 1, "%",
-                value => { config.Volume = (int)Math.Round(value); save(); PreviewRing(config); }),
-            "volume", "loud");
-        volumeRow.Visibility = config.Sound == AlarmSound.Off ? Visibility.Collapsed : Visibility.Visible;
-        rows.Add(volumeRow);
+        // [S-6074] The volume only while a sound is chosen; choosing one builds the page again.
+        if (config.Offers(SoundSetting.Volume))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Volume, Str.Alarm_Settings_Volume_Label.Text(), Str.Alarm_Settings_Volume_Desc.Text(),
+                FluentLayout.Slider(config.EffectiveVolume, 0, 100, 1, "%",
+                    value => { config.Volume = (int)Math.Round(value); save(); PreviewRing(config); }),
+                "volume", "loud"));
+        }
 
         rows.Add(FluentLayout.Row(Glyphs.Alarm, Str.Alarm_Settings_Snooze_Label.Text(), Str.Alarm_Settings_Snooze_Desc.Text(),
             FluentLayout.Slider(Math.Clamp(config.SnoozeMinutes, AlarmConfig.MinSnooze, AlarmConfig.MaxSnooze), AlarmConfig.MinSnooze, AlarmConfig.MaxSnooze, 1,

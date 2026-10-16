@@ -58,45 +58,6 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Email_Display.Text()));
 
-        // The interval row only means something under the custom period; it is shown with it.
-        var verdict = FluentLayout.Verdict();
-        var minutes = new TextBox
-        {
-            Text = config.Cadence.Minutes.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            MinWidth = 120,
-            HorizontalAlignment = HorizontalAlignment.Right,
-        };
-
-        void CommitMinutes()
-        {
-            if (!HabitCadence.TryParseMinutes(minutes.Text, out var value, out var refusal))
-            {
-                FluentLayout.Refuse(verdict, refusal ?? string.Empty);
-                return;
-            }
-
-            FluentLayout.Confirm(verdict, Str.WidgetsB_Settings_Habits_ClearsEvery.Plural(value));
-
-            if (value != config.CustomMinutes)
-            {
-                config.CustomMinutes = value;
-                save();
-            }
-        }
-
-        minutes.LostFocus += (_, _) => CommitMinutes();
-        minutes.KeyDown += (_, args) =>
-        {
-            if (args.Key == VirtualKey.Enter)
-            {
-                args.Handled = true;
-                CommitMinutes();
-            }
-        };
-
-        var interval = FluentLayout.FieldRow(Glyphs.Countdown, Str.HabitTracker_IntervalLabel.Text(), Str.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)), minutes, verdict);
-        interval.Visibility = config.Cadence.Period == HabitPeriod.Custom ? Visibility.Visible : Visibility.Collapsed;
-
         rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsB_Settings_Habits_Resets_Label.Text(), Str.HabitTracker_ResetDesc.Text(),
             FluentLayout.Choice<HabitPeriod>(
                 [
@@ -110,18 +71,60 @@ internal static partial class WidgetSettings
                 value =>
                 {
                     config.Period = value;
-                    interval.Visibility = value == HabitPeriod.Custom ? Visibility.Visible : Visibility.Collapsed;
                     save();
                 })));
 
-        rows.Add(interval);
+        // [S-6074] The minutes mean something under the custom period only; picking it builds the
+        // page again with them ([S-6071]).
+        if (config.Offers(HabitsSetting.Interval))
+        {
+            var verdict = FluentLayout.Verdict();
+            var minutes = new TextBox
+            {
+                Text = config.Cadence.Minutes.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                MinWidth = 120,
+                HorizontalAlignment = HorizontalAlignment.Right,
+            };
+
+            void CommitMinutes()
+            {
+                if (!HabitCadence.TryParseMinutes(minutes.Text, out var value, out var refusal))
+                {
+                    FluentLayout.Refuse(verdict, refusal ?? string.Empty);
+                    return;
+                }
+
+                FluentLayout.Confirm(verdict, Str.WidgetsB_Settings_Habits_ClearsEvery.Plural(value));
+
+                if (value != config.CustomMinutes)
+                {
+                    config.CustomMinutes = value;
+                    save();
+                }
+            }
+
+            minutes.LostFocus += (_, _) => CommitMinutes();
+            minutes.KeyDown += (_, args) =>
+            {
+                if (args.Key == VirtualKey.Enter)
+                {
+                    args.Handled = true;
+                    CommitMinutes();
+                }
+            };
+
+            rows.Add(FluentLayout.FieldRow(Glyphs.Countdown, Str.HabitTracker_IntervalLabel.Text(), Str.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)), minutes, verdict));
+        }
 
         // [S-6408] The run and the dots are the Dots style's own; another style rebuilds the page without them ([S-6010]).
-        if (config.UsesRowExtras)
+        if (config.Offers(HabitsSetting.Streak))
         {
             rows.Add(FluentLayout.Row(Glyphs.Done, Str.WidgetsB_Settings_Habits_Streaks_Label.Text(), Str.WidgetsB_Settings_Habits_Streaks_Desc.Text(),
                 FluentLayout.Toggle(config.ShowStreak, value => { config.ShowStreak = value; save(); })));
+        }
 
+        if (config.Offers(HabitsSetting.History))
+        {
             rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Habits_History_Label.Text(),
                 Str.WidgetsB_Settings_Habits_History_Desc.Format(("zero", 0)),
                 FluentLayout.Slider(

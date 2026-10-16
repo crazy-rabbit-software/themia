@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -192,8 +193,11 @@ internal sealed partial class ConfigWindow
     }
 
     /// <summary>
-    /// [S-6010] A widget page whose style was picked shows that style's rows: built again once the
-    /// pick has finished, since rebuilding inside it would tear down the drop-down raising it.
+    /// [S-6010] [S-6071] A widget page whose style was picked, or whose switch other rows depend on
+    /// was turned, shows the rows that now apply: built again once the pick has finished, since
+    /// rebuilding inside it would tear down the control raising it. The groups that were open stay
+    /// open and the focus goes back to the row that had it, so a keyboard user stays on the switch
+    /// they just turned.
     /// </summary>
     private void QueueRestyle()
     {
@@ -207,7 +211,14 @@ internal sealed partial class ConfigWindow
             _restyleQueued = false;
             if (!_closed && Shape(_target) != _shownShape)
             {
-                RenderBody(keepScroll: true);
+                var focus = FocusedRow();
+                var open = OpenGroups(_pageColumn.Child as FrameworkElement);
+                var page = RenderBody(keepScroll: true);
+                Reopen(page, open);
+                if (focus is { } had)
+                {
+                    Refocus(page, had.Title, had.State);
+                }
             }
         });
 
@@ -215,6 +226,98 @@ internal sealed partial class ConfigWindow
         {
             Log.Warn(Scope, "could not queue the widget page for its new style; reopen it to see the style's rows");
         }
+    }
+
+    /// <summary>The title of the page row holding the focus, and how it got it; null when no row has it.</summary>
+    private (string Title, FocusState State)? FocusedRow()
+    {
+        if (_pageColumn.XamlRoot is not { } root || _pageColumn.Child is not FrameworkElement page
+            || FocusManager.GetFocusedElement(root) is not DependencyObject focused)
+        {
+            return null;
+        }
+
+        var state = focused is Control control ? control.FocusState : FocusState.Programmatic;
+        foreach (var (row, _) in SettingsIndex.Collect(page))
+        {
+            for (var at = focused; at is not null; at = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(at))
+            {
+                if (ReferenceEquals(at, row.Control))
+                {
+                    return (row.Title, state);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The titles of the page's expanders that are open.</summary>
+    private static HashSet<string> OpenGroups(FrameworkElement? page)
+    {
+        var open = new HashSet<string>(StringComparer.Ordinal);
+        if (page is null)
+        {
+            return open;
+        }
+
+        foreach (var (row, _) in SettingsIndex.Collect(page))
+        {
+            if (row.Parent is { IsExpanded: true, Header: string title })
+            {
+                open.Add(title);
+            }
+        }
+
+        return open;
+    }
+
+    /// <summary>Open again the rebuilt page's expanders that were open before.</summary>
+    private static void Reopen(FrameworkElement page, HashSet<string> open)
+    {
+        if (open.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var (row, _) in SettingsIndex.Collect(page))
+        {
+            if (row.Parent is { Header: string title } expander && open.Contains(title))
+            {
+                expander.IsExpanded = true;
+            }
+        }
+    }
+
+    /// <summary>Put the focus back on the row titled <paramref name="title"/> once the rebuilt page is laid out.</summary>
+    private static void Refocus(FrameworkElement page, string title, FocusState state)
+    {
+        void Focus()
+        {
+            foreach (var (row, _) in SettingsIndex.Collect(page))
+            {
+                if (row.Title == title && row.Control is { } control)
+                {
+                    var target = control as Control ?? FocusManager.FindFirstFocusableElement(control) as Control;
+                    target?.Focus(state == FocusState.Unfocused ? FocusState.Programmatic : state);
+                    return;
+                }
+            }
+        }
+
+        if (page.IsLoaded)
+        {
+            Focus();
+            return;
+        }
+
+        void OnLoaded(object sender, RoutedEventArgs args)
+        {
+            page.Loaded -= OnLoaded;
+            Focus();
+        }
+
+        page.Loaded += OnLoaded;
     }
 
     /// <summary>[S-1721] The signature of what a target's page shows.</summary>

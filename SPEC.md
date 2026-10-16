@@ -1028,6 +1028,46 @@ widget on the properties strip or at the top of its settings page. Owning files:
   widget page's shape is its style (`SettingsPageSync.Shape`), so a pick builds the page again (once
   the drop-down's own event has finished): a kind whose styles use different settings shows only the
   current style's rows ([S-3641], [S-4121]).
+- **[S-6070]** A settings page offers only the rows that change what its widget visibly does or
+  shows in its current style and state (user rule). The rule is one Core property per config,
+  `IShownSettings<TSetting>.ShownSettings` (the kind's own `<Kind>Setting` enum, page order), read on
+  the page through `Offers(setting)`, never a check written in a page; a row every style and state
+  uses is not listed and always offered. A row left out is not built at all (no collapsed rows), so
+  search cannot find it. The values of rows left out are kept for when they apply again. Size is
+  not a state here: a row a small tile sheds ([S-660]) is still offered. A rule never reads a
+  slider's or a text box's value, so dragging or typing never rebuilds the page under the hand.
+- **[S-6071]** A widget page's shape (`SettingRules.Shape`, read by `SettingsPageSync.Shape`) is its
+  style, whether the Style row is offered, and the rows offered. A pick or a switch that changes it
+  builds the page again once its own event has finished (`QueueRestyle`), with the scroll kept,
+  the expanders that were open opened again and the focus back on the row that had it.
+- **[S-6072]** `IShownSettings.OffersStyle`: the shared Style row is left out while the config's
+  state draws every style the same: a gallery of one picture file or the photo of the day (the
+  layouts are a folder's), and tasks without due dates (a list on this PC, or "Show due date" off:
+  the styles differ only in where the due date goes).
+- **[S-6073]** The settings search indexes one page per kind **and page shape** in use, built over a
+  copy of a widget of that shape (`ConfigPages.BuildWidgetForIndex`), so a row one widget's style or
+  state leaves out is not found for it.
+- **[S-6074]** The rows each kind offers only in some styles or states: Mail: Subject/Account in List
+  and Compact, Preview lines in List, the columns in Table. Folder: [S-4121]. Calendar: [S-3641].
+  Clock: Seconds in Digital, Analog, Stacked and Flip; Date, Label and date size, Label and Offset
+  in all but Minimal and Date (there the zone is a plain row, not an expander). Quote: Reshuffle
+  with Shuffle on. Gallery: a folder's rows (folder, subfolders, pictures, shuffle, Explorer) for the
+  folder source, the slide time for its Slideshow, Picture size for Slideshow and Grid (Scatter and
+  Mosaic always crop), for a picture file without an outline and for the photo of the day; a
+  picture file's rows (image, rotation, outline) for that source, the outline's colour and width
+  with the outline on. Shortcuts: tile size, icons only and stretch in Grid, row size in List and
+  Details, file extensions except on a grid of icons alone. Meters (CPU, memory, GPU, disk, network,
+  battery, ping): Chart span (and its History heading) in the graph style only, each meter's first
+  ([S-6300]). Current weather: Show detail in Standard. Stocks: Closed indicator for a listed symbol
+  (not crypto), Extended hours for a listed symbol over one or five days (`WantsPrePost`), high and
+  low markers in Chart. Sun: Events (and its Sky heading) not in Times, which is the events. Moon:
+  Longitude in Disc only. Week planner: "Tasks from" while today's tasks show. Tasks: Show due date,
+  Due and Important only for an account's tasks. Habits: Interval under the custom period, streaks
+  and history in Dots. Pomodoro and Alarm: Volume while a sound is chosen. Contacts: the columns in
+  Details. Screen time: the daily limit on the chart and the donut, the per-app limits on the app
+  list, its Daily average over a week or a month. Debug: `--settings-png Widget:<Kind> --config
+  '{"field":value}'` writes those fields over the demo widget's config (through the state file's
+  parse and repair) to render a state.
 
 Needs a live pass: picking a style on the strip for one widget and for several of one kind, the
 undo of it, the gear opening the right page, and the flip turning over on the desktop with Windows'
@@ -1620,7 +1660,7 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   (sender + time, subject) and **Table** (one line of the user's columns under a header row), in
   that order: what were the view setting and the list fields' Preview switch (List without the
   preview was Compact, so the switch is gone). The rest stay settings, shown only for the style that
-  draws with them (`EmailConfig.SettingsFor`): Subject / Account for List and Compact, Preview
+  draws with them (`EmailConfig.ShownSettings`, [S-6070]): Subject / Account for List and Compact, Preview
   lines for List, the columns for Table. A hand-edited `"preview"` list field is dropped.
 - **[S-544]** Message right-click: Open, Reply, Mark read/unread, Archive, Move to Junk, Copy subject,
   Delete [S-21]. Gmail is read through `gmail.readonly`, so its messages offer only Open, Reply and
@@ -2857,7 +2897,7 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
 - **[S-6408]** Habits' styles ([S-6000]), `HabitTrackerConfig.Style` (`HabitTrackerStyle`,
   `"style": "dots"`): **Dots** (the rows of [S-1427]), **Heatmap** and **Checklist**, in that
   order, over the same list, log and cadence. Show streaks and History are the Dots style's own
-  (`UsesRowExtras`); the page offers them for it alone and keeps their values.
+  (`HabitTrackerConfig.ShownSettings`, [S-6070]); the page offers them for it alone and keeps their values.
 - **[S-6409]** Heatmap (`HabitHeatmap`): GitHub's calendar over the log, columns of seven periods,
   the newest on the right. Under a daily cadence the rows are the weekdays from the language's first
   day, so a column is a calendar week and the days still to come this week are blank; any other
@@ -3059,7 +3099,7 @@ for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `Offic
 - **[S-3641]** The config holds what every style shares and the union of the styles' own fields
   (`weekDays`, `weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
   (`Period`: a month, day or year is the week start alone). The settings page shows only the
-  current style's rows (`CalendarWidgetConfig.SettingsFor`): Week: "Starts on" and "Days shown";
+  current style's rows (`CalendarWidgetConfig.ShownSettings`, [S-6070]): Week: "Starts on" and "Days shown";
   Agenda: its date range and "Agenda events"; Month, Day, Year: none; then birthdays for every style.
   Picking another style rebuilds the page ([S-6010]).
 
@@ -4555,7 +4595,7 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
 - **[S-6401]** Shortcuts' styles ([S-6000]) are its views, `ShortcutsConfig.Style`
   (`ShortcutsStyle`, `"style": "grid"`): **Tiles** (Grid), **List** and **Details**, in that order;
   the View expander is gone. The page offers the tile size, icons only and stretch for Tiles
-  (`UsesTileSettings`), the row size for List and Details.
+  (`ShortcutsConfig.ShownSettings`, [S-6070]), the row size for List and Details.
 - **[S-1381]** Display name: label, else host without `www.`, else the Windows location's name, else
   the file name without its extension unless `ShowFileExtension` (original S-05, S-18, S-48).
 - **[S-1382]** Grid ladder (`ShortcutLayout.Grid`): tiles keep the chosen size and the columns share
@@ -6170,7 +6210,7 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
 - **[S-1339]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-4120]** *(Retired: one widget kind per layout; they are one kind with four styles, [S-4123].)*
 - **[S-4121]** Each style shows only what it draws (user decision 2026-10-12;
-  `FolderConfig.SettingsFor`), and the config holds the union, a style ignoring the rest (`Rows`,
+  `FolderConfig.ShownSettings`, [S-6070]), and the config holds the union, a style ignoring the rest (`Rows`,
   `Tiles`, `Extensions`, `DetailColumns` read a neutral value where the style draws none). Every
   style: the folder, Open files with (double / single click), Open folders (Explorer / inside the
   widget), Show hidden items. List: row size, file extensions, Sort by + Reverse. Details: row size,

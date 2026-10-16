@@ -83,7 +83,7 @@ internal static class SettingsRender
 
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|LanguageRegion|Displays|Views|Widgets|License|About|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name] [--style name]");
+            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|LanguageRegion|Displays|Views|Widgets|License|About|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name] [--style name] [--config json]");
             app.Exit();
             return true;
         }
@@ -127,7 +127,8 @@ internal static class SettingsRender
             Option(args, "--flyout"),
             double.TryParse(Option(args, "--width"), System.Globalization.CultureInfo.InvariantCulture, out var width) && width >= 320 ? width : WindowWidth,
             Option(args, "--open"),
-            Option(args, "--style"));
+            Option(args, "--style"),
+            Option(args, "--config"));
 
         _ = RenderAsync(app, dispatcher, request);
         return true;
@@ -151,7 +152,8 @@ internal static class SettingsRender
         string? Flyout,
         double Width,
         string? Open,
-        string? Style);
+        string? Style,
+        string? Config);
 
     private static string? Option(string[] args, string name)
     {
@@ -254,7 +256,7 @@ internal static class SettingsRender
 
             var target = WithOpenGroup(host, request.Page switch
             {
-                PageKind.Widget => new ConfigTarget.Widget(DemoWidget(host, request.Kind!.Value, request.Style).Id),
+                PageKind.Widget => new ConfigTarget.Widget(DemoWidget(host, request.Kind!.Value, request.Style, request.Config).Id),
                 _ => request.App!,
             }, request.Open);
 
@@ -383,14 +385,24 @@ internal static class SettingsRender
         host.Sync.Report(imap.Id, new(Themia.Core.Sync.SyncKind.Mail, 50, 1, now.AddDays(-2), 0));
     }
 
-    /// <summary>The demo profile's widget of <paramref name="kind"/>; <c>--style</c> sets its style first ([S-6010]: the page shows that style's rows).</summary>
-    private static WidgetInstance DemoWidget(AppHost host, WidgetKind kind, string? style)
+    /// <summary>
+    /// The demo profile's widget of <paramref name="kind"/>; <c>--config</c> writes the given fields
+    /// over its config (<c>{"shuffle":true}</c>, read and repaired as the state file is), and
+    /// <c>--style</c> then sets its style ([S-6010], [S-6070]: the page shows
+    /// the rows that style and state offer).
+    /// </summary>
+    private static WidgetInstance DemoWidget(AppHost host, WidgetKind kind, string? style, string? config)
     {
         var demo = host.State.Views.SelectMany(v => v.Widgets).FirstOrDefault(w => w.Kind == kind);
         if (demo is null)
         {
             demo = WidgetInstance.Create(kind, new FracRect(0.6, 0.6, 0.2, 0.2));
             host.State.Views[0].Widgets.Add(demo);
+        }
+
+        if (config is not null && WithFields(demo, config) is { } read)
+        {
+            demo.Config = read;
         }
 
         if (style is not null)
@@ -406,6 +418,48 @@ internal static class SettingsRender
         }
 
         return demo;
+    }
+
+    /// <summary>
+    /// <c>--config</c>: <paramref name="fields"/> (a JSON object) written over the widget's config in
+    /// a state document, read back through the state file's own parse and repair, so a render sees
+    /// exactly what a hand-edited file would give. Null, said on the console, when it does not read.
+    /// </summary>
+    private static WidgetConfig? WithFields(WidgetInstance widget, string fields)
+    {
+        try
+        {
+            if (System.Text.Json.Nodes.JsonNode.Parse(fields) is not System.Text.Json.Nodes.JsonObject wanted)
+            {
+                Console.WriteLine("settings: --config is not a JSON object");
+                return null;
+            }
+
+            var state = AppState.CreateDefault();
+            state.Views[0].Widgets.Add(widget);
+            var document = System.Text.Json.Nodes.JsonNode.Parse(SettingsTransfer.Serialize(state))!;
+            var node = document["views"]![0]!["widgets"]!.AsArray().First(w => w!["id"]!.GetValue<string>() == widget.Id)!;
+            var target = node["config"]!.AsObject();
+
+            foreach (var (name, value) in wanted)
+            {
+                target[name] = value?.DeepClone();
+            }
+
+            var parsed = AppStateStore.Parse(document.ToJsonString());
+            if (parsed.State?.Views[0].Widgets.FirstOrDefault(w => w.Id == widget.Id) is { } read)
+            {
+                return read.Config;
+            }
+
+            Console.WriteLine("settings: --config was refused by the state file's parse");
+            return null;
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            Console.WriteLine($"settings: --config could not be read: {ex.Message}");
+            return null;
+        }
     }
 
     /// <summary>

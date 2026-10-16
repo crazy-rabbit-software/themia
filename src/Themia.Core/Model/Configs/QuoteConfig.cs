@@ -15,6 +15,13 @@ public enum QuoteStyle
     Marks = 1,
 }
 
+/// <summary>[S-6074] The quote's rows that depend on another setting.</summary>
+public enum QuoteSetting
+{
+    /// <summary>Reshuffle: only with Shuffle on.</summary>
+    Reshuffle,
+}
+
 /// <summary>One quote, as stored.</summary>
 public sealed class QuoteItem
 {
@@ -34,7 +41,7 @@ public sealed class QuoteItem
 /// with no network and keeps working on a laptop in a tunnel.
 /// </para>
 /// </summary>
-public sealed class QuoteConfig : WidgetConfig, IStyled
+public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Quote;
@@ -75,6 +82,10 @@ public sealed class QuoteConfig : WidgetConfig, IStyled
 
     /// <summary>Which shuffle. Changing it reshuffles the whole rotation, deterministically.</summary>
     public int Seed { get; set; } = 1;
+
+    /// <summary>[S-6074] Reshuffle is a new seed, and the seed is only read by the shuffle: offered with Shuffle on.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<QuoteSetting> ShownSettings => Shuffle ? [QuoteSetting.Reshuffle] : [];
 
     /// <summary>Show who said it.</summary>
     public bool ShowAuthor { get; set; } = true;

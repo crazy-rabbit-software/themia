@@ -33,9 +33,9 @@ public class ListStylesTests
     [Fact]
     public void S6401_only_the_grid_draws_with_the_tile_settings()
     {
-        Assert.True(new ShortcutsConfig { Style = ShortcutsStyle.Grid }.UsesTileSettings);
-        Assert.False(new ShortcutsConfig { Style = ShortcutsStyle.List }.UsesTileSettings);
-        Assert.False(new ShortcutsConfig { Style = ShortcutsStyle.Details }.UsesTileSettings);
+        Assert.Contains(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.Grid }.ShownSettings);
+        Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.List }.ShownSettings);
+        Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.Details }.ShownSettings);
     }
 
     [Fact]
@@ -66,9 +66,9 @@ public class ListStylesTests
     [Fact]
     public void S6408_only_the_dots_draw_the_run_and_the_history()
     {
-        Assert.True(new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }.UsesRowExtras);
-        Assert.False(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap }.UsesRowExtras);
-        Assert.False(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist }.UsesRowExtras);
+        Assert.Equal([HabitsSetting.Streak, HabitsSetting.History], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }.ShownSettings);
+        Assert.Empty(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap }.ShownSettings);
+        Assert.Empty(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist }.ShownSettings);
     }
 
     // ---- [S-6409] heatmap ---------------------------------------------------------------------

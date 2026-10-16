@@ -40,48 +40,63 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.FieldRow(Glyphs.Search, Str.Stocks_Tab_Symbols.Text(),
             Str.WidgetsC_Stocks_Settings_Symbol_Desc.Text(), search, verdict));
 
-        rows.Add(FluentLayout.Row(Glyphs.Moon, Str.Stocks_DimWhenClosed.Text(),
-            Str.WidgetsC_Stocks_Settings_MarketState_Desc.Text(),
-            FluentLayout.Toggle(config.ShowMarketState, value => { config.ShowMarketState = value; save(); })));
+        // [S-6074] Only where the market closes, and where extended hours exist and fit the period.
+        if (config.Offers(StocksSetting.MarketState))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Moon, Str.Stocks_DimWhenClosed.Text(),
+                Str.WidgetsC_Stocks_Settings_MarketState_Desc.Text(),
+                FluentLayout.Toggle(config.ShowMarketState, value => { config.ShowMarketState = value; save(); })));
+        }
 
-        rows.Add(FluentLayout.Row(Glyphs.Sun, Str.Stocks_ExtendedHours.Text(),
-            Str.Stocks_ExtendedHoursDesc.Text(),
-            FluentLayout.Toggle(config.ShowExtendedHours, value => { config.ShowExtendedHours = value; save(); })));
+        if (config.Offers(StocksSetting.ExtendedHours))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Sun, Str.Stocks_ExtendedHours.Text(),
+                Str.Stocks_ExtendedHoursDesc.Text(),
+                FluentLayout.Toggle(config.ShowExtendedHours, value => { config.ShowExtendedHours = value; save(); })));
+        }
 
         // [S-2776] How many the user owns: the holding's worth under the price.
         rows.Add(HoldingRow(config, save));
 
         // [S-3795] The period, the chart's markers and the colours fold under one row; whether the
-        // chart is drawn at all is the style ([S-6165]).
-        rows.Add(FluentLayout.Expander(Glyphs.Motion, Str.Styles_Stocks_Options.Text(), Str.Styles_Stocks_OptionsDesc.Text(),
-            null,
-            [
-                FluentLayout.Row(Glyphs.Hours, Str.Stocks_Timeframe.Text(), null,
-                    FluentLayout.Choice(
-                        [
-                            (QuoteRange.Day, Str.WidgetsC_Stocks_Period_Days.Plural(1)),
-                            (QuoteRange.FiveDays, Str.WidgetsC_Stocks_Period_Days.Plural(5)),
-                            (QuoteRange.Month, Str.WidgetsC_Stocks_Period_Months.Plural(1)),
-                            (QuoteRange.ThreeMonths, Str.WidgetsC_Stocks_Period_Months.Plural(3)),
-                            (QuoteRange.SixMonths, Str.WidgetsC_Stocks_Period_Months.Plural(6)),
-                            (QuoteRange.Year, Str.WidgetsC_Stocks_Period_Years.Plural(1)),
-                            (QuoteRange.TwoYears, Str.WidgetsC_Stocks_Period_Years.Plural(2)),
-                            (QuoteRange.FiveYears, Str.WidgetsC_Stocks_Period_Years.Plural(5)),
-                            (QuoteRange.TenYears, Str.WidgetsC_Stocks_Period_Years.Plural(10)),
-                        ],
-                        config.Range,
-                        value => { config.Range = value; save(); })),
-                FluentLayout.Row(Glyphs.Count, Str.Stocks_ShowMinMax.Text(), null,
-                    FluentLayout.Toggle(config.ShowMinMax, value => { config.ShowMinMax = value; save(); })),
-                FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_UpColor.Text(), null,
-                    config.UpColor,
-                    value => { config.UpColor = value; save(); },
-                    new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsGreen.Text(), DefaultColor = () => ThemeColor("SystemFillColorSuccessBrush") }),
-                FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_DownColor.Text(), null,
-                    config.DownColor,
-                    value => { config.DownColor = value; save(); },
-                    new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsRed.Text(), DefaultColor = () => ThemeColor("SystemFillColorCriticalBrush") }),
-            ]));
+        // chart is drawn at all is the style ([S-6165]), and the markers are the chart's ([S-6074]).
+        var options = new List<Border>
+        {
+            FluentLayout.Row(Glyphs.Hours, Str.Stocks_Timeframe.Text(), null,
+                FluentLayout.Choice(
+                    [
+                        (QuoteRange.Day, Str.WidgetsC_Stocks_Period_Days.Plural(1)),
+                        (QuoteRange.FiveDays, Str.WidgetsC_Stocks_Period_Days.Plural(5)),
+                        (QuoteRange.Month, Str.WidgetsC_Stocks_Period_Months.Plural(1)),
+                        (QuoteRange.ThreeMonths, Str.WidgetsC_Stocks_Period_Months.Plural(3)),
+                        (QuoteRange.SixMonths, Str.WidgetsC_Stocks_Period_Months.Plural(6)),
+                        (QuoteRange.Year, Str.WidgetsC_Stocks_Period_Years.Plural(1)),
+                        (QuoteRange.TwoYears, Str.WidgetsC_Stocks_Period_Years.Plural(2)),
+                        (QuoteRange.FiveYears, Str.WidgetsC_Stocks_Period_Years.Plural(5)),
+                        (QuoteRange.TenYears, Str.WidgetsC_Stocks_Period_Years.Plural(10)),
+                    ],
+                    config.Range,
+                    value => { config.Range = value; save(); })),
+        };
+
+        if (config.Offers(StocksSetting.MinMax))
+        {
+            options.Add(FluentLayout.Row(Glyphs.Count, Str.Stocks_ShowMinMax.Text(), null,
+                FluentLayout.Toggle(config.ShowMinMax, value => { config.ShowMinMax = value; save(); })));
+        }
+
+        options.Add(
+            FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_UpColor.Text(), null,
+                config.UpColor,
+                value => { config.UpColor = value; save(); },
+                new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsGreen.Text(), DefaultColor = () => ThemeColor("SystemFillColorSuccessBrush") }));
+        options.Add(
+            FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Stocks_DownColor.Text(), null,
+                config.DownColor,
+                value => { config.DownColor = value; save(); },
+                new ColorChoiceOptions { DefaultLabel = Str.WidgetsC_Stocks_Settings_WindowsRed.Text(), DefaultColor = () => ThemeColor("SystemFillColorCriticalBrush") }));
+
+        rows.Add(FluentLayout.Expander(Glyphs.Motion, Str.Styles_Stocks_Options.Text(), Str.Styles_Stocks_OptionsDesc.Text(), null, options));
     }
 
     /// <summary>

@@ -183,7 +183,7 @@ public abstract class CalendarConfig : WidgetConfig
 /// style ignores the fields it does not use, and the settings page shows only its own
 /// (<see cref="SettingsFor"/>).
 /// </summary>
-public sealed class CalendarWidgetConfig : CalendarConfig, IStyled
+public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettings<CalendarSetting>
 {
     /// <summary>[S-3637] A whole week of day columns, the week's default.</summary>
     public const int WeekDefaultDays = 7;
@@ -265,11 +265,12 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled
     };
 
     /// <summary>
-    /// [S-3601] The rows the settings page shows for <paramref name="style"/> after the accounts, in
-    /// page order: only what that style uses (birthdays follow for every style). Picking another
+    /// [S-3601] [S-6070] The rows the settings page shows for the current style after the accounts,
+    /// in page order: only what that style uses (birthdays follow for every style). Picking another
     /// style rebuilds the page ([S-6010]).
     /// </summary>
-    public static IReadOnlyList<CalendarSetting> SettingsFor(CalendarStyle style) => style switch
+    [JsonIgnore]
+    public IReadOnlyList<CalendarSetting> ShownSettings => Style switch
     {
         CalendarStyle.Week => [CalendarSetting.WeekFrom, CalendarSetting.WeekDays],
         CalendarStyle.Agenda => [CalendarSetting.AgendaRange, CalendarSetting.AgendaCount],
@@ -315,11 +316,18 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled
     }
 }
 
+/// <summary>[S-6074] The contacts rows that only some layouts draw with.</summary>
+public enum ContactsSetting
+{
+    /// <summary>The details table's columns.</summary>
+    Columns,
+}
+
 /// <summary>
 /// [S-580] The contacts widget's settings: which accounts, the layout, the columns of the details
 /// table, how many to list and a search to start with. Data comes from Themia's own accounts.
 /// </summary>
-public sealed class ContactsConfig : WidgetConfig
+public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>
 {
     /// <summary>The columns of a fresh details table, in canonical order.</summary>
     public static IReadOnlyList<ContactColumn> AllColumns { get; } =
@@ -343,6 +351,10 @@ public sealed class ContactsConfig : WidgetConfig
 
     [JsonIgnore]
     public int EffectiveCount => Math.Max(5, Count);
+
+    /// <summary>[S-582] [S-6074] The columns are the details table's: the page offers them for that layout.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<ContactsSetting> ShownSettings => EffectiveLayout == ContactsLayout.Details ? [ContactsSetting.Columns] : [];
 
     [JsonIgnore]
     public ContactsLayout EffectiveLayout => Enum.IsDefined(Layout) ? Layout : ContactsLayout.List;

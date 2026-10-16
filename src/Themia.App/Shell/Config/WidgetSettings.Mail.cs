@@ -46,9 +46,7 @@ internal static partial class WidgetSettings
         // [S-6403] The view is the widget's style (the shared Style row at the top of the page):
         // only what that style draws with is offered here, and picking another style rebuilds the
         // page ([S-6010]).
-        var own = EmailConfig.SettingsFor(email.Style);
-
-        if (own.Contains(EmailSetting.ListFields))
+        if (email.Offers(EmailSetting.ListFields))
         {
             // [S-543] The optional lines of the list and compact styles. Sender and time always show.
             foreach (var (field, glyph, title, description) in new[]
@@ -73,14 +71,14 @@ internal static partial class WidgetSettings
             }
         }
 
-        if (own.Contains(EmailSetting.PreviewLines))
+        if (email.Offers(EmailSetting.PreviewLines))
         {
             rows.Add(FluentLayout.Row(Glyphs.Wrap, Str.Email_PreviewLines_Label.Text(), Str.WidgetsB_Settings_Email_PreviewLines_Desc.Text(),
                 FluentLayout.Slider(email.EffectivePreviewLines, 1, 5, 1, string.Empty,
                     value => { email.PreviewLines = (int)Math.Round(value); save(); })));
         }
 
-        if (!own.Contains(EmailSetting.Columns))
+        if (!email.Offers(EmailSetting.Columns))
         {
             return;
         }

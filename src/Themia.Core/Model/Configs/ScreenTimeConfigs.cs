@@ -37,6 +37,22 @@ public sealed class ScreenTimeAppLimit
 }
 
 /// <summary>
+/// [S-6074] The screen-time rows only some of the three widgets draw with. The limits and the
+/// hidden apps are one set for the machine ([S-3322]); a page offers the part its widget shows.
+/// </summary>
+public enum ScreenTimeSetting
+{
+    /// <summary>The daily limit: the chart's and the donut's summary.</summary>
+    DailyLimit,
+
+    /// <summary>The per-app limits: the list's times turn red past them.</summary>
+    AppLimits,
+
+    /// <summary>Each app's average per day: the list, over a week or a month.</summary>
+    Average,
+}
+
+/// <summary>
 /// [S-3330] The screen-time chart: the last week or month, a day at a time.
 /// <para>
 /// None of the screen-time configs holds usage, hidden apps or limits: the history and the
@@ -44,8 +60,12 @@ public sealed class ScreenTimeAppLimit
 /// [S-3322]), so copying a widget or exporting a layout never carries what the user did with their day.
 /// </para>
 /// </summary>
-public sealed class ScreenTimeChartConfig : WidgetConfig
+public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>
 {
+    /// <summary>[S-6074] The chart sums the day against the daily limit; no app's limit shows on it.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<ScreenTimeSetting> ShownSettings => [ScreenTimeSetting.DailyLimit];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ScreenTimeChart;
 
@@ -58,8 +78,12 @@ public sealed class ScreenTimeChartConfig : WidgetConfig
 }
 
 /// <summary>[S-3340] The screen-time donut: each app's share of the period, as a ring with the total in its hole.</summary>
-public sealed class ScreenTimeDonutConfig : WidgetConfig
+public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>
 {
+    /// <summary>[S-6074] The ring's total reads against the daily limit; no app's limit shows on it.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<ScreenTimeSetting> ShownSettings => [ScreenTimeSetting.DailyLimit];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ScreenTimeDonut;
 
@@ -69,8 +93,17 @@ public sealed class ScreenTimeDonutConfig : WidgetConfig
 }
 
 /// <summary>[S-3350] The screen-time app list: the apps of the period, busiest first, with their time.</summary>
-public sealed class ScreenTimeAppsConfig : WidgetConfig
+public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>
 {
+    /// <summary>
+    /// [S-6074] The list marks each app against its own limit, never the day's total against the
+    /// daily one; an average per day exists over a window (a week or a month), not over one day.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<ScreenTimeSetting> ShownSettings => Period == ScreenTimePeriod.Day
+        ? [ScreenTimeSetting.AppLimits]
+        : [ScreenTimeSetting.AppLimits, ScreenTimeSetting.Average];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ScreenTimeApps;
 

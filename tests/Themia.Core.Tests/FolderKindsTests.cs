@@ -83,7 +83,7 @@ public sealed class FolderKindsTests
     [Theory]
     [MemberData(nameof(StyleSettings))]
     public void S4121_each_style_shows_only_the_settings_it_draws(FolderStyle style, FolderSetting[] rows)
-        => Assert.Equal(rows, FolderConfig.SettingsFor(style));
+        => Assert.Equal(rows, new FolderConfig { Style = style }.ShownSettings);
 
     [Fact]
     public void S4121_a_clone_keeps_every_setting_and_the_style()

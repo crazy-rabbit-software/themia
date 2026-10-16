@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -22,9 +23,13 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.Weather_DefaultLabel.Text()));
         AddWeatherDisplay(rows, config, save);
 
-        rows.Add(FluentLayout.Row(Glyphs.Info, Str.WidgetsC_Weather_Settings_ShowDetail_Label.Text(),
-            Str.WidgetsC_Weather_Settings_ShowDetail_Desc.Text(),
-            FluentLayout.Toggle(config.ShowDetails, value => { config.ShowDetails = value; save(); })));
+        // [S-6074] Only the standard style draws the readings line.
+        if (config.Offers(WeatherNowSetting.Details))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Info, Str.WidgetsC_Weather_Settings_ShowDetail_Label.Text(),
+                Str.WidgetsC_Weather_Settings_ShowDetail_Desc.Text(),
+                FluentLayout.Toggle(config.ShowDetails, value => { config.ShowDetails = value; save(); })));
+        }
     }
 
     /// <summary>

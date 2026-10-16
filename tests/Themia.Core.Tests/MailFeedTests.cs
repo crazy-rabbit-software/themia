@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Themia.Core.Accounts;
@@ -347,7 +347,7 @@ public class MailFeedTests
     [InlineData(EmailStyle.Compact, new[] { EmailSetting.ListFields })]
     [InlineData(EmailStyle.Table, new[] { EmailSetting.Columns })]
     public void S6403_the_page_offers_only_what_the_style_draws_with(EmailStyle style, EmailSetting[] expected)
-        => Assert.Equal(expected, EmailConfig.SettingsFor(style));
+        => Assert.Equal(expected, new EmailConfig { Style = style }.ShownSettings);
 
     [Fact]
     public void S6403_an_old_preview_field_in_a_hand_edited_file_is_dropped_not_refused()

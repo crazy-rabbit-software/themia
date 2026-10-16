@@ -29,7 +29,7 @@ public enum EmailStyle
 /// would refuse the whole state file and blank every desktop.
 /// </para>
 /// </summary>
-public sealed class EmailConfig : WidgetConfig, IStyled
+public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>
 {
     /// <summary>The fields the list and compact styles show when the user has not chosen.</summary>
     public static IReadOnlyList<MailListField> DefaultListFields { get; } = [MailListField.Subject, MailListField.Account];
@@ -108,10 +108,11 @@ public sealed class EmailConfig : WidgetConfig, IStyled
     public bool ShowsPreview => Style == EmailStyle.List;
 
     /// <summary>
-    /// [S-6403] Which of the page's look settings the current style draws with; the page offers only
-    /// these, and the rest keep their values for when the style comes back.
+    /// [S-6403] [S-6070] Which of the page's look settings the current style draws with; the page
+    /// offers only these, and the rest keep their values for when the style comes back.
     /// </summary>
-    public static IReadOnlyList<EmailSetting> SettingsFor(EmailStyle style) => style switch
+    [JsonIgnore]
+    public IReadOnlyList<EmailSetting> ShownSettings => Style switch
     {
         EmailStyle.List => [EmailSetting.ListFields, EmailSetting.PreviewLines],
         EmailStyle.Compact => [EmailSetting.ListFields],

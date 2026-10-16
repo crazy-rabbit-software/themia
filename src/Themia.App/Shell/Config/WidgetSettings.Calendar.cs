@@ -69,7 +69,7 @@ internal static partial class WidgetSettings
         // ([S-6010]). The week start is every calendar's ([S-3770]).
         if (config is CalendarWidgetConfig calendar)
         {
-            foreach (var setting in CalendarWidgetConfig.SettingsFor(calendar.Style))
+            foreach (var setting in calendar.ShownSettings)
             {
                 CalendarStyleRow(rows, calendar, setting, save);
             }

@@ -72,7 +72,7 @@ public enum FolderSetting
 /// keep their extension (list, details, grid), the columns (details) and the tile size (grid, icons).
 /// A style ignores the fields it does not use, and its settings page shows only its own ([S-4122]).
 /// </summary>
-public sealed class FolderConfig : WidgetConfig, IStyled
+public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderSetting>
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Folder;
@@ -128,10 +128,11 @@ public sealed class FolderConfig : WidgetConfig, IStyled
     public FolderTileSize TileSize { get; set; } = FolderTileSize.Medium;
 
     /// <summary>
-    /// [S-4121] [S-4122] The rows the settings page shows for <paramref name="style"/>, in page order:
-    /// only what that style draws. Picking another style rebuilds the page ([S-6010]).
+    /// [S-4121] [S-4122] [S-6070] The rows the settings page shows for the current style, in page
+    /// order: only what that style draws. Picking another style rebuilds the page ([S-6010]).
     /// </summary>
-    public static IReadOnlyList<FolderSetting> SettingsFor(FolderStyle style) => style switch
+    [JsonIgnore]
+    public IReadOnlyList<FolderSetting> ShownSettings => Style switch
     {
         FolderStyle.Details => [FolderSetting.RowSize, FolderSetting.Columns, FolderSetting.Extensions],
         FolderStyle.Grid => [FolderSetting.TileSize, FolderSetting.Extensions, FolderSetting.Sort],

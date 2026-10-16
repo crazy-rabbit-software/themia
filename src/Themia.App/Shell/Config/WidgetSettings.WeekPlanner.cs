@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -24,6 +25,12 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Row(Glyphs.Task, Str.Planner_ShowTasks.Text(), Str.Planner_ShowTasksDesc.Text(),
             FluentLayout.Toggle(planner.ShowTasks, value => { planner.ShowTasks = value; save(); })));
+
+        // [S-6074] The account is offered while the tasks show.
+        if (!planner.Offers(WeekPlannerSetting.TaskAccount))
+        {
+            return;
+        }
 
         // The first account with tasks, then each account by name; a chosen account that has since
         // been signed out stays listed by its id, so the choice is never silently swapped ([S-590]).

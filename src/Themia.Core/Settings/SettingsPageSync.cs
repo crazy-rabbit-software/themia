@@ -68,9 +68,10 @@ public static class SettingsPageSync
     /// (Add view, Duplicate, Delete, Move up, a drag, switching a display off), and the page has to
     /// show the group it added or drop the one it deleted. A rename or a new icon keeps the shape:
     /// those update their own group in place, so the box being typed in is never torn down.
-    /// [S-6010] A widget page's shape is the widget's style (<paramref name="id"/>): a style shows
-    /// only its own rows, so picking another builds the page again. Empty for every other scope,
-    /// and for a widget without styles, which never rebuild this way.
+    /// [S-6010] [S-6071] A widget page's shape (<paramref name="id"/>) is its style and the rows its
+    /// config offers now (<see cref="Themia.Core.Widgets.SettingRules.Shape"/>): picking another style
+    /// or turning on a switch that other rows depend on builds the page again. Empty for every
+    /// other scope.
     /// </summary>
     public static string Shape(AppState state, SettingsScope scope, IReadOnlyList<string>? displays = null, string? id = null)
     {
@@ -96,9 +97,7 @@ public static class SettingsPageSync
             {
                 if (widget.Id == id)
                 {
-                    return Themia.Core.Widgets.WidgetStyles.Current(widget.Config) is { } style
-                        ? style.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        : string.Empty;
+                    return Themia.Core.Widgets.SettingRules.Shape(widget.Config);
                 }
             }
         }

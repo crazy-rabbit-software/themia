@@ -60,7 +60,26 @@ public enum ClockOffsetMode
     Local = 2,
 }
 
-public sealed class ClockConfig : WidgetConfig, IStyled
+/// <summary>[S-6074] The clock's rows that only some styles draw.</summary>
+public enum ClockSetting
+{
+    /// <summary>Seconds: the faces that tick them ([S-6015]).</summary>
+    Seconds,
+
+    /// <summary>The date line: not the minimal clock, nor the date style, which is the date.</summary>
+    Date,
+
+    /// <summary>The size of the label, date and offset lines.</summary>
+    TextSize,
+
+    /// <summary>The place label, under the zone.</summary>
+    Label,
+
+    /// <summary>The offset line, under the zone.</summary>
+    Offset,
+}
+
+public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>
 {
     /// <summary>[S-1482] A label longer than this is a sentence, not a place.</summary>
     public const int MaxLabelLength = 40;
@@ -131,6 +150,19 @@ public sealed class ClockConfig : WidgetConfig, IStyled
     /// <summary>True when a zone is chosen and resolves: what makes the clock a world clock.</summary>
     [JsonIgnore]
     public bool IsWorldClock => ZoneCatalog.Resolve(TimeZoneId) is not null;
+
+    /// <summary>
+    /// [S-6074] The rows the page offers: seconds where the face ticks them; the date, text size,
+    /// label and offset lines wherever there are lines under the time, so neither on the minimal
+    /// clock ([S-6014]) nor on the date style ([S-5303]). Align and the zone apply to every style.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<ClockSetting> ShownSettings => Style switch
+    {
+        ClockStyle.Date or ClockStyle.Minimal => [],
+        ClockStyle.Word => [ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset],
+        _ => [ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset],
+    };
 
     /// <summary>
     /// [S-6015] Whether this style draws seconds at all: words come in five-minute steps, the

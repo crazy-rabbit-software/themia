@@ -9,7 +9,7 @@ namespace Themia.Core.Model;
 /// alarms are several widgets. Kept in the file, unlike a timer: an alarm is a promise about tomorrow.
 /// What it is <i>doing</i> (ringing, snoozed) is the alarm service's, in memory.
 /// </summary>
-public sealed class AlarmConfig : WidgetConfig
+public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
 {
     /// <summary>The most a name says, in characters.</summary>
     public const int MostName = 40;
@@ -38,6 +38,10 @@ public sealed class AlarmConfig : WidgetConfig
 
     /// <summary>[S-4626] The ringtone, one of the timer's (<see cref="PomodoroSounds"/>); Off rings silently (the notice only).</summary>
     public AlarmSound Sound { get; set; } = AlarmSound.Bell;
+
+    /// <summary>[S-6074] The volume of a sound, offered while there is one.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<SoundSetting> ShownSettings => Sound == AlarmSound.Off ? [] : [SoundSetting.Volume];
 
     /// <summary>The ring's level, 0 to 100.</summary>
     public int Volume { get; set; } = DefaultVolume;

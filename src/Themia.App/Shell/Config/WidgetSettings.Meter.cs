@@ -14,12 +14,24 @@ internal static partial class WidgetSettings
     /// </summary>
     private static void MeterRows(List<FrameworkElement> rows, GaugeConfig gauge, Action save)
     {
+        // [S-6000] A styled meter's history is its graph style, chosen in the Style row: no switch
+        // beside it; [S-6074] and no span in a look that draws no history, nor a section heading
+        // over nothing.
+        if (gauge.ShownSettings.Count == 0)
+        {
+            return;
+        }
+
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Meters_History.Text()));
 
-        // [S-6000] A styled meter's history is its graph style, chosen in the Style row: no switch beside it.
-        if (!WidgetStyles.Offers(gauge.Kind))
+        if (gauge.Offers(MeterSetting.History))
         {
             AddGraphToggle(rows, gauge, save);
+        }
+
+        if (!gauge.Offers(MeterSetting.Span))
+        {
+            return;
         }
 
         var spans = MeterTiming.SpanChoices.Select(span => (span, MeterTiming.SpanLabel(span))).ToList();

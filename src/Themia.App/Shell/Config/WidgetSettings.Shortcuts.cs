@@ -49,29 +49,41 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
         // [S-6401] The view is the widget's style (the shared Style row); only what that style draws
-        // with is offered here, and picking another style rebuilds the page ([S-6010]).
-        if (config.UsesTileSettings)
+        // with is offered here, and picking another style rebuilds the page ([S-6010], [S-6074]).
+        if (config.Offers(ShortcutsSetting.TileSize))
         {
             rows.Add(FluentLayout.Row(Glyphs.Scale, Str.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
                 Str.WidgetsC_Shortcuts_Settings_TileSize_Desc.Text(),
                 FluentLayout.Choice(ShortcutSizes(), config.GridSize, value => { config.GridSize = value; save(); })));
+        }
+
+        if (config.Offers(ShortcutsSetting.IconOnly))
+        {
             rows.Add(FluentLayout.Row(Glyphs.Preview, Str.CtxMenu_IconOnly.Text(),
                 Str.WidgetsC_Shortcuts_Settings_IconsOnly_Desc.Text(),
                 FluentLayout.Toggle(config.GridIconOnly, value => { config.GridIconOnly = value; save(); })));
+        }
+
+        if (config.Offers(ShortcutsSetting.Stretch))
+        {
             rows.Add(FluentLayout.Row(Glyphs.Fit, Str.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
                 Str.WidgetsC_Shortcuts_Settings_Stretch_Desc.Text(),
                 FluentLayout.Toggle(config.GridStretchHeight, value => { config.GridStretchHeight = value; save(); })));
         }
-        else
+
+        if (config.Offers(ShortcutsSetting.RowSize))
         {
             rows.Add(FluentLayout.Row(Glyphs.TextSize, Str.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(),
                 Str.WidgetsC_Shortcuts_Settings_RowSize_Desc.Text(),
                 FluentLayout.Choice(ShortcutSizes(), config.ListSize, value => { config.ListSize = value; save(); })));
         }
 
-        rows.Add(FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(),
-            Str.WidgetsC_Shortcuts_Settings_ShowExtensions_Desc.Text(),
-            FluentLayout.Toggle(config.ShowFileExtension, value => { config.ShowFileExtension = value; save(); })));
+        if (config.Offers(ShortcutsSetting.Extensions))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(),
+                Str.WidgetsC_Shortcuts_Settings_ShowExtensions_Desc.Text(),
+                FluentLayout.Toggle(config.ShowFileExtension, value => { config.ShowFileExtension = value; save(); })));
+        }
 
         rows.Add(FluentLayout.Row(Glyphs.Open, Str.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(),
             Str.WidgetsC_Shortcuts_Settings_OpenWith_Desc.Text(),

@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -13,6 +14,12 @@ internal static partial class WidgetSettings
     public static void Sun(List<FrameworkElement> rows, SunConfig config, Action save)
     {
         SkyPlace(rows, config, save);
+
+        // [S-6074] The times style is the events: no switch for them, nor a heading over nothing.
+        if (!config.Offers(SunSetting.Events))
+        {
+            return;
+        }
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_SunMoon_Settings_Sky.Text()));
 

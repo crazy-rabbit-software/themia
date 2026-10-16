@@ -8,6 +8,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -63,10 +64,15 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.Done, Str.Todo_ShowCompleted_Label.Text(), Str.WidgetsC_Tasks_Settings_ShowCompleted_Desc.Text(),
             FluentLayout.Toggle(config.ShowCompleted, value => { config.ShowCompleted = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), Str.WidgetsC_Tasks_Settings_ShowDue_Desc.Text(),
-            FluentLayout.Toggle(config.ShowDueDate, value => { config.ShowDueDate = value; save(); })));
+        // [S-6074] Due dates exist only on an account's tasks.
+        if (config.Offers(TasksSetting.DueDate))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), Str.WidgetsC_Tasks_Settings_ShowDue_Desc.Text(),
+                FluentLayout.Toggle(config.ShowDueDate, value => { config.ShowDueDate = value; save(); })));
+        }
 
-        // [S-6400] List or Compact is the widget's style: the shared Style row at the top of the page.
+        // [S-6400] List or Compact is the widget's style: the shared Style row at the top of the page,
+        // offered while due dates are drawn, the one thing the styles lay out differently ([S-6072]).
 
         rows.Add(FluentLayout.Row(Glyphs.Wrap, Str.Todo_TitleLines_Label.Text(), Str.WidgetsC_Tasks_Settings_TitleLines_Desc.Text(),
             FluentLayout.Slider(config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1, string.Empty,
@@ -88,12 +94,20 @@ internal static partial class WidgetSettings
     /// <summary>[S-611] The due and importance filters: an account's tasks only.</summary>
     private static IEnumerable<FrameworkElement> TaskAccountFilterRows(TasksConfig config, Action save)
     {
-        if (config.Source != TaskSource.Account)
+        if (config.Offers(TasksSetting.DueFilter))
         {
-            yield break;
+            yield return DueFilterRow(config, save);
         }
 
-        yield return FluentLayout.Row(Glyphs.Calendar, Str.WidgetsC_Tasks_Settings_DueFilter_Label.Text(), Str.WidgetsC_Tasks_Settings_DueFilter_Desc.Text(),
+        if (config.Offers(TasksSetting.ImportantOnly))
+        {
+            yield return FluentLayout.Row(Glyphs.Important, Str.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), Str.WidgetsC_Tasks_Settings_ImportantOnly_Desc.Text(),
+                FluentLayout.Toggle(config.ImportantOnly, value => { config.ImportantOnly = value; save(); }));
+        }
+    }
+
+    private static Border DueFilterRow(TasksConfig config, Action save)
+        => FluentLayout.Row(Glyphs.Calendar, Str.WidgetsC_Tasks_Settings_DueFilter_Label.Text(), Str.WidgetsC_Tasks_Settings_DueFilter_Desc.Text(),
             FluentLayout.Choice<TaskDueFilter>(
                 [
                     (TaskDueFilter.Any, Str.WidgetsC_Tasks_Settings_DueFilter_Any.Text()),
@@ -104,10 +118,6 @@ internal static partial class WidgetSettings
                 ],
                 config.DueFilter,
                 value => { config.DueFilter = value; save(); }));
-
-        yield return FluentLayout.Row(Glyphs.Important, Str.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), Str.WidgetsC_Tasks_Settings_ImportantOnly_Desc.Text(),
-            FluentLayout.Toggle(config.ImportantOnly, value => { config.ImportantOnly = value; save(); }));
-    }
 
     /// <summary>[S-611] Words the titles must hold. Written on Enter and on leaving the box, never per keystroke.</summary>
     private static Border TaskTextFilterRow(TasksConfig config, Action save)

@@ -94,19 +94,17 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.Folder_View_Label.Text()));
 
         // [S-4121] Only what the style draws; picking another style rebuilds the page ([S-6010]).
-        var own = FolderConfig.SettingsFor(config.Style);
-
-        if (own.Contains(FolderSetting.RowSize))
+        if (config.Offers(FolderSetting.RowSize))
         {
             rows.Add(RowSizeRow(config.ItemSize, value => { config.ItemSize = value; save(); }));
         }
 
-        if (own.Contains(FolderSetting.TileSize))
+        if (config.Offers(FolderSetting.TileSize))
         {
             rows.Add(TileSizeRow(config.TileSize, value => { config.TileSize = value; save(); }));
         }
 
-        if (own.Contains(FolderSetting.Columns))
+        if (config.Offers(FolderSetting.Columns))
         {
             rows.Add(FluentLayout.Expander(Glyphs.ColumnsLayout, Str.WidgetsB_Settings_Folder_Columns_Label.Text(),
                 Str.WidgetsB_Settings_Folder_Columns_Desc.Text(),
@@ -122,7 +120,7 @@ internal static partial class WidgetSettings
                     })))]));
         }
 
-        if (own.Contains(FolderSetting.Extensions))
+        if (config.Offers(FolderSetting.Extensions))
         {
             rows.Add(ExtensionsRow(config.ShowExtensions, value => { config.ShowExtensions = value; save(); }));
         }
@@ -130,7 +128,7 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Folder_Contents.Text()));
 
         // Details sorts from its column headers; a sort row would say the same thing twice.
-        if (own.Contains(FolderSetting.Sort))
+        if (config.Offers(FolderSetting.Sort))
         {
             // [S-3795] The order folds under its key.
             rows.Add(FluentLayout.Expander(Glyphs.Sort, Str.WidgetsB_Settings_Folder_SortBy_Label.Text(), null,

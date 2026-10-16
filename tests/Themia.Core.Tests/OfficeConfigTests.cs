@@ -160,7 +160,7 @@ public sealed class OfficeConfigTests
     [Theory]
     [MemberData(nameof(StyleSettings))]
     public void S3641_each_style_shows_only_its_own_settings(CalendarStyle style, CalendarSetting[] rows)
-        => Assert.Equal(rows, CalendarWidgetConfig.SettingsFor(style));
+        => Assert.Equal(rows, new CalendarWidgetConfig { Style = style }.ShownSettings);
 
     [Fact]
     public void S3641_a_style_reads_only_its_own_lengths()

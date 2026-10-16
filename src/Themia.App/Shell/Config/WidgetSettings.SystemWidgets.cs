@@ -41,7 +41,7 @@ internal static partial class WidgetSettings
                 ScreenTimeRules.ClampChartStyle(config.Style),
                 value => { config.Style = value; save(); })));
 
-        AddShared(rows);
+        AddShared(rows, config);
     }
 
     /// <summary>[S-3340] The donut: the period; then the shared rows.</summary>
@@ -53,7 +53,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Donut_Label.Text()));
         rows.Add(PeriodRow(config.Period, value => { config.Period = value; save(); }));
-        AddShared(rows);
+        AddShared(rows, config);
     }
 
     /// <summary>[S-3350] The app list: the period, how many apps, the figures beside each; then the shared rows.</summary>
@@ -75,13 +75,17 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Settings_Figures.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Hours, Str.Screentime_Metric_Average.Text(), Str.WidgetsC_ScreenTime_Settings_Average_Desc.Text(),
-            FluentLayout.Toggle(config.ShowAverage, value => { config.ShowAverage = value; save(); })));
+        // [S-6074] An average per day needs more than one day.
+        if (config.Offers(ScreenTimeSetting.Average))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Hours, Str.Screentime_Metric_Average.Text(), Str.WidgetsC_ScreenTime_Settings_Average_Desc.Text(),
+                FluentLayout.Toggle(config.ShowAverage, value => { config.ShowAverage = value; save(); })));
+        }
 
         rows.Add(FluentLayout.Row(Glyphs.Count, Str.Screentime_Metric_Percent.Text(), Str.WidgetsC_ScreenTime_Settings_Share_Desc.Text(),
             FluentLayout.Toggle(config.ShowPercent, value => { config.ShowPercent = value; save(); })));
 
-        AddShared(rows);
+        AddShared(rows, config);
     }
 
     /// <summary>[S-3321] One day, or a rolling window that ends today.</summary>
@@ -96,7 +100,8 @@ internal static partial class WidgetSettings
     /// [S-3322] The limits and the hidden apps, on every screen-time widget's page: one set for the
     /// machine, edited from whichever page is open, saved with the history by the tracker.
     /// </summary>
-    private static void AddShared(List<FrameworkElement> rows)
+    /// <remarks>[S-6074] Of the limits, only the kind the widget draws with: the day's or each app's.</remarks>
+    private static void AddShared(List<FrameworkElement> rows, IShownSettings<ScreenTimeSetting> widget)
     {
         rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Settings_Limits.Text()));
 
@@ -108,7 +113,7 @@ internal static partial class WidgetSettings
         }
 
         rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_Settings_Shared.Text()));
-        AddLimits(rows, source);
+        AddLimits(rows, source, widget);
         AddHiddenApps(rows, source);
         rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_Settings_Privacy.Text()));
     }
@@ -117,16 +122,24 @@ internal static partial class WidgetSettings
     /// [S-457] Daily limits, edited in quarter hours and stored in seconds. A limit of zero is no
     /// limit at all, never one that everything instantly exceeds.
     /// </summary>
-    private static void AddLimits(List<FrameworkElement> rows, IScreenTimeSource source)
+    private static void AddLimits(List<FrameworkElement> rows, IScreenTimeSource source, IShownSettings<ScreenTimeSetting> widget)
     {
-        rows.Add(FluentLayout.Row(Glyphs.Timer, Str.WidgetsC_ScreenTime_DailyLimit.Text(), Str.WidgetsC_ScreenTime_Settings_DailyLimit_Desc.Format(("zero", 0)),
-            FluentLayout.Slider(Math.Clamp(source.Preferences.GoalSeconds / 60, 0, 1440), 0, 1440, 15, Str.WidgetsC_Pomodoro_MinutesUnit.Text(),
-                value =>
-                {
-                    var next = source.Preferences.Copy();
-                    next.GoalSeconds = (long)Math.Round(value) * 60;
-                    source.SetPreferences(next);
-                })));
+        if (widget.Offers(ScreenTimeSetting.DailyLimit))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Timer, Str.WidgetsC_ScreenTime_DailyLimit.Text(), Str.WidgetsC_ScreenTime_Settings_DailyLimit_Desc.Format(("zero", 0)),
+                FluentLayout.Slider(Math.Clamp(source.Preferences.GoalSeconds / 60, 0, 1440), 0, 1440, 15, Str.WidgetsC_Pomodoro_MinutesUnit.Text(),
+                    value =>
+                    {
+                        var next = source.Preferences.Copy();
+                        next.GoalSeconds = (long)Math.Round(value) * 60;
+                        source.SetPreferences(next);
+                    })));
+        }
+
+        if (!widget.Offers(ScreenTimeSetting.AppLimits))
+        {
+            return;
+        }
 
         // The apps the history knows, so a limit is picked rather than typed and mistyped.
         var known = KnownApps();

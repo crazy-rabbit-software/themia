@@ -4,6 +4,13 @@ using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
+/// <summary>[S-6074] The current conditions' rows that only some styles draw.</summary>
+public enum WeatherNowSetting
+{
+    /// <summary>The feels-like, humidity and wind line (Standard).</summary>
+    Details,
+}
+
 /// <summary>[S-6160] The current conditions' styles: the same reading, three looks.</summary>
 [JsonConverter(typeof(StyleJsonConverter<WeatherNowStyle>))]
 public enum WeatherNowStyle
@@ -101,7 +108,7 @@ public abstract class WeatherConfig : WidgetConfig
 }
 
 /// <summary>Conditions right now, from open-meteo's <c>current</c> block.</summary>
-public sealed class WeatherNowConfig : WeatherConfig, IStyled
+public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<WeatherNowSetting>
 {
     private static readonly StyleOption[] NowStyles =
     [
@@ -126,6 +133,10 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled
 
     /// <summary>Show the feels-like, humidity and wind line under the temperature.</summary>
     public bool ShowDetails { get; set; } = true;
+
+    /// <summary>[S-6074] The readings line is the standard style's own: the large icon and the minimal style never draw it.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<WeatherNowSetting> ShownSettings => Style == WeatherNowStyle.Standard ? [WeatherNowSetting.Details] : [];
 
     public override WidgetConfig Clone()
     {

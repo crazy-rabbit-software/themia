@@ -40,46 +40,8 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        var folderOnly = new List<FrameworkElement>();
-        var slideshowOnly = new List<FrameworkElement>();
-        FrameworkElement? fileRow = null;
-        FrameworkElement? fitRow = null;
-        var stickerRows = new List<FrameworkElement>();
-        var outlineRows = new List<FrameworkElement>();
-
-        void Update()
-        {
-            var folder = config.Source == GallerySource.Folder;
-
-            foreach (var row in folderOnly)
-            {
-                row.Visibility = folder ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            foreach (var row in slideshowOnly)
-            {
-                row.Visibility = folder && config.Style == GalleryStyle.Slideshow ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            var file = config.Source == GallerySource.File;
-            fileRow!.Visibility = file ? Visibility.Visible : Visibility.Collapsed;
-
-            // [S-774] [S-775] One picture file can be a sticker; the outline's own rows follow its switch.
-            foreach (var row in stickerRows)
-            {
-                row.Visibility = file ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            foreach (var row in outlineRows)
-            {
-                row.Visibility = file && config.Outline ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            // [S-15] A mosaic always crops to fill, so the choice would do nothing there; [S-774] nor
-            // would it on a sticker, which is always whole.
-            fitRow!.Visibility = (folder && config.Style == GalleryStyle.Mosaic) || config.IsSticker ? Visibility.Collapsed : Visibility.Visible;
-        }
-
+        // [S-6074] Only the rows the source, the layout and the outline use, by the config's one
+        // rule; a source, a layout or the outline switch changed builds the page again ([S-6071]).
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Gallery_Gallery.Text()));
 
         // [S-760] The source first: every other row depends on it.
@@ -87,79 +49,94 @@ internal static partial class WidgetSettings
             FluentLayout.Choice(
                 [(GallerySource.Folder, Str.WidgetsB_Settings_Gallery_SourceFolder.Text()), (GallerySource.File, Str.WidgetsB_Settings_Gallery_SourceFile.Text()), (GallerySource.Bing, Str.WidgetsB_Settings_Gallery_SourceBing.Text())],
                 config.Source,
-                value => { config.Source = value; save(); Update(); })));
+                value => { config.Source = value; save(); })));
 
-        var folderRow = GalleryPathRow(config, save, pickFile: false);
-        rows.Add(folderRow);
-        folderOnly.Add(folderRow);
+        if (config.Offers(GallerySetting.Folder))
+        {
+            rows.Add(GalleryPathRow(config, save, pickFile: false));
+        }
 
-        fileRow = GalleryPathRow(config, save, pickFile: true);
-        rows.Add(fileRow);
+        if (config.Offers(GallerySetting.File))
+        {
+            rows.Add(GalleryPathRow(config, save, pickFile: true));
+        }
 
-        var recursive = FluentLayout.Row(Glyphs.Folder, Str.Gallery_RecursiveLabel.Text(),
-            Str.WidgetsB_Settings_Gallery_Recursive_Desc.Text(),
-            FluentLayout.Toggle(config.Recursive, value => { config.Recursive = value; save(); }));
-        rows.Add(recursive);
-        folderOnly.Add(recursive);
+        if (config.Offers(GallerySetting.Recursive))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Folder, Str.Gallery_RecursiveLabel.Text(),
+                Str.WidgetsB_Settings_Gallery_Recursive_Desc.Text(),
+                FluentLayout.Toggle(config.Recursive, value => { config.Recursive = value; save(); })));
+        }
 
         // [S-6402] The layout is the gallery's style: the shared Style row at the top of the page.
-        // The rows that depend on it (the slide time, the fit) follow it when the page is rebuilt
-        // for a new style ([S-6010]).
+        if (config.Offers(GallerySetting.SlideSeconds))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Timer, Str.WidgetsB_Settings_Gallery_Slide_Label.Text(), Str.WidgetsB_Settings_Gallery_Slide_Desc.Text(),
+                FluentLayout.Slider(config.EffectiveSlideshowSeconds, GalleryConfig.MinSlideSeconds, 120, 1, "s",
+                    value => { config.SlideshowSeconds = (int)Math.Round(value); save(); })));
+        }
 
-        var slide = FluentLayout.Row(Glyphs.Timer, Str.WidgetsB_Settings_Gallery_Slide_Label.Text(), Str.WidgetsB_Settings_Gallery_Slide_Desc.Text(),
-            FluentLayout.Slider(config.EffectiveSlideshowSeconds, GalleryConfig.MinSlideSeconds, 120, 1, "s",
-                value => { config.SlideshowSeconds = (int)Math.Round(value); save(); }));
-        rows.Add(slide);
-        slideshowOnly.Add(slide);
-
-        fitRow = FluentLayout.Row(Glyphs.Scale, Str.WidgetsB_Settings_Gallery_Fit_Label.Text(),
-            Str.WidgetsB_Settings_Gallery_Fit_Desc.Text(),
-            FluentLayout.Choice(
-                [(GalleryFit.Fill, Str.WidgetsB_Settings_Gallery_Fill.Text()), (GalleryFit.Fit, Str.WidgetsB_Settings_Gallery_FitChoice.Text())],
-                config.Fit,
-                value => { config.Fit = value; save(); }));
-        rows.Add(fitRow);
+        if (config.Offers(GallerySetting.Fit))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Scale, Str.WidgetsB_Settings_Gallery_Fit_Label.Text(),
+                Str.WidgetsB_Settings_Gallery_Fit_Desc.Text(),
+                FluentLayout.Choice(
+                    [(GalleryFit.Fill, Str.WidgetsB_Settings_Gallery_Fill.Text()), (GalleryFit.Fit, Str.WidgetsB_Settings_Gallery_FitChoice.Text())],
+                    config.Fit,
+                    value => { config.Fit = value; save(); })));
+        }
 
         // [S-774] Turned by any angle, the whole picture still inside the widget.
-        var rotation = FluentLayout.Row(Glyphs.Rotate, Str.WidgetsB_Settings_Gallery_Rotation_Label.Text(), Str.WidgetsB_Settings_Gallery_Rotation_Desc.Text(),
-            FluentLayout.Slider(config.EffectiveRotation, -180, 180, 1, "°",
-                value => { config.Rotation = (int)Math.Round(value); save(); Update(); }));
-        rows.Add(rotation);
-        stickerRows.Add(rotation);
+        if (config.Offers(GallerySetting.Rotation))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Rotate, Str.WidgetsB_Settings_Gallery_Rotation_Label.Text(), Str.WidgetsB_Settings_Gallery_Rotation_Desc.Text(),
+                FluentLayout.Slider(config.EffectiveRotation, -180, 180, 1, "°",
+                    value => { config.Rotation = (int)Math.Round(value); save(); })));
+        }
 
         // [S-775] The outline along the picture's own shape, its colour and its width.
-        var outline = FluentLayout.Row(Glyphs.Gallery, Str.WidgetsB_Settings_Gallery_Outline_Label.Text(), Str.WidgetsB_Settings_Gallery_Outline_Desc.Text(),
-            FluentLayout.Toggle(config.Outline, value => { config.Outline = value; save(); Update(); }));
-        rows.Add(outline);
-        stickerRows.Add(outline);
+        if (config.Offers(GallerySetting.Outline))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Gallery, Str.WidgetsB_Settings_Gallery_Outline_Label.Text(), Str.WidgetsB_Settings_Gallery_Outline_Desc.Text(),
+                FluentLayout.Toggle(config.Outline, value => { config.Outline = value; save(); })));
+        }
 
-        var colour = FluentLayout.ColorPickerRow(Glyphs.Palette, Str.WidgetsB_Settings_Gallery_OutlineColour_Label.Text(), null,
-            config.EffectiveOutlineColor, value => { config.OutlineColor = value; save(); });
-        rows.Add(colour);
-        outlineRows.Add(colour);
+        if (config.Offers(GallerySetting.OutlineColor))
+        {
+            rows.Add(FluentLayout.ColorPickerRow(Glyphs.Palette, Str.WidgetsB_Settings_Gallery_OutlineColour_Label.Text(), null,
+                config.EffectiveOutlineColor, value => { config.OutlineColor = value; save(); }));
+        }
 
-        var thickness = FluentLayout.Row(Glyphs.Scale, Str.WidgetsB_Settings_Gallery_OutlineWidth_Label.Text(), null,
-            FluentLayout.Slider(config.EffectiveOutlineWidth, StickerRules.MinOutline, StickerRules.MaxOutline, 1, "px",
-                value => { config.OutlineWidth = (int)Math.Round(value); save(); }));
-        rows.Add(thickness);
-        outlineRows.Add(thickness);
+        if (config.Offers(GallerySetting.OutlineWidth))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Scale, Str.WidgetsB_Settings_Gallery_OutlineWidth_Label.Text(), null,
+                FluentLayout.Slider(config.EffectiveOutlineWidth, StickerRules.MinOutline, StickerRules.MaxOutline, 1, "px",
+                    value => { config.OutlineWidth = (int)Math.Round(value); save(); })));
+        }
 
-        var count = FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Gallery_Count_Label.Text(), Str.WidgetsB_Settings_Gallery_Count_Desc.Text(),
-            FluentLayout.Slider(
-                config.EffectiveMaxImages,
-                1,
-                GalleryConfig.MaxImageCount,
-                1,
-                string.Empty,
-                value => { config.MaxImages = (int)Math.Round(value); save(); }));
-        rows.Add(count);
-        folderOnly.Add(count);
+        if (config.Offers(GallerySetting.Count))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Gallery_Count_Label.Text(), Str.WidgetsB_Settings_Gallery_Count_Desc.Text(),
+                FluentLayout.Slider(
+                    config.EffectiveMaxImages,
+                    1,
+                    GalleryConfig.MaxImageCount,
+                    1,
+                    string.Empty,
+                    value => { config.MaxImages = (int)Math.Round(value); save(); })));
+        }
 
-        var shuffle = FluentLayout.Row(Glyphs.Shuffle, Str.WidgetsB_Settings_Gallery_Shuffle_Label.Text(),
-            Str.WidgetsB_Settings_Gallery_Shuffle_Desc.Text(),
-            FluentLayout.Toggle(config.Shuffle, value => { config.Shuffle = value; save(); }));
-        rows.Add(shuffle);
-        folderOnly.Add(shuffle);
+        if (config.Offers(GallerySetting.Shuffle))
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Shuffle, Str.WidgetsB_Settings_Gallery_Shuffle_Label.Text(),
+                Str.WidgetsB_Settings_Gallery_Shuffle_Desc.Text(),
+                FluentLayout.Toggle(config.Shuffle, value => { config.Shuffle = value; save(); })));
+        }
+
+        if (!config.Offers(GallerySetting.OpenFolder))
+        {
+            return;
+        }
 
         var open = new Button { Content = Str.Folder_OpenInExplorer.Text() };
 
@@ -175,11 +152,7 @@ internal static partial class WidgetSettings
 
         // The widget will not move, rename or delete anything, so this is the way out to the place
         // that will.
-        var files = FluentLayout.Row(Glyphs.Open, Str.WidgetsB_Settings_Gallery_Files_Label.Text(), Str.WidgetsB_Settings_Gallery_Files_Desc.Text(), open);
-        rows.Add(files);
-        folderOnly.Add(files);
-
-        Update();
+        rows.Add(FluentLayout.Row(Glyphs.Open, Str.WidgetsB_Settings_Gallery_Files_Label.Text(), Str.WidgetsB_Settings_Gallery_Files_Desc.Text(), open));
     }
 
     /// <summary>

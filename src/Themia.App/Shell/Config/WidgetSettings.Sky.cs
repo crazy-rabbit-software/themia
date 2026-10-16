@@ -17,7 +17,7 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    private static void SkyPlace(List<FrameworkElement> rows, SkyPlaceConfig config, Action save)
+    private static void SkyPlace(List<FrameworkElement> rows, SkyPlaceConfig config, Action save, bool longitude = true)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
@@ -28,7 +28,7 @@ internal static partial class WidgetSettings
         // Built before the search so a pick can show its coordinates in them at once.
         var place = new TextBox { Text = config.Place, MinWidth = 200, PlaceholderText = Str.SunMoon_Place_Placeholder.Text() };
         var latitude = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
-        var longitude = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
+        var longitudeBox = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
 
         // A Sun or Moon tile always has a place (it starts at Zurich); a pick replaces it and fills
         // the exact fields below.
@@ -41,7 +41,7 @@ internal static partial class WidgetSettings
                 config.Place = picked.Label;
                 place.Text = picked.Label;
                 latitude.Text = FormatCoordinate(picked.Latitude);
-                longitude.Text = FormatCoordinate(picked.Longitude);
+                longitudeBox.Text = FormatCoordinate(picked.Longitude);
                 save();
             }));
 
@@ -73,8 +73,14 @@ internal static partial class WidgetSettings
             90,
             value => { config.Latitude = value; save(); }));
 
+        // [S-6074] Offered where the style reads it ([S-6050]: the month's phases do not).
+        if (!longitude)
+        {
+            return;
+        }
+
         rows.Add(CoordinateRow(
-            longitude,
+            longitudeBox,
             Str.SunMoon_Longitude_Label.Text(),
             Str.SunMoon_Longitude_Desc.Text(),
             config.Longitude,

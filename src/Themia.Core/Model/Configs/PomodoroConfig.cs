@@ -5,6 +5,13 @@ using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
+/// <summary>[S-6074] The sound rows of the pomodoro and the alarm that depend on the sound chosen.</summary>
+public enum SoundSetting
+{
+    /// <summary>The volume: only while a sound is chosen.</summary>
+    Volume,
+}
+
 /// <summary>
 /// [S-1460] The phase-flip cue: off, or one of the original's twelve ringtones. Read leniently, so
 /// a hand-edited or unknown name is the default (<see cref="Chime"/>, the zero value) rather than a
@@ -41,7 +48,7 @@ public enum PomodoroStyle
 }
 
 /// <summary>A focus/break timer. [S-01] Run state is deliberately not persisted.</summary>
-public sealed class PomodoroConfig : WidgetConfig, IStyled
+public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<SoundSetting>
 {
     /// <summary>[S-1460] The original's default level.</summary>
     public const int DefaultVolume = 70;
@@ -83,6 +90,10 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled
 
     /// <summary>[S-1460] The cue a phase flip sounds; <see cref="AlarmSound.Off"/> for none.</summary>
     public AlarmSound Sound { get; set; } = AlarmSound.Chime;
+
+    /// <summary>[S-6074] The volume of a sound, offered while there is one.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<SoundSetting> ShownSettings => Sound == AlarmSound.Off ? [] : [SoundSetting.Volume];
 
     /// <summary>[S-1460] The cue's level, 0 to 100.</summary>
     public int Volume { get; set; } = DefaultVolume;

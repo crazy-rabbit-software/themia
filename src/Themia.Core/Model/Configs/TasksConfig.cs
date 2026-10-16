@@ -16,6 +16,19 @@ public enum TasksStyle
     Compact = 1,
 }
 
+/// <summary>[S-6074] The Tasks rows that only an account's tasks use: a list on this PC has no due dates or importance.</summary>
+public enum TasksSetting
+{
+    /// <summary>Show due dates.</summary>
+    DueDate,
+
+    /// <summary>Filter by due date.</summary>
+    DueFilter,
+
+    /// <summary>Important only.</summary>
+    ImportantOnly,
+}
+
 /// <summary>
 /// [S-590] A task list: from a Microsoft or Google account through Themia's own sign-in, or a list
 /// kept on this PC.
@@ -26,7 +39,7 @@ public enum TasksStyle
 /// quietly swapped for another — that widget says so instead.
 /// </para>
 /// </summary>
-public sealed class TasksConfig : WidgetConfig, IStyled
+public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>
 {
     private List<string> _taskOrder = [];
 
@@ -99,6 +112,18 @@ public sealed class TasksConfig : WidgetConfig, IStyled
 
     [JsonIgnore]
     public int EffectiveTitleLines => TaskRules.ClampTitleLines(TitleLines);
+
+    /// <summary>[S-6074] The due date and importance rows: an account's tasks only (<see cref="Filter"/>).</summary>
+    [JsonIgnore]
+    public IReadOnlyList<TasksSetting> ShownSettings => Source == TaskSource.Account
+        ? [TasksSetting.DueDate, TasksSetting.DueFilter, TasksSetting.ImportantOnly]
+        : [];
+
+    /// <summary>
+    /// [S-6072] The two styles differ only in where a row's due date goes ([S-602]): with no due
+    /// dates drawn they are the same list, so the Style row is not offered.
+    /// </summary>
+    bool IShownSettings.OffersStyle => Source == TaskSource.Account && ShowDueDate;
 
     /// <summary>The most a text filter holds: a few words, not a document.</summary>
     public const int TextFilterMax = 100;

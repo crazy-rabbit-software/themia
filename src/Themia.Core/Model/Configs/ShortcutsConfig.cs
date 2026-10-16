@@ -21,6 +21,25 @@ public enum ShortcutsStyle
     Details = 2,
 }
 
+/// <summary>[S-6401] [S-6074] The shortcuts' rows that only some styles or states draw with.</summary>
+public enum ShortcutsSetting
+{
+    /// <summary>The grid's tile size.</summary>
+    TileSize,
+
+    /// <summary>The grid's icons-only switch.</summary>
+    IconOnly,
+
+    /// <summary>The grid's stretch to the height.</summary>
+    Stretch,
+
+    /// <summary>The list and details row size.</summary>
+    RowSize,
+
+    /// <summary>File extensions on the names: not on a grid of icons alone, which draws no names.</summary>
+    Extensions,
+}
+
 /// <summary>[S-1380] How big a tile or a row is drawn (original S-23 / S-46).</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<ShortcutItemSize>))]
 public enum ShortcutItemSize
@@ -97,7 +116,7 @@ public sealed class ShortcutItem
 /// <summary>
 /// An ordered list of shortcuts and how to draw them.
 /// </summary>
-public sealed class ShortcutsConfig : WidgetConfig, IStyled
+public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<ShortcutsSetting>
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Shortcuts;
@@ -122,9 +141,13 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled
         set => Style = (ShortcutsStyle)value;
     }
 
-    /// <summary>[S-6401] The look settings the current style draws with; the page shows only these.</summary>
+    /// <summary>[S-6401] [S-6074] The look settings the current style draws with; the page shows only these.</summary>
     [JsonIgnore]
-    public bool UsesTileSettings => Style == ShortcutsStyle.Grid;
+    public IReadOnlyList<ShortcutsSetting> ShownSettings => Style == ShortcutsStyle.Grid
+        ? GridIconOnly
+            ? [ShortcutsSetting.TileSize, ShortcutsSetting.IconOnly, ShortcutsSetting.Stretch]
+            : [ShortcutsSetting.TileSize, ShortcutsSetting.IconOnly, ShortcutsSetting.Stretch, ShortcutsSetting.Extensions]
+        : [ShortcutsSetting.RowSize, ShortcutsSetting.Extensions];
 
     /// <summary>[S-1380] Tile size in the grid (original <c>gridItemSize</c>).</summary>
     public ShortcutItemSize GridSize { get; set; } = ShortcutItemSize.Medium;

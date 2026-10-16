@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
@@ -9,5 +10,6 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    public static void Moon(List<FrameworkElement> rows, MoonConfig config, Action save) => SkyPlace(rows, config, save);
+    public static void Moon(List<FrameworkElement> rows, MoonConfig config, Action save)
+        => SkyPlace(rows, config, save, longitude: config.Offers(MoonSetting.Longitude));
 }

@@ -50,6 +50,23 @@ public enum GalleryFit
     Fit = 1,
 }
 
+/// <summary>[S-6074] The gallery's rows that only some sources, styles or states use.</summary>
+public enum GallerySetting
+{
+    Folder,
+    File,
+    Recursive,
+    SlideSeconds,
+    Fit,
+    Rotation,
+    Outline,
+    OutlineColor,
+    OutlineWidth,
+    Count,
+    Shuffle,
+    OpenFolder,
+}
+
 /// <summary>
 /// Pictures from a folder on this PC, one picture file, or Bing's photo of the day.
 /// <para>
@@ -60,7 +77,7 @@ public enum GalleryFit
 /// desktop in front of whoever walks past, is a different kind of mistake.
 /// </para>
 /// </summary>
-public sealed class GalleryConfig : WidgetConfig, IStyled
+public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<GallerySetting>
 {
     /// <summary>
     /// [S-1620] The fewest seconds a slide can be held: one, as in the original (its S-09/S-18).
@@ -161,6 +178,70 @@ public sealed class GalleryConfig : WidgetConfig, IStyled
     /// </summary>
     [JsonIgnore]
     public bool IsSticker => Source == GallerySource.File && (EffectiveRotation != 0 || Outline);
+
+    /// <summary>
+    /// [S-6074] The rows the page offers, by source and style: a folder's own rows (the folder, its
+    /// subfolders, how many, the shuffle, the way out to Explorer), the slide time only for the
+    /// slideshow, a picture file's rows (the file, its turn and outline, the outline's colour and
+    /// width with the outline on), and the fit wherever a picture can be letterboxed: not on a
+    /// scatter or a mosaic, which always crop ([S-15]), nor on an outlined sticker, always whole.
+    /// The photo of the day has neither: one picture, filled or fitted. A rule never reads a
+    /// slider's value, so dragging one never rebuilds the page under the pointer.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<GallerySetting> ShownSettings
+    {
+        get
+        {
+            var shown = new List<GallerySetting>();
+            switch (Source)
+            {
+                case GallerySource.Folder:
+                    shown.Add(GallerySetting.Folder);
+                    shown.Add(GallerySetting.Recursive);
+                    if (Style == GalleryStyle.Slideshow)
+                    {
+                        shown.Add(GallerySetting.SlideSeconds);
+                    }
+
+                    if (Style is GalleryStyle.Slideshow or GalleryStyle.Grid)
+                    {
+                        shown.Add(GallerySetting.Fit);
+                    }
+
+                    shown.Add(GallerySetting.Count);
+                    shown.Add(GallerySetting.Shuffle);
+                    shown.Add(GallerySetting.OpenFolder);
+                    break;
+
+                case GallerySource.File:
+                    shown.Add(GallerySetting.File);
+                    if (!Outline)
+                    {
+                        shown.Add(GallerySetting.Fit);
+                    }
+
+                    shown.Add(GallerySetting.Rotation);
+                    shown.Add(GallerySetting.Outline);
+                    if (Outline)
+                    {
+                        shown.Add(GallerySetting.OutlineColor);
+                        shown.Add(GallerySetting.OutlineWidth);
+                    }
+
+                    break;
+
+                default:
+                    shown.Add(GallerySetting.Fit);
+                    break;
+            }
+
+            return shown;
+        }
+    }
+
+    /// <summary>[S-6072] A picture file and the photo of the day are one picture: every layout draws it the same.</summary>
+    bool IShownSettings.OffersStyle => Source == GallerySource.Folder;
 
     [JsonIgnore]
     public int EffectiveMaxImages => Math.Clamp(MaxImages, 1, MaxImageCount);
