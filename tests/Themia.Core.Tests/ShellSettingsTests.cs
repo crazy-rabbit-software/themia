@@ -71,12 +71,13 @@ public sealed class ShellSettingsTests : IDisposable
     [Theory]
     [InlineData(WidgetKind.Sun)]
     [InlineData(WidgetKind.Moon)]
-    [InlineData(WidgetKind.Disk)]
-    public void S700_the_sun_the_moon_and_the_disk_meter_start_without_a_header(WidgetKind kind)
+    [InlineData(WidgetKind.Drive)]
+    public void S700_the_sun_the_moon_and_the_drive_card_start_without_a_header(WidgetKind kind)
         => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
 
     [Theory]
     [InlineData(WidgetKind.Cpu)]
+    [InlineData(WidgetKind.Disk)]
     [InlineData(WidgetKind.Notes)]
     [InlineData(WidgetKind.Countdown)]
     [InlineData(WidgetKind.Pomodoro)]

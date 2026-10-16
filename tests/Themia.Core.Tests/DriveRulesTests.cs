@@ -143,4 +143,11 @@ public sealed class DriveRulesTests
     [Fact]
     public void S4675_a_new_drive_card_starts_without_a_header()
         => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(WidgetKind.Drive));
+
+    [Fact]
+    public void S700_the_disk_meter_starts_with_its_header_like_the_other_meters()
+    {
+        Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(WidgetKind.Disk));
+        Assert.Equal(WidgetInstance.DefaultHeader(WidgetKind.Memory), WidgetInstance.DefaultHeader(WidgetKind.Disk));
+    }
 }

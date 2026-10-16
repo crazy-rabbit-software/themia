@@ -2007,8 +2007,9 @@ rules are these.
 
 - **[S-700]** The clock starts with its header **hidden**, as in the original
   (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
-  ([S-3200]), and (user requirement) the sun, the moon ([S-3100]) and the disk meter, which names
-  its drive beside its reading instead ([S-1161]). Only creation reads the default; a loaded widget
+  ([S-3200]), and (user requirement) the sun and the moon ([S-3100]) and the drive card ([S-4675]).
+  The disk meter starts with its header like the other meters (user requirement), so its reading
+  sits where theirs does ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.
 - **[S-701]** The app pages of the settings window come from one table, `ConfigPages.AppPages`
   (page, title, glyph, main or footer slot, builder). The navigation and the body both read it, so a
