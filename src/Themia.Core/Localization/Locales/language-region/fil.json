@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "Wika at rehiyon",
+  "languageRegion.displayLanguage": "Wika ng display ng app",
+  "languageRegion.displayLanguageDesc": "Lumalabas sa wikang ito ang mga setting, menu at widget ng Themia",
+  "languageRegion.region.header": "Panrehiyong format",
+  "languageRegion.clock": "Format ng oras",
+  "languageRegion.clock12": "{hours}-oras",
+  "languageRegion.clock24": "{hours}-oras",
+  "languageRegion.followWindows": "Setting ng Windows ({value})"
+}

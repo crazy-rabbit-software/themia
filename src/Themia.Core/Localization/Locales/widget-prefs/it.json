@@ -1,11 +1,5 @@
 {
   "widgetPrefs.nav": "Widget",
-  "widgetPrefs.subtitle": "Formati e aggiornamenti di tutti i widget",
-  "widgetPrefs.region.header": "Formato regionale",
-  "widgetPrefs.region.clock": "Formato ora",
-  "widgetPrefs.region.clock12": "{hours} ore",
-  "widgetPrefs.region.clock24": "{hours} ore",
-  "widgetPrefs.followWindows": "Impostazione di Windows ({value})",
   "widgetPrefs.updates.header": "Aggiornamenti",
   "widgetPrefs.updates.note": "Ogni quanto i widget interrogano i servizi online. «Aggiorna» su un widget interroga subito.",
   "widgetPrefs.updates.weather": "Meteo",

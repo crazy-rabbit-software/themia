@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "Mga widget",
-  "widgetPrefs.subtitle": "Mga format at update na pinagsasaluhan ng bawat widget",
-  "widgetPrefs.region.header": "Panrehiyong format",
-  "widgetPrefs.region.clock": "Format ng oras",
-  "widgetPrefs.region.clock12": "{hours}-oras",
-  "widgetPrefs.region.clock24": "{hours}-oras",
-  "widgetPrefs.followWindows": "Setting ng Windows ({value})",
   "widgetPrefs.updates.header": "Mga update",
   "widgetPrefs.updates.note": "Gaano kadalas nagtatanong ang mga widget sa mga online service. Agad na nagtatanong ang I-refresh sa isang widget.",
   "widgetPrefs.updates.weather": "Panahon",

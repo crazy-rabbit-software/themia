@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "الأدوات",
-  "widgetPrefs.subtitle": "التنسيقات والتحديثات المشتركة بين كل الأدوات",
-  "widgetPrefs.region.header": "التنسيق الإقليمي",
-  "widgetPrefs.region.clock": "تنسيق الوقت",
-  "widgetPrefs.region.clock12": "{hours} ساعة",
-  "widgetPrefs.region.clock24": "{hours} ساعة",
-  "widgetPrefs.followWindows": "إعداد Windows ({value})",
   "widgetPrefs.updates.header": "التحديثات",
   "widgetPrefs.updates.note": "عدد مرات اتصال الأدوات بالخدمات عبر الإنترنت. يؤدي «تحديث» في أداة إلى الاتصال فورًا.",
   "widgetPrefs.updates.weather": "الطقس",

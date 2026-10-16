@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "Lugha na eneo",
+  "languageRegion.displayLanguage": "Lugha ya kuonyesha ya programu",
+  "languageRegion.displayLanguageDesc": "Mipangilio, menyu na wijeti za Themia huonekana kwa lugha hii",
+  "languageRegion.region.header": "Muundo wa kieneo",
+  "languageRegion.clock": "Muundo wa saa",
+  "languageRegion.clock12": "Saa {hours}",
+  "languageRegion.clock24": "Saa {hours}",
+  "languageRegion.followWindows": "Mpangilio wa Windows ({value})"
+}

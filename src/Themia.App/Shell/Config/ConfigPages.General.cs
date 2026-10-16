@@ -13,17 +13,15 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The General page: language, start with Windows and the desktop. [S-3833] Edit mode is entered on
-/// the desktop (and from a view's menu), the view new displays show is on the Displays page, and
-/// the local network has no switch ([S-3840]).
+/// The General page: start with Windows and the desktop. The language is on Language &amp; region
+/// ([S-3797]). [S-3833] Edit mode is entered on the desktop (and from a view's menu), the view new
+/// displays show is on the Displays page, and the local network has no switch ([S-3840]).
 /// </summary>
 internal static partial class ConfigPages
 {
     private static FrameworkElement BuildGeneral(AppHost host)
     {
         var rows = new List<FrameworkElement> { FluentLayout.Header(Str.Shell_Settings_General_System.Text()) };
-
-        rows.Add(LanguageRow(host));
 
         AddStartupRows(rows, host);
 
@@ -32,52 +30,5 @@ internal static partial class ConfigPages
         rows.Add(GameModeRow(host));
 
         return Page(Str.Settings_Nav_General.Text(), rows);
-    }
-
-    /// <summary>
-    /// [S-1109] The app's language: Windows' own by default, or one of the thirty, switching live.
-    /// Each language is listed by its own name ("Deutsch", "日本語"), the same in every language, so
-    /// someone who landed in a language they cannot read still finds theirs.
-    /// </summary>
-    private static Border LanguageRow(AppHost host)
-    {
-        var options = new List<(AppLanguage Value, string Label)>
-        {
-            (AppLanguage.System, Str.Settings_Language_System.Text()),
-            (AppLanguage.English, Str.Settings_Language_English.Text()),
-            (AppLanguage.German, Str.Settings_Language_German.Text()),
-            (AppLanguage.Spanish, Str.Settings_Language_Spanish.Text()),
-            (AppLanguage.French, Str.Settings_Language_French.Text()),
-            (AppLanguage.Portuguese, Str.Settings_Language_Portuguese.Text()),
-            (AppLanguage.Italian, Str.Settings_Language_Italian.Text()),
-            (AppLanguage.Polish, Str.Settings_Language_Polish.Text()),
-            (AppLanguage.Japanese, Str.Settings_Language_Japanese.Text()),
-            (AppLanguage.Chinese, Str.Settings_Language_Chinese.Text()),
-            (AppLanguage.ChineseTraditional, Str.Settings_Language_ChineseTraditional.Text()),
-            (AppLanguage.Hindi, Str.Settings_Language_Hindi.Text()),
-            (AppLanguage.Arabic, Str.Settings_Language_Arabic.Text()),
-            (AppLanguage.Bengali, Str.Settings_Language_Bengali.Text()),
-            (AppLanguage.Russian, Str.Settings_Language_Russian.Text()),
-            (AppLanguage.Indonesian, Str.Settings_Language_Indonesian.Text()),
-            (AppLanguage.Urdu, Str.Settings_Language_Urdu.Text()),
-            (AppLanguage.Marathi, Str.Settings_Language_Marathi.Text()),
-            (AppLanguage.Vietnamese, Str.Settings_Language_Vietnamese.Text()),
-            (AppLanguage.Korean, Str.Settings_Language_Korean.Text()),
-            (AppLanguage.Dutch, Str.Settings_Language_Dutch.Text()),
-            (AppLanguage.Turkish, Str.Settings_Language_Turkish.Text()),
-            (AppLanguage.Telugu, Str.Settings_Language_Telugu.Text()),
-            (AppLanguage.Hausa, Str.Settings_Language_Hausa.Text()),
-            (AppLanguage.Punjabi, Str.Settings_Language_Punjabi.Text()),
-            (AppLanguage.Swahili, Str.Settings_Language_Swahili.Text()),
-            (AppLanguage.Filipino, Str.Settings_Language_Filipino.Text()),
-            (AppLanguage.Tamil, Str.Settings_Language_Tamil.Text()),
-            (AppLanguage.Persian, Str.Settings_Language_Persian.Text()),
-            (AppLanguage.Thai, Str.Settings_Language_Thai.Text()),
-            (AppLanguage.Gujarati, Str.Settings_Language_Gujarati.Text()),
-        };
-
-        return FluentLayout.Row(Glyphs.Language, Str.Settings_Language_Label.Text(), Str.Settings_Language_Desc.Text(),
-            FluentLayout.Choice(options, host.State.Preferences.Language, host.SetLanguage),
-            "language", "locale", "translation");
     }
 }

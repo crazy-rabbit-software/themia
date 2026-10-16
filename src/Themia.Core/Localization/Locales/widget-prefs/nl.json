@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "Widgets",
-  "widgetPrefs.subtitle": "Notaties en updates die alle widgets delen",
-  "widgetPrefs.region.header": "Landnotatie",
-  "widgetPrefs.region.clock": "Tijdnotatie",
-  "widgetPrefs.region.clock12": "{hours}-uursnotatie",
-  "widgetPrefs.region.clock24": "{hours}-uursnotatie",
-  "widgetPrefs.followWindows": "Windows-instelling ({value})",
   "widgetPrefs.updates.header": "Updates",
   "widgetPrefs.updates.note": "Hoe vaak widgets onlineservices raadplegen. Vernieuwen op een widget vraagt het meteen op.",
   "widgetPrefs.updates.weather": "Weer",

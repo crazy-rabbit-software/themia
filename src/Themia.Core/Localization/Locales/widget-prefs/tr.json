@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "Pencere öğeleri",
-  "widgetPrefs.subtitle": "Tüm pencere öğelerinin paylaştığı biçimler ve güncellemeler",
-  "widgetPrefs.region.header": "Bölgesel biçim",
-  "widgetPrefs.region.clock": "Saat biçimi",
-  "widgetPrefs.region.clock12": "{hours} saat",
-  "widgetPrefs.region.clock24": "{hours} saat",
-  "widgetPrefs.followWindows": "Windows ayarı ({value})",
   "widgetPrefs.updates.header": "Güncellemeler",
   "widgetPrefs.updates.note": "Pencere öğelerinin çevrimiçi hizmetlere ne sıklıkla sorduğu. Bir pencere öğesinde Yenile hemen sorar.",
   "widgetPrefs.updates.weather": "Hava durumu",

@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "ਭਾਸ਼ਾ ਅਤੇ ਖੇਤਰ",
+  "languageRegion.displayLanguage": "ਐਪ ਦੀ ਡਿਸਪਲੇ ਭਾਸ਼ਾ",
+  "languageRegion.displayLanguageDesc": "Themia ਦੀਆਂ ਸੈਟਿੰਗਾਂ, ਮੀਨੂ ਅਤੇ ਵਿਜੇਟ ਇਸ ਭਾਸ਼ਾ ਵਿੱਚ ਦਿਸਦੇ ਹਨ",
+  "languageRegion.region.header": "ਖੇਤਰੀ ਫ਼ਾਰਮੈਟ",
+  "languageRegion.clock": "ਸਮੇਂ ਦਾ ਫ਼ਾਰਮੈਟ",
+  "languageRegion.clock12": "{hours}-ਘੰਟੇ",
+  "languageRegion.clock24": "{hours}-ਘੰਟੇ",
+  "languageRegion.followWindows": "Windows ਸੈਟਿੰਗ ({value})"
+}

@@ -83,7 +83,7 @@ internal static class SettingsRender
 
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|Displays|Views|License|About|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name] [--style name]");
+            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|LanguageRegion|Displays|Views|Widgets|License|About|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name] [--style name]");
             app.Exit();
             return true;
         }

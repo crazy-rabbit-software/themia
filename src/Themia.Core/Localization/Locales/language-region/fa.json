@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "زبان و منطقه",
+  "languageRegion.displayLanguage": "زبان نمایش برنامه",
+  "languageRegion.displayLanguageDesc": "تنظیمات، منوها و ویجت‌های Themia به این زبان نمایش داده می‌شوند",
+  "languageRegion.region.header": "قالب منطقه‌ای",
+  "languageRegion.clock": "قالب زمان",
+  "languageRegion.clock12": "{hours} ساعته",
+  "languageRegion.clock24": "{hours} ساعته",
+  "languageRegion.followWindows": "تنظیم Windows ({value})"
+}

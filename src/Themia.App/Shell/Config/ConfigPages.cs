@@ -37,6 +37,9 @@ internal static partial class ConfigPages
         new(AppPage.Appearance, Str.Settings_Section_Appearance, Glyphs.Palette, NavIcon.PaintBrush, AppPageSlot.Main, c => BuildAppearance(c.Host)),
         new(AppPage.Accounts, Str.Shell_Settings_Nav_Accounts, Glyphs.Contact, NavIcon.Person, AppPageSlot.Main, _ => AccountsPage.Build()),
 
+        // [S-3797] After Accounts, where Windows Settings puts Time & language.
+        new(AppPage.LanguageRegion, Str.LanguageRegion_Nav, Glyphs.TimeLanguage, NavIcon.Globe, AppPageSlot.Main, c => BuildLanguageRegion(c.Host)),
+
         // [S-1830] Displays before Views, after the app pages: one entry each, never one per item.
         new(AppPage.Displays, Str.App_Displays, Glyphs.Display, NavIcon.Laptop, AppPageSlot.Main, BuildDisplays),
         new(AppPage.Views, Str.App_Views, Glyphs.View, NavIcon.ContentView, AppPageSlot.Main, BuildViews),

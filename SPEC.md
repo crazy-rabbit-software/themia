@@ -2474,8 +2474,8 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   the connected displays and for each its view, on/off, scale, view bar and the views it can pick from; a widget page, its config, label, surface,
   header and parent. Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: General, Appearance, Accounts, Displays and Views in the main slot
-  ([S-1830]); License and About in the footer. There is no Layout page: its two rows (gap between widgets, snap to grid) are the
+- **[S-1722]** The app pages: General, Appearance, Accounts, Language & region ([S-3797]), Displays,
+  Views and Widgets in the main slot ([S-1830]); License and About in the footer. There is no Layout page: its two rows (gap between widgets, snap to grid) are the
   Layout section at the end of Appearance's look, before the motion rows. General has no Data
   section (it held only "open the data folder") and no Developer section.
 - **[S-1723]** Every font setting picks through one control, `FontChoice`: the presets, then the
@@ -4671,7 +4671,7 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
   Appearance = Personalization's brush (`paint_brush`), Accounts = Accounts' person (`person`),
   About = `question_circle` (the set has no
   info icon), Views = `content_view`, Displays = System's screen (`laptop`; the set has
-  no desktop monitor). A new app page names its icon in its `AppPages` line.
+  no desktop monitor), Language & region = Time & language's globe (`globe`). A new app page names its icon in its `AppPages` line.
 - **[S-1601]** Each icon is drawn by `SvgImageSource` in a 20-DIP icon box (NavigationView's default
   16 is sized for font glyphs; the colour icons carry their own padding and read too small there),
   from the icon's 20-DIP design, rasterised at exactly the pixels the box covers on the window's
@@ -5049,7 +5049,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   (`prs-AF`) → fa; `fil-PH` and Tagalog (`tl`) → fil; `sw-KE`/`sw-TZ` → sw; `ha-Latn-NG` → ha;
   `pa-IN`/`pa-Guru*` → pa, but Shahmukhi (`pa-Arab*`, Pakistan) is not taken for the Gurmukhi table and
   the walk goes on. Walks the whole list, not only its head.
-- **[S-1109]** Settings › General › Language (first row): System + the thirty, each named in its own
+- **[S-1109]** Settings › Language & region › App display language ([S-3797]): System + the thirty, each named in its own
   language. The host resolves the setting before any window is built and again on every state
   change (an import or reset), and `SetLanguage` applies it at once.
 - **[S-1110]** Live switch: `Strings.Changed(Locale)` fires on the UI thread after the language
@@ -5680,9 +5680,9 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   boxes and the button are read back from the stored whitelist after every change.
 - **[S-1709]** The Displays page has no Resolution row: the resolution is the display group's
   subtitle already ([S-853]), and the work area the taskbar leaves is not something the reader acts on.
-- **[S-1830]** The navigation pane lists pages only: General, Appearance, Accounts, then **Displays**
-  and **Views** (in that order, with Windows Settings' screen and content-view colour icons,
-  [S-1600]), and License and About at the foot. No entry per view, display or widget, so no entry
+- **[S-1830]** The navigation pane lists pages only: General, Appearance, Accounts, Language & region
+  ([S-3797]), then **Displays** and **Views** (in that order, with Windows Settings' screen and
+  content-view colour icons, [S-1600]), then Widgets, and License and About at the foot. No entry per view, display or widget, so no entry
   menus and no dragging in the pane.
 - **[S-1831]** A page target is a page plus, on Displays or Views, the item whose group to open
   (`ConfigTarget.App(Page, Item)`; `ConfigTarget.ForView`). Everything that used to open one view's
@@ -5742,7 +5742,8 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   change made elsewhere catches them up; a colour keeps the Views page's shape (no rebuild under the picker).
 - **[S-3832]** "New displays show" ([S-847]) heads the Displays page: a setting of every display to
   come, not of one display's group. Each view in it carries its coloured mark.
-- **[S-3833]** The General page holds language, start with Windows, desktop icons and game mode. No
+- **[S-3833]** The General page holds start with Windows, desktop icons and game mode (the language
+  is on Language & region, [S-3797]). No
   Edit layout switch (edit mode starts on the desktop or from a view's menu) and no local-network
   switch ([S-3840]).
 - **[S-3834]** The navigation pane has no "Themia" heading; the title bar keeps the app's mark and name.
@@ -6674,8 +6675,9 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 What every widget shares instead of carrying its own copy, and the audit of every widget page that
 moved it there. Core: `RegionFormat` (`Localization/RegionFormat.cs`), `UpdateCadence`
 (`Sync/UpdateCadence.cs`), `RegionPreferences` / `RefreshPreferences` (`Model/AppPreferences.cs`).
-App: `ConfigPages.Widgets.cs` (Settings › Widgets), `AppHost.Region.cs`, `Interop/SystemRegion.cs`.
-Strings in `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
+App: `ConfigPages.LanguageRegion.cs` (Settings › Language & region: the formats), `ConfigPages.Widgets.cs`
+(Settings › Widgets: the updates), `AppHost.Region.cs`, `Interop/SystemRegion.cs`.
+Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
 
 - **[S-3770]** The regional formats (12- or 24-hour clock, first day of the week, temperature scale)
   are `AppPreferences.Region`, one set for every widget: no widget stores `use24Hour`, `unit` or
@@ -6730,6 +6732,12 @@ Strings in `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
   ping name ([S-3791]); the gallery, meter, detail and Bluetooth refresh rows ([S-3792]–[S-3794]);
   Bluetooth's device count; Notes' word wrap (always wraps); the contacts' starting search
   ([S-584]); the mail page's sort row (the widget's own sort button stays).
+- **[S-3797]** Settings › Language & region (as Windows Settings' Time & language › Language & region;
+  Segoe's TimeLanguage glyph, the colour `globe` in the pane) is every localisation choice in one
+  place, after Accounts where Windows puts it: Language (App display language, [S-1109]), then
+  Regional format (time format, first day of the week, temperature unit, [S-3770]). General and
+  Widgets hold none of them; Widgets keeps only the update cadences ([S-3780]). There are no other
+  units or formats to move: no widget has its own date, number, wind or distance format.
 
 ## Year progress (YEAR-PROGRESS)
 

@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "زبان اور علاقہ",
+  "languageRegion.displayLanguage": "ایپ کی ڈسپلے زبان",
+  "languageRegion.displayLanguageDesc": "Themia کی ترتیبات، مینو اور ویجیٹس اس زبان میں دکھائی دیتے ہیں",
+  "languageRegion.region.header": "علاقائی فارمیٹ",
+  "languageRegion.clock": "وقت کا فارمیٹ",
+  "languageRegion.clock12": "{hours} گھنٹے",
+  "languageRegion.clock24": "{hours} گھنٹے",
+  "languageRegion.followWindows": "Windows کی ترتیب ({value})"
+}

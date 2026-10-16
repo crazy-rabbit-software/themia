@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "ભાષા અને પ્રદેશ",
+  "languageRegion.displayLanguage": "ઍપની પ્રદર્શન ભાષા",
+  "languageRegion.displayLanguageDesc": "Themia ની સેટિંગ્સ, મેનૂ અને વિજેટ આ ભાષામાં દેખાય છે",
+  "languageRegion.region.header": "પ્રાદેશિક ફૉર્મેટ",
+  "languageRegion.clock": "સમય ફૉર્મેટ",
+  "languageRegion.clock12": "{hours}-કલાક",
+  "languageRegion.clock24": "{hours}-કલાક",
+  "languageRegion.followWindows": "Windows સેટિંગ ({value})"
+}

@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "วิดเจ็ต",
-  "widgetPrefs.subtitle": "รูปแบบและการอัปเดตที่ใช้ร่วมกันในทุกวิดเจ็ต",
-  "widgetPrefs.region.header": "รูปแบบตามภูมิภาค",
-  "widgetPrefs.region.clock": "รูปแบบเวลา",
-  "widgetPrefs.region.clock12": "{hours} ชั่วโมง",
-  "widgetPrefs.region.clock24": "{hours} ชั่วโมง",
-  "widgetPrefs.followWindows": "การตั้งค่าของ Windows ({value})",
   "widgetPrefs.updates.header": "การอัปเดต",
   "widgetPrefs.updates.note": "ความถี่ที่วิดเจ็ตขอข้อมูลจากบริการออนไลน์ การรีเฟรชบนวิดเจ็ตจะขอข้อมูลทันที",
   "widgetPrefs.updates.weather": "สภาพอากาศ",

@@ -1,11 +1,5 @@
 {
   "widgetPrefs.nav": "Widżety",
-  "widgetPrefs.subtitle": "Formaty i aktualizacje wszystkich widżetów",
-  "widgetPrefs.region.header": "Format regionalny",
-  "widgetPrefs.region.clock": "Format godziny",
-  "widgetPrefs.region.clock12": "{hours}-godzinny",
-  "widgetPrefs.region.clock24": "{hours}-godzinny",
-  "widgetPrefs.followWindows": "Ustawienie systemu Windows ({value})",
   "widgetPrefs.updates.header": "Aktualizacje",
   "widgetPrefs.updates.note": "Jak często widżety pytają usługi online. „Odśwież” na widżecie pyta od razu.",
   "widgetPrefs.updates.weather": "Pogoda",

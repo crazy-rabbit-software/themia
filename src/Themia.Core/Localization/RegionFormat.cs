@@ -14,7 +14,7 @@ public sealed record RegionValues(bool Use24Hour, WeekStartDay WeekStart, Temper
 /// of the week, the temperature scale — so that no widget carries its own copy.
 /// <para>
 /// Each format follows Windows' regional settings (<see cref="Windows"/>, read by the app at start
-/// and whenever the setting may have changed) until the user picks a value in Settings › Widgets.
+/// and whenever the setting may have changed) until the user picks a value in Settings › Language &amp; region.
 /// Until the app has read Windows, and in the tests, a format follows the app's language
 /// (<see cref="Language"/>), which is what <see cref="LocaleFormat"/> did before there was a
 /// setting. A change raises <see cref="Strings.Changed"/>: everything that shows text already

@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "ویجیٹس",
-  "widgetPrefs.subtitle": "وہ فارمیٹس اور اپ ڈیٹس جو سب ویجیٹس میں مشترک ہیں",
-  "widgetPrefs.region.header": "علاقائی فارمیٹ",
-  "widgetPrefs.region.clock": "وقت کا فارمیٹ",
-  "widgetPrefs.region.clock12": "{hours} گھنٹے",
-  "widgetPrefs.region.clock24": "{hours} گھنٹے",
-  "widgetPrefs.followWindows": "Windows کی ترتیب ({value})",
   "widgetPrefs.updates.header": "اپ ڈیٹس",
   "widgetPrefs.updates.note": "ویجیٹس آن لائن سروسز سے کتنی بار پوچھتے ہیں۔ ویجیٹ پر تازہ کریں فوراً پوچھتا ہے۔",
   "widgetPrefs.updates.weather": "موسم",

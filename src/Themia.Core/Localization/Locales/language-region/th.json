@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "ภาษาและภูมิภาค",
+  "languageRegion.displayLanguage": "ภาษาที่แสดงในแอป",
+  "languageRegion.displayLanguageDesc": "การตั้งค่า เมนู และวิดเจ็ตของ Themia จะแสดงเป็นภาษานี้",
+  "languageRegion.region.header": "รูปแบบตามภูมิภาค",
+  "languageRegion.clock": "รูปแบบเวลา",
+  "languageRegion.clock12": "{hours} ชั่วโมง",
+  "languageRegion.clock24": "{hours} ชั่วโมง",
+  "languageRegion.followWindows": "การตั้งค่าของ Windows ({value})"
+}

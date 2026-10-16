@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "Widget",
-  "widgetPrefs.subtitle": "Tsari da sabuntawa da kowane widget ke rabawa",
-  "widgetPrefs.region.header": "Tsarin yanki",
-  "widgetPrefs.region.clock": "Tsarin lokaci",
-  "widgetPrefs.region.clock12": "Awa {hours}",
-  "widgetPrefs.region.clock24": "Awa {hours}",
-  "widgetPrefs.followWindows": "Saitin Windows ({value})",
   "widgetPrefs.updates.header": "Sabuntawa",
   "widgetPrefs.updates.note": "Sau nawa widget ke tambayar sabis na kan layi. Wartsakewa a kan widget tana tambaya nan take.",
   "widgetPrefs.updates.weather": "Yanayi",

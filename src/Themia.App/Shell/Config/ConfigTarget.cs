@@ -57,8 +57,11 @@ internal enum AppPage
     /// <summary>[S-1830] Every view, one group each, with its widgets.</summary>
     Views,
 
-    /// <summary>[S-3770] [S-3780] The formats and update cadences every widget shares.</summary>
+    /// <summary>[S-3780] The update cadences every widget shares.</summary>
     Widgets,
+
+    /// <summary>[S-3797] The display language and the regional formats every widget shares.</summary>
+    LanguageRegion,
 }
 
 /// <summary>Where an app page sits in the settings navigation.</summary>

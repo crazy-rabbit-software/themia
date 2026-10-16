@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "విడ్జెట్‌లు",
-  "widgetPrefs.subtitle": "ప్రతి విడ్జెట్ పంచుకునే ఫార్మాట్‌లు మరియు నవీకరణలు",
-  "widgetPrefs.region.header": "ప్రాంతీయ ఫార్మాట్",
-  "widgetPrefs.region.clock": "సమయ ఫార్మాట్",
-  "widgetPrefs.region.clock12": "{hours}-గంటలు",
-  "widgetPrefs.region.clock24": "{hours}-గంటలు",
-  "widgetPrefs.followWindows": "Windows సెట్టింగ్ ({value})",
   "widgetPrefs.updates.header": "నవీకరణలు",
   "widgetPrefs.updates.note": "విడ్జెట్‌లు ఆన్‌లైన్ సేవలను ఎంత తరచుగా అడుగుతాయి. విడ్జెట్‌పై రిఫ్రెష్ వెంటనే అడుగుతుంది.",
   "widgetPrefs.updates.weather": "వాతావరణం",

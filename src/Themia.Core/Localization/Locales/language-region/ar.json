@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "اللغة والمنطقة",
+  "languageRegion.displayLanguage": "لغة عرض التطبيق",
+  "languageRegion.displayLanguageDesc": "تظهر إعدادات Themia وقوائمها وأدواتها بهذه اللغة",
+  "languageRegion.region.header": "التنسيق الإقليمي",
+  "languageRegion.clock": "تنسيق الوقت",
+  "languageRegion.clock12": "{hours} ساعة",
+  "languageRegion.clock24": "{hours} ساعة",
+  "languageRegion.followWindows": "إعداد Windows ({value})"
+}

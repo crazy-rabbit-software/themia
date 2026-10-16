@@ -39,6 +39,9 @@ internal enum NavIcon
 
     /// <summary>A diamond: License ([S-1068]).</summary>
     Premium,
+
+    /// <summary>A globe, as Windows Settings' Time &amp; language: Language &amp; region ([S-3797]).</summary>
+    Globe,
 }
 
 internal static class NavIcons
@@ -71,6 +74,7 @@ internal static class NavIcons
         NavIcon.ContentView => "ic_fluent_content_view_20_color.svg",
         NavIcon.Laptop => "ic_fluent_laptop_20_color.svg",
         NavIcon.Premium => "ic_fluent_premium_20_color.svg",
+        NavIcon.Globe => "ic_fluent_globe_20_color.svg",
         _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, null),
     };
 

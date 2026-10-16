@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "小工具",
-  "widgetPrefs.subtitle": "所有小工具共用的格式和更新",
-  "widgetPrefs.region.header": "地區格式",
-  "widgetPrefs.region.clock": "時間格式",
-  "widgetPrefs.region.clock12": "{hours} 小時制",
-  "widgetPrefs.region.clock24": "{hours} 小時制",
-  "widgetPrefs.followWindows": "Windows 設定 ({value})",
   "widgetPrefs.updates.header": "更新",
   "widgetPrefs.updates.note": "小工具查詢線上服務的頻率。在小工具上按「重新整理」會立即查詢。",
   "widgetPrefs.updates.weather": "天氣",

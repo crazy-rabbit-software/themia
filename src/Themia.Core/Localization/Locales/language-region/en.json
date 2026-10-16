@@ -1,0 +1,12 @@
+{
+  "$comment": "[S-1109] [S-3770] Settings › Language & region: the display language and the regional formats every widget shares.",
+  "$englishOnly": [],
+  "languageRegion.nav": "Language & region",
+  "languageRegion.displayLanguage": "App display language",
+  "languageRegion.displayLanguageDesc": "Themia's settings, menus and widgets appear in this language",
+  "languageRegion.region.header": "Regional format",
+  "languageRegion.clock": "Time format",
+  "languageRegion.clock12": "{hours}-hour",
+  "languageRegion.clock24": "{hours}-hour",
+  "languageRegion.followWindows": "Windows setting ({value})"
+}

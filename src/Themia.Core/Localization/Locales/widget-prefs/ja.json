@@ -1,11 +1,5 @@
 {
   "widgetPrefs.nav": "ウィジェット",
-  "widgetPrefs.subtitle": "すべてのウィジェットの形式と更新",
-  "widgetPrefs.region.header": "地域の形式",
-  "widgetPrefs.region.clock": "時刻の形式",
-  "widgetPrefs.region.clock12": "{hours} 時間",
-  "widgetPrefs.region.clock24": "{hours} 時間",
-  "widgetPrefs.followWindows": "Windows の設定 ({value})",
   "widgetPrefs.updates.header": "更新",
   "widgetPrefs.updates.note": "ウィジェットがオンライン サービスに問い合わせる頻度。ウィジェットの [更新] ですぐに問い合わせます。",
   "widgetPrefs.updates.weather": "天気",

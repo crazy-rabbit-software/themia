@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "Idioma y región",
+  "languageRegion.displayLanguage": "Idioma de la aplicación",
+  "languageRegion.displayLanguageDesc": "La configuración, los menús y los widgets de Themia aparecen en este idioma",
+  "languageRegion.region.header": "Formato regional",
+  "languageRegion.clock": "Formato de hora",
+  "languageRegion.clock12": "{hours} horas",
+  "languageRegion.clock24": "{hours} horas",
+  "languageRegion.followWindows": "Configuración de Windows ({value})"
+}

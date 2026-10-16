@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "Виджеты",
-  "widgetPrefs.subtitle": "Форматы и обновление для всех виджетов",
-  "widgetPrefs.region.header": "Региональный формат",
-  "widgetPrefs.region.clock": "Формат времени",
-  "widgetPrefs.region.clock12": "{hours}-часовой",
-  "widgetPrefs.region.clock24": "{hours}-часовой",
-  "widgetPrefs.followWindows": "Как в Windows ({value})",
   "widgetPrefs.updates.header": "Обновление",
   "widgetPrefs.updates.note": "Как часто виджеты обращаются к онлайн-службам. «Обновить» в виджете запрашивает сразу.",
   "widgetPrefs.updates.weather": "Погода",

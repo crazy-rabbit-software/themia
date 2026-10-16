@@ -1,11 +1,5 @@
 {
   "widgetPrefs.nav": "小组件",
-  "widgetPrefs.subtitle": "所有小组件的格式和更新",
-  "widgetPrefs.region.header": "区域格式",
-  "widgetPrefs.region.clock": "时间格式",
-  "widgetPrefs.region.clock12": "{hours} 小时制",
-  "widgetPrefs.region.clock24": "{hours} 小时制",
-  "widgetPrefs.followWindows": "Windows 设置 ({value})",
   "widgetPrefs.updates.header": "更新",
   "widgetPrefs.updates.note": "小组件查询在线服务的频率。在小组件上点“刷新”会立即查询。",
   "widgetPrefs.updates.weather": "天气",

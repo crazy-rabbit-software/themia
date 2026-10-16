@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "विजेट",
-  "widgetPrefs.subtitle": "सभी विजेट के साझा फ़ॉर्मैट और अपडेट",
-  "widgetPrefs.region.header": "क्षेत्रीय फ़ॉर्मैट",
-  "widgetPrefs.region.clock": "समय फ़ॉर्मैट",
-  "widgetPrefs.region.clock12": "{hours}-घंटे",
-  "widgetPrefs.region.clock24": "{hours}-घंटे",
-  "widgetPrefs.followWindows": "Windows सेटिंग ({value})",
   "widgetPrefs.updates.header": "अपडेट",
   "widgetPrefs.updates.note": "विजेट ऑनलाइन सेवाओं से कितनी बार पूछते हैं। किसी विजेट पर रीफ़्रेश तुरंत पूछता है।",
   "widgetPrefs.updates.weather": "मौसम",

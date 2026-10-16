@@ -1,0 +1,10 @@
+{
+  "languageRegion.nav": "Dil ve bölge",
+  "languageRegion.displayLanguage": "Uygulamanın görüntüleme dili",
+  "languageRegion.displayLanguageDesc": "Themia'nın ayarları, menüleri ve pencere öğeleri bu dilde görünür",
+  "languageRegion.region.header": "Bölgesel biçim",
+  "languageRegion.clock": "Saat biçimi",
+  "languageRegion.clock12": "{hours} saat",
+  "languageRegion.clock24": "{hours} saat",
+  "languageRegion.followWindows": "Windows ayarı ({value})"
+}

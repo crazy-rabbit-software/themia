@@ -1,12 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "widgetPrefs.nav": "Tiện ích",
-  "widgetPrefs.subtitle": "Định dạng và cập nhật dùng chung cho mọi tiện ích",
-  "widgetPrefs.region.header": "Định dạng khu vực",
-  "widgetPrefs.region.clock": "Định dạng giờ",
-  "widgetPrefs.region.clock12": "{hours} giờ",
-  "widgetPrefs.region.clock24": "{hours} giờ",
-  "widgetPrefs.followWindows": "Cài đặt Windows ({value})",
   "widgetPrefs.updates.header": "Cập nhật",
   "widgetPrefs.updates.note": "Tần suất tiện ích truy vấn dịch vụ trực tuyến. Làm mới trên một tiện ích sẽ truy vấn ngay.",
   "widgetPrefs.updates.weather": "Thời tiết",

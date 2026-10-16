@@ -44,8 +44,8 @@ internal static partial class WidgetSettings
             }));
 
     /// <summary>
-    /// The location-name switch, shared by both weather widgets. The scale and the cadence are every
-    /// widget's, in Settings › Widgets ([S-3770], [S-3780]).
+    /// The location-name switch, shared by both weather widgets. The scale (Settings › Language &amp;
+    /// region, [S-3770]) and the cadence (Settings › Widgets, [S-3780]) are every widget's.
     /// </summary>
     private static void AddWeatherDisplay(List<FrameworkElement> rows, WeatherConfig config, Action save)
     {

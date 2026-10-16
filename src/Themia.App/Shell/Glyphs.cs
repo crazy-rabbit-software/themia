@@ -217,8 +217,11 @@ internal static class Glyphs
     public static readonly string Shop = From(0xE719);
     public static readonly string Certificate = From(0xEB95);
 
-    // The language row on the General page ([S-1109]): Fluent's LocaleLanguage.
+    // The language row on the Language & region page ([S-1109]): Fluent's LocaleLanguage.
     public static readonly string Language = From(0xF2B7);
+
+    // The Language & region page ([S-3797]): Windows Settings' "Time & language" (Segoe TimeLanguage).
+    public static readonly string TimeLanguage = From(0xE775);
 
     // The About page.
     public static readonly string Themia = From(0xE8A9);

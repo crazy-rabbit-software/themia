@@ -483,7 +483,7 @@ public static class SettingsTransfer
             }
         }
 
-        Value(Str.WidgetPrefs_Region_Clock, old.Region.Clock.ToString(), @new.Region.Clock.ToString());
+        Value(Str.LanguageRegion_Clock, old.Region.Clock.ToString(), @new.Region.Clock.ToString());
         Value(Str.Calendar_WeekStart_Label, old.Region.WeekStart.ToString(), @new.Region.WeekStart.ToString());
         Value(Str.Weather_UnitLabel, old.Region.Temperature.ToString(), @new.Region.Temperature.ToString());
 

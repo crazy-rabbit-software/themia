@@ -11,6 +11,7 @@ it names.
   - `ic_fluent_apps_20_color.svg`
   - `ic_fluent_content_view_20_color.svg`
   - `ic_fluent_document_text_20_color.svg`
+  - `ic_fluent_globe_20_color.svg`
   - `ic_fluent_laptop_20_color.svg`
   - `ic_fluent_paint_brush_20_color.svg`
   - `ic_fluent_person_20_color.svg`
