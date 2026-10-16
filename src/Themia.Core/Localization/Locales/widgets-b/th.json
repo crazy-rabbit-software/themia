@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "ไม่สามารถเริ่มอีเมลใหม่ได้",
   "widgetsB.settings.email.messages": "ข้อความ",
   "widgetsB.settings.email.folder.desc": "โฟลเดอร์ของแต่ละบัญชีที่จะแสดง",
-  "widgetsB.settings.email.count.label": "ข้อความ",
-  "widgetsB.settings.email.count.desc": "อย่างน้อยจำนวนนี้ วิดเจ็ตที่ใหญ่กว่าจะแสดงมากกว่า",
   "widgetsB.settings.email.display": "การแสดงผล",
   "widgetsB.settings.email.view.desc": "รายการ: สามบรรทัด กะทัดรัด: สองบรรทัด แถว: หนึ่งบรรทัด",
   "widgetsB.settings.email.showSubject": "แสดงเรื่อง",

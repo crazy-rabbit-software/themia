@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Nie udało się rozpocząć nowego e-maila.",
   "widgetsB.settings.email.messages": "Wiadomości",
   "widgetsB.settings.email.folder.desc": "Który folder każdego konta wyświetlać",
-  "widgetsB.settings.email.count.label": "Wiadomości",
-  "widgetsB.settings.email.count.desc": "Co najmniej tyle; większy widżet pokazuje więcej",
   "widgetsB.settings.email.display": "Wyświetlanie",
   "widgetsB.settings.email.view.desc": "Lista: trzy wiersze. Kompaktowy: dwa. Wiersz: jeden.",
   "widgetsB.settings.email.showSubject": "Pokaż temat",

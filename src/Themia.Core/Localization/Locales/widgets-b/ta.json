@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "புதிய மின்னஞ்சலைத் தொடங்க முடியவில்லை.",
   "widgetsB.settings.email.messages": "செய்திகள்",
   "widgetsB.settings.email.folder.desc": "ஒவ்வொரு கணக்கின் எந்தக் கோப்புறையைப் பட்டியலிட வேண்டும்",
-  "widgetsB.settings.email.count.label": "செய்திகள்",
-  "widgetsB.settings.email.count.desc": "குறைந்தது இத்தனை; பெரிய விட்ஜெட் அதிகமாகப் பட்டியலிடும்",
   "widgetsB.settings.email.display": "காட்சி",
   "widgetsB.settings.email.view.desc": "பட்டியல்: மூன்று வரிகள். கச்சிதம்: இரண்டு. வரிசை: ஒன்று.",
   "widgetsB.settings.email.showSubject": "பொருளைக் காட்டு",

@@ -11,8 +11,8 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-541] The Mail widget's settings: which of Themia's accounts it reads, the folder, how many
-/// messages and in which order, and how each one is drawn. The classic widget's Source and Display
+/// [S-541] The Mail widget's settings: which of Themia's accounts it reads, the folder, and how
+/// each message is drawn. The classic widget's Source and Display
 /// tabs, on one page.
 /// <para>
 /// Accounts themselves are signed in on the Accounts page, not here: this page lists what is
@@ -40,11 +40,6 @@ internal static partial class WidgetSettings
                 [.. MailFolders.Listable.Select(f => (f, f.Label()))],
                 email.Folder,
                 value => { email.Folder = value; save(); })));
-
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsB_Settings_Email_Count_Label.Text(),
-            Str.WidgetsB_Settings_Email_Count_Desc.Text(),
-            FluentLayout.Slider(email.EffectiveMaxCount, 1, 50, 1, string.Empty,
-                value => { email.MaxCount = (int)Math.Round(value); save(); })));
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Email_Display.Text()));
 

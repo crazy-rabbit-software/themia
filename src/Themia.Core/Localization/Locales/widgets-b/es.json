@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "No se pudo empezar un correo nuevo.",
   "widgetsB.settings.email.messages": "Mensajes",
   "widgetsB.settings.email.folder.desc": "Qué carpeta de cada cuenta se muestra",
-  "widgetsB.settings.email.count.label": "Mensajes",
-  "widgetsB.settings.email.count.desc": "Al menos estos; un widget más grande muestra más",
   "widgetsB.settings.email.display": "Presentación",
   "widgetsB.settings.email.view.desc": "Lista: tres líneas. Compacta: dos. Fila: una.",
   "widgetsB.settings.email.showSubject": "Mostrar asunto",

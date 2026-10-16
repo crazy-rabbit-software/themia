@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Impossibile iniziare una nuova email.",
   "widgetsB.settings.email.messages": "Messaggi",
   "widgetsB.settings.email.folder.desc": "Quale cartella di ogni account mostrare",
-  "widgetsB.settings.email.count.label": "Messaggi",
-  "widgetsB.settings.email.count.desc": "Almeno questi; un widget più grande ne mostra di più",
   "widgetsB.settings.email.display": "Visualizzazione",
   "widgetsB.settings.email.view.desc": "Elenco: tre righe. Compatto: due. Riga: una.",
   "widgetsB.settings.email.showSubject": "Mostra oggetto",

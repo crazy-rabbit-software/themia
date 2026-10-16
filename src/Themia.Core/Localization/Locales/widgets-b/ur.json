@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "نئی ای میل شروع نہیں ہو سکی۔",
   "widgetsB.settings.email.messages": "پیغامات",
   "widgetsB.settings.email.folder.desc": "ہر اکاؤنٹ کا کون سا فولڈر دکھایا جائے",
-  "widgetsB.settings.email.count.label": "پیغامات",
-  "widgetsB.settings.email.count.desc": "کم از کم اتنے؛ بڑا ویجیٹ زیادہ دکھاتا ہے",
   "widgetsB.settings.email.display": "ڈسپلے",
   "widgetsB.settings.email.view.desc": "فہرست: تین لائنیں۔ مختصر: دو۔ قطار: ایک۔",
   "widgetsB.settings.email.showSubject": "موضوع دکھائیں",

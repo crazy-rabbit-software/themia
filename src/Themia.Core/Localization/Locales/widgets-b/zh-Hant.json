@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "無法開始新郵件。",
   "widgetsB.settings.email.messages": "郵件",
   "widgetsB.settings.email.folder.desc": "要列出每個帳戶的哪個資料夾",
-  "widgetsB.settings.email.count.label": "郵件數",
-  "widgetsB.settings.email.count.desc": "至少這麼多；較大的小工具會列出更多",
   "widgetsB.settings.email.display": "顯示",
   "widgetsB.settings.email.view.desc": "清單：三行。精簡：兩行。單列：一行。",
   "widgetsB.settings.email.showSubject": "顯示主旨",

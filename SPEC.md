@@ -1570,8 +1570,8 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   `viewMode: list|compact|row`, `sortOrder: desc|asc`, `listFields`, `rowColumns`, `accountIds`).
   Every closed set is read leniently: an unknown or mistyped value becomes the default and is
   logged, never a throw that would refuse the state file. `WidgetConfig.Repair()` runs at load from
-  `AppStateStore.Validate`; for mail it clamps the count (1–50) and preview lines (1–5), keeps at
-  least one row column. No hearth-era field is read ([S-1050]).
+  `AppStateStore.Validate`; for mail it clamps the preview lines (1–5) and keeps at least one row
+  column. No hearth-era field is read ([S-1050]).
 - **[S-541]** `accountIds` empty means every mail account, including ones added later (the classic
   widget showed "select an account" instead); a non-empty list reads those accounts that are still
   signed in. Settings lists the signed-in mail accounts as switches under "Every mail account" and
@@ -3063,8 +3063,10 @@ Shared dates and events on a view ([S-3300], [S-3311]):
   keeps its position and size and the row its height.
 - **[S-1285]** *(Retired: no folder summary ("4 unread of 1,661 in Inbox") under a large tile's
   list; the large tile shows more messages instead. The header badge keeps the unread count.)*
-- **[S-1286]** The count setting is a floor: the feed asks for `max(MaxCount, rows that fit)`, at most
-  50, so a big tile is never half empty. Resizing refetches only when that number changes.
+- **[S-1286]** How many messages is not a setting (user decision): every Mail widget asks for the
+  whole shelf the sync keeps per folder (`EmailConfig.FetchCount` = `MailShelves.MaxPerFolder`, 50),
+  newest first, and the list scrolls past the rows that fit, so a big tile is never half empty and
+  resizing never refetches. A `maxCount` left in a hand-edited file is ignored.
 - **[S-1287]** Row view from 700px: when the user's columns leave Subject as the only flexible column
   and it would take more than 40% of the line, Preview joins after Subject. A chosen Preview keeps
   the user's order; without Subject nothing is added.

@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "تعذّر بدء رسالة بريد إلكتروني جديدة.",
   "widgetsB.settings.email.messages": "الرسائل",
   "widgetsB.settings.email.folder.desc": "المجلد الذي يُسرد من كل حساب",
-  "widgetsB.settings.email.count.label": "الرسائل",
-  "widgetsB.settings.email.count.desc": "هذا العدد على الأقل؛ الأداة الأكبر تسرد أكثر",
   "widgetsB.settings.email.display": "العرض",
   "widgetsB.settings.email.view.desc": "قائمة: ثلاثة أسطر. مضغوط: سطران. صف: سطر واحد.",
   "widgetsB.settings.email.showSubject": "إظهار الموضوع",

@@ -242,7 +242,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             return;
         }
 
-        var query = new MailQuery(_config.EffectiveAccountIds, _config.Folder, _shape.Fetch);
+        var query = new MailQuery(_config.EffectiveAccountIds, _config.Folder, EmailConfig.FetchCount);
         if (_feed is not null && query.Key == _feedKey)
         {
             return;
@@ -286,10 +286,8 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
 
     /// <summary>
     /// [S-1280] What the tile holds, top to bottom: the rows (the first always), the row view's
-    /// column titles, then as many more whole rows as fit — which is also how many messages to
-    /// fetch, never fewer than the count setting asks for. The folder summary of the largest tile
-    /// ([S-1285]) is not a rung: it arrives with the feed, and a count that moved with it would
-    /// refetch the list it summarises; it sits under the list and the fade covers what it hides.
+    /// column titles, then as many more whole rows as fit. The list itself is the whole shelf
+    /// ([S-1286]) and scrolls past what fits, so the size never changes what is fetched.
     /// </summary>
     private void Lay()
     {
@@ -306,9 +304,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         var header = _config.Style == EmailStyle.Table && height >= ColumnHeaderNeedsHeight
             && room.Take(FluentType.Caption.LineHeight + Fluent.Space1);
 
-        var more = room.TakeRows(rowHeight, 49);
-        var fit = _area.IsMeasured ? 1 + more : 0;
-
         _shape = new MailShape(
             rows,
             string.Join(",", columns.Select(c => c.Column)),
@@ -317,8 +312,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             Warning: width >= WarningNeedsWidth,
             Sort: width >= SortNeedsWidth,
             Compose: width >= ComposeNeedsWidth,
-            QuickActions: rows.Inline && _area.WidthClass >= SizeClass.Huge,
-            Fetch: _config.FetchCount(fit));
+            QuickActions: rows.Inline && _area.WidthClass >= SizeClass.Huge);
     }
 
     /// <summary>
@@ -751,6 +745,5 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         bool Warning,
         bool Sort,
         bool Compose,
-        bool QuickActions,
-        int Fetch);
+        bool QuickActions);
 }

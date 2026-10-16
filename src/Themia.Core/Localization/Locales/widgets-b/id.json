@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Tidak dapat memulai email baru.",
   "widgetsB.settings.email.messages": "Pesan",
   "widgetsB.settings.email.folder.desc": "Folder mana dari setiap akun yang dicantumkan",
-  "widgetsB.settings.email.count.label": "Pesan",
-  "widgetsB.settings.email.count.desc": "Minimal sebanyak ini; widget yang lebih besar mencantumkan lebih banyak",
   "widgetsB.settings.email.display": "Tampilan",
   "widgetsB.settings.email.view.desc": "Daftar: tiga baris. Ringkas: dua. Baris: satu.",
   "widgetsB.settings.email.showSubject": "Tampilkan subjek",

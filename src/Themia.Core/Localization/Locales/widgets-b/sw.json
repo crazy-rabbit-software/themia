@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Imeshindwa kuanzisha barua pepe mpya.",
   "widgetsB.settings.email.messages": "Jumbe",
   "widgetsB.settings.email.folder.desc": "Folda ipi ya kila akaunti iorodheshwe",
-  "widgetsB.settings.email.count.label": "Jumbe",
-  "widgetsB.settings.email.count.desc": "Angalau idadi hii; wijeti kubwa huorodhesha zaidi",
   "widgetsB.settings.email.display": "Onyesho",
   "widgetsB.settings.email.view.desc": "Orodha: mistari mitatu. Fupi: miwili. Safu mlalo: mmoja.",
   "widgetsB.settings.email.showSubject": "Onyesha mada",

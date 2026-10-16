@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Hindi makapagsimula ng bagong email.",
   "widgetsB.settings.email.messages": "Mga mensahe",
   "widgetsB.settings.email.folder.desc": "Aling folder ng bawat account ang ililista",
-  "widgetsB.settings.email.count.label": "Mga mensahe",
-  "widgetsB.settings.email.count.desc": "Hindi bababa rito; mas marami ang ililista ng mas malaking widget",
   "widgetsB.settings.email.display": "Display",
   "widgetsB.settings.email.view.desc": "Listahan: tatlong linya. Siksik: dalawa. Row: isa.",
   "widgetsB.settings.email.showSubject": "Ipakita ang subject",

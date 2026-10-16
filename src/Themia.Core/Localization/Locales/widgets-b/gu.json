@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "નવો ઇમેઇલ શરૂ કરી શકાયો નહીં.",
   "widgetsB.settings.email.messages": "સંદેશા",
   "widgetsB.settings.email.folder.desc": "દરેક એકાઉન્ટનું કયું ફોલ્ડર સૂચિબદ્ધ કરવું",
-  "widgetsB.settings.email.count.label": "સંદેશા",
-  "widgetsB.settings.email.count.desc": "ઓછામાં ઓછા આટલા; મોટું વિજેટ વધુ સૂચિબદ્ધ કરે છે",
   "widgetsB.settings.email.display": "ડિસ્પ્લે",
   "widgetsB.settings.email.view.desc": "સૂચિ: ત્રણ પંક્તિઓ. કૉમ્પેક્ટ: બે. પંક્તિ: એક.",
   "widgetsB.settings.email.showSubject": "વિષય બતાવો",

@@ -42,8 +42,6 @@
   "widgetsB.email.couldNotCompose": "Could not start a new email.",
   "widgetsB.settings.email.messages": "Messages",
   "widgetsB.settings.email.folder.desc": "Which folder of each account to list",
-  "widgetsB.settings.email.count.label": "Messages",
-  "widgetsB.settings.email.count.desc": "At least this many; a bigger widget lists more",
   "widgetsB.settings.email.display": "Display",
   "widgetsB.settings.email.view.desc": "List: three lines. Compact: two. Row: one.",
   "widgetsB.settings.email.showSubject": "Show subject",

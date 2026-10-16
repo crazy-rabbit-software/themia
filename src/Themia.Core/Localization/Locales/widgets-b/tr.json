@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Yeni e-posta başlatılamadı.",
   "widgetsB.settings.email.messages": "İletiler",
   "widgetsB.settings.email.folder.desc": "Her hesabın hangi klasörünün listeleneceği",
-  "widgetsB.settings.email.count.label": "İletiler",
-  "widgetsB.settings.email.count.desc": "En az bu kadar; daha büyük bir pencere öğesi daha fazlasını listeler",
   "widgetsB.settings.email.display": "Görüntü",
   "widgetsB.settings.email.view.desc": "Liste: üç satır. Sıkışık: iki. Satır: bir.",
   "widgetsB.settings.email.showSubject": "Konuyu göster",

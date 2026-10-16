@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "नवीन ईमेल सुरू करता आला नाही.",
   "widgetsB.settings.email.messages": "संदेश",
   "widgetsB.settings.email.folder.desc": "प्रत्येक खात्याचे कोणते फोल्डर दाखवायचे",
-  "widgetsB.settings.email.count.label": "संदेश",
-  "widgetsB.settings.email.count.desc": "किमान इतके; मोठे विजेट अधिक दाखवते",
   "widgetsB.settings.email.display": "प्रदर्शन",
   "widgetsB.settings.email.view.desc": "सूची: तीन ओळी. संक्षिप्त: दोन. ओळ: एक.",
   "widgetsB.settings.email.showSubject": "विषय दाखवा",

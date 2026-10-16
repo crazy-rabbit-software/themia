@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Mail;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
@@ -20,8 +21,8 @@ public enum EmailStyle
 }
 
 /// <summary>
-/// [S-540] Recent mail from Themia's own accounts: which accounts, which folder, how many, and how
-/// each message is drawn.
+/// [S-540] Recent mail from Themia's own accounts: which accounts, which folder, and how each
+/// message is drawn. How many is not a setting: the widget lists the folder's whole shelf ([S-1286]).
 /// <para>
 /// Every closed set is read leniently (<see cref="LenientWireConverter{T}"/>): an unknown or
 /// mistyped value becomes the default and is logged, because a throw inside one widget's config
@@ -48,12 +49,6 @@ public sealed class EmailConfig : WidgetConfig, IStyled
     public List<string>? AccountIds { get; set; } = [];
 
     public MailFolder Folder { get; set; } = MailFolder.Inbox;
-
-    /// <summary>
-    /// [S-1286] How many messages to list at least, 1 to 50. A tile with room for more whole rows
-    /// lists that many instead (up to 50), so a big widget is never half empty.
-    /// </summary>
-    public int MaxCount { get; set; } = 10;
 
     /// <summary>[S-6403] List, Compact or Table: the widget's style.</summary>
     public EmailStyle Style { get; set; } = EmailStyle.List;
@@ -86,11 +81,12 @@ public sealed class EmailConfig : WidgetConfig, IStyled
 
     public MailSortOrder SortOrder { get; set; } = MailSortOrder.NewestFirst;
 
-    [JsonIgnore]
-    public int EffectiveMaxCount => Math.Clamp(MaxCount, 1, 50);
-
-    /// <summary>[S-1286] What to fetch for a tile that holds <paramref name="rowsThatFit"/> whole rows.</summary>
-    public int FetchCount(int rowsThatFit) => Math.Clamp(Math.Max(MaxCount, rowsThatFit), 1, 50);
+    /// <summary>
+    /// [S-1286] How many messages a widget asks for: the whole shelf the sync keeps per folder
+    /// (<see cref="MailShelves.MaxPerFolder"/>), newest first. The list scrolls past what fits, so
+    /// the tile's size never changes what is fetched and no count needs choosing.
+    /// </summary>
+    public const int FetchCount = MailShelves.MaxPerFolder;
 
     [JsonIgnore]
     public int EffectivePreviewLines => Math.Clamp(PreviewLines, 1, 5);
@@ -134,12 +130,6 @@ public sealed class EmailConfig : WidgetConfig, IStyled
         }
 
         AccountIds = ids;
-
-        if (MaxCount != EffectiveMaxCount)
-        {
-            repairs.Add($"mail widget count {MaxCount} was out of range");
-            MaxCount = EffectiveMaxCount;
-        }
 
         if (PreviewLines != EffectivePreviewLines)
         {
@@ -187,7 +177,6 @@ public sealed class EmailConfig : WidgetConfig, IStyled
     {
         AccountIds = AccountIds is null ? null : [.. AccountIds],
         Folder = Folder,
-        MaxCount = MaxCount,
         Style = Style,
         PreviewLines = PreviewLines,
         ListFields = ListFields is null ? null : [.. ListFields],

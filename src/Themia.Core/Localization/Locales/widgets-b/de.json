@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Neue E-Mail konnte nicht geöffnet werden.",
   "widgetsB.settings.email.messages": "Nachrichten",
   "widgetsB.settings.email.folder.desc": "Welcher Ordner jedes Kontos angezeigt wird",
-  "widgetsB.settings.email.count.label": "Nachrichten",
-  "widgetsB.settings.email.count.desc": "Mindestens so viele; ein größeres Widget zeigt mehr",
   "widgetsB.settings.email.display": "Darstellung",
   "widgetsB.settings.email.view.desc": "Liste: drei Zeilen. Kompakt: zwei. Zeile: eine.",
   "widgetsB.settings.email.showSubject": "Betreff anzeigen",

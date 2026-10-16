@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "شروع ایمیل جدید ممکن نشد.",
   "widgetsB.settings.email.messages": "پیام‌ها",
   "widgetsB.settings.email.folder.desc": "کدام پوشه از هر حساب فهرست شود",
-  "widgetsB.settings.email.count.label": "پیام‌ها",
-  "widgetsB.settings.email.count.desc": "دست‌کم این تعداد؛ ویجت بزرگ‌تر بیشتر فهرست می‌کند",
   "widgetsB.settings.email.display": "نمایش",
   "widgetsB.settings.email.view.desc": "فهرست: سه خط. فشرده: دو. ردیف: یک.",
   "widgetsB.settings.email.showSubject": "نمایش موضوع",

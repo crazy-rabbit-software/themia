@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "새 메일을 시작할 수 없습니다.",
   "widgetsB.settings.email.messages": "메시지",
   "widgetsB.settings.email.folder.desc": "각 계정에서 표시할 폴더",
-  "widgetsB.settings.email.count.label": "메시지",
-  "widgetsB.settings.email.count.desc": "최소 개수입니다. 위젯이 크면 더 많이 표시됩니다",
   "widgetsB.settings.email.display": "표시",
   "widgetsB.settings.email.view.desc": "목록: 세 줄. 간단히: 두 줄. 행: 한 줄.",
   "widgetsB.settings.email.showSubject": "제목 표시",

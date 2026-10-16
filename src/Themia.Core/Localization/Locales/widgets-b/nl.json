@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Kan geen nieuwe e-mail starten.",
   "widgetsB.settings.email.messages": "Berichten",
   "widgetsB.settings.email.folder.desc": "Welke map van elk account wordt getoond",
-  "widgetsB.settings.email.count.label": "Berichten",
-  "widgetsB.settings.email.count.desc": "Minstens zoveel; een grotere widget toont er meer",
   "widgetsB.settings.email.display": "Weergave",
   "widgetsB.settings.email.view.desc": "Lijst: drie regels. Compact: twee. Rij: één.",
   "widgetsB.settings.email.showSubject": "Onderwerp weergeven",

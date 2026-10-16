@@ -161,7 +161,7 @@ public sealed record SyncInterests(
             switch (widget.Config)
             {
                 case EmailConfig email:
-                    mail.Add(new MailInterest([.. email.EffectiveAccountIds], email.Folder, email.FetchCount(0)));
+                    mail.Add(new MailInterest([.. email.EffectiveAccountIds], email.Folder, EmailConfig.FetchCount));
                     break;
 
                 // [S-5325] The planner's days are a calendar interest and its tasks the Today view

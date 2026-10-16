@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Ba a iya fara sabon imel ba.",
   "widgetsB.settings.email.messages": "Saƙonni",
   "widgetsB.settings.email.folder.desc": "Wane babban fayil na kowane asusu za a lissafa",
-  "widgetsB.settings.email.count.label": "Saƙonni",
-  "widgetsB.settings.email.count.desc": "Aƙalla wannan adadi; babban widget yana lissafa ƙari",
   "widgetsB.settings.email.display": "Nuni",
   "widgetsB.settings.email.view.desc": "Jeri: layuka uku. Matse: biyu. Layi: ɗaya.",
   "widgetsB.settings.email.showSubject": "Nuna batu",

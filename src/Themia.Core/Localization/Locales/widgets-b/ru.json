@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Не удалось начать новое письмо.",
   "widgetsB.settings.email.messages": "Письма",
   "widgetsB.settings.email.folder.desc": "Какую папку каждой учетной записи показывать",
-  "widgetsB.settings.email.count.label": "Письма",
-  "widgetsB.settings.email.count.desc": "Не меньше этого числа; в большом виджете больше",
   "widgetsB.settings.email.display": "Отображение",
   "widgetsB.settings.email.view.desc": "Список: три строки. Компактный: две. Строка: одна.",
   "widgetsB.settings.email.showSubject": "Показывать тему",

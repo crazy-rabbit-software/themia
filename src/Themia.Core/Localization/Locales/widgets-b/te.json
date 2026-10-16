@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "కొత్త ఇమెయిల్ ప్రారంభించడం సాధ్యం కాలేదు.",
   "widgetsB.settings.email.messages": "సందేశాలు",
   "widgetsB.settings.email.folder.desc": "ప్రతి ఖాతాలో ఏ ఫోల్డర్‌ను జాబితా చేయాలి",
-  "widgetsB.settings.email.count.label": "సందేశాలు",
-  "widgetsB.settings.email.count.desc": "కనీసం ఇన్ని; పెద్ద విడ్జెట్ ఎక్కువ జాబితా చేస్తుంది",
   "widgetsB.settings.email.display": "ప్రదర్శన",
   "widgetsB.settings.email.view.desc": "జాబితా: మూడు పంక్తులు. కాంపాక్ట్: రెండు. వరుస: ఒకటి.",
   "widgetsB.settings.email.showSubject": "విషయాన్ని చూపించు",

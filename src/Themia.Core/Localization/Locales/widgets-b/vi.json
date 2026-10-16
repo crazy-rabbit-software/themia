@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "Không thể bắt đầu email mới.",
   "widgetsB.settings.email.messages": "Thư",
   "widgetsB.settings.email.folder.desc": "Thư mục nào của mỗi tài khoản được liệt kê",
-  "widgetsB.settings.email.count.label": "Số thư",
-  "widgetsB.settings.email.count.desc": "Ít nhất chừng này; tiện ích lớn hơn sẽ liệt kê nhiều hơn",
   "widgetsB.settings.email.display": "Hiển thị",
   "widgetsB.settings.email.view.desc": "Danh sách: ba dòng. Thu gọn: hai. Hàng: một.",
   "widgetsB.settings.email.showSubject": "Hiện chủ đề",

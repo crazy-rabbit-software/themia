@@ -43,8 +43,6 @@
   "widgetsB.email.couldNotCompose": "新しいメールを開始できませんでした。",
   "widgetsB.settings.email.messages": "メッセージ",
   "widgetsB.settings.email.folder.desc": "各アカウントで表示するフォルダー",
-  "widgetsB.settings.email.count.label": "メッセージ数",
-  "widgetsB.settings.email.count.desc": "最低この件数。大きいウィジェットはさらに表示",
   "widgetsB.settings.email.display": "表示",
   "widgetsB.settings.email.view.desc": "リスト: 3 行。コンパクト: 2 行。行: 1 行。",
   "widgetsB.settings.email.showSubject": "件名を表示",

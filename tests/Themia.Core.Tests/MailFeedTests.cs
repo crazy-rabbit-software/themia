@@ -384,7 +384,6 @@ public class MailFeedTests
         {
             AccountIds = ["w"],
             Folder = MailFolder.Junk,
-            MaxCount = 25,
             Style = EmailStyle.Table,
             SortOrder = MailSortOrder.OldestFirst,
             ListFields = [MailListField.Account],
@@ -406,7 +405,6 @@ public class MailFeedTests
         Assert.Equal([MailListField.Account], back.ListFields);
         Assert.Equal(EmailStyle.Table, back.Style);
         Assert.Equal(["w"], back.AccountIds);
-        Assert.Equal(25, back.MaxCount);
         Assert.DoesNotContain(parsed.Repairs, r => r.Contains("mail", StringComparison.Ordinal));
     }
 
@@ -415,7 +413,7 @@ public class MailFeedTests
     {
         var document = StateWithMail("""
             {"kind":"email","accountIds":"not-a-list","folder":"nonsense","style":7,"sortOrder":"sideways",
-             "listFields":["subject","bogus"],"rowColumns":[],"maxCount":500,"previewLines":0}
+             "listFields":["subject","bogus"],"rowColumns":[],"previewLines":0}
             """);
 
         var parsed = AppStateStore.Parse(document.ToJsonString());
@@ -429,7 +427,6 @@ public class MailFeedTests
         Assert.Equal([MailListField.Subject], config.ListFields);
         Assert.Null(config.RowColumns);
         Assert.Empty(config.AccountIds!);
-        Assert.Equal(50, config.MaxCount);
         Assert.Equal(1, config.PreviewLines);
         Assert.Contains(parsed.Repairs, r => r.Contains("mail", StringComparison.Ordinal));
     }
