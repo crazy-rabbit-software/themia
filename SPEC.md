@@ -1981,7 +1981,10 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   three glyph sizes).
 - **[S-669]** **Day row** parts: the weekday column 44 wide (with the glyph), the sky's glyph 20 with 8 either side, the low and high
   in a right-aligned tabular figure column of at least 32 (`WidgetParts.Figure`): the high Body
-  Strong primary, the low Body secondary, as Windows sets a range.
+  Strong primary, the low Body secondary, as Windows sets a range. The forecast grows them with the
+  room a day has (`DayScale`, levels 0..3, one ramp step each: high Body Strong / BodyLarge /
+  Subtitle / Title, glyph 20 / 24 / 32 / 40, range bar 6 / 6 / 8 / 8 thick; it was 4 and read as a
+  scratch), the same ladder in rows, columns and the grid.
 - **[S-3860]** **One hero ladder for chart and reading widgets.** While a hero shares its tile with
   the content it heads (a chart, readings, a list) it grows to the tier's step, by the tile's
   smaller size class (`HeroLayout.TierStep`): Title up to Regular, TitleLarge at Expanded, Display
@@ -2217,19 +2220,23 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   run within 4px of the card's edge). No next-days strip and no next-24-hours chart at any size (retired, [S-666]:
   the hours and the days are the forecast widget's job); what the rungs leave is the reading's.
   "Show detail" off = the reading alone at every size.
-- **[S-724]** The forecast's look is its style ([S-6163]): Rows (the default), Columns or the
-  temperature curve; what was its layout setting.
-- **[S-725]** Rows: stretched to fill the tile when every day fits at the row floor (40, or 32
-  compact under a 200px list), capped at 56 (a two-line list item's height; at 80 a one-line row was
-  mostly gap), else scrolling (hidden bar); the list is padded 4 above and 10 below. Rows use the
-  day-row parts ([S-669]). Columns by width: icon +
+- **[S-724]** The forecast's look is its style ([S-6163]): Rows (the default), Columns, the
+  temperature curve or the grid; what was its layout setting.
+- **[S-725]** Rows (`WeatherForecastLayout.Rows`): as many of the first days as have the row floor
+  (40), never more than the forecast has, stretched to fill the list and capped at 80; no style
+  scrolls (rows of 32 in a hidden scroller showed two and a half slivers on a small tile). The list
+  is padded 4 above and 10 below. Rows use the day-row parts ([S-669]), grown with the row (level 1
+  from 46, 2 from 58, 3 from 70) while the width still holds the row's other columns: a taller row
+  gets larger figures and glyph, never another fact. Columns by width: icon +
   low ≥ 160, range bar ≥ 300, sky ≥ 380, droplet + amount ≥ 420, chance and max wind ≥ 500. A row
-  ≥ 46 tall without a sky column puts the sky on a second line and the precipitation under the
-  high. The rows are the widget at every size: no Today panel beside or above them (retired; it
+  tall enough for the high's line and a caption line (+8) without a sky column puts the sky on a
+  second line and the precipitation under the high. The rows are the widget at every size: no Today panel beside or above them (retired; it
   repeated the first row, concise widgets).
-- **[S-726]** Columns: day + high always, then (by height) icon, low, a vertical range bar that takes
-  the leftover, precipitation, sky (column ≥ 72), and at H ≥ Expanded the chance and the wind;
-  scroll sideways below 56px a column.
+- **[S-726]** Columns (`WeatherForecastLayout.Columns`): as many of the first days as have 56 each,
+  never scrolled, each at most 160 wide (the group centred past that). The largest `DayScale`
+  whose whole core (day, glyph, high, a bar of at least 24, low) fits the column; at the base level
+  day + high always, then (by height) icon, low, the bar. Then precipitation, sky (column ≥ 72),
+  and at H ≥ Expanded the chance and the wind; the bar takes the leftover.
 - **[S-727]** Today is marked by an accent, semibold label and a quiet fill under its row or
   column; a row's fill is inset 4 either side with the control radius, as Windows draws a selected
   list item, its text kept in line with the other days'. In a column the low stands right under
@@ -2258,9 +2265,10 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   Segoe's light weight, as large as the inset box holds it (the ramp, then Display scaled to the
   box, as the minimal clock, [S-6014]); no glyph, condition, range or readings.
 - **[S-6163]** The forecast's styles, `WeatherForecastConfig.Style` (`ForecastStyle`): **Rows**
-  ([S-725], the default), **Columns** ([S-726]) and **Temperature curve**. What was the `Layout`
-  setting: its Automatic (rows that turned into columns on a strip) and Grid (the columns wrapped
-  into cards) are gone; the style is the user's choice at every size.
+  ([S-725], the default), **Columns** ([S-726]), **Temperature curve** and **Grid** ([S-6171]). What
+  was the `Layout` setting: its Automatic (rows that turned into columns on a strip) is gone, and
+  its Grid (the columns wrapped into cards) is now the grid style; the style is the user's choice
+  at every size.
 - **[S-6164]** **Temperature curve** (`ForecastCurve`): the days as columns (at least 48 wide;
   as many of the first days as fit, never scrolled, never more than the forecast has), each with
   its label; under them one chart across the columns: each day's high a dot on its column's middle
@@ -2270,7 +2278,25 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   same scale (tertiary colour, figures under their dots), the precipitation under each column (if
   shown). With the lows the scale is the coldest low to the warmest high; without, the highs' own
   range; one temperature all week is a flat line in the middle. A day without a value breaks the
-  curve. Time runs left to right in every language; today has its quiet fill under its column.
+  curve. Time runs left to right in every language; today has its quiet fill under its column, and
+  the now mark ([S-6172]).
+- **[S-6171]** **Grid** (`ForecastGrid.Plan`): the days as cells (weekday, the sky's glyph, the high
+  then the low; no other fact), filled left to right then down, inset 8, 4 between cells. The
+  arrangement is the columns × rows (never a whole row or column empty) whose cells are largest
+  against the floor cell's shape (the smaller of width/floor and height/floor), ties to fewer empty
+  cells: 7 days are 4 × 2 on L, 2 × 4 on Tall, 7 × 1 on Wide. A cell is never under the floor (the
+  base parts: about 61 × 72); the grid shows fewer of the first days instead, one at the least (the
+  smallest tile's lone cell sheds the glyph). The parts grow by `DayScale` ([S-669]) while the cell
+  holds them. Today's cell carries today's fill and accent label ([S-727]).
+- **[S-6172]** **Now** (`ForecastNow`): the temperature now is the current-conditions reading for
+  the same place and unit that the sync or the offline shelf already holds (`WebSync.Reading`,
+  never asked for by the forecast; a reading older than 2 h or from the future is not "now"). On
+  the curve: a dashed accent hairline at the time across today's column (midnight at its left edge,
+  noon on the day's dot), and with a temperature a ringed dot at it on the curves' scale (which
+  takes it in, so it is never clamped) with its figure in accent beside it, right of it after noon
+  and left before. On today's range bar (rows and columns): a dot at the temperature on the
+  forecast's scale, clamped to the bar's ends, in the colour text takes on the accent and ringed
+  in the accent. No reading: no dot, and only the hairline on the curve.
 - **[S-731]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-732]** *(Retired by [S-2840]..[S-2846]: the two-row search, its separate results drop-down
   and the "Change" button that cleared the place are gone.)*

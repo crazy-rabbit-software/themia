@@ -1,3 +1,4 @@
 {
-  "styles.forecast.curve": "Krzywa temperatury"
+  "styles.forecast.curve": "Krzywa temperatury",
+  "styles.forecast.grid": "Siatka"
 }

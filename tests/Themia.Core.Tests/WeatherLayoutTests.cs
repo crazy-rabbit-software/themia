@@ -143,23 +143,40 @@ public class WeatherLayoutTests
 
     // ---- forecast [S-724]..[S-726] -------------------------------------------------------
 
+    private static readonly WidgetArea[] Tiers = [Xs, S, M, Wide, Tall, L, Xl];
+
+    [Fact]
+    public void S725_no_row_is_thinner_than_the_floor_at_any_tier_or_day_count()
+    {
+        // The bug: under a 200px list the rows went to 32 and scrolled, two and a half slivers on a
+        // small tile. A row is never under the floor; fewer days are shown instead.
+        foreach (var tier in Tiers)
+        {
+            for (var days = 1; days <= 14; days++)
+            {
+                Assert.True(WeatherForecastLayout.Rows(tier, days).RowHeight >= WeatherForecastLayout.RowMin - 1e-9, $"{tier} {days} days");
+            }
+        }
+    }
+
     [Fact]
     public void S725_rows_stretch_to_fill_when_the_days_fit()
     {
         var plan = WeatherForecastLayout.Rows(Tall, 7);
 
-        Assert.True(plan.Stretch);
+        Assert.Equal(7, plan.Days);
         Assert.True(plan.RowHeight > WeatherForecastLayout.RowMin);
         Assert.True(plan.TwoLine, "a tall narrow row carries the sky on a second line");
     }
 
     [Fact]
-    public void S725_more_days_than_fit_scroll_at_the_row_floor()
+    public void S725_more_days_than_fit_show_the_first_ones_at_the_floor_or_more()
     {
+        // M's list is 182 tall: four rows of 45, not fourteen rows of 32 in a scroller.
         var plan = WeatherForecastLayout.Rows(M, 14);
 
-        Assert.False(plan.Stretch);
-        Assert.Equal(WeatherForecastLayout.RowMinCompact, plan.RowHeight);
+        Assert.Equal(4, plan.Days);
+        Assert.Equal((M.Height - WeatherForecastLayout.ListPadding) / 4, plan.RowHeight, 6);
     }
 
     [Fact]
@@ -206,16 +223,17 @@ public class WeatherLayoutTests
         var wide = WeatherForecastLayout.Columns(Wide, 7);
         Assert.True(wide.Icon);
         Assert.True(wide.Low);
-        Assert.False(wide.Scroll);
+        Assert.Equal(7, wide.Days);
     }
 
     [Fact]
-    public void S726_columns_scroll_rather_than_squeeze_below_their_minimum()
+    public void S726_columns_show_fewer_days_rather_than_squeeze_below_their_minimum()
     {
+        // S is 184 inside its padding: three whole columns, not three and a sliver of a fourth.
         var plan = WeatherForecastLayout.Columns(S, 14);
 
-        Assert.True(plan.Scroll);
-        Assert.Equal(WeatherForecastLayout.ColumnMin, plan.ColumnWidth);
+        Assert.Equal(3, plan.Days);
+        Assert.True(plan.ColumnWidth >= WeatherForecastLayout.ColumnMin);
     }
 
     [Fact]

@@ -5,9 +5,9 @@ using Themia.Core.Widgets;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-6163] The forecast's styles: the same days, three looks. What was its layout setting
-/// ([S-724]); its Auto and Grid are gone (Auto was Rows that turned into Columns on a strip, the
-/// grid was the columns wrapped into cards).
+/// [S-6163] The forecast's styles: the same days, four looks. What was its layout setting
+/// ([S-724]); its Auto is gone (Rows that turned into Columns on a strip), and its Grid (the
+/// columns wrapped into cards) came back as a style of its own, cells shaped to the tile ([S-6171]).
 /// </summary>
 [JsonConverter(typeof(StyleJsonConverter<ForecastStyle>))]
 public enum ForecastStyle
@@ -20,6 +20,9 @@ public enum ForecastStyle
 
     /// <summary>[S-6164] The days' highs and lows as two smooth curves across the week.</summary>
     Curve = 2,
+
+    /// <summary>[S-6171] The days as cells in a grid shaped to the tile.</summary>
+    Grid = 3,
 }
 
 /// <summary>
@@ -37,6 +40,7 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
         StyleOption.Of(ForecastStyle.Rows, Str.Forecast_LayoutRows, 0xEA37),
         StyleOption.Of(ForecastStyle.Columns, Str.Forecast_LayoutColumns, 0xE907),
         StyleOption.Of(ForecastStyle.Curve, Str.Styles_Forecast_Curve, 0xE9D2),
+        StyleOption.Of(ForecastStyle.Grid, Str.Styles_Forecast_Grid, 0xF0E2),
     ];
 
     [JsonIgnore]
@@ -48,7 +52,7 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
     /// <summary>Show each day's precipitation total beside its temperatures.</summary>
     public bool ShowPrecipitation { get; set; } = true;
 
-    /// <summary>[S-6163] Rows, columns or the temperature curve.</summary>
+    /// <summary>[S-6163] Rows, columns, the temperature curve or the grid.</summary>
     public ForecastStyle Style { get; set; } = ForecastStyle.Rows;
 
     IReadOnlyList<StyleOption> IStyled.Styles => ForecastStyles;

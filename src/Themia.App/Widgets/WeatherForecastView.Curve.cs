@@ -90,7 +90,7 @@ internal sealed partial class WeatherForecastView
             grid.Children.Add(hit);
         }
 
-        var chart = Chart(shown, plan);
+        var chart = Chart(shown, today, plan);
         SetRow(chart, chartRow);
         SetColumnSpan(chart, Math.Max(1, shown.Count));
         grid.Children.Add(chart);
@@ -98,7 +98,7 @@ internal sealed partial class WeatherForecastView
     }
 
     /// <summary>The curves and their figures, drawn at the plan's size (known before layout, so no size handler).</summary>
-    private Canvas Chart(List<ForecastDay> days, ForecastCurvePlan plan)
+    private Canvas Chart(List<ForecastDay> days, DateOnly today, ForecastCurvePlan plan)
     {
         var canvas = new Canvas { IsHitTestVisible = false, Height = plan.ChartHeight, VerticalAlignment = VerticalAlignment.Top };
         var line = FluentType.Caption.LineHeight;
@@ -107,7 +107,9 @@ internal sealed partial class WeatherForecastView
 
         var highs = days.Select(d => d.High).ToList();
         var lows = days.Select(d => d.Low).ToList();
-        var (coldest, warmest) = Span(plan.Low ? highs.Concat(lows) : highs);
+        var todayIndex = ForecastNow.TodayIndex(days, today, days.Count);
+        double? now = todayIndex >= 0 ? _nowTemperature : null;
+        var (coldest, warmest) = ForecastCurve.Scale((plan.Low ? highs.Concat(lows) : highs).Append(now));
 
         Draw(canvas, ForecastCurve.Points(highs, coldest, warmest, plan.ColumnWidth, top, bottom), highs, _highBrush, above: true, plan.ColumnWidth);
         if (plan.Low)
@@ -115,14 +117,58 @@ internal sealed partial class WeatherForecastView
             Draw(canvas, ForecastCurve.Points(lows, coldest, warmest, plan.ColumnWidth, top, bottom), lows, _lowBrush, above: false, plan.ColumnWidth);
         }
 
+        if (todayIndex >= 0)
+        {
+            var fraction = ForecastNow.DayFraction(TimeOnly.FromDateTime(DateTime.Now));
+            var x = ForecastNow.CurveX(todayIndex, fraction, plan.ColumnWidth);
+            DrawNow(canvas, x, now is { } t ? ForecastCurve.Y(t, coldest, warmest, top, bottom) : null, now, fraction >= 0.5, top, bottom, days.Count * plan.ColumnWidth);
+        }
+
         return canvas;
     }
 
-    /// <summary>The range the curves share: the lows' and the highs' together, or the highs' alone without a low curve.</summary>
-    private static (double Coldest, double Warmest) Span(IEnumerable<double?> values)
+    /// <summary>
+    /// [S-6172] Now on the curve: a dashed accent hairline at the time across today's column and,
+    /// with a current reading, a ringed dot at the temperature now with its figure beside it, on the
+    /// side away from the day's own high (the column's middle).
+    /// </summary>
+    private void DrawNow(Canvas canvas, double x, double? y, double? temperature, bool afterNoon, double top, double bottom, double width)
     {
-        var finite = values.Where(v => v is { } x && double.IsFinite(x)).Select(v => v!.Value).ToList();
-        return finite.Count == 0 ? (0, 1) : (finite.Min(), finite.Max());
+        canvas.Children.Add(new Line
+        {
+            X1 = x,
+            X2 = x,
+            Y1 = top - (CurveDot / 2),
+            Y2 = bottom + (CurveDot / 2),
+            Stroke = _barBrush,
+            StrokeThickness = Fluent.Hairline,
+            StrokeDashArray = [2, 3],
+        });
+
+        if (y is not { } at || temperature is not { } value)
+        {
+            return;
+        }
+
+        var size = CurveDot + Fluent.Space1;
+        var dot = new Ellipse { Width = size, Height = size, Fill = _nowFill, Stroke = _barBrush, StrokeThickness = NowRing };
+        Canvas.SetLeft(dot, x - (size / 2));
+        Canvas.SetTop(dot, at - (size / 2));
+        canvas.Children.Add(dot);
+
+        var label = WidgetParts.Figure(WeatherReport.Degrees(value), FluentType.Strong(FluentType.Caption), "AccentTextFillColorPrimaryBrush");
+        label.MinWidth = 0;
+        var labelWidth = FluentType.EstimateWidth(FluentType.Caption, 4);
+        var line = FluentType.Caption.LineHeight;
+
+        // Right of the dot after noon, left of it before, so it keeps off the high's figure; kept
+        // inside the chart at either end.
+        var left = afterNoon ? x + (size / 2) + Fluent.Space1 : x - (size / 2) - Fluent.Space1 - labelWidth;
+        label.Width = labelWidth;
+        label.TextAlignment = afterNoon ? TextAlignment.Left : TextAlignment.Right;
+        Canvas.SetLeft(label, Math.Clamp(left, 0, Math.Max(0, width - labelWidth)));
+        Canvas.SetTop(label, at - (line / 2));
+        canvas.Children.Add(label);
     }
 
     /// <summary>One curve: the smooth runs, a dot on each day and the day's figure over (or under) it.</summary>

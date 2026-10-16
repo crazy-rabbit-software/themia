@@ -77,6 +77,37 @@ public static class ForecastCurve
     }
 
     /// <summary>
+    /// The range the curves share: the highs' and the lows' together (or the highs' alone without a
+    /// low curve), and the temperature now when it is marked ([S-6172]), so the now mark is always on
+    /// the chart rather than pinned to its edge. Nothing usable is the range 0..1.
+    /// </summary>
+    public static (double Coldest, double Warmest) Scale(IEnumerable<double?> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var coldest = double.MaxValue;
+        var warmest = double.MinValue;
+
+        foreach (var value in values)
+        {
+            if (value is { } v && double.IsFinite(v))
+            {
+                coldest = Math.Min(coldest, v);
+                warmest = Math.Max(warmest, v);
+            }
+        }
+
+        return coldest <= warmest ? (coldest, warmest) : (0, 1);
+    }
+
+    /// <summary>Down the chart: the warmest at <paramref name="top"/>, the coldest at <paramref name="bottom"/>, one temperature in the middle.</summary>
+    public static double Y(double value, double coldest, double warmest, double top, double bottom)
+    {
+        var span = warmest - coldest;
+        var share = span > 0 && double.IsFinite(span) ? Math.Clamp((warmest - value) / span, 0, 1) : 0.5;
+        return top + (share * (bottom - top));
+    }
+
+    /// <summary>
     /// Where each day's value sits: across, its column's middle; down, its place between the warmest
     /// (<paramref name="top"/>) and the coldest (<paramref name="bottom"/>) of the range. A range of
     /// one temperature puts every point in the middle. A missing or unusable value is null.
@@ -86,7 +117,6 @@ public static class ForecastCurve
     {
         ArgumentNullException.ThrowIfNull(values);
         var points = new CurvePoint?[values.Count];
-        var span = warmest - coldest;
 
         for (var i = 0; i < values.Count; i++)
         {
@@ -95,8 +125,7 @@ public static class ForecastCurve
                 continue;
             }
 
-            var share = span > 0 && double.IsFinite(span) ? Math.Clamp((warmest - v) / span, 0, 1) : 0.5;
-            points[i] = new CurvePoint((i + 0.5) * columnWidth, top + (share * (bottom - top)));
+            points[i] = new CurvePoint((i + 0.5) * columnWidth, Y(v, coldest, warmest, top, bottom));
         }
 
         return points;

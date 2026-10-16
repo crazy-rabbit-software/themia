@@ -1,3 +1,4 @@
 {
-  "styles.forecast.curve": "Curva de temperatura"
+  "styles.forecast.curve": "Curva de temperatura",
+  "styles.forecast.grid": "Grade"
 }

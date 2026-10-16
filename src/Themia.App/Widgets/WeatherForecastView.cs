@@ -13,13 +13,14 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The next few days, from open-meteo's daily block, in one of three styles ([S-6163]): a Windows 11
-/// list of rows, the days side by side as columns, or the highs and lows as a temperature curve.
+/// The next few days, from open-meteo's daily block, in one of four styles ([S-6163]): a Windows 11
+/// list of rows, the days side by side as columns, the highs and lows as a temperature curve, or the
+/// days as cells in a grid shaped to the tile ([S-6171]).
 /// <para>
 /// Each style has its own ladder (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>):
-/// rows stretch to fill the tile when the days fit ([S-31] of the original) and gain the sky, a range
-/// bar, the precipitation and its chance as the width allows. The user's day count is the cap —
-/// days are never invented to fill space.
+/// rows fill the tile with as many whole days as have their floor, and gain the sky, a range bar,
+/// the precipitation and its chance as the width allows; the room left grows the day's parts. The
+/// user's day count is the cap: days are never invented to fill space, and none is a sliver.
 /// </para>
 /// <para>
 /// The bar on each day is scaled against the whole forecast rather than that day's own range: a
@@ -45,6 +46,12 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private readonly Brush _barBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly Brush _todayFill = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.Transparent);
 
+    /// <summary>[S-6172] The now dot's fill: the colour text takes on the accent, so it stands on the bar's fill.</summary>
+    private readonly Brush _nowFill = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);
+
+    /// <summary>The now dot's accent ring.</summary>
+    private const double NowRing = 2;
+
 
     private Ticker? _ticker;
     private WeatherForecastConfig _config = new();
@@ -68,10 +75,16 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private FetchStatus _status = FetchStatus.Loading;
 
     private Fetched<Forecast>? _forecast;
+
+    /// <summary>
+    /// [S-6172] The temperature now, from the current-conditions reading already held for the same
+    /// place and unit (asked for by a current-conditions widget, or restored); never asked for here.
+    /// </summary>
+    private double? _nowTemperature;
     private WidgetArea _area;
 
     /// <summary>What is on screen: the style, its plan and the day the labels were computed for.</summary>
-    private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation)? _built;
+    private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation, double? Now)? _built;
     private bool _detached;
 
     public WeatherForecastView()
@@ -218,7 +231,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     /// <summary>[S-2663] A forecast's answer or state changed in the sync service.</summary>
     private void OnWebUpdated(string key)
     {
-        if (!_detached && _want is { } want && WebSync.Key(want) == key)
+        if (!_detached && _want is { } want && (WebSync.Key(want) == key || WebSync.Key(want with { ForecastDays = null }) == key))
         {
             Take();
         }
@@ -235,6 +248,10 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         var answer = _web is { } web ? web.Forecast(want) : WeatherService.PeekForecast(want.Latitude, want.Longitude, want.Unit, days);
         _forecast = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
+
+        // [S-6172] Read, never asked: Reading() only returns what the sync or the shelf holds.
+        var reading = _web?.Reading(want with { ForecastDays = null });
+        _nowTemperature = reading is { Value: { } current } ? ForecastNow.Temperature(current.Temperature, reading.At, DateTimeOffset.Now) : null;
         Render();
     }
 
@@ -302,18 +319,19 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         var style = _config.Style;
         object plan = style switch
         {
-            ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, days.Count),
+            ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, days.Count, _config.ShowPrecipitation),
             ForecastStyle.Curve => ForecastCurve.Plan(_area, days.Count, _config.ShowPrecipitation),
-            _ => WeatherForecastLayout.Rows(_area, days.Count),
+            ForecastStyle.Grid => ForecastGrid.Plan(_area, days.Count),
+            _ => WeatherForecastLayout.Rows(_area, days.Count, _config.ShowPrecipitation),
         };
 
         // One clock reading for the whole build, so a forecast drawn across midnight cannot label
         // two different days "Today".
         var today = DateOnly.FromDateTime(DateTime.Now);
-        var key = (style, plan, today, _config.ShowPrecipitation);
+        var key = (style, plan, today, _config.ShowPrecipitation, _nowTemperature);
 
         if (_built is { } built && built.Style == key.style && Equals(built.Plan, key.plan)
-            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation)
+            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation && built.Now == key._nowTemperature)
         {
             return;
         }
@@ -321,13 +339,21 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         ClearBody();
         _built = key;
 
-        var (coldest, warmest) = Extremes(days);
+        // The bars scale against the days shown, not the ones left out for room.
+        var shown = plan switch
+        {
+            ForecastRowsPlan r => r.Days,
+            ForecastColumnsPlan c => c.Days,
+            _ => days.Count,
+        };
+        var (coldest, warmest) = Extremes([.. days.Take(shown)]);
         var range = new Range(coldest, warmest);
 
         _body.Children.Add(plan switch
         {
             ForecastColumnsPlan columns => BuildColumns(days, today, range, columns),
             ForecastCurvePlan curve => BuildCurve(days, today, curve),
+            ForecastGridPlan cells => BuildGrid(days, today, cells),
             ForecastRowsPlan rows => BuildRows(days, today, range, rows),
             _ => new Grid(),
         });
