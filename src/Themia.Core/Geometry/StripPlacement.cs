@@ -66,9 +66,9 @@ public static class StripPlacement
     /// <paramref name="avoid"/>. In order:
     /// <list type="number">
     /// <item>Beside the end side (<see cref="StripSide.Right"/>, or <see cref="StripSide.Left"/>
-    /// when <paramref name="rightToLeft"/>), <see cref="Gap"/> off the edge, its top level with the
-    /// target's and slid down or up to stay inside the area; where that meets a rect to avoid, just
-    /// under or over that rect instead.</item>
+    /// when <paramref name="rightToLeft"/>), <see cref="Gap"/> off the edge, [S-3714] centred on the
+    /// target's height and slid down or up to stay inside the area; where that meets a rect to avoid,
+    /// just under or over that rect instead.</item>
     /// <item>Beside the start side, on the same terms.</item>
     /// <item>Below the target, the gap off its bottom edge, its start edge level with the target's
     /// and slid along to stay inside the area; then above it.</item>
@@ -88,6 +88,9 @@ public static class StripPlacement
         var targetRight = target.X + target.Width;
         var targetBottom = target.Y + target.Height;
 
+        // [S-3714] Beside the selection, its middle level with the selection's middle, as a flyout
+        // opened to the side of its anchor stands.
+        var centredY = target.Y + ((target.Height - height) / 2);
         var rightX = targetRight + Gap;
         var leftX = target.X - Gap - width;
         StripSide[] sides = rightToLeft ? [StripSide.Left, StripSide.Right] : [StripSide.Right, StripSide.Left];
@@ -100,7 +103,7 @@ public static class StripPlacement
                 continue;
             }
 
-            if (Beside(x, target.Y, width, height, area, avoid) is { } y)
+            if (Beside(x, centredY, width, height, area, avoid) is { } y)
             {
                 return new StripSpot(x, y, side);
             }

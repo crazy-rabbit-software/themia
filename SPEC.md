@@ -993,8 +993,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   (`FluentLayout.DangerRow`, e.g. clearing the clipboard history). Delete stays on the card menu, the Delete key and
   the undo notice ([S-1743]).
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
-- **[S-3707]** The strip is a small **panel** in the edit bar's look ([S-3500]: the flyouts'
-  acrylic, stroke, 8-DIP corners and shadow), on its own layer over the cards and under the edit
+- **[S-3707]** The strip is a small **panel** on a flyout's surface ([S-3715]: the flyout's solid
+  fill, stroke, 8-DIP corners and drop shadow), on its own layer over the cards and under the edit
   bar, one per display. **[S-6520]** Its entries stack, one row per property: the property's name
   in the secondary text colour, then its control in a 176-DIP column (32-DIP drop-downs and box),
   4 DIPs between rows, after Karpo's properties panel (§145). Style, Header, Background and Item
@@ -1009,7 +1009,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   move between its rows, and Escape hands the keyboard back to the surface.
 - **[S-3708]** Where it stands (`StripPlacement.Place`): **beside** the selection's box, 8 DIPs off
   its edge — to its **right**, or to its **left** where the right has no room (right to left the
-  sides mirror: left first) — its top level with the box's and slid up to stay inside the display's
+  sides mirror: left first) — centred on the box's height ([S-3714]) and slid to stay inside the display's
   work area; where that meets the edit bar or the view bar, the nearest clear place in that column
   (just under or over the bar). Only when neither side has room (a widget spanning the work area's
   width) is it **below** the box, 8 DIPs off its bottom edge, its start edge level with the box's
@@ -1030,6 +1030,18 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
+- **[S-3714]** Beside the selection the panel is **centred on its height** (`StripPlacement.Place`:
+  its middle level with the box's middle, as a flyout opened to the side of its anchor stands), then
+  pressed inside the work area and stepped clear of the edit bar and the view bar as [S-3708] says.
+  Below or above (no side has room) it keeps its start edge level with the box's.
+- **[S-3715]** The panel's surface is a Windows 11 flyout's (`FlyoutSurface`), so it stands apart
+  from the cards and any wallpaper: the flyout presenter's solid fill (`SolidBackgroundFillColor
+  Quarternary`, #2C2C2C dark / #FFFFFF light, the fallback of `AcrylicInAppFillColorDefault`), a 1 px
+  `SurfaceStrokeColorFlyout`, 8-DIP corners and a flyout's drop shadow (8 DIPs down, blurred over 32,
+  42 % dark / 18 % light). Not acrylic: in-app acrylic blurs only what the window draws, and the
+  surface window draws nothing behind the panel, so it came out a faint tint the colour of the cards.
+  The shadow is a composition drop shadow cast by a plate under the frame (a theme shadow needs
+  receivers, and nothing under the panel can receive one); it falls inside the edit-mode hit region.
 - **[S-6521]** **Item background** sets the selected widgets' own item layer ([S-6512]): the colour
   control with **Default** (the app-wide item layer, its swatch the app-wide colour) and the colours
   (`QuickSet.SetItemColor`). Default takes a widget's own layer away; a colour gives each widget a

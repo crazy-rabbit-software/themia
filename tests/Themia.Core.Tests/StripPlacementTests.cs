@@ -12,7 +12,7 @@ public sealed class StripPlacementTests
     private const double H = 240;
 
     [Fact]
-    public void S3708_it_stands_to_the_right_of_the_widget_a_gap_off_its_edge_level_with_its_top()
+    public void S3714_it_stands_to_the_right_of_the_widget_a_gap_off_its_edge_centred_on_its_height()
     {
         var target = new PixelRect(700, 400, 300, 200);
 
@@ -20,7 +20,38 @@ public sealed class StripPlacementTests
 
         Assert.Equal(StripSide.Right, spot.Side);
         Assert.Equal(1000 + StripPlacement.Gap, spot.X);
-        Assert.Equal(400, spot.Y);
+        Assert.Equal(400 + ((200 - H) / 2), spot.Y);
+    }
+
+    [Fact]
+    public void S3714_beside_a_tall_widget_its_middle_is_level_with_the_widgets_middle()
+    {
+        var target = new PixelRect(700, 100, 300, 800);
+
+        var spot = StripPlacement.Place(target, W, H, Area, []);
+
+        Assert.Equal(500, spot.Y + (H / 2));
+    }
+
+    [Fact]
+    public void S3714_centred_beside_a_widget_near_the_top_it_is_pressed_inside_the_area()
+    {
+        var area = new PixelRect(0, 48, 1920, 1032);
+        var target = new PixelRect(700, 60, 300, 80);
+
+        var spot = StripPlacement.Place(target, W, H, area, []);
+
+        Assert.Equal(StripSide.Right, spot.Side);
+        Assert.Equal(48, spot.Y);
+    }
+
+    [Fact]
+    public void S3714_on_the_left_side_and_right_to_left_it_is_centred_too()
+    {
+        var target = new PixelRect(1500, 400, 300, 200);
+
+        Assert.Equal(380, StripPlacement.Place(target, W, H, Area, []).Y);
+        Assert.Equal(380, StripPlacement.Place(target with { X = 700 }, W, H, Area, [], rightToLeft: true).Y);
     }
 
     [Fact]
@@ -32,7 +63,7 @@ public sealed class StripPlacementTests
 
         Assert.Equal(StripSide.Left, spot.Side);
         Assert.Equal(1500 - StripPlacement.Gap - W, spot.X);
-        Assert.Equal(400, spot.Y);
+        Assert.Equal(380, spot.Y);
     }
 
     [Fact]

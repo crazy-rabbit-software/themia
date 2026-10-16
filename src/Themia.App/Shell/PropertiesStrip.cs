@@ -35,8 +35,8 @@ internal sealed record PropertiesCommands(
     Action<double> SetScale);
 
 /// <summary>
-/// [S-3707] The selected widgets' properties panel: a small panel in the edit bar's look standing
-/// beside the selection ([S-3708]), one row per property, its name before its control — Title (one
+/// [S-3707] The selected widgets' properties panel: a small panel on a flyout's surface ([S-3715])
+/// standing beside the selection, centred on it ([S-3708], [S-3714]), one row per property, its name before its control — Title (one
 /// widget) or "N selected", Style (one kind with styles, [S-6007]), Header (where every selected
 /// widget can have one, [S-3711]), Background, Item background and, for a widget with a layer of its
 /// own, Item opacity ([S-6521]), Item text ([S-6544]), Scale ([S-6531]), then Settings (one widget with a page, [S-6009]). After Karpo's
@@ -86,9 +86,11 @@ internal sealed partial class PropertiesStrip : Grid
     public PropertiesStrip(PropertiesCommands commands)
     {
         _commands = commands;
-        EditBar.Frame(_frame);
         _frame.Child = _rows;
         Children.Add(_frame);
+
+        // [S-3715] A flyout's surface: it stands apart from the cards and the wallpaper beside it.
+        FlyoutSurface.Apply(this, _frame);
 
         // [S-3707] The keyboard stays in the panel: Tab goes round its controls, Up and Down move
         // between its rows, and Escape hands the keyboard back to the surface.
