@@ -37,6 +37,18 @@ internal enum MeterLook
 
     /// <summary>[S-6305] The reading over a tile per item, shaded by its load.</summary>
     Tiles = 4,
+
+    /// <summary>[S-6264] The reading and its second figure (upload beside download), both large, no history.</summary>
+    Numbers = 5,
+
+    /// <summary>[S-6262] A battery filled to the reading, the figure beside or under it.</summary>
+    Battery = 6,
+
+    /// <summary>[S-6266] A ring filled to the reading, the figure inside it.</summary>
+    Ring = 7,
+
+    /// <summary>[S-6263] Signal bars by the reading's latency, the figure beside or under them.</summary>
+    Signal = 8,
 }
 
 /// <summary>[S-6300] One item a bar or tile look draws: its share (null: no reading), its colour, and a row's words.</summary>
@@ -158,6 +170,9 @@ internal abstract class MeterPart
 
     /// <summary>[S-1917] Debug renders: fixed items for the bar and tile looks (<c>--state sample</c>).</summary>
     public virtual IReadOnlyList<MeterItem> SampleItems => [];
+
+    /// <summary>[S-1917] Debug renders: the fixed reading <c>--state sample</c> shows, in this kind's own terms.</summary>
+    public virtual MeterReading SampleReading => new(0.62, Formatting.Percent(0.62), true);
 
     /// <summary>The part for a meter kind.</summary>
     public static MeterPart For(WidgetKind kind) => kind switch

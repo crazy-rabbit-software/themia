@@ -6,6 +6,8 @@
   "dateWidget.label": "Tanggal",
   "dateWidget.desc": "Hari dan tanggal hari ini, dibuat untuk wallpaper",
   "dateWidget.showYear": "Tampilkan tahun",
+  "variants.visualizer.scope.label": "Bentuk gelombang",
+  "variants.visualizer.scope.desc": "Garis yang menggambar suara itu sendiri, seperti osiloskop",
   "planner.label": "Perencana mingguan",
   "planner.desc": "Hari-hari mendatang dengan acaranya, dan yang jatuh tempo hari ini",
   "planner.tasksHeader": "Tugas hari ini",

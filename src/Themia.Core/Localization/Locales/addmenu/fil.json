@@ -12,6 +12,9 @@
   "addMenu.subject.system": "System",
   "addMenu.subject.devices": "Mga device at power",
   "addMenu.subject.more": "Higit pa",
+  "addMenu.family.calendar": "Kalendaryo",
+  "addMenu.family.visualizer": "Visualizer",
+  "addMenu.family.folder": "Folder",
   "addMenu.family.screenTime": "Oras sa screen",
   "addMenu.family.powerButtons": "Mga power button"
 }

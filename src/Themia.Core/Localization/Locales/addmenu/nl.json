@@ -12,6 +12,9 @@
   "addMenu.subject.system": "Systeem",
   "addMenu.subject.devices": "Apparaten en energie",
   "addMenu.subject.more": "Meer",
+  "addMenu.family.calendar": "Agenda",
+  "addMenu.family.visualizer": "Visualisatie",
+  "addMenu.family.folder": "Map",
   "addMenu.family.screenTime": "Schermtijd",
   "addMenu.family.powerButtons": "Aan/uit-knoppen"
 }

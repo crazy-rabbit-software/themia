@@ -221,15 +221,6 @@ public sealed class SystemDetailsTests
     }
 
     [Fact]
-    public void S2421_the_drive_list_keeps_roots_only_once_in_order()
-    {
-        var config = new DiskSpaceConfig { Drives = ["d", "C:\\", "not a drive", "D:", "\\\\server\\share"] };
-
-        Assert.NotEmpty(config.Repair());
-        Assert.Equal(["D:\\", "C:\\"], config.Drives);
-    }
-
-    [Fact]
     public void S2427_the_ping_window_is_clamped()
     {
         var config = new PingDetailsConfig { Window = 1 };
@@ -550,31 +541,6 @@ public sealed class SystemDetailsTests
         var none = NetworkDetailRules.Sheet(Locale.En, new ThroughputSample(0, 0, [], 0, 0), new Dictionary<string, string>(), new PublicAddressReading(PublicAddressState.Checking));
         Assert.Equal("No connection", none.Caption);
         Assert.Contains(none.Facts, f => f.Label == "Public address" && !f.Available);
-    }
-
-    // ---- [S-2420]..[S-2422] disk space ---------------------------------------------------------
-
-    [Fact]
-    public void S2421_a_selection_keeps_its_order_and_a_gone_drive()
-    {
-        DiskVolume[] volumes = [new("D:\\", "Data", false), new("C:\\", "", false)];
-
-        Assert.Equal(["C:\\", "D:\\"], DiskSpaceRules.Select(volumes, []).Select(v => v.Root));
-        Assert.Equal(["E:\\", "D:\\"], DiskSpaceRules.Select(volumes, ["e", "D:\\"]).Select(v => v.Root));
-    }
-
-    [Fact]
-    public void S2420_S2422_a_row_reads_used_free_and_pressure()
-    {
-        const ulong Gb = 1UL << 30;
-        var row = DiskSpaceRules.Row(Locale.En, new DriveSpace(new DiskVolume("C:\\", "", false), 100 * Gb, 5 * Gb));
-
-        Assert.Equal("95%", row.Value);
-        Assert.Equal("5.0 GB free of 100 GB", row.Detail);
-        Assert.Equal(MeterPressure.Critical, row.Pressure);
-
-        var gone = DiskSpaceRules.Row(Locale.En, new DriveSpace(new DiskVolume("E:\\", "", false), 0, 0));
-        Assert.Equal(("--", "Not connected", (double?)null), (gone.Value, gone.Detail, gone.Fraction));
     }
 
     // ---- [S-2423]..[S-2425] battery ------------------------------------------------------------

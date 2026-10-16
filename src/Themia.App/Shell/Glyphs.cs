@@ -46,7 +46,21 @@ internal static class Glyphs
     public static readonly string Hours = From(0xE917);
     public static readonly string Calendar = From(0xE787);
 
+    /// <summary>[S-3600] The week, day and year calendars and the agenda, beside the month's <see cref="Calendar"/>.</summary>
+    public static readonly string CalendarWeek = From(0xE8C0);
+
+    public static readonly string CalendarDay = From(0xE8BF);
+
+    public static readonly string CalendarYear = From(0xEA89);
+
+    public static readonly string Agenda = From(0xE8FD);
+
     public static readonly string Mail = From(0xE715);
+
+    /// <summary>[S-6264] [S-6262] The network numbers' download and upload, and the battery style's charging bolt (LightningBolt).</summary>
+    public static readonly string Download = From(0xE896);
+    public static readonly string Upload = From(0xE898);
+    public static readonly string ChargingBolt = From(0xE945);
     public static readonly string Unread = From(0xE8BD);
     public static readonly string Count = From(0xE8FD);
     public static readonly string Preview = From(0xE7C3);
@@ -174,6 +188,17 @@ internal static class Glyphs
 
     /// <summary>[S-3200] The audio visualizer: Equalizer (E9E9) is the mixer's, so the sound-settings wave.</summary>
     public static readonly string Visualizer = From(0xE7F3);
+    /// <summary>[S-3210] The other visualizer designs, by FluentIconData's names: MixVolumes, Diagnostic (a pulse line), GridViewSmall, Brightness (rays round a ring; ProgressRingDots read as a spinner).</summary>
+    public static readonly string VisualizerMirror = From(0xF4C3);
+    public static readonly string VisualizerWave = From(0xE9D9);
+    public static readonly string VisualizerDots = From(0xF232);
+    public static readonly string VisualizerRadial = From(0xE706);
+    /// <summary>[S-3212] The waveform design (FluentIconData "Health": the heart and its trace, as the request put it, an ECG line).</summary>
+    public static readonly string VisualizerScope = From(0xE95E);
+    /// <summary>[S-4120] The folder layouts after the list (which keeps <see cref="Folder"/>): FolderHorizontal (List read as a menu), Tiles, GridView.</summary>
+    public static readonly string FolderDetails = From(0xF12B);
+    public static readonly string FolderGrid = From(0xECA5);
+    public static readonly string FolderIcons = From(0xF0E2);
     public static readonly string Group = From(0xF168);
 
     // The system widgets: mixer and screen time (the GPU glyph sits with the other meters).

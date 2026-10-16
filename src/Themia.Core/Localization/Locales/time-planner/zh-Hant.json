@@ -6,6 +6,8 @@
   "dateWidget.label": "日期",
   "dateWidget.desc": "今天的星期和日期，專為桌布設計",
   "dateWidget.showYear": "顯示年份",
+  "variants.visualizer.scope.label": "波形",
+  "variants.visualizer.scope.desc": "像示波器一樣描繪聲音本身的線條",
   "planner.label": "週計畫",
   "planner.desc": "接下來幾天的行程，以及今天到期的工作",
   "planner.tasksHeader": "今天的工作",

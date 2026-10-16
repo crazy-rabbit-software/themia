@@ -30,9 +30,6 @@ internal static partial class WidgetSettings
                     FluentLayout.Toggle(network.ShowPublicAddress, on => { network.ShowPublicAddress = on; save(); }),
                     "ip", "public ip", "address"));
                 break;
-            case DiskSpaceConfig disk:
-                DriveRows(rows, disk, save);
-                break;
             case PingDetailsConfig ping:
                 PingDetailRows(rows, ping, save);
                 break;
@@ -66,60 +63,6 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Row(Glyphs.BulletList, Str.Details_Settings_Processes_Group_Label.Text(), Str.Details_Settings_Processes_Group_Desc.Text(),
             FluentLayout.Toggle(config.GroupByName, on => { config.GroupByName = on; save(); }),
             "group"));
-    }
-
-    /// <summary>[S-2421] Every drive, or the ones switched on; a chosen drive that is gone stays offered.</summary>
-    private static void DriveRows(List<FrameworkElement> rows, DiskSpaceConfig config, Action save)
-    {
-        rows.Add(FluentLayout.Header(Str.Details_Settings_Disk_Drives.Text()));
-
-        var volumes = DriveRules.LocalVolumes(Services.Drives.DriveService.Shared.Now());
-        var known = volumes.Select(v => v.Root).ToList();
-        var offered = known.Concat(config.Drives.Where(d => !known.Contains(d, StringComparer.OrdinalIgnoreCase))).ToList();
-        var toggles = new List<Microsoft.UI.Xaml.Controls.ToggleSwitch>();
-
-        rows.Add(FluentLayout.Row(Glyphs.Disk, Str.Details_Settings_Disk_All_Label.Text(), Str.Details_Settings_Disk_All_Desc.Text(),
-            FluentLayout.Toggle(config.Drives.Count == 0, on =>
-            {
-                foreach (var toggle in toggles)
-                {
-                    toggle.IsEnabled = !on;
-
-                    // Off: every drive there is now starts switched on, so the list does not change under the user.
-                    toggle.IsOn = !on && toggle.Tag is string drive && known.Contains(drive, StringComparer.OrdinalIgnoreCase);
-                }
-
-                config.Drives = on ? [] : [.. known];
-                save();
-            }),
-            "all drives"));
-
-        foreach (var root in offered)
-        {
-            var volume = volumes.FirstOrDefault(v => string.Equals(v.Root, root, StringComparison.OrdinalIgnoreCase));
-            var title = volume.Root is null
-                ? Str.WidgetsB_Settings_Disk_NotConnectedDrive.Format(("drive", DiskRules.Instance(root)))
-                : DiskRules.Title(volume);
-
-            var toggle = FluentLayout.Toggle(config.Drives.Contains(root, StringComparer.OrdinalIgnoreCase), on =>
-            {
-                var list = DiskSpaceRules.Normalise(config.Drives);
-                list.RemoveAll(d => string.Equals(d, root, StringComparison.OrdinalIgnoreCase));
-
-                if (on)
-                {
-                    list.Add(root);
-                }
-
-                config.Drives = list;
-                save();
-            });
-
-            toggle.IsEnabled = config.Drives.Count > 0;
-            toggle.Tag = root;
-            toggles.Add(toggle);
-            rows.Add(FluentLayout.Row(Glyphs.Disk, title, null, toggle));
-        }
     }
 
     /// <summary>[S-2426] [S-2427] The host, as the ping meter's page has it, then the window.</summary>

@@ -1,0 +1,11 @@
+{
+  "styles.io.graph": "График",
+  "styles.io.numbers": "Числа",
+  "styles.io.bars": "Полосы",
+  "styles.io.battery": "Батарея",
+  "styles.io.ring": "Кольцо",
+  "styles.io.signal": "Шкала сигнала",
+  "styles.io.bar": "Полоса",
+  "styles.io.read": "Чтение",
+  "styles.io.write": "Запись"
+}

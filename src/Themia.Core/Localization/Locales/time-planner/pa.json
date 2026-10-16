@@ -6,6 +6,8 @@
   "dateWidget.label": "ਤਾਰੀਖ",
   "dateWidget.desc": "ਅੱਜ ਦਾ ਦਿਨ ਅਤੇ ਤਾਰੀਖ, ਵਾਲਪੇਪਰ ਲਈ ਬਣਾਇਆ",
   "dateWidget.showYear": "ਸਾਲ ਦਿਖਾਓ",
+  "variants.visualizer.scope.label": "ਤਰੰਗ ਰੂਪ",
+  "variants.visualizer.scope.desc": "ਇੱਕ ਲਕੀਰ ਜੋ ਆਸਿਲੋਸਕੋਪ ਵਾਂਗ ਆਵਾਜ਼ ਨੂੰ ਹੀ ਖਿੱਚਦੀ ਹੈ",
   "planner.label": "ਹਫ਼ਤਾਵਾਰੀ ਯੋਜਨਾਕਾਰ",
   "planner.desc": "ਆਉਣ ਵਾਲੇ ਦਿਨ ਉਹਨਾਂ ਦੇ ਇਵੈਂਟਾਂ ਨਾਲ, ਅਤੇ ਅੱਜ ਕੀ ਬਕਾਇਆ ਹੈ",
   "planner.tasksHeader": "ਅੱਜ ਦੇ ਕੰਮ",

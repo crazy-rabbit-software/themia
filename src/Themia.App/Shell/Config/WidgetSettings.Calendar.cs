@@ -17,10 +17,9 @@ using Themia.App.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-561] [S-3601] Every calendar widget's settings, one builder for the calendar, Next meeting and
-/// the week planner: accounts, and under each one its calendars — shown or hidden, and a colour each
-/// ([S-566], [S-567]) — then only what the calendar's style uses (the week's columns, the agenda's
-/// range and length), and birthdays. The week start is every widget's
+/// [S-561] [S-3601] Every calendar widget's settings, one builder for all five kinds: accounts, and
+/// under each one its calendars — shown or hidden, and a colour each ([S-566], [S-567]) — then only
+/// what the kind uses: the agenda length (agenda), and birthdays. The week start is every widget's
 /// regional setting ([S-3770]).
 /// </summary>
 internal static partial class WidgetSettings
@@ -65,14 +64,34 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
-        // [S-3601] Only what the calendar's style uses; picking another style rebuilds the page
-        // ([S-6010]). The week start is every calendar's ([S-3770]).
-        if (config is CalendarWidgetConfig calendar)
+        // [S-3601] Only what this kind uses. The week start is every calendar's ([S-3770]).
+        if (config is AgendaConfig agenda)
         {
-            foreach (var setting in CalendarWidgetConfig.SettingsFor(calendar.Style))
-            {
-                CalendarStyleRow(rows, calendar, setting, save);
-            }
+            AgendaRangeRows(rows, agenda, save);
+            rows.Add(FluentLayout.Row(Glyphs.Count, Str.Calendar_AgendaEvents_Label.Text(),
+                Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Text(),
+                FluentLayout.Slider(agenda.EffectiveAgendaCount, 1, 100, 1, string.Empty,
+                    value => { agenda.AgendaCount = (int)Math.Round(value); save(); })));
+        }
+        else if (config is WeekCalendarConfig week)
+        {
+            // [S-3637] Where the columns start and how many there are.
+            var weekStart = CalendarText.WeekdayName(CalendarRules.FirstDay(week.EffectiveWeekStart));
+            rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(),
+                Str.WidgetsA_Calendar_Settings_WeekFrom_Desc.Text(),
+                FluentLayout.Choice<WeekFirstDay>(
+                    [
+                        (WeekFirstDay.Week, Str.WidgetsA_Calendar_Settings_WeekFrom_WeekStart.Format(("day", weekStart))),
+                        (WeekFirstDay.Today, Str.Common_Today.Text()),
+                    ],
+                    week.FirstDay,
+                    value => { week.FirstDay = value; save(); })));
+            rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Calendar_Settings_Days_Label.Text(),
+                Str.WidgetsA_Calendar_Settings_WeekDays_Desc.Format(
+                    ("week", LocaleFormat.Integer(WeekCalendarConfig.DefaultDays)),
+                    ("workweek", LocaleFormat.Integer(WeekCalendarConfig.WorkWeekDays))),
+                FluentLayout.Slider(week.EffectiveDays, WeekCalendarConfig.MinDays, WeekCalendarConfig.MaxDays, 1, string.Empty,
+                    value => { week.Days = (int)Math.Round(value); save(); })));
         }
 
         rows.Add(FluentLayout.Row(Glyphs.Contact, Str.Calendar_ShowBirthdays_Label.Text(),
@@ -80,57 +99,15 @@ internal static partial class WidgetSettings
             FluentLayout.Toggle(config.ShowBirthdays, value => { config.ShowBirthdays = value; save(); })));
     }
 
-    /// <summary>[S-3601] One of a style's own rows: the week's first column and length, the agenda's range and count.</summary>
-    private static void CalendarStyleRow(List<FrameworkElement> rows, CalendarWidgetConfig config, CalendarSetting setting, Action save)
-    {
-        switch (setting)
-        {
-            case CalendarSetting.WeekFrom:
-                // [S-3637] Where the columns start.
-                var weekStart = CalendarText.WeekdayName(CalendarRules.FirstDay(config.EffectiveWeekStart));
-                rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(),
-                    Str.WidgetsA_Calendar_Settings_WeekFrom_Desc.Text(),
-                    FluentLayout.Choice<WeekFirstDay>(
-                        [
-                            (WeekFirstDay.Week, Str.WidgetsA_Calendar_Settings_WeekFrom_WeekStart.Format(("day", weekStart))),
-                            (WeekFirstDay.Today, Str.Common_Today.Text()),
-                        ],
-                        config.WeekFrom,
-                        value => { config.WeekFrom = value; save(); })));
-                break;
-
-            case CalendarSetting.WeekDays:
-                // [S-3637] How many columns there are.
-                rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Calendar_Settings_Days_Label.Text(),
-                    Str.WidgetsA_Calendar_Settings_WeekDays_Desc.Format(
-                        ("week", LocaleFormat.Integer(CalendarWidgetConfig.WeekDefaultDays)),
-                        ("workweek", LocaleFormat.Integer(CalendarWidgetConfig.WorkWeekDays))),
-                    FluentLayout.Slider(config.EffectiveWeekDays, CalendarWidgetConfig.WeekMinDays, CalendarWidgetConfig.WeekMaxDays, 1, string.Empty,
-                        value => { config.WeekDays = (int)Math.Round(value); save(); })));
-                break;
-
-            case CalendarSetting.AgendaRange:
-                AgendaRangeRows(rows, config, save);
-                break;
-
-            case CalendarSetting.AgendaCount:
-                rows.Add(FluentLayout.Row(Glyphs.Count, Str.Calendar_AgendaEvents_Label.Text(),
-                    Str.WidgetsA_Calendar_Settings_AgendaCount_Desc.Text(),
-                    FluentLayout.Slider(config.EffectiveAgendaCount, 1, 100, 1, string.Empty,
-                        value => { config.AgendaCount = (int)Math.Round(value); save(); })));
-                break;
-        }
-    }
-
     /// <summary>
     /// [S-3636] How far ahead the agenda looks: Today, Today and tomorrow, 3, 7 or 30 days, or Custom,
     /// which shows a number of days of its own (1 to 365) under it.
     /// </summary>
-    private static void AgendaRangeRows(List<FrameworkElement> rows, CalendarWidgetConfig agenda, Action save)
+    private static void AgendaRangeRows(List<FrameworkElement> rows, AgendaConfig agenda, Action save)
     {
         const int Custom = 0;
         var options = new List<(int Value, string Label)>();
-        foreach (var days in CalendarWidgetConfig.AgendaDayPresets)
+        foreach (var days in AgendaConfig.DayPresets)
         {
             options.Add((days, days switch
             {
@@ -142,9 +119,9 @@ internal static partial class WidgetSettings
 
         options.Add((Custom, Str.WidgetsA_Calendar_Settings_AgendaRange_Custom.Text()));
 
-        var preset = CalendarWidgetConfig.AgendaDayPresets.Contains(agenda.EffectiveAgendaDays);
-        var stepper = FluentLayout.Stepper(agenda.EffectiveAgendaDays, CalendarWidgetConfig.AgendaMinDays, 1, value => { agenda.AgendaDays = value; save(); });
-        stepper.Maximum = CalendarWidgetConfig.AgendaMaxDays;
+        var preset = AgendaConfig.DayPresets.Contains(agenda.EffectiveAgendaDays);
+        var stepper = FluentLayout.Stepper(agenda.EffectiveAgendaDays, AgendaConfig.MinDays, 1, value => { agenda.AgendaDays = value; save(); });
+        stepper.Maximum = AgendaConfig.MaxDays;
         var custom = FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Calendar_Settings_Days_Label.Text(), null, stepper);
         custom.Visibility = preset ? Visibility.Collapsed : Visibility.Visible;
 

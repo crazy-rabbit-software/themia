@@ -15,7 +15,12 @@ internal static partial class WidgetSettings
     private static void MeterRows(List<FrameworkElement> rows, GaugeConfig gauge, Action save)
     {
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Meters_History.Text()));
-        AddGraphToggle(rows, gauge, save);
+
+        // [S-6000] A styled meter's history is its graph style, chosen in the Style row: no switch beside it.
+        if (!WidgetStyles.Offers(gauge.Kind))
+        {
+            AddGraphToggle(rows, gauge, save);
+        }
 
         var spans = MeterTiming.SpanChoices.Select(span => (span, MeterTiming.SpanLabel(span))).ToList();
 

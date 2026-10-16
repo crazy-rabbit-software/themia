@@ -1,12 +1,31 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
+/// <summary>[S-6273] The ping meter's looks: the latency over its history, or signal bars.</summary>
+[JsonConverter(typeof(StyleJsonConverter<PingStyle>))]
+public enum PingStyle
+{
+    /// <summary>[S-1172] The latency over its history.</summary>
+    Graph = 0,
+
+    /// <summary>[S-6273] Signal bars by the latency (<see cref="PingSignal"/>), the latency beside them.</summary>
+    Signal = 1,
+}
+
 /// <summary>Round-trip time to a host, and the statistics behind it.</summary>
-public sealed class PingConfig : GaugeConfig
+public sealed class PingConfig : GaugeConfig, IStyled
 {
     /// <summary>A public resolver: reachable without configuration, and not a service this app talks to.</summary>
     public const string DefaultHost = "1.1.1.1";
+
+    private static readonly StyleOption[] PingStyles =
+    [
+        StyleOption.Of(PingStyle.Graph, Str.Styles_Io_Graph, 0xE9D2),
+        StyleOption.Of(PingStyle.Signal, Str.Styles_Io_Signal, 0xE870),
+    ];
 
     /// <summary>A quarter of an hour of probes, one every five seconds ([S-2512]).</summary>
     public PingConfig()
@@ -16,6 +35,21 @@ public sealed class PingConfig : GaugeConfig
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Ping;
+
+    /// <summary>[S-6273] The meter's look; what was its history switch ([S-6000]).</summary>
+    public PingStyle Style { get; set; } = PingStyle.Graph;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => PingStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (PingStyle)value;
+    }
+
+    /// <summary>[S-6273] Only the graph style draws the history.</summary>
+    [JsonIgnore]
+    public override bool DrawsHistory => Style == PingStyle.Graph;
 
     /// <summary>Host or address to probe. Empty falls back to <see cref="DefaultHost"/>.</summary>
     public string Host { get; set; } = DefaultHost;
@@ -28,6 +62,7 @@ public sealed class PingConfig : GaugeConfig
     {
         var copy = new PingConfig
         {
+            Style = Style,
             Host = Host,
         };
         CopyTo(copy);

@@ -81,7 +81,6 @@ internal abstract class DetailPart
         WidgetKind.MemoryDetails => new MemoryDetailPart(),
         WidgetKind.TopProcesses => new ProcessesPart(),
         WidgetKind.NetworkDetails => new NetworkDetailPart(),
-        WidgetKind.DiskSpace => new DiskSpacePart(),
         WidgetKind.BatteryDetails => new BatteryDetailPart(),
         WidgetKind.PingDetails => new PingDetailPart(),
         WidgetKind.GpuDetails => new GpuDetailPart(),

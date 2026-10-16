@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "स्पेक्ट्रम बार",
+  "variants.visualizer.bars.desc": "हा PC जे वाजवतो त्यासोबत हलणारे बार",
+  "variants.visualizer.mirror.label": "आरसा स्पेक्ट्रम",
+  "variants.visualizer.mirror.desc": "मधल्या रेषेपासून दोन्ही बाजूंना वाढणारे बार",
+  "variants.visualizer.wave.label": "स्पेक्ट्रम लहर",
+  "variants.visualizer.wave.desc": "हा PC जे वाजवतो त्यासोबत चालणारी गुळगुळीत लहर",
+  "variants.visualizer.dots.label": "LED स्पेक्ट्रम",
+  "variants.visualizer.dots.desc": "हाय-फाय लेव्हल मीटरसारखे दिव्यांचे स्तंभ",
+  "variants.visualizer.radial.label": "वर्तुळाकार स्पेक्ट्रम",
+  "variants.visualizer.radial.desc": "एका कड्याभोवती बार, डावीकडे आणि उजवीकडे आरशासारखे",
+  "variants.folder.list.label": "फोल्डर यादी",
+  "variants.folder.list.desc": "फोल्डरमधील फाइल्स यादीच्या रूपात",
+  "variants.folder.details.label": "फोल्डर तपशील",
+  "variants.folder.details.desc": "फोल्डरमधील फाइल्स स्तंभ असलेल्या तक्त्यात",
+  "variants.folder.grid.label": "फोल्डर ग्रिड",
+  "variants.folder.grid.desc": "फोल्डरमधील फाइल्स थंबनेलसह टाइल्सच्या रूपात",
+  "variants.folder.icons.label": "फोल्डर आयकॉन",
+  "variants.folder.icons.desc": "फोल्डरमधील फाइल्स फक्त आयकॉनच्या रूपात, डेस्कटॉपसारख्या"
+}

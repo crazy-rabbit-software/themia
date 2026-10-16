@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "variants.visualizer.bars.label": "ஸ்பெக்ட்ரம் பட்டைகள்",
+  "variants.visualizer.bars.desc": "இந்த PC இயக்கும் எதனுடனும் அசையும் பட்டைகள்",
+  "variants.visualizer.mirror.label": "பிரதிபலித்த ஸ்பெக்ட்ரம்",
+  "variants.visualizer.mirror.desc": "மையக் கோட்டிலிருந்து இரு திசையிலும் வளரும் பட்டைகள்",
+  "variants.visualizer.wave.label": "ஸ்பெக்ட்ரம் அலை",
+  "variants.visualizer.wave.desc": "இந்த PC இயக்கும் எதன் மீதும் பயணிக்கும் மென்மையான அலை",
+  "variants.visualizer.dots.label": "LED ஸ்பெக்ட்ரம்",
+  "variants.visualizer.dots.desc": "hi-fi நிலை மீட்டர் போன்ற விளக்குகளின் நெடுவரிசைகள்",
+  "variants.visualizer.radial.label": "வட்ட ஸ்பெக்ட்ரம்",
+  "variants.visualizer.radial.desc": "வளையத்தைச் சுற்றிய பட்டைகள், இடம் வலமாகப் பிரதிபலித்தவை",
+  "variants.folder.list.label": "கோப்புறைப் பட்டியல்",
+  "variants.folder.list.desc": "ஒரு கோப்புறையின் கோப்புகள் பட்டியலாக",
+  "variants.folder.details.label": "கோப்புறை விவரங்கள்",
+  "variants.folder.details.desc": "ஒரு கோப்புறையின் கோப்புகள் நெடுவரிசைகள் கொண்ட அட்டவணையில்",
+  "variants.folder.grid.label": "கோப்புறைக் கட்டம்",
+  "variants.folder.grid.desc": "ஒரு கோப்புறையின் கோப்புகள் சிறுபடங்களுடன் கூடிய ஓடுகளாக",
+  "variants.folder.icons.label": "கோப்புறை ஐகான்கள்",
+  "variants.folder.icons.desc": "டெஸ்க்டாப் போல, ஒரு கோப்புறையின் கோப்புகள் ஐகான்களாக மட்டும்"
+}

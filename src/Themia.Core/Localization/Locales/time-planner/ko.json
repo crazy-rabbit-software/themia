@@ -6,6 +6,8 @@
   "dateWidget.label": "날짜",
   "dateWidget.desc": "오늘의 요일과 날짜, 배경 화면용",
   "dateWidget.showYear": "연도 표시",
+  "variants.visualizer.scope.label": "파형",
+  "variants.visualizer.scope.desc": "오실로스코프처럼 소리 자체를 그리는 선",
   "planner.label": "주간 플래너",
   "planner.desc": "앞으로의 날과 일정, 그리고 오늘 마감인 일",
   "planner.tasksHeader": "오늘의 작업",

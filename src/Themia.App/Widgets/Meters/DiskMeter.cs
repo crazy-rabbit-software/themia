@@ -19,6 +19,10 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class DiskMeter : MeterPart
 {
+    /// <summary>[S-6271] The bars' window: the totals of the last minute's readings, the graph's own top over them.</summary>
+    private const int BarWindow = 60;
+
+    private readonly Queue<double> _recent = new(BarWindow);
     private DiskConfig _config = new();
     private string _root = DiskMetrics.SystemRoot;
 
@@ -37,15 +41,66 @@ internal sealed class DiskMeter : MeterPart
     /// <summary>[S-1821] Against the window's peak, rounded up to a doubling of 1 MB/s.</summary>
     public override ChartScale Scale => DiskRules.Scale;
 
+    /// <summary>[S-6271] Bars: reads and writes apart, as labelled rows under the total.</summary>
+    public override MeterLook Look(WidgetConfig config)
+        => (config as DiskConfig)?.Style == DiskStyle.Bars ? MeterLook.Rows : MeterLook.Graph;
+
+    /// <summary>[S-6271] Reads and writes of the drive the reading is about, from the snapshot the reading itself comes from.</summary>
+    public override MeterItemsWatch? WatchItems(SystemHub hub, Action<IReadOnlyList<MeterItem>> onItems)
+        => MeterItemsWatch.Of(hub, Sources.DiskActivity, snapshot => Items(snapshot.Activity?.Rates), onItems);
+
+    /// <summary>42 MB/s read, 8 MB/s written.</summary>
+    public override IReadOnlyList<MeterItem> SampleItems => Items(new DiskRates(42 * 1024 * 1024, 8 * 1024 * 1024), [64 * 1024 * 1024]);
+
+    public override MeterReading SampleReading => new(0.4, Formatting.Rate(50 * 1024 * 1024), true, Value: 50 * 1024 * 1024);
+
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {
+        var previous = (_config.Scope, _root);
         _config = config as DiskConfig ?? new DiskConfig();
         _root = DiskRules.Root(_config.Drive) ?? DiskMetrics.SystemRoot;
+
+        // Another drive is another history ([S-1160]): the bars' window starts again with it.
+        if (previous != (_config.Scope, _root))
+        {
+            _recent.Clear();
+        }
+
         host.SetTitle(Title());
     }
 
     /// <summary>[S-1161] The title follows the hub's walk of the volumes (a label renamed, a drive plugged in).</summary>
-    public override void Observe(MeterReading reading, IMeterHost host) => host.SetTitle(Title());
+    public override void Observe(MeterReading reading, IMeterHost host)
+    {
+        host.SetTitle(Title());
+
+        if (reading is { Available: true, Value: { } total })
+        {
+            if (_recent.Count == BarWindow)
+            {
+                _recent.Dequeue();
+            }
+
+            _recent.Enqueue(total);
+        }
+    }
+
+    private IReadOnlyList<MeterItem> Items(IReadOnlyDictionary<string, DiskRates>? byInstance)
+    {
+        var sample = DiskRules.Read(_config.Scope, _root, byInstance);
+        return sample.State == DiskReadingState.Rate ? Items(sample.Rates, [.. _recent]) : [];
+    }
+
+    /// <summary>[S-6271] "Read 42 MB/s" and "Write 8 MB/s", each a bar against the graph's top.</summary>
+    private static IReadOnlyList<MeterItem> Items(DiskRates rates, double[] recent)
+    {
+        var (read, write) = DiskRules.BarShares(rates, recent);
+        return
+        [
+            new MeterItem(read, MeterPressure.Normal, Str.Styles_Io_Read.Text(), Formatting.Rate(rates.Read)),
+            new MeterItem(write, MeterPressure.Normal, Str.Styles_Io_Write.Text(), Formatting.Rate(rates.Write)),
+        ];
+    }
 
     /// <summary>[S-1166] Open the drive the reading is about in Explorer. Every drive at once has no one folder to open.</summary>
     public override IReadOnlyList<WidgetAction> ContextActions(IMeterHost host)

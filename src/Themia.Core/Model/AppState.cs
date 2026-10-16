@@ -95,7 +95,7 @@ public sealed class WidgetInstance
     /// </summary>
     public static bool CanHaveHeader(WidgetKind kind)
         => Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is null
-            && kind != WidgetKind.AudioVisualizer;
+            && Themia.Core.Widgets.VisualizerLayout.StyleOf(kind) is null;
 
     /// <summary>
     /// [S-3711]/[S-3712] Where the header is drawn: the stored placement, or hidden for a kind that
@@ -346,7 +346,7 @@ public sealed class AppState
     {
         var view = ViewState.Create(Str.Shell_View_WorkName.Text());
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.78, 0.04, 0.20, 0.16)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.02, 0.04, 0.50, 0.72)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.MonthCalendar, new FracRect(0.02, 0.04, 0.50, 0.72)));
 
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Tasks, new FracRect(0.54, 0.04, 0.20, 0.58)));
         view.Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.54, 0.64, 0.20, 0.28)));

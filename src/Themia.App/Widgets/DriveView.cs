@@ -89,6 +89,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
         _config = config as DriveConfig ?? new DriveConfig();
+        UseStyle();
 
         _watch?.Dispose();
         _watch = DriveService.Shared.Watch(ticker, Show);
@@ -99,6 +100,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as DriveConfig ?? new DriveConfig();
+        UseStyle();
         Show();
     }
 
@@ -142,6 +144,15 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         }
 
         var locale = Strings.Current;
+        ToolTipService.SetToolTip(this, $"{DriveRules.Title(locale, drive)} · {DriveRules.Description(locale, drive)} · {DriveRules.SpaceLine(locale, drive)}");
+
+        // [S-6274] The ring style lays its own parts; the bar's below.
+        if (_ringParts is not null)
+        {
+            LayRing(drive, area);
+            return;
+        }
+
         var large = area.Least >= SizeClass.Expanded;
         var narrow = area.WidthClass == SizeClass.Compact;
         var box = area.Deflate(Fluent.Space4, Fluent.Space2);
@@ -197,8 +208,6 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
             Fact(2, Str.Drives_Fact_Capacity, Formatting.Bytes(locale, drive.Total));
             Fact(3, Str.Drives_Fact_FileSystem, drive.FileSystem.Length > 0 ? drive.FileSystem : "--");
         }
-
-        ToolTipService.SetToolTip(this, $"{DriveRules.Title(locale, drive)} · {DriveRules.Description(locale, drive)} · {DriveRules.SpaceLine(locale, drive)}");
     }
 
     private void Fact(int index, Str label, string value)

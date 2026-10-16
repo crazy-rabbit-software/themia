@@ -12,6 +12,9 @@
   "addMenu.subject.system": "Système",
   "addMenu.subject.devices": "Appareils et alimentation",
   "addMenu.subject.more": "Plus",
+  "addMenu.family.calendar": "Calendrier",
+  "addMenu.family.visualizer": "Visualiseur",
+  "addMenu.family.folder": "Dossier",
   "addMenu.family.screenTime": "Temps d’écran",
   "addMenu.family.powerButtons": "Boutons d’alimentation"
 }

@@ -195,5 +195,5 @@ public sealed class WidgetPreferencesTests
 
     [Fact]
     public void S3796_the_calendar_week_start_is_the_shared_one()
-        => Assert.Equal(RegionFormat.Current.WeekStart, new CalendarWidgetConfig().EffectiveWeekStart);
+        => Assert.Equal(RegionFormat.Current.WeekStart, new MonthCalendarConfig().EffectiveWeekStart);
 }

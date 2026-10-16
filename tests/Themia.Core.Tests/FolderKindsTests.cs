@@ -6,15 +6,15 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-4121]..[S-4123] The folder: one kind, four styles, each showing only the settings it draws.</summary>
+/// <summary>[S-4120]..[S-4122] The folder layouts as four widget kinds, each storing only what it draws.</summary>
 public sealed class FolderKindsTests
 {
-    public static TheoryData<FolderStyle, string> Styles() => new()
+    public static TheoryData<WidgetKind, FolderViewMode> Kinds() => new()
     {
-        { FolderStyle.List, "list" },
-        { FolderStyle.Details, "details" },
-        { FolderStyle.Grid, "grid" },
-        { FolderStyle.Icons, "icons" },
+        { WidgetKind.Folder, FolderViewMode.List },
+        { WidgetKind.FolderDetails, FolderViewMode.Details },
+        { WidgetKind.FolderGrid, FolderViewMode.Grid },
+        { WidgetKind.FolderIcons, FolderViewMode.Icons },
     };
 
     private static HashSet<string> Properties(WidgetConfig config)
@@ -25,72 +25,64 @@ public sealed class FolderKindsTests
     }
 
     [Theory]
-    [MemberData(nameof(Styles))]
-    public void S4123_every_style_round_trips_under_the_one_kind(FolderStyle style, string wire)
+    [MemberData(nameof(Kinds))]
+    public void S4120_each_layout_is_its_own_kind_and_round_trips_under_it(WidgetKind kind, FolderViewMode view)
     {
-        var config = Assert.IsType<FolderConfig>(WidgetConfig.CreateDefault(WidgetKind.Folder));
-        Assert.Equal(FolderStyle.List, config.Style);
-        config.Style = style;
+        var config = (FolderConfig)WidgetConfig.CreateDefault(kind);
+
+        Assert.Equal(kind, config.Kind);
+        Assert.Equal(view, config.View);
+        Assert.Equal(view, FolderConfig.ViewOf(kind));
+        Assert.Equal(kind, FolderConfig.For(view).Kind);
 
         var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
-        using (var document = JsonDocument.Parse(json))
-        {
-            Assert.Equal(wire, document.RootElement.GetProperty("style").GetString());
-        }
-
-        var back = Assert.IsType<FolderConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
-        Assert.Equal(WidgetKind.Folder, back.Kind);
-        Assert.Equal(style, back.Style);
+        var back = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig);
+        Assert.Equal(kind, back!.Kind);
         Assert.Empty(back.Repair());
     }
 
     [Fact]
-    public void S4123_the_styles_are_listed_list_details_grid_icons()
-        => Assert.Equal(["list", "details", "grid", "icons"], WidgetStyles.For(WidgetKind.Folder).Select(s => s.Name));
-
-    [Fact]
-    public void S4123_an_unknown_style_is_repaired_to_the_list()
+    public void S4120_no_other_kind_is_a_folder_layout()
     {
-        var config = Assert.IsType<FolderConfig>(ConfigJson.Read("Folder", """{"kind":"folder","style":"carousel"}"""));
-        Assert.Equal(FolderStyle.List, config.Style);
+        WidgetKind[] folders = [WidgetKind.Folder, WidgetKind.FolderDetails, WidgetKind.FolderGrid, WidgetKind.FolderIcons];
+        Assert.All(Enum.GetValues<WidgetKind>().Except(folders), kind => Assert.Null(FolderConfig.ViewOf(kind)));
     }
 
     [Fact]
-    public void S4121_the_folder_stores_the_shared_settings_and_the_union_of_its_styles()
+    public void S4120_the_layout_is_never_stored()
+        => Assert.All(new FolderConfig[] { new FolderListConfig(), new FolderDetailsConfig(), new FolderGridConfig(), new FolderIconsConfig() },
+            config => Assert.DoesNotContain("view", Properties(config)));
+
+    [Fact]
+    public void S4121_every_kind_stores_only_the_settings_its_layout_uses()
     {
-        string[] expected = ["kind", "style", "path", "navigation", "clickMode", "sort", "descending", "showHidden", "itemSize", "showExtensions", "columns", "tileSize"];
-        Assert.Equal(expected.Order(StringComparer.Ordinal), Properties(new FolderConfig()).Order(StringComparer.Ordinal));
+        string[] shared = ["kind", "path", "navigation", "clickMode", "sort", "descending", "showHidden"];
+
+        static string[] Order(IEnumerable<string> names) => [.. names.Order(StringComparer.Ordinal)];
+
+        Assert.Equal(Order([.. shared, "itemSize", "showExtensions"]), Order(Properties(new FolderListConfig())));
+        Assert.Equal(Order([.. shared, "itemSize", "showExtensions", "columns"]), Order(Properties(new FolderDetailsConfig())));
+        Assert.Equal(Order([.. shared, "tileSize", "showExtensions"]), Order(Properties(new FolderGridConfig())));
+        Assert.Equal(Order([.. shared, "tileSize"]), Order(Properties(new FolderIconsConfig())));
     }
 
     [Fact]
-    public void S4121_the_retired_settings_are_gone()
+    public void S4121_the_retired_settings_are_gone_from_every_kind()
     {
-        var names = Properties(new FolderConfig());
-        Assert.DoesNotContain("filter", names);
-        Assert.DoesNotContain("foldersFirst", names);
-        Assert.DoesNotContain("stretchTiles", names);
-        Assert.DoesNotContain("view", names);
-    }
-
-    public static TheoryData<FolderStyle, FolderSetting[]> StyleSettings() => new()
-    {
-        { FolderStyle.List, [FolderSetting.RowSize, FolderSetting.Extensions, FolderSetting.Sort] },
-        { FolderStyle.Details, [FolderSetting.RowSize, FolderSetting.Columns, FolderSetting.Extensions] },
-        { FolderStyle.Grid, [FolderSetting.TileSize, FolderSetting.Extensions, FolderSetting.Sort] },
-        { FolderStyle.Icons, [FolderSetting.TileSize, FolderSetting.Sort] },
-    };
-
-    [Theory]
-    [MemberData(nameof(StyleSettings))]
-    public void S4121_each_style_shows_only_the_settings_it_draws(FolderStyle style, FolderSetting[] rows)
-        => Assert.Equal(rows, FolderConfig.SettingsFor(style));
-
-    [Fact]
-    public void S4121_a_clone_keeps_every_setting_and_the_style()
-    {
-        var details = new FolderConfig
+        foreach (var config in new FolderConfig[] { new FolderListConfig(), new FolderDetailsConfig(), new FolderGridConfig(), new FolderIconsConfig() })
         {
-            Style = FolderStyle.Details,
+            var names = Properties(config);
+            Assert.DoesNotContain("filter", names);
+            Assert.DoesNotContain("foldersFirst", names);
+            Assert.DoesNotContain("stretchTiles", names);
+        }
+    }
+
+    [Fact]
+    public void S4121_a_clone_keeps_the_shared_and_the_kinds_own_settings()
+    {
+        var details = new FolderDetailsConfig
+        {
             Path = @"C:\Work",
             Navigation = FolderNavigation.Navigate,
             ClickMode = ItemClickMode.Single,
@@ -100,11 +92,9 @@ public sealed class FolderKindsTests
             ItemSize = FolderItemSize.Large,
             ShowExtensions = true,
             Columns = [FolderColumn.Git],
-            TileSize = FolderTileSize.Large,
         };
 
-        var copy = Assert.IsType<FolderConfig>(details.Clone());
-        Assert.Equal(FolderStyle.Details, copy.Style);
+        var copy = Assert.IsType<FolderDetailsConfig>(details.Clone());
         Assert.Equal(@"C:\Work", copy.Path);
         Assert.Equal(FolderNavigation.Navigate, copy.Navigation);
         Assert.Equal(ItemClickMode.Single, copy.ClickMode);
@@ -114,42 +104,29 @@ public sealed class FolderKindsTests
         Assert.Equal(FolderItemSize.Large, copy.ItemSize);
         Assert.True(copy.Extensions);
         Assert.Equal([FolderColumn.Git], copy.DetailColumns);
-        Assert.Equal(FolderTileSize.Large, copy.TileSize);
 
-        copy.Columns.Add(FolderColumn.Size);
-        Assert.Equal([FolderColumn.Git], details.Columns);
+        var icons = Assert.IsType<FolderIconsConfig>(new FolderIconsConfig { TileSize = FolderTileSize.Large, Path = "x" }.Clone());
+        Assert.Equal(FolderTileSize.Large, icons.Tiles);
+        Assert.Equal("x", icons.Path);
     }
 
     [Fact]
-    public void S4121_what_a_style_does_not_draw_reads_as_its_neutral_value()
+    public void S4121_what_a_layout_does_not_draw_reads_as_its_neutral_value()
     {
-        // The icons draw no names, so a rename there edits the stem; the tile styles have no rows,
-        // the row styles no tiles, and only the details table has columns.
-        var config = new FolderConfig { ShowExtensions = true, ItemSize = FolderItemSize.Large, TileSize = FolderTileSize.Large };
-
-        config.Style = FolderStyle.Icons;
-        Assert.False(config.Extensions);
-        Assert.Equal(FolderItemSize.Medium, config.Rows);
-        Assert.Equal(FolderTileSize.Large, config.Tiles);
-        Assert.Empty(config.DetailColumns);
-
-        config.Style = FolderStyle.List;
-        Assert.True(config.Extensions);
-        Assert.Equal(FolderItemSize.Large, config.Rows);
-        Assert.Equal(FolderTileSize.Small, config.Tiles);
-        Assert.Empty(config.DetailColumns);
-
-        config.Style = FolderStyle.Details;
-        Assert.Equal(config.Columns, config.DetailColumns);
+        // The icons layout draws no names, so its rename edits the stem; the tile layouts have no rows.
+        Assert.False(new FolderIconsConfig().Extensions);
+        Assert.Empty(new FolderListConfig().DetailColumns);
+        Assert.Empty(new FolderGridConfig().DetailColumns);
+        Assert.Equal(FolderItemSize.Medium, new FolderGridConfig().Rows);
+        Assert.Equal(FolderTileSize.Small, new FolderListConfig().Tiles);
     }
 
     [Fact]
     public void S4121_a_hand_edited_null_path_is_repaired_to_the_profile_default()
     {
-        var config = Assert.IsType<FolderConfig>(ConfigJson.Read("Folder", """{"kind":"folder","style":"grid","path":null}"""));
+        var config = Assert.IsType<FolderGridConfig>(ConfigJson.Read("FolderGrid", """{"kind":"folderGrid","path":null}"""));
         config.Repair();
         Assert.Equal(string.Empty, config.Path);
-        Assert.Equal(FolderStyle.Grid, config.Style);
     }
 
     [Fact]
@@ -157,17 +134,17 @@ public sealed class FolderKindsTests
     {
         var area = new WidgetArea(800, 516);
 
-        Assert.False(FolderLayout.Plan(area, new FolderConfig(), 20, false, false, false).ColumnHeader);
-        Assert.True(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, false, false, false).ColumnHeader);
-        Assert.Null(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, false, false, false).Grid);
+        Assert.False(FolderLayout.Plan(area, new FolderListConfig(), 20, false, false, false).ColumnHeader);
+        Assert.True(FolderLayout.Plan(area, new FolderDetailsConfig(), 20, false, false, false).ColumnHeader);
+        Assert.Null(FolderLayout.Plan(area, new FolderDetailsConfig(), 20, false, false, false).Grid);
     }
 
     [Fact]
     public void S4121_icons_tiles_pack_to_the_icon_and_grid_tiles_keep_their_label_room()
     {
         var area = new WidgetArea(320, 240);
-        var icons = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Icons, TileSize = FolderTileSize.Small }, 20, false, false, false).Grid!.Value;
-        var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid, TileSize = FolderTileSize.Small }, 20, false, false, false).Grid!.Value;
+        var icons = FolderLayout.Plan(area, new FolderIconsConfig(), 20, false, false, false).Grid!.Value;
+        var grid = FolderLayout.Plan(area, new FolderGridConfig { TileSize = FolderTileSize.Small }, 20, false, false, false).Grid!.Value;
 
         Assert.Equal(icons.Icon + 24, icons.CellHeight);
         Assert.Equal(FolderLayout.Tile(FolderTileSize.Small).Row, grid.CellHeight);

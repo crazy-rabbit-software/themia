@@ -1,13 +1,42 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-4670] One drive's information: which drive.</summary>
-public sealed class DriveConfig : WidgetConfig
+/// <summary>[S-6274] The drive card's looks: the capacity bar, or a ring of the used share.</summary>
+[JsonConverter(typeof(StyleJsonConverter<DriveStyle>))]
+public enum DriveStyle
 {
+    /// <summary>[S-4653] The picture and name, the capacity bar and the space line.</summary>
+    Bar = 0,
+
+    /// <summary>[S-6274] A ring of the used share with the share inside; the name and the space line beside or under it.</summary>
+    Ring = 1,
+}
+
+/// <summary>[S-4670] One drive's information: which drive.</summary>
+public sealed class DriveConfig : WidgetConfig, IStyled
+{
+    private static readonly StyleOption[] DriveStyles =
+    [
+        StyleOption.Of(DriveStyle.Bar, Str.Styles_Io_Bar, 0xEDA2),
+        StyleOption.Of(DriveStyle.Ring, Str.Styles_Io_Ring, 0xEA3A),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Drive;
+
+    /// <summary>[S-6274] The card's look.</summary>
+    public DriveStyle Style { get; set; } = DriveStyle.Bar;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => DriveStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (DriveStyle)value;
+    }
 
     /// <summary>The drive's root (<c>C:\</c>); empty for the system drive.</summary>
     public string Drive { get; set; } = string.Empty;
@@ -31,7 +60,7 @@ public sealed class DriveConfig : WidgetConfig
         return [];
     }
 
-    public override WidgetConfig Clone() => new DriveConfig { Drive = Drive };
+    public override WidgetConfig Clone() => new DriveConfig { Drive = Drive, Style = Style };
 }
 
 /// <summary>[S-4660] The removable devices: no options, so no settings page ([S-1750]).</summary>

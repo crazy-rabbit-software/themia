@@ -6,6 +6,8 @@
   "dateWidget.label": "تاریخ",
   "dateWidget.desc": "آج کا دن اور تاریخ، وال پیپر کے لیے بنایا گیا",
   "dateWidget.showYear": "سال دکھائیں",
+  "variants.visualizer.scope.label": "لہر کی شکل",
+  "variants.visualizer.scope.desc": "ایک لکیر جو آسیلوسکوپ کی طرح خود آواز کو کھینچتی ہے",
   "planner.label": "ہفتہ وار منصوبہ ساز",
   "planner.desc": "آنے والے دن اپنے ایونٹس کے ساتھ، اور آج کیا واجب ہے",
   "planner.tasksHeader": "آج کے کام",

@@ -1,0 +1,11 @@
+{
+  "styles.io.graph": "Grafik",
+  "styles.io.numbers": "Angka",
+  "styles.io.bars": "Batang",
+  "styles.io.battery": "Baterai",
+  "styles.io.ring": "Cincin",
+  "styles.io.signal": "Bar sinyal",
+  "styles.io.bar": "Batang",
+  "styles.io.read": "Baca",
+  "styles.io.write": "Tulis"
+}

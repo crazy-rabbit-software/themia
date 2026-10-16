@@ -6,6 +6,8 @@
   "dateWidget.label": "التاريخ",
   "dateWidget.desc": "يوم الأسبوع وتاريخ اليوم، مصممان لخلفية الشاشة",
   "dateWidget.showYear": "إظهار السنة",
+  "variants.visualizer.scope.label": "شكل الموجة",
+  "variants.visualizer.scope.desc": "خط يرسم الصوت نفسه، مثل راسم الذبذبات",
   "planner.label": "مخطط الأسبوع",
   "planner.desc": "الأيام القادمة بأحداثها، وما يستحق اليوم",
   "planner.tasksHeader": "مهام اليوم",

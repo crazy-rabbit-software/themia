@@ -1,9 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.folder.label": "文件夹",
-  "styles.folder.desc": "以列表、表格、平铺或图标显示文件夹中的文件",
-  "styles.folder.list": "列表",
-  "styles.folder.details": "详细信息",
-  "styles.folder.grid": "网格",
-  "styles.folder.icons": "图标"
-}

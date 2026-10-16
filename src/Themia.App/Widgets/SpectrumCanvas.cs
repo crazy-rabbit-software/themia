@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
-using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 using Point = Windows.Foundation.Point;
@@ -12,7 +11,7 @@ using Point = Windows.Foundation.Point;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-3205] [S-3216] The audio visualizer's drawing, for every design: shapes placed once per layout
+/// [S-3205] [S-3210] The audio visualizer's drawing, for every design: shapes placed once per layout
 /// from a <see cref="VisualizerPlan"/>, and a frame that only writes numbers into them (a scale, an
 /// opacity, a curve's points). No layout pass and no allocation per frame,
 /// which is what lets it run at the capture rate on the UI thread for nothing. Edge to edge: the
@@ -28,7 +27,7 @@ internal sealed partial class SpectrumCanvas : Canvas
 
     private const double LineThickness = 2;
 
-    private readonly AudioVisualizerStyle _style;
+    private readonly VisualizerStyle _style;
     private readonly Brush _fill = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly float[] _grouped = new float[Spectrum.Bands];
     private VisualizerPlan _plan;
@@ -60,15 +59,15 @@ internal sealed partial class SpectrumCanvas : Canvas
     private readonly float[] _trace = new float[Oscilloscope.Points];
     private readonly float[] _scopePoints = new float[Oscilloscope.Points];
 
-    public SpectrumCanvas(AudioVisualizerStyle style)
+    public SpectrumCanvas(VisualizerStyle style)
     {
         _style = style;
         _plan = VisualizerLayout.Plan(default, style);
 
         var shapes = style switch
         {
-            AudioVisualizerStyle.Bars or AudioVisualizerStyle.Mirrored => Spectrum.Bands,
-            AudioVisualizerStyle.Radial => 2 * Spectrum.Bands,
+            VisualizerStyle.Bars or VisualizerStyle.Mirror => Spectrum.Bands,
+            VisualizerStyle.Radial => 2 * Spectrum.Bands,
             _ => 0,
         };
 
@@ -83,7 +82,7 @@ internal sealed partial class SpectrumCanvas : Canvas
             Children.Add(_bars[i]);
         }
 
-        if (style == AudioVisualizerStyle.Wave)
+        if (style == VisualizerStyle.Wave)
         {
             _areaRise = new LineSegment();
             _areaFall = new LineSegment();
@@ -108,7 +107,7 @@ internal sealed partial class SpectrumCanvas : Canvas
             Children.Add(_line);
         }
 
-        if (style == AudioVisualizerStyle.Waveform)
+        if (style == VisualizerStyle.Scope)
         {
             _scopeFigure = new PathFigure { IsClosed = false, IsFilled = false };
             _scope = new Path
@@ -131,20 +130,20 @@ internal sealed partial class SpectrumCanvas : Canvas
 
         switch (_style)
         {
-            case AudioVisualizerStyle.Bars:
-            case AudioVisualizerStyle.Mirrored:
-                ArrangeBars(plan, mirrored: _style == AudioVisualizerStyle.Mirrored);
+            case VisualizerStyle.Bars:
+            case VisualizerStyle.Mirror:
+                ArrangeBars(plan, mirrored: _style == VisualizerStyle.Mirror);
                 break;
-            case AudioVisualizerStyle.Radial:
+            case VisualizerStyle.Radial:
                 ArrangeSpokes(plan);
                 break;
-            case AudioVisualizerStyle.Led:
+            case VisualizerStyle.Dots:
                 ArrangeCells(plan);
                 break;
-            case AudioVisualizerStyle.Wave:
+            case VisualizerStyle.Wave:
                 ArrangeWave(plan);
                 break;
-            case AudioVisualizerStyle.Waveform:
+            case VisualizerStyle.Scope:
                 ArrangeScope(plan);
                 break;
         }
@@ -157,7 +156,7 @@ internal sealed partial class SpectrumCanvas : Canvas
     {
         ArgumentNullException.ThrowIfNull(frame);
 
-        if (_style == AudioVisualizerStyle.Waveform)
+        if (_style == VisualizerStyle.Scope)
         {
             SetTrace(frame.Trace);
             return;
@@ -353,8 +352,8 @@ internal sealed partial class SpectrumCanvas : Canvas
     {
         switch (_style)
         {
-            case AudioVisualizerStyle.Bars:
-            case AudioVisualizerStyle.Mirrored:
+            case VisualizerStyle.Bars:
+            case VisualizerStyle.Mirror:
                 for (var i = 0; i < _plan.Bars && i < _scales.Length; i++)
                 {
                     var level = Math.Max(_plan.Floor, _grouped[i]);
@@ -371,7 +370,7 @@ internal sealed partial class SpectrumCanvas : Canvas
 
                 break;
 
-            case AudioVisualizerStyle.Radial:
+            case VisualizerStyle.Radial:
                 for (var i = 0; i < _scales.Length; i++)
                 {
                     var band = i % Spectrum.Bands;
@@ -384,15 +383,15 @@ internal sealed partial class SpectrumCanvas : Canvas
 
                 break;
 
-            case AudioVisualizerStyle.Led:
+            case VisualizerStyle.Dots:
                 DrawCells();
                 break;
 
-            case AudioVisualizerStyle.Wave:
+            case VisualizerStyle.Wave:
                 DrawWave();
                 break;
 
-            case AudioVisualizerStyle.Waveform:
+            case VisualizerStyle.Scope:
                 DrawScope();
                 break;
         }

@@ -5,10 +5,10 @@ using Themia.Core.Widgets;
 namespace Themia.App.Services.Drives;
 
 /// <summary>
-/// [S-4655] The drives every drive widget shows — the disk meter's volumes, Disk space, Drive,
+/// [S-4655] The drives every drive widget shows — the disk meter's volumes, Drive,
 /// Removable drives — read once for all of them, the one place the drives are walked. Drive and
-/// Removable drives watch it themselves; the system hub's disk sources hold a watch for theirs, so the
-/// meter and Disk space are read from app start as every hub source is ([S-2513]). One walk (<see cref="DriveCatalog"/>) on the pool, single-flight, whenever Windows
+/// Removable drives watch it themselves; the system hub's disk source holds a watch for its own, so the
+/// meter is read from app start as every hub source is ([S-2513]). One walk (<see cref="DriveCatalog"/>) on the pool, single-flight, whenever Windows
 /// says a volume came or went (<see cref="DevicesChanged"/>, the command window's
 /// <c>WM_DEVICECHANGE</c>), a network drive answered, or the space may have moved (every 30 s, on
 /// the shared ticker, only while a widget watches). A walk that changes nothing a widget shows

@@ -15,6 +15,13 @@ public abstract class GaugeConfig : WidgetConfig
     /// <summary>Show the recent history behind the readout.</summary>
     public bool ShowGraph { get; set; } = true;
 
+    /// <summary>
+    /// [S-6267] Whether the meter draws its history: the switch, or for a styled kind its style
+    /// (only a graph style has one; the switch is then not offered, [S-6000]).
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public virtual bool DrawsHistory => ShowGraph;
+
     /// <summary>[S-1121] How much history the chart spans, in seconds: one of <see cref="MeterTiming.SpanChoices"/>.</summary>
     public int GraphSpanSeconds { get; set; }
 

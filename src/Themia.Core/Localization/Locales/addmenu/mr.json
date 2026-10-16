@@ -12,6 +12,9 @@
   "addMenu.subject.system": "सिस्टम",
   "addMenu.subject.devices": "डिव्हाइस आणि पॉवर",
   "addMenu.subject.more": "अधिक",
+  "addMenu.family.calendar": "कॅलेंडर",
+  "addMenu.family.visualizer": "व्हिज्युअलायझर",
+  "addMenu.family.folder": "फोल्डर",
   "addMenu.family.screenTime": "स्क्रीन टाइम",
   "addMenu.family.powerButtons": "पॉवर बटणे"
 }

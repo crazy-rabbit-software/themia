@@ -89,8 +89,6 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
                 return network.ShowPublicAddress
                     ? Read(SystemSource.LocalAddresses, SystemSource.PublicAddress, SystemSource.Network)
                     : Read(SystemSource.LocalAddresses, SystemSource.Network);
-            case DiskSpaceConfig:
-                return Read(SystemSource.DiskSpace);
             case BatteryDetailsConfig:
                 return Read(SystemSource.Battery, SystemSource.BatteryPack);
             case PingDetailsConfig pingDetails:

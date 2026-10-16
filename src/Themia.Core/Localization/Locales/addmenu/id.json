@@ -12,6 +12,9 @@
   "addMenu.subject.system": "Sistem",
   "addMenu.subject.devices": "Perangkat & daya",
   "addMenu.subject.more": "Lainnya",
+  "addMenu.family.calendar": "Kalender",
+  "addMenu.family.visualizer": "Visualizer",
+  "addMenu.family.folder": "Folder",
   "addMenu.family.screenTime": "Waktu layar",
   "addMenu.family.powerButtons": "Tombol daya"
 }

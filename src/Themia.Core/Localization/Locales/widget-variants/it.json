@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "Barre di spettro",
+  "variants.visualizer.bars.desc": "Barre che si muovono con tutto ciò che riproduce questo PC",
+  "variants.visualizer.mirror.label": "Spettro speculare",
+  "variants.visualizer.mirror.desc": "Barre che crescono in entrambe le direzioni dalla linea centrale",
+  "variants.visualizer.wave.label": "Onda di spettro",
+  "variants.visualizer.wave.desc": "Un'onda morbida che segue tutto ciò che riproduce questo PC",
+  "variants.visualizer.dots.label": "Spettro LED",
+  "variants.visualizer.dots.desc": "Colonne di luci, come un indicatore di livello hi-fi",
+  "variants.visualizer.radial.label": "Spettro circolare",
+  "variants.visualizer.radial.desc": "Barre attorno a un anello, speculari a sinistra e a destra",
+  "variants.folder.list.label": "Elenco cartella",
+  "variants.folder.list.desc": "I file di una cartella in un elenco",
+  "variants.folder.details.label": "Dettagli cartella",
+  "variants.folder.details.desc": "I file di una cartella in una tabella con colonne",
+  "variants.folder.grid.label": "Griglia cartella",
+  "variants.folder.grid.desc": "I file di una cartella come riquadri con anteprime",
+  "variants.folder.icons.label": "Icone cartella",
+  "variants.folder.icons.desc": "I file di una cartella solo come icone, come sul desktop"
+}

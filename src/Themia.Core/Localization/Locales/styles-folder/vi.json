@@ -1,9 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.folder.label": "Thư mục",
-  "styles.folder.desc": "Các tệp của thư mục dưới dạng danh sách, bảng, ô hoặc biểu tượng",
-  "styles.folder.list": "Danh sách",
-  "styles.folder.details": "Chi tiết",
-  "styles.folder.grid": "Lưới",
-  "styles.folder.icons": "Biểu tượng"
-}

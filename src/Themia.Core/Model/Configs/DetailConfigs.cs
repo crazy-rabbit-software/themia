@@ -120,38 +120,6 @@ public sealed class NetworkDetailsConfig : DetailConfig
     }
 }
 
-/// <summary>[S-2420] Free and used space, one row per drive.</summary>
-public sealed class DiskSpaceConfig : DetailConfig
-{
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.DiskSpace;
-
-    /// <summary>[S-2421] The drives to list, as roots (<c>C:\</c>), in this order. Empty lists every drive.</summary>
-    public List<string> Drives { get; set; } = [];
-
-    public override WidgetConfig Clone()
-    {
-        var copy = new DiskSpaceConfig { Drives = [.. Drives ?? []] };
-        return copy;
-    }
-
-    /// <summary>[S-2421] Every entry kept as a root; anything that is not a drive letter, or a repeat, is dropped loudly.</summary>
-    public override IReadOnlyList<string> Repair()
-    {
-        var notes = new List<string>(base.Repair());
-        var raw = Drives ?? [];
-        var kept = DiskSpaceRules.Normalise(raw);
-
-        if (kept.Count != raw.Count || !kept.SequenceEqual(raw, StringComparer.Ordinal))
-        {
-            notes.Add($"{Kind}: drive list repaired from {raw.Count} to {kept.Count} entries");
-        }
-
-        Drives = kept;
-        return notes;
-    }
-}
-
 /// <summary>[S-2423] What the battery itself reports: status, time, health, cycles, voltage, rate.</summary>
 public sealed class BatteryDetailsConfig : DetailConfig
 {

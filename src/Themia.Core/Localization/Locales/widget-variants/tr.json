@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "Spektrum çubukları",
+  "variants.visualizer.bars.desc": "Bu bilgisayarda çalan her şeyle hareket eden çubuklar",
+  "variants.visualizer.mirror.label": "Yansımalı spektrum",
+  "variants.visualizer.mirror.desc": "Orta çizgiden iki yöne uzayan çubuklar",
+  "variants.visualizer.wave.label": "Spektrum dalgası",
+  "variants.visualizer.wave.desc": "Bu bilgisayarda çalan her şeyi izleyen yumuşak bir dalga",
+  "variants.visualizer.dots.label": "LED spektrum",
+  "variants.visualizer.dots.desc": "Hi-fi seviye göstergesi gibi ışık sütunları",
+  "variants.visualizer.radial.label": "Dairesel spektrum",
+  "variants.visualizer.radial.desc": "Bir halkanın çevresinde, sağa ve sola yansıyan çubuklar",
+  "variants.folder.list.label": "Klasör listesi",
+  "variants.folder.list.desc": "Bir klasörün dosyaları liste olarak",
+  "variants.folder.details.label": "Klasör ayrıntıları",
+  "variants.folder.details.desc": "Bir klasörün dosyaları sütunlu bir tabloda",
+  "variants.folder.grid.label": "Klasör ızgarası",
+  "variants.folder.grid.desc": "Bir klasörün dosyaları küçük resimli kutucuklar olarak",
+  "variants.folder.icons.label": "Klasör simgeleri",
+  "variants.folder.icons.desc": "Bir klasörün dosyaları masaüstündeki gibi yalnızca simge olarak"
+}

@@ -17,14 +17,21 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(NetworkConfig), typeDiscriminator: "network")]
 [JsonDerivedType(typeof(PingConfig), typeDiscriminator: "ping")]
 [JsonDerivedType(typeof(ContactsConfig), typeDiscriminator: "contacts")]
-[JsonDerivedType(typeof(CalendarWidgetConfig), typeDiscriminator: "calendar")]
+[JsonDerivedType(typeof(MonthCalendarConfig), typeDiscriminator: "monthCalendar")]
+[JsonDerivedType(typeof(WeekCalendarConfig), typeDiscriminator: "weekCalendar")]
+[JsonDerivedType(typeof(DayCalendarConfig), typeDiscriminator: "dayCalendar")]
+[JsonDerivedType(typeof(YearCalendarConfig), typeDiscriminator: "yearCalendar")]
+[JsonDerivedType(typeof(AgendaConfig), typeDiscriminator: "agenda")]
 [JsonDerivedType(typeof(TasksConfig), typeDiscriminator: "tasks")]
 [JsonDerivedType(typeof(NotesConfig), typeDiscriminator: "notes")]
 [JsonDerivedType(typeof(CountdownConfig), typeDiscriminator: "countdown")]
 [JsonDerivedType(typeof(PomodoroConfig), typeDiscriminator: "pomodoro")]
 [JsonDerivedType(typeof(SunConfig), typeDiscriminator: "sun")]
 [JsonDerivedType(typeof(MoonConfig), typeDiscriminator: "moon")]
-[JsonDerivedType(typeof(FolderConfig), typeDiscriminator: "folder")]
+[JsonDerivedType(typeof(FolderListConfig), typeDiscriminator: "folder")]
+[JsonDerivedType(typeof(FolderDetailsConfig), typeDiscriminator: "folderDetails")]
+[JsonDerivedType(typeof(FolderGridConfig), typeDiscriminator: "folderGrid")]
+[JsonDerivedType(typeof(FolderIconsConfig), typeDiscriminator: "folderIcons")]
 [JsonDerivedType(typeof(VolumeConfig), typeDiscriminator: "volume")]
 [JsonDerivedType(typeof(NotificationsConfig), typeDiscriminator: "notifications")]
 [JsonDerivedType(typeof(FocusSessionConfig), typeDiscriminator: "focusSession")]
@@ -52,6 +59,10 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(BluetoothConfig), typeDiscriminator: "bluetooth")]
 [JsonDerivedType(typeof(MusicConfig), typeDiscriminator: "music")]
 [JsonDerivedType(typeof(AudioVisualizerConfig), typeDiscriminator: "audioVisualizer")]
+[JsonDerivedType(typeof(VisualizerMirrorConfig), typeDiscriminator: "visualizerMirror")]
+[JsonDerivedType(typeof(VisualizerWaveConfig), typeDiscriminator: "visualizerWave")]
+[JsonDerivedType(typeof(VisualizerDotsConfig), typeDiscriminator: "visualizerDots")]
+[JsonDerivedType(typeof(VisualizerRadialConfig), typeDiscriminator: "visualizerRadial")]
 [JsonDerivedType(typeof(WeatherNowConfig), typeDiscriminator: "weatherNow")]
 [JsonDerivedType(typeof(WeatherForecastConfig), typeDiscriminator: "weatherForecast")]
 [JsonDerivedType(typeof(StocksConfig), typeDiscriminator: "stocks")]
@@ -75,7 +86,6 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(MemoryDetailsConfig), typeDiscriminator: "memoryDetails")]
 [JsonDerivedType(typeof(TopProcessesConfig), typeDiscriminator: "topProcesses")]
 [JsonDerivedType(typeof(NetworkDetailsConfig), typeDiscriminator: "networkDetails")]
-[JsonDerivedType(typeof(DiskSpaceConfig), typeDiscriminator: "diskSpace")]
 [JsonDerivedType(typeof(BatteryDetailsConfig), typeDiscriminator: "batteryDetails")]
 [JsonDerivedType(typeof(PingDetailsConfig), typeDiscriminator: "pingDetails")]
 [JsonDerivedType(typeof(GpuDetailsConfig), typeDiscriminator: "gpuDetails")]
@@ -88,6 +98,7 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(RecentFilesConfig), typeDiscriminator: "recentFiles")]
 [JsonDerivedType(typeof(RecycleBinConfig), typeDiscriminator: "recycleBin")]
 [JsonDerivedType(typeof(DateConfig), typeDiscriminator: "date")]
+[JsonDerivedType(typeof(VisualizerScopeConfig), typeDiscriminator: "visualizerScope")]
 [JsonDerivedType(typeof(WeekPlannerConfig), typeDiscriminator: "weekPlanner")]
 public abstract class WidgetConfig
 {
@@ -107,7 +118,11 @@ public abstract class WidgetConfig
         WidgetKind.Network => new NetworkConfig(),
         WidgetKind.Ping => new PingConfig(),
         WidgetKind.Contacts => new ContactsConfig(),
-        WidgetKind.Calendar => new CalendarWidgetConfig(),
+        WidgetKind.MonthCalendar => new MonthCalendarConfig(),
+        WidgetKind.WeekCalendar => new WeekCalendarConfig(),
+        WidgetKind.DayCalendar => new DayCalendarConfig(),
+        WidgetKind.YearCalendar => new YearCalendarConfig(),
+        WidgetKind.Agenda => new AgendaConfig(),
 
         WidgetKind.Tasks => new TasksConfig(),
         WidgetKind.Notes => new NotesConfig(),
@@ -115,7 +130,10 @@ public abstract class WidgetConfig
         WidgetKind.Pomodoro => new PomodoroConfig(),
         WidgetKind.Sun => new SunConfig(),
         WidgetKind.Moon => new MoonConfig(),
-        WidgetKind.Folder => new FolderConfig(),
+        WidgetKind.Folder => new FolderListConfig(),
+        WidgetKind.FolderDetails => new FolderDetailsConfig(),
+        WidgetKind.FolderGrid => new FolderGridConfig(),
+        WidgetKind.FolderIcons => new FolderIconsConfig(),
         WidgetKind.Volume => new VolumeConfig(),
         WidgetKind.Notifications => new NotificationsConfig(),
         WidgetKind.FocusSession => new FocusSessionConfig(),
@@ -143,6 +161,10 @@ public abstract class WidgetConfig
         WidgetKind.Bluetooth => new BluetoothConfig(),
         WidgetKind.Music => new MusicConfig(),
         WidgetKind.AudioVisualizer => new AudioVisualizerConfig(),
+        WidgetKind.VisualizerMirror => new VisualizerMirrorConfig(),
+        WidgetKind.VisualizerWave => new VisualizerWaveConfig(),
+        WidgetKind.VisualizerDots => new VisualizerDotsConfig(),
+        WidgetKind.VisualizerRadial => new VisualizerRadialConfig(),
         WidgetKind.WeatherNow => new WeatherNowConfig(),
         WidgetKind.WeatherForecast => new WeatherForecastConfig(),
         WidgetKind.Stocks => new StocksConfig(),
@@ -166,7 +188,6 @@ public abstract class WidgetConfig
         WidgetKind.MemoryDetails => new MemoryDetailsConfig(),
         WidgetKind.TopProcesses => new TopProcessesConfig(),
         WidgetKind.NetworkDetails => new NetworkDetailsConfig(),
-        WidgetKind.DiskSpace => new DiskSpaceConfig(),
         WidgetKind.BatteryDetails => new BatteryDetailsConfig(),
         WidgetKind.PingDetails => new PingDetailsConfig(),
         WidgetKind.GpuDetails => new GpuDetailsConfig(),
@@ -179,6 +200,7 @@ public abstract class WidgetConfig
         WidgetKind.RecentFiles => new RecentFilesConfig(),
         WidgetKind.RecycleBin => new RecycleBinConfig(),
         WidgetKind.Date => new DateConfig(),
+        WidgetKind.VisualizerScope => new VisualizerScopeConfig(),
         WidgetKind.WeekPlanner => new WeekPlannerConfig(),
         _ => new ClockConfig(),
     };

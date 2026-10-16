@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "スペクトラム バー",
+  "variants.visualizer.bars.desc": "この PC で再生中の音に合わせて動くバー",
+  "variants.visualizer.mirror.label": "ミラー スペクトラム",
+  "variants.visualizer.mirror.desc": "中央の線から上下に伸びるバー",
+  "variants.visualizer.wave.label": "スペクトラム ウェーブ",
+  "variants.visualizer.wave.desc": "この PC で再生中の音に合わせてなめらかに動く波",
+  "variants.visualizer.dots.label": "LED スペクトラム",
+  "variants.visualizer.dots.desc": "ハイファイのレベルメーターのような光の列",
+  "variants.visualizer.radial.label": "円形スペクトラム",
+  "variants.visualizer.radial.desc": "リングの周りに並ぶ、左右対称のバー",
+  "variants.folder.list.label": "フォルダー一覧",
+  "variants.folder.list.desc": "フォルダーのファイルを一覧で表示",
+  "variants.folder.details.label": "フォルダーの詳細",
+  "variants.folder.details.desc": "フォルダーのファイルを列付きの表で表示",
+  "variants.folder.grid.label": "フォルダー グリッド",
+  "variants.folder.grid.desc": "フォルダーのファイルをサムネイル付きのタイルで表示",
+  "variants.folder.icons.label": "フォルダー アイコン",
+  "variants.folder.icons.desc": "デスクトップのように、フォルダーのファイルをアイコンだけで表示"
+}

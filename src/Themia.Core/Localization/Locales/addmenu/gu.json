@@ -12,6 +12,9 @@
   "addMenu.subject.system": "સિસ્ટમ",
   "addMenu.subject.devices": "ઉપકરણો અને પાવર",
   "addMenu.subject.more": "વધુ",
+  "addMenu.family.calendar": "કૅલેન્ડર",
+  "addMenu.family.visualizer": "વિઝ્યુઅલાઇઝર",
+  "addMenu.family.folder": "ફોલ્ડર",
   "addMenu.family.screenTime": "સ્ક્રીન સમય",
   "addMenu.family.powerButtons": "પાવર બટન"
 }

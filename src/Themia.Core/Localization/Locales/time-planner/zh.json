@@ -6,6 +6,8 @@
   "dateWidget.label": "日期",
   "dateWidget.desc": "今天的星期和日期，专为壁纸设计",
   "dateWidget.showYear": "显示年份",
+  "variants.visualizer.scope.label": "波形",
+  "variants.visualizer.scope.desc": "像示波器一样描绘声音本身的线条",
   "planner.label": "周计划",
   "planner.desc": "接下来几天的日程，以及今天到期的任务",
   "planner.tasksHeader": "今天的任务",

@@ -12,9 +12,6 @@ internal readonly record struct PerformanceSnapshot(PerformanceFigures? Figures,
 /// <summary>[S-1161] [S-1162] The volumes as of the last walk, and the I/O counters' rates (null without counters).</summary>
 internal sealed record DiskSnapshot(IReadOnlyList<DiskVolume> Volumes, DiskActivity? Activity);
 
-/// <summary>[S-2420] [S-2422] [S-4655] The walked volumes and the space of each one the walk found ready, by root.</summary>
-internal sealed record DiskSpaceSnapshot(IReadOnlyList<DiskVolume> Walked, IReadOnlyDictionary<string, DriveSpace> Space);
-
 /// <summary>[S-2500] Every source the hub reads, by the snapshot it hands back.</summary>
 internal static class Sources
 {
@@ -28,7 +25,6 @@ internal static class Sources
 
     public static readonly SourceId<IReadOnlyList<ProcessSample>?> Processes = new(SystemSource.Processes);
     public static readonly SourceId<DiskSnapshot> DiskActivity = new(SystemSource.DiskActivity);
-    public static readonly SourceId<DiskSpaceSnapshot?> DiskSpace = new(SystemSource.DiskSpace);
     public static readonly SourceId<IReadOnlyDictionary<string, string>> LocalAddresses = new(SystemSource.LocalAddresses);
     public static readonly SourceId<PublicAddressReading> PublicAddress = new(SystemSource.PublicAddress);
     public static readonly SourceId<ThroughputSample?> Network = new(SystemSource.Network);
@@ -58,7 +54,6 @@ internal sealed partial class SystemHub
         SystemSource.CpuCores => Make(key, new CpuCoresSource()),
         SystemSource.Processes => Make(key, new ProcessesSource()),
         SystemSource.DiskActivity => Make(key, new DiskActivitySource(_ticker)),
-        SystemSource.DiskSpace => Make(key, new DiskSpaceSource(_ticker, () => RefreshSource(SystemSource.DiskSpace))),
         SystemSource.LocalAddresses => Make(key, new LocalAddressesSource()),
         SystemSource.PublicAddress => Make(key, new PublicAddressSource()),
         SystemSource.Network => Make(key, new NetworkSource()),
@@ -187,33 +182,6 @@ internal sealed partial class SystemHub
         {
             _counters?.Dispose();
             _counters = null;
-            _drives?.Dispose();
-            _drives = null;
-        }
-    }
-
-    /// <summary>
-    /// [S-2420] [S-2422] [S-4655] Free and used space of every local drive the shared drive walk found
-    /// ready (<see cref="Drives.DriveService"/>, the one place drives are walked: every 30 s and on a
-    /// device change, never per tick, so no tick wakes a sleeping drive). Null until its first walk is
-    /// in. A walk that changed something is read at once (<paramref name="walked"/>).
-    /// </summary>
-    private sealed class DiskSpaceSource(Ticker ticker, Action walked) : HubSource<DiskSpaceSnapshot?>
-    {
-        private IDisposable? _drives;
-
-        public override void Open() => _drives = Drives.DriveService.Shared.Watch(ticker, walked);
-
-        public override DiskSpaceSnapshot? Read()
-        {
-            var service = Drives.DriveService.Shared;
-            return service.HasValue
-                ? new DiskSpaceSnapshot(DriveRules.LocalVolumes(service.Drives), DriveRules.LocalSpace(service.Drives))
-                : null;
-        }
-
-        public override void Close()
-        {
             _drives?.Dispose();
             _drives = null;
         }

@@ -274,7 +274,7 @@ internal sealed partial class FolderView
     private string ItemsKey(FolderPlan plan)
     {
         var grid = plan.Grid is { } g ? $"{g.Columns}|{Math.Round(g.CellWidth)}|{Math.Round(g.CellHeight)}|{g.Icon}" : "-";
-        return $"{_config.Style}|{plan.RowHeight}|{string.Join(',', plan.Columns)}|{grid}";
+        return $"{_config.View}|{plan.RowHeight}|{string.Join(',', plan.Columns)}|{grid}";
     }
 
     private void ApplyChrome(FolderPlan plan)
@@ -291,7 +291,7 @@ internal sealed partial class FolderView
     {
         // Re-planned here rather than read from the last pass: the git badge's rung depends on a status
         // that arrives after the listing, and must not wait for the next resize to appear.
-        var header = _area.IsMeasured ? FolderLayout.Header(_area.Width, _config.Style, Navigates, _git is not null) : FolderHeaderPlan.None;
+        var header = _area.IsMeasured ? FolderLayout.Header(_area.Width, _config.View, Navigates, _git is not null) : FolderHeaderPlan.None;
 
         static Visibility Show(bool shown) => shown ? Visibility.Visible : Visibility.Collapsed;
 
@@ -728,7 +728,7 @@ internal sealed partial class FolderView
 
     private ItemVisual BuildTile(FolderEntry entry, int index, GridPlan grid)
     {
-        var labelled = _config.Style == FolderStyle.Grid;
+        var labelled = _config.View == FolderViewMode.Grid;
         var (iconBox, image, glyph) = IconBox(entry, grid.Icon);
         iconBox.HorizontalAlignment = HorizontalAlignment.Center;
 

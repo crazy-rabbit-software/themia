@@ -51,6 +51,13 @@ internal sealed class PingMeter : MeterPart
 
     public override FrameworkElement? HeaderTrailing => _dot;
 
+    /// <summary>[S-6273] Signal bars by the latency.</summary>
+    public override MeterLook Look(WidgetConfig config)
+        => (config as PingConfig)?.Style == PingStyle.Signal ? MeterLook.Signal : MeterLook.Graph;
+
+    /// <summary>An answer in 23 ms.</summary>
+    public override MeterReading SampleReading => new(23 / NetworkMetrics.LatencyCeilingMs, Formatting.Latency(23), true, Value: 23);
+
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {
         // [S-1173] The header names the host as the user does: its label, else its address.

@@ -68,11 +68,9 @@ public static class SettingsPageSync
     /// (Add view, Duplicate, Delete, Move up, a drag, switching a display off), and the page has to
     /// show the group it added or drop the one it deleted. A rename or a new icon keeps the shape:
     /// those update their own group in place, so the box being typed in is never torn down.
-    /// [S-6010] A widget page's shape is the widget's style (<paramref name="id"/>): a style shows
-    /// only its own rows, so picking another builds the page again. Empty for every other scope,
-    /// and for a widget without styles, which never rebuild this way.
+    /// Empty for every other scope, which never rebuilds this way.
     /// </summary>
-    public static string Shape(AppState state, SettingsScope scope, IReadOnlyList<string>? displays = null, string? id = null)
+    public static string Shape(AppState state, SettingsScope scope, IReadOnlyList<string>? displays = null)
     {
         ArgumentNullException.ThrowIfNull(state);
 
@@ -83,27 +81,8 @@ public static class SettingsPageSync
             // Whether each display is on: the last display on cannot be switched off ([S-845]), so
             // switching one changes whether the others' switches can move.
             SettingsScope.Displays => string.Join(",", (displays ?? []).Select(d => $"{d}={state.DisabledMonitors.Contains(d)}")),
-            SettingsScope.Widget => WidgetShape(state, id),
             _ => string.Empty,
         };
-    }
-
-    private static string WidgetShape(AppState state, string? id)
-    {
-        foreach (var view in state.Views)
-        {
-            foreach (var widget in view.Widgets)
-            {
-                if (widget.Id == id)
-                {
-                    return Themia.Core.Widgets.WidgetStyles.Current(widget.Config) is { } style
-                        ? style.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        : string.Empty;
-                }
-            }
-        }
-
-        return string.Empty;
     }
 
     /// <summary>The design, the preferences, and the views by name (General offers them for new displays).</summary>

@@ -27,11 +27,12 @@ public class VisualizerScopeTests
     }
 
     [Fact]
-    public void S3212_the_waveform_is_a_visualizer_style_that_never_has_a_header()
+    public void S3212_the_scope_is_a_visualizer_kind_that_never_has_a_header()
     {
-        Assert.Contains(WidgetStyles.For(WidgetKind.AudioVisualizer), s => s.Value == (int)AudioVisualizerStyle.Waveform && s.Name == "waveform");
-        Assert.False(WidgetInstance.CanHaveHeader(WidgetKind.AudioVisualizer));
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(WidgetKind.AudioVisualizer));
+        Assert.Equal(VisualizerStyle.Scope, VisualizerLayout.StyleOf(WidgetKind.VisualizerScope));
+        Assert.Equal(VisualizerStyle.Scope, ((VisualizerConfig)WidgetConfig.CreateDefault(WidgetKind.VisualizerScope)).Style);
+        Assert.False(WidgetInstance.CanHaveHeader(WidgetKind.VisualizerScope));
+        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(WidgetKind.VisualizerScope));
     }
 
     [Theory]
@@ -39,7 +40,7 @@ public class VisualizerScopeTests
     public void S3213_the_line_runs_the_long_side_with_a_point_every_few_dips(string tier)
     {
         var area = Tier(tier);
-        var plan = VisualizerLayout.Plan(area, AudioVisualizerStyle.Waveform);
+        var plan = VisualizerLayout.Plan(area, VisualizerStyle.Scope);
         var along = plan.Horizontal ? area.Height : area.Width;
         var across = plan.Horizontal ? area.Width : area.Height;
 
@@ -54,8 +55,8 @@ public class VisualizerScopeTests
     [Fact]
     public void S3213_a_larger_tile_draws_more_points_and_a_thicker_line_never_past_the_trace()
     {
-        var xs = VisualizerLayout.Plan(Tier("XS"), AudioVisualizerStyle.Waveform);
-        var xl = VisualizerLayout.Plan(Tier("XL"), AudioVisualizerStyle.Waveform);
+        var xs = VisualizerLayout.Plan(Tier("XS"), VisualizerStyle.Scope);
+        var xl = VisualizerLayout.Plan(Tier("XL"), VisualizerStyle.Scope);
         Assert.True(xl.Bars > xs.Bars);
         Assert.True(xl.Thickness > xs.Thickness);
         Assert.Equal(Oscilloscope.Points, xl.Bars);

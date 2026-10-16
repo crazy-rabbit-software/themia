@@ -6,6 +6,8 @@
   "dateWidget.label": "日付",
   "dateWidget.desc": "今日の曜日と日付。壁紙に合わせたデザイン",
   "dateWidget.showYear": "年を表示",
+  "variants.visualizer.scope.label": "波形",
+  "variants.visualizer.scope.desc": "音そのものをオシロスコープのように描く線",
   "planner.label": "週間プランナー",
   "planner.desc": "これからの日々の予定と、今日が期限のタスク",
   "planner.tasksHeader": "今日のタスク",

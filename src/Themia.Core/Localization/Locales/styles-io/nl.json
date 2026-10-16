@@ -1,0 +1,11 @@
+{
+  "styles.io.graph": "Grafiek",
+  "styles.io.numbers": "Getallen",
+  "styles.io.bars": "Balken",
+  "styles.io.battery": "Batterij",
+  "styles.io.ring": "Ring",
+  "styles.io.signal": "Signaalbalken",
+  "styles.io.bar": "Balk",
+  "styles.io.read": "Lezen",
+  "styles.io.write": "Schrijven"
+}

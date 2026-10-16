@@ -58,9 +58,6 @@ internal sealed partial class ConfigWindow
     /// <summary>A catch-up is queued; the state changes before it runs fold into it.</summary>
     private bool _syncQueued;
 
-    /// <summary>[S-6010] A widget page's rebuild for its new style is queued.</summary>
-    private bool _restyleQueued;
-
     public ConfigWindow(AppHost host)
     {
         _host = host;
@@ -130,15 +127,7 @@ internal sealed partial class ConfigWindow
         // under the user's own hand: the change came from the page itself, and it has to show it.
         if (Shape(_target) != _shownShape)
         {
-            if (_target is ConfigTarget.Widget)
-            {
-                QueueRestyle();
-            }
-            else
-            {
-                RenderBody(keepScroll: true);
-            }
-
+            RenderBody(keepScroll: true);
             return;
         }
 
@@ -191,38 +180,12 @@ internal sealed partial class ConfigWindow
         }
     }
 
-    /// <summary>
-    /// [S-6010] A widget page whose style was picked shows that style's rows: built again once the
-    /// pick has finished, since rebuilding inside it would tear down the drop-down raising it.
-    /// </summary>
-    private void QueueRestyle()
-    {
-        if (_restyleQueued)
-        {
-            return;
-        }
-
-        _restyleQueued = _window.DispatcherQueue.TryEnqueue(() =>
-        {
-            _restyleQueued = false;
-            if (!_closed && Shape(_target) != _shownShape)
-            {
-                RenderBody(keepScroll: true);
-            }
-        });
-
-        if (!_restyleQueued)
-        {
-            Log.Warn(Scope, "could not queue the widget page for its new style; reopen it to see the style's rows");
-        }
-    }
-
     /// <summary>[S-1721] The signature of what a target's page shows.</summary>
     private string Signature(ConfigTarget target)
         => SettingsPageSync.Signature(_host.State, ScopeOf(target), (target as ConfigTarget.Widget)?.WidgetId, DisplayIds());
 
     /// <summary>[S-1834] The groups of a target's page; empty for a page that is not a list.</summary>
-    private string Shape(ConfigTarget target) => SettingsPageSync.Shape(_host.State, ScopeOf(target), DisplayIds(), (target as ConfigTarget.Widget)?.WidgetId);
+    private string Shape(ConfigTarget target) => SettingsPageSync.Shape(_host.State, ScopeOf(target), DisplayIds());
 
     private static SettingsScope ScopeOf(ConfigTarget target) => target switch
     {

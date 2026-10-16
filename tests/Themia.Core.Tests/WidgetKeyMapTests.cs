@@ -140,13 +140,13 @@ public sealed class WidgetKeyMapTests
     }
 
     [Theory]
-    [InlineData(CalendarStyle.Month, WidgetKey.PageUp, CalendarKeyCommand.Back)]
-    [InlineData(CalendarStyle.Month, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
-    [InlineData(CalendarStyle.Week, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
-    [InlineData(CalendarStyle.Day, WidgetKey.PageUp, CalendarKeyCommand.Back)]
-    [InlineData(CalendarStyle.Agenda, WidgetKey.PageUp, CalendarKeyCommand.Back)]
-    [InlineData(CalendarStyle.Year, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
-    public void S2710_page_keys_page_every_calendar_layout(CalendarStyle layout, WidgetKey key, CalendarKeyCommand expected)
+    [InlineData(CalendarLayout.Month, WidgetKey.PageUp, CalendarKeyCommand.Back)]
+    [InlineData(CalendarLayout.Month, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
+    [InlineData(CalendarLayout.Week, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
+    [InlineData(CalendarLayout.Day, WidgetKey.PageUp, CalendarKeyCommand.Back)]
+    [InlineData(CalendarLayout.Agenda, WidgetKey.PageUp, CalendarKeyCommand.Back)]
+    [InlineData(CalendarLayout.Year, WidgetKey.PageDown, CalendarKeyCommand.Forward)]
+    public void S2710_page_keys_page_every_calendar_layout(CalendarLayout layout, WidgetKey key, CalendarKeyCommand expected)
         => Assert.Equal(expected, CalendarFit.Key(key, layout));
 
     [Theory]

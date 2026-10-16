@@ -111,7 +111,7 @@ public sealed class DriveRulesTests
     }
 
     [Fact]
-    public void S4655_the_meter_and_disk_space_list_the_local_drives_of_the_one_walk()
+    public void S4655_the_meter_lists_the_local_drives_of_the_one_walk()
     {
         var walk = new[]
         {
@@ -126,13 +126,7 @@ public sealed class DriveRulesTests
         var volumes = DriveRules.LocalVolumes(walk);
         Assert.Equal([new DiskVolume("C:\\", "System", false), new DiskVolume("E:\\", "STICK", true)], volumes);
 
-        var space = DriveRules.LocalSpace(walk);
-        Assert.Equal(["C:\\", "E:\\"], space.Keys.Order(StringComparer.Ordinal));
-        Assert.Equal(new DriveSpace(volumes[0], 1000 * Gb, 100 * Gb), space["c:\\"]);
-        Assert.Equal(new DriveSpace(volumes[1], 64 * Gb, 10 * Gb), space["E:\\"]);
-
         Assert.Empty(DriveRules.LocalVolumes([]));
-        Assert.Empty(DriveRules.LocalSpace([]));
     }
 
     [Fact]

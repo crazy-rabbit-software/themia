@@ -22,14 +22,17 @@ public static class WidgetKeywords
 {
     private static readonly Dictionary<WidgetKind, string[]> Keywords = new()
     {
-        // [S-4123] The four former folder widgets' names and words find the one folder.
-        [WidgetKind.Folder] = ["files", "explorer", "directory", "file browser", "documents", "downloads", "list", "folder list",
-            "folder details", "table", "columns", "folder grid", "pictures", "photos", "thumbnails", "tiles", "folder icons", "desktop icons", "launcher"],
+        [WidgetKind.Folder] = ["files", "explorer", "directory", "file browser", "documents", "downloads", "list"],
+        [WidgetKind.FolderDetails] = ["files", "explorer", "directory", "file browser", "documents", "downloads", "table", "columns"],
+        [WidgetKind.FolderGrid] = ["files", "explorer", "directory", "file browser", "pictures", "photos", "thumbnails", "tiles"],
+        [WidgetKind.FolderIcons] = ["files", "explorer", "directory", "file browser", "desktop icons", "launcher"],
         [WidgetKind.Email] = ["email", "inbox", "outlook", "gmail", "imap", "messages", "unread"],
         [WidgetKind.Contacts] = ["address book", "people", "phone numbers", "directory"],
-        // [S-3640] The five former calendar widgets' names and words find the one calendar.
-        [WidgetKind.Calendar] = ["events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays",
-            "month calendar", "week calendar", "day calendar", "year calendar", "agenda", "upcoming", "next", "today", "timeline", "holidays", "overview"],
+        [WidgetKind.MonthCalendar] = ["calendar", "events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays"],
+        [WidgetKind.WeekCalendar] = ["calendar", "events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays"],
+        [WidgetKind.DayCalendar] = ["calendar", "events", "meetings", "appointments", "schedule", "today", "timeline", "outlook", "google calendar"],
+        [WidgetKind.YearCalendar] = ["calendar", "events", "holidays", "overview", "outlook", "google calendar", "birthdays"],
+        [WidgetKind.Agenda] = ["calendar", "events", "meetings", "appointments", "schedule", "upcoming", "next", "outlook", "google calendar", "birthdays"],
         [WidgetKind.Tasks] = ["todo", "to-do", "checklist", "reminders", "microsoft to do", "google tasks"],
 
         [WidgetKind.WeatherNow] = ["temperature", "forecast", "rain", "wind", "humidity", "climate", "degrees"],
@@ -40,9 +43,12 @@ public static class WidgetKeywords
         [WidgetKind.Rss] = ["rss", "feed", "news", "headlines", "atom", "blog", "reader"],
         [WidgetKind.Stocks] = ["shares", "ticker", "market", "finance", "crypto", "bitcoin", "forex", "currency", "portfolio", "price"],
         [WidgetKind.VideoStream] = ["camera", "webcam", "cctv", "mjpeg", "live view", "printer"],
-        // [S-3216] The six former visualizer widgets' names and words find the one visualizer.
-        [WidgetKind.AudioVisualizer] = ["spectrum", "equalizer", "equaliser", "visualiser", "bars", "audio", "sound", "music",
-            "mirrored", "symmetric", "wave", "waveform", "curve", "led", "dots", "vu meter", "circle", "radial", "ring", "oscilloscope", "line", "ecg"],
+        [WidgetKind.AudioVisualizer] = ["spectrum", "equalizer", "equaliser", "visualiser", "bars", "audio", "sound", "music"],
+        [WidgetKind.VisualizerMirror] = ["spectrum", "equalizer", "equaliser", "visualiser", "mirrored", "symmetric", "audio", "sound", "music"],
+        [WidgetKind.VisualizerWave] = ["spectrum", "equalizer", "equaliser", "visualiser", "wave", "waveform", "curve", "audio", "sound", "music"],
+        [WidgetKind.VisualizerDots] = ["spectrum", "equalizer", "equaliser", "visualiser", "led", "dots", "vu meter", "audio", "sound", "music"],
+        [WidgetKind.VisualizerRadial] = ["spectrum", "equalizer", "equaliser", "visualiser", "circle", "radial", "ring", "audio", "sound", "music"],
+        [WidgetKind.VisualizerScope] = ["oscilloscope", "waveform", "wave", "line", "ecg", "visualiser", "audio", "sound", "music"],
         [WidgetKind.Music] = ["spotify", "player", "playback", "song", "track", "audio", "media controls", "now playing"],
 
         [WidgetKind.Cpu] = ["processor", "load", "usage", "performance", "cores", "task manager", "system monitor"],
@@ -60,7 +66,6 @@ public static class WidgetKeywords
         [WidgetKind.MemoryDetails] = ["ram", "committed", "cached", "page file", "swap", "paged pool", "task manager"],
         [WidgetKind.TopProcesses] = ["processes", "task manager", "apps", "cpu hog", "memory usage", "running"],
         [WidgetKind.NetworkDetails] = ["internet", "adapters", "ip address", "public ip", "wifi", "ethernet", "data used"],
-        [WidgetKind.DiskSpace] = ["storage", "free space", "drives", "ssd", "hdd", "capacity"],
         [WidgetKind.RemovableDrives] = ["usb", "usb stick", "flash drive", "sd card", "memory card", "external disk", "eject", "safely remove"],
         [WidgetKind.Drive] = ["disk", "storage", "free space", "capacity", "ssd", "hdd", "network drive", "mapped drive", "nas", "share"],
         [WidgetKind.BatteryDetails] = ["power", "battery health", "wear", "cycles", "voltage", "laptop", "time remaining"],
@@ -124,7 +129,11 @@ public static class WidgetKeywords
     private static readonly Dictionary<WidgetKind, string[]> ProviderNames = new()
     {
         [WidgetKind.Email] = ["Microsoft", "Google", "IMAP"],
-        [WidgetKind.Calendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.MonthCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.WeekCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.DayCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.YearCalendar] = ["Microsoft", "Google", "CalDAV"],
+        [WidgetKind.Agenda] = ["Microsoft", "Google", "CalDAV"],
         [WidgetKind.NextMeeting] = ["Microsoft", "Google", "CalDAV"],
         [WidgetKind.WeekPlanner] = ["Microsoft", "Google", "CalDAV"],
 

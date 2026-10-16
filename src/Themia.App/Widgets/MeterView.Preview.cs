@@ -55,8 +55,7 @@ internal sealed partial class MeterView : IWidgetPreviewState
         _items = null;
         _ = ShowPreviewStateAsync("history");
 
-        var fraction = 0.62;
-        Present(new MeterReading(fraction, Formatting.Percent(fraction), true));
+        Present(_part.SampleReading);
         ShowItems(_part.SampleItems);
         Lay();
     }

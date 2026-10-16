@@ -196,17 +196,15 @@ public sealed class QuickSetTests
     }
 
     [Theory]
-    [InlineData(AudioVisualizerStyle.Bars)]
-    [InlineData(AudioVisualizerStyle.Mirrored)]
-    [InlineData(AudioVisualizerStyle.Wave)]
-    [InlineData(AudioVisualizerStyle.Led)]
-    [InlineData(AudioVisualizerStyle.Radial)]
-    [InlineData(AudioVisualizerStyle.Waveform)]
-    public void S3711_no_audio_visualizer_style_can_have_a_header(AudioVisualizerStyle style)
+    [InlineData(WidgetKind.AudioVisualizer)]
+    [InlineData(WidgetKind.VisualizerMirror)]
+    [InlineData(WidgetKind.VisualizerWave)]
+    [InlineData(WidgetKind.VisualizerDots)]
+    [InlineData(WidgetKind.VisualizerRadial)]
+    public void S3711_no_audio_visualizer_can_have_a_header(WidgetKind kind)
     {
-        Assert.False(WidgetInstance.CanHaveHeader(WidgetKind.AudioVisualizer));
-        var widget = Widget(WidgetKind.AudioVisualizer, "v");
-        ((AudioVisualizerConfig)widget.Config).Style = style;
+        Assert.False(WidgetInstance.CanHaveHeader(kind));
+        var widget = Widget(kind, "v");
         widget.Header = HeaderPlacement.Top;
         Assert.Equal(HeaderPlacement.Hidden, widget.ShownHeader);
     }
@@ -217,7 +215,7 @@ public sealed class QuickSetTests
         foreach (var kind in Enum.GetValues<WidgetKind>())
         {
             var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null
-                || kind == WidgetKind.AudioVisualizer;
+                || Themia.Core.Widgets.VisualizerLayout.StyleOf(kind) is not null;
             Assert.Equal(!toggle, WidgetInstance.CanHaveHeader(kind));
             if (toggle)
             {

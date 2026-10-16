@@ -34,7 +34,7 @@ public sealed class CalendarDaysTests
             foreach (var start in new[] { WeekStartDay.Monday, WeekStartDay.Sunday, WeekStartDay.Saturday })
             {
                 var first = CalendarRules.StartOfWeek(anchor, start);
-                Assert.Equal((first, first.AddDays(6)), CalendarRules.ViewRange(CalendarStyle.Week, anchor, Today, start));
+                Assert.Equal((first, first.AddDays(6)), CalendarRules.ViewRange(CalendarLayout.Week, anchor, Today, start));
             }
         }
     }
@@ -42,40 +42,40 @@ public sealed class CalendarDaysTests
     [Fact]
     public void S2719_the_next_days_start_today_and_page_by_their_own_length()
     {
-        Assert.Equal((Today, Today.AddDays(3)), CalendarRules.ViewRange(CalendarStyle.Week, Today, Today, Next(4)));
+        Assert.Equal((Today, Today.AddDays(3)), CalendarRules.ViewRange(CalendarLayout.Week, Today, Today, Next(4)));
 
-        var forward = CalendarRules.Step(CalendarStyle.Week, Today, 1, Next(4));
-        Assert.Equal((Today.AddDays(4), Today.AddDays(7)), CalendarRules.ViewRange(CalendarStyle.Week, forward, Today, Next(4)));
+        var forward = CalendarRules.Step(CalendarLayout.Week, Today, 1, Next(4));
+        Assert.Equal((Today.AddDays(4), Today.AddDays(7)), CalendarRules.ViewRange(CalendarLayout.Week, forward, Today, Next(4)));
 
-        var back = CalendarRules.Step(CalendarStyle.Week, Today, -1, Next(4));
-        Assert.Equal((Today.AddDays(-4), Today.AddDays(-1)), CalendarRules.ViewRange(CalendarStyle.Week, back, Today, Next(4)));
+        var back = CalendarRules.Step(CalendarLayout.Week, Today, -1, Next(4));
+        Assert.Equal((Today.AddDays(-4), Today.AddDays(-1)), CalendarRules.ViewRange(CalendarLayout.Week, back, Today, Next(4)));
 
-        Assert.True(CalendarRules.InView(CalendarStyle.Week, Today, Today, Next(4), Today));
-        Assert.False(CalendarRules.InView(CalendarStyle.Week, forward, Today, Next(4), Today));
+        Assert.True(CalendarRules.InView(CalendarLayout.Week, Today, Today, Next(4), Today));
+        Assert.False(CalendarRules.InView(CalendarLayout.Week, forward, Today, Next(4), Today));
     }
 
     [Fact]
     public void S2719_a_day_selected_inside_the_period_on_screen_keeps_it_there()
     {
         // [S-3621] The anchor becomes the selected day; the period holding it is the same one.
-        var range = CalendarRules.ViewRange(CalendarStyle.Week, Today, Today, Next(5));
-        var selected = CalendarShare.AnchorFor(CalendarStyle.Week, Today, Today.AddDays(3));
-        Assert.Equal(range, CalendarRules.ViewRange(CalendarStyle.Week, selected, Today, Next(5)));
+        var range = CalendarRules.ViewRange(CalendarLayout.Week, Today, Today, Next(5));
+        var selected = CalendarShare.AnchorFor(CalendarLayout.Week, Today, Today.AddDays(3));
+        Assert.Equal(range, CalendarRules.ViewRange(CalendarLayout.Week, selected, Today, Next(5)));
 
         // One past it is the next period, which starts right after this one.
-        Assert.Equal((Today.AddDays(5), Today.AddDays(9)), CalendarRules.ViewRange(CalendarStyle.Week, Today.AddDays(5), Today, Next(5)));
+        Assert.Equal((Today.AddDays(5), Today.AddDays(9)), CalendarRules.ViewRange(CalendarLayout.Week, Today.AddDays(5), Today, Next(5)));
     }
 
     [Fact]
     public void S2719_a_working_week_from_the_week_start_steps_monday_to_monday()
     {
         var monday = new DateOnly(2026, 9, 28);
-        Assert.Equal((monday, monday.AddDays(4)), CalendarRules.ViewRange(CalendarStyle.Week, Today, Today, FromWeekStart(5)));
+        Assert.Equal((monday, monday.AddDays(4)), CalendarRules.ViewRange(CalendarLayout.Week, Today, Today, FromWeekStart(5)));
         Assert.Equal(7, CalendarRules.WeekStep(FromWeekStart(5)));
-        Assert.Equal("Sep 28 – Oct 2", CalendarRules.Title(CalendarStyle.Week, Today, Today, FromWeekStart(5), Locale.En));
+        Assert.Equal("Sep 28 – Oct 2", CalendarRules.Title(CalendarLayout.Week, Today, Today, FromWeekStart(5), Locale.En));
 
         // The weekend is in no period: a Saturday anchor shows its own working week.
-        Assert.Equal((monday, monday.AddDays(4)), CalendarRules.ViewRange(CalendarStyle.Week, new DateOnly(2026, 10, 3), Today, FromWeekStart(5)));
+        Assert.Equal((monday, monday.AddDays(4)), CalendarRules.ViewRange(CalendarLayout.Week, new DateOnly(2026, 10, 3), Today, FromWeekStart(5)));
     }
 
     [Fact]
@@ -83,17 +83,17 @@ public sealed class CalendarDaysTests
     {
         var monday = new DateOnly(2026, 9, 28);
         Assert.Equal(14, CalendarRules.WeekStep(FromWeekStart(14)));
-        Assert.Equal((monday, monday.AddDays(13)), CalendarRules.ViewRange(CalendarStyle.Week, Today, Today, FromWeekStart(14)));
-        Assert.Equal((monday.AddDays(14), monday.AddDays(27)), CalendarRules.ViewRange(CalendarStyle.Week, monday.AddDays(14), Today, FromWeekStart(14)));
-        Assert.Equal((monday.AddDays(-14), monday.AddDays(-1)), CalendarRules.ViewRange(CalendarStyle.Week, monday.AddDays(-1), Today, FromWeekStart(14)));
+        Assert.Equal((monday, monday.AddDays(13)), CalendarRules.ViewRange(CalendarLayout.Week, Today, Today, FromWeekStart(14)));
+        Assert.Equal((monday.AddDays(14), monday.AddDays(27)), CalendarRules.ViewRange(CalendarLayout.Week, monday.AddDays(14), Today, FromWeekStart(14)));
+        Assert.Equal((monday.AddDays(-14), monday.AddDays(-1)), CalendarRules.ViewRange(CalendarLayout.Week, monday.AddDays(-1), Today, FromWeekStart(14)));
     }
 
     [Fact]
     public void S2719_one_day_is_titled_like_a_day_and_steps_a_day()
     {
-        Assert.Equal("Sun, Oct 4", CalendarRules.Title(CalendarStyle.Week, Today, Today, Next(1), Locale.En));
-        Assert.Equal(Today.AddDays(1), CalendarRules.Step(CalendarStyle.Week, Today, 1, Next(1)));
-        Assert.Equal("Oct 4 – Oct 10", CalendarRules.Title(CalendarStyle.Week, Today, Today, Next(7), Locale.En));
+        Assert.Equal("Sun, Oct 4", CalendarRules.Title(CalendarLayout.Week, Today, Today, Next(1), Locale.En));
+        Assert.Equal(Today.AddDays(1), CalendarRules.Step(CalendarLayout.Week, Today, 1, Next(1)));
+        Assert.Equal("Oct 4 – Oct 10", CalendarRules.Title(CalendarLayout.Week, Today, Today, Next(7), Locale.En));
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public sealed class CalendarDaysTests
         Assert.Equal(14, new CalendarPeriod(WeekStartDay.Monday, 40).Days);
         Assert.Equal(1, new CalendarPeriod(WeekStartDay.Monday, 0).Days);
         Assert.Equal(7, ((CalendarPeriod)WeekStartDay.Sunday).Days);
-        Assert.Equal(CalendarWidgetConfig.AgendaDefaultDays, ((CalendarPeriod)WeekStartDay.Sunday).AgendaLength);
+        Assert.Equal(AgendaConfig.DefaultDays, ((CalendarPeriod)WeekStartDay.Sunday).AgendaLength);
         Assert.Equal(365, new CalendarPeriod(WeekStartDay.Monday, AgendaDays: 9999).AgendaLength);
     }
 
@@ -126,7 +126,7 @@ public sealed class CalendarDaysTests
     public void S3636_the_agenda_covers_its_days_from_today_wherever_it_is_anchored(int days, int lastOffset)
     {
         var period = new CalendarPeriod(WeekStartDay.Monday, AgendaDays: days);
-        Assert.Equal((Today, Today.AddDays(lastOffset)), CalendarRules.ViewRange(CalendarStyle.Agenda, Today.AddDays(-40), Today, period));
+        Assert.Equal((Today, Today.AddDays(lastOffset)), CalendarRules.ViewRange(CalendarLayout.Agenda, Today.AddDays(-40), Today, period));
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public sealed class CalendarDaysTests
         CalendarEvent Meeting(string id, DateTimeOffset start) => new() { Id = id, Subject = id, Start = start, End = start.AddHours(1), AccountId = "a" };
         var events = new[] { Meeting("today", at.AddHours(2)), Meeting("tomorrow", at.AddDays(1)) };
 
-        var (first, last) = CalendarRules.ViewRange(CalendarStyle.Agenda, Today, Today, new CalendarPeriod(WeekStartDay.Monday, AgendaDays: 1));
+        var (first, last) = CalendarRules.ViewRange(CalendarLayout.Agenda, Today, Today, new CalendarPeriod(WeekStartDay.Monday, AgendaDays: 1));
         var groups = CalendarRules.Agenda(events, [], first, last, Utc, 100, at);
 
         var day = Assert.Single(groups);
@@ -147,14 +147,14 @@ public sealed class CalendarDaysTests
     [Fact]
     public void S3636_the_agenda_config_carries_its_range_and_offers_the_named_ones()
     {
-        var agenda = new CalendarWidgetConfig { Style = CalendarStyle.Agenda };
+        var agenda = new AgendaConfig();
         Assert.Equal(30, agenda.AgendaDays);
         Assert.Equal(30, agenda.Period.AgendaLength);
-        Assert.Equal([1, 2, 3, 7, 30], CalendarWidgetConfig.AgendaDayPresets);
+        Assert.Equal([1, 2, 3, 7, 30], AgendaConfig.DayPresets);
 
         agenda.AgendaDays = 12;
         Assert.Equal(12, agenda.Period.AgendaLength);
-        Assert.Equal(12, ((CalendarWidgetConfig)agenda.Clone()).AgendaDays);
+        Assert.Equal(12, ((AgendaConfig)agenda.Clone()).AgendaDays);
     }
 
     // ---- [S-3636] / [S-3637] through the state file ------------------------------------------------
@@ -179,51 +179,54 @@ public sealed class CalendarDaysTests
     [InlineData(900, 365)]
     public void S3636_an_agenda_range_out_of_bounds_is_repaired_and_said(int stored, int repaired)
     {
-        var parsed = AppStateStore.Parse(StateWith(WidgetKind.Calendar, $$"""{"kind":"calendar","style":"agenda","agendaDays":{{stored}}}""").ToJsonString());
+        var parsed = AppStateStore.Parse(StateWith(WidgetKind.Agenda, $$"""{"kind":"agenda","agendaDays":{{stored}}}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
-        Assert.Equal(repaired, ConfigOf<CalendarWidgetConfig>(parsed, WidgetKind.Calendar).AgendaDays);
+        Assert.Equal(repaired, ConfigOf<AgendaConfig>(parsed, WidgetKind.Agenda).AgendaDays);
         Assert.Contains(parsed.Repairs, r => r.Contains("agenda days", StringComparison.Ordinal));
     }
 
     [Theory]
-    [InlineData("""{"kind":"calendar","style":"week","weekDays":0,"weekFrom":"today"}""", 1, WeekFirstDay.Today)]
-    [InlineData("""{"kind":"calendar","style":"week","weekDays":99,"weekFrom":"tomorrow"}""", 14, WeekFirstDay.Week)]
-    [InlineData("""{"kind":"calendar","style":"week","weekFrom":7}""", 7, WeekFirstDay.Week)]
+    [InlineData("""{"kind":"weekCalendar","days":0,"firstDay":"today"}""", 1, WeekFirstDay.Today)]
+    [InlineData("""{"kind":"weekCalendar","days":99,"firstDay":"tomorrow"}""", 14, WeekFirstDay.Week)]
+    [InlineData("""{"kind":"weekCalendar","firstDay":7}""", 7, WeekFirstDay.Week)]
     public void S3637_a_week_length_or_first_day_out_of_bounds_falls_back(string json, int days, WeekFirstDay from)
     {
-        var parsed = AppStateStore.Parse(StateWith(WidgetKind.Calendar, json).ToJsonString());
+        var parsed = AppStateStore.Parse(StateWith(WidgetKind.WeekCalendar, json).ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
-        var week = ConfigOf<CalendarWidgetConfig>(parsed, WidgetKind.Calendar);
-        Assert.Equal(days, week.WeekDays);
-        Assert.Equal(from, week.WeekFrom);
+        var week = ConfigOf<WeekCalendarConfig>(parsed, WidgetKind.WeekCalendar);
+        Assert.Equal(days, week.Days);
+        Assert.Equal(from, week.FirstDay);
     }
 
     [Fact]
-    public void S3637_the_week_and_agenda_settings_round_trip_with_their_style()
+    public void S3637_the_week_and_agenda_settings_round_trip_and_stay_with_their_kind()
     {
         var state = AppState.CreateDefault();
-        var week = WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.1, 0.1, 0.2, 0.2));
-        week.Id = "week";
-        week.Config = new CalendarWidgetConfig { Style = CalendarStyle.Week, WeekDays = 5, WeekFrom = WeekFirstDay.Today };
-        var agenda = WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.4, 0.1, 0.2, 0.2));
-        agenda.Id = "agenda";
-        agenda.Config = new CalendarWidgetConfig { Style = CalendarStyle.Agenda, AgendaDays = 2 };
+        var week = WidgetInstance.Create(WidgetKind.WeekCalendar, new FracRect(0.1, 0.1, 0.2, 0.2));
+        week.Config = new WeekCalendarConfig { Days = 5, FirstDay = WeekFirstDay.Today };
+        var agenda = WidgetInstance.Create(WidgetKind.Agenda, new FracRect(0.4, 0.1, 0.2, 0.2));
+        agenda.Config = new AgendaConfig { AgendaDays = 2 };
         state.Views[0].Widgets.Add(week);
         state.Views[0].Widgets.Add(agenda);
 
         var parsed = AppStateStore.Parse(SettingsTransfer.Serialize(state));
-        CalendarWidgetConfig Of(string id) => Assert.IsType<CalendarWidgetConfig>(parsed.State!.Views[0].Widgets.First(w => w.Id == id).Config);
 
-        var w = Of("week");
-        Assert.Equal(CalendarStyle.Week, w.Style);
-        Assert.Equal(5, w.WeekDays);
-        Assert.Equal(WeekFirstDay.Today, w.WeekFrom);
+        var w = ConfigOf<WeekCalendarConfig>(parsed, WidgetKind.WeekCalendar);
+        Assert.Equal(5, w.Days);
+        Assert.Equal(WeekFirstDay.Today, w.FirstDay);
         Assert.Equal(new CalendarPeriod(w.EffectiveWeekStart, 5, WeekFirstDay.Today), w.Period);
-        Assert.Equal(2, Of("agenda").AgendaDays);
-        Assert.Equal(new CalendarPeriod(w.EffectiveWeekStart, AgendaDays: 2), Of("agenda").Period);
+        Assert.Equal(2, ConfigOf<AgendaConfig>(parsed, WidgetKind.Agenda).AgendaDays);
         Assert.DoesNotContain(parsed.Repairs, r => r.Contains("calendar", StringComparison.Ordinal) || r.Contains("agenda", StringComparison.Ordinal));
+
+        static string Own(WidgetKind kind)
+            => System.Text.Json.JsonSerializer.Serialize(WidgetInstance.Create(kind, new FracRect(0.1, 0.1, 0.2, 0.2)).Config, AppStateJsonContext.Default.WidgetConfig);
+
+        Assert.DoesNotContain("agendaDays", Own(WidgetKind.WeekCalendar), StringComparison.Ordinal);
+        Assert.DoesNotContain("firstDay", Own(WidgetKind.Agenda), StringComparison.Ordinal);
+        Assert.DoesNotContain("firstDay", Own(WidgetKind.MonthCalendar), StringComparison.Ordinal);
+        Assert.DoesNotContain("\"days\"", Own(WidgetKind.DayCalendar), StringComparison.Ordinal);
     }
 
     // ---- [S-2716] agenda headings ------------------------------------------------------------------

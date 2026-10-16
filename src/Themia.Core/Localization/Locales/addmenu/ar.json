@@ -12,6 +12,9 @@
   "addMenu.subject.system": "النظام",
   "addMenu.subject.devices": "الأجهزة والطاقة",
   "addMenu.subject.more": "المزيد",
+  "addMenu.family.calendar": "التقويم",
+  "addMenu.family.visualizer": "المؤثرات المرئية",
+  "addMenu.family.folder": "مجلد",
   "addMenu.family.screenTime": "وقت الشاشة",
   "addMenu.family.powerButtons": "أزرار الطاقة"
 }

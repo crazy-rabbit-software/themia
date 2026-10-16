@@ -187,28 +187,13 @@ public static class DriveRules
         [.. (drives ?? []).Where(IsRemovable).OrderBy(d => d.Root, StringComparer.OrdinalIgnoreCase)];
 
     /// <summary>
-    /// [S-4655] The local volumes of a walk, as the disk meter and Disk space list them: the fixed and
+    /// [S-4655] The local volumes of a walk, as the disk meter lists them: the fixed and
     /// removable drives that are there (not an empty reader, a disc, a share or a RAM disk), in walk order.
     /// </summary>
     public static IReadOnlyList<DiskVolume> LocalVolumes(IEnumerable<DriveEntry> drives) =>
         [.. (drives ?? [])
             .Where(d => d.State == DriveState.Ready && d.Kind is VolumeKind.Fixed or VolumeKind.Removable)
             .Select(d => new DiskVolume(d.Root, d.Label, d.Kind == VolumeKind.Removable))];
-
-    /// <summary>[S-2420] [S-4655] The space of each of <see cref="LocalVolumes"/>, by root, from the same walk's answers.</summary>
-    public static IReadOnlyDictionary<string, DriveSpace> LocalSpace(IEnumerable<DriveEntry> drives)
-    {
-        var walked = (drives ?? []).ToList();
-        var space = new Dictionary<string, DriveSpace>(walked.Count, StringComparer.OrdinalIgnoreCase);
-
-        foreach (var volume in LocalVolumes(walked))
-        {
-            var entry = walked.First(d => string.Equals(d.Root, volume.Root, StringComparison.OrdinalIgnoreCase));
-            space[volume.Root] = new DriveSpace(volume, entry.Total, entry.Free);
-        }
-
-        return space;
-    }
 
     /// <summary>
     /// [S-4670] The drive a Drive widget shows: <paramref name="root"/>'s (empty: the system drive,

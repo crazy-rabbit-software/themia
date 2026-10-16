@@ -8,7 +8,7 @@ namespace Themia.App.Services.Drives;
 /// <summary>
 /// [S-4650]..[S-4655] The one walk of the drives: every letter Windows has, what kind it is, its label,
 /// file system and space, and for a mapped network drive whether it is connected (after Karpo's
-/// <c>DriveWatch</c>). The Disk meter's volume list, Disk space, Drive and Removable drives all read
+/// <c>DriveWatch</c>). The Disk meter's volume list, Drive and Removable drives all read
 /// their drives from here, so there is one way a drive is asked.
 /// <para>
 /// A local drive is asked on the calling thread (<c>GetVolumeInformationW</c>, <c>GetDiskFreeSpaceExW</c>,

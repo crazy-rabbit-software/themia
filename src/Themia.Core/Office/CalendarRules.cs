@@ -219,23 +219,23 @@ public static class CalendarRules
     /// ([S-2707]): 1 January to 31 December of the anchor's year. Agenda ([S-3636]): the span's days
     /// from today, wherever the anchor is.
     /// </summary>
-    public static (DateOnly First, DateOnly Last) ViewRange(CalendarStyle view, DateOnly anchor, DateOnly today, CalendarPeriod span)
+    public static (DateOnly First, DateOnly Last) ViewRange(CalendarLayout view, DateOnly anchor, DateOnly today, CalendarPeriod span)
     {
         switch (view)
         {
-            case CalendarStyle.Month:
+            case CalendarLayout.Month:
                 var firstOfMonth = new DateOnly(anchor.Year, anchor.Month, 1);
                 var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
                 return (StartOfWeek(firstOfMonth, span.WeekStart), StartOfWeek(lastOfMonth, span.WeekStart).AddDays(6));
 
-            case CalendarStyle.Week:
+            case CalendarLayout.Week:
                 var weekFirst = WeekFirst(anchor, today, span);
                 return (weekFirst, weekFirst.AddDays(span.Days - 1));
 
-            case CalendarStyle.Day:
+            case CalendarLayout.Day:
                 return (anchor, anchor);
 
-            case CalendarStyle.Year:
+            case CalendarLayout.Year:
                 return (new DateOnly(anchor.Year, 1, 1), new DateOnly(anchor.Year, 12, 31));
 
             default:
@@ -277,12 +277,12 @@ public static class CalendarRules
     /// the week calendar's period ([S-2719]), a day or a year (29 February clamped to the 28th). The
     /// agenda pages through its rows ([S-2709]), not its dates, so its anchor does not move.
     /// </summary>
-    public static DateOnly Step(CalendarStyle view, DateOnly anchor, int direction, CalendarPeriod span) => view switch
+    public static DateOnly Step(CalendarLayout view, DateOnly anchor, int direction, CalendarPeriod span) => view switch
     {
-        CalendarStyle.Month => anchor.AddMonths(Math.Sign(direction)),
-        CalendarStyle.Week => anchor.AddDays(WeekStep(span) * Math.Sign(direction)),
-        CalendarStyle.Day => anchor.AddDays(Math.Sign(direction)),
-        CalendarStyle.Year => anchor.AddYears(Math.Sign(direction)),
+        CalendarLayout.Month => anchor.AddMonths(Math.Sign(direction)),
+        CalendarLayout.Week => anchor.AddDays(WeekStep(span) * Math.Sign(direction)),
+        CalendarLayout.Day => anchor.AddDays(Math.Sign(direction)),
+        CalendarLayout.Year => anchor.AddYears(Math.Sign(direction)),
         _ => anchor,
     };
 
@@ -291,9 +291,9 @@ public static class CalendarRules
     /// nothing. A month counts only its own days, not the neighbours' that pad its weeks; the agenda
     /// always holds today (its paging is by rows, [S-2709]).
     /// </summary>
-    public static bool InView(CalendarStyle view, DateOnly anchor, DateOnly today, CalendarPeriod span, DateOnly day)
+    public static bool InView(CalendarLayout view, DateOnly anchor, DateOnly today, CalendarPeriod span, DateOnly day)
     {
-        if (view == CalendarStyle.Month)
+        if (view == CalendarLayout.Month)
         {
             return day.Year == anchor.Year && day.Month == anchor.Month;
         }
@@ -322,22 +322,22 @@ public static class CalendarRules
     /// <c>2026</c>. Agenda has none. Names and order from <see cref="LocaleFormat"/> for
     /// <paramref name="locale"/> ([S-1106]).
     /// </summary>
-    public static string Title(CalendarStyle view, DateOnly anchor, DateOnly today, CalendarPeriod span, Locale locale)
+    public static string Title(CalendarLayout view, DateOnly anchor, DateOnly today, CalendarPeriod span, Locale locale)
     {
         switch (view)
         {
-            case CalendarStyle.Month:
+            case CalendarLayout.Month:
                 return LocaleFormat.Date(locale, anchor, DateStyle.MonthYear);
 
-            case CalendarStyle.Week:
+            case CalendarLayout.Week:
                 // [S-2719] One column is a day, and titled like one.
                 var (first, last) = ViewRange(view, anchor, today, span);
                 return first == last ? LocaleFormat.Date(locale, first, DateStyle.WeekdayMonthDayShort) : Range(first, last, locale);
 
-            case CalendarStyle.Day:
+            case CalendarLayout.Day:
                 return LocaleFormat.Date(locale, anchor, DateStyle.WeekdayMonthDayShort);
 
-            case CalendarStyle.Year:
+            case CalendarLayout.Year:
                 return Strings.Format(locale, Str.WidgetsA_Calendar_YearTitle, ("year", anchor.Year.ToString(CultureInfo.InvariantCulture)));
 
             default:

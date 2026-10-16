@@ -13,7 +13,6 @@ public enum SystemSource
     Processor,
     Processes,
     DiskActivity,
-    DiskSpace,
     LocalAddresses,
     PublicAddress,
     Network,

@@ -13,15 +13,15 @@ namespace Themia.Core.Office;
 /// <param name="AgendaDays">The days the agenda covers, today first (1 to 365).</param>
 public readonly record struct CalendarPeriod(
     WeekStartDay WeekStart,
-    int WeekDays = CalendarWidgetConfig.WeekDefaultDays,
+    int WeekDays = WeekCalendarConfig.DefaultDays,
     WeekFirstDay WeekFrom = WeekFirstDay.Week,
-    int AgendaDays = CalendarWidgetConfig.AgendaDefaultDays)
+    int AgendaDays = AgendaConfig.DefaultDays)
 {
     /// <summary>The week calendar's columns, inside their range whatever was passed.</summary>
-    public int Days => Math.Clamp(WeekDays, CalendarWidgetConfig.WeekMinDays, CalendarWidgetConfig.WeekMaxDays);
+    public int Days => Math.Clamp(WeekDays, WeekCalendarConfig.MinDays, WeekCalendarConfig.MaxDays);
 
     /// <summary>The agenda's days, inside their range whatever was passed.</summary>
-    public int AgendaLength => Math.Clamp(AgendaDays, CalendarWidgetConfig.AgendaMinDays, CalendarWidgetConfig.AgendaMaxDays);
+    public int AgendaLength => Math.Clamp(AgendaDays, AgendaConfig.MinDays, AgendaConfig.MaxDays);
 
     /// <summary>A week start alone: a whole week from it, and the agenda's default range.</summary>
     public static implicit operator CalendarPeriod(WeekStartDay start) => FromWeekStartDay(start);

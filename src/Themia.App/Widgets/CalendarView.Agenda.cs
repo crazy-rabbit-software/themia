@@ -25,8 +25,8 @@ internal sealed partial class CalendarView
     private void DrawAgenda(double width, double height)
     {
         var today = Today;
-        var (first, last) = CalendarRules.ViewRange(CalendarStyle.Agenda, _anchor, today, _config.Period);
-        var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config.EffectiveAgendaCount, DateTimeOffset.Now);
+        var (first, last) = CalendarRules.ViewRange(CalendarLayout.Agenda, _anchor, today, _config.Period);
+        var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config is AgendaConfig agenda ? agenda.EffectiveAgendaCount : AgendaConfig.DefaultCount, DateTimeOffset.Now);
 
         var items = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 

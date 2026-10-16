@@ -48,7 +48,7 @@ public enum WidgetKind
     Pomodoro = 14,
 
 
-    /// <summary>[S-4123] The contents of one folder on this machine, as a list, a table, tiles or icons (its styles).</summary>
+    /// <summary>[S-4120] The contents of one folder on this machine, as a list (the other layouts are their own kinds).</summary>
     Folder = 17,
 
     /// <summary>Master output level and mute.</summary>
@@ -132,9 +132,6 @@ public enum WidgetKind
     /// <summary>[S-2415] Rates, session totals, addresses and every adapter.</summary>
     NetworkDetails = 63,
 
-    /// <summary>[S-2420] Free and used space on every drive.</summary>
-    DiskSpace = 64,
-
     /// <summary>[S-2423] The battery's status, time left, health and cycles.</summary>
     BatteryDetails = 65,
 
@@ -150,11 +147,23 @@ public enum WidgetKind
     /// <summary>[S-3100] The moon's phase, rise and set, computed offline.</summary>
     Moon = 69,
 
-    /// <summary>[S-3200] The spectrum (or the waveform) of whatever the PC plays, split out of Music, in six styles ([S-3216]).</summary>
+    /// <summary>[S-3200] The spectrum of whatever the PC plays, split out of Music: the Bars design ([S-3210]).</summary>
     AudioVisualizer = 70,
 
-    /// <summary>[S-3640] Events and birthdays as a month, a week, a day, a year or an agenda (its styles).</summary>
-    Calendar = 71,
+    /// <summary>[S-3600] The weeks of a month with their events. The five calendar widgets replace Calendar (10).</summary>
+    MonthCalendar = 71,
+
+    /// <summary>[S-3600] Seven day columns of events.</summary>
+    WeekCalendar = 72,
+
+    /// <summary>[S-3600] One day on an hour timeline.</summary>
+    DayCalendar = 73,
+
+    /// <summary>[S-3600] The twelve months of a year as small grids.</summary>
+    YearCalendar = 74,
+
+    /// <summary>[S-3600] What is coming up, grouped by day.</summary>
+    Agenda = 75,
 
     /// <summary>[S-3320] Screen time over the last week or month, one bar (or calendar cell) per day. Replaces Screen time (41).</summary>
     ScreenTimeChart = 80,
@@ -204,6 +213,27 @@ public enum WidgetKind
     /// <summary>[S-3900] Quick setting: game mode.</summary>
     GameModeToggle = 95,
 
+    /// <summary>[S-3210] The audio visualizer as bars symmetric around the centre line. Bars is <see cref="AudioVisualizer"/> (70).</summary>
+    VisualizerMirror = 110,
+
+    /// <summary>[S-3210] The audio visualizer as a smooth curve with the area under it filled.</summary>
+    VisualizerWave = 111,
+
+    /// <summary>[S-3210] The audio visualizer as columns of LED cells.</summary>
+    VisualizerDots = 112,
+
+    /// <summary>[S-3210] The audio visualizer as spokes around a ring.</summary>
+    VisualizerRadial = 113,
+
+    /// <summary>[S-4120] A folder as a table with columns. The list is <see cref="Folder"/>.</summary>
+    FolderDetails = 114,
+
+    /// <summary>[S-4120] A folder as labelled tiles (thumbnails for pictures).</summary>
+    FolderGrid = 115,
+
+    /// <summary>[S-4120] A folder as bare icons.</summary>
+    FolderIcons = 116,
+
     /// <summary>[S-4600] Start, pause, laps; kept running across a restart.</summary>
     Stopwatch = 117,
 
@@ -248,6 +278,9 @@ public enum WidgetKind
 
     /// <summary>[S-5300] The weekday and the date, no time: made for the wallpaper.</summary>
     Date = 131,
+
+    /// <summary>[S-3212] The audio visualizer as a moving line: the sound's waveform, like an oscilloscope.</summary>
+    VisualizerScope = 132,
 
     /// <summary>[S-5320] The days ahead with their events, and today's tasks.</summary>
     WeekPlanner = 133,

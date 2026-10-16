@@ -11,6 +11,9 @@
   "addMenu.subject.system": "System",
   "addMenu.subject.devices": "Devices & power",
   "addMenu.subject.more": "More",
+  "addMenu.family.calendar": "Calendar",
+  "addMenu.family.visualizer": "Visualizer",
+  "addMenu.family.folder": "Folder",
   "addMenu.family.screenTime": "Screen time",
   "addMenu.family.powerButtons": "Power buttons"
 }

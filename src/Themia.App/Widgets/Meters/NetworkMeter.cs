@@ -1,3 +1,4 @@
+using Themia.App.Services;
 using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -18,4 +19,12 @@ internal sealed class NetworkMeter : MeterPart
 
     /// <summary>[S-1124] Against the visible window's peak, never the session's; floor 1 KB/s.</summary>
     public override ChartScale Scale => ChartScale.Peak(Sources.NetworkChartFloor);
+
+    /// <summary>[S-6270] Numbers: download and upload alone, both large.</summary>
+    public override MeterLook Look(WidgetConfig config)
+        => (config as NetworkConfig)?.Style == NetworkStyle.Numbers ? MeterLook.Numbers : MeterLook.Graph;
+
+    /// <summary>2.4 MB/s down, 320 KB/s up.</summary>
+    public override MeterReading SampleReading
+        => new(0.6, Formatting.Rate(2.4 * 1024 * 1024), true, Value: 2.4 * 1024 * 1024, Second: 320 * 1024);
 }

@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "variants.visualizer.bars.label": "แท่งสเปกตรัม",
+  "variants.visualizer.bars.desc": "แท่งที่เคลื่อนไหวตามเสียงที่พีซีเครื่องนี้เล่น",
+  "variants.visualizer.mirror.label": "สเปกตรัมแบบสะท้อน",
+  "variants.visualizer.mirror.desc": "แท่งที่ขยายออกทั้งสองทางจากเส้นกึ่งกลาง",
+  "variants.visualizer.wave.label": "คลื่นสเปกตรัม",
+  "variants.visualizer.wave.desc": "คลื่นนุ่มนวลที่เคลื่อนไหวตามเสียงที่พีซีเครื่องนี้เล่น",
+  "variants.visualizer.dots.label": "สเปกตรัม LED",
+  "variants.visualizer.dots.desc": "คอลัมน์ของไฟ เหมือนมาตรวัดระดับเสียงของเครื่องเสียงไฮไฟ",
+  "variants.visualizer.radial.label": "สเปกตรัมแบบวงกลม",
+  "variants.visualizer.radial.desc": "แท่งรอบวงแหวน สะท้อนซ้ายและขวา",
+  "variants.folder.list.label": "รายการโฟลเดอร์",
+  "variants.folder.list.desc": "ไฟล์ของโฟลเดอร์ในรูปแบบรายการ",
+  "variants.folder.details.label": "รายละเอียดโฟลเดอร์",
+  "variants.folder.details.desc": "ไฟล์ของโฟลเดอร์ในตารางที่มีคอลัมน์",
+  "variants.folder.grid.label": "เส้นตารางโฟลเดอร์",
+  "variants.folder.grid.desc": "ไฟล์ของโฟลเดอร์ในรูปแบบไทล์พร้อมรูปขนาดย่อ",
+  "variants.folder.icons.label": "ไอคอนโฟลเดอร์",
+  "variants.folder.icons.desc": "ไฟล์ของโฟลเดอร์เป็นไอคอนเท่านั้น เหมือนเดสก์ท็อป"
+}

@@ -1,0 +1,11 @@
+{
+  "styles.io.graph": "Gráfico",
+  "styles.io.numbers": "Números",
+  "styles.io.bars": "Barras",
+  "styles.io.battery": "Batería",
+  "styles.io.ring": "Anillo",
+  "styles.io.signal": "Barras de señal",
+  "styles.io.bar": "Barra",
+  "styles.io.read": "Lectura",
+  "styles.io.write": "Escritura"
+}

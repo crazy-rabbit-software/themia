@@ -1,9 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.folder.label": "Cartella",
-  "styles.folder.desc": "I file di una cartella come elenco, tabella, riquadri o icone",
-  "styles.folder.list": "Elenco",
-  "styles.folder.details": "Dettagli",
-  "styles.folder.grid": "Griglia",
-  "styles.folder.icons": "Icone"
-}

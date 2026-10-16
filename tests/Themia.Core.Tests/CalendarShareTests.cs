@@ -28,11 +28,11 @@ public sealed class CalendarShareTests
     }
 
     [Theory]
-    [InlineData(CalendarStyle.Month)]
-    [InlineData(CalendarStyle.Week)]
-    [InlineData(CalendarStyle.Day)]
-    [InlineData(CalendarStyle.Year)]
-    public void S3621_the_dated_layouts_bring_the_selected_day_into_view(CalendarStyle layout)
+    [InlineData(CalendarLayout.Month)]
+    [InlineData(CalendarLayout.Week)]
+    [InlineData(CalendarLayout.Day)]
+    [InlineData(CalendarLayout.Year)]
+    public void S3621_the_dated_layouts_bring_the_selected_day_into_view(CalendarLayout layout)
     {
         var selected = new DateOnly(2027, 3, 3);
 
@@ -44,17 +44,17 @@ public sealed class CalendarShareTests
     [Fact]
     public void S3621_a_day_in_the_period_on_screen_does_not_page_it()
     {
-        var anchor = CalendarShare.AnchorFor(CalendarStyle.Month, Today, Today.AddDays(5));
+        var anchor = CalendarShare.AnchorFor(CalendarLayout.Month, Today, Today.AddDays(5));
 
         Assert.Equal(
-            CalendarRules.ViewRange(CalendarStyle.Month, Today, Today, WeekStartDay.Monday),
-            CalendarRules.ViewRange(CalendarStyle.Month, anchor, Today, WeekStartDay.Monday));
+            CalendarRules.ViewRange(CalendarLayout.Month, Today, Today, WeekStartDay.Monday),
+            CalendarRules.ViewRange(CalendarLayout.Month, anchor, Today, WeekStartDay.Monday));
     }
 
     [Fact]
     public void S3622_the_agenda_keeps_its_range_and_turns_to_the_page_holding_the_day()
     {
-        Assert.Equal(Today, CalendarShare.AnchorFor(CalendarStyle.Agenda, Today, Today.AddDays(9)));
+        Assert.Equal(Today, CalendarShare.AnchorFor(CalendarLayout.Agenda, Today, Today.AddDays(9)));
 
         // Rows: two today, two tomorrow, one in three days, three in a week; pages start at rows 0, 3, 6.
         DateOnly[] days = [Today, Today, Today.AddDays(1), Today.AddDays(1), Today.AddDays(3), Today.AddDays(7), Today.AddDays(7), Today.AddDays(7)];

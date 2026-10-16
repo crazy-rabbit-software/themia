@@ -35,7 +35,7 @@ public sealed class NextMeetingConfig : CalendarConfig
 
     /// <summary>What is coming up, reduced to its first entry: the agenda's shape.</summary>
     [JsonIgnore]
-    public override CalendarStyle Layout => CalendarStyle.Agenda;
+    public override CalendarLayout Layout => CalendarLayout.Agenda;
 
     protected override void RepairOwn(List<string> repairs)
     {

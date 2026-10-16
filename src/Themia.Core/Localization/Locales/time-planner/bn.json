@@ -6,6 +6,8 @@
   "dateWidget.label": "তারিখ",
   "dateWidget.desc": "আজকের বার ও তারিখ, ওয়ালপেপারের জন্য তৈরি",
   "dateWidget.showYear": "বছর দেখান",
+  "variants.visualizer.scope.label": "তরঙ্গরূপ",
+  "variants.visualizer.scope.desc": "একটি রেখা যা অসিলোস্কোপের মতো শব্দটিকেই আঁকে",
   "planner.label": "সাপ্তাহিক পরিকল্পনাকারী",
   "planner.desc": "সামনের দিনগুলোর ইভেন্ট, আর আজ যা করার আছে",
   "planner.tasksHeader": "আজকের কাজ",

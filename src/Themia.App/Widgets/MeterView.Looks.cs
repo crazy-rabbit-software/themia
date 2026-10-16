@@ -38,13 +38,14 @@ internal sealed partial class MeterView
             _dial = null;
             _bars = null;
             _tiles = null;
+            _face = null;
             _body = look switch
             {
                 MeterLook.Gauge => _dial = new GaugeDial(),
                 MeterLook.Columns => _bars = new BarList(BarListShape.Columns),
                 MeterLook.Rows => _bars = new BarList(BarListShape.Rows),
                 MeterLook.Tiles => _tiles = new TileGrid(),
-                _ => null,
+                _ => _face = MeterStyleFace.For(look),
             };
 
             if (_body is not null)

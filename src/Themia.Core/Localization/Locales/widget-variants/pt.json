@@ -1,0 +1,20 @@
+{
+  "variants.visualizer.bars.label": "Barras de espectro",
+  "variants.visualizer.bars.desc": "Barras que se movem com tudo o que este PC reproduz",
+  "variants.visualizer.mirror.label": "Espectro espelhado",
+  "variants.visualizer.mirror.desc": "Barras que crescem para os dois lados a partir da linha central",
+  "variants.visualizer.wave.label": "Onda de espectro",
+  "variants.visualizer.wave.desc": "Uma onda suave que acompanha tudo o que este PC reproduz",
+  "variants.visualizer.dots.label": "Espectro LED",
+  "variants.visualizer.dots.desc": "Colunas de luzes, como um medidor de nível de alta fidelidade",
+  "variants.visualizer.radial.label": "Espectro circular",
+  "variants.visualizer.radial.desc": "Barras em volta de um anel, espelhadas à esquerda e à direita",
+  "variants.folder.list.label": "Lista de pasta",
+  "variants.folder.list.desc": "Os arquivos de uma pasta em lista",
+  "variants.folder.details.label": "Detalhes de pasta",
+  "variants.folder.details.desc": "Os arquivos de uma pasta numa tabela com colunas",
+  "variants.folder.grid.label": "Grade de pasta",
+  "variants.folder.grid.desc": "Os arquivos de uma pasta como blocos com miniaturas",
+  "variants.folder.icons.label": "Ícones de pasta",
+  "variants.folder.icons.desc": "Os arquivos de uma pasta só como ícones, como na área de trabalho"
+}

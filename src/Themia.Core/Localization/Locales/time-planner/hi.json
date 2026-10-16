@@ -6,6 +6,8 @@
   "dateWidget.label": "तारीख",
   "dateWidget.desc": "आज का वार और तारीख, वॉलपेपर के लिए बनाया गया",
   "dateWidget.showYear": "वर्ष दिखाएँ",
+  "variants.visualizer.scope.label": "तरंग रूप",
+  "variants.visualizer.scope.desc": "एक रेखा जो ऑसिलोस्कोप की तरह स्वयं ध्वनि को खींचती है",
   "planner.label": "साप्ताहिक प्लानर",
   "planner.desc": "आने वाले दिन उनके इवेंट के साथ, और आज क्या देय है",
   "planner.tasksHeader": "आज के कार्य",

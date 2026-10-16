@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "variants.visualizer.bars.label": "Mga spectrum bar",
+  "variants.visualizer.bars.desc": "Mga bar na gumagalaw ayon sa anumang pinapatugtog ng PC na ito",
+  "variants.visualizer.mirror.label": "Naka-mirror na spectrum",
+  "variants.visualizer.mirror.desc": "Mga bar na lumalaki sa magkabilang direksyon mula sa gitnang linya",
+  "variants.visualizer.wave.label": "Alon ng spectrum",
+  "variants.visualizer.wave.desc": "Isang makinis na alon na sumasabay sa anumang pinapatugtog ng PC na ito",
+  "variants.visualizer.dots.label": "LED spectrum",
+  "variants.visualizer.dots.desc": "Mga hanay ng ilaw, gaya ng level meter ng hi-fi",
+  "variants.visualizer.radial.label": "Pabilog na spectrum",
+  "variants.visualizer.radial.desc": "Mga bar sa paligid ng isang singsing, naka-mirror sa kaliwa at kanan",
+  "variants.folder.list.label": "Listahan ng folder",
+  "variants.folder.list.desc": "Mga file ng folder bilang listahan",
+  "variants.folder.details.label": "Mga detalye ng folder",
+  "variants.folder.details.desc": "Mga file ng folder sa isang table na may mga column",
+  "variants.folder.grid.label": "Grid ng folder",
+  "variants.folder.grid.desc": "Mga file ng folder bilang mga tile na may thumbnail",
+  "variants.folder.icons.label": "Mga icon ng folder",
+  "variants.folder.icons.desc": "Mga file ng folder bilang icon lang, gaya ng sa desktop"
+}

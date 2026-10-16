@@ -27,6 +27,17 @@ internal sealed class BatteryMeter : MeterPart
     /// <summary>[S-1187] The charge glyph leads the reading; the ladder measures it as the readout's glyph ([S-3860]).</summary>
     public override bool HasBadge => true;
 
+    /// <summary>[S-6272] The battery and ring styles draw the charge themselves.</summary>
+    public override MeterLook Look(WidgetConfig config) => (config as BatteryConfig)?.Style switch
+    {
+        BatteryStyle.Battery => MeterLook.Battery,
+        BatteryStyle.Ring => MeterLook.Ring,
+        _ => MeterLook.Graph,
+    };
+
+    /// <summary>64 %, charging.</summary>
+    public override MeterReading SampleReading => new(0.64, Formatting.Percent(0.64), true, Charging: true);
+
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, reading.Charging);
 

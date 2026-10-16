@@ -12,6 +12,9 @@
   "addMenu.subject.system": "システム",
   "addMenu.subject.devices": "デバイスと電源",
   "addMenu.subject.more": "その他",
+  "addMenu.family.calendar": "カレンダー",
+  "addMenu.family.visualizer": "ビジュアライザー",
+  "addMenu.family.folder": "フォルダー",
   "addMenu.family.screenTime": "スクリーンタイム",
   "addMenu.family.powerButtons": "電源ボタン"
 }

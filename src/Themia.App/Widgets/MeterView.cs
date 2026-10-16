@@ -187,6 +187,10 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
             {
                 LayGauge();
             }
+            else if (_face is not null)
+            {
+                LayFace();
+            }
             else
             {
                 LayItems();
@@ -245,7 +249,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _config = config.Kind == _kind ? config : WidgetConfig.CreateDefault(_kind);
 
         var gauge = _config as GaugeConfig;
-        _graph = gauge is { ShowGraph: true };
+        _graph = gauge is { DrawsHistory: true };
 
         _part.ApplyConfig(_config, this);
         ShowToken();
@@ -371,6 +375,9 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // [S-6302] The gauge is the reading's own share, in the colour the history would have.
         _dial?.SetFraction(reading.Available ? reading.Fraction : null);
         _dial?.SetBrush(pressure);
+
+        // [S-6261]..[S-6266] A face that draws the reading itself (numbers, a battery, a ring, signal bars).
+        _face?.Present(reading, pressure);
 
         var badge = _part.Badge(reading);
         var badged = badge is not null;

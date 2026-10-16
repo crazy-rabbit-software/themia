@@ -6,6 +6,8 @@
   "dateWidget.label": "Kwanan wata",
   "dateWidget.desc": "Ranar mako da kwanan watan yau, an yi shi don fuskar bango",
   "dateWidget.showYear": "Nuna shekara",
+  "variants.visualizer.scope.label": "Siffar sauti",
+  "variants.visualizer.scope.desc": "Layi da ke zana sautin kansa, kamar oscilloscope",
   "planner.label": "Mai tsara mako",
   "planner.desc": "Kwanaki masu zuwa tare da abubuwan da ke cikinsu, da abin da ya kamata a yi yau",
   "planner.tasksHeader": "Ayyukan yau",

@@ -51,6 +51,19 @@ public static class DiskRules
     public static ChartScale Scale => ChartScale.Doubling(ChartFloor);
 
     /// <summary>
+    /// [S-6271] The read and write bars' shares: each rate against the top the graph would have over
+    /// the recent totals and this sample's (<see cref="Scale"/>), so the bars and the graph read on
+    /// one scale and a background murmur stays a sliver.
+    /// </summary>
+    public static (double Read, double Write) BarShares(DiskRates rates, ReadOnlySpan<double> recentTotals)
+    {
+        var top = Scale.Ceiling(recentTotals, [rates.Total]);
+        return (Share(rates.Read, top), Share(rates.Write, top));
+    }
+
+    private static double Share(double rate, double top) => ChartScale.Fraction(Clean(rate), top);
+
+    /// <summary>
     /// [S-1160] The root a setting names: <c>c</c>, <c>C:</c> and <c>C:\</c> are all <c>C:\</c>.
     /// Null for anything that is not a drive letter — a folder, a UNC path, a hand-edited typo.
     /// </summary>

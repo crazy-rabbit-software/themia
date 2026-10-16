@@ -12,6 +12,9 @@
   "addMenu.subject.system": "ਸਿਸਟਮ",
   "addMenu.subject.devices": "ਡਿਵਾਈਸਾਂ ਅਤੇ ਪਾਵਰ",
   "addMenu.subject.more": "ਹੋਰ",
+  "addMenu.family.calendar": "ਕੈਲੰਡਰ",
+  "addMenu.family.visualizer": "ਵਿਜ਼ੁਅਲਾਈਜ਼ਰ",
+  "addMenu.family.folder": "ਫੋਲਡਰ",
   "addMenu.family.screenTime": "ਸਕ੍ਰੀਨ ਸਮਾਂ",
   "addMenu.family.powerButtons": "ਪਾਵਰ ਬਟਨ"
 }

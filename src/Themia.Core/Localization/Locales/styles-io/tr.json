@@ -1,0 +1,11 @@
+{
+  "styles.io.graph": "Grafik",
+  "styles.io.numbers": "Sayılar",
+  "styles.io.bars": "Çubuklar",
+  "styles.io.battery": "Pil",
+  "styles.io.ring": "Halka",
+  "styles.io.signal": "Sinyal çubukları",
+  "styles.io.bar": "Çubuk",
+  "styles.io.read": "Okuma",
+  "styles.io.write": "Yazma"
+}

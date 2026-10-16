@@ -18,21 +18,22 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1320_defaults_match_the_original()
     {
-        var config = new FolderConfig();
+        var config = new FolderListConfig();
 
-        Assert.Equal(FolderStyle.List, config.Style);
+        Assert.Equal(FolderViewMode.List, config.View);
         Assert.Equal(FolderItemSize.Medium, config.ItemSize);
         Assert.Equal(FolderNavigation.Explorer, config.Navigation);
         Assert.Equal(ItemClickMode.Double, config.ClickMode);
         Assert.False(config.ShowExtensions);
-        Assert.Equal([FolderColumn.Size, FolderColumn.Modified, FolderColumn.Type], config.Columns);
-        Assert.Equal(FolderTileSize.Medium, config.TileSize);
+        Assert.Equal([FolderColumn.Size, FolderColumn.Modified, FolderColumn.Type], new FolderDetailsConfig().Columns);
+        Assert.Equal(FolderTileSize.Small, new FolderIconsConfig().TileSize);
+        Assert.Equal(FolderTileSize.Medium, new FolderGridConfig().TileSize);
     }
 
     [Fact]
     public void S1320_repair_drops_unknown_and_repeated_columns_and_says_so()
     {
-        var config = new FolderConfig { Style = FolderStyle.Details, Columns = [FolderColumn.Git, (FolderColumn)42, FolderColumn.Git, FolderColumn.Size] };
+        var config = new FolderDetailsConfig { Columns = [FolderColumn.Git, (FolderColumn)42, FolderColumn.Git, FolderColumn.Size] };
 
         var notes = config.Repair();
 
@@ -43,8 +44,8 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1320_clone_does_not_share_the_column_list()
     {
-        var config = new FolderConfig { Style = FolderStyle.Details };
-        var copy = (FolderConfig)config.Clone();
+        var config = new FolderDetailsConfig();
+        var copy = (FolderDetailsConfig)config.Clone();
 
         copy.Columns.Add(FolderColumn.Git);
 
@@ -684,7 +685,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_chrome_appears_on_big_tiles_only()
     {
-        var config = new FolderConfig { Style = FolderStyle.Details };
+        var config = new FolderDetailsConfig();
 
         var small = FolderLayout.Plan(new WidgetArea(200, 106), config, 20, searchOpen: false, navigate: true, hasGit: false);
         Assert.False(small.Breadcrumb);
@@ -698,7 +699,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_a_big_tile_has_a_breadcrumb_and_no_column_header_outside_details()
     {
-        var plan = FolderLayout.Plan(new WidgetArea(800, 516), new FolderConfig { Style = FolderStyle.Grid }, 6, false, true, false);
+        var plan = FolderLayout.Plan(new WidgetArea(800, 516), new FolderGridConfig(), 6, false, true, false);
 
         Assert.True(plan.Breadcrumb);
         Assert.False(plan.ColumnHeader);
@@ -709,7 +710,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_an_open_search_box_is_shown_before_the_column_header()
     {
-        var config = new FolderConfig { Style = FolderStyle.Details };
+        var config = new FolderDetailsConfig();
 
         var plan = FolderLayout.Plan(new WidgetArea(300, 80), config, 20, searchOpen: true, navigate: false, hasGit: false);
 
@@ -720,7 +721,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_xl_grid_tiles_are_one_size_larger()
     {
-        var config = new FolderConfig { Style = FolderStyle.Grid, TileSize = FolderTileSize.Small };
+        var config = new FolderGridConfig { TileSize = FolderTileSize.Small };
 
         var plan = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, false, false, false);
 
@@ -730,21 +731,21 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1326_header_buttons_shed_in_priority_order()
     {
-        Assert.Equal(FolderHeaderPlan.None, FolderLayout.Header(150, FolderStyle.List, navigate: true, hasGit: true));
+        Assert.Equal(FolderHeaderPlan.None, FolderLayout.Header(150, FolderViewMode.List, navigate: true, hasGit: true));
 
-        var narrow = FolderLayout.Header(200, FolderStyle.List, true, true);
+        var narrow = FolderLayout.Header(200, FolderViewMode.List, true, true);
         Assert.True(narrow.Up);
         Assert.False(narrow.Back);
 
-        var wide = FolderLayout.Header(800, FolderStyle.List, true, true);
+        var wide = FolderLayout.Header(800, FolderViewMode.List, true, true);
         Assert.Equal(new FolderHeaderPlan(true, true, true, true, true, true, true), wide);
 
-        var details = FolderLayout.Header(800, FolderStyle.Details, navigate: false, hasGit: false);
+        var details = FolderLayout.Header(800, FolderViewMode.Details, navigate: false, hasGit: false);
         Assert.False(details.Sort);
         Assert.False(details.Back);
         Assert.True(details.Search);
 
-        Assert.False(FolderLayout.Header(800, FolderStyle.Grid, false, hasGit: true).Git);
+        Assert.False(FolderLayout.Header(800, FolderViewMode.Grid, false, hasGit: true).Git);
     }
 
     // ---- keys -----------------------------------------------------------------------------------
