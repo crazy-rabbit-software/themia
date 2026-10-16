@@ -118,10 +118,6 @@
     "one": "برش {count} ویجت",
     "other": "برش {count} ویجت"
   },
-  "shell.card.moveMany": {
-    "one": "انتقال {count} ویجت",
-    "other": "انتقال {count} ویجت"
-  },
   "shell.card.deleteMany": {
     "one": "حذف {count} ویجت",
     "other": "حذف {count} ویجت"

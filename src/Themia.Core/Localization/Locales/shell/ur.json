@@ -118,10 +118,6 @@
     "one": "{count} ویجیٹ کٹ کریں",
     "other": "{count} ویجیٹس کٹ کریں"
   },
-  "shell.card.moveMany": {
-    "one": "{count} ویجیٹ منتقل کریں",
-    "other": "{count} ویجیٹس منتقل کریں"
-  },
   "shell.card.deleteMany": {
     "one": "{count} ویجیٹ حذف کریں",
     "other": "{count} ویجیٹس حذف کریں"

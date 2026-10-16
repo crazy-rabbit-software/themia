@@ -118,10 +118,6 @@
     "one": "{count} విడ్జెట్‌ను కత్తిరించు",
     "other": "{count} విడ్జెట్‌లను కత్తిరించు"
   },
-  "shell.card.moveMany": {
-    "one": "{count} విడ్జెట్‌ను తరలించు",
-    "other": "{count} విడ్జెట్‌లను తరలించు"
-  },
   "shell.card.deleteMany": {
     "one": "{count} విడ్జెట్‌ను తొలగించు",
     "other": "{count} విడ్జెట్‌లను తొలగించు"

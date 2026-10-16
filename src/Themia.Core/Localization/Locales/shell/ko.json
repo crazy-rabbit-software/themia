@@ -116,9 +116,6 @@
   "shell.card.cutMany": {
     "other": "위젯 {count}개 잘라내기"
   },
-  "shell.card.moveMany": {
-    "other": "위젯 {count}개 이동"
-  },
   "shell.card.deleteMany": {
     "other": "위젯 {count}개 삭제"
   },

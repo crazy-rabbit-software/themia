@@ -118,10 +118,6 @@
     "one": "Taglia {count} widget",
     "other": "Taglia {count} widget"
   },
-  "shell.card.moveMany": {
-    "one": "Sposta {count} widget",
-    "other": "Sposta {count} widget"
-  },
   "shell.card.deleteMany": {
     "one": "Elimina {count} widget",
     "other": "Elimina {count} widget"

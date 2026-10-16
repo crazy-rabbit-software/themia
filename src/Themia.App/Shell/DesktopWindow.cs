@@ -288,9 +288,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>[S-1592] Delete the selection (the right-clicked card is in it).</summary>
     public void RequestDelete(WidgetCard card) => _host.DeleteSelected();
 
-    /// <summary>[S-1590] The selection follows the pointer, to this display or another, until a click drops it.</summary>
-    public void RequestMove(WidgetCard card) => _host.MoveSelected();
-
     public void RequestEditMode(bool enabled) => _host.SetEditMode(enabled);
 
     /// <inheritdoc />

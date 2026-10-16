@@ -125,12 +125,6 @@ internal interface IWidgetCardHost
     {
         // ignore: as above
     }
-
-    /// <summary>[S-1590] Move the selection: it follows the pointer, to any display, until a click drops it.</summary>
-    void RequestMove(WidgetCard card)
-    {
-        // ignore: as above
-    }
 }
 
 /// <summary>
@@ -1134,7 +1128,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
             ShellCommand.Delete => new(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: Str.Shell_Key_Delete.Text()),
             ShellCommand.BringToFront => new(Glyphs.MoveUp, Str.Shell_Card_BringToFront.Text(), () => _host.RequestZOrder(this, front: true), Disabled: disabled),
             ShellCommand.SendToBack => new(Glyphs.MoveDown, Str.Shell_Card_SendToBack.Text(), () => _host.RequestZOrder(this, front: false), Disabled: disabled),
-            ShellCommand.Move => new(Glyphs.Move, Verb(Str.Common_Move, Str.Shell_Card_MoveMany), () => _host.RequestMove(this)),
             ShellCommand.ToggleEditMode => _host.EditMode
                 ? new(Glyphs.Done, Str.Shell_Card_DoneEditing.Text(), () => _host.RequestEditMode(false))
                 : new(Glyphs.Edit, Str.Shell_Card_EditLayout.Text(), () => _host.RequestEditMode(true)),

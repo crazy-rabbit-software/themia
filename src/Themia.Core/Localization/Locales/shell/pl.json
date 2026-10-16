@@ -122,12 +122,6 @@
     "many": "Wytnij {count} widżetów",
     "other": "Wytnij {count} widżetu"
   },
-  "shell.card.moveMany": {
-    "one": "Przenieś {count} widżet",
-    "few": "Przenieś {count} widżety",
-    "many": "Przenieś {count} widżetów",
-    "other": "Przenieś {count} widżetu"
-  },
   "shell.card.deleteMany": {
     "one": "Usuń {count} widżet",
     "few": "Usuń {count} widżety",

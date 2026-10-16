@@ -4,7 +4,7 @@ using Themia.Core.Model;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-1592] The selection commands: copy, cut, paste, duplicate, move, delete and layering. Each acts
+/// [S-1592] The selection commands: copy, cut, paste, delete and layering. Each acts
 /// on the whole selection; the ones that produce or move widgets start a placement ([S-1587]).
 /// </summary>
 internal sealed partial class AppHost
@@ -34,17 +34,6 @@ internal sealed partial class AppHost
     public void Paste()
     {
         if (Clipboard.Payload is { } payload)
-        {
-            BeginPlacement(payload);
-        }
-    }
-
-    /// <summary>[S-1590] Move: the selection itself follows the pointer, to this display or any other.</summary>
-    public void MoveSelected() => PlaceSelection(PlacementMode.Move);
-
-    private void PlaceSelection(PlacementMode mode)
-    {
-        if (SelectionView is { } view && PlacementPayload.FromView(view, Selection.Ids, mode) is { } payload)
         {
             BeginPlacement(payload);
         }

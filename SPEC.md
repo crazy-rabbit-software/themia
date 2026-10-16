@@ -761,7 +761,7 @@ tests `SkyWidgetsTests` (`S310x_`).
   placement session ([S-1587]): a ghost of the widget at its default size follows the pointer across
   every display, the cards stop taking input so a click over one places the new widget rather than
   grabbing the old, and a line in place of the toolbar says what the click will do. Escape or a
-  right-click cancels; leaving edit mode cancels. Paste and Move start the same session
+  right-click cancels; leaving edit mode cancels. Paste starts the same session
   with one or many existing widgets.
 - **[S-422]** A left click lands the payload on the display it is on, in that display's view, at the
   rects computed from the click itself — not from the last pointer move — centred as a block,
@@ -4842,13 +4842,14 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   card and narrows the selection to it.
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
-- **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste, a
-  Move), or with the held widget centred on it (a drag handed to another display), then snapped and
+- **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste),
+  or with the held widget centred on it (a drag handed to another display), then snapped and
   clamped as a block on the display under the pointer. The ghost and the landing come from the same
   calculation, so the widgets land exactly where the ghost was.
 - **[S-1587]** One **placement session** for everything that produces or moves widgets: Add widget
-  (a new widget of one kind), Paste (Ctrl+V and menu), Move (menu: to
-  this display or any other). No command drops a widget at a computed spot
+  (a new widget of one kind), Paste (Ctrl+V and menu; a cut lands on
+  this display or any other). No menu has Move: a widget moves by dragging it or with the arrow
+  keys ([S-1970]). No command drops a widget at a computed spot
   any more. Click lands; Escape, a right-click or leaving edit mode cancels and changes nothing. The
   licence gate ([S-1065]) runs before the ghost appears (what the session would create: a copy of N
   widgets counts N, a move 0) and again on landing.
@@ -4857,14 +4858,14 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
 - **[S-1589]** A **copy** (paste of a copy) lands fresh widgets with fresh ids every time, so
   pasting one copy twice gives two sets. There is no separate Duplicate for widgets: Copy then Paste
   is that command.
-- **[S-1590]** A **move** (paste of a cut, Move) lands the **same** widgets: the originals are taken
+- **[S-1590]** A **move** (paste of a cut) lands the **same** widgets: the originals are taken
   out of whatever view they are in now and the live instances — with any config change since the
   snapshot — take the planned rects. An original deleted meanwhile is put back from the snapshot.
   Until the click lands the
   originals stay where they are, faded; cancel leaves them and the cut as they were.
 - **[S-1591]** Dragging a selection onto a display that shows another view hands **all** of it over
   in one landing ([S-76], [S-77]) and selects it there.
-- **[S-1592]** Delete, Copy, Cut, Move, Bring to front and Send to back act on the whole
+- **[S-1592]** Delete, Copy, Cut, Bring to front and Send to back act on the whole
   selection; the card menu says how many ("Delete 3 widgets"). A right-click on a selected card keeps
   the selection; on any other card it selects that card alone first. Layering keeps the order the
   selected widgets had among themselves.
@@ -6296,7 +6297,8 @@ Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMe
   doubled), including where moving commands to the row emptied a group.
 - **[S-1743]** A widget card's menu: the row is Cut, Copy, Paste (disabled with nothing to paste),
   Settings and Delete, acting on the selection ([S-1592]); the list is the view's own
-  commands, Bring to front / Send to back, Move, and Edit layout / Done editing. There is no
+  commands, Bring to front / Send to back, and Edit layout / Done editing. There is no Move:
+  dragging and the arrow keys move a widget. There is no
   Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu: Paste and Settings in the row; Add widget (opens the picker at the

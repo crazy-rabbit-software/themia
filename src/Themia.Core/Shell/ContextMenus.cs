@@ -124,9 +124,6 @@ public enum ShellCommand
     Copy,
     Paste,
 
-    /// <summary>[S-1587] The selection follows the pointer to wherever the next click puts it.</summary>
-    Move,
-
     /// <summary>Enter edit mode, or leave it ("Done editing").</summary>
     ToggleEditMode,
 
@@ -195,7 +192,7 @@ public static class ShellMenus
     /// <summary>
     /// [S-1743] A widget card's menu. The icon row is Cut, Copy, Paste, Settings and Delete
     /// ([S-1740]); there is no Duplicate, Copy then Paste does that. The list holds the view's own
-    /// commands, the layering pair, Move, and entering or leaving edit mode. Nothing on it changes how the
+    /// commands, the layering pair, and entering or leaving edit mode. Nothing on it changes how the
     /// widget looks: that lives in its settings ([S-1746]). A widget whose page would be empty has no
     /// Settings at all ([S-1750]).
     /// </summary>
@@ -220,7 +217,6 @@ public static class ShellMenus
         items.Add(ShellMenuItem.Divider);
         items.Add(new(ShellCommand.BringToFront, Enabled: many || facts.CanBringToFront));
         items.Add(new(ShellCommand.SendToBack, Enabled: many || facts.CanSendToBack));
-        items.Add(new(ShellCommand.Move));
         items.Add(ShellMenuItem.Divider);
         items.Add(new(ShellCommand.ToggleEditMode));
         return items;

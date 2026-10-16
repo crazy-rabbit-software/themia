@@ -118,10 +118,6 @@
     "one": "Yanke widget {count}",
     "other": "Yanke widget {count}"
   },
-  "shell.card.moveMany": {
-    "one": "Matsar da widget {count}",
-    "other": "Matsar da widget {count}"
-  },
   "shell.card.deleteMany": {
     "one": "Goge widget {count}",
     "other": "Goge widget {count}"

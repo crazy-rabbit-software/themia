@@ -116,9 +116,6 @@
   "shell.card.cutMany": {
     "other": "Potong {count} widget"
   },
-  "shell.card.moveMany": {
-    "other": "Pindahkan {count} widget"
-  },
   "shell.card.deleteMany": {
     "other": "Hapus {count} widget"
   },

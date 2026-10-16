@@ -149,14 +149,14 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S1743_the_list_keeps_view_actions_move_and_edit_mode()
+    public void S1743_the_list_keeps_view_actions_layering_and_edit_mode()
     {
         var items = ShellMenus.ForCard(Card());
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
         var list = split.List.Where(i => i >= 0).Select(i => items[i].Command).ToList();
 
         Assert.Equal(
-            [ShellCommand.WidgetActions, ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.Move, ShellCommand.ToggleEditMode],
+            [ShellCommand.WidgetActions, ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.ToggleEditMode],
             list);
     }
 

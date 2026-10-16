@@ -118,10 +118,6 @@
     "one": "Cortar {count} widget",
     "other": "Cortar {count} widgets"
   },
-  "shell.card.moveMany": {
-    "one": "Mover {count} widget",
-    "other": "Mover {count} widgets"
-  },
   "shell.card.deleteMany": {
     "one": "Eliminar {count} widget",
     "other": "Eliminar {count} widgets"

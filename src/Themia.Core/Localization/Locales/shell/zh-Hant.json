@@ -116,9 +116,6 @@
   "shell.card.cutMany": {
     "other": "剪下 {count} 個小工具"
   },
-  "shell.card.moveMany": {
-    "other": "移動 {count} 個小工具"
-  },
   "shell.card.deleteMany": {
     "other": "刪除 {count} 個小工具"
   },

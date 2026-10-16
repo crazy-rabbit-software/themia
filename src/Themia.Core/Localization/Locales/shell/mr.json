@@ -118,10 +118,6 @@
     "one": "{count} विजेट कट करा",
     "other": "{count} विजेट कट करा"
   },
-  "shell.card.moveMany": {
-    "one": "{count} विजेट हलवा",
-    "other": "{count} विजेट हलवा"
-  },
   "shell.card.deleteMany": {
     "one": "{count} विजेट हटवा",
     "other": "{count} विजेट हटवा"

@@ -118,10 +118,6 @@
     "one": "I-cut ang {count} widget",
     "other": "I-cut ang {count} widget"
   },
-  "shell.card.moveMany": {
-    "one": "Ilipat ang {count} widget",
-    "other": "Ilipat ang {count} widget"
-  },
   "shell.card.deleteMany": {
     "one": "Burahin ang {count} widget",
     "other": "Burahin ang {count} widget"

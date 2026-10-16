@@ -118,10 +118,6 @@
     "one": "{count}টি উইজেট কাট করুন",
     "other": "{count}টি উইজেট কাট করুন"
   },
-  "shell.card.moveMany": {
-    "one": "{count}টি উইজেট সরান",
-    "other": "{count}টি উইজেট সরান"
-  },
   "shell.card.deleteMany": {
     "one": "{count}টি উইজেট মুছুন",
     "other": "{count}টি উইজেট মুছুন"

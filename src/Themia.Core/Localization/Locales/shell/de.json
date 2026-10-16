@@ -118,10 +118,6 @@
     "one": "{count} Widget ausschneiden",
     "other": "{count} Widgets ausschneiden"
   },
-  "shell.card.moveMany": {
-    "one": "{count} Widget verschieben",
-    "other": "{count} Widgets verschieben"
-  },
   "shell.card.deleteMany": {
     "one": "{count} Widget löschen",
     "other": "{count} Widgets löschen"

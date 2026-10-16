@@ -118,10 +118,6 @@
     "one": "{count} ਵਿਜੇਟ ਕੱਟੋ",
     "other": "{count} ਵਿਜੇਟ ਕੱਟੋ"
   },
-  "shell.card.moveMany": {
-    "one": "{count} ਵਿਜੇਟ ਹਿਲਾਓ",
-    "other": "{count} ਵਿਜੇਟ ਹਿਲਾਓ"
-  },
   "shell.card.deleteMany": {
     "one": "{count} ਵਿਜੇਟ ਮਿਟਾਓ",
     "other": "{count} ਵਿਜੇਟ ਮਿਟਾਓ"

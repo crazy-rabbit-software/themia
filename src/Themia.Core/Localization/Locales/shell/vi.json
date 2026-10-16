@@ -116,9 +116,6 @@
   "shell.card.cutMany": {
     "other": "Cắt {count} tiện ích"
   },
-  "shell.card.moveMany": {
-    "other": "Di chuyển {count} tiện ích"
-  },
   "shell.card.deleteMany": {
     "other": "Xóa {count} tiện ích"
   },

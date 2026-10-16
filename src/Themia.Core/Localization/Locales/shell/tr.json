@@ -118,10 +118,6 @@
     "one": "{count} pencere öğesini kes",
     "other": "{count} pencere öğesini kes"
   },
-  "shell.card.moveMany": {
-    "one": "{count} pencere öğesini taşı",
-    "other": "{count} pencere öğesini taşı"
-  },
   "shell.card.deleteMany": {
     "one": "{count} pencere öğesini sil",
     "other": "{count} pencere öğesini sil"

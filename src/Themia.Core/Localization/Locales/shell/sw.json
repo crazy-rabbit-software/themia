@@ -118,10 +118,6 @@
     "one": "Kata wijeti {count}",
     "other": "Kata wijeti {count}"
   },
-  "shell.card.moveMany": {
-    "one": "Hamisha wijeti {count}",
-    "other": "Hamisha wijeti {count}"
-  },
   "shell.card.deleteMany": {
     "one": "Futa wijeti {count}",
     "other": "Futa wijeti {count}"

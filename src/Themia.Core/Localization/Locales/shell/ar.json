@@ -126,14 +126,6 @@
     "many": "قص {count} أداةً",
     "other": "قص {count} أداة"
   },
-  "shell.card.moveMany": {
-    "zero": "نقل {count} أداة",
-    "one": "نقل {count} أداة",
-    "two": "نقل {count} أداتين",
-    "few": "نقل {count} أدوات",
-    "many": "نقل {count} أداةً",
-    "other": "نقل {count} أداة"
-  },
   "shell.card.deleteMany": {
     "zero": "حذف {count} أداة",
     "one": "حذف {count} أداة",

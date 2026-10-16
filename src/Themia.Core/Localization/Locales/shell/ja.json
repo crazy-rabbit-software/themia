@@ -116,9 +116,6 @@
   "shell.card.cutMany": {
     "other": "{count} 個のウィジェットを切り取り"
   },
-  "shell.card.moveMany": {
-    "other": "{count} 個のウィジェットを移動"
-  },
   "shell.card.deleteMany": {
     "other": "{count} 個のウィジェットを削除"
   },

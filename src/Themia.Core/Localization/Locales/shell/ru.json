@@ -122,12 +122,6 @@
     "many": "Вырезать {count} виджетов",
     "other": "Вырезать {count} виджета"
   },
-  "shell.card.moveMany": {
-    "one": "Переместить {count} виджет",
-    "few": "Переместить {count} виджета",
-    "many": "Переместить {count} виджетов",
-    "other": "Переместить {count} виджета"
-  },
   "shell.card.deleteMany": {
     "one": "Удалить {count} виджет",
     "few": "Удалить {count} виджета",

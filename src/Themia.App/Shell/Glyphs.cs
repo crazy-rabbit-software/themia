@@ -32,7 +32,6 @@ internal static class Glyphs
 
     /// <summary>[S-1740] Distinct from <see cref="Copy"/>: both sit side by side in a menu's icon row.</summary>
     public static readonly string Duplicate = From(0xF413);
-    public static readonly string Move = From(0xE7C2);
     public static readonly string SelectAll = From(0xE8B3);
     public static readonly string Theme = From(0xE793);
     public static readonly string Opacity = From(0xE7E6);

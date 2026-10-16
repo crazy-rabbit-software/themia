@@ -118,10 +118,6 @@
     "one": "{count} விட்ஜெட்டை வெட்டு",
     "other": "{count} விட்ஜெட்களை வெட்டு"
   },
-  "shell.card.moveMany": {
-    "one": "{count} விட்ஜெட்டை நகர்த்து",
-    "other": "{count} விட்ஜெட்களை நகர்த்து"
-  },
   "shell.card.deleteMany": {
     "one": "{count} விட்ஜெட்டை நீக்கு",
     "other": "{count} விட்ஜெட்களை நீக்கு"

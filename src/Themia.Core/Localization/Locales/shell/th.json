@@ -116,9 +116,6 @@
   "shell.card.cutMany": {
     "other": "ตัด {count} วิดเจ็ต"
   },
-  "shell.card.moveMany": {
-    "other": "ย้าย {count} วิดเจ็ต"
-  },
   "shell.card.deleteMany": {
     "other": "ลบ {count} วิดเจ็ต"
   },

@@ -118,10 +118,6 @@
     "one": "{count} વિજેટ કાપો",
     "other": "{count} વિજેટ કાપો"
   },
-  "shell.card.moveMany": {
-    "one": "{count} વિજેટ ખસેડો",
-    "other": "{count} વિજેટ ખસેડો"
-  },
   "shell.card.deleteMany": {
     "one": "{count} વિજેટ કાઢી નાખો",
     "other": "{count} વિજેટ કાઢી નાખો"

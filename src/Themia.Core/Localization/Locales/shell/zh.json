@@ -116,9 +116,6 @@
   "shell.card.cutMany": {
     "other": "剪切 {count} 个小组件"
   },
-  "shell.card.moveMany": {
-    "other": "移动 {count} 个小组件"
-  },
   "shell.card.deleteMany": {
     "other": "删除 {count} 个小组件"
   },
