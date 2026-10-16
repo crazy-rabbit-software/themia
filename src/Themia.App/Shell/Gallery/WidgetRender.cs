@@ -81,8 +81,8 @@ internal static class WidgetRender
             || !Enum.IsDefined(kind)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc] [--design k=v,...]");
             app.Exit();
             return true;
         }
@@ -116,15 +116,14 @@ internal static class WidgetRender
             try
             {
                 // The themed brushes follow the design's theme, not the application's: set both.
-                DesignApplier.Apply(new DesignState
+                // [S-6480] --design sets the look the cards are drawn with (a border, a radius, a fill).
+                var design = DesignArgs.From(args, RequestedTheme(args) switch
                 {
-                    Theme = RequestedTheme(args) switch
-                    {
-                        ApplicationTheme.Light => AppTheme.Light,
-                        ApplicationTheme.Dark => AppTheme.Dark,
-                        _ => AppTheme.System,
-                    },
+                    ApplicationTheme.Light => AppTheme.Light,
+                    ApplicationTheme.Dark => AppTheme.Dark,
+                    _ => AppTheme.System,
                 });
+                DesignApplier.Apply(design);
 
                 var reference = Array.IndexOf(args, "--reference") >= 0;
                 var (width, height) = PageSize(tiers);
@@ -161,7 +160,7 @@ internal static class WidgetRender
                 // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
                 AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
-                var host = new NoticeRender.RenderCardHost(ticker);
+                var host = new NoticeRender.RenderCardHost(ticker) { Design = design };
                 Place(page, host, kind, style, tiers, cards);
                 if (reference)
                 {

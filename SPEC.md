@@ -4151,6 +4151,16 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-824]** Border: style None/Solid/Dashed (3-on-2 stroke widths)/Dotted (round dots two widths
   apart), width 0..8, colour (empty = the theme's card stroke), opacity 0..1. Drawn as a shape over
   the content and inset with the gap; none on a transparent widget.
+- **[S-6481]** Every border setting shows (`DesignLook.Ink`). A colour of the user's own is drawn
+  exactly, opaque, and the border opacity fades the line once (the element's opacity, never also the
+  brush's). The theme's colour is Fluent's card hairline (`CardStrokeColorDefault`, [S-835]) for a
+  solid line up to 1px, and the strong stroke (`ControlStrongStrokeColorDefault`, #8BFFFFFF dark /
+  #72000000 light) for a heavier, dashed or dotted one. Drawn in the hairline's 6-10 %, a 4px,
+  dashed or faded line looked exactly like none, so width, style and opacity all seemed ignored.
+  The opacity never swaps the ink, so fading is monotone; at the 1px hairline it is subtle by nature.
+- **[S-6480]** `--widget-png … --design key=value,...` draws the cards with appearance values (`border`,
+  `borderWidth`, `borderOpacity`, `borderColor`, `radius`, `background`, `opacity`, `header`,
+  `headerOpacity`, `accent`, `font`, `preset`), so a look is checked without the settings window.
 - **[S-825]** Corner radius 0..32 on the fill, tint, border, content clip and edit outline.
 - **[S-826]** Font: `system` (Segoe UI Variable), `sans` (Arial), `serif` (Georgia), `mono` (Cascadia
   Mono, Consolas), or any installed family name; a value that is not a plausible family name is the

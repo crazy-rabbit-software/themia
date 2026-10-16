@@ -235,7 +235,7 @@ internal static class NoticeRender
     {
         public ScreenMetrics Metrics { get; } = new(1920, 1080);
 
-        public DesignState Design { get; } = new();
+        public DesignState Design { get; init; } = new();
 
         public Ticker Ticker => ticker;
 

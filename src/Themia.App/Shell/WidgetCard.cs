@@ -463,8 +463,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface
         if (border.Visible && (!_hidden || _host.EditMode))
         {
             _stroke.Visibility = Visibility.Visible;
-            _stroke.Stroke = DesignApplier.UserBrush(design.BorderColor)
-                ?? FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray);
+            // [S-6481] The user's colour exactly, else the theme stroke for this weight: the card
+            // hairline only for a solid 1px line, the strong stroke for anything heavier or broken.
+            var ink = DesignLook.Ink(border, design.BorderColor);
+            _stroke.Stroke = (ink.Colour is { } colour ? DesignApplier.UserBrush(HexColor.From(colour.R, colour.G, colour.B)) : null)
+                ?? FluentLayout.Themed(ink.ThemeKey ?? DesignLook.HairlineStrokeKey, Colors.Gray);
             _stroke.StrokeThickness = border.Thickness;
             _stroke.Opacity = border.Opacity;
 

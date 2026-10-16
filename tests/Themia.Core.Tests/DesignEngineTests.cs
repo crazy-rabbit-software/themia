@@ -189,6 +189,97 @@ public sealed class DesignEngineTests
         Assert.Equal(AppTheme.System, design.Theme);
     }
 
+    // ---- [S-6481] the border's ink -----------------------------------------------------------------
+
+    [Fact]
+    public void S6481_the_default_border_is_the_fluent_card_hairline()
+    {
+        var design = new DesignState();
+        var border = DesignLook.Border(WidgetSurface.Card, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
+
+        var ink = DesignLook.Ink(border, design.BorderColor);
+
+        Assert.Null(ink.Colour);
+        Assert.Equal(DesignLook.HairlineStrokeKey, ink.ThemeKey);
+    }
+
+    [Theory]
+    [InlineData(WidgetBorderStyle.Solid, 2)]
+    [InlineData(WidgetBorderStyle.Solid, 4)]
+    [InlineData(WidgetBorderStyle.Solid, 8)]
+    [InlineData(WidgetBorderStyle.Dashed, 1)]
+    [InlineData(WidgetBorderStyle.Dotted, 1)]
+    [InlineData(WidgetBorderStyle.Dashed, 4)]
+    public void S6481_a_theme_border_heavier_than_the_hairline_takes_the_strong_stroke(WidgetBorderStyle style, double width)
+    {
+        // CardStrokeColorDefault is a 6-10% overlay meant for a 1px line on Mica: a thicker or broken
+        // line drawn in it looked the same as none at all, so every width and style read alike.
+        var ink = DesignLook.Ink(DesignLook.Border(WidgetSurface.Card, style, width, 1), "");
+
+        Assert.Null(ink.Colour);
+        Assert.Equal(DesignLook.StrongStrokeKey, ink.ThemeKey);
+    }
+
+    [Theory]
+    [InlineData("#FF0000", 0xFF, 0x00, 0x00)]
+    [InlineData("#3ddc84", 0x3D, 0xDC, 0x84)]
+    [InlineData(" #000000 ", 0x00, 0x00, 0x00)]
+    public void S6481_a_colour_of_the_users_own_is_drawn_exactly(string hex, byte r, byte g, byte b)
+    {
+        foreach (var width in new[] { 1.0, 4.0 })
+        {
+            var ink = DesignLook.Ink(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Solid, width, 0.5), hex);
+            Assert.Equal(new RgbColor(r, g, b), ink.Colour);
+            Assert.Null(ink.ThemeKey);
+        }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("red")]
+    [InlineData("#12")]
+    [InlineData(null)]
+    public void S6481_no_or_a_bad_colour_is_the_themes(string? hex)
+    {
+        var ink = DesignLook.Ink(DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Solid, 1, 1), hex);
+        Assert.Null(ink.Colour);
+        Assert.Equal(DesignLook.HairlineStrokeKey, ink.ThemeKey);
+    }
+
+    [Theory]
+    [InlineData(0.0)]
+    [InlineData(0.25)]
+    [InlineData(0.5)]
+    [InlineData(1.0)]
+    public void S6481_opacity_is_carried_once_and_never_changes_the_ink(double opacity)
+    {
+        // The opacity is the element's (BorderLook.Opacity) and the ink is opaque or the theme's own,
+        // so the setting fades the line exactly once; it never swaps the hairline for the strong stroke.
+        var border = DesignLook.Border(WidgetSurface.Card, WidgetBorderStyle.Solid, 1, opacity);
+        Assert.Equal(opacity, border.Opacity, 3);
+        Assert.Equal(DesignLook.HairlineStrokeKey, DesignLook.Ink(border, "").ThemeKey);
+    }
+
+    [Theory]
+    [InlineData(WidgetBorderStyle.Solid, 4, 4.0, 0.0)]
+    [InlineData(WidgetBorderStyle.Dashed, 4, 12.0, 8.0)]
+    [InlineData(WidgetBorderStyle.Dotted, 2, 0.0, 4.0)]
+    public void S6481_dashes_keep_their_proportions_at_every_width(WidgetBorderStyle style, double width, double onDips, double offDips)
+    {
+        var border = DesignLook.Border(WidgetSurface.Card, style, width, 1);
+        Assert.Equal(width, border.Thickness);
+
+        if (border.Dashes.Count == 0)
+        {
+            Assert.Equal(0.0, offDips);
+            return;
+        }
+
+        // StrokeDashArray is in stroke widths: 3-on-2 at 4px is 12 DIPs on, 8 off.
+        Assert.Equal(onDips, border.Dashes[0] * border.Thickness);
+        Assert.Equal(offDips, border.Dashes[1] * border.Thickness);
+    }
+
     [Fact]
     public void S824_no_border_for_none_zero_width_or_a_transparent_widget()
     {

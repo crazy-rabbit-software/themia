@@ -35,6 +35,14 @@ public readonly record struct BorderLook(double Thickness, IReadOnlyList<double>
 }
 
 /// <summary>
+/// [S-6481] What a border is drawn in: a colour of the user's own, opaque (the border's opacity is
+/// the line's, applied once), or else a theme stroke named by its resource key.
+/// </summary>
+/// <param name="Colour">The user's colour, or null for the theme's.</param>
+/// <param name="ThemeKey">The theme brush when <paramref name="Colour"/> is null; otherwise null.</param>
+public readonly record struct BorderInk(RgbColor? Colour, string? ThemeKey);
+
+/// <summary>
 /// The pure half of the appearance engine: colour maths, clamps and the rules that turn a
 /// <see cref="DesignState"/> into what a card paints. The App half (<c>Shell/DesignApplier</c>)
 /// only turns these answers into brushes. [S-820]..[S-829]
@@ -171,6 +179,31 @@ public static class DesignLook
             WidgetBorderStyle.Dotted => new BorderLook(width, [0, 2], true, alpha),
             _ => new BorderLook(width, [], false, alpha),
         };
+    }
+
+    /// <summary>[S-6481] Fluent's card stroke: a 6-10% overlay for a 1px line, the default look's edge ([S-835]).</summary>
+    public const string HairlineStrokeKey = "CardStrokeColorDefaultBrush";
+
+    /// <summary>[S-6481] Fluent's strong stroke (a check box's outline, ~45-55%): a theme line that can be seen.</summary>
+    public const string StrongStrokeKey = "ControlStrongStrokeColorDefaultBrush";
+
+    /// <summary>
+    /// [S-6481] The border's ink. A colour of the user's own is drawn exactly. With the theme's
+    /// colour, the Fluent card is a solid 1px <see cref="HairlineStrokeKey"/>, and that is what a
+    /// solid line of up to 1px gets; a heavier or a dashed or dotted line — which Fluent never draws
+    /// round a card — takes <see cref="StrongStrokeKey"/>, because the hairline's few percent drawn
+    /// thicker or broken read exactly like no border at all, so every width and style looked alike.
+    /// The opacity is not part of the ink: it stays the line's own, so it fades without swapping.
+    /// </summary>
+    public static BorderInk Ink(BorderLook border, string? colourHex)
+    {
+        if (HexColor.TryParse(colourHex, out var r, out var g, out var b))
+        {
+            return new BorderInk(new RgbColor(r, g, b), null);
+        }
+
+        var hairline = border.Dashes.Count == 0 && border.Thickness <= 1;
+        return new BorderInk(null, hairline ? HairlineStrokeKey : StrongStrokeKey);
     }
 
     /// <summary>

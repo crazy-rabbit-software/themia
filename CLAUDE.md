@@ -34,6 +34,7 @@ Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light
            [--place-chosen] [--place-query t [--place-reply results|none|offline|error|searching]]   # place row [S-2847]
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc]
            # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
+           [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
