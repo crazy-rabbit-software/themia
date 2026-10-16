@@ -51,7 +51,7 @@ public static class SettingsTransfer
             }
 
             File.WriteAllText(temp, Serialize(state));
-            File.Move(temp, path, overwrite: true);
+            AtomicFile.Replace(temp, path);
             return null;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)

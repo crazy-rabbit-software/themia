@@ -125,7 +125,7 @@ public sealed class AccountStore
             try
             {
                 await File.WriteAllTextAsync(temp, json, CancellationToken.None).ConfigureAwait(false);
-                File.Move(temp, Path, overwrite: true);
+                Themia.Core.Storage.AtomicFile.Replace(temp, Path);
             }
             catch
             {

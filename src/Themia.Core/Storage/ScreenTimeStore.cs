@@ -245,7 +245,7 @@ public static class ScreenTimeStore
             }
 
             File.WriteAllText(temp, json);
-            File.Move(temp, path, overwrite: true);
+            AtomicFile.Replace(temp, path);
             return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

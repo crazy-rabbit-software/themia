@@ -630,7 +630,7 @@ public sealed class NoteStore
         try
         {
             File.WriteAllText(temp, content);
-            File.Move(temp, path, overwrite: true);
+            Themia.Core.Storage.AtomicFile.Replace(temp, path);
         }
         catch
         {

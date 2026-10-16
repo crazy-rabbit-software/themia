@@ -49,7 +49,7 @@ public sealed class BootGuard
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path) ?? ".");
             var temp = Path + ".tmp";
             File.WriteAllText(temp, attempts.ToString(CultureInfo.InvariantCulture));
-            File.Move(temp, Path, overwrite: true);
+            AtomicFile.Replace(temp, Path);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

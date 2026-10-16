@@ -801,7 +801,7 @@ public sealed class AppStateStore : IAsyncDisposable
             await File.WriteAllTextAsync(temp, json).ConfigureAwait(false);
 
             // Atomic swap: readers see either the old document or the new one, never a partial write.
-            File.Move(temp, _path, overwrite: true);
+            AtomicFile.Replace(temp, _path);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
         {

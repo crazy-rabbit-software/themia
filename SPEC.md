@@ -349,6 +349,13 @@ busy desktop ([S-6601]), Debug, private bytes.
 
 - **[S-40]** Writes are **atomic**: serialise to a sibling temp file, then move over the target, so a
   crash mid-write cannot leave a truncated document.
+- **[S-49]** The move over the target (`AtomicFile.Replace`, every store's atomic write: state,
+  notes, accounts, tasks, habits, screen time, sync vault, settings export, boot guard) is retried
+  on an access-denied or sharing/lock-violation error only, at most 5 attempts with a doubling pause
+  from 10 ms (150 ms in all), each refusal logged: an indexer or a virus scanner holding the fresh
+  file without delete sharing refuses the rename for a moment (seen as a flaky
+  `Access to the path is denied` in the note store's concurrent-writers test). Any other error, and
+  the last attempt's, is handled by the store as before.
 - **[S-41]** There is a **single writer**, and saves are coalesced — a drag that mutates geometry
   sixty times a second produces one write.
 - **[S-42]** `FlushAsync` takes the write gate *before* reading the pending snapshot, so a flush that

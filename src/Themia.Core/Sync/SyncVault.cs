@@ -425,7 +425,7 @@ public sealed class SyncVault
         {
             System.IO.Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllBytes(temp, sealedBytes);
-            File.Move(temp, path, overwrite: true);
+            Themia.Core.Storage.AtomicFile.Replace(temp, path);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
