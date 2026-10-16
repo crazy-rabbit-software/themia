@@ -193,7 +193,7 @@ internal sealed partial class GpuView
                 return;
             }
 
-            var plan = MeterFace.Plan(area, _config.ShowGraph, Formatting.Percent(1).Length, false, Fluent.Space2, MinChart,
+            var plan = MeterFace.Plan(area, _config.ShowGraph, HeroBound.Of(Formatting.Percent(1)), false, Fluent.Space2, MinChart,
                 _stacked ? FluentType.Subtitle : null);
             var side = plan.Arrangement == MeterFaceArrangement.Side;
             var alone = plan.Arrangement == MeterFaceArrangement.ReadingOnly;

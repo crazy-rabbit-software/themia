@@ -39,7 +39,7 @@ internal sealed class PingMeter : MeterPart
     public override WidgetKind Kind => WidgetKind.Ping;
 
     /// <summary>"999 ms".</summary>
-    public override double ReadingCharacters => Formatting.Latency(999).Length;
+    public override HeroBound Reading => HeroBound.Of(Formatting.Latency(999));
 
     /// <summary>[S-1172] Against the slowest answer on screen, as the original scaled it (floor 1 ms).</summary>
     public override ChartScale Scale => ChartScale.Peak(1);

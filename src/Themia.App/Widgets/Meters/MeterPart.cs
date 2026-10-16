@@ -33,10 +33,11 @@ internal abstract class MeterPart
     public abstract WidgetKind Kind { get; }
 
     /// <summary>
-    /// The widest reading this kind can produce, in characters ("100%" is 4, German "100 %" 5). The
-    /// kind's worst case, never the live text, so the number does not change size between two samples.
+    /// [S-3860] The widest reading this kind can produce ("100%", German "100 %"), its number, unit
+    /// and token counted apart at the sizes they are drawn. The kind's worst case, never the live
+    /// text, so the number does not change size between two samples.
     /// </summary>
-    public virtual double ReadingCharacters => Formatting.Percent(1).Length;
+    public virtual HeroBound Reading => HeroBound.Of(Formatting.Percent(1));
 
     /// <summary>[S-1124] What the top of the chart stands for.</summary>
     public virtual ChartScale Scale => ChartScale.Share;
@@ -61,10 +62,13 @@ internal abstract class MeterPart
 
     /// <summary>
     /// [S-1161] A short word on the reading's baseline after it, in the secondary colour behind the
-    /// kind's glyph (the disk meter's drive), or null. A kind with one counts both in
-    /// <see cref="ReadingCharacters"/>.
+    /// kind's glyph (the disk meter's drive), or null. A kind with one counts it in
+    /// <see cref="Reading"/> (<see cref="TokenCharacters"/>).
     /// </summary>
     public virtual string? Token => null;
+
+    /// <summary>The token as <see cref="MeterView"/> draws it: two spaces, the kind's glyph, a space, the word.</summary>
+    protected double TokenCharacters => Token is { } token ? 4 + token.Length : 0;
 
     /// <summary>
     /// [S-2504] [S-2513] The hub series this config shows: the one the state asks the hub for, so

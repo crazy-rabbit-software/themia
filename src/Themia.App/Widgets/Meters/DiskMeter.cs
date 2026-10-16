@@ -24,8 +24,12 @@ internal sealed class DiskMeter : MeterPart
 
     public override WidgetKind Kind => WidgetKind.Disk;
 
-    /// <summary>"1.2 MB/s", as the network meter's, and the drive after it.</summary>
-    public override double ReadingCharacters => 8 + 4 + (Token?.Length ?? 0);
+    /// <summary>
+    /// "1023 KB/s", as the network meter's, and the drive after it. [S-3860] Each run is counted at
+    /// the size it is drawn, so the rate is the step every meter's reading is at this tier; the drive
+    /// moves under the rate where it does not fit beside it.
+    /// </summary>
+    public override HeroBound Reading => HeroBound.Of(Formatting.Rate(1023 * 1024), TokenCharacters);
 
     /// <summary>[S-1161] "C:", or "All drives": which throughput this is, with no header to say so.</summary>
     public override string? Token => _config.Scope == DiskScope.AllDrives ? Str.WidgetsB_Disk_AllDrives.Text() : DiskRules.Instance(_root);

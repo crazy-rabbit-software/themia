@@ -20,7 +20,8 @@ public enum MeterFaceArrangement
 /// <param name="Reading">The reading's step.</param>
 /// <param name="ReadingColumn">The outer width of the reading's column (the whole box unless <see cref="MeterFaceArrangement.Side"/>).</param>
 /// <param name="GraphHeight">The history's height: everything the reading and the gap leave when stacked, the box's whole height beside it; 0 with none.</param>
-public readonly record struct MeterFacePlan(MeterFaceArrangement Arrangement, TypeStep Reading, double ReadingColumn, double GraphHeight)
+/// <param name="TokenBeside">[S-1161] The token stands on the reading's baseline; false puts it on its own line under the reading.</param>
+public readonly record struct MeterFacePlan(MeterFaceArrangement Arrangement, TypeStep Reading, double ReadingColumn, double GraphHeight, bool TokenBeside = true)
 {
     public bool Graph => Arrangement != MeterFaceArrangement.ReadingOnly;
 }
@@ -54,9 +55,10 @@ public static class MeterFace
     public const double SideColumnCap = 0.5;
 
     /// <summary>
-    /// The plan for a box of <paramref name="area"/>. <paramref name="readingCharacters"/> is the
-    /// widest reading in characters, its unit counted at the number's size (a bound, never the live
-    /// text, so the number does not change size between two samples); <paramref name="icon"/> a
+    /// The plan for a box of <paramref name="area"/>. <paramref name="bound"/> is the widest
+    /// reading, each run measured at the size it is drawn (the number at the step, the unit and the
+    /// token smaller); the token never shrinks the number, it moves under it ([S-1161]), so every
+    /// meter of a tier draws its number at one step; <paramref name="icon"/> a
     /// glyph before it (the battery's). <paramref name="gap"/> is the space between the reading and
     /// the history under it, <paramref name="graphFloor"/> the least history worth drawing. A
     /// <paramref name="fixedStep"/> keeps the reading at one step (a panel that names its adapter
@@ -65,13 +67,12 @@ public static class MeterFace
     public static MeterFacePlan Plan(
         WidgetArea area,
         bool graphOn,
-        double readingCharacters,
+        HeroBound bound,
         bool icon,
         double gap,
         double graphFloor,
         TypeStep? fixedStep = null)
     {
-        var characters = Math.Max(1, readingCharacters);
         const double inset = HeroLayout.SideInset;
         const double top = HeroLayout.TopInset;
 
@@ -91,11 +92,12 @@ public static class MeterFace
         if (graphOn && !tiny && area.Shape == AreaShape.Wide && area.WidthClass >= SizeClass.Expanded)
         {
             var column = Math.Round(Math.Clamp(
-                Math.Max(width * SideColumnShare, FluentType.EstimateWidth(FluentType.Title, characters) + (2 * inset)),
+                Math.Max(width * SideColumnShare, HeroLayout.ValueWidth(FluentType.Title, bound.Value, bound.Unit) + (2 * inset)),
                 0,
                 width * SideColumnCap));
-            var step = fixedStep ?? Reading(Math.Max(0, column - (2 * inset)), height, characters, icon, tier);
-            return new MeterFacePlan(MeterFaceArrangement.Side, step, column, height);
+            var room = Math.Max(0, column - (2 * inset));
+            var step = fixedStep ?? Reading(room, height, bound, icon, tier);
+            return new MeterFacePlan(MeterFaceArrangement.Side, step, column, height, TokenFits(step, room, bound, icon));
         }
 
         var floor = fixedStep ?? FluentType.Subtitle;
@@ -104,24 +106,41 @@ public static class MeterFace
         {
             var promised = Math.Max(graphFloor, Math.Round(height * GraphShare));
             var box = height - top - gap - promised;
-            var step = fixedStep ?? Reading(textWidth, box, characters, icon, tier);
-            return new MeterFacePlan(MeterFaceArrangement.Stacked, step, width, Math.Max(0, height - top - step.LineHeight - gap));
+            var step = fixedStep ?? Reading(textWidth, box, bound, icon, tier);
+            var beside = TokenFits(step, textWidth, bound, icon);
+
+            // A token that does not fit beside is the first line under the rate: its line comes out of the history.
+            var token = beside ? 0 : HeroLayout.TrailingStep(step).LineHeight;
+            return new MeterFacePlan(MeterFaceArrangement.Stacked, step, width, Math.Max(0, height - top - step.LineHeight - token - gap), beside);
         }
 
         if (graphOn || fixedStep is not null)
         {
             // The history is on but the tile is too small for it: still a chart widget's tile, so
             // the reading keeps the tier's step rather than becoming a poster.
-            return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, fixedStep ?? Reading(textWidth, height, characters, icon, tier), width, 0);
+            var step = fixedStep ?? Reading(textWidth, height, bound, icon, tier);
+            return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, step, width, 0, TokenFits(step, textWidth, bound, icon));
         }
 
         // No history at all: the reading is the whole widget, as the weather's is.
-        var alone = Reading(textWidth, height, characters, icon, FluentType.Display);
-        var room = icon ? textWidth - HeroLayout.IconSize(alone) - HeroLayout.IconGap : textWidth;
-        return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, HeroLayout.Grow(alone, room, height, characters, 0), width, 0);
+        var alone = Reading(textWidth, height, bound, icon, FluentType.Display);
+        var left = icon ? textWidth - HeroLayout.IconSize(alone) - HeroLayout.IconGap : textWidth;
+        var grown = HeroLayout.Grow(alone, left, height, bound.Value, bound.Unit);
+        return new MeterFacePlan(MeterFaceArrangement.ReadingOnly, grown, width, 0, TokenFits(grown, textWidth, bound, icon));
     }
 
+    /// <summary>
+    /// [S-1161] Whether the token still stands on the reading's baseline at <paramref name="step"/>
+    /// within <paramref name="width"/>; else it is a line of its own under the reading. The token
+    /// never shrinks the number: the number is the step every meter of the tier shares ([S-3860]).
+    /// </summary>
+    public static bool TokenFits(TypeStep step, double width, HeroBound bound, bool icon)
+        => bound.Token <= 0
+            || (icon ? HeroLayout.IconSize(step) + HeroLayout.IconGap : 0)
+                + HeroLayout.ValueWidth(step, bound.Value, bound.Unit)
+                + FluentType.EstimateWidth(HeroLayout.TrailingStep(step), bound.Token) <= width + 1e-9;
+
     /// <summary>[S-3860] The reading's step for a box: the hero fit from Subtitle (never smaller: the reading is the point of the tile) up to <paramref name="ceiling"/>.</summary>
-    public static TypeStep Reading(double width, double height, double characters, bool icon, TypeStep ceiling)
-        => HeroLayout.FitBeside(width, height, characters, 0, FluentType.Subtitle, ceiling, icon);
+    public static TypeStep Reading(double width, double height, HeroBound bound, bool icon, TypeStep ceiling)
+        => HeroLayout.FitBeside(width, height, bound.Value, bound.Unit, FluentType.Subtitle, ceiling, icon);
 }

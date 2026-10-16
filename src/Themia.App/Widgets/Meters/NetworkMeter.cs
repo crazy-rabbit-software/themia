@@ -13,8 +13,8 @@ internal sealed class NetworkMeter : MeterPart
 {
     public override WidgetKind Kind => WidgetKind.Network;
 
-    /// <summary>"1.2 MB/s".</summary>
-    public override double ReadingCharacters => 8;
+    /// <summary>"1023 KB/s": the widest a rate is written.</summary>
+    public override HeroBound Reading => HeroBound.Of(Formatting.Rate(1023 * 1024));
 
     /// <summary>[S-1124] Against the visible window's peak, never the session's; floor 1 KB/s.</summary>
     public override ChartScale Scale => ChartScale.Peak(Sources.NetworkChartFloor);

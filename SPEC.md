@@ -1796,7 +1796,10 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   or beside a chart. A formatted reading is split for the readout by `HeroLayout.Split`: the
   leading figure (digits of any script, `.` `,` and the Arabic separators) and the unit after it
   ("42" + "%", "1.2" + " MB/s"); a text that does not start with a figure and a unit ("--", "%42",
-  a direction mark, "1 234 ms") is drawn whole, never reordered.
+  a direction mark, "1 234 ms") is drawn whole, never reordered. The fit measures a worst-case
+  reading per run as it is drawn (`HeroBound`: the number at the step, the unit at the unit's
+  step, a token at the token's), never all of it at the number's size: counted that way the disk's
+  "1.2 MB/s C:" fell to Subtitle where every other meter stood at Title.
 - **[S-3861]** **Detail widgets never end in an empty band** (user decision 2026-10-12, one rule
   for all eight): what the ladder's rungs leave goes first to the hero (to the tier's step; past
   it to Display and 1.5× only when every fact is shown and there is no list), a list is as tall as
@@ -3059,7 +3062,10 @@ they show the label, the reading and the history only ([S-1762]).
   "USB Drive (E:)"), "C:" for a drive the walk did not list, "All drives" for every drive. The meter
   starts headerless ([S-700]), so the reading names its drive itself, at every size: the drive's
   letter ("C:", "All drives" for every drive) in the secondary colour on the reading's baseline,
-  after the rate, as the hero readout's token ([S-667]); the reading's width bound counts it.
+  after the rate, as the hero readout's token ([S-667]); the reading's width bound counts it. The
+  drive never shrinks the rate: the rate is at the step every meter's reading is at that tier
+  ([S-3860], Memory's percentage), and where the drive does not fit beside it at that step it is
+  the line under the rate (its line taken from the history).
 - **[S-1162]** Read and write rates are per drive from one shared PDH query
   (`\LogicalDisk(*)\Disk Read|Write Bytes/sec`, matched by letter ignoring case; `_Total` and folder
   mounts left out). A drive the counters do not list has no rate, never the system total (original

@@ -15,7 +15,10 @@ public sealed class MeterFaceTests
     private const double Floor = 24;
 
     private static MeterFacePlan Plan(double width, double height, bool graph = true, TypeStep? fixedStep = null, bool icon = false)
-        => MeterFace.Plan(new WidgetArea(width, height), graph, 4, icon, Gap, Floor, fixedStep);
+        => MeterFace.Plan(new WidgetArea(width, height), graph, Percent, icon, Gap, Floor, fixedStep);
+
+    // The bound the existing cases were written against: four characters at the number's size.
+    private static readonly HeroBound Percent = new(4, 0);
 
     [Fact]
     public void S1762_a_tiny_tile_is_the_reading_alone_filling_it()
@@ -25,7 +28,7 @@ public sealed class MeterFaceTests
         Assert.Equal(MeterFaceArrangement.ReadingOnly, plan.Arrangement);
         Assert.False(plan.Graph);
         Assert.Equal(0, plan.GraphHeight);
-        Assert.Equal(MeterFace.Reading(120 - (2 * Inset), 76, 4, false, FluentType.Title), plan.Reading);
+        Assert.Equal(MeterFace.Reading(120 - (2 * Inset), 76, Percent, false, FluentType.Title), plan.Reading);
     }
 
     [Theory]
@@ -81,7 +84,7 @@ public sealed class MeterFaceTests
     public void S1762_without_the_history_the_reading_fills_the_tile(double width, double height)
     {
         var plan = Plan(width, height, graph: false);
-        var fitted = MeterFace.Reading(width - (2 * Inset), height, 4, false, FluentType.Display);
+        var fitted = MeterFace.Reading(width - (2 * Inset), height, Percent, false, FluentType.Display);
 
         Assert.Equal(MeterFaceArrangement.ReadingOnly, plan.Arrangement);
         Assert.Equal(HeroLayout.Grow(fitted, width - (2 * Inset), height, 4, 0), plan.Reading);
@@ -119,7 +122,7 @@ public sealed class MeterFaceTests
     [Fact]
     public void S1762_an_unmeasured_box_stacks_without_a_size()
     {
-        var plan = MeterFace.Plan(default, true, 4, false, Gap, Floor);
+        var plan = MeterFace.Plan(default, true, Percent, false, Gap, Floor);
 
         Assert.Equal(MeterFaceArrangement.Stacked, plan.Arrangement);
         Assert.Equal(FluentType.Subtitle, plan.Reading);
@@ -151,5 +154,62 @@ public sealed class MeterFaceTests
         Assert.True(badged.Reading.FontSize <= bare.Reading.FontSize);
         Assert.True(HeroLayout.IconSize(badged.Reading) + HeroLayout.IconGap + FluentType.EstimateWidth(badged.Reading, 4) <= 160 - (2 * Inset) + 1e-6
             || badged.Reading == FluentType.Subtitle);
+    }
+
+    // The seven tiers as a meter is given them: under a header (Memory, CPU) and headerless (Disk, [S-700]).
+    public static TheoryData<double, double> Tiers => new()
+    {
+        { 120, 76 }, { 200, 106 }, { 320, 196 }, { 480, 116 }, { 200, 356 }, { 560, 376 }, { 800, 516 },
+        { 120, 120 }, { 200, 150 }, { 320, 240 }, { 480, 160 }, { 200, 400 }, { 560, 420 }, { 800, 560 },
+    };
+
+    /// <summary>The disk's widest reading: "1023 KB/s", and its drive token ("  ", the glyph, " C:").</summary>
+    private static HeroBound Disk => HeroBound.Of(Formatting.Rate(1023 * 1024), 4 + "C:".Length);
+
+    [Theory]
+    [MemberData(nameof(Tiers))]
+    public void S3860_the_disk_rate_is_drawn_at_the_step_memorys_percentage_is(double width, double height)
+    {
+        // Regression: the disk counted "1.2 MB/s" and its drive all at the number's size (14
+        // characters), so its rate fell to Subtitle where every other meter's reading is Title.
+        var area = new WidgetArea(width, height);
+        var memory = MeterFace.Plan(area, true, HeroBound.Of(Formatting.Percent(1)), false, Gap, Floor);
+        var disk = MeterFace.Plan(area, true, Disk, false, Gap, Floor);
+
+        if (width - (2 * Inset) < HeroLayout.ValueWidth(memory.Reading, Disk.Value, Disk.Unit))
+        {
+            // XS (88 of text): "1023 KB/s" cannot stand at Title; it steps down rather than clip.
+            Assert.Equal(FluentType.Subtitle, disk.Reading);
+            return;
+        }
+
+        Assert.Equal(memory.Reading, disk.Reading);
+        Assert.Equal(memory.Arrangement, disk.Arrangement);
+        Assert.Equal(memory.ReadingColumn, disk.ReadingColumn);
+    }
+
+    [Theory]
+    [MemberData(nameof(Tiers))]
+    public void S1161_the_drive_token_stands_beside_the_rate_only_where_it_fits_else_under_it(double width, double height)
+    {
+        var plan = MeterFace.Plan(new WidgetArea(width, height), true, Disk, false, Gap, Floor);
+        var text = plan.ReadingColumn - (2 * Inset);
+        var line = HeroLayout.ValueWidth(plan.Reading, Disk.Value, Disk.Unit) + FluentType.EstimateWidth(HeroLayout.TrailingStep(plan.Reading), Disk.Token);
+
+        Assert.Equal(line <= text + 1e-6, plan.TokenBeside);
+
+        if (plan.Arrangement == MeterFaceArrangement.Stacked && !plan.TokenBeside)
+        {
+            // The token's own line under the rate comes out of the history, never past the card's edge.
+            Assert.Equal(height, Top + plan.Reading.LineHeight + HeroLayout.TrailingStep(plan.Reading).LineHeight + Gap + plan.GraphHeight, 6);
+        }
+    }
+
+    [Fact]
+    public void S3860_a_bound_counts_the_number_and_its_unit_apart()
+    {
+        Assert.Equal(new HeroBound(3, 1, 0), HeroBound.Of("100%"));
+        Assert.Equal(new HeroBound(4, 5, 6), HeroBound.Of("1023 KB/s", 6));
+        Assert.Equal(new HeroBound(2, 0, 0), HeroBound.Of("--"));
     }
 }

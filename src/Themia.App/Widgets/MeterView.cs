@@ -64,6 +64,8 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     // the text block at all: re-applying a font size is a layout invalidation the tile does not need.
     private TypeStep? _heroStep;
     private bool _badged;
+    private bool _tokenBeside = true;
+    private readonly Microsoft.UI.Xaml.Documents.Run _tokenGap;
     private string _shown = string.Empty;
     private string? _token;
 
@@ -82,6 +84,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _part = MeterPart.For(kind);
         _config = WidgetConfig.CreateDefault(kind);
         _band = new SparkBand(60, _part.Scale);
+        _tokenGap = WidgetParts.Run("  ", _tokenBrush);
 
         _reading.SetValue("--", string.Empty, false);
 
@@ -160,7 +163,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
             return;
         }
 
-        var plan = MeterFace.Plan(_area, _graph, _part.ReadingCharacters, _part.HasBadge, Fluent.Space2, GraphFloor);
+        var plan = MeterFace.Plan(_area, _graph, _part.Reading, _part.HasBadge, Fluent.Space2, GraphFloor);
         var side = plan.Arrangement == MeterFaceArrangement.Side;
         var alone = plan.Arrangement == MeterFaceArrangement.ReadingOnly;
 
@@ -184,10 +187,15 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // [S-1824] Edge to edge either way; beside the reading its column's own inset separates the two.
         _band.Margin = side ? new Thickness(0) : new Thickness(0, Fluent.Space2, 0, 0);
 
-        if (plan.Reading != _heroStep)
+        // [S-1161] The token on the reading's baseline where it fits, else on its own line under it.
+        if (plan.Reading != _heroStep || plan.TokenBeside != _tokenBeside)
         {
             _heroStep = plan.Reading;
-            _reading.Lay(plan.Reading, _badged, trailingBeside: true, linesBeside: false);
+            _tokenBeside = plan.TokenBeside;
+
+            // Beside, two spaces part it from the unit; under, it starts at the readout's left edge.
+            _tokenGap.Text = plan.TokenBeside ? "  " : string.Empty;
+            _reading.Lay(plan.Reading, _badged, trailingBeside: plan.TokenBeside, linesBeside: false);
         }
     }
 
@@ -235,7 +243,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         // The kind's glyph before the word, so "C:" does not read as the end of the unit.
         _reading.SetTrailing(token is null
             ? []
-            : [WidgetParts.Run("  ", _tokenBrush), WidgetParts.GlyphRun(WidgetCatalog.Definition(_kind).Glyph, _tokenBrush), WidgetParts.Run(" " + token, _tokenBrush)]);
+            : [_tokenGap, WidgetParts.GlyphRun(WidgetCatalog.Definition(_kind).Glyph, _tokenBrush), WidgetParts.Run(" " + token, _tokenBrush)]);
         _heroStep = null;
     }
 
