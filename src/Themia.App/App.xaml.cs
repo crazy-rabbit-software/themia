@@ -146,6 +146,12 @@ public partial class App : Application
             return;
         }
 
+        // And the edit-mode snap grid ([S-06c]).
+        if (Shell.Gallery.GridRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And what a view switch costs, and whether it leaks ([S-1883]).
         if (Shell.Gallery.SwitchCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

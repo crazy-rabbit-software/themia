@@ -382,10 +382,7 @@ internal sealed partial class DesktopWindow
         Bottom = (int)Math.Round(r.Y + r.Height),
     };
 
-    /// <summary>
-    /// [S-06a] The snap grid, drawn only while editing. One <see cref="Path"/> holding every line
-    /// rather than a few thousand rectangles: the overlay is a hint, not a scene graph.
-    /// </summary>
+    /// <summary>[S-06a]/[S-06c] The snap grid, drawn only while editing, on the surface's own pixels.</summary>
     private void DrawGridOverlay()
     {
         var metrics = Metrics;
@@ -395,22 +392,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var (cols, rows) = GridGeometry.GridDims(metrics);
-        var group = new GeometryGroup();
-
-        for (var c = 1; c < cols; c++)
-        {
-            var x = Math.Round(c * metrics.Width / cols) + 0.5;
-            group.Children.Add(new LineGeometry { StartPoint = new Point(x, 0), EndPoint = new Point(x, metrics.Height) });
-        }
-
-        for (var r = 1; r < rows; r++)
-        {
-            var y = Math.Round(r * metrics.Height / rows) + 0.5;
-            group.Children.Add(new LineGeometry { StartPoint = new Point(0, y), EndPoint = new Point(metrics.Width, y) });
-        }
-
-        _gridOverlay.Data = group;
+        _gridOverlay.Draw(metrics, RasterScale);
         _gridOverlay.Visibility = Visibility.Visible;
     }
 }

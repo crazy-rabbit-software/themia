@@ -241,6 +241,39 @@ public class GridGeometryTests
     }
 
     [Fact]
+    public void S06c_every_fifth_line_from_the_monitor_edge_is_major()
+    {
+        Assert.Equal(5, GridGeometry.MajorEvery);
+        Assert.True(GridGeometry.IsMajorLine(0));
+        Assert.True(GridGeometry.IsMajorLine(5));
+        Assert.True(GridGeometry.IsMajorLine(190));
+        Assert.False(GridGeometry.IsMajorLine(1));
+        Assert.False(GridGeometry.IsMajorLine(4));
+        Assert.False(GridGeometry.IsMajorLine(6));
+    }
+
+    [Theory]
+    [InlineData(100.0, 1.0, 1, 100.5)]   // odd width: centred on a pixel
+    [InlineData(100.0, 1.0, 2, 100.0)]   // even width: centred on a pixel edge
+    [InlineData(100.0, 1.5, 1, 150.5 / 1.5)]
+    [InlineData(100.0, 1.5, 4, 150.0 / 1.5)]
+    [InlineData(10.2, 2.0, 2, 10.0)]
+    [InlineData(10.0, 0.0, 1, 10.5)]     // a bad scale counts as 1
+    public void S06c_a_line_covers_whole_physical_pixels(double dip, double scale, int widthPx, double expected)
+        => Assert.Equal(expected, GridGeometry.CrispLine(dip, scale, widthPx), 9);
+
+    [Theory]
+    [InlineData(1.0, 1, 2)]
+    [InlineData(1.25, 1, 2)]
+    [InlineData(1.5, 2, 3)]
+    [InlineData(2.0, 2, 3)]
+    [InlineData(3.0, 3, 4)]
+    [InlineData(4.0, 4, 6)]
+    [InlineData(0.0, 1, 2)]
+    public void S06c_the_major_line_is_wider_than_the_minor(double scale, int minor, int major)
+        => Assert.Equal((minor, major), GridGeometry.LineWidthsPx(scale));
+
+    [Fact]
     public void GridDims_never_returns_a_degenerate_grid_for_a_degenerate_screen()
     {
         var (cols, rows) = GridGeometry.GridDims(new ScreenMetrics(0, 0));

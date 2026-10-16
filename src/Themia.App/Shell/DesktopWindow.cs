@@ -38,7 +38,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly AppHost _host;
     private readonly Window _window;
     private readonly Canvas _widgetLayer;
-    private readonly Path _gridOverlay;
+    private readonly SnapGridOverlay _gridOverlay;
     private readonly EditBar _toolbar;
 
     /// <summary>[S-3707] The selected widgets' properties strip, on its own layer over the cards and under the edit bar.</summary>
@@ -75,18 +75,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
         _widgetLayer = new Canvas();
 
-        _gridOverlay = new Path
-        {
-            // Tertiary text, not a control stroke: the stroke brushes are low-alpha overlays meant
-            // for an opaque window, and over a transparent surface they disappear entirely.
-            // Kept very faint because the mesh is fine (~10px cells); at a heavier alpha this many
-            // lines reads as a grey wash over the desktop rather than as a grid.
-            Stroke = Brush("TextFillColorTertiaryBrush", Colors.Gray),
-            StrokeThickness = 1,
-            Opacity = 0.18,
-            IsHitTestVisible = false,
-            Visibility = Visibility.Collapsed,
-        };
+        _gridOverlay = new SnapGridOverlay { Visibility = Visibility.Collapsed };
 
         _toolbar = BuildToolbar();
         _properties = BuildProperties();

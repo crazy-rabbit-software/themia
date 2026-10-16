@@ -64,6 +64,12 @@ Sections, grouped by area (file order below; search for the heading).
   follows the display. At that density the overlay stroke has to be very faint, or the mesh reads as
   a grey wash over the desktop rather than as a grid.
 - **[S-06a]** The cell overlay is drawn only in edit mode, and only when `gridSnap` is on.
+- **[S-06c]** Every **5th** line (`GridGeometry.MajorEvery`), counted from the monitor's top-left
+  edge (the origin the snap rounds from), is a **major** line: wider (`LineWidthsPx`: minor about
+  1 DIP, major half as wide again, at least one physical pixel more) and a little stronger (0.26
+  against 0.18 opacity), in the same theme brush. Purely visual: snapping stays on every line. Each
+  line is placed on whole physical pixels (`CrispLine`) so it stays sharp at any DPI. The overlay is
+  two geometry paths, rebuilt only on layout. `--grid-png <outDir>` renders it in both themes.
 
 ## Constraints
 

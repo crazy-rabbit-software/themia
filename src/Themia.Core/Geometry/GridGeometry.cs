@@ -34,6 +34,41 @@ public static class GridGeometry
         return (cols, rows);
     }
 
+    /// <summary>
+    /// [S-06c] Every this many cells the overlay draws a heavier line, so the fine mesh can be
+    /// counted at a glance. Purely visual: snapping stays on every line.
+    /// </summary>
+    public const int MajorEvery = 5;
+
+    /// <summary>
+    /// [S-06c] Whether grid line <paramref name="index"/> (counted from the monitor's top-left edge,
+    /// the origin the snap rounds from) is a major line.
+    /// </summary>
+    public static bool IsMajorLine(int index) => index % MajorEvery == 0;
+
+    /// <summary>
+    /// [S-06c] Where to centre an overlay line of <paramref name="widthPx"/> physical pixels so it
+    /// covers whole pixels: the grid position <paramref name="dip"/> rounded to a pixel edge (odd
+    /// widths) or a pixel centre (even widths), back in DIPs. A non-positive scale counts as 1.
+    /// </summary>
+    public static double CrispLine(double dip, double scale, int widthPx)
+    {
+        var s = scale > 0 && double.IsFinite(scale) ? scale : 1;
+        var half = (widthPx % 2) / 2.0;
+        return (Math.Round((dip * s) - half) + half) / s;
+    }
+
+    /// <summary>
+    /// [S-06c] The overlay's line widths in physical pixels: the minor line about one DIP (at least a
+    /// pixel), the major line half as wide again, but always at least a pixel wider. Twice the width
+    /// read as loud at 150 %.
+    /// </summary>
+    public static (int Minor, int Major) LineWidthsPx(double scale)
+    {
+        var minor = Math.Max(1, (int)Math.Round(scale > 0 && double.IsFinite(scale) ? scale : 1));
+        return (minor, minor + Math.Max(1, minor / 2));
+    }
+
     /// <summary>[S-08] The pixel floor expressed as a fraction of the given screen.</summary>
     public static (double MinW, double MinH) MinFraction(ScreenMetrics screen)
     {
