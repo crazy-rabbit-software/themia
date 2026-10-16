@@ -38,11 +38,13 @@ public sealed class WidgetPartsTests
     }
 
     [Fact]
-    public void S667_the_glyph_grows_with_the_value_within_24_to_72()
+    public void S667_S659_the_glyph_grows_with_the_value_from_24()
     {
         Assert.Equal(24, HeroLayout.IconSize(FluentType.Subtitle));
-        Assert.Equal(72, HeroLayout.IconSize(FluentType.Scaled(FluentType.Display, 3)));
         Assert.True(HeroLayout.IconSize(FluentType.TitleLarge) < HeroLayout.IconSize(FluentType.Display));
+
+        // [S-659] No ceiling past the ramp: a filled reading keeps its glyph in proportion.
+        Assert.Equal(0.8 * 3 * FluentType.Display.FontSize, HeroLayout.IconSize(FluentType.Scaled(FluentType.Display, 3)), 6);
     }
 
     [Fact]

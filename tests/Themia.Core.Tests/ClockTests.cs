@@ -233,10 +233,11 @@ public class ClockFormatterTests
     public void S1483_a_long_meridiem_takes_its_width_from_the_ladder()
     {
         // Regression: the ladder counted every marker as "PM", so Tamil's "பிற்பகல்" clipped a tall clock.
-        Assert.Equal(3, ClockFormatter.MeridiemCharacters(Locale.En, 0.45, 3));
-        // (2 + 1) × 0.4 ties the 1.2 floor only in exact arithmetic; in doubles it is 1.2000000000000002.
-        Assert.Equal(1.2, ClockFormatter.MeridiemCharacters(Locale.En, 0.4, 1.2), 6);
-        Assert.Equal(9 * 0.4, ClockFormatter.MeridiemCharacters(Locale.Ta, 0.4, 1.2), 6);
-        Assert.True(ClockFormatter.MeridiemCharacters(Locale.Ta, 0.45, 3) > 3);
+        Assert.Equal("AM", ClockFormatter.WidestMeridiem(Locale.En));
+        Assert.True(HeroFit.Ems(ClockFormatter.WidestMeridiem(Locale.Ta)) > 2 * HeroFit.Ems("PM"));
+
+        var english = HeroFit.Row(288, 400, false, ClockFormatter.WidestMeridiem(Locale.En), 4);
+        var tamil = HeroFit.Row(288, 400, false, ClockFormatter.WidestMeridiem(Locale.Ta), 4);
+        Assert.True(tamil.Time.FontSize < english.Time.FontSize);
     }
 }

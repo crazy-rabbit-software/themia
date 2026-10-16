@@ -545,15 +545,15 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
         var showIcon = ShowsIcon(width, FluentType.Subtitle);
 
-        TypeStep Pick(double h)
+        // [S-659] The ramp to Display, then filled past it: the glyph, the number and its unit, and
+        // the condition's width when it stands beside, measured together.
+        TypeStep Pick(double h, bool aside)
         {
             var first = HeroLayout.Fit(width, h, ReadingCharacters, UnitCharacters, FluentType.Subtitle, FluentType.Display);
             var room = showIcon ? width - HeroLayout.IconSize(first) - HeroLayout.IconGap : width;
             var fitted = HeroLayout.Fit(room, h, ReadingCharacters, UnitCharacters, FluentType.Subtitle, FluentType.Display);
-
-            // Past Display on a large tile; the condition's width is held back for it to sit beside.
-            var aside = FluentType.EstimateWidth(FluentType.Body, _condition.Text.Length) + HeroLayout.BesideGap;
-            return HeroLayout.Grow(fitted, room - aside, h, ReadingCharacters, UnitCharacters);
+            var besideWidth = aside ? FluentType.EstimateWidth(FluentType.Body, _condition.Text.Length) + HeroLayout.BesideGap : 0;
+            return HeroLayout.Fill(fitted, width, h, ReadingCharacters, UnitCharacters, showIcon, besideWidth);
         }
 
         // The caption lines that stand with the reading: the sky, then today's range and the
@@ -562,13 +562,17 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
             + (_highLow.Visibility == Visibility.Visible ? FluentType.Caption.LineHeight : 0)
             + (_feels.Visibility == Visibility.Visible ? FluentType.Caption.LineHeight : 0);
 
-        var step = Pick(height);
+        // [S-646] Beside where they fit there, under where that draws the reading larger.
+        var step = Pick(height, aside: true);
         var readingRoom = showIcon ? width - HeroLayout.IconSize(step) - HeroLayout.IconGap : width;
         var beside = ConditionFitsBeside(readingRoom, step, lines);
+        // The plan's room already holds today's range and the Feels token; only the sky's line is the reading's to give.
+        var under = Pick(height - (_condition.Text.Length > 0 ? FluentType.Body.LineHeight : 0), aside: false);
 
-        if (!beside)
+        if (!beside || under.FontSize > step.FontSize)
         {
-            step = Pick(height - FluentType.Body.LineHeight);
+            step = under;
+            beside = false;
         }
 
         _hero.Lay(step, showIcon, trailingBeside: true, linesBeside: beside);

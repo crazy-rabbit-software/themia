@@ -35,6 +35,13 @@ public static class HeroLayout
     /// </summary>
     public static TypeStep UnitStep(TypeStep value)
     {
+        // [S-659] Past the ramp the unit grows with the value from Title (Display's unit), so a
+        // filled reading's "°C" does not stay a 28px footnote beside a 200px number.
+        if (value.FontSize > FluentType.Display.FontSize)
+        {
+            return FluentType.Scaled(FluentType.Title, value.FontSize / FluentType.Display.FontSize) with { SemiBold = false };
+        }
+
         var wanted = value.FontSize * UnitShare;
         var chosen = FluentType.Caption;
 
@@ -56,9 +63,16 @@ public static class HeroLayout
     public static TypeStep TrailingStep(TypeStep value)
         => value.FontSize >= FluentType.Title.FontSize ? FluentType.BodyLarge : FluentType.Body;
 
-    /// <summary>The leading glyph's size: it grows with the value, from 24 to 72, so it reads as the condition and not a bullet.</summary>
+    /// <summary>
+    /// The leading glyph's size: it grows with the value, 0.8 of it and never under 24, so it reads
+    /// as the condition and not a bullet. [S-659] No ceiling: on the ramp it tops out at 54 beside
+    /// Display, and past it a filled reading keeps its glyph in proportion.
+    /// </summary>
     public static double IconSize(TypeStep value)
-        => Math.Clamp(value.FontSize * 0.8, 24, 72);
+        => Math.Max(24, value.FontSize * IconShare);
+
+    /// <summary>The glyph against the value's size.</summary>
+    private const double IconShare = 0.8;
 
     /// <summary>
     /// How wide the value and its unit are at a step: the value's characters at the step, the
@@ -117,6 +131,33 @@ public static class HeroLayout
         var byHeight = height / FluentType.Display.LineHeight;
         var factor = Math.Min(MaxGrowth, Math.Min(byWidth, byHeight));
         return factor > 1 ? FluentType.Scaled(FluentType.Display, factor) : FluentType.Display;
+    }
+
+    /// <summary>
+    /// [S-659] Up the ramp's last gap and past it with no ceiling, for a reading that is the whole
+    /// tile (the temperature): once <paramref name="step"/> is TitleLarge (as the clock scales from
+    /// it, [S-641]), the largest size at which the glyph (when
+    /// <paramref name="icon"/>), the value, its unit and <paramref name="beside"/> DIPs of what stands
+    /// beside it (the condition, with its gap) fill <paramref name="width"/>, and a
+    /// <see cref="HeroFit.Leading"/> line fits <paramref name="height"/>. Every part grows with the
+    /// value, so the room is solved once rather than measured at one size and drawn at another.
+    /// A smaller step, or a box that has no room for more, comes back unchanged.
+    /// </summary>
+    public static TypeStep Fill(TypeStep step, double width, double height, double valueCharacters, double unitCharacters, bool icon, double beside)
+    {
+        if (step.FontSize < FluentType.TitleLarge.FontSize || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0)
+        {
+            return step;
+        }
+
+        // Per DIP of the value's size: its characters, the unit's at its widest share, the glyph's.
+        var perSize = FluentType.EstimateWidth(new TypeStep(1, 1, true), valueCharacters)
+            + (unitCharacters > 0 ? FluentType.EstimateWidth(new TypeStep(UnitShare, 1, false), unitCharacters) : 0)
+            + (icon ? IconShare : 0);
+        var fixedWidth = (icon ? IconGap : 0) + Math.Max(0, beside);
+        var size = Math.Min((width - fixedWidth) / perSize, height / HeroFit.Leading);
+
+        return size > step.FontSize ? new TypeStep(size, size * HeroFit.Leading, true) : step;
     }
 
     /// <summary>

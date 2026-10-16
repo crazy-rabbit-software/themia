@@ -75,8 +75,8 @@ public static class WeatherNowStyles
     }
 
     /// <summary>
-    /// [S-6162] The temperature alone, as large as the box holds it: the ramp while it is small, then
-    /// Display scaled to the box, as the minimal clock fills its tile ([S-6014]).
+    /// [S-6162] [S-659] The temperature alone, as large as the box holds it: the ramp while it is
+    /// small, then filled past Display, as the minimal clock fills its tile ([S-6014]).
     /// </summary>
     public static TypeStep Minimal(WidgetArea slot)
     {
@@ -87,21 +87,13 @@ public static class WeatherNowStyles
         }
 
         var fitted = HeroLayout.Fit(box.Width, box.Height, ValueCharacters, UnitCharacters, FluentType.Body, FluentType.Display);
-        if (fitted.FontSize < FluentType.Display.FontSize)
-        {
-            return fitted;
-        }
-
-        var byWidth = box.Width / HeroLayout.ValueWidth(FluentType.Display, ValueCharacters, UnitCharacters);
-        var byHeight = box.Height / FluentType.Display.LineHeight;
-        var factor = Math.Min(byWidth, byHeight);
-        return factor > 1 ? FluentType.Scaled(FluentType.Display, factor) : FluentType.Display;
+        return HeroLayout.Fill(fitted, box.Width, box.Height, ValueCharacters, UnitCharacters, icon: false, beside: 0);
     }
 
-    /// <summary>The temperature's step in a box: the ramp to Display, then up to <see cref="HeroLayout.MaxGrowth"/>.</summary>
+    /// <summary>[S-659] The temperature's step in a box: the ramp to Display, then filled past it.</summary>
     private static TypeStep Step(double width, double height)
     {
         var step = HeroLayout.Fit(width, height, ValueCharacters, UnitCharacters, FluentType.Subtitle, FluentType.Display);
-        return HeroLayout.Grow(step, width, height, ValueCharacters, UnitCharacters);
+        return HeroLayout.Fill(step, width, height, ValueCharacters, UnitCharacters, icon: false, beside: 0);
     }
 }

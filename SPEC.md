@@ -432,8 +432,8 @@ busy desktop ([S-6601]), Debug, private bytes.
   the alignment and the zone ([S-5303]).
 - **[S-6012]** **Flip**: a split-flap card per part of the time (hours, minutes, and seconds when
   shown), side by side, one above the other in a tall column, as large as the face's room allows;
-  a rounded card in the subtle fill with a hairline split across its middle, the digits the
-  largest step that fits ([S-641]), AM/PM a caption in the hours card's corner (left out on a card
+  a rounded card in the subtle fill with a hairline split across its middle, the digits as large
+  as the card's figure share holds "88" ([S-659]), AM/PM a caption in the hours card's corner (left out on a card
   under 96 DIPs). A card whose digits change on a tick turns over (folds away, 110 ms, and the new
   digits fold in, 170 ms); a config, language or size change redraws without a turn, and nothing
   turns while Windows' animation effects are off ([S-1010]). One card implementation
@@ -1839,6 +1839,28 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   price any symbol could have, and the change, currency and session badge go under it when they do
   not fit beside it. The badge is a grid so its label ends in an ellipsis.
 - **[S-658]** A forecast row narrower than 160px is the day and its high; the icon and the low go.
+- **[S-659]** **A readout that is the whole tile fills it** (`HeroFit`; user request 2026-10-17: the
+  clock and the weather left a wide band between their content and the card's edge). The clock's
+  time (Digital, Stacked, Minimal, and the Flip cards' digits) and the current weather's
+  temperature (every style) are measured by their glyphs, not by 0.58em a character:
+  `HeroFit.Ems` takes Segoe UI Variable's advances by class (digit 0.58, colon or stop 0.25, space
+  0.28, "-" 0.41, "°" 0.39, capital 0.72, "M"/"W" 0.95, small letter 0.56, an unknown script 1 em,
+  a combining mark 0), the widest over its weights and optical sizes. The clock's row is "88:88"
+  (or "88:88:88") and, after the row's gap, the language's wider meridiem at its own step
+  (`HeroFit.Row`: the largest time whose meridiem, the largest ramp step whose line is within 0.45
+  of the time's size, Caption..Title, fits beside it); it was laid out for "12:34" plus three
+  full-size letters and drew "10:42 AM" across 61 % of the M tile. Below TitleLarge the size is a
+  ramp step; from TitleLarge it is continuous, the size at which the readout fills the width or a
+  1.15 line (`HeroFit.Leading`, figures set solid: digits have no descenders) fills the height,
+  with no ceiling. The temperature fills from TitleLarge the same way (`HeroLayout.Fill`), the glyph,
+  the number, the unit and the condition standing beside it measured together; the condition goes
+  under the reading when that draws it larger ([S-646]). The meridiem sits on the digits'
+  baseline (`HeroFit.BaselineDrop`: a line's baseline stands 0.19 of it above its bottom). Only
+  the rungs ([S-660]) and the card's inset take room from the fill; lists, charts and the other
+  heroes keep their ladders. The widget's own scale ([S-6532]) lays the content out in the card
+  less that scale, so a filled readout still fills its card at every scale: the scale magnifies
+  the header, the date, the label and the inset round it, and so takes room from it at 150 % and
+  gives room at 75 %. The word clock keeps its own rule ([S-6013]); the analog dial fills by its geometry.
 
 Known and left: sparklines grow in from the right for their first minute by design ([Sparkline]);
 the scrolling lists (feed, folder) show a partial last row at
@@ -2243,7 +2265,8 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   bottom-aligned blocks of different line heights, a few pixels apart). The unit is the largest ramp
   step at most 45% of the value's size (Caption under a Subtitle value, Title beside Display),
   regular, secondary, after the number ("14" then a smaller "°C"; "420.27" then " USD"); the token is Body, BodyLarge from a Title value; the
-  glyph is 0.8 of the value's size within 24..72 and 12 from it, and is the first part shed. Caption
+  glyph is 0.8 of the value's size, at least 24, and 12 from it, and is the first part shed; past
+  Display (a filled reading, [S-659]) the unit grows with the value from Title, and the glyph has no ceiling. Caption
   lines stand beside the value (12 from it, centred on it) where the longest fits across and their
   height is within the value's line, else under it, starting at the readout's left edge.
 - **[S-668]** **Stat line and stat cell** (`WidgetParts.StatLine` / `StatCell`, sizes in
@@ -2530,12 +2553,12 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   order. "Show detail" is the standard style's; the place and the location name are every style's.
 - **[S-6161]** **Large icon** (`WeatherNowStyles.LargeIcon`): the sky's glyph is the picture, as tall
   as the inset box (at most 42 % of its width, 24..200), the temperature beside it in the width left
-  (Subtitle to Display, then grown to 1.5×); the condition, then today's range, under the
+  (Subtitle to Display, then filled past it, [S-659]); the condition, then today's range, under the
   temperature where the height has their lines. A tall column puts the glyph above (70 % of the
   width, 60 % of the height left) and the text centred under it. No readings at any size.
 - **[S-6162]** **Minimal** (`WeatherNowStyles.Minimal`): the temperature and its unit alone, in
-  Segoe's light weight, as large as the inset box holds it (the ramp, then Display scaled to the
-  box, as the minimal clock, [S-6014]); no glyph, condition, range or readings.
+  Segoe's light weight, as large as the inset box holds it (the ramp, then filled past TitleLarge,
+  [S-659], as the minimal clock, [S-6014]); no glyph, condition, range or readings.
 - **[S-6163]** The forecast's styles, `WeatherForecastConfig.Style` (`ForecastStyle`): **Rows**
   ([S-725], the default), **Columns** ([S-726]), **Temperature curve** and **Grid** ([S-6171]). What
   was the `Layout` setting: its Automatic (rows that turned into columns on a strip) is gone, and
@@ -5746,7 +5769,7 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
 - **[S-1483]** Style Digital / Analog / Stacked (original S-10..S-13; three of the seven styles now, [S-6011]). Stacked always stacks hours
   over minutes; seconds and AM/PM ride a step down beside the minutes. A digital face still stacks on
   its own in a tall column when that draws the digits larger. The AM/PM marker counts towards the readout's width by its own
-  length (`ClockFormatter.MeridiemCharacters`), never less than "PM"'s budget: Tamil's "பிற்பகல்" is
+  glyphs (`ClockFormatter.WidestMeridiem`, measured by [S-659]): Tamil's "பிற்பகல்" is
   about four times as wide as "PM".
 - **[S-1484]** Alignment Left / Centre / Right for the whole column (original S-25/S-26), centred by
   default; set on the properties panel as every widget's alignment is ([S-6580]), not on the clock's

@@ -167,15 +167,22 @@ public static class FluentType
     /// of "100%" and one of "1.9 GB of 64 GB" want very different steps in the same box.
     /// </param>
     public static TypeStep Fit(double width, double height, double characters, TypeStep floor, TypeStep ceiling)
+        => FitWidth(width, height, AverageAdvance * Math.Max(1, characters), floor, ceiling);
+
+    /// <summary>
+    /// <see cref="Fit"/> for a line whose width is known in ems rather than guessed from its length
+    /// (<see cref="HeroFit.Ems"/>): the largest step whose line fits the box and whose
+    /// <paramref name="ems"/> × size fits the width, from <paramref name="floor"/> to <paramref name="ceiling"/>.
+    /// </summary>
+    public static TypeStep FitWidth(double width, double height, double ems, TypeStep floor, TypeStep ceiling)
     {
         // An unmeasured or degenerate box gets the floor rather than a NaN that would reach a
         // FontSize and throw on the render path.
-        if (!IsUsable(width) || !IsUsable(height))
+        if (!IsUsable(width) || !IsUsable(height) || !IsUsable(ems))
         {
             return floor;
         }
 
-        var wanted = Math.Max(1, characters);
         var chosen = floor;
 
         foreach (var step in Ramp)
@@ -185,9 +192,7 @@ public static class FluentType
                 continue;
             }
 
-            var needed = Advance(step, wanted);
-
-            if (step.LineHeight <= height && needed <= width)
+            if (step.LineHeight <= height && step.FontSize * ems <= width)
             {
                 chosen = step;
             }

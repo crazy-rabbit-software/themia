@@ -48,13 +48,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     /// <summary>The longest offset line, "−12:45h local", joined to the date with " · ".</summary>
     private const int OffsetCharacters = 16;
 
-    /// <summary>Line height of stacked digits, as a multiple of their size.</summary>
-    private const double StackedLeading = 1.05;
-
-    /// <summary>The AM/PM marker's size against the digits: beside a digital readout, and beside stacked minutes.</summary>
-    private const double MeridiemScale = 0.45;
-    private const double StackedTailScale = 0.4;
-
     /// <summary>[S-1488] Under this an analog dial is a smear of hairlines; it never draws smaller.</summary>
     private const double DialFloor = 40;
 
@@ -428,7 +421,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // on a card too small to hold it beside the digits it is left out (the digits are the point).
         var meridiem = !RegionFormat.Current.Use24Hour && cardHeight >= FlipMeridiemFloor;
         _flipMeridiem.Visibility = Visible(meridiem);
-        var digits = FluentType.Hero(cardWidth * 0.86, cardHeight * (meridiem ? FlipCard.DigitShare - 0.12 : FlipCard.DigitShare), 2);
+        var digits = HeroFit.Figures(cardWidth * 0.86, cardHeight * (meridiem ? FlipCard.DigitShare - 0.12 : FlipCard.DigitShare), HeroFit.Ems("88"));
         foreach (var card in _flipCards)
         {
             card.Lay(cardWidth, cardHeight, digits);
@@ -499,13 +492,16 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
     private static Visibility Visible(bool shown) => shown ? Visibility.Visible : Visibility.Collapsed;
 
-    /// <summary>The digital and stacked readouts: the largest ramp step that fits what the rungs left.</summary>
+    /// <summary>
+    /// [S-659] The digital and stacked readouts, filling what the rungs left: the row measured by its
+    /// glyphs (<see cref="HeroFit.Row"/>), the stacked digits by theirs (<see cref="HeroFit.Stacked"/>).
+    /// </summary>
     private void SizeDigits(double width, double timeHeight)
     {
-        // "12:34:56" plus " PM" — the meridiem sits on the same line, so it counts towards the width, by its own length ("பிற்பகல்").
-        var meridiem = RegionFormat.Current.Use24Hour ? 0 : ClockFormatter.MeridiemCharacters(Strings.Current, MeridiemScale, 3);
-        var characters = (_config.DrawsSeconds ? 8 : 5) + meridiem;
-        var timeStep = FluentType.Hero(width, timeHeight, characters);
+        // The meridiem sits on the same line, so it counts towards the width, by its own glyphs ("பிற்பகல்").
+        var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
+        var row = HeroFit.Row(width, timeHeight, _config.DrawsSeconds, meridiem, TimeRow.Spacing);
+        var timeStep = row.Time;
 
         // A tall column is too narrow for "15:40" to be large on one line; the hours over the minutes
         // use its height instead — only when that actually draws them larger. [S-1483] The Stacked
@@ -513,12 +509,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // the original set them. Stacked digits are set solid (StackedLeading) rather than at the
         // ramp's 1.3 leading: two lines of figures with a ramp line's air between them read as two
         // separate numbers.
-        var tail = !RegionFormat.Current.Use24Hour ? ClockFormatter.MeridiemCharacters(Strings.Current, StackedTailScale, 1.2)
-            : _config.DrawsSeconds ? 1.2 : 0;
-        var perLine = timeHeight / 2;
-        var byWidth = FluentType.Hero(width, perLine * 2, 2 + tail);
-        var stackedSize = Math.Min(byWidth.FontSize, perLine / StackedLeading);
-        var stackedStep = new TypeStep(stackedSize, stackedSize * StackedLeading, true);
+        // The tail is as wide as the wider of what it stacks: the seconds over the meridiem.
+        var tail = _config.DrawsSeconds && HeroFit.Ems("88") > HeroFit.Ems(meridiem) ? "88" : meridiem;
+        var stackedStep = HeroFit.Stacked(width, timeHeight, tail, TimeRow.Spacing);
+        var stackedSize = stackedStep.FontSize;
         _stacked = _config.Style == ClockStyle.Stacked
             || (_area.Shape == AreaShape.Tall && stackedStep.FontSize > timeStep.FontSize * 1.2);
 
@@ -529,12 +523,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
         TimeText.Apply(timeStep);
 
-
         // The meridiem is the largest ramp step that stays well under the readout: a clock whose
         // "PM" is as tall as its digits reads as two numbers. Stacked, the seconds share its step.
-        var tailStep = _stacked
-            ? new TypeStep(Math.Max(FluentType.Caption.FontSize, stackedSize * StackedTailScale), Math.Max(FluentType.Caption.FontSize, stackedSize * StackedTailScale) * 1.15, false)
-            : FluentType.Fit(width, timeStep.FontSize * MeridiemScale, 2, FluentType.Caption, FluentType.Title);
+        var tailSize = Math.Max(FluentType.Caption.FontSize, stackedSize * HeroFit.StackedTailScale);
+        var tailStep = _stacked ? new TypeStep(tailSize, tailSize * 1.15, false) : row.Tail;
         MeridiemText.Apply(tailStep);
         SecondsText.Apply(tailStep);
 
@@ -547,13 +539,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         }
         SecondsText.Visibility = _stacked && _config.DrawsSeconds ? Visibility.Visible : Visibility.Collapsed;
 
-        // Both blocks are bottom-aligned, so lifting the tail by the difference in half-leading
+        // Both blocks are bottom-aligned, so lifting the tail by the difference in baseline drop
         // sits its glyphs on the readout's baseline instead of under it.
-        var lift = HalfLeading(timeStep) - HalfLeading(tailStep);
+        var lift = HeroFit.BaselineDrop(timeStep) - HeroFit.BaselineDrop(tailStep);
         Tail.Margin = new Thickness(0, 0, 0, Math.Max(0, lift));
     }
-
-    private static double HalfLeading(TypeStep step) => (step.LineHeight - step.FontSize) / 2;
 
     /// <summary>
     /// [S-1484] Left, centre or right ([S-6583]), for the whole column and every line in it. Beside a
