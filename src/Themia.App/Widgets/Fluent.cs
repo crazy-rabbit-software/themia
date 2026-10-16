@@ -190,9 +190,6 @@ internal static class Fluent
     /// </summary>
     public const double CompactBelow = RowHeight * 5;
 
-    /// <summary>Below this height the header is dropped: the content is worth more than its label.</summary>
-    public const double HeaderHidesBelow = 96;
-
     // ---- pieces ----------------------------------------------------------------------------
 
     /// <summary>A 16px icon in one of the named text colours.</summary>

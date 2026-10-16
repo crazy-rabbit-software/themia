@@ -840,6 +840,11 @@ tests `SkyWidgetsTests` (`S310x_`).
   part (a badge, a caption, a picker, Notes' formatting bar) is sized by its view for a header as
   wide as the content, and along a strip it would be measured against the card's height and read
   sideways. It stays with the view and comes back with a top or bottom header.
+- **[S-409]** A side strip sheds on a card under **160 DIPs** wide (`HeaderStrip.SideShedsBelow`; a
+  top or bottom one under 96 high, `FlatShedsBelow`). Derived: the strip eats about 40 DIPs (a
+  header's height), and the content beside it must stay at least as wide as the narrowest card every
+  widget is laid out for, the XS tier's 120 ([S-1810]). Under 96 (the old threshold) an XS card kept
+  about 76 DIPs of content: Notes' empty text wrapped per letter and Mail's Set up button clipped.
 
 ## Adding a widget
 

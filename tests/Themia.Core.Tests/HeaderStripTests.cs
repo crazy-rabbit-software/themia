@@ -70,19 +70,40 @@ public sealed class HeaderStripTests
     public void S402_a_top_header_sheds_on_a_short_card_a_side_one_on_a_narrow_card()
     {
         // Wide and short: too short for a top strip, plenty for one down the side.
-        Assert.True(HeaderStrip.Sheds(HeaderPlacement.Top, 400, 80, 96));
-        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Left, 400, 80, 96));
+        Assert.True(HeaderStrip.Sheds(HeaderPlacement.Top, 400, 80));
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Left, 400, 80));
 
         // Narrow and tall: the other way round.
-        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Bottom, 80, 400, 96));
-        Assert.True(HeaderStrip.Sheds(HeaderPlacement.Right, 80, 400, 96));
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Bottom, 80, 400));
+        Assert.True(HeaderStrip.Sheds(HeaderPlacement.Right, 80, 400));
     }
 
     [Fact]
     public void S402_a_card_not_measured_yet_keeps_its_header()
     {
-        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Top, 0, 0, 96));
-        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Left, 0, 0, 96));
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Top, 0, 0));
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Left, 0, 0));
+    }
+
+    [Theory]
+    [InlineData(HeaderPlacement.Left)]
+    [InlineData(HeaderPlacement.Right)]
+    public void S409_a_side_header_sheds_below_160_dips_so_an_xs_card_keeps_its_content(HeaderPlacement side)
+    {
+        // An XS card (120–159 wide) would keep only ~80–120 DIPs beside a strip: text wraps per
+        // letter and a button clips, so the strip goes and the content has the whole card.
+        Assert.True(HeaderStrip.Sheds(side, 120, 400));
+        Assert.True(HeaderStrip.Sheds(side, 159, 400));
+        Assert.False(HeaderStrip.Sheds(side, 160, 400));
+        Assert.Equal(160, HeaderStrip.SideShedsBelow);
+    }
+
+    [Fact]
+    public void S409_a_top_header_keeps_its_own_threshold()
+    {
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Top, 120, 96));
+        Assert.True(HeaderStrip.Sheds(HeaderPlacement.Top, 400, 95));
+        Assert.Equal(96, HeaderStrip.FlatShedsBelow);
     }
 
     // ---- [S-405] the turn -------------------------------------------------------------------------

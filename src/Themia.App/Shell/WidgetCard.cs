@@ -401,8 +401,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // the label is taking the room the content needs, and every widget drew the same
         // conclusion separately with a slightly different threshold. A size of zero is a card
         // that has not been measured yet, not a short one.
-        // [S-404] A strip down a side sheds on a card too narrow for it instead.
-        var tooShort = HeaderStrip.Sheds(placement, ActualWidth, ActualHeight, Fluent.HeaderHidesBelow);
+        // [S-404] [S-409] A strip down a side sheds on a card too narrow for it instead.
+        var tooShort = HeaderStrip.Sheds(placement, ActualWidth, ActualHeight);
         var hidden = placement == HeaderPlacement.Hidden || tooShort;
 
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
