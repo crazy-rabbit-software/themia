@@ -240,8 +240,8 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
             return;
         }
 
-        var compact = _area.WidthClass == SizeClass.Compact || _area.HeightClass == SizeClass.Compact;
-        var inset = compact ? Fluent.Space2 : Fluent.Space3;
+        // [S-3916] The toggles' inset: the card's standard one, tighter while Compact.
+        var inset = ButtonInset.For(_area);
         Padding = new Thickness(inset);
 
         var name = PowerActionRules.Label(_action);

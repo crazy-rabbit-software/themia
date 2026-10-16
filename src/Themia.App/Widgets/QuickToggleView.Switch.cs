@@ -16,9 +16,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class QuickToggleView
 {
-    private readonly Grid _switchFace = new();
-    private readonly StackPanel _swTitle = new() { VerticalAlignment = VerticalAlignment.Center };
-    private readonly Grid _swControl = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly Canvas _switchFace = new();
     private readonly Grid _swTrack = new();
     private readonly Border _swTrackFill = new() { BorderThickness = new Thickness(1) };
     private readonly Ellipse _swKnob = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -38,100 +36,69 @@ internal sealed partial class QuickToggleView
 
     private void BuildSwitch()
     {
-        _swName.TextTrimming = TextTrimming.CharacterEllipsis;
-        _swName.TextWrapping = TextWrapping.NoWrap;
-        _swName.MaxLines = 1;
-        _swState.TextTrimming = TextTrimming.CharacterEllipsis;
-        _swState.MaxLines = 1;
-        _swState.VerticalAlignment = VerticalAlignment.Center;
+        foreach (var text in (TextBlock[])[_swName, _swState])
+        {
+            text.TextTrimming = TextTrimming.CharacterEllipsis;
+            text.TextWrapping = TextWrapping.NoWrap;
+            text.MaxLines = 1;
+            text.VerticalAlignment = VerticalAlignment.Center;
+        }
+
         _swIcon.HorizontalAlignment = HorizontalAlignment.Center;
         _swIcon.VerticalAlignment = VerticalAlignment.Center;
 
         _swTrack.Children.Add(_swTrackFill);
         _swTrack.Children.Add(_swKnob);
-        _swTrack.VerticalAlignment = VerticalAlignment.Center;
 
-        _swControl.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _swControl.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _swControl.ColumnSpacing = SwitchFace.Gap;
-        _swControl.Children.Add(_swTrack);
-        _swControl.Children.Add(_swState);
-
-        _swTitle.Children.Add(_swIcon);
-        _swTitle.Children.Add(_swName);
-
-        _switchFace.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _switchFace.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _switchFace.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _switchFace.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _switchFace.Children.Add(_swTitle);
-        _switchFace.Children.Add(_swControl);
+        // Every part is placed where the plan says ([S-3918]): the centring is Core's rule, not the panels'.
+        _switchFace.Children.Add(_swIcon);
+        _switchFace.Children.Add(_swName);
+        _switchFace.Children.Add(_swState);
+        _switchFace.Children.Add(_swTrack);
+        _switchFace.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _switchFace.VerticalAlignment = VerticalAlignment.Stretch;
         _switchFace.IsHitTestVisible = false;
     }
 
-    /// <summary>[S-3918] Arrange the switch's parts for the plan: icon over switch, stacked, or a Settings row.</summary>
-    private void LaySwitch(SwitchFacePlan plan, double width)
+    /// <summary>[S-3918] Place the switch's parts at the plan's boxes: a centred column or a Settings row.</summary>
+    private void LaySwitch(SwitchFacePlan plan)
     {
         _swPlan = plan;
         var row = plan.Layout == SwitchLayout.Row;
 
-        _switchFace.HorizontalAlignment = row ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
-        _switchFace.VerticalAlignment = VerticalAlignment.Center;
-        _switchFace.RowSpacing = SwitchFace.Gap;
-        _switchFace.ColumnSpacing = row ? 2 * SwitchFace.Gap : 0;
-
-        // The title: icon and name side by side in a row, stacked otherwise.
-        Grid.SetRow(_swTitle, 0);
-        Grid.SetColumn(_swTitle, 0);
-        Grid.SetColumnSpan(_swTitle, row ? 1 : 2);
-        _swTitle.Orientation = row ? Orientation.Horizontal : Orientation.Vertical;
-        _swTitle.Spacing = SwitchFace.Gap;
-        _swTitle.HorizontalAlignment = row ? HorizontalAlignment.Left : HorizontalAlignment.Center;
-
-        Grid.SetRow(_swControl, row ? 0 : 1);
-        Grid.SetColumn(_swControl, row ? 1 : 0);
-        Grid.SetColumnSpan(_swControl, row ? 1 : 2);
-        _swControl.HorizontalAlignment = row ? HorizontalAlignment.Right : HorizontalAlignment.Center;
-
-        // A Settings row reads "On [switch]"; a standalone switch reads "[switch] On", as Windows draws each.
-        Grid.SetColumn(_swState, row ? 0 : 1);
-        Grid.SetColumn(_swTrack, row ? 1 : 0);
-
-        _swIcon.Visibility = plan.IconSize > 0 ? Visibility.Visible : Visibility.Collapsed;
+        Place(_swIcon, plan.Icon);
         _swIcon.FontSize = Math.Max(16, plan.IconSize);
 
-        _swTrack.Width = plan.TrackWidth;
-        _swTrack.Height = plan.TrackHeight;
+        Place(_swTrack, plan.Track);
         _swTrackFill.CornerRadius = new CornerRadius(plan.TrackHeight / 2);
 
-        var nameRoom = row
-            ? Math.Max(0, width - plan.TrackWidth - (plan.IconSize > 0 ? plan.IconSize + SwitchFace.Gap : 0) - (3 * SwitchFace.Gap)
-                - (plan.State is { } s ? FluentType.EstimateWidth(s, QuickToggleRules.LongestStateChars(Strings.Current)) : 0))
-            : Math.Max(0, width);
+        // Line boxes: the text centred in a column's full width, left in a row's room before the switch.
+        var align = row ? TextAlignment.Left : TextAlignment.Center;
+        Line(_swName, plan.Name, plan.NameBox, align);
+        Line(_swState, plan.State, plan.StateBox, align);
+    }
 
-        if (plan.Name is { } name)
+    private static void Place(FrameworkElement element, Themia.Core.Geometry.PixelRect box)
+    {
+        element.Visibility = box.Width > 0 ? Visibility.Visible : Visibility.Collapsed;
+        element.Width = box.Width;
+        element.Height = box.Height;
+        Canvas.SetLeft(element, box.X);
+        Canvas.SetTop(element, box.Y);
+    }
+
+    private static void Line(TextBlock text, TypeStep? step, Themia.Core.Geometry.PixelRect box, TextAlignment align)
+    {
+        if (step is not { } shown)
         {
-            _swName.Visibility = Visibility.Visible;
-            _swName.Apply(name);
-            _swName.TextAlignment = row ? TextAlignment.Left : TextAlignment.Center;
-            _swName.HorizontalAlignment = row ? HorizontalAlignment.Left : HorizontalAlignment.Center;
-            _swName.VerticalAlignment = VerticalAlignment.Center;
-            _swName.MaxWidth = nameRoom;
-        }
-        else
-        {
-            _swName.Visibility = Visibility.Collapsed;
+            text.Visibility = Visibility.Collapsed;
+            return;
         }
 
-        if (plan.State is { } state)
-        {
-            _swState.Visibility = Visibility.Visible;
-            _swState.Apply(state);
-        }
-        else
-        {
-            _swState.Visibility = Visibility.Collapsed;
-        }
+        text.Apply(shown);
+        text.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+        text.TextAlignment = align;
+        Place(text, box);
     }
 
     /// <summary>

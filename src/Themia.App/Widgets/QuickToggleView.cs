@@ -207,8 +207,8 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
             return;
         }
 
-        var compact = _area.WidthClass == SizeClass.Compact || _area.HeightClass == SizeClass.Compact;
-        var inset = compact ? Fluent.Space2 : Fluent.Space3;
+        // [S-3916] One inset for every style: the card's standard one, tighter while Compact.
+        var inset = ButtonInset.For(_area);
         Padding = new Thickness(inset);
 
         var width = _area.Width - (2 * inset);
@@ -222,7 +222,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
                 break;
 
             case QuickToggleStyle.Switch:
-                LaySwitch(SwitchFace.Plan(_area, width, height, nameChars, QuickToggleRules.LongestStateChars(Strings.Current)), width);
+                LaySwitch(SwitchFace.Plan(width, height, nameChars, QuickToggleRules.LongestStateChars(Strings.Current)));
                 break;
 
             default:

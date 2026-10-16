@@ -2657,7 +2657,8 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
   `WidgetTiers` (or once at `w h`), labelled. `--state` asks a view that implements
   `IWidgetPreviewState` for an interaction state a render cannot click into — for the power widgets
   `hover`, `pressed`, `armed`, `failed`, `unavailable`. States, not sample data ([S-1863]).
-  `--style tile|round` draws either style ([S-6006]).
+  `--style tile|round` draws either style ([S-6006]). `--sizes 100x100,160x100[,tiers]` draws several
+  in-between sizes on one page (with `tiers`, the seven as well).
 - **[S-1919]** Styles ([S-6000]): one `PowerButtonStyle` on the base `PowerButtonConfig`, shared by all
   seven kinds: **Tile** (the default, [S-1911], [S-1912]) and **Round button** (`round`), named,
   labelled and drawn as the toggles' Round style ([S-3917], one `RoundButtonFace` and one round part
@@ -5417,7 +5418,9 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   all thirteen kinds (never an enum per kind): **Tile** (the default, [S-3904]..[S-3906]), **Round
   button** (`round`, [S-3917]) and **Switch** ([S-3918]). Every style is drawn over the same whole-tile
   hit target, so the click gate ([S-3905]), Space/Enter under the lease, edit mode, the tooltip and
-  "never a header" ([S-3901]) are the same in each; only the drawing differs.
+  "never a header" ([S-3901]) are the same in each; only the drawing differs. Every style (and the
+  power widgets') insets by `ButtonInset`: the card's standard 16 (`Fluent.Space4`), 8 while the
+  tile's short side is under 128.
 - **[S-3917]** Round button (`RoundButtonFace`, the part the power widgets' Round style shares,
   [S-1919]): a circle holding the icon, the name under it (Caption to Subtitle, about a sixth of the
   height) from Regular width; XS is the circle alone. The circle takes the rest of the box (32–320,
@@ -5427,15 +5430,23 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   and Tertiary fills on hover and press); not known, the secondary text colour; unavailable,
   `ControlFillColorDisabled` and the disabled text colour. The tile behind it stays clear.
 - **[S-3918]** Switch (`SwitchFace`): Windows' toggle switch drawn (not a `ToggleSwitch`, which would
-  take the press): a pill track, Windows' 40×20 in half steps up to 3×, as high as the name's line;
-  off, the `ControlAltFillColorSecondary` track with a strong stroke and the knob left; on, the
-  accent track with the knob right in the on-accent colour; under the pointer the knob grows (12 to
-  14 of 20) and the tile takes the subtle fill, as a Settings card does; unavailable, the disabled
-  track, stroke and knob, "Unavailable" beside it. Ladder: XS, the icon over the switch (the icon
-  names it); a tile or a column, the name (Caption to TitleLarge) with the switch and its state line
-  ("[switch] On") under it, and an icon above the name where at least 24 DIPs are left for it; a wide
-  strip, a Settings row: icon and name left, "On [switch]" right, the state dropped before the icon
-  where the width runs out. Planned for the language's longest state line, so switching moves nothing.
+  take the press): a pill track in Windows' 2:1 (40×20 at Body, the knob 12 of 20 at rest and 14
+  under the pointer); off, the `ControlAltFillColorSecondary` track with a strong stroke and the knob
+  left; on, the accent track with the knob right in the on-accent colour; under the pointer the tile
+  takes the subtle fill, as a Settings card does; unavailable, the disabled track, stroke and knob.
+  One level per step of the type ramp sizes everything together: the name on that step, the state
+  line a step below, the track as high as the name's line (never below 20, at most 80), the icon 1.5×
+  the line, the gaps 8 to 24 on the 4 px grid. The face takes the largest level at which icon, name
+  and switch fit the box inside the inset ([S-3916]); only where none does it drop the icon, then the
+  name; the state line is added where it fits at that level. So the content grows with the tile in
+  steps and never falls to a smaller one while the next still fits, and the level never drops as the
+  tile grows at one inset. A **column** (icon, name, state, switch) is centred as one group in both
+  axes, every part on the centre line; a **row** (a Settings row: icon, then name over state, at the
+  left; the switch at the right edge of the inset) has every part centred on the row's height. Both
+  are planned and the higher level wins, a tie going to the row where the box is at least twice as
+  wide as high. Every part's box is Core's (`SwitchFacePlan`), so the view only places them. The
+  text is planned for the language's longest state line, so switching moves nothing, and a planned
+  line always fits its box (no ellipsis by design).
 - Needs a live pass on real hardware: every switch is untested against this PC's state by design
   (no test touches the user's radios or settings).
 

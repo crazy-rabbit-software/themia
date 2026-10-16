@@ -81,8 +81,8 @@ internal static class WidgetRender
             || !Enum.IsDefined(kind)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc] [--design k=v,...]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
             app.Exit();
             return true;
         }
@@ -105,7 +105,7 @@ internal static class WidgetRender
         }
         List<WidgetTier> tiers = Size(args, at + 3) is { } size
             ? [new WidgetTier($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
-            : [.. WidgetTiers.All];
+            : Sizes(Option(args, "--sizes")) is { Count: > 0 } sizes ? sizes : [.. WidgetTiers.All];
 
         _ = dispatcher.TryEnqueue(async () =>
         {
@@ -425,6 +425,37 @@ internal static class WidgetRender
         }
 
         return null;
+    }
+
+    /// <summary>[S-1917] <c>--sizes 100x100,160x100</c>: several in-between sizes on one page, beside or instead of the tiers.</summary>
+    private static List<WidgetTier>? Sizes(string? list)
+    {
+        if (list is null)
+        {
+            return null;
+        }
+
+        var tiers = new List<WidgetTier>();
+        foreach (var item in list.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (item.Equals("tiers", StringComparison.OrdinalIgnoreCase))
+            {
+                tiers.AddRange(WidgetTiers.All);
+                continue;
+            }
+
+            var parts = item.Split('x');
+            if (parts.Length == 2 && Size(parts, 0) is { } size)
+            {
+                tiers.Add(new WidgetTier(item, size.Width, size.Height));
+            }
+            else
+            {
+                Console.WriteLine($"widget: '{item}' is not a size (WxH, 40 to 2000)");
+            }
+        }
+
+        return tiers;
     }
 
     private static string? Option(string[] args, string name)

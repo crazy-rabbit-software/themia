@@ -1,3 +1,4 @@
+using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -126,72 +127,176 @@ public sealed class ToggleStylesTests
 
     // ---- the switch ----------------------------------------------------------------------------
 
-    private static SwitchFacePlan Switch(double w, double h, int name = 13)
-        => SwitchFace.Plan(new WidgetArea(w, h), w - 24, h - 24, name, 11);
+    /// <summary>The plan for a tile of w×h, inside the shared inset, as the view asks for it.</summary>
+    private static SwitchFacePlan Switch(double w, double h, int name = 10, int state = 11)
+    {
+        var (iw, ih) = Inner(w, h);
+        return SwitchFace.Plan(iw, ih, name, state);
+    }
+
+    private static (double W, double H) Inner(double w, double h)
+    {
+        var inset = ButtonInset.For(new WidgetArea(w, h));
+        return (w - (2 * inset), h - (2 * inset));
+    }
+
+    /// <summary>The boxes drawn (empty ones are absent parts).</summary>
+    private static List<PixelRect> Parts(SwitchFacePlan plan)
+        => new[] { plan.Icon, plan.NameBox, plan.StateBox, plan.Track }.Where(r => r.Width > 0).ToList();
+
+    public static TheoryData<double, double> Sizes => new()
+    {
+        { 120, 120 }, { 200, 150 }, { 320, 240 }, { 480, 160 }, { 200, 400 }, { 560, 420 }, { 800, 560 },
+        { 100, 100 }, { 140, 140 }, { 160, 100 }, { 240, 120 }, { 320, 160 }, { 200, 300 },
+    };
 
     [Fact]
-    public void S3918_xs_is_the_icon_over_the_switch_without_a_name()
+    public void S3916_every_style_insets_by_the_cards_standard_inset_tighter_only_on_a_short_side_under_128()
     {
-        var plan = Switch(120, 120);
-        Assert.Equal(SwitchLayout.IconOver, plan.Layout);
-        Assert.Null(plan.Name);
-        Assert.Null(plan.State);
-        Assert.True(plan.IconSize >= 16);
-        Assert.True(plan.IconSize + SwitchFace.Gap + plan.TrackHeight <= 120 - 24);
+        Assert.Equal(16, ButtonInset.For(new WidgetArea(140, 140)));
+        Assert.Equal(16, ButtonInset.For(new WidgetArea(160, 300)));
+        Assert.Equal(16, ButtonInset.Standard);
+        Assert.Equal(16, ButtonInset.For(new WidgetArea(200, 150)));
+        Assert.Equal(16, ButtonInset.For(new WidgetArea(800, 560)));
+        Assert.Equal(8, ButtonInset.For(new WidgetArea(120, 120)));
+        Assert.Equal(8, ButtonInset.For(new WidgetArea(240, 120)));
     }
 
     [Theory]
-    [InlineData(200, 150)]
-    [InlineData(320, 240)]
-    [InlineData(200, 400)]
-    [InlineData(560, 420)]
-    [InlineData(800, 560)]
-    public void S3918_a_tile_or_column_stacks_name_and_switch_and_fits_its_height(double w, double h)
+    [MemberData(nameof(Sizes))]
+    public void S3918_every_part_fits_inside_the_inset_box_and_no_planned_line_is_cut(double w, double h)
+    {
+        var (iw, ih) = Inner(w, h);
+        var plan = Switch(w, h);
+
+        foreach (var part in Parts(plan))
+        {
+            Assert.True(part.X >= 0 && part.Y >= 0 && part.X + part.Width <= iw + 0.01 && part.Y + part.Height <= ih + 0.01, $"{w}x{h}: {part}");
+        }
+
+        if (plan.Name is { } name)
+        {
+            Assert.True(FluentType.EstimateWidth(name, 10) <= plan.NameBox.Width, $"{w}x{h}: name");
+        }
+
+        if (plan.State is { } state)
+        {
+            Assert.True(FluentType.EstimateWidth(state, 11) <= plan.StateBox.Width, $"{w}x{h}: state");
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Sizes))]
+    public void S3918_a_column_is_centred_as_a_group_in_both_axes_and_a_row_on_its_centre_line(double w, double h)
+    {
+        var (iw, ih) = Inner(w, h);
+        var plan = Switch(w, h);
+        var parts = Parts(plan);
+
+        if (plan.Layout == SwitchLayout.Column)
+        {
+            // Every part on the vertical centre line (the text lines span the width, centred in it).
+            foreach (var part in parts)
+            {
+                Assert.InRange(part.X + (part.Width / 2), (iw / 2) - 0.5, (iw / 2) + 0.5);
+            }
+
+            var top = parts.Min(p => p.Y);
+            var bottom = parts.Max(p => p.Y + p.Height);
+            Assert.InRange(top - (ih - bottom), -1, 1);
+            return;
+        }
+
+        // A Settings row: the icon at the left edge, the switch at the right, all on one centre line.
+        Assert.Equal(iw, plan.Track.X + plan.Track.Width, 3);
+        Assert.InRange(plan.Track.Y + (plan.Track.Height / 2), (ih / 2) - 0.5, (ih / 2) + 0.5);
+        var words = plan.NameBox.Height + plan.StateBox.Height;
+        Assert.InRange(plan.NameBox.Y + (words / 2), (ih / 2) - 0.5, (ih / 2) + 0.5);
+
+        if (plan.IconSize > 0)
+        {
+            Assert.Equal(0, plan.Icon.X);
+            Assert.InRange(plan.Icon.Y + (plan.IconSize / 2), (ih / 2) - 0.5, (ih / 2) + 0.5);
+        }
+    }
+
+    [Theory]
+    [InlineData(100, 100)]
+    [InlineData(120, 120)]
+    [InlineData(140, 140)]
+    [InlineData(160, 100)]
+    public void S3918_a_small_tile_keeps_its_name_and_icon_while_they_fit(double w, double h)
+    {
+        // The old ladder dropped the name at any Compact width, though "Microphone" fits at 140.
+        var plan = Switch(w, h);
+        Assert.NotNull(plan.Name);
+        Assert.True(plan.IconSize > 0);
+        Assert.Equal(SwitchLayout.Column, plan.Layout);
+    }
+
+    [Fact]
+    public void S3918_the_level_never_drops_as_the_tile_grows_and_s_is_above_the_smallest_steps()
+    {
+        // Swept where the inset holds (it widens once, at the 128 short side, [S-3916]).
+        foreach (var h in new[] { 100.0, 140, 200, 300, 420 })
+        {
+            var last = -1;
+            for (var w = 140.0; w <= 800; w += 10)
+            {
+                var level = Switch(w, h).Level;
+                Assert.True(level >= last, $"{w}x{h} fell to {level} from {last}");
+                last = level;
+            }
+        }
+
+        // S (200×150) is above the Caption/Body step the old ladder put it on, with a switch above Windows' size.
+        var s = Switch(200, 150);
+        Assert.True(s.Level >= 2, $"S at {s.Level}");
+        Assert.True(s.TrackHeight > SwitchFace.BaseTrackHeight);
+        Assert.True(Switch(320, 240).Level > s.Level);
+    }
+
+    [Theory]
+    [InlineData(480, 160)]
+    [InlineData(320, 160)]
+    [InlineData(240, 120)]
+    public void S3918_a_wide_strip_is_a_settings_row(double w, double h)
     {
         var plan = Switch(w, h);
-        Assert.Equal(SwitchLayout.Stacked, plan.Layout);
-        var name = Assert.NotNull(plan.Name);
-
-        var used = (plan.IconSize > 0 ? plan.IconSize + SwitchFace.Gap : 0) + name.LineHeight + SwitchFace.Gap + plan.TrackHeight;
-        Assert.True(used <= h - 24, $"{w}x{h}: {used}");
-        Assert.True(plan.TrackWidth <= (w - 24) / 2);
-    }
-
-    [Fact]
-    public void S3918_a_wide_strip_is_a_settings_row_that_fits_its_width()
-    {
-        var plan = Switch(480, 160);
         Assert.Equal(SwitchLayout.Row, plan.Layout);
-        var name = Assert.NotNull(plan.Name);
-
-        var used = (plan.IconSize > 0 ? plan.IconSize + SwitchFace.Gap : 0) + FluentType.EstimateWidth(name, 13)
-            + (2 * SwitchFace.Gap) + (plan.State is { } s ? FluentType.EstimateWidth(s, 11) + SwitchFace.Gap : 0) + plan.TrackWidth;
-        Assert.True(used <= 480 - 24, $"{used}");
-        Assert.True(plan.TrackHeight <= 160 - 24);
+        Assert.NotNull(plan.Name);
+        Assert.True(plan.NameBox.X + plan.NameBox.Width + (2 * plan.Gap) <= plan.Track.X + 0.01);
     }
 
-    [Fact]
-    public void S3918_the_track_is_windows_two_to_one_in_half_steps_and_grows_with_the_name()
-    {
-        var last = 0.0;
-        foreach (var tier in WidgetTiers.All.Where(t => t.Name is "XS" or "S" or "M" or "L" or "XL"))
-        {
-            var plan = Switch(tier.Width, tier.Height);
-            var scale = plan.TrackWidth / SwitchFace.BaseTrackWidth;
+    [Theory]
+    [InlineData(200, 400)]
+    [InlineData(200, 300)]
+    [InlineData(320, 240)]
+    [InlineData(120, 120)]
+    public void S3918_a_square_or_tall_tile_is_a_column(double w, double h)
+        => Assert.Equal(SwitchLayout.Column, Switch(w, h).Layout);
 
+    [Fact]
+    public void S3918_the_track_is_windows_two_to_one_never_below_40_by_20()
+    {
+        foreach (var (w, h) in new[] { (100.0, 100.0), (120, 120), (200, 150), (320, 240), (480, 160), (560, 420), (800, 560) })
+        {
+            var plan = Switch(w, h);
             Assert.Equal(plan.TrackWidth, plan.TrackHeight * 2);
-            Assert.InRange(scale, 1, SwitchFace.MaxScale);
-            Assert.Equal(0, scale * 2 % 1);
+            Assert.InRange(plan.TrackHeight, SwitchFace.BaseTrackHeight, SwitchFace.MaxTrackHeight);
             Assert.True(plan.Knob < plan.KnobHover && plan.KnobHover < plan.TrackHeight);
-            Assert.True(plan.TrackWidth >= last, $"{tier.Name} shrank");
-            last = plan.TrackWidth;
         }
+
+        // Windows' own proportions at Body: a 40×20 track, a 12 knob growing to 14.
+        Assert.Equal(20, SwitchFace.Level(1).TrackHeight);
+        var windows = new SwitchFacePlan(SwitchLayout.Column, 1, 8, null, null, default, default, default, new PixelRect(0, 0, 40, 20));
+        Assert.Equal(12, windows.Knob);
+        Assert.Equal(14, windows.KnobHover);
     }
 
     [Fact]
     public void S3918_the_plan_is_made_for_the_longest_state_so_switching_moves_nothing()
     {
-        var area = new WidgetArea(320, 240);
         var locale = Themia.Core.Localization.Locale.En;
         var longest = QuickToggleRules.LongestStateChars(locale);
 
@@ -199,11 +304,19 @@ public sealed class ToggleStylesTests
         Assert.True(longest >= QuickToggleRules.StateText(locale, ToggleLook.On).Length);
         Assert.True(longest >= QuickToggleRules.StateText(locale, ToggleLook.Off).Length);
 
-        var plan = SwitchFace.Plan(area, 296, 216, 5, longest);
+        var plan = SwitchFace.Plan(288, 300, 5, longest);
         var state = Assert.NotNull(plan.State);
-        Assert.True(plan.TrackWidth + SwitchFace.Gap + FluentType.EstimateWidth(state, longest) <= 296);
+        Assert.True(FluentType.EstimateWidth(state, longest) <= plan.StateBox.Width);
 
         // A line too long for the room is dropped, never squeezed.
-        Assert.Null(SwitchFace.Plan(area, 296, 216, 5, 200).State);
+        Assert.Null(SwitchFace.Plan(288, 300, 5, 200).State);
+    }
+
+    [Fact]
+    public void S3918_a_degenerate_box_still_plans_a_switch()
+    {
+        var plan = SwitchFace.Plan(double.NaN, -5, 5, 11);
+        Assert.Null(plan.Name);
+        Assert.Equal(SwitchFace.BaseTrackWidth, plan.TrackWidth);
     }
 }
