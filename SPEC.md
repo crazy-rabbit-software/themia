@@ -456,9 +456,9 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   assign the border element directly and outrank a local value, so the field would light up solid
   on hover.
 - **[S-3962]** No hover state: the pointer-over fill and border are the rest ones (transparent), so
-  the field never lights up as the pointer crosses it. Focus keeps only the subtle fill: no accent
-  frame or line (user requirement; the focused state's elevation brush and thickness are cleared
-  too, and no system focus rectangle), the caret shows where the keys go. Through the same resource
+  the field never lights up as the pointer crosses it. Nor on focus (user requirement): the focused
+  fill is the rest one too, with no accent frame or line (the focused state's elevation brush and
+  thickness are cleared, and no system focus rectangle); the caret alone shows where the keys go. Through the same resource
   keys, theme brushes only.
 - **[S-130]** "Clear note" confirms in a dialog. The text is unrecoverable, so one click is not
   enough, and failing to show the dialog leaves the note alone. It empties the note's body (for every

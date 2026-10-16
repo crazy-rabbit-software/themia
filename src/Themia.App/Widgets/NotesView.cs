@@ -173,9 +173,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     /// <summary>
     /// [S-129] A Windows 11 text field with no chrome at rest, so the note reads as writing on the
     /// card — and [S-3962] none under the pointer either: the field does not light up as the pointer
-    /// crosses it. Focus keeps only the stock subtle fill, so the note still reads as something you
-    /// are typing in: no accent frame or line round it (user requirement), the caret says where the
-    /// keys go.
+    /// crosses it, nor when it is clicked into: focus draws no fill, accent frame or line either (user
+    /// requirement); the caret alone says where the keys go.
     /// <para>
     /// The brushes are replaced through the control's own resource keys, not through its
     /// <c>Background</c>: the stock template's visual states assign the pointer-over and focused
@@ -188,11 +187,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         var box = _editor.Box;
         var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var focusFill = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
 
         box.Resources["TextControlBackground"] = clear;
         box.Resources["TextControlBackgroundPointerOver"] = clear;
-        box.Resources["TextControlBackgroundFocused"] = focusFill;
+        box.Resources["TextControlBackgroundFocused"] = clear;
         box.Resources["TextControlBackgroundDisabled"] = clear;
         box.Resources["TextControlBackgroundReadOnly"] = clear;
 
