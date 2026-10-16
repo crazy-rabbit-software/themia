@@ -6,23 +6,18 @@ namespace Themia.App.Services;
 
 internal static unsafe partial class CoreAudio
 {
-    /// <summary>[S-1223] The meters' sampling period: ten a second, the most a meter bar needs.</summary>
-    private const int PeakPeriodMs = 100;
-
     /// <summary>One session the worker holds and listens to, until it expires or its device is let go.</summary>
     private sealed class Tracked
     {
         public nint Control;
         public nint Volume;
-        public nint Meter;
         public string GroupKey = string.Empty;
         public bool Seen;
     }
 
     /// <summary>
     /// One endpoint the worker has bound: its volume (and the callback on it) and — when a widget
-    /// wants them — its session manager and the sessions it tracks, each with its own meter. The
-    /// endpoint's own meter is not read: no widget shows the device's level as a meter ([S-3251]). Every pointer here is
+    /// wants them — its session manager and the sessions it tracks. Every pointer here is
     /// owned and released by <see cref="Worker.Unbind"/>.
     /// </summary>
     private sealed class Endpoint(string id, string name)
@@ -53,7 +48,6 @@ internal static unsafe partial class CoreAudio
 
         private IReadOnlyList<AudioDevice> _devices = [];
         private string? _defaultOutput;
-        private long _lastPeaks;
 
         public void Start()
         {
@@ -144,23 +138,8 @@ internal static unsafe partial class CoreAudio
                         break;
                     }
 
-                    var metering = subscribers.Any(static s => s.Current.Peaks);
-
-                    try
-                    {
-                        if (metering)
-                        {
-                            SamplePeaks(subscribers);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(Scope, "a meter sample failed", ex);
-                    }
-
-                    // [S-1223] Asleep until something happens; awake ten times a second only while a
-                    // widget has a meter on screen.
-                    _wake.WaitOne(metering ? PeakPeriodMs : Timeout.Infinite);
+                    // Asleep until something happens: nothing here is sampled.
+                    _wake.WaitOne();
                 }
             }
             finally
@@ -597,7 +576,7 @@ internal static unsafe partial class CoreAudio
             }
         }
 
-        /// <summary>Hold a session and listen to it. The control, volume and meter are kept until <see cref="Forget"/>.</summary>
+        /// <summary>Hold a session and listen to it. The control and volume are kept until <see cref="Forget"/>.</summary>
         private static Tracked? Track(nint control, string groupKey)
         {
             var volume = Query(control, Iids.SimpleAudioVolume);
@@ -613,9 +592,6 @@ internal static unsafe partial class CoreAudio
             {
                 Control = control,
                 Volume = volume,
-
-                // [S-1223] Optional, as on the endpoint: no meter is a row without a meter bar.
-                Meter = Query(control, Iids.MeterInformation),
                 GroupKey = groupKey,
             };
         }
@@ -634,72 +610,6 @@ internal static unsafe partial class CoreAudio
                 ReleaseRaw(tracked.Volume);
                 tracked.Volume = 0;
             }
-
-            if (tracked.Meter != 0)
-            {
-                ReleaseRaw(tracked.Meter);
-                tracked.Meter = 0;
-            }
-        }
-
-        // ---- meters --------------------------------------------------------------------------
-
-        /// <summary>
-        /// [S-1223] Read every bound meter once and hand each metering widget its device's. At most one
-        /// sample per period however often the worker wakes: a slider drag wakes it a hundred
-        /// times a second, and the meters need ten.
-        /// </summary>
-        private void SamplePeaks(Subscriber[] subscribers)
-        {
-            var now = Environment.TickCount64;
-            if (now - _lastPeaks < PeakPeriodMs - 10)
-            {
-                return;
-            }
-
-            _lastPeaks = now;
-
-            var byDevice = new Dictionary<string, Dictionary<string, double>>(StringComparer.OrdinalIgnoreCase);
-            foreach (var (id, output) in _outputs)
-            {
-                var sessions = output.Tracked.Select(pair => (pair.Key, pair.Value.GroupKey, PeakOf(pair.Value.Meter)));
-                byDevice[id] = AudioRules.PeaksByKey(sessions);
-            }
-
-            foreach (var subscriber in subscribers)
-            {
-                var want = subscriber.Current;
-                if (!want.Peaks)
-                {
-                    continue;
-                }
-
-                var device = AudioRules.Resolve(want.DeviceId, _devices, _defaultOutput).Id;
-                var byKey = device is not null && byDevice.TryGetValue(device, out var found)
-                    ? found
-                    : new Dictionary<string, double>(StringComparer.Ordinal);
-
-                if (!AudioRules.PeaksWorthSending(subscriber.PeaksSilent, byKey))
-                {
-                    continue;
-                }
-
-                subscriber.PeaksSilent = byKey.Values.All(static peak => peak <= 0);
-                subscriber.DeliverPeaks(new AudioPeaks(byKey));
-            }
-        }
-
-        private static double PeakOf(nint meter)
-        {
-            if (meter == 0)
-            {
-                return 0;
-            }
-
-            float peak;
-            return ((delegate* unmanaged[Stdcall]<nint, float*, int>)Slot(meter, Slots.MeterGetPeak))(meter, &peak) >= 0
-                ? AudioRules.Peak(peak)
-                : 0;
         }
 
         // ---- writing -------------------------------------------------------------------------

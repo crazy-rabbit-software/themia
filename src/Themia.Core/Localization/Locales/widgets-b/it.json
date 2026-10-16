@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "I suoni di notifica di Windows",
   "widgetsB.settings.mixer.rows": "Righe",
   "widgetsB.settings.mixer.icons.desc": "L'icona di ogni app invece di una generica",
-  "widgetsB.settings.mixer.peaks.label": "Indicatori di livello",
-  "widgetsB.settings.mixer.peaks.desc": "Un indicatore in tempo reale sotto ogni cursore, se c'è spazio",
   "widgetsB.settings.mixer.note": "Fai clic sul mixer: ↑ e ↓ scelgono una riga, ← e → la cambiano, M silenzia.",
   "widgetsB.folder.nameProblem.empty": "Il nome non può essere vuoto",
   "widgetsB.folder.nameProblem.dotSegment": "Il nome non può essere . o ..",

@@ -74,7 +74,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
 
     public VolumeView()
     {
-        // [S-2730] No meter, so no peaks callback: the worker never samples for this tile.
         _feed = new AudioFeed(OnSnapshot);
 
         _muteIcon = Fluent.Icon(Glyphs.Volume3, "TextFillColorPrimaryBrush");
@@ -242,7 +241,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             return;
         }
 
-        _feed.Want(new AudioWant(_config.DeviceId, Sessions: false, Peaks: false));
+        _feed.Want(new AudioWant(_config.DeviceId, Sessions: false));
 
         if (!_area.IsMeasured)
         {

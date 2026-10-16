@@ -352,8 +352,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows 自体の通知音",
   "widgetsB.settings.mixer.rows": "行",
   "widgetsB.settings.mixer.icons.desc": "汎用アイコンではなく各アプリのアイコン",
-  "widgetsB.settings.mixer.peaks.label": "レベルメーター",
-  "widgetsB.settings.mixer.peaks.desc": "スペースがあれば、各スライダーの下にライブ メーターを表示",
   "widgetsB.settings.mixer.note": "ミキサーをクリックし、↑↓ で行を選び、←→ で変更、M でミュート。",
   "widgetsB.folder.nameProblem.empty": "名前を空にすることはできません",
   "widgetsB.folder.nameProblem.dotSegment": "名前を . または .. にすることはできません",

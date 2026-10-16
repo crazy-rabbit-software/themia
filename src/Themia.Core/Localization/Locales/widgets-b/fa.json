@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "صداهای اعلان خود Windows",
   "widgetsB.settings.mixer.rows": "ردیف‌ها",
   "widgetsB.settings.mixer.icons.desc": "نماد خود هر برنامه به‌جای نماد عمومی",
-  "widgetsB.settings.mixer.peaks.label": "سطح‌سنج‌ها",
-  "widgetsB.settings.mixer.peaks.desc": "یک سطح‌سنج زنده زیر هر لغزنده، هر جا که جا باشد",
   "widgetsB.settings.mixer.note": "روی میکسر کلیک کنید، سپس با ↑ و ↓ ردیف را انتخاب کنید، با ← و → آن را تغییر دهید، M بی‌صدا می‌کند.",
   "widgetsB.folder.nameProblem.empty": "نام نمی‌تواند خالی باشد",
   "widgetsB.folder.nameProblem.dotSegment": "نام نمی‌تواند . یا .. باشد",

@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Ang sariling mga tunog ng notification ng Windows",
   "widgetsB.settings.mixer.rows": "Mga row",
   "widgetsB.settings.mixer.icons.desc": "Ang sariling icon ng bawat app sa halip na pangkalahatang icon",
-  "widgetsB.settings.mixer.peaks.label": "Mga level meter",
-  "widgetsB.settings.mixer.peaks.desc": "Isang live na meter sa ilalim ng bawat slider, kung may puwang",
   "widgetsB.settings.mixer.note": "I-click ang mixer, tapos pumipili ng row ang ↑ at ↓, binabago ito ng ← at →, at nagmu-mute ang M.",
   "widgetsB.folder.nameProblem.empty": "Hindi puwedeng walang laman ang pangalan",
   "widgetsB.folder.nameProblem.dotSegment": "Hindi puwedeng . o .. ang pangalan",

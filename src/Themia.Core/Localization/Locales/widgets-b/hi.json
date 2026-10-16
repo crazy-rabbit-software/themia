@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows की अपनी सूचना ध्वनियाँ",
   "widgetsB.settings.mixer.rows": "पंक्तियाँ",
   "widgetsB.settings.mixer.icons.desc": "सामान्य आइकन की जगह हर ऐप का अपना आइकन",
-  "widgetsB.settings.mixer.peaks.label": "स्तर मीटर",
-  "widgetsB.settings.mixer.peaks.desc": "जगह हो तो हर स्लाइडर के नीचे लाइव मीटर",
   "widgetsB.settings.mixer.note": "मिक्सर पर क्लिक करें, फिर ↑ और ↓ पंक्ति चुनते हैं, ← और → उसे बदलते हैं, M म्यूट करता है।",
   "widgetsB.folder.nameProblem.empty": "नाम खाली नहीं हो सकता",
   "widgetsB.folder.nameProblem.dotSegment": "नाम . या .. नहीं हो सकता",

@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "De eigen meldingsgeluiden van Windows",
   "widgetsB.settings.mixer.rows": "Rijen",
   "widgetsB.settings.mixer.icons.desc": "Het eigen pictogram van elke app in plaats van een algemeen pictogram",
-  "widgetsB.settings.mixer.peaks.label": "Niveaumeters",
-  "widgetsB.settings.mixer.peaks.desc": "Een live meter onder elke schuifregelaar, waar er ruimte is",
   "widgetsB.settings.mixer.note": "Klik op de mixer; ↑ en ↓ kiezen een rij, ← en → wijzigen hem, M dempt.",
   "widgetsB.folder.nameProblem.empty": "Een naam mag niet leeg zijn",
   "widgetsB.folder.nameProblem.dotSegment": "Een naam mag niet . of .. zijn",

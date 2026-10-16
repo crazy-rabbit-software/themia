@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows இன் சொந்த அறிவிப்பு ஒலிகள்",
   "widgetsB.settings.mixer.rows": "வரிசைகள்",
   "widgetsB.settings.mixer.icons.desc": "பொதுவான ஐகானுக்குப் பதிலாக ஒவ்வொரு பயன்பாட்டின் சொந்த ஐகான்",
-  "widgetsB.settings.mixer.peaks.label": "நிலை மீட்டர்கள்",
-  "widgetsB.settings.mixer.peaks.desc": "இடம் இருக்கும் இடத்தில், ஒவ்வொரு ஸ்லைடரின் கீழும் நேரலை மீட்டர்",
   "widgetsB.settings.mixer.note": "மிக்சரைக் கிளிக் செய்யவும், பின்னர் ↑ மற்றும் ↓ வரிசையைத் தேர்ந்தெடுக்கும், ← மற்றும் → அதை மாற்றும், M ஒலியடக்கும்.",
   "widgetsB.folder.nameProblem.empty": "பெயர் காலியாக இருக்கக்கூடாது",
   "widgetsB.folder.nameProblem.dotSegment": "பெயர் . அல்லது .. ஆக இருக்கக்கூடாது",

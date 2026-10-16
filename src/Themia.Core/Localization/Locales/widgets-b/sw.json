@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Sauti za arifa za Windows zenyewe",
   "widgetsB.settings.mixer.rows": "Safu mlalo",
   "widgetsB.settings.mixer.icons.desc": "Aikoni ya kila programu badala ya aikoni ya jumla",
-  "widgetsB.settings.mixer.peaks.label": "Vipimo vya kiwango",
-  "widgetsB.settings.mixer.peaks.desc": "Kipimo cha moja kwa moja chini ya kila kitelezi, palipo na nafasi",
   "widgetsB.settings.mixer.note": "Bofya kichanganyaji, kisha ↑ na ↓ huchagua safu mlalo, ← na → huibadilisha, M hunyamazisha.",
   "widgetsB.folder.nameProblem.empty": "Jina haliwezi kuwa tupu",
   "widgetsB.folder.nameProblem.dotSegment": "Jina haliwezi kuwa . au ..",

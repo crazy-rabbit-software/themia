@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows ਦੀਆਂ ਆਪਣੀਆਂ ਸੂਚਨਾ ਧੁਨੀਆਂ",
   "widgetsB.settings.mixer.rows": "ਕਤਾਰਾਂ",
   "widgetsB.settings.mixer.icons.desc": "ਆਮ ਆਈਕਨ ਦੀ ਬਜਾਏ ਹਰ ਐਪ ਦਾ ਆਪਣਾ ਆਈਕਨ",
-  "widgetsB.settings.mixer.peaks.label": "ਪੱਧਰ ਮੀਟਰ",
-  "widgetsB.settings.mixer.peaks.desc": "ਹਰ ਸਲਾਈਡਰ ਹੇਠਾਂ ਇੱਕ ਲਾਈਵ ਮੀਟਰ, ਜਿੱਥੇ ਥਾਂ ਹੋਵੇ",
   "widgetsB.settings.mixer.note": "ਮਿਕਸਰ ਉੱਤੇ ਕਲਿੱਕ ਕਰੋ, ਫਿਰ ↑ ਅਤੇ ↓ ਕਤਾਰ ਚੁਣਦੇ ਹਨ, ← ਅਤੇ → ਉਸਨੂੰ ਬਦਲਦੇ ਹਨ, M ਮਿਊਟ ਕਰਦਾ ਹੈ।",
   "widgetsB.folder.nameProblem.empty": "ਨਾਮ ਖਾਲੀ ਨਹੀਂ ਹੋ ਸਕਦਾ",
   "widgetsB.folder.nameProblem.dotSegment": "ਨਾਮ . ਜਾਂ .. ਨਹੀਂ ਹੋ ਸਕਦਾ",

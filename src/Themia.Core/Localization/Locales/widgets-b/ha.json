@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Sautunan sanarwa na Windows",
   "widgetsB.settings.mixer.rows": "Layuka",
   "widgetsB.settings.mixer.icons.desc": "Gunkin kowace manhaja maimakon na gama-gari",
-  "widgetsB.settings.mixer.peaks.label": "Ma'aunan mataki",
-  "widgetsB.settings.mixer.peaks.desc": "Ma'auni kai tsaye a ƙarƙashin kowane majanyi, inda akwai wuri",
   "widgetsB.settings.mixer.note": "Danna mahaɗin, sannan ↑ da ↓ suna zaɓar layi, ← da → suna canza shi, M yana bebe.",
   "widgetsB.folder.nameProblem.empty": "Suna ba zai iya zama babu komai ba",
   "widgetsB.folder.nameProblem.dotSegment": "Suna ba zai iya zama . ko .. ba",

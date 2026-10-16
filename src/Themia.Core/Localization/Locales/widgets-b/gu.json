@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows ના પોતાના સૂચના ધ્વનિઓ",
   "widgetsB.settings.mixer.rows": "પંક્તિઓ",
   "widgetsB.settings.mixer.icons.desc": "સામાન્ય આઇકનને બદલે દરેક ઍપનું પોતાનું આઇકન",
-  "widgetsB.settings.mixer.peaks.label": "લેવલ મીટર",
-  "widgetsB.settings.mixer.peaks.desc": "દરેક સ્લાઇડર નીચે લાઇવ મીટર, જ્યાં જગ્યા હોય ત્યાં",
   "widgetsB.settings.mixer.note": "મિક્સર પર ક્લિક કરો, પછી ↑ અને ↓ પંક્તિ પસંદ કરે છે, ← અને → તેને બદલે છે, M મ્યૂટ કરે છે.",
   "widgetsB.folder.nameProblem.empty": "નામ ખાલી હોઈ શકે નહીં",
   "widgetsB.folder.nameProblem.dotSegment": "નામ . અથવા .. હોઈ શકે નહીં",

@@ -388,8 +388,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Собственные звуки уведомлений Windows",
   "widgetsB.settings.mixer.rows": "Строки",
   "widgetsB.settings.mixer.icons.desc": "Собственный значок каждого приложения вместо общего",
-  "widgetsB.settings.mixer.peaks.label": "Индикаторы уровня",
-  "widgetsB.settings.mixer.peaks.desc": "Живой индикатор под каждым ползунком, если хватает места",
   "widgetsB.settings.mixer.note": "Щелкните микшер, затем ↑ и ↓ выбирают строку, ← и → меняют ее, M выключает звук.",
   "widgetsB.folder.nameProblem.empty": "Имя не может быть пустым",
   "widgetsB.folder.nameProblem.dotSegment": "Имя не может быть . или ..",

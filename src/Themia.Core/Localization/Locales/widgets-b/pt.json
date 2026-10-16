@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Os sons de notificação do próprio Windows",
   "widgetsB.settings.mixer.rows": "Linhas",
   "widgetsB.settings.mixer.icons.desc": "O ícone de cada aplicativo em vez de um genérico",
-  "widgetsB.settings.mixer.peaks.label": "Medidores de nível",
-  "widgetsB.settings.mixer.peaks.desc": "Um medidor ao vivo sob cada controle deslizante, quando houver espaço",
   "widgetsB.settings.mixer.note": "Clique no misturador: ↑ e ↓ escolhem uma linha, ← e → alteram-na, M silencia.",
   "widgetsB.folder.nameProblem.empty": "O nome não pode ficar vazio",
   "widgetsB.folder.nameProblem.dotSegment": "O nome não pode ser . nem ..",

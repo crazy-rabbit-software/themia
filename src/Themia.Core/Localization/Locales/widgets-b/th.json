@@ -352,8 +352,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "เสียงแจ้งเตือนของ Windows เอง",
   "widgetsB.settings.mixer.rows": "แถว",
   "widgetsB.settings.mixer.icons.desc": "ไอคอนของแต่ละแอปแทนไอคอนทั่วไป",
-  "widgetsB.settings.mixer.peaks.label": "มาตรวัดระดับ",
-  "widgetsB.settings.mixer.peaks.desc": "มาตรวัดแบบสดใต้แถบเลื่อนแต่ละตัว เมื่อมีพื้นที่",
   "widgetsB.settings.mixer.note": "คลิกมิกเซอร์ แล้วใช้ ↑ และ ↓ เลือกแถว ← และ → เปลี่ยนค่า M ปิดเสียง",
   "widgetsB.folder.nameProblem.empty": "ชื่อต้องไม่ว่างเปล่า",
   "widgetsB.folder.nameProblem.dotSegment": "ชื่อต้องไม่เป็น . หรือ ..",

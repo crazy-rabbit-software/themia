@@ -4520,7 +4520,7 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
 - **[S-1220]** One Core Audio worker serves both widgets (the [S-440] MTA thread, now named
   `CoreAudio`). The volume tile no longer polls: it is a subscriber that does not ask for sessions,
   and moves on the endpoint's `IAudioEndpointVolumeCallback`. `VolumeConfig.IntervalSeconds` and its
-  settings row are gone. Each subscriber states what it wants (`AudioWant`: device, sessions, meters);
+  settings row are gone. Each subscriber states what it wants (`AudioWant`: device, sessions);
   the worker binds exactly the devices wanted and releases the rest, and publishes one
   snapshot per subscriber per wake.
 - **[S-1221]** `DeviceId` (+ `DeviceName`, remembered for display) on both configs; null follows
@@ -4533,11 +4533,9 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   picker of its own at any size (user decision: choosing the output is Windows' job, not the
   widget's); the device line, the volume caption's menu and the XL panel's device list are gone.
   Context action "Follow the default output" when a device is chosen. Inert in previews.
-- **[S-1223]** Level meters via `IAudioMeterInformation` (per session; a group shows its loudest
-  session). The only sampled thing: at most 10 Hz, only while some mixer has a meter on screen
-  (loaded, ladder rung shown, `ShowPeaks`), silence sent once. The volume tile has no meter and never
-  asks for peaks ([S-2730]). Meters are a scale
-  transform on a fixed bar (no layout per sample); a muted row's meter is empty.
+- **[S-1223]** *(Retired: the mixer has no level meter under its sliders (user decision). The
+  `ShowPeaks` setting, `AudioPeaks` and the worker's `IAudioMeterInformation` sampling are gone:
+  nothing in the worker is sampled any more, it sleeps until a notification or a write wakes it.)*
 - **[S-1224]** *(Retired: neither audio widget shows the microphone; it is not their job. The
   `ShowMicrophone` settings are gone.)*
 - **[S-1225]** Mixer keys (keyboard lease): Up/Down/Home/End move the row cursor (system focus rect on
@@ -4576,17 +4574,17 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
 - **[S-2733]** Home/End set the volume to 0 / 100 (`AudioRules.VolumeKey`); the mixer keeps
   Home/End for its row cursor.
 - **[S-2771]** The mixer shows no volume number (user decision, [S-666]): a row is its icon, name
-  (and session pill), slider, meter and mute button; the level is the slider's position and the mute
+  (and session pill), slider and mute button; the level is the slider's position and the mute
   glyph's band (crossed out when muted). No percent beside a row at any width. The slider's own
   drag tooltip is the only number, while dragging.
 - **[S-3251]** The mixer lists apps and nothing else (user decision): no master / current-volume
   row, no output device name or line, at any size, and no `ShowMaster` setting. The device's own
   level is the volume tile's job. The mixer still follows the default output (or the device chosen in
-  its settings, [S-1221]) to find the apps; the worker no longer opens the endpoint's own meter,
-  since no widget draws it (`AudioPeaks` is per session only).
+  its settings, [S-1221]) to find the apps. No widget draws a meter, so the worker opens none
+  ([S-1223]).
 
 The original Volume had no peak meter or device name; the audit added them and [S-2730] took them
-out again.
+out again, and [S-1223] took the mixer's meters out too.
 
 ## Widget polish 1 (POLISH-1)
 

@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows'un kendi bildirim sesleri",
   "widgetsB.settings.mixer.rows": "Satırlar",
   "widgetsB.settings.mixer.icons.desc": "Genel bir simge yerine her uygulamanın kendi simgesi",
-  "widgetsB.settings.mixer.peaks.label": "Düzey göstergeleri",
-  "widgetsB.settings.mixer.peaks.desc": "Yer olduğunda her kaydırıcının altında canlı gösterge",
   "widgetsB.settings.mixer.note": "Karıştırıcıya tıklayın; ↑ ve ↓ satır seçer, ← ve → değiştirir, M sesi kapatır.",
   "widgetsB.folder.nameProblem.empty": "Ad boş olamaz",
   "widgetsB.folder.nameProblem.dotSegment": "Ad . veya .. olamaz",

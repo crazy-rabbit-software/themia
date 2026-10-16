@@ -352,8 +352,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows 자체 알림 소리",
   "widgetsB.settings.mixer.rows": "행",
   "widgetsB.settings.mixer.icons.desc": "일반 아이콘 대신 각 앱의 아이콘",
-  "widgetsB.settings.mixer.peaks.label": "레벨 미터",
-  "widgetsB.settings.mixer.peaks.desc": "공간이 있으면 각 슬라이더 아래에 실시간 미터 표시",
   "widgetsB.settings.mixer.note": "믹서를 클릭한 다음 ↑ 및 ↓로 행을 선택하고, ← 및 →로 변경하고, M으로 음소거합니다.",
   "widgetsB.folder.nameProblem.empty": "이름은 비워 둘 수 없습니다",
   "widgetsB.folder.nameProblem.dotSegment": "이름은 . 또는 ..일 수 없습니다",

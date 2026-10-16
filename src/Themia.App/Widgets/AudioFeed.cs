@@ -7,15 +7,14 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// One audio widget's connection to <see cref="CoreAudio"/>: what it wants, the snapshots and meters
-/// that come back, and the writes it sends — the part the mixer and the volume tile share.
+/// One audio widget's connection to <see cref="CoreAudio"/>: what it wants, the snapshots that come
+/// back, and the writes it sends — the part the mixer and the volume tile share.
 /// <para>
 /// [S-1233] A preview card (a debug render) never writes: its sliders and buttons are inert, so
 /// rendering one can never move the machine's real volume.
 /// </para>
 /// </summary>
-/// <param name="onPeaks">Meter samples; null for a widget that never asks for them (the volume tile, [S-2730]).</param>
-internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot, Action<AudioPeaks>? onPeaks = null) : IDisposable
+internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot) : IDisposable
 {
     private IAudioSubscription? _subscription;
     private AudioWant? _want;
@@ -36,7 +35,7 @@ internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot, Action<AudioPe
 
         if (_subscription is null)
         {
-            _subscription = CoreAudio.Subscribe(want, onSnapshot, onPeaks);
+            _subscription = CoreAudio.Subscribe(want, onSnapshot);
         }
         else
         {

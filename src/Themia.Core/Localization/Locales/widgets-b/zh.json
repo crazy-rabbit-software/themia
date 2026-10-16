@@ -352,8 +352,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows 自身的通知声音",
   "widgetsB.settings.mixer.rows": "行",
   "widgetsB.settings.mixer.icons.desc": "使用每个应用自己的图标，而不是通用图标",
-  "widgetsB.settings.mixer.peaks.label": "电平表",
-  "widgetsB.settings.mixer.peaks.desc": "在空间允许时，在每个滑块下方显示实时电平",
   "widgetsB.settings.mixer.note": "单击混音器，↑ 和 ↓ 选择行，← 和 → 调节，M 静音。",
   "widgetsB.folder.nameProblem.empty": "名称不能为空",
   "widgetsB.folder.nameProblem.dotSegment": "名称不能是 . 或 ..",

@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
@@ -32,8 +31,6 @@ internal sealed partial class MixerView
         private readonly Border _count;
         private readonly TextBlock _countText = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
         private readonly Slider _slider = new() { Minimum = 0, Maximum = 100, StepFrequency = 1 };
-        private readonly Rectangle _meter = new() { Height = AudioLook.MeterHeight };
-        private readonly ScaleTransform _meterScale = new() { ScaleX = 0 };
         private readonly Button _mute = new();
         private readonly FontIcon _muteIcon = Fluent.Icon(Glyphs.Volume3, "TextFillColorPrimaryBrush");
         private readonly IDisposable _hover;
@@ -47,7 +44,6 @@ internal sealed partial class MixerView
         private MixerRowStyle? _style;
         private bool _icons = true;
         private bool _detailOn;
-        private bool _meterOn;
         private bool _echoing;
         private bool _grabbed;
 
@@ -93,14 +89,6 @@ internal sealed partial class MixerView
             _slider.IsTabStop = false;
             _slider.ValueChanged += OnSliderChanged;
 
-            // [S-1223] The meter: a scale transform on a full-width bar, so a sample costs no layout.
-            _meter.Fill = Accent();
-            _meter.RenderTransform = _meterScale;
-            _meter.RenderTransformOrigin = new Windows.Foundation.Point(0, 0.5);
-            _meter.VerticalAlignment = VerticalAlignment.Bottom;
-            _meter.IsHitTestVisible = false;
-            _meter.Visibility = Visibility.Collapsed;
-
             // Handled events too: the slider marks its own pointer events handled. Four of them, for
             // the same reason a row's hover needs four — the pointer can leave without a release.
             _grab = (_, _) => _grabbed = true;
@@ -122,7 +110,6 @@ internal sealed partial class MixerView
             _grid.Children.Add(_nameLine);
             _grid.Children.Add(_detail);
             _grid.Children.Add(_slider);
-            _grid.Children.Add(_meter);
             _grid.Children.Add(_mute);
 
             Host = Fluent.Row(_grid);
@@ -174,12 +161,10 @@ internal sealed partial class MixerView
                     Place(_nameLine, 0, 1, 1);
                     Place(_detail, 1, 1, 1);
                     Place(_slider, 0, 2, 1, lines);
-                    Place(_meter, 0, 2, 1, lines);
                     Place(_mute, 0, 4, 1, lines);
                     _nameLine.VerticalAlignment = detail ? VerticalAlignment.Bottom : VerticalAlignment.Center;
                     _detail.VerticalAlignment = VerticalAlignment.Top;
                     _slider.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
-                    _meter.Margin = new Thickness(Fluent.Space3 + Fluent.Space2, 0, Fluent.Space2, 0);
                     break;
 
                 case MixerRowStyle.TwoLine:
@@ -187,11 +172,9 @@ internal sealed partial class MixerView
                     Place(_nameLine, 0, 1, 2);
                     Place(_mute, 0, 4, 1);
                     Place(_slider, 1, 1, 4);
-                    Place(_meter, 1, 1, 4);
 
                     // Tucked up under the name line: the slider's own box is taller than its track.
                     _slider.Margin = new Thickness(icons ? Fluent.Space2 : 0, -Fluent.Space2, Fluent.Space2, -Fluent.Space2);
-                    _meter.Margin = new Thickness((icons ? Fluent.Space2 : 0) + Fluent.Space2, 0, Fluent.Space4, -2);
                     break;
 
                 default:
@@ -211,7 +194,7 @@ internal sealed partial class MixerView
             _mute.Margin = new Thickness(Fluent.Space1, 0, 0, 0);
 
             // A two-line row is the name line (28: the mute button) and the tucked slider (16) in
-            // 48: two pixels above, none below, and the meter in the last two.
+            // 48: two pixels above and two to spare below.
             Host.Padding = style switch
             {
                 MixerRowStyle.Compact => new Thickness(Fluent.Space3, 0, Fluent.Space1, 0),
@@ -228,12 +211,10 @@ internal sealed partial class MixerView
             SetColumnSpan(element, span);
         }
 
-        public void Show(MixerRow row, bool showIcons, bool dimmed, bool meter)
+        public void Show(MixerRow row, bool showIcons, bool dimmed)
         {
             _row = row;
             Dimmed = dimmed;
-            _meterOn = meter && _style != MixerRowStyle.Compact;
-            _meter.Visibility = _meterOn ? Visibility.Visible : Visibility.Collapsed;
 
             var name = RowName(row);
             _name.Text = name;
@@ -260,19 +241,6 @@ internal sealed partial class MixerView
             }
 
             ShowIcon(row, showIcons);
-        }
-
-        /// <summary>[S-1223] The row's meter: its session, or the loudest of its group.</summary>
-        public void ShowPeak(AudioPeaks peaks)
-        {
-            if (!_meterOn || _row is not { } row)
-            {
-                _meterScale.ScaleX = 0;
-                return;
-            }
-
-            var peak = peaks.ByKey.GetValueOrDefault(row.Key);
-            _meterScale.ScaleX = row.Muted ? 0 : AudioRules.Peak(peak);
         }
 
         /// <summary>[S-441] The app's own icon when there is one, else a glyph for what the row is.</summary>

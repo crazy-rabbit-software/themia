@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows స్వంత నోటిఫికేషన్ ధ్వనులు",
   "widgetsB.settings.mixer.rows": "వరుసలు",
   "widgetsB.settings.mixer.icons.desc": "సాధారణ చిహ్నానికి బదులుగా ప్రతి యాప్ స్వంత చిహ్నం",
-  "widgetsB.settings.mixer.peaks.label": "స్థాయి మీటర్‌లు",
-  "widgetsB.settings.mixer.peaks.desc": "స్థలం ఉన్న చోట, ప్రతి స్లైడర్ కింద ప్రత్యక్ష మీటర్",
   "widgetsB.settings.mixer.note": "మిక్సర్‌పై క్లిక్ చేయండి, ఆపై ↑ మరియు ↓ వరుసను ఎంచుకుంటాయి, ← మరియు → దాన్ని మారుస్తాయి, M మ్యూట్ చేస్తుంది.",
   "widgetsB.folder.nameProblem.empty": "పేరు ఖాళీగా ఉండకూడదు",
   "widgetsB.folder.nameProblem.dotSegment": "పేరు . లేదా .. కాకూడదు",

@@ -352,8 +352,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows 本身的通知音效",
   "widgetsB.settings.mixer.rows": "列",
   "widgetsB.settings.mixer.icons.desc": "使用每個應用程式自己的圖示，而非通用圖示",
-  "widgetsB.settings.mixer.peaks.label": "音量表",
-  "widgetsB.settings.mixer.peaks.desc": "空間允許時，在每個滑桿下方顯示即時音量表",
   "widgetsB.settings.mixer.note": "按一下混音器，↑ 和 ↓ 選擇列，← 和 → 調整，M 靜音。",
   "widgetsB.folder.nameProblem.empty": "名稱不能是空的",
   "widgetsB.folder.nameProblem.dotSegment": "名稱不能是 . 或 ..",

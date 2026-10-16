@@ -7,8 +7,7 @@ namespace Themia.App.Services;
 /// <summary>What one audio widget asks the worker for.</summary>
 /// <param name="DeviceId">[S-1221] The output device's endpoint id, or null for Windows' default output.</param>
 /// <param name="Sessions">Read the device's audio sessions (the mixer; the volume tile at its largest).</param>
-/// <param name="Peaks">[S-1223] Sample level meters while this is on — only while a meter is on screen.</param>
-internal readonly record struct AudioWant(string? DeviceId, bool Sessions, bool Peaks);
+internal readonly record struct AudioWant(string? DeviceId, bool Sessions);
 
 /// <summary>Whether a widget's device could be read.</summary>
 internal enum AudioStatus
@@ -47,13 +46,6 @@ internal sealed record AudioSnapshot(
     public static AudioSnapshot Unavailable { get; } = new(AudioStatus.Unavailable, null, [], [], null, AudioTarget.Default);
 }
 
-/// <summary>[S-1223] One sample of the level meters, 0..1 each.</summary>
-/// <param name="ByKey">Per session, keyed by session key and by group key (the loudest of the group).</param>
-internal sealed record AudioPeaks(IReadOnlyDictionary<string, double> ByKey)
-{
-    public static AudioPeaks Silent { get; } = new(new Dictionary<string, double>(StringComparer.Ordinal));
-}
-
 /// <summary>A live subscription to <see cref="CoreAudio"/>. Change what it wants, or dispose it to stop.</summary>
 internal interface IAudioSubscription : IDisposable
 {
@@ -62,7 +54,7 @@ internal interface IAudioSubscription : IDisposable
 
 /// <summary>
 /// [S-440] [S-1220] Core Audio for the mixer and the volume tile: the bound output devices' levels and
-/// sessions, level meters and the device list, kept current by Core Audio's
+/// sessions and the device list, kept current by Core Audio's
 /// own notifications rather than by polling.
 /// <para>
 /// <b>One worker thread, in the multithreaded apartment.</b> Session notifications are only
@@ -74,11 +66,6 @@ internal interface IAudioSubscription : IDisposable
 /// wakes it. A wake reads once and publishes one snapshot per widget, however many notifications
 /// arrived meanwhile. The volume tile, which once polled the endpoint every two seconds, is just
 /// another subscriber that does not ask for sessions.
-/// </para>
-/// <para>
-/// <b>Meters are the one sampled thing</b> ([S-1223]): Core Audio has no "the peak moved" event. The
-/// worker samples them at most ten times a second, and only while some widget has a meter on
-/// screen; silence is sent once, not ten times a second.
 /// </para>
 /// <para>
 /// <b>Started by the first audio widget and stopped by the last.</b> Nothing is registered and no
@@ -97,18 +84,17 @@ internal static unsafe partial class CoreAudio
     private static volatile Worker? _worker;
 
     /// <summary>
-    /// Receive this widget's snapshots (and, while <see cref="AudioWant.Peaks"/> is on, its meter
-    /// samples) on the calling thread's dispatcher. The first arrives as soon as the worker has read
+    /// Receive this widget's snapshots on the calling thread's dispatcher. The first arrives as soon as the worker has read
     /// the device. Dispose the result to stop; the last subscriber to leave stops the worker.
     /// </summary>
-    public static IAudioSubscription Subscribe(AudioWant want, Action<AudioSnapshot> onSnapshot, Action<AudioPeaks>? onPeaks = null)
+    public static IAudioSubscription Subscribe(AudioWant want, Action<AudioSnapshot> onSnapshot)
     {
         ArgumentNullException.ThrowIfNull(onSnapshot);
 
         var dispatcher = DispatcherQueue.GetForCurrentThread()
             ?? throw new InvalidOperationException("subscribe from a thread with a dispatcher");
 
-        var subscriber = new Subscriber(dispatcher, want, onSnapshot, onPeaks);
+        var subscriber = new Subscriber(dispatcher, want, onSnapshot);
 
         lock (Gate)
         {
@@ -205,12 +191,10 @@ internal static unsafe partial class CoreAudio
         Wants = 8,
     }
 
-    private sealed class Subscriber(DispatcherQueue dispatcher, AudioWant want, Action<AudioSnapshot> onSnapshot, Action<AudioPeaks>? onPeaks)
+    private sealed class Subscriber(DispatcherQueue dispatcher, AudioWant want, Action<AudioSnapshot> onSnapshot)
         : IAudioSubscription
     {
-        private readonly Lock _peakGate = new();
         private volatile bool _disposed;
-        private AudioPeaks? _pendingPeaks;
 
         /// <summary>Written on the UI thread, read on the worker: a record struct swapped whole under the lock.</summary>
         public AudioWant Current
@@ -224,9 +208,6 @@ internal static unsafe partial class CoreAudio
             }
         }
 
-        /// <summary>Whether the last peaks sent were all silence ([S-1223]); worker thread only.</summary>
-        public bool PeaksSilent { get; set; }
-
         public void Want(AudioWant next)
         {
             lock (Gate)
@@ -239,7 +220,6 @@ internal static unsafe partial class CoreAudio
                 want = next;
             }
 
-            PeaksSilent = false;
             Notify(Change.Wants);
         }
 
@@ -264,54 +244,6 @@ internal static unsafe partial class CoreAudio
                 catch (Exception ex)
                 {
                     Log.Error(Scope, "an audio widget could not show its device", ex);
-                }
-            });
-        }
-
-        /// <summary>
-        /// Hand over a meter sample. At most one is queued at a time and a newer one replaces it, so a
-        /// busy UI thread is never handed a backlog of stale meters to paint.
-        /// </summary>
-        public void DeliverPeaks(AudioPeaks peaks)
-        {
-            if (_disposed || onPeaks is null)
-            {
-                return;
-            }
-
-            bool queue;
-            lock (_peakGate)
-            {
-                queue = _pendingPeaks is null;
-                _pendingPeaks = peaks;
-            }
-
-            if (!queue)
-            {
-                return;
-            }
-
-            dispatcher.TryEnqueue(() =>
-            {
-                AudioPeaks? latest;
-                lock (_peakGate)
-                {
-                    latest = _pendingPeaks;
-                    _pendingPeaks = null;
-                }
-
-                if (_disposed || latest is null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    onPeaks(latest);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(Scope, "an audio widget could not show its meters", ex);
                 }
             });
         }

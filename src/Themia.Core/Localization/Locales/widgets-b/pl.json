@@ -388,8 +388,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Własne dźwięki powiadomień Windows",
   "widgetsB.settings.mixer.rows": "Wiersze",
   "widgetsB.settings.mixer.icons.desc": "Własna ikona każdej aplikacji zamiast ogólnej",
-  "widgetsB.settings.mixer.peaks.label": "Wskaźniki poziomu",
-  "widgetsB.settings.mixer.peaks.desc": "Wskaźnik na żywo pod każdym suwakiem, jeśli jest miejsce",
   "widgetsB.settings.mixer.note": "Kliknij mikser: ↑ i ↓ wybierają wiersz, ← i → go zmieniają, M wycisza.",
   "widgetsB.folder.nameProblem.empty": "Nazwa nie może być pusta",
   "widgetsB.folder.nameProblem.dotSegment": "Nazwa nie może być . ani ..",

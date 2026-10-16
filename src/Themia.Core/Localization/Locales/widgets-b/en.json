@@ -363,8 +363,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows' own notification sounds",
   "widgetsB.settings.mixer.rows": "Rows",
   "widgetsB.settings.mixer.icons.desc": "Each app's own icon rather than a generic one",
-  "widgetsB.settings.mixer.peaks.label": "Level meters",
-  "widgetsB.settings.mixer.peaks.desc": "A live meter under each slider, where there is room",
   "widgetsB.settings.mixer.note": "Click the mixer, then ↑ and ↓ pick a row, ← and → change it, M mutes.",
   "widgetsB.folder.nameProblem.empty": "A name can't be empty",
   "widgetsB.folder.nameProblem.dotSegment": "A name can't be . or ..",

@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Die Benachrichtigungstöne von Windows",
   "widgetsB.settings.mixer.rows": "Zeilen",
   "widgetsB.settings.mixer.icons.desc": "Das eigene Symbol jeder App statt eines allgemeinen",
-  "widgetsB.settings.mixer.peaks.label": "Pegelanzeigen",
-  "widgetsB.settings.mixer.peaks.desc": "Eine Live-Anzeige unter jedem Regler, wo Platz ist",
   "widgetsB.settings.mixer.note": "Mixer anklicken, dann wählen ↑ und ↓ eine Zeile, ← und → ändern sie, M schaltet stumm.",
   "widgetsB.folder.nameProblem.empty": "Ein Name darf nicht leer sein",
   "widgetsB.folder.nameProblem.dotSegment": "Ein Name darf nicht . oder .. sein",

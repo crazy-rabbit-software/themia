@@ -352,8 +352,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Âm thông báo của chính Windows",
   "widgetsB.settings.mixer.rows": "Hàng",
   "widgetsB.settings.mixer.icons.desc": "Biểu tượng riêng của từng ứng dụng thay vì biểu tượng chung",
-  "widgetsB.settings.mixer.peaks.label": "Đồng hồ mức",
-  "widgetsB.settings.mixer.peaks.desc": "Đồng hồ mức trực tiếp dưới mỗi thanh trượt, khi còn chỗ",
   "widgetsB.settings.mixer.note": "Nhấp vào bộ trộn, rồi ↑ và ↓ chọn hàng, ← và → điều chỉnh, M tắt tiếng.",
   "widgetsB.folder.nameProblem.empty": "Tên không được để trống",
   "widgetsB.folder.nameProblem.dotSegment": "Tên không được là . hoặc ..",

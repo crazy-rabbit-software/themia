@@ -364,8 +364,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Windows चे स्वतःचे सूचना ध्वनी",
   "widgetsB.settings.mixer.rows": "ओळी",
   "widgetsB.settings.mixer.icons.desc": "सामान्य आयकॉनऐवजी प्रत्येक अ‍ॅपचा स्वतःचा आयकॉन",
-  "widgetsB.settings.mixer.peaks.label": "पातळी मीटर",
-  "widgetsB.settings.mixer.peaks.desc": "जागा असल्यास प्रत्येक स्लायडरखाली थेट मीटर",
   "widgetsB.settings.mixer.note": "मिक्सरवर क्लिक करा, मग ↑ आणि ↓ ओळ निवडतात, ← आणि → ती बदलतात, M म्यूट करते.",
   "widgetsB.folder.nameProblem.empty": "नाव रिकामे असू शकत नाही",
   "widgetsB.folder.nameProblem.dotSegment": "नाव . किंवा .. असू शकत नाही",

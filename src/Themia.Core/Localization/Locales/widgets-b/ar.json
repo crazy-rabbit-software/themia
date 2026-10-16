@@ -412,8 +412,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "أصوات الإعلامات الخاصة بـ Windows",
   "widgetsB.settings.mixer.rows": "الصفوف",
   "widgetsB.settings.mixer.icons.desc": "أيقونة كل تطبيق بدلًا من أيقونة عامة",
-  "widgetsB.settings.mixer.peaks.label": "مقاييس المستوى",
-  "widgetsB.settings.mixer.peaks.desc": "مقياس مباشر تحت كل شريط تمرير، حيث تتوفر مساحة",
   "widgetsB.settings.mixer.note": "انقر على الخالط، ثم يختار ↑ و↓ صفًا، ويغيّره ← و→، ويكتم M الصوت.",
   "widgetsB.folder.nameProblem.empty": "لا يمكن أن يكون الاسم فارغًا",
   "widgetsB.folder.nameProblem.dotSegment": "لا يمكن أن يكون الاسم . أو ..",

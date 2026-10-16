@@ -352,8 +352,6 @@
   "widgetsB.settings.mixer.systemSounds.desc": "Suara notifikasi Windows sendiri",
   "widgetsB.settings.mixer.rows": "Baris",
   "widgetsB.settings.mixer.icons.desc": "Ikon masing-masing aplikasi, bukan ikon umum",
-  "widgetsB.settings.mixer.peaks.label": "Meter level",
-  "widgetsB.settings.mixer.peaks.desc": "Meter langsung di bawah setiap penggeser, jika ada ruang",
   "widgetsB.settings.mixer.note": "Klik mixer, lalu ↑ dan ↓ memilih baris, ← dan → mengubahnya, M membisukan.",
   "widgetsB.folder.nameProblem.empty": "Nama tidak boleh kosong",
   "widgetsB.folder.nameProblem.dotSegment": "Nama tidak boleh . atau ..",

@@ -48,8 +48,8 @@ public readonly record struct AudioKeyAction(AudioKeyKind Kind, int Index = 0, i
 
 /// <summary>
 /// [S-1221]..[S-1234] The rules the mixer and the volume tile share beyond the level arithmetic in
-/// <see cref="VolumeRules"/>: which device a widget is bound to, what a key does, how a key steps a
-/// level, and how per-session peaks become per-row peaks.
+/// <see cref="VolumeRules"/>: which device a widget is bound to, what a key does and how a key steps a
+/// level.
 /// <para>
 /// Kept out of the COM code so it can be tested without an audio device — CI has none.
 /// </para>
@@ -195,44 +195,5 @@ public static class AudioRules
             default:
                 return AudioKeyAction.None;
         }
-    }
-
-    /// <summary>A meter reading as a 0..1 fraction; a junk value from across the COM boundary is silence.</summary>
-    public static double Peak(double value) => double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 0;
-
-    /// <summary>
-    /// [S-1223] Per-session peaks keyed both ways a row can be keyed: by the session's own key (an
-    /// ungrouped row) and by its group key (a grouped row, which shows its loudest session).
-    /// </summary>
-    public static Dictionary<string, double> PeaksByKey(IEnumerable<(string SessionKey, string GroupKey, double Peak)> sessions)
-    {
-        ArgumentNullException.ThrowIfNull(sessions);
-
-        var peaks = new Dictionary<string, double>(StringComparer.Ordinal);
-        foreach (var (sessionKey, groupKey, value) in sessions)
-        {
-            var peak = Peak(value);
-            peaks[sessionKey] = peak;
-            peaks[groupKey] = peaks.TryGetValue(groupKey, out var loudest) ? Math.Max(loudest, peak) : peak;
-        }
-
-        return peaks;
-    }
-
-    /// <summary>
-    /// [S-1223] Whether a new set of peaks is worth sending to the views. A silent machine samples
-    /// zero ten times a second; repainting zero over zero is work for nothing, so silence is sent
-    /// once and then not again until something moves.
-    /// </summary>
-    public static bool PeaksWorthSending(bool previousSilent, IReadOnlyDictionary<string, double> byKey)
-    {
-        ArgumentNullException.ThrowIfNull(byKey);
-
-        if (!previousSilent)
-        {
-            return true;
-        }
-
-        return byKey.Values.Any(static peak => peak > 0);
     }
 }

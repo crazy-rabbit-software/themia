@@ -1,7 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
@@ -13,7 +11,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-440] Per-application volume, as the Windows volume mixer lays it out: one row per app with its
-/// icon, its name, a slider, a live meter and a mute button. No master row and no device name
+/// icon, its name, a slider and a mute button. No master row and no device name
 /// ([S-3251]): the device's own level is the volume tile's.
 /// <para>
 /// [S-1227]..[S-1229] A ladder, not one layout scaled: rows are compact (icon, mute), two
@@ -47,7 +45,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     private IWidgetSurface? _surface;
     private WidgetArea _area;
     private AudioSnapshot? _snapshot;
-    private AudioPeaks _peaks = AudioPeaks.Silent;
     private Dictionary<string, double> _overrides = new(StringComparer.Ordinal);
 
     /// <summary>The rows on screen, in order: the list's, then the quiet ones.</summary>
@@ -56,13 +53,11 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     /// <summary>[S-1225] The keyboard cursor's row, by key, so it follows its row across snapshots.</summary>
     private string? _focused;
 
-    private bool _peaksOn;
-    private bool _loaded;
     private bool _detached;
 
     public MixerView()
     {
-        _feed = new AudioFeed(OnSnapshot, OnPeaks);
+        _feed = new AudioFeed(OnSnapshot);
 
         _scroller = new ScrollViewer
         {
@@ -77,9 +72,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
         Children.Add(_scroller);
         Children.Add(_empty);
-
-        Loaded += OnLoaded;
-        Unloaded += OnUnloaded;
     }
 
     public void Bind(IWidgetSurface surface)
@@ -111,19 +103,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         ? []
         : [new WidgetAction(Glyphs.Speakers, Str.WidgetsB_Mixer_FollowDefault.Text(), () => PickDevice(null))];
 
-    private void OnLoaded(object sender, RoutedEventArgs args)
-    {
-        _loaded = true;
-        Lay();
-    }
-
-    private void OnUnloaded(object sender, RoutedEventArgs args)
-    {
-        // [S-1223] Off screen: stop the meters (the worker stops sampling when no one wants them).
-        _loaded = false;
-        Lay();
-    }
-
     private void OnSnapshot(AudioSnapshot snapshot)
     {
         if (_detached)
@@ -133,26 +112,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
         _snapshot = snapshot;
         Lay();
-    }
-
-    private void OnPeaks(AudioPeaks peaks)
-    {
-        if (_detached)
-        {
-            return;
-        }
-
-        _peaks = peaks;
-
-        if (!_peaksOn)
-        {
-            return;
-        }
-
-        foreach (var row in _rows)
-        {
-            row.ShowPeak(peaks);
-        }
     }
 
     /// <summary>
@@ -168,13 +127,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
         var style = MixerRules.RowStyle(_area.Width);
 
-        // [S-1223] Meters only beside a slider, and only on a card with room for one per row.
-        var peaks = _config.ShowPeaks && _loaded && style != MixerRowStyle.Compact
-            && (style == MixerRowStyle.OneLine || _area.Least >= SizeClass.Regular);
-
-        _peaksOn = peaks;
-
-        _feed.Want(new AudioWant(_config.DeviceId, Sessions: true, Peaks: peaks));
+        _feed.Want(new AudioWant(_config.DeviceId, Sessions: true));
 
         if (_snapshot is not { } snapshot || !_area.IsMeasured)
         {
@@ -274,8 +227,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
                 // [S-1228] An app holding a session but silent reads as such, and the quiet rows
                 // under the list always do.
-                visual.Show(row, _config.ShowIcons, dimmed: i >= mainCount || (!row.Active && !row.IsSystem), _peaksOn);
-                visual.ShowPeak(_peaksOn ? _peaks : AudioPeaks.Silent);
+                visual.Show(row, _config.ShowIcons, dimmed: i >= mainCount || (!row.Active && !row.IsSystem));
             }
             else
             {
@@ -376,7 +328,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
                 var row = _shown[action.Index];
                 var level = AudioRules.Step(row.Muted ? 0 : row.Level, action.Delta);
                 OnLevel(row, level);
-                _rows[action.Index].Show(row with { Level = level, Muted = row.Muted && level <= 0 }, _config.ShowIcons, _rows[action.Index].Dimmed, _peaksOn);
+                _rows[action.Index].Show(row with { Level = level, Muted = row.Muted && level <= 0 }, _config.ShowIcons, _rows[action.Index].Dimmed);
                 return true;
 
             case AudioKeyKind.ToggleMute:
@@ -429,8 +381,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     public void Detach()
     {
         _detached = true;
-        Loaded -= OnLoaded;
-        Unloaded -= OnUnloaded;
         _feed.Dispose();
 
         foreach (var row in _rows)
@@ -446,6 +396,4 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     private static string RowName(MixerRow row) => row.IsSystem ? Str.Mixer_SystemSounds.Text()
         : row.Name.Length > 0 ? row.Name
         : Str.Mixer_UnknownApp.Text();
-
-    private static Brush Accent() => FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 }

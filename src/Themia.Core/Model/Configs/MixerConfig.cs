@@ -35,9 +35,6 @@ public sealed class MixerConfig : WidgetConfig
     /// <summary>[S-446] Each app's own icon rather than a generic glyph.</summary>
     public bool ShowIcons { get; set; } = true;
 
-    /// <summary>[S-1223] A live level meter under each slider, where the card has room for sliders.</summary>
-    public bool ShowPeaks { get; set; } = true;
-
     public override WidgetConfig Clone() => new MixerConfig
     {
         DeviceId = DeviceId,
@@ -46,7 +43,6 @@ public sealed class MixerConfig : WidgetConfig
         ShowSystemSounds = ShowSystemSounds,
         OnlyActive = OnlyActive,
         ShowIcons = ShowIcons,
-        ShowPeaks = ShowPeaks,
     };
 
     /// <summary>A blank id is "follow the default", stored as null so there is one way to say it.</summary>

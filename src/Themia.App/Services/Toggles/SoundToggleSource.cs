@@ -17,7 +17,7 @@ internal sealed class SoundToggleSource : ToggleSource
 
     /// <summary>On the UI thread: the worker's snapshots come back on its dispatcher.</summary>
     public override void Start()
-        => _subscription = CoreAudio.Subscribe(new AudioWant(DeviceId: null, Sessions: false, Peaks: false), OnSnapshot);
+        => _subscription = CoreAudio.Subscribe(new AudioWant(DeviceId: null, Sessions: false), OnSnapshot);
 
     private void OnSnapshot(AudioSnapshot snapshot)
     {

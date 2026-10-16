@@ -67,8 +67,8 @@ public class AudioRulesTests
         var clone = (VolumeConfig)new VolumeConfig { DeviceId = "{a}", DeviceName = "S", AllowControl = false }.Clone();
         Assert.Equal(("{a}", "S", false), (clone.DeviceId, clone.DeviceName, clone.AllowControl));
 
-        var mixer = (MixerConfig)new MixerConfig { DeviceId = "{b}", ShowPeaks = false }.Clone();
-        Assert.Equal(("{b}", false), (mixer.DeviceId, mixer.ShowPeaks));
+        var mixer = (MixerConfig)new MixerConfig { DeviceId = "{b}", ShowIcons = false }.Clone();
+        Assert.Equal(("{b}", false), (mixer.DeviceId, mixer.ShowIcons));
     }
 
     // ---- [S-1234] stepping ----------------------------------------------------------------------
@@ -169,36 +169,6 @@ public class AudioRulesTests
     [InlineData(0xBB, false, true)] // Ctrl+= is a zoom shortcut
     public void S1225_chords_on_the_audio_keys_stay_the_users(int vk, bool shift, bool ctrl)
         => Assert.Null(WidgetKeys.FromVirtualKey(vk, shift, ctrl, alt: false));
-
-    // ---- [S-1223] meters ------------------------------------------------------------------------
-
-    [Fact]
-    public void S1223_a_group_shows_its_loudest_session_and_each_session_its_own()
-    {
-        var peaks = AudioRules.PeaksByKey(
-        [
-            ("s1", "chrome", 0.2),
-            ("s2", "chrome", 0.7),
-            ("s3", "spotify", double.NaN),
-            ("s4", "vlc", 1.5),
-        ]);
-
-        Assert.Equal(0.7, peaks["chrome"]);
-        Assert.Equal(0.2, peaks["s1"]);
-        Assert.Equal(0, peaks["spotify"]);
-        Assert.Equal(1, peaks["vlc"]);
-    }
-
-    [Fact]
-    public void S1223_silence_is_sent_once_and_then_not_again()
-    {
-        var silent = new Dictionary<string, double> { ["a"] = 0 };
-        var loud = new Dictionary<string, double> { ["a"] = 0.3 };
-
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: false, silent));
-        Assert.False(AudioRules.PeaksWorthSending(previousSilent: true, silent));
-        Assert.True(AudioRules.PeaksWorthSending(previousSilent: true, loud));
-    }
 
     // ---- [S-1227] [S-1228] [S-1231] the mixer's rows ---------------------------------------------
 

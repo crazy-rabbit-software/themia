@@ -84,8 +84,6 @@ internal static unsafe partial class CoreAudio
         public const int EndpointGetScalar = 9;
         public const int EndpointSetMute = 14;
         public const int EndpointGetMute = 15;
-
-        public const int MeterGetPeak = 3;
     }
 
     private static class Iids
@@ -96,7 +94,6 @@ internal static unsafe partial class CoreAudio
         public static readonly Guid SessionControl2 = new("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D");
         public static readonly Guid SimpleAudioVolume = new("87CE5498-68D6-44E5-9215-6DA47EF883D8");
         public static readonly Guid EndpointVolume = new("5CDF2C82-841E-4546-9722-0CF74078229A");
-        public static readonly Guid MeterInformation = new("C02216F6-8C67-4B5B-9D00-D008E73E0064");
 
         /// <summary>PKEY_Device_FriendlyName's format id (property 14).</summary>
         public static readonly Guid DeviceFriendlyNameFormat = new("A45C254E-DF1C-4EFD-8020-67D146A850E0");
