@@ -675,10 +675,67 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_list_columns_grow_with_the_width()
     {
-        Assert.Empty(FolderLayout.ListColumns(new WidgetArea(150, 100), 100));
-        Assert.Equal([FolderColumn.Modified], FolderLayout.ListColumns(new WidgetArea(300, 200), 250));
-        Assert.Equal([FolderColumn.Modified, FolderColumn.Size], FolderLayout.ListColumns(new WidgetArea(480, 116), 424));
-        Assert.Equal([FolderColumn.Modified, FolderColumn.Size, FolderColumn.Type], FolderLayout.ListColumns(new WidgetArea(800, 500), 744));
+        Assert.Empty(FolderLayout.ListColumns(new WidgetArea(150, 100), 100, anyFile: true));
+        Assert.Equal([FolderColumn.Modified], FolderLayout.ListColumns(new WidgetArea(300, 200), 250, anyFile: true));
+        Assert.Equal([FolderColumn.Size, FolderColumn.Modified], FolderLayout.ListColumns(new WidgetArea(480, 116), 424, anyFile: true));
+        Assert.Equal([FolderColumn.Type, FolderColumn.Size, FolderColumn.Modified], FolderLayout.ListColumns(new WidgetArea(800, 500), 744, anyFile: true));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void S6411_the_list_s_rightmost_column_is_one_every_row_fills_at_every_width(bool anyFile)
+    {
+        // The bug: from 400 DIPs the list put Size last, blank for every folder, so the dates ended
+        // a hidden column's width short of the right edge.
+        for (var width = 120; width <= 1200; width += 10)
+        {
+            var area = new WidgetArea(width, 300);
+            var columns = FolderLayout.ListColumns(area, width - 56, anyFile);
+
+            if (columns.Count > 0)
+            {
+                Assert.Equal(FolderColumn.Modified, columns[^1]);
+            }
+
+            if (!anyFile)
+            {
+                Assert.DoesNotContain(FolderColumn.Size, columns);
+            }
+        }
+    }
+
+    [Fact]
+    public void S6411_the_last_details_column_ends_at_the_right_edge_whatever_it_is()
+    {
+        // Type, Git and Cloud are drawn from the left of their slot; as the last column that left
+        // the slot's slack as an empty strip at the row's end.
+        foreach (var last in FolderColumns.All)
+        {
+            List<FolderColumn> chosen = [.. FolderColumns.All.Where(c => c != last), last];
+
+            for (var width = 200; width <= 1400; width += 20)
+            {
+                var shown = FolderColumns.Fit(chosen, width);
+
+                for (var i = 0; i < shown.Count; i++)
+                {
+                    var end = FolderColumns.AlignsRight(shown[i], last: i == shown.Count - 1);
+                    Assert.True(i < shown.Count - 1 || end, $"{shown[i]} last at {width}");
+                }
+            }
+        }
+
+        Assert.False(FolderColumns.AlignsRight(FolderColumn.Type, last: false));
+        Assert.True(FolderColumns.AlignsRight(FolderColumn.Size, last: false));
+    }
+
+    [Fact]
+    public void S6411_a_listing_of_folders_only_reserves_no_size_column()
+    {
+        var plan = FolderLayout.Plan(new WidgetArea(670, 300), new FolderConfig(), 4, anyFile: false, searchOpen: false, navigate: false, hasGit: false);
+
+        Assert.Equal([FolderColumn.Modified], plan.Columns);
     }
 
     [Fact]
@@ -686,10 +743,10 @@ public sealed class FolderBrowserTests
     {
         var config = new FolderConfig { Style = FolderStyle.Details };
 
-        var small = FolderLayout.Plan(new WidgetArea(200, 106), config, 20, searchOpen: false, navigate: true, hasGit: false);
+        var small = FolderLayout.Plan(new WidgetArea(200, 106), config, 20, true, searchOpen: false, navigate: true, hasGit: false);
         Assert.False(small.Breadcrumb);
 
-        var big = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, false, true, false);
+        var big = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, true, false, true, false);
         Assert.True(big.Breadcrumb);
         Assert.True(big.ColumnHeader);
         Assert.Equal(config.Columns, big.Columns);
@@ -698,7 +755,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_a_big_tile_has_a_breadcrumb_and_no_column_header_outside_details()
     {
-        var plan = FolderLayout.Plan(new WidgetArea(800, 516), new FolderConfig { Style = FolderStyle.Grid }, 6, false, true, false);
+        var plan = FolderLayout.Plan(new WidgetArea(800, 516), new FolderConfig { Style = FolderStyle.Grid }, 6, true, false, true, false);
 
         Assert.True(plan.Breadcrumb);
         Assert.False(plan.ColumnHeader);
@@ -711,7 +768,7 @@ public sealed class FolderBrowserTests
     {
         var config = new FolderConfig { Style = FolderStyle.Details };
 
-        var plan = FolderLayout.Plan(new WidgetArea(300, 80), config, 20, searchOpen: true, navigate: false, hasGit: false);
+        var plan = FolderLayout.Plan(new WidgetArea(300, 80), config, 20, true, searchOpen: true, navigate: false, hasGit: false);
 
         Assert.True(plan.SearchBox);
         Assert.False(plan.ColumnHeader);
@@ -722,7 +779,7 @@ public sealed class FolderBrowserTests
     {
         var config = new FolderConfig { Style = FolderStyle.Grid, TileSize = FolderTileSize.Small };
 
-        var plan = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, false, false, false);
+        var plan = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, true, false, false, false);
 
         Assert.Equal(48, plan.Grid?.Icon);
     }

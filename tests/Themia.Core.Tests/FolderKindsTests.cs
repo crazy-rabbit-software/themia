@@ -157,17 +157,17 @@ public sealed class FolderKindsTests
     {
         var area = new WidgetArea(800, 516);
 
-        Assert.False(FolderLayout.Plan(area, new FolderConfig(), 20, false, false, false).ColumnHeader);
-        Assert.True(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, false, false, false).ColumnHeader);
-        Assert.Null(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, false, false, false).Grid);
+        Assert.False(FolderLayout.Plan(area, new FolderConfig(), 20, true, false, false, false).ColumnHeader);
+        Assert.True(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, true, false, false, false).ColumnHeader);
+        Assert.Null(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, true, false, false, false).Grid);
     }
 
     [Fact]
     public void S4121_icons_tiles_pack_to_the_icon_and_grid_tiles_keep_their_label_room()
     {
         var area = new WidgetArea(320, 240);
-        var icons = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Icons, TileSize = FolderTileSize.Small }, 20, false, false, false).Grid!.Value;
-        var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid, TileSize = FolderTileSize.Small }, 20, false, false, false).Grid!.Value;
+        var icons = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Icons, TileSize = FolderTileSize.Small }, 20, true, false, false, false).Grid!.Value;
+        var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid, TileSize = FolderTileSize.Small }, 20, true, false, false, false).Grid!.Value;
 
         Assert.Equal(icons.Icon + 24, icons.CellHeight);
         Assert.Equal(FolderLayout.Tile(FolderTileSize.Small).Row, grid.CellHeight);

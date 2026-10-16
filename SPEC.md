@@ -5897,10 +5897,17 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   a 120 DIP name; the first that does not fit ends the row. Header click sorts Name/Size/Modified (again = reverse, saved);
   the columns are chosen in the settings only ([S-1746]; the header has no menu of its own).
 - **[S-1323]** Ladder (`FolderLayout.Plan`): one row / one tile row always; an open search box; the details column header;
-  list view adds unlabelled Modified (W >= Regular), Size (>= Expanded), Type (>= Huge); at Expanded x Expanded a breadcrumb
+  list view adds unlabelled Modified (W >= Regular), Size (>= Expanded), Type (>= Huge), drawn right to left ([S-6411]); at Expanded x Expanded a breadcrumb
   (tail first, clickable), no status footer ("24 items · 2 selected", retired [S-666]); Huge width: grid tiles one size
   up. Grid columns = floor(width / tile), stretched to fill the row; rows keep the preset height (no stretch, [S-4121]);
   Icons view packs tiles to icon + 24. Over 1000 items: the first 1000 and a "N more in Explorer…" row.
+- **[S-6411]** The rightmost column ends at the row's right inset, the same as the header's buttons, at
+  every width and in every style (user report 2026-10-16: from 400 DIPs the list put Size last, blank for
+  every folder, so the dates stopped a column short of the edge). The list's unlabelled columns are drawn
+  Type, Size, Modified (Modified, filled by every row, last) and Size is left out when nothing shown is
+  a file (`FolderLayout.ListColumns`); in Details the last column, whatever it is, is drawn from the right
+  of its slot, header included (`FolderColumns.AlignsRight(column, last)`). Grid and Icons stretch their
+  tiles to the row ([S-1323]).
 - **[S-1324]** Real shell icons (`IShellItemImageFactory`, shared per extension except exe/lnk/ico/url…, customised folders
   per path) and image thumbnails in Grid/Icons (`SIIGBF_THUMBNAILONLY`; never for cloud placeholders). Caches bounded and
   shared; extraction serialised (orig. S-64). Cloud badge from attributes (cloud-only / always kept / available) over the

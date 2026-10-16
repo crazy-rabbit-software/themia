@@ -57,8 +57,13 @@ public static class FolderColumns
         _ => column.ToString(),
     };
 
-    /// <summary>Whether the column's text sits at the right edge (numbers) rather than the left.</summary>
-    public static bool AlignsRight(FolderColumn column) => column is FolderColumn.Size or FolderColumn.ItemCount or FolderColumn.Modified;
+    /// <summary>
+    /// Whether the column's text sits at the right edge (numbers) rather than the left. [S-6411] The
+    /// row's <paramref name="last"/> column always does, so the rightmost text ends at the row's right
+    /// inset instead of leaving its slot's slack as a blank strip.
+    /// </summary>
+    public static bool AlignsRight(FolderColumn column, bool last)
+        => last || column is FolderColumn.Size or FolderColumn.ItemCount or FolderColumn.Modified;
 
     /// <summary>
     /// [S-1322] The chosen columns that fit <paramref name="width"/> beside a Name column of at least

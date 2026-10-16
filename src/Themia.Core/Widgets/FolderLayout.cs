@@ -102,8 +102,11 @@ public static class FolderLayout
         return new GridPlan(columns, cellWidth, row, rows, icon);
     }
 
-    /// <summary>One layout pass. <paramref name="area"/> is the view's slot (the card below its header).</summary>
-    public static FolderPlan Plan(WidgetArea area, FolderConfig config, int count, bool searchOpen, bool navigate, bool hasGit)
+    /// <summary>
+    /// One layout pass. <paramref name="area"/> is the view's slot (the card below its header);
+    /// <paramref name="anyFile"/> whether anything shown is a file ([S-6411]).
+    /// </summary>
+    public static FolderPlan Plan(WidgetArea area, FolderConfig config, int count, bool anyFile, bool searchOpen, bool navigate, bool hasGit)
     {
         ArgumentNullException.ThrowIfNull(config);
 
@@ -136,7 +139,7 @@ public static class FolderLayout
 
         IReadOnlyList<FolderColumn> columns = details
             ? FolderColumns.Fit(config.DetailColumns, textWidth)
-            : grid ? [] : ListColumns(area, textWidth);
+            : grid ? [] : ListColumns(area, textWidth, anyFile);
 
         return new FolderPlan(
             breadcrumb,
@@ -153,8 +156,14 @@ public static class FolderLayout
     /// <summary>
     /// [S-1323] The list view's unlabelled trailing columns: Modified from a Regular width, Size from
     /// Expanded, Type from Huge — each only when it still leaves the name its minimum.
+    /// <para>
+    /// [S-6411] Unlabelled, a column that a row leaves blank is invisible space: so Size is dropped
+    /// when nothing shown is a file (folders have no size), and Modified, the one every row fills,
+    /// is drawn last, so the rightmost text ends at the row's right inset at every width. Shown
+    /// right to left by priority: Type, Size, Modified.
+    /// </para>
     /// </summary>
-    public static IReadOnlyList<FolderColumn> ListColumns(WidgetArea area, double textWidth)
+    public static IReadOnlyList<FolderColumn> ListColumns(WidgetArea area, double textWidth, bool anyFile)
     {
         List<FolderColumn> wanted = [];
 
@@ -163,7 +172,7 @@ public static class FolderLayout
             wanted.Add(FolderColumn.Modified);
         }
 
-        if (area.WidthClass >= SizeClass.Expanded)
+        if (area.WidthClass >= SizeClass.Expanded && anyFile)
         {
             wanted.Add(FolderColumn.Size);
         }
@@ -173,7 +182,8 @@ public static class FolderLayout
             wanted.Add(FolderColumn.Type);
         }
 
-        return FolderColumns.Fit(wanted, textWidth);
+        var fitted = FolderColumns.Fit(wanted, textWidth);
+        return [.. fitted.Reverse()];
     }
 
     /// <summary>

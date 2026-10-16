@@ -261,7 +261,7 @@ internal sealed partial class FolderView
             return;
         }
 
-        var plan = FolderLayout.Plan(_area, _config, _shown.Count, _searchOpen, Navigates, _git is not null);
+        var plan = FolderLayout.Plan(_area, _config, _shown.Count, _shown.Any(e => !e.IsDirectory), _searchOpen, Navigates, _git is not null);
         _plan = plan;
         ApplyChrome(plan);
 
@@ -343,7 +343,7 @@ internal sealed partial class FolderView
 
         if (_area.IsMeasured)
         {
-            _plan = FolderLayout.Plan(_area, _config, _shown.Count, _searchOpen, Navigates, _git is not null);
+            _plan = FolderLayout.Plan(_area, _config, _shown.Count, _shown.Any(e => !e.IsDirectory), _searchOpen, Navigates, _git is not null);
             ApplyChrome(_plan);
         }
 
@@ -636,7 +636,7 @@ internal sealed partial class FolderView
             var column = columns[c];
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(FolderColumns.Width(column)) });
 
-            var cell = Cell(column);
+            var cell = Cell(column, last: c == columns.Count - 1);
             cell.Text = CellText(entry, column, now);
             SetColumn(cell, c + 2);
             content.Children.Add(cell);
@@ -649,17 +649,17 @@ internal sealed partial class FolderView
         return visual;
     }
 
-    private static TextBlock Cell(FolderColumn column)
+    private static TextBlock Cell(FolderColumn column, bool last)
     {
         var cell = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
         cell.VerticalAlignment = VerticalAlignment.Center;
         cell.TextTrimming = TextTrimming.CharacterEllipsis;
-        cell.TextAlignment = FolderColumns.AlignsRight(column) ? TextAlignment.Right : TextAlignment.Left;
+        cell.TextAlignment = FolderColumns.AlignsRight(column, last) ? TextAlignment.Right : TextAlignment.Left;
 
         if (column == FolderColumn.Cloud)
         {
             cell.FontFamily = new FontFamily("Segoe Fluent Icons,Segoe MDL2 Assets");
-            cell.TextAlignment = TextAlignment.Center;
+            cell.TextAlignment = last ? TextAlignment.Right : TextAlignment.Center;
         }
 
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(cell, FontNumeralAlignment.Tabular);
@@ -912,7 +912,7 @@ internal sealed partial class FolderView
                 _ => null,
             };
 
-            AddHeaderCell(FolderColumns.Title(column), c + 2, sort, FolderColumns.AlignsRight(column) ? TextAlignment.Right : TextAlignment.Left);
+            AddHeaderCell(FolderColumns.Title(column), c + 2, sort, FolderColumns.AlignsRight(column, last: c == plan.Columns.Count - 1) ? TextAlignment.Right : TextAlignment.Left);
         }
     }
 
