@@ -7263,8 +7263,9 @@ Exchange rates (`ExchangeRates`, 130):
 - **[S-5148]** Settings: Base currency (Windows region first, naming it), Currency (the default
   first, naming it, then the published codes), and the source line.
 - **[S-6167]** The exchange-rate widget's styles ([S-6000]), `ExchangeRatesConfig.Style`
-  (`ExchangeRatesStyle`): **Number** ([S-5146], the default; what was **List** before one pair per
-  widget, renamed since a list of one is a number) and **Chart**. *(The list's rows and their
+  (`ExchangeRatesStyle`): **Chart** (the default and first, as for Stocks — user requirement: the
+  rate shows with its graph) and **Number** ([S-5146]; what was **List** before one pair per widget,
+  renamed since a list of one is a number). *(The list's rows and their
   small lines are retired with the list.)*
 - **[S-6168]** **Chart** (`OnlineLayouts.Rates`): the pair as the readout (as [S-5146]), and its 90
   days filled under the line in what the readout leaves (it takes 40 % of the spare height), edge to

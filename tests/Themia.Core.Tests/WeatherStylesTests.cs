@@ -29,15 +29,15 @@ public sealed class WeatherStylesTests
     public void S6160_each_kind_offers_its_styles_in_menu_order_the_default_first()
     {
         Assert.Equal(["standard", "largeIcon", "minimal"], Names(WidgetKind.WeatherNow));
-        Assert.Equal(["rows", "columns", "curve"], Names(WidgetKind.WeatherForecast));
+        Assert.Equal(["rows", "columns", "curve", "grid"], Names(WidgetKind.WeatherForecast));
         Assert.Equal(["chart", "number"], Names(WidgetKind.Stocks));
-        Assert.Equal(["number", "chart"], Names(WidgetKind.ExchangeRates));
+        Assert.Equal(["chart", "number"], Names(WidgetKind.ExchangeRates));
         Assert.Equal(["number", "gauge"], Names(WidgetKind.AirQuality));
 
         Assert.Equal(WeatherNowStyle.Standard, new WeatherNowConfig().Style);
         Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);
         Assert.Equal(StocksStyle.Chart, new StocksConfig().Style);
-        Assert.Equal(ExchangeRatesStyle.Number, new ExchangeRatesConfig().Style);
+        Assert.Equal(ExchangeRatesStyle.Chart, new ExchangeRatesConfig().Style);
         Assert.Equal(AirQualityStyle.Number, new AirQualityConfig().Style);
     }
 

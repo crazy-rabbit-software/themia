@@ -33,11 +33,11 @@ public enum AirQualityStyle
 [JsonConverter(typeof(StyleJsonConverter<ExchangeRatesStyle>))]
 public enum ExchangeRatesStyle
 {
-    /// <summary>[S-5146] The rate alone, as large as the tile allows.</summary>
-    Number = 0,
+    /// <summary>[S-6168] The rate over its 90-day line: the default, as for Stocks.</summary>
+    Chart = 0,
 
-    /// <summary>[S-6168] The rate over its 90-day line.</summary>
-    Chart = 1,
+    /// <summary>[S-5146] The rate alone, as large as the tile allows.</summary>
+    Number = 1,
 }
 
 /// <summary>
@@ -112,8 +112,8 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
 {
     private static readonly StyleOption[] RateStyles =
     [
-        StyleOption.Of(ExchangeRatesStyle.Number, Str.Styles_Rates_Number, 0xE75F),
         StyleOption.Of(ExchangeRatesStyle.Chart, Str.Styles_Rates_Chart, 0xE9D2),
+        StyleOption.Of(ExchangeRatesStyle.Number, Str.Styles_Rates_Number, 0xE75F),
     ];
 
     [JsonIgnore]
@@ -126,7 +126,7 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
     public string QuoteCurrency { get; set; } = string.Empty;
 
     /// <summary>[S-6167] The widget's look: the rate alone, or over its chart.</summary>
-    public ExchangeRatesStyle Style { get; set; } = ExchangeRatesStyle.Number;
+    public ExchangeRatesStyle Style { get; set; } = ExchangeRatesStyle.Chart;
 
     IReadOnlyList<StyleOption> IStyled.Styles => RateStyles;
 
