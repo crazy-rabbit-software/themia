@@ -119,8 +119,11 @@ public sealed record PairRate(string Base, string Quote, double Rate, double? Ch
 /// <summary>[S-5142]..[S-5145] Currencies, cross rates and their text.</summary>
 public static class ExchangeRules
 {
-    /// <summary>[S-5143] The quotes a new widget shows.</summary>
-    public static IReadOnlyList<string> DefaultQuotes { get; } = ["EUR", "USD", "GBP"];
+    /// <summary>
+    /// [S-5143] The quote a widget shows until one is chosen: the euro, the ECB's own currency and
+    /// the one most bases are priced against; for a euro base, the dollar.
+    /// </summary>
+    public static string DefaultQuote(string basis) => string.Equals(basis, "EUR", StringComparison.Ordinal) ? "USD" : "EUR";
 
     /// <summary>
     /// [S-5142] The currencies the ECB publishes reference rates for (its list since 2022), and the
@@ -198,7 +201,7 @@ public static class ExchangeRules
     /// <summary>The longest rate this widget prints, in characters, for a stable type step.</summary>
     public const double RateCharacters = 9;
 
-    /// <summary>[S-5141] The days the ECB's history file covers, as the chart setting names them.</summary>
+    /// <summary>[S-5141] The days the ECB's history file covers.</summary>
     public const int HistoryDays = 90;
 }
 

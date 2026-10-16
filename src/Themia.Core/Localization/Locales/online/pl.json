@@ -58,9 +58,9 @@
   "online.rates.perBase": "za 1 {code}",
   "online.rates.missing": "Nie publikowany",
   "online.rates.settings.base.label": "Waluta bazowa",
-  "online.rates.settings.base.desc": "Waluta, w której podawane są pozostałe",
+  "online.rates.settings.base.desc": "Kurs podawany jest za jedną jednostkę tej waluty",
   "online.rates.settings.base.region": "Region systemu Windows ({code})",
-  "online.rates.settings.quotes.label": "Waluty",
-  "online.rates.settings.quotes.desc": "Tyle, ile się zmieści, w wybranej kolejności",
-  "online.rates.settings.quotes.all": "Wszystkie waluty"
+  "online.rates.settings.quote.label": "Waluta",
+  "online.rates.settings.quote.desc": "Waluta, w której podawany jest kurs",
+  "online.rates.settings.quote.default": "Domyślna ({code})"
 }

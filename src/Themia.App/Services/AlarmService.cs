@@ -11,7 +11,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-4623]..[S-4627] The alarms of every alarm widget, rung whether or not a widget shows them: one
+/// [S-4623]..[S-4627] The alarm of every alarm widget, rung whether or not a widget shows it: one
 /// for the app's lifetime, started by the host. It keeps the <see cref="AlarmBook"/>, synced from the
 /// state on every change, and <b>one</b> waitable timer set to the next thing due (a ring, a snooze
 /// over, a ring that has run long enough) — an absolute UTC due time, which Windows keeps through a
@@ -76,10 +76,13 @@ internal sealed partial class AlarmService : IDisposable
         Sync();
     }
 
-    /// <summary>What <paramref name="alarm"/> of <paramref name="widgetId"/> is doing now.</summary>
-    public AlarmStatus Status(string widgetId, AlarmEntry alarm) => _book.Of(AlarmWords.Key(widgetId, alarm.Id), DateTime.UtcNow);
+    /// <summary>What the alarm of widget <paramref name="widgetId"/> is doing now.</summary>
+    public AlarmStatus Status(string widgetId) => _book.Of(widgetId, DateTime.UtcNow);
 
-    /// <summary>[S-4623] The alarms of every view again (a settings change, a switch on a widget, an undo). UI thread.</summary>
+    /// <summary>
+    /// [S-4623] The alarms of every view again (a settings change, a switch on a widget, a widget
+    /// added, deleted or brought back by an undo). UI thread.
+    /// </summary>
     public void Sync()
     {
         if (_disposed)
@@ -87,23 +90,8 @@ internal sealed partial class AlarmService : IDisposable
             return;
         }
 
-        var slots = new List<AlarmSlot>();
-        foreach (var view in _state().Views)
-        {
-            foreach (var widget in view.Widgets)
-            {
-                if (widget.Config is AlarmConfig config)
-                {
-                    foreach (var alarm in config.Alarms)
-                    {
-                        slots.Add(new AlarmSlot(AlarmWords.Key(widget.Id, alarm.Id), alarm, config.Snooze));
-                    }
-                }
-            }
-        }
-
         var now = DateTime.UtcNow;
-        _book.Sync(slots, now);
+        _book.Sync(AlarmSlot.Of(_state().Views), now);
         _book.Tick(now);
         Arm();
         Changed?.Invoke();
@@ -200,16 +188,16 @@ internal sealed partial class AlarmService : IDisposable
 
     private void OnRang(string key)
     {
-        if (FindConfig(key) is not var (config, alarm))
+        if (_book.Slot(key) is not { Alarm: var alarm })
         {
             return;
         }
 
         Log.Info(Scope, "an alarm is ringing");
 
-        if (config.Sound != AlarmSound.Off)
+        if (alarm.Sound != AlarmSound.Off)
         {
-            CuePlayer.PlayLooping(PomodoroSounds.Wave(config.Sound, PomodoroPhase.Work, config.EffectiveVolume));
+            CuePlayer.PlayLooping(PomodoroSounds.Wave(alarm.Sound, PomodoroPhase.Work, alarm.EffectiveVolume));
         }
 
         ShowNotification(key, alarm);
@@ -223,28 +211,6 @@ internal sealed partial class AlarmService : IDisposable
         }
 
         RemoveNotification(key);
-    }
-
-    private (AlarmConfig Config, AlarmEntry Alarm)? FindConfig(string key)
-    {
-        foreach (var view in _state().Views)
-        {
-            foreach (var widget in view.Widgets)
-            {
-                if (widget.Config is AlarmConfig config)
-                {
-                    foreach (var alarm in config.Alarms)
-                    {
-                        if (AlarmWords.Key(widget.Id, alarm.Id) == key)
-                        {
-                            return (config, alarm);
-                        }
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     // ---- the notification ------------------------------------------------------------------
@@ -276,7 +242,7 @@ internal sealed partial class AlarmService : IDisposable
         }
     }
 
-    private void ShowNotification(string key, AlarmEntry alarm)
+    private void ShowNotification(string key, AlarmConfig alarm)
     {
         if (!_notifications)
         {

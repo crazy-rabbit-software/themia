@@ -152,61 +152,39 @@ public class TrackersLayoutTests
 
     // ---- Countdown ---------------------------------------------------------------------------
 
-    private static List<CountdownTimer> Timers(params int[] hoursFromNow)
-        => [.. hoursFromNow.Select((h, i) => CountdownTimer.Create($"t{i}", Now.AddHours(h)))];
-
     [Fact]
-    public void S1446_featured_is_the_soonest_ahead_else_the_latest_past()
+    public void S1447_the_progress_bar_is_a_rung_of_the_large_tiles_alone()
     {
-        Assert.Equal(2, CountdownLayout.Featured(Timers(30, -1, 5, 100), Now));
-        Assert.Equal(1, CountdownLayout.Featured(Timers(-30, -1, -5), Now));
-        Assert.Equal(-1, CountdownLayout.Featured([], Now));
+        Assert.False(CountdownLayout.ShowsProgress(XS));
+        Assert.False(CountdownLayout.ShowsProgress(S));
+        Assert.False(CountdownLayout.ShowsProgress(M));
+        Assert.False(CountdownLayout.ShowsProgress(Wide));
+        Assert.False(CountdownLayout.ShowsProgress(Tall));
+        Assert.True(CountdownLayout.ShowsProgress(L));
+        Assert.True(CountdownLayout.ShowsProgress(XL));
     }
 
     [Fact]
-    public void S1446_next_line_names_the_soonest_other_upcoming()
+    public void S1448_progress_runs_from_when_the_target_was_set_to_the_target()
     {
-        var timers = Timers(30, -1, 5, 100);
-        Assert.Equal("Next: t0 in 1d 6h", CountdownLayout.NextLine(timers, 2, Now, Locale.En));
-        Assert.Null(CountdownLayout.NextLine(Timers(5, -1), 0, Now, Locale.En));
-    }
+        var config = new CountdownConfig();
+        config.Retarget(Now.AddHours(10), Now.AddHours(-30));
+        Assert.Equal(0.75, CountdownLayout.Progress(config, Now)!.Value, 6);
+        Assert.Equal(1, CountdownLayout.Progress(config, Now.AddDays(5)));
+        Assert.Equal(0, CountdownLayout.Progress(config, Now.AddDays(-5)));
 
-    [Fact]
-    public void S1447_countdown_ladder_by_tier()
-    {
-        Assert.Equal(CountdownHero.Only, CountdownLayout.Plan(XS, 3).Hero);
-        Assert.True(CountdownLayout.Plan(S, 3).NextLine);
-        Assert.Equal(CountdownHero.Top, CountdownLayout.Plan(M, 3).Hero);
-        Assert.Equal(CountdownHero.Left, CountdownLayout.Plan(Wide, 3).Hero);
-        Assert.Equal(CountdownHero.Top, CountdownLayout.Plan(Tall, 3).Hero);
-        Assert.Equal(CountdownHero.Top, CountdownLayout.Plan(L, 3).Hero);
-        Assert.True(CountdownLayout.Plan(L, 3).HeroProgress);
-        Assert.False(CountdownLayout.Plan(L, 3).RowProgress);
-        Assert.True(CountdownLayout.Plan(XL, 3).RowProgress);
-
-        // One timer is the whole tile at any size; none is the empty state.
-        Assert.Equal(CountdownHero.Only, CountdownLayout.Plan(L, 1).Hero);
-        Assert.False(CountdownLayout.Plan(L, 1).NextLine);
-        Assert.Equal(CountdownHero.None, CountdownLayout.Plan(L, 0).Hero);
-    }
-
-    [Fact]
-    public void S1448_progress_runs_from_creation_to_target()
-    {
-        var timer = CountdownTimer.Create("x", Now.AddHours(10), Now.AddHours(-30));
-        Assert.Equal(0.75, CountdownLayout.Progress(timer, Now)!.Value, 6);
-        Assert.Equal(1, CountdownLayout.Progress(timer, Now.AddDays(5)));
-        Assert.Equal(0, CountdownLayout.Progress(timer, Now.AddDays(-5)));
-
-        Assert.Null(CountdownLayout.Progress(CountdownTimer.Create("x", Now), Now));
-        Assert.Null(CountdownLayout.Progress(CountdownTimer.Create("x", Now, Now.AddHours(1)), Now));
+        // Unknown when it was set, set after the target, or no target at all: no bar.
+        Assert.Null(CountdownLayout.Progress(new CountdownConfig { Target = Now }, Now));
+        Assert.Null(CountdownLayout.Progress(new CountdownConfig { Target = Now, Created = Now.AddHours(1) }, Now));
+        Assert.Null(CountdownLayout.Progress(new CountdownConfig(), Now));
     }
 
     [Fact]
     public void S1448_clone_keeps_the_creation_time()
     {
-        var timer = CountdownTimer.Create("x", Now.AddHours(10), Now);
-        Assert.Equal(Now, timer.Clone().Created);
+        var config = new CountdownConfig();
+        config.Retarget(Now.AddHours(10), Now);
+        Assert.Equal(Now, ((CountdownConfig)config.Clone()).Created);
     }
 
     [Fact]

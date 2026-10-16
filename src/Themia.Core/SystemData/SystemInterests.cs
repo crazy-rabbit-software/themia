@@ -75,9 +75,7 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
                 return Chart(FeedKey.Create(SystemSource.Ping, ping.EffectiveHost));
             case GpuConfig gpu:
                 var key = FeedKey.Create(SystemSource.Gpu);
-                return new SystemInterests(
-                    [key],
-                    [.. GpuRules.ResolveAdapters(gpu.Adapters).Select(i => new SeriesInterest(key, i.ToString(CultureInfo.InvariantCulture)))]);
+                return new SystemInterests([key], [new SeriesInterest(key, Math.Max(0, gpu.Adapter).ToString(CultureInfo.InvariantCulture))]);
             case CpuDetailsConfig:
                 return Read(SystemSource.Cpu, SystemSource.Performance, SystemSource.Processor);
             case MemoryDetailsConfig:

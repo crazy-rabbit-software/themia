@@ -58,9 +58,9 @@
   "online.rates.perBase": "每 1 {code}",
   "online.rates.missing": "未公布",
   "online.rates.settings.base.label": "基準貨幣",
-  "online.rates.settings.base.desc": "其他貨幣以它計價",
+  "online.rates.settings.base.desc": "匯率以此貨幣的一個單位計",
   "online.rates.settings.base.region": "Windows 地區 ({code})",
-  "online.rates.settings.quotes.label": "貨幣",
-  "online.rates.settings.quotes.desc": "依所選順序，放得下多少顯示多少",
-  "online.rates.settings.quotes.all": "所有貨幣"
+  "online.rates.settings.quote.label": "貨幣",
+  "online.rates.settings.quote.desc": "匯率以此貨幣表示",
+  "online.rates.settings.quote.default": "預設 ({code})"
 }

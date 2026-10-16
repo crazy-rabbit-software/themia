@@ -99,12 +99,11 @@ internal sealed partial class GpuView
         };
 
         /// <summary>
-        /// [S-6321] One adapter: the gauge as large as the panel allows, the load in its bowl. Several
-        /// adapters keep the name and load on their line at the top and draw the gauge under it.
+        /// [S-6321] The gauge as large as the tile allows, the load in its bowl.
         /// </summary>
         private void LayGauge(WidgetArea area)
         {
-            var top = _stacked ? HeroLayout.TopInset + FluentType.Subtitle.LineHeight + Fluent.Space2 : HeroLayout.TopInset;
+            var top = HeroLayout.TopInset;
             var boxWidth = Math.Max(0, area.Width - (2 * HeroLayout.SideInset));
             var boxHeight = Math.Max(0, area.Height - top - BodyBottom);
             var gauge = GaugeLayout.Fit(boxWidth, boxHeight);
@@ -123,9 +122,9 @@ internal sealed partial class GpuView
                 }
 
                 // Too small for a gauge: the load alone, as the history's tiny panel.
-                var plan = MeterFace.Plan(area, false, bound, false, Fluent.Space2, MinChart, _stacked ? FluentType.Subtitle : null);
+                var plan = MeterFace.Plan(area, false, bound, false, Fluent.Space2, MinChart, null);
                 SetRowSpan(_reading, 2);
-                _reading.HorizontalAlignment = _stacked ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
+                _reading.HorizontalAlignment = HorizontalAlignment.Left;
                 _reading.VerticalAlignment = VerticalAlignment.Center;
                 _reading.Margin = new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0);
                 LayHero(plan.Reading);
@@ -141,16 +140,6 @@ internal sealed partial class GpuView
             _dial.VerticalAlignment = VerticalAlignment.Center;
             _dial.Margin = new Thickness(HeroLayout.SideInset, top, HeroLayout.SideInset, BodyBottom);
 
-            if (_stacked)
-            {
-                SetRowSpan(_reading, 1);
-                _reading.HorizontalAlignment = HorizontalAlignment.Stretch;
-                _reading.VerticalAlignment = VerticalAlignment.Top;
-                _reading.Margin = new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
-                LayHero(FluentType.Subtitle);
-                return;
-            }
-
             // The load's line stands on the dial's bottom edge, centred: the number in the bowl.
             SetRowSpan(_reading, 2);
             _reading.HorizontalAlignment = HorizontalAlignment.Center;
@@ -165,8 +154,7 @@ internal sealed partial class GpuView
         /// </summary>
         private void LayEngines(WidgetArea area)
         {
-            var plan = MeterFace.Plan(area, true, HeroBound.Of(Formatting.Percent(1)), false, Fluent.Space2, MinChart,
-                _stacked ? FluentType.Subtitle : null);
+            var plan = MeterFace.Plan(area, true, HeroBound.Of(Formatting.Percent(1)), false, Fluent.Space2, MinChart, null);
             var side = plan.Arrangement == MeterFaceArrangement.Side;
             var alone = plan.Arrangement == MeterFaceArrangement.ReadingOnly || _engineLoads.Count == 0 || _engines is null;
 
@@ -175,7 +163,7 @@ internal sealed partial class GpuView
             SetRow(_reading, 0);
             SetRowSpan(_reading, alone || side ? 2 : 1);
             SetColumnSpan(_reading, side ? 1 : 2);
-            _reading.HorizontalAlignment = _stacked ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
+            _reading.HorizontalAlignment = HorizontalAlignment.Left;
             _reading.VerticalAlignment = alone || side ? VerticalAlignment.Center : VerticalAlignment.Top;
             _reading.Margin = alone || side
                 ? new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0)

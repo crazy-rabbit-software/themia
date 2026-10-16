@@ -29,8 +29,7 @@ public static class WidgetSetup
 
         return config switch
         {
-            CountdownConfig countdown => countdown.Timers.Count == 0,
-            AlarmConfig alarm => alarm.Alarms.Count == 0,
+            CountdownConfig countdown => countdown.Target is null,
             QuoteConfig quote => quote.EffectiveQuotes.Count == 0,
             RssConfig rss => rss.ResolvedFeeds.Count == 0,
             StocksConfig stocks => string.IsNullOrWhiteSpace(stocks.Symbol),

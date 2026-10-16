@@ -58,9 +58,9 @@
   "online.rates.perBase": "لكل {code}",
   "online.rates.missing": "غير منشور",
   "online.rates.settings.base.label": "العملة الأساسية",
-  "online.rates.settings.base.desc": "العملة التي تُسعَّر بها العملات الأخرى",
+  "online.rates.settings.base.desc": "يُعطى السعر لكل وحدة واحدة منها",
   "online.rates.settings.base.region": "منطقة Windows ({code})",
-  "online.rates.settings.quotes.label": "العملات",
-  "online.rates.settings.quotes.desc": "بقدر ما يتسع، بالترتيب المختار",
-  "online.rates.settings.quotes.all": "كل العملات"
+  "online.rates.settings.quote.label": "العملة",
+  "online.rates.settings.quote.desc": "العملة التي يُعطى بها السعر",
+  "online.rates.settings.quote.default": "افتراضي ({code})"
 }

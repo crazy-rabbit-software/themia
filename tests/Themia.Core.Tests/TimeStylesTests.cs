@@ -51,12 +51,14 @@ public class TimeStylesTests
     public void S6031_the_ring_is_the_share_still_to_go_and_unknown_without_a_creation_time()
     {
         var created = new DateTimeOffset(2026, 10, 1, 0, 0, 0, TimeSpan.Zero);
-        var timer = CountdownTimer.Create("Trip", created.AddDays(10), created);
+        var trip = new CountdownConfig { Label = "Trip" };
+        trip.Retarget(created.AddDays(10), created);
 
-        Assert.Equal(1, CountdownLayout.Left(timer, created));
-        Assert.Equal(0.75, CountdownLayout.Left(timer, created.AddDays(2.5))!.Value, 6);
-        Assert.Equal(0, CountdownLayout.Left(timer, created.AddDays(12)));
-        Assert.Null(CountdownLayout.Left(CountdownTimer.Create("Old", created.AddDays(10)), created));
+        Assert.Equal(1, CountdownLayout.Left(trip, created));
+        Assert.Equal(0.75, CountdownLayout.Left(trip, created.AddDays(2.5))!.Value, 6);
+        Assert.Equal(0, CountdownLayout.Left(trip, created.AddDays(12)));
+        Assert.Null(CountdownLayout.Left(new CountdownConfig { Target = created.AddDays(10) }, created));
+        Assert.Null(CountdownLayout.Left(new CountdownConfig(), created));
     }
 
     [Fact]

@@ -224,7 +224,6 @@
   "scratchpad.penColorDesc": "初始颜色；也可在小组件工具栏中选择",
   "scratchpad.penSizeLabel": "画笔粗细",
   "scratchpad.penSizeDesc": "新笔画的初始粗细。",
-  "countdown.timersSection": "计时器",
   "notes.fontSizeLabel": "字号",
   "notes.fontSizeDesc": "便签内容的文字大小",
   "notes.placeholder": "在此输入你的便签...",

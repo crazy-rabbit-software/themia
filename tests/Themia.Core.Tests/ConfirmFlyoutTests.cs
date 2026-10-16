@@ -60,7 +60,6 @@ public sealed class ConfirmFlyoutTests
     [Theory]
     [InlineData("ScratchpadView.cs", "ConfirmFlyout.Create(")]
     [InlineData("FolderView.Commands.cs", "ConfirmFlyout.AskAsync(")]
-    [InlineData("CountdownView.cs", "ConfirmFlyout.AskAsync(")]
     [InlineData("ClipboardView.cs", "ConfirmFlyout.AskAsync(")]
     [InlineData("NotesView.Picker.cs", "ConfirmFlyout.AskAsync(")]
     public void S1500_the_destructive_widget_actions_ask_through_the_one_confirmation(string file, string call)

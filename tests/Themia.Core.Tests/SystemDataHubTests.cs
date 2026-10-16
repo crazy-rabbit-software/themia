@@ -379,10 +379,10 @@ public sealed class SystemDataHubTests
     }
 
     [Fact]
-    public void S2513_the_gpu_tile_charts_each_chosen_adapter_and_the_first_without_a_choice()
+    public void S2513_the_gpu_tile_charts_its_one_adapter()
     {
-        Assert.Equal(["0", "2"], SystemInterests.For(new GpuConfig { Adapters = [2, 0] }, Root).Series.Select(s => s.Instance).Order());
-        Assert.Equal(["0"], SystemInterests.For(new GpuConfig { Adapters = [] }, Root).Series.Select(s => s.Instance));
+        Assert.Equal(["2"], SystemInterests.For(new GpuConfig { Adapter = 2 }, Root).Series.Select(s => s.Instance));
+        Assert.Equal(["0"], SystemInterests.For(new GpuConfig(), Root).Series.Select(s => s.Instance));
     }
 
     [Fact]

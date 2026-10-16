@@ -58,9 +58,9 @@
   "online.rates.perBase": "mỗi {code}",
   "online.rates.missing": "Không công bố",
   "online.rates.settings.base.label": "Tiền tệ cơ sở",
-  "online.rates.settings.base.desc": "Đồng tiền dùng để định giá các đồng khác",
+  "online.rates.settings.base.desc": "Tỷ giá tính cho một đơn vị đồng tiền này",
   "online.rates.settings.base.region": "Khu vực Windows ({code})",
-  "online.rates.settings.quotes.label": "Tiền tệ",
-  "online.rates.settings.quotes.desc": "Bao nhiêu vừa chỗ, theo thứ tự đã chọn",
-  "online.rates.settings.quotes.all": "Tất cả tiền tệ"
+  "online.rates.settings.quote.label": "Đồng tiền",
+  "online.rates.settings.quote.desc": "Đồng tiền dùng để biểu thị tỷ giá",
+  "online.rates.settings.quote.default": "Mặc định ({code})"
 }

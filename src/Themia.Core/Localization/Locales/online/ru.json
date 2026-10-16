@@ -58,9 +58,9 @@
   "online.rates.perBase": "за 1 {code}",
   "online.rates.missing": "Не публикуется",
   "online.rates.settings.base.label": "Базовая валюта",
-  "online.rates.settings.base.desc": "Валюта, в которой выражены остальные",
+  "online.rates.settings.base.desc": "Курс указывается за одну единицу этой валюты",
   "online.rates.settings.base.region": "Регион Windows ({code})",
-  "online.rates.settings.quotes.label": "Валюты",
-  "online.rates.settings.quotes.desc": "Сколько поместится, в выбранном порядке",
-  "online.rates.settings.quotes.all": "Все валюты"
+  "online.rates.settings.quote.label": "Валюта",
+  "online.rates.settings.quote.desc": "Валюта, в которой выражен курс",
+  "online.rates.settings.quote.default": "По умолчанию ({code})"
 }

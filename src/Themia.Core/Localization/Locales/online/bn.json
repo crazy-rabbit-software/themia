@@ -58,9 +58,9 @@
   "online.rates.perBase": "প্রতি {code}",
   "online.rates.missing": "প্রকাশিত নয়",
   "online.rates.settings.base.label": "ভিত্তি মুদ্রা",
-  "online.rates.settings.base.desc": "যে মুদ্রায় অন্যগুলোর দাম দেখানো হয়",
+  "online.rates.settings.base.desc": "এই মুদ্রার প্রতি এক এককের জন্য হার দেখানো হয়",
   "online.rates.settings.base.region": "Windows অঞ্চল ({code})",
-  "online.rates.settings.quotes.label": "মুদ্রা",
-  "online.rates.settings.quotes.desc": "যতগুলো ধরে, বেছে নেওয়া ক্রমে",
-  "online.rates.settings.quotes.all": "সব মুদ্রা"
+  "online.rates.settings.quote.label": "মুদ্রা",
+  "online.rates.settings.quote.desc": "যে মুদ্রায় হার দেখানো হয়",
+  "online.rates.settings.quote.default": "ডিফল্ট ({code})"
 }

@@ -1,4 +1,4 @@
 {
-  "styles.rates.list": "List",
-  "styles.rates.chart": "Chart"
+  "styles.rates.chart": "Chart",
+  "styles.rates.number": "Number"
 }

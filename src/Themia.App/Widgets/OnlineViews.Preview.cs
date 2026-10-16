@@ -111,7 +111,7 @@ internal sealed partial class ExchangeRatesView : IWidgetPreviewState
 
         xml.Append("</Cube></Envelope>");
 
-        _config = new ExchangeRatesConfig { BaseCurrency = "CHF", Currencies = ["EUR", "USD", "GBP", "JPY", "SEK"], Style = _config.Style };
+        _config = new ExchangeRatesConfig { BaseCurrency = "CHF", QuoteCurrency = "EUR", Style = _config.Style };
         _table = new Fetched<RateTable>(FetchStatus.Ok, EcbWire.Parse(xml.ToString()).Value, null, DateTimeOffset.Now.AddHours(-2));
         _web = null;
         PublishTitle();

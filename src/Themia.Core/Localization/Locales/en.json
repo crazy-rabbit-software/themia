@@ -225,7 +225,6 @@
   "scratchpad.penColorDesc": "Starting colour; also in the widget's toolbar",
   "scratchpad.penSizeLabel": "Pen size",
   "scratchpad.penSizeDesc": "Starting brush size for new strokes.",
-  "countdown.timersSection": "Timers",
   "notes.fontSizeLabel": "Font size",
   "notes.fontSizeDesc": "Text size for note content",
   "notes.placeholder": "Type your notes here...",

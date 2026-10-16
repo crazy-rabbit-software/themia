@@ -36,16 +36,11 @@ public sealed record AirPlan(double HeroRoom, AirFacts Facts, int Count, int Col
 public sealed record RainPlan(double HeadlineRoom, bool Caption, double ChartHeight);
 
 /// <summary>[S-5146] The exchange-rate widget's ladder for one size.</summary>
-/// <param name="Hero">The first currency as the big readout.</param>
-/// <param name="HeroRoom">The hero's height (value line and its caption).</param>
-/// <param name="Rows">How many currencies are listed as rows (after the hero's, when there is one).</param>
-/// <param name="RowHeight">The rows' height: the standard row, or the compact one on a short tile.</param>
-/// <param name="RowSparkWidth">The width of the line in each row; 0 for none.</param>
-/// <param name="ChartHeight">The hero's 90-day chart under everything else; 0 for none.</param>
-/// <param name="Beside">[S-6168] A strip: the hero is a column on the left, the chart beside it with the strip's height.</param>
-/// <param name="HeroWidth">[S-6168] The hero column's width when <paramref name="Beside"/>; else 0.</param>
-public sealed record RatesPlan(bool Hero, double HeroRoom, int Rows, double RowHeight, double RowSparkWidth, double ChartHeight,
-    bool Beside = false, double HeroWidth = 0);
+/// <param name="HeroRoom">The readout's height (the rate line and its caption).</param>
+/// <param name="ChartHeight">[S-6168] The 90-day chart under the readout; 0 for none.</param>
+/// <param name="Beside">[S-6168] A strip: the readout is a column on the left, the chart beside it with the strip's height.</param>
+/// <param name="HeroWidth">[S-6168] The readout column's width when <paramref name="Beside"/>; else 0.</param>
+public sealed record RatesPlan(double HeroRoom, double ChartHeight, bool Beside = false, double HeroWidth = 0);
 
 /// <summary>What the gauge style draws at one size ([S-6170]).</summary>
 /// <param name="GaugeWidth">The box the half-circle gauge is fitted into (<see cref="GaugeLayout.Fit"/>).</param>
@@ -72,14 +67,6 @@ public static class OnlineLayouts
 
     /// <summary>Between the hero and a side column of readings (<c>Fluent.Space4</c> in the app).</summary>
     public const double SideGap = 16;
-
-    /// <summary>Fluent's list row heights (<c>Fluent.RowHeight</c> / <c>RowHeightCompact</c> in the app).</summary>
-    public const double RowHeight = 40;
-
-    public const double RowHeightCompact = 32;
-
-    /// <summary>Below this height the rate list uses compact rows (<c>Fluent.CompactBelow</c>).</summary>
-    public const double CompactBelow = RowHeight * 5;
 
     /// <summary>A stat cell's narrowest column.</summary>
     public const double CellMinWidth = 120;
@@ -212,59 +199,36 @@ public static class OnlineLayouts
     }
 
     /// <summary>
-    /// [S-5146] The list style: a tile under two compact rows tall (or under 160 wide) is the first
-    /// currency as a hero. From the regular height up the first currency is the hero and the rest are
-    /// rows under it; below that, every currency is a row. Rows carry a small line of their own from
-    /// 300 wide, where it does not crowd the figures. The first currency's chart is the Chart
-    /// style's ([S-6168]), never the list's.
+    /// [S-5146] The number style: the pair's rate is the whole tile, as large as the tile allows.
+    /// The chart style ([S-6168]) puts its 90 days under it.
     /// </summary>
-    public static RatesPlan Rates(WidgetArea area, int pairs, ExchangeRatesStyle style, double heroFloor)
+    public static RatesPlan Rates(WidgetArea area, ExchangeRatesStyle style, double heroFloor)
     {
-        if (!area.IsMeasured || pairs <= 0)
+        if (!area.IsMeasured)
         {
-            return new RatesPlan(false, 0, 0, RowHeightCompact, 0, 0);
+            return new RatesPlan(0, 0);
         }
 
         var box = area.Deflate(0, VerticalInset);
         var width = box.Width - (2 * Inset);
 
-        if (style == ExchangeRatesStyle.Chart)
-        {
-            return RatesChart(area, box, width, heroFloor);
-        }
-
-        var compact = area.Height < CompactBelow;
-        var rowHeight = compact ? RowHeightCompact : RowHeight;
-        var spark = width >= 300 ? Math.Clamp(width * 0.28, 48, 160) : 0;
-
-        if (width < 160 || box.Height < 2 * RowHeightCompact)
-        {
-            return new RatesPlan(true, box.Height, 0, rowHeight, 0, 0);
-        }
-
-        if (area.HeightClass >= SizeClass.Regular)
-        {
-            var room = new Disclosure(box.Width, box.Height, Gap);
-            room.Reserve(heroFloor);
-            var rows = pairs > 1 ? room.TakeRows(rowHeight, pairs - 1) : 0;
-            return new RatesPlan(true, heroFloor + room.Remaining, rows, rowHeight, spark, 0);
-        }
-
-        return new RatesPlan(false, 0, Math.Min(pairs, Disclosure.WholeRows(box.Height, rowHeight)), rowHeight, spark, 0);
+        return style == ExchangeRatesStyle.Chart
+            ? RatesChart(area, box, width, heroFloor)
+            : new RatesPlan(box.Height, 0);
     }
 
     /// <summary>
-    /// [S-6168] The chart style: the first currency large, and its 90 days in what the hero leaves,
-    /// edge to edge and down to the card's bottom; on a strip (at least 400 wide, 2:1) the hero is a
-    /// column beside a chart of the strip's height. No other currency is drawn. Where the chart would
-    /// have under <see cref="HeroChartMin"/>, the hero alone.
+    /// [S-6168] The chart style: the rate large, and its 90 days in what the readout leaves, edge to
+    /// edge and down to the card's bottom; on a strip (at least 400 wide, 2:1) the readout is a column
+    /// beside a chart of the strip's height. Where the chart would have under
+    /// <see cref="HeroChartMin"/>, the readout alone.
     /// </summary>
     private static RatesPlan RatesChart(WidgetArea area, WidgetArea box, double width, double heroFloor)
     {
         if (area.Shape == AreaShape.Wide && area.Width >= 400)
         {
             var column = Math.Clamp(width * 0.42, 150, 280);
-            return new RatesPlan(true, box.Height, 0, RowHeight, 0, Math.Max(HeroChartMin, area.Height), Beside: true, HeroWidth: column);
+            return new RatesPlan(box.Height, Math.Max(HeroChartMin, area.Height), Beside: true, HeroWidth: column);
         }
 
         var room = new Disclosure(box.Width, box.Height, Gap);
@@ -272,13 +236,13 @@ public static class OnlineLayouts
 
         if (width < 160 || !room.Fits(HeroChartMin))
         {
-            return new RatesPlan(true, box.Height, 0, RowHeight, 0, 0);
+            return new RatesPlan(box.Height, 0);
         }
 
-        // The hero grows into a share of what is spare, the chart takes the rest (the stock rule, [S-1311]).
+        // The readout grows into a share of what is spare, the chart takes the rest (the stock rule, [S-1311]).
         var spare = Math.Max(0, room.Remaining - Gap - HeroChartMin);
         var heroRoom = heroFloor + (spare * 0.4);
         var chart = area.Height - VerticalInset - heroRoom - Gap;
-        return new RatesPlan(true, heroRoom, 0, RowHeight, 0, chart);
+        return new RatesPlan(heroRoom, chart);
     }
 }

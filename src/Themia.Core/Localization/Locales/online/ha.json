@@ -58,9 +58,9 @@
   "online.rates.perBase": "kowace {code}",
   "online.rates.missing": "Ba a wallafa ba",
   "online.rates.settings.base.label": "Kuɗin tushe",
-  "online.rates.settings.base.desc": "Kuɗin da ake auna sauran da shi",
+  "online.rates.settings.base.desc": "Ana bayar da farashin ga raka'a ɗaya na wannan kuɗi",
   "online.rates.settings.base.region": "Yankin Windows ({code})",
-  "online.rates.settings.quotes.label": "Kuɗaɗe",
-  "online.rates.settings.quotes.desc": "Gwargwadon yadda suka dace, a tsarin da aka zaɓa",
-  "online.rates.settings.quotes.all": "Duk kuɗaɗe"
+  "online.rates.settings.quote.label": "Kuɗi",
+  "online.rates.settings.quote.desc": "Kuɗin da ake bayar da farashin da shi",
+  "online.rates.settings.quote.default": "Asali ({code})"
 }

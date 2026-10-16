@@ -58,9 +58,9 @@
   "online.rates.perBase": "per {code}",
   "online.rates.missing": "Niet gepubliceerd",
   "online.rates.settings.base.label": "Basisvaluta",
-  "online.rates.settings.base.desc": "De valuta waarin de andere worden uitgedrukt",
+  "online.rates.settings.base.desc": "De koers geldt voor één eenheid van deze valuta",
   "online.rates.settings.base.region": "Windows-regio ({code})",
-  "online.rates.settings.quotes.label": "Valuta's",
-  "online.rates.settings.quotes.desc": "Zoveel als er passen, in de gekozen volgorde",
-  "online.rates.settings.quotes.all": "Alle valuta's"
+  "online.rates.settings.quote.label": "Valuta",
+  "online.rates.settings.quote.desc": "De valuta waarin de koers wordt uitgedrukt",
+  "online.rates.settings.quote.default": "Standaard ({code})"
 }

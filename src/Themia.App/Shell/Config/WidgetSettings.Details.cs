@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml;
-using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -34,7 +33,7 @@ internal static partial class WidgetSettings
                 PingDetailRows(rows, ping, save);
                 break;
             case GpuDetailsConfig gpu:
-                AdapterRow(rows, gpu, save);
+                AdapterRow(rows, gpu.Adapter, value => gpu.Adapter = value, save);
                 break;
             default:
                 break;
@@ -78,23 +77,5 @@ internal static partial class WidgetSettings
             FluentLayout.Choice(windows.Select(w => (w, Str.Details_Settings_Ping_Window_Probes.Format(("count", LocaleFormat.Integer(w))))).ToList(), current,
                 value => { config.Window = value; save(); }),
             "window", "samples"));
-    }
-
-    /// <summary>[S-2431] Which adapter, offered only when there is a choice.</summary>
-    private static void AdapterRow(List<FrameworkElement> rows, GpuDetailsConfig config, Action save)
-    {
-        var adapters = GpuSampler.Adapters();
-
-        if (adapters.Count < 2)
-        {
-            return;
-        }
-
-        rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Gpu_Gpu.Text()));
-        var current = config.Adapter < adapters.Count ? config.Adapter : 0;
-
-        rows.Add(FluentLayout.Row(Glyphs.Gpu, Str.Details_Settings_Gpu_Adapter_Label.Text(), Str.Details_Settings_Gpu_Adapter_Desc.Text(),
-            FluentLayout.Choice(adapters.Select(a => (a.Index, a.Name)).ToList(), current, value => { config.Adapter = value; save(); }),
-            "adapter", "graphics card"));
     }
 }

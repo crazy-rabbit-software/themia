@@ -1,3 +1,4 @@
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -149,12 +150,75 @@ public class CountdownFormatterTests
         var config = new CountdownConfig();
         Assert.Equal(TimeSpan.FromSeconds(30), config.TickInterval);
 
-        config.Timers.Add(CountdownTimer.Create("a", Now));
-        config.Timers.Add(CountdownTimer.Create("b", Now));
+        config.Retarget(Now, Now);
+        config.Format = CountdownFormat.DaysHoursMinutes;
         Assert.Equal(TimeSpan.FromSeconds(30), config.TickInterval);
 
-        config.Timers[1].Format = CountdownFormat.DaysHoursMinutesSeconds;
+        config.Format = CountdownFormat.DaysHoursMinutesSeconds;
         Assert.Equal(TimeSpan.FromSeconds(1), config.TickInterval);
+    }
+
+    // -----------------------------------------------------------------------------------------
+    // [S-6036] one target per widget
+    // -----------------------------------------------------------------------------------------
+
+    [Fact]
+    public void S6036_a_new_countdown_has_no_target_and_asks_to_be_set_up()
+    {
+        var config = (CountdownConfig)WidgetConfig.CreateDefault(WidgetKind.Countdown);
+
+        Assert.Null(config.Target);
+        Assert.Equal(string.Empty, config.Label);
+        Assert.Equal(CountdownFormat.Auto, config.Format);
+        Assert.Equal(CountdownStyle.Text, config.Style);
+        Assert.True(WidgetSetup.Needed(config, AccountFeatures.None));
+    }
+
+    [Fact]
+    public void S6036_setting_the_target_starts_its_progress_from_now()
+    {
+        var config = new CountdownConfig();
+        config.Retarget(new DateTimeOffset(2026, 12, 24, 18, 0, 0, TimeSpan.FromHours(1)), Now);
+
+        Assert.Equal(new DateTimeOffset(2026, 12, 24, 17, 0, 0, TimeSpan.Zero), config.Target);
+        Assert.Equal(TimeSpan.Zero, config.Target!.Value.Offset);
+        Assert.Equal(Now, config.Created);
+        Assert.Equal(0, CountdownLayout.Progress(config, Now));
+        Assert.False(WidgetSetup.Needed(config, AccountFeatures.None));
+    }
+
+    [Fact]
+    public void S6036_the_target_round_trips_through_the_file_and_a_clone()
+    {
+        var config = (CountdownConfig)ConfigJson.Read("countdown", """
+            { "kind": "countdown", "style": "flip", "label": "Launch", "target": "2026-12-24T17:00:00+00:00",
+              "format": 3, "created": "2026-10-01T08:00:00+00:00" }
+            """);
+
+        Assert.Equal("Launch", config.Label);
+        Assert.Equal(new DateTimeOffset(2026, 12, 24, 17, 0, 0, TimeSpan.Zero), config.Target);
+        Assert.Equal(CountdownFormat.DaysHoursMinutesSeconds, config.Format);
+        Assert.Equal(CountdownStyle.Flip, config.Style);
+
+        var copy = (CountdownConfig)config.Clone();
+        Assert.Equal((config.Label, config.Target, config.Format, config.Created, config.Style), (copy.Label, copy.Target, copy.Format, copy.Created, copy.Style));
+
+        // Not set yet: reading it back is still not set.
+        Assert.Null(((CountdownConfig)ConfigJson.Read("countdown", """{ "kind": "countdown" }""")).Target);
+    }
+
+    [Fact]
+    public void S6036_a_hand_edited_file_is_repaired_loudly()
+    {
+        var config = new CountdownConfig { Format = (CountdownFormat)9, Label = "  Trip\nto Rome  " + new string('x', 80) };
+        var repairs = config.Repair();
+
+        Assert.Equal(2, repairs.Count);
+        Assert.Equal(CountdownFormat.Auto, config.Format);
+        Assert.StartsWith("Trip to Rome", config.Label, StringComparison.Ordinal);
+        Assert.True(config.Label.Length <= CountdownConfig.MostLabel);
+        Assert.Empty(config.Repair());
+        Assert.Empty(new CountdownConfig().Repair());
     }
 
     // -----------------------------------------------------------------------------------------
@@ -234,15 +298,6 @@ public class CountdownFormatterTests
         // The hour either side of the gap is ordinary and must still work.
         Assert.NotNull(CountdownFormatter.CombineLocal(day, new TimeSpan(1, 30, 0), zone));
         Assert.NotNull(CountdownFormatter.CombineLocal(day, new TimeSpan(3, 30, 0), zone));
-    }
-
-    [Fact]
-    public void C51_a_new_timer_points_a_day_out_on_the_minute()
-    {
-        var target = CountdownFormatter.DefaultTarget(new DateTimeOffset(2026, 6, 15, 12, 0, 37, TimeSpan.Zero));
-
-        Assert.Equal(new DateTimeOffset(2026, 6, 16, 12, 0, 0, TimeSpan.Zero), target);
-        Assert.Equal(0, target.Second);
     }
 
     /// <summary>

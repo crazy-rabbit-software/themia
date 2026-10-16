@@ -58,9 +58,9 @@
   "online.rates.perBase": "1 {code} あたり",
   "online.rates.missing": "公表されていません",
   "online.rates.settings.base.label": "基準通貨",
-  "online.rates.settings.base.desc": "他の通貨の価格を示す通貨",
+  "online.rates.settings.base.desc": "この通貨 1 単位あたりのレートを表示します",
   "online.rates.settings.base.region": "Windows の地域 ({code})",
-  "online.rates.settings.quotes.label": "通貨",
-  "online.rates.settings.quotes.desc": "表示できるだけ、選んだ順に",
-  "online.rates.settings.quotes.all": "すべての通貨"
+  "online.rates.settings.quote.label": "通貨",
+  "online.rates.settings.quote.desc": "レートを表す通貨",
+  "online.rates.settings.quote.default": "デフォルト ({code})"
 }

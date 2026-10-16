@@ -58,9 +58,9 @@
   "online.rates.perBase": "فی {code}",
   "online.rates.missing": "شائع نہیں",
   "online.rates.settings.base.label": "بنیادی کرنسی",
-  "online.rates.settings.base.desc": "وہ کرنسی جس میں باقی کی قیمت لگتی ہے",
+  "online.rates.settings.base.desc": "شرح اس کرنسی کی ایک اکائی کے لیے دی جاتی ہے",
   "online.rates.settings.base.region": "Windows علاقہ ({code})",
-  "online.rates.settings.quotes.label": "کرنسیاں",
-  "online.rates.settings.quotes.desc": "جتنی سما سکیں، چنی گئی ترتیب میں",
-  "online.rates.settings.quotes.all": "تمام کرنسیاں"
+  "online.rates.settings.quote.label": "کرنسی",
+  "online.rates.settings.quote.desc": "وہ کرنسی جس میں شرح دی جاتی ہے",
+  "online.rates.settings.quote.default": "ڈیفالٹ ({code})"
 }

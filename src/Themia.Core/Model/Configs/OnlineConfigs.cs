@@ -29,14 +29,14 @@ public enum AirQualityStyle
     Gauge = 1,
 }
 
-/// <summary>[S-6167] The exchange-rate widget's styles: the same rates, two looks. What was its chart switch.</summary>
+/// <summary>[S-6167] The exchange-rate widget's styles: its one pair, two looks.</summary>
 [JsonConverter(typeof(StyleJsonConverter<ExchangeRatesStyle>))]
 public enum ExchangeRatesStyle
 {
-    /// <summary>[S-5146] The first currency over the others as rows.</summary>
-    List = 0,
+    /// <summary>[S-5146] The rate alone, as large as the tile allows.</summary>
+    Number = 0,
 
-    /// <summary>[S-6168] The first currency large, with its 90-day line.</summary>
+    /// <summary>[S-6168] The rate over its 90-day line.</summary>
     Chart = 1,
 }
 
@@ -105,13 +105,14 @@ public sealed class RainNextHourConfig : WeatherConfig
 }
 
 /// <summary>
-/// [S-5140] The ECB's reference rates for one base currency against a short list of others.
+/// [S-5140] The ECB's reference rate of one pair: what one unit of the base currency buys of the
+/// quote. Several pairs are several widgets.
 /// </summary>
 public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
 {
     private static readonly StyleOption[] RateStyles =
     [
-        StyleOption.Of(ExchangeRatesStyle.List, Str.Styles_Rates_List, 0xEA37),
+        StyleOption.Of(ExchangeRatesStyle.Number, Str.Styles_Rates_Number, 0xE75F),
         StyleOption.Of(ExchangeRatesStyle.Chart, Str.Styles_Rates_Chart, 0xE9D2),
     ];
 
@@ -121,11 +122,11 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
     /// <summary>[S-5143] The base currency, an ISO 4217 code the ECB publishes; empty follows the Windows region.</summary>
     public string BaseCurrency { get; set; } = string.Empty;
 
-    /// <summary>[S-5143] The currencies priced in the base, in the order shown.</summary>
-    public List<string> Currencies { get; set; } = [.. ExchangeRules.DefaultQuotes];
+    /// <summary>[S-5143] The currency priced in the base; empty is the euro, or the dollar for a euro base.</summary>
+    public string QuoteCurrency { get; set; } = string.Empty;
 
-    /// <summary>[S-6167] The widget's look: the list, or the first currency's chart.</summary>
-    public ExchangeRatesStyle Style { get; set; } = ExchangeRatesStyle.List;
+    /// <summary>[S-6167] The widget's look: the rate alone, or over its chart.</summary>
+    public ExchangeRatesStyle Style { get; set; } = ExchangeRatesStyle.Number;
 
     IReadOnlyList<StyleOption> IStyled.Styles => RateStyles;
 
@@ -139,60 +140,52 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
     [JsonIgnore]
     public string EffectiveBase => BaseCurrency.Length > 0 ? BaseCurrency : RegionCurrency.Current;
 
-    /// <summary>The currencies to show: the list without the base itself (one CHF is one CHF).</summary>
+    /// <summary>
+    /// [S-5143] The quote in force: the stored one, unless it is empty or the base itself (one CHF is
+    /// one CHF), then <see cref="ExchangeRules.DefaultQuote"/> for the base.
+    /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<string> EffectiveQuotes
+    public string EffectiveQuote
     {
         get
         {
             var basis = EffectiveBase;
-            return [.. Currencies.Where(c => !string.Equals(c, basis, StringComparison.Ordinal))];
+            return QuoteCurrency.Length > 0 && !string.Equals(QuoteCurrency, basis, StringComparison.Ordinal)
+                ? QuoteCurrency
+                : ExchangeRules.DefaultQuote(basis);
         }
     }
 
     public override WidgetConfig Clone() => new ExchangeRatesConfig
     {
         BaseCurrency = BaseCurrency,
-        Currencies = [.. Currencies],
+        QuoteCurrency = QuoteCurrency,
         Style = Style,
     };
 
-    /// <summary>[S-5144] Codes the ECB does not publish are dropped, loudly; an empty list is the default.</summary>
+    /// <summary>[S-5144] A base or quote the ECB does not publish follows the default, loudly.</summary>
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
-
-        if (BaseCurrency.Length > 0 && ExchangeRules.Normalise(BaseCurrency) is not { } basis)
-        {
-            repairs.Add($"exchange rates: base '{Clip(BaseCurrency)}' is not a published currency; following the region");
-            BaseCurrency = string.Empty;
-        }
-        else if (BaseCurrency.Length > 0)
-        {
-            BaseCurrency = ExchangeRules.Normalise(BaseCurrency)!;
-        }
-
-        var kept = new List<string>();
-        foreach (var code in Currencies ?? [])
-        {
-            if (ExchangeRules.Normalise(code) is not { } known)
-            {
-                repairs.Add($"exchange rates: '{Clip(code)}' is not a published currency; dropped");
-            }
-            else if (!kept.Contains(known))
-            {
-                kept.Add(known);
-            }
-        }
-
-        if (kept.Count == 0)
-        {
-            repairs.Add("exchange rates: no currency left; the defaults");
-            kept.AddRange(ExchangeRules.DefaultQuotes);
-        }
-
-        Currencies = kept;
+        BaseCurrency = Code(BaseCurrency, "base", "following the region", repairs);
+        QuoteCurrency = Code(QuoteCurrency, "quote", "the default", repairs);
         return repairs;
+    }
+
+    private static string Code(string? code, string what, string instead, List<string> repairs)
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            return string.Empty;
+        }
+
+        if (ExchangeRules.Normalise(code) is { } known)
+        {
+            return known;
+        }
+
+        repairs.Add($"exchange rates: {what} '{Clip(code)}' is not a published currency; {instead}");
+        return string.Empty;
     }
 
     private static string Clip(string? text) => text is null ? "null" : text.Length <= 8 ? text : text[..8];

@@ -58,9 +58,9 @@
   "online.rates.perBase": "प्रति {code}",
   "online.rates.missing": "प्रकाशित नाही",
   "online.rates.settings.base.label": "मूळ चलन",
-  "online.rates.settings.base.desc": "ज्या चलनात इतरांचे भाव दिसतात",
+  "online.rates.settings.base.desc": "दर या चलनाच्या एका एककासाठी दिला जातो",
   "online.rates.settings.base.region": "Windows प्रदेश ({code})",
-  "online.rates.settings.quotes.label": "चलने",
-  "online.rates.settings.quotes.desc": "जितकी बसतील, निवडलेल्या क्रमाने",
-  "online.rates.settings.quotes.all": "सर्व चलने"
+  "online.rates.settings.quote.label": "चलन",
+  "online.rates.settings.quote.desc": "ज्या चलनात दर दिला जातो",
+  "online.rates.settings.quote.default": "डीफॉल्ट ({code})"
 }

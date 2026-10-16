@@ -58,9 +58,9 @@
   "online.rates.perBase": "per {code}",
   "online.rates.missing": "Tidak diterbitkan",
   "online.rates.settings.base.label": "Mata uang dasar",
-  "online.rates.settings.base.desc": "Mata uang tempat mata uang lain dihargai",
+  "online.rates.settings.base.desc": "Kurs dinyatakan per satu unit mata uang ini",
   "online.rates.settings.base.region": "Wilayah Windows ({code})",
-  "online.rates.settings.quotes.label": "Mata uang",
-  "online.rates.settings.quotes.desc": "Sebanyak yang muat, sesuai urutan pilihan",
-  "online.rates.settings.quotes.all": "Semua mata uang"
+  "online.rates.settings.quote.label": "Mata uang",
+  "online.rates.settings.quote.desc": "Mata uang untuk menyatakan kurs",
+  "online.rates.settings.quote.default": "Default ({code})"
 }

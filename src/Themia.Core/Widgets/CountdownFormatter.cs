@@ -228,19 +228,6 @@ public static class CountdownFormatter
         return new DateTimeOffset(TimeZoneInfo.ConvertTimeToUtc(local, zone), TimeSpan.Zero);
     }
 
-    /// <summary>
-    /// [C-51] Where a freshly added timer points: this time tomorrow, on the minute.
-    /// <para>
-    /// Seconds are zeroed because the pickers cannot express them, so leaving them on would make the
-    /// countdown disagree with the target the settings window shows.
-    /// </para>
-    /// </summary>
-    public static DateTimeOffset DefaultTarget(DateTimeOffset now)
-    {
-        var next = now.ToUniversalTime().AddDays(1);
-        return new DateTimeOffset(next.Year, next.Month, next.Day, next.Hour, next.Minute, 0, TimeSpan.Zero);
-    }
-
     /// <summary>The name for a format in the settings picker. [C-11]</summary>
     public static string FormatLabel(CountdownFormat format, Locale locale) => Strings.Get(locale, format switch
     {

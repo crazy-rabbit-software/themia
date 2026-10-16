@@ -48,7 +48,7 @@ public class WidgetSetupTests
     public void S1860_configuring_the_missing_piece_takes_the_button_away()
     {
         var countdown = new CountdownConfig();
-        countdown.Timers.Add(CountdownTimer.Create("Launch", DateTimeOffset.UnixEpoch));
+        countdown.Retarget(DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch);
         Assert.False(WidgetSetup.Needed(countdown, AccountFeatures.None));
 
         Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed" }] }, AccountFeatures.None));

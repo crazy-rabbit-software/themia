@@ -224,7 +224,6 @@
   "scratchpad.penColorDesc": "Color inicial; también en la barra del widget",
   "scratchpad.penSizeLabel": "Grosor del lápiz",
   "scratchpad.penSizeDesc": "Grosor inicial del pincel para los trazos nuevos.",
-  "countdown.timersSection": "Temporizadores",
   "notes.fontSizeLabel": "Tamaño de fuente",
   "notes.fontSizeDesc": "Tamaño del texto del contenido de las notas",
   "notes.placeholder": "Escribe aquí tus notas...",

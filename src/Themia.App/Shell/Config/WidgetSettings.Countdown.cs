@@ -9,7 +9,7 @@ using Windows.System;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The Countdown settings rows: the timer list and each timer's editor.
+/// [S-6037] The Countdown settings rows: the one target's name, its date and time, and its format.
 /// <para>
 /// Rows write straight to the live config and save as they go, like every other section: the widget
 /// is on the desktop behind this window, and a setting you cannot see take effect is a setting you
@@ -32,51 +32,27 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.Countdown_TimersSection.Text()));
+        rows.Add(FluentLayout.Header(Str.Widget_Countdown_Label.Text()));
 
-        // [C-50] [C-52] The list, its ordering and its removals are the shared editor's, so this
-        // page carries only the part of a timer that is a timer: where it points and how it reads.
-        FluentLayout.ListEditor(rows, new ListEditorOptions<CountdownTimer>
-        {
-            Items = config.Timers,
-            Save = save,
-            EmptyText = Str.WidgetsA_Countdown_Settings_Empty.Text(),
-            AddTitle = Str.WidgetsA_Countdown_Settings_Add_Label.Text(),
-            AddDescription = Str.WidgetsA_Countdown_Settings_Add_Desc.Text(),
-            AddAction = Str.Common_Add.Text(),
-            RemoveTooltip = Str.WidgetsA_Countdown_Settings_Remove.Text(),
-
-            // [C-51] This time tomorrow, on the minute: far enough out to be visible in every
-            // format, near enough to be obviously a placeholder.
-            Create = () =>
-            {
-                var now = DateTimeOffset.Now;
-                return CountdownTimer.Create(string.Empty, CountdownFormatter.DefaultTarget(now), now);
-            },
-            Body = timer => TimerBody(timer, save),
-        });
-    }
-
-    /// <summary>One timer's editor: its name, where it points, and how it reads.</summary>
-    private static FrameworkElement TimerBody(CountdownTimer timer, Action save)
-    {
         var label = new TextBox
         {
-            Text = timer.Label,
+            Text = config.Label,
             PlaceholderText = CountdownFormatter.Untitled(Strings.Current),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
+            MaxLength = CountdownConfig.MostLabel,
+            MinWidth = FluentLayout.ChoiceMinWidth,
         };
 
         // [C-54] On lost focus and on Enter, never per keystroke: a rebuild between two letters
         // takes the caret with it, and a save per letter writes the file a dozen times a word.
         void CommitLabel()
         {
-            if (label.Text == timer.Label)
+            var text = label.Text.Trim();
+            if (text == config.Label)
             {
                 return;
             }
 
-            timer.Label = label.Text;
+            config.Label = text;
             save();
         }
 
@@ -90,70 +66,50 @@ internal static partial class WidgetSettings
             }
         };
 
+        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.WidgetsA_Countdown_Settings_Name_Label.Text(), null, label, "name", "label", "title"));
+
         var zone = TimeZoneInfo.Local;
 
+        // Not set yet ([S-1860]): no date, and midnight, so a picked day counts to its start.
         var date = new CalendarDatePicker
         {
-            Date = CountdownFormatter.LocalDate(timer.Target, zone),
+            Date = config.Target is { } target ? CountdownFormatter.LocalDate(target, zone) : null,
             PlaceholderText = Str.WidgetsA_Countdown_Settings_PickDate.Text(),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
         };
 
         var time = new TimePicker
         {
-            SelectedTime = CountdownFormatter.LocalTimeOfDay(timer.Target, zone),
+            SelectedTime = config.Target is { } at ? CountdownFormatter.LocalTimeOfDay(at, zone) : TimeSpan.Zero,
             ClockIdentifier = LocaleFormat.Uses24Hour(Strings.Current) ? "24HourClock" : "12HourClock",
             MinuteIncrement = 1,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
         };
 
         void CommitTarget()
         {
-            var next = CountdownFormatter.CombineLocal(date.Date, time.SelectedTime, zone);
-
-            // [C-55] A cleared or impossible value leaves the target exactly as it was. Writing
-            // "now" here is what the original did, and it silently retargeted the timer mid-edit.
-            if (next is not { } target || target == timer.Target)
+            // [S-144] [C-55] A cleared or impossible value leaves the target exactly as it was.
+            if (CountdownFormatter.CombineLocal(date.Date, time.SelectedTime, zone) is not { } next || next == config.Target)
             {
                 return;
             }
 
-            timer.Target = target;
+            // [S-1448] A new target: its progress runs from now.
+            config.Retarget(next, DateTimeOffset.Now);
             save();
         }
 
         date.DateChanged += (_, _) => CommitTarget();
         time.SelectedTimeChanged += (_, _) => CommitTarget();
 
-        var format = FluentLayout.Choice(CountdownFormats(), timer.Format, value =>
-        {
-            timer.Format = value;
-            save();
-        });
+        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsA_Countdown_Settings_Target_Label.Text(), Str.WidgetsA_Countdown_Settings_Target_Desc.Text(),
+            new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, Children = { date, time } },
+            "date", "time", "target", "when"));
 
-        format.HorizontalAlignment = HorizontalAlignment.Stretch;
-        format.MinWidth = 0;
-
-        var bottom = new Grid
-        {
-            ColumnSpacing = Fluent.Space2,
-            Margin = new Thickness(0, Fluent.Space2, 0, 0),
-            ColumnDefinitions =
+        rows.Add(FluentLayout.Row(Glyphs.Countdown, Str.WidgetsA_Countdown_Settings_Format_Label.Text(), Str.WidgetsA_Countdown_Settings_Format_Desc.Text(),
+            FluentLayout.Choice(CountdownFormats(), config.Format, value =>
             {
-                new ColumnDefinition { Width = new GridLength(1.2, GridUnitType.Star) },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = new GridLength(1.4, GridUnitType.Star) },
-            },
-        };
-
-        Grid.SetColumn(date, 0);
-        Grid.SetColumn(time, 1);
-        Grid.SetColumn(format, 2);
-
-        bottom.Children.Add(date);
-        bottom.Children.Add(time);
-        bottom.Children.Add(format);
-
-        return new StackPanel { Children = { label, bottom } };
+                config.Format = value;
+                save();
+            }),
+            "format", "seconds", "days"));
     }
 }

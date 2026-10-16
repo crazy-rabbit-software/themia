@@ -7,7 +7,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): <c>history</c> fills every panel's chart with a fixture series,
+/// Debug renders only ([S-1917]): <c>history</c> fills the chart with a fixture series,
 /// as the meters' does, so the GPU's band can be compared with theirs without waiting for samples.
 /// </summary>
 internal sealed partial class GpuView : IWidgetPreviewState
@@ -25,14 +25,11 @@ internal sealed partial class GpuView : IWidgetPreviewState
                 _snapshots = null;
             }
 
-            foreach (var panel in _shown)
-            {
-                panel.ShowFixtureHistory();
+            _panel?.ShowFixtureHistory();
 
-                if (state == "sample")
-                {
-                    panel.ShowSample();
-                }
+            if (state == "sample")
+            {
+                _panel?.ShowSample();
             }
         }
 

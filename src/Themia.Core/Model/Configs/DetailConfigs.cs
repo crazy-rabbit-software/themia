@@ -188,7 +188,7 @@ public sealed class GpuDetailsConfig : DetailConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.GpuDetails;
 
-    /// <summary>[S-2431] The adapter, as its position in DXGI's list (as <see cref="GpuConfig.Adapters"/>).</summary>
+    /// <summary>[S-2431] The adapter, as its position in DXGI's list (as <see cref="GpuConfig.Adapter"/>: the primary display's first).</summary>
     public int Adapter { get; set; }
 
     public override WidgetConfig Clone()

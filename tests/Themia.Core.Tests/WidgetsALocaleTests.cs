@@ -69,19 +69,6 @@ public sealed class WidgetsALocaleTests
     }
 
     [Fact]
-    public void S1106_the_next_line_reads_in_german()
-    {
-        var timers = new List<CountdownTimer>
-        {
-            CountdownTimer.Create("Urlaub", Noon + TimeSpan.FromDays(12), Noon),
-            CountdownTimer.Create(string.Empty, Noon + TimeSpan.FromSeconds(20), Noon),
-        };
-
-        Assert.Equal("Danach: Urlaub in 12 Tagen", CountdownLayout.NextLine(timers, 1, Noon, Locale.De));
-        Assert.Equal("Danach: Ohne Titel gleich", CountdownLayout.NextLine(timers, 0, Noon, Locale.De));
-    }
-
-    [Fact]
     public void S1106_the_countdown_target_follows_the_language_date_and_clock()
     {
         var target = new DateTimeOffset(2026, 6, 15, 22, 30, 0, TimeSpan.Zero);

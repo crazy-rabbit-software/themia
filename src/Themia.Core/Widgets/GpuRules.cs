@@ -38,51 +38,11 @@ public enum GpuEngineKind
 public readonly record struct GpuEngineLoad(GpuEngineKind Kind, double Percent);
 
 /// <summary>
-/// The decisions behind the GPU meter that do not need a GPU to test: which adapters a config
-/// means, how a performance-counter instance name maps onto an adapter, how one load figure is
+/// The decisions behind the GPU meter that do not need a GPU to test: how a performance-counter instance name maps onto an adapter, how one load figure is
 /// made out of a few hundred engine counters.
 /// </summary>
 public static class GpuRules
 {
-    /// <summary>
-    /// [S-433] The adapters a widget shows. Negative and repeated entries are dropped, order is kept,
-    /// and an empty or absent list means the primary adapter — a widget never draws nothing because
-    /// its selection was emptied.
-    /// </summary>
-    public static List<int> ResolveAdapters(IReadOnlyList<int>? raw)
-    {
-        var selected = SelectedAdapters(raw);
-        return selected.Count > 0 ? selected : [0];
-    }
-
-    /// <summary>
-    /// [S-433] The selection the settings picker ticks: the same clean-up, but no primary-adapter
-    /// default. Unticking the last adapter has to leave the picker empty, not tick adapter 0 again
-    /// behind the user's back — the default is a drawing concern, not a picker one.
-    /// </summary>
-    public static List<int> SelectedAdapters(IReadOnlyList<int>? raw)
-    {
-        var result = new List<int>();
-
-        if (raw is null)
-        {
-            return result;
-        }
-
-        foreach (var index in raw)
-        {
-            if (index >= 0 && !result.Contains(index))
-            {
-                result.Add(index);
-            }
-        }
-
-        return result;
-    }
-
-    /// <summary>[S-433] Two or more adapters stack as panels; one fills the widget.</summary>
-    public static bool Stacked(int count) => count >= 2;
-
     /// <summary>The token an adapter's counters are filed under: <c>luid_0x{high}_0x{low}</c>, lower case.</summary>
     public static string LuidKey(uint high, uint low)
         => string.Create(CultureInfo.InvariantCulture, $"luid_0x{high:x8}_0x{low:x8}");

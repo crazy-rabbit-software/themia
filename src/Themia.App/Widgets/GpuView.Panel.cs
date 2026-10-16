@@ -17,10 +17,9 @@ namespace Themia.App.Widgets;
 internal sealed partial class GpuView
 {
     /// <summary>
-    /// One adapter: its load and its history — and, when it shares the tile with other adapters, its
-    /// name beside the load. Built once and rewritten in place on every sample, so the tile does not
-    /// flicker as it updates; laid out again whenever its room changes. The load and the history are
-    /// the hub's series for this adapter ([S-2504]).
+    /// The adapter's load and its history. Built once and rewritten in place on every sample, so the
+    /// tile does not flicker as it updates; laid out again whenever its room changes. The load and
+    /// the history are the hub's series for this adapter ([S-2504]).
     /// </summary>
     private sealed partial class Panel
     {
@@ -35,14 +34,12 @@ internal sealed partial class GpuView
 
         private readonly int _index;
         private readonly Grid _root = new();
-        private readonly Grid _reading = new() { ColumnSpacing = Fluent.Space2 };
-        private readonly TextBlock _name = Fluent.Text(FluentType.BodyStrong, "TextFillColorSecondaryBrush");
-        private readonly HeroReadout _hero = new() { HorizontalAlignment = HorizontalAlignment.Right };
+        private readonly Grid _reading = new();
+        private readonly HeroReadout _hero = new();
         private readonly SparkBand _spark;
 
         private GpuConfig _config = new();
         private SeriesWatch? _watch;
-        private bool _stacked;
         private TypeStep? _heroStep;
         private string _shown = string.Empty;
 
@@ -57,18 +54,8 @@ internal sealed partial class GpuView
             _hero.ValueLine.TextTrimming = TextTrimming.None;
             _hero.VerticalAlignment = VerticalAlignment.Center;
 
-            _name.Text = Str.WidgetsB_Gpu_Indexed.Format(("index", index));
-            _name.VerticalAlignment = VerticalAlignment.Center;
-            _name.TextTrimming = TextTrimming.CharacterEllipsis;
-            _name.MaxLines = 1;
-
-            // [S-430] Several panels: the name leads (and gives way, trimmed) and the number keeps its
-            // place at the right; one panel: the number alone.
-            _reading.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            _reading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             _reading.Margin = new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
-            SetColumn(_hero, 1);
-            _reading.Children.Add(_name);
+            _reading.HorizontalAlignment = HorizontalAlignment.Left;
             _reading.Children.Add(_hero);
 
             _root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -81,10 +68,11 @@ internal sealed partial class GpuView
 
         public FrameworkElement Root => _root;
 
-        public void Configure(GpuConfig config, bool stacked)
+        public int Index => _index;
+
+        public void Configure(GpuConfig config)
         {
             _config = config;
-            _stacked = stacked;
 
             // [S-1200] The chart holds the configured span; a longer span shows the longer history the
             // hub holds at once.
@@ -98,14 +86,6 @@ internal sealed partial class GpuView
             }
 
             UseStyle(config.Style);
-
-            _name.Visibility = stacked ? Visibility.Visible : Visibility.Collapsed;
-            _reading.ColumnDefinitions[0].Width = stacked ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-
-            // [S-3860] The spacing stands even beside an empty column: one panel's number would sit
-            // a gap right of every other meter's.
-            _reading.ColumnSpacing = stacked ? Fluent.Space2 : 0;
-            _reading.HorizontalAlignment = stacked ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
         }
 
         /// <summary>
@@ -138,21 +118,8 @@ internal sealed partial class GpuView
             _watch = null;
         }
 
-        /// <summary>
-        /// The adapter's name, or [S-433] the adapter is gone — undocked, or the selection names one
-        /// this machine does not have. Said in the panel, not by blanking the tile.
-        /// </summary>
-        public void Name(GpuReading? reading)
-        {
-            if (reading is null)
-            {
-                _name.Text = Str.WidgetsB_Gpu_Indexed.Format(("index", _index));
-                return;
-            }
-
-            _name.Text = GpuRules.ShortName(reading.Name);
-            ToolTipService.SetToolTip(_root, reading.Name);
-        }
+        /// <summary>[S-430] The adapter's whole name, as the driver reports it, on the tile's tooltip (the header has the short one).</summary>
+        public void Name(GpuReading reading) => ToolTipService.SetToolTip(_root, reading.Name);
 
         private void OnUpdate(SeriesUpdate update)
         {
@@ -188,9 +155,8 @@ internal sealed partial class GpuView
         }
 
         /// <summary>
-        /// [S-1762] The meters' ladder for this panel's room: the load alone on a tiny panel, else the
-        /// history filling what the load leaves — beside it on a strip. Several panels keep the load at
-        /// one step beside their names, and give the rest to their histories.
+        /// [S-1762] The meters' ladder for the tile: the load alone on a tiny tile, else the history
+        /// filling what the load leaves — beside it on a strip.
         /// </summary>
         public void Lay(WidgetArea area)
         {
@@ -218,11 +184,10 @@ internal sealed partial class GpuView
                 return;
             }
 
-            _reading.HorizontalAlignment = _stacked ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
+            _reading.HorizontalAlignment = HorizontalAlignment.Left;
             SetColumnSpan(_reading, 1);
 
-            var plan = MeterFace.Plan(area, _config.ShowGraph, HeroBound.Of(Formatting.Percent(1)), false, Fluent.Space2, MinChart,
-                _stacked ? FluentType.Subtitle : null);
+            var plan = MeterFace.Plan(area, _config.ShowGraph, HeroBound.Of(Formatting.Percent(1)), false, Fluent.Space2, MinChart, null);
             var side = plan.Arrangement == MeterFaceArrangement.Side;
             var alone = plan.Arrangement == MeterFaceArrangement.ReadingOnly;
 

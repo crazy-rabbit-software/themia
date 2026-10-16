@@ -6,53 +6,33 @@ namespace Themia.Core.Tests;
 
 public sealed class GpuRulesTests
 {
-    // ---- [S-433] which adapters a config means ---------------------------------------------
+    // ---- [S-433] one adapter per widget ----------------------------------------------------
 
     [Fact]
-    public void S433_uses_the_selection_in_its_own_order()
+    public void S433_a_new_meter_shows_the_first_adapter_which_dxgi_lists_for_the_primary_display()
     {
-        Assert.Equal([2, 0, 1], GpuRules.ResolveAdapters([2, 0, 1]));
+        Assert.Equal(0, new GpuConfig().Adapter);
+        Assert.Equal(0, ((GpuConfig)WidgetConfig.CreateDefault(WidgetKind.Gpu)).Adapter);
+        Assert.Equal(0, ((GpuDetailsConfig)WidgetConfig.CreateDefault(WidgetKind.GpuDetails)).Adapter);
     }
 
     [Fact]
-    public void S433_drops_negative_and_repeated_entries()
+    public void S433_the_adapter_round_trips_and_a_position_that_is_none_is_repaired_to_the_first()
     {
-        Assert.Equal([0, 2], GpuRules.ResolveAdapters([0, -1, 2, 2, 0]));
+        var kept = (GpuConfig)ConfigJson.Read("gpu", """{ "kind": "gpu", "adapter": 2, "style": "gauge" }""");
+        Assert.Equal(2, kept.Adapter);
+        Assert.Equal(GpuStyle.Gauge, kept.Style);
+
+        var bad = (GpuConfig)ConfigJson.Read("gpu", """{ "kind": "gpu", "adapter": -4 }""");
+        Assert.Equal(0, bad.Adapter);
+        Assert.Empty(bad.Repair());
     }
 
     [Fact]
-    public void S433_an_absent_or_emptied_selection_draws_the_primary_adapter()
+    public void S433_a_clone_keeps_the_adapter()
     {
-        Assert.Equal([0], GpuRules.ResolveAdapters(null));
-        Assert.Equal([0], GpuRules.ResolveAdapters([]));
-        Assert.Equal([0], GpuRules.ResolveAdapters([-3]));
-    }
-
-    [Fact]
-    public void S433_the_picker_never_re_ticks_the_primary_adapter()
-    {
-        // Unticking the last adapter writes an empty list; the picker must show it empty.
-        Assert.Empty(GpuRules.SelectedAdapters([]));
-        Assert.Empty(GpuRules.SelectedAdapters(null));
-        Assert.Equal([2, 0], GpuRules.SelectedAdapters([2, -1, 2, 0]));
-    }
-
-    [Fact]
-    public void S433_two_or_more_adapters_stack_one_fills()
-    {
-        Assert.False(GpuRules.Stacked(0));
-        Assert.False(GpuRules.Stacked(1));
-        Assert.True(GpuRules.Stacked(2));
-        Assert.True(GpuRules.Stacked(5));
-    }
-
-    [Fact]
-    public void S433_clone_does_not_share_the_adapter_list()
-    {
-        var config = new GpuConfig { Adapters = [1] };
-        var copy = (GpuConfig)config.Clone();
-        copy.Adapters.Add(2);
-        Assert.Equal([1], config.Adapters);
+        var copy = (GpuConfig)new GpuConfig { Adapter = 1 }.Clone();
+        Assert.Equal(1, copy.Adapter);
     }
 
     // ---- [S-434] counter instances ----------------------------------------------------------

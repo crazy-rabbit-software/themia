@@ -55,8 +55,8 @@ internal static partial class WidgetSettings
     }
 
     /// <summary>
-    /// [S-5148] The base (the Windows region's currency first, naming it), the currencies as one
-    /// several-of-many row (the last one cannot be unticked), and the chart switch.
+    /// [S-5148] The pair: the base (the Windows region's currency first, naming it) and the currency
+    /// priced in it (the default first, naming it), then the source line.
     /// </summary>
     public static void ExchangeRates(List<FrameworkElement> rows, ExchangeRatesConfig config, Action save)
     {
@@ -66,49 +66,31 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Online_Rates_Label.Text()));
 
-        // By position (the choice control takes a value type): 0 is the region, then the published codes.
+        // By position (the choice control takes a value type): 0 is the default, then the published codes.
+        static int Position(string code) => code.Length == 0 ? 0 : ExchangeRules.Published.ToList().IndexOf(code) + 1;
+        static string Code(int position) => position <= 0 || position > ExchangeRules.Published.Count ? string.Empty : ExchangeRules.Published[position - 1];
+
         var bases = new List<(int, string)> { (0, Str.Online_Rates_Settings_Base_Region.Format(("code", RegionCurrency.Current))) };
         bases.AddRange(ExchangeRules.Published.Select((code, i) => (i + 1, code)));
-        var chosen = config.BaseCurrency.Length == 0 ? 0 : ExchangeRules.Published.ToList().IndexOf(config.BaseCurrency) + 1;
 
         rows.Add(FluentLayout.Row(Glyphs.ExchangeRates, Str.Online_Rates_Settings_Base_Label.Text(), Str.Online_Rates_Settings_Base_Desc.Text(),
-            FluentLayout.Choice<int>(bases, chosen, value =>
+            FluentLayout.Choice<int>(bases, Position(config.BaseCurrency), value =>
             {
-                config.BaseCurrency = value <= 0 || value > ExchangeRules.Published.Count ? string.Empty : ExchangeRules.Published[value - 1];
+                config.BaseCurrency = Code(value);
                 save();
             }),
             "base", "home currency"));
 
-        var currencies = FluentLayout.MultiChoice(
-            Str.Online_Rates_Settings_Quotes_All.Text(),
-            () => [.. ExchangeRules.Published.Select(code => new MultiChoiceItem(code, code))],
-            () =>
-            {
-                var picked = config.Currencies.ToHashSet(StringComparer.Ordinal);
-                var all = ExchangeRules.Published.All(picked.Contains);
-                return new MultiChoiceState(all, picked, all ? Str.Online_Rates_Settings_Quotes_All.Text() : string.Join(", ", config.Currencies));
-            },
-            on =>
-            {
-                // Unticking "all" keeps the first currency: the list is never empty ([S-5144]).
-                config.Currencies = on ? [.. config.Currencies, .. ExchangeRules.Published.Where(c => !config.Currencies.Contains(c))] : [config.Currencies[0]];
-                save();
-            },
-            (code, on) =>
-            {
-                if (on && !config.Currencies.Contains(code))
-                {
-                    config.Currencies.Add(code);
-                    save();
-                }
-                else if (!on && config.Currencies.Count > 1 && config.Currencies.Remove(code))
-                {
-                    save();
-                }
-            });
+        var quotes = new List<(int, string)> { (0, Str.Online_Rates_Settings_Quote_Default.Format(("code", ExchangeRules.DefaultQuote(config.EffectiveBase)))) };
+        quotes.AddRange(ExchangeRules.Published.Select((code, i) => (i + 1, code)));
 
-        rows.Add(FluentLayout.Row(Glyphs.ExchangeRates, Str.Online_Rates_Settings_Quotes_Label.Text(), Str.Online_Rates_Settings_Quotes_Desc.Text(),
-            currencies, [.. ExchangeRules.Published]));
+        rows.Add(FluentLayout.Row(Glyphs.ExchangeRates, Str.Online_Rates_Settings_Quote_Label.Text(), Str.Online_Rates_Settings_Quote_Desc.Text(),
+            FluentLayout.Choice<int>(quotes, Position(config.QuoteCurrency), value =>
+            {
+                config.QuoteCurrency = Code(value);
+                save();
+            }),
+            "currency", "quote", "pair"));
 
         // The ECB's terms: free reuse, with the source named.
         rows.Add(FluentLayout.Note(Str.Online_Source.Format(("name", "European Central Bank"))));

@@ -5,61 +5,30 @@ using Themia.Core.Widgets;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-6030] How the Countdown draws its featured timer: the duration in words, a ring of the time
-/// left, or split-flap cards. The rows under it are the same in every style.
+/// [S-6030] How the Countdown draws its duration: in words, a ring of the time left, or
+/// split-flap cards.
 /// </summary>
 [JsonConverter(typeof(StyleJsonConverter<CountdownStyle>))]
 public enum CountdownStyle
 {
     Text = 0,
 
-    /// <summary>[S-6031] The time left as a ring, from when the timer was made to its target.</summary>
+    /// <summary>[S-6031] The time left as a ring, from when the target was set to the target.</summary>
     Ring = 1,
 
     /// <summary>[S-6032] Days, hours and minutes on the Clock's split-flap cards.</summary>
     Flip = 2,
 }
 
-/// <summary>One dated target in a <see cref="CountdownConfig"/>. [C-10]</summary>
-public sealed class CountdownTimer
-{
-    /// <summary>Stable id, so reordering and editing cannot swap two timers' settings.</summary>
-    public required string Id { get; set; }
-
-    public string Label { get; set; } = string.Empty;
-
-    /// <summary>The instant being counted to, always stored in UTC. [C-53]</summary>
-    public DateTimeOffset Target { get; set; }
-
-    public CountdownFormat Format { get; set; } = CountdownFormat.Auto;
-
-    /// <summary>
-    /// [S-1448] When the timer was added, so a large tile can show how far along it is. The default
-    /// (unset) means "unknown": no progress bar is drawn rather than one measured from year one.
-    /// </summary>
-    public DateTimeOffset Created { get; set; }
-
-    public static CountdownTimer Create(string label, DateTimeOffset target, DateTimeOffset created = default) => new()
-    {
-        Id = Guid.NewGuid().ToString("n"),
-        Label = label,
-        Target = target,
-        Created = created,
-    };
-
-    public CountdownTimer Clone() => new()
-    {
-        Id = Guid.NewGuid().ToString("n"),
-        Label = Label,
-        Target = Target,
-        Format = Format,
-        Created = Created,
-    };
-}
-
-/// <summary>An ordered list of countdowns.</summary>
+/// <summary>
+/// [S-6036] One countdown: a target, its name and how it reads. A widget counts to one target;
+/// several countdowns are several widgets. A new widget has no target and asks to be set up.
+/// </summary>
 public sealed class CountdownConfig : WidgetConfig, IStyled
 {
+    /// <summary>The most a name says, in characters.</summary>
+    public const int MostLabel = 60;
+
     private static readonly StyleOption[] CountdownStyles =
     [
         StyleOption.Of(CountdownStyle.Text, Str.Styles_Countdown_Text, 0xE8D2),
@@ -70,7 +39,7 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Countdown;
 
-    /// <summary>[S-6030] The featured timer's look.</summary>
+    /// <summary>[S-6030] The duration's look.</summary>
     public CountdownStyle Style { get; set; } = CountdownStyle.Text;
 
     IReadOnlyList<StyleOption> IStyled.Styles => CountdownStyles;
@@ -81,25 +50,65 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
         set => Style = (CountdownStyle)value;
     }
 
-    public List<CountdownTimer> Timers { get; set; } = [];
+    /// <summary>Its name ("Holiday"); empty reads "Untitled".</summary>
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>[S-6036] The instant counted to, stored in UTC; null until it is set ([S-1860]). [C-53]</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTimeOffset? Target { get; set; }
+
+    public CountdownFormat Format { get; set; } = CountdownFormat.Auto;
 
     /// <summary>
-    /// [C-20] One second only when a timer actually shows seconds; otherwise half a minute, which
-    /// is enough for minute granularity and costs the process 120 fewer wakes a minute.
+    /// [S-1448] When the target was set, so the tile can show how far along it is. The default
+    /// (unset) means "unknown": no progress is drawn rather than one measured from year one.
+    /// </summary>
+    public DateTimeOffset Created { get; set; }
+
+    /// <summary>
+    /// [S-142] [C-20] One second only when the format shows seconds; otherwise half a minute, which is
+    /// enough for minute granularity and costs the process 120 fewer wakes a minute.
     /// </summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => Timers.Exists(t => t.Format == CountdownFormat.DaysHoursMinutesSeconds)
+    public TimeSpan TickInterval => Format == CountdownFormat.DaysHoursMinutesSeconds
         ? TimeSpan.FromSeconds(1)
         : TimeSpan.FromSeconds(30);
 
-    public override WidgetConfig Clone()
+    /// <summary>[S-6036] Point the countdown at <paramref name="target"/>, set <paramref name="now"/>: its progress starts again.</summary>
+    public void Retarget(DateTimeOffset target, DateTimeOffset now)
     {
-        var copy = new CountdownConfig { Style = Style };
-        foreach (var timer in Timers)
+        Target = target.ToUniversalTime();
+        Created = now.ToUniversalTime();
+    }
+
+    public override WidgetConfig Clone() => new CountdownConfig
+    {
+        Style = Style,
+        Label = Label,
+        Target = Target,
+        Format = Format,
+        Created = Created,
+    };
+
+    /// <summary>[S-6036] A hand-edited file: an unknown format reads Auto, a name is one line of at most <see cref="MostLabel"/>.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        var repairs = new List<string>();
+
+        if (!Enum.IsDefined(Format))
         {
-            copy.Timers.Add(timer.Clone());
+            repairs.Add($"countdown: format {(int)Format} is not one; Auto");
+            Format = CountdownFormat.Auto;
         }
 
-        return copy;
+        var name = (Label ?? string.Empty).ReplaceLineEndings(" ").Trim();
+        name = name.Length <= MostLabel ? name : name[..MostLabel].TrimEnd();
+        if (name != Label)
+        {
+            repairs.Add("countdown: the name was not one short line");
+            Label = name;
+        }
+
+        return repairs;
     }
 }

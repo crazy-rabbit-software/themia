@@ -225,7 +225,6 @@
   "scratchpad.penColorDesc": "สีเริ่มต้น และมีในแถบเครื่องมือของวิดเจ็ตด้วย",
   "scratchpad.penSizeLabel": "ขนาดปากกา",
   "scratchpad.penSizeDesc": "ขนาดแปรงเริ่มต้นสำหรับเส้นใหม่",
-  "countdown.timersSection": "ตัวจับเวลา",
   "notes.fontSizeLabel": "ขนาดฟอนต์",
   "notes.fontSizeDesc": "ขนาดข้อความของเนื้อหาบันทึกย่อ",
   "notes.placeholder": "พิมพ์บันทึกย่อของคุณที่นี่...",

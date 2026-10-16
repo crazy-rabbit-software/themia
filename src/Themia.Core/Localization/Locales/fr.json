@@ -224,7 +224,6 @@
   "scratchpad.penColorDesc": "Couleur de départ ; aussi dans la barre du widget",
   "scratchpad.penSizeLabel": "Épaisseur du stylo",
   "scratchpad.penSizeDesc": "Épaisseur initiale du pinceau pour les nouveaux traits.",
-  "countdown.timersSection": "Minuteurs",
   "notes.fontSizeLabel": "Taille de police",
   "notes.fontSizeDesc": "Taille du texte du contenu des notes",
   "notes.placeholder": "Écris tes notes ici...",

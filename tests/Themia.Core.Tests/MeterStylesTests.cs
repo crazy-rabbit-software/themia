@@ -24,14 +24,14 @@ public sealed class MeterStylesTests
         => Assert.Equal(["graph", "bar", "gauge"], WidgetStyles.For(WidgetKind.Memory).Select(s => s.Name));
 
     [Fact]
-    public void S6320_the_gpu_offers_graph_engines_and_gauge_and_keeps_its_adapters_through_a_clone()
+    public void S6320_the_gpu_offers_graph_engines_and_gauge_and_keeps_its_adapter_through_a_clone()
     {
         Assert.Equal(["graph", "engines", "gauge"], WidgetStyles.For(WidgetKind.Gpu).Select(s => s.Name));
 
-        var gpu = new GpuConfig { Adapters = [1, 0], Style = GpuStyle.Engines };
+        var gpu = new GpuConfig { Adapter = 1, Style = GpuStyle.Engines };
         var copy = (GpuConfig)gpu.Clone();
         Assert.Equal(GpuStyle.Engines, copy.Style);
-        Assert.Equal([1, 0], copy.Adapters);
+        Assert.Equal(1, copy.Adapter);
     }
 
     [Fact]

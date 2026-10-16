@@ -31,13 +31,13 @@ public sealed class WeatherStylesTests
         Assert.Equal(["standard", "largeIcon", "minimal"], Names(WidgetKind.WeatherNow));
         Assert.Equal(["rows", "columns", "curve"], Names(WidgetKind.WeatherForecast));
         Assert.Equal(["chart", "number"], Names(WidgetKind.Stocks));
-        Assert.Equal(["list", "chart"], Names(WidgetKind.ExchangeRates));
+        Assert.Equal(["number", "chart"], Names(WidgetKind.ExchangeRates));
         Assert.Equal(["number", "gauge"], Names(WidgetKind.AirQuality));
 
         Assert.Equal(WeatherNowStyle.Standard, new WeatherNowConfig().Style);
         Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);
         Assert.Equal(StocksStyle.Chart, new StocksConfig().Style);
-        Assert.Equal(ExchangeRatesStyle.List, new ExchangeRatesConfig().Style);
+        Assert.Equal(ExchangeRatesStyle.Number, new ExchangeRatesConfig().Style);
         Assert.Equal(AirQualityStyle.Number, new AirQualityConfig().Style);
     }
 
@@ -234,16 +234,14 @@ public sealed class WeatherStylesTests
     // ---- exchange-rate chart [S-6168] --------------------------------------------------------
 
     private static RatesPlan RatesChart(WidgetArea area)
-        => OnlineLayouts.Rates(area, 4, ExchangeRatesStyle.Chart, FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight);
+        => OnlineLayouts.Rates(area, ExchangeRatesStyle.Chart, FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight);
 
     [Fact]
-    public void S6168_the_chart_style_is_the_first_currency_over_its_chart_and_no_rows()
+    public void S6168_the_chart_style_is_the_rate_over_its_chart()
     {
         foreach (var tier in new[] { M, Tall, L, Xl })
         {
             var plan = RatesChart(tier);
-            Assert.True(plan.Hero);
-            Assert.Equal(0, plan.Rows);
             Assert.False(plan.Beside);
             Assert.True(plan.ChartHeight >= OnlineLayouts.HeroChartMin, $"{tier}: chart {plan.ChartHeight}");
         }
@@ -264,9 +262,8 @@ public sealed class WeatherStylesTests
     {
         var plan = RatesChart(Xs);
 
-        Assert.True(plan.Hero);
         Assert.Equal(0, plan.ChartHeight);
-        Assert.Equal(0, plan.Rows);
+        Assert.False(plan.Beside);
     }
 
     // ---- air gauge [S-6170] ------------------------------------------------------------------

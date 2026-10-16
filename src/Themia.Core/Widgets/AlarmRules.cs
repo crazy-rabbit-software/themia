@@ -98,8 +98,8 @@ public static class AlarmDays
 /// <summary>What an alarm is set to: its time, its days (a mask; none rings once) and whether it is on.</summary>
 public readonly record struct AlarmPlan(int Minutes, int Days, bool On)
 {
-    public static AlarmPlan Of(AlarmEntry? entry) =>
-        entry is null ? new AlarmPlan(AlarmTimes.Default, 0, false) : new AlarmPlan(AlarmTimes.Minutes(entry.Time), AlarmDays.Mask(entry.Days), entry.On);
+    public static AlarmPlan Of(AlarmConfig? alarm) =>
+        alarm is null ? new AlarmPlan(AlarmTimes.Default, 0, false) : new AlarmPlan(AlarmTimes.Minutes(alarm.Time), AlarmDays.Mask(alarm.Days), alarm.On);
 
     /// <summary>It rings on its days, every week; with none it rings once.</summary>
     public bool Repeats => Days != 0;
@@ -184,14 +184,39 @@ public enum AlarmPhase
 /// <summary>What an alarm is doing: its phase, when it rings next while on (UTC), and until when it is snoozed (UTC).</summary>
 public readonly record struct AlarmStatus(AlarmPhase Phase, DateTime? Next = null, DateTime? Until = null);
 
-/// <summary>One alarm the book is handed: its key (widget and alarm), the entry itself, and its widget's snooze.</summary>
-public readonly record struct AlarmSlot(string Key, AlarmEntry Entry, TimeSpan Snooze);
+/// <summary>One alarm the book is handed: its key (its widget's id) and the widget's alarm itself.</summary>
+public readonly record struct AlarmSlot(string Key, AlarmConfig Alarm)
+{
+    /// <summary>
+    /// [S-4623] The alarms there are: one per alarm widget, of every view, whichever is shown. A widget
+    /// id met twice (never written so, but a hand-edited file) is the first one's.
+    /// </summary>
+    public static IReadOnlyList<AlarmSlot> Of(IEnumerable<ViewState> views)
+    {
+        ArgumentNullException.ThrowIfNull(views);
+        var slots = new List<AlarmSlot>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var view in views)
+        {
+            foreach (var widget in view.Widgets)
+            {
+                if (widget.Config is AlarmConfig alarm && seen.Add(widget.Id))
+                {
+                    slots.Add(new AlarmSlot(widget.Id, alarm));
+                }
+            }
+        }
+
+        return slots;
+    }
+}
 
 /// <summary>
-/// [S-4622]..[S-4625] Every alarm of every alarm widget, by key: what each is doing and when the next
+/// [S-4622]..[S-4625] The alarm of every alarm widget, by key: what each is doing and when the next
 /// thing happens to any of them. Handed the entries (<see cref="Sync"/>) and the time on every call,
 /// so every rule is tested without a clock (after Karpo's <c>AlarmBook</c>, for many alarms). One that
-/// does not repeat turns itself off in its entry when its ring is over (<see cref="Switched"/>, which
+/// does not repeat turns itself off in its config when its ring is over (<see cref="Switched"/>, which
 /// the service writes). One thread only.
 /// <list type="bullet">
 /// <item>Set at a time already past, it is tomorrow's: switching on, starting or a new time never rings for a moment before.</item>
@@ -210,7 +235,7 @@ public sealed class AlarmBook
     private sealed class Entry(AlarmSlot slot, DateTime armed)
     {
         public AlarmSlot Slot = slot;
-        public AlarmPlan Plan = slot.Entry.Plan;
+        public AlarmPlan Plan = slot.Alarm.Plan;
 
         /// <summary>When it was set as it is now: nothing before it rings.</summary>
         public DateTime Armed = armed;
@@ -237,7 +262,7 @@ public sealed class AlarmBook
     /// <summary>An alarm stopped ringing — dismissed, snoozed, run out, switched off or gone: its key.</summary>
     public event Action<string>? Silenced;
 
-    /// <summary>An entry was switched off here (a ring that does not repeat is over): its key. The service writes the file.</summary>
+    /// <summary>An alarm was switched off here (a ring that does not repeat is over): its key. The service writes the file.</summary>
     public event Action<string>? Switched;
 
     public TimeZoneInfo Zone => _zone();
@@ -250,7 +275,7 @@ public sealed class AlarmBook
 
     public IReadOnlyCollection<string> Keys => _set.Keys;
 
-    /// <summary>The entry the book holds for <paramref name="key"/>, or null.</summary>
+    /// <summary>The alarm the book holds for <paramref name="key"/>, or null.</summary>
     public AlarmSlot? Slot(string key) => _set.TryGetValue(key, out var entry) ? entry.Slot : null;
 
     /// <summary>
@@ -269,7 +294,7 @@ public sealed class AlarmBook
                 continue;
             }
 
-            var plan = slot.Entry.Plan;
+            var plan = slot.Alarm.Plan;
             if (_set.TryGetValue(slot.Key, out var entry) && entry.Plan == plan)
             {
                 entry.Slot = slot;
@@ -412,7 +437,7 @@ public sealed class AlarmBook
         }
 
         entry.Ringing = null;
-        entry.Snoozed = utc + entry.Slot.Snooze;
+        entry.Snoozed = utc + entry.Slot.Alarm.Snooze;
         Silenced?.Invoke(key);
         return true;
     }
@@ -457,10 +482,10 @@ public sealed class AlarmBook
         entry.Ringing = null;
         entry.Snoozed = null;
 
-        if (!entry.Plan.Repeats && entry.Slot.Entry.On)
+        if (!entry.Plan.Repeats && entry.Slot.Alarm.On)
         {
-            entry.Slot.Entry.On = false;
-            entry.Plan = entry.Slot.Entry.Plan;
+            entry.Slot.Alarm.On = false;
+            entry.Plan = entry.Slot.Alarm.Plan;
             Switched?.Invoke(key);
         }
 
@@ -471,12 +496,9 @@ public sealed class AlarmBook
     }
 }
 
-/// <summary>[S-4624] What an alarm's row says beside its time, in the current language.</summary>
+/// <summary>[S-4624] What an alarm says beside its time, in the current language.</summary>
 public static class AlarmWords
 {
-    /// <summary>The key the service and the views know an alarm by: its widget and its own id.</summary>
-    public static string Key(string widgetId, string alarmId) => string.Concat(widgetId, "/", alarmId);
-
     /// <summary>
     /// The days of <paramref name="mask"/>: "Every day", "Weekdays", "Weekends", else each day's short
     /// name in the language's week (from its first day): "Mon, Wed".
@@ -492,7 +514,7 @@ public static class AlarmWords
     };
 
     /// <summary>
-    /// What a row says of an alarm at <paramref name="utc"/>: "Off"; "Ringing"; "Snoozed until 7:10";
+    /// What the widget says of its alarm at <paramref name="utc"/>: "Off"; "Ringing"; "Snoozed until 7:10";
     /// one that repeats, its days; one that does not, when it rings — "Today", "Tomorrow" or the day.
     /// </summary>
     public static string Hint(Locale locale, AlarmStatus status, AlarmPlan plan, DateTime utc, TimeZoneInfo zone)
@@ -536,6 +558,6 @@ public static class AlarmWords
         LocaleFormat.Time(locale, new TimeOnly(plan.Minutes / 60, plan.Minutes % 60));
 
     /// <summary>Its name, or "Alarm".</summary>
-    public static string Name(Locale locale, AlarmEntry entry) =>
-        string.IsNullOrWhiteSpace(entry.Label) ? Strings.Get(locale, Str.Alarm_Untitled) : entry.Label;
+    public static string Name(Locale locale, AlarmConfig alarm) =>
+        string.IsNullOrWhiteSpace(alarm.Label) ? Strings.Get(locale, Str.Alarm_Untitled) : alarm.Label;
 }

@@ -225,7 +225,6 @@
   "scratchpad.penColorDesc": "Начальный цвет; также есть на панели инструментов виджета",
   "scratchpad.penSizeLabel": "Толщина пера",
   "scratchpad.penSizeDesc": "Начальная толщина кисти для новых штрихов.",
-  "countdown.timersSection": "Таймеры",
   "notes.fontSizeLabel": "Размер шрифта",
   "notes.fontSizeDesc": "Размер текста заметок",
   "notes.placeholder": "Введите заметки…",

@@ -397,7 +397,7 @@ public sealed class OnlineWidgetsTests
         => Assert.Equal(expected, RegionCurrency.For(country));
 
     [Fact]
-    public void S5143_an_empty_base_follows_the_region_and_the_base_is_never_its_own_quote()
+    public void S5143_an_empty_base_follows_the_region_and_the_quote_defaults_to_the_euro_else_the_dollar()
     {
         var before = RegionCurrency.Country;
         try
@@ -406,10 +406,19 @@ public sealed class OnlineWidgetsTests
             var config = new ExchangeRatesConfig();
 
             Assert.Equal("CHF", config.EffectiveBase);
-            Assert.Equal(["EUR", "USD", "GBP"], config.EffectiveQuotes);
+            Assert.Equal("EUR", config.EffectiveQuote);
 
-            config.BaseCurrency = "USD";
-            Assert.Equal(["EUR", "GBP"], config.EffectiveQuotes);
+            // A euro base: the euro is no quote of itself, so the dollar.
+            RegionCurrency.Country = "DE";
+            Assert.Equal("EUR", config.EffectiveBase);
+            Assert.Equal("USD", config.EffectiveQuote);
+
+            config.QuoteCurrency = "GBP";
+            Assert.Equal("GBP", config.EffectiveQuote);
+
+            // The base is never its own quote: the default for that base instead.
+            config.BaseCurrency = "GBP";
+            Assert.Equal("EUR", config.EffectiveQuote);
         }
         finally
         {
@@ -417,21 +426,38 @@ public sealed class OnlineWidgetsTests
         }
     }
 
+    [Theory]
+    [InlineData("CHF", "EUR")]
+    [InlineData("USD", "EUR")]
+    [InlineData("EUR", "USD")]
+    public void S5143_the_default_quote(string basis, string quote) => Assert.Equal(quote, ExchangeRules.DefaultQuote(basis));
+
     [Fact]
-    public void S5144_repair_drops_unpublished_codes_loudly_and_never_leaves_the_list_empty()
+    public void S5144_repair_drops_unpublished_codes_loudly()
     {
-        var config = new ExchangeRatesConfig { BaseCurrency = "xyz", Currencies = ["usd", "RUB", "USD", "gbp"] };
+        var config = new ExchangeRatesConfig { BaseCurrency = "xyz", QuoteCurrency = "RUB" };
         var repairs = config.Repair();
 
         Assert.Equal(string.Empty, config.BaseCurrency);
-        Assert.Equal(["USD", "GBP"], config.Currencies);
+        Assert.Equal(string.Empty, config.QuoteCurrency);
         Assert.Equal(2, repairs.Count);
 
-        var empty = new ExchangeRatesConfig { Currencies = ["ABC"] };
-        empty.Repair();
-        Assert.Equal(ExchangeRules.DefaultQuotes, empty.Currencies);
+        var cased = new ExchangeRatesConfig { BaseCurrency = " chf ", QuoteCurrency = "usd" };
+        Assert.Empty(cased.Repair());
+        Assert.Equal(("CHF", "USD"), (cased.BaseCurrency, cased.QuoteCurrency));
 
         Assert.Empty(new ExchangeRatesConfig().Repair());
+    }
+
+    [Fact]
+    public void S5144_a_pair_round_trips_through_the_file()
+    {
+        var config = (ExchangeRatesConfig)ConfigJson.Read("exchangeRates", """
+            { "kind": "exchangeRates", "baseCurrency": "CHF", "quoteCurrency": "JPY", "style": "chart" }
+            """);
+
+        Assert.Equal(("CHF", "JPY", ExchangeRatesStyle.Chart), (config.BaseCurrency, config.QuoteCurrency, config.Style));
+        Assert.Equal("JPY", config.EffectiveQuote);
     }
 
     [Fact]
@@ -536,25 +562,17 @@ public sealed class OnlineWidgetsTests
     }
 
     [Fact]
-    public void S5146_the_rates_list_goes_from_hero_to_rows_to_hero_over_rows()
+    public void S5146_the_number_style_is_the_rate_alone_on_the_whole_tile()
     {
-        var floor = FluentType.Title.LineHeight + FluentType.Caption.LineHeight;
+        var floor = FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight;
 
-        var small = OnlineLayouts.Rates(new WidgetArea(160, 120), 3, ExchangeRatesStyle.List, floor);
-        var strip = OnlineLayouts.Rates(new WidgetArea(440, 116), 3, ExchangeRatesStyle.List, floor);
-        var large = OnlineLayouts.Rates(new WidgetArea(420, 420), 3, ExchangeRatesStyle.List, floor);
-
-        Assert.True(small.Hero);
-        Assert.Equal(0, small.Rows);
-        Assert.False(strip.Hero);
-        Assert.Equal(2, strip.Rows);
-        Assert.True(strip.RowSparkWidth > 0);
-        Assert.True(large.Hero);
-        Assert.Equal(2, large.Rows);
-        Assert.True(large.RowSparkWidth > 0);
-
-        // [S-6168] The first currency's chart is the chart style's, never the list's.
-        Assert.Equal(0, large.ChartHeight);
+        foreach (var area in new[] { new WidgetArea(160, 120), new WidgetArea(440, 116), new WidgetArea(420, 420) })
+        {
+            var plan = OnlineLayouts.Rates(area, ExchangeRatesStyle.Number, floor);
+            Assert.Equal(area.Height - (2 * OnlineLayouts.VerticalInset), plan.HeroRoom);
+            Assert.Equal(0, plan.ChartHeight);
+            Assert.False(plan.Beside);
+        }
     }
 
     // ---- offline store -------------------------------------------------------------------------
@@ -593,15 +611,15 @@ public sealed class OnlineWidgetsTests
     public void S5100_the_configs_round_trip_and_clone()
     {
         var air = new AirQualityConfig { Latitude = 1, Longitude = 2, LocationName = "X", Scale = AirQualityScale.Us };
-        var rates = new ExchangeRatesConfig { BaseCurrency = "CHF", Currencies = ["USD"], Style = ExchangeRatesStyle.Chart };
+        var rates = new ExchangeRatesConfig { BaseCurrency = "CHF", QuoteCurrency = "USD", Style = ExchangeRatesStyle.Chart };
 
         var airCopy = (AirQualityConfig)air.Clone();
         var ratesCopy = (ExchangeRatesConfig)rates.Clone();
-        rates.Currencies.Add("GBP");
+        rates.QuoteCurrency = "GBP";
 
         Assert.Equal(AirQualityScale.Us, airCopy.Scale);
         Assert.Equal(2, airCopy.Longitude);
-        Assert.Equal(["USD"], ratesCopy.Currencies);
+        Assert.Equal(("CHF", "USD"), (ratesCopy.BaseCurrency, ratesCopy.QuoteCurrency));
         Assert.Equal(ExchangeRatesStyle.Chart, ratesCopy.Style);
         Assert.Equal(WidgetKind.RainNextHour, new RainNextHourConfig().Kind);
     }

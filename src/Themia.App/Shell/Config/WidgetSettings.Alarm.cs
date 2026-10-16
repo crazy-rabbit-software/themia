@@ -11,9 +11,9 @@ using Windows.System;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-4631] The Alarm settings: the alarms (each its time, its name, the days it repeats on and its
-/// switch), then the sound, its level and the snooze. Every row writes the live config and saves; the
-/// save is a state change, which the alarm service syncs from at once.
+/// [S-4631] The Alarm settings: the one alarm's time, its switch, its name and the days it repeats on,
+/// then the sound, its level and the snooze. Every row writes the live config and saves; the save is a
+/// state change, which the alarm service syncs from at once.
 /// </summary>
 internal static partial class WidgetSettings
 {
@@ -23,23 +23,8 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.Alarm_Settings_Section.Text()));
-
-        FluentLayout.ListEditor(rows, new ListEditorOptions<AlarmEntry>
-        {
-            Items = config.Alarms,
-            Save = save,
-            EmptyText = Str.Alarm_Settings_Empty.Text(),
-            AddTitle = Str.Alarm_Settings_Add_Label.Text(),
-            AddDescription = Str.Alarm_Settings_Add_Desc.Text(),
-            AddAction = Str.Common_Add.Text(),
-            RemoveTooltip = Str.Alarm_Settings_Remove.Text(),
-            Capacity = AlarmConfig.MostAlarms,
-
-            // A new alarm is on: adding one is asking for it to ring.
-            Create = () => new AlarmEntry { On = true },
-            Body = alarm => AlarmBody(alarm, save),
-        });
+        rows.Add(FluentLayout.Header(Str.Alarm_Label.Text()));
+        AlarmRows(rows, config, save);
 
         // [S-4627] Said where alarms are set: they ring only while Themia runs.
         rows.Add(FluentLayout.Note(Str.Alarm_Settings_WhileRunning.Text()));
@@ -76,18 +61,16 @@ internal static partial class WidgetSettings
             => CuePlayer.Play(PomodoroSounds.Wave(config.Sound, PomodoroPhase.Work, config.EffectiveVolume));
     }
 
-    /// <summary>One alarm's editor: its switch and time, its name, and the days it repeats on.</summary>
-    private static FrameworkElement AlarmBody(AlarmEntry alarm, Action save)
+    /// <summary>The alarm itself: its time, its switch, its name and the days it repeats on.</summary>
+    private static void AlarmRows(List<FrameworkElement> rows, AlarmConfig alarm, Action save)
     {
         var locale = Strings.Current;
-        var minutes = AlarmTimes.Minutes(alarm.Time);
 
         var time = new TimePicker
         {
-            SelectedTime = TimeSpan.FromMinutes(minutes),
+            SelectedTime = TimeSpan.FromMinutes(AlarmTimes.Minutes(alarm.Time)),
             ClockIdentifier = LocaleFormat.Uses24Hour(locale) ? "24HourClock" : "12HourClock",
             MinuteIncrement = 1,
-            HorizontalAlignment = HorizontalAlignment.Left,
         };
 
         time.SelectedTimeChanged += (_, _) =>
@@ -108,18 +91,22 @@ internal static partial class WidgetSettings
             save();
         };
 
-        var on = FluentLayout.Toggle(alarm.On, value =>
-        {
-            alarm.On = value;
-            save();
-        });
+        rows.Add(FluentLayout.Row(Glyphs.Alarm, Str.Alarm_Settings_Time_Label.Text(), null, time, "time", "wake"));
+
+        rows.Add(FluentLayout.Row(Glyphs.Bell, Str.Alarm_Settings_On_Label.Text(), Str.Alarm_Settings_On_Desc.Text(),
+            FluentLayout.Toggle(alarm.On, value =>
+            {
+                alarm.On = value;
+                save();
+            }),
+            "on", "off", "enable"));
 
         var label = new TextBox
         {
             Text = alarm.Label,
             PlaceholderText = Str.Alarm_Settings_NamePlaceholder.Text(),
-            MaxLength = AlarmEntry.MostName,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
+            MaxLength = AlarmConfig.MostName,
+            MinWidth = FluentLayout.ChoiceMinWidth,
         };
 
         // On lost focus and on Enter, never per keystroke.
@@ -145,6 +132,8 @@ internal static partial class WidgetSettings
             }
         };
 
+        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.Alarm_Settings_Name_Label.Text(), null, label, "name", "label"));
+
         // [S-4621] A button per day, in the language's week.
         var days = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
         foreach (var day in AlarmDays.From(LocaleFormat.FirstDayOfWeek(locale)))
@@ -169,37 +158,15 @@ internal static partial class WidgetSettings
             days.Children.Add(button);
         }
 
-        var top = new Grid { ColumnSpacing = Fluent.Space2 };
-        // The picker at its own width (hours, minutes and, on a 12-hour clock, AM/PM); the name takes the rest.
-        top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        Grid.SetColumn(label, 1);
-        Grid.SetColumn(on, 2);
-        on.VerticalAlignment = VerticalAlignment.Center;
-        top.Children.Add(time);
-        top.Children.Add(label);
-        top.Children.Add(on);
-
-        var repeat = Fluent.Text(Themia.Core.Widgets.FluentType.Caption, "TextFillColorSecondaryBrush");
-        repeat.Text = Str.Alarm_Settings_Repeat.Text();
-        repeat.Margin = new Thickness(0, Fluent.Space2, 0, Fluent.Space1);
-
-        return new StackPanel
-        {
-            Children =
+        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Alarm_Settings_Repeat.Text(), Str.Alarm_Settings_Repeat_Desc.Text(),
+            new ScrollViewer
             {
-                top,
-                repeat,
-                new ScrollViewer
-                {
-                    Content = days,
-                    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                    VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
-                    HorizontalScrollMode = ScrollMode.Auto,
-                    VerticalScrollMode = ScrollMode.Disabled,
-                },
+                Content = days,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                HorizontalScrollMode = ScrollMode.Auto,
+                VerticalScrollMode = ScrollMode.Disabled,
             },
-        };
+            "days", "repeat", "weekdays"));
     }
 }

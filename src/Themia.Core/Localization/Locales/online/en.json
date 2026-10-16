@@ -67,9 +67,9 @@
   "online.rates.perBase": "per {code}",
   "online.rates.missing": "Not published",
   "online.rates.settings.base.label": "Base currency",
-  "online.rates.settings.base.desc": "The currency the others are priced in",
+  "online.rates.settings.base.desc": "The rate is for one unit of it",
   "online.rates.settings.base.region": "Windows region ({code})",
-  "online.rates.settings.quotes.label": "Currencies",
-  "online.rates.settings.quotes.desc": "As many as fit, in the order picked",
-  "online.rates.settings.quotes.all": "All currencies"
+  "online.rates.settings.quote.label": "Currency",
+  "online.rates.settings.quote.desc": "The currency the rate is given in",
+  "online.rates.settings.quote.default": "Default ({code})"
 }

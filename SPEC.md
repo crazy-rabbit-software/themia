@@ -514,18 +514,17 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 
 ## Countdown and pomodoro
 
-- **[S-140]** A countdown row is a label, the absolute local target, and the duration. A target in
-  the past is not hidden: it reads "… ago" in the theme's critical colour with the label stepped
-  back, because how long ago a deadline went is the thing you want to know.
+- **[S-140]** A countdown reads its name, the duration and the absolute local target. A target in
+  the past is not hidden: it reads "… ago" in the theme's critical colour, because how long ago a
+  deadline went is the thing you want to know.
 - **[S-141]** `auto` picks the coarsest unit that still says something: "in a moment", "N mins",
   "Nh Nm" (or "N hrs" on the hour), "Nd Nh" (or "N days" on the day), and past a week just days.
   Under a minute in the past is "just now", never "in a moment ago". The explicit formats keep their
   zero components, because a fixed shape is what makes a column of durations readable.
-- **[S-142]** The one-second cadence is bought only by a timer that actually shows seconds;
-  everything else re-letters twice a minute, and a widget with no timers does not wake at all.
-- **[S-143]** Rows are built when the list changes and only re-lettered on a tick. Rebuilding them
-  each tick drops the row under the pointer, which at one second is every second.
-- **[S-144]** A cleared, impossible or non-existent (DST-skipped) target leaves the timer pointing
+- **[S-142]** The one-second cadence is bought only by the format that shows seconds; every other
+  format re-letters twice a minute, and a countdown with no target does not wake at all.
+- **[S-143]** *(Retired: one target per widget, [S-6036]; there are no rows to keep.)*
+- **[S-144]** A cleared, impossible or non-existent (DST-skipped) target leaves the countdown pointing
   where it did. Writing "now" is what the original did, and it silently retargeted a timer mid-edit.
 - **[S-150]** Pomodoro run state — phase, seconds left, running — lives in the view instance and is
   never persisted. The same widget on two monitors is two independent timers, which is also why only
@@ -544,21 +543,32 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   ticker makes at subscribe time is swallowed: that immediate fire is right for a view that renders
   the time and wrong for one that *is* the tick.
 - **[S-6030]** The countdown's styles ([S-6000]), `CountdownConfig.Style` (`CountdownStyle`):
-  **Text** (the default: the hero as [S-1447]), **Ring** and **Flip**. A style is how the featured
-  timer's duration is drawn; the label, date, "next" line and the rows under it are the same in
-  all three, on the same ladder, and a hero too small for its ring (72 DIPs) or its cards (36 DIPs
-  tall) draws the text. Debug: `--state sample` (three timers, a launch in three days featured).
-- **[S-6031]** **Ring**: the time left as a ring (`RingPart`, [S-6060]) as large as the hero's room,
-  the duration inside it in the text style's words and colours; the ring is the share still to go
-  from the timer's creation to its target (`CountdownLayout.Left`), so it empties as the day comes;
-  without a creation time ([S-1448]) it draws its track alone. The ring is the progress: no bar
+  **Text** (the default: the readout as [S-1447]), **Ring** and **Flip**. A style is how the
+  duration is drawn; the name, the date and the progress bar are the same in all three, on the same
+  ladder, and a tile too small for its ring (72 DIPs) or its cards (36 DIPs tall) draws the text.
+  Debug: `--state sample` (a launch in three days, set two days ago).
+- **[S-6031]** **Ring**: the time left as a ring (`RingPart`, [S-6060]) as large as the readout's
+  room, the duration inside it in the text style's words and colours; the ring is the share still to
+  go from when the target was set to the target (`CountdownLayout.Left`), so it empties as the day
+  comes; without that time ([S-1448]) it draws its track alone. The ring is the progress: no bar
   under it.
-- **[S-6032]** **Flip**: the clock's split-flap cards ([S-6012]) side by side across the hero, each
+- **[S-6032]** **Flip**: the clock's split-flap cards ([S-6012]) side by side across the tile, each
   with its unit under it ("days", "hours", "min", "sec"): days while there is at least one (as
   many figures as it takes), then hours and minutes, two figures each, and seconds when the
-  timer's format shows them (`CountdownLayout.Cards`); a timer gone by counts up in the critical
+  format shows them (`CountdownLayout.Cards`); a target gone by counts up in the critical
   colour. A card whose figures change on a tick turns over; the days card going at the last day
   re-lays the row.
+- **[S-6036]** A countdown widget counts to **one** target (user decision): `CountdownConfig` is its
+  name (one line, at most 60 characters), its target (an instant kept in UTC), its format and when
+  the target was set (`Created`, [S-1448]). Several countdowns are several widgets; there is no
+  timer list, no row and no menu or key of the widget's own. A new widget has no target and shows
+  the Set up button ([S-1860]); setting one (`Retarget`) starts its progress from then. A
+  hand-edited file is repaired loudly: an unknown format reads Auto, a name of several lines or
+  too long is cut to one short line.
+- **[S-6037]** Settings: Name (on lost focus and Enter), Date and time (a date picker and a time
+  picker in the language's clock; with no target yet the time is midnight, so a picked day counts
+  to its start; [S-144] for a cleared one) and Format (Auto, Days only, Days · Hours · Min,
+  Days · Hours · Min · Sec).
 - **[S-6035]** The pomodoro's styles ([S-6000]), `PomodoroConfig.Style` (`PomodoroStyle`):
   **Ring** (the default, today's look: the ring on tall and large tiles, [S-1466], the bar on the
   others), **Bar** (the bar wherever the ladder has room for it, never a ring: a large tile stacks
@@ -1241,8 +1251,8 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
 ### GPU
 
 - **[S-430]** The GPU tile reads like the other meters ([S-1762]): the load as the number and the
-  history as a `SparkBand` edge to edge at the bottom of its panel ([S-1824]). One adapter names the card after itself, without vendor and
-  trademark noise (`GpuRules.ShortName`: "RTX 4060 Ti"). Load reads `--` for the first sample: it is
+  history as a `SparkBand` edge to edge at the bottom of the tile ([S-1824]). The adapter names the card, without vendor and
+  trademark noise (`GpuRules.ShortName`: "RTX 4060 Ti"); its whole name is the tooltip. Load reads `--` for the first sample: it is
   a rate and needs two readings.
 - **[S-431]** Data comes from DXGI (which adapters exist: name, LUID) and the PDH GPU counters
   (`\GPU Engine(*)\Utilization Percentage`), all through `LibraryImport` and vtable calls, so
@@ -1252,10 +1262,12 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
   sampled on the pool, single-flight, read by the hub once per due tick ([S-2501], [S-2507]).
 - **[S-432]** Pressure colours the trace, never the number: high from 70% load, critical from 90%
   (theme caution and critical brushes).
-- **[S-433]** `Adapters` is a list of DXGI positions, in drawing order. Negative and repeated entries
-  are dropped; an empty selection draws the primary adapter. The settings picker shows the raw
-  selection (no primary-adapter default) and is offered only with two or more adapters. Two or more
-  selected adapters share the tile as panels, each with its own name, reading and history ([S-1207]).
+- **[S-433]** One adapter per widget (user decision; a laptop's two GPUs are two widgets):
+  `GpuConfig.Adapter`, a DXGI position (software adapters left out). DXGI lists the adapter driving
+  the primary display first, so the default 0 is that one, else the first; a negative position is
+  repaired to 0, loudly. The settings choice names each adapter and is offered only with two or more
+  (the GPU details' row, [S-2431]). A chosen adapter that is not there (an eGPU unplugged) is said
+  as a state. No panels, no stacking.
 - **[S-434]** A counter instance belongs to the adapter whose `luid_...` token it carries, found
   anywhere in the name (engine instances start with `pid_...`, which the original's "starts with"
   match missed). Load is the **busiest engine**: per-engine sums across processes, then the
@@ -1266,14 +1278,13 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
   counters (a borderless full-screen game collapses the 3D counter). Matched to the DXGI adapter by
   name (the n-th of identical cards), never guessed among several. Loaded once per sampler session;
   any failure leaves the counters' figure.
-- **[S-436]** Read on the hub's one cadence, every second ([S-2503]). Changing the selection rebuilds
-  the panels, so a new adapter's history starts fresh.
+- **[S-436]** Read on the hub's one cadence, every second ([S-2503]). Choosing another adapter
+  watches that adapter's own series, so its history is its own.
 
-- **[S-6320]** GPU styles, `GpuConfig.Style` (`GpuStyle`), one for every adapter the tile shows:
-  **Graph** ([S-430]), **Engines** ([S-6322]), **Gauge** ([S-6321]).
-- **[S-6321]** Each panel lays its style on the meters' ladder with the meters' parts ([S-6300]).
-  Gauge: one adapter puts its load in the bowl ([S-6302]); several keep the name and load on their
-  line at the top and draw the gauge under it.
+- **[S-6320]** GPU styles, `GpuConfig.Style` (`GpuStyle`): **Graph** ([S-430]), **Engines**
+  ([S-6322]), **Gauge** ([S-6321]).
+- **[S-6321]** The tile lays its style on the meters' ladder with the meters' parts ([S-6300]).
+  Gauge: the load in the bowl ([S-6302]).
 - **[S-6322]** **Engines**: a row per engine type ([S-6304]) in the order 3D, Copy, Video encode,
   Video decode, for the types the adapter's counters list (an engine at 0 % is still listed; other
   types, compute or a vendor's own, are not drawn). A type's load is its busiest engine, summed
@@ -1942,7 +1953,7 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   [S-665], [S-1571], [S-1323], [S-1284], [S-1469], [S-1475]; the stock
   facts and range chips, [S-2770]; the mixer's percent, [S-2771]).
 - **[S-667]** **The hero readout** (`HeroReadout`, metrics in `HeroLayout`; Weather now, Stocks,
-  Air quality, Exchange rates, the system meters and GPU panels, the detail widgets, [S-3860]): the one big value
+  Air quality, Exchange rates, the system meters and the GPU, the detail widgets, [S-3860]): the one big value
   with its unit, an optional token on its baseline, an optional leading glyph and caption lines.
   Value, unit and token are runs of one text block, so they share a baseline (they were three
   bottom-aligned blocks of different line heights, a few pixels apart). The unit is the largest ramp
@@ -1962,7 +1973,7 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
 - **[S-3860]** **One hero ladder for chart and reading widgets.** While a hero shares its tile with
   the content it heads (a chart, readings, a list) it grows to the tier's step, by the tile's
   smaller size class (`HeroLayout.TierStep`): Title up to Regular, TitleLarge at Expanded, Display
-  at Huge, fitted down where the width is short. Stocks ([S-1311]), the meters and GPU panels
+  at Huge, fitted down where the width is short. Stocks ([S-1311]), the meters and the GPU
   ([S-1762]) and the detail widgets ([S-2402]) use it, so at the seven tiers a CPU meter and a
   stock draw their number at 28 / 28 / 28 / 28 / 28 / 40 / 68. A hero alone on its tile (a meter
   with the history off, a detail widget whose every fact is shown and has no list, the weather)
@@ -3100,32 +3111,26 @@ Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
   Clipboard widget. With no Clipboard widget left in the state the listener stops and the history
   is forgotten; still text only, in memory, never written. A detached state (a debug render) has
   none.
-- **[S-1445]** Countdown timer menu on every row and on the hero (original C-60): Remove… (confirmed).
-  The display format is chosen per timer in the settings only ([S-1746]); original C-61 is moot.
-- **[S-1446]** The featured timer is the soonest still ahead, else the most recently passed; the
-  "Next: <label> in <auto>" line names the soonest other upcoming one. The featured timer is not
-  listed again; when it passes, the next tick re-lays the tile.
-- **[S-1447]** Countdown ladder (`CountdownLayout.Plan`): XS/S the hero alone (+ next line); one timer
-  is the hero at any size; Wide hero left, list right; M/Tall/L/XL hero on top, the others as rows
-  under it. The hero readout takes the height the rows leave (`FluentType.Hero`, sized for the
-  format's widest text); when every row fits they sit at the foot and the hero is centred above.
-  Short or narrow tiles use compact rows; a compact list ≥260 wide shows the date as a column.
-- **[S-1448]** `CountdownTimer.Created` (set when added in settings): L/XL draw a progress bar under
-  the hero, XL under each row too. Unknown (unset) or not before the target: no bar.
+- **[S-1445]** *(Retired: one target per widget, [S-6036]; removing a countdown is removing its widget.)*
+  The format is chosen in the settings only ([S-1746]); original C-60 and C-61 are moot.
+- **[S-1446]** *(Retired: one target per widget, [S-6036]; nothing is featured and there is no "Next" line.)*
+- **[S-1447]** Countdown ladder: the readout is the whole tile. The name and the duration always;
+  the target's date from the Regular height; the progress bar on L/XL (`CountdownLayout.ShowsProgress`,
+  Expanded both ways), each as it fits; the duration takes the rest (`FluentType.Hero`, sized for
+  the format's widest text). A tile Compact either way centres it; a larger one reads from the left.
+  The whole instant is the tooltip.
+- **[S-1448]** `CountdownConfig.Created` (set with the target in settings): L/XL draw a progress bar
+  under the readout from then to the target. Unknown (unset) or not before the target: no bar.
 - **[S-1456]** `ItemMenuEntry.Children` makes an entry a submenu (`MenuFlyoutSubItem`), separators
   collapse inside it as at the top level.
 - **[S-1457]** `ItemCursor.Move`: the shared list cursor (Up/Left back, Down/Right forward, clamped;
   Home/End; Escape clears; no cursor + forward = first, + back = last).
 - **[S-1985]** `ItemCursor.Move` also pages: Page Up / Page Down jump ten items (`ListKeys.PageStep`),
   clamped; with no cursor they land on the first. RSS and Screen time move with it.
-- **[S-1986]** Countdown keys (`CountdownView : IWidgetKeys`, `ListKeys`): taken only while timers
-  are listed under the hero. Up/Down, Page Up/Down, Home/End move a `RowFocus` ring over the listed
-  timers (the hero is not a row), Delete removes the timer after the same confirmation as its menu,
-  the Menu key opens its menu, Escape lets go. A removed timer hands the ring to the row that took
-  its place. Enter has nothing to open.
+- **[S-1986]** *(Retired: one target per widget, [S-6036]; with no list the countdown takes no keys.)*
 
 Not ported, deliberately: clipboard pin (an optional extra the audit listed, not in the original);
-Countdown C-61 keep-open (above). Countdown keys came later although the original had none ([S-1986]).
+Countdown C-61 keep-open (above).
 
 ## CPU
 
@@ -3487,7 +3492,6 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 | Shortcuts | arrows, Home/End, PgUp/PgDn; Enter opens; Space toggles; Delete; F2; Menu; type-ahead ([S-1390], [S-1995]) |
 | RSS | Up/Down/Left/Right, PgUp/PgDn, Home/End; Enter opens; Menu ([S-1306], [S-1985]) |
 | Clipboard | Up/Down, PgUp/PgDn, Home/End; Enter copies; Delete; Menu ([S-1444]) |
-| Countdown | Up/Down, PgUp/PgDn, Home/End; Delete (asks); Menu ([S-1986]) |
 | Pictures (slideshow) | Left/Right; Home/End; Space pauses; Enter opens ([S-811], [S-1992]) |
 | Mixer | Up/Down/Home/End rows; Left/Right, +/- step; PgUp/PgDn step 10; M/Space mute; Menu ([S-1225]) |
 | Volume | arrows, +/- step; PgUp/PgDn step 10; Home/End 0/100; M/Space mute ([S-1226], [S-2733]) |
@@ -3678,19 +3682,16 @@ Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMete
 
 ## GPU and screen time: the whole tile (SYS-P4)
 
-Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core `GpuLayout`, `GpuRules`,
+Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core `GpuRules`,
 `MeterFace`; `Widgets/ScreenTimeView*.cs` (+ `.Footer.cs`), Core `ScreenTimeRules`; settings
-`WidgetSettings.Gpu.cs`, `WidgetSettings.SystemWidgets.cs`. Tests `GpuLayoutTests`, `ScreenTimeRulesTests` (`S12xx_`).
+`WidgetSettings.Gpu.cs`, `WidgetSettings.SystemWidgets.cs`. Tests `GpuRulesTests`, `ScreenTimeRulesTests` (`S12xx_`).
 
 - **[S-1200]** The GPU chart is the meters' `SparkBand` holding `GraphSpanSeconds` one-second points
   (`MeterTiming.Points`, default 1 min), folded to its width ([S-1121]); the page is the adapter
-  picker and the shared history rows (show history, chart span). Supersedes the fixed 60-sample band of [S-430].
-- **[S-1201]** Each adapter panel is a meter face ([S-1762], `MeterFace.Plan`): the load alone on a
-  tiny panel, else the history under it (beside it on a strip) filling the panel. With several
-  adapters each panel keeps its name beside the load at Subtitle and gives the rest to its history.
-- **[S-1207]** Several adapters share the tile with no scrolling (`GpuLayout.Grid`): the column count
-  whose panels come closest to 240 × 90 in their tighter direction (ties: fewer columns), so a
-  strip puts two side by side and a column stacks them.
+  choice ([S-433]) and the shared history rows (show history, chart span). Supersedes the fixed 60-sample band of [S-430].
+- **[S-1201]** The tile is a meter face ([S-1762], `MeterFace.Plan`): the load alone on a tiny tile,
+  else the history under it (beside it on a strip) filling the tile.
+- **[S-1207]** *(Retired: one adapter per widget, [S-433]; nothing shares the tile.)*
 - **[S-1210]** The ring's total takes the largest step that fits its hole; when even Caption cannot
   hold `4h 37m` it shows the compact form (`4.6h`, `13h` from ten hours, `37m`, `<1m`). Never clipped.
 - **[S-1211]** *(The app list's since [S-3352]; `ShowList` retired with the legend.)* `MaxApps` is a ceiling over what fits: 0 (the default) lists as many apps as the tile has
@@ -3922,8 +3923,8 @@ history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
   LUID) as the hero, "of 7.8 GB video memory" (DXGI); load ([S-434]), shared memory, temperature, fan, GPU
   clock, memory clock. An integrated adapter leads with its shared memory. From the GPU meter's own shared
   sampler (the memory counters join its query); the header names the adapter ([S-430]).
-- **[S-2431]** `Adapter`: a DXGI position, offered with two or more adapters; one that is gone shows the
-  first.
+- **[S-2431]** `Adapter`: a DXGI position, as the GPU meter's ([S-433]: the primary display's adapter
+  by default), offered with two or more adapters; one that is gone shows the first.
 - **[S-2432]** Sensors from the graphics kernel, any vendor's WDDM 2.4+ driver (`D3DKMTQueryAdapterInfo`
   adapter and node performance data and caps, one handle per adapter per sampler session): temperature
   1–150 °C, the fan only when the caps name one, clocks only when non-zero; a driver that answers none is
@@ -5220,13 +5221,13 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   which the framework keeps in the display's work area, flipping to the side with room — at any tile
   size, either theme, either direction. Escape, a click elsewhere or Cancel are "no". It is every
   widget's one way to ask (`ConfirmFlyout.AskAsync`, optionally with a detail line under the
-  question): the countdown's remove ([S-1445]), the clipboard's clear and the notes' delete
+  question): the clipboard's clear and the notes' delete
   ([S-1364]) too, which were `ContentDialog`s centred on the monitor-sized surface and drawn inside
   its region. No widget view and no part of the surface opens a `ContentDialog` (the settings window
   may), and every flyout or menu a widget opens (a rename box, a note, `ItemMenu`) is its own popup
   likewise. The clear is in the header from three tools' width ([S-651]); in full screen it is
   always there. Tests read the source (`ConfirmFlyoutTests`); renders (`--state confirm` for
-  Scratchpad, Countdown, Clipboard, Notes) draw the question inside the render's
+  Scratchpad, Clipboard, Notes) draw the question inside the render's
   window, as a windowed popup cannot be drawn to a bitmap; a live pass checks it on a small tile at
   a display edge.
 
@@ -5691,7 +5692,7 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   arrow alone, nothing). At either end nothing happens. The move runs after the key, through
   `AppHost.MoveView` (one undo step), and the moved row has the focus again after the rebuild.
   The same drag and shortcut (`RowReorder`, one implementation) order every settings list: the list
-  editors (countdown timers, quotes, feeds, shortcuts, screen-time limits) and the mail row view's
+  editors (quotes, feeds, shortcuts, screen-time limits) and the mail row view's
   columns (the ones switched on). A row is dragged onto another (it takes that one's place,
   `DeskListOrder.MoveTo`); a press in one of its controls never starts a drag. A hint under a list of
   two or more says so. No list, settings page or widget menu has arrow buttons or Move up / Move
@@ -6283,7 +6284,7 @@ gallery ([S-1863]).
 
 - **[S-1860]** A widget that can show nothing useful until it is configured needs setting up, decided
   for every kind by one pure rule, `WidgetSetup.Needed(config, signed-in features)`: Countdown with no
-  timer; Quote with no quote left; Feed with no feed
+  target ([S-6036]); Quote with no quote left; Feed with no feed
   address; Stocks with no symbol; Weather (now and forecast), Air quality and Rain with no place; Video stream with no
   address; Shortcuts with no item; Pictures with no folder (folder source) or no
   file (file source). "Nothing right now" (no unread
@@ -6863,19 +6864,22 @@ Not ported: Karpo's 100 ms tick in an open folder; a running time here is whole 
 
 ### Alarm
 
-- **[S-4620]** An alarm widget (add menu: Time, [S-3511]) holds up to 20 alarms: each a time (`"HH:mm"`, 24-hour in
-  the file), the days it repeats on (`"mon"` … `"sun"`, Monday first; none means it rings once), on or
-  off, and a name. A new widget has one alarm at 07:00, off; a widget with no alarm asks to be set up
-  ([S-1860]). The sound (the timer's ringtones, default Bell), its level and the snooze (1–30 min,
-  default 10) are the widget's.
+- **[S-4620]** An alarm widget (add menu: Time, [S-3511]) is **one** alarm (user decision; several
+  alarms are several widgets): a time (`"HH:mm"`, 24-hour in the file), the days it repeats on
+  (`"mon"` … `"sun"`, Monday first; none means it rings once), on or off, a name, the sound (the
+  timer's ringtones, default Bell), its level and the snooze (1–30 min, default 10), all in
+  `AlarmConfig`. A new widget is 07:00, ringing once (no days), off, and needs no setting up.
 - **[S-4621]** Times parse strictly (hours 0–23, two-digit minutes); unknown day words are dropped and
-  days are written once each, Monday first; a hand-edited file is repaired loudly.
+  days are written once each, Monday first; a name is one line of at most 40 characters; a
+  hand-edited file is repaired loudly.
 - **[S-4622]** The next ring is the alarm's time on the first day after now it may ring on, reckoned on
   the wall clock of the zone in force and kept as a UTC instant. A time summer time skips rings at the
   first minute after the gap; a time winter time says twice rings once, at the first.
-- **[S-4623]** The **alarm service** (app lifetime, started by the host, never by a render) keeps every
-  alarm of every view (`AlarmBook`, synced on every state change and every switch on a widget), so an
-  alarm rings whether or not its widget is shown (another view, game mode). One waitable timer is set to
+- **[S-4623]** The **alarm service** (app lifetime, started by the host, never by a render) keeps the
+  alarm of every alarm widget of every view (`AlarmSlot.Of`: one per widget, keyed by the widget's
+  id; `AlarmBook`, synced on every state change and every switch on a widget), so an alarm rings
+  whether or not its widget is shown (another view, game mode). Deleting the widget deletes its
+  alarm (a ring stops); an undo brings both back, set from then. One waitable timer is set to
   the next thing due (a ring, a snooze ending, a ring that has run five minutes) as an absolute UTC due
   time, which Windows keeps through a clock change and fires on waking when it passed during sleep. It is
   set again after every tick, on `WM_TIMECHANGE` (zone cache cleared) and on resume
@@ -6883,7 +6887,7 @@ Not ported: Karpo's 100 ms tick in an open folder; a running time here is whole 
   is tomorrow's: switching on or starting never rings for a moment before. Late by up to five minutes
   (asleep through it, the clock set forward) it rings once when seen; later it is missed. Each ring or
   miss is remembered, so the clock set back never rings it twice.
-- **[S-4624]** A row says, beside the time in the language's clock: Off; Ringing (accent); "Snoozed
+- **[S-4624]** The widget says, under the time in the language's clock, its name and: Off; Ringing (accent); "Snoozed
   until 7:10"; for an alarm that repeats, its days ("Every day", "Weekdays", "Weekends", else "Mon, Wed"
   in the language's week); for one that rings once, Today, Tomorrow or the day.
 - **[S-4625]** A ring sounds until Snooze (the widget's snooze), Dismiss, or five minutes pass. An alarm
@@ -6897,19 +6901,18 @@ Not ported: Karpo's 100 ms tick in an open folder; a running time here is whole 
   notice goes when the ring stops, however it stops.
 - **[S-4627]** **Alarms ring only while Themia runs**, and the settings page says so. One that came due
   while Themia was closed does not ring at the next start (it is set from then).
-- **[S-4628]** A row is the time, the name and the hint, with the switch at its end; while it rings (or
-  is snoozed) Snooze and Dismiss stand where the switch was (worded from 300 DIP, else glyphs). Off, the
-  time is in the tertiary ink. The card menu has Snooze and Dismiss for each alarm ringing.
-- **[S-4629]** The ladder: XS is the alarm that matters (ringing, else the soonest, else the first) as a
-  readout, with Dismiss while it rings; a short or narrow tile has one-line rows; taller, the time
-  (Subtitle) over the name and hint; Expanded both ways with room for each, large rows (Title). Rows
-  scroll with the foot fade ([S-1281]).
-- **[S-4630]** Keys: Up, Down, Home and End walk the alarms (the ring, [S-1288]); Space or Enter switch
-  the focused alarm, or dismiss it while it rings; S snoozes it; Escape lets go. The minute tick turns
-  "Today" into "Tomorrow".
-- **[S-4631]** Settings: the alarms (a time picker in the language's clock, the name, the switch, a
-  button per day in the language's week), the note of [S-4627], then the sound (previewed once), the
-  volume and the snooze.
+- **[S-4628]** The widget is the time as its readout, "name · hint" under it, and the switch; while it
+  rings (or is snoozed) Snooze and Dismiss stand where the switch was (worded from 300 DIP, else
+  glyphs). Off, the time is in the tertiary ink. The card menu has Snooze and Dismiss while it rings.
+  There is no alarm list *(the list's rows, [S-1281] fade and per-row keys retired with it)*.
+- **[S-4629]** The ladder: the time is reserved, then the switch row, then the words (Caption, Body from
+  the Regular height), each as it fits; the time takes the rest (`FluentType.Hero`), centred. A strip
+  (2:1, at least 260 wide) puts the switch beside the time and its words, read from the left.
+- **[S-4630]** Keys: Space or Enter switch the alarm, or dismiss it while it rings or is snoozed; S
+  snoozes it while it rings; Escape lets go. The minute tick turns "Today" into "Tomorrow".
+- **[S-4631]** Settings: Time (a time picker in the language's clock), Switched on, Name, Repeats on (a
+  button per day in the language's week; none rings once), the note of [S-4627], then the sound
+  (previewed once), the volume and the snooze.
 
 ### Drives
 
@@ -7067,8 +7070,8 @@ Rain next hour (`RainNextHour`, 129):
 
 Exchange rates (`ExchangeRates`, 130):
 
-- **[S-5140]** The ECB's euro reference rates for a base currency against a short list. Works out of
-  the box (no setup).
+- **[S-5140]** The ECB's euro reference rate of **one pair** (user decision; several pairs are several
+  widgets): what one unit of the base buys of the quote. Works out of the box (no setup).
 - **[S-5141]** One document for every pair: `eurofxref-hist-90d.xml` (about 70 KB, the last 90 days,
   newest first; the daily file is the same shape). `EcbWire.Parse`: XML with DTDs prohibited and no
   resolver, at most 320 KB; no dated `Cube` is rejected; a bad date, a rate that is not a positive
@@ -7078,31 +7081,33 @@ Exchange rates (`ExchangeRates`, 130):
 - **[S-5143]** The base is empty by default, meaning the Windows region's currency
   (`GetUserDefaultGeoName` → `RegionCurrency`, read with the regional format on every state change):
   CHF for Switzerland and Liechtenstein, USD for the US, the euro for the euro area and anywhere
-  unmapped. The quotes default to EUR, USD, GBP; the base itself is never shown as its own quote.
-- **[S-5144]** Repair at load: a base or quote that is not a published code is dropped and said; an
-  empty list becomes the defaults. Settings never let the last currency go.
+  unmapped. The quote is empty by default, meaning the euro, or the dollar for a euro base
+  (`ExchangeRules.DefaultQuote`); a quote that is the base itself is that default too
+  (`EffectiveQuote`).
+- **[S-5144]** Repair at load: a base or quote that is not a published code follows its default,
+  said; a published one is upper-cased.
 - **[S-5145]** Every pair is a cross rate through the euro (quote per euro ÷ base per euro); the change
   is against the newest earlier day holding both; a currency missing on the latest day is "Not
   published". Rates print four decimals under 10, three under 100, two above, locale digits.
-- **[S-5146]** Ladder (`OnlineLayouts.Rates`): under 160 wide or two compact rows tall, the first
-  currency as the hero (rate, code, day change, "per CHF"). From the regular height the hero (from
-  280 tall at the step its width allows, up to Title Large), the
-  others as rows (code, rate, change; compact rows under 200 tall); below that every currency is a row, with a small 90-day
-  line from 300 wide. Up is the success colour, down critical. The header reads "ECB, 9 Oct"
-  (the rates' day) in the caution colour when the last refresh failed or the table was restored.
+- **[S-5146]** **Number** (`OnlineLayouts.Rates`): the pair as the readout (rate, the quote's code,
+  the day change beside it or under it, "per CHF") on the whole tile, from Subtitle as large as the
+  tile allows (past Display, as a lone reading, [S-1762]); the Chart style's stops at the tier's step ([S-3860]). Up is the success colour, down critical. No table yet, or the latest day lacking
+  either code: the empty state ("Not published"). The header is titled with the pair ("Exchange
+  rates · CHF/EUR") and reads "ECB, 9 Oct" (the rate's day) in the caution colour when the last
+  refresh failed or the table was restored.
 - **[S-5147]** One `RatesInterest` for all exchange-rate widgets; asked every three hours, no setting
   (`OnlineCadence.Rates`): the ECB publishes once per working day around 16:00 CET.
-- **[S-5148]** Settings: Base currency (Windows region first, naming it), Currencies (one
-  several-of-many row), and the source line.
+- **[S-5148]** Settings: Base currency (Windows region first, naming it), Currency (the default
+  first, naming it, then the published codes), and the source line.
 - **[S-6167]** The exchange-rate widget's styles ([S-6000]), `ExchangeRatesConfig.Style`
-  (`ExchangeRatesStyle`): **List** ([S-5146], the default) and **Chart**; what was its "90-day chart"
-  switch. The list no longer draws the first currency's chart: that is the chart style.
-- **[S-6168]** **Chart** (`OnlineLayouts.Rates`): the **first** currency of the list alone, as the
-  hero (rate, code, day change, "per CHF"; up to the tier step, [S-3860]), and its 90 days filled
-  under the line in what the hero leaves (the hero takes 40 % of the spare height), edge to edge
-  and down to the card's bottom; a strip (≥ 400 wide, 2:1) puts the hero in a column on the left
-  (42 % of the width, 150..280) beside a chart of the strip's height. Where the chart would have
-  under 56, the hero alone. No other currency is drawn.
+  (`ExchangeRatesStyle`): **Number** ([S-5146], the default; what was **List** before one pair per
+  widget, renamed since a list of one is a number) and **Chart**. *(The list's rows and their
+  small lines are retired with the list.)*
+- **[S-6168]** **Chart** (`OnlineLayouts.Rates`): the pair as the readout (as [S-5146]), and its 90
+  days filled under the line in what the readout leaves (it takes 40 % of the spare height), edge to
+  edge and down to the card's bottom; a strip (≥ 400 wide, 2:1) puts the readout in a column on the
+  left (42 % of the width, 150..280) beside a chart of the strip's height. Where the chart would
+  have under 56, the readout alone.
 
 Shared:
 
