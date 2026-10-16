@@ -58,8 +58,11 @@ public sealed class GalleryMemoryTests
     [Fact]
     public void S3411_the_idle_allowance_follows_what_is_on_screen_between_a_floor_and_a_ceiling()
     {
+        // [S-6605] Half as much again as is on screen, at least one full-bleed 4K picture.
+        Assert.Equal(32 * Mb, PictureBudget.MinIdleBytes);
+        Assert.Equal(96 * Mb, PictureBudget.MaxIdleBytes);
         Assert.Equal(PictureBudget.MinIdleBytes, PictureBudget.IdleAllowance(0));
-        Assert.Equal(100 * Mb, PictureBudget.IdleAllowance(100 * Mb));
+        Assert.Equal(50 * Mb, PictureBudget.IdleAllowance(100 * Mb));
         Assert.Equal(PictureBudget.MaxIdleBytes, PictureBudget.IdleAllowance(10_000 * Mb));
     }
 
@@ -74,7 +77,9 @@ public sealed class GalleryMemoryTests
     public void S3411_the_least_recently_used_picture_nobody_shows_goes_first()
     {
         var cache = new PictureCache<object>();
-        var size = 20 * Mb;
+
+        // Two fit in the idle allowance, three do not.
+        var size = PictureBudget.MinIdleBytes * 2 / 5;
         cache.Add(new("a", 64), new object(), size);
         cache.Add(new("b", 64), new object(), size);
 

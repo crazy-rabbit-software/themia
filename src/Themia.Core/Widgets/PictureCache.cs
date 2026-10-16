@@ -31,18 +31,20 @@ public static class DecodeWidth
 
 /// <summary>
 /// [S-3411] How much the decoded-picture cache may hold. What is on screen (pinned) is never evicted;
-/// besides it the cache keeps as much again of pictures recently shown, never less than
-/// <see cref="MinIdleBytes"/> (one full-bleed 4K picture and change, so a slideshow switched away
-/// from and back finds its picture) and never more than <see cref="MaxIdleBytes"/>.
+/// besides it the cache keeps half as much again of pictures recently shown, never less than
+/// <see cref="MinIdleBytes"/> (one full-bleed 4K picture, so a slideshow switched away from and back
+/// finds its picture) and never more than <see cref="MaxIdleBytes"/>. [S-6605] Halved from "as much
+/// again, 48 to 192 MB": what nobody shows is only a faster way back, and a desktop of seven
+/// galleries kept 48 MB and more of it for as long as the app ran after their view was gone.
 /// </summary>
 public static class PictureBudget
 {
-    public const long MinIdleBytes = 48L * 1024 * 1024;
+    public const long MinIdleBytes = 32L * 1024 * 1024;
 
-    public const long MaxIdleBytes = 192L * 1024 * 1024;
+    public const long MaxIdleBytes = 96L * 1024 * 1024;
 
     /// <summary>How many bytes of pictures nobody shows may stay decoded beside <paramref name="pinnedBytes"/>.</summary>
-    public static long IdleAllowance(long pinnedBytes) => Math.Clamp(pinnedBytes, MinIdleBytes, MaxIdleBytes);
+    public static long IdleAllowance(long pinnedBytes) => Math.Clamp(pinnedBytes / 2, MinIdleBytes, MaxIdleBytes);
 
     /// <summary>
     /// The decoded size of a picture decoded at <paramref name="decodeWidth"/>: four bytes a pixel,

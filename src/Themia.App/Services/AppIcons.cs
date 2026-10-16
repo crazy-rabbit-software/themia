@@ -41,6 +41,13 @@ internal static partial class AppIcons
     private static readonly Dictionary<string, ImageSource?> Ready = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, Task<Pixels?>> Pending = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// [S-6600] The most icons held. Every program Top processes, the mixer or screen time ever met is a
+    /// key, so a desktop left running would collect them for as long as it runs; past the cap the
+    /// cache starts over (an icon on screen keeps its bitmap, the next ask extracts it again).
+    /// </summary>
+    private const int ReadyCap = 512;
+
     /// <summary>Icons held (diagnostics: the switch check).</summary>
     public static int Count => Ready.Count;
 
@@ -114,6 +121,12 @@ internal static partial class AppIcons
         }
 
         var image = pixels is null ? null : ToBitmap(pixels);
+
+        if (Ready.Count >= ReadyCap)
+        {
+            Ready.Clear();
+        }
+
         Ready[key] = image;
         return image;
     }
