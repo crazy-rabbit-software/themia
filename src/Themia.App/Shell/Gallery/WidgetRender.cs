@@ -154,6 +154,10 @@ internal static class WidgetRender
 
                 ticker = new Ticker(dispatcher);
 
+                // [S-1500] A confirmation a state opens is drawn inside this window, as a popup of
+                // its own window does not render to a bitmap. Set before any view builds one.
+                ConfirmFlyout.RenderInWindow = true;
+
                 // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
                 AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);

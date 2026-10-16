@@ -136,7 +136,8 @@ internal sealed partial class TasksView
     private void RenameInFlyout(string current)
     {
         var box = new TextBox { Text = current, MinWidth = 200, PlaceholderText = Str.Todo_LocalLists_NamePlaceholder.Text() };
-        var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom };
+        // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
+        var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
         var cancelled = false;
 
         box.KeyDown += (_, e) =>

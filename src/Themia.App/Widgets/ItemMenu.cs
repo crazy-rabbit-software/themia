@@ -90,12 +90,14 @@ internal static class ItemMenu
 
         if (split.Row.Count == 0)
         {
-            var plain = new MenuFlyout();
+            // [S-1500] Said rather than left to the default: inside the surface's window the region
+            // clips a menu to its card, so a widget's menu is always a popup of its own.
+            var plain = new MenuFlyout { ShouldConstrainToRootBounds = false };
             FillList(plain.Items, list, split);
             return plain;
         }
 
-        var menu = new CommandBarFlyout { AlwaysExpanded = true };
+        var menu = new CommandBarFlyout { AlwaysExpanded = true, ShouldConstrainToRootBounds = false };
         Fill(menu, list, split);
         return menu;
     }

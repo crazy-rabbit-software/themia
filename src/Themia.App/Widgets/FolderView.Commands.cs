@@ -195,7 +195,7 @@ internal sealed partial class FolderView
                 ? Str.WidgetsB_Folder_RecycleOne.Format(("name", Path.GetFileName(paths[0])))
                 : Str.WidgetsB_Folder_RecycleMany.Plural(paths.Count);
 
-            if (!await ConfirmAsync(question, Str.Common_Delete.Text()).ConfigureAwait(true))
+            if (!await ConfirmFlyout.AskAsync(this, question, Str.Common_Delete.Text()).ConfigureAwait(true))
             {
                 return;
             }
@@ -211,30 +211,6 @@ internal sealed partial class FolderView
         {
             Log.Error(Scope, "delete failed", ex);
         }
-    }
-
-    /// <summary>
-    /// A small confirmation at the widget itself ([S-1500]) — not a dialog over the whole desktop
-    /// surface, which is the size of the monitor. Escape, a click elsewhere or Cancel are all "no".
-    /// </summary>
-    private Task<bool> ConfirmAsync(string question, string action)
-    {
-        var answer = new TaskCompletionSource<bool>();
-        var flyout = ConfirmFlyout.Create(question, action, () => answer.TrySetResult(true), FlyoutPlacementMode.Bottom);
-        flyout.Closed += (_, _) => answer.TrySetResult(false);
-
-        try
-        {
-            flyout.ShowAt(this);
-        }
-        catch (Exception ex)
-        {
-            // No window to show it in: refusing beats deleting unasked.
-            Log.Warn(Scope, "the confirmation could not be shown; nothing was deleted", ex);
-            answer.TrySetResult(false);
-        }
-
-        return answer.Task;
     }
 
     // ---- rename ---------------------------------------------------------------------------------
@@ -372,7 +348,8 @@ internal sealed partial class FolderView
 
         try
         {
-            new Flyout { Content = text }.ShowAt(at);
+            // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
+            new Flyout { Content = text, ShouldConstrainToRootBounds = false }.ShowAt(at);
         }
         catch (Exception ex)
         {

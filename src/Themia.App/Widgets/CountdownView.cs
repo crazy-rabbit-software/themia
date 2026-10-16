@@ -646,8 +646,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         }
 
         var name = string.IsNullOrWhiteSpace(timer.Label) ? CountdownFormatter.Untitled(Strings.Current) : timer.Label;
-        var confirmed = await FluentLayout.ConfirmAsync(this, Str.WidgetsA_Countdown_RemoveConfirm_Title.Format(("name", name)),
-            Str.WidgetsA_Countdown_RemoveConfirm_Body.Text(), Str.Common_Remove.Text());
+        var confirmed = await ConfirmFlyout.AskAsync(this, Str.WidgetsA_Countdown_RemoveConfirm_Title.Format(("name", name)),
+            Str.Common_Remove.Text(), Str.WidgetsA_Countdown_RemoveConfirm_Body.Text());
 
         if (!confirmed || _detached || !_config.Timers.Remove(timer))
         {

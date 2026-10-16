@@ -93,7 +93,8 @@ internal sealed partial class NotesView
         }
 
         var box = new TextBox { Text = note.Title, MinWidth = 200, PlaceholderText = Str.Notes_NamePlaceholder.Text() };
-        var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom };
+        // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
+        var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
         var cancelled = false;
 
         box.KeyDown += (_, e) =>
@@ -174,11 +175,7 @@ internal sealed partial class NotesView
                 return;
             }
 
-            var confirmed = await FluentLayout.ConfirmAsync(
-                this,
-                Str.WidgetsC_Notes_DeleteConfirmTitle.Text(),
-                Str.WidgetsC_Notes_DeleteConfirmBody.Format(("name", note.Title)),
-                Str.Common_Delete.Text()).ConfigureAwait(true);
+            var confirmed = await AskToDeleteAsync(note.Title).ConfigureAwait(true);
 
             if (confirmed && !_detached)
             {
@@ -197,6 +194,16 @@ internal sealed partial class NotesView
             Log.Error(Scope, "could not delete the note", ex);
         }
     }
+
+    /// <summary>
+    /// [S-1500] The question beside the picker, which is where the delete was chosen; under the
+    /// widget when the header has no picker.
+    /// </summary>
+    private Task<bool> AskToDeleteAsync(string title) => ConfirmFlyout.AskAsync(
+        _picker.XamlRoot is not null && _picker.Visibility == Visibility.Visible && _picker.ActualWidth > 0 ? _picker : this,
+        Str.WidgetsC_Notes_DeleteConfirmTitle.Text(),
+        Str.Common_Delete.Text(),
+        Str.WidgetsC_Notes_DeleteConfirmBody.Format(("name", title)));
 
     private void DetachPicker() => _picker.Click -= OnPickerClick;
 }

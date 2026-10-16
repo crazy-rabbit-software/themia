@@ -491,7 +491,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     private void OnClearClicked(object sender, RoutedEventArgs args) => _ = ConfirmClearAsync();
 
     /// <summary>
-    /// Ask, then clear. Awaited rather than fired and forgotten, so a dialog that could not be
+    /// Ask, then clear. Awaited rather than fired and forgotten, so a question that could not be
     /// shown is never mistaken for the user saying yes.
     /// </summary>
     private async Task ConfirmClearAsync()
@@ -501,11 +501,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             return;
         }
 
-        var confirmed = await FluentLayout.ConfirmAsync(
-            this,
-            Str.WidgetsA_Clipboard_ClearConfirm_Title.Text(),
-            Str.WidgetsA_Clipboard_ClearConfirm_Body.Text(),
-            Str.Common_Clear.Text());
+        var confirmed = await AskToClearAsync().ConfigureAwait(true);
 
         if (!confirmed || _detached)
         {
@@ -515,6 +511,16 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         // Every Clipboard widget shows the one history, so all of them are cleared.
         _source?.Clear();
     }
+
+    /// <summary>
+    /// [S-1500] The question beside the header's clear, or under the widget when the menu asked and
+    /// the header has no room for the button.
+    /// </summary>
+    private Task<bool> AskToClearAsync() => ConfirmFlyout.AskAsync(
+        _clear.XamlRoot is not null && _clear.Visibility == Visibility.Visible && _clear.ActualWidth > 0 ? _clear : this,
+        Str.WidgetsA_Clipboard_ClearConfirm_Title.Text(),
+        Str.Common_Clear.Text(),
+        Str.WidgetsA_Clipboard_ClearConfirm_Body.Text());
 
     /// <summary>[S-1109] Rows and sizes are worded again in the new language.</summary>
     private void OnLanguage(Locale locale)

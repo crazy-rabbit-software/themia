@@ -58,12 +58,60 @@ public sealed class ConfirmFlyoutTests
     }
 
     [Theory]
-    [InlineData("ScratchpadView.cs")]
-    [InlineData("FolderView.Commands.cs")]
-    public void S1500_the_destructive_widget_actions_ask_through_the_one_confirmation(string file)
+    [InlineData("ScratchpadView.cs", "ConfirmFlyout.Create(")]
+    [InlineData("FolderView.Commands.cs", "ConfirmFlyout.AskAsync(")]
+    [InlineData("CountdownView.cs", "ConfirmFlyout.AskAsync(")]
+    [InlineData("ClipboardView.cs", "ConfirmFlyout.AskAsync(")]
+    [InlineData("NotesView.Picker.cs", "ConfirmFlyout.AskAsync(")]
+    public void S1500_the_destructive_widget_actions_ask_through_the_one_confirmation(string file, string call)
     {
         var source = File.ReadAllText(Path.Combine(Widgets, file));
 
-        Assert.Contains("ConfirmFlyout.Create(", source, StringComparison.Ordinal);
+        Assert.Contains(call, source, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The countdown's remove, the clipboard's clear and the notes' delete asked through a
+    /// <c>ContentDialog</c> (<c>FluentLayout.ConfirmAsync</c> is one): centred on the monitor-sized
+    /// surface, far from the widget, and drawn inside the region that is cut to the cards. Neither a
+    /// widget view nor the desktop surface may open one; the settings window may.
+    /// </summary>
+    [Fact]
+    public void S1500_no_widget_view_or_surface_opens_a_content_dialog()
+    {
+        var shell = Path.Combine(FindRoot(), "src", "Themia.App", "Shell");
+        var surface = Directory.GetFiles(shell, "DesktopWindow*.cs")
+            .Concat(Directory.GetFiles(shell, "WidgetCard*.cs"));
+
+        var offenders = Directory.GetFiles(Widgets, "*.cs")
+            .Concat(surface)
+            .Where(path =>
+            {
+                var source = File.ReadAllText(path);
+                return (source.Contains("ContentDialog", StringComparison.Ordinal)
+                    && Path.GetFileName(path) != "ConfirmFlyout.cs")
+                    || source.Contains("FluentLayout.ConfirmAsync", StringComparison.Ordinal);
+            })
+            .Select(Path.GetFileName)
+            .ToArray();
+
+        Assert.Empty(offenders);
+    }
+
+    /// <summary>
+    /// A <c>Flyout</c>'s default is to stay inside the window, where the region clips it to the card:
+    /// every one a widget opens says otherwise (a rename box, a note, the confirmation).
+    /// </summary>
+    [Fact]
+    public void S1500_every_widget_flyout_opens_as_its_own_popup()
+    {
+        var constrained = Directory.GetFiles(Widgets, "*.cs")
+            .SelectMany(path => System.Text.RegularExpressions.Regex
+                .Matches(File.ReadAllText(path), @"new (Flyout|MenuFlyout|CommandBarFlyout)\b[^;]*;")
+                .Where(m => !m.Value.Contains("ShouldConstrainToRootBounds = false", StringComparison.Ordinal))
+                .Select(m => $"{Path.GetFileName(path)}: {m.Value.Split('\n')[0].Trim()}"))
+            .ToArray();
+
+        Assert.Empty(constrained);
     }
 }

@@ -7,15 +7,16 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Debug renders only ([S-1917]): <c>sample</c> is three timers (a launch in three days, the one
 /// featured, a holiday twelve days off, a deadline gone by), in the widget's own style,
-/// so the three styles ([S-6030]) are drawn over the same list.
+/// so the three styles ([S-6030]) are drawn over the same list. <c>confirm</c> is the sample with
+/// the remove question open for the first timer ([S-1500]).
 /// </summary>
 internal sealed partial class CountdownView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "confirm"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state != "sample")
+        if (state is not ("sample" or "confirm"))
         {
             return Task.CompletedTask;
         }
@@ -33,6 +34,16 @@ internal sealed partial class CountdownView : IWidgetPreviewState
         };
 
         Rebuild();
+
+        if (state == "confirm")
+        {
+            // Never answered: the render closes with the question open.
+            _ = RemoveAsync(_config.Timers[0].Id);
+
+            // The flyout opens with an animation; the render draws it once it has settled.
+            return Task.Delay(900);
+        }
+
         return Task.CompletedTask;
     }
 }

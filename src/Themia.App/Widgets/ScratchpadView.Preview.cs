@@ -6,8 +6,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only: <c>confirm</c> draws a sample stroke and opens the clear confirmation
-/// ([S-1500]). The render's flyout is constrained to its window so the render can draw it (a popup
-/// of its own window does not render to a bitmap); on the desktop it never is.
+/// ([S-1500]), drawn inside the render's window (<see cref="ConfirmFlyout.RenderInWindow"/>).
 /// </summary>
 internal sealed partial class ScratchpadView : IWidgetPreviewState
 {
@@ -30,7 +29,6 @@ internal sealed partial class ScratchpadView : IWidgetPreviewState
 
         if (_clearButton.Visibility == Microsoft.UI.Xaml.Visibility.Visible && _clearButton.Flyout is { } flyout)
         {
-            flyout.ShouldConstrainToRootBounds = true;
             flyout.ShowAt(_clearButton);
 
             // The flyout opens with an animation; the render draws it once it has settled.
