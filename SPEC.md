@@ -6437,15 +6437,23 @@ breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout
   with Windows is kept, as on import); the undo history is cleared; a Success notice. Accounts,
   notes, tasks and habits are separate files and are kept.
 - **[S-893]** First-run desktop (`AppState.CreateDefault`, also what a reset and a corrupt-state
-  recovery show), as the original's: two views, so switching views is discoverable, named Home and
-  Work (translated, `shell.view.homeName`/`workName`); Home is active. Home is the original's less its
-  guide: Clock (0.78, 0.04, 0.20×0.16) first, Folder on the user's Desktop folder (0.02, 0.04,
-  0.24×0.50), Shortcuts (0.80, 0.80, 0.18×0.16) with Recycle Bin, This PC, Downloads, Documents,
-  Pictures and Home (shell targets, labels empty so the names are the translated target names).
-  Work has no folder: Clock (0.78, 0.04, 0.20×0.16) first, Calendar (0.02, 0.04, 0.50×0.72), Tasks
-  (0.54, 0.04, 0.20×0.58), Notes (0.54, 0.64, 0.20×0.28); Calendar and Tasks show Set up until an
-  account exists ([S-1860]). Every widget is inside the screen, none overlaps another, load
-  validation changes nothing, and both views together stay inside the free tier ([S-1065]).
+  recovery show), the maker's own two views (user requirement), so switching views is discoverable:
+  named Home and Work (translated, `shell.view.homeName`/`workName`); Home is active. Laid out on a
+  2560×1440 grid and stored as fractions, so it holds on any display. Home, clock first: Clock (digital,
+  no seconds, no date) top right (2250, 0, 310×180); Shortcuts grid under it (2250, 180, 310×160) with
+  Recycle Bin, This PC, Downloads, Documents, Pictures and Home (shell targets, labels empty so the
+  names are the translated target names); Weather now (large icon) top left (0, 0, 310×180); CPU,
+  Memory, GPU and Network as graphs down the right edge (x 2250, y 920/1040/1160/1280, 310 wide,
+  89/1080 of the screen tall); these seven are transparent and headerless. Along the top centre, six
+  60×60 quick-setting tiles from x 1090: Do not disturb, Color filters, Night light, Airplane mode,
+  Bluetooth, Wi-Fi. Work: Clock (digital, with the date, transparent, headerless) top right (2330, 0,
+  230×120); Calendar (month) (0, 0, 800×710), Tasks (list) (800, 0, 510×710) and Notes (1310, 0,
+  510×710), each with its header on top and the default background. Nothing in it is anyone's data:
+  the weather has no place and shows its setup ([S-2848]), Calendar and Tasks show Set up until an
+  account exists ([S-1860]), the note is made on first show ([S-1346]), every id is new on each
+  call. Every widget is inside the screen, none overlaps another, and load validation changes
+  nothing. The two views fit the free tier's view limit; with 17 widgets they are over its widget
+  limit ([S-1065]), which deletes nothing but refuses a new widget until there are fewer than 10.
 - Not ported: the original's pending-operation framework (an operation that resolves later; nothing
   here records one yet, and file operations will add their own step when they need it), and
   per-window boot counters (one process here, so one counter).

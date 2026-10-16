@@ -65,7 +65,7 @@ public sealed class FillChoiceTests
         Assert.True(state.Design.ItemBackground.SameAs(back.Design.ItemBackground));
         Assert.True(state.Views[0].Widgets[0].Background.SameAs(back.Views[0].Widgets[0].Background));
         Assert.True(state.Views[0].Widgets[0].ItemBackground.SameAs(back.Views[0].Widgets[0].ItemBackground));
-        Assert.Equal(FillKind.Default, back.Views[0].Widgets[1].Background.Kind);
+        Assert.Equal(FillKind.Default, back.Views[1].Widgets[1].Background.Kind); // the seeded calendar, never touched
     }
 
     [Fact]

@@ -358,11 +358,13 @@ public sealed class AppState
     public Dictionary<string, ViewBarSettings> ViewBars { get; set; } = [];
 
     /// <summary>
-    /// [S-893] A fresh profile, seeded as the original's first run with two views so switching views
-    /// is discoverable from the start. Home: a clock top right, the Desktop folder top left, and the
-    /// everyday Windows places bottom right. Work: calendar, tasks, notes and a clock. The clock stays
-    /// first in each, so it is the one a reset or a recovery shows on top. Shortcut labels are left
-    /// empty so the names come from the target, translated with the app.
+    /// [S-893] A fresh profile: the maker's own Home and Work views, so switching views is
+    /// discoverable from the start and the desktop looks lived-in. Geometry is drawn on a 2560×1440
+    /// grid (as fractions of the monitor it holds on any display). Nothing in it is anyone's data:
+    /// the weather waits for a place, calendar and tasks for an account ([S-1860]), the note is made
+    /// on first show, and every id is new on each call. The clock stays first in each view, so it is
+    /// the one a reset or a recovery shows on top. Shortcut labels are left empty so the names come
+    /// from the target, translated with the app.
     /// </summary>
     public static AppState CreateDefault()
     {
@@ -375,48 +377,90 @@ public sealed class AppState
         };
     }
 
+    /// <summary>A rect on the 2560×1440 grid the first-run views were laid out on, as fractions.</summary>
+    private static FracRect OnSeedGrid(double x, double y, double w, double h)
+        => new(x / 2560, y / 1440, w / 2560, h / 1440);
+
+    /// <summary>A first-run widget on the wallpaper: no card, no header.</summary>
+    private static WidgetInstance Bare(WidgetKind kind, FracRect rect)
+    {
+        var widget = WidgetInstance.Create(kind, rect);
+        widget.Background = FillChoice.Transparent();
+        widget.Header = HeaderPlacement.Hidden;
+        return widget;
+    }
+
+    /// <summary>
+    /// [S-893] Home: the weather top left, a clock and the everyday Windows places top right, the
+    /// quick settings along the top centre, and the four meters as graphs down the right edge.
+    /// </summary>
     private static ViewState CreateHomeView()
     {
         var view = ViewState.Create(Str.Shell_View_HomeName.Text());
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.78, 0.04, 0.20, 0.16)));
 
-        var folder = WidgetInstance.Create(WidgetKind.Folder, new FracRect(0.02, 0.04, 0.24, 0.50));
-        if (folder.Config is FolderConfig listing)
+        var clock = Bare(WidgetKind.Clock, OnSeedGrid(2250, 0, 310, 180));
+        if (clock.Config is ClockConfig time)
         {
-            // Empty means the profile folder; the original's first-run folder is the Desktop.
-            listing.Path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            time.ShowDate = false;
         }
 
-        view.Widgets.Add(folder);
+        view.Widgets.Add(clock);
 
-        var places = WidgetInstance.Create(WidgetKind.Shortcuts, new FracRect(0.80, 0.80, 0.18, 0.16));
+        var places = Bare(WidgetKind.Shortcuts, OnSeedGrid(2250, 180, 310, 160));
         if (places.Config is ShortcutsConfig shortcuts)
         {
-            // The kind's own default holds two places; the first run holds the original's six.
+            // The kind's own default holds two places; the first run holds six.
             shortcuts.Items = [.. FirstRunPlaces.Select(name => ShortcutItem.Create(Themia.Core.Widgets.LaunchTargets.ShellTarget(name)))];
         }
 
         view.Widgets.Add(places);
+
+        // No place: the widget asks for one ([S-2848]) rather than showing someone else's town.
+        var weather = Bare(WidgetKind.WeatherNow, OnSeedGrid(0, 0, 310, 180));
+        if (weather.Config is WeatherNowConfig now)
+        {
+            now.Style = WeatherNowStyle.LargeIcon;
+        }
+
+        view.Widgets.Add(weather);
+
+        // The meters stack on a 120-DIP stride; each is 1/1080 of the screen shorter than it, so they never touch.
+        WidgetKind[] meters = [WidgetKind.Cpu, WidgetKind.Memory, WidgetKind.Gpu, WidgetKind.Network];
+        for (var i = 0; i < meters.Length; i++)
+        {
+            view.Widgets.Add(Bare(meters[i], new FracRect(2250.0 / 2560, (920.0 + 120 * i) / 1440, 310.0 / 2560, 89.0 / 1080)));
+        }
+
+        // Square tiles side by side along the top, about the screen's centre (1090..1450 of 2560).
+        WidgetKind[] toggles =
+        [
+            WidgetKind.DoNotDisturbToggle, WidgetKind.ColorFiltersToggle, WidgetKind.NightLightToggle,
+            WidgetKind.AirplaneModeToggle, WidgetKind.BluetoothToggle, WidgetKind.WifiToggle,
+        ];
+        for (var i = 0; i < toggles.Length; i++)
+        {
+            view.Widgets.Add(WidgetInstance.Create(toggles[i], OnSeedGrid(1090 + 60 * i, 0, 60, 60)));
+        }
+
         return view;
     }
 
     /// <summary>
-    /// [S-893] The original's Work showcase: the calendar takes the left half, tasks and notes share a
-    /// column beside it, the clock sits top right as on Home. Calendar and tasks show their Set up
-    /// button until an account exists ([S-1860]); notes work at once.
+    /// [S-893] Work: the month calendar, tasks and a note side by side across the top left, a clock
+    /// with the date top right. Calendar and tasks show their Set up button until an account exists
+    /// ([S-1860]); notes work at once.
     /// </summary>
     private static ViewState CreateWorkView()
     {
         var view = ViewState.Create(Str.Shell_View_WorkName.Text());
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.78, 0.04, 0.20, 0.16)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.02, 0.04, 0.50, 0.72)));
-
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Tasks, new FracRect(0.54, 0.04, 0.20, 0.58)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.54, 0.64, 0.20, 0.28)));
+        view.Widgets.Add(Bare(WidgetKind.Clock, OnSeedGrid(2330, 0, 230, 120)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, OnSeedGrid(0, 0, 800, 710)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Tasks, OnSeedGrid(800, 0, 510, 710)));
+        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, OnSeedGrid(1310, 0, 510, 710)));
         return view;
     }
 
-    /// <summary>[S-893] The Windows places the first-run Shortcuts widget holds, in the original's order.</summary>
+    /// <summary>[S-893] The Windows places the first-run Shortcuts widget holds, in order.</summary>
     public static IReadOnlyList<string> FirstRunPlaces { get; } =
         ["RecycleBinFolder", "MyComputerFolder", "Downloads", "Personal", "My Pictures", "UsersFilesFolder"];
 

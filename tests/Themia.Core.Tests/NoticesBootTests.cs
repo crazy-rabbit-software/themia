@@ -173,7 +173,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.True(state.Design.RunAtStartup);
         Assert.Equal(new DesignState().WidgetGapPx, state.Design.WidgetGapPx);
         Assert.Equal(2, state.Views.Count);
-        Assert.Equal(3, state.Views[0].Widgets.Count);
+        Assert.Equal(AppState.CreateDefault().Views[0].Widgets.Count, state.Views[0].Widgets.Count);
     }
 
     // ---------------------------------------------------------------------------------------
@@ -190,44 +190,125 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(Str.Shell_View_WorkName.Text(), state.Views[1].Name);
         Assert.Equal(state.Views[0].Id, state.ActiveViewId);
         Assert.NotEqual(state.Views[0].Id, state.Views[1].Id);
-
-        // Two seeded views must still fit the free tier, with room left to add widgets.
         Assert.True(state.Views.Count <= Themia.Core.Licensing.LicenseRules.FreeViewLimit);
-        Assert.True(state.Views.Sum(v => v.Widgets.Count) < Themia.Core.Licensing.LicenseRules.FreeWidgetLimit);
     }
 
     [Fact]
-    public void S893_the_home_view_is_the_originals_first_run_desktop()
+    public void S893_home_is_weather_clock_places_meters_and_quick_settings()
     {
         var widgets = AppState.CreateDefault().Views[0].Widgets;
 
+        // The clock first, so it is the one drawn on top.
         Assert.Equal(
-            [WidgetKind.Clock, WidgetKind.Folder, WidgetKind.Shortcuts],
+            [
+                WidgetKind.Clock, WidgetKind.Shortcuts, WidgetKind.WeatherNow,
+                WidgetKind.Cpu, WidgetKind.Memory, WidgetKind.Gpu, WidgetKind.Network,
+                WidgetKind.DoNotDisturbToggle, WidgetKind.ColorFiltersToggle, WidgetKind.NightLightToggle,
+                WidgetKind.AirplaneModeToggle, WidgetKind.BluetoothToggle, WidgetKind.WifiToggle,
+            ],
             widgets.Select(w => w.Kind));
 
-        var places = Assert.IsType<ShortcutsConfig>(widgets[2].Config);
+        var clock = Assert.IsType<ClockConfig>(widgets[0].Config);
+        Assert.Equal(ClockStyle.Digital, clock.Style);
+        Assert.False(clock.ShowSeconds);
+        Assert.False(clock.ShowDate);
+
+        var places = Assert.IsType<ShortcutsConfig>(widgets[1].Config);
+        Assert.Equal(ShortcutsStyle.Grid, places.Style);
         Assert.Equal(AppState.FirstRunPlaces.Select(p => "shell:" + p), places.Items.Select(i => i.Target));
         Assert.All(places.Items, i => Assert.Equal(string.Empty, i.Label));
+
+        Assert.Equal(WeatherNowStyle.LargeIcon, Assert.IsType<WeatherNowConfig>(widgets[2].Config).Style);
+        Assert.Equal(CpuStyle.Graph, Assert.IsType<CpuConfig>(widgets[3].Config).Style);
+        Assert.Equal(MemoryStyle.Graph, Assert.IsType<MemoryConfig>(widgets[4].Config).Style);
+        Assert.Equal(GpuStyle.Graph, Assert.IsType<GpuConfig>(widgets[5].Config).Style);
+        Assert.Equal(NetworkStyle.Graph, Assert.IsType<NetworkConfig>(widgets[6].Config).Style);
+
+        // Everything but the quick settings sits on the wallpaper: no card, no header.
+        Assert.All(widgets.Take(7), w =>
+        {
+            Assert.Equal(FillKind.Transparent, w.Background.Kind);
+            Assert.Equal(HeaderPlacement.Hidden, w.Header);
+        });
+        Assert.All(widgets.Skip(7), w => Assert.Equal(FillKind.Default, w.Background.Kind));
+        Assert.All(widgets, w => Assert.Equal(FillKind.Default, w.ItemBackground.Kind));
         AssertInsideAndApart(widgets);
     }
 
     [Fact]
-    public void S893_the_work_view_is_calendar_tasks_notes_and_a_clock()
+    public void S893_the_quick_settings_line_up_along_the_top_centre()
+    {
+        var toggles = AppState.CreateDefault().Views[0].Widgets.Skip(7).ToList();
+
+        Assert.All(toggles, t => Assert.Equal(0, t.Y));
+        Assert.All(toggles, t => Assert.Equal(toggles[0].W, t.W, 9));
+        for (var i = 1; i < toggles.Count; i++)
+        {
+            Assert.Equal(toggles[i - 1].X + toggles[i - 1].W, toggles[i].X, 9);
+        }
+
+        var middle = (toggles[0].X + toggles[^1].X + toggles[^1].W) / 2;
+        Assert.InRange(middle, 0.49, 0.51);
+    }
+
+    [Fact]
+    public void S893_work_is_a_clock_calendar_tasks_and_notes()
     {
         var widgets = AppState.CreateDefault().Views[1].Widgets;
 
-        // The clock first, as on Home, so it is the one drawn on top.
         Assert.Equal(
             [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
             widgets.Select(w => w.Kind));
-        Assert.DoesNotContain(widgets, w => w.Kind == WidgetKind.Folder);
+
+        var clock = Assert.IsType<ClockConfig>(widgets[0].Config);
+        Assert.Equal(ClockStyle.Digital, clock.Style);
+        Assert.False(clock.ShowSeconds);
+        Assert.True(clock.ShowDate);
+        Assert.Equal(FillKind.Transparent, widgets[0].Background.Kind);
+        Assert.Equal(HeaderPlacement.Hidden, widgets[0].Header);
+
+        Assert.Equal(CalendarStyle.Month, Assert.IsType<CalendarWidgetConfig>(widgets[1].Config).Style);
+        Assert.Equal(TasksStyle.List, Assert.IsType<TasksConfig>(widgets[2].Config).Style);
+        Assert.All(widgets.Skip(1), w =>
+        {
+            Assert.Equal(HeaderPlacement.Top, w.Header);
+            Assert.Equal(FillKind.Default, w.Background.Kind);
+        });
         AssertInsideAndApart(widgets);
     }
 
     [Fact]
-    public void S893_every_seeded_widget_has_its_own_id()
+    public void S893_the_first_run_desktop_holds_nobodys_data()
     {
-        var ids = AppState.CreateDefault().Views.SelectMany(v => v.Widgets).Select(w => w.Id).ToList();
+        var widgets = AppState.CreateDefault().Views.SelectMany(v => v.Widgets).ToList();
+
+        var weather = Assert.IsType<WeatherNowConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.WeatherNow).Config);
+        Assert.Null(weather.Latitude);
+        Assert.Null(weather.Longitude);
+        Assert.Equal(string.Empty, weather.LocationName);
+
+        var calendar = Assert.IsType<CalendarWidgetConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.Calendar).Config);
+        Assert.Empty(calendar.AccountIds);
+        Assert.Empty(calendar.Calendars);
+        Assert.Empty(calendar.CalendarColors);
+
+        var tasks = Assert.IsType<TasksConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.Tasks).Config);
+        Assert.Equal(string.Empty, tasks.AccountId);
+        Assert.Equal(string.Empty, tasks.ListId);
+        Assert.Equal(string.Empty, tasks.LocalListId);
+
+        // The note is made on first show, as for any new Notes widget.
+        Assert.Null(Assert.IsType<NotesConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.Notes).Config).NoteId);
+    }
+
+    [Fact]
+    public void S893_every_seeded_id_is_new_on_each_call()
+    {
+        static IEnumerable<string> Ids(AppState state) => state.Views.Select(v => v.Id)
+            .Concat(state.Views.SelectMany(v => v.Widgets).Select(w => w.Id))
+            .Concat(state.Views.SelectMany(v => v.Widgets).Select(w => w.Config).OfType<ShortcutsConfig>().SelectMany(c => c.Items).Select(i => i.Id));
+
+        var ids = Ids(AppState.CreateDefault()).Concat(Ids(AppState.CreateDefault())).ToList();
 
         Assert.Equal(ids.Count, ids.Distinct(StringComparer.Ordinal).Count());
     }
@@ -240,6 +321,13 @@ public sealed class NoticesBootTests : IDisposable
 
         Assert.Empty(AppStateStore.Validate(state));
         Assert.Equal(before, state.Views.SelectMany(v => v.Widgets).Select(w => (w.Kind, w.Rect)));
+
+        // The same through the file's own parse: written and read back, nothing needs repair.
+        var written = SettingsTransfer.Serialize(state);
+        var parsed = AppStateStore.Parse(written);
+        Assert.NotNull(parsed.State);
+        Assert.Empty(parsed.Repairs);
+        Assert.Equal(written, SettingsTransfer.Serialize(parsed.State!));
     }
 
     /// <summary>Every widget inside the screen and none overlapping another.</summary>
@@ -277,10 +365,10 @@ public sealed class NoticesBootTests : IDisposable
         var loaded = new AppStateStore(path).Load();
         Assert.Equal(LoadOutcome.Loaded, loaded.Outcome);
         Assert.Equal(2, loaded.State.Views.Count);
-        Assert.Equal(3, loaded.State.Views[0].Widgets.Count);
+        Assert.Equal(state.Views[0].Widgets.Select(w => w.Kind), loaded.State.Views[0].Widgets.Select(w => w.Kind));
         Assert.Equal(
             [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
             loaded.State.Views[1].Widgets.Select(w => w.Kind));
-        Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[2].Config).Items.Count);
+        Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[1].Config).Items.Count);
     }
 }
