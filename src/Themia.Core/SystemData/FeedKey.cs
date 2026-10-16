@@ -21,6 +21,9 @@ public enum SystemSource
     BatteryPack,
     Gpu,
     Ping,
+
+    /// <summary>[S-6310] Each logical processor's load (the CPU meter's core styles).</summary>
+    CpuCores,
 }
 
 /// <summary>

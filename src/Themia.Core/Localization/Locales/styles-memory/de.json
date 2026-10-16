@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "Verlauf",
+  "styles.memory.bar": "Balken",
+  "styles.memory.gauge": "Tacho",
+  "styles.memory.used": "{size} belegt",
+  "styles.memory.free": "{size} frei"
+}

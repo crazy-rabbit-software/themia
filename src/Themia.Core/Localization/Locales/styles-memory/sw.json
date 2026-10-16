@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "Grafu",
+  "styles.memory.bar": "Upau",
+  "styles.memory.gauge": "Kipimo",
+  "styles.memory.used": "{size} inatumika",
+  "styles.memory.free": "{size} wazi"
+}

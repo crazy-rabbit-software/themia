@@ -1,0 +1,6 @@
+{
+  "styles.cpu.graph": "Graph",
+  "styles.cpu.cores": "Lahat ng core",
+  "styles.cpu.grid": "Grid ng core",
+  "styles.cpu.gauge": "Gauge"
+}

@@ -219,6 +219,9 @@ internal static partial class GpuSampler
                 {
                     // The driver's load needs no baseline, so an NVIDIA card has a real figure at once.
                     HasLoad = baselined || driver is not null,
+
+                    // [S-6322] The engines are always the counters' (the driver gives one figure only).
+                    Engines = baselined ? GpuRules.EngineLoads(engines, adapter.Luid) : [],
                 });
 
                 anyLoad |= readings[^1].HasLoad;

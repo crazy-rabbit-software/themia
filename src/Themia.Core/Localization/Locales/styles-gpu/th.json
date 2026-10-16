@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "กราฟ",
+  "styles.gpu.engines": "เอนจิน",
+  "styles.gpu.gauge": "มาตรวัด",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "คัดลอก",
+  "styles.gpu.engineVideoEncode": "เข้ารหัสวิดีโอ",
+  "styles.gpu.engineVideoDecode": "ถอดรหัสวิดีโอ"
+}

@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "رسم بياني",
+  "styles.gpu.engines": "المحركات",
+  "styles.gpu.gauge": "مقياس",
+  "styles.gpu.engine3d": "ثلاثي الأبعاد",
+  "styles.gpu.engineCopy": "نسخ",
+  "styles.gpu.engineVideoEncode": "ترميز الفيديو",
+  "styles.gpu.engineVideoDecode": "فك ترميز الفيديو"
+}

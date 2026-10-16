@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "Grafik",
+  "styles.memory.bar": "Bilah",
+  "styles.memory.gauge": "Pengukur",
+  "styles.memory.used": "{size} terpakai",
+  "styles.memory.free": "{size} kosong"
+}

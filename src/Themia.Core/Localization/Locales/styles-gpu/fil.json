@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "Graph",
+  "styles.gpu.engines": "Mga engine",
+  "styles.gpu.gauge": "Gauge",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Kopya",
+  "styles.gpu.engineVideoEncode": "Video encode",
+  "styles.gpu.engineVideoDecode": "Video decode"
+}

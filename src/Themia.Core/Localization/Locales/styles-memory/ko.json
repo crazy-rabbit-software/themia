@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "그래프",
+  "styles.memory.bar": "막대",
+  "styles.memory.gauge": "게이지",
+  "styles.memory.used": "{size} 사용 중",
+  "styles.memory.free": "{size} 사용 가능"
+}

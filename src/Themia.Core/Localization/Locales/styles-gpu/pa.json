@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "ਗ੍ਰਾਫ਼",
+  "styles.gpu.engines": "ਇੰਜਣ",
+  "styles.gpu.gauge": "ਗੇਜ",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "ਕਾਪੀ",
+  "styles.gpu.engineVideoEncode": "ਵੀਡੀਓ ਇਨਕੋਡ",
+  "styles.gpu.engineVideoDecode": "ਵੀਡੀਓ ਡੀਕੋਡ"
+}

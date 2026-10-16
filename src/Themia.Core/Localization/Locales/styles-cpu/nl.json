@@ -1,0 +1,6 @@
+{
+  "styles.cpu.graph": "Grafiek",
+  "styles.cpu.cores": "Alle kernen",
+  "styles.cpu.grid": "Kernenraster",
+  "styles.cpu.gauge": "Meter"
+}

@@ -20,7 +20,22 @@ public sealed record GpuReading(string Name, double Utilization)
     /// reading. The driver's own figure is real at once.
     /// </summary>
     public bool HasLoad { get; init; } = true;
+
+    /// <summary>[S-6322] The engine types' loads, for the Engines style; empty while there is no load yet.</summary>
+    public IReadOnlyList<GpuEngineLoad> Engines { get; init; } = [];
 }
+
+/// <summary>[S-6322] The engine types the GPU's Engines style draws, in the order it draws them.</summary>
+public enum GpuEngineKind
+{
+    ThreeD = 0,
+    Copy = 1,
+    VideoEncode = 2,
+    VideoDecode = 3,
+}
+
+/// <summary>[S-6322] One engine type's load: its busiest engine, 0..100.</summary>
+public readonly record struct GpuEngineLoad(GpuEngineKind Kind, double Percent);
 
 /// <summary>
 /// The decisions behind the GPU meter that do not need a GPU to test: which adapters a config
@@ -178,6 +193,71 @@ public static class GpuRules
     {
         var value = driver is { } d && double.IsFinite(d) ? d : counters;
         return double.IsFinite(value) ? Math.Clamp(value, 0, 100) : 0;
+    }
+
+    /// <summary>
+    /// [S-6322] Which of the engines the Engines style draws a counter instance measures, from its
+    /// <c>_engtype_</c> part (<c>engtype_3D</c>, <c>engtype_VideoDecode</c>); null for every other
+    /// type (compute, video processing, security, a vendor's own names), which no row shows.
+    /// </summary>
+    public static GpuEngineKind? EngineKindOf(string instance)
+    {
+        if (string.IsNullOrEmpty(instance))
+        {
+            return null;
+        }
+
+        var start = instance.IndexOf("_engtype_", StringComparison.OrdinalIgnoreCase);
+        if (start < 0)
+        {
+            return null;
+        }
+
+        var type = instance[(start + "_engtype_".Length)..].Replace(" ", string.Empty, StringComparison.Ordinal);
+
+        return type.ToUpperInvariant() switch
+        {
+            "3D" => GpuEngineKind.ThreeD,
+            "COPY" => GpuEngineKind.Copy,
+            "VIDEOENCODE" => GpuEngineKind.VideoEncode,
+            "VIDEODECODE" => GpuEngineKind.VideoDecode,
+            _ => null,
+        };
+    }
+
+    /// <summary>
+    /// [S-6322] Each engine type's load on one adapter, in <see cref="GpuEngineKind"/> order, for
+    /// the types the adapter has (an engine counted at 0 % is still there; one never listed is not
+    /// drawn). A type's load is its busiest engine: per-engine sums across processes, then the
+    /// maximum, as the adapter's own load is ([S-434]); 0..100.
+    /// </summary>
+    public static IReadOnlyList<GpuEngineLoad> EngineLoads(IEnumerable<(string Instance, double Percent)> engines, string luid)
+    {
+        ArgumentNullException.ThrowIfNull(engines);
+
+        var perEngine = new Dictionary<string, (GpuEngineKind Kind, double Sum)>(StringComparer.Ordinal);
+
+        foreach (var (instance, percent) in engines)
+        {
+            if (EngineKindOf(instance) is not { } kind
+                || !string.Equals(LuidOf(instance), luid, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var engine = EngineOf(instance) ?? kind.ToString();
+            var add = double.IsFinite(percent) && percent > 0 ? percent : 0;
+            perEngine[engine] = (kind, perEngine.GetValueOrDefault(engine, (kind, 0)).Sum + add);
+        }
+
+        var busiest = new SortedDictionary<GpuEngineKind, double>();
+
+        foreach (var (kind, sum) in perEngine.Values)
+        {
+            busiest[kind] = Math.Max(busiest.GetValueOrDefault(kind), Math.Clamp(sum, 0, 100));
+        }
+
+        return [.. busiest.Select(pair => new GpuEngineLoad(pair.Key, pair.Value))];
     }
 
     /// <summary>[S-432] Load pressure: high from 70%, critical from 90%.</summary>

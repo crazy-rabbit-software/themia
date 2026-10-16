@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "グラフ",
+  "styles.memory.bar": "バー",
+  "styles.memory.gauge": "ゲージ",
+  "styles.memory.used": "使用中 {size}",
+  "styles.memory.free": "空き {size}"
+}

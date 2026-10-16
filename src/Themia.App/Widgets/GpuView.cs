@@ -186,6 +186,7 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
         {
             var index = _selection[i];
             _shown[i].Name(index < snapshot.Readings.Count ? snapshot.Readings[index] : null);
+            _shown[i].ShowEngines(index < snapshot.Readings.Count ? snapshot.Readings[index].Engines : []);
         }
 
         // [S-430] One adapter names the card; several keep the catalogue's "GPU" and name each panel.

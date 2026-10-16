@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "Graphique",
+  "styles.memory.bar": "Barre",
+  "styles.memory.gauge": "Jauge",
+  "styles.memory.used": "{size} utilisés",
+  "styles.memory.free": "{size} libres"
+}

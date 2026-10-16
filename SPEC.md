@@ -1209,8 +1209,19 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
 - **[S-436]** Read on the hub's one cadence, every second ([S-2503]). Changing the selection rebuilds
   the panels, so a new adapter's history starts fresh.
 
+- **[S-6320]** GPU styles, `GpuConfig.Style` (`GpuStyle`), one for every adapter the tile shows:
+  **Graph** ([S-430]), **Engines** ([S-6322]), **Gauge** ([S-6321]).
+- **[S-6321]** Each panel lays its style on the meters' ladder with the meters' parts ([S-6300]).
+  Gauge: one adapter puts its load in the bowl ([S-6302]); several keep the name and load on their
+  line at the top and draw the gauge under it.
+- **[S-6322]** **Engines**: a row per engine type ([S-6304]) in the order 3D, Copy, Video encode,
+  Video decode, for the types the adapter's counters list (an engine at 0 % is still listed; other
+  types, compute or a vendor's own, are not drawn). A type's load is its busiest engine, summed
+  across processes as the adapter's load is ([S-434]); always the counters' figure (`nvml` gives one
+  number only). Empty until the counters have a rate: the load alone.
+
 Not ported: the widget's own `label` (the card's label is the instance's); video memory, the
-driver's sensors, the engines and the processes ([S-1762]).
+driver's sensors and the processes ([S-1762]).
 
 ### Mixer
 
@@ -2440,7 +2451,9 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   reading the shared hero readout ([S-667]: the number, its unit smaller; the battery's glyph as
   its icon) at the tier's step ([S-3860]) in what is left, and the history taking every pixel
   the reading does not — no empty space at L or XL. With Show history off the reading fills the
-  tile, grown past Display as the weather's is.
+  tile, grown past Display as the weather's is. This is the **Graph** style; the other styles of a
+  meter ([S-6300]) draw the same reading with another part beside it (a gauge, the cores, a
+  used/free bar, the engines), chosen by the user, never added to the Graph style.
 - **[S-1823]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1824]** The history is the card's bottom band, edge to edge (user decision 2026-10-11): no
   inset at its left, right or under it; beside the reading on a strip it fills the rest of the
@@ -2455,6 +2468,44 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   shared ticker keeps whole-second cadences under a minute (`TickSchedule.Normalise`; it used to
   collapse them all to one second), so a meter set to 5 s samples every 5 s and its chart spans
   its configured span.
+- **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
+  (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
+  same hero readout in every style. One shared set of parts draws them for every meter
+  (`Widgets/MeterLookParts.cs`: `GaugeDial`, `BarList`, `TileGrid`, `MeterBrushes`; rules in Core
+  `MeterLooks.cs`, tests `MeterStylesTests`), so a CPU gauge and a memory gauge of one size are one
+  gauge. A kind's items come from the hub like its reading (`MeterPart.WatchItems`, [S-2500]): one
+  read per tick for every widget, watched only while a style draws them and let go when another
+  style is chosen ([S-6005]). Show history and Chart span stay the Graph style's settings. Debug:
+  `--state sample` draws a fixed 62 % reading and the kind's fixed items in every style.
+- **[S-6301]** An item's shade (`LoadTint`): the usage pressure colour ([S-1123]) at an opacity
+  rising from 0.22 at idle to 1 at full load, so tiles read as a heat map in the theme's accent,
+  caution and critical colours; an item with no reading is the disabled fill, never "idle".
+- **[S-6302]** **Gauge**: a half-circle over the top, left end 0 %, right end 100 %, its track the
+  progress track ([S-837]) and its arc the reading's share in the pressure colour, round-capped
+  (`GaugeLayout.Fit`: the largest half-circle in the content box, stroke 12 % of the radius, 4–16;
+  under a radius of 28 the tile is the reading alone). The reading sits in the bowl, its line on the
+  gauge's bottom edge, at the largest step (Body to Display, then grown up to 1.5 × Display) whose
+  widest reading fits the bowl's chord at the top of its glyphs. Room at L/XL is a larger gauge and a larger number, nothing else.
+- **[S-6303]** **Columns** (`BarList` Columns): one vertical bar per item filling from the bottom,
+  across the content width under the reading (beside it on a wide strip, the history's place,
+  [S-1762]) and inside the content inset (bars are not a trace: [S-1824] is the history's), the
+  track the progress track at the history wash's faintness so the loads lead. Gaps
+  4, then 2, 1, 0 as the items crowd, a bar never narrower than twice its gap (`BarLayout.Columns`).
+- **[S-6304]** **Rows** (`BarList` Rows): per item its label and value on a line, the bar under it
+  filling from the left; every row at the largest label step (Caption, Body, BodyLarge) and the
+  thickest bar (4 to 12, at most half the label's line) that let all rows fit, a step taken only
+  when the widest line (label and value) fits the width; when even the smallest rows do not fit,
+  rows are shed from the end (`BarLayout.Rows`). The rows stand right under the reading (centred
+  beside it on a strip); what they leave below is air, not a gap between a number and its bar.
+- **[S-6305]** **Tiles** (`TileGrid`): one tile per item filling the history's room in the grid whose
+  tiles are the largest and squarest, unless one with tiles at least 80 % that size leaves fewer
+  holes (16 cores as 4 × 4, not 6 + 6 + 4; `BarLayout.Tiles`), gaps 4, 2, 1, each shaded by its
+  load ([S-6301]).
+- **[S-6315]** Memory styles, `MemoryConfig.Style` (`MemoryStyle`): **Graph** ([S-1762]), **Bar**
+  ([S-6316]), **Gauge** ([S-6302]).
+- **[S-6316]** **Bar**: one row ([S-6304]), the used share filled against the free: "9.6 GB used" as
+  its label and "6.4 GB free" as its value, from the snapshot the reading comes from
+  (`MemoryFigures`), so bar and number agree.
 - Not ported / different: the original's `visibleMetrics` multi-select and everything it switched
   (removed by [S-1762]). The audit's `MeterLadder` was not built: `MeterFace` and `Disclosure` are
   the ladders.
@@ -2969,7 +3020,18 @@ Countdown C-61 keep-open (above). Countdown keys came later although the origina
   earlier ladder ([S-1141], [S-1142], [S-1146]..[S-1150]) are removed with their settings.
 - **[S-1143]** Uptime wording (`CpuRules.Uptime`, used by the power tile), two largest units:
   `3d 4h`, `2h 5m`, `7m`.
-- Not ported: the original's per-core grid ([S-1762]: the meter is its reading and history).
+- **[S-6310]** The core styles read each logical processor from the hub's `CpuCores` source
+  (`\Processor Information(*)\% Processor Time`, the measure the total uses, so cores and number
+  agree; `CpuCoreRules.Loads`: processor order by group then number, the totals left out, a reading
+  that is not a number unknown). One PDH query, read once per tick for every such widget, opened
+  only while a widget in some view has a core style (`SystemInterests`, [S-2513]) and closed with
+  the feed. No counter: the core styles show the reading alone.
+- **[S-6311]** CPU styles, `CpuConfig.Style` (`CpuStyle`): **Graph** ([S-1762]), **All cores**
+  ([S-6312]), **Core grid** ([S-6313]), **Gauge** ([S-6302]).
+- **[S-6312]** **All cores**: a column per logical processor ([S-6303]), each in its own pressure colour.
+- **[S-6313]** **Core grid**: a tile per logical processor ([S-6305]), shaded by its load ([S-6301]).
+- **[S-6314]** **Gauge** (CPU, memory, GPU): the reading inside the shared gauge ([S-6302]).
+- The original's per-core grid is the Core grid style ([S-6313]).
 
 ## Displays (WP2)
 

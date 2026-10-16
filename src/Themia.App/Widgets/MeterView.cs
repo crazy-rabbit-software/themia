@@ -73,6 +73,15 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private bool _graph;
     private bool _absent;
 
+    // [S-6300] The style's look and what it builds: made when the look is chosen, let go when another is.
+    private MeterLook _look;
+    private FrameworkElement? _body;
+    private GaugeDial? _dial;
+    private BarList? _bars;
+    private TileGrid? _tiles;
+    private MeterItemsWatch? _items;
+    private IReadOnlyList<MeterItem> _itemList = [];
+
     // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
     private bool _detached = true;
 
@@ -160,8 +169,34 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         if (_absent)
         {
             _band.Visibility = Visibility.Collapsed;
+
+            if (_body is not null)
+            {
+                _body.Visibility = Visibility.Collapsed;
+            }
+
             return;
         }
+
+        // [S-6300] A style other than the history lays its own part on the same ladder.
+        if (_look != MeterLook.Graph)
+        {
+            _band.Visibility = Visibility.Collapsed;
+
+            if (_look == MeterLook.Gauge)
+            {
+                LayGauge();
+            }
+            else
+            {
+                LayItems();
+            }
+
+            return;
+        }
+
+        SetColumnSpan(_reading, 1);
+        _reading.HorizontalAlignment = HorizontalAlignment.Stretch;
 
         var plan = MeterFace.Plan(_area, _graph, _part.Reading, _part.HasBadge, Fluent.Space2, GraphFloor);
         var side = plan.Arrangement == MeterFaceArrangement.Side;
@@ -214,6 +249,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
         _part.ApplyConfig(_config, this);
         ShowToken();
+        UseLook(_part.Look(_config));
 
         // [S-1121] The span at the series' spacing ([S-2512]: a ping point is five seconds).
         var series = _part.Series(_config);
@@ -332,6 +368,10 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         var pressure = Pressure(_part.PressureOf(reading));
         _band.SetBrush(pressure);
 
+        // [S-6302] The gauge is the reading's own share, in the colour the history would have.
+        _dial?.SetFraction(reading.Available ? reading.Fraction : null);
+        _dial?.SetBrush(pressure);
+
         var badge = _part.Badge(reading);
         var badged = badge is not null;
         _reading.Icon.Glyph = badge ?? string.Empty;
@@ -369,5 +409,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _watch?.Dispose();
         _watch = null;
         _series = null;
+        _items?.Dispose();
+        _items = null;
     }
 }

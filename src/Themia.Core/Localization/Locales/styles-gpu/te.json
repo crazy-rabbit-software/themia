@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "గ్రాఫ్",
+  "styles.gpu.engines": "ఇంజిన్‌లు",
+  "styles.gpu.gauge": "గేజ్",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "కాపీ",
+  "styles.gpu.engineVideoEncode": "వీడియో ఎన్‌కోడ్",
+  "styles.gpu.engineVideoDecode": "వీడియో డీకోడ్"
+}

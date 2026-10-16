@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "Grafiek",
+  "styles.memory.bar": "Balk",
+  "styles.memory.gauge": "Meter",
+  "styles.memory.used": "{size} in gebruik",
+  "styles.memory.free": "{size} vrij"
+}

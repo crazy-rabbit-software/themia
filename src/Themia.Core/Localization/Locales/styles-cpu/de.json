@@ -1,0 +1,6 @@
+{
+  "styles.cpu.graph": "Verlauf",
+  "styles.cpu.cores": "Alle Kerne",
+  "styles.cpu.grid": "Kernraster",
+  "styles.cpu.gauge": "Tacho"
+}

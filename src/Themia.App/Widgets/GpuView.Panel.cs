@@ -97,6 +97,8 @@ internal sealed partial class GpuView
                 _spark.Load(_watch.History(_spark.Capacity), _watch.Added);
             }
 
+            UseStyle(config.Style);
+
             _name.Visibility = stacked ? Visibility.Visible : Visibility.Collapsed;
             _reading.ColumnDefinitions[0].Width = stacked ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
 
@@ -178,7 +180,11 @@ internal sealed partial class GpuView
             if (reading is { Available: true, Value: { } percent })
             {
                 _spark.SetBrush(Pressure(GpuRules.LoadPressure(percent)));
+                _dial?.SetBrush(Pressure(GpuRules.LoadPressure(percent)));
             }
+
+            // [S-6302] The gauge is the load's own share.
+            _dial?.SetFraction(reading.Available ? reading.Fraction : null);
         }
 
         /// <summary>
@@ -192,6 +198,28 @@ internal sealed partial class GpuView
             {
                 return;
             }
+
+            _area = area;
+
+            // [S-6321] A style other than the history lays its own part on the same ladder.
+            if (_style != GpuStyle.Graph)
+            {
+                _spark.Visibility = Visibility.Collapsed;
+
+                if (_style == GpuStyle.Gauge)
+                {
+                    LayGauge(area);
+                }
+                else
+                {
+                    LayEngines(area);
+                }
+
+                return;
+            }
+
+            _reading.HorizontalAlignment = _stacked ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
+            SetColumnSpan(_reading, 1);
 
             var plan = MeterFace.Plan(area, _config.ShowGraph, HeroBound.Of(Formatting.Percent(1)), false, Fluent.Space2, MinChart,
                 _stacked ? FluentType.Subtitle : null);

@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "กราฟ",
+  "styles.memory.bar": "แถบ",
+  "styles.memory.gauge": "มาตรวัด",
+  "styles.memory.used": "ใช้อยู่ {size}",
+  "styles.memory.free": "ว่าง {size}"
+}

@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "Jadawali",
+  "styles.memory.bar": "Sanda",
+  "styles.memory.gauge": "Ma'auni",
+  "styles.memory.used": "{size} ana amfani",
+  "styles.memory.free": "{size} babu komai"
+}

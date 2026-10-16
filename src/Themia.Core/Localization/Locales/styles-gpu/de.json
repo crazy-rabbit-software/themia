@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "Verlauf",
+  "styles.gpu.engines": "Engines",
+  "styles.gpu.gauge": "Tacho",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Kopieren",
+  "styles.gpu.engineVideoEncode": "Video-Encoding",
+  "styles.gpu.engineVideoDecode": "Video-Decoding"
+}

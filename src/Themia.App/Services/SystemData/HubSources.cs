@@ -22,6 +22,10 @@ internal static class Sources
     public static readonly SourceId<MemorySnapshot?> Memory = new(SystemSource.Memory);
     public static readonly SourceId<PerformanceSnapshot> Performance = new(SystemSource.Performance);
     public static readonly SourceId<CpuFigures> Processor = new(SystemSource.Processor);
+
+    /// <summary>[S-6310] Each logical processor's load, 0..1, in processor order; null for a core with no reading.</summary>
+    public static readonly SourceId<IReadOnlyList<double?>> CpuCores = new(SystemSource.CpuCores);
+
     public static readonly SourceId<IReadOnlyList<ProcessSample>?> Processes = new(SystemSource.Processes);
     public static readonly SourceId<DiskSnapshot> DiskActivity = new(SystemSource.DiskActivity);
     public static readonly SourceId<DiskSpaceSnapshot?> DiskSpace = new(SystemSource.DiskSpace);
@@ -51,6 +55,7 @@ internal sealed partial class SystemHub
         SystemSource.Memory => Make(key, new MemorySource()),
         SystemSource.Performance => Make(key, new PerformanceSource()),
         SystemSource.Processor => Make(key, new ProcessorSource()),
+        SystemSource.CpuCores => Make(key, new CpuCoresSource()),
         SystemSource.Processes => Make(key, new ProcessesSource()),
         SystemSource.DiskActivity => Make(key, new DiskActivitySource(_ticker)),
         SystemSource.DiskSpace => Make(key, new DiskSpaceSource(_ticker, () => RefreshSource(SystemSource.DiskSpace))),

@@ -1,6 +1,8 @@
 #if DEBUG
 using Themia.App.Shell.Gallery;
+using Themia.App.Services;
 using Themia.Core.SystemData;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
@@ -10,15 +12,27 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class GpuView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["history"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["history", "sample"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "history")
+        if (state is "history" or "sample")
         {
+            // [S-6300] sample: the snapshots stop too, so the fixed load and engines stay on screen.
+            if (state == "sample")
+            {
+                _snapshots?.Dispose();
+                _snapshots = null;
+            }
+
             foreach (var panel in _shown)
             {
                 panel.ShowFixtureHistory();
+
+                if (state == "sample")
+                {
+                    panel.ShowSample();
+                }
             }
         }
 
@@ -39,6 +53,19 @@ internal sealed partial class GpuView : IWidgetPreviewState
             }
 
             _spark.Load(points);
+        }
+
+        /// <summary>A fixed 62 % load and its engines: every style renders the same picture on every machine.</summary>
+        public void ShowSample()
+        {
+            ShowLoad(new MeterReading(0.62, Formatting.Percent(0.62), true, Value: 62));
+            ShowEngines(
+            [
+                new GpuEngineLoad(GpuEngineKind.ThreeD, 62),
+                new GpuEngineLoad(GpuEngineKind.Copy, 8),
+                new GpuEngineLoad(GpuEngineKind.VideoEncode, 0),
+                new GpuEngineLoad(GpuEngineKind.VideoDecode, 23),
+            ]);
         }
     }
 }

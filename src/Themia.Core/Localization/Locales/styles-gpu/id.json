@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "Grafik",
+  "styles.gpu.engines": "Mesin",
+  "styles.gpu.gauge": "Pengukur",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Salin",
+  "styles.gpu.engineVideoEncode": "Enkode video",
+  "styles.gpu.engineVideoDecode": "Dekode video"
+}

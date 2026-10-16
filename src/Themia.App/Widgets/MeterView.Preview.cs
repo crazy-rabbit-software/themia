@@ -1,4 +1,5 @@
 #if DEBUG
+using Themia.App.Services;
 using Themia.App.Shell.Gallery;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
@@ -7,14 +8,22 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917]): <c>history</c> fills the chart with a fixture series, so the
-/// history's edges ([S-1824]) can be looked at without waiting a minute for real samples.
+/// history's edges ([S-1824]) can be looked at without waiting a minute for real samples;
+/// <c>sample</c> ([S-6300]) shows a fixed reading and the kind's fixed items, so every style
+/// renders the same picture on every machine.
 /// </summary>
 internal sealed partial class MeterView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["history"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["history", "sample"];
 
     public Task ShowPreviewStateAsync(string state)
     {
+        if (state == "sample")
+        {
+            ShowSample();
+            return Task.CompletedTask;
+        }
+
         if (state != "history")
         {
             return Task.CompletedTask;
@@ -37,6 +46,19 @@ internal sealed partial class MeterView : IWidgetPreviewState
 
         _band.Load(points);
         return Task.CompletedTask;
+    }
+
+    /// <summary>Stop the live reads, then a fixed 62 % reading, the kind's sample items and the history fixture.</summary>
+    private void ShowSample()
+    {
+        _items?.Dispose();
+        _items = null;
+        _ = ShowPreviewStateAsync("history");
+
+        var fraction = 0.62;
+        Present(new MeterReading(fraction, Formatting.Percent(fraction), true));
+        ShowItems(_part.SampleItems);
+        Lay();
     }
 }
 #endif

@@ -58,6 +58,9 @@ public sealed record SystemInterests(IReadOnlyList<FeedKey> Feeds, IReadOnlyList
 
         switch (config)
         {
+            case CpuConfig { ShowsCores: true }:
+                // [S-6310] The core styles read each processor too, beside the total and its history.
+                return new SystemInterests([FeedKey.Create(SystemSource.Cpu), FeedKey.Create(SystemSource.CpuCores)], [new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty)]);
             case CpuConfig:
                 return Chart(SystemSource.Cpu);
             case MemoryConfig:

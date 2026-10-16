@@ -94,7 +94,8 @@ public sealed class WidgetStylesTests
         Assert.Equal(ClockStyle.Digital, clock.Style);
         Assert.True(WidgetStyles.Set(clock, (int)ClockStyle.Word));
         Assert.Equal(ClockStyle.Word, clock.Style);
-        Assert.False(WidgetStyles.Set(new CpuConfig(), 1));
+        Assert.False(WidgetStyles.Set(new CpuConfig(), 99));
+        Assert.False(WidgetStyles.Set(WidgetConfig.CreateDefault(Enum.GetValues<WidgetKind>().First(k => !WidgetStyles.Offers(k))), 1));
     }
 
     [Theory]
@@ -159,9 +160,11 @@ public sealed class WidgetStylesTests
     [Fact]
     public void S6007_a_kind_without_styles_or_a_mixed_kind_selection_offers_none()
     {
-        var (state, view) = State(Widget(WidgetKind.Cpu, "cpu"), Widget(WidgetKind.Clock, "clock"));
+        // Any kind without styles: which those are changes as kinds gain them.
+        var plain = Enum.GetValues<WidgetKind>().First(k => !WidgetStyles.Offers(k));
+        var (state, view) = State(Widget(plain, "plain"), Widget(WidgetKind.Clock, "clock"), Widget(WidgetKind.Cpu, "cpu"));
 
-        Assert.False(QuickSet.For(state, Selecting(view, "cpu"), view.Id).HasStyle);
+        Assert.False(QuickSet.For(state, Selecting(view, "plain"), view.Id).HasStyle);
         Assert.False(QuickSet.For(state, Selecting(view, "cpu", "clock"), view.Id).HasStyle);
     }
 

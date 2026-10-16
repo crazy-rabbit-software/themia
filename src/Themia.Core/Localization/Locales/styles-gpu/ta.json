@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "வரைபடம்",
+  "styles.gpu.engines": "இயந்திரங்கள்",
+  "styles.gpu.gauge": "அளவீடு",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "நகல்",
+  "styles.gpu.engineVideoEncode": "வீடியோ குறியாக்கம்",
+  "styles.gpu.engineVideoDecode": "வீடியோ குறிவிலக்கம்"
+}

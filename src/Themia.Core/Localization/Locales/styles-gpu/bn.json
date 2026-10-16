@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "গ্রাফ",
+  "styles.gpu.engines": "ইঞ্জিন",
+  "styles.gpu.gauge": "গেজ",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "কপি",
+  "styles.gpu.engineVideoEncode": "ভিডিও এনকোড",
+  "styles.gpu.engineVideoDecode": "ভিডিও ডিকোড"
+}

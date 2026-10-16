@@ -1,0 +1,9 @@
+{
+  "styles.gpu.graph": "图表",
+  "styles.gpu.engines": "引擎",
+  "styles.gpu.gauge": "仪表",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "复制",
+  "styles.gpu.engineVideoEncode": "视频编码",
+  "styles.gpu.engineVideoDecode": "视频解码"
+}

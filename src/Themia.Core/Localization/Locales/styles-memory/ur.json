@@ -1,0 +1,7 @@
+{
+  "styles.memory.graph": "گراف",
+  "styles.memory.bar": "بار",
+  "styles.memory.gauge": "گیج",
+  "styles.memory.used": "{size} استعمال میں",
+  "styles.memory.free": "{size} خالی"
+}
