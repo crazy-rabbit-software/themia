@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "Stijl van de weergavebalk",
+  "shell.viewBar.styleDesc": "Een knop per weergave, of één knop die een lijst opent",
+  "shell.viewBar.styleChips": "Knoppen",
+  "shell.viewBar.styleDropdown": "Vervolgkeuzelijst",
+  "shell.viewBar.pickTip": "{name}\nKlik om een weergave te kiezen"
+}

@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "보기 표시줄 스타일",
+  "shell.viewBar.styleDesc": "보기마다 칩, 또는 목록을 여는 단추 하나",
+  "shell.viewBar.styleChips": "칩",
+  "shell.viewBar.styleDropdown": "드롭다운",
+  "shell.viewBar.pickTip": "{name}\n보기를 선택하려면 클릭하세요"
+}

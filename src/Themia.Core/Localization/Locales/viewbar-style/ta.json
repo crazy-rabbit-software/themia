@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "காட்சிப் பட்டியின் பாணி",
+  "shell.viewBar.styleDesc": "ஒவ்வொரு காட்சிக்கும் ஒரு சிப், அல்லது பட்டியலைத் திறக்கும் ஒரு பொத்தான்",
+  "shell.viewBar.styleChips": "சிப்கள்",
+  "shell.viewBar.styleDropdown": "கீழிறங்கு பட்டியல்",
+  "shell.viewBar.pickTip": "{name}\nகாட்சியைத் தேர்வுசெய்ய கிளிக் செய்யவும்"
+}

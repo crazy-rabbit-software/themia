@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "Стиль панели видов",
+  "shell.viewBar.styleDesc": "Кнопка для каждого вида или одна кнопка со списком",
+  "shell.viewBar.styleChips": "Кнопки",
+  "shell.viewBar.styleDropdown": "Раскрывающийся список",
+  "shell.viewBar.pickTip": "{name}\nНажмите, чтобы выбрать вид"
+}

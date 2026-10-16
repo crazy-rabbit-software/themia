@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "سبک نوار نما",
+  "shell.viewBar.styleDesc": "یک تراشه برای هر نما، یا یک دکمه که فهرستی را باز می‌کند",
+  "shell.viewBar.styleChips": "تراشه‌ها",
+  "shell.viewBar.styleDropdown": "فهرست کشویی",
+  "shell.viewBar.pickTip": "{name}\nبرای انتخاب نما کلیک کنید"
+}

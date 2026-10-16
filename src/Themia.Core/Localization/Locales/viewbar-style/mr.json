@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "दृश्य बारची शैली",
+  "shell.viewBar.styleDesc": "प्रत्येक दृश्यासाठी एक चिप, किंवा यादी उघडणारे एक बटण",
+  "shell.viewBar.styleChips": "चिप्स",
+  "shell.viewBar.styleDropdown": "ड्रॉपडाउन",
+  "shell.viewBar.pickTip": "{name}\nदृश्य निवडण्यासाठी क्लिक करा"
+}

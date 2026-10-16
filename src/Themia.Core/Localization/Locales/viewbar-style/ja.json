@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "ビュー バーのスタイル",
+  "shell.viewBar.styleDesc": "ビューごとのボタン、または一覧を開く 1 つのボタン",
+  "shell.viewBar.styleChips": "ボタン",
+  "shell.viewBar.styleDropdown": "ドロップダウン",
+  "shell.viewBar.pickTip": "{name}\nクリックしてビューを選択"
+}

@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "نمط شريط المشاهد",
+  "shell.viewBar.styleDesc": "شريحة لكل مشهد، أو زر واحد يفتح قائمة",
+  "shell.viewBar.styleChips": "شرائح",
+  "shell.viewBar.styleDropdown": "قائمة منسدلة",
+  "shell.viewBar.pickTip": "{name}\nانقر لاختيار مشهد"
+}

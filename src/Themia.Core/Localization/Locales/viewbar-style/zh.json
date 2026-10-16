@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "视图栏样式",
+  "shell.viewBar.styleDesc": "每个视图一个按钮，或一个打开列表的按钮",
+  "shell.viewBar.styleChips": "按钮",
+  "shell.viewBar.styleDropdown": "下拉列表",
+  "shell.viewBar.pickTip": "{name}\n单击以选择视图"
+}

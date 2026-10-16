@@ -3,6 +3,7 @@ using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
@@ -19,8 +20,8 @@ namespace Themia.App.Shell;
 /// <param name="Color">[S-3812] The view's own colour for its icon or initials (<c>#RRGGBB</c>), or null for the theme's.</param>
 internal sealed record ViewBarItem(string Id, string Name, string? Icon, bool Shown, bool IsDefault, string? Color = null);
 
-/// <summary>How the view bar is drawn: its size, labels, direction and edit-mode state.</summary>
-internal sealed record ViewBarLook(ViewBarSize Size, bool IconOnly, bool Vertical, bool Editing, bool Preview);
+/// <summary>How the view bar is drawn: its size, labels, direction, edit-mode state and [S-5400] style.</summary>
+internal sealed record ViewBarLook(ViewBarSize Size, bool IconOnly, bool Vertical, bool Editing, bool Preview, ViewBarStyle Style = ViewBarStyle.Chips);
 
 /// <summary>What the view bar asks of the surface it sits on. Points are in the window's content coordinates.</summary>
 internal interface IViewBarOwner
@@ -40,8 +41,11 @@ internal interface IViewBarOwner
     /// <summary>[S-913] The grip was let go, after a real drag or not.</summary>
     void BarDragEnded(Point at, bool moved);
 
-    /// <summary>[S-918] The overflow chip was clicked: list the views that did not fit.</summary>
-    void ShowOverflow(FrameworkElement chip, IReadOnlyList<ViewBarItem> hidden);
+    /// <summary>
+    /// [S-918] / [S-5402] The overflow chip or the drop-down button was clicked: list
+    /// <paramref name="views"/> (the ones that did not fit, or every view on a drop-down).
+    /// </summary>
+    void ShowViewMenu(FrameworkElement button, IReadOnlyList<ViewBarItem> views);
 }
 
 /// <summary>
@@ -70,19 +74,22 @@ internal sealed partial class ViewBar : Grid
     /// <summary>[S-917] The bar's length budget along its axis, in DIPs; infinite until the surface knows its work area.</summary>
     private double _room = double.PositiveInfinity;
 
-    /// <summary>[S-918] The views whose chips did not fit, in bar order; listed by the overflow chip.</summary>
-    private IReadOnlyList<ViewBarItem> _hidden = [];
+    /// <summary>
+    /// [S-5402] The views the bar's menu lists, in bar order: those whose chips did not fit
+    /// ([S-918]), or every view on a drop-down.
+    /// </summary>
+    private IReadOnlyList<ViewBarItem> _menuViews = [];
 
-    /// <summary>[S-918] The overflow chip while the bar has one.</summary>
-    private Border? _overflow;
+    /// <summary>The overflow chip while the chip bar has one, or the drop-down button.</summary>
+    private Border? _menuButton;
 
-    private bool _overflowPressed;
+    private bool _menuPressed;
 
-    /// <summary>[S-918] The overflow chip, or null when every chip fits.</summary>
-    internal FrameworkElement? OverflowChip => _overflow;
+    /// <summary>[S-918] / [S-5401] The overflow chip or the drop-down button; null when every chip fits.</summary>
+    internal FrameworkElement? MenuButton => _menuButton;
 
-    /// <summary>[S-918] The views behind the overflow chip, in bar order.</summary>
-    internal IReadOnlyList<ViewBarItem> Hidden => _hidden;
+    /// <summary>[S-5402] The views the menu lists, in bar order.</summary>
+    internal IReadOnlyList<ViewBarItem> MenuViews => _menuViews;
 
     // A press in progress: on a chip (the view's id) or on the grip (null id).
     private bool _pressing;
@@ -204,6 +211,16 @@ internal sealed partial class ViewBar : Grid
             fixedLength += Length(grip, look.Vertical) + _panel.Spacing;
         }
 
+        if (look.Style == ViewBarStyle.Dropdown)
+        {
+            // [S-5401] One button for the whole bar; its menu lists every view on it ([S-5402]).
+            _menuViews = [.. ViewBarRules.MenuViews(look.Style, _items.Count, new ViewBarFit([], Overflow: false)).Select(i => _items[i])];
+            _menuButton = BuildDropdown(look, metrics, _room - fixedLength);
+            _panel.Children.Add(_menuButton);
+            FinishRebuild(look);
+            return;
+        }
+
         var chips = _items.Select(item => BuildChip(item, look, metrics)).ToList();
         var overflow = BuildOverflowChip(look, metrics);
         var fit = ViewBarRules.Fit(
@@ -219,18 +236,22 @@ internal sealed partial class ViewBar : Grid
             _panel.Children.Add(chips[index]);
         }
 
-        var drawn = new HashSet<int>(fit.Shown);
-        _hidden = [.. _items.Where((_, i) => !drawn.Contains(i))];
-        _overflow = null;
+        _menuViews = [.. ViewBarRules.MenuViews(look.Style, _items.Count, fit).Select(i => _items[i])];
+        _menuButton = null;
         if (fit.Overflow)
         {
-            var more = Str.Shell_ViewBar_More.Format(("count", _hidden.Count));
+            var more = Str.Shell_ViewBar_More.Format(("count", _menuViews.Count));
             ToolTipService.SetToolTip(overflow, more);
             AutomationProperties.SetName(overflow, more);
             _panel.Children.Add(overflow);
-            _overflow = overflow;
+            _menuButton = overflow;
         }
 
+        FinishRebuild(look);
+    }
+
+    private void FinishRebuild(ViewBarLook look)
+    {
         // [S-1979] Enter on a chip rebuilds the bar under the focus: give it back to the same view's chip.
         if (_refocusId is { } refocus && Chip(refocus) is { } again)
         {
@@ -266,37 +287,41 @@ internal sealed partial class ViewBar : Grid
         return grip;
     }
 
-    private Border BuildChip(ViewBarItem item, ViewBarLook look, Metrics metrics)
+    /// <summary>
+    /// [S-903] The view's own icon, or its initials, at the step's icon size. [S-3812] In the view's
+    /// colour where it has one, shown or not: the raised chip already says which is shown.
+    /// </summary>
+    private static FrameworkElement BuildMark(ViewBarItem item, Metrics metrics, string brush)
     {
-        var brush = item.Shown ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush";
-
-        // [S-903] The view's own icon, or its initials, at the step's icon size. [S-3812] In the
-        // view's colour where it has one, shown or not: the raised chip already says which is shown.
         var tint = DesignApplier.UserBrush(item.Color);
-        FrameworkElement mark;
+        var fill = item.Shown ? "AccentTextFillColorPrimaryBrush" : brush;
         if (item.Icon is { } glyph)
         {
-            var icon = Fluent.Icon(glyph, item.Shown ? "AccentTextFillColorPrimaryBrush" : brush, metrics.Icon);
+            var icon = Fluent.Icon(glyph, fill, metrics.Icon);
             if (tint is not null)
             {
                 icon.Foreground = tint;
             }
 
-            mark = icon;
+            return icon;
         }
-        else
-        {
-            var initials = Fluent.Text(FluentType.Strong(metrics.Type), item.Shown ? "AccentTextFillColorPrimaryBrush" : brush);
-            initials.Text = ViewListRules.Initials(item.Name);
-            initials.TextTrimming = TextTrimming.None;
-            initials.VerticalAlignment = VerticalAlignment.Center;
-            if (tint is not null)
-            {
-                initials.Foreground = tint;
-            }
 
-            mark = initials;
+        var initials = Fluent.Text(FluentType.Strong(metrics.Type), fill);
+        initials.Text = ViewListRules.Initials(item.Name);
+        initials.TextTrimming = TextTrimming.None;
+        initials.VerticalAlignment = VerticalAlignment.Center;
+        if (tint is not null)
+        {
+            initials.Foreground = tint;
         }
+
+        return initials;
+    }
+
+    private Border BuildChip(ViewBarItem item, ViewBarLook look, Metrics metrics)
+    {
+        var brush = item.Shown ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush";
+        var mark = BuildMark(item, metrics, brush);
 
         FrameworkElement content = mark;
         if (!look.IconOnly)
@@ -388,60 +413,126 @@ internal sealed partial class ViewBar : Grid
         };
 
         HoverFill(chip, shown: false);
-
-        if (look.Editing)
-        {
-            chip.IsTabStop = true;
-            chip.UseSystemFocusVisuals = true;
-            chip.KeyDown += (_, e) => e.Handled = OnKey(chip, null, e.Key);
-        }
-
-        // Its own press and release, not the bar's capture: it is never dragged, and the surface
-        // underneath must not start a rubber band from it.
-        chip.PointerPressed += (_, e) =>
-        {
-            if (e.GetCurrentPoint(chip).Properties.IsLeftButtonPressed)
-            {
-                _overflowPressed = true;
-                e.Handled = true;
-            }
-        };
-        chip.PointerReleased += (_, e) =>
-        {
-            if (_overflowPressed)
-            {
-                _overflowPressed = false;
-                e.Handled = true;
-                OpenOverflow(chip);
-            }
-        };
-        chip.PointerExited += (_, _) => _overflowPressed = false;
-
+        OpensMenu(chip, look);
         return chip;
     }
 
-    private void OpenOverflow(Border chip)
+    /// <summary>
+    /// [S-5401] The drop-down: one raised button with the shown view's icon in its colour, its name
+    /// (unless names are off) and a chevron, opening the menu of every view on the bar ([S-5402]).
+    /// A display showing a view the bar does not offer reads "Views" with the shared view glyph.
+    /// </summary>
+    /// <param name="room">The length left for the button along the bar, so a long name is cut rather than running off the display.</param>
+    private Border BuildDropdown(ViewBarLook look, Metrics metrics, double room)
     {
-        if (_hidden.Count > 0)
+        var shown = _items.FirstOrDefault(i => i.Shown)
+            ?? new ViewBarItem(string.Empty, Str.Shell_ViewBar_Name.Text(), Glyphs.View, Shown: true, IsDefault: false);
+        var row = new StackPanel
         {
-            _owner.ShowOverflow(chip, _hidden);
+            Orientation = Orientation.Horizontal,
+            Spacing = Fluent.Space2 * 0.75,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        row.Children.Add(BuildMark(shown, metrics, "TextFillColorPrimaryBrush"));
+
+        if (!look.IconOnly)
+        {
+            var name = Fluent.Text(shown.IsDefault ? FluentType.Strong(metrics.Type) : metrics.Type, "TextFillColorPrimaryBrush");
+            name.Text = shown.Name;
+            name.VerticalAlignment = VerticalAlignment.Center;
+            var spare = room - (2 * metrics.PadX) - (2 * metrics.Icon) - (2 * row.Spacing);
+            name.MaxWidth = double.IsFinite(spare) ? Math.Clamp(spare, metrics.Icon, 220) : 220;
+            row.Children.Add(name);
+        }
+
+        var chevron = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorSecondaryBrush", metrics.Icon * 0.7);
+        chevron.VerticalAlignment = VerticalAlignment.Center;
+        row.Children.Add(chevron);
+
+        var button = new Border
+        {
+            Child = row,
+            Padding = new Thickness(look.IconOnly ? metrics.PadX * 0.75 : metrics.PadX, metrics.PadY, metrics.PadX * 0.75, metrics.PadY),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            BorderThickness = new Thickness(Fluent.Hairline),
+            MinHeight = metrics.Square,
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+
+        var tip = Str.Shell_ViewBar_PickTip.Format(("name", shown.Name));
+        ToolTipService.SetToolTip(button, tip);
+        AutomationProperties.SetName(button, shown.Name);
+        AutomationProperties.SetHelpText(button, tip);
+
+        HoverFill(button, shown: true);
+        OpensMenu(button, look);
+        return button;
+    }
+
+    /// <summary>
+    /// [S-918] / [S-5401] The overflow chip's and the drop-down's press: its own press and release,
+    /// not the bar's capture — it is never dragged, and the surface underneath must not start a
+    /// rubber band from it. In edit mode it takes the keyboard like a chip; Enter or Space opens it.
+    /// </summary>
+    private void OpensMenu(Border button, ViewBarLook look)
+    {
+        if (look.Editing)
+        {
+            button.IsTabStop = true;
+            button.UseSystemFocusVisuals = true;
+            button.KeyDown += (_, e) => e.Handled = OnKey(button, null, e.Key);
+        }
+
+        button.PointerPressed += (_, e) =>
+        {
+            if (e.GetCurrentPoint(button).Properties.IsLeftButtonPressed)
+            {
+                _menuPressed = true;
+                e.Handled = true;
+            }
+        };
+        button.PointerReleased += (_, e) =>
+        {
+            if (_menuPressed)
+            {
+                _menuPressed = false;
+                e.Handled = true;
+                OpenMenu(button);
+            }
+        };
+        button.PointerExited += (_, _) => _menuPressed = false;
+    }
+
+    private void OpenMenu(Border button)
+    {
+        if (_menuViews.Count > 0)
+        {
+            _owner.ShowViewMenu(button, _menuViews);
         }
     }
 
     /// <summary>
-    /// [S-918] The overflow chip's menu: each view left off the bar, its icon in its colour, in bar
-    /// order; a click shows it here, which brings its chip onto the bar ([S-917]). Capped at
-    /// <paramref name="maxHeight"/> so a long list scrolls inside it.
+    /// [S-918] / [S-5402] The bar's menu: each view listed, its icon in its colour, in bar order (the
+    /// default view's name semi-bold); a click shows it here. The overflow chip lists the views left
+    /// off the bar, which a pick brings onto it ([S-917]); the drop-down lists every view, the shown
+    /// one ticked. Capped at <paramref name="maxHeight"/> so a long list scrolls inside it; a typed
+    /// letter moves to the next view starting with it ([S-5403]).
     /// </summary>
-    internal static MenuFlyout OverflowMenu(IReadOnlyList<ViewBarItem> hidden, Action<string> show, double maxHeight)
+    internal static MenuFlyout ViewMenu(IReadOnlyList<ViewBarItem> views, Action<string> show, double maxHeight)
     {
-        ArgumentNullException.ThrowIfNull(hidden);
+        ArgumentNullException.ThrowIfNull(views);
         ArgumentNullException.ThrowIfNull(show);
 
         var menu = new MenuFlyout { MenuFlyoutPresenterStyle = MenuStyle(maxHeight) };
-        foreach (var view in hidden)
+        var ticks = views.Any(v => v.Shown);
+        var names = views.Select(v => v.Name).ToList();
+        foreach (var view in views)
         {
-            var item = new MenuFlyoutItem { Text = view.Name, Icon = ViewMark.Icon(view.Icon, view.Color) };
+            MenuFlyoutItem item = ticks
+                ? new ToggleMenuFlyoutItem { IsChecked = view.Shown }
+                : new MenuFlyoutItem();
+            item.Text = view.Name;
+            item.Icon = ViewMark.Icon(view.Icon, view.Color);
             if (view.IsDefault)
             {
                 item.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
@@ -449,11 +540,41 @@ internal sealed partial class ViewBar : Grid
 
             var id = view.Id;
             item.Click += (_, _) => show(id);
+            item.CharacterReceived += (_, e) =>
+            {
+                var next = ViewBarRules.TypeAhead(names, menu.Items.IndexOf(item), e.Character.ToString());
+                if (next >= 0 && menu.Items[next] is Control target)
+                {
+                    e.Handled = target.Focus(FocusState.Keyboard);
+                }
+            };
             menu.Items.Add(item);
+        }
+
+        // [S-5402] A drop-down opens on the shown view, as a combo box does.
+        if (ticks)
+        {
+            menu.Opened += (_, _) =>
+            {
+                if (menu.Items.OfType<ToggleMenuFlyoutItem>().FirstOrDefault(i => i.IsChecked) is { } current)
+                {
+                    current.Focus(FocusState.Programmatic);
+                    current.StartBringIntoView();
+                }
+            };
         }
 
         return menu;
     }
+
+    /// <summary>[S-918] The menu opens from its button into the display (<see cref="ViewBarRules.MenuSide"/>).</summary>
+    internal static FlyoutPlacementMode MenuPlacement(ViewBarMenuSide side) => side switch
+    {
+        ViewBarMenuSide.Below => FlyoutPlacementMode.Bottom,
+        ViewBarMenuSide.Left => FlyoutPlacementMode.Left,
+        ViewBarMenuSide.Right => FlyoutPlacementMode.Right,
+        _ => FlyoutPlacementMode.Top,
+    };
 
     /// <summary>
     /// [S-918] A menu presenter no taller than <paramref name="maxHeight"/>: its list scrolls past that.
@@ -649,7 +770,7 @@ internal sealed partial class ViewBar : Grid
         {
             if (viewId is null)
             {
-                OpenOverflow(self);
+                OpenMenu(self);
                 return true;
             }
 
@@ -677,9 +798,9 @@ internal sealed partial class ViewBar : Grid
         }
 
         var stops = Chips().ToList();
-        if (_overflow is { } overflow)
+        if (_menuButton is { } menuButton)
         {
-            stops.Add(overflow);
+            stops.Add(menuButton);
         }
 
         var step = ListKeys.Decide(widgetKey, stops.IndexOf(self), stops.Count);
@@ -694,6 +815,12 @@ internal sealed partial class ViewBar : Grid
     /// <summary>[S-1979] Put the keyboard on the shown view's chip (the surface's F6); false when the bar has none to focus.</summary>
     internal bool FocusFirstChip()
     {
+        // [S-5401] A drop-down's one stop is its button.
+        if (_look?.Style == ViewBarStyle.Dropdown)
+        {
+            return _menuButton?.Focus(FocusState.Keyboard) == true;
+        }
+
         var chips = Chips().ToList();
         var shown = chips.FindIndex(c => _items.Any(i => i.Shown && i.Id == (string)c.Tag));
         return chips.Count > 0 && chips[Math.Max(0, shown)].Focus(FocusState.Keyboard);

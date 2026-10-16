@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "รูปแบบแถบมุมมอง",
+  "shell.viewBar.styleDesc": "ชิปสำหรับแต่ละมุมมอง หรือปุ่มเดียวที่เปิดรายการ",
+  "shell.viewBar.styleChips": "ชิป",
+  "shell.viewBar.styleDropdown": "ดรอปดาวน์",
+  "shell.viewBar.pickTip": "{name}\nคลิกเพื่อเลือกมุมมอง"
+}

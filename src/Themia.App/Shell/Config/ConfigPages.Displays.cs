@@ -120,6 +120,16 @@ internal static partial class ConfigPages
                 FluentLayout.Toggle(!bar.Hidden, on => Change(b => b.Hidden = !on)),
                 "views", "switcher", "chips"),
 
+            // [S-5400] A chip per view, or one drop-down button listing them.
+            FluentLayout.Row(Glyphs.ListLayout, Str.Shell_ViewBar_Style.Text(),
+                Str.Shell_ViewBar_StyleDesc.Text(),
+                FluentLayout.Choice<ViewBarStyle>(
+                [
+                    (ViewBarStyle.Chips, Str.Shell_ViewBar_StyleChips.Text()),
+                    (ViewBarStyle.Dropdown, Str.Shell_ViewBar_StyleDropdown.Text()),
+                ], bar.Style, value => Change(b => b.Style = value)),
+                "dropdown", "drop-down", "menu", "compact", "switcher", "chips"),
+
             FluentLayout.Row(Glyphs.Display, Str.Shell_ViewBar_Position.Text(),
                 Str.Shell_ViewBar_PositionDesc.Text(),
                 FluentLayout.Choice<ViewBarAnchor>(

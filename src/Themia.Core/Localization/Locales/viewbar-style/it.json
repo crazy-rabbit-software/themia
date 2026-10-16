@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "Stile della barra delle viste",
+  "shell.viewBar.styleDesc": "Un pulsante per ogni vista o uno solo che apre un elenco",
+  "shell.viewBar.styleChips": "Pulsanti",
+  "shell.viewBar.styleDropdown": "Menu a discesa",
+  "shell.viewBar.pickTip": "{name}\nFai clic per scegliere una vista"
+}

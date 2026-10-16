@@ -34,6 +34,10 @@ namespace Themia.App.Shell.Gallery;
 /// (<c>viewbar-&lt;n&gt;v-&lt;theme&gt;-&lt;case&gt;.png</c>); where the bar overflows, the overflow
 /// menu of the bottom-left shot is drawn too (<c>…-menu.png</c>, the popup alone).
 /// </para>
+/// <para>
+/// [S-5404] Both sets end with the drop-down style ([S-5401]), each shot closed and with its menu
+/// open (<c>…-dropdown-…-menu.png</c>).
+/// </para>
 /// </summary>
 internal static class ViewBarRender
 {
@@ -43,7 +47,20 @@ internal static class ViewBarRender
     private const double ScreenHeight = 540;
     private const double TaskbarHeight = 48;
 
-    private sealed record Case(string Name, ViewBarAnchor Anchor, ViewBarSize Size, bool IconOnly, bool Editing, bool Hidden = false);
+    private sealed record Case(string Name, ViewBarAnchor Anchor, ViewBarSize Size, bool IconOnly, bool Editing, bool Hidden = false, ViewBarStyle Style = ViewBarStyle.Chips)
+    {
+        /// <summary>[S-5404] A drop-down shot is drawn closed and, beside it, with its menu open.</summary>
+        public bool DrawsMenu => Style == ViewBarStyle.Dropdown;
+    }
+
+    /// <summary>[S-5404] The drop-down: names and icons only, a row and a side anchor, M to XL, and in edit mode.</summary>
+    private static readonly Case[] DropdownCases =
+    [
+        new("dropdown-bottomleft-M", ViewBarAnchor.BottomLeft, ViewBarSize.Medium, IconOnly: false, Editing: false, Style: ViewBarStyle.Dropdown),
+        new("dropdown-topright-L-icons", ViewBarAnchor.TopRight, ViewBarSize.Large, IconOnly: true, Editing: false, Style: ViewBarStyle.Dropdown),
+        new("dropdown-left-XL", ViewBarAnchor.LeftCenter, ViewBarSize.ExtraLarge, IconOnly: false, Editing: false, Style: ViewBarStyle.Dropdown),
+        new("dropdown-topcenter-M-edit", ViewBarAnchor.TopCenter, ViewBarSize.Medium, IconOnly: false, Editing: true, Style: ViewBarStyle.Dropdown),
+    ];
 
     private static readonly Case[] Cases =
     [
@@ -56,6 +73,7 @@ internal static class ViewBarRender
         new("bottomright-M-edit", ViewBarAnchor.BottomRight, ViewBarSize.Medium, IconOnly: false, Editing: true),
         new("topcenter-L-edit-toolbar", ViewBarAnchor.TopCenter, ViewBarSize.Large, IconOnly: false, Editing: true),
         new("left-M-edit-hidden", ViewBarAnchor.LeftCenter, ViewBarSize.Medium, IconOnly: false, Editing: true, Hidden: true),
+        .. DropdownCases,
     ];
 
     private static readonly ViewBarItem[] Items =
@@ -128,7 +146,7 @@ internal static class ViewBarRender
                     await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
                     Console.WriteLine($"viewbar: wrote {path}");
 
-                    if (many is not null && c.Name == "bottomleft-names" && bar.OverflowChip is { } chip)
+                    if (((many is not null && c.Name == "bottomleft-names") || c.DrawsMenu) && bar.MenuButton is { } chip)
                     {
                         await DrawMenuAsync(screen, bar, chip, area, c.Anchor, System.IO.Path.Combine(outDir, $"{prefix}{c.Name}-menu.png")).ConfigureAwait(true);
                     }
@@ -168,6 +186,7 @@ internal static class ViewBarRender
 
         cases.Add(new("topcenter-edit-names", ViewBarAnchor.TopCenter, ViewBarSize.Large, IconOnly: false, Editing: true));
         cases.Add(new("rightcenter-edit-icons", ViewBarAnchor.RightCenter, ViewBarSize.ExtraLarge, IconOnly: true, Editing: true));
+        cases.AddRange(DropdownCases);
         return cases;
     }
 
@@ -239,9 +258,9 @@ internal static class ViewBarRender
         UiLanguage.ApplyFlow(bar);
         bar.Update(
             items,
-            new ViewBarLook(c.Size, c.IconOnly, ViewBarRules.IsVertical(c.Anchor), c.Editing, c.Editing && c.Hidden),
+            new ViewBarLook(c.Size, c.IconOnly, ViewBarRules.IsVertical(c.Anchor, c.Style), c.Editing, c.Editing && c.Hidden, c.Style),
             new DesignState(),
-            ViewBarRules.Room(area, c.Anchor, toolbar));
+            ViewBarRules.Room(area, c.Anchor, toolbar, c.Style));
         canvas.Children.Add(bar);
 
         bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -254,23 +273,23 @@ internal static class ViewBarRender
         return (bar, area);
     }
 
-    /// <summary>[S-918] The overflow menu as the surface opens it, drawn inside the window; the popup's content alone is written.</summary>
+    /// <summary>[S-918] / [S-5402] The bar's menu as the surface opens it, drawn inside the window; the popup's content alone is written.</summary>
     private static async Task DrawMenuAsync(Grid screen, ViewBar bar, FrameworkElement chip, PixelRect area, ViewBarAnchor anchor, string path)
     {
         var box = new PixelRect(Canvas.GetLeft(bar), Canvas.GetTop(bar), bar.ActualWidth, bar.ActualHeight);
         var side = ViewBarRules.MenuSide(anchor);
         var cap = ViewBarRules.MenuHeight(area, box, side);
 
-        var menu = ViewBar.OverflowMenu(bar.Hidden, _ => { }, cap);
+        var menu = ViewBar.ViewMenu(bar.MenuViews, _ => { }, cap);
         menu.ShouldConstrainToRootBounds = true;
-        menu.ShowAt(chip, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard, Placement = FlyoutPlacementMode.Top });
+        menu.ShowAt(chip, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard, Placement = ViewBar.MenuPlacement(side) });
         await Task.Delay(900).ConfigureAwait(true);
 
         var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(screen.XamlRoot);
         if (popups.Count > 0 && popups[0].Child is FrameworkElement content)
         {
             await RenderPng.SaveAsync(content, path).ConfigureAwait(true);
-            Console.WriteLine($"viewbar: wrote {path} ({content.ActualWidth:0}x{content.ActualHeight:0}, cap {cap:0}, {bar.Hidden.Count} views)");
+            Console.WriteLine($"viewbar: wrote {path} ({content.ActualWidth:0}x{content.ActualHeight:0}, cap {cap:0}, {bar.MenuViews.Count} views)");
         }
         else
         {
@@ -304,7 +323,7 @@ internal static class ViewBarRender
         {
         }
 
-        public void ShowOverflow(FrameworkElement chip, IReadOnlyList<ViewBarItem> hidden)
+        public void ShowViewMenu(FrameworkElement button, IReadOnlyList<ViewBarItem> views)
         {
         }
     }

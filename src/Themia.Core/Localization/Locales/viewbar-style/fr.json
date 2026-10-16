@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "Style de la barre des vues",
+  "shell.viewBar.styleDesc": "Une puce par vue, ou un bouton qui ouvre une liste",
+  "shell.viewBar.styleChips": "Puces",
+  "shell.viewBar.styleDropdown": "Liste déroulante",
+  "shell.viewBar.pickTip": "{name}\nCliquez pour choisir une vue"
+}

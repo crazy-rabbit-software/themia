@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "檢視列樣式",
+  "shell.viewBar.styleDesc": "每個檢視一個按鈕，或一個開啟清單的按鈕",
+  "shell.viewBar.styleChips": "按鈕",
+  "shell.viewBar.styleDropdown": "下拉式清單",
+  "shell.viewBar.pickTip": "{name}\n按一下以選擇檢視"
+}

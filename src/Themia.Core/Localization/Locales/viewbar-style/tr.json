@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "Görünüm çubuğu stili",
+  "shell.viewBar.styleDesc": "Her görünüm için bir etiket veya liste açan tek bir düğme",
+  "shell.viewBar.styleChips": "Etiketler",
+  "shell.viewBar.styleDropdown": "Açılır liste",
+  "shell.viewBar.pickTip": "{name}\nBir görünüm seçmek için tıklayın"
+}

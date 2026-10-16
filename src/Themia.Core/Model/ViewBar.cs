@@ -24,6 +24,16 @@ public enum ViewBarSize
     ExtraLarge,
 }
 
+/// <summary>[S-5400] How the view bar offers its views: a chip each, or one drop-down button.</summary>
+public enum ViewBarStyle
+{
+    /// <summary>A row (or column) of chips, one per view ([S-906]).</summary>
+    Chips,
+
+    /// <summary>One button with the shown view's icon and name, opening a list of the bar's views.</summary>
+    Dropdown,
+}
+
 /// <summary>[S-907] Whether the view bar is drawn, and how.</summary>
 public enum ViewBarShow
 {
@@ -49,6 +59,9 @@ public sealed class ViewBarSettings
 
     public ViewBarSize Size { get; set; } = ViewBarSize.Medium;
 
+    /// <summary>[S-5400] Chips by default, as the bar always was.</summary>
+    public ViewBarStyle Style { get; set; } = ViewBarStyle.Chips;
+
     /// <summary>Icons (or initials) alone, without the names.</summary>
     public bool IconOnly { get; set; }
 
@@ -65,6 +78,7 @@ public sealed class ViewBarSettings
     {
         Anchor = Anchor,
         Size = Size,
+        Style = Style,
         IconOnly = IconOnly,
         Hidden = Hidden,
         VisibleViews = [.. VisibleViews],
@@ -105,8 +119,12 @@ public static class ViewBarRules
         change(own);
     }
 
-    /// <summary>[S-910] The two middle-of-a-side anchors stack the chips; every other anchor lays them in a row.</summary>
-    public static bool IsVertical(ViewBarAnchor anchor) => anchor is ViewBarAnchor.LeftCenter or ViewBarAnchor.RightCenter;
+    /// <summary>
+    /// [S-910] The two middle-of-a-side anchors stack the chips; every other anchor lays them in a
+    /// row. [S-5401] A drop-down is one button, so it is a row at every anchor.
+    /// </summary>
+    public static bool IsVertical(ViewBarAnchor anchor, ViewBarStyle style = ViewBarStyle.Chips)
+        => style == ViewBarStyle.Chips && anchor is ViewBarAnchor.LeftCenter or ViewBarAnchor.RightCenter;
 
     /// <summary>
     /// [S-908] The views the bar offers, in the user's view order. The whitelist filters; an empty
@@ -206,10 +224,10 @@ public static class ViewBarRules
     /// gives up the strip the edit toolbar takes at the top, so a column pushed below the toolbar
     /// ([S-909]) still ends a margin above the bottom.
     /// </summary>
-    public static double Room(PixelRect area, ViewBarAnchor anchor, PixelRect? avoid = null)
+    public static double Room(PixelRect area, ViewBarAnchor anchor, PixelRect? avoid = null, ViewBarStyle style = ViewBarStyle.Chips)
     {
         var m = EdgeMargin;
-        if (!IsVertical(anchor))
+        if (!IsVertical(anchor, style))
         {
             return Math.Max(0, area.Width - (2 * m));
         }
@@ -276,6 +294,54 @@ public static class ViewBarRules
         }
 
         return new ViewBarFit([.. keep], Overflow: keep.Count < count);
+    }
+
+    /// <summary>
+    /// [S-5402] The views the bar's menu lists, as indexes in bar order: a drop-down lists every
+    /// view on the bar; the chip bar's overflow chip ([S-918]) lists the ones <paramref name="fit"/>
+    /// left out. One menu, two callers.
+    /// </summary>
+    public static IReadOnlyList<int> MenuViews(ViewBarStyle style, int count, ViewBarFit fit)
+    {
+        ArgumentNullException.ThrowIfNull(fit);
+
+        if (style == ViewBarStyle.Dropdown)
+        {
+            return [.. Enumerable.Range(0, Math.Max(0, count))];
+        }
+
+        var drawn = new HashSet<int>(fit.Shown);
+        return [.. Enumerable.Range(0, Math.Max(0, count)).Where(i => !drawn.Contains(i))];
+    }
+
+    /// <summary>
+    /// [S-5403] Type-ahead in the bar's menu: the next view after <paramref name="from"/> whose name
+    /// starts with the typed character, wrapping round, so pressing a letter again steps through the
+    /// views that start with it. Case-insensitive; -1 when no name starts with it.
+    /// </summary>
+    /// <param name="names">The menu's view names, in menu order.</param>
+    /// <param name="from">The focused item, or negative when none is.</param>
+    public static int TypeAhead(IReadOnlyList<string> names, int from, string typed)
+    {
+        ArgumentNullException.ThrowIfNull(names);
+
+        var key = (typed ?? string.Empty).Trim();
+        if (key.Length == 0 || names.Count == 0)
+        {
+            return -1;
+        }
+
+        var start = from < 0 || from >= names.Count ? -1 : from;
+        for (var step = 1; step <= names.Count; step++)
+        {
+            var i = (start + step) % names.Count;
+            if ((names[i] ?? string.Empty).TrimStart().StartsWith(key, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /// <summary>[S-918] Which way a menu hanging from the bar opens: into the display, away from the edge the bar sits on.</summary>

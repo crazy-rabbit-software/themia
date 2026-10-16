@@ -1,0 +1,7 @@
+{
+  "shell.viewBar.style": "Gaya bilah tampilan",
+  "shell.viewBar.styleDesc": "Satu chip untuk setiap tampilan, atau satu tombol yang membuka daftar",
+  "shell.viewBar.styleChips": "Chip",
+  "shell.viewBar.styleDropdown": "Tarik-turun",
+  "shell.viewBar.pickTip": "{name}\nKlik untuk memilih tampilan"
+}

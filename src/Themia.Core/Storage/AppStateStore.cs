@@ -509,7 +509,7 @@ public sealed class AppStateStore : IAsyncDisposable
 
     /// <summary>
     /// [S-906] The per-display view bars: unreadable entries are dropped (the display falls back to
-    /// the defaults), unknown anchors and sizes reset, and each whitelist keeps only views that
+    /// the defaults), unknown anchors, sizes and styles reset, and each whitelist keeps only views that
     /// exist, once each. A whitelist that ends up empty means "all views", never an empty bar.
     /// </summary>
     private static List<string> ValidateViewBars(AppState state)
@@ -537,6 +537,13 @@ public sealed class AppStateStore : IAsyncDisposable
             {
                 bar.Size = ViewBarSize.Medium;
                 repairs.Add($"view bar on '{monitorId}' had an unknown size");
+            }
+
+            if (!Enum.IsDefined(bar.Style))
+            {
+                // [S-5400] Chips, the bar as it always was.
+                bar.Style = ViewBarStyle.Chips;
+                repairs.Add($"view bar on '{monitorId}' had an unknown style");
             }
 
             var visible = (bar.VisibleViews ?? [])

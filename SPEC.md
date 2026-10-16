@@ -5266,8 +5266,8 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 - **[S-915]** In edit mode a chip's right-click menu offers Duplicate view and View settings; outside
   edit mode it has none. A click always shows the chip's view on this display.
 - **[S-916]** A display's group on the Displays page ends with its view bar rows: Show the view bar,
-  View bar position (8 anchors), View bar size, Show view names, and "Views on the bar" (one
-  drop-down button, [S-1708]). Its Shows drop-down assigns through `ShowViewOn`.
+  View bar style ([S-5400]), View bar position (8 anchors), View bar size, Show view names, and
+  "Views on the bar" (one drop-down button, [S-1708]). Its Shows drop-down assigns through `ShowViewOn`.
 - **[S-917]** The bar never runs off its display (user bug: with many views it ran past the edge).
   Its room along its axis (`ViewBarRules.Room`) is the work area's width (a row) or height (a
   column) less the 16-DIP margin at both ends; a column in edit mode also gives up the toolbar's
@@ -5294,6 +5294,28 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   With `--views n` (1..60) it draws n views, the shown one two thirds along, at all eight anchors
   with names and icon-only (the sizes in turn) and two edit-mode shots, and the overflow menu of the
   bottom-left shot; it prints each bar's box and flags one outside the work area.
+- **[S-5400]** Each display's bar has a style (`ViewBarSettings.Style`): Chips (the default, the bar
+  above) or Drop-down. Set by "View bar style" in the display's group on the Displays page, after
+  Show the view bar. At load an unknown style resets to Chips and is logged as a repair.
+- **[S-5401]** A drop-down is one raised button: the shown view's icon (or initials) in its colour,
+  its name (left out when names are off, cut to the room the bar has) and a chevron; a display
+  showing a view the bar does not offer reads "Views". It is a row at every anchor, so its room is
+  the work area's width (`ViewBarRules.IsVertical` / `Room` with the style). Anchors, sizes, the
+  edit-mode grip and drag ([S-913]), placement inside the work area ([S-909]), the hidden preview
+  ([S-907]) and the hit region ([S-912]) are the chip bar's. In edit mode the button takes the
+  keyboard like a chip (F6, Enter / Space opens it).
+- **[S-5402]** A click opens the bar's one menu (`ViewBar.ViewMenu`, the overflow chip's menu of
+  [S-918]): `ViewBarRules.MenuViews` lists every view on the bar for a drop-down, the views left
+  off for the overflow chip. Every view with its icon in its colour, in bar order, the shown one
+  ticked and focused; it opens into the display and scrolls within the work area there
+  (`MenuSide`, `MenuHeight`). It is a standard flyout, opened and closed (a click outside, Escape,
+  a pick) as the overflow menu is, with or without edit mode; arrows and Enter are the menu's own.
+- **[S-5403]** Type-ahead in the menu: a letter moves to the next view after the focused one whose
+  name starts with it, wrapping, so the same letter steps through them (`ViewBarRules.TypeAhead`;
+  case-insensitive, no timer).
+- **[S-5404]** `--viewbar-png` ends both sets with drop-down shots (bottom left M, top right L icons
+  only, left middle XL, top centre M in edit mode), each closed and with its menu open
+  (`…-dropdown-…-menu.png`); `--theme` and `--lang` apply.
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
 tooltip on the bar (licensing refuses through `AllowCreate`). Debug render:
