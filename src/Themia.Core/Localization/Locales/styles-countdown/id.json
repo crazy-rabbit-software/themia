@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "Teks",
+  "styles.countdown.ring": "Cincin",
+  "styles.countdown.unitDays": "hari",
+  "styles.countdown.unitHours": "jam",
+  "styles.countdown.unitMinutes": "mnt",
+  "styles.countdown.unitSeconds": "dtk"
+}

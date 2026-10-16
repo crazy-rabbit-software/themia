@@ -21,19 +21,32 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.Widget_Clock_Label.Text()));
 
         // [S-6010] The style is the shared Style row the page builder puts first.
+        // [S-5303] The date style has no time, date line, label or offset: only where it sits and
+        // whose day it is (the zone) apply, so only those rows are offered for it.
+        var date = clock.Style == ClockStyle.Date;
 
-        rows.Add(FluentLayout.Row(Glyphs.Timer, Str.Clock_SecondsLabel.Text(),
-            Str.WidgetsA_Clock_Settings_Seconds_Desc.Text(),
-            FluentLayout.Toggle(clock.ShowSeconds, value => { clock.ShowSeconds = value; save(); })));
+        if (!date)
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Timer, Str.Clock_SecondsLabel.Text(),
+                Str.WidgetsA_Clock_Settings_Seconds_Desc.Text(),
+                FluentLayout.Toggle(clock.ShowSeconds, value => { clock.ShowSeconds = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Clock_DateLabel.Text(), null,
-            FluentLayout.Toggle(clock.ShowDate, value => { clock.ShowDate = value; save(); })));
+            rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Clock_DateLabel.Text(), null,
+                FluentLayout.Toggle(clock.ShowDate, value => { clock.ShowDate = value; save(); })));
+        }
 
         rows.Add(FluentLayout.Row(Glyphs.View, Str.Clock_AlignLabel.Text(), null,
             FluentLayout.Choice(
                 [(ClockAlign.Left, Str.Clock_AlignLeft.Text()), (ClockAlign.Center, Str.Clock_AlignCenter.Text()), (ClockAlign.Right, Str.Clock_AlignRight.Text())],
                 clock.Align,
                 value => { clock.Align = value; save(); })));
+
+        if (date)
+        {
+            rows.Add(FluentLayout.Row(Glyphs.Place, Str.Clock_TimezoneLabel.Text(), Str.WidgetsA_Clock_Settings_Zone_Desc.Text(),
+                ZoneSearch(clock, save, () => { })));
+            return;
+        }
 
         // [S-1476] The place and the date larger (user request: both were hard to read) or smaller.
         rows.Add(FluentLayout.Row(Glyphs.Font, Str.ClockText_SizeLabel.Text(), Str.ClockText_SizeDesc.Text(),

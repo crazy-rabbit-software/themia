@@ -1,6 +1,28 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
+
+/// <summary>
+/// [S-6045] How the Sun draws its day: the path across the sky, the day as a bar with sunrise and
+/// sunset on it, or the times alone (what was the hidden sun path).
+/// </summary>
+[JsonConverter(typeof(StyleJsonConverter<SunStyle>))]
+public enum SunStyle
+{
+    Arc = 0,
+    DayBar = 1,
+    Times = 2,
+}
+
+/// <summary>[S-6050] How the Moon draws itself: its disc, or this month's phases as small discs.</summary>
+[JsonConverter(typeof(StyleJsonConverter<MoonStyle>))]
+public enum MoonStyle
+{
+    Disc = 0,
+    PhaseMonth = 1,
+}
 
 /// <summary>
 /// [S-3101] What the Sun and Moon widgets share: where the observer is. The astronomy runs offline
@@ -93,38 +115,61 @@ public abstract class SkyPlaceConfig : WidgetConfig
 }
 
 /// <summary>[S-3100] The sun's day where the observer is: its path, rise, set and daylight.</summary>
-public sealed class SunConfig : SkyPlaceConfig
+public sealed class SunConfig : SkyPlaceConfig, IStyled
 {
+    private static readonly StyleOption[] SunStyles =
+    [
+        StyleOption.Of(SunStyle.Arc, Str.Styles_Sun_Arc, 0xE706),
+        StyleOption.Of(SunStyle.DayBar, Str.Styles_Sun_DayBar, 0xE7A5),
+        StyleOption.Of(SunStyle.Times, Str.Styles_Sun_Times, 0xEA37),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Sun;
 
-    /// <summary>[S-170] How much of the sun's path is drawn.</summary>
-    public SunPathMode PathMode { get; set; } = SunPathMode.Numbers;
+    /// <summary>[S-6045] The sun's day as an arc, a bar, or the times alone.</summary>
+    public SunStyle Style { get; set; } = SunStyle.Arc;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => SunStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (SunStyle)value;
+    }
 
     /// <summary>[S-170] Show the sunrise/sunset/daylight rows.</summary>
     public bool ShowEvents { get; set; } = true;
 
-    protected override void RepairOwn(List<string> repairs)
-    {
-        if (!Enum.IsDefined(PathMode))
-        {
-            repairs.Add($"sun path mode {(int)PathMode} unknown; numbers");
-            PathMode = SunPathMode.Numbers;
-        }
-    }
-
     public override WidgetConfig Clone() => CopyPlaceTo(new SunConfig
     {
-        PathMode = PathMode,
+        Style = Style,
         ShowEvents = ShowEvents,
     });
 }
 
 /// <summary>[S-3100] The moon where the observer is: its phase, rise and set.</summary>
-public sealed class MoonConfig : SkyPlaceConfig
+public sealed class MoonConfig : SkyPlaceConfig, IStyled
 {
+    private static readonly StyleOption[] MoonStyles =
+    [
+        StyleOption.Of(MoonStyle.Disc, Str.Styles_Moon_Disc, 0xE708),
+        StyleOption.Of(MoonStyle.PhaseMonth, Str.Styles_Moon_PhaseMonth, 0xE787),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Moon;
 
-    public override WidgetConfig Clone() => CopyPlaceTo(new MoonConfig());
+    /// <summary>[S-6050] Tonight's disc, or the month's phases.</summary>
+    public MoonStyle Style { get; set; } = MoonStyle.Disc;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => MoonStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (MoonStyle)value;
+    }
+
+    public override WidgetConfig Clone() => CopyPlaceTo(new MoonConfig { Style = Style });
 }

@@ -1,5 +1,6 @@
 {
   "styles.clock.flip": "翻页",
   "styles.clock.words": "文字",
-  "styles.clock.minimal": "极简"
+  "styles.clock.minimal": "极简",
+  "styles.clock.date": "日期"
 }

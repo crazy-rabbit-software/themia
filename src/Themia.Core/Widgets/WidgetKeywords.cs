@@ -100,7 +100,7 @@ public static class WidgetKeywords
         [WidgetKind.GameModeToggle] = ["quick settings", "toggle", "gaming", "games", "performance", "xbox"],
         [WidgetKind.Clipboard] = ["copy", "paste", "history", "snippets"],
 
-        [WidgetKind.Clock] = ["time", "timezone", "watch", "world clock", "date", "analog", "digital"],
+        [WidgetKind.Clock] = ["time", "timezone", "watch", "world clock", "date", "analog", "digital", "day", "today", "weekday", "month", "calendar", "wallpaper"],
         [WidgetKind.Shortcuts] = ["link", "launcher", "bookmark", "url", "open", "pin", "quick access"],
         [WidgetKind.Notes] = ["notepad", "text", "memo", "writing", "markdown", "sticky note"],
         [WidgetKind.Scratchpad] = ["draw", "sketch", "drawing", "canvas", "whiteboard", "doodle", "pen"],
@@ -116,7 +116,6 @@ public static class WidgetKeywords
         [WidgetKind.Moon] = ["moon phase", "full moon", "new moon", "moonrise", "moonset", "lunar", "astronomy"],
         [WidgetKind.YearProgress] = ["progress", "percent", "year", "month", "week", "day", "time passed", "elapsed"],
         [WidgetKind.NextMeeting] = ["meeting", "join", "teams", "zoom", "google meet", "webex", "event", "calendar", "upcoming"],
-        [WidgetKind.Date] = ["date", "day", "today", "weekday", "month", "calendar", "wallpaper"],
         [WidgetKind.WeekPlanner] = ["planner", "week", "schedule", "agenda", "todo", "to do", "tasks", "events", "calendar", "plan"],
         [WidgetKind.RecentFiles] = ["recent", "recently opened", "history", "documents", "files", "quick access", "last opened"],
         [WidgetKind.RecycleBin] = ["trash", "bin", "deleted", "empty", "restore", "wastebasket", "deleted files"],

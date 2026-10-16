@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "Texto",
+  "styles.countdown.ring": "Anel",
+  "styles.countdown.unitDays": "dias",
+  "styles.countdown.unitHours": "horas",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "s"
+}

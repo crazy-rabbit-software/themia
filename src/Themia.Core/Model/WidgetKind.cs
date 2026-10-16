@@ -276,9 +276,6 @@ public enum WidgetKind
     /// <summary>[S-5140] The ECB's reference exchange rates for a base currency, with the day's change.</summary>
     ExchangeRates = 130,
 
-    /// <summary>[S-5300] The weekday and the date, no time: made for the wallpaper.</summary>
-    Date = 131,
-
     /// <summary>[S-3212] The audio visualizer as a moving line: the sound's waveform, like an oscilloscope.</summary>
     VisualizerScope = 132,
 
@@ -301,20 +298,6 @@ public enum CountdownFormat
 
     /// <summary>Days, hours, minutes and seconds — the only format that needs a one-second tick.</summary>
     DaysHoursMinutesSeconds = 3,
-}
-
-/// <summary>How much of the sun's path the Sun widget draws. [S-170]</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<SunPathMode>))]
-public enum SunPathMode
-{
-    /// <summary>The curve with its time labels.</summary>
-    Numbers = 0,
-
-    /// <summary>The curve alone.</summary>
-    Plain = 1,
-
-    /// <summary>No curve; the event rows carry everything.</summary>
-    Hidden = 2,
 }
 
 /// <summary>Where a widget draws its header.</summary>

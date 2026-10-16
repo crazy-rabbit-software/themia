@@ -1,5 +1,6 @@
 {
   "styles.clock.flip": "フリップ",
   "styles.clock.words": "言葉",
-  "styles.clock.minimal": "ミニマル"
+  "styles.clock.minimal": "ミニマル",
+  "styles.clock.date": "日付"
 }

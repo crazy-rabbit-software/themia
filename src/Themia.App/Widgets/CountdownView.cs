@@ -26,6 +26,12 @@ namespace Themia.App.Widgets;
 /// list rows (40px, 32 compact) so a growing tile shows <i>more rows</i>, not bigger ones; large
 /// tiles add a progress bar from the timer's creation to its target ([S-1448]).
 /// </para>
+/// <para>
+/// [S-6030] The style is how the hero draws its duration: the text, a ring of the time left with
+/// the duration inside it ([S-6031], <see cref="RingPart"/>), or split-flap cards ([S-6032], the
+/// clock's <see cref="FlipCard"/>). The ladder is the same for all three; a hero too small for its
+/// ring or its cards draws the text.
+/// </para>
 /// </summary>
 internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
@@ -36,6 +42,12 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
     /// <summary>A compact list at least this wide shows each row's date in its own column.</summary>
     private const double InlineDateWidth = 260;
+
+    /// <summary>[S-6031] Under this a ring with the duration inside it is a donut: the text instead.</summary>
+    private const double RingFloor = 72;
+
+    /// <summary>[S-6032] Under this card height the figures are smaller than the text style's: the text instead.</summary>
+    private const double FlipFloor = 36;
 
     private readonly StackPanel _list = new() { Spacing = 0 };
     private readonly ScrollViewer _scroll;
@@ -48,6 +60,17 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     private readonly ProgressBar _heroProgress = new() { Minimum = 0, Maximum = 1, Height = ProgressHeight, MinHeight = ProgressHeight };
     private readonly TextBlock _next = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private readonly IDisposable _heroMenu;
+
+    /// <summary>[S-6031] The Ring style's hero: the time left as a ring, the duration inside it.</summary>
+    private readonly RingPart _ring = new();
+    private readonly TextBlock _ringValue = Fluent.Text(FluentType.BodyStrong);
+
+    /// <summary>[S-6032] The Flip style's hero: one card per unit, its unit under it.</summary>
+    private readonly StackPanel _flipRow = new() { Orientation = Orientation.Horizontal, FlowDirection = FlowDirection.LeftToRight };
+    private readonly List<(FlipCard Card, TextBlock Unit)> _flips = [];
+
+    /// <summary>The look the last <see cref="Lay"/> settled on: the style, or the text where its parts did not fit.</summary>
+    private CountdownStyle _look;
 
     private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
     private readonly Brush _critical = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed);
@@ -98,8 +121,19 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         _heroProgress.Margin = new Thickness(0, Fluent.Space1, 0, 0);
         _next.Margin = new Thickness(0, Fluent.Space1, 0, 0);
 
+        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_ringValue, FontNumeralAlignment.Tabular);
+        _ringValue.MaxLines = 1;
+        _ringValue.TextTrimming = TextTrimming.Clip;
+        _ringValue.TextAlignment = TextAlignment.Center;
+        _ring.Add(_ringValue);
+        _ring.Root.Margin = new Thickness(0, Fluent.Space1, 0, Fluent.Space1);
+        _flipRow.Spacing = Fluent.Space2;
+        _flipRow.Margin = new Thickness(0, Fluent.Space1, 0, 0);
+
         _hero.Children.Add(_heroLabel);
         _hero.Children.Add(_heroValue);
+        _hero.Children.Add(_ring.Root);
+        _hero.Children.Add(_flipRow);
         _hero.Children.Add(_heroDate);
         _hero.Children.Add(_heroProgress);
         _hero.Children.Add(_next);
@@ -329,6 +363,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         // A small tile centres its one readout; a large one reads from the top left like a list.
         var centred = hero == CountdownHero.Only && _area.Least == SizeClass.Compact;
         _hero.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Stretch;
+        _ring.Root.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Left;
+        _flipRow.HorizontalAlignment = _ring.Root.HorizontalAlignment;
         _hero.Margin = new Thickness(WidgetLayout.ContentInset, hero == CountdownHero.Top ? Fluent.Space1 : 0, WidgetLayout.ContentInset, hero == CountdownHero.Top ? Fluent.Space2 : 0);
         foreach (var text in (TextBlock[])[_heroLabel, _heroValue, _heroDate, _next])
         {
@@ -358,7 +394,9 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         room.Reserve(FluentType.Subtitle.LineHeight);
 
         _heroDateShown = _area.HeightClass >= SizeClass.Regular && room.Take(FluentType.Caption.LineHeight);
-        _heroProgressShown = _plan.HeroProgress && room.Take(ProgressHeight + Fluent.Space1);
+
+        // [S-6031] The ring is the progress: no bar under it.
+        _heroProgressShown = _plan.HeroProgress && _config.Style != CountdownStyle.Ring && room.Take(ProgressHeight + Fluent.Space1);
         _nextShown = _plan.NextLine && room.Take(FluentType.Caption.LineHeight + Fluent.Space1);
 
         // When every row fits, the rows sit at the foot and the hero is centred in the rest, so a
@@ -388,10 +426,103 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         var featured = _config.Timers.Find(t => t.Id == _featuredId);
         var elapsed = featured is not null && featured.Target <= DateTimeOffset.Now;
         var characters = CountdownLayout.HeroCharacters(featured?.Format ?? CountdownFormat.Auto, elapsed);
-        var step = FluentType.Hero(boxWidth, room.Remaining + FluentType.Subtitle.LineHeight, characters);
+        var valueHeight = room.Remaining + FluentType.Subtitle.LineHeight;
+        var step = FluentType.Hero(boxWidth, valueHeight, characters);
 
         _heroValue.Apply(step);
+        _look = _config.Style switch
+        {
+            CountdownStyle.Ring when LayRing(boxWidth, valueHeight, characters) => CountdownStyle.Ring,
+            CountdownStyle.Flip when featured is not null && LayFlip(featured, boxWidth, valueHeight) => CountdownStyle.Flip,
+            _ => CountdownStyle.Text,
+        };
+
+        _heroValue.Visibility = _look == CountdownStyle.Text ? Visibility.Visible : Visibility.Collapsed;
+        _ring.Root.Visibility = _look == CountdownStyle.Ring ? Visibility.Visible : Visibility.Collapsed;
+        _flipRow.Visibility = _look == CountdownStyle.Flip ? Visibility.Visible : Visibility.Collapsed;
+
+        // [S-6005] What one style built is let go when another is chosen.
+        if (_look != CountdownStyle.Flip && _flips.Count > 0)
+        {
+            _flips.Clear();
+            _flipRow.Children.Clear();
+        }
     }
+
+    /// <summary>[S-6031] The ring as large as the hero's room, the duration inside it; false when that is under its floor.</summary>
+    private bool LayRing(double width, double height, int characters)
+    {
+        var diameter = Math.Floor(Math.Min(width, height - (2 * Fluent.Space1)));
+        if (diameter < RingFloor)
+        {
+            return false;
+        }
+
+        _ring.Resize(diameter);
+        var inner = diameter - (2 * RingArc.Stroke(diameter)) - (2 * Fluent.Space2);
+        _ringValue.Apply(FluentType.Strong(FluentType.Hero(inner, inner * 0.4, characters)));
+        _ringValue.MaxWidth = Math.Max(1, inner);
+        return true;
+    }
+
+    /// <summary>[S-6032] One card per unit, side by side across the hero, its unit a caption under it; false when the cards would be too small.</summary>
+    private bool LayFlip(CountdownTimer featured, double width, double height)
+    {
+        var cards = CountdownLayout.Cards(featured.Target, DateTimeOffset.Now, featured.Format == CountdownFormat.DaysHoursMinutesSeconds);
+        var gap = Fluent.Space2;
+        var cardWidth = (width - (gap * (cards.Count - 1))) / cards.Count;
+        var cardHeight = Math.Floor(Math.Min(height - FluentType.Caption.LineHeight - (2 * Fluent.Space1), cardWidth * FlipCard.Aspect));
+        cardWidth = Math.Floor(Math.Min(cardWidth, cardHeight / FlipCard.Aspect * 1.2));
+
+        if (cardHeight < FlipFloor)
+        {
+            return false;
+        }
+
+        EnsureFlips(cards.Count);
+        var widest = cards.Max(c => c.Digits.Length);
+        var digits = FluentType.Hero(cardWidth * 0.86, cardHeight * FlipCard.DigitShare, Math.Max(2, widest));
+
+        for (var i = 0; i < _flips.Count; i++)
+        {
+            _flips[i].Card.Lay(cardWidth, cardHeight, digits);
+            _flips[i].Card.Redraw();
+            _flips[i].Unit.Text = UnitText(cards[i].Unit);
+            _flips[i].Unit.Width = cardWidth;
+        }
+
+        return true;
+    }
+
+    private void EnsureFlips(int count)
+    {
+        if (_flips.Count == count)
+        {
+            return;
+        }
+
+        _flips.Clear();
+        _flipRow.Children.Clear();
+
+        for (var i = 0; i < count; i++)
+        {
+            var card = new FlipCard();
+            var unit = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+            unit.TextAlignment = TextAlignment.Center;
+            unit.TextTrimming = TextTrimming.CharacterEllipsis;
+            unit.Margin = new Thickness(0, Fluent.Space1, 0, 0);
+            _flips.Add((card, unit));
+            _flipRow.Children.Add(new StackPanel { Children = { card.Root, unit } });
+        }
+    }
+
+    private static string UnitText(CountdownUnit unit) => (unit switch
+    {
+        CountdownUnit.Days => Str.Styles_Countdown_UnitDays,
+        CountdownUnit.Hours => Str.Styles_Countdown_UnitHours,
+        CountdownUnit.Minutes => Str.Styles_Countdown_UnitMinutes,
+        _ => Str.Styles_Countdown_UnitSeconds,
+    }).Text();
 
     private static void Place(FrameworkElement element, int row, int column, int rowSpan, int columnSpan)
     {
@@ -446,6 +577,30 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
         // [C-40] Gone by: the readout carries it in the theme's critical colour.
         _heroValue.Foreground = reading.Elapsed ? _critical : _primary;
+        _ringValue.Text = reading.Text;
+        _ringValue.Foreground = _heroValue.Foreground;
+
+        if (_look == CountdownStyle.Ring)
+        {
+            _ring.SetFraction(CountdownLayout.Left(featured, now));
+        }
+
+        if (_look == CountdownStyle.Flip)
+        {
+            var cards = CountdownLayout.Cards(featured.Target, now, featured.Format == CountdownFormat.DaysHoursMinutesSeconds);
+
+            // The days card comes and goes at the last day: a new row of cards, not new figures.
+            if (cards.Count != _flips.Count)
+            {
+                Lay();
+            }
+
+            for (var i = 0; i < _flips.Count && i < cards.Count; i++)
+            {
+                _flips[i].Card.Foreground = _heroValue.Foreground;
+                _flips[i].Card.Show(cards[i].Digits, IsLoaded);
+            }
+        }
         _heroDate.Text = CountdownFormatter.TargetLabel(featured.Target, now, zone, Strings.Current);
         ToolTipService.SetToolTip(_hero, CountdownFormatter.FullTargetLabel(featured.Target, zone, Strings.Current));
 

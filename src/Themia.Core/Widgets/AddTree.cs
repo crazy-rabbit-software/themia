@@ -145,7 +145,7 @@ public static class AddTree
     /// </summary>
     public static readonly AddShelf Browse = Shelf(AddFolderId.Browse, Str.AddMenu_Browse, WidgetKind.Clock,
         Shelf(AddFolderId.Time, Str.AddMenu_Subject_Time, WidgetKind.Clock,
-            W(WidgetKind.Clock), W(WidgetKind.Date), W(WidgetKind.Alarm), W(WidgetKind.Countdown), W(WidgetKind.Stopwatch),
+            W(WidgetKind.Clock), W(WidgetKind.Alarm), W(WidgetKind.Countdown), W(WidgetKind.Stopwatch),
             Line,
             W(WidgetKind.Pomodoro), W(WidgetKind.FocusSession),
             Line,

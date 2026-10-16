@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "テキスト",
+  "styles.countdown.ring": "リング",
+  "styles.countdown.unitDays": "日",
+  "styles.countdown.unitHours": "時間",
+  "styles.countdown.unitMinutes": "分",
+  "styles.countdown.unitSeconds": "秒"
+}

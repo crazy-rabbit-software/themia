@@ -42,6 +42,12 @@ namespace Themia.App.Widgets;
 /// All the astronomy lives in <see cref="Themia.Core.Astronomy"/> as pure functions of an instant,
 /// so this file only turns numbers into shapes.
 /// </para>
+/// <para>
+/// [S-6045] Three styles, what was the sun path mode: Arc is the path above; Day bar draws the
+/// local day as a bar, the daylight in the accent between sunrise and sunset ticks and the sun's
+/// dot at now (<see cref="SunDayBar"/>, [S-6046]); Times draws no graphic, the rows carry it all
+/// ([S-170]). The number strip and the rows are the same for the two graphics.
+/// </para>
 /// </summary>
 internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware
 {
@@ -54,6 +60,9 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
     /// <summary>The number strip's height at its smallest step: a Caption line plus its top margin.</summary>
     private const double StripFloor = 24;
 
+    /// <summary>[S-6046] The day bar's own floor: the bar and the ticks over and under it.</summary>
+    private const double BarFloor = 28;
+
     private readonly Canvas _canvas = new();
     private readonly Polygon _elapsedFill = new();
     private readonly Polyline _dayTrack = new();
@@ -61,6 +70,12 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
     private readonly Polyline _doneTrack = new();
     private readonly Line _horizon = new();
     private readonly Ellipse _sun = new();
+
+    // [S-6046] The day bar: the whole day, the daylight over it, and the sunrise and sunset ticks.
+    private readonly Rectangle _barDay = new();
+    private readonly Rectangle _barLight = new();
+    private readonly Line _riseTick = new();
+    private readonly Line _setTick = new();
 
     private readonly Grid _strip;
     private readonly StripLabel _riseLabel;
@@ -88,6 +103,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
     private readonly Brush _tertiary = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
     private readonly Brush _disabled = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.DimGray);
     private readonly Brush _divider = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray);
+    private readonly Brush _markerRing = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
 
     private SunConfig _config = new();
 
@@ -212,6 +228,15 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
         _sun.Fill = _accent;
 
+        // The day bar: the night in the disabled control fill, the daylight the accent's lighter
+        // step (so the sun's dot, in the accent itself, stands on it), the ticks the tertiary grey.
+        _barDay.Fill = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Colors.Gray);
+        _barLight.Fill = FluentLayout.Themed("AccentFillColorTertiaryBrush", Colors.LightSkyBlue);
+        _riseTick.Stroke = _tertiary;
+        _riseTick.StrokeThickness = Fluent.Hairline;
+        _setTick.Stroke = _tertiary;
+        _setTick.StrokeThickness = Fluent.Hairline;
+
         _canvas.MinHeight = GraphicFloor;
         _canvas.HorizontalAlignment = HorizontalAlignment.Stretch;
         _canvas.VerticalAlignment = VerticalAlignment.Stretch;
@@ -222,6 +247,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         _canvas.Children.Add(_nightTrack);
         _canvas.Children.Add(_doneTrack);
         _canvas.Children.Add(_horizon);
+        _canvas.Children.Add(_barDay);
+        _canvas.Children.Add(_barLight);
+        _canvas.Children.Add(_riseTick);
+        _canvas.Children.Add(_setTick);
         _canvas.Children.Add(_sun);
     }
 
@@ -341,12 +370,15 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         var width = _area.Width;
         var height = _area.Height;
 
-        var graphic = _config.PathMode != SunPathMode.Hidden;
+        // [S-6045] Times is the old hidden path: no graphic at all.
+        var graphic = _config.Style != SunStyle.Times;
+        var bar = _config.Style == SunStyle.DayBar;
+        var floor = bar ? BarFloor : GraphicFloor;
 
         // The two settings are independent, with one guard: with the graphic hidden the rows are
         // forced on. [S-170]
         var rows = _config.ShowEvents || !graphic;
-        var numbers = graphic && _config.PathMode == SunPathMode.Numbers;
+        var numbers = graphic;
 
         // Windows' 32px list row on a tile that is small either way; the full 40 from a panel.
         var compact = _area.WidthClass == SizeClass.Compact || _area.HeightClass <= SizeClass.Regular;
@@ -386,9 +418,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
         if (graphic && !side)
         {
-            var keep = _area.HeightClass >= SizeClass.Expanded
+            // [S-6046] A bar needs no share of a large tile: its floor and the strip; the rows take the rest.
+            var keep = _area.HeightClass >= SizeClass.Expanded && !bar
                 ? Math.Max(GraphicFloor, height * GraphicShare)
-                : GraphicFloor + (showStrip ? StripFloor : 0);
+                : floor + (showStrip ? StripFloor : 0);
             room.Reserve(keep);
         }
 
@@ -422,7 +455,18 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         _setLabel.AllowCountdown = showCountdown;
 
         // The graphic keeps its floor but gives the rest of the tile back when the rows are hidden.
-        _canvas.MinHeight = graphic ? GraphicFloor : 0;
+        _canvas.MinHeight = graphic ? floor : 0;
+
+        // [S-6005] One style's shapes, never the other's.
+        foreach (var shape in (UIElement[])[_elapsedFill, _dayTrack, _nightTrack, _doneTrack, _horizon])
+        {
+            shape.Visibility = Show(!bar);
+        }
+
+        foreach (var shape in (UIElement[])[_barDay, _barLight, _riseTick, _setTick])
+        {
+            shape.Visibility = Show(bar);
+        }
 
         ApplyType(graphicWidth, side ? height : height - (lines * rowHeight), showDaylightLabel, showSmallExtras);
         Refresh();
@@ -436,7 +480,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
     {
         // Column: graphic over rows. Side: graphic left, rows right, both full height. Graphic hidden:
         // the rows sit at the top, because nothing above them is pushing them down.
-        var graphic = _config.PathMode != SunPathMode.Hidden;
+        var graphic = _config.Style != SunStyle.Times;
 
         SetRow(_body, 0);
         SetColumn(_body, 0);
@@ -597,6 +641,12 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         var latitude = _config.EffectiveLatitude;
         var longitude = _config.EffectiveLongitude;
 
+        if (_config.Style == SunStyle.DayBar)
+        {
+            RedrawBar(width, height, SunDayBar.Of(_now, SolarPosition.TimesFor(_now, latitude, longitude), TimeZoneInfo.Local));
+            return;
+        }
+
         var ground = SolarPosition.SubsolarPoint(_now);
         var declination = ground.Latitude;
         var position = SkyPath.PositionOf(ground, latitude, longitude);
@@ -630,9 +680,66 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         // The sun below the horizon is still drawn, in the theme's disabled accent, so the night
         // stretch reads as the same journey rather than as an empty track.
         _sun.Fill = position.Up ? _accent : _accentDim;
+        _sun.Stroke = null;
 
         // A marker at the edge of the plot would otherwise bleed over the rows beneath it.
         _canvas.Clip = new RectangleGeometry { Rect = new Rect(0, 0, width, height) };
+    }
+
+    /// <summary>
+    /// [S-6046] The day bar: midnight to midnight across, rounded at its ends; the daylight in the
+    /// accent between the sunrise and sunset ticks, which stand a little over and under it; the
+    /// sun's dot at now, dimmed while it is down. Thicker on a taller canvas, by steps of its height,
+    /// and at the canvas's foot, right over the strip.
+    /// </summary>
+    private void RedrawBar(double width, double height, SunDayBarPlan plan)
+    {
+        // At the foot of the canvas, so the strip and the rows read on from it whatever room is left above.
+        var band = Math.Clamp(Math.Floor(height * 0.3), 8, 20);
+        var top = Math.Max(Fluent.Space1, Math.Floor(height - band - Fluent.Space2));
+        var radius = band / 2;
+        var marker = MarkerRadius(width, height) + 1;
+
+        // The bar is inset by the marker, so the sun at midnight is not cut by the edge.
+        var left = marker;
+        var span = Math.Max(1, width - (2 * marker));
+
+        _barDay.Width = span;
+        _barDay.Height = band;
+        _barDay.RadiusX = radius;
+        _barDay.RadiusY = radius;
+        Canvas.SetLeft(_barDay, left);
+        Canvas.SetTop(_barDay, top);
+
+        var (from, to) = plan.Daylight;
+        _barLight.Width = Math.Max(0, (to - from) * span);
+        _barLight.Height = band;
+        _barLight.RadiusX = Math.Min(radius, _barLight.Width / 2);
+        _barLight.RadiusY = radius;
+        _barLight.Visibility = Show(to > from);
+        Canvas.SetLeft(_barLight, left + (from * span));
+        Canvas.SetTop(_barLight, top);
+
+        Tick(_riseTick, plan.Rise);
+        Tick(_setTick, plan.Set);
+
+        Place(_sun, new PlotPoint(left + (plan.Now * span), top + (band / 2)), marker);
+        _sun.Fill = plan.NowLit ? _accent : _accentDim;
+
+        // A ring of the card's own colour round the dot, so it reads on the daylight as well as off it.
+        _sun.Stroke = _markerRing;
+        _sun.StrokeThickness = Fluent.ChartStroke;
+        _canvas.Clip = new RectangleGeometry { Rect = new Rect(0, 0, width, height) };
+
+        void Tick(Line tick, double? at)
+        {
+            tick.Visibility = Show(at is not null);
+            var x = Math.Round(left + ((at ?? 0) * span)) + 0.5;
+            tick.X1 = x;
+            tick.X2 = x;
+            tick.Y1 = Math.Max(0, top - Fluent.Space1);
+            tick.Y2 = Math.Min(height, top + band + Fluent.Space1);
+        }
     }
 
     /// <summary>The sun's dot, in three steps rather than as a fraction of the canvas.</summary>

@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "نص",
+  "styles.countdown.ring": "حلقة",
+  "styles.countdown.unitDays": "أيام",
+  "styles.countdown.unitHours": "ساعات",
+  "styles.countdown.unitMinutes": "دقيقة",
+  "styles.countdown.unitSeconds": "ثانية"
+}

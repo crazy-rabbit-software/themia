@@ -1,5 +1,6 @@
 {
   "styles.clock.flip": "ফ্লিপ",
   "styles.clock.words": "শব্দ",
-  "styles.clock.minimal": "মিনিমাল"
+  "styles.clock.minimal": "মিনিমাল",
+  "styles.clock.date": "তারিখ"
 }

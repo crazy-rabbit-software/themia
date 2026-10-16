@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "텍스트",
+  "styles.countdown.ring": "링",
+  "styles.countdown.unitDays": "일",
+  "styles.countdown.unitHours": "시간",
+  "styles.countdown.unitMinutes": "분",
+  "styles.countdown.unitSeconds": "초"
+}

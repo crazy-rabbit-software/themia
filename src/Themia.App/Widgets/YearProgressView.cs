@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -11,12 +12,18 @@ namespace Themia.App.Widgets;
 /// [S-4800] How much of the day, week, month and year has passed: a label, a percentage and a bar
 /// per span. The spans and their fractions are <see cref="TimeProgress"/>; which of them a size
 /// shows is <see cref="YearProgressLayout"/>. One tick a minute on the shared ticker ([S-4804]).
+/// <para>
+/// [S-6040] Three styles over the same spans: the bars; a ring per span with its percentage inside
+/// (<see cref="RingPart"/>, laid out by <see cref="YearStyleLayout.Rings"/>); or the year as one
+/// dot a day, the days gone filled and today in the accent (<see cref="YearStyleLayout.Dots"/>).
+/// </para>
 /// </summary>
 internal sealed partial class YearProgressView : Grid, IWidgetView, IWidgetSizeAware
 {
     private readonly StackPanel _content = new() { VerticalAlignment = VerticalAlignment.Center, Margin = WidgetLayout.Inset };
 
     private IDisposable? _subscription;
+    private YearProgressStyle _style;
     private WidgetArea _area;
     private YearProgressPlan _plan = YearProgressLayout.Plan(default);
 
@@ -32,10 +39,16 @@ internal sealed partial class YearProgressView : Grid, IWidgetView, IWidgetSizeA
     {
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
+        _style = (config as YearProgressConfig)?.Style ?? YearProgressStyle.Bars;
         _subscription ??= ticker.Subscribe(((config as YearProgressConfig) ?? new YearProgressConfig()).TickInterval, Render);
     }
 
-    public void ApplyConfig(WidgetConfig config) => Render();
+    /// <summary>[S-6005] A new style is a new drawing: <see cref="Render"/> builds the parts afresh.</summary>
+    public void ApplyConfig(WidgetConfig config)
+    {
+        _style = (config as YearProgressConfig)?.Style ?? YearProgressStyle.Bars;
+        Render();
+    }
 
     public void ApplySize(WidgetArea area)
     {
@@ -60,6 +73,26 @@ internal sealed partial class YearProgressView : Grid, IWidgetView, IWidgetSizeA
         var weekStart = RegionFormat.Current.WeekStart;
         var locale = Strings.Current;
         _content.Children.Clear();
+        ToolTipService.SetToolTip(_content, null);
+
+        if (_style == YearProgressStyle.Rings)
+        {
+            RenderRings(now, zone, weekStart, locale);
+            return;
+        }
+
+        if (_style == YearProgressStyle.Dots)
+        {
+            var dots = YearStyleLayout.Dots(_area.Deflate(WidgetLayout.ContentInset, WidgetLayout.ContentInset), TimeProgress.Of(ProgressSpan.Year, now, zone, weekStart).Days);
+            if (!dots.Hero)
+            {
+                RenderDots(dots, TimeProgress.Of(ProgressSpan.Year, now, zone, weekStart), now, zone, weekStart, locale);
+                return;
+            }
+
+            RenderHero(TimeProgress.Of(ProgressSpan.Year, now, zone, weekStart), locale);
+            return;
+        }
 
         if (_plan.Hero)
         {
@@ -194,6 +227,126 @@ internal sealed partial class YearProgressView : Grid, IWidgetView, IWidgetSizeA
         _content.Margin = WidgetLayout.Inset;
         _content.Spacing = 0;
         _content.Children.Add(grid);
+    }
+
+    /// <summary>
+    /// [S-6041] A ring per span, its percentage inside and its name under it, in the arrangement
+    /// that draws them largest; a small tile keeps the year (and the day) as the bars do.
+    /// </summary>
+    private void RenderRings(DateTimeOffset now, TimeZoneInfo zone, WeekStartDay weekStart, Locale locale)
+    {
+        var plan = YearStyleLayout.Rings(_area.Deflate(WidgetLayout.ContentInset, WidgetLayout.ContentInset));
+        if (plan.Diameter < 1)
+        {
+            return; // not measured yet
+        }
+
+        var grid = new Grid
+        {
+            ColumnSpacing = YearStyleLayout.RingGap,
+            RowSpacing = YearStyleLayout.RingGap,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+
+        for (var c = 0; c < plan.Columns; c++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        }
+
+        var inner = plan.Diameter - (2 * RingArc.Stroke(plan.Diameter)) - (2 * Fluent.Space1);
+        var step = FluentType.Strong(FluentType.Hero(inner, inner * 0.4, 4));
+
+        for (var i = 0; i < plan.Spans.Count; i++)
+        {
+            var progress = TimeProgress.Of(plan.Spans[i], now, zone, weekStart);
+            var ring = new RingPart();
+            ring.Resize(plan.Diameter);
+            ring.SetFraction(progress.Fraction);
+
+            var percent = Fluent.Text(step);
+            percent.Text = PercentText(locale, progress.Fraction);
+            Tabular(percent);
+            ring.Add(percent);
+
+            var cell = new StackPanel { Spacing = YearProgressLayout.BarGap, Children = { ring.Root } };
+            if (plan.Labels)
+            {
+                var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+                label.Text = Label(plan.Spans[i]);
+                label.HorizontalAlignment = HorizontalAlignment.Center;
+                label.TextTrimming = TextTrimming.CharacterEllipsis;
+                label.MaxWidth = plan.Diameter;
+                cell.Children.Add(label);
+            }
+
+            if (i / plan.Columns >= grid.RowDefinitions.Count)
+            {
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            }
+
+            ToolTipService.SetToolTip(cell, Tip(progress, now, weekStart, locale));
+            SetColumn(cell, i % plan.Columns);
+            SetRow(cell, i / plan.Columns);
+            grid.Children.Add(cell);
+        }
+
+        _content.Margin = WidgetLayout.Inset;
+        _content.Spacing = 0;
+        _content.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _content.Children.Add(grid);
+    }
+
+    /// <summary>
+    /// [S-6042] One dot a day of the year, reflowed to the tile: the days gone in the secondary text
+    /// fill, today a size up in the accent, the days to come in the disabled fill; the caption over them
+    /// ("2026 · 78 %") where the grid keeps its pitch under it.
+    /// </summary>
+    private void RenderDots(YearDotsPlan plan, SpanProgress year, DateTimeOffset now, TimeZoneInfo zone, WeekStartDay weekStart, Locale locale)
+    {
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime);
+        var todayIndex = year.DayOf(today) - 1;
+        var grid = plan.Grid;
+        var canvas = new Canvas { Width = grid.Width, Height = grid.Height, HorizontalAlignment = HorizontalAlignment.Center, FlowDirection = FlowDirection.LeftToRight };
+
+        var done = FluentLayout.Themed("TextFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
+        var current = FluentLayout.Themed("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
+        var ahead = FluentLayout.Themed("ControlStrongFillColorDisabledBrush", Microsoft.UI.Colors.Gray);
+        var inset = (grid.Pitch - grid.Diameter) / 2;
+
+        for (var day = 0; day < year.Days; day++)
+        {
+            var (column, row) = grid.Cell(day);
+            var isToday = day == todayIndex;
+
+            // Today a size up over the mesh, so it reads at a glance however small the dots are.
+            var size = isToday ? Math.Min(grid.Pitch, grid.Diameter * 1.35) : grid.Diameter;
+            var dot = new Microsoft.UI.Xaml.Shapes.Ellipse
+            {
+                Width = size,
+                Height = size,
+                Fill = isToday ? current : day < todayIndex ? done : ahead,
+            };
+
+            Canvas.SetLeft(dot, (column * grid.Pitch) + inset - ((size - grid.Diameter) / 2));
+            Canvas.SetTop(dot, (row * grid.Pitch) + inset - ((size - grid.Diameter) / 2));
+            canvas.Children.Add(dot);
+        }
+
+        _content.Margin = WidgetLayout.Inset;
+        _content.Spacing = YearStyleLayout.CaptionGap;
+        _content.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+        if (plan.Caption)
+        {
+            var caption = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+            caption.Text = $"{YearText(locale, year)} · {PercentText(locale, year.Fraction)}";
+            caption.HorizontalAlignment = HorizontalAlignment.Center;
+            Tabular(caption);
+            _content.Children.Add(caption);
+        }
+
+        _content.Children.Add(canvas);
+        ToolTipService.SetToolTip(_content, Tip(year, now, weekStart, locale));
     }
 
     private static ProgressBar Bar(double fraction) => new()

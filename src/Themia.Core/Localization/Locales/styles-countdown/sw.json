@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "Maandishi",
+  "styles.countdown.ring": "Pete",
+  "styles.countdown.unitDays": "siku",
+  "styles.countdown.unitHours": "saa",
+  "styles.countdown.unitMinutes": "dak",
+  "styles.countdown.unitSeconds": "sek"
+}

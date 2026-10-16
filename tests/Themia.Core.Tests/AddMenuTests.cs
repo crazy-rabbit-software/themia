@@ -261,10 +261,10 @@ public sealed class AddMenuTests
     [Fact]
     public void S3514_up_and_down_skip_lines_and_a_move_in_a_column_closes_what_it_opened()
     {
-        // Time: Clock, Date, Alarm, Countdown, Stopwatch, a line, Pomodoro.
+        // Time: Clock, Alarm, Countdown, Stopwatch, a line, Pomodoro.
         var subject = SpotOf(AddFolderId.Time);
-        var nav = Press(new AddMenuNav([], subject), WidgetKey.Right).Nav with { Cursor = new AddSpot(2, 4) };
-        Assert.Equal(new AddSpot(2, 6), Press(nav, WidgetKey.Down).Nav.Cursor);
+        var nav = Press(new AddMenuNav([], subject), WidgetKey.Right).Nav with { Cursor = new AddSpot(2, 3) };
+        Assert.Equal(new AddSpot(2, 5), Press(nav, WidgetKey.Down).Nav.Cursor);
 
         // Down in Browse with Time open closes it: the cascade hangs off the row the highlight is on.
         var moved = Press(new AddMenuNav([subject], subject), WidgetKey.Down).Nav;

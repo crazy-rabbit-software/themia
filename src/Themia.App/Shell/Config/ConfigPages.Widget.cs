@@ -121,10 +121,6 @@ internal static partial class ConfigPages
                 WidgetSettings.Clock(rows, clock, Save);
                 break;
 
-            case DateConfig date:
-                WidgetSettings.Date(rows, date, Save);
-                break;
-
             case DiskConfig disk:
                 WidgetSettings.Disk(rows, disk, Save);
                 break;

@@ -183,3 +183,110 @@ public static class YearProgressLayout
         return new YearProgressPlan(false, false, [.. TimeProgress.All.Where(shown.Contains)], false);
     }
 }
+
+/// <summary>[S-6041] The Rings style at one size.</summary>
+/// <param name="Spans">The spans drawn, in list order (Day, Week, Month, Year).</param>
+/// <param name="Columns">Rings across; the rest wrap under them.</param>
+/// <param name="Diameter">Each ring's diameter, DIPs.</param>
+/// <param name="Labels">Each ring carries its span's name under it.</param>
+public readonly record struct YearRingsPlan(IReadOnlyList<ProgressSpan> Spans, int Columns, double Diameter, bool Labels);
+
+/// <summary>[S-6042] The Dots style at one size.</summary>
+/// <param name="Grid">The days' grid, in the room left under the caption.</param>
+/// <param name="Caption">The year and its percentage on a line over the grid.</param>
+/// <param name="Hero">Too small for a dot a day: the year's percentage alone, as the Bars style's smallest tile.</param>
+public readonly record struct YearDotsPlan(DotGridPlan Grid, bool Caption, bool Hero);
+
+/// <summary>[S-6041] [S-6042] The Rings and Dots styles' ladders, on the same inset area as the bars'.</summary>
+public static class YearStyleLayout
+{
+    /// <summary>Under this a ring with its percentage inside is a donut, not a reading.</summary>
+    public const double RingFloor = 56;
+
+    /// <summary>Between two rings, both ways.</summary>
+    public const double RingGap = 12;
+
+    /// <summary>Under this pitch a dot a day is a grey smear: the year's percentage instead.</summary>
+    public const double DotFloor = 3;
+
+    /// <summary>The caption takes its line only if the grid keeps at least this pitch under it.</summary>
+    public const double CaptionPitch = 6;
+
+    /// <summary>Between the caption and the grid.</summary>
+    public const double CaptionGap = 8;
+
+    /// <summary>
+    /// [S-6041] All four rings in the arrangement (four across, two by two, or one column) that draws
+    /// them largest, each with its name under it while that leaves the ring its floor; on a tile too
+    /// small for four, the bars' priority (Year, Day) gives up the rest, down to the year alone.
+    /// Concise ([S-666]): a larger tile draws larger rings, never a fifth.
+    /// </summary>
+    public static YearRingsPlan Rings(WidgetArea area)
+    {
+        if (!area.IsMeasured)
+        {
+            return new YearRingsPlan([ProgressSpan.Year], 1, RingFloor, false);
+        }
+
+        foreach (var count in (int[])[4, 2])
+        {
+            var best = Best(area, count, labels: true);
+            if (best.Diameter >= RingFloor)
+            {
+                var shown = YearProgressLayout.Priority.Take(count).ToHashSet();
+                return best with { Spans = [.. TimeProgress.All.Where(shown.Contains)] };
+            }
+        }
+
+        var year = Best(area, 1, labels: true);
+        return year.Diameter >= RingFloor ? year : Best(area, 1, labels: false);
+    }
+
+    /// <summary>
+    /// [S-6042] One dot a day of the year (365 or 366), reflowed by <see cref="DotGrid"/> to the
+    /// tile; the caption ("2026 · 78 %") over it when the grid keeps its pitch under it.
+    /// </summary>
+    public static YearDotsPlan Dots(WidgetArea area, int days)
+    {
+        if (!area.IsMeasured)
+        {
+            return new YearDotsPlan(default, false, true);
+        }
+
+        var line = FluentType.Caption.LineHeight + CaptionGap;
+        var under = DotGrid.Fit(days, area.Width, area.Height - line);
+        if (under.Pitch >= CaptionPitch)
+        {
+            return new YearDotsPlan(under, true, false);
+        }
+
+        var whole = DotGrid.Fit(days, area.Width, area.Height);
+        return new YearDotsPlan(whole, false, whole.Pitch < DotFloor);
+    }
+
+    private static YearRingsPlan Best(WidgetArea area, int count, bool labels)
+    {
+        var label = labels ? FluentType.Caption.LineHeight + YearProgressLayout.BarGap : 0;
+        var best = new YearRingsPlan([ProgressSpan.Year], 1, 0, labels);
+
+        for (var columns = count; columns >= 1; columns /= 2)
+        {
+            var rows = (count + columns - 1) / columns;
+            var cellWidth = (area.Width - ((columns - 1) * RingGap)) / columns;
+            var cellHeight = ((area.Height - ((rows - 1) * RingGap)) / rows) - label;
+            var diameter = Math.Floor(Math.Min(cellWidth, cellHeight));
+
+            if (diameter > best.Diameter)
+            {
+                best = new YearRingsPlan([ProgressSpan.Year], columns, diameter, labels);
+            }
+
+            if (columns == 1)
+            {
+                break;
+            }
+        }
+
+        return best;
+    }
+}

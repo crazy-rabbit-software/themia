@@ -327,17 +327,19 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   `InvariantGlobalization`, so culture format strings would not honour the config.
 - **[S-6011]** The clock's styles ([S-6000]), `ClockConfig.Style` (`ClockStyle`, stored as
   `"style": "digital"`; what was its face): **Digital**, **Analog**, **Stacked** ([S-1483]),
-  **Flip**, **Words** and **Minimal**, in that order. Every style keeps the clock's ladder
-  ([S-1487]): the face first, then the label, the date and the offset where they fit, the face
-  taking what they leave; the settings (seconds, date, zone, label, alignment, text size) are the
-  same for all six.
+  **Flip**, **Words**, **Minimal** and **Date** ([S-5300]), in that order. Every style but Date
+  keeps the clock's ladder ([S-1487]): the face first, then the label, the date and the offset
+  where they fit, the face taking what they leave; the settings (seconds, date, zone, label,
+  alignment, text size) are the same for those six. Date has its own ladder ([S-5301]) and only
+  the alignment and the zone ([S-5303]).
 - **[S-6012]** **Flip**: a split-flap card per part of the time (hours, minutes, and seconds when
   shown), side by side, one above the other in a tall column, as large as the face's room allows;
   a rounded card in the subtle fill with a hairline split across its middle, the digits the
   largest step that fits ([S-641]), AM/PM a caption in the hours card's corner (left out on a card
   under 96 DIPs). A card whose digits change on a tick turns over (folds away, 110 ms, and the new
   digits fold in, 170 ms); a config, language or size change redraws without a turn, and nothing
-  turns while Windows' animation effects are off ([S-1010]).
+  turns while Windows' animation effects are off ([S-1010]). One card implementation
+  (`FlipCard`) for the clock and the countdown's Flip style ([S-6032]).
 - **[S-6013]** **Words**: the time as a sentence in five-minute steps, in the current language
   ("It's twenty to eleven", "Es ist zwanzig vor elf"), in the clock's own zone
   (`ClockFormatter.Words`); the label and date rungs as for the digits. Composed by `WordClock`
@@ -346,7 +348,7 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   nothing else at any size: no label, date or offset, and no seconds ([S-6015]). It still stacks in
   a tall column when that draws it larger ([S-1483]).
 - **[S-6015]** `ClockConfig.DrawsSeconds`: seconds are drawn (and asked for, [S-52]) only when they
-  are on and the style is not Words or Minimal.
+  are on and the style is not Words, Minimal or Date.
 - **[S-6020]** `WordClock.Compose`: each language writes its own rules into its locale strings
   (`Locales/wordclock/<code>.json`), never code. `wordClock.hours` is one or more hour forms (`;`
   between forms, `|` between entries), each 12 entries (index 0 is twelve, then one to eleven;
@@ -541,6 +543,27 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
 - **[S-155]** The 1 Hz subscription exists only while the timer runs, and the callback the shared
   ticker makes at subscribe time is swallowed: that immediate fire is right for a view that renders
   the time and wrong for one that *is* the tick.
+- **[S-6030]** The countdown's styles ([S-6000]), `CountdownConfig.Style` (`CountdownStyle`):
+  **Text** (the default: the hero as [S-1447]), **Ring** and **Flip**. A style is how the featured
+  timer's duration is drawn; the label, date, "next" line and the rows under it are the same in
+  all three, on the same ladder, and a hero too small for its ring (72 DIPs) or its cards (36 DIPs
+  tall) draws the text. Debug: `--state sample` (three timers, a launch in three days featured).
+- **[S-6031]** **Ring**: the time left as a ring (`RingPart`, [S-6060]) as large as the hero's room,
+  the duration inside it in the text style's words and colours; the ring is the share still to go
+  from the timer's creation to its target (`CountdownLayout.Left`), so it empties as the day comes;
+  without a creation time ([S-1448]) it draws its track alone. The ring is the progress: no bar
+  under it.
+- **[S-6032]** **Flip**: the clock's split-flap cards ([S-6012]) side by side across the hero, each
+  with its unit under it ("days", "hours", "min", "sec"): days while there is at least one (as
+  many figures as it takes), then hours and minutes, two figures each, and seconds when the
+  timer's format shows them (`CountdownLayout.Cards`); a timer gone by counts up in the critical
+  colour. A card whose figures change on a tick turns over; the days card going at the last day
+  re-lays the row.
+- **[S-6035]** The pomodoro's styles ([S-6000]), `PomodoroConfig.Style` (`PomodoroStyle`):
+  **Ring** (the default, today's look: the ring on tall and large tiles, [S-1466], the bar on the
+  others), **Bar** (the bar wherever the ladder has room for it, never a ring: a large tile stacks
+  the digits over the bar) and **Digits** (neither: the digits take the room). `DrawsRing` /
+  `DrawsBar`. The ring is the shared `RingPart` ([S-6060]). Debug: `--state sample` (focus, 9:24 left, paused).
 
 ## Sun and moon
 
@@ -602,10 +625,10 @@ tests `SkyWidgetsTests` (`S310x_`).
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
   and share one settings block: city search ([S-1494], [S-2840]) and the validated exact
-  coordinates ([S-171]). Sun adds the sun path mode and the Events switch; Moon has nothing else.
-  `Repair` at load: a latitude or longitude that is not a number in range sends both, and the name,
-  back to Zurich; a place name over 80 characters is cut; an unknown sun path mode becomes Numbers;
-  each repair is logged.
+  coordinates ([S-171]). Sun adds the Events switch; Moon has nothing else (how each draws itself
+  is its style, [S-6045], [S-6050]). `Repair` at load: a latitude or longitude that is not a number
+  in range sends both, and the name, back to Zurich; a place name over 80 characters is cut; each
+  repair is logged.
 - **[S-3102]** Sun ladder: [S-1492] without the moon — graphic (46 px floor, [S-170]) → strip →
   rows in priority sunrise, sunset, daylight (+change), solar noon (+altitude), dawn, dusk. One row
   is the next event. Rows beside the graphic on a strip; two to a line on E×E (sunrise | sunset,
@@ -624,6 +647,29 @@ tests `SkyWidgetsTests` (`S310x_`).
   weekday where the row cannot hold it ("Oct 26").
 - **[S-3106]** A rise or set reads as the time alone when it falls today in the machine's zone, else
   with the short weekday before it ("Mon 9:55 AM"): the next one is often tomorrow.
+- **[S-6045]** The sun's styles ([S-6000]), `SunConfig.Style` (`SunStyle`; what was the sun path
+  mode, whose "graphic only" is gone: the number strip sheds by size anyway, [S-170]): **Arc** (the
+  default: the path, [S-167]), **Day bar** ([S-6046]) and **Times** (no graphic: the rows carry
+  everything and are on whatever the Events switch says, [S-170]). The strip and the rows are the
+  same under both graphics. Debug: `--state sample` pins 12 October 2026, 14:32.
+- **[S-6046]** **Day bar** (`SunDayBar`): the local day (the machine's zone, midnight to midnight,
+  a 23- or 25-hour day that long) as a rounded bar in the disabled fill, the daylight in the
+  accent's lighter step between sunrise and sunset ticks that stand a little over and under it, the
+  sun's dot at now (dimmed while it is down, ringed in the base colour so it reads on the daylight).
+  Each mark is its instant's share of the day in real time; a sunrise or sunset not on this day has
+  no tick; polar day lights the whole bar, polar night none of it. The bar keeps a 28 DIP floor and
+  no share of a large tile: the rows take the rest; it thickens with the height, 8 to 20 DIPs, and
+  sits at the foot of its room, right over the number strip.
+- **[S-6050]** The moon's styles ([S-6000]), `MoonConfig.Style` (`MoonStyle`): **Disc** (the
+  default, [S-3105]) and **Phase month**: one small disc a day of the month holding now, each that
+  day's phase at its local noon (`MoonMonth`, [S-6051]; the [S-169] drawing, mirrored for a southern
+  observer), reflowed to the tile by the dot grid ([S-6061]), today ringed in the accent, the month's
+  name over them while the discs stay 14 DIPs or larger under it. Each disc's tooltip names its day
+  and phase. Concise: no rise, set or percentage rows in this style. Debug: `--state sample` pins
+  12 October 2026, 21:00.
+- **[S-6051]** `MoonMonth.Days`: every day of the month holding now in the machine's zone, each with
+  the phase at the middle of that local day (so a phase turning at 01:00 or 23:00 belongs to the day
+  most of it is in), today marked once. Redrawn when the day changes, not on every tick.
 
 ## Rows and the card edge
 
@@ -926,6 +972,15 @@ widget on the properties strip or at the top of its settings page. Owning files:
 - **[S-6009]** The strip ends with a **settings gear** (icon only, "Settings" as its tooltip) that
   opens the widget's settings page; one widget only, and only when its kind has a settings page
   ([S-1750]). Several selected: no gear (which one's page would it be).
+- **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry
+  `RingArc`): a track in the control's strong rest fill, the arc in a brush the widget gives,
+  clockwise from twelve, round caps, nothing under 0.05 % and the whole ring from 99.95 % (two half
+  arcs: an arc back to its own start draws nothing); the stroke a twentieth of the diameter, 3 to
+  12 DIPs. Not the meters' half-circle gauge.
+- **[S-6061]** One reflow rule for every dot grid (`DotGrid.Fit`: year progress's days, the moon's
+  month): every column count is tried and the one whose square cells are largest kept, on a tie
+  the one with fewer empty cells in the last row; the gap is a quarter of the pitch, so a larger
+  tile spaces the dots in proportion.
 - **[S-6010]** Every styled kind's settings page has one **Style** row, the first under the kind's
   heading, built by the shared widget-page builder from the registry (a choice of the style names),
   never by the page itself; it writes the live config and saves, as every widget row does.
@@ -1946,7 +2001,7 @@ Prep for the parallel shell and widget packages (S-700..S-719). Mostly file layo
 rules are these.
 
 - **[S-700]** The clock starts with its header **hidden**, as in the original
-  (`WidgetInstance.DefaultHeader`); so do the Date widget ([S-5300]), the power buttons ([S-1911]), the audio visualizer
+  (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
   ([S-3200]), and (user requirement) the sun, the moon ([S-3100]) and the disk meter, which names
   its drive beside its reading instead ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.
@@ -5053,7 +5108,7 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
 - **[S-1482]** Label over the time (original S-07/S-18/S-19): the custom label, else the city of a
   chosen zone, else none. Deliberate difference: choosing any city labels the clock, even one in the
   machine's own Windows zone (a Windows zone covers many cities). Labels are capped at 40 characters.
-- **[S-1483]** Style Digital / Analog / Stacked (original S-10..S-13; three of the six styles now, [S-6011]). Stacked always stacks hours
+- **[S-1483]** Style Digital / Analog / Stacked (original S-10..S-13; three of the seven styles now, [S-6011]). Stacked always stacks hours
   over minutes; seconds and AM/PM ride a step down beside the minutes. A digital face still stacks on
   its own in a tall column when that draws the digits larger. The AM/PM marker counts towards the readout's width by its own
   length (`ClockFormatter.MeridiemCharacters`), never less than "PM"'s budget: Tamil's "பிற்பகல்" is
@@ -6577,8 +6632,8 @@ Strings in `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
 Owning files: `Themia.Core/Widgets/TimeProgress.cs`, `Themia.App/Widgets/YearProgressView*.cs`.
 
 - **[S-4800]** `YearProgress` (124): how much of the day, week, month and year has passed, each a
-  label, a percentage and a bar. No settings and no settings page ([S-1750]): the week start and
-  the clock are the regional settings ([S-3770]).
+  label, a percentage and a bar. Its one setting is its style ([S-6040], the shared Style row,
+  [S-6010]): the week start and the clock are the regional settings ([S-3770]).
 - **[S-4801]** A span runs from one local midnight to the next one after it (`CalendarRules.LocalMidnight`),
   and its fraction is elapsed over real length in instants (`TimeProgress.Of`): a 23-hour
   spring-forward day is half gone at 12:30, a 25-hour one is 25 hours, a leap year 366 days,
@@ -6600,6 +6655,18 @@ Owning files: `Themia.Core/Widgets/TimeProgress.cs`, `Themia.App/Widgets/YearPro
 - **[S-4805]** The details: the day's time left ("9 h 28 min left"), the week's number ("Week 42"),
   the month's and the year's day ("Day 285 of 365"). Every span's tooltip says its label, the
   percentage to one decimal and its detail. Debug: `--state sample` pins Monday 12 October 2026, 14:32.
+- **[S-6040]** Year progress's styles ([S-6000]), `YearProgressConfig.Style` (`YearProgressStyle`):
+  **Bars** (the default, [S-4803]), **Rings** ([S-6041]) and **Dots** ([S-6042]); the spans, their
+  fractions and tooltips are the same in all three.
+- **[S-6041]** **Rings** (`YearStyleLayout.Rings`, on the same inset area): a ring per span
+  (`RingPart`, [S-6060]) with its percentage inside and its name under it, in the arrangement (four
+  across, two by two, one column) that draws them largest; while four rings would be under 56 DIPs
+  the bars' priority gives up the rest (Year and Day, then the year alone, its name the last thing
+  dropped). Concise: a larger tile draws larger rings, never more.
+- **[S-6042]** **Dots** (`YearStyleLayout.Dots`): the year as one dot a day (365 or 366), reflowed
+  to the tile ([S-6061]): the days gone in the secondary text fill, today a size up in the accent,
+  the days to come in the disabled fill; the caption "2026 · 78 %" over them while the grid keeps a
+  6 DIP pitch under it. Under a 3 DIP pitch the year's percentage stands alone as in [S-4803].
 
 ## Next meeting (NEXT-MEETING)
 
@@ -7004,12 +7071,13 @@ shelf, and the Windows region read (`GetUserDefaultGeoName`) in the packaged bui
 
 ## Date (DATE)
 
-Tests: `tests/Themia.Core.Tests/DateWidgetTests.cs`. Issues #150, #131.
+Tests: `tests/Themia.Core.Tests/ClockDateStyleTests.cs`. Issues #150, #131.
 
-- **[S-5300]** `Date` (kind 131, `DateConfig`, discriminator `date`, glyph E8D1 GotoToday): the
-  weekday and the date, no time, made for the wallpaper. Time subject of the add menu, after the
-  clock ([S-3511]). Starts headerless like the clock ([S-700]); needs no setup; clicking it does
-  nothing.
+- **[S-5300]** *(Retired: the Date widget, kind 131, is gone; the weekday and the date, no time,
+  made for the wallpaper, is now the clock's **Date** style (`ClockStyle.Date`, glyph E8D1
+  GotoToday, [S-6011]). A state file holding a `Date` widget drops it at load like any unknown kind,
+  [S-1900], [S-1050].)* The style keeps the rules below, in the clock's own zone: a world clock's
+  date is that place's.
 - **[S-5301]** Ladder (`DateLayout.Plan`, on `Disclosure` like the clock's [S-1487]): the day of the
   month is reserved and takes what the rungs leave (`FluentType.Hero`, two figures); the weekday
   (accent, semibold, up to Title) is the first rung, the month line (secondary, regular, up to
@@ -7018,12 +7086,15 @@ Tests: `tests/Themia.Core.Tests/DateWidgetTests.cs`. Issues #150, #131.
   it, the pair placed by the alignment. Concise ([S-666]): a larger tile sets the date larger and
   adds nothing else.
 - **[S-5302]** Words through `LocaleFormat` only (`DateText`): the weekday wide or short, the day in
-  the language's digits, the month by name, or with the year `DateStyle.MonthYear`. Widths are
-  judged on worst-case names (13 characters for a weekday, 11 for a month, +5 for the year): a line
-  too narrow for its wide form takes the short name, and the month's short form drops the year.
-- **[S-5303]** Settings in keeping with the clock's: alignment Left / Centre / Right ([S-1484]) and
-  Show year (off by default). An unknown alignment is centred on load and logged.
-- **[S-5304]** One tick a minute on the shared ticker: the date turns over within a minute of midnight.
+  the language's digits, the month by name. Widths are judged on worst-case names (13 characters
+  for a weekday, 11 for a month): a line too narrow for its wide form takes the short name. The
+  tooltip is the full date.
+- **[S-5303]** *(Retired: the Date widget's own settings. Show year is gone: the year is rarely the
+  news, and the other clock styles' dates leave it out too.)* The clock's page offers the Date style
+  only the alignment ([S-1484]) and the zone ([S-1481]); seconds, the date line, the text size, the
+  label and the offset do not apply to it and are not shown.
+- **[S-5304]** One tick a minute on the shared ticker (`ClockConfig.TickInterval`): the date turns
+  over within a minute of midnight.
 
 ## Week planner (WEEK-PLANNER)
 

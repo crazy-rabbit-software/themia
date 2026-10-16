@@ -1,5 +1,6 @@
 {
   "styles.clock.flip": "फ्लिप",
   "styles.clock.words": "शब्द",
-  "styles.clock.minimal": "साधे"
+  "styles.clock.minimal": "साधे",
+  "styles.clock.date": "तारीख"
 }

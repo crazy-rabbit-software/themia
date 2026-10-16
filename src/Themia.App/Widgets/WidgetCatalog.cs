@@ -157,8 +157,6 @@ internal static class WidgetCatalog
     public static readonly IReadOnlyList<WidgetDefinition> All =
     [
         new(WidgetKind.Clock, Str.Widget_Clock_Label, Str.WidgetsA_Catalog_Clock_Description, Glyphs.Clock, 280, 140),
-        // [S-5300] The date without the time, beside the clock.
-        new(WidgetKind.Date, Str.DateWidget_Label, Str.DateWidget_Desc, Glyphs.Date, 240, 200),
         new(WidgetKind.Cpu, Str.WidgetsA_Catalog_Cpu_Label, Str.WidgetsA_Catalog_Cpu_Description, Glyphs.Cpu, 200, 150),
         new(WidgetKind.Memory, Str.WidgetsA_Catalog_Memory_Label, Str.WidgetsA_Catalog_Memory_Description, Glyphs.Memory, 200, 150),
         new(WidgetKind.Disk, Str.WidgetsA_Catalog_Disk_Label, Str.WidgetsA_Catalog_Disk_Description, Glyphs.Disk, 200, 150),
@@ -319,7 +317,6 @@ internal static class WidgetCatalog
     public static FrameworkElement CreateView(WidgetKind kind) => kind switch
     {
         WidgetKind.Clock => new ClockView(),
-        WidgetKind.Date => new DateView(),
         WidgetKind.Cpu or WidgetKind.Memory or WidgetKind.Disk
             or WidgetKind.Battery or WidgetKind.Network or WidgetKind.Ping => new MeterView(kind),
         WidgetKind.Gpu => new GpuView(),

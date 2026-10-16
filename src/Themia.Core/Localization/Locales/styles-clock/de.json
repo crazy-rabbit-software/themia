@@ -1,5 +1,6 @@
 {
   "styles.clock.flip": "Klappzahlen",
   "styles.clock.words": "In Worten",
-  "styles.clock.minimal": "Minimal"
+  "styles.clock.minimal": "Minimal",
+  "styles.clock.date": "Datum"
 }

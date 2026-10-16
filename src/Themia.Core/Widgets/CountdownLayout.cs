@@ -29,6 +29,18 @@ public enum CountdownHero
 /// <param name="RowProgress">A progress bar under each row.</param>
 public readonly record struct CountdownPlan(CountdownHero Hero, bool NextLine, bool CompactRows, bool HeroProgress, bool RowProgress);
 
+/// <summary>[S-6032] What one flip card counts.</summary>
+public enum CountdownUnit
+{
+    Days = 0,
+    Hours = 1,
+    Minutes = 2,
+    Seconds = 3,
+}
+
+/// <summary>[S-6032] One split-flap card of the Flip style: its figures and what they count.</summary>
+public readonly record struct CountdownCard(string Digits, CountdownUnit Unit);
+
 /// <summary>
 /// The Countdown widget's ladder and the rules behind its hero: which timer is featured, what the
 /// "next" line says, and how far along a timer is. Pure; the view only measures.
@@ -158,6 +170,44 @@ public static class CountdownLayout
         };
 
         return elapsed ? widest + 4 : widest;
+    }
+
+    /// <summary>
+    /// [S-6031] The share of the timer still to go, 1 when it was made and 0 at its target: what the
+    /// Ring style draws. Null when that cannot be said ([S-1448]); the ring then draws its track alone.
+    /// </summary>
+    public static double? Left(CountdownTimer timer, DateTimeOffset now)
+        => Progress(timer, now) is { } gone ? 1 - gone : null;
+
+    /// <summary>
+    /// [S-6032] The Flip style's cards for the time between <paramref name="now"/> and
+    /// <paramref name="target"/>, either way round (a timer gone by counts up, as its text does).
+    /// Days only while there is at least one, then hours and minutes, two figures each, and the
+    /// seconds when the timer's format shows them. ASCII figures in every language, as the clock's
+    /// flip cards: a split-flap shows digits.
+    /// </summary>
+    public static IReadOnlyList<CountdownCard> Cards(DateTimeOffset target, DateTimeOffset now, bool seconds)
+    {
+        var total = (long)Math.Floor((target - now).Duration().TotalSeconds);
+        var days = total / 86400;
+        var cards = new List<CountdownCard>(4);
+
+        if (days > 0)
+        {
+            cards.Add(new CountdownCard(days.ToString(System.Globalization.CultureInfo.InvariantCulture), CountdownUnit.Days));
+        }
+
+        cards.Add(new CountdownCard(Two(total / 3600 % 24), CountdownUnit.Hours));
+        cards.Add(new CountdownCard(Two(total / 60 % 60), CountdownUnit.Minutes));
+
+        if (seconds)
+        {
+            cards.Add(new CountdownCard(Two(total % 60), CountdownUnit.Seconds));
+        }
+
+        return cards;
+
+        static string Two(long value) => value.ToString("00", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     /// <summary>Upcoming beats past; among upcoming the sooner; among past the more recent.</summary>

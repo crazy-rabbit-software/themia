@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
+using Themia.App.Shell;
 using Themia.Core.Astronomy;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -19,6 +20,11 @@ namespace Themia.App.Widgets;
 /// <para>
 /// The drawing is <see cref="SkyMoonDisc"/>, the same lit-limb outline the row glyphs use, mirrored
 /// for a southern observer and dimmed while the moon is below the horizon ([S-169]).
+/// </para>
+/// <para>
+/// [S-6050] The Phase month style draws the month instead: one small disc a day, each that day's
+/// phase at local noon (<see cref="MoonMonth"/>), reflowed to the tile by <see cref="DotGrid"/>,
+/// today ringed in the accent, the month's name over them where it fits.
 /// </para>
 /// </summary>
 internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware
@@ -56,6 +62,17 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
     /// <summary>What a row has for its label and value, from the last <see cref="Lay"/>.</summary>
     private double _rowRoom = double.PositiveInfinity;
 
+    /// <summary>[S-6050] The Phase month style: the month's name over a disc a day.</summary>
+    private readonly StackPanel _month = new() { VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
+    private readonly TextBlock _monthName = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+    private readonly Canvas _monthGrid = new() { HorizontalAlignment = HorizontalAlignment.Center, FlowDirection = FlowDirection.LeftToRight };
+    private readonly List<SkyMoonDisc> _monthDiscs = [];
+    private readonly Microsoft.UI.Xaml.Shapes.Ellipse _todayRing = new();
+
+    /// <summary>The day the month was last drawn for: a new day redraws it, a tick on the same day does not.</summary>
+    private DateOnly _monthDrawn;
+    private DotGridPlan _monthPlan;
+
     public MoonView()
     {
         _name.HorizontalAlignment = HorizontalAlignment.Center;
@@ -81,6 +98,16 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         }
 
         _stack = new StackPanel { Children = { _text, _rowGrid } };
+
+        _monthName.HorizontalAlignment = HorizontalAlignment.Center;
+        _monthName.TextTrimming = TextTrimming.CharacterEllipsis;
+        _todayRing.Stroke = FluentLayout.Themed("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
+        _todayRing.StrokeThickness = Fluent.ChartStroke;
+        _month.Spacing = MoonLayout.Gap;
+        _month.Margin = WidgetLayout.SideInset;
+        _month.Children.Add(_monthName);
+        _month.Children.Add(_monthGrid);
+        Children.Add(_month);
 
         _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -118,7 +145,9 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
         // One cadence for good: the config cannot change it, so subscribe once.
         _subscription ??= _ticker?.Subscribe(_config.TickInterval, Tick);
-        Refresh();
+
+        // [S-6005] The style picks the parts: a full lay, not only a refresh.
+        Lay();
     }
 
     /// <summary>[S-663] The card's word on how much room there is.</summary>
@@ -144,6 +173,23 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
     /// <summary>[S-3105] Place the parts for this size, then fill them in.</summary>
     private void Lay()
     {
+        // [S-6005] One style's parts at a time: the disc and its rows, or the month.
+        var month = _config.Style == MoonStyle.PhaseMonth;
+        _content.Visibility = Show(!month);
+        _month.Visibility = Show(month);
+
+        if (month)
+        {
+            LayMonth();
+            return;
+        }
+
+        if (_monthDiscs.Count > 0)
+        {
+            _monthDiscs.Clear();
+            _monthGrid.Children.Clear();
+        }
+
         var compact = _area.WidthClass == SizeClass.Compact || _area.HeightClass <= SizeClass.Regular;
         var rowHeight = compact ? Fluent.RowHeightCompact : Fluent.RowHeight;
         _plan = MoonLayout.Plan(_area, rowHeight, LongestPhaseName());
@@ -198,9 +244,93 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         Refresh();
     }
 
+    /// <summary>
+    /// [S-6050] [S-6061] The month's grid for this size: a disc a day reflowed to the tile, the
+    /// month's name over it only while the discs keep a readable size under it.
+    /// </summary>
+    private void LayMonth()
+    {
+        var box = _area.Deflate(Fluent.Space4, Fluent.Space2);
+        var days = DateTime.DaysInMonth(_now.LocalDateTime.Year, _now.LocalDateTime.Month);
+        var under = DotGrid.Fit(days, box.Width, box.Height - FluentType.Caption.LineHeight - MoonLayout.Gap);
+        var named = under.Diameter >= MonthNameDisc;
+        _monthPlan = named ? under : DotGrid.Fit(days, box.Width, box.Height);
+        _monthName.Visibility = Show(named);
+        _monthDrawn = default;
+        RefreshMonth();
+    }
+
+    /// <summary>[S-6050] Under this disc size the month's name gives its line to the discs.</summary>
+    private const double MonthNameDisc = 14;
+
+    /// <summary>[S-6051] The discs for the month holding now, rebuilt when the day changes.</summary>
+    private void RefreshMonth()
+    {
+        var days = MoonMonth.Days(_now, TimeZoneInfo.Local);
+        var today = days.FirstOrDefault(d => d.Today).Date;
+        if (today == _monthDrawn && _monthDiscs.Count == days.Count)
+        {
+            return;
+        }
+
+        var plan = _monthPlan;
+
+        // Not measured yet: nothing to place (a ring of no size is a negative width).
+        if (plan.Columns == 0 || plan.Pitch < 2)
+        {
+            _monthGrid.Children.Clear();
+            return;
+        }
+
+        _monthDrawn = today;
+        var southern = _config.EffectiveLatitude < 0;
+        var locale = Strings.Current;
+
+        while (_monthDiscs.Count < days.Count)
+        {
+            _monthDiscs.Add(new SkyMoonDisc());
+        }
+
+        _monthDiscs.RemoveRange(days.Count, _monthDiscs.Count - days.Count);
+        _monthGrid.Children.Clear();
+        _monthGrid.Width = plan.Width;
+        _monthGrid.Height = plan.Height;
+        _monthName.Text = LocaleFormat.MonthName(locale, today.Month);
+
+        var inset = (plan.Pitch - plan.Diameter) / 2;
+        for (var i = 0; i < days.Count; i++)
+        {
+            var disc = _monthDiscs[i];
+            var (column, row) = plan.Cell(i);
+            disc.Resize(Math.Max(1, Math.Floor(plan.Diameter)));
+            disc.Update(days[i].Phase, southern, up: true);
+            Canvas.SetLeft(disc.Root, (column * plan.Pitch) + inset);
+            Canvas.SetTop(disc.Root, (row * plan.Pitch) + inset);
+            ToolTipService.SetToolTip(disc.Root, $"{LocaleFormat.Date(locale, days[i].Date, DateStyle.MonthDay)} · {MoonPhase.Label(days[i].Name)}");
+            _monthGrid.Children.Add(disc.Root);
+
+            if (days[i].Today)
+            {
+                // [S-6050] Today ringed: the ring sits in the gap round today's disc.
+                var ring = plan.Pitch - 1;
+                _todayRing.Width = ring;
+                _todayRing.Height = ring;
+                Canvas.SetLeft(_todayRing, (column * plan.Pitch) + 0.5);
+                Canvas.SetTop(_todayRing, (row * plan.Pitch) + 0.5);
+                _monthGrid.Children.Add(_todayRing);
+            }
+        }
+    }
+
     /// <summary>Recompute the readout. Called on a tick, a config change, a resize and a language change.</summary>
     private void Refresh()
     {
+        if (_config.Style == MoonStyle.PhaseMonth)
+        {
+            RefreshMonth();
+            return;
+        }
+
         var latitude = _config.EffectiveLatitude;
         var longitude = _config.EffectiveLongitude;
         var southern = latitude < 0;

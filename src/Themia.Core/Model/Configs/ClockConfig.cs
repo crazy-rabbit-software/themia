@@ -5,7 +5,7 @@ using Themia.Core.Widgets;
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-6011] The clock's styles ([S-1483]): the same time, six looks. The first is the
+/// [S-6011] The clock's styles ([S-1483]): the same time, seven looks. The first is the
 /// default; an unknown stored name is repaired to it ([S-6004]).
 /// </summary>
 [JsonConverter(typeof(StyleJsonConverter<ClockStyle>))]
@@ -25,6 +25,9 @@ public enum ClockStyle
 
     /// <summary>[S-6014] The time alone, in a thin weight: no date, label, seconds or offset.</summary>
     Minimal = 5,
+
+    /// <summary>[S-5300] The day without the time: the weekday, the day of the month large, the month.</summary>
+    Date = 6,
 }
 
 /// <summary>[S-1484] Where the clock's column sits across the tile.</summary>
@@ -76,6 +79,7 @@ public sealed class ClockConfig : WidgetConfig, IStyled
         StyleOption.Of(ClockStyle.Flip, Str.Styles_Clock_Flip, 0xE8A9),
         StyleOption.Of(ClockStyle.Word, Str.Styles_Clock_Words, 0xE8D2),
         StyleOption.Of(ClockStyle.Minimal, Str.Styles_Clock_Minimal, 0xE738),
+        StyleOption.Of(ClockStyle.Date, Str.Styles_Clock_Date, 0xE8D1),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => ClockStyles;
@@ -129,15 +133,16 @@ public sealed class ClockConfig : WidgetConfig, IStyled
     public bool IsWorldClock => ZoneCatalog.Resolve(TimeZoneId) is not null;
 
     /// <summary>
-    /// [S-6015] Whether this style draws seconds at all: words come in five-minute steps and the
-    /// minimal clock is the time alone ([S-6013], [S-6014]).
+    /// [S-6015] Whether this style draws seconds at all: words come in five-minute steps, the
+    /// minimal clock is the time alone and the date style has no time ([S-6013], [S-6014], [S-5300]).
     /// </summary>
     [JsonIgnore]
-    public bool DrawsSeconds => ShowSeconds && Style is not (ClockStyle.Word or ClockStyle.Minimal);
+    public bool DrawsSeconds => ShowSeconds && Style is not (ClockStyle.Word or ClockStyle.Minimal or ClockStyle.Date);
 
     /// <summary>
-    /// The tick cadence this config actually needs. A clock without seconds wakes once a minute; an
-    /// analog face sweeps its hands every second.
+    /// The tick cadence this config actually needs. A clock without seconds wakes once a minute (the
+    /// date style too: it turns over within a minute of midnight, [S-5304]); an analog face sweeps
+    /// its hands every second.
     /// </summary>
     [JsonIgnore]
     public TimeSpan TickInterval => DrawsSeconds || Style == ClockStyle.Analog

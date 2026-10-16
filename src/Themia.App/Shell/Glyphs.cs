@@ -327,9 +327,6 @@ internal static class Glyphs
     /// <summary>[S-4800] Year progress (Segoe "DateTime").</summary>
     public static readonly string YearProgress = From(0xEC92);
 
-    /// <summary>[S-5300] The Date widget (Segoe "GotoToday": a calendar page with today marked).</summary>
-    public static readonly string Date = From(0xE8D1);
-
     /// <summary>[S-5320] The week planner (Segoe "MultiSelect": rows to tick, beside the calendars' pages).</summary>
     public static readonly string WeekPlanner = From(0xE762);
 

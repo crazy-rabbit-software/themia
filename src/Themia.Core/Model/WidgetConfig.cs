@@ -97,7 +97,6 @@ namespace Themia.Core.Model;
 [JsonDerivedType(typeof(NextMeetingConfig), typeDiscriminator: "nextMeeting")]
 [JsonDerivedType(typeof(RecentFilesConfig), typeDiscriminator: "recentFiles")]
 [JsonDerivedType(typeof(RecycleBinConfig), typeDiscriminator: "recycleBin")]
-[JsonDerivedType(typeof(DateConfig), typeDiscriminator: "date")]
 [JsonDerivedType(typeof(VisualizerScopeConfig), typeDiscriminator: "visualizerScope")]
 [JsonDerivedType(typeof(WeekPlannerConfig), typeDiscriminator: "weekPlanner")]
 public abstract class WidgetConfig
@@ -199,7 +198,6 @@ public abstract class WidgetConfig
         WidgetKind.NextMeeting => new NextMeetingConfig(),
         WidgetKind.RecentFiles => new RecentFilesConfig(),
         WidgetKind.RecycleBin => new RecycleBinConfig(),
-        WidgetKind.Date => new DateConfig(),
         WidgetKind.VisualizerScope => new VisualizerScopeConfig(),
         WidgetKind.WeekPlanner => new WeekPlannerConfig(),
         _ => new ClockConfig(),

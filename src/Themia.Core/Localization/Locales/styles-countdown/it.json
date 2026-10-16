@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "Testo",
+  "styles.countdown.ring": "Anello",
+  "styles.countdown.unitDays": "giorni",
+  "styles.countdown.unitHours": "ore",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "s"
+}

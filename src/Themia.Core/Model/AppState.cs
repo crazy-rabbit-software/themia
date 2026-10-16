@@ -80,7 +80,7 @@ public sealed class WidgetInstance
     public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
     {
         _ when !CanHaveHeader(kind) => HeaderPlacement.Hidden,
-        WidgetKind.Clock or WidgetKind.Date or WidgetKind.Sun or WidgetKind.Moon or WidgetKind.Disk
+        WidgetKind.Clock or WidgetKind.Sun or WidgetKind.Moon or WidgetKind.Disk
             or WidgetKind.Drive => HeaderPlacement.Hidden,
         _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
         _ => HeaderPlacement.Top,

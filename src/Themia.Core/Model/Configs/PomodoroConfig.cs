@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using Themia.Core.Localization;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Model;
 
@@ -26,14 +28,52 @@ public enum AlarmSound
     Off = 12,
 }
 
+/// <summary>
+/// [S-6035] How the Pomodoro draws the phase's progress: a ring where the tile holds one (the bar
+/// below that), always the bar, or the digits alone.
+/// </summary>
+[JsonConverter(typeof(StyleJsonConverter<PomodoroStyle>))]
+public enum PomodoroStyle
+{
+    Ring = 0,
+    Bar = 1,
+    Digits = 2,
+}
+
 /// <summary>A focus/break timer. [S-01] Run state is deliberately not persisted.</summary>
-public sealed class PomodoroConfig : WidgetConfig
+public sealed class PomodoroConfig : WidgetConfig, IStyled
 {
     /// <summary>[S-1460] The original's default level.</summary>
     public const int DefaultVolume = 70;
 
+    private static readonly StyleOption[] PomodoroStyles =
+    [
+        StyleOption.Of(PomodoroStyle.Ring, Str.Styles_Pomodoro_Ring, 0xEA3A),
+        StyleOption.Of(PomodoroStyle.Bar, Str.Styles_Pomodoro_Bar, 0xE7A5),
+        StyleOption.Of(PomodoroStyle.Digits, Str.Styles_Pomodoro_Digits, 0xEC92),
+    ];
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Pomodoro;
+
+    /// <summary>[S-6035] How the phase's progress is drawn.</summary>
+    public PomodoroStyle Style { get; set; } = PomodoroStyle.Ring;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => PomodoroStyles;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (PomodoroStyle)value;
+    }
+
+    /// <summary>[S-6035] Whether a tile with room for a ring draws one: the Ring style only.</summary>
+    [JsonIgnore]
+    public bool DrawsRing => Style == PomodoroStyle.Ring;
+
+    /// <summary>[S-6035] Whether the progress bar is drawn where the ladder has room for it: not by the Digits style.</summary>
+    [JsonIgnore]
+    public bool DrawsBar => Style != PomodoroStyle.Digits;
 
     /// <summary>Length of a focus phase, 1 to 180 minutes.</summary>
     public int WorkMinutes { get; set; } = 25;
@@ -78,6 +118,7 @@ public sealed class PomodoroConfig : WidgetConfig
 
     public override WidgetConfig Clone() => new PomodoroConfig
     {
+        Style = Style,
         WorkMinutes = WorkMinutes,
         BreakMinutes = BreakMinutes,
         Sound = Sound,

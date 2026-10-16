@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "Tekst",
+  "styles.countdown.ring": "Pierścień",
+  "styles.countdown.unitDays": "dni",
+  "styles.countdown.unitHours": "godz.",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "s"
+}

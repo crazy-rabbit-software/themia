@@ -1,0 +1,8 @@
+{
+  "styles.countdown.text": "Metin",
+  "styles.countdown.ring": "Halka",
+  "styles.countdown.unitDays": "gün",
+  "styles.countdown.unitHours": "saat",
+  "styles.countdown.unitMinutes": "dk",
+  "styles.countdown.unitSeconds": "sn"
+}

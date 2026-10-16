@@ -3,15 +3,14 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
-using Themia.App.Shell.Motion;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Windows.Foundation;
+using DayText = Themia.Core.Widgets.DateText;
 
 namespace Themia.App.Widgets;
 
@@ -27,10 +26,12 @@ namespace Themia.App.Widgets;
 /// analog dial on a wide strip puts its text beside the dial instead of under it.
 /// </para>
 /// <para>
-/// [S-6011] Six styles over the same ladder: the digital, stacked and minimal readouts share the
+/// [S-6011] Seven styles over the same ladder: the digital, stacked and minimal readouts share the
 /// digits; the analog dial is drawn in code; the word style is a wrapped sentence sized by the
 /// language's longest ([S-6013]); the flip style is a split-flap card per part of the time that
-/// turns over when it changes ([S-6012]). The minimal clock has no rungs at all ([S-6014]).
+/// turns over when it changes (<see cref="FlipCard"/>, [S-6012]). The minimal clock has no rungs
+/// at all ([S-6014]), and the date style has its own ladder (<see cref="DateLayout"/>, [S-5301]):
+/// the weekday, the day of the month large and the month, in the clock's zone, and no time.
 /// </para>
 /// </summary>
 public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAware
@@ -64,22 +65,23 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
     /// </summary>
     private const double Hairline = 1;
 
-    /// <summary>[S-6012] A flip card's height against its width, and the digits' share of the card.</summary>
-    private const double FlipAspect = 1.1;
-    private const double FlipDigitShare = 0.82;
-
     /// <summary>[S-6012] Under this card height there is no corner left for AM/PM beside the digits.</summary>
     private const double FlipMeridiemFloor = 96;
-
-    /// <summary>[S-6012] The two halves of a flip: the card folds away, then the new digits fold in.</summary>
-    private static readonly TimeSpan FlipFold = TimeSpan.FromMilliseconds(110);
-    private static readonly TimeSpan FlipOpen = TimeSpan.FromMilliseconds(170);
 
     /// <summary>[S-6012] The flip style's cards: hours, minutes, and seconds when drawn.</summary>
     private readonly List<FlipCard> _flipCards = [];
 
     /// <summary>[S-6012] The AM/PM marker, in the corner of the hours card.</summary>
     private readonly TextBlock _flipMeridiem = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Bottom };
+
+    /// <summary>[S-5300] The date style's face: the weekday, the day of the month and the month.</summary>
+    private readonly StackPanel _dayFace = new() { VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
+    private readonly StackPanel _dayWords = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly TextBlock _dayWeekday = Fluent.Text(FluentType.BodyStrong, "AccentTextFillColorPrimaryBrush");
+    private readonly TextBlock _dayNumber = Fluent.Text(FluentType.Title);
+    private readonly TextBlock _dayMonth = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+    private DatePlan _dayPlan = DateLayout.Plan(default);
+    private DateFace? _dayShape;
 
     private Ticker? _ticker;
     private ClockConfig _config = new();
@@ -133,6 +135,12 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // than at the font's own (looser) spacing.
         TimeText.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
 
+        _dayWeekday.TextTrimming = TextTrimming.CharacterEllipsis;
+        _dayMonth.TextTrimming = TextTrimming.CharacterEllipsis;
+        _dayNumber.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_dayNumber, FontNumeralAlignment.Tabular);
+        FaceHost.Children.Add(_dayFace);
+
         Unloaded += (_, _) => Detach();
     }
 
@@ -160,6 +168,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         AnalogFace.Visibility = Visible(style == ClockStyle.Analog);
         WordsText.Visibility = Visible(style == ClockStyle.Word);
         FlipRow.Visibility = Visible(style == ClockStyle.Flip);
+        _dayFace.Visibility = Visible(style == ClockStyle.Date);
+        ToolTipService.SetToolTip(this, null);
         MeridiemText.Visibility = RegionFormat.Current.Use24Hour ? Visibility.Collapsed : Visibility.Visible;
         _flipMeridiem.Visibility = MeridiemText.Visibility;
 
@@ -180,7 +190,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // [S-6012] A changed config or language redraws the cards at once: only a tick flips them.
         foreach (var card in _flipCards)
         {
-            card.Shown = null;
+            card.Redraw();
         }
 
         if (_secondHand is not null)
@@ -217,9 +227,12 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // in the middle of a band of nothing.
         _side = analog && _area.Shape == AreaShape.Wide && _area.WidthClass >= SizeClass.Regular;
         Arrange(_side);
-        ApplyAlignment();
 
-        if (_side)
+        if (_config.Style == ClockStyle.Date)
+        {
+            LayDate(box);
+        }
+        else if (_side)
         {
             LaySide(box);
         }
@@ -228,7 +241,54 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
             LayColumn(box, _config.Style);
         }
 
+        ApplyAlignment();
         Render();
+    }
+
+    /// <summary>
+    /// [S-5301] The date style: no label, date line or offset (the face is the date), the parts
+    /// placed for <see cref="DateLayout"/>'s plan: a column, or on a strip the day beside the words.
+    /// </summary>
+    private void LayDate(WidgetArea box)
+    {
+        _showOffset = false;
+        Show(label: false, date: false);
+        _dayPlan = DateLayout.Plan(box);
+
+        if (_dayShape != _dayPlan.Face)
+        {
+            // Rebuilt only when the face changes, never per pass.
+            _dayShape = _dayPlan.Face;
+            _dayFace.Children.Clear();
+            _dayWords.Children.Clear();
+
+            if (_dayPlan.Face == DateFace.Row)
+            {
+                _dayFace.Orientation = Orientation.Horizontal;
+                _dayFace.Spacing = DateLayout.Gap;
+                _dayWords.Children.Add(_dayWeekday);
+                _dayWords.Children.Add(_dayMonth);
+                _dayFace.Children.Add(_dayNumber);
+                _dayFace.Children.Add(_dayWords);
+            }
+            else
+            {
+                _dayFace.Orientation = Orientation.Vertical;
+                _dayFace.Spacing = 0;
+                _dayFace.Children.Add(_dayWeekday);
+                _dayFace.Children.Add(_dayNumber);
+                _dayFace.Children.Add(_dayMonth);
+            }
+        }
+
+        _dayNumber.Apply(_dayPlan.Number);
+        _dayWeekday.Apply(_dayPlan.WeekdayStep);
+        _dayMonth.Apply(_dayPlan.MonthStep);
+        _dayWeekday.Visibility = Visible(_dayPlan.Weekday);
+        _dayMonth.Visibility = Visible(_dayPlan.Month);
+
+        // A bound, not a width: the pair is aligned as a whole, the words trimmed at the bound.
+        _dayWords.MaxWidth = _dayPlan.Face == DateFace.Row ? _dayPlan.TextWidth : double.PositiveInfinity;
     }
 
     /// <summary>The ordinary column: label, face, then the rungs under it.</summary>
@@ -333,13 +393,13 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         if (vertical)
         {
             cardHeight = (height - (gap * (count - 1))) / count;
-            cardWidth = Math.Min(width, cardHeight * FlipAspect * 1.4);
+            cardWidth = Math.Min(width, cardHeight * FlipCard.Aspect * 1.4);
         }
         else
         {
             cardWidth = (width - (gap * (count - 1))) / count;
-            cardHeight = Math.Min(height, cardWidth * FlipAspect);
-            cardWidth = Math.Min(cardWidth, cardHeight / FlipAspect * 1.2);
+            cardHeight = Math.Min(height, cardWidth * FlipCard.Aspect);
+            cardWidth = Math.Min(cardWidth, cardHeight / FlipCard.Aspect * 1.2);
         }
 
         cardWidth = Math.Floor(Math.Max(1, cardWidth));
@@ -353,14 +413,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // on a card too small to hold it beside the digits it is left out (the digits are the point).
         var meridiem = !RegionFormat.Current.Use24Hour && cardHeight >= FlipMeridiemFloor;
         _flipMeridiem.Visibility = Visible(meridiem);
-        var digits = FluentType.Hero(cardWidth * 0.86, cardHeight * (meridiem ? FlipDigitShare - 0.12 : FlipDigitShare), 2);
-        var radius = Math.Min(Fluent.OverlayRadius, cardHeight / 8);
+        var digits = FluentType.Hero(cardWidth * 0.86, cardHeight * (meridiem ? FlipCard.DigitShare - 0.12 : FlipCard.DigitShare), 2);
         foreach (var card in _flipCards)
         {
-            card.Root.Width = cardWidth;
-            card.Root.Height = cardHeight;
-            card.Face.CornerRadius = new CornerRadius(radius);
-            card.Digits.Apply(digits);
+            card.Lay(cardWidth, cardHeight, digits);
         }
 
         var tag = FluentType.Fit(cardWidth * 0.4, cardHeight * 0.18, 2, FluentType.Caption, FluentType.BodyLarge);
@@ -388,112 +444,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
         _flipMeridiem.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
         _flipCards[0].Root.Children.Add(_flipMeridiem);
-    }
-
-    /// <summary>
-    /// [S-6012] Show <paramref name="text"/> on a card: at once when it is new or the card was just
-    /// redrawn, otherwise flipped over, unless Windows' animation effects are off ([S-1010]).
-    /// </summary>
-    private void Flip(FlipCard card, string text)
-    {
-        if (string.Equals(card.Shown, text, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var animate = card.Shown is not null && IsLoaded && SystemMotion.AnimationsEnabled;
-        card.Shown = text;
-        card.Running?.Stop();
-        card.Running = null;
-
-        if (!animate)
-        {
-            card.Projection.RotationX = 0;
-            card.Digits.Text = text;
-            return;
-        }
-
-        var fold = Turn(card.Projection, 0, -90, FlipFold, EasingMode.EaseIn);
-        fold.Completed += (_, _) =>
-        {
-            if (!ReferenceEquals(card.Running, fold))
-            {
-                return; // a newer flip or a redraw took over
-            }
-
-            card.Digits.Text = card.Shown ?? string.Empty;
-            var open = Turn(card.Projection, 90, 0, FlipOpen, EasingMode.EaseOut);
-            card.Running = open;
-            open.Begin();
-        };
-
-        card.Running = fold;
-        fold.Begin();
-    }
-
-    private static Storyboard Turn(PlaneProjection projection, double from, double to, TimeSpan duration, EasingMode easing)
-    {
-        var turn = new DoubleAnimation
-        {
-            From = from,
-            To = to,
-            Duration = new Duration(duration),
-            EasingFunction = new SineEase { EasingMode = easing },
-        };
-
-        Storyboard.SetTarget(turn, projection);
-        Storyboard.SetTargetProperty(turn, nameof(PlaneProjection.RotationX));
-        var board = new Storyboard();
-        board.Children.Add(turn);
-        return board;
-    }
-
-    /// <summary>
-    /// [S-6012] One split-flap card: a rounded face in the subtle fill, the digits centred, and the
-    /// hairline split across its middle that makes it a flap rather than a box.
-    /// </summary>
-    private sealed class FlipCard
-    {
-        public FlipCard()
-        {
-            Face = new Border
-            {
-                Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.DimGray),
-                BorderBrush = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray),
-                BorderThickness = new Thickness(Hairline),
-            };
-
-            Digits = new TextBlock
-            {
-                Foreground = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                TextAlignment = TextAlignment.Center,
-                LineStackingStrategy = LineStackingStrategy.BlockLineHeight,
-            };
-
-            var split = new Rectangle
-            {
-                Height = Hairline,
-                VerticalAlignment = VerticalAlignment.Center,
-                Fill = FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray),
-            };
-
-            Root = new Grid { Projection = Projection, Children = { Face, Digits, split } };
-        }
-
-        public Grid Root { get; }
-
-        public Border Face { get; }
-
-        public TextBlock Digits { get; }
-
-        public PlaneProjection Projection { get; } = new();
-
-        /// <summary>What the card says, or null when it is to be drawn at once (new, or redrawn).</summary>
-        public string? Shown { get; set; }
-
-        public Storyboard? Running { get; set; }
     }
 
     /// <summary>[S-1488] A dial on a strip: the dial takes the height, the text column the rest.</summary>
@@ -610,6 +560,16 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         WordsText.TextAlignment = text;
         WordsText.HorizontalAlignment = horizontal;
         FlipRow.HorizontalAlignment = horizontal;
+
+        // [S-5301] The date style's lines read from the alignment in a column; beside the day on a
+        // strip they read from it outwards.
+        _dayFace.HorizontalAlignment = horizontal;
+        var row = _dayPlan.Face == DateFace.Row;
+        foreach (var line in new[] { _dayWeekday, _dayNumber, _dayMonth })
+        {
+            line.HorizontalAlignment = row ? HorizontalAlignment.Left : horizontal;
+            line.TextAlignment = row ? TextAlignment.Left : text;
+        }
 
         var lines = _side ? HorizontalAlignment.Left : horizontal;
         var lineText = _side ? TextAlignment.Left : text;
@@ -825,6 +785,17 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var date = _shortDate ? ClockFormatter.ShortDate(now, _config, locale) : reading.Date ?? string.Empty;
         DateText.Text = _offsetOnDate && offset is not null ? $"{date} · {offset}" : date;
 
+        if (_config.Style == ClockStyle.Date)
+        {
+            // [S-5300] The day in the clock's own zone: a world clock's date is that place's.
+            var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, _config.ResolveTimeZone()).DateTime);
+            _dayNumber.Text = DayText.Number(locale, day);
+            _dayWeekday.Text = DayText.Weekday(locale, day, _dayPlan.ShortWeekday);
+            _dayMonth.Text = DayText.Month(locale, day, _dayPlan.ShortMonth);
+            ToolTipService.SetToolTip(this, DayText.Full(locale, day));
+            return;
+        }
+
         if (_config.Style == ClockStyle.Word)
         {
             WordsText.Text = ClockFormatter.Words(now, _config, locale);
@@ -836,7 +807,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
             var parts = reading.Time.Split(':');
             for (var i = 0; i < _flipCards.Count && i < parts.Length; i++)
             {
-                Flip(_flipCards[i], parts[i]);
+                _flipCards[i].Show(parts[i], IsLoaded);
             }
 
             _flipMeridiem.Text = reading.Meridiem ?? string.Empty;

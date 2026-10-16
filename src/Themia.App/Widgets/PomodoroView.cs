@@ -25,6 +25,11 @@ namespace Themia.App.Widgets;
 /// each size class gets its own arrangement — digits and a button at XS, a strip with the controls
 /// beside, a stack, a ring on tall and large tiles — rather than one stack scaled up and down.
 /// </para>
+/// <para>
+/// [S-6035] The style decides how the phase's progress is drawn on that ladder: Ring as above
+/// (the shared <see cref="RingPart"/>), Bar the bar at every size (a large tile stacks the digits
+/// over it), Digits neither, the digits taking the room.
+/// </para>
 /// </summary>
 internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
@@ -49,8 +54,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     private readonly StackPanel _phaseRow;
     private readonly TextBlock _clock = Fluent.Text(FluentType.Display);
     private readonly ProgressBar _progress = new();
-    private readonly Ellipse _ringTrack = new();
-    private readonly Microsoft.UI.Xaml.Shapes.Path _ringArc = new();
+    private readonly RingPart _ring = new();
     private readonly TextBlock _next = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
 
     private readonly Button _runButton = new();
@@ -66,9 +70,8 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     private WidgetArea _area;
     private bool _preview;
 
-    /// <summary>Whether the ring (rather than the bar) is drawn, and its size, from the last ladder pass.</summary>
+    /// <summary>Whether the ring (rather than the bar) is drawn, from the last ladder pass.</summary>
     private bool _ringShown;
-    private double _ringDiameter;
 
     /// <summary>
     /// Swallows the callback <see cref="Ticker.Subscribe"/> makes straight away ([S-155]): this
@@ -99,11 +102,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _progress.Minimum = 0;
         _progress.Maximum = 100;
 
-        // [S-837] The ring stands for a progress ring, whose track is a control's strong rest fill; the
-        // disabled fill read as a timer that was switched off.
-        _ringTrack.Stroke = FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
-        _ringArc.StrokeStartLineCap = PenLineCap.Round;
-        _ringArc.StrokeEndLineCap = PenLineCap.Round;
 
         Button(_runButton, _runIcon, Glyphs.Play, Str.WidgetsC_Pomodoro_Start.Text());
         Button(_resetButton, new FontIcon(), Glyphs.Reset, Str.Pomodoro_Reset.Text());
@@ -130,8 +128,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             Children = { _runButton, _resetButton, _skipButton },
         };
 
-        _canvas.Children.Add(_ringTrack);
-        _canvas.Children.Add(_ringArc);
+        _canvas.Children.Add(_ring.Root);
         _canvas.Children.Add(_phaseRow);
         _canvas.Children.Add(_clock);
         _canvas.Children.Add(_progress);
@@ -320,14 +317,14 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _phase.Foreground = badge;
         _phaseIcon.Foreground = badge;
         _progress.Foreground = fill;
-        _ringArc.Stroke = fill;
+        _ring.SetBrush(fill);
 
         _runIcon.Glyph = _running ? Glyphs.Pause : Glyphs.Play;
         ToolTipService.SetToolTip(_runButton, (_running ? Str.WidgetsC_Pomodoro_Pause : Str.WidgetsC_Pomodoro_Start).Text());
 
         if (_ringShown)
         {
-            _ringArc.Data = Arc(_ringDiameter, _ringArc.StrokeThickness, fraction);
+            _ring.SetFraction(fraction);
         }
 
         // A longer phase is a longer readout ("120:00"), so the ladder re-runs when the digits
@@ -371,13 +368,14 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
 
         // Reset everything the arrangements below may not place.
         _ringShown = false;
-        Hide(_ringTrack, _ringArc, _phaseRow, _progress, _next);
+        Hide(_ring.Root, _phaseRow, _progress, _next);
 
         var skip = area.WidthClass >= SizeClass.Expanded || area.AtLeast(SizeClass.Regular, SizeClass.Regular);
         var reset = area.WidthClass >= SizeClass.Regular || area.HeightClass >= SizeClass.Regular;
         var buttons = SetButtons(side, reset, skip);
 
-        if (area.HeightClass >= SizeClass.Expanded && area.WidthClass >= SizeClass.Regular && LayRing(area, box, side, buttons, characters))
+        // [S-6035] Only the Ring style has a ring; the others stack or strip at every size.
+        if (_config.DrawsRing && area.HeightClass >= SizeClass.Expanded && area.WidthClass >= SizeClass.Regular && LayRing(area, box, side, buttons, characters))
         {
             return;
         }
@@ -401,7 +399,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         room.Reserve(side);
         room.Reserve(FluentType.Body.LineHeight);
         var phase = area.WidthClass >= SizeClass.Regular && room.Take(FluentType.BodyStrong.LineHeight);
-        var bar = area.WidthClass >= SizeClass.Regular && room.Take(BarHeight);
+        var bar = _config.DrawsBar && area.WidthClass >= SizeClass.Regular && room.Take(BarHeight);
         var next = area.HeightClass >= SizeClass.Regular && room.Take(FluentType.Caption.LineHeight, FluentType.EstimateWidth(FluentType.Caption, 18));
 
         var digits = FluentType.Hero(box.Width, room.Remaining + FluentType.Body.LineHeight, characters);
@@ -451,7 +449,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         var room = new Disclosure(left, box.Height, gap);
 
         room.Reserve(FluentType.Body.LineHeight);
-        var bar = room.Take(BarHeight);
+        var bar = _config.DrawsBar && room.Take(BarHeight);
         var phase = room.Take(FluentType.BodyStrong.LineHeight);
 
         var digits = FluentType.Hero(left, room.Remaining + FluentType.Body.LineHeight, characters);
@@ -529,11 +527,8 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _next.Apply(nextStep);
         _clock.Apply(FluentType.Hero(diameter * 0.66, diameter * 0.34, characters));
 
-        var stroke = Math.Clamp(diameter * 0.05, 4, 12);
         _ringShown = true;
-        _ringDiameter = diameter;
-        _ringTrack.StrokeThickness = stroke;
-        _ringArc.StrokeThickness = stroke;
+        _ring.Resize(diameter);
 
         var x0 = Fluent.Space4;
         var y0 = Fluent.Space4;
@@ -589,14 +584,13 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             Place(_controls, x0 + ((box.Width - buttons) / 2), y, buttons, side);
         }
 
-        _ringArc.Data = Arc(diameter, stroke, PomodoroCycle.Progress(_state, PomodoroCycle.PhaseSeconds(_state.Phase, _config)));
+        _ring.SetFraction(PomodoroCycle.Progress(_state, PomodoroCycle.PhaseSeconds(_state.Phase, _config)));
         return true;
     }
 
     private void PlaceRing(double x, double y, double diameter)
     {
-        Place(_ringTrack, x, y, diameter, diameter);
-        Place(_ringArc, x, y, diameter, diameter);
+        Place(_ring.Root, x, y, diameter, diameter);
 
         var digits = _clock.LineHeight;
         _clock.TextAlignment = TextAlignment.Center;
@@ -619,44 +613,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         return (count * side) + ((count - 1) * Fluent.Space2);
     }
 
-    /// <summary>
-    /// The filled part of the ring: an arc clockwise from twelve o'clock. A full ring is two half
-    /// arcs, because one arc from a point back to itself draws nothing.
-    /// </summary>
-    private static Geometry Arc(double diameter, double stroke, double fraction)
-    {
-        var r = Math.Max(1, (diameter - stroke) / 2);
-        var c = diameter / 2;
-        fraction = Math.Clamp(fraction, 0, 1);
-
-        var figure = new PathFigure { StartPoint = new Windows.Foundation.Point(c, c - r), IsClosed = false };
-
-        if (fraction <= 0.0005)
-        {
-            return new PathGeometry();
-        }
-
-        if (fraction >= 0.9995)
-        {
-            figure.Segments.Add(new ArcSegment { Point = new Windows.Foundation.Point(c, c + r), Size = new Windows.Foundation.Size(r, r), SweepDirection = SweepDirection.Clockwise });
-            figure.Segments.Add(new ArcSegment { Point = new Windows.Foundation.Point(c, c - r), Size = new Windows.Foundation.Size(r, r), SweepDirection = SweepDirection.Clockwise });
-        }
-        else
-        {
-            var angle = fraction * 2 * Math.PI;
-            figure.Segments.Add(new ArcSegment
-            {
-                Point = new Windows.Foundation.Point(c + (r * Math.Sin(angle)), c - (r * Math.Cos(angle))),
-                Size = new Windows.Foundation.Size(r, r),
-                SweepDirection = SweepDirection.Clockwise,
-                IsLargeArc = fraction > 0.5,
-            });
-        }
-
-        var geometry = new PathGeometry();
-        geometry.Figures.Add(figure);
-        return geometry;
-    }
 
     private static void Place(FrameworkElement element, double x, double y, double width, double height)
     {
