@@ -15,7 +15,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 
 Sections, grouped by area (file order below; search for the heading).
 
-- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
+- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
@@ -280,7 +280,7 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   each round and a forced collection: working set, private bytes, managed heap, cards alive, views
   attached against the live widgets, ticker subscriptions, threads and handles, marking a breach LEAK.
   `--per-view` prints each view's cost while shown; `--show` measures one view and draws it, then
-  with every list scrolled to its end.
+  with every list scrolled to its end. `--busy` is the long-running desktop on two displays ([S-6601]).
 - **[S-1884]** Debug builds keep a weak census of every card and attached view (`LiveCensus`) for the
   switch check: after a collection, a card of a view no display shows that is still alive is a leak.
 - **[S-1885]** Baseline (switch check `--ordinary`, Debug build, one 1920x1080 stand-in display at
@@ -296,6 +296,54 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   height (`FolderRealize.SpacerHeight`), so the scroll range is right from the start. Scrolling,
   growing the tile, the keyboard cursor (End, Page down) and a rename build further; nothing built is
   taken down before the next full redraw. The "+N more" row comes once everything is built.
+
+## Memory
+
+What a desktop left running for hours holds, and what bounds it. Most of the process is native: XAML
+elements and text layouts on the process heap, decoded pictures and video frames in the graphics
+driver's buffers; the managed heap is a few MB of live objects. Figures are from the switch check's
+busy desktop ([S-6601]), Debug, private bytes.
+
+- **[S-6600]** What is built is bounded by what can be seen. Only the views the displays show run
+  ([S-1880]); a list builds the rows in view and one viewport below ([S-1887], [S-6603]); a picture is
+  decoded at the size drawn ([S-3411]); a video plays the rendition the tile needs ([S-6602]); a cache
+  of what nobody sees has a byte or entry cap (pictures [S-6605], program icons 512, file icons,
+  favicons, program names). The
+  release sweep ([S-1882]) is the only forced collection.
+- **[S-6601]** Debug render: `--switch-check <rounds> [<out.txt>] --busy <pictures> [--stream <url>]
+  [--soak s]` is the long-running desktop: two 2560x1440 stand-in displays, one with seven galleries
+  (every style) over a picture folder, one with a video stream, the visualizer, top processes, the
+  meters, CPU details, the screen-time chart and a clock; measured after 5 s and every 30 s for
+  `--soak` seconds, then the showcase views switched through on the first display `rounds` times
+  with the second keeping its view, then both emptied. Every measurement of the switch check also
+  prints the GC's committed bytes, the icons held, the process heaps (committed and in use,
+  `HeapSummary`) and the private memory in 32 MB blocks (the driver's picture and video buffers).
+  `--state <path>` takes the views from a copy of a state file, never written back.
+- **[S-6602]** HLS video is capped at the rendition the tile needs. The master playlist is read once
+  for its renditions (`HlsVariants.Parse`, at most 256 K characters; anything else has none) and the
+  adaptive source's `DesiredMaxBitrate` set to the smallest rendition that fills the tile at its
+  physical size (`HlsVariants.CapFor`: one side when letterboxed, both when cropped or stretched, the
+  sides swapped when turned), again on every resize; it starts at the highest bitrate under the cap.
+  No cap when no rendition is that large or any does not declare its size. The 1080p test stream in
+  a 1000 px tile plays 720p: about 160 MB less after three minutes.
+- **[S-6603]** A detail list (top processes, drives, adapters) builds only the rows in view and one
+  viewport below, with a spacer for the rest (`FolderRealize`, as the folder widget); a scroll, the
+  keyboard cursor or a taller tile builds more, nothing built is taken down. Top processes had a row
+  per process in every list: seven tiles cost 327 MB private, now 203 MB.
+- **[S-6604]** The process runs on the segment heap (`app.manifest`, `heapType`), as packaged UWP
+  apps do. The default heap kept what it once committed: with both displays empty again it held
+  about 230 MB committed for 80 MB in use; the segment heap gives the pages back (about 110 MB).
+- **[S-6605]** Decoded pictures nobody shows are kept up to half as much again as those on screen,
+  at least 32 MB (one full-bleed 4K picture) and at most 96 MB (was as much again, 48 to 192 MB).
+  Each one also costs its copy in the driver's buffers.
+- **[S-6606]** Not done, on purpose: no `EmptyWorkingSet` or `SetProcessWorkingSetSize` trim (it moves
+  pages to the standby list, the commit stays, and the next frame faults them back in), no periodic
+  `GC.Collect` (the managed heap is not where the memory is), no `HeapCompact` (measured: it releases
+  nothing on top).
+- **[S-6607]** Busy desktop ([S-6601], 300 s soak, two showcase rounds, the Mux 1080p test stream,
+  200 pictures of 2 to 24 MP), before and after [S-6602]..[S-6605]: 642 MB private after the soak, now
+  395 MB; 769 MB after the showcase rounds, now 443 MB; 539 MB with both displays empty, now 329 MB.
+  Working set at the end of the rounds 873 MB, now 560 MB.
 
 ## Persistence
 
@@ -2234,7 +2282,7 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   size drawn (physical pixels, widths rounded up to 64 and capped at 3840, `DecodeWidth`; a larger
   decode already held serves a smaller ask), two decodes at a time across all widgets. A frame on
   screen pins its picture and a pinned picture is never evicted; besides them the cache keeps, least
-  recently used out, as many bytes again as are on screen, at least 48 MB and at most 192 MB
+  recently used out, half as many bytes again as are on screen, at least 32 MB and at most 96 MB ([S-6605])
   (`PictureBudget`, four bytes a pixel). So a widget built again finds its pictures decoded and draws
   them in the same pass, with no blank or loading state. Suspending the desktop ([S-928]) drops
   every picture nobody shows. (Tests `S3411_`.)
