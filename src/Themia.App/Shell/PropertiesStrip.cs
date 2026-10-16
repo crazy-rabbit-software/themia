@@ -229,18 +229,21 @@ internal sealed partial class PropertiesStrip : Grid
         // [S-6531] The widgets' own content scale, after the look of the card it magnifies.
         AddRow(Str.Widget_Scale_Label.Text(), ScaleChoice(commands));
 
-        // [S-6009] The widget's settings, one widget only and only when its page has rows ([S-1750]).
+        // [S-6009] More settings: the widget's own options on its page (the panel holds the rest,
+        // [S-6536]), one widget only and only when its page has rows ([S-1750]).
         if (_offer is { TitleWidgetId: { } settingsId } && _hasSettings)
         {
             var gear = new Button
             {
-                Content = EditBar.Labelled(Glyphs.Settings, Str.Common_Settings.Text(), accent: false),
+                Content = EditBar.Labelled(Glyphs.Settings, Str.Shell_MoreSettings.Text(), accent: false),
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Left,
             };
             EditBar.Subtle(gear);
             gear.Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
-            AutomationProperties.SetName(gear, Str.Common_Settings.Text());
+            AutomationProperties.SetName(gear, Str.Shell_MoreSettings.Text());
+            ToolTipService.SetToolTip(gear, Str.Shell_MoreSettings_Tip.Text());
+            AutomationProperties.SetHelpText(gear, Str.Shell_MoreSettings_Tip.Text());
             gear.Click += (_, _) => commands.OpenSettings(settingsId);
             AddRow(null, gear);
         }

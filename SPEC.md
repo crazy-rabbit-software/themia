@@ -975,8 +975,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: a Title row (a box 32 tall, the kind's name as its placeholder), then
   Style ([S-6007]), Header, Background, Item background ([S-6521]), Item text ([S-6544]) and Scale ([S-6531]), and the
-  Settings row ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind
-  only), Header, Background, Item background, Item text and Scale, and **no title** and no Settings: a title names one widget, so
+  More settings row ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind
+  only), Header, Background, Item background, Item text and Scale, and **no title** and no More settings: a title names one widget, so
   one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
@@ -1001,7 +1001,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   drop-downs that show the current value's icon and words (a dash for a mixed
   selection) and whose menus tick it (Header: Top, Bottom, Left, Right, Hidden with their icons; Background:
   and Item background are fill controls instead, [S-6566]), built as they open; Item text is the colour control ([S-1549]);
-  Settings is a full-width row with the gear and its word. A press on its padding or words stays
+  More settings is a full-width row with the gear and its words. A press on its padding or words stays
   on it, so it never starts a rubber band or clears the selection. It is inside the work area
   ([S-3708]), and in edit mode the hit region is the whole work area ([S-851]), so it always takes
   its clicks. F6 reaches it after the edit bar while it shows ([S-1975]), and the keyboard on it
@@ -1069,7 +1069,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   header, text, icons, padding, the [S-850] way — never the card's cell, which stays where it is
   and the same size.
 - **[S-6531]** The properties panel's **Scale** row, after Item background and Item text,
-  before Settings: a drop-down showing the scale's icon and percentage (a dash when the selected
+  before More settings: a drop-down showing the scale's icon and percentage (a dash when the selected
   widgets differ, `QuickSet.Common` over the stored values) whose menu offers 75, 90, 100, 110,
   125 and 150 % (`WidgetScale.Steps`) and ticks the current one; a scale between them (an imported or hand-edited one)
   between them is listed in its place (`WidgetScale.Offered`), so the menu always shows what the
@@ -1095,7 +1095,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the panel beside
   real cards in edit mode on a stand-in display: `props-<theme>-right.png` (one flip clock in the
   middle with a title, an item colour of its own and a scale of 125 %: Style with the flip icon,
-  Item background "Custom, 80%", Scale and Settings), `-left.png` (a widget at the right edge of the display),
+  Item background "Custom, 80%", Scale and More settings), `-left.png` (a widget at the right edge of the display),
   `-below.png` (a widget spanning the width), `-many.png` (three of mixed headers and scales,
   "3 selected"), `-toggle.png` (a Wi-Fi toggle: no Header choice), `-hidden.png` (header hidden,
   beside the same kind with a header), [S-6569] `-fills.png` (flip clocks with the background
@@ -1148,8 +1148,9 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   (`QuickSetOffer.Style` null). Mixed kinds: no Style.
 - **[S-6008]** A pick sets the style of every selected widget (`QuickSet.SetStyle`) in one `Mutate`:
   one undo step however many it reached.
-- **[S-6009]** The panel ends with a **Settings** row (the gear and the word, the panel's width) that
-  opens the widget's settings page; one widget only, and only when its page has rows in its current
+- **[S-6009]** The panel ends with a **More settings** row (the gear and the words, the panel's
+  width; its tooltip "This widget's own options, in the settings window") that opens the widget's
+  settings page — "More", since the panel holds the rest of the widget's settings ([S-6536]); one widget only, and only when its page has rows in its current
   style and state ([S-1750]): a style picked on the panel can bring the row or take it away. Several selected: no gear (which one's page would it be).
 - **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry
   `RingArc`): a track in the control's strong rest fill, the arc in a brush the widget gives,
