@@ -254,8 +254,6 @@
   "shell.settings.danger": "Danger",
   "shell.view.position": "{n} of {total}",
   "shell.widget.gone": "This widget has been removed.",
-  "shell.widget.card": "Card",
-  "shell.widget.translucent": "Translucent",
   "shell.license.limitReached": "Free limit reached",
   "shell.license.freeVersion": "Free version",
   "shell.license.widgetsDesc": "Across all views, groups and their members included",

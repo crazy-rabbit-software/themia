@@ -1,9 +1,10 @@
 {
   "shell.items.background": "आयटमची पार्श्वभूमी",
   "shell.items.backgroundDesc": "विजेटमधील ओळी, टाइल्स आणि चिप्स यांचा भराव, विजेटच्या स्वतःच्या पार्श्वभूमीपासून वेगळा",
-  "shell.items.colour": "आयटमचा रंग",
-  "shell.items.opacity": "आयटमची अपारदर्शकता",
   "shell.items.text": "आयटम मजकुराचा रंग",
   "shell.items.textDesc": "ओळी, टाइल्स आणि चिप्सवरील मजकूर आणि चिन्हे",
-  "shell.items.textShort": "आयटम मजकूर"
+  "shell.items.textShort": "आयटम मजकूर",
+  "shell.fill.transparent": "पारदर्शक",
+  "shell.fill.opacity": "अपारदर्शकता",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "Papier",
   "settings.style.border": "Rand",
   "settings.style.widgetBg.label": "Widgetachtergrond",
-  "settings.style.widgetOpacity.label": "Widgetdekking",
   "settings.style.headerBg.label": "Achtergrond koptekst",
   "settings.style.headerOpacity.label": "Dekking koptekst",
   "settings.style.widget": "Widget",

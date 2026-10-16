@@ -177,7 +177,7 @@ public static class SettingsPageSync
         return text.Append("\nnew ").Append(state.DefaultViewForNewDisplays).ToString();
     }
 
-    /// <summary>The widget's config, label, surface, header and scale ([S-6534]) — not its position or size.</summary>
+    /// <summary>The widget's config, label, background, header and scale ([S-6534]) — not its position or size.</summary>
     private static string WidgetSignature(AppState state, string? id)
     {
         foreach (var view in state.Views)
@@ -188,7 +188,8 @@ public static class SettingsPageSync
                 {
                     return new StringBuilder()
                         .Append(widget.Label).Append('\n')
-                        .Append(widget.Surface).Append('\n')
+                        .Append(widget.Background.Kind).Append(' ').Append(widget.Background.Colour).Append(' ')
+                        .Append(widget.Background.Opacity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)).Append('\n')
                         .Append(widget.Header).Append('\n')
                         .Append(widget.Scale.ToString("R", System.Globalization.CultureInfo.InvariantCulture)).Append('\n')
                         .Append(JsonSerializer.Serialize(widget.Config, AppStateJsonContext.Default.WidgetConfig))

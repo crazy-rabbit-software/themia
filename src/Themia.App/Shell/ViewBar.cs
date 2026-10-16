@@ -170,9 +170,12 @@ internal sealed partial class ViewBar : Grid
         var radius = Fluent.ControlRadius + metrics.BarPad;
 
         _fill.CornerRadius = new CornerRadius(radius);
-        _fill.Background = DesignApplier.UserBrush(design.WidgetBackgroundColor)
+        // [S-6563] The app-wide background: its colour or the Fluent base, at its opacity but never
+        // under 20 %, so the bar can always be found (a transparent design draws it at the floor).
+        var fill = DesignLook.Card(design.Background ?? new FillChoice());
+        _fill.Background = (fill.Colour is { } c ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B)) : null)
             ?? FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
-        _fill.Opacity = Math.Clamp(design.SurfaceOpacity, 0.2, 1);
+        _fill.Opacity = Math.Clamp(fill.Opacity, 0.2, 1);
 
         _stroke.RadiusX = _stroke.RadiusY = Math.Max(0, radius - (Fluent.Hairline / 2));
         _stroke.Stroke = DesignApplier.UserBrush(design.BorderColor)

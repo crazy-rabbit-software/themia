@@ -1,9 +1,10 @@
 {
   "shell.items.background": "พื้นหลังรายการ",
   "shell.items.backgroundDesc": "สีเติมของแถว ไทล์ และชิปภายในวิดเจ็ต แยกจากพื้นหลังของวิดเจ็ตเอง",
-  "shell.items.colour": "สีรายการ",
-  "shell.items.opacity": "ความทึบของรายการ",
   "shell.items.text": "สีข้อความของรายการ",
   "shell.items.textDesc": "ข้อความและไอคอนบนแถว ไทล์ และชิป",
-  "shell.items.textShort": "ข้อความของรายการ"
+  "shell.items.textShort": "ข้อความของรายการ",
+  "shell.fill.transparent": "โปร่งใส",
+  "shell.fill.opacity": "ความทึบ",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

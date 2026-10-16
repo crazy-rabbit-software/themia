@@ -59,13 +59,10 @@ internal static partial class ConfigPages
                         design.PrimaryColor, value => host.Mutate(s => s.Design.PrimaryColor = value),
                         new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_WindowsAccent.Text(), DefaultColor = ColorChoice.WindowsAccent }),
 
-                    FluentLayout.ColorPickerRow(Glyphs.Surface, Str.Settings_Style_WidgetBg_Label.Text(), Str.Shell_Appearance_WidgetBgDesc.Text(),
-                        design.WidgetBackgroundColor, value => host.Mutate(s => s.Design.WidgetBackgroundColor = value),
-                        new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text(), Presets = ColorPresets.Surfaces }),
-
-                    FluentLayout.Row(Glyphs.Opacity, Str.Settings_Style_WidgetOpacity_Label.Text(), null,
-                        FluentLayout.Slider(design.SurfaceOpacity * 100, 20, 100, 5, "%",
-                            value => host.Mutate(s => s.Design.SurfaceOpacity = value / 100))),
+                    // [S-6568] The widget background, one row: the Windows card, none, or a colour at an opacity.
+                    FluentLayout.FillPickerRow(Glyphs.Surface, Str.Settings_Style_WidgetBg_Label.Text(), Str.Shell_Appearance_WidgetBgDesc.Text(),
+                        design.Background, value => host.Mutate(s => s.Design.Background = value),
+                        new FillChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text() }),
 
                     // [S-828] The header strip, on its own terms, as in the original.
                     FluentLayout.ColorPickerRow(Glyphs.Surface, Str.Settings_Style_HeaderBg_Label.Text(), Str.Shell_Appearance_HeaderBgDesc.Text(),
@@ -81,13 +78,11 @@ internal static partial class ConfigPages
             // every card are filled with, whatever the card's own background is.
             FluentLayout.Expander(Glyphs.Surface, Str.Shell_Items_Background.Text(), Str.Shell_Items_BackgroundDesc.Text(), null,
                 [
-                    FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Shell_Items_Colour.Text(), null,
-                        design.ItemBackground.Color, value => host.Mutate(s => s.Design.ItemBackground.Color = value),
-                        new ColorChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text(), Presets = ColorPresets.Surfaces }),
-
-                    FluentLayout.Row(Glyphs.Opacity, Str.Shell_Items_Opacity.Text(), null,
-                        FluentLayout.Slider(design.ItemBackground.Opacity * 100, 0, 100, 5, "%",
-                            value => host.Mutate(s => s.Design.ItemBackground.Opacity = value / 100))),
+                    // [S-6568] The item background, one row on the same terms as the widget's; the
+                    // group's title already says whose background it is.
+                    FluentLayout.FillPickerRow(Glyphs.Palette, Str.Settings_Style_BgLabel.Text(), null,
+                        design.ItemBackground, value => host.Mutate(s => s.Design.ItemBackground = value),
+                        new FillChoiceOptions { DefaultLabel = Str.Shell_Appearance_ThemeColour.Text() }),
 
                     // [S-6545] The text and glyphs on the items: the theme's text colours by default.
                     FluentLayout.ColorPickerRow(Glyphs.FontColour, Str.Shell_Items_Text.Text(), Str.Shell_Items_TextDesc.Text(),

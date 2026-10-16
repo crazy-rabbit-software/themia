@@ -1,9 +1,10 @@
 {
   "shell.items.background": "آئٹمز کا پس منظر",
   "shell.items.backgroundDesc": "ویجیٹس کے اندر قطاروں، ٹائلز اور چپس کی بھرائی، ویجیٹ کے اپنے پس منظر سے الگ",
-  "shell.items.colour": "آئٹمز کا رنگ",
-  "shell.items.opacity": "آئٹمز کی دھندلاہٹ",
   "shell.items.text": "آئٹم کے متن کا رنگ",
   "shell.items.textDesc": "قطاروں، ٹائلوں اور چپس پر متن اور آئیکن",
-  "shell.items.textShort": "آئٹم کا متن"
+  "shell.items.textShort": "آئٹم کا متن",
+  "shell.fill.transparent": "شفاف",
+  "shell.fill.opacity": "غیر شفافیت",
+  "shell.fill.withOpacity": "{colour}، {percent}"
 }

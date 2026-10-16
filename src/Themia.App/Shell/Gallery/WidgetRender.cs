@@ -31,7 +31,7 @@ internal interface IWidgetPreviewState
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--own-items #RRGGBB] [--own-item-text #RRGGBB]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--background fill] [--own-items fill] [--own-item-text #RRGGBB]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -43,8 +43,8 @@ internal static class WidgetRender
     private const string Scope = "widget-render";
     private const string Flag = "--widget-png";
 
-    /// <summary>[S-6517] The background the render's cards are drawn with (<c>--surface</c>).</summary>
-    private static WidgetSurface _surface = WidgetSurface.Card;
+    /// <summary>[S-6569] The cards' own background (<c>--background</c>), Default to follow the design.</summary>
+    private static FillChoice _background = new();
 
     /// <summary>[S-6535] The cards' own content scale (<c>--scale 1.5</c>), as stored.</summary>
     private static double _scale = 1.0;
@@ -54,7 +54,7 @@ internal static class WidgetRender
     private static int? _span;
 
     /// <summary>[S-6547] The cards' own item colour and item text colour (<c>--own-items</c>, <c>--own-item-text</c>), empty to follow the design.</summary>
-    private static string _ownItems = string.Empty;
+    private static FillChoice _ownItems = new();
 
     private static string _ownItemText = string.Empty;
 
@@ -96,8 +96,8 @@ internal static class WidgetRender
             || !Enum.IsDefined(kind)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--own-items #RRGGBB] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--own-items #RRGGBB] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
             app.Exit();
             return true;
         }
@@ -117,13 +117,8 @@ internal static class WidgetRender
                 ? Math.Clamp(tween, 0, 1)
                 : null;
 
-        // [S-6517] --surface card|translucent|none: the cards' background, to see the items' own layer.
-        _surface = Option(args, "--surface")?.ToLowerInvariant() switch
-        {
-            "translucent" => WidgetSurface.Translucent,
-            "none" or "transparent" => WidgetSurface.Transparent,
-            _ => WidgetSurface.Card,
-        };
+        // [S-6569] --background default|transparent|#RRGGBB[@percent]: the cards' own background.
+        _background = DesignArgs.Fill(Option(args, "--background")) ?? new FillChoice();
 
         // [S-6535] --scale 0.75|1.5: the widget's own content scale, through the same path as on the desktop.
         _scale = Option(args, "--scale") is { } scaleText
@@ -138,7 +133,7 @@ internal static class WidgetRender
                 : null;
 
         // [S-6547] The widget's own item layer, over the app-wide one --design sets: the per-widget override.
-        _ownItems = HexColor.Normalise(Option(args, "--own-items"));
+        _ownItems = DesignArgs.Fill(Option(args, "--own-items")) ?? new FillChoice();
         _ownItemText = HexColor.Normalise(Option(args, "--own-item-text"));
 
         // [S-6006] Any styled kind in one of its styles; a wrong name prints the kind's styles.
@@ -368,13 +363,13 @@ internal static class WidgetRender
                 page.Children.Add(label);
 
                 var model = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
-                model.Surface = _surface;
+                model.Background = _background.Clone();
                 model.Scale = _scale;
                 if (_header is { } header)
                 {
                     model.Header = header;
                 }
-                model.ItemBackground = _ownItems.Length > 0 ? new ItemLayer { Color = _ownItems } : null;
+                model.ItemBackground = _ownItems.Clone();
                 model.ItemTextColor = _ownItemText;
                 if (style is { } chosen)
                 {

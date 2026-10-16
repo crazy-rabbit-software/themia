@@ -1,9 +1,10 @@
 {
   "shell.items.background": "आइटम पृष्ठभूमि",
   "shell.items.backgroundDesc": "विजेट के अंदर पंक्तियों, टाइलों और चिप्स का भराव, विजेट की अपनी पृष्ठभूमि से अलग",
-  "shell.items.colour": "आइटम का रंग",
-  "shell.items.opacity": "आइटम की अपारदर्शिता",
   "shell.items.text": "आइटम के टेक्स्ट का रंग",
   "shell.items.textDesc": "पंक्तियों, टाइलों और चिप्स पर टेक्स्ट और आइकन",
-  "shell.items.textShort": "आइटम टेक्स्ट"
+  "shell.items.textShort": "आइटम टेक्स्ट",
+  "shell.fill.transparent": "पारदर्शी",
+  "shell.fill.opacity": "अपारदर्शिता",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

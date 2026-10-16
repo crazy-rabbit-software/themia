@@ -33,7 +33,7 @@ internal sealed class ItemPalette
 
     private readonly Dictionary<(ItemRole Role, ItemState State), SolidColorBrush> _brushes = [];
     private readonly Dictionary<ItemTextTier, SolidColorBrush> _text = [];
-    private ItemLayer _layer = new();
+    private FillChoice _layer = new();
     private string _textColour = string.Empty;
     private bool _dark = true;
     private bool _applied;
@@ -110,7 +110,7 @@ internal sealed class ItemPalette
     /// none moved: it runs on every state change. The theme fills depend on the theme alone, so a
     /// layer, a text colour and a theme that did not change leave the brushes as they are.
     /// </summary>
-    public void Apply(ItemLayer layer, string textColour, bool dark)
+    public void Apply(FillChoice layer, string textColour, bool dark)
     {
         ArgumentNullException.ThrowIfNull(layer);
         textColour = HexColor.Normalise(textColour);
@@ -172,7 +172,7 @@ internal sealed class ItemPalette
             return;
         }
 
-        // The Fluent fill, value for value: its colour and its own opacity, faded by the layer's.
+        // The Fluent fill, value for value: its colour and its own opacity, times the ink's (0 for a transparent rest).
         if (DesignApplier.Brush(ink.ThemeKey ?? ItemLook.ThemeKey(role, state), Colors.Transparent) is SolidColorBrush theme)
         {
             brush.Color = theme.Color;

@@ -13,24 +13,22 @@ namespace Themia.App.Shell;
 
 /// <summary>What the properties panel's choices do, given by the surface (or a render's stand-in).</summary>
 /// <param name="SetHeader">[S-3703] The selected widgets' header placement.</param>
-/// <param name="SetSurface">[S-3703] The selected widgets' background.</param>
+/// <param name="SetBackground">[S-3703] [S-6566] The selected widgets' background.</param>
 /// <param name="SetTitle">[S-3704] One widget's title, by id, as typed.</param>
 /// <param name="ReleaseFocus">[S-3704] Hands the keyboard back to the surface after the title box, so the edit keys work again.</param>
 /// <param name="SetStyle">[S-6008] The selected widgets' style, by the style enum's value.</param>
 /// <param name="OpenSettings">[S-6009] Opens one widget's settings page, by id.</param>
-/// <param name="SetItemColor">[S-6521] The selected widgets' own item colour, or empty for the app-wide item layer.</param>
-/// <param name="SetItemOpacity">[S-6521] The selected widgets' own item opacity, 0..1.</param>
+/// <param name="SetItemBackground">[S-6521] The selected widgets' own item background.</param>
 /// <param name="SetItemTextColor">[S-6544] The selected widgets' own item text colour, or empty for the app-wide one.</param>
 /// <param name="SetScale">[S-6531] The selected widgets' own content scale, as a factor.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
-    Action<WidgetSurface> SetSurface,
+    Action<FillChoice> SetBackground,
     Action<string, string?> SetTitle,
     Action ReleaseFocus,
     Action<int> SetStyle,
     Action<string> OpenSettings,
-    Action<string> SetItemColor,
-    Action<double> SetItemOpacity,
+    Action<FillChoice> SetItemBackground,
     Action<string> SetItemTextColor,
     Action<double> SetScale);
 
@@ -38,17 +36,15 @@ internal sealed record PropertiesCommands(
 /// [S-3707] The selected widgets' properties panel: a small panel on a flyout's surface ([S-3715])
 /// standing beside the selection, centred on it ([S-3708], [S-3714]), one row per property, its name before its control — Title (one
 /// widget) or "N selected", Style (one kind with styles, [S-6007]), Header (where every selected
-/// widget can have one, [S-3711]), Background, Item background and, for a widget with a layer of its
-/// own, Item opacity ([S-6521]), Item text ([S-6544]), Scale ([S-6531]), then Settings (one widget with a page, [S-6009]). After Karpo's
+/// widget can have one, [S-3711]), Background and Item background (one fill control each, [S-6566]),
+/// Item text ([S-6544]), Scale ([S-6531]),
+/// then Settings (one widget with a page, [S-6009]). After Karpo's
 /// properties panel (docs/widgets.md §145): the selection's own properties, where the selection is.
 /// </summary>
 internal sealed partial class PropertiesStrip : Grid
 {
     /// <summary>[S-3707] The controls' column: a long widget name or a choice's words without crowding the panel.</summary>
     private const double ControlWidth = 176;
-
-    /// <summary>[S-6521] The opacities the Item opacity choice offers.</summary>
-    private static readonly double[] ItemOpacities = [1, 0.8, 0.6, 0.4, 0.2];
 
     private readonly Border _frame = new() { Padding = new Thickness(Fluent.Space3, Fluent.Space2, Fluent.Space2, Fluent.Space2) };
 
@@ -78,8 +74,6 @@ internal sealed partial class PropertiesStrip : Grid
     private StackPanel? _styleValue;
 
     private StackPanel? _headerValue;
-
-    private StackPanel? _surfaceValue;
 
     private StackPanel? _scaleValue;
 
@@ -129,15 +123,14 @@ internal sealed partial class PropertiesStrip : Grid
         var previous = _offer;
         _offer = offer;
 
-        // [S-6521] The item rows are rebuilt whenever the item layer moved: the colour control keeps
-        // its own value, and the opacity row comes and goes with a layer of the widget's own.
+        // [S-6566] The fill rows are rebuilt whenever a fill moved: each fill control keeps its own value.
         var sameShape = previous.Shows == offer.Shows
             && previous.HasHeader == offer.HasHeader
             && previous.StyleKind == offer.StyleKind
             && string.Equals(previous.TitleWidgetId, offer.TitleWidgetId, StringComparison.Ordinal)
             && (offer.HasTitle || previous.Count == offer.Count)
-            && previous.ItemsMixed == offer.ItemsMixed
-            && (previous.Items is null ? offer.Items is null : previous.Items.SameAs(offer.Items))
+            && SameFill(previous.Background, offer.Background)
+            && SameFill(previous.Items, offer.Items)
             && string.Equals(previous.ItemText, offer.ItemText, StringComparison.Ordinal);
 
         if (!sameShape)
@@ -171,7 +164,7 @@ internal sealed partial class PropertiesStrip : Grid
 
         _rows.Children.Clear();
         _rows.RowDefinitions.Clear();
-        _styleValue = _headerValue = _surfaceValue = _scaleValue = null;
+        _styleValue = _headerValue = _scaleValue = null;
         _title = null;
         _titleId = null;
 
@@ -212,20 +205,10 @@ internal sealed partial class PropertiesStrip : Grid
             _headerValue = headerValue;
         }
 
-        AddRow(Str.Settings_Style_BgLabel.Text(), Choice(
-            Str.Settings_Style_BgLabel.Text(),
-            SurfaceOptions(),
-            () => _offer.Surface,
-            commands.SetSurface,
-            out var surfaceValue));
-        _surfaceValue = surfaceValue;
-
-        // [S-6521] The widgets' own item background, "Default" for the app-wide item layer.
-        AddRow(Str.Shell_Items_Background.Text(), ItemColorChoice(commands));
-        if (_offer.Items is { } own)
-        {
-            AddRow(Str.Shell_Items_Opacity.Text(), ItemOpacityChoice(own.Opacity, commands));
-        }
+        // [S-6566] The widgets' own background and item background: one fill control each, Default
+        // for the app-wide one.
+        AddRow(Str.Settings_Style_BgLabel.Text(), FillRow(Str.Settings_Style_BgLabel.Text(), _offer.Background, commands.SetBackground, AppBackgroundColour));
+        AddRow(Str.Shell_Items_Background.Text(), FillRow(Str.Shell_Items_Background.Text(), _offer.Items, commands.SetItemBackground, AppItemColour));
 
         // [S-6544] The colour of the text on their items, "Default" for the app-wide one.
         AddRow(Str.Shell_Items_TextShort.Text(), ItemTextChoice(commands));
@@ -297,12 +280,6 @@ internal sealed partial class PropertiesStrip : Grid
             Show(_headerValue, header.Icon?.Glyph ?? Glyphs.HeaderBottom, header.Icon?.Turned ?? true, _offer.Header is null ? Mixed : header.Text);
         }
 
-        if (_surfaceValue is not null)
-        {
-            var surface = Array.Find(SurfaceOptions(), o => o.Value == _offer.Surface);
-            Show(_surfaceValue, Glyphs.Surface, false, _offer.Surface is null ? Mixed : surface.Text);
-        }
-
         if (_scaleValue is not null)
         {
             Show(_scaleValue, Glyphs.Scale, false, _offer.Scale is { } scale ? ScaleText(scale) : Mixed);
@@ -328,13 +305,6 @@ internal sealed partial class PropertiesStrip : Grid
         (HeaderPlacement.Left, (Glyphs.HeaderLeft, false), Str.Group_HeaderSide_Left.Text()),
         (HeaderPlacement.Right, (Glyphs.HeaderRight, false), Str.Group_HeaderSide_Right.Text()),
         (HeaderPlacement.Hidden, (Glyphs.Hide, false), Str.Toggle_Hidden.Text()),
-    ];
-
-    private static (WidgetSurface Value, (string Glyph, bool Turned)? Icon, string Text)[] SurfaceOptions() =>
-    [
-        (WidgetSurface.Card, null, Str.Shell_Widget_Card.Text()),
-        (WidgetSurface.Translucent, null, Str.Shell_Widget_Translucent.Text()),
-        (WidgetSurface.Transparent, null, Str.Settings_Style_None.Text()),
     ];
 
     /// <summary>
@@ -395,25 +365,29 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>
-    /// [S-6521] The item colour: the one colour control ([S-1549]), "Default" (the app-wide item
-    /// layer) or a colour of the widgets' own, which keeps the opacity they had.
+    /// [S-6566] A fill row's control: the one fill control ([S-6567]) — Default (the app-wide fill,
+    /// its swatch the app-wide colour), Transparent, or a colour with its opacity — the width of the
+    /// panel's column. A selection that does not share one reads as a dash until a pick.
     /// </summary>
-    private FrameworkElement ItemColorChoice(PropertiesCommands commands)
+    private static DropDownButton FillRow(string name, FillChoice? current, Action<FillChoice> set, Func<Windows.UI.Color?> appWide)
     {
-        var options = new ColorChoiceOptions
+        var options = new FillChoiceOptions
         {
             DefaultLabel = Str.Common_Default.Text(),
-            Presets = ColorPresets.Surfaces,
-            DefaultColor = AppItemColour,
+            DefaultColor = appWide,
+            MixedLabel = Mixed,
         };
 
-        var choice = ColorChoice.Create(_offer.Items?.Color ?? string.Empty, commands.SetItemColor, options, Str.Shell_Items_Background.Text());
+        var choice = ColorChoice.CreateFill(current, set, options, name);
         choice.MinWidth = 0;
         choice.Height = EditBar.ButtonSize;
         choice.HorizontalAlignment = HorizontalAlignment.Stretch;
         choice.Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0);
         return choice;
     }
+
+    /// <summary>[S-6566] Whether two offered fills are the same for the panel: both mixed, or the same choice.</summary>
+    private static bool SameFill(FillChoice? a, FillChoice? b) => a is null ? b is null : a.SameAs(b);
 
     /// <summary>
     /// [S-6544] The item text colour: the one colour control, "Default" (the app-wide item text
@@ -442,35 +416,16 @@ internal sealed partial class PropertiesStrip : Grid
             ? Windows.UI.Color.FromArgb(255, r, g, b)
             : null;
 
-    /// <summary>What "Default" paints its swatch with: the app-wide item colour, or nothing (the theme's fills).</summary>
-    private static Windows.UI.Color? AppItemColour()
-        => DesignApplier.Current?.ItemBackground is { } layer && HexColor.TryParse(layer.Color, out var r, out var g, out var b)
-            ? Windows.UI.Color.FromArgb(255, r, g, b)
+    /// <summary>What the background's "Default" paints its swatch with: the app-wide colour, or nothing (the Windows card).</summary>
+    private static Windows.UI.Color? AppBackgroundColour() => AppColour(DesignApplier.Current?.Background);
+
+    /// <summary>What the item background's "Default" paints its swatch with: the app-wide colour, or nothing (the Fluent fills).</summary>
+    private static Windows.UI.Color? AppItemColour() => AppColour(DesignApplier.Current?.ItemBackground);
+
+    private static Windows.UI.Color? AppColour(FillChoice? fill)
+        => fill is { Kind: FillKind.Colour } && HexColor.TryParse(fill.Colour, out var r, out var g, out var b)
+            ? Windows.UI.Color.FromArgb(DesignLook.Alpha(fill.Opacity), r, g, b)
             : null;
-
-    /// <summary>[S-6521] The widgets' own item opacity, in steps: one pick is one undo step, as a slider's drag would not be.</summary>
-    private static DropDownButton ItemOpacityChoice(double current, PropertiesCommands commands)
-    {
-        var label = Str.Shell_Items_Opacity.Text();
-        var menu = new MenuFlyout();
-        foreach (var step in ItemOpacities)
-        {
-            var item = new RadioMenuFlyoutItem
-            {
-                Text = LocaleFormat.Percent(Strings.Current, Math.Round(step * 100)),
-                GroupName = label,
-                IsChecked = Math.Abs(step - current) < 0.001,
-            };
-
-            var chosen = step;
-            item.Click += (_, _) => commands.SetItemOpacity(chosen);
-            menu.Items.Add(item);
-        }
-
-        var button = ValueButton(label, menu, out var value);
-        Show(value, Glyphs.Opacity, false, LocaleFormat.Percent(Strings.Current, Math.Round(current * 100)));
-        return button;
-    }
 
     /// <summary>
     /// [S-6531] The widgets' own scale, in steps (<see cref="WidgetScale.Offered"/>), the current one

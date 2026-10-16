@@ -9,7 +9,7 @@ public sealed record WidgetShape(
     double W,
     double H,
     string? Label,
-    WidgetSurface Surface,
+    FillChoice Background,
     HeaderPlacement Header,
     WidgetConfig Config)
 {
@@ -17,7 +17,7 @@ public sealed record WidgetShape(
     {
         ArgumentNullException.ThrowIfNull(widget);
         return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Surface, widget.Header, widget.Config);
+            widget.Background.Clone(), widget.Header, widget.Config);
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -26,7 +26,7 @@ public sealed record WidgetShape(
         ArgumentNullException.ThrowIfNull(other);
         return Id == other.Id && Kind == other.Kind
             && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
-            && Label == other.Label && Surface == other.Surface && Header == other.Header;
+            && Label == other.Label && Background.SameAs(other.Background) && Header == other.Header;
     }
 }
 
@@ -39,7 +39,7 @@ public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyLi
 
 /// <summary>
 /// [S-886] The part of the state an undo restores: the views, their names, icons and order, and every
-/// widget's kind, geometry, z-order, header, surface and title.
+/// widget's kind, geometry, z-order, header, background and title.
 /// <para>
 /// <b>Not</b> the widgets' content. A config is the widget's own data — the text of a note, a
 /// timer's state — and is changed by using the widget, not by arranging the
@@ -165,7 +165,7 @@ public sealed class LayoutShape
                     widget.W = w.W;
                     widget.H = w.H;
                     widget.Label = w.Label;
-                    widget.Surface = w.Surface;
+                    widget.Background = w.Background.Clone();
                     widget.Header = w.Header;
                 }
                 else
@@ -179,7 +179,7 @@ public sealed class LayoutShape
                         W = w.W,
                         H = w.H,
                         Label = w.Label,
-                        Surface = w.Surface,
+                        Background = w.Background.Clone(),
                         Header = w.Header,
                         Config = w.Config,
                     };

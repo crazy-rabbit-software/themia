@@ -103,7 +103,6 @@
   "settings.style.preset.name.paper": "Papel",
   "settings.style.border": "Borde",
   "settings.style.widgetBg.label": "Fondo del widget",
-  "settings.style.widgetOpacity.label": "Opacidad del widget",
   "settings.style.headerBg.label": "Fondo del encabezado",
   "settings.style.headerOpacity.label": "Opacidad del encabezado",
   "settings.style.widget": "Widget",

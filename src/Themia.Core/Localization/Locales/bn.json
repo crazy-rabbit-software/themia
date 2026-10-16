@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "কাগজ",
   "settings.style.border": "বর্ডার",
   "settings.style.widgetBg.label": "উইজেটের পটভূমি",
-  "settings.style.widgetOpacity.label": "উইজেটের অস্বচ্ছতা",
   "settings.style.headerBg.label": "হেডারের পটভূমি",
   "settings.style.headerOpacity.label": "হেডারের অস্বচ্ছতা",
   "settings.style.widget": "উইজেট",

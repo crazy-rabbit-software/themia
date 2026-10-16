@@ -91,7 +91,7 @@ public sealed class AppStateStoreTests : IDisposable
         var widget = view.Widgets[0];
         widget.Rect = new FracRect(0.11, 0.22, 0.33, 0.44);
         widget.Label = "Bedside";
-        widget.Surface = WidgetSurface.Transparent;
+        widget.Background = FillChoice.Transparent();
         ((ClockConfig)widget.Config).ShowSeconds = true;
         ((ClockConfig)widget.Config).ShowDate = false;
         state.Preferences.Region.Clock = ClockHours.Twelve;
@@ -109,7 +109,7 @@ public sealed class AppStateStoreTests : IDisposable
         var reloaded = loaded.State.ActiveView().Widgets[0];
         Assert.Equal(new FracRect(0.11, 0.22, 0.33, 0.44), reloaded.Rect);
         Assert.Equal("Bedside", reloaded.Label);
-        Assert.Equal(WidgetSurface.Transparent, reloaded.Surface);
+        Assert.Equal(FillKind.Transparent, reloaded.Background.Kind);
         var config = Assert.IsType<ClockConfig>(reloaded.Config);
         Assert.True(config.ShowSeconds);
         Assert.False(config.ShowDate);
@@ -214,13 +214,14 @@ public sealed class AppStateStoreTests : IDisposable
     {
         var state = AppState.CreateDefault();
         state.Design.WidgetGapPx = double.NaN;
-        state.Design.SurfaceOpacity = -4;
+        state.Design.Background = FillChoice.Of("#202020", -4);
+        state.Design.Background.Opacity = -4;
         state.Design.CornerRadiusPx = 9999;
 
         AppStateStore.Validate(state);
 
         Assert.True(double.IsFinite(state.Design.WidgetGapPx));
-        Assert.InRange(state.Design.SurfaceOpacity, 0.2, 1.0);
+        Assert.InRange(state.Design.Background.Opacity, 0, 1.0);
         Assert.InRange(state.Design.CornerRadiusPx, 0, 32);
     }
 

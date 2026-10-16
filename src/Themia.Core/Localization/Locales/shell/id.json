@@ -248,8 +248,6 @@
   "shell.settings.danger": "Bahaya",
   "shell.view.position": "{n} dari {total}",
   "shell.widget.gone": "Widget ini telah dihapus.",
-  "shell.widget.card": "Kartu",
-  "shell.widget.translucent": "Tembus cahaya",
   "shell.license.limitReached": "Batas gratis tercapai",
   "shell.license.freeVersion": "Versi gratis",
   "shell.license.widgetsDesc": "Di semua tampilan, termasuk grup dan anggotanya",

@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "Бумага",
   "settings.style.border": "Рамка",
   "settings.style.widgetBg.label": "Фон виджета",
-  "settings.style.widgetOpacity.label": "Непрозрачность виджета",
   "settings.style.headerBg.label": "Фон заголовка",
   "settings.style.headerOpacity.label": "Непрозрачность заголовка",
   "settings.style.widget": "Виджет",

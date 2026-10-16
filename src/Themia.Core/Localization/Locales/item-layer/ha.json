@@ -1,9 +1,10 @@
 {
   "shell.items.background": "Bayan abubuwa",
   "shell.items.backgroundDesc": "Abin da ke cike layuka, tayal da alamomi a cikin widget, daban da bayan widget ɗin kansa",
-  "shell.items.colour": "Launin abubuwa",
-  "shell.items.opacity": "Duhun abubuwa",
   "shell.items.text": "Launin rubutun abubuwa",
   "shell.items.textDesc": "Rubutu da gumaka a kan layuka, tayil da guntaye",
-  "shell.items.textShort": "Rubutun abubuwa"
+  "shell.items.textShort": "Rubutun abubuwa",
+  "shell.fill.transparent": "Mai bayyanawa",
+  "shell.fill.opacity": "Duhu",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

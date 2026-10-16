@@ -255,8 +255,6 @@
   "shell.settings.danger": "Gefahrenbereich",
   "shell.view.position": "{n} von {total}",
   "shell.widget.gone": "Dieses Widget wurde entfernt.",
-  "shell.widget.card": "Karte",
-  "shell.widget.translucent": "Durchscheinend",
   "shell.license.limitReached": "Kostenlose Grenze erreicht",
   "shell.license.freeVersion": "Kostenlose Version",
   "shell.license.widgetsDesc": "Über alle Ansichten hinweg, einschließlich Gruppen und ihrer Inhalte",

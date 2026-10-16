@@ -255,8 +255,6 @@
   "shell.settings.danger": "Hatari",
   "shell.view.position": "{n} kati ya {total}",
   "shell.widget.gone": "Wijeti hii imeondolewa.",
-  "shell.widget.card": "Kadi",
-  "shell.widget.translucent": "Angavu kiasi",
   "shell.license.limitReached": "Kikomo cha bure kimefikiwa",
   "shell.license.freeVersion": "Toleo la bure",
   "shell.license.widgetsDesc": "Katika mionekano yote, pamoja na vikundi na wanachama wake",

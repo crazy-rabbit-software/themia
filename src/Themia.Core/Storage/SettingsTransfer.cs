@@ -398,6 +398,14 @@ public static class SettingsTransfer
         string Ms(double ms) => Strings.Format(locale, Str.Shell_Transfer_Ms, ("value", LocaleFormat.Integer(locale, (long)Math.Round(ms))));
         string Font(string family) => family == "system" ? Strings.Get(locale, Str.Shell_Appearance_SystemFont) : family;
         string OnOff(bool on) => Strings.Get(locale, on ? Str.Toggle_On : Str.Toggle_Off);
+
+        // [S-6560] A fill choice in words: the theme's, transparent, or its colour and opacity.
+        string Fill(FillChoice fill) => fill.Kind switch
+        {
+            FillKind.Transparent => Strings.Get(locale, Str.Shell_Fill_Transparent),
+            FillKind.Colour => Strings.Format(locale, Str.Shell_Fill_WithOpacity, ("colour", fill.Colour), ("percent", Percent(fill.Opacity))),
+            _ => Strings.Get(locale, Str.Shell_Transfer_ThemeColour),
+        };
         string Theme(AppTheme theme) => Strings.Get(locale, theme switch
         {
             AppTheme.Light => Str.Settings_Theme_Light,
@@ -427,10 +435,8 @@ public static class SettingsTransfer
 
         Line(Str.Settings_Theme_Label, old.Theme, @new.Theme, Theme);
         Line(Str.Shell_Transfer_Accent, old.PrimaryColor, @new.PrimaryColor, Colour);
-        Line(Str.Settings_Style_WidgetBg_Label, old.WidgetBackgroundColor, @new.WidgetBackgroundColor, Colour);
-        Line(Str.Settings_Style_WidgetOpacity_Label, old.SurfaceOpacity, @new.SurfaceOpacity, Percent);
-        Line(Str.Shell_Items_Colour, old.ItemBackground.Color, @new.ItemBackground.Color, Colour);
-        Line(Str.Shell_Items_Opacity, old.ItemBackground.Opacity, @new.ItemBackground.Opacity, Percent);
+        Line(Str.Settings_Style_WidgetBg_Label, Fill(old.Background), Fill(@new.Background), text => text);
+        Line(Str.Shell_Items_Background, Fill(old.ItemBackground), Fill(@new.ItemBackground), text => text);
         Line(Str.Shell_Items_Text, old.ItemTextColor, @new.ItemTextColor, Colour);
         Line(Str.Settings_Style_CornerRadius_Label, old.CornerRadiusPx, @new.CornerRadiusPx, Px);
         Line(Str.Settings_Style_Border, old.BorderStyle, @new.BorderStyle, Border);

@@ -305,7 +305,6 @@ public sealed class AppStateStore : IAsyncDisposable
         var design = state.Design;
         design.WidgetGapPx = Math.Clamp(Sanitise(design.WidgetGapPx, 8), 0, 64);
         design.CornerRadiusPx = Math.Clamp(Sanitise(design.CornerRadiusPx, DesignState.DefaultCornerRadiusPx), 0, 32);
-        design.SurfaceOpacity = Math.Clamp(Sanitise(design.SurfaceOpacity, 1), 0.2, 1.0);
         design.UiScale = Math.Clamp(Sanitise(design.UiScale, 1), 0.5, 3.0);
         design.FontScale = Math.Clamp(Sanitise(design.FontScale, 1), 0.5, 2.0);
         design.BorderWidthPx = Math.Clamp(Sanitise(design.BorderWidthPx, 1), 0, 8);
@@ -314,13 +313,15 @@ public sealed class AppStateStore : IAsyncDisposable
 
         // A malformed colour becomes empty, which means "use the theme's own" - the one value that
         // is always renderable. Keeping the bad string would leave the widget with no fill at all.
-        design.WidgetBackgroundColor = Widgets.HexColor.Normalise(design.WidgetBackgroundColor);
         design.PrimaryColor = Widgets.HexColor.Normalise(design.PrimaryColor);
         design.BorderColor = Widgets.HexColor.Normalise(design.BorderColor);
 
-        // [S-6511] The item layer, on the same terms: a bad colour is the theme's, the opacity 0..1.
-        design.ItemBackground ??= new ItemLayer();
-        repairs.AddRange(design.ItemBackground.Repair());
+        // [S-6561] The two fill choices: an unknown kind or a colour that is not one is the default,
+        // the opacity 0..1, loudly. A missing one is the default, silently.
+        design.Background ??= new FillChoice();
+        repairs.AddRange(design.Background.Repair("widget background"));
+        design.ItemBackground ??= new FillChoice();
+        repairs.AddRange(design.ItemBackground.Repair("item background"));
 
         // [S-6543] The item text colour: a colour or empty (the theme's text colours), loudly.
         var (itemText, itemTextRepair) = Widgets.ItemLook.RepairTextColour(design.ItemTextColor);
@@ -630,19 +631,12 @@ public sealed class AppStateStore : IAsyncDisposable
                 repairs.Add($"widget '{widget.Id}': {style}");
             }
 
-            if (!Enum.IsDefined(widget.Surface))
+            // [S-6561] A widget's own fill choices: repaired like the app-wide ones; absent follows them.
+            widget.Background ??= new FillChoice();
+            widget.ItemBackground ??= new FillChoice();
+            foreach (var repair in widget.Background.Repair("background").Concat(widget.ItemBackground.Repair("item background")))
             {
-                widget.Surface = WidgetSurface.Card;
-                repairs.Add($"widget '{widget.Id}' had an unknown surface");
-            }
-
-            // [S-6512] A widget's own item layer: repaired like the app-wide one; absent follows it.
-            if (widget.ItemBackground is { } items)
-            {
-                foreach (var repair in items.Repair())
-                {
-                    repairs.Add($"widget '{widget.Id}': {repair}");
-                }
+                repairs.Add($"widget '{widget.Id}': {repair}");
             }
 
             // [S-6543] A widget's own item text colour: a colour, or empty to follow the app-wide one.

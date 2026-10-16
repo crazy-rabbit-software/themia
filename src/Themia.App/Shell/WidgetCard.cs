@@ -464,8 +464,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // unreadably over whatever was behind the window. SolidBackgroundFillColorBase is the
         // opaque surface colour that overlay is meant to sit on, so it is the correct base here.
         // A colour of the user's own replaces both: it is meant to be exactly that colour.
-        var opacity = DesignLook.FillOpacity(Model.Surface, design.SurfaceOpacity);
-        var custom = DesignApplier.UserBrush(design.WidgetBackgroundColor);
+        var fill = CardFillNow();
+        var opacity = fill.Painted ? fill.Opacity : 0;
+        var custom = ColourBrush(fill);
 
         _fill.Background = opacity <= 0 ? null
             : custom ?? FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
@@ -475,7 +476,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _tint.Opacity = custom is null ? opacity : 0;
 
         // [S-824] The border: style, width, colour and opacity, over the content.
-        var border = DesignLook.Border(Model.Surface, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
+        var border = DesignLook.Border(fill, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
         if (border.Visible && (!_hidden || _host.EditMode))
         {
             _stroke.Visibility = Visibility.Visible;
@@ -537,9 +538,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var hostRadius = HeaderStrip.IsSide(Model.ShownHeader) ? Round(HeaderStrip.StripCorners(HeaderEdge.Top), r) : radius;
 
         var own = DesignApplier.UserBrush(design.HeaderBackgroundColor);
-        var surface = DesignLook.FillOpacity(Model.Surface, design.SurfaceOpacity);
-        var opacity = DesignLook.HeaderFillOpacity(Model.Surface, design.SurfaceOpacity, design.HeaderOpacity, own is not null);
-        var custom = DesignApplier.UserBrush(design.WidgetBackgroundColor);
+        var fill = CardFillNow();
+        var surface = fill.Painted ? fill.Opacity : 0;
+        var opacity = DesignLook.HeaderFillOpacity(fill, design.HeaderOpacity, own is not null);
+        var custom = ColourBrush(fill);
 
         _headerHost.Background = own is null ? null : DesignApplier.UserBrush(design.HeaderBackgroundColor, opacity);
         _headerHost.CornerRadius = hostRadius;
@@ -565,8 +567,15 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     private double TintInset()
     {
         var design = _host.Design;
-        return DesignLook.TintInset(DesignLook.Border(Model.Surface, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity));
+        return DesignLook.TintInset(DesignLook.Border(CardFillNow(), design.BorderStyle, design.BorderWidthPx, design.BorderOpacity));
     }
+
+    /// <summary>[S-6563] What this card's background paints: its own choice, or the app-wide one for Default.</summary>
+    private CardFill CardFillNow() => DesignLook.Card(FillChoice.Effective(_host.Design.Background, Model.Background));
+
+    /// <summary>[S-823] The user's colour of a colour fill, opaque (the fill's opacity is the element's), else null for the Fluent base.</summary>
+    private static SolidColorBrush? ColourBrush(CardFill fill)
+        => fill.Colour is { } c ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B)) : null;
 
     /// <summary>
     /// [S-1761] The body fill covers what the header leaves: the whole card without a header, else

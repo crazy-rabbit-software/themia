@@ -43,6 +43,20 @@ public readonly record struct BorderLook(double Thickness, IReadOnlyList<double>
 public readonly record struct BorderInk(RgbColor? Colour, string? ThemeKey);
 
 /// <summary>
+/// [S-6563] What a card's background paints: the Fluent base and tint (<see cref="FillKind.Default"/>),
+/// nothing (<see cref="FillKind.Transparent"/>), or <see cref="Colour"/> exactly
+/// (<see cref="FillKind.Colour"/>), at <see cref="Opacity"/>.
+/// </summary>
+/// <param name="Kind">Which of the three it is.</param>
+/// <param name="Colour">The colour for a colour fill; otherwise null.</param>
+/// <param name="Opacity">0 to 1: 1 for the default, 0 for transparent, the choice's own for a colour.</param>
+public readonly record struct CardFill(FillKind Kind, RgbColor? Colour, double Opacity)
+{
+    /// <summary>Whether anything is painted at all.</summary>
+    public bool Painted => Kind != FillKind.Transparent && Opacity > 0;
+}
+
+/// <summary>
 /// The pure half of the appearance engine: colour maths, clamps and the rules that turn a
 /// <see cref="DesignState"/> into what a card paints. The App half (<c>Shell/DesignApplier</c>)
 /// only turns these answers into brushes. [S-820]..[S-829]
@@ -131,18 +145,21 @@ public static class DesignLook
         => (byte)Math.Round(Math.Clamp(double.IsFinite(opacity) ? opacity : 1, 0, 1) * 255);
 
     /// <summary>
-    /// [S-823] How opaque a card's fill is. The setting's range is 0.2..1 (an invisible card cannot
-    /// be found to be fixed); a translucent card is 60% of that, a transparent one has no fill.
+    /// [S-823] [S-6563] What a card's fill is for its effective background choice
+    /// (<see cref="FillChoice.Effective"/>): Default is the Fluent base and card tint at full
+    /// strength, Transparent nothing, a colour exactly that colour at its opacity. A colour choice
+    /// whose colour does not parse (load validation never leaves one) is the default.
     /// </summary>
-    public static double FillOpacity(WidgetSurface surface, double surfaceOpacity)
+    public static CardFill Card(FillChoice fill)
     {
-        var opacity = Math.Clamp(double.IsFinite(surfaceOpacity) ? surfaceOpacity : 1, 0.2, 1.0);
+        ArgumentNullException.ThrowIfNull(fill);
 
-        return surface switch
+        return fill.Kind switch
         {
-            WidgetSurface.Transparent => 0,
-            WidgetSurface.Translucent => Math.Clamp(opacity * 0.6, 0.15, 1.0),
-            _ => opacity,
+            FillKind.Transparent => new CardFill(FillKind.Transparent, null, 0),
+            FillKind.Colour when HexColor.TryParse(fill.Colour, out var r, out var g, out var b)
+                => new CardFill(FillKind.Colour, new RgbColor(r, g, b), FillChoice.ClampOpacity(fill.Opacity)),
+            _ => new CardFill(FillKind.Default, null, 1),
         };
     }
 
@@ -152,23 +169,24 @@ public static class DesignLook
     /// opacity, so 100% matches the body and 0% leaves the strip clear over the desktop — the header
     /// opacity always does something, not only once a header colour has been picked.
     /// </summary>
-    public static double HeaderFillOpacity(WidgetSurface surface, double surfaceOpacity, double headerOpacity, bool ownColour)
+    public static double HeaderFillOpacity(CardFill fill, double headerOpacity, bool ownColour)
     {
         var header = Math.Clamp(double.IsFinite(headerOpacity) ? headerOpacity : 1, 0, 1);
-        return ownColour ? header : FillOpacity(surface, surfaceOpacity) * header;
+        return ownColour ? header : fill.Opacity * header;
     }
 
     /// <summary>
-    /// [S-824] The border for a design. None, a zero width or a transparent widget draws nothing;
-    /// dashed is 3-on-2 and dotted is round dots two widths apart, both in stroke widths so the
-    /// pattern keeps its proportions at any thickness.
+    /// [S-824] The border for a design. None, a zero width or a transparent widget draws nothing (a
+    /// colour at 0 % is not transparent: its border stays, [S-6563]); dashed is 3-on-2 and dotted is
+    /// round dots two widths apart, both in stroke widths so the pattern keeps its proportions at any
+    /// thickness.
     /// </summary>
-    public static BorderLook Border(WidgetSurface surface, WidgetBorderStyle style, double widthPx, double opacity)
+    public static BorderLook Border(CardFill fill, WidgetBorderStyle style, double widthPx, double opacity)
     {
         var width = Math.Clamp(double.IsFinite(widthPx) ? widthPx : 1, 0, 8);
         var alpha = Math.Clamp(double.IsFinite(opacity) ? opacity : 1, 0, 1);
 
-        if (surface == WidgetSurface.Transparent || style == WidgetBorderStyle.None || width <= 0)
+        if (fill.Kind == FillKind.Transparent || style == WidgetBorderStyle.None || width <= 0)
         {
             return new BorderLook(0, [], false, alpha);
         }

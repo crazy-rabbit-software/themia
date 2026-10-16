@@ -1,9 +1,10 @@
 {
   "shell.items.background": "Öğe arka planı",
   "shell.items.backgroundDesc": "Widget'ların içindeki satır, kutucuk ve etiketlerin dolgusu, widget'ın kendi arka planından ayrı",
-  "shell.items.colour": "Öğe rengi",
-  "shell.items.opacity": "Öğe opaklığı",
   "shell.items.text": "Öğe metni rengi",
   "shell.items.textDesc": "Satırlar, kutucuklar ve etiketlerdeki metin ve simgeler",
-  "shell.items.textShort": "Öğe metni"
+  "shell.items.textShort": "Öğe metni",
+  "shell.fill.transparent": "Saydam",
+  "shell.fill.opacity": "Opaklık",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

@@ -255,8 +255,6 @@
   "shell.settings.danger": "বিপদ",
   "shell.view.position": "{total}-এর মধ্যে {n}",
   "shell.widget.gone": "এই উইজেটটি সরানো হয়েছে।",
-  "shell.widget.card": "কার্ড",
-  "shell.widget.translucent": "স্বচ্ছাভ",
   "shell.license.limitReached": "ফ্রি সীমা পূর্ণ",
   "shell.license.freeVersion": "ফ্রি সংস্করণ",
   "shell.license.widgetsDesc": "সব ভিউ জুড়ে, গ্রুপ ও তাদের সদস্যসহ",

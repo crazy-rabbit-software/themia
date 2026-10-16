@@ -1,9 +1,10 @@
 {
   "shell.items.background": "Nền mục",
   "shell.items.backgroundDesc": "Phần tô của hàng, ô và nhãn bên trong tiện ích, tách biệt với nền của chính tiện ích",
-  "shell.items.colour": "Màu mục",
-  "shell.items.opacity": "Độ mờ đục của mục",
   "shell.items.text": "Màu chữ của mục",
   "shell.items.textDesc": "Chữ và biểu tượng trên hàng, ô và chip",
-  "shell.items.textShort": "Chữ của mục"
+  "shell.items.textShort": "Chữ của mục",
+  "shell.fill.transparent": "Trong suốt",
+  "shell.fill.opacity": "Độ mờ đục",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

@@ -255,8 +255,6 @@
   "shell.settings.danger": "Gevarenzone",
   "shell.view.position": "{n} van {total}",
   "shell.widget.gone": "Deze widget is verwijderd.",
-  "shell.widget.card": "Kaart",
-  "shell.widget.translucent": "Doorschijnend",
   "shell.license.limitReached": "Gratis limiet bereikt",
   "shell.license.freeVersion": "Gratis versie",
   "shell.license.widgetsDesc": "Over alle weergaven, groepen en hun leden inbegrepen",

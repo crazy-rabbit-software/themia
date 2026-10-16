@@ -1,9 +1,10 @@
 {
   "shell.items.background": "Fundo dos itens",
   "shell.items.backgroundDesc": "O preenchimento de linhas, blocos e etiquetas dentro dos widgets, à parte do fundo do próprio widget",
-  "shell.items.colour": "Cor dos itens",
-  "shell.items.opacity": "Opacidade dos itens",
   "shell.items.text": "Cor do texto dos itens",
   "shell.items.textDesc": "Texto e ícones em linhas, blocos e chips",
-  "shell.items.textShort": "Texto dos itens"
+  "shell.items.textShort": "Texto dos itens",
+  "shell.fill.transparent": "Transparente",
+  "shell.fill.opacity": "Opacidade",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

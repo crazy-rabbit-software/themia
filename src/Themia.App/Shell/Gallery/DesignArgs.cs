@@ -8,9 +8,10 @@ namespace Themia.App.Shell.Gallery;
 /// Debug renders only: <c>--design key=value,...</c> sets appearance values on the design a render
 /// draws its cards with, so a border, radius or fill can be looked at without the settings window.
 /// Keys: <c>border</c> (none|solid|dashed|dotted), <c>borderWidth</c>, <c>borderOpacity</c> (0..1 or
-/// a percentage such as 25%), <c>borderColor</c> (#RRGGBB), <c>radius</c>, <c>background</c>,
-/// <c>opacity</c>, <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
-/// <c>itemOpacity</c> (the item layer, [S-6510]), <c>itemText</c> (its text colour, [S-6547]), <c>preset</c> (applied first, so later keys refine it). An unknown key or a bad value is printed and skipped.
+/// a percentage such as 25%), <c>borderColor</c> (#RRGGBB), <c>radius</c>, <c>background</c>
+/// (default|transparent|#RRGGBB[@percent], [S-6569]), <c>opacity</c> (the background colour's),
+/// <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
+/// <c>itemOpacity</c> (the item background, on the same terms, [S-6510]), <c>itemText</c> (its text colour, [S-6547]), <c>preset</c> (applied first, so later keys refine it). An unknown key or a bad value is printed and skipped.
 /// </summary>
 internal static class DesignArgs
 {
@@ -40,6 +41,32 @@ internal static class DesignArgs
         return design;
     }
 
+    /// <summary>
+    /// [S-6569] A fill choice from a render argument: <c>default</c>, <c>transparent</c> (or
+    /// <c>none</c>), or <c>#RRGGBB</c> with an optional <c>@percent</c> opacity (else
+    /// <paramref name="opacity"/>). Null for anything else.
+    /// </summary>
+    public static FillChoice? Fill(string? value, double opacity = 1)
+    {
+        var text = value?.Trim() ?? string.Empty;
+        switch (text.ToLowerInvariant())
+        {
+            case "default":
+                return FillChoice.Default();
+            case "transparent" or "none":
+                return FillChoice.Transparent();
+        }
+
+        var at = text.IndexOf('@');
+        if (at > 0 && Fraction(text[(at + 1)..]) is { } own)
+        {
+            opacity = own;
+            text = text[..at];
+        }
+
+        return Themia.Core.Widgets.HexColor.TryParse(text, out _, out _, out _) ? FillChoice.Of(text, opacity) : null;
+    }
+
     private static bool Set(DesignState d, string key, string value)
     {
         switch (key.ToLowerInvariant())
@@ -62,11 +89,11 @@ internal static class DesignArgs
             case "radius" when Number(value) is { } r:
                 d.CornerRadiusPx = r;
                 return true;
-            case "background":
-                d.WidgetBackgroundColor = value;
+            case "background" when Fill(value, d.Background.Opacity) is { } fill:
+                d.Background = fill;
                 return true;
             case "opacity" when Fraction(value) is { } o:
-                d.SurfaceOpacity = o;
+                d.Background.Opacity = o;
                 return true;
             case "header":
                 d.HeaderBackgroundColor = value;
@@ -80,8 +107,8 @@ internal static class DesignArgs
             case "font":
                 d.FontFamily = value;
                 return true;
-            case "items" or "itemcolor" or "itemcolour":
-                d.ItemBackground.Color = value;
+            case "items" or "itemcolor" or "itemcolour" when Fill(value, d.ItemBackground.Opacity) is { } fill:
+                d.ItemBackground = fill;
                 return true;
             case "itemopacity" when Fraction(value) is { } o:
                 d.ItemBackground.Opacity = o;

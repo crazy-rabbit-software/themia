@@ -10,29 +10,27 @@ namespace Themia.Core.Model;
 /// </summary>
 /// <param name="Count">The selected widgets in the view the display shows.</param>
 /// <param name="Header">Their header placement, or null when they differ.</param>
-/// <param name="Surface">Their background, or null when they differ.</param>
+/// <param name="Background">[S-6566] Their own background, or null when they differ.</param>
 /// <param name="TitleWidgetId">The one widget whose title the group edits; null with several.</param>
 /// <param name="TitleKind">That widget's kind, whose name is the title's placeholder.</param>
 /// <param name="Label">That widget's own title, null for the kind's name.</param>
 /// <param name="HasHeader">[S-3711] Whether the Header choice shows: every selected widget can have a header.</param>
 /// <param name="StyleKind">[S-6007] The one kind whose style the Style choice sets: every selected widget is of it and it has styles. Null hides the choice.</param>
 /// <param name="Style">[S-6007] Their style, or null when they differ.</param>
-/// <param name="Items">[S-6521] Their own item background, or null for the app-wide one (or when they differ, see <paramref name="ItemsMixed"/>).</param>
-/// <param name="ItemsMixed">[S-6521] They do not share one item background.</param>
+/// <param name="Items">[S-6521] The own item background the widgets share, or null when they differ.</param>
 /// <param name="Scale">[S-6531] Their own content scale, or null when they differ.</param>
 /// <param name="ItemText">[S-6544] Their own item text colour (empty: they follow the app-wide one), or null when they differ.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
-    WidgetSurface? Surface,
+    FillChoice? Background,
     string? TitleWidgetId,
     WidgetKind? TitleKind,
     string? Label,
     bool HasHeader = true,
     WidgetKind? StyleKind = null,
     int? Style = null,
-    ItemLayer? Items = null,
-    bool ItemsMixed = false,
+    FillChoice? Items = null,
     double? Scale = 1.0,
     string? ItemText = "")
 {
@@ -82,7 +80,7 @@ public static class QuickSet
 
         var hasHeader = widgets.TrueForAll(w => WidgetInstance.CanHaveHeader(w.Kind));
         var header = hasHeader ? Common(widgets.Select(w => w.Header)) : null;
-        var surface = Common(widgets.Select(w => w.Surface));
+        var background = CommonFill(widgets.Select(w => w.Background));
 
         // [S-6007] A style choice only where it means one thing: every widget the same kind, and
         // that kind with two styles or more.
@@ -90,7 +88,7 @@ public static class QuickSet
         var styleKind = widgets.TrueForAll(w => w.Kind == kind) && WidgetStyles.Offers(kind) ? kind : (WidgetKind?)null;
         var style = styleKind is null ? null : Common(widgets.Select(w => WidgetStyles.Current(w.Config) ?? 0));
 
-        var (items, itemsMixed) = CommonItems(widgets);
+        var items = CommonFill(widgets.Select(w => w.ItemBackground));
 
         // [S-6531] Read as stored, so two widgets at the same percentage always share it.
         var scale = Common(widgets.Select(w => WidgetScale.Normalise(w.Scale)));
@@ -99,36 +97,35 @@ public static class QuickSet
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, surface, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, itemsMixed, scale, itemText);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, scale, itemText);
         }
 
-        return new QuickSetOffer(widgets.Count, header, surface, null, null, null, hasHeader, styleKind, style, items, itemsMixed, scale, itemText);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, scale, itemText);
     }
 
     /// <summary>
-    /// [S-6521] The item background the widgets share: none of their own (null, not mixed), the same
-    /// own layer (a copy of it), or mixed (null, mixed) — a mix of own and none is mixed too.
+    /// [S-6566] The fill choice the widgets share (a copy of it), or null when any two differ
+    /// (<see cref="FillChoice.SameAs"/>) or there are none. Default is a choice like the others: a
+    /// widget following the app-wide fill and one of its own are mixed.
     /// </summary>
-    public static (ItemLayer? Items, bool Mixed) CommonItems(IReadOnlyList<WidgetInstance> widgets)
+    public static FillChoice? CommonFill(IEnumerable<FillChoice> fills)
     {
-        ArgumentNullException.ThrowIfNull(widgets);
+        ArgumentNullException.ThrowIfNull(fills);
 
-        if (widgets.Count == 0)
+        FillChoice? first = null;
+        foreach (var fill in fills)
         {
-            return (null, false);
-        }
-
-        var first = widgets[0].ItemBackground;
-        foreach (var widget in widgets)
-        {
-            var own = widget.ItemBackground;
-            if (first is null ? own is not null : !first.SameAs(own))
+            if (first is null)
             {
-                return (null, true);
+                first = fill;
+            }
+            else if (!first.SameAs(fill))
+            {
+                return null;
             }
         }
 
-        return (first?.Clone(), false);
+        return first?.Clone();
     }
 
     /// <summary>
@@ -193,9 +190,15 @@ public static class QuickSet
     public static int SetHeader(ViewState view, IEnumerable<string> ids, HeaderPlacement header)
         => Apply(view, ids, w => w.Header == header || !WidgetInstance.CanHaveHeader(w.Kind) ? false : Set(() => w.Header = header));
 
-    /// <summary>[S-3703] Set the background of every selected widget of <paramref name="view"/>. Returns how many changed.</summary>
-    public static int SetSurface(ViewState view, IEnumerable<string> ids, WidgetSurface surface)
-        => Apply(view, ids, w => w.Surface == surface ? false : Set(() => w.Surface = surface));
+    /// <summary>
+    /// [S-3703] [S-6566] Set the background of every selected widget of <paramref name="view"/> to a
+    /// copy of <paramref name="fill"/>: Default follows the app-wide one again. Returns how many changed.
+    /// </summary>
+    public static int SetBackground(ViewState view, IEnumerable<string> ids, FillChoice fill)
+    {
+        ArgumentNullException.ThrowIfNull(fill);
+        return Apply(view, ids, w => !w.Background.SameAs(fill) && Set(() => w.Background = fill.Clone()));
+    }
 
     /// <summary>
     /// [S-6008] Set the style of every selected widget of <paramref name="view"/>. Returns how many
@@ -205,36 +208,13 @@ public static class QuickSet
         => Apply(view, ids, w => WidgetStyles.Set(w.Config, style));
 
     /// <summary>
-    /// [S-6521] Set the item colour of every selected widget of <paramref name="view"/>. Empty is
-    /// "Default": the widget's own layer goes and it follows <paramref name="appWide"/> again. A
-    /// colour gives each widget a layer of its own in it, keeping the opacity it had, or the
-    /// app-wide one for a widget that had none. Returns how many changed.
+    /// [S-6521] Set the item background of every selected widget of <paramref name="view"/> to a
+    /// copy of <paramref name="fill"/>: Default follows the app-wide one again. Returns how many changed.
     /// </summary>
-    public static int SetItemColor(ViewState view, IEnumerable<string> ids, string? hex, ItemLayer appWide)
+    public static int SetItemBackground(ViewState view, IEnumerable<string> ids, FillChoice fill)
     {
-        ArgumentNullException.ThrowIfNull(appWide);
-        var colour = HexColor.Normalise(hex);
-
-        return Apply(view, ids, w =>
-        {
-            if (colour.Length == 0)
-            {
-                return w.ItemBackground is not null && Set(() => w.ItemBackground = null);
-            }
-
-            var layer = new ItemLayer { Color = colour, Opacity = w.ItemBackground?.Opacity ?? ItemLook.Opacity(appWide.Opacity) };
-            return !layer.SameAs(w.ItemBackground) && Set(() => w.ItemBackground = layer);
-        });
-    }
-
-    /// <summary>
-    /// [S-6521] Set the item opacity (0..1) of every selected widget that has a layer of its own; one
-    /// that follows the app-wide layer is left following it. Returns how many changed.
-    /// </summary>
-    public static int SetItemOpacity(ViewState view, IEnumerable<string> ids, double opacity)
-    {
-        var value = ItemLook.Opacity(opacity);
-        return Apply(view, ids, w => w.ItemBackground is { } own && Math.Abs(own.Opacity - value) >= 0.001 && Set(() => own.Opacity = value));
+        ArgumentNullException.ThrowIfNull(fill);
+        return Apply(view, ids, w => !w.ItemBackground.SameAs(fill) && Set(() => w.ItemBackground = fill.Clone()));
     }
 
     /// <summary>

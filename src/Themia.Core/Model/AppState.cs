@@ -22,16 +22,21 @@ public sealed class WidgetInstance
     /// <summary>Optional user-set title shown in the widget header. Null means "use the catalogue label".</summary>
     public string? Label { get; set; }
 
-    public WidgetSurface Surface { get; set; } = WidgetSurface.Card;
+    /// <summary>
+    /// [S-6562] This widget's own background ([S-6560]): Default follows the app-wide one
+    /// (<see cref="DesignState.Background"/>), Transparent drops the card ([S-32]), a colour is that
+    /// colour at its opacity. Set on the properties panel ([S-6520]).
+    /// </summary>
+    public FillChoice Background { get; set; } = new();
 
-    /// <summary>Where the widget's header sits. A per-widget choice, like the surface.</summary>
+    /// <summary>Where the widget's header sits. A per-widget choice, like the background.</summary>
     public HeaderPlacement Header { get; set; } = HeaderPlacement.Top;
 
     /// <summary>
-    /// [S-6512] This widget's own item background, or null (the default) to follow the app-wide one
-    /// (<see cref="DesignState.ItemBackground"/>). Set on the properties panel ([S-6520]).
+    /// [S-6512] This widget's own item background ([S-6560]): Default (the default) follows the
+    /// app-wide one (<see cref="DesignState.ItemBackground"/>). Set on the properties panel ([S-6520]).
     /// </summary>
-    public ItemLayer? ItemBackground { get; set; }
+    public FillChoice ItemBackground { get; set; } = new();
 
     /// <summary>
     /// [S-6540] The colour of the text and glyphs drawn on this widget's items, as <c>#RRGGBB</c>, or
@@ -129,9 +134,9 @@ public sealed class WidgetInstance
         Id = Guid.NewGuid().ToString("n"),
         Kind = Kind,
         Label = Label,
-        Surface = Surface,
+        Background = Background.Clone(),
         Header = Header,
-        ItemBackground = ItemBackground?.Clone(),
+        ItemBackground = ItemBackground.Clone(),
         ItemTextColor = ItemTextColor,
         Scale = Scale,
         Config = Config.Clone(),
@@ -207,17 +212,17 @@ public sealed class DesignState
     /// <summary>[S-6482] The default card corner radius.</summary>
     public const double DefaultCornerRadiusPx = 4;
 
-    /// <summary>Widget card fill, as <c>#RRGGBB</c>. Empty uses the theme's surface colour.</summary>
-    public string WidgetBackgroundColor { get; set; } = string.Empty;
-
-    /// <summary>Opacity applied to every widget card, 0.2 to 1.0.</summary>
-    public double SurfaceOpacity { get; set; } = 1.0;
+    /// <summary>
+    /// [S-823] [S-6560] The app-wide widget background: Default is the Windows card (Fluent base and
+    /// card tint), Transparent no card at all, a colour exactly that colour at its opacity.
+    /// </summary>
+    public FillChoice Background { get; set; } = new();
 
     /// <summary>
-    /// [S-6510] The app-wide item background: what the items inside every card are filled with, apart
-    /// from the card's own fill. The default keeps each item's Fluent fill.
+    /// [S-6510] The app-wide item background ([S-6560]): what the items inside every card are filled
+    /// with, apart from the card's own fill. Default keeps each item's Fluent fill.
     /// </summary>
-    public ItemLayer ItemBackground { get; set; } = new();
+    public FillChoice ItemBackground { get; set; } = new();
 
     /// <summary>
     /// [S-6540] The app-wide colour of the text and glyphs drawn on items, as <c>#RRGGBB</c>. Empty (the
@@ -272,8 +277,7 @@ public sealed class DesignState
         WidgetGapPx = WidgetGapPx,
         GridSnap = GridSnap,
         CornerRadiusPx = CornerRadiusPx,
-        WidgetBackgroundColor = WidgetBackgroundColor,
-        SurfaceOpacity = SurfaceOpacity,
+        Background = Background.Clone(),
         ItemBackground = ItemBackground.Clone(),
         ItemTextColor = ItemTextColor,
         PrimaryColor = PrimaryColor,

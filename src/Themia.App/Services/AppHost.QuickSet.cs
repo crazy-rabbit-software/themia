@@ -22,33 +22,23 @@ internal sealed partial class AppHost
         }
     }
 
-    /// <summary>[S-3703] Every selected widget's background, in one step.</summary>
-    public void SetSelectedSurface(WidgetSurface surface)
+    /// <summary>[S-3703] [S-6566] Every selected widget's background, in one step.</summary>
+    public void SetSelectedBackground(FillChoice fill)
     {
         if (SelectionView is { } view)
         {
             var ids = Selection.Ids.ToList();
-            Mutate(_ => QuickSet.SetSurface(view, ids, surface));
+            Mutate(_ => QuickSet.SetBackground(view, ids, fill));
         }
     }
 
-    /// <summary>[S-6521] Every selected widget's own item colour, or empty for the app-wide item layer, in one step.</summary>
-    public void SetSelectedItemColor(string hex)
+    /// <summary>[S-6521] Every selected widget's own item background (the ones that have items, [S-6571]), in one step.</summary>
+    public void SetSelectedItemBackground(FillChoice fill)
     {
         if (SelectionView is { } view)
         {
             var ids = Selection.Ids.ToList();
-            Mutate(s => QuickSet.SetItemColor(view, ids, hex, s.Design.ItemBackground));
-        }
-    }
-
-    /// <summary>[S-6521] Every selected widget's own item opacity, in one step; one following the app-wide layer keeps following it.</summary>
-    public void SetSelectedItemOpacity(double opacity)
-    {
-        if (SelectionView is { } view)
-        {
-            var ids = Selection.Ids.ToList();
-            Mutate(_ => QuickSet.SetItemOpacity(view, ids, opacity));
+            Mutate(_ => QuickSet.SetItemBackground(view, ids, fill));
         }
     }
 

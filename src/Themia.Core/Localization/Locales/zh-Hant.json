@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "紙張",
   "settings.style.border": "框線",
   "settings.style.widgetBg.label": "小工具背景",
-  "settings.style.widgetOpacity.label": "小工具不透明度",
   "settings.style.headerBg.label": "標題列背景",
   "settings.style.headerOpacity.label": "標題列不透明度",
   "settings.style.widget": "小工具",

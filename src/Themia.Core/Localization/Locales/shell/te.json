@@ -255,8 +255,6 @@
   "shell.settings.danger": "ప్రమాదం",
   "shell.view.position": "{total}లో {n}",
   "shell.widget.gone": "ఈ విడ్జెట్ తీసివేయబడింది.",
-  "shell.widget.card": "కార్డ్",
-  "shell.widget.translucent": "అర్ధపారదర్శకం",
   "shell.license.limitReached": "ఉచిత పరిమితి చేరుకుంది",
   "shell.license.freeVersion": "ఉచిత వెర్షన్",
   "shell.license.widgetsDesc": "అన్ని వీక్షణలలో, సమూహాలు మరియు వాటి సభ్యులతో సహా",

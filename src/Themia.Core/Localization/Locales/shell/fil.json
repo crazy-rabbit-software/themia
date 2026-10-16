@@ -255,8 +255,6 @@
   "shell.settings.danger": "Panganib",
   "shell.view.position": "{n} sa {total}",
   "shell.widget.gone": "Inalis na ang widget na ito.",
-  "shell.widget.card": "Card",
-  "shell.widget.translucent": "Naaaninag",
   "shell.license.limitReached": "Naabot na ang libreng limit",
   "shell.license.freeVersion": "Libreng bersyon",
   "shell.license.widgetsDesc": "Sa lahat ng view, kasama ang mga grupo at mga miyembro nito",

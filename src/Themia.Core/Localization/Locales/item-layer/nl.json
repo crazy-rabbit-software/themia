@@ -1,9 +1,10 @@
 {
   "shell.items.background": "Achtergrond van items",
   "shell.items.backgroundDesc": "Waarmee rijen, tegels en chips in widgets zijn gevuld, los van de achtergrond van de widget",
-  "shell.items.colour": "Kleur van items",
-  "shell.items.opacity": "Dekking van items",
   "shell.items.text": "Tekstkleur van items",
   "shell.items.textDesc": "Tekst en pictogrammen op rijen, tegels en chips",
-  "shell.items.textShort": "Itemtekst"
+  "shell.items.textShort": "Itemtekst",
+  "shell.fill.transparent": "Transparant",
+  "shell.fill.opacity": "Dekking",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

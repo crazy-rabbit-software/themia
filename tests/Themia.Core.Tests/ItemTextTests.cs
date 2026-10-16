@@ -9,12 +9,12 @@ namespace Themia.Core.Tests;
 /// <summary>The item text colour, part of the item layer ([S-6540]..[S-6545]).</summary>
 public sealed class ItemTextTests
 {
-    private static WidgetInstance Widget(string id, string text = "", ItemLayer? items = null)
+    private static WidgetInstance Widget(string id, string text = "", FillChoice? items = null)
     {
         var widget = WidgetInstance.Create(WidgetKind.Shortcuts, new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.ItemTextColor = text;
-        widget.ItemBackground = items;
+        widget.ItemBackground = items ?? new FillChoice();
         return widget;
     }
 
@@ -42,8 +42,8 @@ public sealed class ItemTextTests
     {
         // A widget with a background of its own still takes the app-wide text colour, and one with a
         // text colour of its own still takes the app-wide background.
-        var design = new DesignState { ItemTextColor = "#FFFFFF", ItemBackground = new ItemLayer { Color = "#202020" } };
-        var ownBackground = Widget("a", items: new ItemLayer { Color = "#F0F0F0" });
+        var design = new DesignState { ItemTextColor = "#FFFFFF", ItemBackground = FillChoice.Of("#202020", 1) };
+        var ownBackground = Widget("a", items: FillChoice.Of("#F0F0F0", 1));
         var ownText = Widget("b", "#000000");
 
         Assert.Equal("#FFFFFF", ItemLook.TextColour(design, ownBackground));
@@ -211,7 +211,7 @@ public sealed class ItemTextTests
     [Fact]
     public void S6544_a_colour_or_default_sets_the_text_and_leaves_the_background_alone()
     {
-        var own = new ItemLayer { Color = "#202020", Opacity = 0.5 };
+        var own = FillChoice.Of("#202020", 0.5);
         var (view, a, b) = Pair(string.Empty, "#000000");
         a.ItemBackground = own;
 
@@ -219,7 +219,7 @@ public sealed class ItemTextTests
         Assert.Equal("#FFFFFF", a.ItemTextColor);
         Assert.Equal("#FFFFFF", b.ItemTextColor);
         Assert.Same(own, a.ItemBackground);
-        Assert.Null(b.ItemBackground);
+        Assert.Equal(FillKind.Default, b.ItemBackground.Kind);
 
         Assert.Equal(0, QuickSet.SetItemTextColor(view, ["a", "b"], "#FFFFFF"));
 

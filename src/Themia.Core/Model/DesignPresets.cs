@@ -15,16 +15,17 @@ public enum DesignPresetId
 }
 
 /// <summary>
-/// The look a preset sets: the sixteen appearance fields it owns, and nothing else. [S-830]
-/// [S-6515] The last three are the item layer: its background ([S-6510]) and its text colour
+/// The look a preset sets: the fourteen appearance fields it owns, and nothing else. [S-830]
+/// [S-6565] The background and the item background are each one fill choice ([S-6560]).
+/// [S-6515] The last two are the item layer: its background ([S-6510]) and its text colour
 /// ([S-6540]); a preset that does not name them leaves the items on their Fluent fills and text.
+/// A preset's fill choices are templates: <see cref="DesignPresets.Apply"/> writes copies.
 /// </summary>
 public sealed record DesignPresetValues(
     AppTheme Theme,
     string PrimaryColor,
     string FontFamily,
-    string WidgetBackgroundColor,
-    double SurfaceOpacity,
+    FillChoice Background,
     string HeaderBackgroundColor,
     double HeaderOpacity,
     WidgetBorderStyle BorderStyle,
@@ -33,8 +34,7 @@ public sealed record DesignPresetValues(
     double BorderOpacity,
     double CornerRadiusPx,
     double WidgetGapPx,
-    string ItemColor = "",
-    double ItemOpacity = 1.0,
+    FillChoice? Items = null,
     string ItemTextColor = "");
 
 /// <summary>One named look.</summary>
@@ -66,28 +66,28 @@ public static class DesignPresets
 
         // Near-black, tight, high contrast.
         new(DesignPresetId.Midnight, Str.Settings_Style_Preset_Name_Midnight, new(
-            AppTheme.Dark, "#7C8CFF", DesignLook.SystemFont, "#0B0B0F", 0.96, "#131320", 0.96,
+            AppTheme.Dark, "#7C8CFF", DesignLook.SystemFont, FillChoice.Of("#0B0B0F", 0.96), "#131320", 0.96,
             WidgetBorderStyle.Solid, 1, "#7C8CFF", 0.18, 6, 10)),
 
         // Light theme, soft and airy.
         new(DesignPresetId.Daylight, Str.Settings_Style_Preset_Name_Daylight, new(
-            AppTheme.Light, "#0078D4", DesignLook.SystemFont, "#FFFFFF", 0.86, "#F3F4F8", 0.92,
+            AppTheme.Light, "#0078D4", DesignLook.SystemFont, FillChoice.Of("#FFFFFF", 0.86), "#F3F4F8", 0.92,
             WidgetBorderStyle.Solid, 1, "#000000", 0.1, 12, 14)),
 
         // Heavy glass: very translucent, borderless, generously rounded. [S-6515] Its items keep a
         // pane of their own, so rows and tiles still read on the thin glass.
         new(DesignPresetId.Glass, Str.Settings_Style_Preset_Name_Glass, new(
-            AppTheme.Dark, "#8AD8FF", DesignLook.SystemFont, "#1B2030", 0.55, "#1B2030", 0.35,
-            WidgetBorderStyle.None, 0, "#FFFFFF", 0.25, 18, 16, "#2A3248", 0.6)),
+            AppTheme.Dark, "#8AD8FF", DesignLook.SystemFont, FillChoice.Of("#1B2030", 0.55), "#1B2030", 0.35,
+            WidgetBorderStyle.None, 0, "#FFFFFF", 0.25, 18, 16, FillChoice.Of("#2A3248", 0.6))),
 
         // Monospace, square, phosphor green.
         new(DesignPresetId.Terminal, Str.Settings_Style_Preset_Name_Terminal, new(
-            AppTheme.Dark, "#3DDC84", DesignLook.MonoFont, "#050D07", 0.97, "#050D07", 0.97,
+            AppTheme.Dark, "#3DDC84", DesignLook.MonoFont, FillChoice.Of("#050D07", 0.97), "#050D07", 0.97,
             WidgetBorderStyle.Solid, 1, "#3DDC84", 0.45, 0, 8)),
 
         // Light, serif, printed-page feel: opaque cards, hairline rules.
         new(DesignPresetId.Paper, Str.Settings_Style_Preset_Name_Paper, new(
-            AppTheme.Light, "#8A5A2B", DesignLook.SerifFont, "#FAF7F0", 1, "#F0E9DC", 1,
+            AppTheme.Light, "#8A5A2B", DesignLook.SerifFont, FillChoice.Of("#FAF7F0", 1), "#F0E9DC", 1,
             WidgetBorderStyle.Solid, 1, "#8A5A2B", 0.22, 4, 12)),
     ];
 
@@ -105,7 +105,7 @@ public static class DesignPresets
         return All[0];
     }
 
-    /// <summary>The sixteen owned fields of a design.</summary>
+    /// <summary>The fourteen owned fields of a design (its fill choices as they are, not copied: read them only).</summary>
     public static DesignPresetValues ValuesOf(DesignState design)
     {
         ArgumentNullException.ThrowIfNull(design);
@@ -114,8 +114,7 @@ public static class DesignPresets
             design.Theme,
             design.PrimaryColor,
             design.FontFamily,
-            design.WidgetBackgroundColor,
-            design.SurfaceOpacity,
+            design.Background ?? new FillChoice(),
             design.HeaderBackgroundColor,
             design.HeaderOpacity,
             design.BorderStyle,
@@ -124,8 +123,7 @@ public static class DesignPresets
             design.BorderOpacity,
             design.CornerRadiusPx,
             design.WidgetGapPx,
-            design.ItemBackground?.Color ?? string.Empty,
-            design.ItemBackground?.Opacity ?? 1.0,
+            design.ItemBackground ?? new FillChoice(),
             design.ItemTextColor ?? string.Empty);
     }
 
@@ -141,8 +139,7 @@ public static class DesignPresets
         design.Theme = v.Theme;
         design.PrimaryColor = v.PrimaryColor;
         design.FontFamily = v.FontFamily;
-        design.WidgetBackgroundColor = v.WidgetBackgroundColor;
-        design.SurfaceOpacity = v.SurfaceOpacity;
+        design.Background = v.Background.Clone();
         design.HeaderBackgroundColor = v.HeaderBackgroundColor;
         design.HeaderOpacity = v.HeaderOpacity;
         design.BorderStyle = v.BorderStyle;
@@ -151,7 +148,7 @@ public static class DesignPresets
         design.BorderOpacity = v.BorderOpacity;
         design.CornerRadiusPx = v.CornerRadiusPx;
         design.WidgetGapPx = v.WidgetGapPx;
-        design.ItemBackground = new ItemLayer { Color = v.ItemColor, Opacity = v.ItemOpacity };
+        design.ItemBackground = v.Items?.Clone() ?? new FillChoice();
         design.ItemTextColor = v.ItemTextColor;
     }
 
@@ -193,8 +190,7 @@ public static class DesignPresets
         => a.Theme == b.Theme
             && SameText(a.PrimaryColor, b.PrimaryColor)
             && SameText(a.FontFamily, b.FontFamily)
-            && SameText(a.WidgetBackgroundColor, b.WidgetBackgroundColor)
-            && Near(a.SurfaceOpacity, b.SurfaceOpacity)
+            && a.Background.SameAs(b.Background)
             && SameText(a.HeaderBackgroundColor, b.HeaderBackgroundColor)
             && Near(a.HeaderOpacity, b.HeaderOpacity)
             && a.BorderStyle == b.BorderStyle
@@ -203,8 +199,7 @@ public static class DesignPresets
             && Near(a.BorderOpacity, b.BorderOpacity)
             && Near(a.CornerRadiusPx, b.CornerRadiusPx)
             && Near(a.WidgetGapPx, b.WidgetGapPx)
-            && SameText(a.ItemColor, b.ItemColor)
-            && Near(a.ItemOpacity, b.ItemOpacity)
+            && (a.Items ?? new FillChoice()).SameAs(b.Items ?? new FillChoice())
             && SameText(a.ItemTextColor, b.ItemTextColor);
 
     private static bool SameText(string? a, string? b)

@@ -64,7 +64,7 @@ public sealed class QuickSetTests
     {
         var clock = Widget(WidgetKind.Clock, "a");
         clock.Header = HeaderPlacement.Bottom;
-        clock.Surface = WidgetSurface.Translucent;
+        clock.Background = FillChoice.Of("#202020", 0.6);
         clock.Label = "Zürich";
         var (state, view, _) = State(clock);
 
@@ -74,7 +74,7 @@ public sealed class QuickSetTests
         Assert.Equal(WidgetKind.Clock, offer.TitleKind);
         Assert.Equal("Zürich", offer.Label);
         Assert.Equal(HeaderPlacement.Bottom, offer.Header);
-        Assert.Equal(WidgetSurface.Translucent, offer.Surface);
+        Assert.True(FillChoice.Of("#202020", 0.6).SameAs(offer.Background));
     }
 
     [Fact]
@@ -96,13 +96,14 @@ public sealed class QuickSetTests
         var b = Widget(WidgetKind.Memory, "b");
         a.Header = HeaderPlacement.Top;
         b.Header = HeaderPlacement.Hidden;
-        a.Surface = b.Surface = WidgetSurface.Transparent;
+        a.Background = FillChoice.Transparent();
+        b.Background = FillChoice.Transparent();
         var (state, view, _) = State(a, b);
 
         var offer = QuickSet.For(state, Selecting(view, "a", "b"), view.Id);
 
         Assert.Null(offer.Header);
-        Assert.Equal(WidgetSurface.Transparent, offer.Surface);
+        Assert.Equal(FillKind.Transparent, offer.Background?.Kind);
     }
 
     [Fact]
@@ -118,13 +119,13 @@ public sealed class QuickSetTests
         var a = Widget(WidgetKind.Cpu, "a");
         var b = Widget(WidgetKind.Memory, "b");
         var c = Widget(WidgetKind.Network, "c");
-        b.Surface = WidgetSurface.Transparent;
+        b.Background = FillChoice.Transparent();
         var (_, view, other) = State(a, b, c);
 
-        Assert.Equal(1, QuickSet.SetSurface(view, ["a", "b", "elsewhere"], WidgetSurface.Transparent));
-        Assert.Equal(WidgetSurface.Transparent, a.Surface);
-        Assert.Equal(WidgetSurface.Card, c.Surface);
-        Assert.Equal(WidgetSurface.Card, other.Widgets[0].Surface);
+        Assert.Equal(1, QuickSet.SetBackground(view, ["a", "b", "elsewhere"], FillChoice.Transparent()));
+        Assert.Equal(FillKind.Transparent, a.Background.Kind);
+        Assert.Equal(FillKind.Default, c.Background.Kind);
+        Assert.Equal(FillKind.Default, other.Widgets[0].Background.Kind);
 
         Assert.Equal(2, QuickSet.SetHeader(view, ["a", "b"], HeaderPlacement.Hidden));
         Assert.Equal(0, QuickSet.SetHeader(view, ["a", "b"], HeaderPlacement.Hidden));
@@ -179,7 +180,7 @@ public sealed class QuickSetTests
         var offer = QuickSet.For(state, Selecting(view, "a", "t"), view.Id);
 
         Assert.False(offer.HasHeader);
-        Assert.Equal(WidgetSurface.Card, offer.Surface);
+        Assert.Equal(FillKind.Default, offer.Background?.Kind);
         Assert.True(QuickSet.For(state, Selecting(view, "a"), view.Id).HasHeader);
     }
 

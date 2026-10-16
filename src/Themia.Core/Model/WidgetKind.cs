@@ -290,28 +290,6 @@ public enum AppTheme
     Dark = 2,
 }
 
-/// <summary>Surface a widget card paints behind its content.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<WidgetSurface>))]
-public enum WidgetSurface
-{
-    /// <summary>Fluent card fill — reads over any wallpaper.</summary>
-    Card = 0,
-
-    /// <summary>
-    /// A tinted, partly see-through card: the wallpaper shows through, unblurred.
-    /// <para>
-    /// Not acrylic. Real acrylic samples and blurs what is behind the window, and a backdrop is a
-    /// property of a <i>window</i>, not of an element — so per-widget acrylic would mean one HWND,
-    /// composition target and render thread per widget. That is precisely the cost this port avoids,
-    /// so the whole view shares one transparent window and this surface is an honest tint instead.
-    /// </para>
-    /// </summary>
-    Translucent = 1,
-
-    /// <summary>[S-32] No fill at all: content sits directly on the wallpaper.</summary>
-    Transparent = 2,
-}
-
 /// <summary>How a widget card's border is drawn.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<WidgetBorderStyle>))]
 public enum WidgetBorderStyle

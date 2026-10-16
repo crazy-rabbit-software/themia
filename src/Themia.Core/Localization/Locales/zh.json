@@ -103,7 +103,6 @@
   "settings.style.preset.name.paper": "纸张",
   "settings.style.border": "边框",
   "settings.style.widgetBg.label": "小组件背景",
-  "settings.style.widgetOpacity.label": "小组件不透明度",
   "settings.style.headerBg.label": "标题栏背景",
   "settings.style.headerOpacity.label": "标题栏不透明度",
   "settings.style.widget": "小组件",

@@ -1,9 +1,10 @@
 {
   "shell.items.background": "આઇટમની પૃષ્ઠભૂમિ",
   "shell.items.backgroundDesc": "વિજેટની અંદરની પંક્તિઓ, ટાઇલ્સ અને ચિપ્સનું ભરણ, વિજેટની પોતાની પૃષ્ઠભૂમિથી અલગ",
-  "shell.items.colour": "આઇટમનો રંગ",
-  "shell.items.opacity": "આઇટમની અપારદર્શિતા",
   "shell.items.text": "આઇટમના લખાણનો રંગ",
   "shell.items.textDesc": "પંક્તિઓ, ટાઇલ્સ અને ચિપ્સ પરનું લખાણ અને આઇકન",
-  "shell.items.textShort": "આઇટમનું લખાણ"
+  "shell.items.textShort": "આઇટમનું લખાણ",
+  "shell.fill.transparent": "પારદર્શક",
+  "shell.fill.opacity": "અપારદર્શિતા",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

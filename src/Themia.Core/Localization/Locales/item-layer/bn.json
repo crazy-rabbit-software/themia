@@ -1,9 +1,10 @@
 {
   "shell.items.background": "আইটেমের পটভূমি",
   "shell.items.backgroundDesc": "উইজেটের ভেতরের সারি, টাইল ও চিপের ভরাট, উইজেটের নিজের পটভূমি থেকে আলাদা",
-  "shell.items.colour": "আইটেমের রং",
-  "shell.items.opacity": "আইটেমের অস্বচ্ছতা",
   "shell.items.text": "আইটেমের লেখার রং",
   "shell.items.textDesc": "সারি, টাইল ও চিপের উপর লেখা ও আইকন",
-  "shell.items.textShort": "আইটেমের লেখা"
+  "shell.items.textShort": "আইটেমের লেখা",
+  "shell.fill.transparent": "স্বচ্ছ",
+  "shell.fill.opacity": "অস্বচ্ছতা",
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

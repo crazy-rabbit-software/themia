@@ -283,8 +283,6 @@
   "shell.settings.danger": "خطر",
   "shell.view.position": "{n} من {total}",
   "shell.widget.gone": "أُزيلت هذه الأداة.",
-  "shell.widget.card": "بطاقة",
-  "shell.widget.translucent": "شفاف",
   "shell.license.limitReached": "تم بلوغ الحد المجاني",
   "shell.license.freeVersion": "الإصدار المجاني",
   "shell.license.widgetsDesc": "عبر كل المشاهد، بما فيها المجموعات وأعضاؤها",

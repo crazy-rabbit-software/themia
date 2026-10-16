@@ -255,8 +255,6 @@
   "shell.settings.danger": "Zona pericolosa",
   "shell.view.position": "{n} di {total}",
   "shell.widget.gone": "Questo widget è stato rimosso.",
-  "shell.widget.card": "Scheda",
-  "shell.widget.translucent": "Traslucido",
   "shell.license.limitReached": "Limite gratuito raggiunto",
   "shell.license.freeVersion": "Versione gratuita",
   "shell.license.widgetsDesc": "In tutte le viste, inclusi i gruppi e i loro membri",

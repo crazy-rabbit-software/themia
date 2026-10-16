@@ -103,7 +103,6 @@
   "settings.style.preset.name.paper": "ペーパー",
   "settings.style.border": "枠線",
   "settings.style.widgetBg.label": "ウィジェットの背景",
-  "settings.style.widgetOpacity.label": "ウィジェットの不透明度",
   "settings.style.headerBg.label": "ヘッダーの背景",
   "settings.style.headerOpacity.label": "ヘッダーの不透明度",
   "settings.style.widget": "ウィジェット",

@@ -248,8 +248,6 @@
   "shell.settings.danger": "위험",
   "shell.view.position": "{total}개 중 {n}번째",
   "shell.widget.gone": "이 위젯은 제거되었습니다.",
-  "shell.widget.card": "카드",
-  "shell.widget.translucent": "반투명",
   "shell.license.limitReached": "무료 제한에 도달함",
   "shell.license.freeVersion": "무료 버전",
   "shell.license.widgetsDesc": "모든 보기 합계, 그룹과 그 구성원 포함",

@@ -248,8 +248,6 @@
   "shell.settings.danger": "Nguy hiểm",
   "shell.view.position": "{n}/{total}",
   "shell.widget.gone": "Tiện ích này đã bị gỡ bỏ.",
-  "shell.widget.card": "Thẻ",
-  "shell.widget.translucent": "Trong mờ",
   "shell.license.limitReached": "Đã đạt giới hạn miễn phí",
   "shell.license.freeVersion": "Bản miễn phí",
   "shell.license.widgetsDesc": "Trên mọi dạng xem, tính cả nhóm và thành viên của nhóm",

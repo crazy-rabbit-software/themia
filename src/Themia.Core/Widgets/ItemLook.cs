@@ -61,13 +61,13 @@ public static class ItemLook
     public const double DisabledFade = 0.5;
 
     /// <summary>
-    /// [S-6512] The layer a widget's items are drawn with: the widget's own when it has one, whole
-    /// (its colour and its opacity together), else the app-wide one. Null widget: the app-wide one.
+    /// [S-6512] The item background a widget's items are drawn with: the widget's own unless it is
+    /// Default, else the app-wide one ([S-6562]). Null widget: the app-wide one.
     /// </summary>
-    public static ItemLayer Effective(DesignState design, WidgetInstance? widget)
+    public static FillChoice Effective(DesignState design, WidgetInstance? widget)
     {
         ArgumentNullException.ThrowIfNull(design);
-        return widget?.ItemBackground ?? design.ItemBackground ?? new ItemLayer();
+        return FillChoice.Effective(design.ItemBackground ?? new FillChoice(), widget?.ItemBackground);
     }
 
     /// <summary>
@@ -100,24 +100,33 @@ public static class ItemLook
     };
 
     /// <summary>
-    /// [S-6513] The fill of <paramref name="role"/> in <paramref name="state"/> for a layer, in the
-    /// effective theme. Without a colour of its own the item keeps its Fluent fill
-    /// (<see cref="ThemeKey"/>), faded by the layer's opacity. With one, every role rests on that
-    /// colour at the layer's opacity, and a state moves it toward the theme's contrast by a fixed
-    /// step (<see cref="HoverShift"/> and its siblings) — so hover, press and selection are derived
-    /// from the item colour, never from the card's. A track stands <see cref="TrackShift"/> off it.
+    /// [S-6513] [S-6564] The fill of <paramref name="role"/> in <paramref name="state"/> for an item
+    /// background, in the effective theme. Default keeps the item's Fluent fill
+    /// (<see cref="ThemeKey"/>) as it is. Transparent draws no item at rest, disabled or as a track;
+    /// a lit item (under the pointer, pressed, selected) still takes the Row's subtle Fluent fill,
+    /// so a list keeps answering the pointer and showing its selection. A colour: every role rests
+    /// on it at its opacity, and a state moves it toward the theme's contrast by a fixed step
+    /// (<see cref="HoverShift"/> and its siblings) — so hover, press and selection are derived from
+    /// the item colour, never from the card's. A track stands <see cref="TrackShift"/> off it.
     /// Disabled is the rest fill at <see cref="DisabledFade"/> of the opacity.
     /// </summary>
-    public static ItemInk Ink(ItemRole role, ItemState state, ItemLayer layer, bool dark)
+    public static ItemInk Ink(ItemRole role, ItemState state, FillChoice fill, bool dark)
     {
-        ArgumentNullException.ThrowIfNull(layer);
+        ArgumentNullException.ThrowIfNull(fill);
 
-        var opacity = Opacity(layer.Opacity) * (state == ItemState.Disabled ? DisabledFade : 1);
-
-        if (!HexColor.TryParse(layer.Color, out var r, out var g, out var b))
+        if (fill.Kind == FillKind.Transparent)
         {
-            return new ItemInk(null, ThemeKey(role, state), Opacity(layer.Opacity));
+            var lit = role != ItemRole.Track
+                && state is ItemState.Hover or ItemState.Pressed or ItemState.Selected or ItemState.SelectedHover;
+            return lit ? new ItemInk(null, ThemeKey(ItemRole.Row, state), 1) : new ItemInk(null, ThemeKey(role, state), 0);
         }
+
+        if (fill.Kind != FillKind.Colour || !HexColor.TryParse(fill.Colour, out var r, out var g, out var b))
+        {
+            return new ItemInk(null, ThemeKey(role, state), 1);
+        }
+
+        var opacity = FillChoice.ClampOpacity(fill.Opacity) * (state == ItemState.Disabled ? DisabledFade : 1);
 
         var shift = role == ItemRole.Track ? TrackShift : state switch
         {
@@ -133,9 +142,6 @@ public static class ItemLook
         var shown = shift > 0 ? DesignLook.Over(DesignLook.Alpha(shift), contrast, colour) : colour;
         return new ItemInk(shown, null, opacity);
     }
-
-    /// <summary>[S-6511] A layer opacity: not finite is 1, the rest clamped to 0..1.</summary>
-    public static double Opacity(double value) => double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1;
 
     /// <summary>
     /// [S-6541] The colour the text on a widget's items is drawn in: the widget's own when it has one,

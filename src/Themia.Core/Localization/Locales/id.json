@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "Kertas",
   "settings.style.border": "Batas",
   "settings.style.widgetBg.label": "Latar widget",
-  "settings.style.widgetOpacity.label": "Opasitas widget",
   "settings.style.headerBg.label": "Latar header",
   "settings.style.headerOpacity.label": "Opasitas header",
   "settings.style.widget": "Widget",

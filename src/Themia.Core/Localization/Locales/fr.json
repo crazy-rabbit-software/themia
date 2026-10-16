@@ -103,7 +103,6 @@
   "settings.style.preset.name.paper": "Papier",
   "settings.style.border": "Bordure",
   "settings.style.widgetBg.label": "Arrière-plan du widget",
-  "settings.style.widgetOpacity.label": "Opacité du widget",
   "settings.style.headerBg.label": "Arrière-plan de l’en-tête",
   "settings.style.headerOpacity.label": "Opacité de l’en-tête",
   "settings.style.widget": "Widget",

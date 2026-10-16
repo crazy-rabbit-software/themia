@@ -255,8 +255,6 @@
   "shell.settings.danger": "धोका",
   "shell.view.position": "{total} पैकी {n}",
   "shell.widget.gone": "हे विजेट काढले गेले आहे.",
-  "shell.widget.card": "कार्ड",
-  "shell.widget.translucent": "अर्धपारदर्शक",
   "shell.license.limitReached": "विनामूल्य मर्यादा गाठली",
   "shell.license.freeVersion": "विनामूल्य आवृत्ती",
   "shell.license.widgetsDesc": "सर्व दृश्यांमध्ये, गट आणि त्यांचे सदस्य समाविष्ट",

@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "Paper",
   "settings.style.border": "Border",
   "settings.style.widgetBg.label": "Widget background",
-  "settings.style.widgetOpacity.label": "Widget opacity",
   "settings.style.headerBg.label": "Header background",
   "settings.style.headerOpacity.label": "Header opacity",
   "settings.style.widget": "Widget",

@@ -255,8 +255,6 @@
   "shell.settings.danger": "जोखिम",
   "shell.view.position": "{total} में से {n}",
   "shell.widget.gone": "यह विजेट हटा दिया गया है।",
-  "shell.widget.card": "कार्ड",
-  "shell.widget.translucent": "पारभासी",
   "shell.license.limitReached": "निःशुल्क सीमा पूरी",
   "shell.license.freeVersion": "निःशुल्क संस्करण",
   "shell.license.widgetsDesc": "सभी व्यू में, समूह और उनके सदस्य सहित",

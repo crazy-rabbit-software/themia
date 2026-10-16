@@ -255,8 +255,6 @@
   "shell.settings.danger": "அபாயம்",
   "shell.view.position": "{total} இல் {n}",
   "shell.widget.gone": "இந்த விட்ஜெட் அகற்றப்பட்டது.",
-  "shell.widget.card": "அட்டை",
-  "shell.widget.translucent": "ஒளிபுகும்",
   "shell.license.limitReached": "இலவச வரம்பை அடைந்தது",
   "shell.license.freeVersion": "இலவசப் பதிப்பு",
   "shell.license.widgetsDesc": "எல்லாக் காட்சிகளிலும், குழுக்களும் அவற்றின் உறுப்பினர்களும் உட்பட",

@@ -248,8 +248,6 @@
   "shell.settings.danger": "危険な操作",
   "shell.view.position": "{total} 中 {n}",
   "shell.widget.gone": "このウィジェットは削除されました。",
-  "shell.widget.card": "カード",
-  "shell.widget.translucent": "半透明",
   "shell.license.limitReached": "無料版の上限に達しました",
   "shell.license.freeVersion": "無料版",
   "shell.license.widgetsDesc": "すべてのビューの合計 (グループとその中身を含む)",

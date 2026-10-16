@@ -255,8 +255,6 @@
   "shell.settings.danger": "Tehlikeli",
   "shell.view.position": "{n} / {total}",
   "shell.widget.gone": "Bu pencere öğesi kaldırıldı.",
-  "shell.widget.card": "Kart",
-  "shell.widget.translucent": "Yarı saydam",
   "shell.license.limitReached": "Ücretsiz sınıra ulaşıldı",
   "shell.license.freeVersion": "Ücretsiz sürüm",
   "shell.license.widgetsDesc": "Tüm görünümlerde, gruplar ve üyeleri dahil",

@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "Papel",
   "settings.style.border": "Border",
   "settings.style.widgetBg.label": "Background ng widget",
-  "settings.style.widgetOpacity.label": "Opacity ng widget",
   "settings.style.headerBg.label": "Background ng header",
   "settings.style.headerOpacity.label": "Opacity ng header",
   "settings.style.widget": "Widget",

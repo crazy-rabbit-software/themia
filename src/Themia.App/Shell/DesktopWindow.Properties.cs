@@ -26,13 +26,12 @@ internal sealed partial class DesktopWindow
     /// <summary>What this display's strip does: everything goes through the host, as one undo step each.</summary>
     private PropertiesCommands PropertiesCommands() => new(
         SetHeader: _host.SetSelectedHeader,
-        SetSurface: _host.SetSelectedSurface,
+        SetBackground: _host.SetSelectedBackground,
         SetTitle: _host.SetTitle,
         ReleaseFocus: () => _root.Focus(FocusState.Programmatic),
         SetStyle: _host.SetSelectedStyle,
         OpenSettings: id => _host.ShowConfig(new Config.ConfigTarget.Widget(id)),
-        SetItemColor: _host.SetSelectedItemColor,
-        SetItemOpacity: _host.SetSelectedItemOpacity,
+        SetItemBackground: _host.SetSelectedItemBackground,
         SetItemTextColor: _host.SetSelectedItemTextColor,
         SetScale: _host.SetSelectedScale);
 

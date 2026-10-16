@@ -103,7 +103,6 @@
   "settings.style.preset.name.paper": "Papier",
   "settings.style.border": "Rahmen",
   "settings.style.widgetBg.label": "Widget-Hintergrund",
-  "settings.style.widgetOpacity.label": "Widget-Deckkraft",
   "settings.style.headerBg.label": "Kopfzeilen-Hintergrund",
   "settings.style.headerOpacity.label": "Kopfzeilen-Deckkraft",
   "settings.style.widget": "Widget",

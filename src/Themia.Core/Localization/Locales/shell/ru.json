@@ -269,8 +269,6 @@
   "shell.settings.danger": "Опасная зона",
   "shell.view.position": "{n} из {total}",
   "shell.widget.gone": "Этот виджет удален.",
-  "shell.widget.card": "Карточка",
-  "shell.widget.translucent": "Полупрозрачный",
   "shell.license.limitReached": "Бесплатный лимит исчерпан",
   "shell.license.freeVersion": "Бесплатная версия",
   "shell.license.widgetsDesc": "Во всех видах, включая группы и их содержимое",

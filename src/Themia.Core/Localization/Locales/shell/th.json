@@ -248,8 +248,6 @@
   "shell.settings.danger": "อันตราย",
   "shell.view.position": "{n} จาก {total}",
   "shell.widget.gone": "วิดเจ็ตนี้ถูกเอาออกแล้ว",
-  "shell.widget.card": "การ์ด",
-  "shell.widget.translucent": "โปร่งแสง",
   "shell.license.limitReached": "ถึงขีดจำกัดรุ่นฟรีแล้ว",
   "shell.license.freeVersion": "รุ่นฟรี",
   "shell.license.widgetsDesc": "ในทุกมุมมอง รวมกลุ่มและสมาชิกในกลุ่ม",

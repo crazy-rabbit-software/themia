@@ -27,7 +27,11 @@ namespace Themia.App.Shell.Gallery;
 /// <c>props-&lt;theme&gt;-right.png</c> (a widget in the middle, of its own item colour),
 /// <c>-left.png</c> (a widget at the right edge), <c>-below.png</c> (a widget spanning the width),
 /// <c>-many.png</c> (three of mixed headers), <c>-toggle.png</c> (no Header choice) and
-/// <c>-hidden.png</c> (header hidden, beside the same widget with one).
+/// <c>-hidden.png</c> (header hidden, beside the same widget with one), [S-6569] <c>-fills.png</c>
+/// (backgrounds Default, Transparent and a colour at 50 %, item backgrounds Default, Transparent and
+/// a colour) and <c>-picker.png</c> (the Background control's panel open beside the panel: Transparent and the
+/// opacity slider) — all over a busy stand-in wallpaper, so the panel's surface is judged against
+/// one ([S-3715]).
 /// </summary>
 internal static class EditBarRender
 {
@@ -206,7 +210,7 @@ internal static class EditBarRender
     }
 
     /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "");
+    private sealed record PropsCard(WidgetKind Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null);
 
     /// <summary>[S-3713] The panel beside real cards in edit mode, each case on the stand-in display.</summary>
     private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
@@ -228,22 +232,98 @@ internal static class EditBarRender
                 new(WidgetKind.Countdown, 360, 260, 280, 180, HeaderPlacement.Hidden, true),
                 new(WidgetKind.Countdown, 680, 260, 280, 180, HeaderPlacement.Top, false),
             ],
+
+            // [S-6569] Backgrounds Default, Transparent and a colour at 50 %; items Default,
+            // Transparent and a colour. The selected one (a colour at 50 %) has the panel.
+            [
+                new(WidgetKind.Clock, 40, 80, 300, 200, HeaderPlacement.Top, false, "Default", (int)ClockStyle.Flip),
+                new(WidgetKind.Clock, 40, 320, 300, 200, HeaderPlacement.Top, false, "Transparent", (int)ClockStyle.Flip, Background: FillChoice.Transparent(), Items: FillChoice.Transparent()),
+                new(WidgetKind.Clock, 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", (int)ClockStyle.Flip, Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
+            ],
+
         ];
-        string[] names = ["right", "left", "below", "many", "toggle", "hidden"];
+        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills"];
 
         for (var i = 0; i < cases.Length; i++)
         {
             await PropsShot(screen, ticker, cases[i], System.IO.Path.Combine(outDir, $"props-{theme}-{names[i]}.png")).ConfigureAwait(true);
         }
+
+        // [S-6569] The Background control's panel, open beside the properties panel.
+        PropsCard[] picker = [new(WidgetKind.Clock, 200, 160, 300, 200, HeaderPlacement.Top, true, Style: (int)ClockStyle.Flip, Background: FillChoice.Of("#1B2030", 0.5))];
+        await PropsShot(screen, ticker, picker, System.IO.Path.Combine(outDir, $"props-{theme}-picker.png"), openBackground: true).ConfigureAwait(true);
     }
 
-    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path)
+    /// <summary>
+    /// [S-3715] A stand-in wallpaper: a bright, many-coloured photo-like wash with soft shapes, so the
+    /// panel's surface is judged against something as busy as a real desktop, not a flat tint. A
+    /// render fixture, not a design colour.
+    /// </summary>
+    private static Brush Wallpaper()
+    {
+        var wash = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(1, 1) };
+        foreach (var (offset, colour) in new[]
+        {
+            (0.0, Windows.UI.Color.FromArgb(255, 0x1E, 0x5B, 0x8C)),
+            (0.35, Windows.UI.Color.FromArgb(255, 0xE0, 0x8A, 0x3C)),
+            (0.6, Windows.UI.Color.FromArgb(255, 0x6B, 0xA3, 0x5A)),
+            (1.0, Windows.UI.Color.FromArgb(255, 0x8C, 0x3E, 0x7A)),
+        })
+        {
+            wash.GradientStops.Add(new GradientStop { Offset = offset, Color = colour });
+        }
+
+        return wash;
+    }
+
+    /// <summary>Soft light and dark blobs over the wash, at fixed places.</summary>
+    private static void Blobs(Canvas canvas)
+    {
+        foreach (var (x, y, d, a, light) in new[] { (900.0, 60.0, 260.0, 90, true), (620.0, 300.0, 340.0, 70, false), (120.0, 380.0, 220.0, 80, true), (1060.0, 340.0, 180.0, 90, false) })
+        {
+            var blob = new Microsoft.UI.Xaml.Shapes.Ellipse
+            {
+                Width = d,
+                Height = d,
+                Fill = new SolidColorBrush(light ? Windows.UI.Color.FromArgb((byte)a, 255, 255, 255) : Windows.UI.Color.FromArgb((byte)a, 0, 0, 0)),
+            };
+            Canvas.SetLeft(blob, x);
+            Canvas.SetTop(blob, y);
+            canvas.Children.Add(blob);
+        }
+    }
+
+    /// <summary>The first drop-down in <paramref name="root"/>'s tree a screen reader calls <paramref name="name"/>.</summary>
+    private static DropDownButton? FindChoice(DependencyObject root, string name)
+    {
+        if (root is DropDownButton button && Microsoft.UI.Xaml.Automation.AutomationProperties.GetName(button) == name)
+        {
+            return button;
+        }
+
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            if (FindChoice(VisualTreeHelper.GetChild(root, i), name) is { } found)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, bool openBackground = false)
     {
         screen.Children.Clear();
-        screen.Height = PropsHeight;
 
-        var canvas = new Canvas();
+        // The open control's panel hangs below the display's lower edge: the picture is taller.
+        screen.Height = openBackground ? OpenHeight : PropsHeight;
+        var flat = screen.Background;
+        screen.Background = Wallpaper();
+
+        var canvas = new Canvas { Clip = new RectangleGeometry { Rect = new Rect(0, 0, ScreenWidth, screen.Height) } };
         screen.Children.Add(canvas);
+        Blobs(canvas);
 
         var bar = Bar(snapOn: true);
         canvas.Children.Add(bar);
@@ -259,7 +339,8 @@ internal static class EditBarRender
             var model = WidgetInstance.Create(spec.Kind, new FracRect(0, 0, 0.1, 0.1));
             model.Header = spec.Header;
             model.Label = spec.Label;
-            model.ItemBackground = spec.ItemColor is { } items ? new ItemLayer { Color = items, Opacity = 0.8 } : null;
+            model.ItemBackground = spec.Items?.Clone() ?? (spec.ItemColor is { } items ? FillChoice.Of(items, 0.8) : new FillChoice());
+            model.Background = spec.Background?.Clone() ?? new FillChoice();
             model.Scale = spec.Scale;
             model.ItemTextColor = spec.ItemText;
             if (spec.Style is { } style)
@@ -291,7 +372,7 @@ internal static class EditBarRender
         var selection = new WidgetSelection();
         selection.Replace(view.Id, selected);
 
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }));
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { }));
         UiLanguage.ApplyFlow(strip);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));
         strip.Visibility = Visibility.Visible;
@@ -304,11 +385,34 @@ internal static class EditBarRender
             var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, new PixelRect(0, 0, ScreenWidth, PropsHeight), [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
             Canvas.SetLeft(strip, Math.Round(spot.X));
             Canvas.SetTop(strip, Math.Round(spot.Y));
+
+            // The flyout of the Background control, as it hangs under its button (a flyout on an
+            // off-screen, never-activated window does not render, so its panel is drawn in place).
+            if (openBackground)
+            {
+                strip.UpdateLayout();
+                if (FindChoice(strip, Str.Settings_Style_BgLabel.Text()) is { } choice && ColorChoice.DebugPanel(choice) is { } panel)
+                {
+                    var flyout = new Border { Child = panel, Padding = new Thickness(Fluent.Space4) };
+                    var hanging = new Grid { Children = { flyout } };
+                    FlyoutSurface.Apply(hanging, flyout);
+                    canvas.Children.Add(hanging);
+                    var at = choice.TransformToVisual(canvas).TransformPoint(new Point(0, 0));
+                    hanging.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    Canvas.SetLeft(hanging, Math.Round(at.X + choice.ActualWidth - hanging.DesiredSize.Width));
+                    Canvas.SetTop(hanging, Math.Round(at.Y + choice.ActualHeight + Fluent.Space1));
+                }
+                else
+                {
+                    Log.Warn(Scope, "the Background control was not found; the picker shot shows the panel alone");
+                }
+            }
         }
 
         await Task.Delay(800).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
+        screen.Background = flat;
 
         foreach (var card in cards)
         {

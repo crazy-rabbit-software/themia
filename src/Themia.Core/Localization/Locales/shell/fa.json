@@ -255,8 +255,6 @@
   "shell.settings.danger": "خطر",
   "shell.view.position": "{n} از {total}",
   "shell.widget.gone": "این ویجت برداشته شده است.",
-  "shell.widget.card": "کارت",
-  "shell.widget.translucent": "نیمه‌شفاف",
   "shell.license.limitReached": "به محدودیت رایگان رسیدید",
   "shell.license.freeVersion": "نسخه رایگان",
   "shell.license.widgetsDesc": "در همه نماها، شامل گروه‌ها و اعضای آن‌ها",

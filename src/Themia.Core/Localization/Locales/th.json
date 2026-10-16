@@ -104,7 +104,6 @@
   "settings.style.preset.name.paper": "กระดาษ",
   "settings.style.border": "เส้นขอบ",
   "settings.style.widgetBg.label": "พื้นหลังวิดเจ็ต",
-  "settings.style.widgetOpacity.label": "ความทึบของวิดเจ็ต",
   "settings.style.headerBg.label": "พื้นหลังส่วนหัว",
   "settings.style.headerOpacity.label": "ความทึบของส่วนหัว",
   "settings.style.widget": "วิดเจ็ต",
