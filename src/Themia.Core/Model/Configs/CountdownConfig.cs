@@ -31,7 +31,7 @@ public enum CountdownStyle
 public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, ISetupRule
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => Target is null;
+    public bool NeedsSetup(FeatureSet signedIn) => Target is null;
 
     /// <summary>The most a name says, in characters.</summary>
     public const int MostLabel = 60;

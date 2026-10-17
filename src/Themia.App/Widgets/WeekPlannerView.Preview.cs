@@ -4,6 +4,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Tasks;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -88,10 +89,10 @@ internal sealed partial class WeekPlannerView : IWidgetPreviewState
                 ]);
             }
 
-            var providers = new Dictionary<string, AccountProvider>(StringComparer.Ordinal)
+            var providers = new Dictionary<string, ProviderId>(StringComparer.Ordinal)
             {
-                ["sample:work"] = AccountProvider.Microsoft,
-                ["sample:home"] = AccountProvider.Google,
+                ["sample:work"] = HostProviders.Microsoft,
+                ["sample:home"] = HostProviders.Google,
             };
             var labels = new Dictionary<string, string>(StringComparer.Ordinal) { ["sample:work"] = "Work", ["sample:home"] = "Home" };
             List<CalendarTarget> targets = [new("sample:work", null), new("sample:home", "home")];

@@ -216,14 +216,14 @@ public sealed class AppPagesTests
         var mail = new ShelfStats(SyncKind.Mail, 10, 1, T0, 0);
         var tasks = new ShelfStats(SyncKind.Tasks, 4, 1, T0, 2);
 
-        var microsoft = SyncStats.Summarize(AccountProvider.Microsoft.Features(), [tasks, mail]);
+        var microsoft = SyncStats.Summarize(HostProviders.Microsoft.Features(), [tasks, mail]);
         Assert.Equal([SyncKind.Mail, SyncKind.Calendar, SyncKind.Contacts, SyncKind.Tasks], microsoft.Select(r => r.Kind));
         Assert.Equal(mail, microsoft[0].Stats);
         Assert.Null(microsoft[1].Stats);
         Assert.Equal(2, SyncStats.PendingTotal(microsoft));
 
         // A stray shelf of a kind the provider does not feed is never listed.
-        var imap = SyncStats.Summarize(AccountProvider.Imap.Features(), [mail, tasks]);
+        var imap = SyncStats.Summarize(HostProviders.Imap.Features(), [mail, tasks]);
         Assert.Equal([SyncKind.Mail], imap.Select(r => r.Kind));
         Assert.Equal(0, SyncStats.PendingTotal(imap));
     }

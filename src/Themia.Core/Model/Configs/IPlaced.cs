@@ -1,4 +1,5 @@
 using Themia.Core.Accounts;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -20,5 +21,5 @@ public interface IPlaced : ISetupRule
     void ClearLocation();
 
     /// <summary>[S-2848] No place chosen, or cleared, is the Set up state.</summary>
-    bool ISetupRule.NeedsSetup(AccountFeatures signedIn) => !HasLocation;
+    bool ISetupRule.NeedsSetup(FeatureSet signedIn) => !HasLocation;
 }

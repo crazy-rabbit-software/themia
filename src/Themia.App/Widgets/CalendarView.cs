@@ -14,6 +14,7 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -80,7 +81,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private IReadOnlyList<CalendarEvent> _events = [];
     private IReadOnlyList<Birthday> _birthdays = [];
     private IReadOnlyList<CalendarTarget> _targets = [];
-    private IReadOnlyDictionary<string, AccountProvider> _providers = new Dictionary<string, AccountProvider>();
+    private IReadOnlyDictionary<string, ProviderId> _providers = new Dictionary<string, ProviderId>();
     private string _requestKey = string.Empty;
     private bool _refreshing;
     private bool _again;
@@ -657,8 +658,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     /// </summary>
     private void Open(CalendarEvent item)
     {
-        AccountProvider? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
-        if (CalendarLinks.Open(item, provider, provider == AccountProvider.Microsoft && ShellLauncher.OutlookInstalled) is { } link)
+        ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
+        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && ShellLauncher.OutlookInstalled) is { } link)
         {
             ShellLauncher.OpenCalendarLink(link);
         }
@@ -670,7 +671,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         LinkEvent(element, item);
         WidgetItems.Mark(element); // [S-814]
 
-        if (item.WebLink is not null || (_providers.TryGetValue(item.AccountId, out var provider) && provider == AccountProvider.Microsoft))
+        if (item.WebLink is not null || (_providers.TryGetValue(item.AccountId, out var provider) && provider == HostProviders.Microsoft))
         {
             // Not handled: the card's double-click into edit mode still has to reach it.
             element.Tapped += (_, _) => Open(item);

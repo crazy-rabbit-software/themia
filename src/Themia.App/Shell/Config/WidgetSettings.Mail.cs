@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -94,7 +95,7 @@ internal static partial class WidgetSettings
     /// </summary>
     private static void MailAccountRows(List<FrameworkElement> rows, EmailConfig email, Action save, Action openAccounts)
     {
-        var accounts = AppServices.Accounts?.WithFeature(AccountFeatures.Mail) ?? [];
+        var accounts = AppServices.Accounts?.WithFeature(HostFeatures.Mail) ?? [];
 
         var manage = new Button { Content = accounts.Count == 0 ? Str.WidgetsB_Settings_Email_AddAccount.Text() : Str.WidgetsB_Settings_Email_ManageAccounts.Text() };
         manage.Click += (_, _) => openAccounts();

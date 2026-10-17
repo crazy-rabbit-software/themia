@@ -155,7 +155,7 @@ public static class MailWire
 
         return new MailMessage(
             accountId,
-            AccountProvider.Microsoft,
+            HostProviders.Microsoft,
             folder,
             message.Id,
             message.Subject ?? string.Empty,
@@ -211,7 +211,7 @@ public static class MailWire
 
         return new MailMessage(
             accountId,
-            AccountProvider.Google,
+            HostProviders.Google,
             folder,
             message.Id,
             subject,
@@ -241,7 +241,7 @@ public static class MailWire
 
         return new MailMessage(
             accountId,
-            AccountProvider.Imap,
+            HostProviders.Imap,
             folder,
             new ImapMessageId(folder, uid, uidValidity).ToString(),
             MailHeaders.Field(headers, "subject"),

@@ -33,8 +33,8 @@ public class SkyWidgetsTests
     [Fact]
     public void S3100_neither_needs_setting_up_they_start_at_a_place()
     {
-        Assert.False(WidgetSetup.Needed(new SunConfig(), Themia.Core.Accounts.AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new MoonConfig(), Themia.Core.Accounts.AccountFeatures.None));
+        Assert.False(WidgetSetup.Needed(new SunConfig(), Themia.Sdk.FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new MoonConfig(), Themia.Sdk.FeatureSet.None));
     }
 
     [Fact]

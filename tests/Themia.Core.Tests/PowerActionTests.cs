@@ -128,7 +128,7 @@ public class PowerActionTests
     {
         foreach (var kind in PowerKinds)
         {
-            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), AccountFeatures.None), kind.ToString());
+            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), FeatureSet.None), kind.ToString());
         }
     }
 

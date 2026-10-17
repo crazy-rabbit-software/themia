@@ -73,13 +73,13 @@ public class PlaceClearTests
     {
         var config = WithPlace(kind);
         Assert.True(config.HasLocation);
-        Assert.False(WidgetSetup.Needed((WidgetConfig)config, AccountFeatures.None));
+        Assert.False(WidgetSetup.Needed((WidgetConfig)config, FeatureSet.None));
 
         config.ClearLocation();
 
         Assert.False(config.HasLocation);
-        Assert.True(WidgetSetup.Needed((WidgetConfig)config, AccountFeatures.None));
-        Assert.False(WidgetLiveness.Runs((WidgetConfig)config, AccountFeatures.None));
+        Assert.True(WidgetSetup.Needed((WidgetConfig)config, FeatureSet.None));
+        Assert.False(WidgetLiveness.Runs((WidgetConfig)config, FeatureSet.None));
     }
 
     [Theory]
@@ -161,7 +161,7 @@ public class PlaceClearTests
         var config = (SkyPlaceConfig)ConfigJson.Read(kind, $$"""{ "kind": "{{discriminator}}", "latitude": null, "longitude": null, "place": "" }""");
 
         Assert.False(config.HasLocation);
-        Assert.True(WidgetSetup.Needed(config, AccountFeatures.None));
+        Assert.True(WidgetSetup.Needed(config, FeatureSet.None));
     }
 
     [Fact]

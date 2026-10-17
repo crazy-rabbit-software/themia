@@ -44,7 +44,7 @@ public enum StreamRotation
 public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => ResolvedUrl.Problem == WebUrlProblem.Empty;
+    public bool NeedsSetup(FeatureSet signedIn) => ResolvedUrl.Problem == WebUrlProblem.Empty;
 
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>

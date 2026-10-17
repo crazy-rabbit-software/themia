@@ -483,7 +483,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     {
         if (_source?.Open(message) == false)
         {
-            ShowProblem(message.Provider == Themia.Core.Accounts.AccountProvider.Imap
+            ShowProblem(message.Provider == Themia.Core.Accounts.HostProviders.Imap
                 ? Str.WidgetsB_Email_ImapNoWebPage.Text()
                 : Str.WidgetsB_Email_CouldNotOpen.Text());
         }

@@ -28,9 +28,9 @@ internal sealed partial class AccountOfficeSource
     /// <summary>Whether a calendar is read incrementally, and through which cursor.</summary>
     private CursorKind? WindowCursorKind(string accountId, string? calendarId) => _accounts.Find(accountId)?.Provider switch
     {
-        AccountProvider.Microsoft when calendarId is null => CursorKind.GraphDelta,
-        AccountProvider.Google => CursorKind.GoogleSyncToken,
-        AccountProvider.CalDav => CursorKind.Dav,
+        var pid when pid == HostProviders.Microsoft && calendarId is null => CursorKind.GraphDelta,
+        var pid when pid == HostProviders.Google => CursorKind.GoogleSyncToken,
+        var pid when pid == HostProviders.CalDav => CursorKind.Dav,
         _ => null,
     };
 
@@ -280,7 +280,7 @@ internal sealed partial class AccountOfficeSource
     private Task<(IReadOnlyList<Contact> People, SyncCursor? Cursor)> SyncBookAsync(string accountId, IReadOnlyList<Contact>? held, SyncCursor? cursor, CancellationToken ct)
     {
         var account = Require(accountId);
-        if (account.Provider is not (AccountProvider.Microsoft or AccountProvider.Google))
+        if (!(account.Provider == HostProviders.Microsoft || account.Provider == HostProviders.Google))
         {
             return BookChangesAsync(account, held, cursor, ct);
         }
@@ -288,16 +288,16 @@ internal sealed partial class AccountOfficeSource
         // [S-2690] A book whose provider refused the change request: the plain listing, no cursor.
         return _fallback.ReadAsync($"{account.Id}|book", $"{account.Id}: address book",
             () => BookChangesAsync(account, held, cursor, ct),
-            () => account.Provider == AccountProvider.Microsoft ? GraphBookPlainAsync(account, ct) : GoogleBookPlainAsync(account, ct));
+            () => account.Provider == HostProviders.Microsoft ? GraphBookPlainAsync(account, ct) : GoogleBookPlainAsync(account, ct));
     }
 
     private async Task<(IReadOnlyList<Contact> People, SyncCursor? Cursor)> BookChangesAsync(AccountInfo account, IReadOnlyList<Contact>? held, SyncCursor? cursor, CancellationToken ct)
     {
         CursorKind? kind = account.Provider switch
         {
-            AccountProvider.Microsoft => CursorKind.GraphDelta,
-            AccountProvider.Google => CursorKind.GoogleSyncToken,
-            AccountProvider.CardDav => CursorKind.Dav,
+            var pid when pid == HostProviders.Microsoft => CursorKind.GraphDelta,
+            var pid when pid == HostProviders.Google => CursorKind.GoogleSyncToken,
+            var pid when pid == HostProviders.CardDav => CursorKind.Dav,
             _ => null,
         };
 

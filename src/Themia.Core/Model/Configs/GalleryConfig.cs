@@ -84,7 +84,7 @@ public enum GallerySetting
 public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<GallerySetting>, ISetupRule
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => Source switch
+    public bool NeedsSetup(FeatureSet signedIn) => Source switch
     {
         GallerySource.Folder => string.IsNullOrWhiteSpace(Path),
         GallerySource.File => string.IsNullOrWhiteSpace(FilePath),

@@ -1,4 +1,5 @@
 using Themia.Core.Accounts;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -10,7 +11,7 @@ namespace Themia.Core.Model;
 public interface ISetupRule
 {
     /// <summary>Whether it waits for setup, given the features the signed-in accounts offer.</summary>
-    bool NeedsSetup(AccountFeatures signedIn);
+    bool NeedsSetup(FeatureSet signedIn);
 
     /// <summary>
     /// [S-1881] Whether it runs while it waits, because its setup happens in the widget itself

@@ -43,7 +43,7 @@ internal sealed partial class AccountOfficeSource
 
         switch (account.Provider)
         {
-            case AccountProvider.Microsoft:
+            case var pid when pid == HostProviders.Microsoft:
             {
                 // [S-567] A chosen calendar is asked by id (opaque base64url, so escaped); none is
                 // the account's default calendar view.
@@ -57,7 +57,7 @@ internal sealed partial class AccountOfficeSource
                 return [.. items.Select(OfficeWire.FromGraph).OfType<CalendarEvent>()];
             }
 
-            case AccountProvider.Google:
+            case var pid when pid == HostProviders.Google:
             {
                 var calendar = Uri.EscapeDataString(target.CalendarId ?? "primary");
                 var url = new Uri($"{GoogleCalendar}calendars/{calendar}/events?timeMin={Uri.EscapeDataString(Iso(from))}&timeMax={Uri.EscapeDataString(Iso(to))}"
@@ -69,7 +69,7 @@ internal sealed partial class AccountOfficeSource
                 return [.. items.Select(OfficeWire.FromGoogle).OfType<CalendarEvent>()];
             }
 
-            case AccountProvider.CalDav:
+            case var pid when pid == HostProviders.CalDav:
             {
                 var reply = await _accounts.DavAsync(account.Id, "REPORT", DavTarget(account, target.CalendarId), DavOffice.CalendarQuery(from, to), 1, ct)
                     .ConfigureAwait(false);
@@ -98,14 +98,14 @@ internal sealed partial class AccountOfficeSource
 
         switch (account.Provider)
         {
-            case AccountProvider.Microsoft:
+            case var pid when pid == HostProviders.Microsoft:
             {
                 var url = new Uri($"{Graph}me/calendars?$select=id,name,isDefaultCalendar,hexColor&$top=100");
                 var items = await _accounts.GetGraphPagesAsync(account.Id, url, OfficeJsonContext.Default.GraphCalendar, 500, ct).ConfigureAwait(false);
                 return [.. items.Select(OfficeWire.FromGraph).OfType<CalendarInfo>()];
             }
 
-            case AccountProvider.Google:
+            case var pid when pid == HostProviders.Google:
             {
                 try
                 {
@@ -124,7 +124,7 @@ internal sealed partial class AccountOfficeSource
                 }
             }
 
-            case AccountProvider.CalDav:
+            case var pid when pid == HostProviders.CalDav:
                 return await LoadDavCalendarsAsync(account, ct).ConfigureAwait(false);
 
             default:
@@ -176,7 +176,7 @@ internal sealed partial class AccountOfficeSource
 
         switch (account.Provider)
         {
-            case AccountProvider.Microsoft:
+            case var pid when pid == HostProviders.Microsoft:
             {
                 var url = new Uri($"{Graph}me/contacts?$select=displayName,birthday&$top=500");
                 var items = await _accounts.GetGraphPagesAsync(account.Id, url, OfficeJsonContext.Default.GraphContact, MaxBirthdayContacts, ct)
@@ -184,7 +184,7 @@ internal sealed partial class AccountOfficeSource
                 return [.. items.Select(OfficeWire.BirthdayFromGraph).OfType<Birthday>()];
             }
 
-            case AccountProvider.Google:
+            case var pid when pid == HostProviders.Google:
             {
                 var url = new Uri($"{People}?personFields=names,birthdays&pageSize=500");
                 var items = await _accounts.GetGooglePagesAsync(account.Id, url, "connections", OfficeJsonContext.Default.GooglePersonRecord, MaxBirthdayContacts, ct)

@@ -18,7 +18,7 @@ public class MailFeedTests
     private static readonly DateTimeOffset Now = new(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
 
     private static MailMessage Message(string account, string id, DateTimeOffset? at, bool read = true)
-        => new(account, AccountProvider.Microsoft, MailFolder.Inbox, id, "Subject " + id, "Sender", "s@x.com", at, read, string.Empty, string.Empty);
+        => new(account, HostProviders.Microsoft, MailFolder.Inbox, id, "Subject " + id, "Sender", "s@x.com", at, read, string.Empty, string.Empty);
 
     [Fact]
     public void S545_graph_message_maps_every_field()
@@ -38,7 +38,7 @@ public class MailFeedTests
         Assert.Equal(new DateTimeOffset(2026, 10, 4, 9, 30, 0, TimeSpan.Zero), message.Received);
         Assert.False(message.IsRead);
         Assert.Equal("Hi all, attached are the numbers.", message.Preview);
-        Assert.Equal(AccountProvider.Microsoft, message.Provider);
+        Assert.Equal(HostProviders.Microsoft, message.Provider);
 
         Assert.Null(MailWire.FromGraph(new GraphMailMessage(), "acc-1", MailFolder.Inbox));
         Assert.Equal("(no subject)", MailWire.FromGraph(new GraphMailMessage { Id = "x" }, "a", MailFolder.Inbox)!.SubjectLine);
@@ -118,8 +118,8 @@ public class MailFeedTests
         Assert.True(MailRefresh.NeedsFetch(counts, counts, Now.AddMinutes(5), Now));
     }
 
-    private static readonly MailAccount Work = new("w", AccountProvider.Microsoft, "Work", "me@contoso.com", null);
-    private static readonly MailAccount Home = new("h", AccountProvider.Imap, "Home", "me@fastmail.com", null);
+    private static readonly MailAccount Work = new("w", HostProviders.Microsoft, "Work", "me@contoso.com", null);
+    private static readonly MailAccount Home = new("h", HostProviders.Imap, "Home", "me@fastmail.com", null);
 
     private static MailAccountOutcome Ok(string id) => new(id, MailAccountState.Ok, FetchStatus.Ok, null);
 
@@ -241,7 +241,7 @@ public class MailFeedTests
         Assert.Equal("ms-outlook://emails/AAMk%2FAD%3D/reply", MailLinks.Reply(graph, outlookInstalled: true));
 
         // issue #45a: IMAP has no web view — nothing to open, never an empty shell call.
-        var imap = graph with { Provider = AccountProvider.Imap, WebLink = string.Empty, Subject = "Lunch?" };
+        var imap = graph with { Provider = HostProviders.Imap, WebLink = string.Empty, Subject = "Lunch?" };
         Assert.Null(MailLinks.Open(imap, outlookInstalled: true));
         Assert.Equal("mailto:s@x.com?subject=Re%3A%20Lunch%3F", MailLinks.Reply(imap, outlookInstalled: true));
         Assert.Equal("mailto:s@x.com?subject=RE%3A%20x", MailLinks.Reply(imap with { Subject = "RE: x" }, false));
@@ -271,7 +271,7 @@ public class MailFeedTests
         Assert.Equal("https://outlook.office.com/mail/deeplink/compose", MailLinks.Compose(Work with { Address = "me@outlook.contoso.com.au" }, []));
 
         // Gmail: that address's compose window, the address encoded like the message links.
-        var gmail = new MailAccount("g", AccountProvider.Google, "Personal", "me+x@gmail.com", null);
+        var gmail = new MailAccount("g", HostProviders.Google, "Personal", "me+x@gmail.com", null);
         Assert.Equal("https://mail.google.com/mail/?authuser=me%2Bx%40gmail.com&view=cm&fs=1", MailLinks.Compose(gmail, []));
         Assert.Equal("https://mail.google.com/mail/?view=cm&fs=1", MailLinks.Compose(gmail with { Address = "not an address" }, []));
 

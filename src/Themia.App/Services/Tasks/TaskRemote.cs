@@ -6,12 +6,13 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Sync;
 using Themia.Core.Tasks;
+using Themia.Sdk;
 
 namespace Themia.App.Services.Tasks;
 
 /// <summary>An account that can feed the Tasks widget, as the widget and its settings see it.</summary>
 /// <param name="Problem">Why it cannot be used until the user signs in again, or null.</param>
-internal sealed record TaskAccount(string Id, AccountProvider Provider, string Label, string? Problem);
+internal sealed record TaskAccount(string Id, ProviderId Provider, string Label, string? Problem);
 
 /// <summary>
 /// Where account tasks come from. One implementation, over Themia's own accounts.
@@ -60,7 +61,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
 
     public IReadOnlyList<TaskAccount> Accounts =>
     [
-        .. accounts.WithFeature(AccountFeatures.Tasks)
+        .. accounts.WithFeature(HostFeatures.Tasks)
             .Where(a => TaskWire.Supports(a.Provider))
             .Select(a => new TaskAccount(a.Id, a.Provider, a.Label, a.Problem)),
     ];
@@ -76,7 +77,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         var provider = Provider(accountId);
         var address = TaskWire.Lists(provider);
 
-        if (provider == AccountProvider.Google)
+        if (provider == HostProviders.Google)
         {
             var lists = await accounts.GetGooglePagesAsync(accountId, address, "items", TaskWireContext.Default.GoogleTaskList, 100, cancellation)
                 .ConfigureAwait(false);
@@ -102,9 +103,9 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
 
     /// <summary>[S-2686] By the list's changes: from a usable cursor, else a fresh round (Graph delta, Google with an <c>updatedMin</c> cursor).</summary>
     private async Task<(IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> ChangesAsync(
-        AccountProvider provider, string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, CancellationToken cancellation)
+        ProviderId provider, string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, CancellationToken cancellation)
     {
-        var kind = provider == AccountProvider.Google ? CursorKind.GoogleUpdatedMin : CursorKind.GraphDelta;
+        var kind = provider == HostProviders.Google ? CursorKind.GoogleUpdatedMin : CursorKind.GraphDelta;
         var scope = TaskShelves.CursorScope(listId, includeCompleted);
         var now = DateTimeOffset.UtcNow;
         var check = held is null ? CursorCheck.Missing : SyncCursors.Check(cursor, kind, scope, now);
@@ -113,7 +114,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         {
             try
             {
-                return provider == AccountProvider.Google
+                return provider == HostProviders.Google
                     ? await GoogleChangesAsync(accountId, listId, includeCompleted, held, cursor, now, cancellation).ConfigureAwait(false)
                     : await GraphRoundAsync(accountId, listId, includeCompleted, held, cursor, now, cancellation).ConfigureAwait(false);
             }
@@ -128,7 +129,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
             Log.Debug(Scope, $"{accountId}: list {listId} read in full ({check})");
         }
 
-        return provider == AccountProvider.Google
+        return provider == HostProviders.Google
             ? await GoogleFullAsync(accountId, listId, includeCompleted, scope, now, cancellation).ConfigureAwait(false)
             : await GraphRoundAsync(accountId, listId, includeCompleted, null, null, now, cancellation).ConfigureAwait(false);
     }
@@ -160,10 +161,10 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
     /// whose change request was refused. Graph is filtered here ([S-591]); Google asks without the finished ones.
     /// </summary>
     private async Task<(IReadOnlyList<TaskItem>, SyncCursor?)> PlainAsync(
-        AccountProvider provider, string accountId, string listId, bool includeCompleted, CancellationToken cancellation)
+        ProviderId provider, string accountId, string listId, bool includeCompleted, CancellationToken cancellation)
     {
         var address = TaskWire.Tasks(provider, listId, includeCompleted);
-        var all = provider == AccountProvider.Google
+        var all = provider == HostProviders.Google
             ? (await accounts.GetGooglePagesAsync(accountId, address, "items", TaskWireContext.Default.GoogleTask, TaskWire.MaxTasksPerList, cancellation)
                 .ConfigureAwait(false)).Select(t => TaskWire.FromGoogle(t, listId)).OfType<TaskItem>().ToList()
             : (await accounts.GetGraphPagesAsync(accountId, address, TaskWireContext.Default.GraphTodoTask, TaskWire.MaxTasksPerList, cancellation)
@@ -177,7 +178,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
     private async Task<(IReadOnlyList<TaskItem>, SyncCursor?)> GoogleFullAsync(
         string accountId, string listId, bool includeCompleted, string scope, DateTimeOffset now, CancellationToken cancellation)
     {
-        var google = await accounts.GetGooglePagesAsync(accountId, TaskWire.Tasks(AccountProvider.Google, listId, includeCompleted), "items",
+        var google = await accounts.GetGooglePagesAsync(accountId, TaskWire.Tasks(HostProviders.Google, listId, includeCompleted), "items",
             TaskWireContext.Default.GoogleTask, TaskWire.MaxTasksPerList, cancellation).ConfigureAwait(false);
 
         var all = google.Select(t => TaskWire.FromGoogle(t, listId)).OfType<TaskItem>().ToList();
@@ -229,7 +230,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         return accounts.SendJsonAsync(accountId, HttpMethod.Patch, TaskWire.List(provider, listId), TaskWire.RenameListBody(provider, name), cancellation);
     }
 
-    private AccountProvider Provider(string accountId)
+    private ProviderId Provider(string accountId)
         => accounts.Find(accountId) is { } account && TaskWire.Supports(account.Provider)
             ? account.Provider
             : throw new AccountException(AccountError.UnknownAccount, Str.Shell_Accounts_NotSignedIn.Text());

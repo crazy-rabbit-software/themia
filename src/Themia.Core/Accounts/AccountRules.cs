@@ -1,3 +1,4 @@
+using Themia.Sdk;
 namespace Themia.Core.Accounts;
 
 /// <summary>
@@ -69,7 +70,7 @@ public static class AccountRules
             return null;
         }
 
-        if (AccountProviders.TryParse(stored.Provider) is not { } provider)
+        if (!ProviderCatalog.TryParse(stored.Provider, out var provider))
         {
             repairs.Add($"dropped account '{id}': unknown provider '{stored.Provider}'");
             return null;
@@ -98,7 +99,7 @@ public static class AccountRules
 
         switch (provider)
         {
-            case AccountProvider.Imap:
+            case var pid when pid == HostProviders.Imap:
             {
                 var host = Clean(stored.Host);
                 var user = Clean(stored.Username);
@@ -118,8 +119,7 @@ public static class AccountRules
                 return account with { Host = host, Port = port, Username = user };
             }
 
-            case AccountProvider.CalDav:
-            case AccountProvider.CardDav:
+            case var pid when pid == HostProviders.CalDav || pid == HostProviders.CardDav:
             {
                 var url = Clean(stored.ServerUrl);
                 var user = Clean(stored.Username);
@@ -182,15 +182,12 @@ public static class AccountIds
     /// may sign in to several collections of one server (Google's legacy CalDAV has an address per
     /// calendar); keyed by the server alone, each sign-in replaced the last (classic issue #133).
     /// </summary>
-    public static string Dav(AccountProvider provider, string username, Uri collection)
+    public static string Dav(ProviderId provider, string username, Uri collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
         var where = collection.Authority + collection.AbsolutePath.TrimEnd('/');
-        return provider switch
-        {
-            AccountProvider.CalDav => $"caldav:{username}@{where}",
-            AccountProvider.CardDav => $"carddav:{username}@{where}",
-            _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "not a DAV provider"),
-        };
+        return provider == HostProviders.CalDav || provider == HostProviders.CardDav
+            ? $"{provider.Value}:{username}@{where}"
+            : throw new ArgumentOutOfRangeException(nameof(provider), provider, "not a DAV provider");
     }
 }

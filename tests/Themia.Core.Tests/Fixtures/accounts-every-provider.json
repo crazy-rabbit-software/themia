@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "accounts": [
+    {
+      "id": "00000000-0000-0000-0000-000000000001",
+      "provider": "microsoft",
+      "address": "ada@contoso.example",
+      "displayName": "Ada Example",
+      "nickname": "Work",
+      "accessToken": "dpapi:AAAAfakeaccess1",
+      "refreshToken": "dpapi:AAAAfakerefresh1",
+      "expiresAt": "2026-10-17T13:00:00+00:00",
+      "addedAt": "2026-09-01T08:00:00+00:00"
+    },
+    {
+      "id": "google:100000000000000000001",
+      "provider": "google",
+      "address": "ada@gmail.example",
+      "displayName": "Ada Example",
+      "accessToken": "dpapi:AAAAfakeaccess2",
+      "refreshToken": "dpapi:AAAAfakerefresh2",
+      "expiresAt": "2026-10-17T13:00:00+00:00",
+      "addedAt": "2026-09-01T08:00:00+00:00"
+    },
+    {
+      "id": "imap:ada@mail.example.com@mail.example.com",
+      "provider": "imap",
+      "address": "ada@mail.example.com",
+      "displayName": "",
+      "host": "mail.example.com",
+      "port": 993,
+      "username": "ada@mail.example.com",
+      "password": "dpapi:AAAAfakepassword3",
+      "addedAt": "2026-09-01T08:00:00+00:00"
+    },
+    {
+      "id": "caldav:ada@dav.example.com/cal/user",
+      "provider": "caldav",
+      "address": "ada",
+      "displayName": "Calendar",
+      "username": "ada",
+      "serverUrl": "https://dav.example.com/cal/user/",
+      "password": "dpapi:AAAAfakepassword4",
+      "addedAt": "2026-09-01T08:00:00+00:00"
+    },
+    {
+      "id": "carddav:ada@dav.example.com/card/user",
+      "provider": "carddav",
+      "address": "ada",
+      "displayName": "",
+      "username": "ada",
+      "serverUrl": "https://dav.example.com/card/user/",
+      "password": "dpapi:AAAAfakepassword5",
+      "addedAt": "2026-09-01T08:00:00+00:00"
+    }
+  ]
+}

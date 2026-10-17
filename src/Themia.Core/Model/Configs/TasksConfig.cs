@@ -56,7 +56,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
     }
 
     /// <summary>A list kept on this PC needs no account; it starts from the widget itself ([S-604]).</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => Source == TaskSource.Account && (signedIn & AccountFeatures.Tasks) == 0;
+    public bool NeedsSetup(FeatureSet signedIn) => Source == TaskSource.Account && !signedIn.Has(HostFeatures.Tasks);
 
     private List<string> _taskOrder = [];
 

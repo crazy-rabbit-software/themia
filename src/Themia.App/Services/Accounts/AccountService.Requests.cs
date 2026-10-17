@@ -123,14 +123,14 @@ internal sealed partial class AccountService
 
     private static RequestTemplate RefreshRequest(Account account, string refreshToken) => account.Provider switch
     {
-        AccountProvider.Microsoft => RequestTemplate.Form(OAuthClients.Microsoft.TokenUrl,
+        var pid when pid == HostProviders.Microsoft => RequestTemplate.Form(OAuthClients.Microsoft.TokenUrl,
         [
             new("client_id", OAuthClients.Microsoft.ClientId),
             new("grant_type", "refresh_token"),
             new("refresh_token", refreshToken),
             new("scope", OAuthClients.Microsoft.Scope),
         ]),
-        AccountProvider.Google => RequestTemplate.Form(OAuthClients.Google.TokenUrl,
+        var pid when pid == HostProviders.Google => RequestTemplate.Form(OAuthClients.Google.TokenUrl,
         [
             new("client_id", OAuthClients.Google.ClientId),
             new("client_secret", GoogleSecretOrThrow()),
@@ -191,9 +191,9 @@ internal sealed partial class AccountService
     /// </summary>
     internal static Themia.Core.Net.LocalGrant? ServerGrant(Account account) => account.Provider switch
     {
-        AccountProvider.CalDav or AccountProvider.CardDav when Uri.TryCreate(account.ServerUrl, UriKind.Absolute, out var server)
+        var pid when (pid == HostProviders.CalDav || pid == HostProviders.CardDav) && Uri.TryCreate(account.ServerUrl, UriKind.Absolute, out var server)
             => Themia.Core.Net.LocalGrants.ForTyped(server),
-        AccountProvider.Imap => Themia.Core.Net.LocalGrants.ForTypedHost(account.Host),
+        var pid when pid == HostProviders.Imap => Themia.Core.Net.LocalGrants.ForTypedHost(account.Host),
         _ => null,
     };
 
@@ -414,7 +414,7 @@ internal sealed partial class AccountService
     {
         var account = Require(accountId);
 
-        if (account.Provider != AccountProvider.Imap || account.Host is null || account.Port is not { } port || account.Username is null)
+        if (account.Provider != HostProviders.Imap || account.Host is null || account.Port is not { } port || account.Username is null)
         {
             throw new AccountException(AccountError.Refused, Str.Shell_Accounts_NotMailServer.Format(("name", account.Label)));
         }
@@ -446,7 +446,7 @@ internal sealed partial class AccountService
     {
         switch (account.Provider)
         {
-            case AccountProvider.Imap or AccountProvider.CalDav or AccountProvider.CardDav:
+            case var pid when pid == HostProviders.Imap || pid == HostProviders.CalDav || pid == HostProviders.CardDav:
                 var pair = Encoding.UTF8.GetBytes($"{account.Username}:{secret}");
                 request.Headers.Authorization = new("Basic", Convert.ToBase64String(pair));
                 return;

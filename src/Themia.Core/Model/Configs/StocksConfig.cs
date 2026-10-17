@@ -87,7 +87,7 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
     }
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => string.IsNullOrWhiteSpace(Symbol);
+    public bool NeedsSetup(FeatureSet signedIn) => string.IsNullOrWhiteSpace(Symbol);
 
     private static readonly StyleOption[] StockStyles =
     [

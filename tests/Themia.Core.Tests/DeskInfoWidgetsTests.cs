@@ -61,11 +61,11 @@ public class DeskInfoWidgetsTests
     [Fact]
     public void S4800_only_next_meeting_needs_setting_up_and_only_without_a_calendar()
     {
-        Assert.False(WidgetSetup.Needed(new YearProgressConfig(), AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new RecentFilesConfig(), AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new RecycleBinConfig(), AccountFeatures.None));
-        Assert.True(WidgetSetup.Needed(new NextMeetingConfig(), AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new NextMeetingConfig(), AccountFeatures.Calendar));
+        Assert.False(WidgetSetup.Needed(new YearProgressConfig(), FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new RecentFilesConfig(), FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new RecycleBinConfig(), FeatureSet.None));
+        Assert.True(WidgetSetup.Needed(new NextMeetingConfig(), FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new NextMeetingConfig(), HostFeatures.Calendar));
     }
 
     [Fact]

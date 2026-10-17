@@ -55,7 +55,7 @@ public class WidgetLivenessTests
     {
         var (state, left, right, hidden) = ThreeViews();
 
-        var live = WidgetLiveness.Live(state, ["a", "b"], AccountFeatures.None);
+        var live = WidgetLiveness.Live(state, ["a", "b"], FeatureSet.None);
 
         Assert.Equal(left.Widgets.Concat(right.Widgets), live);
         Assert.DoesNotContain(live, w => hidden.Widgets.Contains(w));
@@ -68,7 +68,7 @@ public class WidgetLivenessTests
         state.MonitorViews["b"] = left.Id;
 
         Assert.Equal([left], WidgetLiveness.ShownViews(state, ["a", "b"]));
-        Assert.Equal(left.Widgets, WidgetLiveness.Live(state, ["a", "b"], AccountFeatures.None));
+        Assert.Equal(left.Widgets, WidgetLiveness.Live(state, ["a", "b"], FeatureSet.None));
     }
 
     [Fact]
@@ -85,18 +85,18 @@ public class WidgetLivenessTests
     {
         var (state, _, _, _) = ThreeViews();
 
-        Assert.Empty(WidgetLiveness.Live(state, [], AccountFeatures.None));
+        Assert.Empty(WidgetLiveness.Live(state, [], FeatureSet.None));
     }
 
     [Fact]
     public void S1881_a_widget_that_needs_setting_up_does_not_run()
     {
-        Assert.False(WidgetLiveness.Runs(Weather(placed: false).Config, AccountFeatures.None));
-        Assert.True(WidgetLiveness.Runs(Weather(placed: true).Config, AccountFeatures.None));
-        Assert.False(WidgetLiveness.Runs(new StocksConfig(), AccountFeatures.None));
-        Assert.False(WidgetLiveness.Runs(new RssConfig { Feeds = [] }, AccountFeatures.None));
-        Assert.False(WidgetLiveness.Runs(new EmailConfig(), AccountFeatures.None));
-        Assert.True(WidgetLiveness.Runs(new EmailConfig(), AccountFeatures.Mail));
+        Assert.False(WidgetLiveness.Runs(Weather(placed: false).Config, FeatureSet.None));
+        Assert.True(WidgetLiveness.Runs(Weather(placed: true).Config, FeatureSet.None));
+        Assert.False(WidgetLiveness.Runs(new StocksConfig(), FeatureSet.None));
+        Assert.False(WidgetLiveness.Runs(new RssConfig { Feeds = [] }, FeatureSet.None));
+        Assert.False(WidgetLiveness.Runs(new EmailConfig(), FeatureSet.None));
+        Assert.True(WidgetLiveness.Runs(new EmailConfig(), HostFeatures.Mail));
     }
 
     [Fact]
@@ -105,8 +105,8 @@ public class WidgetLivenessTests
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
-            var expected = !WidgetSetup.Needed(config, AccountFeatures.None) || kind == ShortcutsConfig.Descriptor.Id;
-            Assert.True(WidgetLiveness.Runs(config, AccountFeatures.None) == expected, kind.ToString());
+            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == ShortcutsConfig.Descriptor.Id;
+            Assert.True(WidgetLiveness.Runs(config, FeatureSet.None) == expected, kind.ToString());
         }
     }
 
@@ -115,8 +115,8 @@ public class WidgetLivenessTests
     {
         var empty = new ShortcutsConfig { Items = [] };
 
-        Assert.True(WidgetSetup.Needed(empty, AccountFeatures.None));
-        Assert.True(WidgetLiveness.Runs(empty, AccountFeatures.None));
+        Assert.True(WidgetSetup.Needed(empty, FeatureSet.None));
+        Assert.True(WidgetLiveness.Runs(empty, FeatureSet.None));
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class WidgetLivenessTests
         view.Widgets.Add(unplaced);
         var state = new AppState { Views = [view], ActiveViewId = view.Id };
 
-        var live = WidgetLiveness.Live(state, ["a"], AccountFeatures.None);
+        var live = WidgetLiveness.Live(state, ["a"], FeatureSet.None);
 
         Assert.Single(live);
         Assert.DoesNotContain(unplaced, live);

@@ -28,5 +28,17 @@ internal static class TestCatalog
 #pragma warning disable CA2255 // A test assembly's one global setup: the registry every test reads.
     [ModuleInitializer]
 #pragma warning restore CA2255
-    internal static void Install() => ModuleCatalog.Install(Declared.Select(d => d.Descriptor));
+    internal static void Install()
+    {
+        ModuleCatalog.Install(Declared.Select(d => d.Descriptor));
+        ProviderCatalog.Install(Providers);
+    }
+
+    /// <summary>[S-6910] Every provider Core declares with <c>[assembly: ThemiaProvider]</c>, as the generated registry holds them.</summary>
+    public static IReadOnlyList<IProviderModule> Providers { get; } =
+    [
+        .. typeof(AppState).Assembly.GetCustomAttributes<ThemiaProviderAttribute>()
+            .OrderBy(a => a.Id, StringComparer.Ordinal)
+            .Select(a => (IProviderModule)Activator.CreateInstance(a.Module)!),
+    ];
 }

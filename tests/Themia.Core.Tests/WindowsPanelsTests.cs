@@ -74,7 +74,7 @@ public class WindowsPanelsTests
     {
         foreach (var kind in new[] { NotificationsConfig.Descriptor.Id, FocusSessionConfig.Descriptor.Id, BrightnessConfig.Descriptor.Id })
         {
-            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Core.Accounts.AccountFeatures.None), kind.ToString());
+            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Sdk.FeatureSet.None), kind.ToString());
         }
     }
 

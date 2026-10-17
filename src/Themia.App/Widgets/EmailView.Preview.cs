@@ -27,8 +27,8 @@ internal sealed partial class EmailView : IWidgetPreviewState
         }
 
         var now = DateTimeOffset.Now;
-        MailAccount work = new("preview-work", AccountProvider.Microsoft, "Work", "me@contoso.com", null);
-        MailAccount home = new("preview-home", AccountProvider.Imap, "Home", "me@fastmail.com", null);
+        MailAccount work = new("preview-work", HostProviders.Microsoft, "Work", "me@contoso.com", null);
+        MailAccount home = new("preview-home", HostProviders.Imap, "Home", "me@fastmail.com", null);
 
         MailMessage Sample(MailAccount account, int minutes, string from, string subject, string preview, bool read)
             => new(account.Id, account.Provider, MailFolder.Inbox, "m" + minutes, subject, from, "sender@example.com", now.AddMinutes(-minutes), read, preview, string.Empty);

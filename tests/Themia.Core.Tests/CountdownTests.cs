@@ -2,6 +2,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -171,7 +172,7 @@ public class CountdownFormatterTests
         Assert.Equal(string.Empty, config.Label);
         Assert.Equal(CountdownFormat.Auto, config.Format);
         Assert.Equal(CountdownStyle.Text, config.Style);
-        Assert.True(WidgetSetup.Needed(config, AccountFeatures.None));
+        Assert.True(WidgetSetup.Needed(config, FeatureSet.None));
     }
 
     [Fact]
@@ -184,7 +185,7 @@ public class CountdownFormatterTests
         Assert.Equal(TimeSpan.Zero, config.Target!.Value.Offset);
         Assert.Equal(Now, config.Created);
         Assert.Equal(0, CountdownLayout.Progress(config, Now));
-        Assert.False(WidgetSetup.Needed(config, AccountFeatures.None));
+        Assert.False(WidgetSetup.Needed(config, FeatureSet.None));
     }
 
     [Fact]

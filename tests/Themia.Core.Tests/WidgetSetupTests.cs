@@ -13,8 +13,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public class WidgetSetupTests
 {
-    private const AccountFeatures Everything = AccountFeatures.Mail | AccountFeatures.Calendar | AccountFeatures.Contacts
-        | AccountFeatures.Tasks;
+    private static readonly FeatureSet Everything = FeatureSet.Of(HostFeatures.Mail, HostFeatures.Calendar, HostFeatures.Contacts, HostFeatures.Tasks);
 
     /// <summary>Every kind whose default config needs setting up, with nothing signed in.</summary>
     private static readonly WidgetId[] NeedSetupByDefault =
@@ -30,7 +29,7 @@ public class WidgetSetupTests
     {
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
-            var needed = WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), AccountFeatures.None);
+            var needed = WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), FeatureSet.None);
             Assert.True(needed == NeedSetupByDefault.Contains(kind), $"{kind}: expected {NeedSetupByDefault.Contains(kind)}");
         }
     }
@@ -41,7 +40,7 @@ public class WidgetSetupTests
         // Seeded quotes and shortcuts, a default place, a power button, the profile folder.
         foreach (var kind in new[] { QuoteConfig.Descriptor.Id, ShortcutsConfig.Descriptor.Id, SunConfig.Descriptor.Id, MoonConfig.Descriptor.Id, ShutdownConfig.Descriptor.Id, FolderConfig.Descriptor.Id, ClockConfig.Descriptor.Id })
         {
-            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), AccountFeatures.None), kind.ToString());
+            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), FeatureSet.None), kind.ToString());
         }
     }
 
@@ -50,61 +49,62 @@ public class WidgetSetupTests
     {
         var countdown = new CountdownConfig();
         countdown.Retarget(DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch);
-        Assert.False(WidgetSetup.Needed(countdown, AccountFeatures.None));
+        Assert.False(WidgetSetup.Needed(countdown, FeatureSet.None));
 
-        Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed" }] }, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new StocksConfig { Symbol = "MSFT" }, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new WeatherNowConfig { Latitude = 47.4, Longitude = 8.5 }, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new VideoStreamConfig { Url = "http://cam.local/stream" }, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"C:\Pictures" }, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new GalleryConfig { Source = GallerySource.Bing }, AccountFeatures.None));
+        Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed" }] }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new StocksConfig { Symbol = "MSFT" }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new WeatherNowConfig { Latitude = 47.4, Longitude = 8.5 }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new VideoStreamConfig { Url = "http://cam.local/stream" }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"C:\Pictures" }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new GalleryConfig { Source = GallerySource.Bing }, FeatureSet.None));
 
         var shortcuts = new ShortcutsConfig();
         shortcuts.Items.Add(new ShortcutItem { Id = "a", Target = @"C:\Windows\notepad.exe" });
-        Assert.False(WidgetSetup.Needed(shortcuts, AccountFeatures.None));
+        Assert.False(WidgetSetup.Needed(shortcuts, FeatureSet.None));
     }
 
     [Fact]
     public void S1860_emptying_a_list_the_widget_came_with_asks_again()
     {
-        Assert.True(WidgetSetup.Needed(new QuoteConfig { Quotes = [] }, AccountFeatures.None));
-        Assert.True(WidgetSetup.Needed(new QuoteConfig { Quotes = [new QuoteItem { Text = "  " }] }, AccountFeatures.None));
-        Assert.True(WidgetSetup.Needed(new ShortcutsConfig(), AccountFeatures.None));
+        Assert.True(WidgetSetup.Needed(new QuoteConfig { Quotes = [] }, FeatureSet.None));
+        Assert.True(WidgetSetup.Needed(new QuoteConfig { Quotes = [new QuoteItem { Text = "  " }] }, FeatureSet.None));
+        Assert.True(WidgetSetup.Needed(new ShortcutsConfig(), FeatureSet.None));
     }
 
     [Fact]
     public void S1860_set_up_but_wrong_keeps_the_widgets_own_sentence()
     {
         // These say what is wrong ("not a symbol", "not a feed") rather than asking to start.
-        Assert.False(WidgetSetup.Needed(new StocksConfig { Symbol = "not a symbol!" }, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "not a url" }] }, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"Z:\gone" }, AccountFeatures.None));
+        Assert.False(WidgetSetup.Needed(new StocksConfig { Symbol = "not a symbol!" }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "not a url" }] }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"Z:\gone" }, FeatureSet.None));
     }
 
     [Theory]
-    [InlineData("email", AccountFeatures.Mail)]
-    [InlineData("calendar", AccountFeatures.Calendar)]
-    [InlineData("contacts", AccountFeatures.Contacts)]
-    [InlineData("tasks", AccountFeatures.Tasks)]
-    public void S1861_an_account_widget_asks_until_an_account_offering_its_feature_is_signed_in(string kindId, AccountFeatures feature)
+    [InlineData("email", "mail")]
+    [InlineData("calendar", "calendar")]
+    [InlineData("contacts", "contacts")]
+    [InlineData("tasks", "tasks")]
+    public void S1861_an_account_widget_asks_until_an_account_offering_its_feature_is_signed_in(string kindId, string featureId)
     {
         var kind = new WidgetId(kindId);
+        var feature = new FeatureId(featureId);
         var config = WidgetConfig.CreateDefault(kind);
 
-        Assert.True(WidgetSetup.Needed(config, Everything & ~feature));
+        Assert.True(WidgetSetup.Needed(config, Everything.Without(feature)));
         Assert.False(WidgetSetup.Needed(config, feature));
     }
 
     [Fact]
     public void S1861_a_local_task_list_needs_no_account()
-        => Assert.False(WidgetSetup.Needed(new TasksConfig { Source = TaskSource.Local }, AccountFeatures.None));
+        => Assert.False(WidgetSetup.Needed(new TasksConfig { Source = TaskSource.Local }, FeatureSet.None));
 
     [Fact]
     public void S1861_features_are_the_union_of_the_signed_in_providers()
     {
-        Assert.Equal(AccountFeatures.None, WidgetSetup.Offered([]));
-        Assert.Equal(AccountFeatures.Mail | AccountFeatures.Calendar, WidgetSetup.Offered([AccountProvider.Imap, AccountProvider.CalDav]));
-        Assert.True(WidgetSetup.Offered([AccountProvider.Microsoft]).HasFlag(AccountFeatures.Tasks));
-        Assert.False(WidgetSetup.Offered([AccountProvider.CardDav]).HasFlag(AccountFeatures.Tasks));
+        Assert.Equal(FeatureSet.None, WidgetSetup.Offered([]));
+        Assert.Equal(FeatureSet.Of(HostFeatures.Mail, HostFeatures.Calendar), WidgetSetup.Offered([HostProviders.Imap, HostProviders.CalDav]));
+        Assert.True(WidgetSetup.Offered([HostProviders.Microsoft]).Has(HostFeatures.Tasks));
+        Assert.False(WidgetSetup.Offered([HostProviders.CardDav]).Has(HostFeatures.Tasks));
     }
 }

@@ -42,7 +42,7 @@ public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
     }
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => ResolvedFeeds.Count == 0;
+    public bool NeedsSetup(FeatureSet signedIn) => ResolvedFeeds.Count == 0;
 
     /// <summary>How many feeds one widget merges. Each is a request per refresh.</summary>
     public const int MaxFeeds = 12;

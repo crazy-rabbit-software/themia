@@ -5,6 +5,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Services.Office;
 
@@ -61,7 +62,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
     /// <summary>Raised on the UI thread when an account came, went or changed health, and when a sync brought new data.</summary>
     public event Action? Changed;
 
-    public IReadOnlyList<AccountInfo> Accounts(AccountFeatures feature) => _accounts.WithFeature(feature);
+    public IReadOnlyList<AccountInfo> Accounts(FeatureId feature) => _accounts.WithFeature(feature);
 
     // -----------------------------------------------------------------------------------------
     // Reading
@@ -169,7 +170,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             return box;
         }
 
-        if (_accounts.Find(accountId) is not { } account || (account.Features & AccountFeatures.Calendar) == 0)
+        if (_accounts.Find(accountId) is not { } account || !account.Features.Has(HostFeatures.Calendar))
         {
             return null;
         }
@@ -187,7 +188,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             return box;
         }
 
-        if (_accounts.Find(accountId) is not { } account || (account.Features & AccountFeatures.Contacts) == 0)
+        if (_accounts.Find(accountId) is not { } account || !account.Features.Has(HostFeatures.Contacts))
         {
             return null;
         }
@@ -206,8 +207,8 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             return;
         }
 
-        var calendarAccounts = _accounts.WithFeature(AccountFeatures.Calendar).Select(a => a.Id).ToList();
-        var contactAccounts = _accounts.WithFeature(AccountFeatures.Contacts).Select(a => a.Id).ToList();
+        var calendarAccounts = _accounts.WithFeature(HostFeatures.Calendar).Select(a => a.Id).ToList();
+        var contactAccounts = _accounts.WithFeature(HostFeatures.Contacts).Select(a => a.Id).ToList();
 
         foreach (var id in _calendars.Keys.Where(id => !calendarAccounts.Contains(id)).ToList())
         {

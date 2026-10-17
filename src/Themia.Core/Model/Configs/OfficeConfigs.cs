@@ -104,7 +104,7 @@ public abstract class CalendarConfig : WidgetConfig, ISetupRule, IInterests
     public virtual void AddInterests(InterestsBuilder interests) => interests.Calendar.Add(new CalendarInterest([.. AccountIds], Calendars, ShowBirthdays));
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public virtual bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Calendar) == 0;
+    public virtual bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Calendar);
 
     /// <summary>[S-3640] The shape the widget draws: the calendar's style, a fixed one for the others. Never stored here.</summary>
     [JsonIgnore]
@@ -355,7 +355,7 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     public void AddInterests(InterestsBuilder interests) => interests.Contacts.Add(new ContactsInterest([.. AccountIds]));
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Contacts) == 0;
+    public bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Contacts);
 
     /// <summary>The columns of a fresh details table, in canonical order.</summary>
     public static IReadOnlyList<ContactColumn> AllColumns { get; } =

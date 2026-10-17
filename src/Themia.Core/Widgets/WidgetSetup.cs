@@ -1,6 +1,7 @@
 using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -23,7 +24,7 @@ public static class WidgetSetup
     /// configured. <paramref name="signedIn"/> is every feature some signed-in account offers
     /// (the union of their providers' <see cref="AccountProviders.Features"/>).
     /// </summary>
-    public static bool Needed(WidgetConfig config, AccountFeatures signedIn)
+    public static bool Needed(WidgetConfig config, FeatureSet signedIn)
     {
         ArgumentNullException.ThrowIfNull(config);
 
@@ -31,11 +32,11 @@ public static class WidgetSetup
     }
 
     /// <summary>Every feature the accounts' providers offer between them.</summary>
-    public static AccountFeatures Offered(IEnumerable<AccountProvider> providers)
+    public static FeatureSet Offered(IEnumerable<ProviderId> providers)
     {
         ArgumentNullException.ThrowIfNull(providers);
 
-        var features = AccountFeatures.None;
+        var features = FeatureSet.None;
         foreach (var provider in providers)
         {
             features |= provider.Features();

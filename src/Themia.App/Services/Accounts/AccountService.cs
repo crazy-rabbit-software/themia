@@ -5,6 +5,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Sdk;
 
 namespace Themia.App.Services.Accounts;
 
@@ -15,7 +16,7 @@ namespace Themia.App.Services.Accounts;
 /// </param>
 internal sealed record AccountInfo(
     string Id,
-    AccountProvider Provider,
+    ProviderId Provider,
     string Address,
     string DisplayName,
     string? Nickname,
@@ -25,7 +26,7 @@ internal sealed record AccountInfo(
     /// <summary>The nickname, else the person's name, else the address.</summary>
     public string Label => Nickname ?? (DisplayName.Length > 0 ? DisplayName : Address);
 
-    public AccountFeatures Features => Provider.Features();
+    public FeatureSet Features => Provider.Features();
 
     public bool NeedsSignIn => Problem is not null;
 }
@@ -120,8 +121,8 @@ internal sealed partial class AccountService : IDisposable
     public IReadOnlyList<AccountInfo> Accounts => [.. _accounts.Select(Info)];
 
     /// <summary>The accounts that can feed a widget wanting <paramref name="feature"/>.</summary>
-    public IReadOnlyList<AccountInfo> WithFeature(AccountFeatures feature)
-        => [.. _accounts.Where(a => (a.Provider.Features() & feature) != 0).Select(Info)];
+    public IReadOnlyList<AccountInfo> WithFeature(FeatureId feature)
+        => [.. _accounts.Where(a => a.Provider.Features().Has(feature)).Select(Info)];
 
     /// <summary>One account, or null when there is no account with that id.</summary>
     public AccountInfo? Find(string? accountId)

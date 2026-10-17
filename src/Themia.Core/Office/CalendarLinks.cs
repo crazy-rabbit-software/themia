@@ -1,5 +1,6 @@
 using Themia.Core.Accounts;
 using Themia.Core.Mail;
+using Themia.Sdk;
 
 namespace Themia.Core.Office;
 
@@ -23,11 +24,11 @@ public static class CalendarLinks
     private const string EventsPrefix = MailLinks.OutlookScheme + "://events/";
 
     /// <summary>The link that opens an event, or null when there is nothing to open.</summary>
-    public static string? Open(CalendarEvent item, AccountProvider? provider, bool outlookInstalled)
+    public static string? Open(CalendarEvent item, ProviderId? provider, bool outlookInstalled)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        if (provider == AccountProvider.Microsoft && outlookInstalled && !string.IsNullOrWhiteSpace(item.Id))
+        if (provider == HostProviders.Microsoft && outlookInstalled && !string.IsNullOrWhiteSpace(item.Id))
         {
             return EventsPrefix + MailWire.PercentEncode(item.Id.Trim());
         }

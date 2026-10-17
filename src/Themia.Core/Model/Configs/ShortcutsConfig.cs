@@ -123,7 +123,7 @@ public sealed class ShortcutItem
 public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<ShortcutsSetting>, ISetupRule
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => Items.Count == 0;
+    public bool NeedsSetup(FeatureSet signedIn) => Items.Count == 0;
 
     /// <summary>[S-1881] Its setup is a drop onto the widget itself, so it runs while it waits.</summary>
     bool ISetupRule.SetsUpInPlace => true;

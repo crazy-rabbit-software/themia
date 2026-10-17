@@ -16,6 +16,7 @@ using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -65,7 +66,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     private IReadOnlyList<CalendarEvent> _events = [];
     private IReadOnlyList<Birthday> _birthdays = [];
     private IReadOnlyList<CalendarTarget> _targets = [];
-    private IReadOnlyDictionary<string, AccountProvider> _providers = new Dictionary<string, AccountProvider>();
+    private IReadOnlyDictionary<string, ProviderId> _providers = new Dictionary<string, ProviderId>();
     private bool _refreshing;
     private bool _again;
     private bool _detached;
@@ -675,8 +676,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
             return;
         }
 
-        AccountProvider? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
-        if (CalendarLinks.Open(item, provider, provider == AccountProvider.Microsoft && ShellLauncher.OutlookInstalled) is { } link)
+        ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
+        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && ShellLauncher.OutlookInstalled) is { } link)
         {
             ShellLauncher.OpenCalendarLink(link);
         }

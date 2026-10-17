@@ -181,7 +181,7 @@ public sealed class TaskRulesTests
     [Fact]
     public void S596_a_task_created_from_Today_round_trips_into_Today()
     {
-        var created = TaskWire.CreateBody(Themia.Core.Accounts.AccountProvider.Microsoft, "new", Monday);
+        var created = TaskWire.CreateBody(Themia.Core.Accounts.HostProviders.Microsoft, "new", Monday);
         Assert.Contains("\"dateTime\":\"2026-08-10T00:00:00.0000000\"", created, StringComparison.Ordinal);
         Assert.Equal(["new"], TaskRules.Today([Task("new", $"{TaskDue.Wire(Monday)}T00:00:00.0000000")], Monday, NewYork).Select(t => t.Id));
     }

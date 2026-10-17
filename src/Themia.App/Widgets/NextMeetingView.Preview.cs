@@ -3,6 +3,7 @@ using Themia.App.Shell.Gallery;
 using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -63,7 +64,7 @@ internal sealed partial class NextMeetingView : IWidgetPreviewState
                 CalendarEvent.AllDayEvent("holiday", "Public holiday", DateOnly.FromDateTime(today), DateOnly.FromDateTime(today).AddDays(1)),
             ];
 
-            var providers = new Dictionary<string, AccountProvider>(StringComparer.Ordinal) { ["sample:work"] = AccountProvider.Microsoft };
+            var providers = new Dictionary<string, ProviderId>(StringComparer.Ordinal) { ["sample:work"] = HostProviders.Microsoft };
             var labels = new Dictionary<string, string>(StringComparer.Ordinal) { ["sample:work"] = "Work" };
             return Task.FromResult(new CalendarSlice(CalendarSliceState.Asked, events, [], [new CalendarTarget("sample:work", null)], providers, labels, [], true));
         }

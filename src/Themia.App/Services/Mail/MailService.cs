@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Services.Mail;
 
@@ -63,7 +64,7 @@ internal sealed class MailService : IMailSource, IDisposable
     public event Action? AccountsChanged;
 
     public IReadOnlyList<MailAccount> Accounts =>
-        [.. _accounts.WithFeature(AccountFeatures.Mail).Select(a => new MailAccount(a.Id, a.Provider, a.Label, a.Address, a.Problem))];
+        [.. _accounts.WithFeature(HostFeatures.Mail).Select(a => new MailAccount(a.Id, a.Provider, a.Label, a.Address, a.Problem))];
 
     public IMailFeed Open(MailQuery query)
     {
@@ -231,12 +232,12 @@ internal sealed class MailService : IMailSource, IDisposable
         ArgumentNullException.ThrowIfNull(message);
 
         // [S-544] Gmail is read through gmail.readonly: nothing in it can be changed from here.
-        if (message.Provider is not (AccountProvider.Microsoft or AccountProvider.Imap))
+        if (!(message.Provider == HostProviders.Microsoft || message.Provider == HostProviders.Imap))
         {
             return Str.Shell_Mail_ReadOnly.Text();
         }
 
-        if (message.Provider == AccountProvider.Imap && ImapMessageId.Parse(message.RawId) is null)
+        if (message.Provider == HostProviders.Imap && ImapMessageId.Parse(message.RawId) is null)
         {
             return Str.Shell_Mail_BadHandle.Text();
         }
@@ -249,11 +250,11 @@ internal sealed class MailService : IMailSource, IDisposable
         return await box.EnqueueAsync(message, change).ConfigureAwait(true);
     }
 
-    private async Task ApplyAsync(string accountId, AccountProvider provider, string rawId, MailFolder folder, MailChange change, CancellationToken cancellation)
+    private async Task ApplyAsync(string accountId, ProviderId provider, string rawId, MailFolder folder, MailChange change, CancellationToken cancellation)
     {
         switch (provider)
         {
-            case AccountProvider.Microsoft:
+            case var pid when pid == HostProviders.Microsoft:
                 var url = change switch
                 {
                     MailChange.MarkRead or MailChange.MarkUnread => MailWire.GraphMessage(rawId),
@@ -276,7 +277,7 @@ internal sealed class MailService : IMailSource, IDisposable
 
                 return;
 
-            case AccountProvider.Imap:
+            case var pid when pid == HostProviders.Imap:
                 if (ImapMessageId.Parse(rawId) is not { } id)
                 {
                     throw new AccountException(AccountError.Refused, Str.Shell_Mail_BadHandle.Text());
@@ -312,7 +313,7 @@ internal sealed class MailService : IMailSource, IDisposable
         {
             // issue #45a: an IMAP message has no web view. Say so in the log rather than hand the
             // shell an empty string, which opens Explorer.
-            Log.Info(Scope, $"nothing to open for a {message.Provider.WireName()} message (no web view)");
+            Log.Info(Scope, $"nothing to open for a {message.Provider.Value} message (no web view)");
             return false;
         }
 
@@ -375,15 +376,15 @@ internal sealed class MailService : IMailSource, IDisposable
     {
         switch (box.Provider)
         {
-            case AccountProvider.Microsoft:
+            case var pid when pid == HostProviders.Microsoft:
                 var graph = await _accounts.GetJsonAsync(box.AccountId, MailWire.GraphFolder(folder), MailWireContext.Default.GraphMailFolder, cancellation).ConfigureAwait(true);
                 return new MailFolderStatus(graph.TotalItemCount ?? 0, graph.UnreadItemCount ?? 0);
 
-            case AccountProvider.Google:
+            case var pid when pid == HostProviders.Google:
                 var label = await _accounts.GetJsonAsync(box.AccountId, MailWire.GmailLabelCounts(folder), MailWireContext.Default.GmailLabel, cancellation).ConfigureAwait(true);
                 return new MailFolderStatus(label.MessagesTotal ?? 0, label.MessagesUnread ?? 0);
 
-            case AccountProvider.Imap:
+            case var pid when pid == HostProviders.Imap:
                 var login = _accounts.GetImapCredentials(box.AccountId);
                 return await Task.Run(() => ImapMailClient.StatusAsync(login, folder, cancellation), cancellation).ConfigureAwait(true);
 
@@ -402,13 +403,13 @@ internal sealed class MailService : IMailSource, IDisposable
     {
         switch (box.Provider)
         {
-            case AccountProvider.Microsoft:
+            case var pid when pid == HostProviders.Microsoft:
                 return await FetchGraphAsync(box, folder, count, held, cursor, counts, cancellation).ConfigureAwait(true);
 
-            case AccountProvider.Google:
+            case var pid when pid == HostProviders.Google:
                 return (await FetchGmailAsync(box, folder, count, held, cancellation).ConfigureAwait(true), null);
 
-            case AccountProvider.Imap:
+            case var pid when pid == HostProviders.Imap:
                 var login = _accounts.GetImapCredentials(box.AccountId);
                 return await Task.Run(() => ImapMailClient.SyncAsync(login, box.AccountId, folder, count, held, cursor, counts.Total, cancellation), cancellation)
                     .ConfigureAwait(true);
@@ -606,7 +607,7 @@ internal sealed class MailService : IMailSource, IDisposable
 
         public string AccountId { get; }
 
-        public AccountProvider Provider { get; }
+        public ProviderId Provider { get; }
 
         public string Address { get; }
 
@@ -765,7 +766,7 @@ internal sealed class MailService : IMailSource, IDisposable
             }
             catch (AccountException ex)
             {
-                if (ex.Error == AccountError.SignInRequired && Provider == AccountProvider.Imap)
+                if (ex.Error == AccountError.SignInRequired && Provider == HostProviders.Imap)
                 {
                     // An IMAP refusal happens on our socket, not in the account service's HTTP path,
                     // so the service has to be told for the account to say "sign in again".

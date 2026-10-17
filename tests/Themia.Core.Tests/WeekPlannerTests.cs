@@ -6,6 +6,7 @@ using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -158,10 +159,10 @@ public class WeekPlannerTests
     public void S5325_the_planner_waits_for_setup_only_while_neither_source_is_signed_in()
     {
         var planner = new WeekPlannerConfig();
-        Assert.True(WidgetSetup.Needed(planner, AccountFeatures.None));
-        Assert.False(WidgetSetup.Needed(planner, AccountFeatures.Calendar));
-        Assert.False(WidgetSetup.Needed(planner, AccountFeatures.Tasks));
-        Assert.True(WidgetSetup.Needed(new WeekPlannerConfig { ShowTasks = false }, AccountFeatures.Tasks));
+        Assert.True(WidgetSetup.Needed(planner, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(planner, HostFeatures.Calendar));
+        Assert.False(WidgetSetup.Needed(planner, HostFeatures.Tasks));
+        Assert.True(WidgetSetup.Needed(new WeekPlannerConfig { ShowTasks = false }, HostFeatures.Tasks));
     }
 
     [Fact]

@@ -136,20 +136,20 @@ public sealed class TaskSyncTests
     [Fact]
     public void S591_ids_are_escaped_into_the_path_never_a_second_segment()
     {
-        var uri = TaskWire.Task(AccountProvider.Microsoft, "AQMk/ab==", "t/../x");
+        var uri = TaskWire.Task(HostProviders.Microsoft, "AQMk/ab==", "t/../x");
         Assert.StartsWith("https://graph.microsoft.com/v1.0/me/todo/lists/AQMk%2Fab%3D%3D/tasks/", uri.AbsoluteUri, StringComparison.Ordinal);
         Assert.DoesNotContain("/../", uri.AbsoluteUri, StringComparison.Ordinal);
 
-        Assert.Contains("showCompleted=false", TaskWire.Tasks(AccountProvider.Google, "g1", false).Query, StringComparison.Ordinal);
+        Assert.Contains("showCompleted=false", TaskWire.Tasks(HostProviders.Google, "g1", false).Query, StringComparison.Ordinal);
     }
 
     [Fact]
     public void S597_completion_bodies_speak_each_providers_vocabulary()
     {
-        Assert.Equal("""{"status":"completed"}""", TaskWire.CompleteBody(AccountProvider.Microsoft, true));
-        Assert.Equal("""{"status":"notStarted"}""", TaskWire.CompleteBody(AccountProvider.Microsoft, false));
-        Assert.Equal("""{"status":"completed"}""", TaskWire.CompleteBody(AccountProvider.Google, true));
-        Assert.Equal("""{"status":"needsAction","completed":null}""", TaskWire.CompleteBody(AccountProvider.Google, false));
+        Assert.Equal("""{"status":"completed"}""", TaskWire.CompleteBody(HostProviders.Microsoft, true));
+        Assert.Equal("""{"status":"notStarted"}""", TaskWire.CompleteBody(HostProviders.Microsoft, false));
+        Assert.Equal("""{"status":"completed"}""", TaskWire.CompleteBody(HostProviders.Google, true));
+        Assert.Equal("""{"status":"needsAction","completed":null}""", TaskWire.CompleteBody(HostProviders.Google, false));
     }
 
     [Fact]
@@ -163,15 +163,15 @@ public sealed class TaskSyncTests
     [Fact]
     public void S596_a_Google_create_due_today_is_UTC_midnight()
     {
-        using var document = JsonDocument.Parse(TaskWire.CreateBody(AccountProvider.Google, "x", new DateOnly(2026, 8, 10)));
+        using var document = JsonDocument.Parse(TaskWire.CreateBody(HostProviders.Google, "x", new DateOnly(2026, 8, 10)));
         Assert.Equal("2026-08-10T00:00:00.000Z", document.RootElement.GetProperty("due").GetString());
     }
 
     [Fact]
     public void S591_reads_back_the_task_a_create_answered_with()
     {
-        Assert.Equal("n1", TaskWire.ParseCreated(AccountProvider.Microsoft, """{"id":"n1","title":"x","status":"notStarted"}""", "L1")!.Id);
-        Assert.Null(TaskWire.ParseCreated(AccountProvider.Google, "<html>", "L1"));
+        Assert.Equal("n1", TaskWire.ParseCreated(HostProviders.Microsoft, """{"id":"n1","title":"x","status":"notStarted"}""", "L1")!.Id);
+        Assert.Null(TaskWire.ParseCreated(HostProviders.Google, "<html>", "L1"));
     }
 
     // ---- [S-596] the Today fan-out -------------------------------------------------------------------
@@ -342,14 +342,14 @@ public sealed class TaskSyncTests
     [Fact]
     public void S614_a_list_rename_is_a_PATCH_of_the_name_alone_to_the_escaped_list()
     {
-        Assert.Equal("https://graph.microsoft.com/v1.0/me/todo/lists/AQ%2Fb%3D", TaskWire.List(AccountProvider.Microsoft, "AQ/b=").AbsoluteUri);
-        Assert.Equal("https://tasks.googleapis.com/tasks/v1/users/@me/lists/g1", TaskWire.List(AccountProvider.Google, "g1").AbsoluteUri);
+        Assert.Equal("https://graph.microsoft.com/v1.0/me/todo/lists/AQ%2Fb%3D", TaskWire.List(HostProviders.Microsoft, "AQ/b=").AbsoluteUri);
+        Assert.Equal("https://tasks.googleapis.com/tasks/v1/users/@me/lists/g1", TaskWire.List(HostProviders.Google, "g1").AbsoluteUri);
 
-        using var graph = JsonDocument.Parse(TaskWire.RenameListBody(AccountProvider.Microsoft, "Say \"hi\""));
+        using var graph = JsonDocument.Parse(TaskWire.RenameListBody(HostProviders.Microsoft, "Say \"hi\""));
         Assert.Equal("Say \"hi\"", Assert.Single(graph.RootElement.EnumerateObject(), p => p.Name == "displayName").Value.GetString());
         Assert.Single(graph.RootElement.EnumerateObject());
 
-        using var google = JsonDocument.Parse(TaskWire.RenameListBody(AccountProvider.Google, "Home"));
+        using var google = JsonDocument.Parse(TaskWire.RenameListBody(HostProviders.Google, "Home"));
         Assert.Equal("Home", google.RootElement.GetProperty("title").GetString());
     }
 

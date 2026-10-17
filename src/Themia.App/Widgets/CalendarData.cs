@@ -3,6 +3,7 @@ using Themia.App.Services.Office;
 using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -30,13 +31,13 @@ internal sealed record CalendarSlice(
     IReadOnlyList<CalendarEvent> Events,
     IReadOnlyList<Birthday> Birthdays,
     IReadOnlyList<CalendarTarget> Targets,
-    IReadOnlyDictionary<string, AccountProvider> Providers,
+    IReadOnlyDictionary<string, ProviderId> Providers,
     IReadOnlyDictionary<string, string> Labels,
     IReadOnlyList<(string Account, SyncProblem Problem, DateTimeOffset? At)> Problems,
     bool AnyData)
 {
     public static CalendarSlice Empty(CalendarSliceState state)
-        => new(state, [], [], [], new Dictionary<string, AccountProvider>(), new Dictionary<string, string>(), [], false);
+        => new(state, [], [], [], new Dictionary<string, ProviderId>(), new Dictionary<string, string>(), [], false);
 }
 
 /// <summary>
@@ -67,7 +68,7 @@ internal sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        var accounts = source.Accounts(AccountFeatures.Calendar);
+        var accounts = source.Accounts(HostFeatures.Calendar);
         if (accounts.Count == 0)
         {
             return CalendarSlice.Empty(CalendarSliceState.NoAccounts);

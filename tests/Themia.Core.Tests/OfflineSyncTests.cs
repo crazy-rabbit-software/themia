@@ -500,7 +500,7 @@ public sealed class OfflineSyncTests : IDisposable
     [Fact]
     public void S2612_a_mail_account_that_could_not_refresh_says_when_its_list_is_from()
     {
-        var account = new MailAccount("w", AccountProvider.Microsoft, "Work", "w@x.com", null);
+        var account = new MailAccount("w", HostProviders.Microsoft, "Work", "w@x.com", null);
         var at = DateTimeOffset.Now.AddMinutes(-5);
         var outcome = new MailAccountOutcome("w", MailAccountState.Failed, FetchStatus.Offline, null, null, at);
 
@@ -544,9 +544,9 @@ public sealed class OfflineSyncTests : IDisposable
     {
         var messages = new List<MailMessage>
         {
-            new("a", AccountProvider.Microsoft, MailFolder.Inbox, "1", "One", "", "", Now, false, "", ""),
-            new("a", AccountProvider.Microsoft, MailFolder.Inbox, "2", "Two", "", "", Now, true, "", ""),
-            new("a", AccountProvider.Microsoft, MailFolder.Inbox, "3", "Three", "", "", Now, true, "", ""),
+            new("a", HostProviders.Microsoft, MailFolder.Inbox, "1", "One", "", "", Now, false, "", ""),
+            new("a", HostProviders.Microsoft, MailFolder.Inbox, "2", "Two", "", "", Now, true, "", ""),
+            new("a", HostProviders.Microsoft, MailFolder.Inbox, "3", "Three", "", "", Now, true, "", ""),
         };
 
         var shown = MailShelves.Overlay(messages,
@@ -561,8 +561,8 @@ public sealed class OfflineSyncTests : IDisposable
     [Fact]
     public void S2620_a_message_round_trips_through_the_shelf_without_its_account()
     {
-        var message = new MailMessage("a", AccountProvider.Imap, MailFolder.Sent, "Sent|4|9", "Hi", "Dana", "d@x.com", Now, true, "Preview", "");
-        var back = MailShelves.Restore(MailShelves.Store(message), "a", AccountProvider.Imap, MailFolder.Sent);
+        var message = new MailMessage("a", HostProviders.Imap, MailFolder.Sent, "Sent|4|9", "Hi", "Dana", "d@x.com", Now, true, "Preview", "");
+        var back = MailShelves.Restore(MailShelves.Store(message), "a", HostProviders.Imap, MailFolder.Sent);
 
         Assert.Equal(message, back);
     }

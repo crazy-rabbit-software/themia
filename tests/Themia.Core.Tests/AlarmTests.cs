@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -329,7 +330,7 @@ public sealed class AlarmTests
         Assert.Equal(AlarmSound.Bell, config.Sound);
         Assert.Equal(AlarmConfig.DefaultVolume, config.Volume);
         Assert.Equal(10, config.SnoozeMinutes);
-        Assert.False(WidgetSetup.Needed(config, default));
+        Assert.False(WidgetSetup.Needed(config, FeatureSet.None));
     }
 
     [Fact]

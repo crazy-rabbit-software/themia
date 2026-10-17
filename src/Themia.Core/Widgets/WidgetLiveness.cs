@@ -1,5 +1,6 @@
 using Themia.Core.Accounts;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -52,7 +53,7 @@ public static class WidgetLiveness
     /// [S-1880] Every widget that runs: those of the shown views that <see cref="Runs"/>. Everything
     /// else in the state is data only.
     /// </summary>
-    public static IReadOnlyList<WidgetInstance> Live(AppState state, IEnumerable<string> displayIds, AccountFeatures signedIn)
+    public static IReadOnlyList<WidgetInstance> Live(AppState state, IEnumerable<string> displayIds, FeatureSet signedIn)
         => [.. ShownViews(state, displayIds).SelectMany(v => v.Widgets).Where(w => Runs(w.Config, signedIn))];
 
     /// <summary>
@@ -62,7 +63,7 @@ public static class WidgetLiveness
     /// is a widget the user sets up by using it: an empty Shortcuts widget takes a dropped file
     /// under its button ([S-1862]), so it keeps running (it polls nothing).
     /// </summary>
-    public static bool Runs(WidgetConfig config, AccountFeatures signedIn)
+    public static bool Runs(WidgetConfig config, FeatureSet signedIn)
     {
         ArgumentNullException.ThrowIfNull(config);
         return !WidgetSetup.Needed(config, signedIn) || SetUpInPlace(config);

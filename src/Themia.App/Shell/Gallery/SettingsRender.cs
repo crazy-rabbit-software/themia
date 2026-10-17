@@ -372,9 +372,9 @@ internal static class SettingsRender
         }
 
         var now = DateTimeOffset.Now;
-        var microsoft = new Services.Accounts.AccountInfo("demo-ms", Themia.Core.Accounts.AccountProvider.Microsoft,
+        var microsoft = new Services.Accounts.AccountInfo("demo-ms", Themia.Core.Accounts.HostProviders.Microsoft,
             "alex@contoso.com", "Alex Wilber", null, null, null);
-        var imap = new Services.Accounts.AccountInfo("demo-imap", Themia.Core.Accounts.AccountProvider.Imap,
+        var imap = new Services.Accounts.AccountInfo("demo-imap", Themia.Core.Accounts.HostProviders.Imap,
             "alex@fabrikam.example", "alex@fabrikam.example", "Fabrikam mail", null,
             "The server refused the password. Sign in again to keep this account syncing.");
 

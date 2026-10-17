@@ -45,8 +45,8 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     /// [S-5325] The planner shows a calendar's days and, if it lists them, an account's tasks: it waits
     /// for setup only while neither source is signed in.
     /// </summary>
-    public override bool NeedsSetup(AccountFeatures signedIn)
-        => (signedIn & AccountFeatures.Calendar) == 0 && (!ShowTasks || (signedIn & AccountFeatures.Tasks) == 0);
+    public override bool NeedsSetup(FeatureSet signedIn)
+        => !signedIn.Has(HostFeatures.Calendar) && (!ShowTasks || !signedIn.Has(HostFeatures.Tasks));
 
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>

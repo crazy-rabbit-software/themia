@@ -149,7 +149,7 @@ public sealed partial class WidgetRegistryTests
         if (widget.ProviderNames.Count > 0)
         {
             Assert.True(typeof(ISetupRule).IsAssignableFrom(widget.ConfigType), $"{id} reads {string.Join(", ", widget.ProviderNames)} but never waits for setup");
-            Assert.True(WidgetSetup.Needed(widget.CreateDefault(), Themia.Core.Accounts.AccountFeatures.None), $"{id} does not wait for an account");
+            Assert.True(WidgetSetup.Needed(widget.CreateDefault(), Themia.Sdk.FeatureSet.None), $"{id} does not wait for an account");
             Assert.True(typeof(Themia.Core.Sync.IInterests).IsAssignableFrom(widget.ConfigType), $"{id} reads an account the sync never fetches for it");
         }
     }

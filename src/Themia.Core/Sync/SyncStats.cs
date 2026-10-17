@@ -1,5 +1,6 @@
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
+using Themia.Sdk;
 
 namespace Themia.Core.Sync;
 
@@ -72,7 +73,7 @@ public static class SyncStats
     /// (mail, calendar, contacts, tasks), each with its numbers or none yet. A kind the provider does
     /// not feed is never listed, even if a stray shelf of it were reported.
     /// </summary>
-    public static IReadOnlyList<KindSummary> Summarize(AccountFeatures features, IEnumerable<ShelfStats> stats)
+    public static IReadOnlyList<KindSummary> Summarize(FeatureSet features, IEnumerable<ShelfStats> stats)
     {
         ArgumentNullException.ThrowIfNull(stats);
 
@@ -85,7 +86,7 @@ public static class SyncStats
         var rows = new List<KindSummary>(4);
         foreach (var (kind, feature) in Order)
         {
-            if ((features & feature) != 0)
+            if (features.Has(feature))
             {
                 rows.Add(new KindSummary(kind, byKind.GetValueOrDefault(kind)));
             }
@@ -170,12 +171,12 @@ public static class SyncStats
         return rows.Sum(r => r.Stats?.Pending ?? 0);
     }
 
-    private static readonly (SyncKind Kind, AccountFeatures Feature)[] Order =
+    private static readonly (SyncKind Kind, FeatureId Feature)[] Order =
     [
-        (SyncKind.Mail, AccountFeatures.Mail),
-        (SyncKind.Calendar, AccountFeatures.Calendar),
-        (SyncKind.Contacts, AccountFeatures.Contacts),
-        (SyncKind.Tasks, AccountFeatures.Tasks),
+        (SyncKind.Mail, HostFeatures.Mail),
+        (SyncKind.Calendar, HostFeatures.Calendar),
+        (SyncKind.Contacts, HostFeatures.Contacts),
+        (SyncKind.Tasks, HostFeatures.Tasks),
     ];
 
     private static DateTimeOffset? Latest(IEnumerable<DateTimeOffset?> times)

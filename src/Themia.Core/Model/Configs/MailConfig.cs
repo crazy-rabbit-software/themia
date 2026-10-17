@@ -39,7 +39,7 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
     public void AddInterests(InterestsBuilder interests) => interests.Mail.Add(new MailInterest([.. EffectiveAccountIds], Folder, FetchCount));
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Mail) == 0;
+    public bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Mail);
 
     /// <summary>The fields the list and compact styles show when the user has not chosen.</summary>
     public static IReadOnlyList<MailListField> DefaultListFields { get; } = [MailListField.Subject, MailListField.Account];

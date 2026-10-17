@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -29,7 +30,7 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(save);
 
         rows.Add(FluentLayout.Header(Str.WidgetUi_AccountsLabel.Text()));
-        OfficeAccountRows(rows, AccountFeatures.Contacts, Glyphs.Contact,
+        OfficeAccountRows(rows, HostFeatures.Contacts, Glyphs.Contact,
             new OfficeAccountTexts(Str.WidgetsA_Contacts_NoAccount, Str.WidgetsA_Contacts_Settings_Every, Str.WidgetsA_Contacts_Settings_AddHint),
             () => config.AccountIds, ids => config.AccountIds = ids, save, perAccount: null);
 
@@ -95,7 +96,7 @@ internal static partial class WidgetSettings
     /// <param name="perAccount">Rows to show under an account while it is chosen (the calendar picker).</param>
     private static void OfficeAccountRows(
         List<FrameworkElement> rows,
-        AccountFeatures feature,
+        FeatureId feature,
         string glyph,
         OfficeAccountTexts texts,
         Func<List<string>> getIds,

@@ -1,5 +1,6 @@
 using Themia.Core.Accounts;
 using Themia.Core.Mail;
+using Themia.Sdk;
 
 namespace Themia.Core.Sync;
 
@@ -88,7 +89,7 @@ public static class MailShelves
         };
     }
 
-    public static MailMessage Restore(StoredMail stored, string accountId, AccountProvider provider, MailFolder folder)
+    public static MailMessage Restore(StoredMail stored, string accountId, ProviderId provider, MailFolder folder)
     {
         ArgumentNullException.ThrowIfNull(stored);
         return new MailMessage(

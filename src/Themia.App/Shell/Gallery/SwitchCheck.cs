@@ -312,7 +312,7 @@ internal static class SwitchCheck
         process.Refresh();
         var mb = 1024.0 * 1024.0;
         var expected = (shown?.Widgets.Count ?? 0) + (alsoShown?.Widgets.Count ?? 0);
-        var live = WidgetLiveness.Live(host.State, [DisplayId, SecondId], AccountFeatures.None).Count;
+        var live = WidgetLiveness.Live(host.State, [DisplayId, SecondId], FeatureSet.None).Count;
         var cards = LiveCensus.LiveCards();
 
         // [S-2511] The system hub's one subscription is its own ([S-2503]), not a widget's.

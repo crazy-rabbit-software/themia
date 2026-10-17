@@ -27,7 +27,7 @@ public static class MailLinks
     {
         ArgumentNullException.ThrowIfNull(message);
 
-        if (message.Provider == AccountProvider.Microsoft && outlookInstalled)
+        if (message.Provider == HostProviders.Microsoft && outlookInstalled)
         {
             return $"{OutlookScheme}://emails/{MailWire.PercentEncode(message.RawId)}";
         }
@@ -40,7 +40,7 @@ public static class MailLinks
     {
         ArgumentNullException.ThrowIfNull(message);
 
-        if (message.Provider == AccountProvider.Microsoft && outlookInstalled)
+        if (message.Provider == HostProviders.Microsoft && outlookInstalled)
         {
             return $"{OutlookScheme}://emails/{MailWire.PercentEncode(message.RawId)}/reply";
         }
@@ -73,21 +73,21 @@ public static class MailLinks
         ArgumentNullException.ThrowIfNull(account);
         ArgumentNullException.ThrowIfNull(known);
 
-        switch (account.Provider)
+        if (account.Provider == HostProviders.Microsoft)
         {
-            case AccountProvider.Microsoft:
-                return IsPersonalMicrosoft(account, known)
-                    ? "https://outlook.live.com/mail/0/deeplink/compose"
-                    : "https://outlook.office.com/mail/deeplink/compose";
-
-            case AccountProvider.Google:
-                return IsAddress(account.Address)
-                    ? $"https://mail.google.com/mail/?authuser={MailWire.PercentEncode(account.Address)}&view=cm&fs=1"
-                    : "https://mail.google.com/mail/?view=cm&fs=1";
-
-            default:
-                return BlankMailto;
+            return IsPersonalMicrosoft(account, known)
+                ? "https://outlook.live.com/mail/0/deeplink/compose"
+                : "https://outlook.office.com/mail/deeplink/compose";
         }
+
+        if (account.Provider == HostProviders.Google)
+        {
+            return IsAddress(account.Address)
+                ? $"https://mail.google.com/mail/?authuser={MailWire.PercentEncode(account.Address)}&view=cm&fs=1"
+                : "https://mail.google.com/mail/?view=cm&fs=1";
+        }
+
+        return BlankMailto;
     }
 
     /// <summary>

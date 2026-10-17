@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Sdk;
 
 namespace Themia.Core.Accounts;
 
@@ -20,7 +21,7 @@ public sealed record Account
     /// </summary>
     public required string Id { get; init; }
 
-    public required AccountProvider Provider { get; init; }
+    public required ProviderId Provider { get; init; }
 
     /// <summary>What the account is known by: an email address or a login.</summary>
     public required string Address { get; init; }
@@ -65,7 +66,7 @@ public sealed record Account
     /// Never prints the sealed fields. A record's generated ToString would, and an account written
     /// into a log line by accident must not carry even the ciphertext of a token.
     /// </summary>
-    public override string ToString() => $"{Provider.WireName()} account {Id}";
+    public override string ToString() => $"{Provider.Value} account {Id}";
 }
 
 /// <summary>[S-503] <c>accounts.json</c> as it is written: a schema version and the accounts in order.</summary>
@@ -120,7 +121,7 @@ public sealed class StoredAccount
         return new StoredAccount
         {
             Id = account.Id,
-            Provider = account.Provider.WireName(),
+            Provider = account.Provider.Value,
             Address = account.Address,
             DisplayName = account.DisplayName,
             Nickname = account.Nickname,

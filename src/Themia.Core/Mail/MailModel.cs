@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Sdk;
 
 namespace Themia.Core.Mail;
 
@@ -63,7 +64,7 @@ public enum MailColumn
 /// </summary>
 public sealed record MailMessage(
     string AccountId,
-    AccountProvider Provider,
+    ProviderId Provider,
     MailFolder Folder,
     string RawId,
     string Subject,
@@ -101,10 +102,10 @@ public readonly record struct MailFolderStatus(long Total, long Unread);
 
 /// <summary>A mail-capable account as the Mail widget sees it: no secrets, plus whether it works.</summary>
 /// <param name="Problem">Why it cannot be used until the user signs in again, or null.</param>
-public sealed record MailAccount(string Id, AccountProvider Provider, string Label, string Address, string? Problem)
+public sealed record MailAccount(string Id, ProviderId Provider, string Label, string Address, string? Problem)
 {
     /// <summary>[S-544] Gmail is read through the read-only scope: nothing in it can be changed from here.</summary>
-    public bool ReadOnly => Provider == AccountProvider.Google;
+    public bool ReadOnly => Provider == HostProviders.Google;
 }
 
 /// <summary>Writing and reading the closed sets under their stable wire names.</summary>

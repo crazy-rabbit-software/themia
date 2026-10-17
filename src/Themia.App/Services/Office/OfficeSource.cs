@@ -1,6 +1,7 @@
 using Themia.App.Services.Accounts;
 using Themia.Core.Accounts;
 using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.App.Services.Office;
 
@@ -26,7 +27,7 @@ internal interface IOfficeSource
     event Action? Changed;
 
     /// <summary>The accounts that can feed <paramref name="feature"/>, in the order they were added.</summary>
-    IReadOnlyList<AccountInfo> Accounts(AccountFeatures feature);
+    IReadOnlyList<AccountInfo> Accounts(FeatureId feature);
 
     /// <summary>Events overlapping [<paramref name="from"/>, <paramref name="to"/>) of one calendar.</summary>
     Task<Synced<IReadOnlyList<CalendarEvent>>> EventsAsync(CalendarTarget target, DateTimeOffset from, DateTimeOffset to, bool force, CancellationToken cancellation);

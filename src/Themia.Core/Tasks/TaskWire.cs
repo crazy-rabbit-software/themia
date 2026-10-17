@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Themia.Core.Accounts;
+using Themia.Sdk;
 
 namespace Themia.Core.Tasks;
 
@@ -125,11 +126,11 @@ public static class TaskWire
     public const int MaxTasksPerList = 400;
 
     /// <summary>Whether this provider holds tasks at all.</summary>
-    public static bool Supports(AccountProvider provider) => provider is AccountProvider.Microsoft or AccountProvider.Google;
+    public static bool Supports(ProviderId provider) => provider == HostProviders.Microsoft || provider == HostProviders.Google;
 
     // ---- addresses -----------------------------------------------------------------------------
 
-    public static Uri Lists(AccountProvider provider) => provider == AccountProvider.Google
+    public static Uri Lists(ProviderId provider) => provider == HostProviders.Google
         ? new Uri(GoogleRoot, "users/@me/lists?maxResults=100")
         : new Uri(GraphRoot, "me/todo/lists?$top=100");
 
@@ -137,7 +138,7 @@ public static class TaskWire
     /// A list's tasks. Google is asked to leave completed tasks out when they will not be shown;
     /// Graph is filtered here instead ([S-591]), as the classic app did, so both behave the same.
     /// </summary>
-    public static Uri Tasks(AccountProvider provider, string listId, bool showCompleted) => provider == AccountProvider.Google
+    public static Uri Tasks(ProviderId provider, string listId, bool showCompleted) => provider == HostProviders.Google
         ? new Uri(GoogleRoot, $"lists/{Escape(listId)}/tasks?maxResults=100&showCompleted={(showCompleted ? "true" : "false")}&showHidden=false")
         : new Uri(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks?$top=100");
 
@@ -157,17 +158,17 @@ public static class TaskWire
             + Uri.EscapeDataString(since.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.CultureInfo.InvariantCulture)));
 
     /// <summary>One task, for PATCH and DELETE.</summary>
-    public static Uri Task(AccountProvider provider, string listId, string taskId) => provider == AccountProvider.Google
+    public static Uri Task(ProviderId provider, string listId, string taskId) => provider == HostProviders.Google
         ? new Uri(GoogleRoot, $"lists/{Escape(listId)}/tasks/{Escape(taskId)}")
         : new Uri(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks/{Escape(taskId)}");
 
     /// <summary>[S-614] One list, for a rename (PATCH).</summary>
-    public static Uri List(AccountProvider provider, string listId) => provider == AccountProvider.Google
+    public static Uri List(ProviderId provider, string listId) => provider == HostProviders.Google
         ? new Uri(GoogleRoot, $"users/@me/lists/{Escape(listId)}")
         : new Uri(GraphRoot, $"me/todo/lists/{Escape(listId)}");
 
     /// <summary>Where a new task is POSTed.</summary>
-    public static Uri Create(AccountProvider provider, string listId) => provider == AccountProvider.Google
+    public static Uri Create(ProviderId provider, string listId) => provider == HostProviders.Google
         ? new Uri(GoogleRoot, $"lists/{Escape(listId)}/tasks")
         : new Uri(GraphRoot, $"me/todo/lists/{Escape(listId)}/tasks");
 
@@ -249,9 +250,9 @@ public static class TaskWire
     /// [S-597] Complete or reopen. Google also needs the completion stamp cleared, or it keeps the
     /// task completed.
     /// </summary>
-    public static string CompleteBody(AccountProvider provider, bool completed) => Json(writer =>
+    public static string CompleteBody(ProviderId provider, bool completed) => Json(writer =>
     {
-        if (provider == AccountProvider.Google)
+        if (provider == HostProviders.Google)
         {
             writer.WriteString("status", completed ? "completed" : "needsAction");
             if (!completed)
@@ -266,8 +267,8 @@ public static class TaskWire
     });
 
     /// <summary>[S-614] A list rename: the name alone (Graph <c>displayName</c>, Google <c>title</c>).</summary>
-    public static string RenameListBody(AccountProvider provider, string name)
-        => Json(writer => writer.WriteString(provider == AccountProvider.Google ? "title" : "displayName", name));
+    public static string RenameListBody(ProviderId provider, string name)
+        => Json(writer => writer.WriteString(provider == HostProviders.Google ? "title" : "displayName", name));
 
     /// <summary>[S-600] A rename: the title alone, so it can never clear another field by omitting it.</summary>
     public static string RenameBody(string title) => Json(writer => writer.WriteString("title", title));
@@ -276,7 +277,7 @@ public static class TaskWire
     /// [S-596] A new task, optionally due on a day. Midnight of the day is what both providers write
     /// for a date-only due, and what <see cref="TaskDue.Day"/> reads back verbatim ([S-593]).
     /// </summary>
-    public static string CreateBody(AccountProvider provider, string title, DateOnly? due) => Json(writer =>
+    public static string CreateBody(ProviderId provider, string title, DateOnly? due) => Json(writer =>
     {
         writer.WriteString("title", title);
 
@@ -285,7 +286,7 @@ public static class TaskWire
             return;
         }
 
-        if (provider == AccountProvider.Google)
+        if (provider == HostProviders.Google)
         {
             writer.WriteString("due", $"{TaskDue.Wire(day)}T00:00:00.000Z");
         }
@@ -299,11 +300,11 @@ public static class TaskWire
     });
 
     /// <summary>Read the task a create answered with, through the provider's contract. Null when it is not one.</summary>
-    public static TaskItem? ParseCreated(AccountProvider provider, string body, string listId)
+    public static TaskItem? ParseCreated(ProviderId provider, string body, string listId)
     {
         try
         {
-            return provider == AccountProvider.Google
+            return provider == HostProviders.Google
                 ? JsonSerializer.Deserialize(body, TaskWireContext.Default.GoogleTask) is { } google ? FromGoogle(google, listId) : null
                 : JsonSerializer.Deserialize(body, TaskWireContext.Default.GraphTodoTask) is { } graph ? FromGraph(graph, listId) : null;
         }

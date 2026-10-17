@@ -959,6 +959,16 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   noted once, else the key). A descriptor hands the host its texts as `LocalText` (a table and an
   id, or a fixed brand name such as "Microsoft"), read in the current language each time.
 
+- **[S-6910]** Providers are modules too (`IProviderModule`, `[assembly: ThemiaProvider(id, typeof(M))]`):
+  each states its id, its name (`LocalText`), the features its accounts offer, how they sign in
+  (`AccountAuth`), its place in Settings › Accounts › Add account, and its own Updates row or none
+  (its accounts follow the host's Accounts row, [S-3780]). The host installs them into
+  `ProviderCatalog` with the widgets, checking each id against its attribute; every question about a
+  provider is answered there. The five account providers of today are declared in Core
+  (`HostProviders`) until their sign-in runs on descriptors (docs/WIDGET-KIT.md section 11.2, step 11).
+  `accounts.json` keeps its shape: `AccountsFixtureTests` loads a file of every provider, generated
+  with the build from before provider ids, without a repair and writes it back byte for byte.
+
 ## Adding a widget
 
 - **[S-420]** *(Retired: the picker whose sections were never split across columns (`ColumnLayout`)
@@ -1460,12 +1470,16 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
 [S-47], [S-51], [S-53]; code in `src/Themia.Core/Accounts/` (pure) and
 `src/Themia.App/Services/Accounts/` + `Shell/Config/AccountsPage.cs`.
 
-- **[S-500]** A closed `AccountProvider` set: Microsoft, Google, IMAP, CalDAV, CardDAV. A provider
-  this build does not know is dropped on load and reported, never carried as a string ([S-1901]).
+- **[S-500]** A closed set of providers, the provider modules compiled in ([S-6910]): Microsoft,
+  Google, IMAP, CalDAV, CardDAV (`HostProviders`, declared in Core). A provider this build does not
+  know is dropped on load and reported, never carried as a string ([S-1901]).
 - **[S-501]** Providers are written under lower-case names (as the original wrote them), so the
-  file stays readable and a hand edit is easy to validate.
-- **[S-502]** What an account feeds (`AccountFeatures`) and how it proves itself (`AccountAuth`) follow
-  from the provider alone. Widgets ask for a feature, never a provider name.
+  file stays readable and a hand edit is easy to validate. The name is the provider's module id
+  (`microsoft`, `google`, `imap`, `caldav`, `carddav`); it is read forgiving case and surrounding
+  space, as it always was.
+- **[S-502]** What an account feeds (a `FeatureSet` of `FeatureId`s: `mail`, `calendar`, `contacts`,
+  `tasks`, `HostFeatures`) and how it proves itself (`AccountAuth`) follow from the provider's module
+  alone. Widgets ask for a feature, never a provider name.
 - **[S-503]** `accounts.json` lives beside `state.json` and carries a `schemaVersion`; a newer schema is
   set aside rather than half-read.
 - **[S-504]** Every stored entry becomes a whole `Account` or nothing. A field that says *where* the

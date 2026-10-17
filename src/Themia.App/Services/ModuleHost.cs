@@ -7,8 +7,9 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-6902] Installs the generated <see cref="ModuleRegistry"/> into <see cref="ModuleCatalog"/>,
-/// first thing in the process, so nothing reads a widget before the registry is there.
+/// [S-6902] Installs the generated <see cref="ModuleRegistry"/> into <see cref="ModuleCatalog"/>
+/// and <see cref="ProviderCatalog"/> ([S-6910]), first thing in the process, so nothing reads a
+/// widget or an account before the registry is there.
 /// </summary>
 internal static class ModuleHost
 {
@@ -37,5 +38,18 @@ internal static class ModuleHost
 
         ModuleCatalog.Install(widgets.Select(m => m.Descriptor));
         _byKind = widgets.ToDictionary(m => m.Descriptor.Id);
+
+        // [S-6910] The providers the same way: the id the attribute declares is the module's own.
+        var providers = ModuleRegistry.Providers;
+        for (var i = 0; i < providers.Count; i++)
+        {
+            if (!string.Equals(providers[i].Id.Value, ModuleRegistry.ProviderIds[i], StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    $"provider {providers[i].GetType().Name} is declared as '{ModuleRegistry.ProviderIds[i]}' but says it is '{providers[i].Id}'");
+            }
+        }
+
+        ProviderCatalog.Install(providers);
     }
 }

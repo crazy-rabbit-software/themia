@@ -275,14 +275,14 @@ public sealed class CalendarFitTests
     {
         var e = Timed("AAMk/a+b=", Today.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(1)) with { WebLink = "https://outlook.office.com/calendar/item/1" };
 
-        Assert.Equal("ms-outlook://events/AAMk%2Fa%2Bb%3D", CalendarLinks.Open(e, AccountProvider.Microsoft, outlookInstalled: true));
-        Assert.Equal("https://outlook.office.com/calendar/item/1", CalendarLinks.Open(e, AccountProvider.Microsoft, outlookInstalled: false));
+        Assert.Equal("ms-outlook://events/AAMk%2Fa%2Bb%3D", CalendarLinks.Open(e, HostProviders.Microsoft, outlookInstalled: true));
+        Assert.Equal("https://outlook.office.com/calendar/item/1", CalendarLinks.Open(e, HostProviders.Microsoft, outlookInstalled: false));
 
         // A Google event is never handed to Outlook, whatever its link says.
-        Assert.Equal("https://outlook.office.com/calendar/item/1", CalendarLinks.Open(e, AccountProvider.Google, outlookInstalled: true));
-        Assert.Null(CalendarLinks.Open(e with { WebLink = null }, AccountProvider.CalDav, outlookInstalled: true));
-        Assert.Null(CalendarLinks.Open(e with { WebLink = "http://example.com/x" }, AccountProvider.Google, outlookInstalled: false));
-        Assert.Null(CalendarLinks.Open(e with { WebLink = "https://user:pw@example.com/x" }, AccountProvider.Google, outlookInstalled: false));
+        Assert.Equal("https://outlook.office.com/calendar/item/1", CalendarLinks.Open(e, HostProviders.Google, outlookInstalled: true));
+        Assert.Null(CalendarLinks.Open(e with { WebLink = null }, HostProviders.CalDav, outlookInstalled: true));
+        Assert.Null(CalendarLinks.Open(e with { WebLink = "http://example.com/x" }, HostProviders.Google, outlookInstalled: false));
+        Assert.Null(CalendarLinks.Open(e with { WebLink = "https://user:pw@example.com/x" }, HostProviders.Google, outlookInstalled: false));
     }
 
     [Theory]

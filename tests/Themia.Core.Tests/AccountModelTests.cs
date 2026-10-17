@@ -1,5 +1,6 @@
 using Themia.Core.Accounts;
 using Themia.Core.Storage;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -33,12 +34,17 @@ public sealed class AccountModelTests : IDisposable
     {
         var names = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var provider in Enum.GetValues<AccountProvider>())
+        foreach (var provider in ProviderCatalog.All.Select(p => p.Id))
         {
-            Assert.True(names.Add(provider.WireName()));
-            Assert.Equal(provider, AccountProviders.TryParse(provider.WireName()));
-            Assert.Contains(provider, AccountProviders.All);
+            Assert.True(names.Add(provider.Value));
+            Assert.True(ProviderCatalog.TryParse(provider.Value, out var parsed));
+            Assert.Equal(provider, parsed);
+            Assert.True(ProviderCatalog.TryParse(" " + provider.Value.ToUpperInvariant() + " ", out parsed));
+            Assert.Equal(provider, parsed);
         }
+
+        // [S-6910] The Add account menu's order, as it always was.
+        Assert.Equal(["microsoft", "google", "imap", "caldav", "carddav"], ProviderCatalog.All.Select(p => p.Id.Value));
     }
 
     [Theory]
@@ -49,28 +55,28 @@ public sealed class AccountModelTests : IDisposable
     [InlineData("github")] // [S-1901] the GitHub and Claude accounts went with their widgets
     [InlineData("claude")]
     public void S500_an_unknown_provider_is_not_guessed(string? wire)
-        => Assert.Null(AccountProviders.TryParse(wire));
+        => Assert.False(ProviderCatalog.TryParse(wire, out _));
 
     [Fact]
     public void S501_wire_names_match_the_classic_app()
     {
-        Assert.Equal("microsoft", AccountProvider.Microsoft.WireName());
-        Assert.Equal("google", AccountProvider.Google.WireName());
-        Assert.Equal("imap", AccountProvider.Imap.WireName());
-        Assert.Equal("caldav", AccountProvider.CalDav.WireName());
-        Assert.Equal("carddav", AccountProvider.CardDav.WireName());
+        Assert.Equal("microsoft", HostProviders.Microsoft.Value);
+        Assert.Equal("google", HostProviders.Google.Value);
+        Assert.Equal("imap", HostProviders.Imap.Value);
+        Assert.Equal("caldav", HostProviders.CalDav.Value);
+        Assert.Equal("carddav", HostProviders.CardDav.Value);
     }
 
     [Fact]
     public void S502_features_follow_from_the_provider()
     {
-        Assert.True(AccountProvider.Microsoft.Features().HasFlag(AccountFeatures.Tasks));
-        Assert.True(AccountProvider.Google.Features().HasFlag(AccountFeatures.Tasks));
-        Assert.Equal(AccountFeatures.Mail, AccountProvider.Imap.Features());
-        Assert.Equal(AccountFeatures.Calendar, AccountProvider.CalDav.Features());
-        Assert.Equal(AccountFeatures.Contacts, AccountProvider.CardDav.Features());
-        Assert.Equal(AccountAuth.OAuthRefresh, AccountProvider.Google.Auth());
-        Assert.Equal(AccountAuth.Password, AccountProvider.CardDav.Auth());
+        Assert.True(HostProviders.Microsoft.Features().Has(HostFeatures.Tasks));
+        Assert.True(HostProviders.Google.Features().Has(HostFeatures.Tasks));
+        Assert.Equal(HostFeatures.Mail, HostProviders.Imap.Features());
+        Assert.Equal(HostFeatures.Calendar, HostProviders.CalDav.Features());
+        Assert.Equal(HostFeatures.Contacts, HostProviders.CardDav.Features());
+        Assert.Equal(AccountAuth.OAuthRefresh, HostProviders.Google.Auth());
+        Assert.Equal(AccountAuth.Password, HostProviders.CardDav.Auth());
     }
 
     [Fact]
@@ -91,7 +97,7 @@ public sealed class AccountModelTests : IDisposable
 
         Assert.NotNull(account);
         Assert.Empty(repairs);
-        Assert.Equal(AccountProvider.Imap, account.Provider);
+        Assert.Equal(HostProviders.Imap, account.Provider);
         Assert.Equal("mail.example", account.Host);
         Assert.Null(account.Nickname);
         Assert.Equal("dpapi:v1:AAAA", account.SealedPassword);
@@ -192,7 +198,7 @@ public sealed class AccountModelTests : IDisposable
         var account = new Account
         {
             Id = "x",
-            Provider = AccountProvider.Microsoft,
+            Provider = HostProviders.Microsoft,
             Address = "a@b",
             SealedRefreshToken = "dpapi:v1:SECRET",
         };
@@ -203,7 +209,7 @@ public sealed class AccountModelTests : IDisposable
     [Fact]
     public void S504_label_prefers_nickname_then_name_then_address()
     {
-        var account = new Account { Id = "x", Provider = AccountProvider.Google, Address = "a@b" };
+        var account = new Account { Id = "x", Provider = HostProviders.Google, Address = "a@b" };
         Assert.Equal("a@b", account.Label);
         Assert.Equal("Ann", (account with { DisplayName = "Ann" }).Label);
         Assert.Equal("Work", (account with { DisplayName = "Ann", Nickname = "Work" }).Label);
@@ -214,8 +220,8 @@ public sealed class AccountModelTests : IDisposable
     {
         Assert.Equal("google:117", AccountIds.Google("117"));
         Assert.Equal("imap:bob@mail.example", AccountIds.Imap("bob", "mail.example"));
-        Assert.Equal("caldav:al@cloud.example:8443/dav", AccountIds.Dav(AccountProvider.CalDav, "al", new Uri("https://cloud.example:8443/dav/")));
-        Assert.Equal("carddav:al@cloud.example/dav", AccountIds.Dav(AccountProvider.CardDav, "al", new Uri("https://cloud.example/dav/")));
+        Assert.Equal("caldav:al@cloud.example:8443/dav", AccountIds.Dav(HostProviders.CalDav, "al", new Uri("https://cloud.example:8443/dav/")));
+        Assert.Equal("carddav:al@cloud.example/dav", AccountIds.Dav(HostProviders.CardDav, "al", new Uri("https://cloud.example/dav/")));
     }
 
     [Fact]
@@ -223,12 +229,12 @@ public sealed class AccountModelTests : IDisposable
     {
         // Google's legacy CalDAV: one address per calendar, the same user name for both. The classic
         // id (user@host) made the second sign-in replace the first.
-        var main = AccountIds.Dav(AccountProvider.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/user@example.com/events"));
-        var second = AccountIds.Dav(AccountProvider.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/team@group.example.com/events"));
+        var main = AccountIds.Dav(HostProviders.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/user@example.com/events"));
+        var second = AccountIds.Dav(HostProviders.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/team@group.example.com/events"));
         Assert.NotEqual(main, second);
 
         // The same collection found again (with or without its trailing slash) is the same account.
-        Assert.Equal(main, AccountIds.Dav(AccountProvider.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/user@example.com/events/")));
+        Assert.Equal(main, AccountIds.Dav(HostProviders.CalDav, "user@example.com", new Uri("https://dav.example.com/calendar/dav/user@example.com/events/")));
     }
 
     [Fact]
@@ -302,7 +308,7 @@ public sealed class AccountModelTests : IDisposable
         var account = new Account
         {
             Id = "caldav:al@cloud.example",
-            Provider = AccountProvider.CalDav,
+            Provider = HostProviders.CalDav,
             Address = "al",
             DisplayName = "Al",
             Nickname = "Home",

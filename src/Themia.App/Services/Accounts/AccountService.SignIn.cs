@@ -3,6 +3,7 @@ using System.Text.Json.Serialization.Metadata;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Sdk;
 
 namespace Themia.App.Services.Accounts;
 
@@ -37,16 +38,16 @@ internal sealed partial class AccountService
     /// path for both; they differ only in the addresses, Google's client secret and the "who" call.
     /// </summary>
     /// <param name="openBrowser">Opens a URL in the system browser; returns false when it could not.</param>
-    public async Task<AccountInfo> SignInWithBrowserAsync(AccountProvider provider, Func<Uri, bool> openBrowser, CancellationToken cancellation = default)
+    public async Task<AccountInfo> SignInWithBrowserAsync(ProviderId provider, Func<Uri, bool> openBrowser, CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(openBrowser);
 
-        if (provider is not (AccountProvider.Microsoft or AccountProvider.Google))
+        if (!(provider == HostProviders.Microsoft || provider == HostProviders.Google))
         {
             throw new ArgumentOutOfRangeException(nameof(provider), provider, "no browser sign-in");
         }
 
-        var microsoft = provider == AccountProvider.Microsoft;
+        var microsoft = provider == HostProviders.Microsoft;
         var secret = microsoft ? null : GoogleSecretOrThrow();
 
         using var loopback = new Loopback();
@@ -134,7 +135,7 @@ internal sealed partial class AccountService
         return await UpsertAsync(new Account
         {
             Id = AccountIds.Microsoft(id),
-            Provider = AccountProvider.Microsoft,
+            Provider = HostProviders.Microsoft,
             Address = address,
             DisplayName = me.DisplayName ?? address,
             SealedAccessToken = Dpapi.Seal(grant.AccessToken),
@@ -160,7 +161,7 @@ internal sealed partial class AccountService
         return await UpsertAsync(new Account
         {
             Id = AccountIds.Google(subject),
-            Provider = AccountProvider.Google,
+            Provider = HostProviders.Google,
             Address = address,
             DisplayName = me.Name ?? address,
             SealedAccessToken = Dpapi.Seal(grant.AccessToken),
@@ -215,7 +216,7 @@ internal sealed partial class AccountService
         return await UpsertAsync(new Account
         {
             Id = AccountIds.Imap(cleanUser, cleanHost),
-            Provider = AccountProvider.Imap,
+            Provider = HostProviders.Imap,
             Address = email,
             DisplayName = email,
             Nickname = AccountRules.CleanNickname(nickname),
@@ -232,14 +233,14 @@ internal sealed partial class AccountService
     /// credentials on the way ([S-517]), and save the collection's address.
     /// </summary>
     public async Task<AccountInfo> AddDavAsync(
-        AccountProvider provider,
+        ProviderId provider,
         string url,
         string username,
         string password,
         string? nickname,
         CancellationToken cancellation = default)
     {
-        if (provider is not (AccountProvider.CalDav or AccountProvider.CardDav))
+        if (!(provider == HostProviders.CalDav || provider == HostProviders.CardDav))
         {
             throw new ArgumentOutOfRangeException(nameof(provider), provider, "not a DAV provider");
         }
@@ -254,7 +255,7 @@ internal sealed partial class AccountService
         }
 
         var basic = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{user}:{password}"));
-        var kind = provider == AccountProvider.CalDav ? DavKind.Calendar : DavKind.Contacts;
+        var kind = provider == HostProviders.CalDav ? DavKind.Calendar : DavKind.Contacts;
 
         // [S-3843] The server the user typed may be on their network (a NAS); discovery's redirects to
         // another host may not.

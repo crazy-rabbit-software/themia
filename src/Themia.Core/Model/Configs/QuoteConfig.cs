@@ -48,7 +48,7 @@ public sealed class QuoteItem
 public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>, IContentAligned, ISetupRule
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(AccountFeatures signedIn) => EffectiveQuotes.Count == 0;
+    public bool NeedsSetup(FeatureSet signedIn) => EffectiveQuotes.Count == 0;
 
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>

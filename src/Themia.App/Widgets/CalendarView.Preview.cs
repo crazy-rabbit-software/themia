@@ -3,6 +3,7 @@ using Themia.App.Shell.Gallery;
 using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -134,7 +135,7 @@ internal sealed partial class CalendarView : IWidgetPreviewState
                 new("Lena Fischer", today.AddDays(40).Month, today.AddDays(40).Day, 1988),
             };
 
-            var providers = new Dictionary<string, AccountProvider>(StringComparer.Ordinal) { ["sample:work"] = AccountProvider.Microsoft, ["sample:home"] = AccountProvider.Google };
+            var providers = new Dictionary<string, ProviderId>(StringComparer.Ordinal) { ["sample:work"] = HostProviders.Microsoft, ["sample:home"] = HostProviders.Google };
             var labels = new Dictionary<string, string>(StringComparer.Ordinal) { ["sample:work"] = "Work", ["sample:home"] = "Home" };
             return Task.FromResult(new CalendarSlice(CalendarSliceState.Asked, inRange, birthdays, targets, providers, labels, [], true));
         }

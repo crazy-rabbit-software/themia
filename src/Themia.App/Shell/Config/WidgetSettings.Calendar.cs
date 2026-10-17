@@ -13,6 +13,7 @@ using Themia.Core.Office;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.App.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -51,7 +52,7 @@ internal static partial class WidgetSettings
         }
 
         rows.Add(FluentLayout.Header(Str.WidgetsA_Calendar_Settings_Accounts.Text()));
-        OfficeAccountRows(rows, AccountFeatures.Calendar, Glyphs.Calendar,
+        OfficeAccountRows(rows, HostFeatures.Calendar, Glyphs.Calendar,
             new OfficeAccountTexts(Str.WidgetsA_Calendar_NoAccount, Str.WidgetsA_Calendar_Settings_Every, Str.WidgetsA_Calendar_Settings_AddHint),
             () => config.AccountIds, ids => config.AccountIds = ids, SaveAndRedraw,
             account => CalendarPicker(account, config, SaveAndRedraw, pickers));
@@ -185,7 +186,7 @@ internal static partial class WidgetSettings
                 return;
             }
 
-            var selected = CalendarRules.SelectAccounts(config.AccountIds, OfficeSources.Current?.Accounts(AccountFeatures.Calendar).Select(a => a.Id).ToList() ?? []);
+            var selected = CalendarRules.SelectAccounts(config.AccountIds, OfficeSources.Current?.Accounts(HostFeatures.Calendar).Select(a => a.Id).ToList() ?? []);
             var targets = CalendarRules.Targets(selected, config.Calendars);
 
             foreach (var calendar in calendars)

@@ -62,7 +62,7 @@ public class QuickToggleTests
         foreach (var kind in ToggleKinds)
         {
             Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(kind));
-            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Core.Accounts.AccountFeatures.None));
+            Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Sdk.FeatureSet.None));
         }
     }
 

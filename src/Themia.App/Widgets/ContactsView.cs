@@ -13,6 +13,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace Themia.App.Widgets;
@@ -289,7 +290,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         }
 
         var source = _source;
-        var accounts = source?.Accounts(AccountFeatures.Contacts) ?? [];
+        var accounts = source?.Accounts(HostFeatures.Contacts) ?? [];
         _requestKey = RequestKey();
 
         if (source is null || accounts.Count == 0)

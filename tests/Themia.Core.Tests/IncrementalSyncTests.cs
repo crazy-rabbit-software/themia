@@ -44,10 +44,10 @@ public sealed class IncrementalSyncTests : IDisposable
     };
 
     private static MailMessage Mail(string id, int minutesAgo, bool read = false, MailFolder folder = MailFolder.Inbox)
-        => new("a", AccountProvider.Microsoft, folder, id, "S " + id, "N", "n@example.com", Now.AddMinutes(-minutesAgo), read, "p", string.Empty);
+        => new("a", HostProviders.Microsoft, folder, id, "S " + id, "N", "n@example.com", Now.AddMinutes(-minutesAgo), read, "p", string.Empty);
 
     private static MailMessage Imap(uint uid, bool read = false)
-        => new("a", AccountProvider.Imap, MailFolder.Inbox, new ImapMessageId(MailFolder.Inbox, uid, 7).ToString(), "S", "N", "n@example.com", Now, read, "p", string.Empty);
+        => new("a", HostProviders.Imap, MailFolder.Inbox, new ImapMessageId(MailFolder.Inbox, uid, 7).ToString(), "S", "N", "n@example.com", Now, read, "p", string.Empty);
 
     private static Contact Person(string id, string name) => new() { Id = id, Name = name };
 

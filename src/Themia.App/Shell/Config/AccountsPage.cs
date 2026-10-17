@@ -13,6 +13,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace Themia.App.Shell.Config;
@@ -87,10 +88,10 @@ internal sealed class AccountsPage
         // never do.
         switch (Environment.GetEnvironmentVariable("THEMIA_DEBUG_ACCOUNTS_FLOW"))
         {
-            case "microsoft": ShowBrowserFlow(AccountProvider.Microsoft); break;
-            case "google": ShowBrowserFlow(AccountProvider.Google); break;
+            case "microsoft": ShowBrowserFlow(HostProviders.Microsoft); break;
+            case "google": ShowBrowserFlow(HostProviders.Google); break;
             case "imap": StartImap(); break;
-            case "caldav": StartDav(AccountProvider.CalDav); break;
+            case "caldav": StartDav(HostProviders.CalDav); break;
         }
 #endif
 
@@ -249,12 +250,11 @@ internal sealed class AccountsPage
     {
         switch (account.Provider)
         {
-            case AccountProvider.Microsoft:
-            case AccountProvider.Google:
+            case var pid when pid == HostProviders.Microsoft || pid == HostProviders.Google:
                 StartBrowser(account.Provider);
                 break;
 
-            case AccountProvider.Imap:
+            case var pid when pid == HostProviders.Imap:
                 StartImap();
                 break;
 
@@ -351,19 +351,19 @@ internal sealed class AccountsPage
     {
         var menu = new MenuFlyout { Placement = FlyoutPlacementMode.BottomEdgeAlignedRight };
 
-        void Add(string text, AccountProvider provider, Action start)
+        void Add(string text, ProviderId provider, Action start)
         {
             var item = new MenuFlyoutItem { Text = text, Icon = new FontIcon { Glyph = ProviderGlyph(provider) } };
             item.Click += (_, _) => start();
             menu.Items.Add(item);
         }
 
-        Add("Microsoft", AccountProvider.Microsoft, () => StartBrowser(AccountProvider.Microsoft));
-        Add("Google", AccountProvider.Google, () => StartBrowser(AccountProvider.Google));
+        Add("Microsoft", HostProviders.Microsoft, () => StartBrowser(HostProviders.Microsoft));
+        Add("Google", HostProviders.Google, () => StartBrowser(HostProviders.Google));
         menu.Items.Add(new MenuFlyoutSeparator());
-        Add(Str.Shell_Accounts_MenuImap.Text(), AccountProvider.Imap, StartImap);
-        Add(Str.Shell_Accounts_MenuCalDav.Text(), AccountProvider.CalDav, () => StartDav(AccountProvider.CalDav));
-        Add(Str.Shell_Accounts_MenuCardDav.Text(), AccountProvider.CardDav, () => StartDav(AccountProvider.CardDav));
+        Add(Str.Shell_Accounts_MenuImap.Text(), HostProviders.Imap, StartImap);
+        Add(Str.Shell_Accounts_MenuCalDav.Text(), HostProviders.CalDav, () => StartDav(HostProviders.CalDav));
+        Add(Str.Shell_Accounts_MenuCardDav.Text(), HostProviders.CardDav, () => StartDav(HostProviders.CardDav));
 
         return new DropDownButton { Content = Str.Account_AddAccount.Text(), Flyout = menu };
     }
@@ -418,9 +418,9 @@ internal sealed class AccountsPage
     // ---- browser: Microsoft, Google --------------------------------------------------------
 
     /// <summary>[S-1783] Microsoft and Google sign in the same way, so they share one flow.</summary>
-    private void StartBrowser(AccountProvider provider)
+    private void StartBrowser(ProviderId provider)
     {
-        if (provider == AccountProvider.Google && AccountService.GoogleUnavailableReason is { } reason)
+        if (provider == HostProviders.Google && AccountService.GoogleUnavailableReason is { } reason)
         {
             ShowFlow(Str.Shell_Accounts_SignInTo.Format(("provider", provider.Label())), Message(reason, critical: true));
             return;
@@ -431,7 +431,7 @@ internal sealed class AccountsPage
     }
 
     /// <summary>The card a browser sign-in waits in: what is about to happen, a live status line, Cancel.</summary>
-    private (ProgressRing Ring, TextBlock Line, CancellationToken Token) ShowBrowserFlow(AccountProvider provider)
+    private (ProgressRing Ring, TextBlock Line, CancellationToken Token) ShowBrowserFlow(ProviderId provider)
     {
         var explain = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
         explain.TextWrapping = TextWrapping.Wrap;
@@ -451,7 +451,7 @@ internal sealed class AccountsPage
         return (ring, line, token);
     }
 
-    private async Task RunBrowserAsync(AccountProvider provider, ProgressRing ring, TextBlock line, CancellationToken cancellation)
+    private async Task RunBrowserAsync(ProviderId provider, ProgressRing ring, TextBlock line, CancellationToken cancellation)
     {
         try
         {
@@ -559,9 +559,9 @@ internal sealed class AccountsPage
         }, account => Str.Shell_Accounts_Connected.Format(("address", account.Address)));
     }
 
-    private void StartDav(AccountProvider provider)
+    private void StartDav(ProviderId provider)
     {
-        var kind = provider == AccountProvider.CalDav ? DavKind.Calendar : DavKind.Contacts;
+        var kind = provider == HostProviders.CalDav ? DavKind.Calendar : DavKind.Contacts;
 
         var url = new TextBox { PlaceholderText = "https://cloud.example.com", Width = 280 };
         var user = new TextBox { PlaceholderText = Str.Shell_Accounts_OftenAddress.Text(), Width = 280 };
@@ -652,13 +652,13 @@ internal sealed class AccountsPage
     // Small pieces
     // -----------------------------------------------------------------------------------------
 
-    private static string ProviderGlyph(AccountProvider provider) => provider switch
+    private static string ProviderGlyph(ProviderId provider) => provider switch
     {
-        AccountProvider.Microsoft => char.ConvertFromUtf32(0xE753),
-        AccountProvider.Google => char.ConvertFromUtf32(0xE774),
-        AccountProvider.Imap => Glyphs.Mail,
-        AccountProvider.CalDav => Glyphs.Calendar,
-        AccountProvider.CardDav => Glyphs.Contact,
+        var pid when pid == HostProviders.Microsoft => char.ConvertFromUtf32(0xE753),
+        var pid when pid == HostProviders.Google => char.ConvertFromUtf32(0xE774),
+        var pid when pid == HostProviders.Imap => Glyphs.Mail,
+        var pid when pid == HostProviders.CalDav => Glyphs.Calendar,
+        var pid when pid == HostProviders.CardDav => Glyphs.Contact,
         _ => Glyphs.Info,
     };
 

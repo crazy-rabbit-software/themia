@@ -36,7 +36,7 @@ internal sealed partial class WidgetCard
     private bool _parked;
 
     /// <summary>Every account feature signed in now. The card's own service once hooked, the host's before.</summary>
-    private AccountFeatures SignedIn()
+    private FeatureSet SignedIn()
         => WidgetSetup.Offered((_setupAccounts ?? AppServices.Accounts)?.Accounts.Select(a => a.Provider) ?? []);
 
     private void AttachSetup()
