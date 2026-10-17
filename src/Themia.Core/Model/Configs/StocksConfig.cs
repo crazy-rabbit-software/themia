@@ -73,7 +73,7 @@ public enum StocksSetting
 /// then be the size its reader wants.
 /// </para>
 /// </summary>
-public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksSetting>
+public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksSetting>, IContentAligned
 {
     private static readonly StyleOption[] StockStyles =
     [
@@ -100,6 +100,9 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         DefaultHeight = 240,
         Traits = WidgetTraits.CanHaveHeader,
     };
+
+    /// <summary>[S-6581] Only this style is one block to align.</summary>
+    bool IContentAligned.AlignApplies => Style == StocksStyle.Number;
 
     /// <summary>The Yahoo symbol or CoinGecko id. Empty until the user sets one.</summary>
     public string Symbol { get; set; } = string.Empty;

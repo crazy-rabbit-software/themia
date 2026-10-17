@@ -44,7 +44,7 @@ public sealed class QuoteItem
 /// with no network and keeps working on a laptop in a tunnel.
 /// </para>
 /// </summary>
-public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>
+public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>, IContentAligned
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Quote;

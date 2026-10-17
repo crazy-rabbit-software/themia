@@ -27,7 +27,7 @@ public enum CountdownStyle
 /// [S-6036] One countdown: a target, its name and how it reads. A widget counts to one target;
 /// several countdowns are several widgets. A new widget has no target and asks to be set up.
 /// </summary>
-public sealed class CountdownConfig : WidgetConfig, IStyled
+public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned
 {
     /// <summary>The most a name says, in characters.</summary>
     public const int MostLabel = 60;

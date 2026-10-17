@@ -111,7 +111,7 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
 }
 
 /// <summary>Conditions right now, from open-meteo's <c>current</c> block.</summary>
-public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<WeatherNowSetting>
+public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<WeatherNowSetting>, IContentAligned
 {
     private static readonly StyleOption[] NowStyles =
     [
@@ -139,6 +139,9 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
         DefaultHeight = 200,
         Traits = WidgetTraits.CanHaveHeader,
     };
+
+    /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
+    ContentAlign IContentAligned.DefaultAlign => Style == WeatherNowStyle.Standard ? ContentAlign.Left : ContentAlign.Center;
 
     /// <summary>[S-6160] The widget's look.</summary>
     public WeatherNowStyle Style { get; set; } = WeatherNowStyle.Standard;

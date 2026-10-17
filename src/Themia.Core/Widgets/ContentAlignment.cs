@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -10,43 +11,25 @@ namespace Themia.Core.Widgets;
 /// Only a widget whose content is one block — a readout, a sentence, a face — has something to
 /// align: a list, a grid, a chart or a mixer fills its card edge to edge, and a button tile is the
 /// whole tile. Per style, too: an exchange rate's or a stock's chart, the moon's month of discs, fill
-/// the card, so the same kind aligns in one style and not in another. <c>ContentAlignmentTests</c>
-/// checks the views that take it against this list, so the two cannot drift.
+/// the card, so the same kind aligns in one style and not in another. Each such widget says so on its
+/// config (<see cref="IContentAligned"/>); <c>ContentAlignmentTests</c> checks the views that take an
+/// alignment against those configs, so the two cannot drift.
 /// </para>
 /// </summary>
 public static class ContentAlignment
 {
-    /// <summary>[S-6581] The kinds with a style (or every style) whose content can be aligned.</summary>
-    private static readonly HashSet<WidgetKind> Kinds =
-    [
-        WidgetKind.Clock,
-        WidgetKind.WeatherNow,
-        WidgetKind.AirQuality,
-        WidgetKind.ExchangeRates,
-        WidgetKind.Stocks,
-        WidgetKind.Countdown,
-        WidgetKind.Quote,
-        WidgetKind.Moon,
-    ];
-
     /// <summary>[S-6581] The kinds with a style whose content can be aligned, in the enum's order.</summary>
-    public static IEnumerable<WidgetKind> All => Enum.GetValues<WidgetKind>().Where(Kinds.Contains);
+    public static IEnumerable<WidgetKind> All => Enum.GetValues<WidgetKind>().Where(Offers);
 
     /// <summary>[S-6581] Whether any style of <paramref name="kind"/> can be aligned.</summary>
-    public static bool Offers(WidgetKind kind) => Kinds.Contains(kind);
+    public static bool Offers(WidgetKind kind) => typeof(IContentAligned).IsAssignableFrom(ModuleCatalog.Of(kind).ConfigType);
 
     /// <summary>
     /// [S-6581] Whether a widget of <paramref name="kind"/> in the style <paramref name="config"/>
     /// holds can be aligned now: every style of the clock, the weather, the air quality, the
     /// countdown and the quote; the number styles of the exchange rate and the stock; the moon's disc.
     /// </summary>
-    public static bool Applies(WidgetKind kind, WidgetConfig? config) => kind switch
-    {
-        WidgetKind.ExchangeRates => config is not ExchangeRatesConfig rates || rates.Style == ExchangeRatesStyle.Number,
-        WidgetKind.Stocks => config is not StocksConfig stocks || stocks.Style == StocksStyle.Number,
-        WidgetKind.Moon => config is not MoonConfig moon || moon.Style == MoonStyle.Disc,
-        _ => Kinds.Contains(kind),
-    };
+    public static bool Applies(WidgetKind kind, WidgetConfig? config) => config is IContentAligned aligned ? aligned.AlignApplies : config is null && Offers(kind);
 
     /// <summary>Whether <paramref name="widget"/> can be aligned in the style it has now.</summary>
     public static bool Applies(WidgetInstance widget)
@@ -60,13 +43,8 @@ public static class ContentAlignment
     /// had a choice, so nothing moves. Centred: the clock, the moon's disc, the weather's large-icon
     /// and minimal styles, the air quality's gauge. Everything else reads from the start edge.
     /// </summary>
-    public static ContentAlign Default(WidgetKind kind, WidgetConfig? config) => kind switch
-    {
-        WidgetKind.Clock or WidgetKind.Moon => ContentAlign.Center,
-        WidgetKind.WeatherNow when config is WeatherNowConfig { Style: not WeatherNowStyle.Standard } => ContentAlign.Center,
-        WidgetKind.AirQuality when config is AirQualityConfig { Style: AirQualityStyle.Gauge } => ContentAlign.Center,
-        _ => ContentAlign.Left,
-    };
+    public static ContentAlign Default(WidgetKind kind, WidgetConfig? config)
+        => (config ?? WidgetConfig.CreateDefault(kind)) is IContentAligned aligned ? aligned.DefaultAlign : ContentAlign.Left;
 
     /// <summary>
     /// [S-6583] Where the card draws <paramref name="widget"/>'s content: its own choice, or the

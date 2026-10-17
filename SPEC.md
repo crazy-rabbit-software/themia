@@ -1184,8 +1184,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   Left and Right are the reading direction's start and end, as Windows aligns text. None stored (the
   default) means the kind's own place ([S-6582]), so a widget never given one does not move; a copy
   keeps it. It moves the block the size ladder ([S-660]) built, never what the ladder shows.
-- **[S-6581]** Only a widget whose content is **one block** aligns (`ContentAlignment.Applies`, one
-  Core list; `ContentAlignmentTests` checks it against the views that implement `IWidgetAligned`):
+- **[S-6581]** Only a widget whose content is **one block** aligns (`ContentAlignment.Applies`: its
+  config implements `IContentAligned`, per style; `ContentAlignmentTests` checks it against the views that implement `IWidgetAligned`):
   every style of the Clock, Weather now, Air quality, Countdown and Quote; the Number style of
   Exchange rates and Stocks; the Moon's Disc. Not lists, grids, calendars, mail, folders, charts,
   meters (a reading over its graph), mixers, timers with their controls, button and toggle tiles:
@@ -4809,10 +4809,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-6570]** Whether a kind **has items** (`ItemKinds.Has`): its view paints rows, tiles, chips or
   tracks through the item layer ([S-6513]). Sixteen kinds paint none (Alarm, Audio visualizer,
   Brightness, Exchange rates, Gallery, Next meeting, Notes, Rain next hour, Recycle bin, the screen
-  time chart and donut, Stocks, Stopwatch, Video stream, Volume, Weather now). The list sits in Core
-  beside the kinds and cannot drift: `ItemKindsTests` reads every view's source (and the shared parts
-  it builds — the flip card, rings, meter bars — to the fixed point) and fails when the list and
-  what a view paints disagree either way.
+  time chart and donut, Stocks, Stopwatch, Video stream, Volume, Weather now). Each widget's descriptor states
+  it (`Traits.HasItems`, [S-6905]) and it cannot drift: `ItemKindsTests` reads every view's source (and the shared parts
+  it builds — the flip card, rings, meter bars — to the fixed point) and fails when a descriptor and
+  what its view paints disagree either way.
 - **[S-6540]** **Item text colour.** The item layer has a text colour too: the colour of the text and
   glyphs drawn on items (`#RRGGBB`, empty = the theme's text colours). App-wide on the design
   (`DesignState.ItemTextColor`) and per widget (`WidgetInstance.ItemTextColor`, empty = follows the

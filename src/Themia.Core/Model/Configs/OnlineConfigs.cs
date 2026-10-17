@@ -48,7 +48,7 @@ public enum ExchangeRatesStyle
 /// the same header rule ([S-728]), so it derives from <see cref="WeatherConfig"/>; the sync tells the
 /// kinds apart ([S-5101]).
 /// </summary>
-public sealed class AirQualityConfig : WeatherConfig, IStyled
+public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned
 {
     private static readonly StyleOption[] AirStyles =
     [
@@ -75,6 +75,9 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled
         DefaultHeight = 200,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
+
+    /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
+    ContentAlign IContentAligned.DefaultAlign => Style == AirQualityStyle.Gauge ? ContentAlign.Center : ContentAlign.Left;
 
     /// <summary>[S-6169] The widget's look.</summary>
     public AirQualityStyle Style { get; set; } = AirQualityStyle.Number;
@@ -146,7 +149,7 @@ public sealed class RainNextHourConfig : WeatherConfig
 /// [S-5140] The ECB's reference rate of one pair: what one unit of the base currency buys of the
 /// quote. Several pairs are several widgets.
 /// </summary>
-public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
+public sealed class ExchangeRatesConfig : WidgetConfig, IStyled, IContentAligned
 {
     private static readonly StyleOption[] RateStyles =
     [
@@ -173,6 +176,9 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
         DefaultHeight = 220,
         Traits = WidgetTraits.CanHaveHeader,
     };
+
+    /// <summary>[S-6581] Only this style is one block to align.</summary>
+    bool IContentAligned.AlignApplies => Style == ExchangeRatesStyle.Number;
 
     /// <summary>[S-5143] The base currency, an ISO 4217 code the ECB publishes; empty follows the Windows region.</summary>
     public string BaseCurrency { get; set; } = string.Empty;

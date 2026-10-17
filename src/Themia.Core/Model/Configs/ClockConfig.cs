@@ -73,7 +73,7 @@ public enum ClockSetting
     Offset,
 }
 
-public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>
+public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>, IContentAligned
 {
     /// <summary>[S-1482] A label longer than this is a sentence, not a place.</summary>
     public const int MaxLabelLength = 40;
@@ -101,6 +101,9 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         DefaultHeight = 140,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
     };
+
+    /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
+    ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
 
     /// <summary>[S-6000] The clock's look; what was its face.</summary>
     public ClockStyle Style { get; set; } = ClockStyle.Digital;
