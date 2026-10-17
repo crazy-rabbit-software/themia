@@ -1,9 +1,9 @@
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -15,22 +15,6 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed partial class ItemKindsTests
 {
-    private static readonly string App = Path.Combine(FindRoot(), "src", "Themia.App");
-
-    /// <summary>Walks up from this source file, not the test binaries, which may build outside the repository.</summary>
-    private static string FindRoot([CallerFilePath] string here = "")
-    {
-        for (var dir = new FileInfo(here).Directory; dir is not null; dir = dir.Parent)
-        {
-            if (Directory.Exists(Path.Combine(dir.FullName, "src", "Themia.App", "Widgets")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("repository root (src/Themia.App/Widgets) not found above this test's source");
-    }
-
     /// <summary>What paints an item directly: the one path ([S-6513]) and Fluent's row helpers, which call it.</summary>
     [GeneratedRegex(@"\bItemFill\.|\bFluent\.(Row|Hover)\(")]
     private static partial Regex PaintsDirectly();
@@ -46,13 +30,10 @@ public sealed partial class ItemKindsTests
     /// </summary>
     private static HashSet<string> PaintingFiles()
     {
-        var widgets = Path.Combine(App, "Widgets");
         var skip = new HashSet<string>(StringComparer.Ordinal) { "ItemPalette.cs", "ItemFill.cs", "Fluent.cs", "WidgetCatalog.cs" };
 
         // The shared parts a view may paint through (a ring) live in the SDK since they serve every module.
-        var parts = Path.Combine(FindRoot(), "src", "Themia.Sdk.WinUI", "Widgets");
-        var files = Directory.EnumerateFiles(widgets, "*.cs", SearchOption.AllDirectories)
-            .Concat(Directory.EnumerateFiles(parts, "*.cs", SearchOption.AllDirectories))
+        var files = RepoFiles.ViewSources()
             .Where(f => !skip.Contains(Path.GetFileName(f)))
             .ToDictionary(f => f, f => string.Join('\n', File.ReadAllLines(f).Where(l => !l.TrimStart().StartsWith("//", StringComparison.Ordinal))));
 

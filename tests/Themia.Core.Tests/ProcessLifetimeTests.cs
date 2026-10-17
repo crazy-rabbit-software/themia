@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -11,20 +11,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class ProcessLifetimeTests
 {
-    private static readonly string AppSource = File.ReadAllText(Path.Combine(FindRoot(), "src", "Themia.App", "App.xaml.cs"));
-
-    private static string FindRoot([CallerFilePath] string here = "")
-    {
-        for (var dir = new FileInfo(here).Directory; dir is not null; dir = dir.Parent)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "src", "Themia.App", "App.xaml.cs")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("repository root (src/Themia.App/App.xaml.cs) not found above this test's source");
-    }
+    private static readonly string AppSource = File.ReadAllText(RepoFiles.At("src", "Themia.App", "App.xaml.cs"));
 
     /// <summary>
     /// The bug: WinUI's default shuts the dispatcher down when the last window closes. Themia has no

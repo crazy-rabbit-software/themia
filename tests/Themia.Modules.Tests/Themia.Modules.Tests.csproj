@@ -29,6 +29,7 @@
     <ProjectReference Include="..\..\src\Widgets\*\*.csproj" />
     <ProjectReference Include="..\..\src\Providers\*\*.csproj" />
     <Compile Include="..\..\src\Widgets\*\Tests\**\*.cs" LinkBase="Modules" />
+    <Compile Include="..\Shared\*.cs" LinkBase="Shared" />
     <Compile Include="..\..\src\Providers\*\Tests\**\*.cs" LinkBase="Modules" />
   </ItemGroup>
 

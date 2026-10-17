@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Themia.Core.Localization;
@@ -6,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -16,9 +16,6 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed partial class WidgetRegistryTests
 {
-    private static string Root([CallerFilePath] string here = "")
-        => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(here)!, "..", ".."));
-
     public static TheoryData<string> Ids() => [.. ModuleCatalog.Widgets.Select(w => w.Id.Value)];
 
     private static WidgetDescriptor Of(string id) => ModuleCatalog.TryGet(new WidgetId(id), out var w) ? w : throw new KeyNotFoundException(id);
@@ -54,7 +51,7 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6902_the_app_declares_one_module_for_each_descriptor_and_no_other()
     {
-        var declared = Directory.EnumerateFiles(Path.Combine(Root(), "src", "Themia.App"), "*.cs", SearchOption.AllDirectories)
+        var declared = Directory.EnumerateFiles(Path.Combine(RepoFiles.Root, "src", "Themia.App"), "*.cs", SearchOption.AllDirectories)
             .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
             .SelectMany(f => ThemiaWidget().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value))
             .ToList();
@@ -185,7 +182,7 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6904_every_widget_settings_page_is_built_by_a_module_and_every_module_page_exists()
     {
-        var config = Path.Combine(Root(), "src", "Themia.App", "Shell", "Config");
+        var config = Path.Combine(RepoFiles.Root, "src", "Themia.App", "Shell", "Config");
         var pages = Directory.GetFiles(config, "WidgetSettings*.cs")
             .SelectMany(f => SettingsPage().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value))
             .ToHashSet(StringComparer.Ordinal);

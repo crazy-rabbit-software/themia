@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -11,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Modules.Tests;
@@ -23,10 +23,7 @@ namespace Themia.Modules.Tests;
 /// </summary>
 public sealed partial class ModuleConformanceTests
 {
-    private static string Root([CallerFilePath] string here = "")
-        => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(here)!, "..", ".."));
-
-    private static string Src => Path.Combine(Root(), "src");
+    private static string Src => Path.Combine(RepoFiles.Root, "src");
 
     /// <summary>Every widget module project folder (src/Widgets/Themia.Widget.*), by its widget id.</summary>
     private static Dictionary<string, string> WidgetFolders()
@@ -215,7 +212,7 @@ public sealed partial class ModuleConformanceTests
     /// <summary>The root SPEC.md and every module's, each with the tags it defines.</summary>
     private static List<(string File, HashSet<int> Tags)> SpecFiles()
     {
-        var files = new List<string> { Path.Combine(Root(), "SPEC.md") };
+        var files = new List<string> { Path.Combine(RepoFiles.Root, "SPEC.md") };
         files.AddRange(WidgetFolders().Values.Concat(ProviderFolders().Values).Select(d => Path.Combine(d, "SPEC.md")).Where(File.Exists));
         return [.. files.Select(f => (f, DefinedTag().Matches(File.ReadAllText(f)).Select(m => int.Parse(m.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture)).ToHashSet()))];
     }
@@ -255,7 +252,7 @@ public sealed partial class ModuleConformanceTests
     {
         var specs = SpecFiles();
         var twice = specs.SelectMany(s => s.Tags.Select(t => (t, s.File))).GroupBy(p => p.t).Where(g => g.Count() > 1)
-            .Select(g => $"[S-{g.Key}] in {string.Join(", ", g.Select(p => Path.GetRelativePath(Root(), p.File)))}").ToList();
+            .Select(g => $"[S-{g.Key}] in {string.Join(", ", g.Select(p => Path.GetRelativePath(RepoFiles.Root, p.File)))}").ToList();
         Assert.True(twice.Count == 0, string.Join('\n', twice));
     }
 

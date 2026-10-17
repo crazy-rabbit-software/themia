@@ -1,6 +1,6 @@
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -13,7 +13,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed partial class NavIconAssetTests
 {
-    private static readonly string Root = FindRoot();
+    private static readonly string Root = RepoFiles.Root;
 
     private static string IconDir => Path.Combine(Root, "src", "Themia.App", "Assets", "NavIcons");
 
@@ -21,18 +21,6 @@ public sealed partial class NavIconAssetTests
     /// Walks up from this source file rather than the test binaries, which may be built into an
     /// artifacts folder outside the repository.
     /// </summary>
-    private static string FindRoot([CallerFilePath] string here = "")
-    {
-        for (var dir = new FileInfo(here).Directory; dir is not null; dir = dir.Parent)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "THIRD-PARTY-NOTICES.md")) && Directory.Exists(Path.Combine(dir.FullName, "src", "Themia.App")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("repository root (THIRD-PARTY-NOTICES.md beside src/Themia.App) not found above this test's source");
-    }
 
     private static string[] BundledIcons()
         => Directory.GetFiles(IconDir, "*.svg").Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal).ToArray();

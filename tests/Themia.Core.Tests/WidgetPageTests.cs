@@ -1,6 +1,6 @@
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Themia.Core.Settings;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -12,21 +12,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed partial class WidgetPageTests
 {
-    private static readonly string Config = Path.Combine(FindRoot(), "src", "Themia.App", "Shell", "Config");
-
-    /// <summary>Walks up from this source file, not the test binaries, which may build outside the repository.</summary>
-    private static string FindRoot([CallerFilePath] string here = "")
-    {
-        for (var dir = new FileInfo(here).Directory; dir is not null; dir = dir.Parent)
-        {
-            if (Directory.Exists(Path.Combine(dir.FullName, "src", "Themia.App", "Shell", "Config")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("repository root (src/Themia.App/Shell/Config) not found above this test's source");
-    }
+    private static readonly string Config = RepoFiles.AppConfig;
 
     /// <summary>
     /// The panel's own words and writers: its row names (Title, Style, Header, Background, Item
@@ -36,7 +22,8 @@ public sealed partial class WidgetPageTests
     private static partial Regex PanelProperty();
 
     private static IEnumerable<string> PageSources()
-        => Directory.GetFiles(Config, "WidgetSettings*.cs").Append(Path.Combine(Config, "ConfigPages.Widget.cs"));
+        => Directory.GetFiles(Config, "WidgetSettings*.cs").Append(Path.Combine(Config, "ConfigPages.Widget.cs"))
+            .Concat(RepoFiles.WidgetModules().SelectMany(RepoFiles.CSharp).Where(f => File.ReadAllText(f).Contains("SettingsRows(", StringComparison.Ordinal)));
 
     [Fact]
     public void S6536_no_widget_settings_page_builds_a_row_the_properties_panel_sets()

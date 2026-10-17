@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Themia.Core.Geometry;
@@ -6,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -17,22 +17,6 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed partial class ContentAlignmentTests
 {
-    private static readonly string App = Path.Combine(FindRoot(), "src", "Themia.App");
-
-    /// <summary>Walks up from this source file, not the test binaries, which may build outside the repository.</summary>
-    private static string FindRoot([CallerFilePath] string here = "")
-    {
-        for (var dir = new FileInfo(here).Directory; dir is not null; dir = dir.Parent)
-        {
-            if (Directory.Exists(Path.Combine(dir.FullName, "src", "Themia.App", "Widgets")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("repository root (src/Themia.App/Widgets) not found above this test's source");
-    }
-
     /// <summary>A view class that declares it aligns: the interface in its base list.</summary>
     [GeneratedRegex(@"partial class (\w+)\s*:[^{]*\bIWidgetAligned\b")]
     private static partial Regex AlignedView();
@@ -53,7 +37,7 @@ public sealed partial class ContentAlignmentTests
     {
         var views = ModuleSources.Views();
 
-        var aligned = Directory.EnumerateFiles(Path.Combine(App, "Widgets"), "*.cs", SearchOption.AllDirectories)
+        var aligned = RepoFiles.ViewSources()
             .SelectMany(f => AlignedView().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value))
             .ToHashSet(StringComparer.Ordinal);
 

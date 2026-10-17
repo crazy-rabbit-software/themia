@@ -1,5 +1,5 @@
-using System.Runtime.CompilerServices;
 using Themia.Core.Shell;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -12,21 +12,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class EditModeInertTests
 {
-    private static readonly string Shell = Path.Combine(FindRoot(), "src", "Themia.App", "Shell");
-
-    /// <summary>Walks up from this source file, not the test binaries, which may build outside the repository.</summary>
-    private static string FindRoot([CallerFilePath] string here = "")
-    {
-        for (var dir = new FileInfo(here).Directory; dir is not null; dir = dir.Parent)
-        {
-            if (Directory.Exists(Path.Combine(dir.FullName, "src", "Themia.App", "Shell")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("repository root (src/Themia.App/Shell) not found above this test's source");
-    }
+    private static readonly string Shell = RepoFiles.At("src", "Themia.App", "Shell");
 
     [Theory]
     [InlineData(false, true)]

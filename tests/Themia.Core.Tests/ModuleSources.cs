@@ -1,7 +1,7 @@
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Themia.Core.Model;
 using Themia.Sdk;
+using Themia.Tests;
 
 namespace Themia.Core.Tests;
 
@@ -11,10 +11,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 internal static partial class ModuleSources
 {
-    private static string Root([CallerFilePath] string here = "")
-        => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(here)!, "..", ".."));
-
-    public static string ModulesFolder => Path.Combine(Root(), "src", "Themia.App", "Widgets", "Modules");
+    public static string ModulesFolder => Path.Combine(RepoFiles.Root, "src", "Themia.App", "Widgets", "Modules");
 
     [GeneratedRegex(@"WidgetDescriptor Descriptor => (\w+)\.Descriptor;")]
     private static partial Regex DescriptorOf();
