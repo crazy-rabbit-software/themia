@@ -52,6 +52,7 @@ public sealed class GpuConfig : GaugeConfig, IStyled
         DefaultWidth = 220,
         DefaultHeight = 220,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Graphics, 0, 0),
     };
 
     /// <summary>

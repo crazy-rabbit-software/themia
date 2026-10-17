@@ -67,6 +67,7 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
         DefaultWidth = 480,
         DefaultHeight = 280,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.CalendarMail, 0, 2),
     };
 
     /// <summary>Days side by side, the classic week view's shape; never read to pick a range ([S-5321]).</summary>

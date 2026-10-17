@@ -154,6 +154,18 @@ public sealed partial class WidgetRegistryTests
         }
     }
 
+    [Fact]
+    public void S6907_every_widget_has_a_place_of_its_own_in_the_add_menu()
+    {
+        var widgets = ModuleCatalog.Widgets;
+
+        Assert.All(widgets, w => Assert.DoesNotContain(w.Add.Shelf, new[] { AddFolderId.Popular, AddFolderId.Browse, AddFolderId.More }));
+        Assert.Equal(widgets.Count, widgets.Select(w => (w.Add.Shelf, w.Add.Group, w.Add.Rank)).Distinct().Count());
+        var popular = widgets.Where(w => w.Add.Popular is not null).Select(w => w.Add.Popular!.Value).ToList();
+        Assert.Equal(Enumerable.Range(0, popular.Count), popular.Order());
+        Assert.Equal(widgets.Count, AddTree.Homes(AddTree.On([.. widgets.Select(w => w.Kind)])).Count);
+    }
+
     [Theory]
     [MemberData(nameof(Ids))]
     public void S943_every_widget_has_its_own_search_words(string id)

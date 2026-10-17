@@ -53,6 +53,7 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
         DefaultWidth = 200,
         DefaultHeight = 150,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.NetworkReading, 0, 0),
     };
 
     /// <summary>[S-6270] The meter's look; what was its history switch ([S-6000]).</summary>

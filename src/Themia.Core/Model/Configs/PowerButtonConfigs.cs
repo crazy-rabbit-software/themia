@@ -88,6 +88,7 @@ public sealed class ShutdownConfig : PowerButtonConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.PowerButtons, 0, 0),
     };
 
     public override WidgetConfig Clone() => new ShutdownConfig { Style = Style };
@@ -114,6 +115,7 @@ public sealed class RestartConfig : PowerButtonConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.PowerButtons, 0, 1),
     };
 
     public override WidgetConfig Clone() => new RestartConfig { Style = Style };
@@ -140,6 +142,7 @@ public sealed class SleepConfig : PowerButtonConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.PowerButtons, 0, 2),
     };
 
     public override WidgetConfig Clone() => new SleepConfig { Style = Style };
@@ -166,6 +169,7 @@ public sealed class HibernateConfig : PowerButtonConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.PowerButtons, 0, 3),
     };
 
     public override WidgetConfig Clone() => new HibernateConfig { Style = Style };
@@ -192,6 +196,7 @@ public sealed class LockConfig : PowerButtonConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.PowerButtons, 0, 4),
     };
 
     public override WidgetConfig Clone() => new LockConfig { Style = Style };
@@ -218,6 +223,7 @@ public sealed class SignOutConfig : PowerButtonConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.PowerButtons, 0, 5),
     };
 
     public override WidgetConfig Clone() => new SignOutConfig { Style = Style };
@@ -244,6 +250,7 @@ public sealed class ScreenOffConfig : PowerButtonConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.PowerButtons, 0, 6),
     };
 
     public override WidgetConfig Clone() => new ScreenOffConfig { Style = Style };

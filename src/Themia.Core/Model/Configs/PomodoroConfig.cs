@@ -81,6 +81,7 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
         DefaultWidth = 240,
         DefaultHeight = 200,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Time, 1, 0),
     };
 
     /// <summary>[S-6035] How the phase's progress is drawn.</summary>

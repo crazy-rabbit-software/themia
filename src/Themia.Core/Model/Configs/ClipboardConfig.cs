@@ -41,6 +41,7 @@ public sealed class ClipboardConfig : WidgetConfig
         DefaultWidth = 320,
         DefaultHeight = 260,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Notes, 0, 2),
     };
 
     /// <summary>[S-1440] How many entries to keep, 1 to 200 (default 50, as the original).</summary>

@@ -68,6 +68,7 @@ public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
         DefaultWidth = 320,
         DefaultHeight = 160,
         Traits = WidgetTraits.None,
+        Add = new(AddFolderId.Media, 0, 1),
     };
 
     /// <summary>[S-3216] The drawing; what were six widget kinds.</summary>

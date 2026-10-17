@@ -84,6 +84,7 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned, 
         DefaultWidth = 260,
         DefaultHeight = 200,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Weather, 0, 3),
     };
 
     /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
@@ -154,6 +155,7 @@ public sealed class RainNextHourConfig : WeatherConfig, IInterests
         DefaultHeight = 180,
         DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Weather, 0, 2),
     };
 
     public override WidgetConfig Clone()
@@ -197,6 +199,7 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled, IContentAligned
         DefaultWidth = 300,
         DefaultHeight = 220,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Markets, 0, 1),
     };
 
     /// <summary>[S-6581] Only this style is one block to align.</summary>

@@ -47,6 +47,7 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
         DefaultWidth = 200,
         DefaultHeight = 150,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.MemoryReading, 0, 0),
     };
 
     /// <summary>[S-6315] The meter's look.</summary>

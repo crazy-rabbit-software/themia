@@ -932,6 +932,12 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   [S-1860], [S-1881]), whether and where its content aligns (`IContentAligned`, [S-6581]), what the
   background sync keeps fresh for it (`IInterests`, [S-2608]). A widget that reads an account (its
   descriptor names providers) has a setup rule and interests.
+- **[S-6907]** A widget places itself in the add menu ([S-3510]) through its descriptor (`Add`): the
+  folder it is at home in, the run of rows it is in (a line parts two runs) and its place in the
+  run, and its place among Popular's rows when it is one of them. The folders (the subjects under
+  Browse and the families inside them, with their own places) are the host's and name no widget; a
+  folder's row wears its first widget's icon. No two widgets share a place, and none is at home in
+  Popular, Browse or More.
 
 ## Adding a widget
 
@@ -981,9 +987,9 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
 - **[S-3505]** *(Retired: the keys walk the tree, [S-3514].)*
 - **[S-3510]** The menu is a **tree of subjects**, after Karpo's add list (`karpo-app`,
   docs/widgets.md §7b, §136): it answers the one question a person adding a widget has (what do I
-  want?) by subject. Declared once in Core as data by `WidgetKind` (`Widgets/AddTree.cs`): folders
-  (`AddFolderId`, a closed set, each with its words and the kind whose icon its row wears), widgets
-  and lines. Two top columns under their headings, **Popular** and **Browse**; Browse is a row per
+  want?) by subject. Its folders are declared once in Core (`Widgets/AddTree.cs`: `AddFolderId`,
+  a closed set, each with its words; its row wears its first widget's icon), and each widget places
+  itself in one ([S-6907]); lines part the runs. Two top columns under their headings, **Popular** and **Browse**; Browse is a row per
   subject; inside a subject a **family** (one widget in several layouts or parts) is one row
   opening its own submenu. Never deeper than that. The catalogue has no sections of its own any more.
 - **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,

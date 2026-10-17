@@ -181,6 +181,7 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetti
         DefaultWidth = 320,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.Weather, 1, 0),
     };
 
     /// <summary>[S-6045] The sun's day as an arc, a bar, or the times alone.</summary>
@@ -235,6 +236,7 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
         DefaultWidth = 240,
         DefaultHeight = 220,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.Weather, 1, 1),
     };
 
     /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>

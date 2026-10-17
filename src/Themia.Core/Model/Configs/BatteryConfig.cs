@@ -55,6 +55,7 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
         DefaultWidth = 200,
         DefaultHeight = 150,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.BatteryReading, 0, 0),
     };
 
     /// <summary>[S-6272] The meter's look; what was its history switch ([S-6000]).</summary>

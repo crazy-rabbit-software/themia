@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -31,6 +32,7 @@ public sealed class NotesConfig : WidgetConfig
         DefaultWidth = 300,
         DefaultHeight = 220,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Notes, 0, 0, Popular: 6),
     };
 
     /// <summary>

@@ -98,6 +98,7 @@ public sealed class WifiToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 0, 0),
     };
 
     public override WidgetConfig Clone() => new WifiToggleConfig { Style = Style };
@@ -124,6 +125,7 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 0, 1),
     };
 
     public override WidgetConfig Clone() => new BluetoothToggleConfig { Style = Style };
@@ -150,6 +152,7 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 0, 2),
     };
 
     public override WidgetConfig Clone() => new AirplaneModeToggleConfig { Style = Style };
@@ -176,6 +179,7 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 3, 0),
     };
 
     public override WidgetConfig Clone() => new EnergySaverToggleConfig { Style = Style };
@@ -202,6 +206,7 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 2, 0),
     };
 
     public override WidgetConfig Clone() => new NightLightToggleConfig { Style = Style };
@@ -228,6 +233,7 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 2, 2),
     };
 
     public override WidgetConfig Clone() => new RotationLockToggleConfig { Style = Style };
@@ -254,6 +260,7 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 3, 1),
     };
 
     public override WidgetConfig Clone() => new DoNotDisturbToggleConfig { Style = Style };
@@ -280,6 +287,7 @@ public sealed class SoundToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 1, 0),
     };
 
     public override WidgetConfig Clone() => new SoundToggleConfig { Style = Style };
@@ -306,6 +314,7 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 1, 1),
     };
 
     public override WidgetConfig Clone() => new MicrophoneToggleConfig { Style = Style };
@@ -332,6 +341,7 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 1, 2),
     };
 
     public override WidgetConfig Clone() => new SpatialSoundToggleConfig { Style = Style };
@@ -358,6 +368,7 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 1, 3),
     };
 
     public override WidgetConfig Clone() => new MonoAudioToggleConfig { Style = Style };
@@ -384,6 +395,7 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 2, 1),
     };
 
     public override WidgetConfig Clone() => new ColorFiltersToggleConfig { Style = Style };
@@ -410,6 +422,7 @@ public sealed class GameModeToggleConfig : QuickToggleConfig
         DefaultWidth = 120,
         DefaultHeight = 120,
         Traits = WidgetTraits.HasItems,
+        Add = new(AddFolderId.QuickSettings, 3, 2),
     };
 
     public override WidgetConfig Clone() => new GameModeToggleConfig { Style = Style };

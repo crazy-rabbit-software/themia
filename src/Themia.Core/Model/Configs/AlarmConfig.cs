@@ -42,6 +42,7 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
         DefaultWidth = 300,
         DefaultHeight = 220,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Time, 0, 1),
     };
 
     /// <summary>When it rings, "HH:mm" on the 24-hour clock whatever the language shows; a new widget's is seven.</summary>

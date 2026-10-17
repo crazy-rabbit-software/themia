@@ -45,6 +45,7 @@ public sealed class DriveConfig : WidgetConfig, IStyled
         DefaultWidth = 280,
         DefaultHeight = 160,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.Devices, 2, 0),
     };
 
     /// <summary>[S-6274] The card's look.</summary>
@@ -104,6 +105,7 @@ public sealed class RemovableDrivesConfig : WidgetConfig
         DefaultWidth = 300,
         DefaultHeight = 200,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Devices, 2, 1),
     };
 
     public override WidgetConfig Clone() => new RemovableDrivesConfig();

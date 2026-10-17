@@ -65,6 +65,7 @@ public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
         DefaultWidth = 360,
         DefaultHeight = 280,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Markets, 1, 0),
     };
 
     /// <summary>The feeds, in the order the user listed them.</summary>

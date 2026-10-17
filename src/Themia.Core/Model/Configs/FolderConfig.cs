@@ -101,6 +101,7 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
         DefaultWidth = 300,
         DefaultHeight = 280,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Files, 0, 0, Popular: 9),
     };
 
     /// <summary>[S-4123] The layout; what were four widget kinds.</summary>

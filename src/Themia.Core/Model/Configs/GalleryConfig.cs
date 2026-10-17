@@ -132,6 +132,7 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         DefaultWidth = 320,
         DefaultHeight = 240,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Media, 1, 0),
     };
 
     /// <summary>[S-760] Where the pictures come from.</summary>

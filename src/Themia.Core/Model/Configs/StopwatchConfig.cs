@@ -31,6 +31,7 @@ public sealed class StopwatchConfig : WidgetConfig
         DefaultWidth = 260,
         DefaultHeight = 200,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Time, 0, 3),
     };
 
     public StopwatchPhase Phase { get; set; }

@@ -148,6 +148,7 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
         DefaultWidth = 260,
         DefaultHeight = 200,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
     };
 
     /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>

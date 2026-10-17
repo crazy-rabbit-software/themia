@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -39,6 +40,7 @@ public sealed class VolumeConfig : WidgetConfig
         DefaultWidth = 200,
         DefaultHeight = 150,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Media, 0, 2),
     };
 
     /// <summary>[S-1221] The output device's endpoint id, or null to follow Windows' default output.</summary>

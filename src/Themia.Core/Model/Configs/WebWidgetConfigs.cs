@@ -64,6 +64,7 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
         DefaultWidth = 320,
         DefaultHeight = 240,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Media, 1, 1),
     };
 
     /// <summary>The stream address, exactly as typed. Never repaired; never normalised, because cameras route on the query.</summary>

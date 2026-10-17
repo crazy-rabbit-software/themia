@@ -68,6 +68,7 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
         DefaultWidth = 320,
         DefaultHeight = 180,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Notes, 1, 1),
     };
 
     public QuoteConfig()

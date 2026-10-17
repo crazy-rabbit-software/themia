@@ -74,6 +74,7 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
         DefaultWidth = 380,
         DefaultHeight = 220,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Weather, 0, 1, Popular: 2),
     };
 
     /// <summary>How many days to ask for, 1 to 14 — open-meteo's own limit.</summary>

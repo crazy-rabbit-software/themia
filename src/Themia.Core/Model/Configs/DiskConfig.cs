@@ -63,6 +63,7 @@ public sealed class DiskConfig : GaugeConfig, IStyled
         DefaultWidth = 200,
         DefaultHeight = 150,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.System, 0, 3),
     };
 
     /// <summary>[S-6271] The meter's look; what was its history switch ([S-6000]).</summary>

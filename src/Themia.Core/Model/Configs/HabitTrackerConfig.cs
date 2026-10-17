@@ -63,6 +63,7 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         DefaultWidth = 320,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Notes, 1, 0),
     };
 
     /// <summary>

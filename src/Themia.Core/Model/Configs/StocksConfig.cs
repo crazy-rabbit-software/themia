@@ -113,6 +113,7 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         DefaultWidth = 320,
         DefaultHeight = 240,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Markets, 0, 0),
     };
 
     /// <summary>[S-6581] Only this style is one block to align.</summary>

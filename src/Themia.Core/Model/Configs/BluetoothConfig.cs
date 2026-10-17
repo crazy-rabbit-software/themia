@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -29,6 +30,7 @@ public sealed class BluetoothConfig : WidgetConfig
         DefaultWidth = 300,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Devices, 1, 1),
     };
 
     /// <summary>

@@ -67,6 +67,7 @@ public sealed class MusicConfig : WidgetConfig, IStyled
         DefaultWidth = 340,
         DefaultHeight = 160,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Media, 0, 0, Popular: 7),
     };
 
     /// <summary>[S-6406] Artwork and text, full artwork or text only: the widget's style (what was "Show album art").</summary>

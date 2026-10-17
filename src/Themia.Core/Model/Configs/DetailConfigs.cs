@@ -38,6 +38,7 @@ public sealed class CpuDetailsConfig : DetailConfig
         DefaultWidth = 280,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Processor, 0, 1),
     };
 
     public override WidgetConfig Clone()
@@ -68,6 +69,7 @@ public sealed class MemoryDetailsConfig : DetailConfig
         DefaultWidth = 280,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.MemoryReading, 0, 1),
     };
 
     public override WidgetConfig Clone()
@@ -112,6 +114,7 @@ public sealed class TopProcessesConfig : DetailConfig
         DefaultWidth = 300,
         DefaultHeight = 300,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Processor, 0, 2),
     };
 
     /// <summary>[S-2411] The ranking.</summary>
@@ -177,6 +180,7 @@ public sealed class NetworkDetailsConfig : DetailConfig
         DefaultWidth = 300,
         DefaultHeight = 280,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.NetworkReading, 0, 1),
     };
 
     /// <summary>
@@ -213,6 +217,7 @@ public sealed class BatteryDetailsConfig : DetailConfig
         DefaultWidth = 280,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.BatteryReading, 0, 1),
     };
 
     public override WidgetConfig Clone()
@@ -247,6 +252,7 @@ public sealed class PingDetailsConfig : DetailConfig
         DefaultWidth = 260,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.PingReading, 0, 1),
     };
 
     /// <summary>Host or address to probe. Empty falls back to <see cref="PingConfig.DefaultHost"/>.</summary>
@@ -309,6 +315,7 @@ public sealed class GpuDetailsConfig : DetailConfig
         DefaultWidth = 280,
         DefaultHeight = 240,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Graphics, 0, 1),
     };
 
     /// <summary>[S-2431] The adapter, as its position in DXGI's list (as <see cref="GpuConfig.Adapter"/>: the primary display's first).</summary>

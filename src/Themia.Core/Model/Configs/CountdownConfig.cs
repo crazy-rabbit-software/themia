@@ -61,6 +61,7 @@ public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, IS
         DefaultWidth = 300,
         DefaultHeight = 200,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Time, 0, 2),
     };
 
     /// <summary>[S-6030] The duration's look.</summary>

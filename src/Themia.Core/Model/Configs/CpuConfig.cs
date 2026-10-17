@@ -54,6 +54,7 @@ public sealed class CpuConfig : GaugeConfig, IStyled
         DefaultWidth = 200,
         DefaultHeight = 150,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Processor, 0, 0, Popular: 8),
     };
 
     /// <summary>[S-6311] The meter's look.</summary>

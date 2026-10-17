@@ -88,6 +88,7 @@ public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenT
         DefaultWidth = 320,
         DefaultHeight = 220,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.ScreenTime, 0, 0),
     };
 
     /// <summary>Week or Month; a day is the donut's and the list's ([S-3330]).</summary>
@@ -123,6 +124,7 @@ public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenT
         DefaultWidth = 240,
         DefaultHeight = 260,
         Traits = WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.ScreenTime, 0, 1),
     };
 
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;
@@ -160,6 +162,7 @@ public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTi
         DefaultWidth = 280,
         DefaultHeight = 300,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.ScreenTime, 0, 2),
     };
 
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;

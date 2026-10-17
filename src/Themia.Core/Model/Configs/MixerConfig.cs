@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -33,6 +34,7 @@ public sealed class MixerConfig : WidgetConfig
         DefaultWidth = 300,
         DefaultHeight = 260,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Media, 0, 3),
     };
 
     /// <summary>

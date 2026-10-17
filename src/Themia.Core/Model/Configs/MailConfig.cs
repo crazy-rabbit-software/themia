@@ -66,6 +66,7 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         DefaultWidth = 380,
         DefaultHeight = 260,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),
     };
 
     /// <summary>

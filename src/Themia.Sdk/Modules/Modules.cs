@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization.Metadata;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 
 namespace Themia.Sdk;
 
@@ -63,6 +64,9 @@ public sealed record WidgetDescriptor
     public required double DefaultWidth { get; init; }
 
     public required double DefaultHeight { get; init; }
+
+    /// <summary>[S-6907] Its home in the add menu's tree, and its place among Popular's rows if it is one.</summary>
+    public required AddPlacement Add { get; init; }
 
     /// <summary>[S-6905] What its card offers; stated in full by every widget.</summary>
     public required WidgetTraits Traits { get; init; }

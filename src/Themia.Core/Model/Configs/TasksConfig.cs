@@ -79,6 +79,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         DefaultWidth = 320,
         DefaultHeight = 320,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
     };
 
     public TaskSource Source { get; set; } = TaskSource.Account;

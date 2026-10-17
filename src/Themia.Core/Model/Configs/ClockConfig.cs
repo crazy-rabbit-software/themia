@@ -100,6 +100,7 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         DefaultWidth = 280,
         DefaultHeight = 140,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.Time, 0, 0, Popular: 0),
     };
 
     /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>

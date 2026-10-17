@@ -146,6 +146,7 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
         DefaultWidth = 320,
         DefaultHeight = 220,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Files, 0, 1, Popular: 10),
     };
 
     public List<ShortcutItem> Items { get; set; } = [];

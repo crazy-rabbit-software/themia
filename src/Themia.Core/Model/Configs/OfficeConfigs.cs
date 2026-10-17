@@ -242,6 +242,7 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
         DefaultWidth = 340,
         DefaultHeight = 260,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.CalendarMail, 0, 0, Popular: 3),
     };
 
     /// <summary>[S-3640] The layout; what were five widget kinds.</summary>
@@ -382,6 +383,7 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
         DefaultWidth = 320,
         DefaultHeight = 260,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.CalendarMail, 1, 2),
     };
 
     /// <summary>The accounts to show; empty means every contacts account.</summary>

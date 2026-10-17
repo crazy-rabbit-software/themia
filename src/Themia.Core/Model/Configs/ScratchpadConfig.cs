@@ -74,6 +74,7 @@ public sealed class ScratchpadConfig : WidgetConfig
         DefaultWidth = 300,
         DefaultHeight = 260,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Add = new(AddFolderId.Notes, 0, 1),
     };
 
     /// <summary>The drawing, oldest stroke first. Drawing order is paint order.</summary>
