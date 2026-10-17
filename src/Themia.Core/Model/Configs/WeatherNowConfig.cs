@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -111,8 +112,17 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
 }
 
 /// <summary>Conditions right now, from open-meteo's <c>current</c> block.</summary>
-public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<WeatherNowSetting>, IContentAligned
+public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<WeatherNowSetting>, IContentAligned, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests)
+    {
+        if (SyncInterests.For(this, interests.Unit, UpdateCadence.Interval(interests.Refresh, UpdateSource.Weather)) is { } wants)
+        {
+            interests.Weather.Add(wants);
+        }
+    }
+
     private static readonly StyleOption[] NowStyles =
     [
         StyleOption.Of(WeatherNowStyle.Standard, Str.Styles_WeatherNow_Standard, 0xE753),

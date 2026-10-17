@@ -138,101 +138,16 @@ public sealed record SyncInterests(
     {
         ArgumentNullException.ThrowIfNull(state);
 
-        var mail = new List<MailInterest>();
-        var calendar = new List<CalendarInterest>();
-        var contacts = new List<ContactsInterest>();
-        var tasks = new List<TaskInterest>();
-        var feeds = new List<FeedInterest>();
-        var weather = new List<WeatherInterest>();
-        var quotes = new List<QuoteInterest>();
-        var airs = new List<AirInterest>();
-        var rains = new List<RainInterest>();
-        RatesInterest? rates = null;
-
         // [S-3770] [S-3780] The shared unit and cadences, from the state itself rather than from what
         // the app last put in force, so the sync follows a change on the same state change.
-        var refresh = state.Preferences.Refresh;
-        var unit = RegionFormat.For(state.Preferences.Region).Temperature;
-        var accounts = UpdateCadence.Interval(refresh, UpdateSource.Accounts);
-        var feedEvery = UpdateCadence.Interval(refresh, UpdateSource.Feeds);
-
+        var interests = new InterestsBuilder(state.Preferences.Refresh, RegionFormat.For(state.Preferences.Region).Temperature);
         foreach (var widget in state.Views.SelectMany(v => v.Widgets))
         {
-            switch (widget.Config)
-            {
-                case EmailConfig email:
-                    mail.Add(new MailInterest([.. email.EffectiveAccountIds], email.Folder, EmailConfig.FetchCount));
-                    break;
-
-                // [S-5325] The planner's days are a calendar interest and its tasks the Today view
-                // of its task account: both synced with everything else, never fetched by the widget.
-                case WeekPlannerConfig planner:
-                    calendar.Add(new CalendarInterest([.. planner.AccountIds], planner.Calendars, planner.ShowBirthdays));
-                    if (planner.ShowTasks)
-                    {
-                        tasks.Add(new TaskInterest(planner.TaskAccountId ?? string.Empty, TaskRules.TodayListId, false, accounts));
-                    }
-
-                    break;
-
-                case CalendarConfig cal:
-                    calendar.Add(new CalendarInterest([.. cal.AccountIds], cal.Calendars, cal.ShowBirthdays));
-                    break;
-
-                case ContactsConfig people:
-                    contacts.Add(new ContactsInterest([.. people.AccountIds]));
-                    break;
-
-                case TasksConfig list when list.Source == TaskSource.Account:
-                    tasks.Add(new TaskInterest(list.AccountId ?? string.Empty, list.ListId ?? string.Empty, list.ShowCompleted, accounts));
-                    break;
-
-                case RssConfig rss:
-                    foreach (var url in rss.FeedUrls)
-                    {
-                        feeds.Add(new FeedInterest(url, rss.EffectiveMaxItems, feedEvery));
-                    }
-
-                    break;
-
-                // [S-5101] [S-5121] Before the weather case: these are weather-family configs too.
-                case AirQualityConfig air:
-                    if (OnlineCadence.For(air, OnlineCadence.Air(refresh)) is { } airWants)
-                    {
-                        airs.Add(airWants);
-                    }
-
-                    break;
-
-                case RainNextHourConfig rain:
-                    if (OnlineCadence.For(rain, OnlineCadence.Rain(refresh)) is { } rainWants)
-                    {
-                        rains.Add(rainWants);
-                    }
-
-                    break;
-
-                case ExchangeRatesConfig:
-                    rates = new RatesInterest(OnlineCadence.Rates);
-                    break;
-
-                case WeatherConfig place when For(place, unit, UpdateCadence.Interval(refresh, UpdateSource.Weather)) is { } wants:
-                    weather.Add(wants);
-                    break;
-
-                case StocksConfig stock when For(stock, UpdateCadence.Interval(refresh, UpdateSource.Markets)) is { } wants:
-                    quotes.Add(wants);
-                    break;
-            }
+            // [S-6906] Each widget says what it wants; the host names none.
+            (widget.Config as IInterests)?.AddInterests(interests);
         }
 
-        return new SyncInterests(mail, calendar, contacts, tasks, feeds, weather, quotes)
-        {
-            AccountInterval = accounts,
-            Air = airs,
-            Rain = rains,
-            Rates = rates,
-        };
+        return interests.Build();
     }
 
     /// <summary>

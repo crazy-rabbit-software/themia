@@ -33,8 +33,11 @@ public enum EmailStyle
 /// would refuse the whole state file and blank every desktop.
 /// </para>
 /// </summary>
-public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, ISetupRule
+public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, ISetupRule, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests) => interests.Mail.Add(new MailInterest([.. EffectiveAccountIds], Folder, FetchCount));
+
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Mail) == 0;
 

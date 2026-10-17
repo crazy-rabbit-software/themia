@@ -3,6 +3,8 @@ using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
+using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -26,6 +28,19 @@ public enum WeekPlannerSetting
 /// </summary>
 public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlannerSetting>
 {
+    /// <summary>
+    /// [S-5325] The planner's days are a calendar interest and its tasks the Today view of its task
+    /// account: both synced with everything else, never fetched by the widget.
+    /// </summary>
+    public override void AddInterests(InterestsBuilder interests)
+    {
+        interests.Calendar.Add(new CalendarInterest([.. AccountIds], Calendars, ShowBirthdays));
+        if (ShowTasks)
+        {
+            interests.Tasks.Add(new TaskInterest(TaskAccountId ?? string.Empty, TaskRules.TodayListId, false, interests.AccountInterval));
+        }
+    }
+
     /// <summary>
     /// [S-5325] The planner shows a calendar's days and, if it lists them, an account's tasks: it waits
     /// for setup only while neither source is signed in.

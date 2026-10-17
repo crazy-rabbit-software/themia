@@ -3,6 +3,7 @@ using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -29,8 +30,17 @@ public sealed class RssFeed
 /// link and summary that comes back is attacker-controlled text, displayed and never interpreted.
 /// </para>
 /// </summary>
-public sealed class RssConfig : WidgetConfig, ISetupRule
+public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests)
+    {
+        foreach (var url in FeedUrls)
+        {
+            interests.Feeds.Add(new FeedInterest(url, EffectiveMaxItems, interests.FeedInterval));
+        }
+    }
+
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(AccountFeatures signedIn) => ResolvedFeeds.Count == 0;
 

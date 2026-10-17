@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -36,8 +37,17 @@ public enum ForecastStyle
 /// is a list.
 /// </para>
 /// </summary>
-public sealed class WeatherForecastConfig : WeatherConfig, IStyled
+public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests)
+    {
+        if (SyncInterests.For(this, interests.Unit, UpdateCadence.Interval(interests.Refresh, UpdateSource.Weather)) is { } wants)
+        {
+            interests.Weather.Add(wants);
+        }
+    }
+
     private static readonly StyleOption[] ForecastStyles =
     [
         StyleOption.Of(ForecastStyle.Rows, Str.Forecast_LayoutRows, 0xEA37),

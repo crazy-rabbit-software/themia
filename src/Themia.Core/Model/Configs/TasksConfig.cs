@@ -3,6 +3,7 @@ using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -43,8 +44,17 @@ public enum TasksSetting
 /// quietly swapped for another — that widget says so instead.
 /// </para>
 /// </summary>
-public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>, ISetupRule
+public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>, ISetupRule, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests)
+    {
+        if (Source == TaskSource.Account)
+        {
+            interests.Tasks.Add(new TaskInterest(AccountId ?? string.Empty, ListId ?? string.Empty, ShowCompleted, interests.AccountInterval));
+        }
+    }
+
     /// <summary>A list kept on this PC needs no account; it starts from the widget itself ([S-604]).</summary>
     public bool NeedsSetup(AccountFeatures signedIn) => Source == TaskSource.Account && (signedIn & AccountFeatures.Tasks) == 0;
 

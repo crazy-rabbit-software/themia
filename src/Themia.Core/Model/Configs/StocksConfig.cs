@@ -3,6 +3,7 @@ using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -74,8 +75,17 @@ public enum StocksSetting
 /// then be the size its reader wants.
 /// </para>
 /// </summary>
-public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksSetting>, IContentAligned, ISetupRule
+public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksSetting>, IContentAligned, ISetupRule, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests)
+    {
+        if (SyncInterests.For(this, UpdateCadence.Interval(interests.Refresh, UpdateSource.Markets)) is { } wants)
+        {
+            interests.Quotes.Add(wants);
+        }
+    }
+
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(AccountFeatures signedIn) => string.IsNullOrWhiteSpace(Symbol);
 

@@ -4,6 +4,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -97,8 +98,11 @@ public enum ContactColumn
 /// read leniently ([S-563]): a wrong one becomes its default rather than refusing the state file.
 /// The calendar itself (<see cref="CalendarWidgetConfig"/>), Next meeting and the week planner build on it.
 /// </summary>
-public abstract class CalendarConfig : WidgetConfig, ISetupRule
+public abstract class CalendarConfig : WidgetConfig, ISetupRule, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public virtual void AddInterests(InterestsBuilder interests) => interests.Calendar.Add(new CalendarInterest([.. AccountIds], Calendars, ShowBirthdays));
+
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public virtual bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Calendar) == 0;
 
@@ -347,8 +351,11 @@ public enum ContactsSetting
 /// [S-580] The contacts widget's settings: which accounts, the layout, the columns of the details
 /// table, how many to list and a search to start with. Data comes from Themia's own accounts.
 /// </summary>
-public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule
+public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests) => interests.Contacts.Add(new ContactsInterest([.. AccountIds]));
+
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Contacts) == 0;
 

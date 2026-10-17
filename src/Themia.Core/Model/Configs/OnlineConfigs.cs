@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -48,8 +49,17 @@ public enum ExchangeRatesStyle
 /// the same header rule ([S-728]), so it derives from <see cref="WeatherConfig"/>; the sync tells the
 /// kinds apart ([S-5101]).
 /// </summary>
-public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned
+public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests)
+    {
+        if (OnlineCadence.For(this, OnlineCadence.Air(interests.Refresh)) is { } wants)
+        {
+            interests.Air.Add(wants);
+        }
+    }
+
     private static readonly StyleOption[] AirStyles =
     [
         StyleOption.Of(AirQualityStyle.Number, Str.Styles_Air_Number, 0xE75F),
@@ -114,8 +124,17 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned
 }
 
 /// <summary>[S-5120] Rain in the next two hours at a place. A weather-family widget, like air quality.</summary>
-public sealed class RainNextHourConfig : WeatherConfig
+public sealed class RainNextHourConfig : WeatherConfig, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests)
+    {
+        if (OnlineCadence.For(this, OnlineCadence.Rain(interests.Refresh)) is { } wants)
+        {
+            interests.Rain.Add(wants);
+        }
+    }
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.RainNextHour;
 
@@ -149,8 +168,11 @@ public sealed class RainNextHourConfig : WeatherConfig
 /// [S-5140] The ECB's reference rate of one pair: what one unit of the base currency buys of the
 /// quote. Several pairs are several widgets.
 /// </summary>
-public sealed class ExchangeRatesConfig : WidgetConfig, IStyled, IContentAligned
+public sealed class ExchangeRatesConfig : WidgetConfig, IStyled, IContentAligned, IInterests
 {
+    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
+    public void AddInterests(InterestsBuilder interests) => interests.Rates = new RatesInterest(OnlineCadence.Rates);
+
     private static readonly StyleOption[] RateStyles =
     [
         StyleOption.Of(ExchangeRatesStyle.Chart, Str.Styles_Rates_Chart, 0xE9D2),

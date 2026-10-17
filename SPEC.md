@@ -929,8 +929,9 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   for a widget that may have a header at all).
 - **[S-6906]** What the host asks a widget's state is asked of its config, never by a switch over
   config types: whether it waits for setup and whether it runs while it waits (`ISetupRule`,
-  [S-1860], [S-1881]), whether and where its content aligns (`IContentAligned`, [S-6581]). A widget
-  that reads an account (its descriptor names providers) has a setup rule.
+  [S-1860], [S-1881]), whether and where its content aligns (`IContentAligned`, [S-6581]), what the
+  background sync keeps fresh for it (`IInterests`, [S-2608]). A widget that reads an account (its
+  descriptor names providers) has a setup rule and interests.
 
 ## Adding a widget
 
