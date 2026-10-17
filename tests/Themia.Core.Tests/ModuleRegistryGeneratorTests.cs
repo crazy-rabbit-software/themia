@@ -28,8 +28,11 @@ public sealed class ModuleRegistryGeneratorTests
         }
         """;
 
+    /// <summary>The runtime's assemblies, without ours: the stand-ins above take the real names.</summary>
     private static readonly ImmutableArray<MetadataReference> Framework =
-        [.. ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator).Select(p => (MetadataReference)MetadataReference.CreateFromFile(p))];
+        [.. ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+            .Where(p => !Path.GetFileName(p).StartsWith("Themia.", StringComparison.Ordinal))
+            .Select(p => (MetadataReference)MetadataReference.CreateFromFile(p))];
 
     /// <summary>The contracts as their own assembly, as Themia.Sdk and Themia.Sdk.WinUI are to the app.</summary>
     private static readonly MetadataReference Sdk = Emit("Stub.Sdk", Contracts, Framework);
