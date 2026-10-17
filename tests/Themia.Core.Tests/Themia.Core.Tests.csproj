@@ -14,5 +14,7 @@
     <ProjectReference Include="..\..\src\Themia.Sdk\Themia.Sdk.csproj" />
     <ProjectReference Include="..\..\src\Themia.Core\Themia.Core.csproj" />
     <ProjectReference Include="..\..\src\Themia.Localization.Generator\Themia.Localization.Generator.csproj" />
+    <!-- Runs the module registry generator in-process to test its id and contract rules ([S-6901]). -->
+    <ProjectReference Include="..\..\src\Themia.Modules.Generator\Themia.Modules.Generator.csproj" />
   </ItemGroup>
 </Project>

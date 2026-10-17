@@ -897,6 +897,12 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   A widget's id is its config's discriminator in `state.json`, so the files keep the shape they had
   before ids. An id is checked wherever one is made or read; a malformed one in a document is a
   corrupt value, never a new widget.
+- **[S-6901]** The registry is generated at build time (`Themia.Modules.Generator`): every
+  `[assembly: ThemiaWidget(id, typeof(M))]` and `[assembly: ThemiaProvider(id, typeof(M))]`, in the
+  app itself or in an assembly it references, becomes one `new M()` in `ModuleRegistry`, in id
+  order. No reflection and no run-time loading, so Native AOT keeps every module. A malformed id
+  fails the build (THEMIAMOD001), so does an id declared twice (THEMIAMOD002) and a type that is not
+  a public, non-abstract module class with a public parameterless constructor (THEMIAMOD003).
 
 ## Adding a widget
 

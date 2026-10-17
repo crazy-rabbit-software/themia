@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    [S-6901] The build step that turns every [assembly: ThemiaWidget(id, typeof(M))] and
+    [assembly: ThemiaProvider(id, typeof(M))] - in a referenced assembly or in the compilation
+    itself - into a static ModuleRegistry (docs/WIDGET-KIT.md section 4.4). Static construction, so
+    Native AOT sees and keeps every module type: no reflection, no runtime loading. A malformed or
+    duplicate id, or a type that is not a module, fails the build.
+
+    Build-time only: the app references it as an analyzer, nothing of it ships.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Release tracking (RS2008) is for analyzers shipped to others; these rules only guard our own modules. -->
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>
