@@ -10,6 +10,8 @@ namespace Themia.Core.Tests;
 /// <summary>
 /// The edit bar's add menu as a tree ([S-3510..S-3515]): every kind at one home, the folders'
 /// shapes, what the catalogue's kinds resolve to, and the keys and the pointer through the cascade.
+/// Here, not in Core's tests, because the menu is built from every widget of the build, the module
+/// projects' included, and only this host has them all.
 /// </summary>
 public sealed class AddMenuTests
 {
@@ -138,8 +140,7 @@ public sealed class AddMenuTests
     [Fact]
     public void S3511_lines_only_ever_stand_between_two_rows()
     {
-        // Without the year progress (a module of its own, so never in Core's catalogue), Time's last
-        // line would end the folder.
+        // Without the year progress, Time's last line would end the folder.
         var offered = Every.Where(kind => kind.Value != "yearProgress").ToList();
         var time = AddTree.On(offered)[1].Rows.OfType<AddFolder>().Single(folder => folder.Shelf.Id == AddFolderId.Time);
 
