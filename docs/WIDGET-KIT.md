@@ -1540,6 +1540,83 @@ registration path: when a table becomes a descriptor member, the table is delete
   a refactor with the pixel diff. When the app declares no widget any more, the generator stops
   reading the compilation's own attributes (one path) and a conformance test asserts that the
   app and Core declare no widget modules.
+  *M4 part A as built (2026-10-18): the enabling moves, no widget moved.* Each its own commit,
+  Debug build green throughout. Into `Themia.Sdk.WinUI` (public, namespaces kept): `ItemMenu` and
+  `ItemMenuEntry` with `MenuArtIcons`; `FluentLayout` (every row kind, `ColorPickerRow`, the fill
+  rows, `ListEditor`), `ColorChoice`, `RowReorder`, `SettingRow` and the settings-search metadata,
+  `PlaceSearch`; `RowFocus`, `WidgetItems.Mark`, `ConfirmFlyout`, `Notices`; `IWidgetDropTarget`
+  over a new `IWidgetDrag`; `LaunchOutcome`; and the new `IWidgetHost` and `IShellLauncher`
+  ([S-6913]). Into `Themia.Sdk`: the item menu's line layout (`QuickCommand`, `MenuLine`,
+  `MenuSplit`, `ContextMenuLayout`; Core's `ContextMenus.cs` keeps the shell's `ShellCommand`
+  menus), `KeyChord`, `MenuArt`, `Notice`, `FillChoice` (with `Alpha`, out of `DesignLook`),
+  `HexColor`, `ColorPresets`, `ScreenPick` and the pick result, `SettingsSearch`, `ReorderKeys`,
+  `DeskListOrder`, `PlaceLookup`, `WebInput`, `DropEffect`/`DropContent`, `ContactLinkKind`, the
+  config contracts `ISetupRule`, `IPlaced`, `IContentAligned`, `IShownSettings`, the shared config
+  bases `QuickToggleConfig`, `PowerButtonConfig`, `WeatherConfig`, `SkyPlaceConfig`, `DetailConfig`,
+  and `UpdateCadence` with `HostCadences` and `RefreshPreferences` (the shared cadence a widget
+  asks). What needs Win32 stays host code behind a seam the host installs once in `App()`, as
+  `ThemeBrush` and `ItemFill` already were: the eyedropper (`IScreenEyedropper`), a menu line's file
+  icon (`ItemMenu.InstallFileIcons`), the geocoder (`PlaceSearch.InstallLookup`), the OLE drag
+  (`WidgetDrag : IWidgetDrag`); the press locator stays as the shell's `WidgetPress`. `FontPicker`
+  stayed: only the host's design rows use it.
+  `IWidgetHost` (one per card, `Shell/CardWidgetHost.cs`, handed to `IWidgetModule.CreateView(host)`):
+  `Ticker`, `Dispatcher`, `Launcher` (`IShellLauncher`: `Open`, `OpenContainingFolder`,
+  `OpenMailLink`, `OpenCalendarLink`, `OpenMeetingLink`, `OpenContactLink`, `OpenWindowsSettings`,
+  `OpenApp`, `Eject`, `OutlookInstalled`, all `ShellLauncher`'s), `IsPreview`, `ShowAccounts()`. The
+  12 views that opened things and the three that opened Settings › Accounts (and `OfficeStatePanel`,
+  `DiskMeter`) use it now; no view names `ShellLauncher` or `AppServices.ShowAccounts`. Notices stay
+  the SDK's static `Notices` and the keyboard lease the card's `IWidgetSurface` (one path each).
+  The first-run seed is data (`FirstRunDesktop`: ids, grid rects, bare or not, config fragments
+  merged over the default through `StateJson`, then copied so nested ids are fresh); it names no
+  config type, a seeded id the build lacks is left out and logged ([S-893], tests unchanged but for
+  the places list written out). Descriptors name their providers by `ProviderId` (`Providers`);
+  search matches the ids, which normalise to the old display words, so search is unchanged; a
+  conformance test checks each is registered. Tests: one `tests/Shared/RepoFiles.cs` replaces the
+  seven `FindRoot` copies; the source scans (`ItemKinds`, `ConfirmFlyout`, `ContentAlignment`,
+  `WidgetPage`) read `RepoFiles.ViewSources()` (the app's widgets, the SDK's widget parts, every
+  module); `KitConformanceTests` add no menu but `ItemMenu`'s ([S-1740]) and colours made from
+  numbers only in today's list of 11 files, which may only shrink ([S-822]).
+  Evidence: Debug build 0 warnings; Core 7766 and module tests 57 green; the M2 render set
+  against a fresh "before" built at `873248d`: 228 images, 0 differ; Release AOT
+  publish 0 warnings (49.3 MB); Debug AOT publish 0 warnings and its `--widget-png clock`,
+  `--settings-png Widget:weatherNow`, `--picker-png --search google` finish in 2-3 s, identical to the
+  JIT renders.
+  *Left for part B (one widget project per commit), by group:*
+  - **No host service** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Moon, Sun, Scratchpad,
+    AudioVisualizer, Bluetooth, RecycleBin, PowerButton x7): move config + descriptor out of Core
+    (with its rules in `Core/Widgets`), its strings into its own table, its `WidgetSettings.<Name>.cs`
+    into `SettingsRows`, its `Preview` partial, its tests and SPEC section; shared app parts it draws
+    with (`FlipPart`, `Glides`, `SkyParts`, `RoundButtonPart`, `HugRow`, `RotatedBox`, `WidgetParts`)
+    go into the SDK first. Clock carries XAML (proven in the spike). PowerButtonView needs the
+    power actions behind a host contract (`PowerActions`).
+  - **Toggles** (13 kinds, one `QuickToggleView`): the base is in the SDK; the toggle drivers
+    (`Services/Toggles`) need an `IWidgetHost` service contract; then one project per toggle kind
+    sharing the view from the SDK.
+  - **Online** (WeatherNow, WeatherForecast, RainNextHour, AirQuality, ExchangeRates, Stocks, Rss):
+    `AppServices.WebSync`/`.Feeds` and `MarketService` need SDK contracts (the readings, quotes and
+    feeds a view subscribes to) on `IWidgetHost`; `OnlineParts`, `SparkBand` into the SDK;
+    `SyncInterests` (`IInterests` over Core's `InterestsBuilder`) needs an SDK form; RSS moves with
+    its kit migration.
+  - **System** (meters x6, details x7, Gpu, Drive, RemovableDrives, Brightness, Mixer, Volume,
+    Music): `SystemHub`/`SystemData` (the samples), `Drives`, `Brightness`, `AudioFeed`/`CoreAudio`,
+    `MediaSession` as SDK contracts; `GaugeConfig`/`MeterTiming` with `SystemCadence`/`SystemSource`
+    into the SDK; `MeterPart`/`DetailPart`, `MeterLookParts`, `CoreGraphGrid`, `DriveParts` into the
+    SDK.
+  - **Account widgets** (Email, Calendar, Contacts, NextMeeting, WeekPlanner, Tasks): mail, office
+    and task sources as contracts; `CalendarConfig` (`ISetupRule` + `IInterests`) and
+    `OfficeStatePanel`/`SetupPrompt` into the SDK; they move with their kit migration (11.2).
+  - **Local stores** (Notes, HabitTracker, Clipboard, Alarm, FocusSession, ScreenTime x3, Gallery):
+    `NotePool`, `HabitPool`, `ClipboardHistoryService`, `AlarmService`, `Focus`, `IScreenTimeSource`,
+    `GalleryService` as contracts (an `IModuleService` the host creates once, 4.3, or a typed
+    `IWidgetHost` member each).
+  - **Files and launchers** (Folder, RecentFiles, Shortcuts, VideoStream): `FileIcons`,
+    `FileClipboard`, the folder listing and `AppServices.EditAppLayout` as contracts; Shortcuts'
+    drop handling already sits on `IWidgetDrag`.
+  - **Everywhere:** the Debug gallery scenes that name widgets (`EditBarRender`, `SwitchCheck`,
+    `MotionRender`, `MenuRender`, `SettingsRender`) turn into ids and module `Preview/` states; the
+    descriptor/config interim ends per widget; `ItemPalette` (the host's item engine) is reached only
+    through `ItemFill`; when the app declares no widget, the generator stops reading the app's own
+    attributes.
 
 ### 11.2 The kit
 

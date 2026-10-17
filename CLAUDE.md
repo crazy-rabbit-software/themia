@@ -58,23 +58,30 @@ state store.
 ```
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
   Localization/ (+ Locales/*.json: the host's Str; StringTable, LocalText) Diagnostics/ (Log) Links/ Time/ (CalendarDays) Shell/ (Glyphs)
-  Model/ (WidgetConfig, language and region vocabulary, ContentAlign) Widgets/ (WidgetArea, Disclosure, tiers, keys, fits,
-  styles, Formatting, RingArc, DotGrid, item roles) Modules/ (the ids, WidgetDescriptor, ModuleCatalog, IProviderModule,
-  ProviderCatalog, FeatureSet, CadenceRow, WidgetTraits, AddPlacement)
+  Model/ (WidgetConfig, FillChoice, RefreshPreferences, ContentAlign; Configs/: the shared config bases QuickToggle-,
+  PowerButton-, Weather-, SkyPlace-, DetailConfig and the config contracts ISetupRule, IPlaced, IContentAligned)
+  Widgets/ (WidgetArea, Disclosure, tiers, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
+  HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ScreenPick, SettingsSearch) Shell/ (Glyphs, KeyChord, MenuArt,
+  the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
+  WidgetDescriptor, ModuleCatalog, IProviderModule, ProviderCatalog, FeatureSet, CadenceRow, WidgetTraits, AddPlacement)
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's rules, and the widgets not yet moved.
   Geometry/ Model/ (state, Configs/* with each in-Core widget's descriptor) Storage/ (atomic store, load validation, StateJson)
   Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/
-  Settings/ Shell/ Motion/ Licensing/ Net/ Sync/ (HostCadences)   Accounts/HostProviders.cs (the five account providers as modules)
-src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, WidgetSettingsRows, view contracts (IWidgetView,
-                   IWidgetSurface, IWidgetKeys, ...), Ticker, Fluent, WidgetLayout, ThemeBrush, ItemFill, RingPart,
-                   UiLanguage, ScrollFade, EmptyStatePanel. References Themia.Sdk only, never Core.
+  Settings/ Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
+  Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
+src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetSettingsRows, view
+                   contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
+                   WidgetLayout, ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
+                   UiLanguage, ScrollFade, EmptyStatePanel, Notices; Shell/: FluentLayout (settings rows), ColorChoice,
+                   RowReorder, SettingRow, PlaceSearch, MenuArtIcons. References Themia.Sdk only, never Core. What
+                   needs Win32 (eyedropper, file icons, geocoder, OLE drag) is the host's, installed at start (App()).
                    Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
   Services/        AppHost*.cs (state, displays, placement, clipboard, keyboard lease, suspend, license),
                    shared samplers and sync services (accounts, mail, tasks, files, web)
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
-                   FluentLayout (settings rows), Config/ (settings window), Gallery/ (render flags)
+                   CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
   Widgets/         Modules/<Name>Module.cs (each in-app widget's module) + one *View.cs per widget
 src/Widgets/Themia.Widget.<Name>/     a widget module project (Year progress so far): module, config, view, Preview/,
                    Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
@@ -96,10 +103,11 @@ project, the module class with its descriptor, the config, a view stub, the 30 l
 references, the registry generator (THEMIAMOD001..004: the id is the folder's name in camelCase)
 and the module test host pick it up; nothing in the app, Core or the SDK is edited. A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
-an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). Still outside the folder (M4, see
-docs/WIDGET-KIT.md 11.1): settings rows (`FluentLayout` is the host's), `ItemMenu`, `ShellLauncher`;
-and the widgets not moved yet keep their descriptor on their config in Core and their module in
-`Widgets/Modules/<Name>Module.cs`. Settings pages register one line in `ConfigPages.AppPages`.
+an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
+`IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher and
+Settings › Accounts, never `ShellLauncher`; the shared data services (`AppServices.WebSync`, `.System`,
+...) are host types until each gets an SDK contract on `IWidgetHost` (part B). The widgets not moved yet (M4 part B, docs/WIDGET-KIT.md 11.1) keep their
+descriptor on their config in Core and their module in `Widgets/Modules/<Name>Module.cs`. Settings pages register one line in `ConfigPages.AppPages`.
 
 ## Engineering principles (non-negotiable)
 
