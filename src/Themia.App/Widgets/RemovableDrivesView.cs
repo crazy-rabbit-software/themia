@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -45,8 +46,12 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
     private int _focus = -1;
     private bool _detached;
 
-    public RemovableDrivesView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public RemovableDrivesView(IWidgetHost host)
     {
+        _widgetHost = host;
         _scroll.Content = _list;
         Children.Add(_scroll);
         _fade = new ScrollFade(_scroll, _list);
@@ -133,7 +138,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         _fade?.Refresh();
     }
 
-    private void Open(DriveEntry device) => ShellLauncher.Open(device.Root);
+    private void Open(DriveEntry device) => _widgetHost.Launcher.Open(device.Root);
 
     private void Eject(DriveEntry device)
     {
@@ -142,7 +147,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             return;
         }
 
-        ShellLauncher.Eject(device.Root);
+        _widgetHost.Launcher.Eject(device.Root);
     }
 
     // ---- keys ([S-4664]) ----------------------------------------------------------------------

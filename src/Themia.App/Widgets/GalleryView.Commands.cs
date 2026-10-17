@@ -146,7 +146,7 @@ internal sealed partial class GalleryView
         {
             if (frame.Path is { } path && Picture.IsLocal(path))
             {
-                ShellLauncher.Open(path);
+                _widgetHost.Launcher.Open(path);
                 args.Handled = true;
             }
         };
@@ -190,7 +190,7 @@ internal sealed partial class GalleryView
                 return true;
 
             case ControlKey.Open when _index >= 0 && _index < _pictures.Count && Picture.IsLocal(_pictures[_index]):
-                ShellLauncher.Open(_pictures[_index]);
+                _widgetHost.Launcher.Open(_pictures[_index]);
                 return true;
 
             default:
@@ -263,8 +263,8 @@ internal sealed partial class GalleryView
     {
         if (path is not null && Picture.IsLocal(path))
         {
-            yield return new ItemMenuEntry(Glyphs.Open, Str.Gallery_CtxOpen.Text(), () => ShellLauncher.Open(path));
-            yield return new ItemMenuEntry(Glyphs.Folder, Str.Gallery_CtxShowInExplorer.Text(), () => ShellLauncher.OpenContainingFolder(path));
+            yield return new ItemMenuEntry(Glyphs.Open, Str.Gallery_CtxOpen.Text(), () => _widgetHost.Launcher.Open(path));
+            yield return new ItemMenuEntry(Glyphs.Folder, Str.Gallery_CtxShowInExplorer.Text(), () => _widgetHost.Launcher.OpenContainingFolder(path));
             yield return ItemMenuEntry.Separator;
         }
 

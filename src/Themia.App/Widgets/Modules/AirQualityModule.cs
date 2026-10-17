@@ -16,5 +16,5 @@ public sealed class AirQualityModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.AirQuality(rows.Rows, (AirQualityConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new AirQualityView();
+    public FrameworkElement CreateView(IWidgetHost host) => new AirQualityView();
 }

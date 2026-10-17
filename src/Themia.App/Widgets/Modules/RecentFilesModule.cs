@@ -12,5 +12,5 @@ public sealed class RecentFilesModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => RecentFilesConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new RecentFilesView();
+    public FrameworkElement CreateView(IWidgetHost host) => new RecentFilesView(host);
 }

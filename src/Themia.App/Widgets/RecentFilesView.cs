@@ -8,6 +8,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -40,8 +41,12 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
     private bool _detached;
     private double _scale = 1;
 
-    public RecentFilesView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public RecentFilesView(IWidgetHost host)
     {
+        _widgetHost = host;
         _scroll = new ScrollViewer
         {
             Content = _list,
@@ -276,7 +281,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
             return;
         }
 
-        var outcome = ShellLauncher.Open(file.Path);
+        var outcome = _widgetHost.Launcher.Open(file.Path);
         if (outcome == LaunchOutcome.Missing)
         {
             // Gone since the last read: read again, and the row goes.

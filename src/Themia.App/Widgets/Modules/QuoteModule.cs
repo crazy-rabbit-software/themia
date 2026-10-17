@@ -16,5 +16,5 @@ public sealed class QuoteModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Quote(rows.Rows, (QuoteConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new QuoteView();
+    public FrameworkElement CreateView(IWidgetHost host) => new QuoteView();
 }

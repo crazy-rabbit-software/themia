@@ -154,7 +154,7 @@ public sealed class {{Name}}Module : IWidgetModule
         Add = new(AddFolderId.{{Shelf}}, 99, 0),
     };
 
-    public FrameworkElement CreateView() => new {{Name}}View();
+    public FrameworkElement CreateView(IWidgetHost host) => new {{Name}}View();
 
     /// <summary>
     /// [S-6904] Its settings rows; none, so it has no settings page ([S-1750]). Rows come from the

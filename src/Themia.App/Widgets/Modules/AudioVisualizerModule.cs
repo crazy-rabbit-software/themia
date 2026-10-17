@@ -12,5 +12,5 @@ public sealed class AudioVisualizerModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => AudioVisualizerConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new AudioVisualizerView();
+    public FrameworkElement CreateView(IWidgetHost host) => new AudioVisualizerView();
 }

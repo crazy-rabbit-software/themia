@@ -16,5 +16,5 @@ public sealed class NotesModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Notes(rows.Rows, (NotesConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new NotesView();
+    public FrameworkElement CreateView(IWidgetHost host) => new NotesView();
 }

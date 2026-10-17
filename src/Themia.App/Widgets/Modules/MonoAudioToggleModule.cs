@@ -12,5 +12,5 @@ public sealed class MonoAudioToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => MonoAudioToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(MonoAudioToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(MonoAudioToggleConfig.Descriptor.Id);
 }

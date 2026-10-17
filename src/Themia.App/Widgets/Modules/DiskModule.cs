@@ -17,5 +17,5 @@ public sealed class DiskModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Disk(rows.Rows, (DiskConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MeterView(new DiskMeter());
+    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(new DiskMeter(host));
 }

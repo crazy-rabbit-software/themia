@@ -5,6 +5,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -18,7 +19,8 @@ namespace Themia.App.Widgets.Meters;
 /// meter on the desktop answers is "is the disk busy", not "is it full" — File Explorer says that.
 /// </para>
 /// </summary>
-internal sealed class DiskMeter : MeterPart
+/// <param name="widgetHost">[S-6913] Opens the drive in Explorer.</param>
+internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
 {
     /// <summary>[S-6271] The bars' window: the totals of the last minute's readings, the graph's own top over them.</summary>
     private const int BarWindow = 60;
@@ -119,7 +121,7 @@ internal sealed class DiskMeter : MeterPart
         }
 
         var root = _root;
-        return [new WidgetAction(Glyphs.Folder, Str.WidgetsB_Disk_OpenInExplorer.Format(("drive", DiskRules.Instance(root))), () => ShellLauncher.Open(root))];
+        return [new WidgetAction(Glyphs.Folder, Str.WidgetsB_Disk_OpenInExplorer.Format(("drive", DiskRules.Instance(root))), () => widgetHost.Launcher.Open(root))];
     }
 
     /// <summary>

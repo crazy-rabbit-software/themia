@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -35,8 +36,12 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
     private DriveEntry? _drive;
     private WidgetArea _area;
 
-    public DriveView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public DriveView(IWidgetHost host)
     {
+        _widgetHost = host;
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_used, FontNumeralAlignment.Tabular);
         _kind.TextTrimming = TextTrimming.CharacterEllipsis;
         _space.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -227,12 +232,12 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
 
             var actions = new List<WidgetAction>
             {
-                new(Glyphs.Folder, Str.WidgetsB_Disk_OpenInExplorer.Format(("drive", drive.Letter)), () => ShellLauncher.Open(drive.Root)),
+                new(Glyphs.Folder, Str.WidgetsB_Disk_OpenInExplorer.Format(("drive", drive.Letter)), () => _widgetHost.Launcher.Open(drive.Root)),
             };
 
             if (DriveRules.IsRemovable(drive))
             {
-                actions.Add(new WidgetAction(Glyphs.Usb, Str.Drives_Eject.Text(), () => ShellLauncher.Eject(drive.Root)));
+                actions.Add(new WidgetAction(Glyphs.Usb, Str.Drives_Eject.Text(), () => _widgetHost.Launcher.Eject(drive.Root)));
             }
 
             actions.Add(new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), DriveService.Shared.Refresh));

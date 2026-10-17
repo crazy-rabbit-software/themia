@@ -16,5 +16,5 @@ public sealed class MixerModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Mixer(rows.Rows, (MixerConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MixerView();
+    public FrameworkElement CreateView(IWidgetHost host) => new MixerView();
 }

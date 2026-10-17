@@ -34,8 +34,12 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     /// <summary>The answer drawn: the shared one, which a preview replaces.</summary>
     private Func<RecycleBinState?> _state = static () => RecycleBinStatus.Current;
 
-    public RecycleBinView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public RecycleBinView(IWidgetHost host)
     {
+        _widgetHost = host;
         _size.TextTrimming = TextTrimming.CharacterEllipsis;
         _count.TextTrimming = TextTrimming.CharacterEllipsis;
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_size, FontNumeralAlignment.Tabular);
@@ -188,7 +192,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     {
         if (_surface?.IsPreview != true)
         {
-            ShellLauncher.Open(ShortcutRules.RecycleBin);
+            _widgetHost.Launcher.Open(ShortcutRules.RecycleBin);
         }
     }
 

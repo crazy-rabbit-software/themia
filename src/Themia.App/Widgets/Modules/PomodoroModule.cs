@@ -16,5 +16,5 @@ public sealed class PomodoroModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Pomodoro(rows.Rows, (PomodoroConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new PomodoroView();
+    public FrameworkElement CreateView(IWidgetHost host) => new PomodoroView();
 }

@@ -16,5 +16,5 @@ public sealed class ShortcutsModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Shortcuts(rows.Rows, (ShortcutsConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new ShortcutsView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ShortcutsView(host);
 }

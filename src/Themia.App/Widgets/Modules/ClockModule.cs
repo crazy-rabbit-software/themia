@@ -16,5 +16,5 @@ public sealed class ClockModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Clock(rows.Rows, (ClockConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new ClockView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ClockView();
 }

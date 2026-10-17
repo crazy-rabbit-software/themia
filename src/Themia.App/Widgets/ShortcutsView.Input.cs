@@ -490,7 +490,7 @@ internal sealed partial class ShortcutsView
             }
             else if (cell.Target.IsValid)
             {
-                ShellLauncher.Open(cell.Item.Target);
+                _widgetHost.Launcher.Open(cell.Item.Target);
             }
         }
     }
@@ -499,7 +499,7 @@ internal sealed partial class ShortcutsView
     {
         if (_surfaceHost?.IsPreview != true)
         {
-            ShellLauncher.OpenContainingFolder(cell.Item.Target);
+            _widgetHost.Launcher.OpenContainingFolder(cell.Item.Target);
         }
     }
 

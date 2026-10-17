@@ -34,7 +34,7 @@ public sealed class YearProgressModule : IWidgetModule
         Add = new(AddFolderId.Time, 2, 0),
     };
 
-    public FrameworkElement CreateView() => new YearProgressView();
+    public FrameworkElement CreateView(IWidgetHost host) => new YearProgressView();
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

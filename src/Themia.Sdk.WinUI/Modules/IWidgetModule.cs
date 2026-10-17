@@ -10,8 +10,12 @@ public interface IWidgetModule
 {
     WidgetDescriptor Descriptor { get; }
 
-    /// <summary>Build a new view. It is a <see cref="FrameworkElement"/> that also implements the host's view contract.</summary>
-    FrameworkElement CreateView();
+    /// <summary>
+    /// Build a new view. It is a <see cref="FrameworkElement"/> that also implements the host's view
+    /// contract. <paramref name="host"/> is what the view may ask of the host ([S-6913]); a view that
+    /// needs it keeps it.
+    /// </summary>
+    FrameworkElement CreateView(IWidgetHost host);
 
     /// <summary>
     /// [S-6904] The widget's own settings rows for <paramref name="config"/> (always its own config

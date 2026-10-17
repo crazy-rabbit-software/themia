@@ -57,7 +57,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly TextBox _search = new();
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
-    private readonly OfficeStatePanel _state = new(Glyphs.Contact);
+    private readonly OfficeStatePanel _state;
     private readonly ProgressRing _busy = new();
     private readonly FontIcon _warning;
     private readonly Button _searchButton;
@@ -93,8 +93,13 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private bool _againForced;
     private bool _detached;
 
-    public ContactsView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public ContactsView(IWidgetHost host)
     {
+        _widgetHost = host;
+        _state = new(Glyphs.Contact, host);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -443,7 +448,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         if (_warningOpensAccounts)
         {
             args.Handled = true;
-            OfficeStatePanel.OpenAccounts();
+            _state.OpenAccounts();
         }
     }
 
@@ -468,7 +473,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             var person = _visible.FirstOrDefault(c => c.Id == _selectedId);
             if (person is not null && ContactRules.EnterLink(person) is { } link)
             {
-                ShellLauncher.OpenContactLink(link.Kind, link.Value);
+                _widgetHost.Launcher.OpenContactLink(link.Kind, link.Value);
                 return true;
             }
 
@@ -1042,14 +1047,14 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (ContactLinks.Build(ContactLinkKind.Email, contact.Email) is not null)
         {
-            menu.Add(new(Glyphs.Mail, Str.CtxMenu_SendEmail.Text(), () => ShellLauncher.OpenContactLink(ContactLinkKind.Email, contact.Email)));
+            menu.Add(new(Glyphs.Mail, Str.CtxMenu_SendEmail.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Email, contact.Email)));
             menu.Add(new(Glyphs.Copy, Str.CtxMenu_CopyEmail.Text(), () => Copy(contact.Email!)));
         }
 
         if (ContactLinks.Build(ContactLinkKind.Call, contact.Phone) is not null)
         {
-            menu.Add(new(PhoneGlyph, Str.CtxMenu_Call.Text(), () => ShellLauncher.OpenContactLink(ContactLinkKind.Call, contact.Phone)));
-            menu.Add(new(MessageGlyph, Str.CtxMenu_Message.Text(), () => ShellLauncher.OpenContactLink(ContactLinkKind.Message, contact.Phone)));
+            menu.Add(new(PhoneGlyph, Str.CtxMenu_Call.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Call, contact.Phone)));
+            menu.Add(new(MessageGlyph, Str.CtxMenu_Message.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Message, contact.Phone)));
         }
 
         if (!string.IsNullOrWhiteSpace(contact.Phone))

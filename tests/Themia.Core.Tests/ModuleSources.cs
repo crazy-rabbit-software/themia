@@ -16,7 +16,7 @@ internal static partial class ModuleSources
     [GeneratedRegex(@"WidgetDescriptor Descriptor => (\w+)\.Descriptor;")]
     private static partial Regex DescriptorOf();
 
-    [GeneratedRegex(@"FrameworkElement CreateView\(\) => new (\w+)\(")]
+    [GeneratedRegex(@"FrameworkElement CreateView\(IWidgetHost host\) => new (\w+)\(")]
     private static partial Regex ViewOf();
 
     /// <summary>The view class each kind is built as, read from its module's <c>CreateView</c>.</summary>

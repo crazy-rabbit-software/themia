@@ -17,5 +17,5 @@ public sealed class PingModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Ping(rows.Rows, (PingConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MeterView(new PingMeter());
+    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(new PingMeter());
 }

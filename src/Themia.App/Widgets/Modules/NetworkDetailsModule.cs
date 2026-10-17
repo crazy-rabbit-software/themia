@@ -17,5 +17,5 @@ public sealed class NetworkDetailsModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Details(rows.Rows, (DetailConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new DetailView(new NetworkDetailPart());
+    public FrameworkElement CreateView(IWidgetHost host) => new DetailView(new NetworkDetailPart());
 }

@@ -1000,6 +1000,16 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   what needs a manual pass. The root `SPEC.md` keeps the host's sections and points at a moved one.
   A tag is defined once across all the SPEC files, and a module's tests name only its own tags.
   `scripts/new-module.ps1` scaffolds a module folder with all of the above.
+- **[S-6913]** A widget's view asks the host for what it needs through the `IWidgetHost` its
+  module's `CreateView` is handed, never through the host's statics: the shared ticker and the UI
+  thread's dispatcher, the one launcher (`IShellLauncher`: every target classified on the literal
+  string, each link kind on its own allow list, never a command line), whether its card is a
+  preview ([S-1251]), and Settings › Accounts (false where there is none, a debug render). The host
+  makes one per card, every member shared by all of them. What a widget shares with the settings
+  window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
+  `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
+  (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
+  shell icon, the OLE drag) stay host code behind a seam the host installs at start.
 
 ## Adding a widget
 

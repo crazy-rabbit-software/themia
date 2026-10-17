@@ -21,7 +21,7 @@ internal static class ModuleHost
             .TryGetValue(kind, out var module) ? module : throw new KeyNotFoundException($"no widget module declares the kind {kind}");
 
     /// <summary>Build the view for a kind: a <see cref="FrameworkElement"/> that also implements <c>IWidgetView</c>.</summary>
-    public static FrameworkElement CreateView(WidgetId kind) => Module(kind).CreateView();
+    public static FrameworkElement CreateView(WidgetId kind, IWidgetHost host) => Module(kind).CreateView(host);
 
     public static void Install()
     {

@@ -16,5 +16,5 @@ public sealed class MoonModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Moon(rows.Rows, (MoonConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MoonView();
+    public FrameworkElement CreateView(IWidgetHost host) => new MoonView();
 }

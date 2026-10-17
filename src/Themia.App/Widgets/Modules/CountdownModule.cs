@@ -16,5 +16,5 @@ public sealed class CountdownModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Countdown(rows.Rows, (CountdownConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new CountdownView();
+    public FrameworkElement CreateView(IWidgetHost host) => new CountdownView();
 }

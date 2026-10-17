@@ -12,5 +12,5 @@ public sealed class AirplaneModeToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => AirplaneModeToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(AirplaneModeToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(AirplaneModeToggleConfig.Descriptor.Id);
 }

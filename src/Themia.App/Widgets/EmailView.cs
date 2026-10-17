@@ -11,6 +11,7 @@ using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Core.Shell;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -89,8 +90,12 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>What the rows on screen were built for, so a resize redraws only when an answer changes.</summary>
     private MailShape _shape;
 
-    public EmailView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public EmailView(IWidgetHost host)
     {
+        _widgetHost = host;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -628,11 +633,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
 
     private void OnAccountsClicked(object sender, RoutedEventArgs args)
     {
-        if (AppServices.ShowAccounts is { } show)
-        {
-            show();
-        }
-        else
+        if (!_widgetHost.ShowAccounts())
         {
             Log.Info(Scope, "no settings window here to show the Accounts page in");
         }

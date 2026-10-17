@@ -139,6 +139,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     private readonly IWidgetCardHost _host;
 
+    /// <summary>[S-6913] What the view may ask of the host, handed to its module when it is built.</summary>
+    private readonly IWidgetHost _widgetHost;
+
     /// <summary>[S-6512] The item fills of this widget's view, from its own item layer or the app-wide one.</summary>
     private readonly ItemPalette _items = new();
 
@@ -205,6 +208,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     public WidgetCard(IWidgetCardHost host, WidgetInstance model)
     {
         _host = host;
+        _widgetHost = new CardWidgetHost(host);
         Model = model;
 #if DEBUG
         Gallery.LiveCensus.CardBuilt(this);

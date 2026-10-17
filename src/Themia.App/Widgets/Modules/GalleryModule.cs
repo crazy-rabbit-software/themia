@@ -16,5 +16,5 @@ public sealed class GalleryModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Gallery(rows.Rows, (GalleryConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new GalleryView();
+    public FrameworkElement CreateView(IWidgetHost host) => new GalleryView(host);
 }

@@ -16,5 +16,5 @@ public sealed class EmailModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Email(rows.Rows, (EmailConfig)config, rows.Save, rows.ShowAccounts);
 
-    public FrameworkElement CreateView() => new EmailView();
+    public FrameworkElement CreateView(IWidgetHost host) => new EmailView(host);
 }

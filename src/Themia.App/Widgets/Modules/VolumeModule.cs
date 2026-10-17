@@ -16,5 +16,5 @@ public sealed class VolumeModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Volume(rows.Rows, (VolumeConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new VolumeView();
+    public FrameworkElement CreateView(IWidgetHost host) => new VolumeView();
 }

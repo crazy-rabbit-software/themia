@@ -12,5 +12,5 @@ public sealed class SleepModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => SleepConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new PowerButtonView(SleepConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new PowerButtonView(SleepConfig.Descriptor.Id);
 }

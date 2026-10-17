@@ -16,5 +16,5 @@ public sealed class DriveModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Drive(rows.Rows, (DriveConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new DriveView();
+    public FrameworkElement CreateView(IWidgetHost host) => new DriveView(host);
 }

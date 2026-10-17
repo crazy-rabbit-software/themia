@@ -12,5 +12,5 @@ public sealed class SoundToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => SoundToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(SoundToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(SoundToggleConfig.Descriptor.Id);
 }

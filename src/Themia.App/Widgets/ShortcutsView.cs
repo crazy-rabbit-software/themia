@@ -73,8 +73,12 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     /// <summary>The last batch removed, with where each item was, for one step of "Undo remove".</summary>
     private List<(int Index, ShortcutItem Item)>? _lastRemoved;
 
-    public ShortcutsView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public ShortcutsView(IWidgetHost host)
     {
+        _widgetHost = host;
         Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });

@@ -16,5 +16,5 @@ public sealed class ExchangeRatesModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.ExchangeRates(rows.Rows, (ExchangeRatesConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new ExchangeRatesView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ExchangeRatesView();
 }

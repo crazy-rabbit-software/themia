@@ -17,5 +17,5 @@ public sealed class CpuModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Cpu(rows.Rows, (CpuConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MeterView(new CpuMeter());
+    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(new CpuMeter());
 }

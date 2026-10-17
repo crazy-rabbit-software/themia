@@ -16,5 +16,5 @@ public sealed class ScreenTimeChartModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.ScreenTimeChart(rows.Rows, (ScreenTimeChartConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new ScreenTimeChartView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeChartView();
 }

@@ -12,5 +12,5 @@ public sealed class StopwatchModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => StopwatchConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new StopwatchView();
+    public FrameworkElement CreateView(IWidgetHost host) => new StopwatchView();
 }

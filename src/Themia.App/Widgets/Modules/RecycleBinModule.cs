@@ -12,5 +12,5 @@ public sealed class RecycleBinModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => RecycleBinConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new RecycleBinView();
+    public FrameworkElement CreateView(IWidgetHost host) => new RecycleBinView(host);
 }

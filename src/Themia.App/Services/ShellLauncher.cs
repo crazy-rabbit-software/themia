@@ -1,24 +1,9 @@
 using System.Diagnostics;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services;
-
-/// <summary>What happened when something was asked to open.</summary>
-public enum LaunchOutcome
-{
-    /// <summary>Handed to the shell.</summary>
-    Opened = 0,
-
-    /// <summary><see cref="LaunchTargets"/> would not have it.</summary>
-    Refused = 1,
-
-    /// <summary>A well-formed local path that is not there any more.</summary>
-    Missing = 2,
-
-    /// <summary>The shell was asked and said no: no association, a cancelled elevation prompt, a dead share.</summary>
-    Failed = 3,
-}
 
 /// <summary>
 /// The one place in this app that opens anything.
@@ -372,4 +357,34 @@ internal static class ShellLauncher
 
         return string.Concat(value.AsSpan(0, 120).ToString().ReplaceLineEndings(" "), "…");
     }
+}
+
+/// <summary>The launcher as a widget asks for it (<see cref="IWidgetHost.Launcher"/>): every call is <see cref="ShellLauncher"/>'s.</summary>
+internal sealed class HostLauncher : IShellLauncher
+{
+    public static HostLauncher Instance { get; } = new();
+
+    private HostLauncher()
+    {
+    }
+
+    public bool OutlookInstalled => ShellLauncher.OutlookInstalled;
+
+    public LaunchOutcome Open(string? target) => ShellLauncher.Open(target);
+
+    public LaunchOutcome OpenContainingFolder(string? target) => ShellLauncher.OpenContainingFolder(target);
+
+    public LaunchOutcome OpenMailLink(string? link) => ShellLauncher.OpenMailLink(link);
+
+    public LaunchOutcome OpenCalendarLink(string? link) => ShellLauncher.OpenCalendarLink(link);
+
+    public LaunchOutcome OpenMeetingLink(string? link) => ShellLauncher.OpenMeetingLink(link);
+
+    public LaunchOutcome OpenContactLink(Themia.Core.Office.ContactLinkKind kind, string? value) => ShellLauncher.OpenContactLink(kind, value);
+
+    public LaunchOutcome OpenWindowsSettings(Uri page) => ShellLauncher.OpenWindowsSettings(page);
+
+    public LaunchOutcome OpenApp(string? appUserModelId) => ShellLauncher.OpenApp(appUserModelId);
+
+    public void Eject(string? root) => ShellLauncher.Eject(root);
 }

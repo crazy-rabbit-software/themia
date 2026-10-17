@@ -7,6 +7,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -75,8 +76,12 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     private bool _everApplied;
     private bool _detached;
 
-    public GalleryView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public GalleryView(IWidgetHost host)
     {
+        _widgetHost = host;
         BuildParts();
 
         // The slideshow owns its own timer rather than counting shared one-second ticks. The shared

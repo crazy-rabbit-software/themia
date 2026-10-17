@@ -16,5 +16,5 @@ public sealed class FocusSessionModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.FocusSession(rows.Rows, (FocusSessionConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new FocusSessionView();
+    public FrameworkElement CreateView(IWidgetHost host) => new FocusSessionView();
 }

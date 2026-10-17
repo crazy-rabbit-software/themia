@@ -47,7 +47,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private static readonly string GiftGlyph = char.ConvertFromUtf32(0xF133);
 
     private readonly Grid _content = new();
-    private readonly OfficeStatePanel _state = new(Glyphs.Calendar);
+    private readonly OfficeStatePanel _state;
     private readonly ProgressRing _busy = new();
     private readonly FontIcon _warning;
     private readonly Button _back;
@@ -89,8 +89,13 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private bool _againForced;
     private bool _detached;
 
-    public CalendarView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public CalendarView(IWidgetHost host)
     {
+        _widgetHost = host;
+        _state = new(Glyphs.Calendar, host);
         _busy.Width = Fluent.IconSize;
         _busy.Height = Fluent.IconSize;
         _busy.IsActive = false;
@@ -512,7 +517,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         if (_warningOpensAccounts)
         {
             args.Handled = true;
-            OfficeStatePanel.OpenAccounts();
+            _state.OpenAccounts();
         }
     }
 
@@ -660,9 +665,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private void Open(CalendarEvent item)
     {
         ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
-        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && ShellLauncher.OutlookInstalled) is { } link)
+        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
         {
-            ShellLauncher.OpenCalendarLink(link);
+            _widgetHost.Launcher.OpenCalendarLink(link);
         }
     }
 

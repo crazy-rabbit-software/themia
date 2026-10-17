@@ -71,8 +71,12 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     private int? _cursor;
     private bool _detached = true;
 
-    public NotificationsView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public NotificationsView(IWidgetHost host)
     {
+        _widgetHost = host;
         _clearAll = new Button
         {
             // Windows' own words, not a ×: the × is a heading's and a row's.
@@ -562,7 +566,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        if (ShellLauncher.OpenApp(item.AppId) != LaunchOutcome.Opened)
+        if (_widgetHost.Launcher.OpenApp(item.AppId) != LaunchOutcome.Opened)
         {
             Log.Info(Scope, "the sender of a notification could not be opened");
         }
@@ -633,7 +637,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        _ = ShellLauncher.OpenWindowsSettings(AccessPage);
+        _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
     }
 
     private async Task AskAsync()
@@ -644,7 +648,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             if (answer == NotificationAccess.Denied && !_detached)
             {
                 // Said no (or could not ask): the page where it can be turned on.
-                _ = ShellLauncher.OpenWindowsSettings(AccessPage);
+                _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
             }
         }
         catch (Exception ex)
@@ -670,7 +674,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        _ = ShellLauncher.OpenWindowsSettings(AccessPage);
+        _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
     }
 
     /// <summary>Access, which Windows announces nowhere, is looked at again when the pointer comes by.</summary>

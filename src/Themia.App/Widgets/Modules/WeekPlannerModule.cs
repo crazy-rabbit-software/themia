@@ -16,5 +16,5 @@ public sealed class WeekPlannerModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.WeekPlanner(rows.Rows, (WeekPlannerConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new WeekPlannerView();
+    public FrameworkElement CreateView(IWidgetHost host) => new WeekPlannerView(host);
 }

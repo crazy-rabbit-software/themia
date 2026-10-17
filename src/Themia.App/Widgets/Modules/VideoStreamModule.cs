@@ -16,5 +16,5 @@ public sealed class VideoStreamModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.VideoStream(rows.Rows, (VideoStreamConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new VideoStreamView();
+    public FrameworkElement CreateView(IWidgetHost host) => new VideoStreamView();
 }

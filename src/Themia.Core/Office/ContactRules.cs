@@ -356,14 +356,6 @@ public enum ContactSearch
     Shown,
 }
 
-/// <summary>What a contact link opens.</summary>
-public enum ContactLinkKind
-{
-    Email,
-    Call,
-    Message,
-}
-
 /// <summary>
 /// [S-587] <c>mailto:</c>, <c>tel:</c> and <c>sms:</c> links built from a contact's own fields — the
 /// only non-web schemes this app hands to the shell, and only through here.

@@ -12,5 +12,5 @@ public sealed class EnergySaverToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => EnergySaverToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(EnergySaverToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(EnergySaverToggleConfig.Descriptor.Id);
 }

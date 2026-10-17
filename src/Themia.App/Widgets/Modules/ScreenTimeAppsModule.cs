@@ -16,5 +16,5 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.ScreenTimeApps(rows.Rows, (ScreenTimeAppsConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new ScreenTimeAppsView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeAppsView();
 }

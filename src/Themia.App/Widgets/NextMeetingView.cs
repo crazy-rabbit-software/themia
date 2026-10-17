@@ -12,6 +12,7 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -39,7 +40,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     /// <summary>[S-4825] How far the event fades while another widget points at a different one.</summary>
     private const double DimOpacity = 0.35;
 
-    private readonly OfficeStatePanel _state = new(Glyphs.Meeting);
+    private readonly OfficeStatePanel _state;
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
     private readonly Grid _content = new() { Margin = WidgetLayout.Inset, VerticalAlignment = VerticalAlignment.Center };
@@ -72,8 +73,13 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     /// <summary>The clock the event is picked against: the machine's, which a preview pins.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
-    public NextMeetingView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public NextMeetingView(IWidgetHost host)
     {
+        _widgetHost = host;
+        _state = new(Glyphs.Meeting, host);
         _title.TextTrimming = TextTrimming.CharacterEllipsis;
         _title.TextWrapping = TextWrapping.Wrap;
         _when.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -431,7 +437,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
             return;
         }
 
-        ShellLauncher.OpenMeetingLink(link);
+        _widgetHost.Launcher.OpenMeetingLink(link);
     }
 
     /// <summary>A click on the event opens it in its calendar, as a calendar widget's does ([S-1268]).</summary>
@@ -443,9 +449,9 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
         }
 
         ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
-        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && ShellLauncher.OutlookInstalled) is { } link)
+        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
         {
-            ShellLauncher.OpenCalendarLink(link);
+            _widgetHost.Launcher.OpenCalendarLink(link);
         }
     }
 

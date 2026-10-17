@@ -16,5 +16,5 @@ public sealed class TasksModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Tasks(rows.Rows, (TasksConfig)config, rows.Save, rows.ShowAccounts);
 
-    public FrameworkElement CreateView() => new TasksView();
+    public FrameworkElement CreateView(IWidgetHost host) => new TasksView(host);
 }

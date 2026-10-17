@@ -16,5 +16,5 @@ public sealed class GpuModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Gpu(rows.Rows, (GpuConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new GpuView();
+    public FrameworkElement CreateView(IWidgetHost host) => new GpuView();
 }

@@ -16,5 +16,5 @@ public sealed class BluetoothModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Bluetooth(rows.Rows, (BluetoothConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new BluetoothView();
+    public FrameworkElement CreateView(IWidgetHost host) => new BluetoothView();
 }

@@ -57,7 +57,7 @@ internal sealed partial class WidgetCard
         {
             // [S-6512] What the view paints while it is built is this card's item layer.
             using var items = ItemPalette.Building(_items);
-            return ModuleHost.CreateView(kind);
+            return ModuleHost.CreateView(kind, _widgetHost);
         }
         catch (Exception ex)
         {
@@ -249,7 +249,7 @@ internal sealed partial class WidgetCard
         {
             // [S-6512] What the view paints while it is built is this card's item layer.
             using var items = ItemPalette.Building(_items);
-            return ModuleHost.CreateView(kind);
+            return ModuleHost.CreateView(kind, _widgetHost);
         }
         catch (Exception ex)
         {

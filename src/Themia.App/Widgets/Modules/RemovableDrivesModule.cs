@@ -12,5 +12,5 @@ public sealed class RemovableDrivesModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => RemovableDrivesConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new RemovableDrivesView();
+    public FrameworkElement CreateView(IWidgetHost host) => new RemovableDrivesView(host);
 }

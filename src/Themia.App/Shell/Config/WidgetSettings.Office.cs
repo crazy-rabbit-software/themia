@@ -107,7 +107,7 @@ internal static partial class WidgetSettings
         var accounts = OfficeSources.Current?.Accounts(feature) ?? [];
 
         var manage = new Button { Content = (accounts.Count == 0 ? Str.WidgetsA_Office_AddAccount : Str.WidgetsA_Office_ManageAccounts).Text() };
-        manage.Click += (_, _) => OfficeStatePanel.OpenAccounts();
+        manage.Click += (_, _) => Services.AppServices.ShowAccounts?.Invoke();
 
         if (accounts.Count == 0)
         {

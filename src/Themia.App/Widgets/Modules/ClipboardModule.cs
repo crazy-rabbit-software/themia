@@ -16,5 +16,5 @@ public sealed class ClipboardModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Clipboard(rows.Rows, (ClipboardConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new ClipboardView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ClipboardView();
 }

@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -88,8 +89,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-789] List names by id, for the Today view's rows on a panel. Read from the service's cache.</summary>
     private IReadOnlyDictionary<string, string> _listNames = new Dictionary<string, string>();
 
-    public TasksView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public TasksView(IWidgetHost host)
     {
+        _widgetHost = host;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -765,12 +770,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     {
         switch ((sender as FrameworkElement)?.Tag)
         {
-            case EmptyAction.Accounts when AppServices.ShowAccounts is { } show:
-                show();
-                break;
-
             case EmptyAction.Accounts:
-                Log.Info(Scope, "no settings window here to show the Accounts page in");
+                if (!_widgetHost.ShowAccounts())
+                {
+                    Log.Info(Scope, "no settings window here to show the Accounts page in");
+                }
+
                 break;
 
             case EmptyAction.Retry:

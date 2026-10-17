@@ -12,5 +12,5 @@ public sealed class MicrophoneToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => MicrophoneToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(MicrophoneToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(MicrophoneToggleConfig.Descriptor.Id);
 }

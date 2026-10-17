@@ -16,5 +16,5 @@ public sealed class RainNextHourModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.RainNextHour(rows.Rows, (RainNextHourConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new RainNextHourView();
+    public FrameworkElement CreateView(IWidgetHost host) => new RainNextHourView();
 }

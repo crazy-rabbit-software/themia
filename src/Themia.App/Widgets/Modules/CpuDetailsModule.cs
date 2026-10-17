@@ -17,5 +17,5 @@ public sealed class CpuDetailsModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Details(rows.Rows, (DetailConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new DetailView(new CpuDetailPart());
+    public FrameworkElement CreateView(IWidgetHost host) => new DetailView(new CpuDetailPart());
 }

@@ -12,5 +12,5 @@ public sealed class NotificationsModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => NotificationsConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new NotificationsView();
+    public FrameworkElement CreateView(IWidgetHost host) => new NotificationsView(host);
 }

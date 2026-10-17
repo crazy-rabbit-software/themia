@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -27,8 +28,11 @@ internal sealed partial class OfficeStatePanel : Grid
     private readonly HyperlinkButton _link;
     private readonly StackPanel _empty;
 
-    public OfficeStatePanel(string glyph)
+    private readonly IWidgetHost _widgetHost;
+
+    public OfficeStatePanel(string glyph, IWidgetHost host)
     {
+        _widgetHost = host;
         var empty = Fluent.EmptyState(glyph, _message, out _);
 
         _link = new HyperlinkButton
@@ -81,13 +85,9 @@ internal sealed partial class OfficeStatePanel : Grid
     public void Detach() => _link.Click -= OnLinkClicked;
 
     /// <summary>Open Settings on the Accounts page, the one place accounts are added and mended.</summary>
-    public static void OpenAccounts()
+    public void OpenAccounts()
     {
-        if (AppServices.ShowAccounts is { } show)
-        {
-            show();
-        }
-        else
+        if (!_widgetHost.ShowAccounts())
         {
             Log.Info(Scope, "no settings window here to show the Accounts page in");
         }

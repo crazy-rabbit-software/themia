@@ -16,5 +16,5 @@ public sealed class ScratchpadModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Scratchpad(rows.Rows, (ScratchpadConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new ScratchpadView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ScratchpadView();
 }

@@ -17,5 +17,5 @@ public sealed class NetworkModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Network(rows.Rows, (NetworkConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MeterView(new NetworkMeter());
+    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(new NetworkMeter());
 }

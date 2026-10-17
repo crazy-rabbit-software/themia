@@ -16,5 +16,5 @@ public sealed class SunModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Sun(rows.Rows, (SunConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new SunView();
+    public FrameworkElement CreateView(IWidgetHost host) => new SunView();
 }

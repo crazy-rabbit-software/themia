@@ -48,7 +48,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     /// <summary>The ring before a task, as the Tasks widget draws one ([S-597]), at a planner row's size.</summary>
     private const double RingSize = 14;
 
-    private readonly OfficeStatePanel _state = new(Glyphs.WeekPlanner);
+    private readonly OfficeStatePanel _state;
     private readonly Grid _content = new() { ColumnSpacing = WeekPlannerRules.ColumnGap };
     private readonly Dictionary<string, Brush> _colorBrushes = new(StringComparer.Ordinal);
     private readonly List<IDisposable> _hovers = [];
@@ -83,8 +83,13 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     /// <summary>The clock the days are drawn against: the machine's, which a preview pins.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
-    public WeekPlannerView()
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public WeekPlannerView(IWidgetHost host)
     {
+        _widgetHost = host;
+        _state = new(Glyphs.WeekPlanner, host);
         // [S-1113] Days run in reading order; the columns follow the language's direction like the week calendar's.
         Children.Add(_content);
         Children.Add(_state);
@@ -678,9 +683,9 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         }
 
         ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
-        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && ShellLauncher.OutlookInstalled) is { } link)
+        if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
         {
-            ShellLauncher.OpenCalendarLink(link);
+            _widgetHost.Launcher.OpenCalendarLink(link);
         }
     }
 }
