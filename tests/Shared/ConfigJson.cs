@@ -3,7 +3,10 @@ using Themia.Core.Storage;
 
 namespace Themia.Core.Tests;
 
-/// <summary>Read one widget config the way the app does: inside a state file, through the store's parser.</summary>
+/// <summary>
+/// Read one widget config the way the app does: inside a state file, through the store's parser.
+/// Shared by both test projects (a moved widget's tests read their config as they did in Core).
+/// </summary>
 internal static class ConfigJson
 {
     public static WidgetConfig Read(string widgetKind, string configJson)
