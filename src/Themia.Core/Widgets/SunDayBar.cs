@@ -1,5 +1,6 @@
 using Themia.Core.Astronomy;
 using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -38,8 +39,8 @@ public static class SunDayBar
         ArgumentNullException.ThrowIfNull(zone);
 
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime);
-        var start = CalendarRules.LocalMidnight(today, zone);
-        var end = CalendarRules.LocalMidnight(today.AddDays(1), zone);
+        var start = CalendarDays.LocalMidnight(today, zone);
+        var end = CalendarDays.LocalMidnight(today.AddDays(1), zone);
 
         return new SunDayBarPlan(
             Share(times.Sunrise, start, end),

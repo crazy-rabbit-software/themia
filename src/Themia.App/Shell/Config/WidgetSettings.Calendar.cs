@@ -88,7 +88,7 @@ internal static partial class WidgetSettings
         {
             case CalendarSetting.WeekFrom:
                 // [S-3637] Where the columns start.
-                var weekStart = CalendarText.WeekdayName(CalendarRules.FirstDay(config.EffectiveWeekStart));
+                var weekStart = CalendarText.WeekdayName(CalendarDays.FirstDay(config.EffectiveWeekStart));
                 rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(),
                     Str.WidgetsA_Calendar_Settings_WeekFrom_Desc.Text(),
                     FluentLayout.Choice<WeekFirstDay>(

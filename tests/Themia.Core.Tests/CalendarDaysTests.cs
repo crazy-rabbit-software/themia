@@ -34,7 +34,7 @@ public sealed class CalendarDaysTests
             var anchor = Today.AddDays(offset);
             foreach (var start in new[] { WeekStartDay.Monday, WeekStartDay.Sunday, WeekStartDay.Saturday })
             {
-                var first = CalendarRules.StartOfWeek(anchor, start);
+                var first = CalendarDays.StartOfWeek(anchor, start);
                 Assert.Equal((first, first.AddDays(6)), CalendarRules.ViewRange(CalendarStyle.Week, anchor, Today, start));
             }
         }

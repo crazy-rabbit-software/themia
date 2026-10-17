@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Office;
 
@@ -121,7 +122,7 @@ public static class CalendarFit
     {
         var first = new DateOnly(anchor.Year, anchor.Month, 1);
         var last = first.AddMonths(1).AddDays(-1);
-        var gridStart = CalendarRules.StartOfWeek(first, start);
+        var gridStart = CalendarDays.StartOfWeek(first, start);
         return ((last.DayNumber - gridStart.DayNumber) / 7) + 1;
     }
 
@@ -490,7 +491,7 @@ public static class CalendarFit
     public static IReadOnlyList<DateOnly?> MiniMonth(int year, int month, WeekStartDay start)
     {
         var first = new DateOnly(year, month, 1);
-        var gridStart = CalendarRules.StartOfWeek(first, start);
+        var gridStart = CalendarDays.StartOfWeek(first, start);
         var cells = new DateOnly?[42];
         for (var i = 0; i < 42; i++)
         {
@@ -526,8 +527,8 @@ public static class CalendarFit
         ArgumentNullException.ThrowIfNull(timed);
         var earliest = 24;
         var latest = 0;
-        var dayStart = CalendarRules.LocalMidnight(day, zone);
-        var dayEnd = CalendarRules.LocalMidnight(day.AddDays(1), zone);
+        var dayStart = CalendarDays.LocalMidnight(day, zone);
+        var dayEnd = CalendarDays.LocalMidnight(day.AddDays(1), zone);
 
         foreach (var e in timed.Where(e => !e.AllDay))
         {
@@ -562,7 +563,7 @@ public static class CalendarFit
     /// </summary>
     public static (double Top, double Height)? Place(DateTimeOffset start, DateTimeOffset end, DateOnly day, TimeZoneInfo zone, HourWindow window)
     {
-        var origin = CalendarRules.LocalMidnight(day, zone).AddHours(window.First);
+        var origin = CalendarDays.LocalMidnight(day, zone).AddHours(window.First);
         var span = window.Count * 60.0;
         var from = (start - origin).TotalMinutes;
 

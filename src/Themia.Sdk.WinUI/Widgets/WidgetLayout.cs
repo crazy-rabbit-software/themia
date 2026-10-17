@@ -14,7 +14,7 @@ namespace Themia.App.Widgets;
 /// pointer is over it — reaches both edges.
 /// </para>
 /// </summary>
-internal static class WidgetLayout
+public static class WidgetLayout
 {
     /// <summary>The standard content inset: Fluent's 16px, not the 12 the web app used.</summary>
     public const double ContentInset = Fluent.Space4;

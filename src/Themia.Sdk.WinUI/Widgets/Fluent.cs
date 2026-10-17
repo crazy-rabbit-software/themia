@@ -20,7 +20,7 @@ namespace Themia.App.Widgets;
 /// list row of a known height. Matching it is mostly a matter of stopping inventing values.
 /// </para>
 /// </summary>
-internal static class Fluent
+public static class Fluent
 {
     // ---- spacing ---------------------------------------------------------------------------
 

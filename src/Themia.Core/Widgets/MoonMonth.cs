@@ -1,5 +1,6 @@
 using Themia.Core.Astronomy;
 using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -25,8 +26,8 @@ public static class MoonMonth
         for (var i = 0; i < count; i++)
         {
             var day = first.AddDays(i);
-            var start = CalendarRules.LocalMidnight(day, zone);
-            var end = CalendarRules.LocalMidnight(day.AddDays(1), zone);
+            var start = CalendarDays.LocalMidnight(day, zone);
+            var end = CalendarDays.LocalMidnight(day.AddDays(1), zone);
             var noon = start + ((end - start) / 2);
             var moon = MoonPhase.At(noon);
             days[i] = new MoonDay(day, moon.Phase, moon.Name, day == today);

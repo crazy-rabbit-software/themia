@@ -1,6 +1,7 @@
 using System.Globalization;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Office;
 
@@ -181,27 +182,13 @@ public static class CalendarRules
 
     // ---- weeks -------------------------------------------------------------------------------
 
-    /// <summary>[S-564] The weekday a week starting on <paramref name="start"/> begins with.</summary>
-    public static DayOfWeek FirstDay(WeekStartDay start) => start switch
-    {
-        WeekStartDay.Sunday => DayOfWeek.Sunday,
-        WeekStartDay.Saturday => DayOfWeek.Saturday,
-        _ => DayOfWeek.Monday,
-    };
-
     /// <summary>[S-564] The week start a language or Windows names by its first weekday; a day no calendar starts on is Monday.</summary>
     public static WeekStartDay WeekStartOf(DayOfWeek first) => RegionFormat.WeekStartOf(first);
-
-    /// <summary>[S-564] Days to step back from <paramref name="day"/> to reach the first day of its week.</summary>
-    public static int WeekStartOffset(DayOfWeek day, WeekStartDay start)
-        => ((int)day - (int)FirstDay(start) + 7) % 7;
-
-    public static DateOnly StartOfWeek(DateOnly day, WeekStartDay start) => day.AddDays(-WeekStartOffset(day.DayOfWeek, start));
 
     /// <summary>[S-564] The seven weekdays in column order: Mon..Sun, Sun..Sat or Sat..Fri.</summary>
     public static IReadOnlyList<DayOfWeek> WeekdayOrder(WeekStartDay start)
     {
-        var first = (int)FirstDay(start);
+        var first = (int)CalendarDays.FirstDay(start);
         return [.. Enumerable.Range(0, 7).Select(i => (DayOfWeek)((first + i) % 7))];
     }
 
@@ -221,7 +208,7 @@ public static class CalendarRules
             case CalendarStyle.Month:
                 var firstOfMonth = new DateOnly(anchor.Year, anchor.Month, 1);
                 var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
-                return (StartOfWeek(firstOfMonth, span.WeekStart), StartOfWeek(lastOfMonth, span.WeekStart).AddDays(6));
+                return (CalendarDays.StartOfWeek(firstOfMonth, span.WeekStart), CalendarDays.StartOfWeek(lastOfMonth, span.WeekStart).AddDays(6));
 
             case CalendarStyle.Week:
                 var weekFirst = WeekFirst(anchor, today, span);
@@ -254,7 +241,7 @@ public static class CalendarRules
     /// </summary>
     public static DateOnly WeekFirst(DateOnly anchor, DateOnly today, CalendarPeriod span)
     {
-        var origin = span.WeekFrom == WeekFirstDay.Today ? today : StartOfWeek(today, span.WeekStart);
+        var origin = span.WeekFrom == WeekFirstDay.Today ? today : CalendarDays.StartOfWeek(today, span.WeekStart);
         var step = WeekStep(span);
         var periods = (int)Math.Floor((anchor.DayNumber - origin.DayNumber) / (double)step);
         return origin.AddDays(periods * step);
@@ -263,7 +250,7 @@ public static class CalendarRules
     /// <summary>The 42 days of a month grid, from the start of the first week.</summary>
     public static IReadOnlyList<DateOnly> MonthCells(DateOnly anchor, WeekStartDay start)
     {
-        var first = StartOfWeek(new DateOnly(anchor.Year, anchor.Month, 1), start);
+        var first = CalendarDays.StartOfWeek(new DateOnly(anchor.Year, anchor.Month, 1), start);
         return [.. Enumerable.Range(0, 42).Select(first.AddDays)];
     }
 
@@ -303,14 +290,7 @@ public static class CalendarRules
     /// which in any zone east of UTC dropped the first hours of the first day.
     /// </summary>
     public static (DateTimeOffset From, DateTimeOffset To) FetchWindow(DateOnly first, DateOnly last, TimeZoneInfo zone)
-        => (LocalMidnight(first, zone), LocalMidnight(last.AddDays(1), zone));
-
-    /// <summary>Midnight of <paramref name="day"/> in <paramref name="zone"/>, never throwing in a DST gap.</summary>
-    public static DateTimeOffset LocalMidnight(DateOnly day, TimeZoneInfo zone)
-    {
-        var clock = day.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
-        return new DateTimeOffset(clock, zone.GetUtcOffset(clock));
-    }
+        => (CalendarDays.LocalMidnight(first, zone), CalendarDays.LocalMidnight(last.AddDays(1), zone));
 
     /// <summary>
     /// [S-568] The period's title: <c>October 2026</c>, <c>Sep 28 – Oct 4</c>, <c>Sun, Oct 4</c>,
@@ -360,8 +340,8 @@ public static class CalendarRules
             return item.FirstDay <= day && day < item.EndDay;
         }
 
-        var dayStart = LocalMidnight(day, zone);
-        var dayEnd = LocalMidnight(day.AddDays(1), zone);
+        var dayStart = CalendarDays.LocalMidnight(day, zone);
+        var dayEnd = CalendarDays.LocalMidnight(day.AddDays(1), zone);
 
         if (item.End <= item.Start)
         {
@@ -500,8 +480,8 @@ public static class CalendarRules
             return new AgendaTime(item.Start, item.End, WholeDay: true);
         }
 
-        var dayStart = LocalMidnight(day, zone);
-        var dayEnd = LocalMidnight(day.AddDays(1), zone);
+        var dayStart = CalendarDays.LocalMidnight(day, zone);
+        var dayEnd = CalendarDays.LocalMidnight(day.AddDays(1), zone);
         var start = item.Start > dayStart ? item.Start : dayStart;
         var end = item.End > item.Start && item.End > dayEnd ? dayEnd : item.End;
 

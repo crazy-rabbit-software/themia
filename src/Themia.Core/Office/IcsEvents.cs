@@ -1,4 +1,5 @@
 using System.Globalization;
+using Themia.Sdk;
 
 namespace Themia.Core.Office;
 
@@ -402,8 +403,8 @@ public static class IcsEvents
             var days = raw.LengthInDays();
             item = CalendarEvent.AllDayEvent(id, raw.Subject, first, first.AddDays(days));
 
-            var startsAt = CalendarRules.LocalMidnight(first, zones.Local);
-            var endsAt = CalendarRules.LocalMidnight(first.AddDays(days), zones.Local);
+            var startsAt = CalendarDays.LocalMidnight(first, zones.Local);
+            var endsAt = CalendarDays.LocalMidnight(first.AddDays(days), zones.Local);
             if (!(startsAt < to && endsAt > from))
             {
                 return false;

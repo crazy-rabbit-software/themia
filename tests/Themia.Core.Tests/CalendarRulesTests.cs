@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -44,14 +45,14 @@ public sealed class CalendarRulesTests
     [Fact]
     public void S564_WeekStartOffsets()
     {
-        Assert.Equal(0, CalendarRules.WeekStartOffset(DayOfWeek.Monday, WeekStartDay.Monday));
-        Assert.Equal(5, CalendarRules.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Monday));
-        Assert.Equal(6, CalendarRules.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Monday));
-        Assert.Equal(0, CalendarRules.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Sunday));
-        Assert.Equal(6, CalendarRules.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Sunday));
-        Assert.Equal(0, CalendarRules.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Saturday));
-        Assert.Equal(6, CalendarRules.WeekStartOffset(DayOfWeek.Friday, WeekStartDay.Saturday));
-        Assert.Equal(1, CalendarRules.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Saturday));
+        Assert.Equal(0, CalendarDays.WeekStartOffset(DayOfWeek.Monday, WeekStartDay.Monday));
+        Assert.Equal(5, CalendarDays.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Monday));
+        Assert.Equal(6, CalendarDays.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Monday));
+        Assert.Equal(0, CalendarDays.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Sunday));
+        Assert.Equal(6, CalendarDays.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Sunday));
+        Assert.Equal(0, CalendarDays.WeekStartOffset(DayOfWeek.Saturday, WeekStartDay.Saturday));
+        Assert.Equal(6, CalendarDays.WeekStartOffset(DayOfWeek.Friday, WeekStartDay.Saturday));
+        Assert.Equal(1, CalendarDays.WeekStartOffset(DayOfWeek.Sunday, WeekStartDay.Saturday));
     }
 
     [Theory]
@@ -64,19 +65,19 @@ public sealed class CalendarRulesTests
         Assert.Equal(expected, CalendarRules.WeekStartOf(first));
         if (expected != WeekStartDay.Monday || first == DayOfWeek.Monday)
         {
-            Assert.Equal(first, CalendarRules.FirstDay(expected));
+            Assert.Equal(first, CalendarDays.FirstDay(expected));
         }
     }
 
     [Fact]
     public void S564_StartOfWeekAndColumnOrder()
     {
-        Assert.Equal(new DateOnly(2026, 9, 28), CalendarRules.StartOfWeek(Today, WeekStartDay.Monday));
-        Assert.Equal(Today, CalendarRules.StartOfWeek(Today, WeekStartDay.Sunday));
+        Assert.Equal(new DateOnly(2026, 9, 28), CalendarDays.StartOfWeek(Today, WeekStartDay.Monday));
+        Assert.Equal(Today, CalendarDays.StartOfWeek(Today, WeekStartDay.Sunday));
         Assert.Equal(DayOfWeek.Monday, CalendarRules.WeekdayOrder(WeekStartDay.Monday)[0]);
         Assert.Equal(DayOfWeek.Sunday, CalendarRules.WeekdayOrder(WeekStartDay.Monday)[6]);
         Assert.Equal(DayOfWeek.Sunday, CalendarRules.WeekdayOrder(WeekStartDay.Sunday)[0]);
-        Assert.Equal(new DateOnly(2026, 10, 3), CalendarRules.StartOfWeek(Today, WeekStartDay.Saturday));
+        Assert.Equal(new DateOnly(2026, 10, 3), CalendarDays.StartOfWeek(Today, WeekStartDay.Saturday));
         Assert.Equal(
             [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
             CalendarRules.WeekdayOrder(WeekStartDay.Saturday));
@@ -362,13 +363,13 @@ public sealed class CalendarRulesTests
         var monday = CalendarRules.AgendaSpan(workshop, Today.AddDays(1), Plus2);
         Assert.False(monday.WholeDay);
         Assert.Equal(workshop.Start, monday.Start);
-        Assert.Equal(CalendarRules.LocalMidnight(Today.AddDays(2), Plus2), monday.End);
+        Assert.Equal(CalendarDays.LocalMidnight(Today.AddDays(2), Plus2), monday.End);
 
         Assert.True(CalendarRules.AgendaSpan(workshop, Today.AddDays(2), Plus2).WholeDay);
 
         var wednesday = CalendarRules.AgendaSpan(workshop, Today.AddDays(3), Plus2);
         Assert.False(wednesday.WholeDay);
-        Assert.Equal(CalendarRules.LocalMidnight(Today.AddDays(3), Plus2), wednesday.Start);
+        Assert.Equal(CalendarDays.LocalMidnight(Today.AddDays(3), Plus2), wednesday.Start);
         Assert.Equal(workshop.End, wednesday.End);
 
         var allDay = CalendarEvent.AllDayEvent("trip", "Trip", Today, Today.AddDays(2));

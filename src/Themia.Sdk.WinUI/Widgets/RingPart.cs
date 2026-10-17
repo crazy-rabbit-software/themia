@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// <see cref="Root"/> over the ring, centred. Not the meters' half-circle gauge: that reads a level,
 /// this one a share of a whole.
 /// </summary>
-internal sealed class RingPart
+public sealed class RingPart
 {
     private readonly Ellipse _track = new();
     private readonly Microsoft.UI.Xaml.Shapes.Path _arc = new() { StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };

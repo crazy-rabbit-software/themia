@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.Core.Tasks;
 
@@ -225,7 +226,7 @@ public static class TaskRules
         ArgumentNullException.ThrowIfNull(viewer);
 
         var words = filter.Words;
-        var weekFirst = CalendarRules.StartOfWeek(today, weekStart);
+        var weekFirst = CalendarDays.StartOfWeek(today, weekStart);
         var kept = tasks.Where(Keep).ToList();
         return kept.Count == tasks.Count ? tasks : kept;
 

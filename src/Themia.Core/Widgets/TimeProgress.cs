@@ -1,5 +1,5 @@
 using Themia.Core.Model;
-using Themia.Core.Office;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -36,7 +36,7 @@ public readonly record struct SpanProgress(ProgressSpan Span, DateOnly First, Da
 
 /// <summary>
 /// [S-4801] How much of the day, week, month and year has passed. Each span runs from one local
-/// midnight to another (<see cref="CalendarRules.LocalMidnight"/>), and the fraction is elapsed over
+/// midnight to another (<see cref="CalendarDays.LocalMidnight"/>), and the fraction is elapsed over
 /// real length, measured in instants: a 23-hour spring-forward day is half gone at 12:30 wall
 /// clock, not at noon, and a leap year is 366 days. The week starts on the regional first day
 /// ([S-3770]). Pure: the zone and the week start are arguments.
@@ -60,8 +60,8 @@ public static class TimeProgress
             _ => (new DateOnly(today.Year, 1, 1), new DateOnly(today.Year, 1, 1).AddYears(1)),
         };
 
-        var start = CalendarRules.LocalMidnight(first, zone);
-        var end = CalendarRules.LocalMidnight(next, zone);
+        var start = CalendarDays.LocalMidnight(first, zone);
+        var end = CalendarDays.LocalMidnight(next, zone);
         var length = (end - start).Ticks;
         var fraction = length <= 0 ? 0 : Math.Clamp((now - start).Ticks / (double)length, 0, 1);
         return new SpanProgress(span, first, next, start, end, fraction);
@@ -70,7 +70,7 @@ public static class TimeProgress
     /// <summary>[S-4802] The first day of the week holding <paramref name="day"/>.</summary>
     public static DateOnly WeekStart(DateOnly day, WeekStartDay weekStart)
     {
-        return CalendarRules.StartOfWeek(day, weekStart);
+        return CalendarDays.StartOfWeek(day, weekStart);
     }
 
     /// <summary>
