@@ -49,6 +49,7 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         Id = new("email"),
         Kind = WidgetKind.Email,
         ConfigType = typeof(EmailConfig),
+        CreateDefault = () => new EmailConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Mail_Label,
         DescriptionId = Str.WidgetsA_Catalog_Mail_Description,

@@ -44,6 +44,7 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
         Id = new("network"),
         Kind = WidgetKind.Network,
         ConfigType = typeof(NetworkConfig),
+        CreateDefault = () => new NetworkConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Network_Label,
         DescriptionId = Str.WidgetsA_Catalog_Network_Description,

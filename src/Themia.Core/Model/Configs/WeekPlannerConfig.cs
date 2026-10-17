@@ -34,6 +34,7 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
         Id = new("weekPlanner"),
         Kind = WidgetKind.WeekPlanner,
         ConfigType = typeof(WeekPlannerConfig),
+        CreateDefault = () => new WeekPlannerConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Planner_Label,
         DescriptionId = Str.Planner_Desc,

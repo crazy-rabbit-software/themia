@@ -54,6 +54,7 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         Id = new("habitTracker"),
         Kind = WidgetKind.HabitTracker,
         ConfigType = typeof(HabitTrackerConfig),
+        CreateDefault = () => new HabitTrackerConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Habits_Label,
         DescriptionId = Str.WidgetsA_Catalog_Habits_Description,

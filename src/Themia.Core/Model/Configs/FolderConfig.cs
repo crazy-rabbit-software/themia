@@ -86,6 +86,7 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
         Id = new("folder"),
         Kind = WidgetKind.Folder,
         ConfigType = typeof(FolderConfig),
+        CreateDefault = () => new FolderConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Styles_Folder_Label,
         DescriptionId = Str.Styles_Folder_Desc,

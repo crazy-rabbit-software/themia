@@ -45,6 +45,7 @@ public sealed class PingConfig : GaugeConfig, IStyled
         Id = new("ping"),
         Kind = WidgetKind.Ping,
         ConfigType = typeof(PingConfig),
+        CreateDefault = () => new PingConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Ping_Label,
         DescriptionId = Str.WidgetsA_Catalog_Ping_Description,

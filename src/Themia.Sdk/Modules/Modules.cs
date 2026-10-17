@@ -41,6 +41,9 @@ public sealed record WidgetDescriptor
     /// <summary>[S-6903] Its config's type: the member of the config union written with <see cref="Id"/> as its discriminator.</summary>
     public required Type ConfigType { get; init; }
 
+    /// <summary>A new config with the widget's defaults; always a <see cref="ConfigType"/>.</summary>
+    public required Func<WidgetConfig> CreateDefault { get; init; }
+
     /// <summary>[S-6903] The source-generated JSON metadata that knows <see cref="ConfigType"/> (AOT: no reflection).</summary>
     public required IJsonTypeInfoResolver Json { get; init; }
 

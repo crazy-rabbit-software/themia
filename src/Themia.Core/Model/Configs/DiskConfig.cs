@@ -54,6 +54,7 @@ public sealed class DiskConfig : GaugeConfig, IStyled
         Id = new("disk"),
         Kind = WidgetKind.Disk,
         ConfigType = typeof(DiskConfig),
+        CreateDefault = () => new DiskConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Disk_Label,
         DescriptionId = Str.WidgetsA_Catalog_Disk_Description,

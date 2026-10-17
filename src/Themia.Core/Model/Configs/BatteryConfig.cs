@@ -46,6 +46,7 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
         Id = new("battery"),
         Kind = WidgetKind.Battery,
         ConfigType = typeof(BatteryConfig),
+        CreateDefault = () => new BatteryConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Battery_Label,
         DescriptionId = Str.Shell_Meters_BatteryDescription,

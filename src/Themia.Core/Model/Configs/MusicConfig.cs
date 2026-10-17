@@ -58,6 +58,7 @@ public sealed class MusicConfig : WidgetConfig, IStyled
         Id = new("music"),
         Kind = WidgetKind.Music,
         ConfigType = typeof(MusicConfig),
+        CreateDefault = () => new MusicConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Music_Label,
         DescriptionId = Str.WidgetsA_Catalog_Music_Description,

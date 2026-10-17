@@ -43,6 +43,7 @@ public sealed class GpuConfig : GaugeConfig, IStyled
         Id = new("gpu"),
         Kind = WidgetKind.Gpu,
         ConfigType = typeof(GpuConfig),
+        CreateDefault = () => new GpuConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Gpu_Label,
         DescriptionId = Str.Shell_Meters_GpuDescription,

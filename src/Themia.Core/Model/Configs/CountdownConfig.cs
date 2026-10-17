@@ -48,6 +48,7 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
         Id = new("countdown"),
         Kind = WidgetKind.Countdown,
         ConfigType = typeof(CountdownConfig),
+        CreateDefault = () => new CountdownConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Countdown_Label,
         DescriptionId = Str.WidgetsA_Catalog_Countdown_Description,

@@ -46,7 +46,7 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6902_every_concrete_config_declares_a_descriptor()
     {
-        var configs = typeof(WidgetConfig).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(WidgetConfig)) && !t.IsAbstract);
+        var configs = typeof(AppState).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(WidgetConfig)) && !t.IsAbstract);
         Assert.Equal(configs.Select(t => t.Name).Order(), TestCatalog.Declared.Select(d => d.Config.Name).Order());
     }
 

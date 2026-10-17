@@ -45,6 +45,7 @@ public sealed class CpuConfig : GaugeConfig, IStyled
         Id = new("cpu"),
         Kind = WidgetKind.Cpu,
         ConfigType = typeof(CpuConfig),
+        CreateDefault = () => new CpuConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Cpu_Label,
         DescriptionId = Str.WidgetsA_Catalog_Cpu_Description,

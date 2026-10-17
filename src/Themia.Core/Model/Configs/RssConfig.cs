@@ -42,6 +42,7 @@ public sealed class RssConfig : WidgetConfig
         Id = new("rss"),
         Kind = WidgetKind.Rss,
         ConfigType = typeof(RssConfig),
+        CreateDefault = () => new RssConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Feed_Label,
         DescriptionId = Str.WidgetsA_Catalog_Feed_Description,

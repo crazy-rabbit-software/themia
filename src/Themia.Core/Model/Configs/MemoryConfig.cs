@@ -38,6 +38,7 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
         Id = new("memory"),
         Kind = WidgetKind.Memory,
         ConfigType = typeof(MemoryConfig),
+        CreateDefault = () => new MemoryConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Memory_Label,
         DescriptionId = Str.WidgetsA_Catalog_Memory_Description,

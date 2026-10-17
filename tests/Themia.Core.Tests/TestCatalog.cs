@@ -14,10 +14,10 @@ namespace Themia.Core.Tests;
 /// </summary>
 internal static class TestCatalog
 {
-    /// <summary>Every <c>public static WidgetDescriptor Descriptor</c> on a concrete config in Core.</summary>
+    /// <summary>Every <c>public static WidgetDescriptor Descriptor</c> on a concrete config in Core (the assembly of <see cref="AppState"/>).</summary>
     public static IReadOnlyList<(Type Config, WidgetDescriptor Descriptor)> Declared { get; } =
     [
-        .. typeof(WidgetConfig).Assembly.GetTypes()
+        .. typeof(AppState).Assembly.GetTypes()
             .Where(t => t.IsSubclassOf(typeof(WidgetConfig)) && !t.IsAbstract)
             .Select(t => (t, t.GetProperty("Descriptor", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as WidgetDescriptor))
             .Where(p => p.Item2 is not null)

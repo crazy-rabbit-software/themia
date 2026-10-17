@@ -20,6 +20,7 @@ public sealed class BluetoothConfig : WidgetConfig
         Id = new("bluetooth"),
         Kind = WidgetKind.Bluetooth,
         ConfigType = typeof(BluetoothConfig),
+        CreateDefault = () => new BluetoothConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Bluetooth_Label,
         DescriptionId = Str.WidgetsA_Catalog_Bluetooth_Description,

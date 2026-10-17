@@ -53,6 +53,7 @@ public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
         Id = new("audioVisualizer"),
         Kind = WidgetKind.AudioVisualizer,
         ConfigType = typeof(AudioVisualizerConfig),
+        CreateDefault = () => new AudioVisualizerConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Styles_AudioVisualizer_Label,
         DescriptionId = Str.Styles_AudioVisualizer_Desc,

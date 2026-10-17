@@ -30,6 +30,7 @@ public sealed class VolumeConfig : WidgetConfig
         Id = new("volume"),
         Kind = WidgetKind.Volume,
         ConfigType = typeof(VolumeConfig),
+        CreateDefault = () => new VolumeConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Volume_Label,
         DescriptionId = Str.WidgetsA_Catalog_Volume_Description,

@@ -55,6 +55,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         Id = new("tasks"),
         Kind = WidgetKind.Tasks,
         ConfigType = typeof(TasksConfig),
+        CreateDefault = () => new TasksConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Tasks_Label,
         DescriptionId = Str.WidgetsA_Catalog_Tasks_Description,

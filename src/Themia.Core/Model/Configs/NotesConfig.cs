@@ -22,6 +22,7 @@ public sealed class NotesConfig : WidgetConfig
         Id = new("notes"),
         Kind = WidgetKind.Notes,
         ConfigType = typeof(NotesConfig),
+        CreateDefault = () => new NotesConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Notes_Label,
         DescriptionId = Str.WidgetsA_Catalog_Notes_Description,

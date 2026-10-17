@@ -55,6 +55,7 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
         Id = new("weatherForecast"),
         Kind = WidgetKind.WeatherForecast,
         ConfigType = typeof(WeatherForecastConfig),
+        CreateDefault = () => new WeatherForecastConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Forecast_Label,
         DescriptionId = Str.WidgetsA_Catalog_Forecast_Description,

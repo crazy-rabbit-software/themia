@@ -51,6 +51,7 @@ public sealed class VideoStreamConfig : WidgetConfig
         Id = new("videoStream"),
         Kind = WidgetKind.VideoStream,
         ConfigType = typeof(VideoStreamConfig),
+        CreateDefault = () => new VideoStreamConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_VideoStream_Label,
         DescriptionId = Str.WidgetsA_Catalog_VideoStream_Description,

@@ -33,6 +33,7 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
         Id = new("alarm"),
         Kind = WidgetKind.Alarm,
         ConfigType = typeof(AlarmConfig),
+        CreateDefault = () => new AlarmConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Alarm_Label,
         DescriptionId = Str.Alarm_Desc,

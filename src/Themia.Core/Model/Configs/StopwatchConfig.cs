@@ -22,6 +22,7 @@ public sealed class StopwatchConfig : WidgetConfig
         Id = new("stopwatch"),
         Kind = WidgetKind.Stopwatch,
         ConfigType = typeof(StopwatchConfig),
+        CreateDefault = () => new StopwatchConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Stopwatch_Label,
         DescriptionId = Str.Stopwatch_Desc,

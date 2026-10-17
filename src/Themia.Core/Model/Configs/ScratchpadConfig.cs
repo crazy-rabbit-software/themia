@@ -65,6 +65,7 @@ public sealed class ScratchpadConfig : WidgetConfig
         Id = new("scratchpad"),
         Kind = WidgetKind.Scratchpad,
         ConfigType = typeof(ScratchpadConfig),
+        CreateDefault = () => new ScratchpadConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Scratchpad_Label,
         DescriptionId = Str.WidgetsA_Catalog_Scratchpad_Description,

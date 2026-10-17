@@ -24,6 +24,7 @@ public sealed class MixerConfig : WidgetConfig
         Id = new("mixer"),
         Kind = WidgetKind.Mixer,
         ConfigType = typeof(MixerConfig),
+        CreateDefault = () => new MixerConfig(),
         Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Mixer_Label,
         DescriptionId = Str.WidgetsA_Catalog_Mixer_Description,
