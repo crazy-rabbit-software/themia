@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -40,8 +41,11 @@ public enum StreamRotation
 /// <see cref="ResolvedUrl"/>. Nothing else in the widget re-checks the scheme.
 /// </para>
 /// </summary>
-public sealed class VideoStreamConfig : WidgetConfig
+public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => ResolvedUrl.Problem == WebUrlProblem.Empty;
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.VideoStream;
 

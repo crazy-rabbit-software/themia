@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -28,8 +29,11 @@ public sealed class RssFeed
 /// link and summary that comes back is attacker-controlled text, displayed and never interpreted.
 /// </para>
 /// </summary>
-public sealed class RssConfig : WidgetConfig
+public sealed class RssConfig : WidgetConfig, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => ResolvedFeeds.Count == 0;
+
     /// <summary>How many feeds one widget merges. Each is a request per refresh.</summary>
     public const int MaxFeeds = 12;
 

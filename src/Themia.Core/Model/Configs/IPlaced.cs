@@ -1,3 +1,5 @@
+using Themia.Core.Accounts;
+
 namespace Themia.Core.Model;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Themia.Core.Model;
 /// it can be cleared, and a cleared place is no place, so the widget waits for setup ([S-1860])
 /// rather than falling back to somewhere the user never picked.
 /// </summary>
-public interface IPlaced
+public interface IPlaced : ISetupRule
 {
     /// <summary>Whether a place is chosen: both coordinates set and finite.</summary>
     bool HasLocation { get; }
@@ -16,4 +18,7 @@ public interface IPlaced
     /// the header names the place) are the user's and stay.
     /// </summary>
     void ClearLocation();
+
+    /// <summary>[S-2848] No place chosen, or cleared, is the Set up state.</summary>
+    bool ISetupRule.NeedsSetup(AccountFeatures signedIn) => !HasLocation;
 }

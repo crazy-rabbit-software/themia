@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
 
@@ -138,6 +139,18 @@ public sealed partial class WidgetRegistryTests
     {
         var traits = Of(id).Traits;
         Assert.False(traits.HasFlag(WidgetTraits.StartsHeaderless) && !traits.HasFlag(WidgetTraits.CanHaveHeader), $"{id}: {traits}");
+    }
+
+    [Theory]
+    [MemberData(nameof(Ids))]
+    public void S6906_a_widget_that_reads_an_account_has_a_setup_rule(string id)
+    {
+        var widget = Of(id);
+        if (widget.ProviderNames.Count > 0)
+        {
+            Assert.True(typeof(ISetupRule).IsAssignableFrom(widget.ConfigType), $"{id} reads {string.Join(", ", widget.ProviderNames)} but never waits for setup");
+            Assert.True(WidgetSetup.Needed(widget.CreateDefault(), Themia.Core.Accounts.AccountFeatures.None), $"{id} does not wait for an account");
+        }
     }
 
     [Theory]

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -44,8 +45,11 @@ public sealed class QuoteItem
 /// with no network and keeps working on a laptop in a tunnel.
 /// </para>
 /// </summary>
-public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>, IContentAligned
+public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>, IContentAligned, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => EffectiveQuotes.Count == 0;
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Quote;
 

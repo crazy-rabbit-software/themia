@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Storage;
@@ -32,8 +33,11 @@ public enum EmailStyle
 /// would refuse the whole state file and blank every desktop.
 /// </para>
 /// </summary>
-public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>
+public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Mail) == 0;
+
     /// <summary>The fields the list and compact styles show when the user has not chosen.</summary>
     public static IReadOnlyList<MailListField> DefaultListFields { get; } = [MailListField.Subject, MailListField.Account];
 

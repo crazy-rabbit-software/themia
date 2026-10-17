@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Storage;
@@ -96,8 +97,11 @@ public enum ContactColumn
 /// read leniently ([S-563]): a wrong one becomes its default rather than refusing the state file.
 /// The calendar itself (<see cref="CalendarWidgetConfig"/>), Next meeting and the week planner build on it.
 /// </summary>
-public abstract class CalendarConfig : WidgetConfig
+public abstract class CalendarConfig : WidgetConfig, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public virtual bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Calendar) == 0;
+
     /// <summary>[S-3640] The shape the widget draws: the calendar's style, a fixed one for the others. Never stored here.</summary>
     [JsonIgnore]
     public abstract CalendarStyle Layout { get; }
@@ -343,8 +347,11 @@ public enum ContactsSetting
 /// [S-580] The contacts widget's settings: which accounts, the layout, the columns of the details
 /// table, how many to list and a search to start with. Data comes from Themia's own accounts.
 /// </summary>
-public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>
+public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => (signedIn & AccountFeatures.Contacts) == 0;
+
     /// <summary>The columns of a fresh details table, in canonical order.</summary>
     public static IReadOnlyList<ContactColumn> AllColumns { get; } =
         [ContactColumn.Name, ContactColumn.Email, ContactColumn.Phone, ContactColumn.Company, ContactColumn.Title];

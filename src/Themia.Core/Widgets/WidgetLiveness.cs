@@ -69,7 +69,7 @@ public static class WidgetLiveness
     }
 
     /// <summary>[S-1881] A widget whose setup is done on the widget itself, under its Set up button.</summary>
-    public static bool SetUpInPlace(WidgetConfig config) => config is ShortcutsConfig;
+    public static bool SetUpInPlace(WidgetConfig config) => config is ISetupRule { SetsUpInPlace: true };
 
     /// <summary>
     /// [S-1882] Match the cards a surface has to the widgets it must show. A card is kept only for the

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -119,8 +120,14 @@ public sealed class ShortcutItem
 /// <summary>
 /// An ordered list of shortcuts and how to draw them.
 /// </summary>
-public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<ShortcutsSetting>
+public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<ShortcutsSetting>, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => Items.Count == 0;
+
+    /// <summary>[S-1881] Its setup is a drop onto the widget itself, so it runs while it waits.</summary>
+    bool ISetupRule.SetsUpInPlace => true;
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Shortcuts;
 

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Tasks;
@@ -42,8 +43,11 @@ public enum TasksSetting
 /// quietly swapped for another — that widget says so instead.
 /// </para>
 /// </summary>
-public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>
+public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>, ISetupRule
 {
+    /// <summary>A list kept on this PC needs no account; it starts from the widget itself ([S-604]).</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => Source == TaskSource.Account && (signedIn & AccountFeatures.Tasks) == 0;
+
     private List<string> _taskOrder = [];
 
     [JsonIgnore]

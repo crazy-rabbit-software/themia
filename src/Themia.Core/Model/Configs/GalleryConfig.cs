@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -80,8 +81,16 @@ public enum GallerySetting
 /// desktop in front of whoever walks past, is a different kind of mistake.
 /// </para>
 /// </summary>
-public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<GallerySetting>
+public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<GallerySetting>, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => Source switch
+    {
+        GallerySource.Folder => string.IsNullOrWhiteSpace(Path),
+        GallerySource.File => string.IsNullOrWhiteSpace(FilePath),
+        _ => false,
+    };
+
     /// <summary>
     /// [S-1620] The fewest seconds a slide can be held: one, as in the original (its S-09/S-18).
     /// Below a second it is a flicker, not a slideshow.

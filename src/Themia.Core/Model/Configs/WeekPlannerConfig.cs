@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -25,6 +26,13 @@ public enum WeekPlannerSetting
 /// </summary>
 public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlannerSetting>
 {
+    /// <summary>
+    /// [S-5325] The planner shows a calendar's days and, if it lists them, an account's tasks: it waits
+    /// for setup only while neither source is signed in.
+    /// </summary>
+    public override bool NeedsSetup(AccountFeatures signedIn)
+        => (signedIn & AccountFeatures.Calendar) == 0 && (!ShowTasks || (signedIn & AccountFeatures.Tasks) == 0);
+
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WeekPlanner;
 

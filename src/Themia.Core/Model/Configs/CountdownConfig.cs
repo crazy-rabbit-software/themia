@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -27,8 +28,11 @@ public enum CountdownStyle
 /// [S-6036] One countdown: a target, its name and how it reads. A widget counts to one target;
 /// several countdowns are several widgets. A new widget has no target and asks to be set up.
 /// </summary>
-public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned
+public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => Target is null;
+
     /// <summary>The most a name says, in characters.</summary>
     public const int MostLabel = 60;
 

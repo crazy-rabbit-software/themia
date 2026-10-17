@@ -927,6 +927,10 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   member is required, so no widget takes another's by omission): `HasItems` ([S-6570], checked
   against what its view paints), `CanHaveHeader` ([S-3711]) and `StartsHeaderless` ([S-700]; only
   for a widget that may have a header at all).
+- **[S-6906]** What the host asks a widget's state is asked of its config, never by a switch over
+  config types: whether it waits for setup and whether it runs while it waits (`ISetupRule`,
+  [S-1860], [S-1881]), whether and where its content aligns (`IContentAligned`, [S-6581]). A widget
+  that reads an account (its descriptor names providers) has a setup rule.
 
 ## Adding a widget
 
@@ -7135,7 +7139,8 @@ Owning files: `Themia.Core/Widgets/WidgetSetup.cs`, `Themia.App/Shell/WidgetCard
 gallery ([S-1863]).
 
 - **[S-1860]** A widget that can show nothing useful until it is configured needs setting up, decided
-  for every kind by one pure rule, `WidgetSetup.Needed(config, signed-in features)`: Countdown with no
+  for every kind by one pure rule, `WidgetSetup.Needed(config, signed-in features)`, which asks the
+  widget's own config (`ISetupRule`, [S-6906]): Countdown with no
   target ([S-6036]); Quote with no quote left; Feed with no feed
   address; Stocks with no symbol; Weather (now and forecast), Air quality and Rain with no place; Video stream with no
   address; Shortcuts with no item; Pictures with no folder (folder source) or no

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -73,8 +74,11 @@ public enum StocksSetting
 /// then be the size its reader wants.
 /// </para>
 /// </summary>
-public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksSetting>, IContentAligned
+public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksSetting>, IContentAligned, ISetupRule
 {
+    /// <summary>[S-6906] It waits for setup while this holds.</summary>
+    public bool NeedsSetup(AccountFeatures signedIn) => string.IsNullOrWhiteSpace(Symbol);
+
     private static readonly StyleOption[] StockStyles =
     [
         StyleOption.Of(StocksStyle.Chart, Str.Styles_Stocks_Chart, 0xE9D2),

@@ -27,34 +27,7 @@ public static class WidgetSetup
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        return config switch
-        {
-            CountdownConfig countdown => countdown.Target is null,
-            QuoteConfig quote => quote.EffectiveQuotes.Count == 0,
-            RssConfig rss => rss.ResolvedFeeds.Count == 0,
-            StocksConfig stocks => string.IsNullOrWhiteSpace(stocks.Symbol),
-            // [S-2848] Every widget about a place: none chosen, or cleared, is the Set up state.
-            IPlaced placed => !placed.HasLocation,
-            VideoStreamConfig stream => stream.ResolvedUrl.Problem == WebUrlProblem.Empty,
-            ShortcutsConfig shortcuts => shortcuts.Items.Count == 0,
-            GalleryConfig gallery => gallery.Source switch
-            {
-                GallerySource.Folder => string.IsNullOrWhiteSpace(gallery.Path),
-                GallerySource.File => string.IsNullOrWhiteSpace(gallery.FilePath),
-                _ => false,
-            },
-
-            EmailConfig => Lacks(signedIn, AccountFeatures.Mail),
-            // [S-5325] The planner shows a calendar's days and, if it lists them, an account's
-            // tasks: it waits for setup only while neither source is signed in.
-            WeekPlannerConfig planner => Lacks(signedIn, AccountFeatures.Calendar) && (!planner.ShowTasks || Lacks(signedIn, AccountFeatures.Tasks)),
-            CalendarConfig => Lacks(signedIn, AccountFeatures.Calendar),
-            ContactsConfig => Lacks(signedIn, AccountFeatures.Contacts),
-
-            // A list kept on this PC needs no account; it starts from the widget itself ([S-604]).
-            TasksConfig tasks => tasks.Source == TaskSource.Account && Lacks(signedIn, AccountFeatures.Tasks),
-            _ => false,
-        };
+        return config is ISetupRule rule && rule.NeedsSetup(signedIn);
     }
 
     /// <summary>Every feature the accounts' providers offer between them.</summary>
@@ -70,6 +43,4 @@ public static class WidgetSetup
 
         return features;
     }
-
-    private static bool Lacks(AccountFeatures signedIn, AccountFeatures wanted) => (signedIn & wanted) == 0;
 }
