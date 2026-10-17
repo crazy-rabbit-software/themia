@@ -3,7 +3,6 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Graphics.Imaging;
-using Windows.Storage.Streams;
 
 namespace Themia.App.Shell.Gallery;
 
@@ -16,7 +15,11 @@ internal static class RenderPng
         await bitmap.RenderAsync(element);
         var pixels = await bitmap.GetPixelsAsync();
 
-        using var stream = new InMemoryRandomAccessStream();
+        // Encoded straight into the file's stream. Reading the encoded bytes back out of an
+        // InMemoryRandomAccessStream through a DataReader blocked the UI thread for good in a Native
+        // AOT build, so the render never finished; a file stream has nothing to read back.
+        using var file = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+        using var stream = file.AsRandomAccessStream();
         var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
         encoder.SetPixelData(
             BitmapPixelFormat.Bgra8,
@@ -27,13 +30,6 @@ internal static class RenderPng
             96,
             pixels.ToArray());
         await encoder.FlushAsync();
-
-        stream.Seek(0);
-        var bytes = new byte[stream.Size];
-        using var reader = new DataReader(stream.GetInputStreamAt(0));
-        await reader.LoadAsync((uint)stream.Size);
-        reader.ReadBytes(bytes);
-        await File.WriteAllBytesAsync(path, bytes).ConfigureAwait(true);
     }
 }
 #endif
