@@ -259,8 +259,8 @@ public sealed class FillChoiceTests
         RgbColor Dark(ItemState state) => ItemLook.Ink(ItemRole.Row, state, layer, dark: true).Colour!.Value;
         RgbColor Light(ItemState state) => ItemLook.Ink(ItemRole.Row, state, layer, dark: false).Colour!.Value;
 
-        Assert.Equal(DesignLook.Over(DesignLook.Alpha(ItemLook.HoverShift), new RgbColor(255, 255, 255), rest), Dark(ItemState.Hover));
-        Assert.Equal(DesignLook.Over(DesignLook.Alpha(ItemLook.HoverShift), new RgbColor(0, 0, 0), rest), Light(ItemState.Hover));
+        Assert.Equal(DesignLook.Over(FillChoice.Alpha(ItemLook.HoverShift), new RgbColor(255, 255, 255), rest), Dark(ItemState.Hover));
+        Assert.Equal(DesignLook.Over(FillChoice.Alpha(ItemLook.HoverShift), new RgbColor(0, 0, 0), rest), Light(ItemState.Hover));
 
         // Lighter in dark theme, darker in light, and further the stronger the state.
         Assert.True(Dark(ItemState.Hover).R > rest.R && Dark(ItemState.Selected).R > Dark(ItemState.Hover).R);

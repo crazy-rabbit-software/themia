@@ -6,17 +6,6 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Interop;
 
-/// <summary>How an eyedropper pick ended.</summary>
-internal enum ScreenPickOutcome
-{
-    Picked,
-    Cancelled,
-    Failed,
-}
-
-/// <summary>An eyedropper result: the colour as <c>#RRGGBB</c> when <see cref="Outcome"/> is <see cref="ScreenPickOutcome.Picked"/>.</summary>
-internal readonly record struct ScreenPickResult(ScreenPickOutcome Outcome, string Hex = "");
-
 /// <summary>
 /// [S-1556]..[S-1559] The eyedropper: pick the colour of any pixel on any display.
 /// <para>
@@ -1044,4 +1033,14 @@ internal static unsafe partial class ScreenColorPicker
             Log.Warn(Scope, $"DwmFlush failed (0x{hr:X8}); the capture may still show the closing menu");
         }
     }
+}
+
+/// <summary>The eyedropper as the SDK's colour rows ask for it (<see cref="Shell.ColorChoice"/>).</summary>
+internal sealed class ScreenEyedropper : Shell.IScreenEyedropper
+{
+    public bool IsActive => ScreenColorPicker.IsActive;
+
+    public void WaitForComposedFrame() => ScreenColorPicker.WaitForComposedFrame();
+
+    public Task<ScreenPickResult> PickAsync(LoupeMetrics metrics, double labelFontDips) => ScreenColorPicker.PickAsync(metrics, labelFontDips);
 }

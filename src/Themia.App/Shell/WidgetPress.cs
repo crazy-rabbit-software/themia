@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -8,19 +7,11 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-814] Which elements of a widget are its items (rows, tiles, cells), so the shell can tell a press
-/// on one from a press on the widget's background — the one rule that clears a selection on a click
-/// into empty space, for every widget. <see cref="Widgets.RowFocus.Prepare"/> marks every row that
-/// carries a focus ring; a view whose items have none marks them here.
+/// [S-814] What a press on a widget landed on: one of its items (marked through
+/// <see cref="WidgetItems"/>), a control, or the widget's background.
 /// </summary>
-internal static class WidgetItems
+internal static class WidgetPress
 {
-    private static readonly ConditionalWeakTable<UIElement, object> Items = [];
-    private static readonly object Marker = new();
-
-    /// <summary>Mark <paramref name="element"/> as one of its widget's items.</summary>
-    public static void Mark(UIElement element) => Items.AddOrUpdate(element, Marker);
-
     /// <summary>
     /// What a press at <paramref name="source"/> landed on, and in which card: the walk goes up to the
     /// first <see cref="WidgetCard"/> (null when the press was on the shell's own chrome).
@@ -37,7 +28,7 @@ internal static class WidgetItems
                 return (card, SessionInput.Classify(onItem, onControl, handled));
             }
 
-            onItem |= element is UIElement ui && Items.TryGetValue(ui, out _);
+            onItem |= element is UIElement ui && WidgetItems.IsItem(ui);
             onControl |= IsControl(element);
         }
 

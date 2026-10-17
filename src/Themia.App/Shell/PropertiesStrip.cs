@@ -563,7 +563,7 @@ internal sealed partial class PropertiesStrip : Grid
 
     private static Windows.UI.Color? AppColour(FillChoice? fill)
         => fill is { Kind: FillKind.Colour } && HexColor.TryParse(fill.Colour, out var r, out var g, out var b)
-            ? Windows.UI.Color.FromArgb(DesignLook.Alpha(fill.Opacity), r, g, b)
+            ? Windows.UI.Color.FromArgb(FillChoice.Alpha(fill.Opacity), r, g, b)
             : null;
 
     /// <summary>

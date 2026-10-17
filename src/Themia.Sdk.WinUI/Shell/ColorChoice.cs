@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -19,7 +18,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell;
 
 /// <summary>What one <see cref="ColorChoice"/> offers.</summary>
-internal sealed class ColorChoiceOptions
+public sealed class ColorChoiceOptions
 {
     /// <summary>The swatches, in rows of <see cref="ColorPresets.Columns"/>. Windows' accent palette by default.</summary>
     public IReadOnlyList<ColorPreset> Presets { get; init; } = ColorPresets.Windows;
@@ -45,7 +44,7 @@ internal sealed class ColorChoiceOptions
 }
 
 /// <summary>[S-6567] What one fill control (<see cref="ColorChoice.CreateFill"/>) offers.</summary>
-internal sealed class FillChoiceOptions
+public sealed class FillChoiceOptions
 {
     /// <summary>The label of Default: "Default" on a widget (the app-wide fill), "Theme colour" app-wide.</summary>
     public required string DefaultLabel { get; init; }
@@ -68,7 +67,7 @@ internal sealed class FillChoiceOptions
 /// <param name="OpacityEnabled">A colour is chosen, so the opacity slider means something.</param>
 /// <param name="OpacityPreview">The slider moved: show it, store nothing yet.</param>
 /// <param name="OpacityCommit">The slider was let go (or stepped with a key): store it, one change.</param>
-internal sealed record FillExtras(
+public sealed record FillExtras(
     bool DefaultChosen,
     bool TransparentChosen,
     Action Transparent,
@@ -92,8 +91,23 @@ internal sealed record FillExtras(
 /// the colour sits inside another control (a palette entry, a calendar row).
 /// </para>
 /// </summary>
-internal static class ColorChoice
+public static class ColorChoice
 {
+    /// <summary>The host's eyedropper ([S-1556]): the screen capture and its overlay are Win32, which the SDK does not carry.</summary>
+    private static IScreenEyedropper? _eyedropper;
+
+    private static IScreenEyedropper Eyedropper
+        => Volatile.Read(ref _eyedropper) ?? throw new InvalidOperationException("no eyedropper installed: the host installs it before any colour row is shown");
+
+    /// <summary>The host's eyedropper. Once per process.</summary>
+    internal static void InstallEyedropper(IScreenEyedropper eyedropper)
+    {
+        ArgumentNullException.ThrowIfNull(eyedropper);
+        if (Interlocked.CompareExchange(ref _eyedropper, eyedropper, null) is not null)
+        {
+            throw new InvalidOperationException("the eyedropper is installed once per process");
+        }
+    }
     private const string Scope = "color-choice";
 
     private const double SwatchSize = 32;
@@ -361,7 +375,7 @@ internal static class ColorChoice
 
         if (fill.Kind == FillKind.Colour && HexColor.TryParse(fill.Colour, out var r, out var g, out var b))
         {
-            swatch.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(DesignLook.Alpha(fill.Opacity), r, g, b));
+            swatch.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(FillChoice.Alpha(fill.Opacity), r, g, b));
             return;
         }
 
@@ -693,7 +707,7 @@ internal static class ColorChoice
     /// </summary>
     private static void PickFromScreen(Flyout flyout, Action<string> choose)
     {
-        if (ScreenColorPicker.IsActive)
+        if (Eyedropper.IsActive)
         {
             return;
         }
@@ -732,8 +746,8 @@ internal static class ColorChoice
     {
         try
         {
-            ScreenColorPicker.WaitForComposedFrame();
-            var result = await ScreenColorPicker.PickAsync(Loupe, FluentType.BodyStrong.FontSize);
+            Eyedropper.WaitForComposedFrame();
+            var result = await Eyedropper.PickAsync(Loupe, FluentType.BodyStrong.FontSize);
             switch (result.Outcome)
             {
                 case ScreenPickOutcome.Picked:
@@ -792,7 +806,7 @@ internal static class ColorChoice
 
         if (opacity is { } alpha)
         {
-            start.A = DesignLook.Alpha(alpha);
+            start.A = FillChoice.Alpha(alpha);
         }
 
         var picker = new ColorPicker
@@ -849,4 +863,17 @@ internal static class ColorChoice
             return null;
         }
     }
+}
+
+/// <summary>[S-1556]..[S-1559] What the host's eyedropper does for a colour row: pick any pixel on any display.</summary>
+public interface IScreenEyedropper
+{
+    /// <summary>A pick is under way (a second one is not started).</summary>
+    bool IsActive { get; }
+
+    /// <summary>Wait for the desktop compositor's next frame, so the capture shows the screen and not the colour flyout.</summary>
+    void WaitForComposedFrame();
+
+    /// <summary>Run the pick: the loupe drawn with <paramref name="metrics"/>, its label at <paramref name="labelFontDips"/>.</summary>
+    Task<ScreenPickResult> PickAsync(LoupeMetrics metrics, double labelFontDips);
 }

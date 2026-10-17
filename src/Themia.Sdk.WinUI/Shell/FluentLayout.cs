@@ -38,7 +38,7 @@ namespace Themia.App.Shell;
 /// so anything built through these helpers is searchable without being listed anywhere.
 /// </para>
 /// </summary>
-internal static class FluentLayout
+public static class FluentLayout
 {
     private const string Scope = "layout";
 
@@ -991,7 +991,7 @@ internal static class FluentLayout
 }
 
 /// <summary>What one <see cref="FluentLayout.ListEditor{T}"/> needs to know about its list.</summary>
-internal sealed class ListEditorOptions<T>
+public sealed class ListEditorOptions<T>
     where T : class
 {
     /// <summary>The live list out of the widget's config. Edited in place, never copied.</summary>
@@ -1032,7 +1032,7 @@ internal sealed class ListEditorOptions<T>
 }
 
 /// <summary>A way back into a built list editor, for a page that can add an item from elsewhere.</summary>
-internal sealed class ListEditorHandle<T>
+public sealed class ListEditorHandle<T>
     where T : class
 {
     private readonly Action<T> _append;
@@ -1052,7 +1052,7 @@ internal sealed class ListEditorHandle<T>
 }
 
 /// <summary>[S-1708] One item of a <see cref="FluentLayout.MultiChoice"/>: its id, its name and, optionally, its icon (made fresh each time the list is built).</summary>
-internal readonly record struct MultiChoiceItem(string Id, string Label, Func<UIElement>? Icon = null);
+public readonly record struct MultiChoiceItem(string Id, string Label, Func<UIElement>? Icon = null);
 
 /// <summary>[S-1708] What a <see cref="FluentLayout.MultiChoice"/> has picked: every item, or the ids in <paramref name="Picked"/>, and the button's text for it.</summary>
-internal readonly record struct MultiChoiceState(bool All, IReadOnlySet<string> Picked, string Summary);
+public readonly record struct MultiChoiceState(bool All, IReadOnlySet<string> Picked, string Summary);

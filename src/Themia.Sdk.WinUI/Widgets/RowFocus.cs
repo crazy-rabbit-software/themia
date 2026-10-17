@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// no per-view <c>KeyDown</c> and no second key vocabulary.
 /// </para>
 /// </summary>
-internal static class RowFocus
+public static class RowFocus
 {
     /// <summary>The ring's width: inset, like Windows' own list focus, so it never shifts the text.</summary>
     public const double Ring = 1.5;

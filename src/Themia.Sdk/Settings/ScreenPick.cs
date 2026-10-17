@@ -232,3 +232,14 @@ public static class ScreenPick
     /// </summary>
     public static bool WantsDarkInk(byte r, byte g, byte b) => (0.299 * r) + (0.587 * g) + (0.114 * b) > 150;
 }
+
+/// <summary>How an eyedropper pick ended.</summary>
+public enum ScreenPickOutcome
+{
+    Picked,
+    Cancelled,
+    Failed,
+}
+
+/// <summary>An eyedropper result: the colour as <c>#RRGGBB</c> when <see cref="Outcome"/> is <see cref="ScreenPickOutcome.Picked"/>.</summary>
+public readonly record struct ScreenPickResult(ScreenPickOutcome Outcome, string Hex = "");

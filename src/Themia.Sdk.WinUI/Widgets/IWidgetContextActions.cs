@@ -4,7 +4,7 @@ namespace Themia.App.Widgets;
 /// <param name="Glyph">Segoe Fluent Icons code point.</param>
 /// <param name="Text">The menu text, which may name the current state ("Pause", "Resume").</param>
 /// <param name="Invoke">Runs on the UI thread when the item is clicked.</param>
-internal readonly record struct WidgetAction(string Glyph, string Text, Action Invoke);
+public readonly record struct WidgetAction(string Glyph, string Text, Action Invoke);
 
 /// <summary>
 /// A view with commands that belong on the widget itself rather than in its settings: pausing a
@@ -16,7 +16,7 @@ internal readonly record struct WidgetAction(string Glyph, string Text, Action I
 /// of the menu's list, under the icon row ([S-1743]), and owns everything else on it.
 /// </para>
 /// </summary>
-internal interface IWidgetContextActions
+public interface IWidgetContextActions
 {
     IReadOnlyList<WidgetAction> ContextActions { get; }
 }

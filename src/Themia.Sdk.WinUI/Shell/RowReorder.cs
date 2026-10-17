@@ -31,7 +31,7 @@ namespace Themia.App.Shell;
 /// </summary>
 /// <param name="drop">Put the dragged item where the target is (dragged, target).</param>
 /// <param name="move">Move the item one place (-1 up, +1 down); false when it is at that end.</param>
-internal sealed class RowReorder<TKey>(Action<TKey, TKey> drop, Func<TKey, int, bool> move)
+public sealed class RowReorder<TKey>(Action<TKey, TKey> drop, Func<TKey, int, bool> move)
     where TKey : notnull
 {
     private const string Scope = "reorder";

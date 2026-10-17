@@ -16,7 +16,7 @@ namespace Themia.App.Widgets;
 /// disposes the fade on <c>Detach</c>.
 /// </para>
 /// </summary>
-internal sealed class ScrollFade : IDisposable
+public sealed class ScrollFade : IDisposable
 {
     private readonly ScrollViewer _scroll;
     private readonly Panel _list;

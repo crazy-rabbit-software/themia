@@ -201,7 +201,7 @@ internal static class DesignApplier
             return null;
         }
 
-        var alpha = DesignLook.Alpha(opacity);
+        var alpha = FillChoice.Alpha(opacity);
         var key = (HexColor.From(r, g, b), alpha);
 
         if (!Plain.TryGetValue(key, out var brush))

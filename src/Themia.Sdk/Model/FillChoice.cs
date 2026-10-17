@@ -31,6 +31,10 @@ public enum FillKind
 /// </summary>
 public sealed class FillChoice
 {
+    /// <summary>An opacity setting as an alpha byte. Not finite is opaque; the rest clamps to 0..1.</summary>
+    public static byte Alpha(double opacity)
+        => (byte)Math.Round(Math.Clamp(double.IsFinite(opacity) ? opacity : 1, 0, 1) * 255);
+
     public FillKind Kind { get; set; } = FillKind.Default;
 
     /// <summary>The colour as <c>#RRGGBB</c>; read only when <see cref="Kind"/> is <see cref="FillKind.Colour"/>.</summary>

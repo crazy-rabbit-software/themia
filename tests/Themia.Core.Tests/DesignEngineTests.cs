@@ -80,7 +80,7 @@ public sealed class DesignEngineTests
     [InlineData(-1.0, 0)]
     [InlineData(double.NaN, 255)]
     public void S822_alpha_clamps_and_treats_garbage_as_opaque(double opacity, byte expected)
-        => Assert.Equal(expected, DesignLook.Alpha(opacity));
+        => Assert.Equal(expected, FillChoice.Alpha(opacity));
 
     /// <summary>The card fill the default design paints: the Fluent card at full strength.</summary>
     private static readonly CardFill Fluent = DesignLook.Card(new FillChoice());

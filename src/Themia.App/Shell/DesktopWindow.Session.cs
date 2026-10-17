@@ -25,7 +25,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var (card, target) = WidgetItems.Locate(e.OriginalSource as DependencyObject, e.Handled);
+        var (card, target) = WidgetPress.Locate(e.OriginalSource as DependencyObject, e.Handled);
         var extending = (e.KeyModifiers & (VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift)) != 0;
 
         // Edit mode's presses select and move cards, not items: there only the popups matter.

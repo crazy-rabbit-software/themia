@@ -110,7 +110,7 @@ public static class ItemLook
 
         var colour = new RgbColor(r, g, b);
         var contrast = dark ? new RgbColor(255, 255, 255) : new RgbColor(0, 0, 0);
-        var shown = shift > 0 ? DesignLook.Over(DesignLook.Alpha(shift), contrast, colour) : colour;
+        var shown = shift > 0 ? DesignLook.Over(FillChoice.Alpha(shift), contrast, colour) : colour;
         return new ItemInk(shown, null, opacity);
     }
 

@@ -19,7 +19,7 @@ namespace Themia.App.Shell;
 /// take the direction of the element they open from.
 /// </para>
 /// </summary>
-internal static class UiLanguage
+public static class UiLanguage
 {
     public static string Tag(Locale locale) => TextDirection.LayoutTag(locale);
 

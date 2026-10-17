@@ -15,7 +15,7 @@ namespace Themia.App.Services;
 /// started, and in a debug render, there is no surface — the notice is logged and dropped.
 /// </para>
 /// </summary>
-internal static class Notices
+public static class Notices
 {
     private const string Scope = "notice";
 

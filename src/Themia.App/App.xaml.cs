@@ -23,6 +23,7 @@ public partial class App : Application
         Themia.Sdk.WinUI.ThemeBrush.Install(Shell.DesignApplier.Brush);
         Widgets.ItemFill.Install(new Widgets.ItemInks.Engine());
         Widgets.ItemMenu.InstallFileIcons((file, pixels) => Services.Files.FileIcons.IconAsync(new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, false, 0, default, false), pixels));
+        Shell.ColorChoice.InstallEyedropper(new Interop.ScreenEyedropper());
 
 #if DEBUG
         // The settings render's --theme: the application theme can only be chosen before the

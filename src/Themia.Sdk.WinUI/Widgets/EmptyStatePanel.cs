@@ -20,7 +20,7 @@ namespace Themia.App.Widgets;
 /// arranged into an empty rect, and a collapsed glyph measures to nothing, so the two compose.
 /// </para>
 /// </summary>
-internal sealed partial class EmptyStatePanel : StackPanel
+public sealed partial class EmptyStatePanel : StackPanel
 {
     private readonly FrameworkElement _icon;
     private readonly TextBlock _message;

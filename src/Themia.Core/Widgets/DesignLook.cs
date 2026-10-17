@@ -140,10 +140,6 @@ public static class DesignLook
         "SystemControlHighlightListAccentHighBrush",
     ];
 
-    /// <summary>An opacity setting as an alpha byte. Not finite is opaque; the rest clamps to 0..1.</summary>
-    public static byte Alpha(double opacity)
-        => (byte)Math.Round(Math.Clamp(double.IsFinite(opacity) ? opacity : 1, 0, 1) * 255);
-
     /// <summary>
     /// [S-823] [S-6563] What a card's fill is for its effective background choice
     /// (<see cref="FillChoice.Effective"/>): Default is the Fluent base and card tint at full

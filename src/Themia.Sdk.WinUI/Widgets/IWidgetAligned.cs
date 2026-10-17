@@ -20,7 +20,7 @@ public interface IWidgetAligned
 }
 
 /// <summary>[S-6583] An alignment as WinUI's: the element's place in its slot and its text's.</summary>
-internal static class Aligned
+public static class Aligned
 {
     /// <summary>Where an element sits across its slot: start, middle or end (flow-relative, as Windows aligns).</summary>
     public static HorizontalAlignment Horizontal(ContentAlign align) => align switch

@@ -21,7 +21,7 @@ namespace Themia.App.Shell;
 /// across the managed/native boundary.
 /// </para>
 /// </summary>
-internal sealed class SettingRow(string title, string? description, FrameworkElement? control)
+public sealed class SettingRow(string title, string? description, FrameworkElement? control)
 {
     /// <summary>The row's title, as the card shows it and as search finds it.</summary>
     public string Title { get; } = title;
@@ -82,7 +82,7 @@ internal sealed class SettingRow(string title, string? description, FrameworkEle
 /// <summary>
 /// Reads the rows back off a built page, in page order, each with the section heading above it.
 /// </summary>
-internal static class SettingsIndex
+public static class SettingsIndex
 {
     /// <summary>The marker a section heading carries, so the walk can tell it from any other text.</summary>
     internal const string SectionMark = "themia.section";

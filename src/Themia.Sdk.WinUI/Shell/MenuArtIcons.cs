@@ -20,7 +20,7 @@ namespace Themia.App.Shell;
 /// screen-sized raster (32 MB per menu line, held until the next collection).
 /// </para>
 /// </summary>
-internal static class MenuArtIcons
+public static class MenuArtIcons
 {
     private const string Scope = "menu-art";
 
