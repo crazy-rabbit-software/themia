@@ -109,6 +109,17 @@ internal static class MenuRender
                 host.Set(editMode: true, selection: 1, canPaste: true);
                 await RenderAsync(root, bare.CardMenu(), System.IO.Path.Combine(outDir, "card-no-settings.png")).ConfigureAwait(true);
 
+                // [S-1758] Outside edit mode: the view's own commands, Settings and Edit layout, nothing that arranges.
+                host.Set(editMode: false, selection: 1, canPaste: true);
+                await RenderAsync(root, bare.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-no-settings.png")).ConfigureAwait(true);
+
+                var drive = WidgetInstance.Create(WidgetKind.Drive, new FracRect(0.3, 0.6, 0.2, 0.2));
+                view.Widgets.Add(drive);
+                var withActions = new WidgetCard(host, drive) { Width = 200, Height = 120 };
+                root.Children.Add(new Canvas { Children = { withActions } });
+                await Task.Delay(300).ConfigureAwait(true);
+                await RenderAsync(root, withActions.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-actions.png")).ConfigureAwait(true);
+
                 var noop = static () => { };
                 var surface = DesktopWindow.SurfaceEntries(
                     new SurfaceMenuFacts(EditMode: true, Placing: false, CanPaste: true, HasWidgets: true, GridSnap: true),

@@ -6928,11 +6928,18 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   bar flyout with no row still draws an empty bar above its list).
 - **[S-1742]** The list keeps its callers' order; separators collapse (none leading, trailing or
   doubled), including where moving commands to the row emptied a group.
-- **[S-1743]** A widget card's menu: the row is Cut, Copy, Paste (disabled with nothing to paste),
+- **[S-1743]** A widget card's menu in edit mode: the row is Cut, Copy, Paste (disabled with nothing to paste),
   Settings and Delete, acting on the selection ([S-1592]); the list is the view's own
   commands, Bring to front / Send to back, and Edit layout / Done editing. There is no Move:
   dragging and the arrow keys move a widget. There is no
   Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough.
+- **[S-1758]** Outside edit mode the card menu is for using the widget, not arranging it: the view's own
+  commands (Refresh, Pause, which folder, [S-1746]), Settings (a labelled line, [S-1741]; none for a widget
+  without a page, [S-1750]) and Edit layout. No Cut, Copy, Paste, Delete, layering or icon row: with no
+  selection shown and nowhere to paste outside edit mode they did nothing the user could see (user report
+  2026-10-17: "I right click and cut a widget, nothing happens"). Item menus inside a widget (a file's
+  Explorer commands, [S-6416]) are the widget's own and unchanged; empty surface stays click-through ([S-1744]).
+  `ShellMenus.ForCard`; tests `S1758_`.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu: Paste and Settings in the row; Add widget (opens the picker at the
   click, whose choice then follows the pointer to be placed, [S-1587]), Select all ([S-1582], off
@@ -6950,7 +6957,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   background and title are set on its properties strip ([S-3707]). The menus keep commands the user
   runs while looking at the widget: refresh, pause, open, which folder, the click mode, search.
 - **[S-1747]** Debug: `--menu-png <outDir> [--theme light|dark]` opens the card menu (edit mode, one
-  widget; desktop, three widgets), the surface menu, two sample item menus and the folder widget's file, Open with,
+  widget; desktop, three widgets; desktop, a widget with view commands and one without settings, [S-1758]), the surface menu, two sample item menus and the folder widget's file, Open with,
   folder and background menus (a real view over read-only Windows folders) for real, off-screen,
   and writes each open popup to a PNG.
 - **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the

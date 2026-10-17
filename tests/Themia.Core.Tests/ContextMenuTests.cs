@@ -160,6 +160,55 @@ public sealed class ContextMenuTests
             list);
     }
 
+    // ---- [S-1758] the card menu outside edit mode -------------------------------------------------
+
+    private static readonly ShellCommand[] Editing =
+    [
+        ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Delete,
+        ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.AddWidget, ShellCommand.SelectAll,
+        ShellCommand.SnapToGrid,
+    ];
+
+    [Fact]
+    public void S1758_outside_edit_mode_the_card_menu_has_no_editing_commands()
+    {
+        // User report 2026-10-17: Cut and Copy on a widget outside edit mode did nothing visible.
+        foreach (var paste in new[] { false, true })
+        {
+            var items = ShellMenus.ForCard(Card(edit: false, paste: paste, count: 3));
+            Assert.DoesNotContain(items, i => Editing.Contains(i.Command));
+        }
+    }
+
+    [Fact]
+    public void S1758_outside_edit_mode_the_card_menu_is_the_view_actions_settings_and_edit_layout()
+    {
+        var items = ShellMenus.ForCard(Card(edit: false));
+        var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
+
+        Assert.Equal(
+            [ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.Configure, ShellCommand.ToggleEditMode],
+            Commands(items));
+
+        // [S-1741] A lone Settings is a labelled line, not a one-icon row.
+        Assert.Empty(split.Row);
+    }
+
+    [Fact]
+    public void S1758_outside_edit_mode_a_widget_without_settings_offers_its_actions_and_edit_layout()
+        => Assert.Equal(
+            [ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.ToggleEditMode],
+            Commands(ShellMenus.ForCard(Card(edit: false, settings: false))));
+
+    [Fact]
+    public void S1758_in_edit_mode_the_card_menu_keeps_its_editing_commands()
+    {
+        var items = ShellMenus.ForCard(Card(edit: true));
+        Assert.Contains(items, i => i.Command == ShellCommand.Cut);
+        Assert.Contains(items, i => i.Command == ShellCommand.Delete);
+        Assert.Contains(items, i => i.Command == ShellCommand.BringToFront);
+    }
+
     // ---- [S-1744] empty surface --------------------------------------------------------------------
 
     [Fact]

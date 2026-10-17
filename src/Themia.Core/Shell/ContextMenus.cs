@@ -190,7 +190,7 @@ public readonly record struct SurfaceMenuFacts(bool EditMode, bool Placing, bool
 public static class ShellMenus
 {
     /// <summary>
-    /// [S-1743] A widget card's menu. The icon row is Cut, Copy, Paste, Settings and Delete
+    /// [S-1743] A widget card's menu in edit mode (outside it, [S-1758]). The icon row is Cut, Copy, Paste, Settings and Delete
     /// ([S-1740]); there is no Duplicate, Copy then Paste does that. The list holds the view's own
     /// commands, the layering pair, and entering or leaving edit mode. Nothing on it changes how the
     /// widget looks: that lives in its settings ([S-1746]). A widget whose page would be empty has no
@@ -198,6 +198,11 @@ public static class ShellMenus
     /// </summary>
     public static IReadOnlyList<ShellMenuItem> ForCard(CardMenuFacts facts)
     {
+        if (!facts.EditMode)
+        {
+            return ForCardInUse(facts);
+        }
+
         var many = facts.SelectionCount > 1;
         var items = new List<ShellMenuItem>
         {
@@ -218,6 +223,25 @@ public static class ShellMenus
         items.Add(new(ShellCommand.BringToFront, Enabled: many || facts.CanBringToFront));
         items.Add(new(ShellCommand.SendToBack, Enabled: many || facts.CanSendToBack));
         items.Add(ShellMenuItem.Divider);
+        items.Add(new(ShellCommand.ToggleEditMode));
+        return items;
+    }
+
+    /// <summary>
+    /// [S-1758] A widget card's menu outside edit mode, while the widget is being used rather than
+    /// arranged: the view's own commands, its settings ([S-1750]) and the way into edit mode. No Cut,
+    /// Copy, Paste, Delete or layering: those arrange the desktop, and outside edit mode there is
+    /// nowhere to paste and no selection shown, so they did nothing the user could see.
+    /// </summary>
+    private static List<ShellMenuItem> ForCardInUse(CardMenuFacts facts)
+    {
+        var items = new List<ShellMenuItem> { new(ShellCommand.WidgetActions), ShellMenuItem.Divider };
+
+        if (facts.HasSettings)
+        {
+            items.Add(new(ShellCommand.Configure));
+        }
+
         items.Add(new(ShellCommand.ToggleEditMode));
         return items;
     }
