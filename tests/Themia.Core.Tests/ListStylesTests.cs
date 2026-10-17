@@ -9,28 +9,12 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-6400]..[S-6410] The styles of the list and media widgets: Tasks, Shortcuts, Gallery, Mail,
-/// Quote, Now playing and Habits. Each was a look option before ([S-6000]); these pin what each
+/// Now playing and Habits (the quote's are its module's). Each was a look option before ([S-6000]); these pin what each
 /// style is, and the rules a new look brought (the large mark, the heatmap, the checklist).
 /// </summary>
 public class ListStylesTests
 {
     private static readonly TimeZoneInfo Utc = TimeZoneInfo.Utc;
-
-    [Theory]
-    [InlineData("tasks", "list,compact")]
-    [InlineData("shortcuts", "grid,list,details")]
-    [InlineData("gallery", "slideshow,grid,scatter,mosaic")]
-    [InlineData("email", "list,compact,table")]
-    [InlineData("quote", "plain,marks")]
-    [InlineData("music", "artwork,cover,text")]
-    [InlineData("habitTracker", "dots,heatmap,checklist")]
-    public void S6400_each_kind_offers_its_styles_in_order_the_old_default_first(string kindId, string names)
-    {
-        var kind = new WidgetId(kindId);
-        Assert.True(WidgetStyles.Offers(kind));
-        Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
-        Assert.Equal(WidgetStyles.For(kind)[0].Value, WidgetStyles.Current(WidgetConfig.CreateDefault(kind)));
-    }
 
     [Fact]
     public void S6401_only_the_grid_draws_with_the_tile_settings()
@@ -39,23 +23,6 @@ public class ListStylesTests
         Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.List }.ShownSettings);
         Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.Details }.ShownSettings);
     }
-
-    [Fact]
-    public void S6404_plain_quotes_in_the_language_marks_and_large_marks_leave_the_text_bare()
-    {
-        Assert.Equal("“Less is more.”", QuoteLayout.Set(Locale.En, " Less is more. ", QuoteStyle.Plain));
-        Assert.Equal("„Weniger ist mehr.“", QuoteLayout.Set(Locale.De, "Weniger ist mehr.", QuoteStyle.Plain));
-        Assert.Equal("Less is more.", QuoteLayout.Set(Locale.En, " Less is more. ", QuoteStyle.Marks));
-        Assert.Equal(string.Empty, QuoteLayout.Set(Locale.En, "   ", QuoteStyle.Marks));
-    }
-
-    [Theory]
-    [InlineData(120, 76, 28)]
-    [InlineData(320, 196, 28)]
-    [InlineData(560, 376, 40)]
-    [InlineData(800, 516, 68)]
-    public void S6405_the_large_mark_is_a_ramp_step_chosen_by_the_smaller_side(double width, double height, double size)
-        => Assert.Equal(size, QuoteLayout.MarkSize(new WidgetArea(width, height)));
 
     [Fact]
     public void S6406_text_only_draws_and_fetches_no_art()

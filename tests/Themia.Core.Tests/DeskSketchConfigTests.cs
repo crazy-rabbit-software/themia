@@ -8,59 +8,20 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// The three configs that carry a list the user built — a drawing, a palette, a set of quotes —
-/// through the real state file.
+/// The configs that carry a list the user built (a drawing) through the real state file; the quote
+/// list's are its module's.
 /// <para>
 /// Not a unit test of a property bag: it goes through <see cref="AppStateStore"/> and the
 /// source-generated serializer, because that is where a list with a populated default can quietly
 /// double on every load, and where a drawing would quietly be lost.
 /// </para>
 /// </summary>
-public sealed class DeskSketchConfigTests : IDisposable
+public sealed class DeskSketchConfigTests
 {
-    private readonly string _dir;
-    private readonly string _path;
-
-    public DeskSketchConfigTests()
-    {
-        _dir = Path.Combine(Path.GetTempPath(), "themia-tests", Guid.NewGuid().ToString("n"));
-        Directory.CreateDirectory(_dir);
-        _path = Path.Combine(_dir, "state.json");
-    }
-
-    public void Dispose()
-    {
-        try
-        {
-            Directory.Delete(_dir, recursive: true);
-        }
-        catch (IOException)
-        {
-            // ignore: temp cleanup is best effort and must not fail a test run
-        }
-    }
-
     /// <summary>Put one widget of this kind with this config into a state file, and read it back.</summary>
-    private async Task<T> RoundTrip<T>(WidgetId kind, T config)
+    private static Task<T> RoundTrip<T>(WidgetId kind, T config)
         where T : WidgetConfig
-    {
-        var state = AppState.CreateDefault();
-        var view = state.ActiveView();
-        var widget = WidgetInstance.Create(kind, new FracRect(0.1, 0.1, 0.3, 0.3));
-        widget.Config = config;
-
-        view.Widgets.Clear();
-        view.Widgets.Add(widget);
-
-        var store = new AppStateStore(_path, TimeSpan.Zero);
-        store.SaveSoon(state);
-        await store.FlushAsync();
-
-        var loaded = new AppStateStore(_path, TimeSpan.Zero).Load();
-        Assert.Equal(LoadOutcome.Loaded, loaded.Outcome);
-
-        return Assert.IsType<T>(loaded.State.ActiveView().Widgets[0].Config);
-    }
+        => StateRoundTrip.Of(kind, config);
 
     // -----------------------------------------------------------------------------------------
     // Scratchpad
@@ -132,50 +93,5 @@ public sealed class DeskSketchConfigTests : IDisposable
 
         Assert.Single(original.Strokes);
         Assert.Equal(2, original.Strokes[0].Points.Count);
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // Quote
-    // -----------------------------------------------------------------------------------------
-
-    [Fact]
-    public async Task A_quote_list_survives_the_state_file_without_doubling()
-    {
-        var reloaded = await RoundTrip(QuoteConfig.Descriptor.Id, new QuoteConfig());
-
-        Assert.Equal(QuoteRotation.Bundled.Count, reloaded.Quotes.Count);
-    }
-
-    [Fact]
-    public async Task The_users_own_quotes_and_rotation_come_back_as_they_were()
-    {
-        var config = new QuoteConfig
-        {
-            Cadence = QuoteCadence.Hourly,
-            Shuffle = true,
-            Seed = 42,
-            ShowAuthor = false,
-            Quotes = [new QuoteItem { Text = "Measure twice.", Author = "Anyone" }],
-        };
-
-        var reloaded = await RoundTrip(QuoteConfig.Descriptor.Id, config);
-
-        Assert.Equal(QuoteCadence.Hourly, reloaded.Cadence);
-        Assert.True(reloaded.Shuffle);
-        Assert.Equal(42, reloaded.Seed);
-        Assert.False(reloaded.ShowAuthor);
-        var quote = Assert.Single(reloaded.EffectiveQuotes);
-        Assert.Equal("Measure twice.", quote.Text);
-    }
-
-    [Fact]
-    public void Duplicating_a_quote_widget_copies_its_list()
-    {
-        var original = new QuoteConfig { Quotes = [new QuoteItem { Text = "One", Author = "A" }] };
-
-        var copy = Assert.IsType<QuoteConfig>(original.Clone());
-        copy.Quotes.Add(new QuoteItem { Text = "Two", Author = "B" });
-
-        Assert.Single(original.Quotes);
     }
 }

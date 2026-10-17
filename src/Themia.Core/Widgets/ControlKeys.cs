@@ -20,17 +20,6 @@ public static class ControlKeys
         _ => ControlKey.None,
     };
 
-    /// <summary>
-    /// [S-1990] Quote: Right, Space or Enter the next quote (what a tap does), Left the one before.
-    /// One quote has nowhere to go, so nothing answers.
-    /// </summary>
-    public static ControlKey Quote(WidgetKey key, int quotes) => quotes <= 1 ? ControlKey.None : key switch
-    {
-        WidgetKey.Right or WidgetKey.Space or WidgetKey.Enter => ControlKey.Next,
-        WidgetKey.Left => ControlKey.Previous,
-        _ => ControlKey.None,
-    };
-
     /// <summary>[S-1991] Video stream: Space pauses and resumes, as the overlay's button does.</summary>
     public static ControlKey Stream(WidgetKey key) => key == WidgetKey.Space ? ControlKey.Toggle : ControlKey.None;
 

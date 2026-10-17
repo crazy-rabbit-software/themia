@@ -203,7 +203,7 @@ public class SettingRulesTests
     public void S6071_the_page_shape_follows_the_style_and_a_parent_switch_but_not_a_plain_value()
     {
         var state = AppState.CreateDefault();
-        var widget = WidgetInstance.Create(QuoteConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
+        var widget = WidgetInstance.Create(new WidgetId("quote"), new FracRect(0.1, 0.1, 0.2, 0.2));
         state.Views[0].Widgets.Add(widget);
         var quote = (QuoteConfig)widget.Config;
 

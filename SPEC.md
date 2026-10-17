@@ -1958,8 +1958,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   Wrap were not in Segoe Fluent Icons (or MDL2) and drew as boxes; the forecast folded rain, snow
   and thunder into its own thermometer icon because of it. Weather now and the forecast share one
   condition→glyph map.
-- **[S-653]** The quote may grow to TitleLarge, is held to the lines that fit with an ellipsis, and
-  gives up its attribution line on a tile too small for the quote itself.
+- [S-653]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
 - **[S-655]** An informational header label ("Just now", "by CPU") gives the title at least 64px and
   is not drawn when less than 40px would be left for it. Through `MaxWidth`, never `Visibility`.
   Commands in the header are not touched; their views shed them.
@@ -5963,21 +5962,7 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
 - **[S-1494]** The place is picked by city name through the shared `PlaceSearch` ([S-2840], Open-Meteo
   geocoder, resolved once at the pick); exact name/latitude/longitude stay editable and validated
   (S-171's refusal rule unchanged). This supersedes S-171's "no geocoding service" reason.
-- **[S-1495]** Quote: the bundled list is the original's sixteen in its order, so a daily unshuffled
-  rotation shows the original's quote for the day (`QUOTES[localDay % 16]`, regression-tested). The
-  header button shows a random *other* quote (`QuoteRotation.RandomStep`); a tap steps to the next.
-  Both stay ephemeral (original S-02).
-- **[S-1990]** Quote keys (`ControlKeys.Quote`), only with two or more quotes: Right, Space or Enter
-  the next quote (what a tap does), Left the one before. Ephemeral, like the tap.
-- **[S-1496]** Quote ladder on `IWidgetSizeAware` + `Disclosure`: quote (Caption floor) → author;
-  the author goes when the quote would not fit. Nothing else at any size: the rotation caption
-  ("Quote of the day · 3 of 16") is retired, a larger tile sets the quote larger. Ceiling TitleLarge, Display on a Huge × Huge tile (replaces S-653's cap there).
-- **[S-6404]** Quote's styles ([S-6000]), `QuoteConfig.Style` (`QuoteStyle`, `"style": "plain"`):
-  **Plain** (the quote in the language's own marks) and **Large quotation marks**, in that order.
-- **[S-6405]** Large quotation marks: one opening mark (the Quote glyph, mirrored right to left) in
-  the accent above the quote, a ramp step by the card's smaller side (Title up to Regular,
-  TitleLarge at Expanded, Display at Huge, `QuoteLayout.MarkSize`); its row is taken off the top
-  before the quote is fitted to the rest ([S-1496]), and the quote then carries no inline marks.
+- [S-1495], [S-1990], [S-1496], [S-6404], [S-6405]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
 - **[S-1497]** Scratchpad ink bar (original S-02 toolbar): six preset inks (`InkPalette`, shared
   with the settings picker) and the original's three nibs 2/4/8 px at the foot of the pad from
   Regular × Regular; nibs only when the width holds both; nothing more on a larger pad (the stroke

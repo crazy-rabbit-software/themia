@@ -8,6 +8,7 @@
     <Project Path="src/Themia.Sdk.WinUI/Themia.Sdk.WinUI.csproj" />
   </Folder>
   <Folder Name="/src/Widgets/">
+    <Project Path="src/Widgets/Themia.Widget.Quote/Themia.Widget.Quote.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stopwatch/Themia.Widget.Stopwatch.csproj" />
     <Project Path="src/Widgets/Themia.Widget.YearProgress/Themia.Widget.YearProgress.csproj" />
   </Folder>

@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [ClockConfig.Descriptor.Id, CountdownConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, QuoteConfig.Descriptor.Id, MoonConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
+        WidgetId[] aligned = [ClockConfig.Descriptor.Id, CountdownConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), MoonConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, CpuConfig.Descriptor.Id, MixerConfig.Descriptor.Id, WifiToggleConfig.Descriptor.Id, ShutdownConfig.Descriptor.Id, FolderConfig.Descriptor.Id])
@@ -101,7 +101,7 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Minimal)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(AirQualityConfig.Descriptor.Id, (int)AirQualityStyle.Number)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(AirQualityConfig.Descriptor.Id, (int)AirQualityStyle.Gauge)));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(QuoteConfig.Descriptor.Id)));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("quote"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(CountdownConfig.Descriptor.Id)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(ExchangeRatesConfig.Descriptor.Id, (int)ExchangeRatesStyle.Number)));
 
@@ -163,7 +163,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6584_a_mixed_selection_reads_a_dash_and_a_pick_reaches_only_the_widgets_that_align()
     {
-        var quote = Widget(QuoteConfig.Descriptor.Id);
+        var quote = Widget(new WidgetId("quote"));
         quote.Align = ContentAlign.Right;
         var (state, view, selection) = Selected(Widget(ClockConfig.Descriptor.Id), quote, Widget(TasksConfig.Descriptor.Id), Widget(MoonConfig.Descriptor.Id, (int)MoonStyle.PhaseMonth));
 

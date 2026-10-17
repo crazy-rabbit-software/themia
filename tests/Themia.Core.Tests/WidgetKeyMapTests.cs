@@ -173,17 +173,6 @@ public sealed class WidgetKeyMapTests
     public void S1987_pomodoro_keys_are_its_three_buttons(WidgetKey key, ControlKey expected)
         => Assert.Equal(expected, ControlKeys.Pomodoro(key));
 
-    [Theory]
-    [InlineData(WidgetKey.Right, 3, ControlKey.Next)]
-    [InlineData(WidgetKey.Space, 3, ControlKey.Next)]
-    [InlineData(WidgetKey.Enter, 3, ControlKey.Next)]
-    [InlineData(WidgetKey.Left, 3, ControlKey.Previous)]
-    [InlineData(WidgetKey.Up, 3, ControlKey.None)]
-    [InlineData(WidgetKey.Right, 1, ControlKey.None)]
-    [InlineData(WidgetKey.Left, 0, ControlKey.None)]
-    public void S1990_quote_steps_only_with_somewhere_to_go(WidgetKey key, int quotes, ControlKey expected)
-        => Assert.Equal(expected, ControlKeys.Quote(key, quotes));
-
     [Fact]
     public void S1991_only_space_pauses_the_stream()
     {

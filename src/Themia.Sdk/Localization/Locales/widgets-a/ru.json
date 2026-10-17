@@ -110,8 +110,6 @@
   "widgetsA.catalog.notes.description": "Заметка, хранящаяся на этом компьютере",
   "widgetsA.catalog.ping.description": "Время отклика узла",
   "widgetsA.catalog.pomodoro.description": "Таймер работы и перерывов",
-  "widgetsA.catalog.quote.description": "Строка, которую стоит перечитать",
-  "widgetsA.catalog.quote.label": "Цитата",
   "widgetsA.catalog.scratchpad.description": "Место для рисования",
   "widgetsA.catalog.shortcuts.description": "Ссылки, файлы и папки под рукой",
   "widgetsA.catalog.shortcuts.label": "Ярлыки",

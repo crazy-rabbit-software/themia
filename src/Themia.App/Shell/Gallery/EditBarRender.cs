@@ -252,7 +252,7 @@ internal static class EditBarRender
             [new(ClockConfig.Descriptor.Id, 500, 200, 300, 180, HeaderPlacement.Top, true, "Right", Align: ContentAlign.Right)],
             [
                 new(ClockConfig.Descriptor.Id, 300, 200, 280, 160, HeaderPlacement.Top, true, "Left", Align: ContentAlign.Left),
-                new(QuoteConfig.Descriptor.Id, 620, 200, 320, 180, HeaderPlacement.Top, true, Align: ContentAlign.Right),
+                new(new WidgetId("quote"), 620, 200, 320, 180, HeaderPlacement.Top, true, Align: ContentAlign.Right),
             ],
             [new(MoonConfig.Descriptor.Id, 500, 200, 280, 220, HeaderPlacement.Top, true, Style: (int)MoonStyle.PhaseMonth)],
         ];

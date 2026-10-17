@@ -297,47 +297,6 @@ public sealed class DeskParityTests
     }
 
     // ---------------------------------------------------------------------------------------------
-    // Quote
-    // ---------------------------------------------------------------------------------------------
-
-    [Fact]
-    public void S1495_a_daily_unshuffled_rotation_shows_the_quote_the_original_showed_that_day()
-    {
-        // The original: QUOTES[localDayNumber % 16], localDayNumber = local days since 1970-01-01.
-        var day = new DateTimeOffset(2026, 10, 4, 15, 0, 0, TimeSpan.FromHours(2));
-        var localDayNumber = (long)(new DateTime(2026, 10, 4) - DateTime.UnixEpoch).TotalDays;
-
-        var period = QuoteRotation.Period(day, QuoteCadence.Daily);
-        var index = QuoteRotation.Select(QuoteRotation.Bundled.Count, period, seed: 0, shuffle: false);
-
-        Assert.Equal(localDayNumber, period);
-        Assert.Equal((int)(localDayNumber % 16), index);
-        Assert.Equal(16, QuoteRotation.Bundled.Count);
-        Assert.Equal("Steve Jobs", QuoteRotation.Bundled[5].Author);
-        Assert.Equal("Sheryl Sandberg", QuoteRotation.Bundled[15].Author);
-    }
-
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void S1495_the_shuffle_button_always_lands_on_another_quote(bool shuffle)
-    {
-        for (var roll = 0; roll < 200; roll++)
-        {
-            const long period = 20_000;
-            var step = QuoteRotation.RandomStep(16, period, seed: 7, shuffle, roll);
-
-            Assert.NotEqual(
-                QuoteRotation.Select(16, period, 7, shuffle),
-                QuoteRotation.Select(16, period + step, 7, shuffle));
-        }
-    }
-
-    [Fact]
-    public void S1495_one_quote_has_nowhere_to_shuffle_to()
-        => Assert.Equal(0, QuoteRotation.RandomStep(1, 5, 0, shuffle: false, roll: 3));
-
-    // ---------------------------------------------------------------------------------------------
     // Scratchpad
     // ---------------------------------------------------------------------------------------------
 
