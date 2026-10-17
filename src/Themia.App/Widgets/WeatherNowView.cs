@@ -9,6 +9,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -62,8 +63,8 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
     // Looked up once. Swapping a brush per tick is a dictionary hit and a possible log line for a
     // colour that changes twice a day at most.
-    private readonly Brush _freshBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _staleBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
+    private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
 
     private Ticker? _ticker;

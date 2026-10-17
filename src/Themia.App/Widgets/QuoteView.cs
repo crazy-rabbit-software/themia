@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -34,7 +35,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly FontIcon _mark = new()
     {
         Glyph = Glyphs.Quote,
-        Foreground = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.SteelBlue),
+        Foreground = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.SteelBlue),
         HorizontalAlignment = HorizontalAlignment.Left,
         MirroredWhenRightToLeft = true,
         Visibility = Visibility.Collapsed,
@@ -121,7 +122,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     /// </summary>
     private static Button CommandButton(string glyph, string tooltip)
     {
-        var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
         var button = new Button
         {

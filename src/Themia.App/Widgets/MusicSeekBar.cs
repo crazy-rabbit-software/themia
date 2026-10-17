@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -61,7 +62,7 @@ internal sealed partial class MusicSeekBar : Grid
         _fill.Height = TrackHeight;
         _fill.CornerRadius = new CornerRadius(TrackHeight / 2);
         _fill.VerticalAlignment = VerticalAlignment.Center;
-        _fill.Background = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        _fill.Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         _fill.RenderTransform = _fillScale;
         _fill.RenderTransformOrigin = new Windows.Foundation.Point(0, 0.5);
 
@@ -69,8 +70,8 @@ internal sealed partial class MusicSeekBar : Grid
         _thumb.Height = ThumbSize;
         _thumb.HorizontalAlignment = HorizontalAlignment.Left;
         _thumb.VerticalAlignment = VerticalAlignment.Center;
-        _thumb.Fill = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        _thumb.Stroke = FluentLayout.Themed("ControlSolidFillColorDefaultBrush", Colors.White);
+        _thumb.Fill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        _thumb.Stroke = ThemeBrush.Of("ControlSolidFillColorDefaultBrush", Colors.White);
         _thumb.StrokeThickness = 2;
         _thumb.RenderTransform = _thumbShift;
         _thumb.Visibility = Visibility.Collapsed;

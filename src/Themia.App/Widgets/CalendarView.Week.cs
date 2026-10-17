@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -169,7 +170,7 @@ internal sealed partial class CalendarView
             ? new Border { Child = number, Background = Accent(), CornerRadius = new CornerRadius(line / 2), MinWidth = line, Height = line, Padding = new Thickness(4, 0, 4, 0) }
             : number);
 
-        return new Border { Child = header, Padding = new Thickness(0, 0, 0, Fluent.Space1), Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent) };
+        return new Border { Child = header, Padding = new Thickness(0, 0, 0, Fluent.Space1), Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent) };
     }
 
     /// <summary>A bar with no room for words: its calendar's colour as a rounded line, the title on hover.</summary>
@@ -214,7 +215,7 @@ internal sealed partial class CalendarView
 
         if (more && fits > 0)
         {
-            stack.Children.Add(Dot(FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray)));
+            stack.Children.Add(Dot(ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray)));
         }
 
         return stack;
@@ -393,7 +394,7 @@ internal sealed partial class CalendarView
             rules.Children.Add(new Border
             {
                 Height = Fluent.Hairline,
-                Background = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray),
+                Background = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0, h * window.HourHeight, 0, 0),
             });
@@ -411,7 +412,7 @@ internal sealed partial class CalendarView
     private Canvas TimelineCanvas(IReadOnlyList<CalendarEvent> timed, DateOnly day, HourWindow window, double expectedWidth, bool showColors)
     {
         var zone = TimeZoneInfo.Local;
-        var canvas = new Canvas { Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent) };
+        var canvas = new Canvas { Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent) };
         var timelineHeight = window.Count * window.HourHeight;
         var placed = timed
             .Select(e => (Event: e, Place: CalendarFit.Place(e.Start, e.End, day, zone, window)))

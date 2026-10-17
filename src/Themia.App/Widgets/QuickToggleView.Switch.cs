@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -24,13 +25,13 @@ internal sealed partial class QuickToggleView
     private readonly TextBlock _swName = Fluent.Text(FluentType.Body);
     private readonly TextBlock _swState = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
 
-    private readonly Brush _trackOff = FluentLayout.Themed("ControlAltFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _trackOffHover = FluentLayout.Themed("ControlAltFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _trackOffPressed = FluentLayout.Themed("ControlAltFillColorQuarternaryBrush", Colors.Gray);
-    private readonly Brush _trackDisabled = FluentLayout.Themed("ControlAltFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _trackEdge = FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
-    private readonly Brush _trackEdgeDisabled = FluentLayout.Themed("ControlStrongStrokeColorDisabledBrush", Colors.Gray);
-    private readonly Brush _knobOff = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+    private readonly Brush _trackOff = ThemeBrush.Of("ControlAltFillColorSecondaryBrush", Colors.Gray);
+    private readonly Brush _trackOffHover = ThemeBrush.Of("ControlAltFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _trackOffPressed = ThemeBrush.Of("ControlAltFillColorQuarternaryBrush", Colors.Gray);
+    private readonly Brush _trackDisabled = ThemeBrush.Of("ControlAltFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _trackEdge = ThemeBrush.Of("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
+    private readonly Brush _trackEdgeDisabled = ThemeBrush.Of("ControlStrongStrokeColorDisabledBrush", Colors.Gray);
+    private readonly Brush _knobOff = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
 
     private SwitchFacePlan _swPlan;
 

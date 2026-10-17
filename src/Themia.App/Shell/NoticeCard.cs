@@ -6,6 +6,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
@@ -45,7 +46,7 @@ internal sealed partial class NoticeCard : Grid
         {
             Glyph = glyph,
             FontSize = Fluent.IconSize,
-            Foreground = FluentLayout.Themed(brushKey, fallback),
+            Foreground = ThemeBrush.Of(brushKey, fallback),
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 2, Fluent.Space3, 0),
         };
@@ -147,8 +148,8 @@ internal sealed partial class NoticeCard : Grid
         Padding = new Thickness(Fluent.Space4, Fluent.Space3, Fluent.Space3, Fluent.Space4);
         CornerRadius = new CornerRadius(Fluent.OverlayRadius);
         BorderThickness = new Thickness(1);
-        BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
-        Background = FluentLayout.Themed("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray);
+        BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
+        Background = ThemeBrush.Of("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray);
         BackgroundSizing = BackgroundSizing.OuterBorderEdge;
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(this, notice.Message is null ? notice.Title : $"{notice.Title}. {notice.Message}");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetLiveSetting(this, Microsoft.UI.Xaml.Automation.Peers.AutomationLiveSetting.Polite);

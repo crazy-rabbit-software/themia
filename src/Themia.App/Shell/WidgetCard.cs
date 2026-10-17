@@ -14,6 +14,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.Foundation;
 
@@ -265,7 +266,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // attempt did - left the card almost invisible over the wallpaper.
         _tint = new Border
         {
-            Background = FluentLayout.Themed("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
             IsHitTestVisible = false,
         };
 
@@ -472,7 +473,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var custom = ColourBrush(fill);
 
         _fill.Background = opacity <= 0 ? null
-            : custom ?? FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
+            : custom ?? ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
         _fill.BorderBrush = null;
         _fill.BorderThickness = new Thickness(0);
         _fill.Opacity = opacity <= 0 ? 1 : opacity;
@@ -487,7 +488,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             // hairline only for a solid 1px line, the strong stroke for anything heavier or broken.
             var ink = DesignLook.Ink(border, design.BorderColor);
             _stroke.Stroke = (ink.Colour is { } colour ? DesignApplier.UserBrush(HexColor.From(colour.R, colour.G, colour.B)) : null)
-                ?? FluentLayout.Themed(ink.ThemeKey ?? DesignLook.HairlineStrokeKey, Colors.Gray);
+                ?? ThemeBrush.Of(ink.ThemeKey ?? DesignLook.HairlineStrokeKey, Colors.Gray);
             _stroke.StrokeThickness = border.Thickness;
             _stroke.Opacity = border.Opacity;
 
@@ -551,11 +552,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // Shared with the widget: the same base and Fluent lift as the body, faded on their own.
         _headerBase.Background = own is null && surface > 0
-            ? custom ?? FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black)
+            ? custom ?? ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black)
             : null;
         _headerBase.Opacity = opacity;
         _headerTint.Background = own is null && custom is null && surface > 0
-            ? FluentLayout.Themed("CardBackgroundFillColorDefaultBrush", Colors.Transparent)
+            ? ThemeBrush.Of("CardBackgroundFillColorDefaultBrush", Colors.Transparent)
             : null;
         _headerTint.Opacity = opacity;
         _headerBase.CornerRadius = radius;

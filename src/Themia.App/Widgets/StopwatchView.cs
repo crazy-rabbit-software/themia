@@ -8,6 +8,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -254,7 +255,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
 
         // [S-4603] Running: whole seconds, the one the ticker can keep. Stopped: the tenth too.
         _clock.Text = Time(elapsed, tenths: !_state.Running && !_state.Idle);
-        _clock.Foreground = FluentLayout.Themed(_state.Phase == StopwatchPhase.Paused ? "TextFillColorSecondaryBrush" : "TextFillColorPrimaryBrush", Colors.Gray);
+        _clock.Foreground = ThemeBrush.Of(_state.Phase == StopwatchPhase.Paused ? "TextFillColorSecondaryBrush" : "TextFillColorPrimaryBrush", Colors.Gray);
 
         var laps = _state.Splits;
         _lapLine.Text = _state.Phase == StopwatchPhase.Paused && laps.Length == 0

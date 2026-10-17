@@ -4719,7 +4719,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   whose size was set on the element is rescaled by the ratio; text built afterwards comes from the
   scaled ramp. Icons keep their size (widget scale, [S-850], scales everything).
 - **[S-822]** Theme. "Use system setting" is resolved by the engine (Windows background colour) and
-  every window root gets the explicit Light/Dark. `FluentLayout.Themed` hands out one engine-owned
+  every window root gets the explicit Light/Dark. `ThemeBrush.Of` hands out one engine-owned
   brush per key, coloured from the effective theme's dictionary and recoloured in place on a theme
   or accent change — a brush looked up from code used to be the app's start-up theme, so code-made
   text stayed white in a light card. A Windows theme or accent change (`ColorValuesChanged`) re-runs
@@ -4896,7 +4896,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   `--widget-png … --own-items <fill> --own-item-text #RRGGBB` give the cards a layer and a text
   colour of their own, the per-widget override.
 - **[S-835]** The default look is Windows 11's, value for value, with the framework's own theme
-  resources (WinUI 1.8 `generic.xaml`, read by key through `FluentLayout.Themed`, never copied):
+  resources (WinUI 1.8 `generic.xaml`, read by key through `ThemeBrush.Of`, never copied):
   card = `CardBackgroundFillColorDefault` (#0DFFFFFF dark / #B3FFFFFF light) over
   `SolidBackgroundFillColorBase` (#202020 / #F3F3F3), i.e. #2B2B2B / #FBFBFB; a 1px
   `CardStrokeColorDefault` (#19000000 / #0F000000); a 4px card corner ([S-6482]: the user's

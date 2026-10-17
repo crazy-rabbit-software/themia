@@ -13,6 +13,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -117,7 +118,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
             MinWidth = 0,
             MinHeight = 0,
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             BorderThickness = new Thickness(0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             VerticalAlignment = VerticalAlignment.Center,
@@ -940,7 +941,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             Width = 3,
             Height = Fluent.IconSize,
             CornerRadius = new CornerRadius(1.5),
-            Background = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+            Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center,
             Visibility = contact.Id == _selectedId ? Visibility.Visible : Visibility.Collapsed,

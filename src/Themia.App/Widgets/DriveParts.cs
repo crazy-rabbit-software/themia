@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -24,7 +25,7 @@ internal sealed partial class DriveIcon : Grid
 
     public DriveIcon()
     {
-        _glyph.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        _glyph.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
         _glyph.HorizontalAlignment = HorizontalAlignment.Center;
         _glyph.VerticalAlignment = VerticalAlignment.Center;
 
@@ -32,11 +33,11 @@ internal sealed partial class DriveIcon : Grid
         // the surface's own base under the cross, so it reads in either theme.
         _badge.HorizontalAlignment = HorizontalAlignment.Right;
         _badge.VerticalAlignment = VerticalAlignment.Bottom;
-        _badge.Children.Add(new Ellipse { Fill = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red) });
+        _badge.Children.Add(new Ellipse { Fill = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red) });
         _badge.Children.Add(new FontIcon
         {
             Glyph = Glyphs.Dismiss,
-            Foreground = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.White),
+            Foreground = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.White),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         });
@@ -113,7 +114,7 @@ internal static class DriveBar
         bar.Height = thickness;
         bar.MinHeight = thickness;
         bar.Value = drive.UsedFraction ?? 0;
-        bar.Foreground = FluentLayout.Themed(DriveRules.Pressure(drive) switch
+        bar.Foreground = ThemeBrush.Of(DriveRules.Pressure(drive) switch
         {
             MeterPressure.Critical => "SystemFillColorCriticalBrush",
             MeterPressure.Elevated => "SystemFillColorCautionBrush",

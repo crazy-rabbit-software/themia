@@ -6,6 +6,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.System;
 
 namespace Themia.App.Widgets;
@@ -31,7 +32,7 @@ internal sealed partial class TasksView
             MinWidth = 0,
             MinHeight = 0,
             BorderThickness = new Thickness(0),
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             VerticalAlignment = VerticalAlignment.Center,
             Visibility = Visibility.Collapsed,
         };

@@ -7,6 +7,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Shell;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -30,7 +31,7 @@ internal static partial class ConfigPages
         var detail = FluentLayout.Note(string.Empty);
         advice.Visibility = Visibility.Collapsed;
         detail.Visibility = Visibility.Collapsed;
-        detail.Foreground = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
+        detail.Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
         // Set while the switch is moved to match Windows, so that move is not taken as the user's.
         var adopting = false;
@@ -185,7 +186,7 @@ internal static partial class ConfigPages
         {
             Text = Str.Shell_Settings_General_PausedNow.Text(),
             VerticalAlignment = VerticalAlignment.Center,
-            Foreground = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue),
+            Foreground = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue),
             Visibility = host.Suspended ? Visibility.Visible : Visibility.Collapsed,
         };
 

@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 using Point = Windows.Foundation.Point;
 
@@ -29,7 +30,7 @@ internal sealed partial class SpectrumCanvas : Canvas
     private const double LineThickness = 2;
 
     private readonly AudioVisualizerStyle _style;
-    private readonly Brush _fill = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _fill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private readonly float[] _grouped = new float[Spectrum.Bands];
     private VisualizerPlan _plan;
 

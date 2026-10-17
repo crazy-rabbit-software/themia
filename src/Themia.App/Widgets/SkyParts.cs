@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Astronomy;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -28,10 +29,10 @@ internal sealed class SkyMoonDisc
     private readonly Ellipse _rim = new();
     private readonly Polygon _lit = new();
 
-    private readonly Brush _litUp = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _litDown = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _rimUp = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _rimDown = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.DimGray);
+    private readonly Brush _litUp = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _litDown = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _rimUp = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _rimDown = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.DimGray);
 
     private double _size;
     private double _phase;
@@ -107,12 +108,12 @@ internal sealed class SkyEventRow
     private readonly TextBlock _countdown = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly TextBlock _value = Fluent.Text(FluentType.BodyStrong);
 
-    private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _secondary = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+    private readonly Brush _primary = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _secondary = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
 
     // The accent tuned for text. AccentFillColorDefaultBrush is a fill and is not contrast-safe
     // under small type; this is the key Windows uses when the accent has to be read.
-    private readonly Brush _accentText = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
+    private readonly Brush _accentText = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
 
     public SkyEventRow(FrameworkElement glyph)
     {

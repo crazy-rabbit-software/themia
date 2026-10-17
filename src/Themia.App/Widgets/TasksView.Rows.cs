@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.System;
 using Windows.UI.Core;
 using Themia.Core.Shell;
@@ -271,11 +272,11 @@ internal sealed partial class TasksView
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(0, 0, Fluent.Space3, 0),
             BorderBrush = overdue
-                ? FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed)
-                : FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray),
+                ? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed)
+                : ThemeBrush.Of("ControlStrongStrokeColorDefaultBrush", Colors.Gray),
             BorderThickness = new Thickness(task.Completed ? 0 : 1),
             Background = task.Completed
-                ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)
+                ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
                 : Fluent.Clear(),
             Tag = task,
         };
@@ -286,7 +287,7 @@ internal sealed partial class TasksView
             {
                 Glyph = Glyphs.Done,
                 FontSize = Math.Round(size * 0.6),
-                Foreground = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White),
+                Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             };

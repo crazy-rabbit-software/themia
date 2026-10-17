@@ -9,6 +9,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -185,7 +186,7 @@ internal sealed partial class CalendarView
         {
             Glyph = glyph,
             FontSize = FluentType.Caption.FontSize,
-            Foreground = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray),
+            Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
             VerticalAlignment = VerticalAlignment.Center,
         });
         SetColumn(icon, column);

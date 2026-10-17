@@ -6,6 +6,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -56,7 +57,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
         Children.Add(_content);
 
         // The whole tile is the way into the bin, as its icon on the desktop is.
-        Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent);
+        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent);
         Tapped += OnTapped;
     }
 

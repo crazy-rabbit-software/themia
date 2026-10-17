@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -121,7 +122,7 @@ internal static partial class ConfigPages
         var version = new TextBlock
         {
             Text = Str.Shell_About_Version.Format(("version", AppInfo.Version)),
-            Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray),
+            Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
         };
 
         var runtime = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");

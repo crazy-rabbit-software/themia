@@ -9,6 +9,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -308,11 +309,11 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         // Which phase you are in is the first thing to read off this widget, so it is carried by
         // colour as well as by the word: accent text for focus, the success colour for a break.
         var badge = work
-            ? FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue)
-            : FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.MediumSeaGreen);
+            ? ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue)
+            : ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.MediumSeaGreen);
         var fill = work
-            ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.MediumSeaGreen);
+            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
+            : ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.MediumSeaGreen);
 
         _phase.Foreground = badge;
         _phaseIcon.Foreground = badge;

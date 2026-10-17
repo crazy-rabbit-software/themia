@@ -9,6 +9,7 @@ using Themia.Core.Astronomy;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -95,15 +96,15 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
     private readonly SkyEventRow[] _ladder;
 
     /// <summary>The accent, as a fill. The travelled arc, the daylight behind it and the sun.</summary>
-    private readonly Brush _accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
     /// <summary>The theme's own dimmed accent, for the sun once it is under the horizon.</summary>
-    private readonly Brush _accentDim = FluentLayout.Themed("AccentFillColorDisabledBrush", Colors.SlateGray);
+    private readonly Brush _accentDim = ThemeBrush.Of("AccentFillColorDisabledBrush", Colors.SlateGray);
 
-    private readonly Brush _tertiary = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _disabled = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.DimGray);
-    private readonly Brush _divider = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray);
-    private readonly Brush _markerRing = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
+    private readonly Brush _tertiary = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _disabled = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.DimGray);
+    private readonly Brush _divider = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray);
+    private readonly Brush _markerRing = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
 
     private SunConfig _config = new();
 
@@ -231,7 +232,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         // The day bar: the night in the disabled control fill, the daylight the accent's lighter
         // step (so the sun's dot, in the accent itself, stands on it), the ticks the tertiary grey.
         ItemFill.Paint(_barDay, ItemRole.Track, ItemState.Disabled);
-        _barLight.Fill = FluentLayout.Themed("AccentFillColorTertiaryBrush", Colors.LightSkyBlue);
+        _barLight.Fill = ThemeBrush.Of("AccentFillColorTertiaryBrush", Colors.LightSkyBlue);
         _riseTick.Stroke = _tertiary;
         _riseTick.StrokeThickness = Fluent.Hairline;
         _setTick.Stroke = _tertiary;

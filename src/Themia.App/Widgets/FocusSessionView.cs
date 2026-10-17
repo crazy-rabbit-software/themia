@@ -11,6 +11,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -68,7 +69,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
 
         // [S-837] The ring stands for a progress ring: the strong rest fill, the accent for what has gone.
         ItemFill.PaintStroke(_track, ItemRole.Track);
-        _arc.Stroke = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        _arc.Stroke = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         _arc.StrokeStartLineCap = PenLineCap.Round;
         _arc.StrokeEndLineCap = PenLineCap.Round;
         _dial.Children.Add(_track);
@@ -102,7 +103,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         Children.Add(_stack);
 
         // The whole tile is hit-testable: on the smallest tile a click on it starts or ends.
-        Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
     }
 
     private static void Stepper(Button button, string glyph)

@@ -5,6 +5,7 @@ using Themia.App.Services.Web;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -15,16 +16,16 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal static class OnlineParts
 {
-    public static Brush FreshBrush() => FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
+    public static Brush FreshBrush() => ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
-    public static Brush StaleBrush() => FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
+    public static Brush StaleBrush() => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
     /// <summary>[S-5104] Good, caution and critical, from the Fluent status fills.</summary>
     public static Brush Tone(AirTone tone) => tone switch
     {
-        AirTone.Good => FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.SeaGreen),
-        AirTone.Caution => FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod),
-        _ => FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red),
+        AirTone.Good => ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.SeaGreen),
+        AirTone.Caution => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod),
+        _ => ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red),
     };
 
     /// <summary>

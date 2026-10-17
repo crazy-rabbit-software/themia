@@ -11,6 +11,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -49,12 +50,12 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
     // Looked up once. The reading swaps between them on every sample, and a resource lookup per
     // sample per widget is a dictionary hit and a possible log line for nothing.
-    private readonly Brush _readingBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _unavailableBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _accentBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _cautionBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Orange);
-    private readonly Brush _criticalBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
-    private readonly Brush _successBrush = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
+    private readonly Brush _readingBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _unavailableBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _accentBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _cautionBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Orange);
+    private readonly Brush _criticalBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
+    private readonly Brush _successBrush = ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.Green);
 
     private WidgetConfig _config;
     private SeriesWatch? _watch;

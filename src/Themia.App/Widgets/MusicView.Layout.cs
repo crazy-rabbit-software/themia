@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -454,7 +455,7 @@ internal sealed partial class MusicView
     /// </summary>
     private static LinearGradientBrush ScrimBrush(double fadeShare)
     {
-        var basis = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black) is SolidColorBrush solid ? solid.Color : Colors.Black;
+        var basis = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black) is SolidColorBrush solid ? solid.Color : Colors.Black;
         var clear = Windows.UI.Color.FromArgb(0, basis.R, basis.G, basis.B);
         var dense = Windows.UI.Color.FromArgb(ScrimAlpha, basis.R, basis.G, basis.B);
 

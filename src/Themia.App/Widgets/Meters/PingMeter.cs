@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
@@ -25,9 +26,9 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class PingMeter : MeterPart
 {
-    private static readonly Brush OnlineBrush = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
-    private static readonly Brush OfflineBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
-    private static readonly Brush CheckingBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
+    private static readonly Brush OnlineBrush = ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.Green);
+    private static readonly Brush OfflineBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
+    private static readonly Brush CheckingBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
     private readonly Ellipse _dot = new()
     {

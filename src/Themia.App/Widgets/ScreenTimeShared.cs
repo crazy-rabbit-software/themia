@@ -8,6 +8,7 @@ using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -215,13 +216,13 @@ internal static class ScreenTimeLook
     /// <summary>[S-3312] A dimmed part's opacity: present, so the whole still reads, but clearly not the point.</summary>
     public const double DimOpacity = 0.35;
 
-    public static readonly Brush Primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    public static readonly Brush Secondary = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
-    public static readonly Brush Critical = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
-    public static readonly Brush Other = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-    public static readonly Brush Accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    public static readonly Brush AccentText = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
-    public static readonly Brush EmptyCell = FluentLayout.Themed("ControlFillColorSecondaryBrush", Colors.Gray);
+    public static readonly Brush Primary = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    public static readonly Brush Secondary = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
+    public static readonly Brush Critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
+    public static readonly Brush Other = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+    public static readonly Brush Accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    public static readonly Brush AccentText = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
+    public static readonly Brush EmptyCell = ThemeBrush.Of("ControlFillColorSecondaryBrush", Colors.Gray);
 
     private static readonly Dictionary<string, Brush> AppBrushes = new(StringComparer.Ordinal);
 
@@ -393,7 +394,7 @@ internal sealed class ScreenTimeDayNav
             Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
             MinWidth = 0,
             MinHeight = 0,
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             BorderThickness = new Thickness(0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             VerticalAlignment = VerticalAlignment.Center,
@@ -401,7 +402,7 @@ internal sealed class ScreenTimeDayNav
 
         // A disabled arrow is dimmed, not boxed: the stock disabled fill would draw a grey tile
         // around the one arrow that cannot be pressed.
-        var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         button.Resources["ButtonBackgroundDisabled"] = clear;
         button.Resources["ButtonBorderBrushDisabled"] = clear;
 

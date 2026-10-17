@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
@@ -193,7 +194,7 @@ internal static class FluentLayout
     /// </summary>
     public static Button DangerButton(string text)
     {
-        var label = new TextBlock { Text = text, Foreground = Themed("SystemFillColorCriticalBrush", Colors.Red) };
+        var label = new TextBlock { Text = text, Foreground = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red) };
         var button = new Button { Content = label };
         AutomationProperties.SetName(button, text);
         return button;
@@ -494,7 +495,7 @@ internal static class FluentLayout
             {
                 Height = Fluent.Hairline,
                 Margin = new Thickness(0, Fluent.Space1, 0, Fluent.Space1),
-                Background = Themed("DividerStrokeColorDefaultBrush", Colors.Gray),
+                Background = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
             });
             panel.Children.Add(new ScrollViewer
             {
@@ -663,14 +664,14 @@ internal static class FluentLayout
 
     /// <summary>Say why the value was refused. The field keeps what was typed.</summary>
     public static void Refuse(TextBlock verdict, string message)
-        => Say(verdict, message, Themed("SystemFillColorCriticalBrush", Colors.Red));
+        => Say(verdict, message, ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red));
 
     /// <summary>
     /// Confirm what the value resolved to, or say what an empty field falls back to. Worth as much
     /// as a refusal: a field that looks accepted but points somewhere else is the same failure.
     /// </summary>
     public static void Confirm(TextBlock verdict, string message)
-        => Say(verdict, message, Themed("TextFillColorTertiaryBrush", Colors.Gray));
+        => Say(verdict, message, ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray));
 
     private static void Say(TextBlock verdict, string message, Brush colour)
     {
@@ -987,22 +988,6 @@ internal static class FluentLayout
         options.Save();
         rebuild();
     }
-
-    /// <summary>
-    /// A stock Fluent brush by resource key, with a fallback colour for the case where the key is
-    /// missing.
-    /// <para>
-    /// Public because every settings file and every widget view wants it, and four private copies of
-    /// the same four lines is four places for the fallback to drift. Looking the brush up by key is
-    /// what makes a surface follow the theme; a literal colour is a surface that does not.
-    /// </para>
-    /// <para>
-    /// [S-822] The brush comes from the appearance engine: it is Themia's theme (not the app's start-up
-    /// theme) and it changes colour in place when the theme or the accent does, so nothing built from
-    /// it has to be rebuilt.
-    /// </para>
-    /// </summary>
-    public static Brush Themed(string key, Windows.UI.Color fallback) => DesignApplier.Brush(key, fallback);
 }
 
 /// <summary>What one <see cref="FluentLayout.ListEditor{T}"/> needs to know about its list.</summary>

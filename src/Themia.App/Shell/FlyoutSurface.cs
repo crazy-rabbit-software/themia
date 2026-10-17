@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
@@ -52,8 +53,8 @@ internal static class FlyoutSurface
         ArgumentNullException.ThrowIfNull(frame);
 
         frame.CornerRadius = new CornerRadius(Fluent.OverlayRadius);
-        frame.Background = FluentLayout.Themed("SolidBackgroundFillColorQuarternaryBrush", Colors.Black);
-        frame.BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
+        frame.Background = ThemeBrush.Of("SolidBackgroundFillColorQuarternaryBrush", Colors.Black);
+        frame.BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
         frame.BorderThickness = new Thickness(Fluent.Hairline);
 
         var caster = new Border { IsHitTestVisible = false };

@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -188,9 +189,9 @@ internal sealed partial class CalendarView
                 Width = cell - 1,
                 Height = cell - 1,
                 CornerRadius = new CornerRadius((cell - 1) / 2),
-                Background = isToday ? Accent() : FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+                Background = isToday ? Accent() : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
                 BorderThickness = new Thickness(1),
-                BorderBrush = isToday ? FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White) : Accent(),
+                BorderBrush = isToday ? ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White) : Accent(),
             };
         }
 
@@ -200,7 +201,7 @@ internal sealed partial class CalendarView
             Width = cell - 1,
             Height = cell - 1,
             CornerRadius = new CornerRadius(isToday ? (cell - 1) / 2 : 0),
-            Background = isToday ? Accent() : FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = isToday ? Accent() : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             BorderThickness = new Thickness(0, 0, 0, items.Count > 0 && !isToday ? 2 : 0),
             BorderBrush = items.Count > 0 ? MarkOf(items[0], showColors) : null,
         };
@@ -218,7 +219,7 @@ internal sealed partial class CalendarView
             CornerRadius = new CornerRadius(Math.Min(2, side / 4)),
             Background = items.Count > 0 ? MarkOf(items[0], showColors) : null,
             BorderThickness = new Thickness(ring ? Math.Max(1, Math.Floor(side / 5)) : 0),
-            BorderBrush = isSelected ? Accent() : isToday ? FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White) : null,
+            BorderBrush = isSelected ? Accent() : isToday ? ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White) : null,
         };
 
         // [S-6513] An empty day is a chip of the item layer; a day with something is its colour.

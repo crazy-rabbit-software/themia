@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -29,7 +30,7 @@ internal sealed class RingPart
         // [S-837] A progress ring's track is a control's strong rest fill; the disabled fill reads
         // as a ring that is switched off.
         ItemFill.PaintStroke(_track, ItemRole.Track);
-        _arc.Stroke = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        _arc.Stroke = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
         Root = new Grid
         {

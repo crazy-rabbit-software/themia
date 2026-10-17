@@ -6,6 +6,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -292,7 +293,7 @@ internal static partial class WidgetSettings
 
     /// <summary>What a theme brush currently paints, for a default swatch.</summary>
     private static Windows.UI.Color? ThemeColor(string key)
-        => FluentLayout.Themed(key, Microsoft.UI.Colors.Gray) is Microsoft.UI.Xaml.Media.SolidColorBrush brush ? brush.Color : null;
+        => ThemeBrush.Of(key, Microsoft.UI.Colors.Gray) is Microsoft.UI.Xaml.Media.SolidColorBrush brush ? brush.Color : null;
 
     /// <summary>One suggestion line: "Microsoft Corporation — MSFT · NASDAQ · Shares".</summary>
     private static string Describe(SymbolHit hit)

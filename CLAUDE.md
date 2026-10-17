@@ -109,7 +109,7 @@ tests (`WidgetRegistryTests`) fail by name when a part is missing. Settings page
   Subscribe in `Attach`, unsubscribe in `Detach`.
 - **No new wall-clock timing in correctness paths.** No "sleep until it is probably ready"; be event-driven.
 - **Design tokens, not literals:** `Fluent.*` spacing and type, theme brushes via
-  `FluentLayout.Themed(...)`, never a hard-coded colour or font size.
+  `ThemeBrush.Of(...)` (Themia.Sdk.WinUI), never a hard-coded colour or font size.
 - **One path, never two.** No flag keeping the old implementation beside the new one, no parallel code
   doing the same job. Replace cleanly and de-risk with tests.
 - **No backwards-compatibility code.** The app is unreleased: change the schema in place. No

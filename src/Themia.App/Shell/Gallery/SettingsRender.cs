@@ -12,6 +12,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.Graphics;
 
@@ -281,7 +282,7 @@ internal static class SettingsRender
             if (root is Panel panel)
             {
                 // What Mica falls back to; the backdrop itself is not in a RenderTargetBitmap.
-                panel.Background = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
+                panel.Background = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
             }
 
             settings.DebugShow(target);

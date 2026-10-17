@@ -8,6 +8,7 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -17,9 +18,9 @@ internal sealed partial class MixerView
     /// <summary>One row's visuals, rewritten in place for whichever row sits at its position.</summary>
     private sealed class RowVisual
     {
-        private static readonly Brush PrimaryBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-        private static readonly Brush QuietBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-        private static readonly Brush MutedBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
+        private static readonly Brush PrimaryBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+        private static readonly Brush QuietBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+        private static readonly Brush MutedBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
 
         private readonly MixerView _owner;
         private readonly Grid _grid = new();
@@ -64,7 +65,7 @@ internal sealed partial class MixerView
             _count = new Border
             {
                 Child = _countText,
-                Background = FluentLayout.Themed("ControlFillColorSecondaryBrush", Colors.Gray),
+                Background = ThemeBrush.Of("ControlFillColorSecondaryBrush", Colors.Gray),
                 CornerRadius = new CornerRadius(Fluent.OverlayRadius),
                 Padding = new Thickness(Fluent.Space1 + 2, 0, Fluent.Space1 + 2, 0),
                 VerticalAlignment = VerticalAlignment.Center,
@@ -78,7 +79,7 @@ internal sealed partial class MixerView
             _mute.Padding = new Thickness(Fluent.Space1 + 2);
             _mute.MinWidth = 0;
             _mute.MinHeight = 0;
-            _mute.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+            _mute.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
             _mute.BorderThickness = new Thickness(0);
             _mute.CornerRadius = new CornerRadius(Fluent.ControlRadius);
             _mute.VerticalAlignment = VerticalAlignment.Center;

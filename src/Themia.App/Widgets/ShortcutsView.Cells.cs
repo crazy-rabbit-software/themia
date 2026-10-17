@@ -13,6 +13,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Storage.Streams;
 
 namespace Themia.App.Widgets;
@@ -493,8 +494,8 @@ internal sealed partial class ShortcutsView
             : ItemState.Rest);
 
         cell.Root.BorderBrush = selected || cursor
-            ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
+            : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
     }
 
     /// <summary>[S-1386] A missing local target: dimmed, its name struck through, and the tooltip says so.</summary>

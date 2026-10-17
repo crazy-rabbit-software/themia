@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -437,11 +438,11 @@ internal sealed partial class DetailView : IWidgetKeys
         };
     }
 
-    private readonly Brush _accentBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _cautionBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Orange);
-    private readonly Brush _criticalBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
-    private readonly Brush _successBrush = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
-    private readonly Brush _clearBrush = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+    private readonly Brush _accentBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _cautionBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Orange);
+    private readonly Brush _criticalBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
+    private readonly Brush _successBrush = ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.Green);
+    private readonly Brush _clearBrush = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
     /// <summary>Looked up once per view: a resource lookup per row per read is a dictionary hit for nothing.</summary>
     private Brush PressureBrush(MeterPressure pressure) => pressure switch

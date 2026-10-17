@@ -8,6 +8,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -217,7 +218,7 @@ internal sealed partial class ConfigWindow
     {
         card.StartBringIntoView(new BringIntoViewOptions { VerticalAlignmentRatio = 0.3, AnimationDesired = true });
 
-        card.BorderBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        card.BorderBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         card.BorderThickness = new Thickness(2);
 
         var timer = _window.DispatcherQueue.CreateTimer();
@@ -287,8 +288,8 @@ internal sealed partial class ConfigWindow
                     Padding = new Thickness(Widgets.Fluent.Space2),
                     HorizontalAlignment = HorizontalAlignment.Right,
                     CornerRadius = new CornerRadius(Widgets.Fluent.OverlayRadius),
-                    Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
-                    BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
+                    Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
+                    BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
                     BorderThickness = new Thickness(1),
                 });
                 return true;
@@ -320,8 +321,8 @@ internal sealed partial class ConfigWindow
                     HorizontalAlignment = HorizontalAlignment.Right,
                     MinWidth = FluentLayout.ChoiceMinWidth,
                     CornerRadius = new CornerRadius(8),
-                    Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
-                    BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
+                    Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
+                    BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
                     BorderThickness = new Thickness(1),
                 });
                 return true;
@@ -337,8 +338,8 @@ internal sealed partial class ConfigWindow
                     Padding = new Thickness(16),
                     HorizontalAlignment = HorizontalAlignment.Right,
                     CornerRadius = new CornerRadius(8),
-                    Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
-                    BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
+                    Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
+                    BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
                     BorderThickness = new Thickness(1),
                 };
 
@@ -357,8 +358,8 @@ internal sealed partial class ConfigWindow
                     Padding = new Thickness(16),
                     HorizontalAlignment = HorizontalAlignment.Right,
                     CornerRadius = new CornerRadius(8),
-                    Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
-                    BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
+                    Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
+                    BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
                     BorderThickness = new Thickness(1),
                 });
                 return true;

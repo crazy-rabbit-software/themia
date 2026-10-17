@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -45,8 +46,8 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
 
-    private readonly Brush _primaryBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _disabledBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _primaryBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _disabledBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
 
     private WidgetConfig _config;
     private IWidgetSurface? _surface;

@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.Core.Geometry;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
@@ -31,7 +32,7 @@ internal sealed partial class WidgetCard
     private Canvas BuildMarkers()
     {
         var canvas = new Canvas { Visibility = Visibility.Collapsed };
-        var halo = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.White);
+        var halo = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.White);
 
         foreach (var handle in Enum.GetValues<ResizeHandle>())
         {
@@ -123,8 +124,8 @@ internal sealed partial class WidgetCard
     private void PaintMarkers(bool selected)
     {
         var ink = selected
-            ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : FluentLayout.Themed("ControlStrongFillColorDefaultBrush", Colors.Gray);
+            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
+            : ThemeBrush.Of("ControlStrongFillColorDefaultBrush", Colors.Gray);
         foreach (var part in _markerParts)
         {
             foreach (var bar in part.Inks)

@@ -9,6 +9,7 @@ using Themia.Core.Localization;
 using Themia.Core.Files;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -578,7 +579,7 @@ internal sealed partial class ShortcutsView
         _dropHighlight = on;
         _scroll.BorderThickness = new Thickness(on ? Fluent.Hairline * 2 : 0);
         _scroll.BorderBrush = on
-            ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)
+            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
             : null;
         _scroll.CornerRadius = new CornerRadius(Fluent.ControlRadius);
     }

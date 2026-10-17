@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Run = Microsoft.UI.Xaml.Documents.Run;
 using Typography = Microsoft.UI.Xaml.Documents.Typography;
 
@@ -37,8 +38,8 @@ internal sealed partial class WeatherNowView
         }
 
         _styledBuilt = true;
-        _bigTemperature.Foreground = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-        _bigUnit.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        _bigTemperature.Foreground = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+        _bigUnit.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
         _bigTemperature.Inlines.Add(_bigValue);
         _bigTemperature.Inlines.Add(_bigUnit);
         Typography.SetNumeralAlignment(_bigTemperature, FontNumeralAlignment.Tabular);

@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.Foundation;
 
@@ -109,7 +110,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         // A transparent brush rather than no brush: a panel with a null background is not
         // hit-testable at all, and the pad would never see a pointer. The card does the same thing
         // for its own drag area.
-        _pad.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        _pad.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
         _hintText.Text = Str.Scratchpad_DrawHere.Text();
         _hint = Fluent.EmptyState(
@@ -159,7 +160,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
             VerticalAlignment = VerticalAlignment.Center,
         };
 
-        var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
         // [S-6513] The fills are the item layer's row, in each state.
         ItemFill.Button(button, "Button");
@@ -185,9 +186,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
             VerticalAlignment = VerticalAlignment.Center,
         };
 
-        var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        var accentHover = FluentLayout.Themed("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
+        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        var accentHover = ThemeBrush.Of("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
 
         // [S-6513] Unchecked, the fills are the item layer's row; checked, the accent's.
         ItemFill.Button(button, "ToggleButton");

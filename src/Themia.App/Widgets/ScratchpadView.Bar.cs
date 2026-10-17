@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -57,8 +58,8 @@ internal sealed partial class ScratchpadView
 
     private void BuildBar()
     {
-        var ring = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-        var nib = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        var ring = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+        var nib = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
 
         foreach (var ink in InkPalette.Inks)
         {

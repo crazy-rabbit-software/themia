@@ -11,6 +11,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -26,11 +27,11 @@ internal sealed partial class GpuView
         /// <summary>The least history worth drawing under a reading: below it the trace is a smudge.</summary>
         private const double MinChart = Fluent.Space6;
 
-        private static readonly Brush ReadingBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-        private static readonly Brush UnavailableBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-        private static readonly Brush AccentBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        private static readonly Brush CautionBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Orange);
-        private static readonly Brush CriticalBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
+        private static readonly Brush ReadingBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+        private static readonly Brush UnavailableBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+        private static readonly Brush AccentBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        private static readonly Brush CautionBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Orange);
+        private static readonly Brush CriticalBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
 
         private readonly int _index;
         private readonly Grid _root = new();

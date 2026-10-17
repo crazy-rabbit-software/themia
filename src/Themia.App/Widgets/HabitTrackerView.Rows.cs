@@ -10,6 +10,7 @@ using Themia.App.Shell;
 using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.System;
 using Windows.UI.Core;
 using Themia.Core.Shell;
@@ -543,11 +544,11 @@ internal sealed partial class HabitTrackerView
         private readonly IDisposable _hover;
         private readonly IDisposable _menu;
 
-        private readonly Brush _filled = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        private readonly Brush _filled = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
         // [S-837] The empty dot must read as a slot on both themes (the alt fill is all but invisible on
         // dark): a control's strong rest fill (the item layer's track, [S-6513]), not the disabled
         // one, which read as a switched-off habit.
-        private readonly Brush _stroke = FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
+        private readonly Brush _stroke = ThemeBrush.Of("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
 
         private IReadOnlyList<HabitDot> _recent = [];
         private HabitPeriod _period = HabitPeriod.Daily;
@@ -564,7 +565,7 @@ internal sealed partial class HabitTrackerView
             {
                 Glyph = Glyphs.Done,
                 FontSize = 12,
-                Foreground = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White),
+                Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             };

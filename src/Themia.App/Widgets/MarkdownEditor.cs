@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Notes;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI;
@@ -568,8 +569,8 @@ internal sealed class MarkdownEditor
             _ => "TextFillColorPrimaryBrush",
         };
 
-        var fill = (FluentLayout.Themed(key, Colors.Gray) as SolidColorBrush)?.Color ?? Colors.Gray;
-        var under = (FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black) as SolidColorBrush)?.Color ?? Colors.Black;
+        var fill = (ThemeBrush.Of(key, Colors.Gray) as SolidColorBrush)?.Color ?? Colors.Gray;
+        var under = (ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black) as SolidColorBrush)?.Color ?? Colors.Black;
         return Blend(fill, under);
     }
 
@@ -794,7 +795,7 @@ internal sealed class MarkdownEditor
                 Padding = new Thickness(0),
                 BorderThickness = new Thickness(0),
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+                Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
 
                 // [S-1365] The note keeps the focus and its selection; the command runs on that.
                 IsTabStop = false,
@@ -861,8 +862,8 @@ internal sealed class MarkdownEditor
         {
             var on = IsOn(command, marks);
 
-            button.Background = FluentLayout.Themed(on ? "SubtleFillColorSecondaryBrush" : "SubtleFillColorTransparentBrush", Colors.Transparent);
-            button.Foreground = FluentLayout.Themed(on ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
+            button.Background = ThemeBrush.Of(on ? "SubtleFillColorSecondaryBrush" : "SubtleFillColorTransparentBrush", Colors.Transparent);
+            button.Foreground = ThemeBrush.Of(on ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
         }
     }
 

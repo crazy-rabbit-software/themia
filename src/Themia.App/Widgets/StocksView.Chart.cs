@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -42,10 +43,10 @@ internal sealed partial class StocksView
         _fill.IsHitTestVisible = false;
         _canvas.IsHitTestVisible = false;
 
-        _rule.Stroke = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
+        _rule.Stroke = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
         _probe.Child = _probeText;
         _probe.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        _probe.Background = FluentLayout.Themed("SolidBackgroundFillColorTertiaryBrush", Colors.Black);
+        _probe.Background = ThemeBrush.Of("SolidBackgroundFillColorTertiaryBrush", Colors.Black);
         _overlay.Children.Add(_rule);
         _overlay.Children.Add(_probe);
 
@@ -57,7 +58,7 @@ internal sealed partial class StocksView
         // the card's to drag. A transparent fill is what makes an empty area hit-testable.
         // [S-1113] A price over time: the time axis runs left to right in every language.
         _chart.FlowDirection = FlowDirection.LeftToRight;
-        _chart.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        _chart.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         _chart.SizeChanged += OnChartSizeChanged;
         _chart.PointerMoved += OnChartPointerMoved;
         _chart.PointerExited += OnChartPointerGone;

@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -84,7 +85,7 @@ internal sealed partial class DriveView
 
         var used = drive.UsedFraction;
         parts.Ring.SetFraction(used);
-        parts.Ring.SetBrush(FluentLayout.Themed(DriveRules.Pressure(drive) switch
+        parts.Ring.SetBrush(ThemeBrush.Of(DriveRules.Pressure(drive) switch
         {
             MeterPressure.Critical => "SystemFillColorCriticalBrush",
             MeterPressure.Elevated => "SystemFillColorCautionBrush",
@@ -94,7 +95,7 @@ internal sealed partial class DriveView
         var bound = HeroBound.Of(Formatting.Percent(1));
         parts.Figure.Apply(FluentType.Strong(RingFace.Figure(plan.Diameter, bound)));
         parts.Figure.Text = used is { } share ? Formatting.Percent(locale, share) : "--";
-        parts.Figure.Foreground = FluentLayout.Themed(used is null ? "TextFillColorDisabledBrush" : "TextFillColorPrimaryBrush", Colors.White);
+        parts.Figure.Foreground = ThemeBrush.Of(used is null ? "TextFillColorDisabledBrush" : "TextFillColorPrimaryBrush", Colors.White);
 
         // [S-4671] Headerless, the body names the drive; a drive Windows cannot reach says why instead.
         parts.Name.Apply(nameStep);

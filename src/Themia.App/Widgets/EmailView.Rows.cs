@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -129,7 +130,7 @@ internal sealed partial class EmailView
             line.Inlines.Add(new Run
             {
                 Text = (layout.Subject ? " – " : string.Empty) + message.Preview,
-                Foreground = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray),
+                Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
             });
         }
 
@@ -339,7 +340,7 @@ internal sealed partial class EmailView
                 Width = 3,
                 RadiusX = 1.5,
                 RadiusY = 1.5,
-                Fill = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+                Fill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Margin = new Thickness(Fluent.Space1, Fluent.Space1, 0, Fluent.Space1),

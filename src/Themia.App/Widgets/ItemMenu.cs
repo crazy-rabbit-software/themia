@@ -8,6 +8,7 @@ using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Shell;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -174,7 +175,7 @@ internal static class ItemMenu
 
             if (entry.Danger)
             {
-                var critical = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed);
+                var critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
                 item.Foreground = critical;
                 if (item.Icon is not null)
                 {
@@ -347,7 +348,7 @@ internal static class ItemMenu
 
         if (entry.Danger)
         {
-            element.Foreground = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed);
+            element.Foreground = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
         }
 
         if (entry.Children is { } children && button is not null)

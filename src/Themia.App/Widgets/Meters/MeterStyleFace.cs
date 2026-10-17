@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -20,9 +21,9 @@ internal abstract partial class MeterStyleFace : Grid
     /// <summary>The air under the face, above the card's bottom edge (as the other looks' parts).</summary>
     protected const double Bottom = Fluent.Space3;
 
-    protected static readonly Brush PrimaryBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    protected static readonly Brush DisabledBrush = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-    protected static readonly Brush OutlineBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+    protected static readonly Brush PrimaryBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    protected static readonly Brush DisabledBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+    protected static readonly Brush OutlineBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
 
     protected MeterStyleFace()
     {

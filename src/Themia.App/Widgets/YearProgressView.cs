@@ -5,6 +5,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -308,8 +309,8 @@ internal sealed partial class YearProgressView : Grid, IWidgetView, IWidgetSizeA
         var grid = plan.Grid;
         var canvas = new Canvas { Width = grid.Width, Height = grid.Height, HorizontalAlignment = HorizontalAlignment.Center, FlowDirection = FlowDirection.LeftToRight };
 
-        var done = FluentLayout.Themed("TextFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
-        var current = FluentLayout.Themed("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
+        var done = ThemeBrush.Of("TextFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
+        var current = ThemeBrush.Of("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
         var ahead = ItemFill.For(this, ItemRole.Track, ItemState.Disabled);
         var inset = (grid.Pitch - grid.Diameter) / 2;
 

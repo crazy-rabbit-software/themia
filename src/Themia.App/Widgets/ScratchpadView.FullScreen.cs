@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -90,8 +91,8 @@ internal sealed partial class ScratchpadView
             Child = _pad,
             CornerRadius = new CornerRadius(Fluent.OverlayRadius),
             BorderThickness = new Thickness(Fluent.Hairline),
-            BorderBrush = FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray),
-            Background = FluentLayout.Themed("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
+            BorderBrush = ThemeBrush.Of("CardStrokeColorDefaultBrush", Colors.Gray),
+            Background = ThemeBrush.Of("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
@@ -106,7 +107,7 @@ internal sealed partial class ScratchpadView
             Height = root.Size.Height,
             Padding = new Thickness(Fluent.Space6),
             RowSpacing = Fluent.Space4,
-            Background = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black),
+            Background = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black),
             RequestedTheme = ActualTheme,
             FlowDirection = FlowDirection,
             RowDefinitions =
@@ -222,6 +223,6 @@ internal sealed partial class ScratchpadView
     {
         Width = Fluent.Hairline,
         Margin = new Thickness(0, Fluent.Space1, 0, Fluent.Space1),
-        Background = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray),
+        Background = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
     };
 }

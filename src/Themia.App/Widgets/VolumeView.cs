@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -108,7 +109,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         // background makes the tile's empty room hit-testable, so the wheel lands there too.
         _wheel = OnWheel;
         AddHandler(PointerWheelChangedEvent, _wheel, true);
-        Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
         _band.Children.Add(_mute);
         _band.Children.Add(_slider);

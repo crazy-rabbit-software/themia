@@ -9,6 +9,7 @@ using Themia.App.Services.Web;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -39,9 +40,9 @@ internal sealed partial class VideoStreamView
     private readonly Border _chip;
     private readonly Border _strip;
 
-    private readonly Brush _liveBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed);
-    private readonly Brush _waitBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
-    private readonly Brush _idleBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _liveBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
+    private readonly Brush _waitBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
+    private readonly Brush _idleBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
     private WidgetArea _area;
     private StreamChrome _chrome;
@@ -102,7 +103,7 @@ internal sealed partial class VideoStreamView
         var strip = new Border
         {
             Child = row,
-            Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Black),
+            Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Black),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space1, Fluent.Space1),
             Margin = new Thickness(Fluent.Space2),
@@ -128,7 +129,7 @@ internal sealed partial class VideoStreamView
         return new Border
         {
             Child = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, Children = { dot, text } },
-            Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Colors.Black),
+            Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Black),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             Padding = new Thickness(Fluent.Space2, Fluent.Space1 / 2, Fluent.Space2, Fluent.Space1 / 2),
             IsHitTestVisible = false,

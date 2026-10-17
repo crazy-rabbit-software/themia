@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -14,8 +15,8 @@ internal sealed partial class WeatherForecastView
 {
     private const double CurveDot = 6;
 
-    private readonly Brush _highBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _lowBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _highBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _lowBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
     /// <summary>
     /// The days as columns (label, glyph, precipitation) over one chart that spans them: the highs as

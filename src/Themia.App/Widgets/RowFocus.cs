@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -34,7 +35,7 @@ internal static class RowFocus
     /// <summary>Show or hide the ring on a prepared row.</summary>
     public static void Mark(Border row, bool focused)
     {
-        row.BorderBrush = focused ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue) : Transparent();
+        row.BorderBrush = focused ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue) : Transparent();
 
         if (focused)
         {
@@ -42,5 +43,5 @@ internal static class RowFocus
         }
     }
 
-    private static Microsoft.UI.Xaml.Media.Brush Transparent() => FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+    private static Microsoft.UI.Xaml.Media.Brush Transparent() => ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 }

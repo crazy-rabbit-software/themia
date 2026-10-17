@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -48,15 +49,15 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private readonly ToggleGate _switch = new();
 
     private readonly Brush _rest = new SolidColorBrush(Colors.Transparent);
-    private readonly Brush _accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _accentHover = FluentLayout.Themed("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
-    private readonly Brush _accentPressed = FluentLayout.Themed("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
-    private readonly Brush _onAccent = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _onAccentSecondary = FluentLayout.Themed("TextOnAccentFillColorSecondaryBrush", Colors.White);
-    private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _secondary = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _disabled = FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _controlEdge = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray);
+    private readonly Brush _accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _accentHover = ThemeBrush.Of("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
+    private readonly Brush _accentPressed = ThemeBrush.Of("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
+    private readonly Brush _onAccent = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _onAccentSecondary = ThemeBrush.Of("TextOnAccentFillColorSecondaryBrush", Colors.White);
+    private readonly Brush _primary = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _secondary = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
+    private readonly Brush _disabled = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _controlEdge = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray);
 
     private IWidgetSurface? _surface;
     private ToggleLease? _lease;

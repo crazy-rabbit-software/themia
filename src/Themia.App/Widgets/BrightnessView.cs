@@ -10,6 +10,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -76,7 +77,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         Children.Add(_empty);
 
         // The wheel anywhere on the tile, as on the volume tile.
-        Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         Orient(VolumeAxis.Horizontal);
     }
 

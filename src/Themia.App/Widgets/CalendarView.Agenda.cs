@@ -9,6 +9,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -281,7 +282,7 @@ internal sealed partial class CalendarView
             Width = 2,
             Margin = new Thickness(0, 2, Fluent.Space2 - 2, 2),
             CornerRadius = new CornerRadius(1),
-            Background = stripe ?? FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = stripe ?? ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
         };
 
         SetColumn(bar, 0);

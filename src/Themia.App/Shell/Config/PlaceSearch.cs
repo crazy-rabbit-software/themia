@@ -9,6 +9,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -374,8 +375,8 @@ internal static class PlaceSearch
                 Glyph = glyph,
                 FontSize = Fluent.IconSize,
                 Foreground = critical
-                    ? FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red)
-                    : FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray),
+                    ? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red)
+                    : ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
             };
 
         mark.VerticalAlignment = VerticalAlignment.Top;

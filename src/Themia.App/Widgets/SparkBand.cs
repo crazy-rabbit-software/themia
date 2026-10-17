@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -80,7 +81,7 @@ internal sealed partial class SparkBand : Grid
         // [S-1113] Time runs left to right in every language: newest at the right edge.
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
 
-        var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
         // The wash is the stroke's colour at low alpha, applied to the shape and never to the shared
         // brush, which every other accent surface in the app also paints with.
@@ -94,12 +95,12 @@ internal sealed partial class SparkBand : Grid
         _line.Stretch = Stretch.None;
 
         // The second series is a line only: two washes over each other turn into one muddy area.
-        _secondLine.Stroke = FluentLayout.Themed("AccentTextFillColorTertiaryBrush", Colors.SkyBlue);
+        _secondLine.Stroke = ThemeBrush.Of("AccentTextFillColorTertiaryBrush", Colors.SkyBlue);
         _secondLine.StrokeThickness = Fluent.ChartStroke / 2;
         _secondLine.StrokeLineJoin = PenLineJoin.Round;
         _secondLine.Stretch = Stretch.None;
 
-        _baseline.Fill = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray);
+        _baseline.Fill = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray);
 
         IsHitTestVisible = false;
         Clip = _clip;

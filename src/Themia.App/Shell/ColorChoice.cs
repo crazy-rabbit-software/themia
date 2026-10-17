@@ -14,6 +14,7 @@ using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
@@ -396,7 +397,7 @@ internal static class ColorChoice
 
         swatch.Background = options.DefaultColor?.Invoke() is { } fallback
             ? new SolidColorBrush(fallback)
-            : FluentLayout.Themed("SolidBackgroundFillColorTertiaryBrush", Colors.Gray);
+            : ThemeBrush.Of("SolidBackgroundFillColorTertiaryBrush", Colors.Gray);
     }
 
     /// <summary>The flyout: the default, the swatches, and the ways to a custom colour (the full picker, the eyedropper).</summary>
@@ -660,7 +661,7 @@ internal static class ColorChoice
 
             if (chosen)
             {
-                swatch.BorderBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+                swatch.BorderBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
                 swatch.BorderThickness = new Thickness(2);
             }
 

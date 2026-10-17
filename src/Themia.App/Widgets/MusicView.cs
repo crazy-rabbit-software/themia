@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.Storage.Streams;
 
@@ -111,7 +112,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         _artHost = new Border
         {
             Child = new Grid { Children = { _artPlaceholder, _art } },
-            Background = FluentLayout.Themed("ControlFillColorSecondaryBrush", Colors.DimGray),
+            Background = ThemeBrush.Of("ControlFillColorSecondaryBrush", Colors.DimGray),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
         };
 

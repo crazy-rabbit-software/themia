@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using DayText = Themia.Core.Widgets.DateText;
 
@@ -450,7 +451,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
             FlipRow.Children.Add(card.Root);
         }
 
-        _flipMeridiem.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        _flipMeridiem.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
         _flipCards[0].Root.Children.Add(_flipMeridiem);
     }
 
@@ -650,11 +651,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
         var radius = diameter / 2;
 
-        var rim = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray);
-        var hourTick = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
-        var minuteTick = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-        var hand = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-        var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        var rim = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray);
+        var hourTick = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
+        var minuteTick = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+        var hand = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
         var dial = new Ellipse
         {

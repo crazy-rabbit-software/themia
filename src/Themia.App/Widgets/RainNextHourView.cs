@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -233,7 +234,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
 
         var wet = outlook.Headline is RainHeadline.StopsIn or RainHeadline.Continues or RainHeadline.StartsIn;
         _icon.Glyph = outlook.Headline == RainHeadline.Dry ? Glyphs.Cloudy : Glyphs.Rain;
-        _icon.Foreground = FluentLayout.Themed(wet ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
+        _icon.Foreground = ThemeBrush.Of(wet ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
 
         if (outlook.Steps.Count > 0)
         {
@@ -309,8 +310,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
         var slots = RainRules.WindowSteps;
         var gap = Math.Min(Fluent.Space1, width / (slots * 4));
         var barWidth = (width - ((slots - 1) * gap)) / slots;
-        var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        var rule = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
+        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        var rule = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
         for (var i = 0; i < outlook.Steps.Count && i < slots; i++)
         {

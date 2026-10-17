@@ -16,6 +16,7 @@ using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -566,8 +567,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
             VerticalAlignment = VerticalAlignment.Center,
             BorderThickness = new Thickness(Fluent.Hairline),
             BorderBrush = overdue
-                ? FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed)
-                : FluentLayout.Themed("ControlStrongStrokeColorDefaultBrush", Colors.Gray),
+                ? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed)
+                : ThemeBrush.Of("ControlStrongStrokeColorDefaultBrush", Colors.Gray),
             Background = Fluent.Clear(),
         };
         ToolTipService.SetToolTip(ring, Str.WidgetsC_Tasks_MarkDone.Text());
@@ -664,9 +665,9 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         return brush;
     }
 
-    private static Brush Accent() => FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private static Brush Accent() => ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
-    private static Brush Caution() => FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
+    private static Brush Caution() => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
     /// <summary>[S-1268] A click on an event opens it in its calendar, as a calendar widget's does; never in a preview or edit mode.</summary>
     private void Open(CalendarEvent item)

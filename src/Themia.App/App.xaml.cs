@@ -4,6 +4,7 @@ using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Storage;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App;
 
@@ -17,6 +18,9 @@ public partial class App : Application
     {
         // [S-6902] The widget registry, before anything reads a widget.
         Services.ModuleHost.Install();
+
+        // [S-822] The design engine behind every part's theme brushes, before anything is drawn.
+        Themia.Sdk.WinUI.ThemeBrush.Install(Shell.DesignApplier.Brush);
 
 #if DEBUG
         // The settings render's --theme: the application theme can only be chosen before the

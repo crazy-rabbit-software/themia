@@ -9,6 +9,7 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -26,7 +27,7 @@ internal sealed partial class ScreenTimeAppsView
     {
         private const double IconSize = Fluent.IconSize;
 
-        private static readonly Brush TimeBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        private static readonly Brush TimeBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
 
         private readonly ScreenTimeAppsView _owner;
         private readonly Grid _icon = new() { Width = IconSize, Height = IconSize, VerticalAlignment = VerticalAlignment.Center };
@@ -65,7 +66,7 @@ internal sealed partial class ScreenTimeAppsView
         {
             _owner = owner;
 
-            _initial.Foreground = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);
+            _initial.Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
             _chip.Child = _initial;
             _icon.Children.Add(_chip);
             _icon.Children.Add(_image);

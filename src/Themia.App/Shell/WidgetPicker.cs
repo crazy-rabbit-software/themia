@@ -13,6 +13,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.Foundation;
 using Windows.System;
@@ -384,7 +385,7 @@ internal sealed partial class WidgetPicker : Grid
     {
         Height = Fluent.Hairline,
         Margin = new Thickness(Fluent.Space3, Fluent.Space1, Fluent.Space3, Fluent.Space1),
-        Background = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray),
+        Background = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
     };
 
     /// <summary>One row: a widget's icon and name, or a folder's with a chevron. No preview ([S-3501]); a widget's description is its tooltip.</summary>
@@ -744,7 +745,7 @@ internal sealed partial class WidgetPicker : Grid
         }
     }
 
-    private static Microsoft.UI.Xaml.Media.Brush Rest() => FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+    private static Microsoft.UI.Xaml.Media.Brush Rest() => ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
-    private static Microsoft.UI.Xaml.Media.Brush Lit() => FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Transparent);
+    private static Microsoft.UI.Xaml.Media.Brush Lit() => ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Transparent);
 }

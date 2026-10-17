@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -305,7 +306,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_switch, $"{name} {_time.Text}");
     }
 
-    private static Brush Ink(string key) => FluentLayout.Themed(key, Colors.Gray);
+    private static Brush Ink(string key) => ThemeBrush.Of(key, Colors.Gray);
 
     public void Detach()
     {

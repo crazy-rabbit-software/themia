@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -47,8 +48,8 @@ internal sealed partial class GalleryView
         };
         _controls.Padding = new Thickness(2);
         _controls.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        _controls.Background = FluentLayout.Themed("AcrylicInAppFillColorDefaultBrush", Microsoft.UI.Colors.Black);
-        _controls.BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Microsoft.UI.Colors.Gray);
+        _controls.Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Microsoft.UI.Colors.Black);
+        _controls.BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Microsoft.UI.Colors.Gray);
         _controls.BorderThickness = new Thickness(1);
         _controls.Visibility = Visibility.Collapsed;
         _canvas.Children.Add(_controls);
@@ -69,7 +70,7 @@ internal sealed partial class GalleryView
             Height = ControlSize,
             Padding = new Thickness(0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent),
             BorderThickness = new Thickness(0),
         };
 

@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -47,8 +48,8 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     /// <summary>The row element of each shown entry, in entry order.</summary>
     private readonly List<Border> _rowElements = [];
 
-    private readonly Brush _freshBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _staleBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
+    private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
     private readonly RefreshSchedule _schedule = new(Scope, "feed");
 

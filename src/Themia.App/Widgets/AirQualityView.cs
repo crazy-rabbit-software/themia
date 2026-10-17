@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -412,7 +413,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         {
             Width = Marker,
             Height = Marker,
-            Fill = FluentLayout.Themed("TextFillColorPrimaryBrush", Microsoft.UI.Colors.White),
+            Fill = ThemeBrush.Of("TextFillColorPrimaryBrush", Microsoft.UI.Colors.White),
             HorizontalAlignment = HorizontalAlignment.Left,
         };
 

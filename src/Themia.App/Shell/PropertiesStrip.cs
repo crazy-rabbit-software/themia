@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Shell;
@@ -304,7 +305,7 @@ internal sealed partial class PropertiesStrip : Grid
         if (label is not null)
         {
             ToolTipService.SetToolTip(label, why);
-            label.Foreground = FluentLayout.Themed("TextFillColorDisabledBrush", Microsoft.UI.Colors.Gray);
+            label.Foreground = ThemeBrush.Of("TextFillColorDisabledBrush", Microsoft.UI.Colors.Gray);
         }
     }
 

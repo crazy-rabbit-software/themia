@@ -13,6 +13,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Graphics;
 
 namespace Themia.App.Shell;
@@ -486,12 +487,12 @@ internal sealed class LayoutEditorWindow
         {
             Glyph = vertical ? Glyphs.GripperVertical : Glyphs.GripperHorizontal,
             FontSize = 10,
-            Foreground = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray),
+            Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
         };
 
         var divider = new Border
         {
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             CornerRadius = new CornerRadius(DividerSize / 2),
             Child = grip,
         };
@@ -500,12 +501,12 @@ internal sealed class LayoutEditorWindow
         var dragging = false;
         var ratio = LayoutTree.ClampRatio(split.Ratio);
 
-        divider.PointerEntered += (_, _) => divider.Background = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
+        divider.PointerEntered += (_, _) => divider.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
         divider.PointerExited += (_, _) =>
         {
             if (!dragging)
             {
-                divider.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+                divider.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
             }
         };
 
@@ -558,7 +559,7 @@ internal sealed class LayoutEditorWindow
 
             dragging = false;
             divider.ReleasePointerCaptures();
-            divider.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+            divider.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
             var id = split.Id;
             Edit(root => LayoutTree.SetRatio(root, id, ratio) ? root : null);
         }
@@ -680,10 +681,10 @@ internal sealed class LayoutEditorWindow
             Child = body,
             CornerRadius = new CornerRadius(Fluent.ControlRadius * 2),
             BorderThickness = new Thickness(1),
-            BorderBrush = FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray),
+            BorderBrush = ThemeBrush.Of("CardStrokeColorDefaultBrush", Colors.Gray),
             Background = assignment is null
-                ? FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray)
-                : FluentLayout.Themed("LayerFillColorDefaultBrush", Colors.Gray),
+                ? ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray)
+                : ThemeBrush.Of("LayerFillColorDefaultBrush", Colors.Gray),
         };
     }
 
@@ -704,7 +705,7 @@ internal sealed class LayoutEditorWindow
         var button = FluentLayout.IconCommand(glyph, tooltip);
         button.Width = 28;
         button.Height = 28;
-        button.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        button.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         button.BorderThickness = new Thickness(0);
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, tooltip);
         button.Click += (_, _) => action();

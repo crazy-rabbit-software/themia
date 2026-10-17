@@ -13,6 +13,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -709,7 +710,7 @@ internal sealed class AccountsPage
     private static void Say(TextBlock line, string text, bool critical)
     {
         line.Text = text;
-        line.Foreground = FluentLayout.Themed(critical ? "SystemFillColorCriticalBrush" : "TextFillColorSecondaryBrush", critical ? Colors.Red : Colors.Gray);
+        line.Foreground = ThemeBrush.Of(critical ? "SystemFillColorCriticalBrush" : "TextFillColorSecondaryBrush", critical ? Colors.Red : Colors.Gray);
         line.Visibility = text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 

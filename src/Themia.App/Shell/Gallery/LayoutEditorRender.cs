@@ -10,6 +10,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -85,7 +86,7 @@ internal static class LayoutEditorRender
             if (editor.DebugRoot is Panel panel)
             {
                 // What Mica falls back to; the backdrop itself is not in a RenderTargetBitmap.
-                panel.Background = FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
+                panel.Background = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
             }
 
             editor.DebugShow(item.Id);

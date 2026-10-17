@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -56,7 +57,7 @@ internal static partial class WidgetSettings
             {
                 Text = Str.WidgetsA_Clipboard_Settings_Clear_Where.Text(),
                 FontSize = 12,
-                Foreground = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray),
+                Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
             }));
     }
 }

@@ -8,6 +8,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using Windows.System;
 using Themia.Core.Shell;
@@ -182,7 +183,7 @@ internal sealed partial class ShortcutsView
             // The fill is the accent at a fifth, the stroke the accent itself: Explorer's marquee. A
             // brush of its own, made per band so it follows the theme: the themed brush is shared,
             // and dimming it would dim the accent everywhere.
-            var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
+            var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
             _band.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(
                 (accent as Microsoft.UI.Xaml.Media.SolidColorBrush)?.Color ?? Microsoft.UI.Colors.DodgerBlue) { Opacity = 0.2 };
             _band.Stroke = accent;

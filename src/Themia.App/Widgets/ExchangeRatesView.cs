@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -322,9 +323,9 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     /// <summary>Up in the success colour, down in the critical one, unchanged in the secondary text colour.</summary>
     private static Brush Direction(double? change) => change switch
     {
-        > 0 => FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.SeaGreen),
-        < 0 => FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red),
-        _ => FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray),
+        > 0 => ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.SeaGreen),
+        < 0 => ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red),
+        _ => ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
     };
 
     public void Detach()

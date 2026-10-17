@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -29,7 +30,7 @@ internal sealed partial class AirQualityView
         }
 
         _dial = new GaugeDial();
-        _gaugeIndex.Foreground = FluentLayout.Themed("TextFillColorPrimaryBrush", Microsoft.UI.Colors.White);
+        _gaugeIndex.Foreground = ThemeBrush.Of("TextFillColorPrimaryBrush", Microsoft.UI.Colors.White);
         _gaugeBand.HorizontalAlignment = HorizontalAlignment.Center;
         _gaugeBand.TextAlignment = TextAlignment.Center;
         _gaugeBand.TextTrimming = TextTrimming.CharacterEllipsis;

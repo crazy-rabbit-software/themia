@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -72,7 +73,7 @@ internal static class Fluent
     {
         var text = new TextBlock
         {
-            Foreground = FluentLayout.Themed(colorKey, Colors.White),
+            Foreground = ThemeBrush.Of(colorKey, Colors.White),
             TextTrimming = TextTrimming.CharacterEllipsis,
             TextWrapping = TextWrapping.NoWrap,
         };
@@ -91,7 +92,7 @@ internal static class Fluent
         icon.Margin = new Thickness(0, 0, Space2, 0);
 
         title.Apply(FluentType.BodyStrong);
-        title.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        title.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
         title.VerticalAlignment = VerticalAlignment.Center;
 
         // [S-640] A title that does not fit ends in an ellipsis. A Grid does not clip a child to
@@ -198,7 +199,7 @@ internal static class Fluent
         {
             Glyph = glyph,
             FontSize = size,
-            Foreground = FluentLayout.Themed(colorKey, Colors.Gray),
+            Foreground = ThemeBrush.Of(colorKey, Colors.Gray),
             VerticalAlignment = VerticalAlignment.Center,
         });
 
@@ -206,13 +207,13 @@ internal static class Fluent
     public static Border Badge(TextBlock content)
     {
         content.Apply(FluentType.Caption);
-        content.Foreground = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);
+        content.Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
         content.HorizontalAlignment = HorizontalAlignment.Center;
 
         return new Border
         {
             Child = content,
-            Background = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+            Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
             CornerRadius = new CornerRadius(OverlayRadius),
             Padding = new Thickness(Space2, 0, Space2, 0),
             MinWidth = Space5,
@@ -232,7 +233,7 @@ internal static class Fluent
         icon.Margin = new Thickness(0, 0, 0, Space2);
 
         message.Apply(FluentType.Body);
-        message.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        message.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
         message.TextAlignment = TextAlignment.Center;
         message.TextWrapping = TextWrapping.Wrap;
 
@@ -305,5 +306,5 @@ internal static class Fluent
     /// A clear fill that still takes the pointer, for a surface that is not an item (a list's
     /// scroll content, a whole view's hit area): never the item layer's, which would fill it.
     /// </summary>
-    public static Brush Clear() => FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+    public static Brush Clear() => ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 }

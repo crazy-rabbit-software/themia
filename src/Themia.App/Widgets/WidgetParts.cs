@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -68,8 +69,8 @@ internal sealed partial class HeroReadout : Grid
         Icon.Margin = new Thickness(0, 0, HeroLayout.IconGap, 0);
         Icon.Visibility = Visibility.Collapsed;
 
-        _line.Foreground = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-        _unit.Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
+        _line.Foreground = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+        _unit.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
         _unit.FontWeight = FontWeights.Normal;
         _line.Inlines.Add(_value);
         _line.Inlines.Add(_unit);

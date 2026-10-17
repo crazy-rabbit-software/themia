@@ -9,6 +9,7 @@ using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -23,7 +24,7 @@ internal sealed partial class HabitTrackerView
     private readonly Canvas _heat = new() { Visibility = Visibility.Collapsed };
     private readonly List<Border> _heatCells = [];
     private readonly List<TextBlock> _heatNames = [];
-    private readonly Brush _heatFill = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _heatFill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private (bool PerHabit, int Weeks, double Cell, int Habits) _heatShape;
 
     private bool IsHeatmap => _config.Style == HabitTrackerStyle.Heatmap;

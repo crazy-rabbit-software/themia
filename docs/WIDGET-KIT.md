@@ -1293,7 +1293,7 @@ offenders, named with the reason, and the list only shrinks.
 |---|---|---|
 | Menus | no `new MenuFlyout`, `MenuFlyoutItem` or `CommandBarFlyout` under `App/Widgets/` except `ItemMenu.cs` ([S-1740]) | none in Widgets; Shell drop-downs (`EditBar`, `ViewBar`, `PropertiesStrip`, `AccountsPage`) are not context menus and are out of scope |
 | One launcher | no `Process.Start`/`UseShellExecute` outside `Services/ShellLauncher.cs` | `RssView.cs`; allowed with reasons: `DataPurge`, `Files/GitStatus`, `Files/ShellFileOps`, `ConfigPages.About`, `ConfigPages.Uninstall` |
-| Colours | under `App/Widgets/`, a `Colors.X` or `Color.FromArgb` only as the fallback argument of `FluentLayout.Themed(...)`; none at all in `Widgets/Kit/` | to be listed when the test is written (Contacts' initials palette, chart washes) |
+| Colours | under `App/Widgets/`, a `Colors.X` or `Color.FromArgb` only as the fallback argument of `ThemeBrush.Of(...)`; none at all in `Widgets/Kit/` | to be listed when the test is written (Contacts' initials palette, chart washes) |
 | Type | no `FontSize =` literal and no `new FontFamily(` in views; sizes come from `FluentType`/`Fluent.Apply` | `HabitTrackerView.Rows.cs` |
 | Text | no user-visible string literal (`Text = "`, `Content = "`, `PlaceholderText = "`, a literal tooltip) in `App/Widgets/` and `App/Shell/Config/` | example URLs in placeholders (allowed by pattern: a literal that parses as an https URL) |
 | Kit views stay thin | a view whose config implements `IKitConfig` may not mention `ScrollViewer`, `RowFocus`, `ItemMenu`, `ProgressRing`, `Fluent.EmptyState`, `ItemCursor`, `ListKeys` or `Process` | none (no kit widget yet) |

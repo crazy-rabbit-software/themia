@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.App.Shell.Motion;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -41,14 +42,14 @@ internal sealed class FlipCard
     {
         _face = new Border
         {
-            BorderBrush = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray),
+            BorderBrush = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray),
             BorderThickness = new Thickness(Hairline),
         };
         ItemFill.Paint(_face, ItemRole.Chip);
 
         _digits = new TextBlock
         {
-            Foreground = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White),
+            Foreground = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             TextAlignment = TextAlignment.Center,
@@ -59,7 +60,7 @@ internal sealed class FlipCard
         {
             Height = Hairline,
             VerticalAlignment = VerticalAlignment.Center,
-            Fill = FluentLayout.Themed("CardStrokeColorDefaultBrush", Colors.Gray),
+            Fill = ThemeBrush.Of("CardStrokeColorDefaultBrush", Colors.Gray),
         };
 
         Root = new Grid { Projection = _projection, Children = { _face, _digits, split } };

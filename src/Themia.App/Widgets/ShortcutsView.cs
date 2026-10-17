@@ -8,6 +8,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -74,7 +75,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
     public ShortcutsView()
     {
-        Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -101,14 +102,14 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         _band = new Microsoft.UI.Xaml.Shapes.Rectangle
         {
-            Stroke = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+            Stroke = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
             StrokeThickness = Fluent.Hairline,
             Visibility = Visibility.Collapsed,
         };
 
         _bandLayer.Children.Add(_band);
 
-        _surface.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        _surface.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         _surface.Children.Add(_panel);
         _surface.Children.Add(_bandLayer);
 
@@ -128,7 +129,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
             MinWidth = 0,
             MinHeight = 0,
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             BorderThickness = new Thickness(0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             VerticalAlignment = VerticalAlignment.Center,

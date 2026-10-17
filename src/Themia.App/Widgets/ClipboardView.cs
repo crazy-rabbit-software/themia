@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Core.Shell;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -320,7 +321,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
                 Height = Fluent.IconSize,
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
                 BorderThickness = new Thickness(Fluent.Hairline),
-                BorderBrush = FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Gray),
+                BorderBrush = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray),
 
                 // The user's own colour, which is the content here, not a design choice.
                 Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, colour.R, colour.G, colour.B)),
@@ -469,7 +470,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     /// <summary>The cursor row carries the focus outline; the others none.</summary>
     private void ShowCursor()
     {
-        var focus = FluentLayout.Themed("FocusStrokeColorOuterBrush", Colors.White);
+        var focus = ThemeBrush.Of("FocusStrokeColorOuterBrush", Colors.White);
 
         for (var i = 0; i < _rows.Count; i++)
         {

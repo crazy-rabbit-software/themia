@@ -10,6 +10,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -196,7 +197,7 @@ internal sealed partial class CalendarView
             if (numberHost is Border disc)
             {
                 disc.BorderThickness = new Thickness(1);
-                disc.BorderBrush = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
+                disc.BorderBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
             }
             else
             {
@@ -301,7 +302,7 @@ internal sealed partial class CalendarView
         var e = item.Event!;
         if (times && !e.AllDay && !bar.ContinuesBefore)
         {
-            text.Inlines.Add(new Run { Text = Clock(e.Start) + " ", Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray) });
+            text.Inlines.Add(new Run { Text = Clock(e.Start) + " ", Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray) });
             text.Inlines.Add(new Run { Text = Title(e) });
             Typography.SetNumeralAlignment(text, FontNumeralAlignment.Tabular);
         }
@@ -335,7 +336,7 @@ internal sealed partial class CalendarView
 
         if (items.Count > limit)
         {
-            dots.Children.Add(Dot(FluentLayout.Themed("TextFillColorDisabledBrush", Colors.Gray)));
+            dots.Children.Add(Dot(ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray)));
         }
 
         return dots;

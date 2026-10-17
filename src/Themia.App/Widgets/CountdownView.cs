@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -52,8 +53,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     /// <summary>The look the last <see cref="Lay"/> settled on: the style, or the text where its parts did not fit.</summary>
     private CountdownStyle _look;
 
-    private readonly Brush _primary = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _critical = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed);
+    private readonly Brush _primary = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly Brush _critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
 
     private Ticker? _ticker;
     private CountdownConfig _config = new();

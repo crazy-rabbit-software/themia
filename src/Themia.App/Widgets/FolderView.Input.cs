@@ -8,6 +8,7 @@ using Themia.App.Shell;
 using Themia.Core.Files;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using Windows.System;
 
@@ -440,8 +441,8 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
         var ring = focused || visual.DropTarget || (tile && selected);
         visual.Root.BorderBrush = ring
-            ? FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
+            : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
     }
 
     // ---- keys -----------------------------------------------------------------------------------

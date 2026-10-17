@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -30,10 +31,10 @@ namespace Themia.App.Widgets;
 /// <summary>[S-6300] The theme brushes the meter parts paint with, looked up once.</summary>
 internal static class MeterBrushes
 {
-    private static readonly Brush Accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private static readonly Brush Caution = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Orange);
-    private static readonly Brush Critical = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
-    private static readonly Brush Success = FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.Green);
+    private static readonly Brush Accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private static readonly Brush Caution = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Orange);
+    private static readonly Brush Critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
+    private static readonly Brush Success = ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.Green);
 
     // [S-837] The empty part of a gauge or bar (the free share, the idle time) is a progress bar's
     // track, never the disabled fill; an item with no reading is the disabled track. Both are the

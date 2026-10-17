@@ -8,6 +8,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -169,10 +170,10 @@ internal sealed partial class FolderView
         _band = new Border
         {
             BorderThickness = new Thickness(1),
-            BorderBrush = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+            BorderBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
             Child = new Border
             {
-                Background = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+                Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
                 Opacity = 0.25,
             },
             Visibility = Visibility.Collapsed,
@@ -625,7 +626,7 @@ internal sealed partial class FolderView
             Width = 3,
             Height = Math.Max(8, rowHeight / 2),
             CornerRadius = new CornerRadius(1.5),
-            Background = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+            Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(4, 0, 0, 0),

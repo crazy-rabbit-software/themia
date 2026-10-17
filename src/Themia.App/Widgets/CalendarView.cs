@@ -14,6 +14,7 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -637,7 +638,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         {
             brush = HexColor.TryParse(hex, out var r, out var g, out var b)
                 ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b))
-                : FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+                : ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
             _colorBrushes[hex] = brush;
         }
 
@@ -648,9 +649,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private Brush MarkOf(DayItem item, bool showColors)
         => item.Birthday is not null ? BirthdayBrush() : showColors ? ColorOf(item.Event!) : Accent();
 
-    private static Brush Accent() => FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private static Brush Accent() => ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
 
-    private static Brush BirthdayBrush() => FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
+    private static Brush BirthdayBrush() => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
     /// <summary>
     /// [S-1268] Open an event: a Microsoft one in Outlook for Windows when it is installed, else the
@@ -781,7 +782,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
             Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
             MinWidth = 0,
             MinHeight = 0,
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             BorderThickness = new Thickness(0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             VerticalAlignment = VerticalAlignment.Center,

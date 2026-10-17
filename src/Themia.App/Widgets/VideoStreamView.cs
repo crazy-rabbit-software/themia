@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Graphics.Imaging;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -88,7 +89,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 
         // Hit-testable everywhere, so the hover strip appears wherever the pointer is on the
         // picture, letterbox bars included.
-        Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent);
+        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent);
         PointerEntered += OnPointerEntered;
         PointerExited += OnPointerGone;
         PointerCanceled += OnPointerGone;

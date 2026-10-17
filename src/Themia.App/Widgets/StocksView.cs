@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -51,10 +52,10 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private readonly StackPanel _emptyState;
     private readonly TextBlock _emptyMessage = new();
 
-    private readonly Brush _freshBrush = FluentLayout.Themed("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _staleBrush = FluentLayout.Themed("SystemFillColorCautionBrush", Colors.Goldenrod);
-    private readonly Brush _flatBrush = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _accentBrush = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
+    private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+    private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
+    private readonly Brush _flatBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
+    private readonly Brush _accentBrush = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
 
 
     private Ticker? _ticker;
@@ -513,10 +514,10 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     }
 
     /// <summary>[S-1310] The rise colour: the user's, or the theme's success green.</summary>
-    private Brush Up() => Custom(_config.UpColor) ?? FluentLayout.Themed("SystemFillColorSuccessBrush", Colors.SeaGreen);
+    private Brush Up() => Custom(_config.UpColor) ?? ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.SeaGreen);
 
     /// <summary>[S-1310] The fall colour: the user's, or the theme's critical red.</summary>
-    private Brush Down() => Custom(_config.DownColor) ?? FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.IndianRed);
+    private Brush Down() => Custom(_config.DownColor) ?? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
 
     private static SolidColorBrush? Custom(string? hex)
         => HexColor.TryParse(hex, out var r, out var g, out var b) ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b)) : null;

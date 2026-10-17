@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Notes;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -186,7 +187,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private void BuildEditor()
     {
         var box = _editor.Box;
-        var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
         box.Resources["TextControlBackground"] = clear;
         box.Resources["TextControlBackgroundPointerOver"] = clear;
@@ -216,7 +217,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         box.HorizontalAlignment = HorizontalAlignment.Stretch;
         box.VerticalAlignment = VerticalAlignment.Stretch;
         box.VerticalContentAlignment = VerticalAlignment.Top;
-        box.Foreground = FluentLayout.Themed("TextFillColorPrimaryBrush", Colors.White);
+        box.Foreground = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
 
         ScrollViewer.SetVerticalScrollBarVisibility(box, ScrollBarVisibility.Auto);
         ScrollViewer.SetHorizontalScrollBarVisibility(box, ScrollBarVisibility.Disabled);
@@ -561,8 +562,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
             Padding = new Thickness(0),
             BorderThickness = new Thickness(0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
-            Foreground = FluentLayout.Themed("TextFillColorSecondaryBrush", Colors.Gray),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
             VerticalAlignment = VerticalAlignment.Center,
             Visibility = Visibility.Collapsed,
 

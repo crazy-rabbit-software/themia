@@ -6,6 +6,7 @@ using Themia.Core.Astronomy;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -101,7 +102,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
         _monthName.HorizontalAlignment = HorizontalAlignment.Center;
         _monthName.TextTrimming = TextTrimming.CharacterEllipsis;
-        _todayRing.Stroke = FluentLayout.Themed("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
+        _todayRing.Stroke = ThemeBrush.Of("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
         _todayRing.StrokeThickness = Fluent.ChartStroke;
         _month.Spacing = MoonLayout.Gap;
         _month.Margin = WidgetLayout.SideInset;

@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -457,12 +458,12 @@ internal sealed partial class GalleryView
         public GalleryFrame()
         {
             Image = new Image { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
-            Backing = FluentLayout.Themed("ControlAltFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
+            Backing = ThemeBrush.Of("ControlAltFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
             Host = new Border
             {
                 Child = Image,
                 Tag = this,
-                BorderBrush = FluentLayout.Themed("CardStrokeColorDefaultBrush", Microsoft.UI.Colors.Gray),
+                BorderBrush = ThemeBrush.Of("CardStrokeColorDefaultBrush", Microsoft.UI.Colors.Gray),
                 Background = Backing,
             };
 

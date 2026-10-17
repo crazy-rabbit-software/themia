@@ -8,6 +8,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -63,7 +64,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
     // row alive and re-lights it after the list has been redrawn.
     private readonly List<IDisposable> _hovers = [];
 
-    private readonly Brush _lowBrush = FluentLayout.Themed("SystemFillColorCriticalBrush", Colors.Red);
+    private readonly Brush _lowBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
 
     private Ticker? _ticker;
     private BluetoothConfig _config = new();

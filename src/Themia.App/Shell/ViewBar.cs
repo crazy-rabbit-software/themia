@@ -11,6 +11,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -174,12 +175,12 @@ internal sealed partial class ViewBar : Grid
         // under 20 %, so the bar can always be found (a transparent design draws it at the floor).
         var fill = DesignLook.Card(design.Background ?? new FillChoice());
         _fill.Background = (fill.Colour is { } c ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B)) : null)
-            ?? FluentLayout.Themed("SolidBackgroundFillColorBaseBrush", Colors.Black);
+            ?? ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
         _fill.Opacity = Math.Clamp(fill.Opacity, 0.2, 1);
 
         _stroke.RadiusX = _stroke.RadiusY = Math.Max(0, radius - (Fluent.Hairline / 2));
         _stroke.Stroke = DesignApplier.UserBrush(design.BorderColor)
-            ?? FluentLayout.Themed(look.Preview ? "TextFillColorTertiaryBrush" : "CardStrokeColorDefaultBrush", Colors.Gray);
+            ?? ThemeBrush.Of(look.Preview ? "TextFillColorTertiaryBrush" : "CardStrokeColorDefaultBrush", Colors.Gray);
         var dashes = new DoubleCollection();
         if (look.Preview)
         {
@@ -597,13 +598,13 @@ internal sealed partial class ViewBar : Grid
     /// </summary>
     private static void HoverFill(Border element, bool shown)
     {
-        Brush Rest() => FluentLayout.Themed(shown ? "ControlFillColorDefaultBrush" : "SubtleFillColorTransparentBrush", Colors.Transparent);
+        Brush Rest() => ThemeBrush.Of(shown ? "ControlFillColorDefaultBrush" : "SubtleFillColorTransparentBrush", Colors.Transparent);
 
         element.Background = Rest();
         element.BorderBrush = shown
-            ? FluentLayout.Themed("ControlStrokeColorDefaultBrush", Colors.Transparent)
+            ? ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Transparent)
             : new SolidColorBrush(Colors.Transparent);
-        element.PointerEntered += (_, _) => element.Background = FluentLayout.Themed(shown ? "ControlFillColorSecondaryBrush" : "SubtleFillColorSecondaryBrush", Colors.Transparent);
+        element.PointerEntered += (_, _) => element.Background = ThemeBrush.Of(shown ? "ControlFillColorSecondaryBrush" : "SubtleFillColorSecondaryBrush", Colors.Transparent);
         element.PointerExited += (_, _) => element.Background = Rest();
     }
 

@@ -10,6 +10,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
@@ -83,8 +84,8 @@ internal sealed partial class EditBar : Grid
         ArgumentNullException.ThrowIfNull(border);
 
         border.CornerRadius = new CornerRadius(Fluent.OverlayRadius);
-        border.Background = FluentLayout.Themed("AcrylicBackgroundFillColorDefaultBrush", Colors.Black);
-        border.BorderBrush = FluentLayout.Themed("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
+        border.Background = ThemeBrush.Of("AcrylicBackgroundFillColorDefaultBrush", Colors.Black);
+        border.BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
         border.BorderThickness = new Thickness(Fluent.Hairline);
         border.Shadow = new ThemeShadow();
         border.Translation = new Vector3(0, 0, Elevation);
@@ -188,10 +189,10 @@ internal sealed partial class EditBar : Grid
     {
         ArgumentNullException.ThrowIfNull(toggle);
 
-        var accent = FluentLayout.Themed("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        var accentHover = FluentLayout.Themed("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
-        var accentPressed = FluentLayout.Themed("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
-        var onAccent = FluentLayout.Themed("TextOnAccentFillColorPrimaryBrush", Colors.White);
+        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        var accentHover = ThemeBrush.Of("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
+        var accentPressed = ThemeBrush.Of("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
+        var onAccent = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
         toggle.Resources["ToggleButtonBackgroundChecked"] = accent;
         toggle.Resources["ToggleButtonBackgroundCheckedPointerOver"] = accentHover;
         toggle.Resources["ToggleButtonBackgroundCheckedPressed"] = accentPressed;
@@ -244,7 +245,7 @@ internal sealed partial class EditBar : Grid
         var icon = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center });
         if (accent)
         {
-            icon.Foreground = FluentLayout.Themed("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
+            icon.Foreground = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
         }
 
         return new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, Children = { icon, words } };
@@ -275,9 +276,9 @@ internal sealed partial class EditBar : Grid
         button.CornerRadius = new CornerRadius(Fluent.ControlRadius);
         button.VerticalAlignment = VerticalAlignment.Center;
 
-        var clear = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var hover = FluentLayout.Themed("SubtleFillColorSecondaryBrush", Colors.Gray);
-        var pressed = FluentLayout.Themed("SubtleFillColorTertiaryBrush", Colors.DimGray);
+        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        var hover = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
+        var pressed = ThemeBrush.Of("SubtleFillColorTertiaryBrush", Colors.DimGray);
         var prefix = button is ToggleButton ? "ToggleButton" : "Button";
 
         button.Resources[prefix + "Background"] = clear;
@@ -296,6 +297,6 @@ internal sealed partial class EditBar : Grid
         Height = DividerHeight,
         Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
         VerticalAlignment = VerticalAlignment.Center,
-        Fill = FluentLayout.Themed("DividerStrokeColorDefaultBrush", Colors.Gray),
+        Fill = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
     };
 }

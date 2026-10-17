@@ -12,6 +12,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -78,7 +79,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             Content = _clearAllText,
             Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
             MinWidth = 0,
-            Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
             BorderThickness = new Thickness(0),
         };
 
@@ -276,7 +277,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _face.Visibility = Visibility.Visible;
         _faceCount.Text = count > 0 ? LocaleFormat.Integer(count) : string.Empty;
         _faceCount.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        _faceBell.Foreground = FluentLayout.Themed(count > 0 ? "TextFillColorPrimaryBrush" : "TextFillColorTertiaryBrush", Colors.Gray);
+        _faceBell.Foreground = ThemeBrush.Of(count > 0 ? "TextFillColorPrimaryBrush" : "TextFillColorTertiaryBrush", Colors.Gray);
         var words = count > 0 ? $"{Str.Panels_Notifications_Label.Text()}: {LocaleFormat.Integer(count)}" : Str.Panels_Notifications_None.Text();
         ToolTipService.SetToolTip(_face, words);
         AutomationProperties.SetName(this, words);
@@ -324,7 +325,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         var clear = FluentLayout.IconCommand(Glyphs.Dismiss, Str.Panels_Notifications_ClearApp.Format(("app", group.AppName)));
         clear.Width = 24;
         clear.Height = 24;
-        clear.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        clear.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         clear.BorderThickness = new Thickness(0);
         clear.IsEnabled = !Inert;
         var appId = group.AppId;
@@ -382,7 +383,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         var dismiss = FluentLayout.IconCommand(Glyphs.Dismiss, Str.Panels_Notifications_Dismiss.Text());
         dismiss.Width = 24;
         dismiss.Height = 24;
-        dismiss.Background = FluentLayout.Themed("SubtleFillColorTransparentBrush", Colors.Transparent);
+        dismiss.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         dismiss.BorderThickness = new Thickness(0);
         dismiss.Visibility = Visibility.Collapsed;
 
