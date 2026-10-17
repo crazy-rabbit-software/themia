@@ -36,6 +36,8 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
         ConfigType = typeof(WeekPlannerConfig),
         CreateDefault = () => new WeekPlannerConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["planner", "week", "schedule", "agenda", "todo", "to do", "tasks", "events", "calendar", "plan"],
+        ProviderNames = ["Microsoft", "Google", "CalDAV"],
         LabelId = Str.Planner_Label,
         DescriptionId = Str.Planner_Desc,
         Glyph = Glyphs.WeekPlanner,

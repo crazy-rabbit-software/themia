@@ -5208,7 +5208,7 @@ proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX
 
 ## Widget picker: search (WP5)
 
-Search is `Core/Widgets/WidgetSearch.cs` + `WidgetKeywords.cs` (ported from `widgetSearch.ts`,
+Search is `Core/Widgets/WidgetSearch.cs` over each descriptor's `Keywords` and `ProviderNames` ([S-6902]; ported from `widgetSearch.ts`,
 `searchKeywords.ts`, WidgetPicker.SPEC S-01..S-11; tests `WidgetSearchTests`, the original's cases);
 the menu it searches is the edit bar's add menu ([S-3501]), `Shell/WidgetPicker.cs`.
 

@@ -24,6 +24,7 @@ public sealed class StopwatchConfig : WidgetConfig
         ConfigType = typeof(StopwatchConfig),
         CreateDefault = () => new StopwatchConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["timer", "lap", "laps", "split", "chronometer", "elapsed", "count up"],
         LabelId = Str.Stopwatch_Label,
         DescriptionId = Str.Stopwatch_Desc,
         Glyph = Glyphs.Stopwatch,

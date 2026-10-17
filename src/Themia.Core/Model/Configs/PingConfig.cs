@@ -47,6 +47,7 @@ public sealed class PingConfig : GaugeConfig, IStyled
         ConfigType = typeof(PingConfig),
         CreateDefault = () => new PingConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["latency", "network", "internet", "connection", "packet loss", "ms"],
         LabelId = Str.Widget_Ping_Label,
         DescriptionId = Str.WidgetsA_Catalog_Ping_Description,
         Glyph = Glyphs.Ping,

@@ -34,6 +34,7 @@ public sealed class ClipboardConfig : WidgetConfig
         ConfigType = typeof(ClipboardConfig),
         CreateDefault = () => new ClipboardConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["copy", "paste", "history", "snippets"],
         LabelId = Str.WidgetsA_Catalog_Clipboard_Label,
         DescriptionId = Str.WidgetsA_Catalog_Clipboard_Description,
         Glyph = Glyphs.Clipboard,

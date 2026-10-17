@@ -51,6 +51,8 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         ConfigType = typeof(EmailConfig),
         CreateDefault = () => new EmailConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["email", "inbox", "outlook", "gmail", "imap", "messages", "unread"],
+        ProviderNames = ["Microsoft", "Google", "IMAP"],
         LabelId = Str.WidgetsA_Catalog_Mail_Label,
         DescriptionId = Str.WidgetsA_Catalog_Mail_Description,
         Glyph = Glyphs.Mail,

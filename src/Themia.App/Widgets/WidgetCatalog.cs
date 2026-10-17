@@ -31,7 +31,7 @@ internal static class WidgetCatalog
     /// [S-943] What the picker's search matches a widget on. Name, description and the add menu's
     /// folders it is in (<paramref name="path"/>, [S-3513]) come in the current language and, when
     /// that is not English, in English as well — a German user who types "weather" still finds the
-    /// Wetter widget, and the curated keywords (<see cref="WidgetKeywords"/>, English only) keep
+    /// Wetter widget, and the curated keywords (<see cref="WidgetDescriptor.Keywords"/>, English only) keep
     /// working in every language.
     /// </summary>
     public static WidgetSearchDoc SearchDoc(WidgetDescriptor definition, IReadOnlyList<AddShelf> path)
@@ -42,10 +42,10 @@ internal static class WidgetCatalog
         return new WidgetSearchDoc(
             definition.Kind.ToString(),
             Both(locale, definition.LabelId),
-            WidgetKeywords.For(definition.Kind),
+            definition.Keywords,
             Both(locale, definition),
             [.. path.SelectMany(shelf => Both(locale, shelf.Title))],
-            WidgetKeywords.Providers(definition.Kind));
+            definition.ProviderNames);
     }
 
     /// <summary>The text in <paramref name="locale"/>, then in English when that differs; the first is the shown one.</summary>

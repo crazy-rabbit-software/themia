@@ -64,7 +64,7 @@ internal sealed record IndexedField(double Weight, string Text, string[] Words, 
 /// A plain "label contains the query" missed every typo ("calender") and every word a user reaches
 /// for that the label does not use ("timer", "wifi", "temperature"). This normalises both sides,
 /// matches each query word against weighted fields including a curated synonym list
-/// (<see cref="WidgetKeywords"/>), tolerates typos within a bounded edit distance, and returns a
+/// (each widget's <c>WidgetDescriptor.Keywords</c>), tolerates typos within a bounded edit distance, and returns a
 /// score so the list can be ordered best match first rather than alphabetically.
 /// </para>
 /// </summary>

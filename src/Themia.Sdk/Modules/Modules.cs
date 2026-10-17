@@ -64,6 +64,16 @@ public sealed record WidgetDescriptor
 
     public required double DefaultHeight { get; init; }
 
+    /// <summary>
+    /// [S-943] Curated search words, English only on purpose (search indexes the translated name and
+    /// description beside the English ones): what the widget shows ("wifi"), the vendor or protocol
+    /// behind it ("outlook", "imap"), the job it does ("timer") and the other common spelling ("todo").
+    /// </summary>
+    public IReadOnlyList<string> Keywords { get; init; } = [];
+
+    /// <summary>[S-943] The services it reads from, searched as their own field so "google" finds every widget that can show a Google account.</summary>
+    public IReadOnlyList<string> ProviderNames { get; init; } = [];
+
     /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
     public string Label => LabelId.Text();
 

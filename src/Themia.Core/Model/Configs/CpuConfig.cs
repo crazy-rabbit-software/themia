@@ -47,6 +47,7 @@ public sealed class CpuConfig : GaugeConfig, IStyled
         ConfigType = typeof(CpuConfig),
         CreateDefault = () => new CpuConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["processor", "load", "usage", "performance", "cores", "task manager", "system monitor"],
         LabelId = Str.WidgetsA_Catalog_Cpu_Label,
         DescriptionId = Str.WidgetsA_Catalog_Cpu_Description,
         Glyph = Glyphs.Cpu,

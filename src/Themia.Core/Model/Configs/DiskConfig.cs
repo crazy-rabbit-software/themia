@@ -56,6 +56,7 @@ public sealed class DiskConfig : GaugeConfig, IStyled
         ConfigType = typeof(DiskConfig),
         CreateDefault = () => new DiskConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["storage", "ssd", "hdd", "drive", "space", "free space", "io"],
         LabelId = Str.WidgetsA_Catalog_Disk_Label,
         DescriptionId = Str.WidgetsA_Catalog_Disk_Description,
         Glyph = Glyphs.Disk,

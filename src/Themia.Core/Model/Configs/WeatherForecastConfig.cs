@@ -57,6 +57,7 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
         ConfigType = typeof(WeatherForecastConfig),
         CreateDefault = () => new WeatherForecastConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["weather", "temperature", "rain", "week", "outlook", "climate", "degrees"],
         LabelId = Str.WidgetsA_Catalog_Forecast_Label,
         DescriptionId = Str.WidgetsA_Catalog_Forecast_Description,
         Glyph = Glyphs.Forecast,

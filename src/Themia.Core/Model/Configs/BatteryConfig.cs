@@ -48,6 +48,7 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
         ConfigType = typeof(BatteryConfig),
         CreateDefault = () => new BatteryConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["power", "charge", "laptop", "percent", "energy"],
         LabelId = Str.Widget_Battery_Label,
         DescriptionId = Str.Shell_Meters_BatteryDescription,
         Glyph = Glyphs.Battery,

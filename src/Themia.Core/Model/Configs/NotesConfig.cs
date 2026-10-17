@@ -24,6 +24,7 @@ public sealed class NotesConfig : WidgetConfig
         ConfigType = typeof(NotesConfig),
         CreateDefault = () => new NotesConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["notepad", "text", "memo", "writing", "markdown", "sticky note"],
         LabelId = Str.Widget_Notes_Label,
         DescriptionId = Str.WidgetsA_Catalog_Notes_Description,
         Glyph = Glyphs.Note,

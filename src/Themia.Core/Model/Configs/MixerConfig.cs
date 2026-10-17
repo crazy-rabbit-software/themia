@@ -26,6 +26,7 @@ public sealed class MixerConfig : WidgetConfig
         ConfigType = typeof(MixerConfig),
         CreateDefault = () => new MixerConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["sound", "audio", "per app volume", "speaker", "levels", "faders"],
         LabelId = Str.WidgetsA_Catalog_Mixer_Label,
         DescriptionId = Str.WidgetsA_Catalog_Mixer_Description,
         Glyph = Glyphs.Mixer,

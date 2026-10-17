@@ -89,6 +89,11 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         ConfigType = typeof(ClockConfig),
         CreateDefault = () => new ClockConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords =
+        [
+            "time", "timezone", "watch", "world clock", "date", "analog", "digital", "day", "today", "weekday",
+            "month", "calendar", "wallpaper",
+        ],
         LabelId = Str.Widget_Clock_Label,
         DescriptionId = Str.WidgetsA_Catalog_Clock_Description,
         Glyph = Glyphs.Clock,

@@ -57,6 +57,7 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
         ConfigType = typeof(QuoteConfig),
         CreateDefault = () => new QuoteConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["inspiration", "daily quote", "saying", "motivation"],
         LabelId = Str.WidgetsA_Catalog_Quote_Label,
         DescriptionId = Str.WidgetsA_Catalog_Quote_Description,
         Glyph = Glyphs.Quote,

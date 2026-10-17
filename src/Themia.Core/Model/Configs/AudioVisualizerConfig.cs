@@ -55,6 +55,13 @@ public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
         ConfigType = typeof(AudioVisualizerConfig),
         CreateDefault = () => new AudioVisualizerConfig(),
         Json = WidgetConfigJsonContext.Default,
+        // [S-3216] The six former visualizer widgets' names and words find the one visualizer.
+        Keywords =
+        [
+            "spectrum", "equalizer", "equaliser", "visualiser", "bars", "audio", "sound", "music", "mirrored",
+            "symmetric", "wave", "waveform", "curve", "led", "dots", "vu meter", "circle", "radial", "ring",
+            "oscilloscope", "line", "ecg",
+        ],
         LabelId = Str.Styles_AudioVisualizer_Label,
         DescriptionId = Str.Styles_AudioVisualizer_Desc,
         Glyph = Glyphs.Visualizer,

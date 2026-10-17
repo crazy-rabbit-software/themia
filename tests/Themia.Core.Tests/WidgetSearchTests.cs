@@ -1,5 +1,6 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -13,24 +14,24 @@ public sealed class WidgetSearchTests
 {
     private static readonly WidgetSearchDoc[] Docs =
     [
-        new("clock", ["Clock"], WidgetKeywords.For(WidgetKind.Clock),
+        new("clock", ["Clock"], ModuleCatalog.Of(WidgetKind.Clock).Keywords,
             ["Clock for your timezone or any city in the world"], ["Others"]),
-        new("calendar", ["Calendar"], WidgetKeywords.For(WidgetKind.Calendar),
+        new("calendar", ["Calendar"], ModuleCatalog.Of(WidgetKind.Calendar).Keywords,
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),
-        new("weatherCurrent", ["Wetter", "Weather"], WidgetKeywords.For(WidgetKind.WeatherNow),
+        new("weatherCurrent", ["Wetter", "Weather"], ModuleCatalog.Of(WidgetKind.WeatherNow).Keywords,
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
         new("weatherForecast", ["Weather Forecast"], Original(WidgetKind.WeatherForecast),
             ["Multi-day weather outlook for any location"], ["Online"]),
-        new("net", ["Network Monitor"], WidgetKeywords.For(WidgetKind.Network),
+        new("net", ["Network Monitor"], ModuleCatalog.Of(WidgetKind.Network).Keywords,
             ["Live upload and download speeds"], ["System"]),
-        new("cpu", ["CPU Monitor"], WidgetKeywords.For(WidgetKind.Cpu),
+        new("cpu", ["CPU Monitor"], ModuleCatalog.Of(WidgetKind.Cpu).Keywords,
             ["Live CPU usage and per-core load"], ["System"]),
         // Not a widget any more: a document with a camel-case key and a provider, for the matcher alone.
         new("githubNotifications", ["GitHub Notifications"], ["git", "repo", "inbox", "mentions", "alerts"],
             ["Your GitHub notifications across all selected accounts"], ["Online"], ["GitHub"]),
-        new("pomodoro", ["Pomodoro"], WidgetKeywords.For(WidgetKind.Pomodoro),
+        new("pomodoro", ["Pomodoro"], ModuleCatalog.Of(WidgetKind.Pomodoro).Keywords,
             ["Focus timer with work and break cycles"], ["Others"]),
-        new("countdown", ["Countdown"], WidgetKeywords.For(WidgetKind.Countdown),
+        new("countdown", ["Countdown"], ModuleCatalog.Of(WidgetKind.Countdown).Keywords,
             ["Count down to an important date"], ["Others"]),
     ];
 
@@ -43,7 +44,7 @@ public sealed class WidgetSearchTests
 
     // The WinUI forecast keywords add "weather" (its label here is "Forecast"); the stand-in keeps
     // the original's list so "weather forecast" still exercises the two-field AND.
-    private static string[] Original(WidgetKind kind) => [.. WidgetKeywords.For(kind).Where(k => k != "weather")];
+    private static string[] Original(WidgetKind kind) => [.. ModuleCatalog.Of(kind).Keywords.Where(k => k != "weather")];
 
     [Fact]
     public void S941_LowercasesStripsDiacriticsAndFoldsSharpS()
@@ -242,7 +243,7 @@ public sealed class WidgetSearchTests
     {
         foreach (var kind in Enum.GetValues<WidgetKind>())
         {
-            var words = WidgetKeywords.For(kind);
+            var words = ModuleCatalog.Of(kind).Keywords;
             Assert.True(words.Count > 0, $"{kind} has no search keywords");
             Assert.All(words, w => Assert.Equal(w.ToLowerInvariant(), w));
             Assert.Equal(words.Count, words.Distinct(StringComparer.Ordinal).Count());
@@ -253,7 +254,7 @@ public sealed class WidgetSearchTests
     public void S943_ProvidersFindAccountWidgets()
     {
         var docs = Enum.GetValues<WidgetKind>()
-            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], WidgetKeywords.For(k), Providers: WidgetKeywords.Providers(k))), k))
+            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: ModuleCatalog.Of(k).ProviderNames)), k))
             .ToArray();
 
         var google = WidgetSearch.Rank(docs, "google");
@@ -280,7 +281,7 @@ public sealed class WidgetSearchTests
         // [S-3640] [S-3216] [S-4123] What were widgets of their own are styles now: their names and
         // words find the one widget. The label here is the kind's name, as in the catalogue.
         var docs = Enum.GetValues<WidgetKind>()
-            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], WidgetKeywords.For(k), Providers: WidgetKeywords.Providers(k))), k))
+            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: ModuleCatalog.Of(k).ProviderNames)), k))
             .ToArray();
 
         Assert.Contains(kind, WidgetSearch.Rank(docs, query));

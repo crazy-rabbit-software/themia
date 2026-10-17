@@ -35,6 +35,7 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
         ConfigType = typeof(AlarmConfig),
         CreateDefault = () => new AlarmConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["alarm clock", "wake up", "reminder", "ring", "snooze", "morning"],
         LabelId = Str.Alarm_Label,
         DescriptionId = Str.Alarm_Desc,
         Glyph = Glyphs.Alarm,

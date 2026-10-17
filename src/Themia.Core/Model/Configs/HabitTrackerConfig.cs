@@ -56,6 +56,7 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         ConfigType = typeof(HabitTrackerConfig),
         CreateDefault = () => new HabitTrackerConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["streaks", "daily", "routine", "goals", "checklist", "tracker"],
         LabelId = Str.WidgetsA_Catalog_Habits_Label,
         DescriptionId = Str.WidgetsA_Catalog_Habits_Description,
         Glyph = Glyphs.Habit,

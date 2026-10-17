@@ -116,6 +116,7 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         ConfigType = typeof(GalleryConfig),
         CreateDefault = () => new GalleryConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["photos", "pictures", "images", "slideshow", "wallpaper", "bing"],
         LabelId = Str.Widget_Gallery_Label,
         DescriptionId = Str.WidgetsA_Catalog_Gallery_Description,
         Glyph = Glyphs.Gallery,

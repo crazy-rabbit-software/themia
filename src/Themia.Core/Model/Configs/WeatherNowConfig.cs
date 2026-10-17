@@ -131,6 +131,7 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
         ConfigType = typeof(WeatherNowConfig),
         CreateDefault = () => new WeatherNowConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["temperature", "forecast", "rain", "wind", "humidity", "climate", "degrees"],
         LabelId = Str.Widget_WeatherCurrent_Label,
         DescriptionId = Str.WidgetsA_Catalog_Weather_Description,
         Glyph = Glyphs.Weather,

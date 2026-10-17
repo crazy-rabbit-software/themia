@@ -22,6 +22,7 @@ public sealed class BluetoothConfig : WidgetConfig
         ConfigType = typeof(BluetoothConfig),
         CreateDefault = () => new BluetoothConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["devices", "headphones", "wireless", "pairing"],
         LabelId = Str.Widget_Bluetooth_Label,
         DescriptionId = Str.WidgetsA_Catalog_Bluetooth_Description,
         Glyph = Glyphs.Bluetooth,

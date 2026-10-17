@@ -132,6 +132,7 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
         ConfigType = typeof(ShortcutsConfig),
         CreateDefault = ShortcutsConfig.CreateDefault,
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["link", "launcher", "bookmark", "url", "open", "pin", "quick access"],
         LabelId = Str.WidgetsA_Catalog_Shortcuts_Label,
         DescriptionId = Str.WidgetsA_Catalog_Shortcuts_Description,
         Glyph = Glyphs.Shortcut,

@@ -50,6 +50,7 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
         ConfigType = typeof(CountdownConfig),
         CreateDefault = () => new CountdownConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["timer", "days until", "deadline", "event", "anniversary", "birthday"],
         LabelId = Str.Widget_Countdown_Label,
         DescriptionId = Str.WidgetsA_Catalog_Countdown_Description,
         Glyph = Glyphs.Countdown,

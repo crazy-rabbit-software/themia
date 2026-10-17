@@ -46,6 +46,7 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
         ConfigType = typeof(NetworkConfig),
         CreateDefault = () => new NetworkConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["internet", "bandwidth", "wifi", "ethernet", "speed", "traffic", "up down"],
         LabelId = Str.WidgetsA_Catalog_Network_Label,
         DescriptionId = Str.WidgetsA_Catalog_Network_Description,
         Glyph = Glyphs.Network,

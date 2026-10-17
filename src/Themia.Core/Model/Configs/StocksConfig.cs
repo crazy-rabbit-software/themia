@@ -92,6 +92,7 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         ConfigType = typeof(StocksConfig),
         CreateDefault = () => new StocksConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["shares", "ticker", "market", "finance", "crypto", "bitcoin", "forex", "currency", "portfolio", "price"],
         LabelId = Str.Widget_Stocks_Label,
         DescriptionId = Str.WidgetsA_Catalog_Stocks_Description,
         Glyph = Glyphs.Stocks,

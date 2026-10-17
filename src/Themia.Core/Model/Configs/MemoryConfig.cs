@@ -40,6 +40,7 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
         ConfigType = typeof(MemoryConfig),
         CreateDefault = () => new MemoryConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["ram", "usage", "performance", "task manager", "system monitor"],
         LabelId = Str.WidgetsA_Catalog_Memory_Label,
         DescriptionId = Str.WidgetsA_Catalog_Memory_Description,
         Glyph = Glyphs.Memory,

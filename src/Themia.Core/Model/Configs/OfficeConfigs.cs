@@ -220,6 +220,14 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
         ConfigType = typeof(CalendarWidgetConfig),
         CreateDefault = () => new CalendarWidgetConfig(),
         Json = WidgetConfigJsonContext.Default,
+        // [S-3640] The five former calendar widgets' names and words find the one calendar.
+        Keywords =
+        [
+            "events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays",
+            "month calendar", "week calendar", "day calendar", "year calendar", "agenda", "upcoming", "next", "today",
+            "timeline", "holidays", "overview",
+        ],
+        ProviderNames = ["Microsoft", "Google", "CalDAV"],
         LabelId = Str.Styles_Calendar_Label,
         DescriptionId = Str.Styles_Calendar_Desc,
         Glyph = Glyphs.Calendar,
@@ -351,6 +359,8 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
         ConfigType = typeof(ContactsConfig),
         CreateDefault = () => new ContactsConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["address book", "people", "phone numbers", "directory"],
+        ProviderNames = ["Microsoft", "Google", "CardDAV"],
         LabelId = Str.Widget_Contacts_Label,
         DescriptionId = Str.WidgetsA_Catalog_Contacts_Description,
         Glyph = Glyphs.Contact,

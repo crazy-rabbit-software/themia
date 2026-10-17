@@ -67,6 +67,7 @@ public sealed class ScratchpadConfig : WidgetConfig
         ConfigType = typeof(ScratchpadConfig),
         CreateDefault = () => new ScratchpadConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["draw", "sketch", "drawing", "canvas", "whiteboard", "doodle", "pen"],
         LabelId = Str.Widget_Scratchpad_Label,
         DescriptionId = Str.WidgetsA_Catalog_Scratchpad_Description,
         Glyph = Glyphs.Scratchpad,

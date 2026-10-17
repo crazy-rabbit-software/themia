@@ -74,6 +74,7 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
         ConfigType = typeof(PomodoroConfig),
         CreateDefault = () => new PomodoroConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["timer", "focus", "productivity", "work break", "tomato", "session"],
         LabelId = Str.Widget_Pomodoro_Label,
         DescriptionId = Str.WidgetsA_Catalog_Pomodoro_Description,
         Glyph = Glyphs.Pomodoro,

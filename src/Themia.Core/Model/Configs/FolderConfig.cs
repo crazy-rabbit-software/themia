@@ -88,6 +88,13 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
         ConfigType = typeof(FolderConfig),
         CreateDefault = () => new FolderConfig(),
         Json = WidgetConfigJsonContext.Default,
+        // [S-4123] The four former folder widgets' names and words find the one folder.
+        Keywords =
+        [
+            "files", "explorer", "directory", "file browser", "documents", "downloads", "list", "folder list",
+            "folder details", "table", "columns", "folder grid", "pictures", "photos", "thumbnails", "tiles",
+            "folder icons", "desktop icons", "launcher",
+        ],
         LabelId = Str.Styles_Folder_Label,
         DescriptionId = Str.Styles_Folder_Desc,
         Glyph = Glyphs.Folder,

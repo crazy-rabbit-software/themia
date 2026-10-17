@@ -132,6 +132,17 @@ public sealed partial class WidgetRegistryTests
         }
     }
 
+    [Theory]
+    [MemberData(nameof(Ids))]
+    public void S943_every_widget_has_its_own_search_words(string id)
+    {
+        var widget = Of(id);
+
+        Assert.NotEmpty(widget.Keywords);
+        Assert.All(widget.Keywords, word => Assert.Equal(word.Trim().ToLowerInvariant(), word));
+        Assert.Equal(widget.Keywords.Count, widget.Keywords.Distinct(StringComparer.Ordinal).Count());
+    }
+
     /// <summary>
     /// [S-6904] A widget's settings rows are its module's. A page written but wired to no module was
     /// a silent miss of the old dispatch switch; here it fails by name, and so does a module that

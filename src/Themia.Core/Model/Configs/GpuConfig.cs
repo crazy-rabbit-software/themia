@@ -45,6 +45,7 @@ public sealed class GpuConfig : GaugeConfig, IStyled
         ConfigType = typeof(GpuConfig),
         CreateDefault = () => new GpuConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["graphics", "vram", "nvidia", "amd", "video card", "system monitor"],
         LabelId = Str.WidgetsA_Catalog_Gpu_Label,
         DescriptionId = Str.Shell_Meters_GpuDescription,
         Glyph = Glyphs.Gpu,

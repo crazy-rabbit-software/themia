@@ -57,6 +57,8 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         ConfigType = typeof(TasksConfig),
         CreateDefault = () => new TasksConfig(),
         Json = WidgetConfigJsonContext.Default,
+        Keywords = ["todo", "to-do", "checklist", "reminders", "microsoft to do", "google tasks"],
+        ProviderNames = ["Microsoft", "Google"],
         LabelId = Str.WidgetsA_Catalog_Tasks_Label,
         DescriptionId = Str.WidgetsA_Catalog_Tasks_Description,
         Glyph = Glyphs.Task,
