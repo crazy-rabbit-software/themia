@@ -15,7 +15,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 
 Sections, grouped by area (file order below; search for the heading).
 
-- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility.
+- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
@@ -884,6 +884,19 @@ tests `SkyWidgetsTests` (`S310x_`).
   header's height), and the content beside it must stay at least as wide as the narrowest card every
   widget is laid out for, the XS tier's 120 ([S-1810]). Under 96 (the old threshold) an XS card kept
   about 76 DIPs of content: Notes' empty text wrapped per letter and Mail's Set up button clipped.
+
+## Widget modules and the registry (MODULES)
+
+Every widget is a module: an id, a descriptor and a view factory, found at build time (design:
+`docs/WIDGET-KIT.md` section 4). Owning files: `Themia.Sdk/Modules/*`, `Themia.Sdk.WinUI/Modules/*`,
+`Themia.Modules.Generator/*`, `Themia.App/Widgets/Modules/*`. Tests: `ModuleIdsTests`,
+`ModuleRegistryGeneratorTests`, `WidgetRegistryTests`.
+
+- **[S-6900]** A module id (widget, provider, feature, cadence) is camelCase: a lowercase ASCII
+  letter, then ASCII letters and digits, at most 64 characters (`weatherNow`, `airplaneModeToggle`).
+  A widget's id is its config's discriminator in `state.json`, so the files keep the shape they had
+  before ids. An id is checked wherever one is made or read; a malformed one in a document is a
+  corrupt value, never a new widget.
 
 ## Adding a widget
 
