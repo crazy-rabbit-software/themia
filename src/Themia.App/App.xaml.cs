@@ -21,6 +21,7 @@ public partial class App : Application
 
         // [S-822] The design engine behind every part's theme brushes, before anything is drawn.
         Themia.Sdk.WinUI.ThemeBrush.Install(Shell.DesignApplier.Brush);
+        Widgets.ItemFill.Install(new Widgets.ItemInks.Engine());
 
 #if DEBUG
         // The settings render's --theme: the application theme can only be chosen before the

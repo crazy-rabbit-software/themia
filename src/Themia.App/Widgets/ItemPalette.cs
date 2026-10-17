@@ -204,8 +204,24 @@ internal sealed class ItemPalette
 /// turned accent, a look without a tile) says so with <see cref="Release"/>.
 /// </para>
 /// </summary>
-internal static class ItemFill
+internal static class ItemInks
 {
+    /// <summary>The engine behind the SDK's <see cref="ItemFill"/>: installed once by the app.</summary>
+    internal sealed class Engine : IItemFillHost
+    {
+        public void Paint(FrameworkElement item, ItemRole role, ItemState state) => ItemInks.Paint(item, role, state);
+
+        public void Button(FrameworkElement button, string prefix) => ItemInks.Button(button, prefix);
+
+        public Brush For(FrameworkElement context, ItemRole role, ItemState state) => ItemInks.For(context, role, state);
+
+        public void PaintStroke(Shape shape, ItemRole role, ItemState state) => ItemInks.PaintStroke(shape, role, state);
+
+        public void OnItem(FrameworkElement element) => ItemInks.OnItem(element);
+
+        public void Release(FrameworkElement element) => ItemInks.Release(element);
+    }
+
     private const string Scope = "items";
 
     /// <summary>The theme text tiers, in the order the inks are tried.</summary>
