@@ -106,10 +106,10 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
 
     private static readonly StyleOption[] FolderStyles =
     [
-        StyleOption.Of(FolderStyle.List, Str.Styles_Folder_List, 0xE8B7),
-        StyleOption.Of(FolderStyle.Details, Str.Styles_Folder_Details, 0xF12B),
-        StyleOption.Of(FolderStyle.Grid, Str.Styles_Folder_Grid, 0xECA5),
-        StyleOption.Of(FolderStyle.Icons, Str.Styles_Folder_Icons, 0xF0E2),
+        StyleOption.Of(FolderStyle.List, Str.Styles_Folder_List.Local(), 0xE8B7),
+        StyleOption.Of(FolderStyle.Details, Str.Styles_Folder_Details.Local(), 0xF12B),
+        StyleOption.Of(FolderStyle.Grid, Str.Styles_Folder_Grid.Local(), 0xECA5),
+        StyleOption.Of(FolderStyle.Icons, Str.Styles_Folder_Icons.Local(), 0xF0E2),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => FolderStyles;

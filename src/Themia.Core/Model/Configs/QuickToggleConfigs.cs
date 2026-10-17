@@ -54,9 +54,9 @@ public abstract class QuickToggleConfig : WidgetConfig, IStyled
 {
     private static readonly StyleOption[] ToggleStyles =
     [
-        StyleOption.Of(QuickToggleStyle.Tile, Str.Styles_Toggles_Tile, 0xECA5),
-        StyleOption.Of(QuickToggleStyle.Round, Str.Styles_Toggles_Round, 0xEA3B),
-        StyleOption.Of(QuickToggleStyle.Switch, Str.Styles_Toggles_Switch, 0xEC11),
+        StyleOption.Of(QuickToggleStyle.Tile, Str.Styles_Toggles_Tile.Local(), 0xECA5),
+        StyleOption.Of(QuickToggleStyle.Round, Str.Styles_Toggles_Round.Local(), 0xEA3B),
+        StyleOption.Of(QuickToggleStyle.Switch, Str.Styles_Toggles_Switch.Local(), 0xEC11),
     ];
 
     /// <summary>The toggle this widget switches: each kind states its own.</summary>

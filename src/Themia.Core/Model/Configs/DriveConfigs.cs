@@ -23,8 +23,8 @@ public sealed class DriveConfig : WidgetConfig, IStyled
 {
     private static readonly StyleOption[] DriveStyles =
     [
-        StyleOption.Of(DriveStyle.Bar, Str.Styles_Io_Bar, 0xEDA2),
-        StyleOption.Of(DriveStyle.Ring, Str.Styles_Io_Ring, 0xEA3A),
+        StyleOption.Of(DriveStyle.Bar, Str.Styles_Io_Bar.Local(), 0xEDA2),
+        StyleOption.Of(DriveStyle.Ring, Str.Styles_Io_Ring.Local(), 0xEA3A),
     ];
 
 

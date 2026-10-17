@@ -91,8 +91,8 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
 
     private static readonly StyleOption[] StockStyles =
     [
-        StyleOption.Of(StocksStyle.Chart, Str.Styles_Stocks_Chart, 0xE9D2),
-        StyleOption.Of(StocksStyle.Number, Str.Styles_Stocks_Number, 0xE75F),
+        StyleOption.Of(StocksStyle.Chart, Str.Styles_Stocks_Chart.Local(), 0xE9D2),
+        StyleOption.Of(StocksStyle.Number, Str.Styles_Stocks_Number.Local(), 0xE75F),
     ];
 
 

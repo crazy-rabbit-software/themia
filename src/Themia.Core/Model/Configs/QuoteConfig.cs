@@ -81,8 +81,8 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
 
     private static readonly StyleOption[] QuoteStyles =
     [
-        StyleOption.Of(QuoteStyle.Plain, Str.Styles_Quote_Plain, 0xEC34),
-        StyleOption.Of(QuoteStyle.Marks, Str.Styles_Quote_Marks, 0xE9B2),
+        StyleOption.Of(QuoteStyle.Plain, Str.Styles_Quote_Plain.Local(), 0xEC34),
+        StyleOption.Of(QuoteStyle.Marks, Str.Styles_Quote_Marks.Local(), 0xE9B2),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => QuoteStyles;

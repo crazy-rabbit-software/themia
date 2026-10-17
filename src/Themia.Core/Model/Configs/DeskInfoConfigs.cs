@@ -24,9 +24,9 @@ public sealed class YearProgressConfig : WidgetConfig, Themia.Core.Widgets.IStyl
 {
     private static readonly Themia.Core.Widgets.StyleOption[] YearStyles =
     [
-        Themia.Core.Widgets.StyleOption.Of(YearProgressStyle.Bars, Themia.Core.Localization.Str.Styles_YearProgress_Bars, 0xE7A5),
-        Themia.Core.Widgets.StyleOption.Of(YearProgressStyle.Rings, Themia.Core.Localization.Str.Styles_YearProgress_Rings, 0xEA3A),
-        Themia.Core.Widgets.StyleOption.Of(YearProgressStyle.Dots, Themia.Core.Localization.Str.Styles_YearProgress_Dots, 0xE75F),
+        Themia.Core.Widgets.StyleOption.Of(YearProgressStyle.Bars, Themia.Core.Localization.Str.Styles_YearProgress_Bars.Local(), 0xE7A5),
+        Themia.Core.Widgets.StyleOption.Of(YearProgressStyle.Rings, Themia.Core.Localization.Str.Styles_YearProgress_Rings.Local(), 0xEA3A),
+        Themia.Core.Widgets.StyleOption.Of(YearProgressStyle.Dots, Themia.Core.Localization.Str.Styles_YearProgress_Dots.Local(), 0xE75F),
     ];
 
 

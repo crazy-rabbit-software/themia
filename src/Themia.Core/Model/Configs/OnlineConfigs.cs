@@ -62,8 +62,8 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned, 
 
     private static readonly StyleOption[] AirStyles =
     [
-        StyleOption.Of(AirQualityStyle.Number, Str.Styles_Air_Number, 0xE75F),
-        StyleOption.Of(AirQualityStyle.Gauge, Str.Styles_Air_Gauge, 0xEC4A),
+        StyleOption.Of(AirQualityStyle.Number, Str.Styles_Air_Number.Local(), 0xE75F),
+        StyleOption.Of(AirQualityStyle.Gauge, Str.Styles_Air_Gauge.Local(), 0xEC4A),
     ];
 
 
@@ -171,8 +171,8 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled, IContentAligned
 
     private static readonly StyleOption[] RateStyles =
     [
-        StyleOption.Of(ExchangeRatesStyle.Chart, Str.Styles_Rates_Chart, 0xE9D2),
-        StyleOption.Of(ExchangeRatesStyle.Number, Str.Styles_Rates_Number, 0xE75F),
+        StyleOption.Of(ExchangeRatesStyle.Chart, Str.Styles_Rates_Chart.Local(), 0xE9D2),
+        StyleOption.Of(ExchangeRatesStyle.Number, Str.Styles_Rates_Number.Local(), 0xE75F),
     ];
 
 

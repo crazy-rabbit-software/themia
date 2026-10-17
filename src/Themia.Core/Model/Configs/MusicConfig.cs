@@ -72,9 +72,9 @@ public sealed class MusicConfig : WidgetConfig, IStyled
 
     private static readonly StyleOption[] MusicStyles =
     [
-        StyleOption.Of(MusicStyle.Artwork, Str.Styles_Music_Artwork, 0xE93C),
-        StyleOption.Of(MusicStyle.Cover, Str.Styles_Music_Cover, 0xE740),
-        StyleOption.Of(MusicStyle.Text, Str.Styles_Music_Text, 0xE8D2),
+        StyleOption.Of(MusicStyle.Artwork, Str.Styles_Music_Artwork.Local(), 0xE93C),
+        StyleOption.Of(MusicStyle.Cover, Str.Styles_Music_Cover.Local(), 0xE740),
+        StyleOption.Of(MusicStyle.Text, Str.Styles_Music_Text.Local(), 0xE8D2),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => MusicStyles;

@@ -26,8 +26,8 @@ public sealed class PingConfig : GaugeConfig, IStyled
 
     private static readonly StyleOption[] PingStyles =
     [
-        StyleOption.Of(PingStyle.Graph, Str.Styles_Io_Graph, 0xE9D2),
-        StyleOption.Of(PingStyle.Signal, Str.Styles_Io_Signal, 0xE870),
+        StyleOption.Of(PingStyle.Graph, Str.Styles_Io_Graph.Local(), 0xE9D2),
+        StyleOption.Of(PingStyle.Signal, Str.Styles_Io_Signal.Local(), 0xE870),
     ];
 
     /// <summary>A quarter of an hour of probes, one every five seconds ([S-2512]).</summary>

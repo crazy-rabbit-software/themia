@@ -108,13 +108,13 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
 
     private static readonly StyleOption[] ClockStyles =
     [
-        StyleOption.Of(ClockStyle.Digital, Str.Clock_StyleDigital, 0xEC92),
-        StyleOption.Of(ClockStyle.Analog, Str.Clock_StyleAnalog, 0xE917),
-        StyleOption.Of(ClockStyle.Stacked, Str.Clock_StyleStacked, 0xEA37),
-        StyleOption.Of(ClockStyle.Flip, Str.Styles_Clock_Flip, 0xE8A9),
-        StyleOption.Of(ClockStyle.Word, Str.Styles_Clock_Words, 0xE8D2),
-        StyleOption.Of(ClockStyle.Minimal, Str.Styles_Clock_Minimal, 0xE738),
-        StyleOption.Of(ClockStyle.Date, Str.Styles_Clock_Date, 0xE8D1),
+        StyleOption.Of(ClockStyle.Digital, Str.Clock_StyleDigital.Local(), 0xEC92),
+        StyleOption.Of(ClockStyle.Analog, Str.Clock_StyleAnalog.Local(), 0xE917),
+        StyleOption.Of(ClockStyle.Stacked, Str.Clock_StyleStacked.Local(), 0xEA37),
+        StyleOption.Of(ClockStyle.Flip, Str.Styles_Clock_Flip.Local(), 0xE8A9),
+        StyleOption.Of(ClockStyle.Word, Str.Styles_Clock_Words.Local(), 0xE8D2),
+        StyleOption.Of(ClockStyle.Minimal, Str.Styles_Clock_Minimal.Local(), 0xE738),
+        StyleOption.Of(ClockStyle.Date, Str.Styles_Clock_Date.Local(), 0xE8D1),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => ClockStyles;

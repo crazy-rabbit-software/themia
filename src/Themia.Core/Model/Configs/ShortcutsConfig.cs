@@ -153,9 +153,9 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
 
     private static readonly StyleOption[] ShortcutsStyles =
     [
-        StyleOption.Of(ShortcutsStyle.Grid, Str.WidgetsC_Shortcuts_Settings_View_Tiles, 0xECA5),
-        StyleOption.Of(ShortcutsStyle.List, Str.CtxMenu_List, 0xEA37),
-        StyleOption.Of(ShortcutsStyle.Details, Str.CtxMenu_Details, 0xF12B),
+        StyleOption.Of(ShortcutsStyle.Grid, Str.WidgetsC_Shortcuts_Settings_View_Tiles.Local(), 0xECA5),
+        StyleOption.Of(ShortcutsStyle.List, Str.CtxMenu_List.Local(), 0xEA37),
+        StyleOption.Of(ShortcutsStyle.Details, Str.CtxMenu_Details.Local(), 0xF12B),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => ShortcutsStyles;

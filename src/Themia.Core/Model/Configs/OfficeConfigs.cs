@@ -210,11 +210,11 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
 
     private static readonly StyleOption[] CalendarStyles =
     [
-        StyleOption.Of(CalendarStyle.Month, Str.Styles_Calendar_Month, 0xE787),
-        StyleOption.Of(CalendarStyle.Week, Str.Styles_Calendar_Week, 0xE8C0),
-        StyleOption.Of(CalendarStyle.Day, Str.Styles_Calendar_Day, 0xE8BF),
-        StyleOption.Of(CalendarStyle.Year, Str.Styles_Calendar_Year, 0xEA89),
-        StyleOption.Of(CalendarStyle.Agenda, Str.Styles_Calendar_Agenda, 0xE8FD),
+        StyleOption.Of(CalendarStyle.Month, Str.Styles_Calendar_Month.Local(), 0xE787),
+        StyleOption.Of(CalendarStyle.Week, Str.Styles_Calendar_Week.Local(), 0xE8C0),
+        StyleOption.Of(CalendarStyle.Day, Str.Styles_Calendar_Day.Local(), 0xE8BF),
+        StyleOption.Of(CalendarStyle.Year, Str.Styles_Calendar_Year.Local(), 0xEA89),
+        StyleOption.Of(CalendarStyle.Agenda, Str.Styles_Calendar_Agenda.Local(), 0xE8FD),
     ];
 
 

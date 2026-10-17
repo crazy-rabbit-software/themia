@@ -33,8 +33,8 @@ public sealed class DiskConfig : GaugeConfig, IStyled
 {
     private static readonly StyleOption[] DiskStyles =
     [
-        StyleOption.Of(DiskStyle.Graph, Str.Styles_Io_Graph, 0xE9D2),
-        StyleOption.Of(DiskStyle.Bars, Str.Styles_Io_Bars, 0xE8E4),
+        StyleOption.Of(DiskStyle.Graph, Str.Styles_Io_Graph.Local(), 0xE9D2),
+        StyleOption.Of(DiskStyle.Bars, Str.Styles_Io_Bars.Local(), 0xE8E4),
     ];
 
     /// <summary>

@@ -75,9 +75,9 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
 
     private static readonly StyleOption[] HabitStyles =
     [
-        StyleOption.Of(HabitTrackerStyle.Dots, Str.Styles_Habits_Dots, 0xF127),
-        StyleOption.Of(HabitTrackerStyle.Heatmap, Str.Styles_Habits_Heatmap, 0xF232),
-        StyleOption.Of(HabitTrackerStyle.Checklist, Str.Styles_Habits_Checklist, 0xE9D5),
+        StyleOption.Of(HabitTrackerStyle.Dots, Str.Styles_Habits_Dots.Local(), 0xF127),
+        StyleOption.Of(HabitTrackerStyle.Heatmap, Str.Styles_Habits_Heatmap.Local(), 0xF232),
+        StyleOption.Of(HabitTrackerStyle.Checklist, Str.Styles_Habits_Checklist.Local(), 0xE9D5),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => HabitStyles;

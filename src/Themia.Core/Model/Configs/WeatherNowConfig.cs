@@ -139,9 +139,9 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
 
     private static readonly StyleOption[] NowStyles =
     [
-        StyleOption.Of(WeatherNowStyle.Standard, Str.Styles_WeatherNow_Standard, 0xE753),
-        StyleOption.Of(WeatherNowStyle.LargeIcon, Str.Styles_WeatherNow_LargeIcon, 0xE706),
-        StyleOption.Of(WeatherNowStyle.Minimal, Str.Styles_WeatherNow_Minimal, 0xE738),
+        StyleOption.Of(WeatherNowStyle.Standard, Str.Styles_WeatherNow_Standard.Local(), 0xE753),
+        StyleOption.Of(WeatherNowStyle.LargeIcon, Str.Styles_WeatherNow_LargeIcon.Local(), 0xE706),
+        StyleOption.Of(WeatherNowStyle.Minimal, Str.Styles_WeatherNow_Minimal.Local(), 0xE738),
     ];
 
 

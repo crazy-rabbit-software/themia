@@ -26,8 +26,8 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
 {
     private static readonly StyleOption[] NetworkStyles =
     [
-        StyleOption.Of(NetworkStyle.Graph, Str.Styles_Io_Graph, 0xE9D2),
-        StyleOption.Of(NetworkStyle.Numbers, Str.Styles_Io_Numbers, 0xE896),
+        StyleOption.Of(NetworkStyle.Graph, Str.Styles_Io_Graph.Local(), 0xE9D2),
+        StyleOption.Of(NetworkStyle.Numbers, Str.Styles_Io_Numbers.Local(), 0xE896),
     ];
 
     public NetworkConfig()

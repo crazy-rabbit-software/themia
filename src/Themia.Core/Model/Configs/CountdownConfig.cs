@@ -38,9 +38,9 @@ public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, IS
 
     private static readonly StyleOption[] CountdownStyles =
     [
-        StyleOption.Of(CountdownStyle.Text, Str.Styles_Countdown_Text, 0xE8D2),
-        StyleOption.Of(CountdownStyle.Ring, Str.Styles_Countdown_Ring, 0xEA3A),
-        StyleOption.Of(CountdownStyle.Flip, Str.Styles_Clock_Flip, 0xE8A9),
+        StyleOption.Of(CountdownStyle.Text, Str.Styles_Countdown_Text.Local(), 0xE8D2),
+        StyleOption.Of(CountdownStyle.Ring, Str.Styles_Countdown_Ring.Local(), 0xEA3A),
+        StyleOption.Of(CountdownStyle.Flip, Str.Styles_Clock_Flip.Local(), 0xE8A9),
     ];
 
 

@@ -149,10 +149,10 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
 
     private static readonly StyleOption[] GalleryStyles =
     [
-        StyleOption.Of(GalleryStyle.Slideshow, Str.Gallery_ModeSlideshow, 0xE786),
-        StyleOption.Of(GalleryStyle.Grid, Str.Gallery_ModeGrid, 0xF0E2),
-        StyleOption.Of(GalleryStyle.Scatter, Str.Gallery_ModeScatter, 0xE7AA),
-        StyleOption.Of(GalleryStyle.Mosaic, Str.Gallery_ModeMosaic, 0xECA5),
+        StyleOption.Of(GalleryStyle.Slideshow, Str.Gallery_ModeSlideshow.Local(), 0xE786),
+        StyleOption.Of(GalleryStyle.Grid, Str.Gallery_ModeGrid.Local(), 0xF0E2),
+        StyleOption.Of(GalleryStyle.Scatter, Str.Gallery_ModeScatter.Local(), 0xE7AA),
+        StyleOption.Of(GalleryStyle.Mosaic, Str.Gallery_ModeMosaic.Local(), 0xECA5),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => GalleryStyles;

@@ -59,11 +59,11 @@ public sealed class CpuConfig : GaugeConfig, IStyled
 
     private static readonly StyleOption[] CpuStyles =
     [
-        StyleOption.Of(CpuStyle.Graph, Str.Styles_Cpu_Graph, 0xE9D2),
-        StyleOption.Of(CpuStyle.Cores, Str.Styles_Cpu_Cores, 0xE9E9),
-        StyleOption.Of(CpuStyle.Grid, Str.Styles_Cpu_Grid, 0xF0E2),
-        StyleOption.Of(CpuStyle.Gauge, Str.Styles_Cpu_Gauge, 0xEC4A),
-        StyleOption.Of(CpuStyle.CoreGraphs, Str.Styles_Cpu_CoreGraphs, 0xF246),
+        StyleOption.Of(CpuStyle.Graph, Str.Styles_Cpu_Graph.Local(), 0xE9D2),
+        StyleOption.Of(CpuStyle.Cores, Str.Styles_Cpu_Cores.Local(), 0xE9E9),
+        StyleOption.Of(CpuStyle.Grid, Str.Styles_Cpu_Grid.Local(), 0xF0E2),
+        StyleOption.Of(CpuStyle.Gauge, Str.Styles_Cpu_Gauge.Local(), 0xEC4A),
+        StyleOption.Of(CpuStyle.CoreGraphs, Str.Styles_Cpu_CoreGraphs.Local(), 0xF246),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => CpuStyles;

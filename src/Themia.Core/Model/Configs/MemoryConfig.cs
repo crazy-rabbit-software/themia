@@ -52,9 +52,9 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
 
     private static readonly StyleOption[] MemoryStyles =
     [
-        StyleOption.Of(MemoryStyle.Graph, Str.Styles_Memory_Graph, 0xE9D2),
-        StyleOption.Of(MemoryStyle.Bar, Str.Styles_Memory_Bar, 0xE7A5),
-        StyleOption.Of(MemoryStyle.Gauge, Str.Styles_Memory_Gauge, 0xEC4A),
+        StyleOption.Of(MemoryStyle.Graph, Str.Styles_Memory_Graph.Local(), 0xE9D2),
+        StyleOption.Of(MemoryStyle.Bar, Str.Styles_Memory_Bar.Local(), 0xE7A5),
+        StyleOption.Of(MemoryStyle.Gauge, Str.Styles_Memory_Gauge.Local(), 0xEC4A),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => MemoryStyles;

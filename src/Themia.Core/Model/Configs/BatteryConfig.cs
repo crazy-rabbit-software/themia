@@ -26,9 +26,9 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
 {
     private static readonly StyleOption[] BatteryStyles =
     [
-        StyleOption.Of(BatteryStyle.Graph, Str.Styles_Io_Graph, 0xE9D2),
-        StyleOption.Of(BatteryStyle.Battery, Str.Styles_Io_Battery, 0xE83F),
-        StyleOption.Of(BatteryStyle.Ring, Str.Styles_Io_Ring, 0xEA3A),
+        StyleOption.Of(BatteryStyle.Graph, Str.Styles_Io_Graph.Local(), 0xE9D2),
+        StyleOption.Of(BatteryStyle.Battery, Str.Styles_Io_Battery.Local(), 0xE83F),
+        StyleOption.Of(BatteryStyle.Ring, Str.Styles_Io_Ring.Local(), 0xEA3A),
     ];
 
     /// <summary>Charge moves slowly: a quarter of an hour of history.</summary>

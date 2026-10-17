@@ -58,9 +58,9 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
 
     private static readonly StyleOption[] PomodoroStyles =
     [
-        StyleOption.Of(PomodoroStyle.Ring, Str.Styles_Pomodoro_Ring, 0xEA3A),
-        StyleOption.Of(PomodoroStyle.Bar, Str.Styles_Pomodoro_Bar, 0xE7A5),
-        StyleOption.Of(PomodoroStyle.Digits, Str.Styles_Pomodoro_Digits, 0xEC92),
+        StyleOption.Of(PomodoroStyle.Ring, Str.Styles_Pomodoro_Ring.Local(), 0xEA3A),
+        StyleOption.Of(PomodoroStyle.Bar, Str.Styles_Pomodoro_Bar.Local(), 0xE7A5),
+        StyleOption.Of(PomodoroStyle.Digits, Str.Styles_Pomodoro_Digits.Local(), 0xEC92),
     ];
 
 

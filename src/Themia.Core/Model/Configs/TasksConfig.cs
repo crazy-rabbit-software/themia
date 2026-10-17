@@ -104,8 +104,8 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
 
     private static readonly StyleOption[] TasksStyles =
     [
-        StyleOption.Of(TasksStyle.List, Str.WidgetsC_Tasks_Settings_Layout_List, 0xE8FD),
-        StyleOption.Of(TasksStyle.Compact, Str.WidgetsC_Tasks_Settings_Layout_Compact, 0xEA37),
+        StyleOption.Of(TasksStyle.List, Str.WidgetsC_Tasks_Settings_Layout_List.Local(), 0xE8FD),
+        StyleOption.Of(TasksStyle.Compact, Str.WidgetsC_Tasks_Settings_Layout_Compact.Local(), 0xEA37),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => TasksStyles;

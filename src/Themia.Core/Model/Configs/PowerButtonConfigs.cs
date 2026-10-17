@@ -46,8 +46,8 @@ public abstract class PowerButtonConfig : WidgetConfig, IStyled
 {
     private static readonly StyleOption[] PowerStyles =
     [
-        StyleOption.Of(PowerButtonStyle.Tile, Str.Styles_Toggles_Tile, 0xECA5),
-        StyleOption.Of(PowerButtonStyle.Round, Str.Styles_Toggles_Round, 0xEA3B),
+        StyleOption.Of(PowerButtonStyle.Tile, Str.Styles_Toggles_Tile.Local(), 0xECA5),
+        StyleOption.Of(PowerButtonStyle.Round, Str.Styles_Toggles_Round.Local(), 0xEA3B),
     ];
 
     /// <summary>The action this widget runs: each kind states its own.</summary>

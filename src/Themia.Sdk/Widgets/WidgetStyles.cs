@@ -16,10 +16,10 @@ namespace Themia.Core.Widgets;
 /// <param name="Name">The camelCase wire name: <c>digital</c>, <c>flip</c>.</param>
 /// <param name="Label">What the style dropdown and the settings row call it.</param>
 /// <param name="Glyph">The Segoe Fluent Icons code point beside the name (U+E700..U+F8FF).</param>
-public readonly record struct StyleOption(int Value, string Name, Str Label, int Glyph)
+public readonly record struct StyleOption(int Value, string Name, LocalText Label, int Glyph)
 {
     /// <summary>The option for one value of a kind's style enum.</summary>
-    public static StyleOption Of<T>(T value, Str label, int glyph)
+    public static StyleOption Of<T>(T value, LocalText label, int glyph)
         where T : struct, Enum
         => new(WidgetStyles.ToInt(value), WidgetStyles.WireName(value), label, glyph);
 }

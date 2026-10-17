@@ -158,9 +158,9 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetti
 {
     private static readonly StyleOption[] SunStyles =
     [
-        StyleOption.Of(SunStyle.Arc, Str.Styles_Sun_Arc, 0xE706),
-        StyleOption.Of(SunStyle.DayBar, Str.Styles_Sun_DayBar, 0xE7A5),
-        StyleOption.Of(SunStyle.Times, Str.Styles_Sun_Times, 0xEA37),
+        StyleOption.Of(SunStyle.Arc, Str.Styles_Sun_Arc.Local(), 0xE706),
+        StyleOption.Of(SunStyle.DayBar, Str.Styles_Sun_DayBar.Local(), 0xE7A5),
+        StyleOption.Of(SunStyle.Times, Str.Styles_Sun_Times.Local(), 0xEA37),
     ];
 
 
@@ -211,8 +211,8 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
 {
     private static readonly StyleOption[] MoonStyles =
     [
-        StyleOption.Of(MoonStyle.Disc, Str.Styles_Moon_Disc, 0xE708),
-        StyleOption.Of(MoonStyle.PhaseMonth, Str.Styles_Moon_PhaseMonth, 0xE787),
+        StyleOption.Of(MoonStyle.Disc, Str.Styles_Moon_Disc.Local(), 0xE708),
+        StyleOption.Of(MoonStyle.PhaseMonth, Str.Styles_Moon_PhaseMonth.Local(), 0xE787),
     ];
 
 

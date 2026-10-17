@@ -56,10 +56,10 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
 
     private static readonly StyleOption[] ForecastStyles =
     [
-        StyleOption.Of(ForecastStyle.Rows, Str.Forecast_LayoutRows, 0xEA37),
-        StyleOption.Of(ForecastStyle.Columns, Str.Forecast_LayoutColumns, 0xE907),
-        StyleOption.Of(ForecastStyle.Curve, Str.Styles_Forecast_Curve, 0xE9D2),
-        StyleOption.Of(ForecastStyle.Grid, Str.Styles_Forecast_Grid, 0xF0E2),
+        StyleOption.Of(ForecastStyle.Rows, Str.Forecast_LayoutRows.Local(), 0xEA37),
+        StyleOption.Of(ForecastStyle.Columns, Str.Forecast_LayoutColumns.Local(), 0xE907),
+        StyleOption.Of(ForecastStyle.Curve, Str.Styles_Forecast_Curve.Local(), 0xE9D2),
+        StyleOption.Of(ForecastStyle.Grid, Str.Styles_Forecast_Grid.Local(), 0xF0E2),
     ];
 
 

@@ -63,9 +63,9 @@ public sealed class GpuConfig : GaugeConfig, IStyled
 
     private static readonly StyleOption[] GpuStyles =
     [
-        StyleOption.Of(GpuStyle.Graph, Str.Styles_Gpu_Graph, 0xE9D2),
-        StyleOption.Of(GpuStyle.Engines, Str.Styles_Gpu_Engines, 0xE8BC),
-        StyleOption.Of(GpuStyle.Gauge, Str.Styles_Gpu_Gauge, 0xEC4A),
+        StyleOption.Of(GpuStyle.Graph, Str.Styles_Gpu_Graph.Local(), 0xE9D2),
+        StyleOption.Of(GpuStyle.Engines, Str.Styles_Gpu_Engines.Local(), 0xE8BC),
+        StyleOption.Of(GpuStyle.Gauge, Str.Styles_Gpu_Gauge.Local(), 0xEC4A),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => GpuStyles;

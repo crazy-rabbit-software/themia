@@ -73,12 +73,12 @@ public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
 
     private static readonly StyleOption[] VisualizerStyles =
     [
-        StyleOption.Of(AudioVisualizerStyle.Bars, Str.Styles_AudioVisualizer_Bars, 0xE7F3),
-        StyleOption.Of(AudioVisualizerStyle.Mirrored, Str.Styles_AudioVisualizer_Mirrored, 0xF4C3),
-        StyleOption.Of(AudioVisualizerStyle.Wave, Str.Styles_AudioVisualizer_Wave, 0xE9D9),
-        StyleOption.Of(AudioVisualizerStyle.Led, Str.Styles_AudioVisualizer_Led, 0xF232),
-        StyleOption.Of(AudioVisualizerStyle.Radial, Str.Styles_AudioVisualizer_Radial, 0xE706),
-        StyleOption.Of(AudioVisualizerStyle.Waveform, Str.Styles_AudioVisualizer_Waveform, 0xE95E),
+        StyleOption.Of(AudioVisualizerStyle.Bars, Str.Styles_AudioVisualizer_Bars.Local(), 0xE7F3),
+        StyleOption.Of(AudioVisualizerStyle.Mirrored, Str.Styles_AudioVisualizer_Mirrored.Local(), 0xF4C3),
+        StyleOption.Of(AudioVisualizerStyle.Wave, Str.Styles_AudioVisualizer_Wave.Local(), 0xE9D9),
+        StyleOption.Of(AudioVisualizerStyle.Led, Str.Styles_AudioVisualizer_Led.Local(), 0xF232),
+        StyleOption.Of(AudioVisualizerStyle.Radial, Str.Styles_AudioVisualizer_Radial.Local(), 0xE706),
+        StyleOption.Of(AudioVisualizerStyle.Waveform, Str.Styles_AudioVisualizer_Waveform.Local(), 0xE95E),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => VisualizerStyles;

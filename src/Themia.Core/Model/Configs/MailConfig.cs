@@ -81,9 +81,9 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
 
     private static readonly StyleOption[] EmailStyles =
     [
-        StyleOption.Of(EmailStyle.List, Str.Styles_Email_List, 0xE8FD),
-        StyleOption.Of(EmailStyle.Compact, Str.Styles_Email_Compact, 0xEA37),
-        StyleOption.Of(EmailStyle.Table, Str.Styles_Email_Table, 0xF12B),
+        StyleOption.Of(EmailStyle.List, Str.Styles_Email_List.Local(), 0xE8FD),
+        StyleOption.Of(EmailStyle.Compact, Str.Styles_Email_Compact.Local(), 0xEA37),
+        StyleOption.Of(EmailStyle.Table, Str.Styles_Email_Table.Local(), 0xF12B),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => EmailStyles;
