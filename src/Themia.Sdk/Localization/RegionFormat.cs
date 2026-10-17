@@ -1,5 +1,4 @@
 using Themia.Core.Model;
-using Themia.Core.Office;
 
 namespace Themia.Core.Localization;
 
@@ -38,8 +37,16 @@ public static class RegionFormat
     /// <summary>[S-3772] A language's own habits: its hour cycle and week start, Celsius except in English.</summary>
     public static RegionValues Language(Locale locale) => new(
         LocaleFormat.Uses24Hour(locale),
-        CalendarRules.WeekStartOf(LocaleFormat.FirstDayOfWeek(locale)),
+        WeekStartOf(LocaleFormat.FirstDayOfWeek(locale)),
         TemperatureUnit.Celsius);
+
+    /// <summary>[S-564] The week start a language or Windows names by its first weekday; a day no calendar starts on is Monday.</summary>
+    public static WeekStartDay WeekStartOf(DayOfWeek first) => first switch
+    {
+        DayOfWeek.Sunday => WeekStartDay.Sunday,
+        DayOfWeek.Saturday => WeekStartDay.Saturday,
+        _ => WeekStartDay.Monday,
+    };
 
     /// <summary>
     /// [S-3772] The formats for <paramref name="preferences"/>: each chosen value as chosen, each

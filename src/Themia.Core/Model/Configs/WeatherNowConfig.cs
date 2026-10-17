@@ -25,14 +25,6 @@ public enum WeatherNowStyle
     Minimal = 2,
 }
 
-/// <summary>Which scale temperatures are asked for and shown in.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<TemperatureUnit>))]
-public enum TemperatureUnit
-{
-    Celsius = 0,
-    Fahrenheit = 1,
-}
-
 /// <summary>
 /// Settings shared by the two weather widgets: where. The unit and the cadence are every widget's
 /// ([S-3770], [S-3780]), not one widget's.

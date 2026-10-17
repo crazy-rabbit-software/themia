@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     The widget SDK, pure part (docs/WIDGET-KIT.md section 4.2): what a widget or provider module may
-    use without UI types. References nothing of ours; Themia.Core and Themia.Sdk.WinUI build on it.
+    use without UI types. References no assembly of ours (the strings generator runs at build time
+    only); Themia.Core and Themia.Sdk.WinUI build on it.
     Files moved here from Core keep their Themia.Core.* namespaces (Q17); new types use Themia.Sdk.*.
   -->
   <PropertyGroup>
@@ -14,5 +15,17 @@
     <!-- Core and the tests use the moved files' internals exactly as they did when the files were Core's. -->
     <InternalsVisibleTo Include="Themia.Core" />
     <InternalsVisibleTo Include="Themia.Core.Tests" />
+  </ItemGroup>
+
+  <!--
+    [S-1101] The UI strings (all of them, one Str enum for now; per-module tables come in M3): one JSON file per language (optionally split into area fragments, Locales\<area>\<code>.json), compiled into static tables by the
+    generator at build time (no ResourceManager, no files read at run time — Native AOT clean).
+  -->
+  <ItemGroup>
+    <AdditionalFiles Include="Localization\Locales\**\*.json" />
+    <ProjectReference Include="..\Themia.Localization.Generator\Themia.Localization.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained" />
   </ItemGroup>
 </Project>

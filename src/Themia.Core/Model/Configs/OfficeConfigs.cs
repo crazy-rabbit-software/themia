@@ -46,17 +46,6 @@ public enum CalendarSetting
     AgendaCount,
 }
 
-/// <summary>[S-564] Which day a week starts on: a closed set, never a stringly day name.</summary>
-[JsonConverter(typeof(LenientEnumConverter<WeekStartDay>))]
-public enum WeekStartDay
-{
-    Monday = 0,
-    Sunday = 1,
-
-    /// <summary>The Iranian and Afghan week (Persian), which Windows' fa-IR also starts on Saturday.</summary>
-    Saturday = 2,
-}
-
 /// <summary>
 /// [S-2719] [S-3637] Where the week calendar's first column is: the first day of the week (the shared
 /// regional setting, [S-3770]), or today, for the days coming up.

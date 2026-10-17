@@ -190,12 +190,7 @@ public static class CalendarRules
     };
 
     /// <summary>[S-564] The week start a language or Windows names by its first weekday; a day no calendar starts on is Monday.</summary>
-    public static WeekStartDay WeekStartOf(DayOfWeek first) => first switch
-    {
-        DayOfWeek.Sunday => WeekStartDay.Sunday,
-        DayOfWeek.Saturday => WeekStartDay.Saturday,
-        _ => WeekStartDay.Monday,
-    };
+    public static WeekStartDay WeekStartOf(DayOfWeek first) => RegionFormat.WeekStartOf(first);
 
     /// <summary>[S-564] Days to step back from <paramref name="day"/> to reach the first day of its week.</summary>
     public static int WeekStartOffset(DayOfWeek day, WeekStartDay start)
