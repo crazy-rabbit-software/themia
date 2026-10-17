@@ -18,7 +18,7 @@ namespace Themia.App.Widgets;
 /// 110 ms, and the new figures fold in, 170 ms); a redraw shows them at once, and nothing turns
 /// while Windows' animation effects are off ([S-1010]).
 /// </summary>
-internal sealed class FlipCard
+public sealed class FlipCard
 {
     /// <summary>A card's height against its width, and the figures' share of the card.</summary>
     public const double Aspect = 1.1;

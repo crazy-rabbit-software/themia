@@ -8,7 +8,7 @@ namespace Themia.App.Shell.Motion;
 /// desktop's equivalent of the original's <c>prefers-reduced-motion</c>. Read at the moment an intro
 /// would start, so flipping it applies to the next one without a restart.
 /// </summary>
-internal static class SystemMotion
+public static class SystemMotion
 {
     private const string Scope = "motion";
 
