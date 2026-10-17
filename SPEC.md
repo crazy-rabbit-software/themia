@@ -6651,6 +6651,10 @@ breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout
   account exists ([S-1860]), the note is made on first show ([S-1346]), every id is new on each
   call. Every widget is inside the screen, none overlaps another, and load validation changes
   nothing. The two views and 17 widgets fit the free tier ([S-1065]), with room to add a widget.
+  The seed is data (`FirstRunDesktop`): widget ids, grid rects, bare or not, and each widget's
+  differences from its default config as a JSON fragment in the state's own shape, built through the
+  descriptors and the state's JSON and then copied (so a shortcut's ids are new, as a paste's are).
+  It names no config type; a seeded id this build does not have is left out and logged.
 - Not ported: the original's pending-operation framework (an operation that resolves later; nothing
   here records one yet, and file operations will add their own step when they need it), and
   per-window boot counters (one process here, so one counter).

@@ -1,7 +1,9 @@
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Storage;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -215,7 +217,9 @@ public sealed class NoticesBootTests : IDisposable
 
         var places = Assert.IsType<ShortcutsConfig>(widgets[1].Config);
         Assert.Equal(ShortcutsStyle.Grid, places.Style);
-        Assert.Equal(AppState.FirstRunPlaces.Select(p => "shell:" + p), places.Items.Select(i => i.Target));
+        Assert.Equal(
+            ["shell:RecycleBinFolder", "shell:MyComputerFolder", "shell:Downloads", "shell:Personal", "shell:My Pictures", "shell:UsersFilesFolder"],
+            places.Items.Select(i => i.Target));
         Assert.All(places.Items, i => Assert.Equal(string.Empty, i.Label));
 
         Assert.Equal(WeatherNowStyle.LargeIcon, Assert.IsType<WeatherNowConfig>(widgets[2].Config).Style);
@@ -349,6 +353,18 @@ public sealed class NoticesBootTests : IDisposable
                 Assert.False(overlap, $"{widgets[i].Kind} overlaps {widgets[j].Kind}");
             }
         }
+    }
+
+    [Fact]
+    public void S893_the_seed_is_data_and_a_widget_this_build_lacks_is_left_out()
+    {
+        // Ids and fragments only: the seed names no config type, so a widget can move out of Core.
+        var seeds = FirstRunDesktop.Home.Concat(FirstRunDesktop.Work).ToList();
+        Assert.All(seeds, s => Assert.True(ModuleCatalog.TryGet(new WidgetId(s.Id), out _), s.Id));
+
+        Assert.Null(FirstRunDesktop.Build(new FirstRunDesktop.Seed("notInThisBuild", new FracRect(0, 0, 0.1, 0.1))));
+        var view = FirstRunDesktop.View("v", [new("notInThisBuild", new FracRect(0, 0, 0.1, 0.1)), new("clock", new FracRect(0, 0, 0.1, 0.1))]);
+        Assert.Equal([ClockConfig.Descriptor.Id], view.Widgets.Select(w => w.Kind));
     }
 
     [Fact]
