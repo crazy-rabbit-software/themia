@@ -233,7 +233,7 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
         Glyph = Glyphs.Calendar,
         DefaultWidth = 340,
         DefaultHeight = 260,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-3640] The layout; what were five widget kinds.</summary>
@@ -367,7 +367,7 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
         Glyph = Glyphs.Contact,
         DefaultWidth = 320,
         DefaultHeight = 260,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>The accounts to show; empty means every contacts account.</summary>

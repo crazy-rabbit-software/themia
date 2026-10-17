@@ -62,7 +62,7 @@ public sealed class DiskConfig : GaugeConfig, IStyled
         Glyph = Glyphs.Disk,
         DefaultWidth = 200,
         DefaultHeight = 150,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-6271] The meter's look; what was its history switch ([S-6000]).</summary>

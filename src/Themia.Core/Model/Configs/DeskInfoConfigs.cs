@@ -45,7 +45,7 @@ public sealed class YearProgressConfig : WidgetConfig, Themia.Core.Widgets.IStyl
         Glyph = Glyphs.YearProgress,
         DefaultWidth = 280,
         DefaultHeight = 220,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-6040] Bars, rings or dots.</summary>
@@ -96,7 +96,7 @@ public sealed class NextMeetingConfig : CalendarConfig
         Glyph = Glyphs.Meeting,
         DefaultWidth = 320,
         DefaultHeight = 200,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>What is coming up, reduced to its first entry: the agenda's shape.</summary>
@@ -135,7 +135,7 @@ public sealed class RecentFilesConfig : WidgetConfig
         Glyph = Glyphs.RecentFiles,
         DefaultWidth = 320,
         DefaultHeight = 300,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-4843] Keeps "2h" honest; the list itself redraws from the folder watch.</summary>
@@ -165,7 +165,7 @@ public sealed class RecycleBinConfig : WidgetConfig
         Glyph = Glyphs.RecycleBin,
         DefaultWidth = 200,
         DefaultHeight = 200,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     public override WidgetConfig Clone() => new RecycleBinConfig();

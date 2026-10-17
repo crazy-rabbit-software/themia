@@ -138,7 +138,7 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
         Glyph = Glyphs.Shortcut,
         DefaultWidth = 320,
         DefaultHeight = 220,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     public List<ShortcutItem> Items { get; set; } = [];

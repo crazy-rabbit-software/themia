@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -90,45 +91,17 @@ public sealed class WidgetInstance
     };
 
     /// <summary>
-    /// [S-700] Where a new widget's header goes. Top for everything except the clock, which starts
-    /// headerless as it did in the original: a single readout says what it is, and at the small
-    /// sizes it is usually placed at, a header would take a third of the card. Only the default:
-    /// the user can still give it a header, and a saved widget keeps the placement it was saved with.
-    /// <para>
-    /// [S-1911] The power widgets start headerless too: the whole tile is the button, and its name
-    /// is already under the icon.
-    /// </para>
-    /// <para>
-    /// [S-3901] The quick-setting toggles and [S-3200] every audio visualizer never have one
-    /// ([S-3711]).
-    /// </para>
-    /// <para>
-    /// [S-5300] The Date widget starts headerless like the clock: it is made for the wallpaper.
-    /// </para>
-    /// <para>
-    /// The sun, the moon and the disk meter start headerless too (user requirement): the sun's path
-    /// and the moon's face say what they are, and the disk meter names its drive beside the reading
-    /// ([S-1161]).
-    /// </para>
+    /// [S-700] Where a new widget's header goes: Top, unless its descriptor says it starts headerless
+    /// or can never have one ([S-6905]). Only the default: the user can still give it a header, and a
+    /// saved widget keeps the placement it was saved with.
     /// </summary>
-    public static HeaderPlacement DefaultHeader(WidgetKind kind) => kind switch
-    {
-        _ when !CanHaveHeader(kind) => HeaderPlacement.Hidden,
-        WidgetKind.Clock or WidgetKind.Sun or WidgetKind.Moon or WidgetKind.Drive => HeaderPlacement.Hidden,
-        _ when Themia.Core.Widgets.PowerActionRules.ForKind(kind) is not null => HeaderPlacement.Hidden,
-        _ => HeaderPlacement.Top,
-    };
+    public static HeaderPlacement DefaultHeader(WidgetKind kind)
+        => CanHaveHeader(kind) && !ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.StartsHeaderless)
+            ? HeaderPlacement.Top
+            : HeaderPlacement.Hidden;
 
-    /// <summary>
-    /// [S-3711] Whether a widget of <paramref name="kind"/> may have a header at all. The
-    /// quick-setting toggles never do ([S-3901]): the whole tile is the switch and its name is
-    /// under the icon, so a header would only repeat it and take a third of a 120-DIP tile. Nor
-    /// does any audio visualizer ([S-3200]): the spectrum is the widget, edge to edge, and a title
-    /// over it says nothing the bars do not.
-    /// </summary>
-    public static bool CanHaveHeader(WidgetKind kind)
-        => Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is null
-            && kind != WidgetKind.AudioVisualizer;
+    /// <summary>[S-3711] Whether a widget of <paramref name="kind"/> may have a header at all: its descriptor's <see cref="WidgetTraits.CanHaveHeader"/>.</summary>
+    public static bool CanHaveHeader(WidgetKind kind) => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.CanHaveHeader);
 
     /// <summary>
     /// [S-3711]/[S-3712] Where the header is drawn: the stored placement, or hidden for a kind that

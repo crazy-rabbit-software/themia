@@ -925,7 +925,8 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   config types: a page wired to no module, or a module naming a page that is not there, fails a test.
 - **[S-6905]** What a widget's card offers is stated by its descriptor's `Traits`, in full (the
   member is required, so no widget takes another's by omission): `HasItems` ([S-6570], checked
-  against what its view paints).
+  against what its view paints), `CanHaveHeader` ([S-3711]) and `StartsHeaderless` ([S-700]; only
+  for a widget that may have a header at all).
 
 ## Adding a widget
 

@@ -98,7 +98,7 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         Glyph = Glyphs.Stocks,
         DefaultWidth = 320,
         DefaultHeight = 240,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>The Yahoo symbol or CoinGecko id. Empty until the user sets one.</summary>

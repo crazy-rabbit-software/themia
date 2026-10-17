@@ -56,7 +56,7 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
         Glyph = Glyphs.Countdown,
         DefaultWidth = 300,
         DefaultHeight = 200,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-6030] The duration's look.</summary>

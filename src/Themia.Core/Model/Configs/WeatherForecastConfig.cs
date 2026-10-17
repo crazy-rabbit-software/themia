@@ -63,7 +63,7 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
         Glyph = Glyphs.Forecast,
         DefaultWidth = 380,
         DefaultHeight = 220,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>How many days to ask for, 1 to 14 — open-meteo's own limit.</summary>

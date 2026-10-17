@@ -64,7 +64,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         Glyph = Glyphs.Task,
         DefaultWidth = 320,
         DefaultHeight = 320,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     public TaskSource Source { get; set; } = TaskSource.Account;

@@ -46,7 +46,7 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
         Glyph = Glyphs.Memory,
         DefaultWidth = 200,
         DefaultHeight = 150,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-6315] The meter's look.</summary>

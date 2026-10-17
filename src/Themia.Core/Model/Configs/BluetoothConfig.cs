@@ -28,7 +28,7 @@ public sealed class BluetoothConfig : WidgetConfig
         Glyph = Glyphs.Bluetooth,
         DefaultWidth = 300,
         DefaultHeight = 240,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>

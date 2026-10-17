@@ -53,7 +53,7 @@ public sealed class CpuConfig : GaugeConfig, IStyled
         Glyph = Glyphs.Cpu,
         DefaultWidth = 200,
         DefaultHeight = 150,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-6311] The meter's look.</summary>

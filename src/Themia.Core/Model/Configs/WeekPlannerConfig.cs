@@ -43,7 +43,7 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
         Glyph = Glyphs.WeekPlanner,
         DefaultWidth = 480,
         DefaultHeight = 280,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>Days side by side, the classic week view's shape; never read to pick a range ([S-5321]).</summary>

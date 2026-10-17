@@ -73,7 +73,7 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled
         Glyph = Glyphs.AirQuality,
         DefaultWidth = 260,
         DefaultHeight = 200,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-6169] The widget's look.</summary>
@@ -131,7 +131,7 @@ public sealed class RainNextHourConfig : WeatherConfig
         DefaultWidth = 300,
         DefaultHeight = 180,
         DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     public override WidgetConfig Clone()
@@ -171,7 +171,7 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
         Glyph = Glyphs.ExchangeRates,
         DefaultWidth = 300,
         DefaultHeight = 220,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-5143] The base currency, an ISO 4217 code the ECB publishes; empty follows the Windows region.</summary>

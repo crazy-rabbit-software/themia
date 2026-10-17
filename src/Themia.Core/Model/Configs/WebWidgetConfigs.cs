@@ -59,7 +59,7 @@ public sealed class VideoStreamConfig : WidgetConfig
         Glyph = Glyphs.Video,
         DefaultWidth = 320,
         DefaultHeight = 240,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>The stream address, exactly as typed. Never repaired; never normalised, because cameras route on the query.</summary>

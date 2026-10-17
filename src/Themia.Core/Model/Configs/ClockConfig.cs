@@ -99,7 +99,7 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         Glyph = Glyphs.Clock,
         DefaultWidth = 280,
         DefaultHeight = 140,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
     };
 
     /// <summary>[S-6000] The clock's look; what was its face.</summary>

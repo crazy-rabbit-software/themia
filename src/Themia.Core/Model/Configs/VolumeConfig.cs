@@ -38,7 +38,7 @@ public sealed class VolumeConfig : WidgetConfig
         Glyph = Glyphs.Volume,
         DefaultWidth = 200,
         DefaultHeight = 150,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-1221] The output device's endpoint id, or null to follow Windows' default output.</summary>

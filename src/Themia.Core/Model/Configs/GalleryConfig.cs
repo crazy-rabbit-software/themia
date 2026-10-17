@@ -122,7 +122,7 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         Glyph = Glyphs.Gallery,
         DefaultWidth = 320,
         DefaultHeight = 240,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-760] Where the pictures come from.</summary>

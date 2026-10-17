@@ -73,7 +73,7 @@ public sealed class ScratchpadConfig : WidgetConfig
         Glyph = Glyphs.Scratchpad,
         DefaultWidth = 300,
         DefaultHeight = 260,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>The drawing, oldest stroke first. Drawing order is paint order.</summary>

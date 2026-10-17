@@ -44,7 +44,7 @@ public sealed class DriveConfig : WidgetConfig, IStyled
         Glyph = Glyphs.Disk,
         DefaultWidth = 280,
         DefaultHeight = 160,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
     };
 
     /// <summary>[S-6274] The card's look.</summary>
@@ -103,7 +103,7 @@ public sealed class RemovableDrivesConfig : WidgetConfig
         Glyph = Glyphs.Usb,
         DefaultWidth = 300,
         DefaultHeight = 200,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     public override WidgetConfig Clone() => new RemovableDrivesConfig();

@@ -80,7 +80,7 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
         Glyph = Glyphs.Pomodoro,
         DefaultWidth = 240,
         DefaultHeight = 200,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-6035] How the phase's progress is drawn.</summary>

@@ -30,7 +30,7 @@ public sealed class NotesConfig : WidgetConfig
         Glyph = Glyphs.Note,
         DefaultWidth = 300,
         DefaultHeight = 220,
-        Traits = WidgetTraits.None,
+        Traits = WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>

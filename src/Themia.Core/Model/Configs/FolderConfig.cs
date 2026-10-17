@@ -100,7 +100,7 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
         Glyph = Glyphs.Folder,
         DefaultWidth = 300,
         DefaultHeight = 280,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
     };
 
     /// <summary>[S-4123] The layout; what were four widget kinds.</summary>

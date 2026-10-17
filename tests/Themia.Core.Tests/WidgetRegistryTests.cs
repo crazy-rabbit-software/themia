@@ -134,6 +134,14 @@ public sealed partial class WidgetRegistryTests
 
     [Theory]
     [MemberData(nameof(Ids))]
+    public void S6905_only_a_widget_that_may_have_a_header_starts_without_one(string id)
+    {
+        var traits = Of(id).Traits;
+        Assert.False(traits.HasFlag(WidgetTraits.StartsHeaderless) && !traits.HasFlag(WidgetTraits.CanHaveHeader), $"{id}: {traits}");
+    }
+
+    [Theory]
+    [MemberData(nameof(Ids))]
     public void S943_every_widget_has_its_own_search_words(string id)
     {
         var widget = Of(id);

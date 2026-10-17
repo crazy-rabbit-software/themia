@@ -180,7 +180,7 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetti
         Glyph = Glyphs.Sun,
         DefaultWidth = 320,
         DefaultHeight = 240,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
     };
 
     /// <summary>[S-6045] The sun's day as an arc, a bar, or the times alone.</summary>
@@ -234,7 +234,7 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
         Glyph = Glyphs.Moon,
         DefaultWidth = 240,
         DefaultHeight = 220,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
     };
 
     /// <summary>[S-6050] Tonight's disc, or the month's phases.</summary>
