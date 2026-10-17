@@ -421,9 +421,9 @@ combined options.
   Spike-proven: drawn by `--widget-png hello` in Debug and from the AOT executable.
 - **XAML in a module** works too: a `UserControl` compiled in a module library landed as
   `Themia.Widget.Bye\ByeBadge.xbf`, the existing `PublishCompiledXaml` glob copied it, and it drew in
-  Debug and from the AOT executable. Not yet verified: the MSIX package (`package.ps1`, resources
-  merged into one `resources.pri`), a manual pass when the first XAML module lands. Clock can move
-  as it is.
+  Debug and from the AOT executable. The MSIX package builds with a module library in it (M3:
+  `package.ps1` puts `Themia.Widget.YearProgress.pri` beside `resources.pri`, as it does the
+  toolkit's); installing it and a XAML module in it are a manual pass. Clock can move as it is.
 - **Settings rows** come from `IWidgetModule.SettingsRows`, built only from `FluentLayout` and
   `KitRows` (both in `Themia.Sdk.WinUI`); the dispatch switch in `ConfigPages.Widget.cs` goes.
 - **Glyphs** moves to `Themia.Sdk.WinUI`. A module whose glyph is not there declares its own code
@@ -1514,7 +1514,9 @@ registration path: when a table becomes a descriptor member, the table is delete
   its rules (`TimeProgress.cs`), its 12 keys in 30 languages as `YearProgressStr`, its glyph, its
   SPEC section ([S-4800]..[S-4805], [S-6040]..[S-6042]) and its tests; the app names it nowhere.
   Pixel diff: the M2 render set and 45 Year progress renders (three styles, every tier, dark, the
-  settings page and the picker, in en, de, ar, ja, fa, zh) identical to the build before.
+  settings page and the picker, in en, de, ar, ja, fa, zh) identical to the build before (one menu
+  image differs on some runs, as in M2: a fade caught mid-way, not reproducible). Release AOT
+  publish green with 0 warnings (49.3 MB); `package.ps1` builds the unsigned MSIX (59.6 MB).
   *Left for M4:*
   - Settings rows from a module: `FluentLayout` (and with it `ColorChoice`, `RowReorder`,
     `SettingRow`/search, `FontPicker`) is still the host's; the first module with a settings page
