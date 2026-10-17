@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// faded with an opacity.
 /// </para>
 /// </summary>
-internal sealed class SkyMoonDisc
+public sealed class SkyMoonDisc
 {
     private readonly Ellipse _rim = new();
     private readonly Polygon _lit = new();
@@ -101,7 +101,7 @@ internal sealed class SkyMoonDisc
 /// what it is, the time remaining while it is next, and the value. The next event's row is emphasised in the accent
 /// text colour rather than banner-ed.
 /// </summary>
-internal sealed class SkyEventRow
+public sealed class SkyEventRow
 {
     private readonly FrameworkElement _glyph;
     private readonly TextBlock _label = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
