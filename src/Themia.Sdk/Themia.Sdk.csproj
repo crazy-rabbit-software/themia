@@ -15,6 +15,9 @@
     <!-- Core and the tests use the moved files' internals exactly as they did when the files were Core's. -->
     <InternalsVisibleTo Include="Themia.Core" />
     <InternalsVisibleTo Include="Themia.Core.Tests" />
+    <!-- Glyphs: pure code points, read by the descriptors in Core and by every view. -->
+    <InternalsVisibleTo Include="Themia.Sdk.WinUI" />
+    <InternalsVisibleTo Include="Themia" />
   </ItemGroup>
 
   <!--
