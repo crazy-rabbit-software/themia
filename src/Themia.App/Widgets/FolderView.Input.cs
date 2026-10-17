@@ -671,7 +671,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     /// is already there or is the destination's own ancestor (<see cref="FileDrops.Pastable"/>), so the
     /// drag says "nothing to do" instead of offering a move that would not move anything.
     /// </summary>
-    private static DropEffect DropEffectFor(WidgetDrag drag, string destination)
+    private static DropEffect DropEffectFor(IWidgetDrag drag, string destination)
     {
         if (drag.Paths.Count == 0)
         {
@@ -683,7 +683,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     }
 
     /// <inheritdoc />
-    DropEffect IWidgetDropTarget.DragOver(WidgetDrag drag, Point local)
+    DropEffect IWidgetDropTarget.DragOver(IWidgetDrag drag, Point local)
     {
         if (CurrentPath.Length == 0)
         {
@@ -738,7 +738,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     /// pointer or the folder on screen, carried out by that folder's shell drop target with the effect
     /// <see cref="DropEffectFor"/> chose. The watcher ([S-1333]) shows the result.
     /// </summary>
-    DropEffect IWidgetDropTarget.Drop(WidgetDrag drag, Point local)
+    DropEffect IWidgetDropTarget.Drop(IWidgetDrag drag, Point local)
     {
         SetDropVisual(null);
 

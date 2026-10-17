@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>UI thread only, like every OLE drop callback.</para>
 /// </summary>
-internal sealed class WidgetDrag : IDisposable
+internal sealed class WidgetDrag : IWidgetDrag, IDisposable
 {
     private const string Scope = "surface-drop";
 

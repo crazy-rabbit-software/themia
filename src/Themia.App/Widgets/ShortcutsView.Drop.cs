@@ -332,13 +332,13 @@ internal sealed partial class ShortcutsView
 
     // ---- drop in ([S-1400]) --------------------------------------------------------------------------
 
-    DropEffect IWidgetDropTarget.DragOver(WidgetDrag drag, Point local) => OverDrop(drag, local);
+    DropEffect IWidgetDropTarget.DragOver(IWidgetDrag drag, Point local) => OverDrop(drag, local);
 
     void IWidgetDropTarget.DragLeave() => LeaveDrop();
 
-    DropEffect IWidgetDropTarget.Drop(WidgetDrag drag, Point local) => TakeDrop(drag, local);
+    DropEffect IWidgetDropTarget.Drop(IWidgetDrag drag, Point local) => TakeDrop(drag, local);
 
-    private DropEffect OverDrop(WidgetDrag drag, Point local)
+    private DropEffect OverDrop(IWidgetDrag drag, Point local)
     {
         try
         {
@@ -395,7 +395,7 @@ internal sealed partial class ShortcutsView
         }
     }
 
-    private DropEffect TakeDrop(WidgetDrag drag, Point local)
+    private DropEffect TakeDrop(IWidgetDrag drag, Point local)
     {
         try
         {
@@ -464,7 +464,7 @@ internal sealed partial class ShortcutsView
     /// item at the end, by reference. A Start menu app (shell items, no paths) is found by name among
     /// the Start menu's shortcuts, read on the thread pool.
     /// </summary>
-    private void DropFromOutside(WidgetDrag drag)
+    private void DropFromOutside(IWidgetDrag drag)
     {
         var result = ShortcutDrop.FromDrop(drag.Paths, drag.Urls, _config.Items, ResolveLink, ReadUrlFile);
 

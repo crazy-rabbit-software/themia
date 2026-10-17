@@ -1,15 +1,5 @@
 namespace Themia.Core.Files;
 
-/// <summary>An OLE drop effect. The values are the Win32 <c>DROPEFFECT_*</c> bits, so they cross the COM boundary as they are.</summary>
-[Flags]
-public enum DropEffect
-{
-    None = 0,
-    Copy = 1,
-    Move = 2,
-    Link = 4,
-}
-
 /// <summary>
 /// [S-1332] Where dropped or pasted files may go and what a drop does, ported from the original's
 /// <c>dropTarget.ts</c> and its drop target's effect choice. Pure: shared by the folder widget and
