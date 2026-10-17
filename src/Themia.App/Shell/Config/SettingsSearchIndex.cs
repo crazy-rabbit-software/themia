@@ -1,6 +1,6 @@
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml;
 using CommunityToolkit.WinUI.Controls;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;

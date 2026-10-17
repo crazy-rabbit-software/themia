@@ -25,12 +25,12 @@ internal static partial class WidgetSettings
 {
     private const string TasksScope = "tasks-settings";
 
-    public static void Tasks(List<FrameworkElement> rows, TasksConfig config, Action save, Action<ConfigTarget> navigate)
+    public static void Tasks(List<FrameworkElement> rows, TasksConfig config, Action save, Action showAccounts)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
-        ArgumentNullException.ThrowIfNull(navigate);
+        ArgumentNullException.ThrowIfNull(showAccounts);
 
         var service = AppServices.Tasks;
 
@@ -46,7 +46,7 @@ internal static partial class WidgetSettings
         {
             sourceRows.Children.Clear();
 
-            foreach (var row in TaskSourceRows(service, config, save, navigate, Rebuild))
+            foreach (var row in TaskSourceRows(service, config, save, showAccounts, Rebuild))
             {
                 sourceRows.Children.Add(row);
             }
@@ -157,7 +157,7 @@ internal static partial class WidgetSettings
         TaskService? service,
         TasksConfig config,
         Action save,
-        Action<ConfigTarget> navigate,
+        Action showAccounts,
         Action rebuild)
     {
         if (service is null)
@@ -232,7 +232,7 @@ internal static partial class WidgetSettings
         {
             yield return FluentLayout.NavRow(Glyphs.Contact, Str.WidgetUi_AccountsLabel.Text(),
                 (accounts.Count == 0 ? Str.WidgetsC_Tasks_Settings_SignIn : Str.WidgetsC_OneDrive_Settings_AccountNeedsSignIn).Text(),
-                () => navigate(new ConfigTarget.App(AppPage.Accounts)));
+                showAccounts);
         }
 
         if (config.Source == TaskSource.Local)

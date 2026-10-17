@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Modules;
 public sealed class BluetoothModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => BluetoothConfig.Descriptor;
+
+    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
+        => WidgetSettings.Bluetooth(rows.Rows, (BluetoothConfig)config, rows.Save);
 
     public FrameworkElement CreateView() => new BluetoothView();
 }

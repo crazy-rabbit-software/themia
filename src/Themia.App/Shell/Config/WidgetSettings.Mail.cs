@@ -21,17 +21,16 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    public static void Email(List<FrameworkElement> rows, EmailConfig email, Action save, Action<ConfigTarget> navigate)
+    public static void Email(List<FrameworkElement> rows, EmailConfig email, Action save, Action showAccounts)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(email);
         ArgumentNullException.ThrowIfNull(save);
-        ArgumentNullException.ThrowIfNull(navigate);
+        ArgumentNullException.ThrowIfNull(showAccounts);
 
-        void OpenAccounts() => navigate(new ConfigTarget.App(AppPage.Accounts));
 
         rows.Add(FluentLayout.Header(Str.WidgetUi_AccountsLabel.Text()));
-        MailAccountRows(rows, email, save, OpenAccounts);
+        MailAccountRows(rows, email, save, showAccounts);
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Email_Messages.Text()));
 

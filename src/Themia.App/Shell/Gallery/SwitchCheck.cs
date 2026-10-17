@@ -1,9 +1,9 @@
 #if DEBUG
 using System.Diagnostics;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml;
 using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;

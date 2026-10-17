@@ -918,6 +918,11 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   `kind` discriminator. No attribute or list in the host names a widget's config; the union holds
   exactly the registry's configs, and every widget's resolver uses the host's options (camelCase,
   indented, nulls left out), so a module's config is written as a built-in one is.
+- **[S-6904]** A widget's settings rows are its module's (`IWidgetModule.SettingsRows`), built only
+  from `FluentLayout` into the host's `WidgetSettingsRows` (the rows, the save, and Settings ›
+  Accounts as the one place a page may send the user); a module with none has no page ([S-1750]).
+  The host still lays every page out the same way ([S-3705], [S-1752]). There is no dispatch over
+  config types: a page wired to no module, or a module naming a page that is not there, fails a test.
 
 ## Adding a widget
 

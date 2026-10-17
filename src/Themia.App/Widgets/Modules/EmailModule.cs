@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Modules;
 public sealed class EmailModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => EmailConfig.Descriptor;
+
+    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
+        => WidgetSettings.Email(rows.Rows, (EmailConfig)config, rows.Save, rows.ShowAccounts);
 
     public FrameworkElement CreateView() => new EmailView();
 }

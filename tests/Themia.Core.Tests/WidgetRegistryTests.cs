@@ -132,6 +132,34 @@ public sealed partial class WidgetRegistryTests
         }
     }
 
+    /// <summary>
+    /// [S-6904] A widget's settings rows are its module's. A page written but wired to no module was
+    /// a silent miss of the old dispatch switch; here it fails by name, and so does a module that
+    /// names a page that is not there.
+    /// </summary>
+    [Fact]
+    public void S6904_every_widget_settings_page_is_built_by_a_module_and_every_module_page_exists()
+    {
+        var config = Path.Combine(Root(), "src", "Themia.App", "Shell", "Config");
+        var pages = Directory.GetFiles(config, "WidgetSettings*.cs")
+            .SelectMany(f => SettingsPage().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value))
+            .ToHashSet(StringComparer.Ordinal);
+        var used = Directory.GetFiles(ModuleSources.ModulesFolder, "*.cs")
+            .SelectMany(f => ModulePage().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value))
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.NotEmpty(pages);
+        Assert.Empty(pages.Except(used));
+        Assert.Empty(used.Except(pages));
+        Assert.DoesNotContain("switch (widget.Config)", File.ReadAllText(Path.Combine(config, "ConfigPages.Widget.cs")), StringComparison.Ordinal);
+    }
+
+    [GeneratedRegex(@"(?:public|internal) static void (\w+)\(List<FrameworkElement> rows, \w+ \w+, Action save")]
+    private static partial Regex SettingsPage();
+
+    [GeneratedRegex(@"WidgetSettings\.(\w+)\(rows\.Rows")]
+    private static partial Regex ModulePage();
+
     [GeneratedRegex("""ThemiaWidget\("([^"]*)"\s*,""")]
     private static partial Regex ThemiaWidget();
 }

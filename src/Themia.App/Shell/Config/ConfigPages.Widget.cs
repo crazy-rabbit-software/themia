@@ -1,8 +1,8 @@
 ﻿using Microsoft.UI;
 using Microsoft.UI.Text;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -104,196 +105,8 @@ internal static partial class ConfigPages
 
         void Save() => save();
 
-        switch (widget.Config)
-        {
-            case ClockConfig clock:
-                WidgetSettings.Clock(rows, clock, Save);
-                break;
-
-            case DiskConfig disk:
-                WidgetSettings.Disk(rows, disk, Save);
-                break;
-
-            case BatteryConfig battery:
-                WidgetSettings.Battery(rows, battery, Save);
-                break;
-
-            // Before GaugeConfig: Ping derives from it, and a base-type case placed first would
-            // swallow the derived one.
-            case PingConfig ping:
-                WidgetSettings.Ping(rows, ping, Save);
-                break;
-
-            // Also before GaugeConfig, for the same reason.
-            case GpuConfig gpu:
-                WidgetSettings.Gpu(rows, gpu, Save);
-                break;
-
-            case CpuConfig cpu:
-                WidgetSettings.Cpu(rows, cpu, Save);
-                break;
-
-            case MemoryConfig memory:
-                WidgetSettings.Memory(rows, memory, Save);
-                break;
-
-            case NetworkConfig network:
-                WidgetSettings.Network(rows, network, Save);
-                break;
-
-            case EmailConfig email:
-                WidgetSettings.Email(rows, email, Save, navigate);
-                break;
-
-            case MixerConfig mixer:
-                WidgetSettings.Mixer(rows, mixer, Save);
-                break;
-
-            case ScreenTimeChartConfig chart:
-                WidgetSettings.ScreenTimeChart(rows, chart, Save);
-                break;
-
-            case ScreenTimeDonutConfig donut:
-                WidgetSettings.ScreenTimeDonut(rows, donut, Save);
-                break;
-
-            case ScreenTimeAppsConfig apps:
-                WidgetSettings.ScreenTimeApps(rows, apps, Save);
-                break;
-
-            // [S-2400] Every detail widget: its own rows, then its refresh.
-            case DetailConfig details:
-                WidgetSettings.Details(rows, details, Save);
-                break;
-
-            case ContactsConfig contacts:
-                WidgetSettings.Contacts(rows, contacts, Save);
-                break;
-
-            // Before CalendarConfig: the planner is one, with its tasks after the calendar's rows.
-            case WeekPlannerConfig planner:
-                WidgetSettings.WeekPlanner(rows, planner, Save);
-                break;
-
-            case CalendarConfig calendar:
-                WidgetSettings.Calendar(rows, calendar, Save);
-                break;
-
-            case TasksConfig tasks:
-                WidgetSettings.Tasks(rows, tasks, Save, navigate);
-                break;
-
-            case NotesConfig notes:
-                WidgetSettings.Notes(rows, notes, Save);
-                break;
-
-            case CountdownConfig countdown:
-                WidgetSettings.Countdown(rows, countdown, Save);
-                break;
-
-            case PomodoroConfig pomodoro:
-                WidgetSettings.Pomodoro(rows, pomodoro, Save);
-                break;
-
-            case AlarmConfig alarm:
-                WidgetSettings.Alarm(rows, alarm, Save);
-                break;
-
-            case DriveConfig drive:
-                WidgetSettings.Drive(rows, drive, Save);
-                break;
-
-            case SunConfig sun:
-                WidgetSettings.Sun(rows, sun, Save);
-                break;
-
-            case MoonConfig moon:
-                WidgetSettings.Moon(rows, moon, Save);
-                break;
-
-            case FolderConfig folder:
-                WidgetSettings.Folder(rows, folder, Save);
-                break;
-
-            case VolumeConfig volume:
-                WidgetSettings.Volume(rows, volume, Save);
-                break;
-
-            case FocusSessionConfig focus:
-                WidgetSettings.FocusSession(rows, focus, Save);
-                break;
-
-            case BrightnessConfig brightness:
-                WidgetSettings.Brightness(rows, brightness, Save);
-                break;
-
-            case BluetoothConfig bluetooth:
-                WidgetSettings.Bluetooth(rows, bluetooth, Save);
-                break;
-
-            case MusicConfig music:
-                WidgetSettings.Music(rows, music, Save);
-                break;
-
-            case WeatherNowConfig weatherNow:
-                WidgetSettings.WeatherNow(rows, weatherNow, Save);
-                break;
-
-            case WeatherForecastConfig weatherForecast:
-                WidgetSettings.WeatherForecast(rows, weatherForecast, Save);
-                break;
-
-            case AirQualityConfig air:
-                WidgetSettings.AirQuality(rows, air, Save);
-                break;
-
-            case RainNextHourConfig rain:
-                WidgetSettings.RainNextHour(rows, rain, Save);
-                break;
-
-            case ExchangeRatesConfig rates:
-                WidgetSettings.ExchangeRates(rows, rates, Save);
-                break;
-
-            case StocksConfig stocks:
-                WidgetSettings.Stocks(rows, stocks, Save);
-                break;
-
-            case RssConfig rss:
-                WidgetSettings.Rss(rows, rss, Save);
-                break;
-
-            case VideoStreamConfig videoStream:
-                WidgetSettings.VideoStream(rows, videoStream, Save);
-                break;
-
-            case ShortcutsConfig shortcuts:
-                WidgetSettings.Shortcuts(rows, shortcuts, Save);
-                break;
-
-            case ClipboardConfig clipboard:
-                WidgetSettings.Clipboard(rows, clipboard, Save);
-                break;
-
-            case ScratchpadConfig scratchpad:
-                WidgetSettings.Scratchpad(rows, scratchpad, Save);
-                break;
-
-            case QuoteConfig quote:
-                WidgetSettings.Quote(rows, quote, Save);
-                break;
-
-            case GalleryConfig gallery:
-                WidgetSettings.Gallery(rows, gallery, Save);
-                break;
-
-            case HabitTrackerConfig habitTracker:
-                WidgetSettings.HabitTracker(rows, habitTracker, Save);
-                break;
-
-            default:
-                break;
-        }
+        // [S-6904] The widget's own rows are its module's; a widget with none has no page ([S-1750]).
+        ModuleHost.Module(widget.Kind).SettingsRows(new WidgetSettingsRows(rows, Save, () => navigate(new ConfigTarget.App(AppPage.Accounts))), widget.Config);
 
         // Every widget page is laid out the same way: what it shows, then how it behaves, then how
         // often it updates, and destructive actions last. A row the widget built with

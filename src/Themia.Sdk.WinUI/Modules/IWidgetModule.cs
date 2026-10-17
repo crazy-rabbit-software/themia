@@ -12,4 +12,12 @@ public interface IWidgetModule
 
     /// <summary>Build a new view. It is a <see cref="FrameworkElement"/> that also implements the host's view contract.</summary>
     FrameworkElement CreateView();
+
+    /// <summary>
+    /// [S-6904] The widget's own settings rows for <paramref name="config"/> (always its own config
+    /// type). None, the default, is a widget without a settings page ([S-1750]).
+    /// </summary>
+    void SettingsRows(WidgetSettingsRows rows, Themia.Core.Model.WidgetConfig config)
+    {
+    }
 }

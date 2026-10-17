@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Modules;
 public sealed class RssModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => RssConfig.Descriptor;
+
+    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
+        => WidgetSettings.Rss(rows.Rows, (RssConfig)config, rows.Save);
 
     public FrameworkElement CreateView() => new RssView();
 }

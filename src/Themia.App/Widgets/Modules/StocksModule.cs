@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Modules;
 public sealed class StocksModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => StocksConfig.Descriptor;
+
+    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
+        => WidgetSettings.Stocks(rows.Rows, (StocksConfig)config, rows.Save);
 
     public FrameworkElement CreateView() => new StocksView();
 }

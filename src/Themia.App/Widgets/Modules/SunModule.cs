@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Modules;
 public sealed class SunModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => SunConfig.Descriptor;
+
+    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
+        => WidgetSettings.Sun(rows.Rows, (SunConfig)config, rows.Save);
 
     public FrameworkElement CreateView() => new SunView();
 }

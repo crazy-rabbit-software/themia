@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Modules;
 public sealed class TasksModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => TasksConfig.Descriptor;
+
+    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
+        => WidgetSettings.Tasks(rows.Rows, (TasksConfig)config, rows.Save, rows.ShowAccounts);
 
     public FrameworkElement CreateView() => new TasksView();
 }

@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Modules;
 public sealed class MixerModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => MixerConfig.Descriptor;
+
+    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
+        => WidgetSettings.Mixer(rows.Rows, (MixerConfig)config, rows.Save);
 
     public FrameworkElement CreateView() => new MixerView();
 }
