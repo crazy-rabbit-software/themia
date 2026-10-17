@@ -40,6 +40,7 @@ public sealed class ClipboardConfig : WidgetConfig
         Glyph = Glyphs.Clipboard,
         DefaultWidth = 320,
         DefaultHeight = 260,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>[S-1440] How many entries to keep, 1 to 200 (default 50, as the original).</summary>

@@ -50,6 +50,7 @@ public sealed class RssConfig : WidgetConfig
         Glyph = Glyphs.Rss,
         DefaultWidth = 360,
         DefaultHeight = 280,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>The feeds, in the order the user listed them.</summary>

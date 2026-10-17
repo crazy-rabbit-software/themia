@@ -32,6 +32,7 @@ public sealed class MixerConfig : WidgetConfig
         Glyph = Glyphs.Mixer,
         DefaultWidth = 300,
         DefaultHeight = 260,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>

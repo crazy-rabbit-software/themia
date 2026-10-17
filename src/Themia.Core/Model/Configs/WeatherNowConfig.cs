@@ -137,6 +137,7 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
         Glyph = Glyphs.Weather,
         DefaultWidth = 260,
         DefaultHeight = 200,
+        Traits = WidgetTraits.None,
     };
 
     /// <summary>[S-6160] The widget's look.</summary>

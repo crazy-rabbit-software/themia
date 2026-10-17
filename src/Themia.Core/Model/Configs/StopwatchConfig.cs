@@ -30,6 +30,7 @@ public sealed class StopwatchConfig : WidgetConfig
         Glyph = Glyphs.Stopwatch,
         DefaultWidth = 260,
         DefaultHeight = 200,
+        Traits = WidgetTraits.None,
     };
 
     public StopwatchPhase Phase { get; set; }

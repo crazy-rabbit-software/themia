@@ -52,6 +52,7 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
         Glyph = Glyphs.Network,
         DefaultWidth = 200,
         DefaultHeight = 150,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>[S-6270] The meter's look; what was its history switch ([S-6000]).</summary>

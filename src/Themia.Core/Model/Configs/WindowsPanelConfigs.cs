@@ -31,6 +31,7 @@ public sealed class NotificationsConfig : WidgetConfig
         Glyph = Glyphs.Notifications,
         DefaultWidth = 320,
         DefaultHeight = 320,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new NotificationsConfig();
@@ -56,6 +57,7 @@ public sealed class FocusSessionConfig : WidgetConfig
         Glyph = Glyphs.Focus,
         DefaultWidth = 240,
         DefaultHeight = 200,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>[S-4421] How long a session started here runs, in minutes (Windows' own default is 30).</summary>
@@ -112,6 +114,7 @@ public sealed class BrightnessConfig : WidgetConfig
         Glyph = Glyphs.Brightness,
         DefaultWidth = 200,
         DefaultHeight = 150,
+        Traits = WidgetTraits.None,
     };
 
     /// <summary>[S-4442] Every display at once (the default), or the one the widget is on.</summary>

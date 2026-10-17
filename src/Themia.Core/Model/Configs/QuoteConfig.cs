@@ -63,6 +63,7 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
         Glyph = Glyphs.Quote,
         DefaultWidth = 320,
         DefaultHeight = 180,
+        Traits = WidgetTraits.HasItems,
     };
 
     public QuoteConfig()

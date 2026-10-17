@@ -37,6 +37,7 @@ public sealed class CpuDetailsConfig : DetailConfig
         Glyph = Glyphs.Cpu,
         DefaultWidth = 280,
         DefaultHeight = 240,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone()
@@ -66,6 +67,7 @@ public sealed class MemoryDetailsConfig : DetailConfig
         Glyph = Glyphs.Memory,
         DefaultWidth = 280,
         DefaultHeight = 240,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone()
@@ -109,6 +111,7 @@ public sealed class TopProcessesConfig : DetailConfig
         Glyph = Glyphs.ListLayout,
         DefaultWidth = 300,
         DefaultHeight = 300,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>[S-2411] The ranking.</summary>
@@ -173,6 +176,7 @@ public sealed class NetworkDetailsConfig : DetailConfig
         Glyph = Glyphs.Network,
         DefaultWidth = 300,
         DefaultHeight = 280,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>
@@ -208,6 +212,7 @@ public sealed class BatteryDetailsConfig : DetailConfig
         Glyph = Glyphs.Battery,
         DefaultWidth = 280,
         DefaultHeight = 240,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone()
@@ -241,6 +246,7 @@ public sealed class PingDetailsConfig : DetailConfig
         Glyph = Glyphs.Ping,
         DefaultWidth = 260,
         DefaultHeight = 240,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>Host or address to probe. Empty falls back to <see cref="PingConfig.DefaultHost"/>.</summary>
@@ -302,6 +308,7 @@ public sealed class GpuDetailsConfig : DetailConfig
         Glyph = Glyphs.Gpu,
         DefaultWidth = 280,
         DefaultHeight = 240,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>[S-2431] The adapter, as its position in DXGI's list (as <see cref="GpuConfig.Adapter"/>: the primary display's first).</summary>

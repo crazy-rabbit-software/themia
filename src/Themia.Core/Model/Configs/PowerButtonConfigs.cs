@@ -87,6 +87,7 @@ public sealed class ShutdownConfig : PowerButtonConfig
         Glyph = Glyphs.Power,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new ShutdownConfig { Style = Style };
@@ -112,6 +113,7 @@ public sealed class RestartConfig : PowerButtonConfig
         Glyph = Glyphs.Reset,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new RestartConfig { Style = Style };
@@ -137,6 +139,7 @@ public sealed class SleepConfig : PowerButtonConfig
         Glyph = Glyphs.Moon,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new SleepConfig { Style = Style };
@@ -162,6 +165,7 @@ public sealed class HibernateConfig : PowerButtonConfig
         Glyph = Glyphs.Hibernate,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new HibernateConfig { Style = Style };
@@ -187,6 +191,7 @@ public sealed class LockConfig : PowerButtonConfig
         Glyph = Glyphs.Lock,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new LockConfig { Style = Style };
@@ -212,6 +217,7 @@ public sealed class SignOutConfig : PowerButtonConfig
         Glyph = Glyphs.SignOut,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new SignOutConfig { Style = Style };
@@ -237,6 +243,7 @@ public sealed class ScreenOffConfig : PowerButtonConfig
         Glyph = Glyphs.Display,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new ScreenOffConfig { Style = Style };

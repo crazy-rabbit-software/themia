@@ -53,6 +53,7 @@ public sealed class PingConfig : GaugeConfig, IStyled
         Glyph = Glyphs.Ping,
         DefaultWidth = 200,
         DefaultHeight = 150,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>[S-6273] The meter's look; what was its history switch ([S-6000]).</summary>

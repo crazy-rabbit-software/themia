@@ -51,6 +51,7 @@ public sealed class GpuConfig : GaugeConfig, IStyled
         Glyph = Glyphs.Gpu,
         DefaultWidth = 220,
         DefaultHeight = 220,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>

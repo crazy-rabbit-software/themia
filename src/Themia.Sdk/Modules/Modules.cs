@@ -64,6 +64,9 @@ public sealed record WidgetDescriptor
 
     public required double DefaultHeight { get; init; }
 
+    /// <summary>[S-6905] What its card offers; stated in full by every widget.</summary>
+    public required WidgetTraits Traits { get; init; }
+
     /// <summary>
     /// [S-943] Curated search words, English only on purpose (search indexes the translated name and
     /// description beside the English ones): what the widget shows ("wifi"), the vendor or protocol

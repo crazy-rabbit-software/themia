@@ -41,6 +41,7 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
         Glyph = Glyphs.Alarm,
         DefaultWidth = 300,
         DefaultHeight = 220,
+        Traits = WidgetTraits.None,
     };
 
     /// <summary>When it rings, "HH:mm" on the 24-hour clock whatever the language shows; a new widget's is seven.</summary>

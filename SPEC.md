@@ -923,6 +923,9 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   Accounts as the one place a page may send the user); a module with none has no page ([S-1750]).
   The host still lays every page out the same way ([S-3705], [S-1752]). There is no dispatch over
   config types: a page wired to no module, or a module naming a page that is not there, fails a test.
+- **[S-6905]** What a widget's card offers is stated by its descriptor's `Traits`, in full (the
+  member is required, so no widget takes another's by omission): `HasItems` ([S-6570], checked
+  against what its view paints).
 
 ## Adding a widget
 

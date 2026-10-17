@@ -66,6 +66,7 @@ public sealed class MusicConfig : WidgetConfig, IStyled
         Glyph = Glyphs.Music,
         DefaultWidth = 340,
         DefaultHeight = 160,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>[S-6406] Artwork and text, full artwork or text only: the widget's style (what was "Show album art").</summary>

@@ -62,6 +62,7 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         Glyph = Glyphs.Habit,
         DefaultWidth = 320,
         DefaultHeight = 240,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>

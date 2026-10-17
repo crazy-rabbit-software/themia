@@ -58,6 +58,7 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         Glyph = Glyphs.Mail,
         DefaultWidth = 380,
         DefaultHeight = 260,
+        Traits = WidgetTraits.HasItems,
     };
 
     /// <summary>

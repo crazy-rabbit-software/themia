@@ -67,6 +67,7 @@ public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
         Glyph = Glyphs.Visualizer,
         DefaultWidth = 320,
         DefaultHeight = 160,
+        Traits = WidgetTraits.None,
     };
 
     /// <summary>[S-3216] The drawing; what were six widget kinds.</summary>

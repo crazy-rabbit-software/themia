@@ -97,6 +97,7 @@ public sealed class WifiToggleConfig : QuickToggleConfig
         Glyph = Glyphs.Wifi,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new WifiToggleConfig { Style = Style };
@@ -122,6 +123,7 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
         Glyph = Glyphs.Bluetooth,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new BluetoothToggleConfig { Style = Style };
@@ -147,6 +149,7 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
         Glyph = Glyphs.Airplane,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new AirplaneModeToggleConfig { Style = Style };
@@ -172,6 +175,7 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
         Glyph = Glyphs.EnergySaver,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new EnergySaverToggleConfig { Style = Style };
@@ -197,6 +201,7 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
         Glyph = Glyphs.NightLight,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new NightLightToggleConfig { Style = Style };
@@ -222,6 +227,7 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
         Glyph = Glyphs.RotationLock,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new RotationLockToggleConfig { Style = Style };
@@ -247,6 +253,7 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
         Glyph = Glyphs.QuietHours,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new DoNotDisturbToggleConfig { Style = Style };
@@ -272,6 +279,7 @@ public sealed class SoundToggleConfig : QuickToggleConfig
         Glyph = Glyphs.Volume3,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new SoundToggleConfig { Style = Style };
@@ -297,6 +305,7 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
         Glyph = Glyphs.Microphone,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new MicrophoneToggleConfig { Style = Style };
@@ -322,6 +331,7 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
         Glyph = Glyphs.SpatialSound,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new SpatialSoundToggleConfig { Style = Style };
@@ -347,6 +357,7 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
         Glyph = Glyphs.MonoAudio,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new MonoAudioToggleConfig { Style = Style };
@@ -372,6 +383,7 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
         Glyph = Glyphs.ColorFilters,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new ColorFiltersToggleConfig { Style = Style };
@@ -397,6 +409,7 @@ public sealed class GameModeToggleConfig : QuickToggleConfig
         Glyph = Glyphs.GameMode,
         DefaultWidth = 120,
         DefaultHeight = 120,
+        Traits = WidgetTraits.HasItems,
     };
 
     public override WidgetConfig Clone() => new GameModeToggleConfig { Style = Style };
