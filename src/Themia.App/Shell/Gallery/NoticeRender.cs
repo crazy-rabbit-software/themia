@@ -141,7 +141,7 @@ internal static class NoticeRender
         [
             new(NoticeKind.Warning, "Free plan limit reached")
             {
-                Message = "The free plan holds 10 widgets. Remove one, or upgrade to add more.",
+                Message = "The free plan holds 20 widgets. Remove one, or upgrade to add more.",
                 Action = new NoticeAction("See plans", () => { }),
             },
             new(NoticeKind.Error, "Default output not changed")

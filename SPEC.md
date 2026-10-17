@@ -6435,7 +6435,8 @@ breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout
 - **[S-881]** A notice (`Core/Shell/Notice`) has a kind (Info, Success, Warning, Error), a title, an
   optional message, an optional single action, a key and a sticky flag. Drawn by `Shell/NoticeCard`
   as Windows 11 draws a notification: severity glyph in the system severity colour, bold title,
-  secondary message (4 lines max), the action as a button, a close button; 364 DIP wide (never
+  secondary message (4 lines max), the action as a button (on the title's line when there is no
+  message, so "Deleted 3 widgets · Undo" stays one row; under the message otherwise), a close button; 364 DIP wide (never
   wider than the work area), opaque flyout fill and stroke. Its buttons never take focus.
 - **[S-882]** `NoticeStack`: at most 3 at once, newest at the bottom; a fourth pushes out the oldest
   non-sticky one; a notice with the key of one showing replaces it and becomes the newest ("undo"

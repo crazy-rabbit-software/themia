@@ -66,14 +66,20 @@ internal sealed partial class NoticeCard : Grid
             text.Children.Add(message);
         }
 
+        // A notice that is only a title ("Deleted 3 widgets · Undo") keeps its action on the title's
+        // line, so it stays one row; with a detail line the button goes under it, as Windows' toasts
+        // do, so the detail keeps the card's width.
+        Button? actionButton = null;
+        var inline = string.IsNullOrWhiteSpace(notice.Message);
         if (notice.Action is { } action)
         {
             var button = new Button
             {
                 Content = action.Label,
-                Margin = new Thickness(0, Fluent.Space2, 0, 0),
+                Margin = inline ? new Thickness(Fluent.Space3, -4, 0, 0) : new Thickness(0, Fluent.Space2, 0, 0),
+                VerticalAlignment = VerticalAlignment.Top,
                 AllowFocusOnInteraction = false,
-                MinWidth = 96,
+                MinWidth = inline ? 0 : 96,
             };
             button.Click += (_, _) =>
             {
@@ -88,7 +94,14 @@ internal sealed partial class NoticeCard : Grid
 
                 dismiss(this);
             };
-            text.Children.Add(button);
+            if (inline)
+            {
+                actionButton = button;
+            }
+            else
+            {
+                text.Children.Add(button);
+            }
         }
 
         var close = new Button
@@ -114,12 +127,19 @@ internal sealed partial class NoticeCard : Grid
                 new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
                 new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = GridLength.Auto },
             },
         };
         Grid.SetColumn(text, 1);
-        Grid.SetColumn(close, 2);
+        Grid.SetColumn(close, 3);
         row.Children.Add(icon);
         row.Children.Add(text);
+        if (actionButton is not null)
+        {
+            Grid.SetColumn(actionButton, 2);
+            row.Children.Add(actionButton);
+        }
+
         row.Children.Add(close);
 
         Children.Add(row);
