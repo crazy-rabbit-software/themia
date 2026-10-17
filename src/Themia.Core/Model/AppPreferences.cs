@@ -23,7 +23,7 @@ public sealed class AppPreferences
     public RegionPreferences Region { get; set; } = new();
 
     /// <summary>[S-3780] How often the widgets that ask an online service ask it.</summary>
-    public RefreshPreferences Refresh { get; set; } = new();
+    public RefreshPreferences Refresh { get; set; } = RefreshPreferences.WithDefaults();
 
     public AppPreferences Clone() => new()
     {
@@ -36,29 +36,35 @@ public sealed class AppPreferences
 }
 
 /// <summary>
-/// [S-3780] The four update cadences, in minutes, one per kind of online source. Each is snapped to
-/// its offered choices on load (<see cref="Sync.UpdateCadence"/>), so a hand edit cannot ask a free
-/// service every second.
+/// [S-3780] The update cadences, in minutes, keyed by the id of their row of Settings › Widgets ›
+/// Updates (<see cref="Sync.HostCadences"/>, and a provider's own, [S-6910]): <c>"refresh": {
+/// "weather": 30, "markets": 5, ... }</c>. Each is snapped to its row's offered choices on load and an
+/// entry that is no row's is dropped (<see cref="Sync.UpdateCadence.Repair(RefreshPreferences)"/>), so
+/// a hand edit cannot ask a free service every second; a row without an entry follows its default.
 /// </summary>
-public sealed class RefreshPreferences
+public sealed class RefreshPreferences : Dictionary<string, int>
 {
-    /// <summary>Weather now and forecast (open-meteo publishes every 15 minutes).</summary>
-    public int WeatherMinutes { get; set; } = 30;
-
-    /// <summary>Stocks (Yahoo, CoinGecko).</summary>
-    public int MarketsMinutes { get; set; } = 5;
-
-    /// <summary>News feeds.</summary>
-    public int FeedsMinutes { get; set; } = 30;
-
-    /// <summary>Mail, calendars and task lists from the signed-in accounts.</summary>
-    public int AccountsMinutes { get; set; } = 2;
-
-    public RefreshPreferences Clone() => new()
+    public RefreshPreferences()
+        : base(StringComparer.Ordinal)
     {
-        WeatherMinutes = WeatherMinutes,
-        MarketsMinutes = MarketsMinutes,
-        FeedsMinutes = FeedsMinutes,
-        AccountsMinutes = AccountsMinutes,
-    };
+    }
+
+    private RefreshPreferences(IDictionary<string, int> entries)
+        : base(entries, StringComparer.Ordinal)
+    {
+    }
+
+    /// <summary>The host's rows at their defaults: what a new state writes.</summary>
+    public static RefreshPreferences WithDefaults()
+    {
+        var preferences = new RefreshPreferences();
+        foreach (var row in Sync.HostCadences.All)
+        {
+            preferences[row.Id.Value] = row.DefaultMinutes;
+        }
+
+        return preferences;
+    }
+
+    public RefreshPreferences Clone() => new(this);
 }

@@ -76,14 +76,14 @@ public sealed class WidgetPreferencesTests
     {
         var parsed = AppStateStore.Parse("""
             { "schemaVersion": 1, "views": [ { "id": "v1", "name": "Desktop", "widgets": [] } ], "activeViewId": "v1",
-              "monitorViews": {}, "preferences": { "region": null, "refresh": { "weatherMinutes": 1, "marketsMinutes": 5, "feedsMinutes": 30, "accountsMinutes": 2 } } }
+              "monitorViews": {}, "preferences": { "region": null, "refresh": { "weather": 1, "markets": 5, "feeds": 30, "accounts": 2 } } }
             """);
 
         var preferences = parsed.State!.Preferences;
         Assert.Equal(ClockHours.System, preferences.Region.Clock);
-        Assert.Equal(15, preferences.Refresh.WeatherMinutes);
+        Assert.Equal(15, preferences.Refresh["weather"]);
         Assert.Contains(parsed.Repairs, r => r.Contains("region", StringComparison.Ordinal));
-        Assert.Contains(parsed.Repairs, r => r.Contains("Weather", StringComparison.Ordinal));
+        Assert.Contains(parsed.Repairs, r => r.Contains("weather", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -92,15 +92,15 @@ public sealed class WidgetPreferencesTests
         var preferences = new AppPreferences
         {
             Region = new RegionPreferences { Clock = ClockHours.Twelve },
-            Refresh = new RefreshPreferences { FeedsMinutes = 120 },
+            Refresh = new RefreshPreferences { ["feeds"] = 120 },
         };
 
         var copy = preferences.Clone();
         preferences.Region.Clock = ClockHours.TwentyFour;
-        preferences.Refresh.FeedsMinutes = 15;
+        preferences.Refresh["feeds"] = 15;
 
         Assert.Equal(ClockHours.Twelve, copy.Region.Clock);
-        Assert.Equal(120, copy.Refresh.FeedsMinutes);
+        Assert.Equal(120, copy.Refresh["feeds"]);
     }
 
     // ---- [S-3781] update cadences -------------------------------------------------------------
@@ -108,25 +108,49 @@ public sealed class WidgetPreferencesTests
     [Fact]
     public void S3781_the_defaults_are_on_offered_choices()
     {
-        var defaults = new RefreshPreferences();
+        var defaults = RefreshPreferences.WithDefaults();
 
-        Assert.Equal(30, UpdateCadence.Minutes(defaults, UpdateSource.Weather));
-        Assert.Equal(5, UpdateCadence.Minutes(defaults, UpdateSource.Markets));
-        Assert.Equal(30, UpdateCadence.Minutes(defaults, UpdateSource.Feeds));
-        Assert.Equal(2, UpdateCadence.Minutes(defaults, UpdateSource.Accounts));
+        Assert.Equal(30, UpdateCadence.Minutes(defaults, HostCadences.Weather));
+        Assert.Equal(5, UpdateCadence.Minutes(defaults, HostCadences.Markets));
+        Assert.Equal(30, UpdateCadence.Minutes(defaults, HostCadences.Feeds));
+        Assert.Equal(2, UpdateCadence.Minutes(defaults, HostCadences.Accounts));
         Assert.Empty(UpdateCadence.Repair(defaults));
+        Assert.All(HostCadences.All, row => Assert.Contains(row.DefaultMinutes, row.Choices));
+
+        // A row without an entry follows its default: an empty map reads exactly as the defaults.
+        Assert.All(HostCadences.All, row => Assert.Equal(UpdateCadence.Minutes(defaults, row), UpdateCadence.Minutes(new RefreshPreferences(), row)));
+        Assert.Empty(UpdateCadence.Repair(new RefreshPreferences()));
+    }
+
+    [Fact]
+    public void S3780_the_rows_are_the_hosts_four_in_order_keyed_by_cadence_id()
+    {
+        Assert.Equal(["weather", "markets", "feeds", "accounts"], UpdateCadence.Rows.Select(r => r.Id.Value));
+        Assert.Equal(
+            """{"weather":30,"markets":5,"feeds":30,"accounts":2}""",
+            System.Text.Json.JsonSerializer.Serialize(RefreshPreferences.WithDefaults(), Themia.Core.Storage.AppStateJsonContext.Default.RefreshPreferences).Replace(" ", "", StringComparison.Ordinal).ReplaceLineEndings(""));
+    }
+
+    [Fact]
+    public void S3781_an_entry_that_is_no_rows_is_dropped_loudly()
+    {
+        var preferences = new RefreshPreferences { ["weather"] = 60, ["weatherMinutes"] = 15 };
+
+        Assert.Single(UpdateCadence.Repair(preferences));
+        Assert.Equal(["weather"], preferences.Keys);
     }
 
     [Theory]
-    [InlineData(UpdateSource.Weather, 0, 15)]
-    [InlineData(UpdateSource.Weather, 5, 15)]
-    [InlineData(UpdateSource.Weather, 45, 60)]
-    [InlineData(UpdateSource.Weather, 99999, 120)]
-    [InlineData(UpdateSource.Markets, -3, 1)]
-    [InlineData(UpdateSource.Markets, 3, 5)]
-    [InlineData(UpdateSource.Accounts, 10, 15)]
-    public void S3781_a_value_off_the_list_snaps_to_the_nearest_choice_ties_going_slower(UpdateSource source, int stored, int expected)
+    [InlineData("weather", 0, 15)]
+    [InlineData("weather", 5, 15)]
+    [InlineData("weather", 45, 60)]
+    [InlineData("weather", 99999, 120)]
+    [InlineData("markets", -3, 1)]
+    [InlineData("markets", 3, 5)]
+    [InlineData("accounts", 10, 15)]
+    public void S3781_a_value_off_the_list_snaps_to_the_nearest_choice_ties_going_slower(string cadence, int stored, int expected)
     {
+        var source = HostCadences.All.Single(r => r.Id.Value == cadence);
         var preferences = new RefreshPreferences();
         UpdateCadence.Set(preferences, source, stored);
 
@@ -137,10 +161,10 @@ public sealed class WidgetPreferencesTests
     [Fact]
     public void S3781_repair_says_what_it_moved()
     {
-        var preferences = new RefreshPreferences { WeatherMinutes = 1, MarketsMinutes = 0 };
+        var preferences = new RefreshPreferences { ["weather"] = 1, ["markets"] = 0 };
 
         Assert.Equal(2, UpdateCadence.Repair(preferences).Count);
-        Assert.Equal((15, 1), (preferences.WeatherMinutes, preferences.MarketsMinutes));
+        Assert.Equal((15, 1), (preferences["weather"], preferences["markets"]));
     }
 
     // ---- [S-3790] the market comes with the symbol ---------------------------------------------
@@ -186,11 +210,11 @@ public sealed class WidgetPreferencesTests
 
         var weather = (WeatherNowConfig)ConfigJson.Read("WeatherNow", """{ "kind": "weatherNow", "latitude": 1, "longitude": 2, "unit": "Fahrenheit", "refreshMinutes": 5 }""");
         Assert.True(weather.HasLocation);
-        Assert.Equal(UpdateCadence.Interval(UpdateSource.Weather), weather.TickInterval);
+        Assert.Equal(UpdateCadence.Interval(HostCadences.Weather), weather.TickInterval);
 
         var tasks = (TasksConfig)ConfigJson.Read("Tasks", """{ "kind": "tasks", "refreshSeconds": 30, "showCompleted": true }""");
         Assert.True(tasks.ShowCompleted);
-        Assert.Equal(UpdateCadence.Interval(UpdateSource.Accounts), tasks.RefreshInterval);
+        Assert.Equal(UpdateCadence.Interval(HostCadences.Accounts), tasks.RefreshInterval);
     }
 
     [Fact]

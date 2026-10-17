@@ -51,7 +51,7 @@ public sealed record SyncInterests(
     /// [S-3782] How often the signed-in accounts' mail, calendars and task lists are asked: one
     /// cadence for all of them, from Settings › Widgets.
     /// </summary>
-    public TimeSpan AccountInterval { get; init; } = UpdateCadence.Interval(new RefreshPreferences(), UpdateSource.Accounts);
+    public TimeSpan AccountInterval { get; init; } = UpdateCadence.Interval(new RefreshPreferences(), HostCadences.Accounts);
 
     /// <summary>[S-5101] Every air quality widget's place.</summary>
     public IReadOnlyList<AirInterest> Air { get; init; } = [];
@@ -155,7 +155,7 @@ public sealed record SyncInterests(
     /// widget's own "set up" state, never a request). The widget and the sync use this one rule.
     /// </summary>
     public static WeatherInterest? For(WeatherConfig config)
-        => For(config, RegionFormat.Current.Temperature, UpdateCadence.Interval(UpdateSource.Weather));
+        => For(config, RegionFormat.Current.Temperature, UpdateCadence.Interval(HostCadences.Weather));
 
     /// <summary>[S-2663] <see cref="For(WeatherConfig)"/> for a given scale and cadence ([S-3770], [S-3780]).</summary>
     public static WeatherInterest? For(WeatherConfig config, TemperatureUnit unit, TimeSpan interval)
@@ -178,7 +178,7 @@ public sealed record SyncInterests(
     }
 
     /// <summary>[S-2663] What a Stocks widget asks for, or null without a usable symbol.</summary>
-    public static QuoteInterest? For(StocksConfig config) => For(config, UpdateCadence.Interval(UpdateSource.Markets));
+    public static QuoteInterest? For(StocksConfig config) => For(config, UpdateCadence.Interval(HostCadences.Markets));
 
     /// <summary>[S-2663] <see cref="For(StocksConfig)"/> at a given cadence ([S-3780]).</summary>
     public static QuoteInterest? For(StocksConfig config, TimeSpan interval)

@@ -129,7 +129,7 @@ public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
 
     /// <summary>[S-3780] The shared feeds cadence (Settings › Widgets).</summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.UpdateSource.Feeds);
+    public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Feeds);
 
     /// <summary>A hand-edited list with nulls in it, or more feeds than the cap, is put back in shape.</summary>
     public override IReadOnlyList<string> Repair()

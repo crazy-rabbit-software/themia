@@ -95,7 +95,7 @@ public sealed class AppStateStoreTests : IDisposable
         ((ClockConfig)widget.Config).ShowSeconds = true;
         ((ClockConfig)widget.Config).ShowDate = false;
         state.Preferences.Region.Clock = ClockHours.Twelve;
-        state.Preferences.Refresh.WeatherMinutes = 60;
+        state.Preferences.Refresh["weather"] = 60;
         state.Design.WidgetGapPx = 12;
         state.Design.GridSnap = false;
 
@@ -114,7 +114,7 @@ public sealed class AppStateStoreTests : IDisposable
         Assert.True(config.ShowSeconds);
         Assert.False(config.ShowDate);
         Assert.Equal(ClockHours.Twelve, loaded.State.Preferences.Region.Clock);
-        Assert.Equal(60, loaded.State.Preferences.Refresh.WeatherMinutes);
+        Assert.Equal(60, loaded.State.Preferences.Refresh["weather"]);
         Assert.Equal(12, loaded.State.Design.WidgetGapPx);
         Assert.False(loaded.State.Design.GridSnap);
     }

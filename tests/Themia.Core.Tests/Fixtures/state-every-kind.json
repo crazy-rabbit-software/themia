@@ -2282,10 +2282,10 @@
       "temperature": "System"
     },
     "refresh": {
-      "weatherMinutes": 30,
-      "marketsMinutes": 5,
-      "feedsMinutes": 30,
-      "accountsMinutes": 2
+      "weather": 30,
+      "markets": 5,
+      "feeds": 30,
+      "accounts": 2
     }
   },
   "disabledMonitors": [],

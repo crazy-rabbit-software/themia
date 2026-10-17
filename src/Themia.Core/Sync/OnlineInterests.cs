@@ -24,12 +24,12 @@ public static class OnlineCadence
     /// </summary>
     public static TimeSpan Air(RefreshPreferences refresh)
     {
-        var weather = UpdateCadence.Interval(refresh, UpdateSource.Weather);
+        var weather = UpdateCadence.Interval(refresh, HostCadences.Weather);
         return weather > TimeSpan.FromHours(1) ? weather : TimeSpan.FromHours(1);
     }
 
     /// <summary>[S-5121] Rain follows the shared weather cadence: the 15-minute series changes as often as the forecast.</summary>
-    public static TimeSpan Rain(RefreshPreferences refresh) => UpdateCadence.Interval(refresh, UpdateSource.Weather);
+    public static TimeSpan Rain(RefreshPreferences refresh) => UpdateCadence.Interval(refresh, HostCadences.Weather);
 
     /// <summary>
     /// [S-5147] The ECB publishes once per working day, around 16:00 CET. Asked every three hours, no

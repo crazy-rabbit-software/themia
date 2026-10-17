@@ -139,7 +139,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     {
         if (_feed is { } feed)
         {
-            _service?.Refresh(feed, UpdateCadence.Interval(UpdateSource.Accounts), force: true);
+            _service?.Refresh(feed, UpdateCadence.Interval(HostCadences.Accounts), force: true);
         }
 
         _ = RefreshAsync(force: true);
@@ -311,7 +311,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         // [S-2609] Only a list never synced asks at once; the service's timer does the rest.
         if (!_feed.Loaded)
         {
-            _service.Refresh(_feed, UpdateCadence.Interval(UpdateSource.Accounts), force: true);
+            _service.Refresh(_feed, UpdateCadence.Interval(HostCadences.Accounts), force: true);
         }
     }
 

@@ -25,8 +25,8 @@ public sealed class InterestsBuilder
 
         Refresh = refresh;
         Unit = unit;
-        AccountInterval = UpdateCadence.Interval(refresh, UpdateSource.Accounts);
-        FeedInterval = UpdateCadence.Interval(refresh, UpdateSource.Feeds);
+        AccountInterval = UpdateCadence.Interval(refresh, HostCadences.Accounts);
+        FeedInterval = UpdateCadence.Interval(refresh, HostCadences.Feeds);
     }
 
     /// <summary>[S-3780] The shared cadences, from the state itself, so the sync follows a change on the same state change.</summary>

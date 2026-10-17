@@ -166,7 +166,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
 
     /// <summary>[S-591] [S-3780] How often an account list is asked: the shared accounts cadence (Settings › Widgets).</summary>
     [JsonIgnore]
-    public TimeSpan RefreshInterval => Sync.UpdateCadence.Interval(Sync.UpdateSource.Accounts);
+    public TimeSpan RefreshInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Accounts);
 
     /// <summary>
     /// Fold a hand-edited or corrupt config back inside the invariants: nulls a hand edit can put

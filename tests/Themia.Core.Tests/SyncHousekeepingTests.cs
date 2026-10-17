@@ -94,7 +94,7 @@ public sealed class SyncHousekeepingTests : IDisposable
     public void S3780_the_shared_cadences_reach_every_interest_and_a_change_is_heard()
     {
         var state = State([new WeatherNowConfig { Latitude = 1, Longitude = 2 }, new StocksConfig { Symbol = "MSFT" }, new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed.xml" }] }]);
-        state.Preferences.Refresh = new RefreshPreferences { WeatherMinutes = 60, MarketsMinutes = 15, FeedsMinutes = 120, AccountsMinutes = 5 };
+        state.Preferences.Refresh = new RefreshPreferences { ["weather"] = 60, ["markets"] = 15, ["feeds"] = 120, ["accounts"] = 5 };
 
         var interests = SyncInterests.From(state);
         Assert.Equal(TimeSpan.FromMinutes(60), Assert.Single(interests.Weather).Interval);
@@ -103,7 +103,7 @@ public sealed class SyncHousekeepingTests : IDisposable
         Assert.Equal(TimeSpan.FromMinutes(5), interests.AccountInterval);
 
         var key = interests.Key();
-        state.Preferences.Refresh.AccountsMinutes = 15;
+        state.Preferences.Refresh["accounts"] = 15;
         Assert.NotEqual(key, SyncInterests.From(state).Key());
     }
 

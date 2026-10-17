@@ -20,17 +20,16 @@ internal static partial class ConfigPages
 
         var refresh = host.State.Preferences.Refresh;
 
-        Border Cadence(string glyph, Str title, UpdateSource source) => FluentLayout.Row(glyph, title.Text(), null,
-            FluentLayout.Choice(
-                [.. UpdateCadence.Choices(source).Select(minutes => (minutes, Every(minutes)))],
-                UpdateCadence.Minutes(refresh, source),
-                value => host.Mutate(state => UpdateCadence.Set(state.Preferences.Refresh, source, value), relayout: false)),
-            "refresh", "interval", "sync");
-
-        rows.Add(Cadence(Glyphs.Weather, Str.WidgetPrefs_Updates_Weather, UpdateSource.Weather));
-        rows.Add(Cadence(Glyphs.Stocks, Str.WidgetPrefs_Updates_Markets, UpdateSource.Markets));
-        rows.Add(Cadence(Glyphs.Rss, Str.WidgetPrefs_Updates_Feeds, UpdateSource.Feeds));
-        rows.Add(Cadence(Glyphs.Mail, Str.WidgetPrefs_Updates_Accounts, UpdateSource.Accounts));
+        // [S-3780] One row per cadence: the host's, then any provider's own ([S-6910]).
+        foreach (var row in UpdateCadence.Rows)
+        {
+            rows.Add(FluentLayout.Row(row.Glyph, row.Label.Text(), null,
+                FluentLayout.Choice(
+                    [.. row.Choices.Select(minutes => (minutes, Every(minutes)))],
+                    UpdateCadence.Minutes(refresh, row),
+                    value => host.Mutate(state => UpdateCadence.Set(state.Preferences.Refresh, row, value), relayout: false)),
+                "refresh", "interval", "sync"));
+        }
 
         return Page(Str.WidgetPrefs_Nav.Text(), rows);
     }

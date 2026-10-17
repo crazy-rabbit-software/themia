@@ -507,12 +507,12 @@ public sealed class OnlineWidgetsTests
     public void S5101_air_is_never_asked_faster_than_hourly_and_rain_follows_the_weather()
     {
         var refresh = new RefreshPreferences();
-        UpdateCadence.Set(refresh, UpdateSource.Weather, 15);
+        UpdateCadence.Set(refresh, HostCadences.Weather, 15);
 
         Assert.Equal(TimeSpan.FromHours(1), OnlineCadence.Air(refresh));
         Assert.Equal(TimeSpan.FromMinutes(15), OnlineCadence.Rain(refresh));
 
-        UpdateCadence.Set(refresh, UpdateSource.Weather, 120);
+        UpdateCadence.Set(refresh, HostCadences.Weather, 120);
         Assert.Equal(TimeSpan.FromHours(2), OnlineCadence.Air(refresh));
         Assert.Equal(TimeSpan.FromHours(3), OnlineCadence.Rates);
     }

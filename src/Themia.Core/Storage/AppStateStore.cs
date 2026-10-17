@@ -477,7 +477,7 @@ public sealed class AppStateStore : IAsyncDisposable
 
         if (state.Preferences.Refresh is null)
         {
-            state.Preferences.Refresh = new RefreshPreferences();
+            state.Preferences.Refresh = RefreshPreferences.WithDefaults();
             repairs.Add("refresh cadences were null; reset to defaults");
         }
 

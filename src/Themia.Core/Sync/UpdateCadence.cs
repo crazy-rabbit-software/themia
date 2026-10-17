@@ -1,14 +1,45 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.App.Shell;
+using Themia.Sdk;
 
 namespace Themia.Core.Sync;
 
-/// <summary>The four kinds of online source whose cadence is set once for every widget ([S-3780]).</summary>
-public enum UpdateSource
+/// <summary>
+/// [S-3780] The host's own rows of Settings › Widgets › Updates: the kinds of online source it asks
+/// itself. A provider module with a kit service adds its own row ([S-6910]).
+/// </summary>
+public static class HostCadences
 {
-    Weather = 0,
-    Markets = 1,
-    Feeds = 2,
-    Accounts = 3,
+    /// <summary>[S-3781] Weather: never faster than open-meteo's own 15-minute cycle.</summary>
+    public static readonly CadenceRow Weather = new()
+    {
+        Id = new("weather"), Label = Str.WidgetPrefs_Updates_Weather.Local(), Glyph = Glyphs.Weather,
+        Choices = [15, 30, 60, 120], DefaultMinutes = 30, Rank = 0,
+    };
+
+    /// <summary>[S-3781] Markets (Yahoo, CoinGecko): a minute is the floor, as both quote services are unauthenticated.</summary>
+    public static readonly CadenceRow Markets = new()
+    {
+        Id = new("markets"), Label = Str.WidgetPrefs_Updates_Markets.Local(), Glyph = Glyphs.Stocks,
+        Choices = [1, 5, 15, 30, 60], DefaultMinutes = 5, Rank = 1,
+    };
+
+    /// <summary>[S-3781] News feeds: publishers rarely post more than a few times an hour.</summary>
+    public static readonly CadenceRow Feeds = new()
+    {
+        Id = new("feeds"), Label = Str.WidgetPrefs_Updates_Feeds.Local(), Glyph = Glyphs.Rss,
+        Choices = [15, 30, 60, 120], DefaultMinutes = 30, Rank = 2,
+    };
+
+    /// <summary>[S-3781] Mail, calendars and task lists of the signed-in accounts: mail is probed cheaply (counts only), so it may go to a minute.</summary>
+    public static readonly CadenceRow Accounts = new()
+    {
+        Id = new("accounts"), Label = Str.WidgetPrefs_Updates_Accounts.Local(), Glyph = Glyphs.Mail,
+        Choices = [1, 2, 5, 15, 30], DefaultMinutes = 2, Rank = 3,
+    };
+
+    public static IReadOnlyList<CadenceRow> All { get; } = [Weather, Markets, Feeds, Accounts];
 }
 
 /// <summary>
@@ -16,26 +47,19 @@ public enum UpdateSource
 /// Settings › Widgets, never per widget: two weather widgets on one desktop asking at different
 /// rates is a setting nobody can reason about, and the services behind them are shared and free.
 /// <para>
-/// Each source offers a short closed list; anything else (a hand edit) snaps to the nearest
-/// choice. <see cref="Current"/> is what the running app uses, set from the state whenever it
-/// changes; the pure overloads take the preferences, for the sync and the tests.
+/// Each row offers a short closed list; anything else (a hand edit) snaps to the nearest choice,
+/// and a row without an entry follows its default. <see cref="Current"/> is what the running app
+/// uses, set from the state whenever it changes; the pure overloads take the preferences, for the
+/// sync and the tests.
 /// </para>
 /// </summary>
 public static class UpdateCadence
 {
-    private static volatile RefreshPreferences _current = new();
+    private static volatile RefreshPreferences _current = RefreshPreferences.WithDefaults();
 
-    /// <summary>[S-3781] Weather: never faster than open-meteo's own 15-minute cycle.</summary>
-    public static IReadOnlyList<int> WeatherChoices { get; } = [15, 30, 60, 120];
-
-    /// <summary>[S-3781] Markets: a minute is the floor, as both quote services are unauthenticated.</summary>
-    public static IReadOnlyList<int> MarketsChoices { get; } = [1, 5, 15, 30, 60];
-
-    /// <summary>[S-3781] Feeds: publishers rarely post more than a few times an hour.</summary>
-    public static IReadOnlyList<int> FeedsChoices { get; } = [15, 30, 60, 120];
-
-    /// <summary>[S-3781] Accounts: mail is probed cheaply (counts only), so it may go to a minute.</summary>
-    public static IReadOnlyList<int> AccountsChoices { get; } = [1, 2, 5, 15, 30];
+    /// <summary>Every row of the page: the host's, then the providers' own, by rank.</summary>
+    public static IReadOnlyList<CadenceRow> Rows
+        => [.. HostCadences.All.Concat(ProviderCatalog.All.Select(p => p.Cadence).OfType<CadenceRow>()).OrderBy(r => r.Rank)];
 
     /// <summary>The preferences the running app follows. Replaced whole, never edited in place.</summary>
     public static RefreshPreferences Current
@@ -44,80 +68,57 @@ public static class UpdateCadence
         set => _current = (value ?? throw new ArgumentNullException(nameof(value))).Clone();
     }
 
-    public static IReadOnlyList<int> Choices(UpdateSource source) => source switch
-    {
-        UpdateSource.Weather => WeatherChoices,
-        UpdateSource.Markets => MarketsChoices,
-        UpdateSource.Feeds => FeedsChoices,
-        _ => AccountsChoices,
-    };
-
-    /// <summary>The stored minutes for <paramref name="source"/>, snapped to an offered choice.</summary>
-    public static int Minutes(RefreshPreferences preferences, UpdateSource source)
+    /// <summary>The stored minutes for <paramref name="row"/>, snapped to an offered choice; its default when none is stored.</summary>
+    public static int Minutes(RefreshPreferences preferences, CadenceRow row)
     {
         ArgumentNullException.ThrowIfNull(preferences);
+        ArgumentNullException.ThrowIfNull(row);
 
-        var stored = source switch
-        {
-            UpdateSource.Weather => preferences.WeatherMinutes,
-            UpdateSource.Markets => preferences.MarketsMinutes,
-            UpdateSource.Feeds => preferences.FeedsMinutes,
-            _ => preferences.AccountsMinutes,
-        };
-
-        return Snap(stored, Choices(source));
+        return preferences.TryGetValue(row.Id.Value, out var stored) ? Snap(stored, row.Choices) : row.DefaultMinutes;
     }
 
-    public static TimeSpan Interval(RefreshPreferences preferences, UpdateSource source)
-        => TimeSpan.FromMinutes(Minutes(preferences, source));
+    public static TimeSpan Interval(RefreshPreferences preferences, CadenceRow row)
+        => TimeSpan.FromMinutes(Minutes(preferences, row));
 
-    /// <summary>The running app's interval for <paramref name="source"/>.</summary>
-    public static TimeSpan Interval(UpdateSource source) => Interval(_current, source);
+    /// <summary>The running app's interval for <paramref name="row"/>.</summary>
+    public static TimeSpan Interval(CadenceRow row) => Interval(_current, row);
 
-    public static void Set(RefreshPreferences preferences, UpdateSource source, int minutes)
+    public static void Set(RefreshPreferences preferences, CadenceRow row, int minutes)
     {
         ArgumentNullException.ThrowIfNull(preferences);
+        ArgumentNullException.ThrowIfNull(row);
 
-        var value = Snap(minutes, Choices(source));
-        switch (source)
-        {
-            case UpdateSource.Weather:
-                preferences.WeatherMinutes = value;
-                break;
-            case UpdateSource.Markets:
-                preferences.MarketsMinutes = value;
-                break;
-            case UpdateSource.Feeds:
-                preferences.FeedsMinutes = value;
-                break;
-            default:
-                preferences.AccountsMinutes = value;
-                break;
-        }
+        preferences[row.Id.Value] = Snap(minutes, row.Choices);
     }
 
-    /// <summary>[S-3781] Every cadence back on an offered choice; each change is said.</summary>
-    public static IReadOnlyList<string> Repair(RefreshPreferences preferences)
+    /// <summary>
+    /// [S-3781] Every stored cadence back on an offered choice, and an entry that is no row's id
+    /// dropped; each change is said. A row without an entry is not a repair: it follows its default.
+    /// </summary>
+    public static IReadOnlyList<string> Repair(RefreshPreferences preferences) => Repair(preferences, Rows);
+
+    /// <summary>The repair over explicit rows (the tests' and a host without providers').</summary>
+    public static IReadOnlyList<string> Repair(RefreshPreferences preferences, IReadOnlyList<CadenceRow> rows)
     {
         ArgumentNullException.ThrowIfNull(preferences);
+        ArgumentNullException.ThrowIfNull(rows);
 
         var repairs = new List<string>();
-
-        foreach (var source in Enum.GetValues<UpdateSource>())
+        foreach (var key in preferences.Keys.ToList())
         {
-            var before = source switch
+            if (rows.FirstOrDefault(r => string.Equals(r.Id.Value, key, StringComparison.Ordinal)) is not { } row)
             {
-                UpdateSource.Weather => preferences.WeatherMinutes,
-                UpdateSource.Markets => preferences.MarketsMinutes,
-                UpdateSource.Feeds => preferences.FeedsMinutes,
-                _ => preferences.AccountsMinutes,
-            };
+                repairs.Add($"refresh: '{key}' is no cadence of this build; dropped");
+                preferences.Remove(key);
+                continue;
+            }
 
-            var after = Minutes(preferences, source);
+            var before = preferences[key];
+            var after = Snap(before, row.Choices);
             if (after != before)
             {
-                repairs.Add($"refresh: {source} every {before} min is not offered; every {after} min");
-                Set(preferences, source, after);
+                repairs.Add($"refresh: {row.Id} every {before} min is not offered; every {after} min");
+                preferences[key] = after;
             }
         }
 

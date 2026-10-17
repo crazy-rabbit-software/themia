@@ -7540,11 +7540,16 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
   switch. Before that (and in the tests) it is the language's habit.
 - **[S-3780]** How often online sources are asked is `AppPreferences.Refresh`, one cadence per kind of
   source, set in Settings › Widgets › Updates: Weather (now and forecast, rain, air quality: [S-5101]), Stocks, News feeds, and
-  Mail, calendars and tasks. No widget has a refresh setting for an online source.
+  Mail, calendars and tasks. No widget has a refresh setting for an online source. Each row is a
+  `CadenceRow` (the host's four are `HostCadences`; a provider module may add its own, [S-6910]) and
+  `Refresh` is a map from the row's `CadenceId` to minutes: `"refresh": { "weather": 30, "markets": 5,
+  "feeds": 30, "accounts": 2 }` (schema changed in place, [S-1050]: the four `…Minutes` properties of
+  before are entries no row has, dropped on load, so those cadences start at their defaults again).
 - **[S-3781]** The choices, in minutes: weather 15, 30, 60, 120 (default 30; open-meteo publishes every
   15); stocks 1, 5, 15, 30, 60 (default 5); feeds 15, 30, 60, 120 (default 30); accounts 1, 2, 5, 15,
   30 (default 2). A stored value off the list snaps to the nearest choice, a tie to the slower one,
-  and says so.
+  and says so. An entry that is no row's id is dropped and said; a row without an entry follows its
+  default (not a repair). A new state writes the host's four at their defaults.
 - **[S-3782]** The accounts cadence probes every mail folder, asks the calendars' near window and
   every task list (`SyncInterests.AccountInterval`); contacts stay at 15 minutes and the calendar's
   whole window at 6 hours. The sync reads the cadences from the state itself

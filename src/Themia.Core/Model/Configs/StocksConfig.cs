@@ -80,7 +80,7 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {
-        if (SyncInterests.For(this, UpdateCadence.Interval(interests.Refresh, UpdateSource.Markets)) is { } wants)
+        if (SyncInterests.For(this, UpdateCadence.Interval(interests.Refresh, HostCadences.Markets)) is { } wants)
         {
             interests.Quotes.Add(wants);
         }
@@ -213,7 +213,7 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
 
     /// <summary>[S-3780] The shared markets cadence (Settings › Widgets); a minute is its floor.</summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.UpdateSource.Markets);
+    public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Markets);
 
     /// <summary>[S-3790] A search pick: its symbol, its service and its name, in one go.</summary>
     public void Choose(SymbolHit hit)
