@@ -732,10 +732,12 @@ busy desktop ([S-6601]), Debug, private bytes.
 
 ### Two widgets: Sun and Moon (SKY-SPLIT)
 
-Sun & moon is split in two (user rule: one widget, one thing). Core: `SkyConfigs` (`SkyPlaceConfig`,
-`SunConfig`, `MoonConfig`), `MoonPhase.NextRiseSet`, `MoonLayout`, `SkyText.EventTime`; App:
-`SunView`, `MoonView`, `SkyParts` (the shared row and moon drawing), `WidgetSettings.Sun/Moon/Sky`;
-tests `SkyWidgetsTests` (`S310x_`).
+Sun & moon is split in two (user rule: one widget, one thing). The Moon is a module of its own
+(`src/Widgets/Themia.Widget.Moon`, its SPEC.md). The SDK: `SkyPlaceConfig`, the astronomy
+(`MoonPhase.NextRiseSet`, `SkyText.EventTime`), `SkyParts` (the shared row and moon drawing) and
+`SkyPlaceRows` (the shared place rows); Core: `SkyConfigs` (`SunConfig`); App: `SunView`,
+`WidgetSettings.Sun`; tests `SkyWidgetsTests` (`S310x_`), the pair's in the module host's
+`SkyWidgetsHostTests`.
 
 - **[S-3100]** **Sun** (`sun`, 320×240, sun glyph) is the sun's day: the path graphic, the
   number strip and the rows sunrise, sunset, daylight (+ change), solar noon, dawn, dusk ([S-3102]).
@@ -760,13 +762,7 @@ tests `SkyWidgetsTests` (`S310x_`).
   crossing bisected; a crossing is the centre at +0.125° geocentric (parallax less refraction and
   semi-diameter). Null when the moon does not cross in the window (it stays up or down near the
   poles) and the row then shows an em dash. Good to a few minutes (truncated lunar series).
-- **[S-3105]** Moon ladder (`MoonLayout`, on one `Disclosure`): the disc (never dropped, 24 px floor)
-  → the phase's name (measured at the language's longest name) → the lit percentage → whole rows
-  moonrise, moonset, the next full or new moon ([S-1491]). The disc takes what the rungs leave, up
-  to 192 px, so a larger tile only draws a larger moon. On a wide strip (Wide shape, width ≥
-  Regular) the text and rows stand beside the disc. With one rise/set row it is the next of the two;
-  the next one carries its countdown in the accent ([S-163]). The next full or new moon drops its
-  weekday where the row cannot hold it ("Oct 26").
+- [S-3105], [S-6050], [S-6051]: moved with the Moon widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Moon/`).
 - **[S-3106]** A rise or set reads as the time alone when it falls today in the machine's zone, else
   with the short weekday before it ("Mon 9:55 AM"): the next one is often tomorrow.
 - **[S-6045]** The sun's styles ([S-6000]), `SunConfig.Style` (`SunStyle`; what was the sun path
@@ -782,16 +778,6 @@ tests `SkyWidgetsTests` (`S310x_`).
   no tick; polar day lights the whole bar, polar night none of it. The bar keeps a 28 DIP floor and
   no share of a large tile: the rows take the rest; it thickens with the height, 8 to 20 DIPs, and
   sits at the foot of its room, right over the number strip.
-- **[S-6050]** The moon's styles ([S-6000]), `MoonConfig.Style` (`MoonStyle`): **Disc** (the
-  default, [S-3105]) and **Phase month**: one small disc a day of the month holding now, each that
-  day's phase at its local noon (`MoonMonth`, [S-6051]; the [S-169] drawing, mirrored for a southern
-  observer), reflowed to the tile by the dot grid ([S-6061]), today ringed in the accent, the month's
-  name over them while the discs stay 14 DIPs or larger under it. Each disc's tooltip names its day
-  and phase. Concise: no rise, set or percentage rows in this style. Debug: `--state sample` pins
-  12 October 2026, 21:00.
-- **[S-6051]** `MoonMonth.Days`: every day of the month holding now in the machine's zone, each with
-  the phase at the middle of that local day (so a phase turning at 01:00 or 23:00 belongs to the day
-  most of it is in), today marked once. Redrawn when the day changes, not on every tick.
 
 ## Rows and the card edge
 

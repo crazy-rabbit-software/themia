@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Luna",
+  "widgetsC.moon.desc": "Fase, salida y puesta de la luna",
+  "widgetsC.moon.rise": "Salida de la luna",
+  "widgetsC.moon.set": "Puesta de la luna",
+  "widgetsC.moon.short.rise": "Salida",
+  "widgetsC.moon.short.set": "Puesta",
+  "styles.moon.disc": "Disco",
+  "styles.moon.phaseMonth": "Fases del mes"
+}

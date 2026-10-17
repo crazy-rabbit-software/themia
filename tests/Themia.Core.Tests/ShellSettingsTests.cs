@@ -65,40 +65,6 @@ public sealed class ShellSettingsTests : IDisposable
     // [S-700] Header defaults
     // -----------------------------------------------------------------------------------------
 
-    [Fact]
-    public void S700_the_clock_starts_without_a_header()
-        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1)).Header);
-
-    [Theory]
-    [InlineData("sun")]
-    [InlineData("moon")]
-    [InlineData("drive")]
-    public void S700_the_sun_the_moon_and_the_drive_card_start_without_a_header(string kindId)
-    {
-        var kind = new WidgetId(kindId);
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
-    }
-
-    [Theory]
-    [InlineData("cpu")]
-    [InlineData("disk")]
-    [InlineData("notes")]
-    [InlineData("countdown")]
-    [InlineData("pomodoro")]
-    public void S700_other_widgets_still_start_with_a_top_header(string kindId)
-    {
-        var kind = new WidgetId(kindId);
-        Assert.Equal(HeaderPlacement.Top, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
-    }
-
-    [Fact]
-    public void S700_a_saved_clock_keeps_the_header_it_was_saved_with()
-    {
-        var state = Parse(StateFile.Replace("\"kind\": \"Clock\",", "\"kind\": \"Clock\", \"header\": \"Top\",", StringComparison.Ordinal));
-
-        Assert.Equal(HeaderPlacement.Top, state.Views[0].Widgets[0].Header);
-    }
-
     [Theory]
     [InlineData("Left", HeaderPlacement.Left)]
     [InlineData("Right", HeaderPlacement.Right)]

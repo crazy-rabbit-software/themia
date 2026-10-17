@@ -20,10 +20,10 @@ public sealed class SkyWidgetsHostTests
     public void S3100_sun_and_moon_are_two_kinds_each_with_its_own_config()
     {
         var sun = Assert.IsType<SunConfig>(WidgetConfig.CreateDefault(SunConfig.Descriptor.Id));
-        var moon = Assert.IsType<MoonConfig>(WidgetConfig.CreateDefault(MoonConfig.Descriptor.Id));
+        var moon = Assert.IsType<MoonConfig>(WidgetConfig.CreateDefault(new WidgetId("moon")));
 
         Assert.Equal(SunConfig.Descriptor.Id, sun.Kind);
-        Assert.Equal(MoonConfig.Descriptor.Id, moon.Kind);
+        Assert.Equal(new WidgetId("moon"), moon.Kind);
         Assert.DoesNotContain(ModuleCatalog.Widgets, w => w.Id.Value is "sunMoon" or "sunmoon");
     }
 

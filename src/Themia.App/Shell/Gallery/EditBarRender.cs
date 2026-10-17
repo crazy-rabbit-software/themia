@@ -213,7 +213,7 @@ internal static class EditBarRender
     }
 
     /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, int? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null);
+    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null);
 
     /// <summary>[S-3713] The panel beside real cards in edit mode, each case on the stand-in display.</summary>
     private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
@@ -222,7 +222,7 @@ internal static class EditBarRender
         [
             // [S-6521] A widget of its own item colour: the Item opacity row shows. [S-6531] At 125 %.
             // [S-6544] Its own item text colour too: white figures on its dark flip cards in either theme.
-            [new(ClockConfig.Descriptor.Id, 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", (int)ClockStyle.Flip, "#2A3248", 1.25, "#FFFFFF")],
+            [new(ClockConfig.Descriptor.Id, 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")],
             [new(CountdownConfig.Descriptor.Id, 980, 160, 280, 180, HeaderPlacement.Top, true)],
             [new(ShortcutsConfig.Descriptor.Id, 16, 72, 1248, 150, HeaderPlacement.Top, true)],
             [
@@ -239,9 +239,9 @@ internal static class EditBarRender
             // [S-6569] Backgrounds Default, Transparent and a colour at 50 %; items Default,
             // Transparent and a colour. The selected one (a colour at 50 %) has the panel.
             [
-                new(ClockConfig.Descriptor.Id, 40, 80, 300, 200, HeaderPlacement.Top, false, "Default", (int)ClockStyle.Flip),
-                new(ClockConfig.Descriptor.Id, 40, 320, 300, 200, HeaderPlacement.Top, false, "Transparent", (int)ClockStyle.Flip, Background: FillChoice.Transparent(), Items: FillChoice.Transparent()),
-                new(ClockConfig.Descriptor.Id, 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", (int)ClockStyle.Flip, Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
+                new(ClockConfig.Descriptor.Id, 40, 80, 300, 200, HeaderPlacement.Top, false, "Default", "flip"),
+                new(ClockConfig.Descriptor.Id, 40, 320, 300, 200, HeaderPlacement.Top, false, "Transparent", "flip", Background: FillChoice.Transparent(), Items: FillChoice.Transparent()),
+                new(ClockConfig.Descriptor.Id, 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", "flip", Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
             ],
 
             // [S-6571] A stopwatch has no items: the row is greyed.
@@ -254,7 +254,7 @@ internal static class EditBarRender
                 new(ClockConfig.Descriptor.Id, 300, 200, 280, 160, HeaderPlacement.Top, true, "Left", Align: ContentAlign.Left),
                 new(new WidgetId("quote"), 620, 200, 320, 180, HeaderPlacement.Top, true, Align: ContentAlign.Right),
             ],
-            [new(MoonConfig.Descriptor.Id, 500, 200, 280, 220, HeaderPlacement.Top, true, Style: (int)MoonStyle.PhaseMonth)],
+            [new(new WidgetId("moon"), 500, 200, 280, 220, HeaderPlacement.Top, true, Style: "phaseMonth")],
         ];
         string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills", "noitems", "align", "alignmany", "alignstyle"];
 
@@ -264,7 +264,7 @@ internal static class EditBarRender
         }
 
         // [S-6569] The Background control's panel, open beside the properties panel.
-        PropsCard[] picker = [new(ClockConfig.Descriptor.Id, 200, 160, 300, 200, HeaderPlacement.Top, true, Style: (int)ClockStyle.Flip, Background: FillChoice.Of("#1B2030", 0.5))];
+        PropsCard[] picker = [new(ClockConfig.Descriptor.Id, 200, 160, 300, 200, HeaderPlacement.Top, true, Style: "flip", Background: FillChoice.Of("#1B2030", 0.5))];
         await PropsShot(screen, ticker, picker, System.IO.Path.Combine(outDir, $"props-{theme}-picker.png"), openBackground: true).ConfigureAwait(true);
     }
 
@@ -358,9 +358,9 @@ internal static class EditBarRender
             model.Scale = spec.Scale;
             model.ItemTextColor = spec.ItemText;
             model.Align = spec.Align;
-            if (spec.Style is { } style)
+            if (spec.Style is { } style && WidgetStyles.Find(spec.Kind, style) is { } option)
             {
-                WidgetStyles.Set(model.Config, style); // [S-6007] the strip's Style shows the current one's icon
+                WidgetStyles.Set(model.Config, option.Value); // [S-6007] the strip's Style shows the current one's icon
             }
             view.Widgets.Add(model);
             widgets.Add((model, spec));

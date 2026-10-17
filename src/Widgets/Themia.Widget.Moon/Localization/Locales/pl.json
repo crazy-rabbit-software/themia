@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Księżyc",
+  "widgetsC.moon.desc": "Faza, wschód i zachód księżyca",
+  "widgetsC.moon.rise": "Wschód księżyca",
+  "widgetsC.moon.set": "Zachód księżyca",
+  "widgetsC.moon.short.rise": "Wschód",
+  "widgetsC.moon.short.set": "Zachód",
+  "styles.moon.disc": "Tarcza",
+  "styles.moon.phaseMonth": "Fazy miesiąca"
+}

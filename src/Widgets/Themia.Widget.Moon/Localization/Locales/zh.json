@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "月亮",
+  "widgetsC.moon.desc": "月相、月出和月落",
+  "widgetsC.moon.rise": "月出",
+  "widgetsC.moon.set": "月落",
+  "widgetsC.moon.short.rise": "月出",
+  "widgetsC.moon.short.set": "月落",
+  "styles.moon.disc": "圆盘",
+  "styles.moon.phaseMonth": "本月月相"
+}

@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Ay",
+  "widgetsC.moon.desc": "Ayın evresi, doğuşu ve batışı",
+  "widgetsC.moon.rise": "Ay doğuşu",
+  "widgetsC.moon.set": "Ay batışı",
+  "widgetsC.moon.short.rise": "Doğuş",
+  "widgetsC.moon.short.set": "Batış",
+  "styles.moon.disc": "Disk",
+  "styles.moon.phaseMonth": "Ayın evreleri"
+}

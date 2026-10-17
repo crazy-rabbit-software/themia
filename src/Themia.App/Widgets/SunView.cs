@@ -16,7 +16,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-3100] The sun's day (its path, sunrise, sunset and daylight), computed offline from a
-/// configured latitude and longitude. The moon is its own widget (<see cref="MoonView"/>).
+/// configured latitude and longitude. The moon is its own widget (the Moon module).
 /// <para>
 /// The drawing is the sun's <b>real</b> path — altitude against how far it is through its passage
 /// across the sky — so it flattens in winter, towers in summer and barely lifts off the horizon

@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Buwan",
+  "widgetsC.moon.desc": "Ang yugto, pagsikat at paglubog ng buwan",
+  "widgetsC.moon.rise": "Pagsikat ng buwan",
+  "widgetsC.moon.set": "Paglubog ng buwan",
+  "widgetsC.moon.short.rise": "Sikat",
+  "widgetsC.moon.short.set": "Lubog",
+  "styles.moon.disc": "Disk",
+  "styles.moon.phaseMonth": "Mga yugto ng buwan"
+}

@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "القمر",
+  "widgetsC.moon.desc": "طور القمر وشروقه وغروبه",
+  "widgetsC.moon.rise": "شروق القمر",
+  "widgetsC.moon.set": "غروب القمر",
+  "widgetsC.moon.short.rise": "شروق",
+  "widgetsC.moon.short.set": "غروب",
+  "styles.moon.disc": "قرص",
+  "styles.moon.phaseMonth": "أطوار الشهر"
+}

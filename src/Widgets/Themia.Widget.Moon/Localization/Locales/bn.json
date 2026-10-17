@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "চাঁদ",
+  "widgetsC.moon.desc": "চাঁদের কলা, উদয় ও অস্ত",
+  "widgetsC.moon.rise": "চন্দ্রোদয়",
+  "widgetsC.moon.set": "চন্দ্রাস্ত",
+  "widgetsC.moon.short.rise": "উদয়",
+  "widgetsC.moon.short.set": "অস্ত",
+  "styles.moon.disc": "চাকতি",
+  "styles.moon.phaseMonth": "মাসের কলা"
+}

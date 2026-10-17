@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "ดวงจันทร์",
+  "widgetsC.moon.desc": "ข้างขึ้นข้างแรม เวลาดวงจันทร์ขึ้นและตก",
+  "widgetsC.moon.rise": "ดวงจันทร์ขึ้น",
+  "widgetsC.moon.set": "ดวงจันทร์ตก",
+  "widgetsC.moon.short.rise": "ขึ้น",
+  "widgetsC.moon.short.set": "ตก",
+  "styles.moon.disc": "ดวงจันทร์",
+  "styles.moon.phaseMonth": "ข้างขึ้นข้างแรมทั้งเดือน"
+}

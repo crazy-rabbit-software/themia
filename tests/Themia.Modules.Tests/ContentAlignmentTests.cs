@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [ClockConfig.Descriptor.Id, CountdownConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), MoonConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
+        WidgetId[] aligned = [ClockConfig.Descriptor.Id, CountdownConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, CpuConfig.Descriptor.Id, MixerConfig.Descriptor.Id, WifiToggleConfig.Descriptor.Id, ShutdownConfig.Descriptor.Id, FolderConfig.Descriptor.Id])
@@ -74,8 +74,8 @@ public sealed partial class ContentAlignmentTests
         Assert.False(ContentAlignment.Applies(Widget(ExchangeRatesConfig.Descriptor.Id, (int)ExchangeRatesStyle.Chart)));
         Assert.True(ContentAlignment.Applies(Widget(StocksConfig.Descriptor.Id, (int)StocksStyle.Number)));
         Assert.False(ContentAlignment.Applies(Widget(StocksConfig.Descriptor.Id, (int)StocksStyle.Chart)));
-        Assert.True(ContentAlignment.Applies(Widget(MoonConfig.Descriptor.Id, (int)MoonStyle.Disc)));
-        Assert.False(ContentAlignment.Applies(Widget(MoonConfig.Descriptor.Id, (int)MoonStyle.PhaseMonth)));
+        Assert.True(ContentAlignment.Applies(Widget(new WidgetId("moon"), (int)MoonStyle.Disc)));
+        Assert.False(ContentAlignment.Applies(Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth)));
 
         // Every face of the clock, the weather and the air quality has one block to place.
         foreach (var style in Enum.GetValues<ClockStyle>())
@@ -95,7 +95,7 @@ public sealed partial class ContentAlignmentTests
     public void S6582_without_a_choice_each_widget_sits_where_it_always_did()
     {
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(ClockConfig.Descriptor.Id)));
-        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(MoonConfig.Descriptor.Id)));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Standard)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.LargeIcon)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Minimal)));
@@ -117,7 +117,7 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Right, ContentAlignment.Shown(weather));
 
         // The moon's month keeps the choice, and draws its own default, until the disc is back.
-        var moon = Widget(MoonConfig.Descriptor.Id, (int)MoonStyle.PhaseMonth);
+        var moon = Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth);
         moon.Align = ContentAlign.Left;
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(moon));
         Assert.True(WidgetStyles.Set(moon.Config, (int)MoonStyle.Disc));
@@ -165,7 +165,7 @@ public sealed partial class ContentAlignmentTests
     {
         var quote = Widget(new WidgetId("quote"));
         quote.Align = ContentAlign.Right;
-        var (state, view, selection) = Selected(Widget(ClockConfig.Descriptor.Id), quote, Widget(TasksConfig.Descriptor.Id), Widget(MoonConfig.Descriptor.Id, (int)MoonStyle.PhaseMonth));
+        var (state, view, selection) = Selected(Widget(ClockConfig.Descriptor.Id), quote, Widget(TasksConfig.Descriptor.Id), Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth));
 
         var offer = QuickSet.For(state, selection, view.Id);
         Assert.True(offer.CanAlign);
@@ -187,7 +187,7 @@ public sealed partial class ContentAlignmentTests
         Assert.False(tasks.AlignKind);
 
         // The moon aligns, only not in its month style: the row says so.
-        (state, view, selection) = Selected(Widget(MoonConfig.Descriptor.Id, (int)MoonStyle.PhaseMonth));
+        (state, view, selection) = Selected(Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth));
         var month = QuickSet.For(state, selection, view.Id);
         Assert.False(month.CanAlign);
         Assert.True(month.AlignKind);
@@ -207,7 +207,7 @@ public sealed partial class ContentAlignmentTests
         Assert.Null(tasks.Align);
 
         // A choice on a style that does not take it is kept for the style that does.
-        var moon = Widget(MoonConfig.Descriptor.Id, (int)MoonStyle.PhaseMonth);
+        var moon = Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth);
         moon.Align = ContentAlign.Left;
         Assert.Null(ContentAlignment.Repair(moon));
         Assert.Equal(ContentAlign.Left, moon.Align);

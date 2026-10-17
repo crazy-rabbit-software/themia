@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "சந்திரன்",
+  "widgetsC.moon.desc": "சந்திரனின் கட்டம், உதயம் மற்றும் மறைவு",
+  "widgetsC.moon.rise": "சந்திர உதயம்",
+  "widgetsC.moon.set": "சந்திர மறைவு",
+  "widgetsC.moon.short.rise": "உதயம்",
+  "widgetsC.moon.short.set": "மறைவு",
+  "styles.moon.disc": "வட்டு",
+  "styles.moon.phaseMonth": "மாதப் பிறைகள்"
+}

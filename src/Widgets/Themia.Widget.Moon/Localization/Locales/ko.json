@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "달",
+  "widgetsC.moon.desc": "달의 위상, 월출 및 월몰",
+  "widgetsC.moon.rise": "월출",
+  "widgetsC.moon.set": "월몰",
+  "widgetsC.moon.short.rise": "뜸",
+  "widgetsC.moon.short.set": "짐",
+  "styles.moon.disc": "원반",
+  "styles.moon.phaseMonth": "이달의 위상"
+}

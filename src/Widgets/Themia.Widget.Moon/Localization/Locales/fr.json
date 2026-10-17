@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Lune",
+  "widgetsC.moon.desc": "Phase, lever et coucher de la lune",
+  "widgetsC.moon.rise": "Lever de la lune",
+  "widgetsC.moon.set": "Coucher de la lune",
+  "widgetsC.moon.short.rise": "Lever",
+  "widgetsC.moon.short.set": "Coucher",
+  "styles.moon.disc": "Disque",
+  "styles.moon.phaseMonth": "Phases du mois"
+}

@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Mond",
+  "widgetsC.moon.desc": "Mondphase, Mondaufgang und Monduntergang",
+  "widgetsC.moon.rise": "Mondaufgang",
+  "widgetsC.moon.set": "Monduntergang",
+  "widgetsC.moon.short.rise": "Aufgang",
+  "widgetsC.moon.short.set": "Untergang",
+  "styles.moon.disc": "Scheibe",
+  "styles.moon.phaseMonth": "Mondmonat"
+}

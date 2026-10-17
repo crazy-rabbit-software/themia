@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Луна",
+  "widgetsC.moon.desc": "Фаза луны, восход и заход",
+  "widgetsC.moon.rise": "Восход луны",
+  "widgetsC.moon.set": "Заход луны",
+  "widgetsC.moon.short.rise": "Восход",
+  "widgetsC.moon.short.set": "Заход",
+  "styles.moon.disc": "Диск",
+  "styles.moon.phaseMonth": "Фазы месяца"
+}

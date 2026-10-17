@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Luna",
+  "widgetsC.moon.desc": "Fase, sorgere e tramonto della luna",
+  "widgetsC.moon.rise": "Sorgere della luna",
+  "widgetsC.moon.set": "Tramonto della luna",
+  "widgetsC.moon.short.rise": "Sorge",
+  "widgetsC.moon.short.set": "Tramonta",
+  "styles.moon.disc": "Disco",
+  "styles.moon.phaseMonth": "Fasi del mese"
+}

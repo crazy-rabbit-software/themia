@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "ماه",
+  "widgetsC.moon.desc": "فاز ماه، طلوع و غروب آن",
+  "widgetsC.moon.rise": "طلوع ماه",
+  "widgetsC.moon.set": "غروب ماه",
+  "widgetsC.moon.short.rise": "طلوع",
+  "widgetsC.moon.short.set": "غروب",
+  "styles.moon.disc": "قرص",
+  "styles.moon.phaseMonth": "فازهای ماه"
+}

@@ -50,7 +50,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(MicrophoneToggleConfig))]
 [JsonSerializable(typeof(MixerConfig))]
 [JsonSerializable(typeof(MonoAudioToggleConfig))]
-[JsonSerializable(typeof(MoonConfig))]
 [JsonSerializable(typeof(MusicConfig))]
 [JsonSerializable(typeof(NetworkConfig))]
 [JsonSerializable(typeof(NetworkDetailsConfig))]

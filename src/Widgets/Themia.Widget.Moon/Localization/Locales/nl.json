@@ -1,0 +1,10 @@
+{
+  "widgetsC.moon.label": "Maan",
+  "widgetsC.moon.desc": "De maanfase, opkomst en ondergang",
+  "widgetsC.moon.rise": "Maanopkomst",
+  "widgetsC.moon.set": "Maanondergang",
+  "widgetsC.moon.short.rise": "Op",
+  "widgetsC.moon.short.set": "Onder",
+  "styles.moon.disc": "Schijf",
+  "styles.moon.phaseMonth": "Fasen van de maand"
+}

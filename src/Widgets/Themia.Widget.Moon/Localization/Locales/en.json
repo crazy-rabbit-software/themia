@@ -1,0 +1,11 @@
+{
+  "$englishOnly": [],
+  "widgetsC.moon.label": "Moon",
+  "widgetsC.moon.desc": "The moon's phase, rise and set",
+  "widgetsC.moon.rise": "Moonrise",
+  "widgetsC.moon.set": "Moonset",
+  "widgetsC.moon.short.rise": "Rise",
+  "widgetsC.moon.short.set": "Set",
+  "styles.moon.disc": "Disc",
+  "styles.moon.phaseMonth": "Phase month"
+}
