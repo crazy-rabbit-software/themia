@@ -12,7 +12,7 @@ namespace Themia.App.Widgets;
 /// from its own state and paints them here, so a click, a key and edit mode behave as in every
 /// other style.
 /// </summary>
-internal sealed partial class RoundButtonPart : Grid
+public sealed partial class RoundButtonPart : Grid
 {
     private readonly Grid _circle = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private readonly Border _disc = new() { BorderThickness = new Thickness(1) };
