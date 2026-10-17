@@ -1480,6 +1480,58 @@ registration path: when a table becomes a descriptor member, the table is delete
   table), SPEC section (into its `SPEC.md`, tags unchanged), tests and preview move into
   `src/Widgets/Themia.Widget.YearProgress/`; pixel diff zero; `publish.ps1` and `package.ps1`
   (packaged build, a manual pass).
+  *M3 as built (2026-10-17).* Providers first: `AccountProvider` became `ProviderId` and
+  `AccountFeatures` a `FeatureSet` of `FeatureId`s (`HostFeatures.Mail` and the other three);
+  `IProviderModule` (id, `LocalText` label, features, `AccountAuth`, its place in the Add account
+  menu, an optional own `CadenceRow`) with the five account providers declared as modules inside
+  Core (`HostProviders`, `MicrosoftProvider`..`CardDavProvider`, `[assembly: ThemiaProvider]`) and
+  installed into `ProviderCatalog` beside the widgets. The ids are the wire names, so
+  `accounts.json` keeps its shape: `AccountsFixtureTests` loads a file of every provider generated
+  with the build from before (`f4d892e`) with no repair and writes it back byte for byte, on both
+  builds. Sign-in code is unchanged but for the comparisons (`provider == HostProviders.Google`);
+  a live pass is still owed. `UpdateSource` became `CadenceRow`s (`HostCadences`; a provider may
+  add its own) and `AppPreferences.Refresh` a map keyed by `CadenceId`
+  (`"refresh": { "weather": 30, ... }`): schema changed in place, so a profile's old
+  `weatherMinutes`-style entries are dropped on load, logged, and those four cadences start at their
+  defaults once. Host tables that named widgets went onto the configs and descriptors
+  (`QuickToggleConfig.Toggle`, `PowerButtonConfig.Action`, `WeatherConfig.ReadsWeather` and
+  `ForecastDays`, family folders titled by their first widget). Strings: one `StringTable` behind
+  every table (the host's `Str` included), `LocalText` (a table and an id, or a fixed brand name),
+  the generator's module mode (`ThemiaStringsEnum`, THEMIALOC010), descriptor and style labels as
+  `LocalText`. `IWidgetView` into `Themia.Sdk.WinUI`. The SDK grew what Year progress needed, each
+  move its own commit: `ThemeBrush.Of` (the design engine behind it; `FluentLayout.Themed` is gone,
+  325 call sites), the `ItemFill` facade over the host's item-layer engine (`IItemFillHost`),
+  `Fluent`, `WidgetLayout`, `RingPart`, `UiLanguage`, `IStyled`/`StyleOption`/the style registry,
+  `Formatting`, `RingArc`, `DotGrid`, `CalendarDays` (week start, local midnight, out of
+  `CalendarRules`) and the item roles, the WinUI parts made public. Module plumbing:
+  `src/Widgets/` and `src/Providers/` `Directory.Build.props`/`.targets`, glob `ProjectReference`s
+  in the app and in `tests/Themia.Modules.Tests`, THEMIAMOD004, the test host (installs Core's
+  descriptors and the registry; compiles each module's `Tests/`; `ModuleConformanceTests`; the
+  every-kind state fixture and the unknown-id tests moved there because only it sees every widget),
+  `scripts/new-module.ps1` (dry-run on a throwaway widget and provider: both built, rendered in the
+  picker and passed conformance; removed). Year progress moved whole into
+  `src/Widgets/Themia.Widget.YearProgress/`: config, descriptor (on the module now), view, preview,
+  its rules (`TimeProgress.cs`), its 12 keys in 30 languages as `YearProgressStr`, its glyph, its
+  SPEC section ([S-4800]..[S-4805], [S-6040]..[S-6042]) and its tests; the app names it nowhere.
+  Pixel diff: the M2 render set and 45 Year progress renders (three styles, every tier, dark, the
+  settings page and the picker, in en, de, ar, ja, fa, zh) identical to the build before.
+  *Left for M4:*
+  - Settings rows from a module: `FluentLayout` (and with it `ColorChoice`, `RowReorder`,
+    `SettingRow`/search, `FontPicker`) is still the host's; the first module with a settings page
+    moves it, or a `KitRows` seam, into `Themia.Sdk.WinUI` first. `ItemMenu`, `ShellLauncher`,
+    `IWidgetDropTarget` and `IWidgetHost` (views still read `AppServices`) likewise.
+  - The first-run seed (`AppState.CreateDefault`) still names the clock, shortcuts, weather, meters,
+    toggles, calendar, tasks and notes by their config types: it is the host's product decision, not
+    a per-widget table, but when one of those moves Core cannot see its config any more, so the seed
+    becomes data (ids plus config fragments read through `StateJson`, an absent id skipped).
+  - The Debug gallery scenes (`EditBarRender`, `SwitchCheck`, `MotionRender`, `MenuRender`,
+    `SettingsRender`) name widgets the same way; they turn into ids and each module's `Preview/`
+    states as their widgets move.
+  - `ProviderNames` on descriptors are still display strings ("CalDAV"); they become `ProviderId`s
+    with the provider-gone screen. `WeatherConfig`, `QuickToggleConfig`, `PowerButtonConfig` and the
+    other shared config bases move into the SDK with the first of their widgets.
+  - Notices fragments (`NOTICES.md` per module): no module bundles third-party files yet.
+  - Microsoft and Google as their own provider projects come with sign-in by strategy (11.2, step 11).
 - **M4. Moves, one widget project per commit** (code two widgets share goes into the SDK first,
   Q16), whenever convenient and always when a widget migrates onto
   the kit (RSS, Mail, Tasks and the agenda move in the same series as their kit migration). Each is

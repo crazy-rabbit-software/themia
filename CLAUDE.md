@@ -10,8 +10,10 @@ Elastic License 2.0 (`LICENSE`). Unreleased: nothing here has users yet.
 
 ```powershell
 dotnet build src/Themia.App/Themia.App.csproj -c Debug            # Debug builds include the render flags below
-dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj      # all of the tests (xUnit, Core only)
+dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj      # Core and the SDK's rules (xUnit)
 dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj --filter "FullyQualifiedName~Clock"   # scoped run
+dotnet test tests/Themia.Modules.Tests/Themia.Modules.Tests.csproj   # every module's own Tests/ + conformance + the state fixture
+powershell -ExecutionPolicy Bypass -File scripts/new-module.ps1 -Kind widget -Name <Name> -Label "<English name>"   # or -Kind provider
 powershell -ExecutionPolicy Bypass -File scripts/publish.ps1      # Native AOT, unpackaged (-Run to start it)
 powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Store .msixupload, see docs/STORE.md
 ```
@@ -55,15 +57,17 @@ state store.
 
 ```
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
-  Localization/ (+ Locales/*.json: still the one Str enum) Diagnostics/ (Log) Links/ Time/ Shell/ (Glyphs)
-  Model/ (WidgetConfig, language and region vocabulary, ContentAlign) Widgets/ (WidgetArea, Disclosure, tiers, keys, fits)
-  Modules/ (WidgetId and the other ids, WidgetDescriptor, ModuleCatalog, WidgetTraits, AddPlacement)
-src/Themia.Core/   pure logic, no UI types, no Windows dependency. Everything with a rule lives here.
-  Geometry/ Model/ (state, Configs/* with each widget's descriptor) Storage/ (atomic store, load validation, StateJson)
+  Localization/ (+ Locales/*.json: the host's Str; StringTable, LocalText) Diagnostics/ (Log) Links/ Time/ (CalendarDays) Shell/ (Glyphs)
+  Model/ (WidgetConfig, language and region vocabulary, ContentAlign) Widgets/ (WidgetArea, Disclosure, tiers, keys, fits,
+  styles, Formatting, RingArc, DotGrid, item roles) Modules/ (the ids, WidgetDescriptor, ModuleCatalog, IProviderModule,
+  ProviderCatalog, FeatureSet, CadenceRow, WidgetTraits, AddPlacement)
+src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's rules, and the widgets not yet moved.
+  Geometry/ Model/ (state, Configs/* with each in-Core widget's descriptor) Storage/ (atomic store, load validation, StateJson)
   Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/
-  Settings/ Shell/ Motion/ Licensing/ Net/ Sync/
-src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, WidgetSettingsRows, view contracts (IWidgetSurface,
-                   IWidgetKeys, ...), Ticker, ScrollFade, EmptyStatePanel. References Themia.Sdk only, never Core.
+  Settings/ Shell/ Motion/ Licensing/ Net/ Sync/ (HostCadences)   Accounts/HostProviders.cs (the five account providers as modules)
+src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, WidgetSettingsRows, view contracts (IWidgetView,
+                   IWidgetSurface, IWidgetKeys, ...), Ticker, Fluent, WidgetLayout, ThemeBrush, ItemFill, RingPart,
+                   UiLanguage, ScrollFade, EmptyStatePanel. References Themia.Sdk only, never Core.
                    Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
@@ -71,10 +75,14 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    shared samplers and sync services (accounts, mail, tasks, files, web)
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    FluentLayout (settings rows), Config/ (settings window), Gallery/ (render flags)
-  Widgets/         Modules/<Name>Module.cs (each widget's module) + one *View.cs per widget (Fluent.cs = type ramp, rows, empty state)
+  Widgets/         Modules/<Name>Module.cs (each in-app widget's module) + one *View.cs per widget
+src/Widgets/Themia.Widget.<Name>/     a widget module project (Year progress so far): module, config, view, Preview/,
+                   Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
+src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum
 src/Themia.Modules.Generator/        build-time generator: [assembly: ThemiaWidget] -> the static ModuleRegistry
-tests/Themia.Core.Tests/             xUnit over Core, named after SPEC tags
+tests/Themia.Core.Tests/             xUnit over Core and the SDK, named after SPEC tags
+tests/Themia.Modules.Tests/          one host for every module (globs them, compiles their Tests/), conformance
 docs/STORE.md      Microsoft Store release       scripts/   publish.ps1, package.ps1, package-logos.py
 SPEC.md            the behaviour spec (tags [S-NN])
 ```
@@ -82,15 +90,16 @@ SPEC.md            the behaviour spec (tags [S-NN])
 One window per display, not per widget: every widget on a screen shares one transparent,
 click-through surface clipped with `SetWindowRgn`. Geometry is stored as fractions of the whole monitor.
 
-Adding a widget touches its own files only, plus the shared tables M3 still has to split
-(docs/WIDGET-KIT.md 11.1): the config class with its `Descriptor` (id = its camelCase discriminator,
-name, description, glyph, size, add-menu place, keywords, traits, `CreateDefault`, and its config's
-line in `WidgetConfigJsonContext`), the config's own `ISetupRule` / `IInterests` / `IContentAligned` /
-`IStyled` where they apply, the module `Widgets/Modules/<Name>Module.cs` (`[assembly: ThemiaWidget]`,
-`CreateView`, `SettingsRows` over a `WidgetSettings.<Name>.cs` page), the view, the locale keys (and a
-`Glyphs` entry if it needs a new icon), and a SPEC section. Nothing else lists widgets: the registry
-tests (`WidgetRegistryTests`) fail by name when a part is missing. Settings pages register one line in
-`ConfigPages.AppPages`.
+Adding a widget or a provider is creating its folder: run `scripts/new-module.ps1` (it writes the
+project, the module class with its descriptor, the config, a view stub, the 30 locale files, the
+`SPEC.md` with the next free tag block, a first test, and one line in `Themia.slnx`). The glob
+references, the registry generator (THEMIAMOD001..004: the id is the folder's name in camelCase)
+and the module test host pick it up; nothing in the app, Core or the SDK is edited. A module builds
+on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
+an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). Still outside the folder (M4, see
+docs/WIDGET-KIT.md 11.1): settings rows (`FluentLayout` is the host's), `ItemMenu`, `ShellLauncher`;
+and the widgets not moved yet keep their descriptor on their config in Core and their module in
+`Widgets/Modules/<Name>Module.cs`. Settings pages register one line in `ConfigPages.AppPages`.
 
 ## Engineering principles (non-negotiable)
 
