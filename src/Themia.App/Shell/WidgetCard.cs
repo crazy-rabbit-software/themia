@@ -396,7 +396,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // The user's own label, then whatever the view knows about itself, then the catalogue.
         _headerTitle.Text = !string.IsNullOrWhiteSpace(Model.Label) ? Model.Label
             : !string.IsNullOrWhiteSpace(_viewTitle) ? _viewTitle
-            : ModuleCatalog.Of(Model.Kind).Label;
+            : ModuleCatalog.Of(Model.Kind).Name;
 
         var placement = Model.ShownHeader;
 

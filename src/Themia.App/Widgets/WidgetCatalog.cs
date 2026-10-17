@@ -41,7 +41,7 @@ internal static class WidgetCatalog
         var locale = Strings.Current;
         return new WidgetSearchDoc(
             definition.Id.Value,
-            Both(locale, definition.LabelId),
+            Both(locale, definition.Label),
             definition.Keywords,
             Both(locale, definition),
             [.. path.SelectMany(shelf => Both(locale, shelf.Title))],
@@ -50,6 +50,8 @@ internal static class WidgetCatalog
 
     /// <summary>The text in <paramref name="locale"/>, then in English when that differs; the first is the shown one.</summary>
     private static string[] Both(Locale locale, Str id) => Both(Strings.Get(locale, id), Strings.Get(Locale.En, id));
+
+    private static string[] Both(Locale locale, LocalText text) => Both(text.Text(locale), text.Text(Locale.En));
 
     private static string[] Both(Locale locale, WidgetDescriptor widget) => Both(widget.Describe(locale), widget.Describe(Locale.En));
 

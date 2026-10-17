@@ -94,7 +94,7 @@ internal sealed partial class AppHost
             return;
         }
 
-        var defaultTitle = ModuleCatalog.Of(widget.Kind).Label;
+        var defaultTitle = ModuleCatalog.Of(widget.Kind).Name;
         if (!string.Equals(widget.Label, QuickSet.Title(typed, defaultTitle), StringComparison.Ordinal))
         {
             Mutate(_ => QuickSet.SetTitle(view, widgetId, typed, defaultTitle));

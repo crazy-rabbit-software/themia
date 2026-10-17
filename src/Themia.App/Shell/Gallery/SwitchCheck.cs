@@ -138,7 +138,7 @@ internal static class SwitchCheck
             }
             else
             {
-                var kinds = ModuleCatalog.Widgets.Select(k => new ShowcaseKind(k.Id, k.Label, k.Glyph)).ToList();
+                var kinds = ModuleCatalog.Widgets.Select(k => new ShowcaseKind(k.Id, k.Name, k.Glyph)).ToList();
                 ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx));
             }
 

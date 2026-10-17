@@ -196,7 +196,7 @@ internal sealed partial class PropertiesStrip : Grid
         var commands = _commands;
         if (_offer is { TitleWidgetId: { } id, TitleKind: { } kind })
         {
-            AddRow(Str.Group_Title_Label.Text(), TitleBox(commands, id, ModuleCatalog.Of(kind).Label, _offer.Label));
+            AddRow(Str.Group_Title_Label.Text(), TitleBox(commands, id, ModuleCatalog.Of(kind).Name, _offer.Label));
         }
         else
         {

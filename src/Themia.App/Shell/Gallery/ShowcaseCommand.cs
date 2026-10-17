@@ -106,7 +106,7 @@ internal static class ShowcaseCommand
         var uiScale = double.IsFinite(state.Design.UiScale) && state.Design.UiScale > 0 ? state.Design.UiScale : 1.0;
 
         var kinds = ModuleCatalog.Widgets
-            .Select(d => new ShowcaseKind(d.Id, d.Label, d.Glyph))
+            .Select(d => new ShowcaseKind(d.Id, d.Name, d.Glyph))
             .ToList();
         var views = ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx, displayScale * uiScale);
         var removed = ShowcaseViews.Replace(state, views);

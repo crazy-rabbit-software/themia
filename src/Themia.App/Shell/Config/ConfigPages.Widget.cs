@@ -95,7 +95,7 @@ internal static partial class ConfigPages
     {
         var definition = ModuleCatalog.Of(widget.Kind);
         var rows = WidgetRows(widget, navigate, save);
-        return Page(string.IsNullOrWhiteSpace(widget.Label) ? definition.Label : widget.Label!, rows, definition.Description);
+        return Page(string.IsNullOrWhiteSpace(widget.Label) ? definition.Name : widget.Label!, rows, definition.Describe());
     }
 
     /// <summary>The kind's own rows, in the page's order, the danger section last.</summary>

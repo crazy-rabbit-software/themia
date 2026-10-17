@@ -45,11 +45,11 @@ public sealed record WidgetDescriptor
     /// <summary>[S-6903] The source-generated JSON metadata that knows <see cref="ConfigType"/> (AOT: no reflection).</summary>
     public required IJsonTypeInfoResolver Json { get; init; }
 
-    /// <summary>Its name, as a string id: <see cref="Label"/> reads it in the current language ([S-1109]).</summary>
-    public required Str LabelId { get; init; }
+    /// <summary>[S-6909] Its name, from its own string table: read in the current language each time.</summary>
+    public required LocalText Label { get; init; }
 
     /// <summary>The picker's one line under the name.</summary>
-    public required Str DescriptionId { get; init; }
+    public required LocalText Description { get; init; }
 
     /// <summary>[S-1115] The facts its description's placeholders take ("15-minute steps"), written in the language's digits.</summary>
     public IReadOnlyList<StringArg> DescriptionFacts { get; init; } = [];
@@ -79,11 +79,11 @@ public sealed record WidgetDescriptor
     public IReadOnlyList<string> ProviderNames { get; init; } = [];
 
     /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
-    public string Label => LabelId.Text();
+    public string Name => Label.Text();
 
-    /// <summary>The description in the current language.</summary>
-    public string Description => Describe(Strings.Current);
+    /// <summary>The description in the current language, its facts filled.</summary>
+    public string Describe() => Describe(Strings.Current);
 
     /// <summary>The description in <paramref name="locale"/>, its facts filled.</summary>
-    public string Describe(Locale locale) => Strings.Format(locale, DescriptionId, [.. DescriptionFacts]);
+    public string Describe(Locale locale) => Description.Format(locale, [.. DescriptionFacts]);
 }

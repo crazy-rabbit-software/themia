@@ -82,7 +82,7 @@ public sealed partial class WidgetRegistryTests
     {
         var widget = Of(id);
 
-        Assert.False(string.IsNullOrWhiteSpace(Strings.Get(Locale.En, widget.LabelId)));
+        Assert.False(string.IsNullOrWhiteSpace(widget.Label.Text(Locale.En)));
         Assert.False(string.IsNullOrWhiteSpace(widget.Describe(Locale.En)));
         Assert.DoesNotContain("{", widget.Describe(Locale.En), StringComparison.Ordinal);
         Assert.Single(widget.Glyph.EnumerateRunes());

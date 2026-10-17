@@ -195,7 +195,7 @@ internal sealed class SettingsSearchIndex(AppHost host)
     };
 
     private static string Label(WidgetInstance widget)
-        => string.IsNullOrWhiteSpace(widget.Label) ? ModuleCatalog.Of(widget.Kind).Label : widget.Label!;
+        => string.IsNullOrWhiteSpace(widget.Label) ? ModuleCatalog.Of(widget.Kind).Name : widget.Label!;
 
     private static string? GlyphOf(SettingRow row) => row.Card switch
     {

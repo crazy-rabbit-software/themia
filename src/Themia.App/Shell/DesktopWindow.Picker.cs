@@ -180,7 +180,7 @@ internal sealed partial class DesktopWindow
             var definition = ModuleCatalog.Of(outlines[i].Kind);
 
             ghost.Icon.Glyph = definition.Glyph;
-            ghost.Label.Text = definition.Label;
+            ghost.Label.Text = definition.Name;
             ghost.Content.Visibility = box.Width >= GhostLabelMinWidth && box.Height >= GhostLabelMinHeight
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -278,7 +278,7 @@ internal sealed partial class DesktopWindow
     {
         if (payload.SingleKind is { } kind)
         {
-            var name = ModuleCatalog.Of(kind).Label;
+            var name = ModuleCatalog.Of(kind).Name;
             return payload.Mode switch
             {
                 PlacementMode.Move => Str.Shell_Place_MoveOne.Format(("name", name)),

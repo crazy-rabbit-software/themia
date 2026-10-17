@@ -393,7 +393,7 @@ internal sealed partial class WidgetPicker : Grid
         var (glyph, label, help) = row switch
         {
             AddFolder folder => (ModuleCatalog.Of(folder.Shelf.Icon).Glyph, folder.Shelf.Title.Text(), (string?)null),
-            AddPick pick => (ModuleCatalog.Of(pick.Kind).Glyph, ModuleCatalog.Of(pick.Kind).Label, ModuleCatalog.Of(pick.Kind).Description),
+            AddPick pick => (ModuleCatalog.Of(pick.Kind).Glyph, ModuleCatalog.Of(pick.Kind).Name, ModuleCatalog.Of(pick.Kind).Describe()),
             _ => (string.Empty, string.Empty, null),
         };
 
@@ -607,7 +607,7 @@ internal sealed partial class WidgetPicker : Grid
         {
             var definition = ModuleCatalog.Of(home.Kind);
             var path = string.Join(" › ", home.Path.Select(shelf => shelf.Title.Text()));
-            var button = RowButton(definition.Glyph, definition.Label, definition.Description, folder: false, ResultHeight, path);
+            var button = RowButton(definition.Glyph, definition.Name, definition.Describe(), folder: false, ResultHeight, path);
             var kind = home.Kind;
             button.Click += (_, _) => Pick(kind);
             _resultRows.Children.Add(button);
