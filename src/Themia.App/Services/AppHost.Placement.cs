@@ -1,3 +1,4 @@
+using Themia.App.Interop;
 using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -17,6 +18,9 @@ internal sealed partial class AppHost
 
     /// <summary>Raised when placement starts, ends or is cancelled.</summary>
     public event Action? PlacementChanged;
+
+    /// <summary>[S-1594] Escape while placing, wherever the keyboard is. Created on the first placement, disposed with the host.</summary>
+    private PlacementKeyWatcher? _placementKeys;
 
     /// <summary>[S-421] Start placing a new widget of <paramref name="kind"/> at its default size.</summary>
     public void BeginPlacement(WidgetKind kind)
@@ -47,6 +51,7 @@ internal sealed partial class AppHost
         SetEditMode(true);
         Select(null);
         Placing = payload;
+        PlacementKeys()?.Arm();
         PlacementChanged?.Invoke();
         Log.Info(Scope, $"placing: {payload.Mode} of {payload.Count} widget(s)");
     }
@@ -63,6 +68,7 @@ internal sealed partial class AppHost
         }
 
         Placing = null;
+        _placementKeys?.Disarm();
         PlacementChanged?.Invoke();
     }
 
@@ -85,6 +91,7 @@ internal sealed partial class AppHost
         // Placement ends before the mutation lands, so the relayout it triggers already sees the
         // surface back in its ordinary edit state rather than drawing a ghost over the new cards.
         Placing = null;
+        _placementKeys?.Disarm();
         PlacementChanged?.Invoke();
 
         if (!Land(plan, surface.CurrentViewId, UndoActions.ForPlacement(payload.Mode)))
@@ -117,5 +124,28 @@ internal sealed partial class AppHost
         var landedIn = State.FindView(viewId)?.Id ?? State.ActiveView().Id;
         SelectMany(landedIn, plan.Roots);
         return true;
+    }
+
+    private PlacementKeyWatcher? PlacementKeys()
+    {
+        if (_placementKeys is null && !_disposed)
+        {
+            try
+            {
+                _placementKeys = new PlacementKeyWatcher(_dispatcher, CancelPlacement);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, "could not start watching for Escape; a placement cancels by a right-click, or Escape on a surface that has the keyboard", ex);
+            }
+        }
+
+        return _placementKeys;
+    }
+
+    private void StopPlacementKeys()
+    {
+        _placementKeys?.Dispose();
+        _placementKeys = null;
     }
 }

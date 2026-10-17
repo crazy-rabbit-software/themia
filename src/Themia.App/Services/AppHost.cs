@@ -371,6 +371,7 @@ internal sealed partial class AppHost : IDisposable
 
         _disposed = true;
         StopOutsideWatch();
+        StopPlacementKeys();
         Notices.Disconnect();
         StopGameMode();
         DesktopZOrder.Stop();

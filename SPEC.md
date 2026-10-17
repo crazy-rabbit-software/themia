@@ -5443,6 +5443,16 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   any more. Click lands; Escape, a right-click or leaving edit mode cancels and changes nothing. The
   licence gate ([S-1065]) runs before the ghost appears (what the session would create: a copy of N
   widgets counts N, a move 0) and again on landing.
+- **[S-1594]** Escape cancels a placement wherever the keyboard is: on another display, in another app, with
+  the focus on nothing after the menu that started it closed. A surface hears keys only as the foreground
+  window with the focus inside it, and a placement mostly starts when it is neither (user report 2026-10-17:
+  Escape did nothing while placing). While a session is open a low-level keyboard hook on a thread of its
+  own (`PlacementKeyWatcher`, the outside-click watcher's pattern, [S-815]) hears Escape and cancels on the UI
+  thread; the cancelling press, its repeats and its release are kept from every other window, so one press
+  does not also back out of edit mode ([S-1583]), and the hook stays on until that Escape is up. Escape with
+  Ctrl, Alt or the Windows key is the system's and passes on. Cancelling changes nothing: a cut stays on
+  the clipboard, its originals where they were, nothing is created ([S-1590]). Core `PlacementKeyFilter`;
+  tests `S1594_`.
 - **[S-1588]** A payload taken from the selection holds the selected widgets of that view, in view
   order, as a snapshot with original ids.
 - **[S-1589]** A **copy** (paste of a copy) lands fresh widgets with fresh ids every time, so

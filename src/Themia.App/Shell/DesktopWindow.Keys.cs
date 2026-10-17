@@ -121,7 +121,11 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-1583] Escape backs out one step: out of placing, then the selection, then editing.</summary>
+    /// <summary>
+    /// [S-1583] Escape backs out one step: out of placing, then the selection, then editing. While
+    /// placing, the placement's keyboard watch ([S-1594]) takes Escape before any window sees it; the
+    /// first step here is for a surface that has the keyboard when that watch could not start.
+    /// </summary>
     private void BackOneStep()
     {
         if (_host.Placing is not null)
