@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -38,7 +39,7 @@ namespace Themia.App.Widgets;
 /// [S-6416] A file whose shell icon is the line's icon, in place of <paramref name="Glyph"/> (an app in
 /// "Open with", as Explorer draws it).
 /// </param>
-internal readonly record struct ItemMenuEntry(
+public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
     Action? Action,
@@ -72,9 +73,22 @@ internal readonly record struct ItemMenuEntry(
 /// of taking the process down from inside a XAML event.
 /// </para>
 /// </summary>
-internal static class ItemMenu
+public static class ItemMenu
 {
     private const string Scope = "item-menu";
+
+    /// <summary>The shell icon of a file at a pixel size (the host's icon cache), for a line with an <see cref="ItemMenuEntry.IconFile"/>.</summary>
+    private static Func<string, int, Task<ImageSource?>>? _fileIcons;
+
+    /// <summary>The host's shell-icon reader. Once per process, before any menu is shown.</summary>
+    internal static void InstallFileIcons(Func<string, int, Task<ImageSource?>> icons)
+    {
+        ArgumentNullException.ThrowIfNull(icons);
+        if (Interlocked.CompareExchange(ref _fileIcons, icons, null) is not null)
+        {
+            throw new InvalidOperationException("the file icons are installed once per process");
+        }
+    }
 
     /// <summary>
     /// Build a menu of <paramref name="entries"/>, or null when there is nothing in it.
@@ -430,8 +444,8 @@ internal static class ItemMenu
         try
         {
             var pixels = (int)Math.Round(16 * (image.XamlRoot?.RasterizationScale ?? 1.5));
-            var entry = new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, false, 0, default, false);
-            image.Source = await Themia.App.Services.Files.FileIcons.IconAsync(entry, Math.Max(16, pixels)).ConfigureAwait(true);
+            var icons = Volatile.Read(ref _fileIcons) ?? throw new InvalidOperationException("no file icons installed: the host installs them before any menu is shown");
+            image.Source = await icons(file, Math.Max(16, pixels)).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
