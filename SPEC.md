@@ -903,7 +903,7 @@ tests `SkyWidgetsTests` (`S310x_`).
 Every widget is a module: an id, a descriptor and a view factory, found at build time (design:
 `docs/WIDGET-KIT.md` section 4). Owning files: `Themia.Sdk/Modules/*`, `Themia.Sdk.WinUI/Modules/*`,
 `Themia.Modules.Generator/*`, `Themia.App/Widgets/Modules/*`. Tests: `ModuleIdsTests`,
-`ModuleRegistryGeneratorTests`, `WidgetRegistryTests`.
+`ModuleRegistryGeneratorTests`, `WidgetRegistryTests`, `LocaleModuleTests`.
 
 - **[S-6900]** A module id (widget, provider, feature, cadence) is camelCase: a lowercase ASCII
   letter, then ASCII letters and digits, at most 64 characters (`weatherNow`, `airplaneModeToggle`).
@@ -951,6 +951,13 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   Browse and the families inside them, with their own places) are the host's and name no widget; a
   folder's row wears its first widget's icon. No two widgets share a place, and none is at home in
   Popular, Browse or More.
+- **[S-6909]** Strings per module: a project that sets `ThemiaStringsEnum` (`YearProgressStr`, a
+  name ending in `Str`, else THEMIALOC010) gets its own enum, tables and `Text()`/`Format()`/
+  `Plural()`/`Local()` extensions from its own `Localization/Locales`, in its own namespace, under the
+  same file rules as the host's ([S-1101], [S-1111]); the SDK sets none and gets `Str`. Every table,
+  the host's included, looks up through one `StringTable` ([S-1104]: the language, else English
+  noted once, else the key). A descriptor hands the host its texts as `LocalText` (a table and an
+  id, or a fixed brand name such as "Microsoft"), read in the current language each time.
 
 ## Adding a widget
 

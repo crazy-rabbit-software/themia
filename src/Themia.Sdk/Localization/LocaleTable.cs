@@ -5,7 +5,7 @@ namespace Themia.Core.Localization;
 /// (null where the language has none — the caller falls back to English) and, for plural keys, the
 /// six CLDR forms.
 /// </summary>
-internal sealed class LocaleTable
+public sealed class LocaleTable
 {
     private readonly string?[] _texts;
     private readonly string?[]?[] _plurals;

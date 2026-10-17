@@ -1,5 +1,6 @@
 using System.Text;
 using Themia.Core.Diagnostics;
+using Themia.Sdk;
 
 namespace Themia.Core.Localization;
 
@@ -21,8 +22,6 @@ public static class Strings
 {
     private const string Scope = "i18n";
 
-    private static readonly Lock MissingGate = new();
-    private static readonly HashSet<int> MissingLogged = [];
     private static Dictionary<string, Str>? _byKey;
     private static volatile Locale _current = Locale.En;
 
@@ -67,12 +66,18 @@ public static class Strings
     // -----------------------------------------------------------------------------------------
 
     /// <summary>The text of <paramref name="id"/> in <paramref name="locale"/>, English where it has none.</summary>
-    public static string Get(Locale locale, Str id)
-        => Lookup(StringTables.For(locale), StringTables.For(Locale.En), (int)id);
+    public static string Get(Locale locale, Str id) => StringTables.Table.Get(locale, (int)id);
 
-    /// <summary>[S-1104] The lookup with its fallback, over explicit tables (so it can be tested with gaps).</summary>
-    internal static string Lookup(LocaleTable own, LocaleTable english, int index)
+    /// <summary>The host's own table (<see cref="Str"/>), as every module's is: a <see cref="StringTable"/>.</summary>
+    public static StringTable Host => StringTables.Table;
+
+    /// <summary>
+    /// [S-1104] The lookup with its fallback, over explicit tables (so it can be tested with gaps).
+    /// <paramref name="table"/> notes a missing text and names an unknown id; the host's when not given.
+    /// </summary>
+    internal static string Lookup(LocaleTable own, LocaleTable english, int index, StringTable? table = null)
     {
+        table ??= StringTables.Table;
         if (own.Text(index) is { } text)
         {
             return text;
@@ -80,11 +85,11 @@ public static class Strings
 
         if (english.Text(index) is { } fallback)
         {
-            NoteMissing(own.Locale, index);
+            table.NoteMissing(own.Locale, index);
             return fallback;
         }
 
-        return Unknown(index);
+        return table.Unknown(index);
     }
 
     /// <summary>The text of a key given as a string (a key built at run time, e.g. per widget kind).</summary>
@@ -119,10 +124,7 @@ public static class Strings
     /// A key that is not a plural just formats.
     /// </summary>
     public static string Plural(Locale locale, Str id, long count, params ReadOnlySpan<StringArg> args)
-    {
-        var template = PluralLookup(StringTables.For(locale), StringTables.For(Locale.En), (int)id, count);
-        return Interpolate(template, locale, args, count);
-    }
+        => StringTables.Table.Plural(locale, (int)id, count, args);
 
     /// <summary>The text of <paramref name="id"/> with its <c>{name}</c> placeholders filled in.</summary>
     public static string Format(Locale locale, Str id, params ReadOnlySpan<StringArg> args)
@@ -200,8 +202,9 @@ public static class Strings
     /// [S-1103]/[S-1104] The plural form for a count, over explicit tables: the language's own
     /// category, its "other", then English's form for the count.
     /// </summary>
-    internal static string PluralLookup(LocaleTable own, LocaleTable english, int index, long count)
+    internal static string PluralLookup(LocaleTable own, LocaleTable english, int index, long count, StringTable? table = null)
     {
+        table ??= StringTables.Table;
         if (own.Forms(index) is { } forms)
         {
             var form = forms[(int)PluralRules.For(own.Locale, count)] ?? forms[(int)PluralCategory.Other];
@@ -217,14 +220,14 @@ public static class Strings
             return text;
         }
 
-        NoteMissing(own.Locale, index);
+        table.NoteMissing(own.Locale, index);
 
         if (english.Forms(index) is { } enForms)
         {
-            return enForms[(int)PluralRules.For(english.Locale, count)] ?? enForms[(int)PluralCategory.Other] ?? Unknown(index);
+            return enForms[(int)PluralRules.For(english.Locale, count)] ?? enForms[(int)PluralCategory.Other] ?? table.Unknown(index);
         }
 
-        return english.Text(index) ?? Unknown(index);
+        return english.Text(index) ?? table.Unknown(index);
     }
 
     private static string? Resolve(ReadOnlySpan<char> name, Locale locale, ReadOnlySpan<StringArg> args, long? count)
@@ -250,37 +253,6 @@ public static class Strings
         }
 
         return i > open + 1 && i < text.Length && text[i] == '}' ? i : -1;
-    }
-
-    private static void NoteMissing(Locale locale, int index)
-    {
-        if ((uint)index >= (uint)StringTables.Count)
-        {
-            // Not a missing translation but a bad id; Unknown() reports that one.
-            return;
-        }
-
-        if (locale == Locale.En)
-        {
-            return;
-        }
-
-        lock (MissingGate)
-        {
-            if (!MissingLogged.Add(((int)locale * StringTables.Count) + index))
-            {
-                return;
-            }
-        }
-
-        Log.Debug(Scope, $"{LanguageResolver.Code(locale)} has no '{StringTables.Keys[index]}', showing English");
-    }
-
-    private static string Unknown(int index)
-    {
-        // Only reachable through a cast from a number the enum does not have.
-        Log.Warn(Scope, $"no string has id {index}");
-        return (uint)index < (uint)StringTables.Count ? StringTables.Keys[index] : $"#{index}";
     }
 
     private static Dictionary<string, Str> BuildKeyMap()
@@ -309,6 +281,9 @@ public static class StrExtensions
 
     /// <summary>The dotted key, e.g. <c>common.save</c>.</summary>
     public static string Key(this Str id) => StringCatalog.Key(id);
+
+    /// <summary>The text as a <see cref="LocalText"/>: how a descriptor hands its name to the host ([S-1109]).</summary>
+    public static LocalText Local(this Str id) => new(StringTables.Table, (int)id);
 }
 
 /// <summary>
