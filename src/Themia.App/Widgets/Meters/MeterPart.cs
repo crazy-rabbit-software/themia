@@ -205,15 +205,4 @@ internal abstract class MeterPart
     /// <summary>[S-1917] Debug renders: the fixed reading <c>--state sample</c> shows, in this kind's own terms.</summary>
     public virtual MeterReading SampleReading => new(0.62, Formatting.Percent(0.62), true);
 
-    /// <summary>The part for a meter kind.</summary>
-    public static MeterPart For(WidgetKind kind) => kind switch
-    {
-        WidgetKind.Cpu => new CpuMeter(),
-        WidgetKind.Memory => new MemoryMeter(),
-        WidgetKind.Disk => new DiskMeter(),
-        WidgetKind.Battery => new BatteryMeter(),
-        WidgetKind.Network => new NetworkMeter(),
-        WidgetKind.Ping => new PingMeter(),
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "not a meter"),
-    };
 }

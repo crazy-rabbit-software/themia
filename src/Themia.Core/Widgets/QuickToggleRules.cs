@@ -94,23 +94,10 @@ public static class QuickToggleRules
     ];
 
     /// <summary>[S-3900] The toggle a kind stands for, or null for a kind that is not a toggle.</summary>
-    public static QuickToggle? ForKind(WidgetKind kind) => kind switch
-    {
-        WidgetKind.WifiToggle => QuickToggle.Wifi,
-        WidgetKind.BluetoothToggle => QuickToggle.Bluetooth,
-        WidgetKind.AirplaneModeToggle => QuickToggle.AirplaneMode,
-        WidgetKind.EnergySaverToggle => QuickToggle.EnergySaver,
-        WidgetKind.NightLightToggle => QuickToggle.NightLight,
-        WidgetKind.RotationLockToggle => QuickToggle.RotationLock,
-        WidgetKind.DoNotDisturbToggle => QuickToggle.DoNotDisturb,
-        WidgetKind.SoundToggle => QuickToggle.Sound,
-        WidgetKind.MicrophoneToggle => QuickToggle.Microphone,
-        WidgetKind.SpatialSoundToggle => QuickToggle.SpatialSound,
-        WidgetKind.MonoAudioToggle => QuickToggle.MonoAudio,
-        WidgetKind.ColorFiltersToggle => QuickToggle.ColorFilters,
-        WidgetKind.GameModeToggle => QuickToggle.GameMode,
-        _ => null,
-    };
+    public static QuickToggle? ForKind(WidgetKind kind) => ByKind.Value.TryGetValue(kind, out var toggle) ? toggle : null;
+
+    /// <summary>The inverse of <see cref="KindOf"/>, built from it so the two cannot disagree.</summary>
+    private static readonly Lazy<Dictionary<WidgetKind, QuickToggle>> ByKind = new(() => Enum.GetValues<QuickToggle>().ToDictionary(KindOf));
 
     /// <summary>[S-3900] The widget kind of a toggle: the inverse of <see cref="ForKind"/>.</summary>
     public static WidgetKind KindOf(QuickToggle toggle) => toggle switch

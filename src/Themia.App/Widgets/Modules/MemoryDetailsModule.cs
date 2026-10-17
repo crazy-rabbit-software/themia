@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Themia.App.Shell.Config;
+using Themia.App.Widgets.Details;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -16,5 +17,5 @@ public sealed class MemoryDetailsModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Details(rows.Rows, (DetailConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new DetailView(WidgetKind.MemoryDetails);
+    public FrameworkElement CreateView() => new DetailView(new MemoryDetailPart());
 }

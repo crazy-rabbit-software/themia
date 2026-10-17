@@ -64,11 +64,12 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     // The hero text last split, so a tick that did not change it does not touch the readout.
     private string? _heroText;
 
-    public DetailView(WidgetKind kind)
+    public DetailView(DetailPart part)
     {
-        _kind = kind;
-        _part = DetailPart.For(kind);
-        _config = WidgetConfig.CreateDefault(kind);
+        ArgumentNullException.ThrowIfNull(part);
+        _kind = part.Kind;
+        _part = part;
+        _config = WidgetConfig.CreateDefault(_kind);
 
         _heroBlock.SetValue("--", string.Empty, false);
         _caption = _heroBlock.AddLine(FluentType.Body);
@@ -87,7 +88,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
 
         BuildList();
 
-        _empty = Fluent.EmptyState(ModuleCatalog.Of(kind).Glyph, _emptyText, out _);
+        _empty = Fluent.EmptyState(ModuleCatalog.Of(_kind).Glyph, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
         SetRowSpan(_empty, 3);
         SetColumnSpan(_empty, 2);

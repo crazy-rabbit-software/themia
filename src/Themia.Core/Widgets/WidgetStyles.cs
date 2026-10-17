@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -58,17 +59,17 @@ public interface IStyled
 /// </summary>
 public static class WidgetStyles
 {
-    private static readonly IReadOnlyList<StyleOption>[] ByKind = Discover();
+    private static readonly Lazy<Dictionary<WidgetKind, IReadOnlyList<StyleOption>>> ByKind = new(Discover);
 
     /// <summary>[S-6001] The styles of <paramref name="kind"/>; empty for a kind without styles.</summary>
     public static IReadOnlyList<StyleOption> For(WidgetKind kind)
-        => (int)kind >= 0 && (int)kind < ByKind.Length ? ByKind[(int)kind] : [];
+        => ByKind.Value.TryGetValue(kind, out var styles) ? styles : [];
 
     /// <summary>[S-6002] Whether a kind has a style choice at all: at least two styles.</summary>
     public static bool Offers(WidgetKind kind) => For(kind).Count >= 2;
 
     /// <summary>Every kind that offers a style choice.</summary>
-    public static IEnumerable<WidgetKind> StyledKinds => Enum.GetValues<WidgetKind>().Where(Offers);
+    public static IEnumerable<WidgetKind> StyledKinds => ModuleCatalog.Widgets.Select(w => w.Kind).Where(Offers);
 
     /// <summary>The current style of <paramref name="config"/>; null for a kind without styles.</summary>
     public static int? Current(WidgetConfig config)
@@ -163,17 +164,14 @@ public static class WidgetStyles
         }
     }
 
-    private static IReadOnlyList<StyleOption>[] Discover()
+    private static Dictionary<WidgetKind, IReadOnlyList<StyleOption>> Discover()
     {
-        var kinds = Enum.GetValues<WidgetKind>();
-        var table = new IReadOnlyList<StyleOption>[kinds.Max(k => (int)k) + 1];
-        Array.Fill(table, []);
-
-        foreach (var kind in kinds)
+        var table = new Dictionary<WidgetKind, IReadOnlyList<StyleOption>>();
+        foreach (var widget in ModuleCatalog.Widgets)
         {
-            if (WidgetConfig.CreateDefault(kind) is IStyled styled)
+            if (widget.CreateDefault() is IStyled styled)
             {
-                table[(int)kind] = styled.Styles;
+                table[widget.Kind] = styled.Styles;
             }
         }
 

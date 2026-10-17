@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Themia.App.Shell.Config;
+using Themia.App.Widgets.Meters;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -16,5 +17,5 @@ public sealed class CpuModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Cpu(rows.Rows, (CpuConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MeterView(WidgetKind.Cpu);
+    public FrameworkElement CreateView() => new MeterView(new CpuMeter());
 }

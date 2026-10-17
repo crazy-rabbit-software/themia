@@ -74,16 +74,4 @@ internal abstract class DetailPart
     /// <summary>Let go of every feed. Safe twice.</summary>
     public abstract void Detach();
 
-    /// <summary>The part for a detail kind.</summary>
-    public static DetailPart For(WidgetKind kind) => kind switch
-    {
-        WidgetKind.CpuDetails => new CpuDetailPart(),
-        WidgetKind.MemoryDetails => new MemoryDetailPart(),
-        WidgetKind.TopProcesses => new ProcessesPart(),
-        WidgetKind.NetworkDetails => new NetworkDetailPart(),
-        WidgetKind.BatteryDetails => new BatteryDetailPart(),
-        WidgetKind.PingDetails => new PingDetailPart(),
-        WidgetKind.GpuDetails => new GpuDetailPart(),
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "not a detail widget"),
-    };
 }

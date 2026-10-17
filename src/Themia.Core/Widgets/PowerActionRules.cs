@@ -101,17 +101,10 @@ public static class PowerActionRules
     ];
 
     /// <summary>[S-1910] The action a widget kind stands for, or null for a kind that is not a power widget.</summary>
-    public static PowerAction? ForKind(WidgetKind kind) => kind switch
-    {
-        WidgetKind.Shutdown => PowerAction.Shutdown,
-        WidgetKind.Restart => PowerAction.Restart,
-        WidgetKind.Sleep => PowerAction.Sleep,
-        WidgetKind.Hibernate => PowerAction.Hibernate,
-        WidgetKind.Lock => PowerAction.Lock,
-        WidgetKind.SignOut => PowerAction.SignOut,
-        WidgetKind.ScreenOff => PowerAction.ScreenOff,
-        _ => null,
-    };
+    public static PowerAction? ForKind(WidgetKind kind) => ByKind.Value.TryGetValue(kind, out var action) ? action : null;
+
+    /// <summary>The inverse of <see cref="KindOf"/>, built from it so the two cannot disagree.</summary>
+    private static readonly Lazy<Dictionary<WidgetKind, PowerAction>> ByKind = new(() => Enum.GetValues<PowerAction>().ToDictionary(KindOf));
 
     /// <summary>[S-1910] The widget kind of an action: the inverse of <see cref="ForKind"/>.</summary>
     public static WidgetKind KindOf(PowerAction action) => action switch

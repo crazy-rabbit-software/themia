@@ -96,13 +96,14 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private const bool _frozen = false;
 #endif
 
-    public MeterView(WidgetKind kind)
+    public MeterView(MeterPart part)
     {
         // No padding on the view: the reading carries the content inset and the history none
         // ([S-1824]), so the gap under the reading is the ladder's to size.
-        _kind = kind;
-        _part = MeterPart.For(kind);
-        _config = WidgetConfig.CreateDefault(kind);
+        ArgumentNullException.ThrowIfNull(part);
+        _kind = part.Kind;
+        _part = part;
+        _config = WidgetConfig.CreateDefault(_kind);
         _band = new SparkBand(60, _part.Scale);
         _number = new NumberGlide(ShowNumber, _part.Resolution);
 
@@ -124,7 +125,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
         // Only a battery can be absent — every other meter that cannot be read is a meter that could
         // be read a moment ago, which is [S-82]'s dimmed "--" rather than an empty state.
-        _absentState = _part.CanBeAbsent ? BuildAbsentState(ModuleCatalog.Of(kind).Glyph) : null;
+        _absentState = _part.CanBeAbsent ? BuildAbsentState(ModuleCatalog.Of(_kind).Glyph) : null;
 
         if (_absentState is not null)
         {

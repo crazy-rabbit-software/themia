@@ -19,7 +19,7 @@ namespace Themia.Core.Widgets;
 public static class ContentAlignment
 {
     /// <summary>[S-6581] The kinds with a style whose content can be aligned, in the enum's order.</summary>
-    public static IEnumerable<WidgetKind> All => Enum.GetValues<WidgetKind>().Where(Offers);
+    public static IEnumerable<WidgetKind> All => ModuleCatalog.Widgets.Select(w => w.Kind).Order().Where(Offers);
 
     /// <summary>[S-6581] Whether any style of <paramref name="kind"/> can be aligned.</summary>
     public static bool Offers(WidgetKind kind) => typeof(IContentAligned).IsAssignableFrom(ModuleCatalog.Of(kind).ConfigType);

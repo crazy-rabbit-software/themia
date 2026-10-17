@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Themia.App.Shell.Config;
+using Themia.App.Widgets.Meters;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -16,5 +17,5 @@ public sealed class PingModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Ping(rows.Rows, (PingConfig)config, rows.Save);
 
-    public FrameworkElement CreateView() => new MeterView(WidgetKind.Ping);
+    public FrameworkElement CreateView() => new MeterView(new PingMeter());
 }
