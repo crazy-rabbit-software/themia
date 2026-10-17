@@ -11,5 +11,5 @@ namespace Themia.App.Shell.Config;
 internal static partial class WidgetSettings
 {
     public static void Moon(List<FrameworkElement> rows, MoonConfig config, Action save)
-        => SkyPlace(rows, config, save, longitude: config.Offers(MoonSetting.Longitude));
+        => SkyPlaceRows.Add(rows, config, save, longitude: config.Offers(MoonSetting.Longitude));
 }

@@ -15,9 +15,10 @@ namespace Themia.App.Shell.Config;
 /// place no geocoder knows (a cabin, a ship, a pole).
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+public static class SkyPlaceRows
 {
-    private static void SkyPlace(List<FrameworkElement> rows, SkyPlaceConfig config, Action save, bool longitude = true)
+    /// <summary>The place rows, built into <paramref name="rows"/>; the longitude only where the style reads it.</summary>
+    public static void Add(List<FrameworkElement> rows, SkyPlaceConfig config, Action save, bool longitude = true)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);

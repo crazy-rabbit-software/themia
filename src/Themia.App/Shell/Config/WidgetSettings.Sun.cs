@@ -13,7 +13,7 @@ internal static partial class WidgetSettings
 {
     public static void Sun(List<FrameworkElement> rows, SunConfig config, Action save)
     {
-        SkyPlace(rows, config, save);
+        SkyPlaceRows.Add(rows, config, save);
 
         // [S-6074] The times style is the events: no switch for them, nor a heading over nothing.
         if (!config.Offers(SunSetting.Events))
