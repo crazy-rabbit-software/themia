@@ -60,6 +60,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Themia.Core\Themia.Core.csproj" />
+    <ProjectReference Include="..\Themia.Sdk.WinUI\Themia.Sdk.WinUI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

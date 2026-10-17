@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Themia.Sdk\Themia.Sdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- The fallback tests build tables with gaps on purpose ([S-1104]). -->
     <InternalsVisibleTo Include="Themia.Core.Tests" />
   </ItemGroup>

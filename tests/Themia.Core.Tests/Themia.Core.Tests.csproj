@@ -11,6 +11,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Themia.Sdk\Themia.Sdk.csproj" />
     <ProjectReference Include="..\..\src\Themia.Core\Themia.Core.csproj" />
     <ProjectReference Include="..\..\src\Themia.Localization.Generator\Themia.Localization.Generator.csproj" />
   </ItemGroup>

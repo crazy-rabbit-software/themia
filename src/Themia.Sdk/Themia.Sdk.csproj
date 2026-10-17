@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The widget SDK, pure part (docs/WIDGET-KIT.md section 4.2): what a widget or provider module may
+    use without UI types. References nothing of ours; Themia.Core and Themia.Sdk.WinUI build on it.
+    Files moved here from Core keep their Themia.Core.* namespaces (Q17); new types use Themia.Sdk.*.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core and the tests use the moved files' internals exactly as they did when the files were Core's. -->
+    <InternalsVisibleTo Include="Themia.Core" />
+    <InternalsVisibleTo Include="Themia.Core.Tests" />
+  </ItemGroup>
+</Project>
