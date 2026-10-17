@@ -48,11 +48,15 @@ public sealed partial class ItemKindsTests
     {
         var widgets = Path.Combine(App, "Widgets");
         var skip = new HashSet<string>(StringComparer.Ordinal) { "ItemPalette.cs", "ItemFill.cs", "Fluent.cs", "WidgetCatalog.cs" };
+
+        // The shared parts a view may paint through (a ring) live in the SDK since they serve every module.
+        var parts = Path.Combine(FindRoot(), "src", "Themia.Sdk.WinUI", "Widgets");
         var files = Directory.EnumerateFiles(widgets, "*.cs", SearchOption.AllDirectories)
+            .Concat(Directory.EnumerateFiles(parts, "*.cs", SearchOption.AllDirectories))
             .Where(f => !skip.Contains(Path.GetFileName(f)))
             .ToDictionary(f => f, f => string.Join('\n', File.ReadAllLines(f).Where(l => !l.TrimStart().StartsWith("//", StringComparison.Ordinal))));
 
-        var parts = new HashSet<string>(StringComparer.Ordinal);
+        var partTypes = new HashSet<string>(StringComparer.Ordinal);
         var painting = new HashSet<string>(StringComparer.Ordinal);
         for (var grew = true; grew;)
         {
@@ -60,7 +64,7 @@ public sealed partial class ItemKindsTests
             foreach (var (path, text) in files)
             {
                 if (painting.Contains(path)
-                    || !(PaintsDirectly().IsMatch(text) || parts.Any(p => Regex.IsMatch(text, $@"\b{p}\b"))))
+                    || !(PaintsDirectly().IsMatch(text) || partTypes.Any(p => Regex.IsMatch(text, $@"\b{p}\b"))))
                 {
                     continue;
                 }
@@ -71,7 +75,7 @@ public sealed partial class ItemKindsTests
                 {
                     if (!m.Groups[1].Value.EndsWith("View", StringComparison.Ordinal))
                     {
-                        parts.Add(m.Groups[1].Value);
+                        partTypes.Add(m.Groups[1].Value);
                     }
                 }
             }
