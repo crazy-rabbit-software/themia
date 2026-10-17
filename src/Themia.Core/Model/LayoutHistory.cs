@@ -1,9 +1,11 @@
+using Themia.Sdk;
+
 namespace Themia.Core.Model;
 
 /// <summary>One widget as an undo snapshot sees it: where it is and what it is, plus its config by reference.</summary>
 public sealed record WidgetShape(
     string Id,
-    WidgetKind Kind,
+    WidgetId Kind,
     double X,
     double Y,
     double W,
@@ -173,7 +175,6 @@ public sealed class LayoutShape
                     widget = new WidgetInstance
                     {
                         Id = w.Id,
-                        Kind = w.Kind,
                         X = w.X,
                         Y = w.Y,
                         W = w.W,

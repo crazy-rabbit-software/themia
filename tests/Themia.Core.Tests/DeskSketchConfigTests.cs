@@ -2,6 +2,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -40,7 +41,7 @@ public sealed class DeskSketchConfigTests : IDisposable
     }
 
     /// <summary>Put one widget of this kind with this config into a state file, and read it back.</summary>
-    private async Task<T> RoundTrip<T>(WidgetKind kind, T config)
+    private async Task<T> RoundTrip<T>(WidgetId kind, T config)
         where T : WidgetConfig
     {
         var state = AppState.CreateDefault();
@@ -80,7 +81,7 @@ public sealed class DeskSketchConfigTests : IDisposable
             ],
         };
 
-        var reloaded = await RoundTrip(WidgetKind.Scratchpad, config);
+        var reloaded = await RoundTrip(ScratchpadConfig.Descriptor.Id, config);
 
         Assert.Equal("#F43F5E", reloaded.PenColor);
         Assert.Equal(6, reloaded.PenWidth);
@@ -101,7 +102,7 @@ public sealed class DeskSketchConfigTests : IDisposable
     [Fact]
     public async Task A_blank_pad_stays_blank()
     {
-        var reloaded = await RoundTrip(WidgetKind.Scratchpad, new ScratchpadConfig());
+        var reloaded = await RoundTrip(ScratchpadConfig.Descriptor.Id, new ScratchpadConfig());
 
         Assert.Empty(reloaded.Strokes);
     }
@@ -140,7 +141,7 @@ public sealed class DeskSketchConfigTests : IDisposable
     [Fact]
     public async Task A_quote_list_survives_the_state_file_without_doubling()
     {
-        var reloaded = await RoundTrip(WidgetKind.Quote, new QuoteConfig());
+        var reloaded = await RoundTrip(QuoteConfig.Descriptor.Id, new QuoteConfig());
 
         Assert.Equal(QuoteRotation.Bundled.Count, reloaded.Quotes.Count);
     }
@@ -157,7 +158,7 @@ public sealed class DeskSketchConfigTests : IDisposable
             Quotes = [new QuoteItem { Text = "Measure twice.", Author = "Anyone" }],
         };
 
-        var reloaded = await RoundTrip(WidgetKind.Quote, config);
+        var reloaded = await RoundTrip(QuoteConfig.Descriptor.Id, config);
 
         Assert.Equal(QuoteCadence.Hourly, reloaded.Cadence);
         Assert.True(reloaded.Shuffle);

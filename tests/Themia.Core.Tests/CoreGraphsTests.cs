@@ -18,7 +18,7 @@ public sealed class CoreGraphsTests
             {
                 Id = "v0",
                 Name = "View",
-                Widgets = [.. configs.Select((c, i) => new WidgetInstance { Id = $"w{i}", Kind = c.Kind, Config = c })],
+                Widgets = [.. configs.Select((c, i) => new WidgetInstance { Id = $"w{i}", Config = c })],
             },
         ],
     };

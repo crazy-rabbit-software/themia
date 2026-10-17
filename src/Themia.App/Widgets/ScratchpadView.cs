@@ -113,7 +113,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
 
         _hintText.Text = Str.Scratchpad_DrawHere.Text();
         _hint = Fluent.EmptyState(
-            ModuleCatalog.Of(WidgetKind.Scratchpad).Glyph,
+            ModuleCatalog.Of(ScratchpadConfig.Descriptor.Id).Glyph,
             _hintText,
             out _);
 

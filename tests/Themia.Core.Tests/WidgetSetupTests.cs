@@ -2,6 +2,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -16,18 +17,18 @@ public class WidgetSetupTests
         | AccountFeatures.Tasks;
 
     /// <summary>Every kind whose default config needs setting up, with nothing signed in.</summary>
-    private static readonly WidgetKind[] NeedSetupByDefault =
+    private static readonly WidgetId[] NeedSetupByDefault =
     [
-        WidgetKind.Countdown, WidgetKind.Rss, WidgetKind.Stocks, WidgetKind.WeatherNow, WidgetKind.WeatherForecast, WidgetKind.AirQuality, WidgetKind.RainNextHour,
-        WidgetKind.VideoStream, WidgetKind.Gallery,
-        WidgetKind.Email, WidgetKind.Calendar, WidgetKind.NextMeeting,
-        WidgetKind.WeekPlanner, WidgetKind.Contacts, WidgetKind.Tasks,
+        CountdownConfig.Descriptor.Id, RssConfig.Descriptor.Id, StocksConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, RainNextHourConfig.Descriptor.Id,
+        VideoStreamConfig.Descriptor.Id, GalleryConfig.Descriptor.Id,
+        EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, NextMeetingConfig.Descriptor.Id,
+        WeekPlannerConfig.Descriptor.Id, ContactsConfig.Descriptor.Id, TasksConfig.Descriptor.Id,
     ];
 
     [Fact]
     public void S1860_a_new_widget_asks_to_be_set_up_exactly_when_it_cannot_show_anything_yet()
     {
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var needed = WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), AccountFeatures.None);
             Assert.True(needed == NeedSetupByDefault.Contains(kind), $"{kind}: expected {NeedSetupByDefault.Contains(kind)}");
@@ -38,7 +39,7 @@ public class WidgetSetupTests
     public void S1860_widgets_that_work_out_of_the_box_never_ask()
     {
         // Seeded quotes and shortcuts, a default place, a power button, the profile folder.
-        foreach (var kind in new[] { WidgetKind.Quote, WidgetKind.Shortcuts, WidgetKind.Sun, WidgetKind.Moon, WidgetKind.Shutdown, WidgetKind.Folder, WidgetKind.Clock })
+        foreach (var kind in new[] { QuoteConfig.Descriptor.Id, ShortcutsConfig.Descriptor.Id, SunConfig.Descriptor.Id, MoonConfig.Descriptor.Id, ShutdownConfig.Descriptor.Id, FolderConfig.Descriptor.Id, ClockConfig.Descriptor.Id })
         {
             Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), AccountFeatures.None), kind.ToString());
         }
@@ -81,12 +82,13 @@ public class WidgetSetupTests
     }
 
     [Theory]
-    [InlineData(WidgetKind.Email, AccountFeatures.Mail)]
-    [InlineData(WidgetKind.Calendar, AccountFeatures.Calendar)]
-    [InlineData(WidgetKind.Contacts, AccountFeatures.Contacts)]
-    [InlineData(WidgetKind.Tasks, AccountFeatures.Tasks)]
-    public void S1861_an_account_widget_asks_until_an_account_offering_its_feature_is_signed_in(WidgetKind kind, AccountFeatures feature)
+    [InlineData("email", AccountFeatures.Mail)]
+    [InlineData("calendar", AccountFeatures.Calendar)]
+    [InlineData("contacts", AccountFeatures.Contacts)]
+    [InlineData("tasks", AccountFeatures.Tasks)]
+    public void S1861_an_account_widget_asks_until_an_account_offering_its_feature_is_signed_in(string kindId, AccountFeatures feature)
     {
+        var kind = new WidgetId(kindId);
         var config = WidgetConfig.CreateDefault(kind);
 
         Assert.True(WidgetSetup.Needed(config, Everything & ~feature));

@@ -12,5 +12,5 @@ public sealed class NightLightToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => NightLightToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(WidgetKind.NightLightToggle);
+    public FrameworkElement CreateView() => new QuickToggleView(NightLightToggleConfig.Descriptor.Id);
 }

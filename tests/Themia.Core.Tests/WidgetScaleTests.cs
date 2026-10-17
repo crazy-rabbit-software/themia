@@ -29,7 +29,7 @@ public sealed class WidgetScaleTests
 
     private static WidgetInstance Widget(string id, double scale = 1.0)
     {
-        var widget = WidgetInstance.Create(WidgetKind.Cpu, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(CpuConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.Scale = scale;
         return widget;
@@ -51,7 +51,7 @@ public sealed class WidgetScaleTests
 
     [Fact]
     public void S6530_a_new_widget_is_at_100_percent()
-        => Assert.Equal(1.0, WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.1, 0.1)).Scale);
+        => Assert.Equal(1.0, WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1)).Scale);
 
     [Theory]
     [InlineData(1.0, 1.0)]

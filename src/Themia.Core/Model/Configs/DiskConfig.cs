@@ -45,14 +45,11 @@ public sealed class DiskConfig : GaugeConfig, IStyled
     {
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Disk;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("disk"),
-        Kind = WidgetKind.Disk,
         ConfigType = typeof(DiskConfig),
         CreateDefault = () => new DiskConfig(),
         Json = WidgetConfigJsonContext.Default,

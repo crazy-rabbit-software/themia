@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Tests;
 
@@ -22,10 +23,10 @@ internal static partial class ModuleSources
     private static partial Regex ViewOf();
 
     /// <summary>The view class each kind is built as, read from its module's <c>CreateView</c>.</summary>
-    public static Dictionary<WidgetKind, string> Views()
+    public static Dictionary<WidgetId, string> Views()
     {
-        var kindOf = TestCatalog.Declared.ToDictionary(d => d.Config.Name, d => d.Descriptor.Kind, StringComparer.Ordinal);
-        var views = new Dictionary<WidgetKind, string>();
+        var kindOf = TestCatalog.Declared.ToDictionary(d => d.Config.Name, d => d.Descriptor.Id, StringComparer.Ordinal);
+        var views = new Dictionary<WidgetId, string>();
         foreach (var file in Directory.EnumerateFiles(ModulesFolder, "*.cs"))
         {
             var text = File.ReadAllText(file);

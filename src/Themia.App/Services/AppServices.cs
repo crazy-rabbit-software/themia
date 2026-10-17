@@ -1,9 +1,11 @@
+using Themia.Sdk;
+
 namespace Themia.App.Services;
 
 /// <summary>
 /// The few services a widget view needs but cannot be handed.
 /// <para>
-/// Widget views are built by the catalogue from a <c>WidgetKind</c> alone, so there is no place to
+/// Widget views are built by the catalogue from a <c>WidgetId</c> alone, so there is no place to
 /// inject into. The ticker is passed through <c>IWidgetView.Attach</c> because every widget needs
 /// it; these are here because only a few widgets do, and threading them through every signature for
 /// that would be worse than one explicit lookup.

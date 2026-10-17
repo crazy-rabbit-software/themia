@@ -12,5 +12,5 @@ public sealed class SignOutModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => SignOutConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new PowerButtonView(WidgetKind.SignOut);
+    public FrameworkElement CreateView() => new PowerButtonView(SignOutConfig.Descriptor.Id);
 }

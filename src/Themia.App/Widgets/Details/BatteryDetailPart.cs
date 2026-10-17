@@ -3,6 +3,7 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Details;
 
@@ -19,7 +20,7 @@ internal sealed class BatteryDetailPart : DetailPart
     private SystemHub? _hub;
     private IDetailHost? _host;
 
-    public override WidgetKind Kind => WidgetKind.BatteryDetails;
+    public override WidgetId Kind => BatteryDetailsConfig.Descriptor.Id;
 
     public override double HeroCharacters => BatteryDetailRules.HeroCharacters;
 

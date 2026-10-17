@@ -2,6 +2,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -12,7 +13,7 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class AddMenuTests
 {
-    private static readonly WidgetKind[] Every = Enum.GetValues<WidgetKind>();
+    private static readonly WidgetId[] Every = ModuleCatalog.Widgets.Select(w => w.Id).ToArray();
 
     private static IReadOnlyList<AddColumn> Menu => AddTree.On(Every);
 
@@ -110,7 +111,7 @@ public sealed class AddMenuTests
     [Fact]
     public void S3511_a_kind_the_tree_does_not_know_still_stands_in_more()
     {
-        WidgetKind[] unknown = [(WidgetKind)9998, (WidgetKind)9999];
+        WidgetId[] unknown = [new("notBuiltA"), new("notBuiltB")];
         var more = Assert.IsType<AddFolder>(AddTree.On([.. Every, .. unknown])[1].Rows[^1]);
         Assert.Equal(AddFolderId.More, more.Shelf.Id);
         Assert.Equal(unknown, more.Rows.OfType<AddPick>().Select(pick => pick.Kind));
@@ -124,12 +125,13 @@ public sealed class AddMenuTests
     {
         // Only the processor's meter, and nothing of Weather: the processor family folds to its one
         // row, the subject keeps its other rows, and Weather is not there at all.
-        var offered = Every.Where(kind => kind is not (WidgetKind.CpuDetails or WidgetKind.TopProcesses)
-            and not (WidgetKind.WeatherNow or WidgetKind.WeatherForecast or WidgetKind.RainNextHour or WidgetKind.AirQuality or WidgetKind.Sun or WidgetKind.Moon)).ToList();
+        WidgetId[] left = [CpuDetailsConfig.Descriptor.Id, TopProcessesConfig.Descriptor.Id,
+            WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, RainNextHourConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, SunConfig.Descriptor.Id, MoonConfig.Descriptor.Id];
+        var offered = Every.Where(kind => !left.Contains(kind)).ToList();
         var browse = AddTree.On(offered)[1].Rows.OfType<AddFolder>().ToList();
 
         var system = browse.Single(folder => folder.Shelf.Id == AddFolderId.System);
-        Assert.Equal(new AddPick(WidgetKind.Cpu, false), system.Rows[0]);
+        Assert.Equal(new AddPick(CpuConfig.Descriptor.Id, false), system.Rows[0]);
         Assert.DoesNotContain(browse, folder => folder.Shelf.Id == AddFolderId.Weather);
     }
 
@@ -137,7 +139,7 @@ public sealed class AddMenuTests
     public void S3511_lines_only_ever_stand_between_two_rows()
     {
         // Without the year progress, Time's last line would end the folder.
-        var offered = Every.Where(kind => kind != WidgetKind.YearProgress).ToList();
+        var offered = Every.Where(kind => kind != YearProgressConfig.Descriptor.Id).ToList();
         var time = AddTree.On(offered)[1].Rows.OfType<AddFolder>().Single(folder => folder.Shelf.Id == AddFolderId.Time);
 
         Assert.IsNotType<AddRule>(time.Rows[^1]);
@@ -152,10 +154,10 @@ public sealed class AddMenuTests
     {
         var homes = AddTree.Homes(Menu);
 
-        var details = homes.Single(home => home.Kind == WidgetKind.CpuDetails);
+        var details = homes.Single(home => home.Kind == CpuDetailsConfig.Descriptor.Id);
         Assert.Equal([AddFolderId.System, AddFolderId.Processor], details.Path.Select(shelf => shelf.Id));
 
-        var clock = homes.Single(home => home.Kind == WidgetKind.Clock);
+        var clock = homes.Single(home => home.Kind == ClockConfig.Descriptor.Id);
         Assert.Equal([AddFolderId.Time], clock.Path.Select(shelf => shelf.Id));
     }
 
@@ -251,11 +253,11 @@ public sealed class AddMenuTests
 
         var enter = Press(inTime, WidgetKey.Enter);
         Assert.Equal(AddMenuAction.Pick, enter.Action);
-        Assert.Equal(WidgetKind.Clock, enter.Kind);
+        Assert.Equal(ClockConfig.Descriptor.Id, enter.Kind);
 
         var popular = Press(new AddMenuNav([], new AddSpot(0, 0)), WidgetKey.Space);
         Assert.Equal(AddMenuAction.Pick, popular.Action);
-        Assert.Equal(WidgetKind.Clock, popular.Kind);
+        Assert.Equal(ClockConfig.Descriptor.Id, popular.Kind);
     }
 
     [Fact]
@@ -368,12 +370,12 @@ public sealed class AddMenuTests
         // [S-3640] [S-3216] [S-4123] The calendar, the visualizer and the folder are one widget each,
         // their former variants styles: a row of their subject, never a family folder.
         var homes = AddTree.Homes(Menu);
-        Assert.Equal([AddFolderId.CalendarMail], homes.Single(home => home.Kind == WidgetKind.Calendar).Path.Select(shelf => shelf.Id));
-        Assert.Equal([AddFolderId.Media], homes.Single(home => home.Kind == WidgetKind.AudioVisualizer).Path.Select(shelf => shelf.Id));
-        Assert.Equal([AddFolderId.Files], homes.Single(home => home.Kind == WidgetKind.Folder).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.CalendarMail], homes.Single(home => home.Kind == CalendarWidgetConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.Media], homes.Single(home => home.Kind == AudioVisualizerConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.Files], homes.Single(home => home.Kind == FolderConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
 
         var popular = AddTree.Popular.Rows.OfType<AddLeaf>().Select(leaf => leaf.Kind).ToList();
-        Assert.Contains(WidgetKind.Calendar, popular);
+        Assert.Contains(CalendarWidgetConfig.Descriptor.Id, popular);
         Assert.Equal(popular.Count, popular.Distinct().Count());
     }
 }

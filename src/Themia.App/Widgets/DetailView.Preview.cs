@@ -18,7 +18,7 @@ internal sealed partial class DetailView : IWidgetPreviewState
     {
         switch (state)
         {
-            case "sample" when _kind == Themia.Core.Model.WidgetKind.BatteryDetails:
+            case "sample" when _kind == Themia.Core.Model.BatteryDetailsConfig.Descriptor.Id:
                 // Stop the real reads, which on a desktop would put the empty state back.
                 _part.Detach();
                 var power = new BatteryPower(true, 82, false, false, TimeSpan.FromMinutes(194));

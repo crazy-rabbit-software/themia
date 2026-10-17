@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -20,8 +21,8 @@ public class PowerActionTests
 {
     private static readonly DateTimeOffset T0 = new(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
 
-    private static readonly WidgetKind[] PowerKinds =
-        [WidgetKind.Shutdown, WidgetKind.Restart, WidgetKind.Sleep, WidgetKind.Hibernate, WidgetKind.Lock, WidgetKind.SignOut, WidgetKind.ScreenOff];
+    private static readonly WidgetId[] PowerKinds =
+        [ShutdownConfig.Descriptor.Id, RestartConfig.Descriptor.Id, SleepConfig.Descriptor.Id, HibernateConfig.Descriptor.Id, LockConfig.Descriptor.Id, SignOutConfig.Descriptor.Id, ScreenOffConfig.Descriptor.Id];
 
     /// <summary>A backend that records what it was asked to run and answers what the test says.</summary>
     private sealed class FakeBackend(bool canHibernate = true) : IPowerBackend
@@ -68,7 +69,7 @@ public class PowerActionTests
     [Fact]
     public void S1910_no_other_kind_is_a_power_widget()
     {
-        foreach (var kind in Enum.GetValues<WidgetKind>().Except(PowerKinds))
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Except(PowerKinds))
         {
             Assert.Null(PowerActionRules.ForKind(kind));
         }
@@ -97,7 +98,6 @@ public class PowerActionTests
         {
             var state = AppState.CreateDefault();
             var widget = state.ActiveView().Widgets[0];
-            widget.Kind = WidgetKind.SignOut;
             widget.Config = new SignOutConfig();
 
             var store = new AppStateStore(path, TimeSpan.Zero);

@@ -40,7 +40,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private const double GraphFloor = Fluent.Space6;
 
     private readonly MeterPart _part;
-    private readonly WidgetKind _kind;
+    private readonly WidgetId _kind;
 
     // [S-3860] The shared hero readout: the number with its smaller unit, the battery's glyph as its icon.
     private readonly HeroReadout _reading = new();

@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -36,7 +37,7 @@ internal sealed class PingMeter : MeterPart
         Fill = CheckingBrush,
     };
 
-    public override WidgetKind Kind => WidgetKind.Ping;
+    public override WidgetId Kind => PingConfig.Descriptor.Id;
 
     /// <summary>"999 ms".</summary>
     public override HeroBound Reading => HeroBound.Of(Formatting.Latency(999));

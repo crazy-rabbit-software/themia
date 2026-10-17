@@ -78,14 +78,11 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     /// <summary>[S-1482] A label longer than this is a sentence, not a place.</summary>
     public const int MaxLabelLength = 40;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Clock;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("clock"),
-        Kind = WidgetKind.Clock,
         ConfigType = typeof(ClockConfig),
         CreateDefault = () => new ClockConfig(),
         Json = WidgetConfigJsonContext.Default,

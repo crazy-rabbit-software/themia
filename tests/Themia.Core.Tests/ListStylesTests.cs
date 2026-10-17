@@ -2,6 +2,7 @@ using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -16,15 +17,16 @@ public class ListStylesTests
     private static readonly TimeZoneInfo Utc = TimeZoneInfo.Utc;
 
     [Theory]
-    [InlineData(WidgetKind.Tasks, "list,compact")]
-    [InlineData(WidgetKind.Shortcuts, "grid,list,details")]
-    [InlineData(WidgetKind.Gallery, "slideshow,grid,scatter,mosaic")]
-    [InlineData(WidgetKind.Email, "list,compact,table")]
-    [InlineData(WidgetKind.Quote, "plain,marks")]
-    [InlineData(WidgetKind.Music, "artwork,cover,text")]
-    [InlineData(WidgetKind.HabitTracker, "dots,heatmap,checklist")]
-    public void S6400_each_kind_offers_its_styles_in_order_the_old_default_first(WidgetKind kind, string names)
+    [InlineData("tasks", "list,compact")]
+    [InlineData("shortcuts", "grid,list,details")]
+    [InlineData("gallery", "slideshow,grid,scatter,mosaic")]
+    [InlineData("email", "list,compact,table")]
+    [InlineData("quote", "plain,marks")]
+    [InlineData("music", "artwork,cover,text")]
+    [InlineData("habitTracker", "dots,heatmap,checklist")]
+    public void S6400_each_kind_offers_its_styles_in_order_the_old_default_first(string kindId, string names)
     {
+        var kind = new WidgetId(kindId);
         Assert.True(WidgetStyles.Offers(kind));
         Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
         Assert.Equal(WidgetStyles.For(kind)[0].Value, WidgetStyles.Current(WidgetConfig.CreateDefault(kind)));

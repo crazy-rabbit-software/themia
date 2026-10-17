@@ -12,8 +12,8 @@ public sealed class GpuRulesTests
     public void S433_a_new_meter_shows_the_first_adapter_which_dxgi_lists_for_the_primary_display()
     {
         Assert.Equal(0, new GpuConfig().Adapter);
-        Assert.Equal(0, ((GpuConfig)WidgetConfig.CreateDefault(WidgetKind.Gpu)).Adapter);
-        Assert.Equal(0, ((GpuDetailsConfig)WidgetConfig.CreateDefault(WidgetKind.GpuDetails)).Adapter);
+        Assert.Equal(0, ((GpuConfig)WidgetConfig.CreateDefault(GpuConfig.Descriptor.Id)).Adapter);
+        Assert.Equal(0, ((GpuDetailsConfig)WidgetConfig.CreateDefault(GpuDetailsConfig.Descriptor.Id)).Adapter);
     }
 
     [Fact]

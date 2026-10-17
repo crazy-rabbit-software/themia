@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -11,15 +12,15 @@ namespace Themia.Core.Tests;
 /// <summary>[S-2848] A widget's place can be cleared, and a cleared place is no place.</summary>
 public class PlaceClearTests
 {
-    private static readonly WidgetKind[] Placed =
+    private static readonly WidgetId[] Placed =
     [
-        WidgetKind.WeatherNow, WidgetKind.WeatherForecast, WidgetKind.AirQuality, WidgetKind.RainNextHour,
-        WidgetKind.Sun, WidgetKind.Moon,
+        WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, RainNextHourConfig.Descriptor.Id,
+        SunConfig.Descriptor.Id, MoonConfig.Descriptor.Id,
     ];
 
-    public static TheoryData<WidgetKind> PlacedKinds()
+    public static TheoryData<WidgetId> PlacedKinds()
     {
-        var data = new TheoryData<WidgetKind>();
+        var data = new TheoryData<WidgetId>();
         foreach (var kind in Placed)
         {
             data.Add(kind);
@@ -28,7 +29,7 @@ public class PlaceClearTests
         return data;
     }
 
-    private static IPlaced WithPlace(WidgetKind kind)
+    private static IPlaced WithPlace(WidgetId kind)
     {
         var config = WidgetConfig.CreateDefault(kind);
 
@@ -58,7 +59,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_exactly_the_widgets_about_a_place_can_clear_it()
     {
-        var placed = Enum.GetValues<WidgetKind>()
+        var placed = ModuleCatalog.Widgets.Select(w => w.Id).ToArray()
             .Where(kind => WidgetConfig.CreateDefault(kind) is IPlaced)
             .Order()
             .ToArray();
@@ -68,7 +69,7 @@ public class PlaceClearTests
 
     [Theory]
     [MemberData(nameof(PlacedKinds))]
-    public void S2848_a_cleared_place_is_no_place_and_the_widget_waits_for_setup(WidgetKind kind)
+    public void S2848_a_cleared_place_is_no_place_and_the_widget_waits_for_setup(WidgetId kind)
     {
         var config = WithPlace(kind);
         Assert.True(config.HasLocation);
@@ -83,7 +84,7 @@ public class PlaceClearTests
 
     [Theory]
     [MemberData(nameof(PlacedKinds))]
-    public void S2848_a_cleared_place_stays_cleared_through_save_and_load(WidgetKind kind)
+    public void S2848_a_cleared_place_stays_cleared_through_save_and_load(WidgetId kind)
     {
         var config = WithPlace(kind);
         config.ClearLocation();
@@ -98,7 +99,7 @@ public class PlaceClearTests
 
     [Theory]
     [MemberData(nameof(PlacedKinds))]
-    public void S2848_a_cleared_place_survives_a_clone(WidgetKind kind)
+    public void S2848_a_cleared_place_survives_a_clone(WidgetId kind)
     {
         var config = WithPlace(kind);
         config.ClearLocation();
@@ -109,7 +110,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_clearing_forgets_the_name_and_keeps_the_header_preference()
     {
-        var weather = (WeatherNowConfig)WithPlace(WidgetKind.WeatherNow);
+        var weather = (WeatherNowConfig)WithPlace(WeatherNowConfig.Descriptor.Id);
         weather.HideLocation = true;
 
         weather.ClearLocation();
@@ -123,7 +124,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_a_cleared_sky_tile_has_no_name_either()
     {
-        var sun = (SunConfig)WithPlace(WidgetKind.Sun);
+        var sun = (SunConfig)WithPlace(SunConfig.Descriptor.Id);
 
         sun.ClearLocation();
 
@@ -133,10 +134,10 @@ public class PlaceClearTests
     [Fact]
     public void S2848_a_cleared_place_asks_the_sync_for_nothing_so_the_old_place_is_never_fetched()
     {
-        var now = (WeatherNowConfig)WithPlace(WidgetKind.WeatherNow);
-        var forecast = (WeatherForecastConfig)WithPlace(WidgetKind.WeatherForecast);
-        var air = (AirQualityConfig)WithPlace(WidgetKind.AirQuality);
-        var rain = (RainNextHourConfig)WithPlace(WidgetKind.RainNextHour);
+        var now = (WeatherNowConfig)WithPlace(WeatherNowConfig.Descriptor.Id);
+        var forecast = (WeatherForecastConfig)WithPlace(WeatherForecastConfig.Descriptor.Id);
+        var air = (AirQualityConfig)WithPlace(AirQualityConfig.Descriptor.Id);
+        var rain = (RainNextHourConfig)WithPlace(RainNextHourConfig.Descriptor.Id);
 
         Assert.NotNull(SyncInterests.For(now));
         Assert.NotNull(OnlineCadence.For(air));

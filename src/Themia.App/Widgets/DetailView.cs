@@ -35,7 +35,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     private const string LogScope = "details";
 
     private readonly DetailPart _part;
-    private readonly WidgetKind _kind;
+    private readonly WidgetId _kind;
 
     // [S-3860] The shared hero readout: the main figure with its smaller unit, the caption its line under it.
     private readonly HeroReadout _heroBlock = new();

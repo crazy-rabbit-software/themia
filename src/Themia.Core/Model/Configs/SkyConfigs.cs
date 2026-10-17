@@ -163,14 +163,11 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetti
         StyleOption.Of(SunStyle.Times, Str.Styles_Sun_Times, 0xEA37),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Sun;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("sun"),
-        Kind = WidgetKind.Sun,
         ConfigType = typeof(SunConfig),
         CreateDefault = () => new SunConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -218,14 +215,11 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
         StyleOption.Of(MoonStyle.PhaseMonth, Str.Styles_Moon_PhaseMonth, 0xE787),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Moon;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("moon"),
-        Kind = WidgetKind.Moon,
         ConfigType = typeof(MoonConfig),
         CreateDefault = () => new MoonConfig(),
         Json = WidgetConfigJsonContext.Default,

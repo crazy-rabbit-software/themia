@@ -475,10 +475,10 @@ public sealed class OnlineWidgetsTests
     public void S5101_each_kind_asks_its_own_source_and_never_the_weather()
     {
         var view = ViewState.Create("Online");
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.AirQuality, new Geometry.FracRect(0, 0, 0.2, 0.2)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.RainNextHour, new Geometry.FracRect(0.3, 0, 0.2, 0.2)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.ExchangeRates, new Geometry.FracRect(0.6, 0, 0.2, 0.2)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.ExchangeRates, new Geometry.FracRect(0.6, 0.5, 0.2, 0.2)));
+        view.Widgets.Add(WidgetInstance.Create(AirQualityConfig.Descriptor.Id, new Geometry.FracRect(0, 0, 0.2, 0.2)));
+        view.Widgets.Add(WidgetInstance.Create(RainNextHourConfig.Descriptor.Id, new Geometry.FracRect(0.3, 0, 0.2, 0.2)));
+        view.Widgets.Add(WidgetInstance.Create(ExchangeRatesConfig.Descriptor.Id, new Geometry.FracRect(0.6, 0, 0.2, 0.2)));
+        view.Widgets.Add(WidgetInstance.Create(ExchangeRatesConfig.Descriptor.Id, new Geometry.FracRect(0.6, 0.5, 0.2, 0.2)));
 
         foreach (var w in view.Widgets)
         {
@@ -621,6 +621,6 @@ public sealed class OnlineWidgetsTests
         Assert.Equal(2, airCopy.Longitude);
         Assert.Equal(("CHF", "USD"), (ratesCopy.BaseCurrency, ratesCopy.QuoteCurrency));
         Assert.Equal(ExchangeRatesStyle.Chart, ratesCopy.Style);
-        Assert.Equal(WidgetKind.RainNextHour, new RainNextHourConfig().Kind);
+        Assert.Equal(RainNextHourConfig.Descriptor.Id, new RainNextHourConfig().Kind);
     }
 }

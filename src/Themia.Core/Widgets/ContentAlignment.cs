@@ -19,17 +19,17 @@ namespace Themia.Core.Widgets;
 public static class ContentAlignment
 {
     /// <summary>[S-6581] The kinds with a style whose content can be aligned, in the enum's order.</summary>
-    public static IEnumerable<WidgetKind> All => ModuleCatalog.Widgets.Select(w => w.Kind).Order().Where(Offers);
+    public static IEnumerable<WidgetId> All => ModuleCatalog.Widgets.Select(w => w.Id).Order().Where(Offers);
 
     /// <summary>[S-6581] Whether any style of <paramref name="kind"/> can be aligned.</summary>
-    public static bool Offers(WidgetKind kind) => typeof(IContentAligned).IsAssignableFrom(ModuleCatalog.Of(kind).ConfigType);
+    public static bool Offers(WidgetId kind) => typeof(IContentAligned).IsAssignableFrom(ModuleCatalog.Of(kind).ConfigType);
 
     /// <summary>
     /// [S-6581] Whether a widget of <paramref name="kind"/> in the style <paramref name="config"/>
     /// holds can be aligned now: every style of the clock, the weather, the air quality, the
     /// countdown and the quote; the number styles of the exchange rate and the stock; the moon's disc.
     /// </summary>
-    public static bool Applies(WidgetKind kind, WidgetConfig? config) => config is IContentAligned aligned ? aligned.AlignApplies : config is null && Offers(kind);
+    public static bool Applies(WidgetId kind, WidgetConfig? config) => config is IContentAligned aligned ? aligned.AlignApplies : config is null && Offers(kind);
 
     /// <summary>Whether <paramref name="widget"/> can be aligned in the style it has now.</summary>
     public static bool Applies(WidgetInstance widget)
@@ -43,7 +43,7 @@ public static class ContentAlignment
     /// had a choice, so nothing moves. Centred: the clock, the moon's disc, the weather's large-icon
     /// and minimal styles, the air quality's gauge. Everything else reads from the start edge.
     /// </summary>
-    public static ContentAlign Default(WidgetKind kind, WidgetConfig? config)
+    public static ContentAlign Default(WidgetId kind, WidgetConfig? config)
         => (config ?? WidgetConfig.CreateDefault(kind)) is IContentAligned aligned ? aligned.DefaultAlign : ContentAlign.Left;
 
     /// <summary>

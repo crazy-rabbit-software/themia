@@ -14,24 +14,24 @@ public sealed class WidgetSearchTests
 {
     private static readonly WidgetSearchDoc[] Docs =
     [
-        new("clock", ["Clock"], ModuleCatalog.Of(WidgetKind.Clock).Keywords,
+        new("clock", ["Clock"], ModuleCatalog.Of(ClockConfig.Descriptor.Id).Keywords,
             ["Clock for your timezone or any city in the world"], ["Others"]),
-        new("calendar", ["Calendar"], ModuleCatalog.Of(WidgetKind.Calendar).Keywords,
+        new("calendar", ["Calendar"], ModuleCatalog.Of(CalendarWidgetConfig.Descriptor.Id).Keywords,
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),
-        new("weatherCurrent", ["Wetter", "Weather"], ModuleCatalog.Of(WidgetKind.WeatherNow).Keywords,
+        new("weatherCurrent", ["Wetter", "Weather"], ModuleCatalog.Of(WeatherNowConfig.Descriptor.Id).Keywords,
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
-        new("weatherForecast", ["Weather Forecast"], Original(WidgetKind.WeatherForecast),
+        new("weatherForecast", ["Weather Forecast"], Original(WeatherForecastConfig.Descriptor.Id),
             ["Multi-day weather outlook for any location"], ["Online"]),
-        new("net", ["Network Monitor"], ModuleCatalog.Of(WidgetKind.Network).Keywords,
+        new("net", ["Network Monitor"], ModuleCatalog.Of(NetworkConfig.Descriptor.Id).Keywords,
             ["Live upload and download speeds"], ["System"]),
-        new("cpu", ["CPU Monitor"], ModuleCatalog.Of(WidgetKind.Cpu).Keywords,
+        new("cpu", ["CPU Monitor"], ModuleCatalog.Of(CpuConfig.Descriptor.Id).Keywords,
             ["Live CPU usage and per-core load"], ["System"]),
         // Not a widget any more: a document with a camel-case key and a provider, for the matcher alone.
         new("githubNotifications", ["GitHub Notifications"], ["git", "repo", "inbox", "mentions", "alerts"],
             ["Your GitHub notifications across all selected accounts"], ["Online"], ["GitHub"]),
-        new("pomodoro", ["Pomodoro"], ModuleCatalog.Of(WidgetKind.Pomodoro).Keywords,
+        new("pomodoro", ["Pomodoro"], ModuleCatalog.Of(PomodoroConfig.Descriptor.Id).Keywords,
             ["Focus timer with work and break cycles"], ["Others"]),
-        new("countdown", ["Countdown"], ModuleCatalog.Of(WidgetKind.Countdown).Keywords,
+        new("countdown", ["Countdown"], ModuleCatalog.Of(CountdownConfig.Descriptor.Id).Keywords,
             ["Count down to an important date"], ["Others"]),
     ];
 
@@ -44,7 +44,7 @@ public sealed class WidgetSearchTests
 
     // The WinUI forecast keywords add "weather" (its label here is "Forecast"); the stand-in keeps
     // the original's list so "weather forecast" still exercises the two-field AND.
-    private static string[] Original(WidgetKind kind) => [.. ModuleCatalog.Of(kind).Keywords.Where(k => k != "weather")];
+    private static string[] Original(WidgetId kind) => [.. ModuleCatalog.Of(kind).Keywords.Where(k => k != "weather")];
 
     [Fact]
     public void S941_LowercasesStripsDiacriticsAndFoldsSharpS()
@@ -241,7 +241,7 @@ public sealed class WidgetSearchTests
     [Fact]
     public void S943_EveryKindHasLowerCaseKeywordsWithoutRepeats()
     {
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var words = ModuleCatalog.Of(kind).Keywords;
             Assert.True(words.Count > 0, $"{kind} has no search keywords");
@@ -253,34 +253,36 @@ public sealed class WidgetSearchTests
     [Fact]
     public void S943_ProvidersFindAccountWidgets()
     {
-        var docs = Enum.GetValues<WidgetKind>()
+        var docs = ModuleCatalog.Widgets.Select(w => w.Id).ToArray()
             .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: ModuleCatalog.Of(k).ProviderNames)), k))
             .ToArray();
 
         var google = WidgetSearch.Rank(docs, "google");
-        Assert.Contains(WidgetKind.Email, google);
-        Assert.Contains(WidgetKind.Calendar, google);
-        Assert.Contains(WidgetKind.Contacts, google);
-        Assert.Contains(WidgetKind.Tasks, google);
+        Assert.Contains(EmailConfig.Descriptor.Id, google);
+        Assert.Contains(CalendarWidgetConfig.Descriptor.Id, google);
+        Assert.Contains(ContactsConfig.Descriptor.Id, google);
+        Assert.Contains(TasksConfig.Descriptor.Id, google);
     }
 
     [Theory]
-    [InlineData("agenda", WidgetKind.Calendar)]
-    [InlineData("month calendar", WidgetKind.Calendar)]
-    [InlineData("year calendar", WidgetKind.Calendar)]
-    [InlineData("timeline", WidgetKind.Calendar)]
-    [InlineData("waveform", WidgetKind.AudioVisualizer)]
-    [InlineData("oscilloscope", WidgetKind.AudioVisualizer)]
-    [InlineData("led", WidgetKind.AudioVisualizer)]
-    [InlineData("radial", WidgetKind.AudioVisualizer)]
-    [InlineData("folder grid", WidgetKind.Folder)]
-    [InlineData("folder icons", WidgetKind.Folder)]
-    [InlineData("thumbnails", WidgetKind.Folder)]
-    public void S943_the_merged_kinds_are_found_by_their_former_names(string query, WidgetKind kind)
+    [InlineData("agenda", "calendar")]
+    [InlineData("month calendar", "calendar")]
+    [InlineData("year calendar", "calendar")]
+    [InlineData("timeline", "calendar")]
+    [InlineData("waveform", "audioVisualizer")]
+    [InlineData("oscilloscope", "audioVisualizer")]
+    [InlineData("led", "audioVisualizer")]
+    [InlineData("radial", "audioVisualizer")]
+    [InlineData("folder grid", "folder")]
+    [InlineData("folder icons", "folder")]
+    [InlineData("thumbnails", "folder")]
+    public void S943_the_merged_kinds_are_found_by_their_former_names(string query, string kindId)
     {
+        var kind = new WidgetId(kindId);
+
         // [S-3640] [S-3216] [S-4123] What were widgets of their own are styles now: their names and
         // words find the one widget. The label here is the kind's name, as in the catalogue.
-        var docs = Enum.GetValues<WidgetKind>()
+        var docs = ModuleCatalog.Widgets.Select(w => w.Id).ToArray()
             .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: ModuleCatalog.Of(k).ProviderNames)), k))
             .ToArray();
 

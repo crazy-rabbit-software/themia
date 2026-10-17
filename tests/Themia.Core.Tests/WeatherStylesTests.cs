@@ -1,5 +1,6 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -21,18 +22,18 @@ public sealed class WeatherStylesTests
 
     private static readonly WidgetArea[] Tiers = [Xs, S, M, Wide, Tall, L, Xl];
 
-    private static string[] Names(WidgetKind kind) => [.. WidgetStyles.For(kind).Select(s => s.Name)];
+    private static string[] Names(WidgetId kind) => [.. WidgetStyles.For(kind).Select(s => s.Name)];
 
     // ---- the menus ---------------------------------------------------------------------------
 
     [Fact]
     public void S6160_each_kind_offers_its_styles_in_menu_order_the_default_first()
     {
-        Assert.Equal(["standard", "largeIcon", "minimal"], Names(WidgetKind.WeatherNow));
-        Assert.Equal(["rows", "columns", "curve", "grid"], Names(WidgetKind.WeatherForecast));
-        Assert.Equal(["chart", "number"], Names(WidgetKind.Stocks));
-        Assert.Equal(["chart", "number"], Names(WidgetKind.ExchangeRates));
-        Assert.Equal(["number", "gauge"], Names(WidgetKind.AirQuality));
+        Assert.Equal(["standard", "largeIcon", "minimal"], Names(WeatherNowConfig.Descriptor.Id));
+        Assert.Equal(["rows", "columns", "curve", "grid"], Names(WeatherForecastConfig.Descriptor.Id));
+        Assert.Equal(["chart", "number"], Names(StocksConfig.Descriptor.Id));
+        Assert.Equal(["chart", "number"], Names(ExchangeRatesConfig.Descriptor.Id));
+        Assert.Equal(["number", "gauge"], Names(AirQualityConfig.Descriptor.Id));
 
         Assert.Equal(WeatherNowStyle.Standard, new WeatherNowConfig().Style);
         Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);

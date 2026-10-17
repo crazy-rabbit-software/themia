@@ -1,4 +1,5 @@
 using Themia.Core.Geometry;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -16,7 +17,7 @@ public enum PlacementMode
 }
 
 /// <summary>One outline of a placement ghost: where a widget will be drawn, and what it is.</summary>
-public readonly record struct GhostOutline(FracRect Rect, WidgetKind Kind);
+public readonly record struct GhostOutline(FracRect Rect, WidgetId Kind);
 
 /// <summary>
 /// What a placement landing does, worked out before anything is mutated ([S-75]).
@@ -71,7 +72,7 @@ public sealed class PlacementPayload
     private readonly double _newWidthPx;
     private readonly double _newHeightPx;
 
-    private PlacementPayload(PlacementMode mode, WidgetKind? kind, List<WidgetInstance> widgets, List<string> roots, double widthPx, double heightPx)
+    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthPx, double heightPx)
     {
         Mode = mode;
         NewKind = kind;
@@ -84,7 +85,7 @@ public sealed class PlacementPayload
     public PlacementMode Mode { get; }
 
     /// <summary>The kind a <see cref="PlacementMode.Create"/> payload makes; null otherwise.</summary>
-    public WidgetKind? NewKind { get; }
+    public WidgetId? NewKind { get; }
 
     /// <summary>
     /// [S-77] The widget the pointer holds, for a drag handed to another display: its centre goes to
@@ -110,13 +111,13 @@ public sealed class PlacementPayload
     };
 
     /// <summary>The kind of the only root, for the hint ("Click to place Clock"); null for several.</summary>
-    public WidgetKind? SingleKind => NewKind ?? (_roots.Count == 1 ? Find(_roots[0])?.Kind : null);
+    public WidgetId? SingleKind => NewKind ?? (_roots.Count == 1 ? Find(_roots[0])?.Kind : null);
 
     /// <summary>Whether a widget is one of the originals this payload was taken from.</summary>
     public bool Holds(string? id) => id is not null && _widgets.Exists(w => string.Equals(w.Id, id, StringComparison.Ordinal));
 
     /// <summary>[S-421] A new widget of <paramref name="kind"/> at its default size in pixels.</summary>
-    public static PlacementPayload ForNew(WidgetKind kind, double widthPx, double heightPx)
+    public static PlacementPayload ForNew(WidgetId kind, double widthPx, double heightPx)
         => new(PlacementMode.Create, kind, [], [], widthPx, heightPx);
 
     /// <summary>

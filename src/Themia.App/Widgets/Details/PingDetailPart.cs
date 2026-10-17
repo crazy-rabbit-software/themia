@@ -5,6 +5,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Details;
 
@@ -22,7 +23,7 @@ internal sealed class PingDetailPart : DetailPart
     private SeriesInterest? _series;
     private IDetailHost? _host;
 
-    public override WidgetKind Kind => WidgetKind.PingDetails;
+    public override WidgetId Kind => PingDetailsConfig.Descriptor.Id;
 
     public override double HeroCharacters => PingDetailRules.HeroCharacters;
 

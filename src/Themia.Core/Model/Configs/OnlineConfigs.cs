@@ -66,14 +66,11 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned, 
         StyleOption.Of(AirQualityStyle.Gauge, Str.Styles_Air_Gauge, 0xEC4A),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.AirQuality;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("airQuality"),
-        Kind = WidgetKind.AirQuality,
         ConfigType = typeof(AirQualityConfig),
         CreateDefault = () => new AirQualityConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -136,14 +133,11 @@ public sealed class RainNextHourConfig : WeatherConfig, IInterests
         }
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.RainNextHour;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("rainNextHour"),
-        Kind = WidgetKind.RainNextHour,
         ConfigType = typeof(RainNextHourConfig),
         CreateDefault = () => new RainNextHourConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -181,14 +175,11 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled, IContentAligned
         StyleOption.Of(ExchangeRatesStyle.Number, Str.Styles_Rates_Number, 0xE75F),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.ExchangeRates;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("exchangeRates"),
-        Kind = WidgetKind.ExchangeRates,
         ConfigType = typeof(ExchangeRatesConfig),
         CreateDefault = () => new ExchangeRatesConfig(),
         Json = WidgetConfigJsonContext.Default,

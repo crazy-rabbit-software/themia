@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -17,7 +18,20 @@ public sealed class StateFixtureTests
     private static string Fixture([CallerFilePath] string here = "")
         => Path.Combine(Path.GetDirectoryName(here)!, "Fixtures", "state-every-kind.json");
 
-    private static string Normalised(string json) => json.Replace("\r\n", "\n", StringComparison.Ordinal).TrimEnd('\n');
+    /// <summary>
+    /// The fixture as this build writes it: files from before module ids also gave each widget its
+    /// kind beside its config's ([S-6908]); that copy is not read and no longer written.
+    /// </summary>
+    private static System.Text.Json.Nodes.JsonNode WithoutWidgetKinds(string json)
+    {
+        var root = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        foreach (var widget in root["views"]![0]!["widgets"]!.AsArray())
+        {
+            widget!.AsObject().Remove("kind");
+        }
+
+        return root;
+    }
 
     [Fact]
     public void S44_a_state_with_every_kinds_default_config_loads_without_a_repair()
@@ -27,8 +41,8 @@ public sealed class StateFixtureTests
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);
         var widgets = Assert.Single(parsed.State.Views).Widgets;
-        Assert.Equal(Enum.GetValues<WidgetKind>().Length, widgets.Count);
-        Assert.Equal(Enum.GetValues<WidgetKind>().Order(), widgets.Select(w => w.Kind).Order());
+        Assert.Equal(ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Length, widgets.Count);
+        Assert.Equal(ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Order(), widgets.Select(w => w.Kind).Order());
     }
 
     [Fact]
@@ -38,6 +52,9 @@ public sealed class StateFixtureTests
         var parsed = AppStateStore.Parse(json);
 
         Assert.NotNull(parsed.State);
-        Assert.Equal(Normalised(json), Normalised(JsonSerializer.Serialize(parsed.State, StateJson.AppState)));
+        var written = JsonSerializer.Serialize(parsed.State, StateJson.AppState);
+        Assert.True(
+            System.Text.Json.Nodes.JsonNode.DeepEquals(WithoutWidgetKinds(json), System.Text.Json.Nodes.JsonNode.Parse(written)),
+            "the every-kind state does not write back as it was read");
     }
 }

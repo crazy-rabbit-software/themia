@@ -12,14 +12,11 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class BluetoothConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Bluetooth;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("bluetooth"),
-        Kind = WidgetKind.Bluetooth,
         ConfigType = typeof(BluetoothConfig),
         CreateDefault = () => new BluetoothConfig(),
         Json = WidgetConfigJsonContext.Default,

@@ -36,7 +36,7 @@ public sealed class SyncHousekeepingTests : IDisposable
             {
                 Id = $"v{v}",
                 Name = $"View {v}",
-                Widgets = [.. configs.Select((c, i) => new WidgetInstance { Id = $"w{v}-{i}", Kind = c.Kind, Config = c })],
+                Widgets = [.. configs.Select((c, i) => new WidgetInstance { Id = $"w{v}-{i}", Config = c })],
             }),
         ],
     };

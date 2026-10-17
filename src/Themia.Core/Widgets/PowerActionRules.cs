@@ -1,5 +1,6 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -101,21 +102,21 @@ public static class PowerActionRules
     ];
 
     /// <summary>[S-1910] The action a widget kind stands for, or null for a kind that is not a power widget.</summary>
-    public static PowerAction? ForKind(WidgetKind kind) => ByKind.Value.TryGetValue(kind, out var action) ? action : null;
+    public static PowerAction? ForKind(WidgetId kind) => ByKind.Value.TryGetValue(kind, out var action) ? action : null;
 
     /// <summary>The inverse of <see cref="KindOf"/>, built from it so the two cannot disagree.</summary>
-    private static readonly Lazy<Dictionary<WidgetKind, PowerAction>> ByKind = new(() => Enum.GetValues<PowerAction>().ToDictionary(KindOf));
+    private static readonly Lazy<Dictionary<WidgetId, PowerAction>> ByKind = new(() => Enum.GetValues<PowerAction>().ToDictionary(KindOf));
 
     /// <summary>[S-1910] The widget kind of an action: the inverse of <see cref="ForKind"/>.</summary>
-    public static WidgetKind KindOf(PowerAction action) => action switch
+    public static WidgetId KindOf(PowerAction action) => action switch
     {
-        PowerAction.Shutdown => WidgetKind.Shutdown,
-        PowerAction.Restart => WidgetKind.Restart,
-        PowerAction.Sleep => WidgetKind.Sleep,
-        PowerAction.Hibernate => WidgetKind.Hibernate,
-        PowerAction.Lock => WidgetKind.Lock,
-        PowerAction.SignOut => WidgetKind.SignOut,
-        PowerAction.ScreenOff => WidgetKind.ScreenOff,
+        PowerAction.Shutdown => ShutdownConfig.Descriptor.Id,
+        PowerAction.Restart => RestartConfig.Descriptor.Id,
+        PowerAction.Sleep => SleepConfig.Descriptor.Id,
+        PowerAction.Hibernate => HibernateConfig.Descriptor.Id,
+        PowerAction.Lock => LockConfig.Descriptor.Id,
+        PowerAction.SignOut => SignOutConfig.Descriptor.Id,
+        PowerAction.ScreenOff => ScreenOffConfig.Descriptor.Id,
         _ => throw new ArgumentOutOfRangeException(nameof(action), action, "not a power action"),
     };
 

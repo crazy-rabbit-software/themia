@@ -130,14 +130,11 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
         StyleOption.Of(WeatherNowStyle.Minimal, Str.Styles_WeatherNow_Minimal, 0xE738),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.WeatherNow;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("weatherNow"),
-        Kind = WidgetKind.WeatherNow,
         ConfigType = typeof(WeatherNowConfig),
         CreateDefault = () => new WeatherNowConfig(),
         Json = WidgetConfigJsonContext.Default,

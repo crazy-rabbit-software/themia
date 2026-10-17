@@ -36,14 +36,11 @@ public sealed class CpuConfig : GaugeConfig, IStyled
     {
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Cpu;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("cpu"),
-        Kind = WidgetKind.Cpu,
         ConfigType = typeof(CpuConfig),
         CreateDefault = () => new CpuConfig(),
         Json = WidgetConfigJsonContext.Default,

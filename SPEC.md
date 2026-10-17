@@ -396,15 +396,17 @@ busy desktop ([S-6601]), Debug, private bytes.
   file that is empty, unparseable, or from a newer `schemaVersion` is corrupt: defaults are returned,
   loudly, and the original is **moved aside, never deleted**.
 - **[S-44]** A loaded document is repaired back inside its invariants rather than rejected — dangling
-  ids, duplicate ids, config that does not match its widget kind, out-of-range design values and
-  off-screen geometry are all fixed, and every repair is reported.
-- **[S-45]** Closed sets are enums, not strings (`WidgetKind`, `FillKind`, `AppTheme`,
-  `ClockFace`). Widget config is a discriminated union with the discriminator written into the JSON,
+  ids, duplicate ids, a config's own out-of-range values, out-of-range design values and
+  off-screen geometry are all fixed, and every repair is reported. A config cannot disagree with its
+  widget's kind any more: the config's discriminator is the kind ([S-6908]).
+- **[S-45]** Closed sets are enums, not strings (`FillKind`, `AppTheme`, `ClockFace`), except the
+  sets other assemblies extend: widget, provider, feature and cadence ids are validated ids, closed by
+  the registry compiled in ([S-6900], [S-6902]). Widget config is a discriminated union with the discriminator written into the JSON,
   so a config can never be silently read as the wrong widget's shape. An unknown widget kind is
   dropped with a report, because this build cannot render it at all ([S-1900]).
 - **[S-1900]** A widget whose kind is a name this build does not have (a removed widget, a hand edit)
-  is taken out of the document **before** the typed read (`AppStateStore.Parse`, by the `kind`
-  string), and each one is reported ("dropped widget 'id' of unknown kind 'Calculator'"); the rest
+  is taken out of the document **before** the typed read (`AppStateStore.Parse`, by its config's `kind`
+  string), and each one is reported ("dropped widget 'calc' of unknown kind 'calculator' from view 'Desk'"); the rest
   of the document loads. The typed read would otherwise refuse the whole file over one widget and
   set it aside. A property the model no longer has (a widget's old `parentId`) is ignored like any
   unknown JSON, so a widget that sat in a removed container loads on the desktop at its own rect.
@@ -416,8 +418,10 @@ busy desktop ([S-6601]), Debug, private bytes.
   document over one unknown discriminator), named in the load's log line with its id and its view
   ("dropped widget 'w3' of unknown kind 'hello' from view 'Desk'"), and gone from the next save. No
   placeholder card, no raw JSON kept. A deliberate exception to "never delete user data on a
-  recoverable error": nothing this build can do brings a widget without its code back (Q15). A
-  known id with a broken config is repaired by its own rules ([S-44]).
+  recoverable error": nothing this build can do brings a widget without its code back (Q15). So is a
+  widget without a config (it has no kind). A widget's own `kind` beside its config's, which files
+  from before ids carry, is not read and no longer written. A known id with a broken config is
+  repaired by its own rules ([S-44]).
 
 ## Clock
 
@@ -733,9 +737,9 @@ Sun & moon is split in two (user rule: one widget, one thing). Core: `SkyConfigs
 `SunView`, `MoonView`, `SkyParts` (the shared row and moon drawing), `WidgetSettings.Sun/Moon/Sky`;
 tests `SkyWidgetsTests` (`S310x_`).
 
-- **[S-3100]** **Sun** (`WidgetKind.Sun`, 320×240, sun glyph) is the sun's day: the path graphic, the
+- **[S-3100]** **Sun** (`sun`, 320×240, sun glyph) is the sun's day: the path graphic, the
   number strip and the rows sunrise, sunset, daylight (+ change), solar noon, dawn, dusk ([S-3102]).
-  **Moon** (`WidgetKind.Moon`, 240×220, moon glyph) is the moon: the disc, its phase's name, the lit
+  **Moon** (`moon`, 240×220, moon glyph) is the moon: the disc, its phase's name, the lit
   percentage, moonrise, moonset and the next full or new moon ([S-3105]). Both sit in the add menu's
   Weather & sky subject ([S-3511]), start headerless ([S-700]; a header given them is titled with the place), start at Zurich, so they
   need setting up only once their place is cleared ([S-2848]), and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
@@ -3437,7 +3441,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 ## Calendar: five styles and shared dates (CAL-SPLIT)
 
 The calendar's layouts are its five styles, and the calendars on one view share the day selected and
-the event pointed at. Kinds in the SDK's `Model/WidgetKind.cs`, configs in Core's `Model/Configs/OfficeConfigs.cs`;
+the event pointed at. Configs and their descriptors in Core's `Model/Configs/OfficeConfigs.cs`;
 the sharing rules in `Office/CalendarShare.cs`; provider reading in `Office/OfficeWire.cs`,
 `Office/CalendarRules.cs`, `Office/IcsEvents.cs`. One view, `CalendarView*.cs` (`CalendarView.Links.cs`
 for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `OfficeConfigTests`
@@ -7217,7 +7221,8 @@ retired with them and are not reused.
 - **[S-1902]** Removed: Themia (the mark), Help (getting started), Claude usage, GitHub (repository,
   issues, notifications, reviews), the view switcher (the view **bar** stays, [S-906]..[S-916]),
   Group, Stack and Tabs, the mood tracker, the colour swatch, web search, OneDrive, Apps, the
-  calculator and the process list. `WidgetKind` keeps the numbers of the kinds that remain. Retired
+  calculator and the process list. (The numbers `WidgetKind` kept for the kinds that remained went
+  with the enum: a widget is its id now, [S-6900].) Retired
   with them: [S-100]..[S-105], [S-639], [S-120]..[S-126], [S-131], [S-410]..[S-419], [S-480]..[S-492],
   [S-510]..[S-512], [S-514], [S-537], [S-606]..[S-609], [S-654], [S-790]..[S-796], [S-810],
   [S-861]..[S-871], [S-875], [S-876], [S-951]..[S-956], [S-1144], [S-1145], [S-1151]..[S-1155],

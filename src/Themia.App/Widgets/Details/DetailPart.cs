@@ -1,6 +1,7 @@
 using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Details;
 
@@ -31,7 +32,7 @@ internal abstract class DetailPart
 {
     protected const string Scope = "details";
 
-    public abstract WidgetKind Kind { get; }
+    public abstract WidgetId Kind { get; }
 
     /// <summary>Whether the kind has a main figure at all (a list may not).</summary>
     public virtual bool HasHero => true;

@@ -83,7 +83,7 @@ internal sealed partial class WidgetPicker : Grid
     /// <summary>The columns drawn, the top ones then each open submenu, each its row buttons (null for a line) by row.</summary>
     private readonly List<Drawn> _columns = [];
 
-    private readonly List<(Button Button, WidgetKind Kind)> _hits = [];
+    private readonly List<(Button Button, WidgetId Kind)> _hits = [];
 
     private readonly DispatcherQueueTimer? _hover;
     private AddSpot? _hovered;
@@ -103,7 +103,7 @@ internal sealed partial class WidgetPicker : Grid
         _pick = pick;
         _close = close;
         _room = room;
-        _menu = AddTree.On([.. ModuleCatalog.Widgets.Select(definition => definition.Kind)]);
+        _menu = AddTree.On([.. ModuleCatalog.Widgets.Select(definition => definition.Id)]);
 
         RowSpacing = Fluent.Space3;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -731,7 +731,7 @@ internal sealed partial class WidgetPicker : Grid
         };
     }
 
-    private void Pick(WidgetKind kind)
+    private void Pick(WidgetId kind)
     {
         try
         {

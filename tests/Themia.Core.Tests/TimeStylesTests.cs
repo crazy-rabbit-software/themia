@@ -1,6 +1,7 @@
 using Themia.Core.Astronomy;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -25,14 +26,17 @@ public class TimeStylesTests
     // ---- the styles themselves ---------------------------------------------------------------
 
     [Theory]
-    [InlineData(WidgetKind.Countdown, "text,ring,flip")]
-    [InlineData(WidgetKind.Pomodoro, "ring,bar,digits")]
-    [InlineData(WidgetKind.YearProgress, "bars,rings,dots")]
-    [InlineData(WidgetKind.Sun, "arc,dayBar,times")]
-    [InlineData(WidgetKind.Moon, "disc,phaseMonth")]
-    [InlineData(WidgetKind.Clock, "digital,analog,stacked,flip,word,minimal,date")]
-    public void S6030_each_kind_offers_its_styles_in_order_the_old_look_first(WidgetKind kind, string names)
-        => Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
+    [InlineData("countdown", "text,ring,flip")]
+    [InlineData("pomodoro", "ring,bar,digits")]
+    [InlineData("yearProgress", "bars,rings,dots")]
+    [InlineData("sun", "arc,dayBar,times")]
+    [InlineData("moon", "disc,phaseMonth")]
+    [InlineData("clock", "digital,analog,stacked,flip,word,minimal,date")]
+    public void S6030_each_kind_offers_its_styles_in_order_the_old_look_first(string kindId, string names)
+    {
+        var kind = new WidgetId(kindId);
+        Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
+    }
 
     [Fact]
     public void S6035_the_pomodoro_ring_style_alone_draws_a_ring_and_digits_draws_neither()

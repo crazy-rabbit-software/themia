@@ -12,7 +12,7 @@ public static class ModuleCatalog
     private sealed record Installed(
         IReadOnlyList<WidgetDescriptor> Widgets,
         Dictionary<WidgetId, WidgetDescriptor> ById,
-        Dictionary<WidgetKind, WidgetDescriptor> ByKind);
+        Dictionary<Type, WidgetDescriptor> ByConfig);
 
     private static Installed? _installed;
 
@@ -38,21 +38,21 @@ public static class ModuleCatalog
         var installed = new Installed(
             list.AsReadOnly(),
             list.ToDictionary(w => w.Id),
-            list.ToDictionary(w => w.Kind));
+            list.ToDictionary(w => w.ConfigType));
         if (Interlocked.CompareExchange(ref _installed, installed, null) is not null)
         {
             throw new InvalidOperationException("the widget registry is installed once per process");
         }
     }
 
-    /// <summary>What is wrong with a set of descriptors: a missing one, an empty id, an id or a kind given twice.</summary>
+    /// <summary>What is wrong with a set of descriptors: a missing one, an empty id, an id or a config type given twice.</summary>
     public static IReadOnlyList<string> Check(IReadOnlyList<WidgetDescriptor?> widgets)
     {
         ArgumentNullException.ThrowIfNull(widgets);
 
         var problems = new List<string>();
         var ids = new HashSet<WidgetId>();
-        var kinds = new HashSet<WidgetKind>();
+        var configs = new HashSet<Type>();
         for (var i = 0; i < widgets.Count; i++)
         {
             if (widgets[i] is not { } widget)
@@ -63,7 +63,7 @@ public static class ModuleCatalog
 
             if (widget.Id.Value is null)
             {
-                problems.Add($"descriptor {i} ({widget.Kind}) has no id");
+                problems.Add($"descriptor {i} ({widget.ConfigType.Name}) has no id");
                 continue;
             }
 
@@ -72,20 +72,21 @@ public static class ModuleCatalog
                 problems.Add($"widget id '{widget.Id}' is declared twice");
             }
 
-            if (!kinds.Add(widget.Kind))
+            // The config's type is how a config knows its id: two widgets cannot share one.
+            if (!configs.Add(widget.ConfigType))
             {
-                problems.Add($"widget kind {widget.Kind} is declared twice");
+                problems.Add($"config type {widget.ConfigType.Name} is declared by two widgets");
             }
         }
 
         return problems;
     }
 
-    /// <summary>The descriptor of an installed kind. A kind with none is a registration bug, thrown.</summary>
-    public static WidgetDescriptor Of(WidgetKind kind)
-        => Current.ByKind.TryGetValue(kind, out var widget)
+    /// <summary>The descriptor of an installed id. An id with none is a registration bug, thrown.</summary>
+    public static WidgetDescriptor Of(WidgetId id)
+        => TryGet(id, out var widget)
             ? widget
-            : throw new KeyNotFoundException($"no widget module declares the kind {kind}");
+            : throw new KeyNotFoundException($"no widget module declares the id '{id}'");
 
     /// <summary>The descriptor of an id read from outside (a file, a command line), or false.</summary>
     public static bool TryGet(WidgetId id, out WidgetDescriptor widget)
@@ -98,6 +99,28 @@ public static class ModuleCatalog
 
         widget = null!;
         return false;
+    }
+
+    /// <summary>
+    /// A widget named on a command line (a debug render's <c>--widget-png Clock</c>): its id in any
+    /// case, so the names the flags always took keep working. Only an installed id is found.
+    /// </summary>
+    public static bool TryFind(string? name, out WidgetDescriptor widget)
+    {
+        widget = Current.Widgets.FirstOrDefault(w => string.Equals(w.Id.Value, name, StringComparison.OrdinalIgnoreCase))!;
+        return widget is not null;
+    }
+
+    /// <summary>
+    /// [S-6903] The id of a config: the widget whose descriptor names its type. The discriminator
+    /// written into state.json is this id, so a config always says which widget it is.
+    /// </summary>
+    public static WidgetId IdOf(WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return Current.ByConfig.TryGetValue(config.GetType(), out var widget)
+            ? widget.Id
+            : throw new KeyNotFoundException($"no widget module declares the config {config.GetType().Name}");
     }
 
     private static Installed Current

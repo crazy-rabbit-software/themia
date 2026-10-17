@@ -79,14 +79,11 @@ public abstract class QuickToggleConfig : WidgetConfig, IStyled
 /// <summary>[S-3900] Wi-Fi.</summary>
 public sealed class WifiToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.WifiToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("wifiToggle"),
-        Kind = WidgetKind.WifiToggle,
         ConfigType = typeof(WifiToggleConfig),
         CreateDefault = () => new WifiToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -107,14 +104,11 @@ public sealed class WifiToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Bluetooth.</summary>
 public sealed class BluetoothToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.BluetoothToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("bluetoothToggle"),
-        Kind = WidgetKind.BluetoothToggle,
         ConfigType = typeof(BluetoothToggleConfig),
         CreateDefault = () => new BluetoothToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -134,14 +128,11 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Airplane mode.</summary>
 public sealed class AirplaneModeToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.AirplaneModeToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("airplaneModeToggle"),
-        Kind = WidgetKind.AirplaneModeToggle,
         ConfigType = typeof(AirplaneModeToggleConfig),
         CreateDefault = () => new AirplaneModeToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -161,14 +152,11 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Energy saver.</summary>
 public sealed class EnergySaverToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.EnergySaverToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("energySaverToggle"),
-        Kind = WidgetKind.EnergySaverToggle,
         ConfigType = typeof(EnergySaverToggleConfig),
         CreateDefault = () => new EnergySaverToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -188,14 +176,11 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Night light.</summary>
 public sealed class NightLightToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.NightLightToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("nightLightToggle"),
-        Kind = WidgetKind.NightLightToggle,
         ConfigType = typeof(NightLightToggleConfig),
         CreateDefault = () => new NightLightToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -215,14 +200,11 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Rotation lock.</summary>
 public sealed class RotationLockToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.RotationLockToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("rotationLockToggle"),
-        Kind = WidgetKind.RotationLockToggle,
         ConfigType = typeof(RotationLockToggleConfig),
         CreateDefault = () => new RotationLockToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -242,14 +224,11 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Do not disturb.</summary>
 public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.DoNotDisturbToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("doNotDisturbToggle"),
-        Kind = WidgetKind.DoNotDisturbToggle,
         ConfigType = typeof(DoNotDisturbToggleConfig),
         CreateDefault = () => new DoNotDisturbToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -269,14 +248,11 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Sound (the default output's mute).</summary>
 public sealed class SoundToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.SoundToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("soundToggle"),
-        Kind = WidgetKind.SoundToggle,
         ConfigType = typeof(SoundToggleConfig),
         CreateDefault = () => new SoundToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -296,14 +272,11 @@ public sealed class SoundToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Microphone (the default microphone's mute).</summary>
 public sealed class MicrophoneToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.MicrophoneToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("microphoneToggle"),
-        Kind = WidgetKind.MicrophoneToggle,
         ConfigType = typeof(MicrophoneToggleConfig),
         CreateDefault = () => new MicrophoneToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -323,14 +296,11 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Spatial sound.</summary>
 public sealed class SpatialSoundToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.SpatialSoundToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("spatialSoundToggle"),
-        Kind = WidgetKind.SpatialSoundToggle,
         ConfigType = typeof(SpatialSoundToggleConfig),
         CreateDefault = () => new SpatialSoundToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -350,14 +320,11 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Mono audio.</summary>
 public sealed class MonoAudioToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.MonoAudioToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("monoAudioToggle"),
-        Kind = WidgetKind.MonoAudioToggle,
         ConfigType = typeof(MonoAudioToggleConfig),
         CreateDefault = () => new MonoAudioToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -377,14 +344,11 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Color filters.</summary>
 public sealed class ColorFiltersToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.ColorFiltersToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("colorFiltersToggle"),
-        Kind = WidgetKind.ColorFiltersToggle,
         ConfigType = typeof(ColorFiltersToggleConfig),
         CreateDefault = () => new ColorFiltersToggleConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -404,14 +368,11 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Game mode.</summary>
 public sealed class GameModeToggleConfig : QuickToggleConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.GameModeToggle;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("gameModeToggle"),
-        Kind = WidgetKind.GameModeToggle,
         ConfigType = typeof(GameModeToggleConfig),
         CreateDefault = () => new GameModeToggleConfig(),
         Json = WidgetConfigJsonContext.Default,

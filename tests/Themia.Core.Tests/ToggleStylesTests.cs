@@ -2,6 +2,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -12,16 +13,16 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class ToggleStylesTests
 {
-    private static IEnumerable<WidgetKind> ToggleKinds => QuickToggleRules.All.Select(QuickToggleRules.KindOf);
+    private static IEnumerable<WidgetId> ToggleKinds => QuickToggleRules.All.Select(QuickToggleRules.KindOf);
 
-    private static IEnumerable<WidgetKind> PowerKinds => Enum.GetValues<PowerAction>().Select(PowerActionRules.KindOf);
+    private static IEnumerable<WidgetId> PowerKinds => Enum.GetValues<PowerAction>().Select(PowerActionRules.KindOf);
 
     // ---- one style per family ------------------------------------------------------------------
 
     [Fact]
     public void S3916_all_thirteen_toggles_share_one_list_of_styles_tile_first()
     {
-        var first = WidgetStyles.For(WidgetKind.WifiToggle);
+        var first = WidgetStyles.For(WifiToggleConfig.Descriptor.Id);
         Assert.Equal(["tile", "round", "switch"], first.Select(s => s.Name));
 
         foreach (var kind in ToggleKinds)
@@ -37,8 +38,8 @@ public sealed class ToggleStylesTests
     [Fact]
     public void S1919_all_seven_power_widgets_share_tile_and_round_named_as_the_toggles_are()
     {
-        var power = WidgetStyles.For(WidgetKind.Shutdown);
-        var toggles = WidgetStyles.For(WidgetKind.WifiToggle);
+        var power = WidgetStyles.For(ShutdownConfig.Descriptor.Id);
+        var toggles = WidgetStyles.For(WifiToggleConfig.Descriptor.Id);
         Assert.Equal(["tile", "round"], power.Select(s => s.Name));
 
         // The same look is the same name, label and icon in both families.

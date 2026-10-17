@@ -46,14 +46,11 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(AccountFeatures signedIn) => ResolvedUrl.Problem == WebUrlProblem.Empty;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.VideoStream;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("videoStream"),
-        Kind = WidgetKind.VideoStream,
         ConfigType = typeof(VideoStreamConfig),
         CreateDefault = () => new VideoStreamConfig(),
         Json = WidgetConfigJsonContext.Default,

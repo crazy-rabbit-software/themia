@@ -165,7 +165,7 @@ public class CountdownFormatterTests
     [Fact]
     public void S6036_a_new_countdown_has_no_target_and_asks_to_be_set_up()
     {
-        var config = (CountdownConfig)WidgetConfig.CreateDefault(WidgetKind.Countdown);
+        var config = (CountdownConfig)WidgetConfig.CreateDefault(CountdownConfig.Descriptor.Id);
 
         Assert.Null(config.Target);
         Assert.Equal(string.Empty, config.Label);

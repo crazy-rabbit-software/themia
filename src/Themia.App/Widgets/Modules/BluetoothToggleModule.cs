@@ -12,5 +12,5 @@ public sealed class BluetoothToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => BluetoothToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(WidgetKind.BluetoothToggle);
+    public FrameworkElement CreateView() => new QuickToggleView(BluetoothToggleConfig.Descriptor.Id);
 }

@@ -13,14 +13,11 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class NotificationsConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Notifications;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("notifications"),
-        Kind = WidgetKind.Notifications,
         ConfigType = typeof(NotificationsConfig),
         CreateDefault = () => new NotificationsConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -41,14 +38,11 @@ public sealed class NotificationsConfig : WidgetConfig
 /// <summary>[S-4420] A focus session: a length, and whether it holds Windows' do not disturb while it runs.</summary>
 public sealed class FocusSessionConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.FocusSession;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("focusSession"),
-        Kind = WidgetKind.FocusSession,
         ConfigType = typeof(FocusSessionConfig),
         CreateDefault = () => new FocusSessionConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -99,14 +93,11 @@ public enum BrightnessScreens
 /// <summary>[S-4440] The display brightness, one slider.</summary>
 public sealed class BrightnessConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Brightness;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("brightness"),
-        Kind = WidgetKind.Brightness,
         ConfigType = typeof(BrightnessConfig),
         CreateDefault = () => new BrightnessConfig(),
         Json = WidgetConfigJsonContext.Default,

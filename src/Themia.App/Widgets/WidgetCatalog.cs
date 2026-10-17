@@ -40,7 +40,7 @@ internal static class WidgetCatalog
 
         var locale = Strings.Current;
         return new WidgetSearchDoc(
-            definition.Kind.ToString(),
+            definition.Id.Value,
             Both(locale, definition.LabelId),
             definition.Keywords,
             Both(locale, definition),

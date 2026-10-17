@@ -11,20 +11,20 @@ public abstract record AddNode;
 /// A widget. <paramref name="Again"/>: shown here once more, its home being elsewhere in the tree
 /// (Popular's rows, [S-3511]); search lists it at its home only.
 /// </summary>
-public sealed record AddLeaf(WidgetKind Kind, bool Again = false) : AddNode;
+public sealed record AddLeaf(WidgetId Kind, bool Again = false) : AddNode;
 
 /// <summary>A line between two runs of a folder's rows.</summary>
 public sealed record AddLine : AddNode;
 
 /// <summary>A folder: a row opening a submenu of its rows; at the top, a column under its heading.</summary>
 /// <param name="Icon">The kind whose icon its row wears; ignored for a top column, which is a heading.</param>
-public sealed record AddShelf(AddFolderId Id, Str Title, WidgetKind Icon, IReadOnlyList<AddNode> Rows) : AddNode;
+public sealed record AddShelf(AddFolderId Id, Str Title, WidgetId Icon, IReadOnlyList<AddNode> Rows) : AddNode;
 
 /// <summary>A row of the tree as the menu shows it: a pick, a folder, or a line.</summary>
 public abstract record AddRow;
 
 /// <summary>A row that adds <see cref="Kind"/>; <see cref="Again"/> as <see cref="AddLeaf.Again"/>.</summary>
-public sealed record AddPick(WidgetKind Kind, bool Again) : AddRow;
+public sealed record AddPick(WidgetId Kind, bool Again) : AddRow;
 
 /// <summary>A folder as the menu shows it: always two rows or more.</summary>
 public sealed record AddFolder(AddShelf Shelf, IReadOnlyList<AddRow> Rows) : AddRow;
@@ -36,7 +36,7 @@ public sealed record AddRule : AddRow;
 public sealed record AddColumn(AddShelf Shelf, IReadOnlyList<AddRow> Rows);
 
 /// <summary>A widget's home in the tree: the folders it is in under its top column, outermost first.</summary>
-public sealed record AddHome(WidgetKind Kind, IReadOnlyList<AddShelf> Path);
+public sealed record AddHome(WidgetId Kind, IReadOnlyList<AddShelf> Path);
 
 /// <summary>
 /// [S-3510..S-3512] The add menu's tree, after Karpo's add list (<c>karpo-app</c>, docs/widgets.md
@@ -117,14 +117,14 @@ public static class AddTree
     private static (AddShelf Popular, AddShelf Browse) Build()
     {
         var widgets = ModuleCatalog.Widgets;
-        AddLeaf[] popular = [.. widgets.Where(w => w.Add.Popular is not null).OrderBy(w => w.Add.Popular).Select(w => new AddLeaf(w.Kind, Again: true))];
+        AddLeaf[] popular = [.. widgets.Where(w => w.Add.Popular is not null).OrderBy(w => w.Add.Popular).Select(w => new AddLeaf(w.Id, Again: true))];
         return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular, popular[0].Kind, popular), Shelf(AddFolderId.Browse, Str.AddMenu_Browse, widgets));
     }
 
     /// <summary>A folder's rows: its widgets and its folders, by run and place, a line between two runs.</summary>
     private static AddShelf Shelf(AddFolderId id, Str title, IReadOnlyList<WidgetDescriptor> widgets)
     {
-        var entries = widgets.Where(w => w.Add.Shelf == id).Select(w => (w.Add.Group, w.Add.Rank, Node: (AddNode)new AddLeaf(w.Kind)))
+        var entries = widgets.Where(w => w.Add.Shelf == id).Select(w => (w.Add.Group, w.Add.Rank, Node: (AddNode)new AddLeaf(w.Id)))
             .Concat(Folders.Where(f => f.Parent == id).Select(f => (f.Group, f.Rank, Node: (AddNode)Shelf(f.Id, f.Title, widgets))))
             .OrderBy(e => e.Group).ThenBy(e => e.Rank);
 
@@ -145,7 +145,7 @@ public static class AddTree
     }
 
     /// <summary>A folder's row wears its first widget's icon.</summary>
-    private static WidgetKind IconOf(IReadOnlyList<AddNode> rows) => rows.FirstOrDefault(row => row is not AddLine) switch
+    private static WidgetId IconOf(IReadOnlyList<AddNode> rows) => rows.FirstOrDefault(row => row is not AddLine) switch
     {
         AddLeaf leaf => leaf.Kind,
         AddShelf shelf => shelf.Icon,
@@ -161,12 +161,12 @@ public static class AddTree
     /// (one is that row; none, no folder), a line only between two rows. An offered kind the tree has
     /// no home for stands in <see cref="AddFolderId.More"/>, at Browse's end.
     /// </summary>
-    public static IReadOnlyList<AddColumn> On(IReadOnlyList<WidgetKind> offered)
+    public static IReadOnlyList<AddColumn> On(IReadOnlyList<WidgetId> offered)
     {
         ArgumentNullException.ThrowIfNull(offered);
 
-        var have = new HashSet<WidgetKind>(offered);
-        var placed = new HashSet<WidgetKind>();
+        var have = new HashSet<WidgetId>(offered);
+        var placed = new HashSet<WidgetId>();
         var columns = new List<AddColumn>();
 
         foreach (var shelf in Top)
@@ -225,7 +225,7 @@ public static class AddTree
         }
     }
 
-    private static List<AddRow> Resolve(IReadOnlyList<AddNode> nodes, HashSet<WidgetKind> have, HashSet<WidgetKind> placed)
+    private static List<AddRow> Resolve(IReadOnlyList<AddNode> nodes, HashSet<WidgetId> have, HashSet<WidgetId> placed)
     {
         var rows = new List<AddRow>();
         foreach (var node in nodes)

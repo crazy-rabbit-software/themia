@@ -12,5 +12,5 @@ public sealed class HibernateModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => HibernateConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new PowerButtonView(WidgetKind.Hibernate);
+    public FrameworkElement CreateView() => new PowerButtonView(HibernateConfig.Descriptor.Id);
 }

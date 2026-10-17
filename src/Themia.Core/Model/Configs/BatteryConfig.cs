@@ -37,14 +37,11 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
     {
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Battery;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("battery"),
-        Kind = WidgetKind.Battery,
         ConfigType = typeof(BatteryConfig),
         CreateDefault = () => new BatteryConfig(),
         Json = WidgetConfigJsonContext.Default,

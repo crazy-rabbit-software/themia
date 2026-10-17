@@ -184,16 +184,16 @@ public sealed class AppStateStoreTests : IDisposable
     }
 
     [Fact]
-    public void Validate_replaces_a_config_that_does_not_match_its_widget_kind()
+    public void S6908_Validate_drops_a_widget_without_a_config_since_it_has_no_kind()
     {
         var state = AppState.CreateDefault();
         var widget = state.ActiveView().Widgets[0];
         widget.Config = null!;
 
-        AppStateStore.Validate(state);
+        var repairs = AppStateStore.Validate(state);
 
-        Assert.NotNull(widget.Config);
-        Assert.Equal(widget.Kind, widget.Config.Kind);
+        Assert.DoesNotContain(widget, state.ActiveView().Widgets);
+        Assert.Contains(repairs, r => r.Contains($"'{widget.Id}'", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -303,11 +303,11 @@ public sealed class AppStateStoreTests : IDisposable
         Assert.Equal(ParseRefusal.None, result.Refusal);
         var kept = Assert.Single(result.State!.Views[0].Widgets);
         Assert.Equal("member", kept.Id);
-        Assert.Equal(WidgetKind.Clock, kept.Kind);
+        Assert.Equal(ClockConfig.Descriptor.Id, kept.Kind);
         Assert.Equal(new FracRect(0.45, 0.2, 0.2, 0.15), kept.Rect);
 
-        Assert.Contains(result.Repairs, r => r.Contains("'calc'", StringComparison.Ordinal) && r.Contains("Calculator", StringComparison.Ordinal));
-        Assert.Contains(result.Repairs, r => r.Contains("'g'", StringComparison.Ordinal) && r.Contains("Group", StringComparison.Ordinal));
+        Assert.Contains(result.Repairs, r => r.Contains("'calc'", StringComparison.Ordinal) && r.Contains("'calculator'", StringComparison.Ordinal));
+        Assert.Contains(result.Repairs, r => r.Contains("'g'", StringComparison.Ordinal) && r.Contains("'group'", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -318,7 +318,7 @@ public sealed class AppStateStoreTests : IDisposable
         var result = new AppStateStore(_path).Load();
 
         Assert.Equal(LoadOutcome.Loaded, result.Outcome);
-        Assert.Contains("Calculator", result.Detail, StringComparison.Ordinal);
+        Assert.Contains("'calculator'", result.Detail, StringComparison.Ordinal);
         Assert.True(File.Exists(_path));
     }
 }

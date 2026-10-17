@@ -71,7 +71,7 @@ internal sealed partial class DesktopWindow
     private void OnPicked(Flyout flyout, WidgetDescriptor definition)
     {
         flyout.Hide();
-        _host.BeginPlacement(definition.Kind);
+        _host.BeginPlacement(definition.Id);
     }
 
     /// <summary>

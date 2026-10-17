@@ -35,14 +35,11 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
     {
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Network;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("network"),
-        Kind = WidgetKind.Network,
         ConfigType = typeof(NetworkConfig),
         CreateDefault = () => new NetworkConfig(),
         Json = WidgetConfigJsonContext.Default,

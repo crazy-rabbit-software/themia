@@ -27,14 +27,11 @@ public sealed class DriveConfig : WidgetConfig, IStyled
         StyleOption.Of(DriveStyle.Ring, Str.Styles_Io_Ring, 0xEA3A),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Drive;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("drive"),
-        Kind = WidgetKind.Drive,
         ConfigType = typeof(DriveConfig),
         CreateDefault = () => new DriveConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -87,14 +84,11 @@ public sealed class DriveConfig : WidgetConfig, IStyled
 /// <summary>[S-4660] The removable devices: no options, so no settings page ([S-1750]).</summary>
 public sealed class RemovableDrivesConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.RemovableDrives;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("removableDrives"),
-        Kind = WidgetKind.RemovableDrives,
         ConfigType = typeof(RemovableDrivesConfig),
         CreateDefault = () => new RemovableDrivesConfig(),
         Json = WidgetConfigJsonContext.Default,

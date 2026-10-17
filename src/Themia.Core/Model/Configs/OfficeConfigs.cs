@@ -217,14 +217,11 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
         StyleOption.Of(CalendarStyle.Agenda, Str.Styles_Calendar_Agenda, 0xE8FD),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Calendar;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("calendar"),
-        Kind = WidgetKind.Calendar,
         ConfigType = typeof(CalendarWidgetConfig),
         CreateDefault = () => new CalendarWidgetConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -364,14 +361,11 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     public static IReadOnlyList<ContactColumn> AllColumns { get; } =
         [ContactColumn.Name, ContactColumn.Email, ContactColumn.Phone, ContactColumn.Company, ContactColumn.Title];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Contacts;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("contacts"),
-        Kind = WidgetKind.Contacts,
         ConfigType = typeof(ContactsConfig),
         CreateDefault = () => new ContactsConfig(),
         Json = WidgetConfigJsonContext.Default,

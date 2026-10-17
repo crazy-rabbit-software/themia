@@ -136,7 +136,7 @@ public class WidgetClipboardTests
         var clipboard = new WidgetClipboard();
         clipboard.Cut(view, [widget.Id]);
 
-        clipboard.OnPlaced(PlacementPayload.ForNew(WidgetKind.Clock, 200, 200));
+        clipboard.OnPlaced(PlacementPayload.ForNew(ClockConfig.Descriptor.Id, 200, 200));
 
         Assert.True(clipboard.HasContent);
     }

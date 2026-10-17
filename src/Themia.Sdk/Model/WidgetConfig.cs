@@ -15,15 +15,19 @@ namespace Themia.Core.Model;
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind", UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization)]
 public abstract class WidgetConfig
 {
-    /// <summary>The kind this config belongs to. Used to detect a config/kind mismatch on load.</summary>
+    /// <summary>
+    /// [S-6903] The widget this config belongs to: its id, the discriminator it is written with.
+    /// Sealed here, never declared by a config, so no config can repeat the <c>kind</c> metadata
+    /// property or claim another widget's id.
+    /// </summary>
     [JsonIgnore]
-    public abstract WidgetKind Kind { get; }
+    public WidgetId Kind => ModuleCatalog.IdOf(this);
 
     /// <summary>
     /// Default config for a kind: its descriptor's ([S-6902]). Never returns null, so a widget always
     /// has settings; a kind without a descriptor is a registration bug, thrown, never another kind's config.
     /// </summary>
-    public static WidgetConfig CreateDefault(WidgetKind kind) => ModuleCatalog.Of(kind).CreateDefault();
+    public static WidgetConfig CreateDefault(WidgetId kind) => ModuleCatalog.Of(kind).CreateDefault();
 
     public abstract WidgetConfig Clone();
 

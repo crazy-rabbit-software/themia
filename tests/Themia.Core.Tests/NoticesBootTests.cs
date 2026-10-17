@@ -201,10 +201,10 @@ public sealed class NoticesBootTests : IDisposable
         // The clock first, so it is the one drawn on top.
         Assert.Equal(
             [
-                WidgetKind.Clock, WidgetKind.Shortcuts, WidgetKind.WeatherNow,
-                WidgetKind.Cpu, WidgetKind.Memory, WidgetKind.Gpu, WidgetKind.Network,
-                WidgetKind.DoNotDisturbToggle, WidgetKind.ColorFiltersToggle, WidgetKind.NightLightToggle,
-                WidgetKind.AirplaneModeToggle, WidgetKind.BluetoothToggle, WidgetKind.WifiToggle,
+                ClockConfig.Descriptor.Id, ShortcutsConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id,
+                CpuConfig.Descriptor.Id, MemoryConfig.Descriptor.Id, GpuConfig.Descriptor.Id, NetworkConfig.Descriptor.Id,
+                DoNotDisturbToggleConfig.Descriptor.Id, ColorFiltersToggleConfig.Descriptor.Id, NightLightToggleConfig.Descriptor.Id,
+                AirplaneModeToggleConfig.Descriptor.Id, BluetoothToggleConfig.Descriptor.Id, WifiToggleConfig.Descriptor.Id,
             ],
             widgets.Select(w => w.Kind));
 
@@ -257,7 +257,7 @@ public sealed class NoticesBootTests : IDisposable
         var widgets = AppState.CreateDefault().Views[1].Widgets;
 
         Assert.Equal(
-            [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
+            [ClockConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, NotesConfig.Descriptor.Id],
             widgets.Select(w => w.Kind));
 
         var clock = Assert.IsType<ClockConfig>(widgets[0].Config);
@@ -282,23 +282,23 @@ public sealed class NoticesBootTests : IDisposable
     {
         var widgets = AppState.CreateDefault().Views.SelectMany(v => v.Widgets).ToList();
 
-        var weather = Assert.IsType<WeatherNowConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.WeatherNow).Config);
+        var weather = Assert.IsType<WeatherNowConfig>(Assert.Single(widgets, w => w.Kind == WeatherNowConfig.Descriptor.Id).Config);
         Assert.Null(weather.Latitude);
         Assert.Null(weather.Longitude);
         Assert.Equal(string.Empty, weather.LocationName);
 
-        var calendar = Assert.IsType<CalendarWidgetConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.Calendar).Config);
+        var calendar = Assert.IsType<CalendarWidgetConfig>(Assert.Single(widgets, w => w.Kind == CalendarWidgetConfig.Descriptor.Id).Config);
         Assert.Empty(calendar.AccountIds);
         Assert.Empty(calendar.Calendars);
         Assert.Empty(calendar.CalendarColors);
 
-        var tasks = Assert.IsType<TasksConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.Tasks).Config);
+        var tasks = Assert.IsType<TasksConfig>(Assert.Single(widgets, w => w.Kind == TasksConfig.Descriptor.Id).Config);
         Assert.Equal(string.Empty, tasks.AccountId);
         Assert.Equal(string.Empty, tasks.ListId);
         Assert.Equal(string.Empty, tasks.LocalListId);
 
         // The note is made on first show, as for any new Notes widget.
-        Assert.Null(Assert.IsType<NotesConfig>(Assert.Single(widgets, w => w.Kind == WidgetKind.Notes).Config).NoteId);
+        Assert.Null(Assert.IsType<NotesConfig>(Assert.Single(widgets, w => w.Kind == NotesConfig.Descriptor.Id).Config).NoteId);
     }
 
     [Fact]
@@ -367,7 +367,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(2, loaded.State.Views.Count);
         Assert.Equal(state.Views[0].Widgets.Select(w => w.Kind), loaded.State.Views[0].Widgets.Select(w => w.Kind));
         Assert.Equal(
-            [WidgetKind.Clock, WidgetKind.Calendar, WidgetKind.Tasks, WidgetKind.Notes],
+            [ClockConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, NotesConfig.Descriptor.Id],
             loaded.State.Views[1].Widgets.Select(w => w.Kind));
         Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[1].Config).Items.Count);
     }

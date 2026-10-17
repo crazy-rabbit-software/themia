@@ -119,8 +119,8 @@ public sealed class UndoLogTests
     private static (AppState State, ViewState View, WidgetInstance Clock) Desk()
     {
         var view = ViewState.Create("Desk");
-        var clock = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.1, 0.1, 0.2, 0.2));
-        var notes = WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.5, 0.1, 0.2, 0.3));
+        var clock = WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
+        var notes = WidgetInstance.Create(NotesConfig.Descriptor.Id, new FracRect(0.5, 0.1, 0.2, 0.3));
         view.Widgets.Add(clock);
         view.Widgets.Add(notes);
         var state = new AppState { Views = [view], ActiveViewId = view.Id };
@@ -249,7 +249,7 @@ public sealed class UndoLogTests
     {
         var (state, _, _) = Desk();
         var second = ViewState.Create("Second");
-        second.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.1, 0.1, 0.2, 0.2)));
+        second.Widgets.Add(WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2)));
         state.Views.Add(second);
         state.MonitorViews["display-2"] = second.Id;
         state.DefaultViewForNewDisplays = second.Id;

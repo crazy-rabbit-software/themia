@@ -60,14 +60,11 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
 
     private List<string> _taskOrder = [];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Tasks;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("tasks"),
-        Kind = WidgetKind.Tasks,
         ConfigType = typeof(TasksConfig),
         CreateDefault = () => new TasksConfig(),
         Json = WidgetConfigJsonContext.Default,

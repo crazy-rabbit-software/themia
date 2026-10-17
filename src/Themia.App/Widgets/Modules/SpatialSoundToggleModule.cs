@@ -12,5 +12,5 @@ public sealed class SpatialSoundToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => SpatialSoundToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(WidgetKind.SpatialSoundToggle);
+    public FrameworkElement CreateView() => new QuickToggleView(SpatialSoundToggleConfig.Descriptor.Id);
 }

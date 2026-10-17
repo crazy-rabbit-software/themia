@@ -52,7 +52,7 @@ public class WeekPlannerTests
         Assert.False(clone.ShowTasks);
 
         Assert.True(new WeekPlannerConfig().ShowTasks);
-        Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(WidgetKind.WeekPlanner));
+        Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(WeekPlannerConfig.Descriptor.Id));
         Assert.IsType<WeekPlannerConfig>(ConfigJson.Read("WeekPlanner", """{"kind":"weekPlanner","taskAccountId":null}"""));
     }
 
@@ -168,7 +168,7 @@ public class WeekPlannerTests
     public void S5325_the_planner_syncs_its_calendars_and_its_task_account_today()
     {
         var state = AppState.CreateDefault();
-        var widget = WidgetInstance.Create(WidgetKind.WeekPlanner, new Geometry.FracRect(0.1, 0.1, 0.3, 0.3));
+        var widget = WidgetInstance.Create(WeekPlannerConfig.Descriptor.Id, new Geometry.FracRect(0.1, 0.1, 0.3, 0.3));
         var config = (WeekPlannerConfig)widget.Config;
         config.AccountIds = ["cal"];
         config.TaskAccountId = "tasks";

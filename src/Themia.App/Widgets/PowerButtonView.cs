@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -76,7 +77,7 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     private bool _pressed;
     private bool _detached = true;
 
-    public PowerButtonView(WidgetKind kind)
+    public PowerButtonView(WidgetId kind)
     {
         _action = PowerActionRules.ForKind(kind) ?? PowerAction.Lock;
 

@@ -12,6 +12,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Motion;
+using Themia.Sdk;
 using Windows.Foundation;
 using Windows.Graphics;
 
@@ -37,14 +38,14 @@ internal static class MotionRender
     private const double IntroMs = 500;
     private const double Gap = 8;
 
-    private static readonly (WidgetKind Kind, FracRect Rect)[] Scene =
+    private static readonly (WidgetId Kind, FracRect Rect)[] Scene =
     [
-        (WidgetKind.Clock, new FracRect(0.03, 0.05, 0.22, 0.28)),
-        (WidgetKind.Cpu, new FracRect(0.27, 0.05, 0.2, 0.28)),
-        (WidgetKind.Memory, new FracRect(0.03, 0.36, 0.22, 0.3)),
-        (WidgetKind.Pomodoro, new FracRect(0.62, 0.08, 0.17, 0.5)),
-        (WidgetKind.Countdown, new FracRect(0.8, 0.08, 0.17, 0.25)),
-        (WidgetKind.Notes, new FracRect(0.55, 0.62, 0.42, 0.3)),
+        (ClockConfig.Descriptor.Id, new FracRect(0.03, 0.05, 0.22, 0.28)),
+        (CpuConfig.Descriptor.Id, new FracRect(0.27, 0.05, 0.2, 0.28)),
+        (MemoryConfig.Descriptor.Id, new FracRect(0.03, 0.36, 0.22, 0.3)),
+        (PomodoroConfig.Descriptor.Id, new FracRect(0.62, 0.08, 0.17, 0.5)),
+        (CountdownConfig.Descriptor.Id, new FracRect(0.8, 0.08, 0.17, 0.25)),
+        (NotesConfig.Descriptor.Id, new FracRect(0.55, 0.62, 0.42, 0.3)),
     ];
 
     public static bool TryRunFromCommandLine(Application app, string[] args)

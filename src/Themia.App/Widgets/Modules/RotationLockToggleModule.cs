@@ -12,5 +12,5 @@ public sealed class RotationLockToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => RotationLockToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(WidgetKind.RotationLockToggle);
+    public FrameworkElement CreateView() => new QuickToggleView(RotationLockToggleConfig.Descriptor.Id);
 }

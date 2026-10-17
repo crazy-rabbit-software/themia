@@ -56,14 +56,11 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
         StyleOption.Of(ForecastStyle.Grid, Str.Styles_Forecast_Grid, 0xF0E2),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.WeatherForecast;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("weatherForecast"),
-        Kind = WidgetKind.WeatherForecast,
         ConfigType = typeof(WeatherForecastConfig),
         CreateDefault = () => new WeatherForecastConfig(),
         Json = WidgetConfigJsonContext.Default,

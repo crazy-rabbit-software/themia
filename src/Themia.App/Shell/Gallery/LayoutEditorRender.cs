@@ -56,7 +56,7 @@ internal static class LayoutEditorRender
         {
             var item = empty ? ShortcutItem.CreateLayout() : DemoAppLayout();
             var view = ViewState.Create("Desktop");
-            var widget = WidgetInstance.Create(WidgetKind.Shortcuts, new FracRect(0.1, 0.1, 0.2, 0.2));
+            var widget = WidgetInstance.Create(ShortcutsConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
             widget.Config = new ShortcutsConfig { Items = [item] };
             view.Widgets.Add(widget);
 

@@ -91,7 +91,7 @@ public sealed class ShortcutsTests
     [Fact]
     public void S1393_a_new_widget_starts_with_the_recycle_bin_and_this_pc()
     {
-        var config = Assert.IsType<ShortcutsConfig>(WidgetConfig.CreateDefault(WidgetKind.Shortcuts));
+        var config = Assert.IsType<ShortcutsConfig>(WidgetConfig.CreateDefault(ShortcutsConfig.Descriptor.Id));
 
         Assert.Equal(["shell:RecycleBinFolder", "shell:MyComputerFolder"], config.Items.Select(i => i.Target));
         Assert.All(config.Items, item => Assert.True(LaunchTargets.Classify(item.Target).IsValid));

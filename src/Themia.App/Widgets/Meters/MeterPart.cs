@@ -3,6 +3,7 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -116,7 +117,7 @@ internal abstract class MeterPart
 {
     protected const string Scope = "meter";
 
-    public abstract WidgetKind Kind { get; }
+    public abstract WidgetId Kind { get; }
 
     /// <summary>
     /// [S-3860] The widest reading this kind can produce ("100%", German "100 %"), its number and

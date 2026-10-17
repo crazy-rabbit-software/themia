@@ -50,14 +50,11 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(AccountFeatures signedIn) => EffectiveQuotes.Count == 0;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Quote;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("quote"),
-        Kind = WidgetKind.Quote,
         ConfigType = typeof(QuoteConfig),
         CreateDefault = () => new QuoteConfig(),
         Json = WidgetConfigJsonContext.Default,

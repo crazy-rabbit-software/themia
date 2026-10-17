@@ -31,8 +31,8 @@ public sealed class SettingsTransferTests : IDisposable
     private static AppState Sample()
     {
         var work = ViewState.Create("Work");
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.1, 0.1, 0.2, 0.2)));
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Cpu, new FracRect(0.4, 0.1, 0.2, 0.2)));
+        work.Widgets.Add(WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2)));
+        work.Widgets.Add(WidgetInstance.Create(CpuConfig.Descriptor.Id, new FracRect(0.4, 0.1, 0.2, 0.2)));
 
         var home = ViewState.Create("Home");
 
@@ -166,8 +166,8 @@ public sealed class SettingsTransferTests : IDisposable
         var work = incoming.Views[0];
         work.Widgets.RemoveAt(1);
         work.Widgets[0].X = 0.5;
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.1, 0.5, 0.2, 0.2)));
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Memory, new FracRect(0.5, 0.5, 0.2, 0.2)));
+        work.Widgets.Add(WidgetInstance.Create(NotesConfig.Descriptor.Id, new FracRect(0.1, 0.5, 0.2, 0.2)));
+        work.Widgets.Add(WidgetInstance.Create(MemoryConfig.Descriptor.Id, new FracRect(0.5, 0.5, 0.2, 0.2)));
 
         var preview = SettingsTransfer.Compare(Locale.En, state, incoming, [], Displays);
 

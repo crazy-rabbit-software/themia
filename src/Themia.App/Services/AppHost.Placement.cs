@@ -24,7 +24,7 @@ internal sealed partial class AppHost
     private PlacementKeyWatcher? _placementKeys;
 
     /// <summary>[S-421] Start placing a new widget of <paramref name="kind"/> at its default size.</summary>
-    public void BeginPlacement(WidgetKind kind)
+    public void BeginPlacement(WidgetId kind)
     {
         var definition = ModuleCatalog.Of(kind);
         BeginPlacement(PlacementPayload.ForNew(kind, definition.DefaultWidth, definition.DefaultHeight));

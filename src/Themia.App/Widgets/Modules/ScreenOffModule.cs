@@ -12,5 +12,5 @@ public sealed class ScreenOffModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => ScreenOffConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new PowerButtonView(WidgetKind.ScreenOff);
+    public FrameworkElement CreateView() => new PowerButtonView(ScreenOffConfig.Descriptor.Id);
 }

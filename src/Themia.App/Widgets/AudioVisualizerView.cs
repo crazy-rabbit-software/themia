@@ -51,7 +51,7 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
 
         var message = new TextBlock { Text = Str.WidgetsC_Visualizer_Unavailable.Text() };
-        _unavailable = Fluent.EmptyState(ModuleCatalog.Of(WidgetKind.AudioVisualizer).Glyph, message, out _);
+        _unavailable = Fluent.EmptyState(ModuleCatalog.Of(AudioVisualizerConfig.Descriptor.Id).Glyph, message, out _);
         _unavailable.Visibility = Visibility.Collapsed;
 
         Children.Add(_bars);

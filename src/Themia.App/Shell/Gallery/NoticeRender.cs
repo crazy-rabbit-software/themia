@@ -200,7 +200,7 @@ internal static class NoticeRender
         foreach (var (w, h, paused) in sizes)
         {
             WidgetCard.StartPaused = paused;
-            var card = new WidgetCard(host, WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.1, 0.1)))
+            var card = new WidgetCard(host, WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1)))
             {
                 Width = w,
                 Height = h,

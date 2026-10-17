@@ -2,6 +2,7 @@ using Themia.App.Services;
 using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -12,7 +13,7 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class NetworkMeter : MeterPart
 {
-    public override WidgetKind Kind => WidgetKind.Network;
+    public override WidgetId Kind => NetworkConfig.Descriptor.Id;
 
     /// <summary>"1023 KB/s": the widest a rate is written.</summary>
     public override HeroBound Reading => HeroBound.Of(Formatting.Rate(1023 * 1024));

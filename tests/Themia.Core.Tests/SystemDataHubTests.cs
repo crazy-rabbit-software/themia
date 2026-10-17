@@ -1,6 +1,7 @@
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -323,7 +324,7 @@ public sealed class SystemDataHubTests
             {
                 Id = $"v{v}",
                 Name = $"View {v}",
-                Widgets = [.. configs.Select((c, i) => new WidgetInstance { Id = $"w{v}-{i}", Kind = c.Kind, Config = c })],
+                Widgets = [.. configs.Select((c, i) => new WidgetInstance { Id = $"w{v}-{i}", Config = c })],
             }),
         ],
     };
@@ -395,7 +396,7 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2513_every_system_kind_reads_something_and_no_other_kind_does()
     {
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
             var wants = SystemInterests.For(config, Root);
@@ -418,7 +419,7 @@ public sealed class SystemDataHubTests
         ((CpuConfig)state.Views[0].Widgets[0].Config).GraphSpanSeconds = 3600;
         Assert.True(before.SameAs(SystemInterests.From(state, Root)));
 
-        state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Kind = WidgetKind.NetworkDetails, Config = new NetworkDetailsConfig() });
+        state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Config = new NetworkDetailsConfig() });
         Assert.False(before.SameAs(SystemInterests.From(state, Root)));
     }
 

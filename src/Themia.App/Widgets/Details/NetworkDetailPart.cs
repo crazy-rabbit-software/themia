@@ -2,6 +2,7 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Details;
 
@@ -18,7 +19,7 @@ internal sealed class NetworkDetailPart : DetailPart
     private readonly WatchSlot<PublicAddressReading> _public = new();
     private IDetailHost? _host;
 
-    public override WidgetKind Kind => WidgetKind.NetworkDetails;
+    public override WidgetId Kind => NetworkDetailsConfig.Descriptor.Id;
 
     public override double HeroCharacters => NetworkDetailRules.HeroCharacters;
 

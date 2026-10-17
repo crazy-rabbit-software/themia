@@ -3,6 +3,7 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Details;
 
@@ -17,7 +18,7 @@ internal sealed class GpuDetailPart : DetailPart
     private GpuDetailsConfig _config = new();
     private IDetailHost? _host;
 
-    public override WidgetKind Kind => WidgetKind.GpuDetails;
+    public override WidgetId Kind => GpuDetailsConfig.Descriptor.Id;
 
     public override double HeroCharacters => GpuDetailRules.HeroCharacters;
 

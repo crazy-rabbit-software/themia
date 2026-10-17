@@ -11,7 +11,7 @@ public sealed class ItemTextTests
 {
     private static WidgetInstance Widget(string id, string text = "", FillChoice? items = null)
     {
-        var widget = WidgetInstance.Create(WidgetKind.Shortcuts, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(ShortcutsConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.ItemTextColor = text;
         widget.ItemBackground = items ?? new FillChoice();
@@ -22,7 +22,7 @@ public sealed class ItemTextTests
     public void S6540_a_fresh_design_and_widget_keep_the_theme_text()
     {
         Assert.Equal(string.Empty, new DesignState().ItemTextColor);
-        Assert.Equal(string.Empty, WidgetInstance.Create(WidgetKind.Email, new FracRect(0, 0, 0.1, 0.1)).ItemTextColor);
+        Assert.Equal(string.Empty, WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1)).ItemTextColor);
         Assert.Equal(string.Empty, ItemLook.TextColour(new DesignState(), null));
     }
 

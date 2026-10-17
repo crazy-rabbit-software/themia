@@ -49,14 +49,11 @@ public enum MusicHideWhenIdle
 /// </summary>
 public sealed class MusicConfig : WidgetConfig, IStyled
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Music;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("music"),
-        Kind = WidgetKind.Music,
         ConfigType = typeof(MusicConfig),
         CreateDefault = () => new MusicConfig(),
         Json = WidgetConfigJsonContext.Default,

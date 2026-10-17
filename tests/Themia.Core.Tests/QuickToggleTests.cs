@@ -2,6 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -14,8 +15,8 @@ public class QuickToggleTests
 {
     private static readonly DateTimeOffset T0 = new(2026, 10, 12, 9, 0, 0, TimeSpan.Zero);
 
-    private static IEnumerable<WidgetKind> ToggleKinds
-        => Enum.GetValues<WidgetKind>().Where(k => QuickToggleRules.ForKind(k) is not null);
+    private static IEnumerable<WidgetId> ToggleKinds
+        => ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Where(k => QuickToggleRules.ForKind(k) is not null);
 
     // ---- kinds ---------------------------------------------------------------------------------
 
@@ -36,9 +37,9 @@ public class QuickToggleTests
     [Fact]
     public void S3900_a_power_or_meter_kind_is_not_a_toggle()
     {
-        Assert.Null(QuickToggleRules.ForKind(WidgetKind.Shutdown));
-        Assert.Null(QuickToggleRules.ForKind(WidgetKind.Bluetooth));
-        Assert.Null(QuickToggleRules.ForKind(WidgetKind.Volume));
+        Assert.Null(QuickToggleRules.ForKind(ShutdownConfig.Descriptor.Id));
+        Assert.Null(QuickToggleRules.ForKind(BluetoothConfig.Descriptor.Id));
+        Assert.Null(QuickToggleRules.ForKind(VolumeConfig.Descriptor.Id));
     }
 
     [Fact]

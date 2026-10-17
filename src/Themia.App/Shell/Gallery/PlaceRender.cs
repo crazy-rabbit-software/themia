@@ -3,6 +3,7 @@ using Themia.App.Services;
 using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Gallery;
 
@@ -40,7 +41,7 @@ internal static class PlaceRender
     public static string? Query => Arg("--place-query");
 
     /// <summary>Before the page is built: the chosen place, and the stand-in geocoder.</summary>
-    public static void Prepare(AppHost host, WidgetKind? kind)
+    public static void Prepare(AppHost host, WidgetId? kind)
     {
         ArgumentNullException.ThrowIfNull(host);
 

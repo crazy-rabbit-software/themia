@@ -3,6 +3,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -13,9 +14,9 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class FillChoiceTests
 {
-    private static WidgetInstance Widget(string id, FillChoice? items = null, WidgetKind kind = WidgetKind.Shortcuts)
+    private static WidgetInstance Widget(string id, FillChoice? items = null, WidgetId? kind = null)
     {
-        var widget = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(kind ?? ShortcutsConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.ItemBackground = items ?? new FillChoice();
         return widget;
@@ -27,7 +28,7 @@ public sealed class FillChoiceTests
     public void S6560_a_fresh_design_and_widget_are_default_for_both_fills()
     {
         var design = new DesignState();
-        var widget = WidgetInstance.Create(WidgetKind.Email, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
 
         Assert.Equal(FillKind.Default, design.Background.Kind);
         Assert.Equal(FillKind.Default, design.ItemBackground.Kind);

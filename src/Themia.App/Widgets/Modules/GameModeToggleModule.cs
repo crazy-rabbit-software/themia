@@ -12,5 +12,5 @@ public sealed class GameModeToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => GameModeToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new QuickToggleView(WidgetKind.GameModeToggle);
+    public FrameworkElement CreateView() => new QuickToggleView(GameModeToggleConfig.Descriptor.Id);
 }

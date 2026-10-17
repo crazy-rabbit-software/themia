@@ -3,6 +3,7 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Details;
 
@@ -19,7 +20,7 @@ internal sealed class CpuDetailPart : DetailPart
     private readonly WatchSlot<CpuFigures> _processor = new();
     private IDetailHost? _host;
 
-    public override WidgetKind Kind => WidgetKind.CpuDetails;
+    public override WidgetId Kind => CpuDetailsConfig.Descriptor.Id;
 
     public override double HeroCharacters => CpuDetailRules.HeroCharacters;
 
@@ -70,7 +71,7 @@ internal sealed class MemoryDetailPart : DetailPart
     private readonly WatchSlot<PerformanceSnapshot> _figures = new();
     private IDetailHost? _host;
 
-    public override WidgetKind Kind => WidgetKind.MemoryDetails;
+    public override WidgetId Kind => MemoryDetailsConfig.Descriptor.Id;
 
     public override double HeroCharacters => MemoryDetailRules.HeroCharacters;
 

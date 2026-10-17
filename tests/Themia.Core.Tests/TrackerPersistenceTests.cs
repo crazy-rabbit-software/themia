@@ -2,6 +2,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -43,7 +44,7 @@ public sealed class TrackerPersistenceTests : IDisposable
     private AppStateStore NewStore() => new(_path, TimeSpan.Zero);
 
     /// <summary>Save a widget of this kind with its config filled in, and read it back.</summary>
-    private async Task<T> RoundTripAsync<T>(WidgetKind kind, Action<T> fill)
+    private async Task<T> RoundTripAsync<T>(WidgetId kind, Action<T> fill)
         where T : WidgetConfig
     {
         var state = AppState.CreateDefault();
@@ -72,7 +73,7 @@ public sealed class TrackerPersistenceTests : IDisposable
     [Fact]
     public async Task S305_a_gallery_keeps_every_setting_across_a_restart()
     {
-        var config = await RoundTripAsync<GalleryConfig>(WidgetKind.Gallery, gallery =>
+        var config = await RoundTripAsync<GalleryConfig>(GalleryConfig.Descriptor.Id, gallery =>
         {
             gallery.Path = @"C:\Users\me\Pictures";
             gallery.Recursive = true;
@@ -100,7 +101,7 @@ public sealed class TrackerPersistenceTests : IDisposable
     [Fact]
     public async Task S1420_a_habit_widgets_settings_survive_a_restart()
     {
-        var config = await RoundTripAsync<HabitTrackerConfig>(WidgetKind.HabitTracker, habits =>
+        var config = await RoundTripAsync<HabitTrackerConfig>(HabitTrackerConfig.Descriptor.Id, habits =>
         {
             habits.ListId = "list-morning";
             habits.Period = HabitPeriod.Custom;

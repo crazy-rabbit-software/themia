@@ -322,7 +322,7 @@ public sealed class AlarmTests
     [Fact]
     public void S4620_a_new_widget_is_one_alarm_at_seven_switched_off_and_needs_no_setting_up()
     {
-        var config = (AlarmConfig)WidgetConfig.CreateDefault(WidgetKind.Alarm);
+        var config = (AlarmConfig)WidgetConfig.CreateDefault(AlarmConfig.Descriptor.Id);
         Assert.Equal("07:00", config.Time);
         Assert.Null(config.Days);
         Assert.False(config.On);
@@ -349,11 +349,11 @@ public sealed class AlarmTests
     {
         var state = AppState.CreateDefault();
         state.Views.Clear();
-        var home = WidgetInstance.Create(WidgetKind.Alarm, new Geometry.FracRect(0, 0, 0.2, 0.2));
-        var work = WidgetInstance.Create(WidgetKind.Alarm, new Geometry.FracRect(0, 0, 0.2, 0.2));
+        var home = WidgetInstance.Create(AlarmConfig.Descriptor.Id, new Geometry.FracRect(0, 0, 0.2, 0.2));
+        var work = WidgetInstance.Create(AlarmConfig.Descriptor.Id, new Geometry.FracRect(0, 0, 0.2, 0.2));
         ((AlarmConfig)home.Config).Time = "06:30";
         ((AlarmConfig)work.Config).Time = "08:00";
-        state.Views.Add(new ViewState { Id = "home", Name = "Home", Widgets = [home, WidgetInstance.Create(WidgetKind.Clock, new Geometry.FracRect(0.5, 0, 0.2, 0.2))] });
+        state.Views.Add(new ViewState { Id = "home", Name = "Home", Widgets = [home, WidgetInstance.Create(ClockConfig.Descriptor.Id, new Geometry.FracRect(0.5, 0, 0.2, 0.2))] });
         state.Views.Add(new ViewState { Id = "work", Name = "Work", Widgets = [work] });
         return (state, home, work);
     }

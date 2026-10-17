@@ -24,10 +24,10 @@ public sealed partial class WidgetRegistryTests
     private static WidgetDescriptor Of(string id) => ModuleCatalog.TryGet(new WidgetId(id), out var w) ? w : throw new KeyNotFoundException(id);
 
     [Fact]
-    public void S6902_every_kind_has_exactly_one_descriptor()
+    public void S6902_the_registry_holds_each_widget_once_in_id_order()
     {
         Assert.Empty(ModuleCatalog.Check([.. ModuleCatalog.Widgets]));
-        Assert.Equal(Enum.GetValues<WidgetKind>().Order(), ModuleCatalog.Widgets.Select(w => w.Kind).Order());
+        Assert.Equal(ModuleCatalog.Widgets.Select(w => w.Id).Order(), ModuleCatalog.Widgets.Select(w => w.Id));
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public sealed partial class WidgetRegistryTests
         Assert.Empty(ModuleCatalog.Check([clock, cpu]));
         Assert.Single(ModuleCatalog.Check([clock, null]));
         Assert.Single(ModuleCatalog.Check([clock, cpu with { Id = new("clock") }]));
-        Assert.Single(ModuleCatalog.Check([clock, cpu with { Kind = WidgetKind.Clock }]));
+        Assert.Single(ModuleCatalog.Check([clock, cpu with { ConfigType = typeof(ClockConfig) }]));
         Assert.Single(ModuleCatalog.Check([clock, cpu with { Id = default }]));
         Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([clock]));
     }
@@ -68,10 +68,10 @@ public sealed partial class WidgetRegistryTests
     {
         var widget = Of(id);
         var (config, _) = TestCatalog.Declared.Single(d => d.Descriptor == widget);
-        var instance = WidgetConfig.CreateDefault(widget.Kind);
+        var instance = WidgetConfig.CreateDefault(widget.Id);
 
         Assert.IsType(config, instance);
-        Assert.Equal(widget.Kind, instance.Kind);
+        Assert.Equal(widget.Id, instance.Kind);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(instance, StateJson.WidgetConfig));
         Assert.Equal(id, json.RootElement.GetProperty("kind").GetString());
     }
@@ -95,7 +95,7 @@ public sealed partial class WidgetRegistryTests
     public void S6903_a_default_config_round_trips_through_the_state_options_with_its_id_as_discriminator(string id)
     {
         var widget = Of(id);
-        var config = WidgetConfig.CreateDefault(widget.Kind);
+        var config = WidgetConfig.CreateDefault(widget.Id);
         Assert.IsType(widget.ConfigType, config);
 
         var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
@@ -163,7 +163,7 @@ public sealed partial class WidgetRegistryTests
         Assert.Equal(widgets.Count, widgets.Select(w => (w.Add.Shelf, w.Add.Group, w.Add.Rank)).Distinct().Count());
         var popular = widgets.Where(w => w.Add.Popular is not null).Select(w => w.Add.Popular!.Value).ToList();
         Assert.Equal(Enumerable.Range(0, popular.Count), popular.Order());
-        Assert.Equal(widgets.Count, AddTree.Homes(AddTree.On([.. widgets.Select(w => w.Kind)])).Count);
+        Assert.Equal(widgets.Count, AddTree.Homes(AddTree.On([.. widgets.Select(w => w.Id)])).Count);
     }
 
     [Theory]

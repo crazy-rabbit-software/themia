@@ -3,6 +3,7 @@ using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -21,11 +22,12 @@ public class WindowsPanelsTests
     // ---- configs -------------------------------------------------------------------------------
 
     [Theory]
-    [InlineData(WidgetKind.Notifications)]
-    [InlineData(WidgetKind.FocusSession)]
-    [InlineData(WidgetKind.Brightness)]
-    public void S4400_each_config_round_trips_through_the_state_file(WidgetKind kind)
+    [InlineData("notifications")]
+    [InlineData("focusSession")]
+    [InlineData("brightness")]
+    public void S4400_each_config_round_trips_through_the_state_file(string kindId)
     {
+        var kind = new WidgetId(kindId);
         var config = WidgetConfig.CreateDefault(kind);
         var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
         var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
@@ -70,7 +72,7 @@ public class WindowsPanelsTests
     [Fact]
     public void S4400_none_of_the_three_asks_to_be_set_up()
     {
-        foreach (var kind in new[] { WidgetKind.Notifications, WidgetKind.FocusSession, WidgetKind.Brightness })
+        foreach (var kind in new[] { NotificationsConfig.Descriptor.Id, FocusSessionConfig.Descriptor.Id, BrightnessConfig.Descriptor.Id })
         {
             Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Core.Accounts.AccountFeatures.None), kind.ToString());
         }

@@ -44,14 +44,11 @@ public enum AudioVisualizerStyle
 /// </summary>
 public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.AudioVisualizer;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("audioVisualizer"),
-        Kind = WidgetKind.AudioVisualizer,
         ConfigType = typeof(AudioVisualizerConfig),
         CreateDefault = () => new AudioVisualizerConfig(),
         Json = WidgetConfigJsonContext.Default,

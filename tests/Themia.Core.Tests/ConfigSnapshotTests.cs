@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -50,7 +51,7 @@ public sealed class ConfigSnapshotTests
 
     [Theory]
     [MemberData(nameof(EveryKind))]
-    public void S13a_EveryConfigClonesToADistinctInstanceOfTheSameType(WidgetKind kind)
+    public void S13a_EveryConfigClonesToADistinctInstanceOfTheSameType(WidgetId kind)
     {
         var live = WidgetConfig.CreateDefault(kind);
         var snapshot = live.Clone();
@@ -59,10 +60,10 @@ public sealed class ConfigSnapshotTests
         Assert.Equal(live.GetType(), snapshot.GetType());
     }
 
-    public static TheoryData<WidgetKind> EveryKind()
+    public static TheoryData<WidgetId> EveryKind()
     {
-        var data = new TheoryData<WidgetKind>();
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        var data = new TheoryData<WidgetId>();
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             data.Add(kind);
         }

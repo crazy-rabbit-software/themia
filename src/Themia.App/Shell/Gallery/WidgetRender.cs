@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -82,8 +83,7 @@ internal static class WidgetRender
         }
 
         if (at + 2 >= args.Length
-            || !Enum.TryParse<WidgetKind>(args[at + 1], ignoreCase: true, out var kind)
-            || !Enum.IsDefined(kind)
+            || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
             Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
@@ -92,6 +92,7 @@ internal static class WidgetRender
             return true;
         }
 
+        var kind = picked.Id;
         var outPath = System.IO.Path.GetFullPath(args[at + 2]);
         var state = Option(args, "--state");
 
@@ -337,7 +338,7 @@ internal static class WidgetRender
     }
 
     /// <summary>One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).</summary>
-    private static void Place(Canvas page, IWidgetCardHost host, WidgetKind kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
+    private static void Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
     {
         var rows = Rows(tiers);
         var x = new double[rows.Count];

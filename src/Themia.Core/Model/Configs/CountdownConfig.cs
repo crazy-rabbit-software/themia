@@ -43,14 +43,11 @@ public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, IS
         StyleOption.Of(CountdownStyle.Flip, Str.Styles_Clock_Flip, 0xE8A9),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Countdown;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("countdown"),
-        Kind = WidgetKind.Countdown,
         ConfigType = typeof(CountdownConfig),
         CreateDefault = () => new CountdownConfig(),
         Json = WidgetConfigJsonContext.Default,

@@ -96,7 +96,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
     public MusicView()
     {
-        var definition = ModuleCatalog.Of(WidgetKind.Music);
+        var definition = ModuleCatalog.Of(MusicConfig.Descriptor.Id);
 
         _artPlaceholder = Fluent.Icon(definition.Glyph, "TextFillColorTertiaryBrush", Fluent.Space6);
         _artPlaceholder.HorizontalAlignment = HorizontalAlignment.Center;

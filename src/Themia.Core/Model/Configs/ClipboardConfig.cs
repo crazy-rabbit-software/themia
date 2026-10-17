@@ -23,14 +23,11 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class ClipboardConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Clipboard;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("clipboard"),
-        Kind = WidgetKind.Clipboard,
         ConfigType = typeof(ClipboardConfig),
         CreateDefault = () => new ClipboardConfig(),
         Json = WidgetConfigJsonContext.Default,

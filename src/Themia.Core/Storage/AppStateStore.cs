@@ -262,7 +262,7 @@ public sealed class AppStateStore : IAsyncDisposable
                 continue;
             }
 
-            var viewName = entry["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var named) ? named : "?";
+            var viewName = entry["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var viewText) ? viewText : "?";
             var unknown = new List<JsonNode>();
             foreach (var widget in widgets)
             {
@@ -273,25 +273,23 @@ public sealed class AppStateStore : IAsyncDisposable
 
                 var id = fields["id"] is JsonValue idValue && idValue.TryGetValue<string>(out var text) ? text : "?";
 
-                // Only a kind given by name can be unknown here; a number is checked after the read.
-                if (fields["kind"] is JsonValue kind
-                    && kind.TryGetValue<string>(out var name)
-                    && !IsKindName(name))
-                {
-                    unknown.Add(widget);
-                    dropped.Add($"dropped widget '{id}' of unknown kind '{name}' from view '{viewName}'");
-                }
-
                 // [S-6908] The config's discriminator is the widget's id: one no module in this build
                 // declares (or one that is not an id at all) cannot be read, and would refuse the
-                // whole document if it reached the typed read.
-                else if (fields["config"] is JsonObject config
-                    && config["kind"] is JsonValue discriminator
-                    && discriminator.TryGetValue<string>(out var widgetId)
-                    && !(WidgetId.TryParse(widgetId, out var parsed) && ModuleCatalog.TryGet(parsed, out _)))
+                // whole document if it reached the typed read. So would a widget without a config.
+                // The widget's own "kind", which files from before ids still carry, is not read.
+                if (fields["config"] is not JsonObject config)
                 {
                     unknown.Add(widget);
-                    dropped.Add($"dropped widget '{id}' of unknown kind '{widgetId}' from view '{viewName}'");
+                    dropped.Add($"dropped widget '{id}' without a config from view '{viewName}'");
+                }
+                else if (!(config["kind"] is JsonValue discriminator
+                    && discriminator.TryGetValue<string>(out var widgetId)
+                    && WidgetId.TryParse(widgetId, out var parsed)
+                    && ModuleCatalog.TryGet(parsed, out _)))
+                {
+                    unknown.Add(widget);
+                    var named = config["kind"] is JsonValue raw && raw.TryGetValue<string>(out var given) ? given : "(none)";
+                    dropped.Add($"dropped widget '{id}' of unknown kind '{named}' from view '{viewName}'");
                 }
             }
 
@@ -304,8 +302,6 @@ public sealed class AppStateStore : IAsyncDisposable
         return dropped;
     }
 
-    private static bool IsKindName(string name)
-        => Array.Exists(Enum.GetNames<WidgetKind>(), known => string.Equals(known, name, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Bring a deserialised document back inside its invariants, reporting what had to change.
@@ -616,12 +612,13 @@ public sealed class AppStateStore : IAsyncDisposable
         {
             var widget = view.Widgets[i];
 
-            if (!Enum.IsDefined(widget.Kind))
+            // [S-6908] A widget is its config: one without a config is no widget this build knows.
+            // The read never makes one (the store drops it before the typed read); this is for a
+            // state built in memory.
+            if (widget.Config is null)
             {
-                // An unknown kind is data this build cannot render at all. Dropping the instance is
-                // the only honest option, and it is reported rather than silently swallowed.
                 view.Widgets.RemoveAt(i);
-                repairs.Add($"dropped widget of unknown kind '{(int)widget.Kind}'");
+                repairs.Add($"dropped widget '{widget.Id}' without a config from view '{view.Name}'");
                 continue;
             }
 
@@ -630,12 +627,6 @@ public sealed class AppStateStore : IAsyncDisposable
                 widget.Id = Guid.NewGuid().ToString("n");
                 seen.Add(widget.Id);
                 repairs.Add("widget had a missing or duplicate id");
-            }
-
-            if (widget.Config is null || widget.Config.Kind != widget.Kind)
-            {
-                widget.Config = WidgetConfig.CreateDefault(widget.Kind);
-                repairs.Add($"widget '{widget.Id}' had a missing or mismatched config");
             }
 
             // The config's own invariants: ranges and values a hand edit made unusable.

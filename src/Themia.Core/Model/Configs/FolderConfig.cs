@@ -77,14 +77,11 @@ public enum FolderSetting
 /// </summary>
 public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderSetting>
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Folder;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("folder"),
-        Kind = WidgetKind.Folder,
         ConfigType = typeof(FolderConfig),
         CreateDefault = () => new FolderConfig(),
         Json = WidgetConfigJsonContext.Default,

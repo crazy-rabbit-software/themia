@@ -1,5 +1,6 @@
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -7,7 +8,7 @@ namespace Themia.Core.Tests;
 /// <summary>The selected widgets' properties strip ([S-3701]..[S-3705], [S-3711]).</summary>
 public sealed class QuickSetTests
 {
-    private static WidgetInstance Widget(WidgetKind kind, string id)
+    private static WidgetInstance Widget(WidgetId kind, string id)
     {
         var widget = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
@@ -19,7 +20,7 @@ public sealed class QuickSetTests
         var view = ViewState.Create("v");
         view.Widgets.AddRange(widgets);
         var other = ViewState.Create("o");
-        other.Widgets.Add(Widget(WidgetKind.Cpu, "elsewhere"));
+        other.Widgets.Add(Widget(CpuConfig.Descriptor.Id, "elsewhere"));
         return (new AppState { Views = [view, other] }, view, other);
     }
 
@@ -33,7 +34,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3701_nothing_selected_shows_no_group()
     {
-        var (state, view, _) = State(Widget(WidgetKind.Cpu, "a"));
+        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"));
 
         Assert.False(QuickSet.For(state, new WidgetSelection(), view.Id).Shows);
     }
@@ -41,7 +42,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3701_a_display_showing_another_view_shows_no_group()
     {
-        var (state, view, other) = State(Widget(WidgetKind.Cpu, "a"));
+        var (state, view, other) = State(Widget(CpuConfig.Descriptor.Id, "a"));
 
         Assert.False(QuickSet.For(state, Selecting(view, "a"), other.Id).Shows);
         Assert.True(QuickSet.For(state, Selecting(view, "a"), view.Id).Shows);
@@ -50,7 +51,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3701_ids_no_longer_in_the_view_are_not_counted()
     {
-        var (state, view, _) = State(Widget(WidgetKind.Cpu, "a"));
+        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "gone"), view.Id);
 
@@ -62,7 +63,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3702_one_widget_offers_header_background_and_title()
     {
-        var clock = Widget(WidgetKind.Clock, "a");
+        var clock = Widget(ClockConfig.Descriptor.Id, "a");
         clock.Header = HeaderPlacement.Bottom;
         clock.Background = FillChoice.Of("#202020", 0.6);
         clock.Label = "Zürich";
@@ -71,7 +72,7 @@ public sealed class QuickSetTests
         var offer = QuickSet.For(state, Selecting(view, "a"), view.Id);
 
         Assert.True(offer.HasTitle);
-        Assert.Equal(WidgetKind.Clock, offer.TitleKind);
+        Assert.Equal(ClockConfig.Descriptor.Id, offer.TitleKind);
         Assert.Equal("Zürich", offer.Label);
         Assert.Equal(HeaderPlacement.Bottom, offer.Header);
         Assert.True(FillChoice.Of("#202020", 0.6).SameAs(offer.Background));
@@ -80,7 +81,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3702_several_widgets_offer_no_title()
     {
-        var (state, view, _) = State(Widget(WidgetKind.Cpu, "a"), Widget(WidgetKind.Memory, "b"));
+        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"), Widget(MemoryConfig.Descriptor.Id, "b"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "b"), view.Id);
 
@@ -92,8 +93,8 @@ public sealed class QuickSetTests
     [Fact]
     public void S3703_a_mixed_selection_reads_as_no_value_and_a_shared_one_as_that_value()
     {
-        var a = Widget(WidgetKind.Cpu, "a");
-        var b = Widget(WidgetKind.Memory, "b");
+        var a = Widget(CpuConfig.Descriptor.Id, "a");
+        var b = Widget(MemoryConfig.Descriptor.Id, "b");
         a.Header = HeaderPlacement.Top;
         b.Header = HeaderPlacement.Hidden;
         a.Background = FillChoice.Transparent();
@@ -116,9 +117,9 @@ public sealed class QuickSetTests
     [Fact]
     public void S3703_a_choice_reaches_every_selected_widget_of_the_view_and_no_other()
     {
-        var a = Widget(WidgetKind.Cpu, "a");
-        var b = Widget(WidgetKind.Memory, "b");
-        var c = Widget(WidgetKind.Network, "c");
+        var a = Widget(CpuConfig.Descriptor.Id, "a");
+        var b = Widget(MemoryConfig.Descriptor.Id, "b");
+        var c = Widget(NetworkConfig.Descriptor.Id, "c");
         b.Background = FillChoice.Transparent();
         var (_, view, other) = State(a, b, c);
 
@@ -148,7 +149,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3704_set_title_reports_a_change_only_when_the_stored_title_moves()
     {
-        var clock = Widget(WidgetKind.Clock, "a");
+        var clock = Widget(ClockConfig.Descriptor.Id, "a");
         var (_, view, _) = State(clock);
 
         Assert.True(QuickSet.SetTitle(view, "a", " Home ", "Clock"));
@@ -162,7 +163,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_a_toggle_offers_no_header_choice()
     {
-        var (state, view, _) = State(Widget(WidgetKind.WifiToggle, "t"));
+        var (state, view, _) = State(Widget(WifiToggleConfig.Descriptor.Id, "t"));
 
         var offer = QuickSet.For(state, Selecting(view, "t"), view.Id);
 
@@ -175,7 +176,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_a_selection_with_a_toggle_in_it_shows_only_what_all_share()
     {
-        var (state, view, _) = State(Widget(WidgetKind.Cpu, "a"), Widget(WidgetKind.BluetoothToggle, "t"));
+        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"), Widget(BluetoothToggleConfig.Descriptor.Id, "t"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "t"), view.Id);
 
@@ -187,8 +188,8 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_setting_a_header_never_reaches_a_toggle()
     {
-        var cpu = Widget(WidgetKind.Cpu, "a");
-        var toggle = Widget(WidgetKind.WifiToggle, "t");
+        var cpu = Widget(CpuConfig.Descriptor.Id, "a");
+        var toggle = Widget(WifiToggleConfig.Descriptor.Id, "t");
         var (_, view, _) = State(cpu, toggle);
 
         Assert.Equal(1, QuickSet.SetHeader(view, ["a", "t"], HeaderPlacement.Bottom));
@@ -205,8 +206,8 @@ public sealed class QuickSetTests
     [InlineData(AudioVisualizerStyle.Waveform)]
     public void S3711_no_audio_visualizer_style_can_have_a_header(AudioVisualizerStyle style)
     {
-        Assert.False(WidgetInstance.CanHaveHeader(WidgetKind.AudioVisualizer));
-        var widget = Widget(WidgetKind.AudioVisualizer, "v");
+        Assert.False(WidgetInstance.CanHaveHeader(AudioVisualizerConfig.Descriptor.Id));
+        var widget = Widget(AudioVisualizerConfig.Descriptor.Id, "v");
         ((AudioVisualizerConfig)widget.Config).Style = style;
         widget.Header = HeaderPlacement.Top;
         Assert.Equal(HeaderPlacement.Hidden, widget.ShownHeader);
@@ -215,10 +216,10 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_every_toggle_and_visualizer_kind_is_headerless_and_other_kinds_may_have_one()
     {
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null
-                || kind == WidgetKind.AudioVisualizer;
+                || kind == AudioVisualizerConfig.Descriptor.Id;
             Assert.Equal(!toggle, WidgetInstance.CanHaveHeader(kind));
             if (toggle)
             {
@@ -229,7 +230,7 @@ public sealed class QuickSetTests
             }
         }
 
-        var cpu = Widget(WidgetKind.Cpu, "a");
+        var cpu = Widget(CpuConfig.Descriptor.Id, "a");
         cpu.Header = HeaderPlacement.Bottom;
         Assert.Equal(HeaderPlacement.Bottom, cpu.ShownHeader);
     }
@@ -238,7 +239,7 @@ public sealed class QuickSetTests
     public void S3711_load_validation_takes_the_header_off_a_toggle_loudly()
     {
         var state = AppState.CreateDefault();
-        var toggle = WidgetInstance.Create(WidgetKind.MonoAudioToggle, new FracRect(0.1, 0.1, 0.1, 0.1));
+        var toggle = WidgetInstance.Create(MonoAudioToggleConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.1, 0.1));
         toggle.Header = HeaderPlacement.Top;
         state.Views[0].Widgets.Add(toggle);
 

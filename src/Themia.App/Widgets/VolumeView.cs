@@ -113,7 +113,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _band.Children.Add(_mute);
         _band.Children.Add(_slider);
 
-        var definition = ModuleCatalog.Of(WidgetKind.Volume);
+        var definition = ModuleCatalog.Of(VolumeConfig.Descriptor.Id);
         _empty = Fluent.EmptyState(definition.Glyph, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
 

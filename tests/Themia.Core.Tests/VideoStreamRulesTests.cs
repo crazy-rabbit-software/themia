@@ -147,7 +147,7 @@ public class VideoStreamRulesTests
         try
         {
             var state = AppState.CreateDefault();
-            var widget = WidgetInstance.Create(WidgetKind.VideoStream, new Geometry.FracRect(0.1, 0.1, 0.2, 0.2));
+            var widget = WidgetInstance.Create(VideoStreamConfig.Descriptor.Id, new Geometry.FracRect(0.1, 0.1, 0.2, 0.2));
             widget.Config = new VideoStreamConfig
             {
                 Url = "http://cam/?action=stream",

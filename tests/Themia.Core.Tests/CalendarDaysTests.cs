@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Storage;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -159,17 +160,17 @@ public sealed class CalendarDaysTests
 
     // ---- [S-3636] / [S-3637] through the state file ------------------------------------------------
 
-    private static JsonNode StateWith(WidgetKind kind, string configJson)
+    private static JsonNode StateWith(WidgetId kind, string configJson)
     {
         var state = AppState.CreateDefault();
         state.Views[0].Widgets.Add(WidgetInstance.Create(kind, new FracRect(0.1, 0.1, 0.2, 0.2)));
         var document = JsonNode.Parse(SettingsTransfer.Serialize(state))!;
-        var widget = document["views"]![0]!["widgets"]!.AsArray().First(w => w!["kind"]!.GetValue<string>() == kind.ToString())!;
+        var widget = document["views"]![0]!["widgets"]!.AsArray().First(w => w!["config"]!["kind"]!.GetValue<string>() == kind.Value)!;
         widget["config"] = JsonNode.Parse(configJson);
         return document;
     }
 
-    private static T ConfigOf<T>(ParseResult parsed, WidgetKind kind)
+    private static T ConfigOf<T>(ParseResult parsed, WidgetId kind)
         where T : WidgetConfig
         => Assert.IsType<T>(parsed.State!.Views[0].Widgets.First(w => w.Kind == kind).Config);
 
@@ -179,10 +180,10 @@ public sealed class CalendarDaysTests
     [InlineData(900, 365)]
     public void S3636_an_agenda_range_out_of_bounds_is_repaired_and_said(int stored, int repaired)
     {
-        var parsed = AppStateStore.Parse(StateWith(WidgetKind.Calendar, $$"""{"kind":"calendar","style":"agenda","agendaDays":{{stored}}}""").ToJsonString());
+        var parsed = AppStateStore.Parse(StateWith(CalendarWidgetConfig.Descriptor.Id, $$"""{"kind":"calendar","style":"agenda","agendaDays":{{stored}}}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
-        Assert.Equal(repaired, ConfigOf<CalendarWidgetConfig>(parsed, WidgetKind.Calendar).AgendaDays);
+        Assert.Equal(repaired, ConfigOf<CalendarWidgetConfig>(parsed, CalendarWidgetConfig.Descriptor.Id).AgendaDays);
         Assert.Contains(parsed.Repairs, r => r.Contains("agenda days", StringComparison.Ordinal));
     }
 
@@ -192,10 +193,10 @@ public sealed class CalendarDaysTests
     [InlineData("""{"kind":"calendar","style":"week","weekFrom":7}""", 7, WeekFirstDay.Week)]
     public void S3637_a_week_length_or_first_day_out_of_bounds_falls_back(string json, int days, WeekFirstDay from)
     {
-        var parsed = AppStateStore.Parse(StateWith(WidgetKind.Calendar, json).ToJsonString());
+        var parsed = AppStateStore.Parse(StateWith(CalendarWidgetConfig.Descriptor.Id, json).ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
-        var week = ConfigOf<CalendarWidgetConfig>(parsed, WidgetKind.Calendar);
+        var week = ConfigOf<CalendarWidgetConfig>(parsed, CalendarWidgetConfig.Descriptor.Id);
         Assert.Equal(days, week.WeekDays);
         Assert.Equal(from, week.WeekFrom);
     }
@@ -204,10 +205,10 @@ public sealed class CalendarDaysTests
     public void S3637_the_week_and_agenda_settings_round_trip_with_their_style()
     {
         var state = AppState.CreateDefault();
-        var week = WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.1, 0.1, 0.2, 0.2));
+        var week = WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
         week.Id = "week";
         week.Config = new CalendarWidgetConfig { Style = CalendarStyle.Week, WeekDays = 5, WeekFrom = WeekFirstDay.Today };
-        var agenda = WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.4, 0.1, 0.2, 0.2));
+        var agenda = WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, new FracRect(0.4, 0.1, 0.2, 0.2));
         agenda.Id = "agenda";
         agenda.Config = new CalendarWidgetConfig { Style = CalendarStyle.Agenda, AgendaDays = 2 };
         state.Views[0].Widgets.Add(week);

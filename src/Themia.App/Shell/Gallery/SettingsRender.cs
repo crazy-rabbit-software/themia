@@ -12,6 +12,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -94,9 +95,9 @@ internal static class SettingsRender
 
         // "Widget:<Kind>" is that kind's settings page, for the demo profile's widget of that kind.
         var widgetKind = name.StartsWith("Widget:", StringComparison.OrdinalIgnoreCase)
-            && Enum.TryParse<WidgetKind>(name["Widget:".Length..], ignoreCase: true, out var kind)
-                ? kind
-                : (WidgetKind?)null;
+            && ModuleCatalog.TryFind(name["Widget:".Length..], out var widget)
+                ? widget.Id
+                : (WidgetId?)null;
 
         var page = widgetKind is not null ? PageKind.Widget : PageKind.App;
 
@@ -143,7 +144,7 @@ internal static class SettingsRender
     private sealed record Request(
         PageKind Page,
         ConfigTarget? App,
-        WidgetKind? Kind,
+        WidgetId? Kind,
         string OutPath,
         int WaitMs,
         string? Search,
@@ -391,7 +392,7 @@ internal static class SettingsRender
     /// <c>--style</c> then sets its style ([S-6070]: the page shows
     /// the rows that style and state offer).
     /// </summary>
-    private static WidgetInstance DemoWidget(AppHost host, WidgetKind kind, string? style, string? config)
+    private static WidgetInstance DemoWidget(AppHost host, WidgetId kind, string? style, string? config)
     {
         var demo = host.State.Views.SelectMany(v => v.Widgets).FirstOrDefault(w => w.Kind == kind);
         if (demo is null)
@@ -495,7 +496,7 @@ internal static class SettingsRender
 
             for (var w = 0; w < i % 4; w++)
             {
-                view.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.05 + 0.2 * w, 0.1, 0.15, 0.1)));
+                view.Widgets.Add(WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.05 + 0.2 * w, 0.1, 0.15, 0.1)));
             }
 
             state.Views.Add(view);
@@ -506,18 +507,18 @@ internal static class SettingsRender
     private static AppState DemoState()
     {
         var desktop = ViewState.Create("Desktop");
-        desktop.Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.40, 0.08, 0.20, 0.12)));
-        desktop.Widgets.Add(WidgetInstance.Create(WidgetKind.WeatherNow, new FracRect(0.05, 0.08, 0.15, 0.18)));
+        desktop.Widgets.Add(WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.40, 0.08, 0.20, 0.12)));
+        desktop.Widgets.Add(WidgetInstance.Create(WeatherNowConfig.Descriptor.Id, new FracRect(0.05, 0.08, 0.15, 0.18)));
 
         // [S-903] One view with an icon of its own, so the pane shows a view glyph beside the shared colour icon.
         var work = ViewState.Create("Work");
         work.Icon = "";
         work.Color = "#0099BC";
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.05, 0.08, 0.20, 0.30)));
-        work.Widgets.Add(WidgetInstance.Create(WidgetKind.Email, new FracRect(0.30, 0.08, 0.25, 0.30)));
+        work.Widgets.Add(WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, new FracRect(0.05, 0.08, 0.20, 0.30)));
+        work.Widgets.Add(WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0.30, 0.08, 0.25, 0.30)));
 
         var evening = ViewState.Create("Evening");
-        evening.Widgets.Add(WidgetInstance.Create(WidgetKind.Music, new FracRect(0.05, 0.70, 0.20, 0.12)));
+        evening.Widgets.Add(WidgetInstance.Create(MusicConfig.Descriptor.Id, new FracRect(0.05, 0.70, 0.20, 0.12)));
 
         return new AppState
         {

@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -29,10 +30,10 @@ public sealed record QuickSetOffer(
     HeaderPlacement? Header,
     FillChoice? Background,
     string? TitleWidgetId,
-    WidgetKind? TitleKind,
+    WidgetId? TitleKind,
     string? Label,
     bool HasHeader = true,
-    WidgetKind? StyleKind = null,
+    WidgetId? StyleKind = null,
     int? Style = null,
     FillChoice? Items = null,
     bool HasItems = true,
@@ -93,7 +94,7 @@ public static class QuickSet
         // [S-6007] A style choice only where it means one thing: every widget the same kind, and
         // that kind with two styles or more.
         var kind = widgets[0].Kind;
-        var styleKind = widgets.TrueForAll(w => w.Kind == kind) && WidgetStyles.Offers(kind) ? kind : (WidgetKind?)null;
+        var styleKind = widgets.TrueForAll(w => w.Kind == kind) && WidgetStyles.Offers(kind) ? kind : (WidgetId?)null;
         var style = styleKind is null ? null : Common(widgets.Select(w => WidgetStyles.Current(w.Config) ?? 0));
 
         // [S-6571] The item background of the widgets that have items: the others have none to show.

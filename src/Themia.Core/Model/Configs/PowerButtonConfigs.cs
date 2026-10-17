@@ -70,14 +70,11 @@ public abstract class PowerButtonConfig : WidgetConfig, IStyled
 /// <summary>[S-1910] Shut down.</summary>
 public sealed class ShutdownConfig : PowerButtonConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Shutdown;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("shutdown"),
-        Kind = WidgetKind.Shutdown,
         ConfigType = typeof(ShutdownConfig),
         CreateDefault = () => new ShutdownConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -97,14 +94,11 @@ public sealed class ShutdownConfig : PowerButtonConfig
 /// <summary>[S-1910] Restart.</summary>
 public sealed class RestartConfig : PowerButtonConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Restart;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("restart"),
-        Kind = WidgetKind.Restart,
         ConfigType = typeof(RestartConfig),
         CreateDefault = () => new RestartConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -124,14 +118,11 @@ public sealed class RestartConfig : PowerButtonConfig
 /// <summary>[S-1910] Sleep.</summary>
 public sealed class SleepConfig : PowerButtonConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Sleep;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("sleep"),
-        Kind = WidgetKind.Sleep,
         ConfigType = typeof(SleepConfig),
         CreateDefault = () => new SleepConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -151,14 +142,11 @@ public sealed class SleepConfig : PowerButtonConfig
 /// <summary>[S-1910] Hibernate.</summary>
 public sealed class HibernateConfig : PowerButtonConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Hibernate;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("hibernate"),
-        Kind = WidgetKind.Hibernate,
         ConfigType = typeof(HibernateConfig),
         CreateDefault = () => new HibernateConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -178,14 +166,11 @@ public sealed class HibernateConfig : PowerButtonConfig
 /// <summary>[S-1910] Lock.</summary>
 public sealed class LockConfig : PowerButtonConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Lock;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("lock"),
-        Kind = WidgetKind.Lock,
         ConfigType = typeof(LockConfig),
         CreateDefault = () => new LockConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -205,14 +190,11 @@ public sealed class LockConfig : PowerButtonConfig
 /// <summary>[S-1910] Sign out.</summary>
 public sealed class SignOutConfig : PowerButtonConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.SignOut;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("signOut"),
-        Kind = WidgetKind.SignOut,
         ConfigType = typeof(SignOutConfig),
         CreateDefault = () => new SignOutConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -232,14 +214,11 @@ public sealed class SignOutConfig : PowerButtonConfig
 /// <summary>[S-1910] Turn off the display.</summary>
 public sealed class ScreenOffConfig : PowerButtonConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.ScreenOff;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("screenOff"),
-        Kind = WidgetKind.ScreenOff,
         ConfigType = typeof(ScreenOffConfig),
         CreateDefault = () => new ScreenOffConfig(),
         Json = WidgetConfigJsonContext.Default,

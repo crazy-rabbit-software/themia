@@ -1,6 +1,7 @@
 using System.Globalization;
 using Themia.Core.Geometry;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -8,7 +9,7 @@ namespace Themia.Core.Model;
 /// <param name="Kind">The kind shown at every tier.</param>
 /// <param name="Name">The view's name: the kind's label.</param>
 /// <param name="Glyph">The view's icon: the kind's glyph.</param>
-public readonly record struct ShowcaseKind(WidgetKind Kind, string Name, string Glyph);
+public readonly record struct ShowcaseKind(WidgetId Kind, string Name, string Glyph);
 
 /// <summary>
 /// [S-1810..S-1814] One view per widget kind holding that widget at every <see cref="WidgetTiers"/>
@@ -28,11 +29,11 @@ public static class ShowcaseViews
     public const double Margin = 16;
 
     /// <summary>[S-1811] The view for <paramref name="kind"/>; a second page of the same kind gets "-2".</summary>
-    public static string ViewId(WidgetKind kind, int page = 0)
+    public static string ViewId(WidgetId kind, int page = 0)
         => page == 0 ? IdPrefix + Slug(kind) : $"{IdPrefix}{Slug(kind)}-{(page + 1).ToString(CultureInfo.InvariantCulture)}";
 
     /// <summary>[S-1811] The widget showing <paramref name="kind"/> at <paramref name="tier"/>.</summary>
-    public static string WidgetId(WidgetKind kind, WidgetTier tier)
+    public static string WidgetId(WidgetId kind, WidgetTier tier)
         => $"{IdPrefix}{Slug(kind)}-{tier.Name.ToLowerInvariant()}";
 
     public static bool IsShowcase(ViewState view)
@@ -249,7 +250,7 @@ public static class ShowcaseViews
         }
     }
 
-    private static string Slug(WidgetKind kind) => kind.ToString().ToLowerInvariant();
+    private static string Slug(WidgetId kind) => kind.ToString().ToLowerInvariant();
 
     private readonly record struct Segment(double X, double Width, double Y);
 }

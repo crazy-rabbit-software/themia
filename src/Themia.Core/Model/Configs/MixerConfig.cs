@@ -16,14 +16,11 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class MixerConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Mixer;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("mixer"),
-        Kind = WidgetKind.Mixer,
         ConfigType = typeof(MixerConfig),
         CreateDefault = () => new MixerConfig(),
         Json = WidgetConfigJsonContext.Default,

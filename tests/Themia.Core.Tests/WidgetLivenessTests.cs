@@ -3,6 +3,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -15,11 +16,11 @@ public class WidgetLivenessTests
 {
     private static readonly FracRect Cell = new(0.1, 0.1, 0.2, 0.2);
 
-    private static WidgetInstance Clock() => WidgetInstance.Create(WidgetKind.Clock, Cell);
+    private static WidgetInstance Clock() => WidgetInstance.Create(ClockConfig.Descriptor.Id, Cell);
 
     private static WidgetInstance Weather(bool placed)
     {
-        var widget = WidgetInstance.Create(WidgetKind.WeatherNow, Cell);
+        var widget = WidgetInstance.Create(WeatherNowConfig.Descriptor.Id, Cell);
         if (placed && widget.Config is WeatherNowConfig weather)
         {
             weather.Latitude = 47.4;
@@ -101,10 +102,10 @@ public class WidgetLivenessTests
     [Fact]
     public void S1881_every_kind_runs_exactly_when_it_needs_no_setup_except_the_ones_set_up_in_place()
     {
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
-            var expected = !WidgetSetup.Needed(config, AccountFeatures.None) || kind == WidgetKind.Shortcuts;
+            var expected = !WidgetSetup.Needed(config, AccountFeatures.None) || kind == ShortcutsConfig.Descriptor.Id;
             Assert.True(WidgetLiveness.Runs(config, AccountFeatures.None) == expected, kind.ToString());
         }
     }
@@ -157,7 +158,7 @@ public class WidgetLivenessTests
         var cards = new List<Card> { new(kept), new(gone), new(restored) };
 
         // An undo brings "restored" back as a new object with the same id: its card is rebuilt.
-        var again = new WidgetInstance { Id = restored.Id, Kind = restored.Kind, X = 0.1, Y = 0.1, W = 0.2, H = 0.2, Config = restored.Config };
+        var again = new WidgetInstance { Id = restored.Id, X = 0.1, Y = 0.1, W = 0.2, H = 0.2, Config = restored.Config };
         var added = Clock();
 
         var change = WidgetLiveness.Reconcile(cards, c => c.Model, [kept, again, added]);

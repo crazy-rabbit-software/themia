@@ -36,14 +36,11 @@ public sealed class PingConfig : GaugeConfig, IStyled
     {
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Ping;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("ping"),
-        Kind = WidgetKind.Ping,
         ConfigType = typeof(PingConfig),
         CreateDefault = () => new PingConfig(),
         Json = WidgetConfigJsonContext.Default,

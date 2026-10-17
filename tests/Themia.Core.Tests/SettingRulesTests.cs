@@ -5,6 +5,7 @@ using Themia.Core.Settings;
 using Themia.Core.Storage;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -69,15 +70,16 @@ public class SettingRulesTests
     }
 
     [Theory]
-    [InlineData(WidgetKind.Cpu)]
-    [InlineData(WidgetKind.Memory)]
-    [InlineData(WidgetKind.Gpu)]
-    [InlineData(WidgetKind.Disk)]
-    [InlineData(WidgetKind.Network)]
-    [InlineData(WidgetKind.Battery)]
-    [InlineData(WidgetKind.Ping)]
-    public void S6074_a_meter_offers_its_chart_span_only_in_the_styles_that_draw_a_history(WidgetKind kind)
+    [InlineData("cpu")]
+    [InlineData("memory")]
+    [InlineData("gpu")]
+    [InlineData("disk")]
+    [InlineData("network")]
+    [InlineData("battery")]
+    [InlineData("ping")]
+    public void S6074_a_meter_offers_its_chart_span_only_in_the_styles_that_draw_a_history(string kindId)
     {
+        var kind = new WidgetId(kindId);
         var gauge = Assert.IsAssignableFrom<GaugeConfig>(WidgetConfig.CreateDefault(kind));
 
         foreach (var style in WidgetStyles.For(kind))
@@ -86,7 +88,7 @@ public class SettingRulesTests
             Assert.Equal(style.Value, WidgetStyles.Current(gauge));
 
             // The graph, and the CPU's core graphs ([S-6317]): a history per core.
-            var history = style.Value == 0 || (kind == WidgetKind.Cpu && style.Value == (int)CpuStyle.CoreGraphs);
+            var history = style.Value == 0 || (kind == CpuConfig.Descriptor.Id && style.Value == (int)CpuStyle.CoreGraphs);
             Assert.Equal(history ? [MeterSetting.Span] : (MeterSetting[])[], gauge.ShownSettings);
         }
     }
@@ -201,7 +203,7 @@ public class SettingRulesTests
     public void S6071_the_page_shape_follows_the_style_and_a_parent_switch_but_not_a_plain_value()
     {
         var state = AppState.CreateDefault();
-        var widget = WidgetInstance.Create(WidgetKind.Quote, new FracRect(0.1, 0.1, 0.2, 0.2));
+        var widget = WidgetInstance.Create(QuoteConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
         state.Views[0].Widgets.Add(widget);
         var quote = (QuoteConfig)widget.Config;
 
@@ -234,7 +236,7 @@ public class SettingRulesTests
     [Fact]
     public void S6070_the_rule_is_never_written_to_the_file()
     {
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var json = JsonSerializer.Serialize(WidgetConfig.CreateDefault(kind), StateJson.WidgetConfig);
             Assert.DoesNotContain("shownSettings", json, StringComparison.OrdinalIgnoreCase);

@@ -12,5 +12,5 @@ public sealed class LockModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => LockConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new PowerButtonView(WidgetKind.Lock);
+    public FrameworkElement CreateView() => new PowerButtonView(LockConfig.Descriptor.Id);
 }

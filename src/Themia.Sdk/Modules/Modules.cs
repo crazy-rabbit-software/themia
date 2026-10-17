@@ -36,9 +36,6 @@ public sealed record WidgetDescriptor
     /// <summary>The widget's id ([S-6900]): its config's discriminator in state.json.</summary>
     public required WidgetId Id { get; init; }
 
-    /// <summary>The enum key the host still uses while <see cref="WidgetKind"/> exists (M2's interim).</summary>
-    public required WidgetKind Kind { get; init; }
-
     /// <summary>[S-6903] Its config's type: the member of the config union written with <see cref="Id"/> as its discriminator.</summary>
     public required Type ConfigType { get; init; }
 

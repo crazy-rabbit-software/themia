@@ -46,7 +46,7 @@ internal sealed partial class WidgetCard
     private Exception? _attachFault;
     private bool _attaching;
 
-    private FrameworkElement CreateView(WidgetKind kind)
+    private FrameworkElement CreateView(WidgetId kind)
     {
         if (StartPaused)
         {
@@ -243,7 +243,7 @@ internal sealed partial class WidgetCard
     }
 
     /// <summary>Retry ignores the safe-mode switch: it is the user asking.</summary>
-    private FrameworkElement CreateViewNow(WidgetKind kind)
+    private FrameworkElement CreateViewNow(WidgetId kind)
     {
         try
         {
@@ -358,7 +358,7 @@ internal sealed partial class WidgetCard
     /// [S-891] What Copy puts on the clipboard, for a bug report: the widget's kind and the whole
     /// exception with its stack, through the log's redactor ([S-983]) so no secret leaves in it.
     /// </summary>
-    private static string Report(WidgetKind kind, Exception error)
+    private static string Report(WidgetId kind, Exception error)
         => LogRedactor.Redact($"Themia {kind} widget stopped working.\r\n{error}");
 
     /// <summary>

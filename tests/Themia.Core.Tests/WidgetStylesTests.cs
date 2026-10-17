@@ -4,6 +4,7 @@ using Themia.Core.Icons;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -11,7 +12,7 @@ namespace Themia.Core.Tests;
 /// <summary>Widget styles ([S-6000]..[S-6010]): the registry, the stored value and the strip's Style choice.</summary>
 public sealed class WidgetStylesTests
 {
-    private static WidgetInstance Widget(WidgetKind kind, string id)
+    private static WidgetInstance Widget(WidgetId kind, string id)
     {
         var widget = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
@@ -36,9 +37,9 @@ public sealed class WidgetStylesTests
     public void S6001_every_styled_kind_is_found_through_its_config_with_sound_options()
     {
         var kinds = WidgetStyles.StyledKinds.ToList();
-        Assert.Contains(WidgetKind.Clock, kinds);
+        Assert.Contains(ClockConfig.Descriptor.Id, kinds);
 
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
             var styles = WidgetStyles.For(kind);
@@ -95,7 +96,7 @@ public sealed class WidgetStylesTests
         Assert.True(WidgetStyles.Set(clock, (int)ClockStyle.Word));
         Assert.Equal(ClockStyle.Word, clock.Style);
         Assert.False(WidgetStyles.Set(new CpuConfig(), 99));
-        Assert.False(WidgetStyles.Set(WidgetConfig.CreateDefault(Enum.GetValues<WidgetKind>().First(k => !WidgetStyles.Offers(k))), 1));
+        Assert.False(WidgetStyles.Set(WidgetConfig.CreateDefault(ModuleCatalog.Widgets.Select(w => w.Id).ToArray().First(k => !WidgetStyles.Offers(k))), 1));
     }
 
     [Theory]
@@ -138,22 +139,22 @@ public sealed class WidgetStylesTests
     [Fact]
     public void S6006_a_style_is_found_by_its_wire_name()
     {
-        Assert.Equal((int)ClockStyle.Word, WidgetStyles.Find(WidgetKind.Clock, "WORD")!.Value.Value);
-        Assert.Null(WidgetStyles.Find(WidgetKind.Clock, "sundial"));
-        Assert.Null(WidgetStyles.Find(WidgetKind.Cpu, "digital"));
+        Assert.Equal((int)ClockStyle.Word, WidgetStyles.Find(ClockConfig.Descriptor.Id, "WORD")!.Value.Value);
+        Assert.Null(WidgetStyles.Find(ClockConfig.Descriptor.Id, "sundial"));
+        Assert.Null(WidgetStyles.Find(CpuConfig.Descriptor.Id, "digital"));
     }
 
     [Fact]
     public void S6007_one_widget_of_a_styled_kind_offers_its_style()
     {
-        var clock = Widget(WidgetKind.Clock, "a");
+        var clock = Widget(ClockConfig.Descriptor.Id, "a");
         ((ClockConfig)clock.Config).Style = ClockStyle.Flip;
         var (state, view) = State(clock);
 
         var offer = QuickSet.For(state, Selecting(view, "a"), view.Id);
 
         Assert.True(offer.HasStyle);
-        Assert.Equal(WidgetKind.Clock, offer.StyleKind);
+        Assert.Equal(ClockConfig.Descriptor.Id, offer.StyleKind);
         Assert.Equal((int)ClockStyle.Flip, offer.Style);
     }
 
@@ -161,8 +162,8 @@ public sealed class WidgetStylesTests
     public void S6007_a_kind_without_styles_or_a_mixed_kind_selection_offers_none()
     {
         // Any kind without styles: which those are changes as kinds gain them.
-        var plain = Enum.GetValues<WidgetKind>().First(k => !WidgetStyles.Offers(k));
-        var (state, view) = State(Widget(plain, "plain"), Widget(WidgetKind.Clock, "clock"), Widget(WidgetKind.Cpu, "cpu"));
+        var plain = ModuleCatalog.Widgets.Select(w => w.Id).ToArray().First(k => !WidgetStyles.Offers(k));
+        var (state, view) = State(Widget(plain, "plain"), Widget(ClockConfig.Descriptor.Id, "clock"), Widget(CpuConfig.Descriptor.Id, "cpu"));
 
         Assert.False(QuickSet.For(state, Selecting(view, "plain"), view.Id).HasStyle);
         Assert.False(QuickSet.For(state, Selecting(view, "cpu", "clock"), view.Id).HasStyle);
@@ -171,8 +172,8 @@ public sealed class WidgetStylesTests
     [Fact]
     public void S6007_several_of_one_kind_offer_the_shared_style_or_none_ticked()
     {
-        var a = Widget(WidgetKind.Clock, "a");
-        var b = Widget(WidgetKind.Clock, "b");
+        var a = Widget(ClockConfig.Descriptor.Id, "a");
+        var b = Widget(ClockConfig.Descriptor.Id, "b");
         var (state, view) = State(a, b);
 
         var same = QuickSet.For(state, Selecting(view, "a", "b"), view.Id);
@@ -188,9 +189,9 @@ public sealed class WidgetStylesTests
     [Fact]
     public void S6008_setting_the_style_reaches_every_selected_widget_and_counts_the_changes()
     {
-        var a = Widget(WidgetKind.Clock, "a");
-        var b = Widget(WidgetKind.Clock, "b");
-        var c = Widget(WidgetKind.Clock, "c");
+        var a = Widget(ClockConfig.Descriptor.Id, "a");
+        var b = Widget(ClockConfig.Descriptor.Id, "b");
+        var c = Widget(ClockConfig.Descriptor.Id, "c");
         ((ClockConfig)b.Config).Style = ClockStyle.Minimal;
         var (_, view) = State(a, b, c);
 

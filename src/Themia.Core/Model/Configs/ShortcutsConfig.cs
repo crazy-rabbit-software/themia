@@ -128,14 +128,11 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
     /// <summary>[S-1881] Its setup is a drop onto the widget itself, so it runs while it waits.</summary>
     bool ISetupRule.SetsUpInPlace => true;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Shortcuts;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("shortcuts"),
-        Kind = WidgetKind.Shortcuts,
         ConfigType = typeof(ShortcutsConfig),
         CreateDefault = ShortcutsConfig.CreateDefault,
         Json = WidgetConfigJsonContext.Default,

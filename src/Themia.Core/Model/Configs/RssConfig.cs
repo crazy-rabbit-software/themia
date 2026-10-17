@@ -47,14 +47,11 @@ public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
     /// <summary>How many feeds one widget merges. Each is a request per refresh.</summary>
     public const int MaxFeeds = 12;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Rss;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("rss"),
-        Kind = WidgetKind.Rss,
         ConfigType = typeof(RssConfig),
         CreateDefault = () => new RssConfig(),
         Json = WidgetConfigJsonContext.Default,

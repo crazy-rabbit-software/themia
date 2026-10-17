@@ -450,7 +450,7 @@ internal sealed partial class PropertiesStrip : Grid
     /// ticked (none for a mixed selection), built as the menu opens. Picking one sets it on every
     /// selected widget, one undo step. The button shows the current style's icon and name.
     /// </summary>
-    private DropDownButton StyleChoice(WidgetKind kind, PropertiesCommands commands)
+    private DropDownButton StyleChoice(WidgetId kind, PropertiesCommands commands)
     {
         var styles = WidgetStyles.For(kind);
         var label = Str.Styles_Label.Text();

@@ -2,6 +2,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -24,7 +25,7 @@ public sealed class ShowcaseViewsTests
         => new(width, height) { Allowed = GridGeometry.AllowedArea(new PixelRect(0, 0, width, height), work) };
 
     private static List<ShowcaseKind> AllKinds()
-        => [.. Enum.GetValues<WidgetKind>().Select(k => new ShowcaseKind(k, k.ToString(), ""))];
+        => [.. ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Select(k => new ShowcaseKind(k, k.ToString(), ""))];
 
     private static PixelRect Dips(WidgetInstance w, ScreenMetrics screen)
         => new(w.X * screen.Width, w.Y * screen.Height, w.W * screen.Width, w.H * screen.Height);
@@ -100,8 +101,8 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S1810_a_content_scale_grows_the_cell_so_the_content_keeps_its_tier()
     {
-        var view = ShowcaseViews.Build([new(WidgetKind.Clock, "Clock", "x")], FullHd, Gap, contentScale: 1.25).First();
-        var xs = view.Widgets.Single(w => w.Id == ShowcaseViews.WidgetId(WidgetKind.Clock, WidgetTiers.All[0]));
+        var view = ShowcaseViews.Build([new(ClockConfig.Descriptor.Id, "Clock", "x")], FullHd, Gap, contentScale: 1.25).First();
+        var xs = view.Widgets.Single(w => w.Id == ShowcaseViews.WidgetId(ClockConfig.Descriptor.Id, WidgetTiers.All[0]));
         var cell = Dips(xs, FullHd);
 
         Assert.Equal((120 * 1.25) + Gap, cell.Width, 3);
@@ -118,7 +119,7 @@ public sealed class ShowcaseViewsTests
             Assert.Equal(WidgetInstance.DefaultHeader(widget.Kind), widget.Header);
         }
 
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var view = views.Single(v => v.Id == ShowcaseViews.ViewId(kind));
             Assert.All(view.Widgets, w => Assert.Equal(kind, w.Kind));
@@ -143,7 +144,7 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S1812_tiers_that_do_not_fit_one_work_area_continue_on_a_second_view()
     {
-        var views = ShowcaseViews.Build([new(WidgetKind.Clock, "Clock", "x")], FullHdAt125, Gap);
+        var views = ShowcaseViews.Build([new(ClockConfig.Descriptor.Id, "Clock", "x")], FullHdAt125, Gap);
 
         Assert.Equal(2, views.Count);
         Assert.Equal(["showcase-clock", "showcase-clock-2"], views.Select(v => v.Id));
@@ -156,7 +157,7 @@ public sealed class ShowcaseViewsTests
     public void S1812_a_tier_larger_than_the_work_area_is_shrunk_to_it()
     {
         var tiny = Screen(640, 480, new PixelRect(0, 0, 640, 440));
-        var views = ShowcaseViews.Build([new(WidgetKind.Clock, "Clock", "x")], tiny, Gap);
+        var views = ShowcaseViews.Build([new(ClockConfig.Descriptor.Id, "Clock", "x")], tiny, Gap);
         var work = GridGeometry.AllowedPixels(tiny);
 
         Assert.Equal(7, views.Sum(v => v.Widgets.Count));
@@ -175,7 +176,7 @@ public sealed class ShowcaseViewsTests
         var kinds = AllKinds();
 
         Assert.Equal(0, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd, Gap)));
-        var shown = ShowcaseViews.ViewId(WidgetKind.Clock);
+        var shown = ShowcaseViews.ViewId(ClockConfig.Descriptor.Id);
         state.MonitorViews["display-a"] = shown;
 
         Assert.Equal(kinds.Count, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd, Gap)));
@@ -193,13 +194,13 @@ public sealed class ShowcaseViewsTests
     public void S1813_a_showcase_view_that_does_not_come_back_is_deleted_with_its_references()
     {
         var state = AppState.CreateDefault();
-        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(WidgetKind.Clock, "Clock", "x")], FullHdAt125, Gap));
-        var second = ShowcaseViews.ViewId(WidgetKind.Clock, 1);
+        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(ClockConfig.Descriptor.Id, "Clock", "x")], FullHdAt125, Gap));
+        var second = ShowcaseViews.ViewId(ClockConfig.Descriptor.Id, 1);
         state.MonitorViews["display-a"] = second;
         state.ActiveViewId = second;
 
         // On a larger screen the clock fits one view, so its second page goes.
-        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(WidgetKind.Clock, "Clock", "x")], FullHd, Gap));
+        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(ClockConfig.Descriptor.Id, "Clock", "x")], FullHd, Gap));
 
         Assert.Null(state.FindView(second));
         Assert.False(state.MonitorViews.ContainsKey("display-a"));

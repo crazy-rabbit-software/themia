@@ -20,14 +20,11 @@ public abstract class DetailConfig : WidgetConfig
 /// <summary>[S-2405] The processor's figures beside its load: speed, cores, processes, uptime.</summary>
 public sealed class CpuDetailsConfig : DetailConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.CpuDetails;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("cpuDetails"),
-        Kind = WidgetKind.CpuDetails,
         ConfigType = typeof(CpuDetailsConfig),
         CreateDefault = () => new CpuDetailsConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -51,14 +48,11 @@ public sealed class CpuDetailsConfig : DetailConfig
 /// <summary>[S-2408] Memory in use, available, committed, cached, the pools and the page file.</summary>
 public sealed class MemoryDetailsConfig : DetailConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.MemoryDetails;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("memoryDetails"),
-        Kind = WidgetKind.MemoryDetails,
         ConfigType = typeof(MemoryDetailsConfig),
         CreateDefault = () => new MemoryDetailsConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -96,14 +90,11 @@ public sealed class TopProcessesConfig : DetailConfig
     /// <summary>The most rows the list ever holds; a ceiling, not a target ([S-2412]).</summary>
     public const int MaxRowsLimit = 50;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.TopProcesses;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("topProcesses"),
-        Kind = WidgetKind.TopProcesses,
         ConfigType = typeof(TopProcessesConfig),
         CreateDefault = () => new TopProcessesConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -162,14 +153,11 @@ public sealed class TopProcessesConfig : DetailConfig
 /// <summary>[S-2415] Down and up, the session's totals, the addresses and every adapter.</summary>
 public sealed class NetworkDetailsConfig : DetailConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.NetworkDetails;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("networkDetails"),
-        Kind = WidgetKind.NetworkDetails,
         ConfigType = typeof(NetworkDetailsConfig),
         CreateDefault = () => new NetworkDetailsConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -199,14 +187,11 @@ public sealed class NetworkDetailsConfig : DetailConfig
 /// <summary>[S-2423] What the battery itself reports: status, time, health, cycles, voltage, rate.</summary>
 public sealed class BatteryDetailsConfig : DetailConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.BatteryDetails;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("batteryDetails"),
-        Kind = WidgetKind.BatteryDetails,
         ConfigType = typeof(BatteryDetailsConfig),
         CreateDefault = () => new BatteryDetailsConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -234,14 +219,11 @@ public sealed class PingDetailsConfig : DetailConfig
 
     public const int MaxWindow = 500;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.PingDetails;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("pingDetails"),
-        Kind = WidgetKind.PingDetails,
         ConfigType = typeof(PingDetailsConfig),
         CreateDefault = () => new PingDetailsConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -297,14 +279,11 @@ public sealed class PingDetailsConfig : DetailConfig
 /// <summary>[S-2430] One adapter's memory and sensors.</summary>
 public sealed class GpuDetailsConfig : DetailConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.GpuDetails;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("gpuDetails"),
-        Kind = WidgetKind.GpuDetails,
         ConfigType = typeof(GpuDetailsConfig),
         CreateDefault = () => new GpuDetailsConfig(),
         Json = WidgetConfigJsonContext.Default,

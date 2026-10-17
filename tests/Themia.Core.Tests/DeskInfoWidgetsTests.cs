@@ -6,6 +6,7 @@ using Themia.Core.Office;
 using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -40,12 +41,13 @@ public class DeskInfoWidgetsTests
     // -----------------------------------------------------------------------------------------
 
     [Theory]
-    [InlineData(WidgetKind.YearProgress, typeof(YearProgressConfig))]
-    [InlineData(WidgetKind.NextMeeting, typeof(NextMeetingConfig))]
-    [InlineData(WidgetKind.RecentFiles, typeof(RecentFilesConfig))]
-    [InlineData(WidgetKind.RecycleBin, typeof(RecycleBinConfig))]
-    public void S4800_each_kind_has_its_config_and_round_trips(WidgetKind kind, Type type)
+    [InlineData("yearProgress", typeof(YearProgressConfig))]
+    [InlineData("nextMeeting", typeof(NextMeetingConfig))]
+    [InlineData("recentFiles", typeof(RecentFilesConfig))]
+    [InlineData("recycleBin", typeof(RecycleBinConfig))]
+    public void S4800_each_kind_has_its_config_and_round_trips(string kindId, Type type)
     {
+        var kind = new WidgetId(kindId);
         var config = WidgetConfig.CreateDefault(kind);
         Assert.IsType(type, config);
         Assert.Equal(kind, config.Kind);

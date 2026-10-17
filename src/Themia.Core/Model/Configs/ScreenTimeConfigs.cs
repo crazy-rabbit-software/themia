@@ -70,14 +70,11 @@ public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenT
     [JsonIgnore]
     public IReadOnlyList<ScreenTimeSetting> ShownSettings => [ScreenTimeSetting.DailyLimit];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.ScreenTimeChart;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("screenTimeChart"),
-        Kind = WidgetKind.ScreenTimeChart,
         ConfigType = typeof(ScreenTimeChartConfig),
         CreateDefault = () => new ScreenTimeChartConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -106,14 +103,11 @@ public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenT
     [JsonIgnore]
     public IReadOnlyList<ScreenTimeSetting> ShownSettings => [ScreenTimeSetting.DailyLimit];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.ScreenTimeDonut;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("screenTimeDonut"),
-        Kind = WidgetKind.ScreenTimeDonut,
         ConfigType = typeof(ScreenTimeDonutConfig),
         CreateDefault = () => new ScreenTimeDonutConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -144,14 +138,11 @@ public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTi
         ? [ScreenTimeSetting.AppLimits]
         : [ScreenTimeSetting.AppLimits, ScreenTimeSetting.Average];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.ScreenTimeApps;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("screenTimeApps"),
-        Kind = WidgetKind.ScreenTimeApps,
         ConfigType = typeof(ScreenTimeAppsConfig),
         CreateDefault = () => new ScreenTimeAppsConfig(),
         Json = WidgetConfigJsonContext.Default,

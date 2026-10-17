@@ -114,14 +114,11 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     /// </summary>
     public static readonly TimeSpan RescanInterval = TimeSpan.FromHours(1);
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Gallery;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("gallery"),
-        Kind = WidgetKind.Gallery,
         ConfigType = typeof(GalleryConfig),
         CreateDefault = () => new GalleryConfig(),
         Json = WidgetConfigJsonContext.Default,

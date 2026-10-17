@@ -138,7 +138,7 @@ internal static class SwitchCheck
             }
             else
             {
-                var kinds = ModuleCatalog.Widgets.Select(k => new ShowcaseKind(k.Kind, k.Label, k.Glyph)).ToList();
+                var kinds = ModuleCatalog.Widgets.Select(k => new ShowcaseKind(k.Id, k.Label, k.Glyph)).ToList();
                 ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx));
             }
 
@@ -407,29 +407,29 @@ internal static class SwitchCheck
 
         for (var i = 0; i < styles.Length; i++)
         {
-            var widget = WidgetInstance.Create(WidgetKind.Gallery, places[i]);
+            var widget = WidgetInstance.Create(GalleryConfig.Descriptor.Id, places[i]);
             widget.Config = new GalleryConfig { Path = pictures, Style = styles[i], SlideshowSeconds = 5 };
             galleries.Widgets.Add(widget);
         }
 
         var feeds = ViewState.Create("Busy feeds");
-        (WidgetKind Kind, FracRect Rect)[] layout =
+        (WidgetId Kind, FracRect Rect)[] layout =
         [
-            (WidgetKind.VideoStream, new FracRect(0.02, 0.04, 0.40, 0.40)),
-            (WidgetKind.AudioVisualizer, new FracRect(0.44, 0.04, 0.30, 0.20)),
-            (WidgetKind.TopProcesses, new FracRect(0.76, 0.04, 0.22, 0.60)),
-            (WidgetKind.Cpu, new FracRect(0.44, 0.26, 0.14, 0.18)),
-            (WidgetKind.Memory, new FracRect(0.60, 0.26, 0.14, 0.18)),
-            (WidgetKind.Network, new FracRect(0.02, 0.48, 0.20, 0.18)),
-            (WidgetKind.CpuDetails, new FracRect(0.24, 0.48, 0.24, 0.30)),
-            (WidgetKind.ScreenTimeChart, new FracRect(0.50, 0.48, 0.24, 0.30)),
-            (WidgetKind.Clock, new FracRect(0.02, 0.70, 0.20, 0.14)),
+            (VideoStreamConfig.Descriptor.Id, new FracRect(0.02, 0.04, 0.40, 0.40)),
+            (AudioVisualizerConfig.Descriptor.Id, new FracRect(0.44, 0.04, 0.30, 0.20)),
+            (TopProcessesConfig.Descriptor.Id, new FracRect(0.76, 0.04, 0.22, 0.60)),
+            (CpuConfig.Descriptor.Id, new FracRect(0.44, 0.26, 0.14, 0.18)),
+            (MemoryConfig.Descriptor.Id, new FracRect(0.60, 0.26, 0.14, 0.18)),
+            (NetworkConfig.Descriptor.Id, new FracRect(0.02, 0.48, 0.20, 0.18)),
+            (CpuDetailsConfig.Descriptor.Id, new FracRect(0.24, 0.48, 0.24, 0.30)),
+            (ScreenTimeChartConfig.Descriptor.Id, new FracRect(0.50, 0.48, 0.24, 0.30)),
+            (ClockConfig.Descriptor.Id, new FracRect(0.02, 0.70, 0.20, 0.14)),
         ];
 
         foreach (var (kind, rect) in layout)
         {
             var widget = WidgetInstance.Create(kind, rect);
-            if (kind == WidgetKind.VideoStream && stream is not null)
+            if (kind == VideoStreamConfig.Descriptor.Id && stream is not null)
             {
                 widget.Config = new VideoStreamConfig { Url = stream };
             }
@@ -444,16 +444,16 @@ internal static class SwitchCheck
     private static ViewState OrdinaryView()
     {
         var view = ViewState.Create("Ordinary");
-        (WidgetKind Kind, FracRect Rect)[] layout =
+        (WidgetId Kind, FracRect Rect)[] layout =
         [
-            (WidgetKind.Clock, new FracRect(0.02, 0.04, 0.18, 0.14)),
-            (WidgetKind.Cpu, new FracRect(0.22, 0.04, 0.14, 0.16)),
-            (WidgetKind.Memory, new FracRect(0.38, 0.04, 0.14, 0.16)),
-            (WidgetKind.Folder, new FracRect(0.02, 0.22, 0.24, 0.40)),
-            (WidgetKind.Shortcuts, new FracRect(0.28, 0.22, 0.18, 0.16)),
-            (WidgetKind.Notes, new FracRect(0.48, 0.22, 0.22, 0.30)),
-            (WidgetKind.Music, new FracRect(0.72, 0.04, 0.24, 0.18)),
-            (WidgetKind.Volume, new FracRect(0.72, 0.24, 0.24, 0.16)),
+            (ClockConfig.Descriptor.Id, new FracRect(0.02, 0.04, 0.18, 0.14)),
+            (CpuConfig.Descriptor.Id, new FracRect(0.22, 0.04, 0.14, 0.16)),
+            (MemoryConfig.Descriptor.Id, new FracRect(0.38, 0.04, 0.14, 0.16)),
+            (FolderConfig.Descriptor.Id, new FracRect(0.02, 0.22, 0.24, 0.40)),
+            (ShortcutsConfig.Descriptor.Id, new FracRect(0.28, 0.22, 0.18, 0.16)),
+            (NotesConfig.Descriptor.Id, new FracRect(0.48, 0.22, 0.22, 0.30)),
+            (MusicConfig.Descriptor.Id, new FracRect(0.72, 0.04, 0.24, 0.18)),
+            (VolumeConfig.Descriptor.Id, new FracRect(0.72, 0.24, 0.24, 0.16)),
         ];
 
         foreach (var (kind, rect) in layout)

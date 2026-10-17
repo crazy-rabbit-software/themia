@@ -21,7 +21,7 @@ public sealed class LicensingTests
 
         for (var w = 0; w < widgets; w++)
         {
-            state.Views[w % views].Widgets.Add(WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.1, 0.1)));
+            state.Views[w % views].Widgets.Add(WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1)));
         }
 
         state.ActiveViewId = state.Views[0].Id;
@@ -132,8 +132,8 @@ public sealed class LicensingTests
     {
         var state = StateWith(widgets: 0, views: 1);
         var view = state.Views[0];
-        var first = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0, 0, 0.3, 0.3));
-        var second = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.5, 0, 0.1, 0.1));
+        var first = WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0, 0, 0.3, 0.3));
+        var second = WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.5, 0, 0.1, 0.1));
         view.Widgets.Add(first);
         view.Widgets.Add(second);
 

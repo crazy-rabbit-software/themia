@@ -48,14 +48,11 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     public override bool NeedsSetup(AccountFeatures signedIn)
         => (signedIn & AccountFeatures.Calendar) == 0 && (!ShowTasks || (signedIn & AccountFeatures.Tasks) == 0);
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.WeekPlanner;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("weekPlanner"),
-        Kind = WidgetKind.WeekPlanner,
         ConfigType = typeof(WeekPlannerConfig),
         CreateDefault = () => new WeekPlannerConfig(),
         Json = WidgetConfigJsonContext.Default,

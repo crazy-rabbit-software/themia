@@ -20,7 +20,7 @@ public sealed class ShellKeyboardTests
 
     private static WidgetInstance At(string id, double x, double y, double w = 0.1, double h = 0.1)
     {
-        var widget = WidgetInstance.Create(WidgetKind.Clock, new FracRect(x, y, w, h));
+        var widget = WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(x, y, w, h));
         widget.Id = id;
         return widget;
     }

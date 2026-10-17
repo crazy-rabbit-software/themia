@@ -45,14 +45,11 @@ public enum HabitsSetting
 /// </summary>
 public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<HabitsSetting>
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.HabitTracker;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("habitTracker"),
-        Kind = WidgetKind.HabitTracker,
         ConfigType = typeof(HabitTrackerConfig),
         CreateDefault = () => new HabitTrackerConfig(),
         Json = WidgetConfigJsonContext.Default,

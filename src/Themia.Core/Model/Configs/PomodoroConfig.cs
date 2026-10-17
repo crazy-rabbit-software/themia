@@ -63,14 +63,11 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
         StyleOption.Of(PomodoroStyle.Digits, Str.Styles_Pomodoro_Digits, 0xEC92),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Pomodoro;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("pomodoro"),
-        Kind = WidgetKind.Pomodoro,
         ConfigType = typeof(PomodoroConfig),
         CreateDefault = () => new PomodoroConfig(),
         Json = WidgetConfigJsonContext.Default,

@@ -59,17 +59,17 @@ public interface IStyled
 /// </summary>
 public static class WidgetStyles
 {
-    private static readonly Lazy<Dictionary<WidgetKind, IReadOnlyList<StyleOption>>> ByKind = new(Discover);
+    private static readonly Lazy<Dictionary<WidgetId, IReadOnlyList<StyleOption>>> ByKind = new(Discover);
 
     /// <summary>[S-6001] The styles of <paramref name="kind"/>; empty for a kind without styles.</summary>
-    public static IReadOnlyList<StyleOption> For(WidgetKind kind)
+    public static IReadOnlyList<StyleOption> For(WidgetId kind)
         => ByKind.Value.TryGetValue(kind, out var styles) ? styles : [];
 
     /// <summary>[S-6002] Whether a kind has a style choice at all: at least two styles.</summary>
-    public static bool Offers(WidgetKind kind) => For(kind).Count >= 2;
+    public static bool Offers(WidgetId kind) => For(kind).Count >= 2;
 
     /// <summary>Every kind that offers a style choice.</summary>
-    public static IEnumerable<WidgetKind> StyledKinds => ModuleCatalog.Widgets.Select(w => w.Kind).Where(Offers);
+    public static IEnumerable<WidgetId> StyledKinds => ModuleCatalog.Widgets.Select(w => w.Id).Where(Offers);
 
     /// <summary>The current style of <paramref name="config"/>; null for a kind without styles.</summary>
     public static int? Current(WidgetConfig config)
@@ -96,7 +96,7 @@ public static class WidgetStyles
     }
 
     /// <summary>[S-6006] The option a wire name (<c>--style flip</c>) names for a kind, case-insensitive.</summary>
-    public static StyleOption? Find(WidgetKind kind, string? name)
+    public static StyleOption? Find(WidgetId kind, string? name)
     {
         foreach (var option in For(kind))
         {
@@ -164,14 +164,14 @@ public static class WidgetStyles
         }
     }
 
-    private static Dictionary<WidgetKind, IReadOnlyList<StyleOption>> Discover()
+    private static Dictionary<WidgetId, IReadOnlyList<StyleOption>> Discover()
     {
-        var table = new Dictionary<WidgetKind, IReadOnlyList<StyleOption>>();
+        var table = new Dictionary<WidgetId, IReadOnlyList<StyleOption>>();
         foreach (var widget in ModuleCatalog.Widgets)
         {
             if (widget.CreateDefault() is IStyled styled)
             {
-                table[widget.Kind] = styled.Styles;
+                table[widget.Id] = styled.Styles;
             }
         }
 

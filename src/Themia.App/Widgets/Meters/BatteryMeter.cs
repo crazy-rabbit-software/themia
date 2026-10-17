@@ -2,6 +2,7 @@ using Themia.App.Services;
 using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -20,7 +21,7 @@ internal sealed class BatteryMeter : MeterPart
     private static readonly string[] ChargingLevels =
         ["", "", "", "", "", "", "", "", "", "", ""];
 
-    public override WidgetKind Kind => WidgetKind.Battery;
+    public override WidgetId Kind => BatteryConfig.Descriptor.Id;
 
     public override bool CanBeAbsent => true;
 

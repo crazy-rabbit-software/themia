@@ -37,7 +37,7 @@ public static class ModuleIds
 
 /// <summary>A widget's id: its config's discriminator in state.json, its module's key ([S-6900]).</summary>
 [JsonConverter(typeof(WidgetIdJsonConverter))]
-public readonly record struct WidgetId
+public readonly record struct WidgetId : IComparable<WidgetId>
 {
     public WidgetId(string value) => Value = ModuleIds.Checked(value, "widget");
 
@@ -49,6 +49,9 @@ public readonly record struct WidgetId
         id = ModuleIds.IsValid(text) ? new WidgetId(text!) : default;
         return id.Value is not null;
     }
+
+    /// <summary>Ids sort by their text, ordinally: the registry's order.</summary>
+    public int CompareTo(WidgetId other) => string.CompareOrdinal(Value, other.Value);
 
     public override string ToString() => Value ?? string.Empty;
 }

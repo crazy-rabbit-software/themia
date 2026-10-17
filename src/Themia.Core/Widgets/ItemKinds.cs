@@ -15,5 +15,5 @@ namespace Themia.Core.Widgets;
 /// </summary>
 public static class ItemKinds
 {
-    public static bool Has(WidgetKind kind) => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.HasItems);
+    public static bool Has(WidgetId kind) => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.HasItems);
 }

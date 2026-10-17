@@ -30,7 +30,7 @@ public class AudioVisualizerTests
 
         var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
         Assert.IsType<AudioVisualizerConfig>(back);
-        Assert.Equal(WidgetKind.AudioVisualizer, back!.Kind);
+        Assert.Equal(AudioVisualizerConfig.Descriptor.Id, back!.Kind);
         Assert.Empty(back.Repair());
         Assert.IsType<AudioVisualizerConfig>(back.Clone());
     }
@@ -62,15 +62,14 @@ public class AudioVisualizerTests
     [Fact]
     public void S3216_the_six_styles_in_menu_order_bars_first()
     {
-        Assert.Equal(["bars", "mirrored", "wave", "led", "radial", "waveform"], WidgetStyles.For(WidgetKind.AudioVisualizer).Select(s => s.Name));
-        Assert.Equal(AudioVisualizerStyle.Bars, ((AudioVisualizerConfig)WidgetConfig.CreateDefault(WidgetKind.AudioVisualizer)).Style);
+        Assert.Equal(["bars", "mirrored", "wave", "led", "radial", "waveform"], WidgetStyles.For(AudioVisualizerConfig.Descriptor.Id).Select(s => s.Name));
+        Assert.Equal(AudioVisualizerStyle.Bars, ((AudioVisualizerConfig)WidgetConfig.CreateDefault(AudioVisualizerConfig.Descriptor.Id)).Style);
     }
 
     [Fact]
     public void S3200_a_saved_visualizer_reads_back_and_an_unknown_style_is_the_bars()
     {
         Assert.IsType<AudioVisualizerConfig>(ConfigJson.Read("AudioVisualizer", """{"kind":"audioVisualizer"}"""));
-        Assert.IsType<AudioVisualizerConfig>(ConfigJson.Read("AudioVisualizer", """{"kind":"music"}"""));
 
         var config = Assert.IsType<AudioVisualizerConfig>(ConfigJson.Read("AudioVisualizer", """{"kind":"audioVisualizer","style":"lava"}"""));
         Assert.Equal(AudioVisualizerStyle.Bars, config.Style);
@@ -78,7 +77,7 @@ public class AudioVisualizerTests
 
     [Fact]
     public void S3216_the_visualizer_starts_without_a_header()
-        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(WidgetKind.AudioVisualizer, new FracRect(0, 0, 0.1, 0.1)).Header);
+        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(AudioVisualizerConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1)).Header);
 
     [Fact]
     public void S3200_music_no_longer_has_a_spectrum_switch()

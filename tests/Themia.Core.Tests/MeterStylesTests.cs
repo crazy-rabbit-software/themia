@@ -15,18 +15,18 @@ public sealed class MeterStylesTests
     [Fact]
     public void S6311_the_cpu_offers_graph_all_cores_core_grid_gauge_and_core_graphs_in_that_order()
     {
-        Assert.Equal(["graph", "cores", "grid", "gauge", "coreGraphs"], WidgetStyles.For(WidgetKind.Cpu).Select(s => s.Name));
+        Assert.Equal(["graph", "cores", "grid", "gauge", "coreGraphs"], WidgetStyles.For(CpuConfig.Descriptor.Id).Select(s => s.Name));
         Assert.Equal(CpuStyle.Graph, new CpuConfig().Style);
     }
 
     [Fact]
     public void S6315_memory_offers_graph_bar_and_gauge()
-        => Assert.Equal(["graph", "bar", "gauge"], WidgetStyles.For(WidgetKind.Memory).Select(s => s.Name));
+        => Assert.Equal(["graph", "bar", "gauge"], WidgetStyles.For(MemoryConfig.Descriptor.Id).Select(s => s.Name));
 
     [Fact]
     public void S6320_the_gpu_offers_graph_engines_and_gauge_and_keeps_its_adapter_through_a_clone()
     {
-        Assert.Equal(["graph", "engines", "gauge"], WidgetStyles.For(WidgetKind.Gpu).Select(s => s.Name));
+        Assert.Equal(["graph", "engines", "gauge"], WidgetStyles.For(GpuConfig.Descriptor.Id).Select(s => s.Name));
 
         var gpu = new GpuConfig { Adapter = 1, Style = GpuStyle.Engines };
         var copy = (GpuConfig)gpu.Clone();

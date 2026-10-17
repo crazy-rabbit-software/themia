@@ -56,14 +56,11 @@ public sealed class ScratchpadConfig : WidgetConfig
     /// <summary>The pen a new pad starts with: the Fluent accent, which is also the app's own blue.</summary>
     public const string DefaultPenColor = "#0078D4";
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Scratchpad;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("scratchpad"),
-        Kind = WidgetKind.Scratchpad,
         ConfigType = typeof(ScratchpadConfig),
         CreateDefault = () => new ScratchpadConfig(),
         Json = WidgetConfigJsonContext.Default,

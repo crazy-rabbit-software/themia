@@ -28,7 +28,7 @@ public sealed class FolderKindsTests
     [MemberData(nameof(Styles))]
     public void S4123_every_style_round_trips_under_the_one_kind(FolderStyle style, string wire)
     {
-        var config = Assert.IsType<FolderConfig>(WidgetConfig.CreateDefault(WidgetKind.Folder));
+        var config = Assert.IsType<FolderConfig>(WidgetConfig.CreateDefault(FolderConfig.Descriptor.Id));
         Assert.Equal(FolderStyle.List, config.Style);
         config.Style = style;
 
@@ -39,14 +39,14 @@ public sealed class FolderKindsTests
         }
 
         var back = Assert.IsType<FolderConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
-        Assert.Equal(WidgetKind.Folder, back.Kind);
+        Assert.Equal(FolderConfig.Descriptor.Id, back.Kind);
         Assert.Equal(style, back.Style);
         Assert.Empty(back.Repair());
     }
 
     [Fact]
     public void S4123_the_styles_are_listed_list_details_grid_icons()
-        => Assert.Equal(["list", "details", "grid", "icons"], WidgetStyles.For(WidgetKind.Folder).Select(s => s.Name));
+        => Assert.Equal(["list", "details", "grid", "icons"], WidgetStyles.For(FolderConfig.Descriptor.Id).Select(s => s.Name));
 
     [Fact]
     public void S4123_an_unknown_style_is_repaired_to_the_list()

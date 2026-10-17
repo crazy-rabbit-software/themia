@@ -47,14 +47,11 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
     /// <summary>The row view's columns when the user has not chosen.</summary>
     public static IReadOnlyList<MailColumn> DefaultColumns { get; } = [MailColumn.From, MailColumn.Subject, MailColumn.Date];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Email;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("email"),
-        Kind = WidgetKind.Email,
         ConfigType = typeof(EmailConfig),
         CreateDefault = () => new EmailConfig(),
         Json = WidgetConfigJsonContext.Default,

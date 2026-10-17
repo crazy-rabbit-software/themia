@@ -29,14 +29,11 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
     {
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Memory;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("memory"),
-        Kind = WidgetKind.Memory,
         ConfigType = typeof(MemoryConfig),
         CreateDefault = () => new MemoryConfig(),
         Json = WidgetConfigJsonContext.Default,

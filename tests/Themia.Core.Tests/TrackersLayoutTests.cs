@@ -47,13 +47,13 @@ public class TrackersLayoutTests
 
         // A clipboard widget on a view that is not the one on screen still wants the history.
         var hidden = ViewState.Create("Hidden");
-        var small = WidgetInstance.Create(WidgetKind.Clipboard, new Geometry.FracRect(0, 0, 0.2, 0.2));
+        var small = WidgetInstance.Create(ClipboardConfig.Descriptor.Id, new Geometry.FracRect(0, 0, 0.2, 0.2));
         ((ClipboardConfig)small.Config).Capacity = 10;
         hidden.Widgets.Add(small);
         state.Views.Add(hidden);
         Assert.Equal(10, ClipboardInterest.Capacity(state));
 
-        var large = WidgetInstance.Create(WidgetKind.Clipboard, new Geometry.FracRect(0, 0, 0.2, 0.2));
+        var large = WidgetInstance.Create(ClipboardConfig.Descriptor.Id, new Geometry.FracRect(0, 0, 0.2, 0.2));
         ((ClipboardConfig)large.Config).Capacity = 120;
         state.Views[0].Widgets.Add(large);
         Assert.Equal(120, ClipboardInterest.Capacity(state));
@@ -61,7 +61,7 @@ public class TrackersLayoutTests
         // Any other widget wants nothing of the clipboard.
         hidden.Widgets.Clear();
         state.Views[0].Widgets.Clear();
-        state.Views[0].Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, new Geometry.FracRect(0, 0, 0.2, 0.2)));
+        state.Views[0].Widgets.Add(WidgetInstance.Create(NotesConfig.Descriptor.Id, new Geometry.FracRect(0, 0, 0.2, 0.2)));
         Assert.Null(ClipboardInterest.Capacity(state));
     }
 

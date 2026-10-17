@@ -24,14 +24,11 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
 
     public const int MaxSnooze = 30;
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Alarm;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("alarm"),
-        Kind = WidgetKind.Alarm,
         ConfigType = typeof(AlarmConfig),
         CreateDefault = () => new AlarmConfig(),
         Json = WidgetConfigJsonContext.Default,

@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -86,7 +87,7 @@ public sealed partial class ItemKindsTests
         var views = ModuleSources.Views();
         var wrong = new List<string>();
 
-        foreach (var kind in Enum.GetValues<WidgetKind>())
+        foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             Assert.True(views.TryGetValue(kind, out var view), $"{kind} has no view in its module's CreateView");
             var paints = painting.Any(f => f!.StartsWith(view + ".", StringComparison.Ordinal));
@@ -102,14 +103,14 @@ public sealed partial class ItemKindsTests
     [Fact]
     public void S6570_lists_and_meters_have_items_and_a_plain_readout_does_not()
     {
-        Assert.True(ItemKinds.Has(WidgetKind.Tasks));
-        Assert.True(ItemKinds.Has(WidgetKind.Cpu));
-        Assert.True(ItemKinds.Has(WidgetKind.WifiToggle));
-        Assert.False(ItemKinds.Has(WidgetKind.Stopwatch));
-        Assert.False(ItemKinds.Has(WidgetKind.Gallery));
+        Assert.True(ItemKinds.Has(TasksConfig.Descriptor.Id));
+        Assert.True(ItemKinds.Has(CpuConfig.Descriptor.Id));
+        Assert.True(ItemKinds.Has(WifiToggleConfig.Descriptor.Id));
+        Assert.False(ItemKinds.Has(StopwatchConfig.Descriptor.Id));
+        Assert.False(ItemKinds.Has(GalleryConfig.Descriptor.Id));
     }
 
-    private static (AppState State, ViewState View, WidgetSelection Selection) Selected(params WidgetKind[] kinds)
+    private static (AppState State, ViewState View, WidgetSelection Selection) Selected(params WidgetId[] kinds)
     {
         var view = ViewState.Create("v");
         for (var i = 0; i < kinds.Length; i++)
@@ -127,7 +128,7 @@ public sealed partial class ItemKindsTests
     [Fact]
     public void S6571_a_widget_without_items_offers_no_item_background()
     {
-        var (state, view, selection) = Selected(WidgetKind.Stopwatch);
+        var (state, view, selection) = Selected(StopwatchConfig.Descriptor.Id);
 
         Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
         Assert.Equal(0, QuickSet.SetItemBackground(view, ["w0"], FillChoice.Transparent()));
@@ -141,7 +142,7 @@ public sealed partial class ItemKindsTests
     [Fact]
     public void S6572_a_mixed_selection_offers_it_when_any_has_items_and_sets_only_those()
     {
-        var (state, view, selection) = Selected(WidgetKind.Stopwatch, WidgetKind.Tasks);
+        var (state, view, selection) = Selected(StopwatchConfig.Descriptor.Id, TasksConfig.Descriptor.Id);
         view.Widgets[0].ItemBackground = FillChoice.Of("#123456", 1);
 
         var offer = QuickSet.For(state, selection, view.Id);

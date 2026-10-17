@@ -29,9 +29,9 @@ public class VisualizerScopeTests
     [Fact]
     public void S3212_the_waveform_is_a_visualizer_style_that_never_has_a_header()
     {
-        Assert.Contains(WidgetStyles.For(WidgetKind.AudioVisualizer), s => s.Value == (int)AudioVisualizerStyle.Waveform && s.Name == "waveform");
-        Assert.False(WidgetInstance.CanHaveHeader(WidgetKind.AudioVisualizer));
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(WidgetKind.AudioVisualizer));
+        Assert.Contains(WidgetStyles.For(AudioVisualizerConfig.Descriptor.Id), s => s.Value == (int)AudioVisualizerStyle.Waveform && s.Name == "waveform");
+        Assert.False(WidgetInstance.CanHaveHeader(AudioVisualizerConfig.Descriptor.Id));
+        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(AudioVisualizerConfig.Descriptor.Id));
     }
 
     [Theory]

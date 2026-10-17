@@ -760,9 +760,9 @@ public sealed class OfflineSyncTests : IDisposable
                     Name = "One",
                     Widgets =
                     [
-                        new WidgetInstance { Id = "m", Kind = WidgetKind.Email, Config = new EmailConfig { Folder = MailFolder.Junk } },
-                        new WidgetInstance { Id = "t", Kind = WidgetKind.Tasks, Config = new TasksConfig { AccountId = "acc", ListId = "l", ShowCompleted = true } },
-                        new WidgetInstance { Id = "local", Kind = WidgetKind.Tasks, Config = new TasksConfig { Source = TaskSource.Local } },
+                        new WidgetInstance { Id = "m", Config = new EmailConfig { Folder = MailFolder.Junk } },
+                        new WidgetInstance { Id = "t", Config = new TasksConfig { AccountId = "acc", ListId = "l", ShowCompleted = true } },
+                        new WidgetInstance { Id = "local", Config = new TasksConfig { Source = TaskSource.Local } },
                     ],
                 },
                 new ViewState
@@ -771,8 +771,8 @@ public sealed class OfflineSyncTests : IDisposable
                     Name = "Two",
                     Widgets =
                     [
-                        new WidgetInstance { Id = "c", Kind = WidgetKind.Calendar, Config = new CalendarWidgetConfig { AccountIds = ["acc"] } },
-                        new WidgetInstance { Id = "p", Kind = WidgetKind.Contacts, Config = new ContactsConfig() },
+                        new WidgetInstance { Id = "c", Config = new CalendarWidgetConfig { AccountIds = ["acc"] } },
+                        new WidgetInstance { Id = "p", Config = new ContactsConfig() },
                     ],
                 },
             ],

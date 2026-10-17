@@ -14,14 +14,11 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class NotesConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Notes;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("notes"),
-        Kind = WidgetKind.Notes,
         ConfigType = typeof(NotesConfig),
         CreateDefault = () => new NotesConfig(),
         Json = WidgetConfigJsonContext.Default,

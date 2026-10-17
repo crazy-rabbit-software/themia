@@ -3,13 +3,14 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
 
 /// <summary>[S-1130] Physical memory in use, coloured by how full it is; its styles [S-6315].</summary>
 internal sealed class MemoryMeter : MeterPart
 {
-    public override WidgetKind Kind => WidgetKind.Memory;
+    public override WidgetId Kind => MemoryConfig.Descriptor.Id;
 
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Usage, reading.Available ? reading.Fraction : null);

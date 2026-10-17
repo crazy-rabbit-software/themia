@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -34,7 +35,7 @@ public enum AddMenuAction
 }
 
 /// <summary>The menu after a key, and what to do.</summary>
-public readonly record struct AddMenuStep(AddMenuNav Nav, AddMenuAction Action, WidgetKind Kind = default);
+public readonly record struct AddMenuStep(AddMenuNav Nav, AddMenuAction Action, WidgetId Kind = default);
 
 /// <summary>
 /// [S-3514] The add menu's tree walked, pure, so the dropdown is a drawing of what these return:

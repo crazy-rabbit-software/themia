@@ -85,7 +85,7 @@ internal static partial class ConfigPages
         return has;
     }
 
-    private static readonly Dictionary<(WidgetKind Kind, string Shape), bool> HasSettingsByShape = [];
+    private static readonly Dictionary<(WidgetId Kind, string Shape), bool> HasSettingsByShape = [];
 
     /// <summary>
     /// [S-6536] The widget's own options and nothing else: its title, style, header, background,

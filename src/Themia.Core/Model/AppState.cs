@@ -10,7 +10,12 @@ public sealed class WidgetInstance
 {
     public required string Id { get; set; }
 
-    public required WidgetKind Kind { get; set; }
+    /// <summary>
+    /// [S-6908] Which widget this is: its config's id ([S-6903]). Not stored on its own: the config's
+    /// discriminator is the kind, so the two cannot disagree.
+    /// </summary>
+    [JsonIgnore]
+    public WidgetId Kind => Config.Kind;
 
     public double X { get; set; }
 
@@ -78,10 +83,9 @@ public sealed class WidgetInstance
         }
     }
 
-    public static WidgetInstance Create(WidgetKind kind, FracRect rect) => new()
+    public static WidgetInstance Create(WidgetId kind, FracRect rect) => new()
     {
         Id = Guid.NewGuid().ToString("n"),
-        Kind = kind,
         Header = DefaultHeader(kind),
         Config = WidgetConfig.CreateDefault(kind),
         X = rect.X,
@@ -95,13 +99,13 @@ public sealed class WidgetInstance
     /// or can never have one ([S-6905]). Only the default: the user can still give it a header, and a
     /// saved widget keeps the placement it was saved with.
     /// </summary>
-    public static HeaderPlacement DefaultHeader(WidgetKind kind)
+    public static HeaderPlacement DefaultHeader(WidgetId kind)
         => CanHaveHeader(kind) && !ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.StartsHeaderless)
             ? HeaderPlacement.Top
             : HeaderPlacement.Hidden;
 
     /// <summary>[S-3711] Whether a widget of <paramref name="kind"/> may have a header at all: its descriptor's <see cref="WidgetTraits.CanHaveHeader"/>.</summary>
-    public static bool CanHaveHeader(WidgetKind kind) => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.CanHaveHeader);
+    public static bool CanHaveHeader(WidgetId kind) => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.CanHaveHeader);
 
     /// <summary>
     /// [S-3711]/[S-3712] Where the header is drawn: the stored placement, or hidden for a kind that
@@ -113,7 +117,6 @@ public sealed class WidgetInstance
     public WidgetInstance Clone() => new()
     {
         Id = Guid.NewGuid().ToString("n"),
-        Kind = Kind,
         Label = Label,
         Background = Background.Clone(),
         Header = Header,
@@ -355,7 +358,7 @@ public sealed class AppState
         => new(x / 2560, y / 1440, w / 2560, h / 1440);
 
     /// <summary>A first-run widget on the wallpaper: no card, no header.</summary>
-    private static WidgetInstance Bare(WidgetKind kind, FracRect rect)
+    private static WidgetInstance Bare(WidgetId kind, FracRect rect)
     {
         var widget = WidgetInstance.Create(kind, rect);
         widget.Background = FillChoice.Transparent();
@@ -371,7 +374,7 @@ public sealed class AppState
     {
         var view = ViewState.Create(Str.Shell_View_HomeName.Text());
 
-        var clock = Bare(WidgetKind.Clock, OnSeedGrid(2250, 0, 310, 180));
+        var clock = Bare(ClockConfig.Descriptor.Id, OnSeedGrid(2250, 0, 310, 180));
         if (clock.Config is ClockConfig time)
         {
             time.ShowDate = false;
@@ -379,7 +382,7 @@ public sealed class AppState
 
         view.Widgets.Add(clock);
 
-        var places = Bare(WidgetKind.Shortcuts, OnSeedGrid(2250, 180, 310, 160));
+        var places = Bare(ShortcutsConfig.Descriptor.Id, OnSeedGrid(2250, 180, 310, 160));
         if (places.Config is ShortcutsConfig shortcuts)
         {
             // The kind's own default holds two places; the first run holds six.
@@ -389,7 +392,7 @@ public sealed class AppState
         view.Widgets.Add(places);
 
         // No place: the widget asks for one ([S-2848]) rather than showing someone else's town.
-        var weather = Bare(WidgetKind.WeatherNow, OnSeedGrid(0, 0, 310, 180));
+        var weather = Bare(WeatherNowConfig.Descriptor.Id, OnSeedGrid(0, 0, 310, 180));
         if (weather.Config is WeatherNowConfig now)
         {
             now.Style = WeatherNowStyle.LargeIcon;
@@ -398,17 +401,17 @@ public sealed class AppState
         view.Widgets.Add(weather);
 
         // The meters stack on a 120-DIP stride; each is 1/1080 of the screen shorter than it, so they never touch.
-        WidgetKind[] meters = [WidgetKind.Cpu, WidgetKind.Memory, WidgetKind.Gpu, WidgetKind.Network];
+        WidgetId[] meters = [CpuConfig.Descriptor.Id, MemoryConfig.Descriptor.Id, GpuConfig.Descriptor.Id, NetworkConfig.Descriptor.Id];
         for (var i = 0; i < meters.Length; i++)
         {
             view.Widgets.Add(Bare(meters[i], new FracRect(2250.0 / 2560, (920.0 + 120 * i) / 1440, 310.0 / 2560, 89.0 / 1080)));
         }
 
         // Square tiles side by side along the top, about the screen's centre (1090..1450 of 2560).
-        WidgetKind[] toggles =
+        WidgetId[] toggles =
         [
-            WidgetKind.DoNotDisturbToggle, WidgetKind.ColorFiltersToggle, WidgetKind.NightLightToggle,
-            WidgetKind.AirplaneModeToggle, WidgetKind.BluetoothToggle, WidgetKind.WifiToggle,
+            DoNotDisturbToggleConfig.Descriptor.Id, ColorFiltersToggleConfig.Descriptor.Id, NightLightToggleConfig.Descriptor.Id,
+            AirplaneModeToggleConfig.Descriptor.Id, BluetoothToggleConfig.Descriptor.Id, WifiToggleConfig.Descriptor.Id,
         ];
         for (var i = 0; i < toggles.Length; i++)
         {
@@ -426,10 +429,10 @@ public sealed class AppState
     private static ViewState CreateWorkView()
     {
         var view = ViewState.Create(Str.Shell_View_WorkName.Text());
-        view.Widgets.Add(Bare(WidgetKind.Clock, OnSeedGrid(2330, 0, 230, 120)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Calendar, OnSeedGrid(0, 0, 800, 710)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Tasks, OnSeedGrid(800, 0, 510, 710)));
-        view.Widgets.Add(WidgetInstance.Create(WidgetKind.Notes, OnSeedGrid(1310, 0, 510, 710)));
+        view.Widgets.Add(Bare(ClockConfig.Descriptor.Id, OnSeedGrid(2330, 0, 230, 120)));
+        view.Widgets.Add(WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, OnSeedGrid(0, 0, 800, 710)));
+        view.Widgets.Add(WidgetInstance.Create(TasksConfig.Descriptor.Id, OnSeedGrid(800, 0, 510, 710)));
+        view.Widgets.Add(WidgetInstance.Create(NotesConfig.Descriptor.Id, OnSeedGrid(1310, 0, 510, 710)));
         return view;
     }
 

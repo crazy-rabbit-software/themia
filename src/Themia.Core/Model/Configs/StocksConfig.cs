@@ -95,14 +95,11 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         StyleOption.Of(StocksStyle.Number, Str.Styles_Stocks_Number, 0xE75F),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.Stocks;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("stocks"),
-        Kind = WidgetKind.Stocks,
         ConfigType = typeof(StocksConfig),
         CreateDefault = () => new StocksConfig(),
         Json = WidgetConfigJsonContext.Default,

@@ -1,5 +1,6 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
 
@@ -94,27 +95,27 @@ public static class QuickToggleRules
     ];
 
     /// <summary>[S-3900] The toggle a kind stands for, or null for a kind that is not a toggle.</summary>
-    public static QuickToggle? ForKind(WidgetKind kind) => ByKind.Value.TryGetValue(kind, out var toggle) ? toggle : null;
+    public static QuickToggle? ForKind(WidgetId kind) => ByKind.Value.TryGetValue(kind, out var toggle) ? toggle : null;
 
     /// <summary>The inverse of <see cref="KindOf"/>, built from it so the two cannot disagree.</summary>
-    private static readonly Lazy<Dictionary<WidgetKind, QuickToggle>> ByKind = new(() => Enum.GetValues<QuickToggle>().ToDictionary(KindOf));
+    private static readonly Lazy<Dictionary<WidgetId, QuickToggle>> ByKind = new(() => Enum.GetValues<QuickToggle>().ToDictionary(KindOf));
 
     /// <summary>[S-3900] The widget kind of a toggle: the inverse of <see cref="ForKind"/>.</summary>
-    public static WidgetKind KindOf(QuickToggle toggle) => toggle switch
+    public static WidgetId KindOf(QuickToggle toggle) => toggle switch
     {
-        QuickToggle.Wifi => WidgetKind.WifiToggle,
-        QuickToggle.Bluetooth => WidgetKind.BluetoothToggle,
-        QuickToggle.AirplaneMode => WidgetKind.AirplaneModeToggle,
-        QuickToggle.EnergySaver => WidgetKind.EnergySaverToggle,
-        QuickToggle.NightLight => WidgetKind.NightLightToggle,
-        QuickToggle.RotationLock => WidgetKind.RotationLockToggle,
-        QuickToggle.DoNotDisturb => WidgetKind.DoNotDisturbToggle,
-        QuickToggle.Sound => WidgetKind.SoundToggle,
-        QuickToggle.Microphone => WidgetKind.MicrophoneToggle,
-        QuickToggle.SpatialSound => WidgetKind.SpatialSoundToggle,
-        QuickToggle.MonoAudio => WidgetKind.MonoAudioToggle,
-        QuickToggle.ColorFilters => WidgetKind.ColorFiltersToggle,
-        QuickToggle.GameMode => WidgetKind.GameModeToggle,
+        QuickToggle.Wifi => WifiToggleConfig.Descriptor.Id,
+        QuickToggle.Bluetooth => BluetoothToggleConfig.Descriptor.Id,
+        QuickToggle.AirplaneMode => AirplaneModeToggleConfig.Descriptor.Id,
+        QuickToggle.EnergySaver => EnergySaverToggleConfig.Descriptor.Id,
+        QuickToggle.NightLight => NightLightToggleConfig.Descriptor.Id,
+        QuickToggle.RotationLock => RotationLockToggleConfig.Descriptor.Id,
+        QuickToggle.DoNotDisturb => DoNotDisturbToggleConfig.Descriptor.Id,
+        QuickToggle.Sound => SoundToggleConfig.Descriptor.Id,
+        QuickToggle.Microphone => MicrophoneToggleConfig.Descriptor.Id,
+        QuickToggle.SpatialSound => SpatialSoundToggleConfig.Descriptor.Id,
+        QuickToggle.MonoAudio => MonoAudioToggleConfig.Descriptor.Id,
+        QuickToggle.ColorFilters => ColorFiltersToggleConfig.Descriptor.Id,
+        QuickToggle.GameMode => GameModeToggleConfig.Descriptor.Id,
         _ => throw new ArgumentOutOfRangeException(nameof(toggle), toggle, "not a quick-setting toggle"),
     };
 

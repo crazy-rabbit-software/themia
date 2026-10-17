@@ -22,7 +22,7 @@ public class ClockDateStyleTests
     [Fact]
     public void S5300_date_is_the_clocks_last_style_with_no_time_and_a_minute_tick()
     {
-        var styles = WidgetStyles.For(WidgetKind.Clock);
+        var styles = WidgetStyles.For(ClockConfig.Descriptor.Id);
         Assert.Equal("date", styles[^1].Name);
         Assert.Equal((int)ClockStyle.Date, styles[^1].Value);
 

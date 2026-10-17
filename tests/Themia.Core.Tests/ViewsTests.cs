@@ -32,7 +32,7 @@ public sealed class ViewsTests
         var state = ThreeViews();
         var source = state.Views[0];
         source.Icon = "";
-        var clock = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.1, 0.1, 0.2, 0.2));
+        var clock = WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
         source.Widgets.Add(clock);
 
         var copy = ViewOps.Duplicate(state, "a");

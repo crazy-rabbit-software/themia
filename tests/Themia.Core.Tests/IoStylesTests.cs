@@ -1,5 +1,6 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -15,19 +16,20 @@ public sealed class IoStylesTests
 
     private sealed class PlainGauge() : GaugeConfig(60)
     {
-        public override WidgetKind Kind => WidgetKind.Cpu;
-
         public override WidgetConfig Clone() => new PlainGauge();
     }
 
     [Theory]
-    [InlineData(WidgetKind.Network, "graph,numbers")]
-    [InlineData(WidgetKind.Disk, "graph,bars")]
-    [InlineData(WidgetKind.Battery, "graph,battery,ring")]
-    [InlineData(WidgetKind.Ping, "graph,signal")]
-    [InlineData(WidgetKind.Drive, "bar,ring")]
-    public void S6270_S6274_each_kind_offers_its_styles_in_menu_order(WidgetKind kind, string names)
-        => Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
+    [InlineData("network", "graph,numbers")]
+    [InlineData("disk", "graph,bars")]
+    [InlineData("battery", "graph,battery,ring")]
+    [InlineData("ping", "graph,signal")]
+    [InlineData("drive", "bar,ring")]
+    public void S6270_S6274_each_kind_offers_its_styles_in_menu_order(string kindId, string names)
+    {
+        var kind = new WidgetId(kindId);
+        Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
+    }
 
     [Fact]
     public void S6267_only_a_graph_style_draws_the_history_whatever_the_old_switch_says()

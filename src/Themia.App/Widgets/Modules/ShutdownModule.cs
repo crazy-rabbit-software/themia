@@ -12,5 +12,5 @@ public sealed class ShutdownModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => ShutdownConfig.Descriptor;
 
-    public FrameworkElement CreateView() => new PowerButtonView(WidgetKind.Shutdown);
+    public FrameworkElement CreateView() => new PowerButtonView(ShutdownConfig.Descriptor.Id);
 }

@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -26,7 +27,7 @@ internal sealed class DiskMeter : MeterPart
     private DiskConfig _config = new();
     private string _root = DiskMetrics.SystemRoot;
 
-    public override WidgetKind Kind => WidgetKind.Disk;
+    public override WidgetId Kind => DiskConfig.Descriptor.Id;
 
     /// <summary>
     /// "1023 KB/s", as the network meter's. [S-3860] Each run is counted at the size it is drawn,

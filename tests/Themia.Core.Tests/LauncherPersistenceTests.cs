@@ -45,7 +45,6 @@ public sealed class LauncherPersistenceTests : IDisposable
         var state = AppState.CreateDefault();
         var widget = state.ActiveView().Widgets[0];
 
-        widget.Kind = config.Kind;
         widget.Config = config;
 
         var store = NewStore();

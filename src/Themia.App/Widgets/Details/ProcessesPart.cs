@@ -3,6 +3,7 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets.Details;
 
@@ -28,7 +29,7 @@ internal sealed class ProcessesPart : DetailPart
     private TopProcessesConfig _config = new();
     private IDetailHost? _host;
 
-    public override WidgetKind Kind => WidgetKind.TopProcesses;
+    public override WidgetId Kind => TopProcessesConfig.Descriptor.Id;
 
     public override bool HasHero => false;
 

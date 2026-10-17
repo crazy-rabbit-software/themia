@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -21,12 +22,12 @@ public class SkyWidgetsTests
     [Fact]
     public void S3100_sun_and_moon_are_two_kinds_each_with_its_own_config()
     {
-        var sun = Assert.IsType<SunConfig>(WidgetConfig.CreateDefault(WidgetKind.Sun));
-        var moon = Assert.IsType<MoonConfig>(WidgetConfig.CreateDefault(WidgetKind.Moon));
+        var sun = Assert.IsType<SunConfig>(WidgetConfig.CreateDefault(SunConfig.Descriptor.Id));
+        var moon = Assert.IsType<MoonConfig>(WidgetConfig.CreateDefault(MoonConfig.Descriptor.Id));
 
-        Assert.Equal(WidgetKind.Sun, sun.Kind);
-        Assert.Equal(WidgetKind.Moon, moon.Kind);
-        Assert.DoesNotContain("SunMoon", Enum.GetNames<WidgetKind>());
+        Assert.Equal(SunConfig.Descriptor.Id, sun.Kind);
+        Assert.Equal(MoonConfig.Descriptor.Id, moon.Kind);
+        Assert.DoesNotContain(ModuleCatalog.Widgets, w => w.Id.Value is "sunMoon" or "sunmoon");
     }
 
     [Fact]

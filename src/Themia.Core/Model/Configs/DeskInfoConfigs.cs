@@ -29,14 +29,11 @@ public sealed class YearProgressConfig : WidgetConfig, Themia.Core.Widgets.IStyl
         Themia.Core.Widgets.StyleOption.Of(YearProgressStyle.Dots, Themia.Core.Localization.Str.Styles_YearProgress_Dots, 0xE75F),
     ];
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.YearProgress;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("yearProgress"),
-        Kind = WidgetKind.YearProgress,
         ConfigType = typeof(YearProgressConfig),
         CreateDefault = () => new YearProgressConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -80,14 +77,11 @@ public sealed class NextMeetingConfig : CalendarConfig
         ShowBirthdays = false;
     }
 
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.NextMeeting;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("nextMeeting"),
-        Kind = WidgetKind.NextMeeting,
         ConfigType = typeof(NextMeetingConfig),
         CreateDefault = () => new NextMeetingConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -121,14 +115,11 @@ public sealed class NextMeetingConfig : CalendarConfig
 /// <summary>[S-4840] Recent files. Nothing to set: the list is Windows' own Recent Items.</summary>
 public sealed class RecentFilesConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.RecentFiles;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("recentFiles"),
-        Kind = WidgetKind.RecentFiles,
         ConfigType = typeof(RecentFilesConfig),
         CreateDefault = () => new RecentFilesConfig(),
         Json = WidgetConfigJsonContext.Default,
@@ -152,14 +143,11 @@ public sealed class RecentFilesConfig : WidgetConfig
 /// <summary>[S-4860] Recycle Bin. Nothing to set.</summary>
 public sealed class RecycleBinConfig : WidgetConfig
 {
-    [JsonIgnore]
-    public override WidgetKind Kind => WidgetKind.RecycleBin;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
     {
         Id = new("recycleBin"),
-        Kind = WidgetKind.RecycleBin,
         ConfigType = typeof(RecycleBinConfig),
         CreateDefault = () => new RecycleBinConfig(),
         Json = WidgetConfigJsonContext.Default,

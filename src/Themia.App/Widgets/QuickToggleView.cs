@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -66,7 +67,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private bool _pressed;
     private bool _detached = true;
 
-    public QuickToggleView(WidgetKind kind)
+    public QuickToggleView(WidgetId kind)
     {
         _toggle = QuickToggleRules.ForKind(kind) ?? QuickToggle.Wifi;
         if (QuickToggleRules.ForKind(kind) is null)

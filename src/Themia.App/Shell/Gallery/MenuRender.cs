@@ -85,8 +85,8 @@ internal static class MenuRender
 
                 // A view with a second widget, so the layering commands have something to act on.
                 var view = ViewState.Create("Render");
-                var clock = WidgetInstance.Create(WidgetKind.Clock, new FracRect(0.1, 0.1, 0.2, 0.2));
-                var notes = WidgetInstance.Create(WidgetKind.Notes, new FracRect(0.5, 0.1, 0.3, 0.4));
+                var clock = WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
+                var notes = WidgetInstance.Create(NotesConfig.Descriptor.Id, new FracRect(0.5, 0.1, 0.3, 0.4));
                 view.Widgets.Add(clock);
                 view.Widgets.Add(notes);
 
@@ -102,7 +102,7 @@ internal static class MenuRender
                 await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
 
                 // [S-1750] A widget whose page would be empty (a power button): no Settings in the row.
-                var lockButton = WidgetInstance.Create(WidgetKind.Lock, new FracRect(0.1, 0.6, 0.1, 0.1));
+                var lockButton = WidgetInstance.Create(LockConfig.Descriptor.Id, new FracRect(0.1, 0.6, 0.1, 0.1));
                 view.Widgets.Add(lockButton);
                 var bare = new WidgetCard(host, lockButton) { Width = 120, Height = 120 };
                 root.Children.Add(new Canvas { Children = { bare } });
@@ -113,7 +113,7 @@ internal static class MenuRender
                 host.Set(editMode: false, selection: 1, canPaste: true);
                 await RenderAsync(root, bare.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-no-settings.png")).ConfigureAwait(true);
 
-                var drive = WidgetInstance.Create(WidgetKind.Drive, new FracRect(0.3, 0.6, 0.2, 0.2));
+                var drive = WidgetInstance.Create(DriveConfig.Descriptor.Id, new FracRect(0.3, 0.6, 0.2, 0.2));
                 view.Widgets.Add(drive);
                 var withActions = new WidgetCard(host, drive) { Width = 200, Height = 120 };
                 root.Children.Add(new Canvas { Children = { withActions } });
