@@ -55,14 +55,15 @@ state store.
 
 ```
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
-  Localization/ (+ Locales/*.json: still the one Str enum) Diagnostics/ (Log) Links/ Time/
-  Model/ (language and region vocabulary, ContentAlign) Widgets/ (WidgetArea, Disclosure, tiers, keys, fits)
+  Localization/ (+ Locales/*.json: still the one Str enum) Diagnostics/ (Log) Links/ Time/ Shell/ (Glyphs)
+  Model/ (WidgetConfig, language and region vocabulary, ContentAlign) Widgets/ (WidgetArea, Disclosure, tiers, keys, fits)
+  Modules/ (WidgetId and the other ids, WidgetDescriptor, ModuleCatalog, WidgetTraits, AddPlacement)
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. Everything with a rule lives here.
-  Geometry/ Model/ (state, WidgetKind, Configs/*) Storage/ (atomic store, load validation, JSON context)
+  Geometry/ Model/ (state, Configs/* with each widget's descriptor) Storage/ (atomic store, load validation, StateJson)
   Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/
   Settings/ Shell/ Motion/ Licensing/ Net/ Sync/
-src/Themia.Sdk.WinUI/  the widget SDK, WinUI: view contracts (IWidgetSurface, IWidgetKeys, ...), Ticker,
-                   Glyphs, ScrollFade, EmptyStatePanel. References Themia.Sdk only, never Core.
+src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, WidgetSettingsRows, view contracts (IWidgetSurface,
+                   IWidgetKeys, ...), Ticker, ScrollFade, EmptyStatePanel. References Themia.Sdk only, never Core.
                    Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
@@ -70,8 +71,9 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    shared samplers and sync services (accounts, mail, tasks, files, web)
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    FluentLayout (settings rows), Config/ (settings window), Gallery/ (render flags)
-  Widgets/         WidgetCatalog.cs + one *View.cs per widget (Fluent.cs = type ramp, rows, empty state)
+  Widgets/         Modules/<Name>Module.cs (each widget's module) + one *View.cs per widget (Fluent.cs = type ramp, rows, empty state)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum
+src/Themia.Modules.Generator/        build-time generator: [assembly: ThemiaWidget] -> the static ModuleRegistry
 tests/Themia.Core.Tests/             xUnit over Core, named after SPEC tags
 docs/STORE.md      Microsoft Store release       scripts/   publish.ps1, package.ps1, package-logos.py
 SPEC.md            the behaviour spec (tags [S-NN])
@@ -80,9 +82,15 @@ SPEC.md            the behaviour spec (tags [S-NN])
 One window per display, not per widget: every widget on a screen shares one transparent,
 click-through surface clipped with `SetWindowRgn`. Geometry is stored as fractions of the whole monitor.
 
-Adding a widget touches: `WidgetKind`, the config class + `AppStateJsonContext`, `WidgetCatalog`, the
-view, a `WidgetSettings.<Name>.cs` page (+ dispatch in `WidgetSettings.cs`), `Glyphs`, the locale keys,
-a `WidgetSetup.Needed` rule if it shows nothing unconfigured, and a SPEC section. Settings pages register one line in `ConfigPages.AppPages`.
+Adding a widget touches its own files only, plus the shared tables M3 still has to split
+(docs/WIDGET-KIT.md 11.1): the config class with its `Descriptor` (id = its camelCase discriminator,
+name, description, glyph, size, add-menu place, keywords, traits, `CreateDefault`, and its config's
+line in `WidgetConfigJsonContext`), the config's own `ISetupRule` / `IInterests` / `IContentAligned` /
+`IStyled` where they apply, the module `Widgets/Modules/<Name>Module.cs` (`[assembly: ThemiaWidget]`,
+`CreateView`, `SettingsRows` over a `WidgetSettings.<Name>.cs` page), the view, the locale keys (and a
+`Glyphs` entry if it needs a new icon), and a SPEC section. Nothing else lists widgets: the registry
+tests (`WidgetRegistryTests`) fail by name when a part is missing. Settings pages register one line in
+`ConfigPages.AppPages`.
 
 ## Engineering principles (non-negotiable)
 

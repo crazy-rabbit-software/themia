@@ -350,7 +350,7 @@ to today's JSON discriminators (`clock`, `weatherNow`, `rss`), so state files ke
   delete user data on a recoverable error": a widget whose code is not in this build is not a
   recoverable error (nothing this build can do brings it back), so it is treated like any other
   closed-set value the build does not know. `SPEC.md` states it in the store's section when the
-  behaviour lands (M2). A known id with a broken config is repaired by its module to the default
+  behaviour lands (M2: [S-6908], done). A known id with a broken config is repaired by its module to the default
   and logged, as today. The spike confirmed what has to change for that: System.Text.Json rejects
   an unknown discriminator for the whole document ("Read unrecognized type discriminator id
   'nope'"), so the store reads `widgets[]` element by element.
@@ -1420,6 +1420,58 @@ registration path: when a table becomes a descriptor member, the table is delete
   for providers: `AccountProvider`, `AccountFeatures` and `UpdateSource` become ids, with Microsoft
   and Google declared as provider modules inside Core until step 11. Behaviour commit, SPEC line and
   test first: an unknown id is dropped on load with a logged notice (section 4.5, Q15).
+  *M2 as built (2026-10-17).* Contracts in the SDK: `WidgetId`, `ProviderId`, `FeatureId`,
+  `CadenceId` (camelCase, validated, JSON converters; [S-6900]), `ThemiaWidget`/`ThemiaProvider`,
+  `WidgetDescriptor` (init-only members, the required ones enforced by the compiler),
+  `ModuleCatalog` (installed once, refuses a duplicate id or config type; `Of`, `TryGet`, `TryFind`,
+  `IdOf`), `WidgetTraits`, `AddPlacement` (with `AddFolderId` moved down), and `WidgetConfig` and
+  `Glyphs` moved into `Themia.Sdk` (namespaces kept). `IWidgetModule` (`Descriptor`, `CreateView`,
+  `SettingsRows`) and `WidgetSettingsRows` in `Themia.Sdk.WinUI`. `Themia.Modules.Generator`
+  (THEMIAMOD001..003, reading the compilation's own attributes too; 004, the project-suffix rule,
+  comes with the first project in M3) emits `Themia.App.Modules.ModuleRegistry`; `ModuleHost.Install`
+  runs first in `App()` and checks each module's descriptor id against its attribute.
+  The interim is one level finer than planned: each built-in widget's **descriptor** is declared on
+  its config in Core (`ClockConfig.Descriptor`), because Core's rules and Core's tests read it and
+  cannot see the app; its **module** (`Widgets/Modules/<Name>Module.cs`: view and settings rows) is
+  in the app and returns that descriptor. The tests install the same descriptors (found by reflection
+  over Core in a module initializer) and `WidgetRegistryTests` checks that the app declares exactly
+  one module per descriptor. When a widget moves to its project (M3/M4) descriptor and module merge.
+  Moved onto the descriptor, each table deleted in its commit: the catalogue (`LabelId`,
+  `DescriptionId` with `DescriptionFacts`, `Glyph`, `DefaultWidth`/`Height`; `CreateView` on the
+  module), `ConfigType` + `Json` (the `[JsonDerivedType]` list and the configs in
+  `AppStateJsonContext` replaced by `StateJson`'s modifier; the built-in configs share one interim
+  `WidgetConfigJsonContext`), `CreateDefault`, the settings dispatch (`SettingsRows`), `Keywords` and
+  `ProviderNames` (`WidgetKeywords` gone), `Traits` (`HasItems` for `ItemKinds`, `CanHaveHeader` and
+  `StartsHeaderless` for the header tables) and `Add` (the `AddTree`'s widget lists; its folder
+  skeleton stays host data). Onto the config instead (section 5.6's rule): `ISetupRule`
+  (`WidgetSetup.Needed`, `WidgetLiveness.SetUpInPlace`), `IInterests` over an `InterestsBuilder`
+  (`SyncInterests.From`), `IContentAligned` (`ContentAlignment`). `WidgetKind` is gone: ids
+  everywhere (host code that still names a widget does it as `ClockConfig.Descriptor.Id`, greppable
+  for M4), `WidgetConfig.Kind` sealed in the base and answered by the catalogue from the config's
+  type (no config can repeat the `kind` metadata property), `WidgetInstance.Kind` computed from the
+  config and no longer stored (state files keep their shape otherwise; the old per-widget `kind` is
+  ignored on read). Behaviour, test first: an unknown or malformed config id, or a widget without a
+  config, is dropped element by element before the typed read with a log line naming the widget, the
+  id and the view ([S-6908], Q15). Regression net: `Fixtures/state-every-kind.json` (generated at
+  the start of M2, one widget of every kind with its default config) loads with no repair and writes
+  back unchanged but for the dropped per-widget `kind`.
+  *Left for M3* (first steps, in order):
+  - Providers: `AccountProvider` → `ProviderId`, `AccountFeatures` → a `FeatureId` set, `UpdateSource`
+    → `CadenceRow`s and `AppPreferences.Refresh` keyed by `CadenceId`, Microsoft and Google as
+    provider modules inside Core. Not done in M2: it changes `accounts.json` and the preferences
+    schema and runs through sign-in code that needs a live-account pass; `ProviderNames` on the
+    descriptor are display strings until then.
+  - `IWidgetView` (`Attach(Ticker, WidgetConfig)`) can move to `Themia.Sdk.WinUI` now that
+    `WidgetConfig` is in the SDK; `LocalText`/`StringTable` replace the descriptor's `Str` members
+    when the strings generator gets its module mode.
+  - The remaining per-family host tables that name widgets: `QuickToggleRules.KindOf`,
+    `PowerActionRules.KindOf`, `AppState.CreateDefault`'s seed widgets, `SyncInterests.For`'s weather
+    check, the gallery renders (`EditBarRender`, `SwitchCheck`, `MotionRender`, `MenuRender`,
+    `SettingsRender`); the `AddTree` folder titles that are widget names. They move with their
+    widgets (M4) or into the SDK.
+  - Each descriptor still points at the shared `WidgetConfigJsonContext`; a moved widget takes its
+    config's line into its own context.
+  - The showcase command lists widgets in registry (id) order now, not the old catalogue order.
 - **M3. Module plumbing and the first move.** The glob references, `src/Widgets/Directory.Build.props`
   and `src/Providers/Directory.Build.props`, the strings generator's module mode over a public
   `StringTable`, `LocalText`, the module test host with the registry conformance tests, the SPEC
