@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "碼錶",
+  "stopwatch.desc": "支援計圈，重新啟動後仍繼續計時",
+  "stopwatch.start": "開始",
+  "stopwatch.pause": "暫停",
+  "stopwatch.resume": "繼續",
+  "stopwatch.lap": "計圈",
+  "stopwatch.reset": "重設",
+  "stopwatch.lapNumber": "第 {n} 圈",
+  "stopwatch.noLaps": "尚無計圈",
+  "stopwatch.paused": "已暫停"
+}

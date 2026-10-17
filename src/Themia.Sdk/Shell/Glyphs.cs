@@ -349,12 +349,6 @@ public static class Glyphs
     /// <summary>[S-4860] The Recycle Bin (Segoe "Delete", the bin Windows draws).</summary>
     public static readonly string RecycleBin = From(0xE74D);
 
-    /// <summary>[S-4600] The stopwatch (Segoe "Stopwatch"); the pomodoro's break shows the same face as <see cref="Timer"/>.</summary>
-    public static readonly string Stopwatch = From(0xE916);
-
-    /// <summary>[S-4601] A lap (Segoe "Flag"), as Windows' Clock marks one.</summary>
-    public static readonly string Lap = From(0xE7C1);
-
     /// <summary>[S-4620] The alarm: Segoe has no alarm clock, so the clock with its arrow round (Karpo's choice); the bell is the notifications'.</summary>
     public static readonly string Alarm = From(0xECC5);
 

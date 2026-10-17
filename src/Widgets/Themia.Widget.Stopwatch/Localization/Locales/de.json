@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Stoppuhr",
+  "stopwatch.desc": "Misst Zeiten mit Runden und läuft über Neustarts weiter",
+  "stopwatch.start": "Starten",
+  "stopwatch.pause": "Anhalten",
+  "stopwatch.resume": "Fortsetzen",
+  "stopwatch.lap": "Runde",
+  "stopwatch.reset": "Zurücksetzen",
+  "stopwatch.lapNumber": "Runde {n}",
+  "stopwatch.noLaps": "Noch keine Runden",
+  "stopwatch.paused": "Angehalten"
+}

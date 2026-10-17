@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Cronómetro",
+  "stopwatch.desc": "Mide con vueltas y sigue en marcha tras reiniciar",
+  "stopwatch.start": "Iniciar",
+  "stopwatch.pause": "Pausar",
+  "stopwatch.resume": "Reanudar",
+  "stopwatch.lap": "Vuelta",
+  "stopwatch.reset": "Restablecer",
+  "stopwatch.lapNumber": "Vuelta {n}",
+  "stopwatch.noLaps": "Aún no hay vueltas",
+  "stopwatch.paused": "En pausa"
+}

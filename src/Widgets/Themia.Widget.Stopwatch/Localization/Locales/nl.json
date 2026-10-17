@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Stopwatch",
+  "stopwatch.desc": "Meet tijden met rondes en loopt door na een herstart",
+  "stopwatch.start": "Starten",
+  "stopwatch.pause": "Pauzeren",
+  "stopwatch.resume": "Hervatten",
+  "stopwatch.lap": "Ronde",
+  "stopwatch.reset": "Opnieuw instellen",
+  "stopwatch.lapNumber": "Ronde {n}",
+  "stopwatch.noLaps": "Nog geen rondes",
+  "stopwatch.paused": "Gepauzeerd"
+}

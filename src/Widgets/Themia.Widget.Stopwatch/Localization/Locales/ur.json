@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "اسٹاپ واچ",
+  "stopwatch.desc": "لیپس کے ساتھ وقت ناپتی ہے، ری اسٹارٹ کے بعد بھی چلتی رہتی ہے",
+  "stopwatch.start": "شروع کریں",
+  "stopwatch.pause": "روکیں",
+  "stopwatch.resume": "دوبارہ شروع کریں",
+  "stopwatch.lap": "لیپ",
+  "stopwatch.reset": "ری سیٹ کریں",
+  "stopwatch.lapNumber": "لیپ {n}",
+  "stopwatch.noLaps": "ابھی کوئی لیپ نہیں",
+  "stopwatch.paused": "رکا ہوا"
+}

@@ -9,6 +9,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Stopwatch;
 
 namespace Themia.App.Widgets;
 
@@ -63,7 +64,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
         _noLaps.TextAlignment = TextAlignment.Center;
 
         Prepare(_startButton, _startIcon, Glyphs.Play);
-        Prepare(_lapButton, new FontIcon(), Glyphs.Lap);
+        Prepare(_lapButton, new FontIcon(), StopwatchModule.LapGlyph);
         Prepare(_resetButton, new FontIcon(), Glyphs.Reset);
 
         _startButton.Click += (_, _) => Act(state => state.Act(Now()));
@@ -205,10 +206,10 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
     }
 
     /// <summary>[S-4604] Space or Enter start and pause, Right a lap, Home reset.</summary>
-    public bool HandleKey(WidgetKey key) => Do(ControlKeys.Stopwatch(key));
+    public bool HandleKey(WidgetKey key) => Do(StopwatchKeys.Of(key));
 
     /// <summary>[S-4604] L a lap, R reset.</summary>
-    public bool HandleText(char character) => Do(ControlKeys.StopwatchLetter(character));
+    public bool HandleText(char character) => Do(StopwatchKeys.Letter(character));
 
     private bool Do(ControlKey command)
     {
@@ -235,9 +236,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
 
     private void Tooltips()
     {
-        ToolTipService.SetToolTip(_lapButton, Str.Stopwatch_Lap.Text());
-        ToolTipService.SetToolTip(_resetButton, Str.Stopwatch_Reset.Text());
-        _noLaps.Text = Str.Stopwatch_NoLaps.Text();
+        ToolTipService.SetToolTip(_lapButton, StopwatchStr.Stopwatch_Lap.Text());
+        ToolTipService.SetToolTip(_resetButton, StopwatchStr.Stopwatch_Reset.Text());
+        _noLaps.Text = StopwatchStr.Stopwatch_NoLaps.Text();
     }
 
     // ---- drawing ----------------------------------------------------------------------------
@@ -259,12 +260,12 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
 
         var laps = _state.Splits;
         _lapLine.Text = _state.Phase == StopwatchPhase.Paused && laps.Length == 0
-            ? Str.Stopwatch_Paused.Text()
+            ? StopwatchStr.Stopwatch_Paused.Text()
             : laps.Length == 0 ? string.Empty
-            : $"{Str.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length + 1)))} · {Time(_state.CurrentLap(now), tenths: !_state.Running)}";
+            : $"{StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length + 1)))} · {Time(_state.CurrentLap(now), tenths: !_state.Running)}";
 
         _startIcon.Glyph = _state.Running ? Glyphs.Pause : Glyphs.Play;
-        ToolTipService.SetToolTip(_startButton, (_state.Running ? Str.Stopwatch_Pause : _state.Idle ? Str.Stopwatch_Start : Str.Stopwatch_Resume).Text());
+        ToolTipService.SetToolTip(_startButton, (_state.Running ? StopwatchStr.Stopwatch_Pause : _state.Idle ? StopwatchStr.Stopwatch_Start : StopwatchStr.Stopwatch_Resume).Text());
 
         // [S-4601] Greyed where they do nothing, never taken away: the row never moves.
         _lapButton.IsEnabled = _state.CanLap;
@@ -299,7 +300,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
 
             if (i < shown && _state.LapAt(laps.Length - 1 - i) is { } lap)
             {
-                LapRow.Show(row, Str.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length - i))), Time(lap.Length, true), Time(lap.Total, true));
+                LapRow.Show(row, StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length - i))), Time(lap.Length, true), Time(lap.Total, true));
             }
         }
 

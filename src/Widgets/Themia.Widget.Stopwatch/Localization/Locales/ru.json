@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Секундомер",
+  "stopwatch.desc": "Замеряет время с кругами и продолжает идти после перезапуска",
+  "stopwatch.start": "Пуск",
+  "stopwatch.pause": "Пауза",
+  "stopwatch.resume": "Продолжить",
+  "stopwatch.lap": "Круг",
+  "stopwatch.reset": "Сброс",
+  "stopwatch.lapNumber": "Круг {n}",
+  "stopwatch.noLaps": "Кругов пока нет",
+  "stopwatch.paused": "Пауза"
+}

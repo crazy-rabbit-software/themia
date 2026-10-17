@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "స్టాప్‌వాచ్",
+  "stopwatch.desc": "ల్యాప్‌లతో సమయాన్ని లెక్కిస్తుంది, పునఃప్రారంభాల తర్వాత కూడా నడుస్తూనే ఉంటుంది",
+  "stopwatch.start": "ప్రారంభించు",
+  "stopwatch.pause": "పాజ్ చేయి",
+  "stopwatch.resume": "కొనసాగించు",
+  "stopwatch.lap": "ల్యాప్",
+  "stopwatch.reset": "రీసెట్ చేయి",
+  "stopwatch.lapNumber": "ల్యాప్ {n}",
+  "stopwatch.noLaps": "ఇంకా ల్యాప్‌లు లేవు",
+  "stopwatch.paused": "పాజ్ చేయబడింది"
+}

@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "นาฬิกาจับเวลา",
+  "stopwatch.desc": "จับเวลาพร้อมรอบ และทำงานต่อแม้รีสตาร์ท",
+  "stopwatch.start": "เริ่ม",
+  "stopwatch.pause": "หยุดชั่วคราว",
+  "stopwatch.resume": "ทำต่อ",
+  "stopwatch.lap": "รอบ",
+  "stopwatch.reset": "รีเซ็ต",
+  "stopwatch.lapNumber": "รอบ {n}",
+  "stopwatch.noLaps": "ยังไม่มีรอบ",
+  "stopwatch.paused": "หยุดชั่วคราว"
+}

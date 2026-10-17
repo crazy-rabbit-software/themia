@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "સ્ટૉપવૉચ",
+  "stopwatch.desc": "લૅપ સાથે સમય માપે છે, અને પુનઃપ્રારંભ પછી પણ ચાલુ રહે છે",
+  "stopwatch.start": "શરૂ કરો",
+  "stopwatch.pause": "થોભાવો",
+  "stopwatch.resume": "ફરી શરૂ કરો",
+  "stopwatch.lap": "લૅપ",
+  "stopwatch.reset": "રીસેટ કરો",
+  "stopwatch.lapNumber": "લૅપ {n}",
+  "stopwatch.noLaps": "હજી કોઈ લૅપ નથી",
+  "stopwatch.paused": "થોભાવેલું"
+}

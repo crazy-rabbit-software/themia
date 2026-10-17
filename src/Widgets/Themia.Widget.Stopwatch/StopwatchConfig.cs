@@ -1,9 +1,5 @@
 using System.Text.Json.Serialization;
-using Themia.App.Shell;
-using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
-using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -13,24 +9,6 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class StopwatchConfig : WidgetConfig
 {
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("stopwatch"),
-        ConfigType = typeof(StopwatchConfig),
-        CreateDefault = () => new StopwatchConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["timer", "lap", "laps", "split", "chronometer", "elapsed", "count up"],
-        Label = Str.Stopwatch_Label.Local(),
-        Description = Str.Stopwatch_Desc.Local(),
-        Glyph = Glyphs.Stopwatch,
-        DefaultWidth = 260,
-        DefaultHeight = 200,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Time, 0, 3),
-    };
-
     public StopwatchPhase Phase { get; set; }
 
     /// <summary>What it counted before its current run, in milliseconds.</summary>

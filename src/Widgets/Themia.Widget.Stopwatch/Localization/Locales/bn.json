@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "স্টপওয়াচ",
+  "stopwatch.desc": "ল্যাপসহ সময় মাপে, রিস্টার্টের পরেও চলতে থাকে",
+  "stopwatch.start": "শুরু করুন",
+  "stopwatch.pause": "বিরতি দিন",
+  "stopwatch.resume": "আবার শুরু করুন",
+  "stopwatch.lap": "ল্যাপ",
+  "stopwatch.reset": "রিসেট করুন",
+  "stopwatch.lapNumber": "ল্যাপ {n}",
+  "stopwatch.noLaps": "এখনও কোনো ল্যাপ নেই",
+  "stopwatch.paused": "বিরতিতে"
+}

@@ -31,27 +31,6 @@ public static class ControlKeys
         _ => ControlKey.None,
     };
 
-    /// <summary>
-    /// [S-4604] Stopwatch: Space or Enter starts and pauses (the accent button), Right ends a lap and
-    /// Home resets, as on the pomodoro. The letters L and R do the same through type-ahead
-    /// (<see cref="StopwatchLetter(char)"/>), the keys Windows' Clock app uses.
-    /// </summary>
-    public static ControlKey Stopwatch(WidgetKey key) => key switch
-    {
-        WidgetKey.Space or WidgetKey.Enter => ControlKey.Toggle,
-        WidgetKey.Right => ControlKey.Lap,
-        WidgetKey.Home => ControlKey.Reset,
-        _ => ControlKey.None,
-    };
-
-    /// <summary>[S-4604] Stopwatch letters: L a lap, R reset, either case.</summary>
-    public static ControlKey StopwatchLetter(char character) => char.ToUpperInvariant(character) switch
-    {
-        'L' => ControlKey.Lap,
-        'R' => ControlKey.Reset,
-        _ => ControlKey.None,
-    };
-
     /// <summary>[S-1991] Video stream: Space pauses and resumes, as the overlay's button does.</summary>
     public static ControlKey Stream(WidgetKey key) => key == WidgetKey.Space ? ControlKey.Toggle : ControlKey.None;
 

@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "스톱워치",
+  "stopwatch.desc": "랩을 기록하며 다시 시작한 뒤에도 계속 측정합니다",
+  "stopwatch.start": "시작",
+  "stopwatch.pause": "일시 중지",
+  "stopwatch.resume": "다시 시작",
+  "stopwatch.lap": "랩",
+  "stopwatch.reset": "다시 설정",
+  "stopwatch.lapNumber": "랩 {n}",
+  "stopwatch.noLaps": "아직 랩 없음",
+  "stopwatch.paused": "일시 중지됨"
+}

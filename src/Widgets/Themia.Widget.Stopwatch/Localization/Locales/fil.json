@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Stopwatch",
+  "stopwatch.desc": "Nagtatala ng oras na may mga lap, at patuloy na tumatakbo kahit mag-restart",
+  "stopwatch.start": "Simulan",
+  "stopwatch.pause": "I-pause",
+  "stopwatch.resume": "Ituloy",
+  "stopwatch.lap": "Lap",
+  "stopwatch.reset": "I-reset",
+  "stopwatch.lapNumber": "Lap {n}",
+  "stopwatch.noLaps": "Wala pang lap",
+  "stopwatch.paused": "Naka-pause"
+}

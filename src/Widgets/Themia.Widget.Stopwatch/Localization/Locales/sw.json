@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Saa ya kusimamisha",
+  "stopwatch.desc": "Hupima muda kwa mizunguko, na huendelea hata baada ya kuwasha upya",
+  "stopwatch.start": "Anza",
+  "stopwatch.pause": "Sitisha",
+  "stopwatch.resume": "Endelea",
+  "stopwatch.lap": "Mzunguko",
+  "stopwatch.reset": "Weka upya",
+  "stopwatch.lapNumber": "Mzunguko {n}",
+  "stopwatch.noLaps": "Bado hakuna mizunguko",
+  "stopwatch.paused": "Imesitishwa"
+}

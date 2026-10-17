@@ -1,0 +1,13 @@
+{
+  "$englishOnly": [],
+  "stopwatch.label": "Stopwatch",
+  "stopwatch.desc": "Times with laps, and keeps running across restarts",
+  "stopwatch.start": "Start",
+  "stopwatch.pause": "Pause",
+  "stopwatch.resume": "Resume",
+  "stopwatch.lap": "Lap",
+  "stopwatch.reset": "Reset",
+  "stopwatch.lapNumber": "Lap {n}",
+  "stopwatch.noLaps": "No laps yet",
+  "stopwatch.paused": "Paused"
+}

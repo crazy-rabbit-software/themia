@@ -245,7 +245,7 @@ internal static class EditBarRender
             ],
 
             // [S-6571] A stopwatch has no items: the row is greyed.
-            [new(StopwatchConfig.Descriptor.Id, 500, 200, 280, 180, HeaderPlacement.Top, true)],
+            [new(new WidgetId("stopwatch"), 500, 200, 280, 180, HeaderPlacement.Top, true)],
 
             // [S-6584] A clock aligned right: Right lit. Two of different alignments: none lit. The
             // moon's month style: the row greyed, "Not available in this style".

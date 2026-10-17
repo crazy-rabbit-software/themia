@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "کرنومتر",
+  "stopwatch.desc": "زمان‌گیری با دورها، و پس از راه‌اندازی مجدد هم ادامه می‌دهد",
+  "stopwatch.start": "شروع",
+  "stopwatch.pause": "توقف",
+  "stopwatch.resume": "ادامه",
+  "stopwatch.lap": "دور",
+  "stopwatch.reset": "بازنشانی",
+  "stopwatch.lapNumber": "دور {n}",
+  "stopwatch.noLaps": "هنوز دوری ثبت نشده",
+  "stopwatch.paused": "متوقف"
+}

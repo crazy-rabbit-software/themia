@@ -1,8 +1,9 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Core.Tests;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Stopwatch.Tests;
 
 /// <summary>[S-4600]..[S-4604] The stopwatch: its state machine on a monotonic clock, the record that outlives a restart, its text and keys.</summary>
 public sealed class StopwatchTests
@@ -180,12 +181,12 @@ public sealed class StopwatchTests
     [InlineData(WidgetKey.Home, ControlKey.Reset)]
     [InlineData(WidgetKey.Escape, ControlKey.None)]
     [InlineData(WidgetKey.Tab, ControlKey.None)]
-    public void S4604_keys(WidgetKey key, ControlKey expected) => Assert.Equal(expected, ControlKeys.Stopwatch(key));
+    public void S4604_keys(WidgetKey key, ControlKey expected) => Assert.Equal(expected, StopwatchKeys.Of(key));
 
     [Theory]
     [InlineData('l', ControlKey.Lap)]
     [InlineData('L', ControlKey.Lap)]
     [InlineData('r', ControlKey.Reset)]
     [InlineData('x', ControlKey.None)]
-    public void S4604_letters(char letter, ControlKey expected) => Assert.Equal(expected, ControlKeys.StopwatchLetter(letter));
+    public void S4604_letters(char letter, ControlKey expected) => Assert.Equal(expected, StopwatchKeys.Letter(letter));
 }

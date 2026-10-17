@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "ساعة الإيقاف",
+  "stopwatch.desc": "تقيس الوقت مع اللفات وتستمر بعد إعادة التشغيل",
+  "stopwatch.start": "بدء",
+  "stopwatch.pause": "إيقاف مؤقت",
+  "stopwatch.resume": "استئناف",
+  "stopwatch.lap": "لفة",
+  "stopwatch.reset": "إعادة تعيين",
+  "stopwatch.lapNumber": "اللفة {n}",
+  "stopwatch.noLaps": "لا توجد لفات بعد",
+  "stopwatch.paused": "متوقفة مؤقتًا"
+}

@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Kronometre",
+  "stopwatch.desc": "Turlarla süre tutar, yeniden başlatmalarda çalışmaya devam eder",
+  "stopwatch.start": "Başlat",
+  "stopwatch.pause": "Duraklat",
+  "stopwatch.resume": "Sürdür",
+  "stopwatch.lap": "Tur",
+  "stopwatch.reset": "Sıfırla",
+  "stopwatch.lapNumber": "Tur {n}",
+  "stopwatch.noLaps": "Henüz tur yok",
+  "stopwatch.paused": "Duraklatıldı"
+}

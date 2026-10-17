@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Stopwatch",
+  "stopwatch.desc": "Mengukur waktu dengan putaran, tetap berjalan setelah dimulai ulang",
+  "stopwatch.start": "Mulai",
+  "stopwatch.pause": "Jeda",
+  "stopwatch.resume": "Lanjutkan",
+  "stopwatch.lap": "Putaran",
+  "stopwatch.reset": "Atur ulang",
+  "stopwatch.lapNumber": "Putaran {n}",
+  "stopwatch.noLaps": "Belum ada putaran",
+  "stopwatch.paused": "Dijeda"
+}

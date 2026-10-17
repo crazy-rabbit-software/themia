@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Cronômetro",
+  "stopwatch.desc": "Cronometra com voltas e continua após reiniciar",
+  "stopwatch.start": "Iniciar",
+  "stopwatch.pause": "Pausar",
+  "stopwatch.resume": "Retomar",
+  "stopwatch.lap": "Volta",
+  "stopwatch.reset": "Redefinir",
+  "stopwatch.lapNumber": "Volta {n}",
+  "stopwatch.noLaps": "Nenhuma volta ainda",
+  "stopwatch.paused": "Pausado"
+}

@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Cronometro",
+  "stopwatch.desc": "Cronometra con giri e continua anche dopo un riavvio",
+  "stopwatch.start": "Avvia",
+  "stopwatch.pause": "Pausa",
+  "stopwatch.resume": "Riprendi",
+  "stopwatch.lap": "Giro",
+  "stopwatch.reset": "Reimposta",
+  "stopwatch.lapNumber": "Giro {n}",
+  "stopwatch.noLaps": "Nessun giro",
+  "stopwatch.paused": "In pausa"
+}

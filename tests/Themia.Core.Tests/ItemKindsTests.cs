@@ -91,7 +91,7 @@ public sealed partial class ItemKindsTests
         Assert.True(ItemKinds.Has(TasksConfig.Descriptor.Id));
         Assert.True(ItemKinds.Has(CpuConfig.Descriptor.Id));
         Assert.True(ItemKinds.Has(WifiToggleConfig.Descriptor.Id));
-        Assert.False(ItemKinds.Has(StopwatchConfig.Descriptor.Id));
+        Assert.False(ItemKinds.Has(AlarmConfig.Descriptor.Id));
         Assert.False(ItemKinds.Has(GalleryConfig.Descriptor.Id));
     }
 
@@ -113,7 +113,7 @@ public sealed partial class ItemKindsTests
     [Fact]
     public void S6571_a_widget_without_items_offers_no_item_background()
     {
-        var (state, view, selection) = Selected(StopwatchConfig.Descriptor.Id);
+        var (state, view, selection) = Selected(AlarmConfig.Descriptor.Id);
 
         Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
         Assert.Equal(0, QuickSet.SetItemBackground(view, ["w0"], FillChoice.Transparent()));
@@ -127,7 +127,7 @@ public sealed partial class ItemKindsTests
     [Fact]
     public void S6572_a_mixed_selection_offers_it_when_any_has_items_and_sets_only_those()
     {
-        var (state, view, selection) = Selected(StopwatchConfig.Descriptor.Id, TasksConfig.Descriptor.Id);
+        var (state, view, selection) = Selected(AlarmConfig.Descriptor.Id, TasksConfig.Descriptor.Id);
         view.Widgets[0].ItemBackground = FillChoice.Of("#123456", 1);
 
         var offer = QuickSet.For(state, selection, view.Id);
