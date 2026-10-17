@@ -69,7 +69,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         CreateDefault = () => new TasksConfig(),
         Json = WidgetConfigJsonContext.Default,
         Keywords = ["todo", "to-do", "checklist", "reminders", "microsoft to do", "google tasks"],
-        ProviderNames = ["Microsoft", "Google"],
+        Providers = [HostProviders.Microsoft, HostProviders.Google],
         Label = Str.WidgetsA_Catalog_Tasks_Label.Local(),
         Description = Str.WidgetsA_Catalog_Tasks_Description.Local(),
         Glyph = Glyphs.Task,

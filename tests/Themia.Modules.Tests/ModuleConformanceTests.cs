@@ -156,6 +156,17 @@ public sealed partial class ModuleConformanceTests
     }
 
     [Fact]
+    public void S6910_every_provider_a_widget_of_the_build_names_is_registered()
+    {
+        var unknown = ModuleCatalog.Widgets
+            .SelectMany(w => w.Providers.Where(p => !ProviderCatalog.All.Any(m => m.Id == p)).Select(p => $"{w.Id}: {p}"))
+            .ToList();
+
+        Assert.Empty(unknown);
+        Assert.Contains(ModuleCatalog.Widgets, w => w.Providers.Count > 0);
+    }
+
+    [Fact]
     public void S6907_no_two_widgets_of_the_build_share_a_place_in_the_add_menu()
     {
         var places = ModuleCatalog.Widgets.GroupBy(w => (w.Add.Shelf, w.Add.Group, w.Add.Rank)).Where(g => g.Count() > 1)

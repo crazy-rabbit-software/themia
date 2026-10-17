@@ -974,7 +974,8 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   (`AccountAuth`), its place in Settings › Accounts › Add account, and its own Updates row or none
   (its accounts follow the host's Accounts row, [S-3780]). The host installs them into
   `ProviderCatalog` with the widgets, checking each id against its attribute; every question about a
-  provider is answered there. The five account providers of today are declared in Core
+  provider is answered there. A widget's descriptor names the providers whose accounts it reads by id
+  (`Providers`), each a registered provider; their ids are what search matches ([S-943]). The five account providers of today are declared in Core
   (`HostProviders`) until their sign-in runs on descriptors (docs/WIDGET-KIT.md section 11.2, step 11).
   `accounts.json` keeps its shape: `AccountsFixtureTests` loads a file of every provider, generated
   with the build from before provider ids, without a repair and writes it back byte for byte.
@@ -5299,7 +5300,7 @@ proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX
 
 ## Widget picker: search (WP5)
 
-Search is `Core/Widgets/WidgetSearch.cs` over each descriptor's `Keywords` and `ProviderNames` ([S-6902]; ported from `widgetSearch.ts`,
+Search is `Core/Widgets/WidgetSearch.cs` over each descriptor's `Keywords` and `Providers` (their ids) ([S-6902]; ported from `widgetSearch.ts`,
 `searchKeywords.ts`, WidgetPicker.SPEC S-01..S-11; tests `WidgetSearchTests`, the original's cases);
 the menu it searches is the edit bar's add menu ([S-3501]), `Shell/WidgetPicker.cs`.
 

@@ -75,8 +75,12 @@ public sealed record WidgetDescriptor
     /// </summary>
     public IReadOnlyList<string> Keywords { get; init; } = [];
 
-    /// <summary>[S-943] The services it reads from, searched as their own field so "google" finds every widget that can show a Google account.</summary>
-    public IReadOnlyList<string> ProviderNames { get; init; } = [];
+    /// <summary>
+    /// [S-943] [S-6910] The providers whose accounts it reads, by id: each is a registered provider,
+    /// and their ids are searched as their own field, so "google" finds every widget that can show a
+    /// Google account.
+    /// </summary>
+    public IReadOnlyList<ProviderId> Providers { get; init; } = [];
 
     /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
     public string Name => Label.Text();

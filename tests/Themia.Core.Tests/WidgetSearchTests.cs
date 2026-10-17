@@ -254,7 +254,7 @@ public sealed class WidgetSearchTests
     public void S943_ProvidersFindAccountWidgets()
     {
         var docs = ModuleCatalog.Widgets.Select(w => w.Id).ToArray()
-            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: ModuleCatalog.Of(k).ProviderNames)), k))
+            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: [.. ModuleCatalog.Of(k).Providers.Select(p => p.Value)])), k))
             .ToArray();
 
         var google = WidgetSearch.Rank(docs, "google");
@@ -283,7 +283,7 @@ public sealed class WidgetSearchTests
         // [S-3640] [S-3216] [S-4123] What were widgets of their own are styles now: their names and
         // words find the one widget. The label here is the kind's name, as in the catalogue.
         var docs = ModuleCatalog.Widgets.Select(w => w.Id).ToArray()
-            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: ModuleCatalog.Of(k).ProviderNames)), k))
+            .Select(k => (WidgetSearch.Index(new WidgetSearchDoc(k.ToString(), [k.ToString()], ModuleCatalog.Of(k).Keywords, Providers: [.. ModuleCatalog.Of(k).Providers.Select(p => p.Value)])), k))
             .ToArray();
 
         Assert.Contains(kind, WidgetSearch.Rank(docs, query));

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
@@ -28,7 +29,7 @@ public sealed class NextMeetingConfig : CalendarConfig
         CreateDefault = () => new NextMeetingConfig(),
         Json = WidgetConfigJsonContext.Default,
         Keywords = ["meeting", "join", "teams", "zoom", "google meet", "webex", "event", "calendar", "upcoming"],
-        ProviderNames = ["Microsoft", "Google", "CalDAV"],
+        Providers = [HostProviders.Microsoft, HostProviders.Google, HostProviders.CalDav],
         Label = Str.Meeting_Label.Local(),
         Description = Str.Meeting_Desc.Local(),
         Glyph = Glyphs.Meeting,

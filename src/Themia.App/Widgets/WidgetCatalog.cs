@@ -32,7 +32,7 @@ internal static class WidgetCatalog
             definition.Keywords,
             Both(locale, definition),
             [.. path.SelectMany(shelf => Both(locale, shelf.Title))],
-            definition.ProviderNames);
+            [.. definition.Providers.Select(p => p.Value)]);
     }
 
     /// <summary>The text in <paramref name="locale"/>, then in English when that differs; the first is the shown one.</summary>
