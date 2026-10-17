@@ -44,17 +44,10 @@ public static class PlaceSearch
     /// <summary>As wide as the Clock's zone search and the verdict line under a field.</summary>
     private const double FieldWidth = 300;
 
-#if DEBUG
-    /// <summary>
-    /// Debug renders only: answers in place of the geocoder, so every state of the list can be drawn
-    /// without a network. Null in every real run.
-    /// </summary>
-    internal static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>>? DebugLookup { get; set; }
-
     /// <summary>The host's geocoder ([S-2840]): the request is the host's, the row is the SDK's.</summary>
     private static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>>? _lookup;
 
-    private static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>> Lookup
+    private static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>> Geocoder
         => Volatile.Read(ref _lookup) ?? throw new InvalidOperationException("no place lookup installed: the host installs it before any place row is shown");
 
     /// <summary>The host's geocoder. Once per process.</summary>
@@ -66,6 +59,13 @@ public static class PlaceSearch
             throw new InvalidOperationException("the place lookup is installed once per process");
         }
     }
+
+#if DEBUG
+    /// <summary>
+    /// Debug renders only: answers in place of the geocoder, so every state of the list can be drawn
+    /// without a network. Null in every real run.
+    /// </summary>
+    internal static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>>? DebugLookup { get; set; }
 
     /// <summary>Debug renders only: type into the last search box built and search at once, as Enter does.</summary>
     internal static Action<string>? DebugType { get; private set; }
@@ -183,9 +183,9 @@ public static class PlaceSearch
             try
             {
 #if DEBUG
-                var find = DebugLookup ?? Lookup;
+                var find = DebugLookup ?? Geocoder;
 #else
-                var find = Lookup;
+                var find = Geocoder;
 #endif
                 var (outcome, places, detail) = await find(query, cts.Token).ConfigureAwait(true);
 
