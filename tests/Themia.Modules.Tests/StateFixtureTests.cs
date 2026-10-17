@@ -5,7 +5,7 @@ using Themia.Core.Storage;
 using Themia.Sdk;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Modules.Tests;
 
 /// <summary>
 /// [S-44] A state file of the shape users have: one widget of every kind with its default config,
@@ -41,8 +41,12 @@ public sealed class StateFixtureTests
         Assert.NotNull(parsed.State);
         Assert.Empty(parsed.Repairs);
         var widgets = Assert.Single(parsed.State.Views).Widgets;
-        Assert.Equal(ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Length, widgets.Count);
-        Assert.Equal(ModuleCatalog.Widgets.Select(w => w.Id).ToArray().Order(), widgets.Select(w => w.Kind).Order());
+
+        // One widget of each kind the fixture was made with, every one still installed; a widget
+        // added since is not in it ([S-6911]: adding a module touches nothing outside its folder).
+        Assert.Equal(79, widgets.Count);
+        Assert.Equal(widgets.Count, widgets.Select(w => w.Kind).Distinct().Count());
+        Assert.All(widgets, w => Assert.True(ModuleCatalog.TryGet(w.Kind, out _), $"{w.Kind} is not installed"));
     }
 
     [Fact]

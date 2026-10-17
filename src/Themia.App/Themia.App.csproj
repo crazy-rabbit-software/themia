@@ -64,9 +64,20 @@
   </ItemGroup>
 
   <!--
+    [S-6911] Every module is a project one folder under src/Widgets or src/Providers: adding the
+    folder is the whole registration. The generator below turns their [assembly: ThemiaWidget/
+    ThemiaProvider] declarations into the registry; nothing here lists a module.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\Widgets\*\*.csproj" />
+    <ProjectReference Include="..\Providers\*\*.csproj" />
+  </ItemGroup>
+
+  <!--
     [S-6901] The module registry: every [assembly: ThemiaWidget/ThemiaProvider] declaration (the
-    widgets still compiled inside the app, Widgets/Modules/*.cs) becomes the generated, static
-    ModuleRegistry in Themia.App.Modules. Build-time only; nothing of the generator ships.
+    module projects', Core's providers, and the widgets still compiled inside the app,
+    Widgets/Modules/*.cs) becomes the generated, static ModuleRegistry in Themia.App.Modules.
+    Build-time only; nothing of the generator ships.
   -->
   <ItemGroup>
     <ProjectReference Include="..\Themia.Modules.Generator\Themia.Modules.Generator.csproj"

@@ -1,0 +1,37 @@
+<Project>
+  <!--
+    [S-6911] Every widget module project (src/Widgets/Themia.Widget.<Name>/): what its csproj does not
+    have to say. A module's csproj is <Project Sdk="Microsoft.NET.Sdk" /> plus the provider projects
+    whose data it shows. docs/WIDGET-KIT.md section 4.4.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..'))" />
+
+  <PropertyGroup>
+    <ThemiaModuleKind>widget</ThemiaModuleKind>
+    <ThemiaModuleName>$(MSBuildProjectName.Replace('Themia.Widget.', ''))</ThemiaModuleName>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <UseWinUI>true</UseWinUI>
+    <IsAotCompatible>true</IsAotCompatible>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+    <!-- [S-6909] Its own strings: <Name>Str, from its own Localization/Locales. -->
+    <ThemiaStringsEnum>$(ThemiaModuleName)Str</ThemiaStringsEnum>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\Themia.Sdk.WinUI\Themia.Sdk.WinUI.csproj" />
+    <!-- Its own tests compile into tests/Themia.Modules.Tests, which may test its internals. -->
+    <InternalsVisibleTo Include="Themia.Modules.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="ThemiaStringsEnum" />
+    <CompilerVisibleProperty Include="RootNamespace" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\Themia.Localization.Generator\Themia.Localization.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained" />
+  </ItemGroup>
+</Project>

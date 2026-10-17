@@ -1,0 +1,33 @@
+<Project>
+  <!--
+    [S-6911] Every provider module project (src/Providers/Themia.Provider.<Name>/): what its csproj
+    does not have to say. A provider has no UI (docs/WIDGET-KIT.md section 5.7), so it builds and
+    tests as plain net10.0 over Themia.Sdk alone. Its csproj is <Project Sdk="Microsoft.NET.Sdk" />.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..'))" />
+
+  <PropertyGroup>
+    <ThemiaModuleKind>provider</ThemiaModuleKind>
+    <ThemiaModuleName>$(MSBuildProjectName.Replace('Themia.Provider.', ''))</ThemiaModuleName>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+    <!-- [S-6909] Its own strings: <Name>Str, from its own Localization/Locales. -->
+    <ThemiaStringsEnum>$(ThemiaModuleName)Str</ThemiaStringsEnum>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\Themia.Sdk\Themia.Sdk.csproj" />
+    <InternalsVisibleTo Include="Themia.Modules.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="ThemiaStringsEnum" />
+    <CompilerVisibleProperty Include="RootNamespace" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\Themia.Localization.Generator\Themia.Localization.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained" />
+  </ItemGroup>
+</Project>

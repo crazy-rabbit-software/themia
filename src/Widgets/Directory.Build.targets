@@ -1,0 +1,19 @@
+<Project>
+  <!--
+    [S-6911] Items of every widget module project, after the SDK's default globs: its Tests/ compile
+    into tests/Themia.Modules.Tests (not here), its Preview/ (debug render states) and Fixtures/ are
+    Debug only, its locale files feed the strings generator, its SPEC.md is a plain file.
+  -->
+  <PropertyGroup>
+    <_ThemiaParentTargets>$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)..'))</_ThemiaParentTargets>
+  </PropertyGroup>
+  <Import Project="$(_ThemiaParentTargets)" Condition="'$(_ThemiaParentTargets)' != ''" />
+
+  <ItemGroup>
+    <Compile Remove="Tests\**" />
+    <None Remove="Tests\**" />
+    <Compile Remove="Preview\**" Condition="'$(Configuration)' != 'Debug'" />
+    <AdditionalFiles Include="Localization\Locales\**\*.json" />
+    <Content Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+</Project>

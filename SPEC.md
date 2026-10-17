@@ -902,8 +902,11 @@ tests `SkyWidgetsTests` (`S310x_`).
 
 Every widget is a module: an id, a descriptor and a view factory, found at build time (design:
 `docs/WIDGET-KIT.md` section 4). Owning files: `Themia.Sdk/Modules/*`, `Themia.Sdk.WinUI/Modules/*`,
-`Themia.Modules.Generator/*`, `Themia.App/Widgets/Modules/*`. Tests: `ModuleIdsTests`,
-`ModuleRegistryGeneratorTests`, `WidgetRegistryTests`, `LocaleModuleTests`.
+`Themia.Modules.Generator/*`, `Themia.App/Widgets/Modules/*`, `src/Widgets/Directory.Build.*`,
+`src/Providers/Directory.Build.*`, `scripts/new-module.ps1`. Tests: `ModuleIdsTests`,
+`ModuleRegistryGeneratorTests`, `WidgetRegistryTests`, `LocaleModuleTests`, and in
+`tests/Themia.Modules.Tests` `ModuleConformanceTests`, `StateFixtureTests`, `UnknownWidgetTests`.
+Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([S-6912]).
 
 - **[S-6900]** A module id (widget, provider, feature, cadence) is camelCase: a lowercase ASCII
   letter, then ASCII letters and digits, at most 64 characters (`weatherNow`, `airplaneModeToggle`).
@@ -914,16 +917,19 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   `[assembly: ThemiaWidget(id, typeof(M))]` and `[assembly: ThemiaProvider(id, typeof(M))]`, in the
   app itself or in an assembly it references, becomes one `new M()` in `ModuleRegistry`, in id
   order. No reflection and no run-time loading, so Native AOT keeps every module. A malformed id
-  fails the build (THEMIAMOD001), so does an id declared twice (THEMIAMOD002) and a type that is not
-  a public, non-abstract module class with a public parameterless constructor (THEMIAMOD003).
+  fails the build (THEMIAMOD001), so does an id declared twice (THEMIAMOD002), a type that is not
+  a public, non-abstract module class with a public parameterless constructor (THEMIAMOD003), and a
+  module project (`Themia.Widget.<Name>`, `Themia.Provider.<Name>`) declaring anything but the one
+  module its name says, `<name>` in camelCase (THEMIAMOD004).
 - **[S-6902]** Each widget has one `WidgetDescriptor`, the pure half of its module: what the host
   knows of it without its UI. The host installs the registry into `ModuleCatalog` before it reads
   any widget (the app first thing in its constructor), once; a registry with a missing
   descriptor, an empty id, or an id or kind given twice is refused at that install, and so is a
   module whose descriptor's id is not the id its attribute declares. Every per-widget question the
-  host asks is answered from the catalogue, not from a table of its own. Until a widget moves to
-  its own project (M3, M4), its descriptor is declared on its config in Core and its module class
-  in `Themia.App/Widgets/Modules`; the tests install the same descriptors and check that the app
+  host asks is answered from the catalogue, not from a table of its own. A widget in its own
+  project ([S-6911]) declares its descriptor on its module class. Until a widget moves there (M4),
+  its descriptor is declared on its config in Core and its module class in
+  `Themia.App/Widgets/Modules`; Core's tests install those descriptors and check that the app
   declares exactly one module for each.
 - **[S-6903]** A state document is read and written with one set of options (`StateJson`): the
   host's own metadata, then each installed widget's source-generated resolver, and a contract
@@ -972,6 +978,28 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   (`HostProviders`) until their sign-in runs on descriptors (docs/WIDGET-KIT.md section 11.2, step 11).
   `accounts.json` keeps its shape: `AccountsFixtureTests` loads a file of every provider, generated
   with the build from before provider ids, without a repair and writes it back byte for byte.
+
+- **[S-6911]** A module is a project one folder under `src/Widgets` (`Themia.Widget.<Name>`, a WinUI
+  library) or `src/Providers` (`Themia.Provider.<Name>`, plain `net10.0`), and adding the folder is
+  the whole registration: the app and the module test host reference `..\Widgets\*\*.csproj` and
+  `..\Providers\*\*.csproj`, the registry generator finds its declaration. The folder's
+  `Directory.Build.props`/`.targets` give every module its framework, the SDK reference
+  (`Themia.Sdk.WinUI` for a widget, `Themia.Sdk` for a provider), its strings generator
+  (`<Name>Str`, [S-6909]), and keep its `Tests/` out of its build (they compile into
+  `tests/Themia.Modules.Tests`), its `Preview/` and `Fixtures/` in Debug only; its csproj is
+  `<Project Sdk="Microsoft.NET.Sdk" />` plus the providers it reads. A module builds on the SDK and
+  providers only, never on Core, the app or another widget; code two widgets share goes into the
+  SDK. The module test host checks every module the registry holds (`ModuleConformanceTests`): its
+  folder is its id, its name and description are its own table's and said in English, its strings
+  are whole in every language or `$englishOnly` with matching placeholders, its default config
+  round-trips through the state under its id with the host's options, it references nothing it may
+  not, and its `Traits.HasItems` matches whether its view paints items ([S-6570]). The host
+  installs into it every widget of the build (Core's descriptors and the modules'), so the state
+  fixture of every kind ([S-44]) and the unknown-id rules ([S-6908]) are tested there.
+- **[S-6912]** Every module carries its own `SPEC.md`: its section, the tags only it defines and
+  what needs a manual pass. The root `SPEC.md` keeps the host's sections and points at a moved one.
+  A tag is defined once across all the SPEC files, and a module's tests name only its own tags.
+  `scripts/new-module.ps1` scaffolds a module folder with all of the above.
 
 ## Adding a widget
 

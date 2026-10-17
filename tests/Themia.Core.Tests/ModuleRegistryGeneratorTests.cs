@@ -76,7 +76,7 @@ public sealed class ModuleRegistryGeneratorTests
     [Fact]
     public void S6901_lists_the_compilations_own_and_referenced_modules_in_id_order()
     {
-        var module = Library("Themia.Widget.Weather", """
+        var module = Library("Themia.Widget.WeatherNow", """
             [assembly: Themia.Sdk.ThemiaWidget("weatherNow", typeof(Weather.WeatherModule))]
             namespace Weather { public sealed class WeatherModule : Themia.Sdk.WinUI.IWidgetModule; }
             """);
@@ -156,5 +156,27 @@ public sealed class ModuleRegistryGeneratorTests
         {
             Assert.Equal(Themia.Sdk.ModuleIds.IsValid(id), ModuleRegistryGenerator.IsValidId(id));
         }
+    }
+
+    [Theory]
+    [InlineData("Themia.Widget.YearProgress", "ThemiaWidget", "yearProgress", true)]
+    [InlineData("Themia.Widget.YearProgress", "ThemiaWidget", "yearprogress", false)]
+    [InlineData("Themia.Widget.YearProgress", "ThemiaWidget", "clock", false)]
+    [InlineData("Themia.Widget.YearProgress", "ThemiaProvider", "yearProgress", false)]
+    [InlineData("Themia.Provider.Todoist", "ThemiaProvider", "todoist", true)]
+    [InlineData("Themia.Provider.Todoist", "ThemiaWidget", "todoist", false)]
+    [InlineData("Themia.Core", "ThemiaProvider", "microsoft", true)]
+    public void S6901_a_module_project_declares_the_id_its_name_says_or_it_is_THEMIAMOD004(string assembly, string attribute, string id, bool fine)
+    {
+        var contract = attribute == "ThemiaWidget" ? "Themia.Sdk.WinUI.IWidgetModule" : "Themia.Sdk.IProviderModule";
+        var module = Library(assembly, $$"""
+            [assembly: Themia.Sdk.{{attribute}}("{{id}}", typeof(M.Module))]
+            namespace M { public sealed class Module : {{contract}}; }
+            """);
+
+        var result = Run("namespace App { }", module);
+
+        Assert.Equal(fine ? [] : ["THEMIAMOD004"], result.Ids);
+        Assert.Equal(fine, result.Registry.Contains("new global::M.Module()", StringComparison.Ordinal));
     }
 }

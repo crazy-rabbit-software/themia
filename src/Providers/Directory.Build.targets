@@ -1,0 +1,14 @@
+<Project>
+  <!-- [S-6911] Items of every provider module project: as a widget's (src/Widgets/Directory.Build.targets). -->
+  <PropertyGroup>
+    <_ThemiaParentTargets>$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)..'))</_ThemiaParentTargets>
+  </PropertyGroup>
+  <Import Project="$(_ThemiaParentTargets)" Condition="'$(_ThemiaParentTargets)' != ''" />
+
+  <ItemGroup>
+    <Compile Remove="Tests\**" />
+    <None Remove="Tests\**" />
+    <AdditionalFiles Include="Localization\Locales\**\*.json" />
+    <Content Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+</Project>

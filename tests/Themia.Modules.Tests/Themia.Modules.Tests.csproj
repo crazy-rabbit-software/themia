@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    [S-6911] One test host for every module (docs/WIDGET-KIT.md section 4.9). It references every
+    module by the same globs as the app, compiles each module's own Tests/ folder, and gets the same
+    generated ModuleRegistry, so the conformance tests iterate exactly what ships. Adding a module
+    adds no test project. It also references Core, the host, so a module's config is checked against
+    the state documents it is stored in, with every widget of the build installed.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <UseWinUI>true</UseWinUI>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <WindowsPackageType>None</WindowsPackageType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Themia.Modules.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Themia.Core\Themia.Core.csproj" />
+    <ProjectReference Include="..\..\src\Themia.Sdk.WinUI\Themia.Sdk.WinUI.csproj" />
+    <ProjectReference Include="..\..\src\Widgets\*\*.csproj" />
+    <ProjectReference Include="..\..\src\Providers\*\*.csproj" />
+    <Compile Include="..\..\src\Widgets\*\Tests\**\*.cs" LinkBase="Modules" />
+    <Compile Include="..\..\src\Providers\*\Tests\**\*.cs" LinkBase="Modules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="RootNamespace" />
+    <ProjectReference Include="..\..\src\Themia.Modules.Generator\Themia.Modules.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained" />
+  </ItemGroup>
+</Project>

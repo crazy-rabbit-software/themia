@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using Themia.Core.Storage;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Modules.Tests;
 
 /// <summary>
 /// [S-6908] A widget whose id no module in this build declares (a file from a build with a module

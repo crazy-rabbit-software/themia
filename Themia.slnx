@@ -9,5 +9,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Themia.Core.Tests/Themia.Core.Tests.csproj" />
+    <Project Path="tests/Themia.Modules.Tests/Themia.Modules.Tests.csproj" />
   </Folder>
 </Solution>

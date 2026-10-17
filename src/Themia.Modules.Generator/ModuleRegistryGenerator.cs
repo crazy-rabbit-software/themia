@@ -12,8 +12,9 @@ namespace Themia.Modules.Generator;
 /// <c>new M()</c> per <c>[assembly: ThemiaWidget(id, typeof(M))]</c> / <c>ThemiaProvider</c>, in id
 /// order, read from every referenced assembly and from the compilation itself (the widgets still
 /// compiled inside the app, docs/WIDGET-KIT.md section 11.1). Ids are checked here, so a malformed
-/// one (THEMIAMOD001), one declared twice (THEMIAMOD002) or a type that is not a module
-/// (THEMIAMOD003) fails the build instead of a start.
+/// one (THEMIAMOD001), one declared twice (THEMIAMOD002), a type that is not a module
+/// (THEMIAMOD003) or a module project declaring another id than its name (THEMIAMOD004) fails the
+/// build instead of a start.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed class ModuleRegistryGenerator : IIncrementalGenerator
@@ -40,6 +41,34 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
         "THEMIAMOD003", "Module type does not implement its contract",
         "{0} (module '{1}') must be a public, non-abstract class implementing {2} with a public parameterless constructor",
         "Modules", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor NotItsName = new(
+        "THEMIAMOD004", "Module id is not its project's name",
+        "{0} declares the {1} '{2}', but a module project declares exactly the one its name says: the {3} '{4}'",
+        "Modules", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    /// <summary>The assembly name prefix of a widget module project and of a provider module project.</summary>
+    public const string WidgetProject = "Themia.Widget.";
+
+    public const string ProviderProject = "Themia.Provider.";
+
+    /// <summary>
+    /// [S-6901] The id a module project's name gives (<c>Themia.Widget.WeatherNow</c>: widget
+    /// <c>weatherNow</c>), or null for an assembly that is not a module project (the app, Core).
+    /// </summary>
+    public static (bool Widget, string Id)? IdOfProject(string assembly)
+    {
+        foreach (var (prefix, widget) in new[] { (WidgetProject, true), (ProviderProject, false) })
+        {
+            if (assembly.StartsWith(prefix, StringComparison.Ordinal) && assembly.Length > prefix.Length)
+            {
+                var suffix = assembly.Substring(prefix.Length);
+                return (widget, char.ToLowerInvariant(suffix[0]) + suffix.Substring(1));
+            }
+        }
+
+        return null;
+    }
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -116,6 +145,13 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
                 if (!IsValidId(id))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(BadId, location, id, assembly.Name));
+                    continue;
+                }
+
+                if (IdOfProject(assembly.Name) is { } named && (named.Widget != isWidget || named.Id != id))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(NotItsName, location,
+                        assembly.Name, isWidget ? "widget" : "provider", id, named.Widget ? "widget" : "provider", named.Id));
                     continue;
                 }
 
