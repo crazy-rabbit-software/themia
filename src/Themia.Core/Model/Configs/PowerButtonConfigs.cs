@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -70,6 +71,13 @@ public sealed class ShutdownConfig : PowerButtonConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Shutdown;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("shutdown"),
+        Kind = WidgetKind.Shutdown,
+    };
+
     public override WidgetConfig Clone() => new ShutdownConfig { Style = Style };
 }
 
@@ -78,6 +86,13 @@ public sealed class RestartConfig : PowerButtonConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Restart;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("restart"),
+        Kind = WidgetKind.Restart,
+    };
 
     public override WidgetConfig Clone() => new RestartConfig { Style = Style };
 }
@@ -88,6 +103,13 @@ public sealed class SleepConfig : PowerButtonConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Sleep;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("sleep"),
+        Kind = WidgetKind.Sleep,
+    };
+
     public override WidgetConfig Clone() => new SleepConfig { Style = Style };
 }
 
@@ -96,6 +118,13 @@ public sealed class HibernateConfig : PowerButtonConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Hibernate;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("hibernate"),
+        Kind = WidgetKind.Hibernate,
+    };
 
     public override WidgetConfig Clone() => new HibernateConfig { Style = Style };
 }
@@ -106,6 +135,13 @@ public sealed class LockConfig : PowerButtonConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Lock;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("lock"),
+        Kind = WidgetKind.Lock,
+    };
+
     public override WidgetConfig Clone() => new LockConfig { Style = Style };
 }
 
@@ -115,6 +151,13 @@ public sealed class SignOutConfig : PowerButtonConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.SignOut;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("signOut"),
+        Kind = WidgetKind.SignOut,
+    };
+
     public override WidgetConfig Clone() => new SignOutConfig { Style = Style };
 }
 
@@ -123,6 +166,13 @@ public sealed class ScreenOffConfig : PowerButtonConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ScreenOff;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("screenOff"),
+        Kind = WidgetKind.ScreenOff,
+    };
 
     public override WidgetConfig Clone() => new ScreenOffConfig { Style = Style };
 }

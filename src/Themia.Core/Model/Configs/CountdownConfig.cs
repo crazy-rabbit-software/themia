@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -38,6 +39,13 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Countdown;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("countdown"),
+        Kind = WidgetKind.Countdown,
+    };
 
     /// <summary>[S-6030] The duration's look.</summary>
     public CountdownStyle Style { get; set; } = CountdownStyle.Text;

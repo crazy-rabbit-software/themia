@@ -15,6 +15,9 @@ public partial class App : Application
 
     public App()
     {
+        // [S-6902] The widget registry, before anything reads a widget.
+        Services.ModuleHost.Install();
+
 #if DEBUG
         // The settings render's --theme: the application theme can only be chosen before the
         // resources load, and the pages' brushes come from it.

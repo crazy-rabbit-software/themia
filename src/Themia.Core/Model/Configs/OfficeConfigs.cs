@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -209,6 +210,13 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Calendar;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("calendar"),
+        Kind = WidgetKind.Calendar,
+    };
+
     /// <summary>[S-3640] The layout; what were five widget kinds.</summary>
     public CalendarStyle Style { get; set; } = CalendarStyle.Month;
 
@@ -324,6 +332,13 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Contacts;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("contacts"),
+        Kind = WidgetKind.Contacts,
+    };
 
     /// <summary>The accounts to show; empty means every contacts account.</summary>
     [JsonConverter(typeof(LenientIdListConverter))]

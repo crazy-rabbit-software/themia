@@ -63,6 +63,19 @@
     <ProjectReference Include="..\Themia.Sdk.WinUI\Themia.Sdk.WinUI.csproj" />
   </ItemGroup>
 
+  <!--
+    [S-6901] The module registry: every [assembly: ThemiaWidget/ThemiaProvider] declaration (the
+    widgets still compiled inside the app, Widgets/Modules/*.cs) becomes the generated, static
+    ModuleRegistry in Themia.App.Modules. Build-time only; nothing of the generator ships.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\Themia.Modules.Generator\Themia.Modules.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained" />
+    <CompilerVisibleProperty Include="RootNamespace" />
+  </ItemGroup>
+
   <ItemGroup>
     <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
     <!-- [S-1603] The licences of bundled third-party files ship beside the app, as they require. -->

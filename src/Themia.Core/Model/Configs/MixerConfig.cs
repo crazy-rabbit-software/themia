@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -13,6 +14,13 @@ public sealed class MixerConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Mixer;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("mixer"),
+        Kind = WidgetKind.Mixer,
+    };
 
     /// <summary>
     /// [S-1221] The output device's endpoint id, or null to follow Windows' default output (and

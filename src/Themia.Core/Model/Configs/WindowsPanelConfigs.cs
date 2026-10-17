@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -12,6 +13,13 @@ public sealed class NotificationsConfig : WidgetConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Notifications;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("notifications"),
+        Kind = WidgetKind.Notifications,
+    };
+
     public override WidgetConfig Clone() => new NotificationsConfig();
 }
 
@@ -20,6 +28,13 @@ public sealed class FocusSessionConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.FocusSession;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("focusSession"),
+        Kind = WidgetKind.FocusSession,
+    };
 
     /// <summary>[S-4421] How long a session started here runs, in minutes (Windows' own default is 30).</summary>
     public int Minutes { get; set; } = FocusSessionRules.DefaultMinutes;
@@ -60,6 +75,13 @@ public sealed class BrightnessConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Brightness;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("brightness"),
+        Kind = WidgetKind.Brightness,
+    };
 
     /// <summary>[S-4442] Every display at once (the default), or the one the widget is on.</summary>
     public BrightnessScreens Screens { get; set; } = BrightnessScreens.All;

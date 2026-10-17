@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -69,6 +70,13 @@ public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenT
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ScreenTimeChart;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("screenTimeChart"),
+        Kind = WidgetKind.ScreenTimeChart,
+    };
+
     /// <summary>Week or Month; a day is the donut's and the list's ([S-3330]).</summary>
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Week;
 
@@ -86,6 +94,13 @@ public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenT
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ScreenTimeDonut;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("screenTimeDonut"),
+        Kind = WidgetKind.ScreenTimeDonut,
+    };
 
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;
 
@@ -106,6 +121,13 @@ public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTi
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ScreenTimeApps;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("screenTimeApps"),
+        Kind = WidgetKind.ScreenTimeApps,
+    };
 
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;
 

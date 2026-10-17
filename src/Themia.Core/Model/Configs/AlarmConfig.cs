@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -22,6 +23,13 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Alarm;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("alarm"),
+        Kind = WidgetKind.Alarm,
+    };
 
     /// <summary>When it rings, "HH:mm" on the 24-hour clock whatever the language shows; a new widget's is seven.</summary>
     public string Time { get; set; } = AlarmTimes.Text(AlarmTimes.Default);

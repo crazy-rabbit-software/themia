@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -45,6 +46,13 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Tasks;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("tasks"),
+        Kind = WidgetKind.Tasks,
+    };
 
     public TaskSource Source { get; set; } = TaskSource.Account;
 

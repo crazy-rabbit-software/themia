@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -79,6 +80,13 @@ public sealed class WifiToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WifiToggle;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("wifiToggle"),
+        Kind = WidgetKind.WifiToggle,
+    };
+
     public override WidgetConfig Clone() => new WifiToggleConfig { Style = Style };
 }
 
@@ -87,6 +95,13 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.BluetoothToggle;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("bluetoothToggle"),
+        Kind = WidgetKind.BluetoothToggle,
+    };
 
     public override WidgetConfig Clone() => new BluetoothToggleConfig { Style = Style };
 }
@@ -97,6 +112,13 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.AirplaneModeToggle;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("airplaneModeToggle"),
+        Kind = WidgetKind.AirplaneModeToggle,
+    };
+
     public override WidgetConfig Clone() => new AirplaneModeToggleConfig { Style = Style };
 }
 
@@ -105,6 +127,13 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.EnergySaverToggle;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("energySaverToggle"),
+        Kind = WidgetKind.EnergySaverToggle,
+    };
 
     public override WidgetConfig Clone() => new EnergySaverToggleConfig { Style = Style };
 }
@@ -115,6 +144,13 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.NightLightToggle;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("nightLightToggle"),
+        Kind = WidgetKind.NightLightToggle,
+    };
+
     public override WidgetConfig Clone() => new NightLightToggleConfig { Style = Style };
 }
 
@@ -123,6 +159,13 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.RotationLockToggle;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("rotationLockToggle"),
+        Kind = WidgetKind.RotationLockToggle,
+    };
 
     public override WidgetConfig Clone() => new RotationLockToggleConfig { Style = Style };
 }
@@ -133,6 +176,13 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.DoNotDisturbToggle;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("doNotDisturbToggle"),
+        Kind = WidgetKind.DoNotDisturbToggle,
+    };
+
     public override WidgetConfig Clone() => new DoNotDisturbToggleConfig { Style = Style };
 }
 
@@ -141,6 +191,13 @@ public sealed class SoundToggleConfig : QuickToggleConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.SoundToggle;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("soundToggle"),
+        Kind = WidgetKind.SoundToggle,
+    };
 
     public override WidgetConfig Clone() => new SoundToggleConfig { Style = Style };
 }
@@ -151,6 +208,13 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.MicrophoneToggle;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("microphoneToggle"),
+        Kind = WidgetKind.MicrophoneToggle,
+    };
+
     public override WidgetConfig Clone() => new MicrophoneToggleConfig { Style = Style };
 }
 
@@ -159,6 +223,13 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.SpatialSoundToggle;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("spatialSoundToggle"),
+        Kind = WidgetKind.SpatialSoundToggle,
+    };
 
     public override WidgetConfig Clone() => new SpatialSoundToggleConfig { Style = Style };
 }
@@ -169,6 +240,13 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.MonoAudioToggle;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("monoAudioToggle"),
+        Kind = WidgetKind.MonoAudioToggle,
+    };
+
     public override WidgetConfig Clone() => new MonoAudioToggleConfig { Style = Style };
 }
 
@@ -178,6 +256,13 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ColorFiltersToggle;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("colorFiltersToggle"),
+        Kind = WidgetKind.ColorFiltersToggle,
+    };
+
     public override WidgetConfig Clone() => new ColorFiltersToggleConfig { Style = Style };
 }
 
@@ -186,6 +271,13 @@ public sealed class GameModeToggleConfig : QuickToggleConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.GameModeToggle;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("gameModeToggle"),
+        Kind = WidgetKind.GameModeToggle,
+    };
 
     public override WidgetConfig Clone() => new GameModeToggleConfig { Style = Style };
 }

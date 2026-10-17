@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -26,6 +27,13 @@ public sealed class DriveConfig : WidgetConfig, IStyled
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Drive;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("drive"),
+        Kind = WidgetKind.Drive,
+    };
 
     /// <summary>[S-6274] The card's look.</summary>
     public DriveStyle Style { get; set; } = DriveStyle.Bar;
@@ -68,6 +76,13 @@ public sealed class RemovableDrivesConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.RemovableDrives;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("removableDrives"),
+        Kind = WidgetKind.RemovableDrives,
+    };
 
     public override WidgetConfig Clone() => new RemovableDrivesConfig();
 }

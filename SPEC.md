@@ -903,6 +903,15 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   order. No reflection and no run-time loading, so Native AOT keeps every module. A malformed id
   fails the build (THEMIAMOD001), so does an id declared twice (THEMIAMOD002) and a type that is not
   a public, non-abstract module class with a public parameterless constructor (THEMIAMOD003).
+- **[S-6902]** Each widget has one `WidgetDescriptor`, the pure half of its module: what the host
+  knows of it without its UI. The host installs the registry into `ModuleCatalog` before it reads
+  any widget (the app first thing in its constructor), once; a registry with a missing
+  descriptor, an empty id, or an id or kind given twice is refused at that install, and so is a
+  module whose descriptor's id is not the id its attribute declares. Every per-widget question the
+  host asks is answered from the catalogue, not from a table of its own. Until a widget moves to
+  its own project (M3, M4), its descriptor is declared on its config in Core and its module class
+  in `Themia.App/Widgets/Modules`; the tests install the same descriptors and check that the app
+  declares exactly one module for each.
 
 ## Adding a widget
 

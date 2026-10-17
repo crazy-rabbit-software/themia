@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -45,6 +46,13 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WeatherForecast;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("weatherForecast"),
+        Kind = WidgetKind.WeatherForecast,
+    };
 
     /// <summary>How many days to ask for, 1 to 14 — open-meteo's own limit.</summary>
     public int Days { get; set; } = 7;

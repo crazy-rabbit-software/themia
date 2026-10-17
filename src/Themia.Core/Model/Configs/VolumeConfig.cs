@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -19,6 +20,13 @@ public sealed class VolumeConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Volume;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("volume"),
+        Kind = WidgetKind.Volume,
+    };
 
     /// <summary>[S-1221] The output device's endpoint id, or null to follow Windows' default output.</summary>
     public string? DeviceId { get; set; }

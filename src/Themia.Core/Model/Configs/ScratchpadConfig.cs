@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -54,6 +55,13 @@ public sealed class ScratchpadConfig : WidgetConfig
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Scratchpad;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("scratchpad"),
+        Kind = WidgetKind.Scratchpad,
+    };
 
     /// <summary>The drawing, oldest stroke first. Drawing order is paint order.</summary>
     public List<InkStroke> Strokes { get; set; } = [];

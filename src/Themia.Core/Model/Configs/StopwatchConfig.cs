@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -11,6 +12,13 @@ public sealed class StopwatchConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Stopwatch;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("stopwatch"),
+        Kind = WidgetKind.Stopwatch,
+    };
 
     public StopwatchPhase Phase { get; set; }
 

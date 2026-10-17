@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -40,6 +41,13 @@ public sealed class VideoStreamConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.VideoStream;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("videoStream"),
+        Kind = WidgetKind.VideoStream,
+    };
 
     /// <summary>The stream address, exactly as typed. Never repaired; never normalised, because cameras route on the query.</summary>
     public string Url { get; set; } = string.Empty;

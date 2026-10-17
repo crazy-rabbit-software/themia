@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -35,6 +36,13 @@ public sealed class CpuConfig : GaugeConfig, IStyled
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Cpu;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("cpu"),
+        Kind = WidgetKind.Cpu,
+    };
 
     /// <summary>[S-6311] The meter's look.</summary>
     public CpuStyle Style { get; set; } = CpuStyle.Graph;

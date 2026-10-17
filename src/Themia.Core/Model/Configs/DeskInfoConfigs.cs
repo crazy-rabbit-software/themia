@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -26,6 +27,13 @@ public sealed class YearProgressConfig : WidgetConfig, Themia.Core.Widgets.IStyl
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.YearProgress;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("yearProgress"),
+        Kind = WidgetKind.YearProgress,
+    };
 
     /// <summary>[S-6040] Bars, rings or dots.</summary>
     public YearProgressStyle Style { get; set; } = YearProgressStyle.Bars;
@@ -60,6 +68,13 @@ public sealed class NextMeetingConfig : CalendarConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.NextMeeting;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("nextMeeting"),
+        Kind = WidgetKind.NextMeeting,
+    };
+
     /// <summary>What is coming up, reduced to its first entry: the agenda's shape.</summary>
     [JsonIgnore]
     public override CalendarStyle Layout => CalendarStyle.Agenda;
@@ -82,6 +97,13 @@ public sealed class RecentFilesConfig : WidgetConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.RecentFiles;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("recentFiles"),
+        Kind = WidgetKind.RecentFiles,
+    };
+
     /// <summary>[S-4843] Keeps "2h" honest; the list itself redraws from the folder watch.</summary>
     [JsonIgnore]
     public TimeSpan TickInterval => TimeSpan.FromMinutes(1);
@@ -94,6 +116,13 @@ public sealed class RecycleBinConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.RecycleBin;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("recycleBin"),
+        Kind = WidgetKind.RecycleBin,
+    };
 
     public override WidgetConfig Clone() => new RecycleBinConfig();
 }

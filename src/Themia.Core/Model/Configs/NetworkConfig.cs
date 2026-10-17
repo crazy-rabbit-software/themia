@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -34,6 +35,13 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Network;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("network"),
+        Kind = WidgetKind.Network,
+    };
 
     /// <summary>[S-6270] The meter's look; what was its history switch ([S-6000]).</summary>
     public NetworkStyle Style { get; set; } = NetworkStyle.Graph;

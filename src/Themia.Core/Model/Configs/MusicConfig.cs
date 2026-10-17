@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -48,6 +49,13 @@ public sealed class MusicConfig : WidgetConfig, IStyled
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Music;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("music"),
+        Kind = WidgetKind.Music,
+    };
 
     /// <summary>[S-6406] Artwork and text, full artwork or text only: the widget's style (what was "Show album art").</summary>
     public MusicStyle Style { get; set; } = MusicStyle.Artwork;

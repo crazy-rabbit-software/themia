@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -23,6 +24,13 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WeekPlanner;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("weekPlanner"),
+        Kind = WidgetKind.WeekPlanner,
+    };
 
     /// <summary>Days side by side, the classic week view's shape; never read to pick a range ([S-5321]).</summary>
     [JsonIgnore]

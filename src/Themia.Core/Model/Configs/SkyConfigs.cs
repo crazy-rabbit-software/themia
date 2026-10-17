@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -163,6 +164,13 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetti
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Sun;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("sun"),
+        Kind = WidgetKind.Sun,
+    };
+
     /// <summary>[S-6045] The sun's day as an arc, a bar, or the times alone.</summary>
     public SunStyle Style { get; set; } = SunStyle.Arc;
 
@@ -199,6 +207,13 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Moon;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("moon"),
+        Kind = WidgetKind.Moon,
+    };
 
     /// <summary>[S-6050] Tonight's disc, or the month's phases.</summary>
     public MoonStyle Style { get; set; } = MoonStyle.Disc;

@@ -1,0 +1,13 @@
+using Themia.Core.Model;
+using Themia.Sdk;
+using Themia.Sdk.WinUI;
+
+[assembly: ThemiaWidget("cpuDetails", typeof(Themia.App.Widgets.Modules.CpuDetailsModule))]
+
+namespace Themia.App.Widgets.Modules;
+
+/// <summary>[S-6902] The CpuDetails widget as a module, declared inside the app until it moves to its own project.</summary>
+public sealed class CpuDetailsModule : IWidgetModule
+{
+    public WidgetDescriptor Descriptor => CpuDetailsConfig.Descriptor;
+}

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -104,6 +105,13 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Gallery;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("gallery"),
+        Kind = WidgetKind.Gallery,
+    };
 
     /// <summary>[S-760] Where the pictures come from.</summary>
     public GallerySource Source { get; set; } = GallerySource.Folder;

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -9,6 +10,13 @@ public sealed class BluetoothConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Bluetooth;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("bluetooth"),
+        Kind = WidgetKind.Bluetooth,
+    };
 
     /// <summary>
     /// [S-3252] Show each connected device's battery: the level Windows holds for it, else a GATT read.

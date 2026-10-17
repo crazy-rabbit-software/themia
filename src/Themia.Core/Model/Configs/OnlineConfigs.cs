@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -56,6 +57,13 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.AirQuality;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("airQuality"),
+        Kind = WidgetKind.AirQuality,
+    };
+
     /// <summary>[S-6169] The widget's look.</summary>
     public AirQualityStyle Style { get; set; } = AirQualityStyle.Number;
 
@@ -96,6 +104,13 @@ public sealed class RainNextHourConfig : WeatherConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.RainNextHour;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("rainNextHour"),
+        Kind = WidgetKind.RainNextHour,
+    };
+
     public override WidgetConfig Clone()
     {
         var copy = new RainNextHourConfig();
@@ -118,6 +133,13 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.ExchangeRates;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("exchangeRates"),
+        Kind = WidgetKind.ExchangeRates,
+    };
 
     /// <summary>[S-5143] The base currency, an ISO 4217 code the ECB publishes; empty follows the Windows region.</summary>
     public string BaseCurrency { get; set; } = string.Empty;

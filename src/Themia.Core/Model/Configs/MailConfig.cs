@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -39,6 +40,13 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Email;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("email"),
+        Kind = WidgetKind.Email,
+    };
 
     /// <summary>
     /// [S-541] The accounts to merge into the list, by id. Empty means every mail account Themia is

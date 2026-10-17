@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -19,6 +20,13 @@ public sealed class CpuDetailsConfig : DetailConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.CpuDetails;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("cpuDetails"),
+        Kind = WidgetKind.CpuDetails,
+    };
+
     public override WidgetConfig Clone()
     {
         var copy = new CpuDetailsConfig();
@@ -31,6 +39,13 @@ public sealed class MemoryDetailsConfig : DetailConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.MemoryDetails;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("memoryDetails"),
+        Kind = WidgetKind.MemoryDetails,
+    };
 
     public override WidgetConfig Clone()
     {
@@ -58,6 +73,13 @@ public sealed class TopProcessesConfig : DetailConfig
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.TopProcesses;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("topProcesses"),
+        Kind = WidgetKind.TopProcesses,
+    };
 
     /// <summary>[S-2411] The ranking.</summary>
     public ProcessSort SortBy { get; set; } = ProcessSort.Cpu;
@@ -107,6 +129,13 @@ public sealed class NetworkDetailsConfig : DetailConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.NetworkDetails;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("networkDetails"),
+        Kind = WidgetKind.NetworkDetails,
+    };
+
     /// <summary>
     /// [S-2417] Ask a public service for this connection's public address. Off by default: it is a
     /// request to somebody else's server, and the user should choose it.
@@ -126,6 +155,13 @@ public sealed class BatteryDetailsConfig : DetailConfig
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.BatteryDetails;
 
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("batteryDetails"),
+        Kind = WidgetKind.BatteryDetails,
+    };
+
     public override WidgetConfig Clone()
     {
         var copy = new BatteryDetailsConfig();
@@ -142,6 +178,13 @@ public sealed class PingDetailsConfig : DetailConfig
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.PingDetails;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("pingDetails"),
+        Kind = WidgetKind.PingDetails,
+    };
 
     /// <summary>Host or address to probe. Empty falls back to <see cref="PingConfig.DefaultHost"/>.</summary>
     public string Host { get; set; } = PingConfig.DefaultHost;
@@ -187,6 +230,13 @@ public sealed class GpuDetailsConfig : DetailConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.GpuDetails;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("gpuDetails"),
+        Kind = WidgetKind.GpuDetails,
+    };
 
     /// <summary>[S-2431] The adapter, as its position in DXGI's list (as <see cref="GpuConfig.Adapter"/>: the primary display's first).</summary>
     public int Adapter { get; set; }

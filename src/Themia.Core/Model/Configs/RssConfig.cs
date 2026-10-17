@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -31,6 +32,13 @@ public sealed class RssConfig : WidgetConfig
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Rss;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("rss"),
+        Kind = WidgetKind.Rss,
+    };
 
     /// <summary>The feeds, in the order the user listed them.</summary>
     public List<RssFeed> Feeds { get; set; } = [];

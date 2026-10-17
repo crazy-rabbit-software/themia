@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -119,6 +120,13 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
 
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.WeatherNow;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("weatherNow"),
+        Kind = WidgetKind.WeatherNow,
+    };
 
     /// <summary>[S-6160] The widget's look.</summary>
     public WeatherNowStyle Style { get; set; } = WeatherNowStyle.Standard;

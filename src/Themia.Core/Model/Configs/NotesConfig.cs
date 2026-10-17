@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -11,6 +12,13 @@ public sealed class NotesConfig : WidgetConfig
 {
     [JsonIgnore]
     public override WidgetKind Kind => WidgetKind.Notes;
+
+    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
+    public static WidgetDescriptor Descriptor { get; } = new()
+    {
+        Id = new("notes"),
+        Kind = WidgetKind.Notes,
+    };
 
     /// <summary>
     /// The note shown, or null for none yet — a new widget gets a new note of its own on first show.
