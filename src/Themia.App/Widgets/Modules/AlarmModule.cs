@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -10,4 +11,6 @@ namespace Themia.App.Widgets.Modules;
 public sealed class AlarmModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => AlarmConfig.Descriptor;
+
+    public FrameworkElement CreateView() => new AlarmView();
 }

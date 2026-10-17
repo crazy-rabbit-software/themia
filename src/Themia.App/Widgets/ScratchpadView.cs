@@ -1,16 +1,17 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -112,7 +113,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
 
         _hintText.Text = Str.Scratchpad_DrawHere.Text();
         _hint = Fluent.EmptyState(
-            WidgetCatalog.Definition(WidgetKind.Scratchpad).Glyph,
+            ModuleCatalog.Of(WidgetKind.Scratchpad).Glyph,
             _hintText,
             out _);
 

@@ -1,15 +1,16 @@
-using Microsoft.UI;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Storage.Streams;
 
 namespace Themia.App.Widgets;
@@ -95,7 +96,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
     public MusicView()
     {
-        var definition = WidgetCatalog.Definition(WidgetKind.Music);
+        var definition = ModuleCatalog.Of(WidgetKind.Music);
 
         _artPlaceholder = Fluent.Icon(definition.Glyph, "TextFillColorTertiaryBrush", Fluent.Space6);
         _artPlaceholder.HorizontalAlignment = HorizontalAlignment.Center;

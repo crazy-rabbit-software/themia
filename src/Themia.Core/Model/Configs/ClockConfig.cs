@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -84,6 +85,11 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     {
         Id = new("clock"),
         Kind = WidgetKind.Clock,
+        LabelId = Str.Widget_Clock_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Clock_Description,
+        Glyph = Glyphs.Clock,
+        DefaultWidth = 280,
+        DefaultHeight = 140,
     };
 
     /// <summary>[S-6000] The clock's look; what was its face.</summary>

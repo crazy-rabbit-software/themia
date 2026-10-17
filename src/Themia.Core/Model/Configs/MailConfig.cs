@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Sync;
@@ -46,6 +47,11 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
     {
         Id = new("email"),
         Kind = WidgetKind.Email,
+        LabelId = Str.WidgetsA_Catalog_Mail_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Mail_Description,
+        Glyph = Glyphs.Mail,
+        DefaultWidth = 380,
+        DefaultHeight = 260,
     };
 
     /// <summary>

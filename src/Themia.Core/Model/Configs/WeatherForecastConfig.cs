@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -52,6 +53,11 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
     {
         Id = new("weatherForecast"),
         Kind = WidgetKind.WeatherForecast,
+        LabelId = Str.WidgetsA_Catalog_Forecast_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Forecast_Description,
+        Glyph = Glyphs.Forecast,
+        DefaultWidth = 380,
+        DefaultHeight = 220,
     };
 
     /// <summary>How many days to ask for, 1 to 14 — open-meteo's own limit.</summary>

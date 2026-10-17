@@ -3,6 +3,7 @@ using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.App.Services;
 
@@ -25,8 +26,8 @@ internal sealed partial class AppHost
     /// <summary>[S-421] Start placing a new widget of <paramref name="kind"/> at its default size.</summary>
     public void BeginPlacement(WidgetKind kind)
     {
-        var definition = WidgetCatalog.Definition(kind);
-        BeginPlacement(PlacementPayload.ForNew(kind, definition.DefaultWidthPx, definition.DefaultHeightPx));
+        var definition = ModuleCatalog.Of(kind);
+        BeginPlacement(PlacementPayload.ForNew(kind, definition.DefaultWidth, definition.DefaultHeight));
     }
 
     /// <summary>

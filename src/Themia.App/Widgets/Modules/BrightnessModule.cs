@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -10,4 +11,6 @@ namespace Themia.App.Widgets.Modules;
 public sealed class BrightnessModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => BrightnessConfig.Descriptor;
+
+    public FrameworkElement CreateView() => new BrightnessView();
 }

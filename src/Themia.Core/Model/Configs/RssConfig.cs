@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -38,6 +40,11 @@ public sealed class RssConfig : WidgetConfig
     {
         Id = new("rss"),
         Kind = WidgetKind.Rss,
+        LabelId = Str.WidgetsA_Catalog_Feed_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Feed_Description,
+        Glyph = Glyphs.Rss,
+        DefaultWidth = 360,
+        DefaultHeight = 280,
     };
 
     /// <summary>The feeds, in the order the user listed them.</summary>

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -41,6 +42,11 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
     {
         Id = new("network"),
         Kind = WidgetKind.Network,
+        LabelId = Str.WidgetsA_Catalog_Network_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Network_Description,
+        Glyph = Glyphs.Network,
+        DefaultWidth = 200,
+        DefaultHeight = 150,
     };
 
     /// <summary>[S-6270] The meter's look; what was its history switch ([S-6000]).</summary>

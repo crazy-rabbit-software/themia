@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -111,6 +112,11 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     {
         Id = new("gallery"),
         Kind = WidgetKind.Gallery,
+        LabelId = Str.Widget_Gallery_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Gallery_Description,
+        Glyph = Glyphs.Gallery,
+        DefaultWidth = 320,
+        DefaultHeight = 240,
     };
 
     /// <summary>[S-760] Where the pictures come from.</summary>

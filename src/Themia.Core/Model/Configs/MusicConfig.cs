@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
@@ -55,6 +56,11 @@ public sealed class MusicConfig : WidgetConfig, IStyled
     {
         Id = new("music"),
         Kind = WidgetKind.Music,
+        LabelId = Str.WidgetsA_Catalog_Music_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Music_Description,
+        Glyph = Glyphs.Music,
+        DefaultWidth = 340,
+        DefaultHeight = 160,
     };
 
     /// <summary>[S-6406] Artwork and text, full artwork or text only: the widget's style (what was "Show album art").</summary>

@@ -1,9 +1,11 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
+using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
+using DispatcherQueueTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -11,10 +13,9 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Foundation;
 using Windows.System;
-using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
-using DispatcherQueueTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 
 namespace Themia.App.Shell;
 
@@ -23,7 +24,7 @@ namespace Themia.App.Shell;
 /// box, then two columns under their headings — <b>Popular</b> and <b>Browse</b>, a row per subject
 /// — and the cascade a subject opens beside them, a family inside it one more level. Each row is
 /// the widget's icon and name, a folder's with a chevron — no preview. Typing lists what matches in
-/// place of the tree, flat, each with where it lives. Built from <see cref="WidgetCatalog.All"/>
+/// place of the tree, flat, each with where it lives. Built from <see cref="ModuleCatalog.Widgets"/>
 /// through Core's <see cref="AddTree"/> each time it opens, so a new kind is listed without touching
 /// this, and in the current language ([S-1109]).
 /// <para>
@@ -63,7 +64,7 @@ internal sealed partial class WidgetPicker : Grid
     /// </summary>
     private static (Locale Locale, (IndexedWidget Index, AddHome Home)[] Entries)? _searchIndex;
 
-    private readonly Action<WidgetDefinition> _pick;
+    private readonly Action<WidgetDescriptor> _pick;
     private readonly Action _close;
 
     private readonly TextBox _search;
@@ -97,12 +98,12 @@ internal sealed partial class WidgetPicker : Grid
     /// <param name="pick">Runs when a widget is chosen.</param>
     /// <param name="close">Runs on Escape with nothing typed and nothing open.</param>
     /// <param name="room">The work area in DIPs, in the coordinates of the window's content: the submenus stay inside it.</param>
-    public WidgetPicker(Action<WidgetDefinition> pick, Action close, PixelRect room)
+    public WidgetPicker(Action<WidgetDescriptor> pick, Action close, PixelRect room)
     {
         _pick = pick;
         _close = close;
         _room = room;
-        _menu = AddTree.On([.. WidgetCatalog.All.Select(definition => definition.Kind)]);
+        _menu = AddTree.On([.. ModuleCatalog.Widgets.Select(definition => definition.Kind)]);
 
         RowSpacing = Fluent.Space3;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -227,7 +228,7 @@ internal sealed partial class WidgetPicker : Grid
 
         // [S-3513] Each widget once, at its home, its folders' names searched too.
         (IndexedWidget, AddHome)[] entries =
-            [.. AddTree.Homes(menu).Select(home => (WidgetSearch.Index(WidgetCatalog.SearchDoc(WidgetCatalog.Definition(home.Kind), home.Path)), home))];
+            [.. AddTree.Homes(menu).Select(home => (WidgetSearch.Index(WidgetCatalog.SearchDoc(ModuleCatalog.Of(home.Kind), home.Path)), home))];
         _searchIndex = (locale, entries);
         return entries;
     }
@@ -391,8 +392,8 @@ internal sealed partial class WidgetPicker : Grid
     {
         var (glyph, label, help) = row switch
         {
-            AddFolder folder => (WidgetCatalog.Definition(folder.Shelf.Icon).Glyph, folder.Shelf.Title.Text(), (string?)null),
-            AddPick pick => (WidgetCatalog.Definition(pick.Kind).Glyph, WidgetCatalog.Definition(pick.Kind).Label, WidgetCatalog.Definition(pick.Kind).Description),
+            AddFolder folder => (ModuleCatalog.Of(folder.Shelf.Icon).Glyph, folder.Shelf.Title.Text(), (string?)null),
+            AddPick pick => (ModuleCatalog.Of(pick.Kind).Glyph, ModuleCatalog.Of(pick.Kind).Label, ModuleCatalog.Of(pick.Kind).Description),
             _ => (string.Empty, string.Empty, null),
         };
 
@@ -604,7 +605,7 @@ internal sealed partial class WidgetPicker : Grid
 
         foreach (var home in ranked)
         {
-            var definition = WidgetCatalog.Definition(home.Kind);
+            var definition = ModuleCatalog.Of(home.Kind);
             var path = string.Join(" › ", home.Path.Select(shelf => shelf.Title.Text()));
             var button = RowButton(definition.Glyph, definition.Label, definition.Description, folder: false, ResultHeight, path);
             var kind = home.Kind;
@@ -735,7 +736,7 @@ internal sealed partial class WidgetPicker : Grid
         try
         {
             _hover?.Stop();
-            _pick(WidgetCatalog.Definition(kind));
+            _pick(ModuleCatalog.Of(kind));
         }
         catch (Exception ex)
         {

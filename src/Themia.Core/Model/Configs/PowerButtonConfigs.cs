@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -76,6 +77,11 @@ public sealed class ShutdownConfig : PowerButtonConfig
     {
         Id = new("shutdown"),
         Kind = WidgetKind.Shutdown,
+        LabelId = Str.Power_Action_Shutdown,
+        DescriptionId = Str.WidgetsC_Power_Desc_Shutdown,
+        Glyph = Glyphs.Power,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new ShutdownConfig { Style = Style };
@@ -92,6 +98,11 @@ public sealed class RestartConfig : PowerButtonConfig
     {
         Id = new("restart"),
         Kind = WidgetKind.Restart,
+        LabelId = Str.Power_Action_Restart,
+        DescriptionId = Str.WidgetsC_Power_Desc_Restart,
+        Glyph = Glyphs.Reset,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new RestartConfig { Style = Style };
@@ -108,6 +119,11 @@ public sealed class SleepConfig : PowerButtonConfig
     {
         Id = new("sleep"),
         Kind = WidgetKind.Sleep,
+        LabelId = Str.Power_Action_Sleep,
+        DescriptionId = Str.WidgetsC_Power_Desc_Sleep,
+        Glyph = Glyphs.Moon,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new SleepConfig { Style = Style };
@@ -124,6 +140,11 @@ public sealed class HibernateConfig : PowerButtonConfig
     {
         Id = new("hibernate"),
         Kind = WidgetKind.Hibernate,
+        LabelId = Str.Power_Action_Hibernate,
+        DescriptionId = Str.WidgetsC_Power_Desc_Hibernate,
+        Glyph = Glyphs.Hibernate,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new HibernateConfig { Style = Style };
@@ -140,6 +161,11 @@ public sealed class LockConfig : PowerButtonConfig
     {
         Id = new("lock"),
         Kind = WidgetKind.Lock,
+        LabelId = Str.Power_Action_Lock,
+        DescriptionId = Str.WidgetsC_Power_Desc_Lock,
+        Glyph = Glyphs.Lock,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new LockConfig { Style = Style };
@@ -156,6 +182,11 @@ public sealed class SignOutConfig : PowerButtonConfig
     {
         Id = new("signOut"),
         Kind = WidgetKind.SignOut,
+        LabelId = Str.Power_Action_SignOut,
+        DescriptionId = Str.WidgetsC_Power_Desc_SignOut,
+        Glyph = Glyphs.SignOut,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new SignOutConfig { Style = Style };
@@ -172,6 +203,11 @@ public sealed class ScreenOffConfig : PowerButtonConfig
     {
         Id = new("screenOff"),
         Kind = WidgetKind.ScreenOff,
+        LabelId = Str.Power_Action_ScreenOff,
+        DescriptionId = Str.WidgetsC_Power_Desc_ScreenOff,
+        Glyph = Glyphs.Display,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new ScreenOffConfig { Style = Style };

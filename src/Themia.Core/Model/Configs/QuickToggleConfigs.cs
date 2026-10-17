@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -85,6 +86,11 @@ public sealed class WifiToggleConfig : QuickToggleConfig
     {
         Id = new("wifiToggle"),
         Kind = WidgetKind.WifiToggle,
+        LabelId = Str.Toggles_Wifi_Label,
+        DescriptionId = Str.Toggles_Wifi_Desc,
+        Glyph = Glyphs.Wifi,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new WifiToggleConfig { Style = Style };
@@ -101,6 +107,11 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
     {
         Id = new("bluetoothToggle"),
         Kind = WidgetKind.BluetoothToggle,
+        LabelId = Str.Toggles_Bluetooth_Label,
+        DescriptionId = Str.Toggles_Bluetooth_Desc,
+        Glyph = Glyphs.Bluetooth,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new BluetoothToggleConfig { Style = Style };
@@ -117,6 +128,11 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
     {
         Id = new("airplaneModeToggle"),
         Kind = WidgetKind.AirplaneModeToggle,
+        LabelId = Str.Toggles_AirplaneMode_Label,
+        DescriptionId = Str.Toggles_AirplaneMode_Desc,
+        Glyph = Glyphs.Airplane,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new AirplaneModeToggleConfig { Style = Style };
@@ -133,6 +149,11 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
     {
         Id = new("energySaverToggle"),
         Kind = WidgetKind.EnergySaverToggle,
+        LabelId = Str.Toggles_EnergySaver_Label,
+        DescriptionId = Str.Toggles_EnergySaver_Desc,
+        Glyph = Glyphs.EnergySaver,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new EnergySaverToggleConfig { Style = Style };
@@ -149,6 +170,11 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
     {
         Id = new("nightLightToggle"),
         Kind = WidgetKind.NightLightToggle,
+        LabelId = Str.Toggles_NightLight_Label,
+        DescriptionId = Str.Toggles_NightLight_Desc,
+        Glyph = Glyphs.NightLight,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new NightLightToggleConfig { Style = Style };
@@ -165,6 +191,11 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
     {
         Id = new("rotationLockToggle"),
         Kind = WidgetKind.RotationLockToggle,
+        LabelId = Str.Toggles_RotationLock_Label,
+        DescriptionId = Str.Toggles_RotationLock_Desc,
+        Glyph = Glyphs.RotationLock,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new RotationLockToggleConfig { Style = Style };
@@ -181,6 +212,11 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
     {
         Id = new("doNotDisturbToggle"),
         Kind = WidgetKind.DoNotDisturbToggle,
+        LabelId = Str.Toggles_DoNotDisturb_Label,
+        DescriptionId = Str.Toggles_DoNotDisturb_Desc,
+        Glyph = Glyphs.QuietHours,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new DoNotDisturbToggleConfig { Style = Style };
@@ -197,6 +233,11 @@ public sealed class SoundToggleConfig : QuickToggleConfig
     {
         Id = new("soundToggle"),
         Kind = WidgetKind.SoundToggle,
+        LabelId = Str.Toggles_Sound_Label,
+        DescriptionId = Str.Toggles_Sound_Desc,
+        Glyph = Glyphs.Volume3,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new SoundToggleConfig { Style = Style };
@@ -213,6 +254,11 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
     {
         Id = new("microphoneToggle"),
         Kind = WidgetKind.MicrophoneToggle,
+        LabelId = Str.Toggles_Microphone_Label,
+        DescriptionId = Str.Toggles_Microphone_Desc,
+        Glyph = Glyphs.Microphone,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new MicrophoneToggleConfig { Style = Style };
@@ -229,6 +275,11 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
     {
         Id = new("spatialSoundToggle"),
         Kind = WidgetKind.SpatialSoundToggle,
+        LabelId = Str.Toggles_SpatialSound_Label,
+        DescriptionId = Str.Toggles_SpatialSound_Desc,
+        Glyph = Glyphs.SpatialSound,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new SpatialSoundToggleConfig { Style = Style };
@@ -245,6 +296,11 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
     {
         Id = new("monoAudioToggle"),
         Kind = WidgetKind.MonoAudioToggle,
+        LabelId = Str.Toggles_MonoAudio_Label,
+        DescriptionId = Str.Toggles_MonoAudio_Desc,
+        Glyph = Glyphs.MonoAudio,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new MonoAudioToggleConfig { Style = Style };
@@ -261,6 +317,11 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
     {
         Id = new("colorFiltersToggle"),
         Kind = WidgetKind.ColorFiltersToggle,
+        LabelId = Str.Toggles_ColorFilters_Label,
+        DescriptionId = Str.Toggles_ColorFilters_Desc,
+        Glyph = Glyphs.ColorFilters,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new ColorFiltersToggleConfig { Style = Style };
@@ -277,6 +338,11 @@ public sealed class GameModeToggleConfig : QuickToggleConfig
     {
         Id = new("gameModeToggle"),
         Kind = WidgetKind.GameModeToggle,
+        LabelId = Str.Toggles_GameMode_Label,
+        DescriptionId = Str.Toggles_GameMode_Desc,
+        Glyph = Glyphs.GameMode,
+        DefaultWidth = 120,
+        DefaultHeight = 120,
     };
 
     public override WidgetConfig Clone() => new GameModeToggleConfig { Style = Style };

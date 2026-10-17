@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -33,6 +34,11 @@ public sealed class DriveConfig : WidgetConfig, IStyled
     {
         Id = new("drive"),
         Kind = WidgetKind.Drive,
+        LabelId = Str.Drives_Drive_Label,
+        DescriptionId = Str.Drives_Drive_Desc,
+        Glyph = Glyphs.Disk,
+        DefaultWidth = 280,
+        DefaultHeight = 160,
     };
 
     /// <summary>[S-6274] The card's look.</summary>
@@ -82,6 +88,11 @@ public sealed class RemovableDrivesConfig : WidgetConfig
     {
         Id = new("removableDrives"),
         Kind = WidgetKind.RemovableDrives,
+        LabelId = Str.Drives_Removable_Label,
+        DescriptionId = Str.Drives_Removable_Desc,
+        Glyph = Glyphs.Usb,
+        DefaultWidth = 300,
+        DefaultHeight = 200,
     };
 
     public override WidgetConfig Clone() => new RemovableDrivesConfig();

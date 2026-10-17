@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -169,6 +170,11 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetti
     {
         Id = new("sun"),
         Kind = WidgetKind.Sun,
+        LabelId = Str.WidgetsC_Sun_Label,
+        DescriptionId = Str.WidgetsC_Sun_Desc,
+        Glyph = Glyphs.Sun,
+        DefaultWidth = 320,
+        DefaultHeight = 240,
     };
 
     /// <summary>[S-6045] The sun's day as an arc, a bar, or the times alone.</summary>
@@ -213,6 +219,11 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
     {
         Id = new("moon"),
         Kind = WidgetKind.Moon,
+        LabelId = Str.WidgetsC_Moon_Label,
+        DescriptionId = Str.WidgetsC_Moon_Desc,
+        Glyph = Glyphs.Moon,
+        DefaultWidth = 240,
+        DefaultHeight = 220,
     };
 
     /// <summary>[S-6050] Tonight's disc, or the month's phases.</summary>

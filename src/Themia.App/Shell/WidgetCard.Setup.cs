@@ -4,6 +4,7 @@ using Themia.App.Widgets;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell;
 
@@ -66,7 +67,7 @@ internal sealed partial class WidgetCard
 
         if (needed && _setup is null)
         {
-            _setup = new SetupPrompt(WidgetCatalog.Definition(Model.Kind).Glyph, () => _host.RequestConfigure(this));
+            _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, () => _host.RequestConfigure(this));
             Grid.SetRow(_setup, 1);
             Grid.SetColumn(_setup, 1);
             _content.Children.Add(_setup);

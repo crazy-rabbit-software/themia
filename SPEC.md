@@ -950,7 +950,7 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   place ([S-421]).
 - **[S-3501]** **Add widget** opens the **add menu** under it ([S-1749]; the surface menu's Add widget
   opens the same menu at the click, [S-1744]): a search box over every widget kind in the catalogue
-  (`WidgetCatalog.All`, so a new kind is listed with no other change), then the tree of [S-3510],
+  (the module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change), then the tree of [S-3510],
   each row the widget's icon and name on a 32-DIP line, its description the tooltip. No previews.
   Choosing one starts the placement session of [S-421] unchanged.
 - **[S-3502]** *(Retired: the catalogue's sections no longer flow through columns as a newspaper's;

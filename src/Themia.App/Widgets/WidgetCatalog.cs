@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -20,131 +21,12 @@ public interface IWidgetView
     void Detach();
 }
 
-/// <summary>One entry in the widget picker.</summary>
-/// <param name="Kind">The persisted discriminator.</param>
-/// <param name="LabelId">Display name, as a string id: read <see cref="Label"/> for the current language.</param>
-/// <param name="DescriptionId">One line shown under the name in the picker.</param>
-/// <param name="Glyph">Segoe Fluent Icons code point, so the picker matches the rest of Windows.</param>
-/// <param name="DefaultWidthPx">[S-10] Default size in device-independent pixels, converted to a fraction at drop time.</param>
-/// <remarks>Where the add menu lists it is the add tree's ([S-3511], Core <c>AddTree</c>), not the catalogue's.</remarks>
-internal readonly record struct WidgetDefinition(
-    WidgetKind Kind,
-    Str LabelId,
-    Str DescriptionId,
-    string Glyph,
-    double DefaultWidthPx,
-    double DefaultHeightPx)
-{
-    /// <summary>[S-1109] The display name in the current language, read each time so a language switch reaches every caller.</summary>
-    public string Label => LabelId.Text();
-
-    /// <summary>The picker's one-line description in the current language.</summary>
-    public string Description => WidgetCatalog.Describe(Strings.Current, DescriptionId);
-}
-
 /// <summary>
-/// The widget registry. One place that maps a <see cref="WidgetKind"/> to its metadata and its view,
-/// so adding a widget is one entry here plus one enum member — there is no second list to forget.
+/// [S-943] The picker's search document of a widget. What a widget is (its name, description, glyph,
+/// size and view) is its module's ([S-6902], <see cref="ModuleCatalog"/>); this is only how search reads it.
 /// </summary>
 internal static class WidgetCatalog
 {
-    public static readonly IReadOnlyList<WidgetDefinition> All =
-    [
-        new(WidgetKind.Clock, Str.Widget_Clock_Label, Str.WidgetsA_Catalog_Clock_Description, Glyphs.Clock, 280, 140),
-        new(WidgetKind.Cpu, Str.WidgetsA_Catalog_Cpu_Label, Str.WidgetsA_Catalog_Cpu_Description, Glyphs.Cpu, 200, 150),
-        new(WidgetKind.Memory, Str.WidgetsA_Catalog_Memory_Label, Str.WidgetsA_Catalog_Memory_Description, Glyphs.Memory, 200, 150),
-        new(WidgetKind.Disk, Str.WidgetsA_Catalog_Disk_Label, Str.WidgetsA_Catalog_Disk_Description, Glyphs.Disk, 200, 150),
-        new(WidgetKind.Battery, Str.Widget_Battery_Label, Str.Shell_Meters_BatteryDescription, Glyphs.Battery, 200, 150),
-        new(WidgetKind.Network, Str.WidgetsA_Catalog_Network_Label, Str.WidgetsA_Catalog_Network_Description, Glyphs.Network, 200, 150),
-        new(WidgetKind.Ping, Str.Widget_Ping_Label, Str.WidgetsA_Catalog_Ping_Description, Glyphs.Ping, 200, 150),
-        new(WidgetKind.Gpu, Str.WidgetsA_Catalog_Gpu_Label, Str.Shell_Meters_GpuDescription, Glyphs.Gpu, 220, 220),
-        // [S-2400] The detail widgets, right after the meters they go with.
-        new(WidgetKind.CpuDetails, Str.Details_Catalog_Cpu_Label, Str.Details_Catalog_Cpu_Desc, Glyphs.Cpu, 280, 240),
-        new(WidgetKind.MemoryDetails, Str.Details_Catalog_Memory_Label, Str.Details_Catalog_Memory_Desc, Glyphs.Memory, 280, 240),
-        new(WidgetKind.TopProcesses, Str.Details_Catalog_Processes_Label, Str.Details_Catalog_Processes_Desc, Glyphs.ListLayout, 300, 300),
-        new(WidgetKind.NetworkDetails, Str.Details_Catalog_Network_Label, Str.Details_Catalog_Network_Desc, Glyphs.Network, 300, 280),
-        // [S-4670] [S-4660] One drive, and what is plugged in.
-        new(WidgetKind.Drive, Str.Drives_Drive_Label, Str.Drives_Drive_Desc, Glyphs.Disk, 280, 160),
-        new(WidgetKind.RemovableDrives, Str.Drives_Removable_Label, Str.Drives_Removable_Desc, Glyphs.Usb, 300, 200),
-        new(WidgetKind.BatteryDetails, Str.Details_Catalog_Battery_Label, Str.Details_Catalog_Battery_Desc, Glyphs.Battery, 280, 240),
-        new(WidgetKind.PingDetails, Str.Details_Catalog_Ping_Label, Str.Details_Catalog_Ping_Desc, Glyphs.Ping, 260, 240),
-        new(WidgetKind.GpuDetails, Str.Details_Catalog_Gpu_Label, Str.Details_Catalog_Gpu_Desc, Glyphs.Gpu, 280, 240),
-        new(WidgetKind.Mixer, Str.WidgetsA_Catalog_Mixer_Label, Str.WidgetsA_Catalog_Mixer_Description, Glyphs.Mixer, 300, 260),
-        // [S-3320] Screen time is three widgets that light the same app together on a view ([S-3310]).
-        new(WidgetKind.ScreenTimeChart, Str.WidgetsC_ScreenTime_Chart_Label, Str.WidgetsC_ScreenTime_Chart_Desc, Glyphs.ScreenTimeChart, 320, 220),
-        new(WidgetKind.ScreenTimeDonut, Str.WidgetsC_ScreenTime_Donut_Label, Str.WidgetsC_ScreenTime_Donut_Desc, Glyphs.ScreenTimeDonut, 240, 260),
-        new(WidgetKind.ScreenTimeApps, Str.WidgetsC_ScreenTime_Apps_Label, Str.WidgetsC_ScreenTime_Apps_Desc, Glyphs.ScreenTime, 280, 300),
-        new(WidgetKind.Email, Str.WidgetsA_Catalog_Mail_Label, Str.WidgetsA_Catalog_Mail_Description, Glyphs.Mail, 380, 260),
-        // [S-3640] The calendar, in five styles: month, week, day, year, agenda.
-        new(WidgetKind.Calendar, Str.Styles_Calendar_Label, Str.Styles_Calendar_Desc, Glyphs.Calendar, 340, 260),
-        new(WidgetKind.NextMeeting, Str.Meeting_Label, Str.Meeting_Desc, Glyphs.Meeting, 320, 200),
-        // [S-5320] The days ahead and today's tasks, beside the calendars.
-        new(WidgetKind.WeekPlanner, Str.Planner_Label, Str.Planner_Desc, Glyphs.WeekPlanner, 480, 280),
-        new(WidgetKind.Tasks, Str.WidgetsA_Catalog_Tasks_Label, Str.WidgetsA_Catalog_Tasks_Description, Glyphs.Task, 320, 320),
-        new(WidgetKind.Contacts, Str.Widget_Contacts_Label, Str.WidgetsA_Catalog_Contacts_Description, Glyphs.Contact, 320, 260),
-        new(WidgetKind.Notes, Str.Widget_Notes_Label, Str.WidgetsA_Catalog_Notes_Description, Glyphs.Note, 300, 220),
-        new(WidgetKind.Countdown, Str.Widget_Countdown_Label, Str.WidgetsA_Catalog_Countdown_Description, Glyphs.Countdown, 300, 200),
-        new(WidgetKind.Pomodoro, Str.Widget_Pomodoro_Label, Str.WidgetsA_Catalog_Pomodoro_Description, Glyphs.Pomodoro, 240, 200),
-        // [S-4600] [S-4620] The stopwatch and the alarm, in the timers' style, beside them.
-        new(WidgetKind.Stopwatch, Str.Stopwatch_Label, Str.Stopwatch_Desc, Glyphs.Stopwatch, 260, 200),
-        new(WidgetKind.Alarm, Str.Alarm_Label, Str.Alarm_Desc, Glyphs.Alarm, 300, 220),
-        // [S-4420] A focus session that holds Windows' do not disturb, beside the pomodoro.
-        new(WidgetKind.FocusSession, Str.Panels_Focus_Label, Str.Panels_Focus_Desc, Glyphs.Focus, 240, 200),
-        // [S-3100] The sun and the moon are two widgets.
-        new(WidgetKind.Sun, Str.WidgetsC_Sun_Label, Str.WidgetsC_Sun_Desc, Glyphs.Sun, 320, 240),
-        new(WidgetKind.Moon, Str.WidgetsC_Moon_Label, Str.WidgetsC_Moon_Desc, Glyphs.Moon, 240, 220),
-        new(WidgetKind.YearProgress, Str.YearProgress_Label, Str.YearProgress_Desc, Glyphs.YearProgress, 280, 220),
-        // [S-4123] The folder, in four styles: list, details, grid, icons.
-        new(WidgetKind.Folder, Str.Styles_Folder_Label, Str.Styles_Folder_Desc, Glyphs.Folder, 300, 280),
-        new(WidgetKind.RecentFiles, Str.RecentFiles_Label, Str.RecentFiles_Desc, Glyphs.RecentFiles, 320, 300),
-        new(WidgetKind.RecycleBin, Str.WidgetsC_Location_RecycleBin, Str.RecycleBin_Desc, Glyphs.RecycleBin, 200, 200),
-        new(WidgetKind.Volume, Str.Widget_Volume_Label, Str.WidgetsA_Catalog_Volume_Description, Glyphs.Volume, 200, 150),
-        // [S-4440] [S-4400] Windows' own brightness and notification list, beside the volume.
-        new(WidgetKind.Brightness, Str.Panels_Brightness_Label, Str.Panels_Brightness_Desc, Glyphs.Brightness, 200, 150),
-        new(WidgetKind.Notifications, Str.Panels_Notifications_Label, Str.Panels_Notifications_Desc, Glyphs.Notifications, 320, 320),
-        // [S-1910] One widget per power action, each a single button.
-        new(WidgetKind.Shutdown, Str.Power_Action_Shutdown, Str.WidgetsC_Power_Desc_Shutdown, Glyphs.Power, 120, 120),
-        new(WidgetKind.Restart, Str.Power_Action_Restart, Str.WidgetsC_Power_Desc_Restart, Glyphs.Reset, 120, 120),
-        new(WidgetKind.Sleep, Str.Power_Action_Sleep, Str.WidgetsC_Power_Desc_Sleep, Glyphs.Moon, 120, 120),
-        new(WidgetKind.Hibernate, Str.Power_Action_Hibernate, Str.WidgetsC_Power_Desc_Hibernate, Glyphs.Hibernate, 120, 120),
-        new(WidgetKind.Lock, Str.Power_Action_Lock, Str.WidgetsC_Power_Desc_Lock, Glyphs.Lock, 120, 120),
-        new(WidgetKind.SignOut, Str.Power_Action_SignOut, Str.WidgetsC_Power_Desc_SignOut, Glyphs.SignOut, 120, 120),
-        new(WidgetKind.ScreenOff, Str.Power_Action_ScreenOff, Str.WidgetsC_Power_Desc_ScreenOff, Glyphs.Display, 120, 120),
-        // [S-3900] One widget per quick setting, each a single switch.
-        new(WidgetKind.WifiToggle, Str.Toggles_Wifi_Label, Str.Toggles_Wifi_Desc, Glyphs.Wifi, 120, 120),
-        new(WidgetKind.BluetoothToggle, Str.Toggles_Bluetooth_Label, Str.Toggles_Bluetooth_Desc, Glyphs.Bluetooth, 120, 120),
-        new(WidgetKind.AirplaneModeToggle, Str.Toggles_AirplaneMode_Label, Str.Toggles_AirplaneMode_Desc, Glyphs.Airplane, 120, 120),
-        new(WidgetKind.EnergySaverToggle, Str.Toggles_EnergySaver_Label, Str.Toggles_EnergySaver_Desc, Glyphs.EnergySaver, 120, 120),
-        new(WidgetKind.NightLightToggle, Str.Toggles_NightLight_Label, Str.Toggles_NightLight_Desc, Glyphs.NightLight, 120, 120),
-        new(WidgetKind.RotationLockToggle, Str.Toggles_RotationLock_Label, Str.Toggles_RotationLock_Desc, Glyphs.RotationLock, 120, 120),
-        new(WidgetKind.DoNotDisturbToggle, Str.Toggles_DoNotDisturb_Label, Str.Toggles_DoNotDisturb_Desc, Glyphs.QuietHours, 120, 120),
-        new(WidgetKind.SoundToggle, Str.Toggles_Sound_Label, Str.Toggles_Sound_Desc, Glyphs.Volume3, 120, 120),
-        new(WidgetKind.MicrophoneToggle, Str.Toggles_Microphone_Label, Str.Toggles_Microphone_Desc, Glyphs.Microphone, 120, 120),
-        new(WidgetKind.SpatialSoundToggle, Str.Toggles_SpatialSound_Label, Str.Toggles_SpatialSound_Desc, Glyphs.SpatialSound, 120, 120),
-        new(WidgetKind.MonoAudioToggle, Str.Toggles_MonoAudio_Label, Str.Toggles_MonoAudio_Desc, Glyphs.MonoAudio, 120, 120),
-        new(WidgetKind.ColorFiltersToggle, Str.Toggles_ColorFilters_Label, Str.Toggles_ColorFilters_Desc, Glyphs.ColorFilters, 120, 120),
-        new(WidgetKind.GameModeToggle, Str.Toggles_GameMode_Label, Str.Toggles_GameMode_Desc, Glyphs.GameMode, 120, 120),
-        new(WidgetKind.Bluetooth, Str.Widget_Bluetooth_Label, Str.WidgetsA_Catalog_Bluetooth_Description, Glyphs.Bluetooth, 300, 240),
-        new(WidgetKind.Music, Str.WidgetsA_Catalog_Music_Label, Str.WidgetsA_Catalog_Music_Description, Glyphs.Music, 340, 160),
-        // [S-3200] [S-3216] The spectrum, split out of Music, beside it, in six styles.
-        new(WidgetKind.AudioVisualizer, Str.Styles_AudioVisualizer_Label, Str.Styles_AudioVisualizer_Desc, Glyphs.Visualizer, 320, 160),
-        new(WidgetKind.WeatherNow, Str.Widget_WeatherCurrent_Label, Str.WidgetsA_Catalog_Weather_Description, Glyphs.Weather, 260, 200),
-        new(WidgetKind.WeatherForecast, Str.WidgetsA_Catalog_Forecast_Label, Str.WidgetsA_Catalog_Forecast_Description, Glyphs.Forecast, 380, 220),
-        new(WidgetKind.Stocks, Str.Widget_Stocks_Label, Str.WidgetsA_Catalog_Stocks_Description, Glyphs.Stocks, 320, 240),
-        // [S-5100] [S-5120] [S-5140] The newer online widgets, beside their weather and market siblings.
-        new(WidgetKind.AirQuality, Str.Online_Air_Label, Str.Online_Air_Desc, Glyphs.AirQuality, 260, 200),
-        new(WidgetKind.RainNextHour, Str.Online_Rain_Label, Str.Online_Rain_Desc, Glyphs.Rain, 300, 180),
-        new(WidgetKind.ExchangeRates, Str.Online_Rates_Label, Str.Online_Rates_Desc, Glyphs.ExchangeRates, 300, 220),
-        new(WidgetKind.Rss, Str.WidgetsA_Catalog_Feed_Label, Str.WidgetsA_Catalog_Feed_Description, Glyphs.Rss, 360, 280),
-        new(WidgetKind.Shortcuts, Str.WidgetsA_Catalog_Shortcuts_Label, Str.WidgetsA_Catalog_Shortcuts_Description, Glyphs.Shortcut, 320, 220),
-        new(WidgetKind.Clipboard, Str.WidgetsA_Catalog_Clipboard_Label, Str.WidgetsA_Catalog_Clipboard_Description, Glyphs.Clipboard, 320, 260),
-        new(WidgetKind.Scratchpad, Str.Widget_Scratchpad_Label, Str.WidgetsA_Catalog_Scratchpad_Description, Glyphs.Scratchpad, 300, 260),
-        new(WidgetKind.Quote, Str.WidgetsA_Catalog_Quote_Label, Str.WidgetsA_Catalog_Quote_Description, Glyphs.Quote, 320, 180),
-        new(WidgetKind.Gallery, Str.Widget_Gallery_Label, Str.WidgetsA_Catalog_Gallery_Description, Glyphs.Gallery, 320, 240),
-        new(WidgetKind.VideoStream, Str.WidgetsA_Catalog_VideoStream_Label, Str.WidgetsA_Catalog_VideoStream_Description, Glyphs.Video, 320, 240),
-        new(WidgetKind.HabitTracker, Str.WidgetsA_Catalog_Habits_Label, Str.WidgetsA_Catalog_Habits_Description, Glyphs.Habit, 320, 240),
-    ];
-
     /// <summary>
     /// [S-943] What the picker's search matches a widget on. Name, description and the add menu's
     /// folders it is in (<paramref name="path"/>, [S-3513]) come in the current language and, when
@@ -152,7 +34,7 @@ internal static class WidgetCatalog
     /// Wetter widget, and the curated keywords (<see cref="WidgetKeywords"/>, English only) keep
     /// working in every language.
     /// </summary>
-    public static WidgetSearchDoc SearchDoc(WidgetDefinition definition, IReadOnlyList<AddShelf> path)
+    public static WidgetSearchDoc SearchDoc(WidgetDescriptor definition, IReadOnlyList<AddShelf> path)
     {
         ArgumentNullException.ThrowIfNull(path);
 
@@ -161,97 +43,18 @@ internal static class WidgetCatalog
             definition.Kind.ToString(),
             Both(locale, definition.LabelId),
             WidgetKeywords.For(definition.Kind),
-            Both(locale, definition.DescriptionId),
+            Both(locale, definition),
             [.. path.SelectMany(shelf => Both(locale, shelf.Title))],
             WidgetKeywords.Providers(definition.Kind));
     }
 
-    /// <summary>
-    /// [S-1115] A catalogue text with its facts filled: a number in a description ("15-minute steps")
-    /// is a placeholder, so it is written in the language's own digits. A text without one is as is.
-    /// </summary>
-    public static string Describe(Locale locale, Str id)
-        => Strings.Format(locale, id, ("minutes", (long)RainRules.Step.TotalMinutes));
-
     /// <summary>The text in <paramref name="locale"/>, then in English when that differs; the first is the shown one.</summary>
-    private static string[] Both(Locale locale, Str id)
+    private static string[] Both(Locale locale, Str id) => Both(Strings.Get(locale, id), Strings.Get(Locale.En, id));
+
+    private static string[] Both(Locale locale, WidgetDescriptor widget) => Both(widget.Describe(locale), widget.Describe(Locale.En));
+
+    private static string[] Both(string shown, string english)
     {
-        var shown = Describe(locale, id);
-        var english = Describe(Locale.En, id);
         return string.Equals(shown, english, StringComparison.Ordinal) ? [shown] : [shown, english];
     }
-
-    public static WidgetDefinition Definition(WidgetKind kind)
-    {
-        foreach (var definition in All)
-        {
-            if (definition.Kind == kind)
-            {
-                return definition;
-            }
-        }
-
-        // Unreachable for a validated state, but a total function beats an exception on a render path.
-        return All[0];
-    }
-
-    /// <summary>Build the view for a kind. Returns a <see cref="FrameworkElement"/> that also implements <see cref="IWidgetView"/>.</summary>
-    public static FrameworkElement CreateView(WidgetKind kind) => kind switch
-    {
-        WidgetKind.Clock => new ClockView(),
-        WidgetKind.Cpu or WidgetKind.Memory or WidgetKind.Disk
-            or WidgetKind.Battery or WidgetKind.Network or WidgetKind.Ping => new MeterView(kind),
-        WidgetKind.Gpu => new GpuView(),
-        WidgetKind.CpuDetails or WidgetKind.MemoryDetails or WidgetKind.TopProcesses or WidgetKind.NetworkDetails
-            or WidgetKind.BatteryDetails or WidgetKind.PingDetails or WidgetKind.GpuDetails => new DetailView(kind),
-        WidgetKind.Mixer => new MixerView(),
-        WidgetKind.ScreenTimeChart => new ScreenTimeChartView(),
-        WidgetKind.ScreenTimeDonut => new ScreenTimeDonutView(),
-        WidgetKind.ScreenTimeApps => new ScreenTimeAppsView(),
-        WidgetKind.Email => new EmailView(),
-        WidgetKind.Contacts => new ContactsView(),
-        WidgetKind.Calendar => new CalendarView(),
-
-        WidgetKind.Tasks => new TasksView(),
-        WidgetKind.Notes => new NotesView(),
-        WidgetKind.Countdown => new CountdownView(),
-        WidgetKind.Pomodoro => new PomodoroView(),
-        WidgetKind.Stopwatch => new StopwatchView(),
-        WidgetKind.Alarm => new AlarmView(),
-        WidgetKind.Drive => new DriveView(),
-        WidgetKind.RemovableDrives => new RemovableDrivesView(),
-        WidgetKind.Sun => new SunView(),
-        WidgetKind.Moon => new MoonView(),
-        WidgetKind.YearProgress => new YearProgressView(),
-        WidgetKind.NextMeeting => new NextMeetingView(),
-        WidgetKind.WeekPlanner => new WeekPlannerView(),
-        WidgetKind.RecentFiles => new RecentFilesView(),
-        WidgetKind.RecycleBin => new RecycleBinView(),
-        WidgetKind.Folder => new FolderView(),
-        WidgetKind.Volume => new VolumeView(),
-        WidgetKind.Brightness => new BrightnessView(),
-        WidgetKind.Notifications => new NotificationsView(),
-        WidgetKind.FocusSession => new FocusSessionView(),
-        WidgetKind.Shutdown or WidgetKind.Restart or WidgetKind.Sleep or WidgetKind.Hibernate
-            or WidgetKind.Lock or WidgetKind.SignOut or WidgetKind.ScreenOff => new PowerButtonView(kind),
-        _ when QuickToggleRules.ForKind(kind) is not null => new QuickToggleView(kind),
-        WidgetKind.Bluetooth => new BluetoothView(),
-        WidgetKind.Music => new MusicView(),
-        WidgetKind.AudioVisualizer => new AudioVisualizerView(),
-        WidgetKind.WeatherNow => new WeatherNowView(),
-        WidgetKind.WeatherForecast => new WeatherForecastView(),
-        WidgetKind.Stocks => new StocksView(),
-        WidgetKind.AirQuality => new AirQualityView(),
-        WidgetKind.RainNextHour => new RainNextHourView(),
-        WidgetKind.ExchangeRates => new ExchangeRatesView(),
-        WidgetKind.Rss => new RssView(),
-        WidgetKind.Shortcuts => new ShortcutsView(),
-        WidgetKind.Clipboard => new ClipboardView(),
-        WidgetKind.Scratchpad => new ScratchpadView(),
-        WidgetKind.Quote => new QuoteView(),
-        WidgetKind.Gallery => new GalleryView(),
-        WidgetKind.VideoStream => new VideoStreamView(),
-        WidgetKind.HabitTracker => new HabitTrackerView(),
-        _ => new ClockView(),
-    };
 }

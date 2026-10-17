@@ -1,3 +1,5 @@
+using Microsoft.UI.Xaml;
+
 namespace Themia.Sdk.WinUI;
 
 /// <summary>
@@ -7,4 +9,7 @@ namespace Themia.Sdk.WinUI;
 public interface IWidgetModule
 {
     WidgetDescriptor Descriptor { get; }
+
+    /// <summary>Build a new view. It is a <see cref="FrameworkElement"/> that also implements the host's view contract.</summary>
+    FrameworkElement CreateView();
 }

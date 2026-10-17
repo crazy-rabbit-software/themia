@@ -1,5 +1,6 @@
 using Themia.App.Widgets;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.App.Services;
 
@@ -93,7 +94,7 @@ internal sealed partial class AppHost
             return;
         }
 
-        var defaultTitle = WidgetCatalog.Definition(widget.Kind).Label;
+        var defaultTitle = ModuleCatalog.Of(widget.Kind).Label;
         if (!string.Equals(widget.Label, QuickSet.Title(typed, defaultTitle), StringComparison.Ordinal))
         {
             Mutate(_ => QuickSet.SetTitle(view, widgetId, typed, defaultTitle));

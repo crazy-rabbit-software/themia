@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Sdk;
@@ -31,8 +32,8 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6902_a_registry_with_a_missing_descriptor_or_an_id_or_kind_given_twice_is_refused()
     {
-        var clock = new WidgetDescriptor { Id = new("clock"), Kind = WidgetKind.Clock };
-        var cpu = new WidgetDescriptor { Id = new("cpu"), Kind = WidgetKind.Cpu };
+        var clock = ClockConfig.Descriptor;
+        var cpu = CpuConfig.Descriptor;
 
         Assert.Empty(ModuleCatalog.Check([clock, cpu]));
         Assert.Single(ModuleCatalog.Check([clock, null]));
@@ -72,6 +73,20 @@ public sealed partial class WidgetRegistryTests
         Assert.Equal(widget.Kind, instance.Kind);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(instance, AppStateJsonContext.Default.WidgetConfig));
         Assert.Equal(id, json.RootElement.GetProperty("kind").GetString());
+    }
+
+    [Theory]
+    [MemberData(nameof(Ids))]
+    public void S6902_every_widget_has_a_name_a_description_a_glyph_and_a_default_size(string id)
+    {
+        var widget = Of(id);
+
+        Assert.False(string.IsNullOrWhiteSpace(Strings.Get(Locale.En, widget.LabelId)));
+        Assert.False(string.IsNullOrWhiteSpace(widget.Describe(Locale.En)));
+        Assert.DoesNotContain("{", widget.Describe(Locale.En), StringComparison.Ordinal);
+        Assert.Single(widget.Glyph.EnumerateRunes());
+        Assert.InRange(widget.DefaultWidth, 80, 800);
+        Assert.InRange(widget.DefaultHeight, 80, 800);
     }
 
     [GeneratedRegex("""ThemiaWidget\("([^"]*)"\s*,""")]

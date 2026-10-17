@@ -1,8 +1,8 @@
-using Microsoft.UI;
 using Microsoft.UI.Text;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Widgets.Details;
@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -86,7 +87,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
 
         BuildList();
 
-        _empty = Fluent.EmptyState(WidgetCatalog.Definition(kind).Glyph, _emptyText, out _);
+        _empty = Fluent.EmptyState(ModuleCatalog.Of(kind).Glyph, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
         SetRowSpan(_empty, 3);
         SetColumnSpan(_empty, 2);

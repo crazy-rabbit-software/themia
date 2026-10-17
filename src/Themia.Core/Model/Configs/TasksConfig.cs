@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
@@ -52,6 +53,11 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
     {
         Id = new("tasks"),
         Kind = WidgetKind.Tasks,
+        LabelId = Str.WidgetsA_Catalog_Tasks_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Tasks_Description,
+        Glyph = Glyphs.Task,
+        DefaultWidth = 320,
+        DefaultHeight = 320,
     };
 
     public TaskSource Source { get; set; } = TaskSource.Account;

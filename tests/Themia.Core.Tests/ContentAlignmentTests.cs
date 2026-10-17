@@ -32,10 +32,6 @@ public sealed partial class ContentAlignmentTests
         throw new DirectoryNotFoundException("repository root (src/Themia.App/Widgets) not found above this test's source");
     }
 
-    /// <summary>One arm of <c>WidgetCatalog.CreateView</c>: the kinds it names, and the view it builds.</summary>
-    [GeneratedRegex(@"((?:WidgetKind\.\w+\s*(?:or\s*)?)+)=> new (\w+)\(")]
-    private static partial Regex ViewArm();
-
     /// <summary>A view class that declares it aligns: the interface in its base list.</summary>
     [GeneratedRegex(@"partial class (\w+)\s*:[^{]*\bIWidgetAligned\b")]
     private static partial Regex AlignedView();
@@ -54,16 +50,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_the_list_matches_the_views_that_take_an_alignment_both_ways()
     {
-        var catalog = File.ReadAllText(Path.Combine(App, "Widgets", "WidgetCatalog.cs"));
-        var factory = catalog[catalog.IndexOf("CreateView(WidgetKind kind)", StringComparison.Ordinal)..];
-        var views = new Dictionary<WidgetKind, string>();
-        foreach (Match arm in ViewArm().Matches(factory))
-        {
-            foreach (Match named in Regex.Matches(arm.Groups[1].Value, @"WidgetKind\.(\w+)"))
-            {
-                views.TryAdd(Enum.Parse<WidgetKind>(named.Groups[1].Value), arm.Groups[2].Value);
-            }
-        }
+        var views = ModuleSources.Views();
 
         var aligned = Directory.EnumerateFiles(Path.Combine(App, "Widgets"), "*.cs", SearchOption.AllDirectories)
             .SelectMany(f => AlignedView().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value))

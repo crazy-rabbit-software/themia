@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -43,6 +44,11 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
     {
         Id = new("battery"),
         Kind = WidgetKind.Battery,
+        LabelId = Str.Widget_Battery_Label,
+        DescriptionId = Str.Shell_Meters_BatteryDescription,
+        Glyph = Glyphs.Battery,
+        DefaultWidth = 200,
+        DefaultHeight = 150,
     };
 
     /// <summary>[S-6272] The meter's look; what was its history switch ([S-6000]).</summary>

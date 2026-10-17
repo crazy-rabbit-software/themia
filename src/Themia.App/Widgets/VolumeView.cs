@@ -1,14 +1,15 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
+using Glyphs = Themia.App.Shell.Glyphs;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Glyphs = Themia.App.Shell.Glyphs;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -112,7 +113,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _band.Children.Add(_mute);
         _band.Children.Add(_slider);
 
-        var definition = WidgetCatalog.Definition(WidgetKind.Volume);
+        var definition = ModuleCatalog.Of(WidgetKind.Volume);
         _empty = Fluent.EmptyState(definition.Glyph, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
 

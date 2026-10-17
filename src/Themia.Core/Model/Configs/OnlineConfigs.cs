@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -62,6 +63,11 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled
     {
         Id = new("airQuality"),
         Kind = WidgetKind.AirQuality,
+        LabelId = Str.Online_Air_Label,
+        DescriptionId = Str.Online_Air_Desc,
+        Glyph = Glyphs.AirQuality,
+        DefaultWidth = 260,
+        DefaultHeight = 200,
     };
 
     /// <summary>[S-6169] The widget's look.</summary>
@@ -109,6 +115,12 @@ public sealed class RainNextHourConfig : WeatherConfig
     {
         Id = new("rainNextHour"),
         Kind = WidgetKind.RainNextHour,
+        LabelId = Str.Online_Rain_Label,
+        DescriptionId = Str.Online_Rain_Desc,
+        Glyph = Glyphs.Rain,
+        DefaultWidth = 300,
+        DefaultHeight = 180,
+        DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
     };
 
     public override WidgetConfig Clone()
@@ -139,6 +151,11 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
     {
         Id = new("exchangeRates"),
         Kind = WidgetKind.ExchangeRates,
+        LabelId = Str.Online_Rates_Label,
+        DescriptionId = Str.Online_Rates_Desc,
+        Glyph = Glyphs.ExchangeRates,
+        DefaultWidth = 300,
+        DefaultHeight = 220,
     };
 
     /// <summary>[S-5143] The base currency, an ISO 4217 code the ECB publishes; empty follows the Windows region.</summary>

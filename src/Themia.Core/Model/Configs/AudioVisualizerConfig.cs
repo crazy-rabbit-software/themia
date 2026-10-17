@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -50,6 +51,11 @@ public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
     {
         Id = new("audioVisualizer"),
         Kind = WidgetKind.AudioVisualizer,
+        LabelId = Str.Styles_AudioVisualizer_Label,
+        DescriptionId = Str.Styles_AudioVisualizer_Desc,
+        Glyph = Glyphs.Visualizer,
+        DefaultWidth = 320,
+        DefaultHeight = 160,
     };
 
     /// <summary>[S-3216] The drawing; what were six widget kinds.</summary>

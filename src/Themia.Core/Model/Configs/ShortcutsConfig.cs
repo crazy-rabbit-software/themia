@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -127,6 +128,11 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
     {
         Id = new("shortcuts"),
         Kind = WidgetKind.Shortcuts,
+        LabelId = Str.WidgetsA_Catalog_Shortcuts_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Shortcuts_Description,
+        Glyph = Glyphs.Shortcut,
+        DefaultWidth = 320,
+        DefaultHeight = 220,
     };
 
     public List<ShortcutItem> Items { get; set; } = [];

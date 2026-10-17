@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -42,6 +43,11 @@ public sealed class PingConfig : GaugeConfig, IStyled
     {
         Id = new("ping"),
         Kind = WidgetKind.Ping,
+        LabelId = Str.Widget_Ping_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Ping_Description,
+        Glyph = Glyphs.Ping,
+        DefaultWidth = 200,
+        DefaultHeight = 150,
     };
 
     /// <summary>[S-6273] The meter's look; what was its history switch ([S-6000]).</summary>

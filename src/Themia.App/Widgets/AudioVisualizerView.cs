@@ -1,11 +1,12 @@
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -50,7 +51,7 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
 
         var message = new TextBlock { Text = Str.WidgetsC_Visualizer_Unavailable.Text() };
-        _unavailable = Fluent.EmptyState(WidgetCatalog.Definition(WidgetKind.AudioVisualizer).Glyph, message, out _);
+        _unavailable = Fluent.EmptyState(ModuleCatalog.Of(WidgetKind.AudioVisualizer).Glyph, message, out _);
         _unavailable.Visibility = Visibility.Collapsed;
 
         Children.Add(_bars);

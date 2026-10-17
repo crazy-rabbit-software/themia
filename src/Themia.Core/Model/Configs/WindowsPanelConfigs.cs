@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -18,6 +20,11 @@ public sealed class NotificationsConfig : WidgetConfig
     {
         Id = new("notifications"),
         Kind = WidgetKind.Notifications,
+        LabelId = Str.Panels_Notifications_Label,
+        DescriptionId = Str.Panels_Notifications_Desc,
+        Glyph = Glyphs.Notifications,
+        DefaultWidth = 320,
+        DefaultHeight = 320,
     };
 
     public override WidgetConfig Clone() => new NotificationsConfig();
@@ -34,6 +41,11 @@ public sealed class FocusSessionConfig : WidgetConfig
     {
         Id = new("focusSession"),
         Kind = WidgetKind.FocusSession,
+        LabelId = Str.Panels_Focus_Label,
+        DescriptionId = Str.Panels_Focus_Desc,
+        Glyph = Glyphs.Focus,
+        DefaultWidth = 240,
+        DefaultHeight = 200,
     };
 
     /// <summary>[S-4421] How long a session started here runs, in minutes (Windows' own default is 30).</summary>
@@ -81,6 +93,11 @@ public sealed class BrightnessConfig : WidgetConfig
     {
         Id = new("brightness"),
         Kind = WidgetKind.Brightness,
+        LabelId = Str.Panels_Brightness_Label,
+        DescriptionId = Str.Panels_Brightness_Desc,
+        Glyph = Glyphs.Brightness,
+        DefaultWidth = 200,
+        DefaultHeight = 150,
     };
 
     /// <summary>[S-4442] Every display at once (the default), or the one the widget is on.</summary>

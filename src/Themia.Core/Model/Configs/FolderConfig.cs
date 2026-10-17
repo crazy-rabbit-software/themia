@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -83,6 +84,11 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
     {
         Id = new("folder"),
         Kind = WidgetKind.Folder,
+        LabelId = Str.Styles_Folder_Label,
+        DescriptionId = Str.Styles_Folder_Desc,
+        Glyph = Glyphs.Folder,
+        DefaultWidth = 300,
+        DefaultHeight = 280,
     };
 
     /// <summary>[S-4123] The layout; what were four widget kinds.</summary>

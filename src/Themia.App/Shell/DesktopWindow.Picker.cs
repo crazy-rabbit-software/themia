@@ -1,12 +1,14 @@
 ﻿using Microsoft.UI;
-using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Input;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using Microsoft.UI.Xaml;
+using Path = Microsoft.UI.Xaml.Shapes.Path;
+using PlacementMode = Themia.Core.Model.PlacementMode;
 using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Shell.Config;
@@ -16,10 +18,9 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Foundation;
 using Windows.Graphics;
-using Path = Microsoft.UI.Xaml.Shapes.Path;
-using PlacementMode = Themia.Core.Model.PlacementMode;
 
 namespace Themia.App.Shell;
 
@@ -67,7 +68,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>[S-421] A widget was chosen: click-to-place starts.</summary>
-    private void OnPicked(Flyout flyout, WidgetDefinition definition)
+    private void OnPicked(Flyout flyout, WidgetDescriptor definition)
     {
         flyout.Hide();
         _host.BeginPlacement(definition.Kind);
@@ -176,7 +177,7 @@ internal sealed partial class DesktopWindow
             }
 
             var box = GridGeometry.Inset(GridGeometry.ToPixels(outlines[i].Rect, metrics), Design.WidgetGapPx);
-            var definition = WidgetCatalog.Definition(outlines[i].Kind);
+            var definition = ModuleCatalog.Of(outlines[i].Kind);
 
             ghost.Icon.Glyph = definition.Glyph;
             ghost.Label.Text = definition.Label;
@@ -277,7 +278,7 @@ internal sealed partial class DesktopWindow
     {
         if (payload.SingleKind is { } kind)
         {
-            var name = WidgetCatalog.Definition(kind).Label;
+            var name = ModuleCatalog.Of(kind).Label;
             return payload.Mode switch
             {
                 PlacementMode.Move => Str.Shell_Place_MoveOne.Format(("name", name)),

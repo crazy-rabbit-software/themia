@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
@@ -215,6 +216,11 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     {
         Id = new("calendar"),
         Kind = WidgetKind.Calendar,
+        LabelId = Str.Styles_Calendar_Label,
+        DescriptionId = Str.Styles_Calendar_Desc,
+        Glyph = Glyphs.Calendar,
+        DefaultWidth = 340,
+        DefaultHeight = 260,
     };
 
     /// <summary>[S-3640] The layout; what were five widget kinds.</summary>
@@ -338,6 +344,11 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     {
         Id = new("contacts"),
         Kind = WidgetKind.Contacts,
+        LabelId = Str.Widget_Contacts_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Contacts_Description,
+        Glyph = Glyphs.Contact,
+        DefaultWidth = 320,
+        DefaultHeight = 260,
     };
 
     /// <summary>The accounts to show; empty means every contacts account.</summary>

@@ -1,9 +1,9 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Services;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services.SystemData;
+using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Widgets.Meters;
 using Themia.Core.Diagnostics;
@@ -11,6 +11,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -123,7 +124,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
 
         // Only a battery can be absent — every other meter that cannot be read is a meter that could
         // be read a moment ago, which is [S-82]'s dimmed "--" rather than an empty state.
-        _absentState = _part.CanBeAbsent ? BuildAbsentState(WidgetCatalog.Definition(kind).Glyph) : null;
+        _absentState = _part.CanBeAbsent ? BuildAbsentState(ModuleCatalog.Of(kind).Glyph) : null;
 
         if (_absentState is not null)
         {

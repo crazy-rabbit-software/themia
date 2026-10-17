@@ -1,6 +1,6 @@
-using CommunityToolkit.WinUI.Controls;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
+using CommunityToolkit.WinUI.Controls;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -189,12 +190,12 @@ internal sealed class SettingsSearchIndex(AppHost host)
     {
         ConfigTarget.App app => ConfigPages.AppPages.FirstOrDefault(p => p.Page == app.Page)?.Glyph ?? Glyphs.Settings,
         ConfigTarget.Widget widget when host.Find(widget.WidgetId) is var (_, instance) && instance is not null =>
-            WidgetCatalog.Definition(instance.Kind).Glyph,
+            ModuleCatalog.Of(instance.Kind).Glyph,
         _ => Glyphs.Settings,
     };
 
     private static string Label(WidgetInstance widget)
-        => string.IsNullOrWhiteSpace(widget.Label) ? WidgetCatalog.Definition(widget.Kind).Label : widget.Label!;
+        => string.IsNullOrWhiteSpace(widget.Label) ? ModuleCatalog.Of(widget.Kind).Label : widget.Label!;
 
     private static string? GlyphOf(SettingRow row) => row.Card switch
     {

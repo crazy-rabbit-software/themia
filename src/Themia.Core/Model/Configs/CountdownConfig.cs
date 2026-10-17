@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -45,6 +46,11 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
     {
         Id = new("countdown"),
         Kind = WidgetKind.Countdown,
+        LabelId = Str.Widget_Countdown_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Countdown_Description,
+        Glyph = Glyphs.Countdown,
+        DefaultWidth = 300,
+        DefaultHeight = 200,
     };
 
     /// <summary>[S-6030] The duration's look.</summary>

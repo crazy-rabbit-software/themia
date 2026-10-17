@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -87,6 +88,11 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
     {
         Id = new("stocks"),
         Kind = WidgetKind.Stocks,
+        LabelId = Str.Widget_Stocks_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Stocks_Description,
+        Glyph = Glyphs.Stocks,
+        DefaultWidth = 320,
+        DefaultHeight = 240,
     };
 
     /// <summary>The Yahoo symbol or CoinGecko id. Empty until the user sets one.</summary>

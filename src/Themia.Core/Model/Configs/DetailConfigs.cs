@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -25,6 +27,11 @@ public sealed class CpuDetailsConfig : DetailConfig
     {
         Id = new("cpuDetails"),
         Kind = WidgetKind.CpuDetails,
+        LabelId = Str.Details_Catalog_Cpu_Label,
+        DescriptionId = Str.Details_Catalog_Cpu_Desc,
+        Glyph = Glyphs.Cpu,
+        DefaultWidth = 280,
+        DefaultHeight = 240,
     };
 
     public override WidgetConfig Clone()
@@ -45,6 +52,11 @@ public sealed class MemoryDetailsConfig : DetailConfig
     {
         Id = new("memoryDetails"),
         Kind = WidgetKind.MemoryDetails,
+        LabelId = Str.Details_Catalog_Memory_Label,
+        DescriptionId = Str.Details_Catalog_Memory_Desc,
+        Glyph = Glyphs.Memory,
+        DefaultWidth = 280,
+        DefaultHeight = 240,
     };
 
     public override WidgetConfig Clone()
@@ -79,6 +91,11 @@ public sealed class TopProcessesConfig : DetailConfig
     {
         Id = new("topProcesses"),
         Kind = WidgetKind.TopProcesses,
+        LabelId = Str.Details_Catalog_Processes_Label,
+        DescriptionId = Str.Details_Catalog_Processes_Desc,
+        Glyph = Glyphs.ListLayout,
+        DefaultWidth = 300,
+        DefaultHeight = 300,
     };
 
     /// <summary>[S-2411] The ranking.</summary>
@@ -134,6 +151,11 @@ public sealed class NetworkDetailsConfig : DetailConfig
     {
         Id = new("networkDetails"),
         Kind = WidgetKind.NetworkDetails,
+        LabelId = Str.Details_Catalog_Network_Label,
+        DescriptionId = Str.Details_Catalog_Network_Desc,
+        Glyph = Glyphs.Network,
+        DefaultWidth = 300,
+        DefaultHeight = 280,
     };
 
     /// <summary>
@@ -160,6 +182,11 @@ public sealed class BatteryDetailsConfig : DetailConfig
     {
         Id = new("batteryDetails"),
         Kind = WidgetKind.BatteryDetails,
+        LabelId = Str.Details_Catalog_Battery_Label,
+        DescriptionId = Str.Details_Catalog_Battery_Desc,
+        Glyph = Glyphs.Battery,
+        DefaultWidth = 280,
+        DefaultHeight = 240,
     };
 
     public override WidgetConfig Clone()
@@ -184,6 +211,11 @@ public sealed class PingDetailsConfig : DetailConfig
     {
         Id = new("pingDetails"),
         Kind = WidgetKind.PingDetails,
+        LabelId = Str.Details_Catalog_Ping_Label,
+        DescriptionId = Str.Details_Catalog_Ping_Desc,
+        Glyph = Glyphs.Ping,
+        DefaultWidth = 260,
+        DefaultHeight = 240,
     };
 
     /// <summary>Host or address to probe. Empty falls back to <see cref="PingConfig.DefaultHost"/>.</summary>
@@ -236,6 +268,11 @@ public sealed class GpuDetailsConfig : DetailConfig
     {
         Id = new("gpuDetails"),
         Kind = WidgetKind.GpuDetails,
+        LabelId = Str.Details_Catalog_Gpu_Label,
+        DescriptionId = Str.Details_Catalog_Gpu_Desc,
+        Glyph = Glyphs.Gpu,
+        DefaultWidth = 280,
+        DefaultHeight = 240,
     };
 
     /// <summary>[S-2431] The adapter, as its position in DXGI's list (as <see cref="GpuConfig.Adapter"/>: the primary display's first).</summary>

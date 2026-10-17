@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -51,6 +52,11 @@ public sealed class DiskConfig : GaugeConfig, IStyled
     {
         Id = new("disk"),
         Kind = WidgetKind.Disk,
+        LabelId = Str.WidgetsA_Catalog_Disk_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Disk_Description,
+        Glyph = Glyphs.Disk,
+        DefaultWidth = 200,
+        DefaultHeight = 150,
     };
 
     /// <summary>[S-6271] The meter's look; what was its history switch ([S-6000]).</summary>

@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -30,6 +32,11 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     {
         Id = new("weekPlanner"),
         Kind = WidgetKind.WeekPlanner,
+        LabelId = Str.Planner_Label,
+        DescriptionId = Str.Planner_Desc,
+        Glyph = Glyphs.WeekPlanner,
+        DefaultWidth = 480,
+        DefaultHeight = 280,
     };
 
     /// <summary>Days side by side, the classic week view's shape; never read to pick a range ([S-5321]).</summary>

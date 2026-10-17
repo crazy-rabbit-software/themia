@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -33,6 +35,11 @@ public sealed class YearProgressConfig : WidgetConfig, Themia.Core.Widgets.IStyl
     {
         Id = new("yearProgress"),
         Kind = WidgetKind.YearProgress,
+        LabelId = Str.YearProgress_Label,
+        DescriptionId = Str.YearProgress_Desc,
+        Glyph = Glyphs.YearProgress,
+        DefaultWidth = 280,
+        DefaultHeight = 220,
     };
 
     /// <summary>[S-6040] Bars, rings or dots.</summary>
@@ -73,6 +80,11 @@ public sealed class NextMeetingConfig : CalendarConfig
     {
         Id = new("nextMeeting"),
         Kind = WidgetKind.NextMeeting,
+        LabelId = Str.Meeting_Label,
+        DescriptionId = Str.Meeting_Desc,
+        Glyph = Glyphs.Meeting,
+        DefaultWidth = 320,
+        DefaultHeight = 200,
     };
 
     /// <summary>What is coming up, reduced to its first entry: the agenda's shape.</summary>
@@ -102,6 +114,11 @@ public sealed class RecentFilesConfig : WidgetConfig
     {
         Id = new("recentFiles"),
         Kind = WidgetKind.RecentFiles,
+        LabelId = Str.RecentFiles_Label,
+        DescriptionId = Str.RecentFiles_Desc,
+        Glyph = Glyphs.RecentFiles,
+        DefaultWidth = 320,
+        DefaultHeight = 300,
     };
 
     /// <summary>[S-4843] Keeps "2h" honest; the list itself redraws from the folder watch.</summary>
@@ -122,6 +139,11 @@ public sealed class RecycleBinConfig : WidgetConfig
     {
         Id = new("recycleBin"),
         Kind = WidgetKind.RecycleBin,
+        LabelId = Str.WidgetsC_Location_RecycleBin,
+        DescriptionId = Str.RecycleBin_Desc,
+        Glyph = Glyphs.RecycleBin,
+        DefaultWidth = 200,
+        DefaultHeight = 200,
     };
 
     public override WidgetConfig Clone() => new RecycleBinConfig();

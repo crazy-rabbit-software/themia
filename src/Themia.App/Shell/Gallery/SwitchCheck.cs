@@ -1,9 +1,9 @@
 #if DEBUG
 using System.Diagnostics;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml;
 using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
@@ -13,6 +13,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Gallery;
 
@@ -137,7 +138,7 @@ internal static class SwitchCheck
             }
             else
             {
-                var kinds = WidgetCatalog.All.Select(k => new ShowcaseKind(k.Kind, k.Label, k.Glyph)).ToList();
+                var kinds = ModuleCatalog.Widgets.Select(k => new ShowcaseKind(k.Kind, k.Label, k.Glyph)).ToList();
                 ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx));
             }
 

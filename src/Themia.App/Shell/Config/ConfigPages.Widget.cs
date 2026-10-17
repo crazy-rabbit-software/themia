@@ -1,8 +1,8 @@
 ﻿using Microsoft.UI;
 using Microsoft.UI.Text;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -91,7 +92,7 @@ internal static partial class ConfigPages
     /// </summary>
     private static SettingsPage WidgetPage(WidgetInstance widget, Action<ConfigTarget> navigate, Action save)
     {
-        var definition = WidgetCatalog.Definition(widget.Kind);
+        var definition = ModuleCatalog.Of(widget.Kind);
         var rows = WidgetRows(widget, navigate, save);
         return Page(string.IsNullOrWhiteSpace(widget.Label) ? definition.Label : widget.Label!, rows, definition.Description);
     }

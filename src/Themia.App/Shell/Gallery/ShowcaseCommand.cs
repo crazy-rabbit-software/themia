@@ -6,6 +6,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Gallery;
 
@@ -104,7 +105,7 @@ internal static class ShowcaseCommand
         var displayScale = state.MonitorScales.TryGetValue(monitorId, out var own) && double.IsFinite(own) && own > 0 ? own : 1.0;
         var uiScale = double.IsFinite(state.Design.UiScale) && state.Design.UiScale > 0 ? state.Design.UiScale : 1.0;
 
-        var kinds = WidgetCatalog.All
+        var kinds = ModuleCatalog.Widgets
             .Select(d => new ShowcaseKind(d.Kind, d.Label, d.Glyph))
             .ToList();
         var views = ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx, displayScale * uiScale);

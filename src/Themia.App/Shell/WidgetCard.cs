@@ -1,11 +1,11 @@
 ﻿using Microsoft.UI;
 using Microsoft.UI.Input;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -14,6 +14,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -221,7 +222,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // honour it. The view contributes its trailing element and nothing else.
         _headerTitle = new TextBlock();
         _header = Fluent.Header(
-            WidgetCatalog.Definition(model.Kind).Glyph,
+            ModuleCatalog.Of(model.Kind).Glyph,
             _headerTitle,
             (_view as IWidgetHeaderContent)?.HeaderTrailing);
 
@@ -395,7 +396,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // The user's own label, then whatever the view knows about itself, then the catalogue.
         _headerTitle.Text = !string.IsNullOrWhiteSpace(Model.Label) ? Model.Label
             : !string.IsNullOrWhiteSpace(_viewTitle) ? _viewTitle
-            : WidgetCatalog.Definition(Model.Kind).Label;
+            : ModuleCatalog.Of(Model.Kind).Label;
 
         var placement = Model.ShownHeader;
 

@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -28,6 +30,11 @@ public sealed class ClipboardConfig : WidgetConfig
     {
         Id = new("clipboard"),
         Kind = WidgetKind.Clipboard,
+        LabelId = Str.WidgetsA_Catalog_Clipboard_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Clipboard_Description,
+        Glyph = Glyphs.Clipboard,
+        DefaultWidth = 320,
+        DefaultHeight = 260,
     };
 
     /// <summary>[S-1440] How many entries to keep, 1 to 200 (default 50, as the original).</summary>

@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -18,6 +20,11 @@ public sealed class StopwatchConfig : WidgetConfig
     {
         Id = new("stopwatch"),
         Kind = WidgetKind.Stopwatch,
+        LabelId = Str.Stopwatch_Label,
+        DescriptionId = Str.Stopwatch_Desc,
+        Glyph = Glyphs.Stopwatch,
+        DefaultWidth = 260,
+        DefaultHeight = 200,
     };
 
     public StopwatchPhase Phase { get; set; }

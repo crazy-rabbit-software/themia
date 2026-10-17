@@ -1,13 +1,14 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell;
 
@@ -195,7 +196,7 @@ internal sealed partial class PropertiesStrip : Grid
         var commands = _commands;
         if (_offer is { TitleWidgetId: { } id, TitleKind: { } kind })
         {
-            AddRow(Str.Group_Title_Label.Text(), TitleBox(commands, id, WidgetCatalog.Definition(kind).Label, _offer.Label));
+            AddRow(Str.Group_Title_Label.Text(), TitleBox(commands, id, ModuleCatalog.Of(kind).Label, _offer.Label));
         }
         else
         {

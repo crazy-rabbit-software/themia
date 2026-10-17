@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 
 namespace Themia.Sdk;
@@ -35,4 +36,30 @@ public sealed record WidgetDescriptor
 
     /// <summary>The enum key the host still uses while <see cref="WidgetKind"/> exists (M2's interim).</summary>
     public required WidgetKind Kind { get; init; }
+
+    /// <summary>Its name, as a string id: <see cref="Label"/> reads it in the current language ([S-1109]).</summary>
+    public required Str LabelId { get; init; }
+
+    /// <summary>The picker's one line under the name.</summary>
+    public required Str DescriptionId { get; init; }
+
+    /// <summary>[S-1115] The facts its description's placeholders take ("15-minute steps"), written in the language's digits.</summary>
+    public IReadOnlyList<StringArg> DescriptionFacts { get; init; } = [];
+
+    /// <summary>Segoe Fluent Icons code point: the picker, the Set up prompt, the settings search.</summary>
+    public required string Glyph { get; init; }
+
+    /// <summary>[S-10] Default size in DIPs, made a fraction of the display when it lands.</summary>
+    public required double DefaultWidth { get; init; }
+
+    public required double DefaultHeight { get; init; }
+
+    /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
+    public string Label => LabelId.Text();
+
+    /// <summary>The description in the current language.</summary>
+    public string Description => Describe(Strings.Current);
+
+    /// <summary>The description in <paramref name="locale"/>, its facts filled.</summary>
+    public string Describe(Locale locale) => Strings.Format(locale, DescriptionId, [.. DescriptionFacts]);
 }

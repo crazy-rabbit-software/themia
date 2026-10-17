@@ -38,10 +38,6 @@ public sealed partial class ItemKindsTests
     [GeneratedRegex(@"^(?:internal |public )?(?:sealed |static |abstract )*(?:partial )?(?:class|struct|record(?: struct)?) (\w+)", RegexOptions.Multiline)]
     private static partial Regex TopLevelType();
 
-    /// <summary>One arm of <c>WidgetCatalog.CreateView</c>: the kinds it names, and the view it builds.</summary>
-    [GeneratedRegex(@"((?:WidgetKind\.\w+\s*(?:or\s*)?)+|_ when [^=]+)=> new (\w+)\(")]
-    private static partial Regex ViewArm();
-
     /// <summary>
     /// Every view file that paints an item: directly, or through a shared part (a type that is not a
     /// view, declared in a file that paints one: the flip card, a ring, a meter's bars) — to the
@@ -83,36 +79,16 @@ public sealed partial class ItemKindsTests
         return painting;
     }
 
-    /// <summary>The view class each kind is built as, read from the catalogue's factory.</summary>
-    private static Dictionary<WidgetKind, string> Views()
-    {
-        var catalog = File.ReadAllText(Path.Combine(App, "Widgets", "WidgetCatalog.cs"));
-        var factory = catalog[catalog.IndexOf("CreateView(WidgetKind kind)", StringComparison.Ordinal)..];
-        var views = new Dictionary<WidgetKind, string>();
-
-        foreach (Match arm in ViewArm().Matches(factory))
-        {
-            var named = Regex.Matches(arm.Groups[1].Value, @"WidgetKind\.(\w+)").Select(m => Enum.Parse<WidgetKind>(m.Groups[1].Value)).ToList();
-            var kinds = named.Count > 0 ? named : [.. Enum.GetValues<WidgetKind>().Where(k => QuickToggleRules.ForKind(k) is not null)];
-            foreach (var kind in kinds)
-            {
-                views.TryAdd(kind, arm.Groups[2].Value);
-            }
-        }
-
-        return views;
-    }
-
     [Fact]
     public void S6570_the_declaration_matches_what_every_view_paints_both_ways()
     {
         var painting = PaintingFiles().Select(Path.GetFileName).ToList();
-        var views = Views();
+        var views = ModuleSources.Views();
         var wrong = new List<string>();
 
         foreach (var kind in Enum.GetValues<WidgetKind>())
         {
-            Assert.True(views.TryGetValue(kind, out var view), $"{kind} has no view in WidgetCatalog.CreateView");
+            Assert.True(views.TryGetValue(kind, out var view), $"{kind} has no view in its module's CreateView");
             var paints = painting.Any(f => f!.StartsWith(view + ".", StringComparison.Ordinal));
             if (paints != ItemKinds.Has(kind))
             {

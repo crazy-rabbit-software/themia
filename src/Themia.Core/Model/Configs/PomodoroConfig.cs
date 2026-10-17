@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
@@ -69,6 +70,11 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
     {
         Id = new("pomodoro"),
         Kind = WidgetKind.Pomodoro,
+        LabelId = Str.Widget_Pomodoro_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Pomodoro_Description,
+        Glyph = Glyphs.Pomodoro,
+        DefaultWidth = 240,
+        DefaultHeight = 200,
     };
 
     /// <summary>[S-6035] How the phase's progress is drawn.</summary>

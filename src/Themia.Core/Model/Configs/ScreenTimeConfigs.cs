@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -75,6 +77,11 @@ public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenT
     {
         Id = new("screenTimeChart"),
         Kind = WidgetKind.ScreenTimeChart,
+        LabelId = Str.WidgetsC_ScreenTime_Chart_Label,
+        DescriptionId = Str.WidgetsC_ScreenTime_Chart_Desc,
+        Glyph = Glyphs.ScreenTimeChart,
+        DefaultWidth = 320,
+        DefaultHeight = 220,
     };
 
     /// <summary>Week or Month; a day is the donut's and the list's ([S-3330]).</summary>
@@ -100,6 +107,11 @@ public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenT
     {
         Id = new("screenTimeDonut"),
         Kind = WidgetKind.ScreenTimeDonut,
+        LabelId = Str.WidgetsC_ScreenTime_Donut_Label,
+        DescriptionId = Str.WidgetsC_ScreenTime_Donut_Desc,
+        Glyph = Glyphs.ScreenTimeDonut,
+        DefaultWidth = 240,
+        DefaultHeight = 260,
     };
 
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;
@@ -127,6 +139,11 @@ public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTi
     {
         Id = new("screenTimeApps"),
         Kind = WidgetKind.ScreenTimeApps,
+        LabelId = Str.WidgetsC_ScreenTime_Apps_Label,
+        DescriptionId = Str.WidgetsC_ScreenTime_Apps_Desc,
+        Glyph = Glyphs.ScreenTime,
+        DefaultWidth = 280,
+        DefaultHeight = 300,
     };
 
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;

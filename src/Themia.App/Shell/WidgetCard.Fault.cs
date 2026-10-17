@@ -1,13 +1,14 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell;
 
@@ -56,7 +57,7 @@ internal sealed partial class WidgetCard
         {
             // [S-6512] What the view paints while it is built is this card's item layer.
             using var items = ItemPalette.Building(_items);
-            return WidgetCatalog.CreateView(kind);
+            return ModuleHost.CreateView(kind);
         }
         catch (Exception ex)
         {
@@ -248,7 +249,7 @@ internal sealed partial class WidgetCard
         {
             // [S-6512] What the view paints while it is built is this card's item layer.
             using var items = ItemPalette.Building(_items);
-            return WidgetCatalog.CreateView(kind);
+            return ModuleHost.CreateView(kind);
         }
         catch (Exception ex)
         {

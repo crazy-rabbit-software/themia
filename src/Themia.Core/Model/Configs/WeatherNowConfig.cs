@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -126,6 +127,11 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
     {
         Id = new("weatherNow"),
         Kind = WidgetKind.WeatherNow,
+        LabelId = Str.Widget_WeatherCurrent_Label,
+        DescriptionId = Str.WidgetsA_Catalog_Weather_Description,
+        Glyph = Glyphs.Weather,
+        DefaultWidth = 260,
+        DefaultHeight = 200,
     };
 
     /// <summary>[S-6160] The widget's look.</summary>
