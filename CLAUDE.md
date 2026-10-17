@@ -56,7 +56,7 @@ state store.
 ```
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. Everything with a rule lives here.
   Geometry/ Model/ (state, WidgetKind, Configs/*) Storage/ (atomic store, load validation, JSON context)
-  Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Developer/ Notes/
+  Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/
   Settings/ Shell/ Motion/ Licensing/ Localization/ (+ Locales/*.json) Diagnostics/ (Log) Net/ Time/
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
