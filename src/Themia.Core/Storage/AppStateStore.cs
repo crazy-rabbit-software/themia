@@ -4,6 +4,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Storage;
 
@@ -241,7 +242,7 @@ public sealed class AppStateStore : IAsyncDisposable
     }
 
     /// <summary>
-    /// [S-1900] Take out, before the typed read, every widget whose kind this build does not have —
+    /// [S-1900] [S-6908] Take out, before the typed read, every widget whose kind this build does not have —
     /// a widget that was removed from the app, or a hand edit — and say which. The typed read would
     /// otherwise refuse the whole document over one widget it cannot name, and the user would lose
     /// every other widget with it. What such a widget held goes with it; nothing else is touched.
@@ -261,18 +262,36 @@ public sealed class AppStateStore : IAsyncDisposable
                 continue;
             }
 
+            var viewName = entry["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var named) ? named : "?";
             var unknown = new List<JsonNode>();
             foreach (var widget in widgets)
             {
+                if (widget is not JsonObject fields)
+                {
+                    continue;
+                }
+
+                var id = fields["id"] is JsonValue idValue && idValue.TryGetValue<string>(out var text) ? text : "?";
+
                 // Only a kind given by name can be unknown here; a number is checked after the read.
-                if (widget is JsonObject fields
-                    && fields["kind"] is JsonValue kind
+                if (fields["kind"] is JsonValue kind
                     && kind.TryGetValue<string>(out var name)
                     && !IsKindName(name))
                 {
                     unknown.Add(widget);
-                    var id = fields["id"] is JsonValue idValue && idValue.TryGetValue<string>(out var text) ? text : "?";
-                    dropped.Add($"dropped widget '{id}' of unknown kind '{name}'");
+                    dropped.Add($"dropped widget '{id}' of unknown kind '{name}' from view '{viewName}'");
+                }
+
+                // [S-6908] The config's discriminator is the widget's id: one no module in this build
+                // declares (or one that is not an id at all) cannot be read, and would refuse the
+                // whole document if it reached the typed read.
+                else if (fields["config"] is JsonObject config
+                    && config["kind"] is JsonValue discriminator
+                    && discriminator.TryGetValue<string>(out var widgetId)
+                    && !(WidgetId.TryParse(widgetId, out var parsed) && ModuleCatalog.TryGet(parsed, out _)))
+                {
+                    unknown.Add(widget);
+                    dropped.Add($"dropped widget '{id}' of unknown kind '{widgetId}' from view '{viewName}'");
                 }
             }
 

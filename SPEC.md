@@ -409,6 +409,15 @@ busy desktop ([S-6601]), Debug, private bytes.
   set it aside. A property the model no longer has (a widget's old `parentId`) is ignored like any
   unknown JSON, so a widget that sat in a removed container loads on the desktop at its own rect.
   Validation, not migration ([S-1050]).
+- **[S-6908]** A widget is known by its config's `kind` (its module id, [S-6900]). A widget whose
+  id no module in this build declares (a settings file from a build with a module this one lacks, a
+  hand edit), or whose id is not an id at all, is dropped on load like an unknown kind ([S-1900]):
+  taken out element by element before the typed read (System.Text.Json would refuse the whole
+  document over one unknown discriminator), named in the load's log line with its id and its view
+  ("dropped widget 'w3' of unknown kind 'hello' from view 'Desk'"), and gone from the next save. No
+  placeholder card, no raw JSON kept. A deliberate exception to "never delete user data on a
+  recoverable error": nothing this build can do brings a widget without its code back (Q15). A
+  known id with a broken config is repaired by its own rules ([S-44]).
 
 ## Clock
 
