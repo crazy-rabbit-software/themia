@@ -23,7 +23,7 @@ namespace Themia.App.Widgets;
 /// countdown's remove, the clipboard's clear and the notes' delete were, and could be cut off).
 /// </para>
 /// </summary>
-internal static class ConfirmFlyout
+public static class ConfirmFlyout
 {
     private const string Scope = "confirm";
 
