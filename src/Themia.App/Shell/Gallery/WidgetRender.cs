@@ -16,19 +16,6 @@ using Windows.Graphics;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// Debug renders only: a view that can show a state a render cannot click or hover its way into
-/// (an armed button, a hovered row). Optional; <c>--widget-png --state</c> uses it.
-/// </summary>
-internal interface IWidgetPreviewState
-{
-    /// <summary>The state names this view understands.</summary>
-    IReadOnlyList<string> PreviewStates { get; }
-
-    /// <summary>Show <paramref name="state"/>; an unknown name changes nothing.</summary>
-    Task ShowPreviewStateAsync(string state);
-}
-
-/// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
 /// [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
