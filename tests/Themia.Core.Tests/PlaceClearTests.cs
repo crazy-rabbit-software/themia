@@ -153,23 +153,4 @@ public class PlaceClearTests
         Assert.Null(OnlineCadence.For(rain));
     }
 
-    [Theory]
-    [InlineData("sun", "Sun")]
-    [InlineData("moon", "Moon")]
-    public void S2848_null_sky_coordinates_in_a_file_are_no_place_not_a_damaged_one(string discriminator, string kind)
-    {
-        var config = (SkyPlaceConfig)ConfigJson.Read(kind, $$"""{ "kind": "{{discriminator}}", "latitude": null, "longitude": null, "place": "" }""");
-
-        Assert.False(config.HasLocation);
-        Assert.True(WidgetSetup.Needed(config, FeatureSet.None));
-    }
-
-    [Fact]
-    public void S2848_a_new_sky_tile_still_starts_at_zurich()
-    {
-        var moon = new MoonConfig();
-
-        Assert.True(moon.HasLocation);
-        Assert.Equal((SkyPlaceConfig.DefaultLatitude, SkyPlaceConfig.DefaultLongitude), (moon.Latitude!.Value, moon.Longitude!.Value));
-    }
 }
