@@ -1,0 +1,2294 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    {
+      "id": "fixture",
+      "name": "Every kind",
+      "widgets": [
+        {
+          "id": "w00",
+          "kind": "Clock",
+          "x": 0,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "clock",
+            "style": "digital",
+            "showSeconds": false,
+            "showDate": true,
+            "offsetMode": "None",
+            "textSize": "Default"
+          }
+        },
+        {
+          "id": "w01",
+          "kind": "Cpu",
+          "x": 0.01,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "cpu",
+            "style": "graph",
+            "showGraph": true,
+            "graphSpanSeconds": 60
+          }
+        },
+        {
+          "id": "w02",
+          "kind": "Memory",
+          "x": 0.02,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "memory",
+            "style": "graph",
+            "showGraph": true,
+            "graphSpanSeconds": 60
+          }
+        },
+        {
+          "id": "w03",
+          "kind": "Disk",
+          "x": 0.03,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "disk",
+            "style": "graph",
+            "scope": 0,
+            "drive": "",
+            "showGraph": true,
+            "graphSpanSeconds": 300
+          }
+        },
+        {
+          "id": "w04",
+          "kind": "Battery",
+          "x": 0.04,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "battery",
+            "style": "graph",
+            "showGraph": true,
+            "graphSpanSeconds": 900
+          }
+        },
+        {
+          "id": "w05",
+          "kind": "Email",
+          "x": 0.05,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "email",
+            "accountIds": [],
+            "folder": "inbox",
+            "style": "list",
+            "previewLines": 2,
+            "sortOrder": "desc"
+          }
+        },
+        {
+          "id": "w06",
+          "kind": "Network",
+          "x": 0.06,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "network",
+            "style": "graph",
+            "showGraph": true,
+            "graphSpanSeconds": 60
+          }
+        },
+        {
+          "id": "w07",
+          "kind": "Ping",
+          "x": 0.07,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "ping",
+            "style": "graph",
+            "host": "1.1.1.1",
+            "showGraph": true,
+            "graphSpanSeconds": 900
+          }
+        },
+        {
+          "id": "w08",
+          "kind": "Contacts",
+          "x": 0.08,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "contacts",
+            "accountIds": [],
+            "layout": "list",
+            "columns": [
+              "name",
+              "email",
+              "phone",
+              "company",
+              "title"
+            ],
+            "count": 20
+          }
+        },
+        {
+          "id": "w09",
+          "kind": "Tasks",
+          "x": 0.09,
+          "y": 0,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "tasks",
+            "source": "Account",
+            "accountId": "",
+            "listId": "",
+            "listName": "",
+            "localListId": "",
+            "showCompleted": false,
+            "showDueDate": true,
+            "style": "list",
+            "titleLines": 2,
+            "newOnTop": false,
+            "dueFilter": "Any",
+            "importantOnly": false,
+            "textFilter": "",
+            "taskOrder": []
+          }
+        },
+        {
+          "id": "w10",
+          "kind": "Notes",
+          "x": 0,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "notes",
+            "fontSizePx": 13
+          }
+        },
+        {
+          "id": "w11",
+          "kind": "Countdown",
+          "x": 0.01,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "countdown",
+            "style": "text",
+            "label": "",
+            "format": "Auto",
+            "created": "0001-01-01T00:00:00+00:00"
+          }
+        },
+        {
+          "id": "w12",
+          "kind": "Pomodoro",
+          "x": 0.02,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "pomodoro",
+            "style": "ring",
+            "workMinutes": 25,
+            "breakMinutes": 5,
+            "sound": "chime",
+            "volume": 70
+          }
+        },
+        {
+          "id": "w13",
+          "kind": "Folder",
+          "x": 0.03,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "folder",
+            "style": "list",
+            "path": "",
+            "navigation": "Explorer",
+            "clickMode": "Double",
+            "sort": "Name",
+            "descending": false,
+            "showHidden": false,
+            "itemSize": "Medium",
+            "showExtensions": false,
+            "columns": [
+              "Size",
+              "Modified",
+              "Type"
+            ],
+            "tileSize": "Medium"
+          }
+        },
+        {
+          "id": "w14",
+          "kind": "Volume",
+          "x": 0.04,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "volume",
+            "allowControl": true
+          }
+        },
+        {
+          "id": "w15",
+          "kind": "Bluetooth",
+          "x": 0.05,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "bluetooth",
+            "showBattery": true,
+            "showIcon": true,
+            "showConnection": true,
+            "showSignal": false,
+            "connectedOnly": false
+          }
+        },
+        {
+          "id": "w16",
+          "kind": "Music",
+          "x": 0.06,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "music",
+            "style": "artwork",
+            "showTransport": true,
+            "showProgress": true,
+            "hideWhenIdle": "never"
+          }
+        },
+        {
+          "id": "w17",
+          "kind": "WeatherNow",
+          "x": 0.07,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "weatherNow",
+            "style": "standard",
+            "showDetails": true,
+            "locationName": "",
+            "hideLocation": false
+          }
+        },
+        {
+          "id": "w18",
+          "kind": "WeatherForecast",
+          "x": 0.08,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "weatherForecast",
+            "days": 7,
+            "showPrecipitation": true,
+            "style": "rows",
+            "locationName": "",
+            "hideLocation": false
+          }
+        },
+        {
+          "id": "w19",
+          "kind": "Stocks",
+          "x": 0.09,
+          "y": 0.01,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "stocks",
+            "symbol": "",
+            "market": "Listed",
+            "displayName": "",
+            "range": "Day",
+            "style": "chart",
+            "showMarketState": true,
+            "showExtendedHours": false,
+            "showMinMax": false,
+            "upColor": "",
+            "downColor": ""
+          }
+        },
+        {
+          "id": "w20",
+          "kind": "Rss",
+          "x": 0,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rss",
+            "feeds": [],
+            "maxItems": 20,
+            "showSource": true,
+            "showPreview": true,
+            "showDate": true
+          }
+        },
+        {
+          "id": "w21",
+          "kind": "Shortcuts",
+          "x": 0.01,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "shortcuts",
+            "items": [
+              {
+                "id": "158abedbbbe4452995f83c00cdde0835",
+                "label": "",
+                "target": "shell:RecycleBinFolder"
+              },
+              {
+                "id": "a8ab165bb97344a88478fd6279a8b027",
+                "label": "",
+                "target": "shell:MyComputerFolder"
+              }
+            ],
+            "style": "grid",
+            "gridSize": "Medium",
+            "listSize": "Medium",
+            "gridStretchHeight": false,
+            "gridIconOnly": false,
+            "showFileExtension": false,
+            "clickMode": "Double"
+          }
+        },
+        {
+          "id": "w22",
+          "kind": "Clipboard",
+          "x": 0.02,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "clipboard",
+            "capacity": 50,
+            "showTimestamp": true
+          }
+        },
+        {
+          "id": "w23",
+          "kind": "Scratchpad",
+          "x": 0.03,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "scratchpad",
+            "strokes": [],
+            "penColor": "#0078D4",
+            "penWidth": 3,
+            "showTools": true
+          }
+        },
+        {
+          "id": "w24",
+          "kind": "Quote",
+          "x": 0.04,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "quote",
+            "style": "plain",
+            "quotes": [
+              {
+                "text": "The secret of getting ahead is getting started.",
+                "author": "Mark Twain"
+              },
+              {
+                "text": "Simplicity is the ultimate sophistication.",
+                "author": "Leonardo da Vinci"
+              },
+              {
+                "text": "Well done is better than well said.",
+                "author": "Benjamin Franklin"
+              },
+              {
+                "text": "What we know is a drop, what we don\u2019t know is an ocean.",
+                "author": "Isaac Newton"
+              },
+              {
+                "text": "It always seems impossible until it\u2019s done.",
+                "author": "Nelson Mandela"
+              },
+              {
+                "text": "The only way to do great work is to love what you do.",
+                "author": "Steve Jobs"
+              },
+              {
+                "text": "Whether you think you can or you can\u2019t, you\u2019re right.",
+                "author": "Henry Ford"
+              },
+              {
+                "text": "Quality is not an act, it is a habit.",
+                "author": "Aristotle"
+              },
+              {
+                "text": "The journey of a thousand miles begins with one step.",
+                "author": "Lao Tzu"
+              },
+              {
+                "text": "Make it work, make it right, make it fast.",
+                "author": "Kent Beck"
+              },
+              {
+                "text": "Perfection is achieved when there is nothing left to take away.",
+                "author": "Antoine de Saint-Exup\u00E9ry"
+              },
+              {
+                "text": "First, solve the problem. Then, write the code.",
+                "author": "John Johnson"
+              },
+              {
+                "text": "Knowing yourself is the beginning of all wisdom.",
+                "author": "Aristotle"
+              },
+              {
+                "text": "The best time to plant a tree was 20 years ago. The second best is now.",
+                "author": "Chinese Proverb"
+              },
+              {
+                "text": "Act as if what you do makes a difference. It does.",
+                "author": "William James"
+              },
+              {
+                "text": "Done is better than perfect.",
+                "author": "Sheryl Sandberg"
+              }
+            ],
+            "cadence": 2,
+            "shuffle": false,
+            "seed": 1,
+            "showAuthor": true
+          }
+        },
+        {
+          "id": "w25",
+          "kind": "Gallery",
+          "x": 0.05,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gallery",
+            "source": "Folder",
+            "path": "",
+            "filePath": "",
+            "recursive": false,
+            "style": "slideshow",
+            "fit": "Fill",
+            "shuffle": true,
+            "slideshowSeconds": 10,
+            "maxImages": 24,
+            "rotation": 0,
+            "outline": false,
+            "outlineColor": "#FFFFFF",
+            "outlineWidth": 6
+          }
+        },
+        {
+          "id": "w26",
+          "kind": "HabitTracker",
+          "x": 0.06,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "habitTracker",
+            "listId": "",
+            "style": "dots",
+            "period": "Daily",
+            "customMinutes": 30,
+            "historyDots": 7,
+            "showStreak": true
+          }
+        },
+        {
+          "id": "w27",
+          "kind": "Gpu",
+          "x": 0.07,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gpu",
+            "adapter": 0,
+            "style": "graph",
+            "showGraph": true,
+            "graphSpanSeconds": 60
+          }
+        },
+        {
+          "id": "w28",
+          "kind": "Mixer",
+          "x": 0.08,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "mixer",
+            "groupByApp": true,
+            "showSystemSounds": false,
+            "onlyActive": false,
+            "showIcons": true
+          }
+        },
+        {
+          "id": "w29",
+          "kind": "VideoStream",
+          "x": 0.09,
+          "y": 0.02,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "videoStream",
+            "url": "",
+            "fit": "Contain",
+            "rotation": "None",
+            "paused": false,
+            "refreshSeconds": 0,
+            "showStatus": false,
+            "hoverControls": true
+          }
+        },
+        {
+          "id": "w30",
+          "kind": "Shutdown",
+          "x": 0,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "shutdown",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w31",
+          "kind": "Restart",
+          "x": 0.01,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "restart",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w32",
+          "kind": "Sleep",
+          "x": 0.02,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "sleep",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w33",
+          "kind": "Hibernate",
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "hibernate",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w34",
+          "kind": "Lock",
+          "x": 0.04,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "lock",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w35",
+          "kind": "SignOut",
+          "x": 0.05,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "signOut",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w36",
+          "kind": "ScreenOff",
+          "x": 0.06,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "screenOff",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w37",
+          "kind": "CpuDetails",
+          "x": 0.07,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "cpuDetails"
+          }
+        },
+        {
+          "id": "w38",
+          "kind": "MemoryDetails",
+          "x": 0.08,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "memoryDetails"
+          }
+        },
+        {
+          "id": "w39",
+          "kind": "TopProcesses",
+          "x": 0.09,
+          "y": 0.03,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "topProcesses",
+            "sortBy": "Cpu",
+            "maxRows": 0,
+            "groupByName": true
+          }
+        },
+        {
+          "id": "w40",
+          "kind": "NetworkDetails",
+          "x": 0,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "networkDetails",
+            "showPublicAddress": false
+          }
+        },
+        {
+          "id": "w41",
+          "kind": "BatteryDetails",
+          "x": 0.01,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "batteryDetails"
+          }
+        },
+        {
+          "id": "w42",
+          "kind": "PingDetails",
+          "x": 0.02,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "pingDetails",
+            "host": "1.1.1.1",
+            "window": 60
+          }
+        },
+        {
+          "id": "w43",
+          "kind": "GpuDetails",
+          "x": 0.03,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gpuDetails",
+            "adapter": 0
+          }
+        },
+        {
+          "id": "w44",
+          "kind": "Sun",
+          "x": 0.04,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "sun",
+            "style": "arc",
+            "showEvents": true,
+            "latitude": 47.37,
+            "longitude": 8.54,
+            "place": "Zurich"
+          }
+        },
+        {
+          "id": "w45",
+          "kind": "Moon",
+          "x": 0.05,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "moon",
+            "style": "disc",
+            "latitude": 47.37,
+            "longitude": 8.54,
+            "place": "Zurich"
+          }
+        },
+        {
+          "id": "w46",
+          "kind": "AudioVisualizer",
+          "x": 0.06,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "audioVisualizer",
+            "style": "bars"
+          }
+        },
+        {
+          "id": "w47",
+          "kind": "Calendar",
+          "x": 0.07,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "calendar",
+            "style": "month",
+            "weekDays": 7,
+            "weekFrom": "week",
+            "agendaCount": 20,
+            "agendaDays": 30,
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": true
+          }
+        },
+        {
+          "id": "w48",
+          "kind": "ScreenTimeChart",
+          "x": 0.08,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "screenTimeChart",
+            "period": "Week",
+            "style": "Bars"
+          }
+        },
+        {
+          "id": "w49",
+          "kind": "ScreenTimeDonut",
+          "x": 0.09,
+          "y": 0.04,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "screenTimeDonut",
+            "period": "Day"
+          }
+        },
+        {
+          "id": "w50",
+          "kind": "ScreenTimeApps",
+          "x": 0,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "screenTimeApps",
+            "period": "Day",
+            "maxApps": 0,
+            "showAverage": true,
+            "showPercent": false
+          }
+        },
+        {
+          "id": "w51",
+          "kind": "WifiToggle",
+          "x": 0.01,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "wifiToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w52",
+          "kind": "BluetoothToggle",
+          "x": 0.02,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "bluetoothToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w53",
+          "kind": "AirplaneModeToggle",
+          "x": 0.03,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "airplaneModeToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w54",
+          "kind": "EnergySaverToggle",
+          "x": 0.04,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "energySaverToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w55",
+          "kind": "NightLightToggle",
+          "x": 0.05,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "nightLightToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w56",
+          "kind": "RotationLockToggle",
+          "x": 0.06,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rotationLockToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w57",
+          "kind": "DoNotDisturbToggle",
+          "x": 0.07,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "doNotDisturbToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w58",
+          "kind": "SoundToggle",
+          "x": 0.08,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "soundToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w59",
+          "kind": "MicrophoneToggle",
+          "x": 0.09,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "microphoneToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w60",
+          "kind": "SpatialSoundToggle",
+          "x": 0,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "spatialSoundToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w61",
+          "kind": "MonoAudioToggle",
+          "x": 0.01,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "monoAudioToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w62",
+          "kind": "ColorFiltersToggle",
+          "x": 0.02,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "colorFiltersToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w63",
+          "kind": "GameModeToggle",
+          "x": 0.03,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gameModeToggle",
+            "style": "tile"
+          }
+        },
+        {
+          "id": "w64",
+          "kind": "Stopwatch",
+          "x": 0.04,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "stopwatch",
+            "phase": "Idle",
+            "bankedMs": 0,
+            "lapsMs": []
+          }
+        },
+        {
+          "id": "w65",
+          "kind": "Alarm",
+          "x": 0.05,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "alarm",
+            "time": "07:00",
+            "on": false,
+            "label": "",
+            "sound": "bell",
+            "volume": 80,
+            "snoozeMinutes": 10
+          }
+        },
+        {
+          "id": "w66",
+          "kind": "RemovableDrives",
+          "x": 0.06,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "removableDrives"
+          }
+        },
+        {
+          "id": "w67",
+          "kind": "Drive",
+          "x": 0.07,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "drive",
+            "style": "bar",
+            "drive": ""
+          }
+        },
+        {
+          "id": "w68",
+          "kind": "Notifications",
+          "x": 0.08,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "notifications"
+          }
+        },
+        {
+          "id": "w69",
+          "kind": "FocusSession",
+          "x": 0.09,
+          "y": 0.06,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "focusSession",
+            "minutes": 30,
+            "doNotDisturb": true
+          }
+        },
+        {
+          "id": "w70",
+          "kind": "Brightness",
+          "x": 0,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "brightness",
+            "screens": "All"
+          }
+        },
+        {
+          "id": "w71",
+          "kind": "YearProgress",
+          "x": 0.01,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "yearProgress",
+            "style": "bars"
+          }
+        },
+        {
+          "id": "w72",
+          "kind": "NextMeeting",
+          "x": 0.02,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "nextMeeting",
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": false
+          }
+        },
+        {
+          "id": "w73",
+          "kind": "RecentFiles",
+          "x": 0.03,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "recentFiles"
+          }
+        },
+        {
+          "id": "w74",
+          "kind": "RecycleBin",
+          "x": 0.04,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "recycleBin"
+          }
+        },
+        {
+          "id": "w75",
+          "kind": "AirQuality",
+          "x": 0.05,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "airQuality",
+            "style": "number",
+            "scale": "Auto",
+            "locationName": "",
+            "hideLocation": false
+          }
+        },
+        {
+          "id": "w76",
+          "kind": "RainNextHour",
+          "x": 0.06,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rainNextHour",
+            "locationName": "",
+            "hideLocation": false
+          }
+        },
+        {
+          "id": "w77",
+          "kind": "ExchangeRates",
+          "x": 0.07,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "exchangeRates",
+            "baseCurrency": "",
+            "quoteCurrency": "",
+            "style": "chart"
+          }
+        },
+        {
+          "id": "w78",
+          "kind": "WeekPlanner",
+          "x": 0.08,
+          "y": 0.07,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "weekPlanner",
+            "showTasks": true,
+            "taskAccountId": "",
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": true
+          }
+        }
+      ]
+    }
+  ],
+  "activeViewId": "fixture",
+  "monitorViews": {},
+  "design": {
+    "theme": "System",
+    "uiScale": 1,
+    "fontFamily": "system",
+    "fontScale": 1,
+    "widgetGapPx": 8,
+    "gridSnap": true,
+    "cornerRadiusPx": 4,
+    "background": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemBackground": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemTextColor": "",
+    "primaryColor": "",
+    "borderStyle": "Solid",
+    "borderWidthPx": 1,
+    "borderColor": "",
+    "borderOpacity": 1,
+    "introAnimation": "Scale",
+    "introAnimationMs": 500,
+    "headerBackgroundColor": "",
+    "headerOpacity": 1,
+    "transitionAnimation": "Scale",
+    "transitionAnimationMs": 500,
+    "unlockAnimation": "Scale",
+    "unlockAnimationMs": 500,
+    "smoothValues": true,
+    "runAtStartup": false
+  },
+  "preferences": {
+    "language": "System",
+    "gameModeSuspend": false,
+    "desktopIconsVisible": true,
+    "region": {
+      "clock": "System",
+      "weekStart": "System",
+      "temperature": "System"
+    },
+    "refresh": {
+      "weatherMinutes": 30,
+      "marketsMinutes": 5,
+      "feedsMinutes": 30,
+      "accountsMinutes": 2
+    }
+  },
+  "disabledMonitors": [],
+  "monitorScales": {},
+  "viewBars": {}
+}
