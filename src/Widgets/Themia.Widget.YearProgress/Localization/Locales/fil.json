@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "Takbo ng taon",
+  "yearProgress.desc": "Gaano na kalaki ang lumipas sa araw, linggo, buwan at taon",
+  "yearProgress.day": "Araw",
+  "yearProgress.week": "Linggo",
+  "yearProgress.month": "Buwan",
+  "yearProgress.year": "Taon",
+  "yearProgress.left": "{time} pa",
+  "yearProgress.weekNumber": "Linggo {number}",
+  "yearProgress.dayOf": "Araw {day} ng {days}",
+  "styles.yearProgress.bars": "Mga bar",
+  "styles.yearProgress.rings": "Mga singsing",
+  "styles.yearProgress.dots": "Mga tuldok"
+}

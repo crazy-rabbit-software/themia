@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "Yıl ilerlemesi",
+  "yearProgress.desc": "Günün, haftanın, ayın ve yılın ne kadarının geçtiği",
+  "yearProgress.day": "Gün",
+  "yearProgress.week": "Hafta",
+  "yearProgress.month": "Ay",
+  "yearProgress.year": "Yıl",
+  "yearProgress.left": "{time} kaldı",
+  "yearProgress.weekNumber": "{number}. hafta",
+  "yearProgress.dayOf": "{days} günün {day}. günü",
+  "styles.yearProgress.bars": "Çubuklar",
+  "styles.yearProgress.rings": "Halkalar",
+  "styles.yearProgress.dots": "Noktalar"
+}

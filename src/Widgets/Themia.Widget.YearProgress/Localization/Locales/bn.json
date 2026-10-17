@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "বছরের অগ্রগতি",
+  "yearProgress.desc": "দিন, সপ্তাহ, মাস ও বছরের কতটা পেরিয়ে গেছে",
+  "yearProgress.day": "দিন",
+  "yearProgress.week": "সপ্তাহ",
+  "yearProgress.month": "মাস",
+  "yearProgress.year": "বছর",
+  "yearProgress.left": "{time} বাকি",
+  "yearProgress.weekNumber": "সপ্তাহ {number}",
+  "yearProgress.dayOf": "{days} দিনের মধ্যে দিন {day}",
+  "styles.yearProgress.bars": "বার",
+  "styles.yearProgress.rings": "বলয়",
+  "styles.yearProgress.dots": "বিন্দু"
+}

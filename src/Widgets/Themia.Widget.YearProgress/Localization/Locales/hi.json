@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "वर्ष की प्रगति",
+  "yearProgress.desc": "दिन, सप्ताह, महीने और वर्ष का कितना हिस्सा बीत चुका है",
+  "yearProgress.day": "दिन",
+  "yearProgress.week": "सप्ताह",
+  "yearProgress.month": "महीना",
+  "yearProgress.year": "वर्ष",
+  "yearProgress.left": "{time} शेष",
+  "yearProgress.weekNumber": "सप्ताह {number}",
+  "yearProgress.dayOf": "{days} में से दिन {day}",
+  "styles.yearProgress.bars": "पट्टियाँ",
+  "styles.yearProgress.rings": "वलय",
+  "styles.yearProgress.dots": "बिंदु"
+}

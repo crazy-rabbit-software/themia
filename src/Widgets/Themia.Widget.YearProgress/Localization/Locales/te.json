@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "సంవత్సర పురోగతి",
+  "yearProgress.desc": "రోజు, వారం, నెల మరియు సంవత్సరంలో ఎంత గడిచిపోయింది",
+  "yearProgress.day": "రోజు",
+  "yearProgress.week": "వారం",
+  "yearProgress.month": "నెల",
+  "yearProgress.year": "సంవత్సరం",
+  "yearProgress.left": "{time} మిగిలి ఉంది",
+  "yearProgress.weekNumber": "వారం {number}",
+  "yearProgress.dayOf": "{days}లో {day}వ రోజు",
+  "styles.yearProgress.bars": "పట్టీలు",
+  "styles.yearProgress.rings": "వలయాలు",
+  "styles.yearProgress.dots": "చుక్కలు"
+}

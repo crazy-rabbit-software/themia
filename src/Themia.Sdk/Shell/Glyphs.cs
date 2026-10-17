@@ -337,9 +337,6 @@ internal static class Glyphs
     /// <inheritdoc cref="SplitSideBySide"/>
     public static readonly string SplitStacked = From(0xE90E);
 
-    /// <summary>[S-4800] Year progress (Segoe "DateTime").</summary>
-    public static readonly string YearProgress = From(0xEC92);
-
     /// <summary>[S-5320] The week planner (Segoe "MultiSelect": rows to tick, beside the calendars' pages).</summary>
     public static readonly string WeekPlanner = From(0xE762);
 

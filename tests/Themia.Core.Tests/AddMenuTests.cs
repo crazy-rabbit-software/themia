@@ -138,8 +138,9 @@ public sealed class AddMenuTests
     [Fact]
     public void S3511_lines_only_ever_stand_between_two_rows()
     {
-        // Without the year progress, Time's last line would end the folder.
-        var offered = Every.Where(kind => kind != YearProgressConfig.Descriptor.Id).ToList();
+        // Without the year progress (a module of its own, so never in Core's catalogue), Time's last
+        // line would end the folder.
+        var offered = Every.Where(kind => kind.Value != "yearProgress").ToList();
         var time = AddTree.On(offered)[1].Rows.OfType<AddFolder>().Single(folder => folder.Shelf.Id == AddFolderId.Time);
 
         Assert.IsNotType<AddRule>(time.Rows[^1]);

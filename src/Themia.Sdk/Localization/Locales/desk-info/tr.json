@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "Yıl ilerlemesi",
-  "yearProgress.desc": "Günün, haftanın, ayın ve yılın ne kadarının geçtiği",
-  "yearProgress.day": "Gün",
-  "yearProgress.week": "Hafta",
-  "yearProgress.month": "Ay",
-  "yearProgress.year": "Yıl",
-  "yearProgress.left": "{time} kaldı",
-  "yearProgress.weekNumber": "{number}. hafta",
-  "yearProgress.dayOf": "{days} günün {day}. günü",
   "meeting.label": "Sonraki toplantı",
   "meeting.desc": "Sonraki etkinliğiniz, çevrimiçi toplantılar için Katıl düğmesiyle",
   "meeting.join": "Katıl",

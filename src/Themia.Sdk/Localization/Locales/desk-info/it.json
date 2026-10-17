@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "Avanzamento dell’anno",
-  "yearProgress.desc": "Quanto è passato del giorno, della settimana, del mese e dell’anno",
-  "yearProgress.day": "Giorno",
-  "yearProgress.week": "Settimana",
-  "yearProgress.month": "Mese",
-  "yearProgress.year": "Anno",
-  "yearProgress.left": "Mancano {time}",
-  "yearProgress.weekNumber": "Settimana {number}",
-  "yearProgress.dayOf": "Giorno {day} di {days}",
   "meeting.label": "Prossima riunione",
   "meeting.desc": "Il tuo prossimo evento, con Partecipa per le riunioni online",
   "meeting.join": "Partecipa",

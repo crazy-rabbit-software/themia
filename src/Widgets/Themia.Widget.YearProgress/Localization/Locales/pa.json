@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "ਸਾਲ ਦੀ ਪ੍ਰਗਤੀ",
+  "yearProgress.desc": "ਦਿਨ, ਹਫ਼ਤੇ, ਮਹੀਨੇ ਅਤੇ ਸਾਲ ਦਾ ਕਿੰਨਾ ਹਿੱਸਾ ਬੀਤ ਗਿਆ ਹੈ",
+  "yearProgress.day": "ਦਿਨ",
+  "yearProgress.week": "ਹਫ਼ਤਾ",
+  "yearProgress.month": "ਮਹੀਨਾ",
+  "yearProgress.year": "ਸਾਲ",
+  "yearProgress.left": "{time} ਬਾਕੀ",
+  "yearProgress.weekNumber": "ਹਫ਼ਤਾ {number}",
+  "yearProgress.dayOf": "{days} ਵਿੱਚੋਂ ਦਿਨ {day}",
+  "styles.yearProgress.bars": "ਪੱਟੀਆਂ",
+  "styles.yearProgress.rings": "ਛੱਲੇ",
+  "styles.yearProgress.dots": "ਬਿੰਦੂ"
+}

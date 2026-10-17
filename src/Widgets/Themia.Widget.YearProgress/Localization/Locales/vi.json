@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "Tiến độ năm",
+  "yearProgress.desc": "Đã trôi qua bao nhiêu phần của ngày, tuần, tháng và năm",
+  "yearProgress.day": "Ngày",
+  "yearProgress.week": "Tuần",
+  "yearProgress.month": "Tháng",
+  "yearProgress.year": "Năm",
+  "yearProgress.left": "Còn {time}",
+  "yearProgress.weekNumber": "Tuần {number}",
+  "yearProgress.dayOf": "Ngày {day}/{days}",
+  "styles.yearProgress.bars": "Thanh",
+  "styles.yearProgress.rings": "Vòng",
+  "styles.yearProgress.dots": "Chấm"
+}

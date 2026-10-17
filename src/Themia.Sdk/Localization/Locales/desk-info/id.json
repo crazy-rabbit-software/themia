@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "Progres tahun",
-  "yearProgress.desc": "Seberapa banyak hari, minggu, bulan, dan tahun ini yang telah berlalu",
-  "yearProgress.day": "Hari",
-  "yearProgress.week": "Minggu",
-  "yearProgress.month": "Bulan",
-  "yearProgress.year": "Tahun",
-  "yearProgress.left": "Tersisa {time}",
-  "yearProgress.weekNumber": "Minggu {number}",
-  "yearProgress.dayOf": "Hari {day} dari {days}",
   "meeting.label": "Rapat berikutnya",
   "meeting.desc": "Acara Anda berikutnya, dengan Gabung untuk rapat online",
   "meeting.join": "Gabung",

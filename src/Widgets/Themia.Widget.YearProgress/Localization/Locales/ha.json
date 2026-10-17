@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "yearProgress.label": "Ci gaban shekara",
+  "yearProgress.desc": "Nawa ne ya wuce na yini, mako, wata da shekara",
+  "yearProgress.day": "Yini",
+  "yearProgress.week": "Mako",
+  "yearProgress.month": "Wata",
+  "yearProgress.year": "Shekara",
+  "yearProgress.left": "Saura {time}",
+  "yearProgress.weekNumber": "Mako na {number}",
+  "yearProgress.dayOf": "Rana ta {day} cikin {days}",
+  "styles.yearProgress.bars": "Sanduna",
+  "styles.yearProgress.rings": "Zobba",
+  "styles.yearProgress.dots": "Ɗigo"
+}

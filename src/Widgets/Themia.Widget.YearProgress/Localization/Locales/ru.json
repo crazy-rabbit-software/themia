@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "Прогресс года",
+  "yearProgress.desc": "Какая часть дня, недели, месяца и года уже прошла",
+  "yearProgress.day": "День",
+  "yearProgress.week": "Неделя",
+  "yearProgress.month": "Месяц",
+  "yearProgress.year": "Год",
+  "yearProgress.left": "Осталось {time}",
+  "yearProgress.weekNumber": "Неделя {number}",
+  "yearProgress.dayOf": "День {day} из {days}",
+  "styles.yearProgress.bars": "Полосы",
+  "styles.yearProgress.rings": "Кольца",
+  "styles.yearProgress.dots": "Точки"
+}

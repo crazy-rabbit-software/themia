@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "تقدّم السنة",
-  "yearProgress.desc": "كم مضى من اليوم والأسبوع والشهر والسنة",
-  "yearProgress.day": "اليوم",
-  "yearProgress.week": "الأسبوع",
-  "yearProgress.month": "الشهر",
-  "yearProgress.year": "السنة",
-  "yearProgress.left": "متبقٍ {time}",
-  "yearProgress.weekNumber": "الأسبوع {number}",
-  "yearProgress.dayOf": "اليوم {day} من {days}",
   "meeting.label": "الاجتماع التالي",
   "meeting.desc": "حدثك التالي، مع زر الانضمام للاجتماعات عبر الإنترنت",
   "meeting.join": "انضمام",

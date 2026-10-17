@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "Avanzamento dell’anno",
+  "yearProgress.desc": "Quanto è passato del giorno, della settimana, del mese e dell’anno",
+  "yearProgress.day": "Giorno",
+  "yearProgress.week": "Settimana",
+  "yearProgress.month": "Mese",
+  "yearProgress.year": "Anno",
+  "yearProgress.left": "Mancano {time}",
+  "yearProgress.weekNumber": "Settimana {number}",
+  "yearProgress.dayOf": "Giorno {day} di {days}",
+  "styles.yearProgress.bars": "Barre",
+  "styles.yearProgress.rings": "Anelli",
+  "styles.yearProgress.dots": "Punti"
+}

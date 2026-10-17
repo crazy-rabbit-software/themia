@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "Jahresfortschritt",
+  "yearProgress.desc": "Wie viel vom Tag, von der Woche, vom Monat und vom Jahr vergangen ist",
+  "yearProgress.day": "Tag",
+  "yearProgress.week": "Woche",
+  "yearProgress.month": "Monat",
+  "yearProgress.year": "Jahr",
+  "yearProgress.left": "noch {time}",
+  "yearProgress.weekNumber": "KW {number}",
+  "yearProgress.dayOf": "Tag {day} von {days}",
+  "styles.yearProgress.bars": "Balken",
+  "styles.yearProgress.rings": "Ringe",
+  "styles.yearProgress.dots": "Punkte"
+}

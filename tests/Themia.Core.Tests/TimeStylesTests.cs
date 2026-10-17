@@ -7,28 +7,18 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-6030]..[S-6061] The styles of the countdown, the pomodoro, year progress, the sun and the
-/// moon, and the shared ring and dot-grid rules they draw with.
+/// [S-6030]..[S-6061] The styles of the countdown, the pomodoro, the sun and the moon, and the
+/// shared ring and dot-grid rules they draw with (year progress's are its module's).
 /// </summary>
 public class TimeStylesTests
 {
     private static readonly TimeZoneInfo Zurich = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
-
-    public static TheoryData<string> Tiers() => [.. WidgetTiers.All.Select(t => t.Name)];
-
-    /// <summary>A tier's area less the 16 DIP inset all round, as the year progress view deflates it.</summary>
-    private static WidgetArea Inset(string tier)
-    {
-        var t = WidgetTiers.All.Single(x => x.Name == tier);
-        return new WidgetArea(t.Width - 32, t.Height - 32);
-    }
 
     // ---- the styles themselves ---------------------------------------------------------------
 
     [Theory]
     [InlineData("countdown", "text,ring,flip")]
     [InlineData("pomodoro", "ring,bar,digits")]
-    [InlineData("yearProgress", "bars,rings,dots")]
     [InlineData("sun", "arc,dayBar,times")]
     [InlineData("moon", "disc,phaseMonth")]
     [InlineData("clock", "digital,analog,stacked,flip,word,minimal,date")]
@@ -127,54 +117,6 @@ public class TimeStylesTests
         Assert.Equal((2, 4), month.Cell(31 - 1));
         Assert.Equal(0, DotGrid.Fit(0, 100, 100).Columns);
         Assert.Equal(0, DotGrid.Fit(10, 0, 100).Pitch);
-    }
-
-    // ---- year progress ------------------------------------------------------------------------
-
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S6041_rings_fit_every_tier_and_a_larger_tile_draws_larger_rings_not_more(string tier)
-    {
-        var area = Inset(tier);
-        var plan = YearStyleLayout.Rings(area);
-
-        Assert.InRange(plan.Spans.Count, 1, 4);
-        Assert.Contains(ProgressSpan.Year, plan.Spans);
-        var rows = (plan.Spans.Count + plan.Columns - 1) / plan.Columns;
-        var label = plan.Labels ? FluentType.Caption.LineHeight + YearProgressLayout.BarGap : 0;
-        Assert.True((plan.Columns * plan.Diameter) + ((plan.Columns - 1) * YearStyleLayout.RingGap) <= area.Width + 1e-6, tier);
-        Assert.True((rows * (plan.Diameter + label)) + ((rows - 1) * YearStyleLayout.RingGap) <= area.Height + 1e-6, tier);
-    }
-
-    [Fact]
-    public void S6041_from_m_up_all_four_rings_show_and_grow_with_the_tile()
-    {
-        var m = YearStyleLayout.Rings(Inset("M"));
-        var xl = YearStyleLayout.Rings(Inset("XL"));
-        Assert.Equal(TimeProgress.All, m.Spans);
-        Assert.Equal(TimeProgress.All, xl.Spans);
-        Assert.True(xl.Diameter > m.Diameter);
-        Assert.Equal(4, YearStyleLayout.Rings(Inset("Wide")).Columns);
-        Assert.Equal([ProgressSpan.Year], YearStyleLayout.Rings(Inset("XS")).Spans);
-    }
-
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S6042_a_dot_a_day_fits_every_tier_with_the_caption_only_where_the_grid_keeps_its_pitch(string tier)
-    {
-        var area = Inset(tier);
-
-        foreach (var days in new[] { 365, 366 })
-        {
-            var plan = YearStyleLayout.Dots(area, days);
-            Assert.False(plan.Hero, tier);
-            Assert.True(plan.Grid.Columns * plan.Grid.Rows >= days, tier);
-            var room = area.Height - (plan.Caption ? FluentType.Caption.LineHeight + YearStyleLayout.CaptionGap : 0);
-            Assert.True(plan.Grid.Height <= room + 1e-6 && plan.Grid.Width <= area.Width + 1e-6, tier);
-            Assert.True(!plan.Caption || plan.Grid.Pitch >= YearStyleLayout.CaptionPitch, tier);
-        }
-
-        Assert.True(YearStyleLayout.Dots(new WidgetArea(30, 20), 365).Hero);
     }
 
     // ---- sun ----------------------------------------------------------------------------------

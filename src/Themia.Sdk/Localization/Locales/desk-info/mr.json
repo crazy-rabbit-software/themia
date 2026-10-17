@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "वर्षाची प्रगती",
-  "yearProgress.desc": "दिवस, आठवडा, महिना आणि वर्ष यांपैकी किती भाग सरला आहे",
-  "yearProgress.day": "दिवस",
-  "yearProgress.week": "आठवडा",
-  "yearProgress.month": "महिना",
-  "yearProgress.year": "वर्ष",
-  "yearProgress.left": "{time} शिल्लक",
-  "yearProgress.weekNumber": "आठवडा {number}",
-  "yearProgress.dayOf": "{days} पैकी दिवस {day}",
   "meeting.label": "पुढील मीटिंग",
   "meeting.desc": "तुमचा पुढील इव्हेंट, ऑनलाइन मीटिंगसाठी सामील व्हा बटणासह",
   "meeting.join": "सामील व्हा",

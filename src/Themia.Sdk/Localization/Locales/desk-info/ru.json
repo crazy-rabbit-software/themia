@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "Прогресс года",
-  "yearProgress.desc": "Какая часть дня, недели, месяца и года уже прошла",
-  "yearProgress.day": "День",
-  "yearProgress.week": "Неделя",
-  "yearProgress.month": "Месяц",
-  "yearProgress.year": "Год",
-  "yearProgress.left": "Осталось {time}",
-  "yearProgress.weekNumber": "Неделя {number}",
-  "yearProgress.dayOf": "День {day} из {days}",
   "meeting.label": "Следующая встреча",
   "meeting.desc": "Ваше следующее событие с кнопкой «Присоединиться» для онлайн-встреч",
   "meeting.join": "Присоединиться",

@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "Tiến độ năm",
-  "yearProgress.desc": "Đã trôi qua bao nhiêu phần của ngày, tuần, tháng và năm",
-  "yearProgress.day": "Ngày",
-  "yearProgress.week": "Tuần",
-  "yearProgress.month": "Tháng",
-  "yearProgress.year": "Năm",
-  "yearProgress.left": "Còn {time}",
-  "yearProgress.weekNumber": "Tuần {number}",
-  "yearProgress.dayOf": "Ngày {day}/{days}",
   "meeting.label": "Cuộc họp tiếp theo",
   "meeting.desc": "Sự kiện tiếp theo của bạn, có nút Tham gia cho cuộc họp trực tuyến",
   "meeting.join": "Tham gia",

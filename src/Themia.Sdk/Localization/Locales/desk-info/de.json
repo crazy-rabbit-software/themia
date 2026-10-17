@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "Jahresfortschritt",
-  "yearProgress.desc": "Wie viel vom Tag, von der Woche, vom Monat und vom Jahr vergangen ist",
-  "yearProgress.day": "Tag",
-  "yearProgress.week": "Woche",
-  "yearProgress.month": "Monat",
-  "yearProgress.year": "Jahr",
-  "yearProgress.left": "noch {time}",
-  "yearProgress.weekNumber": "KW {number}",
-  "yearProgress.dayOf": "Tag {day} von {days}",
   "meeting.label": "Nächster Termin",
   "meeting.desc": "Ihr nächster Termin, mit „Teilnehmen“ für Onlinebesprechungen",
   "meeting.join": "Teilnehmen",

@@ -20,7 +20,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
+- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -7621,44 +7621,8 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
 
 ## Year progress (YEAR-PROGRESS)
 
-Owning files: `Themia.Core/Widgets/TimeProgress.cs`, `Themia.App/Widgets/YearProgressView*.cs`.
-
-- **[S-4800]** `YearProgress` (124): how much of the day, week, month and year has passed, each a
-  label, a percentage and a bar. Its one setting is its style ([S-6040], on the properties panel,
-  [S-6536]), so it has no settings page ([S-1750]): the week start and the clock are the regional settings ([S-3770]).
-- **[S-4801]** A span runs from one local midnight to the next one after it (`CalendarRules.LocalMidnight`),
-  and its fraction is elapsed over real length in instants (`TimeProgress.Of`): a 23-hour
-  spring-forward day is half gone at 12:30, a 25-hour one is 25 hours, a leap year 366 days,
-  February of one 29. The day is read in the machine's zone, never in UTC. The percentage is
-  floored (`TimeProgress.Percent`), so 100 % is only ever the end.
-- **[S-4802]** The week starts on the regional first day. Its number is ISO 8601's for a Monday
-  week (31 Dec 2026 is week 53) and North America's for a Sunday or Saturday week (week 1 holds
-  1 January).
-- **[S-4803]** The ladder (`YearProgressLayout.Plan`, on the area less the 16 DIP inset): too narrow
-  for a label beside a percentage (< 96 DIPs, XS) or too short for two rows, the year alone, its
-  percentage as large as the tile allows over its bar and the year number. Otherwise rows in the
-  priority Year, Day, Month, Week, drawn in list order (Day, Week, Month, Year); once all four fit
-  with a line each, each carries a detail line, and with room for it (a Tall or larger tile) the
-  year's percentage stands large (TitleLarge, one decimal) over them. The XS hero keeps a half
-  inset top and bottom and drops the year number before it shrinks. A wide strip that holds four 96-DIP columns stands
-  the four side by side. Growing a tile never drops a row.
-- **[S-4804]** One tick a minute on the shared ticker (`YearProgressConfig.TickInterval`): the day
-  bar moves a fraction of a percent per minute; nothing changes faster.
-- **[S-4805]** The details: the day's time left ("9 h 28 min left"), the week's number ("Week 42"),
-  the month's and the year's day ("Day 285 of 365"). Every span's tooltip says its label, the
-  percentage to one decimal and its detail. Debug: `--state sample` pins Monday 12 October 2026, 14:32.
-- **[S-6040]** Year progress's styles ([S-6000]), `YearProgressConfig.Style` (`YearProgressStyle`):
-  **Bars** (the default, [S-4803]), **Rings** ([S-6041]) and **Dots** ([S-6042]); the spans, their
-  fractions and tooltips are the same in all three.
-- **[S-6041]** **Rings** (`YearStyleLayout.Rings`, on the same inset area): a ring per span
-  (`RingPart`, [S-6060]) with its percentage inside and its name under it, in the arrangement (four
-  across, two by two, one column) that draws them largest; while four rings would be under 56 DIPs
-  the bars' priority gives up the rest (Year and Day, then the year alone, its name the last thing
-  dropped). Concise: a larger tile draws larger rings, never more.
-- **[S-6042]** **Dots** (`YearStyleLayout.Dots`): the year as one dot a day (365 or 366), reflowed
-  to the tile ([S-6061]): the days gone in the secondary text fill, today a size up in the accent,
-  the days to come in the disabled fill; the caption "2026 · 78 %" over them while the grid keeps a
-  6 DIP pitch under it. Under a 3 DIP pitch the year's percentage stands alone as in [S-4803].
+A module of its own ([S-6911]): its section, [S-4800]..[S-4805] and [S-6040]..[S-6042], is
+`src/Widgets/Themia.Widget.YearProgress/SPEC.md`.
 
 ## Next meeting (NEXT-MEETING)
 

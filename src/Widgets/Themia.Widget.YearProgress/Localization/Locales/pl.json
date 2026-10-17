@@ -1,0 +1,14 @@
+{
+  "yearProgress.label": "Postęp roku",
+  "yearProgress.desc": "Ile minęło z dnia, tygodnia, miesiąca i roku",
+  "yearProgress.day": "Dzień",
+  "yearProgress.week": "Tydzień",
+  "yearProgress.month": "Miesiąc",
+  "yearProgress.year": "Rok",
+  "yearProgress.left": "Zostało {time}",
+  "yearProgress.weekNumber": "Tydzień {number}",
+  "yearProgress.dayOf": "Dzień {day} z {days}",
+  "styles.yearProgress.bars": "Paski",
+  "styles.yearProgress.rings": "Pierścienie",
+  "styles.yearProgress.dots": "Kropki"
+}

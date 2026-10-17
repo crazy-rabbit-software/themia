@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "Progreso del año",
-  "yearProgress.desc": "Cuánto ha pasado del día, la semana, el mes y el año",
-  "yearProgress.day": "Día",
-  "yearProgress.week": "Semana",
-  "yearProgress.month": "Mes",
-  "yearProgress.year": "Año",
-  "yearProgress.left": "Quedan {time}",
-  "yearProgress.weekNumber": "Semana {number}",
-  "yearProgress.dayOf": "Día {day} de {days}",
   "meeting.label": "Próxima reunión",
   "meeting.desc": "Tu próximo evento, con Unirse para reuniones en línea",
   "meeting.join": "Unirse",

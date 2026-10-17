@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "বছরের অগ্রগতি",
-  "yearProgress.desc": "দিন, সপ্তাহ, মাস ও বছরের কতটা পেরিয়ে গেছে",
-  "yearProgress.day": "দিন",
-  "yearProgress.week": "সপ্তাহ",
-  "yearProgress.month": "মাস",
-  "yearProgress.year": "বছর",
-  "yearProgress.left": "{time} বাকি",
-  "yearProgress.weekNumber": "সপ্তাহ {number}",
-  "yearProgress.dayOf": "{days} দিনের মধ্যে দিন {day}",
   "meeting.label": "পরবর্তী মিটিং",
   "meeting.desc": "আপনার পরবর্তী ইভেন্ট, অনলাইন মিটিংয়ের জন্য যোগ দিন বোতামসহ",
   "meeting.join": "যোগ দিন",

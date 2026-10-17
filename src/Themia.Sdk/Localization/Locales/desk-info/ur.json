@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "سال کی پیش رفت",
-  "yearProgress.desc": "دن، ہفتے، مہینے اور سال کا کتنا حصہ گزر چکا ہے",
-  "yearProgress.day": "دن",
-  "yearProgress.week": "ہفتہ",
-  "yearProgress.month": "مہینہ",
-  "yearProgress.year": "سال",
-  "yearProgress.left": "{time} باقی",
-  "yearProgress.weekNumber": "ہفتہ {number}",
-  "yearProgress.dayOf": "{days} میں سے دن {day}",
   "meeting.label": "اگلی میٹنگ",
   "meeting.desc": "آپ کا اگلا ایونٹ، آن لائن میٹنگز کے لیے شامل ہوں کے ساتھ",
   "meeting.join": "شامل ہوں",

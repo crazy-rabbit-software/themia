@@ -1,13 +1,4 @@
 {
-  "yearProgress.label": "年度进度",
-  "yearProgress.desc": "今天、本周、本月和今年已过去多少",
-  "yearProgress.day": "日",
-  "yearProgress.week": "周",
-  "yearProgress.month": "月",
-  "yearProgress.year": "年",
-  "yearProgress.left": "剩余 {time}",
-  "yearProgress.weekNumber": "第 {number} 周",
-  "yearProgress.dayOf": "第 {day} 天，共 {days} 天",
   "meeting.label": "下一个会议",
   "meeting.desc": "你的下一个日程，在线会议可直接加入",
   "meeting.join": "加入",

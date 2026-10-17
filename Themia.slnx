@@ -7,6 +7,9 @@
     <Project Path="src/Themia.Sdk/Themia.Sdk.csproj" />
     <Project Path="src/Themia.Sdk.WinUI/Themia.Sdk.WinUI.csproj" />
   </Folder>
+  <Folder Name="/src/Widgets/">
+    <Project Path="src/Widgets/Themia.Widget.YearProgress/Themia.Widget.YearProgress.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Themia.Core.Tests/Themia.Core.Tests.csproj" />
     <Project Path="tests/Themia.Modules.Tests/Themia.Modules.Tests.csproj" />
