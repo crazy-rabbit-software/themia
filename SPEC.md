@@ -944,12 +944,16 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   config types: whether it waits for setup and whether it runs while it waits (`ISetupRule`,
   [S-1860], [S-1881]), whether and where its content aligns (`IContentAligned`, [S-6581]), what the
   background sync keeps fresh for it (`IInterests`, [S-2608]). A widget that reads an account (its
-  descriptor names providers) has a setup rule and interests.
+  descriptor names providers) has a setup rule and interests. Which quick setting or power action a toggle or
+  power widget stands for is its config's (`QuickToggleConfig.Toggle`, `PowerButtonConfig.Action`;
+  `QuickToggleRules`/`PowerActionRules` read them off the catalogue), and whether a place widget
+  reads the weather feed and for how many days (`WeatherConfig.ReadsWeather`, `ForecastDays`).
 - **[S-6907]** A widget places itself in the add menu ([S-3510]) through its descriptor (`Add`): the
   folder it is at home in, the run of rows it is in (a line parts two runs) and its place in the
   run, and its place among Popular's rows when it is one of them. The folders (the subjects under
   Browse and the families inside them, with their own places) are the host's and name no widget; a
-  folder's row wears its first widget's icon. No two widgets share a place, and none is at home in
+  folder's row wears its first widget's icon, and a family named after its reading (Processor,
+  Memory, Graphics, Network, Ping, Battery) takes its first widget's name as its title. No two widgets share a place, and none is at home in
   Popular, Browse or More.
 - **[S-6909]** Strings per module: a project that sets `ThemiaStringsEnum` (`YearProgressStr`, a
   name ending in `Str`, else THEMIALOC010) gets its own enum, tables and `Text()`/`Format()`/

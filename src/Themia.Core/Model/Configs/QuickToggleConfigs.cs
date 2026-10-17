@@ -59,10 +59,9 @@ public abstract class QuickToggleConfig : WidgetConfig, IStyled
         StyleOption.Of(QuickToggleStyle.Switch, Str.Styles_Toggles_Switch, 0xEC11),
     ];
 
-    /// <summary>The toggle this widget switches, decided by its kind.</summary>
+    /// <summary>The toggle this widget switches: each kind states its own.</summary>
     [JsonIgnore]
-    public QuickToggle Toggle => QuickToggleRules.ForKind(Kind)
-        ?? throw new InvalidOperationException($"{Kind} is not a quick-setting toggle");
+    public abstract QuickToggle Toggle { get; }
 
     /// <summary>[S-3916] How the toggle is drawn; copied by every kind's <c>Clone</c>.</summary>
     public QuickToggleStyle Style { get; set; } = QuickToggleStyle.Tile;
@@ -79,6 +78,9 @@ public abstract class QuickToggleConfig : WidgetConfig, IStyled
 /// <summary>[S-3900] Wi-Fi.</summary>
 public sealed class WifiToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.Wifi;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -104,6 +106,9 @@ public sealed class WifiToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Bluetooth.</summary>
 public sealed class BluetoothToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.Bluetooth;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -128,6 +133,9 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Airplane mode.</summary>
 public sealed class AirplaneModeToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.AirplaneMode;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -152,6 +160,9 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Energy saver.</summary>
 public sealed class EnergySaverToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.EnergySaver;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -176,6 +187,9 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Night light.</summary>
 public sealed class NightLightToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.NightLight;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -200,6 +214,9 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Rotation lock.</summary>
 public sealed class RotationLockToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.RotationLock;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -224,6 +241,9 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Do not disturb.</summary>
 public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.DoNotDisturb;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -248,6 +268,9 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Sound (the default output's mute).</summary>
 public sealed class SoundToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.Sound;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -272,6 +295,9 @@ public sealed class SoundToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Microphone (the default microphone's mute).</summary>
 public sealed class MicrophoneToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.Microphone;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -296,6 +322,9 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Spatial sound.</summary>
 public sealed class SpatialSoundToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.SpatialSound;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -320,6 +349,9 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Mono audio.</summary>
 public sealed class MonoAudioToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.MonoAudio;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -344,6 +376,9 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Color filters.</summary>
 public sealed class ColorFiltersToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.ColorFilters;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -368,6 +403,9 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
 /// <summary>[S-3900] Game mode.</summary>
 public sealed class GameModeToggleConfig : QuickToggleConfig
 {
+    /// <summary>The toggle it stands for.</summary>
+    [JsonIgnore]
+    public override QuickToggle Toggle => QuickToggle.GameMode;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()

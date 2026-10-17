@@ -94,30 +94,23 @@ public static class QuickToggleRules
         QuickToggle.GameMode,
     ];
 
-    /// <summary>[S-3900] The toggle a kind stands for, or null for a kind that is not a toggle.</summary>
-    public static QuickToggle? ForKind(WidgetId kind) => ByKind.Value.TryGetValue(kind, out var toggle) ? toggle : null;
+    /// <summary>[S-3900] The toggle a kind stands for, or null for a kind that is not one: its config's own ([S-6906]).</summary>
+    public static QuickToggle? ForKind(WidgetId kind) => ByKind.Value.TryGetValue(kind, out var value) ? value : null;
 
-    /// <summary>The inverse of <see cref="KindOf"/>, built from it so the two cannot disagree.</summary>
-    private static readonly Lazy<Dictionary<WidgetId, QuickToggle>> ByKind = new(() => Enum.GetValues<QuickToggle>().ToDictionary(KindOf));
+    /// <summary>
+    /// Every installed widget whose config is a <see cref="QuickToggleConfig"/>, read once from the catalogue:
+    /// the kinds are the widgets', no table here names one.
+    /// </summary>
+    private static readonly Lazy<Dictionary<WidgetId, QuickToggle>> ByKind = new(() => ModuleCatalog.Widgets
+        .Select(w => (w.Id, Config: w.CreateDefault() as QuickToggleConfig))
+        .Where(p => p.Config is not null)
+        .ToDictionary(p => p.Id, p => p.Config!.Toggle));
+
+    private static readonly Lazy<Dictionary<QuickToggle, WidgetId>> ByValue = new(() => ByKind.Value.ToDictionary(p => p.Value, p => p.Key));
 
     /// <summary>[S-3900] The widget kind of a toggle: the inverse of <see cref="ForKind"/>.</summary>
-    public static WidgetId KindOf(QuickToggle toggle) => toggle switch
-    {
-        QuickToggle.Wifi => WifiToggleConfig.Descriptor.Id,
-        QuickToggle.Bluetooth => BluetoothToggleConfig.Descriptor.Id,
-        QuickToggle.AirplaneMode => AirplaneModeToggleConfig.Descriptor.Id,
-        QuickToggle.EnergySaver => EnergySaverToggleConfig.Descriptor.Id,
-        QuickToggle.NightLight => NightLightToggleConfig.Descriptor.Id,
-        QuickToggle.RotationLock => RotationLockToggleConfig.Descriptor.Id,
-        QuickToggle.DoNotDisturb => DoNotDisturbToggleConfig.Descriptor.Id,
-        QuickToggle.Sound => SoundToggleConfig.Descriptor.Id,
-        QuickToggle.Microphone => MicrophoneToggleConfig.Descriptor.Id,
-        QuickToggle.SpatialSound => SpatialSoundToggleConfig.Descriptor.Id,
-        QuickToggle.MonoAudio => MonoAudioToggleConfig.Descriptor.Id,
-        QuickToggle.ColorFilters => ColorFiltersToggleConfig.Descriptor.Id,
-        QuickToggle.GameMode => GameModeToggleConfig.Descriptor.Id,
-        _ => throw new ArgumentOutOfRangeException(nameof(toggle), toggle, "not a quick-setting toggle"),
-    };
+    public static WidgetId KindOf(QuickToggle value)
+        => ByValue.Value.TryGetValue(value, out var kind) ? kind : throw new ArgumentOutOfRangeException(nameof(value), value, "no installed widget stands for it");
 
     /// <summary>[S-3901] The name under the icon: the thing, never "on/off" ("Microphone").</summary>
     public static Str NameId(QuickToggle toggle) => toggle switch

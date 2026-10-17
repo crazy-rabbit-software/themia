@@ -18,7 +18,7 @@ public sealed record AddLine : AddNode;
 
 /// <summary>A folder: a row opening a submenu of its rows; at the top, a column under its heading.</summary>
 /// <param name="Icon">The kind whose icon its row wears; ignored for a top column, which is a heading.</param>
-public sealed record AddShelf(AddFolderId Id, Str Title, WidgetId Icon, IReadOnlyList<AddNode> Rows) : AddNode;
+public sealed record AddShelf(AddFolderId Id, LocalText Title, WidgetId Icon, IReadOnlyList<AddNode> Rows) : AddNode;
 
 /// <summary>A row of the tree as the menu shows it: a pick, a folder, or a line.</summary>
 public abstract record AddRow;
@@ -61,7 +61,8 @@ public static class AddTree
     private static readonly AddLine Line = new();
 
     /// <summary>A folder of the tree: its heading and where it stands among its parent's rows (a line parts two runs).</summary>
-    private sealed record Folder(AddFolderId Id, Str Title, AddFolderId Parent, int Group, int Rank);
+    /// <summary>A folder of the tree; a null title is its first widget's name (a family named after its reading, [S-3511]).</summary>
+    private sealed record Folder(AddFolderId Id, Str? Title, AddFolderId Parent, int Group, int Rank);
 
     /// <summary>
     /// [S-3511] The tree's folders: the subjects under Browse, in the order a person looks for them,
@@ -79,14 +80,14 @@ public static class AddTree
         new(AddFolderId.Notes, Str.AddMenu_Subject_Notes, AddFolderId.Browse, 0, 5),
         new(AddFolderId.Files, Str.AddMenu_Subject_Files, AddFolderId.Browse, 0, 6),
         new(AddFolderId.System, Str.AddMenu_Subject_System, AddFolderId.Browse, 0, 7),
-        new(AddFolderId.Processor, Str.WidgetsA_Catalog_Cpu_Label, AddFolderId.System, 0, 0),
-        new(AddFolderId.MemoryReading, Str.WidgetsA_Catalog_Memory_Label, AddFolderId.System, 0, 1),
-        new(AddFolderId.Graphics, Str.WidgetsA_Catalog_Gpu_Label, AddFolderId.System, 0, 2),
-        new(AddFolderId.NetworkReading, Str.WidgetsA_Catalog_Network_Label, AddFolderId.System, 0, 4),
-        new(AddFolderId.PingReading, Str.Widget_Ping_Label, AddFolderId.System, 0, 5),
+        new(AddFolderId.Processor, null, AddFolderId.System, 0, 0),
+        new(AddFolderId.MemoryReading, null, AddFolderId.System, 0, 1),
+        new(AddFolderId.Graphics, null, AddFolderId.System, 0, 2),
+        new(AddFolderId.NetworkReading, null, AddFolderId.System, 0, 4),
+        new(AddFolderId.PingReading, null, AddFolderId.System, 0, 5),
         new(AddFolderId.ScreenTime, Str.AddMenu_Family_ScreenTime, AddFolderId.System, 1, 0),
         new(AddFolderId.Devices, Str.AddMenu_Subject_Devices, AddFolderId.Browse, 0, 8),
-        new(AddFolderId.BatteryReading, Str.Widget_Battery_Label, AddFolderId.Devices, 0, 0),
+        new(AddFolderId.BatteryReading, null, AddFolderId.Devices, 0, 0),
         new(AddFolderId.PowerButtons, Str.AddMenu_Family_PowerButtons, AddFolderId.Devices, 0, 1),
         new(AddFolderId.QuickSettings, Str.Toggles_Category, AddFolderId.Browse, 0, 9),
     ];
@@ -118,11 +119,11 @@ public static class AddTree
     {
         var widgets = ModuleCatalog.Widgets;
         AddLeaf[] popular = [.. widgets.Where(w => w.Add.Popular is not null).OrderBy(w => w.Add.Popular).Select(w => new AddLeaf(w.Id, Again: true))];
-        return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular, popular[0].Kind, popular), Shelf(AddFolderId.Browse, Str.AddMenu_Browse, widgets));
+        return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular.Local(), popular[0].Kind, popular), Shelf(AddFolderId.Browse, Str.AddMenu_Browse, widgets));
     }
 
     /// <summary>A folder's rows: its widgets and its folders, by run and place, a line between two runs.</summary>
-    private static AddShelf Shelf(AddFolderId id, Str title, IReadOnlyList<WidgetDescriptor> widgets)
+    private static AddShelf Shelf(AddFolderId id, Str? title, IReadOnlyList<WidgetDescriptor> widgets)
     {
         var entries = widgets.Where(w => w.Add.Shelf == id).Select(w => (w.Add.Group, w.Add.Rank, Node: (AddNode)new AddLeaf(w.Id)))
             .Concat(Folders.Where(f => f.Parent == id).Select(f => (f.Group, f.Rank, Node: (AddNode)Shelf(f.Id, f.Title, widgets))))
@@ -141,7 +142,8 @@ public static class AddTree
             rows.Add(node);
         }
 
-        return new AddShelf(id, title, IconOf(rows), rows);
+        var icon = IconOf(rows);
+        return new AddShelf(id, title?.Local() ?? ModuleCatalog.Of(icon).Label, icon, rows);
     }
 
     /// <summary>A folder's row wears its first widget's icon.</summary>
@@ -153,7 +155,7 @@ public static class AddTree
     };
 
     /// <summary>Where what the tree leaves out stands meanwhile ([S-3511]); its rows are filled by <see cref="On"/>.</summary>
-    private static AddShelf More => new(AddFolderId.More, Str.AddMenu_Subject_More, Browse.Icon, []);
+    private static AddShelf More => new(AddFolderId.More, Str.AddMenu_Subject_More.Local(), Browse.Icon, []);
 
     /// <summary>
     /// [S-3511] What the menu shows of the tree for the kinds the catalogue offers, in the

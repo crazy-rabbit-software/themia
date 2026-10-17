@@ -98,6 +98,17 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
         LocationName = string.Empty;
     }
 
+    /// <summary>
+    /// [S-5101] [S-5121] Whether it reads the weather feed itself (the two weather widgets); its
+    /// siblings on the same place (rain, air quality) ask their own feeds.
+    /// </summary>
+    [JsonIgnore]
+    public virtual bool ReadsWeather => false;
+
+    /// <summary>The forecast days it asks the weather feed for; null for the conditions now only.</summary>
+    [JsonIgnore]
+    public virtual int? ForecastDays => null;
+
     /// <summary>[S-3780] The shared weather cadence (Settings › Widgets), never faster than open-meteo's own cycle.</summary>
     [JsonIgnore]
     public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Weather);
@@ -114,6 +125,9 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
 /// <summary>Conditions right now, from open-meteo's <c>current</c> block.</summary>
 public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<WeatherNowSetting>, IContentAligned, IInterests
 {
+    [JsonIgnore]
+    public override bool ReadsWeather => true;
+
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {

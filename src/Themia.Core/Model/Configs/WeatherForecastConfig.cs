@@ -39,6 +39,12 @@ public enum ForecastStyle
 /// </summary>
 public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
 {
+    [JsonIgnore]
+    public override bool ReadsWeather => true;
+
+    [JsonIgnore]
+    public override int? ForecastDays => EffectiveDays;
+
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {

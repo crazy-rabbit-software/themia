@@ -50,10 +50,9 @@ public abstract class PowerButtonConfig : WidgetConfig, IStyled
         StyleOption.Of(PowerButtonStyle.Round, Str.Styles_Toggles_Round, 0xEA3B),
     ];
 
-    /// <summary>The action this widget runs, decided by its kind.</summary>
+    /// <summary>The action this widget runs: each kind states its own.</summary>
     [JsonIgnore]
-    public PowerAction Action => PowerActionRules.ForKind(Kind)
-        ?? throw new InvalidOperationException($"{Kind} is not a power widget");
+    public abstract PowerAction Action { get; }
 
     /// <summary>[S-1919] How the button is drawn; copied by every kind's <c>Clone</c>.</summary>
     public PowerButtonStyle Style { get; set; } = PowerButtonStyle.Tile;
@@ -70,6 +69,9 @@ public abstract class PowerButtonConfig : WidgetConfig, IStyled
 /// <summary>[S-1910] Shut down.</summary>
 public sealed class ShutdownConfig : PowerButtonConfig
 {
+    /// <summary>The action it stands for.</summary>
+    [JsonIgnore]
+    public override PowerAction Action => PowerAction.Shutdown;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -94,6 +96,9 @@ public sealed class ShutdownConfig : PowerButtonConfig
 /// <summary>[S-1910] Restart.</summary>
 public sealed class RestartConfig : PowerButtonConfig
 {
+    /// <summary>The action it stands for.</summary>
+    [JsonIgnore]
+    public override PowerAction Action => PowerAction.Restart;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -118,6 +123,9 @@ public sealed class RestartConfig : PowerButtonConfig
 /// <summary>[S-1910] Sleep.</summary>
 public sealed class SleepConfig : PowerButtonConfig
 {
+    /// <summary>The action it stands for.</summary>
+    [JsonIgnore]
+    public override PowerAction Action => PowerAction.Sleep;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -142,6 +150,9 @@ public sealed class SleepConfig : PowerButtonConfig
 /// <summary>[S-1910] Hibernate.</summary>
 public sealed class HibernateConfig : PowerButtonConfig
 {
+    /// <summary>The action it stands for.</summary>
+    [JsonIgnore]
+    public override PowerAction Action => PowerAction.Hibernate;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -166,6 +177,9 @@ public sealed class HibernateConfig : PowerButtonConfig
 /// <summary>[S-1910] Lock.</summary>
 public sealed class LockConfig : PowerButtonConfig
 {
+    /// <summary>The action it stands for.</summary>
+    [JsonIgnore]
+    public override PowerAction Action => PowerAction.Lock;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -190,6 +204,9 @@ public sealed class LockConfig : PowerButtonConfig
 /// <summary>[S-1910] Sign out.</summary>
 public sealed class SignOutConfig : PowerButtonConfig
 {
+    /// <summary>The action it stands for.</summary>
+    [JsonIgnore]
+    public override PowerAction Action => PowerAction.SignOut;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -214,6 +231,9 @@ public sealed class SignOutConfig : PowerButtonConfig
 /// <summary>[S-1910] Turn off the display.</summary>
 public sealed class ScreenOffConfig : PowerButtonConfig
 {
+    /// <summary>The action it stands for.</summary>
+    [JsonIgnore]
+    public override PowerAction Action => PowerAction.ScreenOff;
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()

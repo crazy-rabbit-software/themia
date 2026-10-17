@@ -94,7 +94,7 @@ public sealed class AddMenuTests
     {
         var shelves = Shelves().ToList();
         Assert.Equal(shelves.Count, shelves.Select(shelf => shelf.Id).Distinct().Count());
-        Assert.All(shelves, shelf => Assert.False(string.IsNullOrWhiteSpace(Strings.Get(Locale.En, shelf.Title))));
+        Assert.All(shelves, shelf => Assert.False(string.IsNullOrWhiteSpace(shelf.Title.Text(Locale.En))));
     }
 
     [Fact]

@@ -167,14 +167,13 @@ public sealed record SyncInterests(
             return null;
         }
 
-        // [S-5101] [S-5121] Only the two weather widgets ask for weather; their siblings ask their own.
-        if (config is not (WeatherNowConfig or WeatherForecastConfig))
+        // [S-5101] [S-5121] Only a widget that reads the weather feed asks for it; its siblings ask their own.
+        if (!config.ReadsWeather)
         {
             return null;
         }
 
-        int? days = config is WeatherForecastConfig forecast ? forecast.EffectiveDays : null;
-        return new WeatherInterest(config.Latitude!.Value, config.Longitude!.Value, unit, days, interval);
+        return new WeatherInterest(config.Latitude!.Value, config.Longitude!.Value, unit, config.ForecastDays, interval);
     }
 
     /// <summary>[S-2663] What a Stocks widget asks for, or null without a usable symbol.</summary>

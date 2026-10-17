@@ -101,24 +101,23 @@ public static class PowerActionRules
         PowerAction.ScreenOff,
     ];
 
-    /// <summary>[S-1910] The action a widget kind stands for, or null for a kind that is not a power widget.</summary>
-    public static PowerAction? ForKind(WidgetId kind) => ByKind.Value.TryGetValue(kind, out var action) ? action : null;
+    /// <summary>[S-1910] The action a kind stands for, or null for a kind that is not one: its config's own ([S-6906]).</summary>
+    public static PowerAction? ForKind(WidgetId kind) => ByKind.Value.TryGetValue(kind, out var value) ? value : null;
 
-    /// <summary>The inverse of <see cref="KindOf"/>, built from it so the two cannot disagree.</summary>
-    private static readonly Lazy<Dictionary<WidgetId, PowerAction>> ByKind = new(() => Enum.GetValues<PowerAction>().ToDictionary(KindOf));
+    /// <summary>
+    /// Every installed widget whose config is a <see cref="PowerButtonConfig"/>, read once from the catalogue:
+    /// the kinds are the widgets', no table here names one.
+    /// </summary>
+    private static readonly Lazy<Dictionary<WidgetId, PowerAction>> ByKind = new(() => ModuleCatalog.Widgets
+        .Select(w => (w.Id, Config: w.CreateDefault() as PowerButtonConfig))
+        .Where(p => p.Config is not null)
+        .ToDictionary(p => p.Id, p => p.Config!.Action));
 
-    /// <summary>[S-1910] The widget kind of an action: the inverse of <see cref="ForKind"/>.</summary>
-    public static WidgetId KindOf(PowerAction action) => action switch
-    {
-        PowerAction.Shutdown => ShutdownConfig.Descriptor.Id,
-        PowerAction.Restart => RestartConfig.Descriptor.Id,
-        PowerAction.Sleep => SleepConfig.Descriptor.Id,
-        PowerAction.Hibernate => HibernateConfig.Descriptor.Id,
-        PowerAction.Lock => LockConfig.Descriptor.Id,
-        PowerAction.SignOut => SignOutConfig.Descriptor.Id,
-        PowerAction.ScreenOff => ScreenOffConfig.Descriptor.Id,
-        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "not a power action"),
-    };
+    private static readonly Lazy<Dictionary<PowerAction, WidgetId>> ByValue = new(() => ByKind.Value.ToDictionary(p => p.Value, p => p.Key));
+
+    /// <summary>[S-1910] The widget kind of a action: the inverse of <see cref="ForKind"/>.</summary>
+    public static WidgetId KindOf(PowerAction value)
+        => ByValue.Value.TryGetValue(value, out var kind) ? kind : throw new ArgumentOutOfRangeException(nameof(value), value, "no installed widget stands for it");
 
     /// <summary>
     /// [S-1913] The actions a stray click must not run: shut down, restart and sign out close every
