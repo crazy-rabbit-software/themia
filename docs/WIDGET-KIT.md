@@ -233,10 +233,13 @@ outside the folder.
   references another widget.
 - **The app** references Core, `Themia.Sdk.WinUI` and every module, by glob.
 
-A project may declare more than one widget when they share code and a SPEC section (the seven
-power widgets, the thirteen quick-setting toggles, the three screen-time widgets, the meters, a
-service's widgets): a *family* (`[assembly: ThemiaWidget(...)]` is `AllowMultiple`). One project
-per widget otherwise.
+**One project per widget** (Q16, decided). There are no *family* projects: code or a UI element
+that two widgets share (the power widgets' action rows, the quick-setting toggle, the meters'
+graph, a service's list rules) moves into Themia's core, that is the SDK (`Themia.Sdk`, or
+`Themia.Sdk.WinUI` when it is UI), in its own commit, and both widget projects use it from there.
+Shared code is never duplicated into widget projects and never put in a project that several
+widgets reference. A service's widgets share their provider project (data and rules, no UI), which
+is not a family: it declares a provider, not widgets.
 
 ### 4.3 Module contracts
 
@@ -341,12 +344,16 @@ to today's JSON discriminators (`clock`, `weatherNow`, `rss`), so state files ke
   never names a particular widget; a source scan of Core and the app for widget id literals has an
   allow list that ends empty.
 - **An unknown id on load** (a settings file exported from a build with a module this one lacks, a
-  hand edit) is *absent*, not corrupt: the widget is kept as an `UnavailableWidget` holding its raw
-  JSON, written back unchanged on save, drawn as a card that says the widget is not in this build,
-  and logged once; never deleted. A known id with a broken config is repaired by its module to the
-  default and logged, as today. The spike confirmed what has to change for that: System.Text.Json
-  rejects an unknown discriminator for the whole document ("Read unrecognized type discriminator
-  id 'nope'"), so the store reads `widgets[]` element by element (Q15).
+  hand edit) is **dropped** with a logged notice (Q15, decided): the widget leaves its view, the
+  rest of the document loads, the log names the id and the view, and the next save no longer holds
+  it. No placeholder card, no raw JSON kept. This is a deliberate exception to `CLAUDE.md`'s "never
+  delete user data on a recoverable error": a widget whose code is not in this build is not a
+  recoverable error (nothing this build can do brings it back), so it is treated like any other
+  closed-set value the build does not know. `SPEC.md` states it in the store's section when the
+  behaviour lands (M2). A known id with a broken config is repaired by its module to the default
+  and logged, as today. The spike confirmed what has to change for that: System.Text.Json rejects
+  an unknown discriminator for the whole document ("Read unrecognized type discriminator id
+  'nope'"), so the store reads `widgets[]` element by element.
 - **Providers.** `AccountProvider` becomes `ProviderId`. `AccountFeatures` becomes a set of
   `FeatureId`: the host's own features (`mail`, `calendar`, `contacts`, `tasks`) are SDK
   constants, a kit service's feature is its provider's id (one feature per kit service, section
@@ -1346,7 +1353,7 @@ as a behaviour commit with its SPEC edit and test first.
 The module architecture comes before the kit, so the kit is built in the SDK and the pilots are
 projects from their first commit. The ~80 widgets of today move in two moves: first their
 *registration* becomes one path (every widget declared as a module, still compiled inside the
-app), then their *code* moves out into projects, one family at a time. There is never a second
+app), then their *code* moves out into projects, one widget project per commit. There is never a second
 registration path: when a table becomes a descriptor member, the table is deleted in that commit.
 
 - **M1. The SDK split (refactors, tests unedited).** `Themia.Sdk` gets the shared pure files from
@@ -1368,8 +1375,8 @@ registration path: when a table becomes a descriptor member, the table is delete
   `IInterests`). The last commit of M2 replaces `WidgetKind` with `WidgetId` and removes
   `WidgetInstance.Kind` (schema changed in place, no migration: the app is unreleased). The same
   for providers: `AccountProvider`, `AccountFeatures` and `UpdateSource` become ids, with Microsoft
-  and Google declared as provider modules inside Core until step 11. Behaviour commit, test first:
-  the unknown-id placeholder (section 4.5, Q15).
+  and Google declared as provider modules inside Core until step 11. Behaviour commit, SPEC line and
+  test first: an unknown id is dropped on load with a logged notice (section 4.5, Q15).
 - **M3. Module plumbing and the first move.** The glob references, `src/Widgets/Directory.Build.props`
   and `src/Providers/Directory.Build.props`, the strings generator's module mode over a public
   `StringTable`, `LocalText`, the module test host with the registry conformance tests, the SPEC
@@ -1378,7 +1385,8 @@ registration path: when a table becomes a descriptor member, the table is delete
   table), SPEC section (into its `SPEC.md`, tags unchanged), tests and preview move into
   `src/Widgets/Themia.Widget.YearProgress/`; pixel diff zero; `publish.ps1` and `package.ps1`
   (packaged build, a manual pass).
-- **M4. Moves, one family per commit**, whenever convenient and always when a widget migrates onto
+- **M4. Moves, one widget project per commit** (code two widgets share goes into the SDK first,
+  Q16), whenever convenient and always when a widget migrates onto
   the kit (RSS, Mail, Tasks and the agenda move in the same series as their kit migration). Each is
   a refactor with the pixel diff. When the app declares no widget any more, the generator stops
   reading the compilation's own attributes (one path) and a conformance test asserts that the
@@ -1497,6 +1505,17 @@ off the kit; they already have their own frameworks or needs no shared list serv
 - **GitHub (Q5).** A GitHub App with device flow: read-only repository permissions, expiring user
   tokens refreshed without a client secret, installed per organisation or repository; a pasted
   fine-grained token as the fallback. No notifications widget, so no OAuth app.
+- **Unknown widget id (Q15).** Dropped on load with a logged notice; no placeholder card. Not a
+  recoverable error in the sense of `CLAUDE.md`, so dropping it is not "deleting user data on a
+  recoverable error" (section 4.5).
+- **Project granularity (Q16).** One project per widget. Shared UI elements and any code several
+  widgets share live in Themia's core (`Themia.Sdk` / `Themia.Sdk.WinUI`), never duplicated into
+  widget projects and never in family projects (section 4.2).
+- **Namespaces (Q17).** Files keep their `Themia.Core.*` / `Themia.App.*` namespaces when they move
+  into the SDKs (pure moves, callers and tests unedited); only new types use `Themia.Sdk.*`.
+  Renaming happens incrementally later, if at all.
+- **Todoist's day (Q18).** "Today" is the day in the time zone set in the Todoist account
+  (`user.tz_info`), as Todoist's own app shows it (section 13.3).
 - **Todoist (Q11, Q12).** A console-registered app with a build-time client secret
   (`todoist=` in `THEMIA_CLIENT_SECRETS`), scope `data:read`; a pasted personal token last. Data
   through the **Sync API**: one replica per account, kept fresh by sync tokens, and Today and
@@ -1504,7 +1523,7 @@ off the kit; they already have their own frameworks or needs no shared list serv
 
 ### Open questions for the user
 
-Resolved and folded in above: Q1, Q2, Q3, Q5, Q9, Q11, Q12.
+Resolved and folded in above: Q1, Q2, Q3, Q5, Q9, Q11, Q12, Q15, Q16, Q17, Q18.
 
 - **Q4. Which GitHub widgets first?** Candidates (no notifications, Q5): review requests, assigned
   issues and pull requests, a repository's open pull requests, a repository's issues, releases,
@@ -1527,23 +1546,6 @@ Resolved and folded in above: Q1, Q2, Q3, Q5, Q9, Q11, Q12.
 - **Q14. Todoist's console redirect.** Whether a console app's redirect may be `http://127.0.0.1`
   and whether its port must match is not documented; checked in the console at registration (the
   descriptor has `Fixed(ports)` if it must).
-- **Q15. A widget this build does not have.** Proposed (section 4.5): keep it as a placeholder card
-  ("not available in this build") with its raw settings preserved and written back, never
-  deleted. Alternative: drop it with a logged notice. Only reachable through a settings import from
-  another build or a hand edit.
-- **Q16. Project granularity.** Proposed: one project per widget, and one per *family* where widgets
-  share code and a SPEC section (power actions, quick-setting toggles, screen time, meters, a
-  service's widgets). That is roughly 45 projects for today's ~80 widgets. Alternative: strictly one
-  project per widget (more projects, longer restore and build), or one project per add-menu shelf
-  (fewer, but a module is no longer one widget).
-- **Q17. Namespaces of moved files.** Proposed: files keep their `Themia.Core.*` / `Themia.App.*`
-  namespaces when they move into the SDKs (pure moves, tests unedited), and only new types use
-  `Themia.Sdk.*`. Alternative: rename as they move (cleaner, a large churn in every caller and test).
-- **Q18. Day boundary for Todoist.** Proposed: "today" is the PC's local day (the desk the widget
-  sits on), a floating due time is read in the PC's zone and a fixed-zone one converted. Todoist's
-  own app uses the account's time zone (`tz_info`); the two differ only when the PC and the account
-  disagree. Use the account's zone instead? (Under `InvariantGlobalization` the IANA name cannot be
-  mapped; only the offset `tz_info` carries would be available.)
 
 ## 13. Paper test: GitHub, Linear, Todoist
 
@@ -1583,7 +1585,7 @@ user can see; read-only repository permissions are chosen at registration [G8].
 
 | Field | GitHub |
 |---|---|
-| Project | `src/Providers/Themia.Provider.GitHub/`; widgets `Themia.Widget.GitHubReviews`, `Themia.Widget.GitHubChecks` (or one `Themia.Widget.GitHub` family, Q16) |
+| Project | `src/Providers/Themia.Provider.GitHub/`; widgets `Themia.Widget.GitHubReviews`, `Themia.Widget.GitHubChecks` (one project per widget, Q16) |
 | Provider, feature, cadence | id `gitHub`, feature `gitHub`, cadence row 1, 2, 5, 15 min (default 5) |
 | Transport | `RestJson` |
 | ApiRoot, rule | `https://api.github.com/`, `PerAccount` (Enterprise `https://<host>/api/v3/`, Q6) |
@@ -1763,7 +1765,7 @@ exact shape is *unverified* until a recorded reply.
 
 | Field | Todoist |
 |---|---|
-| Project | `src/Providers/Themia.Provider.Todoist/`; widgets `Themia.Widget.TodoistToday`, `Themia.Widget.TodoistUpcoming` (or one family, Q16) |
+| Project | `src/Providers/Themia.Provider.Todoist/`; widgets `Themia.Widget.TodoistToday`, `Themia.Widget.TodoistUpcoming` (one project per widget, Q16) |
 | Provider, feature, cadence | id `todoist`, feature `todoist`, cadence row 1, 5, 15, 30 min (default 5) |
 | Transport | `FormPost` to `sync` |
 | ApiRoot, rule | `https://api.todoist.com/api/v1/`, `Fixed` |
@@ -1800,10 +1802,14 @@ exact shape is *unverified* until a recorded reply.
   horizon, grouped by due day (`KitGroup(Day:)`, so the kit draws "Tomorrow", "Mon 20 Oct"); a
   recurring task appears once, on its next occurrence (Todoist's own Upcoming repeats it on each
   day; the difference is a SPEC line, not a bug).
-- *Day boundary*: the PC's local day (Q18). An all-day `due.date` is a `KitWhen.Day` and never
-  moves with the zone; a floating date-time (no `timezone`) is read in the PC's zone; a fixed one
-  is converted. Views are recomputed on every merge and at local midnight (the shared ticker's day
-  tick), without a request.
+- *Day boundary*: the day in the time zone set in the Todoist account (Q18, decided), as Todoist's
+  own Today shows it. Under `InvariantGlobalization` the IANA name in `tz_info.timezone` cannot be
+  mapped to rules, so the zone is the offset `tz_info` carries (`hours`, `minutes`, `is_dst`),
+  refreshed on every sync (a DST change reaches the replica with the next sync's `user`). An
+  all-day `due.date` is a `KitWhen.Day` and never moves with the zone; a floating date-time (no
+  `timezone`) is read in the account's zone; a fixed one is converted. Views are recomputed on
+  every merge and at midnight in the account's zone (a ticker deadline at that instant), without
+  a request.
 - *Map to items*: Id `id`; Title `content` with Markdown reduced to plain text; Subtitle the
   project's name from the replica; Lead `StatusDot` by `priority` (4 = p1 -> Critical, 3 -> Caution,
   2 -> Accent, 1 -> none); When `KitTime.Due`, overdue -> Critical tone; Badges the first two
