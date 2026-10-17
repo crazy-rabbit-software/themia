@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
-using Themia.App.Services.Web;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -20,7 +19,7 @@ namespace Themia.App.Shell.Config;
 /// <param name="Chosen">The chosen place's label, or null when none is chosen yet.</param>
 /// <param name="Picked">A place was picked: store its coordinates and label, and save.</param>
 /// <param name="Cleared">[S-2848] The place was cleared: forget it (<c>IPlaced.ClearLocation</c>), and save.</param>
-internal sealed record PlaceSearchBinding(string? Chosen, Action<PlaceMatch> Picked, Action Cleared);
+public sealed record PlaceSearchBinding(string? Chosen, Action<PlaceMatch> Picked, Action Cleared);
 
 /// <summary>
 /// [S-2840] The location row, one piece for both weather widgets and Sun &amp; Moon: the row says
@@ -38,7 +37,7 @@ internal sealed record PlaceSearchBinding(string? Chosen, Action<PlaceMatch> Pic
 /// mind about which Springfield is the popular one.
 /// </para>
 /// </summary>
-internal static class PlaceSearch
+public static class PlaceSearch
 {
     private const string Scope = "weather";
 
@@ -51,6 +50,22 @@ internal static class PlaceSearch
     /// without a network. Null in every real run.
     /// </summary>
     internal static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>>? DebugLookup { get; set; }
+
+    /// <summary>The host's geocoder ([S-2840]): the request is the host's, the row is the SDK's.</summary>
+    private static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>>? _lookup;
+
+    private static Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>> Lookup
+        => Volatile.Read(ref _lookup) ?? throw new InvalidOperationException("no place lookup installed: the host installs it before any place row is shown");
+
+    /// <summary>The host's geocoder. Once per process.</summary>
+    internal static void InstallLookup(Func<string, CancellationToken, Task<(PlaceOutcome Outcome, IReadOnlyList<PlaceMatch> Places, string? Detail)>> lookup)
+    {
+        ArgumentNullException.ThrowIfNull(lookup);
+        if (Interlocked.CompareExchange(ref _lookup, lookup, null) is not null)
+        {
+            throw new InvalidOperationException("the place lookup is installed once per process");
+        }
+    }
 
     /// <summary>Debug renders only: type into the last search box built and search at once, as Enter does.</summary>
     internal static Action<string>? DebugType { get; private set; }
@@ -168,9 +183,9 @@ internal static class PlaceSearch
             try
             {
 #if DEBUG
-                var find = DebugLookup ?? WeatherService.FindAsync;
+                var find = DebugLookup ?? Lookup;
 #else
-                var find = WeatherService.FindAsync;
+                var find = Lookup;
 #endif
                 var (outcome, places, detail) = await find(query, cts.Token).ConfigureAwait(true);
 
