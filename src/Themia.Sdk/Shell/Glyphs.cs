@@ -9,7 +9,7 @@ namespace Themia.App.Shell;
 /// the icon is for rather than what it looks like.
 /// </para>
 /// </summary>
-internal static class Glyphs
+public static class Glyphs
 {
     public static readonly string Settings = From(0xE713);
     public static readonly string Palette = From(0xE790);
