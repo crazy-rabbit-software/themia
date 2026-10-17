@@ -108,12 +108,15 @@
     registers them as publish items, so `dotnet publish` produced a folder with no XAML in it at all.
     The app then started fine and threw XamlParseException at the first InitializeComponent - a
     failure that only ever appears in the published build, never during development.
+
+    The publish folder sits inside $(OutDir), so the glob excludes it: without that, every publish
+    copied the previous publish's .xbf files into publish\publish\ (one level deeper each time).
   -->
   <Target Name="PublishCompiledXaml"
           AfterTargets="Build"
           BeforeTargets="ComputeResolvedFilesToPublishList">
     <ItemGroup>
-      <_CompiledXamlPayload Include="$(OutDir)**\*.xbf" />
+      <_CompiledXamlPayload Include="$(OutDir)**\*.xbf" Exclude="$(PublishDir)**" />
       <_CompiledXamlPayload Include="$(OutDir)resources.pri" Condition="Exists('$(OutDir)resources.pri')" />
 
       <ResolvedFileToPublish Include="@(_CompiledXamlPayload)">

@@ -31,14 +31,26 @@ if ($env:PATH -notlike "*$vswhereDir*") {
     $env:PATH = "$vswhereDir;$env:PATH"
 }
 
+$publishDir = Join-Path $repoRoot "src\Themia.App\bin\$Configuration\net10.0-windows10.0.19041.0\win-x64\publish"
+
+# Before PublishCompiledXaml excluded the publish folder from its glob, every publish copied the
+# previous one's .xbf files into publish\publish\ (one level deeper each time). Clear what an older
+# build left there; after the publish the folder must not come back.
+$nested = Join-Path $publishDir 'publish'
+if (Test-Path $nested) {
+    Remove-Item -Recurse -Force $nested
+}
+
 Write-Host 'Publishing Themia (Native AOT)...' -ForegroundColor Cyan
 dotnet publish $project -c $Configuration
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE."
 }
 
-$publishDir = Join-Path $repoRoot "src\Themia.App\bin\$Configuration\net10.0-windows10.0.19041.0\win-x64\publish"
 $exe = Join-Path $publishDir 'Themia.exe'
+if (Test-Path $nested) {
+    throw "The publish folder holds a nested publish\ again - the PublishCompiledXaml glob picked up its own output."
+}
 
 if (-not (Test-Path $exe)) {
     throw "Publish reported success but '$exe' is missing."
