@@ -3393,7 +3393,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 ## Calendar: five styles and shared dates (CAL-SPLIT)
 
 The calendar's layouts are its five styles, and the calendars on one view share the day selected and
-the event pointed at. Kinds and configs in Core `Model/WidgetKind.cs`, `Model/Configs/OfficeConfigs.cs`;
+the event pointed at. Kinds in the SDK's `Model/WidgetKind.cs`, configs in Core's `Model/Configs/OfficeConfigs.cs`;
 the sharing rules in `Office/CalendarShare.cs`; provider reading in `Office/OfficeWire.cs`,
 `Office/CalendarRules.cs`, `Office/IcsEvents.cs`. One view, `CalendarView*.cs` (`CalendarView.Links.cs`
 for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `OfficeConfigTests`
