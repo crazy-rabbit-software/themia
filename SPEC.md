@@ -7124,7 +7124,7 @@ that puts every widget on the real desktop at every size tier. Owning files: Cor
   keys move in the grid and Enter or Space picks. The current icon is selected and scrolled to. No
   match says so in the grid's place, which keeps its size. Debug render:
   `Themia.exe --iconpicker-png <out.png> [--search text] [--theme light|dark] [--initials]`.
-- **[S-1810]** Showcase views: one view per widget kind in catalogue order, named after the widget
+- **[S-1810]** Showcase views: one view per widget kind in the registry's order (by id, [S-6902]), named after the widget
   and with its glyph as the view icon, holding seven default instances of it, one per size tier
   (`WidgetTiers`: XS 120×120, S 200×150, M 320×240, Wide 480×160, Tall 200×400, L 560×420, XL 800×560
   DIPs). Each cell is the tier times the display's content
