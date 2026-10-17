@@ -1363,6 +1363,49 @@ registration path: when a table becomes a descriptor member, the table is delete
   unchanged, so each move is a pure move and no test or caller changes; new SDK types use
   `Themia.Sdk.*`. Dependencies that point the wrong way (a UI part reading `AppServices`) are cut
   first, in their own commits, behind `IWidgetHost`. `publish.ps1` after each project is added.
+  *M1 as built (2026-10-17).* `Themia.Sdk` holds `Localization/` (the runtime, `RegionFormat`
+  and all locale files, so `Str` is still the one generated enum, now generated in the SDK),
+  `Diagnostics/` (`Log` and its rules), `Links/ViewLinks`, `Time/TickSchedule`,
+  `Office/LenientJson` (the lenient enum converter the persisted enums use), the language and
+  region vocabulary (`AppLanguage`, `ClockHours`, `FirstWeekday`, `TemperatureScale`,
+  `RegionPreferences`, `TemperatureUnit`, `WeekStartDay`, `ContentAlign`, split out of the Core
+  files that declared them) and the shared widget rules `WidgetArea`, `Disclosure`, `WidgetTiers`,
+  `ListKeys`, `WidgetKey`, `TypeAhead`, `FetchState`, `LaunchTarget` (with `FolderPath`),
+  `FluentType`, `HeaderFit`, `HeroFit`, `ListFade`, `EmptyStateFit`. `CalendarRules.WeekStartOf`
+  delegates to `RegionFormat.WeekStartOf`, which the region rules need below Core.
+  `Themia.Sdk.WinUI` holds `IWidgetSurface`, `IWidgetSurfaceAware`, `IWidgetHeaderContent`,
+  `IWidgetKeys`, `IWidgetSizeAware`, `IWidgetAligned`, `IWidgetContextActions`,
+  `IWidgetPreviewState` (Debug), `Ticker`, `Glyphs`, `ScrollFade`, `EmptyStatePanel`. No type was
+  made public for the move: the SDK grants `InternalsVisibleTo` to `Themia.Core` and the tests,
+  `Themia.Sdk.WinUI` to the app (`LenientJson`, `LocaleTable`, `LocaleData`, `StringTables`,
+  `WidgetAction`, `IWidgetContextActions`, `IWidgetPreviewState`, `Aligned` are internal). A module
+  project will need these public (M3).
+
+  *Left for M2: what M1 found tangled* (each cut is its own refactor commit before the move):
+  - `WidgetConfig`, `IStyled`/`WidgetStyles`: the `[JsonDerivedType]` list names every config and
+    `WidgetKind`; they move once the union is built by `StateJson`'s modifier. `IWidgetView`
+    (`Attach(Ticker, WidgetConfig)`) waits for `WidgetConfig`.
+  - `FluentLayout` and with it `Fluent` and `RowFocus`: `FluentLayout.Themed` reads
+    `DesignApplier.Brush` (the design state in `AppState`); its rows also use `ColorChoice`
+    (`Notices`, the screen colour picker's interop, `ColorPresets`), `RowReorder` (Win32 input,
+    `ReorderKeys`, `BlockGeometry`), `SettingRow`/`SettingsIndex` (settings search), `FontPicker`,
+    `DeskListOrder`, and the CommunityToolkit settings controls. Needs a theme-brush seam on
+    `IWidgetHost` (or the design brushes as SDK state) first. `UiLanguage` is free to move with it.
+  - `ItemFill`/`ItemPalette`, and Core's `ItemLook`, `DesignLook`, `FillChoice`: read
+    `DesignState` and `WidgetInstance`.
+  - `ItemMenu`: `FileIcons` (shell icons), `FolderEntry` (the Folder widget's rules), `MenuArtIcons`
+    (`AppIcons`, the gallery and system-data sources) and Core's `ContextMenus`, which mixes the
+    item menu's line layout (`MenuLine`, `MenuSplit`, `QuickCommand`, `ContextMenuLayout`) with the
+    shell's own card menus (`ShellCommand`): split it first. `KeyChord` moves with `ItemMenu`.
+  - `ShellLauncher`: Win32 interop plus Core's mail, calendar, contact, meeting, disk and
+    notification link rules; the facade on `IWidgetHost` comes first.
+  - `IWidgetDropTarget`: `WidgetDrag` wraps the OLE drag interop (`Services/Files`) and Core's
+    `SurfaceDrops`.
+  - `SyncFreshness` (`Sync/SyncSchedule.cs`): `SyncProblem` reads `AccountError`; it moves with the
+    one failure vocabulary (section 11.2, step 9) or once account errors are SDK types.
+  - The source-scanning tests (`ItemKindsTests`, `ConfirmFlyoutTests`, `ContentAlignmentTests`) scan
+    `src/Themia.App/Widgets` only; none of the moved parts matched them, and the shared
+    `RepoFiles` locator of section 11.2 step 1 should include `src/Themia.Sdk.WinUI` from then on.
 - **M2. Ids and the registry, with every built-in widget declared in place.** The registry
   generator, the attributes and `WidgetDescriptor`; each of today's widgets gets a small module
   class *inside the app* (`[assembly: ThemiaWidget("clock", typeof(ClockModule))]`; the generator

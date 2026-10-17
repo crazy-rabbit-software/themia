@@ -1324,7 +1324,7 @@ inside the app, so it is never open while the app is not.
 ## Web widgets: video stream
 
 Ported from `widgets/online/video-stream` on `main`. Owning files: `Widgets/VideoStreamView.cs`,
-`Widgets/RotatedBox.cs`, `Widgets/ShownWatch.cs`, `Widgets/IWidgetContextActions.cs`,
+`Widgets/RotatedBox.cs`, `Widgets/ShownWatch.cs`, `Themia.Sdk.WinUI/Widgets/IWidgetContextActions.cs`,
 `Services/Web/StreamSession.cs`, `Shell/Config/WidgetSettings.Web.cs`,
 `Themia.Core/Widgets/{VideoStreamRules,MjpegFrameReader}.cs`,
 `Themia.Core/Model/Configs/WebWidgetConfigs.cs`. The original's web element widget is not part of
@@ -3988,7 +3988,7 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 ## View links (VIEW-LINKS)
 
 Widgets on one view share what the user is pointing at and what they picked, so a hover in one
-lights the same thing in the others. Owning files: Core `Themia.Core/Links/ViewLinks.cs`
+lights the same thing in the others. Owning files: SDK `Themia.Sdk/Links/ViewLinks.cs`
 (`LinkTopicId`, `LinkTopics`, `LinkBoard`, `LinkMember`, `LinkRegistry`); App
 `AppServices.Links`, `IWidgetSurface.Links`, `IWidgetCardHost.Links`. Tests `ViewLinksTests` (`S33xx_`).
 
@@ -5641,7 +5641,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   English text), read with `Str.X.Text()`, `Str.X.Format(("name", v))` or `Str.X.Plural(n)` in
   `Strings.Current`, or `Strings.Get(locale, id)` for an explicit language. Lookup is an array read;
   no `ResourceManager`, no reflection, nothing loaded at run time (Native AOT clean).
-- **[S-1101]** Source: one JSON file per language, `src/Themia.Core/Localization/Locales/<code>.json`
+- **[S-1101]** Source: one JSON file per language, `src/Themia.Sdk/Localization/Locales/<code>.json`
   (en, de, es, fr, it, ja, pl, pt, zh, hi, ar, bn, ru, id, ur, mr, vi, ko, nl, tr, zh-Hant, te, ha, pa,
   sw, fil, ta, fa, th, gu), flat `"dotted.key": "text"` or a plural object. en.json is the
   master (its keys, in order, are the enum). `Themia.Localization.Generator` (Roslyn incremental

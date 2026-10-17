@@ -54,10 +54,16 @@ state store.
 ## Layout
 
 ```
+src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
+  Localization/ (+ Locales/*.json: still the one Str enum) Diagnostics/ (Log) Links/ Time/
+  Model/ (language and region vocabulary, ContentAlign) Widgets/ (WidgetArea, Disclosure, tiers, keys, fits)
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. Everything with a rule lives here.
   Geometry/ Model/ (state, WidgetKind, Configs/*) Storage/ (atomic store, load validation, JSON context)
   Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/
-  Settings/ Shell/ Motion/ Licensing/ Localization/ (+ Locales/*.json) Diagnostics/ (Log) Net/ Time/
+  Settings/ Shell/ Motion/ Licensing/ Net/ Sync/
+src/Themia.Sdk.WinUI/  the widget SDK, WinUI: view contracts (IWidgetSurface, IWidgetKeys, ...), Ticker,
+                   Glyphs, ScrollFade, EmptyStatePanel. References Themia.Sdk only, never Core.
+                   Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
   Services/        AppHost*.cs (state, displays, placement, clipboard, keyboard lease, suspend, license),
