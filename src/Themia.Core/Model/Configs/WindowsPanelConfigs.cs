@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -20,6 +21,8 @@ public sealed class NotificationsConfig : WidgetConfig
     {
         Id = new("notifications"),
         Kind = WidgetKind.Notifications,
+        ConfigType = typeof(NotificationsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Panels_Notifications_Label,
         DescriptionId = Str.Panels_Notifications_Desc,
         Glyph = Glyphs.Notifications,
@@ -41,6 +44,8 @@ public sealed class FocusSessionConfig : WidgetConfig
     {
         Id = new("focusSession"),
         Kind = WidgetKind.FocusSession,
+        ConfigType = typeof(FocusSessionConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Panels_Focus_Label,
         DescriptionId = Str.Panels_Focus_Desc,
         Glyph = Glyphs.Focus,
@@ -93,6 +98,8 @@ public sealed class BrightnessConfig : WidgetConfig
     {
         Id = new("brightness"),
         Kind = WidgetKind.Brightness,
+        ConfigType = typeof(BrightnessConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Panels_Brightness_Label,
         DescriptionId = Str.Panels_Brightness_Desc,
         Glyph = Glyphs.Brightness,

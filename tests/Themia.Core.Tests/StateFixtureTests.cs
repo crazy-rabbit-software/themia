@@ -38,6 +38,6 @@ public sealed class StateFixtureTests
         var parsed = AppStateStore.Parse(json);
 
         Assert.NotNull(parsed.State);
-        Assert.Equal(Normalised(json), Normalised(JsonSerializer.Serialize(parsed.State, AppStateJsonContext.Default.AppState)));
+        Assert.Equal(Normalised(json), Normalised(JsonSerializer.Serialize(parsed.State, StateJson.AppState)));
     }
 }

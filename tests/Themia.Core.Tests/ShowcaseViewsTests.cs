@@ -213,7 +213,7 @@ public sealed class ShowcaseViewsTests
         var state = AppState.CreateDefault();
         ShowcaseViews.Replace(state, ShowcaseViews.Build(AllKinds(), QhdAt150, Gap));
 
-        var json = System.Text.Json.JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+        var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
         var parsed = AppStateStore.Parse(json);
 
         Assert.NotNull(parsed.State);

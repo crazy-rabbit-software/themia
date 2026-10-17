@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -31,6 +32,8 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>
     {
         Id = new("alarm"),
         Kind = WidgetKind.Alarm,
+        ConfigType = typeof(AlarmConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Alarm_Label,
         DescriptionId = Str.Alarm_Desc,
         Glyph = Glyphs.Alarm,

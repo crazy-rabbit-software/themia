@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -51,6 +52,8 @@ public sealed class AudioVisualizerConfig : WidgetConfig, IStyled
     {
         Id = new("audioVisualizer"),
         Kind = WidgetKind.AudioVisualizer,
+        ConfigType = typeof(AudioVisualizerConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Styles_AudioVisualizer_Label,
         DescriptionId = Str.Styles_AudioVisualizer_Desc,
         Glyph = Glyphs.Visualizer,

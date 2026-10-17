@@ -76,7 +76,7 @@ public sealed class WidgetStylesTests
             Assert.Equal(last.Value, WidgetStyles.Current(widget.Config.Clone()));
 
             var (state, _) = State(widget);
-            var json = JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+            var json = JsonSerializer.Serialize(state, StateJson.AppState);
             Assert.Contains($"\"style\": \"{last.Name}\"", json, StringComparison.Ordinal);
 
             var back = AppStateStore.Parse(json).State!.Views[0].Find("w")!;

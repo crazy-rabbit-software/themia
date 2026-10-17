@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -70,6 +71,8 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
     {
         Id = new("pomodoro"),
         Kind = WidgetKind.Pomodoro,
+        ConfigType = typeof(PomodoroConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Pomodoro_Label,
         DescriptionId = Str.WidgetsA_Catalog_Pomodoro_Description,
         Glyph = Glyphs.Pomodoro,

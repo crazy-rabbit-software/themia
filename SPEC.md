@@ -912,6 +912,12 @@ Every widget is a module: an id, a descriptor and a view factory, found at build
   its own project (M3, M4), its descriptor is declared on its config in Core and its module class
   in `Themia.App/Widgets/Modules`; the tests install the same descriptors and check that the app
   declares exactly one module for each.
+- **[S-6903]** A state document is read and written with one set of options (`StateJson`): the
+  host's own metadata, then each installed widget's source-generated resolver, and a contract
+  modifier that adds every widget's config type to the `WidgetConfig` union with its id as the
+  `kind` discriminator. No attribute or list in the host names a widget's config; the union holds
+  exactly the registry's configs, and every widget's resolver uses the host's options (camelCase,
+  indented, nulls left out), so a module's config is written as a built-in one is.
 
 ## Adding a widget
 

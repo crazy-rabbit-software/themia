@@ -109,9 +109,9 @@ public static class SettingsPageSync
     private static string AppSignature(AppState state)
     {
         var text = new StringBuilder()
-            .Append(JsonSerializer.Serialize(state.Design, AppStateJsonContext.Default.DesignState))
+            .Append(JsonSerializer.Serialize(state.Design, StateJson.DesignState))
             .Append('\n')
-            .Append(JsonSerializer.Serialize(state.Preferences, AppStateJsonContext.Default.AppPreferences))
+            .Append(JsonSerializer.Serialize(state.Preferences, StateJson.AppPreferences))
             .Append('\n')
             .Append(state.DefaultViewForNewDisplays);
 
@@ -194,7 +194,7 @@ public static class SettingsPageSync
                         .Append(widget.Background.Kind).Append(' ').Append(widget.Background.Colour).Append(' ')
                         .Append(widget.Background.Opacity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)).Append('\n')
                         .Append(widget.Header).Append('\n')
-                        .Append(JsonSerializer.Serialize(widget.Config, AppStateJsonContext.Default.WidgetConfig))
+                        .Append(JsonSerializer.Serialize(widget.Config, StateJson.WidgetConfig))
                         .ToString();
                 }
             }

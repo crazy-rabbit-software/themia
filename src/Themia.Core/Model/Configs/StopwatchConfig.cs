@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -20,6 +21,8 @@ public sealed class StopwatchConfig : WidgetConfig
     {
         Id = new("stopwatch"),
         Kind = WidgetKind.Stopwatch,
+        ConfigType = typeof(StopwatchConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Stopwatch_Label,
         DescriptionId = Str.Stopwatch_Desc,
         Glyph = Glyphs.Stopwatch,

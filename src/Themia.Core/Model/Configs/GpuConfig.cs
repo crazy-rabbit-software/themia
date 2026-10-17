@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -41,6 +42,8 @@ public sealed class GpuConfig : GaugeConfig, IStyled
     {
         Id = new("gpu"),
         Kind = WidgetKind.Gpu,
+        ConfigType = typeof(GpuConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Gpu_Label,
         DescriptionId = Str.Shell_Meters_GpuDescription,
         Glyph = Glyphs.Gpu,

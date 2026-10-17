@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -216,6 +217,8 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     {
         Id = new("calendar"),
         Kind = WidgetKind.Calendar,
+        ConfigType = typeof(CalendarWidgetConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Styles_Calendar_Label,
         DescriptionId = Str.Styles_Calendar_Desc,
         Glyph = Glyphs.Calendar,
@@ -344,6 +347,8 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     {
         Id = new("contacts"),
         Kind = WidgetKind.Contacts,
+        ConfigType = typeof(ContactsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Contacts_Label,
         DescriptionId = Str.WidgetsA_Catalog_Contacts_Description,
         Glyph = Glyphs.Contact,

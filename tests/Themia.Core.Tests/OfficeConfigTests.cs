@@ -108,7 +108,7 @@ public sealed class OfficeConfigTests
         var copy = Assert.IsType<CalendarWidgetConfig>(config.Clone());
         Assert.Equal(style, copy.Style);
 
-        var json = System.Text.Json.JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
+        var json = System.Text.Json.JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
         using (var document = System.Text.Json.JsonDocument.Parse(json))
         {
             Assert.Equal("calendar", document.RootElement.GetProperty("kind").GetString());
@@ -116,7 +116,7 @@ public sealed class OfficeConfigTests
             Assert.False(document.RootElement.TryGetProperty("layout", out _));
         }
 
-        var back = Assert.IsType<CalendarWidgetConfig>(System.Text.Json.JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var back = Assert.IsType<CalendarWidgetConfig>(System.Text.Json.JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(style, back.Style);
         Assert.Empty(back.Repair());
     }
@@ -138,7 +138,7 @@ public sealed class OfficeConfigTests
     [Fact]
     public void S3641_the_calendar_stores_the_union_of_what_its_styles_use()
     {
-        var json = System.Text.Json.JsonSerializer.Serialize(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.1, 0.1, 0.2, 0.2)).Config, AppStateJsonContext.Default.WidgetConfig);
+        var json = System.Text.Json.JsonSerializer.Serialize(WidgetInstance.Create(WidgetKind.Calendar, new FracRect(0.1, 0.1, 0.2, 0.2)).Config, StateJson.WidgetConfig);
         using var document = System.Text.Json.JsonDocument.Parse(json);
         string[] names = [.. document.RootElement.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)];
 

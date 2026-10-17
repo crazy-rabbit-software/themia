@@ -38,10 +38,10 @@ public sealed class MeterStylesTests
     public void S6311_a_style_survives_a_save_and_the_history_settings_stay_beside_it()
     {
         var cpu = new CpuConfig { Style = CpuStyle.Grid, ShowGraph = false, GraphSpanSeconds = 300 };
-        var json = JsonSerializer.Serialize<WidgetConfig>(cpu, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(cpu, StateJson.WidgetConfig);
         Assert.Contains("\"style\": \"grid\"", json, StringComparison.Ordinal);
 
-        var back = Assert.IsType<CpuConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var back = Assert.IsType<CpuConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(CpuStyle.Grid, back.Style);
         Assert.False(back.ShowGraph);
         Assert.Equal(300, back.GraphSpanSeconds);

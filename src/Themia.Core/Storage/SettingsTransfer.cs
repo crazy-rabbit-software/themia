@@ -28,7 +28,7 @@ public static class SettingsTransfer
     public static string Serialize(AppState state)
     {
         ArgumentNullException.ThrowIfNull(state);
-        return JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+        return JsonSerializer.Serialize(state, StateJson.AppState);
     }
 
     /// <summary>
@@ -379,7 +379,7 @@ public static class SettingsTransfer
     }
 
     private static string Fingerprint(WidgetInstance widget)
-        => JsonSerializer.Serialize(widget, AppStateJsonContext.Default.WidgetInstance);
+        => JsonSerializer.Serialize(widget, StateJson.WidgetInstance);
 
     private static void CompareDesign(Locale locale, DesignState old, DesignState @new, List<string> changes)
     {

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -52,6 +53,8 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
     {
         Id = new("habitTracker"),
         Kind = WidgetKind.HabitTracker,
+        ConfigType = typeof(HabitTrackerConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Habits_Label,
         DescriptionId = Str.WidgetsA_Catalog_Habits_Description,
         Glyph = Glyphs.Habit,

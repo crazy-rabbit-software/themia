@@ -51,8 +51,8 @@ public class PlaceClearTests
 
     private static WidgetConfig RoundTrip(WidgetConfig config)
     {
-        var json = JsonSerializer.Serialize(config, AppStateJsonContext.Default.WidgetConfig);
-        return JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig)!;
+        var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
+        return JsonSerializer.Deserialize(json, StateJson.WidgetConfig)!;
     }
 
     [Fact]

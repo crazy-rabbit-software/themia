@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -34,6 +35,8 @@ public sealed class DriveConfig : WidgetConfig, IStyled
     {
         Id = new("drive"),
         Kind = WidgetKind.Drive,
+        ConfigType = typeof(DriveConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Drives_Drive_Label,
         DescriptionId = Str.Drives_Drive_Desc,
         Glyph = Glyphs.Disk,
@@ -88,6 +91,8 @@ public sealed class RemovableDrivesConfig : WidgetConfig
     {
         Id = new("removableDrives"),
         Kind = WidgetKind.RemovableDrives,
+        ConfigType = typeof(RemovableDrivesConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Drives_Removable_Label,
         DescriptionId = Str.Drives_Removable_Desc,
         Glyph = Glyphs.Usb,

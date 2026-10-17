@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -27,6 +28,8 @@ public sealed class CpuDetailsConfig : DetailConfig
     {
         Id = new("cpuDetails"),
         Kind = WidgetKind.CpuDetails,
+        ConfigType = typeof(CpuDetailsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Details_Catalog_Cpu_Label,
         DescriptionId = Str.Details_Catalog_Cpu_Desc,
         Glyph = Glyphs.Cpu,
@@ -52,6 +55,8 @@ public sealed class MemoryDetailsConfig : DetailConfig
     {
         Id = new("memoryDetails"),
         Kind = WidgetKind.MemoryDetails,
+        ConfigType = typeof(MemoryDetailsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Details_Catalog_Memory_Label,
         DescriptionId = Str.Details_Catalog_Memory_Desc,
         Glyph = Glyphs.Memory,
@@ -91,6 +96,8 @@ public sealed class TopProcessesConfig : DetailConfig
     {
         Id = new("topProcesses"),
         Kind = WidgetKind.TopProcesses,
+        ConfigType = typeof(TopProcessesConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Details_Catalog_Processes_Label,
         DescriptionId = Str.Details_Catalog_Processes_Desc,
         Glyph = Glyphs.ListLayout,
@@ -151,6 +158,8 @@ public sealed class NetworkDetailsConfig : DetailConfig
     {
         Id = new("networkDetails"),
         Kind = WidgetKind.NetworkDetails,
+        ConfigType = typeof(NetworkDetailsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Details_Catalog_Network_Label,
         DescriptionId = Str.Details_Catalog_Network_Desc,
         Glyph = Glyphs.Network,
@@ -182,6 +191,8 @@ public sealed class BatteryDetailsConfig : DetailConfig
     {
         Id = new("batteryDetails"),
         Kind = WidgetKind.BatteryDetails,
+        ConfigType = typeof(BatteryDetailsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Details_Catalog_Battery_Label,
         DescriptionId = Str.Details_Catalog_Battery_Desc,
         Glyph = Glyphs.Battery,
@@ -211,6 +222,8 @@ public sealed class PingDetailsConfig : DetailConfig
     {
         Id = new("pingDetails"),
         Kind = WidgetKind.PingDetails,
+        ConfigType = typeof(PingDetailsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Details_Catalog_Ping_Label,
         DescriptionId = Str.Details_Catalog_Ping_Desc,
         Glyph = Glyphs.Ping,
@@ -268,6 +281,8 @@ public sealed class GpuDetailsConfig : DetailConfig
     {
         Id = new("gpuDetails"),
         Kind = WidgetKind.GpuDetails,
+        ConfigType = typeof(GpuDetailsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Details_Catalog_Gpu_Label,
         DescriptionId = Str.Details_Catalog_Gpu_Desc,
         Glyph = Glyphs.Gpu,

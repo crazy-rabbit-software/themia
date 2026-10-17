@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -43,6 +44,8 @@ public sealed class PingConfig : GaugeConfig, IStyled
     {
         Id = new("ping"),
         Kind = WidgetKind.Ping,
+        ConfigType = typeof(PingConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Ping_Label,
         DescriptionId = Str.WidgetsA_Catalog_Ping_Description,
         Glyph = Glyphs.Ping,

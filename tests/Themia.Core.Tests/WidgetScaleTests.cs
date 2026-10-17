@@ -83,7 +83,7 @@ public sealed class WidgetScaleTests
     public void S6530_the_scale_round_trips_through_the_state_file()
     {
         var state = AppStateStore.Parse(StateFile("1.25")).State!;
-        var json = JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+        var json = JsonSerializer.Serialize(state, StateJson.AppState);
         var back = AppStateStore.Parse(json);
 
         Assert.Equal(1.25, back.State!.Views[0].Widgets[0].Scale);

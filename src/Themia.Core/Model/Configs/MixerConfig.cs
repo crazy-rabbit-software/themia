@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -22,6 +23,8 @@ public sealed class MixerConfig : WidgetConfig
     {
         Id = new("mixer"),
         Kind = WidgetKind.Mixer,
+        ConfigType = typeof(MixerConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Mixer_Label,
         DescriptionId = Str.WidgetsA_Catalog_Mixer_Description,
         Glyph = Glyphs.Mixer,

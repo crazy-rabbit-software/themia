@@ -47,8 +47,8 @@ public class QuickToggleTests
         foreach (var kind in ToggleKinds)
         {
             var config = WidgetConfig.CreateDefault(kind);
-            var json = System.Text.Json.JsonSerializer.Serialize(config, AppStateJsonContext.Default.WidgetConfig);
-            var back = System.Text.Json.JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig);
+            var json = System.Text.Json.JsonSerializer.Serialize(config, StateJson.WidgetConfig);
+            var back = System.Text.Json.JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
             Assert.NotNull(back);
             Assert.Equal(kind, back!.Kind);
             Assert.Equal(kind, back.Clone().Kind);

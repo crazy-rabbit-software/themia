@@ -50,10 +50,10 @@ public class ClockTextSizeTests
     public void S1476_the_size_round_trips_and_a_bad_one_is_repaired()
     {
         var config = new ClockConfig { TextSize = ClockTextSize.Large };
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
         Assert.Contains("\"Large\"", json, StringComparison.Ordinal);
 
-        var back = Assert.IsType<ClockConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var back = Assert.IsType<ClockConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(ClockTextSize.Large, back.TextSize);
         Assert.Equal(ClockTextSize.Large, Assert.IsType<ClockConfig>(back.Clone()).TextSize);
 

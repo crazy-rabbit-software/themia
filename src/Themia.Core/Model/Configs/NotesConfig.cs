@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -20,6 +21,8 @@ public sealed class NotesConfig : WidgetConfig
     {
         Id = new("notes"),
         Kind = WidgetKind.Notes,
+        ConfigType = typeof(NotesConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Notes_Label,
         DescriptionId = Str.WidgetsA_Catalog_Notes_Description,
         Glyph = Glyphs.Note,

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -77,6 +78,8 @@ public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenT
     {
         Id = new("screenTimeChart"),
         Kind = WidgetKind.ScreenTimeChart,
+        ConfigType = typeof(ScreenTimeChartConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsC_ScreenTime_Chart_Label,
         DescriptionId = Str.WidgetsC_ScreenTime_Chart_Desc,
         Glyph = Glyphs.ScreenTimeChart,
@@ -107,6 +110,8 @@ public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenT
     {
         Id = new("screenTimeDonut"),
         Kind = WidgetKind.ScreenTimeDonut,
+        ConfigType = typeof(ScreenTimeDonutConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsC_ScreenTime_Donut_Label,
         DescriptionId = Str.WidgetsC_ScreenTime_Donut_Desc,
         Glyph = Glyphs.ScreenTimeDonut,
@@ -139,6 +144,8 @@ public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTi
     {
         Id = new("screenTimeApps"),
         Kind = WidgetKind.ScreenTimeApps,
+        ConfigType = typeof(ScreenTimeAppsConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsC_ScreenTime_Apps_Label,
         DescriptionId = Str.WidgetsC_ScreenTime_Apps_Desc,
         Glyph = Glyphs.ScreenTime,

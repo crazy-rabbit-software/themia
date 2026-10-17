@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -88,6 +89,8 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
     {
         Id = new("stocks"),
         Kind = WidgetKind.Stocks,
+        ConfigType = typeof(StocksConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Stocks_Label,
         DescriptionId = Str.WidgetsA_Catalog_Stocks_Description,
         Glyph = Glyphs.Stocks,

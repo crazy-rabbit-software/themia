@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -42,6 +43,8 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
     {
         Id = new("network"),
         Kind = WidgetKind.Network,
+        ConfigType = typeof(NetworkConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Network_Label,
         DescriptionId = Str.WidgetsA_Catalog_Network_Description,
         Glyph = Glyphs.Network,

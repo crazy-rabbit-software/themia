@@ -236,7 +236,7 @@ public class SettingRulesTests
     {
         foreach (var kind in Enum.GetValues<WidgetKind>())
         {
-            var json = JsonSerializer.Serialize(WidgetConfig.CreateDefault(kind), AppStateJsonContext.Default.WidgetConfig);
+            var json = JsonSerializer.Serialize(WidgetConfig.CreateDefault(kind), StateJson.WidgetConfig);
             Assert.DoesNotContain("shownSettings", json, StringComparison.OrdinalIgnoreCase);
         }
     }

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -77,6 +78,8 @@ public sealed class ShutdownConfig : PowerButtonConfig
     {
         Id = new("shutdown"),
         Kind = WidgetKind.Shutdown,
+        ConfigType = typeof(ShutdownConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Power_Action_Shutdown,
         DescriptionId = Str.WidgetsC_Power_Desc_Shutdown,
         Glyph = Glyphs.Power,
@@ -98,6 +101,8 @@ public sealed class RestartConfig : PowerButtonConfig
     {
         Id = new("restart"),
         Kind = WidgetKind.Restart,
+        ConfigType = typeof(RestartConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Power_Action_Restart,
         DescriptionId = Str.WidgetsC_Power_Desc_Restart,
         Glyph = Glyphs.Reset,
@@ -119,6 +124,8 @@ public sealed class SleepConfig : PowerButtonConfig
     {
         Id = new("sleep"),
         Kind = WidgetKind.Sleep,
+        ConfigType = typeof(SleepConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Power_Action_Sleep,
         DescriptionId = Str.WidgetsC_Power_Desc_Sleep,
         Glyph = Glyphs.Moon,
@@ -140,6 +147,8 @@ public sealed class HibernateConfig : PowerButtonConfig
     {
         Id = new("hibernate"),
         Kind = WidgetKind.Hibernate,
+        ConfigType = typeof(HibernateConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Power_Action_Hibernate,
         DescriptionId = Str.WidgetsC_Power_Desc_Hibernate,
         Glyph = Glyphs.Hibernate,
@@ -161,6 +170,8 @@ public sealed class LockConfig : PowerButtonConfig
     {
         Id = new("lock"),
         Kind = WidgetKind.Lock,
+        ConfigType = typeof(LockConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Power_Action_Lock,
         DescriptionId = Str.WidgetsC_Power_Desc_Lock,
         Glyph = Glyphs.Lock,
@@ -182,6 +193,8 @@ public sealed class SignOutConfig : PowerButtonConfig
     {
         Id = new("signOut"),
         Kind = WidgetKind.SignOut,
+        ConfigType = typeof(SignOutConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Power_Action_SignOut,
         DescriptionId = Str.WidgetsC_Power_Desc_SignOut,
         Glyph = Glyphs.SignOut,
@@ -203,6 +216,8 @@ public sealed class ScreenOffConfig : PowerButtonConfig
     {
         Id = new("screenOff"),
         Kind = WidgetKind.ScreenOff,
+        ConfigType = typeof(ScreenOffConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Power_Action_ScreenOff,
         DescriptionId = Str.WidgetsC_Power_Desc_ScreenOff,
         Glyph = Glyphs.Display,

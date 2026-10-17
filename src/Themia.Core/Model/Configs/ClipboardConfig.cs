@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -30,6 +31,8 @@ public sealed class ClipboardConfig : WidgetConfig
     {
         Id = new("clipboard"),
         Kind = WidgetKind.Clipboard,
+        ConfigType = typeof(ClipboardConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Clipboard_Label,
         DescriptionId = Str.WidgetsA_Catalog_Clipboard_Description,
         Glyph = Glyphs.Clipboard,

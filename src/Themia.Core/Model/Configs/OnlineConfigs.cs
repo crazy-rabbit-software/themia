@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -63,6 +64,8 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled
     {
         Id = new("airQuality"),
         Kind = WidgetKind.AirQuality,
+        ConfigType = typeof(AirQualityConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Online_Air_Label,
         DescriptionId = Str.Online_Air_Desc,
         Glyph = Glyphs.AirQuality,
@@ -115,6 +118,8 @@ public sealed class RainNextHourConfig : WeatherConfig
     {
         Id = new("rainNextHour"),
         Kind = WidgetKind.RainNextHour,
+        ConfigType = typeof(RainNextHourConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Online_Rain_Label,
         DescriptionId = Str.Online_Rain_Desc,
         Glyph = Glyphs.Rain,
@@ -151,6 +156,8 @@ public sealed class ExchangeRatesConfig : WidgetConfig, IStyled
     {
         Id = new("exchangeRates"),
         Kind = WidgetKind.ExchangeRates,
+        ConfigType = typeof(ExchangeRatesConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Online_Rates_Label,
         DescriptionId = Str.Online_Rates_Desc,
         Glyph = Glyphs.ExchangeRates,

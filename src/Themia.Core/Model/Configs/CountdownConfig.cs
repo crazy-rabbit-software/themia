@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -46,6 +47,8 @@ public sealed class CountdownConfig : WidgetConfig, IStyled
     {
         Id = new("countdown"),
         Kind = WidgetKind.Countdown,
+        ConfigType = typeof(CountdownConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Countdown_Label,
         DescriptionId = Str.WidgetsA_Catalog_Countdown_Description,
         Glyph = Glyphs.Countdown,

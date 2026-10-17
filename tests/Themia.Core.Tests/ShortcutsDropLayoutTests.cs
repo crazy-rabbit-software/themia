@@ -521,8 +521,8 @@ public sealed class ShortcutsDropLayoutTests
 
         config.Items[0].Layout = SideBySide(@"C:\a.lnk", "https://b.example", 0.3);
 
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
-        var back = Assert.IsType<ShortcutsConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
+        var back = Assert.IsType<ShortcutsConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
 
         Assert.Contains("\"Vertical\"", json, StringComparison.Ordinal);
         Assert.True(back.Items[0].IsLayout);

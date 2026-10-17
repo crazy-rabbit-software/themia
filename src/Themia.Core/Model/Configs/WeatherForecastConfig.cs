@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -53,6 +54,8 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled
     {
         Id = new("weatherForecast"),
         Kind = WidgetKind.WeatherForecast,
+        ConfigType = typeof(WeatherForecastConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Forecast_Label,
         DescriptionId = Str.WidgetsA_Catalog_Forecast_Description,
         Glyph = Glyphs.Forecast,

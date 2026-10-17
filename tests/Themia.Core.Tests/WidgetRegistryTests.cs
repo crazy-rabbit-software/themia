@@ -71,7 +71,7 @@ public sealed partial class WidgetRegistryTests
 
         Assert.IsType(config, instance);
         Assert.Equal(widget.Kind, instance.Kind);
-        using var json = JsonDocument.Parse(JsonSerializer.Serialize(instance, AppStateJsonContext.Default.WidgetConfig));
+        using var json = JsonDocument.Parse(JsonSerializer.Serialize(instance, StateJson.WidgetConfig));
         Assert.Equal(id, json.RootElement.GetProperty("kind").GetString());
     }
 
@@ -87,6 +87,49 @@ public sealed partial class WidgetRegistryTests
         Assert.Single(widget.Glyph.EnumerateRunes());
         Assert.InRange(widget.DefaultWidth, 80, 800);
         Assert.InRange(widget.DefaultHeight, 80, 800);
+    }
+
+    [Theory]
+    [MemberData(nameof(Ids))]
+    public void S6903_a_default_config_round_trips_through_the_state_options_with_its_id_as_discriminator(string id)
+    {
+        var widget = Of(id);
+        var config = WidgetConfig.CreateDefault(widget.Kind);
+        Assert.IsType(widget.ConfigType, config);
+
+        var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
+        using (var document = JsonDocument.Parse(json))
+        {
+            Assert.Equal(id, document.RootElement.GetProperty("kind").GetString());
+        }
+
+        var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
+        Assert.IsType(widget.ConfigType, back);
+        Assert.Equal(json, JsonSerializer.Serialize(back!, StateJson.WidgetConfig));
+    }
+
+    [Fact]
+    public void S6903_the_union_holds_exactly_the_registrys_configs()
+    {
+        var union = StateJson.Options.GetTypeInfo(typeof(WidgetConfig)).PolymorphismOptions!;
+
+        Assert.Equal("kind", union.TypeDiscriminatorPropertyName);
+        Assert.Equal(
+            ModuleCatalog.Widgets.Select(w => (w.ConfigType, (object)w.Id.Value)).OrderBy(p => p.Item2),
+            union.DerivedTypes.Select(d => (d.DerivedType, d.TypeDiscriminator!)).OrderBy(p => p.Item2));
+    }
+
+    [Fact]
+    public void S6903_every_widget_resolver_is_written_with_the_host_options()
+    {
+        foreach (var resolver in ModuleCatalog.Widgets.Select(w => w.Json).Distinct())
+        {
+            var options = Assert.IsAssignableFrom<System.Text.Json.Serialization.JsonSerializerContext>(resolver).Options;
+            var host = StateJson.Options;
+            Assert.Equal(host.PropertyNamingPolicy?.ConvertName("someName"), options.PropertyNamingPolicy?.ConvertName("someName"));
+            Assert.Equal(host.DefaultIgnoreCondition, options.DefaultIgnoreCondition);
+            Assert.Equal(host.WriteIndented, options.WriteIndented);
+        }
     }
 
     [GeneratedRegex("""ThemiaWidget\("([^"]*)"\s*,""")]

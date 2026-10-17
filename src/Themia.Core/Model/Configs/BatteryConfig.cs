@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -44,6 +45,8 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
     {
         Id = new("battery"),
         Kind = WidgetKind.Battery,
+        ConfigType = typeof(BatteryConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Battery_Label,
         DescriptionId = Str.Shell_Meters_BatteryDescription,
         Glyph = Glyphs.Battery,

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -53,6 +54,8 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
     {
         Id = new("quote"),
         Kind = WidgetKind.Quote,
+        ConfigType = typeof(QuoteConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Quote_Label,
         DescriptionId = Str.WidgetsA_Catalog_Quote_Description,
         Glyph = Glyphs.Quote,

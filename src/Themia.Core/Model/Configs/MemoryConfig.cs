@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -36,6 +37,8 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
     {
         Id = new("memory"),
         Kind = WidgetKind.Memory,
+        ConfigType = typeof(MemoryConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Memory_Label,
         DescriptionId = Str.WidgetsA_Catalog_Memory_Description,
         Glyph = Glyphs.Memory,

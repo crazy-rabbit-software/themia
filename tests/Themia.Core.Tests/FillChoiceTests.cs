@@ -41,7 +41,7 @@ public sealed class FillChoiceTests
         var state = AppState.CreateDefault();
         state.Design.Background = FillChoice.Of("#1b2030", 0.55);
 
-        var json = JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+        var json = JsonSerializer.Serialize(state, StateJson.AppState);
 
         Assert.Contains("\"background\": {", json, StringComparison.Ordinal);
         Assert.Contains("\"kind\": \"Colour\"", json, StringComparison.Ordinal);
@@ -58,8 +58,8 @@ public sealed class FillChoiceTests
         state.Views[0].Widgets[0].Background = FillChoice.Of("#405060", 0.3);
         state.Views[0].Widgets[0].ItemBackground = FillChoice.Transparent();
 
-        var json = JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
-        var back = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.AppState)!;
+        var json = JsonSerializer.Serialize(state, StateJson.AppState);
+        var back = JsonSerializer.Deserialize(json, StateJson.AppState)!;
 
         Assert.True(state.Design.Background.SameAs(back.Design.Background));
         Assert.True(state.Design.ItemBackground.SameAs(back.Design.ItemBackground));
@@ -71,7 +71,7 @@ public sealed class FillChoiceTests
     [Fact]
     public void S6560_kinds_are_read_case_insensitively()
     {
-        var design = JsonSerializer.Deserialize("""{ "background": { "kind": "colour", "colour": "#102030", "opacity": 0.5 } }""", AppStateJsonContext.Default.DesignState)!;
+        var design = JsonSerializer.Deserialize("""{ "background": { "kind": "colour", "colour": "#102030", "opacity": 0.5 } }""", StateJson.DesignState)!;
         Assert.Equal(FillKind.Colour, design.Background.Kind);
     }
 

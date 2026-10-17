@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -56,6 +57,8 @@ public sealed class MusicConfig : WidgetConfig, IStyled
     {
         Id = new("music"),
         Kind = WidgetKind.Music,
+        ConfigType = typeof(MusicConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Music_Label,
         DescriptionId = Str.WidgetsA_Catalog_Music_Description,
         Glyph = Glyphs.Music,

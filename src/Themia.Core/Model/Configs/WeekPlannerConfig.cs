@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -32,6 +33,8 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     {
         Id = new("weekPlanner"),
         Kind = WidgetKind.WeekPlanner,
+        ConfigType = typeof(WeekPlannerConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Planner_Label,
         DescriptionId = Str.Planner_Desc,
         Glyph = Glyphs.WeekPlanner,

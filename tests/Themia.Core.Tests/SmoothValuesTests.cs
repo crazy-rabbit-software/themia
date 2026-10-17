@@ -38,8 +38,8 @@ public sealed class SmoothValuesTests
         var state = AppState.CreateDefault();
         state.Design.SmoothValues = false;
 
-        var json = JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
-        var loaded = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.AppState)!;
+        var json = JsonSerializer.Serialize(state, StateJson.AppState);
+        var loaded = JsonSerializer.Deserialize(json, StateJson.AppState)!;
 
         Assert.False(loaded.Design.SmoothValues);
     }

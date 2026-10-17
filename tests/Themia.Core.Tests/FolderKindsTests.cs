@@ -19,7 +19,7 @@ public sealed class FolderKindsTests
 
     private static HashSet<string> Properties(WidgetConfig config)
     {
-        var json = JsonSerializer.Serialize(config, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
         using var document = JsonDocument.Parse(json);
         return [.. document.RootElement.EnumerateObject().Select(p => p.Name)];
     }
@@ -32,13 +32,13 @@ public sealed class FolderKindsTests
         Assert.Equal(FolderStyle.List, config.Style);
         config.Style = style;
 
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
         using (var document = JsonDocument.Parse(json))
         {
             Assert.Equal(wire, document.RootElement.GetProperty("style").GetString());
         }
 
-        var back = Assert.IsType<FolderConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var back = Assert.IsType<FolderConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(WidgetKind.Folder, back.Kind);
         Assert.Equal(style, back.Style);
         Assert.Empty(back.Repair());

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 
@@ -36,6 +37,12 @@ public sealed record WidgetDescriptor
 
     /// <summary>The enum key the host still uses while <see cref="WidgetKind"/> exists (M2's interim).</summary>
     public required WidgetKind Kind { get; init; }
+
+    /// <summary>[S-6903] Its config's type: the member of the config union written with <see cref="Id"/> as its discriminator.</summary>
+    public required Type ConfigType { get; init; }
+
+    /// <summary>[S-6903] The source-generated JSON metadata that knows <see cref="ConfigType"/> (AOT: no reflection).</summary>
+    public required IJsonTypeInfoResolver Json { get; init; }
 
     /// <summary>Its name, as a string id: <see cref="Label"/> reads it in the current language ([S-1109]).</summary>
     public required Str LabelId { get; init; }

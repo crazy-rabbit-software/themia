@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -43,6 +44,8 @@ public sealed class CpuConfig : GaugeConfig, IStyled
     {
         Id = new("cpu"),
         Kind = WidgetKind.Cpu,
+        ConfigType = typeof(CpuConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Cpu_Label,
         DescriptionId = Str.WidgetsA_Catalog_Cpu_Description,
         Glyph = Glyphs.Cpu,

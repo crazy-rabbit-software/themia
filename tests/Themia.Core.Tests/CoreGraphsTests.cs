@@ -27,10 +27,10 @@ public sealed class CoreGraphsTests
     public void S6317_core_graphs_survive_a_save_and_offer_the_history_span()
     {
         var cpu = new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 300 };
-        var json = JsonSerializer.Serialize<WidgetConfig>(cpu, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(cpu, StateJson.WidgetConfig);
         Assert.Contains("\"style\": \"coreGraphs\"", json, StringComparison.Ordinal);
 
-        var back = Assert.IsType<CpuConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var back = Assert.IsType<CpuConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(CpuStyle.CoreGraphs, back.Style);
         Assert.Equal(300, back.GraphSpanSeconds);
         Assert.Equal(CpuStyle.CoreGraphs, ((CpuConfig)back.Clone()).Style);

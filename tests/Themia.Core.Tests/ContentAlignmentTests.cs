@@ -236,14 +236,14 @@ public sealed partial class ContentAlignmentTests
     public void S6580_the_choice_is_saved_by_name_survives_a_copy_and_none_is_left_out()
     {
         var clock = Widget(WidgetKind.Clock);
-        var bare = JsonSerializer.Serialize(clock, AppStateJsonContext.Default.WidgetInstance);
+        var bare = JsonSerializer.Serialize(clock, StateJson.WidgetInstance);
         Assert.DoesNotContain("\"align\"", bare, StringComparison.Ordinal);
 
         clock.Align = ContentAlign.Right;
-        var json = JsonSerializer.Serialize(clock, AppStateJsonContext.Default.WidgetInstance);
+        var json = JsonSerializer.Serialize(clock, StateJson.WidgetInstance);
         Assert.Contains("\"align\": \"Right\"", json, StringComparison.Ordinal);
 
-        var back = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetInstance);
+        var back = JsonSerializer.Deserialize(json, StateJson.WidgetInstance);
         Assert.Equal(ContentAlign.Right, back?.Align);
         Assert.Equal(ContentAlign.Right, clock.Clone().Align);
     }

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -170,6 +171,8 @@ public sealed class SunConfig : SkyPlaceConfig, IStyled, IShownSettings<SunSetti
     {
         Id = new("sun"),
         Kind = WidgetKind.Sun,
+        ConfigType = typeof(SunConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsC_Sun_Label,
         DescriptionId = Str.WidgetsC_Sun_Desc,
         Glyph = Glyphs.Sun,
@@ -219,6 +222,8 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
     {
         Id = new("moon"),
         Kind = WidgetKind.Moon,
+        ConfigType = typeof(MoonConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsC_Moon_Label,
         DescriptionId = Str.WidgetsC_Moon_Desc,
         Glyph = Glyphs.Moon,

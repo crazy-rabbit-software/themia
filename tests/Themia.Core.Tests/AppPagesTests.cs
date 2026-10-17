@@ -92,7 +92,7 @@ public sealed class AppPagesTests
     public void S3811_a_stored_colour_that_is_not_a_colour_is_dropped_loudly(string color)
     {
         var state = AppState.CreateDefault();
-        var node = System.Text.Json.Nodes.JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState))!;
+        var node = System.Text.Json.Nodes.JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState))!;
         node["views"]![0]!["color"] = System.Text.Json.Nodes.JsonNode.Parse(color);
         var json = node.ToJsonString();
 
@@ -107,7 +107,7 @@ public sealed class AppPagesTests
     {
         var state = AppState.CreateDefault();
         state.Views[0].Color = "#abc";
-        var json = System.Text.Json.JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+        var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
 
         var result = AppStateStore.Parse(json);
 

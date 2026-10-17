@@ -38,10 +38,10 @@ public class WeekPlannerTests
     public void S5320_the_config_round_trips_and_is_a_calendar_with_tasks()
     {
         var config = new WeekPlannerConfig { ShowTasks = false, TaskAccountId = "acc", AccountIds = ["a"], ShowBirthdays = false };
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
         Assert.Contains("\"weekPlanner\"", json, StringComparison.Ordinal);
 
-        var back = Assert.IsType<WeekPlannerConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var back = Assert.IsType<WeekPlannerConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.False(back.ShowTasks);
         Assert.Equal("acc", back.TaskAccountId);
         Assert.Equal(["a"], back.AccountIds);

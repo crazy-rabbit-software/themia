@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -86,6 +87,8 @@ public sealed class WifiToggleConfig : QuickToggleConfig
     {
         Id = new("wifiToggle"),
         Kind = WidgetKind.WifiToggle,
+        ConfigType = typeof(WifiToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_Wifi_Label,
         DescriptionId = Str.Toggles_Wifi_Desc,
         Glyph = Glyphs.Wifi,
@@ -107,6 +110,8 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
     {
         Id = new("bluetoothToggle"),
         Kind = WidgetKind.BluetoothToggle,
+        ConfigType = typeof(BluetoothToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_Bluetooth_Label,
         DescriptionId = Str.Toggles_Bluetooth_Desc,
         Glyph = Glyphs.Bluetooth,
@@ -128,6 +133,8 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
     {
         Id = new("airplaneModeToggle"),
         Kind = WidgetKind.AirplaneModeToggle,
+        ConfigType = typeof(AirplaneModeToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_AirplaneMode_Label,
         DescriptionId = Str.Toggles_AirplaneMode_Desc,
         Glyph = Glyphs.Airplane,
@@ -149,6 +156,8 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
     {
         Id = new("energySaverToggle"),
         Kind = WidgetKind.EnergySaverToggle,
+        ConfigType = typeof(EnergySaverToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_EnergySaver_Label,
         DescriptionId = Str.Toggles_EnergySaver_Desc,
         Glyph = Glyphs.EnergySaver,
@@ -170,6 +179,8 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
     {
         Id = new("nightLightToggle"),
         Kind = WidgetKind.NightLightToggle,
+        ConfigType = typeof(NightLightToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_NightLight_Label,
         DescriptionId = Str.Toggles_NightLight_Desc,
         Glyph = Glyphs.NightLight,
@@ -191,6 +202,8 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
     {
         Id = new("rotationLockToggle"),
         Kind = WidgetKind.RotationLockToggle,
+        ConfigType = typeof(RotationLockToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_RotationLock_Label,
         DescriptionId = Str.Toggles_RotationLock_Desc,
         Glyph = Glyphs.RotationLock,
@@ -212,6 +225,8 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
     {
         Id = new("doNotDisturbToggle"),
         Kind = WidgetKind.DoNotDisturbToggle,
+        ConfigType = typeof(DoNotDisturbToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_DoNotDisturb_Label,
         DescriptionId = Str.Toggles_DoNotDisturb_Desc,
         Glyph = Glyphs.QuietHours,
@@ -233,6 +248,8 @@ public sealed class SoundToggleConfig : QuickToggleConfig
     {
         Id = new("soundToggle"),
         Kind = WidgetKind.SoundToggle,
+        ConfigType = typeof(SoundToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_Sound_Label,
         DescriptionId = Str.Toggles_Sound_Desc,
         Glyph = Glyphs.Volume3,
@@ -254,6 +271,8 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
     {
         Id = new("microphoneToggle"),
         Kind = WidgetKind.MicrophoneToggle,
+        ConfigType = typeof(MicrophoneToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_Microphone_Label,
         DescriptionId = Str.Toggles_Microphone_Desc,
         Glyph = Glyphs.Microphone,
@@ -275,6 +294,8 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
     {
         Id = new("spatialSoundToggle"),
         Kind = WidgetKind.SpatialSoundToggle,
+        ConfigType = typeof(SpatialSoundToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_SpatialSound_Label,
         DescriptionId = Str.Toggles_SpatialSound_Desc,
         Glyph = Glyphs.SpatialSound,
@@ -296,6 +317,8 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
     {
         Id = new("monoAudioToggle"),
         Kind = WidgetKind.MonoAudioToggle,
+        ConfigType = typeof(MonoAudioToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_MonoAudio_Label,
         DescriptionId = Str.Toggles_MonoAudio_Desc,
         Glyph = Glyphs.MonoAudio,
@@ -317,6 +340,8 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
     {
         Id = new("colorFiltersToggle"),
         Kind = WidgetKind.ColorFiltersToggle,
+        ConfigType = typeof(ColorFiltersToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_ColorFilters_Label,
         DescriptionId = Str.Toggles_ColorFilters_Desc,
         Glyph = Glyphs.ColorFilters,
@@ -338,6 +363,8 @@ public sealed class GameModeToggleConfig : QuickToggleConfig
     {
         Id = new("gameModeToggle"),
         Kind = WidgetKind.GameModeToggle,
+        ConfigType = typeof(GameModeToggleConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Toggles_GameMode_Label,
         DescriptionId = Str.Toggles_GameMode_Desc,
         Glyph = Glyphs.GameMode,

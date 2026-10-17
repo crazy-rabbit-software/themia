@@ -27,8 +27,8 @@ public class WindowsPanelsTests
     public void S4400_each_config_round_trips_through_the_state_file(WidgetKind kind)
     {
         var config = WidgetConfig.CreateDefault(kind);
-        var json = JsonSerializer.Serialize(config, AppStateJsonContext.Default.WidgetConfig);
-        var back = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
+        var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
 
         Assert.NotNull(back);
         Assert.Equal(kind, back!.Kind);
@@ -39,10 +39,10 @@ public class WindowsPanelsTests
     public void S4442_the_screens_choice_is_written_as_a_word_and_read_back()
     {
         var config = new BrightnessConfig { Screens = BrightnessScreens.ThisDisplay };
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
 
         Assert.Contains("\"ThisDisplay\"", json, StringComparison.Ordinal);
-        var back = Assert.IsType<BrightnessConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var back = Assert.IsType<BrightnessConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(BrightnessScreens.ThisDisplay, back.Screens);
         Assert.Equal(BrightnessScreens.ThisDisplay, ((BrightnessConfig)back.Clone()).Screens);
     }

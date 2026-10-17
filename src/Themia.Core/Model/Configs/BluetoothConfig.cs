@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -18,6 +19,8 @@ public sealed class BluetoothConfig : WidgetConfig
     {
         Id = new("bluetooth"),
         Kind = WidgetKind.Bluetooth,
+        ConfigType = typeof(BluetoothConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Bluetooth_Label,
         DescriptionId = Str.WidgetsA_Catalog_Bluetooth_Description,
         Glyph = Glyphs.Bluetooth,

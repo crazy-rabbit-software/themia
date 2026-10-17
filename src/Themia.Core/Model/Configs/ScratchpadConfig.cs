@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -63,6 +64,8 @@ public sealed class ScratchpadConfig : WidgetConfig
     {
         Id = new("scratchpad"),
         Kind = WidgetKind.Scratchpad,
+        ConfigType = typeof(ScratchpadConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Scratchpad_Label,
         DescriptionId = Str.WidgetsA_Catalog_Scratchpad_Description,
         Glyph = Glyphs.Scratchpad,

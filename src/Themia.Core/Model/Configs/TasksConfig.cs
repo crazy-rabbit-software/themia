@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -53,6 +54,8 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
     {
         Id = new("tasks"),
         Kind = WidgetKind.Tasks,
+        ConfigType = typeof(TasksConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Tasks_Label,
         DescriptionId = Str.WidgetsA_Catalog_Tasks_Description,
         Glyph = Glyphs.Task,

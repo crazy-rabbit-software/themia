@@ -50,8 +50,8 @@ public class DeskInfoWidgetsTests
         Assert.IsType(type, config);
         Assert.Equal(kind, config.Kind);
 
-        var json = JsonSerializer.Serialize(config, AppStateJsonContext.Default.WidgetConfig);
-        var back = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
+        var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
         Assert.IsType(type, back);
         Assert.Empty(back!.Repair());
     }

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -35,6 +36,8 @@ public sealed class YearProgressConfig : WidgetConfig, Themia.Core.Widgets.IStyl
     {
         Id = new("yearProgress"),
         Kind = WidgetKind.YearProgress,
+        ConfigType = typeof(YearProgressConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.YearProgress_Label,
         DescriptionId = Str.YearProgress_Desc,
         Glyph = Glyphs.YearProgress,
@@ -80,6 +83,8 @@ public sealed class NextMeetingConfig : CalendarConfig
     {
         Id = new("nextMeeting"),
         Kind = WidgetKind.NextMeeting,
+        ConfigType = typeof(NextMeetingConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Meeting_Label,
         DescriptionId = Str.Meeting_Desc,
         Glyph = Glyphs.Meeting,
@@ -114,6 +119,8 @@ public sealed class RecentFilesConfig : WidgetConfig
     {
         Id = new("recentFiles"),
         Kind = WidgetKind.RecentFiles,
+        ConfigType = typeof(RecentFilesConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.RecentFiles_Label,
         DescriptionId = Str.RecentFiles_Desc,
         Glyph = Glyphs.RecentFiles,
@@ -139,6 +146,8 @@ public sealed class RecycleBinConfig : WidgetConfig
     {
         Id = new("recycleBin"),
         Kind = WidgetKind.RecycleBin,
+        ConfigType = typeof(RecycleBinConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsC_Location_RecycleBin,
         DescriptionId = Str.RecycleBin_Desc,
         Glyph = Glyphs.RecycleBin,

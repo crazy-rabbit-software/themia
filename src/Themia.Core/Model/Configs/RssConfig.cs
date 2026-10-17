@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -40,6 +41,8 @@ public sealed class RssConfig : WidgetConfig
     {
         Id = new("rss"),
         Kind = WidgetKind.Rss,
+        ConfigType = typeof(RssConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_Feed_Label,
         DescriptionId = Str.WidgetsA_Catalog_Feed_Description,
         Glyph = Glyphs.Rss,

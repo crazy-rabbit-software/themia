@@ -25,10 +25,10 @@ public class AudioVisualizerTests
     [Fact]
     public void S3200_the_config_round_trips_under_its_own_kind()
     {
-        var json = JsonSerializer.Serialize<WidgetConfig>(new AudioVisualizerConfig(), AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(new AudioVisualizerConfig(), StateJson.WidgetConfig);
         Assert.Contains("\"audioVisualizer\"", json, StringComparison.Ordinal);
 
-        var back = JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig);
+        var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
         Assert.IsType<AudioVisualizerConfig>(back);
         Assert.Equal(WidgetKind.AudioVisualizer, back!.Kind);
         Assert.Empty(back.Repair());
@@ -46,8 +46,8 @@ public class AudioVisualizerTests
     {
         var config = new AudioVisualizerConfig { Style = style };
 
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
-        var back = Assert.IsType<AudioVisualizerConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
+        var back = Assert.IsType<AudioVisualizerConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
 
         Assert.Equal(style, back.Style);
         Assert.Equal(style, Assert.IsType<AudioVisualizerConfig>(back.Clone()).Style);
@@ -83,7 +83,7 @@ public class AudioVisualizerTests
     [Fact]
     public void S3200_music_no_longer_has_a_spectrum_switch()
     {
-        var json = JsonSerializer.Serialize<WidgetConfig>(new MusicConfig(), AppStateJsonContext.Default.WidgetConfig);
+        var json = JsonSerializer.Serialize<WidgetConfig>(new MusicConfig(), StateJson.WidgetConfig);
         Assert.DoesNotContain("spectrum", json, StringComparison.OrdinalIgnoreCase);
     }
 

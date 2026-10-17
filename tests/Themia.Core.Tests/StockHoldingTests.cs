@@ -113,8 +113,8 @@ public sealed class StockHoldingTests
 
         Assert.Equal(12.5, ((StocksConfig)config.Clone()).SharesOwned);
 
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, AppStateJsonContext.Default.WidgetConfig);
-        var back = Assert.IsType<StocksConfig>(JsonSerializer.Deserialize(json, AppStateJsonContext.Default.WidgetConfig));
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
+        var back = Assert.IsType<StocksConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
         Assert.Equal(12.5, back.SharesOwned);
     }
 

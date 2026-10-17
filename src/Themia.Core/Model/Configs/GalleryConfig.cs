@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -112,6 +113,8 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     {
         Id = new("gallery"),
         Kind = WidgetKind.Gallery,
+        ConfigType = typeof(GalleryConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Gallery_Label,
         DescriptionId = Str.WidgetsA_Catalog_Gallery_Description,
         Glyph = Glyphs.Gallery,

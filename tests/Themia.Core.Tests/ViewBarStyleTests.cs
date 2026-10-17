@@ -34,7 +34,7 @@ public sealed class ViewBarStyleTests
         var state = ThreeViews();
         ViewBarRules.Update(state, "m1", bar => bar.Style = ViewBarStyle.Dropdown);
 
-        var json = System.Text.Json.JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+        var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
         var parsed = AppStateStore.Parse(json);
 
         Assert.NotNull(parsed.State);

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -28,6 +29,8 @@ public sealed class VolumeConfig : WidgetConfig
     {
         Id = new("volume"),
         Kind = WidgetKind.Volume,
+        ConfigType = typeof(VolumeConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.Widget_Volume_Label,
         DescriptionId = Str.WidgetsA_Catalog_Volume_Description,
         Glyph = Glyphs.Volume,

@@ -204,7 +204,7 @@ public sealed class AppStateStore : IAsyncDisposable
         AppState? parsed;
         try
         {
-            parsed = document is null ? null : document.Deserialize(AppStateJsonContext.Default.AppState);
+            parsed = document is null ? null : document.Deserialize(StateJson.AppState);
         }
         catch (JsonException ex)
         {
@@ -803,7 +803,7 @@ public sealed class AppStateStore : IAsyncDisposable
                 Directory.CreateDirectory(dir);
             }
 
-            var json = JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
+            var json = JsonSerializer.Serialize(state, StateJson.AppState);
             await File.WriteAllTextAsync(temp, json).ConfigureAwait(false);
 
             // Atomic swap: readers see either the old document or the new one, never a partial write.

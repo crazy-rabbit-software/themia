@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -49,6 +50,8 @@ public sealed class VideoStreamConfig : WidgetConfig
     {
         Id = new("videoStream"),
         Kind = WidgetKind.VideoStream,
+        ConfigType = typeof(VideoStreamConfig),
+        Json = WidgetConfigJsonContext.Default,
         LabelId = Str.WidgetsA_Catalog_VideoStream_Label,
         DescriptionId = Str.WidgetsA_Catalog_VideoStream_Description,
         Glyph = Glyphs.Video,

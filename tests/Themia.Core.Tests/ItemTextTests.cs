@@ -154,8 +154,8 @@ public sealed class ItemTextTests
         state.Design.ItemTextColor = "#FFFFFF";
         state.Views[0].Widgets[0].ItemTextColor = "#101010";
 
-        var json = System.Text.Json.JsonSerializer.Serialize(state, AppStateJsonContext.Default.AppState);
-        var back = System.Text.Json.JsonSerializer.Deserialize(json, AppStateJsonContext.Default.AppState)!;
+        var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
+        var back = System.Text.Json.JsonSerializer.Deserialize(json, StateJson.AppState)!;
 
         Assert.Equal("#FFFFFF", back.Design.ItemTextColor);
         Assert.Equal("#101010", back.Views[0].Widgets[0].ItemTextColor);
