@@ -5,9 +5,16 @@ every widget built from them honest. It exists so that an agent asked to "build 
 <an online service>" gets menus, rows, states, keys, styles, settings and sizes right the first
 time, by composing parts that are already right, instead of copying the nearest existing widget
 and its quirks. The service layer knows no service: a service is a descriptor (data) that picks
-from closed sets of typed strategies, plus its own wire types and rules (section 4.7). GitHub is
-the first pilot user; Linear and Todoist are the second and third, and section 12 shows on paper
+from closed sets of typed strategies, plus its own wire types and rules (section 5.7). GitHub is
+the first pilot user; Linear and Todoist are the second and third, and section 13 shows on paper
 that all three fit without the kit knowing any of them.
+
+**Widgets and providers are projects** (section 4). A new provider is a new project under
+`src/Providers/`, a new widget a new project under `src/Widgets/`; each implements a small module
+contract from `Themia.Sdk` / `Themia.Sdk.WinUI`, and the app finds every module at build time
+(glob project references plus a source generator that writes a static registry). Adding one
+changes nothing in the app, Core or the SDK. A spike proved the mechanism end to end under Native
+AOT (section 4.11).
 
 Status: **designed, not built** (phase 1 of the service-widget skill). Nothing below exists in
 `src/` yet unless it is marked *exists*. The plan of commits is kept outside the repository; this
@@ -64,7 +71,7 @@ Shared pieces that already exist and that the kit builds on (*exists*):
   `AccountAuth.BearerToken`. The kit's service source takes that design's good parts (one client,
   conditional requests, a rate-limit block, shared feeds) but not its shape: what was GitHub's code
   (Link paging, `X-Poll-Interval`, `X-RateLimit-*` names, device flow) becomes one member each of the
-  strategy sets of section 4.7, chosen by GitHub's descriptor, beside the members Linear and Todoist
+  strategy sets of section 5.7, chosen by GitHub's descriptor, beside the members Linear and Todoist
   need.
 
 ## 2. Inconsistencies the kit removes
@@ -117,49 +124,397 @@ part or a check below.
     `ItemKinds`/`ContentAlignment` declarations, and says the settings dispatch is in
     `WidgetSettings.cs` (it is `ConfigPages.Widget.cs`). Nothing checks that every `WidgetKind` is
     in `WidgetCatalog.All` and `CreateView` (an unregistered kind silently draws a clock).
+    Section 4 removes the list: every registration point becomes a member of the module.
 15. **Seven copies of `FindRoot()`** in the source-scanning tests.
 16. **Tag hygiene:** [S-1902] retires the GitHub tags only partly ([S-510]..[S-512], [S-861]..[S-871]);
     the GitHub section's [S-615]..[S-629] and [S-745]..[S-749] were removed without a retirement
     line, and [S-610]..[S-614] are now Tasks' tags. New kit and service tags start at fresh blocks
-    (section 11).
+    (section 12).
 17. **Service code is shaped by its first provider.** `RateLimitRules` reads GitHub's header names
     (`X-RateLimit-Remaining`, reset in epoch seconds) for every reply; `SignInWithBrowserAsync`
     picks Microsoft or Google with ternaries; the build-time client secret is Google's alone
     (`THEMIA_GOOGLE_CLIENT_SECRET` in the csproj target); `AccountException.ToFetchStatus` folds
     sign-in-required, forbidden and not-found into `NotConfigured`/`BadResponse`, and its `RetryAt`
-    is computed but never read. A third provider today means editing each of those. Section 4.7
+    is computed but never read. A third provider today means editing each of those. Section 5.7
     replaces them with descriptor-chosen strategies.
 
 ## 3. The kit at a glance
 
 ```
-Core  (rules, pure, tested)                         App  (WinUI, thin)
------------------------------------------------     -------------------------------------------
-KitItem, KitLead, KitBadge, KitTone, KitTime        KitList          rows, columns, groups, overflow
-KitAction, KitActionKind  ---- KitMenu.Entries -->  KitMenu          -> ItemMenuEntry, KeyChord
-KitKeys (one key map)                               KitHeader        busy ring, problem glyph, badge
-KitPlan = KitLadder.Plan(area, spec, show)          KitStatePanel    loading / empty / problem + link
-KitScreen = KitScreens.Decide(...)                  KitBinding       source <-> KitList, Detach-safe
-KitFreshness (the one stale rule)                   ServiceSync      one per app: entries, cadence, shelves
-IKitConfig  (setup, interest, shown rows)           ServiceClient    one generic client, AccountService
-ServiceDescriptor (data) picks strategies:          ServiceSignIn    runs the chosen auth strategy
-  Transport, Paging, Auth, Freshness,               KitRows          standard settings rows
-  RateLimitScheme, ErrorScheme                      Gallery/Fixtures debug-only preview sources
-Services/<Service>/  descriptor, wire, rules, queries   (no App code per service)
+Themia.Sdk  (pure, tested; what modules may use)     Themia.Sdk.WinUI  (WinUI parts modules may use)
+-----------------------------------------------      -------------------------------------------
+KitItem, KitLead, KitBadge, KitTone, KitTime         KitList          rows, columns, groups, overflow
+KitAction, KitActionKind  ---- KitMenu.Entries -->   KitMenu          -> ItemMenuEntry, KeyChord
+KitKeys (one key map)                                KitHeader        busy ring, problem glyph, badge
+KitPlan = KitLadder.Plan(area, spec, show)           KitStatePanel    loading / empty / problem + link
+KitScreen = KitScreens.Decide(...)                   KitBinding       source <-> KitList, Detach-safe
+KitFreshness (the one stale rule)                    KitRows          standard settings rows
+IKitConfig  (setup, interest, shown rows)            IWidgetModule, IWidgetView & co, Fluent, Glyphs
+ServiceDescriptor (data) picks strategies:
+  Transport, Paging, Auth, Freshness,                Themia.App  (host, generic)
+  RateLimitScheme, ErrorScheme, Replica              ServiceSync      one per app: entries, cadence, shelves
+Module contracts, ids (WidgetId, ProviderId, ...)    ServiceClient    one generic client, AccountService
+                                                     ServiceSignIn    runs the chosen auth strategy
+                                                     ModuleRegistry   generated: every module compiled in
+
+src/Providers/Themia.Provider.<Service>/   descriptor, wire, rules, queries, strings, fixtures (pure)
+src/Widgets/Themia.Widget.<Name>/          config, KitSpec, view, settings rows, strings, SPEC.md, Tests/
 ```
 
-A kit widget's own code is: its config (Core), its service's descriptor and rules (Core, once per
-service), a `KitSpec` (Core: which fields, which actions, which sentences), a view of about a
-hundred lines that hands the spec and the source to `KitList`, and a settings page made of
-`KitRows`. A service has **no App code of its own**: the client, sign-in, cadence and storage are
-generic and read the descriptor.
+A kit widget's own code is its project: its config, a `KitSpec` (which fields, which actions,
+which sentences), a view of about a hundred lines that hands the spec and the source to
+`KitList`, and settings rows made of `KitRows`. A service is its provider project: descriptor,
+wire types, rules, queries. A service has **no App code of its own**: the client, sign-in,
+cadence and storage are generic host code and read the descriptor.
 
-## 4. Core parts
+## 4. Modules: widgets and providers as projects
 
-All in `src/Themia.Core/Widgets/Kit/` (namespace `Themia.Core.Widgets.Kit`) unless noted. Pure,
-no UI types, tested in `tests/Themia.Core.Tests/Kit*Tests.cs`.
+### 4.1 The rule
 
-### 4.1 The item
+A new provider is a new project; a widget is a project that implements a module contract. Adding
+`src/Providers/Themia.Provider.<Name>/` or `src/Widgets/Themia.Widget.<Name>/` (the folder, its
+csproj and its code, written by the scaffolder, section 8) is the whole change: no file outside
+the folder is edited, not in the app, not in Core, not in the SDK, not `SPEC.md`, not a locale file,
+not `Glyphs`. When a module needs something the SDK does not offer (a strategy member, a UI part, a
+host service), that is an SDK change first, in its own commit with tests, exactly as section 5.7's
+rule says for strategies; the module then uses it. Section 4.12 lists, honestly, what is left
+outside the folder.
+
+### 4.2 Assemblies and dependencies
+
+```
+ build time only:   Themia.Localization.Generator        Themia.Modules.Generator
+                    (Locales/*.json -> <Name>Str)        ([assembly: ThemiaWidget/Provider] -> ModuleRegistry)
+
+                  +------------------------------------------------------------------+
+                  | Themia.Sdk  (net10.0, pure, AOT/trim-compatible)                  |
+                  |  module contracts, ids, WidgetConfig base, IStyled, setup/liveness/|
+                  |  interest contracts, Kit core (5.1-5.6), service strategies (5.7), |
+                  |  localization runtime, LocaleFormat, Log, WidgetArea, Disclosure  |
+                  +------------------------------------------------------------------+
+                     ^             ^                    ^                     ^
+                     |             |                    |                     |
+     Themia.Provider.*      Themia.Sdk.WinUI      Themia.Core (net10.0)        |
+     (net10.0, pure)        (WinUI library)       host rules: state, store,    |
+          ^                  view contracts,      validation, shell rules,     |
+          |                  Fluent, FluentLayout, account and offline stores  |
+          |                  Glyphs, ItemMenu,           ^                     |
+          |                  RowFocus, Kit parts,        |                     |
+          |                  IWidgetHost                 |                     |
+          |                     ^      ^                 |                     |
+          +---- Themia.Widget.* -+      +------ Themia.App (exe) --------------+
+                (WinUI library)                 shell, cards, host services,
+                      ^                         ServiceSync/Client/SignIn,
+                      |                         generated ModuleRegistry
+                      +-- glob ProjectReference -----+
+```
+
+- **`Themia.Sdk`** references nothing of ours. It is the surface a module may use: the module
+  contracts and ids (4.3, 4.5), `WidgetConfig` and the config contracts (`IStyled`,
+  `IShownSettings<T>`, `IKitConfig`, `ISetupRule`, `IInterests`), the Kit core of sections
+  5.1..5.6, the service strategy layer of 5.7, and the shared pure rules modules call today from
+  Core (`Strings`/`Locale`/`LocaleFormat`, `Log`, `WidgetArea`, `Disclosure`, `WidgetTiers`,
+  `ListKeys`, `TypeAhead`, `FetchState`, `SyncFreshness`, `LaunchTargets`, ...). Those files move
+  out of Core into the SDK (refactor commits, section 11).
+- **`Themia.Core`** becomes host-only: `AppState`, the atomic store and load validation, the shell
+  and view rules, the account and offline stores, the sync host's rules. It references the SDK.
+  **Modules never reference Core**, so a module cannot reach a host internal; a conformance test
+  reads every module csproj.
+- **`Themia.Sdk.WinUI`** holds the view contracts (`IWidgetView`, `IWidgetSurface`,
+  `IWidgetSizeAware`, `IWidgetKeys`, `IWidgetHeaderContent`, `IWidgetContextActions`,
+  `IWidgetAligned`, `IWidgetPreviewState`), `IWidgetModule`, `IWidgetHost`, `Ticker`, and the UI
+  parts every widget uses (`Fluent`, `FluentLayout`, `Glyphs`, `ItemFill`, `ItemMenu`, `RowFocus`,
+  `ScrollFade`, `EmptyStatePanel`, the `Kit*` parts of section 6). Today 151 widget files use
+  `Themia.App.Shell`; these parts leave the app for this library (refactor commits, section 11).
+- **Providers** reference the SDK only: a provider has no UI (section 5.7), so it builds and tests
+  as plain `net10.0`.
+- **Widgets** reference the SDK, `Themia.Sdk.WinUI` and the provider projects whose data they show
+  (a GitHub widget references `Themia.Provider.GitHub` for its query enum). A widget never
+  references another widget.
+- **The app** references Core, `Themia.Sdk.WinUI` and every module, by glob.
+
+A project may declare more than one widget when they share code and a SPEC section (the seven
+power widgets, the thirteen quick-setting toggles, the three screen-time widgets, the meters, a
+service's widgets): a *family* (`[assembly: ThemiaWidget(...)]` is `AllowMultiple`). One project
+per widget otherwise.
+
+### 4.3 Module contracts
+
+```csharp
+// Themia.Sdk
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public sealed class ThemiaWidgetAttribute(string id, Type module) : Attribute;     // module: IWidgetModule
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public sealed class ThemiaProviderAttribute(string id, Type module) : Attribute;   // module: IProviderModule
+
+public sealed record WidgetDescriptor(
+    WidgetId Id,
+    Type ConfigType, Func<WidgetConfig> CreateDefault, IJsonTypeInfoResolver Json,  // 4.6
+    LocalText Label, LocalText Description, string Glyph,                           // catalogue, picker
+    double DefaultWidth, double DefaultHeight,
+    AddPlacement Add,                          // the add menu shelf (closed SDK enum) and an order key
+    IReadOnlyList<LocalText> Keywords,         // search ([S-943])
+    IReadOnlyList<ProviderId> Providers,       // search by service name, the provider-gone screen
+    WidgetTraits Traits,                       // HasItems, Aligns, CanHaveHeader, SetUpInPlace (flags)
+    StringTable Strings);                      // its own table: completeness tests, settings search
+
+public interface IProviderModule
+{
+    ProviderId Id { get; }
+    LocalText Label { get; }
+    ServiceDescriptor? Service { get; }        // a kit service (5.7); null for a host provider
+    ProviderSignIn SignIn { get; }             // the auth members the Accounts page offers
+    IReadOnlyList<FeatureId> Features { get; } // what widgets may ask of its accounts
+    CadenceRow? Cadence { get; }               // its line in Settings > Widgets > Updates ([S-3780])
+    string? BuildSecret { get; }               // the key in THEMIA_CLIENT_SECRETS, when BuildTime
+    StringTable Strings { get; }
+}
+
+// Themia.Sdk.WinUI
+public interface IWidgetModule
+{
+    WidgetDescriptor Descriptor { get; }
+    FrameworkElement CreateView(IWidgetHost host);                                  // implements IWidgetView & co
+    void SettingsRows(SettingsRows rows, WidgetConfig config, Action save) { }      // none: no page ([S-1750])
+}
+```
+
+Behaviour the host asks of a widget stays on its **config**, as section 5.6 already does for
+`IKitConfig`: `ISetupRule` (what `WidgetSetup.Needed` and `WidgetLiveness` ask), `IInterests`
+(what `SyncInterests` collects), `IStyled` ([S-6000]..[S-6010], unchanged), `IShownSettings<T>`,
+`Repair`. The host reads them off the instance, so no host switch grows per widget.
+
+`IWidgetHost` is what a view may ask of the host instead of the static `AppServices` it reads today:
+the shared `Ticker` and dispatcher, `Launcher` (`ShellLauncher`, the one place that opens
+anything), `Accounts` (a read-only view of signed-in accounts and `ShowAccounts`), `Services` (the
+`ServiceSync` source of section 6.5), `Notices`, `Clipboard`, `PlaceSearch`, `Links` and the
+`IWidgetSurface`. A module that owns a service shared by its instances (RSS's feeds, the alarms)
+declares an `IModuleService` the host creates once, on first use, and disposes at exit, so
+"share services between widget instances" holds without a static.
+
+### 4.4 Discovery at build time
+
+- **Glob project references.** `Themia.App.csproj` (and the module test host, 4.9) reference
+  `..\Widgets\*\*.csproj` and `..\Providers\*\*.csproj`, one folder level deep. A new folder is in
+  the next build.
+- **A registry generator.** `Themia.Modules.Generator` (Roslyn incremental generator,
+  `netstandard2.0`, referenced as an analyzer, nothing ships) reads the assembly-level
+  `[ThemiaWidget]`/`[ThemiaProvider]` attributes of every referenced assembly, and of the
+  compilation itself (the in-app modules of the migration, section 11), and checks at build time:
+  the id's shape (THEMIAMOD001), that no id is declared twice (002), that the type is public,
+  non-abstract, implements its contract and has a public parameterless constructor (003), and that
+  the id is the project's suffix in camelCase (004, `Themia.Widget.WeatherNow` declares
+  `weatherNow`). It emits `ModuleRegistry` with one `new M()` per module in id order, plus the id
+  lists. Static construction means Native AOT sees and keeps every module type: no reflection, no
+  runtime loading, nothing to root by hand.
+- **Shared csproj boilerplate.** `src/Widgets/Directory.Build.props` and
+  `src/Providers/Directory.Build.props` set the target framework, `UseWinUI` (widgets), the
+  package and SDK references, the strings generator with `ThemiaStringsEnum` defaulting to
+  `<Suffix>Str`, remove `Tests\**` from the module's compile, compile `Preview\**` in Debug only,
+  copy `Fixtures\**` into Debug builds only, and treat `SPEC.md` as a plain item. A module csproj is
+  `<Project Sdk="Microsoft.NET.Sdk" />` plus its provider references.
+- **Rejected: `[ModuleInitializer]` self-registration.** The spike measured it: under CoreCLR (every
+  Debug build, F5, the test runner) a module's initializer did not run until the host touched the
+  module ("initializers before touching the registry: []"); under Native AOT the same initializers
+  ran eagerly at startup. Debug would see no modules and the shipped build all of them: two
+  behaviours, rejected. **Rejected too:** loading plugin assemblies at run time (no
+  `AssemblyLoadContext` under Native AOT, and nothing to distribute separately anyway), reflection
+  scanning (trimmed away), and a hand-kept list (a main-code edit per module).
+
+### 4.5 Ids: closed sets without enums
+
+An enum in Core cannot be extended by another assembly, so the closed sets become ids:
+`WidgetId`, `ProviderId`, `FeatureId` and `CadenceId`, each a `readonly record struct` over a
+string in the SDK, with its own JSON converter. The set stays closed: the generator fixes it at
+build time (and rejects bad or duplicate ids), and at run time the host installs the registry
+(`ModuleCatalog.Install`) before anything is read, so every id from a file, the clipboard, a
+drag or a command line is validated against the modules compiled in. Ids are camelCase and equal
+to today's JSON discriminators (`clock`, `weatherNow`, `rss`), so state files keep their shape.
+
+- **One id per widget, everywhere:** the config's discriminator in `state.json`, `--widget-png
+  <id>`, the module's strings enum, its SPEC fragment, the showcase view.
+- **`WidgetKind` goes.** It has 1,095 references in 134 files today; most are per-kind switches and
+  tables that become descriptor data (`WidgetCatalog.All` and `CreateView`, `CreateDefault`,
+  `AddTree`, `WidgetKeywords`, `ItemKinds`, `ContentAlignment`, `CanHaveHeader`, `WidgetSetup`,
+  `SyncInterests`, the settings dispatch). `WidgetInstance.Kind` goes too: the config's
+  discriminator *is* the kind, so the mismatch the store checks for today cannot happen. Host code
+  never names a particular widget; a source scan of Core and the app for widget id literals has an
+  allow list that ends empty.
+- **An unknown id on load** (a settings file exported from a build with a module this one lacks, a
+  hand edit) is *absent*, not corrupt: the widget is kept as an `UnavailableWidget` holding its raw
+  JSON, written back unchanged on save, drawn as a card that says the widget is not in this build,
+  and logged once; never deleted. A known id with a broken config is repaired by its module to the
+  default and logged, as today. The spike confirmed what has to change for that: System.Text.Json
+  rejects an unknown discriminator for the whole document ("Read unrecognized type discriminator
+  id 'nope'"), so the store reads `widgets[]` element by element (Q15).
+- **Providers.** `AccountProvider` becomes `ProviderId`. `AccountFeatures` becomes a set of
+  `FeatureId`: the host's own features (`mail`, `calendar`, `contacts`, `tasks`) are SDK
+  constants, a kit service's feature is its provider's id (one feature per kit service, section
+  5.7). `UpdateSource` becomes the providers' `CadenceRow`s (plus the host's own rows for
+  weather, markets and feeds while those are host sources), and `AppPreferences.Refresh` a map
+  keyed by `CadenceId`, repaired to the row's default when an entry is missing. The offline
+  store's service shelves are keyed by provider id under the one `service` kind (section 6.5); no
+  shelf kind per provider. The Accounts page lists the registered providers that have sign-in
+  members (`ServiceSignIn`, generic). Build-time secrets are looked up by the provider's
+  `BuildSecret` key in `THEMIA_CLIENT_SECRETS` (section 5.7).
+- **Microsoft and Google** become provider modules (`Themia.Provider.Microsoft`, `.Google`) once
+  their sign-in runs on descriptors (section 11, step 11). Their mail, calendar, contacts and tasks
+  sources stay host code and are keyed by `FeatureId`, not by provider.
+
+### 4.6 JSON across assemblies
+
+Each module has its own source-generated `JsonSerializerContext` with the host's options
+(camelCase, `WhenWritingNull`; a conformance test asserts them). The host builds the state options
+once, after the registry is installed:
+
+```csharp
+var options = new JsonSerializerOptions(AppStateJsonContext.Default.Options)
+{
+    TypeInfoResolver = JsonTypeInfoResolver.Combine([AppStateJsonContext.Default, .. moduleContexts])
+        .WithAddedModifier(info =>
+        {
+            if (info.Type == typeof(WidgetConfig) && info.PolymorphismOptions is { } union)
+            {
+                foreach (var m in widgets)
+                    union.DerivedTypes.Add(new JsonDerivedType(m.ConfigType, m.Id.Value));
+            }
+        }),
+};
+```
+
+The `[JsonDerivedType]` list on `WidgetConfig` and the configs in `AppStateJsonContext` go; every
+config, built-in ones included, joins the union this way (one path). Resolver combination,
+contract modifiers and `JsonDerivedType(Type, string)` are AOT-safe: the spike's AOT publish had no
+IL warnings, and the AOT executable round-tripped a built-in `ClockConfig` and a module's
+`HelloConfig` through these options. One trap the spike hit: a module config's `Kind` override
+without `[JsonIgnore]` fails at run time ("contains property 'kind' that conflicts with an existing
+metadata property name"); the SDK base class seals the id property as ignored so no module can
+repeat it. Whatever else a module persists (a provider's replica in its service shelf, a module
+store) goes through the module's own context; the host serialises a module type only through the
+combined options.
+
+### 4.7 Localization per module
+
+- The strings generator gains a module mode: a module's `Localization/Locales/<code>.json` (and
+  area folders) become `public enum <Name>Str` in the module's namespace, its table class and
+  `Text()`/`Format()`/`Plural()` extensions over `Strings.Current`. Spike-proven in Debug and under
+  AOT with the generator reading two MSBuild properties (`ThemiaStringsEnum`, `RootNamespace`). The
+  real build reuses the host's lookup (fallback to English, plural rules, the missing-key note)
+  through a public SDK `StringTable`, so a module's strings behave exactly like `Str`.
+- `LocalText` (a `StringTable` and an id) is how a descriptor hands its label, description and
+  keywords to the host (catalogue, picker, search, settings search) without the host knowing the
+  module's enum.
+- The rules of [S-1105], [S-1106] and [S-1112] (every key in 30 languages or `$englishOnly`,
+  placeholders and plurals match) run per module over its `StringTable`, in the module test host.
+- Each module owns its keys; tables never mix, so no key prefix rule is needed.
+
+### 4.8 Views, XAML and settings in a WinUI library
+
+- **Code-only views** (all widgets but Clock) live in the module's WinUI class library.
+  Spike-proven: drawn by `--widget-png hello` in Debug and from the AOT executable.
+- **XAML in a module** works too: a `UserControl` compiled in a module library landed as
+  `Themia.Widget.Bye\ByeBadge.xbf`, the existing `PublishCompiledXaml` glob copied it, and it drew in
+  Debug and from the AOT executable. Not yet verified: the MSIX package (`package.ps1`, resources
+  merged into one `resources.pri`), a manual pass when the first XAML module lands. Clock can move
+  as it is.
+- **Settings rows** come from `IWidgetModule.SettingsRows`, built only from `FluentLayout` and
+  `KitRows` (both in `Themia.Sdk.WinUI`); the dispatch switch in `ConfigPages.Widget.cs` goes.
+- **Glyphs** moves to `Themia.Sdk.WinUI`. A module whose glyph is not there declares its own code
+  point constant in its project instead of editing `Glyphs`; the menu-art rule applies to it as to
+  any glyph.
+- **Preview states** (`IWidgetPreviewState`, section 6.7) live in the module's `Preview/` folder,
+  compiled in Debug only by the shared props; the gallery finds a module by its id.
+
+### 4.9 Tests
+
+- **One module test host**, `tests/Themia.Modules.Tests` (`net10.0-windows`, xUnit), references
+  every module by the same globs as the app, compiles every module's own tests
+  (`<Compile Include="..\..\src\Widgets\*\Tests\**\*.cs" />`, the same for providers), and runs the
+  registry generator. So a module keeps its tests in its folder (`Tests/`), one `dotnet test`
+  covers all modules, and the conformance tests iterate exactly the modules that ship. Adding a
+  module adds no test project. Spike: the host ran a module's own tests and three registry
+  theories (7 passed); pure types of a WinUI library load in the test process without the Windows
+  App SDK bootstrap.
+- **Host conformance over the registry** (in that host): every module has an English label and
+  description; its default config is its `ConfigType` and round-trips through the state options
+  with its id as discriminator; its strings are complete or `$englishOnly`; it has a `SPEC.md`
+  whose tags are in its block and each has a test `S<tag>_...` or a "Needs a manual pass" line; its
+  glyph is set; its add-menu shelf exists; the providers it names are registered and the feature
+  its config needs is offered by one; its csproj references only the SDK, `Themia.Sdk.WinUI` and
+  providers; `Traits.HasItems` matches whether its view paints items (today's [S-6570] scan, per
+  project) and `Traits.Aligns` whether it implements `IWidgetAligned` ([S-6581]); its view's
+  `Detach` is idempotent (where the test host can build a view, else the render checklist).
+- `tests/Themia.Core.Tests` stays for Core and the SDK's rules.
+
+### 4.10 SPEC fragments
+
+Every module carries `SPEC.md` in its folder: its section, its own tag block (`[S-7100]..[S-7199]`
+for GitHub, and so on), its owning files, its tests and what needs a manual pass. The root
+`SPEC.md` keeps the host's sections and says once that module sections live in
+`src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md`. A test fails on a tag used twice across all
+SPEC files and on a module without a `SPEC.md`. The scaffolder picks the next free hundred across
+all files.
+
+### 4.11 The spike (2026-10-17)
+
+A throwaway worktree at `945c980` (detached, removed afterwards; nothing of it is committed) built
+the smallest end-to-end proof: `Themia.Sdk` (contracts; in the spike it sat *above* Core for
+`WidgetConfig` and `Str`, the design puts it below), `Themia.Sdk.WinUI`, `Themia.Widget.Hello`
+(code-only view, config, JSON context, one locale file), `Themia.Provider.Hello` (descriptor only),
+the glob references and the registry generator in the app, `StateJson.Build` in Core, and a debug
+render path. The widget card was bypassed (a bare card): the card needs `WidgetKind` to become an
+id first, which is the large mechanical step of section 11, not a feasibility question.
+
+| Check | Command | Result |
+|---|---|---|
+| Debug build, warnings as errors | `dotnet build src/Themia.App/Themia.App.csproj -c Debug --artifacts-path …` | pass, 0 warnings |
+| Registry and JSON (JIT) | `Themia.exe --list-modules` | widgets `[hello]`, providers `[hello]`; `ClockConfig` and `HelloConfig` round-trip; unknown discriminator: `JsonException` |
+| Module widget render (JIT) | `Themia.exe --widget-png hello out.png` | drawn: the module's own string, its provider's host name |
+| Built-in render unaffected | `--widget-png Clock out.png 280 140` | drawn |
+| Release AOT publish | `scripts/publish.ps1` (IlcTreatWarningsAsErrors) | pass, 0 warnings, 48.6 MB; 48.7 MB with the registry rooted from Release code |
+| Debug AOT publish, then run | `publish.ps1 -Configuration Debug`, the published `Themia.exe --list-modules` and `--widget-png hello` | pass, 0 warnings; registry, JSON round trip and render all work in the native binary |
+| A second module by folder only | copy to `Themia.Widget.Bye`, rebuild | registry `[bye, hello]` with no edit outside the folder |
+| Build-time id checks | id `hello` twice; id `Bye_1` | `THEMIAMOD002`, `THEMIAMOD001` (beside a misleading `WMC9999` XAML-pass error the failed compile causes) |
+| XAML in a module | `ByeBadge.xaml` in the module | drawn in Debug and from the AOT executable |
+| Module initializers | probe before touching the registry | CoreCLR: none ran; AOT: all ran at startup (4.4) |
+| Module test host | `dotnet test tests/Themia.Modules.Tests` | 7 passed |
+| Core tests touched by the generator change | `dotnet test … --filter Locali\|Store\|Strings` | 569 passed |
+
+Found on the way: the module config `kind` conflict (4.6); the generator's errors arrive with
+XAML-compiler noise; and an old quirk unrelated to modules, `PublishCompiledXaml` globbing
+`$(OutDir)**\*.xbf` also copies a previous `publish\` folder into `publish\publish\` on the second
+publish (harmless, to be fixed in its own commit).
+
+### 4.12 What "no change to main code" means
+
+Adding a widget or a provider is creating its folder; the build, the registry, the JSON union,
+the catalogue, the add menu, search, settings, the Accounts page, the cadence rows, the strings,
+the tests and the SPEC index all pick it up. What is left outside the folder, and why:
+
+1. **`Themia.slnx`** does not glob. Build, test and publish do not read it; the scaffolder adds one
+   line so the project shows in an IDE.
+2. **A Windows capability** a module needs that `Package.appxmanifest` lacks (none of the kit
+   services needs one; the app is full trust) is a host change, reviewed as such.
+3. **`THIRD-PARTY-NOTICES.md`** when a module bundles third-party files: the module keeps a
+   `NOTICES.md` and the notices test collects the fragments (the root file is generated from them
+   in the commit that adds this test).
+4. **A build secret** (`todoist=` in `THEMIA_CLIENT_SECRETS`) is build environment, not source.
+5. **SDK gaps** by design: a new strategy member, UI part or host service is an SDK change first.
+
+### 4.13 What stays host code
+
+The shell (surfaces, cards, edit mode, the properties panel, the settings window, the picker),
+the generic service host (`ServiceSync`, `ServiceClient`, `ServiceSignIn`), the account and offline
+stores, the mail, calendar, contacts and tasks sources of the host providers, the registry and
+`ModuleCatalog`. None of it names a module.
+
+## 5. SDK parts (pure)
+
+All in `src/Themia.Sdk/Kit/` (namespace `Themia.Sdk.Kit`) unless noted: the SDK of section 4.2, so
+every widget and provider project can use them. Pure, no UI types, tested in
+`tests/Themia.Core.Tests/Kit*Tests.cs`.
+
+### 5.1 The item
 
 ```csharp
 /// One row's worth of a service's data, already validated and cut to its bounds.
@@ -213,7 +568,7 @@ check passed, check failed, comment, review, release, mail, task, event, feed, .
 member to a `Glyphs` entry in one switch; a source-scan test fails when a member has no mapping.
 Core never carries code points.
 
-### 4.2 Typed actions
+### 5.2 Typed actions
 
 ```csharp
 public enum KitActionKind
@@ -264,7 +619,7 @@ and only to an https address on the descriptor's `WebHosts`. App deep links (`to
 are not offered: a custom scheme opens whatever registered it, and the web page reaches the same
 place.
 
-### 4.3 One key map
+### 5.3 One key map
 
 `KitKeys.Decide(WidgetKey key, KitCursor cursor, KitListShape shape) -> KitKeyResult` is the one
 list key map, built on `ListKeys.Decide` (which already names the commands) with `ItemCursor`'s
@@ -275,7 +630,7 @@ runs the primary action; Space a `Toggle`; F2 `Rename`; Delete `Delete`; Ctrl+C 
 Menu opens the menu; Escape drops the cursor ([S-813]). With `Overflow = Page`, Left/Right and
 PgUp/PgDn page instead ([S-3624]). Optional type-ahead goes through the existing `TypeAhead`.
 
-### 4.4 The ladder
+### 5.4 The ladder
 
 ```csharp
 public sealed record KitSpec(
@@ -307,7 +662,7 @@ more rows, never taller ones. Concise first ([S-666]): no rung may add a control
 counts footer or another widget's job. `FeedLayout`, `MailLayout`'s row parts and `CalendarFit`'s
 agenda rules become specs over this one ladder when those widgets migrate.
 
-### 4.5 Screens: the one state machine
+### 5.5 Screens: the one state machine
 
 ```csharp
 public enum KitScreenKind
@@ -322,7 +677,7 @@ public enum KitScreenKind
     Problem,          // nothing held and the last attempt failed: FetchState.Message(status) + detail
 }
 
-public sealed record KitScreen(KitScreenKind Kind, string? Sentence, bool OffersAccounts, IReadOnlyList<string> HeaderProblems);
+public sealed record KitScreen(KitScreenKind Kind, string? Sentence, bool OffersAccounts, bool OffersGrant, IReadOnlyList<string> HeaderProblems);
 
 public static class KitScreens
 {
@@ -348,7 +703,7 @@ forbidden code) and `NotFound` (404: a repository renamed, a project deleted; no
 normal cadence, held like a refusal). `AccountException.ToFetchStatus` maps to them instead of
 `NotConfigured`/`BadResponse`, and `FetchState.Message` has one sentence each. Every service's
 answer reaches this vocabulary through exactly one function, `ServiceFailures.Classify(descriptor,
-reply)` (section 4.7), so an HTTP 400 carrying Linear's `RATELIMITED` and a GitHub 403 with
+reply)` (section 5.7), so an HTTP 400 carrying Linear's `RATELIMITED` and a GitHub 403 with
 `x-ratelimit-remaining: 0` are both `RateLimited` with a `RetryAt`, and nothing downstream knows
 which service it was. `KitAccountState` is derived from the status (`SignInRequired` and
 `Forbidden` name the account; `Gone` comes from the account list, not a reply).
@@ -359,17 +714,18 @@ one line per owner and problem, folded as [S-2664] folds them: `"Work: No networ
 10:42"` (`SyncFreshness.Stamp`). The card menu's Refresh line says the age ("Refresh · updated 4 min
 ago", as Mail does). The age itself is never drawn in the header in the caution colour any more.
 This is a behaviour change for Mail, Tasks, RSS, Weather and Stocks and ships as its own SPEC
-change after the migrations (section 10, open question Q3).
+change after the migrations (section 11, step 7; decided, Q3).
 
-### 4.6 The config contract
+### 5.6 The config contract
 
 ```csharp
 /// A widget built on the kit. Implemented by its config, discovered by the shared rules,
 /// so a new kit widget adds no line to WidgetSetup, SyncInterests or the settings dispatch.
 public interface IKitConfig
 {
-    /// What it reads: the service feature it needs (None for a web source without accounts).
-    AccountFeatures Needs { get; }
+    /// What it reads: the feature it needs (null for a web source without accounts). A kit
+    /// service's feature is its provider's id (section 4.5).
+    FeatureId? Needs { get; }
 
     /// False while it has nothing to read (no repository, no query): the card's Set up ([S-1860]).
     bool Configured { get; }
@@ -385,13 +741,14 @@ public interface IKitConfig
 }
 ```
 
-`WidgetSetup.Needed` gains one arm (`IKitConfig kit => !kit.Configured || (kit.Needs != None &&
-Lacks(signedIn, kit.Needs))`), and `SyncInterests.From` one loop over `IKitConfig` configs that
-collects `KitInterest`s; neither grows per kind again. Styles stay `IStyled` exactly as
+`WidgetSetup.Needed` gains one arm (`IKitConfig kit => !kit.Configured || (kit.Needs is { } need
+&& Lacks(signedIn, need))`), and `SyncInterests.From` one loop over `IKitConfig` configs that
+collects `KitInterest`s; neither grows per kind again (and with section 4, neither names a kind
+at all: non-kit widgets answer through `ISetupRule` and `IInterests` on their configs). Styles stay `IStyled` exactly as
 [S-6000]..[S-6010] say; a kit style is a different `KitSpec` (row looks, columns), never a second
 setting.
 
-### 4.7 The service layer (Core): a descriptor choosing typed strategies
+### 5.7 The service layer (SDK): a descriptor choosing typed strategies
 
 **Principle.** The kit's service code knows *strategies*, never *services*. Everything a service
 does differently on the wire (how it is asked, paged, signed into, throttled, how it fails, how it
@@ -403,19 +760,19 @@ shape to `KitItem`s) is the service's rules, pure functions with fixed signature
 Every strategy is AOT-clean: JSON through the service's own source-generated context, GraphQL
 documents as `const string`s, no reflection, no `dynamic`, no runtime schema.
 
-Shared code lives in `src/Themia.Core/Services/` (namespace `Themia.Core.Services`); one folder per
-service, `src/Themia.Core/Services/<Service>/`. Sign-in is the one part shared with the non-kit
+Shared code lives in `src/Themia.Sdk/Services/` (namespace `Themia.Sdk.Services`); each service
+is a provider project, `src/Providers/Themia.Provider.<Service>/` (section 4). Sign-in is the one part shared with the non-kit
 providers: Microsoft and Google get a `ProviderSignIn` entry (the descriptor's `SignIn` list and
-token header, nothing else) when their sign-in moves onto `ServiceSignIn` (section 10, step 11);
+token header, nothing else) when their sign-in moves onto `ServiceSignIn` (section 11, step 11);
 their data paths are not kit services and stay as they are.
 
 #### The descriptor
 
 ```csharp
 public sealed record ServiceDescriptor(
-    AccountProvider Provider,                    // the closed set of [S-500]; the descriptor table is keyed by it
-    AccountFeatures Feature,                     // what widgets ask for ([S-502]); one flag per kit service
-    UpdateSource Cadence,                        // its line in Settings > Widgets > Updates ([S-3780])
+    ProviderId Provider,                         // the provider module's id (section 4.5)
+    FeatureId Feature,                           // what widgets ask for ([S-502]); the provider's id for a kit service
+    CadenceRow Cadence,                          // its line in Settings > Widgets > Updates ([S-3780])
     TransportKind Transport,                     // RestJson | GraphQL | FormPost
     Uri ApiRoot,                                 // https; the GraphQL endpoint for GraphQL
     ApiRootRule Root,                            // Fixed | PerAccount (an Enterprise server, Q6)
@@ -425,16 +782,15 @@ public sealed record ServiceDescriptor(
     RateLimitScheme Limits,
     ErrorScheme Errors,
     FreshnessHints Freshness,                    // the default; a query may narrow it
-    string? PollIntervalHeader,                  // e.g. "X-Poll-Interval"; null when the service sends none
     AnonymousRule Anonymous,                     // None | PublicReads(TimeSpan floor)
     int MaxPages, int ItemBound,                 // the hard bounds of any one answer
     IReadOnlyList<string> WebHosts,              // hosts an item link or OpenTo may name
     TimeSpan IdleFloor);                         // the shortest cadence the service's budget allows
 ```
 
-`ServiceDescriptors.For(AccountProvider)` is one switch over the closed enum (a test fails when a
-kit provider has none). `AccountProviders` (labels, wire names, features) stays the one table of
-providers and reads its sign-in kinds from the descriptor instead of naming them.
+The descriptor is the provider module's `Service` (section 4.3); the host finds it through the
+generated registry, so there is no `ServiceDescriptors.For` switch and no provider table to edit.
+`AccountProviders` (labels, wire names, features) becomes a view over the registered providers.
 
 #### Strategy sets
 
@@ -444,7 +800,7 @@ providers and reads its sign-in kinds from the descriptor instead of naming them
 |---|---|---|---|
 | `RestJson` | GET (conditional headers when held) to a rules-built address | the body is the wire type, parsed with the service's `JsonTypeInfo<T>` | GitHub, Todoist REST |
 | `GraphQL` | POST `application/json` `{"query": <const>, "variables": {...}}` to `ApiRoot`; the body is serialised by the rules through the service's context (`GraphQLRequest<TVars>`) | `GraphQLResponse<TData>` (`data`, `errors[]` with `message`, `path`, `extensions.code`); `errors` go to the `ErrorScheme`, `data` to the rules; **partial data** (a 200 with both) is used when the list's own path is present, and the errors are logged once and become the outcome's `Detail` | Linear |
-| `FormPost` | POST `application/x-www-form-urlencoded` with rules-built fields | as `RestJson` | Todoist Sync (designed, built only if Q12 picks Sync) |
+| `FormPost` | POST `application/x-www-form-urlencoded` with rules-built fields (`sync_token`, `resource_types` as a JSON array string) | as `RestJson` | Todoist Sync (Q12: decided) |
 
 A transport owns only the envelope: content type, how a body is framed, where errors live. It
 never reads a service field by name.
@@ -462,15 +818,15 @@ never reads a service field by name.
 `ServicePager.Next(paging, request, reply, chunk, heldCount, bound)` is the one loop: it stops at
 the widget's count, at `MaxPages`, at `ItemBound`, on an empty page, and on a cursor that repeats
 (a loop is a bad response, never an endless fetch). Page sizes are the query's (`PageSize`, capped
-by the service's documented maximum in the query: GitHub notifications 50, search 100, Todoist
-200, Linear the GraphQL `first`).
+by the service's documented maximum in the query: GitHub search 100, Linear the GraphQL
+`first`; Todoist Sync has no pages).
 
 **Auth** (`ServiceAuth`, a closed set of sealed records; a service lists the ones it offers):
 
 | Member | Flow | Secret | Stored as |
 |---|---|---|---|
 | `OAuthPkceLoopback(AuthorizeUrl, TokenUrl, ClientId, Scopes, ScopeSeparator, Loopback, ClientSecret, Refresh)` | the existing browser flow ([S-1780]..[S-1784]): system browser, loopback listener, `state`, PKCE S256 | `ClientSecret = None` (Microsoft, Linear), or `BuildTime` (Google, a confidential Todoist app): read from `BuildSecrets.ClientSecret(Provider)`, never in source | `OAuthRefresh` (or `Token` when the service issues no refresh token) |
-| `OAuthDeviceCode(DeviceUrl, TokenUrl, ClientId, Scopes, ScopeSeparator, Refresh)` | RFC 8628: show `user_code` and open `verification_uri`; poll at `interval`, +5 s on `slow_down`, stop on `expired_token`/`access_denied` (`DeviceCodeSession` restored from `e09beef^`) | none | `Token`, or `OAuthRefresh` when the answer carries a refresh token |
+| `OAuthDeviceCode(DeviceUrl, TokenUrl, ClientId, Scopes, ScopeSeparator, Refresh, GrantPage)` | RFC 8628: show `user_code` and open `verification_uri`; poll at `interval`, +5 s on `slow_down`, stop on `expired_token`/`access_denied` (`DeviceCodeSession` restored from `e09beef^`) | none | `Token`, or `OAuthRefresh` when the answer carries a refresh token |
 | `PastedToken(TokenPage, Shape, Scheme)` | the user creates a token on the service's page (`TokenPage`, opened by the Accounts page) and pastes it; validated by `Shape` (length, alphabet) and then by the identity request | none | `Token`, DPAPI-sealed through `Secrets` like every secret |
 | `Anonymous` | no sign-in; only where `AnonymousRule.PublicReads` | none | no account; entries keyed by `anonymous` |
 
@@ -490,6 +846,11 @@ Parameters that differ between services and are data, not code:
 - `TokenScheme`: `Bearer` sends `Authorization: Bearer <t>`; `Raw` sends `Authorization: <t>`
   (Linear personal API keys). Chosen per auth member, because Linear's OAuth tokens are Bearer and
   its API keys are not; the descriptor's `TokenHeader` is the default.
+- `GrantPage`: where the user widens what an account may read, when the service grants access per
+  resource rather than per scope (a GitHub App is *installed* on chosen organisations and
+  repositories: `https://github.com/apps/<slug>/installations/new`). The Accounts page shows it
+  under the account, and a `Forbidden` or `NotFound` screen of that provider offers it beside the
+  Accounts link (`KitScreen.OffersGrant`). Null for scope-based services.
 - The identity request: every service has one query (`<Service>Queries.Identity`) whose map
   returns the account id and display name. It runs after every sign-in and on a pasted token
   before it is stored (a token that fails it is not saved).
@@ -501,8 +862,9 @@ ternaries of `SignInWithBrowserAsync` go when Microsoft and Google move onto des
 
 Build-time secrets are generalised once: the csproj target reads one variable,
 `THEMIA_CLIENT_SECRETS` (`google=…;todoist=…`), validates each value's alphabet as today, and
-generates `BuildSecrets.ClientSecret(AccountProvider)`; Core's `ClientSecretRules.Parse` holds the
-parsing rule and is tested. `THEMIA_GOOGLE_CLIENT_SECRET` is replaced by it (one path; `CLAUDE.md`
+generates `BuildSecrets.ClientSecret(string key)`, where the key is the provider module's
+`BuildSecret` (section 4.3); the SDK's `ClientSecretRules.Parse` holds the parsing rule and is
+tested, and a conformance test fails when a provider says `BuildTime` without a `BuildSecret` key. `THEMIA_GOOGLE_CLIENT_SECRET` is replaced by it (one path; `CLAUDE.md`
 and `docs/STORE.md` updated in the same commit). A service whose descriptor says `BuildTime` and
 whose secret is absent from the build offers its other sign-in members only, and logs that once.
 
@@ -511,17 +873,30 @@ whose secret is absent from the build offers its other sign-in members only, and
 | Member | What it sends | What a "nothing changed" looks like | Who uses it |
 |---|---|---|---|
 | `ETag` | `If-None-Match` with the held `ETag` (GET only) | `304`: the held body is reused; a 304 with nothing held is `BadResponse` | GitHub |
-| `LastModified` | `If-Modified-Since` with the held `Last-Modified` (GET only) | `304` | GitHub notifications |
-| `PollIntervalHeader` | nothing; the reply's header (named by `PollIntervalHeader`) stretches the next poll, capped at an hour | | GitHub notifications (`X-Poll-Interval`) |
-| `None` | nothing | every answer is new; the cadence alone keeps it cheap | Linear, Todoist REST |
-| `Incremental.SyncToken` | the held sync token (`*` for a full read) | a delta: upserts and removals by id (`is_deleted`), merged onto the stored copy; a rejected token or a full-sync flag replaces the copy; a full read at least daily | Todoist Sync (if Q12 picks it) |
+| `None` | nothing | every answer is new; the cadence alone keeps it cheap | Linear |
+| `Incremental.SyncToken` | the held sync token (`*` for a full read) | a delta: upserts and removals by id (`is_deleted`), merged onto the held replica; a rejected token or `full_sync: true` replaces it; a full read at least daily | Todoist Sync |
 | `Incremental.Probe` | a small rules-built probe (the newest `updatedAt` of the set) before the real query | the probe's value is unchanged: the full query is skipped | Linear, only if the complexity budget bites (off by default) |
+
+`LastModified` and a poll-interval header were members in the first draft for GitHub's
+notifications; with no notifications widget (Q5) no service uses them, so they are not built (the
+kit adds a member when a service needs it, not before).
 
 An "updated since" delta (fetch only items changed after a high-water mark) is **rejected**: an
 item that leaves a filtered set (unassigned, moved to another team) never shows up in the delta,
 so the stored copy would keep it. Only a service-side sync token or a full re-read is correct.
 Conditional bodies are held in memory per `account + request key` (bounded, oldest out); a 304 is
 answered from there and never parsed as an empty list.
+
+**Replicas** (`IServiceReplica<TReplica, TWire>`, for `Incremental.SyncToken`): a sync API answers
+"what changed in the account", not "the list this widget shows", so the held thing is a typed
+replica of the account's data, not a list of items. The provider writes three pure functions: `Merge(TReplica? held,
+TWire delta) -> TReplica` (upserts by id, removals by `is_deleted`, a full answer replaces),
+`Validate(TReplica) -> TReplica` (on load: bounds, ids once, links re-checked), and, per widget
+query, `View(TReplica, TQuery, DateTimeOffset now, TimeZoneInfo zone) -> KitPage` (the filter, the
+sort, the groups). One replica entry per account is shared by every widget of that provider; a
+widget's list is a view computed from it, never a request of its own. The replica and its sync
+token are stored together in the account's sealed `service` shelf (section 6.5), through the
+provider's own JSON context.
 
 **Rate limits** (`RateLimitScheme`, service-level, read by the existing `RateLimitRules`, which
 loses its GitHub constants):
@@ -575,13 +950,21 @@ headers, body) from `AccountService.SendAsync` instead of its exception for stat
 #### Per service: what the service writes
 
 ```
-src/Themia.Core/Services/<Service>/
+src/Providers/Themia.Provider.<Service>/
+  Themia.Provider.<Service>.csproj   <Project Sdk="Microsoft.NET.Sdk" /> (the shared props do the rest)
+  <Service>Provider.cs     [assembly: ThemiaProvider("<id>", typeof(...))] + IProviderModule: label, features,
+                           cadence row, sign-in members, build-secret key, Service = the descriptor
   <Service>Descriptor.cs   the ServiceDescriptor: strategies and their parameters (data)
   <Service>Wire.cs         response (and GraphQL variable) shapes + <Service>WireContext ([JsonSerializable] each closed type)
   <Service>Queries.cs      enum <Service>List { ... } + the query record whose Key names everything that changes the
                            answer and never the token; Identity; GraphQL documents as const strings
   <Service>Rules.cs        Build(query, page) -> ServiceRequest; Map(query, wire, now) -> KitChunk (items, next cursor,
-                           summary); Actions(item) -> KitAction list; input validation (a repository, a team key)
+                           summary); Actions(item) -> KitAction list; input validation (a repository, a team key);
+                           for a replica: Merge, Validate, View
+  Localization/Locales/    its strings (the provider's label, its sign-in hints, its rules' sentences)
+  Fixtures/                recorded answers, scrubbed (section 6.7)
+  Tests/                   its rule tests, compiled into the module test host (section 4.9)
+  SPEC.md                  its section and tag block, with the facts and their source URLs
 ```
 
 ```csharp
@@ -611,40 +994,47 @@ next `Build` and to `Map` (a default branch is a 304 almost always; projects cha
 most three steps; a query that needs more is two widgets.
 
 `KitMerge` (newest first, the same item seen through two accounts once, cut to the count) and the
-item rules of section 4.1 apply to every service's chunks; the descriptor's `WebHosts` and
+item rules of section 5.1 apply to every service's chunks; the descriptor's `WebHosts` and
 `ItemBound` are enforced there, not in the rules.
 
 #### The rule for "generic enough"
 
 Adding a service may add only:
 
-1. its descriptor entry (`<Service>Descriptor.cs` and its arm in `ServiceDescriptors.For`);
+its provider project, and nothing outside it:
+
+1. its module entry and descriptor (provider id, feature, cadence row, sign-in members, build
+   secret key if its descriptor says `BuildTime`);
 2. its wire types and JSON context;
-3. its rules (request builders, wire → `KitItem`/`KitAction`/`KitSummary` mapping, input validation);
+3. its rules (request builders, wire → `KitItem`/`KitAction`/`KitSummary` mapping, a replica's
+   merge and views, input validation);
 4. its queries enum and GraphQL documents;
-5. its `AccountProvider`/`AccountFeatures` members, its `UpdateSource` member, its build secret name
-   in `THEMIA_CLIENT_SECRETS` if its descriptor says `BuildTime`, its locale keys, its fixtures.
+5. its strings, fixtures, tests and `SPEC.md`.
+
+The only thing outside the folder is the build environment's secret (`todoist=` in
+`THEMIA_CLIENT_SECRETS`), which is not source.
 
 If a service needs anything else (a new branch in `ServiceClient`, a header read by name in shared
 code, a sign-in screen of its own, a special case in `RateLimitRules`), the kit is wrong: a
 strategy member or a parameter is added to the kit first, in its own commit, with tests, and the
-service then uses it. A conformance check holds the line (section 8): no file under
-`Core/Services/*.cs`, `Core/Widgets/Kit/`, `App/Services/Kit/` or `App/Widgets/Kit/` names a
-service (`GitHub`, `Linear`, `Todoist`, any `AccountProvider` member) outside the descriptor table.
+service then uses it. A conformance check holds the line (section 9): no file outside
+`src/Providers/` (the SDK, Core, the app, `Themia.Sdk.WinUI`) names a kit service (`GitHub`,
+`Linear`, `Todoist`, any registered provider id).
 
-Accounts: each service is a new `AccountProvider` member with its `AccountFeatures` flag (one flag
-per kit service: widgets ask for the service's data, never the provider; a task service's flag is
-not `Tasks`, because the Tasks widget would then try to write to it) and `AccountAuth` gains
+Accounts: each service is a provider id with its own feature (one feature per kit service:
+widgets ask for the service's data, never the provider; a task service's feature is not `tasks`,
+because the Tasks widget would then try to write to it) and `AccountAuth` gains
 `Token` (a token without refresh: pasted, or a non-expiring OAuth grant) beside `OAuthRefresh` and
-`Password` (the closed sets of [S-500]/[S-502]).
+`Password` (the closed sets of [S-500]/[S-502], now ids validated against the registry, section 4.5).
 
-## 5. App parts
+## 6. WinUI parts and the service host
 
-All in `src/Themia.App/Widgets/Kit/` and `src/Themia.App/Services/Kit/`. Non-generic XAML types:
-a generic class deriving from a WinRT type is a CsWinRT/AOT risk, so generics stay in Core and the
-App parts take `KitItem`s.
+The UI parts (6.1..6.4, 6.6) are in `src/Themia.Sdk.WinUI/Kit/`, so widget projects use them; the
+service host (6.5) is in `src/Themia.App/Services/Kit/`, because only the host talks to services.
+Non-generic XAML types: a generic class deriving from a WinRT type is a CsWinRT/AOT risk, so
+generics stay in the SDK and the WinUI parts take `KitItem`s.
 
-### 5.1 `KitList` (the list part)
+### 6.1 `KitList` (the list part)
 
 A `sealed partial class KitList : Grid` that a kit view puts in its slot and feeds. It owns:
 
@@ -665,7 +1055,7 @@ A `sealed partial class KitList : Grid` that a kit view puts in its slot and fee
   hover and on the focused row, only at the width the plan allows.
 - Detach: every hook disposed, every handler unsubscribed, safe twice.
 
-### 5.2 `KitHeader`
+### 6.2 `KitHeader`
 
 The `IWidgetHeaderContent.HeaderTrailing` of a kit view, built in the view's constructor
 ([S-400a]): from leading to trailing, the problem glyph (`Glyphs.Warning`, caution brush,
@@ -675,26 +1065,43 @@ the busy ring (`Fluent.IconSize`, only while a fetch for one of the widget's own
 order's reverse on narrow tiles by `KitLadder`, not by numbers in the view. A side header drops it
 ([S-408]).
 
-### 5.3 `KitStatePanel`
+### 6.3 `KitStatePanel`
 
 `OfficeStatePanel` and Mail's empty host merged: the widget's glyph over `KitScreen.Sentence`, and
 the Accounts link (`AppServices.ShowAccounts`) when `OffersAccounts`, shed to fit the height
 through `EmptyStatePanel` ([S-642]). Loading shows the glyph alone (no sentence flicker). The Set up
 state is not here: the card owns it ([S-1862]).
 
-### 5.4 `KitBinding` and the view
+### 6.4 `KitBinding` and the view
 
 ```csharp
+// src/Widgets/Themia.Widget.GitHubReviews/GitHubReviewsModule.cs
+[assembly: ThemiaWidget("gitHubReviews", typeof(GitHubReviewsModule))]
+
+public sealed class GitHubReviewsModule : IWidgetModule
+{
+    public WidgetDescriptor Descriptor { get; } = new(
+        WidgetId.Of("gitHubReviews"), typeof(GitHubReviewsConfig), () => new GitHubReviewsConfig(),
+        GitHubReviewsJson.Default, GitHubReviewsStr.Label.ToText(), GitHubReviewsStr.Description.ToText(),
+        Glyphs.PullRequest, 340, 260, new(AddShelf.Online, "github.1"),
+        [GitHubReviewsStr.Keywords.ToText()], [GitHubProvider.Id], WidgetTraits.HasItems, GitHubReviewsStrTables.Table);
+
+    public FrameworkElement CreateView(IWidgetHost host) => new GitHubReviewsView(host);
+    public void SettingsRows(SettingsRows rows, WidgetConfig config, Action save)
+        => GitHubReviewsPage.Rows(rows, (GitHubReviewsConfig)config, save);
+}
+
 internal sealed partial class GitHubReviewsView : Grid, IWidgetView, IWidgetHeaderContent,
     IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
 {
+    private readonly IWidgetHost _host;
     private readonly KitList _list = new();
     private readonly KitHeader _header = new();
     private KitBinding? _binding;
 
-    public GitHubReviewsView() => Children.Add(_list);
+    public GitHubReviewsView(IWidgetHost host) { _host = host; Children.Add(_list); }
     public FrameworkElement? HeaderTrailing => _header;
-    public void Attach(Ticker ticker, WidgetConfig config) => _binding = KitBinding.Open(this, _list, _header, config, GitHubReviews.Spec);
+    public void Attach(Ticker ticker, WidgetConfig config) => _binding = KitBinding.Open(this, _host, _list, _header, config, GitHubReviews.Spec);
     public void ApplyConfig(WidgetConfig config) => _binding?.Apply(config);
     public void ApplySize(WidgetArea area) => _binding?.Size(area);
     public void Bind(IWidgetSurface surface) => _binding?.Surface(surface);
@@ -711,22 +1118,21 @@ a one-minute tick only while the list shows ages, publishes the header title thr
 `IWidgetSurface.SetHeaderTitle` (the user's own label still wins, [S-403]), and builds the card
 actions (Refresh with its age, plus any spec card actions such as Mail's folder, [S-1758]).
 
-### 5.5 `ServiceSync` and `ServiceClient` (the service source)
+### 6.5 `ServiceSync` and `ServiceClient` (the service source)
 
 Both are generic: they read the descriptor and call the service's rules, and neither has a
 subclass or a branch per service.
 
 `ServiceSync` is `AnswerSync<T>` grown the parts `DevFeedHub` had, and it replaces both:
 
-- **One per app** (`AppServices.Services`), the only code that asks a kit service for anything
+- **One per app** (the host's `IWidgetHost.Services`), the only code that asks a kit service for anything
   ([S-2600]). Entries are keyed by `provider + account id + query key`; a widget reading several
-  accounts gets one entry per account and the Core merge (`KitMerge`).
+  accounts gets one entry per account and the SDK merge (`KitMerge`).
 - **Interests, not subscriptions, drive it** ([S-2608]): `SyncHost.InterestsChanged` reconciles the
   set from `SyncInterests.Kit`; a widget's `Show` only asks for an entry never fetched.
-- **Cadence:** the descriptor's `UpdateSource` from `AppPreferences.Refresh` ([S-3780]), never below
-  its `IdleFloor`; stretched by the poll-interval header when the descriptor names one and by the
-  anonymous floor, through `ServicePolling.NextPoll(fetchedAt, cadence, pollInterval,
-  blockedUntil)`; one shared ticker subscription at a minute; `SyncSchedule` backs off with the
+- **Cadence:** the provider's `CadenceRow` from `AppPreferences.Refresh` ([S-3780]), never below
+  its `IdleFloor`; stretched by the anonymous floor, through `ServicePolling.NextPoll(fetchedAt,
+  cadence, blockedUntil)`; one shared ticker subscription at a minute; `SyncSchedule` backs off with the
   shared `Backoff`, wakes on `SyncHost.NetworkAvailable`, goes now on Refresh unless the entry's
   bucket is blocked.
 - **Single-flight:** one fetch per entry at a time (`SyncSchedule.Busy`); a Refresh while one is out
@@ -735,9 +1141,12 @@ subclass or a branch per service.
 - **Rate limits:** every reply goes through `RateLimitRules` with the descriptor's scheme; a block
   is per account and bucket; blocked entries do not ask until `RetryAt`, which the outcome carries
   so the header says when it will ask again ([S-518]).
-- **Incremental entries** (`SyncToken`): the token is stored with the entry's items in its shelf and
-  sent with the next request; a delta is merged by the rules' map (`KitChunk` with removals); a
-  rejected token or a day without a full read starts over with a full read.
+- **Replica entries** (`SyncToken`, section 5.7): one entry per account holds the provider's
+  replica and its sync token, stored together in the shelf and sent with the next request; a delta
+  goes through the provider's `Merge`; a rejected token, `full_sync: true` or a day without a full
+  read starts over with a full read (its own `sync-full` bucket). Widgets of that provider read
+  views of the replica (`View`), recomputed on every merge and on the day's rollover tick; they
+  never cause a request of their own beyond waking the entry.
 - **Stored copies:** the merged items per entry are kept in a sealed shelf of a new kind `service`,
   one per account ([S-2602], [S-2604]); validated on load by the service's rules (ids once, bounds,
   links re-checked against `WebHosts`); purged on sign-out ([S-2607]); swept with the rest ([S-2665]).
@@ -758,9 +1167,9 @@ server, Q6), validated as https on a public host. Anonymous reads (only where th
 `PublicReads`) use the same client without credentials; a 401 there reads as `Forbidden` (there is
 no sign-in to mend).
 
-### 5.6 Standard settings rows (`KitRows`)
+### 6.6 Standard settings rows (`KitRows`)
 
-In `src/Themia.App/Shell/Config/KitRows.cs`, built only from `FluentLayout`, each with its
+In `src/Themia.Sdk.WinUI/Kit/KitRows.cs`, built only from `FluentLayout`, each with its
 `SettingRow` for search:
 
 - `KitRows.Accounts(rows, feature, config, save, openAccounts)`: "Every account" plus one toggle
@@ -774,98 +1183,101 @@ In `src/Themia.App/Shell/Config/KitRows.cs`, built only from `FluentLayout`, eac
   `IShownSettings<KitShow>` only where the current style draws it ([S-6070]).
 
 No refresh row ([S-3780]): the service's cadence is a line in Settings › Widgets › Updates, added
-by its `UpdateSource`. No title, style, header, background, scale or alignment row: those are the
+by its provider's `CadenceRow`. No title, style, header, background, scale or alignment row: those are the
 properties panel's ([S-6536]).
 
-### 5.7 Preview states and fixtures
+### 6.7 Preview states and fixtures
 
-Kit views carry no preview code. `--widget-png <Kind> --state <name>` swaps the widget's source
-for a `FixtureSource` (debug builds only, `src/Themia.App/Shell/Gallery/Fixtures/`, compiled under
-`#if DEBUG` like the rest of `Gallery/`) that replays recorded answers through the real service
-rules. Every kit widget gets the same state names for free: `items`, `many` (more than fit),
+Kit views carry no preview code. `--widget-png <id> --state <name>` swaps the widget's source
+for a `FixtureSource` (debug builds only, host code in `src/Themia.App/Shell/Gallery/Fixtures/`,
+compiled under `#if DEBUG` like the rest of `Gallery/`) that replays the provider's recorded
+answers through the real provider rules. Every kit widget gets the same state names for free: `items`, `many` (more than fit),
 `loading`, `empty`, `nomatch`, `stale` (items with an offline problem), `signin`, `gone`,
 `forbidden`, `ratelimited`, `problem`, `hovered`, `focused`, `accounts` (two accounts merged).
-Recorded answers live once, in `tests/Themia.Core.Tests/Fixtures/<Service>/*.json`, copied into
-the debug build by an item in the App's csproj under `Condition="'$(Configuration)' == 'Debug'"`,
+Recorded answers live once, in the provider project's `Fixtures/`, read by its tests and copied
+into Debug builds only by the shared provider props (`Condition="'$(Configuration)' == 'Debug'"`),
 so Release ships none. They are scrubbed: no tokens, no real e-mail addresses, no private
-repository, project or task names (a check scans them, section 8). Every service records the same
-set: a first page, a paged answer (Link header, `pageInfo`, or `next_cursor`), an empty answer, a
-`304` where its freshness allows one, a throttle as that service signals it, a 401, a 403 and an
+repository, project or task names (a check scans them, section 9). Every service records the same
+set: a first page, a paged answer (Link header or `pageInfo`) or for a replica a full and a
+partial sync, an empty answer, a `304` where its freshness allows one, a throttle as that service signals it, a 401, a 403 and an
 error body in its own error format (a GraphQL `errors` array, a Todoist `error_tag`).
 
-## 6. Building a service widget (the recipe)
+## 7. Building a service widget (the recipe)
 
 Example: "Pull requests waiting on my review" for GitHub. The steps are the same for any service;
-section 12 walks them for Linear and Todoist.
+section 13 walks them for Linear and Todoist.
 
 1. **Read** `SPEC.md` sections *Accounts and sign-in*, *Offline sync*, *Context menus*, *Responsive
-   layout* and the kit's own section (S-7000 block). Read the service's own developer docs (primary
-   sources only) for: sign-in (device flow? PKCE? is a client secret required for the token
-   exchange or the refresh? which loopback redirects are accepted, and is the port free?), read-only
-   scopes, the transport, paging, conditional requests, how a throttle is signalled (status, headers,
-   body code, reset unit), the error format, and the web address of each item. Write the facts with
-   their source URLs into the service's SPEC section.
-2. **Service** (once per service): fill in its descriptor by picking a member of each strategy set
-   of section 4.7 (sign-in members in the order the Accounts page should offer them; device flow or
-   PKCE without a secret before a build-time secret, a pasted token always last). If a fact does
-   not fit any member, stop: the kit grows the member first (section 4.7's rule). Add the
-   `AccountProvider`/`AccountFeatures`/`UpdateSource` members. Write `<Service>Wire.cs`,
-   `<Service>Rules.cs`, `<Service>Queries.cs` (with the identity query) and record the fixtures of
-   section 5.7. No App code: sign-in, client, cadence and storage are generic.
-3. **Scaffold** the widget: `scripts/new-widget.ps1 -Kind GitHubReviews -Service GitHub -Shape List`
-   (section 7). It writes every registration point and a failing test file.
-4. **Spec the widget** in Core: the `KitSpec` (row looks, optional fields, overflow, columns), the
-   item mapping (which wire fields become title, subtitle, lead, badges, when), the actions per item
-   (Open; the "<verb> on <Service>" web actions; copy), the empty and no-match sentences, the card actions.
-5. **Test first** where it is logic: the mapping on fixtures, the merge across accounts, the query
-   key, the ladder plan at all seven tiers (`WidgetTiers`), the screen decisions. Names mirror tags:
-   `S7104_a_draft_pull_request_carries_the_draft_badge`.
-6. **View and page**: the generated view is complete for a kit list; the page is `KitRows` calls.
-   Write the strings into the widget's locale area (`Locales/<kind>/en.json`, new keys in
+   layout*, the kit's own section (S-7000 block) and section 4 of this file. Read the service's own
+   developer docs (primary sources only) for: sign-in (device flow? PKCE? is a client secret
+   required for the token exchange or the refresh? which loopback redirects are accepted, and is
+   the port free?), read-only scopes, the transport, paging, conditional requests or a sync token,
+   how a throttle is signalled (status, headers, body code, reset unit), the error format, and the
+   web address of each item. Write the facts with their source URLs into the provider's `SPEC.md`.
+2. **Provider** (once per service): `scripts/new-module.ps1 -Provider GitHub` creates
+   `src/Providers/Themia.Provider.GitHub/` (section 8). Fill in its descriptor by picking a member
+   of each strategy set of section 5.7 (sign-in members in the order the Accounts page should offer
+   them; device flow or PKCE without a secret before a build-time secret, a pasted token always
+   last). If a fact does not fit any member, stop: the SDK grows the member first (section 5.7's
+   rule). Write the wire types, rules and queries (with the identity query) and record the
+   fixtures of section 6.7. No App code: sign-in, client, cadence and storage are generic.
+3. **Scaffold** the widget: `scripts/new-module.ps1 -Widget GitHubReviews -Provider GitHub -Shape List`
+   creates `src/Widgets/Themia.Widget.GitHubReviews/` with every part of a module and failing tests.
+4. **Spec the widget** in its project: the `KitSpec` (row looks, optional fields, overflow,
+   columns), the item mapping (which wire fields become title, subtitle, lead, badges, when), the
+   actions per item (Open; the "<verb> on <Service>" web actions; copy), the empty and no-match
+   sentences, the card actions; the descriptor's add-menu shelf, keywords and default size.
+5. **Test first** where it is logic, in the module's `Tests/`: the mapping on fixtures, the merge
+   across accounts, the query key, the ladder plan at all seven tiers (`WidgetTiers`), the screen
+   decisions. Names mirror tags: `S7104_a_draft_pull_request_carries_the_draft_badge`.
+6. **View and settings rows**: the generated view is complete for a kit list; the rows are `KitRows`
+   calls. Write the strings into the module's `Localization/Locales/en.json` (new keys in
    `$englishOnly` until translated, Q8).
-7. **SPEC**: the widget's section with tagged lines for every behaviour (fresh tags in the service
-   block), owning files and tests, and what needs a manual pass.
-8. **Check**: `dotnet build` (Debug, warnings as errors), the scoped tests, the conformance tests
-   (section 8), the render checklist (section 9), `publish.ps1` once (AOT, source-generated JSON),
-   and say what still needs a live pass (a real account, each sign-in member of the descriptor,
-   rate limits on the wire).
+7. **SPEC**: the module's `SPEC.md` with tagged lines for every behaviour (its own block), owning
+   files and tests, and what needs a manual pass.
+8. **Check**: `dotnet build` (Debug, warnings as errors), `dotnet test tests/Themia.Modules.Tests`
+   (the module's tests and the conformance over the registry, section 9), the render checklist
+   (section 10), `publish.ps1` once (AOT, source-generated JSON), and say what still needs a live
+   pass (a real account, each sign-in member of the descriptor, rate limits on the wire).
 
-## 7. The scaffolder
+## 8. The scaffolder
 
-`scripts/new-widget.ps1 -Kind <Name> [-Service <Service>] [-Shape List|Stat|Custom] [-Glyph <name>]
-[-Folder <AddTree shelf>]`. PowerShell, idempotent (refuses to run when the kind exists), edits by
-anchors rather than line numbers, and prints every file it touched. It touches every registration
-point a widget has, which is the corrected version of the list in `CLAUDE.md`:
+`scripts/new-module.ps1 (-Widget <Name> [-Provider <Service>] [-Shape List|Stat|Custom] [-Glyph <name>]
+[-Shelf <AddShelf>] | -Provider <Service>)`. PowerShell, idempotent (refuses to run when the
+folder or the id exists), and it writes **only inside the new folder**, plus one line in
+`Themia.slnx` for IDEs (section 4.12). There are no anchors to edit in shared files any more: the
+registration points of today (`WidgetKind`, `CreateDefault`, `JsonDerivedType`,
+`AppStateJsonContext`, `WidgetCatalog.All` and `CreateView`, the settings dispatch, `Glyphs`,
+`AddTree`, `WidgetKeywords`, the locale area, `WidgetSetup`, `SyncInterests`, `ItemKinds`,
+`ContentAlignment`, `CanHaveHeader`, the SPEC section, the tests) are all members of the module.
 
-| # | Point | File | What it writes |
-|---|---|---|---|
-| 1 | Kind | `Core/Model/WidgetKind.cs` | the next free number, with a summary |
-| 2 | Config | `Core/Model/Configs/<Name>Config.cs` | `sealed class … : WidgetConfig, IKitConfig` (and `IStyled` when asked), `Clone`, `Repair` |
-| 3 | JSON | `Core/Model/WidgetConfig.cs` (`JsonDerivedType`, `CreateDefault` arm), `Core/Storage/AppStateJsonContext.cs` | discriminator in camelCase |
-| 4 | Catalogue | `App/Widgets/WidgetCatalog.cs` | `All` entry (label, description, glyph, default size) and `CreateView` arm |
-| 5 | View | `App/Widgets/<Name>View.cs` | the kit view of section 5.4 |
-| 6 | Settings page | `App/Shell/Config/WidgetSettings.<Name>.cs` and the arm in `ConfigPages.Widget.cs` | `KitRows` calls |
-| 7 | Glyph | `App/Shell/Glyphs.cs` | only when the glyph is new |
-| 8 | Add menu | `Core/Widgets/AddTree.cs` | the entry in the chosen shelf |
-| 9 | Search | `Core/Widgets/WidgetKeywords.cs` | keywords and `Providers` |
-| 10 | Strings | `Core/Localization/Locales/<kind>/en.json` | label, description, sentences, `$englishOnly` |
-| 11 | Setup, sync | nothing: `IKitConfig` covers `WidgetSetup` and `SyncInterests` | |
-| 12 | Items, alignment | nothing for a list (`ItemKinds` default has items; a list never aligns); a `Stat` adds the kind to `ItemKinds.Without` and `ContentAlignment` | |
-| 13 | SPEC | `SPEC.md` | a section skeleton with the next free tags and "Needs a manual pass" |
-| 14 | Tests | `tests/Themia.Core.Tests/<Name>Tests.cs` | one failing test per skeleton tag |
-| 15 | Fixtures | `tests/Themia.Core.Tests/Fixtures/<Service>/` | the folder and a README line in the SPEC section |
+A widget module:
 
-A `-Service` that does not exist yet also scaffolds the service folder of section 4.7 (a descriptor
-with every strategy field marked `TODO` so it does not compile until each is chosen), the
-`AccountProvider`/`AccountFeatures` members, the `UpdateSource` member, the descriptor's arm in
-`ServiceDescriptors.For` and the fixture folder, and stops there with a list of what the agent must
-write by hand (the descriptor's choices, wire types, rules, queries). It never writes App code for a
-service, because there is none.
+| File | What it holds |
+|---|---|
+| `Themia.Widget.<Name>.csproj` | `<Project Sdk="Microsoft.NET.Sdk" />` and, with `-Provider`, the provider's project reference |
+| `<Name>Module.cs` | `[assembly: ThemiaWidget("<id>", typeof(<Name>Module))]`, the `WidgetDescriptor` (label, description, glyph, default size, shelf, keywords, providers, traits), `CreateView`, `SettingsRows` |
+| `<Name>Config.cs` | `sealed class … : WidgetConfig` (+ `IKitConfig` for a kit list, `IStyled` when asked), `Clone`, `Repair`; its JSON context |
+| `<Name>Spec.cs` | the `KitSpec`, mapping and actions (a kit list), or the view's Core rules (`Stat`, `Custom`) |
+| `<Name>View.cs` | the kit view of section 6.4, or a `Stat`/`Custom` skeleton implementing `IWidgetSizeAware` |
+| `<Name>Page.cs` | `KitRows` calls, or nothing (no page, [S-1750]) |
+| `Localization/Locales/en.json` | label, description, keywords, sentences, `$englishOnly` |
+| `Preview/` | preview states when the widget is not a kit list (kit lists get theirs from fixtures) |
+| `Tests/<Name>Tests.cs` | one failing test per skeleton tag |
+| `SPEC.md` | the section skeleton, the next free tag block, "Needs a manual pass" |
 
-## 8. Conformance checks
+A provider module: `Themia.Provider.<Service>.csproj`, `<Service>Provider.cs` (module entry), a
+`<Service>Descriptor.cs` with every strategy field marked `TODO` so it does not compile until each
+is chosen, empty `<Service>Wire.cs`, `<Service>Rules.cs`, `<Service>Queries.cs`, `Fixtures/`,
+`Tests/`, `Localization/Locales/en.json` and `SPEC.md`; it stops there with a list of what the
+agent must write by hand (the descriptor's choices, wire types, rules, queries). It never writes
+App code for a service, because there is none.
 
-Source-scanning tests in `tests/Themia.Core.Tests/KitConformanceTests.cs` and
-`RegistrationTests.cs`, over one shared `RepoFiles` helper that replaces the seven copies of
+## 9. Conformance checks
+
+Two homes: checks over **source** (scans) in `tests/Themia.Core.Tests/KitConformanceTests.cs`, and
+checks over the **registry** (every compiled-in module, section 4.9) in
+`tests/Themia.Modules.Tests/ModuleConformanceTests.cs`. The scans share one `RepoFiles` helper that replaces the seven copies of
 `FindRoot()` (a refactor commit of its own). Comments are not code (lines starting `//` are
 skipped, as `ItemKindsTests` does). Each check starts with an explicit allow list of today's
 offenders, named with the reason, and the list only shrinks.
@@ -879,26 +1291,27 @@ offenders, named with the reason, and the list only shrinks.
 | Text | no user-visible string literal (`Text = "`, `Content = "`, `PlaceholderText = "`, a literal tooltip) in `App/Widgets/` and `App/Shell/Config/` | example URLs in placeholders (allowed by pattern: a literal that parses as an https URL) |
 | Kit views stay thin | a view whose config implements `IKitConfig` may not mention `ScrollViewer`, `RowFocus`, `ItemMenu`, `ProgressRing`, `Fluent.EmptyState`, `ItemCursor`, `ListKeys` or `Process` | none (no kit widget yet) |
 | Kit actions | no `ItemMenuEntry` constructed in a kit view; every `KitActionKind` and `KitIcon` member has its mapping in `KitMenu`/`KitIcons` | |
-| Registration | every `WidgetKind` member has an `All` entry and a `CreateView` arm of its own (not the default), an `AddTree` entry, `WidgetKeywords`, and either a page arm in `ConfigPages.Widget.cs` or no rows by [S-1750] | to be measured |
-| SPEC per kind | every kind is named in a SPEC section's owning files; every non-retired tag of a kit widget's section has a test named `S<tag>_…` or is listed under "Needs a manual pass" | kit widgets only at first; other kinds when they migrate |
-| Strings | already: every key in all 30 languages or `$englishOnly`, placeholders match ([S-1105]); added: a kit widget's area holds every key its spec uses | |
+| Registration | over the registry: every module has a label and description in English, a glyph, an add-menu shelf that exists, a default config of its `ConfigType` that round-trips through the state options with its id as discriminator, and its declared providers registered; the generator already rejects bad, duplicate and mismatched ids at build time (THEMIAMOD001..004) | none once the built-ins are declared as modules (section 11, step M2) |
+| SPEC per module | every module folder has a `SPEC.md`; no tag is used twice across all SPEC files; every non-retired tag of a module's section has a test named `S<tag>_…` or is listed under "Needs a manual pass" | modules only; the root SPEC's host sections keep today's rules |
+| Strings | per string table (the host's `Str` and every module's): every key in all 30 languages or `$englishOnly`, placeholders and plurals match ([S-1105], [S-1106], [S-1112]); a kit widget's table holds every key its spec uses | |
 | Fixtures | every file under `Fixtures/` parses, and none contains a token shape (`ghp_`, `gho_`, `ghu_`, `ghr_`, `github_pat_`, `lin_api_`, `lin_oauth_`, a 40-hex run as Todoist tokens are), `Bearer `, `Authorization`, an `@` address outside `example.com`/`users.noreply.github.com` | |
-| Generic kit | no file under `Core/Services/*.cs` (the shared layer), `Core/Widgets/Kit/`, `App/Services/Kit/`, `App/Widgets/Kit/` or `ServiceSignIn` names a kit service or any `AccountProvider` member, except `ServiceDescriptors.For`; no service-specific header name (anything but the standard `ETag`, `Last-Modified`, `Link`, `Retry-After`) and no error code literal outside a descriptor | none (nothing built yet); `RateLimitRules`' GitHub header constants move into GitHub's descriptor when the check lands |
-| Descriptors | every kit `AccountProvider` has a descriptor; every descriptor's `WebHosts` are https hosts, its `SignIn` list is non-empty, a `BuildTime` secret names a key `ClientSecretRules` accepts, and every query of the service names a bucket the scheme can block | |
+| Generic kit | no file outside `src/Providers/` (the SDK, Core, the app, `Themia.Sdk.WinUI`) names a kit service or a registered provider id; no service-specific header name (anything but the standard `ETag`, `Last-Modified`, `Link`, `Retry-After`) and no error code literal outside a provider project | none (nothing built yet); `RateLimitRules`' GitHub header constants move into GitHub's descriptor when the check lands |
+| Descriptors | over the registry: every provider with a `Service` has a non-empty `SignIn` list and https `WebHosts`; `BuildTime` implies a `BuildSecret` key `ClientSecretRules` accepts; every query names a bucket the scheme can block; every feature a widget config needs is offered by a registered provider | |
+| Module boundaries | every module csproj references only `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects (never Core, the app or another widget); module JSON contexts use the host's options; no Core or app file names a widget id (allow list ends empty) | the in-app modules during the migration (section 11) |
 | Polling | every `ServiceClient` request goes through the conditional helper (when the query's freshness allows), `RateLimitRules` and `ServiceFailures.Classify`; a test per service drives its recorded throttle, 401, 403, a `304` where it has one, and its error body through the Core rules | |
 
 Behaviour the checks cannot see stays in the render checklist and the manual pass.
 
-## 9. Render checklist and review rubric
+## 10. Render checklist and review rubric
 
 For every kit widget, before calling it done (outputs outside `artifacts/`, e.g.
 `TestResults/render/<kind>/`):
 
-- `--widget-png <Kind> <out.png>` (all seven tiers on one page) × `--theme light` and `dark` × `--lang en`,
+- `--widget-png <id> <out.png>` (all seven tiers on one page) × `--theme light` and `dark` × `--lang en`,
   `de` (longest words), `ar` (right to left, own digits), `ja` (no spaces to wrap at).
 - The same at `--state` `items`, `many`, `loading`, `empty`, `stale`, `signin`, `ratelimited`, `hovered`, `focused`.
 - Each style (`--style`) when the kind has styles; `--header left` and `--header hidden` once.
-- `--settings-png Widget:<Kind>` in both themes and in `de`; with `--search` for one row.
+- `--settings-png Widget:<id>` in both themes and in `de`; with `--search` for one row.
 - `--menu-png` showing the item menu (icon row present only with two or more row commands, [S-1741]).
 - The showcase views (`--add-showcase-views`) on the live desktop: a manual pass, said so.
 
@@ -920,24 +1333,70 @@ Look at every PNG against this rubric; a "no" is a defect:
 10. The settings page has only rows that change something in the current style, grouped, with
     short descriptions; no row the properties panel already has.
 
-## 10. Migration plan
+## 11. Migration plan
 
 Migrated widgets lose their old code in the same commit (one path). Each migration is a refactor
-with **zero visible change**: before and after renders of the checklist in section 9 are taken and
+with **zero visible change**: before and after renders of the checklist in section 10 are taken and
 compared pixel for pixel (a small `--widget-png` diff script under `scripts/`), and the widget's
 existing tests stay green without edits. Anything that would change what the user sees is split out
 as a behaviour commit with its SPEC edit and test first.
 
-Order, smallest risk first:
+### 11.1 Modules first (M1..M4)
+
+The module architecture comes before the kit, so the kit is built in the SDK and the pilots are
+projects from their first commit. The ~80 widgets of today move in two moves: first their
+*registration* becomes one path (every widget declared as a module, still compiled inside the
+app), then their *code* moves out into projects, one family at a time. There is never a second
+registration path: when a table becomes a descriptor member, the table is deleted in that commit.
+
+- **M1. The SDK split (refactors, tests unedited).** `Themia.Sdk` gets the shared pure files from
+  Core (section 4.2's list) and `Themia.Sdk.WinUI` the view contracts and UI parts from the app
+  (`IWidget*`, `Ticker`, `Fluent`, `FluentLayout`, `Glyphs`, `ItemFill`, `ItemMenu`, `RowFocus`,
+  `ScrollFade`, `EmptyStatePanel`, a `ShellLauncher` facade). Files move with their namespaces
+  unchanged, so each move is a pure move and no test or caller changes; new SDK types use
+  `Themia.Sdk.*`. Dependencies that point the wrong way (a UI part reading `AppServices`) are cut
+  first, in their own commits, behind `IWidgetHost`. `publish.ps1` after each project is added.
+- **M2. Ids and the registry, with every built-in widget declared in place.** The registry
+  generator, the attributes and `WidgetDescriptor`; each of today's widgets gets a small module
+  class *inside the app* (`[assembly: ThemiaWidget("clock", typeof(ClockModule))]`; the generator
+  also reads the compilation's own attributes). During M2 the descriptor carries the old
+  `WidgetKind` as its key: a defined interim, not a second path. Then one table per commit becomes
+  a descriptor member and the table goes: `WidgetCatalog.All` and `CreateView`, `CreateDefault`,
+  the `[JsonDerivedType]` list and the configs in `AppStateJsonContext` (to `StateJson`'s modifier),
+  the settings dispatch, `AddTree`, `WidgetKeywords`, `ItemKinds`, `ContentAlignment`,
+  `CanHaveHeader`, `WidgetSetup`/`WidgetLiveness` (to `ISetupRule`), `SyncInterests` (to
+  `IInterests`). The last commit of M2 replaces `WidgetKind` with `WidgetId` and removes
+  `WidgetInstance.Kind` (schema changed in place, no migration: the app is unreleased). The same
+  for providers: `AccountProvider`, `AccountFeatures` and `UpdateSource` become ids, with Microsoft
+  and Google declared as provider modules inside Core until step 11. Behaviour commit, test first:
+  the unknown-id placeholder (section 4.5, Q15).
+- **M3. Module plumbing and the first move.** The glob references, `src/Widgets/Directory.Build.props`
+  and `src/Providers/Directory.Build.props`, the strings generator's module mode over a public
+  `StringTable`, `LocalText`, the module test host with the registry conformance tests, the SPEC
+  fragment test, the notices fragments, `scripts/new-module.ps1`. Then the first move, a small
+  widget with no services (Year progress): its files, strings (all 30 languages move into its own
+  table), SPEC section (into its `SPEC.md`, tags unchanged), tests and preview move into
+  `src/Widgets/Themia.Widget.YearProgress/`; pixel diff zero; `publish.ps1` and `package.ps1`
+  (packaged build, a manual pass).
+- **M4. Moves, one family per commit**, whenever convenient and always when a widget migrates onto
+  the kit (RSS, Mail, Tasks and the agenda move in the same series as their kit migration). Each is
+  a refactor with the pixel diff. When the app declares no widget any more, the generator stops
+  reading the compilation's own attributes (one path) and a conformance test asserts that the
+  app and Core declare no widget modules.
+
+### 11.2 The kit
+
+Order, smallest risk first (after M1..M3; M4 moves interleave):
 
 1. **Groundwork (refactors).** `RepoFiles` test helper; `KitConformanceTests` with today's allow
-   lists. The key maps are not merged here: they differ at one edge (section 4.3), so the merge
+   lists. The key maps are not merged here: they differ at one edge (section 5.3), so the merge
    rides with the kit's key map and RSS's migration, as its own behaviour commit.
-2. **Core kit.** `KitItem`, `KitAction`, `KitMenu.Lines`, `KitKeys`, `KitLadder`, `KitScreens`,
+2. **SDK kit.** `KitItem`, `KitAction`, `KitMenu.Lines`, `KitKeys`, `KitLadder`, `KitScreens`,
    `KitFreshness`, `IKitConfig` with the `WidgetSetup`/`SyncInterests` arms; tested; no consumer yet
    beyond tests (new code, not a second path).
-3. **App kit with its first consumer: RSS.** `KitList`, `KitHeader`, `KitStatePanel`, `KitMenu`,
-   `KitBinding` land together with RSS on them; `FeedLayout` becomes RSS's `KitSpec`; `RssView.Rows`
+3. **WinUI kit with its first consumer: RSS.** `KitList`, `KitHeader`, `KitStatePanel`, `KitMenu`,
+   `KitBinding` land in `Themia.Sdk.WinUI` together with RSS on them (and RSS moves into
+   `src/Widgets/Themia.Widget.Rss/`, M4); `FeedLayout` becomes RSS's `KitSpec`; `RssView.Rows`
    and the view's own `RefreshSchedule` and `Process.Start` go. RSS is web-only, read-only, already
    double-click/Enter, and its rows are the richest simple case (columns, site icons, wrapping).
    The header age stays as it is in this step (it is RSS's look until step 7).
@@ -953,8 +1412,11 @@ Order, smallest risk first:
    focus moving from XAML focus to `RowFocus`. Settings' account rows become `KitRows.Accounts`
    (with Mail's and the Office pages' in the same commit series).
 7. **Behaviour: the one stale rule** ([S-2612] rewritten, tests first): every kit widget and
-   Weather/Stocks say staleness the same way (section 4.5, Q3).
-8. **Behaviour: one open gesture** if the user picks it (Q2): Recent files and Notifications follow.
+   Weather/Stocks say staleness the same way: the problem glyph with one tooltip line per owner,
+   the age on the Refresh menu line, no caution-coloured age in headers (section 5.5; decided, Q3).
+8. **Behaviour: one open gesture** (decided, Q1/Q2): a click focuses, a double-click or Enter
+   opens; Recent files and Notifications follow (and Recent files drops its own `EditMode` check,
+   [S-1751] already covers it).
 9. **Behaviour: the one failure vocabulary** (tests first): `FetchStatus` gains `SignInRequired`,
    `Forbidden`, `NotFound`; `AccountException.ToFetchStatus` stops folding them; their sentences.
    Mail, Tasks and the Office widgets say "sign in again" or "not allowed" where they said a generic
@@ -963,7 +1425,8 @@ Order, smallest risk first:
     (with `LinkPaging`), `ServicePolling`, `RateLimitScheme` with `RateLimitRules` reading it (its
     GitHub constants become the first scheme in a test; the existing rate-limit tests move to that
     scheme unchanged in what they assert), `ErrorScheme` with `ServiceFailures.Classify`, the
-    GraphQL envelope, `KitMerge`. Tested on synthetic descriptors that mimic each of the three
+    GraphQL envelope, the `FormPost` transport, the replica contract (`IServiceReplica`), `KitMerge`.
+    Tested on synthetic descriptors that mimic each of the three
     pilots' recorded replies, so a GitHub-shaped assumption fails a Linear-shaped test here, before
     any service exists.
 11. **Sign-in by strategy (refactor for Microsoft and Google).** `ServiceSignIn` and a generic
@@ -973,24 +1436,27 @@ Order, smallest risk first:
     (`CLAUDE.md`, `docs/STORE.md`); `OAuthDeviceCode` (`DeviceCodeSession` restored from `e09beef^`
     with its tests), `PastedToken` and `AccountAuth.Token` land with tests and no provider yet. Zero
     visible change for the two existing providers; a live sign-in pass for both.
-12. **`ServiceSync` and `ServiceClient`** with the `service` shelf kind (validation, purge, sweep).
-13. **GitHub**, the first pilot (section 12), behind the user's answers to Q4..Q7: descriptor, wire,
-    rules, queries, fixtures, then one widget per commit.
-14. **Linear**, the second pilot: descriptor, wire, rules, queries, fixtures, widgets. Any line it
-    needs outside its own folder, its provider members and its strings is a kit defect: fixed in the
-    kit first, in its own commit.
-15. **Todoist**, the third pilot, behind Q11..Q12; the same rule.
+12. **`ServiceSync` and `ServiceClient`** with the `service` shelf kind (validation, purge, sweep)
+    and replica entries.
+13. **GitHub**, the first pilot (section 13), behind the user's answers to Q4, Q6 and Q7 (Q5 is
+    decided): `src/Providers/Themia.Provider.GitHub/` (descriptor, wire, rules, queries, fixtures),
+    then one widget project per commit. The GitHub App registration (Lometics) happens here.
+14. **Linear**, the second pilot: its provider project, then its widget projects. Any line it needs
+    outside its own folders is an SDK defect: fixed in the SDK first, in its own commit.
+15. **Todoist**, the third pilot (Q11, Q12 decided): its provider project on the Sync API (replica,
+    `FormPost`, sync token, local Today/Upcoming views), the console app registration with its
+    build-time secret; the same rule.
 
 Contacts (cards and search), Folder (Explorer semantics), the calendar grids and the meters stay
 off the kit; they already have their own frameworks or needs no shared list serves.
 
-## 11. Design decisions and open questions
+## 12. Design decisions and open questions
 
 ### Decisions
 
 - **Shapes.** One shape is built now: **List** (`KitList`), with an optional summary line, groups,
   columns, scroll or page overflow, and four row looks (line, two-line, rich, table). It covers
-  Mail, Tasks, the agenda, RSS, notifications, recent files and every list of section 12. **Stat** (one
+  Mail, Tasks, the agenda, RSS, notifications, recent files and every list of section 13. **Stat** (one
   figure with a caption and a band, for a repository's stars or a service quota) is designed (it is
   `HeroFit` plus `KitHeader` and `KitStatePanel`) and built when the second widget needs it, not
   before. **Rejected:** a separate Grid shape (a grid of the same items is the List with columns;
@@ -1011,86 +1477,85 @@ off the kit; they already have their own frameworks or needs no shared list serv
   retired GitHub tags (including the unlisted [S-615]..[S-629] and
   [S-745]..[S-749], to be added to [S-1902]'s retirement line) are not reused.
 - **Services are data plus rules.** The service layer is closed strategy sets chosen by a
-  descriptor (section 4.7); a service writes no App code and no branch in shared code. Proven on
-  paper against GitHub, Linear and Todoist (section 12) before anything is built.
+  descriptor (section 5.7); a service writes no App code and no branch in shared code. Proven on
+  paper against GitHub, Linear and Todoist (section 13) before anything is built.
 - **No "updated since" deltas.** Incremental reads only through a service's own sync token; a
   high-water filter misses items that leave a filtered set.
 - **Web links only.** Item links and web actions open https pages on the descriptor's `WebHosts`;
   app URL schemes are not offered.
 - **Fixtures out of views.** Preview states come from recorded answers replayed through the real
   rules; `*.Preview.cs` partials disappear from widgets as they migrate.
+- **Widgets and providers are projects** (section 4): glob project references plus a generated
+  static registry; ids instead of closed enums, validated at build time and on every load; one JSON
+  union built from every module's own context; strings, tests, fixtures and SPEC per module.
+  Proven by the spike under Native AOT (section 4.11). Rejected: `[ModuleInitializer]`
+  registration (runs lazily under CoreCLR, eagerly under AOT), runtime plugin loading, reflection.
+- **Row click (Q1, Q2).** A click focuses; a double-click or Enter opens the item. Every kit
+  widget, and Recent files and Notifications follow (section 11.2, step 8).
+- **One stale rule (Q3).** The problem glyph, its tooltip one line per owner ("Work: No network ·
+  updated 10:42"), the age on the Refresh menu line; no caution-coloured age text in headers.
+- **GitHub (Q5).** A GitHub App with device flow: read-only repository permissions, expiring user
+  tokens refreshed without a client secret, installed per organisation or repository; a pasted
+  fine-grained token as the fallback. No notifications widget, so no OAuth app.
+- **Todoist (Q11, Q12).** A console-registered app with a build-time client secret
+  (`todoist=` in `THEMIA_CLIENT_SECRETS`), scope `data:read`; a pasted personal token last. Data
+  through the **Sync API**: one replica per account, kept fresh by sync tokens, and Today and
+  Upcoming computed from it by Todoist's own rules in its provider project (section 13.3).
 
 ### Open questions for the user
 
-- **Q1. Row click.** A click focuses and a double-click (or Enter) opens the item's page, as Mail
-  and RSS do today. Keep that for every kit widget, or open on a single click as Recent files and
-  Notifications do? (The kit needs one answer; R7-OPEN's retirement says the card itself opens
-  nothing, which is not changed either way.)
-- **Q2. Make the others follow.** Whatever Q1 answers, should Recent files and Notifications move to
-  it (a visible change), or keep their single click as "launcher" widgets?
-- **Q3. The one stale rule.** Proposed: a problem glyph with "Work: No network · updated 10:42"
-  lines in its tooltip, and the age only on the Refresh menu line. This drops the caution-coloured
-  age text from RSS, Weather and Stocks headers. Agree, or keep the age text (then for every kit
-  widget, on tiers that have room)?
-- **Q4. Which GitHub widgets first?** Candidates: review requests, assigned issues and pull
-  requests, notifications, a repository's open pull requests, a repository's issues, releases,
-  workflow runs. The old set was repository, assigned issues, notifications, reviews.
-- **Q5. GitHub sign-in and scopes** (now from GitHub's docs, section 12.1). Facts: device flow
-  works for OAuth apps and GitHub Apps and needs no client secret, for the token or (GitHub Apps)
-  its refresh; the browser flow needs the client secret at the token exchange even with PKCE, so it
-  is not offered; OAuth-app scopes have no read-only grant for private repositories (`repo` is full
-  read/write); the notifications API accepts only classic-style tokens (OAuth app tokens, classic
-  PATs), not GitHub App or fine-grained tokens. Options: (a) OAuth app, device flow, `repo read:org
-  notifications`: every widget, broad scope (Themia still never writes); (b) GitHub App, device
-  flow, read-only permissions, expiring tokens refreshed without a secret, installed per
-  organisation or repository: no notifications widget; (c) both, the App for repositories and
-  search and an optional OAuth grant only for notifications; (d) a pasted fine-grained token, as a
-  fallback beside (a)..(c). Recommended: (b) with (d), and notifications later through (c) only if
-  wanted.
+Resolved and folded in above: Q1, Q2, Q3, Q5, Q9, Q11, Q12.
+
+- **Q4. Which GitHub widgets first?** Candidates (no notifications, Q5): review requests, assigned
+  issues and pull requests, a repository's open pull requests, a repository's issues, releases,
+  CI status (workflow runs). The paper test uses review requests and CI status.
 - **Q6. GitHub Enterprise.** Support an Enterprise server address per account (the old widgets did,
   through `ApiBaseUrl`; the descriptor has `ApiRootRule.PerAccount` for it), or github.com only for
-  now?
+  now? With a GitHub App, an Enterprise server needs its own app registration on that server.
 - **Q7. Without an account.** The old repository widget read public repositories anonymously (60
   requests an hour per IP, 15-minute floor). Keep anonymous public reads for repository widgets
   (`AnonymousRule.PublicReads`), or always require an account?
-- **Q8. Languages.** Ship a new service widget with all 30 languages translated in the same change,
-  or English first (keys in `$englishOnly`) and translations in a follow-up?
-- **Q9. Which services after GitHub?** *Resolved:* GitHub, Linear and Todoist, in that order. The
-  paper test (section 12) shaped the strategy sets: GraphQL transport and body-cursor paging are in
-  the kit from the start, not added later.
-- **Q10. Migration appetite.** The plan moves Mail, Tasks and the agenda onto the kit as zero-change
-  refactors before GitHub. Is that order right, or should GitHub come right after RSS (the kit
-  proven on one old and one new widget) with Mail and Tasks later?
-- **Q11. Todoist sign-in.** Todoist's console-registered apps are confidential (client secret at
-  the token exchange); public clients (PKCE, no secret) exist only through dynamic registration or a
-  client ID metadata document, whose redirect URIs must be https ("localhost allowed for testing").
-  Options: (a) a console app under Lometics with a build-time secret (as Google), if its redirect
-  settings accept a loopback address; (b) a client ID metadata document hosted on a Lometics https
-  address, public client with PKCE, if Todoist accepts a loopback redirect for it in production; (c)
-  the personal API token only (full access: Todoist has no read-only personal token). Recommended:
-  try (b) at registration, else (a); (c) always offered last. Personal tokens are full read/write,
-  OAuth can ask `data:read`.
-- **Q12. Todoist REST or Sync.** The REST endpoints (`/api/v1/tasks/filter?query=today | overdue`)
-  evaluate Todoist's own filter language server-side and page with `next_cursor`; the Sync endpoint
-  gives incremental deltas (1000 partial and 100 full syncs per user per 15 minutes) but then
-  "today" and "upcoming" must be computed locally from due dates, recurrence and the user's time
-  zone. Proposed: REST for the first widgets (no filter engine in Themia); Sync only if a widget
-  needs data REST cannot filter.
+- **Q8. Languages.** Ship a new widget with all 30 languages translated in the same change, or
+  English first (keys in `$englishOnly`) and translations in a follow-up?
+- **Q10. Migration appetite.** Order: modules M1..M3 (section 11.1), then the kit with RSS, Mail,
+  the agenda and Tasks as zero-change refactors, then GitHub. Or GitHub right after RSS (the kit
+  proven on one old and one new widget), with Mail and Tasks later?
 - **Q13. Linear's loopback redirect.** Linear's docs do not say whether a registered
   `http://127.0.0.1/...` redirect matches any port. If not, the descriptor uses
   `LoopbackPort.Fixed` with two or three registered ports. To be checked when the app is
   registered.
+- **Q14. Todoist's console redirect.** Whether a console app's redirect may be `http://127.0.0.1`
+  and whether its port must match is not documented; checked in the console at registration (the
+  descriptor has `Fixed(ports)` if it must).
+- **Q15. A widget this build does not have.** Proposed (section 4.5): keep it as a placeholder card
+  ("not available in this build") with its raw settings preserved and written back, never
+  deleted. Alternative: drop it with a logged notice. Only reachable through a settings import from
+  another build or a hand edit.
+- **Q16. Project granularity.** Proposed: one project per widget, and one per *family* where widgets
+  share code and a SPEC section (power actions, quick-setting toggles, screen time, meters, a
+  service's widgets). That is roughly 45 projects for today's ~80 widgets. Alternative: strictly one
+  project per widget (more projects, longer restore and build), or one project per add-menu shelf
+  (fewer, but a module is no longer one widget).
+- **Q17. Namespaces of moved files.** Proposed: files keep their `Themia.Core.*` / `Themia.App.*`
+  namespaces when they move into the SDKs (pure moves, tests unedited), and only new types use
+  `Themia.Sdk.*`. Alternative: rename as they move (cleaner, a large churn in every caller and test).
+- **Q18. Day boundary for Todoist.** Proposed: "today" is the PC's local day (the desk the widget
+  sits on), a floating due time is read in the PC's zone and a fixed-zone one converted. Todoist's
+  own app uses the account's time zone (`tz_info`); the two differ only when the PC and the account
+  disagree. Use the account's zone instead? (Under `InvariantGlobalization` the IANA name cannot be
+  mapped; only the offset `tz_info` carries would be available.)
 
-## 12. Paper test: GitHub, Linear, Todoist
+## 13. Paper test: GitHub, Linear, Todoist
 
-Each service below is written as if it were being added today, using only what section 4.7 allows
-a service to add. Facts come from the services' own developer docs (read 2026-10-17, sources in
-section 13); a fact marked *unverified* was not stated in the docs and is checked against a
+Each service below is written as if it were being added today, as a provider project (section 4)
+using only what section 5.7 allows a service to add. Facts come from the services' own developer docs (read 2026-10-17, sources in
+section 14); a fact marked *unverified* was not stated in the docs and is checked against a
 recorded reply or at registration. The "kit changes this service forced" lists are the changes the
-first draft of the kit needed; each is folded into sections 4 and 5 above, so every list ends with
-**open: none**.
+first draft of the kit needed; each is folded into sections 5 and 6 above, so every list ends with
+**open: none**. Updated after the user's decisions (Q5: GitHub App, no notifications; Q11/Q12:
+Todoist console app, Sync API).
 
-### 12.1 GitHub (REST v3)
+### 13.1 GitHub (REST v3)
 
 **Facts.** REST JSON at `https://api.github.com/`, version header `X-GitHub-Api-Version` (supported:
 `2026-03-10` and `2022-11-28`, the latter until 2028-03-10) [G1]. Paging by `Link` with `rel="next"`,
@@ -1110,22 +1575,24 @@ instead) [G7]; a loopback redirect may use any port of the registered `http://12
 GitHub App user tokens expire after 8 hours with a 6-month refresh token; refreshing needs the
 client secret "unless the user access token was generated using the device flow" [G8][G9]. OAuth-app
 scopes: none read-only for private repositories (`repo` is full access) [G10]. Notifications accept
-only classic-style tokens and the `notifications` or `repo` scope; 304s via `Last-Modified` are free
-[G5].
+only classic-style tokens (not GitHub App or fine-grained tokens) [G5], which is why the decided
+GitHub App has no notifications widget. A GitHub App reads only what it is installed on and the
+user can see; read-only repository permissions are chosen at registration [G8].
 
 **Chosen strategies.**
 
 | Field | GitHub |
 |---|---|
-| Provider, feature, cadence | `AccountProvider.GitHub`, `AccountFeatures.GitHub`, `UpdateSource.GitHub` (1, 2, 5, 15 min; default 5) |
+| Project | `src/Providers/Themia.Provider.GitHub/`; widgets `Themia.Widget.GitHubReviews`, `Themia.Widget.GitHubChecks` (or one `Themia.Widget.GitHub` family, Q16) |
+| Provider, feature, cadence | id `gitHub`, feature `gitHub`, cadence row 1, 2, 5, 15 min (default 5) |
 | Transport | `RestJson` |
 | ApiRoot, rule | `https://api.github.com/`, `PerAccount` (Enterprise `https://<host>/api/v3/`, Q6) |
-| SignIn | 1. `OAuthDeviceCode(device/code, oauth/access_token, client id, scopes by Q5, Space, Refresh)`: an OAuth app's token does not expire (stored as `Token`); a GitHub App's rotates and refreshes without a secret; 2. `PastedToken(https://github.com/settings/personal-access-tokens/new, fine-grained shape, Bearer)`; 3. `Anonymous` if Q7 keeps it |
+| SignIn | 1. `OAuthDeviceCode(github.com/login/device/code, github.com/login/oauth/access_token, the GitHub App's client id, no scopes (a GitHub App's access is its permissions), Space, Refresh(rotates, 8 h tokens, refreshed without a secret), GrantPage https://github.com/apps/<slug>/installations/new)`, stored as `OAuthRefresh`; 2. `PastedToken(https://github.com/settings/personal-access-tokens/new, fine-grained shape, Bearer)`; 3. `Anonymous` if Q7 keeps it |
 | Token header | `Bearer` |
 | Pinned | `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2026-03-10` |
 | Limits | Budgets `[(x-ratelimit-limit, x-ratelimit-remaining, x-ratelimit-reset)]`, `EpochSeconds`, bucket header `x-ratelimit-resource`, throttle statuses {403, 429}, Retry-After honoured on all |
 | Errors | `JsonCode` none (`message` only); Messages `["secondary rate limit" -> RateLimited]` |
-| Freshness | `ETag`; notifications `LastModified | PollIntervalHeader`; poll header `X-Poll-Interval` |
+| Freshness | `ETag` |
 | Anonymous | `PublicReads(15 min)` (Q7) or `None` |
 | Bounds | MaxPages 5, ItemBound 200 |
 | WebHosts | `github.com` (plus the Enterprise host of a `PerAccount` root) |
@@ -1148,34 +1615,32 @@ only classic-style tokens and the `notifications` or `repo` scope; 304s via `Las
    Summary: `"<branch> · <latest conclusion>"` with its tone. Actions: Open; `OpenTo("Re-run on
    GitHub", html_url)`; `CopyText(head_sha)`. Empty sentence from the rules: "No workflow runs on
    <branch>".
-3. *Notifications* (`GitHubList.Notifications`, only with Q5 (a) or (c)). `GET
-   /notifications?per_page=50`; `LastModified | PollIntervalHeader`; `LinkHeader`. Map: Id
-   `n:<id>`; Title `subject.title`; Subtitle `repository.full_name`; Badges `reason`; Emphasis
-   `unread`; When `Age(updated_at)`; Link: `subject.url` (an API address) rewritten by the rules to
-   its `github.com` page, else the repository page. Actions: Open; `OpenTo("Mark done on GitHub",
-   https://github.com/notifications)`.
+No notifications widget (Q5): the notifications API does not accept GitHub App tokens.
 
-Refresh: the cadence choice, stretched by `X-Poll-Interval` for notifications; 304s keep a 2-minute
-cadence cheap; search stays far under 30 a minute even with several widgets.
+A repository the app is not installed on answers 404 (`NotFound`) for a private repository; the
+widget's screen offers the descriptor's `GrantPage` ("Choose repositories on GitHub") beside the
+Accounts link, and review requests from repositories outside the installation simply do not
+appear (search returns what the token may see; *unverified* in detail, checked with a recorded
+reply).
+
+Refresh: the cadence choice; 304s keep a 2-minute cadence cheap; search stays far under 30 a
+minute even with several widgets.
 
 **Kit changes this service forced** (folded in): rate-limit blocks per account **and bucket**
 (search's budget is not core's); a secondary limit recognised by its message (`ErrorScheme.Messages`);
-the poll-interval header named in the descriptor instead of in shared code; dependent requests
+dependent requests
 (`ServiceStep`) for the default branch; the summary line with a tone (`KitSummary`); a per-account
-API root (`ApiRootRule`); device flow as an auth member with no secret. **Open: none.**
+API root (`ApiRootRule`); device flow as an auth member with no secret and a rotating refresh;
+a grant page for per-repository access (`GrantPage`, `KitScreen.OffersGrant`). **Open: none.**
 
-**Registration (Lometics organisation, later, browser-assisted).** Q5 decides which app.
-- OAuth app: `https://github.com/organizations/<lometics-org>/settings/applications/new`; a homepage
-  URL; an authorisation callback URL is required by the form but unused by device flow (the Lometics
-  site is fine); tick *Enable Device Flow*. Client id goes into the descriptor; the client secret is
-  not needed and is not stored anywhere.
+**Registration (Lometics organisation, later, browser-assisted).** A GitHub App (Q5); no OAuth app.
 - GitHub App: `https://github.com/organizations/<lometics-org>/settings/apps/new`; webhook off; tick
   *Enable Device Flow*; keep *Expire user authorization tokens* on; repository permissions read-only
   (Metadata, Pull requests, Issues, Actions, Checks); no organisation write permission; installable
   by any account. Device-flow refresh needs no secret, so none is stored.
 - No client secret is unavoidable for GitHub.
 
-### 12.2 Linear (GraphQL)
+### 13.2 Linear (GraphQL)
 
 **Facts.** GraphQL at `https://api.linear.app/graphql`; OAuth tokens as `Authorization: Bearer
 <token>`, personal API keys as `Authorization: <API_KEY>` without `Bearer`; errors in a standard
@@ -1200,7 +1665,8 @@ are created by an admin in Settings › Administration › API [L6].
 
 | Field | Linear |
 |---|---|
-| Provider, feature, cadence | `AccountProvider.Linear`, `AccountFeatures.Linear`, `UpdateSource.Linear` (1, 2, 5, 15 min; default 2) |
+| Project | `src/Providers/Themia.Provider.Linear/`; widgets `Themia.Widget.LinearIssues`, `Themia.Widget.LinearCycle` |
+| Provider, feature, cadence | id `linear`, feature `linear`, cadence row 1, 2, 5, 15 min (default 2) |
 | Transport | `GraphQL` |
 | ApiRoot, rule | `https://api.linear.app/graphql`, `Fixed` |
 | SignIn | 1. `OAuthPkceLoopback(linear.app/oauth/authorize, api.linear.app/oauth/token, client id, "read", Comma, Loopback4 "/callback" Any or Fixed (Q13), ClientSecret None, Refresh(rotates, 30 min grace))`; 2. `PastedToken(https://linear.app/settings/account/security, lin_api_ shape, Raw)` |
@@ -1261,7 +1727,7 @@ available to other workspaces (*unverified* setting name). Scopes are requested 
 only). PKCE means the client secret Linear shows is **not** shipped and not needed; no secret is
 unavoidable.
 
-### 12.3 Todoist (API v1)
+### 13.3 Todoist (API v1)
 
 **Facts.** The current API is the unified **Todoist API v1** at `https://api.todoist.com/api/v1/`,
 which "unifies the Sync API v9 and the REST API v2"; the older docs remain only "for reference"
@@ -1282,81 +1748,111 @@ be HTTPS (localhost allowed for testing)"; scopes comma-separated, `data:read` i
 apps get 1-hour access tokens with refresh tokens that rotate on every refresh, and reuse outside a
 60-second grace revokes all the user's tokens for the app; no device flow is documented; personal
 API tokens come from the integrations settings and are sent as Bearer [T6]. Sync: `POST
-/api/v1/sync`, form-encoded, `sync_token` (`*` for a full read) and `resource_types` [T5].
+/api/v1/sync` as `application/x-www-form-urlencoded`, `sync_token` (`*` for all active data) and
+`resource_types` (a JSON-encoded array of strings); the answer carries a new `sync_token`,
+`full_sync` (whether it holds all data or only the changes), `full_sync_date_utc` (for big
+accounts a full sync may lag; then an incremental sync with its token catches up), `items`,
+`projects` and `user`; `user.tz_info` has `timezone`, `hours`, `minutes`, `is_dst` and
+`gmt_string`; deleted objects come back as tombstones with `is_deleted: true` [T5][T8]. The item
+fields the rules read (`content`, `project_id`, `priority`, `labels`, `checked`, `is_deleted`,
+`responsible_uid`, `child_order`, `due {date, timezone, is_recurring, string}`, `deadline`) are
+named as in the v1 item object; the parts of [T8] read did not show the item schema, so their
+exact shape is *unverified* until a recorded reply.
 
 **Chosen strategies.**
 
 | Field | Todoist |
 |---|---|
-| Provider, feature, cadence | `AccountProvider.Todoist`, `AccountFeatures.Todoist`, `UpdateSource.Todoist` (1, 5, 15, 30 min; default 5) |
-| Transport | `RestJson` (`FormPost` only if Q12 picks Sync) |
+| Project | `src/Providers/Themia.Provider.Todoist/`; widgets `Themia.Widget.TodoistToday`, `Themia.Widget.TodoistUpcoming` (or one family, Q16) |
+| Provider, feature, cadence | id `todoist`, feature `todoist`, cadence row 1, 5, 15, 30 min (default 5) |
+| Transport | `FormPost` to `sync` |
 | ApiRoot, rule | `https://api.todoist.com/api/v1/`, `Fixed` |
-| SignIn | 1. `OAuthPkceLoopback(app.todoist.com/oauth/authorize, api.todoist.com/oauth/access_token, client id (console id, or the metadata document's https URL), "data:read", Comma, loopback per Q11, ClientSecret BuildTime (console app) or None (metadata document), Refresh(rotates, 60 s grace))`; 2. `PastedToken(Todoist Settings › Integrations › Developer, 40-hex shape, Bearer)` |
+| SignIn | 1. `OAuthPkceLoopback(app.todoist.com/oauth/authorize, api.todoist.com/oauth/access_token, the console app's client id, "data:read", Comma, Loopback4 with `Any` or `Fixed(ports)` per Q14, ClientSecret BuildTime, Refresh(rotates, 60 s grace))`, build secret key `todoist`; 2. `PastedToken(Todoist Settings › Integrations › Developer, 40-hex shape, Bearer)` (full access: offered last, and the Accounts page says so) |
 | Token header | `Bearer` |
 | Pinned | none |
-| Limits | Budgets none (no headers documented), `DeltaSeconds`, no bucket header (buckets `rest`, and `sync-full`/`sync-partial` if Q12), throttle statuses {429}, Retry-After ignored on {401} |
-| Errors | `JsonCode` with `CodeField = "error_tag"`; Codes `UNAUTHORIZED -> SignInRequired`, `INVALID_ARGUMENT_VALUE -> BadResponse` (documented), scope and not-found tags from recorded replies (*unverified*); `RetryAfterField = "error_extra.retry_after"` |
-| Freshness | `None` (`Incremental.SyncToken` if Q12 picks Sync) |
+| Limits | Budgets none (no headers documented), `DeltaSeconds`, no bucket header; buckets `sync-partial` (1,000 per 15 min) and `sync-full` (100 per 15 min); throttle statuses {429}, Retry-After ignored on {401} |
+| Errors | `JsonCode` with `CodeField = "error_tag"`; Codes `UNAUTHORIZED -> SignInRequired`, `INVALID_ARGUMENT_VALUE -> BadResponse` (documented), scope tags from recorded replies (*unverified*); `RetryAfterField = "error_extra.retry_after"`; a rejected sync token -> a full read |
+| Freshness | `Incremental.SyncToken`, a full read at least daily and whenever the token is rejected |
+| Replica | `TodoistReplica`: items and projects by id, the user's `tz_info`, the sync token, `full_sync_date_utc`; bounded (5,000 items; past the bound the furthest-due open items go first, logged) |
 | Anonymous | `None` |
-| Bounds | MaxPages 3 (at `limit=200`), ItemBound 300 |
+| Bounds | MaxPages 1 (sync has no pages), ItemBound 5,000 |
 | WebHosts | `app.todoist.com` |
-| Identity | `GET /api/v1/user` -> `id`, `full_name` |
+| Identity | the first full sync's `user` (`id`, `full_name`); a pasted token is checked with a sync of `resource_types=["user"]` before it is stored |
 
-**Widgets.**
+**The replica and its rules** (all in `TodoistRules`, pure, tested on recorded syncs):
 
-Both use one step: `GET /api/v1/projects?limit=200` (`BodyCursor`), mapped to a table project id ->
-name, shared by every Todoist query of the account.
+- *Request*: `sync_token=<held or *>&resource_types=["items","projects","user"]`; bucket
+  `sync-full` for `*`, else `sync-partial`.
+- *Merge*: `full_sync: true` replaces the replica; otherwise every object upserts by id, and
+  `is_deleted: true` removes it. An item with `checked: true` leaves the open set (kept out of
+  every view, gone at the next full read). An item whose project was deleted or archived goes with
+  it. When `full_sync_date_utc` lags the request by more than a minute, the next request is an
+  incremental one at once (the documented advice), not a second full read.
+- *Validate on load*: ids once, strings cut to bounds, `due.date` parses as a day or a date-time,
+  links rebuilt from ids (never stored URLs).
+- *Today view* (`TodoistList.Today`): open items due on or before today; overdue first, then
+  today; sorted by due (timed before all-day on the same day), then priority, then `child_order`.
+  An item assigned to someone else (`responsible_uid` set and not the account's user) is left out,
+  as Todoist's Today shows the user's own tasks (*unverified*, checked against the Todoist app with
+  a shared project). A recurring task shows its current occurrence only (its `due` is the next
+  instance; Themia does not expand recurrences).
+- *Upcoming view* (`TodoistList.Upcoming`, 3, 7 or 14 days): open items due after today up to the
+  horizon, grouped by due day (`KitGroup(Day:)`, so the kit draws "Tomorrow", "Mon 20 Oct"); a
+  recurring task appears once, on its next occurrence (Todoist's own Upcoming repeats it on each
+  day; the difference is a SPEC line, not a bug).
+- *Day boundary*: the PC's local day (Q18). An all-day `due.date` is a `KitWhen.Day` and never
+  moves with the zone; a floating date-time (no `timezone`) is read in the PC's zone; a fixed one
+  is converted. Views are recomputed on every merge and at local midnight (the shared ticker's day
+  tick), without a request.
+- *Map to items*: Id `id`; Title `content` with Markdown reduced to plain text; Subtitle the
+  project's name from the replica; Lead `StatusDot` by `priority` (4 = p1 -> Critical, 3 -> Caution,
+  2 -> Accent, 1 -> none); When `KitTime.Due`, overdue -> Critical tone; Badges the first two
+  `labels`; Link `https://app.todoist.com/app/task/<id>`. Actions: Open; `OpenTo("Complete in
+  Todoist", link)`; `OpenTo("Reschedule in Todoist", link)`; `CopyText(content)`. Empty: "Nothing
+  due today" / "Nothing in the next 7 days".
 
-1. *Today* (`TodoistList.Today`). `GET /api/v1/tasks/filter?query=today | overdue&limit=<n>`;
-   `BodyCursor` (`cursor` from `next_cursor`). Map: Id `id`; Title `content` with Markdown reduced to
-   plain text; Subtitle the project's name from the step; Lead `StatusDot` by `priority` (4 = p1 ->
-   Critical, 3 -> Caution, 2 -> Accent, 1 -> none); When `due.date` as `KitWhen.Day`, or
-   `due.datetime` as `KitWhen.At` (a floating time without offset is read in the PC's zone), with
-   `KitTime.Due`, overdue -> Critical tone; Badges the first two `labels`; Link
-   `https://app.todoist.com/app/task/<id>`. Sorted by due, then priority, then the API's order.
-   Actions: Open; `OpenTo("Complete in Todoist", link)`; `OpenTo("Reschedule in Todoist", link)`;
-   `CopyText(content)`. Empty: "Nothing due today".
-2. *Upcoming* (`TodoistList.Upcoming`, a choice of 3, 7 or 14 days). `query=<n> days`, otherwise as
-   Today; Group `KitGroup(Day: due day)` so the kit draws "Today", "Tomorrow", "Mon 20 Oct" headings.
+Refresh: default 5 minutes, which is 3 partial syncs per 15 minutes per account against a budget
+of 1,000, however many Todoist widgets there are (they share the replica); the daily full read is
+one of 100. A 429 blocks the account's bucket for `retry_after`.
 
-Refresh: default 5 minutes; with no documented REST budget the `IdleFloor` is 1 minute, and a 429
-blocks the account's `rest` bucket for `retry_after`.
-
-**Kit changes this service forced** (folded in): `BodyCursor` paging for a REST body; Retry-After
+**Kit changes this service forced** (folded in): the `FormPost` transport; the replica contract
+(`IServiceReplica`: merge, validate, views) with one entry per account shared by every widget of
+the provider; sync-token freshness with a rejected-token and daily full read; the bucket chosen
+per request (full or partial); views recomputed on a day tick without a request; Retry-After
 ignored on a 401; a retry time read from the error body (`RetryAfterField`); error codes in a named
-JSON field (`JsonCode`); a build-time client secret for any provider (`THEMIA_CLIENT_SECRETS`, not
-Google's alone); rotating refresh tokens persisted before use, with the reuse grace as data; step
-results available to `Map` (project names); day groups drawn by the kit (`KitGroup.Day`);
-date-only and floating due times (`KitWhen`); comma scopes; links built by the rules and checked
-against `WebHosts`; app URL schemes deliberately not offered. **Open: none.**
+JSON field (`JsonCode`); a build-time client secret for any provider (`THEMIA_CLIENT_SECRETS`
+keyed by the provider's `BuildSecret`); rotating refresh tokens persisted before use, with the
+reuse grace as data; day groups drawn by the kit (`KitGroup.Day`); date-only and floating due
+times (`KitWhen`); comma scopes; links built by the rules and checked against `WebHosts`; app URL
+schemes deliberately not offered. **Open: none.**
 
 **Registration (later).** Todoist App Management Console
 (`https://app.todoist.com/app/settings/integrations/app-management`), signed in as the Lometics
-account. Per Q11: (b) host a client ID metadata document at a Lometics https address (`client_id` =
-that URL, `token_endpoint_auth_method: "none"`, `redirect_uris` with the loopback address, scope
-`data:read`) and test whether Todoist accepts a loopback redirect outside "testing"; or (a) create a
-console app with a loopback redirect URL and ship its secret as `todoist=` in
-`THEMIA_CLIENT_SECRETS` (the client secret is unavoidable on this path). Whether a console app's
-redirect may be `http://127.0.0.1` and whether its port must match are *unverified*: check in the
-console.
+account (Q11: decided). Create a console app with a loopback redirect URL
+(`http://127.0.0.1:<port>/callback`, or the port list of Q14), scope `data:read`; ship its client
+secret as `todoist=` in `THEMIA_CLIENT_SECRETS` (unavoidable on this path; a build secret, never
+in source). Whether the console accepts a loopback redirect and whether the port must match is
+checked there (Q14).
 
-### 12.4 Result
+### 13.4 Result
 
 | | GitHub | Linear | Todoist |
 |---|---|---|---|
-| Transport | RestJson | GraphQL | RestJson |
-| Paging | LinkHeader | BodyCursor (`pageInfo`) | BodyCursor (`next_cursor`) |
-| Auth | OAuthDeviceCode; PastedToken; Anonymous (Q7) | OAuthPkceLoopback (no secret); PastedToken (Raw) | OAuthPkceLoopback (BuildTime secret or metadata document); PastedToken |
-| Freshness | ETag; LastModified + poll header | None | None |
+| Project | `Themia.Provider.GitHub` | `Themia.Provider.Linear` | `Themia.Provider.Todoist` |
+| Transport | RestJson | GraphQL | FormPost (Sync) |
+| Paging | LinkHeader | BodyCursor (`pageInfo`) | none (replica) |
+| Auth | OAuthDeviceCode (GitHub App, rotating refresh, grant page); PastedToken; Anonymous (Q7) | OAuthPkceLoopback (no secret); PastedToken (Raw) | OAuthPkceLoopback (BuildTime secret); PastedToken |
+| Freshness | ETag | None | SyncToken replica, local Today/Upcoming views |
 | Rate limits | headers, epoch s, bucket header | two budgets, epoch ms, 400 + body code | 429 + body retry, Retry-After ignored on 401 |
 | Errors | status + message rule | GraphQL codes | `error_tag` codes |
-| Read-only scope | none for private repos on an OAuth app; GitHub App read-only permissions | `read` | `data:read` (OAuth only) |
+| Read-only scope | GitHub App read-only permissions | `read` | `data:read` (OAuth only) |
 
-Every row is a member of a section 4.7 set with parameters from the table above; no service needs
-a line outside its folder, its provider members, its build secret name and its strings. The three
-service SPEC sections ([S-7100], [S-7200], [S-7300] blocks) copy these facts with their sources.
+Every row is a member of a section 5.7 set with parameters from the table above; no service needs
+a line outside its provider project (and Todoist's build secret in the build environment). The
+three providers' `SPEC.md` files ([S-7100], [S-7200], [S-7300] blocks) copy these facts with their
+sources.
 
-## 13. Sources
+## 14. Sources
 
 Read 2026-10-17. Re-read before building each service; the descriptor's facts carry these links in
 the service's SPEC section.
@@ -1384,3 +1880,5 @@ the service's SPEC section.
 - [T5] Todoist API v1, Request limits, Sync, error responses: https://developer.todoist.com/api/v1/ (sections "Request limits", "Sync", "Refreshing access tokens")
 - [T6] Todoist API v1, Authorization (OAuth, dynamic registration, client ID metadata document, scopes): https://developer.todoist.com/api/v1/ (section "Authorization")
 - [T7] Secondary: Airbyte issue on REST v2 returning 410: https://github.com/airbytehq/airbyte/issues/86899
+- [T8] Todoist API v1, Sync (request and response fields, full sync delay) and the User object (`tz_info`): https://developer.todoist.com/api/v1/ (sections "Sync", "User")
+- [N1] The module spike (section 4.11), 2026-10-17. The .NET behaviour it relied on was measured, not read: module initializer timing under CoreCLR and Native AOT, resolver combination and contract modifiers under AOT, XAML in a WinUI class library.
