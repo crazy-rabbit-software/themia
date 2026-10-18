@@ -84,6 +84,12 @@ public enum RelativeUnit
 /// </summary>
 public static class LocaleFormat
 {
+    /// <summary>[S-1483] The language's morning marker of a 12-hour time ("AM" in English), from its locale data.</summary>
+    public static string Am(Locale locale) => LocaleData.For(locale).Am;
+
+    /// <summary>[S-1483] The language's afternoon marker of a 12-hour time ("PM" in English), from its locale data.</summary>
+    public static string Pm(Locale locale) => LocaleData.For(locale).Pm;
+
     // -----------------------------------------------------------------------------------------
     // Names
     // -----------------------------------------------------------------------------------------
