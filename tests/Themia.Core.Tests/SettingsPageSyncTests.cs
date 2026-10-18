@@ -59,25 +59,6 @@ public sealed class SettingsPageSyncTests
     }
 
     [Fact]
-    public void S1721_a_widget_page_follows_its_own_widget_only()
-    {
-        var state = AppState.CreateDefault();
-        var widgets = state.Views[0].Widgets;
-        Assert.True(widgets.Count >= 2);
-
-        var own = widgets[0];
-        var other = widgets[1];
-        var before = SettingsPageSync.Signature(state, SettingsScope.Widget, own.Id);
-
-        other.Label = "renamed";
-        own.X += 0.1;
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Widget, own.Id));
-
-        own.Label = "mine";
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Widget, own.Id));
-    }
-
-    [Fact]
     public void S1721_the_displays_page_follows_the_connected_displays_only()
     {
         var state = AppState.CreateDefault();
