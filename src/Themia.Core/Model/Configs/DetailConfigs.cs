@@ -8,37 +8,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-2408] Memory in use, available, committed, cached, the pools and the page file.</summary>
-public sealed class MemoryDetailsConfig : DetailConfig, IReadsSystem
-{
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("memoryDetails"),
-        ConfigType = typeof(MemoryDetailsConfig),
-        CreateDefault = () => new MemoryDetailsConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["ram", "committed", "cached", "page file", "swap", "paged pool", "task manager"],
-        Label = Str.Details_Catalog_Memory_Label.Local(),
-        Description = Str.Details_Catalog_Memory_Desc.Local(),
-        Glyph = Glyphs.Memory,
-        DefaultWidth = 280,
-        DefaultHeight = 240,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.MemoryReading, 0, 1),
-    };
-
-    /// <summary>[S-2513] The memory figures and the page files.</summary>
-    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Performance);
-
-    public override WidgetConfig Clone()
-    {
-        var copy = new MemoryDetailsConfig();
-        return copy;
-    }
-}
-
 /// <summary>[S-2410] The busiest processes, by processor or by memory.</summary>
 public sealed class TopProcessesConfig : DetailConfig, IReadsSystem
 {

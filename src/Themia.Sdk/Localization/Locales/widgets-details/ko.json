@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "메모리 세부 정보",
-  "details.catalog.memory.desc": "사용 중, 커밋됨, 캐시됨 및 페이지 파일",
   "details.catalog.processes.label": "상위 프로세스",
   "details.catalog.processes.desc": "프로세서 또는 메모리를 가장 많이 사용하는 앱",
   "details.catalog.network.label": "네트워크 세부 정보",

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "میموری کی تفصیلات",
-  "details.catalog.memory.desc": "استعمال میں، کمٹڈ، کیشڈ اور پیج فائل",
   "details.catalog.processes.label": "سرفہرست پروسیسز",
   "details.catalog.processes.desc": "پروسیسر یا میموری کے لحاظ سے سب سے مصروف ایپس",
   "details.catalog.network.label": "نیٹ ورک کی تفصیلات",

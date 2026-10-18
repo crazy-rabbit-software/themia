@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "Chi tiết bộ nhớ",
-  "details.catalog.memory.desc": "Đang dùng, đã cam kết, bộ đệm và tệp hoán trang",
   "details.catalog.processes.label": "Tiến trình hàng đầu",
   "details.catalog.processes.desc": "Ứng dụng bận nhất, theo bộ xử lý hoặc bộ nhớ",
   "details.catalog.network.label": "Chi tiết mạng",

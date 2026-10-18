@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "మెమరీ వివరాలు",
-  "details.catalog.memory.desc": "ఉపయోగంలో ఉన్నది, కమిట్ చేయబడినది, కాష్ చేయబడినది మరియు పేజీ ఫైల్",
   "details.catalog.processes.label": "అగ్ర ప్రాసెస్‌లు",
   "details.catalog.processes.desc": "ప్రాసెసర్ లేదా మెమరీ ప్రకారం అత్యంత బిజీగా ఉన్న యాప్‌లు",
   "details.catalog.network.label": "నెట్‌వర్క్ వివరాలు",

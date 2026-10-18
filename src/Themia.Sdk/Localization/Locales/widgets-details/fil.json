@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "Mga detalye ng memory",
-  "details.catalog.memory.desc": "Ginagamit, committed, cached at ang page file",
   "details.catalog.processes.label": "Mga nangungunang proseso",
   "details.catalog.processes.desc": "Ang mga pinakaabalang app, ayon sa processor o memory",
   "details.catalog.network.label": "Mga detalye ng network",

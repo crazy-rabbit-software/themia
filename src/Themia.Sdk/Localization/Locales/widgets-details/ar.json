@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "تفاصيل الذاكرة",
-  "details.catalog.memory.desc": "المستخدمة والمخصصة والمخزنة مؤقتًا وملف ترحيل الصفحات",
   "details.catalog.processes.label": "أكثر العمليات نشاطًا",
   "details.catalog.processes.desc": "التطبيقات الأكثر انشغالًا حسب المعالج أو الذاكرة",
   "details.catalog.network.label": "تفاصيل الشبكة",

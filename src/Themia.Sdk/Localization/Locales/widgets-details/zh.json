@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "内存详细信息",
-  "details.catalog.memory.desc": "已用、已提交、已缓存和页面文件",
   "details.catalog.processes.label": "主要进程",
   "details.catalog.processes.desc": "按处理器或内存排序的最繁忙应用",
   "details.catalog.network.label": "网络详细信息",

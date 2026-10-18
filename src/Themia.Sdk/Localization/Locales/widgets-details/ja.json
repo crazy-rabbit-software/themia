@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "メモリの詳細",
-  "details.catalog.memory.desc": "使用中、コミット済み、キャッシュ済み、ページ ファイル",
   "details.catalog.processes.label": "上位のプロセス",
   "details.catalog.processes.desc": "プロセッサーまたはメモリの使用量が多いアプリ",
   "details.catalog.network.label": "ネットワークの詳細",

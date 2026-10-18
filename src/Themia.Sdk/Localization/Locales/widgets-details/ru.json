@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "Сведения о памяти",
-  "details.catalog.memory.desc": "Используется, выделено, кэшировано и файл подкачки",
   "details.catalog.processes.label": "Активные процессы",
   "details.catalog.processes.desc": "Самые загруженные приложения по процессору или памяти",
   "details.catalog.network.label": "Сведения о сети",

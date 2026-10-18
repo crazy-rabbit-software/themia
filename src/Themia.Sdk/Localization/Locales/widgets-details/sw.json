@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "Maelezo ya kumbukumbu",
-  "details.catalog.memory.desc": "Inayotumika, iliyojitolea, iliyoakibishwa na faili ya ukurasa",
   "details.catalog.processes.label": "Michakato mikuu",
   "details.catalog.processes.desc": "Programu zenye shughuli nyingi, kwa prosesa au kumbukumbu",
   "details.catalog.network.label": "Maelezo ya mtandao",

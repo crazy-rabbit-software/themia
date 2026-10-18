@@ -1,0 +1,4 @@
+{
+  "details.catalog.memory.desc": "Используется, выделено, кэшировано и файл подкачки",
+  "details.catalog.memory.label": "Сведения о памяти"
+}

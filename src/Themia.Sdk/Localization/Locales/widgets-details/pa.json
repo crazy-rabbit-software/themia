@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "ਮੈਮੋਰੀ ਵੇਰਵੇ",
-  "details.catalog.memory.desc": "ਵਰਤੋਂ ਵਿੱਚ, ਵਚਨਬੱਧ, ਕੈਸ਼ ਕੀਤੀ ਅਤੇ ਪੇਜ ਫ਼ਾਈਲ",
   "details.catalog.processes.label": "ਮੁੱਖ ਪ੍ਰਕਿਰਿਆਵਾਂ",
   "details.catalog.processes.desc": "ਸਭ ਤੋਂ ਰੁੱਝੀਆਂ ਐਪਾਂ, ਪ੍ਰੋਸੈਸਰ ਜਾਂ ਮੈਮੋਰੀ ਅਨੁਸਾਰ",
   "details.catalog.network.label": "ਨੈੱਟਵਰਕ ਵੇਰਵੇ",

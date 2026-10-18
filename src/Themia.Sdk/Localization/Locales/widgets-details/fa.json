@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "جزئیات حافظه",
-  "details.catalog.memory.desc": "در حال استفاده، تخصیص‌یافته، حافظه نهان و فایل صفحه‌بندی",
   "details.catalog.processes.label": "فرایندهای برتر",
   "details.catalog.processes.desc": "پرکارترین برنامه‌ها، بر اساس پردازنده یا حافظه",
   "details.catalog.network.label": "جزئیات شبکه",

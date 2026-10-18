@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "Detalhes da memória",
-  "details.catalog.memory.desc": "Em uso, confirmada, em cache e arquivo de paginação",
   "details.catalog.processes.label": "Principais processos",
   "details.catalog.processes.desc": "Os apps mais ativos, por processador ou memória",
   "details.catalog.network.label": "Detalhes da rede",

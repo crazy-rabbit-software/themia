@@ -13,7 +13,7 @@ internal sealed class MemoryDetailPart : DetailPart
     private readonly WatchSlot<PerformanceSnapshot> _figures = new();
     private IDetailHost? _host;
 
-    public override WidgetId Kind => MemoryDetailsConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("memoryDetails");
 
     public override double HeroCharacters => MemoryDetailRules.HeroCharacters;
 

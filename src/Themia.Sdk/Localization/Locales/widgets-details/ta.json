@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "நினைவக விவரங்கள்",
-  "details.catalog.memory.desc": "பயன்பாட்டில், ஒதுக்கியது, தற்காலிகச் சேமிப்பு மற்றும் பேஜ் கோப்பு",
   "details.catalog.processes.label": "முன்னணி செயல்முறைகள்",
   "details.catalog.processes.desc": "செயலி அல்லது நினைவகத்தின்படி மிகவும் பரபரப்பான பயன்பாடுகள்",
   "details.catalog.network.label": "நெட்வொர்க் விவரங்கள்",

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "Arbeitsspeicher-Details",
-  "details.catalog.memory.desc": "Belegt, zugesichert, im Cache und Auslagerungsdatei",
   "details.catalog.processes.label": "Top-Prozesse",
   "details.catalog.processes.desc": "Die aktivsten Apps, nach Prozessor oder Arbeitsspeicher",
   "details.catalog.network.label": "Netzwerk-Details",

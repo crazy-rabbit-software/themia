@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "मेमरी तपशील",
-  "details.catalog.memory.desc": "वापरात, कमिट केलेली, कॅश केलेली आणि पेज फाइल",
   "details.catalog.processes.label": "प्रमुख प्रक्रिया",
   "details.catalog.processes.desc": "प्रोसेसर किंवा मेमरीनुसार सर्वात व्यस्त अ‍ॅप्स",
   "details.catalog.network.label": "नेटवर्क तपशील",

@@ -1,0 +1,4 @@
+{
+  "details.catalog.memory.desc": "已用、已提交、已缓存和页面文件",
+  "details.catalog.memory.label": "内存详细信息"
+}

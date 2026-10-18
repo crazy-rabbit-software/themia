@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.memory.label": "Szczegóły pamięci",
-  "details.catalog.memory.desc": "W użyciu, zadeklarowana, zbuforowana i plik stronicowania",
   "details.catalog.processes.label": "Najaktywniejsze procesy",
   "details.catalog.processes.desc": "Najbardziej obciążające aplikacje według procesora lub pamięci",
   "details.catalog.network.label": "Szczegóły sieci",
