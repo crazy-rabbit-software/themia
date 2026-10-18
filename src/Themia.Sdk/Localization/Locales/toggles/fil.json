@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Energy saver",
   "toggles.nightLight.name": "Night light",
   "toggles.rotationLock.name": "Rotation lock",
-  "toggles.rotationLock.label": "I-on/i-off ang Rotation lock",
-  "toggles.rotationLock.desc": "Pinipigilan ang screen na umikot kasabay ng device",
   "toggles.doNotDisturb.name": "Huwag istorbohin",
   "toggles.doNotDisturb.label": "I-on/i-off ang Huwag istorbohin",
   "toggles.doNotDisturb.desc": "Pinipigil ang mga banner ng notification",

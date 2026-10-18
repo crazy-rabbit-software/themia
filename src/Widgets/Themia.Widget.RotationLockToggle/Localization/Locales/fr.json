@@ -1,0 +1,4 @@
+{
+  "toggles.rotationLock.label": "Verrouillage de la rotation activé/désactivé",
+  "toggles.rotationLock.desc": "Empêche l'écran de tourner avec l'appareil"
+}

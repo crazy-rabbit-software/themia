@@ -1,0 +1,4 @@
+{
+  "toggles.rotationLock.label": "회전 잠금 켜기/끄기",
+  "toggles.rotationLock.desc": "장치를 돌려도 화면이 회전하지 않게 합니다"
+}

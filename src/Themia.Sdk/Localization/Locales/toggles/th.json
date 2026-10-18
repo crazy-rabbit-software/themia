@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "โปรแกรมประหยัดพลังงาน",
   "toggles.nightLight.name": "แสงกลางคืน",
   "toggles.rotationLock.name": "ล็อกการหมุน",
-  "toggles.rotationLock.label": "เปิด/ปิดล็อกการหมุน",
-  "toggles.rotationLock.desc": "ไม่ให้หน้าจอหมุนตามอุปกรณ์",
   "toggles.doNotDisturb.name": "ห้ามรบกวน",
   "toggles.doNotDisturb.label": "เปิด/ปิดห้ามรบกวน",
   "toggles.doNotDisturb.desc": "ระงับแบนเนอร์การแจ้งเตือน",

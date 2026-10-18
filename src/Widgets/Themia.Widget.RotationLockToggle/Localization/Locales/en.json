@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.rotationLock.label": "Rotation lock on/off",
+  "toggles.rotationLock.desc": "Keeps the screen from turning with the device"
+}

@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Energiebesparing",
   "toggles.nightLight.name": "Nachtlampje",
   "toggles.rotationLock.name": "Rotatievergrendeling",
-  "toggles.rotationLock.label": "Rotatievergrendeling aan/uit",
-  "toggles.rotationLock.desc": "Voorkomt dat het scherm meedraait met het apparaat",
   "toggles.doNotDisturb.name": "Niet storen",
   "toggles.doNotDisturb.label": "Niet storen aan/uit",
   "toggles.doNotDisturb.desc": "Houdt meldingsbanners tegen",

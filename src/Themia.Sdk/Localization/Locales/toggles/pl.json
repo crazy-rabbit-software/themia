@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Oszczędzanie energii",
   "toggles.nightLight.name": "Światło nocne",
   "toggles.rotationLock.name": "Blokada obrotu",
-  "toggles.rotationLock.label": "Blokada obrotu wł./wył.",
-  "toggles.rotationLock.desc": "Nie pozwala ekranowi obracać się razem z urządzeniem",
   "toggles.doNotDisturb.name": "Nie przeszkadzać",
   "toggles.doNotDisturb.label": "Nie przeszkadzać wł./wył.",
   "toggles.doNotDisturb.desc": "Wstrzymuje banery powiadomień",

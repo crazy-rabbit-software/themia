@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Trình tiết kiệm pin",
   "toggles.nightLight.name": "Ánh sáng ban đêm",
   "toggles.rotationLock.name": "Khóa xoay",
-  "toggles.rotationLock.label": "Bật/tắt khóa xoay",
-  "toggles.rotationLock.desc": "Giữ màn hình không xoay theo thiết bị",
   "toggles.doNotDisturb.name": "Không làm phiền",
   "toggles.doNotDisturb.label": "Bật/tắt không làm phiền",
   "toggles.doNotDisturb.desc": "Tạm ẩn biểu ngữ thông báo",

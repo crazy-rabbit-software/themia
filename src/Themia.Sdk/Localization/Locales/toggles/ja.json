@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "省エネ機能",
   "toggles.nightLight.name": "夜間モード",
   "toggles.rotationLock.name": "回転ロック",
-  "toggles.rotationLock.label": "回転ロック オン/オフ",
-  "toggles.rotationLock.desc": "デバイスを回しても画面が回転しないようにします",
   "toggles.doNotDisturb.name": "応答不可",
   "toggles.doNotDisturb.label": "応答不可 オン/オフ",
   "toggles.doNotDisturb.desc": "通知バナーを表示しないようにします",

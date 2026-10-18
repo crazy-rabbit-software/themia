@@ -1,0 +1,4 @@
+{
+  "toggles.rotationLock.label": "回転ロック オン/オフ",
+  "toggles.rotationLock.desc": "デバイスを回しても画面が回転しないようにします"
+}

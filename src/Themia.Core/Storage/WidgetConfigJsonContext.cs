@@ -53,7 +53,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(RainNextHourConfig))]
 [JsonSerializable(typeof(RecentFilesConfig))]
 [JsonSerializable(typeof(RemovableDrivesConfig))]
-[JsonSerializable(typeof(RotationLockToggleConfig))]
 [JsonSerializable(typeof(RssConfig))]
 [JsonSerializable(typeof(ScreenTimeAppsConfig))]
 [JsonSerializable(typeof(ScreenTimeChartConfig))]

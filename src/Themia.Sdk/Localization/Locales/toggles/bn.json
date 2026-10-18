@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "এনার্জি সেভার",
   "toggles.nightLight.name": "নাইট লাইট",
   "toggles.rotationLock.name": "রোটেশন লক",
-  "toggles.rotationLock.label": "রোটেশন লক চালু/বন্ধ",
-  "toggles.rotationLock.desc": "ডিভাইস ঘোরালে স্ক্রিন ঘোরা থেকে আটকায়",
   "toggles.doNotDisturb.name": "বিরক্ত করবেন না",
   "toggles.doNotDisturb.label": "বিরক্ত করবেন না চালু/বন্ধ",
   "toggles.doNotDisturb.desc": "বিজ্ঞপ্তির ব্যানার আটকে রাখে",

@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "صرفه‌جویی انرژی",
   "toggles.nightLight.name": "نور شب",
   "toggles.rotationLock.name": "قفل چرخش",
-  "toggles.rotationLock.label": "روشن/خاموش قفل چرخش",
-  "toggles.rotationLock.desc": "از چرخیدن صفحه همراه با دستگاه جلوگیری می‌کند",
   "toggles.doNotDisturb.name": "مزاحم نشوید",
   "toggles.doNotDisturb.label": "روشن/خاموش مزاحم نشوید",
   "toggles.doNotDisturb.desc": "بنرهای اعلان را نگه می‌دارد",

@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "ஆற்றல் சேமிப்பான்",
   "toggles.nightLight.name": "இரவு ஒளி",
   "toggles.rotationLock.name": "சுழற்சிப் பூட்டு",
-  "toggles.rotationLock.label": "சுழற்சிப் பூட்டு இயக்கு/முடக்கு",
-  "toggles.rotationLock.desc": "சாதனத்துடன் திரை சுழலாமல் தடுக்கும்",
   "toggles.doNotDisturb.name": "தொந்தரவு செய்ய வேண்டாம்",
   "toggles.doNotDisturb.label": "தொந்தரவு செய்ய வேண்டாம் இயக்கு/முடக்கு",
   "toggles.doNotDisturb.desc": "அறிவிப்புப் பேனர்களை நிறுத்திவைக்கும்",

@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "ઊર્જા બચતકર્તા",
   "toggles.nightLight.name": "રાત્રિ પ્રકાશ",
   "toggles.rotationLock.name": "રોટેશન લૉક",
-  "toggles.rotationLock.label": "રોટેશન લૉક ચાલુ/બંધ",
-  "toggles.rotationLock.desc": "ઉપકરણ સાથે સ્ક્રીનને ફરતી અટકાવે છે",
   "toggles.doNotDisturb.name": "ખલેલ પાડશો નહીં",
   "toggles.doNotDisturb.label": "ખલેલ પાડશો નહીં ચાલુ/બંધ",
   "toggles.doNotDisturb.desc": "સૂચના બૅનર રોકે છે",

@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Enerji tasarrufu",
   "toggles.nightLight.name": "Gece ışığı",
   "toggles.rotationLock.name": "Döndürme kilidi",
-  "toggles.rotationLock.label": "Döndürme kilidi aç/kapat",
-  "toggles.rotationLock.desc": "Ekranın cihazla birlikte dönmesini engeller",
   "toggles.doNotDisturb.name": "Rahatsız etmeyin",
   "toggles.doNotDisturb.label": "Rahatsız etmeyin aç/kapat",
   "toggles.doNotDisturb.desc": "Bildirim başlıklarını bekletir",

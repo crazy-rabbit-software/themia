@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Ahorro de energía",
   "toggles.nightLight.name": "Luz nocturna",
   "toggles.rotationLock.name": "Bloqueo de rotación",
-  "toggles.rotationLock.label": "Bloqueo de rotación activado/desactivado",
-  "toggles.rotationLock.desc": "Impide que la pantalla gire con el dispositivo",
   "toggles.doNotDisturb.name": "No molestar",
   "toggles.doNotDisturb.label": "No molestar activado/desactivado",
   "toggles.doNotDisturb.desc": "Retiene los avisos de notificación",

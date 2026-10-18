@@ -1,0 +1,4 @@
+{
+  "toggles.rotationLock.label": "Bloqueo de rotación activado/desactivado",
+  "toggles.rotationLock.desc": "Impide que la pantalla gire con el dispositivo"
+}

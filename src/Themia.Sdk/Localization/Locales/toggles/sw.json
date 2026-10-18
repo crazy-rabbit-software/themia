@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Kiokoa nishati",
   "toggles.nightLight.name": "Mwanga wa usiku",
   "toggles.rotationLock.name": "Kufunga mzunguko",
-  "toggles.rotationLock.label": "Kufunga mzunguko washa/zima",
-  "toggles.rotationLock.desc": "Huzuia skrini isizunguke pamoja na kifaa",
   "toggles.doNotDisturb.name": "Usinisumbue",
   "toggles.doNotDisturb.label": "Usinisumbue washa/zima",
   "toggles.doNotDisturb.desc": "Huzuia mabango ya arifa",

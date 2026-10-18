@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "Penghemat energi",
   "toggles.nightLight.name": "Lampu malam",
   "toggles.rotationLock.name": "Kunci rotasi",
-  "toggles.rotationLock.label": "Kunci rotasi aktif/nonaktif",
-  "toggles.rotationLock.desc": "Mencegah layar berputar mengikuti perangkat",
   "toggles.doNotDisturb.name": "Jangan ganggu",
   "toggles.doNotDisturb.label": "Jangan ganggu aktif/nonaktif",
   "toggles.doNotDisturb.desc": "Menahan banner notifikasi",

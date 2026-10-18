@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "శక్తి సేవర్",
   "toggles.nightLight.name": "రాత్రి కాంతి",
   "toggles.rotationLock.name": "భ్రమణ లాక్",
-  "toggles.rotationLock.label": "భ్రమణ లాక్ ఆన్/ఆఫ్",
-  "toggles.rotationLock.desc": "పరికరంతో పాటు స్క్రీన్ తిరగకుండా ఉంచుతుంది",
   "toggles.doNotDisturb.name": "అంతరాయం కలిగించవద్దు",
   "toggles.doNotDisturb.label": "అంతరాయం కలిగించవద్దు ఆన్/ఆఫ్",
   "toggles.doNotDisturb.desc": "నోటిఫికేషన్ బ్యానర్‌లను ఆపి ఉంచుతుంది",

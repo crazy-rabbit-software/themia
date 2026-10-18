@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "ऊर्जा सेवर",
   "toggles.nightLight.name": "नाइट लाइट",
   "toggles.rotationLock.name": "रोटेशन लॉक",
-  "toggles.rotationLock.label": "रोटेशन लॉक चालू/बंद",
-  "toggles.rotationLock.desc": "डिवाइस घुमाने पर स्क्रीन को घूमने से रोकता है",
   "toggles.doNotDisturb.name": "परेशान न करें",
   "toggles.doNotDisturb.label": "परेशान न करें चालू/बंद",
   "toggles.doNotDisturb.desc": "सूचना बैनर रोक देता है",

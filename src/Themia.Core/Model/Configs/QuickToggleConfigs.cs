@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-3900] Rotation lock.</summary>
-public sealed class RotationLockToggleConfig : QuickToggleConfig
-{
-    /// <summary>The toggle it stands for.</summary>
-    [JsonIgnore]
-    public override QuickToggle Toggle => QuickToggle.RotationLock;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("rotationLockToggle"),
-        ConfigType = typeof(RotationLockToggleConfig),
-        CreateDefault = () => new RotationLockToggleConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["quick settings", "toggle", "auto rotate", "screen rotation", "tablet", "orientation"],
-        Label = Str.Toggles_RotationLock_Label.Local(),
-        Description = Str.Toggles_RotationLock_Desc.Local(),
-        Glyph = Glyphs.RotationLock,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
-        Add = new(AddFolderId.QuickSettings, 2, 2),
-    };
-
-    public override WidgetConfig Clone() => new RotationLockToggleConfig { Style = Style };
-}
-
 /// <summary>[S-3900] Do not disturb.</summary>
 public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
 {

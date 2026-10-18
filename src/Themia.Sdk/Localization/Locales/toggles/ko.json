@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "에너지 절약",
   "toggles.nightLight.name": "야간 모드",
   "toggles.rotationLock.name": "회전 잠금",
-  "toggles.rotationLock.label": "회전 잠금 켜기/끄기",
-  "toggles.rotationLock.desc": "장치를 돌려도 화면이 회전하지 않게 합니다",
   "toggles.doNotDisturb.name": "방해 금지",
   "toggles.doNotDisturb.label": "방해 금지 켜기/끄기",
   "toggles.doNotDisturb.desc": "알림 배너를 표시하지 않습니다",

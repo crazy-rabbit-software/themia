@@ -7,8 +7,6 @@
   "toggles.energySaver.name": "省電模式",
   "toggles.nightLight.name": "夜間光線",
   "toggles.rotationLock.name": "旋轉鎖定",
-  "toggles.rotationLock.label": "旋轉鎖定 開/關",
-  "toggles.rotationLock.desc": "防止螢幕隨裝置旋轉",
   "toggles.doNotDisturb.name": "勿打擾",
   "toggles.doNotDisturb.label": "勿打擾 開/關",
   "toggles.doNotDisturb.desc": "暫停顯示通知橫幅",
