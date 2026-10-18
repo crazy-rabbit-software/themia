@@ -1625,10 +1625,48 @@ registration path: when a table becomes a descriptor member, the table is delete
   *Deferred from group 1:* **AudioVisualizer**: its bars come from the host's WASAPI loopback capture
   (`AudioLoopback`, COM), a host service with no SDK contract yet; it moves with the system group,
   which brings the audio contracts (`AudioFeed`/`CoreAudio`) anyway.
-  *Left for part B (one widget project per commit), by group:*
-  - **Toggles** (13 kinds, one `QuickToggleView`): the base is in the SDK; the toggle drivers
-    (`Services/Toggles`) need an `IWidgetHost` service contract; then one project per toggle kind
-    sharing the view from the SDK.
+  *M4 part B, group 2 as built (2026-10-18): the thirteen quick-setting toggles.* Thirteen widget
+  projects, one per commit (`Themia.Widget.WifiToggle`, `.BluetoothToggle`, `.AirplaneModeToggle`,
+  `.EnergySaverToggle`, `.NightLightToggle`, `.RotationLockToggle`, `.DoNotDisturbToggle`,
+  `.SoundToggle`, `.MicrophoneToggle`, `.SpatialSoundToggle`, `.MonoAudioToggle`,
+  `.ColorFiltersToggle`, `.GameModeToggle`), each its config, descriptor (on its module), its picker
+  label and description in 30 languages as `<Name>ToggleStr`, its SPEC tag of its own ([S-8200] ..
+  [S-9400], one hundred each, in the order of `QuickToggleRules.All`) and its test; no settings page
+  (the style is the only setting, [S-1750]), no preview of its own (the shared view's states), no
+  glyph of its own (the shared view draws all thirteen from `Glyphs`). Into the SDK first, each its
+  own commit: the shared rules `QuickToggleRules` (with the decoders of what Windows answers, which
+  the host's sources call, so their tests stay Core's unchanged), `ToggleGate`, `ToggleFace`,
+  `SwitchFace` and `PixelRect` (out of `GridGeometry`) into `Themia.Sdk`; `QuickToggleView` with its
+  Switch face and preview states into `Themia.Sdk.WinUI`. Contract added: `IWidgetHost.Toggles`
+  (`IQuickToggles.Acquire(QuickToggle, changed)` → `IToggleSource`: `Reading`, `SetAsync`, `Refresh`,
+  dispose to let go), keyed by the closed `QuickToggle` enum, which names the host's drivers, not
+  widgets; the host's `ToggleHub` answers it (`HostToggles`; `ToggleLease` is the source). The
+  drivers (`Services/Toggles/*`), `ReadingOrder`/`KeyFollow` ([S-3920], [S-3921]) and
+  `NightLightValue` ([S-3919]) stay host code: only the host's sources use them, and the focus
+  session holds do not disturb through the hub directly. The name on the tile and the state and
+  reason lines stay in the SDK's `toggles` table (the shared view reads them for every kind, as the
+  power view reads the actions' names); `QuickToggleRules.PickerLabelId`/`DescriptionId` went, the
+  picker label being each descriptor's. Strings were carried over by the group 1 script, 2 keys a
+  widget, the same count in all 30 languages each time (26 keys a language in all), none copied.
+  Tests: the four toggle tests that ask the catalogue (kinds and back, the round trip, no header,
+  names and labels in every language) moved into the module test host, the label read off each
+  descriptor; the rest of `QuickToggleTests` (the decoders, the gate, the look, the face) stay
+  Core's, unedited; no test was retagged. Core's test count drops by 82 rows: those four, and the
+  six registry theories over Core's descriptors (`WidgetRegistryTests`) for each of the thirteen,
+  which the module host's conformance theories now run per module.
+  Evidence: Debug build 0 warnings after every commit, both test projects built and green at the
+  first move, after six and at the end; Core 6376 and module tests 1378 green; the pixel diff against a
+  "before" built at `26b35fa` (every toggle at every tier in each of the seven preview states in the
+  default, light and dark themes and German; each style, Switch included, on, off, unavailable and
+  under the pointer in both themes and on in German; the settings page in light, dark and German; the
+  picker plain, German and searched, menus, edit bar in both themes, motion, Settings › Widgets and a
+  settings search: 834 images) identical but for two images that also differ between runs of the
+  "before" build: `Sides-60ms` (an animation caught mid-way, as in group 1) and the menu scene's
+  `card-desktop-no-settings` (its first icon caught fading in; two "before" runs and two "after" runs
+  each gave both variants). Release AOT publish 0 warnings (49.6 MB); Debug AOT publish 0 warnings and
+  its renders of the night light toggle's Switch style, the microphone toggle off and the picker
+  searched for "toggle" finish in 2 s, identical to the JIT renders. Manual passes owed: each toggle
+  switching on a real desktop (never in a render or a test), as before.
   - **Online** (WeatherNow, WeatherForecast, RainNextHour, AirQuality, ExchangeRates, Stocks, Rss):
     `AppServices.WebSync`/`.Feeds` and `MarketService` need SDK contracts (the readings, quotes and
     feeds a view subscribes to) on `IWidgetHost`; `OnlineParts`, `SparkBand` into the SDK;

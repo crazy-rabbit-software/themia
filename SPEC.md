@@ -20,7 +20,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin and Year progress are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth and the seven power buttons, under System widgets.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
+- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin and Year progress are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -5777,10 +5777,13 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 - **[S-3900]** Thirteen kinds, one per toggle, in the add menu's subject **Quick settings** ([S-3511]), default size 120×120: Wi-Fi (`WifiToggle`), Bluetooth (`BluetoothToggle`), Airplane mode,
   Energy saver, Night light, Rotation lock, Do not disturb, Sound (the default output's mute),
   Microphone (the default microphone's mute), Spatial sound, Mono audio, Color filters, Game mode.
-  The kind maps to its `QuickToggle` in Core (`QuickToggleRules.ForKind`/`KindOf`); one view serves
-  all thirteen. Each has a config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
+  The kind maps to its `QuickToggle` in the SDK (`QuickToggleRules.ForKind`/`KindOf`, read off the
+  catalogue); one view serves all thirteen. Each is a module project of its own
+  (`src/Widgets/Themia.Widget.WifiToggle` …, tags [S-8200]..[S-9400] in their `SPEC.md`), with a
+  config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
   one setting is the style ([S-3916]), picked on the properties panel ([S-6536]), so it has no settings page ([S-1750]); it
-  never needs setting up. The picker names it "<name> on/off" so it never
+  never needs setting up. The picker names it "<name> on/off" (the module's own label and
+  description; the name on the tile is the SDK's, which the shared view reads) so it never
   reads as another widget ("Bluetooth on/off" beside the Bluetooth devices widget); the tile says the
   name alone. Not ported from Karpo: its row of several toggles in one widget, mobile hotspot, VPN and
   nearby sharing (Karpo keeps those out of its toggles: they open lists or flyouts), live captions,

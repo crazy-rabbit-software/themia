@@ -105,7 +105,7 @@ and the module test host pick it up; nothing in the app, Core or the SDK is edit
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
-Settings › Accounts, the Recycle Bin and the power backend, never `ShellLauncher`; a cue sounds through
+Settings › Accounts, the Recycle Bin, the power backend and the quick-setting toggles' sources, never `ShellLauncher`; a cue sounds through
 `SoundCue`; the other shared data services (`AppServices.WebSync`, `.System`, ...) are host types until
 each gets an SDK contract (part B). A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
