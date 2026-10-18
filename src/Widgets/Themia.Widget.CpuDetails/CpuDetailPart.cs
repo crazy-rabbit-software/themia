@@ -20,7 +20,7 @@ internal sealed class CpuDetailPart : DetailPart
     private readonly WatchSlot<CpuFigures> _processor = new();
     private IDetailHost? _host;
 
-    public override WidgetId Kind => CpuDetailsConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("cpuDetails");
 
     public override double HeroCharacters => CpuDetailRules.HeroCharacters;
 
@@ -61,38 +61,6 @@ internal sealed class CpuDetailPart : DetailPart
         _processor.Release();
         _counts.Release();
         _load.Release();
-        _host = null;
-    }
-}
-
-/// <summary>[S-2408] Memory in use, available, committed, cached, the pools and the page file.</summary>
-internal sealed class MemoryDetailPart : DetailPart
-{
-    private readonly WatchSlot<PerformanceSnapshot> _figures = new();
-    private IDetailHost? _host;
-
-    public override WidgetId Kind => MemoryDetailsConfig.Descriptor.Id;
-
-    public override double HeroCharacters => MemoryDetailRules.HeroCharacters;
-
-    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
-    {
-        _host = host;
-        _figures.Hold(hub, Sources.Performance, _ => Show());
-        Show();
-    }
-
-    private void Show()
-    {
-        if (_host is { } host && _figures.HasValue)
-        {
-            host.Present(MemoryDetailRules.Sheet(Strings.Current, _figures.Value.Figures, _figures.Value.Pagefile));
-        }
-    }
-
-    public override void Detach()
-    {
-        _figures.Release();
         _host = null;
     }
 }

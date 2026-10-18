@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "جزئیات CPU",
-  "details.catalog.cpu.desc": "سرعت ساعت، هسته‌ها، فرایندها و زمان روشن بودن",
   "details.catalog.memory.label": "جزئیات حافظه",
   "details.catalog.memory.desc": "در حال استفاده، تخصیص‌یافته، حافظه نهان و فایل صفحه‌بندی",
   "details.catalog.processes.label": "فرایندهای برتر",

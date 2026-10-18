@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU వివరాలు",
-  "details.catalog.cpu.desc": "క్లాక్ వేగం, కోర్‌లు, ప్రాసెస్‌లు మరియు అప్‌టైమ్",
   "details.catalog.memory.label": "మెమరీ వివరాలు",
   "details.catalog.memory.desc": "ఉపయోగంలో ఉన్నది, కమిట్ చేయబడినది, కాష్ చేయబడినది మరియు పేజీ ఫైల్",
   "details.catalog.processes.label": "అగ్ర ప్రాసెస్‌లు",

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "รายละเอียด CPU",
-  "details.catalog.cpu.desc": "ความเร็วสัญญาณนาฬิกา คอร์ โปรเซส และเวลาทำงาน",
   "details.catalog.memory.label": "รายละเอียดหน่วยความจำ",
   "details.catalog.memory.desc": "ที่ใช้งาน ที่จองไว้ ที่แคช และไฟล์เพจ",
   "details.catalog.processes.label": "โปรเซสสูงสุด",

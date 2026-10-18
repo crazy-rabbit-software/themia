@@ -1,7 +1,5 @@
 {
   "$comment": "[S-2400] The system detail widgets (CPU, memory, processes, network, battery, ping, GPU).",
-  "details.catalog.cpu.label": "CPU details",
-  "details.catalog.cpu.desc": "Clock speed, cores, processes and uptime",
   "details.catalog.memory.label": "Memory details",
   "details.catalog.memory.desc": "In use, committed, cached and the page file",
   "details.catalog.processes.label": "Top processes",

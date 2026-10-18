@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU 詳細資料",
-  "details.catalog.cpu.desc": "速度、核心、處理程序和運作時間",
   "details.catalog.memory.label": "記憶體詳細資料",
   "details.catalog.memory.desc": "使用中、已認可、已快取和分頁檔",
   "details.catalog.processes.label": "主要處理程序",

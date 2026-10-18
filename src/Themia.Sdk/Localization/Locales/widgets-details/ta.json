@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU விவரங்கள்",
-  "details.catalog.cpu.desc": "கடிகார வேகம், கோர்கள், செயல்முறைகள் மற்றும் இயக்க நேரம்",
   "details.catalog.memory.label": "நினைவக விவரங்கள்",
   "details.catalog.memory.desc": "பயன்பாட்டில், ஒதுக்கியது, தற்காலிகச் சேமிப்பு மற்றும் பேஜ் கோப்பு",
   "details.catalog.processes.label": "முன்னணி செயல்முறைகள்",

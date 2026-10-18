@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU 세부 정보",
-  "details.catalog.cpu.desc": "클럭 속도, 코어, 프로세스 및 작동 시간",
   "details.catalog.memory.label": "메모리 세부 정보",
   "details.catalog.memory.desc": "사용 중, 커밋됨, 캐시됨 및 페이지 파일",
   "details.catalog.processes.label": "상위 프로세스",

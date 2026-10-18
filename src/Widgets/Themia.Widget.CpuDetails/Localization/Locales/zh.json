@@ -1,0 +1,4 @@
+{
+  "details.catalog.cpu.desc": "频率、内核、进程和运行时间",
+  "details.catalog.cpu.label": "CPU 详细信息"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU ਵੇਰਵੇ",
-  "details.catalog.cpu.desc": "ਕਲੌਕ ਸਪੀਡ, ਕੋਰ, ਪ੍ਰਕਿਰਿਆਵਾਂ ਅਤੇ ਚਾਲੂ ਸਮਾਂ",
   "details.catalog.memory.label": "ਮੈਮੋਰੀ ਵੇਰਵੇ",
   "details.catalog.memory.desc": "ਵਰਤੋਂ ਵਿੱਚ, ਵਚਨਬੱਧ, ਕੈਸ਼ ਕੀਤੀ ਅਤੇ ਪੇਜ ਫ਼ਾਈਲ",
   "details.catalog.processes.label": "ਮੁੱਖ ਪ੍ਰਕਿਰਿਆਵਾਂ",

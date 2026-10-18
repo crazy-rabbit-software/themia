@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU तपशील",
-  "details.catalog.cpu.desc": "क्लॉक स्पीड, कोर, प्रक्रिया आणि अपटाइम",
   "details.catalog.memory.label": "मेमरी तपशील",
   "details.catalog.memory.desc": "वापरात, कमिट केलेली, कॅश केलेली आणि पेज फाइल",
   "details.catalog.processes.label": "प्रमुख प्रक्रिया",

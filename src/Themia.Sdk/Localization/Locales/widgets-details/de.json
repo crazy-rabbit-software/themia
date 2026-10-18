@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU-Details",
-  "details.catalog.cpu.desc": "Taktrate, Kerne, Prozesse und Betriebszeit",
   "details.catalog.memory.label": "Arbeitsspeicher-Details",
   "details.catalog.memory.desc": "Belegt, zugesichert, im Cache und Auslagerungsdatei",
   "details.catalog.processes.label": "Top-Prozesse",

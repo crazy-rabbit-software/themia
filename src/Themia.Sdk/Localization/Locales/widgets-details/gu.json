@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU વિગતો",
-  "details.catalog.cpu.desc": "ક્લૉક સ્પીડ, કોર, પ્રક્રિયાઓ અને અપટાઇમ",
   "details.catalog.memory.label": "મેમરી વિગતો",
   "details.catalog.memory.desc": "વપરાશમાં, કમિટ કરેલી, કૅશ કરેલી અને પેજ ફાઇલ",
   "details.catalog.processes.label": "ટોચની પ્રક્રિયાઓ",

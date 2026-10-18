@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "details.catalog.cpu.desc": "Clock speed, cores, processes and uptime",
+  "details.catalog.cpu.label": "CPU details"
+}

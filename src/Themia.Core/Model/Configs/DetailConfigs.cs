@@ -8,37 +8,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-2405] The processor's figures beside its load: speed, cores, processes, uptime.</summary>
-public sealed class CpuDetailsConfig : DetailConfig, IReadsSystem
-{
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("cpuDetails"),
-        ConfigType = typeof(CpuDetailsConfig),
-        CreateDefault = () => new CpuDetailsConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["processor", "clock speed", "frequency", "ghz", "cores", "threads", "uptime", "temperature", "task manager"],
-        Label = Str.Details_Catalog_Cpu_Label.Local(),
-        Description = Str.Details_Catalog_Cpu_Desc.Local(),
-        Glyph = Glyphs.Cpu,
-        DefaultWidth = 280,
-        DefaultHeight = 240,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Processor, 0, 1),
-    };
-
-    /// <summary>[S-2513] The load, the counts and the processor's figures.</summary>
-    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Cpu, SystemSource.Performance, SystemSource.Processor);
-
-    public override WidgetConfig Clone()
-    {
-        var copy = new CpuDetailsConfig();
-        return copy;
-    }
-}
-
 /// <summary>[S-2408] Memory in use, available, committed, cached, the pools and the page file.</summary>
 public sealed class MemoryDetailsConfig : DetailConfig, IReadsSystem
 {

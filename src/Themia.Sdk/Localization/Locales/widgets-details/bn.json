@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU-এর বিবরণ",
-  "details.catalog.cpu.desc": "ক্লক স্পিড, কোর, প্রসেস ও আপটাইম",
   "details.catalog.memory.label": "মেমরির বিবরণ",
   "details.catalog.memory.desc": "ব্যবহৃত, কমিটেড, ক্যাশড ও পেজ ফাইল",
   "details.catalog.processes.label": "শীর্ষ প্রসেস",

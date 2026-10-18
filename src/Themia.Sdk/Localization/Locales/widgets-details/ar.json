@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "تفاصيل CPU",
-  "details.catalog.cpu.desc": "السرعة والأنوية والعمليات ومدة التشغيل",
   "details.catalog.memory.label": "تفاصيل الذاكرة",
   "details.catalog.memory.desc": "المستخدمة والمخصصة والمخزنة مؤقتًا وملف ترحيل الصفحات",
   "details.catalog.processes.label": "أكثر العمليات نشاطًا",

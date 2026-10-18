@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "Bayanan CPU",
-  "details.catalog.cpu.desc": "Saurin agogo, cibiyoyi, tsari da lokacin aiki",
   "details.catalog.memory.label": "Bayanan ƙwaƙwalwa",
   "details.catalog.memory.desc": "Ana amfani, an ɗaura, an adana da fayil na shafi",
   "details.catalog.processes.label": "Manyan tsare-tsare",

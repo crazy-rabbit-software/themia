@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "İşlemci ayrıntıları",
-  "details.catalog.cpu.desc": "Saat hızı, çekirdekler, işlemler ve çalışma süresi",
   "details.catalog.memory.label": "Bellek ayrıntıları",
   "details.catalog.memory.desc": "Kullanımda, kaydedilmiş, önbelleğe alınmış ve disk belleği dosyası",
   "details.catalog.processes.label": "En yoğun işlemler",

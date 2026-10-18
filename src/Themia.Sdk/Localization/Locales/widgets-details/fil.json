@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "Mga detalye ng CPU",
-  "details.catalog.cpu.desc": "Clock speed, mga core, proseso at uptime",
   "details.catalog.memory.label": "Mga detalye ng memory",
   "details.catalog.memory.desc": "Ginagamit, committed, cached at ang page file",
   "details.catalog.processes.label": "Mga nangungunang proseso",

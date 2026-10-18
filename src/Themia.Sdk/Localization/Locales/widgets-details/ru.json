@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "Сведения о CPU",
-  "details.catalog.cpu.desc": "Частота, ядра, процессы и время работы",
   "details.catalog.memory.label": "Сведения о памяти",
   "details.catalog.memory.desc": "Используется, выделено, кэшировано и файл подкачки",
   "details.catalog.processes.label": "Активные процессы",

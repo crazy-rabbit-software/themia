@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU 详细信息",
-  "details.catalog.cpu.desc": "频率、内核、进程和运行时间",
   "details.catalog.memory.label": "内存详细信息",
   "details.catalog.memory.desc": "已用、已提交、已缓存和页面文件",
   "details.catalog.processes.label": "主要进程",

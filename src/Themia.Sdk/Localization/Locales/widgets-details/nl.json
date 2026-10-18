@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "CPU-details",
-  "details.catalog.cpu.desc": "Kloksnelheid, kernen, processen en actieve tijd",
   "details.catalog.memory.label": "Geheugendetails",
   "details.catalog.memory.desc": "In gebruik, toegewezen, in cache en het wisselbestand",
   "details.catalog.processes.label": "Topprocessen",

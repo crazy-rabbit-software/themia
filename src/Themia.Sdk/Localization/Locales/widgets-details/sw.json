@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.cpu.label": "Maelezo ya CPU",
-  "details.catalog.cpu.desc": "Kasi ya saa, viini, michakato na muda wa kufanya kazi",
   "details.catalog.memory.label": "Maelezo ya kumbukumbu",
   "details.catalog.memory.desc": "Inayotumika, iliyojitolea, iliyoakibishwa na faili ya ukurasa",
   "details.catalog.processes.label": "Michakato mikuu",
