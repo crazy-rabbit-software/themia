@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    {
+      "id": "v00",
+      "name": "Accounts",
+      "widgets": [
+        {
+          "id": "w00",
+          "x": 0.02,
+          "y": 0.05,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "email",
+            "accountIds": [
+              "work-graph-id",
+              "imap:me@mail.example"
+            ],
+            "folder": "sentitems",
+            "style": "table",
+            "previewLines": 3,
+            "listFields": [
+              "account"
+            ],
+            "rowColumns": [
+              "date",
+              "from",
+              "subject",
+              "account"
+            ],
+            "sortOrder": "desc"
+          }
+        },
+        {
+          "id": "w01",
+          "x": 0.22,
+          "y": 0.05,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "email",
+            "accountIds": [],
+            "folder": "inbox",
+            "style": "compact",
+            "previewLines": 1,
+            "listFields": [],
+            "sortOrder": "desc"
+          }
+        },
+        {
+          "id": "w02",
+          "x": 0.42000000000000004,
+          "y": 0.05,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "email",
+            "accountIds": [],
+            "folder": "inbox",
+            "style": "list",
+            "previewLines": 2,
+            "sortOrder": "desc"
+          }
+        },
+        {
+          "id": "w03",
+          "x": 0.6200000000000001,
+          "y": 0.05,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "calendar",
+            "style": "agenda",
+            "weekDays": 5,
+            "weekFrom": "today",
+            "agendaCount": 40,
+            "agendaDays": 7,
+            "accountIds": [
+              "google:1234"
+            ],
+            "calendars": {
+              "google:1234": [
+                "primary",
+                "team@group.calendar.example"
+              ]
+            },
+            "calendarColors": {
+              "google:1234|primary": "#0f6cbd",
+              "google:1234|team@group.calendar.example": "#c239b3"
+            },
+            "showBirthdays": false
+          }
+        },
+        {
+          "id": "w04",
+          "x": 0.02,
+          "y": 0.27,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "calendar",
+            "style": "week",
+            "weekDays": 14,
+            "weekFrom": "week",
+            "agendaCount": 20,
+            "agendaDays": 30,
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": true
+          }
+        },
+        {
+          "id": "w05",
+          "x": 0.22,
+          "y": 0.27,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "calendar",
+            "style": "year",
+            "weekDays": 7,
+            "weekFrom": "week",
+            "agendaCount": 20,
+            "agendaDays": 30,
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": true
+          }
+        },
+        {
+          "id": "w06",
+          "x": 0.42000000000000004,
+          "y": 0.27,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "calendar",
+            "style": "month",
+            "weekDays": 7,
+            "weekFrom": "week",
+            "agendaCount": 20,
+            "agendaDays": 30,
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": true
+          }
+        },
+        {
+          "id": "w07",
+          "x": 0.6200000000000001,
+          "y": 0.27,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "contacts",
+            "accountIds": [
+              "carddav:me@dav.example/addressbooks/me/contacts"
+            ],
+            "layout": "details",
+            "columns": [
+              "name",
+              "phone",
+              "title"
+            ],
+            "count": 45
+          }
+        },
+        {
+          "id": "w08",
+          "x": 0.02,
+          "y": 0.49,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "contacts",
+            "accountIds": [],
+            "layout": "grid",
+            "columns": [
+              "name",
+              "email",
+              "phone",
+              "company",
+              "title"
+            ],
+            "count": 20
+          }
+        },
+        {
+          "id": "w09",
+          "x": 0.22,
+          "y": 0.49,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "nextMeeting",
+            "accountIds": [
+              "work-graph-id"
+            ],
+            "calendars": {
+              "work-graph-id": [
+                "AAMkAD-example"
+              ]
+            },
+            "calendarColors": {},
+            "showBirthdays": false
+          }
+        },
+        {
+          "id": "w10",
+          "x": 0.42000000000000004,
+          "y": 0.49,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "nextMeeting",
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": false
+          }
+        },
+        {
+          "id": "w11",
+          "x": 0.6200000000000001,
+          "y": 0.49,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "weekPlanner",
+            "showTasks": true,
+            "taskAccountId": "google:1234",
+            "accountIds": [
+              "google:1234"
+            ],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": true
+          }
+        },
+        {
+          "id": "w12",
+          "x": 0.02,
+          "y": 0.7100000000000001,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "weekPlanner",
+            "showTasks": false,
+            "taskAccountId": "",
+            "accountIds": [],
+            "calendars": {},
+            "calendarColors": {},
+            "showBirthdays": true
+          }
+        },
+        {
+          "id": "w13",
+          "x": 0.22,
+          "y": 0.7100000000000001,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "tasks",
+            "source": "Account",
+            "accountId": "work-graph-id",
+            "listId": "AQMkAD-list",
+            "listName": "Groceries",
+            "localListId": "",
+            "showCompleted": true,
+            "showDueDate": false,
+            "style": "compact",
+            "titleLines": 3,
+            "newOnTop": true,
+            "dueFilter": "ThisWeek",
+            "importantOnly": true,
+            "textFilter": "milk",
+            "taskOrder": []
+          }
+        },
+        {
+          "id": "w14",
+          "x": 0.42000000000000004,
+          "y": 0.7100000000000001,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "tasks",
+            "source": "Local",
+            "accountId": "",
+            "listId": "",
+            "listName": "",
+            "localListId": "l-0001",
+            "showCompleted": false,
+            "showDueDate": true,
+            "style": "list",
+            "titleLines": 2,
+            "newOnTop": false,
+            "dueFilter": "Any",
+            "importantOnly": false,
+            "textFilter": "",
+            "taskOrder": []
+          }
+        },
+        {
+          "id": "w15",
+          "x": 0.6200000000000001,
+          "y": 0.7100000000000001,
+          "w": 0.16,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "tasks",
+            "source": "Account",
+            "accountId": "",
+            "listId": "",
+            "listName": "",
+            "localListId": "",
+            "showCompleted": false,
+            "showDueDate": true,
+            "style": "list",
+            "titleLines": 2,
+            "newOnTop": false,
+            "dueFilter": "Any",
+            "importantOnly": false,
+            "textFilter": "",
+            "taskOrder": []
+          }
+        }
+      ]
+    }
+  ],
+  "activeViewId": "v00",
+  "monitorViews": {},
+  "design": {
+    "theme": "System",
+    "uiScale": 1,
+    "fontFamily": "system",
+    "fontScale": 1,
+    "widgetGapPx": 8,
+    "gridSnap": true,
+    "cornerRadiusPx": 4,
+    "background": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemBackground": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemTextColor": "",
+    "primaryColor": "",
+    "borderStyle": "Solid",
+    "borderWidthPx": 1,
+    "borderColor": "",
+    "borderOpacity": 1,
+    "introAnimation": "Scale",
+    "introAnimationMs": 500,
+    "headerBackgroundColor": "",
+    "headerOpacity": 1,
+    "transitionAnimation": "Scale",
+    "transitionAnimationMs": 500,
+    "unlockAnimation": "Scale",
+    "unlockAnimationMs": 500,
+    "smoothValues": true,
+    "runAtStartup": false
+  },
+  "preferences": {
+    "language": "System",
+    "gameModeSuspend": false,
+    "desktopIconsVisible": true,
+    "region": {
+      "clock": "System",
+      "weekStart": "System",
+      "temperature": "System"
+    },
+    "refresh": {
+      "weather": 30,
+      "markets": 5,
+      "feeds": 30,
+      "accounts": 2
+    }
+  },
+  "disabledMonitors": [],
+  "monitorScales": {},
+  "viewBars": {}
+}
