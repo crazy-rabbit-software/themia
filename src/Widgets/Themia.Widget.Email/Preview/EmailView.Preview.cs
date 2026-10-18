@@ -58,13 +58,13 @@ internal sealed partial class EmailView : IWidgetPreviewState
         Reopen();
         Render();
 
-        if (state == "hovered" && _rows.Count > 0 && _reveals.TryGetValue(_rows[0], out var reveal))
+        if (state == "hovered")
         {
-            reveal.Hovered = true;
+            _list.PreviewHover(0);
         }
-        else if (state == "focused" && _rows.Count > 1)
+        else if (state == "focused")
         {
-            FocusRow(1);
+            _list.Focus(1);
         }
 
         return Task.CompletedTask;

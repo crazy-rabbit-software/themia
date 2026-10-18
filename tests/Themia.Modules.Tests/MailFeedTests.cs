@@ -433,31 +433,39 @@ public class MailFeedTests
     }
 }
 
-/// <summary>[S-556] Shedding detail to fit the tile.</summary>
+/// <summary>[S-556] Shedding detail to fit the tile: Mail's styles on the kit's lined ladder ([S-7032], [S-7034]).</summary>
 public class MailLayoutTests
 {
+    private static Themia.Sdk.Kit.KitPlan Plan(EmailConfig config, double width, double height)
+        => Themia.Sdk.Kit.KitLadder.Plan(new WidgetArea(width, height), Themia.Widget.Email.MailSpec.Spec(config.Style), Themia.Widget.Email.MailSpec.Choices(config));
+
+    private static IEnumerable<MailColumn> Columns(IReadOnlyList<MailColumn> chosen, double width)
+        => Themia.Sdk.Kit.KitLadder.TableColumns([.. chosen.Select(Themia.Widget.Email.MailSpec.Kit)], width, 8)
+            .Select(c => chosen.First(m => Themia.Widget.Email.MailSpec.Kit(m) == c.Column));
+
     [Fact]
     public void S556_rows_shed_account_then_preview_on_a_small_tile()
     {
         var config = new EmailConfig { PreviewLines = 3 };
 
-        var large = MailLayout.Rows(config, 560, 380);
-        Assert.Equal(new MailRowLayout(true, true, 3, true, true, Envelope: true), large);
+        var large = Plan(config, 560, 380);
+        Assert.True(large.Subtitle && large.Badges && large.When && large.Lead);
+        Assert.Equal(3, large.PreviewLines);
 
         // Narrow: the account tag goes, the rest stays.
-        Assert.False(MailLayout.Rows(config, 200, 380).Account);
-        Assert.True(MailLayout.Rows(config, 200, 380).Preview);
+        Assert.False(Plan(config, 200, 380).Badges);
+        Assert.True(Plan(config, 200, 380).PreviewLines > 0);
 
         // Short: one preview line, then none.
-        Assert.Equal(1, MailLayout.Rows(config, 480, 120).PreviewLines);
-        Assert.False(MailLayout.Rows(config, 120, 80).Preview);
+        Assert.Equal(1, Plan(config, 480, 120).PreviewLines);
+        Assert.Equal(0, Plan(config, 120, 80).PreviewLines);
 
         // Too narrow for a time beside the sender.
-        Assert.False(MailLayout.Rows(config, 100, 80).Time);
+        Assert.False(Plan(config, 100, 80).When);
 
         // Compact view never previews.
         config.Style = EmailStyle.Compact;
-        Assert.False(MailLayout.Rows(config, 560, 380).Preview);
+        Assert.Equal(0, Plan(config, 560, 380).PreviewLines);
     }
 
     [Fact]
@@ -465,19 +473,19 @@ public class MailLayoutTests
     {
         MailColumn[] all = [MailColumn.From, MailColumn.Subject, MailColumn.Date, MailColumn.Preview, MailColumn.Account];
 
-        Assert.Equal(all, MailLayout.Columns(all, 600, 8).Select(c => c.Column));
-        Assert.Equal([MailColumn.From, MailColumn.Subject, MailColumn.Date], MailLayout.Columns(all, 260, 8).Select(c => c.Column));
-        Assert.Equal([MailColumn.From], MailLayout.Columns(all, 50, 8).Select(c => c.Column));
+        Assert.Equal(all, Columns(all, 600));
+        Assert.Equal([MailColumn.From, MailColumn.Subject, MailColumn.Date], Columns(all, 260));
+        Assert.Equal([MailColumn.From], Columns(all, 50));
 
         // Too narrow for a subject: the date still fits beside the sender, so it stays.
-        Assert.Equal([MailColumn.From, MailColumn.Date], MailLayout.Columns(all, 168, 8).Select(c => c.Column));
+        Assert.Equal([MailColumn.From, MailColumn.Date], Columns(all, 168));
 
         // The user's order is kept; the flexible column takes the slack.
-        var fits = MailLayout.Columns([MailColumn.Date, MailColumn.Subject], 300, 8);
-        Assert.Equal([MailColumn.Date, MailColumn.Subject], fits.Select(c => c.Column));
+        var fits = Themia.Sdk.Kit.KitLadder.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Subtitle], 300, 8);
+        Assert.Equal([MailColumn.Date, MailColumn.Subject], Columns([MailColumn.Date, MailColumn.Subject], 300));
         Assert.Equal(1, fits[1].Star);
 
         // With no flexible column the first one stretches so the row still fills.
-        Assert.Equal(1, MailLayout.Columns([MailColumn.Date, MailColumn.Account], 400, 8)[0].Star);
+        Assert.Equal(1, Themia.Sdk.Kit.KitLadder.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Badge], 400, 8)[0].Star);
     }
 }

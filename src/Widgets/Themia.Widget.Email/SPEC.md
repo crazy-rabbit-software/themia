@@ -7,11 +7,12 @@ and the screens ([S-547]..[S-549], the SDK's `MailScreens`), writing ([S-558]) a
 ([S-559]), the shared list keys and fade ([S-1281], [S-1288]).
 
 Owning files: everything in this folder: `EmailModule.cs` (descriptor, view factory, JSON context),
-`EmailConfig.cs` (the style, the folder, the fields and columns, `EmailFolders`), `EmailView*.cs` (the
-rows of the three styles, the quick actions, the keys, over `IWidgetHost.Mail`), `MailLayout.cs` (the
-ladder), `EmailSettings.cs`, `Preview/` (Debug renders: `--state messages|accounts|empty|hovered|focused`),
-`Localization/Locales/` (its own `EmailStr`, 30 languages). Tests: `Tests/EmailLayoutTests.cs` (run by
-`tests/Themia.Modules.Tests`); the config's and the screens' are the module host's (`MailFeedTests`).
+`EmailConfig.cs` (the style, the folder, the fields and columns, `EmailFolders`), `MailSpec.cs` (a
+message as a kit item, its actions, the style's kit spec), `EmailView.cs` (over `IWidgetHost.Mail`,
+its rows the kit's `KitList`), `EmailSettings.cs`, `Preview/` (Debug renders:
+`--state messages|accounts|empty|hovered|focused|stale|offline`),
+`Localization/Locales/` (its own `EmailStr`, 30 languages). Tests: `Tests/MailSpecTests.cs` (run by
+`tests/Themia.Modules.Tests`; the ladder's are the kit's, `KitLinedTests`); the config's and the screens' are the module host's (`MailFeedTests`).
 
 - **[S-540]** `EmailConfig` keeps the classic wire names (`folder: inbox|sentitems|drafts|deleteditems|junkemail`,
   `viewMode: list|compact|row`, `sortOrder: desc|asc`, `listFields`, `rowColumns`, `accountIds`).
@@ -48,7 +49,7 @@ ladder), `EmailSettings.cs`, `Preview/` (Debug renders: `--state messages|accoun
   is removed for good (Graph DELETE; IMAP `\Deleted` + `UID EXPUNGE`, UIDPLUS-scoped). A change shows
   at once and waits in the account's queue until the provider has it ([S-2610], [S-2624]); a refusal
   is the header warning's tooltip and the next probe fetches the truth.
-- **[S-1280]** Mail's ladder (`EmailView.Lay`, rules in `MailLayout`): the first row always; the row
+- **[S-1280]** Mail's ladder (the kit's lined looks, [S-7032]..[S-7034]): the first row always; the row
   view's column titles from 140px of height; then as many whole rows as fit. Stacked rows shed account
   tag, preview, extra preview lines and time as before ([S-556]); a wide strip and a big tile go one
   line per message ([S-1283]); the envelope joins from 300px ([S-1282]); the largest tile adds the
@@ -63,7 +64,7 @@ ladder), `EmailSettings.cs`, `Preview/` (Debug renders: `--state messages|accoun
   name, "Work (Microsoft)", is retired, [S-666]). On one-line rows from 720px the pointer, or the
   keyboard focus ([S-1288]), swaps a row's time for quick actions: mark read or unread, archive (not
   in Junk), delete — only where the account allows changes ([S-544]). The swap moves nothing: the
-  time's slot is always as wide as the actions (`MailLayout.InlineBoxes`), the hidden time keeps
+  time's slot is always as wide as the actions (`KitLadder.LineBoxes`, [S-7033]), the hidden time keeps
   its box, and the buttons overhang the line instead of growing it, so every other part of the row
   keeps its position and size and the row its height.
 - **[S-6420]** Mail on the kit (`MailSpec`): List and Compact are the kit's stacked look (going one

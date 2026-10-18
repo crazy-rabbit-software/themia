@@ -10,9 +10,9 @@ using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Core.Shell;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Email;
 
 namespace Themia.App.Widgets;
@@ -24,14 +24,14 @@ namespace Themia.App.Widgets;
 /// The view holds no account, token or socket. It opens a feed on the app's one
 /// <see cref="IMailSource"/> for its accounts, folder and count, draws what the feed holds, and
 /// redraws when the feed or the accounts change. Fetching, the cadence and the back-off are the
-/// service's ([S-546]); which screen to show is Core's (<see cref="MailScreens"/>); how much detail
-/// fits the tile is Core's too (<see cref="MailLayout"/>).
+/// service's ([S-546]); which screen to show is the SDK's (<see cref="MailScreens"/>); the rows are
+/// the kit's list (<see cref="KitList"/>, [S-6420]) in the look and on the ladder the style asks for.
 /// </para>
 /// <para>
 /// [S-1280] It uses the whole tile: two- and three-line rows on a narrow tile, one line per message
-/// on a wide strip and a big tile, as many whole rows as fit (the count setting is a floor), the
-/// envelope from a medium tile; no provider name and no folder summary. A click focuses a
-/// row, a double-click opens it, right-click offers what its account allows ([S-544]).
+/// on a wide strip and a big tile, the envelope from a medium tile; no provider name and no folder
+/// summary. A click focuses a row, a double-click opens it, right-click offers what its account
+/// allows ([S-544]).
 /// </para>
 /// </summary>
 internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
@@ -50,9 +50,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>Below this content height the accounts link under an empty state has no room.</summary>
     private const double LinkNeedsHeight = 100;
 
-    /// <summary>[S-542] Below this height the row view's column titles cost a message.</summary>
-    private const double ColumnHeaderNeedsHeight = 140;
-
     private readonly TextBlock _badge = new();
     private readonly Border _badgeHost;
     private readonly FontIcon _warning;
@@ -63,24 +60,23 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly IDisposable _composeHover;
     private readonly StackPanel _trailing;
 
-    private readonly Grid _columnHeader = new();
-    private readonly StackPanel _list = new() { Spacing = 0 };
-    private readonly ScrollViewer _scroll;
-
     private readonly Grid _emptyHost = new();
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
     private readonly HyperlinkButton _accountsLink;
 
-    private readonly List<IDisposable> _hovers = [];
-    private readonly List<(TextBlock Text, DateTimeOffset? When, bool Full)> _times = [];
+    /// <summary>The kit's list, in the look of the style it was made for (a style change makes another).</summary>
+    private KitList _list;
+    private KitSpec _spec;
+
+    /// <summary>The messages on screen, by item id, for the actions the list hands back.</summary>
+    private readonly Dictionary<string, MailMessage> _shown = new(StringComparer.Ordinal);
 
     private IMailSource? _source;
     private IMailFeed? _feed;
     private string? _feedKey;
     private IWidgetSurface? _surface;
     private IDisposable? _clock;
-    private ScrollFade? _fade;
     private EmailConfig _config = new();
     private string? _actionProblem;
     private bool _warningOpensAccounts;
@@ -89,7 +85,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
 
     private WidgetArea _area;
 
-    /// <summary>What the rows on screen were built for, so a resize redraws only when an answer changes.</summary>
+    /// <summary>What the screen on display was drawn for, so a resize redraws only when an answer changes.</summary>
     private MailShape _shape;
 
     /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
@@ -147,20 +143,8 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             Children = { _warning, _busy, _compose, _sort, _badgeHost },
         };
 
-        _columnHeader.Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, Fluent.Space1);
-        _columnHeader.Visibility = Visibility.Collapsed;
-        Grid.SetRow(_columnHeader, 0);
-
-        _scroll = new ScrollViewer
-        {
-            // Nothing either side, so a row and its hover reach both card edges.
-            Padding = Fluent.ListPadding,
-            Content = _list,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
-        };
-        Grid.SetRow(_scroll, 1);
+        _spec = MailSpec.Spec(_config.Style);
+        _list = NewList(_spec);
 
         _empty = Fluent.EmptyState(Glyphs.Mail, _emptyText, out _);
 
@@ -186,13 +170,21 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         Grid.SetRow(_emptyHost, 0);
         Grid.SetRowSpan(_emptyHost, 3);
 
-        Children.Add(_columnHeader);
-        Children.Add(_scroll);
+        Children.Add(_list);
         Children.Add(_emptyHost);
     }
 
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _trailing;
+
+    /// <summary>The kit's list for <paramref name="spec"/>, over the column titles' row and the rows' (the third row stays empty).</summary>
+    private KitList NewList(KitSpec spec)
+    {
+        var list = new KitList(_widgetHost, spec, ActionsOf, Run);
+        Grid.SetRow(list, 0);
+        Grid.SetRowSpan(list, 2);
+        return list;
+    }
 
     public void Bind(IWidgetSurface surface)
     {
@@ -204,7 +196,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     {
         _detached = false;
         _source = _widgetHost.Mail;
-        _fade = new ScrollFade(_scroll, _list);
+        _list.Attach();
 
         if (_source is not null)
         {
@@ -214,16 +206,37 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         ApplyConfig(config);
 
         // Only the relative times ("4m") move between fetches; the feed itself is pushed.
-        _clock = ticker.Subscribe(TimeSpan.FromMinutes(1), UpdateTimes);
+        _clock = ticker.Subscribe(TimeSpan.FromMinutes(1), () => _list.Retime(DateTimeOffset.Now));
     }
 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as EmailConfig ?? new EmailConfig();
+        UseStyle();
         PublishTitle();
-        Lay();
         Reopen();
         Render();
+    }
+
+    /// <summary>[S-6403] A style with another look draws through a list made for it.</summary>
+    private void UseStyle()
+    {
+        var spec = MailSpec.Spec(_config.Style);
+        if (ReferenceEquals(spec, _spec))
+        {
+            return;
+        }
+
+        _list.Detach();
+        Children.Remove(_list);
+        _spec = spec;
+        _list = NewList(spec);
+        Children.Insert(0, _list);
+
+        if (!_detached)
+        {
+            _list.Attach();
+        }
     }
 
     /// <inheritdoc />
@@ -232,16 +245,14 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _area = area;
         FitEmptyState(area.Height);
 
-        var drawn = _shape;
-        Lay();
-        if (_shape != drawn)
+        if (Shape() != _shape)
         {
             Reopen();
             Render();
         }
     }
 
-    /// <summary>Open the feed this config and tile ask for, letting go of the old one only if it changed.</summary>
+    /// <summary>Open the feed this config asks for, letting go of the old one only if it changed.</summary>
     private void Reopen()
     {
         if (_source is null || _detached)
@@ -292,59 +303,20 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-1280] What the tile holds, top to bottom: the rows (the first always), the row view's
-    /// column titles, then as many more whole rows as fit. The list itself is the whole shelf
-    /// ([S-1286]) and scrolls past what fits, so the size never changes what is fetched.
+    /// [S-1280] What the tile holds: the kit's plan for the rows ([S-7032]..[S-7034]) and which of the
+    /// header's buttons have room. The list itself is the whole shelf ([S-1286]) and scrolls past what
+    /// fits, so the size never changes what is fetched.
     /// </summary>
-    private void Lay()
+    private MailShape Shape()
     {
+        var plan = KitLadder.Plan(_area, _spec, MailSpec.Choices(_config));
         var width = _area.Width;
-        var height = _area.Height;
-        var compact = height > 0 && height < Fluent.CompactBelow;
-        var rows = MailLayout.Rows(_config, width, height);
-        var columns = _config.Style == EmailStyle.Table ? MailLayout.Columns(_config.EffectiveColumns, InnerWidth(width, rows.Envelope), Fluent.Space2) : [];
-
-        var room = new Disclosure(_area);
-        var rowHeight = RowHeight(rows, compact);
-        room.Reserve(rowHeight);
-
-        var header = _config.Style == EmailStyle.Table && height >= ColumnHeaderNeedsHeight
-            && room.Take(FluentType.Caption.LineHeight + Fluent.Space1);
-
-        _shape = new MailShape(
-            rows,
-            string.Join(",", columns.Select(c => c.Column)),
-            compact,
-            header,
+        return new MailShape(
+            plan with { Table = null },
+            plan.Table is { } table ? string.Join(",", table.Select(c => $"{c.Column}:{c.Width}:{c.Star}")) : string.Empty,
             Warning: width >= WarningNeedsWidth,
             Sort: width >= SortNeedsWidth,
-            Compose: width >= ComposeNeedsWidth,
-            QuickActions: rows.Inline && _area.WidthClass >= SizeClass.Huge);
-    }
-
-    /// <summary>
-    /// How tall one row is drawn, for counting whole rows: one line in the row view and on one-line
-    /// rows; otherwise the sender, the subject line, the preview lines and the row's breathing room.
-    /// </summary>
-    private double RowHeight(MailRowLayout rows, bool compact)
-    {
-        if (_config.Style == EmailStyle.Table || rows.Inline)
-        {
-            return Fluent.RowHeightCompact;
-        }
-
-        var lines = FluentType.Body.LineHeight;
-        if (rows.Subject || rows.Account)
-        {
-            lines += FluentType.Caption.LineHeight;
-        }
-
-        if (rows.Preview)
-        {
-            lines += rows.PreviewLines * FluentType.Caption.LineHeight;
-        }
-
-        return lines + (2 * (compact ? Fluent.Space1 : RowPad));
+            Compose: width >= ComposeNeedsWidth);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -358,7 +330,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             return;
         }
 
-        ClearRows();
+        _shape = Shape();
 
         var accounts = _source?.Accounts ?? [];
         var snapshot = _feed?.Snapshot ?? MailFeedSnapshot.Empty;
@@ -385,7 +357,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         }
 
         _emptyHost.Visibility = Visibility.Collapsed;
-        _scroll.Visibility = Visibility.Visible;
+        _list.Visibility = Visibility.Visible;
 
         var unread = MailList.Unread(messages);
         _badge.Text = unread.ToString(CultureInfo.InvariantCulture);
@@ -396,38 +368,24 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             ? EmailStr.WidgetsB_Email_SortNewestTip.Text()
             : EmailStr.WidgetsB_Email_SortOldestTip.Text());
 
-        var labels = accounts.ToDictionary(a => a.Id, a => a.Label, StringComparer.Ordinal);
-        var now = DateTimeOffset.Now;
+        var byId = accounts.ToDictionary(a => a.Id, StringComparer.Ordinal);
+        _shown.Clear();
+        var items = new List<KitItem>(messages.Count);
 
-        if (_config.Style == EmailStyle.Table)
+        foreach (var message in messages)
         {
-            var columns = MailLayout.Columns(_config.EffectiveColumns, InnerWidth(_area.Width, _shape.Rows.Envelope), Fluent.Space2);
-            BuildColumnHeader(columns);
-
-            foreach (var message in messages)
-            {
-                AddRow(BuildTableRow(message, columns, labels, now), message);
-            }
-        }
-        else
-        {
-            _columnHeader.Visibility = Visibility.Collapsed;
-
-            foreach (var message in messages)
-            {
-                AddRow(_shape.Rows.Inline ? BuildInlineRow(message, labels, now) : BuildListRow(message, labels, now), message);
-            }
+            _shown[message.Key] = message;
+            items.Add(MailSpec.Item(message, byId.GetValueOrDefault(message.AccountId)));
         }
 
-        _shown = messages;
-        RestoreFocus();
-        _fade?.Refresh();
+        _list.Show(items, KitLadder.Plan(_area, _spec, MailSpec.Choices(_config)), _area, DateTimeOffset.Now);
     }
 
     private void ShowScreen(MailScreen screen)
     {
-        _scroll.Visibility = Visibility.Collapsed;
-        _columnHeader.Visibility = Visibility.Collapsed;
+        _list.Clear();
+        _list.Visibility = Visibility.Collapsed;
+        _shown.Clear();
         _badgeHost.Visibility = Visibility.Collapsed;
         _sort.Visibility = Visibility.Collapsed;
         _emptyHost.Visibility = Visibility.Visible;
@@ -438,7 +396,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             MailScreenKind.SignInRequired => EmailStr.WidgetsB_Email_SignIn.Text(),
             _ => EmailStr.WidgetsB_Email_ChooseAccount.Text(),
         };
-        _shown = [];
         FitEmptyState(_area.Height);
     }
 
@@ -451,40 +408,16 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _empty.MaxHeight = height > 0 ? Math.Max(0, height - (link ? 36 : 0)) : double.PositiveInfinity;
     }
 
-    /// <summary>The row's width inside its padding, the focus ring and the envelope: what the text has to share.</summary>
-    private static double InnerWidth(double width, bool envelope)
-        => Math.Max(0, width - (2 * (Fluent.Space4 + RowFocus.Ring)) - (envelope ? EnvelopeLane : 0));
-
-    /// <summary>Re-label the times without rebuilding a row: "4m" an hour later is wrong, refetching to learn that is waste.</summary>
-    private void UpdateTimes()
-    {
-        var now = DateTimeOffset.Now;
-
-        foreach (var (text, when, full) in _times)
-        {
-            text.Text = full
-                ? MailTime.Full(when, now, Strings.Current)
-                : MailTime.Short(when, now, Strings.Current);
-        }
-    }
-
-    private void ClearRows()
-    {
-        foreach (var hover in _hovers)
-        {
-            hover.Dispose();
-        }
-
-        _hovers.Clear();
-        _times.Clear();
-        _rows.Clear();
-        _reveals.Clear();
-        _list.Children.Clear();
-    }
-
     // -----------------------------------------------------------------------------------------
     // Commands
     // -----------------------------------------------------------------------------------------
+
+    /// <summary>[S-1288] [S-7020] A key from the shell's keyboard lease: the kit's list's one key map.</summary>
+    public bool HandleKey(WidgetKey key) => !_detached && _list.HandleKey(key);
+
+    /// <summary>[S-544] A row's actions, read fresh for every menu: what its account allows.</summary>
+    private IReadOnlyList<KitAction> ActionsOf(KitItem item)
+        => _shown.TryGetValue(item.Id, out var message) ? MailSpec.Actions(message, CanChange(message)) : [];
 
     private void OpenMessage(MailMessage message)
     {
@@ -500,27 +433,10 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     private bool CanChange(MailMessage message)
         => _source?.Accounts.FirstOrDefault(a => a.Id == message.AccountId) is { ReadOnly: false };
 
-    /// <summary>[S-544] [S-7011] A message's own commands, offered only where its account allows them, in the kit's one menu order.</summary>
-    /// <param name="args">The right-click, for the menu to open at the pointer; null for the Menu key, which opens it at the row.</param>
-    private void ShowMessageMenu(FrameworkElement anchor, MailMessage message, RightTappedRoutedEventArgs? args)
-        => ItemMenu.ShowAt(anchor, args?.GetPosition(anchor), Entries(message));
-
-    private IEnumerable<ItemMenuEntry> Entries(MailMessage message)
-        => KitMenu.Lines(MailSpec.Actions(message, CanChange(message))).Select(line => line.Action is not { } action
-            ? ItemMenuEntry.Separator
-            : new ItemMenuEntry(
-                KitIcons.Glyph(action),
-                action.Label,
-                () => Run(message, action),
-                Danger: action.Kind == KitActionKind.Delete,
-                Disabled: action.Disabled,
-                Quick: line.Quick,
-                Shortcut: line.Shortcut));
-
-    /// <summary>Carry out an action of a message: open, reply, a change, the copy.</summary>
-    private void Run(MailMessage message, KitAction action)
+    /// <summary>Carry out an action the list hands back: open, reply, a change, the copy.</summary>
+    private void Run(KitItem item, KitAction action)
     {
-        if (!action.Runnable)
+        if (_detached || !action.Runnable || !_shown.TryGetValue(item.Id, out var message))
         {
             return;
         }
@@ -701,7 +617,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         change(_config);
         _surface?.RequestSave();
         PublishTitle();
-        Lay();
         Reopen();
         Render();
     }
@@ -727,9 +642,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
         _clock?.Dispose();
         _clock = null;
 
-        _fade?.Dispose();
-        _fade = null;
-
         CloseFeed();
 
         if (_source is not null)
@@ -738,17 +650,15 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             _source = null;
         }
 
-        ClearRows();
+        _list.Detach();
+        _shown.Clear();
     }
 
     /// <summary>The answers a layout pass gave; a resize that changes none of them redraws nothing.</summary>
     private readonly record struct MailShape(
-        MailRowLayout Rows,
+        KitPlan Plan,
         string Columns,
-        bool Compact,
-        bool ColumnHeader,
         bool Warning,
         bool Sort,
-        bool Compose,
-        bool QuickActions);
+        bool Compose);
 }

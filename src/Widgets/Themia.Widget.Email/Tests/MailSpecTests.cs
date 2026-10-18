@@ -78,4 +78,8 @@ public sealed class MailSpecTests
         Assert.Equal("Dana Ruiz", read.Title);
         Assert.Equal("Quarterly numbers", read.Subtitle);
     }
+
+    [Fact]
+    public void S1286_every_widget_asks_for_the_whole_shelf_whatever_its_size()
+        => Assert.Equal(MailLimits.PerFolder, EmailConfig.FetchCount);
 }
