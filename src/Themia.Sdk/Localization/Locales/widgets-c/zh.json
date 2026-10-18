@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "跳到下一阶段",
   "widgetsC.pomodoro.next": "下一个：{phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " 分钟",
-  "widgetsC.power.desc.screenOff": "关闭显示器；任意输入即可唤醒",
   "widgetsC.power.verb.shutdown": "关机",
   "widgetsC.power.verb.restart": "重启",
   "widgetsC.power.verb.sleep": "睡眠",

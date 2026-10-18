@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "ข้ามไปยังช่วงถัดไป",
   "widgetsC.pomodoro.next": "ถัดไป: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " นาที",
-  "widgetsC.power.desc.screenOff": "ปิดจอแสดงผล การป้อนข้อมูลใดๆ จะปลุกจอขึ้นมา",
   "widgetsC.power.verb.shutdown": "ปิดเครื่อง",
   "widgetsC.power.verb.restart": "เริ่มระบบใหม่",
   "widgetsC.power.verb.sleep": "สลีป",

@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Doorgaan naar de volgende fase",
   "widgetsC.pomodoro.next": "Volgende: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.screenOff": "Zet de beeldschermen uit; elke invoer wekt ze",
   "widgetsC.power.verb.shutdown": "af te sluiten",
   "widgetsC.power.verb.restart": "opnieuw op te starten",
   "widgetsC.power.verb.sleep": "naar de slaapstand te gaan",

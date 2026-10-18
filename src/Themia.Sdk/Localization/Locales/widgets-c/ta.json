@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "அடுத்த கட்டத்துக்குத் தாவு",
   "widgetsC.pomodoro.next": "அடுத்து: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " நிமி",
-  "widgetsC.power.desc.screenOff": "திரைகளை அணைக்கும்; எந்த உள்ளீடும் அவற்றை எழுப்பும்",
   "widgetsC.power.verb.shutdown": "நிறுத்த",
   "widgetsC.power.verb.restart": "மறுதொடக்கம் செய்ய",
   "widgetsC.power.verb.sleep": "உறங்கச் செய்ய",

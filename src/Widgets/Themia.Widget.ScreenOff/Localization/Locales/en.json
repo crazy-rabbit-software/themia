@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "widgetsC.power.desc.screenOff": "Turns the displays off; any input wakes them",
+  "power.action.screenOff": "Turn off display"
+}

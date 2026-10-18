@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "اگلے مرحلے پر جائیں",
   "widgetsC.pomodoro.next": "اگلا: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " منٹ",
-  "widgetsC.power.desc.screenOff": "ڈسپلے بند کرتا ہے؛ کوئی بھی ان پٹ انہیں جگا دیتا ہے",
   "widgetsC.power.verb.shutdown": "بند کرنے",
   "widgetsC.power.verb.restart": "دوبارہ شروع کرنے",
   "widgetsC.power.verb.sleep": "سلیپ کرنے",

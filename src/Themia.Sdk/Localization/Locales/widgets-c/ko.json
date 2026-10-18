@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "다음 단계로 건너뛰기",
   "widgetsC.pomodoro.next": "다음: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": "분",
-  "widgetsC.power.desc.screenOff": "디스플레이를 끕니다. 아무 입력이나 하면 다시 켜집니다",
   "widgetsC.power.verb.shutdown": "시스템 종료",
   "widgetsC.power.verb.restart": "다시 시작",
   "widgetsC.power.verb.sleep": "절전",

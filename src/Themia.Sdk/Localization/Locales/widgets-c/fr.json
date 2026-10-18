@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Passer à la phase suivante",
   "widgetsC.pomodoro.next": "Ensuite : {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.screenOff": "Éteint les écrans ; toute saisie les rallume",
   "widgetsC.power.verb.shutdown": "arrêter",
   "widgetsC.power.verb.restart": "redémarrer",
   "widgetsC.power.verb.sleep": "mettre en veille",

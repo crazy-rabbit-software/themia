@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "পরের ধাপে যান",
   "widgetsC.pomodoro.next": "পরবর্তী: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " মি",
-  "widgetsC.power.desc.screenOff": "ডিসপ্লে বন্ধ করে; যেকোনো ইনপুটে চালু হয়",
   "widgetsC.power.verb.shutdown": "শাট ডাউন করতে",
   "widgetsC.power.verb.restart": "রিস্টার্ট করতে",
   "widgetsC.power.verb.sleep": "স্লিপ করতে",

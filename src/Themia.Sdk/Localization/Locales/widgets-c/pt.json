@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Pular para a próxima fase",
   "widgetsC.pomodoro.next": "Próximo: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.screenOff": "Desliga as telas; qualquer entrada as reativa",
   "widgetsC.power.verb.shutdown": "desligar",
   "widgetsC.power.verb.restart": "reiniciar",
   "widgetsC.power.verb.sleep": "suspender",

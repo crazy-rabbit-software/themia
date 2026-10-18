@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Passa alla fase successiva",
   "widgetsC.pomodoro.next": "Poi: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.screenOff": "Spegne gli schermi; qualsiasi input li riattiva",
   "widgetsC.power.verb.shutdown": "arrestare",
   "widgetsC.power.verb.restart": "riavviare",
   "widgetsC.power.verb.sleep": "sospendere",

@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "આગલા તબક્કા પર જાઓ",
   "widgetsC.pomodoro.next": "આગળ: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " મિનિટ",
-  "widgetsC.power.desc.screenOff": "ડિસ્પ્લે બંધ કરે છે; કોઈપણ ઇનપુટ તેમને જગાડે છે",
   "widgetsC.power.verb.shutdown": "બંધ કરવા",
   "widgetsC.power.verb.restart": "પુનઃપ્રારંભ કરવા",
   "widgetsC.power.verb.sleep": "સ્લીપ કરવા",

@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Ruka hadi awamu inayofuata",
   "widgetsC.pomodoro.next": "Inayofuata: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " dak",
-  "widgetsC.power.desc.screenOff": "Huzima maonyesho; ingizo lolote huyaamsha",
   "widgetsC.power.verb.shutdown": "kuzima",
   "widgetsC.power.verb.restart": "kuanzisha upya",
   "widgetsC.power.verb.sleep": "kulala",
