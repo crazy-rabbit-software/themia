@@ -4091,7 +4091,8 @@ is a module (`src/Widgets/Themia.Widget.Stocks/`, its own tags in its `SPEC.md`)
   schema-versioned; one writer; saved after each fetch that brings a new answer). At launch they are
   read back before the windows are built and marked restored: drawn at once, with their real age in
   the header in the caution colour ("Saved 3h ago; refreshing"), and fresh only for that age
-  ([S-2662]), so a fetch follows once the widget's interval has passed. Entries older than 7 days, from the future, or not a usable feed/quote are
+  ([S-2662]), so a fetch follows once the widget's interval has passed. A widget shown takes what
+  the feed sync holds at once (fixed: an Rss widget said "Loading" until its feeds' next fetch). Entries older than 7 days, from the future, or not a usable feed/quote are
   dropped; feed links are re-checked; a corrupt file is set aside as `.corrupt`. Only the app wires
   it; a debug render never reads or writes the user's file. This reverses the earlier "in memory, so a
   cold start never shows old data as current" note: the age and colour say it is old.

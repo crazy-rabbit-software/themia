@@ -128,6 +128,10 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         }
 
         ApplyConfig(config);
+
+        // [S-1300] What the sync service holds is drawn at once: a feed restored at launch, or one
+        // another widget already reads, is not "Loading" until its next fetch.
+        Reload(force: false);
     }
 
     /// <summary>[S-1110] The list redrawn from what is in hand (no fetch).</summary>
