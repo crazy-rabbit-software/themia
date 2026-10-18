@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Detalhes da GPU",
-  "details.catalog.gpu.desc": "Memória de vídeo, temperatura e clocks",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Ventilador",
   "details.gpu.clock": "Clock da GPU",
   "details.gpu.memoryClock": "Clock da memória",
-  "details.gpu.none": "Nenhum adaptador gráfico",
   "details.settings.gpu.adapter.label": "Adaptador",
   "details.settings.gpu.adapter.desc": "O adaptador gráfico cujos dados são mostrados"
 }

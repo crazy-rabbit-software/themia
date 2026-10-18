@@ -9,7 +9,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// Settings rows for the three screen-time widgets (the GPU meter's are in <c>WidgetSettings.Gpu.cs</c>,
+/// Settings rows for the three screen-time widgets (the GPU meter's are its module's,
 /// the mixer's in <c>WidgetSettings.Mixer.cs</c>).
 /// <para>
 /// Same shape as the rest of <see cref="WidgetSettings"/>: each control writes straight to the live

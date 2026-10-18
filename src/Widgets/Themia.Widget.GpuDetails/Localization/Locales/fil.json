@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "Video memory, temperatura at mga clock",
+  "details.catalog.gpu.label": "Mga detalye ng GPU",
+  "details.gpu.none": "Walang graphics adapter"
+}

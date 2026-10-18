@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "वीडियो मेमोरी, तापमान और क्लॉक",
+  "details.catalog.gpu.label": "GPU विवरण",
+  "details.gpu.none": "कोई ग्राफ़िक्स एडेप्टर नहीं"
+}

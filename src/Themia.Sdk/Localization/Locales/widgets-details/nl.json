@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU-details",
-  "details.catalog.gpu.desc": "Videogeheugen, temperatuur en kloksnelheden",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Ventilator",
   "details.gpu.clock": "GPU-klok",
   "details.gpu.memoryClock": "Geheugenklok",
-  "details.gpu.none": "Geen grafische adapter",
   "details.settings.gpu.adapter.label": "Adapter",
   "details.settings.gpu.adapter.desc": "De grafische adapter waarvan de cijfers worden getoond"
 }

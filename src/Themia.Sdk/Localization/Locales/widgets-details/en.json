@@ -1,7 +1,5 @@
 {
   "$comment": "[S-2400] The system detail widgets (CPU, memory, processes, network, battery, ping, GPU).",
-  "details.catalog.gpu.label": "GPU details",
-  "details.catalog.gpu.desc": "Video memory, temperature and clocks",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Fan",
   "details.gpu.clock": "GPU clock",
   "details.gpu.memoryClock": "Memory clock",
-  "details.gpu.none": "No graphics adapter",
   "details.settings.gpu.adapter.label": "Adapter",
   "details.settings.gpu.adapter.desc": "The graphics adapter whose figures are shown"
 }

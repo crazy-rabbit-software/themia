@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "Mémoire vidéo, température et fréquences",
+  "details.catalog.gpu.label": "Détails du GPU",
+  "details.gpu.none": "Aucune carte graphique"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Chi tiết GPU",
-  "details.catalog.gpu.desc": "Bộ nhớ video, nhiệt độ và xung nhịp",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Quạt",
   "details.gpu.clock": "Xung nhịp GPU",
   "details.gpu.memoryClock": "Xung nhịp bộ nhớ",
-  "details.gpu.none": "Không có bộ điều hợp đồ họa",
   "details.settings.gpu.adapter.label": "Bộ điều hợp",
   "details.settings.gpu.adapter.desc": "Bộ điều hợp đồ họa có số liệu được hiển thị"
 }

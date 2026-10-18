@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "視訊記憶體、溫度和時脈",
+  "details.catalog.gpu.label": "GPU 詳細資料",
+  "details.gpu.none": "沒有圖形介面卡"
+}

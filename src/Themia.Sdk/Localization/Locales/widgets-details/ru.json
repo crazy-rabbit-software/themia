@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Сведения о GPU",
-  "details.catalog.gpu.desc": "Видеопамять, температура и частоты",
   "details.units.gigahertz": "{value} ГГц",
   "details.units.megahertz": "{value} МГц",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Вентилятор",
   "details.gpu.clock": "Частота GPU",
   "details.gpu.memoryClock": "Частота памяти",
-  "details.gpu.none": "Нет графического адаптера",
   "details.settings.gpu.adapter.label": "Адаптер",
   "details.settings.gpu.adapter.desc": "Графический адаптер, показатели которого отображаются"
 }

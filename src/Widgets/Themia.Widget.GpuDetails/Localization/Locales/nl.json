@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "Videogeheugen, temperatuur en kloksnelheden",
+  "details.catalog.gpu.label": "GPU-details",
+  "details.gpu.none": "Geen grafische adapter"
+}

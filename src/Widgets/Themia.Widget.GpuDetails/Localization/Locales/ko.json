@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "비디오 메모리, 온도 및 클럭",
+  "details.catalog.gpu.label": "GPU 세부 정보",
+  "details.gpu.none": "그래픽 어댑터 없음"
+}

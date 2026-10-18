@@ -17,7 +17,6 @@ public sealed class GpuTests
     {
         Assert.Equal(0, new GpuConfig().Adapter);
         Assert.Equal(0, ((GpuConfig)WidgetConfig.CreateDefault(new WidgetId("gpu"))).Adapter);
-        Assert.Equal(0, ((GpuDetailsConfig)WidgetConfig.CreateDefault(GpuDetailsConfig.Descriptor.Id)).Adapter);
     }
 
     [Fact]

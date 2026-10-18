@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "ビデオ メモリ、温度、クロック",
+  "details.catalog.gpu.label": "GPU の詳細",
+  "details.gpu.none": "グラフィックス アダプターがありません"
+}

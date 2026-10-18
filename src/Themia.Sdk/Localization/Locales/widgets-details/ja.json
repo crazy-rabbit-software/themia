@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU の詳細",
-  "details.catalog.gpu.desc": "ビデオ メモリ、温度、クロック",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "ファン",
   "details.gpu.clock": "GPU クロック",
   "details.gpu.memoryClock": "メモリ クロック",
-  "details.gpu.none": "グラフィックス アダプターがありません",
   "details.settings.gpu.adapter.label": "アダプター",
   "details.settings.gpu.adapter.desc": "値を表示するグラフィックス アダプター"
 }

@@ -4223,8 +4223,7 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
   LUID) as the hero, "of 7.8 GB video memory" (DXGI); load ([S-434]), shared memory, temperature, fan, GPU
   clock, memory clock. An integrated adapter leads with its shared memory. From the GPU meter's own shared
   sampler (the memory counters join its query); the header names the adapter ([S-430]).
-- **[S-2431]** `Adapter`: a DXGI position, as the GPU meter's ([S-433]: the primary display's adapter
-  by default), offered with two or more adapters; one that is gone shows the first.
+- [S-2431]: moved with the GPU details widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.GpuDetails/`).
 - **[S-2432]** Sensors from the graphics kernel, any vendor's WDDM 2.4+ driver (`D3DKMTQueryAdapterInfo`
   adapter and node performance data and caps, one handle per adapter per sampler session): temperature
   1–150 °C, the fan only when the caps name one, clocks only when non-zero; a driver that answers none is

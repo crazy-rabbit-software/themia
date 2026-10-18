@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU వివరాలు",
-  "details.catalog.gpu.desc": "వీడియో మెమరీ, ఉష్ణోగ్రత మరియు క్లాక్‌లు",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "ఫ్యాన్",
   "details.gpu.clock": "GPU క్లాక్",
   "details.gpu.memoryClock": "మెమరీ క్లాక్",
-  "details.gpu.none": "గ్రాఫిక్స్ అడాప్టర్ లేదు",
   "details.settings.gpu.adapter.label": "అడాప్టర్",
   "details.settings.gpu.adapter.desc": "గణాంకాలు చూపబడే గ్రాఫిక్స్ అడాప్టర్"
 }

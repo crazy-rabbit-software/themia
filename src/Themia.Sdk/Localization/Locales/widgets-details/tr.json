@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU ayrıntıları",
-  "details.catalog.gpu.desc": "Video belleği, sıcaklık ve saat hızları",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Fan",
   "details.gpu.clock": "GPU saat hızı",
   "details.gpu.memoryClock": "Bellek saat hızı",
-  "details.gpu.none": "Grafik bağdaştırıcısı yok",
   "details.settings.gpu.adapter.label": "Bağdaştırıcı",
   "details.settings.gpu.adapter.desc": "Değerleri gösterilen grafik bağdaştırıcısı"
 }

@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "ভিডিও মেমরি, তাপমাত্রা ও ক্লক",
+  "details.catalog.gpu.label": "GPU-এর বিবরণ",
+  "details.gpu.none": "কোনো গ্রাফিক্স অ্যাডাপ্টার নেই"
+}

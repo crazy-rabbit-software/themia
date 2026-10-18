@@ -1,0 +1,6 @@
+{
+  "$englishOnly": [],
+  "details.catalog.gpu.desc": "Video memory, temperature and clocks",
+  "details.catalog.gpu.label": "GPU details",
+  "details.gpu.none": "No graphics adapter"
+}

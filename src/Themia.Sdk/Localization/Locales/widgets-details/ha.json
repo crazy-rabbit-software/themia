@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Bayanan GPU",
-  "details.catalog.gpu.desc": "Ƙwaƙwalwar bidiyo, zafi da agogo",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Fanka",
   "details.gpu.clock": "Agogon GPU",
   "details.gpu.memoryClock": "Agogon ƙwaƙwalwa",
-  "details.gpu.none": "Babu adaftar zane",
   "details.settings.gpu.adapter.label": "Adafta",
   "details.settings.gpu.adapter.desc": "Adaftar zane da ake nuna alƙaluman sa"
 }

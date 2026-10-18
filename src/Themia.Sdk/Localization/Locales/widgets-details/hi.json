@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU विवरण",
-  "details.catalog.gpu.desc": "वीडियो मेमोरी, तापमान और क्लॉक",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "पंखा",
   "details.gpu.clock": "GPU क्लॉक",
   "details.gpu.memoryClock": "मेमोरी क्लॉक",
-  "details.gpu.none": "कोई ग्राफ़िक्स एडेप्टर नहीं",
   "details.settings.gpu.adapter.label": "एडेप्टर",
   "details.settings.gpu.adapter.desc": "वह ग्राफ़िक्स एडेप्टर जिसके आँकड़े दिखाए जाते हैं"
 }

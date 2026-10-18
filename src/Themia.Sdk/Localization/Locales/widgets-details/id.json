@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Detail GPU",
-  "details.catalog.gpu.desc": "Memori video, suhu, dan clock",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Kipas",
   "details.gpu.clock": "Clock GPU",
   "details.gpu.memoryClock": "Clock memori",
-  "details.gpu.none": "Tidak ada adaptor grafis",
   "details.settings.gpu.adapter.label": "Adaptor",
   "details.settings.gpu.adapter.desc": "Adaptor grafis yang angkanya ditampilkan"
 }

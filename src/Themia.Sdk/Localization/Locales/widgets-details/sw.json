@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Maelezo ya GPU",
-  "details.catalog.gpu.desc": "Kumbukumbu ya video, halijoto na saa",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Feni",
   "details.gpu.clock": "Saa ya GPU",
   "details.gpu.memoryClock": "Saa ya kumbukumbu",
-  "details.gpu.none": "Hakuna adapta ya michoro",
   "details.settings.gpu.adapter.label": "Adapta",
   "details.settings.gpu.adapter.desc": "Adapta ya michoro ambayo takwimu zake zinaonyeshwa"
 }

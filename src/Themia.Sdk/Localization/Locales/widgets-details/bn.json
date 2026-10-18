@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU-এর বিবরণ",
-  "details.catalog.gpu.desc": "ভিডিও মেমরি, তাপমাত্রা ও ক্লক",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "ফ্যান",
   "details.gpu.clock": "GPU ক্লক",
   "details.gpu.memoryClock": "মেমরি ক্লক",
-  "details.gpu.none": "কোনো গ্রাফিক্স অ্যাডাপ্টার নেই",
   "details.settings.gpu.adapter.label": "অ্যাডাপ্টার",
   "details.settings.gpu.adapter.desc": "যে গ্রাফিক্স অ্যাডাপ্টারের তথ্য দেখানো হয়"
 }

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "جزئیات GPU",
-  "details.catalog.gpu.desc": "حافظه ویدیویی، دما و فرکانس‌ها",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "فن",
   "details.gpu.clock": "فرکانس GPU",
   "details.gpu.memoryClock": "فرکانس حافظه",
-  "details.gpu.none": "آداپتور گرافیکی نیست",
   "details.settings.gpu.adapter.label": "آداپتور",
   "details.settings.gpu.adapter.desc": "آداپتور گرافیکی که ارقامش نمایش داده می‌شود"
 }

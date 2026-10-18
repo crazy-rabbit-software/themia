@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU کی تفصیلات",
-  "details.catalog.gpu.desc": "ویڈیو میموری، درجہ حرارت اور کلاکس",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "پنکھا",
   "details.gpu.clock": "GPU کلاک",
   "details.gpu.memoryClock": "میموری کلاک",
-  "details.gpu.none": "کوئی گرافکس اڈاپٹر نہیں",
   "details.settings.gpu.adapter.label": "اڈاپٹر",
   "details.settings.gpu.adapter.desc": "وہ گرافکس اڈاپٹر جس کے اعداد دکھائے جاتے ہیں"
 }

@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "Memori video, suhu, dan clock",
+  "details.catalog.gpu.label": "Detail GPU",
+  "details.gpu.none": "Tidak ada adaptor grafis"
+}

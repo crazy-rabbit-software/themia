@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "GPU விவரங்கள்",
-  "details.catalog.gpu.desc": "வீடியோ நினைவகம், வெப்பநிலை மற்றும் கடிகாரங்கள்",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "விசிறி",
   "details.gpu.clock": "GPU கடிகாரம்",
   "details.gpu.memoryClock": "நினைவகக் கடிகாரம்",
-  "details.gpu.none": "கிராஃபிக்ஸ் அடாப்டர் இல்லை",
   "details.settings.gpu.adapter.label": "அடாப்டர்",
   "details.settings.gpu.adapter.desc": "எண்ணிக்கைகள் காட்டப்படும் கிராஃபிக்ஸ் அடாப்டர்"
 }

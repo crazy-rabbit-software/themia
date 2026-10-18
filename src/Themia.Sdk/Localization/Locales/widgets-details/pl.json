@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Szczegóły GPU",
-  "details.catalog.gpu.desc": "Pamięć wideo, temperatura i taktowanie",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Wentylator",
   "details.gpu.clock": "Taktowanie GPU",
   "details.gpu.memoryClock": "Taktowanie pamięci",
-  "details.gpu.none": "Brak karty graficznej",
   "details.settings.gpu.adapter.label": "Karta",
   "details.settings.gpu.adapter.desc": "Karta graficzna, której dane są pokazywane"
 }

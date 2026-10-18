@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.GpuDetails;
 
 namespace Themia.App.Widgets.Details;
 
@@ -18,7 +19,7 @@ internal sealed class GpuDetailPart : DetailPart
     private GpuDetailsConfig _config = new();
     private IDetailHost? _host;
 
-    public override WidgetId Kind => GpuDetailsConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("gpuDetails");
 
     public override double HeroCharacters => GpuDetailRules.HeroCharacters;
 
@@ -44,7 +45,7 @@ internal sealed class GpuDetailPart : DetailPart
         if (snapshot.Details.Count == 0)
         {
             host.SetTitle(null);
-            host.Present(DetailSheet.Missing(Str.Details_Gpu_None.Text()));
+            host.Present(DetailSheet.Missing(GpuDetailsStr.Details_Gpu_None.Text()));
             return;
         }
 

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "Mga detalye ng GPU",
-  "details.catalog.gpu.desc": "Video memory, temperatura at mga clock",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "Bentilador",
   "details.gpu.clock": "Clock ng GPU",
   "details.gpu.memoryClock": "Clock ng memory",
-  "details.gpu.none": "Walang graphics adapter",
   "details.settings.gpu.adapter.label": "Adapter",
   "details.settings.gpu.adapter.desc": "Ang graphics adapter na ipinapakita ang mga numero"
 }

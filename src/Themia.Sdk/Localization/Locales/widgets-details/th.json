@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.label": "รายละเอียด GPU",
-  "details.catalog.gpu.desc": "หน่วยความจำวิดีโอ อุณหภูมิ และสัญญาณนาฬิกา",
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -68,7 +66,6 @@
   "details.gpu.fan": "พัดลม",
   "details.gpu.clock": "สัญญาณนาฬิกา GPU",
   "details.gpu.memoryClock": "สัญญาณนาฬิกาหน่วยความจำ",
-  "details.gpu.none": "ไม่มีอะแดปเตอร์กราฟิก",
   "details.settings.gpu.adapter.label": "อะแดปเตอร์",
   "details.settings.gpu.adapter.desc": "อะแดปเตอร์กราฟิกที่แสดงตัวเลข"
 }

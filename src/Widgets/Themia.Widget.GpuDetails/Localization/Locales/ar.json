@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "ذاكرة الفيديو ودرجة الحرارة والترددات",
+  "details.catalog.gpu.label": "تفاصيل GPU",
+  "details.gpu.none": "لا يوجد محول رسومات"
+}

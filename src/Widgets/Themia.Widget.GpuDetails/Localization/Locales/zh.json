@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "显存、温度和频率",
+  "details.catalog.gpu.label": "GPU 详细信息",
+  "details.gpu.none": "没有图形适配器"
+}
