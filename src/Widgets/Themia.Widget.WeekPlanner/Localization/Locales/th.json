@@ -1,0 +1,10 @@
+{
+  "planner.desc": "วันข้างหน้าพร้อมกิจกรรม และสิ่งที่ครบกำหนดวันนี้",
+  "planner.free": "ไม่มีแผน",
+  "planner.label": "ตัววางแผนรายสัปดาห์",
+  "planner.showTasks": "แสดงงานวันนี้",
+  "planner.showTasksDesc": "งานที่ครบกำหนดวันนี้หรือเลยกำหนด ใต้กิจกรรมของวันนี้",
+  "planner.taskAccount": "งานจาก",
+  "planner.taskAccountFirst": "บัญชีแรกที่มีงาน",
+  "planner.tasksHeader": "งานวันนี้"
+}

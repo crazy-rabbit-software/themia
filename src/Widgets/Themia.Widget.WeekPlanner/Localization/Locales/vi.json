@@ -1,0 +1,10 @@
+{
+  "planner.desc": "Những ngày tới cùng sự kiện, và việc đến hạn hôm nay",
+  "planner.free": "Không có kế hoạch",
+  "planner.label": "Kế hoạch tuần",
+  "planner.showTasks": "Hiện tác vụ hôm nay",
+  "planner.showTasksDesc": "Tác vụ đến hạn hôm nay hoặc quá hạn, dưới các sự kiện hôm nay",
+  "planner.taskAccount": "Tác vụ từ",
+  "planner.taskAccountFirst": "Tài khoản đầu tiên có tác vụ",
+  "planner.tasksHeader": "Tác vụ hôm nay"
+}

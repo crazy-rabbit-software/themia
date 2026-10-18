@@ -1,0 +1,10 @@
+{
+  "planner.desc": "Les prochains jours avec leurs événements, et ce qui est à faire aujourd’hui",
+  "planner.free": "Rien de prévu",
+  "planner.label": "Planning de la semaine",
+  "planner.showTasks": "Afficher les tâches du jour",
+  "planner.showTasksDesc": "Tâches à faire aujourd’hui ou en retard, sous les événements du jour",
+  "planner.taskAccount": "Tâches de",
+  "planner.taskAccountFirst": "Le premier compte avec des tâches",
+  "planner.tasksHeader": "Tâches du jour"
+}

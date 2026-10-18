@@ -7140,15 +7140,10 @@ The clock's Date style (issues #150, #131), with the clock in its module.
 
 ## Week planner (WEEK-PLANNER)
 
-Tests: `tests/Themia.Core.Tests/WeekPlannerTests.cs`. Issue #160.
+The widget is the module `weekPlanner` (`src/Widgets/Themia.Widget.WeekPlanner/`, its `SPEC.md`: the
+config, its page, setup and sync); the SDK's rules it is drawn by stay here. Tests:
+`tests/Themia.Core.Tests/WeekPlannerTests.cs`. Issue #160.
 
-- **[S-5320]** `WeekPlanner` (kind 133, `WeekPlannerConfig : CalendarConfig`, discriminator
-  `weekPlanner`, glyph E762 MultiSelect, 480×280): the days ahead, each with its events, and under
-  today the tasks due. One planner: a day's tasks are rows of that day after its events, not a task
-  list beside a calendar. Calendar & mail subject, after next meeting ([S-3511]). Events through the
-  calendar widgets' seam (`ICalendarData`, [S-2701]); tasks through the shared `TaskService`
-  ([S-591]); the widget fetches nothing itself (a 5-minute poll of the synced store, the accounts'
-  change events, a minute tick to redraw).
 - **[S-5321]** A rolling week: today and the six days after (`WeekPlannerRules.Range`), fetched whole
   whatever the size shows. Days stand side by side as the width allows (140 DIP a column, 8 apart, up
   to seven). One column: today alone on a Compact-height tile (no heading), else the days stacked
@@ -7164,15 +7159,4 @@ Tests: `tests/Themia.Core.Tests/WeekPlannerTests.cs`. Issue #160.
   "Tomorrow", then the short date) and as many rows as fit; when it has more, the last row says
   "+N". An empty today says "Nothing planned"; stacked, later days with nothing are skipped and the
   list ends at the first day cut short or whose heading and a row no longer fit.
-- **[S-5324]** Settings: every calendar's rows (accounts, calendars, colours, birthdays, [S-561]),
-  then Today's tasks: Show (on by default) and Tasks from (the first account with tasks, or one
-  account; a chosen account that is signed out stays listed by its id, never swapped, [S-590]).
-  Lists kept on this PC are not offered: the planner is the synced schedule.
-- **[S-5325]** Setup and sync: it asks to be set up only while neither a calendar account nor (when
-  it shows tasks) a task account is signed in; with tasks alone it is a week of tasks.
-  `SyncInterests` takes its calendars as a calendar interest and its task account's Today view as a
-  task interest, so both sync with everything else.
 
-Needs a live pass: a signed-in Microsoft and Google account (events, colours, opening an event,
-ticking a task off and seeing it leave every Tasks widget), a day turning over at midnight, and the
-showcase views on the live desktop.

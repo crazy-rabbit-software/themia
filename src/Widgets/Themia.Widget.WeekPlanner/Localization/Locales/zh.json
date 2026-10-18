@@ -1,0 +1,10 @@
+{
+  "planner.desc": "接下来几天的日程，以及今天到期的任务",
+  "planner.free": "没有安排",
+  "planner.label": "周计划",
+  "planner.showTasks": "显示今天的任务",
+  "planner.showTasksDesc": "今天到期或已逾期的任务，显示在今天的日程下方",
+  "planner.taskAccount": "任务来源",
+  "planner.taskAccountFirst": "第一个有任务的帐户",
+  "planner.tasksHeader": "今天的任务"
+}

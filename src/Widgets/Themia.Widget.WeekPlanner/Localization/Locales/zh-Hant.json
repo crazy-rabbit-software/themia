@@ -1,0 +1,10 @@
+{
+  "planner.desc": "接下來幾天的行程，以及今天到期的工作",
+  "planner.free": "沒有安排",
+  "planner.label": "週計畫",
+  "planner.showTasks": "顯示今天的工作",
+  "planner.showTasksDesc": "今天到期或已逾期的工作，顯示在今天的行程下方",
+  "planner.taskAccount": "工作來源",
+  "planner.taskAccountFirst": "第一個有工作的帳戶",
+  "planner.tasksHeader": "今天的工作"
+}

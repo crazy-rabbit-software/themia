@@ -15,5 +15,4 @@ namespace Themia.Core.Storage;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(EmailConfig))]
 [JsonSerializable(typeof(TasksConfig))]
-[JsonSerializable(typeof(WeekPlannerConfig))]
 internal sealed partial class WidgetConfigJsonContext : JsonSerializerContext;

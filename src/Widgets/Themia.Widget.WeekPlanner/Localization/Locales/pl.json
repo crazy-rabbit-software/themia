@@ -1,0 +1,10 @@
+{
+  "planner.desc": "Najbliższe dni z wydarzeniami i to, co ma termin dzisiaj",
+  "planner.free": "Nic nie zaplanowano",
+  "planner.label": "Planer tygodnia",
+  "planner.showTasks": "Pokaż dzisiejsze zadania",
+  "planner.showTasksDesc": "Zadania z terminem na dziś lub zaległe, pod dzisiejszymi wydarzeniami",
+  "planner.taskAccount": "Zadania z",
+  "planner.taskAccountFirst": "Pierwsze konto z zadaniami",
+  "planner.tasksHeader": "Dzisiejsze zadania"
+}

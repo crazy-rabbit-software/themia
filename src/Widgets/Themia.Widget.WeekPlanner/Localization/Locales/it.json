@@ -1,0 +1,10 @@
+{
+  "planner.desc": "I prossimi giorni con i loro eventi e ciò che scade oggi",
+  "planner.free": "Niente in programma",
+  "planner.label": "Agenda settimanale",
+  "planner.showTasks": "Mostra le attività di oggi",
+  "planner.showTasksDesc": "Attività in scadenza oggi o scadute, sotto gli eventi di oggi",
+  "planner.taskAccount": "Attività da",
+  "planner.taskAccountFirst": "Il primo account con attività",
+  "planner.tasksHeader": "Attività di oggi"
+}

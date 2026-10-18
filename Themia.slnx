@@ -82,6 +82,7 @@
     <Project Path="src/Widgets/Themia.Widget.Volume/Themia.Widget.Volume.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WeatherForecast/Themia.Widget.WeatherForecast.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WeatherNow/Themia.Widget.WeatherNow.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.WeekPlanner/Themia.Widget.WeekPlanner.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WifiToggle/Themia.Widget.WifiToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.YearProgress/Themia.Widget.YearProgress.csproj" />
   </Folder>
