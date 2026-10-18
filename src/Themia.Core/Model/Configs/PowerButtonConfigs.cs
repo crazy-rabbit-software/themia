@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-1910] Sleep.</summary>
-public sealed class SleepConfig : PowerButtonConfig
-{
-    /// <summary>The action it stands for.</summary>
-    [JsonIgnore]
-    public override PowerAction Action => PowerAction.Sleep;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("sleep"),
-        ConfigType = typeof(SleepConfig),
-        CreateDefault = () => new SleepConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["power", "standby", "suspend"],
-        Label = Str.Power_Action_Sleep.Local(),
-        Description = Str.WidgetsC_Power_Desc_Sleep.Local(),
-        Glyph = Glyphs.Moon,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
-        Add = new(AddFolderId.PowerButtons, 0, 2),
-    };
-
-    public override WidgetConfig Clone() => new SleepConfig { Style = Style };
-}
-
 /// <summary>[S-1910] Hibernate.</summary>
 public sealed class HibernateConfig : PowerButtonConfig
 {

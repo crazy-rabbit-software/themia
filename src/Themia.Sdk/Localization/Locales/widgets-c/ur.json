@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "اگلے مرحلے پر جائیں",
   "widgetsC.pomodoro.next": "اگلا: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " منٹ",
-  "widgetsC.power.desc.sleep": "کم پاور؛ اسی ڈیسک ٹاپ پر واپس آتا ہے",
   "widgetsC.power.desc.hibernate": "سیشن ڈسک پر محفوظ کر کے بند ہو جاتا ہے",
   "widgetsC.power.desc.lock": "لاک اسکرین دکھاتا ہے؛ ایپس چلتی رہتی ہیں",
   "widgetsC.power.desc.signOut": "آپ کی ایپس بند کر کے سیشن ختم کرتا ہے",

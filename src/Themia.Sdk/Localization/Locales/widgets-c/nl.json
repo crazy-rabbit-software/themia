@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Doorgaan naar de volgende fase",
   "widgetsC.pomodoro.next": "Volgende: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.sleep": "Weinig energie; je keert terug naar hetzelfde bureaublad",
   "widgetsC.power.desc.hibernate": "Slaat de sessie op schijf op en schakelt uit",
   "widgetsC.power.desc.lock": "Toont het vergrendelingsscherm; apps blijven actief",
   "widgetsC.power.desc.signOut": "Sluit je apps en beëindigt je sessie",

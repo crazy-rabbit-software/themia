@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "ข้ามไปยังช่วงถัดไป",
   "widgetsC.pomodoro.next": "ถัดไป: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " นาที",
-  "widgetsC.power.desc.sleep": "ใช้พลังงานต่ำ กลับมาที่เดสก์ท็อปเดิม",
   "widgetsC.power.desc.hibernate": "บันทึกเซสชันลงดิสก์และปิดเครื่อง",
   "widgetsC.power.desc.lock": "แสดงหน้าจอล็อก แอปยังคงทำงานอยู่",
   "widgetsC.power.desc.signOut": "ปิดแอปของคุณและสิ้นสุดเซสชัน",

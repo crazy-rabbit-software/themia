@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "తదుపరి దశకు దాటవేయి",
   "widgetsC.pomodoro.next": "తదుపరి: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " నిమి",
-  "widgetsC.power.desc.sleep": "తక్కువ పవర్; అదే డెస్క్‌టాప్‌కు తిరిగి వస్తుంది",
   "widgetsC.power.desc.hibernate": "సెషన్‌ను డిస్క్‌కు సేవ్ చేసి పవర్ ఆఫ్ చేస్తుంది",
   "widgetsC.power.desc.lock": "లాక్ స్క్రీన్‌ను చూపిస్తుంది; యాప్‌లు నడుస్తూనే ఉంటాయి",
   "widgetsC.power.desc.signOut": "మీ యాప్‌లను మూసివేసి మీ సెషన్‌ను ముగిస్తుంది",

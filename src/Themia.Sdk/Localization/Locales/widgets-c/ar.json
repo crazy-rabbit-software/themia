@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "التخطي إلى المرحلة التالية",
   "widgetsC.pomodoro.next": "التالي: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " د",
-  "widgetsC.power.desc.sleep": "طاقة منخفضة؛ يعود إلى سطح المكتب نفسه",
   "widgetsC.power.desc.hibernate": "يحفظ الجلسة على القرص ويوقف التشغيل",
   "widgetsC.power.desc.lock": "يعرض شاشة القفل؛ تستمر التطبيقات في العمل",
   "widgetsC.power.desc.signOut": "يُغلق تطبيقاتك وينهي جلستك",

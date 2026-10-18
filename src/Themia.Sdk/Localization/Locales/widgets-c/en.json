@@ -30,7 +30,6 @@
   "widgetsC.pomodoro.skip": "Skip to the next phase",
   "widgetsC.pomodoro.next": "Next: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.sleep": "Low power; comes back to the same desktop",
   "widgetsC.power.desc.hibernate": "Saves the session to disk and powers off",
   "widgetsC.power.desc.lock": "Shows the lock screen; apps keep running",
   "widgetsC.power.desc.signOut": "Closes your apps and ends your session",

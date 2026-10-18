@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Sonraki aşamaya geç",
   "widgetsC.pomodoro.next": "Sıradaki: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " dk",
-  "widgetsC.power.desc.sleep": "Düşük güç; aynı masaüstüne geri döner",
   "widgetsC.power.desc.hibernate": "Oturumu diske kaydeder ve gücü kapatır",
   "widgetsC.power.desc.lock": "Kilit ekranını gösterir; uygulamalar çalışmaya devam eder",
   "widgetsC.power.desc.signOut": "Uygulamalarınızı kapatır ve oturumunuzu sonlandırır",

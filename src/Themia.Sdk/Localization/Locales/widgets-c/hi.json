@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "अगले चरण पर जाएँ",
   "widgetsC.pomodoro.next": "अगला: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " मि",
-  "widgetsC.power.desc.sleep": "कम पावर; उसी डेस्कटॉप पर लौटता है",
   "widgetsC.power.desc.hibernate": "सत्र को डिस्क पर सहेजकर बंद होता है",
   "widgetsC.power.desc.lock": "लॉक स्क्रीन दिखाता है; ऐप चलते रहते हैं",
   "widgetsC.power.desc.signOut": "आपके ऐप बंद करके सत्र समाप्त करता है",

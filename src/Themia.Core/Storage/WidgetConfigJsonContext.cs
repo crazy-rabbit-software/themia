@@ -69,7 +69,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(ScreenTimeDonutConfig))]
 [JsonSerializable(typeof(ShortcutsConfig))]
 [JsonSerializable(typeof(SignOutConfig))]
-[JsonSerializable(typeof(SleepConfig))]
 [JsonSerializable(typeof(SoundToggleConfig))]
 [JsonSerializable(typeof(SpatialSoundToggleConfig))]
 [JsonSerializable(typeof(StocksConfig))]

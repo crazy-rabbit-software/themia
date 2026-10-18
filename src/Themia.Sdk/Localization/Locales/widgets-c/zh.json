@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "跳到下一阶段",
   "widgetsC.pomodoro.next": "下一个：{phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " 分钟",
-  "widgetsC.power.desc.sleep": "低功耗；恢复后回到相同的桌面",
   "widgetsC.power.desc.hibernate": "将会话保存到磁盘并关机",
   "widgetsC.power.desc.lock": "显示锁屏；应用继续运行",
   "widgetsC.power.desc.signOut": "关闭你的应用并结束会话",
