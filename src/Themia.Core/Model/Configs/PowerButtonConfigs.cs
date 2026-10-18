@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-1910] Restart.</summary>
-public sealed class RestartConfig : PowerButtonConfig
-{
-    /// <summary>The action it stands for.</summary>
-    [JsonIgnore]
-    public override PowerAction Action => PowerAction.Restart;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("restart"),
-        ConfigType = typeof(RestartConfig),
-        CreateDefault = () => new RestartConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["power", "reboot", "restart", "reset"],
-        Label = Str.Power_Action_Restart.Local(),
-        Description = Str.WidgetsC_Power_Desc_Restart.Local(),
-        Glyph = Glyphs.Reset,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
-        Add = new(AddFolderId.PowerButtons, 0, 1),
-    };
-
-    public override WidgetConfig Clone() => new RestartConfig { Style = Style };
-}
-
 /// <summary>[S-1910] Sleep.</summary>
 public sealed class SleepConfig : PowerButtonConfig
 {

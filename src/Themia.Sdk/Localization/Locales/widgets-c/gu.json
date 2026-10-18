@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "આગલા તબક્કા પર જાઓ",
   "widgetsC.pomodoro.next": "આગળ: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " મિનિટ",
-  "widgetsC.power.desc.restart": "બધી ઍપ્સ બંધ કરે છે અને Windows ફરી શરૂ કરે છે",
   "widgetsC.power.desc.sleep": "ઓછો પાવર; એ જ ડેસ્કટૉપ પર પાછું આવે છે",
   "widgetsC.power.desc.hibernate": "સત્રને ડિસ્ક પર સાચવે છે અને પાવર બંધ કરે છે",
   "widgetsC.power.desc.lock": "લૉક સ્ક્રીન બતાવે છે; ઍપ્સ ચાલુ રહે છે",

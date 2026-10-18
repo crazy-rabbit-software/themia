@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "ਅਗਲੇ ਪੜਾਅ ਉੱਤੇ ਜਾਓ",
   "widgetsC.pomodoro.next": "ਅਗਲਾ: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " ਮਿੰਟ",
-  "widgetsC.power.desc.restart": "ਹਰ ਐਪ ਬੰਦ ਕਰਦਾ ਹੈ ਅਤੇ Windows ਨੂੰ ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰਦਾ ਹੈ",
   "widgetsC.power.desc.sleep": "ਘੱਟ ਪਾਵਰ; ਉਸੇ ਡੈਸਕਟਾਪ ਉੱਤੇ ਵਾਪਸ ਆਉਂਦਾ ਹੈ",
   "widgetsC.power.desc.hibernate": "ਸੈਸ਼ਨ ਨੂੰ ਡਿਸਕ ਉੱਤੇ ਸੰਭਾਲਦਾ ਹੈ ਅਤੇ ਪਾਵਰ ਬੰਦ ਕਰਦਾ ਹੈ",
   "widgetsC.power.desc.lock": "ਲੌਕ ਸਕ੍ਰੀਨ ਦਿਖਾਉਂਦਾ ਹੈ; ਐਪਾਂ ਚੱਲਦੀਆਂ ਰਹਿੰਦੀਆਂ ਹਨ",

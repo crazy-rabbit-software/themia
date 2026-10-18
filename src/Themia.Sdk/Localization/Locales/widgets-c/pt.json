@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Pular para a próxima fase",
   "widgetsC.pomodoro.next": "Próximo: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.restart": "Fecha todos os aplicativos e reinicia o Windows",
   "widgetsC.power.desc.sleep": "Baixo consumo; volta para a mesma área de trabalho",
   "widgetsC.power.desc.hibernate": "Salva a sessão no disco e desliga",
   "widgetsC.power.desc.lock": "Mostra a tela de bloqueio; os aplicativos continuam abertos",

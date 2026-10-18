@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Перейти к следующему этапу",
   "widgetsC.pomodoro.next": "Далее: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " мин",
-  "widgetsC.power.desc.restart": "Закрывает все приложения и запускает Windows заново",
   "widgetsC.power.desc.sleep": "Низкое энергопотребление; возврат к тому же рабочему столу",
   "widgetsC.power.desc.hibernate": "Сохраняет сеанс на диск и выключает питание",
   "widgetsC.power.desc.lock": "Показывает экран блокировки; приложения продолжают работать",

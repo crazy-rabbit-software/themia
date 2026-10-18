@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Zur nächsten Phase springen",
   "widgetsC.pomodoro.next": "Danach: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " Min.",
-  "widgetsC.power.desc.restart": "Schließt alle Apps und startet Windows neu",
   "widgetsC.power.desc.sleep": "Wenig Energie; kehrt zum selben Desktop zurück",
   "widgetsC.power.desc.hibernate": "Speichert die Sitzung auf dem Datenträger und schaltet aus",
   "widgetsC.power.desc.lock": "Zeigt den Sperrbildschirm; Apps laufen weiter",
