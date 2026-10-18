@@ -11,8 +11,6 @@
   "toggles.sound.name": "Som",
   "toggles.microphone.name": "Microfone",
   "toggles.spatialSound.name": "Som espacial",
-  "toggles.spatialSound.label": "Som espacial ligado/desligado",
-  "toggles.spatialSound.desc": "Windows Sonic na saída padrão",
   "toggles.monoAudio.name": "Áudio mono",
   "toggles.monoAudio.label": "Áudio mono ligado/desligado",
   "toggles.monoAudio.desc": "Reproduz os canais esquerdo e direito como um só",

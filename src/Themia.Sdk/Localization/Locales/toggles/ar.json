@@ -11,8 +11,6 @@
   "toggles.sound.name": "الصوت",
   "toggles.microphone.name": "الميكروفون",
   "toggles.spatialSound.name": "الصوت المكاني",
-  "toggles.spatialSound.label": "تشغيل/إيقاف الصوت المكاني",
-  "toggles.spatialSound.desc": "Windows Sonic على الإخراج الافتراضي",
   "toggles.monoAudio.name": "صوت أحادي",
   "toggles.monoAudio.label": "تشغيل/إيقاف الصوت الأحادي",
   "toggles.monoAudio.desc": "تشغيل القناتين اليسرى واليمنى كقناة واحدة",

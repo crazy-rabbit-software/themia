@@ -11,8 +11,6 @@
   "toggles.sound.name": "Suara",
   "toggles.microphone.name": "Mikrofon",
   "toggles.spatialSound.name": "Suara spasial",
-  "toggles.spatialSound.label": "Suara spasial aktif/nonaktif",
-  "toggles.spatialSound.desc": "Windows Sonic pada output default",
   "toggles.monoAudio.name": "Audio mono",
   "toggles.monoAudio.label": "Audio mono aktif/nonaktif",
   "toggles.monoAudio.desc": "Memutar saluran kiri dan kanan sebagai satu",

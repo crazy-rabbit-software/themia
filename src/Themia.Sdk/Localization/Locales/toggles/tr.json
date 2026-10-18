@@ -11,8 +11,6 @@
   "toggles.sound.name": "Ses",
   "toggles.microphone.name": "Mikrofon",
   "toggles.spatialSound.name": "Uzamsal ses",
-  "toggles.spatialSound.label": "Uzamsal ses aç/kapat",
-  "toggles.spatialSound.desc": "Varsayılan çıkışta Windows Sonic",
   "toggles.monoAudio.name": "Mono ses",
   "toggles.monoAudio.label": "Mono ses aç/kapat",
   "toggles.monoAudio.desc": "Sol ve sağ kanalları tek kanal olarak çalar",

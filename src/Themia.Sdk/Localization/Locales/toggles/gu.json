@@ -11,8 +11,6 @@
   "toggles.sound.name": "ધ્વનિ",
   "toggles.microphone.name": "માઇક્રોફોન",
   "toggles.spatialSound.name": "અવકાશી ધ્વનિ",
-  "toggles.spatialSound.label": "અવકાશી ધ્વનિ ચાલુ/બંધ",
-  "toggles.spatialSound.desc": "ડિફૉલ્ટ આઉટપુટ પર Windows Sonic",
   "toggles.monoAudio.name": "મોનો ઑડિયો",
   "toggles.monoAudio.label": "મોનો ઑડિયો ચાલુ/બંધ",
   "toggles.monoAudio.desc": "ડાબી અને જમણી ચૅનલને એક તરીકે વગાડે છે",

@@ -11,8 +11,6 @@
   "toggles.sound.name": "サウンド",
   "toggles.microphone.name": "マイク",
   "toggles.spatialSound.name": "立体音響",
-  "toggles.spatialSound.label": "立体音響 オン/オフ",
-  "toggles.spatialSound.desc": "既定の出力で Windows Sonic を使います",
   "toggles.monoAudio.name": "モノラル オーディオ",
   "toggles.monoAudio.label": "モノラル オーディオ オン/オフ",
   "toggles.monoAudio.desc": "左右のチャンネルを 1 つにまとめて再生します",

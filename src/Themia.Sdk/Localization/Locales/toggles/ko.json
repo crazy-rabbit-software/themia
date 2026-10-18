@@ -11,8 +11,6 @@
   "toggles.sound.name": "소리",
   "toggles.microphone.name": "마이크",
   "toggles.spatialSound.name": "공간 음향",
-  "toggles.spatialSound.label": "공간 음향 켜기/끄기",
-  "toggles.spatialSound.desc": "기본 출력 장치의 Windows Sonic",
   "toggles.monoAudio.name": "모노 오디오",
   "toggles.monoAudio.label": "모노 오디오 켜기/끄기",
   "toggles.monoAudio.desc": "왼쪽과 오른쪽 채널을 하나로 재생합니다",

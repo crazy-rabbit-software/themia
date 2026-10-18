@@ -11,8 +11,6 @@
   "toggles.sound.name": "ध्वनि",
   "toggles.microphone.name": "माइक्रोफ़ोन",
   "toggles.spatialSound.name": "स्थानिक ध्वनि",
-  "toggles.spatialSound.label": "स्थानिक ध्वनि चालू/बंद",
-  "toggles.spatialSound.desc": "डिफ़ॉल्ट आउटपुट पर Windows Sonic",
   "toggles.monoAudio.name": "मोनो ऑडियो",
   "toggles.monoAudio.label": "मोनो ऑडियो चालू/बंद",
   "toggles.monoAudio.desc": "बाएँ और दाएँ चैनल को एक साथ चलाता है",

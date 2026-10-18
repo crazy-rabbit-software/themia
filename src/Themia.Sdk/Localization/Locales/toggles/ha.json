@@ -11,8 +11,6 @@
   "toggles.sound.name": "Sauti",
   "toggles.microphone.name": "Makirufo",
   "toggles.spatialSound.name": "Sautin sarari",
-  "toggles.spatialSound.label": "Kunna/kashe sautin sarari",
-  "toggles.spatialSound.desc": "Windows Sonic a fitarwar asali",
   "toggles.monoAudio.name": "Sautin mono",
   "toggles.monoAudio.label": "Kunna/kashe sautin mono",
   "toggles.monoAudio.desc": "Yana kunna tashoshin hagu da dama a matsayin ɗaya",

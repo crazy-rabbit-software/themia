@@ -11,8 +11,6 @@
   "toggles.sound.name": "صدا",
   "toggles.microphone.name": "میکروفون",
   "toggles.spatialSound.name": "صدای فضایی",
-  "toggles.spatialSound.label": "روشن/خاموش صدای فضایی",
-  "toggles.spatialSound.desc": "Windows Sonic روی خروجی پیش‌فرض",
   "toggles.monoAudio.name": "صدای مونو",
   "toggles.monoAudio.label": "روشن/خاموش صدای مونو",
   "toggles.monoAudio.desc": "کانال‌های چپ و راست را یکی پخش می‌کند",

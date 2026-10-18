@@ -11,8 +11,6 @@
   "toggles.sound.name": "শব্দ",
   "toggles.microphone.name": "মাইক্রোফোন",
   "toggles.spatialSound.name": "স্প্যাশিয়াল সাউন্ড",
-  "toggles.spatialSound.label": "স্প্যাশিয়াল সাউন্ড চালু/বন্ধ",
-  "toggles.spatialSound.desc": "ডিফল্ট আউটপুটে Windows Sonic",
   "toggles.monoAudio.name": "মোনো অডিও",
   "toggles.monoAudio.label": "মোনো অডিও চালু/বন্ধ",
   "toggles.monoAudio.desc": "বাম ও ডান চ্যানেল একসঙ্গে চালায়",

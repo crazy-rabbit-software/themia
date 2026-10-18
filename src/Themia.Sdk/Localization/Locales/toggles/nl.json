@@ -11,8 +11,6 @@
   "toggles.sound.name": "Geluid",
   "toggles.microphone.name": "Microfoon",
   "toggles.spatialSound.name": "Ruimtelijk geluid",
-  "toggles.spatialSound.label": "Ruimtelijk geluid aan/uit",
-  "toggles.spatialSound.desc": "Windows Sonic op de standaarduitvoer",
   "toggles.monoAudio.name": "Mono-audio",
   "toggles.monoAudio.label": "Mono-audio aan/uit",
   "toggles.monoAudio.desc": "Speelt het linker- en rechterkanaal als één af",

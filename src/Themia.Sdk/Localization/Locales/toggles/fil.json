@@ -11,8 +11,6 @@
   "toggles.sound.name": "Tunog",
   "toggles.microphone.name": "Mikropono",
   "toggles.spatialSound.name": "Spatial sound",
-  "toggles.spatialSound.label": "I-on/i-off ang Spatial sound",
-  "toggles.spatialSound.desc": "Windows Sonic sa default na output",
   "toggles.monoAudio.name": "Mono audio",
   "toggles.monoAudio.label": "I-on/i-off ang Mono audio",
   "toggles.monoAudio.desc": "Pinapatugtog nang iisa ang kaliwa at kanang channel",

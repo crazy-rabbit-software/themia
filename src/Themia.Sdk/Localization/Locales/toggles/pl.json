@@ -11,8 +11,6 @@
   "toggles.sound.name": "Dźwięk",
   "toggles.microphone.name": "Mikrofon",
   "toggles.spatialSound.name": "Dźwięk przestrzenny",
-  "toggles.spatialSound.label": "Dźwięk przestrzenny wł./wył.",
-  "toggles.spatialSound.desc": "Windows Sonic na domyślnym wyjściu",
   "toggles.monoAudio.name": "Dźwięk mono",
   "toggles.monoAudio.label": "Dźwięk mono wł./wył.",
   "toggles.monoAudio.desc": "Odtwarza lewy i prawy kanał jako jeden",

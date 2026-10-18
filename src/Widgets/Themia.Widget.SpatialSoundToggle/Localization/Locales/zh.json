@@ -1,0 +1,4 @@
+{
+  "toggles.spatialSound.label": "空间音效 开/关",
+  "toggles.spatialSound.desc": "在默认输出上使用 Windows Sonic"
+}

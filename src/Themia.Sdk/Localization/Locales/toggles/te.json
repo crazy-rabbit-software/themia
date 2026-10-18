@@ -11,8 +11,6 @@
   "toggles.sound.name": "ధ్వని",
   "toggles.microphone.name": "మైక్రోఫోన్",
   "toggles.spatialSound.name": "స్పేషియల్ సౌండ్",
-  "toggles.spatialSound.label": "స్పేషియల్ సౌండ్ ఆన్/ఆఫ్",
-  "toggles.spatialSound.desc": "డిఫాల్ట్ అవుట్‌పుట్‌పై Windows Sonic",
   "toggles.monoAudio.name": "మోనో ఆడియో",
   "toggles.monoAudio.label": "మోనో ఆడియో ఆన్/ఆఫ్",
   "toggles.monoAudio.desc": "ఎడమ మరియు కుడి ఛానెల్‌లను ఒకటిగా ప్లే చేస్తుంది",

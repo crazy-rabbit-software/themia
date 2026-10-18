@@ -11,8 +11,6 @@
   "toggles.sound.name": "ஒலி",
   "toggles.microphone.name": "மைக்ரோஃபோன்",
   "toggles.spatialSound.name": "இடஞ்சார் ஒலி",
-  "toggles.spatialSound.label": "இடஞ்சார் ஒலி இயக்கு/முடக்கு",
-  "toggles.spatialSound.desc": "இயல்புநிலை வெளியீட்டில் Windows Sonic",
   "toggles.monoAudio.name": "மோனோ ஆடியோ",
   "toggles.monoAudio.label": "மோனோ ஆடியோ இயக்கு/முடக்கு",
   "toggles.monoAudio.desc": "இடது மற்றும் வலது சேனல்களை ஒன்றாக இயக்கும்",

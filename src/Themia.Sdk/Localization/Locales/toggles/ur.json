@@ -11,8 +11,6 @@
   "toggles.sound.name": "آواز",
   "toggles.microphone.name": "مائیکروفون",
   "toggles.spatialSound.name": "مکانی آواز",
-  "toggles.spatialSound.label": "مکانی آواز آن/آف",
-  "toggles.spatialSound.desc": "ڈیفالٹ آؤٹ پٹ پر Windows Sonic",
   "toggles.monoAudio.name": "مونو آڈیو",
   "toggles.monoAudio.label": "مونو آڈیو آن/آف",
   "toggles.monoAudio.desc": "بائیں اور دائیں چینلز کو ایک کر کے چلاتا ہے",

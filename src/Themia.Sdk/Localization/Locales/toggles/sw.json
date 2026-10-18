@@ -11,8 +11,6 @@
   "toggles.sound.name": "Sauti",
   "toggles.microphone.name": "Maikrofoni",
   "toggles.spatialSound.name": "Sauti ya anga",
-  "toggles.spatialSound.label": "Sauti ya anga washa/zima",
-  "toggles.spatialSound.desc": "Windows Sonic kwenye towe chaguomsingi",
   "toggles.monoAudio.name": "Sauti ya mono",
   "toggles.monoAudio.label": "Sauti ya mono washa/zima",
   "toggles.monoAudio.desc": "Hucheza chaneli za kushoto na kulia kama moja",

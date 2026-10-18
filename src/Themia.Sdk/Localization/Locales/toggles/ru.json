@@ -11,8 +11,6 @@
   "toggles.sound.name": "Звук",
   "toggles.microphone.name": "Микрофон",
   "toggles.spatialSound.name": "Пространственный звук",
-  "toggles.spatialSound.label": "Пространственный звук вкл./откл.",
-  "toggles.spatialSound.desc": "Windows Sonic на устройстве вывода по умолчанию",
   "toggles.monoAudio.name": "Монозвук",
   "toggles.monoAudio.label": "Монозвук вкл./откл.",
   "toggles.monoAudio.desc": "Воспроизводит левый и правый каналы как один",

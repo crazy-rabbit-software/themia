@@ -11,8 +11,6 @@
   "toggles.sound.name": "Ton",
   "toggles.microphone.name": "Mikrofon",
   "toggles.spatialSound.name": "Raumklang",
-  "toggles.spatialSound.label": "Raumklang ein/aus",
-  "toggles.spatialSound.desc": "Windows Sonic auf der Standardausgabe",
   "toggles.monoAudio.name": "Monoaudio",
   "toggles.monoAudio.label": "Monoaudio ein/aus",
   "toggles.monoAudio.desc": "Spielt linken und rechten Kanal als einen ab",

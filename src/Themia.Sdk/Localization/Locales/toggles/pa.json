@@ -11,8 +11,6 @@
   "toggles.sound.name": "ਧੁਨੀ",
   "toggles.microphone.name": "ਮਾਈਕ੍ਰੋਫ਼ੋਨ",
   "toggles.spatialSound.name": "ਸਥਾਨਿਕ ਧੁਨੀ",
-  "toggles.spatialSound.label": "ਸਥਾਨਿਕ ਧੁਨੀ ਚਾਲੂ/ਬੰਦ",
-  "toggles.spatialSound.desc": "ਡਿਫ਼ੌਲਟ ਆਉਟਪੁੱਟ ਉੱਤੇ Windows Sonic",
   "toggles.monoAudio.name": "ਮੋਨੋ ਆਡੀਓ",
   "toggles.monoAudio.label": "ਮੋਨੋ ਆਡੀਓ ਚਾਲੂ/ਬੰਦ",
   "toggles.monoAudio.desc": "ਖੱਬੇ ਅਤੇ ਸੱਜੇ ਚੈਨਲਾਂ ਨੂੰ ਇੱਕ ਵਜੋਂ ਚਲਾਉਂਦਾ ਹੈ",

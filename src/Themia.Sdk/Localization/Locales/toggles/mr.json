@@ -11,8 +11,6 @@
   "toggles.sound.name": "ध्वनी",
   "toggles.microphone.name": "मायक्रोफोन",
   "toggles.spatialSound.name": "स्पेशियल साउंड",
-  "toggles.spatialSound.label": "स्पेशियल साउंड चालू/बंद",
-  "toggles.spatialSound.desc": "डीफॉल्ट आउटपुटवर Windows Sonic",
   "toggles.monoAudio.name": "मोनो ऑडिओ",
   "toggles.monoAudio.label": "मोनो ऑडिओ चालू/बंद",
   "toggles.monoAudio.desc": "डावे आणि उजवे चॅनेल एकत्र वाजवते",

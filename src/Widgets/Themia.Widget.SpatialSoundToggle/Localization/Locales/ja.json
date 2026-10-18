@@ -1,0 +1,4 @@
+{
+  "toggles.spatialSound.label": "立体音響 オン/オフ",
+  "toggles.spatialSound.desc": "既定の出力で Windows Sonic を使います"
+}

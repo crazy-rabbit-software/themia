@@ -10,8 +10,6 @@
   "toggles.sound.name": "Sound",
   "toggles.microphone.name": "Microphone",
   "toggles.spatialSound.name": "Spatial sound",
-  "toggles.spatialSound.label": "Spatial sound on/off",
-  "toggles.spatialSound.desc": "Windows Sonic on the default output",
   "toggles.monoAudio.name": "Mono audio",
   "toggles.monoAudio.label": "Mono audio on/off",
   "toggles.monoAudio.desc": "Plays the left and right channels as one",

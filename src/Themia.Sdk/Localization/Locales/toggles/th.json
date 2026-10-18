@@ -11,8 +11,6 @@
   "toggles.sound.name": "เสียง",
   "toggles.microphone.name": "ไมโครโฟน",
   "toggles.spatialSound.name": "เสียงรอบทิศทาง",
-  "toggles.spatialSound.label": "เปิด/ปิดเสียงรอบทิศทาง",
-  "toggles.spatialSound.desc": "Windows Sonic บนเอาต์พุตเริ่มต้น",
   "toggles.monoAudio.name": "เสียงโมโน",
   "toggles.monoAudio.label": "เปิด/ปิดเสียงโมโน",
   "toggles.monoAudio.desc": "เล่นช่องสัญญาณซ้ายและขวารวมเป็นช่องเดียว",

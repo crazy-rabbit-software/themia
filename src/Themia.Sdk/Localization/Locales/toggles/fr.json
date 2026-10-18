@@ -11,8 +11,6 @@
   "toggles.sound.name": "Son",
   "toggles.microphone.name": "Microphone",
   "toggles.spatialSound.name": "Son spatial",
-  "toggles.spatialSound.label": "Son spatial activé/désactivé",
-  "toggles.spatialSound.desc": "Windows Sonic sur la sortie par défaut",
   "toggles.monoAudio.name": "Audio mono",
   "toggles.monoAudio.label": "Audio mono activé/désactivé",
   "toggles.monoAudio.desc": "Joue les canaux gauche et droit en un seul",

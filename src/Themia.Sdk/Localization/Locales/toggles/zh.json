@@ -11,8 +11,6 @@
   "toggles.sound.name": "声音",
   "toggles.microphone.name": "麦克风",
   "toggles.spatialSound.name": "空间音效",
-  "toggles.spatialSound.label": "空间音效 开/关",
-  "toggles.spatialSound.desc": "在默认输出上使用 Windows Sonic",
   "toggles.monoAudio.name": "单声道音频",
   "toggles.monoAudio.label": "单声道音频 开/关",
   "toggles.monoAudio.desc": "将左右声道合为一个播放",
