@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "نمودار",
-  "styles.io.bars": "نوارها",
   "styles.io.ring": "حلقه",
   "styles.io.signal": "نوارهای سیگنال",
-  "styles.io.bar": "نوار",
-  "styles.io.read": "خواندن",
-  "styles.io.write": "نوشتن"
+  "styles.io.bar": "نوار"
 }

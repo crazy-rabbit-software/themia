@@ -346,7 +346,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "За какой период график показывает историю",
   "widgetsB.settings.meters.showHistory.label": "Показывать историю",
   "widgetsB.settings.meters.showHistory.desc": "Рисовать график последних измерений",
-  "widgetsB.settings.disk.disk": "Диск",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (не подключен)",
   "widgetsB.settings.ping.measuring": "Измерение {host}",
   "widgetsB.settings.ping.notAHost": "Это не имя узла и не адрес",

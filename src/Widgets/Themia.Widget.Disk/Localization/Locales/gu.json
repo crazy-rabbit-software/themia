@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "જે ડ્રાઇવના રીડ અને રાઇટ સંખ્યા તરીકે બતાવાય છે",
+  "shell.meters.drive.label": "ડ્રાઇવ",
+  "styles.io.bars": "બાર",
+  "styles.io.read": "વાંચન",
+  "styles.io.write": "લેખન",
+  "widgetsA.catalog.disk.description": "પ્રતિ સેકન્ડ ડિસ્ક રીડ અને રાઇટ",
+  "widgetsA.catalog.disk.label": "ડિસ્ક",
+  "widgetsB.settings.disk.disk": "ડિસ્ક"
+}

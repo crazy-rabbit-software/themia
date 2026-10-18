@@ -310,7 +310,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "图表覆盖的历史时长",
   "widgetsB.settings.meters.showHistory.label": "显示历史记录",
   "widgetsB.settings.meters.showHistory.desc": "绘制最近采样的图表",
-  "widgetsB.settings.disk.disk": "磁盘",
   "widgetsB.settings.disk.notConnectedDrive": "{drive}（未连接）",
   "widgetsB.settings.ping.measuring": "正在测量 {host}",
   "widgetsB.settings.ping.notAHost": "不是主机名或地址",

@@ -46,8 +46,6 @@
   "widgetsA.catalog.clipboard.description": "您最近複製的內容",
   "widgetsA.catalog.clipboard.label": "剪貼簿",
   "widgetsA.catalog.contacts.description": "來自您 Microsoft、Google 和 CardDAV 通訊錄的連絡人",
-  "widgetsA.catalog.disk.description": "每秒磁碟讀寫量",
-  "widgetsA.catalog.disk.label": "磁碟",
   "widgetsA.catalog.feed.description": "您所選摘要的頭條新聞",
   "widgetsA.catalog.feed.label": "摘要",
   "widgetsA.catalog.gallery.description": "來自資料夾、檔案或 Bing 的圖片",

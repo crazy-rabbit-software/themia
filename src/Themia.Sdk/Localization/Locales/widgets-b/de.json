@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Wie viel Verlauf das Diagramm zeigt",
   "widgetsB.settings.meters.showHistory.label": "Verlauf anzeigen",
   "widgetsB.settings.meters.showHistory.desc": "Ein Diagramm der letzten Messwerte zeichnen",
-  "widgetsB.settings.disk.disk": "Datenträger",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (nicht verbunden)",
   "widgetsB.settings.ping.measuring": "{host} wird gemessen",
   "widgetsB.settings.ping.notAHost": "Kein Hostname und keine Adresse",

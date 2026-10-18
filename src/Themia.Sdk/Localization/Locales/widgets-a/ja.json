@@ -46,8 +46,6 @@
   "widgetsA.catalog.clipboard.description": "最近コピーした内容",
   "widgetsA.catalog.clipboard.label": "クリップボード",
   "widgetsA.catalog.contacts.description": "Microsoft、Google、CardDAV のアドレス帳の連絡先",
-  "widgetsA.catalog.disk.description": "1 秒あたりのディスクの読み取りと書き込み",
-  "widgetsA.catalog.disk.label": "ディスク",
   "widgetsA.catalog.feed.description": "選んだフィードの見出し",
   "widgetsA.catalog.feed.label": "フィード",
   "widgetsA.catalog.gallery.description": "フォルダー、ファイル、または Bing の画像",

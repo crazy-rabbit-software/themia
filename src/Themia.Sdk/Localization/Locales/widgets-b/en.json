@@ -321,7 +321,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "How much history the chart covers",
   "widgetsB.settings.meters.showHistory.label": "Show history",
   "widgetsB.settings.meters.showHistory.desc": "Draw a chart of the recent samples",
-  "widgetsB.settings.disk.disk": "Disk",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (not connected)",
   "widgetsB.settings.ping.measuring": "Measuring {host}",
   "widgetsB.settings.ping.notAHost": "Not a host name or address",

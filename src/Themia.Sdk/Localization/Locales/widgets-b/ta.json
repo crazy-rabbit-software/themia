@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "விளக்கப்படம் எவ்வளவு வரலாற்றை உள்ளடக்கும்",
   "widgetsB.settings.meters.showHistory.label": "வரலாற்றைக் காட்டு",
   "widgetsB.settings.meters.showHistory.desc": "சமீபத்திய மாதிரிகளின் விளக்கப்படத்தை வரை",
-  "widgetsB.settings.disk.disk": "வட்டு",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (இணைக்கப்படவில்லை)",
   "widgetsB.settings.ping.measuring": "{host} அளவிடப்படுகிறது",
   "widgetsB.settings.ping.notAHost": "ஹோஸ்ட் பெயரோ முகவரியோ அல்ல",

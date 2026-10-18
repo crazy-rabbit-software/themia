@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "Urefu wa uhuishaji",
   "shell.transfer.transitionLength": "Urefu wa uhuishaji wa kubadilisha mwonekano",
   "shell.transfer.unlockLength": "Urefu wa uhuishaji wa kufungua",
-  "shell.meters.drive.label": "Hifadhi",
-  "shell.meters.drive.desc": "Hifadhi ambayo usomaji na uandishi wake ndio nambari",
   "shell.meters.systemDrive": "Hifadhi ya mfumo ({drive})",
   "shell.meters.gpuDescription": "Mzigo wa kadi moja ya michoro",
   "shell.appearance.headerFade": "Ukanda wa kichwa ni imara kiasi gani; {percent} hulingana na wijeti",

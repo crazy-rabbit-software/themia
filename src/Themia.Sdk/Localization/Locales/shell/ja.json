@@ -584,8 +584,6 @@
   "shell.transfer.startupLength": "アニメーションの長さ",
   "shell.transfer.transitionLength": "ビュー切り替えアニメーションの長さ",
   "shell.transfer.unlockLength": "ロック解除アニメーションの長さ",
-  "shell.meters.drive.label": "ドライブ",
-  "shell.meters.drive.desc": "読み取りと書き込みを数値で表示するドライブ",
   "shell.meters.systemDrive": "システム ドライブ ({drive})",
   "shell.meters.gpuDescription": "1 枚のグラフィックス カードの負荷",
   "shell.appearance.headerFade": "ヘッダー帯の不透明度。{percent} でウィジェットと同じになります",

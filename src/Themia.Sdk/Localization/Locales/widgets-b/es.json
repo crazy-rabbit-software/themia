@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Cuánto historial cubre el gráfico",
   "widgetsB.settings.meters.showHistory.label": "Mostrar historial",
   "widgetsB.settings.meters.showHistory.desc": "Dibujar un gráfico de las muestras recientes",
-  "widgetsB.settings.disk.disk": "Disco",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (no conectada)",
   "widgetsB.settings.ping.measuring": "Midiendo {host}",
   "widgetsB.settings.ping.notAHost": "No es un nombre de host ni una dirección",

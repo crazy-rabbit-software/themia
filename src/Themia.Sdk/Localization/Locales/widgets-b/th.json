@@ -310,7 +310,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "ระยะเวลาของประวัติที่แผนภูมิครอบคลุม",
   "widgetsB.settings.meters.showHistory.label": "แสดงประวัติ",
   "widgetsB.settings.meters.showHistory.desc": "วาดแผนภูมิของตัวอย่างล่าสุด",
-  "widgetsB.settings.disk.disk": "ดิสก์",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (ไม่ได้เชื่อมต่อ)",
   "widgetsB.settings.ping.measuring": "กำลังวัด {host}",
   "widgetsB.settings.ping.notAHost": "ไม่ใช่ชื่อโฮสต์หรือที่อยู่",

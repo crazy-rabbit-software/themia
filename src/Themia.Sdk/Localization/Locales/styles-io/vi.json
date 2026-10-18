@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "Biểu đồ",
-  "styles.io.bars": "Thanh",
   "styles.io.ring": "Vòng",
   "styles.io.signal": "Vạch sóng",
-  "styles.io.bar": "Thanh",
-  "styles.io.read": "Đọc",
-  "styles.io.write": "Ghi"
+  "styles.io.bar": "Thanh"
 }

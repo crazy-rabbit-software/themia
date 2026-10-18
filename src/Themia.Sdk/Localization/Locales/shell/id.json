@@ -584,8 +584,6 @@
   "shell.transfer.startupLength": "Durasi animasi",
   "shell.transfer.transitionLength": "Durasi animasi ganti tampilan",
   "shell.transfer.unlockLength": "Durasi animasi buka kunci",
-  "shell.meters.drive.label": "Drive",
-  "shell.meters.drive.desc": "Drive yang baca dan tulisnya menjadi angka",
   "shell.meters.systemDrive": "Drive sistem ({drive})",
   "shell.meters.gpuDescription": "Beban satu kartu grafis",
   "shell.appearance.headerFade": "Seberapa pekat strip header; {percent} sama dengan widget",

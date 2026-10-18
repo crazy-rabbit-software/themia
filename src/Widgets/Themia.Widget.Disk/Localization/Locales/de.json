@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "Das Laufwerk, dessen Lese- und Schreibvorgänge die Zahl sind",
+  "shell.meters.drive.label": "Laufwerk",
+  "styles.io.bars": "Balken",
+  "styles.io.read": "Lesen",
+  "styles.io.write": "Schreiben",
+  "widgetsA.catalog.disk.description": "Lese- und Schreibvorgänge pro Sekunde",
+  "widgetsA.catalog.disk.label": "Datenträger",
+  "widgetsB.settings.disk.disk": "Datenträger"
+}

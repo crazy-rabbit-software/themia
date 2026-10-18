@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "ไดรฟ์ที่ใช้การอ่านและเขียนเป็นตัวเลข",
+  "shell.meters.drive.label": "ไดรฟ์",
+  "styles.io.bars": "แถบ",
+  "styles.io.read": "อ่าน",
+  "styles.io.write": "เขียน",
+  "widgetsA.catalog.disk.description": "การอ่านและเขียนดิสก์ต่อวินาที",
+  "widgetsA.catalog.disk.label": "ดิสก์",
+  "widgetsB.settings.disk.disk": "ดิสก์"
+}

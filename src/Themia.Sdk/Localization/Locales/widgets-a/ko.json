@@ -46,8 +46,6 @@
   "widgetsA.catalog.clipboard.description": "최근에 복사한 항목",
   "widgetsA.catalog.clipboard.label": "클립보드",
   "widgetsA.catalog.contacts.description": "Microsoft, Google 및 CardDAV 주소록의 사람",
-  "widgetsA.catalog.disk.description": "초당 디스크 읽기 및 쓰기",
-  "widgetsA.catalog.disk.label": "디스크",
   "widgetsA.catalog.feed.description": "선택한 피드의 헤드라인",
   "widgetsA.catalog.feed.label": "피드",
   "widgetsA.catalog.gallery.description": "폴더, 파일 또는 Bing의 사진",

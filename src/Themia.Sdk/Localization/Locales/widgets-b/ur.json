@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "چارٹ کتنی سرگزشت دکھاتا ہے",
   "widgetsB.settings.meters.showHistory.label": "سرگزشت دکھائیں",
   "widgetsB.settings.meters.showHistory.desc": "حالیہ نمونوں کا چارٹ بنائیں",
-  "widgetsB.settings.disk.disk": "ڈسک",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (منسلک نہیں)",
   "widgetsB.settings.ping.measuring": "{host} کی پیمائش ہو رہی ہے",
   "widgetsB.settings.ping.notAHost": "ہوسٹ نام یا پتہ نہیں",

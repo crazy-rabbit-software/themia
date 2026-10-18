@@ -310,7 +310,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "グラフに表示する履歴の長さ",
   "widgetsB.settings.meters.showHistory.label": "履歴を表示",
   "widgetsB.settings.meters.showHistory.desc": "最近のサンプルをグラフで表示します",
-  "widgetsB.settings.disk.disk": "ディスク",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (未接続)",
   "widgetsB.settings.ping.measuring": "{host} を測定中",
   "widgetsB.settings.ping.notAHost": "ホスト名またはアドレスではありません",

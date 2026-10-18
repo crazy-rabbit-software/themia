@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "Durée de l’animation",
   "shell.transfer.transitionLength": "Durée de l’animation de changement de vue",
   "shell.transfer.unlockLength": "Durée de l’animation au déverrouillage",
-  "shell.meters.drive.label": "Lecteur",
-  "shell.meters.drive.desc": "Le lecteur dont les lectures et écritures sont le nombre",
   "shell.meters.systemDrive": "Lecteur système ({drive})",
   "shell.meters.gpuDescription": "Charge d’une carte graphique",
   "shell.appearance.headerFade": "L’opacité du bandeau d’en-tête ; {percent} correspond au widget",

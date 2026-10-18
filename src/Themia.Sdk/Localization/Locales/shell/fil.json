@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "Haba ng animation",
   "shell.transfer.transitionLength": "Haba ng animation sa pagpapalit ng view",
   "shell.transfer.unlockLength": "Haba ng animation sa pag-unlock",
-  "shell.meters.drive.label": "Drive",
-  "shell.meters.drive.desc": "Ang drive na ang mga pagbasa at pagsulat ang ipinapakitang numero",
   "shell.meters.systemDrive": "Drive ng system ({drive})",
   "shell.meters.gpuDescription": "Load ng isang graphics card",
   "shell.appearance.headerFade": "Gaano kasolido ang header strip; tugma sa widget ang {percent}",

@@ -346,7 +346,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Ile historii obejmuje wykres",
   "widgetsB.settings.meters.showHistory.label": "Pokaż historię",
   "widgetsB.settings.meters.showHistory.desc": "Rysuj wykres ostatnich pomiarów",
-  "widgetsB.settings.disk.disk": "Dysk",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (niepodłączony)",
   "widgetsB.settings.ping.measuring": "Mierzenie {host}",
   "widgetsB.settings.ping.notAHost": "To nie jest nazwa hosta ani adres",

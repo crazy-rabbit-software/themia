@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "읽기 및 쓰기를 수치로 표시할 드라이브",
+  "shell.meters.drive.label": "드라이브",
+  "styles.io.bars": "막대",
+  "styles.io.read": "읽기",
+  "styles.io.write": "쓰기",
+  "widgetsA.catalog.disk.description": "초당 디스크 읽기 및 쓰기",
+  "widgetsA.catalog.disk.label": "디스크",
+  "widgetsB.settings.disk.disk": "디스크"
+}

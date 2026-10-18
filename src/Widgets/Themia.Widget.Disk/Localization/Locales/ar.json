@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "محرك الأقراص الذي تُعرض قراءاته وكتاباته",
+  "shell.meters.drive.label": "محرك الأقراص",
+  "styles.io.bars": "أشرطة",
+  "styles.io.read": "قراءة",
+  "styles.io.write": "كتابة",
+  "widgetsA.catalog.disk.description": "قراءات القرص وكتاباته في الثانية",
+  "widgetsA.catalog.disk.label": "القرص",
+  "widgetsB.settings.disk.disk": "القرص"
+}

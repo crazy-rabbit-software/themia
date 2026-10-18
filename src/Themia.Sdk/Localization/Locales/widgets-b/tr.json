@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Grafiğin ne kadar geçmişi kapsadığı",
   "widgetsB.settings.meters.showHistory.label": "Geçmişi göster",
   "widgetsB.settings.meters.showHistory.desc": "Son örneklerin grafiğini çiz",
-  "widgetsB.settings.disk.disk": "Disk",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (bağlı değil)",
   "widgetsB.settings.ping.measuring": "Ölçülen: {host}",
   "widgetsB.settings.ping.notAHost": "Ana bilgisayar adı veya adresi değil",

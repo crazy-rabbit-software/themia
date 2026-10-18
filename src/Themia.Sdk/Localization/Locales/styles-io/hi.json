@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "ग्राफ़",
-  "styles.io.bars": "बार",
   "styles.io.ring": "रिंग",
   "styles.io.signal": "सिग्नल बार",
-  "styles.io.bar": "बार",
-  "styles.io.read": "पढ़ना",
-  "styles.io.write": "लिखना"
+  "styles.io.bar": "बार"
 }

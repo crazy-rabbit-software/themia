@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "Grafik",
-  "styles.io.bars": "Çubuklar",
   "styles.io.ring": "Halka",
   "styles.io.signal": "Sinyal çubukları",
-  "styles.io.bar": "Çubuk",
-  "styles.io.read": "Okuma",
-  "styles.io.write": "Yazma"
+  "styles.io.bar": "Çubuk"
 }

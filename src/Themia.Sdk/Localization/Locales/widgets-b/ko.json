@@ -310,7 +310,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "차트에 표시할 기록 기간",
   "widgetsB.settings.meters.showHistory.label": "기록 표시",
   "widgetsB.settings.meters.showHistory.desc": "최근 샘플을 차트로 그립니다",
-  "widgetsB.settings.disk.disk": "디스크",
   "widgetsB.settings.disk.notConnectedDrive": "{drive}(연결되지 않음)",
   "widgetsB.settings.ping.measuring": "{host} 측정 중",
   "widgetsB.settings.ping.notAHost": "호스트 이름 또는 주소가 아닙니다",

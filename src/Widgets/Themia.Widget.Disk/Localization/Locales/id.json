@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "Drive yang baca dan tulisnya menjadi angka",
+  "shell.meters.drive.label": "Drive",
+  "styles.io.bars": "Batang",
+  "styles.io.read": "Baca",
+  "styles.io.write": "Tulis",
+  "widgetsA.catalog.disk.description": "Baca dan tulis disk per detik",
+  "widgetsA.catalog.disk.label": "Disk",
+  "widgetsB.settings.disk.disk": "Disk"
+}

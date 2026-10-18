@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "图表",
-  "styles.io.bars": "条形",
   "styles.io.ring": "圆环",
   "styles.io.signal": "信号格",
-  "styles.io.bar": "条形",
-  "styles.io.read": "读取",
-  "styles.io.write": "写入"
+  "styles.io.bar": "条形"
 }

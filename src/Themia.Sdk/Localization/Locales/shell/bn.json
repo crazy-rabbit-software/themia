@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "অ্যানিমেশনের দৈর্ঘ্য",
   "shell.transfer.transitionLength": "ভিউ বদলের অ্যানিমেশনের দৈর্ঘ্য",
   "shell.transfer.unlockLength": "আনলকের অ্যানিমেশনের দৈর্ঘ্য",
-  "shell.meters.drive.label": "ড্রাইভ",
-  "shell.meters.drive.desc": "যে ড্রাইভের রিড ও রাইট সংখ্যায় দেখানো হয়",
   "shell.meters.systemDrive": "সিস্টেম ড্রাইভ ({drive})",
   "shell.meters.gpuDescription": "একটি গ্রাফিক্স কার্ডের লোড",
   "shell.appearance.headerFade": "হেডার স্ট্রিপ কতটা নিরেট; {percent} উইজেটের সঙ্গে মেলে",

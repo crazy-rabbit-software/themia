@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Disk;
 
 namespace Themia.Core.Model;
 
@@ -25,7 +25,7 @@ public sealed class DiskConfig : GaugeConfig, IStyled, IReadsSystem
     private static readonly StyleOption[] DiskStyles =
     [
         StyleOption.Of(DiskStyle.Graph, Str.Styles_Io_Graph.Local(), 0xE9D2),
-        StyleOption.Of(DiskStyle.Bars, Str.Styles_Io_Bars.Local(), 0xE8E4),
+        StyleOption.Of(DiskStyle.Bars, DiskStr.Styles_Io_Bars.Local(), 0xE8E4),
     ];
 
     /// <summary>
@@ -35,24 +35,6 @@ public sealed class DiskConfig : GaugeConfig, IStyled, IReadsSystem
         : base(graphSpanSeconds: 300)
     {
     }
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("disk"),
-        ConfigType = typeof(DiskConfig),
-        CreateDefault = () => new DiskConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["storage", "ssd", "hdd", "drive", "space", "free space", "io"],
-        Label = Str.WidgetsA_Catalog_Disk_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Disk_Description.Local(),
-        Glyph = Glyphs.Disk,
-        DefaultWidth = 200,
-        DefaultHeight = 150,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.System, 0, 3),
-    };
 
     /// <summary>[S-6271] The meter's look; what was its history switch ([S-6000]).</summary>
     public DiskStyle Style { get; set; } = DiskStyle.Graph;

@@ -126,7 +126,7 @@ public sealed class MeterHostTests
     [Fact]
     public void S700_the_disk_meter_starts_with_its_header_like_the_other_meters()
     {
-        Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(DiskConfig.Descriptor.Id));
-        Assert.Equal(WidgetInstance.DefaultHeader(new WidgetId("memory")), WidgetInstance.DefaultHeader(DiskConfig.Descriptor.Id));
+        Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(new WidgetId("disk")));
+        Assert.Equal(WidgetInstance.DefaultHeader(new WidgetId("memory")), WidgetInstance.DefaultHeader(new WidgetId("disk")));
     }
 }

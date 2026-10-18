@@ -1,0 +1,11 @@
+{
+  "$englishOnly": [],
+  "shell.meters.drive.desc": "The drive whose reads and writes are the number",
+  "shell.meters.drive.label": "Drive",
+  "styles.io.bars": "Bars",
+  "styles.io.read": "Read",
+  "styles.io.write": "Write",
+  "widgetsA.catalog.disk.description": "Disk reads and writes per second",
+  "widgetsA.catalog.disk.label": "Disk",
+  "widgetsB.settings.disk.disk": "Disk"
+}

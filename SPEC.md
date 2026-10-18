@@ -3692,14 +3692,11 @@ they show the label, the reading and the history only ([S-1762]).
 - **[S-1822]** One setting says whose throughput: `Scope` = one drive (`Drive`, empty = the system
   drive) or all drives. Changing it clears the chart. Load repairs an unknown scope to one drive,
   loudly. The separate chart scope (`IoScope` / `IoDrive`) is gone.
-- **[S-1166]** The card's "Open C: in Explorer" opens the drive through `ShellLauncher`; all drives
-  offers no such command.
+- [S-1166], [S-1168]: moved with the Disk widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Disk/`).
 - **[S-1167]** Framework hooks for a kind (`MeterView.Part.cs`): a header title
   (`IMeterHost.SetTitle`), right-click commands (`MeterPart.ContextActions`), a header trailing
   element, and `IMeterHost.SampleNow`. A reading that carries a fraction is plotted even when it is
   not available (a missed ping); every other unavailable reading carries none.
-- **[S-1168]** Disk settings: Drive (system drive / all drives / each drive Windows lists, a removed
-  one offered as "not connected"), then the shared meter rows.
 - **[S-1169]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1170]** Ping status: Checking… until the first probe returns, then Online / Offline from the
   last probe. A dot at the right of the header carries it in the success / critical / tertiary

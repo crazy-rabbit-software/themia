@@ -584,8 +584,6 @@
   "shell.transfer.startupLength": "Thời lượng hiệu ứng",
   "shell.transfer.transitionLength": "Thời lượng hiệu ứng đổi dạng xem",
   "shell.transfer.unlockLength": "Thời lượng hiệu ứng mở khóa",
-  "shell.meters.drive.label": "Ổ đĩa",
-  "shell.meters.drive.desc": "Ổ đĩa có lượt đọc và ghi được hiển thị",
   "shell.meters.systemDrive": "Ổ đĩa hệ thống ({drive})",
   "shell.meters.gpuDescription": "Tải của một card đồ họa",
   "shell.appearance.headerFade": "Độ đặc của dải tiêu đề; {percent} giống tiện ích",

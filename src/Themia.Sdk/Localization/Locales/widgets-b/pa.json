@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "ਚਾਰਟ ਕਿੰਨਾ ਇਤਿਹਾਸ ਕਵਰ ਕਰਦਾ ਹੈ",
   "widgetsB.settings.meters.showHistory.label": "ਇਤਿਹਾਸ ਦਿਖਾਓ",
   "widgetsB.settings.meters.showHistory.desc": "ਹਾਲੀਆ ਨਮੂਨਿਆਂ ਦਾ ਚਾਰਟ ਬਣਾਓ",
-  "widgetsB.settings.disk.disk": "ਡਿਸਕ",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (ਕਨੈਕਟ ਨਹੀਂ)",
   "widgetsB.settings.ping.measuring": "{host} ਮਾਪਿਆ ਜਾ ਰਿਹਾ ਹੈ",
   "widgetsB.settings.ping.notAHost": "ਹੋਸਟ ਨਾਮ ਜਾਂ ਪਤਾ ਨਹੀਂ ਹੈ",

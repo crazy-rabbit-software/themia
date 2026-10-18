@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "ਉਹ ਡਰਾਈਵ ਜਿਸਦੇ ਪੜ੍ਹਨ ਅਤੇ ਲਿਖਣ ਨੂੰ ਗਿਣਿਆ ਜਾਂਦਾ ਹੈ",
+  "shell.meters.drive.label": "ਡਰਾਈਵ",
+  "styles.io.bars": "ਬਾਰ",
+  "styles.io.read": "ਪੜ੍ਹਨਾ",
+  "styles.io.write": "ਲਿਖਣਾ",
+  "widgetsA.catalog.disk.description": "ਪ੍ਰਤੀ ਸਕਿੰਟ ਡਿਸਕ ਪੜ੍ਹਨਾ ਅਤੇ ਲਿਖਣਾ",
+  "widgetsA.catalog.disk.label": "ਡਿਸਕ",
+  "widgetsB.settings.disk.disk": "ਡਿਸਕ"
+}

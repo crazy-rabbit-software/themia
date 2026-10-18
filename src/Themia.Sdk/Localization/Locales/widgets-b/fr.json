@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Durée d'historique couverte par le graphique",
   "widgetsB.settings.meters.showHistory.label": "Afficher l’historique",
   "widgetsB.settings.meters.showHistory.desc": "Tracer un graphique des dernières mesures",
-  "widgetsB.settings.disk.disk": "Disque",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (non connecté)",
   "widgetsB.settings.ping.measuring": "Mesure de {host}",
   "widgetsB.settings.ping.notAHost": "Ni un nom d’hôte ni une adresse",

@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "Tsawon motsi",
   "shell.transfer.transitionLength": "Tsawon motsin canjin duba",
   "shell.transfer.unlockLength": "Tsawon motsin buɗewa",
-  "shell.meters.drive.label": "Faifai",
-  "shell.meters.drive.desc": "Faifan da karatunsa da rubutunsa ne lambar",
   "shell.meters.systemDrive": "Faifan tsarin aiki ({drive})",
   "shell.meters.gpuDescription": "Nauyin katin zane guda",
   "shell.appearance.headerFade": "Yadda zirin kanun yake da ƙarfi; {percent} yana daidai da widget",

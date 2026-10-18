@@ -584,8 +584,6 @@
   "shell.transfer.startupLength": "애니메이션 길이",
   "shell.transfer.transitionLength": "보기 전환 애니메이션 길이",
   "shell.transfer.unlockLength": "잠금 해제 애니메이션 길이",
-  "shell.meters.drive.label": "드라이브",
-  "shell.meters.drive.desc": "읽기 및 쓰기를 수치로 표시할 드라이브",
   "shell.meters.systemDrive": "시스템 드라이브({drive})",
   "shell.meters.gpuDescription": "그래픽 카드 한 개의 부하",
   "shell.appearance.headerFade": "머리글 줄의 불투명도입니다. {percent}이면 위젯과 같습니다",

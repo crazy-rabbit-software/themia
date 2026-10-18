@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "வரைபடம்",
-  "styles.io.bars": "பட்டைகள்",
   "styles.io.ring": "வளையம்",
   "styles.io.signal": "சிக்னல் பட்டைகள்",
-  "styles.io.bar": "பட்டை",
-  "styles.io.read": "படித்தல்",
-  "styles.io.write": "எழுதுதல்"
+  "styles.io.bar": "பட்டை"
 }

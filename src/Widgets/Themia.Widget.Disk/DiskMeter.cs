@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Disk;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -29,7 +30,7 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
     private DiskConfig _config = new();
     private string _root = SystemDrive.Root;
 
-    public override WidgetId Kind => DiskConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("disk");
 
     /// <summary>
     /// "1023 KB/s", as the network meter's. [S-3860] Each run is counted at the size it is drawn,
@@ -107,8 +108,8 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
         var (read, write) = DiskRules.BarShares(rates, recent);
         return
         [
-            new MeterItem(read, MeterPressure.Normal, Str.Styles_Io_Read.Text(), Formatting.Rate(rates.Read)),
-            new MeterItem(write, MeterPressure.Normal, Str.Styles_Io_Write.Text(), Formatting.Rate(rates.Write)),
+            new MeterItem(read, MeterPressure.Normal, DiskStr.Styles_Io_Read.Text(), Formatting.Rate(rates.Read)),
+            new MeterItem(write, MeterPressure.Normal, DiskStr.Styles_Io_Write.Text(), Formatting.Rate(rates.Write)),
         ];
     }
 

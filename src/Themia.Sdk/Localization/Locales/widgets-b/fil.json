@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Gaano karaming history ang saklaw ng chart",
   "widgetsB.settings.meters.showHistory.label": "Ipakita ang history",
   "widgetsB.settings.meters.showHistory.desc": "Gumuhit ng chart ng mga kamakailang sample",
-  "widgetsB.settings.disk.disk": "Disk",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (hindi nakakonekta)",
   "widgetsB.settings.ping.measuring": "Sinusukat ang {host}",
   "widgetsB.settings.ping.notAHost": "Hindi host name o address",

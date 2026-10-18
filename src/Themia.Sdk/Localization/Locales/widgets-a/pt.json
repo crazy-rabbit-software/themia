@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "O que você copiou recentemente",
   "widgetsA.catalog.clipboard.label": "Área de transferência",
   "widgetsA.catalog.contacts.description": "Pessoas dos seus catálogos de endereços Microsoft, Google e CardDAV",
-  "widgetsA.catalog.disk.description": "Leituras e gravações de disco por segundo",
-  "widgetsA.catalog.disk.label": "Disco",
   "widgetsA.catalog.feed.description": "Manchetes dos feeds que você escolher",
   "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.gallery.description": "Imagens de uma pasta, de um arquivo ou do Bing",

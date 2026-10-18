@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "Grafik",
-  "styles.io.bars": "Batang",
   "styles.io.ring": "Cincin",
   "styles.io.signal": "Bar sinyal",
-  "styles.io.bar": "Batang",
-  "styles.io.read": "Baca",
-  "styles.io.write": "Tulis"
+  "styles.io.bar": "Batang"
 }

@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "그래프",
-  "styles.io.bars": "막대",
   "styles.io.ring": "링",
   "styles.io.signal": "신호 막대",
-  "styles.io.bar": "막대",
-  "styles.io.read": "읽기",
-  "styles.io.write": "쓰기"
+  "styles.io.bar": "막대"
 }

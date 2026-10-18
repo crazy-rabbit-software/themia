@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "نمودار چه مقدار از سابقه را پوشش دهد",
   "widgetsB.settings.meters.showHistory.label": "نمایش سابقه",
   "widgetsB.settings.meters.showHistory.desc": "رسم نمودار نمونه‌های اخیر",
-  "widgetsB.settings.disk.disk": "دیسک",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (متصل نیست)",
   "widgetsB.settings.ping.measuring": "در حال اندازه‌گیری {host}",
   "widgetsB.settings.ping.notAHost": "نام میزبان یا نشانی معتبر نیست",

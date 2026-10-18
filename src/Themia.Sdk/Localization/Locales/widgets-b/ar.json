@@ -370,7 +370,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "مقدار السجل الذي يغطيه المخطط",
   "widgetsB.settings.meters.showHistory.label": "إظهار السجل",
   "widgetsB.settings.meters.showHistory.desc": "رسم مخطط للعينات الأخيرة",
-  "widgetsB.settings.disk.disk": "القرص",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (غير متصل)",
   "widgetsB.settings.ping.measuring": "قياس {host}",
   "widgetsB.settings.ping.notAHost": "ليس اسم مضيف أو عنوانًا",

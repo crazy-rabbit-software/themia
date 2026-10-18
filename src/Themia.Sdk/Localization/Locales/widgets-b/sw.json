@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Chati inahusu historia ya muda gani",
   "widgetsB.settings.meters.showHistory.label": "Onyesha historia",
   "widgetsB.settings.meters.showHistory.desc": "Chora chati ya sampuli za hivi karibuni",
-  "widgetsB.settings.disk.disk": "Diski",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (haijaunganishwa)",
   "widgetsB.settings.ping.measuring": "Inapima {host}",
   "widgetsB.settings.ping.notAHost": "Si jina la seva pangishi wala anwani",

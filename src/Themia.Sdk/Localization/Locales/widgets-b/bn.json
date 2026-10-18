@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "চার্ট কতটা ইতিহাস দেখায়",
   "widgetsB.settings.meters.showHistory.label": "ইতিহাস দেখান",
   "widgetsB.settings.meters.showHistory.desc": "সাম্প্রতিক নমুনার একটি চার্ট আঁকুন",
-  "widgetsB.settings.disk.disk": "ডিস্ক",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (সংযুক্ত নয়)",
   "widgetsB.settings.ping.measuring": "{host} মাপা হচ্ছে",
   "widgetsB.settings.ping.notAHost": "হোস্টের নাম বা ঠিকানা নয়",

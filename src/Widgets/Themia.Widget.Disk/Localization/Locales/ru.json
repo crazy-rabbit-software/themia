@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "Диск, чтение и запись которого показываются",
+  "shell.meters.drive.label": "Диск",
+  "styles.io.bars": "Полосы",
+  "styles.io.read": "Чтение",
+  "styles.io.write": "Запись",
+  "widgetsA.catalog.disk.description": "Чтение и запись диска в секунду",
+  "widgetsA.catalog.disk.label": "Диск",
+  "widgetsB.settings.disk.disk": "Диск"
+}

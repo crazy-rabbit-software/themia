@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Hoeveel geschiedenis de grafiek beslaat",
   "widgetsB.settings.meters.showHistory.label": "Geschiedenis weergeven",
   "widgetsB.settings.meters.showHistory.desc": "Een grafiek van de recente metingen tekenen",
-  "widgetsB.settings.disk.disk": "Schijf",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (niet verbonden)",
   "widgetsB.settings.ping.measuring": "{host} wordt gemeten",
   "widgetsB.settings.ping.notAHost": "Geen hostnaam of adres",

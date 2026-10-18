@@ -5,22 +5,23 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Disk;
 
 namespace Themia.App.Shell.Config;
 
-internal static partial class WidgetSettings
+internal static class DiskSettings
 {
     /// <summary>
     /// [S-1160] [S-1168] [S-1822] Whose throughput the meter shows — one drive, or every drive —
     /// then the rows every meter has ([S-1762]).
     /// </summary>
-    public static void Disk(List<FrameworkElement> rows, DiskConfig disk, Action save)
+    public static void Rows(List<FrameworkElement> rows, DiskConfig disk, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(disk);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Disk_Disk.Text()));
+        rows.Add(FluentLayout.Header(DiskStr.WidgetsB_Settings_Disk_Disk.Text()));
         AddDriveRow(rows, disk, save);
 
         MeterSettingsRows.Rows(rows, disk, save);
@@ -56,7 +57,7 @@ internal static partial class WidgetSettings
             options.Add((current, Str.WidgetsB_Settings_Disk_NotConnectedDrive.Format(("drive", DiskRules.Instance(current)))));
         }
 
-        rows.Add(FluentLayout.Row(Glyphs.Disk, Str.Shell_Meters_Drive_Label.Text(), Str.Shell_Meters_Drive_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Disk, DiskStr.Shell_Meters_Drive_Label.Text(), DiskStr.Shell_Meters_Drive_Desc.Text(),
             FluentLayout.Choice(
                 [.. options.Select((o, i) => (i, o.Label))],
                 Math.Max(0, options.FindIndex(o => string.Equals(o.Value, current, StringComparison.OrdinalIgnoreCase))),

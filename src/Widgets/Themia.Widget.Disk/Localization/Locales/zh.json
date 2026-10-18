@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "以数字显示读写速度的驱动器",
+  "shell.meters.drive.label": "驱动器",
+  "styles.io.bars": "条形",
+  "styles.io.read": "读取",
+  "styles.io.write": "写入",
+  "widgetsA.catalog.disk.description": "每秒磁盘读写量",
+  "widgetsA.catalog.disk.label": "磁盘",
+  "widgetsB.settings.disk.disk": "磁盘"
+}

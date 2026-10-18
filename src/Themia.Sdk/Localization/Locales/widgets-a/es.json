@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "Lo que has copiado recientemente",
   "widgetsA.catalog.clipboard.label": "Portapapeles",
   "widgetsA.catalog.contacts.description": "Personas de tus libretas de direcciones de Microsoft, Google y CardDAV",
-  "widgetsA.catalog.disk.description": "Lecturas y escrituras de disco por segundo",
-  "widgetsA.catalog.disk.label": "Disco",
   "widgetsA.catalog.feed.description": "Titulares de los feeds que elijas",
   "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.gallery.description": "Imágenes de una carpeta, un archivo o Bing",

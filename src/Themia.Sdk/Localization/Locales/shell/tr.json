@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "Animasyon süresi",
   "shell.transfer.transitionLength": "Görünüm değişikliği animasyon süresi",
   "shell.transfer.unlockLength": "Kilit açma animasyon süresi",
-  "shell.meters.drive.label": "Sürücü",
-  "shell.meters.drive.desc": "Okuma ve yazmaları gösterilen sürücü",
   "shell.meters.systemDrive": "Sistem sürücüsü ({drive})",
   "shell.meters.gpuDescription": "Tek bir ekran kartının yükü",
   "shell.appearance.headerFade": "Başlık şeridinin ne kadar opak olduğu; {percent} pencere öğesiyle eşleşir",

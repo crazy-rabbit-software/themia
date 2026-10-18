@@ -17,6 +17,7 @@
     <Project Path="src/Widgets/Themia.Widget.ColorFiltersToggle/Themia.Widget.ColorFiltersToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Countdown/Themia.Widget.Countdown.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Cpu/Themia.Widget.Cpu.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Disk/Themia.Widget.Disk.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DoNotDisturbToggle/Themia.Widget.DoNotDisturbToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.EnergySaverToggle/Themia.Widget.EnergySaverToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ExchangeRates/Themia.Widget.ExchangeRates.csproj" />

@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "Wykres",
-  "styles.io.bars": "Paski",
   "styles.io.ring": "Pierścień",
   "styles.io.signal": "Paski sygnału",
-  "styles.io.bar": "Pasek",
-  "styles.io.read": "Odczyt",
-  "styles.io.write": "Zapis"
+  "styles.io.bar": "Pasek"
 }

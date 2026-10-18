@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Quanta cronologia copre il grafico",
   "widgetsB.settings.meters.showHistory.label": "Mostra cronologia",
   "widgetsB.settings.meters.showHistory.desc": "Disegna un grafico dei campioni recenti",
-  "widgetsB.settings.disk.disk": "Disco",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (non connessa)",
   "widgetsB.settings.ping.measuring": "Misurazione di {host}",
   "widgetsB.settings.ping.notAHost": "Non è un nome host né un indirizzo",

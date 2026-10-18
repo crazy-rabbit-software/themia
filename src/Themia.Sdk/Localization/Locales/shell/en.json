@@ -601,8 +601,6 @@
   "shell.transfer.startupLength": "Animation length",
   "shell.transfer.transitionLength": "View change animation length",
   "shell.transfer.unlockLength": "Unlock animation length",
-  "shell.meters.drive.label": "Drive",
-  "shell.meters.drive.desc": "The drive whose reads and writes are the number",
   "shell.meters.systemDrive": "System drive ({drive})",
   "shell.meters.gpuDescription": "Load of one graphics card",
   "shell.appearance.headerFade": "How solid the header strip is; {percent} matches the widget",

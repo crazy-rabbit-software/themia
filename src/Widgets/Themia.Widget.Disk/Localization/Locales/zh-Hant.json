@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "以數字顯示其讀寫速度的磁碟機",
+  "shell.meters.drive.label": "磁碟機",
+  "styles.io.bars": "長條",
+  "styles.io.read": "讀取",
+  "styles.io.write": "寫入",
+  "widgetsA.catalog.disk.description": "每秒磁碟讀寫量",
+  "widgetsA.catalog.disk.label": "磁碟",
+  "widgetsB.settings.disk.disk": "磁碟"
+}

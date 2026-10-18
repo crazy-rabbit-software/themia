@@ -310,7 +310,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Biểu đồ bao quát bao nhiêu lịch sử",
   "widgetsB.settings.meters.showHistory.label": "Hiện lịch sử",
   "widgetsB.settings.meters.showHistory.desc": "Vẽ biểu đồ các mẫu gần đây",
-  "widgetsB.settings.disk.disk": "Ổ đĩa",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (chưa kết nối)",
   "widgetsB.settings.ping.measuring": "Đang đo {host}",
   "widgetsB.settings.ping.notAHost": "Không phải tên máy chủ hay địa chỉ",

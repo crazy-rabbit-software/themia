@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "L’unità le cui letture e scritture sono il numero",
+  "shell.meters.drive.label": "Unità",
+  "styles.io.bars": "Barre",
+  "styles.io.read": "Lettura",
+  "styles.io.write": "Scrittura",
+  "widgetsA.catalog.disk.description": "Letture e scritture su disco al secondo",
+  "widgetsA.catalog.disk.label": "Disco",
+  "widgetsB.settings.disk.disk": "Disco"
+}

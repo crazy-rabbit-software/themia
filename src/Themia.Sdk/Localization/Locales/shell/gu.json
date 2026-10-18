@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "ઍનિમેશનની લંબાઈ",
   "shell.transfer.transitionLength": "વ્યૂ બદલાવ ઍનિમેશનની લંબાઈ",
   "shell.transfer.unlockLength": "અનલૉક ઍનિમેશનની લંબાઈ",
-  "shell.meters.drive.label": "ડ્રાઇવ",
-  "shell.meters.drive.desc": "જે ડ્રાઇવના રીડ અને રાઇટ સંખ્યા તરીકે બતાવાય છે",
   "shell.meters.systemDrive": "સિસ્ટમ ડ્રાઇવ ({drive})",
   "shell.meters.gpuDescription": "એક ગ્રાફિક્સ કાર્ડનો લોડ",
   "shell.appearance.headerFade": "હેડર પટ્ટી કેટલી ઘન છે; {percent} વિજેટ સાથે મેળ ખાય છે",

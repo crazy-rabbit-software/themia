@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "Grafu",
-  "styles.io.bars": "Pau",
   "styles.io.ring": "Pete",
   "styles.io.signal": "Pau za mawimbi",
-  "styles.io.bar": "Pau",
-  "styles.io.read": "Kusoma",
-  "styles.io.write": "Kuandika"
+  "styles.io.bar": "Pau"
 }

@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "Gráfico",
-  "styles.io.bars": "Barras",
   "styles.io.ring": "Anel",
   "styles.io.signal": "Barras de sinal",
-  "styles.io.bar": "Barra",
-  "styles.io.read": "Leitura",
-  "styles.io.write": "Gravação"
+  "styles.io.bar": "Barra"
 }

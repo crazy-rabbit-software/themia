@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "Yawan tarihin da jadawalin ya ƙunsa",
   "widgetsB.settings.meters.showHistory.label": "Nuna tarihi",
   "widgetsB.settings.meters.showHistory.desc": "Zana jadawalin samfuran kwanan nan",
-  "widgetsB.settings.disk.disk": "Faifai",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (ba a haɗa ba)",
   "widgetsB.settings.ping.measuring": "Ana auna {host}",
   "widgetsB.settings.ping.notAHost": "Ba sunan mai masauki ko adireshi ba ne",

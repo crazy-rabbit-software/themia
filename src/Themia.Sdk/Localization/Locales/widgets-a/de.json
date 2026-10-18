@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "Was du zuletzt kopiert hast",
   "widgetsA.catalog.clipboard.label": "Zwischenablage",
   "widgetsA.catalog.contacts.description": "Personen aus deinen Microsoft-, Google- und CardDAV-Adressbüchern",
-  "widgetsA.catalog.disk.description": "Lese- und Schreibvorgänge pro Sekunde",
-  "widgetsA.catalog.disk.label": "Datenträger",
   "widgetsA.catalog.feed.description": "Schlagzeilen aus Feeds deiner Wahl",
   "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.gallery.description": "Bilder aus einem Ordner, einer Datei oder von Bing",

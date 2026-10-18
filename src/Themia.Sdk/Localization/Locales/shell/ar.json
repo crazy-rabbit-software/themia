@@ -674,8 +674,6 @@
   "shell.transfer.startupLength": "مدة الحركة",
   "shell.transfer.transitionLength": "مدة حركة تغيير المشهد",
   "shell.transfer.unlockLength": "مدة حركة إلغاء القفل",
-  "shell.meters.drive.label": "محرك الأقراص",
-  "shell.meters.drive.desc": "محرك الأقراص الذي تُعرض قراءاته وكتاباته",
   "shell.meters.systemDrive": "محرك أقراص النظام ({drive})",
   "shell.meters.gpuDescription": "حمل بطاقة رسومات واحدة",
   "shell.appearance.headerFade": "مدى صلابة شريط الرأس؛ {percent} يطابق الأداة",

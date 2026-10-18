@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "Ciò che hai copiato di recente",
   "widgetsA.catalog.clipboard.label": "Appunti",
   "widgetsA.catalog.contacts.description": "Persone dalle tue rubriche Microsoft, Google e CardDAV",
-  "widgetsA.catalog.disk.description": "Letture e scritture su disco al secondo",
-  "widgetsA.catalog.disk.label": "Disco",
   "widgetsA.catalog.feed.description": "Titoli dai feed che scegli",
   "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.gallery.description": "Immagini da una cartella, un file o Bing",

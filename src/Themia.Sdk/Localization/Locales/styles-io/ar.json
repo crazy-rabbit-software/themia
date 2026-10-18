@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "رسم بياني",
-  "styles.io.bars": "أشرطة",
   "styles.io.ring": "حلقة",
   "styles.io.signal": "أشرطة الإشارة",
-  "styles.io.bar": "شريط",
-  "styles.io.read": "قراءة",
-  "styles.io.write": "كتابة"
+  "styles.io.bar": "شريط"
 }

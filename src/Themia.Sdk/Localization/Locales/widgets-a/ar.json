@@ -51,8 +51,6 @@
   "widgetsA.catalog.clipboard.description": "ما نسخته مؤخرًا",
   "widgetsA.catalog.clipboard.label": "الحافظة",
   "widgetsA.catalog.contacts.description": "أشخاص من دفاتر عناوين Microsoft وGoogle وCardDAV",
-  "widgetsA.catalog.disk.description": "قراءات القرص وكتاباته في الثانية",
-  "widgetsA.catalog.disk.label": "القرص",
   "widgetsA.catalog.feed.description": "عناوين من الموجزات التي تختارها",
   "widgetsA.catalog.feed.label": "الموجز",
   "widgetsA.catalog.gallery.description": "صور من مجلد أو ملف أو Bing",

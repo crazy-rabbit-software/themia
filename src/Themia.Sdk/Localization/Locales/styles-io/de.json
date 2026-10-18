@@ -1,9 +1,6 @@
 {
   "styles.io.graph": "Diagramm",
-  "styles.io.bars": "Balken",
   "styles.io.ring": "Ring",
   "styles.io.signal": "Signalbalken",
-  "styles.io.bar": "Balken",
-  "styles.io.read": "Lesen",
-  "styles.io.write": "Schreiben"
+  "styles.io.bar": "Balken"
 }

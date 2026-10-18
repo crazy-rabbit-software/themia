@@ -1,0 +1,10 @@
+{
+  "shell.meters.drive.desc": "যে ড্রাইভের রিড ও রাইট সংখ্যায় দেখানো হয়",
+  "shell.meters.drive.label": "ড্রাইভ",
+  "styles.io.bars": "বার",
+  "styles.io.read": "পড়া",
+  "styles.io.write": "লেখা",
+  "widgetsA.catalog.disk.description": "প্রতি সেকেন্ডে ডিস্ক রিড ও রাইট",
+  "widgetsA.catalog.disk.label": "ডিস্ক",
+  "widgetsB.settings.disk.disk": "ডিস্ক"
+}

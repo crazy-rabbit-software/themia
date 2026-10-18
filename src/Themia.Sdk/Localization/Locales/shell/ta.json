@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "அனிமேஷன் நீளம்",
   "shell.transfer.transitionLength": "காட்சி மாற்ற அனிமேஷன் நீளம்",
   "shell.transfer.unlockLength": "திறத்தல் அனிமேஷன் நீளம்",
-  "shell.meters.drive.label": "இயக்ககம்",
-  "shell.meters.drive.desc": "எந்த இயக்ககத்தின் வாசிப்பும் எழுதுதலும் எண்ணாகக் காட்டப்படும்",
   "shell.meters.systemDrive": "சிஸ்டம் இயக்ககம் ({drive})",
   "shell.meters.gpuDescription": "ஒரு கிராஃபிக்ஸ் அட்டையின் சுமை",
   "shell.appearance.headerFade": "தலைப்புப் பட்டை எவ்வளவு திடமானது; {percent} விட்ஜெட்டுக்குப் பொருந்தும்",

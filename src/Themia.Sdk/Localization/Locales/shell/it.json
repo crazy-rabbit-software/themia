@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "Durata dell’animazione",
   "shell.transfer.transitionLength": "Durata dell’animazione al cambio di vista",
   "shell.transfer.unlockLength": "Durata dell’animazione di sblocco",
-  "shell.meters.drive.label": "Unità",
-  "shell.meters.drive.desc": "L’unità le cui letture e scritture sono il numero",
   "shell.meters.systemDrive": "Unità di sistema ({drive})",
   "shell.meters.gpuDescription": "Carico di una scheda grafica",
   "shell.appearance.headerFade": "Quanto è opaca la striscia dell’intestazione; {percent} corrisponde al widget",

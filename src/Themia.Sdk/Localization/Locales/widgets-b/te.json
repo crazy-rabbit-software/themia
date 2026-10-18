@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "చార్ట్ ఎంత చరిత్రను కవర్ చేస్తుంది",
   "widgetsB.settings.meters.showHistory.label": "చరిత్రను చూపించు",
   "widgetsB.settings.meters.showHistory.desc": "ఇటీవలి నమూనాల చార్ట్‌ను గీయి",
-  "widgetsB.settings.disk.disk": "డిస్క్",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (కనెక్ట్ చేయబడలేదు)",
   "widgetsB.settings.ping.measuring": "{host}ను కొలుస్తోంది",
   "widgetsB.settings.ping.notAHost": "హోస్ట్ పేరు లేదా చిరునామా కాదు",

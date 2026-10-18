@@ -322,7 +322,6 @@
   "widgetsB.settings.meters.chartSpan.desc": "चार्ट कितना इतिहास दिखाता है",
   "widgetsB.settings.meters.showHistory.label": "इतिहास दिखाएँ",
   "widgetsB.settings.meters.showHistory.desc": "हाल के नमूनों का चार्ट बनाएँ",
-  "widgetsB.settings.disk.disk": "डिस्क",
   "widgetsB.settings.disk.notConnectedDrive": "{drive} (कनेक्ट नहीं)",
   "widgetsB.settings.ping.measuring": "{host} मापा जा रहा है",
   "widgetsB.settings.ping.notAHost": "होस्ट नाम या पता नहीं है",

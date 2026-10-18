@@ -602,8 +602,6 @@
   "shell.transfer.startupLength": "अ‍ॅनिमेशन कालावधी",
   "shell.transfer.transitionLength": "दृश्य बदल अ‍ॅनिमेशन कालावधी",
   "shell.transfer.unlockLength": "अनलॉक अ‍ॅनिमेशन कालावधी",
-  "shell.meters.drive.label": "ड्राइव्ह",
-  "shell.meters.drive.desc": "ज्याचे रीड आणि राइट आकड्यात दाखवले जातात तो ड्राइव्ह",
   "shell.meters.systemDrive": "सिस्टम ड्राइव्ह ({drive})",
   "shell.meters.gpuDescription": "एका ग्राफिक्स कार्डचा लोड",
   "shell.appearance.headerFade": "हेडर पट्टी किती गडद आहे; {percent} विजेटशी जुळते",
