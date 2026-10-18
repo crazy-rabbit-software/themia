@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
-using Themia.App.Services.Notifications;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -24,7 +23,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-4404] The ladder: the bell and how many on the smallest tile; then the newest flat, each with its
 /// app's icon; grouped from an expanded height; the body one, two, three lines as the tile grows. The list
-/// is <see cref="NotificationFeed"/>'s, which follows Windows' changes; access Windows has not given is
+/// is the host's one feed's (<see cref="IWidgetHost.Notifications"/>), which follows Windows' changes; access Windows has not given is
 /// a sentence and the one button that fixes it ([S-4403]).
 /// </para>
 /// </summary>
@@ -62,7 +61,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     private readonly HashSet<string> _open = new(StringComparer.OrdinalIgnoreCase);
 
     private IWidgetSurface? _surface;
-    private NotificationLease? _lease;
+    private IDisposable? _lease;
     private Ticker? _ticker;
     private IDisposable? _minutes;
     private NotificationPlan _plan;
@@ -122,7 +121,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         // [S-1251] A debug render never reads the person's notifications.
         if (_surface is not { IsPreview: true })
         {
-            _lease = NotificationFeed.Acquire(Render);
+            _lease = _widgetHost.Notifications.Acquire(Render);
         }
 #if DEBUG
         else if (_preview.Access == NotificationAccess.Pending)
@@ -183,7 +182,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _ticker = null;
     }
 
-    private NotificationSnapshot Snapshot => _lease is null ? _preview : NotificationFeed.Snapshot;
+    private NotificationSnapshot Snapshot => _lease is null ? _preview : _widgetHost.Notifications.Snapshot;
 
     // ---- drawing -----------------------------------------------------------------------------
 
@@ -508,7 +507,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         try
         {
-            var image = await AppIcons.GetAsync(target, (int)Math.Ceiling(AppIconSize * 2), AppIcons.ThemeOf(this)).ConfigureAwait(true);
+            var image = await AppIconSource.GetAsync(target, (int)Math.Ceiling(AppIconSize * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true);
             if (image is null || _detached)
             {
                 return;
@@ -586,7 +585,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        NotificationFeed.Dismiss(item.Id);
+        _widgetHost.Notifications.Dismiss(item.Id);
     }
 
     private void ClearApp(string appId)
@@ -603,7 +602,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        NotificationFeed.DismissApp(appId);
+        _widgetHost.Notifications.DismissApp(appId);
     }
 
     private void OnClearAll(object sender, RoutedEventArgs args)
@@ -620,7 +619,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        NotificationFeed.ClearAll();
+        _widgetHost.Notifications.ClearAll();
     }
 
     /// <summary>[S-4403] The access state's button: Windows' prompt, or its privacy page.</summary>
@@ -644,7 +643,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         try
         {
-            var answer = await NotificationFeed.RequestAccessAsync().ConfigureAwait(true);
+            var answer = await _widgetHost.Notifications.RequestAccessAsync().ConfigureAwait(true);
             if (answer == NotificationAccess.Denied && !_detached)
             {
                 // Said no (or could not ask): the page where it can be turned on.
@@ -682,7 +681,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         if (_lease is not null)
         {
-            NotificationFeed.Refresh();
+            _widgetHost.Notifications.Refresh();
         }
     }
 

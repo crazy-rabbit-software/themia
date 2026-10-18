@@ -1,17 +1,12 @@
 using Microsoft.UI.Dispatching;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using Windows.UI.Notifications;
 using Windows.UI.Notifications.Management;
 
 namespace Themia.App.Services.Notifications;
-
-/// <summary>What the notification widgets show: whether Windows lets Themia read its list, and the list.</summary>
-internal sealed record NotificationSnapshot(NotificationAccess Access, IReadOnlyList<NotificationItem> Items)
-{
-    public static NotificationSnapshot Pending { get; } = new(NotificationAccess.Pending, []);
-}
 
 /// <summary>
 /// [S-4401] Windows' notification list, read through <c>UserNotificationListener</c> — the documented

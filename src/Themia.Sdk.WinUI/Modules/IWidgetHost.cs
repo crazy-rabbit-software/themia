@@ -86,6 +86,9 @@ public interface IWidgetHost
     /// <summary>[S-4421] The app's one focus session, which holds Windows' do not disturb host-side while it runs.</summary>
     IFocusSession Focus { get; }
 
+    /// <summary>[S-4408] Windows' notification list: the host's one feed.</summary>
+    INotifications Notifications { get; }
+
     /// <summary>[S-1444] Put <paramref name="text"/> on the clipboard, exactly as given. False when Windows refused it (logged).</summary>
     bool CopyText(string text);
 }
