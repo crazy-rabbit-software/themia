@@ -48,6 +48,12 @@ Any render: [--lang en|de|es|fr|it|ja|pl|pt|zh]
 
 Build output (`artifacts/`, `bin/`, `obj/`) cannot be read by agents; write render PNGs outside it.
 
+Compare render sets with `python scripts/pngdiff.py <before> <after> [--noise <dir>]` (colour and
+alpha; never diff with `getbbox()` on an RGBA difference, which sees alpha only and calls every opaque
+render equal). Render the "before" set twice with the same build and pass the second run as
+`--noise`: changes inside what moved between those runs (live readings, the clock, async loads,
+animation frames) are reported as noise, anything else as `pixels`.
+
 **Never start `Themia.exe` without a render flag as the first argument.** A bare start hands off to
 the copy that is already running and toggles its edit mode. Do not drive the user's running
 windows, and do not touch `%APPDATA%\Themia` or `%LOCALAPPDATA%\Themia`: the renders use a detached
