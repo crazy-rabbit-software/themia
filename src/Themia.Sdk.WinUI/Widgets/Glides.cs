@@ -23,17 +23,33 @@ namespace Themia.App.Widgets;
 // "no value", it jumps as before.
 
 /// <summary>[S-6326] [S-6329] Whether live values move smoothly now: readouts glide and history charts scroll.</summary>
-internal static class GlideMotion
+public static class GlideMotion
 {
     private static long _readAt = long.MinValue;
     private static bool _windows = true;
+
+    /// <summary>The host's answer whether values glide, given Windows' animation effects ([S-6329]).</summary>
+    private static Func<bool, bool>? _smooth;
 
     /// <summary>The period every glide on the hub's cadence takes ([S-2503]).</summary>
     public static TimeSpan Tick { get; } = TimeSpan.FromSeconds(Core.SystemData.SystemCadence.TickSeconds);
 
     /// <summary>
+    /// [S-6329] The host's rule, from Windows' animation effects to whether values glide (the user's
+    /// Smooth value changes switch is in its design state). Once per process, at start.
+    /// </summary>
+    internal static void InstallSmooth(Func<bool, bool> smooth)
+    {
+        ArgumentNullException.ThrowIfNull(smooth);
+        if (Interlocked.CompareExchange(ref _smooth, smooth, null) is not null)
+        {
+            throw new InvalidOperationException("the glide switch is installed once per process");
+        }
+    }
+
+    /// <summary>
     /// [S-6326] [S-6329] Windows' Animation effects ([S-1010]) and the user's own switch
-    /// (<c>DesignState.SmoothValues</c>), through <see cref="Glide.Smooth"/>. Read per glide; Windows
+    /// (<c>DesignState.SmoothValues</c>), through the host's <see cref="InstallSmooth"/>. Read per glide; Windows
     /// is asked at most once a second (a core grid starts dozens of glides a second), the user's
     /// switch every time, so turning it off stops the very next reading's glide.
     /// </summary>
@@ -49,7 +65,8 @@ internal static class GlideMotion
                 _windows = SystemMotion.AnimationsEnabled;
             }
 
-            return Glide.Smooth(Shell.DesignApplier.Current, _windows);
+            var smooth = Volatile.Read(ref _smooth) ?? throw new InvalidOperationException("no glide switch installed: the host installs it before anything is drawn");
+            return smooth(_windows);
         }
     }
 
@@ -90,7 +107,7 @@ internal static class GlideMotion
 }
 
 /// <summary>A glide the <see cref="GlideClock"/> steps.</summary>
-internal interface IGlideStep
+public interface IGlideStep
 {
     /// <summary>Show the step due at <paramref name="now"/> (a <see cref="Stopwatch"/> timestamp); the next due timestamp, or null when arrived.</summary>
     long? Advance(long now);
@@ -101,7 +118,7 @@ internal interface IGlideStep
 /// any glide has due, only while some glide is moving. No frame callback and no repeating timer:
 /// a number gliding 42 % to 45 % wakes it three times.
 /// </summary>
-internal static class GlideClock
+public static class GlideClock
 {
     private const string Scope = "glide";
 
@@ -219,7 +236,7 @@ internal static class GlideClock
 /// <see cref="Set"/> takes each reading, and the value shown goes to <c>apply</c> at the start, at
 /// every step and on arrival, in the value's own resolution.
 /// </summary>
-internal sealed class NumberGlide : IGlideStep
+public sealed class NumberGlide : IGlideStep
 {
     private readonly Action<double> _apply;
     private readonly double _resolution;
@@ -350,7 +367,7 @@ internal sealed class NumberGlide : IGlideStep
 /// factor): the property is set to the new value and an independent animation runs from where it
 /// stood, linearly over the period, so nothing runs per frame on the UI thread.
 /// </summary>
-internal sealed class DoubleGlide
+public sealed class DoubleGlide
 {
     private readonly DependencyObject _target;
     private readonly DependencyProperty _property;
@@ -430,7 +447,7 @@ internal sealed class DoubleGlide
 /// key-framed animation through the OKLab mix of where it stood and the new colour (four straight
 /// segments, <see cref="OkLab.Ramp"/>), over the period.
 /// </summary>
-internal sealed class ColorGlide
+public sealed class ColorGlide
 {
     private const int Segments = 4;
 

@@ -35,7 +35,7 @@ namespace Themia.App.Widgets;
 /// width and the lines under it with it, whichever of the two is wider.
 /// </para>
 /// </summary>
-internal sealed partial class HeroReadout : Grid
+public sealed partial class HeroReadout : Grid
 {
     private readonly TextBlock _line = new()
     {
@@ -240,7 +240,7 @@ internal sealed partial class HeroReadout : Grid
 /// [S-668] [S-669] The other parts widgets share: a stat line, a stat cell, a figure. Sized by
 /// <see cref="PartMetrics"/>, so the ladder that budgets for a part and the part agree.
 /// </summary>
-internal static class WidgetParts
+public static class WidgetParts
 {
     /// <summary>A run in a colour, for <see cref="HeroReadout.SetTrailing"/>.</summary>
     public static Run Run(string text, Brush brush) => new() { Text = text, Foreground = brush };
@@ -293,7 +293,7 @@ internal static class WidgetParts
 /// widgets), built once by one that does not (<see cref="WidgetParts.StatLine"/>). Without a glyph
 /// the label starts at the part's own edge.
 /// </summary>
-internal sealed class StatPart
+public sealed class StatPart
 {
     private readonly FontIcon? _icon;
     private readonly TextBlock _name = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");

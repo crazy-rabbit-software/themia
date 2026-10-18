@@ -352,7 +352,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         _freshness.Text = age;
         _freshness.Foreground = stale ? _staleBrush : _freshBrush;
 
-        var inline = InlineAge(age);
+        var inline = OnlineParts.InlineAge(age);
         ToolTipService.SetToolTip(
             _freshness,
             failed ? Str.WidgetsC_Weather_Tooltip_ReadingFailed.Format(("problem", FetchState.Message(held.Status)), ("age", inline))
@@ -577,14 +577,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
         _hero.Lay(step, showIcon, trailingBeside: true, linesBeside: beside);
     }
-
-    /// <summary>
-    /// The age for use inside a sentence: "Just now" starts the header line but reads "just now"
-    /// mid-sentence. Only the first letter changes, so a German noun later in the phrase keeps its
-    /// capital; a language without case is untouched.
-    /// </summary>
-    internal static string InlineAge(string age)
-        => age.Length == 0 ? age : char.ToLowerInvariant(age[0]) + age[1..];
 
     private static void Collapse(params UIElement[] parts)
     {

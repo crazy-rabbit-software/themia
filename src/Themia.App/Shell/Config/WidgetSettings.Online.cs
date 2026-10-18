@@ -19,10 +19,10 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(save);
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_Weather_Settings_Place.Text()));
-        AddPlacePicker(rows, config, save);
+        WeatherPlaceRows.AddPlacePicker(rows, config, save);
 
         rows.Add(FluentLayout.Header(Str.Online_Air_Label.Text()));
-        AddWeatherDisplay(rows, config, save);
+        WeatherPlaceRows.AddWeatherDisplay(rows, config, save);
 
         (AirQualityScale, string)[] scales =
         [
@@ -47,10 +47,10 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(save);
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_Weather_Settings_Place.Text()));
-        AddPlacePicker(rows, config, save);
+        WeatherPlaceRows.AddPlacePicker(rows, config, save);
 
         rows.Add(FluentLayout.Header(Str.Online_Rain_Label.Text()));
-        AddWeatherDisplay(rows, config, save);
+        WeatherPlaceRows.AddWeatherDisplay(rows, config, save);
         rows.Add(FluentLayout.Note(Str.Online_Source.Format(("name", "Open-Meteo"))));
     }
 

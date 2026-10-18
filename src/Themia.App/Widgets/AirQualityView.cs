@@ -1,5 +1,7 @@
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
@@ -286,7 +288,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         _hero.Visibility = Visibility.Visible;
 
         var band = AirQualityRules.Band(scale, index);
-        var tone = OnlineParts.Tone(AirQualityRules.Tone(band));
+        var tone = Tone(AirQualityRules.Tone(band));
         _hero.SetValue(OnlineText.Index(index), OnlineText.ScaleUnit(scale), spaced: true);
         _hero.Icon.Foreground = tone;
         _band.Text = OnlineText.Band(scale, band);
@@ -306,7 +308,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         // [S-6169] The gauge style draws the same reading on the meters' gauge.
         if (_config.Style == AirQualityStyle.Gauge)
         {
-            LayGauge(facts, scale, index, OnlineParts.Tone(AirQualityRules.Tone(AirQualityRules.Band(scale, index))));
+            LayGauge(facts, scale, index, Tone(AirQualityRules.Tone(AirQualityRules.Band(scale, index))));
             return;
         }
 
@@ -390,7 +392,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
             _strip.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             var segment = new Microsoft.UI.Xaml.Shapes.Rectangle
             {
-                Fill = OnlineParts.Tone(AirQualityRules.Tone((AirBand)band)),
+                Fill = Tone(AirQualityRules.Tone((AirBand)band)),
                 RadiusX = Bar / 2,
                 RadiusY = Bar / 2,
                 Margin = new Thickness(band == 0 ? 0 : 1, 0, band == 5 ? 0 : 1, 0),
@@ -506,4 +508,12 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
     /// <summary>[S-728] The city as the header title, or the widget's label when hidden.</summary>
     private void PublishTitle() => _surface?.SetHeaderTitle(_config.Title);
+
+    /// <summary>[S-5104] Good, caution and critical, from the Fluent status fills.</summary>
+    private static Brush Tone(AirTone tone) => tone switch
+    {
+        AirTone.Good => ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.SeaGreen),
+        AirTone.Caution => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod),
+        _ => ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red),
+    };
 }

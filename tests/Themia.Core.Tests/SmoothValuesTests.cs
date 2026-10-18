@@ -15,14 +15,14 @@ public sealed class SmoothValuesTests
         var on = new DesignState();
         var off = new DesignState { SmoothValues = false };
 
-        Assert.True(Glide.Smooth(on, windowsAnimations: true));
-        Assert.False(Glide.Smooth(off, windowsAnimations: true));
-        Assert.False(Glide.Smooth(on, windowsAnimations: false));
-        Assert.False(Glide.Smooth(off, windowsAnimations: false));
+        Assert.True(GlideSwitch.Smooth(on, windowsAnimations: true));
+        Assert.False(GlideSwitch.Smooth(off, windowsAnimations: true));
+        Assert.False(GlideSwitch.Smooth(on, windowsAnimations: false));
+        Assert.False(GlideSwitch.Smooth(off, windowsAnimations: false));
 
         // Before the first design is applied the default holds: on, Windows permitting.
-        Assert.True(Glide.Smooth(null, windowsAnimations: true));
-        Assert.False(Glide.Smooth(null, windowsAnimations: false));
+        Assert.True(GlideSwitch.Smooth(null, windowsAnimations: true));
+        Assert.False(GlideSwitch.Smooth(null, windowsAnimations: false));
     }
 
     [Fact]

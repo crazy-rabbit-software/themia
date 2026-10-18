@@ -502,7 +502,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
         // A price is the single most dangerous number in this app to show stale, so the age is
         // always on screen and the reason for it is always one hover away.
-        var inline = WeatherNowView.InlineAge(age);
+        var inline = OnlineParts.InlineAge(age);
         ToolTipService.SetToolTip(
             _freshness,
             failed

@@ -16,10 +16,10 @@ internal static partial class WidgetSettings
         // The same place picker the current-conditions widget uses, not a copy of it. The original
         // app carried two line-for-line duplicates of its city search and filed a note about it.
         rows.Add(FluentLayout.Header(Str.WidgetsC_Weather_Settings_Place.Text()));
-        AddPlacePicker(rows, config, save);
+        WeatherPlaceRows.AddPlacePicker(rows, config, save);
 
         rows.Add(FluentLayout.Header(Str.Forecast_Title.Text()));
-        AddWeatherDisplay(rows, config, save);
+        WeatherPlaceRows.AddWeatherDisplay(rows, config, save);
 
         rows.Add(FluentLayout.Row(Glyphs.Droplet, Str.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text(),
             Str.WidgetsC_Weather_Settings_ShowPrecipitation_Desc.Text(),

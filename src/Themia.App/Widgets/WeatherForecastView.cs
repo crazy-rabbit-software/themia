@@ -299,7 +299,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         _freshness.Text = age;
         _freshness.Foreground = stale ? _staleBrush : _freshBrush;
 
-        var inline = WeatherNowView.InlineAge(age);
+        var inline = OnlineParts.InlineAge(age);
         ToolTipService.SetToolTip(
             _freshness,
             failed ? Str.WidgetsC_Weather_Tooltip_ForecastFailed.Format(("problem", FetchState.Message(held.Status)), ("age", inline))

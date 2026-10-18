@@ -26,6 +26,7 @@ public partial class App : Application
         Shell.ColorChoice.InstallEyedropper(new Interop.ScreenEyedropper());
         Shell.Config.PlaceSearch.InstallLookup(Services.Web.WeatherService.FindAsync);
         Themia.Sdk.SymbolLookup.Install(Services.Web.MarketService.SearchAsync);
+        Widgets.GlideMotion.InstallSmooth(windows => Themia.Core.Motion.GlideSwitch.Smooth(Shell.DesignApplier.Current, windows));
         Services.SoundCue.Install(new Services.HostCuePlayer());
 
 #if DEBUG
