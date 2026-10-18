@@ -16,9 +16,12 @@ contract from `Themia.Sdk` / `Themia.Sdk.WinUI`, and the app finds every module 
 changes nothing in the app, Core or the SDK. A spike proved the mechanism end to end under Native
 AOT (section 4.11).
 
-Status: **designed, not built** (phase 1 of the service-widget skill). Nothing below exists in
-`src/` yet unless it is marked *exists*. The plan of commits is kept outside the repository; this
-file is the design an implementation must follow, and the guide new agents read afterwards.
+Status: the module architecture (M1..M4, section 11.1) and the kit's core and UI parts with their
+first widget, RSS (section 11.2 steps 1..3, 7 and 8, "as built" there), are built; the service layer
+(sections 5.7 and 6.5; steps 9..15) and the account widgets' migration are not. Where the build
+differs from the design below, the "as built" paragraph of 11.2 says how and why, and it wins. The
+plan of commits is kept outside the repository; this file is the design an implementation must
+follow, and the guide new agents read afterwards.
 
 Scope of a service widget: **read-only.** A widget shows what the service holds. Anything that
 would change it (merge a pull request, close an issue, mark a notification done) is an item
@@ -2049,6 +2052,89 @@ Order, smallest risk first (after M1..M3; M4 moves interleave):
 
 Contacts (cards and search), Folder (Explorer semantics), the calendar grids and the meters stay
 off the kit; they already have their own frameworks or needs no shared list serves.
+
+*Kit as built (2026-10-18): steps 1..3, 7 and 8, with RSS.* Tags `[S-7000]..[S-7071]` in the root
+`SPEC.md`, section "The widget kit (KIT)"; tests `tests/Themia.Core.Tests/KitTests.cs` and
+`KitConformanceTests*.cs`.
+
+- **Pure parts, `src/Themia.Sdk/Kit/` (`Themia.Sdk.Kit`).** `KitItem` (id, title, subtitle, preview,
+  `KitLead`, `KitWhen`, `KitTone`, emphasis, `KitBadge`s, a `Uri` link, `KitGroup`), `KitSummary`,
+  `KitIcon`; `KitItems.Clean` (no id or a repeated one dropped, `KitBounds`, links: http(s) for
+  `webHosts: null`, https on the named hosts otherwise, never with user info; a summary's fraction
+  clamped or dropped) and `KitText` (`Count` 999/1.2k/12k/3.4M never rounded up, `Age`, `When`).
+  `KitAction` (`KitActionKind`: Open, OpenTo, CopyLink, CopyText, Toggle, Rename, Delete, Refresh;
+  `Runnable`) and `KitMenu.Lines` to `KitMenuLine` (action, `QuickCommand`, `KeyChord`),
+  `KitMenu.Primary`; `KitIcons` (every icon and kind to a `Glyphs` code point).
+  `KitKeys.Decide(key, index, count)` to `KitKeyResult(KitKeyCommand, index)`. `KitSpec(Look,
+  Optional, Untitled, Empty, Time, Overflow, MaxColumns)`, `KitShow`, `KitRowLook`, `KitOverflow`,
+  `KitPlan`, `KitLadder.Plan(area, spec, shows)` with `RowEstimate` and `WholeRows`.
+  `KitScreens.Decide(locale, accounts, chosen, outcomes, itemCount, empty, noMatch)` to
+  `KitScreen(Kind, Sentence, OffersAccounts, HeaderProblems)`, `KitOutcome(Owner, Status, Detail,
+  HeldAt, RetryAt)`, `KitAccount`, `KitAccountState`, `Targets`; `KitFreshness.Lines`,
+  `RefreshLabel`, `When` (`SyncFreshness.When` delegates to it). `IKitConfig : ISetupRule` (Needs,
+  Configured, AccountIds, Shows; its `NeedsSetup` is `KitSetup.Needed`). `IKitSource` (`Changed`,
+  `Read()` to `KitRead`, `Busy`, `Show(refresh)`) and `KitRead` (items, outcomes, title, a refusal,
+  web hosts, accounts, chosen): the seam the service layer's `ServiceSync` will implement.
+- **WinUI parts, `src/Themia.Sdk.WinUI/Kit/` (`Themia.Sdk.WinUI.Kit`).** `KitList` (rich rows in
+  columns, measured and shown whole under `ScrollFade`; `ItemFill`, `RowFocus` with the cursor kept by
+  item id, `Fluent.Hover`; `ItemMenu.Attach` over `KitMenu`; a click focuses, a double-click or Enter
+  runs the primary action; `KitKeys`; site icons through `IWidgetHost.Favicons`), `KitHeader`
+  (problem glyph, ring, badge, one icon size), `KitStatePanel` (was `OfficeStatePanel`; Calendar,
+  Contacts, Next meeting and Week planner use it), `KitBinding` (owns list, header and state panel;
+  reads the source on attach and on `Changed`; decides, plans, draws; the language and age tick; the
+  header title; the card's Refresh with its age; the action runner: opens through
+  `IWidgetHost.Launcher`, copies through `IWidgetHost.CopyText`, Refresh through the source, the rest
+  through the view's handler) and `KitRows` (`Accounts` over `KitAccountRow`/`KitAccountTexts`, which
+  the Office pages' account rows now are; `InputBox`; `Count`; `Shows`).
+- **RSS** is `src/Widgets/Themia.Widget.Rss/`: `RssSpec` (its `KitSpec`: rich, all four fields, three
+  columns, ages; a feed entry as a `KitItem`; Open, Copy link, Refresh), `RssView` (a short kit view
+  whose `FeedSource : IKitSource` reads `IWidgetHost.Feeds`), `RssSettings` (from `KitRows`),
+  `FeedAggregate` (merge, outcomes, title). `FeedLayout` is gone (proved rung for rung equal to
+  `KitLadder` before it went), so are `RssView.Rows`, the view's dead `RefreshSchedule` and its
+  `Process.Start`. The SDK took `FeedParser`, `FeedInterest` and `SiteIcons.LooksLikeIcon`;
+  `IWidgetHost.Feeds` (`IFeedAnswers`) is new.
+- **Behaviour commits, each test first:** RSS opens through the launcher ([S-7062]); Open draws
+  `Glyphs.Open`, not U+E8A7 whose Explorer art is "Show more options" ([S-7012]); Up and Left with
+  nothing focused land on the first headline ([S-7020]); kit menus show Enter, Ctrl+C, F2 and Delete
+  and the list takes Ctrl+C ([S-7011]); the one stale rule for RSS and the six online widgets
+  ([S-7042], [S-7064]: no age in any header, the age on the Refresh line); one open gesture for
+  Recent files and Notifications ([S-7065]). Two RSS fixes found on the way: the widget takes what the
+  sync holds when it is shown (it said Loading until the next fetch, [S-1300]), and every feed
+  answering with nothing is one "no articles" sentence.
+- **Where it differs from the design above, and why.** One row look is built (`Rich`, the feed's):
+  Line, TwoLine and Table come with their first widgets (Mail, the agenda, Tasks), so none is unused
+  code. `KitPlan` carries no `Rows`: rich rows are measured, so the list fits whole rows itself.
+  `KitKeys` reads the list in reading order (Left and Right step like Up and Down, as `ItemCursor` did
+  for RSS) and has no `Page` overflow yet (the agenda brings it). `KitMenu` puts the web pages and the
+  copies in the item's own group with Open (one separator less than the table in 5.2, so RSS's menu
+  kept its shape); a line without what its kind needs is shown disabled rather than left out (RSS's
+  Open and Copy link on an entry without a link were disabled before). `KitScreen` has a `NoAccounts`
+  kind (the card's Set up) and a `Refused` screen (input the widget's own rules refuse); Loading keeps
+  its sentence (RSS showed one); `OffersGrant` and a sentence for `RetryAt` wait for the service
+  layer. `FetchStatus` did not gain `SignInRequired`, `Forbidden` or `NotFound` (step 9):
+  `KitAccountState` carries the account's state until the service layer classifies replies.
+  `IKitConfig` has no `Interest`: the config's `IInterests` already says what is synced. RSS's item ids
+  are positions in the merged list, so its cursor stays on the place it was, as before. `KitBinding`
+  takes the tick interval from the view (RSS redraws its ages on the feeds' cadence, as it did).
+  The online widgets' header tooltip no longer names the data's source; their settings pages do.
+- **Evidence.** Debug build 0 warnings after every commit; Core 5095 and module tests 2807 green at the
+  end; the RSS pixel diff of 43 renders (six preview states added first, Debug only, on `.example`
+  sites so no icon is ever fetched: tiers in default, light, dark and German, fill sizes, `--keys`,
+  the settings page in both themes and German, Arabic and Japanese tiers, picker and settings
+  searches) 0 differ after the refactor and after the move, against a "before" at `9b5098e9`. The
+  M4 groups' `compare.py` checked only the alpha channel (`Image.getbbox` of an RGBA difference looks
+  at alpha alone); `TestResults/kit1/compare.py` compares colour and alpha, and every diff here was
+  run again with it. Behaviour renders before and after: `TestResults/kit1/behaviour/` (`stale/`,
+  `stale2/`, `keys/`, `open/`). Release AOT publish 0 warnings (50.2 MB, before 50.1 MB);
+  Debug AOT publish 0 warnings and its renders of RSS (sample and stale tiers, its page) and weather
+  now stale finish in about 4 s, identical to the JIT renders.
+- **Left for the service-layer agent:** steps 9..12 (the failure vocabulary, `ServiceDescriptor` and
+  the strategies, `ServiceSignIn`, `ServiceSync`/`ServiceClient` with the `service` shelf) and the
+  pilots; the account widgets onto the kit (Mail needs the Table look, inline hover actions and a
+  compose header button; the agenda `Overflow = Page` and day groups; Tasks a Toggle lead, rename,
+  delete and its editor), each with its move into a project; `KitScreen.OffersGrant`; the fixture
+  replay (`FixtureSource`) once a provider records answers.
+
 
 ## 12. Design decisions and open questions
 

@@ -58,6 +58,7 @@ state store.
 ```
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
   Localization/ (+ Locales/*.json: the host's Str; StringTable, LocalText) Diagnostics/ (Log) Links/ Time/ (CalendarDays) Shell/ (Glyphs)
+  Kit/ (the widget kit's pure parts: KitItem, KitAction/KitMenu, KitKeys, KitSpec/KitLadder, KitScreens, KitFreshness, IKitConfig, IKitSource)
   Model/ (WidgetConfig, FillChoice, RefreshPreferences, ContentAlign; Configs/: the shared config bases QuickToggle-,
   PowerButton-, Weather-, SkyPlace-, Detail-, GaugeConfig and the config contracts ISetupRule, IPlaced, IContentAligned)
   SystemData/ (the hub's data: FeedKey, SourceId, Sources and their snapshots, MeterReading, series, SystemInterests
@@ -77,6 +78,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Settings/ Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetSettingsRows, view
+                   Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitRows: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
                    WidgetLayout, ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
                    UiLanguage, ScrollFade, EmptyStatePanel, Notices, the meters' and details' shared views (MeterView,
@@ -94,8 +96,8 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    shared samplers and sync services (accounts, mail, tasks, files, web)
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
-  Widgets/         Modules/<Name>Module.cs (each in-app widget's module: RSS and the account widgets) + their *View.cs
-src/Widgets/Themia.Widget.<Name>/     a widget module project (72 so far: year progress, M4 part B groups 1-4, 6 and 7): module, config, view, Preview/,
+  Widgets/         Modules/<Name>Module.cs (each in-app widget's module: the account widgets) + their *View.cs
+src/Widgets/Themia.Widget.<Name>/     a widget module project (73 so far: year progress, M4 part B groups 1-4, 6 and 7, RSS on the kit): module, config, view, Preview/,
                    Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum
@@ -118,7 +120,7 @@ on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it nee
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
 Settings › Accounts, the Recycle Bin, the power backend, the quick-setting toggles' sources, the web
-answers the sync keeps fresh (`Weather`, `Quotes`, `Rates` over `Fetched<T>`) and the system widgets'
+answers the sync keeps fresh (`Weather`, `Quotes`, `Rates` over `Fetched<T>`, `Feeds`) and the system widgets'
 sources (`System`: the hub's `Watch`/`WatchSeries` over `Sources`; `Drives`, `Audio`, `Brightness`,
 `Media`, `Loopback`) and the local stores (`ClipboardHistory` with `CopyText`, `Alarms`, `Focus`,
 `Notifications`, `Notes`, `Habits`, `ScreenTime`, `Gallery`), never `ShellLauncher`; a cue sounds
@@ -127,7 +129,7 @@ lists (`DriveList`, `AudioDevices`, `GpuAdapters`, `SymbolLookup`) and `Settings
 habit lists, the screen-time history, the launcher, the picker's owner window); a config's sync wants go
 through the SDK's `IInterests`/`InterestsBuilder.Of<T>()`, its hub wants through `IReadsSystem`, an
 alarm through `IAlarm` and the clipboard history through `IKeepsClipboardHistory`; the other shared data
-services (`AppServices.Feeds`, the mail, office and task sources, the folder listing and file icons)
+services (the mail, office and task sources)
 are host types until each gets an SDK contract (part B). The stores' files (`notes/`, `habits.json`,
 `usage_stats.json`) stay host code with their validation; `LocalStoreFixtureTests` pins their shapes. A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
@@ -192,6 +194,25 @@ descriptor on their config in Core and their module in `Widgets/Modules/<Name>Mo
   counts footer, the next days on "weather now"). Room left at L/XL goes to the core content (a
   larger ramp step, more rows); if that is used up, empty space is fine. Clock and the meters are the
   reference. Check every size tier on the showcase views.
+- **List widgets are built on the kit** (`Themia.Sdk.Kit` pure, `Themia.Sdk.WinUI.Kit` UI; SPEC
+  "The widget kit (KIT)", [S-7000]..[S-7071]; design and as-built in docs/WIDGET-KIT.md 5, 6 and 11.2;
+  RSS, `src/Widgets/Themia.Widget.Rss`, is the reference). A list widget writes: its config as an
+  `IKitConfig` (Needs, Configured, AccountIds, Shows: its setup rule follows); a spec file with its
+  `KitSpec` (row look, optional `KitShow` fields, columns, time, untitled and empty sentences), the
+  mapping of its data to `KitItem`s (an id that is stable or a position on purpose, plain text, a
+  `Uri` link) and its `KitAction`s per item (Open, OpenTo "<verb> on <Service>", CopyLink, CopyText,
+  Refresh; no view or sort switch exists); an `IKitSource` over its host contract (`Read` gives items,
+  one `KitOutcome` per source, the title; `Changed`; `Busy`; `Show(refresh)`); a view of a few lines
+  that owns a `KitBinding` and forwards to it (`Attach`, `ApplyConfig` to `Apply`, `ApplySize` to
+  `Size`, `Bind` to `Surface`, `HandleKey`, `ContextActions` to `CardActions`, `HeaderTrailing` to
+  `Header`, `Detach` to `Dispose`; children `List` and `State`); settings from `KitRows` (`Accounts`,
+  `InputBox`, `Count`, `Shows`). The kit decides the screen (`KitScreens`), the breakpoints
+  (`KitLadder`), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
+  (`KitMenu`, through `ItemMenu`), the stale rule (`KitFreshness`: a problem glyph, the age on the
+  Refresh line, never in the header) and opening (through `IWidgetHost.Launcher` only). A kit view
+  builds no scroll viewer, row focus, menu entry, ring or empty state of its own, and the kit's
+  shared code names no service, header or error code (`KitConformanceTests`). Something the kit lacks
+  (a row look, page overflow, a lead) is a kit change first, in its own commit with tests.
 - **Keyboard lease** ([S-800..812]): outside edit mode the surface is `WS_EX_NOACTIVATE`, so no widget
   receives keys by default. A widget that navigates with keys implements `IWidgetKeys.HandleKey(WidgetKey)`
   and gets the lease on a click; a widget with a text box calls `IWidgetSurface.RequestTextInput`

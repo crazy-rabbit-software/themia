@@ -856,7 +856,7 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   inert on a preview, [S-1243], [S-1251]) and the quick settings (`IQuickToggles`: one
   shared `IToggleSource` per toggle, [S-3907]) and the web answers the background sync keeps
   fresh ([S-2663]: `IWeatherAnswers` for the conditions, forecast, air and rain, `IQuoteAnswers` for
-  the quotes, `IRateAnswers` for the ECB table; each a `Fetched<T>` per want, the key it is synced
+  the quotes, `IRateAnswers` for the ECB table, `IFeedAnswers` for the Rss widgets' feeds ([S-2661]); each a `Fetched<T>` per want, the key it is synced
   under, `Show`/Refresh and `Updated(key)`; where the sync is not running, a debug render, what the
   shared caches hold), and the system widgets' sources: the system figures (`ISystemFeeds`: the one
   hub's `Watch` over a typed `SourceId<T>` and `WatchSeries`, null before the host has started it,
@@ -6619,7 +6619,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 - **[S-2660]** Feeds, quotes and weather keep their documents ([S-1300], [S-729]: same validation,
   same ages) in the sealed `web` shelves of the store, no longer as plain `network_cache.json` /
   `weather_cache.json` files.
-- **[S-2661]** Rss: `FeedSync` (`AppServices.Feeds`) keeps every feed of every Rss widget fresh on
+- **[S-2661]** Rss: `FeedSync` (`AppServices.Feeds`, a widget reads it through `IWidgetHost.Feeds`) keeps every feed of every Rss widget fresh on
   the shortest refresh any widget asks for, wakes with the network and goes now on Refresh; the
   widget draws what is held, hears the updates and asks nothing on attach (a feed address never
   fetched yet is the exception). The kit header's ring shows only while a fetch for one of its feeds
