@@ -34,7 +34,7 @@ namespace Themia.App.Widgets;
 /// click gate, the keys and edit mode are one path.
 /// </para>
 /// </summary>
-internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
     private const string Scope = "toggles";
 

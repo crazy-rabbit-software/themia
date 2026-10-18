@@ -15,7 +15,7 @@ namespace Themia.App.Widgets;
 /// out by <see cref="SwitchFace"/>. Drawn, not a <see cref="ToggleSwitch"/>: the tile stays the one
 /// hit target (and the card's in edit mode), so the switch never takes a press for itself.
 /// </summary>
-internal sealed partial class QuickToggleView
+public sealed partial class QuickToggleView
 {
     private readonly Canvas _switchFace = new();
     private readonly Grid _swTrack = new();

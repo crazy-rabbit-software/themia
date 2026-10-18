@@ -5,7 +5,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>Debug renders only: the states a render cannot reach on this PC ([S-1917], [S-3909]).</summary>
-internal sealed partial class QuickToggleView : IWidgetPreviewState
+public sealed partial class QuickToggleView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["on", "off", "unavailable", "unknown", "hover", "pressed", "refused"];
 

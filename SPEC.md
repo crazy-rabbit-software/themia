@@ -5769,9 +5769,10 @@ account).
 ## Quick-setting toggles (QUICK-TOGGLES)
 
 The toggle widgets of Karpo's Quick settings (`karpo-app`, docs\widgets.md §117: the ones a click
-flips where they stand), each its own widget. Core: `QuickToggleRules`, `ToggleGate`, `ToggleFace`;
-App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`); tests
-`QuickToggleTests`.
+flips where they stand), each its own widget. SDK: `QuickToggleRules`, `ToggleGate`, `ToggleFace`,
+`SwitchFace` (`Themia.Sdk`), `QuickToggleView` and `IQuickToggles` (`Themia.Sdk.WinUI`); Core:
+`ToggleFollowing` (`ReadingOrder`, `KeyFollow`), `NightLightValue`; App: `Services/Toggles/*` (one
+source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 
 - **[S-3900]** Thirteen kinds, one per toggle, in the add menu's subject **Quick settings** ([S-3511]), default size 120×120: Wi-Fi (`WifiToggle`), Bluetooth (`BluetoothToggle`), Airplane mode,
   Energy saver, Night light, Rotation lock, Do not disturb, Sound (the default output's mute),
