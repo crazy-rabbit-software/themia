@@ -1079,6 +1079,47 @@ service layer knows strategies, never services: a service is a descriptor that p
 - **[S-9924]** An account may name its own API root where the descriptor allows it (an Enterprise
   server): https on a public name, without user info. A request the rules built on the descriptor's
   root moves onto the account's; one that is not under it is refused.
+- **[S-9925]** One service sync for the app (`ServiceSync`, `IWidgetHost.Services`), the only code
+  that asks a kit service for anything ([S-2600]). Each kit widget's config adds a `ServiceInterest`
+  (its provider, its query or its view of the provider's replica, its accounts, its count); the
+  interests of every view, shown or not ([S-2608]), and the widgets on screen say which entries exist:
+  one per provider, account (every account of the provider when the widget names none, [S-7041];
+  anonymous only where public reads are allowed) and query, shared by every widget that reads it, at
+  the largest count any of them shows. An entry is asked on its provider's Updates row (never below
+  the service's floor, [S-9908]), backs off and wakes as every synced thing does ([S-2609]), goes at
+  once on Refresh unless its provider said "slow down", is not asked for an account only the user
+  can mend, and is let go when no widget reads it. A widget reads its accounts' items merged
+  ([S-9909]) with one outcome per account (named when it reads more than one), the accounts with how
+  each stands (a sign-in to mend, a refusal), and its service's grant page; it never asks the
+  network itself. One log line per change of an entry's state, never one per attempt, with no
+  token and no item's text in it.
+- **[S-9926]** What an account's entries hold is kept in its sealed `service` shelf ([S-2602]): each
+  query's items (with their times, groups and badges) and summary, each replica with its token and
+  last full read. On load it is read only for its own account and provider; the items pass the item
+  rules again (ids once, bounds, links on the service's hosts, [S-7002]) and a replica the
+  provider's validation; an entry is due at once only when older than its cadence. A sign-out purges
+  it with the account's other shelves ([S-2607]); the sweep of shelves of accounts no longer signed in
+  knows the kind ([S-2665]).
+- **[S-9927]** One client for every kit service (`ServiceClient`, no subclass and no branch per
+  service): the query's steps first (each a held, conditional, throttled request of its own, its last
+  answer used while a block or a blip stops it), then its pages: each request built by the query,
+  refused before it is sent while its account's bucket is blocked, sent with the held entity tag
+  where the query's freshness allows, classified through `ServiceFailures.Classify` (a throttle, or a
+  success that spent the budget, blocks the account's bucket until its time; a code the scheme does
+  not know is logged), a 304 answered from the held body, a GraphQL answer unwrapped for the rules,
+  mapped by the query, and paged by the one loop ([S-9906]). The items pass the item rules and the
+  descriptor's bound. A transport failure is its own state; no account without public reads asks
+  nothing.
+- **[S-9928]** The client's memory is in memory only: conditional bodies by account and request (at
+  most 256, the least recently used out), the blocks by account and bucket, the steps' answers; a
+  sign-out forgets the account's.
+- **[S-9929]** A preview card's kit widget (a debug render) reads its provider's recorded answers
+  through the real rules and sync (`FixtureReplay` over `Fixtures/<state>.json`, copied into Debug
+  builds only under the provider's own folder): `items`, `many`, `empty`, `nomatch`, `forbidden`,
+  `ratelimited`, `problem` are recordings; `accounts` reads one through two stand-in accounts,
+  `stale` answers then finds the network gone, `signin` and `gone` change the stand-in account, and
+  `loading` never answers. A recording matches a request by its address and answers in order (an
+  entity tag, then a 304). Nothing reaches the network or an account.
 - **[S-9920]** A throttle is read through the descriptor's `RateLimitScheme`: its budgets' headers
   (several budgets: a spent one wins), the reset's unit (epoch seconds or milliseconds, or seconds
   from now), the header naming the bucket, the statuses that are a throttle when a budget is spent or

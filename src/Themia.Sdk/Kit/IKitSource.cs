@@ -35,4 +35,11 @@ public sealed record KitRead(
     string? Refused = null,
     IReadOnlyCollection<string>? WebHosts = null,
     IReadOnlyList<KitAccount>? Accounts = null,
-    IReadOnlyList<string>? Chosen = null);
+    IReadOnlyList<string>? Chosen = null)
+{
+    /// <summary>[S-9904] The sentence for an empty list whose reason the source's rules know ("No active cycle"), or null for the spec's own.</summary>
+    public LocalText? EmptySentence { get; init; }
+
+    /// <summary>[S-9919] Where the user widens what an account may read, for a service that grants per resource; null otherwise.</summary>
+    public Uri? GrantPage { get; init; }
+}

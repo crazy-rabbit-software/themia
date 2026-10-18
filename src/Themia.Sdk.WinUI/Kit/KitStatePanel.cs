@@ -28,6 +28,8 @@ public sealed partial class KitStatePanel : Grid
 
     private readonly TextBlock _message = new();
     private readonly HyperlinkButton _link;
+    private readonly HyperlinkButton _grant;
+    private Uri? _grantPage;
     private readonly StackPanel _empty;
 
     private readonly IWidgetHost _widgetHost;
@@ -46,14 +48,27 @@ public sealed partial class KitStatePanel : Grid
         };
         _link.Click += OnLinkClicked;
 
+        // [S-9919] Beside the Accounts link: where a service that grants per resource is widened.
+        _grant = new HyperlinkButton
+        {
+            Content = Str.Kit_GrantPage.Text(),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
+            Visibility = Visibility.Collapsed,
+        };
+        _grant.Click += OnGrantClicked;
+
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         SetRow(empty, 1);
         SetRow(_link, 2);
+        SetRow(_grant, 3);
         Children.Add(empty);
         Children.Add(_link);
+        Children.Add(_grant);
 
         _empty = empty;
         SizeChanged += (_, _) => Fit();
@@ -66,7 +81,7 @@ public sealed partial class KitStatePanel : Grid
     /// </summary>
     private void Fit()
     {
-        var link = _link.Visibility == Visibility.Visible ? LinkHeight : 0;
+        var link = (_link.Visibility == Visibility.Visible ? LinkHeight : 0) + (_grant.Visibility == Visibility.Visible ? LinkHeight : 0);
         _empty.MaxHeight = Math.Max(0, ActualHeight - link);
 
         // A narrow tile gets the short form, rather than a link cut off mid-word.
@@ -74,10 +89,12 @@ public sealed partial class KitStatePanel : Grid
     }
 
     /// <summary>Show a sentence, with the Accounts link when <paramref name="offerAccounts"/>.</summary>
-    public void Show(string message, bool offerAccounts)
+    public void Show(string message, bool offerAccounts, Uri? grant = null)
     {
         _message.Text = message;
         _link.Visibility = offerAccounts ? Visibility.Visible : Visibility.Collapsed;
+        _grantPage = grant;
+        _grant.Visibility = grant is null ? Visibility.Collapsed : Visibility.Visible;
         Visibility = Visibility.Visible;
         Fit();
     }
@@ -86,12 +103,16 @@ public sealed partial class KitStatePanel : Grid
     public void Show(Themia.Sdk.Kit.KitScreen screen)
     {
         ArgumentNullException.ThrowIfNull(screen);
-        Show(screen.Sentence, screen.OffersAccounts);
+        Show(screen.Sentence, screen.OffersAccounts, screen.Grant);
     }
 
     public void Hide() => Visibility = Visibility.Collapsed;
 
-    public void Detach() => _link.Click -= OnLinkClicked;
+    public void Detach()
+    {
+        _link.Click -= OnLinkClicked;
+        _grant.Click -= OnGrantClicked;
+    }
 
     /// <summary>Open Settings on the Accounts page, the one place accounts are added and mended.</summary>
     public void OpenAccounts()
@@ -103,4 +124,13 @@ public sealed partial class KitStatePanel : Grid
     }
 
     private void OnLinkClicked(object sender, RoutedEventArgs args) => OpenAccounts();
+
+    /// <summary>[S-9919] The grant page, through the host's one launcher; a preview opens nothing.</summary>
+    private void OnGrantClicked(object sender, RoutedEventArgs args)
+    {
+        if (_grantPage is { } page && !_widgetHost.IsPreview)
+        {
+            _widgetHost.Launcher.Open(page.AbsoluteUri);
+        }
+    }
 }

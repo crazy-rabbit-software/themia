@@ -36,4 +36,5 @@ public sealed class WebShelf : ISyncShelf
 [JsonSerializable(typeof(ContactsShelf))]
 [JsonSerializable(typeof(TasksShelf))]
 [JsonSerializable(typeof(WebShelf))]
+[JsonSerializable(typeof(ServiceShelf))]
 public sealed partial class SyncJsonContext : JsonSerializerContext;

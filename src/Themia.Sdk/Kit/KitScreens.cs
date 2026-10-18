@@ -65,6 +65,15 @@ public sealed record KitOutcome(
 /// <param name="HeaderProblems">For a list: one line per source that failed ("World News: HTTP 404 Not Found").</param>
 public sealed record KitScreen(KitScreenKind Kind, string Sentence, bool OffersAccounts, IReadOnlyList<string> HeaderProblems)
 {
+    /// <summary>
+    /// [S-9919] Where the user widens what the account may read, offered beside the Accounts link on a
+    /// refusal or a missing item of a service that grants per resource; null otherwise.
+    /// </summary>
+    public Uri? Grant { get; init; }
+
+    /// <summary>The screen offers the grant page.</summary>
+    public bool OffersGrant => Grant is not null;
+
     /// <summary>A problem the widget states itself before any source is asked (an address refused by its rules).</summary>
     public static KitScreen Refused(string sentence) => new(KitScreenKind.Problem, sentence, false, []);
 }
@@ -93,7 +102,9 @@ public static class KitScreens
         IReadOnlyList<KitOutcome> outcomes,
         int itemCount,
         string emptySentence,
-        string? noMatchSentence = null)
+        string? noMatchSentence = null,
+        Uri? grantPage = null,
+        DateTimeOffset? now = null)
     {
         ArgumentNullException.ThrowIfNull(chosen);
         ArgumentNullException.ThrowIfNull(outcomes);
@@ -101,10 +112,10 @@ public static class KitScreens
 
         if (accounts is not null && AccountScreen(locale, accounts, chosen) is { } accountScreen)
         {
-            return accountScreen;
+            return accountScreen.Kind == KitScreenKind.Forbidden ? accountScreen with { Grant = grantPage } : accountScreen;
         }
 
-        var problems = outcomes.Where(o => FetchState.IsFailure(o.Status)).Select(o => Line(locale, o)).ToList();
+        var problems = outcomes.Where(o => FetchState.IsFailure(o.Status)).Select(o => Line(locale, o, now)).ToList();
 
         if (itemCount > 0)
         {
@@ -123,7 +134,9 @@ public static class KitScreens
                 : new KitScreen(KitScreenKind.Empty, emptySentence, false, []);
         }
 
-        return new KitScreen(KitScreenKind.Problem, string.Join("\n", problems), false, []);
+        // [S-9919] Every source refused or missing: the user widens what the account may read there.
+        var refused = outcomes.Count > 0 && outcomes.All(o => o.Status is FetchStatus.Forbidden or FetchStatus.NotFound);
+        return new KitScreen(KitScreenKind.Problem, string.Join("\n", problems), refused && accounts is not null, []) { Grant = refused ? grantPage : null };
     }
 
     /// <summary>[S-7041] The accounts a widget reads: every one offering its need when it names none, else the ones it names that are still signed in.</summary>
@@ -170,10 +183,18 @@ public static class KitScreens
         return null;
     }
 
-    /// <summary>"World News: HTTP 404 Not Found": the source's own words when it has them, else the shared sentence.</summary>
-    internal static string Line(Locale locale, KitOutcome outcome)
+    /// <summary>
+    /// "World News: HTTP 404 Not Found": the source's own words when it has them, else the shared
+    /// sentence; a throttle with a known end says when it asks again ([S-9901]).
+    /// </summary>
+    internal static string Line(Locale locale, KitOutcome outcome, DateTimeOffset? now = null)
     {
         var reason = string.IsNullOrWhiteSpace(outcome.Detail) ? FetchState.Message(locale, outcome.Status) : outcome.Detail!;
+        if (outcome.Status == FetchStatus.RateLimited && outcome.RetryAt is { } retry && now is { } at && retry > at)
+        {
+            reason = Strings.Format(locale, Str.Kit_RetryAt, ("state", reason), ("time", KitFreshness.When(locale, retry, at)));
+        }
+
         return outcome.Owner is { Length: > 0 } owner ? Strings.Format(locale, Str.Kit_OwnerProblem, ("name", owner), ("reason", reason)) : reason;
     }
 }

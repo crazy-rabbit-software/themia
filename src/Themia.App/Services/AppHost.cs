@@ -266,6 +266,9 @@ internal sealed partial class AppHost : IDisposable
         AppServices.Feeds = new Web.FeedSync(Sync, Ticker);
         AppServices.WebSync = new Web.WebSync(Sync, Ticker);
 
+        // [S-9925] The kit services' entries, on the same terms: interests, cadence, shelves.
+        AppServices.Services = new Kit.ServiceSync(Sync, Accounts, Ticker);
+
         // [S-4623] Alarms ring whether or not a widget shows them, from the first moment.
         StartAlarms();
 
@@ -389,6 +392,8 @@ internal sealed partial class AppHost : IDisposable
         AppServices.Feeds = null;
         AppServices.WebSync?.Dispose();
         AppServices.WebSync = null;
+        AppServices.Services?.Dispose();
+        AppServices.Services = null;
         AppServices.Tasks?.Dispose();
         AppServices.Tasks = null;
         AppServices.Habits = null;

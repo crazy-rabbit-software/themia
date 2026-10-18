@@ -59,6 +59,9 @@ public interface IWidgetHost
     /// <summary>[S-2661] The feeds the background sync keeps fresh.</summary>
     IFeedAnswers Feeds { get; }
 
+    /// <summary>[S-9925] The kit services the background sync keeps fresh: one source per widget over the host's one service sync.</summary>
+    IServiceSources Services { get; }
+
     /// <summary>
     /// [S-2500] The system figures (CPU, memory, disk, network, battery, GPU, processes, ping): the
     /// host's one hub. Null only before the host has started it, where there is nothing to read yet.

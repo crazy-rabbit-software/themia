@@ -38,13 +38,16 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IFeedAnswers Feeds => HostFeedAnswers.Instance;
 
+    /// <summary>[S-9925] The host's one service sync; a preview card replays the providers' recorded answers ([S-9929]).</summary>
+    public IServiceSources Services => Themia.App.Services.Kit.HostServiceSources.For(card);
+
     public ISystemFeeds? System => AppServices.System;
 
-    public IDrives Drives => Services.Drives.DriveService.Shared;
+    public IDrives Drives => Themia.App.Services.Drives.DriveService.Shared;
 
     public IAudioOutputs Audio => HostAudioOutputs.Instance;
 
-    public IBrightness Brightness => Services.Brightness.HostBrightness.Instance;
+    public IBrightness Brightness => Themia.App.Services.Brightness.HostBrightness.Instance;
 
     public IMediaSessions Media => HostMediaSessions.Instance;
 
@@ -54,9 +57,9 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IAlarms? Alarms => AppServices.Alarms;
 
-    public IFocusSession Focus => Services.Focus.HostFocusSession.Instance;
+    public IFocusSession Focus => Themia.App.Services.Focus.HostFocusSession.Instance;
 
-    public INotifications Notifications => Services.Notifications.HostNotifications.Instance;
+    public INotifications Notifications => Themia.App.Services.Notifications.HostNotifications.Instance;
 
     public INotes? Notes => AppServices.Notes;
 
@@ -68,17 +71,17 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public bool CopyText(string text) => ClipboardWatcher.SetText(text);
 
-    public IFileIcons FileIcons => Services.Files.HostFileIcons.Instance;
+    public IFileIcons FileIcons => Themia.App.Services.Files.HostFileIcons.Instance;
 
-    public IFileClipboard FileClipboard => Services.Files.HostFileClipboard.Instance;
+    public IFileClipboard FileClipboard => Themia.App.Services.Files.HostFileClipboard.Instance;
 
-    public IFolders Folders => Services.Files.HostFolders.Instance;
+    public IFolders Folders => Themia.App.Services.Files.HostFolders.Instance;
 
-    public IShellFileOps FileOps => Services.Files.HostFileOps.Instance;
+    public IShellFileOps FileOps => Themia.App.Services.Files.HostFileOps.Instance;
 
-    public IExplorerMenus ExplorerMenus => Services.Files.HostExplorerMenus.Instance;
+    public IExplorerMenus ExplorerMenus => Themia.App.Services.Files.HostExplorerMenus.Instance;
 
-    public IRecentItems RecentFiles => Services.Files.HostRecentItems.Instance;
+    public IRecentItems RecentFiles => Themia.App.Services.Files.HostRecentItems.Instance;
 
     public IAppLayouts AppLayouts => HostAppLayouts.Instance;
 

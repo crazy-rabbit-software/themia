@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -14,6 +14,9 @@ public enum SyncKind
     Contacts,
     Tasks,
     Web,
+
+    /// <summary>[S-9926] A kit service's data for one account: its entries and replicas.</summary>
+    Service,
 }
 
 /// <summary>Every shelf document carries its schema and whose it is, checked on the way in ([S-2605]).</summary>
@@ -131,6 +134,7 @@ public sealed class SyncVault
         SyncKind.Calendar => "calendar",
         SyncKind.Contacts => "contacts",
         SyncKind.Tasks => "tasks",
+        SyncKind.Service => "service",
         _ => "web",
     };
 

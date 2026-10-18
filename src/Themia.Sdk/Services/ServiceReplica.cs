@@ -1,33 +1,165 @@
 using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Themia.Sdk.Kit;
 
 namespace Themia.Sdk.Services;
 
 /// <summary>
-/// [S-9907] A service read through its own sync token: the held thing is a typed replica of the
-/// account's data, not a widget's list. One replica per account is shared by every widget of the
-/// provider; a widget's list is a view of it, never a request of its own. The provider writes the
-/// three pure functions; the host holds the replica and its token together in the account's sealed
-/// service shelf, through the provider's own JSON context.
+/// [S-9925] What a kit widget wants the service sync to keep fresh: its provider, its query (or its
+/// view of the provider's replica, [S-9907]), the accounts it reads (empty: every account offering
+/// the provider's feature, [S-7041]) and how many items it shows. Added by the widget's config
+/// (<c>IInterests</c>); the host reads them back and keeps one entry per provider, account and query.
 /// </summary>
-public interface IServiceReplica<TReplica, TWire>
-    where TReplica : class
+public sealed record ServiceInterest
 {
-    /// <summary>A delta onto what is held: upserts by id, removals by tombstone; a full answer replaces.</summary>
-    TReplica Merge(TReplica? held, TWire delta);
+    public ServiceInterest(ProviderId provider, IServiceQuery query, IReadOnlyList<string> accountIds, int count)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        Provider = provider;
+        Query = query;
+        AccountIds = accountIds ?? [];
+        Count = Math.Max(1, count);
+    }
 
-    /// <summary>On load: bounds, ids once, links re-checked; a bad replica is repaired, never half-used.</summary>
-    TReplica Validate(TReplica replica);
+    public ServiceInterest(ProviderId provider, IReplicaView view, IReadOnlyList<string> accountIds, int count)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        Provider = provider;
+        View = view;
+        AccountIds = accountIds ?? [];
+        Count = Math.Max(1, count);
+    }
 
-    /// <summary>The token to send with the next request ("*" or the service's own for a full read when none is held).</summary>
-    string? SyncToken(TReplica? held);
+    public ProviderId Provider { get; }
+
+    /// <summary>The query, for a service read by request; null for a view of a replica.</summary>
+    public IServiceQuery? Query { get; }
+
+    /// <summary>The view, for a service read through its sync token; null for a query.</summary>
+    public IReplicaView? View { get; }
+
+    public IReadOnlyList<string> AccountIds { get; }
+
+    public int Count { get; }
+
+    /// <summary>The query's or view's key: what an entry is held under beside its account.</summary>
+    public string QueryKey => Query?.Key ?? ("view:" + View!.Key);
+
+    /// <summary>Everything that changes what is synced, for the interests' key.</summary>
+    public string Key()
+        => string.Create(CultureInfo.InvariantCulture, $"{Provider.Value}|{string.Join(',', AccountIds)}|{QueryKey}|{Count}");
 }
 
-/// <summary>A widget's view of a replica: the filter, the sort and the groups, recomputed on every merge and at the day's rollover.</summary>
-public interface IReplicaView<TReplica, TQuery>
+/// <summary>
+/// [S-9907] A service read through its own sync token, type-erased for the host: the replica is held
+/// as the provider's own JSON (written and read through its context), one per account, shared by every
+/// widget of the provider. The provider implements it, usually through <see cref="ServiceReplica{TReplica, TWire}"/>.
+/// </summary>
+public interface IServiceReplicaQuery
+{
+    /// <summary>The replica's key: one per provider (and account, beside it).</summary>
+    string Key { get; }
+
+    /// <summary>A full read at least this often, whatever the deltas say.</summary>
+    TimeSpan FullReadEvery { get; }
+
+    /// <summary>The sync request: <paramref name="syncToken"/> null asks for everything (its own bucket).</summary>
+    ServiceRequest Build(string? syncToken);
+
+    /// <summary>
+    /// A successful answer onto what is held, or null with <paramref name="problem"/> when the body is
+    /// not the wire shape. A delta onto nothing held is not merged: the answer says the token was rejected.
+    /// </summary>
+    ReplicaMerge? Merge(string? heldJson, ReadOnlyMemory<byte> body, DateTimeOffset now, out string? problem);
+
+    /// <summary>On load: the replica repaired to its bounds, or null with <paramref name="problem"/> when it cannot be used.</summary>
+    string? Validate(string json, out string? problem);
+}
+
+/// <summary>A merged replica: its JSON, the token to send next, whether the answer was a full read, and whether the service refused the token sent.</summary>
+public sealed record ReplicaMerge(string Json, string? SyncToken, bool Full, bool TokenRejected = false);
+
+/// <summary>[S-9907] A widget's list as a view of a replica: the filter, the sort and the groups, never a request.</summary>
+public interface IReplicaView
+{
+    IServiceReplicaQuery Replica { get; }
+
+    /// <summary>What changes the view (the list, its horizon).</summary>
+    string Key { get; }
+
+    KitPage View(string replicaJson, DateTimeOffset now);
+}
+
+/// <summary>
+/// [S-9907] A replica over the provider's own types: it writes the three pure functions and the
+/// request; this base turns them into the host's erased contract through its source-generated JSON.
+/// </summary>
+public abstract class ServiceReplica<TReplica, TWire> : IServiceReplicaQuery
     where TReplica : class
 {
-    KitPage View(TReplica replica, TQuery query, DateTimeOffset now, TimeSpan zoneOffset);
+    protected abstract JsonTypeInfo<TReplica> ReplicaJson { get; }
+
+    protected abstract JsonTypeInfo<TWire> WireJson { get; }
+
+    public abstract string Key { get; }
+
+    public virtual TimeSpan FullReadEvery => TimeSpan.FromDays(1);
+
+    public abstract ServiceRequest Build(string? syncToken);
+
+    /// <summary>A delta onto what is held (upserts by id, removals by tombstone); a full answer replaces.</summary>
+    protected abstract TReplica Merge(TReplica? held, TWire delta, DateTimeOffset now);
+
+    /// <summary>On load: bounds, ids once, links re-checked.</summary>
+    protected abstract TReplica Validate(TReplica replica);
+
+    /// <summary>The token the merged replica holds for the next request.</summary>
+    protected abstract string? SyncTokenOf(TReplica replica);
+
+    /// <summary>Whether <paramref name="delta"/> is a full read.</summary>
+    protected abstract bool IsFull(TWire delta);
+
+    public ReplicaMerge? Merge(string? heldJson, ReadOnlyMemory<byte> body, DateTimeOffset now, out string? problem)
+    {
+        if (!ServiceWire.TryParse(body.Span, WireJson, out var delta, out problem))
+        {
+            return null;
+        }
+
+        var held = heldJson is null ? null : Read(heldJson, out _);
+        var full = IsFull(delta!);
+        if (!full && held is null)
+        {
+            // A delta needs something to apply to: ask for everything.
+            return new ReplicaMerge(string.Empty, null, Full: false, TokenRejected: true);
+        }
+
+        var merged = Validate(Merge(held, delta!, now));
+        return new ReplicaMerge(JsonSerializer.Serialize(merged, ReplicaJson), SyncTokenOf(merged), full);
+    }
+
+    public string? Validate(string json, out string? problem)
+    {
+        var replica = Read(json, out problem);
+        return replica is null ? null : JsonSerializer.Serialize(Validate(replica), ReplicaJson);
+    }
+
+    /// <summary>The held replica as the provider's type, for its views.</summary>
+    public TReplica? Read(string json, out string? problem)
+    {
+        try
+        {
+            var replica = JsonSerializer.Deserialize(json, ReplicaJson);
+            problem = replica is null ? "a null replica" : null;
+            return replica;
+        }
+        catch (JsonException ex)
+        {
+            problem = $"not the replica at {ex.Path ?? "$"}";
+            return null;
+        }
+    }
 }
 
 /// <summary>

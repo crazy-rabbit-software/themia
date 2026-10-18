@@ -181,7 +181,8 @@ public sealed class KitBinding : IDisposable
         else
         {
             var items = KitItems.Clean(read.Items, read.WebHosts);
-            Screen = KitScreens.Decide(Strings.Current, read.Accounts, read.Chosen ?? [], read.Outcomes, items.Count, _spec.Empty());
+            var empty = read.EmptySentence is { } own ? own.Text() : _spec.Empty();
+            Screen = KitScreens.Decide(Strings.Current, read.Accounts, read.Chosen ?? [], read.Outcomes, items.Count, empty, grantPage: read.GrantPage, now: DateTimeOffset.Now);
 
             if (Screen.Kind == KitScreenKind.Items)
             {

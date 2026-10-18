@@ -1,0 +1,31 @@
+{
+  "$comment": "[S-9929] A recording shaped on a GitHub search for review requests (scrubbed: example hosts, no token): two pages by Link header, then a 304 for the first page.",
+  "replies": [
+    {
+      "match": "/search/issues?q=review&page=2",
+      "status": 200,
+      "headers": { "ETag": "\"p2\"", "X-RateLimit-Remaining": "28", "X-RateLimit-Resource": "search" },
+      "body": { "items": [ { "id": 3, "title": "Third", "url": "https://hub.example/octo/app/pull/3", "updated": "2026-10-18T07:00:00Z" } ] }
+    },
+    {
+      "match": "/search/issues?q=review",
+      "status": 200,
+      "headers": {
+        "ETag": "\"p1\"",
+        "Link": "<https://api.hub.example/search/issues?q=review&page=2>; rel=\"next\"",
+        "X-RateLimit-Remaining": "29",
+        "X-RateLimit-Resource": "search"
+      },
+      "body": { "items": [
+        { "id": 1, "title": "First", "url": "https://hub.example/octo/app/pull/1", "updated": "2026-10-18T08:30:00Z" },
+        { "id": 2, "title": "Second, linked off-site", "url": "https://evil.example/2", "updated": "2026-10-18T08:00:00Z" }
+      ] }
+    },
+    {
+      "match": "/search/issues?q=review",
+      "status": 304,
+      "headers": { "ETag": "\"p1\"" },
+      "body": ""
+    }
+  ]
+}

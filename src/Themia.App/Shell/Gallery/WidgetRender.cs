@@ -209,6 +209,8 @@ internal static class WidgetRender
                 // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
                 AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
+                // [S-9929] A kit service widget's preview states are its provider's recordings.
+                FixtureServices.State = state;
                 var host = new NoticeRender.RenderCardHost(ticker) { Design = design };
                 Place(page, host, kind, style, tiers, cards);
                 if (reference)

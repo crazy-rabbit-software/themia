@@ -53,6 +53,9 @@ public sealed record SyncInterests(
     /// <summary>[S-5147] The ECB table, when any exchange-rates widget is in a view.</summary>
     public RatesInterest? Rates { get; init; }
 
+    /// <summary>[S-9925] Every kit service widget's query or view, with its accounts and count.</summary>
+    public IReadOnlyList<Themia.Sdk.Services.ServiceInterest> Services { get; init; } = [];
+
     /// <summary>
     /// Everything that changes what is synced, as one string: the state changes sixty times a second
     /// during a drag, and the services only need to hear when this does.
@@ -122,6 +125,11 @@ public sealed record SyncInterests(
             text.Append("fx|").Append(rates.Interval.Ticks).Append('#');
         }
 
+        foreach (var service in Services)
+        {
+            text.Append("s|").Append(service.Key()).Append('#');
+        }
+
         return text.ToString();
     }
 
@@ -153,6 +161,7 @@ public sealed record SyncInterests(
 
             // [S-5140] Every exchange-rates widget wants the same one table.
             Rates = interests.Of<RatesInterest>().FirstOrDefault(),
+            Services = interests.Of<Themia.Sdk.Services.ServiceInterest>(),
         };
     }
 }

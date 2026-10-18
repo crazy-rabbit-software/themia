@@ -13,7 +13,7 @@ namespace Themia.Core.Sync;
 public static partial class ShelfSweep
 {
     /// <summary>Account data kinds: every one of them is kept for every account that exists.</summary>
-    private static readonly SyncKind[] AccountKinds = [SyncKind.Mail, SyncKind.Calendar, SyncKind.Contacts, SyncKind.Tasks];
+    private static readonly SyncKind[] AccountKinds = [SyncKind.Mail, SyncKind.Calendar, SyncKind.Contacts, SyncKind.Tasks, SyncKind.Service];
 
     /// <summary>
     /// The web caches' shelves are shared by every widget of their kind (one owner each, entries
@@ -78,6 +78,6 @@ public static partial class ShelfSweep
         return dash > 0 ? fileName[..dash] : fileName;
     }
 
-    [GeneratedRegex(@"^(?<shelf>(mail|calendar|contacts|tasks|web)-[0-9a-f]{32}\.shelf)(\.corrupt)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"^(?<shelf>(mail|calendar|contacts|tasks|web|service)-[0-9a-f]{32}\.shelf)(\.corrupt)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex ShelfFile();
 }

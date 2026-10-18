@@ -9,6 +9,7 @@
     <Compile Remove="Tests\**" />
     <None Remove="Tests\**" />
     <AdditionalFiles Include="Localization\Locales\**\*.json" />
-    <Content Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' == 'Debug'" />
+    <!-- [S-9929] Recorded answers, Debug only, under the provider's own folder so two providers' "items.json" never meet. -->
+    <Content Include="Fixtures\**" Link="Fixtures\$(ThemiaModuleName)\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' == 'Debug'" />
   </ItemGroup>
 </Project>

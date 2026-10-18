@@ -33,6 +33,9 @@ internal static class AppServices
     /// <summary>[S-2661] The feeds every Rss widget reads, kept fresh in the background. Null before the host has started.</summary>
     public static Web.FeedSync? Feeds { get; internal set; }
 
+    /// <summary>[S-9925] The kit services every service widget reads, kept fresh in the background. Null before the host has started (and in a debug render).</summary>
+    public static Kit.ServiceSync? Services { get; internal set; }
+
     /// <summary>[S-2663] The weather readings, forecasts and quotes every widget reads, kept fresh in the background. Null before the host has started (and in a debug render).</summary>
     public static Web.WebSync? WebSync { get; internal set; }
 
