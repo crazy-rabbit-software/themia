@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Rozmiar miejsca i daty",
-  "clockText.sizeDesc": "Jak duże są miejsce, data i wiersz przesunięcia",
-  "clockText.small": "Mały",
-  "clockText.large": "Duży",
   "planner.label": "Planer tygodnia",
   "planner.desc": "Najbliższe dni z wydarzeniami i to, co ma termin dzisiaj",
   "planner.tasksHeader": "Dzisiejsze zadania",

@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Label and date size",
-  "clockText.sizeDesc": "How large the place, the date and the offset line are",
-  "clockText.small": "Small",
-  "clockText.large": "Large",
   "planner.label": "Week planner",
   "planner.desc": "The days ahead with their events, and what is due today",
   "planner.tasksHeader": "Today's tasks",

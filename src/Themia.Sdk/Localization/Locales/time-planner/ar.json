@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "حجم المكان والتاريخ",
-  "clockText.sizeDesc": "حجم المكان والتاريخ وسطر فرق التوقيت",
-  "clockText.small": "صغير",
-  "clockText.large": "كبير",
   "planner.label": "مخطط الأسبوع",
   "planner.desc": "الأيام القادمة بأحداثها، وما يستحق اليوم",
   "planner.tasksHeader": "مهام اليوم",

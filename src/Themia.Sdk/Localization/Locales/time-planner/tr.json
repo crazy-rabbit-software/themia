@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Yer ve tarih boyutu",
-  "clockText.sizeDesc": "Yer, tarih ve fark satırının ne kadar büyük olduğu",
-  "clockText.small": "Küçük",
-  "clockText.large": "Büyük",
   "planner.label": "Haftalık planlayıcı",
   "planner.desc": "Önümüzdeki günler etkinlikleriyle ve bugün bitmesi gerekenler",
   "planner.tasksHeader": "Bugünün görevleri",

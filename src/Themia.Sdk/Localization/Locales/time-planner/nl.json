@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Grootte van plaats en datum",
-  "clockText.sizeDesc": "Hoe groot de plaats, de datum en de verschilregel zijn",
-  "clockText.small": "Klein",
-  "clockText.large": "Groot",
   "planner.label": "Weekplanner",
   "planner.desc": "De komende dagen met hun afspraken, en wat vandaag af moet",
   "planner.tasksHeader": "Taken van vandaag",

@@ -30,15 +30,15 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6902_a_registry_with_a_missing_descriptor_or_an_id_or_kind_given_twice_is_refused()
     {
-        var clock = ClockConfig.Descriptor;
+        var memory = MemoryConfig.Descriptor;
         var cpu = CpuConfig.Descriptor;
 
-        Assert.Empty(ModuleCatalog.Check([clock, cpu]));
-        Assert.Single(ModuleCatalog.Check([clock, null]));
-        Assert.Single(ModuleCatalog.Check([clock, cpu with { Id = new("clock") }]));
-        Assert.Single(ModuleCatalog.Check([clock, cpu with { ConfigType = typeof(ClockConfig) }]));
-        Assert.Single(ModuleCatalog.Check([clock, cpu with { Id = default }]));
-        Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([clock]));
+        Assert.Empty(ModuleCatalog.Check([memory, cpu]));
+        Assert.Single(ModuleCatalog.Check([memory, null]));
+        Assert.Single(ModuleCatalog.Check([memory, cpu with { Id = new("memory") }]));
+        Assert.Single(ModuleCatalog.Check([memory, cpu with { ConfigType = typeof(MemoryConfig) }]));
+        Assert.Single(ModuleCatalog.Check([memory, cpu with { Id = default }]));
+        Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([memory]));
     }
 
     [Fact]
@@ -149,18 +149,6 @@ public sealed partial class WidgetRegistryTests
             Assert.True(WidgetSetup.Needed(widget.CreateDefault(), Themia.Sdk.FeatureSet.None), $"{id} does not wait for an account");
             Assert.True(typeof(Themia.Core.Sync.IInterests).IsAssignableFrom(widget.ConfigType), $"{id} reads an account the sync never fetches for it");
         }
-    }
-
-    [Fact]
-    public void S6907_every_widget_has_a_place_of_its_own_in_the_add_menu()
-    {
-        var widgets = ModuleCatalog.Widgets;
-
-        Assert.All(widgets, w => Assert.DoesNotContain(w.Add.Shelf, new[] { AddFolderId.Popular, AddFolderId.Browse, AddFolderId.More }));
-        Assert.Equal(widgets.Count, widgets.Select(w => (w.Add.Shelf, w.Add.Group, w.Add.Rank)).Distinct().Count());
-        var popular = widgets.Where(w => w.Add.Popular is not null).Select(w => w.Add.Popular!.Value).ToList();
-        Assert.Equal(Enumerable.Range(0, popular.Count), popular.Order());
-        Assert.Equal(widgets.Count, AddTree.Homes(AddTree.On([.. widgets.Select(w => w.Id)])).Count);
     }
 
     /// <summary>

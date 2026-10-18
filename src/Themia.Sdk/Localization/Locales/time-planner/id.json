@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Ukuran tempat dan tanggal",
-  "clockText.sizeDesc": "Seberapa besar tempat, tanggal, dan baris selisih waktu",
-  "clockText.small": "Kecil",
-  "clockText.large": "Besar",
   "planner.label": "Perencana mingguan",
   "planner.desc": "Hari-hari mendatang dengan acaranya, dan yang jatuh tempo hari ini",
   "planner.tasksHeader": "Tugas hari ini",

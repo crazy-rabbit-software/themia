@@ -12,5 +12,7 @@
   <ItemGroup>
     <!-- The fallback tests build tables with gaps on purpose ([S-1104]). -->
     <InternalsVisibleTo Include="Themia.Core.Tests" />
+    <!-- The module test host tests the host's rules over every widget of the build (the first-run seed, the stored preferences). -->
+    <InternalsVisibleTo Include="Themia.Modules.Tests" />
   </ItemGroup>
 </Project>

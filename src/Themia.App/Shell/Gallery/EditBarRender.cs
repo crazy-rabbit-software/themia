@@ -137,7 +137,7 @@ internal static class EditBarRender
                 var hint = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = Str.Shell_Place_Hint.Format(("action", Str.Shell_Place_PlaceOne.Format(("name", Str.Widget_Clock_Label.Text())))),
+                    Text = Str.Shell_Place_Hint.Format(("action", Str.Shell_Place_PlaceOne.Format(("name", ModuleCatalog.Of(new WidgetId("clock")).Label.Text())))),
                 };
                 var line = new Border { Child = hint, MinHeight = EditBar.ButtonSize + (2 * Fluent.Space1), Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0) };
                 ChromeFrame.Apply(line);
@@ -222,13 +222,13 @@ internal static class EditBarRender
         [
             // [S-6521] A widget of its own item colour: the Item opacity row shows. [S-6531] At 125 %.
             // [S-6544] Its own item text colour too: white figures on its dark flip cards in either theme.
-            [new(ClockConfig.Descriptor.Id, 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")],
+            [new(new WidgetId("clock"), 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")],
             [new(new WidgetId("countdown"), 980, 160, 280, 180, HeaderPlacement.Top, true)],
             [new(ShortcutsConfig.Descriptor.Id, 16, 72, 1248, 150, HeaderPlacement.Top, true)],
             [
-                new(ClockConfig.Descriptor.Id, 300, 200, 220, 160, HeaderPlacement.Top, true),
+                new(new WidgetId("clock"), 300, 200, 220, 160, HeaderPlacement.Top, true),
                 new(new WidgetId("countdown"), 540, 240, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
-                new(ClockConfig.Descriptor.Id, 820, 200, 200, 140, HeaderPlacement.Hidden, true),
+                new(new WidgetId("clock"), 820, 200, 200, 140, HeaderPlacement.Hidden, true),
             ],
             [new(WifiToggleConfig.Descriptor.Id, 580, 260, 120, 120, HeaderPlacement.Hidden, true)],
             [
@@ -239,9 +239,9 @@ internal static class EditBarRender
             // [S-6569] Backgrounds Default, Transparent and a colour at 50 %; items Default,
             // Transparent and a colour. The selected one (a colour at 50 %) has the panel.
             [
-                new(ClockConfig.Descriptor.Id, 40, 80, 300, 200, HeaderPlacement.Top, false, "Default", "flip"),
-                new(ClockConfig.Descriptor.Id, 40, 320, 300, 200, HeaderPlacement.Top, false, "Transparent", "flip", Background: FillChoice.Transparent(), Items: FillChoice.Transparent()),
-                new(ClockConfig.Descriptor.Id, 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", "flip", Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
+                new(new WidgetId("clock"), 40, 80, 300, 200, HeaderPlacement.Top, false, "Default", "flip"),
+                new(new WidgetId("clock"), 40, 320, 300, 200, HeaderPlacement.Top, false, "Transparent", "flip", Background: FillChoice.Transparent(), Items: FillChoice.Transparent()),
+                new(new WidgetId("clock"), 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", "flip", Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
             ],
 
             // [S-6571] A stopwatch has no items: the row is greyed.
@@ -249,9 +249,9 @@ internal static class EditBarRender
 
             // [S-6584] A clock aligned right: Right lit. Two of different alignments: none lit. The
             // moon's month style: the row greyed, "Not available in this style".
-            [new(ClockConfig.Descriptor.Id, 500, 200, 300, 180, HeaderPlacement.Top, true, "Right", Align: ContentAlign.Right)],
+            [new(new WidgetId("clock"), 500, 200, 300, 180, HeaderPlacement.Top, true, "Right", Align: ContentAlign.Right)],
             [
-                new(ClockConfig.Descriptor.Id, 300, 200, 280, 160, HeaderPlacement.Top, true, "Left", Align: ContentAlign.Left),
+                new(new WidgetId("clock"), 300, 200, 280, 160, HeaderPlacement.Top, true, "Left", Align: ContentAlign.Left),
                 new(new WidgetId("quote"), 620, 200, 320, 180, HeaderPlacement.Top, true, Align: ContentAlign.Right),
             ],
             [new(new WidgetId("moon"), 500, 200, 280, 220, HeaderPlacement.Top, true, Style: "phaseMonth")],
@@ -264,7 +264,7 @@ internal static class EditBarRender
         }
 
         // [S-6569] The Background control's panel, open beside the properties panel.
-        PropsCard[] picker = [new(ClockConfig.Descriptor.Id, 200, 160, 300, 200, HeaderPlacement.Top, true, Style: "flip", Background: FillChoice.Of("#1B2030", 0.5))];
+        PropsCard[] picker = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, Style: "flip", Background: FillChoice.Of("#1B2030", 0.5))];
         await PropsShot(screen, ticker, picker, System.IO.Path.Combine(outDir, $"props-{theme}-picker.png"), openBackground: true).ConfigureAwait(true);
     }
 
@@ -445,16 +445,16 @@ internal static class EditBarRender
     {
         PropsCard[] mixed =
         [
-            new(ClockConfig.Descriptor.Id, 120, 120, 280, 180, HeaderPlacement.Top, true),
+            new(new WidgetId("clock"), 120, 120, 280, 180, HeaderPlacement.Top, true),
             new(new WidgetId("countdown"), 460, 140, 240, 160, HeaderPlacement.Top, false),
             new(WifiToggleConfig.Descriptor.Id, 760, 160, 64, 64, HeaderPlacement.Hidden, true),
             new(WifiToggleConfig.Descriptor.Id, 860, 160, 64, 64, HeaderPlacement.Hidden, false),
         ];
         PropsCard[] multi =
         [
-            new(ClockConfig.Descriptor.Id, 120, 120, 240, 160, HeaderPlacement.Top, true),
+            new(new WidgetId("clock"), 120, 120, 240, 160, HeaderPlacement.Top, true),
             new(new WidgetId("countdown"), 380, 120, 240, 160, HeaderPlacement.Top, true),
-            new(ClockConfig.Descriptor.Id, 640, 120, 200, 160, HeaderPlacement.Hidden, true),
+            new(new WidgetId("clock"), 640, 120, 200, 160, HeaderPlacement.Hidden, true),
             new(new WidgetId("countdown"), 880, 120, 240, 160, HeaderPlacement.Top, false),
         ];
 

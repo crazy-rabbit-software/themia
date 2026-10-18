@@ -86,7 +86,7 @@ internal static class MenuRender
 
                 // A view with a second widget, so the layering commands have something to act on.
                 var view = ViewState.Create("Render");
-                var clock = WidgetInstance.Create(ClockConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
+                var clock = WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.1, 0.1, 0.2, 0.2));
                 var notes = WidgetInstance.Create(NotesConfig.Descriptor.Id, new FracRect(0.5, 0.1, 0.3, 0.4));
                 view.Widgets.Add(clock);
                 view.Widgets.Add(notes);

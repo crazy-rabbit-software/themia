@@ -7,7 +7,7 @@ using Xunit;
 namespace Themia.Modules.Tests;
 
 /// <summary>
-/// [S-700] Header defaults per kind, over widgets that are module projects (only this host has
+/// [S-700] Header defaults per kind and [S-404] a side header as saved, over widgets that are module projects (only this host has
 /// them). The rest of the shell settings' tests are Core's ShellSettingsTests.
 /// </summary>
 public sealed class ShellSettingsHostTests
@@ -70,5 +70,15 @@ public sealed class ShellSettingsHostTests
         var state = Parse(StateFile.Replace("\"kind\": \"Clock\",", "\"kind\": \"Clock\", \"header\": \"Top\",", StringComparison.Ordinal));
 
         Assert.Equal(HeaderPlacement.Top, state.Views[0].Widgets[0].Header);
+    }
+
+    [Theory]
+    [InlineData("Left", HeaderPlacement.Left)]
+    [InlineData("Right", HeaderPlacement.Right)]
+    public void S404_a_side_header_loads_as_saved(string stored, HeaderPlacement expected)
+    {
+        var state = Parse(StateFile.Replace("\"kind\": \"Clock\",", $"\"kind\": \"Clock\", \"header\": \"{stored}\",", StringComparison.Ordinal));
+
+        Assert.Equal(expected, state.Views[0].Widgets[0].Header);
     }
 }

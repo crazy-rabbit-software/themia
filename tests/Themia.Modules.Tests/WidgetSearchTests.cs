@@ -14,7 +14,7 @@ public sealed class WidgetSearchTests
 {
     private static readonly WidgetSearchDoc[] Docs =
     [
-        new("clock", ["Clock"], ModuleCatalog.Of(ClockConfig.Descriptor.Id).Keywords,
+        new("clock", ["Clock"], ModuleCatalog.Of(new WidgetId("clock")).Keywords,
             ["Clock for your timezone or any city in the world"], ["Others"]),
         new("calendar", ["Calendar"], ModuleCatalog.Of(CalendarWidgetConfig.Descriptor.Id).Keywords,
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),

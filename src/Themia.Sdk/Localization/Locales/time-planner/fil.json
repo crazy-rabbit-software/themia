@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Laki ng lugar at petsa",
-  "clockText.sizeDesc": "Gaano kalaki ang lugar, ang petsa at ang linya ng offset",
-  "clockText.small": "Maliit",
-  "clockText.large": "Malaki",
   "planner.label": "Planner ng linggo",
   "planner.desc": "Ang mga susunod na araw kasama ang kanilang mga event, at ang dapat tapusin ngayon",
   "planner.tasksHeader": "Mga gawain ngayon",

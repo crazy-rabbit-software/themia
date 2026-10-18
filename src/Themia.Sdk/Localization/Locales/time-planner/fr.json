@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Taille du lieu et de la date",
-  "clockText.sizeDesc": "Taille du lieu, de la date et de la ligne de décalage",
-  "clockText.small": "Petite",
-  "clockText.large": "Grande",
   "planner.label": "Planning de la semaine",
   "planner.desc": "Les prochains jours avec leurs événements, et ce qui est à faire aujourd’hui",
   "planner.tasksHeader": "Tâches du jour",

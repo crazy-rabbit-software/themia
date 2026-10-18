@@ -8,6 +8,7 @@ using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Sdk;
 using Windows.Foundation;
 using Windows.Graphics;
 
@@ -93,7 +94,7 @@ internal static class GridRender
                         var rect = GridGeometry.Settle(new FracRect(0.1, 0.18, 0.3, 0.3), metrics, snapEnabled: true);
                         var cell = GridGeometry.ToPixels(rect, metrics);
                         var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
-                        var card = new WidgetCard(host, WidgetInstance.Create(ClockConfig.Descriptor.Id, rect)) { Width = cell.Width, Height = cell.Height };
+                        var card = new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), rect)) { Width = cell.Width, Height = cell.Height };
                         Canvas.SetLeft(card, cell.X);
                         Canvas.SetTop(card, cell.Y);
                         layer.Children.Add(card);

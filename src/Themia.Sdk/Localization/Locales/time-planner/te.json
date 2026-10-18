@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "స్థలం మరియు తేదీ పరిమాణం",
-  "clockText.sizeDesc": "స్థలం, తేదీ మరియు ఆఫ్‌సెట్ లైన్ ఎంత పెద్దగా ఉండాలి",
-  "clockText.small": "చిన్నది",
-  "clockText.large": "పెద్దది",
   "planner.label": "వారపు ప్లానర్",
   "planner.desc": "రాబోయే రోజులు వాటి ఈవెంట్‌లతో, మరియు ఈరోజు గడువు ఉన్నవి",
   "planner.tasksHeader": "ఈరోజు పనులు",

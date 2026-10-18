@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "اندازهٔ مکان و تاریخ",
-  "clockText.sizeDesc": "اندازهٔ مکان، تاریخ و خط اختلاف ساعت",
-  "clockText.small": "کوچک",
-  "clockText.large": "بزرگ",
   "planner.label": "برنامه‌ریز هفته",
   "planner.desc": "روزهای پیش رو با رویدادهایشان، و آنچه امروز سررسید دارد",
   "planner.tasksHeader": "کارهای امروز",

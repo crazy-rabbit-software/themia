@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "ขนาดสถานที่และวันที่",
-  "clockText.sizeDesc": "ขนาดของสถานที่ วันที่ และบรรทัดเวลาต่าง",
-  "clockText.small": "เล็ก",
-  "clockText.large": "ใหญ่",
   "planner.label": "ตัววางแผนรายสัปดาห์",
   "planner.desc": "วันข้างหน้าพร้อมกิจกรรม และสิ่งที่ครบกำหนดวันนี้",
   "planner.tasksHeader": "งานวันนี้",

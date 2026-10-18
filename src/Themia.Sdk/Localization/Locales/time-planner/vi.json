@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Cỡ địa điểm và ngày",
-  "clockText.sizeDesc": "Độ lớn của địa điểm, ngày và dòng chênh lệch giờ",
-  "clockText.small": "Nhỏ",
-  "clockText.large": "Lớn",
   "planner.label": "Kế hoạch tuần",
   "planner.desc": "Những ngày tới cùng sự kiện, và việc đến hạn hôm nay",
   "planner.tasksHeader": "Tác vụ hôm nay",

@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "地点和日期大小",
-  "clockText.sizeDesc": "地点、日期和时差行的大小",
-  "clockText.small": "小",
-  "clockText.large": "大",
   "planner.label": "周计划",
   "planner.desc": "接下来几天的日程，以及今天到期的任务",
   "planner.tasksHeader": "今天的任务",

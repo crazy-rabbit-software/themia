@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "স্থান ও তারিখের আকার",
-  "clockText.sizeDesc": "স্থান, তারিখ ও অফসেট লাইন কত বড় হবে",
-  "clockText.small": "ছোট",
-  "clockText.large": "বড়",
   "planner.label": "সাপ্তাহিক পরিকল্পনাকারী",
   "planner.desc": "সামনের দিনগুলোর ইভেন্ট, আর আজ যা করার আছে",
   "planner.tasksHeader": "আজকের কাজ",

@@ -423,7 +423,7 @@ internal static class SwitchCheck
             (NetworkConfig.Descriptor.Id, new FracRect(0.02, 0.48, 0.20, 0.18)),
             (CpuDetailsConfig.Descriptor.Id, new FracRect(0.24, 0.48, 0.24, 0.30)),
             (ScreenTimeChartConfig.Descriptor.Id, new FracRect(0.50, 0.48, 0.24, 0.30)),
-            (ClockConfig.Descriptor.Id, new FracRect(0.02, 0.70, 0.20, 0.14)),
+            (new WidgetId("clock"), new FracRect(0.02, 0.70, 0.20, 0.14)),
         ];
 
         foreach (var (kind, rect) in layout)
@@ -446,7 +446,7 @@ internal static class SwitchCheck
         var view = ViewState.Create("Ordinary");
         (WidgetId Kind, FracRect Rect)[] layout =
         [
-            (ClockConfig.Descriptor.Id, new FracRect(0.02, 0.04, 0.18, 0.14)),
+            (new WidgetId("clock"), new FracRect(0.02, 0.04, 0.18, 0.14)),
             (CpuConfig.Descriptor.Id, new FracRect(0.22, 0.04, 0.14, 0.16)),
             (MemoryConfig.Descriptor.Id, new FracRect(0.38, 0.04, 0.14, 0.16)),
             (FolderConfig.Descriptor.Id, new FracRect(0.02, 0.22, 0.24, 0.40)),

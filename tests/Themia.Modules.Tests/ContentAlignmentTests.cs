@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [ClockConfig.Descriptor.Id, new WidgetId("countdown"), WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
+        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, CpuConfig.Descriptor.Id, MixerConfig.Descriptor.Id, WifiToggleConfig.Descriptor.Id, new WidgetId("shutdown"), FolderConfig.Descriptor.Id])
@@ -80,7 +80,7 @@ public sealed partial class ContentAlignmentTests
         // Every face of the clock, the weather and the air quality has one block to place.
         foreach (var style in Enum.GetValues<ClockStyle>())
         {
-            Assert.True(ContentAlignment.Applies(Widget(ClockConfig.Descriptor.Id, (int)style)), $"{style}");
+            Assert.True(ContentAlignment.Applies(Widget(new WidgetId("clock"), (int)style)), $"{style}");
         }
 
         foreach (var style in Enum.GetValues<WeatherNowStyle>())
@@ -94,7 +94,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6582_without_a_choice_each_widget_sits_where_it_always_did()
     {
-        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(ClockConfig.Descriptor.Id)));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("clock"))));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Standard)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.LargeIcon)));
@@ -124,7 +124,7 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(moon));
 
         // A value outside the set never reaches a view.
-        var clock = Widget(ClockConfig.Descriptor.Id);
+        var clock = Widget(new WidgetId("clock"));
         clock.Align = (ContentAlign)9;
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(clock));
     }
@@ -146,7 +146,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6584_one_widget_offers_where_it_sits_now_and_a_pick_stores_it()
     {
-        var (state, view, selection) = Selected(Widget(ClockConfig.Descriptor.Id));
+        var (state, view, selection) = Selected(Widget(new WidgetId("clock")));
 
         var offer = QuickSet.For(state, selection, view.Id);
         Assert.True(offer.CanAlign);
@@ -165,7 +165,7 @@ public sealed partial class ContentAlignmentTests
     {
         var quote = Widget(new WidgetId("quote"));
         quote.Align = ContentAlign.Right;
-        var (state, view, selection) = Selected(Widget(ClockConfig.Descriptor.Id), quote, Widget(TasksConfig.Descriptor.Id), Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth));
+        var (state, view, selection) = Selected(Widget(new WidgetId("clock")), quote, Widget(TasksConfig.Descriptor.Id), Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth));
 
         var offer = QuickSet.For(state, selection, view.Id);
         Assert.True(offer.CanAlign);
@@ -196,7 +196,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6585_load_drops_an_alignment_outside_the_set_or_on_a_kind_without_one()
     {
-        var clock = Widget(ClockConfig.Descriptor.Id);
+        var clock = Widget(new WidgetId("clock"));
         clock.Align = (ContentAlign)9;
         Assert.NotNull(ContentAlignment.Repair(clock));
         Assert.Null(clock.Align);
@@ -212,14 +212,14 @@ public sealed partial class ContentAlignmentTests
         Assert.Null(ContentAlignment.Repair(moon));
         Assert.Equal(ContentAlign.Left, moon.Align);
 
-        var none = Widget(ClockConfig.Descriptor.Id);
+        var none = Widget(new WidgetId("clock"));
         Assert.Null(ContentAlignment.Repair(none));
     }
 
     [Fact]
     public void S6580_the_choice_is_saved_by_name_survives_a_copy_and_none_is_left_out()
     {
-        var clock = Widget(ClockConfig.Descriptor.Id);
+        var clock = Widget(new WidgetId("clock"));
         var bare = JsonSerializer.Serialize(clock, StateJson.WidgetInstance);
         Assert.DoesNotContain("\"align\"", bare, StringComparison.Ordinal);
 

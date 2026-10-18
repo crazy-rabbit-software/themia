@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Размер места и даты",
-  "clockText.sizeDesc": "Насколько крупно показаны место, дата и строка смещения",
-  "clockText.small": "Мелкий",
-  "clockText.large": "Крупный",
   "planner.label": "Планировщик недели",
   "planner.desc": "Ближайшие дни с событиями и то, что нужно сделать сегодня",
   "planner.tasksHeader": "Задачи на сегодня",

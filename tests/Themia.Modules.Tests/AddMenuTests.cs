@@ -159,7 +159,7 @@ public sealed class AddMenuTests
         var details = homes.Single(home => home.Kind == CpuDetailsConfig.Descriptor.Id);
         Assert.Equal([AddFolderId.System, AddFolderId.Processor], details.Path.Select(shelf => shelf.Id));
 
-        var clock = homes.Single(home => home.Kind == ClockConfig.Descriptor.Id);
+        var clock = homes.Single(home => home.Kind == new WidgetId("clock"));
         Assert.Equal([AddFolderId.Time], clock.Path.Select(shelf => shelf.Id));
     }
 
@@ -255,11 +255,11 @@ public sealed class AddMenuTests
 
         var enter = Press(inTime, WidgetKey.Enter);
         Assert.Equal(AddMenuAction.Pick, enter.Action);
-        Assert.Equal(ClockConfig.Descriptor.Id, enter.Kind);
+        Assert.Equal(new WidgetId("clock"), enter.Kind);
 
         var popular = Press(new AddMenuNav([], new AddSpot(0, 0)), WidgetKey.Space);
         Assert.Equal(AddMenuAction.Pick, popular.Action);
-        Assert.Equal(ClockConfig.Descriptor.Id, popular.Kind);
+        Assert.Equal(new WidgetId("clock"), popular.Kind);
     }
 
     [Fact]

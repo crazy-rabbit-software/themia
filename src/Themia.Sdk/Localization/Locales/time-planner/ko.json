@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "장소 및 날짜 크기",
-  "clockText.sizeDesc": "장소, 날짜, 시차 줄의 크기",
-  "clockText.small": "작게",
-  "clockText.large": "크게",
   "planner.label": "주간 플래너",
   "planner.desc": "앞으로의 날과 일정, 그리고 오늘 마감인 일",
   "planner.tasksHeader": "오늘의 작업",

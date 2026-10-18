@@ -37,16 +37,16 @@ public sealed class LocalizationTests
         Assert.Equal("Save", Strings.Get(Locale.En, Str.Common_Save));
         Assert.Equal("Speichern", Strings.Get(Locale.De, Str.Common_Save));
         Assert.Equal("保存", Strings.Get(Locale.Ja, Str.Common_Save));
-        Assert.Equal("Zegar", Strings.Get(Locale.Pl, Str.Widget_Clock_Label));
+        Assert.Equal("Anuluj", Strings.Get(Locale.Pl, Str.Common_Cancel));
     }
 
     [Fact]
     public void S1100_keys_round_trip_between_text_and_enum()
     {
         Assert.Equal("common.save", Str.Common_Save.Key());
-        Assert.True(Strings.TryParseKey("widget.clock.label", out var id));
-        Assert.Equal(Str.Widget_Clock_Label, id);
-        Assert.Equal("Uhr", Strings.Get(Locale.De, "widget.clock.label"));
+        Assert.True(Strings.TryParseKey("common.cancel", out var id));
+        Assert.Equal(Str.Common_Cancel, id);
+        Assert.Equal("Abbrechen", Strings.Get(Locale.De, "common.cancel"));
     }
 
     [Fact]

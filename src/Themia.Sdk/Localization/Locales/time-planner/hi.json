@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "स्थान और तारीख का आकार",
-  "clockText.sizeDesc": "स्थान, तारीख और ऑफ़सेट पंक्ति कितनी बड़ी हों",
-  "clockText.small": "छोटा",
-  "clockText.large": "बड़ा",
   "planner.label": "साप्ताहिक प्लानर",
   "planner.desc": "आने वाले दिन उनके इवेंट के साथ, और आज क्या देय है",
   "planner.tasksHeader": "आज के कार्य",

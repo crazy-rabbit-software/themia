@@ -1,8 +1,4 @@
 {
-  "clockText.sizeLabel": "Größe von Ort und Datum",
-  "clockText.sizeDesc": "Wie groß Ort, Datum und Zeitverschiebung angezeigt werden",
-  "clockText.small": "Klein",
-  "clockText.large": "Groß",
   "planner.label": "Wochenplaner",
   "planner.desc": "Die nächsten Tage mit ihren Terminen und was heute fällig ist",
   "planner.tasksHeader": "Heutige Aufgaben",
