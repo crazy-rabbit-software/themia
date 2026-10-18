@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/روز",
   "screentime.ofGoal": "از {value}",
   "screentime.goalPerDay": "از {value}/روز",
-  "screentime.metric.average": "میانگین روزانه",
-  "screentime.metric.percent": "سهم از کل",
   "screentime.cfg.period": "دوره",
   "screentime.cfg.periodDay": "روز",
   "screentime.cfg.style": "سبک",

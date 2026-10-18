@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/दिन",
   "screentime.ofGoal": "{value} में से",
   "screentime.goalPerDay": "{value}/दिन में से",
-  "screentime.metric.average": "दैनिक औसत",
-  "screentime.metric.percent": "कुल में हिस्सा",
   "screentime.cfg.period": "अवधि",
   "screentime.cfg.periodDay": "दिन",
   "screentime.cfg.style": "शैली",

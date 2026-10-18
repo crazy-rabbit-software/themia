@@ -337,8 +337,6 @@
   "screentime.perDay": "{value}/يوم",
   "screentime.ofGoal": "من {value}",
   "screentime.goalPerDay": "من {value}/يوم",
-  "screentime.metric.average": "المتوسط اليومي",
-  "screentime.metric.percent": "النسبة من الإجمالي",
   "screentime.cfg.period": "الفترة",
   "screentime.cfg.periodDay": "يوم",
   "screentime.cfg.style": "النمط",

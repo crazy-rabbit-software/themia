@@ -189,7 +189,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         }
 
         var wanted = ScreenTimeRules.ListWanted(_config.MaxApps, data.Apps.Count);
-        var plan = ScreenTimeLayout.Apps(_area, RowHeight, wanted, data.Window, _config.ShowAverage, _config.ShowPercent);
+        var plan = ScreenTimeAppsLayout.Apps(_area, RowHeight, wanted, data.Window, _config.ShowAverage, _config.ShowPercent);
         var named = ScreenTimeRules.ListNamed(plan.Rows, data.Apps.Count);
         _segments = plan.Rows == 0 ? [] : ScreenTimeRules.Segments(data.Apps, data.Total, named, Str.Screentime_Other.Text());
         var rows = Math.Min(plan.Rows, _segments.Count);

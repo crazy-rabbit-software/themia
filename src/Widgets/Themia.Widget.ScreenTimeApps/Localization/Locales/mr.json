@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "दैनिक सरासरी",
+  "screentime.metric.percent": "एकूणातील वाटा",
+  "widgetsC.screenTime.apps.desc": "तुम्ही वापरलेली अ‍ॅप्स, आणि किती वेळ",
+  "widgetsC.screenTime.apps.label": "स्क्रीन टाइम अ‍ॅप्स",
+  "widgetsC.screenTime.limitOverTip": "मर्यादा {limit} (ओलांडली)",
+  "widgetsC.screenTime.limitTip": "मर्यादा {limit}",
+  "widgetsC.screenTime.settings.average.desc": "कालखंडात, एकूणाशेजारी आणि प्रत्येक अ‍ॅपवर",
+  "widgetsC.screenTime.settings.figures": "आकडे",
+  "widgetsC.screenTime.settings.most.desc": "{zero} विजेटमध्ये जागा असेल तितकी दाखवते",
+  "widgetsC.screenTime.settings.most.label": "जास्तीत जास्त अ‍ॅप्स",
+  "widgetsC.screenTime.settings.share.desc": "एकूणातील प्रत्येक अ‍ॅपचा वाटा, टक्केवारीत"
+}

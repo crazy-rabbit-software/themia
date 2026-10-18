@@ -332,8 +332,6 @@
   "screentime.perDay": "{value}/hari",
   "screentime.ofGoal": "dari {value}",
   "screentime.goalPerDay": "dari {value}/hari",
-  "screentime.metric.average": "Rata-rata harian",
-  "screentime.metric.percent": "Bagian dari total",
   "screentime.cfg.period": "Periode",
   "screentime.cfg.periodDay": "Hari",
   "screentime.cfg.style": "Gaya",

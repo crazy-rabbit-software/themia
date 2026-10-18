@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "Среднее за день",
+  "screentime.metric.percent": "Доля от общего",
+  "widgetsC.screenTime.apps.desc": "Какие приложения вы использовали и сколько",
+  "widgetsC.screenTime.apps.label": "Приложения по времени использования",
+  "widgetsC.screenTime.limitOverTip": "лимит {limit} (превышен)",
+  "widgetsC.screenTime.limitTip": "лимит {limit}",
+  "widgetsC.screenTime.settings.average.desc": "За период — рядом с итогом и у каждого приложения",
+  "widgetsC.screenTime.settings.figures": "Показатели",
+  "widgetsC.screenTime.settings.most.desc": "{zero} — столько, сколько помещается в виджете",
+  "widgetsC.screenTime.settings.most.label": "Максимум приложений в списке",
+  "widgetsC.screenTime.settings.share.desc": "Доля каждого приложения в итоге, в процентах"
+}

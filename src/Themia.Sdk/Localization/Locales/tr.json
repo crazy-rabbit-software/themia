@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/gün",
   "screentime.ofGoal": "/ {value}",
   "screentime.goalPerDay": "/ {value}/gün",
-  "screentime.metric.average": "Günlük ortalama",
-  "screentime.metric.percent": "Toplamdaki pay",
   "screentime.cfg.period": "Dönem",
   "screentime.cfg.periodDay": "Gün",
   "screentime.cfg.style": "Stil",

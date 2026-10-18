@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "میانگین روزانه",
+  "screentime.metric.percent": "سهم از کل",
+  "widgetsC.screenTime.apps.desc": "برنامه‌هایی که استفاده کردید و به چه مدت",
+  "widgetsC.screenTime.apps.label": "برنامه‌های زمان استفاده",
+  "widgetsC.screenTime.limitOverTip": "محدودیت {limit} (فراتر رفته)",
+  "widgetsC.screenTime.limitTip": "محدودیت {limit}",
+  "widgetsC.screenTime.settings.average.desc": "در یک بازه، کنار مجموع و روی هر برنامه",
+  "widgetsC.screenTime.settings.figures": "ارقام",
+  "widgetsC.screenTime.settings.most.desc": "{zero} یعنی هر تعداد که ویجت جا داشته باشد",
+  "widgetsC.screenTime.settings.most.label": "حداکثر برنامه‌های فهرست‌شده",
+  "widgetsC.screenTime.settings.share.desc": "سهم هر برنامه از مجموع، به درصد"
+}

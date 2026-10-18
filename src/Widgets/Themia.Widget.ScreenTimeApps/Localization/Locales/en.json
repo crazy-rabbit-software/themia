@@ -1,0 +1,14 @@
+{
+  "$englishOnly": [],
+  "screentime.metric.average": "Daily average",
+  "screentime.metric.percent": "Share of total",
+  "widgetsC.screenTime.apps.desc": "The apps you used, and for how long",
+  "widgetsC.screenTime.apps.label": "Screen time apps",
+  "widgetsC.screenTime.limitOverTip": "limit {limit} (over)",
+  "widgetsC.screenTime.limitTip": "limit {limit}",
+  "widgetsC.screenTime.settings.average.desc": "In a window, beside the total and on each app",
+  "widgetsC.screenTime.settings.figures": "Figures",
+  "widgetsC.screenTime.settings.most.desc": "{zero} lists as many as the widget has room for",
+  "widgetsC.screenTime.settings.most.label": "Most apps listed",
+  "widgetsC.screenTime.settings.share.desc": "Each app's part of the total, as a percentage"
+}

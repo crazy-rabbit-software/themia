@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/siku",
   "screentime.ofGoal": "kati ya {value}",
   "screentime.goalPerDay": "kati ya {value}/siku",
-  "screentime.metric.average": "Wastani wa kila siku",
-  "screentime.metric.percent": "Sehemu ya jumla",
   "screentime.cfg.period": "Kipindi",
   "screentime.cfg.periodDay": "Siku",
   "screentime.cfg.style": "Mtindo",

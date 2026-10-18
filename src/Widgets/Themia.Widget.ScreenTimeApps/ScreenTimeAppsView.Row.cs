@@ -10,6 +10,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.ScreenTimeApps;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -147,7 +148,7 @@ internal sealed partial class ScreenTimeAppsView
 
             if (goal is { } g)
             {
-                tip += $" · {(g.Over ? Str.WidgetsC_ScreenTime_LimitOverTip : Str.WidgetsC_ScreenTime_LimitTip).Format(("limit", ScreenTimeRules.FormatLimit(g.Limit)))}";
+                tip += $" · {(g.Over ? ScreenTimeAppsStr.WidgetsC_ScreenTime_LimitOverTip : ScreenTimeAppsStr.WidgetsC_ScreenTime_LimitTip).Format(("limit", ScreenTimeRules.FormatLimit(g.Limit)))}";
             }
 
             ToolTipService.SetToolTip(Host, tip);
@@ -180,7 +181,7 @@ internal sealed partial class ScreenTimeAppsView
                 return;
             }
 
-            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _image.Source is not null && _iconTheme == AppIcons.ThemeOf(Host))
+            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _image.Source is not null && _iconTheme == AppIconSource.ThemeOf(Host))
             {
                 return;
             }
@@ -194,7 +195,7 @@ internal sealed partial class ScreenTimeAppsView
         /// <summary>[S-3965] A packaged app's logo is chosen per theme: a theme change asks again.</summary>
         private void OnThemeChanged(FrameworkElement sender, object args)
         {
-            if (_iconPath is { } path && _iconTheme != AppIcons.ThemeOf(Host))
+            if (_iconPath is { } path && _iconTheme != AppIconSource.ThemeOf(Host))
             {
                 _ = LoadIconAsync(path);
             }
@@ -202,9 +203,9 @@ internal sealed partial class ScreenTimeAppsView
 
         private async Task LoadIconAsync(string path)
         {
-            var theme = AppIcons.ThemeOf(Host);
+            var theme = AppIconSource.ThemeOf(Host);
             _iconTheme = theme;
-            var image = await AppIcons.GetAsync(path, theme).ConfigureAwait(true);
+            var image = await AppIconSource.GetAsync(path, theme).ConfigureAwait(true);
 
             if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme)
             {

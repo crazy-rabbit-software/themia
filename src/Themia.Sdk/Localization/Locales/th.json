@@ -332,8 +332,6 @@
   "screentime.perDay": "{value}/วัน",
   "screentime.ofGoal": "จาก {value}",
   "screentime.goalPerDay": "จาก {value}/วัน",
-  "screentime.metric.average": "ค่าเฉลี่ยต่อวัน",
-  "screentime.metric.percent": "สัดส่วนของทั้งหมด",
   "screentime.cfg.period": "ช่วงเวลา",
   "screentime.cfg.periodDay": "วัน",
   "screentime.cfg.style": "สไตล์",

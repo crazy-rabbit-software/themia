@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "Trung bình mỗi ngày",
+  "screentime.metric.percent": "Tỷ lệ trên tổng",
+  "widgetsC.screenTime.apps.desc": "Các ứng dụng bạn đã dùng, và trong bao lâu",
+  "widgetsC.screenTime.apps.label": "Ứng dụng theo thời gian sử dụng",
+  "widgetsC.screenTime.limitOverTip": "giới hạn {limit} (vượt)",
+  "widgetsC.screenTime.limitTip": "giới hạn {limit}",
+  "widgetsC.screenTime.settings.average.desc": "Trong một khoảng, cạnh tổng và trên mỗi ứng dụng",
+  "widgetsC.screenTime.settings.figures": "Số liệu",
+  "widgetsC.screenTime.settings.most.desc": "{zero} liệt kê nhiều nhất có thể trong tiện ích",
+  "widgetsC.screenTime.settings.most.label": "Số ứng dụng tối đa",
+  "widgetsC.screenTime.settings.share.desc": "Phần của mỗi ứng dụng trong tổng, theo phần trăm"
+}

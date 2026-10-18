@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "દૈનિક સરેરાશ",
+  "screentime.metric.percent": "કુલનો હિસ્સો",
+  "widgetsC.screenTime.apps.desc": "તમે વાપરેલી ઍપ્સ, અને કેટલો સમય",
+  "widgetsC.screenTime.apps.label": "સ્ક્રીન સમય ઍપ્સ",
+  "widgetsC.screenTime.limitOverTip": "મર્યાદા {limit} (વટાવી)",
+  "widgetsC.screenTime.limitTip": "મર્યાદા {limit}",
+  "widgetsC.screenTime.settings.average.desc": "સમયગાળામાં, કુલની બાજુમાં અને દરેક ઍપ પર",
+  "widgetsC.screenTime.settings.figures": "આંકડા",
+  "widgetsC.screenTime.settings.most.desc": "{zero} વિજેટમાં સમાય તેટલી સૂચિબદ્ધ કરે છે",
+  "widgetsC.screenTime.settings.most.label": "વધુમાં વધુ સૂચિબદ્ધ ઍપ્સ",
+  "widgetsC.screenTime.settings.share.desc": "કુલમાં દરેક ઍપનો હિસ્સો, ટકાવારી તરીકે"
+}

@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/araw",
   "screentime.ofGoal": "sa {value}",
   "screentime.goalPerDay": "sa {value}/araw",
-  "screentime.metric.average": "Average bawat araw",
-  "screentime.metric.percent": "Bahagi sa kabuuan",
   "screentime.cfg.period": "Panahon",
   "screentime.cfg.periodDay": "Araw",
   "screentime.cfg.style": "Estilo",

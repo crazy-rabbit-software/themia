@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "Günlük ortalama",
+  "screentime.metric.percent": "Toplamdaki pay",
+  "widgetsC.screenTime.apps.desc": "Kullandığınız uygulamalar ve ne kadar süre",
+  "widgetsC.screenTime.apps.label": "Ekran süresi uygulamaları",
+  "widgetsC.screenTime.limitOverTip": "sınır {limit} (aşıldı)",
+  "widgetsC.screenTime.limitTip": "sınır {limit}",
+  "widgetsC.screenTime.settings.average.desc": "Bir aralıkta, toplamın yanında ve her uygulamada",
+  "widgetsC.screenTime.settings.figures": "Değerler",
+  "widgetsC.screenTime.settings.most.desc": "{zero}, pencere öğesine sığdığı kadarını listeler",
+  "widgetsC.screenTime.settings.most.label": "Listelenecek en fazla uygulama",
+  "widgetsC.screenTime.settings.share.desc": "Her uygulamanın toplamdaki payı, yüzde olarak"
+}

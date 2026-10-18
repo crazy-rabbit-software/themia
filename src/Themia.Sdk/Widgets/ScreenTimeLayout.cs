@@ -15,15 +15,9 @@ public readonly record struct ScreenTimeChartPlan(TypeStep? Total, bool Detail, 
 /// <param name="Detail">A second line in the hole (the share, "of 4h"), when the hole has room for it.</param>
 public readonly record struct ScreenTimeDonutPlan(double Ring, double Thickness, bool Detail);
 
-/// <summary>What the screen-time app list shows at one size ([S-3352]).</summary>
-/// <param name="Rows">Whole rows of the list.</param>
-/// <param name="Average">Each app's per-day average beside its time (a window only).</param>
-/// <param name="Percent">Each app's share of the total.</param>
-/// <param name="Names">Each app's name beside its icon; without it a row is the icon and the time.</param>
-public readonly record struct ScreenTimeAppsPlan(int Rows, bool Average, bool Percent, bool Names);
-
 /// <summary>
-/// The three screen-time widgets' ladders, decided without drawing ([S-3332], [S-3342], [S-3352]).
+/// The screen-time widgets' ladders, decided without drawing ([S-3332], [S-3342]; the app list's,
+/// [S-3352], is its module's own), and the measures they share.
 /// Concise first ([S-666]): each grows its own content — taller bars, a larger ring, more rows — and
 /// never gains a part that is another widget's.
 /// </summary>
@@ -46,18 +40,6 @@ public static class ScreenTimeLayout
 
     /// <summary>A day's column needs this much width to carry its weekday under it.</summary>
     public const double LabelledColumn = 16;
-
-    /// <summary>From this width a list row has room for an app's average beside its time.</summary>
-    public const double AverageFrom = 300;
-
-    /// <summary>From this width a list row has room for an app's share.</summary>
-    public const double PercentFrom = 200;
-
-    /// <summary>
-    /// From this width a list row has room for an app's name beside its icon and the longest time
-    /// ("23h 59m"); under it the name was squeezed to a letter, so the row drops it for the time.
-    /// </summary>
-    public const double NamesFrom = 160;
 
     /// <summary>
     /// [S-3332] The chart: the drawing first (never dropped), then the figure over it, the weekday
@@ -104,24 +86,4 @@ public static class ScreenTimeLayout
 
     /// <summary>[S-3342] The ring's stroke: a seventh of its size, never thinner than 8.</summary>
     public static double Thickness(double ring) => Math.Max(8, ring * 0.14);
-
-    /// <summary>
-    /// [S-3352] The list: as many whole rows as fit (at most <paramref name="wanted"/>), then the
-    /// columns each row has width for — the time always, the name from 160, the share from 200, a
-    /// window's average from 300.
-    /// </summary>
-    public static ScreenTimeAppsPlan Apps(WidgetArea area, double rowHeight, int wanted, bool window, bool showAverage, bool showPercent)
-    {
-        if (!area.IsMeasured)
-        {
-            return new ScreenTimeAppsPlan(0, false, false, false);
-        }
-
-        var rows = Math.Min(Math.Max(0, wanted), Disclosure.WholeRows(area.Height - Gap, rowHeight));
-        return new ScreenTimeAppsPlan(
-            rows,
-            window && showAverage && area.Width >= AverageFrom,
-            showPercent && area.Width >= PercentFrom,
-            area.Width >= NamesFrom);
-    }
 }

@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "Daggemiddelde",
+  "screentime.metric.percent": "Aandeel van totaal",
+  "widgetsC.screenTime.apps.desc": "De apps die je gebruikte, en hoelang",
+  "widgetsC.screenTime.apps.label": "Schermtijd per app",
+  "widgetsC.screenTime.limitOverTip": "limiet {limit} (overschreden)",
+  "widgetsC.screenTime.limitTip": "limiet {limit}",
+  "widgetsC.screenTime.settings.average.desc": "Bij een periode, naast het totaal en bij elke app",
+  "widgetsC.screenTime.settings.figures": "Cijfers",
+  "widgetsC.screenTime.settings.most.desc": "{zero} toont er zoveel als de widget ruimte heeft",
+  "widgetsC.screenTime.settings.most.label": "Maximaal aantal apps",
+  "widgetsC.screenTime.settings.share.desc": "Het deel van elke app in het totaal, als percentage"
+}

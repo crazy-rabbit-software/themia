@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/rana",
   "screentime.ofGoal": "na {value}",
   "screentime.goalPerDay": "na {value}/rana",
-  "screentime.metric.average": "Matsakaicin kullum",
-  "screentime.metric.percent": "Kaso na jimla",
   "screentime.cfg.period": "Lokaci",
   "screentime.cfg.periodDay": "Rana",
   "screentime.cfg.style": "Salo",

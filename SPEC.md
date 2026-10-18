@@ -1726,9 +1726,7 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`
 
 ### Apps
 
-- **[S-3350]** `ScreenTimeAppsConfig`: `Period`, `MaxApps` ([S-1211]), `ShowAverage` (on),
-  `ShowPercent` (off). A row: icon (or initial chip in the app's colour), name, the average and the
-  share when shown, the time last; over its own limit the time is critical, and the tooltip says the limit.
+- [S-3350], [S-3352], [S-3353], [S-3354]: moved with the Screen time: apps widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeApps/`).
 - **[S-3960]** A packaged (Store / MSIX) app's icon is its package's logo, as Start shows it: its
   executable (under `WindowsApps\<package full name>\`) is asked for as the Apps-folder item
   `shell:AppsFolder\<family>!<app id>` (`PackagedApps.AppsFolderTarget`: the manifest's
@@ -1749,15 +1747,6 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`
   again when their theme changes.
 - **[S-3351]** As many whole rows as fit, up to the ceiling; when apps are left over the last row is
   Other, so the rows add up to the total (`ScreenTimeRules.ListNamed`). Rows are reused by position.
-- **[S-3352]** Ladder (`ScreenTimeLayout.Apps`): whole compact rows; the time always, the name from
-  160 DIPs wide (under it a row is the icon and the time, the name in its tooltip: a squeezed name
-  read as one letter), the share from 200, a window's average from 300. No headline, no footer ([S-666]): the total is the donut's and the chart's.
-- **[S-3353]** Linked focus: the focused row has the hover fill, the others dim; the selected row
-  keeps Fluent's selection pill and fill; the keyboard cursor has the focus ring ([S-1288]). Hover a
-  row hovers the app; click selects (again: lets go); the space under the rows clears.
-- **[S-3354]** Keys: Up/Down, PgUp/PgDn, Home/End move the cursor down the list; Enter/Space select;
-  Left / Right step the day (a day period); Menu hides; Escape lets the cursor go and keeps the
-  selection (Escape also arrives when the lease ends).
 - **[S-3355]** Debug renders: `--widget-png <ScreenTimeChart|ScreenTimeDonut|ScreenTimeApps>
   --state sample|hovered|selected` draw a fixed month of sample use (ten apps, quieter weekends, a
   6 h day limit, Chrome over its 1 h) through `SampleScreenTime`; `hovered` lights Code and

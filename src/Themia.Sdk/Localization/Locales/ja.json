@@ -331,8 +331,6 @@
   "screentime.perDay": "{value}/日",
   "screentime.ofGoal": "/ {value}",
   "screentime.goalPerDay": "/ {value} 毎日",
-  "screentime.metric.average": "1 日あたりの平均",
-  "screentime.metric.percent": "全体に占める割合",
   "screentime.cfg.period": "期間",
   "screentime.cfg.periodDay": "1 日",
   "screentime.cfg.style": "スタイル",

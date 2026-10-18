@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "ਰੋਜ਼ਾਨਾ ਔਸਤ",
+  "screentime.metric.percent": "ਕੁੱਲ ਦਾ ਹਿੱਸਾ",
+  "widgetsC.screenTime.apps.desc": "ਤੁਹਾਡੇ ਵੱਲੋਂ ਵਰਤੀਆਂ ਐਪਾਂ, ਅਤੇ ਕਿੰਨੀ ਦੇਰ",
+  "widgetsC.screenTime.apps.label": "ਸਕ੍ਰੀਨ ਸਮਾਂ ਐਪਾਂ",
+  "widgetsC.screenTime.limitOverTip": "ਸੀਮਾ {limit} (ਪਾਰ)",
+  "widgetsC.screenTime.limitTip": "ਸੀਮਾ {limit}",
+  "widgetsC.screenTime.settings.average.desc": "ਇੱਕ ਮਿਆਦ ਵਿੱਚ, ਕੁੱਲ ਦੇ ਨਾਲ ਅਤੇ ਹਰ ਐਪ ਉੱਤੇ",
+  "widgetsC.screenTime.settings.figures": "ਅੰਕੜੇ",
+  "widgetsC.screenTime.settings.most.desc": "{zero} ਉੱਨੀਆਂ ਦਿਖਾਉਂਦਾ ਹੈ ਜਿੰਨੀਆਂ ਲਈ ਵਿਜੇਟ ਵਿੱਚ ਥਾਂ ਹੈ",
+  "widgetsC.screenTime.settings.most.label": "ਵੱਧ ਤੋਂ ਵੱਧ ਐਪਾਂ",
+  "widgetsC.screenTime.settings.share.desc": "ਕੁੱਲ ਵਿੱਚ ਹਰ ਐਪ ਦਾ ਹਿੱਸਾ, ਪ੍ਰਤੀਸ਼ਤ ਵਜੋਂ"
+}

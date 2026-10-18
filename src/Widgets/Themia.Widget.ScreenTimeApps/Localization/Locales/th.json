@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "ค่าเฉลี่ยต่อวัน",
+  "screentime.metric.percent": "สัดส่วนของทั้งหมด",
+  "widgetsC.screenTime.apps.desc": "แอปที่คุณใช้ และใช้นานเท่าใด",
+  "widgetsC.screenTime.apps.label": "แอปตามเวลาหน้าจอ",
+  "widgetsC.screenTime.limitOverTip": "ขีดจำกัด {limit} (เกิน)",
+  "widgetsC.screenTime.limitTip": "ขีดจำกัด {limit}",
+  "widgetsC.screenTime.settings.average.desc": "ในช่วงเวลา ข้างยอดรวมและในแต่ละแอป",
+  "widgetsC.screenTime.settings.figures": "ตัวเลข",
+  "widgetsC.screenTime.settings.most.desc": "{zero} จะแสดงเท่าที่วิดเจ็ตมีพื้นที่",
+  "widgetsC.screenTime.settings.most.label": "จำนวนแอปสูงสุดที่แสดง",
+  "widgetsC.screenTime.settings.share.desc": "สัดส่วนของแต่ละแอปจากยอดรวม เป็นเปอร์เซ็นต์"
+}

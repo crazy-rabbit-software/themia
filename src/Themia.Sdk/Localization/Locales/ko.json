@@ -332,8 +332,6 @@
   "screentime.perDay": "{value}/일",
   "screentime.ofGoal": "/ {value}",
   "screentime.goalPerDay": "/ {value}/일",
-  "screentime.metric.average": "일일 평균",
-  "screentime.metric.percent": "합계 대비 비율",
   "screentime.cfg.period": "기간",
   "screentime.cfg.periodDay": "일",
   "screentime.cfg.style": "스타일",

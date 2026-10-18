@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/ਦਿਨ",
   "screentime.ofGoal": "{value} ਵਿੱਚੋਂ",
   "screentime.goalPerDay": "{value}/ਦਿਨ ਵਿੱਚੋਂ",
-  "screentime.metric.average": "ਰੋਜ਼ਾਨਾ ਔਸਤ",
-  "screentime.metric.percent": "ਕੁੱਲ ਦਾ ਹਿੱਸਾ",
   "screentime.cfg.period": "ਮਿਆਦ",
   "screentime.cfg.periodDay": "ਦਿਨ",
   "screentime.cfg.style": "ਸ਼ੈਲੀ",

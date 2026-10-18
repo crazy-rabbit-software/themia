@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/రోజు",
   "screentime.ofGoal": "{value}లో",
   "screentime.goalPerDay": "{value}/రోజులో",
-  "screentime.metric.average": "రోజువారీ సగటు",
-  "screentime.metric.percent": "మొత్తంలో వాటా",
   "screentime.cfg.period": "వ్యవధి",
   "screentime.cfg.periodDay": "రోజు",
   "screentime.cfg.style": "శైలి",

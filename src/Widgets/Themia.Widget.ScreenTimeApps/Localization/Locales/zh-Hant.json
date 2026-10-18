@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "每日平均",
+  "screentime.metric.percent": "佔總時間比例",
+  "widgetsC.screenTime.apps.desc": "您使用了哪些應用程式，以及使用多久",
+  "widgetsC.screenTime.apps.label": "螢幕使用時間應用程式",
+  "widgetsC.screenTime.limitOverTip": "限制 {limit}（已超過）",
+  "widgetsC.screenTime.limitTip": "限制 {limit}",
+  "widgetsC.screenTime.settings.average.desc": "在時段中，顯示於總計旁和每個應用程式上",
+  "widgetsC.screenTime.settings.figures": "數值",
+  "widgetsC.screenTime.settings.most.desc": "設為 {zero} 時依小工具可容納的數量列出",
+  "widgetsC.screenTime.settings.most.label": "最多列出的應用程式數",
+  "widgetsC.screenTime.settings.share.desc": "每個應用程式佔總時間的百分比"
+}

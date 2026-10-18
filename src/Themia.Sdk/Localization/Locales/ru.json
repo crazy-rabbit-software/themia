@@ -335,8 +335,6 @@
   "screentime.perDay": "{value}/день",
   "screentime.ofGoal": "из {value}",
   "screentime.goalPerDay": "из {value}/день",
-  "screentime.metric.average": "Среднее за день",
-  "screentime.metric.percent": "Доля от общего",
   "screentime.cfg.period": "Период",
   "screentime.cfg.periodDay": "День",
   "screentime.cfg.style": "Стиль",

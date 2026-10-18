@@ -38,17 +38,6 @@ public sealed class ScreenTimeRulesTests
         Assert.Equal(4, ScreenTimeRules.Top(apps, 99).Count);
     }
 
-    [Fact]
-    public void S1211_the_setting_is_a_ceiling_and_0_means_as_many_as_fit()
-    {
-        Assert.Equal(ScreenTimeRules.MaxAppsLimit, ScreenTimeRules.Ceiling(0));
-        Assert.Equal(ScreenTimeRules.MaxAppsLimit, ScreenTimeRules.Ceiling(-1));
-        Assert.Equal(3, ScreenTimeRules.Ceiling(3));
-        Assert.Equal(ScreenTimeRules.MaxAppsLimit, ScreenTimeRules.Ceiling(500));
-        Assert.Equal(0, ScreenTimeRules.EffectiveMaxApps(-4));
-        Assert.Equal(0, new ScreenTimeAppsConfig().MaxApps);
-    }
-
     [Theory]
     [InlineData(0, 12, 12)]   // fit: every app
     [InlineData(5, 12, 6)]    // ceiling 5 + an "Other" row

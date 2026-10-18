@@ -333,8 +333,6 @@
   "screentime.perDay": "{value}/dag",
   "screentime.ofGoal": "van {value}",
   "screentime.goalPerDay": "van {value}/dag",
-  "screentime.metric.average": "Daggemiddelde",
-  "screentime.metric.percent": "Aandeel van totaal",
   "screentime.cfg.period": "Periode",
   "screentime.cfg.periodDay": "Dag",
   "screentime.cfg.style": "Stijl",

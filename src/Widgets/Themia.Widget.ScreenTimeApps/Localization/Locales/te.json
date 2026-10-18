@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "రోజువారీ సగటు",
+  "screentime.metric.percent": "మొత్తంలో వాటా",
+  "widgetsC.screenTime.apps.desc": "మీరు ఉపయోగించిన యాప్‌లు, మరియు ఎంతసేపు",
+  "widgetsC.screenTime.apps.label": "స్క్రీన్ సమయం యాప్‌లు",
+  "widgetsC.screenTime.limitOverTip": "పరిమితి {limit} (మించింది)",
+  "widgetsC.screenTime.limitTip": "పరిమితి {limit}",
+  "widgetsC.screenTime.settings.average.desc": "ఒక వ్యవధిలో, మొత్తం పక్కన మరియు ప్రతి యాప్‌పై",
+  "widgetsC.screenTime.settings.figures": "గణాంకాలు",
+  "widgetsC.screenTime.settings.most.desc": "{zero} అంటే విడ్జెట్‌లో స్థలం ఉన్నన్ని జాబితా చేస్తుంది",
+  "widgetsC.screenTime.settings.most.label": "గరిష్ఠంగా జాబితా చేసే యాప్‌లు",
+  "widgetsC.screenTime.settings.share.desc": "మొత్తంలో ప్రతి యాప్ భాగం, శాతంగా"
+}

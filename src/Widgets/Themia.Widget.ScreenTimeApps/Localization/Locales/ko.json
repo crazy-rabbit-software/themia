@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "일일 평균",
+  "screentime.metric.percent": "합계 대비 비율",
+  "widgetsC.screenTime.apps.desc": "사용한 앱과 사용 시간",
+  "widgetsC.screenTime.apps.label": "화면 사용 시간 앱",
+  "widgetsC.screenTime.limitOverTip": "제한 {limit}(초과)",
+  "widgetsC.screenTime.limitTip": "제한 {limit}",
+  "widgetsC.screenTime.settings.average.desc": "기간 단위일 때 합계 옆과 각 앱에 표시",
+  "widgetsC.screenTime.settings.figures": "수치",
+  "widgetsC.screenTime.settings.most.desc": "{zero}이면 위젯에 들어가는 만큼 표시합니다",
+  "widgetsC.screenTime.settings.most.label": "최대 표시 앱 수",
+  "widgetsC.screenTime.settings.share.desc": "합계에서 각 앱이 차지하는 비율(백분율)"
+}

@@ -332,8 +332,6 @@
   "screentime.perDay": "{value}/ngày",
   "screentime.ofGoal": "trên {value}",
   "screentime.goalPerDay": "trên {value}/ngày",
-  "screentime.metric.average": "Trung bình mỗi ngày",
-  "screentime.metric.percent": "Tỷ lệ trên tổng",
   "screentime.cfg.period": "Khoảng thời gian",
   "screentime.cfg.periodDay": "Ngày",
   "screentime.cfg.style": "Kiểu",

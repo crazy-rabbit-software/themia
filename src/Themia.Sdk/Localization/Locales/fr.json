@@ -332,8 +332,6 @@
   "screentime.perDay": "{value}/jour",
   "screentime.ofGoal": "sur {value}",
   "screentime.goalPerDay": "sur {value}/jour",
-  "screentime.metric.average": "Moyenne quotidienne",
-  "screentime.metric.percent": "Part du total",
   "screentime.cfg.period": "Période",
   "screentime.cfg.periodDay": "Jour",
   "screentime.cfg.style": "Style",

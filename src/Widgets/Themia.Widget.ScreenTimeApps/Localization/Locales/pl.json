@@ -1,0 +1,13 @@
+{
+  "screentime.metric.average": "Średnia dzienna",
+  "screentime.metric.percent": "Udział w całości",
+  "widgetsC.screenTime.apps.desc": "Aplikacje, z których korzystasz, i jak długo",
+  "widgetsC.screenTime.apps.label": "Aplikacje czasu przed ekranem",
+  "widgetsC.screenTime.limitOverTip": "limit {limit} (przekroczony)",
+  "widgetsC.screenTime.limitTip": "limit {limit}",
+  "widgetsC.screenTime.settings.average.desc": "W okresie, obok sumy i przy każdej aplikacji",
+  "widgetsC.screenTime.settings.figures": "Liczby",
+  "widgetsC.screenTime.settings.most.desc": "{zero} pokazuje tyle, ile zmieści widżet",
+  "widgetsC.screenTime.settings.most.label": "Maksymalna liczba aplikacji",
+  "widgetsC.screenTime.settings.share.desc": "Udział każdej aplikacji w sumie, w procentach"
+}
