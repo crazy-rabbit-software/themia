@@ -5,12 +5,12 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
-using Themia.App.Services.Habits;
 using Themia.App.Shell;
 using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -19,10 +19,10 @@ namespace Themia.App.Widgets;
 /// the last few periods looked like.
 /// <para>
 /// The habits are not in this widget's config. They live in the device-wide pool
-/// (<see cref="HabitPool"/>), and the config names the list to show, so two widgets can track the
+/// (<see cref="IWidgetHost.Habits"/>), and the config names the list to show, so two widgets can track the
 /// same habits and a tick in one is a tick in the other. Every change — a tick, an add, a rename, a
 /// move, a delete — goes through the pool's one write path and comes back as its
-/// <see cref="HabitPool.Changed"/>, so this view draws only what the pool holds.
+/// <see cref="IHabitLists.Changed"/>, so this view draws only what the pool holds.
 /// </para>
 /// <para>
 /// It is a Windows 11 list with a size ladder (<see cref="HabitLayout"/>): a tile that grows shows
@@ -42,7 +42,8 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 
     private IWidgetSurface? _surface;
     private Ticker? _ticker;
-    private HabitPool? _pool;
+    private readonly IWidgetHost _host;
+    private IHabitLists? _pool;
     private HabitTrackerConfig _config = new();
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
@@ -57,8 +58,9 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     private bool _resolving;
     private bool _detached;
 
-    public HabitTrackerView()
+    public HabitTrackerView(IWidgetHost host)
     {
+        _host = host;
         // [S-3850] The rows take the tile and the add footer is pinned under them, at the bottom.
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / empty hint
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add footer
@@ -103,7 +105,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _ticker = ticker;
-        _pool = AppServices.Habits;
+        _pool = _host.Habits;
 
         if (_pool is not null)
         {

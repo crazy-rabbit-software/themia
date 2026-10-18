@@ -5,7 +5,7 @@ tags are this file's alone; the root `SPEC.md` holds the host's sections and the
 tags: a note is a document the app owns ([S-1340]), atomic and single-writer files ([S-1341], the
 rename retried, [S-49]), ids by shape ([S-1342]), the index's trust boundary ([S-1343]), titles
 ([S-1344]), missing told from empty ([S-1345]) and the one pool ([S-1348], the host's `NotePool`
-behind `IWidgetHost.Notes` and, for the settings page, `SettingsStores.Notes`); `NoteStore` and the
+behind `IWidgetHost.Notes` and, for the settings page, `SettingsHost.Notes`); `NoteStore` and the
 files stay Core's.
 
 Owning files: everything in this folder: `NotesModule.cs` (descriptor, view factory, settings rows,

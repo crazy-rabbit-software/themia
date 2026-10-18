@@ -34,7 +34,7 @@ internal static class NotesSettings
 
         rows.Add(FluentLayout.Header(NotesStr.WidgetsC_Notes_Settings_Note.Text()));
 
-        var pool = SettingsStores.Notes;
+        var pool = SettingsHost.Notes;
 
         if (pool is null)
         {

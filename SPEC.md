@@ -3506,7 +3506,7 @@ pass runs synchronously on the UI thread, so there is no await for an older adop
 ## Notes: note store and markdown editor
 
 Code: Core `Notes/NoteStore.cs`, the SDK's `Notes/NoteMeta.cs` (`NoteMeta`, `NoteRead`), App
-`Services/Notes/NotePool.cs` (behind `IWidgetHost.Notes` and `SettingsStores.Notes`). Tests:
+`Services/Notes/NotePool.cs` (behind `IWidgetHost.Notes` and `SettingsHost.Notes`). Tests:
 `NoteStoreTests`, `LocalStoreFixtureTests`. The widget, its editor and the markdown rules are a module
 of their own (`src/Widgets/Themia.Widget.Notes`, its SPEC.md).
 Ports the original `widgets/others/notes` (SPEC S-01..S-38, `src/lib.rs`, `markdown.ts`, `editing.ts`,

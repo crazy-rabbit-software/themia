@@ -2,6 +2,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services.Habits;
 
@@ -16,26 +17,19 @@ namespace Themia.App.Services.Habits;
 /// write, of the latest snapshot, and never two writers at once.
 /// </para>
 /// </summary>
-internal sealed class HabitPool
+internal sealed class HabitPool : IHabitLists
 {
     private const string Scope = "habits";
 
-    private readonly HabitListStore? _store;
+    private readonly HabitListStore _store;
     private IReadOnlyList<HabitList> _lists;
     private Task _saving = Task.CompletedTask;
     private bool _saveQueued;
 
-    /// <param name="store">Where the pool lives, or null to keep it in memory only (a debug render).</param>
-    public HabitPool(HabitListStore? store, IReadOnlyList<HabitList>? seed = null)
+    /// <param name="store">Where the pool lives.</param>
+    public HabitPool(HabitListStore store)
     {
-        _store = store;
-
-        if (store is null)
-        {
-            _lists = seed ?? [];
-            Writable = true;
-            return;
-        }
+        _store = store ?? throw new ArgumentNullException(nameof(store));
 
         var load = store.Load();
         _lists = load.Lists;
@@ -60,8 +54,8 @@ internal sealed class HabitPool
     /// <summary>Why the file could not be used at start, or null.</summary>
     public string? Problem { get; }
 
-    /// <summary>[S-1430] Where <c>habits.json</c> lives, or null for a pool kept in memory only (a debug render).</summary>
-    public string? FilePath => _store?.Path;
+    /// <summary>[S-1430] Where <c>habits.json</c> lives.</summary>
+    public string? FilePath => _store.Path;
 
     public HabitList? Find(string? id) => HabitLists.Find(_lists, id);
 
@@ -123,11 +117,6 @@ internal sealed class HabitPool
 
     private void QueueSave()
     {
-        if (_store is null)
-        {
-            return;
-        }
-
         if (!_saving.IsCompleted)
         {
             // One write is out; the next one takes whatever the pool is when it finishes.

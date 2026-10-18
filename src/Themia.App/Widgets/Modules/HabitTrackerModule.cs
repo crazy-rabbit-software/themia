@@ -16,5 +16,5 @@ public sealed class HabitTrackerModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.HabitTracker(rows.Rows, (HabitTrackerConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new HabitTrackerView();
+    public FrameworkElement CreateView(IWidgetHost host) => new HabitTrackerView(host);
 }

@@ -1,13 +1,13 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
-using Themia.App.Services.Habits;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.System;
 
 namespace Themia.App.Shell.Config;
@@ -33,7 +33,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Habits_List.Text()));
 
-        if (AppServices.Habits is not { } pool)
+        if (SettingsHost.Habits is not { } pool)
         {
             rows.Add(FluentLayout.Note(Str.WidgetsB_Settings_Habits_ListsUnavailable.Text()));
         }
@@ -138,9 +138,9 @@ internal static partial class WidgetSettings
 
         // [S-1430] The way to the file itself, for a backup or another program: the habits are kept
         // in plain JSON beside the settings file, a folder nobody finds on their own.
-        var file = AppServices.Habits?.FilePath;
+        var file = SettingsHost.Habits?.FilePath;
         var open = new Button { Content = Str.Folder_OpenInExplorer.Text(), IsEnabled = file is not null };
-        open.Click += (_, _) => ShellLauncher.OpenContainingFolder(file);
+        open.Click += (_, _) => SettingsHost.Launcher.OpenContainingFolder(file);
         rows.Add(FluentLayout.Row(Glyphs.Folder, Str.WidgetsB_Settings_Habits_DataFolder_Label.Text(),
             Str.WidgetsB_Settings_Habits_DataFolder_Desc.Text(), open));
     }
@@ -149,7 +149,7 @@ internal static partial class WidgetSettings
     /// [S-1429] The habit lists on this PC: pick one, rename it as you type, add one, delete one after
     /// asking. A pool every Habits widget shares, so renaming here retitles each widget showing it.
     /// </summary>
-    private static IEnumerable<FrameworkElement> HabitListRows(HabitPool pool, HabitTrackerConfig config, Action save, Action rebuild)
+    private static IEnumerable<FrameworkElement> HabitListRows(IHabitLists pool, HabitTrackerConfig config, Action save, Action rebuild)
     {
         if (pool.Problem is { } problem)
         {

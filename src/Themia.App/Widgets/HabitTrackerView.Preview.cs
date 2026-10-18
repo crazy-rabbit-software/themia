@@ -1,5 +1,4 @@
 #if DEBUG
-using Themia.App.Services.Habits;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Habits;
 using Themia.Core.Widgets;
@@ -58,7 +57,7 @@ internal sealed partial class HabitTrackerView : IWidgetPreviewState
             _pool.Changed -= OnPoolChanged;
         }
 
-        _pool = new HabitPool(null, [new HabitList(PreviewListId, "Daily", habits)]);
+        _pool = new PreviewHabitLists([new HabitList(PreviewListId, "Daily", habits)]);
         _pool.Changed += OnPoolChanged;
         _config.ListId = PreviewListId;
         ResolveList();

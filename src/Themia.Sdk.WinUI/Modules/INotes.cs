@@ -4,7 +4,7 @@ namespace Themia.Sdk.WinUI;
 
 /// <summary>
 /// [S-1348] The notes kept on this PC as a Notes widget and its settings page reach them
-/// (<see cref="IWidgetHost.Notes"/>, <see cref="SettingsStores.Notes"/>): the host's one pool, so two
+/// (<see cref="IWidgetHost.Notes"/>, <see cref="SettingsHost.Notes"/>): the host's one pool, so two
 /// widgets can show one note, typing in one shows up in the other, and deleting a widget never takes its
 /// note. The UI thread is the only caller; the files (<c>notes/*.md</c> and <c>index.json</c>), their
 /// atomic writes and their validation stay the host's.
