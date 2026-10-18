@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.Sdk;
+using Themia.Sdk.Services;
 
 namespace Themia.Core.Accounts;
 
@@ -59,6 +60,13 @@ public sealed record Account
     /// <summary>When the account was first added.</summary>
     public DateTimeOffset AddedAt { get; init; }
 
+    /// <summary>
+    /// [S-9919] Which of its provider's sign-in members signed it in, when the provider offers more than
+    /// one kind (a device code and a pasted token); null for the provider's only flow (Microsoft and
+    /// Google's browser, the password forms).
+    /// </summary>
+    public SignInKind? SignedInWith { get; init; }
+
     /// <summary>What a list shows: the nickname, else the person's name, else the address.</summary>
     public string Label => Nickname ?? (DisplayName.Length > 0 ? DisplayName : Address);
 
@@ -114,6 +122,9 @@ public sealed class StoredAccount
 
     public DateTimeOffset? AddedAt { get; set; }
 
+    /// <summary>[S-9919] <c>browser</c>, <c>deviceCode</c> or <c>pastedToken</c>; absent for the provider's only flow.</summary>
+    public string? SignIn { get; set; }
+
     public static StoredAccount From(Account account)
     {
         ArgumentNullException.ThrowIfNull(account);
@@ -134,6 +145,7 @@ public sealed class StoredAccount
             Password = account.SealedPassword,
             ExpiresAt = account.ExpiresAt,
             AddedAt = account.AddedAt,
+            SignIn = account.SignedInWith is { } kind ? SignInKinds.Wire(kind) : null,
         };
     }
 }

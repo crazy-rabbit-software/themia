@@ -203,3 +203,34 @@ public static class Scopes
         return string.Join(separator == ScopeSeparator.Comma ? "," : " ", scopes);
     }
 }
+
+/// <summary>[S-9919] A sign-in member's kind, and how an account names it in <c>accounts.json</c>.</summary>
+public static class SignInKinds
+{
+    /// <summary>The kind of a member, or null for one no account is signed in with (anonymous reads).</summary>
+    public static Themia.Core.Accounts.SignInKind? Of(ServiceAuth member) => member switch
+    {
+        OAuthPkceLoopback => Themia.Core.Accounts.SignInKind.Browser,
+        OAuthDeviceCode => Themia.Core.Accounts.SignInKind.DeviceCode,
+        PastedToken => Themia.Core.Accounts.SignInKind.PastedToken,
+        _ => null,
+    };
+
+    public static string Wire(Themia.Core.Accounts.SignInKind kind) => kind switch
+    {
+        Themia.Core.Accounts.SignInKind.Browser => "browser",
+        Themia.Core.Accounts.SignInKind.DeviceCode => "deviceCode",
+        _ => "pastedToken",
+    };
+
+    public static bool TryParse(string? wire, out Themia.Core.Accounts.SignInKind kind)
+    {
+        switch (wire?.Trim())
+        {
+            case "browser": kind = Themia.Core.Accounts.SignInKind.Browser; return true;
+            case "deviceCode": kind = Themia.Core.Accounts.SignInKind.DeviceCode; return true;
+            case "pastedToken": kind = Themia.Core.Accounts.SignInKind.PastedToken; return true;
+            default: kind = default; return false;
+        }
+    }
+}

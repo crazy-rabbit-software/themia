@@ -1049,7 +1049,8 @@ service layer knows strategies, never services: a service is a descriptor that p
   else the listed ports tried in order.
 - **[S-9914]** A provider's refresh tokens are stable or rotate; a rotating one is written before the
   new access token is used, inside the one refresh ([S-530]), and the old one is never sent again
-  past the provider's reuse grace.
+  past the provider's reuse grace: when the write fails, the new pair is kept in memory and is what
+  the next refresh sends (the failure is logged).
 - **[S-9915]** A pasted token is tried only when it has its member's shape (length, alphabet, an
   optional prefix), trimmed; then the provider's identity request checks it, and only a token that
   passes is sealed and kept.
@@ -1062,6 +1063,22 @@ service layer knows strategies, never services: a service is a descriptor that p
   parsed by one rule (`ClientSecretRules`: a key is a module id, a secret 8 to 256 letters, digits,
   `_ - .`; any broken entry fails the whole value, a key given twice too). The log names the keys a
   build holds, never a value.
+- **[S-9919]** The device code and the pasted token, run by the host for any provider that offers
+  them. A device-code sign-in asks the provider for a code (every field present, the page https),
+  shows it large with Copy and the provider's page, polls at the interval the provider names (a
+  missing or absurd one is five seconds; five more after every `slow_down`, for good) until the user
+  allows Themia, declines, or the code's lifetime ends (fifteen minutes when unnamed); a pasted token
+  is checked by its shape and then by the provider's identity request. Either then saves the account
+  under `<provider>:<the id its identity named>`, with the kind of member that signed it in
+  (`signIn` in `accounts.json`: `browser`, `deviceCode`, `pastedToken`; absent for a provider's only
+  flow, a kind the provider does not offer dropped and logged). A pasted token never renews
+  (`AccountAuth.Token`): a 401 is "sign in again". The Accounts page lists every provider with
+  sign-in members in its Add menu, opens its first member's panel and links to the others under it;
+  an account whose provider grants access per resource has a row to its grant page ("Choose what it
+  may read"). The panels' words are English first (`sign-in` strings area).
+- **[S-9924]** An account may name its own API root where the descriptor allows it (an Enterprise
+  server): https on a public name, without user info. A request the rules built on the descriptor's
+  root moves onto the account's; one that is not under it is refused.
 - **[S-9920]** A throttle is read through the descriptor's `RateLimitScheme`: its budgets' headers
   (several budgets: a spent one wins), the reset's unit (epoch seconds or milliseconds, or seconds
   from now), the header naming the bucket, the statuses that are a throttle when a budget is spent or

@@ -171,3 +171,121 @@ public readonly record struct CodeExchange(CodeGrant? Grant, string? Failure)
         };
     }
 }
+
+
+/// <summary>How one poll of a device-code token endpoint came out.</summary>
+public enum DevicePoll
+{
+    /// <summary>The user has not approved yet. The normal state for most of the flow.</summary>
+    Pending,
+
+    /// <summary>Polled too fast: wait longer from now on.</summary>
+    SlowDown,
+
+    /// <summary>The code ran out before the user approved it.</summary>
+    Expired,
+
+    /// <summary>The user said no.</summary>
+    Denied,
+
+    /// <summary>Anything else the endpoint said; terminal.</summary>
+    Failed,
+
+    /// <summary>A token came back.</summary>
+    Success,
+}
+
+/// <summary>What to do after a poll: wait and poll again, or stop with a message.</summary>
+/// <param name="Poll">The classified outcome.</param>
+/// <param name="Delay">How long to wait before the next poll; zero when <see cref="Done"/>.</param>
+/// <param name="Message">What to tell the user when the flow ends without a token.</param>
+public readonly record struct DeviceStep(DevicePoll Poll, TimeSpan Delay, string? Message)
+{
+    public bool Done => Poll is not (DevicePoll.Pending or DevicePoll.SlowDown);
+}
+
+/// <summary>
+/// [S-9919] The device authorization grant (RFC 8628) as a state machine: no I/O, no clock of its own.
+/// <para>
+/// Every provider whose sign-in member is <c>OAuthDeviceCode</c> runs it. The waiting is
+/// server-directed: never faster than the interval the server named, five seconds more after every
+/// <c>slow_down</c>, and over when the code's own lifetime is.
+/// </para>
+/// </summary>
+public sealed class DeviceCodeSession
+{
+    /// <summary>RFC 8628 §3.5: a client told to slow down adds five seconds to its interval for good.</summary>
+    public static readonly TimeSpan SlowDownStep = TimeSpan.FromSeconds(5);
+
+    /// <summary>RFC 8628 §3.2: what to assume when the server names no interval.</summary>
+    public static readonly TimeSpan DefaultInterval = TimeSpan.FromSeconds(5);
+
+    /// <summary>What to assume when the server names no lifetime: fifteen minutes, as the providers that offer it name.</summary>
+    public static readonly TimeSpan DefaultLifetime = TimeSpan.FromMinutes(15);
+
+    public DeviceCodeSession(string userCode, Uri verificationUri, long? intervalSeconds, long? expiresInSeconds, DateTimeOffset now)
+    {
+        UserCode = userCode;
+        VerificationUri = verificationUri;
+        Interval = intervalSeconds is > 0 and <= 300 ? TimeSpan.FromSeconds(intervalSeconds.Value) : DefaultInterval;
+        ExpiresAt = now + (expiresInSeconds is > 0 and <= 3600 ? TimeSpan.FromSeconds(expiresInSeconds.Value) : DefaultLifetime);
+    }
+
+    /// <summary>The code the user types on the provider's page.</summary>
+    public string UserCode { get; }
+
+    /// <summary>Where they type it.</summary>
+    public Uri VerificationUri { get; }
+
+    /// <summary>The current wait between polls; grows on <c>slow_down</c>.</summary>
+    public TimeSpan Interval { get; private set; }
+
+    public DateTimeOffset ExpiresAt { get; }
+
+    /// <summary>Classify a token-endpoint answer from its <c>error</c> field and whether it held a token.</summary>
+    public static DevicePoll Classify(string? error, bool hasAccessToken)
+    {
+        if (string.IsNullOrEmpty(error))
+        {
+            return hasAccessToken ? DevicePoll.Success : DevicePoll.Failed;
+        }
+
+        return error switch
+        {
+            "authorization_pending" => DevicePoll.Pending,
+            "slow_down" => DevicePoll.SlowDown,
+            "expired_token" or "code_expired" => DevicePoll.Expired,
+            "access_denied" or "authorization_declined" => DevicePoll.Denied,
+            _ => DevicePoll.Failed,
+        };
+    }
+
+    /// <summary>The step after a poll that came out as <paramref name="poll"/> at <paramref name="now"/>.</summary>
+    public DeviceStep Next(DevicePoll poll, DateTimeOffset now, string? providerMessage = null)
+    {
+        switch (poll)
+        {
+            case DevicePoll.Success:
+                return new DeviceStep(poll, TimeSpan.Zero, null);
+            case DevicePoll.Expired:
+                return new DeviceStep(poll, TimeSpan.Zero, Str.Shell_Accounts_CodeExpired.Text());
+            case DevicePoll.Denied:
+                return new DeviceStep(poll, TimeSpan.Zero, Str.Shell_Accounts_SignInDeclined.Text());
+            case DevicePoll.Failed:
+                return new DeviceStep(poll, TimeSpan.Zero, providerMessage is null ? Str.Shell_Accounts_SignInFailedNoReason.Text() : Str.Shell_Accounts_SignInFailed.Format(("reason", providerMessage)));
+        }
+
+        if (poll == DevicePoll.SlowDown)
+        {
+            Interval += SlowDownStep;
+        }
+
+        // Past the code's lifetime there is nothing to wait for; the endpoint would only say so.
+        if (now >= ExpiresAt)
+        {
+            return new DeviceStep(DevicePoll.Expired, TimeSpan.Zero, Str.Shell_Accounts_CodeExpired.Text());
+        }
+
+        return new DeviceStep(poll, Interval, null);
+    }
+}

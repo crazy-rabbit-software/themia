@@ -30,6 +30,7 @@ public sealed partial class ServiceLayerTests
         Transport = TransportKind.RestJson, ApiRoot = new("https://api.hub.example/"),
         SignIn = new([new PastedToken(new("https://hub.example/settings/tokens"), new TokenShape(20, 255, TokenShape.Word))]),
         Pinned = [new HeaderPin("Accept", "application/vnd.hub+json")],
+        Identity = NoIdentity.Instance,
         Limits = RateLimitRulesTests.GitHubShaped,
         Errors = new ErrorScheme(ErrorBodyKind.None, null, new Dictionary<string, FetchStatus>(), [new MessageRule("secondary rate limit", FetchStatus.RateLimited)], null),
         Freshness = FreshnessHints.ETag,
@@ -41,6 +42,7 @@ public sealed partial class ServiceLayerTests
         Provider = new("graphShaped"), Feature = new("graphShaped"), Cadence = Cadence,
         Transport = TransportKind.GraphQL, ApiRoot = new("https://api.graph.example/graphql"),
         SignIn = new([new PastedToken(new("https://graph.example/settings/api"), new TokenShape(20, 128, TokenShape.Word, ["lin_api_"]), TokenScheme.Raw)]),
+        Identity = NoIdentity.Instance,
         Limits = RateLimitRulesTests.LinearShaped,
         Errors = new ErrorScheme(ErrorBodyKind.GraphQLErrors, null, new Dictionary<string, FetchStatus>
         {
@@ -56,6 +58,7 @@ public sealed partial class ServiceLayerTests
         Provider = new("syncShaped"), Feature = new("syncShaped"), Cadence = Cadence,
         Transport = TransportKind.FormPost, ApiRoot = new("https://api.sync.example/api/v1/"),
         SignIn = new([new PastedToken(new("https://sync.example/app/settings/integrations"), new TokenShape(40, 40, TokenShape.Hex))]),
+        Identity = NoIdentity.Instance,
         Limits = RateLimitRulesTests.TodoistShaped,
         Errors = new ErrorScheme(ErrorBodyKind.JsonCode, "error_tag", new Dictionary<string, FetchStatus>
         {
@@ -65,6 +68,19 @@ public sealed partial class ServiceLayerTests
         MaxPages = 1, ItemBound = 5000,
         WebHosts = ["app.sync.example"],
     };
+
+    internal sealed class NoIdentity : IServiceIdentity
+    {
+        public static NoIdentity Instance { get; } = new();
+
+        public ServiceRequest Build() => new(HttpVerb.Get, new("https://api.hub.example/user"), null, "core", "identity");
+
+        public ServiceIdentity? Answer(ReadOnlyMemory<byte> body, out string? problem)
+        {
+            problem = "not asked in these tests";
+            return null;
+        }
+    }
 
     private static ServiceReply Reply(int status, string body = "", params (string Name, string Value)[] headers)
         => new(status, RateLimitRulesTests.Headers(headers), Encoding.UTF8.GetBytes(body));

@@ -35,9 +35,16 @@ internal sealed partial class AccountService
     /// <summary>The token and the sealed form it came from, so a 401 can say which token it rejected.</summary>
     private async Task<(string Token, string? Sealed)> TokenAsync(Account account, CancellationToken cancellation)
     {
-        if (account.Provider.Auth() == AccountAuth.Password)
+        var auth = AccountRules.AuthOf(account);
+        if (auth == AccountAuth.Password)
         {
             throw new AccountException(AccountError.Refused, $"{account.Label} signs in with a password, not a token.");
+        }
+
+        if (auth == AccountAuth.Token)
+        {
+            // [S-9919] A pasted token has nothing to renew: it works until the service says it does not.
+            return (OpenOrThrow(account, account.SealedAccessToken, SecretKind.Token), account.SealedAccessToken);
         }
 
         if (TokenExpiry.IsUsable(account.ExpiresAt, Now)
@@ -205,7 +212,7 @@ internal sealed partial class AccountService
 
         var reply = await AccountHttp.SendAsync(request, kind, r => Authorize(r, account, token), cancellation, ServerGrant(account)).ConfigureAwait(false);
 
-        if (reply.Status == 401 && account.Provider.Auth() == AccountAuth.OAuthRefresh)
+        if (reply.Status == 401 && AccountRules.AuthOf(account) == AccountAuth.OAuthRefresh)
         {
             // Rejected before its stored expiry (revoked, rotated elsewhere): renew once and retry once.
             var (renewed, _) = await RefreshAsync(account.Id, sealedToken, cancellation).ConfigureAwait(false);
@@ -234,7 +241,7 @@ internal sealed partial class AccountService
 
         if (error == AccountError.SignInRequired)
         {
-            MarkProblem(account.Id, account.Provider.Auth() == AccountAuth.Password
+            MarkProblem(account.Id, AccountRules.AuthOf(account) == AccountAuth.Password
                 ? Str.Shell_Accounts_PasswordRefused.Text()
                 : Str.Shell_Accounts_ProviderRefused.Format(("provider", account.Provider.Label())));
         }
@@ -451,7 +458,7 @@ internal sealed partial class AccountService
                 return;
         }
 
-        request.Headers.Authorization = new("Bearer", secret);
+        SetToken(request, AccountRules.MemberOf(account)?.Scheme ?? TokenScheme.Bearer, secret ?? string.Empty);
     }
 
     private string OpenOrThrow(Account account, string? sealedSecret, SecretKind what)

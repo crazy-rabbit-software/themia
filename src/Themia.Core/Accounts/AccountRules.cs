@@ -1,4 +1,5 @@
 using Themia.Sdk;
+using Themia.Sdk.Services;
 namespace Themia.Core.Accounts;
 
 /// <summary>
@@ -95,6 +96,7 @@ public static class AccountRules
             SealedPassword = Clean(stored.Password),
             ExpiresAt = stored.ExpiresAt,
             AddedAt = stored.AddedAt ?? now,
+            SignedInWith = SignInOf(id, provider, stored.SignIn, repairs),
         };
 
         switch (provider)
@@ -137,6 +139,44 @@ public static class AccountRules
         }
     }
 
+    /// <summary>
+    /// [S-9919] The sign-in kind as stored: one of the provider's own members, or nothing. A kind the
+    /// provider does not offer (a hand edit, a member the build no longer has) is dropped and
+    /// logged; the account keeps its tokens and signs in again if they no longer work.
+    /// </summary>
+    private static SignInKind? SignInOf(string id, ProviderId provider, string? stored, List<string> repairs)
+    {
+        if (Clean(stored) is not { } text)
+        {
+            return null;
+        }
+
+        if (SignInKinds.TryParse(text, out var kind) && ProviderCatalog.Of(provider).SignIn.Members.Any(m => SignInKinds.Of(m) == kind))
+        {
+            return kind;
+        }
+
+        repairs.Add($"account '{id}' named a sign-in '{text}' its provider does not offer; dropped it");
+        return null;
+    }
+
+    /// <summary>[S-9919] How an account proves itself: a pasted token never renews; else as its provider's accounts do.</summary>
+    public static AccountAuth AuthOf(Account account)
+    {
+        ArgumentNullException.ThrowIfNull(account);
+        return account.SignedInWith == SignInKind.PastedToken ? AccountAuth.Token : account.Provider.Auth();
+    }
+
+    /// <summary>[S-9911] The sign-in member that signed <paramref name="account"/> in, or null for a password account.</summary>
+    public static Sdk.Services.ServiceAuth? MemberOf(Account account)
+    {
+        ArgumentNullException.ThrowIfNull(account);
+        var members = ProviderCatalog.Of(account.Provider).SignIn.Members;
+        return account.SignedInWith is { } kind
+            ? members.FirstOrDefault(m => SignInKinds.Of(m) == kind)
+            : members.FirstOrDefault();
+    }
+
     /// <summary>The document for a list of accounts, ready to serialise.</summary>
     public static AccountDocument ToDocument(IEnumerable<Account> accounts)
     {
@@ -176,6 +216,9 @@ public static class AccountIds
     public static string Google(string subject) => $"google:{subject}";
 
     public static string Imap(string username, string host) => $"imap:{username}@{host}";
+
+    /// <summary>[S-9919] A kit service's account: its provider and the id the service's identity request named.</summary>
+    public static string Service(ProviderId provider, string serviceId) => $"{provider.Value}:{serviceId}";
 
     /// <summary>
     /// DAV: the user and the collection itself (authority and path), not just the server. One user

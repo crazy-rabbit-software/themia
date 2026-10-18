@@ -14,7 +14,10 @@
     "signIn.tokenShape",
     "signIn.checkingToken",
     "signIn.grantPage",
-    "signIn.grantPageDesc"
+    "signIn.grantPageDesc",
+    "signIn.useBrowser",
+    "signIn.useCode",
+    "signIn.useToken"
   ],
   "signIn.noLoopbackPort": "None of the ports this sign-in may come back to is free. Close what uses them and start again.",
   "signIn.deviceExplain": "Open {provider}'s page and enter this code there. This page carries on by itself once you allow Themia.",
@@ -29,5 +32,8 @@
   "signIn.tokenShape": "That does not look like a {provider} token.",
   "signIn.checkingToken": "Checking the token",
   "signIn.grantPage": "Choose what it may read",
-  "signIn.grantPageDesc": "{provider} lets this account read only what you choose there."
+  "signIn.grantPageDesc": "{provider} lets this account read only what you choose there.",
+  "signIn.useBrowser": "Sign in in the browser instead",
+  "signIn.useCode": "Sign in with a code instead",
+  "signIn.useToken": "Paste a token instead"
 }

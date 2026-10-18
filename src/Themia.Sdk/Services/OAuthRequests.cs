@@ -163,8 +163,16 @@ public static class IdentityAnswers
         }
     }
 
+    // An id may be a number (a numeric user id); it is read as its text.
     private static string? Text(JsonElement root, string name)
-        => root.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+        => root.TryGetProperty(name, out var value)
+            ? value.ValueKind switch
+            {
+                JsonValueKind.String => value.GetString(),
+                JsonValueKind.Number => value.GetRawText(),
+                _ => null,
+            }
+            : null;
 }
 
 /// <summary>[S-9919] A device authorization answer (RFC 8628 §3.2).</summary>

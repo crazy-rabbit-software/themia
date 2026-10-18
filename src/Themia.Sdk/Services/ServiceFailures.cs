@@ -205,6 +205,11 @@ internal static class ErrorBodies
     /// <summary>A dotted path's value (<c>error_extra.retry_after</c>), or null.</summary>
     internal static JsonElement? Path(JsonElement root, string dotted)
     {
+        if (dotted.Length == 0)
+        {
+            return root;
+        }
+
         var at = root;
         foreach (var part in dotted.Split('.'))
         {
@@ -263,7 +268,7 @@ public static class GraphQLEnvelope
     }
 
     /// <summary>The envelope of an answer, or null when it is not one (no object, neither data nor errors).</summary>
-    /// <param name="listPath">The dotted path under <c>data</c> the widget's list lives at (<c>viewer.assignedIssues</c>).</param>
+    /// <param name="listPath">The dotted path under <c>data</c> the widget's list lives at (<c>viewer.assignedIssues</c>); empty for <c>data</c> itself.</param>
     public static GraphQLAnswer? Read(ReadOnlySpan<byte> body, string listPath)
     {
         ArgumentNullException.ThrowIfNull(listPath);

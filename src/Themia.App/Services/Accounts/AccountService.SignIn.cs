@@ -2,6 +2,7 @@ using System.Net.Http;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Services;
 
@@ -148,6 +149,123 @@ internal sealed partial class AccountService
         {
             request.Headers.Authorization = new("Bearer", token);
         }
+    }
+
+    // -----------------------------------------------------------------------------------------
+    // The device code (OAuthDeviceCode) and the pasted token (PastedToken): kit services
+    // -----------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// [S-9919] Sign in with a device code (RFC 8628): ask the provider for a code, hand it to
+    /// <paramref name="show"/> (the page shows it and offers the provider's page), poll at the
+    /// interval the provider names (five seconds more after every <c>slow_down</c>) until the user
+    /// allows Themia, declines, or the code runs out; then prove who signed in ([S-9916]) and save.
+    /// No secret exists in this flow.
+    /// </summary>
+    public async Task<AccountInfo> SignInWithDeviceCodeAsync(ProviderId provider, Action<DeviceCodeSession> show, CancellationToken cancellation = default)
+    {
+        ArgumentNullException.ThrowIfNull(show);
+
+        var module = ProviderCatalog.Of(provider);
+        var member = module.SignIn.Find<OAuthDeviceCode>()
+            ?? throw new ArgumentOutOfRangeException(nameof(provider), provider, "no device-code sign-in");
+        var descriptor = module.Service
+            ?? throw new AccountException(AccountError.Refused, Str.Shell_Accounts_WhoUnknown.Format(("provider", provider.Label())));
+
+        var start = await AccountHttp.SendAsync(RequestTemplate.Form(member.DeviceUrl, OAuthRequests.DeviceAuthorization(member)), CredentialKind.None, null, cancellation)
+            .ConfigureAwait(false);
+
+        var grant = DeviceGrant.Parse(start.Status, start.Body)
+            ?? throw new AccountException(AccountError.Refused,
+                Str.SignIn_DeviceUnavailable.Format(("provider", provider.Label()), ("reason", ErrorBody.Message(start.Body) ?? $"HTTP {start.Status}")), start.Status);
+
+        var session = new DeviceCodeSession(grant.UserCode, grant.VerificationUri, grant.IntervalSeconds, grant.ExpiresInSeconds, Now);
+        show(session);
+
+        var step = new DeviceStep(DevicePoll.Pending, session.Interval, null);
+        while (true)
+        {
+            // Server-directed: RFC 8628 says how long to wait, and the code's own lifetime ends it.
+            await Task.Delay(step.Delay, cancellation).ConfigureAwait(false);
+
+            var poll = await AccountHttp.SendAsync(RequestTemplate.Form(member.TokenUrl, OAuthRequests.DevicePoll(member, grant.DeviceCode)), CredentialKind.None, null, cancellation)
+                .ConfigureAwait(false);
+
+            var answer = CodeExchange.Parse(poll.Status, poll.Body);
+            var outcome = DeviceCodeSession.Classify(ErrorBody.OAuthCode(poll.Body), answer.Grant is not null);
+            step = session.Next(outcome, Now, ErrorBody.Message(poll.Body));
+
+            if (outcome == DevicePoll.Success && answer.Grant is { } token)
+            {
+                var who = await ServiceWhoAsync(descriptor, token.AccessToken, member.Scheme, provider, cancellation).ConfigureAwait(false);
+                return await UpsertAsync(new Account
+                {
+                    Id = AccountIds.Service(provider, who.Id),
+                    Provider = provider,
+                    Address = who.Address,
+                    DisplayName = who.Name,
+                    SealedAccessToken = Dpapi.Seal(token.AccessToken),
+                    SealedRefreshToken = Dpapi.SealOrNull(token.RefreshToken),
+                    ExpiresAt = token.ExpiresIn is null && token.RefreshToken is null ? null : TokenExpiry.FromExpiresIn(token.ExpiresIn, Now),
+                    AddedAt = Now,
+                    SignedInWith = SignInKind.DeviceCode,
+                }, cancellation).ConfigureAwait(false);
+            }
+
+            if (step.Done)
+            {
+                throw new AccountException(outcome == DevicePoll.Expired ? AccountError.TimedOut : AccountError.Refused, step.Message ?? Str.Shell_Accounts_SignInFailedNoReason.Text(), poll.Status);
+            }
+        }
+    }
+
+    /// <summary>
+    /// [S-9915] Add an account from a pasted token: its member's shape first, then the provider's
+    /// identity request with it ([S-9916]); only a token that passes both is sealed and kept. It is
+    /// never logged, and never renewed (<see cref="AccountAuth.Token"/>).
+    /// </summary>
+    public async Task<AccountInfo> AddPastedTokenAsync(ProviderId provider, string pasted, CancellationToken cancellation = default)
+    {
+        var module = ProviderCatalog.Of(provider);
+        var member = module.SignIn.Find<PastedToken>()
+            ?? throw new ArgumentOutOfRangeException(nameof(provider), provider, "no pasted-token sign-in");
+        var descriptor = module.Service
+            ?? throw new AccountException(AccountError.Refused, Str.Shell_Accounts_WhoUnknown.Format(("provider", provider.Label())));
+
+        var token = member.Shape.Accept(pasted)
+            ?? throw new AccountException(AccountError.Refused, Str.SignIn_TokenShape.Format(("provider", provider.Label())));
+
+        var who = await ServiceWhoAsync(descriptor, token, member.Scheme, provider, cancellation).ConfigureAwait(false);
+
+        return await UpsertAsync(new Account
+        {
+            Id = AccountIds.Service(provider, who.Id),
+            Provider = provider,
+            Address = who.Address,
+            DisplayName = who.Name,
+            SealedAccessToken = Dpapi.Seal(token),
+            AddedAt = Now,
+            SignedInWith = SignInKind.PastedToken,
+        }, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>[S-9916] Who a kit service's token belongs to: its descriptor's identity request, classified as every reply is.</summary>
+    private static async Task<ServiceIdentity> ServiceWhoAsync(ServiceDescriptor descriptor, string token, TokenScheme scheme, ProviderId provider, CancellationToken cancellation)
+    {
+        var reply = await SendWithTokenAsync(descriptor, descriptor.Identity.Build(), token, scheme, cancellation).ConfigureAwait(false);
+
+        var envelope = descriptor.Transport == TransportKind.GraphQL ? GraphQLEnvelope.Read(reply.Body.Span, string.Empty) : null;
+        var verdict = ServiceFailures.Classify(descriptor, reply, Now, graphQL: envelope);
+        if (!verdict.Ok)
+        {
+            throw new AccountException(verdict.Status == FetchStatus.SignInRequired ? AccountError.SignInRequired : AccountError.Refused,
+                Str.Shell_Accounts_WhoUnknownReason.Format(("provider", provider.Label()), ("reason", FetchState.Message(verdict.Status))), reply.Status);
+        }
+
+        var body = envelope is { } graph ? graph.Data : reply.Body;
+        return descriptor.Identity.Answer(body, out var problem)
+            ?? throw new AccountException(AccountError.BadResponse,
+                Str.Shell_Accounts_WhoUnknownReason.Format(("provider", provider.Label()), ("reason", problem ?? "no account named")));
     }
 
     // -----------------------------------------------------------------------------------------

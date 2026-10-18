@@ -31,6 +31,9 @@ public sealed record ServiceDescriptor
     /// <summary>The sign-in members, in the order the Accounts page offers them.</summary>
     public required ProviderSignIn SignIn { get; init; }
 
+    /// <summary>[S-9916] Who a token belongs to: run after every sign-in and on a pasted token before it is kept.</summary>
+    public required IServiceIdentity Identity { get; init; }
+
     /// <summary>Headers every request carries (an <c>Accept</c>, an API version); never a credential.</summary>
     public IReadOnlyList<HeaderPin> Pinned { get; init; } = [];
 

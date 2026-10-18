@@ -66,6 +66,9 @@ internal sealed class RequestTemplate
     /// <summary>Extra headers the caller wants (Accept, Prefer, Depth, a provider's own).</summary>
     public List<(string Name, string Value)> Headers { get; } = [];
 
+    /// <summary>[S-9905] An entity tag the caller holds: the server answers 304 when it still matches.</summary>
+    public string? IfNoneMatch { get; set; }
+
     /// <summary>A form post, the shape every token endpoint takes.</summary>
     public static RequestTemplate Form(Uri url, IEnumerable<KeyValuePair<string, string>> fields)
     {
@@ -93,6 +96,11 @@ internal sealed class RequestTemplate
             {
                 request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(ContentType);
             }
+        }
+
+        if (IfNoneMatch is { } tag && EntityTagHeaderValue.TryParse(tag, out var entity))
+        {
+            request.Headers.IfNoneMatch.Add(entity);
         }
 
         foreach (var (name, value) in Headers)
@@ -151,12 +159,17 @@ internal static class AccountHttp
     /// <param name="credentials">What kind of proof <paramref name="authorize"/> adds, for the redirect rule.</param>
     /// <param name="authorize">Adds the proof to a request; called again for every send.</param>
     /// <param name="grant">[S-3843] The leave the account's typed server earned, or null.</param>
+    /// <param name="retryThrottles">
+    /// False for a kit service's request ([S-9920]): its bucket's block is the one retry rule, so a
+    /// throttle comes back at once with its headers instead of being waited out here.
+    /// </param>
     public static async Task<AccountReply> SendAsync(
         RequestTemplate template,
         CredentialKind credentials,
         Action<HttpRequestMessage>? authorize,
         CancellationToken cancellation,
-        LocalGrant? grant = null)
+        LocalGrant? grant = null,
+        bool retryThrottles = true)
     {
         ArgumentNullException.ThrowIfNull(template);
 
@@ -171,7 +184,7 @@ internal static class AccountHttp
         {
             var reply = await FollowAsync(template, credentials, authorize, grant, cancellation).ConfigureAwait(false);
 
-            if (!RetryRules.ShouldRetry(reply.Reply.Status, retries, template.IsIdempotent))
+            if (!retryThrottles || !RetryRules.ShouldRetry(reply.Reply.Status, retries, template.IsIdempotent))
             {
                 return reply.Reply;
             }

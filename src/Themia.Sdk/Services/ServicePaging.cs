@@ -251,3 +251,35 @@ public static class ServicePolling
         return blockedUntil is { } until && until > next ? until : next;
     }
 }
+
+/// <summary>[S-9924] An account's own API root (an Enterprise server, <see cref="ApiRootRule.PerAccount"/>).</summary>
+public static class ServiceRoots
+{
+    /// <summary>
+    /// <paramref name="address"/>, built by the rules on the descriptor's root, moved onto the
+    /// account's root; an address not under the descriptor's root is not moved (null).
+    /// </summary>
+    public static Uri? Rebase(Uri address, Uri apiRoot, Uri accountRoot)
+    {
+        ArgumentNullException.ThrowIfNull(address);
+        ArgumentNullException.ThrowIfNull(apiRoot);
+        ArgumentNullException.ThrowIfNull(accountRoot);
+
+        var root = apiRoot.AbsoluteUri.EndsWith('/') ? apiRoot.AbsoluteUri : apiRoot.AbsoluteUri + "/";
+        var own = accountRoot.AbsoluteUri.EndsWith('/') ? accountRoot.AbsoluteUri : accountRoot.AbsoluteUri + "/";
+        var text = address.AbsoluteUri;
+
+        if (!text.StartsWith(root, StringComparison.OrdinalIgnoreCase) && !string.Equals(text + "/", root, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var rest = text.Length >= root.Length ? text[root.Length..] : string.Empty;
+        return Uri.TryCreate(own + rest, UriKind.Absolute, out var moved) && moved.Scheme == Uri.UriSchemeHttps ? moved : null;
+    }
+
+    /// <summary>Whether an account may name <paramref name="root"/> as its own: https, a public host, no user info.</summary>
+    public static bool IsAcceptable(Uri? root)
+        => root is { IsAbsoluteUri: true } && root.Scheme == Uri.UriSchemeHttps && string.IsNullOrEmpty(root.UserInfo)
+            && !root.IsLoopback && root.HostNameType == UriHostNameType.Dns && root.Host.Contains('.', StringComparison.Ordinal);
+}

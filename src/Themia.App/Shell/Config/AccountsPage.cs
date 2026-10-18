@@ -93,6 +93,8 @@ internal sealed class AccountsPage
             case "microsoft": ShowBrowserFlow(HostProviders.Microsoft); break;
             case "google": ShowBrowserFlow(HostProviders.Google); break;
             case "imap": StartImap(); break;
+            case "device": ShowDeviceFlow("Example", []).Code.Text = "WDJB-MJHT"; break;
+            case "paste": ShowPasteFlow("Example", new Uri("https://example.com/settings/tokens"), [], null); break;
             case "caldav": StartDav(HostProviders.CalDav); break;
         }
 #endif
@@ -216,6 +218,15 @@ internal sealed class AccountsPage
             var count = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
             count.Text = SyncStats.Count(kind);
             rows.Add(FluentLayout.Row(KindGlyph(kind.Kind), SyncStats.Label(kind.Kind), SyncStats.Detail(kind, now), count));
+        }
+
+        // [S-9919] A service that grants access per resource (an app installed on chosen repositories):
+        // where the user widens what this account may read.
+        if (ProviderCatalog.Of(account.Provider).SignIn.Find<OAuthDeviceCode>() is { GrantPage: { } grant })
+        {
+            var choose = new Button { Content = Str.Common_Open.Text() };
+            choose.Click += (_, _) => ShellLauncher.Open(grant.AbsoluteUri);
+            rows.Add(FluentLayout.Row(Glyphs.Link, Str.SignIn_GrantPage.Text(), Str.SignIn_GrantPageDesc.Format(("provider", account.Provider.Label())), choose));
         }
 
         var rename = new Button { Content = Str.Common_Rename.Text(), Flyout = RenameFlyout(account) };
@@ -424,18 +435,204 @@ internal sealed class AccountsPage
 
     // ---- browser: Microsoft, Google --------------------------------------------------------
 
-    /// <summary>[S-9910] A provider's sign-in: its first member the build can run.</summary>
-    private void StartSignIn(ProviderId provider)
+    /// <summary>[S-9910] A provider's sign-in: its first member, the others offered as links under it.</summary>
+    private void StartSignIn(ProviderId provider) => StartMember(provider, ProviderCatalog.Of(provider).SignIn.Members.FirstOrDefault());
+
+    private void StartMember(ProviderId provider, ServiceAuth? member)
     {
-        switch (ProviderCatalog.Of(provider).SignIn.Members.FirstOrDefault())
+        switch (member)
         {
             case OAuthPkceLoopback:
                 StartBrowser(provider);
                 break;
 
+            case OAuthDeviceCode:
+                StartDevice(provider);
+                break;
+
+            case PastedToken paste:
+                ShowPasteFlow(provider.Label(), paste.TokenPage, OtherWays(provider, paste), (box, button, line) => _ = RunPasteAsync(provider, box, button, line));
+                break;
+
             default:
                 Log.Warn(Scope, $"{provider} offers no sign-in this page can run");
                 break;
+        }
+    }
+
+    /// <summary>[S-9910] Links to a provider's other sign-in members, under the one showing.</summary>
+    private FrameworkElement[] OtherWays(ProviderId provider, ServiceAuth showing)
+    {
+        var links = new List<FrameworkElement>();
+        foreach (var member in ProviderCatalog.Of(provider).SignIn.Members)
+        {
+            if (ReferenceEquals(member, showing) || member is AnonymousAuth)
+            {
+                continue;
+            }
+
+            var text = member switch
+            {
+                OAuthPkceLoopback => Str.SignIn_UseBrowser.Text(),
+                OAuthDeviceCode => Str.SignIn_UseCode.Text(),
+                _ => Str.SignIn_UseToken.Text(),
+            };
+
+            var link = new HyperlinkButton { Content = text, Padding = new Thickness(0) };
+            var chosen = member;
+            link.Click += (_, _) => StartMember(provider, chosen);
+            links.Add(link);
+        }
+
+        return [.. links];
+    }
+
+    // ---- device code -------------------------------------------------------------------------
+
+    private void StartDevice(ProviderId provider)
+    {
+        var member = ProviderCatalog.Of(provider).SignIn.Find<OAuthDeviceCode>()!;
+        var (code, open, ring, line, token) = ShowDeviceFlow(provider.Label(), OtherWays(provider, member));
+        _ = RunDeviceAsync(provider, code, open, ring, line, token);
+    }
+
+    /// <summary>
+    /// [S-9919] The card a device-code sign-in waits in: what to do, the code (large, with Copy), the
+    /// provider's page, a live status line, Cancel.
+    /// </summary>
+    private (TextBlock Code, Button Open, ProgressRing Ring, TextBlock Line, CancellationToken Token) ShowDeviceFlow(string provider, FrameworkElement[] otherWays)
+    {
+        var explain = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+        explain.TextWrapping = TextWrapping.Wrap;
+        explain.Text = Str.SignIn_DeviceExplain.Format(("provider", provider));
+
+        var code = Fluent.Text(FluentType.Title);
+        code.IsTextSelectionEnabled = true;
+        code.Visibility = Visibility.Collapsed;
+
+        var copy = new Button { Content = Str.SignIn_CopyCode.Text(), IsEnabled = false };
+        copy.Click += (_, _) =>
+        {
+            if (code.Text.Length > 0)
+            {
+                var package = new DataPackage();
+                package.SetText(code.Text);
+                Clipboard.SetContent(package);
+            }
+        };
+
+        var open = new Button { Content = Str.SignIn_OpenPage.Text(), Style = AccentStyle(), IsEnabled = false };
+        var cancel = new Button { Content = Str.Common_Cancel.Text() };
+        cancel.Click += (_, _) => CloseFlow();
+
+        var (status, ring, line) = StatusLine(Str.SignIn_WaitingCode.Text());
+
+        var card = new StackPanel { Spacing = Fluent.Space3, Children = { explain, code, status, Buttons(open, copy, cancel) } };
+        foreach (var link in otherWays)
+        {
+            card.Children.Add(link);
+        }
+
+        code.RegisterPropertyChangedCallback(TextBlock.TextProperty, (_, _) =>
+        {
+            var shown = code.Text.Length > 0;
+            code.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
+            copy.IsEnabled = shown;
+        });
+
+        var token = ShowFlow(Str.Shell_Accounts_SignInTo.Format(("provider", provider)), FluentLayout.Card(card));
+        return (code, open, ring, line, token);
+    }
+
+    private async Task RunDeviceAsync(ProviderId provider, TextBlock code, Button open, ProgressRing ring, TextBlock line, CancellationToken cancellation)
+    {
+        try
+        {
+            // The code arrives off the UI thread (the request runs on the pool); it is shown on it.
+            var ui = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+            var account = await _service.SignInWithDeviceCodeAsync(provider, session => ui.TryEnqueue(() => ShowCode(session)), cancellation).ConfigureAwait(true);
+            CloseFlow(Str.Shell_Accounts_SignedInAs.Format(("provider", provider.Label()), ("address", account.Address)));
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+            // ignore: the user cancelled or left the page.
+        }
+        catch (AccountException ex)
+        {
+            Fail(ring, line, ex.Message, open);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"{provider} sign-in failed unexpectedly", ex);
+            Fail(ring, line, Str.Shell_Accounts_FlowFailed.Format(("reason", ex.Message)), open);
+        }
+
+        void ShowCode(DeviceCodeSession session)
+        {
+            code.Text = session.UserCode;
+            open.IsEnabled = true;
+            open.Click += (_, _) => ShellLauncher.Open(session.VerificationUri.AbsoluteUri);
+        }
+    }
+
+    // ---- pasted token ------------------------------------------------------------------------
+
+    /// <summary>
+    /// [S-9915] The card a pasted token is added in: where to create one (the provider's page), the box
+    /// (a password box: the token is never shown), Add, a status line, Cancel.
+    /// </summary>
+    private void ShowPasteFlow(string provider, Uri tokenPage, FrameworkElement[] otherWays, Action<PasswordBox, Button, TextBlock>? add)
+    {
+        var explain = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+        explain.TextWrapping = TextWrapping.Wrap;
+        explain.Text = Str.SignIn_PasteExplain.Format(("provider", provider));
+
+        var page = new HyperlinkButton { Content = Str.SignIn_CreateToken.Text(), Padding = new Thickness(0) };
+        page.Click += (_, _) => ShellLauncher.Open(tokenPage.AbsoluteUri);
+
+        var box = new PasswordBox { Header = Str.SignIn_Token.Text(), Width = 360, HorizontalAlignment = HorizontalAlignment.Left };
+        var addButton = new Button { Content = Str.SignIn_AddAccount.Text(), Style = AccentStyle() };
+        var cancel = new Button { Content = Str.Common_Cancel.Text() };
+        cancel.Click += (_, _) => CloseFlow();
+
+        var line = Message(string.Empty, critical: false);
+        addButton.Click += (_, _) => add?.Invoke(box, addButton, line);
+
+        var card = new StackPanel { Spacing = Fluent.Space3, Children = { explain, page, box, line, Buttons(addButton, cancel) } };
+        foreach (var link in otherWays)
+        {
+            card.Children.Add(link);
+        }
+
+        ShowFlow(Str.Shell_Accounts_SignInTo.Format(("provider", provider)), FluentLayout.Card(card));
+    }
+
+    private async Task RunPasteAsync(ProviderId provider, PasswordBox box, Button add, TextBlock line)
+    {
+        add.IsEnabled = false;
+        Say(line, Str.SignIn_CheckingToken.Text(), critical: false);
+        var token = _flowCancel?.Token ?? CancellationToken.None;
+
+        try
+        {
+            var account = await _service.AddPastedTokenAsync(provider, box.Password, token).ConfigureAwait(true);
+            box.Password = string.Empty;
+            CloseFlow(Str.Shell_Accounts_SignedInAs.Format(("provider", provider.Label()), ("address", account.Address)));
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            // ignore: the user cancelled or left the page.
+        }
+        catch (AccountException ex)
+        {
+            Say(line, ex.Message, critical: true);
+            add.IsEnabled = true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"{provider} token was not added", ex);
+            Say(line, Str.Shell_Accounts_FlowFailed.Format(("reason", ex.Message)), critical: true);
+            add.IsEnabled = true;
         }
     }
 

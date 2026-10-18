@@ -166,3 +166,16 @@ public static class ServiceWire
         }
     }
 }
+
+/// <summary>
+/// [S-9916] Who a token belongs to, for a service whose identity is a query of its own (a GraphQL
+/// <c>viewer</c>, a sync of the user): asked after every sign-in and on a pasted token before it is
+/// kept. A token whose identity request fails is not saved.
+/// </summary>
+public interface IServiceIdentity
+{
+    ServiceRequest Build();
+
+    /// <summary>The account it names, or null with <paramref name="problem"/>. For GraphQL the body is the <c>data</c> member.</summary>
+    ServiceIdentity? Answer(ReadOnlyMemory<byte> body, out string? problem);
+}
