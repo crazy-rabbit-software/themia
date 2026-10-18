@@ -1595,10 +1595,7 @@ driver's sensors and the processes ([S-1762]).
   The mute button toggles a row (all of a group's sessions); right-click offers Mute/Unmute and
   Reset to 100%. Rows are reused by position so a snapshot never rebuilds the slider under the
   pointer.
-- **[S-448]** No device: "No output device". No rows: "No app is playing audio". Failures are logged
-  once, and again only when they change.
-- **[S-449]** From 360 px a row is one line (name, slider, mute); narrower, the slider goes
-  under the name; under 170 px a row is icon and mute ([S-2771]: no percent).
+- [S-448], [S-449]: moved with the Mixer widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Mixer/`).
 
 Not ported: the poll `interval` setting (there is no poll).
 
@@ -4718,10 +4715,7 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   (`AudioRules.Wheel`). Ignored when `AllowControl` is off; no keyboard lease needed.
 - **[S-2733]** Home/End set the volume to 0 / 100 (`AudioRules.VolumeKey`); the mixer keeps
   Home/End for its row cursor.
-- **[S-2771]** The mixer shows no volume number (user decision, [S-666]): a row is its icon, name
-  (and session pill), slider and mute button; the level is the slider's position and the mute
-  glyph's band (crossed out when muted). No percent beside a row at any width. The slider's own
-  drag tooltip is the only number, while dragging.
+- [S-2771]: moved with the Mixer widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Mixer/`).
 - **[S-3251]** The mixer lists apps and nothing else (user decision): no master / current-volume
   row, no output device name or line, at any size, and no `ShowMaster` setting. The device's own
   level is the volume tile's job. The mixer still follows the default output (or the device chosen in

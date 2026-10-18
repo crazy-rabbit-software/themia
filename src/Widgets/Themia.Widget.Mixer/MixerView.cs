@@ -6,6 +6,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Mixer;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -102,7 +103,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     /// <inheritdoc />
     public IReadOnlyList<WidgetAction> ContextActions => _config.DeviceId is null
         ? []
-        : [new WidgetAction(Glyphs.Speakers, Str.WidgetsB_Mixer_FollowDefault.Text(), () => PickDevice(null))];
+        : [new WidgetAction(Glyphs.Speakers, MixerStr.WidgetsB_Mixer_FollowDefault.Text(), () => PickDevice(null))];
 
     private void OnSnapshot(AudioSnapshot snapshot)
     {
@@ -140,9 +141,9 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             // [S-448] [S-1221] An intentional empty state, not a blank card.
             ShowEmpty(snapshot.Status switch
             {
-                AudioStatus.DeviceMissing => Str.WidgetsB_Mixer_DeviceMissing.Format(("device", AudioRules.DeviceName(_config.DeviceId, snapshot.Devices, _config.DeviceName))),
-                AudioStatus.NoDevice => Str.WidgetsB_Mixer_NoDevice.Text(),
-                _ => Str.WidgetsB_Mixer_Unavailable.Text(),
+                AudioStatus.DeviceMissing => MixerStr.WidgetsB_Mixer_DeviceMissing.Format(("device", AudioRules.DeviceName(_config.DeviceId, snapshot.Devices, _config.DeviceName))),
+                AudioStatus.NoDevice => MixerStr.WidgetsB_Mixer_NoDevice.Text(),
+                _ => MixerStr.WidgetsB_Mixer_Unavailable.Text(),
             });
             return;
         }
@@ -163,7 +164,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
         if (main.Count == 0)
         {
-            ShowEmpty(Str.Mixer_Empty.Text());
+            ShowEmpty(MixerStr.Mixer_Empty.Text());
             return;
         }
 
@@ -267,7 +268,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             if (after.Notice is { } notice)
             {
                 // [S-1616]/[S-880] Said once, as a notice: the widget is bound now, nothing to answer.
-                Themia.App.Services.Notices.Warning(Str.WidgetsB_Mixer_DefaultNotChanged.Text(), notice);
+                Themia.App.Services.Notices.Warning(MixerStr.WidgetsB_Mixer_DefaultNotChanged.Text(), notice);
             }
         }
         catch (Exception ex)
@@ -394,7 +395,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         _focused = null;
     }
 
-    private static string RowName(MixerRow row) => row.IsSystem ? Str.Mixer_SystemSounds.Text()
+    private static string RowName(MixerRow row) => row.IsSystem ? MixerStr.Mixer_SystemSounds.Text()
         : row.Name.Length > 0 ? row.Name
-        : Str.Mixer_UnknownApp.Text();
+        : MixerStr.Mixer_UnknownApp.Text();
 }

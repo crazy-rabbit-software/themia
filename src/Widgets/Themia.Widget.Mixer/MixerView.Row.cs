@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Mixer;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -221,7 +222,7 @@ internal sealed partial class MixerView
             _name.Text = name;
             _name.Foreground = row.Muted ? MutedBrush : dimmed ? QuietBrush : PrimaryBrush;
             _detail.Text = MixerFill.Detail(row);
-            ToolTipService.SetToolTip(Host, dimmed ? Str.WidgetsB_Mixer_NotPlaying.Format(("name", name)) : name);
+            ToolTipService.SetToolTip(Host, dimmed ? MixerStr.WidgetsB_Mixer_NotPlaying.Format(("name", name)) : name);
 
             _count.Visibility = row.Sessions > 1 ? Visibility.Visible : Visibility.Collapsed;
             _countText.Text = LocaleFormat.Integer(row.Sessions);

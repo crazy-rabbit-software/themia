@@ -33,6 +33,7 @@
     <Project Path="src/Widgets/Themia.Widget.Memory/Themia.Widget.Memory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.MemoryDetails/Themia.Widget.MemoryDetails.csproj" />
     <Project Path="src/Widgets/Themia.Widget.MicrophoneToggle/Themia.Widget.MicrophoneToggle.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Mixer/Themia.Widget.Mixer.csproj" />
     <Project Path="src/Widgets/Themia.Widget.MonoAudioToggle/Themia.Widget.MonoAudioToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Moon/Themia.Widget.Moon.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Network/Themia.Widget.Network.csproj" />
