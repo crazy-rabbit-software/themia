@@ -33,6 +33,12 @@ the config's are the module host's (`TasksConfigTests`, [S-611]); the rules' are
   with tasks on screen is one line in the kit's words, stamped with when they are from ("Work: No
   network · updated 10:42", `TaskFreshness`); the card menu's Refresh line says the age. The old
   "Last refresh failed: … Showing items from …" warning is gone.
+- **[S-608]** A task's menu and keys are the kit's ([S-7011], [S-7020]; `TaskSpec`): the menu is
+  Mark as done (Mark as not done, with the undo glyph), then Rename, then Delete, Rename and Delete in
+  its icon row with F2 and Delete shown; a task opens for editing, so a double-click and Enter rename
+  it (Enter ticked it before); Space ticks; Left and Right step like Up and Down; Alt+Shift+Up / Down
+  move it; Up with nothing focused lands on the first task. A task the provider has not confirmed
+  yet shows Rename disabled.
 
 Needs a live pass: a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on

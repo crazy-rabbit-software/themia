@@ -31,6 +31,12 @@ public enum KitKeyCommand
 
     /// <summary>Drop the cursor and give the keyboard back (Escape, [S-813]).</summary>
     Release,
+
+    /// <summary>Move the focused item one place up (Alt+Shift+Up, [S-3802]); the cursor goes with it.</summary>
+    MoveUp,
+
+    /// <summary>Move the focused item one place down (Alt+Shift+Down).</summary>
+    MoveDown,
 }
 
 /// <summary>A key's decision: the command and the item it is about (negative for none).</summary>
@@ -42,8 +48,8 @@ public readonly record struct KitKeyResult(KitKeyCommand Command, int Index);
 /// across columns as <see cref="ItemCursor"/> does. With no item focused yet a movement key lands on
 /// an end: End on the last item, every other one on the first ([S-812], as <see cref="ListKeys"/>).
 /// Page Up and Page Down jump <see cref="ListKeys.PageStep"/> items. Enter runs the primary action,
-/// Space a check, Ctrl+C the first copy, F2 Rename, Delete Delete, the Menu key the menu, Escape
-/// lets go. Pure, so the ends
+/// Space a check, Ctrl+C the first copy, F2 Rename, Delete Delete, the Menu key the menu,
+/// Alt+Shift+Up / Down move the focused item, Escape lets go. Pure, so the ends
 /// of the list are tested here and not in a view.
 /// </summary>
 public static class KitKeys
@@ -60,6 +66,15 @@ public static class KitKeys
             WidgetKey.Right => WidgetKey.Down,
             _ => key,
         };
+
+        // [S-3802] A list that keeps its own order moves the focused item; the ends have nowhere further to go.
+        if (mapped is WidgetKey.MoveUp or WidgetKey.MoveDown)
+        {
+            var up = mapped == WidgetKey.MoveUp;
+            return index >= 0 && index < count && (up ? index > 0 : index < count - 1)
+                ? new KitKeyResult(up ? KitKeyCommand.MoveUp : KitKeyCommand.MoveDown, index)
+                : new KitKeyResult(KitKeyCommand.None, index);
+        }
 
         if (mapped is WidgetKey.Space or WidgetKey.Copy)
         {

@@ -1,6 +1,7 @@
 using Themia.Core.Habits;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -224,15 +225,15 @@ public sealed class KeyboardLeaseTests
     // ---- [S-812] a lease with no row focused yet -------------------------------------------------
 
     [Theory]
-    [InlineData(WidgetKey.Down, TaskKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.Up, TaskKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.Home, TaskKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.End, TaskKeyCommand.Focus, 4)]
-    [InlineData(WidgetKey.Enter, TaskKeyCommand.None, -1)]
-    [InlineData(WidgetKey.Delete, TaskKeyCommand.None, -1)]
-    [InlineData(WidgetKey.Rename, TaskKeyCommand.None, -1)]
-    [InlineData(WidgetKey.Escape, TaskKeyCommand.Release, -1)]
-    public void S812_tasks_without_a_focused_row(WidgetKey key, TaskKeyCommand command, int index)
-        => Assert.Equal(new TaskKeyResult(command, index), TaskLayout.Decide(key, -1, 5));
+    [InlineData(WidgetKey.Down, KitKeyCommand.Focus, 0)]
+    [InlineData(WidgetKey.Up, KitKeyCommand.Focus, 0)]
+    [InlineData(WidgetKey.Home, KitKeyCommand.Focus, 0)]
+    [InlineData(WidgetKey.End, KitKeyCommand.Focus, 4)]
+    [InlineData(WidgetKey.Enter, KitKeyCommand.None, -1)]
+    [InlineData(WidgetKey.Delete, KitKeyCommand.None, -1)]
+    [InlineData(WidgetKey.Rename, KitKeyCommand.None, -1)]
+    [InlineData(WidgetKey.Escape, KitKeyCommand.Release, -1)]
+    public void S812_tasks_without_a_focused_row(WidgetKey key, KitKeyCommand command, int index)
+        => Assert.Equal(new KitKeyResult(command, index), KitKeys.Decide(key, -1, 5));
 
 }

@@ -50,4 +50,32 @@ public sealed class KitAccountWidgetTests
 
         public KitShow Shows => KitShow.When;
     }
+
+    /// <summary>[S-7020] Alt+Shift+Up / Down move the focused item a place, not past the ends; with nothing focused they do nothing.</summary>
+    [Fact]
+    public void S7020_move_up_and_down_move_the_focused_item_within_the_list()
+    {
+        Assert.Equal(new KitKeyResult(KitKeyCommand.MoveUp, 2), KitKeys.Decide(WidgetKey.MoveUp, 2, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.MoveDown, 2), KitKeys.Decide(WidgetKey.MoveDown, 2, 5));
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveUp, 0, 5).Command);
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveDown, 4, 5).Command);
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveDown, -1, 5).Command);
+    }
+
+    /// <summary>[S-7011] An item with nothing to open opens for editing: its Rename is the primary action (double-click, Enter).</summary>
+    [Fact]
+    public void S7011_an_item_without_an_open_has_its_rename_as_the_primary_action()
+    {
+        KitAction rename = new(KitActionKind.Rename, "Rename", Id: "rename");
+        KitAction open = new(KitActionKind.Open, "Open", Id: "open");
+
+        Assert.Same(rename, KitMenu.Primary([new(KitActionKind.Toggle, "Done", Id: "t"), rename]));
+        Assert.Same(open, KitMenu.Primary([rename, open]));
+        Assert.Null(KitMenu.Primary([new(KitActionKind.Open, "Open"), rename]));
+    }
+
+    /// <summary>[S-7011] A toggle whose label says what it does (Mark as done, Mark as not done) is a plain line, not a check.</summary>
+    [Fact]
+    public void S7011_a_toggle_without_a_state_is_a_plain_line()
+        => Assert.Null(new KitAction(KitActionKind.Toggle, "Mark as done").Checked);
 }

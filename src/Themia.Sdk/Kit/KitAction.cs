@@ -50,7 +50,7 @@ public enum KitActionKind
 /// <param name="Icon">The line's glyph; <see cref="KitIcon.Default"/> is the kind's own.</param>
 /// <param name="Target">Open and OpenTo: the address; without one (and without an <paramref name="Id"/> the view opens by) the line is shown disabled.</param>
 /// <param name="Text">CopyLink and CopyText: what goes on the clipboard; without it the line is shown disabled.</param>
-/// <param name="Checked">Toggle: the state the check shows.</param>
+/// <param name="Checked">Toggle: the state the check shows; null for a toggle whose label says what it does ("Mark as done"), a plain line.</param>
 /// <param name="Id">Toggle, Change, Rename, Delete: which of the view's handlers runs; on an Open or OpenTo without an address, the view opens it itself ([S-7013]: mail opens where the user reads it).</param>
 /// <param name="Inline">[S-7033] The action is one of the row's inline buttons where the plan affords them (the menu has it too).</param>
 public sealed record KitAction(
@@ -60,7 +60,7 @@ public sealed record KitAction(
     Uri? Target = null,
     string? Text = null,
     bool Disabled = false,
-    bool Checked = false,
+    bool? Checked = null,
     string? Id = null,
     bool Inline = false)
 {
@@ -159,10 +159,19 @@ public static class KitMenu
         => action.Kind is KitActionKind.OpenTo or KitActionKind.Change or KitActionKind.CopyLink or KitActionKind.CopyText
             || ReferenceEquals(actions.First(a => a.Kind == action.Kind), action);
 
-    /// <summary>[S-7011] The action Enter and a double-click run: the item's Open, when it can run.</summary>
+    /// <summary>
+    /// [S-7011] The action Enter and a double-click run: the item's Open, when it can run; an item with
+    /// nothing to open at all (a task) opens for editing, its Rename.
+    /// </summary>
     public static KitAction? Primary(IReadOnlyList<KitAction> actions)
     {
         ArgumentNullException.ThrowIfNull(actions);
-        return actions.FirstOrDefault(a => a.Kind == KitActionKind.Open) is { Runnable: true } open ? open : null;
+
+        if (actions.FirstOrDefault(a => a.Kind == KitActionKind.Open) is { } open)
+        {
+            return open.Runnable ? open : null;
+        }
+
+        return actions.FirstOrDefault(a => a.Kind == KitActionKind.Rename) is { Runnable: true } rename ? rename : null;
     }
 }

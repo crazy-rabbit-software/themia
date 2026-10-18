@@ -2,6 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -191,22 +192,24 @@ public sealed class TaskLayoutTests
     [Fact]
     public void S787_arrows_and_home_end_stop_at_the_ends()
     {
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 0), TaskLayout.Decide(WidgetKey.Up, 0, 5));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 4), TaskLayout.Decide(WidgetKey.Down, 4, 5));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 3), TaskLayout.Decide(WidgetKey.Down, 2, 5));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 0), TaskLayout.Decide(WidgetKey.Home, 3, 5));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 4), TaskLayout.Decide(WidgetKey.End, 1, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 0), KitKeys.Decide(WidgetKey.Up, 0, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 4), KitKeys.Decide(WidgetKey.Down, 4, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 3), KitKeys.Decide(WidgetKey.Down, 2, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 0), KitKeys.Decide(WidgetKey.Home, 3, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 4), KitKeys.Decide(WidgetKey.End, 1, 5));
     }
 
     [Fact]
-    public void S787_enter_toggles_delete_deletes_f2_renames_escape_releases()
+    public void S787_enter_opens_space_ticks_delete_deletes_f2_renames_escape_releases()
     {
-        Assert.Equal(TaskKeyCommand.Toggle, TaskLayout.Decide(WidgetKey.Enter, 1, 3).Command);
-        Assert.Equal(TaskKeyCommand.Delete, TaskLayout.Decide(WidgetKey.Delete, 1, 3).Command);
-        Assert.Equal(TaskKeyCommand.Rename, TaskLayout.Decide(WidgetKey.Rename, 1, 3).Command);
-        Assert.Equal(TaskKeyCommand.Release, TaskLayout.Decide(WidgetKey.Escape, 1, 3).Command);
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.Enter, 0, 0).Command);
-        Assert.Equal(TaskKeyCommand.Release, TaskLayout.Decide(WidgetKey.Escape, 0, 0).Command);
+        // [S-608] The kit's one key map: Enter runs the primary action (a task's: rename), Space ticks.
+        Assert.Equal(KitKeyCommand.Open, KitKeys.Decide(WidgetKey.Enter, 1, 3).Command);
+        Assert.Equal(KitKeyCommand.Toggle, KitKeys.Decide(WidgetKey.Space, 1, 3).Command);
+        Assert.Equal(KitKeyCommand.Delete, KitKeys.Decide(WidgetKey.Delete, 1, 3).Command);
+        Assert.Equal(KitKeyCommand.Rename, KitKeys.Decide(WidgetKey.Rename, 1, 3).Command);
+        Assert.Equal(KitKeyCommand.Release, KitKeys.Decide(WidgetKey.Escape, 1, 3).Command);
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.Enter, 0, 0).Command);
+        Assert.Equal(KitKeyCommand.Release, KitKeys.Decide(WidgetKey.Escape, 0, 0).Command);
     }
 
     [Fact]

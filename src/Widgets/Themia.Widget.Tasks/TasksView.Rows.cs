@@ -11,6 +11,7 @@ using Themia.Sdk.WinUI;
 using Windows.System;
 using Windows.UI.Core;
 using Themia.Core.Shell;
+using Themia.Sdk.Kit;
 using Themia.Widget.Tasks;
 
 namespace Themia.App.Widgets;
@@ -361,12 +362,13 @@ internal sealed partial class TasksView
         FocusRow(row);
     }
 
+    /// <summary>[S-7065] A double-click runs the task's primary action: it opens for editing (rename).</summary>
     private void OnRowDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
     {
-        if (sender is Border { Tag: TaskItem task } row)
+        if (sender is Border { Tag: TaskItem task } row && KitMenu.Primary(Actions(task)) is { } primary)
         {
             args.Handled = true;
-            BeginRename(row, task);
+            Run(row, task, primary);
         }
     }
 
@@ -379,14 +381,46 @@ internal sealed partial class TasksView
         }
 
         // [S-3802] No moves: a task is dragged, or moved with Alt+Shift+Up / Down.
-        ItemMenu.Show(row, args,
-        [
-            new(task.Completed ? Glyphs.Undo : Glyphs.Done, (task.Completed ? TasksStr.WidgetsC_Tasks_MarkNotDone.Text() : Str.WidgetsC_Tasks_MarkDone.Text()),
-                () => SetCompleted(task, !task.Completed)),
-            new(Glyphs.Rename, Str.Common_Rename.Text(), () => BeginRename(row, task), Quick: QuickCommand.Rename),
-            ItemMenuEntry.Separator,
-            new(Glyphs.Delete, Str.Common_Delete.Text(), () => Delete(task), Danger: true, Quick: QuickCommand.Delete),
-        ]);
+        ItemMenu.Show(row, args, Entries(row, task));
+    }
+
+    /// <summary>[S-608] [S-7011] A task's menu: its actions in the kit's one order, with their icon row and keys.</summary>
+    private IEnumerable<ItemMenuEntry> Entries(Border row, TaskItem task)
+        => KitMenu.Lines(Actions(task)).Select(line => line.Action is not { } action
+            ? ItemMenuEntry.Separator
+            : new ItemMenuEntry(
+                KitIcons.Glyph(action),
+                action.Label,
+                () => Run(row, task, action),
+                Danger: action.Kind == KitActionKind.Delete,
+                Disabled: action.Disabled,
+                Quick: line.Quick,
+                Shortcut: line.Shortcut));
+
+    private IReadOnlyList<KitAction> Actions(TaskItem task) => TaskSpec.Actions(task, _feed?.Edits.IsUnconfirmedCreate(task.Id) != true);
+
+    /// <summary>Carry out a task's action: tick, rename in place, delete.</summary>
+    private void Run(Border row, TaskItem task, KitAction action)
+    {
+        if (!action.Runnable)
+        {
+            return;
+        }
+
+        switch (action.Id)
+        {
+            case TaskSpec.ToggleId:
+                SetCompleted(task, !task.Completed);
+                break;
+
+            case TaskSpec.RenameId:
+                BeginRename(row, task);
+                break;
+
+            case TaskSpec.DeleteId:
+                Delete(task);
+                break;
+        }
     }
 
     // ---- the keyboard ([S-787]) ----------------------------------------------------------------------
@@ -480,34 +514,50 @@ internal sealed partial class TasksView
 
         var rows = TaskRows();
         var index = _rowFocused ? FocusedIndex(rows) : -1;
-        var decision = TaskLayout.Decide(key, index, rows.Count);
-        var task = decision.Index >= 0 && decision.Index < rows.Count ? rows[decision.Index].Tag as TaskItem : null;
+        var decision = KitKeys.Decide(key, index, rows.Count);
+        var row = decision.Index >= 0 && decision.Index < rows.Count ? rows[decision.Index] : null;
+        var task = row?.Tag as TaskItem;
 
         switch (decision.Command)
         {
-            case TaskKeyCommand.Focus:
-                FocusRow(rows[decision.Index]);
+            case KitKeyCommand.Focus when row is not null:
+                FocusRow(row);
                 return true;
 
-            case TaskKeyCommand.Toggle when task is not null:
-                SetCompleted(task, !task.Completed);
-                return true;
-
-            case TaskKeyCommand.Delete when task is not null:
-                _focusIndex = decision.Index;
-                Delete(task);
-                return true;
-
-            case TaskKeyCommand.MoveUp or TaskKeyCommand.MoveDown when task is not null:
-                Move(task, decision.Command == TaskKeyCommand.MoveUp ? -1 : +1);
-                return true;
-
-            case TaskKeyCommand.Rename when task is not null:
-                BeginRename(rows[decision.Index], task);
-                return true;
-
-            case TaskKeyCommand.Release when _rowFocused:
+            case KitKeyCommand.Release when _rowFocused:
                 ReleaseRowFocus();
+                return true;
+
+            case KitKeyCommand.Menu when row is not null && task is not null:
+                return ItemMenu.Open(row, Entries(row, task));
+
+            case KitKeyCommand.MoveUp or KitKeyCommand.MoveDown when task is not null:
+                Move(task, decision.Command == KitKeyCommand.MoveUp ? -1 : +1);
+                return true;
+
+            case KitKeyCommand.Open or KitKeyCommand.Toggle or KitKeyCommand.Rename or KitKeyCommand.Delete when row is not null && task is not null:
+                // [S-7020] The kit's one key map: Enter the primary action (a task's: rename), Space
+                // the tick, F2 rename, Delete delete.
+                var actions = Actions(task);
+                var action = decision.Command switch
+                {
+                    KitKeyCommand.Open => KitMenu.Primary(actions),
+                    KitKeyCommand.Toggle => actions.FirstOrDefault(a => a.Kind == KitActionKind.Toggle),
+                    KitKeyCommand.Rename => actions.FirstOrDefault(a => a.Kind == KitActionKind.Rename),
+                    _ => actions.FirstOrDefault(a => a.Kind == KitActionKind.Delete),
+                };
+
+                if (action is not { Runnable: true })
+                {
+                    return false;
+                }
+
+                if (decision.Command == KitKeyCommand.Delete)
+                {
+                    _focusIndex = decision.Index;
+                }
+
+                Run(row, task, action);
                 return true;
 
             default:

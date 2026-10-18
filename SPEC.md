@@ -917,7 +917,9 @@ The shared parts a list widget is built from, and the rules they keep (design an
   A line whose kind lacks what it needs (an Open without an address, a copy without text) is shown
   disabled. The first copy, Rename and Delete are the icon row's ([S-1740], [S-1741]). A line whose
   key the list takes shows it ([S-1753]): Enter on Open, Ctrl+C on the first copy, F2, Delete. The
-  primary action (double-click, Enter) is the item's Open when it can run.
+  primary action (double-click, Enter) is the item's Open when it can run; an item with no Open at all
+  opens for editing, its Rename (a task, [S-608]). A toggle whose label says what it does ("Mark as
+  done") is a plain line, not a check.
 - **[S-7013]** A kit service is read-only; the host's account widgets (mail, tasks) keep the writes
   their own sources make: `Change` (mark read, archive, move to junk: several per item, in the item's
   group after the web pages, carried out by the view's handler by id), Toggle, Rename and Delete. An
@@ -930,7 +932,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   (Left and Right step like Up and Down, across columns): with nothing focused a movement key lands
   on the first item, End on the last ([S-812]); Page Up/Down jump ten; Enter opens, Space toggles,
   Ctrl+C runs the first copy, F2 renames, Delete deletes, the Menu key opens the menu, Escape lets go
-  ([S-813]).
+  ([S-813]); Alt+Shift+Up / Down move the focused item a place, never past an end ([S-3802]).
 - **[S-7030]** `KitSpec`: a kit widget's shape (its row look, the optional fields it offers
   (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
   sentence); the user's own fields are bounded by it.
@@ -2770,11 +2772,11 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
   Redraws wait for the drop.
 - **[S-787]** Keyboard (classic S-33..S-37, S-50 F2): a click in the widget takes the shell's
   keyboard lease ([S-808]) and a click on a row focuses it; Up/Down/Home/End move without wrapping,
-  Enter ticks, Delete deletes, F2 renames, Escape (and the lease ending) gives the keyboard back; the
+  Enter renames (the kit's primary action, [S-608]), Space ticks, Delete deletes, F2 renames, Escape (and the lease ending) gives the keyboard back; the
   focused row wears the kit's ring ([S-1288], laid over the row so it moves nothing; it was the
   system focus rect); a redraw keeps the focus on the same task, or the row now in its place.
-- **[S-1981]** Space ticks the focused task as Enter does, and Page Up / Page Down jump ten rows
-  (`TaskLayout.Decide`, clamped; from no row, the first). All widget keys: Widget keys (WIDGET-KEYS).
+- **[S-1981]** Space ticks the focused task, and Page Up / Page Down jump ten rows (`KitKeys.Decide`,
+  clamped; from no row, the first). All widget keys: Widget keys (WIDGET-KEYS).
 - **[S-788]** Tab in a rename box commits and opens the next task's box (none past the last); in the
   add box it commits and keeps it open; Shift+Tab commits and closes (classic S-56).
 - **[S-789]** Under Today on a panel each row names its list (the account's lists, cached).

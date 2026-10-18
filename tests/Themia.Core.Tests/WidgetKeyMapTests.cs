@@ -3,6 +3,7 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -100,19 +101,19 @@ public sealed class WidgetKeyMapTests
     [Fact]
     public void S1981_space_ticks_a_task_and_page_keys_jump_ten_rows()
     {
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Toggle, 2), TaskLayout.Decide(WidgetKey.Space, 2, 5));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 12), TaskLayout.Decide(WidgetKey.PageDown, 2, 30));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 4), TaskLayout.Decide(WidgetKey.PageDown, 2, 5));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 3), TaskLayout.Decide(WidgetKey.PageUp, 13, 30));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 0), TaskLayout.Decide(WidgetKey.PageUp, 3, 30));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Toggle, 2), KitKeys.Decide(WidgetKey.Space, 2, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 12), KitKeys.Decide(WidgetKey.PageDown, 2, 30));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 4), KitKeys.Decide(WidgetKey.PageDown, 2, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 3), KitKeys.Decide(WidgetKey.PageUp, 13, 30));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 0), KitKeys.Decide(WidgetKey.PageUp, 3, 30));
     }
 
     [Fact]
     public void S1981_without_a_focused_task_space_ticks_nothing_and_page_keys_land_on_the_first()
     {
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.Space, -1, 5).Command);
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 0), TaskLayout.Decide(WidgetKey.PageDown, -1, 5));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 0), TaskLayout.Decide(WidgetKey.PageUp, -1, 5));
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.Space, -1, 5).Command);
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 0), KitKeys.Decide(WidgetKey.PageDown, -1, 5));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 0), KitKeys.Decide(WidgetKey.PageUp, -1, 5));
     }
 
     // ---- contacts, calendar, the shared cursor ([S-1983]..[S-1985]) ----------------------------------

@@ -7,6 +7,7 @@ using Themia.Core.Tasks;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Modules.Tests;
@@ -84,18 +85,18 @@ public sealed class HabitHostTests : IDisposable
     [Fact]
     public void S812_keys_the_lists_do_not_answer_do_nothing()
     {
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.Left, 1, 3).Command);
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.Tab, 1, 3).Command);
         Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.Left, 1, 3).Command);
     }
 
     [Fact]
     public void S3802_a_focused_task_or_habit_moves_one_place_and_not_past_an_end()
     {
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.MoveUp, 1), TaskLayout.Decide(WidgetKey.MoveUp, 1, 3));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.MoveDown, 1), TaskLayout.Decide(WidgetKey.MoveDown, 1, 3));
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveUp, 0, 3).Command);
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveDown, 2, 3).Command);
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveDown, -1, 3).Command);
+        Assert.Equal(new KitKeyResult(KitKeyCommand.MoveUp, 1), KitKeys.Decide(WidgetKey.MoveUp, 1, 3));
+        Assert.Equal(new KitKeyResult(KitKeyCommand.MoveDown, 1), KitKeys.Decide(WidgetKey.MoveDown, 1, 3));
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveUp, 0, 3).Command);
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveDown, 2, 3).Command);
+        Assert.Equal(KitKeyCommand.None, KitKeys.Decide(WidgetKey.MoveDown, -1, 3).Command);
 
         Assert.Equal(new HabitKeyResult(HabitKeyCommand.MoveUp, 2), HabitLayout.Decide(WidgetKey.MoveUp, 2, 3));
         Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.MoveDown, 2, 3).Command);

@@ -50,36 +50,8 @@ public readonly record struct SlotBox(double X, double Y, double Width, double H
     public bool Contains(double x, double y) => x >= X && x < X + Width && y >= Y && y < Y + Height;
 }
 
-/// <summary>[S-787] What a key does to the focused row.</summary>
-public enum TaskKeyCommand
-{
-    None,
-
-    /// <summary>Move the focus to <see cref="TaskKeyResult.Index"/>.</summary>
-    Focus,
-
-    /// <summary>Tick the focused task off, or open it again.</summary>
-    Toggle,
-
-    Delete,
-
-    /// <summary>Rename it in place (F2).</summary>
-    Rename,
-
-    /// <summary>Give the keyboard back to the window the user was in.</summary>
-    Release,
-
-    /// <summary>[S-3802] Move the focused task one place up; the focus goes with it.</summary>
-    MoveUp,
-
-    /// <summary>[S-3802] Move the focused task one place down.</summary>
-    MoveDown,
-}
-
-public readonly record struct TaskKeyResult(TaskKeyCommand Command, int Index);
-
 /// <summary>
-/// [S-780]..[S-788] The Tasks widget's size ladder, scroll fade, drag targeting and keys. Pure, so
+/// [S-780]..[S-788] The Tasks widget's size ladder, scroll fade, drag targeting and editor Tab (its keys are the kit's, [S-608]). Pure, so
 /// each tier and each edge is pinned by a test rather than by looking at a render.
 /// </summary>
 public static class TaskLayout
@@ -245,51 +217,6 @@ public static class TaskLayout
     public const double DragThreshold = 5;
 
     public static bool IsDrag(double dx, double dy) => (dx * dx) + (dy * dy) >= DragThreshold * DragThreshold;
-
-    /// <summary>
-    /// [S-787] What a key does to the row at <paramref name="index"/> of <paramref name="count"/>.
-    /// Arrows and Home/End move the focus and stop at the ends (no wrap, as in every Windows list);
-    /// Enter ticks the task, Delete deletes it, F2 renames it, Escape gives the keyboard back.
-    /// [S-1981] Space ticks too, and Page Up / Page Down jump <see cref="ListKeys.PageStep"/> rows.
-    /// [S-812] With no row focused (<paramref name="index"/> negative: the widget holds the keyboard
-    /// but the click was not on a row) a movement key lands on an end and the rest do nothing — Enter
-    /// must never tick a task the user has not pointed at.
-    /// </summary>
-    public static TaskKeyResult Decide(WidgetKey key, int index, int count)
-    {
-        if (count <= 0 || index < 0)
-        {
-            return key switch
-            {
-                WidgetKey.Escape => new(TaskKeyCommand.Release, -1),
-                _ when count <= 0 => new(TaskKeyCommand.None, -1),
-                WidgetKey.Up or WidgetKey.Down or WidgetKey.Home or WidgetKey.PageUp or WidgetKey.PageDown => new(TaskKeyCommand.Focus, 0),
-                WidgetKey.End => new(TaskKeyCommand.Focus, count - 1),
-                _ => new(TaskKeyCommand.None, -1),
-            };
-        }
-
-        var at = Math.Clamp(index, 0, count - 1);
-
-        return key switch
-        {
-            WidgetKey.Up => new(TaskKeyCommand.Focus, Math.Max(0, at - 1)),
-            WidgetKey.Down => new(TaskKeyCommand.Focus, Math.Min(count - 1, at + 1)),
-            WidgetKey.Home => new(TaskKeyCommand.Focus, 0),
-            WidgetKey.End => new(TaskKeyCommand.Focus, count - 1),
-            WidgetKey.PageUp => new(TaskKeyCommand.Focus, Math.Max(0, at - ListKeys.PageStep)),
-            WidgetKey.PageDown => new(TaskKeyCommand.Focus, Math.Min(count - 1, at + ListKeys.PageStep)),
-            WidgetKey.Enter or WidgetKey.Space => new(TaskKeyCommand.Toggle, at),
-            WidgetKey.Delete => new(TaskKeyCommand.Delete, at),
-            WidgetKey.Rename => new(TaskKeyCommand.Rename, at),
-            WidgetKey.Escape => new(TaskKeyCommand.Release, at),
-
-            // [S-3802] The ends have nowhere further to go.
-            WidgetKey.MoveUp when at > 0 => new(TaskKeyCommand.MoveUp, at),
-            WidgetKey.MoveDown when at < count - 1 => new(TaskKeyCommand.MoveDown, at),
-            _ => new(TaskKeyCommand.None, at),
-        };
-    }
 
     /// <summary>
     /// [S-788] Tab in a rename box: commit, and open the next task's box — none past the last row
