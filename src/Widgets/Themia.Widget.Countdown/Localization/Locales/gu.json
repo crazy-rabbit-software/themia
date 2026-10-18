@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "વલય",
+  "styles.countdown.text": "લખાણ",
+  "styles.countdown.unitDays": "દિવસ",
+  "styles.countdown.unitHours": "કલાક",
+  "styles.countdown.unitMinutes": "મિનિટ",
+  "styles.countdown.unitSeconds": "સેકન્ડ",
+  "widget.countdown.label": "કાઉન્ટડાઉન",
+  "widgetsA.catalog.countdown.description": "તમારા માટે મહત્ત્વની એક તારીખ સુધી બાકી સમય",
+  "widgetsA.countdown.ago": "{duration} પહેલાં",
+  "widgetsA.countdown.compact.dh": "{days}દિ {hours}ક",
+  "widgetsA.countdown.compact.dhm": "{days}દિ {hours}ક {minutes}મિ",
+  "widgetsA.countdown.compact.dhms": "{days}દિ {hours}ક {minutes}મિ {seconds}સે",
+  "widgetsA.countdown.compact.hm": "{hours}ક {minutes}મિ",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} દિવસ",
+    "other": "{count} દિવસ"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} દિવસ પહેલાં",
+    "other": "{count} દિવસ પહેલાં"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} દિવસમાં",
+    "other": "{count} દિવસમાં"
+  },
+  "widgetsA.countdown.format.auto": "સ્વચાલિત",
+  "widgetsA.countdown.format.days": "ફક્ત દિવસ",
+  "widgetsA.countdown.format.dhm": "દિવસ · કલાક · મિનિટ",
+  "widgetsA.countdown.format.dhms": "દિવસ · કલાક · મિનિટ · સેકન્ડ",
+  "widgetsA.countdown.fullDateTime": "{date} એ {time} વાગ્યે",
+  "widgetsA.countdown.hours": {
+    "one": "{count} કલાક",
+    "other": "{count} કલાક"
+  },
+  "widgetsA.countdown.in": "{duration} માં",
+  "widgetsA.countdown.inAMoment": "થોડી વારમાં",
+  "widgetsA.countdown.justNow": "હમણાં જ",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} મિનિટ",
+    "other": "{count} મિનિટ"
+  },
+  "widgetsA.countdown.settings.format.desc": "બાકી સમય કેવી રીતે લખાય",
+  "widgetsA.countdown.settings.format.label": "ફોર્મેટ",
+  "widgetsA.countdown.settings.name.label": "નામ",
+  "widgetsA.countdown.settings.pickDate": "તારીખ પસંદ કરો",
+  "widgetsA.countdown.settings.target.desc": "જે ક્ષણે કાઉન્ટડાઉન શૂન્ય પર પહોંચે",
+  "widgetsA.countdown.settings.target.label": "તારીખ અને સમય",
+  "widgetsA.countdown.untitled": "શીર્ષક વિનાનું",
+  "styles.clock.flip": "ફ્લિપ"
+}

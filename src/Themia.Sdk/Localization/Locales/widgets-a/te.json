@@ -80,7 +80,6 @@
   "widgetsA.catalog.clipboard.label": "క్లిప్‌బోర్డ్",
   "widgetsA.catalog.clock.description": "సమయం మరియు తేదీ, డిజిటల్ లేదా అనలాగ్",
   "widgetsA.catalog.contacts.description": "మీ Microsoft, Google మరియు CardDAV చిరునామా పుస్తకాల నుండి వ్యక్తులు",
-  "widgetsA.catalog.countdown.description": "మీకు ముఖ్యమైన ఒక తేదీ వరకు మిగిలిన సమయం",
   "widgetsA.catalog.cpu.description": "అన్ని కోర్‌లలో ప్రాసెసర్ లోడ్",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "సెకనుకు డిస్క్ రీడ్‌లు మరియు రైట్‌లు",
@@ -154,47 +153,6 @@
   "widgetsA.contacts.settings.count.label": "వ్యక్తులు",
   "widgetsA.contacts.settings.every": "ప్రతి పరిచయాల ఖాతా",
   "widgetsA.contacts.settings.layout.label": "లేఅవుట్",
-  "widgetsA.countdown.ago": "{duration} క్రితం",
-  "widgetsA.countdown.compact.dh": "{days}రో {hours}గం",
-  "widgetsA.countdown.compact.dhm": "{days}రో {hours}గం {minutes}ని",
-  "widgetsA.countdown.compact.dhms": "{days}రో {hours}గం {minutes}ని {seconds}సె",
-  "widgetsA.countdown.compact.hm": "{hours}గం {minutes}ని",
-  "widgetsA.countdown.dateTime": "{date}, {time}",
-  "widgetsA.countdown.days": {
-    "one": "{count} రోజు",
-    "other": "{count} రోజులు"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "one": "{count} రోజు క్రితం",
-    "other": "{count} రోజుల క్రితం"
-  },
-  "widgetsA.countdown.daysIn": {
-    "one": "{count} రోజులో",
-    "other": "{count} రోజుల్లో"
-  },
-  "widgetsA.countdown.format.auto": "స్వయంచాలకం",
-  "widgetsA.countdown.format.days": "రోజులు మాత్రమే",
-  "widgetsA.countdown.format.dhm": "రోజులు · గంటలు · నిమి",
-  "widgetsA.countdown.format.dhms": "రోజులు · గంటలు · నిమి · సెక",
-  "widgetsA.countdown.fullDateTime": "{date} {time}కి",
-  "widgetsA.countdown.hours": {
-    "one": "{count} గం",
-    "other": "{count} గం"
-  },
-  "widgetsA.countdown.in": "{duration}లో",
-  "widgetsA.countdown.inAMoment": "కొద్దిసేపట్లో",
-  "widgetsA.countdown.justNow": "ఇప్పుడే",
-  "widgetsA.countdown.minutes": {
-    "one": "{count} నిమి",
-    "other": "{count} నిమి"
-  },
-  "widgetsA.countdown.settings.pickDate": "తేదీని ఎంచుకోండి",
-  "widgetsA.countdown.settings.name.label": "పేరు",
-  "widgetsA.countdown.settings.target.label": "తేదీ మరియు సమయం",
-  "widgetsA.countdown.settings.target.desc": "కౌంట్‌డౌన్ సున్నాకు చేరే క్షణం",
-  "widgetsA.countdown.settings.format.label": "ఫార్మాట్",
-  "widgetsA.countdown.settings.format.desc": "మిగిలిన సమయం ఎలా రాయబడుతుంది",
-  "widgetsA.countdown.untitled": "పేరులేనిది",
   "widgetsA.office.accountProblem": "{account}: {problem}",
   "widgetsA.office.addAccount": "ఖాతాను జోడించు",
   "widgetsA.office.everyDesc": "మీరు తర్వాత జోడించే ఖాతాలు కూడా చేర్చబడతాయి",

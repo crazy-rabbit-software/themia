@@ -1,0 +1,53 @@
+{
+  "$englishOnly": [],
+  "styles.countdown.ring": "Ring",
+  "styles.countdown.text": "Text",
+  "styles.countdown.unitDays": "days",
+  "styles.countdown.unitHours": "hours",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "sec",
+  "widget.countdown.label": "Countdown",
+  "widgetsA.catalog.countdown.description": "Time left until a date you care about",
+  "widgetsA.countdown.ago": "{duration} ago",
+  "widgetsA.countdown.compact.dh": "{days}d {hours}h",
+  "widgetsA.countdown.compact.dhm": "{days}d {hours}h {minutes}m",
+  "widgetsA.countdown.compact.dhms": "{days}d {hours}h {minutes}m {seconds}s",
+  "widgetsA.countdown.compact.hm": "{hours}h {minutes}m",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} day",
+    "other": "{count} days"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} day ago",
+    "other": "{count} days ago"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "in {count} day",
+    "other": "in {count} days"
+  },
+  "widgetsA.countdown.format.auto": "Auto",
+  "widgetsA.countdown.format.days": "Days only",
+  "widgetsA.countdown.format.dhm": "Days · Hours · Min",
+  "widgetsA.countdown.format.dhms": "Days · Hours · Min · Sec",
+  "widgetsA.countdown.fullDateTime": "{date} at {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} hr",
+    "other": "{count} hrs"
+  },
+  "widgetsA.countdown.in": "in {duration}",
+  "widgetsA.countdown.inAMoment": "in a moment",
+  "widgetsA.countdown.justNow": "just now",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} min",
+    "other": "{count} mins"
+  },
+  "widgetsA.countdown.settings.format.desc": "How the time left is written",
+  "widgetsA.countdown.settings.format.label": "Format",
+  "widgetsA.countdown.settings.name.label": "Name",
+  "widgetsA.countdown.settings.pickDate": "Pick a date",
+  "widgetsA.countdown.settings.target.desc": "The moment the countdown reaches zero",
+  "widgetsA.countdown.settings.target.label": "Date and time",
+  "widgetsA.countdown.untitled": "Untitled",
+  "styles.clock.flip": "Flip"
+}

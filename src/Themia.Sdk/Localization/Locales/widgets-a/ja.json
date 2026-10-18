@@ -78,7 +78,6 @@
   "widgetsA.catalog.clipboard.label": "クリップボード",
   "widgetsA.catalog.clock.description": "時刻と日付 (デジタルまたはアナログ)",
   "widgetsA.catalog.contacts.description": "Microsoft、Google、CardDAV のアドレス帳の連絡先",
-  "widgetsA.catalog.countdown.description": "大切な日までの残り時間",
   "widgetsA.catalog.cpu.description": "全コアのプロセッサー負荷",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "1 秒あたりのディスクの読み取りと書き込み",
@@ -150,42 +149,6 @@
   "widgetsA.contacts.settings.count.label": "人数",
   "widgetsA.contacts.settings.every": "すべての連絡先アカウント",
   "widgetsA.contacts.settings.layout.label": "レイアウト",
-  "widgetsA.countdown.ago": "{duration}前",
-  "widgetsA.countdown.compact.dh": "{days}日 {hours}時間",
-  "widgetsA.countdown.compact.dhm": "{days}日 {hours}時間 {minutes}分",
-  "widgetsA.countdown.compact.dhms": "{days}日 {hours}時間 {minutes}分 {seconds}秒",
-  "widgetsA.countdown.compact.hm": "{hours}時間 {minutes}分",
-  "widgetsA.countdown.dateTime": "{date} {time}",
-  "widgetsA.countdown.days": {
-    "other": "{count}日"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "other": "{count}日前"
-  },
-  "widgetsA.countdown.daysIn": {
-    "other": "{count}日後"
-  },
-  "widgetsA.countdown.format.auto": "自動",
-  "widgetsA.countdown.format.days": "日数のみ",
-  "widgetsA.countdown.format.dhm": "日 · 時間 · 分",
-  "widgetsA.countdown.format.dhms": "日 · 時間 · 分 · 秒",
-  "widgetsA.countdown.fullDateTime": "{date} {time}",
-  "widgetsA.countdown.hours": {
-    "other": "{count}時間"
-  },
-  "widgetsA.countdown.in": "{duration}後",
-  "widgetsA.countdown.inAMoment": "まもなく",
-  "widgetsA.countdown.justNow": "たった今",
-  "widgetsA.countdown.minutes": {
-    "other": "{count}分"
-  },
-  "widgetsA.countdown.settings.pickDate": "日付を選択",
-  "widgetsA.countdown.settings.name.label": "名前",
-  "widgetsA.countdown.settings.target.label": "日付と時刻",
-  "widgetsA.countdown.settings.target.desc": "カウントダウンがゼロになる日時",
-  "widgetsA.countdown.settings.format.label": "表示形式",
-  "widgetsA.countdown.settings.format.desc": "残り時間の書き方",
-  "widgetsA.countdown.untitled": "無題",
   "widgetsA.office.accountProblem": "{account}: {problem}",
   "widgetsA.office.addAccount": "アカウントを追加",
   "widgetsA.office.everyDesc": "後で追加したアカウントも含まれます",

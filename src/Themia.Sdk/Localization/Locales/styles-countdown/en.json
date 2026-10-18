@@ -1,8 +1,0 @@
-{
-  "styles.countdown.text": "Text",
-  "styles.countdown.ring": "Ring",
-  "styles.countdown.unitDays": "days",
-  "styles.countdown.unitHours": "hours",
-  "styles.countdown.unitMinutes": "min",
-  "styles.countdown.unitSeconds": "sec"
-}

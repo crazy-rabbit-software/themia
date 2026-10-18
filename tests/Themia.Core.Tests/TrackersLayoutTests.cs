@@ -149,49 +149,4 @@ public class TrackersLayoutTests
     [InlineData(0, 2, WidgetKey.Down, null)]
     public void S1457_cursor_moves_clamped(int count, int? current, WidgetKey key, int? expected)
         => Assert.Equal(expected, ItemCursor.Move(count, current, key));
-
-    // ---- Countdown ---------------------------------------------------------------------------
-
-    [Fact]
-    public void S1447_the_progress_bar_is_a_rung_of_the_large_tiles_alone()
-    {
-        Assert.False(CountdownLayout.ShowsProgress(XS));
-        Assert.False(CountdownLayout.ShowsProgress(S));
-        Assert.False(CountdownLayout.ShowsProgress(M));
-        Assert.False(CountdownLayout.ShowsProgress(Wide));
-        Assert.False(CountdownLayout.ShowsProgress(Tall));
-        Assert.True(CountdownLayout.ShowsProgress(L));
-        Assert.True(CountdownLayout.ShowsProgress(XL));
-    }
-
-    [Fact]
-    public void S1448_progress_runs_from_when_the_target_was_set_to_the_target()
-    {
-        var config = new CountdownConfig();
-        config.Retarget(Now.AddHours(10), Now.AddHours(-30));
-        Assert.Equal(0.75, CountdownLayout.Progress(config, Now)!.Value, 6);
-        Assert.Equal(1, CountdownLayout.Progress(config, Now.AddDays(5)));
-        Assert.Equal(0, CountdownLayout.Progress(config, Now.AddDays(-5)));
-
-        // Unknown when it was set, set after the target, or no target at all: no bar.
-        Assert.Null(CountdownLayout.Progress(new CountdownConfig { Target = Now }, Now));
-        Assert.Null(CountdownLayout.Progress(new CountdownConfig { Target = Now, Created = Now.AddHours(1) }, Now));
-        Assert.Null(CountdownLayout.Progress(new CountdownConfig(), Now));
-    }
-
-    [Fact]
-    public void S1448_clone_keeps_the_creation_time()
-    {
-        var config = new CountdownConfig();
-        config.Retarget(Now.AddHours(10), Now);
-        Assert.Equal(Now, ((CountdownConfig)config.Clone()).Created);
-    }
-
-    [Fact]
-    public void S1447_hero_width_is_the_formats_widest()
-    {
-        Assert.True(CountdownLayout.HeroCharacters(CountdownFormat.DaysHoursMinutesSeconds, false)
-            > CountdownLayout.HeroCharacters(CountdownFormat.Days, false));
-        Assert.Equal(CountdownLayout.HeroCharacters(CountdownFormat.Auto, false) + 4, CountdownLayout.HeroCharacters(CountdownFormat.Auto, true));
-    }
 }

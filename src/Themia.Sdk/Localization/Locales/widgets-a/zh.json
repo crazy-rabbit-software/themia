@@ -78,7 +78,6 @@
   "widgetsA.catalog.clipboard.label": "剪贴板",
   "widgetsA.catalog.clock.description": "时间和日期，数字或模拟",
   "widgetsA.catalog.contacts.description": "来自你的 Microsoft、Google 和 CardDAV 通讯录的联系人",
-  "widgetsA.catalog.countdown.description": "距离重要日期的剩余时间",
   "widgetsA.catalog.cpu.description": "所有核心的处理器负载",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "每秒磁盘读写量",
@@ -150,42 +149,6 @@
   "widgetsA.contacts.settings.count.label": "人数",
   "widgetsA.contacts.settings.every": "所有联系人帐户",
   "widgetsA.contacts.settings.layout.label": "布局",
-  "widgetsA.countdown.ago": "{duration}前",
-  "widgetsA.countdown.compact.dh": "{days}天 {hours}小时",
-  "widgetsA.countdown.compact.dhm": "{days}天 {hours}小时 {minutes}分",
-  "widgetsA.countdown.compact.dhms": "{days}天 {hours}小时 {minutes}分 {seconds}秒",
-  "widgetsA.countdown.compact.hm": "{hours}小时 {minutes}分",
-  "widgetsA.countdown.dateTime": "{date} {time}",
-  "widgetsA.countdown.days": {
-    "other": "{count}天"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "other": "{count}天前"
-  },
-  "widgetsA.countdown.daysIn": {
-    "other": "{count}天后"
-  },
-  "widgetsA.countdown.format.auto": "自动",
-  "widgetsA.countdown.format.days": "仅天数",
-  "widgetsA.countdown.format.dhm": "天 · 小时 · 分",
-  "widgetsA.countdown.format.dhms": "天 · 小时 · 分 · 秒",
-  "widgetsA.countdown.fullDateTime": "{date} {time}",
-  "widgetsA.countdown.hours": {
-    "other": "{count}小时"
-  },
-  "widgetsA.countdown.in": "{duration}后",
-  "widgetsA.countdown.inAMoment": "马上",
-  "widgetsA.countdown.justNow": "刚刚",
-  "widgetsA.countdown.minutes": {
-    "other": "{count}分钟"
-  },
-  "widgetsA.countdown.settings.pickDate": "选择日期",
-  "widgetsA.countdown.settings.name.label": "名称",
-  "widgetsA.countdown.settings.target.label": "日期和时间",
-  "widgetsA.countdown.settings.target.desc": "倒计时归零的时刻",
-  "widgetsA.countdown.settings.format.label": "格式",
-  "widgetsA.countdown.settings.format.desc": "剩余时间的写法",
-  "widgetsA.countdown.untitled": "未命名",
   "widgetsA.office.accountProblem": "{account}：{problem}",
   "widgetsA.office.addAccount": "添加帐户",
   "widgetsA.office.everyDesc": "以后添加的帐户也会包含在内",

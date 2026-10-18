@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "Halka",
+  "styles.countdown.text": "Metin",
+  "styles.countdown.unitDays": "gün",
+  "styles.countdown.unitHours": "saat",
+  "styles.countdown.unitMinutes": "dk",
+  "styles.countdown.unitSeconds": "sn",
+  "widget.countdown.label": "Geri sayım",
+  "widgetsA.catalog.countdown.description": "Önem verdiğiniz bir tarihe kalan süre",
+  "widgetsA.countdown.ago": "{duration} önce",
+  "widgetsA.countdown.compact.dh": "{days} g {hours} sa",
+  "widgetsA.countdown.compact.dhm": "{days} g {hours} sa {minutes} dk",
+  "widgetsA.countdown.compact.dhms": "{days} g {hours} sa {minutes} dk {seconds} sn",
+  "widgetsA.countdown.compact.hm": "{hours} sa {minutes} dk",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} gün",
+    "other": "{count} gün"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} gün önce",
+    "other": "{count} gün önce"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} gün sonra",
+    "other": "{count} gün sonra"
+  },
+  "widgetsA.countdown.format.auto": "Otomatik",
+  "widgetsA.countdown.format.days": "Yalnızca gün",
+  "widgetsA.countdown.format.dhm": "Gün · Saat · Dk",
+  "widgetsA.countdown.format.dhms": "Gün · Saat · Dk · Sn",
+  "widgetsA.countdown.fullDateTime": "{date}, saat {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} sa",
+    "other": "{count} sa"
+  },
+  "widgetsA.countdown.in": "{duration} sonra",
+  "widgetsA.countdown.inAMoment": "birazdan",
+  "widgetsA.countdown.justNow": "az önce",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} dk",
+    "other": "{count} dk"
+  },
+  "widgetsA.countdown.settings.format.desc": "Kalan sürenin nasıl yazılacağı",
+  "widgetsA.countdown.settings.format.label": "Biçim",
+  "widgetsA.countdown.settings.name.label": "Ad",
+  "widgetsA.countdown.settings.pickDate": "Tarih seçin",
+  "widgetsA.countdown.settings.target.desc": "Geri sayımın sıfıra ulaştığı an",
+  "widgetsA.countdown.settings.target.label": "Tarih ve saat",
+  "widgetsA.countdown.untitled": "Adsız",
+  "styles.clock.flip": "Çevirmeli"
+}

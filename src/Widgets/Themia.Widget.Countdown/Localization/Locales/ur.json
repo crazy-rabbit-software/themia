@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "حلقہ",
+  "styles.countdown.text": "متن",
+  "styles.countdown.unitDays": "دن",
+  "styles.countdown.unitHours": "گھنٹے",
+  "styles.countdown.unitMinutes": "منٹ",
+  "styles.countdown.unitSeconds": "سیکنڈ",
+  "widget.countdown.label": "الٹی گنتی",
+  "widgetsA.catalog.countdown.description": "آپ کی کسی اہم تاریخ تک باقی وقت",
+  "widgetsA.countdown.ago": "{duration} پہلے",
+  "widgetsA.countdown.compact.dh": "{days} دن {hours} گھ",
+  "widgetsA.countdown.compact.dhm": "{days} دن {hours} گھ {minutes} من",
+  "widgetsA.countdown.compact.dhms": "{days} دن {hours} گھ {minutes} من {seconds} س",
+  "widgetsA.countdown.compact.hm": "{hours} گھ {minutes} من",
+  "widgetsA.countdown.dateTime": "{date}، {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} دن",
+    "other": "{count} دن"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} دن پہلے",
+    "other": "{count} دن پہلے"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} دن میں",
+    "other": "{count} دنوں میں"
+  },
+  "widgetsA.countdown.format.auto": "خودکار",
+  "widgetsA.countdown.format.days": "صرف دن",
+  "widgetsA.countdown.format.dhm": "دن · گھنٹے · منٹ",
+  "widgetsA.countdown.format.dhms": "دن · گھنٹے · منٹ · سیکنڈ",
+  "widgetsA.countdown.fullDateTime": "{date} کو {time} بجے",
+  "widgetsA.countdown.hours": {
+    "one": "{count} گھنٹہ",
+    "other": "{count} گھنٹے"
+  },
+  "widgetsA.countdown.in": "{duration} میں",
+  "widgetsA.countdown.inAMoment": "ابھی کچھ دیر میں",
+  "widgetsA.countdown.justNow": "ابھی ابھی",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} منٹ",
+    "other": "{count} منٹ"
+  },
+  "widgetsA.countdown.settings.format.desc": "باقی وقت کیسے لکھا جائے",
+  "widgetsA.countdown.settings.format.label": "فارمیٹ",
+  "widgetsA.countdown.settings.name.label": "نام",
+  "widgetsA.countdown.settings.pickDate": "تاریخ چنیں",
+  "widgetsA.countdown.settings.target.desc": "وہ لمحہ جب الٹی گنتی صفر پر پہنچے",
+  "widgetsA.countdown.settings.target.label": "تاریخ اور وقت",
+  "widgetsA.countdown.untitled": "بلا عنوان",
+  "styles.clock.flip": "فلپ"
+}

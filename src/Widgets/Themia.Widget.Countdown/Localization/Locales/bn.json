@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "বলয়",
+  "styles.countdown.text": "লেখা",
+  "styles.countdown.unitDays": "দিন",
+  "styles.countdown.unitHours": "ঘণ্টা",
+  "styles.countdown.unitMinutes": "মিনিট",
+  "styles.countdown.unitSeconds": "সেকেন্ড",
+  "widget.countdown.label": "কাউন্টডাউন",
+  "widgetsA.catalog.countdown.description": "আপনার গুরুত্বপূর্ণ একটি তারিখ পর্যন্ত বাকি সময়",
+  "widgetsA.countdown.ago": "{duration} আগে",
+  "widgetsA.countdown.compact.dh": "{days}দি {hours}ঘ",
+  "widgetsA.countdown.compact.dhm": "{days}দি {hours}ঘ {minutes}মি",
+  "widgetsA.countdown.compact.dhms": "{days}দি {hours}ঘ {minutes}মি {seconds}সে",
+  "widgetsA.countdown.compact.hm": "{hours}ঘ {minutes}মি",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} দিন",
+    "other": "{count} দিন"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} দিন আগে",
+    "other": "{count} দিন আগে"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} দিন পরে",
+    "other": "{count} দিন পরে"
+  },
+  "widgetsA.countdown.format.auto": "স্বয়ংক্রিয়",
+  "widgetsA.countdown.format.days": "শুধু দিন",
+  "widgetsA.countdown.format.dhm": "দিন · ঘণ্টা · মিনিট",
+  "widgetsA.countdown.format.dhms": "দিন · ঘণ্টা · মিনিট · সেকেন্ড",
+  "widgetsA.countdown.fullDateTime": "{date}, {time}-এ",
+  "widgetsA.countdown.hours": {
+    "one": "{count} ঘণ্টা",
+    "other": "{count} ঘণ্টা"
+  },
+  "widgetsA.countdown.in": "{duration} পরে",
+  "widgetsA.countdown.inAMoment": "একটু পরেই",
+  "widgetsA.countdown.justNow": "এইমাত্র",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} মিনিট",
+    "other": "{count} মিনিট"
+  },
+  "widgetsA.countdown.settings.format.desc": "বাকি সময় কীভাবে লেখা হয়",
+  "widgetsA.countdown.settings.format.label": "ফরম্যাট",
+  "widgetsA.countdown.settings.name.label": "নাম",
+  "widgetsA.countdown.settings.pickDate": "তারিখ বেছে নিন",
+  "widgetsA.countdown.settings.target.desc": "যে মুহূর্তে কাউন্টডাউন শূন্যে পৌঁছায়",
+  "widgetsA.countdown.settings.target.label": "তারিখ ও সময়",
+  "widgetsA.countdown.untitled": "শিরোনামহীন",
+  "styles.clock.flip": "ফ্লিপ"
+}

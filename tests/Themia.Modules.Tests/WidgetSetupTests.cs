@@ -18,7 +18,7 @@ public class WidgetSetupTests
     /// <summary>Every kind whose default config needs setting up, with nothing signed in.</summary>
     private static readonly WidgetId[] NeedSetupByDefault =
     [
-        CountdownConfig.Descriptor.Id, RssConfig.Descriptor.Id, StocksConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, RainNextHourConfig.Descriptor.Id,
+        new WidgetId("countdown"), RssConfig.Descriptor.Id, StocksConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, RainNextHourConfig.Descriptor.Id,
         VideoStreamConfig.Descriptor.Id, GalleryConfig.Descriptor.Id,
         EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, NextMeetingConfig.Descriptor.Id,
         WeekPlannerConfig.Descriptor.Id, ContactsConfig.Descriptor.Id, TasksConfig.Descriptor.Id,

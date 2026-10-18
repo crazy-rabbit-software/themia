@@ -1,0 +1,47 @@
+{
+  "styles.countdown.ring": "링",
+  "styles.countdown.text": "텍스트",
+  "styles.countdown.unitDays": "일",
+  "styles.countdown.unitHours": "시간",
+  "styles.countdown.unitMinutes": "분",
+  "styles.countdown.unitSeconds": "초",
+  "widget.countdown.label": "카운트다운",
+  "widgetsA.catalog.countdown.description": "중요한 날짜까지 남은 시간",
+  "widgetsA.countdown.ago": "{duration} 전",
+  "widgetsA.countdown.compact.dh": "{days}일 {hours}시간",
+  "widgetsA.countdown.compact.dhm": "{days}일 {hours}시간 {minutes}분",
+  "widgetsA.countdown.compact.dhms": "{days}일 {hours}시간 {minutes}분 {seconds}초",
+  "widgetsA.countdown.compact.hm": "{hours}시간 {minutes}분",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "other": "{count}일"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "{count}일 전"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "{count}일 후"
+  },
+  "widgetsA.countdown.format.auto": "자동",
+  "widgetsA.countdown.format.days": "일만",
+  "widgetsA.countdown.format.dhm": "일 · 시간 · 분",
+  "widgetsA.countdown.format.dhms": "일 · 시간 · 분 · 초",
+  "widgetsA.countdown.fullDateTime": "{date} {time}",
+  "widgetsA.countdown.hours": {
+    "other": "{count}시간"
+  },
+  "widgetsA.countdown.in": "{duration} 후",
+  "widgetsA.countdown.inAMoment": "잠시 후",
+  "widgetsA.countdown.justNow": "방금",
+  "widgetsA.countdown.minutes": {
+    "other": "{count}분"
+  },
+  "widgetsA.countdown.settings.format.desc": "남은 시간 표시 방식",
+  "widgetsA.countdown.settings.format.label": "형식",
+  "widgetsA.countdown.settings.name.label": "이름",
+  "widgetsA.countdown.settings.pickDate": "날짜 선택",
+  "widgetsA.countdown.settings.target.desc": "카운트다운이 0이 되는 시각",
+  "widgetsA.countdown.settings.target.label": "날짜 및 시간",
+  "widgetsA.countdown.untitled": "제목 없음",
+  "styles.clock.flip": "플립"
+}

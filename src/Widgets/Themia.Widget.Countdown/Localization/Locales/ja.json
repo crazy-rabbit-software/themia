@@ -1,0 +1,47 @@
+{
+  "styles.countdown.ring": "リング",
+  "styles.countdown.text": "テキスト",
+  "styles.countdown.unitDays": "日",
+  "styles.countdown.unitHours": "時間",
+  "styles.countdown.unitMinutes": "分",
+  "styles.countdown.unitSeconds": "秒",
+  "widget.countdown.label": "カウントダウン",
+  "widgetsA.catalog.countdown.description": "大切な日までの残り時間",
+  "widgetsA.countdown.ago": "{duration}前",
+  "widgetsA.countdown.compact.dh": "{days}日 {hours}時間",
+  "widgetsA.countdown.compact.dhm": "{days}日 {hours}時間 {minutes}分",
+  "widgetsA.countdown.compact.dhms": "{days}日 {hours}時間 {minutes}分 {seconds}秒",
+  "widgetsA.countdown.compact.hm": "{hours}時間 {minutes}分",
+  "widgetsA.countdown.dateTime": "{date} {time}",
+  "widgetsA.countdown.days": {
+    "other": "{count}日"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "{count}日前"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "{count}日後"
+  },
+  "widgetsA.countdown.format.auto": "自動",
+  "widgetsA.countdown.format.days": "日数のみ",
+  "widgetsA.countdown.format.dhm": "日 · 時間 · 分",
+  "widgetsA.countdown.format.dhms": "日 · 時間 · 分 · 秒",
+  "widgetsA.countdown.fullDateTime": "{date} {time}",
+  "widgetsA.countdown.hours": {
+    "other": "{count}時間"
+  },
+  "widgetsA.countdown.in": "{duration}後",
+  "widgetsA.countdown.inAMoment": "まもなく",
+  "widgetsA.countdown.justNow": "たった今",
+  "widgetsA.countdown.minutes": {
+    "other": "{count}分"
+  },
+  "widgetsA.countdown.settings.format.desc": "残り時間の書き方",
+  "widgetsA.countdown.settings.format.label": "表示形式",
+  "widgetsA.countdown.settings.name.label": "名前",
+  "widgetsA.countdown.settings.pickDate": "日付を選択",
+  "widgetsA.countdown.settings.target.desc": "カウントダウンがゼロになる日時",
+  "widgetsA.countdown.settings.target.label": "日付と時刻",
+  "widgetsA.countdown.untitled": "無題",
+  "styles.clock.flip": "フリップ"
+}

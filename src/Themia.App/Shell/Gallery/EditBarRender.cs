@@ -223,17 +223,17 @@ internal static class EditBarRender
             // [S-6521] A widget of its own item colour: the Item opacity row shows. [S-6531] At 125 %.
             // [S-6544] Its own item text colour too: white figures on its dark flip cards in either theme.
             [new(ClockConfig.Descriptor.Id, 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")],
-            [new(CountdownConfig.Descriptor.Id, 980, 160, 280, 180, HeaderPlacement.Top, true)],
+            [new(new WidgetId("countdown"), 980, 160, 280, 180, HeaderPlacement.Top, true)],
             [new(ShortcutsConfig.Descriptor.Id, 16, 72, 1248, 150, HeaderPlacement.Top, true)],
             [
                 new(ClockConfig.Descriptor.Id, 300, 200, 220, 160, HeaderPlacement.Top, true),
-                new(CountdownConfig.Descriptor.Id, 540, 240, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
+                new(new WidgetId("countdown"), 540, 240, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
                 new(ClockConfig.Descriptor.Id, 820, 200, 200, 140, HeaderPlacement.Hidden, true),
             ],
             [new(WifiToggleConfig.Descriptor.Id, 580, 260, 120, 120, HeaderPlacement.Hidden, true)],
             [
-                new(CountdownConfig.Descriptor.Id, 360, 260, 280, 180, HeaderPlacement.Hidden, true),
-                new(CountdownConfig.Descriptor.Id, 680, 260, 280, 180, HeaderPlacement.Top, false),
+                new(new WidgetId("countdown"), 360, 260, 280, 180, HeaderPlacement.Hidden, true),
+                new(new WidgetId("countdown"), 680, 260, 280, 180, HeaderPlacement.Top, false),
             ],
 
             // [S-6569] Backgrounds Default, Transparent and a colour at 50 %; items Default,
@@ -446,16 +446,16 @@ internal static class EditBarRender
         PropsCard[] mixed =
         [
             new(ClockConfig.Descriptor.Id, 120, 120, 280, 180, HeaderPlacement.Top, true),
-            new(CountdownConfig.Descriptor.Id, 460, 140, 240, 160, HeaderPlacement.Top, false),
+            new(new WidgetId("countdown"), 460, 140, 240, 160, HeaderPlacement.Top, false),
             new(WifiToggleConfig.Descriptor.Id, 760, 160, 64, 64, HeaderPlacement.Hidden, true),
             new(WifiToggleConfig.Descriptor.Id, 860, 160, 64, 64, HeaderPlacement.Hidden, false),
         ];
         PropsCard[] multi =
         [
             new(ClockConfig.Descriptor.Id, 120, 120, 240, 160, HeaderPlacement.Top, true),
-            new(CountdownConfig.Descriptor.Id, 380, 120, 240, 160, HeaderPlacement.Top, true),
+            new(new WidgetId("countdown"), 380, 120, 240, 160, HeaderPlacement.Top, true),
             new(ClockConfig.Descriptor.Id, 640, 120, 200, 160, HeaderPlacement.Hidden, true),
-            new(CountdownConfig.Descriptor.Id, 880, 120, 240, 160, HeaderPlacement.Top, false),
+            new(new WidgetId("countdown"), 880, 120, 240, 160, HeaderPlacement.Top, false),
         ];
 
         await MarkerShot(screen, ticker, mixed, 4, System.IO.Path.Combine(outDir, $"marks-{theme}-r4.png")).ConfigureAwait(true);

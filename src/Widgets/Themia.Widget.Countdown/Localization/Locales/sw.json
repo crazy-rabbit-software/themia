@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "Pete",
+  "styles.countdown.text": "Maandishi",
+  "styles.countdown.unitDays": "siku",
+  "styles.countdown.unitHours": "saa",
+  "styles.countdown.unitMinutes": "dak",
+  "styles.countdown.unitSeconds": "sek",
+  "widget.countdown.label": "Kuhesabu kurudi nyuma",
+  "widgetsA.catalog.countdown.description": "Muda uliobaki hadi tarehe muhimu kwako",
+  "widgetsA.countdown.ago": "{duration} zilizopita",
+  "widgetsA.countdown.compact.dh": "{days}si {hours}sa",
+  "widgetsA.countdown.compact.dhm": "{days}si {hours}sa {minutes}dk",
+  "widgetsA.countdown.compact.dhms": "{days}si {hours}sa {minutes}dk {seconds}sek",
+  "widgetsA.countdown.compact.hm": "{hours}sa {minutes}dk",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "Siku {count}",
+    "other": "Siku {count}"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "Siku {count} iliyopita",
+    "other": "Siku {count} zilizopita"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "baada ya siku {count}",
+    "other": "baada ya siku {count}"
+  },
+  "widgetsA.countdown.format.auto": "Kiotomatiki",
+  "widgetsA.countdown.format.days": "Siku tu",
+  "widgetsA.countdown.format.dhm": "Siku · Saa · Dak",
+  "widgetsA.countdown.format.dhms": "Siku · Saa · Dak · Sek",
+  "widgetsA.countdown.fullDateTime": "{date} saa {time}",
+  "widgetsA.countdown.hours": {
+    "one": "Saa {count}",
+    "other": "Saa {count}"
+  },
+  "widgetsA.countdown.in": "baada ya {duration}",
+  "widgetsA.countdown.inAMoment": "baada ya muda mfupi",
+  "widgetsA.countdown.justNow": "sasa hivi",
+  "widgetsA.countdown.minutes": {
+    "one": "Dak {count}",
+    "other": "Dak {count}"
+  },
+  "widgetsA.countdown.settings.format.desc": "Jinsi muda uliobaki unavyoandikwa",
+  "widgetsA.countdown.settings.format.label": "Muundo",
+  "widgetsA.countdown.settings.name.label": "Jina",
+  "widgetsA.countdown.settings.pickDate": "Chagua tarehe",
+  "widgetsA.countdown.settings.target.desc": "Wakati hesabu inapofika sifuri",
+  "widgetsA.countdown.settings.target.label": "Tarehe na saa",
+  "widgetsA.countdown.untitled": "Bila jina",
+  "styles.clock.flip": "Kugeuza"
+}

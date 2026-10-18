@@ -1,0 +1,47 @@
+{
+  "styles.countdown.ring": "Vòng",
+  "styles.countdown.text": "Chữ",
+  "styles.countdown.unitDays": "ngày",
+  "styles.countdown.unitHours": "giờ",
+  "styles.countdown.unitMinutes": "phút",
+  "styles.countdown.unitSeconds": "giây",
+  "widget.countdown.label": "Đếm ngược",
+  "widgetsA.catalog.countdown.description": "Thời gian còn lại đến một ngày bạn quan tâm",
+  "widgetsA.countdown.ago": "{duration} trước",
+  "widgetsA.countdown.compact.dh": "{days} ng {hours} g",
+  "widgetsA.countdown.compact.dhm": "{days} ng {hours} g {minutes} ph",
+  "widgetsA.countdown.compact.dhms": "{days} ng {hours} g {minutes} ph {seconds} s",
+  "widgetsA.countdown.compact.hm": "{hours} g {minutes} ph",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "other": "{count} ngày"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "{count} ngày trước"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "sau {count} ngày"
+  },
+  "widgetsA.countdown.format.auto": "Tự động",
+  "widgetsA.countdown.format.days": "Chỉ ngày",
+  "widgetsA.countdown.format.dhm": "Ngày · Giờ · Phút",
+  "widgetsA.countdown.format.dhms": "Ngày · Giờ · Phút · Giây",
+  "widgetsA.countdown.fullDateTime": "{date} lúc {time}",
+  "widgetsA.countdown.hours": {
+    "other": "{count} giờ"
+  },
+  "widgetsA.countdown.in": "sau {duration}",
+  "widgetsA.countdown.inAMoment": "sắp tới",
+  "widgetsA.countdown.justNow": "vừa xong",
+  "widgetsA.countdown.minutes": {
+    "other": "{count} phút"
+  },
+  "widgetsA.countdown.settings.format.desc": "Cách viết thời gian còn lại",
+  "widgetsA.countdown.settings.format.label": "Định dạng",
+  "widgetsA.countdown.settings.name.label": "Tên",
+  "widgetsA.countdown.settings.pickDate": "Chọn ngày",
+  "widgetsA.countdown.settings.target.desc": "Thời điểm đếm ngược về không",
+  "widgetsA.countdown.settings.target.label": "Ngày và giờ",
+  "widgetsA.countdown.untitled": "Không có tên",
+  "styles.clock.flip": "Lật"
+}

@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "Singsing",
+  "styles.countdown.text": "Teksto",
+  "styles.countdown.unitDays": "araw",
+  "styles.countdown.unitHours": "oras",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "seg",
+  "widget.countdown.label": "Pagbilang pababa",
+  "widgetsA.catalog.countdown.description": "Natitirang oras hanggang sa isang petsang mahalaga sa iyo",
+  "widgetsA.countdown.ago": "{duration} na ang nakalipas",
+  "widgetsA.countdown.compact.dh": "{days}a {hours}o",
+  "widgetsA.countdown.compact.dhm": "{days}a {hours}o {minutes}m",
+  "widgetsA.countdown.compact.dhms": "{days}a {hours}o {minutes}m {seconds}s",
+  "widgetsA.countdown.compact.hm": "{hours}o {minutes}m",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} araw",
+    "other": "{count} araw"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} araw na ang nakalipas",
+    "other": "{count} araw na ang nakalipas"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "sa loob ng {count} araw",
+    "other": "sa loob ng {count} araw"
+  },
+  "widgetsA.countdown.format.auto": "Awtomatiko",
+  "widgetsA.countdown.format.days": "Mga araw lang",
+  "widgetsA.countdown.format.dhm": "Araw · Oras · Min",
+  "widgetsA.countdown.format.dhms": "Araw · Oras · Min · Seg",
+  "widgetsA.countdown.fullDateTime": "{date} nang {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} oras",
+    "other": "{count} oras"
+  },
+  "widgetsA.countdown.in": "sa loob ng {duration}",
+  "widgetsA.countdown.inAMoment": "maya-maya",
+  "widgetsA.countdown.justNow": "ngayon lang",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} min",
+    "other": "{count} min"
+  },
+  "widgetsA.countdown.settings.format.desc": "Kung paano isinusulat ang natitirang oras",
+  "widgetsA.countdown.settings.format.label": "Format",
+  "widgetsA.countdown.settings.name.label": "Pangalan",
+  "widgetsA.countdown.settings.pickDate": "Pumili ng petsa",
+  "widgetsA.countdown.settings.target.desc": "Ang sandaling umabot sa zero ang countdown",
+  "widgetsA.countdown.settings.target.label": "Petsa at oras",
+  "widgetsA.countdown.untitled": "Walang pamagat",
+  "styles.clock.flip": "Flip"
+}

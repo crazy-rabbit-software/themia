@@ -80,7 +80,6 @@
   "widgetsA.catalog.clipboard.label": "ક્લિપબોર્ડ",
   "widgetsA.catalog.clock.description": "સમય અને તારીખ, ડિજિટલ કે ઍનાલૉગ",
   "widgetsA.catalog.contacts.description": "તમારી Microsoft, Google અને CardDAV સરનામા પુસ્તિકાઓના લોકો",
-  "widgetsA.catalog.countdown.description": "તમારા માટે મહત્ત્વની એક તારીખ સુધી બાકી સમય",
   "widgetsA.catalog.cpu.description": "બધા કોર પર પ્રોસેસર લોડ",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "પ્રતિ સેકન્ડ ડિસ્ક રીડ અને રાઇટ",
@@ -154,47 +153,6 @@
   "widgetsA.contacts.settings.count.label": "લોકો",
   "widgetsA.contacts.settings.every": "દરેક સંપર્ક એકાઉન્ટ",
   "widgetsA.contacts.settings.layout.label": "લેઆઉટ",
-  "widgetsA.countdown.ago": "{duration} પહેલાં",
-  "widgetsA.countdown.compact.dh": "{days}દિ {hours}ક",
-  "widgetsA.countdown.compact.dhm": "{days}દિ {hours}ક {minutes}મિ",
-  "widgetsA.countdown.compact.dhms": "{days}દિ {hours}ક {minutes}મિ {seconds}સે",
-  "widgetsA.countdown.compact.hm": "{hours}ક {minutes}મિ",
-  "widgetsA.countdown.dateTime": "{date}, {time}",
-  "widgetsA.countdown.days": {
-    "one": "{count} દિવસ",
-    "other": "{count} દિવસ"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "one": "{count} દિવસ પહેલાં",
-    "other": "{count} દિવસ પહેલાં"
-  },
-  "widgetsA.countdown.daysIn": {
-    "one": "{count} દિવસમાં",
-    "other": "{count} દિવસમાં"
-  },
-  "widgetsA.countdown.format.auto": "સ્વચાલિત",
-  "widgetsA.countdown.format.days": "ફક્ત દિવસ",
-  "widgetsA.countdown.format.dhm": "દિવસ · કલાક · મિનિટ",
-  "widgetsA.countdown.format.dhms": "દિવસ · કલાક · મિનિટ · સેકન્ડ",
-  "widgetsA.countdown.fullDateTime": "{date} એ {time} વાગ્યે",
-  "widgetsA.countdown.hours": {
-    "one": "{count} કલાક",
-    "other": "{count} કલાક"
-  },
-  "widgetsA.countdown.in": "{duration} માં",
-  "widgetsA.countdown.inAMoment": "થોડી વારમાં",
-  "widgetsA.countdown.justNow": "હમણાં જ",
-  "widgetsA.countdown.minutes": {
-    "one": "{count} મિનિટ",
-    "other": "{count} મિનિટ"
-  },
-  "widgetsA.countdown.settings.pickDate": "તારીખ પસંદ કરો",
-  "widgetsA.countdown.settings.name.label": "નામ",
-  "widgetsA.countdown.settings.target.label": "તારીખ અને સમય",
-  "widgetsA.countdown.settings.target.desc": "જે ક્ષણે કાઉન્ટડાઉન શૂન્ય પર પહોંચે",
-  "widgetsA.countdown.settings.format.label": "ફોર્મેટ",
-  "widgetsA.countdown.settings.format.desc": "બાકી સમય કેવી રીતે લખાય",
-  "widgetsA.countdown.untitled": "શીર્ષક વિનાનું",
   "widgetsA.office.accountProblem": "{account}: {problem}",
   "widgetsA.office.addAccount": "એકાઉન્ટ ઉમેરો",
   "widgetsA.office.everyDesc": "તમે પછીથી ઉમેરો તે એકાઉન્ટ્સ પણ શામેલ છે",

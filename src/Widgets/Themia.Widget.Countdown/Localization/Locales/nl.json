@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "Ring",
+  "styles.countdown.text": "Tekst",
+  "styles.countdown.unitDays": "dagen",
+  "styles.countdown.unitHours": "uur",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "sec",
+  "widget.countdown.label": "Aftellen",
+  "widgetsA.catalog.countdown.description": "Resterende tijd tot een datum die je belangrijk vindt",
+  "widgetsA.countdown.ago": "{duration} geleden",
+  "widgetsA.countdown.compact.dh": "{days}d {hours}u",
+  "widgetsA.countdown.compact.dhm": "{days}d {hours}u {minutes}m",
+  "widgetsA.countdown.compact.dhms": "{days}d {hours}u {minutes}m {seconds}s",
+  "widgetsA.countdown.compact.hm": "{hours}u {minutes}m",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} dag",
+    "other": "{count} dagen"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} dag geleden",
+    "other": "{count} dagen geleden"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "over {count} dag",
+    "other": "over {count} dagen"
+  },
+  "widgetsA.countdown.format.auto": "Automatisch",
+  "widgetsA.countdown.format.days": "Alleen dagen",
+  "widgetsA.countdown.format.dhm": "Dagen · Uren · Min",
+  "widgetsA.countdown.format.dhms": "Dagen · Uren · Min · Sec",
+  "widgetsA.countdown.fullDateTime": "{date} om {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} uur",
+    "other": "{count} uur"
+  },
+  "widgetsA.countdown.in": "over {duration}",
+  "widgetsA.countdown.inAMoment": "zo meteen",
+  "widgetsA.countdown.justNow": "zojuist",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} min",
+    "other": "{count} min"
+  },
+  "widgetsA.countdown.settings.format.desc": "Hoe de resterende tijd wordt geschreven",
+  "widgetsA.countdown.settings.format.label": "Notatie",
+  "widgetsA.countdown.settings.name.label": "Naam",
+  "widgetsA.countdown.settings.pickDate": "Kies een datum",
+  "widgetsA.countdown.settings.target.desc": "Het moment waarop het aftellen nul bereikt",
+  "widgetsA.countdown.settings.target.label": "Datum en tijd",
+  "widgetsA.countdown.untitled": "Naamloos",
+  "styles.clock.flip": "Flipklok"
+}

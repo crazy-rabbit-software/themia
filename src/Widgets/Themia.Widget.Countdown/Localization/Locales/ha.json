@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "Zobe",
+  "styles.countdown.text": "Rubutu",
+  "styles.countdown.unitDays": "kwanaki",
+  "styles.countdown.unitHours": "awanni",
+  "styles.countdown.unitMinutes": "minti",
+  "styles.countdown.unitSeconds": "daƙ",
+  "widget.countdown.label": "Ƙirga baya",
+  "widgetsA.catalog.countdown.description": "Lokacin da ya rage har zuwa wata rana mai muhimmanci a gare ka",
+  "widgetsA.countdown.ago": "{duration} da suka wuce",
+  "widgetsA.countdown.compact.dh": "{days}k {hours}a",
+  "widgetsA.countdown.compact.dhm": "{days}k {hours}a {minutes}m",
+  "widgetsA.countdown.compact.dhms": "{days}k {hours}a {minutes}m {seconds}d",
+  "widgetsA.countdown.compact.hm": "{hours}a {minutes}m",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "Kwana {count}",
+    "other": "Kwanaki {count}"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "Kwana {count} da ya wuce",
+    "other": "Kwanaki {count} da suka wuce"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "cikin kwana {count}",
+    "other": "cikin kwanaki {count}"
+  },
+  "widgetsA.countdown.format.auto": "Kai tsaye",
+  "widgetsA.countdown.format.days": "Kwanaki kawai",
+  "widgetsA.countdown.format.dhm": "Kwanaki · Awoyi · Minti",
+  "widgetsA.countdown.format.dhms": "Kwanaki · Awoyi · Minti · Daƙiƙa",
+  "widgetsA.countdown.fullDateTime": "{date} da ƙarfe {time}",
+  "widgetsA.countdown.hours": {
+    "one": "Awa {count}",
+    "other": "Awoyi {count}"
+  },
+  "widgetsA.countdown.in": "cikin {duration}",
+  "widgetsA.countdown.inAMoment": "nan da ɗan lokaci",
+  "widgetsA.countdown.justNow": "yanzun nan",
+  "widgetsA.countdown.minutes": {
+    "one": "Minti {count}",
+    "other": "Minti {count}"
+  },
+  "widgetsA.countdown.settings.format.desc": "Yadda ake rubuta sauran lokaci",
+  "widgetsA.countdown.settings.format.label": "Tsari",
+  "widgetsA.countdown.settings.name.label": "Suna",
+  "widgetsA.countdown.settings.pickDate": "Zaɓi kwanan wata",
+  "widgetsA.countdown.settings.target.desc": "Lokacin da ƙirgawar za ta kai sifili",
+  "widgetsA.countdown.settings.target.label": "Kwanan wata da lokaci",
+  "widgetsA.countdown.untitled": "Ba shi da suna",
+  "styles.clock.flip": "Juyawa"
+}

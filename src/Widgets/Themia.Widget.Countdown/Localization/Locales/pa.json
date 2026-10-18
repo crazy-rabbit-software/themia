@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "ਛੱਲਾ",
+  "styles.countdown.text": "ਲਿਖਤ",
+  "styles.countdown.unitDays": "ਦਿਨ",
+  "styles.countdown.unitHours": "ਘੰਟੇ",
+  "styles.countdown.unitMinutes": "ਮਿੰਟ",
+  "styles.countdown.unitSeconds": "ਸਕਿੰਟ",
+  "widget.countdown.label": "ਕਾਊਂਟਡਾਊਨ",
+  "widgetsA.catalog.countdown.description": "ਤੁਹਾਡੀ ਕਿਸੇ ਖ਼ਾਸ ਮਿਤੀ ਤੱਕ ਬਾਕੀ ਸਮਾਂ",
+  "widgetsA.countdown.ago": "{duration} ਪਹਿਲਾਂ",
+  "widgetsA.countdown.compact.dh": "{days}ਦਿ {hours}ਘੰ",
+  "widgetsA.countdown.compact.dhm": "{days}ਦਿ {hours}ਘੰ {minutes}ਮਿੰ",
+  "widgetsA.countdown.compact.dhms": "{days}ਦਿ {hours}ਘੰ {minutes}ਮਿੰ {seconds}ਸ",
+  "widgetsA.countdown.compact.hm": "{hours}ਘੰ {minutes}ਮਿੰ",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} ਦਿਨ",
+    "other": "{count} ਦਿਨ"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} ਦਿਨ ਪਹਿਲਾਂ",
+    "other": "{count} ਦਿਨ ਪਹਿਲਾਂ"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} ਦਿਨ ਵਿੱਚ",
+    "other": "{count} ਦਿਨਾਂ ਵਿੱਚ"
+  },
+  "widgetsA.countdown.format.auto": "ਆਟੋ",
+  "widgetsA.countdown.format.days": "ਸਿਰਫ਼ ਦਿਨ",
+  "widgetsA.countdown.format.dhm": "ਦਿਨ · ਘੰਟੇ · ਮਿੰਟ",
+  "widgetsA.countdown.format.dhms": "ਦਿਨ · ਘੰਟੇ · ਮਿੰਟ · ਸਕਿੰਟ",
+  "widgetsA.countdown.fullDateTime": "{date} ਨੂੰ {time} ਵਜੇ",
+  "widgetsA.countdown.hours": {
+    "one": "{count} ਘੰਟਾ",
+    "other": "{count} ਘੰਟੇ"
+  },
+  "widgetsA.countdown.in": "{duration} ਵਿੱਚ",
+  "widgetsA.countdown.inAMoment": "ਥੋੜ੍ਹੀ ਦੇਰ ਵਿੱਚ",
+  "widgetsA.countdown.justNow": "ਹੁਣੇ ਹੁਣੇ",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} ਮਿੰਟ",
+    "other": "{count} ਮਿੰਟ"
+  },
+  "widgetsA.countdown.settings.format.desc": "ਬਾਕੀ ਸਮਾਂ ਕਿਵੇਂ ਲਿਖਿਆ ਜਾਂਦਾ ਹੈ",
+  "widgetsA.countdown.settings.format.label": "ਫਾਰਮੈਟ",
+  "widgetsA.countdown.settings.name.label": "ਨਾਮ",
+  "widgetsA.countdown.settings.pickDate": "ਮਿਤੀ ਚੁਣੋ",
+  "widgetsA.countdown.settings.target.desc": "ਉਹ ਪਲ ਜਦੋਂ ਉਲਟੀ ਗਿਣਤੀ ਸਿਫ਼ਰ 'ਤੇ ਪਹੁੰਚਦੀ ਹੈ",
+  "widgetsA.countdown.settings.target.label": "ਮਿਤੀ ਅਤੇ ਸਮਾਂ",
+  "widgetsA.countdown.untitled": "ਬਿਨਾਂ ਸਿਰਲੇਖ",
+  "styles.clock.flip": "ਫਲਿੱਪ"
+}

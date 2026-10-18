@@ -80,7 +80,6 @@
   "widgetsA.catalog.clipboard.label": "Zwischenablage",
   "widgetsA.catalog.clock.description": "Uhrzeit und Datum, digital oder analog",
   "widgetsA.catalog.contacts.description": "Personen aus deinen Microsoft-, Google- und CardDAV-Adressbüchern",
-  "widgetsA.catalog.countdown.description": "Die verbleibende Zeit bis zu einem Termin, der dir wichtig ist",
   "widgetsA.catalog.cpu.description": "Prozessorauslastung über alle Kerne",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "Lese- und Schreibvorgänge pro Sekunde",
@@ -154,47 +153,6 @@
   "widgetsA.contacts.settings.count.label": "Personen",
   "widgetsA.contacts.settings.every": "Alle Kontaktkonten",
   "widgetsA.contacts.settings.layout.label": "Layout",
-  "widgetsA.countdown.ago": "vor {duration}",
-  "widgetsA.countdown.compact.dh": "{days} Tg. {hours} h",
-  "widgetsA.countdown.compact.dhm": "{days} Tg. {hours} h {minutes} min",
-  "widgetsA.countdown.compact.dhms": "{days} Tg. {hours} h {minutes} min {seconds} s",
-  "widgetsA.countdown.compact.hm": "{hours} h {minutes} min",
-  "widgetsA.countdown.dateTime": "{date}, {time}",
-  "widgetsA.countdown.days": {
-    "one": "{count} Tag",
-    "other": "{count} Tage"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "one": "vor {count} Tag",
-    "other": "vor {count} Tagen"
-  },
-  "widgetsA.countdown.daysIn": {
-    "one": "in {count} Tag",
-    "other": "in {count} Tagen"
-  },
-  "widgetsA.countdown.format.auto": "Automatisch",
-  "widgetsA.countdown.format.days": "Nur Tage",
-  "widgetsA.countdown.format.dhm": "Tage · Std. · Min.",
-  "widgetsA.countdown.format.dhms": "Tage · Std. · Min. · Sek.",
-  "widgetsA.countdown.fullDateTime": "{date} um {time}",
-  "widgetsA.countdown.hours": {
-    "one": "{count} Std.",
-    "other": "{count} Std."
-  },
-  "widgetsA.countdown.in": "in {duration}",
-  "widgetsA.countdown.inAMoment": "gleich",
-  "widgetsA.countdown.justNow": "gerade eben",
-  "widgetsA.countdown.minutes": {
-    "one": "{count} Min.",
-    "other": "{count} Min."
-  },
-  "widgetsA.countdown.settings.pickDate": "Datum auswählen",
-  "widgetsA.countdown.settings.name.label": "Name",
-  "widgetsA.countdown.settings.target.label": "Datum und Uhrzeit",
-  "widgetsA.countdown.settings.target.desc": "Der Moment, in dem der Countdown null erreicht",
-  "widgetsA.countdown.settings.format.label": "Format",
-  "widgetsA.countdown.settings.format.desc": "Wie die verbleibende Zeit geschrieben wird",
-  "widgetsA.countdown.untitled": "Ohne Titel",
   "widgetsA.office.accountProblem": "{account}: {problem}",
   "widgetsA.office.addAccount": "Konto hinzufügen",
   "widgetsA.office.everyDesc": "Später hinzugefügte Konten sind auch dabei",

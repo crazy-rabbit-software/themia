@@ -78,7 +78,6 @@
   "widgetsA.catalog.clipboard.label": "Papan klip",
   "widgetsA.catalog.clock.description": "Waktu dan tanggal, digital atau analog",
   "widgetsA.catalog.contacts.description": "Orang dari buku alamat Microsoft, Google, dan CardDAV Anda",
-  "widgetsA.catalog.countdown.description": "Sisa waktu hingga tanggal yang penting bagi Anda",
   "widgetsA.catalog.cpu.description": "Beban prosesor di semua inti",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "Baca dan tulis disk per detik",
@@ -150,42 +149,6 @@
   "widgetsA.contacts.settings.count.label": "Orang",
   "widgetsA.contacts.settings.every": "Semua akun kontak",
   "widgetsA.contacts.settings.layout.label": "Tata letak",
-  "widgetsA.countdown.ago": "{duration} yang lalu",
-  "widgetsA.countdown.compact.dh": "{days}h {hours}j",
-  "widgetsA.countdown.compact.dhm": "{days}h {hours}j {minutes}m",
-  "widgetsA.countdown.compact.dhms": "{days}h {hours}j {minutes}m {seconds}d",
-  "widgetsA.countdown.compact.hm": "{hours}j {minutes}m",
-  "widgetsA.countdown.dateTime": "{date}, {time}",
-  "widgetsA.countdown.days": {
-    "other": "{count} hari"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "other": "{count} hari yang lalu"
-  },
-  "widgetsA.countdown.daysIn": {
-    "other": "dalam {count} hari"
-  },
-  "widgetsA.countdown.format.auto": "Otomatis",
-  "widgetsA.countdown.format.days": "Hanya hari",
-  "widgetsA.countdown.format.dhm": "Hari · Jam · Mnt",
-  "widgetsA.countdown.format.dhms": "Hari · Jam · Mnt · Dtk",
-  "widgetsA.countdown.fullDateTime": "{date} pukul {time}",
-  "widgetsA.countdown.hours": {
-    "other": "{count} jam"
-  },
-  "widgetsA.countdown.in": "dalam {duration}",
-  "widgetsA.countdown.inAMoment": "sebentar lagi",
-  "widgetsA.countdown.justNow": "baru saja",
-  "widgetsA.countdown.minutes": {
-    "other": "{count} mnt"
-  },
-  "widgetsA.countdown.settings.pickDate": "Pilih tanggal",
-  "widgetsA.countdown.settings.name.label": "Nama",
-  "widgetsA.countdown.settings.target.label": "Tanggal dan waktu",
-  "widgetsA.countdown.settings.target.desc": "Saat hitung mundur mencapai nol",
-  "widgetsA.countdown.settings.format.label": "Format",
-  "widgetsA.countdown.settings.format.desc": "Cara sisa waktu ditulis",
-  "widgetsA.countdown.untitled": "Tanpa judul",
   "widgetsA.office.accountProblem": "{account}: {problem}",
   "widgetsA.office.addAccount": "Tambah akun",
   "widgetsA.office.everyDesc": "Akun yang Anda tambahkan nanti juga disertakan",

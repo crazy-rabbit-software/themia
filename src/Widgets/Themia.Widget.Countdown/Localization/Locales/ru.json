@@ -1,0 +1,62 @@
+{
+  "styles.countdown.ring": "Кольцо",
+  "styles.countdown.text": "Текст",
+  "styles.countdown.unitDays": "дн.",
+  "styles.countdown.unitHours": "ч",
+  "styles.countdown.unitMinutes": "мин",
+  "styles.countdown.unitSeconds": "с",
+  "widget.countdown.label": "Обратный отсчет",
+  "widgetsA.catalog.countdown.description": "Сколько осталось до важной для вас даты",
+  "widgetsA.countdown.ago": "{duration} назад",
+  "widgetsA.countdown.compact.dh": "{days} д {hours} ч",
+  "widgetsA.countdown.compact.dhm": "{days} д {hours} ч {minutes} мин",
+  "widgetsA.countdown.compact.dhms": "{days} д {hours} ч {minutes} мин {seconds} с",
+  "widgetsA.countdown.compact.hm": "{hours} ч {minutes} мин",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} день",
+    "few": "{count} дня",
+    "many": "{count} дней",
+    "other": "{count} дня"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} день назад",
+    "few": "{count} дня назад",
+    "many": "{count} дней назад",
+    "other": "{count} дня назад"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "через {count} день",
+    "few": "через {count} дня",
+    "many": "через {count} дней",
+    "other": "через {count} дня"
+  },
+  "widgetsA.countdown.format.auto": "Авто",
+  "widgetsA.countdown.format.days": "Только дни",
+  "widgetsA.countdown.format.dhm": "Дни · Часы · Мин",
+  "widgetsA.countdown.format.dhms": "Дни · Часы · Мин · Сек",
+  "widgetsA.countdown.fullDateTime": "{date} в {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} ч",
+    "few": "{count} ч",
+    "many": "{count} ч",
+    "other": "{count} ч"
+  },
+  "widgetsA.countdown.in": "через {duration}",
+  "widgetsA.countdown.inAMoment": "сейчас",
+  "widgetsA.countdown.justNow": "только что",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} мин",
+    "few": "{count} мин",
+    "many": "{count} мин",
+    "other": "{count} мин"
+  },
+  "widgetsA.countdown.settings.format.desc": "Как записывается оставшееся время",
+  "widgetsA.countdown.settings.format.label": "Формат",
+  "widgetsA.countdown.settings.name.label": "Название",
+  "widgetsA.countdown.settings.pickDate": "Выберите дату",
+  "widgetsA.countdown.settings.target.desc": "Момент, когда отсчёт дойдёт до нуля",
+  "widgetsA.countdown.settings.target.label": "Дата и время",
+  "widgetsA.countdown.untitled": "Без названия",
+  "styles.clock.flip": "Перекидной"
+}

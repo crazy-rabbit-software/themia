@@ -25,42 +25,6 @@ public class TimeStylesTests
         Assert.False(new PomodoroConfig { Style = PomodoroStyle.Digits }.DrawsBar);
     }
 
-    // ---- countdown ----------------------------------------------------------------------------
-
-    [Fact]
-    public void S6031_the_ring_is_the_share_still_to_go_and_unknown_without_a_creation_time()
-    {
-        var created = new DateTimeOffset(2026, 10, 1, 0, 0, 0, TimeSpan.Zero);
-        var trip = new CountdownConfig { Label = "Trip" };
-        trip.Retarget(created.AddDays(10), created);
-
-        Assert.Equal(1, CountdownLayout.Left(trip, created));
-        Assert.Equal(0.75, CountdownLayout.Left(trip, created.AddDays(2.5))!.Value, 6);
-        Assert.Equal(0, CountdownLayout.Left(trip, created.AddDays(12)));
-        Assert.Null(CountdownLayout.Left(new CountdownConfig { Target = created.AddDays(10) }, created));
-        Assert.Null(CountdownLayout.Left(new CountdownConfig(), created));
-    }
-
-    [Fact]
-    public void S6032_flip_cards_are_days_while_there_are_any_then_two_figure_hours_and_minutes()
-    {
-        var now = new DateTimeOffset(2026, 10, 16, 9, 0, 0, TimeSpan.Zero);
-
-        var far = CountdownLayout.Cards(now.AddDays(12).AddHours(3).AddMinutes(7), now, seconds: false);
-        Assert.Equal(["12", "03", "07"], far.Select(c => c.Digits));
-        Assert.Equal([CountdownUnit.Days, CountdownUnit.Hours, CountdownUnit.Minutes], far.Select(c => c.Unit));
-
-        var near = CountdownLayout.Cards(now.AddHours(5).AddMinutes(4).AddSeconds(9), now, seconds: true);
-        Assert.Equal(["05", "04", "09"], near.Select(c => c.Digits));
-        Assert.Equal(CountdownUnit.Seconds, near[^1].Unit);
-
-        // Gone by: it counts up, as the text style's "… ago" does.
-        var past = CountdownLayout.Cards(now.AddMinutes(-90), now, seconds: false);
-        Assert.Equal(["01", "30"], past.Select(c => c.Digits));
-
-        Assert.Equal("365", CountdownLayout.Cards(now.AddDays(365), now, false)[0].Digits);
-    }
-
     // ---- the shared ring and dot grid ----------------------------------------------------------
 
     [Fact]

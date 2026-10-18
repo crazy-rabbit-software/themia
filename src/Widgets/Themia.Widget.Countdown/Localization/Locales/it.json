@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "Anello",
+  "styles.countdown.text": "Testo",
+  "styles.countdown.unitDays": "giorni",
+  "styles.countdown.unitHours": "ore",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "s",
+  "widget.countdown.label": "Conto alla rovescia",
+  "widgetsA.catalog.countdown.description": "Il tempo che manca a una data importante per te",
+  "widgetsA.countdown.ago": "{duration} fa",
+  "widgetsA.countdown.compact.dh": "{days} g {hours} h",
+  "widgetsA.countdown.compact.dhm": "{days} g {hours} h {minutes} min",
+  "widgetsA.countdown.compact.dhms": "{days} g {hours} h {minutes} min {seconds} s",
+  "widgetsA.countdown.compact.hm": "{hours} h {minutes} min",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} giorno",
+    "other": "{count} giorni"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} giorno fa",
+    "other": "{count} giorni fa"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "tra {count} giorno",
+    "other": "tra {count} giorni"
+  },
+  "widgetsA.countdown.format.auto": "Automatico",
+  "widgetsA.countdown.format.days": "Solo giorni",
+  "widgetsA.countdown.format.dhm": "Giorni · Ore · Min",
+  "widgetsA.countdown.format.dhms": "Giorni · Ore · Min · Sec",
+  "widgetsA.countdown.fullDateTime": "{date} alle {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} h",
+    "other": "{count} h"
+  },
+  "widgetsA.countdown.in": "tra {duration}",
+  "widgetsA.countdown.inAMoment": "tra un attimo",
+  "widgetsA.countdown.justNow": "proprio ora",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} min",
+    "other": "{count} min"
+  },
+  "widgetsA.countdown.settings.format.desc": "Come viene scritto il tempo rimanente",
+  "widgetsA.countdown.settings.format.label": "Formato",
+  "widgetsA.countdown.settings.name.label": "Nome",
+  "widgetsA.countdown.settings.pickDate": "Scegli una data",
+  "widgetsA.countdown.settings.target.desc": "Il momento in cui il conto alla rovescia arriva a zero",
+  "widgetsA.countdown.settings.target.label": "Data e ora",
+  "widgetsA.countdown.untitled": "Senza titolo",
+  "styles.clock.flip": "Palette"
+}

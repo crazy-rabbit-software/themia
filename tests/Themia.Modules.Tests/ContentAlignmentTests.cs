@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [ClockConfig.Descriptor.Id, CountdownConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
+        WidgetId[] aligned = [ClockConfig.Descriptor.Id, new WidgetId("countdown"), WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, CpuConfig.Descriptor.Id, MixerConfig.Descriptor.Id, WifiToggleConfig.Descriptor.Id, ShutdownConfig.Descriptor.Id, FolderConfig.Descriptor.Id])
@@ -102,7 +102,7 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(AirQualityConfig.Descriptor.Id, (int)AirQualityStyle.Number)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(AirQualityConfig.Descriptor.Id, (int)AirQualityStyle.Gauge)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("quote"))));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(CountdownConfig.Descriptor.Id)));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("countdown"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(ExchangeRatesConfig.Descriptor.Id, (int)ExchangeRatesStyle.Number)));
 
         // A new widget stores no choice: its default follows its style.

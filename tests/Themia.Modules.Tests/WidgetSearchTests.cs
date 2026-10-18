@@ -31,7 +31,7 @@ public sealed class WidgetSearchTests
             ["Your GitHub notifications across all selected accounts"], ["Online"], ["GitHub"]),
         new("pomodoro", ["Pomodoro"], ModuleCatalog.Of(PomodoroConfig.Descriptor.Id).Keywords,
             ["Focus timer with work and break cycles"], ["Others"]),
-        new("countdown", ["Countdown"], ModuleCatalog.Of(CountdownConfig.Descriptor.Id).Keywords,
+        new("countdown", ["Countdown"], ModuleCatalog.Of(new WidgetId("countdown")).Keywords,
             ["Count down to an important date"], ["Others"]),
     ];
 

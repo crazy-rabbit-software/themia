@@ -27,7 +27,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(ClockConfig))]
 [JsonSerializable(typeof(ColorFiltersToggleConfig))]
 [JsonSerializable(typeof(ContactsConfig))]
-[JsonSerializable(typeof(CountdownConfig))]
 [JsonSerializable(typeof(CpuConfig))]
 [JsonSerializable(typeof(CpuDetailsConfig))]
 [JsonSerializable(typeof(DiskConfig))]

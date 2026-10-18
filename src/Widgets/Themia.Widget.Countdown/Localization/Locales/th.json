@@ -1,0 +1,47 @@
+{
+  "styles.countdown.ring": "วงแหวน",
+  "styles.countdown.text": "ข้อความ",
+  "styles.countdown.unitDays": "วัน",
+  "styles.countdown.unitHours": "ชม.",
+  "styles.countdown.unitMinutes": "นาที",
+  "styles.countdown.unitSeconds": "วิ",
+  "widget.countdown.label": "นับถอยหลัง",
+  "widgetsA.catalog.countdown.description": "เวลาที่เหลือจนถึงวันสำคัญของคุณ",
+  "widgetsA.countdown.ago": "{duration} ที่แล้ว",
+  "widgetsA.countdown.compact.dh": "{days}ว {hours}ชม",
+  "widgetsA.countdown.compact.dhm": "{days}ว {hours}ชม {minutes}น",
+  "widgetsA.countdown.compact.dhms": "{days}ว {hours}ชม {minutes}น {seconds}วิ",
+  "widgetsA.countdown.compact.hm": "{hours}ชม {minutes}น",
+  "widgetsA.countdown.dateTime": "{date} {time}",
+  "widgetsA.countdown.days": {
+    "other": "{count} วัน"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "{count} วันที่แล้ว"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "ในอีก {count} วัน"
+  },
+  "widgetsA.countdown.format.auto": "อัตโนมัติ",
+  "widgetsA.countdown.format.days": "วันเท่านั้น",
+  "widgetsA.countdown.format.dhm": "วัน · ชั่วโมง · นาที",
+  "widgetsA.countdown.format.dhms": "วัน · ชั่วโมง · นาที · วินาที",
+  "widgetsA.countdown.fullDateTime": "{date} เวลา {time}",
+  "widgetsA.countdown.hours": {
+    "other": "{count} ชม."
+  },
+  "widgetsA.countdown.in": "ในอีก {duration}",
+  "widgetsA.countdown.inAMoment": "ในอีกสักครู่",
+  "widgetsA.countdown.justNow": "เมื่อสักครู่",
+  "widgetsA.countdown.minutes": {
+    "other": "{count} นาที"
+  },
+  "widgetsA.countdown.settings.format.desc": "วิธีเขียนเวลาที่เหลือ",
+  "widgetsA.countdown.settings.format.label": "รูปแบบ",
+  "widgetsA.countdown.settings.name.label": "ชื่อ",
+  "widgetsA.countdown.settings.pickDate": "เลือกวันที่",
+  "widgetsA.countdown.settings.target.desc": "เวลาที่การนับถอยหลังถึงศูนย์",
+  "widgetsA.countdown.settings.target.label": "วันที่และเวลา",
+  "widgetsA.countdown.untitled": "ไม่มีชื่อ",
+  "styles.clock.flip": "พลิก"
+}

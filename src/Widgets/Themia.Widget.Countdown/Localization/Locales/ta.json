@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "வளையம்",
+  "styles.countdown.text": "உரை",
+  "styles.countdown.unitDays": "நாள்",
+  "styles.countdown.unitHours": "மணி",
+  "styles.countdown.unitMinutes": "நிமி",
+  "styles.countdown.unitSeconds": "வினா",
+  "widget.countdown.label": "கவுண்ட்டவுன்",
+  "widgetsA.catalog.countdown.description": "உங்களுக்கு முக்கியமான ஒரு தேதி வரை மீதமுள்ள நேரம்",
+  "widgetsA.countdown.ago": "{duration} முன்பு",
+  "widgetsA.countdown.compact.dh": "{days}நா {hours}ம",
+  "widgetsA.countdown.compact.dhm": "{days}நா {hours}ம {minutes}நி",
+  "widgetsA.countdown.compact.dhms": "{days}நா {hours}ம {minutes}நி {seconds}வி",
+  "widgetsA.countdown.compact.hm": "{hours}ம {minutes}நி",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} நாள்",
+    "other": "{count} நாட்கள்"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} நாள் முன்பு",
+    "other": "{count} நாட்கள் முன்பு"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} நாளில்",
+    "other": "{count} நாட்களில்"
+  },
+  "widgetsA.countdown.format.auto": "தானியங்கு",
+  "widgetsA.countdown.format.days": "நாட்கள் மட்டும்",
+  "widgetsA.countdown.format.dhm": "நாட்கள் · மணி · நிமி",
+  "widgetsA.countdown.format.dhms": "நாட்கள் · மணி · நிமி · விநா",
+  "widgetsA.countdown.fullDateTime": "{date} அன்று {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} மணி",
+    "other": "{count} மணி"
+  },
+  "widgetsA.countdown.in": "{duration} இல்",
+  "widgetsA.countdown.inAMoment": "சிறிது நேரத்தில்",
+  "widgetsA.countdown.justNow": "இப்போதுதான்",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} நிமி",
+    "other": "{count} நிமி"
+  },
+  "widgetsA.countdown.settings.format.desc": "மீதமுள்ள நேரம் எவ்வாறு எழுதப்படுகிறது",
+  "widgetsA.countdown.settings.format.label": "வடிவம்",
+  "widgetsA.countdown.settings.name.label": "பெயர்",
+  "widgetsA.countdown.settings.pickDate": "தேதியைத் தேர்ந்தெடு",
+  "widgetsA.countdown.settings.target.desc": "எண்ணிக்கை பூஜ்ஜியத்தை அடையும் நேரம்",
+  "widgetsA.countdown.settings.target.label": "தேதி மற்றும் நேரம்",
+  "widgetsA.countdown.untitled": "தலைப்பில்லாதது",
+  "styles.clock.flip": "ஃபிளிப்"
+}

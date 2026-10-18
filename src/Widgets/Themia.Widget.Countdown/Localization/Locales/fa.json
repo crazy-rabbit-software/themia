@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "حلقه",
+  "styles.countdown.text": "متن",
+  "styles.countdown.unitDays": "روز",
+  "styles.countdown.unitHours": "ساعت",
+  "styles.countdown.unitMinutes": "دقیقه",
+  "styles.countdown.unitSeconds": "ثانیه",
+  "widget.countdown.label": "شمارش معکوس",
+  "widgetsA.catalog.countdown.description": "زمان باقی‌مانده تا یک تاریخ مهم برای شما",
+  "widgetsA.countdown.ago": "{duration} پیش",
+  "widgetsA.countdown.compact.dh": "{days} روز {hours} ساعت",
+  "widgetsA.countdown.compact.dhm": "{days} روز {hours} ساعت {minutes} دقیقه",
+  "widgetsA.countdown.compact.dhms": "{days} روز {hours} ساعت {minutes} دقیقه {seconds} ثانیه",
+  "widgetsA.countdown.compact.hm": "{hours} ساعت {minutes} دقیقه",
+  "widgetsA.countdown.dateTime": "{date}، {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} روز",
+    "other": "{count} روز"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} روز پیش",
+    "other": "{count} روز پیش"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} روز دیگر",
+    "other": "{count} روز دیگر"
+  },
+  "widgetsA.countdown.format.auto": "خودکار",
+  "widgetsA.countdown.format.days": "فقط روز",
+  "widgetsA.countdown.format.dhm": "روز · ساعت · دقیقه",
+  "widgetsA.countdown.format.dhms": "روز · ساعت · دقیقه · ثانیه",
+  "widgetsA.countdown.fullDateTime": "{date} ساعت {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} ساعت",
+    "other": "{count} ساعت"
+  },
+  "widgetsA.countdown.in": "{duration} دیگر",
+  "widgetsA.countdown.inAMoment": "تا لحظاتی دیگر",
+  "widgetsA.countdown.justNow": "همین الان",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} دقیقه",
+    "other": "{count} دقیقه"
+  },
+  "widgetsA.countdown.settings.format.desc": "نحوهٔ نوشتن زمان باقی‌مانده",
+  "widgetsA.countdown.settings.format.label": "قالب",
+  "widgetsA.countdown.settings.name.label": "نام",
+  "widgetsA.countdown.settings.pickDate": "انتخاب تاریخ",
+  "widgetsA.countdown.settings.target.desc": "لحظه‌ای که شمارش معکوس به صفر می‌رسد",
+  "widgetsA.countdown.settings.target.label": "تاریخ و زمان",
+  "widgetsA.countdown.untitled": "بدون عنوان",
+  "styles.clock.flip": "ورقی"
+}

@@ -2,23 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace Themia.Core.Model;
 
-/// <summary>How a countdown renders the time it has left. [C-11]</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<CountdownFormat>))]
-public enum CountdownFormat
-{
-    /// <summary>Pick the coarsest unit that still says something useful.</summary>
-    Auto = 0,
-
-    /// <summary>Whole days only.</summary>
-    Days = 1,
-
-    /// <summary>Days, hours and minutes.</summary>
-    DaysHoursMinutes = 2,
-
-    /// <summary>Days, hours, minutes and seconds — the only format that needs a one-second tick.</summary>
-    DaysHoursMinutesSeconds = 3,
-}
-
 /// <summary>Where a widget draws its header.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<HeaderPlacement>))]
 public enum HeaderPlacement

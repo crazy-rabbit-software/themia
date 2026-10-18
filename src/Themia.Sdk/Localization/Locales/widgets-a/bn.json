@@ -80,7 +80,6 @@
   "widgetsA.catalog.clipboard.label": "ক্লিপবোর্ড",
   "widgetsA.catalog.clock.description": "সময় ও তারিখ, ডিজিটাল বা অ্যানালগ",
   "widgetsA.catalog.contacts.description": "আপনার Microsoft, Google ও CardDAV ঠিকানা বইয়ের মানুষ",
-  "widgetsA.catalog.countdown.description": "আপনার গুরুত্বপূর্ণ একটি তারিখ পর্যন্ত বাকি সময়",
   "widgetsA.catalog.cpu.description": "সব কোরে প্রসেসরের লোড",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "প্রতি সেকেন্ডে ডিস্ক রিড ও রাইট",
@@ -154,47 +153,6 @@
   "widgetsA.contacts.settings.count.label": "মানুষ",
   "widgetsA.contacts.settings.every": "প্রতিটি পরিচিতি অ্যাকাউন্ট",
   "widgetsA.contacts.settings.layout.label": "লেআউট",
-  "widgetsA.countdown.ago": "{duration} আগে",
-  "widgetsA.countdown.compact.dh": "{days}দি {hours}ঘ",
-  "widgetsA.countdown.compact.dhm": "{days}দি {hours}ঘ {minutes}মি",
-  "widgetsA.countdown.compact.dhms": "{days}দি {hours}ঘ {minutes}মি {seconds}সে",
-  "widgetsA.countdown.compact.hm": "{hours}ঘ {minutes}মি",
-  "widgetsA.countdown.dateTime": "{date}, {time}",
-  "widgetsA.countdown.days": {
-    "one": "{count} দিন",
-    "other": "{count} দিন"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "one": "{count} দিন আগে",
-    "other": "{count} দিন আগে"
-  },
-  "widgetsA.countdown.daysIn": {
-    "one": "{count} দিন পরে",
-    "other": "{count} দিন পরে"
-  },
-  "widgetsA.countdown.format.auto": "স্বয়ংক্রিয়",
-  "widgetsA.countdown.format.days": "শুধু দিন",
-  "widgetsA.countdown.format.dhm": "দিন · ঘণ্টা · মিনিট",
-  "widgetsA.countdown.format.dhms": "দিন · ঘণ্টা · মিনিট · সেকেন্ড",
-  "widgetsA.countdown.fullDateTime": "{date}, {time}-এ",
-  "widgetsA.countdown.hours": {
-    "one": "{count} ঘণ্টা",
-    "other": "{count} ঘণ্টা"
-  },
-  "widgetsA.countdown.in": "{duration} পরে",
-  "widgetsA.countdown.inAMoment": "একটু পরেই",
-  "widgetsA.countdown.justNow": "এইমাত্র",
-  "widgetsA.countdown.minutes": {
-    "one": "{count} মিনিট",
-    "other": "{count} মিনিট"
-  },
-  "widgetsA.countdown.settings.pickDate": "তারিখ বেছে নিন",
-  "widgetsA.countdown.settings.name.label": "নাম",
-  "widgetsA.countdown.settings.target.label": "তারিখ ও সময়",
-  "widgetsA.countdown.settings.target.desc": "যে মুহূর্তে কাউন্টডাউন শূন্যে পৌঁছায়",
-  "widgetsA.countdown.settings.format.label": "ফরম্যাট",
-  "widgetsA.countdown.settings.format.desc": "বাকি সময় কীভাবে লেখা হয়",
-  "widgetsA.countdown.untitled": "শিরোনামহীন",
   "widgetsA.office.accountProblem": "{account}: {problem}",
   "widgetsA.office.addAccount": "একটি অ্যাকাউন্ট যোগ করুন",
   "widgetsA.office.everyDesc": "পরে যোগ করা অ্যাকাউন্টও অন্তর্ভুক্ত হবে",

@@ -1,0 +1,52 @@
+{
+  "styles.countdown.ring": "Anneau",
+  "styles.countdown.text": "Texte",
+  "styles.countdown.unitDays": "jours",
+  "styles.countdown.unitHours": "heures",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "s",
+  "widget.countdown.label": "Compte à rebours",
+  "widgetsA.catalog.countdown.description": "Le temps restant avant une date qui compte pour toi",
+  "widgetsA.countdown.ago": "il y a {duration}",
+  "widgetsA.countdown.compact.dh": "{days} j {hours} h",
+  "widgetsA.countdown.compact.dhm": "{days} j {hours} h {minutes} min",
+  "widgetsA.countdown.compact.dhms": "{days} j {hours} h {minutes} min {seconds} s",
+  "widgetsA.countdown.compact.hm": "{hours} h {minutes} min",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} jour",
+    "other": "{count} jours"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "il y a {count} jour",
+    "other": "il y a {count} jours"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "dans {count} jour",
+    "other": "dans {count} jours"
+  },
+  "widgetsA.countdown.format.auto": "Automatique",
+  "widgetsA.countdown.format.days": "Jours seulement",
+  "widgetsA.countdown.format.dhm": "Jours · Heures · Min",
+  "widgetsA.countdown.format.dhms": "Jours · Heures · Min · Sec",
+  "widgetsA.countdown.fullDateTime": "{date} à {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} h",
+    "other": "{count} h"
+  },
+  "widgetsA.countdown.in": "dans {duration}",
+  "widgetsA.countdown.inAMoment": "dans un instant",
+  "widgetsA.countdown.justNow": "à l’instant",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} min",
+    "other": "{count} min"
+  },
+  "widgetsA.countdown.settings.format.desc": "Comment le temps restant est écrit",
+  "widgetsA.countdown.settings.format.label": "Format",
+  "widgetsA.countdown.settings.name.label": "Nom",
+  "widgetsA.countdown.settings.pickDate": "Choisis une date",
+  "widgetsA.countdown.settings.target.desc": "Le moment où le compte à rebours atteint zéro",
+  "widgetsA.countdown.settings.target.label": "Date et heure",
+  "widgetsA.countdown.untitled": "Sans titre",
+  "styles.clock.flip": "Palettes"
+}

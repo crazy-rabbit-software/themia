@@ -79,7 +79,6 @@
   "widgetsA.catalog.clipboard.label": "Clipboard",
   "widgetsA.catalog.clock.description": "Time and date, digital or analog",
   "widgetsA.catalog.contacts.description": "People from your Microsoft, Google and CardDAV address books",
-  "widgetsA.catalog.countdown.description": "Time left until a date you care about",
   "widgetsA.catalog.cpu.description": "Processor load across all cores",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "Disk reads and writes per second",
@@ -153,47 +152,6 @@
   "widgetsA.contacts.settings.count.label": "People",
   "widgetsA.contacts.settings.every": "Every contacts account",
   "widgetsA.contacts.settings.layout.label": "Layout",
-  "widgetsA.countdown.ago": "{duration} ago",
-  "widgetsA.countdown.compact.dh": "{days}d {hours}h",
-  "widgetsA.countdown.compact.dhm": "{days}d {hours}h {minutes}m",
-  "widgetsA.countdown.compact.dhms": "{days}d {hours}h {minutes}m {seconds}s",
-  "widgetsA.countdown.compact.hm": "{hours}h {minutes}m",
-  "widgetsA.countdown.dateTime": "{date}, {time}",
-  "widgetsA.countdown.days": {
-    "one": "{count} day",
-    "other": "{count} days"
-  },
-  "widgetsA.countdown.daysAgo": {
-    "one": "{count} day ago",
-    "other": "{count} days ago"
-  },
-  "widgetsA.countdown.daysIn": {
-    "one": "in {count} day",
-    "other": "in {count} days"
-  },
-  "widgetsA.countdown.format.auto": "Auto",
-  "widgetsA.countdown.format.days": "Days only",
-  "widgetsA.countdown.format.dhm": "Days · Hours · Min",
-  "widgetsA.countdown.format.dhms": "Days · Hours · Min · Sec",
-  "widgetsA.countdown.fullDateTime": "{date} at {time}",
-  "widgetsA.countdown.hours": {
-    "one": "{count} hr",
-    "other": "{count} hrs"
-  },
-  "widgetsA.countdown.in": "in {duration}",
-  "widgetsA.countdown.inAMoment": "in a moment",
-  "widgetsA.countdown.justNow": "just now",
-  "widgetsA.countdown.minutes": {
-    "one": "{count} min",
-    "other": "{count} mins"
-  },
-  "widgetsA.countdown.settings.pickDate": "Pick a date",
-  "widgetsA.countdown.settings.name.label": "Name",
-  "widgetsA.countdown.settings.target.label": "Date and time",
-  "widgetsA.countdown.settings.target.desc": "The moment the countdown reaches zero",
-  "widgetsA.countdown.settings.format.label": "Format",
-  "widgetsA.countdown.settings.format.desc": "How the time left is written",
-  "widgetsA.countdown.untitled": "Untitled",
   "widgetsA.office.accountProblem": "{account}: {problem}",
   "widgetsA.office.addAccount": "Add an account",
   "widgetsA.office.everyDesc": "Accounts you add later are included too",

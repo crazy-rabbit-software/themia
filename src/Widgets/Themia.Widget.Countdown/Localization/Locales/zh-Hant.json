@@ -1,0 +1,47 @@
+{
+  "styles.countdown.ring": "圓環",
+  "styles.countdown.text": "文字",
+  "styles.countdown.unitDays": "天",
+  "styles.countdown.unitHours": "小時",
+  "styles.countdown.unitMinutes": "分",
+  "styles.countdown.unitSeconds": "秒",
+  "widget.countdown.label": "倒數計時",
+  "widgetsA.catalog.countdown.description": "距離重要日期的剩餘時間",
+  "widgetsA.countdown.ago": "{duration}前",
+  "widgetsA.countdown.compact.dh": "{days}天 {hours}小時",
+  "widgetsA.countdown.compact.dhm": "{days}天 {hours}小時 {minutes}分",
+  "widgetsA.countdown.compact.dhms": "{days}天 {hours}小時 {minutes}分 {seconds}秒",
+  "widgetsA.countdown.compact.hm": "{hours}小時 {minutes}分",
+  "widgetsA.countdown.dateTime": "{date} {time}",
+  "widgetsA.countdown.days": {
+    "other": "{count}天"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "{count}天前"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "{count}天後"
+  },
+  "widgetsA.countdown.format.auto": "自動",
+  "widgetsA.countdown.format.days": "僅天數",
+  "widgetsA.countdown.format.dhm": "天 · 小時 · 分",
+  "widgetsA.countdown.format.dhms": "天 · 小時 · 分 · 秒",
+  "widgetsA.countdown.fullDateTime": "{date} {time}",
+  "widgetsA.countdown.hours": {
+    "other": "{count}小時"
+  },
+  "widgetsA.countdown.in": "{duration}後",
+  "widgetsA.countdown.inAMoment": "馬上",
+  "widgetsA.countdown.justNow": "剛剛",
+  "widgetsA.countdown.minutes": {
+    "other": "{count}分鐘"
+  },
+  "widgetsA.countdown.settings.format.desc": "剩餘時間的寫法",
+  "widgetsA.countdown.settings.format.label": "格式",
+  "widgetsA.countdown.settings.name.label": "名稱",
+  "widgetsA.countdown.settings.pickDate": "選擇日期",
+  "widgetsA.countdown.settings.target.desc": "倒數歸零的時刻",
+  "widgetsA.countdown.settings.target.label": "日期和時間",
+  "widgetsA.countdown.untitled": "未命名",
+  "styles.clock.flip": "翻頁"
+}
