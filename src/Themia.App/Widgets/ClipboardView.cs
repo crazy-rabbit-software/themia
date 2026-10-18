@@ -26,9 +26,9 @@ namespace Themia.App.Widgets;
 /// link, never opened.
 /// </para>
 /// <para>
-/// [S-1458] The history is the app's one <see cref="ClipboardHistoryService"/>, kept while any view
+/// [S-1458] The history is the app's one (<see cref="IWidgetHost.ClipboardHistory"/>), kept while any view
 /// holds a Clipboard widget, so it is there when this view is switched to; the widget shows its
-/// newest entries, as many as its own setting keeps. It is fed by <see cref="ClipboardWatcher"/>, a
+/// newest entries, as many as its own setting keeps. It is fed by the host's clipboard listener, a
 /// message-only window with <c>AddClipboardFormatListener</c> rather than a poll — so the
 /// clipboard is read exactly when Windows says it changed and at no other time.
 /// </para>
@@ -62,15 +62,17 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
     private ClipboardConfig _config = new();
     private ClipboardPlan _plan = ClipboardLayout.Plan(default);
-    private ClipboardHistoryService? _source;
+    private readonly IWidgetHost _host;
+    private IClipboardHistory? _source;
     private IDisposable? _subscription;
     private Ticker? _ticker;
     private IWidgetSurface? _surface;
     private int? _cursor;
     private bool _detached;
 
-    public ClipboardView()
+    public ClipboardView(IWidgetHost host)
     {
+        _host = host;
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -117,7 +119,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         // [S-1458] The app's one history, shared by every Clipboard widget on every view.
         // [S-1443] Never for a preview (a debug render): a render's PNG must not
         // carry whatever happens to be on the user's clipboard.
-        if (_surface?.IsPreview != true && _source is null && AppServices.Clipboard is { } source)
+        if (_surface?.IsPreview != true && _source is null && _host.ClipboardHistory is { } source)
         {
             _source = source;
             _source.Changed += OnHistoryChanged;
@@ -191,7 +193,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         {
             // Each state says which it is. "Nothing copied yet" and "the listener never started"
             // need very different things from the reader.
-            _emptyText.Text = ClipboardWatcher.IsRunning || _surface?.IsPreview == true
+            _emptyText.Text = _host.ClipboardHistory?.Listening == true || _surface?.IsPreview == true
                 ? Str.WidgetsA_Clipboard_Empty.Text()
                 : Str.WidgetsA_Clipboard_NoListener.Text();
 
@@ -371,7 +373,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             return;
         }
 
-        if (!ClipboardWatcher.SetText(text))
+        if (!_host.CopyText(text))
         {
             // Already logged with the Win32 reason. Nothing changed, and the list still shows what
             // is genuinely on the clipboard, so there is nothing to correct on screen.

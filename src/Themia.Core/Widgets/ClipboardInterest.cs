@@ -19,9 +19,9 @@ public static class ClipboardInterest
         int? capacity = null;
         foreach (var widget in state.Views.SelectMany(view => view.Widgets))
         {
-            if (widget.Config is ClipboardConfig config)
+            if (widget.Config is IKeepsClipboardHistory keeps)
             {
-                capacity = Math.Max(capacity ?? 0, config.EffectiveCapacity);
+                capacity = Math.Max(capacity ?? 0, keeps.KeptEntries);
             }
         }
 

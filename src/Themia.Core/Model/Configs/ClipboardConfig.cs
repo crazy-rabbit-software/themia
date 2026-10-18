@@ -21,7 +21,7 @@ namespace Themia.Core.Model;
 /// the one control that genuinely reduces exposure.
 /// </para>
 /// </summary>
-public sealed class ClipboardConfig : WidgetConfig
+public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory
 {
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -50,6 +50,9 @@ public sealed class ClipboardConfig : WidgetConfig
     [JsonIgnore]
     public int EffectiveCapacity
         => Math.Clamp(Capacity, ClipboardHistory.MinCapacity, ClipboardHistory.MaxCapacity);
+
+    /// <summary>[S-1458] What it asks the host's history to keep.</summary>
+    int IKeepsClipboardHistory.KeptEntries => EffectiveCapacity;
 
     /// <summary>
     /// The history is fed by a clipboard listener, not by polling, so this only keeps the relative

@@ -48,6 +48,10 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IAudioCapture Loopback => HostAudioCapture.Instance;
 
+    public IClipboardHistory? ClipboardHistory => AppServices.Clipboard;
+
+    public bool CopyText(string text) => ClipboardWatcher.SetText(text);
+
     public bool ShowAccounts()
     {
         if (AppServices.ShowAccounts is not { } show)

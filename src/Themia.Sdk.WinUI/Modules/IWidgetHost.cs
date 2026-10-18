@@ -76,4 +76,10 @@ public interface IWidgetHost
 
     /// <summary>[S-3203] What the speakers play: the host's one loopback capture, for the visualizer.</summary>
     IAudioCapture Loopback { get; }
+
+    /// <summary>[S-1458] The app's one clipboard history. Null where the host keeps none (a debug render, or no Clipboard widget yet).</summary>
+    IClipboardHistory? ClipboardHistory { get; }
+
+    /// <summary>[S-1444] Put <paramref name="text"/> on the clipboard, exactly as given. False when Windows refused it (logged).</summary>
+    bool CopyText(string text);
 }

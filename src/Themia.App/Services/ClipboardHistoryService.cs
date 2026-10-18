@@ -1,5 +1,6 @@
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services;
 
@@ -14,7 +15,7 @@ namespace Themia.App.Services;
 /// forgotten. UI thread only, as <see cref="ClipboardWatcher"/> is.
 /// </para>
 /// </summary>
-internal sealed class ClipboardHistoryService : IDisposable
+internal sealed class ClipboardHistoryService : IClipboardHistory, IDisposable
 {
     private const string Scope = "clipboard";
 
@@ -26,6 +27,9 @@ internal sealed class ClipboardHistoryService : IDisposable
 
     /// <summary>Most recent first.</summary>
     public IReadOnlyList<ClipboardEntry> Entries => _history.Entries;
+
+    /// <summary>The clipboard listener is running.</summary>
+    public bool Listening => ClipboardWatcher.IsRunning;
 
     /// <summary>
     /// Follow the state: listen and keep <paramref name="capacity"/> entries, or with null (no
