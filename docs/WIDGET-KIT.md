@@ -1731,14 +1731,86 @@ registration path: when a table becomes a descriptor member, the table is delete
   live service (a fetch, Refresh, offline with a restored shelf, a place in and outside Europe for the
   air index, a rainy hour, an ECB publication day and a weekend, a listed symbol through a session and
   its extended hours, a coin, the symbol search), and the region read in the packaged build.
+  *M4 part B, group 4 as built (2026-10-18): the system widgets.* Twenty-one widget projects, one per
+  commit: the seven meters (`Themia.Widget.Cpu`, `.Memory`, `.Battery`, `.Network`, `.Disk`, `.Ping`,
+  `.Gpu`), the seven detail widgets (`.CpuDetails`, `.MemoryDetails`, `.TopProcesses`, `.NetworkDetails`,
+  `.BatteryDetails`, `.PingDetails`, `.GpuDetails`), `.Drive`, `.RemovableDrives`, `.Brightness`, `.Mixer`,
+  `.Volume`, `.Music` and `.AudioVisualizer` (deferred from group 1), each its config (styles and enums
+  with it), descriptor (on its module), its part of the shared view or its own view, preview where it
+  has one, settings page (`<Name>Settings.Rows`; none for the CPU, memory and battery details, Removable
+  drives and the visualizer, as before, [S-1750]), strings as `<Name>Str`, its SPEC section and tests.
+  First, each its own commit: a fix the user asked for, test first (the module test host runs the
+  [S-1116] native-digits rule over every module's table, with the modules' allow list by widget and key;
+  `stocks.extendedHoursDesc` is back on it). Then the SDK contracts, each an `IWidgetHost` member shaped
+  on what the views called, the COM, WASAPI, WinRT and Win32 staying host code behind them:
+  `System` (`ISystemFeeds`: `Watch(SourceId<T>, onSample, target)` → `IFeedWatch<T>`, `WatchSeries` →
+  `ISeriesWatch`; the host's `SystemHub` implements it; null only before the host has started it, as
+  `AppServices.System` was), with the hub's data into `Themia.Sdk` first (`FeedKey`, `SeriesPoint` and the
+  history, `CoreHistory`, `MeterReading`, `SourceId` with the `Sources` table and its snapshots, the
+  rules those snapshots carry, `SystemInterests` with `IReadsSystem` on each system config, so the
+  host's switch over config types went and Core keeps `SystemInterests.From(state)` as a C# 14 static
+  extension, its callers unchanged), `WatchSlot` and `SystemDrive.Root`; `Drives` (`IDrives`, the one
+  `DriveService`); `Audio` (`IAudioOutputs`: subscribe, level, mute, the default-output switch; the
+  shared `AudioFeed` over it); `Brightness` (`IBrightness`; `DeviceOf` added with the brightness move);
+  `Media` (`IMediaSessions.Open` → `IMediaSession`); `Loopback` (`IAudioCapture`, the visualizer's
+  capture). What a settings page lists from the host is a seam installed in `App()`, as `SymbolLookup`
+  is: `DriveList`, `AudioDevices`, `GpuAdapters`; so are a process's executable (`ProcessPaths`) and a
+  row's shell icon (`AppIconSource`, `ThemeOf` with it). The shared parts into the SDK, public,
+  namespaces kept: `MeterView` with its looks, faces and preview states, `MeterPart`/`MeterItemsWatch`,
+  `BarList`/`TileGrid`, `CoreGraphGrid`, `SparkBand` (`SparkScroll` with the data), `MeterSettingsRows`,
+  `GaugeConfig`/`MeterTiming`; `DetailView` and `DetailPart` (the sample state asks the part for its
+  fixture sheet, `DetailPart.SampleSheet`, instead of naming the battery details), `DetailFace`,
+  `FolderRealize`; the pairs' parts: `DriveIcon`/`DriveBar`, `AudioLook`, `AudioDeviceRow`,
+  `GpuAdapterRow`, `PingHostRow` with `HostAddress.DefaultPingHost`. Widget-only rules went with their
+  widget (`PingWindow` to the ping details, `VisualizerLayout` and `SpectrumCanvas` to the visualizer,
+  `HugRow` to the mixer); Core's `DetailConfigs.cs`, `DriveConfigs.cs`, `WidgetSettings.Details.cs` and
+  the app's `Widgets/Meters`, `Widgets/Details` went with the last of their widgets. The recent
+  behaviours are as they were (the renders below): the graphs' scroll one sample behind with the new
+  point off-screen, the CPU's core graphs, the glides and the Smooth switch, the virtualized process
+  list, the history caps, the mixer without a level meter, the disk with its header and no drive in
+  its body. Strings were carried by the group 1 script, the same count in all 30 languages each time,
+  163 keys a language in all: CPU 7, memory 7, battery 3, network 3, disk 8, ping 3, GPU 11, CPU
+  details 2, memory details 2, top processes 11, network details 4, battery details 2, ping details
+  12, GPU details 3, Drive 10, Removable drives 4, Brightness 9, Mixer 22, Volume 11, Music 20, the
+  visualizer 9 (style areas emptied went: `styles-cpu`, `-memory`, `-gpu`); what two of them read (the
+  meters' and details' shared words, `styles-io`'s Graph and Ring, the drive and device rows' words)
+  stays the SDK's table. Tags: a tag whose tests test SDK rules stayed in the root under its tests,
+  the config's tests under it moved into the module test host (`MeterHostTests`, `IoStylesHostTests`,
+  `DiskHostTests`, `PingHostTests`, `DetailHostTests`, `DriveHostTests`, `WindowsPanelsHostTests`,
+  `AudioHostTests`, `MusicHostTests`, `ItemKindsHostTests`), and the widget's own tags moved into its
+  `SPEC.md`; a widget left with none of its own got one with a test ([S-9500] CPU details, [S-9600]
+  memory details, [S-9700] top processes, [S-9800] battery details). No test was retagged; one changed
+  its body: the GPU meter's `S433_a_new_meter_shows_the_first_adapter…` kept the meter's default, the
+  details' default it also asserted moved to the GPU details' `S2431_` (a module test may not name
+  another widget's config). Other tests changed only the call shape (`new WidgetId("…")` for the
+  descriptors that left Core, `WidgetRegistryTests` over two descriptors still in Core). Found on the
+  way and fixed in the moves' commits: the module host's items rule ([S-6570]) now follows SDK parts
+  built of painting parts (the meters' shared view lays out the bars and tiles that paint); three Core
+  tests that read two real widgets of the first-run desktop moved into the module host
+  (`SettingsPageSyncHostTests`, `ItemTextHostTests`), the seed's meters being projects. A new fixture
+  test (`SystemStateFixtureTests`) reads a state of all twenty-one configured, generated with the
+  build from before at `d7dd3ae7`, with no repair, the same values, and writes it back unchanged.
+  Core's test count 5780 (from 6043), the module host's 2024 (from 1770).
+  Evidence: Debug build 0 warnings after every commit; both test projects
+  built and green after every move and at the end; each move's render set compared at once against
+  a "before" rendered at `d7dd3ae7`, and the final pixel diff of 698 images (every tier in each preview
+  state, light, dark and German, the fill sizes 120x80..1400x360, each style in each state in both
+  themes and German, the meters' `--tween 0.4`, `--progress 0.5` and `--span 30|300|3600` stills and a
+  header-less tier, the settings page plain, dark, German and per style; picker plain, German and
+  searched 17 ways, menus, edit bar in both themes, motion, Settings › Widgets and five searches)
+  against the "before" build: 0 differ (the "before" rendered twice differed only in `Sides-60ms`, an
+  animation caught mid-way, as in groups 1-3; it matched this time). Release AOT publish 0 warnings
+  (49.9 MB); Debug AOT publish 0 warnings (82.8 MB, before 82.3 MB) and its renders of the CPU meter
+  (sample, core graphs), the disk meter, the visualizer and the mixer's page finish in about 2 s,
+  identical to the JIT renders. Memory: the Debug AOT `--switch-check --busy` desktop (the system
+  widgets, galleries and visualizer on two stand-in displays) sampled at 30, 60 and 90 s, twice each:
+  153/153/153 and 154/154/154 MB private before, 153/153/153 MB twice after. Manual passes owed: each
+  module's own `SPEC.md` names it (the meters and details on a live desktop, a laptop's battery, two
+  GPUs, USB drives and shares, a DDC/CI monitor and a laptop panel, the mixer and volume moving real
+  levels, a media player, the visualizer with music), never in a render or a test, which are inert.
+
   - **Online, left:** RSS (`AppServices.Feeds`, `FeedSync`, the favicon cache) moves with its kit
-    migration (11.2); `SparkBand` and `SparkScroll` stay host code, the meters draw them.
-  - **System** (meters x6, details x7, Gpu, Drive, RemovableDrives, Brightness, Mixer, Volume,
-    Music, AudioVisualizer): `SystemHub`/`SystemData` (the samples), `Drives`, `Brightness`,
-    `AudioFeed`/`CoreAudio`, `AudioLoopback` (the visualizer's capture),
-    `MediaSession` as SDK contracts; `GaugeConfig`/`MeterTiming` with `SystemCadence`/`SystemSource`
-    into the SDK; `MeterPart`/`DetailPart`, `MeterLookParts`, `CoreGraphGrid`, `DriveParts` into the
-    SDK.
+    migration (11.2).
   - **Account widgets** (Email, Calendar, Contacts, NextMeeting, WeekPlanner, Tasks): mail, office
     and task sources as contracts; `CalendarConfig` (`ISetupRule` + `IInterests`) and
     `OfficeStatePanel`/`SetupPrompt` into the SDK; they move with their kit migration (11.2).

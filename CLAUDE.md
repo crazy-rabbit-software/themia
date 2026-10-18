@@ -59,7 +59,9 @@ state store.
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
   Localization/ (+ Locales/*.json: the host's Str; StringTable, LocalText) Diagnostics/ (Log) Links/ Time/ (CalendarDays) Shell/ (Glyphs)
   Model/ (WidgetConfig, FillChoice, RefreshPreferences, ContentAlign; Configs/: the shared config bases QuickToggle-,
-  PowerButton-, Weather-, SkyPlace-, DetailConfig and the config contracts ISetupRule, IPlaced, IContentAligned)
+  PowerButton-, Weather-, SkyPlace-, Detail-, GaugeConfig and the config contracts ISetupRule, IPlaced, IContentAligned)
+  SystemData/ (the hub's data: FeedKey, SourceId, Sources and their snapshots, MeterReading, series, SystemInterests
+  with IReadsSystem, ISystemFeeds, WatchSlot) and the system rules in Widgets/ (meters, details, drives, audio, music)
   Widgets/ (WidgetArea, Disclosure, tiers, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
   HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ScreenPick, SettingsSearch) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
@@ -72,7 +74,8 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetSettingsRows, view
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
                    WidgetLayout, ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
-                   UiLanguage, ScrollFade, EmptyStatePanel, Notices; Shell/: FluentLayout (settings rows), ColorChoice,
+                   UiLanguage, ScrollFade, EmptyStatePanel, Notices, the meters' and details' shared views (MeterView,
+                   DetailView, SparkBand, CoreGraphGrid), AudioFeed; Shell/: FluentLayout (settings rows), ColorChoice,
                    RowReorder, SettingRow, PlaceSearch, MenuArtIcons. References Themia.Sdk only, never Core. What
                    needs Win32 (eyedropper, file icons, geocoder, OLE drag) is the host's, installed at start (App()).
                    Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.
@@ -83,7 +86,7 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
   Widgets/         Modules/<Name>Module.cs (each in-app widget's module) + one *View.cs per widget
-src/Widgets/Themia.Widget.<Name>/     a widget module project (37 so far: year progress, M4 part B groups 1-3): module, config, view, Preview/,
+src/Widgets/Themia.Widget.<Name>/     a widget module project (58 so far: year progress, M4 part B groups 1-4): module, config, view, Preview/,
                    Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum
@@ -105,11 +108,14 @@ and the module test host pick it up; nothing in the app, Core or the SDK is edit
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
-Settings › Accounts, the Recycle Bin, the power backend, the quick-setting toggles' sources and the web
-answers the sync keeps fresh (`Weather`, `Quotes`, `Rates` over `Fetched<T>`), never `ShellLauncher`; a cue
-sounds through `SoundCue`; a config's sync wants go through the SDK's `IInterests`/`InterestsBuilder.Of<T>()`;
-the other shared data services (`AppServices.Feeds`, `.System`, ...) are host types until each gets an
-SDK contract (part B). A host test that needs a real widget (the seed, placement, the
+Settings › Accounts, the Recycle Bin, the power backend, the quick-setting toggles' sources, the web
+answers the sync keeps fresh (`Weather`, `Quotes`, `Rates` over `Fetched<T>`) and the system widgets'
+sources (`System`: the hub's `Watch`/`WatchSeries` over `Sources`; `Drives`, `Audio`, `Brightness`,
+`Media`, `Loopback`), never `ShellLauncher`; a cue sounds through `SoundCue`; a settings page's host
+lists are seams installed at start (`DriveList`, `AudioDevices`, `GpuAdapters`, `SymbolLookup`); a
+config's sync wants go through the SDK's `IInterests`/`InterestsBuilder.Of<T>()` and its hub wants
+through `IReadsSystem`; the other shared data services (`AppServices.Feeds`, the mail, office, task
+and local stores) are host types until each gets an SDK contract (part B). A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
 Core's internals. The widgets not moved yet (M4 part B, docs/WIDGET-KIT.md 11.1) keep their
 descriptor on their config in Core and their module in `Widgets/Modules/<Name>Module.cs`. Settings pages register one line in `ConfigPages.AppPages`.

@@ -19,7 +19,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
+- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music and the Audio visualizer are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin and Year progress are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates and Stocks are modules: their sections are their projects' `SPEC.md`; the sections named here keep what they share with the host.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
@@ -872,7 +872,14 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   fresh ([S-2663]: `IWeatherAnswers` for the conditions, forecast, air and rain, `IQuoteAnswers` for
   the quotes, `IRateAnswers` for the ECB table; each a `Fetched<T>` per want, the key it is synced
   under, `Show`/Refresh and `Updated(key)`; where the sync is not running, a debug render, what the
-  shared caches hold). The host makes one per card, every member shared by all of them. What a widget shares with the settings
+  shared caches hold), and the system widgets' sources: the system figures (`ISystemFeeds`: the one
+  hub's `Watch` over a typed `SourceId<T>` and `WatchSeries`, null before the host has started it,
+  [S-2500]), the drives (`IDrives`: the one walk, [S-4655]), the output devices (`IAudioOutputs`: the
+  one Core Audio worker's subscriptions, levels, mutes and default-output switch, [S-1220]), every
+  display's brightness (`IBrightness`, [S-4441]), Windows' media session (`IMediaSessions`) and what the
+  speakers play (`IAudioCapture`: the one loopback capture, [S-3203]); a settings page's host lists are
+  seams installed at start (`DriveList`, `AudioDevices`, `GpuAdapters`), as are a process's
+  executable (`ProcessPaths`) and a row's shell icon (`AppIconSource`). The host makes one per card, every member shared by all of them. What a widget shares with the settings
   window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
   `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
@@ -2751,9 +2758,10 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
 
 ## Meter framework and memory
 
-The six meters (CPU, memory, disk, battery, network, ping) share one view, `MeterView`, and differ
-only in a `MeterPart` per kind (`Widgets/Meters/<Kind>Meter.cs`): where the number comes from, what
-the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `MeterFaceTests`).
+The six meters (CPU, memory, disk, battery, network, ping) share one view, `MeterView` (the SDK's,
+`Themia.Sdk.WinUI`), and differ only in a `MeterPart` per kind, each in its module project
+(`src/Widgets/Themia.Widget.<Kind>/<Kind>Meter.cs`): where the number comes from, what the chart
+plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceTests`).
 
 - **[S-1120]** Every meter reads on the system hub's one cadence ([S-2503]): every second, a ping every
   five ([S-2512]). How often is not a setting and not a config field; a stored `intervalSeconds` is
@@ -3966,8 +3974,8 @@ focus after F6, focus rings, the foreground handling of edit mode, Narrator (see
 
 ## Battery and network
 
-Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMeter.cs`,
-`NetworkMeter.cs`); the rules are Core (`BatteryRules`, `NetworkRules`, tests in
+Package SYS-P3. Both meters are modules (`src/Widgets/Themia.Widget.Battery`, `.Network`, their
+`SPEC.md`); the rules are the SDK's (`BatteryRules`, `NetworkRules`, tests in
 `BatteryNetworkTests`). Like every meter they show the label, the reading and the history only
 ([S-1762]).
 
@@ -3993,8 +4001,8 @@ Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMete
 ### The network, disk, battery and ping styles
 
 Styles ([S-6000]) of the I/O meters, on the shared `MeterView` (`MeterLook`, [S-6300]): a look that
-draws the reading itself is a `MeterStyleFace` (`Widgets/Meters/MeterStyleFace.cs`,
-`MeterView.Faces.cs`); its rules are Core's `MeterStyleFaces.cs`. The hub, the series and their
+draws the reading itself is a `MeterStyleFace` (the SDK's `Widgets/Meters/MeterStyleFace.cs`,
+`MeterView.Faces.cs`); its rules are the SDK's `MeterStyleFaces.cs`. The hub, the series and their
 history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
 
 - **[S-6261]** A picture style (the battery, the signal bars) is the picture and the figure: the figure
@@ -4033,9 +4041,10 @@ history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
 
 ## GPU and screen time: the whole tile (SYS-P4)
 
-Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core `GpuRules`,
-`MeterFace`; `Widgets/ScreenTimeView*.cs` (+ `.Footer.cs`), Core `ScreenTimeRules`; settings
-`WidgetSettings.Gpu.cs`, `WidgetSettings.SystemWidgets.cs`. Tests `GpuRulesTests`, `ScreenTimeRulesTests` (`S12xx_`).
+Code: the GPU module (`src/Widgets/Themia.Widget.Gpu`: `GpuView.cs` + `GpuView.Panel.cs`, its
+settings page), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
+`Widgets/ScreenTimeView*.cs` (+ `.Footer.cs`), Core `ScreenTimeRules`; settings
+`WidgetSettings.SystemWidgets.cs`. Tests `GpuRulesTests`, `ScreenTimeRulesTests` (`S12xx_`).
 
 - [S-1200], [S-1201]: moved with the GPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gpu/`).
 - **[S-1207]** *(Retired: one adapter per widget, [S-433]; nothing shares the tile.)*
@@ -4067,7 +4076,7 @@ detail widgets — reads through one hub that lives as long as the app. Owning f
 Core `Themia.Core/SystemData/*` (`FeedKey`, `SystemCadence`, `FeedTable`, `SystemInterests`, `SampleRing`, `SeriesPoint`).
 Tests `SystemDataHubTests` (`S25xx_`).
 
-- **[S-2500]** One hub, `AppServices.System`, made by the host on the shared ticker and closed with it
+- **[S-2500]** One hub, `AppServices.System` (a widget reaches it as `IWidgetHost.System`, [S-6913]), made by the host on the shared ticker and closed with it
   (a debug render makes its own). A view watches in Attach (a parked view watches nothing, [S-1881])
   and lets go in Detach; no view reads a counter, walks a list or sends a probe. The samplers
   (`SystemMetrics`, `MemoryCounters`, `PerformanceInfo`, `ProcessorInfo`, `ProcessList`, `DiskMetrics`,
@@ -4133,11 +4142,12 @@ Tests `SystemDataHubTests` (`S25xx_`).
 The details the original's meters showed, back as their own placeable widgets; the meters themselves
 stay label, reading and history ([S-1762]). Seven kinds, each in its meter's family of the
 add menu ([S-3511]): CPU details, Memory details, Top processes, Network details, Battery
-details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), one `DetailPart` per kind
-(`Widgets/Details/*Part.cs`); rules in Core (`DetailFace`, `DetailSheet`, `CpuDetailRules`,
-`MemoryDetailRules`, `ProcessTable`, `NetworkDetailRules`, `BatteryDetailRules`,
-`PingWindow`, `GpuDetailRules`; configs in `Model/Configs/DetailConfigs.cs`); settings
-`WidgetSettings.Details.cs`. Tests `SystemDetailsTests` (`S24xx_`). Strings in `Locales/widgets-details`.
+details, Ping statistics, GPU details. One view, the SDK's `DetailView` (+ `.List.cs`), one `DetailPart` per
+kind in its module project (`src/Widgets/Themia.Widget.<Kind>Details`, `.TopProcesses`, with its config,
+settings page and `SPEC.md`); rules in the SDK (`DetailFace`, `DetailSheet`, `CpuDetailRules`,
+`MemoryDetailRules`, `ProcessTable`, `NetworkDetailRules`, `BatteryDetailRules`, `GpuDetailRules`; the
+ping window's `PingWindow` is the ping details module's). Tests `SystemDetailsTests` (`S24xx_`). Shared
+strings in `Locales/widgets-details`.
 
 - **[S-2400]** A detail widget is a hero (its main figure), a caption saying what it is of, facts in
   priority order and, for some kinds, a list. No "which facts" settings: the tile shows more as it grows.
@@ -4655,8 +4665,9 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
 ## Mixer and Volume (SYS-P5)
 
 `Themia.App/Services/CoreAudio{,.Worker,.Native}.cs` (replaces `AudioSessions.cs` and the polled
-`AudioEndpoint.cs`), `Themia.App/Widgets/{MixerView,MixerView.Row,VolumeView,AudioLook,AudioFeed}.cs`,
-`Themia.Core/Widgets/{AudioRules,MixerRules,VolumeRules}.cs`, tests `AudioRulesTests`.
+`AudioEndpoint.cs`) behind `IWidgetHost.Audio`; the widgets are modules (`src/Widgets/Themia.Widget.Mixer`,
+`.Volume`, their `SPEC.md`) over the SDK's `AudioFeed`, `AudioLook`, `AudioDeviceRow` and
+`{AudioRules,MixerRules,VolumeRules}.cs`, tests `AudioRulesTests`.
 
 - **[S-1220]** One Core Audio worker serves both widgets (the [S-440] MTA thread, now named
   `CoreAudio`). The volume tile no longer polls: it is a subscriber that does not ask for sessions,
