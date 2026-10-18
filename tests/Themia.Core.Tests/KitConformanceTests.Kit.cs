@@ -228,10 +228,9 @@ public sealed partial class KitConformanceTests
 
     /// <summary>
     /// [S-7071] Outside the provider projects no code reads a service's own header. Today's: the
-    /// rate-limit rules' <c>X-RateLimit-*</c> budget (GitHub's names, read for every account reply;
-    /// they become a provider descriptor's <c>RateLimitScheme</c> with the service layer) and the
     /// calendar's iCalendar properties (<c>X-MICROSOFT-*</c>, <c>X-GOOGLE-*</c>: the host's own ICS
-    /// reader, not a kit service). The list may only shrink.
+    /// reader, not a kit service). The rate-limit rules read a descriptor's scheme ([S-9920]). The
+    /// list may only shrink.
     /// </summary>
     [Fact]
     public void S7071_no_code_outside_a_provider_reads_a_services_own_header_beyond_todays_list()
@@ -243,6 +242,6 @@ public sealed partial class KitConformanceTests
             .Order(StringComparer.Ordinal)
             .ToList();
 
-        Assert.Equal(["IcsEvents.cs", "RateLimitRules.cs"], offending);
+        Assert.Equal(["IcsEvents.cs"], offending);
     }
 }

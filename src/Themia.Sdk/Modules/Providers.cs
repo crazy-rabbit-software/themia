@@ -31,6 +31,22 @@ public interface IProviderModule
     /// host's Accounts row (every account provider of today).
     /// </summary>
     CadenceRow? Cadence { get; }
+
+    /// <summary>
+    /// [S-9910] How its accounts sign in, in the order the Accounts page offers them: the members of
+    /// the closed set the host runs (<c>ServiceSignIn</c>). None for a provider whose accounts the host
+    /// adds through a password form (IMAP, CalDAV, CardDAV).
+    /// </summary>
+    Services.ProviderSignIn SignIn => Services.ProviderSignIn.None;
+
+    /// <summary>[S-9902] Its kit service, or null for a provider whose data the host reads itself (mail, calendars, contacts, tasks).</summary>
+    Services.ServiceDescriptor? Service => null;
+
+    /// <summary>
+    /// [S-9917] Its key in <c>THEMIA_CLIENT_SECRETS</c> when a sign-in member's secret is
+    /// <see cref="Services.ClientSecretRule.BuildTime"/>; null otherwise.
+    /// </summary>
+    string? BuildSecret => null;
 }
 
 /// <summary>

@@ -6,6 +6,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Sync;
+using Themia.Sdk.Services;
 
 namespace Themia.App.Services.Accounts;
 
@@ -222,10 +223,10 @@ internal sealed partial class AccountService
         var error = AccountException.FromStatus(reply.Status);
         var said = ErrorBody.Message(reply.Body);
 
-        // [S-625] A spent budget is a throttle with a known end, whatever status carried it, and
-        // nothing should ask again before that end.
-        var budget = RateLimitRules.Read(reply.Headers, Now);
-        if (RateLimitRules.IsThrottle(reply.Status, budget))
+        // [S-9920] A throttle is a throttle with a known end, whatever status carried it, and nothing
+        // should ask again before that end. The host's own providers name no budget: Retry-After only.
+        var budget = RateLimitRules.Read(RateLimitScheme.RetryAfterOnly, reply.Headers, Now, reply.Status);
+        if (RateLimitRules.IsThrottle(RateLimitScheme.RetryAfterOnly, reply.Status, budget))
         {
             error = AccountError.RateLimited;
         }
@@ -243,7 +244,7 @@ internal sealed partial class AccountService
         throw new AccountException(error, message, reply.Status)
         {
             ProviderMessage = said,
-            RetryAt = error == AccountError.RateLimited ? RateLimitRules.WaitUntil(reply.Status, budget, Now) : null,
+            RetryAt = error == AccountError.RateLimited ? RateLimitRules.WaitUntil(RateLimitScheme.RetryAfterOnly, reply.Status, budget, Now) : null,
         };
     }
 

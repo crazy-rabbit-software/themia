@@ -997,6 +997,91 @@ service layer knows strategies, never services: a service is a descriptor that p
 - **[S-9901]** A throttle's own retry time is kept: an account failure carrying `RetryAt` (the
   provider's `Retry-After` or rate-limit reset, `RateLimitRules`) holds its schedule until then, never shorter
   than the back-off, and the user's Refresh does not jump it ([S-2609]).
+- **[S-9902]** A kit service is a `ServiceDescriptor`, data its provider module hands the host
+  (`IProviderModule.Service`): its provider and feature, its Updates row, its transport (`RestJson`,
+  `GraphQL`, `FormPost`), its https API root (fixed or the account's own), its sign-in members, the
+  headers every request carries (never a credential), its rate-limit and error schemes, its
+  freshness, whether public data may be read without an account, its page and item bounds, the
+  hosts its links may name and the shortest cadence its budget allows. No host code branches on
+  which service it is.
+- **[S-9903]** What a service's rules give the kit is a query (`IServiceQuery`): a key naming
+  everything that changes the answer (never the token), its paging and freshness, at most three
+  earlier steps whose answers it needs (`IServiceStep`, a table of named values, fetched and held
+  like any entry), the request for a page (`ServiceRequest`: a read, its body, the rate-limit bucket
+  it counts against, its key) and the answer of a page, parsed through the service's
+  source-generated wire type (`IServiceQuery<TWire>`): a body that is not that shape is a bad
+  response, named by the first path that failed, never half-built.
+- **[S-9904]** A page of a query is a `KitChunk` (items before the item rules, the next cursor, the
+  summary line, the ids a delta removed, the sentence for an empty list the rules know the reason
+  of); a widget's list over held data is a `KitPage`.
+- **[S-9905]** Freshness: `ETag` sends the held entity tag and a 304 reuses the held body (a 304
+  with nothing held is a bad response); `None` asks anew each time and lets the cadence keep it
+  cheap; a service's own sync token keeps a replica ([S-9907]). An "updated since" filter is never
+  used: an item that leaves a filtered set would never be seen to go.
+- **[S-9906]** Paging is one loop (`ServicePager`) for every member (`None`, `LinkHeader`,
+  `BodyCursor`, `PageToken`, `OffsetLimit`): it stops at the widget's count, at the descriptor's
+  page and item bounds, on an empty page, on the service's own end, and on a cursor or address seen
+  before (a loop is a bad response, never an endless fetch). A `Link: rel="next"` address is
+  followed only on the first page's https origin, without user info; an address with a comma is
+  read whole.
+- **[S-9907]** A service read through its sync token keeps a typed replica per account
+  (`IServiceReplica`: merge a delta onto what is held, validate on load, the token to send), shared
+  by every widget of the provider; a widget's list is a view of it (`IReplicaView`), recomputed on
+  every merge and at the day's rollover, never a request of its own.
+- **[S-9908]** An entry is next asked at its fetch plus the user's cadence, never sooner than the
+  service's idle floor (and, read anonymously, its anonymous floor), and never before a block on its
+  bucket ends (`ServicePolling.NextPoll`).
+- **[S-9909]** What several accounts answer merges into one list (`KitMerge`): newest first (an
+  instant, else a day, else the source's order), an item seen through two accounts once (the first
+  account's copy), cut to the widget's count.
+- **[S-9910]** How a provider's accounts sign in is a closed set of members (`ServiceAuth`), listed
+  in the order the Accounts page offers them (`IProviderModule.SignIn`): the browser flow with PKCE
+  and a loopback (`OAuthPkceLoopback`), the device code (`OAuthDeviceCode`), a pasted token
+  (`PastedToken`), and none (`AnonymousAuth`, where public reads are allowed). Scopes are joined by
+  a space or a comma as the provider wants. A provider the host adds through a password form (IMAP,
+  CalDAV, CardDAV) lists none.
+- **[S-9911]** A member says how its token goes on a request: `Authorization: Bearer <token>`, or the
+  token bare for a service whose personal keys are not Bearer tokens.
+- **[S-9912]** Without an account a service is read only where its descriptor allows public reads,
+  and never more often than their floor.
+- **[S-9913]** A loopback redirect is written as its rule says (`localhost` or `127.0.0.1`, the path,
+  the port): any free port where the provider ignores the port of a registered loopback redirect,
+  else the listed ports tried in order.
+- **[S-9914]** A provider's refresh tokens are stable or rotate; a rotating one is written before the
+  new access token is used, inside the one refresh ([S-530]), and the old one is never sent again
+  past the provider's reuse grace.
+- **[S-9915]** A pasted token is tried only when it has its member's shape (length, alphabet, an
+  optional prefix), trimmed; then the provider's identity request checks it, and only a token that
+  passes is sealed and kept.
+- **[S-9916]** Who signed in, for a provider whose identity is one GET with the new token, is data
+  (`IdentityEndpoint`): the address, the id field, the fields that may hold the address (the first
+  one given, else the id), the name, and the id's prefix, so an account signed in again keeps its id
+  ([S-505]).
+- **[S-9917]** Client secrets a provider insists on are build environment, never source: one
+  variable, `THEMIA_CLIENT_SECRETS` (`google=...;todoist=...`), keyed by the provider's `BuildSecret`,
+  parsed by one rule (`ClientSecretRules`: a key is a module id, a secret 8 to 256 letters, digits,
+  `_ - .`; any broken entry fails the whole value, a key given twice too). The log names the keys a
+  build holds, never a value.
+- **[S-9920]** A throttle is read through the descriptor's `RateLimitScheme`: its budgets' headers
+  (several budgets: a spent one wins), the reset's unit (epoch seconds or milliseconds, or seconds
+  from now), the header naming the bucket, the statuses that are a throttle when a budget is spent or
+  a wait is named (a 429 always is), and the statuses whose `Retry-After` is not a wait (a 401 that
+  wants a new token). The wait is `Retry-After`, else a wait the body names, else the reset, else a
+  minute, never past two hours; a success that spent the last request waits for the reset too.
+  Unreadable values are absent, never zero. The host's own providers name no budget: a 429, or a 403
+  with `Retry-After` (`RateLimitScheme.RetryAfterOnly`).
+- **[S-9921]** A reply reaches the one vocabulary through one function (`ServiceFailures.Classify`),
+  in this order: a throttle the headers show; a throttle the body shows (a code or a message the
+  error scheme maps, a body wait); the body's code; the status (401 sign in again, but a refusal when
+  the request carried no credential; 403 not allowed; 404 and 410 not found; anything else
+  unexpected). A code the scheme does not know is unexpected and named, so a new code is seen in the
+  log. A body that is not JSON carries no code.
+- **[S-9922]** The GraphQL transport writes `{"query", "variables"}` through the service's own
+  context and reads an answer's envelope: `data` for the rules, `errors` (message, code, path) for the
+  error scheme. A 200 with errors is used when the list's own path is present, its errors the detail;
+  without it, it is classified by its codes like any failure.
+- **[S-9923]** The form-post transport sends its fields as `application/x-www-form-urlencoded`, each
+  escaped, in order.
 
 ## Adding a widget
 

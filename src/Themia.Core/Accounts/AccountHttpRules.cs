@@ -174,27 +174,7 @@ public static class RetryRules
     /// A <c>Retry-After</c> header: delta seconds (what Graph and Google send) or an HTTP date. Null
     /// when absent or unreadable, so the caller falls back to its own backoff.
     /// </summary>
-    public static TimeSpan? ParseRetryAfter(string? header, DateTimeOffset now)
-    {
-        var text = header?.Trim();
-        if (string.IsNullOrEmpty(text))
-        {
-            return null;
-        }
-
-        if (long.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds))
-        {
-            return TimeSpan.FromSeconds(Math.Min(seconds, (long)TimeSpan.FromDays(1).TotalSeconds));
-        }
-
-        if (DateTimeOffset.TryParseExact(text, "r", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var at))
-        {
-            var delta = at - now;
-            return delta < TimeSpan.Zero ? TimeSpan.Zero : delta;
-        }
-
-        return null;
-    }
+    public static TimeSpan? ParseRetryAfter(string? header, DateTimeOffset now) => RetryAfterHeader.Parse(header, now);
 }
 
 /// <summary>How a request proves who it is, for deciding where that proof may follow a redirect.</summary>
