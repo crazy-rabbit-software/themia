@@ -2,54 +2,17 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
+using static Themia.Core.Tests.StyleTiers;
 
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-6160]..[S-6170] The styles of the weather, forecast, stock, exchange-rate and air widgets:
-/// their menus, and the rules each style draws by, at the seven size tiers (each card less its
+/// [S-6161]..[S-6168] The styles of the weather, forecast, stock and exchange-rate widgets:
+/// the rules each style draws by, at the seven size tiers (each card less its
 /// ~44px header).
 /// </summary>
 public sealed class WeatherStylesTests
 {
-    private static readonly WidgetArea Xs = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea Xl = new(800, 516);
-
-    private static readonly WidgetArea[] Tiers = [Xs, S, M, Wide, Tall, L, Xl];
-
-    private static string[] Names(WidgetId kind) => [.. WidgetStyles.For(kind).Select(s => s.Name)];
-
-    // ---- the menus ---------------------------------------------------------------------------
-
-    [Fact]
-    public void S6160_each_kind_offers_its_styles_in_menu_order_the_default_first()
-    {
-        Assert.Equal(["standard", "largeIcon", "minimal"], Names(WeatherNowConfig.Descriptor.Id));
-        Assert.Equal(["rows", "columns", "curve", "grid"], Names(WeatherForecastConfig.Descriptor.Id));
-        Assert.Equal(["chart", "number"], Names(StocksConfig.Descriptor.Id));
-        Assert.Equal(["chart", "number"], Names(ExchangeRatesConfig.Descriptor.Id));
-        Assert.Equal(["number", "gauge"], Names(AirQualityConfig.Descriptor.Id));
-
-        Assert.Equal(WeatherNowStyle.Standard, new WeatherNowConfig().Style);
-        Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);
-        Assert.Equal(StocksStyle.Chart, new StocksConfig().Style);
-        Assert.Equal(ExchangeRatesStyle.Chart, new ExchangeRatesConfig().Style);
-        Assert.Equal(AirQualityStyle.Number, new AirQualityConfig().Style);
-    }
-
-    [Fact]
-    public void S6160_every_style_survives_a_clone()
-    {
-        Assert.Equal(WeatherNowStyle.Minimal, ((WeatherNowConfig)new WeatherNowConfig { Style = WeatherNowStyle.Minimal }.Clone()).Style);
-        Assert.Equal(StocksStyle.Number, ((StocksConfig)new StocksConfig { Style = StocksStyle.Number }.Clone()).Style);
-        Assert.Equal(AirQualityStyle.Gauge, ((AirQualityConfig)new AirQualityConfig { Style = AirQualityStyle.Gauge }.Clone()).Style);
-    }
-
     // ---- weather now [S-6161] [S-6162] -------------------------------------------------------
 
     [Fact]
@@ -265,36 +228,5 @@ public sealed class WeatherStylesTests
 
         Assert.Equal(0, plan.ChartHeight);
         Assert.False(plan.Beside);
-    }
-
-    // ---- air gauge [S-6170] ------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(AirQualityScale.European, 0, 0.0)]
-    [InlineData(AirQualityScale.European, 20, 1 / 6.0)]
-    [InlineData(AirQualityScale.European, 50, 2.5 / 6)]
-    [InlineData(AirQualityScale.Us, 100, 2 / 6.0)]
-    [InlineData(AirQualityScale.Us, 300, 5 / 6.0)]
-    [InlineData(AirQualityScale.Us, 500, 1.0)]
-    public void S6170_the_gauge_fills_to_the_index_s_place_on_six_equal_bands(AirQualityScale scale, double index, double fraction)
-        => Assert.Equal(fraction, AirQualityRules.ScalePosition(scale, index), 6);
-
-    [Fact]
-    public void S6170_the_gauge_takes_the_tile_and_the_readings_come_beside_on_a_strip_and_under_on_a_column()
-    {
-        var small = AirLayout.AirGauge(Xs, 7);
-        var medium = AirLayout.AirGauge(M, 7);
-        var tall = AirLayout.AirGauge(Tall, 7);
-        var strip = AirLayout.AirGauge(new WidgetArea(720, 140), 7);
-
-        Assert.Equal(AirFacts.None, small.Facts);
-        Assert.NotNull(GaugeLayout.Fit(small.GaugeWidth, small.GaugeHeight));
-        Assert.True(medium.Band);
-        Assert.Equal(AirFacts.None, medium.Facts);
-        Assert.Equal(AirFacts.Lines, tall.Facts);
-        Assert.True(tall.Count > 0);
-        Assert.True(GaugeLayout.Fit(tall.GaugeWidth, tall.GaugeHeight)!.Value.Width >= Tall.Width - (2 * OnlineLayouts.Inset) - 4, "the gauge keeps the column's width");
-        Assert.Equal(AirFacts.Side, strip.Facts);
-        Assert.True(strip.SideWidth > 0 && strip.GaugeWidth + strip.SideWidth <= 720 - (2 * OnlineLayouts.Inset));
     }
 }

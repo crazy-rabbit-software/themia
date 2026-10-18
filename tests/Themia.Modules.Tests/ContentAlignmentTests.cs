@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), AirQualityConfig.Descriptor.Id, ExchangeRatesConfig.Descriptor.Id];
+        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), ExchangeRatesConfig.Descriptor.Id];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, CpuConfig.Descriptor.Id, MixerConfig.Descriptor.Id, new WidgetId("wifiToggle"), new WidgetId("shutdown"), FolderConfig.Descriptor.Id])
@@ -88,7 +88,7 @@ public sealed partial class ContentAlignmentTests
             Assert.True(ContentAlignment.Applies(Widget(WeatherNowConfig.Descriptor.Id, (int)style)), $"{style}");
         }
 
-        Assert.True(ContentAlignment.Applies(Widget(AirQualityConfig.Descriptor.Id, (int)AirQualityStyle.Gauge)));
+        Assert.True(ContentAlignment.Applies(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
     }
 
     [Fact]
@@ -99,8 +99,8 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Standard)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.LargeIcon)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Minimal)));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(AirQualityConfig.Descriptor.Id, (int)AirQualityStyle.Number)));
-        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(AirQualityConfig.Descriptor.Id, (int)AirQualityStyle.Gauge)));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Number)));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("quote"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("countdown"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(ExchangeRatesConfig.Descriptor.Id, (int)ExchangeRatesStyle.Number)));

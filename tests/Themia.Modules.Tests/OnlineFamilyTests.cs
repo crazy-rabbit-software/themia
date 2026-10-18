@@ -1,12 +1,14 @@
 using Themia.Core.Model;
 using Themia.Core.Sync;
+using Themia.Core.Widgets;
 using Xunit;
+using static Themia.Core.Tests.OnlineReplies;
 
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-5100] [S-5101] The air, rain and exchange-rate widgets side by side: each asks its own source and
-/// never the weather, and their configs round-trip. Moved from Core's OnlineWidgetsTests into the module
+/// [S-5100] [S-5101] [S-5102] The air, rain and exchange-rate widgets side by side: each asks its own source and
+/// never the weather, and their configs round-trip; the air reply's figures as the air widget's rules read them. Moved from Core's OnlineWidgetsTests into the module
 /// test host, which has all three once they are projects; unchanged in what they assert.
 /// </summary>
 public sealed class OnlineFamilyTests
@@ -65,5 +67,30 @@ public sealed class OnlineFamilyTests
         Assert.Equal(("CHF", "USD"), (ratesCopy.BaseCurrency, ratesCopy.QuoteCurrency));
         Assert.Equal(ExchangeRatesStyle.Chart, ratesCopy.Style);
         Assert.Equal(new Sdk.WidgetId("rainNextHour"), new RainNextHourConfig().Kind);
+    }
+
+    [Fact]
+    public void S5102_out_of_range_and_null_figures_are_dropped_one_by_one()
+    {
+        var air = AirQualityWire.Parse(AirJson(
+            "\"time\":1791799200,\"european_aqi\":30,\"us_aqi\":-4,\"uv_index\":99,\"pm2_5\":null,\"grass_pollen\":null,\"birch_pollen\":3")).Value!;
+
+        Assert.Equal(30, air.EuropeanAqi);
+        Assert.Null(air.UsAqi);
+        Assert.Null(air.Uv);
+        Assert.Null(air.Pm25);
+        Assert.Single(air.Pollen);
+        Assert.True(AirQualityRules.HasPollen(air));
+    }
+
+    [Fact]
+    public void S5102_no_pollen_forecast_is_told_apart_from_none_in_the_air()
+    {
+        var outside = AirQualityWire.Parse(AirJson("\"time\":1791799200,\"us_aqi\":54,\"grass_pollen\":null")).Value!;
+        var clean = AirQualityWire.Parse(AirJson("\"time\":1791799200,\"us_aqi\":54,\"grass_pollen\":0.0")).Value!;
+
+        Assert.False(AirQualityRules.HasPollen(outside));
+        Assert.True(AirQualityRules.HasPollen(clean));
+        Assert.Empty(AirQualityRules.Pollen(clean));
     }
 }

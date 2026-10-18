@@ -4,6 +4,7 @@ using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Xunit;
+using static Themia.Core.Tests.OnlineReplies;
 
 namespace Themia.Core.Tests;
 
@@ -13,16 +14,6 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class OnlineWidgetsTests
 {
-    private const long Hour = 1_791_799_200; // a whole hour, unix seconds
-
-    private static string AirJson(string current) =>
-        "{\"latitude\":47.4,\"longitude\":8.5,\"current_units\":{\"time\":\"unixtime\"},\"current\":{" + current + "}}";
-
-    private const string GoodAir =
-        "\"time\":1791799200,\"interval\":3600,\"european_aqi\":25,\"us_aqi\":36,\"pm2_5\":7.7,\"pm10\":11.9,"
-        + "\"ozone\":56.0,\"uv_index\":2.5,\"alder_pollen\":0.0,\"birch_pollen\":0.0,\"grass_pollen\":12.0,"
-        + "\"mugwort_pollen\":0.2,\"olive_pollen\":0.0,\"ragweed_pollen\":6.0";
-
     // ---- air quality ---------------------------------------------------------------------------
 
     [Fact]
@@ -61,121 +52,6 @@ public sealed class OnlineWidgetsTests
 
         Assert.Equal(FetchStatus.Empty, result.Status);
         Assert.Null(result.Value);
-    }
-
-    [Fact]
-    public void S5102_out_of_range_and_null_figures_are_dropped_one_by_one()
-    {
-        var air = AirQualityWire.Parse(AirJson(
-            "\"time\":1791799200,\"european_aqi\":30,\"us_aqi\":-4,\"uv_index\":99,\"pm2_5\":null,\"grass_pollen\":null,\"birch_pollen\":3")).Value!;
-
-        Assert.Equal(30, air.EuropeanAqi);
-        Assert.Null(air.UsAqi);
-        Assert.Null(air.Uv);
-        Assert.Null(air.Pm25);
-        Assert.Single(air.Pollen);
-        Assert.True(AirQualityRules.HasPollen(air));
-    }
-
-    [Fact]
-    public void S5102_no_pollen_forecast_is_told_apart_from_none_in_the_air()
-    {
-        var outside = AirQualityWire.Parse(AirJson("\"time\":1791799200,\"us_aqi\":54,\"grass_pollen\":null")).Value!;
-        var clean = AirQualityWire.Parse(AirJson("\"time\":1791799200,\"us_aqi\":54,\"grass_pollen\":0.0")).Value!;
-
-        Assert.False(AirQualityRules.HasPollen(outside));
-        Assert.True(AirQualityRules.HasPollen(clean));
-        Assert.Empty(AirQualityRules.Pollen(clean));
-    }
-
-    [Theory]
-    [InlineData(47.37, 8.54, AirQualityScale.European)]   // Zürich
-    [InlineData(64.15, -21.94, AirQualityScale.European)] // Reykjavík
-    [InlineData(40.71, -74.0, AirQualityScale.Us)]        // New York
-    [InlineData(35.68, 139.69, AirQualityScale.Us)]       // Tokyo
-    [InlineData(-33.87, 151.21, AirQualityScale.Us)]      // Sydney
-    public void S5103_auto_picks_the_european_index_in_europe(double lat, double lon, AirQualityScale expected)
-        => Assert.Equal(expected, AirQualityRules.Resolve(AirQualityScale.Auto, lat, lon));
-
-    [Fact]
-    public void S5103_a_chosen_scale_wins_and_auto_without_a_place_is_us()
-    {
-        Assert.Equal(AirQualityScale.Us, AirQualityRules.Resolve(AirQualityScale.Us, 47.37, 8.54));
-        Assert.Equal(AirQualityScale.European, AirQualityRules.Resolve(AirQualityScale.European, 40.7, -74));
-        Assert.Equal(AirQualityScale.Us, AirQualityRules.Resolve(AirQualityScale.Auto, null, null));
-    }
-
-    [Theory]
-    [InlineData(AirQualityScale.European, 0, AirBand.Best)]
-    [InlineData(AirQualityScale.European, 20, AirBand.Best)]
-    [InlineData(AirQualityScale.European, 20.5, AirBand.Second)]
-    [InlineData(AirQualityScale.European, 55, AirBand.Third)]
-    [InlineData(AirQualityScale.European, 100, AirBand.Fifth)]
-    [InlineData(AirQualityScale.European, 140, AirBand.Worst)]
-    [InlineData(AirQualityScale.Us, 50, AirBand.Best)]
-    [InlineData(AirQualityScale.Us, 51, AirBand.Second)]
-    [InlineData(AirQualityScale.Us, 120, AirBand.Third)]
-    [InlineData(AirQualityScale.Us, 300, AirBand.Fifth)]
-    [InlineData(AirQualityScale.Us, 420, AirBand.Worst)]
-    public void S5104_bands_follow_each_agencys_breakpoints(AirQualityScale scale, double value, AirBand expected)
-        => Assert.Equal(expected, AirQualityRules.Band(scale, value));
-
-    [Fact]
-    public void S5104_tones_are_two_good_two_caution_two_critical()
-    {
-        Assert.Equal(AirTone.Good, AirQualityRules.Tone(AirBand.Second));
-        Assert.Equal(AirTone.Caution, AirQualityRules.Tone(AirBand.Third));
-        Assert.Equal(AirTone.Caution, AirQualityRules.Tone(AirBand.Fourth));
-        Assert.Equal(AirTone.Critical, AirQualityRules.Tone(AirBand.Fifth));
-    }
-
-    [Theory]
-    [InlineData(0, UvLevel.Low)]
-    [InlineData(2.9, UvLevel.Low)]
-    [InlineData(3, UvLevel.Moderate)]
-    [InlineData(6, UvLevel.High)]
-    [InlineData(8, UvLevel.VeryHigh)]
-    [InlineData(11, UvLevel.Extreme)]
-    public void S5105_uv_follows_the_who_categories(double index, UvLevel expected)
-        => Assert.Equal(expected, AirQualityRules.Uv(index));
-
-    [Theory]
-    [InlineData(PollenType.Birch, 0.5, PollenLevel.None)]
-    [InlineData(PollenType.Birch, 50, PollenLevel.Moderate)]
-    [InlineData(PollenType.Birch, 100, PollenLevel.High)]
-    [InlineData(PollenType.Grass, 50, PollenLevel.High)]
-    [InlineData(PollenType.Ragweed, 6, PollenLevel.Moderate)]
-    [InlineData(PollenType.Ragweed, 20, PollenLevel.High)]
-    public void S5106_pollen_levels_per_type(PollenType type, double grains, PollenLevel expected)
-        => Assert.Equal(expected, AirQualityRules.Level(type, grains));
-
-    [Fact]
-    public void S5106_the_worst_pollen_comes_first()
-    {
-        var air = AirQualityWire.Parse(AirJson(GoodAir)).Value!;
-        var pollen = AirQualityRules.Pollen(air);
-
-        // Grass 12 and ragweed 6 are both Moderate; the larger count breaks the tie. Mugwort 0.2 is none.
-        Assert.Equal([(PollenType.Grass, PollenLevel.Moderate), (PollenType.Ragweed, PollenLevel.Moderate)], pollen);
-    }
-
-    [Theory]
-    [InlineData(AirQualityScale.European, 0, 0)]
-    [InlineData(AirQualityScale.European, 10, 1.0 / 12)]
-    [InlineData(AirQualityScale.European, 30, 1.5 / 6)]
-    [InlineData(AirQualityScale.Us, 125, 2.5 / 6)]
-    [InlineData(AirQualityScale.Us, 9999, 1)]
-    public void S5109_the_strip_places_the_index_inside_its_band(AirQualityScale scale, double value, double expected)
-        => Assert.Equal(expected, AirQualityRules.ScalePosition(scale, value), 6);
-
-    [Fact]
-    public void S5109_the_strip_is_the_rung_after_every_reading()
-    {
-        var floor = FluentType.Subtitle.LineHeight + FluentType.Body.LineHeight;
-
-        Assert.False(AirLayout.Air(new WidgetArea(320, 240), floor, 7).Strip);
-        Assert.True(AirLayout.Air(new WidgetArea(560, 420), floor, 7).Strip);
-        Assert.True(AirLayout.Air(new WidgetArea(800, 560), floor, 7).Strip);
     }
 
     // ---- rain ----------------------------------------------------------------------------------
@@ -460,15 +336,6 @@ public sealed class OnlineWidgetsTests
         Assert.Equal("JPY", config.EffectiveQuote);
     }
 
-    [Fact]
-    public void S5103_repair_puts_an_unknown_scale_back_on_auto()
-    {
-        var config = new AirQualityConfig { Scale = (AirQualityScale)9 };
-
-        Assert.Single(config.Repair());
-        Assert.Equal(AirQualityScale.Auto, config.Scale);
-    }
-
     // ---- sync and cadence ----------------------------------------------------------------------
 
     [Fact]
@@ -486,26 +353,6 @@ public sealed class OnlineWidgetsTests
     }
 
     // ---- ladders -------------------------------------------------------------------------------
-
-    [Fact]
-    public void S5107_the_air_ladder_shows_more_as_it_grows()
-    {
-        var floor = FluentType.Subtitle.LineHeight + FluentType.Body.LineHeight;
-
-        var small = AirLayout.Air(new WidgetArea(160, 100), floor, 5);
-        var medium = AirLayout.Air(new WidgetArea(320, 260), floor, 5);
-        var tall = AirLayout.Air(new WidgetArea(200, 460), floor, 5);
-        var strip = AirLayout.Air(new WidgetArea(720, 140), floor, 5);
-
-        Assert.Equal(AirFacts.None, small.Facts);
-        Assert.Equal(AirFacts.Cells, medium.Facts);
-        Assert.True(medium.Count >= 3);
-        Assert.Equal(AirFacts.Lines, tall.Facts);
-        Assert.Equal(5, tall.Count);
-        Assert.Equal(AirFacts.Side, strip.Facts);
-        Assert.True(strip.Count >= 4);
-        Assert.True(medium.HeroRoom >= floor);
-    }
 
     [Fact]
     public void S5146_the_number_style_is_the_rate_alone_on_the_whole_tile()

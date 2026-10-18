@@ -7613,58 +7613,21 @@ Three online widgets on free, unauthenticated services, fetched only by the back
 ([S-2663]); a widget draws what the sync holds and never fetches. SDK: `Widgets/AirQuality.cs`,
 `Widgets/RainNowcast.cs`, `Widgets/ExchangeRates.cs` (wire parsers and rules), `Widgets/OnlineLayouts.cs`
 (the measures the ladders share), `Sync/WebInterests.cs`. Core: each widget's ladder and words
-(`AirLayout`/`AirText`, `RatesLayout`/`RatesText`), `Storage/OnlineCacheStore.cs`,
-`Model/Configs/OnlineConfigs.cs`. App: `Services/Web/OnlineService.cs`, `WebSync`, the views
-`AirQualityView`, `ExchangeRatesView` (+ `OnlineViews.Preview.cs`, `--state sample`),
-`WidgetSettings.Online.cs`. Strings in `Locales/online`. Rain next hour is a module
-(`src/Widgets/Themia.Widget.RainNextHour/`). Tests `OnlineWidgetsTests` (`S51xx_`).
+(`RatesLayout`/`RatesText`), `Storage/OnlineCacheStore.cs`,
+`Model/Configs/OnlineConfigs.cs`. App: `Services/Web/OnlineService.cs`, `WebSync`, the view
+`ExchangeRatesView` (+ `OnlineViews.Preview.cs`, `--state sample`), `WidgetSettings.Online.cs`.
+Strings in `Locales/online`. Air quality and rain next hour are modules
+(`src/Widgets/Themia.Widget.AirQuality/`, `src/Widgets/Themia.Widget.RainNextHour/`). Tests `OnlineWidgetsTests` (`S51xx_`).
 
 Air quality (`AirQuality`, 128):
 
-- **[S-5100]** Air quality, UV and pollen at a place. A weather-family config (`AirQualityConfig :
-  WeatherConfig`): the shared place picker ([S-2840]), the location-name switch and header rule
-  ([S-728]); no place is the Set up state ([S-1860]).
-- **[S-5101]** The sync asks for it under its own interest (`AirInterest`, before the weather case,
-  which never claims it: `WeatherInterests.For(WeatherConfig)` is only WeatherNow and WeatherForecast).
-  Cadence: the shared weather cadence ([S-3780]) but never faster than hourly (`OnlineCadence.Air`):
-  CAMS values are hourly in Europe, three-hourly elsewhere. Rain follows the weather cadence as is.
+- [S-5100], [S-5101], [S-5103], [S-5104], [S-5105], [S-5106], [S-5107], [S-5108], [S-5109], [S-6169], [S-6170]: moved with the Air quality widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.AirQuality/`).
 - **[S-5102]** open-meteo's air-quality API (`air-quality-api.open-meteo.com/v1/air-quality`,
   `current=european_aqi,us_aqi,pm2_5,pm10,ozone,uv_index` and the six pollen fields, unix time).
   `AirQualityWire.Parse`: not JSON, not an object, an error document, or no timed `current` block is
   rejected; neither index is Empty; each figure null, a string or out of its physical range is
   dropped alone (never 0). A pollen field carried as null means "no pollen forecast here" and is
   told apart from 0 grains. Free for non-commercial use; the page credits CAMS and Open-Meteo.
-- **[S-5103]** The index is a setting: Automatic (default), European (EAQI) or US (AQI). Automatic
-  goes by the **place**, not the user's region (the index is about the air there): European inside
-  CAMS Europe's domain, 30°N–72°N and 25°W–45°E, US everywhere else. One reply carries both indices.
-- **[S-5104]** Bands: European 0–20 Good, –40 Fair, –60 Moderate, –80 Poor, –100 Very poor, above
-  Extremely poor; US 0–50 Good, –100 Moderate, –150 Unhealthy for sensitive groups, –200 Unhealthy,
-  –300 Very unhealthy, above Hazardous (a boundary value is in the better band). The first two bands
-  are drawn in the Fluent success fill, the next two in caution, the last two in critical; the band
-  is always also written out.
-- **[S-5105]** UV: WHO categories (under 3 low, 3–6 moderate, 6–8 high, 8–11 very high, 11+ extreme),
-  "2.5 · Low".
-- **[S-5106]** Pollen (Europe, in season): the worst type and its level, "Grass · Moderate", or "None
-  in the air"; levels from grains/m³ (low, moderate, high) at trees (alder, birch, olive) 1, 10, 100;
-  grass and mugwort 1, 10, 50; ragweed 1, 5, 20. No pollen row where there is no pollen forecast.
-- **[S-5107]** Ladder (`AirLayout.Air`): the index and its band are the hero (XS: number, unit,
-  band). The readings in priority order UV, PM2.5, pollen, PM10, ozone, then (the large tiles'
-  rungs) the other agency's index and each pollen in the air with its level, as stat cells in two or
-  three columns where two fit across (not on a tall column), one stat line each on a tall or narrow
-  tile, a side column on a strip ≥360 wide (two columns from 640). Spare height grows the hero.
-- **[S-5108]** Settings: Place, Location name, Index, and the source line.
-- **[S-5109]** Once every reading is shown, the next rung is the band strip: six equal segments in
-  their status colours, a marker at the index (placed linearly inside its band; the open last band
-  as wide as the one before), the breakpoints under it in Caption.
-- **[S-6169]** The air widget's styles ([S-6000]), `AirQualityConfig.Style` (`AirQualityStyle`):
-  **Number** ([S-5107], the default) and **Gauge**.
-- **[S-6170]** **Gauge** (`AirLayout.AirGauge`): the meters' half-circle gauge ([S-6302],
-  `GaugeDial`) filled to the index's place on the six equal bands (`AirQualityRules.ScalePosition`,
-  the strip's own mapping, [S-5109]) in the band's status colour, the index in its bowl
-  (`GaugeLayout.Reading`); then the band's words on a line under it; then the readings in the
-  number style's order, as a column beside the gauge on a strip (≥ 360 wide, two columns from
-  640) or as stat lines under it on a tall column while the gauge keeps the column's width. No band
-  strip (the gauge is the scale). A box too small for a gauge is the index alone.
 
 Rain next hour (`RainNextHour`, 129):
 

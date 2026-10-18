@@ -11,34 +11,6 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    /// <summary>[S-5108] The place (the weather widgets' picker), the location name, the index.</summary>
-    public static void AirQuality(List<FrameworkElement> rows, AirQualityConfig config, Action save)
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(save);
-
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Weather_Settings_Place.Text()));
-        WeatherPlaceRows.AddPlacePicker(rows, config, save);
-
-        rows.Add(FluentLayout.Header(Str.Online_Air_Label.Text()));
-        WeatherPlaceRows.AddWeatherDisplay(rows, config, save);
-
-        (AirQualityScale, string)[] scales =
-        [
-            (AirQualityScale.Auto, Str.Online_Air_Settings_Index_Auto.Text()),
-            (AirQualityScale.European, Str.Online_Air_Settings_Index_European.Text()),
-            (AirQualityScale.Us, Str.Online_Air_Settings_Index_Us.Text()),
-        ];
-
-        rows.Add(FluentLayout.Row(Glyphs.AirQuality, Str.Online_Air_Settings_Index_Label.Text(), Str.Online_Air_Settings_Index_Desc.Text(),
-            FluentLayout.Choice<AirQualityScale>(scales, config.Scale, value => { config.Scale = value; save(); }),
-            "aqi", "eaqi", "european", "us"));
-
-        // CAMS and Open-Meteo ask to be credited.
-        rows.Add(FluentLayout.Note(Str.Online_Source.Format(("name", "Copernicus Atmosphere Monitoring Service (CAMS) · Open-Meteo"))));
-    }
-
     /// <summary>
     /// [S-5148] The pair: the base (the Windows region's currency first, naming it) and the currency
     /// priced in it (the default first, naming it), then the source line.

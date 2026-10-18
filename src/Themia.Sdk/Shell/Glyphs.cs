@@ -165,9 +165,8 @@ public static class Glyphs
     public static readonly string GridLayout = From(0xE8A9);
     public static readonly string Stocks = From(0xEB05);
 
-    // [S-5100] [S-5140] Checked on a rendered sheet of SegoeIcons.ttf: a leaf (air quality, pollen)
-    // and two arrows round a coin (exchange rates). Rain uses the weather set's Rain.
-    public static readonly string AirQuality = From(0xEC0A);
+    // [S-5140] Checked on a rendered sheet of SegoeIcons.ttf: two arrows round a coin (exchange
+    // rates). Rain uses the weather set's Rain.
     public static readonly string ExchangeRates = From(0xE9A1);
     public static readonly string Rss = From(0xE8F1);
     public static readonly string Apps = From(0xE71D);

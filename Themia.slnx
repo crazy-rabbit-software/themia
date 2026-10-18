@@ -8,6 +8,7 @@
     <Project Path="src/Themia.Sdk.WinUI/Themia.Sdk.WinUI.csproj" />
   </Folder>
   <Folder Name="/src/Widgets/">
+    <Project Path="src/Widgets/Themia.Widget.AirQuality/Themia.Widget.AirQuality.csproj" />
     <Project Path="src/Widgets/Themia.Widget.AirplaneModeToggle/Themia.Widget.AirplaneModeToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Bluetooth/Themia.Widget.Bluetooth.csproj" />
     <Project Path="src/Widgets/Themia.Widget.BluetoothToggle/Themia.Widget.BluetoothToggle.csproj" />

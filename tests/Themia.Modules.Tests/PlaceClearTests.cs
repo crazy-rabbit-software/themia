@@ -14,7 +14,7 @@ public class PlaceClearTests
 {
     private static readonly WidgetId[] Placed =
     [
-        WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, new WidgetId("rainNextHour"),
+        WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, new WidgetId("airQuality"), new WidgetId("rainNextHour"),
         new WidgetId("sun"), new WidgetId("moon"),
     ];
 
@@ -136,7 +136,7 @@ public class PlaceClearTests
     {
         var now = (WeatherNowConfig)WithPlace(WeatherNowConfig.Descriptor.Id);
         var forecast = (WeatherForecastConfig)WithPlace(WeatherForecastConfig.Descriptor.Id);
-        var air = (AirQualityConfig)WithPlace(AirQualityConfig.Descriptor.Id);
+        var air = (AirQualityConfig)WithPlace(new WidgetId("airQuality"));
         var rain = (RainNextHourConfig)WithPlace(new WidgetId("rainNextHour"));
 
         Assert.NotNull(WeatherInterests.For(now));
