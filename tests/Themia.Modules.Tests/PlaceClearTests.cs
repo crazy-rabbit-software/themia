@@ -14,7 +14,7 @@ public class PlaceClearTests
 {
     private static readonly WidgetId[] Placed =
     [
-        WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, new WidgetId("airQuality"), new WidgetId("rainNextHour"),
+        new WidgetId("weatherNow"), WeatherForecastConfig.Descriptor.Id, new WidgetId("airQuality"), new WidgetId("rainNextHour"),
         new WidgetId("sun"), new WidgetId("moon"),
     ];
 
@@ -110,7 +110,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_clearing_forgets_the_name_and_keeps_the_header_preference()
     {
-        var weather = (WeatherNowConfig)WithPlace(WeatherNowConfig.Descriptor.Id);
+        var weather = (WeatherNowConfig)WithPlace(new WidgetId("weatherNow"));
         weather.HideLocation = true;
 
         weather.ClearLocation();
@@ -134,7 +134,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_a_cleared_place_asks_the_sync_for_nothing_so_the_old_place_is_never_fetched()
     {
-        var now = (WeatherNowConfig)WithPlace(WeatherNowConfig.Descriptor.Id);
+        var now = (WeatherNowConfig)WithPlace(new WidgetId("weatherNow"));
         var forecast = (WeatherForecastConfig)WithPlace(WeatherForecastConfig.Descriptor.Id);
         var air = (AirQualityConfig)WithPlace(new WidgetId("airQuality"));
         var rain = (RainNextHourConfig)WithPlace(new WidgetId("rainNextHour"));

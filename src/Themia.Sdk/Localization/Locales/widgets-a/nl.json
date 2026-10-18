@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Een livecamera: MJPEG, een momentopname, MP4 of HLS",
   "widgetsA.catalog.videoStream.label": "Videostream",
   "widgetsA.catalog.volume.description": "Hoofdvolume en dempen",
-  "widgetsA.catalog.weather.description": "Het weer waar je bent",
   "widgetsA.clipboard.characters": {
     "one": "{count} teken",
     "other": "{count} tekens"

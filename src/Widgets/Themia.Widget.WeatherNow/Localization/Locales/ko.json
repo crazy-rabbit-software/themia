@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "큰 아이콘",
+  "styles.weatherNow.minimal": "최소",
+  "styles.weatherNow.standard": "표준",
+  "weather.defaultLabel": "날씨",
+  "weather.feelsLike": "체감 온도",
+  "weather.humidity": "습도",
+  "weather.wind": "바람",
+  "widget.weatherCurrent.label": "날씨",
+  "widgetsA.catalog.weather.description": "현재 위치의 날씨",
+  "widgetsC.weather.fact.cloudCover": "운량",
+  "widgetsC.weather.fact.gusts": "돌풍",
+  "widgetsC.weather.fact.precipitation": "강수량",
+  "widgetsC.weather.fact.pressure": "기압",
+  "widgetsC.weather.fact.uvIndex": "자외선 지수",
+  "widgetsC.weather.feelsShort": "체감 {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "체감 온도, 습도 및 바람. 타일이 크면 더 많이 표시됩니다",
+  "widgetsC.weather.settings.showDetail.label": "세부 정보 표시"
+}

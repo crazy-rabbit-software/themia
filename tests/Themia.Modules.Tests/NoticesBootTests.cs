@@ -203,7 +203,7 @@ public sealed class NoticesBootTests : IDisposable
         // The clock first, so it is the one drawn on top.
         Assert.Equal(
             [
-                new WidgetId("clock"), ShortcutsConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id,
+                new WidgetId("clock"), ShortcutsConfig.Descriptor.Id, new WidgetId("weatherNow"),
                 CpuConfig.Descriptor.Id, MemoryConfig.Descriptor.Id, GpuConfig.Descriptor.Id, NetworkConfig.Descriptor.Id,
                 new WidgetId("doNotDisturbToggle"), new WidgetId("colorFiltersToggle"), new WidgetId("nightLightToggle"),
                 new WidgetId("airplaneModeToggle"), new WidgetId("bluetoothToggle"), new WidgetId("wifiToggle"),
@@ -286,7 +286,7 @@ public sealed class NoticesBootTests : IDisposable
     {
         var widgets = AppState.CreateDefault().Views.SelectMany(v => v.Widgets).ToList();
 
-        var weather = Assert.IsType<WeatherNowConfig>(Assert.Single(widgets, w => w.Kind == WeatherNowConfig.Descriptor.Id).Config);
+        var weather = Assert.IsType<WeatherNowConfig>(Assert.Single(widgets, w => w.Kind == new WidgetId("weatherNow")).Config);
         Assert.Null(weather.Latitude);
         Assert.Null(weather.Longitude);
         Assert.Equal(string.Empty, weather.LocationName);

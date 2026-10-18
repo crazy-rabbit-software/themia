@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "Groot pictogram",
+  "styles.weatherNow.minimal": "Minimaal",
+  "styles.weatherNow.standard": "Standaard",
+  "weather.defaultLabel": "Weer",
+  "weather.feelsLike": "Voelt als",
+  "weather.humidity": "Luchtvochtigheid",
+  "weather.wind": "Wind",
+  "widget.weatherCurrent.label": "Weer",
+  "widgetsA.catalog.weather.description": "Het weer waar je bent",
+  "widgetsC.weather.fact.cloudCover": "Bewolking",
+  "widgetsC.weather.fact.gusts": "Windstoten",
+  "widgetsC.weather.fact.precipitation": "Neerslag",
+  "widgetsC.weather.fact.pressure": "Luchtdruk",
+  "widgetsC.weather.fact.uvIndex": "UV-index",
+  "widgetsC.weather.feelsShort": "Voelt als {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "Gevoelstemperatuur, luchtvochtigheid en wind; meer op grotere tegels",
+  "widgetsC.weather.settings.showDetail.label": "Details weergeven"
+}

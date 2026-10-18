@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "ไอคอนใหญ่",
+  "styles.weatherNow.minimal": "เรียบง่าย",
+  "styles.weatherNow.standard": "มาตรฐาน",
+  "weather.defaultLabel": "สภาพอากาศ",
+  "weather.feelsLike": "รู้สึกเหมือน",
+  "weather.humidity": "ความชื้น",
+  "weather.wind": "ลม",
+  "widget.weatherCurrent.label": "สภาพอากาศ",
+  "widgetsA.catalog.weather.description": "สภาพอากาศในที่ที่คุณอยู่",
+  "widgetsC.weather.fact.cloudCover": "ปริมาณเมฆ",
+  "widgetsC.weather.fact.gusts": "ลมกระโชก",
+  "widgetsC.weather.fact.precipitation": "ปริมาณน้ำฝน",
+  "widgetsC.weather.fact.pressure": "ความกดอากาศ",
+  "widgetsC.weather.fact.uvIndex": "ดัชนี UV",
+  "widgetsC.weather.feelsShort": "รู้สึก {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "อุณหภูมิที่รู้สึก ความชื้น และลม มากขึ้นบนไทล์ที่ใหญ่กว่า",
+  "widgetsC.weather.settings.showDetail.label": "แสดงรายละเอียด"
+}

@@ -1,0 +1,20 @@
+{
+  "$englishOnly": [],
+  "styles.weatherNow.largeIcon": "Large icon",
+  "styles.weatherNow.minimal": "Minimal",
+  "styles.weatherNow.standard": "Standard",
+  "weather.defaultLabel": "Weather",
+  "weather.feelsLike": "Feels like",
+  "weather.humidity": "Humidity",
+  "weather.wind": "Wind",
+  "widget.weatherCurrent.label": "Weather",
+  "widgetsA.catalog.weather.description": "Conditions where you are",
+  "widgetsC.weather.fact.cloudCover": "Cloud cover",
+  "widgetsC.weather.fact.gusts": "Gusts",
+  "widgetsC.weather.fact.precipitation": "Precipitation",
+  "widgetsC.weather.fact.pressure": "Pressure",
+  "widgetsC.weather.fact.uvIndex": "UV index",
+  "widgetsC.weather.feelsShort": "Feels {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "Feels-like, humidity and wind; more on larger tiles",
+  "widgetsC.weather.settings.showDetail.label": "Show detail"
+}

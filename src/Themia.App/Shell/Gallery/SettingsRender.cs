@@ -509,7 +509,7 @@ internal static class SettingsRender
     {
         var desktop = ViewState.Create("Desktop");
         desktop.Widgets.Add(WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.40, 0.08, 0.20, 0.12)));
-        desktop.Widgets.Add(WidgetInstance.Create(WeatherNowConfig.Descriptor.Id, new FracRect(0.05, 0.08, 0.15, 0.18)));
+        desktop.Widgets.Add(WidgetInstance.Create(new WidgetId("weatherNow"), new FracRect(0.05, 0.08, 0.15, 0.18)));
 
         // [S-903] One view with an icon of its own, so the pane shows a view glyph beside the shared colour icon.
         var work = ViewState.Create("Work");

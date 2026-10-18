@@ -78,7 +78,6 @@
   "widgetsA.catalog.videoStream.description": "กล้องสด: MJPEG ภาพนิ่ง MP4 หรือ HLS",
   "widgetsA.catalog.videoStream.label": "สตรีมวิดีโอ",
   "widgetsA.catalog.volume.description": "ระดับเสียงเอาต์พุตหลักและการปิดเสียง",
-  "widgetsA.catalog.weather.description": "สภาพอากาศในที่ที่คุณอยู่",
   "widgetsA.clipboard.characters": {
     "other": "{count} อักขระ"
   },

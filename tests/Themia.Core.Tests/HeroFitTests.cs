@@ -173,16 +173,4 @@ public sealed class HeroFitTests
         Assert.False(unit.SemiBold);
     }
 
-    [Fact]
-    public void S659_the_minimal_temperature_fills_the_largest_tile()
-    {
-        var xl = new WidgetArea(800, 516);
-        var box = xl.Deflate(WeatherNowLayout.Inset, WeatherNowLayout.VerticalInset);
-        var step = WeatherNowStyles.Minimal(xl);
-        var used = HeroLayout.ValueWidth(step, WeatherNowStyles.ValueCharacters, WeatherNowStyles.UnitCharacters);
-
-        Assert.True(step.FontSize > FluentType.Display.FontSize * HeroLayout.MaxGrowth);
-        Assert.True(used <= box.Width + 0.001 && step.LineHeight <= box.Height + 0.001);
-        Assert.True(used >= box.Width * 0.97 || step.LineHeight >= box.Height * 0.97);
-    }
 }

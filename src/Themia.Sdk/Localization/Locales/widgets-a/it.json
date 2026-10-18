@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Una telecamera dal vivo: MJPEG, istantanea, MP4 o HLS",
   "widgetsA.catalog.videoStream.label": "Flusso video",
   "widgetsA.catalog.volume.description": "Volume principale e disattivazione audio",
-  "widgetsA.catalog.weather.description": "Il meteo dove ti trovi",
   "widgetsA.clipboard.characters": {
     "one": "{count} carattere",
     "other": "{count} caratteri"

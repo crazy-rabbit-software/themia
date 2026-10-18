@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "大圖示",
+  "styles.weatherNow.minimal": "極簡",
+  "styles.weatherNow.standard": "標準",
+  "weather.defaultLabel": "天氣",
+  "weather.feelsLike": "體感",
+  "weather.humidity": "濕度",
+  "weather.wind": "風",
+  "widget.weatherCurrent.label": "天氣",
+  "widgetsA.catalog.weather.description": "您所在地的天氣",
+  "widgetsC.weather.fact.cloudCover": "雲量",
+  "widgetsC.weather.fact.gusts": "陣風",
+  "widgetsC.weather.fact.precipitation": "降水",
+  "widgetsC.weather.fact.pressure": "氣壓",
+  "widgetsC.weather.fact.uvIndex": "紫外線指數",
+  "widgetsC.weather.feelsShort": "體感 {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "體感溫度、濕度和風；磚越大顯示越多",
+  "widgetsC.weather.settings.showDetail.label": "顯示詳細資料"
+}

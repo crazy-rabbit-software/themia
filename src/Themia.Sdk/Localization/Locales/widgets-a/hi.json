@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "लाइव कैमरा: MJPEG, स्नैपशॉट, MP4 या HLS",
   "widgetsA.catalog.videoStream.label": "वीडियो स्ट्रीम",
   "widgetsA.catalog.volume.description": "मुख्य आउटपुट स्तर और म्यूट",
-  "widgetsA.catalog.weather.description": "आपके स्थान का मौसम",
   "widgetsA.clipboard.characters": {
     "one": "{count} वर्ण",
     "other": "{count} वर्ण"

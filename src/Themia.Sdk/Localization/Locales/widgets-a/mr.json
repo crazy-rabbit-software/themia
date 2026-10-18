@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "थेट कॅमेरा: MJPEG, स्नॅपशॉट, MP4 किंवा HLS",
   "widgetsA.catalog.videoStream.label": "व्हिडिओ स्ट्रीम",
   "widgetsA.catalog.volume.description": "मुख्य आउटपुट पातळी आणि म्यूट",
-  "widgetsA.catalog.weather.description": "तुम्ही जिथे आहात तिथली स्थिती",
   "widgetsA.clipboard.characters": {
     "one": "{count} वर्ण",
     "other": "{count} वर्ण"

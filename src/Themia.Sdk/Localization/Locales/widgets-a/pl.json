@@ -81,7 +81,6 @@
   "widgetsA.catalog.videoStream.description": "Kamera na żywo: MJPEG, zrzut, MP4 lub HLS",
   "widgetsA.catalog.videoStream.label": "Strumień wideo",
   "widgetsA.catalog.volume.description": "Głośność główna i wyciszenie",
-  "widgetsA.catalog.weather.description": "Pogoda tam, gdzie jesteś",
   "widgetsA.clipboard.characters": {
     "one": "{count} znak",
     "few": "{count} znaki",

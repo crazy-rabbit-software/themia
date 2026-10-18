@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "Großes Symbol",
+  "styles.weatherNow.minimal": "Minimal",
+  "styles.weatherNow.standard": "Standard",
+  "weather.defaultLabel": "Wetter",
+  "weather.feelsLike": "Gefühlt",
+  "weather.humidity": "Luftfeuchte",
+  "weather.wind": "Wind",
+  "widget.weatherCurrent.label": "Wetter",
+  "widgetsA.catalog.weather.description": "Das Wetter an deinem Ort",
+  "widgetsC.weather.fact.cloudCover": "Bewölkung",
+  "widgetsC.weather.fact.gusts": "Böen",
+  "widgetsC.weather.fact.precipitation": "Niederschlag",
+  "widgetsC.weather.fact.pressure": "Luftdruck",
+  "widgetsC.weather.fact.uvIndex": "UV-Index",
+  "widgetsC.weather.feelsShort": "Gefühlt {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "Gefühlt, Luftfeuchtigkeit und Wind; mehr bei größeren Kacheln",
+  "widgetsC.weather.settings.showDetail.label": "Details anzeigen"
+}

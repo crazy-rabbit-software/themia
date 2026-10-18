@@ -15,60 +15,6 @@ public sealed class WeatherStylesTests
 {
     // ---- weather now [S-6161] [S-6162] -------------------------------------------------------
 
-    [Fact]
-    public void S6161_the_large_icon_stands_beside_the_temperature_and_above_it_on_a_column()
-    {
-        var medium = WeatherNowStyles.LargeIcon(M, hasToday: true);
-        var tall = WeatherNowStyles.LargeIcon(Tall, hasToday: true);
-
-        Assert.False(medium.Stacked);
-        Assert.True(medium.Condition);
-        Assert.True(medium.IconSize >= 64, $"icon {medium.IconSize}");
-        Assert.True(tall.Stacked);
-        Assert.True(tall.IconSize >= 64, $"icon {tall.IconSize}");
-    }
-
-    [Fact]
-    public void S6161_the_large_icon_and_the_temperature_fit_the_width_at_every_tier()
-    {
-        foreach (var tier in Tiers)
-        {
-            var plan = WeatherNowStyles.LargeIcon(tier, hasToday: true);
-            var box = tier.Width - (2 * WeatherNowLayout.Inset);
-            var reading = HeroLayout.ValueWidth(plan.Temperature, WeatherNowStyles.ValueCharacters, WeatherNowStyles.UnitCharacters);
-            var used = plan.Stacked ? Math.Max(plan.IconSize, reading) : plan.IconSize + WeatherNowStyles.IconGap + reading;
-
-            Assert.True(plan.IconSize >= WeatherNowStyles.IconMin, $"{tier}: icon {plan.IconSize}");
-            Assert.True(used <= box + 1, $"{tier}: {used} of {box}");
-        }
-    }
-
-    [Fact]
-    public void S6161_today_s_range_comes_only_with_the_condition_and_only_when_known()
-    {
-        Assert.False(WeatherNowStyles.LargeIcon(L, hasToday: false).HighLow);
-        Assert.True(WeatherNowStyles.LargeIcon(L, hasToday: true).HighLow);
-        Assert.False(WeatherNowStyles.LargeIcon(Xs, hasToday: true).HighLow);
-    }
-
-    [Fact]
-    public void S6162_the_minimal_temperature_grows_with_the_tile_and_past_display_on_a_large_one()
-    {
-        var steps = new[] { Xs, S, M, L, Xl }.Select(WeatherNowStyles.Minimal).ToList();
-
-        for (var i = 1; i < steps.Count; i++)
-        {
-            Assert.True(steps[i].FontSize >= steps[i - 1].FontSize);
-        }
-
-        Assert.True(steps[^1].FontSize > FluentType.Display.FontSize);
-
-        // And it still fits: the reading's width and line inside the inset box.
-        var box = Xl.Deflate(WeatherNowLayout.Inset, WeatherNowLayout.VerticalInset);
-        Assert.True(HeroLayout.ValueWidth(steps[^1], WeatherNowStyles.ValueCharacters, WeatherNowStyles.UnitCharacters) <= box.Width + 1);
-        Assert.True(steps[^1].LineHeight <= box.Height + 1);
-    }
-
     // ---- forecast curve [S-6164] -------------------------------------------------------------
 
     [Fact]

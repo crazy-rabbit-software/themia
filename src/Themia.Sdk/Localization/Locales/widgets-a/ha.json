@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Kyamara kai tsaye: MJPEG, hoto, MP4 ko HLS",
   "widgetsA.catalog.videoStream.label": "Rafin bidiyo",
   "widgetsA.catalog.volume.description": "Babban matakin fitarwa da bebe",
-  "widgetsA.catalog.weather.description": "Yanayi a inda kake",
   "widgetsA.clipboard.characters": {
     "one": "Harafi {count}",
     "other": "Haruffa {count}"

@@ -383,7 +383,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     }
 
     /// <summary>The same glyph the current-conditions widget draws for a condition. [S-652]</summary>
-    private static string LookGlyph(WeatherLook look) => WeatherNowView.LookGlyph(look);
+    private static string LookGlyph(WeatherLook look) => WeatherGlyph.Of(look);
 
     /// <summary>
     /// Drop the layout and, with it, its hover handlers: a handler left hooked keeps the row it

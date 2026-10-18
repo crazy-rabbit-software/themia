@@ -78,7 +78,6 @@
   "widgetsA.catalog.videoStream.description": "ライブカメラ: MJPEG、スナップショット、MP4、HLS",
   "widgetsA.catalog.videoStream.label": "ビデオストリーム",
   "widgetsA.catalog.volume.description": "マスター音量とミュート",
-  "widgetsA.catalog.weather.description": "現在地の天気",
   "widgetsA.clipboard.characters": {
     "other": "{count} 文字"
   },

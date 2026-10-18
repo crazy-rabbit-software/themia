@@ -18,7 +18,7 @@ public sealed class WidgetSearchTests
             ["Clock for your timezone or any city in the world"], ["Others"]),
         new("calendar", ["Calendar"], ModuleCatalog.Of(CalendarWidgetConfig.Descriptor.Id).Keywords,
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),
-        new("weatherCurrent", ["Wetter", "Weather"], ModuleCatalog.Of(WeatherNowConfig.Descriptor.Id).Keywords,
+        new("weatherCurrent", ["Wetter", "Weather"], ModuleCatalog.Of(new WidgetId("weatherNow")).Keywords,
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
         new("weatherForecast", ["Weather Forecast"], Original(WeatherForecastConfig.Descriptor.Id),
             ["Multi-day weather outlook for any location"], ["Online"]),

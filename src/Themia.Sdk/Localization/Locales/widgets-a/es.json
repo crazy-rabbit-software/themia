@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Una cámara en directo: MJPEG, instantánea, MP4 o HLS",
   "widgetsA.catalog.videoStream.label": "Transmisión de vídeo",
   "widgetsA.catalog.volume.description": "Volumen principal y silencio",
-  "widgetsA.catalog.weather.description": "El tiempo donde estás",
   "widgetsA.clipboard.characters": {
     "one": "{count} carácter",
     "other": "{count} caracteres"

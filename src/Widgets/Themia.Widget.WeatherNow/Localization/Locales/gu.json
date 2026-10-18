@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "મોટું આઇકન",
+  "styles.weatherNow.minimal": "ન્યૂનતમ",
+  "styles.weatherNow.standard": "માનક",
+  "weather.defaultLabel": "હવામાન",
+  "weather.feelsLike": "અનુભવાય છે",
+  "weather.humidity": "ભેજ",
+  "weather.wind": "પવન",
+  "widget.weatherCurrent.label": "હવામાન",
+  "widgetsA.catalog.weather.description": "તમે જ્યાં છો ત્યાંની સ્થિતિ",
+  "widgetsC.weather.fact.cloudCover": "વાદળ આવરણ",
+  "widgetsC.weather.fact.gusts": "પવનના ઝપાટા",
+  "widgetsC.weather.fact.precipitation": "વરસાદ",
+  "widgetsC.weather.fact.pressure": "દબાણ",
+  "widgetsC.weather.fact.uvIndex": "UV સૂચકાંક",
+  "widgetsC.weather.feelsShort": "અનુભવ {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "અનુભવાતું તાપમાન, ભેજ અને પવન; મોટી ટાઇલ્સ પર વધુ",
+  "widgetsC.weather.settings.showDetail.label": "વિગત બતાવો"
+}

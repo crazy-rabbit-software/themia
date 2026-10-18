@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Uma câmera ao vivo: MJPEG, instantâneo, MP4 ou HLS",
   "widgetsA.catalog.videoStream.label": "Transmissão de vídeo",
   "widgetsA.catalog.volume.description": "Volume principal e silenciar",
-  "widgetsA.catalog.weather.description": "O clima onde você está",
   "widgetsA.clipboard.characters": {
     "one": "{count} caractere",
     "other": "{count} caracteres"

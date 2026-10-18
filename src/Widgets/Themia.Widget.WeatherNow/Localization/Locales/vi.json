@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "Biểu tượng lớn",
+  "styles.weatherNow.minimal": "Tối giản",
+  "styles.weatherNow.standard": "Tiêu chuẩn",
+  "weather.defaultLabel": "Thời tiết",
+  "weather.feelsLike": "Cảm giác như",
+  "weather.humidity": "Độ ẩm",
+  "weather.wind": "Gió",
+  "widget.weatherCurrent.label": "Thời tiết",
+  "widgetsA.catalog.weather.description": "Thời tiết nơi bạn ở",
+  "widgetsC.weather.fact.cloudCover": "Mây che phủ",
+  "widgetsC.weather.fact.gusts": "Gió giật",
+  "widgetsC.weather.fact.precipitation": "Lượng mưa",
+  "widgetsC.weather.fact.pressure": "Áp suất",
+  "widgetsC.weather.fact.uvIndex": "Chỉ số UV",
+  "widgetsC.weather.feelsShort": "Cảm giác {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "Cảm giác như, độ ẩm và gió; nhiều hơn trên ô lớn",
+  "widgetsC.weather.settings.showDetail.label": "Hiện chi tiết"
+}

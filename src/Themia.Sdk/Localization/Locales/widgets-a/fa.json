@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "دوربین زنده: MJPEG، عکس لحظه‌ای، MP4 یا HLS",
   "widgetsA.catalog.videoStream.label": "پخش ویدیو",
   "widgetsA.catalog.volume.description": "سطح خروجی اصلی و بی‌صدا",
-  "widgetsA.catalog.weather.description": "وضعیت هوا در محل شما",
   "widgetsA.clipboard.characters": {
     "one": "{count} نویسه",
     "other": "{count} نویسه"

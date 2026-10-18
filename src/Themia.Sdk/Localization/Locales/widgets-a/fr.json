@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Une caméra en direct : MJPEG, instantané, MP4 ou HLS",
   "widgetsA.catalog.videoStream.label": "Flux vidéo",
   "widgetsA.catalog.volume.description": "Volume principal et sourdine",
-  "widgetsA.catalog.weather.description": "La météo là où tu es",
   "widgetsA.clipboard.characters": {
     "one": "{count} caractère",
     "other": "{count} caractères"

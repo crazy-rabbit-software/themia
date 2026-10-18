@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Isang live na camera: MJPEG, snapshot, MP4 o HLS",
   "widgetsA.catalog.videoStream.label": "Stream ng video",
   "widgetsA.catalog.volume.description": "Master output level at mute",
-  "widgetsA.catalog.weather.description": "Lagay ng panahon kung nasaan ka",
   "widgetsA.clipboard.characters": {
     "one": "{count} character",
     "other": "{count} character"

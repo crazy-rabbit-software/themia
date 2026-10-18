@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), WeatherNowConfig.Descriptor.Id, StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRates")];
+        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("weatherNow"), StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRates")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, CpuConfig.Descriptor.Id, MixerConfig.Descriptor.Id, new WidgetId("wifiToggle"), new WidgetId("shutdown"), FolderConfig.Descriptor.Id])
@@ -85,7 +85,7 @@ public sealed partial class ContentAlignmentTests
 
         foreach (var style in Enum.GetValues<WeatherNowStyle>())
         {
-            Assert.True(ContentAlignment.Applies(Widget(WeatherNowConfig.Descriptor.Id, (int)style)), $"{style}");
+            Assert.True(ContentAlignment.Applies(Widget(new WidgetId("weatherNow"), (int)style)), $"{style}");
         }
 
         Assert.True(ContentAlignment.Applies(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
@@ -96,9 +96,9 @@ public sealed partial class ContentAlignmentTests
     {
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("clock"))));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Standard)));
-        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.LargeIcon)));
-        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(WeatherNowConfig.Descriptor.Id, (int)WeatherNowStyle.Minimal)));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Standard)));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.LargeIcon)));
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Minimal)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Number)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("quote"))));
@@ -106,13 +106,13 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("exchangeRates"), (int)ExchangeRatesStyle.Number)));
 
         // A new widget stores no choice: its default follows its style.
-        Assert.Null(Widget(WeatherNowConfig.Descriptor.Id).Align);
+        Assert.Null(Widget(new WidgetId("weatherNow")).Align);
     }
 
     [Fact]
     public void S6583_the_card_draws_the_choice_only_where_the_style_takes_one()
     {
-        var weather = Widget(WeatherNowConfig.Descriptor.Id);
+        var weather = Widget(new WidgetId("weatherNow"));
         weather.Align = ContentAlign.Right;
         Assert.Equal(ContentAlign.Right, ContentAlignment.Shown(weather));
 

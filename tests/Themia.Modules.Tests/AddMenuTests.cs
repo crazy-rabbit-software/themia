@@ -128,7 +128,7 @@ public sealed class AddMenuTests
         // Only the processor's meter, and nothing of Weather: the processor family folds to its one
         // row, the subject keeps its other rows, and Weather is not there at all.
         WidgetId[] left = [CpuDetailsConfig.Descriptor.Id, TopProcessesConfig.Descriptor.Id,
-            WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, new WidgetId("rainNextHour"), new WidgetId("airQuality"), new WidgetId("sun"), new WidgetId("moon")];
+            new WidgetId("weatherNow"), WeatherForecastConfig.Descriptor.Id, new WidgetId("rainNextHour"), new WidgetId("airQuality"), new WidgetId("sun"), new WidgetId("moon")];
         var offered = Every.Where(kind => !left.Contains(kind)).ToList();
         var browse = AddTree.On(offered)[1].Rows.OfType<AddFolder>().ToList();
 

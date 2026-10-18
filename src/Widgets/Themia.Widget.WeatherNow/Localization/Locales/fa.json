@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "نماد بزرگ",
+  "styles.weatherNow.minimal": "ساده",
+  "styles.weatherNow.standard": "استاندارد",
+  "weather.defaultLabel": "آب‌وهوا",
+  "weather.feelsLike": "دمای محسوس",
+  "weather.humidity": "رطوبت",
+  "weather.wind": "باد",
+  "widget.weatherCurrent.label": "آب‌وهوا",
+  "widgetsA.catalog.weather.description": "وضعیت هوا در محل شما",
+  "widgetsC.weather.fact.cloudCover": "پوشش ابر",
+  "widgetsC.weather.fact.gusts": "تندباد",
+  "widgetsC.weather.fact.precipitation": "بارش",
+  "widgetsC.weather.fact.pressure": "فشار",
+  "widgetsC.weather.fact.uvIndex": "شاخص UV",
+  "widgetsC.weather.feelsShort": "محسوس {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "دمای محسوس، رطوبت و باد؛ در کاشی‌های بزرگ‌تر بیشتر",
+  "widgetsC.weather.settings.showDetail.label": "نمایش جزئیات"
+}

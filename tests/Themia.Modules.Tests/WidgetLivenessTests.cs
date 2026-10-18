@@ -20,7 +20,7 @@ public class WidgetLivenessTests
 
     private static WidgetInstance Weather(bool placed)
     {
-        var widget = WidgetInstance.Create(WeatherNowConfig.Descriptor.Id, Cell);
+        var widget = WidgetInstance.Create(new WidgetId("weatherNow"), Cell);
         if (placed && widget.Config is WeatherNowConfig weather)
         {
             weather.Latitude = 47.4;

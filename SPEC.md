@@ -2479,9 +2479,11 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
 ## Weather: current conditions and forecast
 
 Round 3 of `WeatherNow` and `WeatherForecast` (originals `weather-current`, `weather-forecast`).
-Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`, `WeatherData`) and
-`Themia.Core/Storage/WeatherCacheStore`; tests in `WeatherLayoutTests`, `WeatherCacheStoreTests`,
-`WeatherReportTests` (`S72x_`).
+The current conditions are a module (`src/Widgets/Themia.Widget.WeatherNow/`, its tags in its
+`SPEC.md`). Shared rules in `Themia.Sdk/Widgets` (`WeatherReport`, `WeatherData`, `WeatherGlyph`,
+`WeatherSample`), the forecast's in `Themia.Core/Widgets` (`WeatherForecastLayout`, `ForecastDays`,
+`ForecastCurve`), the store in `Themia.Core/Storage/WeatherCacheStore`; tests in `WeatherLayoutTests`,
+`WeatherCacheStoreTests`, `WeatherReportTests` (`S72x_`).
 
 - **[S-720]** One open-meteo request per place carries the current block (temperature, feels-like,
   humidity, wind + direction + gusts, precipitation, pressure, cloud cover, UV), today and the next
@@ -2490,22 +2492,7 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   1..14 days. Every value is range-checked; a missing daily block still yields a reading.
 - **[S-721]** Day labels: "Today", then the culture's own abbreviated weekday (English while the app
   runs globalization-invariant).
-- **[S-722]** The current readings, in order: Feels like, Humidity, Wind ("11 km/h NW"),
-  Precipitation (the last hour's amount while it rains, else today's chance), Pressure, UV index,
-  Cloud cover, Gusts, Sunrise, Sunset. A reading the service did not send is left out, not "--".
-- **[S-723]** Current-conditions ladder (`WeatherNowLayout.Plan`): the temperature always, as the
-  hero readout ([S-667]: icon beside once it fits; the condition, today's range and the Feels
-  token are its caption lines, beside or under, [S-656]); then — a strip, or a tile Expanded wide
-  (not tall) with H ≥ Regular: the readings as stat lines ([S-668]) in a column beside the reading,
-  one column while they fit and two only when not; a tall column (H ≥ Expanded): today's high/low,
-  then up to 8 stat lines under it; otherwise a flat row of stat cells (no boxes, original S-07)
-  once H ≥ Regular and three cells fit, else a single "Feels 17°C" caption line under the
-  condition; today's "H 19°  L 11°" (Least ≥ Regular, or beside on a strip); a second row of cells
-  at Huge both ways where the cells are under the reading. The reading and its rungs are one group,
-  centred in the tile, inset 16 either side and 12 above and below (the bottom readings used to
-  run within 4px of the card's edge). No next-days strip and no next-24-hours chart at any size (retired, [S-666]:
-  the hours and the days are the forecast widget's job); what the rungs leave is the reading's.
-  "Show detail" off = the reading alone at every size.
+- [S-722], [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`).
 - **[S-724]** The forecast's look is its style ([S-6163]): Rows (the default), Columns, the
   temperature curve or the grid; what was its layout setting.
 - **[S-725]** Rows (`WeatherForecastLayout.Rows`): as many of the first days as have the row floor
@@ -2539,17 +2526,6 @@ Rules in `Themia.Core/Widgets` (`WeatherLayout`, `WeatherFacts`, `WeatherReport`
   reads or writes it.
 - **[S-730]** "Refresh" in both widgets' menus resets the back-off and bypasses cache freshness
   (`WebCache.GetAsync(force)`), still joining a request already in flight.
-- **[S-6160]** The current conditions' styles ([S-6000]), `WeatherNowConfig.Style`
-  (`WeatherNowStyle`): **Standard** (the ladder, [S-723]), **Large icon** and **Minimal**, in that
-  order. "Show detail" is the standard style's; the place and the location name are every style's.
-- **[S-6161]** **Large icon** (`WeatherNowStyles.LargeIcon`): the sky's glyph is the picture, as tall
-  as the inset box (at most 42 % of its width, 24..200), the temperature beside it in the width left
-  (Subtitle to Display, then filled past it, [S-659]); the condition, then today's range, under the
-  temperature where the height has their lines. A tall column puts the glyph above (70 % of the
-  width, 60 % of the height left) and the text centred under it. No readings at any size.
-- **[S-6162]** **Minimal** (`WeatherNowStyles.Minimal`): the temperature and its unit alone, in
-  Segoe's light weight, as large as the inset box holds it (the ramp, then filled past TitleLarge,
-  [S-659], as the minimal clock, [S-6014]); no glyph, condition, range or readings.
 - **[S-6163]** The forecast's styles, `WeatherForecastConfig.Style` (`ForecastStyle`): **Rows**
   ([S-725], the default), **Columns** ([S-726]), **Temperature curve** and **Grid** ([S-6171]). What
   was the `Layout` setting: its Automatic (rows that turned into columns on a strip) is gone, and

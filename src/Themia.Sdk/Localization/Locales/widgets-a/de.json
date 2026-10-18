@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "Eine Live-Kamera: MJPEG, Standbild, MP4 oder HLS",
   "widgetsA.catalog.videoStream.label": "Videostream",
   "widgetsA.catalog.volume.description": "Hauptlautstärke und Stummschaltung",
-  "widgetsA.catalog.weather.description": "Das Wetter an deinem Ort",
   "widgetsA.clipboard.characters": {
     "one": "{count} Zeichen",
     "other": "{count} Zeichen"

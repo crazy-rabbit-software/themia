@@ -83,7 +83,6 @@
   "widgetsA.catalog.videoStream.description": "كاميرا مباشرة: MJPEG أو لقطة أو MP4 أو HLS",
   "widgetsA.catalog.videoStream.label": "بث الفيديو",
   "widgetsA.catalog.volume.description": "مستوى الإخراج الرئيسي وكتم الصوت",
-  "widgetsA.catalog.weather.description": "الأحوال الجوية حيث أنت",
   "widgetsA.clipboard.characters": {
     "zero": "{count} حرف",
     "one": "{count} حرف",

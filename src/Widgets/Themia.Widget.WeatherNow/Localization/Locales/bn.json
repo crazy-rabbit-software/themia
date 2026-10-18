@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "বড় আইকন",
+  "styles.weatherNow.minimal": "ন্যূনতম",
+  "styles.weatherNow.standard": "স্ট্যান্ডার্ড",
+  "weather.defaultLabel": "আবহাওয়া",
+  "weather.feelsLike": "অনুভূত",
+  "weather.humidity": "আর্দ্রতা",
+  "weather.wind": "বাতাস",
+  "widget.weatherCurrent.label": "আবহাওয়া",
+  "widgetsA.catalog.weather.description": "আপনার এলাকার আবহাওয়া",
+  "widgetsC.weather.fact.cloudCover": "মেঘের আচ্ছাদন",
+  "widgetsC.weather.fact.gusts": "দমকা হাওয়া",
+  "widgetsC.weather.fact.precipitation": "বৃষ্টিপাত",
+  "widgetsC.weather.fact.pressure": "চাপ",
+  "widgetsC.weather.fact.uvIndex": "UV সূচক",
+  "widgetsC.weather.feelsShort": "অনুভূত {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "অনুভূত তাপমাত্রা, আর্দ্রতা ও বাতাস; বড় টাইলে আরও বেশি",
+  "widgetsC.weather.settings.showDetail.label": "বিস্তারিত দেখান"
+}

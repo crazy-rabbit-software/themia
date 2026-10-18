@@ -71,19 +71,6 @@ public sealed class WidgetPartsTests
     }
 
     [Fact]
-    public void S668_one_stat_line_and_one_cell_on_the_4px_grid()
-    {
-        Assert.Equal(28, PartMetrics.StatLine);
-        Assert.Equal(36, PartMetrics.StatCell);
-        Assert.Equal(0, PartMetrics.StatLine % 4);
-        Assert.Equal(0, PartMetrics.StatCell % 4);
-
-        // The weather ladder budgets with the parts it draws.
-        Assert.Equal(PartMetrics.StatLine, WeatherNowLayout.StatLine);
-        Assert.Equal(PartMetrics.StatCell, WeatherNowLayout.CellHeight);
-    }
-
-    [Fact]
     public void S669_a_day_row_figure_holds_the_widest_temperature()
     {
         // "-18°" at Body Strong: the degree sign is half a character.

@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "நேரலை கேமரா: MJPEG, ஸ்னாப்ஷாட், MP4 அல்லது HLS",
   "widgetsA.catalog.videoStream.label": "வீடியோ ஸ்ட்ரீம்",
   "widgetsA.catalog.volume.description": "முதன்மை வெளியீட்டு நிலையும் ஒலியடக்கமும்",
-  "widgetsA.catalog.weather.description": "நீங்கள் இருக்கும் இடத்தின் வானிலை",
   "widgetsA.clipboard.characters": {
     "one": "{count} எழுத்து",
     "other": "{count} எழுத்துகள்"

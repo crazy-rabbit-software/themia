@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "Duża ikona",
+  "styles.weatherNow.minimal": "Minimalny",
+  "styles.weatherNow.standard": "Standardowy",
+  "weather.defaultLabel": "Pogoda",
+  "weather.feelsLike": "Odczuwalna",
+  "weather.humidity": "Wilgotność",
+  "weather.wind": "Wiatr",
+  "widget.weatherCurrent.label": "Pogoda",
+  "widgetsA.catalog.weather.description": "Pogoda tam, gdzie jesteś",
+  "widgetsC.weather.fact.cloudCover": "Zachmurzenie",
+  "widgetsC.weather.fact.gusts": "Porywy",
+  "widgetsC.weather.fact.precipitation": "Opady",
+  "widgetsC.weather.fact.pressure": "Ciśnienie",
+  "widgetsC.weather.fact.uvIndex": "Indeks UV",
+  "widgetsC.weather.feelsShort": "Odczuwalna {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "Odczuwalna, wilgotność i wiatr; więcej na większych kafelkach",
+  "widgetsC.weather.settings.showDetail.label": "Pokaż szczegóły"
+}

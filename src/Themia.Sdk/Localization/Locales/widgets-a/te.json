@@ -79,7 +79,6 @@
   "widgetsA.catalog.videoStream.description": "ప్రత్యక్ష కెమెరా: MJPEG, స్నాప్‌షాట్, MP4 లేదా HLS",
   "widgetsA.catalog.videoStream.label": "వీడియో స్ట్రీమ్",
   "widgetsA.catalog.volume.description": "మాస్టర్ అవుట్‌పుట్ స్థాయి మరియు మ్యూట్",
-  "widgetsA.catalog.weather.description": "మీరు ఉన్న చోట పరిస్థితులు",
   "widgetsA.clipboard.characters": {
     "one": "{count} అక్షరం",
     "other": "{count} అక్షరాలు"

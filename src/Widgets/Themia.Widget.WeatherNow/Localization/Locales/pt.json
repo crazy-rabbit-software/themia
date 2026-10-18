@@ -1,0 +1,19 @@
+{
+  "styles.weatherNow.largeIcon": "Ícone grande",
+  "styles.weatherNow.minimal": "Mínimo",
+  "styles.weatherNow.standard": "Padrão",
+  "weather.defaultLabel": "Clima",
+  "weather.feelsLike": "Sensação",
+  "weather.humidity": "Umidade",
+  "weather.wind": "Vento",
+  "widget.weatherCurrent.label": "Clima",
+  "widgetsA.catalog.weather.description": "O clima onde você está",
+  "widgetsC.weather.fact.cloudCover": "Nebulosidade",
+  "widgetsC.weather.fact.gusts": "Rajadas",
+  "widgetsC.weather.fact.precipitation": "Precipitação",
+  "widgetsC.weather.fact.pressure": "Pressão",
+  "widgetsC.weather.fact.uvIndex": "Índice UV",
+  "widgetsC.weather.feelsShort": "Sensação {temperature}",
+  "widgetsC.weather.settings.showDetail.desc": "Sensação, humidade e vento; mais em mosaicos maiores",
+  "widgetsC.weather.settings.showDetail.label": "Mostrar detalhes"
+}

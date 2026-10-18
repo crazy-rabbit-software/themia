@@ -78,7 +78,6 @@
   "widgetsA.catalog.videoStream.description": "Camera trực tiếp: MJPEG, ảnh chụp nhanh, MP4 hoặc HLS",
   "widgetsA.catalog.videoStream.label": "Luồng video",
   "widgetsA.catalog.volume.description": "Âm lượng đầu ra chính và tắt tiếng",
-  "widgetsA.catalog.weather.description": "Thời tiết nơi bạn ở",
   "widgetsA.clipboard.characters": {
     "other": "{count} ký tự"
   },
