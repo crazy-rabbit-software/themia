@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    {
+      "id": "v00",
+      "name": "Online",
+      "widgets": [
+        {
+          "id": "w00",
+          "x": 0.05,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "weatherNow",
+            "style": "largeIcon",
+            "showDetails": false,
+            "latitude": 47.3667,
+            "longitude": 8.55,
+            "locationName": "Z\u00FCrich, Zurich, Switzerland",
+            "hideLocation": true
+          }
+        },
+        {
+          "id": "w01",
+          "x": 0.15000000000000002,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "weatherForecast",
+            "days": 14,
+            "showPrecipitation": false,
+            "style": "curve",
+            "latitude": -33.8688,
+            "longitude": 151.2093,
+            "locationName": "Sydney, New South Wales, Australia",
+            "hideLocation": false
+          }
+        },
+        {
+          "id": "w02",
+          "x": 0.25,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "airQuality",
+            "style": "gauge",
+            "scale": "Us",
+            "latitude": 40.7128,
+            "longitude": -74.006,
+            "locationName": "New York, New York, United States",
+            "hideLocation": false
+          }
+        },
+        {
+          "id": "w03",
+          "x": 0.35000000000000003,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rainNextHour",
+            "latitude": 52.52,
+            "longitude": 13.405,
+            "locationName": "Berlin, Land Berlin, Germany",
+            "hideLocation": true
+          }
+        },
+        {
+          "id": "w04",
+          "x": 0.45,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "exchangeRates",
+            "baseCurrency": "CHF",
+            "quoteCurrency": "JPY",
+            "style": "number"
+          }
+        },
+        {
+          "id": "w05",
+          "x": 0.55,
+          "y": 0.05,
+          "w": 0.2,
+          "h": 0.2,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "stocks",
+            "symbol": "bitcoin",
+            "market": "Crypto",
+            "displayName": "Bitcoin",
+            "range": "Month",
+            "style": "number",
+            "showMarketState": true,
+            "showExtendedHours": true,
+            "showMinMax": true,
+            "upColor": "#22AA44",
+            "downColor": "",
+            "sharesOwned": 0.25
+          }
+        }
+      ]
+    }
+  ],
+  "activeViewId": "v00",
+  "monitorViews": {},
+  "design": {
+    "theme": "System",
+    "uiScale": 1,
+    "fontFamily": "system",
+    "fontScale": 1,
+    "widgetGapPx": 8,
+    "gridSnap": true,
+    "cornerRadiusPx": 4,
+    "background": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemBackground": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemTextColor": "",
+    "primaryColor": "",
+    "borderStyle": "Solid",
+    "borderWidthPx": 1,
+    "borderColor": "",
+    "borderOpacity": 1,
+    "introAnimation": "Scale",
+    "introAnimationMs": 500,
+    "headerBackgroundColor": "",
+    "headerOpacity": 1,
+    "transitionAnimation": "Scale",
+    "transitionAnimationMs": 500,
+    "unlockAnimation": "Scale",
+    "unlockAnimationMs": 500,
+    "smoothValues": true,
+    "runAtStartup": false
+  },
+  "preferences": {
+    "language": "System",
+    "gameModeSuspend": false,
+    "desktopIconsVisible": true,
+    "region": {
+      "clock": "System",
+      "weekStart": "System",
+      "temperature": "Fahrenheit"
+    },
+    "refresh": {
+      "weather": 30,
+      "markets": 5,
+      "feeds": 30,
+      "accounts": 2
+    }
+  },
+  "disabledMonitors": [],
+  "monitorScales": {},
+  "viewBars": {}
+}
