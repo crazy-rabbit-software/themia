@@ -95,6 +95,9 @@ public interface IWidgetHost
     /// <summary>[S-1420] The habit lists kept on this PC: the host's one pool. Null where it keeps none.</summary>
     IHabitLists? Habits { get; }
 
+    /// <summary>[S-458] The screen-time history: the host's one tracker. Null where it runs none (a debug render).</summary>
+    IScreenTimeSource? ScreenTime { get; }
+
     /// <summary>[S-1444] Put <paramref name="text"/> on the clipboard, exactly as given. False when Windows refused it (logged).</summary>
     bool CopyText(string text);
 }

@@ -5,6 +5,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -104,7 +105,7 @@ internal static partial class WidgetSettings
     {
         rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Settings_Limits.Text()));
 
-        if (AppServices.ScreenTime is not { } source)
+        if (SettingsHost.ScreenTime is not { } source)
         {
             rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_NotRecording.Text()));
             rows.Add(FluentLayout.Note(Str.WidgetsC_ScreenTime_Settings_Privacy.Text()));
@@ -246,7 +247,7 @@ internal static partial class WidgetSettings
     /// <summary>Apps in the last month of history, busiest first, as (key, name).</summary>
     private static List<(string App, string Name)> KnownApps()
     {
-        if (AppServices.ScreenTime is not { } source)
+        if (SettingsHost.ScreenTime is not { } source)
         {
             return [];
         }

@@ -16,5 +16,5 @@ public sealed class ScreenTimeDonutModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.ScreenTimeDonut(rows.Rows, (ScreenTimeDonutConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeDonutView();
+    public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeDonutView(host);
 }

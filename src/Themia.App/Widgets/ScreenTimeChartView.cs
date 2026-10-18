@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -48,8 +49,11 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     private int? _day;
     private bool _detached;
 
-    public ScreenTimeChartView()
+    private readonly IWidgetHost _host;
+
+    public ScreenTimeChartView(IWidgetHost host)
     {
+        _host = host;
         _links = new ScreenTimeLinks(ApplyFocus);
 
         Background = new SolidColorBrush(Colors.Transparent);
@@ -101,7 +105,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _config = config as ScreenTimeChartConfig ?? new ScreenTimeChartConfig();
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
-        UseSource(AppServices.ScreenTime);
+        UseSource(_host.ScreenTime);
         _links.Join(_surface?.Links);
         Render();
     }

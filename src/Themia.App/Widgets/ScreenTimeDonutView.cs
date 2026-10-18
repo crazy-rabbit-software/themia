@@ -10,6 +10,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using Glyphs = Themia.App.Shell.Glyphs;
 
@@ -20,7 +21,7 @@ namespace Themia.App.Widgets;
 /// hole. Hovering or selecting a wedge — here or in the chart or the app list on the same view —
 /// lifts it, dims the rest and names it in the hole ([S-3343]).
 /// <para>
-/// The history is the app's one tracker ([S-458]), read through <see cref="AppServices.ScreenTime"/>;
+/// The history is the app's one tracker ([S-458]), read through <see cref="IWidgetHost.ScreenTime"/>;
 /// the widget has no timer and redraws when the tracker says something changed.
 /// </para>
 /// </summary>
@@ -49,8 +50,11 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     private WidgetArea _area;
     private bool _detached;
 
-    public ScreenTimeDonutView()
+    private readonly IWidgetHost _host;
+
+    public ScreenTimeDonutView(IWidgetHost host)
     {
+        _host = host;
         _links = new ScreenTimeLinks(ApplyFocus);
         _nav = new ScreenTimeDayNav(Render);
 
@@ -111,7 +115,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         Strings.Changed += OnLanguage;
 
         // [S-450] No timer of its own: the tracker ticks, and says so.
-        UseSource(AppServices.ScreenTime);
+        UseSource(_host.ScreenTime);
 
         // [S-3300] The view's links: what is selected there already shows at once.
         _links.Join(_surface?.Links);
