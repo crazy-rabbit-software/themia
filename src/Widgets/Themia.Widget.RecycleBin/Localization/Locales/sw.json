@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Jinsi Pipa la Kuchakata lilivyojaa, na Safisha",
+  "recycleBin.empty": "Safisha",
+  "recycleBin.isEmpty": "Hakuna vipengee",
+  "recycleBin.items": {
+    "one": "Kipengee {count}",
+    "other": "Vipengee {count}"
+  },
+  "recycleBin.open": "Fungua Pipa la Kuchakata",
+  "recycleBin.emptyEllipsis": "Safisha Pipa la Kuchakata…",
+  "widgetsC.location.recycleBin": "Pipa la Kuchakata"
+}

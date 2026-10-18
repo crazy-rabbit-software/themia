@@ -11,13 +11,5 @@
   "recentFiles.empty": "حال ہی میں کچھ نہیں کھولا گیا",
   "recentFiles.unreadable": "Windows کے حالیہ آئٹمز پڑھے نہیں جا سکے",
   "recentFiles.remove": "فہرست سے ہٹائیں",
-  "recycleBin.desc": "ری سائیکل بن کتنا بھرا ہے، خالی کریں کے ساتھ",
-  "recycleBin.empty": "خالی کریں",
-  "recycleBin.emptyEllipsis": "ری سائیکل بن خالی کریں…",
-  "recycleBin.isEmpty": "کوئی آئٹم نہیں",
-  "recycleBin.items": {
-    "one": "{count} آئٹم",
-    "other": "{count} آئٹمز"
-  },
-  "recycleBin.open": "ری سائیکل بن کھولیں"
+  "recycleBin.emptyEllipsis": "ری سائیکل بن خالی کریں…"
 }

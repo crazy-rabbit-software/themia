@@ -11,17 +11,5 @@
   "recentFiles.empty": "لم يُفتح شيء مؤخرًا",
   "recentFiles.unreadable": "تعذّرت قراءة العناصر الأخيرة في Windows",
   "recentFiles.remove": "إزالة من القائمة",
-  "recycleBin.desc": "مقدار امتلاء سلة المحذوفات، مع زر الإفراغ",
-  "recycleBin.empty": "إفراغ",
-  "recycleBin.emptyEllipsis": "إفراغ سلة المحذوفات…",
-  "recycleBin.isEmpty": "لا توجد عناصر",
-  "recycleBin.items": {
-    "zero": "{count} عنصر",
-    "one": "{count} عنصر",
-    "two": "{count} عنصران",
-    "few": "{count} عناصر",
-    "many": "{count} عنصرًا",
-    "other": "{count} عنصر"
-  },
-  "recycleBin.open": "فتح سلة المحذوفات"
+  "recycleBin.emptyEllipsis": "إفراغ سلة المحذوفات…"
 }

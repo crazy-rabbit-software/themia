@@ -12,13 +12,5 @@
   "recentFiles.empty": "ਹਾਲ ਹੀ ਵਿੱਚ ਕੁਝ ਨਹੀਂ ਖੋਲ੍ਹਿਆ",
   "recentFiles.unreadable": "Windows ਦੀਆਂ ਹਾਲੀਆ ਆਈਟਮਾਂ ਪੜ੍ਹੀਆਂ ਨਹੀਂ ਜਾ ਸਕੀਆਂ",
   "recentFiles.remove": "ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾਓ",
-  "recycleBin.desc": "ਰੀਸਾਈਕਲ ਬਿਨ ਕਿੰਨਾ ਭਰਿਆ ਹੈ, ਖਾਲੀ ਕਰੋ ਬਟਨ ਨਾਲ",
-  "recycleBin.empty": "ਖਾਲੀ ਕਰੋ",
-  "recycleBin.emptyEllipsis": "ਰੀਸਾਈਕਲ ਬਿਨ ਖਾਲੀ ਕਰੋ…",
-  "recycleBin.isEmpty": "ਕੋਈ ਆਈਟਮ ਨਹੀਂ",
-  "recycleBin.items": {
-    "one": "{count} ਆਈਟਮ",
-    "other": "{count} ਆਈਟਮਾਂ"
-  },
-  "recycleBin.open": "ਰੀਸਾਈਕਲ ਬਿਨ ਖੋਲ੍ਹੋ"
+  "recycleBin.emptyEllipsis": "ਰੀਸਾਈਕਲ ਬਿਨ ਖਾਲੀ ਕਰੋ…"
 }

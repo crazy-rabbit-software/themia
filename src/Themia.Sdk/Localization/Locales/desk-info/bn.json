@@ -11,13 +11,5 @@
   "recentFiles.empty": "সম্প্রতি কিছু খোলা হয়নি",
   "recentFiles.unreadable": "Windows-এর সাম্প্রতিক আইটেম পড়া যায়নি",
   "recentFiles.remove": "তালিকা থেকে সরান",
-  "recycleBin.desc": "রিসাইকেল বিন কতটা ভরা, খালি করার বোতামসহ",
-  "recycleBin.empty": "খালি করুন",
-  "recycleBin.emptyEllipsis": "রিসাইকেল বিন খালি করুন…",
-  "recycleBin.isEmpty": "কোনো আইটেম নেই",
-  "recycleBin.items": {
-    "one": "{count}টি আইটেম",
-    "other": "{count}টি আইটেম"
-  },
-  "recycleBin.open": "রিসাইকেল বিন খুলুন"
+  "recycleBin.emptyEllipsis": "রিসাইকেল বিন খালি করুন…"
 }

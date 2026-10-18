@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Cuánto ocupa la papelera de reciclaje, con Vaciar",
+  "recycleBin.empty": "Vaciar",
+  "recycleBin.isEmpty": "Sin elementos",
+  "recycleBin.items": {
+    "one": "{count} elemento",
+    "other": "{count} elementos"
+  },
+  "recycleBin.open": "Abrir papelera de reciclaje",
+  "recycleBin.emptyEllipsis": "Vaciar papelera de reciclaje…",
+  "widgetsC.location.recycleBin": "Papelera de reciclaje"
+}

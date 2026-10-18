@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Yadda Kwandon Shara ya cika, tare da Wofintar",
+  "recycleBin.empty": "Wofintar",
+  "recycleBin.isEmpty": "Babu abubuwa",
+  "recycleBin.items": {
+    "one": "Abu {count}",
+    "other": "Abubuwa {count}"
+  },
+  "recycleBin.open": "Buɗe Kwandon Shara",
+  "recycleBin.emptyEllipsis": "Wofintar da Kwandon Shara…",
+  "widgetsC.location.recycleBin": "Kwandon Shara"
+}

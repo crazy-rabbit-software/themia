@@ -12,13 +12,5 @@
   "recentFiles.empty": "Hakuna kilichofunguliwa hivi karibuni",
   "recentFiles.unreadable": "Vipengee vya hivi karibuni vya Windows havikuweza kusomwa",
   "recentFiles.remove": "Ondoa kwenye orodha",
-  "recycleBin.desc": "Jinsi Pipa la Kuchakata lilivyojaa, na Safisha",
-  "recycleBin.empty": "Safisha",
-  "recycleBin.emptyEllipsis": "Safisha Pipa la Kuchakata…",
-  "recycleBin.isEmpty": "Hakuna vipengee",
-  "recycleBin.items": {
-    "one": "Kipengee {count}",
-    "other": "Vipengee {count}"
-  },
-  "recycleBin.open": "Fungua Pipa la Kuchakata"
+  "recycleBin.emptyEllipsis": "Safisha Pipa la Kuchakata…"
 }

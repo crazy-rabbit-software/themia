@@ -11,12 +11,5 @@
   "recentFiles.empty": "Tidak ada yang dibuka baru-baru ini",
   "recentFiles.unreadable": "Item terbaru Windows tidak dapat dibaca",
   "recentFiles.remove": "Hapus dari daftar",
-  "recycleBin.desc": "Seberapa penuh Recycle Bin, dengan Kosongkan",
-  "recycleBin.empty": "Kosongkan",
-  "recycleBin.emptyEllipsis": "Kosongkan Recycle Bin…",
-  "recycleBin.isEmpty": "Tidak ada item",
-  "recycleBin.items": {
-    "other": "{count} item"
-  },
-  "recycleBin.open": "Buka Recycle Bin"
+  "recycleBin.emptyEllipsis": "Kosongkan Recycle Bin…"
 }

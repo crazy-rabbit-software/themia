@@ -11,13 +11,5 @@
   "recentFiles.empty": "Nessun file aperto di recente",
   "recentFiles.unreadable": "Impossibile leggere gli elementi recenti di Windows",
   "recentFiles.remove": "Rimuovi dall’elenco",
-  "recycleBin.desc": "Quanto è pieno il Cestino, con Svuota",
-  "recycleBin.empty": "Svuota",
-  "recycleBin.emptyEllipsis": "Svuota Cestino…",
-  "recycleBin.isEmpty": "Nessun elemento",
-  "recycleBin.items": {
-    "one": "{count} elemento",
-    "other": "{count} elementi"
-  },
-  "recycleBin.open": "Apri Cestino"
+  "recycleBin.emptyEllipsis": "Svuota Cestino…"
 }

@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "ری سائیکل بن کتنا بھرا ہے، خالی کریں کے ساتھ",
+  "recycleBin.empty": "خالی کریں",
+  "recycleBin.isEmpty": "کوئی آئٹم نہیں",
+  "recycleBin.items": {
+    "one": "{count} آئٹم",
+    "other": "{count} آئٹمز"
+  },
+  "recycleBin.open": "ری سائیکل بن کھولیں",
+  "recycleBin.emptyEllipsis": "ری سائیکل بن خالی کریں…",
+  "widgetsC.location.recycleBin": "ری سائیکل بن"
+}

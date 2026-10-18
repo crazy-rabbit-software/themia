@@ -11,12 +11,5 @@
   "recentFiles.empty": "Gần đây chưa mở gì",
   "recentFiles.unreadable": "Không đọc được các mục gần đây của Windows",
   "recentFiles.remove": "Xóa khỏi danh sách",
-  "recycleBin.desc": "Thùng rác đầy đến đâu, kèm nút Dọn sạch",
-  "recycleBin.empty": "Dọn sạch",
-  "recycleBin.emptyEllipsis": "Dọn sạch Thùng rác…",
-  "recycleBin.isEmpty": "Không có mục nào",
-  "recycleBin.items": {
-    "other": "{count} mục"
-  },
-  "recycleBin.open": "Mở Thùng rác"
+  "recycleBin.emptyEllipsis": "Dọn sạch Thùng rác…"
 }

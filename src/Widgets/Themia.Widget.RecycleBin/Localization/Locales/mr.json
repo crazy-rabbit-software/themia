@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "रीसायकल बिन किती भरले आहे, रिकामे करा पर्यायासह",
+  "recycleBin.empty": "रिकामे करा",
+  "recycleBin.isEmpty": "कोणतेही आयटम नाहीत",
+  "recycleBin.items": {
+    "one": "{count} आयटम",
+    "other": "{count} आयटम"
+  },
+  "recycleBin.open": "रीसायकल बिन उघडा",
+  "recycleBin.emptyEllipsis": "रीसायकल बिन रिकामे करा…",
+  "widgetsC.location.recycleBin": "रीसायकल बिन"
+}

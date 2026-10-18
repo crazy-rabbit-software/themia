@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "휴지통 사용량과 비우기 단추",
+  "recycleBin.empty": "비우기",
+  "recycleBin.isEmpty": "항목 없음",
+  "recycleBin.items": {
+    "other": "항목 {count}개"
+  },
+  "recycleBin.open": "휴지통 열기",
+  "recycleBin.emptyEllipsis": "휴지통 비우기…",
+  "widgetsC.location.recycleBin": "휴지통"
+}

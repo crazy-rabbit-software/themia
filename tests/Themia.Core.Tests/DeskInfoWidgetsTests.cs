@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>Next meeting, Recent files and Recycle Bin (S-4820..S-4863); Year progress is its module's (src/Widgets/Themia.Widget.YearProgress).</summary>
+/// <summary>Next meeting and Recent files (S-4820..S-4845); Year progress and the Recycle Bin are their modules' (src/Widgets).</summary>
 public class DeskInfoWidgetsTests
 {
     // -----------------------------------------------------------------------------------------
@@ -21,7 +21,6 @@ public class DeskInfoWidgetsTests
     [Theory]
     [InlineData("nextMeeting", typeof(NextMeetingConfig))]
     [InlineData("recentFiles", typeof(RecentFilesConfig))]
-    [InlineData("recycleBin", typeof(RecycleBinConfig))]
     public void S4800_each_kind_has_its_config_and_round_trips(string kindId, Type type)
     {
         var kind = new WidgetId(kindId);
@@ -39,7 +38,6 @@ public class DeskInfoWidgetsTests
     public void S4800_only_next_meeting_needs_setting_up_and_only_without_a_calendar()
     {
         Assert.False(WidgetSetup.Needed(new RecentFilesConfig(), FeatureSet.None));
-        Assert.False(WidgetSetup.Needed(new RecycleBinConfig(), FeatureSet.None));
         Assert.True(WidgetSetup.Needed(new NextMeetingConfig(), FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new NextMeetingConfig(), HostFeatures.Calendar));
     }
@@ -58,8 +56,6 @@ public class DeskInfoWidgetsTests
         Assert.NotEmpty(edited.Repair());
         Assert.False(edited.ShowBirthdays);
     }
-
-    private static WidgetArea Inset(double width, double height) => new WidgetArea(width, height).Deflate(16, 16);
 
     // -----------------------------------------------------------------------------------------
     // [S-4821] Which event
@@ -340,34 +336,5 @@ public class DeskInfoWidgetsTests
         Assert.True(RecentFilesLayout.Plan(new WidgetArea(320, 196)).TwoLine);
         Assert.False(RecentFilesLayout.Plan(new WidgetArea(320, 196)).TimeColumn);
         Assert.True(RecentFilesLayout.Plan(new WidgetArea(560, 376)).TimeColumn);
-    }
-
-    // -----------------------------------------------------------------------------------------
-    // [S-4861] Recycle Bin
-    // -----------------------------------------------------------------------------------------
-
-    [Fact]
-    public void S4861_says_how_many_items_or_that_it_is_empty()
-    {
-        Assert.Null(RecycleBinLayout.CountText(Locale.En, null));
-        Assert.Equal("No items", RecycleBinLayout.CountText(Locale.En, new RecycleBinState(0, 0)));
-        Assert.Equal("1 item", RecycleBinLayout.CountText(Locale.En, new RecycleBinState(1, 10)));
-        Assert.Equal("37 items", RecycleBinLayout.CountText(Locale.En, new RecycleBinState(37, 10)));
-        Assert.Equal("–", RecycleBinLayout.SizeText(Locale.En, null));
-    }
-
-    [Fact]
-    public void S4862_the_size_always_shows_and_the_button_comes_with_room()
-    {
-        var xs = RecycleBinLayout.Plan(Inset(120, 76));
-        Assert.False(xs.Button);
-
-        var medium = RecycleBinLayout.Plan(Inset(200, 200));
-        Assert.True(medium.Count);
-        Assert.True(medium.Button);
-
-        var strip = RecycleBinLayout.Plan(Inset(480, 116));
-        Assert.True(strip.Side);
-        Assert.True(strip.Button);
     }
 }

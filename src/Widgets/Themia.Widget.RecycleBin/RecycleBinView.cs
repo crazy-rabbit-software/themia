@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.RecycleBin;
 
 namespace Themia.App.Widgets;
 
@@ -89,8 +90,8 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     /// <summary>[S-4863] Open the bin, and Empty — the same command as the button, for a tile too small for it.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
     [
-        new(Glyphs.Open, Str.RecycleBin_Open.Text(), OpenBin),
-        new(Glyphs.RecycleBin, Str.RecycleBin_EmptyEllipsis.Text(), () => _ = EmptyAsync()),
+        new(Glyphs.Open, RecycleBinStr.RecycleBin_Open.Text(), OpenBin),
+        new(Glyphs.RecycleBin, RecycleBinStr.RecycleBin_EmptyEllipsis.Text(), () => _ = EmptyAsync()),
     ];
 
     public void Detach()
@@ -166,11 +167,11 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
         var state = _state();
         _size.Text = RecycleBinLayout.SizeText(locale, state);
         _count.Text = RecycleBinLayout.CountText(locale, state) ?? string.Empty;
-        _buttonLabel.Text = Str.RecycleBin_Empty.Text();
+        _buttonLabel.Text = RecycleBinStr.RecycleBin_Empty.Text();
 
         // Empty is offered only when there is something to empty, and not twice at once (process-wide).
         _empty.IsEnabled = RecycleBinState.CanEmpty(state, _widgetHost.RecycleBin.Emptying);
-        ToolTipService.SetToolTip(this, RecycleBinState.Tooltip(locale, Str.WidgetsC_Location_RecycleBin.Text(), state));
+        ToolTipService.SetToolTip(this, RecycleBinState.Tooltip(locale, RecycleBinStr.WidgetsC_Location_RecycleBin.Text(), state));
     }
 
     private void OnEmptyClicked(object sender, RoutedEventArgs args) => _ = EmptyAsync();

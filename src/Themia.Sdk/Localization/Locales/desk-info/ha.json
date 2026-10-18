@@ -12,13 +12,5 @@
   "recentFiles.empty": "Ba a buɗe komai kwanan nan ba",
   "recentFiles.unreadable": "Ba a iya karanta abubuwan kwanan nan na Windows ba",
   "recentFiles.remove": "Cire daga jeri",
-  "recycleBin.desc": "Yadda Kwandon Shara ya cika, tare da Wofintar",
-  "recycleBin.empty": "Wofintar",
-  "recycleBin.emptyEllipsis": "Wofintar da Kwandon Shara…",
-  "recycleBin.isEmpty": "Babu abubuwa",
-  "recycleBin.items": {
-    "one": "Abu {count}",
-    "other": "Abubuwa {count}"
-  },
-  "recycleBin.open": "Buɗe Kwandon Shara"
+  "recycleBin.emptyEllipsis": "Wofintar da Kwandon Shara…"
 }

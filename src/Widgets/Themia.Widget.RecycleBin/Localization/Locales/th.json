@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "ถังรีไซเคิลเต็มแค่ไหน พร้อมปุ่มล้าง",
+  "recycleBin.empty": "ล้าง",
+  "recycleBin.isEmpty": "ไม่มีรายการ",
+  "recycleBin.items": {
+    "other": "{count} รายการ"
+  },
+  "recycleBin.open": "เปิดถังรีไซเคิล",
+  "recycleBin.emptyEllipsis": "ล้างถังรีไซเคิล…",
+  "widgetsC.location.recycleBin": "ถังรีไซเคิล"
+}

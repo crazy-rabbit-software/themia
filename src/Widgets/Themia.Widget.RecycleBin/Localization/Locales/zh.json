@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "回收站已用空间，可一键清空",
+  "recycleBin.empty": "清空",
+  "recycleBin.isEmpty": "没有项目",
+  "recycleBin.items": {
+    "other": "{count} 个项目"
+  },
+  "recycleBin.open": "打开回收站",
+  "recycleBin.emptyEllipsis": "清空回收站…",
+  "widgetsC.location.recycleBin": "回收站"
+}

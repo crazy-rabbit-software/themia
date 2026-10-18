@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "રિસાયકલ બિન કેટલું ભરેલું છે, ખાલી કરો બટન સાથે",
+  "recycleBin.empty": "ખાલી કરો",
+  "recycleBin.isEmpty": "કોઈ આઇટમ નથી",
+  "recycleBin.items": {
+    "one": "{count} આઇટમ",
+    "other": "{count} આઇટમ્સ"
+  },
+  "recycleBin.open": "રિસાયકલ બિન ખોલો",
+  "recycleBin.emptyEllipsis": "રિસાયકલ બિન ખાલી કરો…",
+  "widgetsC.location.recycleBin": "રિસાયકલ બિન"
+}

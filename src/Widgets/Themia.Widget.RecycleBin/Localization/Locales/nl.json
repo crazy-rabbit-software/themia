@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Hoe vol de Prullenbak is, met Leegmaken",
+  "recycleBin.empty": "Leegmaken",
+  "recycleBin.isEmpty": "Geen items",
+  "recycleBin.items": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "recycleBin.open": "Prullenbak openen",
+  "recycleBin.emptyEllipsis": "Prullenbak leegmaken…",
+  "widgetsC.location.recycleBin": "Prullenbak"
+}

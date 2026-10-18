@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "Thùng rác đầy đến đâu, kèm nút Dọn sạch",
+  "recycleBin.empty": "Dọn sạch",
+  "recycleBin.isEmpty": "Không có mục nào",
+  "recycleBin.items": {
+    "other": "{count} mục"
+  },
+  "recycleBin.open": "Mở Thùng rác",
+  "recycleBin.emptyEllipsis": "Dọn sạch Thùng rác…",
+  "widgetsC.location.recycleBin": "Thùng rác"
+}

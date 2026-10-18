@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Quanto a Lixeira ocupa, com Esvaziar",
+  "recycleBin.empty": "Esvaziar",
+  "recycleBin.isEmpty": "Nenhum item",
+  "recycleBin.items": {
+    "one": "{count} item",
+    "other": "{count} itens"
+  },
+  "recycleBin.open": "Abrir Lixeira",
+  "recycleBin.emptyEllipsis": "Esvaziar Lixeira…",
+  "widgetsC.location.recycleBin": "Lixeira"
+}

@@ -12,13 +12,5 @@
   "recentFiles.empty": "Walang binuksan kamakailan",
   "recentFiles.unreadable": "Hindi mabasa ang mga kamakailang item ng Windows",
   "recentFiles.remove": "Alisin sa listahan",
-  "recycleBin.desc": "Gaano kapuno ang Recycle Bin, may Alisan ng laman",
-  "recycleBin.empty": "Alisan ng laman",
-  "recycleBin.emptyEllipsis": "Alisan ng laman ang Recycle Bin…",
-  "recycleBin.isEmpty": "Walang item",
-  "recycleBin.items": {
-    "one": "{count} item",
-    "other": "{count} item"
-  },
-  "recycleBin.open": "Buksan ang Recycle Bin"
+  "recycleBin.emptyEllipsis": "Alisan ng laman ang Recycle Bin…"
 }

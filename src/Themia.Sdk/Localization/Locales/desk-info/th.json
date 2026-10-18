@@ -12,12 +12,5 @@
   "recentFiles.empty": "ไม่มีรายการที่เปิดเมื่อเร็วๆ นี้",
   "recentFiles.unreadable": "ไม่สามารถอ่านรายการล่าสุดของ Windows ได้",
   "recentFiles.remove": "เอาออกจากรายการ",
-  "recycleBin.desc": "ถังรีไซเคิลเต็มแค่ไหน พร้อมปุ่มล้าง",
-  "recycleBin.empty": "ล้าง",
-  "recycleBin.emptyEllipsis": "ล้างถังรีไซเคิล…",
-  "recycleBin.isEmpty": "ไม่มีรายการ",
-  "recycleBin.items": {
-    "other": "{count} รายการ"
-  },
-  "recycleBin.open": "เปิดถังรีไซเคิล"
+  "recycleBin.emptyEllipsis": "ล้างถังรีไซเคิล…"
 }

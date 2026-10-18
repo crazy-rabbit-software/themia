@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Geri Dönüşüm Kutusu'nun doluluğu, Boşalt düğmesiyle",
+  "recycleBin.empty": "Boşalt",
+  "recycleBin.isEmpty": "Öğe yok",
+  "recycleBin.items": {
+    "one": "{count} öğe",
+    "other": "{count} öğe"
+  },
+  "recycleBin.open": "Geri Dönüşüm Kutusu'nu aç",
+  "recycleBin.emptyEllipsis": "Geri Dönüşüm Kutusu'nu boşalt…",
+  "widgetsC.location.recycleBin": "Geri Dönüşüm Kutusu"
+}

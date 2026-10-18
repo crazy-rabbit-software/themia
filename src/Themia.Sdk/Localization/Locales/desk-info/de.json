@@ -11,13 +11,5 @@
   "recentFiles.empty": "Zuletzt nichts geöffnet",
   "recentFiles.unreadable": "Die zuletzt verwendeten Elemente von Windows konnten nicht gelesen werden",
   "recentFiles.remove": "Aus Liste entfernen",
-  "recycleBin.desc": "Wie voll der Papierkorb ist, mit Leeren",
-  "recycleBin.empty": "Leeren",
-  "recycleBin.emptyEllipsis": "Papierkorb leeren…",
-  "recycleBin.isEmpty": "Keine Elemente",
-  "recycleBin.items": {
-    "one": "{count} Element",
-    "other": "{count} Elemente"
-  },
-  "recycleBin.open": "Papierkorb öffnen"
+  "recycleBin.emptyEllipsis": "Papierkorb leeren…"
 }

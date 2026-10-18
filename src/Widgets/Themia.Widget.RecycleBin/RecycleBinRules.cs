@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Widget.RecycleBin;
 
 namespace Themia.Core.Widgets;
 
@@ -71,8 +72,8 @@ public static class RecycleBinLayout
         => state switch
         {
             null => null,
-            { IsEmpty: true } => Strings.Get(locale, Str.RecycleBin_IsEmpty),
-            { } bin => Strings.Plural(locale, Str.RecycleBin_Items, bin.Items),
+            { IsEmpty: true } => RecycleBinStr.RecycleBin_IsEmpty.Text(locale),
+            { } bin => RecycleBinStr.RecycleBin_Items.Plural(locale, bin.Items),
         };
 
     /// <summary>[S-4861] The size line: the bytes, "0 bytes" when empty, "–" before the first answer.</summary>

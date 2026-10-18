@@ -1,0 +1,16 @@
+{
+  "recycleBin.desc": "مقدار امتلاء سلة المحذوفات، مع زر الإفراغ",
+  "recycleBin.empty": "إفراغ",
+  "recycleBin.isEmpty": "لا توجد عناصر",
+  "recycleBin.items": {
+    "zero": "{count} عنصر",
+    "one": "{count} عنصر",
+    "two": "{count} عنصران",
+    "few": "{count} عناصر",
+    "many": "{count} عنصرًا",
+    "other": "{count} عنصر"
+  },
+  "recycleBin.open": "فتح سلة المحذوفات",
+  "recycleBin.emptyEllipsis": "إفراغ سلة المحذوفات…",
+  "widgetsC.location.recycleBin": "سلة المحذوفات"
+}

@@ -1,0 +1,13 @@
+{
+  "$englishOnly": [],
+  "recycleBin.desc": "How full the Recycle Bin is, with Empty",
+  "recycleBin.empty": "Empty",
+  "recycleBin.isEmpty": "No items",
+  "recycleBin.items": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "recycleBin.open": "Open Recycle Bin",
+  "recycleBin.emptyEllipsis": "Empty Recycle Bin…",
+  "widgetsC.location.recycleBin": "Recycle Bin"
+}

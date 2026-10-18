@@ -12,13 +12,5 @@
   "recentFiles.empty": "சமீபத்தில் எதுவும் திறக்கப்படவில்லை",
   "recentFiles.unreadable": "Windows இன் சமீபத்திய உருப்படிகளைப் படிக்க முடியவில்லை",
   "recentFiles.remove": "பட்டியலிலிருந்து அகற்று",
-  "recycleBin.desc": "மறுசுழற்சி தொட்டி எவ்வளவு நிரம்பியுள்ளது, காலியாக்கு பொத்தானுடன்",
-  "recycleBin.empty": "காலியாக்கு",
-  "recycleBin.emptyEllipsis": "மறுசுழற்சி தொட்டியைக் காலியாக்கு…",
-  "recycleBin.isEmpty": "உருப்படிகள் இல்லை",
-  "recycleBin.items": {
-    "one": "{count} உருப்படி",
-    "other": "{count} உருப்படிகள்"
-  },
-  "recycleBin.open": "மறுசுழற்சி தொட்டியைத் திற"
+  "recycleBin.emptyEllipsis": "மறுசுழற்சி தொட்டியைக் காலியாக்கு…"
 }

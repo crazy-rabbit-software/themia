@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "ごみ箱の使用量と、空にするボタン",
+  "recycleBin.empty": "空にする",
+  "recycleBin.isEmpty": "項目なし",
+  "recycleBin.items": {
+    "other": "{count} 個の項目"
+  },
+  "recycleBin.open": "ごみ箱を開く",
+  "recycleBin.emptyEllipsis": "ごみ箱を空にする…",
+  "widgetsC.location.recycleBin": "ごみ箱"
+}

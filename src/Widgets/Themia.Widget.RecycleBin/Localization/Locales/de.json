@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Wie voll der Papierkorb ist, mit Leeren",
+  "recycleBin.empty": "Leeren",
+  "recycleBin.isEmpty": "Keine Elemente",
+  "recycleBin.items": {
+    "one": "{count} Element",
+    "other": "{count} Elemente"
+  },
+  "recycleBin.open": "Papierkorb öffnen",
+  "recycleBin.emptyEllipsis": "Papierkorb leeren…",
+  "widgetsC.location.recycleBin": "Papierkorb"
+}

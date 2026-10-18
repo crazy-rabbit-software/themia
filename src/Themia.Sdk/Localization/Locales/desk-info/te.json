@@ -12,13 +12,5 @@
   "recentFiles.empty": "ఇటీవల ఏదీ తెరవబడలేదు",
   "recentFiles.unreadable": "Windows ఇటీవలి అంశాలను చదవడం సాధ్యం కాలేదు",
   "recentFiles.remove": "జాబితా నుండి తీసివేయి",
-  "recycleBin.desc": "రీసైకిల్ బిన్ ఎంత నిండి ఉంది, ఖాళీ చేయి బటన్‌తో",
-  "recycleBin.empty": "ఖాళీ చేయి",
-  "recycleBin.emptyEllipsis": "రీసైకిల్ బిన్‌ను ఖాళీ చేయి…",
-  "recycleBin.isEmpty": "అంశాలు లేవు",
-  "recycleBin.items": {
-    "one": "{count} అంశం",
-    "other": "{count} అంశాలు"
-  },
-  "recycleBin.open": "రీసైకిల్ బిన్‌ను తెరువు"
+  "recycleBin.emptyEllipsis": "రీసైకిల్ బిన్‌ను ఖాళీ చేయి…"
 }

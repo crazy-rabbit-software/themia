@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "Seberapa penuh Recycle Bin, dengan Kosongkan",
+  "recycleBin.empty": "Kosongkan",
+  "recycleBin.isEmpty": "Tidak ada item",
+  "recycleBin.items": {
+    "other": "{count} item"
+  },
+  "recycleBin.open": "Buka Recycle Bin",
+  "recycleBin.emptyEllipsis": "Kosongkan Recycle Bin…",
+  "widgetsC.location.recycleBin": "Tempat Sampah"
+}

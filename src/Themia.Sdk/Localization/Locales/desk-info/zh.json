@@ -11,12 +11,5 @@
   "recentFiles.empty": "最近没有打开任何内容",
   "recentFiles.unreadable": "无法读取 Windows 的最近使用项目",
   "recentFiles.remove": "从列表中删除",
-  "recycleBin.desc": "回收站已用空间，可一键清空",
-  "recycleBin.empty": "清空",
-  "recycleBin.emptyEllipsis": "清空回收站…",
-  "recycleBin.isEmpty": "没有项目",
-  "recycleBin.items": {
-    "other": "{count} 个项目"
-  },
-  "recycleBin.open": "打开回收站"
+  "recycleBin.emptyEllipsis": "清空回收站…"
 }

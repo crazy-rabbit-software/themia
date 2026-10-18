@@ -11,12 +11,5 @@
   "recentFiles.empty": "최근에 연 항목 없음",
   "recentFiles.unreadable": "Windows 최근 항목을 읽을 수 없음",
   "recentFiles.remove": "목록에서 제거",
-  "recycleBin.desc": "휴지통 사용량과 비우기 단추",
-  "recycleBin.empty": "비우기",
-  "recycleBin.emptyEllipsis": "휴지통 비우기…",
-  "recycleBin.isEmpty": "항목 없음",
-  "recycleBin.items": {
-    "other": "항목 {count}개"
-  },
-  "recycleBin.open": "휴지통 열기"
+  "recycleBin.emptyEllipsis": "휴지통 비우기…"
 }

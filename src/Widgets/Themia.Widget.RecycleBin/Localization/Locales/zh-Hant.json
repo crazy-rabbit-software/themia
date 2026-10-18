@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "資源回收筒的已用空間，可一鍵清空",
+  "recycleBin.empty": "清空",
+  "recycleBin.isEmpty": "沒有項目",
+  "recycleBin.items": {
+    "other": "{count} 個項目"
+  },
+  "recycleBin.open": "開啟資源回收筒",
+  "recycleBin.emptyEllipsis": "清空資源回收筒…",
+  "widgetsC.location.recycleBin": "資源回收筒"
+}

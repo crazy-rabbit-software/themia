@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Quanto è pieno il Cestino, con Svuota",
+  "recycleBin.empty": "Svuota",
+  "recycleBin.isEmpty": "Nessun elemento",
+  "recycleBin.items": {
+    "one": "{count} elemento",
+    "other": "{count} elementi"
+  },
+  "recycleBin.open": "Apri Cestino",
+  "recycleBin.emptyEllipsis": "Svuota Cestino…",
+  "widgetsC.location.recycleBin": "Cestino"
+}

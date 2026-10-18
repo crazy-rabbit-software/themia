@@ -11,13 +11,5 @@
   "recentFiles.empty": "Onlangs niets geopend",
   "recentFiles.unreadable": "De recente items van Windows konden niet worden gelezen",
   "recentFiles.remove": "Uit lijst verwijderen",
-  "recycleBin.desc": "Hoe vol de Prullenbak is, met Leegmaken",
-  "recycleBin.empty": "Leegmaken",
-  "recycleBin.emptyEllipsis": "Prullenbak leegmaken…",
-  "recycleBin.isEmpty": "Geen items",
-  "recycleBin.items": {
-    "one": "{count} item",
-    "other": "{count} items"
-  },
-  "recycleBin.open": "Prullenbak openen"
+  "recycleBin.emptyEllipsis": "Prullenbak leegmaken…"
 }

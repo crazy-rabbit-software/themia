@@ -82,27 +82,3 @@ public sealed class RecentFilesConfig : WidgetConfig
 
     public override WidgetConfig Clone() => new RecentFilesConfig();
 }
-
-/// <summary>[S-4860] Recycle Bin. Nothing to set.</summary>
-public sealed class RecycleBinConfig : WidgetConfig
-{
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("recycleBin"),
-        ConfigType = typeof(RecycleBinConfig),
-        CreateDefault = () => new RecycleBinConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["trash", "bin", "deleted", "empty", "restore", "wastebasket", "deleted files"],
-        Label = Str.WidgetsC_Location_RecycleBin.Local(),
-        Description = Str.RecycleBin_Desc.Local(),
-        Glyph = Glyphs.RecycleBin,
-        DefaultWidth = 200,
-        DefaultHeight = 200,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Files, 0, 3),
-    };
-
-    public override WidgetConfig Clone() => new RecycleBinConfig();
-}

@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "மறுசுழற்சி தொட்டி எவ்வளவு நிரம்பியுள்ளது, காலியாக்கு பொத்தானுடன்",
+  "recycleBin.empty": "காலியாக்கு",
+  "recycleBin.isEmpty": "உருப்படிகள் இல்லை",
+  "recycleBin.items": {
+    "one": "{count} உருப்படி",
+    "other": "{count} உருப்படிகள்"
+  },
+  "recycleBin.open": "மறுசுழற்சி தொட்டியைத் திற",
+  "recycleBin.emptyEllipsis": "மறுசுழற்சி தொட்டியைக் காலியாக்கு…",
+  "widgetsC.location.recycleBin": "மறுசுழற்சி தொட்டி"
+}

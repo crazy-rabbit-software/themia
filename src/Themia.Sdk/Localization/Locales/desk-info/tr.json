@@ -11,13 +11,5 @@
   "recentFiles.empty": "Son zamanlarda hiçbir şey açılmadı",
   "recentFiles.unreadable": "Windows'un son öğeleri okunamadı",
   "recentFiles.remove": "Listeden kaldır",
-  "recycleBin.desc": "Geri Dönüşüm Kutusu'nun doluluğu, Boşalt düğmesiyle",
-  "recycleBin.empty": "Boşalt",
-  "recycleBin.emptyEllipsis": "Geri Dönüşüm Kutusu'nu boşalt…",
-  "recycleBin.isEmpty": "Öğe yok",
-  "recycleBin.items": {
-    "one": "{count} öğe",
-    "other": "{count} öğe"
-  },
-  "recycleBin.open": "Geri Dönüşüm Kutusu'nu aç"
+  "recycleBin.emptyEllipsis": "Geri Dönüşüm Kutusu'nu boşalt…"
 }

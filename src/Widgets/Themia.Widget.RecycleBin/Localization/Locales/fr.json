@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Le remplissage de la Corbeille, avec Vider",
+  "recycleBin.empty": "Vider",
+  "recycleBin.isEmpty": "Aucun élément",
+  "recycleBin.items": {
+    "one": "{count} élément",
+    "other": "{count} éléments"
+  },
+  "recycleBin.open": "Ouvrir la Corbeille",
+  "recycleBin.emptyEllipsis": "Vider la Corbeille…",
+  "widgetsC.location.recycleBin": "Corbeille"
+}

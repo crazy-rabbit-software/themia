@@ -11,13 +11,5 @@
   "recentFiles.empty": "Nada aberto recentemente",
   "recentFiles.unreadable": "Não foi possível ler os itens recentes do Windows",
   "recentFiles.remove": "Remover da lista",
-  "recycleBin.desc": "Quanto a Lixeira ocupa, com Esvaziar",
-  "recycleBin.empty": "Esvaziar",
-  "recycleBin.emptyEllipsis": "Esvaziar Lixeira…",
-  "recycleBin.isEmpty": "Nenhum item",
-  "recycleBin.items": {
-    "one": "{count} item",
-    "other": "{count} itens"
-  },
-  "recycleBin.open": "Abrir Lixeira"
+  "recycleBin.emptyEllipsis": "Esvaziar Lixeira…"
 }

@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "میزان پر بودن سطل بازیافت، با خالی کردن",
+  "recycleBin.empty": "خالی کردن",
+  "recycleBin.isEmpty": "موردی نیست",
+  "recycleBin.items": {
+    "one": "{count} مورد",
+    "other": "{count} مورد"
+  },
+  "recycleBin.open": "باز کردن سطل بازیافت",
+  "recycleBin.emptyEllipsis": "خالی کردن سطل بازیافت…",
+  "widgetsC.location.recycleBin": "سطل بازیافت"
+}

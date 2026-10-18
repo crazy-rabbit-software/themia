@@ -1,0 +1,14 @@
+{
+  "recycleBin.desc": "Заполненность корзины, с кнопкой «Очистить»",
+  "recycleBin.empty": "Очистить",
+  "recycleBin.isEmpty": "Нет элементов",
+  "recycleBin.items": {
+    "one": "{count} элемент",
+    "few": "{count} элемента",
+    "many": "{count} элементов",
+    "other": "{count} элемента"
+  },
+  "recycleBin.open": "Открыть корзину",
+  "recycleBin.emptyEllipsis": "Очистить корзину…",
+  "widgetsC.location.recycleBin": "Корзина"
+}

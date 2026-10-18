@@ -1,0 +1,14 @@
+{
+  "recycleBin.desc": "Zapełnienie Kosza, z przyciskiem Opróżnij",
+  "recycleBin.empty": "Opróżnij",
+  "recycleBin.isEmpty": "Brak elementów",
+  "recycleBin.items": {
+    "one": "{count} element",
+    "few": "{count} elementy",
+    "many": "{count} elementów",
+    "other": "{count} elementu"
+  },
+  "recycleBin.open": "Otwórz Kosz",
+  "recycleBin.emptyEllipsis": "Opróżnij Kosz…",
+  "widgetsC.location.recycleBin": "Kosz"
+}

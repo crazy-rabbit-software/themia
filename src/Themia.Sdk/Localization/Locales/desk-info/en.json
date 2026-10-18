@@ -11,13 +11,5 @@
   "recentFiles.empty": "Nothing opened recently",
   "recentFiles.unreadable": "Windows' recent items could not be read",
   "recentFiles.remove": "Remove from list",
-  "recycleBin.desc": "How full the Recycle Bin is, with Empty",
-  "recycleBin.empty": "Empty",
-  "recycleBin.emptyEllipsis": "Empty Recycle Bin…",
-  "recycleBin.isEmpty": "No items",
-  "recycleBin.items": {
-    "one": "{count} item",
-    "other": "{count} items"
-  },
-  "recycleBin.open": "Open Recycle Bin"
+  "recycleBin.emptyEllipsis": "Empty Recycle Bin…"
 }

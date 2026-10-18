@@ -7595,18 +7595,11 @@ Needs a live pass: opening files from Explorer and Office (the list updating), R
 
 ## Recycle Bin (RECYCLE-BIN)
 
-Owning files: `Themia.Core/Widgets/RecycleBinRules.cs`, `Themia.App/Services/RecycleBinStatus.cs`,
-`Themia.App/Widgets/RecycleBinView*.cs`.
+The widget is a module of its own (`src/Widgets/Themia.Widget.RecycleBin`, its SPEC.md). Here: the
+host's one answer and Empty it reads through `IWidgetHost.RecycleBin` (`Themia.App/Services/RecycleBinStatus.cs`,
+`HostRecycleBin.cs`; `RecycleBinState` in the SDK), which the Shortcuts badge shares.
 
-- **[S-4860]** `RecycleBin` (127): the Recycle Bin's size and item count, with Empty. No settings.
-- **[S-4861]** The answer is the shared `RecycleBinStatus` the Shortcuts badge reads ([S-1389]):
-  `SHQueryRecycleBinW` over every drive on the thread pool, single-flight, asked when the shell says
-  the bin changed while a widget shows it. The size line is the bytes ("–" before the first answer);
-  the count "37 items", "No items" when empty.
-- **[S-4862]** The ladder (`RecycleBinLayout.Plan`): the size always; then the count, the Empty
-  button, the bin's icon over them; from 300 DIPs of height the size in TitleLarge and a 72-DIP
-  icon. A wide strip puts the icon at the left and Empty at the right.
-  Where the button does not fit, Empty stays in the card menu, with Open Recycle Bin.
+- [S-4860], [S-4861], [S-4862]: moved with the Recycle Bin widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.RecycleBin/`).
 - **[S-4863]** Empty calls `SHEmptyRecycleBinW` without `SHERB_NOCONFIRMATION`, on its own STA
   thread: Windows asks first, then shows its progress and sound; the widget never empties on its own
   say. It is offered only when the bin has items and not twice at once; the answer is asked again
