@@ -22,7 +22,7 @@ internal sealed class GpuDetailPart : DetailPart
 
     public override double HeroCharacters => GpuDetailRules.HeroCharacters;
 
-    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
         _config = config as GpuDetailsConfig ?? new GpuDetailsConfig();

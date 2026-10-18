@@ -1,4 +1,5 @@
 using Themia.Core.SystemData;
+using Themia.Sdk;
 
 namespace Themia.App.Services.SystemData;
 
@@ -7,12 +8,12 @@ namespace Themia.App.Services.SystemData;
 /// host), so a config touch that changes nothing the feed depends on keeps the watch.
 /// </summary>
 /// <typeparam name="T">The feed's snapshot.</typeparam>
-internal sealed class WatchSlot<T>
+public sealed class WatchSlot<T>
 {
-    private FeedWatch<T>? _watch;
+    private IFeedWatch<T>? _watch;
 
     /// <summary>The watch, or null while nothing is held.</summary>
-    public FeedWatch<T>? Current => _watch;
+    public IFeedWatch<T>? Current => _watch;
 
     /// <summary>Whether the held feed has been read yet.</summary>
     public bool HasValue => _watch is { HasValue: true };
@@ -21,7 +22,7 @@ internal sealed class WatchSlot<T>
     public T Value => _watch is { } watch ? watch.Value : default!;
 
     /// <summary>Hold <paramref name="source"/>, unless that is held already. True when it watched anew.</summary>
-    public bool Hold(SystemHub hub, SourceId<T> source, Action<T> onSample, string? target = null)
+    public bool Hold(ISystemFeeds hub, SourceId<T> source, Action<T> onSample, string? target = null)
     {
         var key = FeedKey.Create(source.Source, target);
 

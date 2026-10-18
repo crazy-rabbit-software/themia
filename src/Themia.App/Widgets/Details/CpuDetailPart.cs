@@ -24,7 +24,7 @@ internal sealed class CpuDetailPart : DetailPart
 
     public override double HeroCharacters => CpuDetailRules.HeroCharacters;
 
-    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
         // The load and the counts only need to be read; the processor's read, last of the three on a
@@ -75,7 +75,7 @@ internal sealed class MemoryDetailPart : DetailPart
 
     public override double HeroCharacters => MemoryDetailRules.HeroCharacters;
 
-    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
         _figures.Hold(hub, Sources.Performance, _ => Show());

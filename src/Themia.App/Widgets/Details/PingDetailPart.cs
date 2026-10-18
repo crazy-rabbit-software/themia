@@ -19,7 +19,7 @@ namespace Themia.App.Widgets.Details;
 internal sealed class PingDetailPart : DetailPart
 {
     private PingDetailsConfig _config = new();
-    private SeriesWatch? _watch;
+    private ISeriesWatch? _watch;
     private SeriesInterest? _series;
     private IDetailHost? _host;
 
@@ -27,7 +27,7 @@ internal sealed class PingDetailPart : DetailPart
 
     public override double HeroCharacters => PingDetailRules.HeroCharacters;
 
-    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
         _config = config as PingDetailsConfig ?? new PingDetailsConfig();
@@ -37,7 +37,7 @@ internal sealed class PingDetailPart : DetailPart
 
         // A different host is a different prober, with its own window; a different window size is
         // the same probes counted again. The series is the one the state asks the hub for ([S-2513]).
-        var series = SystemInterests.For(_config, DiskMetrics.SystemRoot).Series[0];
+        var series = SystemInterests.For(_config, SystemDrive.Root).Series[0];
 
         if (_watch is null || series != _series)
         {

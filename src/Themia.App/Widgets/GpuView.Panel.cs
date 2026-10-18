@@ -12,6 +12,7 @@ using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -40,7 +41,7 @@ internal sealed partial class GpuView
         private readonly SparkBand _spark;
 
         private GpuConfig _config = new();
-        private SeriesWatch? _watch;
+        private ISeriesWatch? _watch;
         private TypeStep? _heroStep;
         private string _shown = string.Empty;
 
@@ -97,7 +98,7 @@ internal sealed partial class GpuView
         /// [S-2504] Watch this adapter's series, once: the history so far and the newest load at once,
         /// each read after through the watch.
         /// </summary>
-        public void Watch(SystemHub hub)
+        public void Watch(ISystemFeeds hub)
         {
             if (_watch is not null)
             {

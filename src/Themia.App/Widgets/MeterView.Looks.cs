@@ -82,7 +82,7 @@ internal sealed partial class MeterView
             return;
         }
 
-        if (AppServices.System is not { } hub)
+        if (_host.System is not { } hub)
         {
             Log.Warn(Scope, $"no system hub for {_kind}'s items");
             return;

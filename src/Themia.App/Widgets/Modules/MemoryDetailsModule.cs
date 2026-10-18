@@ -17,5 +17,5 @@ public sealed class MemoryDetailsModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Details(rows.Rows, (DetailConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new DetailView(new MemoryDetailPart());
+    public FrameworkElement CreateView(IWidgetHost host) => new DetailView(host, new MemoryDetailPart());
 }

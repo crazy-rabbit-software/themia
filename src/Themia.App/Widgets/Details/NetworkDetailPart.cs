@@ -26,7 +26,7 @@ internal sealed class NetworkDetailPart : DetailPart
     /// <summary>The name and the rates on one line, the address under them.</summary>
     public override double ListRowHeight => Fluent.RowHeight + Fluent.Space1;
 
-    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
         var network = config as NetworkDetailsConfig ?? new NetworkDetailsConfig();

@@ -10,6 +10,8 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -37,15 +39,17 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
     private IWidgetSurface? _surface;
     private GpuConfig _config = new();
-    private FeedWatch<GpuSnapshot>? _snapshots;
+    private readonly IWidgetHost _host;
+    private IFeedWatch<GpuSnapshot>? _snapshots;
     private Panel? _panel;
     private WidgetArea _area;
 
     // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
     private bool _detached = true;
 
-    public GpuView()
+    public GpuView(IWidgetHost host)
     {
+        _host = host;
         _emptyText.Text = Str.WidgetsB_Gpu_NoAdapter.Text();
         _empty = Fluent.EmptyState(Glyphs.Gpu, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
@@ -118,7 +122,7 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
             return;
         }
 
-        if (AppServices.System is not { } hub)
+        if (_host.System is not { } hub)
         {
             Log.Warn(Scope, "no system hub for the GPU widget");
             return;

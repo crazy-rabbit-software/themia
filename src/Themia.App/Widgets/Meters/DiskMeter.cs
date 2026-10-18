@@ -27,7 +27,7 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
 
     private readonly Queue<double> _recent = new(BarWindow);
     private DiskConfig _config = new();
-    private string _root = DiskMetrics.SystemRoot;
+    private string _root = SystemDrive.Root;
 
     public override WidgetId Kind => DiskConfig.Descriptor.Id;
 
@@ -56,7 +56,7 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
         => (config as DiskConfig)?.Style == DiskStyle.Bars ? MeterLook.Rows : MeterLook.Graph;
 
     /// <summary>[S-6271] Reads and writes of the drive the reading is about, from the snapshot the reading itself comes from.</summary>
-    public override MeterItemsWatch? WatchItems(SystemHub hub, Action<IReadOnlyList<MeterItem>> onItems)
+    public override MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems)
         => MeterItemsWatch.Of(hub, Sources.DiskActivity, snapshot => Items(snapshot.Activity?.Rates), onItems);
 
     /// <summary>42 MB/s read, 8 MB/s written.</summary>
@@ -68,7 +68,7 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
     {
         var previous = (_config.Scope, _root);
         _config = config as DiskConfig ?? new DiskConfig();
-        _root = DiskRules.Root(_config.Drive) ?? DiskMetrics.SystemRoot;
+        _root = DiskRules.Root(_config.Drive) ?? SystemDrive.Root;
 
         // Another drive is another history ([S-1160]): the bars' window starts again with it.
         if (previous != (_config.Scope, _root))

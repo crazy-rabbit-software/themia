@@ -35,7 +35,7 @@ internal sealed class ProcessesPart : DetailPart
 
     public override int MaxRows => _config.MaxRows;
 
-    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
         _host = host;
         _config = config as TopProcessesConfig ?? new TopProcessesConfig();

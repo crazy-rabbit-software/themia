@@ -23,7 +23,7 @@ internal sealed class MemoryMeter : MeterPart
     };
 
     /// <summary>[S-6316] One bar, used against free, from the snapshot the reading itself comes from.</summary>
-    public override MeterItemsWatch? WatchItems(SystemHub hub, Action<IReadOnlyList<MeterItem>> onItems)
+    public override MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems)
         => MeterItemsWatch.Of(hub, Sources.Memory, snapshot => snapshot is { } s ? Items(s) : [], onItems);
 
     /// <summary>[S-6304] The widest line: both sizes at their longest ("1023.9 GB").</summary>

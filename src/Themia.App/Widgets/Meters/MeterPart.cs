@@ -87,7 +87,7 @@ internal sealed class MeterItemsWatch : IDisposable
 
     /// <summary>Items mapped from one hub source, and the items' history when the source keeps one.</summary>
     public static MeterItemsWatch Of<T>(
-        SystemHub hub,
+        ISystemFeeds hub,
         SourceId<T> source,
         Func<T, IReadOnlyList<MeterItem>> map,
         Action<IReadOnlyList<MeterItem>> onItems,
@@ -157,7 +157,7 @@ internal abstract class MeterPart
     /// [S-2504] [S-2513] The hub series this config shows: the one the state asks the hub for, so
     /// the history is there from app start. A different one is a different history.
     /// </summary>
-    public SeriesInterest Series(WidgetConfig config) => SystemInterests.For(config, DiskMetrics.SystemRoot).Series[0];
+    public SeriesInterest Series(WidgetConfig config) => SystemInterests.For(config, SystemDrive.Root).Series[0];
 
     /// <summary>Take a new config (it is already the right kind): a title, a drive.</summary>
     public virtual void ApplyConfig(WidgetConfig config, IMeterHost host)
@@ -183,7 +183,7 @@ internal abstract class MeterPart
     /// <see cref="MeterLook.Tiles"/> look draws; null for a kind that has none. Never calls back
     /// from inside this call ([S-2506]): what is already read is <see cref="MeterItemsWatch.Current"/>.
     /// </summary>
-    public virtual MeterItemsWatch? WatchItems(SystemHub hub, Action<IReadOnlyList<MeterItem>> onItems) => null;
+    public virtual MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems) => null;
 
     /// <summary>[S-6304] The widest row line a Rows look writes (label and value, in characters), for the rows' type step.</summary>
     public virtual double ItemLineCharacters => 0;

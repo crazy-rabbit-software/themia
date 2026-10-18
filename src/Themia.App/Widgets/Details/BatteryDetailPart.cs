@@ -17,14 +17,14 @@ internal sealed class BatteryDetailPart : DetailPart
 {
     private readonly WatchSlot<BatteryPower?> _power = new();
     private readonly WatchSlot<BatteryPack?> _pack = new();
-    private SystemHub? _hub;
+    private ISystemFeeds? _hub;
     private IDetailHost? _host;
 
     public override WidgetId Kind => BatteryDetailsConfig.Descriptor.Id;
 
     public override double HeroCharacters => BatteryDetailRules.HeroCharacters;
 
-    public override void Watch(SystemHub hub, WidgetConfig config, IDetailHost host)
+    public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
         _hub = hub;
         _host = host;

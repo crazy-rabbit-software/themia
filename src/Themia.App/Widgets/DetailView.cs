@@ -36,6 +36,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     private const string LogScope = "details";
 
     private readonly DetailPart _part;
+    private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
     // [S-3860] The shared hero readout: the main figure with its smaller unit, the caption its line under it.
@@ -65,8 +66,9 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
     // The hero text last split, so a tick that did not change it does not touch the readout.
     private string? _heroText;
 
-    public DetailView(DetailPart part)
+    public DetailView(IWidgetHost host, DetailPart part)
     {
+        _host = host;
         ArgumentNullException.ThrowIfNull(part);
         _kind = part.Kind;
         _part = part;
@@ -114,7 +116,7 @@ internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, 
             return;
         }
 
-        if (AppServices.System is not { } hub)
+        if (_host.System is not { } hub)
         {
             // Only before the host has started: there is nothing to read from yet.
             Log.Warn(LogScope, $"no system hub for {_kind}");

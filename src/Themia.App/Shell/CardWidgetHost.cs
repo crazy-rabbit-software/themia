@@ -4,6 +4,7 @@ using Themia.App.Services.Toggles;
 using Themia.App.Services.Web;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk;
 
 namespace Themia.App.Shell;
 
@@ -34,6 +35,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
     public IQuoteAnswers Quotes => HostQuoteAnswers.Instance;
 
     public IRateAnswers Rates => HostRateAnswers.Instance;
+
+    public ISystemFeeds? System => AppServices.System;
 
     public bool ShowAccounts()
     {

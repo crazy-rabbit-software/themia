@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Services.SystemData;
 
@@ -121,7 +122,7 @@ internal sealed partial class SystemHub
         public override MeterSample Project(DiskSnapshot snapshot, string instance)
         {
             var all = instance == Sources.AllDrives;
-            var root = all ? DiskMetrics.SystemRoot : instance;
+            var root = all ? SystemDrive.Root : instance;
             var sample = DiskRules.Read(all ? DiskScope.AllDrives : DiskScope.OneDrive, root, snapshot.Activity?.Rates);
 
             var reading = sample.State switch

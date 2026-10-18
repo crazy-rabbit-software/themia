@@ -57,7 +57,7 @@ internal abstract class DetailPart
     /// config change. A feed that is held already is kept; the sheet is presented from what the feeds
     /// hold, at once when they have been read.
     /// </summary>
-    public abstract void Watch(SystemHub hub, WidgetConfig config, IDetailHost host);
+    public abstract void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host);
 
     /// <summary>[S-2510] Read now (a Refresh command).</summary>
     public virtual void Refresh()

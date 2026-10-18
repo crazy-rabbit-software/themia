@@ -2,6 +2,7 @@ using Microsoft.UI.Dispatching;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.SystemData;
+using Themia.Sdk;
 
 namespace Themia.App.Services.SystemData;
 
@@ -21,7 +22,7 @@ namespace Themia.App.Services.SystemData;
 /// back to it, and the system events that ask for a read ([S-2509]) are marshalled onto it.
 /// </para>
 /// </summary>
-internal sealed partial class SystemHub : IDisposable
+internal sealed partial class SystemHub : ISystemFeeds, IDisposable
 {
     private const string Scope = "system-hub";
 
@@ -123,6 +124,10 @@ internal sealed partial class SystemHub : IDisposable
     /// [S-2504] [S-2506] Watch one charted series. The reading and the history so far are on the watch
     /// at once; each read after this is <paramref name="onUpdate"/>, with the point it added.
     /// </summary>
+    IFeedWatch<T> ISystemFeeds.Watch<T>(SourceId<T> source, Action<T> onSample, string? target) => Watch(source, onSample, target);
+
+    ISeriesWatch ISystemFeeds.WatchSeries(SeriesInterest series, Action<SeriesUpdate> onUpdate) => WatchSeries(series, onUpdate);
+
     public SeriesWatch WatchSeries(SeriesInterest series, Action<SeriesUpdate> onUpdate)
     {
         ArgumentNullException.ThrowIfNull(onUpdate);

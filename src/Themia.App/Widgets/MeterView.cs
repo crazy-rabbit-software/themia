@@ -41,6 +41,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private const double GraphFloor = Fluent.Space6;
 
     private readonly MeterPart _part;
+    private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
     // [S-3860] The shared hero readout: the number with its smaller unit, the battery's glyph as its icon.
@@ -58,7 +59,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly Brush _successBrush = ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.Green);
 
     private WidgetConfig _config;
-    private SeriesWatch? _watch;
+    private ISeriesWatch? _watch;
     private SeriesInterest? _series;
 
     // The ramp step currently applied. Kept so a sample that lands on the same step does not touch
@@ -97,8 +98,9 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
     private const bool _frozen = false;
 #endif
 
-    public MeterView(MeterPart part)
+    public MeterView(IWidgetHost host, MeterPart part)
     {
+        _host = host;
         // No padding on the view: the reading carries the content inset and the history none
         // ([S-1824]), so the gap under the reading is the ladder's to size.
         ArgumentNullException.ThrowIfNull(part);
@@ -313,7 +315,7 @@ internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, I
         _watch = null;
         _series = series;
 
-        if (AppServices.System is not { } hub)
+        if (_host.System is not { } hub)
         {
             // Only before the host has started: there is nothing to read from yet.
             Log.Warn(Scope, $"no system hub for {_kind}");

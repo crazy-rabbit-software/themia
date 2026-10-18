@@ -17,5 +17,5 @@ public sealed class BatteryModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Battery(rows.Rows, (BatteryConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(new BatteryMeter());
+    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new BatteryMeter());
 }

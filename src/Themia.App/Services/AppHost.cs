@@ -6,6 +6,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.SystemData;
+using Themia.Sdk;
 
 namespace Themia.App.Services;
 
@@ -83,8 +84,8 @@ internal sealed partial class AppHost : IDisposable
 
         // [S-2513] The system hub reads what every view's system widgets need from the start, so a
         // view switched to shows its charts with their history and its details already read.
-        _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(state, DiskMetrics.SystemRoot));
-        StateChanged += () => _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(State, DiskMetrics.SystemRoot));
+        _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(state, SystemDrive.Root));
+        StateChanged += () => _system.SetInterests(Themia.Core.SystemData.SystemInterests.From(State, SystemDrive.Root));
 
         // [S-1458] One clipboard history, kept while any view holds a Clipboard widget, on screen or
         // not. Never for a detached state (a debug render): its PNGs must not carry the clipboard.

@@ -4,6 +4,7 @@ using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -36,7 +37,7 @@ internal static partial class WidgetSettings
         // Not a root, so it can never be confused with a drive.
         const string All = "*";
 
-        var system = DiskRules.Root(DiskMetrics.SystemRoot) ?? "C:\\";
+        var system = DiskRules.Root(SystemDrive.Root) ?? "C:\\";
         var options = new List<(string Value, string Label)>
         {
             (string.Empty, Str.Shell_Meters_SystemDrive.Format(("drive", DiskRules.Instance(system)))),

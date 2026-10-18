@@ -17,5 +17,5 @@ public sealed class MemoryModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Memory(rows.Rows, (MemoryConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(new MemoryMeter());
+    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new MemoryMeter());
 }

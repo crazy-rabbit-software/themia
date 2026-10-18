@@ -1,5 +1,6 @@
 using Themia.Core.Diagnostics;
 using Themia.Core.SystemData;
+using Themia.Sdk;
 
 namespace Themia.App.Services.SystemData;
 
@@ -287,7 +288,7 @@ internal sealed partial class SystemHub
 }
 
 /// <summary>[S-2506] One widget's hold on a feed's snapshots. Dispose to let go; twice is once.</summary>
-internal sealed class FeedWatch<T> : IDisposable
+internal sealed class FeedWatch<T> : IFeedWatch<T>
 {
     private readonly SystemHub _hub;
     private readonly SystemHub.Feed<T> _feed;
@@ -351,7 +352,7 @@ internal sealed class FeedWatch<T> : IDisposable
 }
 
 /// <summary>[S-2504] [S-2506] One widget's hold on a charted series. Dispose to let go; twice is once.</summary>
-internal sealed class SeriesWatch : IDisposable
+internal sealed class SeriesWatch : ISeriesWatch
 {
     private readonly SystemHub _hub;
     private readonly SystemHub.Feed _feed;

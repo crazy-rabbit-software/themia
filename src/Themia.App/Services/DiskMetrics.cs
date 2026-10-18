@@ -26,9 +26,6 @@ internal static class DiskMetrics
     private static PdhCounter? _readBytes;
     private static PdhCounter? _writeBytes;
 
-    /// <summary>The system drive's root, what a widget naming no drive reports on.</summary>
-    public static string SystemRoot => Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\";
-
     /// <summary>Hold the I/O counters open; dispose to let them go.</summary>
     public static IDisposable Acquire()
     {

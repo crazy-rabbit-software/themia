@@ -17,5 +17,5 @@ public sealed class TopProcessesModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Details(rows.Rows, (DetailConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new DetailView(new ProcessesPart());
+    public FrameworkElement CreateView(IWidgetHost host) => new DetailView(host, new ProcessesPart());
 }
