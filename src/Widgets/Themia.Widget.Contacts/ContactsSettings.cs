@@ -11,21 +11,16 @@ using Themia.Core.Office;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI.Kit;
+using Themia.App.Shell;
+using Themia.App.Shell.Config;
 
-namespace Themia.App.Shell.Config;
+namespace Themia.Widget.Contacts;
 
-/// <summary>
-/// The account rows the calendar and contacts settings share, and the contacts page itself.
-/// <para>
-/// Accounts are signed in on the Accounts page, not here ([S-537] of the classic widgets): this
-/// lists the accounts already signed in that can feed the widget, and links there — so there is one
-/// place an account comes into being, and the page is not filtered by widget.
-/// </para>
-/// </summary>
-internal static partial class WidgetSettings
+/// <summary>[S-580] The contacts page: the SDK's account rows, then the layout, the details table's columns and the count.</summary>
+internal static class ContactsSettings
 {
     /// <summary>[S-580] The contacts widget: accounts, layout, the details table's columns, count and search.</summary>
-    public static void Contacts(WidgetSettingsRows settings, ContactsConfig config)
+    public static void Rows(WidgetSettingsRows settings, ContactsConfig config)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(config);
@@ -34,15 +29,15 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetUi_AccountsLabel.Text()));
         OfficeSettingsRows.Accounts(settings, HostFeatures.Contacts, Glyphs.Contact,
-            new OfficeSettingsRows.OfficeAccountTexts(Str.WidgetsA_Contacts_NoAccount, Str.WidgetsA_Contacts_Settings_Every, Str.WidgetsA_Contacts_Settings_AddHint),
+            new OfficeSettingsRows.OfficeAccountTexts(ContactsStr.WidgetsA_Contacts_NoAccount.Local(), ContactsStr.WidgetsA_Contacts_Settings_Every.Local(), ContactsStr.WidgetsA_Contacts_Settings_AddHint.Local()),
             () => config.AccountIds, ids => config.AccountIds = ids, save, perAccount: null);
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.View, Str.WidgetsA_Contacts_Settings_Layout_Label.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.View, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(),
             null,
             FluentLayout.Choice<ContactsLayout>(
-                [(ContactsLayout.List, Str.Apps_ViewList.Text()), (ContactsLayout.Compact, Str.Apps_ViewCompact.Text()), (ContactsLayout.Details, Str.CtxMenu_Details.Text()), (ContactsLayout.Grid, Str.Apps_ViewGrid.Text())],
+                [(ContactsLayout.List, ContactsStr.Apps_ViewList.Text()), (ContactsLayout.Compact, ContactsStr.Apps_ViewCompact.Text()), (ContactsLayout.Details, Str.CtxMenu_Details.Text()), (ContactsLayout.Grid, ContactsStr.Apps_ViewGrid.Text())],
                 config.EffectiveLayout,
                 value => { config.Layout = value; save(); })));
 
@@ -54,8 +49,8 @@ internal static partial class WidgetSettings
         }
 
         // [S-583] / [S-1276] At least five, in steps of five, and no upper bound, as the original.
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Contacts_Settings_Count_Label.Text(),
-            Str.WidgetsA_Contacts_Settings_Count_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Count, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text(),
+            ContactsStr.WidgetsA_Contacts_Settings_Count_Desc.Text(),
             FluentLayout.Stepper(config.EffectiveCount, 5, 5, value => { config.Count = value; save(); })));
     }
 
@@ -86,7 +81,7 @@ internal static partial class WidgetSettings
             });
 
             toggles[column] = toggle;
-            rows.Add(FluentLayout.Row(Glyphs.Grid, Str.WidgetsA_Contacts_Settings_Column.Format(("name", ContactRules.ColumnTitle(column, Strings.Current))), null, toggle));
+            rows.Add(FluentLayout.Row(Glyphs.Grid, ContactsStr.WidgetsA_Contacts_Settings_Column.Format(("name", ContactRules.ColumnTitle(column, Strings.Current))), null, toggle));
         }
     }
 }

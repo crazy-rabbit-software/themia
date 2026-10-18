@@ -17,6 +17,7 @@ using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.ApplicationModel.DataTransfer;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.Contacts;
 
 namespace Themia.App.Widgets;
 
@@ -130,7 +131,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             VerticalAlignment = VerticalAlignment.Center,
             Visibility = Visibility.Collapsed,
         };
-        ToolTipService.SetToolTip(_searchButton, Str.Contacts_SearchPlaceholder.Text());
+        ToolTipService.SetToolTip(_searchButton, ContactsStr.Contacts_SearchPlaceholder.Text());
         _searchButton.Click += OnSearchButton;
 
         _badgeHost = Fluent.Badge(_badge);
@@ -145,7 +146,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         };
 
         // [S-584] The stock Windows search box, so it has the system's caret, clear button and menu.
-        _search.PlaceholderText = Str.Contacts_SearchPlaceholder.Text();
+        _search.PlaceholderText = ContactsStr.Contacts_SearchPlaceholder.Text();
         _search.IsSpellCheckEnabled = false;
         _search.IsTextPredictionEnabled = false;
         _search.CornerRadius = new CornerRadius(Fluent.ControlRadius);
@@ -217,8 +218,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     /// <summary>[S-1109] Headings, states and the search box follow the language; nothing is refetched.</summary>
     private void OnLanguage(Locale locale)
     {
-        ToolTipService.SetToolTip(_searchButton, Str.Contacts_SearchPlaceholder.Text());
-        _search.PlaceholderText = Str.Contacts_SearchPlaceholder.Text();
+        ToolTipService.SetToolTip(_searchButton, ContactsStr.Contacts_SearchPlaceholder.Text());
+        _search.PlaceholderText = ContactsStr.Contacts_SearchPlaceholder.Text();
         Render();
     }
 
@@ -362,7 +363,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         {
             Log.Error(Scope, "could not refresh the contact list", ex);
             _screen = Screen.Problem;
-            _problemText = () => Str.WidgetsA_Contacts_ReadFailed.Text();
+            _problemText = () => ContactsStr.WidgetsA_Contacts_ReadFailed.Text();
             _problemOffersAccounts = false;
         }
         finally
@@ -576,7 +577,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (visible.Count == 0)
         {
-            _state.Show((_contacts.Count == 0 ? Str.WidgetsA_Contacts_None : Str.Contacts_NoContacts).Text(), offerAccounts: false);
+            _state.Show((_contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
 
             // The box stays, so a search that matched nothing can be changed.
             if (showSearch)
@@ -1048,22 +1049,22 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (ContactLinks.Build(ContactLinkKind.Email, contact.Email) is not null)
         {
-            menu.Add(new(Glyphs.Mail, Str.CtxMenu_SendEmail.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Email, contact.Email)));
-            menu.Add(new(Glyphs.Copy, Str.CtxMenu_CopyEmail.Text(), () => Copy(contact.Email!)));
+            menu.Add(new(Glyphs.Mail, ContactsStr.CtxMenu_SendEmail.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Email, contact.Email)));
+            menu.Add(new(Glyphs.Copy, ContactsStr.CtxMenu_CopyEmail.Text(), () => Copy(contact.Email!)));
         }
 
         if (ContactLinks.Build(ContactLinkKind.Call, contact.Phone) is not null)
         {
-            menu.Add(new(PhoneGlyph, Str.CtxMenu_Call.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Call, contact.Phone)));
-            menu.Add(new(MessageGlyph, Str.CtxMenu_Message.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Message, contact.Phone)));
+            menu.Add(new(PhoneGlyph, ContactsStr.CtxMenu_Call.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Call, contact.Phone)));
+            menu.Add(new(MessageGlyph, ContactsStr.CtxMenu_Message.Text(), () => _widgetHost.Launcher.OpenContactLink(ContactLinkKind.Message, contact.Phone)));
         }
 
         if (!string.IsNullOrWhiteSpace(contact.Phone))
         {
-            menu.Add(new(Glyphs.Copy, Str.CtxMenu_CopyPhone.Text(), () => Copy(contact.Phone!)));
+            menu.Add(new(Glyphs.Copy, ContactsStr.CtxMenu_CopyPhone.Text(), () => Copy(contact.Phone!)));
         }
 
-        menu.Add(new(Glyphs.Copy, Str.CtxMenu_CopyName.Text(), () => Copy(contact.Name)));
+        menu.Add(new(Glyphs.Copy, ContactsStr.CtxMenu_CopyName.Text(), () => Copy(contact.Name)));
         menu.Add(ItemMenuEntry.Separator);
         menu.Add(new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true)));
         return menu;

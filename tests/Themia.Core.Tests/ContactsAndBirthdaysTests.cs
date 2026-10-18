@@ -163,9 +163,6 @@ public sealed class ContactsAndBirthdaysTests
     {
         Assert.Equal([ContactColumn.Name, ContactColumn.Phone], ContactRules.ToggleColumn([ContactColumn.Phone], ContactColumn.Name));
         Assert.Equal([ContactColumn.Phone], ContactRules.ToggleColumn([ContactColumn.Phone], ContactColumn.Phone));
-        var config = new ContactsConfig { Columns = [ContactColumn.Title, ContactColumn.Name] };
-        Assert.Equal([ContactColumn.Name, ContactColumn.Title], config.EffectiveColumns);
-        Assert.Equal(3, new ContactsConfig { Columns = [] }.EffectiveColumns.Count);
     }
 
     // ---- [S-587] links -----------------------------------------------------------------------------

@@ -2323,6 +2323,10 @@ ported in [S-781]..[S-788].
 
 ## Calendar and contacts
 
+The Contacts widget is the module `contacts` (`src/Widgets/Themia.Widget.Contacts/`, its `SPEC.md`:
+the view's search box, the details avatar and the page's count box); the people, their rules and
+the shared source stay here under their tags.
+
 The classic Calendar and Contacts widgets, on Themia's own accounts ([S-529]) instead of the earlier hub
 hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services/Office`, the views in
 `CalendarView*.cs` / `ContactsView.cs`, settings in `WidgetSettings.Calendar.cs` / `.Office.cs`.
@@ -2413,8 +2417,6 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   one cannot be turned off.
 - **[S-583]** `count` is at least 5 (steps of 5, no upper bound); each account is asked for
   clamp(count, 500, 1000) so a search spans the address book; search filters before the cap.
-- **[S-584]** A search box (from 150 px tall) asks for the keyboard while focused (Esc clears). It
-  starts empty: the `defaultSearch` setting is gone ([S-3796]).
 - **[S-585]** Search matches name, email, company or job title, case-insensitively.
 - **[S-586]** Avatars: one or two initials on `hsl(hash(name), 38%, 34%)`, white text.
 - **[S-587]** Right-click a person: their name and role, Send email / Copy email, Call / Message /
@@ -3352,15 +3354,12 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   avatars from 180 px columns; the viewport stops at a whole row.
 - **[S-1271]** Compact rows are one line: a 24 px avatar, the name, and the one field right-aligned
   (columns ≥240 px; the name keeps the larger share).
-- **[S-1272]** Details: the Name cell carries a 20 px avatar when the table is ≥360 px wide.
 - **[S-1273]** Grid cards are one height (88 px; whole rows only); at width and height class Expanded+
   they are 140 px wide with a 56 px avatar and the address as a second line.
 - **[S-1274]** *(Retired: no detail pane beside the list on an XL tile. The list keeps the whole
   width; a person's actions (Send email, Call, Message, Copy …) are the row menu's, [S-1277].)*
 - **[S-1275]** Search box: always from 220 px tall; from 128 a header search button opens it (it folds
   away again when left empty); below 128 none. A typed query keeps the box open.
-- **[S-1276]** The People count is a number box (`FluentLayout.Stepper`): at least 5, steps of 5, no
-  upper bound (S-583); text that is not a number is overwritten with the last good value.
 - **[S-1277]** Keys (classic S-31/32), `ContactsView.HandleKey`: Up/Down move the selection through the
   people on screen (from none, Down picks the first, Up the last), Home/End jump, Escape clears, Enter
   writes (else calls). A click anywhere else — another widget, the desktop, another app — ends the

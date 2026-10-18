@@ -53,7 +53,7 @@ public static class OfficeSettingsRows
 
         rows.Rows.Add(FluentLayout.Header(Str.WidgetsA_Calendar_Settings_Accounts.Text()));
         Accounts(rows, HostFeatures.Calendar, Glyphs.Calendar,
-            new OfficeAccountTexts(Str.WidgetsA_Calendar_NoAccount, Str.WidgetsA_Calendar_Settings_Every, Str.WidgetsA_Calendar_Settings_AddHint),
+            new OfficeAccountTexts(Str.WidgetsA_Calendar_NoAccount.Local(), Str.WidgetsA_Calendar_Settings_Every.Local(), Str.WidgetsA_Calendar_Settings_AddHint.Local()),
             () => config.AccountIds, ids => config.AccountIds = ids, SaveAndRedraw,
             account => CalendarPicker(account, config, SaveAndRedraw, pickers));
     }
@@ -96,7 +96,7 @@ public static class OfficeSettingsRows
     }
 
     /// <summary>The sentences that name the account kind: whole sentences per widget, never a noun glued in.</summary>
-    public readonly record struct OfficeAccountTexts(Str None, Str Every, Str AddHint);
+    public readonly record struct OfficeAccountTexts(LocalText None, LocalText Every, LocalText AddHint);
 
     /// <summary>
     /// [S-567] One account's calendars: each with a colour, and — when there is more than one — a

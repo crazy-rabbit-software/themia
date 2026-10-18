@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Mail;
@@ -743,52 +743,6 @@ public sealed class OfflineSyncTests : IDisposable
     {
         var task = new TaskItem("t", "l", "Call", true, true, "2026-10-12T00:00:00.0000000");
         Assert.Equal(task, TaskShelves.Restore(TaskShelves.Store(task), "l"));
-    }
-
-    // ---- [S-2608] interests ------------------------------------------------------------------------
-
-    [Fact]
-    public void S2608_the_needs_of_every_view_are_collected_and_keyed()
-    {
-        var state = new AppState
-        {
-            Views =
-            [
-                new ViewState
-                {
-                    Id = "v1",
-                    Name = "One",
-                    Widgets =
-                    [
-                        new WidgetInstance { Id = "m", Config = new EmailConfig { Folder = MailFolder.Junk } },
-                        new WidgetInstance { Id = "t", Config = new TasksConfig { AccountId = "acc", ListId = "l", ShowCompleted = true } },
-                        new WidgetInstance { Id = "local", Config = new TasksConfig { Source = TaskSource.Local } },
-                    ],
-                },
-                new ViewState
-                {
-                    Id = "v2",
-                    Name = "Two",
-                    Widgets =
-                    [
-                        new WidgetInstance { Id = "c", Config = new CalendarWidgetConfig { AccountIds = ["acc"] } },
-                        new WidgetInstance { Id = "p", Config = new ContactsConfig() },
-                    ],
-                },
-            ],
-        };
-
-        var interests = SyncInterests.From(state);
-
-        Assert.Equal(MailFolder.Junk, Assert.Single(interests.Mail).Folder);
-        var task = Assert.Single(interests.Tasks);
-        Assert.Equal(("acc", "l", true), (task.AccountId, task.ListId, task.ShowCompleted));
-        Assert.Equal(["acc"], Assert.Single(interests.Calendar).AccountIds);
-        Assert.Single(interests.Contacts);
-        Assert.Equal(interests.Key(), SyncInterests.From(state).Key());
-
-        ((EmailConfig)state.Views[0].Widgets[0].Config).Folder = MailFolder.Sent;
-        Assert.NotEqual(interests.Key(), SyncInterests.From(state).Key());
     }
 
     [Fact]

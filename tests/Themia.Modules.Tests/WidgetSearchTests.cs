@@ -260,7 +260,7 @@ public sealed class WidgetSearchTests
         var google = WidgetSearch.Rank(docs, "google");
         Assert.Contains(EmailConfig.Descriptor.Id, google);
         Assert.Contains(CalendarWidgetConfig.Descriptor.Id, google);
-        Assert.Contains(ContactsConfig.Descriptor.Id, google);
+        Assert.Contains(new WidgetId("contacts"), google);
         Assert.Contains(TasksConfig.Descriptor.Id, google);
     }
 

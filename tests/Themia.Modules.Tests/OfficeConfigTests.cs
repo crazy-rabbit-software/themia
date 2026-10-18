@@ -49,11 +49,11 @@ public sealed class OfficeConfigTests
         Assert.Equal(100, a.AgendaCount);
         Assert.Equal(CalendarStyle.Agenda, a.Style);
 
-        var contacts = AppStateStore.Parse(StateWith(ContactsConfig.Descriptor.Id,
+        var contacts = AppStateStore.Parse(StateWith(new WidgetId("contacts"),
             """{"kind":"contacts","layout":"tiles","columns":["email","bogus",3],"count":-4}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, contacts.Refusal);
-        var k = ConfigOf<ContactsConfig>(contacts, ContactsConfig.Descriptor.Id);
+        var k = ConfigOf<ContactsConfig>(contacts, new WidgetId("contacts"));
         Assert.Equal(ContactsLayout.List, k.Layout);
         Assert.Equal([ContactColumn.Email], k.Columns);
         Assert.Equal(5, k.Count);

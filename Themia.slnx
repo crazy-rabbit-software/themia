@@ -20,6 +20,7 @@
     <Project Path="src/Widgets/Themia.Widget.Clipboard/Themia.Widget.Clipboard.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Clock/Themia.Widget.Clock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ColorFiltersToggle/Themia.Widget.ColorFiltersToggle.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Contacts/Themia.Widget.Contacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Countdown/Themia.Widget.Countdown.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Cpu/Themia.Widget.Cpu.csproj" />
     <Project Path="src/Widgets/Themia.Widget.CpuDetails/Themia.Widget.CpuDetails.csproj" />
