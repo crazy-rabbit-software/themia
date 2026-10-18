@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    {
+      "id": "v00",
+      "name": "Files",
+      "widgets": [
+        {
+          "id": "w00",
+          "x": 0.02,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "folder",
+            "style": "details",
+            "path": "D:\\Projects\\Themia",
+            "navigation": "Navigate",
+            "clickMode": "Single",
+            "sort": "Modified",
+            "descending": true,
+            "showHidden": true,
+            "itemSize": "Small",
+            "showExtensions": true,
+            "columns": [
+              "Modified",
+              "Git",
+              "Size",
+              "ItemCount"
+            ],
+            "tileSize": "Medium"
+          }
+        },
+        {
+          "id": "w01",
+          "x": 0.18,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "folder",
+            "style": "grid",
+            "path": "%USERPROFILE%\\Pictures",
+            "navigation": "Explorer",
+            "clickMode": "Double",
+            "sort": "Size",
+            "descending": false,
+            "showHidden": false,
+            "itemSize": "Medium",
+            "showExtensions": false,
+            "columns": [
+              "Size",
+              "Modified",
+              "Type"
+            ],
+            "tileSize": "Large"
+          }
+        },
+        {
+          "id": "w02",
+          "x": 0.34,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "folder",
+            "style": "icons",
+            "path": "",
+            "navigation": "Explorer",
+            "clickMode": "Double",
+            "sort": "Name",
+            "descending": false,
+            "showHidden": false,
+            "itemSize": "Medium",
+            "showExtensions": false,
+            "columns": [],
+            "tileSize": "Small"
+          }
+        },
+        {
+          "id": "w03",
+          "x": 0.5,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "recentFiles"
+          }
+        },
+        {
+          "id": "w04",
+          "x": 0.66,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "shortcuts",
+            "items": [
+              {
+                "id": "i1",
+                "label": "",
+                "target": "C:\\Work\\report.docx"
+              },
+              {
+                "id": "i2",
+                "label": "News \u2713",
+                "target": "https://example.com/news"
+              },
+              {
+                "id": "i3",
+                "label": "",
+                "target": "shell:RecycleBinFolder"
+              },
+              {
+                "id": "i4",
+                "label": "",
+                "target": "C:\\Users\\me\\Desktop\\Game.url",
+                "iconPath": "C:\\Games\\game.ico"
+              },
+              {
+                "id": "i5",
+                "label": "Morning",
+                "target": "",
+                "layout": {
+                  "id": "n1",
+                  "kind": "Split",
+                  "direction": "Horizontal",
+                  "ratio": 0.3,
+                  "a": {
+                    "id": "n2",
+                    "kind": "Pane",
+                    "direction": "Vertical",
+                    "ratio": 0.5,
+                    "assignment": {
+                      "source": "App",
+                      "target": "C:\\Start\\Word.lnk",
+                      "label": "Word",
+                      "reuseIfRunning": false
+                    }
+                  },
+                  "b": {
+                    "id": "n3",
+                    "kind": "Pane",
+                    "direction": "Vertical",
+                    "ratio": 0.5,
+                    "assignment": {
+                      "source": "Folder",
+                      "target": "D:\\Projects",
+                      "label": "",
+                      "reuseIfRunning": true
+                    }
+                  }
+                }
+              }
+            ],
+            "style": "list",
+            "gridSize": "Small",
+            "listSize": "Large",
+            "gridStretchHeight": true,
+            "gridIconOnly": true,
+            "showFileExtension": true,
+            "clickMode": "Single"
+          }
+        },
+        {
+          "id": "w05",
+          "x": 0.8200000000000001,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "shortcuts",
+            "items": [
+              {
+                "id": "j1",
+                "label": "",
+                "target": "shell:MyComputerFolder"
+              }
+            ],
+            "style": "details",
+            "gridSize": "Medium",
+            "listSize": "Medium",
+            "gridStretchHeight": false,
+            "gridIconOnly": false,
+            "showFileExtension": false,
+            "clickMode": "Double"
+          }
+        },
+        {
+          "id": "w06",
+          "x": 0.02,
+          "y": 0.35,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "videoStream",
+            "url": "http://192.168.1.50:8080/?action=stream",
+            "fit": "Cover",
+            "rotation": "Quarter",
+            "paused": true,
+            "refreshSeconds": 10,
+            "showStatus": true,
+            "hoverControls": false
+          }
+        },
+        {
+          "id": "w07",
+          "x": 0.18,
+          "y": 0.35,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "videoStream",
+            "url": "",
+            "fit": "Contain",
+            "rotation": "None",
+            "paused": false,
+            "refreshSeconds": 0,
+            "showStatus": false,
+            "hoverControls": true
+          }
+        }
+      ]
+    }
+  ],
+  "activeViewId": "v00",
+  "monitorViews": {},
+  "design": {
+    "theme": "System",
+    "uiScale": 1,
+    "fontFamily": "system",
+    "fontScale": 1,
+    "widgetGapPx": 8,
+    "gridSnap": true,
+    "cornerRadiusPx": 4,
+    "background": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemBackground": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemTextColor": "",
+    "primaryColor": "",
+    "borderStyle": "Solid",
+    "borderWidthPx": 1,
+    "borderColor": "",
+    "borderOpacity": 1,
+    "introAnimation": "Scale",
+    "introAnimationMs": 500,
+    "headerBackgroundColor": "",
+    "headerOpacity": 1,
+    "transitionAnimation": "Scale",
+    "transitionAnimationMs": 500,
+    "unlockAnimation": "Scale",
+    "unlockAnimationMs": 500,
+    "smoothValues": true,
+    "runAtStartup": false
+  },
+  "preferences": {
+    "language": "System",
+    "gameModeSuspend": false,
+    "desktopIconsVisible": true,
+    "region": {
+      "clock": "System",
+      "weekStart": "System",
+      "temperature": "System"
+    },
+    "refresh": {
+      "weather": 30,
+      "markets": 5,
+      "feeds": 30,
+      "accounts": 2
+    }
+  },
+  "disabledMonitors": [],
+  "monitorScales": {},
+  "viewBars": {}
+}
