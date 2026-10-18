@@ -1,5 +1,6 @@
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
+using Themia.Core.Widgets;
 
 namespace Themia.Core.Office;
 
@@ -49,6 +50,20 @@ public static class SyncProblems
         AccountError.RateLimited => SyncProblem.RateLimited,
         AccountError.ServerError => SyncProblem.ServerError,
         _ => SyncProblem.BadResponse,
+    };
+
+    /// <summary>[S-7042] The problem in the kit's one failure vocabulary, for the one stale rule's lines.</summary>
+    public static FetchStatus ToFetchStatus(SyncProblem problem) => problem switch
+    {
+        SyncProblem.None => FetchStatus.Ok,
+        SyncProblem.NoAccount => FetchStatus.NotConfigured,
+        SyncProblem.SignInRequired => FetchStatus.SignInRequired,
+        SyncProblem.Forbidden => FetchStatus.Forbidden,
+        SyncProblem.Offline => FetchStatus.Offline,
+        SyncProblem.Unreachable => FetchStatus.Unreachable,
+        SyncProblem.TimedOut => FetchStatus.TimedOut,
+        SyncProblem.RateLimited => FetchStatus.RateLimited,
+        _ => FetchStatus.BadResponse,
     };
 
     /// <summary>Whether only the user can mend it, on the Accounts page.</summary>

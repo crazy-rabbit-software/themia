@@ -49,8 +49,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     private readonly Grid _content = new();
     private readonly KitStatePanel _state;
-    private readonly ProgressRing _busy = new();
-    private readonly FontIcon _warning;
+    private readonly KitHeader _header;
     private readonly Button _back;
     private readonly Button _forward;
     private readonly Button _todayButton;
@@ -78,8 +77,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     /// <summary>The problem in words, worded when shown so a language switch reaches it ([S-1109]).</summary>
     private Func<string> _problemText = () => string.Empty;
     private bool _problemOffersAccounts;
-    private Func<string>? _warningText;
-    private bool _warningOpensAccounts;
+    /// <summary>[S-3651] Each account whose last sync could not improve on what is held: the header's one stale rule.</summary>
+    private IReadOnlyList<Themia.Sdk.Kit.KitOutcome> _outcomes = [];
+    private bool _outcomesNeedUser;
     private IReadOnlyList<CalendarEvent> _events = [];
     private IReadOnlyList<Birthday> _birthdays = [];
     private IReadOnlyList<CalendarTarget> _targets = [];
@@ -97,14 +97,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     {
         _widgetHost = host;
         _state = new(Glyphs.Calendar, host);
-        _busy.Width = Fluent.IconSize;
-        _busy.Height = Fluent.IconSize;
-        _busy.IsActive = false;
-        _busy.Visibility = Visibility.Collapsed;
-
-        _warning = Fluent.Icon(Glyphs.Warning, "SystemFillColorCautionBrush");
-        _warning.Visibility = Visibility.Collapsed;
-        _warning.Tapped += OnWarningTapped;
+        // [S-7064] The problem glyph and the ring are the kit's header, before the calendar's own buttons.
+        _header = new KitHeader(host) { Margin = new Thickness(0, 0, Fluent.Space1, 0) };
 
         // [S-569] Back, forward and today ride on the card's header, as the classic widget's did.
         _back = NavButton(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1));
@@ -116,10 +110,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
             Orientation = Orientation.Horizontal,
             Spacing = 0,
             VerticalAlignment = VerticalAlignment.Center,
-            Children = { _warning, _busy, _back, _forward, _todayButton },
+            Children = { _header, _back, _forward, _todayButton },
         };
-        _busy.Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
-        _warning.Margin = new Thickness(0, 0, Fluent.Space1, 0);
 
         _agenda = NewAgenda(host);
         Children.Add(_content);
@@ -238,7 +230,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     }
 
     /// <summary>[S-561] Refresh. [S-3640] The layout is the widget's style, chosen on the strip or the settings page.</summary>
-    public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
+    public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, DateTimeOffset.Now), () => _ = RefreshAsync(force: true))];
 
     public void Detach()
     {
@@ -254,7 +246,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         UseData(null);
         LeaveLinks();
 
-        _warning.Tapped -= OnWarningTapped;
+        _header.Detach();
         _state.Detach();
         ClearDrawing();
         _agenda.Detach();
@@ -310,7 +302,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         var range = Range();
         _refreshing = true;
-        SetBusy(true);
+        UpdateHeader();
 
         try
         {
@@ -334,7 +326,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         finally
         {
             _refreshing = false;
-            SetBusy(false);
+            UpdateHeader();
         }
 
         Render();
@@ -377,27 +369,26 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
             var problem = worst.Problem;
             _problemText = () => SyncProblems.Message(problem, SyncSubject.Calendar, Strings.Current);
             _problemOffersAccounts = SyncProblems.NeedsUser(worst.Problem);
-            _warningText = null;
+            _outcomes = [];
             return;
         }
 
-        // [S-2664] Events from the store the last sync could not improve on say when they are from,
-        // as Mail and Contacts do: "Work: No network · updated 10:42".
+        // [S-2664] [S-3651] Events from the store the last sync could not improve on say when they
+        // are from, in the kit's one stale rule: "Work: No network · updated 10:42".
         _screen = Screen.Ready;
-        var folded = SyncFreshness.Fold(problems);
-        _warningText = folded.Count == 0
-            ? null
-            : () => string.Join(Environment.NewLine, folded.Select(p =>
-                Str.WidgetsA_Office_AccountProblem.Format(
-                    ("account", labels.TryGetValue(p.Owner, out var label) ? label : p.Owner),
-                    ("problem", SyncFreshness.Stamp(Strings.Current, SyncProblems.Message(p.Problem, SyncSubject.Calendar, Strings.Current), p.At?.ToLocalTime(), DateTimeOffset.Now)))));
-        _warningOpensAccounts = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
+        _outcomes = CalendarFreshness.Outcomes(problems, labels);
+        _outcomesNeedUser = problems.Any(p => SyncProblems.NeedsUser(p.Problem));
     }
 
-    private void SetBusy(bool busy)
+    /// <summary>
+    /// [S-3651] [S-7042] The header: the problem glyph while events are on screen that some account's
+    /// last sync could not improve on, one line per account and problem (a click on it opens Accounts
+    /// where only the user can mend it); the ring while a load is out.
+    /// </summary>
+    private void UpdateHeader()
     {
-        _busy.IsActive = busy;
-        _busy.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        var lines = _screen == Screen.Ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _outcomes, DateTimeOffset.Now) : [];
+        _header.Show(lines, _refreshing, _outcomesNeedUser);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -517,15 +508,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         Render();
     }
 
-    private void OnWarningTapped(object sender, TappedRoutedEventArgs args)
-    {
-        if (_warningOpensAccounts)
-        {
-            args.Handled = true;
-            _state.OpenAccounts();
-        }
-    }
-
     // -----------------------------------------------------------------------------------------
     // Drawing
     // -----------------------------------------------------------------------------------------
@@ -544,8 +526,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         {
             HideAgenda();
         }
-        _warning.Visibility = ready && _warningText is not null ? Visibility.Visible : Visibility.Collapsed;
-        ToolTipService.SetToolTip(_warning, _warningText?.Invoke());
+        UpdateHeader();
 
         // [S-568] The period is the header's title; the agenda's is its widget name.
         var title = ready ? CalendarRules.Title(Layout, _anchor, Today, _config.Period, Strings.Current) : string.Empty;

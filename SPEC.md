@@ -6613,7 +6613,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   is never folded while it is on the wire. A confirmed create re-addresses later changes to the
   provider's id.
 - **[S-2612]** A stored copy the last sync could not improve on says when it is from: "Work: No
-  network · updated Mon 10:42" (contacts, calendar [S-2664]), "Last refresh failed: … Showing items
+  network · updated Mon 10:42" (contacts; the calendar by the kit's rule, [S-2664]), "Last refresh failed: … Showing items
   from …" (tasks), and the kit's one stale rule ([S-7042], [S-7064]) for Rss, Mail and the online
   widgets (weather now, the forecast,
   Stocks, exchange rates, air quality, rain): the header's problem glyph with one tooltip line per
@@ -6776,10 +6776,11 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   redraws (day labels); it never fetches. Offline or failing, the last answer stays, with the kit
   header's problem glyph saying the failure and when the answer is from ([S-2612], [S-7042]). The quote and weather caches
   are unchanged.
-- **[S-2664]** Calendar: a stored copy the last sync could not improve on says when it is from in the
-  header's warning, as contacts do: "Work: No network · updated 10:42" (`SyncFreshness.Stamp`). The
-  problems of one account's calendars fold to one line per account and problem, stamped with the
-  oldest stored copy among them (`SyncFreshness.Fold`); a calendar with nothing stored adds no stamp.
+- **[S-2664]** Calendar: a stored copy the last sync could not improve on says when it is from by the
+  kit's one stale rule ([S-7042], [S-3651]): the header's problem glyph (`KitHeader`), one line per
+  account and problem in the kit's words ("Work: No network · updated 10:42", `KitFreshness`, folded
+  and stamped with the oldest stored copy among them; nothing stored adds no stamp), and the card
+  menu's Refresh line with the age. Contacts says it as before (`SyncFreshness.Stamp`).
 - **[S-2665]** At start, after the accounts are loaded, shelves (and set-aside copies) of no account
   that exists are deleted (`SyncVault.Sweep`, a crash between a sign-out and its purge, [S-2607]):
   the vault hashes every existing account with every account kind and the web owners, and any

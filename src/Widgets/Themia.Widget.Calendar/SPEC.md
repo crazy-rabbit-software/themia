@@ -24,6 +24,11 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   calendar's colour when colours show; a birthday its gift in the caution hue, its name and
   "Birthday". The view pages it with its header arrows and keys and hooks each event's row for its
   tooltip, its links across widgets and the click that opens it.
+- **[S-3651]** The calendar's one stale rule ([S-7042]): each account whose last sync could not improve
+  on the events held is a kit outcome (`CalendarFreshness`: its label, its problem in the kit's
+  failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the header's problem
+  glyph and ring are `KitHeader` before the calendar's own back, forward and today buttons, in every
+  style; the card menu's Refresh line says the age of the oldest copy.
 
 - **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
   location under the title.
