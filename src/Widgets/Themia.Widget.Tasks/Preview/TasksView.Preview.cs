@@ -10,17 +10,30 @@ namespace Themia.App.Widgets;
 /// Debug renders only: a list on this PC held in memory, so the rows and the add footer
 /// ([S-780], [S-3850]) can be looked at without an account or the user's own lists. <c>stale</c> is an
 /// account's list held from 20 minutes ago whose last refresh failed (no network), through a fixture
-/// feed that asks nothing.
+/// feed that asks nothing; <c>failed</c> the same failure with nothing held (its "Try again");
+/// <c>nolocal</c> a list on this PC that is gone (its "Start a list").
 /// </summary>
 internal sealed partial class TasksView : IWidgetPreviewState
 {
     private const string PreviewListId = "preview-list";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done", "stale"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done", "stale", "failed", "nolocal"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "stale")
+        if (state == "nolocal")
+        {
+            _config.Source = TaskSource.Local;
+            _config.LocalListId = "gone";
+            _feed = null;
+            _local = new MemoryTaskLists([]);
+            _localListId = null;
+            PublishTitle();
+            Render();
+            return Task.CompletedTask;
+        }
+
+        if (state is "stale" or "failed")
         {
             _config.Source = TaskSource.Account;
             _config.ListId = "preview-account-list";
@@ -29,6 +42,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
             _local = null;
             _localListId = null;
             _feed = new PreviewTaskFeed(
+            state == "stale",
             [
                 new("a1", "preview-account-list", "Pick up the parcel", false),
                 new("a2", "preview-account-list", "Water the plants", false),
@@ -86,7 +100,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
     }
 
     /// <summary>An account's list as a feed holds it after a refresh that failed; nothing is ever asked.</summary>
-    private sealed class PreviewTaskFeed(IReadOnlyList<TaskItem> tasks, DateTimeOffset fetchedAt) : ITaskFeed
+    private sealed class PreviewTaskFeed(bool loaded, IReadOnlyList<TaskItem> tasks, DateTimeOffset fetchedAt) : ITaskFeed
     {
         public event Action? Changed { add { } remove { } }
 
@@ -100,9 +114,9 @@ internal sealed partial class TasksView : IWidgetPreviewState
 
         public TaskEdits Edits { get; } = new();
 
-        public IReadOnlyList<TaskItem> Tasks => tasks;
+        public IReadOnlyList<TaskItem> Tasks => loaded ? tasks : [];
 
-        public bool Loaded => true;
+        public bool Loaded => loaded;
 
         public bool Busy => false;
 
@@ -110,7 +124,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
 
         public string? WriteProblem => null;
 
-        public DateTimeOffset? FetchedAt => fetchedAt;
+        public DateTimeOffset? FetchedAt => loaded ? fetchedAt : null;
 
         public IReadOnlyList<TaskListInfo>? Lists => null;
     }
