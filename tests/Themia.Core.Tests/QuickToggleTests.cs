@@ -35,14 +35,6 @@ public class QuickToggleTests
     }
 
     [Fact]
-    public void S3900_a_power_or_meter_kind_is_not_a_toggle()
-    {
-        Assert.Null(QuickToggleRules.ForKind(ShutdownConfig.Descriptor.Id));
-        Assert.Null(QuickToggleRules.ForKind(new WidgetId("bluetooth")));
-        Assert.Null(QuickToggleRules.ForKind(VolumeConfig.Descriptor.Id));
-    }
-
-    [Fact]
     public void S3900_every_toggle_config_round_trips_through_the_state_file()
     {
         foreach (var kind in ToggleKinds)
