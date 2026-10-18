@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Pau",
+  "styles.audioVisualizer.desc": "Kinachochezwa na Kompyuta hii, kama pau, wimbi au mstari",
+  "styles.audioVisualizer.label": "Kionyeshi sauti",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Kioo",
+  "styles.audioVisualizer.radial": "Duara",
+  "styles.audioVisualizer.wave": "Wimbi",
+  "styles.audioVisualizer.waveform": "Umbo la wimbi",
+  "widgetsC.visualizer.unavailable": "Towe la sauti halipatikani"
+}

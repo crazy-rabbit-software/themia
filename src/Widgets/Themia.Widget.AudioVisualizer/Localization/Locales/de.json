@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Balken",
+  "styles.audioVisualizer.desc": "Was dieser PC abspielt, als Balken, Welle oder Linie",
+  "styles.audioVisualizer.label": "Audio-Visualisierung",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Gespiegelt",
+  "styles.audioVisualizer.radial": "Kreis",
+  "styles.audioVisualizer.wave": "Welle",
+  "styles.audioVisualizer.waveform": "Wellenform",
+  "widgetsC.visualizer.unavailable": "Audioausgabe nicht verfügbar"
+}

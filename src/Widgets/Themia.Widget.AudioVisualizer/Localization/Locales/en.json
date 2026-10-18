@@ -1,0 +1,12 @@
+{
+  "$englishOnly": [],
+  "styles.audioVisualizer.bars": "Bars",
+  "styles.audioVisualizer.desc": "Whatever this PC plays, as moving bars, a wave or a line",
+  "styles.audioVisualizer.label": "Audio visualizer",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Mirrored",
+  "styles.audioVisualizer.radial": "Radial",
+  "styles.audioVisualizer.wave": "Wave",
+  "styles.audioVisualizer.waveform": "Waveform",
+  "widgetsC.visualizer.unavailable": "Audio output unavailable"
+}

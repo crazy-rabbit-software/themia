@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "બાર",
+  "styles.audioVisualizer.desc": "આ પીસી જે વગાડે છે તે બાર, તરંગ અથવા રેખા તરીકે",
+  "styles.audioVisualizer.label": "ઑડિયો વિઝ્યુઅલાઇઝર",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "પ્રતિબિંબિત",
+  "styles.audioVisualizer.radial": "વર્તુળાકાર",
+  "styles.audioVisualizer.wave": "તરંગ",
+  "styles.audioVisualizer.waveform": "તરંગ સ્વરૂપ",
+  "widgetsC.visualizer.unavailable": "ઑડિયો આઉટપુટ અનુપલબ્ધ"
+}

@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "أشرطة",
+  "styles.audioVisualizer.desc": "ما يشغّله هذا الكمبيوتر، كأشرطة أو موجة أو خط",
+  "styles.audioVisualizer.label": "مؤثرات الصوت المرئية",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "معكوس",
+  "styles.audioVisualizer.radial": "دائري",
+  "styles.audioVisualizer.wave": "موجة",
+  "styles.audioVisualizer.waveform": "شكل الموجة",
+  "widgetsC.visualizer.unavailable": "إخراج الصوت غير متاح"
+}

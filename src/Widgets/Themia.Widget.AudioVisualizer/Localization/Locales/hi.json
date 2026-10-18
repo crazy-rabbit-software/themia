@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "बार",
+  "styles.audioVisualizer.desc": "यह पीसी जो चला रहा है, बार, तरंग या रेखा के रूप में",
+  "styles.audioVisualizer.label": "ऑडियो विज़ुअलाइज़र",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "दर्पण",
+  "styles.audioVisualizer.radial": "गोलाकार",
+  "styles.audioVisualizer.wave": "तरंग",
+  "styles.audioVisualizer.waveform": "तरंग रूप",
+  "widgetsC.visualizer.unavailable": "ऑडियो आउटपुट अनुपलब्ध"
+}

@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "பட்டைகள்",
+  "styles.audioVisualizer.desc": "இந்த கணினி இயக்குவதைப் பட்டைகள், அலை அல்லது கோடாக",
+  "styles.audioVisualizer.label": "ஆடியோ விஷுவலைசர்",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "பிரதிபலிப்பு",
+  "styles.audioVisualizer.radial": "வட்டம்",
+  "styles.audioVisualizer.wave": "அலை",
+  "styles.audioVisualizer.waveform": "அலைவடிவம்",
+  "widgetsC.visualizer.unavailable": "ஆடியோ வெளியீடு கிடைக்கவில்லை"
+}

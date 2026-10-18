@@ -206,8 +206,8 @@ public sealed class QuickSetTests
     [InlineData(AudioVisualizerStyle.Waveform)]
     public void S3711_no_audio_visualizer_style_can_have_a_header(AudioVisualizerStyle style)
     {
-        Assert.False(WidgetInstance.CanHaveHeader(AudioVisualizerConfig.Descriptor.Id));
-        var widget = Widget(AudioVisualizerConfig.Descriptor.Id, "v");
+        Assert.False(WidgetInstance.CanHaveHeader(new WidgetId("audioVisualizer")));
+        var widget = Widget(new WidgetId("audioVisualizer"), "v");
         ((AudioVisualizerConfig)widget.Config).Style = style;
         widget.Header = HeaderPlacement.Top;
         Assert.Equal(HeaderPlacement.Hidden, widget.ShownHeader);
@@ -219,7 +219,7 @@ public sealed class QuickSetTests
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null
-                || kind == AudioVisualizerConfig.Descriptor.Id;
+                || kind == new WidgetId("audioVisualizer");
             Assert.Equal(!toggle, WidgetInstance.CanHaveHeader(kind));
             if (toggle)
             {

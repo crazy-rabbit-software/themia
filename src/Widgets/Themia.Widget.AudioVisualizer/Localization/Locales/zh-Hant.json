@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "長條",
+  "styles.audioVisualizer.desc": "以長條、波浪或線條顯示這台電腦正在播放的聲音",
+  "styles.audioVisualizer.label": "音訊視覺效果",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "鏡像",
+  "styles.audioVisualizer.radial": "環形",
+  "styles.audioVisualizer.wave": "波浪",
+  "styles.audioVisualizer.waveform": "波形",
+  "widgetsC.visualizer.unavailable": "無法使用音訊輸出"
+}

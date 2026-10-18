@@ -333,7 +333,6 @@
   "widgetsC.sunMoon.sameAsYesterday": "igual que ayer",
   "widgetsC.sunMoon.settings.exactCoordinates": "Coordenadas exactas",
   "widgetsC.sunMoon.settings.coordinateRange": "Escribe un número entre {min} y {max}",
-  "widgetsC.visualizer.unavailable": "Salida de audio no disponible",
   "widgetsC.stocks.asset.shares": "Acciones",
   "widgetsC.stocks.asset.crypto": "Cripto",
   "widgetsC.stocks.asset.currency": "Divisa",

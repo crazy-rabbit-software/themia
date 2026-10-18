@@ -373,7 +373,7 @@ public sealed class AddMenuTests
         // their former variants styles: a row of their subject, never a family folder.
         var homes = AddTree.Homes(Menu);
         Assert.Equal([AddFolderId.CalendarMail], homes.Single(home => home.Kind == CalendarWidgetConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
-        Assert.Equal([AddFolderId.Media], homes.Single(home => home.Kind == AudioVisualizerConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.Media], homes.Single(home => home.Kind == new WidgetId("audioVisualizer")).Path.Select(shelf => shelf.Id));
         Assert.Equal([AddFolderId.Files], homes.Single(home => home.Kind == FolderConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
 
         var popular = AddTree.Popular.Rows.OfType<AddLeaf>().Select(leaf => leaf.Kind).ToList();

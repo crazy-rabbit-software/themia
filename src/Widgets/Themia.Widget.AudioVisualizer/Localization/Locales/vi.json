@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Thanh",
+  "styles.audioVisualizer.desc": "Âm thanh PC này đang phát, dưới dạng thanh, sóng hoặc đường",
+  "styles.audioVisualizer.label": "Trình hiển thị âm thanh",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Đối xứng",
+  "styles.audioVisualizer.radial": "Tròn",
+  "styles.audioVisualizer.wave": "Sóng",
+  "styles.audioVisualizer.waveform": "Dạng sóng",
+  "widgetsC.visualizer.unavailable": "Đầu ra âm thanh không khả dụng"
+}

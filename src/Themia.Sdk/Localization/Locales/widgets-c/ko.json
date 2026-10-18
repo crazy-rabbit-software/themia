@@ -327,7 +327,6 @@
   "widgetsC.sunMoon.sameAsYesterday": "어제와 같음",
   "widgetsC.sunMoon.settings.exactCoordinates": "정확한 좌표",
   "widgetsC.sunMoon.settings.coordinateRange": "{min}에서 {max} 사이의 숫자를 입력하세요",
-  "widgetsC.visualizer.unavailable": "오디오 출력을 사용할 수 없음",
   "widgetsC.stocks.asset.shares": "주식",
   "widgetsC.stocks.asset.crypto": "암호화폐",
   "widgetsC.stocks.asset.currency": "통화",

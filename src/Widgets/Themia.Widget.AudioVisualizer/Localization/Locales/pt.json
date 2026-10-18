@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Barras",
+  "styles.audioVisualizer.desc": "O que este PC reproduz, como barras, uma onda ou uma linha",
+  "styles.audioVisualizer.label": "Visualizador de áudio",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Espelhado",
+  "styles.audioVisualizer.radial": "Circular",
+  "styles.audioVisualizer.wave": "Onda",
+  "styles.audioVisualizer.waveform": "Forma de onda",
+  "widgetsC.visualizer.unavailable": "Saída de áudio indisponível"
+}

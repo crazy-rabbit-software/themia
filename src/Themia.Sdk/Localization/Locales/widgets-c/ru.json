@@ -345,7 +345,6 @@
   "widgetsC.sunMoon.sameAsYesterday": "как вчера",
   "widgetsC.sunMoon.settings.exactCoordinates": "Точные координаты",
   "widgetsC.sunMoon.settings.coordinateRange": "Введите число от {min} до {max}",
-  "widgetsC.visualizer.unavailable": "Аудиовыход недоступен",
   "widgetsC.stocks.asset.shares": "Акции",
   "widgetsC.stocks.asset.crypto": "Криптовалюта",
   "widgetsC.stocks.asset.currency": "Валюта",

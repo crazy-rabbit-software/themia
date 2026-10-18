@@ -327,7 +327,6 @@
   "widgetsC.sunMoon.sameAsYesterday": "เท่ากับเมื่อวาน",
   "widgetsC.sunMoon.settings.exactCoordinates": "พิกัดที่แน่นอน",
   "widgetsC.sunMoon.settings.coordinateRange": "ใส่ตัวเลขระหว่าง {min} ถึง {max}",
-  "widgetsC.visualizer.unavailable": "เอาต์พุตเสียงไม่พร้อมใช้งาน",
   "widgetsC.stocks.asset.shares": "หุ้น",
   "widgetsC.stocks.asset.crypto": "คริปโต",
   "widgetsC.stocks.asset.currency": "สกุลเงิน",

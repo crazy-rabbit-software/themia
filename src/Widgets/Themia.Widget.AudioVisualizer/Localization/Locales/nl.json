@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Balken",
+  "styles.audioVisualizer.desc": "Wat deze pc afspeelt, als balken, een golf of een lijn",
+  "styles.audioVisualizer.label": "Audiovisualisatie",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Gespiegeld",
+  "styles.audioVisualizer.radial": "Rond",
+  "styles.audioVisualizer.wave": "Golf",
+  "styles.audioVisualizer.waveform": "Golfvorm",
+  "widgetsC.visualizer.unavailable": "Audio-uitvoer niet beschikbaar"
+}

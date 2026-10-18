@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "بارز",
+  "styles.audioVisualizer.desc": "یہ پی سی جو چلا رہا ہے، بارز، لہر یا لکیر کی صورت میں",
+  "styles.audioVisualizer.label": "آڈیو ویژولائزر",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "عکسی",
+  "styles.audioVisualizer.radial": "دائروی",
+  "styles.audioVisualizer.wave": "لہر",
+  "styles.audioVisualizer.waveform": "لہر کی شکل",
+  "widgetsC.visualizer.unavailable": "آڈیو آؤٹ پٹ دستیاب نہیں"
+}

@@ -10,6 +10,7 @@
   <Folder Name="/src/Widgets/">
     <Project Path="src/Widgets/Themia.Widget.AirQuality/Themia.Widget.AirQuality.csproj" />
     <Project Path="src/Widgets/Themia.Widget.AirplaneModeToggle/Themia.Widget.AirplaneModeToggle.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.AudioVisualizer/Themia.Widget.AudioVisualizer.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Battery/Themia.Widget.Battery.csproj" />
     <Project Path="src/Widgets/Themia.Widget.BatteryDetails/Themia.Widget.BatteryDetails.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Bluetooth/Themia.Widget.Bluetooth.csproj" />

@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Çubuklar",
+  "styles.audioVisualizer.desc": "Bu bilgisayarın çaldığı ses; çubuk, dalga ya da çizgi olarak",
+  "styles.audioVisualizer.label": "Ses görselleştirici",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Yansımalı",
+  "styles.audioVisualizer.radial": "Dairesel",
+  "styles.audioVisualizer.wave": "Dalga",
+  "styles.audioVisualizer.waveform": "Dalga biçimi",
+  "widgetsC.visualizer.unavailable": "Ses çıkışı kullanılamıyor"
+}

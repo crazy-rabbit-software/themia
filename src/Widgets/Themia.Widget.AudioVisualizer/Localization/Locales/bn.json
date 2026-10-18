@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "বার",
+  "styles.audioVisualizer.desc": "এই পিসি যা বাজাচ্ছে, বার, তরঙ্গ বা রেখা হিসেবে",
+  "styles.audioVisualizer.label": "অডিও ভিজুয়ালাইজার",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "প্রতিফলিত",
+  "styles.audioVisualizer.radial": "বৃত্তাকার",
+  "styles.audioVisualizer.wave": "তরঙ্গ",
+  "styles.audioVisualizer.waveform": "তরঙ্গরূপ",
+  "widgetsC.visualizer.unavailable": "অডিও আউটপুট অনুপলব্ধ"
+}

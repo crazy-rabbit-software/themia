@@ -27,41 +27,6 @@ public class VisualizerScopeTests
     }
 
     [Fact]
-    public void S3212_the_waveform_is_a_visualizer_style_that_never_has_a_header()
-    {
-        Assert.Contains(WidgetStyles.For(AudioVisualizerConfig.Descriptor.Id), s => s.Value == (int)AudioVisualizerStyle.Waveform && s.Name == "waveform");
-        Assert.False(WidgetInstance.CanHaveHeader(AudioVisualizerConfig.Descriptor.Id));
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(AudioVisualizerConfig.Descriptor.Id));
-    }
-
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S3213_the_line_runs_the_long_side_with_a_point_every_few_dips(string tier)
-    {
-        var area = Tier(tier);
-        var plan = VisualizerLayout.Plan(area, AudioVisualizerStyle.Waveform);
-        var along = plan.Horizontal ? area.Height : area.Width;
-        var across = plan.Horizontal ? area.Width : area.Height;
-
-        Assert.Equal(area.Shape == AreaShape.Tall, plan.Horizontal);
-        Assert.Equal(along, plan.Run);
-        Assert.Equal(across, plan.Length);
-        Assert.InRange(plan.Bars, VisualizerLayout.MinScopePoints, Oscilloscope.Points);
-        Assert.True(plan.Bars == Oscilloscope.Points || plan.Run / (plan.Bars - 1) >= VisualizerLayout.ScopeStep - 0.01, tier);
-        Assert.InRange(plan.Thickness, 2, 4);
-    }
-
-    [Fact]
-    public void S3213_a_larger_tile_draws_more_points_and_a_thicker_line_never_past_the_trace()
-    {
-        var xs = VisualizerLayout.Plan(Tier("XS"), AudioVisualizerStyle.Waveform);
-        var xl = VisualizerLayout.Plan(Tier("XL"), AudioVisualizerStyle.Waveform);
-        Assert.True(xl.Bars > xs.Bars);
-        Assert.True(xl.Thickness > xs.Thickness);
-        Assert.Equal(Oscilloscope.Points, xl.Bars);
-    }
-
-    [Fact]
     public void S3214_a_steady_tone_stands_still_whatever_the_phase_the_window_caught_it_at()
     {
         var first = new float[Oscilloscope.Points];

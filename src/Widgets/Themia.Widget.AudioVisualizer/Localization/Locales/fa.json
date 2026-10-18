@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "میله‌ها",
+  "styles.audioVisualizer.desc": "آنچه این رایانه پخش می‌کند، به شکل میله، موج یا خط",
+  "styles.audioVisualizer.label": "نمایشگر صدا",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "قرینه",
+  "styles.audioVisualizer.radial": "دایره‌ای",
+  "styles.audioVisualizer.wave": "موج",
+  "styles.audioVisualizer.waveform": "شکل موج",
+  "widgetsC.visualizer.unavailable": "خروجی صدا در دسترس نیست"
+}

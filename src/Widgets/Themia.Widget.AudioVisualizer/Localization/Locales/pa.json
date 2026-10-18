@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "ਬਾਰ",
+  "styles.audioVisualizer.desc": "ਇਹ ਪੀਸੀ ਜੋ ਚਲਾ ਰਿਹਾ ਹੈ, ਬਾਰ, ਲਹਿਰ ਜਾਂ ਲਕੀਰ ਵਜੋਂ",
+  "styles.audioVisualizer.label": "ਆਡੀਓ ਵਿਜ਼ੁਅਲਾਈਜ਼ਰ",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "ਸ਼ੀਸ਼ਾ",
+  "styles.audioVisualizer.radial": "ਗੋਲ",
+  "styles.audioVisualizer.wave": "ਲਹਿਰ",
+  "styles.audioVisualizer.waveform": "ਤਰੰਗ ਰੂਪ",
+  "widgetsC.visualizer.unavailable": "ਆਡੀਓ ਆਉਟਪੁੱਟ ਉਪਲਬਧ ਨਹੀਂ"
+}

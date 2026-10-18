@@ -345,7 +345,6 @@
   "widgetsC.sunMoon.sameAsYesterday": "tak jak wczoraj",
   "widgetsC.sunMoon.settings.exactCoordinates": "Dokładne współrzędne",
   "widgetsC.sunMoon.settings.coordinateRange": "Wpisz liczbę od {min} do {max}",
-  "widgetsC.visualizer.unavailable": "Wyjście audio niedostępne",
   "widgetsC.stocks.asset.shares": "Akcje",
   "widgetsC.stocks.asset.crypto": "Kryptowaluta",
   "widgetsC.stocks.asset.currency": "Waluta",

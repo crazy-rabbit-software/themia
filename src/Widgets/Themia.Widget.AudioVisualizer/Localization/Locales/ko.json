@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "막대",
+  "styles.audioVisualizer.desc": "이 PC에서 재생 중인 소리를 막대, 파동 또는 선으로 표시",
+  "styles.audioVisualizer.label": "오디오 비주얼라이저",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "미러",
+  "styles.audioVisualizer.radial": "원형",
+  "styles.audioVisualizer.wave": "파동",
+  "styles.audioVisualizer.waveform": "파형",
+  "widgetsC.visualizer.unavailable": "오디오 출력을 사용할 수 없음"
+}

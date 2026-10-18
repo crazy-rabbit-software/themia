@@ -333,7 +333,6 @@
   "widgetsC.sunMoon.sameAsYesterday": "zelfde als gisteren",
   "widgetsC.sunMoon.settings.exactCoordinates": "Exacte coördinaten",
   "widgetsC.sunMoon.settings.coordinateRange": "Voer een getal in tussen {min} en {max}",
-  "widgetsC.visualizer.unavailable": "Audio-uitvoer niet beschikbaar",
   "widgetsC.stocks.asset.shares": "Aandelen",
   "widgetsC.stocks.asset.crypto": "Crypto",
   "widgetsC.stocks.asset.currency": "Valuta",

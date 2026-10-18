@@ -327,7 +327,6 @@
   "widgetsC.sunMoon.sameAsYesterday": "昨日と同じ",
   "widgetsC.sunMoon.settings.exactCoordinates": "正確な座標",
   "widgetsC.sunMoon.settings.coordinateRange": "{min} から {max} までの数値を入力してください",
-  "widgetsC.visualizer.unavailable": "オーディオ出力を利用できません",
   "widgetsC.stocks.asset.shares": "株式",
   "widgetsC.stocks.asset.crypto": "暗号資産",
   "widgetsC.stocks.asset.currency": "通貨",

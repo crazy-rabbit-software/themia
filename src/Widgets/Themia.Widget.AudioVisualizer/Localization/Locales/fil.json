@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Mga bar",
+  "styles.audioVisualizer.desc": "Ang pinapatugtog ng PC na ito, bilang mga bar, alon o linya",
+  "styles.audioVisualizer.label": "Audio visualizer",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Naka-mirror",
+  "styles.audioVisualizer.radial": "Pabilog",
+  "styles.audioVisualizer.wave": "Alon",
+  "styles.audioVisualizer.waveform": "Waveform",
+  "widgetsC.visualizer.unavailable": "Hindi available ang audio output"
+}

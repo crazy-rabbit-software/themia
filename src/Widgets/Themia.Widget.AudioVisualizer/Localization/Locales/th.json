@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "แท่ง",
+  "styles.audioVisualizer.desc": "สิ่งที่พีซีนี้กำลังเล่น เป็นแท่ง คลื่น หรือเส้น",
+  "styles.audioVisualizer.label": "ภาพแสดงเสียง",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "สะท้อน",
+  "styles.audioVisualizer.radial": "วงกลม",
+  "styles.audioVisualizer.wave": "คลื่น",
+  "styles.audioVisualizer.waveform": "รูปคลื่น",
+  "widgetsC.visualizer.unavailable": "เอาต์พุตเสียงไม่พร้อมใช้งาน"
+}

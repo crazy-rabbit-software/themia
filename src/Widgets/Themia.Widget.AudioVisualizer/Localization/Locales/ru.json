@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Столбцы",
+  "styles.audioVisualizer.desc": "То, что играет этот ПК, — столбцами, волной или линией",
+  "styles.audioVisualizer.label": "Аудиовизуализатор",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Зеркально",
+  "styles.audioVisualizer.radial": "Круг",
+  "styles.audioVisualizer.wave": "Волна",
+  "styles.audioVisualizer.waveform": "Осциллограмма",
+  "widgetsC.visualizer.unavailable": "Аудиовыход недоступен"
+}

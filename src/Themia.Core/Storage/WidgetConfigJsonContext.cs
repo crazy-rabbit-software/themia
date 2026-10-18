@@ -14,7 +14,6 @@ namespace Themia.Core.Storage;
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(AlarmConfig))]
-[JsonSerializable(typeof(AudioVisualizerConfig))]
 [JsonSerializable(typeof(CalendarWidgetConfig))]
 [JsonSerializable(typeof(ClipboardConfig))]
 [JsonSerializable(typeof(ContactsConfig))]

@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Batang",
+  "styles.audioVisualizer.desc": "Apa yang diputar PC ini, sebagai batang, gelombang, atau garis",
+  "styles.audioVisualizer.label": "Visualizer audio",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Cermin",
+  "styles.audioVisualizer.radial": "Melingkar",
+  "styles.audioVisualizer.wave": "Gelombang",
+  "styles.audioVisualizer.waveform": "Bentuk gelombang",
+  "widgetsC.visualizer.unavailable": "Output audio tidak tersedia"
+}

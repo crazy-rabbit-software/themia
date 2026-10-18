@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Słupki",
+  "styles.audioVisualizer.desc": "To, co odtwarza ten komputer, jako słupki, fala lub linia",
+  "styles.audioVisualizer.label": "Wizualizacja dźwięku",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Lustrzane",
+  "styles.audioVisualizer.radial": "Kołowe",
+  "styles.audioVisualizer.wave": "Fala",
+  "styles.audioVisualizer.waveform": "Przebieg fali",
+  "widgetsC.visualizer.unavailable": "Wyjście audio niedostępne"
+}

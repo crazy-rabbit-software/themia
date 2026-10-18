@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "बार",
+  "styles.audioVisualizer.desc": "हा पीसी जे वाजवत आहे ते बार, लहर किंवा रेषा म्हणून",
+  "styles.audioVisualizer.label": "ऑडिओ व्हिज्युअलायझर",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "आरसा",
+  "styles.audioVisualizer.radial": "वर्तुळाकार",
+  "styles.audioVisualizer.wave": "लहर",
+  "styles.audioVisualizer.waveform": "तरंगरूप",
+  "widgetsC.visualizer.unavailable": "ऑडिओ आउटपुट अनुपलब्ध"
+}
