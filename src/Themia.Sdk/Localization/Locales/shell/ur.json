@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "سائن ان مکمل نہیں ہوا۔",
   "shell.accounts.whoUnknown": "{provider} نے نہیں بتایا کہ کس اکاؤنٹ نے سائن ان کیا۔",
   "shell.accounts.whoUnknownReason": "{provider} نے نہیں بتایا کہ کس اکاؤنٹ نے سائن ان کیا: {reason}",
-  "shell.accounts.googleMissing": "Themia کے اس بلڈ میں Google سائن ان سیٹ اپ نہیں ہے۔ اس کے لیے بلڈ THEMIA_GOOGLE_CLIENT_SECRET سیٹ کر کے بنانا ضروری ہے۔",
+  "shell.accounts.secretMissing": "Themia کے اس بلڈ میں {provider} سائن ان سیٹ اپ نہیں ہے۔ اس کے لیے بلڈ THEMIA_CLIENT_SECRETS سیٹ کر کے بنانا ضروری ہے۔",
   "shell.accounts.browserNotOpened": "براؤزر کھولا نہیں جا سکا۔",
   "shell.accounts.browserTimeout": "براؤزر پانچ منٹ میں واپس نہیں آیا۔ دوبارہ شروع کریں۔",
   "shell.accounts.providerRefusedReason": "{provider} نے سائن ان مسترد کر دیا: {reason}",

@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "L’accesso non è stato completato.",
   "shell.accounts.whoUnknown": "{provider} non ha indicato quale account ha effettuato l’accesso.",
   "shell.accounts.whoUnknownReason": "{provider} non ha indicato quale account ha effettuato l’accesso: {reason}",
-  "shell.accounts.googleMissing": "L’accesso a Google non è configurato in questa build di Themia. La build deve essere creata con THEMIA_GOOGLE_CLIENT_SECRET impostato.",
+  "shell.accounts.secretMissing": "L’accesso a {provider} non è configurato in questa build di Themia. La build deve essere creata con THEMIA_CLIENT_SECRETS impostato.",
   "shell.accounts.browserNotOpened": "Impossibile aprire il browser.",
   "shell.accounts.browserTimeout": "Il browser non è tornato entro cinque minuti. Ricomincia.",
   "shell.accounts.providerRefusedReason": "{provider} ha rifiutato l’accesso: {reason}",

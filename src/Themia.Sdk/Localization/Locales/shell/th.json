@@ -479,7 +479,7 @@
   "shell.accounts.notCompleted": "การลงชื่อเข้าใช้ไม่เสร็จสมบูรณ์",
   "shell.accounts.whoUnknown": "{provider} ไม่ได้ระบุว่าบัญชีใดลงชื่อเข้าใช้",
   "shell.accounts.whoUnknownReason": "{provider} ไม่ได้ระบุว่าบัญชีใดลงชื่อเข้าใช้: {reason}",
-  "shell.accounts.googleMissing": "ไม่ได้ตั้งค่าการลงชื่อเข้าใช้ Google ใน Themia รุ่นนี้ ต้องสร้างรุ่นโดยตั้งค่า THEMIA_GOOGLE_CLIENT_SECRET",
+  "shell.accounts.secretMissing": "ไม่ได้ตั้งค่าการลงชื่อเข้าใช้ {provider} ใน Themia รุ่นนี้ ต้องสร้างรุ่นโดยตั้งค่า THEMIA_CLIENT_SECRETS",
   "shell.accounts.browserNotOpened": "ไม่สามารถเปิดเบราว์เซอร์ได้",
   "shell.accounts.browserTimeout": "เบราว์เซอร์ไม่กลับมาภายในห้านาที เริ่มใหม่อีกครั้ง",
   "shell.accounts.providerRefusedReason": "{provider} ปฏิเสธการลงชื่อเข้าใช้: {reason}",

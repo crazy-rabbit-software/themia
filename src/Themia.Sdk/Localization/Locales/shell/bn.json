@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "সাইন-ইন সম্পন্ন হয়নি।",
   "shell.accounts.whoUnknown": "{provider} জানায়নি কোন অ্যাকাউন্টে সাইন ইন হয়েছে।",
   "shell.accounts.whoUnknownReason": "{provider} জানায়নি কোন অ্যাকাউন্টে সাইন ইন হয়েছে: {reason}",
-  "shell.accounts.googleMissing": "Themia-র এই বিল্ডে Google সাইন-ইন সেট আপ করা নেই। THEMIA_GOOGLE_CLIENT_SECRET সেট করে বিল্ড তৈরি করতে হবে।",
+  "shell.accounts.secretMissing": "Themia-র এই বিল্ডে {provider} সাইন-ইন সেট আপ করা নেই। THEMIA_CLIENT_SECRETS সেট করে বিল্ড তৈরি করতে হবে।",
   "shell.accounts.browserNotOpened": "ব্রাউজার খোলা যায়নি।",
   "shell.accounts.browserTimeout": "ব্রাউজার পাঁচ মিনিটের মধ্যে ফিরে আসেনি। আবার শুরু করুন।",
   "shell.accounts.providerRefusedReason": "{provider} সাইন-ইন প্রত্যাখ্যান করেছে: {reason}",

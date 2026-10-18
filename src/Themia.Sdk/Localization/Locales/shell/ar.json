@@ -534,7 +534,7 @@
   "shell.accounts.notCompleted": "لم يكتمل تسجيل الدخول.",
   "shell.accounts.whoUnknown": "لم يُفصح {provider} عن الحساب الذي سجّل الدخول.",
   "shell.accounts.whoUnknownReason": "لم يُفصح {provider} عن الحساب الذي سجّل الدخول: {reason}",
-  "shell.accounts.googleMissing": "تسجيل الدخول عبر Google غير مُعدّ في هذا الإصدار من Themia. يلزم بناء الإصدار مع تعيين THEMIA_GOOGLE_CLIENT_SECRET.",
+  "shell.accounts.secretMissing": "تسجيل الدخول عبر {provider} غير مُعدّ في هذا الإصدار من Themia. يلزم بناء الإصدار مع تعيين THEMIA_CLIENT_SECRETS.",
   "shell.accounts.browserNotOpened": "تعذر فتح المستعرض.",
   "shell.accounts.browserTimeout": "لم يعد المستعرض خلال خمس دقائق. ابدأ من جديد.",
   "shell.accounts.providerRefusedReason": "رفض {provider} تسجيل الدخول: {reason}",

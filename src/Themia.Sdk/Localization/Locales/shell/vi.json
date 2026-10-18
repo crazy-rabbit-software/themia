@@ -479,7 +479,7 @@
   "shell.accounts.notCompleted": "Đăng nhập chưa hoàn tất.",
   "shell.accounts.whoUnknown": "{provider} không cho biết tài khoản nào đã đăng nhập.",
   "shell.accounts.whoUnknownReason": "{provider} không cho biết tài khoản nào đã đăng nhập: {reason}",
-  "shell.accounts.googleMissing": "Đăng nhập Google chưa được thiết lập trong bản dựng Themia này. Cần dựng với THEMIA_GOOGLE_CLIENT_SECRET được đặt.",
+  "shell.accounts.secretMissing": "Đăng nhập {provider} chưa được thiết lập trong bản dựng Themia này. Cần dựng với THEMIA_CLIENT_SECRETS được đặt.",
   "shell.accounts.browserNotOpened": "Không mở được trình duyệt.",
   "shell.accounts.browserTimeout": "Trình duyệt không quay lại trong vòng năm phút. Hãy bắt đầu lại.",
   "shell.accounts.providerRefusedReason": "{provider} từ chối đăng nhập: {reason}",

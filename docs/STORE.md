@@ -27,7 +27,10 @@ licensing* ([S-1060]..[S-1071]).
 
 ```powershell
 # 1. Set the version: Package.appxmanifest Identity/@Version, Major.Minor.Build.0
-# 2. Build (Native AOT, unsigned):
+# 2. The client secrets the build compiles in ([S-9917]): one variable, an entry per provider whose
+#    sign-in needs one (today Google's Desktop client). Never committed; keep it in .env.
+$env:THEMIA_CLIENT_SECRETS = "google=<Google Desktop client secret>"
+# 3. Build (Native AOT, unsigned):
 .\scripts\package.ps1
 #    -> artifacts\store\Themia_<version>_x64.msixupload  (upload this)
 #    -> artifacts\store\Themia_<version>_x64.msix        (the same package)

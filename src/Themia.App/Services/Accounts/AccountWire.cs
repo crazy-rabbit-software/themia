@@ -24,38 +24,7 @@ internal sealed class TokenReply
     public string? ErrorDescription { get; set; }
 }
 
-/// <summary>Graph <c>/me</c>, just the fields that name the account.</summary>
-internal sealed class GraphMe
-{
-    [JsonPropertyName("id")]
-    public string? Id { get; set; }
-
-    [JsonPropertyName("mail")]
-    public string? Mail { get; set; }
-
-    [JsonPropertyName("displayName")]
-    public string? DisplayName { get; set; }
-
-    [JsonPropertyName("userPrincipalName")]
-    public string? UserPrincipalName { get; set; }
-}
-
-/// <summary>Google OpenID Connect userinfo.</summary>
-internal sealed class GoogleUserInfo
-{
-    [JsonPropertyName("sub")]
-    public string? Subject { get; set; }
-
-    [JsonPropertyName("email")]
-    public string? Email { get; set; }
-
-    [JsonPropertyName("name")]
-    public string? Name { get; set; }
-}
-
 /// <summary>Source-generated JSON for the sign-in endpoints. Native AOT has no reflection serializer.</summary>
 [JsonSourceGenerationOptions(NumberHandling = JsonNumberHandling.AllowReadingFromString)]
 [JsonSerializable(typeof(TokenReply))]
-[JsonSerializable(typeof(GraphMe))]
-[JsonSerializable(typeof(GoogleUserInfo))]
 internal sealed partial class AccountWireContext : JsonSerializerContext;

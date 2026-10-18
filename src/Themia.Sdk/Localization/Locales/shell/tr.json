@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "Oturum açma tamamlanmadı.",
   "shell.accounts.whoUnknown": "{provider} hangi hesabın oturum açtığını bildirmedi.",
   "shell.accounts.whoUnknownReason": "{provider} hangi hesabın oturum açtığını bildirmedi: {reason}",
-  "shell.accounts.googleMissing": "Google ile oturum açma, Themia'nın bu derlemesinde ayarlanmamış. Derlemenin THEMIA_GOOGLE_CLIENT_SECRET ayarlıyken yapılması gerekir.",
+  "shell.accounts.secretMissing": "{provider} ile oturum açma, Themia'nın bu derlemesinde ayarlanmamış. Derlemenin THEMIA_CLIENT_SECRETS ayarlıyken yapılması gerekir.",
   "shell.accounts.browserNotOpened": "Tarayıcı açılamadı.",
   "shell.accounts.browserTimeout": "Tarayıcı beş dakika içinde geri dönmedi. Yeniden başlayın.",
   "shell.accounts.providerRefusedReason": "{provider} oturum açmayı reddetti: {reason}",

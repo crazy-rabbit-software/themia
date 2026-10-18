@@ -512,7 +512,7 @@
   "shell.accounts.notCompleted": "Logowanie nie zostało ukończone.",
   "shell.accounts.whoUnknown": "{provider} nie podał, które konto się zalogowało.",
   "shell.accounts.whoUnknownReason": "{provider} nie podał, które konto się zalogowało: {reason}",
-  "shell.accounts.googleMissing": "Logowanie Google nie jest skonfigurowane w tej kompilacji Themia. Kompilacja musi zostać wykonana z ustawionym THEMIA_GOOGLE_CLIENT_SECRET.",
+  "shell.accounts.secretMissing": "Logowanie {provider} nie jest skonfigurowane w tej kompilacji Themia. Kompilacja musi zostać wykonana z ustawionym THEMIA_CLIENT_SECRETS.",
   "shell.accounts.browserNotOpened": "Nie można otworzyć przeglądarki.",
   "shell.accounts.browserTimeout": "Przeglądarka nie wróciła w ciągu pięciu minut. Zacznij od nowa.",
   "shell.accounts.providerRefusedReason": "{provider} odrzucił logowanie: {reason}",

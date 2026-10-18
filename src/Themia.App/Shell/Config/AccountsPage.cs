@@ -15,6 +15,7 @@ using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Services;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace Themia.App.Shell.Config;
@@ -251,8 +252,8 @@ internal sealed class AccountsPage
     {
         switch (account.Provider)
         {
-            case var pid when pid == HostProviders.Microsoft || pid == HostProviders.Google:
-                StartBrowser(account.Provider);
+            case var pid when ProviderCatalog.Of(pid).SignIn.Members.Count > 0:
+                StartSignIn(account.Provider);
                 break;
 
             case var pid when pid == HostProviders.Imap:
@@ -359,8 +360,13 @@ internal sealed class AccountsPage
             menu.Items.Add(item);
         }
 
-        Add("Microsoft", HostProviders.Microsoft, () => StartBrowser(HostProviders.Microsoft));
-        Add("Google", HostProviders.Google, () => StartBrowser(HostProviders.Google));
+        // [S-9910] Every provider with sign-in members, in its place; then the host's password forms.
+        foreach (var provider in ProviderCatalog.All.Where(p => p.SignIn.Members.Count > 0).OrderBy(p => p.AddRank))
+        {
+            var id = provider.Id;
+            Add(provider.Label.Text(), id, () => StartSignIn(id));
+        }
+
         menu.Items.Add(new MenuFlyoutSeparator());
         Add(Str.Shell_Accounts_MenuImap.Text(), HostProviders.Imap, StartImap);
         Add(Str.Shell_Accounts_MenuCalDav.Text(), HostProviders.CalDav, () => StartDav(HostProviders.CalDav));
@@ -418,10 +424,25 @@ internal sealed class AccountsPage
 
     // ---- browser: Microsoft, Google --------------------------------------------------------
 
-    /// <summary>[S-1783] Microsoft and Google sign in the same way, so they share one flow.</summary>
+    /// <summary>[S-9910] A provider's sign-in: its first member the build can run.</summary>
+    private void StartSignIn(ProviderId provider)
+    {
+        switch (ProviderCatalog.Of(provider).SignIn.Members.FirstOrDefault())
+        {
+            case OAuthPkceLoopback:
+                StartBrowser(provider);
+                break;
+
+            default:
+                Log.Warn(Scope, $"{provider} offers no sign-in this page can run");
+                break;
+        }
+    }
+
+    /// <summary>[S-1783] Every browser member signs in the same way, so they share one flow.</summary>
     private void StartBrowser(ProviderId provider)
     {
-        if (provider == HostProviders.Google && AccountService.GoogleUnavailableReason is { } reason)
+        if (AccountService.UnavailableReason(provider) is { } reason)
         {
             ShowFlow(Str.Shell_Accounts_SignInTo.Format(("provider", provider.Label())), Message(reason, critical: true));
             return;

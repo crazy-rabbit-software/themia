@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "సైన్-ఇన్ పూర్తి కాలేదు.",
   "shell.accounts.whoUnknown": "ఏ ఖాతా సైన్ ఇన్ చేసిందో {provider} చెప్పలేదు.",
   "shell.accounts.whoUnknownReason": "ఏ ఖాతా సైన్ ఇన్ చేసిందో {provider} చెప్పలేదు: {reason}",
-  "shell.accounts.googleMissing": "Themia యొక్క ఈ బిల్డ్‌లో Google సైన్-ఇన్ సెటప్ చేయబడలేదు. THEMIA_GOOGLE_CLIENT_SECRET సెట్ చేసి బిల్డ్ చేయాలి.",
+  "shell.accounts.secretMissing": "Themia యొక్క ఈ బిల్డ్‌లో {provider} సైన్-ఇన్ సెటప్ చేయబడలేదు. THEMIA_CLIENT_SECRETS సెట్ చేసి బిల్డ్ చేయాలి.",
   "shell.accounts.browserNotOpened": "బ్రౌజర్‌ను తెరవడం సాధ్యం కాలేదు.",
   "shell.accounts.browserTimeout": "బ్రౌజర్ ఐదు నిమిషాల్లోపు తిరిగి రాలేదు. మళ్లీ ప్రారంభించండి.",
   "shell.accounts.providerRefusedReason": "{provider} సైన్-ఇన్‌ను తిరస్కరించింది: {reason}",

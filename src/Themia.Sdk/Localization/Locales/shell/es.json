@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "El inicio de sesión no se completó.",
   "shell.accounts.whoUnknown": "{provider} no indicó qué cuenta inició sesión.",
   "shell.accounts.whoUnknownReason": "{provider} no indicó qué cuenta inició sesión: {reason}",
-  "shell.accounts.googleMissing": "El inicio de sesión de Google no está configurado en esta compilación de Themia. La compilación debe hacerse con THEMIA_GOOGLE_CLIENT_SECRET definido.",
+  "shell.accounts.secretMissing": "El inicio de sesión de {provider} no está configurado en esta compilación de Themia. La compilación debe hacerse con THEMIA_CLIENT_SECRETS definido.",
   "shell.accounts.browserNotOpened": "No se pudo abrir el navegador.",
   "shell.accounts.browserTimeout": "El navegador no volvió en cinco minutos. Vuelve a empezar.",
   "shell.accounts.providerRefusedReason": "{provider} rechazó el inicio de sesión: {reason}",

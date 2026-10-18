@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "Kuingia hakukukamilika.",
   "shell.accounts.whoUnknown": "{provider} haikusema ni akaunti ipi iliyoingia.",
   "shell.accounts.whoUnknownReason": "{provider} haikusema ni akaunti ipi iliyoingia: {reason}",
-  "shell.accounts.googleMissing": "Kuingia kwa Google hakujawekwa katika muundo huu wa Themia. Inahitaji muundo ufanywe THEMIA_GOOGLE_CLIENT_SECRET ikiwa imewekwa.",
+  "shell.accounts.secretMissing": "Kuingia kwa {provider} hakujawekwa katika muundo huu wa Themia. Inahitaji muundo ufanywe THEMIA_CLIENT_SECRETS ikiwa imewekwa.",
   "shell.accounts.browserNotOpened": "Kivinjari hakikuweza kufunguliwa.",
   "shell.accounts.browserTimeout": "Kivinjari hakikurudi ndani ya dakika tano. Anza tena.",
   "shell.accounts.providerRefusedReason": "{provider} ilikataa kuingia: {reason}",

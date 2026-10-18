@@ -479,7 +479,7 @@
   "shell.accounts.notCompleted": "Proses masuk tidak selesai.",
   "shell.accounts.whoUnknown": "{provider} tidak memberi tahu akun mana yang masuk.",
   "shell.accounts.whoUnknownReason": "{provider} tidak memberi tahu akun mana yang masuk: {reason}",
-  "shell.accounts.googleMissing": "Masuk dengan Google tidak disiapkan dalam build Themia ini. Build harus dibuat dengan THEMIA_GOOGLE_CLIENT_SECRET.",
+  "shell.accounts.secretMissing": "Masuk dengan {provider} tidak disiapkan dalam build Themia ini. Build harus dibuat dengan THEMIA_CLIENT_SECRETS.",
   "shell.accounts.browserNotOpened": "Browser tidak dapat dibuka.",
   "shell.accounts.browserTimeout": "Browser tidak kembali dalam lima menit. Mulai lagi.",
   "shell.accounts.providerRefusedReason": "{provider} menolak proses masuk: {reason}",

@@ -1,6 +1,7 @@
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Sdk;
+using Themia.Sdk.Services;
 
 [assembly: ThemiaProvider("microsoft", typeof(MicrosoftProvider))]
 [assembly: ThemiaProvider("google", typeof(GoogleProvider))]
@@ -51,6 +52,9 @@ public sealed class MicrosoftProvider : IProviderModule
     public int AddRank => 0;
 
     public CadenceRow? Cadence => null;
+
+    /// <summary>[S-1780] [S-9910] The browser flow as a public client: no secret, a <c>localhost</c> redirect on any port.</summary>
+    public ProviderSignIn SignIn { get; } = new([OAuthClients.Microsoft.SignIn]);
 }
 
 public sealed class GoogleProvider : IProviderModule
@@ -66,6 +70,12 @@ public sealed class GoogleProvider : IProviderModule
     public int AddRank => 1;
 
     public CadenceRow? Cadence => null;
+
+    /// <summary>[S-527] [S-9910] The browser flow with the Desktop client's build-time secret ([S-536]) and a <c>127.0.0.1</c> redirect on any port.</summary>
+    public ProviderSignIn SignIn { get; } = new([OAuthClients.Google.SignIn]);
+
+    /// <summary>[S-9917] Its key in <c>THEMIA_CLIENT_SECRETS</c>.</summary>
+    public string? BuildSecret => "google";
 }
 
 public sealed class ImapProvider : IProviderModule

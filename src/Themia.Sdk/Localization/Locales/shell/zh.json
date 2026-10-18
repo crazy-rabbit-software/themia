@@ -479,7 +479,7 @@
   "shell.accounts.notCompleted": "登录未完成。",
   "shell.accounts.whoUnknown": "{provider} 未说明登录的是哪个帐户。",
   "shell.accounts.whoUnknownReason": "{provider} 未说明登录的是哪个帐户：{reason}",
-  "shell.accounts.googleMissing": "此 Themia 版本未设置 Google 登录。需要在设置 THEMIA_GOOGLE_CLIENT_SECRET 的情况下生成。",
+  "shell.accounts.secretMissing": "此 Themia 版本未设置 {provider} 登录。需要在设置 THEMIA_CLIENT_SECRETS 的情况下生成。",
   "shell.accounts.browserNotOpened": "无法打开浏览器。",
   "shell.accounts.browserTimeout": "浏览器未在五分钟内返回。请重新开始。",
   "shell.accounts.providerRefusedReason": "{provider} 拒绝了登录：{reason}",

@@ -24,7 +24,8 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
   that passes in Debug can still fail or misbehave only when published (compiled XAML is not a
   publish item by default; the `PublishCompiledXaml` target in the csproj fixes that). Run
   `publish.ps1` after touching the csproj, XAML, interop or anything reflection-adjacent.
-- Official builds read `THEMIA_GOOGLE_CLIENT_SECRET` at build time; it is never in source.
+- Official builds read `THEMIA_CLIENT_SECRETS` at build time (`google=...;todoist=...`, one entry per
+  provider whose sign-in needs a client secret, keyed by its `BuildSecret`); it is never in source.
 
 ### Looking at the UI without the desktop (Debug builds only)
 

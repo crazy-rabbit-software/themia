@@ -108,28 +108,30 @@
   </ItemGroup>
 
   <!--
-    Google's Desktop OAuth client secret, compiled in from the build environment ([S-536]).
+    [S-9917] The client secrets a provider insists on, compiled in from the build environment.
 
-    Google requires it even with PKCE and treats it as non-confidential for installed apps, so it
-    ships in the binary - but it is never in source: official builds set THEMIA_GOOGLE_CLIENT_SECRET
-    (the release script loads it from .env), exactly as the classic app read it with option_env!.
-    Without it the constant is empty and Google sign-in refuses up front. A generated constant
-    rather than an assembly attribute, because Native AOT does not promise to keep attribute
-    metadata a runtime lookup would need.
+    One variable, THEMIA_CLIENT_SECRETS, holds them by provider key: google=...;todoist=... (Google
+    requires its Desktop client's secret even with PKCE and treats it as non-confidential for
+    installed apps, so it ships in the binary - but it is never in source). Official builds set it
+    (the release environment loads it from .env). Each entry is checked here as the app's
+    ClientSecretRules reads it (a key in camelCase, a secret of 8 to 256 letters, digits, _ - .), so a
+    broken value fails the build instead of shipping. Without it the generated value is empty and
+    every member that needs a secret refuses up front. A generated constant rather than an assembly
+    attribute, because Native AOT does not promise to keep attribute metadata a runtime lookup needs.
   -->
   <Target Name="ThemiaBuildSecrets" BeforeTargets="BeforeBuild">
     <PropertyGroup>
-      <_ThemiaGoogleSecret>$(THEMIA_GOOGLE_CLIENT_SECRET)</_ThemiaGoogleSecret>
+      <_ThemiaSecrets>$(THEMIA_CLIENT_SECRETS)</_ThemiaSecrets>
       <_ThemiaBuildSecretsFile>$(IntermediateOutputPath)BuildSecrets.g.cs</_ThemiaBuildSecretsFile>
     </PropertyGroup>
-    <Error Condition="'$(_ThemiaGoogleSecret)' != '' and !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_ThemiaGoogleSecret)', '^[A-Za-z0-9_-]+$'))"
-           Text="THEMIA_GOOGLE_CLIENT_SECRET holds characters a Google client secret does not have." />
+    <Error Condition="'$(_ThemiaSecrets)' != '' and !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_ThemiaSecrets)', '^\s*[a-z][A-Za-z0-9]{0,63}\s*=\s*[A-Za-z0-9_.-]{8,256}\s*(;\s*[a-z][A-Za-z0-9]{0,63}\s*=\s*[A-Za-z0-9_.-]{8,256}\s*)*;?\s*$'))"
+           Text="THEMIA_CLIENT_SECRETS must be key=secret pairs separated by ';' (a key in camelCase, a secret of 8 to 256 letters, digits, _ - .)." />
     <ItemGroup>
-      <_ThemiaSecretLine Include="// Generated at build time from THEMIA_GOOGLE_CLIENT_SECRET. Never committed." />
+      <_ThemiaSecretLine Include="// Generated at build time from THEMIA_CLIENT_SECRETS. Never committed." />
       <_ThemiaSecretLine Include="namespace Themia.App.Services.Accounts%3B" />
-      <_ThemiaSecretLine Include="internal static class BuildSecrets" />
+      <_ThemiaSecretLine Include="internal static partial class BuildSecrets" />
       <_ThemiaSecretLine Include="{" />
-      <_ThemiaSecretLine Include="    internal const string GoogleClientSecret = &quot;$(_ThemiaGoogleSecret)&quot;%3B" />
+      <_ThemiaSecretLine Include="    private const string Raw = &quot;$([MSBuild]::Escape('$(_ThemiaSecrets.Trim())'))&quot;%3B" />
       <_ThemiaSecretLine Include="}" />
     </ItemGroup>
     <WriteLinesToFile File="$(_ThemiaBuildSecretsFile)" Lines="@(_ThemiaSecretLine)" Overwrite="true" WriteOnlyWhenDifferent="true" />

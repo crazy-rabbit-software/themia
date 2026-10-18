@@ -479,7 +479,7 @@
   "shell.accounts.notCompleted": "로그인이 완료되지 않았습니다.",
   "shell.accounts.whoUnknown": "{provider}에서 로그인한 계정을 알려 주지 않았습니다.",
   "shell.accounts.whoUnknownReason": "{provider}에서 로그인한 계정을 알려 주지 않았습니다: {reason}",
-  "shell.accounts.googleMissing": "이 Themia 빌드에는 Google 로그인이 설정되어 있지 않습니다. THEMIA_GOOGLE_CLIENT_SECRET을 설정하여 빌드해야 합니다.",
+  "shell.accounts.secretMissing": "이 Themia 빌드에는 {provider} 로그인이 설정되어 있지 않습니다. THEMIA_CLIENT_SECRETS을 설정하여 빌드해야 합니다.",
   "shell.accounts.browserNotOpened": "브라우저를 열 수 없습니다.",
   "shell.accounts.browserTimeout": "브라우저가 5분 이내에 돌아오지 않았습니다. 다시 시작하세요.",
   "shell.accounts.providerRefusedReason": "{provider}에서 로그인을 거부했습니다: {reason}",

@@ -512,7 +512,7 @@
   "shell.accounts.notCompleted": "Вход не завершен.",
   "shell.accounts.whoUnknown": "{provider} не сообщил, какая учетная запись вошла.",
   "shell.accounts.whoUnknownReason": "{provider} не сообщил, какая учетная запись вошла: {reason}",
-  "shell.accounts.googleMissing": "Вход через Google не настроен в этой сборке Themia. Для него сборку нужно создать с заданной переменной THEMIA_GOOGLE_CLIENT_SECRET.",
+  "shell.accounts.secretMissing": "Вход через {provider} не настроен в этой сборке Themia. Для него сборку нужно создать с заданной переменной THEMIA_CLIENT_SECRETS.",
   "shell.accounts.browserNotOpened": "Не удалось открыть браузер.",
   "shell.accounts.browserTimeout": "Браузер не вернулся в течение пяти минут. Начните заново.",
   "shell.accounts.providerRefusedReason": "{provider} отклонил вход: {reason}",

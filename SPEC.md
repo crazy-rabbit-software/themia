@@ -1654,8 +1654,10 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
 - **[S-534]** IMAP credentials are opened only when a session asks for them.
 - **[S-535]** OAuth sign-ins verify who signed in (Graph `/me`, Google userinfo) before saving.
 - **[S-536]** Google's Desktop client secret is never in source: it is compiled in from
-  `THEMIA_GOOGLE_CLIENT_SECRET` (a generated constant, validated to look like a secret); without it,
-  Google sign-in refuses before the browser opens and token refresh fails with the same sentence.
+  `THEMIA_CLIENT_SECRETS` under Google's key (`google=…`, [S-9917]; a generated constant, the whole
+  value checked by the build); without it, Google sign-in refuses before the browser opens and token
+  refresh fails with the same sentence. Any provider whose browser member needs a secret behaves the
+  same way.
 - **[S-539]** Settings → Accounts lists each account as a group ([S-3821]: provider icon, name, address
   and provider, or that it needs signing in again), renames in a flyout, signs out after a confirmation, and adds through one flow at a time drawn in place:
   Microsoft and Google waiting on the browser ([S-1783]); forms for IMAP, CalDAV and CardDAV. Errors
@@ -1685,8 +1687,9 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
   browser: `…/common/oauth2/v2.0/authorize` with `response_type=code`, `response_mode=query`,
   `prompt=select_account`, a fresh state and challenge, and redirect `http://localhost:<port>/`; the
   code is exchanged at `…/token` with the verifier, the same redirect URI and the scopes, and no client
-  secret (a public client). Microsoft and Google run this as one path; they differ in addresses,
-  Google's secret ([S-536]) and the "who" call. The app registration must list `http://localhost`
+  secret (a public client). Microsoft and Google run this as one path, each provider's browser
+  member ([S-9910]); they differ only in the member's data: addresses, Google's secret ([S-536]),
+  the extras on the sign-in page and the "who" call ([S-9916]). The app registration must list `http://localhost`
   under "Mobile and desktop applications" (Microsoft ignores the port of a localhost redirect, but does
   not match `127.0.0.1` against it).
 - **[S-1781]** Microsoft's callback is validated by the same reader as Google's ([S-513]): a wrong or

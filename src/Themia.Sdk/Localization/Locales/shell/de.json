@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "Die Anmeldung wurde nicht abgeschlossen.",
   "shell.accounts.whoUnknown": "{provider} hat nicht mitgeteilt, welches Konto sich angemeldet hat.",
   "shell.accounts.whoUnknownReason": "{provider} hat nicht mitgeteilt, welches Konto sich angemeldet hat: {reason}",
-  "shell.accounts.googleMissing": "Die Google-Anmeldung ist in diesem Build von Themia nicht eingerichtet. Dafür muss der Build mit gesetztem THEMIA_GOOGLE_CLIENT_SECRET erstellt werden.",
+  "shell.accounts.secretMissing": "Die {provider}-Anmeldung ist in diesem Build von Themia nicht eingerichtet. Dafür muss der Build mit gesetztem THEMIA_CLIENT_SECRETS erstellt werden.",
   "shell.accounts.browserNotOpened": "Der Browser konnte nicht geöffnet werden.",
   "shell.accounts.browserTimeout": "Der Browser ist nicht innerhalb von fünf Minuten zurückgekehrt. Beginne von vorn.",
   "shell.accounts.providerRefusedReason": "{provider} hat die Anmeldung abgelehnt: {reason}",

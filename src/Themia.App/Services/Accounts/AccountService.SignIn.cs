@@ -1,67 +1,73 @@
 using System.Net.Http;
-using System.Text.Json.Serialization.Metadata;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Sdk;
+using Themia.Sdk.Services;
 
 namespace Themia.App.Services.Accounts;
 
-/// <summary>Signing in: one method pair per provider, each verifying before anything is saved.</summary>
+/// <summary>[S-9910] Signing in: one method per sign-in member, and the host's password forms, each verifying before anything is saved.</summary>
 internal sealed partial class AccountService
 {
     /// <summary>How long a browser sign-in may take before the wait is given up.</summary>
     private static readonly TimeSpan BrowserDeadline = TimeSpan.FromMinutes(5);
 
     // -----------------------------------------------------------------------------------------
-    // Microsoft and Google: browser, loopback, PKCE
+    // The browser flow (OAuthPkceLoopback): Microsoft, Google, any provider that offers it
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-536] Why Google sign-in is unavailable in this build, or null when it is available. The
-    /// Desktop client's secret is compiled in from <c>THEMIA_GOOGLE_CLIENT_SECRET</c> and never kept
-    /// in source; a build without it refuses before the browser opens rather than at the exchange.
+    /// [S-536] [S-9917] Why <paramref name="provider"/>'s browser sign-in is unavailable in this build,
+    /// or null when it is available. A member whose secret is compiled in from the build
+    /// (<c>THEMIA_CLIENT_SECRETS</c>, the provider's key) and a build without it refuses before the
+    /// browser opens rather than at the exchange.
     /// </summary>
-    public static string? GoogleUnavailableReason => BuildSecrets.GoogleClientSecret.Length > 0
-        ? null
-        : Str.Shell_Accounts_GoogleMissing.Text();
+    public static string? UnavailableReason(ProviderId provider)
+    {
+        var module = ProviderCatalog.Of(provider);
+        return module.SignIn.Find<OAuthPkceLoopback>() is { ClientSecret: ClientSecretRule.BuildTime } && SecretOf(module) is null
+            ? Str.Shell_Accounts_SecretMissing.Format(("provider", module.Label.Text()))
+            : null;
+    }
 
-    private static string GoogleSecretOrThrow()
-        => GoogleUnavailableReason is { } reason
-            ? throw new AccountException(AccountError.Refused, reason)
-            : BuildSecrets.GoogleClientSecret;
+    /// <summary>The provider's build-time secret, or null when the build holds none for it.</summary>
+    private static string? SecretOf(IProviderModule module)
+        => module.BuildSecret is { } key ? BuildSecrets.ClientSecret(key) : null;
+
+    private static string? SecretOrThrow(IProviderModule module, ServiceAuth member)
+    {
+        if (member is not OAuthPkceLoopback { ClientSecret: ClientSecretRule.BuildTime })
+        {
+            return null;
+        }
+
+        return SecretOf(module) ?? throw new AccountException(AccountError.Refused, Str.Shell_Accounts_SecretMissing.Format(("provider", module.Label.Text())));
+    }
 
     /// <summary>
-    /// [S-1780] Sign in to Microsoft or Google in the user's browser: open the provider's page with a
-    /// PKCE challenge and a fresh state, wait for it to come back to the loopback port ([S-527]),
-    /// exchange the code with the verifier, prove who signed in ([S-535]), and save the account. One
-    /// path for both; they differ only in the addresses, Google's client secret and the "who" call.
+    /// [S-1780] [S-9910] Sign in to a provider in the user's browser, as its browser member says: open
+    /// its page with a PKCE challenge and a fresh state, wait for it to come back to the loopback
+    /// ([S-527], [S-9913]), exchange the code with the verifier, prove who signed in ([S-535],
+    /// [S-9916]), and save the account. One path for every provider; what differs is the member's data.
     /// </summary>
     /// <param name="openBrowser">Opens a URL in the system browser; returns false when it could not.</param>
     public async Task<AccountInfo> SignInWithBrowserAsync(ProviderId provider, Func<Uri, bool> openBrowser, CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(openBrowser);
 
-        if (!(provider == HostProviders.Microsoft || provider == HostProviders.Google))
-        {
-            throw new ArgumentOutOfRangeException(nameof(provider), provider, "no browser sign-in");
-        }
+        var module = ProviderCatalog.Of(provider);
+        var member = module.SignIn.Find<OAuthPkceLoopback>()
+            ?? throw new ArgumentOutOfRangeException(nameof(provider), provider, "no browser sign-in");
+        var secret = SecretOrThrow(module, member);
 
-        var microsoft = provider == HostProviders.Microsoft;
-        var secret = microsoft ? null : GoogleSecretOrThrow();
-
-        using var loopback = new Loopback();
+        using var loopback = new Loopback(member.Loopback.Ports);
         var verifier = Pkce.CreateVerifier();
         var state = Pkce.CreateState();
         var challenge = Pkce.Challenge(verifier);
 
-        var redirect = microsoft
-            ? OAuthClients.Microsoft.RedirectUri(loopback.Port)
-            : OAuthClients.Google.RedirectUri(loopback.Port);
-
-        var authorize = microsoft
-            ? OAuthClients.Microsoft.AuthorizeUrl(redirect, state, challenge)
-            : OAuthClients.Google.AuthorizeUrl(redirect, state, challenge);
+        var redirect = member.Loopback.RedirectUri(loopback.Port);
+        var authorize = OAuthRequests.AuthorizeUrl(member, redirect, state, challenge);
 
         if (!openBrowser(authorize))
         {
@@ -82,28 +88,9 @@ internal sealed partial class AccountService
             }
         }
 
-        // The redirect URI goes again, exactly as sent: both providers compare it with the first one.
-        // Microsoft is a public client and gets no secret; the verifier is the proof.
-        var exchange = microsoft
-            ? RequestTemplate.Form(OAuthClients.Microsoft.TokenUrl,
-            [
-                new("grant_type", "authorization_code"),
-                new("code", code),
-                new("client_id", OAuthClients.Microsoft.ClientId),
-                new("code_verifier", verifier),
-                new("redirect_uri", redirect),
-                new("scope", OAuthClients.Microsoft.Scope),
-            ])
-            : RequestTemplate.Form(OAuthClients.Google.TokenUrl,
-            [
-                new("grant_type", "authorization_code"),
-                new("code", code),
-                new("client_id", OAuthClients.Google.ClientId),
-                new("client_secret", secret!),
-                new("code_verifier", verifier),
-                new("redirect_uri", redirect),
-            ]);
-
+        // The redirect URI goes again, exactly as sent: providers compare it with the first one. A
+        // public client gets no secret; the verifier is the proof.
+        var exchange = RequestTemplate.Form(member.TokenUrl, OAuthRequests.Exchange(member, code, verifier, redirect, secret));
         var reply = await AccountHttp.SendAsync(exchange, CredentialKind.None, null, cancellation).ConfigureAwait(false);
 
         var answer = CodeExchange.Parse(reply.Status, reply.Body);
@@ -114,30 +101,16 @@ internal sealed partial class AccountService
                 Str.Shell_Accounts_ProviderRefusedReason.Format(("provider", provider.Label()), ("reason", answer.Failure ?? $"HTTP {reply.Status}")), reply.Status);
         }
 
-        return microsoft
-            ? await SaveMicrosoftAsync(grant, cancellation).ConfigureAwait(false)
-            : await SaveGoogleAsync(grant, cancellation).ConfigureAwait(false);
-    }
-
-    /// <summary>Graph <c>/me</c> names the account; the Graph user id is its id.</summary>
-    private async Task<AccountInfo> SaveMicrosoftAsync(CodeGrant grant, CancellationToken cancellation)
-    {
-        var me = await GetAnonymousJsonAsync(OAuthClients.Microsoft.MeUrl, grant.AccessToken, AccountWireContext.Default.GraphMe, "Microsoft", cancellation)
-            .ConfigureAwait(false);
-
-        if (me.Id is not { Length: > 0 } id)
-        {
-            throw new AccountException(AccountError.BadResponse, Str.Shell_Accounts_WhoUnknown.Format(("provider", "Microsoft")));
-        }
-
-        var address = me.Mail is { Length: > 0 } mail ? mail : me.UserPrincipalName ?? id;
+        var who = member.Identity is { } endpoint
+            ? await WhoAsync(endpoint, grant.AccessToken, member.Scheme, provider, cancellation).ConfigureAwait(false)
+            : throw new AccountException(AccountError.BadResponse, Str.Shell_Accounts_WhoUnknown.Format(("provider", provider.Label())));
 
         return await UpsertAsync(new Account
         {
-            Id = AccountIds.Microsoft(id),
-            Provider = HostProviders.Microsoft,
-            Address = address,
-            DisplayName = me.DisplayName ?? address,
+            Id = who.Id,
+            Provider = provider,
+            Address = who.Address,
+            DisplayName = who.Name,
             SealedAccessToken = Dpapi.Seal(grant.AccessToken),
             SealedRefreshToken = Dpapi.SealOrNull(grant.RefreshToken),
             ExpiresAt = TokenExpiry.FromExpiresIn(grant.ExpiresIn, Now),
@@ -145,30 +118,36 @@ internal sealed partial class AccountService
         }, cancellation).ConfigureAwait(false);
     }
 
-    /// <summary>OpenID userinfo names the account; the subject is its id.</summary>
-    private async Task<AccountInfo> SaveGoogleAsync(CodeGrant grant, CancellationToken cancellation)
+    /// <summary>[S-535] [S-9916] Who a new token belongs to, read from the member's identity endpoint.</summary>
+    private static async Task<ServiceIdentity> WhoAsync(IdentityEndpoint endpoint, string token, TokenScheme scheme, ProviderId provider, CancellationToken cancellation)
     {
-        var me = await GetAnonymousJsonAsync(OAuthClients.Google.UserInfoUrl, grant.AccessToken, AccountWireContext.Default.GoogleUserInfo, "Google", cancellation)
+        var request = new RequestTemplate(HttpMethod.Get, endpoint.Url);
+        request.Headers.Add(("Accept", "application/json"));
+
+        var reply = await AccountHttp.SendAsync(request, CredentialKind.Bearer, r => SetToken(r, scheme, token), cancellation)
             .ConfigureAwait(false);
 
-        if (me.Subject is not { Length: > 0 } subject)
+        if (!reply.IsSuccess)
         {
-            throw new AccountException(AccountError.BadResponse, Str.Shell_Accounts_WhoUnknown.Format(("provider", "Google")));
+            throw new AccountException(AccountError.BadResponse,
+                Str.Shell_Accounts_WhoUnknownReason.Format(("provider", provider.Label()), ("reason", ErrorBody.Message(reply.Body) ?? $"HTTP {reply.Status}")), reply.Status);
         }
 
-        var address = me.Email ?? subject;
+        return IdentityAnswers.Read(endpoint, reply.Body)
+            ?? throw new AccountException(AccountError.BadResponse, Str.Shell_Accounts_WhoUnknown.Format(("provider", provider.Label())));
+    }
 
-        return await UpsertAsync(new Account
+    /// <summary>[S-9911] A token on a request, in its member's scheme.</summary>
+    private static void SetToken(HttpRequestMessage request, TokenScheme scheme, string token)
+    {
+        if (scheme == TokenScheme.Raw)
         {
-            Id = AccountIds.Google(subject),
-            Provider = HostProviders.Google,
-            Address = address,
-            DisplayName = me.Name ?? address,
-            SealedAccessToken = Dpapi.Seal(grant.AccessToken),
-            SealedRefreshToken = Dpapi.SealOrNull(grant.RefreshToken),
-            ExpiresAt = TokenExpiry.FromExpiresIn(grant.ExpiresIn, Now),
-            AddedAt = Now,
-        }, cancellation).ConfigureAwait(false);
+            request.Headers.TryAddWithoutValidation("Authorization", token);
+        }
+        else
+        {
+            request.Headers.Authorization = new("Bearer", token);
+        }
     }
 
     // -----------------------------------------------------------------------------------------
@@ -290,23 +269,5 @@ internal sealed partial class AccountService
             SealedPassword = Dpapi.Seal(password),
             AddedAt = Now,
         }, cancellation).ConfigureAwait(false);
-    }
-
-    // -----------------------------------------------------------------------------------------
-
-    /// <summary>A GET with a token that is not (yet) an account's: the "who signed in" call.</summary>
-    private static async Task<T> GetAnonymousJsonAsync<T>(Uri url, string token, JsonTypeInfo<T> contract, string provider, CancellationToken cancellation)
-        where T : class
-    {
-        var request = new RequestTemplate(HttpMethod.Get, url);
-        request.Headers.Add(("Accept", "application/json"));
-
-        var reply = await AccountHttp.SendAsync(request, CredentialKind.Bearer, r => r.Headers.Authorization = new("Bearer", token), cancellation)
-            .ConfigureAwait(false);
-
-        return reply.IsSuccess && Parse(reply.Body, contract) is { } value
-            ? value
-            : throw new AccountException(AccountError.BadResponse,
-                Str.Shell_Accounts_WhoUnknownReason.Format(("provider", provider), ("reason", ErrorBody.Message(reply.Body) ?? $"HTTP {reply.Status}")), reply.Status);
     }
 }

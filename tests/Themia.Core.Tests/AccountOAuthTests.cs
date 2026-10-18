@@ -1,4 +1,6 @@
 using Themia.Core.Accounts;
+using Themia.Sdk;
+using Themia.Sdk.Services;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -108,8 +110,8 @@ public class AccountOAuthTests
     [Fact]
     public void S1780_microsoft_authorize_url_is_the_code_flow_with_pkce_and_account_choice()
     {
-        var redirect = OAuthClients.Microsoft.RedirectUri(51234);
-        var url = OAuthClients.Microsoft.AuthorizeUrl(redirect, "STATE", "CHAL");
+        var redirect = OAuthClients.Microsoft.SignIn.Loopback.RedirectUri(51234);
+        var url = OAuthRequests.AuthorizeUrl(OAuthClients.Microsoft.SignIn, redirect, "STATE", "CHAL");
 
         Assert.Equal("http://localhost:51234/", redirect);
         Assert.Equal("https://login.microsoftonline.com/common/oauth2/v2.0/authorize", url.GetLeftPart(UriPartial.Path));
@@ -134,8 +136,8 @@ public class AccountOAuthTests
     public void S1780_the_redirect_hosts_are_what_each_registration_accepts()
     {
         // Microsoft matches a "localhost" registration on any port, but not 127.0.0.1; Google takes the literal.
-        Assert.Equal("http://localhost:8080/", OAuthClients.Microsoft.RedirectUri(8080));
-        Assert.Equal("http://127.0.0.1:8080", OAuthClients.Google.RedirectUri(8080));
+        Assert.Equal("http://localhost:8080/", OAuthClients.Microsoft.SignIn.Loopback.RedirectUri(8080));
+        Assert.Equal("http://127.0.0.1:8080", OAuthClients.Google.SignIn.Loopback.RedirectUri(8080));
     }
 
     [Fact]
@@ -239,7 +241,7 @@ public class AccountOAuthTests
     [Fact]
     public void S509_google_authorize_url_carries_pkce_offline_access_and_the_loopback()
     {
-        var url = OAuthClients.Google.AuthorizeUrl("http://127.0.0.1:51234", "STATE", "CHAL").AbsoluteUri;
+        var url = OAuthRequests.AuthorizeUrl(OAuthClients.Google.SignIn, "http://127.0.0.1:51234", "STATE", "CHAL").AbsoluteUri;
 
         Assert.StartsWith("https://accounts.google.com/o/oauth2/v2/auth?", url, StringComparison.Ordinal);
         Assert.Contains("client_id=187748979097-url067h00d18pjbjgskddssdj0nrq04s.apps.googleusercontent.com", url, StringComparison.Ordinal);
@@ -250,5 +252,89 @@ public class AccountOAuthTests
         Assert.Contains("prompt=consent", url, StringComparison.Ordinal);
         Assert.Contains("state=STATE", url, StringComparison.Ordinal);
         Assert.Contains("gmail.readonly", url, StringComparison.Ordinal);
+    }
+
+    // ---- [S-9910] [S-9916] [S-9918] the browser members of Microsoft and Google: the same requests as before ----
+
+    private static string[] Pairs(IReadOnlyList<KeyValuePair<string, string>> fields) => [.. fields.Select(f => $"{f.Key}={f.Value}")];
+
+    [Fact]
+    public void S9918_the_microsoft_exchange_and_refresh_send_what_they_always_sent()
+    {
+        var member = OAuthClients.Microsoft.SignIn;
+
+        Assert.Equal(
+            ["grant_type=authorization_code", "code=CODE", "client_id=" + OAuthClients.Microsoft.ClientId, "code_verifier=VER", "redirect_uri=http://localhost:5050/", "scope=" + OAuthClients.Microsoft.Scope],
+            Pairs(OAuthRequests.Exchange(member, "CODE", "VER", "http://localhost:5050/", secret: null)));
+
+        Assert.Equal(
+            ["client_id=" + OAuthClients.Microsoft.ClientId, "grant_type=refresh_token", "refresh_token=RT", "scope=" + OAuthClients.Microsoft.Scope],
+            Pairs(OAuthRequests.Refresh(member, "RT", secret: null)));
+    }
+
+    [Fact]
+    public void S9918_the_google_exchange_and_refresh_send_what_they_always_sent()
+    {
+        var member = OAuthClients.Google.SignIn;
+
+        Assert.Equal(
+            ["grant_type=authorization_code", "code=CODE", "client_id=" + OAuthClients.Google.ClientId, "client_secret=SECRET", "code_verifier=VER", "redirect_uri=http://127.0.0.1:5050"],
+            Pairs(OAuthRequests.Exchange(member, "CODE", "VER", "http://127.0.0.1:5050", "SECRET")));
+
+        Assert.Equal(
+            ["client_id=" + OAuthClients.Google.ClientId, "client_secret=SECRET", "grant_type=refresh_token", "refresh_token=RT"],
+            Pairs(OAuthRequests.Refresh(member, "RT", "SECRET")));
+
+        Assert.Throws<ArgumentNullException>(() => OAuthRequests.Exchange(member, "CODE", "VER", "http://127.0.0.1:5050", secret: null));
+    }
+
+    [Fact]
+    public void S9910_microsoft_and_google_offer_their_browser_member_and_only_google_needs_a_build_secret()
+    {
+        var microsoft = ProviderCatalog.Of(HostProviders.Microsoft);
+        var google = ProviderCatalog.Of(HostProviders.Google);
+
+        Assert.Same(OAuthClients.Microsoft.SignIn, Assert.Single(microsoft.SignIn.Members));
+        Assert.Same(OAuthClients.Google.SignIn, Assert.Single(google.SignIn.Members));
+        Assert.Equal(ClientSecretRule.None, OAuthClients.Microsoft.SignIn.ClientSecret);
+        Assert.Equal(ClientSecretRule.BuildTime, OAuthClients.Google.SignIn.ClientSecret);
+        Assert.Null(microsoft.BuildSecret);
+        Assert.Equal("google", google.BuildSecret);
+        Assert.True(ClientSecretRules.IsKey(google.BuildSecret));
+        Assert.True(OAuthClients.Microsoft.SignIn.Loopback.AnyPort);
+        Assert.True(OAuthClients.Google.SignIn.Loopback.AnyPort);
+
+        foreach (var password in new[] { HostProviders.Imap, HostProviders.CalDav, HostProviders.CardDav })
+        {
+            Assert.Empty(ProviderCatalog.Of(password).SignIn.Members);
+        }
+    }
+
+    [Fact]
+    public void S9916_who_signed_in_to_microsoft_is_the_graph_id_its_mail_else_its_principal_name()
+    {
+        var endpoint = OAuthClients.Microsoft.SignIn.Identity!;
+        Assert.Equal(OAuthClients.Microsoft.MeUrl, endpoint.Url);
+
+        var mail = IdentityAnswers.Read(endpoint, """{"id":"abc","mail":"ada@example.com","displayName":"Ada","userPrincipalName":"ada@contoso.example"}""");
+        Assert.Equal(new ServiceIdentity(AccountIds.Microsoft("abc"), "ada@example.com", "Ada"), mail);
+
+        var upn = IdentityAnswers.Read(endpoint, """{"id":"abc","mail":null,"userPrincipalName":"ada@contoso.example"}""");
+        Assert.Equal(new ServiceIdentity("abc", "ada@contoso.example", "ada@contoso.example"), upn);
+
+        Assert.Equal("abc", IdentityAnswers.Read(endpoint, """{"id":"abc"}""")!.Address);
+        Assert.Null(IdentityAnswers.Read(endpoint, """{"mail":"x@example.com"}"""));
+        Assert.Null(IdentityAnswers.Read(endpoint, "not json"));
+    }
+
+    [Fact]
+    public void S9916_who_signed_in_to_google_is_its_subject_with_the_old_prefix()
+    {
+        var endpoint = OAuthClients.Google.SignIn.Identity!;
+        Assert.Equal(OAuthClients.Google.UserInfoUrl, endpoint.Url);
+
+        var who = IdentityAnswers.Read(endpoint, """{"sub":"1234","email":"ada@example.com","name":"Ada"}""");
+        Assert.Equal(new ServiceIdentity(AccountIds.Google("1234"), "ada@example.com", "Ada"), who);
+        Assert.Equal(new ServiceIdentity("google:1234", "1234", "1234"), IdentityAnswers.Read(endpoint, """{"sub":"1234"}"""));
     }
 }

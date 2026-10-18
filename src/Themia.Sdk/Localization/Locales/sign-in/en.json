@@ -1,0 +1,33 @@
+{
+  "$comment": "[S-9919] The sign-in members' panels: the device code and the pasted token. English first; translated in a follow-up (Q8).",
+  "$englishOnly": [
+    "signIn.noLoopbackPort",
+    "signIn.deviceExplain",
+    "signIn.openPage",
+    "signIn.copyCode",
+    "signIn.waitingCode",
+    "signIn.deviceUnavailable",
+    "signIn.pasteExplain",
+    "signIn.createToken",
+    "signIn.token",
+    "signIn.addAccount",
+    "signIn.tokenShape",
+    "signIn.checkingToken",
+    "signIn.grantPage",
+    "signIn.grantPageDesc"
+  ],
+  "signIn.noLoopbackPort": "None of the ports this sign-in may come back to is free. Close what uses them and start again.",
+  "signIn.deviceExplain": "Open {provider}'s page and enter this code there. This page carries on by itself once you allow Themia.",
+  "signIn.openPage": "Open the page",
+  "signIn.copyCode": "Copy code",
+  "signIn.waitingCode": "Waiting for the code to be entered",
+  "signIn.deviceUnavailable": "{provider} did not start the sign-in: {reason}",
+  "signIn.pasteExplain": "Create a token on {provider}'s page, then paste it here. Themia keeps it sealed on this PC and never shows it again.",
+  "signIn.createToken": "Create a token",
+  "signIn.token": "Token",
+  "signIn.addAccount": "Add account",
+  "signIn.tokenShape": "That does not look like a {provider} token.",
+  "signIn.checkingToken": "Checking the token",
+  "signIn.grantPage": "Choose what it may read",
+  "signIn.grantPageDesc": "{provider} lets this account read only what you choose there."
+}

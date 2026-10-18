@@ -28,18 +28,13 @@ internal sealed class Loopback : IDisposable
 
     private readonly TcpListener[] _listeners;
 
-    public Loopback()
+    /// <param name="ports">
+    /// [S-9913] The ports the provider's registration lists, tried in order; null or empty for any
+    /// free port (a provider that ignores the port of a registered loopback redirect).
+    /// </param>
+    public Loopback(IReadOnlyList<int>? ports = null)
     {
-        var v4 = new TcpListener(IPAddress.Loopback, 0);
-        try
-        {
-            v4.Start();
-        }
-        catch
-        {
-            v4.Dispose();
-            throw;
-        }
+        var v4 = Listen(ports);
 
         Port = ((IPEndPoint)v4.LocalEndpoint).Port;
 
@@ -54,6 +49,47 @@ internal sealed class Loopback : IDisposable
             Log.Info(Scope, $"listening on 127.0.0.1 only; ::1 is not available ({ex.SocketErrorCode})");
             v6.Dispose();
             _listeners = [v4];
+        }
+    }
+
+    private static TcpListener Listen(IReadOnlyList<int>? ports)
+    {
+        if (ports is null or { Count: 0 })
+        {
+            return Start(0) ?? throw new AccountException(AccountError.Refused, Str.SignIn_NoLoopbackPort.Text());
+        }
+
+        foreach (var port in ports)
+        {
+            if (port is > 0 and <= 65535 && Start(port) is { } listener)
+            {
+                return listener;
+            }
+
+            Log.Info(Scope, $"port {port.ToString(CultureInfo.InvariantCulture)} is taken; trying the next one the registration lists");
+        }
+
+        throw new AccountException(AccountError.Refused, Str.SignIn_NoLoopbackPort.Text());
+    }
+
+    private static TcpListener? Start(int port)
+    {
+        var listener = new TcpListener(IPAddress.Loopback, port);
+        try
+        {
+            listener.Start();
+            return listener;
+        }
+        catch (SocketException ex) when (port != 0)
+        {
+            Log.Debug(Scope, $"127.0.0.1:{port.ToString(CultureInfo.InvariantCulture)} not available ({ex.SocketErrorCode})");
+            listener.Dispose();
+            return null;
+        }
+        catch
+        {
+            listener.Dispose();
+            throw;
         }
     }
 

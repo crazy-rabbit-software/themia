@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "La connexion n’a pas abouti.",
   "shell.accounts.whoUnknown": "{provider} n’a pas indiqué quel compte s’est connecté.",
   "shell.accounts.whoUnknownReason": "{provider} n’a pas indiqué quel compte s’est connecté : {reason}",
-  "shell.accounts.googleMissing": "La connexion Google n’est pas configurée dans cette version de Themia. La compilation doit être faite avec THEMIA_GOOGLE_CLIENT_SECRET défini.",
+  "shell.accounts.secretMissing": "La connexion {provider} n’est pas configurée dans cette version de Themia. La compilation doit être faite avec THEMIA_CLIENT_SECRETS défini.",
   "shell.accounts.browserNotOpened": "Impossible d’ouvrir le navigateur.",
   "shell.accounts.browserTimeout": "Le navigateur n’est pas revenu dans les cinq minutes. Recommencez.",
   "shell.accounts.providerRefusedReason": "{provider} a refusé la connexion : {reason}",

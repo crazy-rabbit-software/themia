@@ -6,6 +6,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Sync;
+using Themia.Sdk;
 using Themia.Sdk.Services;
 
 namespace Themia.App.Services.Accounts;
@@ -122,24 +123,21 @@ internal sealed partial class AccountService
         }
     }
 
-    private static RequestTemplate RefreshRequest(Account account, string refreshToken) => account.Provider switch
+    /// <summary>[S-9910] The renewal of an account's sign-in, built from the member that signed it in.</summary>
+    private static RequestTemplate RefreshRequest(Account account, string refreshToken)
     {
-        var pid when pid == HostProviders.Microsoft => RequestTemplate.Form(OAuthClients.Microsoft.TokenUrl,
-        [
-            new("client_id", OAuthClients.Microsoft.ClientId),
-            new("grant_type", "refresh_token"),
-            new("refresh_token", refreshToken),
-            new("scope", OAuthClients.Microsoft.Scope),
-        ]),
-        var pid when pid == HostProviders.Google => RequestTemplate.Form(OAuthClients.Google.TokenUrl,
-        [
-            new("client_id", OAuthClients.Google.ClientId),
-            new("client_secret", GoogleSecretOrThrow()),
-            new("grant_type", "refresh_token"),
-            new("refresh_token", refreshToken),
-        ]),
-        _ => throw new AccountException(AccountError.Refused, $"{account.Provider.Label()} has no sign-in to renew."),
-    };
+        var module = ProviderCatalog.Of(account.Provider);
+        ServiceAuth member = (ServiceAuth?)module.SignIn.Find<OAuthPkceLoopback>() ?? module.SignIn.Find<OAuthDeviceCode>()
+            ?? throw new AccountException(AccountError.Refused, $"{account.Provider.Label()} has no sign-in to renew.");
+        var tokenUrl = member switch
+        {
+            OAuthPkceLoopback browser => browser.TokenUrl,
+            OAuthDeviceCode device => device.TokenUrl,
+            _ => throw new AccountException(AccountError.Refused, $"{account.Provider.Label()} has no sign-in to renew."),
+        };
+
+        return RequestTemplate.Form(tokenUrl, OAuthRequests.Refresh(member, refreshToken, SecretOrThrow(module, member)));
+    }
 
     /// <summary>
     /// Why a refresh failed. A grant the provider no longer honours (revoked, expired, password

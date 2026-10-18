@@ -489,7 +489,7 @@
   "shell.accounts.notCompleted": "The sign-in did not complete.",
   "shell.accounts.whoUnknown": "{provider} would not say which account signed in.",
   "shell.accounts.whoUnknownReason": "{provider} would not say which account signed in: {reason}",
-  "shell.accounts.googleMissing": "Google sign-in is not set up in this build of Themia. It needs the build to be made with THEMIA_GOOGLE_CLIENT_SECRET set.",
+  "shell.accounts.secretMissing": "{provider} sign-in is not set up in this build of Themia. It needs the build to be made with THEMIA_CLIENT_SECRETS set.",
   "shell.accounts.browserNotOpened": "The browser could not be opened.",
   "shell.accounts.browserTimeout": "The browser did not come back within five minutes. Start again.",
   "shell.accounts.providerRefusedReason": "{provider} refused the sign-in: {reason}",

@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "உள்நுழைவு நிறைவடையவில்லை.",
   "shell.accounts.whoUnknown": "எந்தக் கணக்கு உள்நுழைந்தது என்பதை {provider} கூறவில்லை.",
   "shell.accounts.whoUnknownReason": "எந்தக் கணக்கு உள்நுழைந்தது என்பதை {provider} கூறவில்லை: {reason}",
-  "shell.accounts.googleMissing": "Themia இன் இந்த பில்டில் Google உள்நுழைவு அமைக்கப்படவில்லை. THEMIA_GOOGLE_CLIENT_SECRET அமைத்து பில்ட் உருவாக்கப்பட வேண்டும்.",
+  "shell.accounts.secretMissing": "Themia இன் இந்த பில்டில் {provider} உள்நுழைவு அமைக்கப்படவில்லை. THEMIA_CLIENT_SECRETS அமைத்து பில்ட் உருவாக்கப்பட வேண்டும்.",
   "shell.accounts.browserNotOpened": "உலாவியைத் திறக்க முடியவில்லை.",
   "shell.accounts.browserTimeout": "உலாவி ஐந்து நிமிடங்களுக்குள் திரும்பவில்லை. மீண்டும் தொடங்கவும்.",
   "shell.accounts.providerRefusedReason": "{provider} உள்நுழைவை மறுத்தது: {reason}",

@@ -490,7 +490,7 @@
   "shell.accounts.notCompleted": "ورود کامل نشد.",
   "shell.accounts.whoUnknown": "{provider} نگفت کدام حساب وارد شده است.",
   "shell.accounts.whoUnknownReason": "{provider} نگفت کدام حساب وارد شده است: {reason}",
-  "shell.accounts.googleMissing": "ورود با Google در این نسخه از Themia راه‌اندازی نشده است. نسخه باید با تنظیم THEMIA_GOOGLE_CLIENT_SECRET ساخته شود.",
+  "shell.accounts.secretMissing": "ورود با {provider} در این نسخه از Themia راه‌اندازی نشده است. نسخه باید با تنظیم THEMIA_CLIENT_SECRETS ساخته شود.",
   "shell.accounts.browserNotOpened": "مرورگر باز نشد.",
   "shell.accounts.browserTimeout": "مرورگر ظرف پنج دقیقه برنگشت. دوباره شروع کنید.",
   "shell.accounts.providerRefusedReason": "{provider} ورود را نپذیرفت: {reason}",

@@ -479,7 +479,7 @@
   "shell.accounts.notCompleted": "サインインが完了しませんでした。",
   "shell.accounts.whoUnknown": "{provider} はサインインしたアカウントを示しませんでした。",
   "shell.accounts.whoUnknownReason": "{provider} はサインインしたアカウントを示しませんでした: {reason}",
-  "shell.accounts.googleMissing": "この Themia のビルドでは Google サインインが設定されていません。THEMIA_GOOGLE_CLIENT_SECRET を設定してビルドする必要があります。",
+  "shell.accounts.secretMissing": "この Themia のビルドでは {provider} サインインが設定されていません。THEMIA_CLIENT_SECRETS を設定してビルドする必要があります。",
   "shell.accounts.browserNotOpened": "ブラウザーを開けませんでした。",
   "shell.accounts.browserTimeout": "5 分以内にブラウザーから戻りませんでした。最初からやり直してください。",
   "shell.accounts.providerRefusedReason": "{provider} がサインインを拒否しました: {reason}",
