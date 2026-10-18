@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// every widget's add row has the same height, glyph, type and inset.
 /// </para>
 /// </summary>
-internal sealed class AddFooterRow
+public sealed class AddFooterRow
 {
     private readonly Grid _body;
     private readonly TextBlock _label;
