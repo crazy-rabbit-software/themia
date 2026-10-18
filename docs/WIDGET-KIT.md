@@ -1618,7 +1618,10 @@ registration path: when a table becomes a descriptor member, the table is delete
   every moved widget against a "before" rendered at `11b9d8c` (every tier per state, light, dark and
   German, each style, the settings page in light, dark and German, the picker, menus, edit bar,
   motion; 342 images) identical but for one motion frame that also differs between two runs of the
-  "before" build (`Sides-60ms`, an animation caught mid-way).
+  "before" build (`Sides-60ms`, an animation caught mid-way). Release AOT publish 0 warnings
+  (49.5 MB); Debug AOT publish 0 warnings and its renders of the clock (XAML, from its module), a
+  power button armed, Bluetooth's devices and the pomodoro's settings page finish in 2-4 s,
+  identical to the JIT renders.
   *Deferred from group 1:* **AudioVisualizer**: its bars come from the host's WASAPI loopback capture
   (`AudioLoopback`, COM), a host service with no SDK contract yet; it moves with the system group,
   which brings the audio contracts (`AudioFeed`/`CoreAudio`) anyway.
