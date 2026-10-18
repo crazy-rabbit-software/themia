@@ -23,7 +23,7 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Mixer_Header.Text()));
 
         // [S-1222] Which device's apps; the default follows Windows.
-        rows.Add(AudioDeviceRow(config.DeviceId, config.DeviceName, (id, name) =>
+        rows.Add(AudioDeviceRow.Create(config.DeviceId, config.DeviceName, (id, name) =>
         {
             config.DeviceId = id;
             config.DeviceName = name;
