@@ -44,16 +44,4 @@ internal static partial class WidgetSettings
         ScreenTimeSettingsRows.AddShared(rows, config);
     }
 
-    /// <summary>[S-3340] The donut: the period; then the shared rows.</summary>
-    public static void ScreenTimeDonut(List<FrameworkElement> rows, ScreenTimeDonutConfig config, Action save)
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(save);
-
-        rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Donut_Label.Text()));
-        rows.Add(ScreenTimeSettingsRows.PeriodRow(config.Period, value => { config.Period = value; save(); }));
-        ScreenTimeSettingsRows.AddShared(rows, config);
-    }
-
 }

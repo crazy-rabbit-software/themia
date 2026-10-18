@@ -330,7 +330,6 @@
   "screentime.last7Days": "{count} hari terakhir",
   "screentime.last30Days": "{count} hari terakhir",
   "screentime.perDay": "{value}/hari",
-  "screentime.ofGoal": "dari {value}",
   "screentime.goalPerDay": "dari {value}/hari",
   "screentime.cfg.period": "Periode",
   "screentime.cfg.periodDay": "Hari",

@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Weer weergeven",
   "widgetsC.screenTime.chart.label": "Schermtijdgrafiek",
   "widgetsC.screenTime.chart.desc": "Je schermtijd per dag, over een week of een maand",
-  "widgetsC.screenTime.donut.label": "Schermtijdring",
-  "widgetsC.screenTime.donut.desc": "Het aandeel van elke app in je schermtijd, als ring",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Een doorlopende week of maand die vandaag eindigt",
   "widgetsC.screenTime.settings.chartStyle.desc": "Staven gestapeld per app, of een kalender gekleurd naar gebruik",
   "widgetsC.screenTime.settings.shared": "Limieten en verborgen apps gelden voor elke schermtijdwidget op deze pc.",

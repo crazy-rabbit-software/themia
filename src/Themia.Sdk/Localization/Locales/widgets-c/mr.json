@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "पुन्हा दाखवा",
   "widgetsC.screenTime.chart.label": "स्क्रीन टाइम चार्ट",
   "widgetsC.screenTime.chart.desc": "आठवडा किंवा महिन्याभरातील तुमचा दररोजचा स्क्रीन टाइम",
-  "widgetsC.screenTime.donut.label": "स्क्रीन टाइम डोनट",
-  "widgetsC.screenTime.donut.desc": "तुमच्या स्क्रीन टाइममधील प्रत्येक अ‍ॅपचा वाटा, वर्तुळाच्या रूपात",
   "widgetsC.screenTime.settings.chartPeriod.desc": "आज संपणारा चालू आठवडा किंवा महिना",
   "widgetsC.screenTime.settings.chartStyle.desc": "अ‍ॅपनुसार रचलेले बार, किंवा वापरानुसार छटा असलेले कॅलेंडर",
   "widgetsC.screenTime.settings.shared": "मर्यादा आणि लपवलेली अ‍ॅप्स या PC वरील प्रत्येक स्क्रीन टाइम विजेटला लागू होतात.",

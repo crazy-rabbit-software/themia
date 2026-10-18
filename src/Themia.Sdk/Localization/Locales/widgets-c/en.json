@@ -61,8 +61,6 @@
   "widgetsC.screenTime.settings.showAgain": "Show again",
   "widgetsC.screenTime.chart.label": "Screen time chart",
   "widgetsC.screenTime.chart.desc": "Your screen time day by day, over a week or a month",
-  "widgetsC.screenTime.donut.label": "Screen time donut",
-  "widgetsC.screenTime.donut.desc": "Each app's share of your screen time, as a ring",
   "widgetsC.screenTime.settings.chartPeriod.desc": "A rolling week or month that ends today",
   "widgetsC.screenTime.settings.chartStyle.desc": "Bars stacked by app, or a calendar shaded by use",
   "widgetsC.screenTime.settings.shared": "Limits and hidden apps apply to every screen time widget on this PC.",

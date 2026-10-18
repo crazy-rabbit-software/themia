@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "重新顯示",
   "widgetsC.screenTime.chart.label": "螢幕使用時間圖表",
   "widgetsC.screenTime.chart.desc": "逐日顯示一週或一個月的螢幕使用時間",
-  "widgetsC.screenTime.donut.label": "螢幕使用時間環圈圖",
-  "widgetsC.screenTime.donut.desc": "以環形顯示每個應用程式在螢幕使用時間中的佔比",
   "widgetsC.screenTime.settings.chartPeriod.desc": "截至今天的一週或一個月",
   "widgetsC.screenTime.settings.chartStyle.desc": "依應用程式堆疊的長條圖，或依使用量著色的行事曆",
   "widgetsC.screenTime.settings.shared": "限制和隱藏的應用程式會套用至此電腦上所有的螢幕使用時間小工具。",

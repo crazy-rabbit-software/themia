@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Yeniden göster",
   "widgetsC.screenTime.chart.label": "Ekran süresi grafiği",
   "widgetsC.screenTime.chart.desc": "Bir hafta veya ay boyunca gün gün ekran süreniz",
-  "widgetsC.screenTime.donut.label": "Ekran süresi halkası",
-  "widgetsC.screenTime.donut.desc": "Her uygulamanın ekran sürenizdeki payı, halka olarak",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Bugün biten kayan bir hafta veya ay",
   "widgetsC.screenTime.settings.chartStyle.desc": "Uygulamaya göre yığılmış çubuklar veya kullanıma göre gölgelenmiş takvim",
   "widgetsC.screenTime.settings.shared": "Sınırlar ve gizli uygulamalar bu bilgisayardaki tüm ekran süresi pencere öğeleri için geçerlidir.",

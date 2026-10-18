@@ -330,7 +330,6 @@
   "screentime.last7Days": "{count} วันที่ผ่านมา",
   "screentime.last30Days": "{count} วันที่ผ่านมา",
   "screentime.perDay": "{value}/วัน",
-  "screentime.ofGoal": "จาก {value}",
   "screentime.goalPerDay": "จาก {value}/วัน",
   "screentime.cfg.period": "ช่วงเวลา",
   "screentime.cfg.periodDay": "วัน",

@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Ipakita ulit",
   "widgetsC.screenTime.chart.label": "Chart ng screen time",
   "widgetsC.screenTime.chart.desc": "Ang iyong screen time araw-araw, sa loob ng isang linggo o buwan",
-  "widgetsC.screenTime.donut.label": "Donut ng screen time",
-  "widgetsC.screenTime.donut.desc": "Bahagi ng bawat app sa iyong screen time, bilang singsing",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Isang rolling na linggo o buwan na nagtatapos ngayong araw",
   "widgetsC.screenTime.settings.chartStyle.desc": "Mga bar na nakapatong ayon sa app, o kalendaryong may lilim ayon sa paggamit",
   "widgetsC.screenTime.settings.shared": "Nalalapat ang mga limit at nakatagong app sa bawat screen time widget sa PC na ito.",

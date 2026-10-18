@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "แสดงอีกครั้ง",
   "widgetsC.screenTime.chart.label": "แผนภูมิเวลาหน้าจอ",
   "widgetsC.screenTime.chart.desc": "เวลาหน้าจอของคุณรายวัน ตลอดหนึ่งสัปดาห์หรือหนึ่งเดือน",
-  "widgetsC.screenTime.donut.label": "แผนภูมิวงแหวนเวลาหน้าจอ",
-  "widgetsC.screenTime.donut.desc": "สัดส่วนเวลาหน้าจอของแต่ละแอป ในรูปวงแหวน",
   "widgetsC.screenTime.settings.chartPeriod.desc": "สัปดาห์หรือเดือนต่อเนื่องที่สิ้นสุดวันนี้",
   "widgetsC.screenTime.settings.chartStyle.desc": "แท่งซ้อนกันตามแอป หรือปฏิทินที่แรเงาตามการใช้งาน",
   "widgetsC.screenTime.settings.shared": "ขีดจำกัดและแอปที่ซ่อนจะใช้กับทุกวิดเจ็ตเวลาหน้าจอบนพีซีเครื่องนี้",

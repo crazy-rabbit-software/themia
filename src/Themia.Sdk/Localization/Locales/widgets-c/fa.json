@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "نمایش دوباره",
   "widgetsC.screenTime.chart.label": "نمودار زمان استفاده",
   "widgetsC.screenTime.chart.desc": "زمان استفاده شما روز به روز، در یک هفته یا یک ماه",
-  "widgetsC.screenTime.donut.label": "حلقه زمان استفاده",
-  "widgetsC.screenTime.donut.desc": "سهم هر برنامه از زمان استفاده شما، به‌صورت حلقه",
   "widgetsC.screenTime.settings.chartPeriod.desc": "یک هفته یا ماه متحرک که به امروز ختم می‌شود",
   "widgetsC.screenTime.settings.chartStyle.desc": "میله‌های انباشته بر اساس برنامه، یا تقویمی سایه‌خورده بر اساس استفاده",
   "widgetsC.screenTime.settings.shared": "محدودیت‌ها و برنامه‌های پنهان روی همه ویجت‌های زمان استفاده در این رایانه اعمال می‌شوند.",

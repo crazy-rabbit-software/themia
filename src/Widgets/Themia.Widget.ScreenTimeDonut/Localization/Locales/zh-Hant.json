@@ -1,0 +1,5 @@
+{
+  "screentime.ofGoal": "/ {value}",
+  "widgetsC.screenTime.donut.desc": "以環形顯示每個應用程式在螢幕使用時間中的佔比",
+  "widgetsC.screenTime.donut.label": "螢幕使用時間環圈圖"
+}

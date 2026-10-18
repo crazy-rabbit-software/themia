@@ -1711,18 +1711,7 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`
 
 ### Donut
 
-- **[S-3340]** `ScreenTimeDonutConfig`: `Period` only. One ring, the total in its hole.
-- **[S-3341]** The wedges: the busiest seven apps and one Other, from cumulative seconds ([S-452]).
-  No legend: the list is its own widget ([S-666]); a wedge's tooltip names it.
-- **[S-3342]** Ladder (`ScreenTimeLayout.Donut`): the ring as large as the tile allows (at least 56,
-  the 16 DIP inset at the sides), a seventh of it the stroke; the hole's figure is [S-1210]'s fit,
-  and its second line (the day's "of 4h", a window's "2h 10m/day", or the focused app's share)
-  appears once the hole is 72 DIPs wide.
-- **[S-3343]** Linked focus: the focused wedge is lifted (its stroke 1.3 times as thick), the others
-  dimmed, and the hole names it ("Code · 41%"). An app folded into Other lights Other
-  (`ScreenTimeRules.FocusPart`); a hidden one lights nothing. Click selects, empty space clears.
-- **[S-3344]** Keys: Up/Down, PgUp/PgDn, Home/End step through the wedges clockwise from twelve;
-  Enter/Space select; Left / Right step the day (a day period); Menu hides; Escape lets the cursor go.
+- [S-3340], [S-3341], [S-3342], [S-3343], [S-3344]: moved with the Screen time: donut widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeDonut/`).
 
 ### Apps
 

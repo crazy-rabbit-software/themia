@@ -330,7 +330,6 @@
   "screentime.last7Days": "{count} ngày qua",
   "screentime.last30Days": "{count} ngày qua",
   "screentime.perDay": "{value}/ngày",
-  "screentime.ofGoal": "trên {value}",
   "screentime.goalPerDay": "trên {value}/ngày",
   "screentime.cfg.period": "Khoảng thời gian",
   "screentime.cfg.periodDay": "Ngày",

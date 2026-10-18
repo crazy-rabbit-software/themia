@@ -1,0 +1,5 @@
+{
+  "screentime.ofGoal": "z {value}",
+  "widgetsC.screenTime.donut.desc": "Udział każdej aplikacji w czasie przed ekranem, jako pierścień",
+  "widgetsC.screenTime.donut.label": "Pierścień czasu przed ekranem"
+}

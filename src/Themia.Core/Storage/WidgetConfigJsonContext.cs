@@ -22,7 +22,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(RecentFilesConfig))]
 [JsonSerializable(typeof(RssConfig))]
 [JsonSerializable(typeof(ScreenTimeChartConfig))]
-[JsonSerializable(typeof(ScreenTimeDonutConfig))]
 [JsonSerializable(typeof(ShortcutsConfig))]
 [JsonSerializable(typeof(TasksConfig))]
 [JsonSerializable(typeof(VideoStreamConfig))]

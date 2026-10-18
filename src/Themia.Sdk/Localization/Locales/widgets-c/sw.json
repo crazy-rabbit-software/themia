@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Onyesha tena",
   "widgetsC.screenTime.chart.label": "Chati ya muda wa skrini",
   "widgetsC.screenTime.chart.desc": "Muda wako wa skrini siku kwa siku, kwa wiki au mwezi",
-  "widgetsC.screenTime.donut.label": "Pete ya muda wa skrini",
-  "widgetsC.screenTime.donut.desc": "Sehemu ya kila programu katika muda wako wa skrini, kama pete",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Wiki au mwezi unaosogea unaoishia leo",
   "widgetsC.screenTime.settings.chartStyle.desc": "Pau zilizopangwa kwa programu, au kalenda iliyotiwa kivuli kwa matumizi",
   "widgetsC.screenTime.settings.shared": "Vikomo na programu zilizofichwa hutumika kwa kila wijeti ya muda wa skrini kwenye Kompyuta hii.",

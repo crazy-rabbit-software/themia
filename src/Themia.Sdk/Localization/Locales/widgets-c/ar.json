@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "إظهار مجددًا",
   "widgetsC.screenTime.chart.label": "مخطط وقت الشاشة",
   "widgetsC.screenTime.chart.desc": "وقت الشاشة يومًا بيوم، على مدى أسبوع أو شهر",
-  "widgetsC.screenTime.donut.label": "حلقة وقت الشاشة",
-  "widgetsC.screenTime.donut.desc": "حصة كل تطبيق من وقت الشاشة، على شكل حلقة",
   "widgetsC.screenTime.settings.chartPeriod.desc": "أسبوع أو شهر متحرك ينتهي اليوم",
   "widgetsC.screenTime.settings.chartStyle.desc": "أشرطة مكدسة حسب التطبيق، أو تقويم مظلل حسب الاستخدام",
   "widgetsC.screenTime.settings.shared": "تنطبق الحدود والتطبيقات المخفية على كل أدوات وقت الشاشة على هذا الكمبيوتر.",

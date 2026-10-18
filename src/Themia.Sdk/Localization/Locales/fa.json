@@ -331,7 +331,6 @@
   "screentime.last7Days": "{count} روز گذشته",
   "screentime.last30Days": "{count} روز گذشته",
   "screentime.perDay": "{value}/روز",
-  "screentime.ofGoal": "از {value}",
   "screentime.goalPerDay": "از {value}/روز",
   "screentime.cfg.period": "دوره",
   "screentime.cfg.periodDay": "روز",

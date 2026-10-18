@@ -333,7 +333,6 @@
   "screentime.last7Days": "Последние {count} дней",
   "screentime.last30Days": "Последние {count} дней",
   "screentime.perDay": "{value}/день",
-  "screentime.ofGoal": "из {value}",
   "screentime.goalPerDay": "из {value}/день",
   "screentime.cfg.period": "Период",
   "screentime.cfg.periodDay": "День",

@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Показать снова",
   "widgetsC.screenTime.chart.label": "График времени использования",
   "widgetsC.screenTime.chart.desc": "Ваше время использования по дням за неделю или месяц",
-  "widgetsC.screenTime.donut.label": "Кольцо времени использования",
-  "widgetsC.screenTime.donut.desc": "Доля каждого приложения во времени использования в виде кольца",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Скользящая неделя или месяц, заканчивающиеся сегодня",
   "widgetsC.screenTime.settings.chartStyle.desc": "Столбцы по приложениям или календарь с заливкой по использованию",
   "widgetsC.screenTime.settings.shared": "Лимиты и скрытые приложения действуют для всех виджетов времени использования на этом ПК.",

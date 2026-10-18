@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "다시 표시",
   "widgetsC.screenTime.chart.label": "화면 사용 시간 차트",
   "widgetsC.screenTime.chart.desc": "일주일 또는 한 달 동안의 일별 화면 사용 시간",
-  "widgetsC.screenTime.donut.label": "화면 사용 시간 도넛",
-  "widgetsC.screenTime.donut.desc": "화면 사용 시간에서 각 앱의 비율을 고리로 표시",
   "widgetsC.screenTime.settings.chartPeriod.desc": "오늘로 끝나는 이동 주 또는 이동 월",
   "widgetsC.screenTime.settings.chartStyle.desc": "앱별로 쌓인 막대 또는 사용량에 따라 음영이 있는 달력",
   "widgetsC.screenTime.settings.shared": "제한과 숨긴 앱은 이 PC의 모든 화면 사용 시간 위젯에 적용됩니다.",

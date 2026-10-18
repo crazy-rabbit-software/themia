@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "再表示",
   "widgetsC.screenTime.chart.label": "スクリーン タイム グラフ",
   "widgetsC.screenTime.chart.desc": "1 週間または 1 か月のスクリーン タイムを日ごとに表示",
-  "widgetsC.screenTime.donut.label": "スクリーン タイム リング",
-  "widgetsC.screenTime.donut.desc": "スクリーン タイムに占める各アプリの割合をリングで表示",
   "widgetsC.screenTime.settings.chartPeriod.desc": "今日までの 1 週間または 1 か月",
   "widgetsC.screenTime.settings.chartStyle.desc": "アプリごとに積み上げた棒グラフ、または使用量で色分けしたカレンダー",
   "widgetsC.screenTime.settings.shared": "制限と非表示のアプリは、この PC のすべてのスクリーン タイム ウィジェットに適用されます。",

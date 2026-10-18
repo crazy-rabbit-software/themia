@@ -1,0 +1,5 @@
+{
+  "screentime.ofGoal": "de {value}",
+  "widgetsC.screenTime.donut.desc": "La parte de cada aplicación en tu tiempo de pantalla, como un anillo",
+  "widgetsC.screenTime.donut.label": "Anillo de tiempo de pantalla"
+}

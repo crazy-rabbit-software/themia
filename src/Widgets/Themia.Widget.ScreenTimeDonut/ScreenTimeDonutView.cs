@@ -12,6 +12,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
+using Themia.Widget.ScreenTimeDonut;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -218,7 +219,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             return;
         }
 
-        _plan = ScreenTimeLayout.Donut(_area);
+        _plan = ScreenTimeDonutLayout.Donut(_area);
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
 
         var size = _plan.Ring;
@@ -320,7 +321,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         if (!data.Window)
         {
             return ScreenTimeRules.Goal(data.Total, data.DayLimit) is { } goal
-                ? (data.Total, Str.Screentime_OfGoal.Format(("value", ScreenTimeRules.FormatLimit(goal.Limit))), goal.Over)
+                ? (data.Total, ScreenTimeDonutStr.Screentime_OfGoal.Format(("value", ScreenTimeRules.FormatLimit(goal.Limit))), goal.Over)
                 : (data.Total, string.Empty, false);
         }
 

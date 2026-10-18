@@ -331,7 +331,6 @@
   "screentime.last7Days": "গত {count} দিন",
   "screentime.last30Days": "গত {count} দিন",
   "screentime.perDay": "{value}/দিন",
-  "screentime.ofGoal": "{value}-এর মধ্যে",
   "screentime.goalPerDay": "{value}/দিনের মধ্যে",
   "screentime.cfg.period": "সময়কাল",
   "screentime.cfg.periodDay": "দিন",

@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Wieder anzeigen",
   "widgetsC.screenTime.chart.label": "Bildschirmzeit-Diagramm",
   "widgetsC.screenTime.chart.desc": "Deine Bildschirmzeit Tag für Tag, über eine Woche oder einen Monat",
-  "widgetsC.screenTime.donut.label": "Bildschirmzeit-Ring",
-  "widgetsC.screenTime.donut.desc": "Der Anteil jeder App an deiner Bildschirmzeit, als Ring",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Eine gleitende Woche oder ein gleitender Monat bis heute",
   "widgetsC.screenTime.settings.chartStyle.desc": "Balken nach App gestapelt oder ein Kalender nach Nutzung schattiert",
   "widgetsC.screenTime.settings.shared": "Limits und ausgeblendete Apps gelten für jedes Bildschirmzeit-Widget auf diesem PC.",

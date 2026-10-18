@@ -335,7 +335,6 @@
   "screentime.last7Days": "آخر {count} أيام",
   "screentime.last30Days": "آخر {count} يومًا",
   "screentime.perDay": "{value}/يوم",
-  "screentime.ofGoal": "من {value}",
   "screentime.goalPerDay": "من {value}/يوم",
   "screentime.cfg.period": "الفترة",
   "screentime.cfg.periodDay": "يوم",

@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "மீண்டும் காட்டு",
   "widgetsC.screenTime.chart.label": "திரை நேர விளக்கப்படம்",
   "widgetsC.screenTime.chart.desc": "ஒரு வாரம் அல்லது மாதத்தில், நாள்தோறும் உங்கள் திரை நேரம்",
-  "widgetsC.screenTime.donut.label": "திரை நேர வளையம்",
-  "widgetsC.screenTime.donut.desc": "உங்கள் திரை நேரத்தில் ஒவ்வொரு பயன்பாட்டின் பங்கு, வளையமாக",
   "widgetsC.screenTime.settings.chartPeriod.desc": "இன்றுடன் முடியும் நகரும் வாரம் அல்லது மாதம்",
   "widgetsC.screenTime.settings.chartStyle.desc": "பயன்பாட்டின்படி அடுக்கிய பட்டைகள், அல்லது பயன்பாட்டின்படி நிழலிட்ட நாள்காட்டி",
   "widgetsC.screenTime.settings.shared": "வரம்புகளும் மறைக்கப்பட்ட பயன்பாடுகளும் இந்த PC இல் உள்ள எல்லாத் திரை நேர விட்ஜெட்களுக்கும் பொருந்தும்.",

@@ -331,7 +331,6 @@
   "screentime.last7Days": "Siku {count} zilizopita",
   "screentime.last30Days": "Siku {count} zilizopita",
   "screentime.perDay": "{value}/siku",
-  "screentime.ofGoal": "kati ya {value}",
   "screentime.goalPerDay": "kati ya {value}/siku",
   "screentime.cfg.period": "Kipindi",
   "screentime.cfg.periodDay": "Siku",

@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Volver a mostrar",
   "widgetsC.screenTime.chart.label": "Gráfico de tiempo de pantalla",
   "widgetsC.screenTime.chart.desc": "Tu tiempo de pantalla día a día, durante una semana o un mes",
-  "widgetsC.screenTime.donut.label": "Anillo de tiempo de pantalla",
-  "widgetsC.screenTime.donut.desc": "La parte de cada aplicación en tu tiempo de pantalla, como un anillo",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Una semana o un mes móvil que termina hoy",
   "widgetsC.screenTime.settings.chartStyle.desc": "Barras apiladas por aplicación o un calendario sombreado según el uso",
   "widgetsC.screenTime.settings.shared": "Los límites y las aplicaciones ocultas se aplican a todos los widgets de tiempo de pantalla de este equipo.",

@@ -1,0 +1,5 @@
+{
+  "screentime.ofGoal": "/ {value}",
+  "widgetsC.screenTime.donut.desc": "スクリーン タイムに占める各アプリの割合をリングで表示",
+  "widgetsC.screenTime.donut.label": "スクリーン タイム リング"
+}

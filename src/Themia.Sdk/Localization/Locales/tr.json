@@ -331,7 +331,6 @@
   "screentime.last7Days": "Son {count} gün",
   "screentime.last30Days": "Son {count} gün",
   "screentime.perDay": "{value}/gün",
-  "screentime.ofGoal": "/ {value}",
   "screentime.goalPerDay": "/ {value}/gün",
   "screentime.cfg.period": "Dönem",
   "screentime.cfg.periodDay": "Gün",

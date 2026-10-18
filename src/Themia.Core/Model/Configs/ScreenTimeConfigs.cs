@@ -46,33 +46,3 @@ public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenT
 
     public override WidgetConfig Clone() => new ScreenTimeChartConfig { Period = Period, Style = Style };
 }
-
-/// <summary>[S-3340] The screen-time donut: each app's share of the period, as a ring with the total in its hole.</summary>
-public sealed class ScreenTimeDonutConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>
-{
-    /// <summary>[S-6074] The ring's total reads against the daily limit; no app's limit shows on it.</summary>
-    [JsonIgnore]
-    public IReadOnlyList<ScreenTimeSetting> ShownSettings => [ScreenTimeSetting.DailyLimit];
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("screenTimeDonut"),
-        ConfigType = typeof(ScreenTimeDonutConfig),
-        CreateDefault = () => new ScreenTimeDonutConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["usage", "productivity", "time tracking", "screen time", "share", "pie", "ring", "statistics"],
-        Label = Str.WidgetsC_ScreenTime_Donut_Label.Local(),
-        Description = Str.WidgetsC_ScreenTime_Donut_Desc.Local(),
-        Glyph = Glyphs.ScreenTimeDonut,
-        DefaultWidth = 240,
-        DefaultHeight = 260,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.ScreenTime, 0, 1),
-    };
-
-    public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Day;
-
-    public override WidgetConfig Clone() => new ScreenTimeDonutConfig { Period = Period };
-}

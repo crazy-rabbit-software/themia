@@ -1,0 +1,5 @@
+{
+  "screentime.ofGoal": "/ {value}",
+  "widgetsC.screenTime.donut.desc": "화면 사용 시간에서 각 앱의 비율을 고리로 표시",
+  "widgetsC.screenTime.donut.label": "화면 사용 시간 도넛"
+}

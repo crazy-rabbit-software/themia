@@ -331,7 +331,6 @@
   "screentime.last7Days": "Kwana {count} na ƙarshe",
   "screentime.last30Days": "Kwana {count} na ƙarshe",
   "screentime.perDay": "{value}/rana",
-  "screentime.ofGoal": "na {value}",
   "screentime.goalPerDay": "na {value}/rana",
   "screentime.cfg.period": "Lokaci",
   "screentime.cfg.periodDay": "Rana",

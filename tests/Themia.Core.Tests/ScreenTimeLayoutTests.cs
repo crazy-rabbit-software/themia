@@ -69,31 +69,4 @@ public sealed class ScreenTimeLayoutTests
         Assert.False(ScreenTimeLayout.Chart(Content(Tier("L")), 30, ScreenTimeChartStyle.Bars).Labels);
         Assert.False(ScreenTimeLayout.Chart(Content(Tier("L")), 7, ScreenTimeChartStyle.Heatmap).Labels);
     }
-
-    // ---- [S-3342] donut -----------------------------------------------------------------------------
-
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S3342_the_ring_fits_the_tile(string name)
-    {
-        var area = Content(Tier(name));
-        var plan = ScreenTimeLayout.Donut(area);
-
-        Assert.True(plan.Ring <= area.Height, $"{name}: ring {plan.Ring} taller than {area.Height}");
-        Assert.True(plan.Ring <= area.Width - (2 * ScreenTimeLayout.Inset) || plan.Ring <= ScreenTimeLayout.MinRing);
-        Assert.Equal(ScreenTimeLayout.Thickness(plan.Ring), plan.Thickness);
-    }
-
-    [Fact]
-    public void S3342_a_larger_tile_draws_a_larger_ring_and_names_more_in_the_hole()
-    {
-        var s = ScreenTimeLayout.Donut(Content(Tier("S")));
-        var m = ScreenTimeLayout.Donut(Content(Tier("M")));
-        var xl = ScreenTimeLayout.Donut(Content(Tier("XL")));
-
-        Assert.True(m.Ring > s.Ring);
-        Assert.True(xl.Ring > m.Ring);
-        Assert.False(s.Detail);
-        Assert.True(m.Detail);
-    }
 }

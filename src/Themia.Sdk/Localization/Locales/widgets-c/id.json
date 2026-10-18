@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Tampilkan lagi",
   "widgetsC.screenTime.chart.label": "Grafik waktu layar",
   "widgetsC.screenTime.chart.desc": "Waktu layar Anda per hari, selama seminggu atau sebulan",
-  "widgetsC.screenTime.donut.label": "Donat waktu layar",
-  "widgetsC.screenTime.donut.desc": "Bagian setiap aplikasi dari waktu layar Anda, sebagai cincin",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Seminggu atau sebulan bergulir yang berakhir hari ini",
   "widgetsC.screenTime.settings.chartStyle.desc": "Batang bertumpuk per aplikasi, atau kalender yang diarsir sesuai penggunaan",
   "widgetsC.screenTime.settings.shared": "Batas dan aplikasi tersembunyi berlaku untuk setiap widget waktu layar di PC ini.",

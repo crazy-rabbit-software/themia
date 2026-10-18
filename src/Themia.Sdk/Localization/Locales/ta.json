@@ -331,7 +331,6 @@
   "screentime.last7Days": "கடந்த {count} நாட்கள்",
   "screentime.last30Days": "கடந்த {count} நாட்கள்",
   "screentime.perDay": "{value}/நாள்",
-  "screentime.ofGoal": "{value} இல்",
   "screentime.goalPerDay": "{value}/நாள் இல்",
   "screentime.cfg.period": "காலம்",
   "screentime.cfg.periodDay": "நாள்",

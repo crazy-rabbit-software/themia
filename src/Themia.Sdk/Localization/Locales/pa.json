@@ -331,7 +331,6 @@
   "screentime.last7Days": "ਪਿਛਲੇ {count} ਦਿਨ",
   "screentime.last30Days": "ਪਿਛਲੇ {count} ਦਿਨ",
   "screentime.perDay": "{value}/ਦਿਨ",
-  "screentime.ofGoal": "{value} ਵਿੱਚੋਂ",
   "screentime.goalPerDay": "{value}/ਦਿਨ ਵਿੱਚੋਂ",
   "screentime.cfg.period": "ਮਿਆਦ",
   "screentime.cfg.periodDay": "ਦਿਨ",

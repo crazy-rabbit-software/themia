@@ -62,8 +62,6 @@
   "widgetsC.screenTime.settings.showAgain": "Pokaż ponownie",
   "widgetsC.screenTime.chart.label": "Wykres czasu przed ekranem",
   "widgetsC.screenTime.chart.desc": "Twój czas przed ekranem dzień po dniu, w tygodniu lub miesiącu",
-  "widgetsC.screenTime.donut.label": "Pierścień czasu przed ekranem",
-  "widgetsC.screenTime.donut.desc": "Udział każdej aplikacji w czasie przed ekranem, jako pierścień",
   "widgetsC.screenTime.settings.chartPeriod.desc": "Tydzień lub miesiąc kończący się dziś",
   "widgetsC.screenTime.settings.chartStyle.desc": "Słupki ułożone według aplikacji lub kalendarz cieniowany według użycia",
   "widgetsC.screenTime.settings.shared": "Limity i ukryte aplikacje dotyczą każdego widżetu czasu przed ekranem na tym komputerze.",

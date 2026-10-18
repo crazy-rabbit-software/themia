@@ -1,0 +1,6 @@
+{
+  "$englishOnly": [],
+  "screentime.ofGoal": "of {value}",
+  "widgetsC.screenTime.donut.desc": "Each app's share of your screen time, as a ring",
+  "widgetsC.screenTime.donut.label": "Screen time donut"
+}

@@ -330,7 +330,6 @@
   "screentime.last7Days": "過去 {count} 天",
   "screentime.last30Days": "過去 {count} 天",
   "screentime.perDay": "{value}/天",
-  "screentime.ofGoal": "/ {value}",
   "screentime.goalPerDay": "/ 每天 {value}",
   "screentime.cfg.period": "時間範圍",
   "screentime.cfg.periodDay": "日",

@@ -329,7 +329,6 @@
   "screentime.last7Days": "過去 {count} 日",
   "screentime.last30Days": "過去 {count} 日",
   "screentime.perDay": "{value}/日",
-  "screentime.ofGoal": "/ {value}",
   "screentime.goalPerDay": "/ {value} 毎日",
   "screentime.cfg.period": "期間",
   "screentime.cfg.periodDay": "1 日",
