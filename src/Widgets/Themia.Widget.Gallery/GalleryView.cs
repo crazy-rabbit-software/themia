@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Gallery;
 
 namespace Themia.App.Widgets;
 
@@ -358,7 +359,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     {
         var title = _config.Source switch
         {
-            GallerySource.Bing => Str.WidgetsB_Gallery_PhotoOfTheDay.Text(),
+            GallerySource.Bing => GalleryStr.WidgetsB_Gallery_PhotoOfTheDay.Text(),
             GallerySource.File => null,
             _ => FolderPath.DisplayName(_config.Path),
         };

@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Gallery;
 
 namespace Themia.App.Widgets;
 
@@ -31,9 +32,9 @@ internal sealed partial class GalleryView
 
     private void BuildCommands()
     {
-        var previous = ControlButton(new FontIcon { Glyph = Glyphs.Previous, FontSize = Fluent.IconSize }, Str.WidgetsB_Gallery_Previous.Text(), Previous);
-        _pauseButton = ControlButton(_pauseIcon, Str.WidgetsB_Gallery_Pause.Text(), TogglePause);
-        var next = ControlButton(new FontIcon { Glyph = Glyphs.Next, FontSize = Fluent.IconSize }, Str.WidgetsB_Gallery_Next.Text(), Next);
+        var previous = ControlButton(new FontIcon { Glyph = Glyphs.Previous, FontSize = Fluent.IconSize }, GalleryStr.WidgetsB_Gallery_Previous.Text(), Previous);
+        _pauseButton = ControlButton(_pauseIcon, GalleryStr.WidgetsB_Gallery_Pause.Text(), TogglePause);
+        var next = ControlButton(new FontIcon { Glyph = Glyphs.Next, FontSize = Fluent.IconSize }, GalleryStr.WidgetsB_Gallery_Next.Text(), Next);
 
         // [S-769] A pill over the bottom of the picture, shown only while the pointer is over the
         // widget: a photo frame is for looking at, and permanent buttons would sit on every photo.
@@ -134,7 +135,7 @@ internal sealed partial class GalleryView
         var show = _hovering && IsSlideshow && _plan is { Controls: true, Mode: GalleryMode.Slideshow };
         _controls.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         _pauseIcon.Glyph = _paused ? Glyphs.Play : Glyphs.Pause;
-        ToolTipService.SetToolTip(_pauseButton, _paused ? Str.WidgetsB_Gallery_Resume.Text() : Str.WidgetsB_Gallery_Pause.Text());
+        ToolTipService.SetToolTip(_pauseButton, _paused ? GalleryStr.WidgetsB_Gallery_Resume.Text() : GalleryStr.WidgetsB_Gallery_Pause.Text());
     }
 
     /// <summary>Give a new frame its pointer behaviour: open on double-tap.</summary>
@@ -263,17 +264,17 @@ internal sealed partial class GalleryView
     {
         if (path is not null && Picture.IsLocal(path))
         {
-            yield return new ItemMenuEntry(Glyphs.Open, Str.Gallery_CtxOpen.Text(), () => _widgetHost.Launcher.Open(path));
-            yield return new ItemMenuEntry(Glyphs.Folder, Str.Gallery_CtxShowInExplorer.Text(), () => _widgetHost.Launcher.OpenContainingFolder(path));
+            yield return new ItemMenuEntry(Glyphs.Open, GalleryStr.Gallery_CtxOpen.Text(), () => _widgetHost.Launcher.Open(path));
+            yield return new ItemMenuEntry(Glyphs.Folder, GalleryStr.Gallery_CtxShowInExplorer.Text(), () => _widgetHost.Launcher.OpenContainingFolder(path));
             yield return ItemMenuEntry.Separator;
         }
 
         if (IsSlideshow)
         {
-            yield return new ItemMenuEntry(_paused ? Glyphs.Play : Glyphs.Pause, _paused ? Str.WidgetsB_Gallery_Resume.Text() : Str.WidgetsB_Gallery_Pause.Text(), TogglePause);
+            yield return new ItemMenuEntry(_paused ? Glyphs.Play : Glyphs.Pause, _paused ? GalleryStr.WidgetsB_Gallery_Resume.Text() : GalleryStr.WidgetsB_Gallery_Pause.Text(), TogglePause);
         }
 
-        yield return new ItemMenuEntry(Glyphs.Refresh, Str.CtxMenu_RefreshImages.Text(), RefreshNow);
+        yield return new ItemMenuEntry(Glyphs.Refresh, GalleryStr.CtxMenu_RefreshImages.Text(), RefreshNow);
     }
 
     /// <summary>[S-773] The card's own menu: pause and refresh. [S-1746] The layout is chosen in the settings only.</summary>
@@ -285,10 +286,10 @@ internal sealed partial class GalleryView
 
             if (IsSlideshow)
             {
-                actions.Add(new WidgetAction(_paused ? Glyphs.Play : Glyphs.Pause, _paused ? Str.WidgetsB_Gallery_Resume.Text() : Str.WidgetsB_Gallery_Pause.Text(), TogglePause));
+                actions.Add(new WidgetAction(_paused ? Glyphs.Play : Glyphs.Pause, _paused ? GalleryStr.WidgetsB_Gallery_Resume.Text() : GalleryStr.WidgetsB_Gallery_Pause.Text(), TogglePause));
             }
 
-            actions.Add(new WidgetAction(Glyphs.Refresh, Str.CtxMenu_RefreshImages.Text(), RefreshNow));
+            actions.Add(new WidgetAction(Glyphs.Refresh, GalleryStr.CtxMenu_RefreshImages.Text(), RefreshNow));
             return actions;
         }
     }

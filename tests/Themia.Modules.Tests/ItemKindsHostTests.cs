@@ -19,7 +19,7 @@ public sealed class ItemKindsHostTests
         Assert.True(ItemKinds.Has(new WidgetId("cpu")));
         Assert.True(ItemKinds.Has(new WidgetId("clipboard")));
         Assert.False(ItemKinds.Has(new WidgetId("alarm")));
-        Assert.False(ItemKinds.Has(GalleryConfig.Descriptor.Id));
+        Assert.False(ItemKinds.Has(new WidgetId("gallery")));
     }
 
     private static (AppState State, ViewState View, WidgetSelection Selection) Selected(params WidgetId[] kinds)

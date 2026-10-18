@@ -5,24 +5,21 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Modules.Tests;
 
 /// <summary>
-/// The trackers keep their data <b>in their config</b> (habits keep their settings there and their
-/// history in <c>habits.json</c>), which means the state file is the only copy of every mood ever
-/// logged. So the round trip through the real store is pinned here rather than assumed.
-/// <para>
-/// It matters more than for a widget whose config is a handful of switches: this is the test that
-/// catches a nested list the source-generated serializer never learned about, which under Native AOT
-/// is not a compile error but a widget that silently comes back empty on the next launch.
-/// </para>
+/// [S-305] The gallery's settings through the real store: the state file is the only copy of them, so
+/// the round trip is pinned rather than assumed (under Native AOT a nested type the source generator
+/// never learned about is not a compile error but a widget that comes back empty on the next launch).
+/// The config is the gallery module's, so it runs here. Moved from Core's TrackerPersistenceTests
+/// (the habit tracker's to HabitHostTests), unchanged in what it asserts.
 /// </summary>
-public sealed class TrackerPersistenceTests : IDisposable
+public sealed class GalleryPersistenceTests : IDisposable
 {
     private readonly string _dir;
     private readonly string _path;
 
-    public TrackerPersistenceTests()
+    public GalleryPersistenceTests()
     {
         _dir = Path.Combine(Path.GetTempPath(), "themia-tests", Guid.NewGuid().ToString("n"));
         Directory.CreateDirectory(_dir);
@@ -73,7 +70,7 @@ public sealed class TrackerPersistenceTests : IDisposable
     [Fact]
     public async Task S305_a_gallery_keeps_every_setting_across_a_restart()
     {
-        var config = await RoundTripAsync<GalleryConfig>(GalleryConfig.Descriptor.Id, gallery =>
+        var config = await RoundTripAsync<GalleryConfig>(new WidgetId("gallery"), gallery =>
         {
             gallery.Path = @"C:\Users\me\Pictures";
             gallery.Recursive = true;

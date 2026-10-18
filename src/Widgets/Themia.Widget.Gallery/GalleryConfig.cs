@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Gallery;
 
 namespace Themia.Core.Model;
 
@@ -92,23 +92,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     /// </summary>
     public const int MaxImageCount = 60;
 
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("gallery"),
-        ConfigType = typeof(GalleryConfig),
-        CreateDefault = () => new GalleryConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["photos", "pictures", "images", "slideshow", "wallpaper", "bing"],
-        Label = Str.Widget_Gallery_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Gallery_Description.Local(),
-        Glyph = Glyphs.Gallery,
-        DefaultWidth = 320,
-        DefaultHeight = 240,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Media, 1, 0),
-    };
-
     /// <summary>[S-760] Where the pictures come from.</summary>
     public GallerySource Source { get; set; } = GallerySource.Folder;
 
@@ -126,10 +109,10 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
 
     private static readonly StyleOption[] GalleryStyles =
     [
-        StyleOption.Of(GalleryStyle.Slideshow, Str.Gallery_ModeSlideshow.Local(), 0xE786),
-        StyleOption.Of(GalleryStyle.Grid, Str.Gallery_ModeGrid.Local(), 0xF0E2),
-        StyleOption.Of(GalleryStyle.Scatter, Str.Gallery_ModeScatter.Local(), 0xE7AA),
-        StyleOption.Of(GalleryStyle.Mosaic, Str.Gallery_ModeMosaic.Local(), 0xECA5),
+        StyleOption.Of(GalleryStyle.Slideshow, GalleryStr.Gallery_ModeSlideshow.Local(), 0xE786),
+        StyleOption.Of(GalleryStyle.Grid, GalleryStr.Gallery_ModeGrid.Local(), 0xF0E2),
+        StyleOption.Of(GalleryStyle.Scatter, GalleryStr.Gallery_ModeScatter.Local(), 0xE7AA),
+        StyleOption.Of(GalleryStyle.Mosaic, GalleryStr.Gallery_ModeMosaic.Local(), 0xECA5),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => GalleryStyles;

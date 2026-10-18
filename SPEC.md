@@ -2295,9 +2295,7 @@ rules are these.
 Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-779; the earlier
 [S-300]..[S-303] still hold for folders). Ported from the original's `widgets/others/gallery` SPEC.
 
-- **[S-760]** `Source` is a closed set: `Folder` (default), `File`, `Bing`. Folder uses `Path` +
-  `Recursive`; File uses `FilePath`; Bing needs no setup. The settings page shows only the rows the
-  chosen source (and, for the slide time and picture size, the layout) uses.
+- [S-760], [S-764], [S-765], [S-6402], [S-766], [S-767], [S-768], [S-769], [S-770], [S-771], [S-773], [S-2760], [S-776], [S-777]: moved with the Gallery widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gallery/`).
 - **[S-761]** File: one picture full-bleed. An empty box is the Set up button ([S-1862]), as is a folder source with no folder; a name that is not
   a picture is refused in settings and reported by the widget, and a missing file says so. The
   picker offers only the extensions the widget can draw.
@@ -2310,50 +2308,13 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   dropped from the decoder cache so the next refresh asks again.
 - **[S-763]** *(Retired: the photo of the day's title and credit caption and its `ShowCaption`
   setting are gone, [S-2760].)*
-- **[S-764]** Scatter: square prints, one per cell of the grid shape for the count (spare cells left
-  empty at random), centre in the middle half of its cell, side 1.05–1.4× the cell's short side
-  (capped at 90% of the card's), tilt ±12° as in the original, stacking order shuffled. The
-  original's "within 28% of the centre" heaped every print in the middle of a big card. About one
-  print per 12,000 DIP².
-- **[S-765]** Mosaic: the card cut recursively, the first half of the pictures getting a 35–65%
-  share, across the longer side (the original alternated; same on a square, no slivers on a strip).
-  Cells tile the card exactly with no gaps; always cropped to fill. About one cell per 9,000 DIP².
-- **[S-6402]** The gallery's styles ([S-6000]) are its layouts, `GalleryConfig.Style`
-  (`GalleryStyle`, `"style": "slideshow"`): **Slideshow**, **Grid**, **Scatter** ([S-764]) and
-  **Mosaic** ([S-765]), in that order; the Layout row is gone. A folder's choice: one picture file
-  and the photo of the day are drawn whole in any style ([S-762]). The slide time shows on the page
-  for Slideshow only and the fit for every style but Mosaic; another style rebuilds the page.
-- **[S-766]** Grid: about one 120-DIP tile per slot (max 24), shaped so tiles are closest to square
-  with a small penalty per empty cell.
-- **[S-767]** The ladder (`GalleryPlan`): any layout with room for only one picture is that picture
-  full-bleed with nothing on it (XS). Slideshow: counter in the header and the hover bar from
-  Regular width; the picture is the whole slot at every size (no "up next" thumbnails beside or
-  under it, retired [S-666]; the L file-name line and the XL "N of M · folder" line are retired, [S-2760]). Grid / scatter / mosaic take more pictures as the card grows. Scatter and
-  mosaic are dealt from the widget's own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
-- **[S-768]** *(Retired: no "up next" thumbnails to tap, [S-767]. Home / End and the arrows still
-  jump, [S-1992].)*
 - **[S-1992]** Slideshow keys (`ControlKeys.Slideshow`) beyond [S-811]: Home / End jump to the first
   and last picture, Enter opens the shown one (local files only, as a double-click does). The other
   layouts take no keys, and a click on them no longer takes the keyboard (`WantsKeys`).
-- **[S-769]** The hover bar (previous / pause-resume / next) shows only while the pointer is over
-  the widget, in the slideshow with more than one picture. Pause is not persisted.
-- **[S-770]** The slideshow's own timer runs only while it is a folder slideshow with more than one
-  picture and not paused.
-- **[S-771]** Double-click a picture opens it; right-click a picture: Open, Show in Explorer,
-  Pause / Resume, Refresh images (no layout switch, [S-1746]).
 - **[S-772]** *(Retired by [S-3792]: no `RefreshMinutes`; every gallery re-reads its source hourly.)*
-- **[S-773]** The card's menu adds Pause / Resume and Refresh images (re-reads now and deals a new
-  scatter / mosaic); the layout is a setting only ([S-1746]).
 - Left / Right / Space keys ([S-29] of the original) are ported through the keyboard lease
   ([S-811]). Not ported: a file or folder caption
   of date taken. The slide minimum is 1 s, as in the original ([S-1620]).
-- **[S-2760]** No words on a picture (user rule, [S-666]): no title, credit or file name under or
-  over any picture, at any size, in any layout or source (slideshow included), and no hover tooltip
-  naming it (the photo of the day's credit tooltip, [S-3112], is the one exception); the freed height is the picture's. A single file's header keeps the catalogue label
-  rather than the file's name; a folder's header still names the folder, the photo of the day's says
-  "Photo of the day". The picture's name stays only as its screen-reader name. (`GalleryPlan`; tests
-  `S2760_`.) Debug renders show real pictures with
-  `--widget-png Gallery … --state slideshow|grid|scatter|mosaic|file` (Windows' own wallpapers).
 - **[S-3112]** The photo of the day credits its picture: Bing's pictures are copyrighted and Bing
   shows a credit with each, so the picture's hover tooltip is that credit (e.g. "© Photographer/
   Agency"). Only a tooltip: nothing is drawn on the tile, no title, no setting, and the
@@ -2409,16 +2370,6 @@ Pictures from a folder, one picture file, or Bing's photo of the day (S-760..S-7
   `OutlineColor` (`ColorPickerRow`, default white; one that does not parse is white). The pad is
   settled in the picture's pixels so the band shows that many DIPs once fitted and turned
   (`StickerRules.OutlinePad`). A picture with no opaque pixel has no outline. (Tests `S775_`.)
-- **[S-776]** The one main picture (slideshow, file, photo of the day) has **no backing fill**, so a
-  PNG's transparent pixels and a letterbox show the card, or the desktop on a transparent surface
-  ([S-32]): a cut-out picture on a transparent Gallery is a sticker on the wallpaper. Tiles (grid,
-  scatter, mosaic) keep their placeholder fill while they decode.
-- **[S-777]** The outline is worked out from a second decode of the file at the size shown (longest
-  side rounded up to 64 px, at most 2048, never above the picture's own; files over 64 MB are shown
-  without one), the distance pass on the thread pool, drawn as a bitmap under the picture. It is
-  asked again only when the picture, colour, width, angle, scale or the frame's size (in 32-DIP
-  steps) changes; a newer ask cancels the one in flight, and until it lands the picture is fitted by
-  its own shape. Debug: `--widget-png Gallery … --state sticker` (the app's logo, −15°, white).
 
 ## Weather: current conditions and forecast
 
@@ -3570,8 +3521,7 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
 - **[S-808]** Tasks ([S-787]) and **[S-809]** Habits ([S-1428]): keys arrive through `HandleKey`
   (the per-row `KeyDown` / `PreviewKeyDown` handlers are gone); `UpdateKeyboard` asks only for an
   open editor. The lease ending while an editor is open forgets the row; the box's blur commits it.
-- **[S-811]** Pictures (Gallery widget) slideshow: Left / Right step, Space pauses (the original's S-29). Other
-  layouts take no keys.
+- [S-811]: moved with the Gallery widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gallery/`).
 - **[S-812]** Tasks and Habits with the lease but no row focused: a movement key lands on an end
   (Up/Down/Home/Tab the first, End/Shift+Tab the last); Enter, Delete and F2 do nothing.
 - **[S-813]** One interaction session, app-wide (Core `WidgetSession<T>`, tests `WidgetSessionTests`;
@@ -5946,9 +5896,7 @@ breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout
 Items earlier packages left "not done", each checked against the original on `main` first: what
 the original had is ported, what it never had is recorded here and not built.
 
-- **[S-1620]** Pictures (Gallery widget): a slide can be held for as little as **1 s** (`GalleryConfig.MinSlideSeconds`;
-  the settings slider starts there), as the original's S-09/S-18. Stored values are clamped to
-  1..3600 s.
+- [S-1620]: moved with the Gallery widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gallery/`).
 - [S-1621]: moved with the Habit tracker widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.HabitTracker/`).
 - **[S-1622]** `Disclosure.Fits` / `Disclosure.TakeFirst`: a rung offered in several sizes takes the
   richest that fits, and only a total miss closes the ladder.
@@ -6880,7 +6828,7 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
   the pick's name is the header title, and the card's own title overrides it.
 - **[S-3791]** A field that only renamed the header is gone where the card's own title does the same:
   the feed's `title`, the ping host's `hostLabel` (meter and statistics).
-- **[S-3792]** Every gallery re-reads its folder or Bing's photo hourly (`GalleryConfig.RescanInterval`);
+- **[S-3792]** Every gallery re-reads its folder or Bing's photo hourly (`GallerySourceKey.RescanInterval`);
   "Refresh images" reads now. No refresh setting.
 - **[S-3793]** Local readings have no refresh setting: meters and system details read on the system
   hub's one cadence ([S-1120], [S-2401], [S-2503]); a stored `intervalSeconds` is ignored. Bluetooth

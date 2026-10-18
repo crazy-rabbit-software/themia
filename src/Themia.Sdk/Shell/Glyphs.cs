@@ -168,7 +168,6 @@ public static class Glyphs
     public static readonly string Apps = From(0xE71D);
     public static readonly string Search = From(0xE721);
     public static readonly string Quote = From(0xE9B2); // [S-652] E9E5 is not in the font: an opening quote mark
-    public static readonly string Gallery = From(0xE91B);
     public static readonly string Music = From(0xE8D6);
 
     /// <summary>[S-3200] The audio visualizer: Equalizer (E9E9) is the mixer's, so the sound-settings wave.</summary>

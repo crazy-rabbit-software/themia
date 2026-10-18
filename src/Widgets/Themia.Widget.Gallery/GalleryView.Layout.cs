@@ -11,6 +11,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Gallery;
 
 namespace Themia.App.Widgets;
 
@@ -52,7 +53,7 @@ internal sealed partial class GalleryView
         // card is indistinguishable from a broken one, and "no folder chosen", "that folder is
         // gone" and "Windows will not let me read it" each need a different thing from the reader.
         _message = Fluent.Text(FluentType.Body);
-        var empty = Fluent.EmptyState(Glyphs.Gallery, _message, out _messageIcon);
+        var empty = Fluent.EmptyState(GalleryModule.Glyph, _message, out _messageIcon);
 
         _messageHost = new Border
         {
@@ -127,7 +128,7 @@ internal sealed partial class GalleryView
         PlaceControls(plan);
 
         _counter.Text = plan.Counter && plan.Mode == GalleryMode.Slideshow
-            ? Str.WidgetsB_Gallery_Counter.Format(("index", _index + 1), ("count", _pictures.Count))
+            ? GalleryStr.WidgetsB_Gallery_Counter.Format(("index", _index + 1), ("count", _pictures.Count))
             : string.Empty;
     }
 
@@ -610,7 +611,7 @@ internal sealed partial class GalleryView
         {
             if (!IsLocal(path))
             {
-                return Str.WidgetsB_Gallery_PhotoOfTheDay.Text();
+                return GalleryStr.WidgetsB_Gallery_PhotoOfTheDay.Text();
             }
 
             try
