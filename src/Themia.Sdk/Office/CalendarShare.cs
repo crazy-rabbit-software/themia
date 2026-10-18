@@ -40,7 +40,7 @@ public static class CalendarShare
     /// row on or after it. Null when every row is before it (nothing of that day or later is listed).
     /// </summary>
     /// <param name="days">Each row's day, in order.</param>
-    /// <param name="pages">The first row of each page, from <see cref="CalendarFit.AgendaPages"/>.</param>
+    /// <param name="pages">The first row of each page, from <see cref="Themia.Sdk.Kit.KitPages.Pages"/>.</param>
     public static int? AgendaPageOf(IReadOnlyList<DateOnly> days, IReadOnlyList<int> pages, DateOnly date)
     {
         ArgumentNullException.ThrowIfNull(days);

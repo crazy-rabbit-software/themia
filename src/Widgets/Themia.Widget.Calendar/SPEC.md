@@ -9,11 +9,21 @@ source and seam ([S-588], [S-2701], [S-3602]), the settings builder ([S-3601], t
 
 Owning files: everything in this folder: `CalendarModule.cs` (descriptor, view factory, JSON
 context), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own settings),
-`CalendarView*.cs` (one partial per style, the links, over `IWidgetHost.Office`),
+`CalendarView*.cs` (one partial per style, the links, over `IWidgetHost.Office`), `AgendaSpec.cs`
+(the agenda on the kit's list),
 `CalendarSettings.cs` (the SDK's calendar rows and the style's own), `Preview/` (Debug renders:
-`--state sample|selected|linked|days`), `Localization/Locales/` (its own `CalendarStr`, 30
+`--state sample|selected|linked|days|stale|empty`), `Localization/Locales/` (its own `CalendarStr`, 30
 languages). Tests: the rules' are Core's; the config's are the module host's (`CalendarHostTests`,
-`OfficeConfigTests`).
+`OfficeConfigTests`); the agenda's items are `Tests/AgendaSpecTests.cs`.
+
+- **[S-3650]** The agenda is the kit's paged list ([S-7035], [S-7036]): `AgendaSpec` gives its spec
+  (the schedule look, two columns at most, the widest time labels "All day", "Now" and a clock) and
+  an agenda row as a kit item: its day group (the selected day's in the accent, [S-3622]), an
+  event's part on the day ("All day" between a long event's first and last day, "Now" in the strong
+  step while it is under way, start over end, the span for a narrow row), where and who, the
+  calendar's colour when colours show; a birthday its gift in the caution hue, its name and
+  "Birthday". The view pages it with its header arrows and keys and hooks each event's row for its
+  tooltip, its links across widgets and the click that opens it.
 
 - **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
   location under the title.

@@ -259,7 +259,7 @@ internal sealed partial class CalendarView
         // The chip's edge and padding and the column's margins come off the title's line.
         var titleWidth = columnWidth - 9;
         var leftover = room.Remaining - (rest > 0 ? line + 2 : 0);
-        var second = CalendarFit.SecondLines([.. titles.Select(t => Overflows(t, titleWidth))], leftover, line);
+        var second = Disclosure.SecondLines([.. titles.Select(t => Overflows(t, titleWidth))], leftover, line);
         for (var k = 0; k < titles.Count; k++)
         {
             if (second[k])

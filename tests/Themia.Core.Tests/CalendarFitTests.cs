@@ -2,6 +2,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -12,6 +13,9 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class CalendarFitTests
 {
+    /// <summary>[S-7035] The rows' groups as the kit pages them: each day's key.</summary>
+    private static IReadOnlyList<string> K(IReadOnlyList<DateOnly> days) => [.. days.Select(d => d.ToString("O", System.Globalization.CultureInfo.InvariantCulture))];
+
     private static readonly TimeZoneInfo Plus2 = TimeZoneInfo.CreateCustomTimeZone("Test+2", TimeSpan.FromHours(2), "Test+2", "Test+2");
 
     private static readonly DateOnly Today = new(2026, 10, 4); // a Sunday
@@ -237,27 +241,27 @@ public sealed class CalendarFitTests
     [Fact]
     public void S2709_AgendaFitsWholeRowsAndRepeatsTheHeadingOfADaySplitByAPage()
     {
-        Assert.Equal(2, CalendarFit.AgendaFit(AgendaDays, 0, 150, 32, 40, firstHeading: true));
-        Assert.Equal(2, CalendarFit.AgendaFit(AgendaDays, 2, 150, 32, 40, firstHeading: true));
-        Assert.Equal(2, CalendarFit.AgendaFit(AgendaDays, 0, 106, 32, 40, firstHeading: false));
-        Assert.Equal(1, CalendarFit.AgendaFit(AgendaDays, 0, 20, 32, 40, firstHeading: true)); // paging must move
-        Assert.Equal(0, CalendarFit.AgendaFit(AgendaDays, 5, 500, 32, 40, firstHeading: true));
+        Assert.Equal(2, KitPages.Fit(K(AgendaDays), 0, 150, 32, 40, firstHeading: true));
+        Assert.Equal(2, KitPages.Fit(K(AgendaDays), 2, 150, 32, 40, firstHeading: true));
+        Assert.Equal(2, KitPages.Fit(K(AgendaDays), 0, 106, 32, 40, firstHeading: false));
+        Assert.Equal(1, KitPages.Fit(K(AgendaDays), 0, 20, 32, 40, firstHeading: true)); // paging must move
+        Assert.Equal(0, KitPages.Fit(K(AgendaDays), 5, 500, 32, 40, firstHeading: true));
     }
 
     [Fact]
     public void S2709_AgendaPagesFillEveryColumnInTurn()
     {
-        Assert.Equal([0, 2, 4], CalendarFit.AgendaPages(AgendaDays, 1, 150, 32, 40, firstHeading: true));
-        Assert.Equal([0, 4], CalendarFit.AgendaPages(AgendaDays, 2, 150, 32, 40, firstHeading: true));
-        Assert.Equal([0], CalendarFit.AgendaPages([], 1, 150, 32, 40, firstHeading: true));
+        Assert.Equal([0, 2, 4], KitPages.Pages(K(AgendaDays), 1, 150, 32, 40, firstHeading: true));
+        Assert.Equal([0, 4], KitPages.Pages(K(AgendaDays), 2, 150, 32, 40, firstHeading: true));
+        Assert.Equal([0], KitPages.Pages([], 1, 150, 32, 40, firstHeading: true));
     }
 
     [Fact]
     public void S1267_OnlyAShortTilesTodayLosesItsHeading()
     {
-        Assert.False(CalendarFit.ShowsFirstHeading(Today, Today, height: 106));
-        Assert.True(CalendarFit.ShowsFirstHeading(Today.AddDays(1), Today, height: 106));
-        Assert.True(CalendarFit.ShowsFirstHeading(Today, Today, height: 200));
+        Assert.False(KitPages.ShowsFirstHeading(Today, Today, height: 106));
+        Assert.True(KitPages.ShowsFirstHeading(Today.AddDays(1), Today, height: 106));
+        Assert.True(KitPages.ShowsFirstHeading(Today, Today, height: 200));
     }
 
     [Theory]
@@ -266,7 +270,7 @@ public sealed class CalendarFitTests
     [InlineData(300, 480, 168)]  // never more than a third and a bit of the row: the title keeps the rest
     [InlineData(105.3, 100, 52)] // a column too narrow for the cap keeps the floor
     public void S571_AgendaTimeColumnFitsItsWidestLabel(double widestLabel, double columnWidth, double expected)
-        => Assert.Equal(expected, CalendarFit.AgendaTimeColumn(widestLabel, columnWidth));
+        => Assert.Equal(expected, KitLadder.TimeColumn(widestLabel, columnWidth));
 
     // ---- [S-1268] Outlook hand-off ----------------------------------------------------------------
 

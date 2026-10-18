@@ -23,6 +23,9 @@ public sealed partial class KitList
     private readonly Grid _page = new() { ColumnSpacing = Fluent.Space2, Padding = Fluent.ListPadding };
 
     private IReadOnlyList<int> _pageStarts = [0];
+
+    /// <summary>The focus rings over the page's rows, by place.</summary>
+    private readonly Dictionary<int, Border> _rings = [];
     private int _pageIndex;
     private DateTimeOffset _drawnAt;
 
@@ -257,7 +260,6 @@ public sealed partial class KitList
             text.Children.Add(detail);
         }
 
-        // The ring's width comes off the row's padding, so a focusable row lays out as one without it.
         var body = new Grid
         {
             ColumnDefinitions =
@@ -309,10 +311,24 @@ public sealed partial class KitList
             body.Children.Add(when);
         }
 
-        var row = Fluent.Row(body, compact);
-        RowFocus.Prepare(row);
-        row.Padding = new Thickness(Fluent.Space4 - Fluent.Space2 - RowFocus.Ring, 0, (narrow ? Fluent.Space2 : Fluent.Space4) - RowFocus.Ring, 0);
+        // The focus ring lies over the row, out to its edges, and takes no room: the row lays out as
+        // one that cannot be focused, and focusing it moves nothing.
+        var padding = new Thickness(Fluent.Space4 - Fluent.Space2, 0, narrow ? Fluent.Space2 : Fluent.Space4, 0);
+        var ring = new Border
+        {
+            Margin = new Thickness(-padding.Left, 0, -padding.Right, 0),
+            IsHitTestVisible = false,
+        };
+        RowFocus.Prepare(ring);
+        var holder = new Grid { Children = { body, ring } };
+
+        var row = Fluent.Row(holder, compact);
+        row.Padding = padding;
+        holder.VerticalAlignment = VerticalAlignment.Stretch;
+        body.VerticalAlignment = VerticalAlignment.Center;
         row.Tag = index;
+        WidgetItems.Mark(row);
+        _rings[index] = ring;
 
         _rowHooks.Add(Fluent.Hover(row));
         _rowHooks.Add(ItemMenu.Attach(row, () => Entries(item)));

@@ -4,7 +4,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -16,6 +18,9 @@ namespace Themia.Core.Tests;
 /// </summary>
 public sealed class CalendarDaysTests
 {
+    /// <summary>[S-7035] The rows' groups as the kit pages them: each day's key.</summary>
+    private static IReadOnlyList<string> K(IReadOnlyList<DateOnly> days) => [.. days.Select(d => d.ToString("O", System.Globalization.CultureInfo.InvariantCulture))];
+
     private static readonly DateOnly Today = new(2026, 10, 4); // a Sunday
 
     private static readonly TimeZoneInfo Utc = TimeZoneInfo.Utc;
@@ -150,25 +155,25 @@ public sealed class CalendarDaysTests
     [Fact]
     public void S2716_today_and_tomorrow_are_named_and_carry_their_date_where_it_fits()
     {
-        Assert.Equal("Today", CalendarFit.AgendaHeading(Locale.En, Today, Today, dated: false));
-        Assert.Equal("Today · Sun, Oct 4", CalendarFit.AgendaHeading(Locale.En, Today, Today, dated: true));
-        Assert.Equal("Tomorrow · Mon, Oct 5", CalendarFit.AgendaHeading(Locale.En, Today.AddDays(1), Today, dated: true));
-        Assert.Equal("Tomorrow", CalendarFit.AgendaHeading(Locale.En, Today.AddDays(1), Today, dated: false));
+        Assert.Equal("Today", KitDays.Heading(Locale.En, Today, Today, dated: false));
+        Assert.Equal("Today · Sun, Oct 4", KitDays.Heading(Locale.En, Today, Today, dated: true));
+        Assert.Equal("Tomorrow · Mon, Oct 5", KitDays.Heading(Locale.En, Today.AddDays(1), Today, dated: true));
+        Assert.Equal("Tomorrow", KitDays.Heading(Locale.En, Today.AddDays(1), Today, dated: false));
 
         // Any other day is its date, with room or without.
-        Assert.Equal("Tue, Oct 6", CalendarFit.AgendaHeading(Locale.En, Today.AddDays(2), Today, dated: true));
-        Assert.Equal("Tue, Oct 6", CalendarFit.AgendaHeading(Locale.En, Today.AddDays(2), Today, dated: false));
+        Assert.Equal("Tue, Oct 6", KitDays.Heading(Locale.En, Today.AddDays(2), Today, dated: true));
+        Assert.Equal("Tue, Oct 6", KitDays.Heading(Locale.En, Today.AddDays(2), Today, dated: false));
     }
 
     [Fact]
     public void S2716_the_date_joins_only_a_heading_line_wide_enough_for_the_longest_one()
     {
-        Assert.False(CalendarFit.AgendaHeadingDated(Locale.En, 80));
-        Assert.True(CalendarFit.AgendaHeadingDated(Locale.En, 400));
+        Assert.False(KitDays.Dated(Locale.En, 80));
+        Assert.True(KitDays.Dated(Locale.En, 400));
 
         // Monotonic: once it fits, wider still fits.
-        var from = Enumerable.Range(40, 400).First(w => CalendarFit.AgendaHeadingDated(Locale.En, w));
-        Assert.All(Enumerable.Range(from, 200), w => Assert.True(CalendarFit.AgendaHeadingDated(Locale.En, w)));
+        var from = Enumerable.Range(40, 400).First(w => KitDays.Dated(Locale.En, w));
+        Assert.All(Enumerable.Range(from, 200), w => Assert.True(KitDays.Dated(Locale.En, w)));
     }
 
     // ---- [S-2717] wrapped titles -------------------------------------------------------------------
@@ -176,10 +181,10 @@ public sealed class CalendarDaysTests
     [Fact]
     public void S2717_second_lines_go_in_order_to_the_rows_that_wrap_while_the_room_lasts()
     {
-        Assert.Equal([true, false, true, false], CalendarFit.SecondLines([true, false, true, true], 40, 16));
-        Assert.Equal([false, false], CalendarFit.SecondLines([true, true], 10, 16));
-        Assert.Equal([false, true], CalendarFit.SecondLines([false, true], 16, 16));
-        Assert.Empty(CalendarFit.SecondLines([], 100, 16));
+        Assert.Equal([true, false, true, false], Disclosure.SecondLines([true, false, true, true], 40, 16));
+        Assert.Equal([false, false], Disclosure.SecondLines([true, true], 10, 16));
+        Assert.Equal([false, true], Disclosure.SecondLines([false, true], 16, 16));
+        Assert.Empty(Disclosure.SecondLines([], 100, 16));
     }
 
     [Theory]
@@ -197,9 +202,9 @@ public sealed class CalendarDaysTests
     public void S2717_the_agenda_columns_height_counts_rows_and_headings_at_one_line()
     {
         DateOnly[] days = [Today, Today, Today.AddDays(1), Today.AddDays(1), Today.AddDays(3)];
-        Assert.Equal(32 + 40 + 40, CalendarFit.AgendaColumnHeight(days, 0, 2, 32, 40, firstHeading: true));
-        Assert.Equal(40 + 40 + 32 + 40, CalendarFit.AgendaColumnHeight(days, 0, 3, 32, 40, firstHeading: false));
-        Assert.Equal(32 + 40 + 32 + 40, CalendarFit.AgendaColumnHeight(days, 3, 9, 32, 40, firstHeading: true));
+        Assert.Equal(32 + 40 + 40, KitPages.ColumnHeight(K(days), 0, 2, 32, 40, firstHeading: true));
+        Assert.Equal(40 + 40 + 32 + 40, KitPages.ColumnHeight(K(days), 0, 3, 32, 40, firstHeading: false));
+        Assert.Equal(32 + 40 + 32 + 40, KitPages.ColumnHeight(K(days), 3, 9, 32, 40, firstHeading: true));
     }
 
     // ---- [S-2718] the day's span bars --------------------------------------------------------------

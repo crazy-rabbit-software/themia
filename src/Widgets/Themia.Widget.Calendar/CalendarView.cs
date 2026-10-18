@@ -46,7 +46,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     private static readonly string ChevronLeft = char.ConvertFromUtf32(0xE76B);
     private static readonly string ChevronRight = char.ConvertFromUtf32(0xE76C);
-    private static readonly string GiftGlyph = char.ConvertFromUtf32(0xF133);
 
     private readonly Grid _content = new();
     private readonly KitStatePanel _state;
@@ -122,7 +121,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         _busy.Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
         _warning.Margin = new Thickness(0, 0, Fluent.Space1, 0);
 
+        _agenda = NewAgenda(host);
         Children.Add(_content);
+        Children.Add(_agenda);
         Children.Add(_state);
     }
 
@@ -156,6 +157,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         UseData(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
 
         Strings.Changed += OnLanguage;
+        _agenda.Attach();
 
         // [S-3620] The view's links: a day selected there already is shown at once.
         JoinLinks(_surface?.Links);
@@ -255,6 +257,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         _warning.Tapped -= OnWarningTapped;
         _state.Detach();
         ClearDrawing();
+        _agenda.Detach();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -537,6 +540,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         ClearDrawing();
 
         var ready = _screen == Screen.Ready;
+        if (!ready || Layout != CalendarStyle.Agenda)
+        {
+            HideAgenda();
+        }
         _warning.Visibility = ready && _warningText is not null ? Visibility.Visible : Visibility.Collapsed;
         ToolTipService.SetToolTip(_warning, _warningText?.Invoke());
 
@@ -775,7 +782,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private static void WrapTitle(TextBlock text)
     {
         text.TextWrapping = TextWrapping.WrapWholeWords;
-        text.MaxLines = CalendarFit.MaxTitleLines;
+        text.MaxLines = Themia.Sdk.Kit.KitPages.MaxTitleLines;
         text.TextTrimming = TextTrimming.CharacterEllipsis;
     }
 

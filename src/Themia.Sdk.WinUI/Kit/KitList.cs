@@ -438,6 +438,7 @@ public sealed partial class KitList : Grid
         _rowHooks.Clear();
         _times.Clear();
         _reveals.Clear();
+        _rings.Clear();
 
         foreach (var row in _rowElements)
         {

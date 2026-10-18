@@ -69,7 +69,7 @@ public sealed partial class KitList
     /// <summary>The keyboard ring on a row, and with it the row's inline actions ([S-7033]).</summary>
     private void Mark(int index, bool focused)
     {
-        RowFocus.Mark(_rowElements[index], focused);
+        RowFocus.Mark(_rings.TryGetValue(index, out var ring) ? ring : _rowElements[index], focused);
 
         if (_reveals.TryGetValue(index, out var reveal))
         {
