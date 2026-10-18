@@ -60,8 +60,6 @@
   "widgetsA.catalog.mixer.label": "ミキサー",
   "widgetsA.catalog.music.description": "Windows で再生中のメディア",
   "widgetsA.catalog.music.label": "再生中",
-  "widgetsA.catalog.network.description": "アクティブなアダプターの 1 秒あたりのバイト数",
-  "widgetsA.catalog.network.label": "ネットワーク",
   "widgetsA.catalog.notes.description": "この PC に保存されるメモ",
   "widgetsA.catalog.ping.description": "ホストまでの往復時間",
   "widgetsA.catalog.shortcuts.description": "すぐ使えるリンク、ファイル、フォルダー",

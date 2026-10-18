@@ -61,8 +61,6 @@
   "widgetsA.catalog.mixer.label": "Mélangeur",
   "widgetsA.catalog.music.description": "Ce que Windows est en train de lire",
   "widgetsA.catalog.music.label": "En cours de lecture",
-  "widgetsA.catalog.network.description": "Octets par seconde sur les cartes actives",
-  "widgetsA.catalog.network.label": "Réseau",
   "widgetsA.catalog.notes.description": "Une note conservée sur cet ordinateur",
   "widgetsA.catalog.ping.description": "Temps d’aller-retour vers un hôte",
   "widgetsA.catalog.shortcuts.description": "Liens, fichiers et dossiers à portée de main",

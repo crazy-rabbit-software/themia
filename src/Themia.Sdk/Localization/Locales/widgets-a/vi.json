@@ -60,8 +60,6 @@
   "widgetsA.catalog.mixer.label": "Bộ trộn âm",
   "widgetsA.catalog.music.description": "Những gì Windows đang phát",
   "widgetsA.catalog.music.label": "Đang phát",
-  "widgetsA.catalog.network.description": "Byte mỗi giây trên các bộ điều hợp đang hoạt động",
-  "widgetsA.catalog.network.label": "Mạng",
   "widgetsA.catalog.notes.description": "Một ghi chú lưu trên máy này",
   "widgetsA.catalog.ping.description": "Thời gian khứ hồi tới một máy chủ",
   "widgetsA.catalog.shortcuts.description": "Liên kết, tệp và thư mục bạn luôn cần đến",

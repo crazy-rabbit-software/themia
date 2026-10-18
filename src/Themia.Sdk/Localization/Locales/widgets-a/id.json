@@ -60,8 +60,6 @@
   "widgetsA.catalog.mixer.label": "Mixer",
   "widgetsA.catalog.music.description": "Apa pun yang sedang diputar Windows",
   "widgetsA.catalog.music.label": "Sedang diputar",
-  "widgetsA.catalog.network.description": "Byte per detik di semua adaptor aktif",
-  "widgetsA.catalog.network.label": "Jaringan",
   "widgetsA.catalog.notes.description": "Catatan yang disimpan di komputer ini",
   "widgetsA.catalog.ping.description": "Waktu pulang-pergi ke host",
   "widgetsA.catalog.shortcuts.description": "Tautan, file, dan folder yang selalu siap",

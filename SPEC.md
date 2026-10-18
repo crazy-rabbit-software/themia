@@ -4002,9 +4002,7 @@ Package SYS-P3. Both meters live in their own files (`Widgets/Meters/BatteryMete
 - **[S-1190]** Network throughput is per adapter (`ThroughputTracker`): a counter that falls is that
   adapter's reset (reads 0 once, re-baselines) and no longer zeroes every other adapter's traffic;
   a new adapter starts from a baseline. Read by the hub once per tick for every tile ([S-2501]).
-- **[S-1191]** Download is the reading; the chart's two series (download filled, upload the thin
-  line) share one top: the window's peak of both, floor 1 KB/s (`RateWindow`), never the session's
-  all-time peak.
+- [S-1191]: moved with the Network widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Network/`).
 - **[S-1192]** Counted adapters: up, not loopback/tunnel, not a packet-capture mirror (name or
   description contains "pcap packet driver"; the standalone Npcap Loopback Adapter is kept), and not
   an NDIS filter binding listed as its own adapter ("WiFi-QoS Packet Scheduler-0000": another
@@ -4047,7 +4045,7 @@ history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
   the ring keeps at least 48 DIPs.
 - **[S-6267]** Only the graph style draws the history (`GaugeConfig.DrawsHistory`); a styled meter's
   page offers no Show history switch ([S-1122]), the chart span stays.
-- **[S-6270]** Network: `NetworkConfig.Style`, **Graph** ([S-1191]) and **Numbers** ([S-6264]).
+- [S-6270]: moved with the Network widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Network/`).
 - **[S-6271]** Disk: `DiskConfig.Style`, **Graph** ([S-1820]) and **Bars** ([S-6265]). A bar's share
   is its rate against the top the graph would have: the doubling of 1 MB/s past the peak of the last
   minute's totals and this sample's ([S-1821], `DiskRules.BarShares`), so idle reads as a sliver; the

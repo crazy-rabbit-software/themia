@@ -60,8 +60,6 @@
   "widgetsA.catalog.mixer.label": "音量混合程式",
   "widgetsA.catalog.music.description": "Windows 正在播放的內容",
   "widgetsA.catalog.music.label": "正在播放",
-  "widgetsA.catalog.network.description": "使用中介面卡的每秒位元組數",
-  "widgetsA.catalog.network.label": "網路",
   "widgetsA.catalog.notes.description": "保存在此電腦上的筆記",
   "widgetsA.catalog.ping.description": "到主機的來回時間",
   "widgetsA.catalog.shortcuts.description": "隨手可用的連結、檔案和資料夾",

@@ -119,7 +119,7 @@ public sealed class QuickSetTests
     {
         var a = Widget(new WidgetId("cpu"), "a");
         var b = Widget(new WidgetId("memory"), "b");
-        var c = Widget(NetworkConfig.Descriptor.Id, "c");
+        var c = Widget(new WidgetId("network"), "c");
         b.Background = FillChoice.Transparent();
         var (_, view, other) = State(a, b, c);
 

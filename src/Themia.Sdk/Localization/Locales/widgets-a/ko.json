@@ -60,8 +60,6 @@
   "widgetsA.catalog.mixer.label": "볼륨 믹서",
   "widgetsA.catalog.music.description": "Windows에서 재생 중인 항목",
   "widgetsA.catalog.music.label": "지금 재생 중",
-  "widgetsA.catalog.network.description": "활성 어댑터의 초당 바이트",
-  "widgetsA.catalog.network.label": "네트워크",
   "widgetsA.catalog.notes.description": "이 컴퓨터에 보관되는 메모",
   "widgetsA.catalog.ping.description": "호스트까지의 왕복 시간",
   "widgetsA.catalog.shortcuts.description": "가까이 두는 링크, 파일 및 폴더",

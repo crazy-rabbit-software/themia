@@ -60,8 +60,6 @@
   "widgetsA.catalog.mixer.label": "Mixer",
   "widgetsA.catalog.music.description": "Whatever Windows is playing",
   "widgetsA.catalog.music.label": "Now playing",
-  "widgetsA.catalog.network.description": "Bytes per second across the active adapters",
-  "widgetsA.catalog.network.label": "Network",
   "widgetsA.catalog.notes.description": "A note kept on this machine",
   "widgetsA.catalog.ping.description": "Round-trip time to a host",
   "widgetsA.catalog.shortcuts.description": "Links, files and folders you keep to hand",

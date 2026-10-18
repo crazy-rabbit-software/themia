@@ -61,8 +61,6 @@
   "widgetsA.catalog.mixer.label": "मिक्सर",
   "widgetsA.catalog.music.description": "Windows में जो भी चल रहा है",
   "widgetsA.catalog.music.label": "अभी चल रहा है",
-  "widgetsA.catalog.network.description": "सक्रिय एडेप्टर पर प्रति सेकंड बाइट",
-  "widgetsA.catalog.network.label": "नेटवर्क",
   "widgetsA.catalog.notes.description": "इस मशीन पर रखा एक नोट",
   "widgetsA.catalog.ping.description": "किसी होस्ट तक आने-जाने का समय",
   "widgetsA.catalog.shortcuts.description": "पास रखे लिंक, फ़ाइलें और फ़ोल्डर",

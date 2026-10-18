@@ -61,8 +61,6 @@
   "widgetsA.catalog.mixer.label": "Misturador",
   "widgetsA.catalog.music.description": "O que o Windows estiver reproduzindo",
   "widgetsA.catalog.music.label": "Tocando agora",
-  "widgetsA.catalog.network.description": "Bytes por segundo nos adaptadores ativos",
-  "widgetsA.catalog.network.label": "Rede",
   "widgetsA.catalog.notes.description": "Uma nota guardada neste computador",
   "widgetsA.catalog.ping.description": "Tempo de ida e volta até um host",
   "widgetsA.catalog.shortcuts.description": "Links, arquivos e pastas sempre à mão",

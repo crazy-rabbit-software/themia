@@ -61,8 +61,6 @@
   "widgetsA.catalog.mixer.label": "Mezclador",
   "widgetsA.catalog.music.description": "Lo que Windows esté reproduciendo",
   "widgetsA.catalog.music.label": "Reproduciendo",
-  "widgetsA.catalog.network.description": "Bytes por segundo en los adaptadores activos",
-  "widgetsA.catalog.network.label": "Red",
   "widgetsA.catalog.notes.description": "Una nota guardada en este equipo",
   "widgetsA.catalog.ping.description": "Tiempo de ida y vuelta a un host",
   "widgetsA.catalog.shortcuts.description": "Enlaces, archivos y carpetas siempre a mano",

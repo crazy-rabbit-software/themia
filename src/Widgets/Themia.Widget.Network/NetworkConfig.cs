@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Network;
 
 namespace Themia.Core.Model;
 
@@ -28,31 +28,13 @@ public sealed class NetworkConfig : GaugeConfig, IStyled, IReadsSystem
     private static readonly StyleOption[] NetworkStyles =
     [
         StyleOption.Of(NetworkStyle.Graph, Str.Styles_Io_Graph.Local(), 0xE9D2),
-        StyleOption.Of(NetworkStyle.Numbers, Str.Styles_Io_Numbers.Local(), 0xE896),
+        StyleOption.Of(NetworkStyle.Numbers, NetworkStr.Styles_Io_Numbers.Local(), 0xE896),
     ];
 
     public NetworkConfig()
         : base(graphSpanSeconds: 60)
     {
     }
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("network"),
-        ConfigType = typeof(NetworkConfig),
-        CreateDefault = () => new NetworkConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["internet", "bandwidth", "wifi", "ethernet", "speed", "traffic", "up down"],
-        Label = Str.WidgetsA_Catalog_Network_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Network_Description.Local(),
-        Glyph = Glyphs.Network,
-        DefaultWidth = 200,
-        DefaultHeight = 150,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.NetworkReading, 0, 0),
-    };
 
     /// <summary>[S-6270] The meter's look; what was its history switch ([S-6000]).</summary>
     public NetworkStyle Style { get; set; } = NetworkStyle.Graph;

@@ -63,8 +63,6 @@
   "widgetsA.catalog.mixer.label": "Микшер",
   "widgetsA.catalog.music.description": "Все, что воспроизводит Windows",
   "widgetsA.catalog.music.label": "Сейчас играет",
-  "widgetsA.catalog.network.description": "Байты в секунду по активным адаптерам",
-  "widgetsA.catalog.network.label": "Сеть",
   "widgetsA.catalog.notes.description": "Заметка, хранящаяся на этом компьютере",
   "widgetsA.catalog.ping.description": "Время отклика узла",
   "widgetsA.catalog.shortcuts.description": "Ссылки, файлы и папки под рукой",

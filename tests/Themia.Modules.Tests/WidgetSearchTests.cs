@@ -22,7 +22,7 @@ public sealed class WidgetSearchTests
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
         new("weatherForecast", ["Weather Forecast"], Original(new WidgetId("weatherForecast")),
             ["Multi-day weather outlook for any location"], ["Online"]),
-        new("net", ["Network Monitor"], ModuleCatalog.Of(NetworkConfig.Descriptor.Id).Keywords,
+        new("net", ["Network Monitor"], ModuleCatalog.Of(new WidgetId("network")).Keywords,
             ["Live upload and download speeds"], ["System"]),
         new("cpu", ["CPU Monitor"], ModuleCatalog.Of(new WidgetId("cpu")).Keywords,
             ["Live CPU usage and per-core load"], ["System"]),

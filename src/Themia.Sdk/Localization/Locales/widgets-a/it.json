@@ -61,8 +61,6 @@
   "widgetsA.catalog.mixer.label": "Mixer",
   "widgetsA.catalog.music.description": "Quello che Windows sta riproducendo",
   "widgetsA.catalog.music.label": "In riproduzione",
-  "widgetsA.catalog.network.description": "Byte al secondo sulle schede attive",
-  "widgetsA.catalog.network.label": "Rete",
   "widgetsA.catalog.notes.description": "Una nota salvata su questo computer",
   "widgetsA.catalog.ping.description": "Tempo di andata e ritorno verso un host",
   "widgetsA.catalog.shortcuts.description": "Link, file e cartelle sempre a portata di mano",
