@@ -22,16 +22,6 @@ public enum StreamFit
     Stretch = 2,
 }
 
-/// <summary>[S-468] Clockwise rotation for a camera mounted sideways or upside down. A closed set.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<StreamRotation>))]
-public enum StreamRotation
-{
-    None = 0,
-    Quarter = 90,
-    Half = 180,
-    ThreeQuarter = 270,
-}
-
 /// <summary>
 /// A live camera picture: an MJPEG stream, a snapshot endpoint polled on an interval, or a video
 /// stream Windows can play itself.

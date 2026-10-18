@@ -23,7 +23,7 @@ namespace Themia.App.Widgets;
 /// stop at the card rather than paint over its neighbours.
 /// </para>
 /// </summary>
-internal sealed partial class RotatedBox : Panel
+public sealed partial class RotatedBox : Panel
 {
     private readonly RectangleGeometry _clip = new();
     private double _angle;
