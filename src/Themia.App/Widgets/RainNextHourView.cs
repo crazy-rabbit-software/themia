@@ -172,7 +172,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
             return;
         }
 
-        _want = OnlineCadence.For(_config);
+        _want = _config.Interest();
         if (_want is null)
         {
             _status = FetchStatus.NotConfigured;

@@ -46,11 +46,20 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {
-        if (SyncInterests.For(this, UpdateCadence.Interval(interests.Refresh, HostCadences.Markets)) is { } wants)
+        if (Interest(UpdateCadence.Interval(interests.Refresh, HostCadences.Markets)) is { } wants)
         {
-            interests.Quotes.Add(wants);
+            interests.Of<QuoteInterest>().Add(wants);
         }
     }
+
+    /// <summary>[S-2663] What it asks for, or null without a usable symbol: the one rule the widget and the sync share.</summary>
+    public QuoteInterest? Interest() => Interest(UpdateCadence.Interval(HostCadences.Markets));
+
+    /// <summary>[S-2663] <see cref="Interest()"/> at a given cadence ([S-3780]).</summary>
+    public QuoteInterest? Interest(TimeSpan interval)
+        => EffectiveSymbol is { Length: > 0 } symbol
+            ? new QuoteInterest(symbol, Market, Range, WantsPrePost, interval)
+            : null;
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => string.IsNullOrWhiteSpace(Symbol);

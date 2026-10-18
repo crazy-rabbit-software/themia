@@ -233,7 +233,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             return;
         }
 
-        _want = SyncInterests.For(_config);
+        _want = _config.Interest();
         if (_want is null)
         {
             // Told apart on purpose: nothing typed is "not set up", something typed that is not a

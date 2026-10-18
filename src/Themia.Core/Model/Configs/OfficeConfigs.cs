@@ -101,7 +101,7 @@ public enum ContactColumn
 public abstract class CalendarConfig : WidgetConfig, ISetupRule, IInterests
 {
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
-    public virtual void AddInterests(InterestsBuilder interests) => interests.Calendar.Add(new CalendarInterest([.. AccountIds], Calendars, ShowBirthdays));
+    public virtual void AddInterests(InterestsBuilder interests) => interests.Of<CalendarInterest>().Add(new CalendarInterest([.. AccountIds], Calendars, ShowBirthdays));
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public virtual bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Calendar);
@@ -352,7 +352,7 @@ public enum ContactsSetting
 public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests
 {
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
-    public void AddInterests(InterestsBuilder interests) => interests.Contacts.Add(new ContactsInterest([.. AccountIds]));
+    public void AddInterests(InterestsBuilder interests) => interests.Of<ContactsInterest>().Add(new ContactsInterest([.. AccountIds]));
 
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Contacts);

@@ -70,10 +70,10 @@ public sealed class SyncHousekeepingTests : IDisposable
         var state = State([now, stock]);
 
         var interests = SyncInterests.From(state);
-        Assert.Equal(SyncInterests.For(now), Assert.Single(interests.Weather));
-        Assert.Equal(SyncInterests.For(stock), Assert.Single(interests.Quotes));
-        Assert.Null(SyncInterests.For(new WeatherForecastConfig()));
-        Assert.Null(SyncInterests.For(new StocksConfig { Symbol = "   " }));
+        Assert.Equal(WeatherInterests.For(now), Assert.Single(interests.Weather));
+        Assert.Equal(stock.Interest(), Assert.Single(interests.Quotes));
+        Assert.Null(WeatherInterests.For(new WeatherForecastConfig()));
+        Assert.Null(new StocksConfig { Symbol = "   " }.Interest());
 
         var key = interests.Key();
         state.Preferences.Region.Temperature = TemperatureScale.Fahrenheit;

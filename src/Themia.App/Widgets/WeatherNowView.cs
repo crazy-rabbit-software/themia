@@ -262,7 +262,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
             return;
         }
 
-        _want = SyncInterests.For(_config);
+        _want = WeatherInterests.For(_config);
         if (_want is null)
         {
             _status = FetchStatus.NotConfigured;

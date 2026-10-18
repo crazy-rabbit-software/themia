@@ -500,7 +500,7 @@ public sealed class OnlineWidgetsTests
         Assert.Equal(new RatesInterest(OnlineCadence.Rates), interests.Rates);
         Assert.Contains("aq|", interests.Key());
         Assert.Contains("fx|", interests.Key());
-        Assert.Null(SyncInterests.For((WeatherConfig)view.Widgets[0].Config));
+        Assert.Null(WeatherInterests.For((WeatherConfig)view.Widgets[0].Config));
     }
 
     [Fact]
@@ -520,8 +520,8 @@ public sealed class OnlineWidgetsTests
     [Fact]
     public void S5101_without_a_place_nothing_is_asked()
     {
-        Assert.Null(OnlineCadence.For(new AirQualityConfig(), TimeSpan.FromHours(1)));
-        Assert.Null(OnlineCadence.For(new RainNextHourConfig(), TimeSpan.FromHours(1)));
+        Assert.Null(new AirQualityConfig().Interest(TimeSpan.FromHours(1)));
+        Assert.Null(new RainNextHourConfig().Interest(TimeSpan.FromHours(1)));
     }
 
     // ---- ladders -------------------------------------------------------------------------------

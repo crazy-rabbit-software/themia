@@ -5,7 +5,7 @@ namespace Themia.Core.Sync;
 
 /// <summary>
 /// [S-2608] [S-6906] What a widget wants the background sync to keep fresh. Implemented by its
-/// config, so <see cref="SyncInterests.From"/> collects every widget's wants without a switch over
+/// config, so the host's <c>SyncInterests.From</c> collects every widget's wants without a switch over
 /// config types; a config without it wants nothing synced.
 /// </summary>
 public interface IInterests
@@ -15,10 +15,14 @@ public interface IInterests
 
 /// <summary>
 /// [S-2608] The wants of every widget on every view, collected once per state change: each widget's
-/// <see cref="IInterests"/> adds to the list its source reads, at the shared cadences ([S-3780]).
+/// <see cref="IInterests"/> adds to the list its source reads (<see cref="Of{T}"/>, one list per
+/// interest type), at the shared cadences ([S-3780]). The SDK names no source: the host reads back
+/// the lists of the interest types its services serve.
 /// </summary>
 public sealed class InterestsBuilder
 {
+    private readonly Dictionary<Type, object> _lists = [];
+
     public InterestsBuilder(RefreshPreferences refresh, TemperatureUnit unit)
     {
         ArgumentNullException.ThrowIfNull(refresh);
@@ -39,32 +43,17 @@ public sealed class InterestsBuilder
 
     public TimeSpan FeedInterval { get; }
 
-    public List<MailInterest> Mail { get; } = [];
-
-    public List<CalendarInterest> Calendar { get; } = [];
-
-    public List<ContactsInterest> Contacts { get; } = [];
-
-    public List<TaskInterest> Tasks { get; } = [];
-
-    public List<FeedInterest> Feeds { get; } = [];
-
-    public List<WeatherInterest> Weather { get; } = [];
-
-    public List<QuoteInterest> Quotes { get; } = [];
-
-    public List<AirInterest> Air { get; } = [];
-
-    public List<RainInterest> Rain { get; } = [];
-
-    /// <summary>[S-5140] The one reference-rate fetch every exchange-rates widget shares.</summary>
-    public RatesInterest? Rates { get; set; }
-
-    public SyncInterests Build() => new(Mail, Calendar, Contacts, Tasks, Feeds, Weather, Quotes)
+    /// <summary>The wants of one interest type, in the order the widgets added them.</summary>
+    public List<T> Of<T>()
+        where T : class
     {
-        AccountInterval = AccountInterval,
-        Air = Air,
-        Rain = Rain,
-        Rates = Rates,
-    };
+        if (_lists.TryGetValue(typeof(T), out var list))
+        {
+            return (List<T>)list;
+        }
+
+        var created = new List<T>();
+        _lists[typeof(T)] = created;
+        return created;
+    }
 }

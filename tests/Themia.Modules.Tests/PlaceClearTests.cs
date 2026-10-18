@@ -139,18 +139,18 @@ public class PlaceClearTests
         var air = (AirQualityConfig)WithPlace(AirQualityConfig.Descriptor.Id);
         var rain = (RainNextHourConfig)WithPlace(RainNextHourConfig.Descriptor.Id);
 
-        Assert.NotNull(SyncInterests.For(now));
-        Assert.NotNull(OnlineCadence.For(air));
+        Assert.NotNull(WeatherInterests.For(now));
+        Assert.NotNull(air.Interest());
 
         foreach (var config in new IPlaced[] { now, forecast, air, rain })
         {
             config.ClearLocation();
         }
 
-        Assert.Null(SyncInterests.For(now));
-        Assert.Null(SyncInterests.For(forecast));
-        Assert.Null(OnlineCadence.For(air));
-        Assert.Null(OnlineCadence.For(rain));
+        Assert.Null(WeatherInterests.For(now));
+        Assert.Null(WeatherInterests.For(forecast));
+        Assert.Null(air.Interest());
+        Assert.Null(rain.Interest());
     }
 
 }

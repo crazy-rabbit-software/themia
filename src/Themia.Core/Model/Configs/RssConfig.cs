@@ -37,7 +37,7 @@ public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
     {
         foreach (var url in FeedUrls)
         {
-            interests.Feeds.Add(new FeedInterest(url, EffectiveMaxItems, interests.FeedInterval));
+            interests.Of<FeedInterest>().Add(new FeedInterest(url, EffectiveMaxItems, interests.FeedInterval));
         }
     }
 

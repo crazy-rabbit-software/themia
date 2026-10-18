@@ -1,7 +1,15 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 
 namespace Themia.Core.Sync;
+
+/// <summary>[S-2663] A weather widget's place and scale.</summary>
+/// <param name="ForecastDays">The forecast's day count, or null for the conditions now (WeatherNow).</param>
+public sealed record WeatherInterest(double Latitude, double Longitude, TemperatureUnit Unit, int? ForecastDays, TimeSpan Interval);
+
+/// <summary>[S-2663] A Stocks widget's instrument and chart: everything that changes the quote asked for.</summary>
+public sealed record QuoteInterest(string Symbol, QuoteMarket Market, QuoteRange Range, bool PrePost, TimeSpan Interval);
 
 /// <summary>[S-5101] An air quality widget's place. The scale is drawn, not asked: one reply carries both indices.</summary>
 public sealed record AirInterest(double Latitude, double Longitude, TimeSpan Interval);
@@ -36,27 +44,34 @@ public static class OnlineCadence
     /// setting: at most eight 70 KB requests a day, and a new day's rates show within three hours.
     /// </summary>
     public static TimeSpan Rates { get; } = TimeSpan.FromHours(3);
+}
 
-    /// <summary>[S-5101] What an air widget asks for, or null without a place.</summary>
-    public static AirInterest? For(AirQualityConfig config, TimeSpan interval)
+/// <summary>[S-2663] What a weather widget asks the sync for: the one rule the widgets and the sync share.</summary>
+public static class WeatherInterests
+{
+    /// <summary>
+    /// [S-2663] What a weather widget asks for, or null when it can ask nothing (no place: the
+    /// widget's own "set up" state, never a request). The widget and the sync use this one rule.
+    /// </summary>
+    public static WeatherInterest? For(WeatherConfig config)
+        => For(config, RegionFormat.Current.Temperature, UpdateCadence.Interval(HostCadences.Weather));
+
+    /// <summary>[S-2663] <see cref="For(WeatherConfig)"/> for a given scale and cadence ([S-3770], [S-3780]).</summary>
+    public static WeatherInterest? For(WeatherConfig config, TemperatureUnit unit, TimeSpan interval)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return WebInput.AreCoordinates(config.Latitude, config.Longitude)
-            ? new AirInterest(config.Latitude!.Value, config.Longitude!.Value, interval)
-            : null;
+
+        if (!WebInput.AreCoordinates(config.Latitude, config.Longitude))
+        {
+            return null;
+        }
+
+        // [S-5101] [S-5121] Only a widget that reads the weather feed asks for it; its siblings ask their own.
+        if (!config.ReadsWeather)
+        {
+            return null;
+        }
+
+        return new WeatherInterest(config.Latitude!.Value, config.Longitude!.Value, unit, config.ForecastDays, interval);
     }
-
-    /// <summary>[S-5121] What a rain widget asks for, or null without a place.</summary>
-    public static RainInterest? For(RainNextHourConfig config, TimeSpan interval)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return WebInput.AreCoordinates(config.Latitude, config.Longitude)
-            ? new RainInterest(config.Latitude!.Value, config.Longitude!.Value, interval)
-            : null;
-    }
-
-    /// <summary>The running app's air widget interest ([S-3780]: the cadence in force).</summary>
-    public static AirInterest? For(AirQualityConfig config) => For(config, Air(UpdateCadence.Current));
-
-    public static RainInterest? For(RainNextHourConfig config) => For(config, Rain(UpdateCadence.Current));
 }

@@ -23,13 +23,6 @@ public sealed record TaskInterest(string AccountId, string ListId, bool ShowComp
 
 public sealed record FeedInterest(string Url, int MaxItems, TimeSpan Interval);
 
-/// <summary>[S-2663] A weather widget's place and scale.</summary>
-/// <param name="ForecastDays">The forecast's day count, or null for the conditions now (WeatherNow).</param>
-public sealed record WeatherInterest(double Latitude, double Longitude, TemperatureUnit Unit, int? ForecastDays, TimeSpan Interval);
-
-/// <summary>[S-2663] A Stocks widget's instrument and chart: everything that changes the quote asked for.</summary>
-public sealed record QuoteInterest(string Symbol, QuoteMarket Market, QuoteRange Range, bool PrePost, TimeSpan Interval);
-
 /// <summary>
 /// [S-2608] What the sync services keep on the shelf: the needs of every widget in every view, shown
 /// or not. A view the user switches to is already synced, so switching draws and asks nothing. The
@@ -147,45 +140,21 @@ public sealed record SyncInterests(
             (widget.Config as IInterests)?.AddInterests(interests);
         }
 
-        return interests.Build();
-    }
-
-    /// <summary>
-    /// [S-2663] What a weather widget asks for, or null when it can ask nothing (no place: the
-    /// widget's own "set up" state, never a request). The widget and the sync use this one rule.
-    /// </summary>
-    public static WeatherInterest? For(WeatherConfig config)
-        => For(config, RegionFormat.Current.Temperature, UpdateCadence.Interval(HostCadences.Weather));
-
-    /// <summary>[S-2663] <see cref="For(WeatherConfig)"/> for a given scale and cadence ([S-3770], [S-3780]).</summary>
-    public static WeatherInterest? For(WeatherConfig config, TemperatureUnit unit, TimeSpan interval)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-
-        if (!WebInput.AreCoordinates(config.Latitude, config.Longitude))
+        return new SyncInterests(
+            interests.Of<MailInterest>(),
+            interests.Of<CalendarInterest>(),
+            interests.Of<ContactsInterest>(),
+            interests.Of<TaskInterest>(),
+            interests.Of<FeedInterest>(),
+            interests.Of<WeatherInterest>(),
+            interests.Of<QuoteInterest>())
         {
-            return null;
-        }
+            AccountInterval = interests.AccountInterval,
+            Air = interests.Of<AirInterest>(),
+            Rain = interests.Of<RainInterest>(),
 
-        // [S-5101] [S-5121] Only a widget that reads the weather feed asks for it; its siblings ask their own.
-        if (!config.ReadsWeather)
-        {
-            return null;
-        }
-
-        return new WeatherInterest(config.Latitude!.Value, config.Longitude!.Value, unit, config.ForecastDays, interval);
-    }
-
-    /// <summary>[S-2663] What a Stocks widget asks for, or null without a usable symbol.</summary>
-    public static QuoteInterest? For(StocksConfig config) => For(config, UpdateCadence.Interval(HostCadences.Markets));
-
-    /// <summary>[S-2663] <see cref="For(StocksConfig)"/> at a given cadence ([S-3780]).</summary>
-    public static QuoteInterest? For(StocksConfig config, TimeSpan interval)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-
-        return config.EffectiveSymbol is { Length: > 0 } symbol
-            ? new QuoteInterest(symbol, config.Market, config.Range, config.WantsPrePost, interval)
-            : null;
+            // [S-5140] Every exchange-rates widget wants the same one table.
+            Rates = interests.Of<RatesInterest>().FirstOrDefault(),
+        };
     }
 }

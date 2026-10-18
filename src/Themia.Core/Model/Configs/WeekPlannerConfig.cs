@@ -34,10 +34,10 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     /// </summary>
     public override void AddInterests(InterestsBuilder interests)
     {
-        interests.Calendar.Add(new CalendarInterest([.. AccountIds], Calendars, ShowBirthdays));
+        interests.Of<CalendarInterest>().Add(new CalendarInterest([.. AccountIds], Calendars, ShowBirthdays));
         if (ShowTasks)
         {
-            interests.Tasks.Add(new TaskInterest(TaskAccountId ?? string.Empty, TaskRules.TodayListId, false, interests.AccountInterval));
+            interests.Of<TaskInterest>().Add(new TaskInterest(TaskAccountId ?? string.Empty, TaskRules.TodayListId, false, interests.AccountInterval));
         }
     }
 

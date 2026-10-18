@@ -54,11 +54,18 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned, 
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {
-        if (OnlineCadence.For(this, OnlineCadence.Air(interests.Refresh)) is { } wants)
+        if (Interest(OnlineCadence.Air(interests.Refresh)) is { } wants)
         {
-            interests.Air.Add(wants);
+            interests.Of<AirInterest>().Add(wants);
         }
     }
+
+    /// <summary>[S-5101] What it asks for, or null without a place; the running app's cadence ([S-3780]).</summary>
+    public AirInterest? Interest() => Interest(OnlineCadence.Air(UpdateCadence.Current));
+
+    /// <summary>[S-5101] <see cref="Interest()"/> at a given cadence.</summary>
+    public AirInterest? Interest(TimeSpan interval)
+        => WebInput.AreCoordinates(Latitude, Longitude) ? new AirInterest(Latitude!.Value, Longitude!.Value, interval) : null;
 
     private static readonly StyleOption[] AirStyles =
     [
@@ -127,11 +134,18 @@ public sealed class RainNextHourConfig : WeatherConfig, IInterests
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {
-        if (OnlineCadence.For(this, OnlineCadence.Rain(interests.Refresh)) is { } wants)
+        if (Interest(OnlineCadence.Rain(interests.Refresh)) is { } wants)
         {
-            interests.Rain.Add(wants);
+            interests.Of<RainInterest>().Add(wants);
         }
     }
+
+    /// <summary>[S-5121] What it asks for, or null without a place; the running app's cadence ([S-3780]).</summary>
+    public RainInterest? Interest() => Interest(OnlineCadence.Rain(UpdateCadence.Current));
+
+    /// <summary>[S-5121] <see cref="Interest()"/> at a given cadence.</summary>
+    public RainInterest? Interest(TimeSpan interval)
+        => WebInput.AreCoordinates(Latitude, Longitude) ? new RainInterest(Latitude!.Value, Longitude!.Value, interval) : null;
 
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -167,7 +181,7 @@ public sealed class RainNextHourConfig : WeatherConfig, IInterests
 public sealed class ExchangeRatesConfig : WidgetConfig, IStyled, IContentAligned, IInterests
 {
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
-    public void AddInterests(InterestsBuilder interests) => interests.Rates = new RatesInterest(OnlineCadence.Rates);
+    public void AddInterests(InterestsBuilder interests) => interests.Of<RatesInterest>().Add(new RatesInterest(OnlineCadence.Rates));
 
     private static readonly StyleOption[] RateStyles =
     [

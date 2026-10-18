@@ -38,9 +38,9 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {
-        if (SyncInterests.For(this, interests.Unit, UpdateCadence.Interval(interests.Refresh, HostCadences.Weather)) is { } wants)
+        if (WeatherInterests.For(this, interests.Unit, UpdateCadence.Interval(interests.Refresh, HostCadences.Weather)) is { } wants)
         {
-            interests.Weather.Add(wants);
+            interests.Of<WeatherInterest>().Add(wants);
         }
     }
 

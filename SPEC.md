@@ -805,7 +805,9 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
 - **[S-6906]** What the host asks a widget's state is asked of its config, never by a switch over
   config types: whether it waits for setup and whether it runs while it waits (`ISetupRule`,
   [S-1860], [S-1881]), whether and where its content aligns (`IContentAligned`, [S-6581]), what the
-  background sync keeps fresh for it (`IInterests`, [S-2608]). A widget that reads an account (its
+  background sync keeps fresh for it (`IInterests`, [S-2608]; an SDK contract over the SDK's
+  `InterestsBuilder`, one typed list per interest kind, `Of<T>()`, so a module's config adds its
+  wants without the SDK naming the host's sources). A widget that reads an account (its
   descriptor names providers) has a setup rule and interests. Which quick setting or power action a toggle or
   power widget stands for is its config's (`QuickToggleConfig.Toggle`, `PowerButtonConfig.Action`;
   `QuickToggleRules`/`PowerActionRules` read them off the catalogue), and whether a place widget
@@ -7266,7 +7268,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   widget on the same answer asks for (weather 5–240 min, quotes 1–120 min), backing off on the
   shared `Backoff`, waking with the network and going now on Refresh. Feeds and these share one
   scheduler (`AnswerSync`). The widget asks the sync for the answer of its own config
-  (`SyncInterests.For`, the same rule), draws what is held, hears `WebSync.Updated`, and its tick only
+  (`WeatherInterests.For`, or the stock config's `Interest()`: the same rule), draws what is held, hears `WebSync.Updated`, and its tick only
   redraws (age, day labels); it never fetches. Offline or failing, the last answer stays with its
   age in the caution colour and the failure in the tooltip ([S-2612]). The quote and weather caches
   are unchanged.
@@ -7616,7 +7618,7 @@ Air quality (`AirQuality`, 128):
   WeatherConfig`): the shared place picker ([S-2840]), the location-name switch and header rule
   ([S-728]); no place is the Set up state ([S-1860]).
 - **[S-5101]** The sync asks for it under its own interest (`AirInterest`, before the weather case,
-  which never claims it: `SyncInterests.For(WeatherConfig)` is only WeatherNow and WeatherForecast).
+  which never claims it: `WeatherInterests.For(WeatherConfig)` is only WeatherNow and WeatherForecast).
   Cadence: the shared weather cadence ([S-3780]) but never faster than hourly (`OnlineCadence.Air`):
   CAMS values are hourly in Europe, three-hourly elsewhere. Rain follows the weather cadence as is.
 - **[S-5102]** open-meteo's air-quality API (`air-quality-api.open-meteo.com/v1/air-quality`,

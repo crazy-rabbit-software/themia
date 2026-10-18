@@ -51,7 +51,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
     {
         if (Source == TaskSource.Account)
         {
-            interests.Tasks.Add(new TaskInterest(AccountId ?? string.Empty, ListId ?? string.Empty, ShowCompleted, interests.AccountInterval));
+            interests.Of<TaskInterest>().Add(new TaskInterest(AccountId ?? string.Empty, ListId ?? string.Empty, ShowCompleted, interests.AccountInterval));
         }
     }
 
