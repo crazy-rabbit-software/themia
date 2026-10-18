@@ -177,6 +177,26 @@ public sealed class KitTests
     public void S7010_no_action_kind_changes_how_a_widget_looks()
         => Assert.DoesNotContain(Enum.GetNames<KitActionKind>(), n => n is "View" or "Sort" or "Column" or "Show" or "Style" or "Filter");
 
+    [Fact]
+    public void S7012_every_kit_icon_and_action_kind_has_its_glyph()
+    {
+        Assert.All(Enum.GetValues<KitIcon>(), icon => Assert.False(string.IsNullOrEmpty(KitIcons.Glyph(icon))));
+        Assert.All(Enum.GetValues<KitActionKind>(), kind => Assert.False(string.IsNullOrEmpty(KitIcons.Glyph(new KitAction(kind, "x")))));
+    }
+
+    /// <summary>
+    /// [S-7012] Fixed: a feed's Open line drew Explorer's "Show more options" picture, because its
+    /// glyph (open in a new window, U+E8A7) is the code point Explorer's art is matched to.
+    /// </summary>
+    [Fact]
+    public void S7012_open_is_the_open_glyph_not_explorers_show_more_options()
+    {
+        var glyph = KitIcons.Glyph(Open);
+
+        Assert.Equal(Themia.App.Shell.Glyphs.Open, glyph);
+        Assert.NotEqual(MenuArt.ShowMoreOptions, MenuArtRules.ForGlyph(char.ConvertToUtf32(glyph, 0)));
+    }
+
     // ---- [S-7020] keys ------------------------------------------------------------------------
 
     [Theory]

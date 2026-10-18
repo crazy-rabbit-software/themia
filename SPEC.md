@@ -917,6 +917,9 @@ The shared parts a list widget is built from, and the rules they keep (design an
   A line whose kind lacks what it needs (an Open without an address, a copy without text) is shown
   disabled. The first copy, Rename and Delete are the icon row's ([S-1740], [S-1741]). The primary
   action (double-click, Enter) is the item's Open when it can run.
+- **[S-7012]** `KitIcons`: one map from every `KitIcon` and action kind to its glyph. Open is the
+  open glyph, as every widget's Open line (fixed: a feed's Open drew Explorer's "Show more options"
+  picture, its glyph being the code point that art is matched to, [S-1754]).
 - **[S-7020]** `KitKeys.Decide`: one key map for every kit list over `ListKeys`, in reading order
   (Left and Right step like Up and Down, across columns): with nothing focused a movement key lands
   on the first item, End on the last ([S-812]); Page Up/Down jump ten; Enter opens, Space toggles, F2

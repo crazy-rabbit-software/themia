@@ -11,7 +11,7 @@ public static class KitIcons
 {
     public static string Glyph(KitIcon icon) => icon switch
     {
-        KitIcon.Open => Glyphs.OpenExternal,
+        KitIcon.Open => Glyphs.Open,
         KitIcon.Web => Glyphs.Globe,
         KitIcon.Link => Glyphs.Link,
         KitIcon.Copy => Glyphs.Copy,
