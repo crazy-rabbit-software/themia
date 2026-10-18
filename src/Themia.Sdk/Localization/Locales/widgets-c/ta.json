@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "அடுத்த கட்டத்துக்குத் தாவு",
   "widgetsC.pomodoro.next": "அடுத்து: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " நிமி",
-  "widgetsC.power.desc.lock": "பூட்டுத் திரையைக் காட்டும்; பயன்பாடுகள் இயங்கிக்கொண்டிருக்கும்",
   "widgetsC.power.desc.signOut": "உங்கள் பயன்பாடுகளை மூடி அமர்வை முடிக்கும்",
   "widgetsC.power.desc.screenOff": "திரைகளை அணைக்கும்; எந்த உள்ளீடும் அவற்றை எழுப்பும்",
   "widgetsC.power.verb.shutdown": "நிறுத்த",

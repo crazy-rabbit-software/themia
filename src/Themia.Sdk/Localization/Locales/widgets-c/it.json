@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Passa alla fase successiva",
   "widgetsC.pomodoro.next": "Poi: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.lock": "Mostra la schermata di blocco; le app restano attive",
   "widgetsC.power.desc.signOut": "Chiude le app e termina la sessione",
   "widgetsC.power.desc.screenOff": "Spegne gli schermi; qualsiasi input li riattiva",
   "widgetsC.power.verb.shutdown": "arrestare",

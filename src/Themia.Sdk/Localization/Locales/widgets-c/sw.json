@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Ruka hadi awamu inayofuata",
   "widgetsC.pomodoro.next": "Inayofuata: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " dak",
-  "widgetsC.power.desc.lock": "Huonyesha skrini iliyofungwa; programu huendelea kufanya kazi",
   "widgetsC.power.desc.signOut": "Hufunga programu zako na kumaliza kipindi chako",
   "widgetsC.power.desc.screenOff": "Huzima maonyesho; ingizo lolote huyaamsha",
   "widgetsC.power.verb.shutdown": "kuzima",

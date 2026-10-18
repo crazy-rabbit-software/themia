@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "رفتن به مرحله بعد",
   "widgetsC.pomodoro.next": "بعدی: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " دقیقه",
-  "widgetsC.power.desc.lock": "صفحه قفل را نشان می‌دهد؛ برنامه‌ها به کار ادامه می‌دهند",
   "widgetsC.power.desc.signOut": "برنامه‌های شما را می‌بندد و جلسه را پایان می‌دهد",
   "widgetsC.power.desc.screenOff": "نمایشگرها را خاموش می‌کند؛ هر ورودی آن‌ها را روشن می‌کند",
   "widgetsC.power.verb.shutdown": "خاموش کردن",

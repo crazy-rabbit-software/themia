@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-1910] Lock.</summary>
-public sealed class LockConfig : PowerButtonConfig
-{
-    /// <summary>The action it stands for.</summary>
-    [JsonIgnore]
-    public override PowerAction Action => PowerAction.Lock;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("lock"),
-        ConfigType = typeof(LockConfig),
-        CreateDefault = () => new LockConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["power", "lock screen", "away", "security"],
-        Label = Str.Power_Action_Lock.Local(),
-        Description = Str.WidgetsC_Power_Desc_Lock.Local(),
-        Glyph = Glyphs.Lock,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
-        Add = new(AddFolderId.PowerButtons, 0, 4),
-    };
-
-    public override WidgetConfig Clone() => new LockConfig { Style = Style };
-}
-
 /// <summary>[S-1910] Sign out.</summary>
 public sealed class SignOutConfig : PowerButtonConfig
 {

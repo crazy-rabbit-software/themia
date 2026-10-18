@@ -15,6 +15,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Foundation;
 using Windows.Graphics;
 
@@ -102,7 +103,7 @@ internal static class MenuRender
                 await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
 
                 // [S-1750] A widget whose page would be empty (a power button): no Settings in the row.
-                var lockButton = WidgetInstance.Create(LockConfig.Descriptor.Id, new FracRect(0.1, 0.6, 0.1, 0.1));
+                var lockButton = WidgetInstance.Create(new WidgetId("lock"), new FracRect(0.1, 0.6, 0.1, 0.1));
                 view.Widgets.Add(lockButton);
                 var bare = new WidgetCard(host, lockButton) { Width = 120, Height = 120 };
                 root.Children.Add(new Canvas { Children = { bare } });

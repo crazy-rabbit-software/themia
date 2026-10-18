@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "पुढच्या टप्प्यावर जा",
   "widgetsC.pomodoro.next": "पुढील: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " मि",
-  "widgetsC.power.desc.lock": "लॉक स्क्रीन दाखवते; अ‍ॅप्स चालू राहतात",
   "widgetsC.power.desc.signOut": "तुमची अ‍ॅप्स बंद करते आणि तुमचे सत्र संपवते",
   "widgetsC.power.desc.screenOff": "डिस्प्ले बंद करते; कोणतेही इनपुट ते जागे करते",
   "widgetsC.power.verb.shutdown": "बंद",

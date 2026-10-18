@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Pular para a próxima fase",
   "widgetsC.pomodoro.next": "Próximo: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.lock": "Mostra a tela de bloqueio; os aplicativos continuam abertos",
   "widgetsC.power.desc.signOut": "Fecha seus aplicativos e encerra a sessão",
   "widgetsC.power.desc.screenOff": "Desliga as telas; qualquer entrada as reativa",
   "widgetsC.power.verb.shutdown": "desligar",

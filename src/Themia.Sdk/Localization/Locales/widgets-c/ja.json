@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "次のフェーズへスキップ",
   "widgetsC.pomodoro.next": "次: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " 分",
-  "widgetsC.power.desc.lock": "ロック画面を表示します。アプリは実行されたままです",
   "widgetsC.power.desc.signOut": "アプリを閉じてセッションを終了します",
   "widgetsC.power.desc.screenOff": "ディスプレイをオフにします。何か操作すると復帰します",
   "widgetsC.power.verb.shutdown": "シャットダウン",

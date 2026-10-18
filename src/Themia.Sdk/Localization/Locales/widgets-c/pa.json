@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "ਅਗਲੇ ਪੜਾਅ ਉੱਤੇ ਜਾਓ",
   "widgetsC.pomodoro.next": "ਅਗਲਾ: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " ਮਿੰਟ",
-  "widgetsC.power.desc.lock": "ਲੌਕ ਸਕ੍ਰੀਨ ਦਿਖਾਉਂਦਾ ਹੈ; ਐਪਾਂ ਚੱਲਦੀਆਂ ਰਹਿੰਦੀਆਂ ਹਨ",
   "widgetsC.power.desc.signOut": "ਤੁਹਾਡੀਆਂ ਐਪਾਂ ਬੰਦ ਕਰਦਾ ਹੈ ਅਤੇ ਤੁਹਾਡਾ ਸੈਸ਼ਨ ਖ਼ਤਮ ਕਰਦਾ ਹੈ",
   "widgetsC.power.desc.screenOff": "ਡਿਸਪਲੇ ਬੰਦ ਕਰਦਾ ਹੈ; ਕੋਈ ਵੀ ਇਨਪੁੱਟ ਉਹਨਾਂ ਨੂੰ ਜਗਾਉਂਦਾ ਹੈ",
   "widgetsC.power.verb.shutdown": "ਬੰਦ ਕਰਨ",

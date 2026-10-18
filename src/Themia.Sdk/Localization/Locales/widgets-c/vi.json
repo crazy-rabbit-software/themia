@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Chuyển sang giai đoạn tiếp theo",
   "widgetsC.pomodoro.next": "Tiếp theo: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " phút",
-  "widgetsC.power.desc.lock": "Hiện màn hình khóa; ứng dụng vẫn chạy",
   "widgetsC.power.desc.signOut": "Đóng ứng dụng và kết thúc phiên làm việc",
   "widgetsC.power.desc.screenOff": "Tắt màn hình; thao tác bất kỳ sẽ bật lại",
   "widgetsC.power.verb.shutdown": "tắt máy",
