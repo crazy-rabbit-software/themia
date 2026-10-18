@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Uzamsal ses",
   "toggles.monoAudio.name": "Mono ses",
   "toggles.colorFilters.name": "Renk filtreleri",
-  "toggles.colorFilters.label": "Renk filtreleri aç/kapat",
-  "toggles.colorFilters.desc": "Ekranın renk filtresini açar veya kapatır",
   "toggles.gameMode.name": "Oyun Modu",
   "toggles.gameMode.label": "Oyun Modu aç/kapat",
   "toggles.gameMode.desc": "Windows'un oynadığınız oyuna öncelik vermesini sağlar",

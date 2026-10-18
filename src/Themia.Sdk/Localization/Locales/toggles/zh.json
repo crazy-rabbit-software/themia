@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "空间音效",
   "toggles.monoAudio.name": "单声道音频",
   "toggles.colorFilters.name": "颜色滤镜",
-  "toggles.colorFilters.label": "颜色滤镜 开/关",
-  "toggles.colorFilters.desc": "打开或关闭屏幕的颜色滤镜",
   "toggles.gameMode.name": "游戏模式",
   "toggles.gameMode.label": "游戏模式 开/关",
   "toggles.gameMode.desc": "让 Windows 优先处理正在玩的游戏",

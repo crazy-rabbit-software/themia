@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Son spatial",
   "toggles.monoAudio.name": "Audio mono",
   "toggles.colorFilters.name": "Filtres de couleur",
-  "toggles.colorFilters.label": "Filtres de couleur activés/désactivés",
-  "toggles.colorFilters.desc": "Active ou désactive le filtre de couleur de l'écran",
   "toggles.gameMode.name": "Mode jeu",
   "toggles.gameMode.label": "Mode jeu activé/désactivé",
   "toggles.gameMode.desc": "Permet à Windows de donner la priorité au jeu en cours",

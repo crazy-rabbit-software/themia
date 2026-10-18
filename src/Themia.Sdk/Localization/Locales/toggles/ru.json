@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Пространственный звук",
   "toggles.monoAudio.name": "Монозвук",
   "toggles.colorFilters.name": "Цветовые фильтры",
-  "toggles.colorFilters.label": "Цветовые фильтры вкл./откл.",
-  "toggles.colorFilters.desc": "Включает или отключает цветовой фильтр экрана",
   "toggles.gameMode.name": "Игровой режим",
   "toggles.gameMode.label": "Игровой режим вкл./откл.",
   "toggles.gameMode.desc": "Позволяет Windows отдать приоритет вашей игре",

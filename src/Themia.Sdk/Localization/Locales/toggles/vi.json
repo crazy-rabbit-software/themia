@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Âm thanh không gian",
   "toggles.monoAudio.name": "Âm thanh đơn kênh",
   "toggles.colorFilters.name": "Bộ lọc màu",
-  "toggles.colorFilters.label": "Bật/tắt bộ lọc màu",
-  "toggles.colorFilters.desc": "Bật hoặc tắt bộ lọc màu của màn hình",
   "toggles.gameMode.name": "Chế độ trò chơi",
   "toggles.gameMode.label": "Bật/tắt chế độ trò chơi",
   "toggles.gameMode.desc": "Để Windows ưu tiên trò chơi bạn đang chơi",

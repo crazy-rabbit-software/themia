@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.colorFilters.label": "Color filters on/off",
+  "toggles.colorFilters.desc": "Turns the screen's color filter on or off"
+}

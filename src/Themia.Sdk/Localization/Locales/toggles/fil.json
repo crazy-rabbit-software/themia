@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Spatial sound",
   "toggles.monoAudio.name": "Mono audio",
   "toggles.colorFilters.name": "Mga color filter",
-  "toggles.colorFilters.label": "I-on/i-off ang mga color filter",
-  "toggles.colorFilters.desc": "Ino-on o ino-off ang color filter ng screen",
   "toggles.gameMode.name": "Game mode",
   "toggles.gameMode.label": "I-on/i-off ang Game mode",
   "toggles.gameMode.desc": "Hinahayaan ang Windows na unahin ang larong nilalaro mo",

@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Dźwięk przestrzenny",
   "toggles.monoAudio.name": "Dźwięk mono",
   "toggles.colorFilters.name": "Filtry kolorów",
-  "toggles.colorFilters.label": "Filtry kolorów wł./wył.",
-  "toggles.colorFilters.desc": "Włącza lub wyłącza filtr kolorów ekranu",
   "toggles.gameMode.name": "Tryb gry",
   "toggles.gameMode.label": "Tryb gry wł./wył.",
   "toggles.gameMode.desc": "Pozwala systemowi Windows dać pierwszeństwo grze",

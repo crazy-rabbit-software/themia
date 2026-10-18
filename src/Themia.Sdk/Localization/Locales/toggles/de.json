@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Raumklang",
   "toggles.monoAudio.name": "Monoaudio",
   "toggles.colorFilters.name": "Farbfilter",
-  "toggles.colorFilters.label": "Farbfilter ein/aus",
-  "toggles.colorFilters.desc": "Schaltet den Farbfilter des Bildschirms ein oder aus",
   "toggles.gameMode.name": "Spielmodus",
   "toggles.gameMode.label": "Spielmodus ein/aus",
   "toggles.gameMode.desc": "Lässt Windows dem laufenden Spiel Vorrang geben",

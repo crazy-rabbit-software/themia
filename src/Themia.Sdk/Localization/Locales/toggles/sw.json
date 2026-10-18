@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Sauti ya anga",
   "toggles.monoAudio.name": "Sauti ya mono",
   "toggles.colorFilters.name": "Vichujio vya rangi",
-  "toggles.colorFilters.label": "Vichujio vya rangi washa/zima",
-  "toggles.colorFilters.desc": "Huwasha au kuzima kichujio cha rangi cha skrini",
   "toggles.gameMode.name": "Hali ya mchezo",
   "toggles.gameMode.label": "Hali ya mchezo washa/zima",
   "toggles.gameMode.desc": "Huruhusu Windows itangulize mchezo unaocheza",

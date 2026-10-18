@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "เสียงรอบทิศทาง",
   "toggles.monoAudio.name": "เสียงโมโน",
   "toggles.colorFilters.name": "ฟิลเตอร์สี",
-  "toggles.colorFilters.label": "เปิด/ปิดฟิลเตอร์สี",
-  "toggles.colorFilters.desc": "เปิดหรือปิดฟิลเตอร์สีของหน้าจอ",
   "toggles.gameMode.name": "โหมดเกม",
   "toggles.gameMode.label": "เปิด/ปิดโหมดเกม",
   "toggles.gameMode.desc": "ให้ Windows จัดลำดับความสำคัญให้เกมที่คุณเล่นเป็นอันดับแรก",

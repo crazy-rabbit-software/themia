@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "مکانی آواز",
   "toggles.monoAudio.name": "مونو آڈیو",
   "toggles.colorFilters.name": "رنگ فلٹرز",
-  "toggles.colorFilters.label": "رنگ فلٹرز آن/آف",
-  "toggles.colorFilters.desc": "اسکرین کا رنگ فلٹر آن یا آف کرتا ہے",
   "toggles.gameMode.name": "گیم وضع",
   "toggles.gameMode.label": "گیم وضع آن/آف",
   "toggles.gameMode.desc": "Windows کو آپ کی گیم کو ترجیح دینے دیتا ہے",

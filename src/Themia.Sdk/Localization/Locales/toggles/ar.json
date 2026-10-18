@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "الصوت المكاني",
   "toggles.monoAudio.name": "صوت أحادي",
   "toggles.colorFilters.name": "عوامل تصفية الألوان",
-  "toggles.colorFilters.label": "تشغيل/إيقاف عوامل تصفية الألوان",
-  "toggles.colorFilters.desc": "تشغيل عامل تصفية ألوان الشاشة أو إيقافه",
   "toggles.gameMode.name": "وضع اللعبة",
   "toggles.gameMode.label": "تشغيل/إيقاف وضع اللعبة",
   "toggles.gameMode.desc": "السماح لـ Windows بإعطاء الأولوية للعبة التي تلعبها",

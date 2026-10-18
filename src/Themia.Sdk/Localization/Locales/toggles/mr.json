@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "स्पेशियल साउंड",
   "toggles.monoAudio.name": "मोनो ऑडिओ",
   "toggles.colorFilters.name": "रंग फिल्टर",
-  "toggles.colorFilters.label": "रंग फिल्टर चालू/बंद",
-  "toggles.colorFilters.desc": "स्क्रीनचा रंग फिल्टर चालू किंवा बंद करते",
   "toggles.gameMode.name": "गेम मोड",
   "toggles.gameMode.label": "गेम मोड चालू/बंद",
   "toggles.gameMode.desc": "तुम्ही खेळत असलेल्या गेमला Windows प्राधान्य देऊ देते",

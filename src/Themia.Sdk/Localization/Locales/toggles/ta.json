@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "இடஞ்சார் ஒலி",
   "toggles.monoAudio.name": "மோனோ ஆடியோ",
   "toggles.colorFilters.name": "வண்ண வடிப்பான்கள்",
-  "toggles.colorFilters.label": "வண்ண வடிப்பான்கள் இயக்கு/முடக்கு",
-  "toggles.colorFilters.desc": "திரையின் வண்ண வடிப்பானை இயக்கும் அல்லது முடக்கும்",
   "toggles.gameMode.name": "கேம் பயன்முறை",
   "toggles.gameMode.label": "கேம் பயன்முறை இயக்கு/முடக்கு",
   "toggles.gameMode.desc": "நீங்கள் விளையாடும் கேமுக்கு Windows முன்னுரிமை தரும்",

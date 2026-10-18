@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "صدای فضایی",
   "toggles.monoAudio.name": "صدای مونو",
   "toggles.colorFilters.name": "فیلترهای رنگ",
-  "toggles.colorFilters.label": "روشن/خاموش فیلترهای رنگ",
-  "toggles.colorFilters.desc": "فیلتر رنگ صفحه را روشن یا خاموش می‌کند",
   "toggles.gameMode.name": "حالت بازی",
   "toggles.gameMode.label": "روشن/خاموش حالت بازی",
   "toggles.gameMode.desc": "به Windows اجازه می‌دهد بازی شما را در اولویت بگذارد",

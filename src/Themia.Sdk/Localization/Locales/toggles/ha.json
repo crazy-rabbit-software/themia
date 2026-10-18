@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Sautin sarari",
   "toggles.monoAudio.name": "Sautin mono",
   "toggles.colorFilters.name": "Matatun launi",
-  "toggles.colorFilters.label": "Kunna/kashe matatun launi",
-  "toggles.colorFilters.desc": "Yana kunna ko kashe matatar launi ta allo",
   "toggles.gameMode.name": "Yanayin wasa",
   "toggles.gameMode.label": "Kunna/kashe yanayin wasa",
   "toggles.gameMode.desc": "Yana bari Windows ta fifita wasan da kake yi",

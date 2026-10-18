@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "স্প্যাশিয়াল সাউন্ড",
   "toggles.monoAudio.name": "মোনো অডিও",
   "toggles.colorFilters.name": "কালার ফিল্টার",
-  "toggles.colorFilters.label": "কালার ফিল্টার চালু/বন্ধ",
-  "toggles.colorFilters.desc": "স্ক্রিনের কালার ফিল্টার চালু বা বন্ধ করে",
   "toggles.gameMode.name": "গেম মোড",
   "toggles.gameMode.label": "গেম মোড চালু/বন্ধ",
   "toggles.gameMode.desc": "Windows-কে আপনার খেলা গেমকে অগ্রাধিকার দিতে দেয়",

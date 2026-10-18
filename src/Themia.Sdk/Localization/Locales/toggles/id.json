@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Suara spasial",
   "toggles.monoAudio.name": "Audio mono",
   "toggles.colorFilters.name": "Filter warna",
-  "toggles.colorFilters.label": "Filter warna aktif/nonaktif",
-  "toggles.colorFilters.desc": "Mengaktifkan atau menonaktifkan filter warna layar",
   "toggles.gameMode.name": "Mode Game",
   "toggles.gameMode.label": "Mode Game aktif/nonaktif",
   "toggles.gameMode.desc": "Membiarkan Windows memprioritaskan game yang Anda mainkan",

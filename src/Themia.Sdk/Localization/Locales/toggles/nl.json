@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "Ruimtelijk geluid",
   "toggles.monoAudio.name": "Mono-audio",
   "toggles.colorFilters.name": "Kleurfilters",
-  "toggles.colorFilters.label": "Kleurfilters aan/uit",
-  "toggles.colorFilters.desc": "Zet het kleurfilter van het scherm aan of uit",
   "toggles.gameMode.name": "Spelmodus",
   "toggles.gameMode.label": "Spelmodus aan/uit",
   "toggles.gameMode.desc": "Laat Windows voorrang geven aan het spel dat je speelt",

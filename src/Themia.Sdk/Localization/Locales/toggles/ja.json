@@ -13,8 +13,6 @@
   "toggles.spatialSound.name": "立体音響",
   "toggles.monoAudio.name": "モノラル オーディオ",
   "toggles.colorFilters.name": "カラー フィルター",
-  "toggles.colorFilters.label": "カラー フィルター オン/オフ",
-  "toggles.colorFilters.desc": "画面のカラー フィルターをオンまたはオフにします",
   "toggles.gameMode.name": "ゲーム モード",
   "toggles.gameMode.label": "ゲーム モード オン/オフ",
   "toggles.gameMode.desc": "プレイ中のゲームを Windows が優先します",

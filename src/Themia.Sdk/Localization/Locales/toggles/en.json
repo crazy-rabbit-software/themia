@@ -12,8 +12,6 @@
   "toggles.spatialSound.name": "Spatial sound",
   "toggles.monoAudio.name": "Mono audio",
   "toggles.colorFilters.name": "Color filters",
-  "toggles.colorFilters.label": "Color filters on/off",
-  "toggles.colorFilters.desc": "Turns the screen's color filter on or off",
   "toggles.gameMode.name": "Game mode",
   "toggles.gameMode.label": "Game mode on/off",
   "toggles.gameMode.desc": "Lets Windows put the game you play first",
