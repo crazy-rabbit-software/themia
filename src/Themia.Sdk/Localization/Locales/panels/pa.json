@@ -1,18 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "panels.notifications.label": "ਸੂਚਨਾਵਾਂ",
-  "panels.notifications.desc": "Windows ਦੀਆਂ ਸੂਚਨਾਵਾਂ, ਐਪ ਅਨੁਸਾਰ ਸਮੂਹਬੱਧ",
-  "panels.notifications.none": "ਕੋਈ ਨਵੀਂ ਸੂਚਨਾ ਨਹੀਂ",
-  "panels.notifications.clearAll": "ਸਭ ਸਾਫ਼ ਕਰੋ",
-  "panels.notifications.clearApp": "{app} ਤੋਂ ਸਭ ਸਾਫ਼ ਕਰੋ",
-  "panels.notifications.dismiss": "ਖਾਰਜ ਕਰੋ",
-  "panels.notifications.open": "{app} ਖੋਲ੍ਹੋ",
-  "panels.notifications.seeMore": "ਹੋਰ ਦੇਖੋ ({count})",
-  "panels.notifications.seeFewer": "ਘੱਟ ਦੇਖੋ",
-  "panels.notifications.denied": "Themia ਲਈ ਸੂਚਨਾ ਪਹੁੰਚ ਬੰਦ ਹੈ",
-  "panels.notifications.unspecified": "Themia ਨੂੰ ਤੁਹਾਡੀਆਂ ਸੂਚਨਾਵਾਂ ਪੜ੍ਹਨ ਦਿਓ",
-  "panels.notifications.allow": "ਇਜਾਜ਼ਤ ਦਿਓ",
-  "panels.notifications.openSettings": "ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ",
-  "panels.notifications.unsupported": "Windows ਦੇ ਇਸ ਸੰਸਕਰਣ ਵਿੱਚ ਪੜ੍ਹਨ ਲਈ ਕੋਈ ਸੂਚਨਾ ਸੂਚੀ ਨਹੀਂ ਹੈ",
   "panels.focus.minutes": "{minutes} ਮਿੰਟ"
 }

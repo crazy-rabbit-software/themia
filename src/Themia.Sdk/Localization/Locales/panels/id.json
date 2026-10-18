@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "Notifikasi",
-  "panels.notifications.desc": "Notifikasi Windows, dikelompokkan menurut aplikasi",
-  "panels.notifications.none": "Tidak ada notifikasi baru",
-  "panels.notifications.clearAll": "Hapus semua",
-  "panels.notifications.clearApp": "Hapus semua dari {app}",
-  "panels.notifications.dismiss": "Tutup",
-  "panels.notifications.open": "Buka {app}",
-  "panels.notifications.seeMore": "Lihat lainnya ({count})",
-  "panels.notifications.seeFewer": "Lihat lebih sedikit",
-  "panels.notifications.denied": "Akses notifikasi dimatikan untuk Themia",
-  "panels.notifications.unspecified": "Izinkan Themia membaca notifikasi Anda",
-  "panels.notifications.allow": "Izinkan",
-  "panels.notifications.openSettings": "Buka pengaturan",
-  "panels.notifications.unsupported": "Versi Windows ini tidak memiliki daftar notifikasi untuk dibaca",
   "panels.focus.minutes": "{minutes} mnt"
 }

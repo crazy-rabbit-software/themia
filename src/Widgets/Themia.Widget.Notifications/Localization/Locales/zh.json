@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "允许",
+  "panels.notifications.clearAll": "全部清除",
+  "panels.notifications.clearApp": "清除 {app} 的全部通知",
+  "panels.notifications.denied": "Themia 的通知访问权限已关闭",
+  "panels.notifications.desc": "Windows 的通知，按应用分组",
+  "panels.notifications.dismiss": "关闭",
+  "panels.notifications.label": "通知",
+  "panels.notifications.none": "没有新通知",
+  "panels.notifications.open": "打开 {app}",
+  "panels.notifications.openSettings": "打开设置",
+  "panels.notifications.seeFewer": "收起",
+  "panels.notifications.seeMore": "查看更多 ({count})",
+  "panels.notifications.unspecified": "允许 Themia 读取你的通知",
+  "panels.notifications.unsupported": "此版本的 Windows 没有可读取的通知列表"
+}

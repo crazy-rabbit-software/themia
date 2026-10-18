@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "اجازت دیں",
+  "panels.notifications.clearAll": "سب صاف کریں",
+  "panels.notifications.clearApp": "{app} کی سب اطلاعات صاف کریں",
+  "panels.notifications.denied": "Themia کے لیے اطلاعات تک رسائی بند ہے",
+  "panels.notifications.desc": "Windows کی اطلاعات، ایپ کے لحاظ سے گروپ",
+  "panels.notifications.dismiss": "مسترد کریں",
+  "panels.notifications.label": "اطلاعات",
+  "panels.notifications.none": "کوئی نئی اطلاع نہیں",
+  "panels.notifications.open": "{app} کھولیں",
+  "panels.notifications.openSettings": "ترتیبات کھولیں",
+  "panels.notifications.seeFewer": "کم دیکھیں",
+  "panels.notifications.seeMore": "مزید دیکھیں ({count})",
+  "panels.notifications.unspecified": "Themia کو اپنی اطلاعات پڑھنے دیں",
+  "panels.notifications.unsupported": "Windows کے اس ورژن میں پڑھنے کے لیے کوئی اطلاعات کی فہرست نہیں"
+}

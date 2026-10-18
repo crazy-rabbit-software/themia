@@ -44,6 +44,7 @@
     <Project Path="src/Widgets/Themia.Widget.Network/Themia.Widget.Network.csproj" />
     <Project Path="src/Widgets/Themia.Widget.NetworkDetails/Themia.Widget.NetworkDetails.csproj" />
     <Project Path="src/Widgets/Themia.Widget.NightLightToggle/Themia.Widget.NightLightToggle.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Notifications/Themia.Widget.Notifications.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Ping/Themia.Widget.Ping.csproj" />
     <Project Path="src/Widgets/Themia.Widget.PingDetails/Themia.Widget.PingDetails.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Pomodoro/Themia.Widget.Pomodoro.csproj" />

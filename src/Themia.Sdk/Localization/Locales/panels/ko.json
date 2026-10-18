@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "알림",
-  "panels.notifications.desc": "앱별로 묶은 Windows 알림",
-  "panels.notifications.none": "새 알림 없음",
-  "panels.notifications.clearAll": "모두 지우기",
-  "panels.notifications.clearApp": "{app}의 알림 모두 지우기",
-  "panels.notifications.dismiss": "닫기",
-  "panels.notifications.open": "{app} 열기",
-  "panels.notifications.seeMore": "더 보기 ({count})",
-  "panels.notifications.seeFewer": "간단히 보기",
-  "panels.notifications.denied": "Themia의 알림 액세스가 꺼져 있습니다",
-  "panels.notifications.unspecified": "Themia가 알림을 읽도록 허용",
-  "panels.notifications.allow": "허용",
-  "panels.notifications.openSettings": "설정 열기",
-  "panels.notifications.unsupported": "이 Windows 버전에는 읽을 알림 목록이 없습니다",
   "panels.focus.minutes": "{minutes}분"
 }

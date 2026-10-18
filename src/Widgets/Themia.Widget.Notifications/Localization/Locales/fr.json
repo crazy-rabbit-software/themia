@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Autoriser",
+  "panels.notifications.clearAll": "Tout effacer",
+  "panels.notifications.clearApp": "Tout effacer pour {app}",
+  "panels.notifications.denied": "L'accès aux notifications est désactivé pour Themia",
+  "panels.notifications.desc": "Les notifications de Windows, regroupées par application",
+  "panels.notifications.dismiss": "Ignorer",
+  "panels.notifications.label": "Notifications",
+  "panels.notifications.none": "Aucune nouvelle notification",
+  "panels.notifications.open": "Ouvrir {app}",
+  "panels.notifications.openSettings": "Ouvrir les paramètres",
+  "panels.notifications.seeFewer": "Afficher moins",
+  "panels.notifications.seeMore": "Afficher plus ({count})",
+  "panels.notifications.unspecified": "Autoriser Themia à lire vos notifications",
+  "panels.notifications.unsupported": "Cette version de Windows n'a pas de liste de notifications à lire"
+}

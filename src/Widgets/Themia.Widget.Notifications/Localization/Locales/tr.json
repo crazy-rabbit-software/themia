@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "İzin ver",
+  "panels.notifications.clearAll": "Tümünü temizle",
+  "panels.notifications.clearApp": "{app} bildirimlerinin tümünü temizle",
+  "panels.notifications.denied": "Themia için bildirim erişimi kapalı",
+  "panels.notifications.desc": "Windows bildirimleri, uygulamaya göre gruplanmış",
+  "panels.notifications.dismiss": "Kapat",
+  "panels.notifications.label": "Bildirimler",
+  "panels.notifications.none": "Yeni bildirim yok",
+  "panels.notifications.open": "{app} uygulamasını aç",
+  "panels.notifications.openSettings": "Ayarları aç",
+  "panels.notifications.seeFewer": "Daha az göster",
+  "panels.notifications.seeMore": "Daha fazla göster ({count})",
+  "panels.notifications.unspecified": "Themia'nın bildirimlerinizi okumasına izin verin",
+  "panels.notifications.unsupported": "Bu Windows sürümünde okunacak bir bildirim listesi yok"
+}

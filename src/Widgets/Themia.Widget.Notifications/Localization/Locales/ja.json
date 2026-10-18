@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "許可",
+  "panels.notifications.clearAll": "すべてクリア",
+  "panels.notifications.clearApp": "{app} の通知をすべてクリア",
+  "panels.notifications.denied": "Themia の通知へのアクセスがオフです",
+  "panels.notifications.desc": "Windows の通知をアプリ別に表示",
+  "panels.notifications.dismiss": "閉じる",
+  "panels.notifications.label": "通知",
+  "panels.notifications.none": "新しい通知はありません",
+  "panels.notifications.open": "{app} を開く",
+  "panels.notifications.openSettings": "設定を開く",
+  "panels.notifications.seeFewer": "表示を減らす",
+  "panels.notifications.seeMore": "さらに表示 ({count})",
+  "panels.notifications.unspecified": "Themia が通知を読み取ることを許可する",
+  "panels.notifications.unsupported": "このバージョンの Windows には読み取れる通知一覧がありません"
+}

@@ -1,18 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "panels.notifications.label": "Arifa",
-  "panels.notifications.desc": "Arifa za Windows, zilizopangwa kwa programu",
-  "panels.notifications.none": "Hakuna arifa mpya",
-  "panels.notifications.clearAll": "Futa zote",
-  "panels.notifications.clearApp": "Futa zote kutoka {app}",
-  "panels.notifications.dismiss": "Ondoa",
-  "panels.notifications.open": "Fungua {app}",
-  "panels.notifications.seeMore": "Ona zaidi ({count})",
-  "panels.notifications.seeFewer": "Ona chache",
-  "panels.notifications.denied": "Ufikiaji wa arifa umezimwa kwa Themia",
-  "panels.notifications.unspecified": "Ruhusu Themia isome arifa zako",
-  "panels.notifications.allow": "Ruhusu",
-  "panels.notifications.openSettings": "Fungua mipangilio",
-  "panels.notifications.unsupported": "Toleo hili la Windows halina orodha ya arifa ya kusoma",
   "panels.focus.minutes": "Dak {minutes}"
 }

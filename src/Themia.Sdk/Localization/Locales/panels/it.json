@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "Notifiche",
-  "panels.notifications.desc": "Le notifiche di Windows, raggruppate per app",
-  "panels.notifications.none": "Nessuna nuova notifica",
-  "panels.notifications.clearAll": "Cancella tutto",
-  "panels.notifications.clearApp": "Cancella tutto da {app}",
-  "panels.notifications.dismiss": "Ignora",
-  "panels.notifications.open": "Apri {app}",
-  "panels.notifications.seeMore": "Mostra altro ({count})",
-  "panels.notifications.seeFewer": "Mostra meno",
-  "panels.notifications.denied": "L'accesso alle notifiche è disattivato per Themia",
-  "panels.notifications.unspecified": "Consenti a Themia di leggere le notifiche",
-  "panels.notifications.allow": "Consenti",
-  "panels.notifications.openSettings": "Apri impostazioni",
-  "panels.notifications.unsupported": "Questa versione di Windows non ha un elenco di notifiche da leggere",
   "panels.focus.minutes": "{minutes} min"
 }

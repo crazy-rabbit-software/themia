@@ -5649,18 +5649,16 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 ## Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS)
 
 Three widgets after Karpo's (`karpo-app`, docs\widgets.md §18, §19, §35, §92, §100, §103), each on
-Windows' own state. The focus session and the brightness slider are modules of their own
-(`src/Widgets/Themia.Widget.FocusSession`, `.Brightness`, each its SPEC.md). Core: `NotificationRules`,
-`Shell/WinRtIid`, the notifications' config in `Model/Configs/WindowsPanelConfigs.cs`; the SDK's
-`FocusSessionRules` (+ `FocusQuietHold`) and `BrightnessRules` (+ `NewestLevels`); App: `NotificationsView`
-(with its `.Preview.cs`), `Services/Notifications/NotificationFeed`, `Services/Focus/*` (behind
-`IWidgetHost.Focus`), `Services/Brightness/*`; strings in `Locales/panels/`; tests `WindowsPanelsTests`,
-the module host's `WindowsPanelsHostTests`.
+Windows' own state. All three are modules of their own (`src/Widgets/Themia.Widget.Notifications`,
+`.FocusSession`, `.Brightness`, each its SPEC.md). What they share with the host stays here: Core's
+`Shell/WinRtIid`; the SDK's `NotificationRules`, `FocusSessionRules` (+ `FocusQuietHold`) and
+`BrightnessRules` (+ `NewestLevels`); the host's `Services/Notifications/NotificationFeed` (behind
+`IWidgetHost.Notifications`), `Services/Focus/*` (behind `IWidgetHost.Focus`), `Services/Brightness/*`;
+strings in `Locales/panels/`; tests `WindowsPanelsTests`, the module host's `WindowsPanelsHostTests`.
 
 ### Notifications
 
-- **[S-4400]** Kind `Notifications` (121), add menu Calendar & mail ([S-3511]), 320×320, glyph the bell. No
-  settings (`NotificationsConfig` is empty, so no page, [S-1750]); never needs setting up.
+- [S-4400], [S-4404], [S-4409]: moved with the Notifications widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Notifications/`).
 - **[S-4401]** The list is Windows' notification center's, read with `UserNotificationListener`
   (`GetNotificationsAsync(Toast)`): the sender's AUMID and name (`AppInfo`), the toast's texts (first
   non-blank the title, the rest the body, control characters dropped, title ≤ 200, body ≤ 600), when it
@@ -5681,10 +5679,6 @@ the module host's `WindowsPanelsHostTests`.
   widget draws its frame only. An unpackaged Themia (F5, publish.ps1) is answered by the privacy page's
   notification access, as Karpo found; access has no change event, so it is looked at again when the
   pointer comes onto the widget.
-- **[S-4404]** The ladder (`NotificationRules.Plan`): Compact width or under 64 DIP of height, the bell
-  and the count (the bell alone and dimmed with none; a click on it opens the privacy page where access
-  is missing); otherwise rows, flat with each row's app icon up to Regular height, grouped from
-  Expanded; the body takes no line at Compact height, 1 at Regular, 2 at Expanded, 3 at Huge; "No new notifications" when empty.
 - **[S-4405]** A sender Windows names nothing gets a name from its id
   (`NotificationRules.FallbackName`, Karpo's `NotificationText.FallbackName`): "Windows" for Windows'
   own (`Windows.*`, `Microsoft.Windows.*`, none), a program path's file name, else the last real word
@@ -5703,9 +5697,6 @@ the module host's `WindowsPanelsHostTests`.
   change notification of the folder Windows keeps the list in (`…\Microsoft\Windows\Notifications`), a
   signal only, never opened. Reads are single-flight (a change during a read asks for one more). The
   relative times ("4m") are kept true by a one-minute tick.
-- **[S-4409]** Keys while the widget holds the lease: Up/Down, Page Up/Down, Home/End move the row
-  cursor (`ListKeys`), Enter opens the app, Delete dismisses, the Menu key opens the row's menu (Open,
-  Dismiss, Clear all from the app), Escape lets go. In edit mode nothing is opened or cleared.
 
 ### Focus session
 

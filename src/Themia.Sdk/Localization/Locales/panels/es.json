@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "Notificaciones",
-  "panels.notifications.desc": "Las notificaciones de Windows, agrupadas por aplicación",
-  "panels.notifications.none": "No hay notificaciones nuevas",
-  "panels.notifications.clearAll": "Borrar todo",
-  "panels.notifications.clearApp": "Borrar todo de {app}",
-  "panels.notifications.dismiss": "Descartar",
-  "panels.notifications.open": "Abrir {app}",
-  "panels.notifications.seeMore": "Ver más ({count})",
-  "panels.notifications.seeFewer": "Ver menos",
-  "panels.notifications.denied": "El acceso a las notificaciones está desactivado para Themia",
-  "panels.notifications.unspecified": "Permitir que Themia lea tus notificaciones",
-  "panels.notifications.allow": "Permitir",
-  "panels.notifications.openSettings": "Abrir configuración",
-  "panels.notifications.unsupported": "Esta versión de Windows no tiene una lista de notificaciones que leer",
   "panels.focus.minutes": "{minutes} min"
 }

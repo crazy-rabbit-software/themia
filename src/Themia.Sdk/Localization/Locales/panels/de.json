@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "Benachrichtigungen",
-  "panels.notifications.desc": "Die Benachrichtigungen von Windows, nach App gruppiert",
-  "panels.notifications.none": "Keine neuen Benachrichtigungen",
-  "panels.notifications.clearAll": "Alle löschen",
-  "panels.notifications.clearApp": "Alle von {app} löschen",
-  "panels.notifications.dismiss": "Schließen",
-  "panels.notifications.open": "{app} öffnen",
-  "panels.notifications.seeMore": "Mehr anzeigen ({count})",
-  "panels.notifications.seeFewer": "Weniger anzeigen",
-  "panels.notifications.denied": "Der Zugriff auf Benachrichtigungen ist für Themia deaktiviert",
-  "panels.notifications.unspecified": "Themia deine Benachrichtigungen lesen lassen",
-  "panels.notifications.allow": "Zulassen",
-  "panels.notifications.openSettings": "Einstellungen öffnen",
-  "panels.notifications.unsupported": "Diese Windows-Version hat keine Benachrichtigungsliste zum Lesen",
   "panels.focus.minutes": "{minutes} Min."
 }

@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "السماح",
+  "panels.notifications.clearAll": "مسح الكل",
+  "panels.notifications.clearApp": "مسح كل إشعارات {app}",
+  "panels.notifications.denied": "الوصول إلى الإشعارات متوقف لـ Themia",
+  "panels.notifications.desc": "إشعارات Windows مجمّعة حسب التطبيق",
+  "panels.notifications.dismiss": "تجاهل",
+  "panels.notifications.label": "الإشعارات",
+  "panels.notifications.none": "لا توجد إشعارات جديدة",
+  "panels.notifications.open": "فتح {app}",
+  "panels.notifications.openSettings": "فتح الإعدادات",
+  "panels.notifications.seeFewer": "عرض أقل",
+  "panels.notifications.seeMore": "عرض المزيد ({count})",
+  "panels.notifications.unspecified": "السماح لـ Themia بقراءة إشعاراتك",
+  "panels.notifications.unsupported": "لا يحتوي هذا الإصدار من Windows على قائمة إشعارات لقراءتها"
+}

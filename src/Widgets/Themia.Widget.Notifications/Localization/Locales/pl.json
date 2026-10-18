@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Zezwól",
+  "panels.notifications.clearAll": "Wyczyść wszystko",
+  "panels.notifications.clearApp": "Wyczyść wszystko z {app}",
+  "panels.notifications.denied": "Dostęp do powiadomień jest wyłączony dla Themia",
+  "panels.notifications.desc": "Powiadomienia systemu Windows pogrupowane według aplikacji",
+  "panels.notifications.dismiss": "Odrzuć",
+  "panels.notifications.label": "Powiadomienia",
+  "panels.notifications.none": "Brak nowych powiadomień",
+  "panels.notifications.open": "Otwórz {app}",
+  "panels.notifications.openSettings": "Otwórz ustawienia",
+  "panels.notifications.seeFewer": "Pokaż mniej",
+  "panels.notifications.seeMore": "Pokaż więcej ({count})",
+  "panels.notifications.unspecified": "Pozwól Themia czytać powiadomienia",
+  "panels.notifications.unsupported": "Ta wersja systemu Windows nie ma listy powiadomień do odczytania"
+}

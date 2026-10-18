@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Izinkan",
+  "panels.notifications.clearAll": "Hapus semua",
+  "panels.notifications.clearApp": "Hapus semua dari {app}",
+  "panels.notifications.denied": "Akses notifikasi dimatikan untuk Themia",
+  "panels.notifications.desc": "Notifikasi Windows, dikelompokkan menurut aplikasi",
+  "panels.notifications.dismiss": "Tutup",
+  "panels.notifications.label": "Notifikasi",
+  "panels.notifications.none": "Tidak ada notifikasi baru",
+  "panels.notifications.open": "Buka {app}",
+  "panels.notifications.openSettings": "Buka pengaturan",
+  "panels.notifications.seeFewer": "Lihat lebih sedikit",
+  "panels.notifications.seeMore": "Lihat lainnya ({count})",
+  "panels.notifications.unspecified": "Izinkan Themia membaca notifikasi Anda",
+  "panels.notifications.unsupported": "Versi Windows ini tidak memiliki daftar notifikasi untuk dibaca"
+}

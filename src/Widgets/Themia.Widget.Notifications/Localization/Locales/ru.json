@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Разрешить",
+  "panels.notifications.clearAll": "Очистить все",
+  "panels.notifications.clearApp": "Очистить все от {app}",
+  "panels.notifications.denied": "Доступ к уведомлениям для Themia отключён",
+  "panels.notifications.desc": "Уведомления Windows, сгруппированные по приложениям",
+  "panels.notifications.dismiss": "Закрыть",
+  "panels.notifications.label": "Уведомления",
+  "panels.notifications.none": "Нет новых уведомлений",
+  "panels.notifications.open": "Открыть {app}",
+  "panels.notifications.openSettings": "Открыть параметры",
+  "panels.notifications.seeFewer": "Показать меньше",
+  "panels.notifications.seeMore": "Показать больше ({count})",
+  "panels.notifications.unspecified": "Разрешить Themia читать ваши уведомления",
+  "panels.notifications.unsupported": "В этой версии Windows нет списка уведомлений для чтения"
+}

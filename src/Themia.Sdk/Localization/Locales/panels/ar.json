@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "الإشعارات",
-  "panels.notifications.desc": "إشعارات Windows مجمّعة حسب التطبيق",
-  "panels.notifications.none": "لا توجد إشعارات جديدة",
-  "panels.notifications.clearAll": "مسح الكل",
-  "panels.notifications.clearApp": "مسح كل إشعارات {app}",
-  "panels.notifications.dismiss": "تجاهل",
-  "panels.notifications.open": "فتح {app}",
-  "panels.notifications.seeMore": "عرض المزيد ({count})",
-  "panels.notifications.seeFewer": "عرض أقل",
-  "panels.notifications.denied": "الوصول إلى الإشعارات متوقف لـ Themia",
-  "panels.notifications.unspecified": "السماح لـ Themia بقراءة إشعاراتك",
-  "panels.notifications.allow": "السماح",
-  "panels.notifications.openSettings": "فتح الإعدادات",
-  "panels.notifications.unsupported": "لا يحتوي هذا الإصدار من Windows على قائمة إشعارات لقراءتها",
   "panels.focus.minutes": "{minutes} دقيقة"
 }

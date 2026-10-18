@@ -33,16 +33,9 @@ public enum NotificationAccess
     Unsupported = 4,
 }
 
-/// <summary>[S-4404] What a notifications widget shows at a size.</summary>
-/// <param name="Face">The smallest tile: the bell and how many, nothing else.</param>
-/// <param name="Grouped">Under app headings (icon, name, clear) rather than flat with an icon per row.</param>
-/// <param name="BodyLines">Lines of each notification's body under its title (0: the title alone).</param>
-/// <param name="Folded">Notifications an app shows before "See more" when grouped.</param>
-public readonly record struct NotificationPlan(bool Face, bool Grouped, int BodyLines, int Folded);
-
 /// <summary>
 /// [S-4400] The notification list's rules: grouping, the words a toast carries, the sender's name when
-/// Windows gives none, the ladder, and which notifications are still shown while Windows catches up
+/// Windows gives none (the ladder is the notification widget's own, <c>NotificationsLayout</c>), and which notifications are still shown while Windows catches up
 /// with a dismissal. Pure, so they are tested without a notification.
 /// </summary>
 public static class NotificationRules
@@ -170,40 +163,8 @@ public static class NotificationRules
         return PackagedAppsFolder + appId;
     }
 
-    /// <summary>[S-4404] Below two compact rows of height the list is the bell and the count.</summary>
-    public const double FaceBelow = 64;
-
     /// <summary>The Apps folder of the shell, where every app with an AUMID is an item.</summary>
     public const string PackagedAppsFolder = @"shell:AppsFolder\";
-
-    /// <summary>
-    /// [S-4404] The ladder: the bell and a count under 180 wide or two rows high; then the newest flat,
-    /// titles alone while the height is compact, with each row's app icon; from a medium height grouped under app headings; the body gets a
-    /// line from a small height, two from medium, three from large. Costs are line heights.
-    /// </summary>
-    public static NotificationPlan Plan(WidgetArea area)
-    {
-        if (!area.IsMeasured)
-        {
-            return new NotificationPlan(Face: false, Grouped: false, BodyLines: 0, Folded: FoldAt);
-        }
-
-        if (area.WidthClass == SizeClass.Compact || area.Height < FaceBelow)
-        {
-            // Under 180 wide a title does not fit beside a time; under two rows high there is no list.
-            return new NotificationPlan(Face: true, Grouped: false, BodyLines: 0, Folded: FoldAt);
-        }
-
-        var bodyLines = area.HeightClass switch
-        {
-            SizeClass.Compact => 0,
-            SizeClass.Regular => 1,
-            SizeClass.Expanded => 2,
-            _ => 3,
-        };
-
-        return new NotificationPlan(Face: false, Grouped: area.HeightClass >= SizeClass.Expanded, BodyLines: bodyLines, Folded: FoldAt);
-    }
 
     /// <summary>
     /// [S-4407] What is shown: Windows' list less what was dismissed here and not yet gone from it. A

@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "Powiadomienia",
-  "panels.notifications.desc": "Powiadomienia systemu Windows pogrupowane według aplikacji",
-  "panels.notifications.none": "Brak nowych powiadomień",
-  "panels.notifications.clearAll": "Wyczyść wszystko",
-  "panels.notifications.clearApp": "Wyczyść wszystko z {app}",
-  "panels.notifications.dismiss": "Odrzuć",
-  "panels.notifications.open": "Otwórz {app}",
-  "panels.notifications.seeMore": "Pokaż więcej ({count})",
-  "panels.notifications.seeFewer": "Pokaż mniej",
-  "panels.notifications.denied": "Dostęp do powiadomień jest wyłączony dla Themia",
-  "panels.notifications.unspecified": "Pozwól Themia czytać powiadomienia",
-  "panels.notifications.allow": "Zezwól",
-  "panels.notifications.openSettings": "Otwórz ustawienia",
-  "panels.notifications.unsupported": "Ta wersja systemu Windows nie ma listy powiadomień do odczytania",
   "panels.focus.minutes": "{minutes} min"
 }

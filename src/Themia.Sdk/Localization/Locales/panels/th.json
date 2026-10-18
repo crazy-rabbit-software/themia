@@ -1,18 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "panels.notifications.label": "การแจ้งเตือน",
-  "panels.notifications.desc": "การแจ้งเตือนของ Windows จัดกลุ่มตามแอป",
-  "panels.notifications.none": "ไม่มีการแจ้งเตือนใหม่",
-  "panels.notifications.clearAll": "ล้างทั้งหมด",
-  "panels.notifications.clearApp": "ล้างทั้งหมดจาก {app}",
-  "panels.notifications.dismiss": "ปิด",
-  "panels.notifications.open": "เปิด {app}",
-  "panels.notifications.seeMore": "ดูเพิ่มเติม ({count})",
-  "panels.notifications.seeFewer": "ดูน้อยลง",
-  "panels.notifications.denied": "การเข้าถึงการแจ้งเตือนปิดอยู่สำหรับ Themia",
-  "panels.notifications.unspecified": "อนุญาตให้ Themia อ่านการแจ้งเตือนของคุณ",
-  "panels.notifications.allow": "อนุญาต",
-  "panels.notifications.openSettings": "เปิดการตั้งค่า",
-  "panels.notifications.unsupported": "Windows เวอร์ชันนี้ไม่มีรายการการแจ้งเตือนให้อ่าน",
   "panels.focus.minutes": "{minutes} นาที"
 }

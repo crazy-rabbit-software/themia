@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Zulassen",
+  "panels.notifications.clearAll": "Alle löschen",
+  "panels.notifications.clearApp": "Alle von {app} löschen",
+  "panels.notifications.denied": "Der Zugriff auf Benachrichtigungen ist für Themia deaktiviert",
+  "panels.notifications.desc": "Die Benachrichtigungen von Windows, nach App gruppiert",
+  "panels.notifications.dismiss": "Schließen",
+  "panels.notifications.label": "Benachrichtigungen",
+  "panels.notifications.none": "Keine neuen Benachrichtigungen",
+  "panels.notifications.open": "{app} öffnen",
+  "panels.notifications.openSettings": "Einstellungen öffnen",
+  "panels.notifications.seeFewer": "Weniger anzeigen",
+  "panels.notifications.seeMore": "Mehr anzeigen ({count})",
+  "panels.notifications.unspecified": "Themia deine Benachrichtigungen lesen lassen",
+  "panels.notifications.unsupported": "Diese Windows-Version hat keine Benachrichtigungsliste zum Lesen"
+}

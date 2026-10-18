@@ -1,17 +1,3 @@
 {
-  "panels.notifications.label": "Notifications",
-  "panels.notifications.desc": "Windows' notifications, grouped by app",
-  "panels.notifications.none": "No new notifications",
-  "panels.notifications.clearAll": "Clear all",
-  "panels.notifications.clearApp": "Clear all from {app}",
-  "panels.notifications.dismiss": "Dismiss",
-  "panels.notifications.open": "Open {app}",
-  "panels.notifications.seeMore": "See more ({count})",
-  "panels.notifications.seeFewer": "See fewer",
-  "panels.notifications.denied": "Notification access is off for Themia",
-  "panels.notifications.unspecified": "Let Themia read your notifications",
-  "panels.notifications.allow": "Allow",
-  "panels.notifications.openSettings": "Open settings",
-  "panels.notifications.unsupported": "This version of Windows has no notification list to read",
   "panels.focus.minutes": "{minutes} min"
 }

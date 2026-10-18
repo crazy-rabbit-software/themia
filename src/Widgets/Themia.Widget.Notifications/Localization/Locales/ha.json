@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Ba da izini",
+  "panels.notifications.clearAll": "Share duka",
+  "panels.notifications.clearApp": "Share duka daga {app}",
+  "panels.notifications.denied": "Samun damar sanarwa a kashe yake don Themia",
+  "panels.notifications.desc": "Sanarwar Windows, an tara su ta manhaja",
+  "panels.notifications.dismiss": "Watsar",
+  "panels.notifications.label": "Sanarwa",
+  "panels.notifications.none": "Babu sabbin sanarwa",
+  "panels.notifications.open": "Buɗe {app}",
+  "panels.notifications.openSettings": "Buɗe saituna",
+  "panels.notifications.seeFewer": "Duba kaɗan",
+  "panels.notifications.seeMore": "Duba ƙari ({count})",
+  "panels.notifications.unspecified": "Bari Themia ta karanta sanarwarka",
+  "panels.notifications.unsupported": "Wannan sigar Windows ba ta da jerin sanarwa da za a karanta"
+}

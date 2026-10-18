@@ -12,6 +12,7 @@ using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Notifications;
 
 namespace Themia.App.Widgets;
 
@@ -94,11 +95,11 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
         };
-        _empty = Fluent.EmptyState(Glyphs.Notifications, _emptyText, out _);
+        _empty = Fluent.EmptyState(NotificationsModule.Glyph, _emptyText, out _);
         _emptyHost.Children.Add(_empty);
         _emptyHost.Children.Add(_action);
 
-        _faceBell = Fluent.Icon(Glyphs.Notifications, "TextFillColorPrimaryBrush", 24);
+        _faceBell = Fluent.Icon(NotificationsModule.Glyph, "TextFillColorPrimaryBrush", 24);
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_faceCount, FontNumeralAlignment.Tabular);
         _face.Children.Add(_faceBell);
         _face.Children.Add(_faceCount);
@@ -148,7 +149,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         var sameHeight = area.HeightClass == _area.HeightClass;
         _area = area;
-        var plan = NotificationRules.Plan(area);
+        var plan = NotificationsLayout.Plan(area);
         if (plan == _plan && sameHeight)
         {
             return;
@@ -197,9 +198,9 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         var snapshot = Snapshot;
         var items = snapshot.Items;
         _clearAll.IsEnabled = items.Count > 0 && !Inert;
-        _clearAllText.Text = Str.Panels_Notifications_ClearAll.Text();
+        _clearAllText.Text = NotificationsStr.Panels_Notifications_ClearAll.Text();
         _clearAll.Visibility = _plan.Face || snapshot.Access != NotificationAccess.Allowed ? Visibility.Collapsed : Visibility.Visible;
-        AutomationProperties.SetName(_clearAll, Str.Panels_Notifications_ClearAll.Text());
+        AutomationProperties.SetName(_clearAll, NotificationsStr.Panels_Notifications_ClearAll.Text());
 
         _scroll.Visibility = Visibility.Collapsed;
         _emptyHost.Visibility = Visibility.Collapsed;
@@ -234,7 +235,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
         if (items.Count == 0)
         {
-            _emptyText.Text = Str.Panels_Notifications_None.Text();
+            _emptyText.Text = NotificationsStr.Panels_Notifications_None.Text();
             _action.Visibility = Visibility.Collapsed;
             _emptyHost.Visibility = Visibility.Visible;
             _cursor = null;
@@ -281,7 +282,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _faceCount.Text = count > 0 ? LocaleFormat.Integer(count) : string.Empty;
         _faceCount.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
         _faceBell.Foreground = ThemeBrush.Of(count > 0 ? "TextFillColorPrimaryBrush" : "TextFillColorTertiaryBrush", Colors.Gray);
-        var words = count > 0 ? $"{Str.Panels_Notifications_Label.Text()}: {LocaleFormat.Integer(count)}" : Str.Panels_Notifications_None.Text();
+        var words = count > 0 ? $"{NotificationsStr.Panels_Notifications_Label.Text()}: {LocaleFormat.Integer(count)}" : NotificationsStr.Panels_Notifications_None.Text();
         ToolTipService.SetToolTip(_face, words);
         AutomationProperties.SetName(this, words);
     }
@@ -292,9 +293,9 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _emptyHost.Visibility = Visibility.Visible;
         (_emptyText.Text, var button) = access switch
         {
-            NotificationAccess.Denied => (Str.Panels_Notifications_Denied.Text(), Str.Panels_Notifications_OpenSettings.Text()),
-            NotificationAccess.Unspecified => (Str.Panels_Notifications_Unspecified.Text(), Str.Panels_Notifications_Allow.Text()),
-            _ => (Str.Panels_Notifications_Unsupported.Text(), (string?)null),
+            NotificationAccess.Denied => (NotificationsStr.Panels_Notifications_Denied.Text(), NotificationsStr.Panels_Notifications_OpenSettings.Text()),
+            NotificationAccess.Unspecified => (NotificationsStr.Panels_Notifications_Unspecified.Text(), NotificationsStr.Panels_Notifications_Allow.Text()),
+            _ => (NotificationsStr.Panels_Notifications_Unsupported.Text(), (string?)null),
         };
 
         // The tile is too small for a sentence and a button: the sentence, and a click on it does the same.
@@ -325,7 +326,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         name.MaxLines = 1;
         name.VerticalAlignment = VerticalAlignment.Center;
 
-        var clear = FluentLayout.IconCommand(Glyphs.Dismiss, Str.Panels_Notifications_ClearApp.Format(("app", group.AppName)));
+        var clear = FluentLayout.IconCommand(Glyphs.Dismiss, NotificationsStr.Panels_Notifications_ClearApp.Format(("app", group.AppName)));
         clear.Width = 24;
         clear.Height = 24;
         clear.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
@@ -350,7 +351,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         var link = new HyperlinkButton
         {
-            Content = more > 0 ? Str.Panels_Notifications_SeeMore.Format(("count", LocaleFormat.Integer(more))) : Str.Panels_Notifications_SeeFewer.Text(),
+            Content = more > 0 ? NotificationsStr.Panels_Notifications_SeeMore.Format(("count", LocaleFormat.Integer(more))) : NotificationsStr.Panels_Notifications_SeeFewer.Text(),
             Margin = new Thickness(Fluent.Space2, 0, 0, Fluent.Space1),
             Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
         };
@@ -383,7 +384,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         when.VerticalAlignment = VerticalAlignment.Center;
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(when, FontNumeralAlignment.Tabular);
 
-        var dismiss = FluentLayout.IconCommand(Glyphs.Dismiss, Str.Panels_Notifications_Dismiss.Text());
+        var dismiss = FluentLayout.IconCommand(Glyphs.Dismiss, NotificationsStr.Panels_Notifications_Dismiss.Text());
         dismiss.Width = 24;
         dismiss.Height = 24;
         dismiss.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
@@ -481,7 +482,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
         var app = item.AppName.Length > 0 ? item.AppName : NotificationRules.FallbackName(item.AppId);
         AutomationProperties.SetName(row, $"{app}: {title.Text}");
-        ToolTipService.SetToolTip(row, Str.Panels_Notifications_Open.Format(("app", app)));
+        ToolTipService.SetToolTip(row, NotificationsStr.Panels_Notifications_Open.Format(("app", app)));
 
         _rows.Add((row, item));
         _list.Children.Add(row);
@@ -491,7 +492,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     private FrameworkElement AppIcon(string appId)
     {
         var host = new Grid { Width = AppIconSize, Height = AppIconSize, VerticalAlignment = VerticalAlignment.Center };
-        var fallback = Fluent.Icon(Glyphs.Notifications, "TextFillColorSecondaryBrush", 14);
+        var fallback = Fluent.Icon(NotificationsModule.Glyph, "TextFillColorSecondaryBrush", 14);
         fallback.HorizontalAlignment = HorizontalAlignment.Center;
         host.Children.Add(fallback);
 
@@ -550,10 +551,10 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         var app = item.AppName.Length > 0 ? item.AppName : NotificationRules.FallbackName(item.AppId);
         return
         [
-            new(Glyphs.OpenWith, Str.Panels_Notifications_Open.Format(("app", app)), () => Open(item)),
-            new(Glyphs.Dismiss, Str.Panels_Notifications_Dismiss.Text(), () => Dismiss(item), Quick: QuickCommand.Delete),
+            new(Glyphs.OpenWith, NotificationsStr.Panels_Notifications_Open.Format(("app", app)), () => Open(item)),
+            new(Glyphs.Dismiss, NotificationsStr.Panels_Notifications_Dismiss.Text(), () => Dismiss(item), Quick: QuickCommand.Delete),
             ItemMenuEntry.Separator,
-            new(Glyphs.Clear, Str.Panels_Notifications_ClearApp.Format(("app", app)), () => ClearApp(item.AppId), Danger: true),
+            new(Glyphs.Clear, NotificationsStr.Panels_Notifications_ClearApp.Format(("app", app)), () => ClearApp(item.AppId), Danger: true),
         ];
     }
 

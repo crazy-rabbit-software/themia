@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "通知",
-  "panels.notifications.desc": "Windows 的通知，依應用程式分組",
-  "panels.notifications.none": "沒有新通知",
-  "panels.notifications.clearAll": "全部清除",
-  "panels.notifications.clearApp": "清除 {app} 的全部通知",
-  "panels.notifications.dismiss": "關閉",
-  "panels.notifications.open": "開啟 {app}",
-  "panels.notifications.seeMore": "查看更多 ({count})",
-  "panels.notifications.seeFewer": "收合",
-  "panels.notifications.denied": "Themia 的通知存取權已關閉",
-  "panels.notifications.unspecified": "允許 Themia 讀取你的通知",
-  "panels.notifications.allow": "允許",
-  "panels.notifications.openSettings": "開啟設定",
-  "panels.notifications.unsupported": "此版本的 Windows 沒有可讀取的通知清單",
   "panels.focus.minutes": "{minutes} 分鐘"
 }

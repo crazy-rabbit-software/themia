@@ -1,0 +1,17 @@
+{
+  "$englishOnly": [],
+  "panels.notifications.allow": "Allow",
+  "panels.notifications.clearAll": "Clear all",
+  "panels.notifications.clearApp": "Clear all from {app}",
+  "panels.notifications.denied": "Notification access is off for Themia",
+  "panels.notifications.desc": "Windows' notifications, grouped by app",
+  "panels.notifications.dismiss": "Dismiss",
+  "panels.notifications.label": "Notifications",
+  "panels.notifications.none": "No new notifications",
+  "panels.notifications.open": "Open {app}",
+  "panels.notifications.openSettings": "Open settings",
+  "panels.notifications.seeFewer": "See fewer",
+  "panels.notifications.seeMore": "See more ({count})",
+  "panels.notifications.unspecified": "Let Themia read your notifications",
+  "panels.notifications.unsupported": "This version of Windows has no notification list to read"
+}

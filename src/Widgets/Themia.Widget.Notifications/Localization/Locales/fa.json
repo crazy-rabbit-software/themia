@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "اجازه دادن",
+  "panels.notifications.clearAll": "پاک کردن همه",
+  "panels.notifications.clearApp": "پاک کردن همه از {app}",
+  "panels.notifications.denied": "دسترسی به اعلان‌ها برای Themia خاموش است",
+  "panels.notifications.desc": "اعلان‌های Windows، گروه‌بندی‌شده بر اساس برنامه",
+  "panels.notifications.dismiss": "رد کردن",
+  "panels.notifications.label": "اعلان‌ها",
+  "panels.notifications.none": "اعلان جدیدی نیست",
+  "panels.notifications.open": "باز کردن {app}",
+  "panels.notifications.openSettings": "باز کردن تنظیمات",
+  "panels.notifications.seeFewer": "نمایش کمتر",
+  "panels.notifications.seeMore": "نمایش بیشتر ({count})",
+  "panels.notifications.unspecified": "اجازه دهید Themia اعلان‌های شما را بخواند",
+  "panels.notifications.unsupported": "این نسخه از Windows فهرست اعلانی برای خواندن ندارد"
+}

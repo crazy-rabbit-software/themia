@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Ruhusu",
+  "panels.notifications.clearAll": "Futa zote",
+  "panels.notifications.clearApp": "Futa zote kutoka {app}",
+  "panels.notifications.denied": "Ufikiaji wa arifa umezimwa kwa Themia",
+  "panels.notifications.desc": "Arifa za Windows, zilizopangwa kwa programu",
+  "panels.notifications.dismiss": "Ondoa",
+  "panels.notifications.label": "Arifa",
+  "panels.notifications.none": "Hakuna arifa mpya",
+  "panels.notifications.open": "Fungua {app}",
+  "panels.notifications.openSettings": "Fungua mipangilio",
+  "panels.notifications.seeFewer": "Ona chache",
+  "panels.notifications.seeMore": "Ona zaidi ({count})",
+  "panels.notifications.unspecified": "Ruhusu Themia isome arifa zako",
+  "panels.notifications.unsupported": "Toleo hili la Windows halina orodha ya arifa ya kusoma"
+}

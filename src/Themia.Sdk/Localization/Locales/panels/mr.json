@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "सूचना",
-  "panels.notifications.desc": "Windows च्या सूचना, ॲपनुसार गटबद्ध",
-  "panels.notifications.none": "नवीन सूचना नाहीत",
-  "panels.notifications.clearAll": "सर्व साफ करा",
-  "panels.notifications.clearApp": "{app} च्या सर्व सूचना साफ करा",
-  "panels.notifications.dismiss": "डिसमिस करा",
-  "panels.notifications.open": "{app} उघडा",
-  "panels.notifications.seeMore": "आणखी पहा ({count})",
-  "panels.notifications.seeFewer": "कमी पहा",
-  "panels.notifications.denied": "Themia साठी सूचना प्रवेश बंद आहे",
-  "panels.notifications.unspecified": "Themia ला तुमच्या सूचना वाचू द्या",
-  "panels.notifications.allow": "अनुमती द्या",
-  "panels.notifications.openSettings": "सेटिंग्ज उघडा",
-  "panels.notifications.unsupported": "Windows च्या या आवृत्तीत वाचण्यासाठी सूचना यादी नाही",
   "panels.focus.minutes": "{minutes} मि"
 }

@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "اطلاعات",
-  "panels.notifications.desc": "Windows کی اطلاعات، ایپ کے لحاظ سے گروپ",
-  "panels.notifications.none": "کوئی نئی اطلاع نہیں",
-  "panels.notifications.clearAll": "سب صاف کریں",
-  "panels.notifications.clearApp": "{app} کی سب اطلاعات صاف کریں",
-  "panels.notifications.dismiss": "مسترد کریں",
-  "panels.notifications.open": "{app} کھولیں",
-  "panels.notifications.seeMore": "مزید دیکھیں ({count})",
-  "panels.notifications.seeFewer": "کم دیکھیں",
-  "panels.notifications.denied": "Themia کے لیے اطلاعات تک رسائی بند ہے",
-  "panels.notifications.unspecified": "Themia کو اپنی اطلاعات پڑھنے دیں",
-  "panels.notifications.allow": "اجازت دیں",
-  "panels.notifications.openSettings": "ترتیبات کھولیں",
-  "panels.notifications.unsupported": "Windows کے اس ورژن میں پڑھنے کے لیے کوئی اطلاعات کی فہرست نہیں",
   "panels.focus.minutes": "{minutes} منٹ"
 }

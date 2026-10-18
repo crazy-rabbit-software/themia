@@ -36,7 +36,7 @@ public sealed class WindowsPanelsHostTests
     [Fact]
     public void S4400_none_of_the_three_asks_to_be_set_up()
     {
-        foreach (var kind in new[] { NotificationsConfig.Descriptor.Id, new WidgetId("focusSession"), new WidgetId("brightness") })
+        foreach (var kind in new[] { new WidgetId("notifications"), new WidgetId("focusSession"), new WidgetId("brightness") })
         {
             Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Sdk.FeatureSet.None), kind.ToString());
         }

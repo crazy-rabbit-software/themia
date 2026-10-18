@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "বিজ্ঞপ্তি",
-  "panels.notifications.desc": "Windows-এর বিজ্ঞপ্তি, অ্যাপ অনুযায়ী সাজানো",
-  "panels.notifications.none": "নতুন কোনো বিজ্ঞপ্তি নেই",
-  "panels.notifications.clearAll": "সব মুছুন",
-  "panels.notifications.clearApp": "{app}-এর সব বিজ্ঞপ্তি মুছুন",
-  "panels.notifications.dismiss": "বাতিল করুন",
-  "panels.notifications.open": "{app} খুলুন",
-  "panels.notifications.seeMore": "আরও দেখুন ({count})",
-  "panels.notifications.seeFewer": "কম দেখুন",
-  "panels.notifications.denied": "Themia-র জন্য বিজ্ঞপ্তির অ্যাক্সেস বন্ধ",
-  "panels.notifications.unspecified": "Themia-কে আপনার বিজ্ঞপ্তি পড়তে দিন",
-  "panels.notifications.allow": "অনুমতি দিন",
-  "panels.notifications.openSettings": "সেটিংস খুলুন",
-  "panels.notifications.unsupported": "Windows-এর এই সংস্করণে পড়ার মতো কোনো বিজ্ঞপ্তি তালিকা নেই",
   "panels.focus.minutes": "{minutes} মিনিট"
 }

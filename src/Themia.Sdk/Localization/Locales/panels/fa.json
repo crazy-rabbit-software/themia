@@ -1,18 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "panels.notifications.label": "اعلان‌ها",
-  "panels.notifications.desc": "اعلان‌های Windows، گروه‌بندی‌شده بر اساس برنامه",
-  "panels.notifications.none": "اعلان جدیدی نیست",
-  "panels.notifications.clearAll": "پاک کردن همه",
-  "panels.notifications.clearApp": "پاک کردن همه از {app}",
-  "panels.notifications.dismiss": "رد کردن",
-  "panels.notifications.open": "باز کردن {app}",
-  "panels.notifications.seeMore": "نمایش بیشتر ({count})",
-  "panels.notifications.seeFewer": "نمایش کمتر",
-  "panels.notifications.denied": "دسترسی به اعلان‌ها برای Themia خاموش است",
-  "panels.notifications.unspecified": "اجازه دهید Themia اعلان‌های شما را بخواند",
-  "panels.notifications.allow": "اجازه دادن",
-  "panels.notifications.openSettings": "باز کردن تنظیمات",
-  "panels.notifications.unsupported": "این نسخه از Windows فهرست اعلانی برای خواندن ندارد",
   "panels.focus.minutes": "{minutes} دقیقه"
 }

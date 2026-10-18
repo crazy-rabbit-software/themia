@@ -1,18 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "panels.notifications.label": "Thông báo",
-  "panels.notifications.desc": "Thông báo của Windows, nhóm theo ứng dụng",
-  "panels.notifications.none": "Không có thông báo mới",
-  "panels.notifications.clearAll": "Xóa tất cả",
-  "panels.notifications.clearApp": "Xóa tất cả của {app}",
-  "panels.notifications.dismiss": "Bỏ qua",
-  "panels.notifications.open": "Mở {app}",
-  "panels.notifications.seeMore": "Xem thêm ({count})",
-  "panels.notifications.seeFewer": "Thu gọn",
-  "panels.notifications.denied": "Quyền truy cập thông báo đang tắt cho Themia",
-  "panels.notifications.unspecified": "Cho phép Themia đọc thông báo của bạn",
-  "panels.notifications.allow": "Cho phép",
-  "panels.notifications.openSettings": "Mở cài đặt",
-  "panels.notifications.unsupported": "Phiên bản Windows này không có danh sách thông báo để đọc",
   "panels.focus.minutes": "{minutes} phút"
 }

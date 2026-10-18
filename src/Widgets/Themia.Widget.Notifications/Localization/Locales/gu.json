@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "મંજૂરી આપો",
+  "panels.notifications.clearAll": "બધું સાફ કરો",
+  "panels.notifications.clearApp": "{app} ની બધી સાફ કરો",
+  "panels.notifications.denied": "Themia માટે સૂચના ઍક્સેસ બંધ છે",
+  "panels.notifications.desc": "Windows ની સૂચનાઓ, ઍપ પ્રમાણે જૂથબદ્ધ",
+  "panels.notifications.dismiss": "કાઢી નાખો",
+  "panels.notifications.label": "સૂચનાઓ",
+  "panels.notifications.none": "કોઈ નવી સૂચના નથી",
+  "panels.notifications.open": "{app} ખોલો",
+  "panels.notifications.openSettings": "સેટિંગ્સ ખોલો",
+  "panels.notifications.seeFewer": "ઓછું જુઓ",
+  "panels.notifications.seeMore": "વધુ જુઓ ({count})",
+  "panels.notifications.unspecified": "Themia ને તમારી સૂચનાઓ વાંચવા દો",
+  "panels.notifications.unsupported": "Windows ના આ સંસ્કરણમાં વાંચવા માટે કોઈ સૂચના સૂચિ નથી"
+}

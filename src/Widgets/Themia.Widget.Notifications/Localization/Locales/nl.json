@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Toestaan",
+  "panels.notifications.clearAll": "Alles wissen",
+  "panels.notifications.clearApp": "Alles van {app} wissen",
+  "panels.notifications.denied": "Toegang tot meldingen staat uit voor Themia",
+  "panels.notifications.desc": "De meldingen van Windows, gegroepeerd per app",
+  "panels.notifications.dismiss": "Sluiten",
+  "panels.notifications.label": "Meldingen",
+  "panels.notifications.none": "Geen nieuwe meldingen",
+  "panels.notifications.open": "{app} openen",
+  "panels.notifications.openSettings": "Instellingen openen",
+  "panels.notifications.seeFewer": "Minder weergeven",
+  "panels.notifications.seeMore": "Meer weergeven ({count})",
+  "panels.notifications.unspecified": "Themia je meldingen laten lezen",
+  "panels.notifications.unsupported": "Deze versie van Windows heeft geen meldingenlijst om te lezen"
+}

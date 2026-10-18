@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "அனுமதி",
+  "panels.notifications.clearAll": "அனைத்தையும் அழி",
+  "panels.notifications.clearApp": "{app} இலிருந்து அனைத்தையும் அழி",
+  "panels.notifications.denied": "Themia க்கு அறிவிப்பு அணுகல் முடக்கப்பட்டுள்ளது",
+  "panels.notifications.desc": "பயன்பாட்டின்படி குழுவாக்கப்பட்ட Windows அறிவிப்புகள்",
+  "panels.notifications.dismiss": "நிராகரி",
+  "panels.notifications.label": "அறிவிப்புகள்",
+  "panels.notifications.none": "புதிய அறிவிப்புகள் இல்லை",
+  "panels.notifications.open": "{app} ஐத் திற",
+  "panels.notifications.openSettings": "அமைப்புகளைத் திற",
+  "panels.notifications.seeFewer": "குறைவாகக் காண்க",
+  "panels.notifications.seeMore": "மேலும் காண்க ({count})",
+  "panels.notifications.unspecified": "உங்கள் அறிவிப்புகளைப் படிக்க Themia ஐ அனுமதிக்கவும்",
+  "panels.notifications.unsupported": "இந்த Windows பதிப்பில் படிக்கக்கூடிய அறிவிப்புப் பட்டியல் இல்லை"
+}

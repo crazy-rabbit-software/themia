@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "ਇਜਾਜ਼ਤ ਦਿਓ",
+  "panels.notifications.clearAll": "ਸਭ ਸਾਫ਼ ਕਰੋ",
+  "panels.notifications.clearApp": "{app} ਤੋਂ ਸਭ ਸਾਫ਼ ਕਰੋ",
+  "panels.notifications.denied": "Themia ਲਈ ਸੂਚਨਾ ਪਹੁੰਚ ਬੰਦ ਹੈ",
+  "panels.notifications.desc": "Windows ਦੀਆਂ ਸੂਚਨਾਵਾਂ, ਐਪ ਅਨੁਸਾਰ ਸਮੂਹਬੱਧ",
+  "panels.notifications.dismiss": "ਖਾਰਜ ਕਰੋ",
+  "panels.notifications.label": "ਸੂਚਨਾਵਾਂ",
+  "panels.notifications.none": "ਕੋਈ ਨਵੀਂ ਸੂਚਨਾ ਨਹੀਂ",
+  "panels.notifications.open": "{app} ਖੋਲ੍ਹੋ",
+  "panels.notifications.openSettings": "ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ",
+  "panels.notifications.seeFewer": "ਘੱਟ ਦੇਖੋ",
+  "panels.notifications.seeMore": "ਹੋਰ ਦੇਖੋ ({count})",
+  "panels.notifications.unspecified": "Themia ਨੂੰ ਤੁਹਾਡੀਆਂ ਸੂਚਨਾਵਾਂ ਪੜ੍ਹਨ ਦਿਓ",
+  "panels.notifications.unsupported": "Windows ਦੇ ਇਸ ਸੰਸਕਰਣ ਵਿੱਚ ਪੜ੍ਹਨ ਲਈ ਕੋਈ ਸੂਚਨਾ ਸੂਚੀ ਨਹੀਂ ਹੈ"
+}

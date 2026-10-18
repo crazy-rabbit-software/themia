@@ -9,8 +9,10 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// The three widgets on Windows' own panels, after Karpo: the notification list [S-4400..S-4409], the
-/// focus session [S-4420..S-4429] and the brightness slider [S-4440..S-4449]. Nothing here touches the machine.
+/// The rules the three widgets on Windows' own panels share with the host, after Karpo: the notification
+/// list's [S-4401..S-4407], the focus session's [S-4421..S-4425] and the brightness slider's
+/// [S-4441..S-4443]; each widget's own (its config, its ladder) moved with it into its module. Nothing
+/// here touches the machine.
 /// </summary>
 public class WindowsPanelsTests
 {
@@ -129,33 +131,6 @@ public class WindowsPanelsTests
         var (after, none) = NotificationRules.Visible([Note(1, "A", 1)], still);
         Assert.Equal([1u], after.Select(n => n.Id));
         Assert.Empty(none);
-    }
-
-    [Fact]
-    public void S4404_the_ladder_face_then_flat_then_grouped_with_more_body()
-    {
-        var face = NotificationRules.Plan(new WidgetArea(150, 150));
-        Assert.True(face.Face);
-
-        var low = NotificationRules.Plan(new WidgetArea(320, 50));
-        Assert.True(low.Face);
-
-        var strip = NotificationRules.Plan(new WidgetArea(440, 110));
-        Assert.False(strip.Face);
-        Assert.Equal(0, strip.BodyLines);
-
-        var small = NotificationRules.Plan(new WidgetArea(320, 200));
-        Assert.False(small.Face);
-        Assert.False(small.Grouped);
-        Assert.Equal(1, small.BodyLines);
-
-        var medium = NotificationRules.Plan(new WidgetArea(320, 320));
-        Assert.True(medium.Grouped);
-        Assert.Equal(2, medium.BodyLines);
-
-        var large = NotificationRules.Plan(new WidgetArea(480, 560));
-        Assert.True(large.Grouped);
-        Assert.Equal(3, large.BodyLines);
     }
 
     // ---- focus session -------------------------------------------------------------------------

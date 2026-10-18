@@ -185,8 +185,7 @@ public static class Glyphs
     public static readonly string ScreenTimeDonut = From(0xEB05);
     public static readonly string Bell = From(0xEA8F);
 
-    // [S-4400] [S-4440] Windows' own panels, as Karpo draws them: the bell, the sun (Focus' target is the focus module's own).
-    public static readonly string Notifications = From(0xEA8F);
+    // [S-4440] Windows' own panels, as Karpo draws them: the sun (the notifications' bell and Focus' target are their modules' own).
     public static readonly string Brightness = From(0xE706);
 
     /// <summary>A minus and Stop, for the focus session's stepper and its end.</summary>
