@@ -12,8 +12,6 @@
   "toggles.microphone.name": "麥克風",
   "toggles.spatialSound.name": "空間音效",
   "toggles.monoAudio.name": "單聲道音訊",
-  "toggles.monoAudio.label": "單聲道音訊 開/關",
-  "toggles.monoAudio.desc": "將左右聲道合併為一個播放",
   "toggles.colorFilters.name": "色彩篩選",
   "toggles.colorFilters.label": "色彩篩選 開/關",
   "toggles.colorFilters.desc": "開啟或關閉螢幕的色彩篩選",

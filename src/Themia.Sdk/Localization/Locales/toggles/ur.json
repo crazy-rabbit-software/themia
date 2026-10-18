@@ -12,8 +12,6 @@
   "toggles.microphone.name": "مائیکروفون",
   "toggles.spatialSound.name": "مکانی آواز",
   "toggles.monoAudio.name": "مونو آڈیو",
-  "toggles.monoAudio.label": "مونو آڈیو آن/آف",
-  "toggles.monoAudio.desc": "بائیں اور دائیں چینلز کو ایک کر کے چلاتا ہے",
   "toggles.colorFilters.name": "رنگ فلٹرز",
   "toggles.colorFilters.label": "رنگ فلٹرز آن/آف",
   "toggles.colorFilters.desc": "اسکرین کا رنگ فلٹر آن یا آف کرتا ہے",

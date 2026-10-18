@@ -12,8 +12,6 @@
   "toggles.microphone.name": "মাইক্রোফোন",
   "toggles.spatialSound.name": "স্প্যাশিয়াল সাউন্ড",
   "toggles.monoAudio.name": "মোনো অডিও",
-  "toggles.monoAudio.label": "মোনো অডিও চালু/বন্ধ",
-  "toggles.monoAudio.desc": "বাম ও ডান চ্যানেল একসঙ্গে চালায়",
   "toggles.colorFilters.name": "কালার ফিল্টার",
   "toggles.colorFilters.label": "কালার ফিল্টার চালু/বন্ধ",
   "toggles.colorFilters.desc": "স্ক্রিনের কালার ফিল্টার চালু বা বন্ধ করে",

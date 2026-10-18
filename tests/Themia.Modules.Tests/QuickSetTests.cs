@@ -239,7 +239,7 @@ public sealed class QuickSetTests
     public void S3711_load_validation_takes_the_header_off_a_toggle_loudly()
     {
         var state = AppState.CreateDefault();
-        var toggle = WidgetInstance.Create(MonoAudioToggleConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.1, 0.1));
+        var toggle = WidgetInstance.Create(new WidgetId("monoAudioToggle"), new FracRect(0.1, 0.1, 0.1, 0.1));
         toggle.Header = HeaderPlacement.Top;
         state.Views[0].Widgets.Add(toggle);
 

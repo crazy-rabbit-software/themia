@@ -1,0 +1,4 @@
+{
+  "toggles.monoAudio.label": "Audio mono activado/desactivado",
+  "toggles.monoAudio.desc": "Reproduce los canales izquierdo y derecho como uno"
+}

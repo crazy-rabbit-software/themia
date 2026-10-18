@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Microfone",
   "toggles.spatialSound.name": "Som espacial",
   "toggles.monoAudio.name": "Áudio mono",
-  "toggles.monoAudio.label": "Áudio mono ligado/desligado",
-  "toggles.monoAudio.desc": "Reproduz os canais esquerdo e direito como um só",
   "toggles.colorFilters.name": "Filtros de cor",
   "toggles.colorFilters.label": "Filtros de cor ligados/desligados",
   "toggles.colorFilters.desc": "Liga ou desliga o filtro de cor da tela",

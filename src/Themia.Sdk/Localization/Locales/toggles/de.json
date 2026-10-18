@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Mikrofon",
   "toggles.spatialSound.name": "Raumklang",
   "toggles.monoAudio.name": "Monoaudio",
-  "toggles.monoAudio.label": "Monoaudio ein/aus",
-  "toggles.monoAudio.desc": "Spielt linken und rechten Kanal als einen ab",
   "toggles.colorFilters.name": "Farbfilter",
   "toggles.colorFilters.label": "Farbfilter ein/aus",
   "toggles.colorFilters.desc": "Schaltet den Farbfilter des Bildschirms ein oder aus",

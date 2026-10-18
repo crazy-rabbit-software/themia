@@ -12,8 +12,6 @@
   "toggles.microphone.name": "ਮਾਈਕ੍ਰੋਫ਼ੋਨ",
   "toggles.spatialSound.name": "ਸਥਾਨਿਕ ਧੁਨੀ",
   "toggles.monoAudio.name": "ਮੋਨੋ ਆਡੀਓ",
-  "toggles.monoAudio.label": "ਮੋਨੋ ਆਡੀਓ ਚਾਲੂ/ਬੰਦ",
-  "toggles.monoAudio.desc": "ਖੱਬੇ ਅਤੇ ਸੱਜੇ ਚੈਨਲਾਂ ਨੂੰ ਇੱਕ ਵਜੋਂ ਚਲਾਉਂਦਾ ਹੈ",
   "toggles.colorFilters.name": "ਰੰਗ ਫ਼ਿਲਟਰ",
   "toggles.colorFilters.label": "ਰੰਗ ਫ਼ਿਲਟਰ ਚਾਲੂ/ਬੰਦ",
   "toggles.colorFilters.desc": "ਸਕ੍ਰੀਨ ਦੇ ਰੰਗ ਫ਼ਿਲਟਰ ਨੂੰ ਚਾਲੂ ਜਾਂ ਬੰਦ ਕਰਦਾ ਹੈ",

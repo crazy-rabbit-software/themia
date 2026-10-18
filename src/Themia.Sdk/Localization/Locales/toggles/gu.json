@@ -12,8 +12,6 @@
   "toggles.microphone.name": "માઇક્રોફોન",
   "toggles.spatialSound.name": "અવકાશી ધ્વનિ",
   "toggles.monoAudio.name": "મોનો ઑડિયો",
-  "toggles.monoAudio.label": "મોનો ઑડિયો ચાલુ/બંધ",
-  "toggles.monoAudio.desc": "ડાબી અને જમણી ચૅનલને એક તરીકે વગાડે છે",
   "toggles.colorFilters.name": "રંગ ફિલ્ટર",
   "toggles.colorFilters.label": "રંગ ફિલ્ટર ચાલુ/બંધ",
   "toggles.colorFilters.desc": "સ્ક્રીનનું રંગ ફિલ્ટર ચાલુ કે બંધ કરે છે",

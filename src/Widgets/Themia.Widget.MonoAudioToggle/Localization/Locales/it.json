@@ -1,0 +1,4 @@
+{
+  "toggles.monoAudio.label": "Audio mono attivato/disattivato",
+  "toggles.monoAudio.desc": "Riproduce i canali sinistro e destro come uno solo"
+}

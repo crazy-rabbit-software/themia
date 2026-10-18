@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Microfoon",
   "toggles.spatialSound.name": "Ruimtelijk geluid",
   "toggles.monoAudio.name": "Mono-audio",
-  "toggles.monoAudio.label": "Mono-audio aan/uit",
-  "toggles.monoAudio.desc": "Speelt het linker- en rechterkanaal als één af",
   "toggles.colorFilters.name": "Kleurfilters",
   "toggles.colorFilters.label": "Kleurfilters aan/uit",
   "toggles.colorFilters.desc": "Zet het kleurfilter van het scherm aan of uit",

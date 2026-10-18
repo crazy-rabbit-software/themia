@@ -12,8 +12,6 @@
   "toggles.microphone.name": "மைக்ரோஃபோன்",
   "toggles.spatialSound.name": "இடஞ்சார் ஒலி",
   "toggles.monoAudio.name": "மோனோ ஆடியோ",
-  "toggles.monoAudio.label": "மோனோ ஆடியோ இயக்கு/முடக்கு",
-  "toggles.monoAudio.desc": "இடது மற்றும் வலது சேனல்களை ஒன்றாக இயக்கும்",
   "toggles.colorFilters.name": "வண்ண வடிப்பான்கள்",
   "toggles.colorFilters.label": "வண்ண வடிப்பான்கள் இயக்கு/முடக்கு",
   "toggles.colorFilters.desc": "திரையின் வண்ண வடிப்பானை இயக்கும் அல்லது முடக்கும்",

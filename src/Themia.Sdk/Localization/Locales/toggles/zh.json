@@ -12,8 +12,6 @@
   "toggles.microphone.name": "麦克风",
   "toggles.spatialSound.name": "空间音效",
   "toggles.monoAudio.name": "单声道音频",
-  "toggles.monoAudio.label": "单声道音频 开/关",
-  "toggles.monoAudio.desc": "将左右声道合为一个播放",
   "toggles.colorFilters.name": "颜色滤镜",
   "toggles.colorFilters.label": "颜色滤镜 开/关",
   "toggles.colorFilters.desc": "打开或关闭屏幕的颜色滤镜",

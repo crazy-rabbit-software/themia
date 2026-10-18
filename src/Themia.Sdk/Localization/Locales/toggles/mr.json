@@ -12,8 +12,6 @@
   "toggles.microphone.name": "मायक्रोफोन",
   "toggles.spatialSound.name": "स्पेशियल साउंड",
   "toggles.monoAudio.name": "मोनो ऑडिओ",
-  "toggles.monoAudio.label": "मोनो ऑडिओ चालू/बंद",
-  "toggles.monoAudio.desc": "डावे आणि उजवे चॅनेल एकत्र वाजवते",
   "toggles.colorFilters.name": "रंग फिल्टर",
   "toggles.colorFilters.label": "रंग फिल्टर चालू/बंद",
   "toggles.colorFilters.desc": "स्क्रीनचा रंग फिल्टर चालू किंवा बंद करते",

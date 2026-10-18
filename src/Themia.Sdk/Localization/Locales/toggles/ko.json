@@ -12,8 +12,6 @@
   "toggles.microphone.name": "마이크",
   "toggles.spatialSound.name": "공간 음향",
   "toggles.monoAudio.name": "모노 오디오",
-  "toggles.monoAudio.label": "모노 오디오 켜기/끄기",
-  "toggles.monoAudio.desc": "왼쪽과 오른쪽 채널을 하나로 재생합니다",
   "toggles.colorFilters.name": "색 필터",
   "toggles.colorFilters.label": "색 필터 켜기/끄기",
   "toggles.colorFilters.desc": "화면의 색 필터를 켜거나 끕니다",

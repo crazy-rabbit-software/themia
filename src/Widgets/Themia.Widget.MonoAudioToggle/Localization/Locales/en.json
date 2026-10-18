@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.monoAudio.label": "Mono audio on/off",
+  "toggles.monoAudio.desc": "Plays the left and right channels as one"
+}

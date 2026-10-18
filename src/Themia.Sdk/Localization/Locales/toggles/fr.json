@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Microphone",
   "toggles.spatialSound.name": "Son spatial",
   "toggles.monoAudio.name": "Audio mono",
-  "toggles.monoAudio.label": "Audio mono activé/désactivé",
-  "toggles.monoAudio.desc": "Joue les canaux gauche et droit en un seul",
   "toggles.colorFilters.name": "Filtres de couleur",
   "toggles.colorFilters.label": "Filtres de couleur activés/désactivés",
   "toggles.colorFilters.desc": "Active ou désactive le filtre de couleur de l'écran",

@@ -12,8 +12,6 @@
   "toggles.microphone.name": "マイク",
   "toggles.spatialSound.name": "立体音響",
   "toggles.monoAudio.name": "モノラル オーディオ",
-  "toggles.monoAudio.label": "モノラル オーディオ オン/オフ",
-  "toggles.monoAudio.desc": "左右のチャンネルを 1 つにまとめて再生します",
   "toggles.colorFilters.name": "カラー フィルター",
   "toggles.colorFilters.label": "カラー フィルター オン/オフ",
   "toggles.colorFilters.desc": "画面のカラー フィルターをオンまたはオフにします",

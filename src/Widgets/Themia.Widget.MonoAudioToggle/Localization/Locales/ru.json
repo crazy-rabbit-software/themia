@@ -1,0 +1,4 @@
+{
+  "toggles.monoAudio.label": "Монозвук вкл./откл.",
+  "toggles.monoAudio.desc": "Воспроизводит левый и правый каналы как один"
+}

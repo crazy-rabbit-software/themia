@@ -12,8 +12,6 @@
   "toggles.microphone.name": "الميكروفون",
   "toggles.spatialSound.name": "الصوت المكاني",
   "toggles.monoAudio.name": "صوت أحادي",
-  "toggles.monoAudio.label": "تشغيل/إيقاف الصوت الأحادي",
-  "toggles.monoAudio.desc": "تشغيل القناتين اليسرى واليمنى كقناة واحدة",
   "toggles.colorFilters.name": "عوامل تصفية الألوان",
   "toggles.colorFilters.label": "تشغيل/إيقاف عوامل تصفية الألوان",
   "toggles.colorFilters.desc": "تشغيل عامل تصفية ألوان الشاشة أو إيقافه",

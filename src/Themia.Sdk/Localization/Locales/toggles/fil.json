@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Mikropono",
   "toggles.spatialSound.name": "Spatial sound",
   "toggles.monoAudio.name": "Mono audio",
-  "toggles.monoAudio.label": "I-on/i-off ang Mono audio",
-  "toggles.monoAudio.desc": "Pinapatugtog nang iisa ang kaliwa at kanang channel",
   "toggles.colorFilters.name": "Mga color filter",
   "toggles.colorFilters.label": "I-on/i-off ang mga color filter",
   "toggles.colorFilters.desc": "Ino-on o ino-off ang color filter ng screen",

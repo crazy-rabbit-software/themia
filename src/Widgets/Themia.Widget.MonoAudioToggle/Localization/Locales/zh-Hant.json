@@ -1,0 +1,4 @@
+{
+  "toggles.monoAudio.label": "單聲道音訊 開/關",
+  "toggles.monoAudio.desc": "將左右聲道合併為一個播放"
+}

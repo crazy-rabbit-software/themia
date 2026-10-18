@@ -12,8 +12,6 @@
   "toggles.microphone.name": "میکروفون",
   "toggles.spatialSound.name": "صدای فضایی",
   "toggles.monoAudio.name": "صدای مونو",
-  "toggles.monoAudio.label": "روشن/خاموش صدای مونو",
-  "toggles.monoAudio.desc": "کانال‌های چپ و راست را یکی پخش می‌کند",
   "toggles.colorFilters.name": "فیلترهای رنگ",
   "toggles.colorFilters.label": "روشن/خاموش فیلترهای رنگ",
   "toggles.colorFilters.desc": "فیلتر رنگ صفحه را روشن یا خاموش می‌کند",

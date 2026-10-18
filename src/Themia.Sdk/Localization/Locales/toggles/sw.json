@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Maikrofoni",
   "toggles.spatialSound.name": "Sauti ya anga",
   "toggles.monoAudio.name": "Sauti ya mono",
-  "toggles.monoAudio.label": "Sauti ya mono washa/zima",
-  "toggles.monoAudio.desc": "Hucheza chaneli za kushoto na kulia kama moja",
   "toggles.colorFilters.name": "Vichujio vya rangi",
   "toggles.colorFilters.label": "Vichujio vya rangi washa/zima",
   "toggles.colorFilters.desc": "Huwasha au kuzima kichujio cha rangi cha skrini",

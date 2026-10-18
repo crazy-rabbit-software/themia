@@ -1,0 +1,4 @@
+{
+  "toggles.monoAudio.label": "モノラル オーディオ オン/オフ",
+  "toggles.monoAudio.desc": "左右のチャンネルを 1 つにまとめて再生します"
+}

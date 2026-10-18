@@ -11,8 +11,6 @@
   "toggles.microphone.name": "Microphone",
   "toggles.spatialSound.name": "Spatial sound",
   "toggles.monoAudio.name": "Mono audio",
-  "toggles.monoAudio.label": "Mono audio on/off",
-  "toggles.monoAudio.desc": "Plays the left and right channels as one",
   "toggles.colorFilters.name": "Color filters",
   "toggles.colorFilters.label": "Color filters on/off",
   "toggles.colorFilters.desc": "Turns the screen's color filter on or off",

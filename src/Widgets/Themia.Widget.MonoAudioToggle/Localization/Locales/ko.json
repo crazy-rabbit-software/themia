@@ -1,0 +1,4 @@
+{
+  "toggles.monoAudio.label": "모노 오디오 켜기/끄기",
+  "toggles.monoAudio.desc": "왼쪽과 오른쪽 채널을 하나로 재생합니다"
+}

@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Mikrofon",
   "toggles.spatialSound.name": "Suara spasial",
   "toggles.monoAudio.name": "Audio mono",
-  "toggles.monoAudio.label": "Audio mono aktif/nonaktif",
-  "toggles.monoAudio.desc": "Memutar saluran kiri dan kanan sebagai satu",
   "toggles.colorFilters.name": "Filter warna",
   "toggles.colorFilters.label": "Filter warna aktif/nonaktif",
   "toggles.colorFilters.desc": "Mengaktifkan atau menonaktifkan filter warna layar",

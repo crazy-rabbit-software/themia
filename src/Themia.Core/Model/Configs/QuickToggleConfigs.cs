@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-3900] Mono audio.</summary>
-public sealed class MonoAudioToggleConfig : QuickToggleConfig
-{
-    /// <summary>The toggle it stands for.</summary>
-    [JsonIgnore]
-    public override QuickToggle Toggle => QuickToggle.MonoAudio;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("monoAudioToggle"),
-        ConfigType = typeof(MonoAudioToggleConfig),
-        CreateDefault = () => new MonoAudioToggleConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["quick settings", "toggle", "mono", "accessibility", "one ear", "audio"],
-        Label = Str.Toggles_MonoAudio_Label.Local(),
-        Description = Str.Toggles_MonoAudio_Desc.Local(),
-        Glyph = Glyphs.MonoAudio,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
-        Add = new(AddFolderId.QuickSettings, 1, 3),
-    };
-
-    public override WidgetConfig Clone() => new MonoAudioToggleConfig { Style = Style };
-}
-
 /// <summary>[S-3900] Color filters.</summary>
 public sealed class ColorFiltersToggleConfig : QuickToggleConfig
 {

@@ -12,8 +12,6 @@
   "toggles.microphone.name": "Mikrofon",
   "toggles.spatialSound.name": "Uzamsal ses",
   "toggles.monoAudio.name": "Mono ses",
-  "toggles.monoAudio.label": "Mono ses aç/kapat",
-  "toggles.monoAudio.desc": "Sol ve sağ kanalları tek kanal olarak çalar",
   "toggles.colorFilters.name": "Renk filtreleri",
   "toggles.colorFilters.label": "Renk filtreleri aç/kapat",
   "toggles.colorFilters.desc": "Ekranın renk filtresini açar veya kapatır",
