@@ -45,6 +45,18 @@ public enum FetchStatus
 
     /// <summary>The configured address or symbol was refused before any request was made.</summary>
     Refused,
+
+    /// <summary>
+    /// [S-9900] Only the user can mend it by signing in again: a 401 after the one renewal, a revoked
+    /// grant, a secret this PC cannot open. Never retried on the cadence; never removes the account.
+    /// </summary>
+    SignInRequired,
+
+    /// <summary>[S-9900] Signed in, and the service refused this data (a 403 that is not a throttle: a missing scope or grant).</summary>
+    Forbidden,
+
+    /// <summary>[S-9900] The thing asked for is not there (404, 410: renamed, deleted); held like a refusal.</summary>
+    NotFound,
 }
 
 /// <summary>
@@ -73,18 +85,23 @@ public static class FetchState
         FetchStatus.BadResponse => Strings.Get(locale, Str.Shell_Fetch_BadResponse),
         FetchStatus.Empty => Strings.Get(locale, Str.Shell_Fetch_Empty),
         FetchStatus.Refused => Strings.Get(locale, Str.Shell_Fetch_Refused),
+        FetchStatus.SignInRequired => Strings.Get(locale, Str.Shell_Fetch_SignInRequired),
+        FetchStatus.Forbidden => Strings.Get(locale, Str.Shell_Fetch_Forbidden),
+        FetchStatus.NotFound => Strings.Get(locale, Str.Shell_Fetch_NotFound),
         _ => Strings.Get(locale, Str.Shell_Fetch_Unreachable),
     };
 
     /// <summary>
     /// Whether a status is worth trying again on a timer at all. A refused setting and an
     /// unconfigured widget are not: nothing about them changes until the user edits something, and
-    /// retrying is pure noise in the log and on the wire.
+    /// retrying is pure noise in the log and on the wire. Neither is a sign-in only the user can
+    /// renew, a refusal or a missing item ([S-9900]): they are held, not asked every few minutes.
     /// </summary>
     public static bool IsRetryable(FetchStatus status) => status switch
     {
         FetchStatus.NotConfigured => false,
         FetchStatus.Refused => false,
+        FetchStatus.SignInRequired or FetchStatus.Forbidden or FetchStatus.NotFound => false,
         _ => true,
     };
 

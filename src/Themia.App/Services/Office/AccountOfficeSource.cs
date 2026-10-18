@@ -536,7 +536,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
         {
             var next = SyncProblems.From(ex.Error);
             var now = DateTimeOffset.UtcNow;
-            schedule.Failed(ex.ToFetchStatus(), ex.Message, now);
+            schedule.Failed(ex, now);
             schedule.Hold(SyncProblems.HoldFor(next), now);
             setProblem(next);
 

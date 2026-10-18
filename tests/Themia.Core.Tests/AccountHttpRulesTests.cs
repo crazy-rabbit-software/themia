@@ -1,4 +1,5 @@
 using Themia.Core.Accounts;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Xunit;
 
@@ -115,12 +116,68 @@ public class AccountHttpRulesTests
     public void S520_statuses_map_to_named_errors(int status, AccountError expected)
         => Assert.Equal(expected, AccountException.FromStatus(status));
 
+    [Theory]
+    [InlineData(AccountError.Offline, FetchStatus.Offline)]
+    [InlineData(AccountError.Unreachable, FetchStatus.Unreachable)]
+    [InlineData(AccountError.TimedOut, FetchStatus.TimedOut)]
+    [InlineData(AccountError.RateLimited, FetchStatus.RateLimited)]
+    [InlineData(AccountError.UnknownAccount, FetchStatus.NotConfigured)]
+    [InlineData(AccountError.SignInRequired, FetchStatus.SignInRequired)]
+    [InlineData(AccountError.Forbidden, FetchStatus.Forbidden)]
+    [InlineData(AccountError.NotFound, FetchStatus.NotFound)]
+    [InlineData(AccountError.ServerError, FetchStatus.BadResponse)]
+    [InlineData(AccountError.BadResponse, FetchStatus.BadResponse)]
+    [InlineData(AccountError.Refused, FetchStatus.Refused)]
+    public void S9900_errors_map_onto_widget_fetch_states_without_folding(AccountError error, FetchStatus expected)
+        => Assert.Equal(expected, new AccountException(error, "x").ToFetchStatus());
+
     [Fact]
-    public void S520_errors_map_onto_widget_fetch_states()
+    public void S9900_every_account_error_has_a_fetch_state()
     {
-        Assert.Equal(FetchStatus.Offline, new AccountException(AccountError.Offline, "x").ToFetchStatus());
-        Assert.Equal(FetchStatus.RateLimited, new AccountException(AccountError.RateLimited, "x").ToFetchStatus());
-        Assert.Equal(FetchStatus.NotConfigured, new AccountException(AccountError.SignInRequired, "x").ToFetchStatus());
-        Assert.Equal(FetchStatus.BadResponse, new AccountException(AccountError.Forbidden, "x").ToFetchStatus());
+        foreach (var error in Enum.GetValues<AccountError>())
+        {
+            Assert.True(Enum.IsDefined(new AccountException(error, "x").ToFetchStatus()));
+        }
+    }
+
+    [Fact]
+    public void S9901_a_known_retry_time_holds_the_schedule_until_then()
+    {
+        var now = new DateTimeOffset(2026, 10, 18, 9, 0, 0, TimeSpan.Zero);
+        var schedule = new SyncSchedule(TimeSpan.FromMinutes(2));
+        var throttle = new AccountException(AccountError.RateLimited, "slow down", 429) { RetryAt = now.AddMinutes(50) };
+
+        schedule.Failed(throttle, now);
+
+        Assert.Equal(FetchStatus.RateLimited, schedule.Status);
+        Assert.False(schedule.IsDue(now.AddMinutes(49)));
+        Assert.True(schedule.IsDue(now.AddMinutes(50)));
+
+        // The user's Refresh does not jump a provider's own "slow down".
+        schedule.Force(now.AddMinutes(10));
+        Assert.False(schedule.IsDue(now.AddMinutes(10)));
+    }
+
+    [Fact]
+    public void S9901_a_retry_time_never_shortens_the_back_off()
+    {
+        var now = new DateTimeOffset(2026, 10, 18, 9, 0, 0, TimeSpan.Zero);
+        var schedule = new SyncSchedule(TimeSpan.FromMinutes(2));
+
+        schedule.Failed(new AccountException(AccountError.RateLimited, "x", 429) { RetryAt = now.AddSeconds(5) }, now);
+
+        Assert.False(schedule.IsDue(now.AddMinutes(14))); // the rate-limit floor of [S-2609]'s back-off still holds
+    }
+
+    [Fact]
+    public void S9900_a_refusal_only_the_user_can_mend_is_not_retried_on_the_cadence()
+    {
+        var now = new DateTimeOffset(2026, 10, 18, 9, 0, 0, TimeSpan.Zero);
+        foreach (var error in new[] { AccountError.SignInRequired, AccountError.Forbidden, AccountError.NotFound })
+        {
+            var schedule = new SyncSchedule(TimeSpan.FromMinutes(2));
+            schedule.Failed(new AccountException(error, "x"), now);
+            Assert.False(schedule.IsDue(now.AddMinutes(59)));
+        }
     }
 }

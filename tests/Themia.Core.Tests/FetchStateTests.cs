@@ -25,6 +25,9 @@ public class FetchStateTests
     [InlineData(FetchStatus.BadResponse)]
     [InlineData(FetchStatus.Empty)]
     [InlineData(FetchStatus.Refused)]
+    [InlineData(FetchStatus.SignInRequired)]
+    [InlineData(FetchStatus.Forbidden)]
+    [InlineData(FetchStatus.NotFound)]
     public void Every_state_but_success_has_its_own_sentence(FetchStatus status)
         => Assert.NotEqual(string.Empty, FetchState.Message(Locale.En, status));
 
@@ -71,6 +74,9 @@ public class FetchStateTests
     [InlineData(FetchStatus.Offline, true)]
     [InlineData(FetchStatus.RateLimited, true)]
     [InlineData(FetchStatus.BadResponse, true)]
+    [InlineData(FetchStatus.SignInRequired, false)]
+    [InlineData(FetchStatus.Forbidden, false)]
+    [InlineData(FetchStatus.NotFound, false)]
     public void Only_the_states_a_timer_can_fix_are_worth_retrying(FetchStatus status, bool retryable)
         => Assert.Equal(retryable, FetchState.IsRetryable(status));
 
@@ -80,6 +86,9 @@ public class FetchStateTests
     [InlineData(FetchStatus.NotConfigured, false)]
     [InlineData(FetchStatus.Empty, true)]
     [InlineData(FetchStatus.Offline, true)]
+    [InlineData(FetchStatus.SignInRequired, true)]
+    [InlineData(FetchStatus.Forbidden, true)]
+    [InlineData(FetchStatus.NotFound, true)]
     public void A_failure_is_the_thing_that_replaces_the_data(FetchStatus status, bool failure)
         => Assert.Equal(failure, FetchState.IsFailure(status));
 

@@ -67,7 +67,12 @@ public sealed class SyncSchedule(TimeSpan interval)
         NextAttempt = now + Interval;
     }
 
-    public void Failed(FetchStatus status, string? detail, DateTimeOffset now)
+    /// <summary>
+    /// An attempt failed: the next one waits the back-off, and at least until <paramref name="retryAt"/>
+    /// when the service named a time ([S-9901]: a throttle's <c>Retry-After</c> or reset), which never
+    /// shortens the back-off.
+    /// </summary>
+    public void Failed(FetchStatus status, string? detail, DateTimeOffset now, DateTimeOffset? retryAt = null)
     {
         Status = status;
         Detail = detail;
@@ -75,6 +80,11 @@ public sealed class SyncSchedule(TimeSpan interval)
         NextAttempt = FetchState.IsRetryable(status)
             ? now + Backoff.Delay(Interval, Failures, status)
             : now + Backoff.Ceiling;
+
+        if (retryAt is { } at && at > NextAttempt)
+        {
+            NextAttempt = at;
+        }
     }
 
     /// <summary>

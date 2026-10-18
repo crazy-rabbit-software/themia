@@ -93,8 +93,10 @@ public sealed class AccountException : Exception
     public DateTimeOffset? RetryAt { get; init; }
 
     /// <summary>
-    /// The matching widget fetch state, so a widget built on <see cref="FetchState"/> shows the same
-    /// sentence for an account failure as for any other network one.
+    /// [S-9900] The matching widget fetch state, so a widget built on <see cref="FetchState"/> shows the
+    /// same sentence for an account failure as for any other network one. Nothing is folded away: a
+    /// sign-in, a refusal and a missing item keep their own state; only a server failure and a body
+    /// that did not parse share "unexpected", and an account that is gone is "not set up".
     /// </summary>
     public FetchStatus ToFetchStatus() => Error switch
     {
@@ -102,8 +104,12 @@ public sealed class AccountException : Exception
         AccountError.Unreachable => FetchStatus.Unreachable,
         AccountError.TimedOut => FetchStatus.TimedOut,
         AccountError.RateLimited => FetchStatus.RateLimited,
-        AccountError.UnknownAccount or AccountError.SignInRequired => FetchStatus.NotConfigured,
+        AccountError.UnknownAccount => FetchStatus.NotConfigured,
+        AccountError.SignInRequired => FetchStatus.SignInRequired,
+        AccountError.Forbidden => FetchStatus.Forbidden,
+        AccountError.NotFound => FetchStatus.NotFound,
         AccountError.Refused => FetchStatus.Refused,
+        AccountError.ServerError or AccountError.BadResponse => FetchStatus.BadResponse,
         _ => FetchStatus.BadResponse,
     };
 
@@ -117,6 +123,21 @@ public sealed class AccountException : Exception
         >= 500 and < 600 => AccountError.ServerError,
         _ => AccountError.BadResponse,
     };
+}
+
+/// <summary>[S-9901] Recording an account failure on a schedule.</summary>
+public static class AccountFailures
+{
+    /// <summary>
+    /// The schedule's <see cref="Sync.SyncSchedule.Failed"/> with the failure's own state and, for a
+    /// throttle, the provider's own retry time: nothing asks again before <see cref="AccountException.RetryAt"/>.
+    /// </summary>
+    public static void Failed(this Sync.SyncSchedule schedule, AccountException failure, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(schedule);
+        ArgumentNullException.ThrowIfNull(failure);
+        schedule.Failed(failure.ToFetchStatus(), failure.Message, now, failure.RetryAt);
+    }
 }
 
 /// <summary>[S-518] Retrying a throttled request: how often, and how long to wait.</summary>

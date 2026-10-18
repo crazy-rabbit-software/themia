@@ -703,7 +703,7 @@ internal sealed class TaskService : IDisposable
             catch (AccountException ex)
             {
                 Failure = ex;
-                Schedule.Failed(ex.ToFetchStatus(), ex.Message, DateTimeOffset.UtcNow);
+                Schedule.Failed(ex, DateTimeOffset.UtcNow);
                 Log.Warn(Scope, $"{AccountId}: {FetchState.Message(ex.ToFetchStatus())} ({ex.Message})");
             }
             catch (Exception ex)

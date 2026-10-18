@@ -220,7 +220,7 @@ public static class MailScreens
         if (failed.Count == states.Count)
         {
             var status = failed[0].Outcome!.Status;
-            var signIn = status == FetchStatus.NotConfigured;
+            var signIn = status is FetchStatus.NotConfigured or FetchStatus.SignInRequired;
             var text = signIn
                 ? SignInAgain(locale, failed[0].Account.Label)
                 : status == FetchStatus.Offline
@@ -276,7 +276,7 @@ public static class MailScreens
         FetchStatus.Unreachable => Str.WidgetsB_Email_Status_Unreachable,
         FetchStatus.TimedOut => Str.WidgetsB_Email_Status_TimedOut,
         FetchStatus.RateLimited => Str.WidgetsB_Email_Status_RateLimited,
-        FetchStatus.NotConfigured => Str.WidgetsB_Email_Status_NotConfigured,
+        FetchStatus.NotConfigured or FetchStatus.SignInRequired => Str.WidgetsB_Email_Status_NotConfigured,
         FetchStatus.Refused => Str.WidgetsB_Email_Status_Refused,
         _ => Str.WidgetsB_Email_Status_Unexpected,
     });
@@ -288,7 +288,7 @@ public static class MailScreens
         FetchStatus.Unreachable => Str.WidgetsB_Email_Reason_Unreachable,
         FetchStatus.TimedOut => Str.WidgetsB_Email_Reason_TimedOut,
         FetchStatus.RateLimited => Str.WidgetsB_Email_Reason_RateLimited,
-        FetchStatus.NotConfigured => Str.WidgetsB_Email_Reason_NotConfigured,
+        FetchStatus.NotConfigured or FetchStatus.SignInRequired => Str.WidgetsB_Email_Reason_NotConfigured,
         FetchStatus.Refused => Str.WidgetsB_Email_Reason_Refused,
         _ => Str.WidgetsB_Email_Reason_Unexpected,
     });

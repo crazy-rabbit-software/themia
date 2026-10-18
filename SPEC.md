@@ -15,7 +15,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 
 Sections, grouped by area (file order below; search for the heading).
 
-- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT).
+- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
@@ -978,6 +978,25 @@ The shared parts a list widget is built from, and the rules they keep (design an
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
   setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no
   signed-in account offers what it needs.
+
+## The service layer (SERVICES)
+
+How the host reads an online service for kit widgets, and the vocabulary every account and service
+failure is said in (design: `docs/WIDGET-KIT.md` section 5.7 and 6.5). Pure parts in
+`src/Themia.Sdk/Services/` (namespace `Themia.Sdk.Services`), tested in
+`tests/Themia.Core.Tests/Service*Tests.cs`; host parts in `src/Themia.App/Services/Kit/`. The
+service layer knows strategies, never services: a service is a descriptor that picks them.
+
+- **[S-9900]** One failure vocabulary: `FetchStatus` names what went wrong, and an account's failure
+  reaches it without being folded away. A sign-in only the user can renew (a 401 after the one
+  renewal, a revoked grant) is `SignInRequired`, a refusal that is not a throttle `Forbidden`, a
+  missing item `NotFound`, each with its own sentence in every language; an account that is gone
+  is "not set up"; a server failure and a body that did not parse are "unexpected". None of the
+  three is retried on the cadence: they wait the back-off's ceiling ([S-2609]) until the user acts
+  or a Refresh asks. A sign-in problem never removes the account ([S-530]).
+- **[S-9901]** A throttle's own retry time is kept: an account failure carrying `RetryAt` (the
+  provider's `Retry-After` or rate-limit reset, `RateLimitRules`) holds its schedule until then, never shorter
+  than the back-off, and the user's Refresh does not jump it ([S-2609]).
 
 ## Adding a widget
 

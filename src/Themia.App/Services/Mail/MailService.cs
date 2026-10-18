@@ -773,7 +773,7 @@ internal sealed class MailService : IMailSource, IDisposable
                     _owner._accounts.ReportImapLoginRefused(AccountId);
                 }
 
-                Record(folder, ex.ToFetchStatus(), ex.Message);
+                Record(folder, ex.ToFetchStatus(), ex.Message, ex.RetryAt);
             }
             catch (Exception ex) when (ex is HttpRequestException or IOException or InvalidOperationException or ObjectDisposedException)
             {
@@ -796,7 +796,7 @@ internal sealed class MailService : IMailSource, IDisposable
             _owner.PublishAll();
         }
 
-        private void Record(FolderSync folder, FetchStatus status, string? detail)
+        private void Record(FolderSync folder, FetchStatus status, string? detail, DateTimeOffset? retryAt = null)
         {
             var now = DateTimeOffset.UtcNow;
             var previous = folder.Schedule.Status;
@@ -807,7 +807,7 @@ internal sealed class MailService : IMailSource, IDisposable
             }
             else
             {
-                folder.Schedule.Failed(status, detail, now);
+                folder.Schedule.Failed(status, detail, now, retryAt);
             }
 
             if (previous == status)
