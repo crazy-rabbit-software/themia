@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "ਉਹ ਡਰਾਈਵ ਜਿਸਦੇ ਪੜ੍ਹਨ ਅਤੇ ਲਿਖਣ ਨੂੰ ਗਿਣਿਆ ਜਾਂਦਾ ਹੈ",
   "shell.meters.systemDrive": "ਸਿਸਟਮ ਡਰਾਈਵ ({drive})",
   "shell.meters.gpuDescription": "ਇੱਕ ਗ੍ਰਾਫ਼ਿਕਸ ਕਾਰਡ ਦਾ ਲੋਡ",
-  "shell.meters.batteryDescription": "ਚਾਰਜ ਪੱਧਰ",
   "shell.appearance.headerFade": "ਸਿਰਲੇਖ ਪੱਟੀ ਕਿੰਨੀ ਠੋਸ ਹੈ; {percent} ਵਿਜੇਟ ਨਾਲ ਮੇਲ ਖਾਂਦਾ ਹੈ",
   "shell.views.add": "ਵਿਊ ਜੋੜੋ",
   "shell.views.addDesc": "ਸੂਚੀ ਦੇ ਅੰਤ ਵਿੱਚ ਇੱਕ ਨਵਾਂ, ਖ਼ਾਲੀ ਵਿਊ",

@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "Ang drive na ang mga pagbasa at pagsulat ang ipinapakitang numero",
   "shell.meters.systemDrive": "Drive ng system ({drive})",
   "shell.meters.gpuDescription": "Load ng isang graphics card",
-  "shell.meters.batteryDescription": "Antas ng charge",
   "shell.appearance.headerFade": "Gaano kasolido ang header strip; tugma sa widget ang {percent}",
   "shell.views.add": "Magdagdag ng view",
   "shell.views.addDesc": "Isang bago at walang lamang view sa dulo ng listahan",

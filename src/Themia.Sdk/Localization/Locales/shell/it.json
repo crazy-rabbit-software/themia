@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "L’unità le cui letture e scritture sono il numero",
   "shell.meters.systemDrive": "Unità di sistema ({drive})",
   "shell.meters.gpuDescription": "Carico di una scheda grafica",
-  "shell.meters.batteryDescription": "Livello di carica",
   "shell.appearance.headerFade": "Quanto è opaca la striscia dell’intestazione; {percent} corrisponde al widget",
   "shell.views.add": "Aggiungi vista",
   "shell.views.addDesc": "Una nuova vista vuota in fondo all’elenco",

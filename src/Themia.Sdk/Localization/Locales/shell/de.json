@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "Das Laufwerk, dessen Lese- und Schreibvorgänge die Zahl sind",
   "shell.meters.systemDrive": "Systemlaufwerk ({drive})",
   "shell.meters.gpuDescription": "Last einer Grafikkarte",
-  "shell.meters.batteryDescription": "Ladestand",
   "shell.appearance.headerFade": "Wie deckend die Kopfleiste ist; {percent} entspricht dem Widget",
   "shell.views.add": "Ansicht hinzufügen",
   "shell.views.addDesc": "Eine neue, leere Ansicht am Ende der Liste",

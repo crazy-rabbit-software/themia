@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "Faifan da karatunsa da rubutunsa ne lambar",
   "shell.meters.systemDrive": "Faifan tsarin aiki ({drive})",
   "shell.meters.gpuDescription": "Nauyin katin zane guda",
-  "shell.meters.batteryDescription": "Matakin caji",
   "shell.appearance.headerFade": "Yadda zirin kanun yake da ƙarfi; {percent} yana daidai da widget",
   "shell.views.add": "Ƙara duba",
   "shell.views.addDesc": "Sabon duba maras komai a ƙarshen jeri",

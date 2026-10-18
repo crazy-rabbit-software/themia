@@ -642,7 +642,6 @@
   "shell.meters.drive.desc": "Dysk, którego odczyty i zapisy to liczba",
   "shell.meters.systemDrive": "Dysk systemowy ({drive})",
   "shell.meters.gpuDescription": "Obciążenie jednej karty graficznej",
-  "shell.meters.batteryDescription": "Poziom naładowania",
   "shell.appearance.headerFade": "Jak kryjący jest pasek nagłówka; {percent} odpowiada widżetowi",
   "shell.views.add": "Dodaj widok",
   "shell.views.addDesc": "Nowy, pusty widok na końcu listy",

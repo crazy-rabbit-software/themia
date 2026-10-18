@@ -588,7 +588,6 @@
   "shell.meters.drive.desc": "ไดรฟ์ที่ใช้การอ่านและเขียนเป็นตัวเลข",
   "shell.meters.systemDrive": "ไดรฟ์ระบบ ({drive})",
   "shell.meters.gpuDescription": "โหลดของการ์ดกราฟิกหนึ่งใบ",
-  "shell.meters.batteryDescription": "ระดับประจุ",
   "shell.appearance.headerFade": "ความทึบของแถบส่วนหัว {percent} เท่ากับวิดเจ็ต",
   "shell.views.add": "เพิ่มมุมมอง",
   "shell.views.addDesc": "มุมมองใหม่ที่ว่างเปล่าที่ท้ายรายการ",

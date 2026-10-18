@@ -4052,8 +4052,7 @@ history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
   is its rate against the top the graph would have: the doubling of 1 MB/s past the peak of the last
   minute's totals and this sample's ([S-1821], `DiskRules.BarShares`), so idle reads as a sliver; the
   window starts again when the drive or the scope changes.
-- **[S-6272]** Battery: `BatteryConfig.Style`, **Graph** ([S-1187]), **Battery** ([S-6262]) and
-  **Ring** ([S-6266]). No battery is the empty state in every style ([S-82a]).
+- [S-6272]: moved with the Battery widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Battery/`).
 - **[S-6273]** Ping: `PingConfig.Style`, **Graph** ([S-1172]) and **Signal bars** ([S-6263]); the
   header's status dot and Refresh are the same in both.
 

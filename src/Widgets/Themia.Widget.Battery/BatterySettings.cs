@@ -4,10 +4,10 @@ using Themia.Core.Model;
 
 namespace Themia.App.Shell.Config;
 
-internal static partial class WidgetSettings
+internal static class BatterySettings
 {
     /// <summary>[S-1180] [S-1762] The battery meter shows its reading and its history only: the rows every meter has.</summary>
-    public static void Battery(List<FrameworkElement> rows, BatteryConfig battery, Action save)
+    public static void Rows(List<FrameworkElement> rows, BatteryConfig battery, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(battery);

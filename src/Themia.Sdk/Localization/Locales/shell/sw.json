@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "Hifadhi ambayo usomaji na uandishi wake ndio nambari",
   "shell.meters.systemDrive": "Hifadhi ya mfumo ({drive})",
   "shell.meters.gpuDescription": "Mzigo wa kadi moja ya michoro",
-  "shell.meters.batteryDescription": "Kiwango cha chaji",
   "shell.appearance.headerFade": "Ukanda wa kichwa ni imara kiasi gani; {percent} hulingana na wijeti",
   "shell.views.add": "Ongeza mwonekano",
   "shell.views.addDesc": "Mwonekano mpya, tupu mwishoni mwa orodha",

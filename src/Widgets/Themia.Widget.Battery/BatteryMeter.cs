@@ -21,7 +21,7 @@ internal sealed class BatteryMeter : MeterPart
     private static readonly string[] ChargingLevels =
         ["", "", "", "", "", "", "", "", "", "", ""];
 
-    public override WidgetId Kind => BatteryConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("battery");
 
     public override bool CanBeAbsent => true;
 

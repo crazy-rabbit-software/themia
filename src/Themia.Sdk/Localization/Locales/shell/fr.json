@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "Le lecteur dont les lectures et écritures sont le nombre",
   "shell.meters.systemDrive": "Lecteur système ({drive})",
   "shell.meters.gpuDescription": "Charge d’une carte graphique",
-  "shell.meters.batteryDescription": "Niveau de charge",
   "shell.appearance.headerFade": "L’opacité du bandeau d’en-tête ; {percent} correspond au widget",
   "shell.views.add": "Ajouter une vue",
   "shell.views.addDesc": "Une nouvelle vue vide en fin de liste",

@@ -678,7 +678,6 @@
   "shell.meters.drive.desc": "محرك الأقراص الذي تُعرض قراءاته وكتاباته",
   "shell.meters.systemDrive": "محرك أقراص النظام ({drive})",
   "shell.meters.gpuDescription": "حمل بطاقة رسومات واحدة",
-  "shell.meters.batteryDescription": "مستوى الشحن",
   "shell.appearance.headerFade": "مدى صلابة شريط الرأس؛ {percent} يطابق الأداة",
   "shell.views.add": "إضافة مشهد",
   "shell.views.addDesc": "مشهد جديد فارغ في نهاية القائمة",

@@ -606,7 +606,6 @@
   "shell.meters.drive.desc": "وہ ڈرائیو جس کی ریڈز اور رائٹس دکھائی جاتی ہیں",
   "shell.meters.systemDrive": "سسٹم ڈرائیو ({drive})",
   "shell.meters.gpuDescription": "ایک گرافکس کارڈ کا لوڈ",
-  "shell.meters.batteryDescription": "چارج کی سطح",
   "shell.appearance.headerFade": "ہیڈر کی پٹی کتنی ٹھوس ہے؛ {percent} ویجیٹ سے میل کھاتا ہے",
   "shell.views.add": "منظر شامل کریں",
   "shell.views.addDesc": "فہرست کے آخر میں ایک نیا، خالی منظر",
