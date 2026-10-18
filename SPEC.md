@@ -3440,9 +3440,7 @@ Countdown C-61 keep-open (above).
 
 ## CPU
 
-- **[S-1140]** CPU: percent of all cores (`GetSystemTimes` delta, shared per tick [S-643]); the reading
-  and its history only ([S-1762]). The clock, per-core strip, sensors, totals and top processes of the
-  earlier ladder ([S-1141], [S-1142], [S-1146]..[S-1150]) are removed with their settings.
+- [S-1140], [S-6311], [S-6312], [S-6313], [S-6317]: moved with the CPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Cpu/`).
 - **[S-1143]** Uptime wording (`CpuRules.Uptime`, used by the power tile), two largest units:
   `3d 4h`, `2h 5m`, `7m`.
 - **[S-6310]** The core styles read each logical processor from the hub's `CpuCores` source
@@ -3451,18 +3449,7 @@ Countdown C-61 keep-open (above).
   that is not a number unknown). One PDH query, read once per tick for every such widget, opened
   only while a widget in some view has a core style (`SystemInterests`, [S-2513]) and closed with
   the feed. No counter: the core styles show the reading alone.
-- **[S-6311]** CPU styles, `CpuConfig.Style` (`CpuStyle`): **Graph** ([S-1762]), **All cores**
-  ([S-6312]), **Core grid** ([S-6313]), **Gauge** ([S-6302]), **Core graphs** ([S-6317]).
-- **[S-6312]** **All cores**: a column per logical processor ([S-6303]), each in its own pressure colour.
-- **[S-6313]** **Core grid**: a tile per logical processor ([S-6305]), shaded by its load ([S-6301]).
 - **[S-6314]** **Gauge** (CPU, memory, GPU): the reading inside the shared gauge ([S-6302]).
-- **[S-6317]** **Core graphs** (`CpuStyle.CoreGraphs`, user request 2026-10-16): the reading over a
-  tile per logical processor in the Core grid's arrangement ([S-6305], `BarLayout.Tiles`), each
-  that core's history drawn by the shared `SparkBand` edge to edge in its tile (sliding as the main
-  graph does, [S-1826]) in its load's pressure colour over the columns' faint track, its load above
-  the line at the top left (`CoreGraphGrid`). The Chart span applies (the span row is offered in this
-  style as in Graph, `GaugeConfig.StyleChartsHistory`). Debug: `--style coregraphs --state history`
-  draws sixteen fixture cores.
 - **[S-6318]** The per-core history is the hub's, not the view's: the `CpuCores` source keeps one
   ring for every core together (`CoreHistory`, a `float` per core per second, an unknown load a gap),
   filled by the same once-a-tick read the other core styles share ([S-2501]), so a meter built again

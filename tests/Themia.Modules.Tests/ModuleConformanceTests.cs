@@ -334,17 +334,33 @@ public sealed partial class ModuleConformanceTests
     [GeneratedRegex(@"^(?:internal |public )?(?:sealed |static |abstract )*(?:partial )?(?:class|struct|record(?: struct)?) (\w+)", RegexOptions.Multiline)]
     private static partial Regex TopLevelType();
 
-    /// <summary>The SDK's shared parts that paint items (a ring), by type name.</summary>
+    /// <summary>
+    /// The SDK's shared parts that paint items (a ring), by type name: those that paint directly, and
+    /// those built of them (the meters' shared view lays out the bars and tiles that paint).
+    /// </summary>
     private static HashSet<string> PaintingParts()
     {
         var skip = new HashSet<string>(StringComparer.Ordinal) { "ItemFill.cs", "Fluent.cs" };
+        var files = Directory.EnumerateFiles(Path.Combine(Src, "Themia.Sdk.WinUI", "Widgets"), "*.cs", SearchOption.AllDirectories)
+            .Where(f => !skip.Contains(Path.GetFileName(f)))
+            .Select(f => (Text: Code(f), Types: TopLevelType().Matches(Code(f)).Select(m => m.Groups[1].Value).ToList()))
+            .ToList();
         var parts = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var file in Directory.EnumerateFiles(Path.Combine(Src, "Themia.Sdk.WinUI", "Widgets"), "*.cs", SearchOption.AllDirectories).Where(f => !skip.Contains(Path.GetFileName(f))))
+        foreach (var (text, types) in files.Where(f => PaintsDirectly().IsMatch(f.Text)))
         {
-            var text = Code(file);
-            if (PaintsDirectly().IsMatch(text))
+            parts.UnionWith(types);
+        }
+
+        for (var grew = true; grew;)
+        {
+            grew = false;
+            foreach (var (text, types) in files.Where(f => !f.Types.All(parts.Contains)))
             {
-                parts.UnionWith(TopLevelType().Matches(text).Select(m => m.Groups[1].Value));
+                if (parts.Any(p => !types.Contains(p) && Regex.IsMatch(text, $@"\b{p}\b")))
+                {
+                    parts.UnionWith(types);
+                    grew = true;
+                }
             }
         }
 

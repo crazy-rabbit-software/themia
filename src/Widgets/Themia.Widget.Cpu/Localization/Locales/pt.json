@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Gráficos de núcleos",
+  "styles.cpu.cores": "Todos os núcleos",
+  "styles.cpu.gauge": "Medidor",
+  "styles.cpu.graph": "Gráfico",
+  "styles.cpu.grid": "Grade de núcleos",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Carga do processador em todos os núcleos"
+}

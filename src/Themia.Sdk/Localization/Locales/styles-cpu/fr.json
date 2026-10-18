@@ -1,7 +1,0 @@
-{
-  "styles.cpu.graph": "Graphique",
-  "styles.cpu.cores": "Tous les cœurs",
-  "styles.cpu.grid": "Grille des cœurs",
-  "styles.cpu.gauge": "Jauge",
-  "styles.cpu.coreGraphs": "Graphiques des cœurs"
-}

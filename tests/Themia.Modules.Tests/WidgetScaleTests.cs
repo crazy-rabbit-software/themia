@@ -30,7 +30,7 @@ public sealed class WidgetScaleTests
 
     private static WidgetInstance Widget(string id, double scale = 1.0)
     {
-        var widget = WidgetInstance.Create(CpuConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(new WidgetId("cpu"), new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.Scale = scale;
         return widget;

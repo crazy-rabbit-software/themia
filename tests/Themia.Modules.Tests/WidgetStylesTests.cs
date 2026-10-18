@@ -141,7 +141,7 @@ public sealed class WidgetStylesTests
     {
         Assert.Equal((int)ClockStyle.Word, WidgetStyles.Find(new WidgetId("clock"), "WORD")!.Value.Value);
         Assert.Null(WidgetStyles.Find(new WidgetId("clock"), "sundial"));
-        Assert.Null(WidgetStyles.Find(CpuConfig.Descriptor.Id, "digital"));
+        Assert.Null(WidgetStyles.Find(new WidgetId("cpu"), "digital"));
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public sealed class WidgetStylesTests
     {
         // Any kind without styles: which those are changes as kinds gain them.
         var plain = ModuleCatalog.Widgets.Select(w => w.Id).ToArray().First(k => !WidgetStyles.Offers(k));
-        var (state, view) = State(Widget(plain, "plain"), Widget(new WidgetId("clock"), "clock"), Widget(CpuConfig.Descriptor.Id, "cpu"));
+        var (state, view) = State(Widget(plain, "plain"), Widget(new WidgetId("clock"), "clock"), Widget(new WidgetId("cpu"), "cpu"));
 
         Assert.False(QuickSet.For(state, Selecting(view, "plain"), view.Id).HasStyle);
         Assert.False(QuickSet.For(state, Selecting(view, "cpu", "clock"), view.Id).HasStyle);

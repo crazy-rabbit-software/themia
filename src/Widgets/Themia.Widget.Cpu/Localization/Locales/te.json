@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "కోర్ గ్రాఫ్‌లు",
+  "styles.cpu.cores": "అన్ని కోర్‌లు",
+  "styles.cpu.gauge": "గేజ్",
+  "styles.cpu.graph": "గ్రాఫ్",
+  "styles.cpu.grid": "కోర్ గ్రిడ్",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "అన్ని కోర్‌లలో ప్రాసెసర్ లోడ్"
+}

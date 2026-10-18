@@ -30,15 +30,15 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6902_a_registry_with_a_missing_descriptor_or_an_id_or_kind_given_twice_is_refused()
     {
-        var memory = MemoryConfig.Descriptor;
-        var cpu = CpuConfig.Descriptor;
+        var notes = NotesConfig.Descriptor;
+        var tasks = TasksConfig.Descriptor;
 
-        Assert.Empty(ModuleCatalog.Check([memory, cpu]));
-        Assert.Single(ModuleCatalog.Check([memory, null]));
-        Assert.Single(ModuleCatalog.Check([memory, cpu with { Id = new("memory") }]));
-        Assert.Single(ModuleCatalog.Check([memory, cpu with { ConfigType = typeof(MemoryConfig) }]));
-        Assert.Single(ModuleCatalog.Check([memory, cpu with { Id = default }]));
-        Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([memory]));
+        Assert.Empty(ModuleCatalog.Check([notes, tasks]));
+        Assert.Single(ModuleCatalog.Check([notes, null]));
+        Assert.Single(ModuleCatalog.Check([notes, tasks with { Id = new("notes") }]));
+        Assert.Single(ModuleCatalog.Check([notes, tasks with { ConfigType = typeof(NotesConfig) }]));
+        Assert.Single(ModuleCatalog.Check([notes, tasks with { Id = default }]));
+        Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([notes]));
     }
 
     [Fact]

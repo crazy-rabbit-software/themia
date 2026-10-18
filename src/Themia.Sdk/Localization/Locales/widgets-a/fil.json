@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "Ang mga kinopya mo kamakailan",
   "widgetsA.catalog.clipboard.label": "Clipboard",
   "widgetsA.catalog.contacts.description": "Mga tao mula sa iyong mga address book sa Microsoft, Google at CardDAV",
-  "widgetsA.catalog.cpu.description": "Load ng processor sa lahat ng core",
-  "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "Mga pagbasa at pagsulat sa disk bawat segundo",
   "widgetsA.catalog.disk.label": "Disk",
   "widgetsA.catalog.feed.description": "Mga headline mula sa mga feed na pinili mo",

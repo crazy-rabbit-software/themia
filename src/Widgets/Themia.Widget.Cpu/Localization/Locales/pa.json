@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "ਕੋਰ ਗ੍ਰਾਫ਼",
+  "styles.cpu.cores": "ਸਾਰੇ ਕੋਰ",
+  "styles.cpu.gauge": "ਗੇਜ",
+  "styles.cpu.graph": "ਗ੍ਰਾਫ਼",
+  "styles.cpu.grid": "ਕੋਰ ਗ੍ਰਿਡ",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "ਸਾਰੇ ਕੋਰਾਂ ਉੱਤੇ ਪ੍ਰੋਸੈਸਰ ਲੋਡ"
+}

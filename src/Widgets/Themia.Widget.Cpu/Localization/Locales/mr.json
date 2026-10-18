@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "कोर आलेख",
+  "styles.cpu.cores": "सर्व कोर",
+  "styles.cpu.gauge": "गेज",
+  "styles.cpu.graph": "आलेख",
+  "styles.cpu.grid": "कोर ग्रिड",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "सर्व कोरवरील प्रोसेसर लोड"
+}

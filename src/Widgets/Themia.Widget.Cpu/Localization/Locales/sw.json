@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Grafu za viini",
+  "styles.cpu.cores": "Kiini zote",
+  "styles.cpu.gauge": "Kipimo",
+  "styles.cpu.graph": "Grafu",
+  "styles.cpu.grid": "Gridi ya viini",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Mzigo wa prosesa katika viini vyote"
+}

@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Biểu đồ lõi",
+  "styles.cpu.cores": "Tất cả lõi",
+  "styles.cpu.gauge": "Đồng hồ đo",
+  "styles.cpu.graph": "Biểu đồ",
+  "styles.cpu.grid": "Lưới lõi",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Tải bộ xử lý trên mọi lõi"
+}

@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "Ce que tu as copié récemment",
   "widgetsA.catalog.clipboard.label": "Presse-papiers",
   "widgetsA.catalog.contacts.description": "Les personnes de tes carnets d’adresses Microsoft, Google et CardDAV",
-  "widgetsA.catalog.cpu.description": "Charge du processeur sur tous les cœurs",
-  "widgetsA.catalog.cpu.label": "Processeur",
   "widgetsA.catalog.disk.description": "Lectures et écritures disque par seconde",
   "widgetsA.catalog.disk.label": "Disque",
   "widgetsA.catalog.feed.description": "Les titres des flux de ton choix",

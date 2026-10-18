@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Çekirdek grafikleri",
+  "styles.cpu.cores": "Tüm çekirdekler",
+  "styles.cpu.gauge": "Gösterge",
+  "styles.cpu.graph": "Grafik",
+  "styles.cpu.grid": "Çekirdek ızgarası",
+  "widgetsA.catalog.cpu.label": "İşlemci",
+  "widgetsA.catalog.cpu.description": "Tüm çekirdeklerde işlemci yükü"
+}

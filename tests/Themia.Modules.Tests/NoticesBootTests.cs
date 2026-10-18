@@ -204,7 +204,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(
             [
                 new WidgetId("clock"), ShortcutsConfig.Descriptor.Id, new WidgetId("weatherNow"),
-                CpuConfig.Descriptor.Id, MemoryConfig.Descriptor.Id, GpuConfig.Descriptor.Id, NetworkConfig.Descriptor.Id,
+                new WidgetId("cpu"), MemoryConfig.Descriptor.Id, GpuConfig.Descriptor.Id, NetworkConfig.Descriptor.Id,
                 new WidgetId("doNotDisturbToggle"), new WidgetId("colorFiltersToggle"), new WidgetId("nightLightToggle"),
                 new WidgetId("airplaneModeToggle"), new WidgetId("bluetoothToggle"), new WidgetId("wifiToggle"),
             ],

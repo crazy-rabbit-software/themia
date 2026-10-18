@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "Son kopyaladıklarınız",
   "widgetsA.catalog.clipboard.label": "Pano",
   "widgetsA.catalog.contacts.description": "Microsoft, Google ve CardDAV adres defterlerinizdeki kişiler",
-  "widgetsA.catalog.cpu.description": "Tüm çekirdeklerde işlemci yükü",
-  "widgetsA.catalog.cpu.label": "İşlemci",
   "widgetsA.catalog.disk.description": "Saniyede disk okuma ve yazma",
   "widgetsA.catalog.disk.label": "Disk",
   "widgetsA.catalog.feed.description": "Seçtiğiniz akışlardan başlıklar",

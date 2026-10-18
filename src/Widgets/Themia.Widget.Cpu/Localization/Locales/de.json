@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Kernverläufe",
+  "styles.cpu.cores": "Alle Kerne",
+  "styles.cpu.gauge": "Tacho",
+  "styles.cpu.graph": "Verlauf",
+  "styles.cpu.grid": "Kernraster",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Prozessorauslastung über alle Kerne"
+}

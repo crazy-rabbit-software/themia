@@ -24,52 +24,6 @@ public sealed class CoreGraphsTests
     };
 
     [Fact]
-    public void S6317_core_graphs_survive_a_save_and_offer_the_history_span()
-    {
-        var cpu = new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 300 };
-        var json = JsonSerializer.Serialize<WidgetConfig>(cpu, StateJson.WidgetConfig);
-        Assert.Contains("\"style\": \"coreGraphs\"", json, StringComparison.Ordinal);
-
-        var back = Assert.IsType<CpuConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
-        Assert.Equal(CpuStyle.CoreGraphs, back.Style);
-        Assert.Equal(300, back.GraphSpanSeconds);
-        Assert.Equal(CpuStyle.CoreGraphs, ((CpuConfig)back.Clone()).Style);
-
-        // The span is the core graphs' too; the styles without a history offer none.
-        Assert.Equal([MeterSetting.Span], back.ShownSettings);
-        Assert.Equal([MeterSetting.Span], new CpuConfig { Style = CpuStyle.Graph }.ShownSettings);
-        Assert.Empty(new CpuConfig { Style = CpuStyle.Grid }.ShownSettings);
-        Assert.Empty(new CpuConfig { Style = CpuStyle.Gauge }.ShownSettings);
-    }
-
-    [Fact]
-    public void S6318_only_core_graphs_ask_the_hub_for_each_cores_history_and_for_their_span()
-    {
-        var graphs = SystemInterests.For(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 300 }, @"C:\");
-        Assert.Contains(FeedKey.Create(SystemSource.CpuCores), graphs.Feeds);
-        Assert.Equal(300, graphs.CoreHistorySeconds);
-
-        Assert.Equal(0, SystemInterests.For(new CpuConfig { Style = CpuStyle.Grid, GraphSpanSeconds = 300 }, @"C:\").CoreHistorySeconds);
-        Assert.Equal(0, SystemInterests.For(new CpuConfig { Style = CpuStyle.Cores }, @"C:\").CoreHistorySeconds);
-        Assert.Equal(0, SystemInterests.For(new CpuConfig(), @"C:\").CoreHistorySeconds);
-    }
-
-    [Fact]
-    public void S6318_the_hub_keeps_the_longest_span_any_view_shows_and_hears_of_a_change()
-    {
-        var minute = SystemInterests.From(State(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 60 }, new CpuConfig { Style = CpuStyle.Grid, GraphSpanSeconds = 3600 }), @"C:\");
-        Assert.Equal(60, minute.CoreHistorySeconds);
-
-        var both = SystemInterests.From(State(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 60 }, new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 900 }), @"C:\");
-        Assert.Equal(900, both.CoreHistorySeconds);
-
-        // The same feeds and series but a longer span is a change the hub must hear of.
-        Assert.False(minute.SameAs(both));
-        Assert.True(both.SameAs(SystemInterests.From(State(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 900 }), @"C:\")));
-        Assert.Equal(0, SystemInterests.From(State(new CpuConfig { Style = CpuStyle.Grid }), @"C:\").CoreHistorySeconds);
-    }
-
-    [Fact]
     public void S6318_a_cores_history_is_what_the_span_and_its_slide_need_not_an_hour()
     {
         Assert.Equal(0, CoreHistory.CapacityFor(0));

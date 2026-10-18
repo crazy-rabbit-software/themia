@@ -46,8 +46,6 @@
   "widgetsA.catalog.clipboard.description": "สิ่งที่คุณคัดลอกเมื่อเร็วๆ นี้",
   "widgetsA.catalog.clipboard.label": "คลิปบอร์ด",
   "widgetsA.catalog.contacts.description": "บุคคลจากสมุดรายชื่อ Microsoft, Google และ CardDAV ของคุณ",
-  "widgetsA.catalog.cpu.description": "โหลดของตัวประมวลผลในทุกคอร์",
-  "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "การอ่านและเขียนดิสก์ต่อวินาที",
   "widgetsA.catalog.disk.label": "ดิสก์",
   "widgetsA.catalog.feed.description": "พาดหัวข่าวจากฟีดที่คุณเลือก",

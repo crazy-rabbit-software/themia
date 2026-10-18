@@ -24,7 +24,7 @@ public sealed class WidgetSearchTests
             ["Multi-day weather outlook for any location"], ["Online"]),
         new("net", ["Network Monitor"], ModuleCatalog.Of(NetworkConfig.Descriptor.Id).Keywords,
             ["Live upload and download speeds"], ["System"]),
-        new("cpu", ["CPU Monitor"], ModuleCatalog.Of(CpuConfig.Descriptor.Id).Keywords,
+        new("cpu", ["CPU Monitor"], ModuleCatalog.Of(new WidgetId("cpu")).Keywords,
             ["Live CPU usage and per-core load"], ["System"]),
         // Not a widget any more: a document with a camel-case key and a provider, for the matcher alone.
         new("githubNotifications", ["GitHub Notifications"], ["git", "repo", "inbox", "mentions", "alerts"],

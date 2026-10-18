@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Grafik inti",
+  "styles.cpu.cores": "Semua inti",
+  "styles.cpu.gauge": "Pengukur",
+  "styles.cpu.graph": "Grafik",
+  "styles.cpu.grid": "Kisi inti",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Beban prosesor di semua inti"
+}

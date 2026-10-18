@@ -20,7 +20,7 @@ public sealed class QuickSetTests
         var view = ViewState.Create("v");
         view.Widgets.AddRange(widgets);
         var other = ViewState.Create("o");
-        other.Widgets.Add(Widget(CpuConfig.Descriptor.Id, "elsewhere"));
+        other.Widgets.Add(Widget(new WidgetId("cpu"), "elsewhere"));
         return (new AppState { Views = [view, other] }, view, other);
     }
 
@@ -34,7 +34,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3701_nothing_selected_shows_no_group()
     {
-        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"));
+        var (state, view, _) = State(Widget(new WidgetId("cpu"), "a"));
 
         Assert.False(QuickSet.For(state, new WidgetSelection(), view.Id).Shows);
     }
@@ -42,7 +42,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3701_a_display_showing_another_view_shows_no_group()
     {
-        var (state, view, other) = State(Widget(CpuConfig.Descriptor.Id, "a"));
+        var (state, view, other) = State(Widget(new WidgetId("cpu"), "a"));
 
         Assert.False(QuickSet.For(state, Selecting(view, "a"), other.Id).Shows);
         Assert.True(QuickSet.For(state, Selecting(view, "a"), view.Id).Shows);
@@ -51,7 +51,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3701_ids_no_longer_in_the_view_are_not_counted()
     {
-        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"));
+        var (state, view, _) = State(Widget(new WidgetId("cpu"), "a"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "gone"), view.Id);
 
@@ -81,7 +81,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3702_several_widgets_offer_no_title()
     {
-        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"), Widget(MemoryConfig.Descriptor.Id, "b"));
+        var (state, view, _) = State(Widget(new WidgetId("cpu"), "a"), Widget(MemoryConfig.Descriptor.Id, "b"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "b"), view.Id);
 
@@ -93,7 +93,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3703_a_mixed_selection_reads_as_no_value_and_a_shared_one_as_that_value()
     {
-        var a = Widget(CpuConfig.Descriptor.Id, "a");
+        var a = Widget(new WidgetId("cpu"), "a");
         var b = Widget(MemoryConfig.Descriptor.Id, "b");
         a.Header = HeaderPlacement.Top;
         b.Header = HeaderPlacement.Hidden;
@@ -117,7 +117,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3703_a_choice_reaches_every_selected_widget_of_the_view_and_no_other()
     {
-        var a = Widget(CpuConfig.Descriptor.Id, "a");
+        var a = Widget(new WidgetId("cpu"), "a");
         var b = Widget(MemoryConfig.Descriptor.Id, "b");
         var c = Widget(NetworkConfig.Descriptor.Id, "c");
         b.Background = FillChoice.Transparent();
@@ -176,7 +176,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_a_selection_with_a_toggle_in_it_shows_only_what_all_share()
     {
-        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"), Widget(new WidgetId("bluetoothToggle"), "t"));
+        var (state, view, _) = State(Widget(new WidgetId("cpu"), "a"), Widget(new WidgetId("bluetoothToggle"), "t"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "t"), view.Id);
 
@@ -188,7 +188,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_setting_a_header_never_reaches_a_toggle()
     {
-        var cpu = Widget(CpuConfig.Descriptor.Id, "a");
+        var cpu = Widget(new WidgetId("cpu"), "a");
         var toggle = Widget(new WidgetId("wifiToggle"), "t");
         var (_, view, _) = State(cpu, toggle);
 
@@ -230,7 +230,7 @@ public sealed class QuickSetTests
             }
         }
 
-        var cpu = Widget(CpuConfig.Descriptor.Id, "a");
+        var cpu = Widget(new WidgetId("cpu"), "a");
         cpu.Header = HeaderPlacement.Bottom;
         Assert.Equal(HeaderPlacement.Bottom, cpu.ShownHeader);
     }

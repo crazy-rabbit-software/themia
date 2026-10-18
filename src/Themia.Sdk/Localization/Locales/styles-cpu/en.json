@@ -1,7 +1,0 @@
-{
-  "styles.cpu.graph": "Graph",
-  "styles.cpu.cores": "All cores",
-  "styles.cpu.grid": "Core grid",
-  "styles.cpu.gauge": "Gauge",
-  "styles.cpu.coreGraphs": "Core graphs"
-}

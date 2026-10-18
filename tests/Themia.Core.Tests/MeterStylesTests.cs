@@ -13,13 +13,6 @@ public sealed class MeterStylesTests
     // ---- the styles themselves -----------------------------------------------------------------
 
     [Fact]
-    public void S6311_the_cpu_offers_graph_all_cores_core_grid_gauge_and_core_graphs_in_that_order()
-    {
-        Assert.Equal(["graph", "cores", "grid", "gauge", "coreGraphs"], WidgetStyles.For(CpuConfig.Descriptor.Id).Select(s => s.Name));
-        Assert.Equal(CpuStyle.Graph, new CpuConfig().Style);
-    }
-
-    [Fact]
     public void S6315_memory_offers_graph_bar_and_gauge()
         => Assert.Equal(["graph", "bar", "gauge"], WidgetStyles.For(MemoryConfig.Descriptor.Id).Select(s => s.Name));
 
@@ -34,39 +27,7 @@ public sealed class MeterStylesTests
         Assert.Equal(1, copy.Adapter);
     }
 
-    [Fact]
-    public void S6311_a_style_survives_a_save_and_the_history_settings_stay_beside_it()
-    {
-        var cpu = new CpuConfig { Style = CpuStyle.Grid, ShowGraph = false, GraphSpanSeconds = 300 };
-        var json = JsonSerializer.Serialize<WidgetConfig>(cpu, StateJson.WidgetConfig);
-        Assert.Contains("\"style\": \"grid\"", json, StringComparison.Ordinal);
-
-        var back = Assert.IsType<CpuConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
-        Assert.Equal(CpuStyle.Grid, back.Style);
-        Assert.False(back.ShowGraph);
-        Assert.Equal(300, back.GraphSpanSeconds);
-    }
-
     // ---- [S-6310] per-core reads ----------------------------------------------------------------
-
-    [Fact]
-    public void S6310_only_the_core_styles_ask_the_hub_for_every_processor()
-    {
-        static bool ReadsCores(CpuStyle style)
-            => SystemInterests.For(new CpuConfig { Style = style }, @"C:\").Feeds.Contains(FeedKey.Create(SystemSource.CpuCores));
-
-        Assert.True(ReadsCores(CpuStyle.Cores));
-        Assert.True(ReadsCores(CpuStyle.Grid));
-        Assert.True(ReadsCores(CpuStyle.CoreGraphs));
-        Assert.False(ReadsCores(CpuStyle.Graph));
-        Assert.False(ReadsCores(CpuStyle.Gauge));
-
-        // Every style keeps the total's history, so switching back to the graph finds it already there.
-        foreach (var style in Enum.GetValues<CpuStyle>())
-        {
-            Assert.Contains(new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty), SystemInterests.For(new CpuConfig { Style = style }, @"C:\").Series);
-        }
-    }
 
     [Fact]
     public void S6310_the_cores_come_in_processor_order_without_the_totals()

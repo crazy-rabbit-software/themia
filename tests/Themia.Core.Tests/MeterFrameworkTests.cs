@@ -94,43 +94,6 @@ public sealed class MeterFrameworkTests
         => Assert.Equal(expected, MeterTiming.SpanLabel(seconds));
 
     [Fact]
-    public void S1120_each_meter_has_its_default_span()
-    {
-        Assert.Equal(60, new CpuConfig().GraphSpanSeconds);
-        Assert.Equal(60, new MemoryConfig().GraphSpanSeconds);
-        Assert.Equal(60, new NetworkConfig().GraphSpanSeconds);
-        Assert.Equal(60, new GpuConfig().GraphSpanSeconds);
-        Assert.Equal(300, new DiskConfig().GraphSpanSeconds);
-        Assert.Equal(900, new BatteryConfig().GraphSpanSeconds);
-        Assert.Equal(900, new PingConfig().GraphSpanSeconds);
-
-        foreach (var config in new GaugeConfig[] { new CpuConfig(), new MemoryConfig(), new NetworkConfig(), new GpuConfig(), new DiskConfig(), new BatteryConfig(), new PingConfig() })
-        {
-            Assert.Contains(config.GraphSpanSeconds, MeterTiming.SpanChoices);
-        }
-    }
-
-    [Fact]
-    public void S1120_repair_snaps_the_span()
-    {
-        var cpu = new CpuConfig { GraphSpanSeconds = 7 };
-        var notes = cpu.Repair();
-
-        Assert.Single(notes);
-        Assert.Equal(60, cpu.GraphSpanSeconds);
-        Assert.Empty(cpu.Repair());
-    }
-
-    [Fact]
-    public void S2503_a_stored_cadence_is_not_a_setting()
-    {
-        var cpu = (CpuConfig)ConfigJson.Read("Cpu", """{ "kind": "cpu", "intervalSeconds": 300 }""");
-
-        Assert.Empty(cpu.Repair());
-        Assert.Null(typeof(GaugeConfig).GetProperty("IntervalSeconds"));
-    }
-
-    [Fact]
     public void S1120_clone_carries_the_shared_settings()
     {
         var memory = new MemoryConfig { GraphSpanSeconds = 1800, ShowGraph = false };

@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Mga graph ng core",
+  "styles.cpu.cores": "Lahat ng core",
+  "styles.cpu.gauge": "Gauge",
+  "styles.cpu.graph": "Graph",
+  "styles.cpu.grid": "Grid ng core",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Load ng processor sa lahat ng core"
+}

@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "கோர் வரைபடங்கள்",
+  "styles.cpu.cores": "அனைத்து கோர்கள்",
+  "styles.cpu.gauge": "அளவீடு",
+  "styles.cpu.graph": "வரைபடம்",
+  "styles.cpu.grid": "கோர் கட்டம்",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "எல்லா கோர்களிலும் செயலிச் சுமை"
+}

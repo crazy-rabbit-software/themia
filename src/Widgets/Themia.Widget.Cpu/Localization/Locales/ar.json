@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "رسوم بيانية للأنوية",
+  "styles.cpu.cores": "كل الأنوية",
+  "styles.cpu.gauge": "مقياس",
+  "styles.cpu.graph": "رسم بياني",
+  "styles.cpu.grid": "شبكة الأنوية",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "حمل المعالج عبر كل الأنوية"
+}

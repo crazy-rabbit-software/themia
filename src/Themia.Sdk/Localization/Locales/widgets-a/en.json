@@ -46,8 +46,6 @@
   "widgetsA.catalog.clipboard.description": "What you have copied recently",
   "widgetsA.catalog.clipboard.label": "Clipboard",
   "widgetsA.catalog.contacts.description": "People from your Microsoft, Google and CardDAV address books",
-  "widgetsA.catalog.cpu.description": "Processor load across all cores",
-  "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "Disk reads and writes per second",
   "widgetsA.catalog.disk.label": "Disk",
   "widgetsA.catalog.feed.description": "Headlines from the feeds you choose",

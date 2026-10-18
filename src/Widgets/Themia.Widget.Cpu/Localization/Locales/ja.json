@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "コア グラフ",
+  "styles.cpu.cores": "すべてのコア",
+  "styles.cpu.gauge": "ゲージ",
+  "styles.cpu.graph": "グラフ",
+  "styles.cpu.grid": "コア グリッド",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "全コアのプロセッサー負荷"
+}

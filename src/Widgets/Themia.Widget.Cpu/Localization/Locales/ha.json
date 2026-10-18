@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Jadawalin kwayoyi",
+  "styles.cpu.cores": "Duk kwayoyi",
+  "styles.cpu.gauge": "Ma'auni",
+  "styles.cpu.graph": "Jadawali",
+  "styles.cpu.grid": "Grid na kwayoyi",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Nauyin na'ura mai sarrafawa a duk cibiyoyi"
+}

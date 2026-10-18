@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Graphiques des cœurs",
+  "styles.cpu.cores": "Tous les cœurs",
+  "styles.cpu.gauge": "Jauge",
+  "styles.cpu.graph": "Graphique",
+  "styles.cpu.grid": "Grille des cœurs",
+  "widgetsA.catalog.cpu.label": "Processeur",
+  "widgetsA.catalog.cpu.description": "Charge du processeur sur tous les cœurs"
+}

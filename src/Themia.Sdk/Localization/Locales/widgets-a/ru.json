@@ -49,8 +49,6 @@
   "widgetsA.catalog.clipboard.description": "Что вы недавно копировали",
   "widgetsA.catalog.clipboard.label": "Буфер обмена",
   "widgetsA.catalog.contacts.description": "Люди из адресных книг Microsoft, Google и CardDAV",
-  "widgetsA.catalog.cpu.description": "Нагрузка процессора по всем ядрам",
-  "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "Чтение и запись диска в секунду",
   "widgetsA.catalog.disk.label": "Диск",
   "widgetsA.catalog.feed.description": "Заголовки из выбранных вами лент",

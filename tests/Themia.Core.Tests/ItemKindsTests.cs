@@ -85,16 +85,6 @@ public sealed partial class ItemKindsTests
         Assert.True(wrong.Count == 0, "ItemKinds disagrees with the views:\n" + string.Join('\n', wrong));
     }
 
-    [Fact]
-    public void S6570_lists_and_meters_have_items_and_a_plain_readout_does_not()
-    {
-        Assert.True(ItemKinds.Has(TasksConfig.Descriptor.Id));
-        Assert.True(ItemKinds.Has(CpuConfig.Descriptor.Id));
-        Assert.True(ItemKinds.Has(ClipboardConfig.Descriptor.Id));
-        Assert.False(ItemKinds.Has(AlarmConfig.Descriptor.Id));
-        Assert.False(ItemKinds.Has(GalleryConfig.Descriptor.Id));
-    }
-
     private static (AppState State, ViewState View, WidgetSelection Selection) Selected(params WidgetId[] kinds)
     {
         var view = ViewState.Create("v");

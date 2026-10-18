@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "કોર ગ્રાફ",
+  "styles.cpu.cores": "બધા કોર",
+  "styles.cpu.gauge": "ગેજ",
+  "styles.cpu.graph": "ગ્રાફ",
+  "styles.cpu.grid": "કોર ગ્રીડ",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "બધા કોર પર પ્રોસેસર લોડ"
+}

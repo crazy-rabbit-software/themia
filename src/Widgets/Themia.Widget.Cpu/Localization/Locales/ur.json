@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "کور گراف",
+  "styles.cpu.cores": "تمام کورز",
+  "styles.cpu.gauge": "گیج",
+  "styles.cpu.graph": "گراف",
+  "styles.cpu.grid": "کور گرڈ",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "تمام کورز پر پروسیسر کا لوڈ"
+}

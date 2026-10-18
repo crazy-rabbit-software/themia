@@ -47,8 +47,6 @@
   "widgetsA.catalog.clipboard.description": "সম্প্রতি আপনি যা কপি করেছেন",
   "widgetsA.catalog.clipboard.label": "ক্লিপবোর্ড",
   "widgetsA.catalog.contacts.description": "আপনার Microsoft, Google ও CardDAV ঠিকানা বইয়ের মানুষ",
-  "widgetsA.catalog.cpu.description": "সব কোরে প্রসেসরের লোড",
-  "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "প্রতি সেকেন্ডে ডিস্ক রিড ও রাইট",
   "widgetsA.catalog.disk.label": "ডিস্ক",
   "widgetsA.catalog.feed.description": "আপনার বেছে নেওয়া ফিডের শিরোনাম",

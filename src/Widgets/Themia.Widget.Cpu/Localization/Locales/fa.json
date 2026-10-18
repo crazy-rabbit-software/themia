@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "نمودار هسته‌ها",
+  "styles.cpu.cores": "همه هسته‌ها",
+  "styles.cpu.gauge": "عقربه‌ای",
+  "styles.cpu.graph": "نمودار",
+  "styles.cpu.grid": "شبکه هسته‌ها",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "بار پردازنده در همه هسته‌ها"
+}

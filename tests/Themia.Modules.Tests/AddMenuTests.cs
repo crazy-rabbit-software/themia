@@ -133,7 +133,7 @@ public sealed class AddMenuTests
         var browse = AddTree.On(offered)[1].Rows.OfType<AddFolder>().ToList();
 
         var system = browse.Single(folder => folder.Shelf.Id == AddFolderId.System);
-        Assert.Equal(new AddPick(CpuConfig.Descriptor.Id, false), system.Rows[0]);
+        Assert.Equal(new AddPick(new WidgetId("cpu"), false), system.Rows[0]);
         Assert.DoesNotContain(browse, folder => folder.Shelf.Id == AddFolderId.Weather);
     }
 

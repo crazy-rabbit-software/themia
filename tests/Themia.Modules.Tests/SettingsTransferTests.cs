@@ -33,7 +33,7 @@ public sealed class SettingsTransferTests : IDisposable
     {
         var work = ViewState.Create("Work");
         work.Widgets.Add(WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.1, 0.1, 0.2, 0.2)));
-        work.Widgets.Add(WidgetInstance.Create(CpuConfig.Descriptor.Id, new FracRect(0.4, 0.1, 0.2, 0.2)));
+        work.Widgets.Add(WidgetInstance.Create(new WidgetId("cpu"), new FracRect(0.4, 0.1, 0.2, 0.2)));
 
         var home = ViewState.Create("Home");
 

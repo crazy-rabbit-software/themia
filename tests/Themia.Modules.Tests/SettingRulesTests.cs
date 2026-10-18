@@ -88,7 +88,7 @@ public class SettingRulesTests
             Assert.Equal(style.Value, WidgetStyles.Current(gauge));
 
             // The graph, and the CPU's core graphs ([S-6317]): a history per core.
-            var history = style.Value == 0 || (kind == CpuConfig.Descriptor.Id && style.Value == (int)CpuStyle.CoreGraphs);
+            var history = style.Value == 0 || (kind == new WidgetId("cpu") && style.Value == (int)CpuStyle.CoreGraphs);
             Assert.Equal(history ? [MeterSetting.Span] : (MeterSetting[])[], gauge.ShownSettings);
         }
     }

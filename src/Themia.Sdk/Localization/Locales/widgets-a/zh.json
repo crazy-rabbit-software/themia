@@ -46,8 +46,6 @@
   "widgetsA.catalog.clipboard.description": "你最近复制的内容",
   "widgetsA.catalog.clipboard.label": "剪贴板",
   "widgetsA.catalog.contacts.description": "来自你的 Microsoft、Google 和 CardDAV 通讯录的联系人",
-  "widgetsA.catalog.cpu.description": "所有核心的处理器负载",
-  "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.disk.description": "每秒磁盘读写量",
   "widgetsA.catalog.disk.label": "磁盘",
   "widgetsA.catalog.feed.description": "你所选订阅源的头条",

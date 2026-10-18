@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Wykresy rdzeni",
+  "styles.cpu.cores": "Wszystkie rdzenie",
+  "styles.cpu.gauge": "Wskaźnik",
+  "styles.cpu.graph": "Wykres",
+  "styles.cpu.grid": "Siatka rdzeni",
+  "widgetsA.catalog.cpu.label": "Procesor",
+  "widgetsA.catalog.cpu.description": "Obciążenie procesora na wszystkich rdzeniach"
+}

@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Kerngrafieken",
+  "styles.cpu.cores": "Alle kernen",
+  "styles.cpu.gauge": "Meter",
+  "styles.cpu.graph": "Grafiek",
+  "styles.cpu.grid": "Kernenraster",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Processorbelasting over alle kernen"
+}
