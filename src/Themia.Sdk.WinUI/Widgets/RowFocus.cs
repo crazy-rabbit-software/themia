@@ -32,6 +32,27 @@ public static class RowFocus
         WidgetItems.Mark(row);
     }
 
+    /// <summary>
+    /// The ring for a row whose layout must not change (fixed rows, a padded body): a border laid over
+    /// <paramref name="body"/>, reaching out by <paramref name="padding"/> to the row's own edges and
+    /// taking no room, so a focusable row lays out exactly as one that cannot be focused. Put the
+    /// returned holder in the row; mark the returned ring.
+    /// </summary>
+    public static (Grid Holder, Border Ring) Overlay(FrameworkElement body, Thickness padding)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+
+        var ring = new Border
+        {
+            Margin = new Thickness(-padding.Left, -padding.Top, -padding.Right, -padding.Bottom),
+            IsHitTestVisible = false,
+        };
+        ring.BorderThickness = new Thickness(Ring);
+        ring.BorderBrush = Transparent();
+
+        return (new Grid { Children = { body, ring } }, ring);
+    }
+
     /// <summary>Show or hide the ring on a prepared row.</summary>
     public static void Mark(Border row, bool focused)
     {

@@ -23,7 +23,7 @@ internal sealed partial class TasksView
     // One per row, so the handlers come off with the row they belong to. A leaked one keeps the row
     // alive and re-lights it after the list has moved on.
     private readonly List<IDisposable> _hovers = [];
-    private readonly List<(Border Row, Border Marker)> _rows = [];
+    private readonly List<(Border Row, Border Marker, Border Ring)> _rows = [];
 
     /// <summary>The rows as drawn, in order: what "move up" and a new task's place are measured against.</summary>
     private IReadOnlyList<TaskItem> _displayed = [];
@@ -43,8 +43,6 @@ internal sealed partial class TasksView
     /// <summary>Where the focus was, for when its task has gone (deleted): the row now in that place.</summary>
     private int _focusIndex;
 
-    /// <summary>Rows being torn down and rebuilt: the focus leaving them is not the user leaving the list.</summary>
-    private bool _rebuilding;
 
     private void BuildRows(IReadOnlyList<TaskItem> rows, DateOnly today, TaskLayoutPlan plan)
     {
@@ -67,8 +65,6 @@ internal sealed partial class TasksView
             CancelEdit();
         }
 
-        _rebuilding = true;
-        try
         {
             ClearRows();
             _drawnPlan = plan;
@@ -93,10 +89,6 @@ internal sealed partial class TasksView
 
             _rowsPanel.ResetOrder();
             RestoreFocus();
-        }
-        finally
-        {
-            _rebuilding = false;
         }
     }
 
@@ -212,24 +204,24 @@ internal sealed partial class TasksView
             }
         }
 
-        var row = Fluent.Row(body, plan.CompactRows);
-
         // The title may wrap; a little air above and below keeps two wrapped rows apart without a rule.
-        row.Padding = new Thickness(inset, Fluent.Space1, inset, Fluent.Space1);
+        var padding = new Thickness(inset, Fluent.Space1, inset, Fluent.Space1);
+
+        // [S-787] [S-1288] The keyboard's row is the kit's ring, laid over the row so it moves nothing.
+        var (holder, ring) = RowFocus.Overlay(body, padding);
+        var row = Fluent.Row(holder, plan.CompactRows);
+        holder.VerticalAlignment = VerticalAlignment.Stretch;
+        body.VerticalAlignment = VerticalAlignment.Center;
+        row.Padding = padding;
         row.Tag = task;
 
-        // [S-787] Focusable, so a clicked row can take the arrows; the system focus rect shows which.
-        row.IsTabStop = true;
-        row.UseSystemFocusVisuals = true;
-
         _hovers.Add(Fluent.Hover(row));
-        _rows.Add((row, marker));
+        _rows.Add((row, marker, ring));
 
         WidgetItems.Mark(row); // [S-814]
         row.Tapped += OnRowTapped;
         row.DoubleTapped += OnRowDoubleTapped;
         row.RightTapped += OnRowRightTapped;
-        row.LostFocus += OnRowLostFocus;
         HookDrag(row);
 
         ToolTipService.SetToolTip(row, Tooltip(task, due));
@@ -325,12 +317,11 @@ internal sealed partial class TasksView
             hover.Dispose();
         }
 
-        foreach (var (row, marker) in _rows)
+        foreach (var (row, marker, _) in _rows)
         {
             row.Tapped -= OnRowTapped;
             row.DoubleTapped -= OnRowDoubleTapped;
             row.RightTapped -= OnRowRightTapped;
-            row.LostFocus -= OnRowLostFocus;
             UnhookDrag(row);
             marker.Tapped -= OnMarkerTapped;
             marker.DoubleTapped -= OnMarkerDoubleTapped;
@@ -414,11 +405,28 @@ internal sealed partial class TasksView
             return;
         }
 
+        MarkFocus(false);
         _rowFocused = true;
         _focusTaskId = task.Id;
         _focusIndex = Math.Max(0, TaskRows().IndexOf(row));
-        row.Focus(FocusState.Keyboard);
-        row.StartBringIntoView();
+        MarkFocus(true);
+    }
+
+    /// <summary>[S-1288] The ring on the focused task's row (which also brings it into view), or off.</summary>
+    private void MarkFocus(bool on)
+    {
+        if (_focusTaskId is null)
+        {
+            return;
+        }
+
+        foreach (var (row, _, ring) in _rows)
+        {
+            if (row.Tag is TaskItem t && t.Id == _focusTaskId)
+            {
+                RowFocus.Mark(ring, on);
+            }
+        }
     }
 
     /// <summary>After a redraw, the focus goes back to its task, or to the row now in its place.</summary>
@@ -442,6 +450,7 @@ internal sealed partial class TasksView
 
     private void ReleaseRowFocus()
     {
+        MarkFocus(false);
         _rowFocused = false;
         _focusTaskId = null;
     }
@@ -499,10 +508,6 @@ internal sealed partial class TasksView
 
             case TaskKeyCommand.Release when _rowFocused:
                 ReleaseRowFocus();
-
-                // Rebuilt rows drop the focus rect with the focus.
-                _drawnPlan = null;
-                Render();
                 return true;
 
             default:
@@ -515,27 +520,6 @@ internal sealed partial class TasksView
     {
         var at = rows.FindIndex(r => r.Tag is TaskItem t && t.Id == _focusTaskId);
         return at >= 0 ? at : Math.Clamp(_focusIndex, 0, Math.Max(0, rows.Count - 1));
-    }
-
-    /// <summary>
-    /// [S-787] Leaving the list (focus moving to the widget's own buttons, or away with the lease)
-    /// drops the row focus. Moving between rows, into an editor, or a redraw replacing the focused
-    /// row is not leaving it.
-    /// </summary>
-    private void OnRowLostFocus(object sender, RoutedEventArgs args)
-    {
-        if (_rebuilding || !_rowFocused || XamlRoot is null)
-        {
-            return;
-        }
-
-        var focused = FocusManager.GetFocusedElement(XamlRoot) as DependencyObject;
-        if (focused is Border { Tag: TaskItem } || (_editor is { } editor && ReferenceEquals(focused, editor.Box)))
-        {
-            return;
-        }
-
-        ReleaseRowFocus();
     }
 
     // ---- changes ---------------------------------------------------------------------------------------

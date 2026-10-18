@@ -314,13 +314,7 @@ public sealed partial class KitList
         // The focus ring lies over the row, out to its edges, and takes no room: the row lays out as
         // one that cannot be focused, and focusing it moves nothing.
         var padding = new Thickness(Fluent.Space4 - Fluent.Space2, 0, narrow ? Fluent.Space2 : Fluent.Space4, 0);
-        var ring = new Border
-        {
-            Margin = new Thickness(-padding.Left, 0, -padding.Right, 0),
-            IsHitTestVisible = false,
-        };
-        RowFocus.Prepare(ring);
-        var holder = new Grid { Children = { body, ring } };
+        var (holder, ring) = RowFocus.Overlay(body, padding);
 
         var row = Fluent.Row(holder, compact);
         row.Padding = padding;

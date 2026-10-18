@@ -2770,9 +2770,9 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
   Redraws wait for the drop.
 - **[S-787]** Keyboard (classic S-33..S-37, S-50 F2): a click in the widget takes the shell's
   keyboard lease ([S-808]) and a click on a row focuses it; Up/Down/Home/End move without wrapping,
-  Enter ticks, Delete deletes, F2 renames, Escape gives the keyboard back; leaving the list drops
-  the row focus; a redraw keeps the focus
-  on the same task, or the row now in its place.
+  Enter ticks, Delete deletes, F2 renames, Escape (and the lease ending) gives the keyboard back; the
+  focused row wears the kit's ring ([S-1288], laid over the row so it moves nothing; it was the
+  system focus rect); a redraw keeps the focus on the same task, or the row now in its place.
 - **[S-1981]** Space ticks the focused task as Enter does, and Page Up / Page Down jump ten rows
   (`TaskLayout.Decide`, clamped; from no row, the first). All widget keys: Widget keys (WIDGET-KEYS).
 - **[S-788]** Tab in a rename box commits and opens the next task's box (none past the last); in the
