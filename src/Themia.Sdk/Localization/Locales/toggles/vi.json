@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Không làm phiền",
   "toggles.sound.name": "Âm thanh",
   "toggles.microphone.name": "Micrô",
-  "toggles.microphone.label": "Bật/tắt micrô",
-  "toggles.microphone.desc": "Tắt hoặc bật tiếng micrô mặc định",
   "toggles.spatialSound.name": "Âm thanh không gian",
   "toggles.spatialSound.label": "Bật/tắt âm thanh không gian",
   "toggles.spatialSound.desc": "Windows Sonic trên đầu ra mặc định",

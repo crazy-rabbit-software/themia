@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "応答不可",
   "toggles.sound.name": "サウンド",
   "toggles.microphone.name": "マイク",
-  "toggles.microphone.label": "マイク オン/オフ",
-  "toggles.microphone.desc": "既定のマイクをミュートまたはミュート解除します",
   "toggles.spatialSound.name": "立体音響",
   "toggles.spatialSound.label": "立体音響 オン/オフ",
   "toggles.spatialSound.desc": "既定の出力で Windows Sonic を使います",

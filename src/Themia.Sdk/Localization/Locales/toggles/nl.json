@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Niet storen",
   "toggles.sound.name": "Geluid",
   "toggles.microphone.name": "Microfoon",
-  "toggles.microphone.label": "Microfoon aan/uit",
-  "toggles.microphone.desc": "Dempt de standaardmicrofoon of heft het dempen op",
   "toggles.spatialSound.name": "Ruimtelijk geluid",
   "toggles.spatialSound.label": "Ruimtelijk geluid aan/uit",
   "toggles.spatialSound.desc": "Windows Sonic op de standaarduitvoer",

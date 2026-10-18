@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "방해 금지",
   "toggles.sound.name": "소리",
   "toggles.microphone.name": "마이크",
-  "toggles.microphone.label": "마이크 켜기/끄기",
-  "toggles.microphone.desc": "기본 마이크를 음소거하거나 음소거를 해제합니다",
   "toggles.spatialSound.name": "공간 음향",
   "toggles.spatialSound.label": "공간 음향 켜기/끄기",
   "toggles.spatialSound.desc": "기본 출력 장치의 Windows Sonic",

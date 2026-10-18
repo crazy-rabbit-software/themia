@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Не беспокоить",
   "toggles.sound.name": "Звук",
   "toggles.microphone.name": "Микрофон",
-  "toggles.microphone.label": "Микрофон вкл./откл.",
-  "toggles.microphone.desc": "Выключает или включает микрофон по умолчанию",
   "toggles.spatialSound.name": "Пространственный звук",
   "toggles.spatialSound.label": "Пространственный звук вкл./откл.",
   "toggles.spatialSound.desc": "Windows Sonic на устройстве вывода по умолчанию",

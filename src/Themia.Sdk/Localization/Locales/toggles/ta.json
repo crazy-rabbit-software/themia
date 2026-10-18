@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "தொந்தரவு செய்ய வேண்டாம்",
   "toggles.sound.name": "ஒலி",
   "toggles.microphone.name": "மைக்ரோஃபோன்",
-  "toggles.microphone.label": "மைக்ரோஃபோன் இயக்கு/முடக்கு",
-  "toggles.microphone.desc": "இயல்புநிலை மைக்ரோஃபோனை ஒலியடக்கும் அல்லது ஒலியடக்கத்தை நீக்கும்",
   "toggles.spatialSound.name": "இடஞ்சார் ஒலி",
   "toggles.spatialSound.label": "இடஞ்சார் ஒலி இயக்கு/முடக்கு",
   "toggles.spatialSound.desc": "இயல்புநிலை வெளியீட்டில் Windows Sonic",

@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Usinisumbue",
   "toggles.sound.name": "Sauti",
   "toggles.microphone.name": "Maikrofoni",
-  "toggles.microphone.label": "Maikrofoni washa/zima",
-  "toggles.microphone.desc": "Hunyamazisha au kurejesha maikrofoni chaguomsingi",
   "toggles.spatialSound.name": "Sauti ya anga",
   "toggles.spatialSound.label": "Sauti ya anga washa/zima",
   "toggles.spatialSound.desc": "Windows Sonic kwenye towe chaguomsingi",

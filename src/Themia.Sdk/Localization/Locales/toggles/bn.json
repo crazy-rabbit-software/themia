@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "বিরক্ত করবেন না",
   "toggles.sound.name": "শব্দ",
   "toggles.microphone.name": "মাইক্রোফোন",
-  "toggles.microphone.label": "মাইক্রোফোন চালু/বন্ধ",
-  "toggles.microphone.desc": "ডিফল্ট মাইক্রোফোন মিউট বা আনমিউট করে",
   "toggles.spatialSound.name": "স্প্যাশিয়াল সাউন্ড",
   "toggles.spatialSound.label": "স্প্যাশিয়াল সাউন্ড চালু/বন্ধ",
   "toggles.spatialSound.desc": "ডিফল্ট আউটপুটে Windows Sonic",

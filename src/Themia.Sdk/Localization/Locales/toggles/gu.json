@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "ખલેલ પાડશો નહીં",
   "toggles.sound.name": "ધ્વનિ",
   "toggles.microphone.name": "માઇક્રોફોન",
-  "toggles.microphone.label": "માઇક્રોફોન ચાલુ/બંધ",
-  "toggles.microphone.desc": "ડિફૉલ્ટ માઇક્રોફોનને મ્યૂટ કે અનમ્યૂટ કરે છે",
   "toggles.spatialSound.name": "અવકાશી ધ્વનિ",
   "toggles.spatialSound.label": "અવકાશી ધ્વનિ ચાલુ/બંધ",
   "toggles.spatialSound.desc": "ડિફૉલ્ટ આઉટપુટ પર Windows Sonic",

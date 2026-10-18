@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "عدم الإزعاج",
   "toggles.sound.name": "الصوت",
   "toggles.microphone.name": "الميكروفون",
-  "toggles.microphone.label": "تشغيل/إيقاف الميكروفون",
-  "toggles.microphone.desc": "كتم الميكروفون الافتراضي أو إلغاء كتمه",
   "toggles.spatialSound.name": "الصوت المكاني",
   "toggles.spatialSound.label": "تشغيل/إيقاف الصوت المكاني",
   "toggles.spatialSound.desc": "Windows Sonic على الإخراج الافتراضي",

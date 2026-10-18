@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Non disturbare",
   "toggles.sound.name": "Audio",
   "toggles.microphone.name": "Microfono",
-  "toggles.microphone.label": "Microfono attivato/disattivato",
-  "toggles.microphone.desc": "Disattiva o riattiva il microfono predefinito",
   "toggles.spatialSound.name": "Audio spaziale",
   "toggles.spatialSound.label": "Audio spaziale attivato/disattivato",
   "toggles.spatialSound.desc": "Windows Sonic sull'uscita predefinita",

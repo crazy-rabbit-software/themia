@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Jangan ganggu",
   "toggles.sound.name": "Suara",
   "toggles.microphone.name": "Mikrofon",
-  "toggles.microphone.label": "Mikrofon aktif/nonaktif",
-  "toggles.microphone.desc": "Membisukan atau membunyikan mikrofon default",
   "toggles.spatialSound.name": "Suara spasial",
   "toggles.spatialSound.label": "Suara spasial aktif/nonaktif",
   "toggles.spatialSound.desc": "Windows Sonic pada output default",

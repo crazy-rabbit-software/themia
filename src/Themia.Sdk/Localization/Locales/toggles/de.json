@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Nicht stören",
   "toggles.sound.name": "Ton",
   "toggles.microphone.name": "Mikrofon",
-  "toggles.microphone.label": "Mikrofon ein/aus",
-  "toggles.microphone.desc": "Schaltet das Standardmikrofon stumm oder wieder ein",
   "toggles.spatialSound.name": "Raumklang",
   "toggles.spatialSound.label": "Raumklang ein/aus",
   "toggles.spatialSound.desc": "Windows Sonic auf der Standardausgabe",

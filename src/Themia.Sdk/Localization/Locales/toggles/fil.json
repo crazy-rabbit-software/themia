@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Huwag istorbohin",
   "toggles.sound.name": "Tunog",
   "toggles.microphone.name": "Mikropono",
-  "toggles.microphone.label": "I-on/i-off ang mikropono",
-  "toggles.microphone.desc": "Mina-mute o ina-unmute ang default na mikropono",
   "toggles.spatialSound.name": "Spatial sound",
   "toggles.spatialSound.label": "I-on/i-off ang Spatial sound",
   "toggles.spatialSound.desc": "Windows Sonic sa default na output",

@@ -9,8 +9,6 @@
   "toggles.doNotDisturb.name": "Do not disturb",
   "toggles.sound.name": "Sound",
   "toggles.microphone.name": "Microphone",
-  "toggles.microphone.label": "Microphone on/off",
-  "toggles.microphone.desc": "Mutes or unmutes the default microphone",
   "toggles.spatialSound.name": "Spatial sound",
   "toggles.spatialSound.label": "Spatial sound on/off",
   "toggles.spatialSound.desc": "Windows Sonic on the default output",

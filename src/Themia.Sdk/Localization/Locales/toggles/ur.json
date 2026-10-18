@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "پریشان نہ کریں",
   "toggles.sound.name": "آواز",
   "toggles.microphone.name": "مائیکروفون",
-  "toggles.microphone.label": "مائیکروفون آن/آف",
-  "toggles.microphone.desc": "ڈیفالٹ مائیکروفون کو خاموش کرتا ہے یا کھولتا ہے",
   "toggles.spatialSound.name": "مکانی آواز",
   "toggles.spatialSound.label": "مکانی آواز آن/آف",
   "toggles.spatialSound.desc": "ڈیفالٹ آؤٹ پٹ پر Windows Sonic",

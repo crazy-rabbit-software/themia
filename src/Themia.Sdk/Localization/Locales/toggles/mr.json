@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "व्यत्यय आणू नका",
   "toggles.sound.name": "ध्वनी",
   "toggles.microphone.name": "मायक्रोफोन",
-  "toggles.microphone.label": "मायक्रोफोन चालू/बंद",
-  "toggles.microphone.desc": "डीफॉल्ट मायक्रोफोन म्यूट किंवा अनम्यूट करते",
   "toggles.spatialSound.name": "स्पेशियल साउंड",
   "toggles.spatialSound.label": "स्पेशियल साउंड चालू/बंद",
   "toggles.spatialSound.desc": "डीफॉल्ट आउटपुटवर Windows Sonic",

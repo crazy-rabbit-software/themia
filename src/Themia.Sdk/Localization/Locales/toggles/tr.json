@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Rahatsız etmeyin",
   "toggles.sound.name": "Ses",
   "toggles.microphone.name": "Mikrofon",
-  "toggles.microphone.label": "Mikrofon aç/kapat",
-  "toggles.microphone.desc": "Varsayılan mikrofonun sesini kapatır veya açar",
   "toggles.spatialSound.name": "Uzamsal ses",
   "toggles.spatialSound.label": "Uzamsal ses aç/kapat",
   "toggles.spatialSound.desc": "Varsayılan çıkışta Windows Sonic",

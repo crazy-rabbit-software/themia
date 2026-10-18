@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Nie przeszkadzać",
   "toggles.sound.name": "Dźwięk",
   "toggles.microphone.name": "Mikrofon",
-  "toggles.microphone.label": "Mikrofon wł./wył.",
-  "toggles.microphone.desc": "Wycisza lub przywraca domyślny mikrofon",
   "toggles.spatialSound.name": "Dźwięk przestrzenny",
   "toggles.spatialSound.label": "Dźwięk przestrzenny wł./wył.",
   "toggles.spatialSound.desc": "Windows Sonic na domyślnym wyjściu",

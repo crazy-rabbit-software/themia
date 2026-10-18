@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "勿打擾",
   "toggles.sound.name": "音效",
   "toggles.microphone.name": "麥克風",
-  "toggles.microphone.label": "麥克風 開/關",
-  "toggles.microphone.desc": "將預設麥克風靜音或取消靜音",
   "toggles.spatialSound.name": "空間音效",
   "toggles.spatialSound.label": "空間音效 開/關",
   "toggles.spatialSound.desc": "在預設輸出上使用 Windows Sonic",

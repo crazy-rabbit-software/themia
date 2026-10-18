@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "مزاحم نشوید",
   "toggles.sound.name": "صدا",
   "toggles.microphone.name": "میکروفون",
-  "toggles.microphone.label": "روشن/خاموش میکروفون",
-  "toggles.microphone.desc": "میکروفون پیش‌فرض را بی‌صدا یا باصدا می‌کند",
   "toggles.spatialSound.name": "صدای فضایی",
   "toggles.spatialSound.label": "روشن/خاموش صدای فضایی",
   "toggles.spatialSound.desc": "Windows Sonic روی خروجی پیش‌فرض",

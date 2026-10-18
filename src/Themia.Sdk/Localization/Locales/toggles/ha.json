@@ -10,8 +10,6 @@
   "toggles.doNotDisturb.name": "Kar a dame ni",
   "toggles.sound.name": "Sauti",
   "toggles.microphone.name": "Makirufo",
-  "toggles.microphone.label": "Kunna/kashe makirufo",
-  "toggles.microphone.desc": "Yana yi ko cire bebe a makirufon asali",
   "toggles.spatialSound.name": "Sautin sarari",
   "toggles.spatialSound.label": "Kunna/kashe sautin sarari",
   "toggles.spatialSound.desc": "Windows Sonic a fitarwar asali",
