@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "バッテリーの詳細",
-  "details.catalog.battery.desc": "状態、残り時間、健全性、サイクル数",
   "details.catalog.ping.label": "Ping の統計",
   "details.catalog.ping.desc": "平均、範囲、ジッター、パケット損失",
   "details.catalog.gpu.label": "GPU の詳細",

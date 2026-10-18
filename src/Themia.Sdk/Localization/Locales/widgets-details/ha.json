@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "Bayanan batir",
-  "details.catalog.battery.desc": "Matsayi, lokacin da ya rage, lafiya da zagaye",
   "details.catalog.ping.label": "Ƙididdigar ping",
   "details.catalog.ping.desc": "Matsakaici, kewayo, girgiza da asarar fakiti",
   "details.catalog.gpu.label": "Bayanan GPU",

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "배터리 세부 정보",
-  "details.catalog.battery.desc": "상태, 남은 시간, 성능 및 충전 횟수",
   "details.catalog.ping.label": "Ping 통계",
   "details.catalog.ping.desc": "평균, 범위, 지터 및 패킷 손실",
   "details.catalog.gpu.label": "GPU 세부 정보",

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "Detalhes da bateria",
-  "details.catalog.battery.desc": "Status, tempo restante, saúde e ciclos",
   "details.catalog.ping.label": "Estatísticas de ping",
   "details.catalog.ping.desc": "Média, intervalo, jitter e perda de pacotes",
   "details.catalog.gpu.label": "Detalhes da GPU",

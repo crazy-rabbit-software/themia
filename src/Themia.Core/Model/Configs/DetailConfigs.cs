@@ -8,37 +8,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-2423] What the battery itself reports: status, time, health, cycles, voltage, rate.</summary>
-public sealed class BatteryDetailsConfig : DetailConfig, IReadsSystem
-{
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("batteryDetails"),
-        ConfigType = typeof(BatteryDetailsConfig),
-        CreateDefault = () => new BatteryDetailsConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["power", "battery health", "wear", "cycles", "voltage", "laptop", "time remaining"],
-        Label = Str.Details_Catalog_Battery_Label.Local(),
-        Description = Str.Details_Catalog_Battery_Desc.Local(),
-        Glyph = Glyphs.Battery,
-        DefaultWidth = 280,
-        DefaultHeight = 240,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.BatteryReading, 0, 1),
-    };
-
-    /// <summary>[S-2513] The charge and what the battery itself reports.</summary>
-    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Battery, SystemSource.BatteryPack);
-
-    public override WidgetConfig Clone()
-    {
-        var copy = new BatteryDetailsConfig();
-        return copy;
-    }
-}
-
 /// <summary>[S-2426] Latency statistics over a window of probes: average, range, jitter and loss.</summary>
 public sealed class PingDetailsConfig : DetailConfig, IReadsSystem
 {

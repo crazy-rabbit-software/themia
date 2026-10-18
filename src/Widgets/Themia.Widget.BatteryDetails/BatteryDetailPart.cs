@@ -20,7 +20,7 @@ internal sealed class BatteryDetailPart : DetailPart
     private ISystemFeeds? _hub;
     private IDetailHost? _host;
 
-    public override WidgetId Kind => BatteryDetailsConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("batteryDetails");
 
     public override double HeroCharacters => BatteryDetailRules.HeroCharacters;
 

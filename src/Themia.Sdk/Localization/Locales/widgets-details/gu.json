@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "બૅટરી વિગતો",
-  "details.catalog.battery.desc": "સ્થિતિ, બાકી સમય, આરોગ્ય અને ચક્રો",
   "details.catalog.ping.label": "પિંગ આંકડા",
   "details.catalog.ping.desc": "સરેરાશ, શ્રેણી, જિટર અને પૅકેટ લૉસ",
   "details.catalog.gpu.label": "GPU વિગતો",

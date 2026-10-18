@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "电池详细信息",
-  "details.catalog.battery.desc": "状态、剩余时间、健康度和循环次数",
   "details.catalog.ping.label": "Ping 统计",
   "details.catalog.ping.desc": "平均值、范围、抖动和丢包",
   "details.catalog.gpu.label": "GPU 详细信息",

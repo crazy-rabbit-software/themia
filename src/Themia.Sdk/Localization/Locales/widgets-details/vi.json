@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "Chi tiết pin",
-  "details.catalog.battery.desc": "Trạng thái, thời gian còn lại, độ chai và số chu kỳ",
   "details.catalog.ping.label": "Thống kê ping",
   "details.catalog.ping.desc": "Trung bình, khoảng, độ dao động và mất gói",
   "details.catalog.gpu.label": "Chi tiết GPU",

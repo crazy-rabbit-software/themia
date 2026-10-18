@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.battery.label": "Maelezo ya betri",
-  "details.catalog.battery.desc": "Hali, muda uliobaki, afya na mizunguko",
   "details.catalog.ping.label": "Takwimu za ping",
   "details.catalog.ping.desc": "Wastani, masafa, mtetemo na upotevu wa pakiti",
   "details.catalog.gpu.label": "Maelezo ya GPU",
