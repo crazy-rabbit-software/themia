@@ -372,7 +372,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         {
             // Every reason, not the first (S-33): with several feeds, "the second one is 404" is
             // the answer. A refusal by the network guard carries its own sentence.
-            return _merged.Failures.Count == 1 && _parts.Values.All(p => p.Status == FetchStatus.Empty)
+            return _parts.Values.All(p => p.Status == FetchStatus.Empty)
                 ? Str.WidgetsC_Rss_NoArticles.Text()
                 : string.Join("\n", _merged.Failures);
         }

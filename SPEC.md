@@ -4113,7 +4113,8 @@ is a module (`src/Widgets/Themia.Widget.Stocks/`, its own tags in its `SPEC.md`)
   (`FeedAggregate.Merge`, classic S-30): newest first, undated last in arrival order, capped at
   `MaxItems` across all feeds. Repeated and blank addresses fold; refused ones are not fetched. A
   feed that fails while others answer is a partial refresh: "Name: reason" in the header tooltip and
-  the caution colour (classic S-34/S-35); all failing shows every reason. Header title (S-04): the
+  the caution colour (classic S-34/S-35); all failing shows every reason; every feed answering with
+  no items is "This feed has no articles" once, not that reason per feed ([S-7040]). Header title (S-04): the
   user's, else the single feed's `<title>`, else the feeds' names (title or host) joined with ", ",
   else the catalogue name. Item age (S-06): "Just now"/"5m ago"/"3h ago"/"6d ago", then "Mar 4"
   ("Aug 30, 2025" in another year). `FeedUrl` is gone (no compatibility).
