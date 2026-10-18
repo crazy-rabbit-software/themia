@@ -1809,18 +1809,99 @@ registration path: when a table becomes a descriptor member, the table is delete
   GPUs, USB drives and shares, a DDC/CI monitor and a laptop panel, the mixer and volume moving real
   levels, a media player, the visualizer with music), never in a render or a test, which are inert.
 
+  *M4 part B, group 6 as built (2026-10-18): the local-store widgets.* Ten widget projects, one per
+  commit: `Themia.Widget.Clipboard`, `.Alarm`, `.FocusSession`, `.Notifications` (Windows' list behind a
+  host service no other group claimed), `.Notes`, `.HabitTracker`, the three screen-time widgets
+  (`.ScreenTimeApps`, `.ScreenTimeDonut`, `.ScreenTimeChart`) and `.Gallery`, each its config (styles and
+  enums with it), descriptor (on its module), view, preview, settings page (`<Name>Settings.Rows`; none
+  for Notifications, as before, [S-1750]), its own ladder where it had one in a shared rules file
+  (`FocusSessionLayout`, `NotificationsLayout`, `ScreenTimeAppsLayout`, `ScreenTimeDonutLayout`,
+  `ScreenTimeChartLayout`; Notes, the habit tracker and the gallery took theirs whole: `NotesLayout`
+  with the markdown editor and its rules, `HabitLayout`/`HabitDrag`/`HabitHeatmap`,
+  `GalleryArrangement`/`GalleryPlan`/`StickerOutline`), its strings as `<Name>Str`, its glyph where only
+  it drew it (clipboard, alarm, focus, notifications, habit tracker, gallery), its SPEC section and its
+  tests. Contracts first, each its own commit, an `IWidgetHost` member shaped on what the view called,
+  the store and its persistence staying host code behind it: `ClipboardHistory` (`IClipboardHistory`,
+  with `CopyText` for putting a row back), `Alarms` (`IAlarms`; `IAlarm` on the config, so the host's
+  book and slots name no widget, the slots' collection Core's as an extension), `Focus` (`IFocusSession`;
+  do not disturb stays held host-side through the quick-setting hub), `Notifications` (`INotifications`),
+  `Notes` (`INotes`), `Habits` (`IHabitLists`; the host pool lost its in-memory mode, the preview holds
+  its own lists), `ScreenTime` (`IScreenTimeSource`, public) and `Gallery` (`IGalleries` with
+  `IGalleryWatch` and `IGalleryPicture`). A settings page has no card, so what it reads of the host is
+  `SettingsHost`, installed at start (the notes, the habit lists, the screen-time history, the launcher a
+  page opens a folder through, and `OwnPicker`, the settings window a page's file picker belongs to), as
+  `DriveList` is; `ProcessPaths` gained an executable's display name (the screen-time sample's packaged
+  apps). Into the SDK, the data the host's stores and the views share and the parts two widgets share,
+  each its own commit: `ClipboardHistory` (with its entry and formatting), `ColorFormats`, `AlarmRules`,
+  `FocusSessionRules`, `NotificationRules`, `NoteMeta`/`NoteRead`, `HabitLists` with `HabitRules`,
+  `HabitPeriods` and `LocalDay`, `AddFooterRow`/`AddFooter` (the habit tracker and the task list),
+  `ScreenTimeDay`/`ScreenTimePreferences`/`ScreenTimeRules`/`ScreenTimeLayout` (the measures the three
+  share) and the configs' shared settings, the three screen-time widgets' shared view parts
+  (`ScreenTimeShared`), their preview fixture (`SampleScreenTime`) and settings rows
+  (`ScreenTimeSettingsRows`), `PackagedApps`, `StickerRules`, `RotatedBox` with `StreamRotation` (the
+  gallery and the video stream), `ControlKeys`, `ImageFiles`, `FolderFormatting` with `FolderEntry`,
+  `FolderBrowse` (the folder's and the gallery's pages), `GallerySource`, `GalleryMemory` (the source key
+  with the rescan interval), `GalleryStates`, `BingPhoto`; and `StateJson.Merged` (a config fragment over
+  a default, out of the first-run desktop, so a debug scene names the gallery by id). The stores and
+  files stay Core's and the host's, with their validation and tests: `NoteStore` (`notes/*.md`,
+  `index.json`, the rename retry of [S-49]), `HabitListStore` (`habits.json`), `ScreenTimeStore`
+  (`usage_stats.json`), the clipboard history in memory only, the alarms in the state. Recent behaviours
+  are as they were (the renders below): the notes' focused text box with no fill or accent line, the
+  habit tracker's rows, the clipboard history's caps. Strings were carried by the group 1 script, the
+  same count in all 30 languages each time, 232 keys a language in all: clipboard 15, alarm 18, focus 15,
+  notifications 14, notes 41, habit tracker 56, screen-time apps 11, donut 3, chart 8, gallery 51 (the
+  style area `styles-habits` emptied went); what two of them read (the screen-time widgets' shared
+  words, the alarm's snooze and dismiss the host's notice reads) stays the SDK's table. Tags: a tag
+  whose tests test SDK or host rules stayed in the root under its tests, the config's tests under it
+  moved into the module test host (`ClipboardHostTests`, `AlarmTests`, `WindowsPanelsHostTests`,
+  `HabitHostTests`, `ScreenTimeHostTests`, `GalleryHostTests`, `GalleryPersistenceTests`,
+  `ItemKindsHostTests`), the widget's own tags into its `SPEC.md`. No test was retagged; tests changed
+  only their call shape (a ladder's new class, `GallerySourceKey.RescanInterval`, `new WidgetId("…")`,
+  the registry test over two descriptors still in Core, RSS and Tasks). Found on the way and fixed in
+  the moves' commits: the [S-1500] dialog scan read module settings pages as views (a page may ask in a
+  dialog; `RepoFiles.IsSettingsPage`), and the notes editor's Latin-digit allowance moved to the module
+  host's list. New fixture tests of the users' data, generated with the build from before at `d02d36bf`
+  (made-up content): `LocalStoreFixtureTests` (a notes folder with mixed line endings and an empty note,
+  `habits.json`, `usage_stats.json`: each loads with no repair and writes back byte for byte) and
+  `LocalStateFixtureTests` (every local-store widget configured: no repair, the same values, written back
+  unchanged).
+  Core's test count 5377 (from 5780), the module host's 2423 (from 2024).
+  Evidence: Debug build 0 warnings after every commit (the one SDK commit committed apart from its move,
+  `71dde8c2`, also built alone in a scratch worktree); both test projects built and green after every
+  move (scoped) and in full at the notifications move and at the end; each move's render set compared at
+  once against a "before" rendered at `d02d36bf` (0 differ each but one clipboard popup, below), and the
+  final pixel diff of 482 images (every tier in each preview state, light, dark and German, the fill
+  sizes 120x80..1400x360, each style in each state in both themes and German, the `--keys` renders of
+  the nine widgets that take keys, the settings page plain, dark and German; picker plain, German and
+  searched nine ways, menus, edit bar in both themes, motion, Settings › Widgets and six searches)
+  against the "before" build: 479 identical, 3 differ and each was proved flaky by rendering alone:
+  the clipboard's `tiers-confirm-light-popup0` and the menu scene's `card-desktop-no-settings` (the
+  "before" was rendered four at a time and caught a fade; three runs of the "before" build alone and the
+  final renders are identical) and `Sides-60ms` (the "before" build's own runs give different frames,
+  as in groups 1-4). Release AOT publish 0 warnings (50.0 MB, before 49.9 MB); Debug AOT publish 0
+  warnings (83.0 MB, before 82.8 MB) and its renders of the habit tracker, notes being edited, the donut
+  hovered, the alarm's page, the clipboard's question, a gallery grid, the notification list and the
+  focus session holding do not disturb finish in 1-14 s, identical to the JIT renders. Found and left as
+  it was: under Debug AOT only, a render of the gallery's `--state sticker` and the drawing of the
+  clipboard's `--state confirm` popup never finish, in the build from before as in this one (JIT draws
+  both); not a module question. Manual passes owed: each module's own `SPEC.md` names it (typing in two
+  notes widgets, habits ticked in two trackers and the data folder, real clipboard traffic, an alarm
+  ringing with its notification, a focus session with do not disturb, real toasts, a tracked week of
+  screen time, a folder of photos and Bing's photo, the settings pages' pickers), never in a render or a
+  test, which touch none of the user's stores.
+
   - **Online, left:** RSS (`AppServices.Feeds`, `FeedSync`, the favicon cache) moves with its kit
     migration (11.2).
   - **Account widgets** (Email, Calendar, Contacts, NextMeeting, WeekPlanner, Tasks): mail, office
     and task sources as contracts; `CalendarConfig` (`ISetupRule` + `IInterests`) and
     `OfficeStatePanel`/`SetupPrompt` into the SDK; they move with their kit migration (11.2).
-  - **Local stores** (Notes, HabitTracker, Clipboard, Alarm, FocusSession, ScreenTime x3, Gallery):
-    `NotePool`, `HabitPool`, `ClipboardHistoryService`, `AlarmService`, `Focus`, `IScreenTimeSource`,
-    `GalleryService` as contracts (an `IModuleService` the host creates once, 4.3, or a typed
-    `IWidgetHost` member each).
+  - **Local stores:** done (group 6, above); each became a typed `IWidgetHost` member, no
+    `IModuleService` was needed (every store is the host's one already, created at start).
   - **Files and launchers** (Folder, RecentFiles, Shortcuts, VideoStream): `FileIcons`,
     `FileClipboard`, the folder listing and `AppServices.EditAppLayout` as contracts; Shortcuts'
-    drop handling already sits on `IWidgetDrag`.
+    drop handling already sits on `IWidgetDrag`; `RotatedBox`, `ControlKeys`, `FolderFormatting` and
+    `FolderBrowse` are the SDK's already (group 6), and a settings page's pickers go through
+    `SettingsHost.OwnPicker`.
   - **Everywhere:** the Debug gallery scenes that name widgets (`EditBarRender`, `SwitchCheck`,
     `MotionRender`, `MenuRender`, `SettingsRender`) turn into ids and module `Preview/` states; the
     descriptor/config interim ends per widget; `ItemPalette` (the host's item engine) is reached only
