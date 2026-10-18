@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Монозвук",
   "toggles.colorFilters.name": "Цветовые фильтры",
   "toggles.gameMode.name": "Игровой режим",
-  "toggles.gameMode.label": "Игровой режим вкл./откл.",
-  "toggles.gameMode.desc": "Позволяет Windows отдать приоритет вашей игре",
   "toggles.state.unavailable": "Недоступно",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "На этом ПК этого нет",

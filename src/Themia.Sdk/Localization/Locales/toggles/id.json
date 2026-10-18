@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Audio mono",
   "toggles.colorFilters.name": "Filter warna",
   "toggles.gameMode.name": "Mode Game",
-  "toggles.gameMode.label": "Mode Game aktif/nonaktif",
-  "toggles.gameMode.desc": "Membiarkan Windows memprioritaskan game yang Anda mainkan",
   "toggles.state.unavailable": "Tidak tersedia",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "PC ini tidak memilikinya",

@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "مونو آڈیو",
   "toggles.colorFilters.name": "رنگ فلٹرز",
   "toggles.gameMode.name": "گیم وضع",
-  "toggles.gameMode.label": "گیم وضع آن/آف",
-  "toggles.gameMode.desc": "Windows کو آپ کی گیم کو ترجیح دینے دیتا ہے",
   "toggles.state.unavailable": "دستیاب نہیں",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "اس PC میں یہ موجود نہیں",

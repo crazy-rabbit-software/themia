@@ -31,7 +31,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(FocusSessionConfig))]
 [JsonSerializable(typeof(FolderConfig))]
 [JsonSerializable(typeof(GalleryConfig))]
-[JsonSerializable(typeof(GameModeToggleConfig))]
 [JsonSerializable(typeof(GpuConfig))]
 [JsonSerializable(typeof(GpuDetailsConfig))]
 [JsonSerializable(typeof(HabitTrackerConfig))]

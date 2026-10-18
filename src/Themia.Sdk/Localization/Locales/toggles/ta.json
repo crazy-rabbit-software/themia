@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "மோனோ ஆடியோ",
   "toggles.colorFilters.name": "வண்ண வடிப்பான்கள்",
   "toggles.gameMode.name": "கேம் பயன்முறை",
-  "toggles.gameMode.label": "கேம் பயன்முறை இயக்கு/முடக்கு",
-  "toggles.gameMode.desc": "நீங்கள் விளையாடும் கேமுக்கு Windows முன்னுரிமை தரும்",
   "toggles.state.unavailable": "கிடைக்கவில்லை",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "இந்த PC இல் இது இல்லை",

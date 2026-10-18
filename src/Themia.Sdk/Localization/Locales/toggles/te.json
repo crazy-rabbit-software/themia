@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "మోనో ఆడియో",
   "toggles.colorFilters.name": "రంగు ఫిల్టర్‌లు",
   "toggles.gameMode.name": "గేమ్ మోడ్",
-  "toggles.gameMode.label": "గేమ్ మోడ్ ఆన్/ఆఫ్",
-  "toggles.gameMode.desc": "మీరు ఆడే గేమ్‌కు Windows ప్రాధాన్యత ఇచ్చేలా చేస్తుంది",
   "toggles.state.unavailable": "అందుబాటులో లేదు",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "ఈ PCలో ఇది లేదు",

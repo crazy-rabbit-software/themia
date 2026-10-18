@@ -13,8 +13,6 @@
   "toggles.monoAudio.name": "Mono audio",
   "toggles.colorFilters.name": "Color filters",
   "toggles.gameMode.name": "Game mode",
-  "toggles.gameMode.label": "Game mode on/off",
-  "toggles.gameMode.desc": "Lets Windows put the game you play first",
   "toggles.state.unavailable": "Unavailable",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "This PC does not have it",

@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Sautin mono",
   "toggles.colorFilters.name": "Matatun launi",
   "toggles.gameMode.name": "Yanayin wasa",
-  "toggles.gameMode.label": "Kunna/kashe yanayin wasa",
-  "toggles.gameMode.desc": "Yana bari Windows ta fifita wasan da kake yi",
   "toggles.state.unavailable": "Babu shi",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Wannan kwamfuta ba ta da shi",

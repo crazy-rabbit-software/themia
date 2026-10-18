@@ -1,0 +1,4 @@
+{
+  "toggles.gameMode.label": "Mode jeu activé/désactivé",
+  "toggles.gameMode.desc": "Permet à Windows de donner la priorité au jeu en cours"
+}

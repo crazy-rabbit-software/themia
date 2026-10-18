@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "เสียงโมโน",
   "toggles.colorFilters.name": "ฟิลเตอร์สี",
   "toggles.gameMode.name": "โหมดเกม",
-  "toggles.gameMode.label": "เปิด/ปิดโหมดเกม",
-  "toggles.gameMode.desc": "ให้ Windows จัดลำดับความสำคัญให้เกมที่คุณเล่นเป็นอันดับแรก",
   "toggles.state.unavailable": "ไม่พร้อมใช้งาน",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "พีซีเครื่องนี้ไม่มีคุณลักษณะนี้",

@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.gameMode.label": "Game mode on/off",
+  "toggles.gameMode.desc": "Lets Windows put the game you play first"
+}

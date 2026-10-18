@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Mono ses",
   "toggles.colorFilters.name": "Renk filtreleri",
   "toggles.gameMode.name": "Oyun Modu",
-  "toggles.gameMode.label": "Oyun Modu aç/kapat",
-  "toggles.gameMode.desc": "Windows'un oynadığınız oyuna öncelik vermesini sağlar",
   "toggles.state.unavailable": "Kullanılamıyor",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Bu bilgisayarda yok",

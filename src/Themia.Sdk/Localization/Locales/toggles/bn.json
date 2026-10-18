@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "মোনো অডিও",
   "toggles.colorFilters.name": "কালার ফিল্টার",
   "toggles.gameMode.name": "গেম মোড",
-  "toggles.gameMode.label": "গেম মোড চালু/বন্ধ",
-  "toggles.gameMode.desc": "Windows-কে আপনার খেলা গেমকে অগ্রাধিকার দিতে দেয়",
   "toggles.state.unavailable": "অনুপলব্ধ",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "এই PC-তে এটি নেই",

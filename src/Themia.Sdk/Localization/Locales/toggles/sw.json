@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Sauti ya mono",
   "toggles.colorFilters.name": "Vichujio vya rangi",
   "toggles.gameMode.name": "Hali ya mchezo",
-  "toggles.gameMode.label": "Hali ya mchezo washa/zima",
-  "toggles.gameMode.desc": "Huruhusu Windows itangulize mchezo unaocheza",
   "toggles.state.unavailable": "Haipatikani",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Kompyuta hii haina kifaa hiki",

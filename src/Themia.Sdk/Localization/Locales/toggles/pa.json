@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "ਮੋਨੋ ਆਡੀਓ",
   "toggles.colorFilters.name": "ਰੰਗ ਫ਼ਿਲਟਰ",
   "toggles.gameMode.name": "ਗੇਮ ਮੋਡ",
-  "toggles.gameMode.label": "ਗੇਮ ਮੋਡ ਚਾਲੂ/ਬੰਦ",
-  "toggles.gameMode.desc": "Windows ਨੂੰ ਤੁਹਾਡੀ ਚੱਲ ਰਹੀ ਗੇਮ ਨੂੰ ਪਹਿਲ ਦੇਣ ਦਿੰਦਾ ਹੈ",
   "toggles.state.unavailable": "ਉਪਲਬਧ ਨਹੀਂ",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "ਇਸ PC ਵਿੱਚ ਇਹ ਨਹੀਂ ਹੈ",

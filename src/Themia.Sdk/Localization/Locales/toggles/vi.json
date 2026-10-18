@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Âm thanh đơn kênh",
   "toggles.colorFilters.name": "Bộ lọc màu",
   "toggles.gameMode.name": "Chế độ trò chơi",
-  "toggles.gameMode.label": "Bật/tắt chế độ trò chơi",
-  "toggles.gameMode.desc": "Để Windows ưu tiên trò chơi bạn đang chơi",
   "toggles.state.unavailable": "Không khả dụng",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "PC này không có",

@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Áudio mono",
   "toggles.colorFilters.name": "Filtros de cor",
   "toggles.gameMode.name": "Modo de jogo",
-  "toggles.gameMode.label": "Modo de jogo ligado/desligado",
-  "toggles.gameMode.desc": "Deixa o Windows dar prioridade ao jogo que você joga",
   "toggles.state.unavailable": "Indisponível",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Este PC não tem isso",

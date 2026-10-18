@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "मोनो ऑडियो",
   "toggles.colorFilters.name": "रंग फ़िल्टर",
   "toggles.gameMode.name": "गेम मोड",
-  "toggles.gameMode.label": "गेम मोड चालू/बंद",
-  "toggles.gameMode.desc": "Windows को आपके गेम को प्राथमिकता देने देता है",
   "toggles.state.unavailable": "अनुपलब्ध",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "इस PC में यह नहीं है",

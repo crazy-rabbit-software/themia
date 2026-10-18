@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Dźwięk mono",
   "toggles.colorFilters.name": "Filtry kolorów",
   "toggles.gameMode.name": "Tryb gry",
-  "toggles.gameMode.label": "Tryb gry wł./wył.",
-  "toggles.gameMode.desc": "Pozwala systemowi Windows dać pierwszeństwo grze",
   "toggles.state.unavailable": "Niedostępne",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Ten komputer tego nie ma",

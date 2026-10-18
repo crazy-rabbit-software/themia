@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "صدای مونو",
   "toggles.colorFilters.name": "فیلترهای رنگ",
   "toggles.gameMode.name": "حالت بازی",
-  "toggles.gameMode.label": "روشن/خاموش حالت بازی",
-  "toggles.gameMode.desc": "به Windows اجازه می‌دهد بازی شما را در اولویت بگذارد",
   "toggles.state.unavailable": "در دسترس نیست",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "این رایانه آن را ندارد",

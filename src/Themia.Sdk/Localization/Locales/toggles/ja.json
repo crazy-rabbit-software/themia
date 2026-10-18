@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "モノラル オーディオ",
   "toggles.colorFilters.name": "カラー フィルター",
   "toggles.gameMode.name": "ゲーム モード",
-  "toggles.gameMode.label": "ゲーム モード オン/オフ",
-  "toggles.gameMode.desc": "プレイ中のゲームを Windows が優先します",
   "toggles.state.unavailable": "使用不可",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "この PC にはありません",

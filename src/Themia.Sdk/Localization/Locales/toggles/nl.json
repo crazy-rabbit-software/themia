@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Mono-audio",
   "toggles.colorFilters.name": "Kleurfilters",
   "toggles.gameMode.name": "Spelmodus",
-  "toggles.gameMode.label": "Spelmodus aan/uit",
-  "toggles.gameMode.desc": "Laat Windows voorrang geven aan het spel dat je speelt",
   "toggles.state.unavailable": "Niet beschikbaar",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Deze pc heeft het niet",

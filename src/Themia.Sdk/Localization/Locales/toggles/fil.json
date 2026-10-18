@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Mono audio",
   "toggles.colorFilters.name": "Mga color filter",
   "toggles.gameMode.name": "Game mode",
-  "toggles.gameMode.label": "I-on/i-off ang Game mode",
-  "toggles.gameMode.desc": "Hinahayaan ang Windows na unahin ang larong nilalaro mo",
   "toggles.state.unavailable": "Hindi available",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Wala nito ang PC na ito",

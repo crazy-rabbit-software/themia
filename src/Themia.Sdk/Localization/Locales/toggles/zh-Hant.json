@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "單聲道音訊",
   "toggles.colorFilters.name": "色彩篩選",
   "toggles.gameMode.name": "遊戲模式",
-  "toggles.gameMode.label": "遊戲模式 開/關",
-  "toggles.gameMode.desc": "讓 Windows 優先處理您正在玩的遊戲",
   "toggles.state.unavailable": "無法使用",
   "toggles.tip": "{name}：{state}",
   "toggles.reason.noHardware": "此電腦沒有此功能",

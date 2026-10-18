@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "모노 오디오",
   "toggles.colorFilters.name": "색 필터",
   "toggles.gameMode.name": "게임 모드",
-  "toggles.gameMode.label": "게임 모드 켜기/끄기",
-  "toggles.gameMode.desc": "Windows가 플레이 중인 게임을 우선 처리합니다",
   "toggles.state.unavailable": "사용할 수 없음",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "이 PC에는 해당 기능이 없습니다",

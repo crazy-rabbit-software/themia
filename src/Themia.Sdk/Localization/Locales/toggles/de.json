@@ -14,8 +14,6 @@
   "toggles.monoAudio.name": "Monoaudio",
   "toggles.colorFilters.name": "Farbfilter",
   "toggles.gameMode.name": "Spielmodus",
-  "toggles.gameMode.label": "Spielmodus ein/aus",
-  "toggles.gameMode.desc": "Lässt Windows dem laufenden Spiel Vorrang geben",
   "toggles.state.unavailable": "Nicht verfügbar",
   "toggles.tip": "{name}: {state}",
   "toggles.reason.noHardware": "Dieser PC hat das nicht",
