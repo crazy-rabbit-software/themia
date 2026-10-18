@@ -64,6 +64,9 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   with IReadsSystem, ISystemFeeds, WatchSlot) and the system rules in Widgets/ (meters, details, drives, audio, music)
   and the local stores' shared data and rules (clipboard history, alarms, focus, notifications, Notes/NoteMeta,
   Habits/HabitLists with the periods and streaks, screen time, the gallery's sources, scans and Bing photo)
+  and the file widgets' shared data (FolderBadges, RecentFileRules, the app layouts: AppLayoutModel, LayoutTree,
+  LayoutPlan, IHoldsAppLayouts; VideoStreamRules, HlsVariants, the stream's facts; Files/: FileNames, FileDrops,
+  SurfaceDrops and the records the file contracts carry)
   Widgets/ (WidgetArea, Disclosure, tiers, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
   HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ScreenPick, SettingsSearch) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
@@ -78,10 +81,12 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    WidgetLayout, ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
                    UiLanguage, ScrollFade, EmptyStatePanel, Notices, the meters' and details' shared views (MeterView,
                    DetailView, SparkBand, CoreGraphGrid), AudioFeed, the screen-time widgets' shared parts, AddFooterRow,
-                   RotatedBox; Modules/: the host's contracts (IWidgetHost's members, SettingsHost for a settings
-                   page); Shell/: FluentLayout (settings rows), ColorChoice, RowReorder, SettingRow, PlaceSearch,
+                   RotatedBox; Modules/: the host's contracts (IWidgetHost's members, among them the file shell's:
+                   FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
+                   SettingsHost for a settings page); Shell/: FluentLayout (settings rows), ColorChoice, RowReorder, SettingRow, PlaceSearch,
                    MenuArtIcons, FolderBrowse, ScreenTimeSettingsRows. References Themia.Sdk only, never Core. What
-                   needs Win32 (eyedropper, file icons, geocoder, OLE drag) is the host's, installed at start (App()).
+                   needs Win32 (eyedropper, file icons, geocoder, OLE drag, the shell's file operations and menus)
+                   is the host's, behind those contracts or installed at start (App()).
                    Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
@@ -89,8 +94,8 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    shared samplers and sync services (accounts, mail, tasks, files, web)
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
-  Widgets/         Modules/<Name>Module.cs (each in-app widget's module) + one *View.cs per widget
-src/Widgets/Themia.Widget.<Name>/     a widget module project (68 so far: year progress, M4 part B groups 1-4 and 6): module, config, view, Preview/,
+  Widgets/         Modules/<Name>Module.cs (each in-app widget's module: RSS and the account widgets) + their *View.cs
+src/Widgets/Themia.Widget.<Name>/     a widget module project (72 so far: year progress, M4 part B groups 1-4, 6 and 7): module, config, view, Preview/,
                    Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum

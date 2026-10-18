@@ -1890,6 +1890,84 @@ registration path: when a table becomes a descriptor member, the table is delete
   screen time, a folder of photos and Bing's photo, the settings pages' pickers), never in a render or a
   test, which touch none of the user's stores.
 
+  *M4 part B, group 7 as built (2026-10-18): files and launchers.* Four widget projects, one per commit:
+  `Themia.Widget.RecentFiles`, `.VideoStream`, `.Shortcuts` and `.Folder`, each its config (styles and
+  enums with it), descriptor (on its module), view, preview, settings page (`<Name>Settings.Rows`; none
+  for Recent files, as before, [S-1750]), its own rules (`RecentFilesLayout`; `StreamChromeRules` with
+  `FrameRateMeter`, and `ShownWatch`; `ShortcutRules`, `ShortcutDrop`, `ShortcutLayout`,
+  `ShortcutSelection`; `FolderColumns`, `FolderFilter`, `FolderGesture`, `FolderHistory`, `FolderLasso`,
+  `FolderLayout`, `FolderMenu`, `FolderRules`, `FolderSelection`), its strings as `<Name>Str`, its glyph
+  where only it drew it (Recent files, the camera, Shortcuts), its SPEC section and its tests. The
+  widget ids left in Core and the app are RSS and the account widgets (Email, Calendar, Contacts,
+  NextMeeting, WeekPlanner, Tasks). First, its own commit and Debug tooling only: the Debug Native AOT
+  build preinitialises static constructors as Release does (`--preinitstatics` in the app's csproj);
+  without it the runtime's reference-tracking callback (`TrackerObjectManager.WalkExternalTrackerObjects`
+  → `FindReferenceTargetsCallback`) ran its class constructor inside the first garbage collection that
+  found a XAML object, the constructor runner allocated, the allocation waited for the collection in
+  progress, and the process hung for good with every thread waiting (found with a native stack dump of
+  the hung process; seen as the gallery's `--state sticker` and the clipboard question's popup never
+  finishing, both allocating enough to collect while the page is alive). Then the SDK, each its own
+  commit: the parts the widgets share with the host (`FolderBadges`, `FileNames`, `FileDrops`,
+  `SurfaceDrops`, `ItemClickMode`, `InstalledApp`, `RecentFile` with `RecentFileRules`, `VideoStreamRules`
+  with `StreamTransport`, `StreamFit`, `HlsVariants`, the app layouts `AppLayoutModel`, `LayoutTree` and
+  `LayoutPlan`, `SiteIcons.FaviconOf`; the shared files split per widget first: `RecentFilesLayout`,
+  `StreamChromeRules`, `LayoutWindows` and Core's `DropUrls` stayed apart), and the contracts, each an
+  `IWidgetHost` member over the host's one service, the Win32, COM, OLE and sockets staying host code:
+  `FileIcons` (`IFileIcons`), `FileClipboard` (`IFileClipboard`), `Folders` (`IFolders`: the listing, the
+  watch, the repository's status, Explorer's New file types, a ZIP; `FolderWatch` is the `IFolderWatch`),
+  `FileOps` (`IShellFileOps`: copy, move, recycle and rename with the shell's dialogs and undo, open, Open
+  with, Properties, Show in Explorer, new folder and file, cloud pins, a shortcut's target, a drag out),
+  `ExplorerMenus` (`IExplorerMenus`: the full shell menu, a verb, a file's Open with apps), `RecentFiles`
+  (`IRecentItems`), `AppLayouts` (`IAppLayouts`, and `SettingsHost.AppLayouts`; the host's editor finds
+  a layout item through `IHoldsAppLayouts` on the config, so it names no widget), `Streams`
+  (`IVideoStreams` with `IStreamSink`), `InstalledApps`, `Favicons`, and `IWidgetDrag.ReadShellItems`;
+  the records they carry went into the SDK with them. The Debug scenes name the four by id
+  (`StateJson.Merged` fragments for the switch check's camera and the layout editor's demo layout), and
+  `--menu-png` draws the folder's menus through the module's preview (`IWidgetPreviewMenus`, new).
+  Recent behaviours are as they were (the renders below): the folder's lasso, Explorer's menu with its
+  two-tone icons, light dismiss, the right column visible, edit mode inert, double-click and Enter
+  opening. Strings were carried by the group 1 script, the same count in all 30 languages each time,
+  184 keys a language in all: Recent files 5, the camera 45, Shortcuts 56, Folder 78 (the `folder-menu`
+  and `styles-folder` areas emptied went); what two of them, the host's layout editor or its file
+  services read (the folder's sizes and Select all, the shortcut kinds, Open file location) stays the
+  SDK's table; the native-digit allow list's two MP4 keys are the camera module's now. Tags: a tag
+  whose tests test SDK or host rules stayed in the root under its tests (the Recent Items source, the
+  camera's title, backoff, rotation, refresh, transports and HLS cap, the app layouts, the folder's
+  search, columns, icons, git, selection keys, clipboard, operations, drops and watch), the module
+  code's tests under it moved into the module test host (`DeskInfoHostTests`, `VideoStreamHostTests`,
+  `ShortcutsHostTests`, `FolderHostTests`, and whole `FolderKindsTests`, `LauncherPersistenceTests`,
+  `FillChoiceTests`, `ItemTextTests`, two `SettingsPageSync` tests that read real widgets of the
+  first-run desktop); the Recycle Bin item's Empty ([S-4864]) moved with Shortcuts. No test was
+  retagged or renamed; the bin's own rule test left `ShortcutsTests` for a new Core
+  `RecycleBinStateTests`; tests changed only their call shape (`DropUrls.InText`,
+  `SiteIcons.FaviconOf`, `new WidgetId("…")`). Found on the way and fixed in the moves' commits: the
+  module host's round-trip conformance now lets a clone mint fresh nested ids (a Shortcuts clone gives
+  its items new ids, [S-893]); the Recent files view still opened its folder through the shell directly
+  (now `IWidgetHost.FileOps`). A new fixture test (`FilesStateFixtureTests`) reads a state of the four
+  configured (three folders in their styles with their columns, a Shortcuts list with every kind of item
+  and an app layout, a table, a camera with every setting changed and a fresh one), generated with the
+  build from before at `c11f637e` in a worktree, with no repair, the same values, and writes it back
+  unchanged. Core's test count 5026 (from 5377), the module host's 2772 (from 2423).
+  Evidence: Debug build 0 warnings after every commit; both test projects built and green after every
+  move and at the end; each move's render set compared at once against a "before" rendered at
+  `c11f637e` (0 differ each), and the final pixel diff of 273 images (every tier in each preview state,
+  light, dark and German, the fill sizes 120x80..1400x360, each style in each state in both themes and
+  German, the `--keys` renders of the four, the settings page plain, dark, German and per style; picker
+  plain, German and searched eight ways, menus in both themes with the folder's file, Open with, folder
+  and background menus, the layout editor plain and empty, edit bar in both themes, motion, Settings ›
+  Widgets and four searches) against the "before" build: 271 identical, 2 differ
+  (`menu-dark/card-desktop-no-settings`, `motion/Sides-60ms`), both proved flaky by rendering alone:
+  two runs each of the "before" and the final build alone are identical to each other and across.
+  Release AOT publish 0 warnings (50.1 MB, before 50.0 MB); Debug AOT publish 0 warnings (82.3 MB,
+  before 83.0 MB: the preinitialised statics) and its renders of the folder (web and the lasso), its
+  page, the menus, Recent files, Shortcuts and its page, the camera and its page, the layout editor,
+  the gallery's sticker and the clipboard's question with its popup finish in 2-26 s, identical to the
+  JIT renders. Manual passes owed: each module's own `SPEC.md` names it (a real folder with the lasso,
+  Explorer's menu, rename, delete, drag in and out, the clipboard with Explorer, a ZIP, OneDrive pins;
+  opening files to fill Recent files and Remove from list; Shortcuts' drops from Explorer, browsers and
+  the Start menu, reorder, drag out, a layout launched and edited; a real MJPEG, snapshot, MP4 and HLS
+  camera), never in a render or a test, which touch no real file.
+
   - **Online, left:** RSS (`AppServices.Feeds`, `FeedSync`, the favicon cache) moves with its kit
     migration (11.2).
   - **Account widgets** (Email, Calendar, Contacts, NextMeeting, WeekPlanner, Tasks): mail, office
@@ -1897,11 +1975,9 @@ registration path: when a table becomes a descriptor member, the table is delete
     `OfficeStatePanel`/`SetupPrompt` into the SDK; they move with their kit migration (11.2).
   - **Local stores:** done (group 6, above); each became a typed `IWidgetHost` member, no
     `IModuleService` was needed (every store is the host's one already, created at start).
-  - **Files and launchers** (Folder, RecentFiles, Shortcuts, VideoStream): `FileIcons`,
-    `FileClipboard`, the folder listing and `AppServices.EditAppLayout` as contracts; Shortcuts'
-    drop handling already sits on `IWidgetDrag`; `RotatedBox`, `ControlKeys`, `FolderFormatting` and
-    `FolderBrowse` are the SDK's already (group 6), and a settings page's pickers go through
-    `SettingsHost.OwnPicker`.
+  - **Files and launchers:** done (group 7, above); every host service they used is a typed
+    `IWidgetHost` member, and the app-layout editor finds its item through `IHoldsAppLayouts`.
+  - **What remains:** RSS and the account widgets, which move with the kit (11.2).
   - **Everywhere:** the Debug gallery scenes that name widgets (`EditBarRender`, `SwitchCheck`,
     `MotionRender`, `MenuRender`, `SettingsRender`) turn into ids and module `Preview/` states; the
     descriptor/config interim ends per widget; `ItemPalette` (the host's item engine) is reached only

@@ -869,10 +869,19 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   (`IFocusSession`, do not disturb held host-side, [S-4421]), Windows' notification list
   (`INotifications`, [S-4408]), the notes (`INotes`, [S-1348]), the habit lists (`IHabitLists`,
   [S-1420]), the screen-time history (`IScreenTimeSource`, [S-458]) and the gallery's sources and
-  decodes (`IGalleries`, [S-3410]), each the host's one, its files and their validation host code. A
-  settings page has no card: its host lists are seams installed at start (`DriveList`, `AudioDevices`,
+  decodes (`IGalleries`, [S-3410]), each the host's one, its files and their validation host code; and
+  the file shell: a file's icon, thumbnail, type and count (`IFileIcons`, [S-1324]), files on the real
+  clipboard (`IFileClipboard`, [S-1329]), a folder's listing, watch, repository, New file types and a
+  ZIP (`IFolders`, [S-1321], [S-1333]), the shell's own operations with its dialogs and undo, delete
+  always recycling, and a drag out (`IShellFileOps`, [S-1330]), File Explorer's own menus and Open with
+  (`IExplorerMenus`, [S-6416]), Recent Items (`IRecentItems`, [S-4841]), the app-layout editor and
+  launch (`IAppLayouts`, [S-1411]; the editor finds an item through `IHoldsAppLayouts` on a config),
+  camera connections (`IVideoStreams`, [S-471]), the Start menu's apps (`IInstalledApps`) and a site's
+  icon (`IFavicons`, [S-1304]); a drag's shell items are `IWidgetDrag.ReadShellItems`. A settings page
+  has no card: its host lists are seams installed at start (`DriveList`, `AudioDevices`,
   `GpuAdapters`), and `SettingsHost` holds the stores a page edits (the notes, the habit lists, the
-  screen-time history), the launcher and the owner window of a page's file picker; so are a process's
+  screen-time history), the launcher, the owner window of a page's file picker and the app-layout
+  editor (`AppLayouts`); so are a process's
   executable and name (`ProcessPaths`) and a row's shell icon (`AppIconSource`). The host makes one per card, every member shared by all of them. What a widget shares with the settings
   window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
   `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
