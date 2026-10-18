@@ -19,8 +19,8 @@ AOT (section 4.11).
 Status: the module architecture (M1..M4, section 11.1), the kit's core and UI parts with their
 first widget, RSS (section 11.2 steps 1..3, 7 and 8), and the service layer (sections 5.7 and 6.5;
 steps 9..12, "service layer as built" in 11.2) are built, and every widget is a module project
-(the account widgets as group 8 of 11.1); the pilots (steps 13..15) and the account widgets' kit
-migration are not. Where the build
+(the account widgets as group 8 of 11.1); Email and the calendar's agenda draw through the kit
+("account widgets on the kit" in 11.2); the pilots (steps 13..15) and Tasks' kit migration are not. Where the build
 differs from the design below, the "as built" paragraph of 11.2 says how and why, and it wins. The
 plan of commits is kept outside the repository; this file is the design an implementation must
 follow, and the guide new agents read afterwards.
@@ -2006,8 +2006,8 @@ registration path: when a table becomes a descriptor member, the table is delete
   identical); Release AOT publish 0 warnings (50.8 MB), Debug AOT publish (83.7 MB) and its renders of
   the six widgets, the agenda style and the six pages finish.
 
-  *Kit migration of the account widgets: not done.* They moved with their views as they were; none
-  draws through `KitList` yet. What each needs, as found: Email the kit's row looks beyond `Rich` (a
+  *Kit migration of the account widgets: Email and the agenda done (see "account widgets on the
+  kit" in 11.2); Tasks not.* They moved with their views as they were. What each needs, as found: Email the kit's row looks beyond `Rich` (a
   compact two-line row and the Table look with its column header and user-ordered columns), inline
   hover actions (mark read, delete) on a row, the compose button in `KitHeader`, and `MailScreens`
   folded into `KitScreens` (its sentences are mail's own: a behaviour commit, test first); the
@@ -2172,6 +2172,54 @@ off the kit; they already have their own frameworks or needs no shared list serv
   Debug AOT publish 0 warnings and its renders of RSS (sample and stale tiers, its page) and weather
   now stale finish in about 4 s, identical to the JIT renders.
 - **Left then for the service-layer agent:** steps 9..12 and the account widgets (see below).
+
+*Account widgets on the kit (2026-10-19): Email (all three styles) and the calendar's agenda.* Tags
+`[S-7013]`, `[S-7032]..[S-7036]` (root `SPEC.md`, KIT), Email's `[S-6420]`, `[S-6421]`, Calendar's
+`[S-3650]..[S-3652]`; tests `KitLinedTests`, `KitPagesTests`, `KitAccountWidgetTests` (Core),
+`MailSpecTests`, `AgendaSpecTests`, `CalendarFreshnessTests` (module host).
+
+- **Kit gaps built first, each its own commit with tests.** The lined looks: `KitRowLook.TwoLine`
+  (stacked rows going one `Line` on a strip, with inline actions that swap in for the time on the
+  hovered and focused row at the slot's one width, `KitLadder.LineBoxes`) and `Table` (the user's
+  columns, `KitColumn`, column titles from the spec, `KitLadder.TableColumns`); `KitTime.Compact`
+  and `Stamp` (Mail's times, `MailTime` delegates); `KitItem.Tooltip`; `KitShow.Badges`;
+  `KitChoices` (fields, preview lines, columns) and `IKitConfig.Choices`; `KitActionKind.Change`
+  and an Open/OpenTo the view carries out by id ([S-7013]: the account widgets keep their writes;
+  kit services stay read-only); `KitHeaderButton` (a header view button with a choice menu: Mail's
+  compose and sort), `KitRead.Count` and `Notes` (a change waiting or refused); the paged look
+  (`KitOverflow.Page`, `KitPages`, `KitDays`, `KitGroup.Selected`) with the `Schedule` row
+  (`KitSchedule`, the time column measured from `KitSpec.TimeLabels`, the stripe through
+  `HexBrush`), `KitList.Decorate` (a view's own per-row hook), `Disclosure.SecondLines`,
+  `SyncProblems.ToFetchStatus`. Mail's ladder (`MailLayout`) and the agenda's (`CalendarFit`'s
+  agenda rules) were proved equal to the kit's, rung for rung, then went.
+- **Refactors, zero pixel differences** against `c513c56b` (the start plus Debug preview states:
+  Email `stale`/`offline`, Calendar `stale`/`empty`, Tasks `stale`), `pngdiff --noise`, before /
+  after / before interleaved per render: Email onto `KitList` (94 renders: tiers, three styles,
+  seven states, dark, light, German, fill sizes, keys, settings pages; 0 differ, 3 noise); the
+  agenda onto the paged `KitList` (63 renders of the agenda and month; 0 differ). Its rows keep their
+  layout with a focus ring laid over them (no border in the layout: a 1.5px ring and fractional
+  padding rounded the stripe a pixel off). Renders under six parallel jobs showed sub-pixel
+  differences that serial renders of both builds did not: four jobs is the safe load.
+- **Behaviour commits.** Email's menu and keys are the kit's (KitMenu's order with Copy subject and
+  Delete in the icon row, the keys shown; Left/Right step, Ctrl+C copies the subject; tested in
+  `MailSpecTests`). Email is a kit view (`KitBinding` over `MailKitSource`): the kit's screens and
+  state panel, the one stale rule, `MailScreens.Decide` and mail's own 24 failure sentences gone in
+  30 languages; renders change only in the stale and offline states
+  (`TestResults/kitacc/cmp-em4`). Calendar: `KitHeader` for the problem glyph and ring in every
+  style, the kit's words and the age on Refresh (renders unchanged); the agenda's one open gesture
+  and the kit's cursor keys (`TestResults/kitacc/cmp-cal7`, `style-agenda-keys`). The Up-with-no-
+  cursor rule: Email and the agenda land on the first row (the agenda's on the page on screen).
+- **Where it differs, and why.** The calendar is not an `IKitConfig` (its other four styles keep
+  their own views, so its view is not a thin kit view, [S-7069]); only the agenda's rows are the
+  kit's, and the header's glyph and ring. Mail's ring shows only for a refresh the user asked for
+  (its source's `Busy`), as before. Header view buttons are subtle buttons, not items (the item
+  layer is for items, [S-6570]). The problem glyph keeps no width gate of Mail's own (the kit's one
+  header): at 120px it takes the folder name's room. Mail's lists still scroll under the fade over
+  the whole slot (its look), the rich look still fits whole rows.
+- **Owed, live:** a signed-in Microsoft, Google and IMAP account for Mail (the three styles, quick
+  actions landing on the server, compose from several accounts, a refusal as a header note); a
+  signed-in calendar for the agenda (double-click opening Outlook or the provider's page, the links
+  across widgets, paging by keys).
 
 *Service layer as built (2026-10-18): steps 9..12.* Tags `[S-9900]..[S-9931]`, root `SPEC.md`
 section "The service layer (SERVICES)"; tests `ServiceLayerTests`, `ServiceSignInTests`,
