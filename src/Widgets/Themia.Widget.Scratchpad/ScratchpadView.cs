@@ -14,6 +14,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.Foundation;
+using Themia.Widget.Scratchpad;
 
 namespace Themia.App.Widgets;
 
@@ -86,17 +87,17 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     {
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _eraser = ToggleCommand(Glyphs.EraseTool, Str.WidgetsC_Scratchpad_EraseStrokes.Text());
+        _eraser = ToggleCommand(Glyphs.EraseTool, ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text());
         _eraser.Checked += OnEraserToggled;
         _eraser.Unchecked += OnEraserToggled;
 
-        _undoButton = CommandButton(Glyphs.Reset, Str.WidgetsC_Scratchpad_Undo.Text());
+        _undoButton = CommandButton(Glyphs.Reset, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text());
         _undoButton.Click += OnUndoClicked;
 
-        _clearButton = CommandButton(Glyphs.Delete, Str.WidgetsC_Scratchpad_ClearDrawing.Text());
+        _clearButton = CommandButton(Glyphs.Delete, ScratchpadStr.WidgetsC_Scratchpad_ClearDrawing.Text());
         _clearButton.Flyout = BuildClearConfirmation();
 
-        _fullButton = CommandButton(Glyphs.FullScreen, Str.WidgetsC_Scratchpad_FullScreen.Text());
+        _fullButton = CommandButton(Glyphs.FullScreen, ScratchpadStr.WidgetsC_Scratchpad_FullScreen.Text());
         _fullButton.Click += OnFullScreenClicked;
 
         _tools = new StackPanel
@@ -112,9 +113,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         // for its own drag area.
         _pad.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
 
-        _hintText.Text = Str.Scratchpad_DrawHere.Text();
+        _hintText.Text = ScratchpadStr.Scratchpad_DrawHere.Text();
         _hint = Fluent.EmptyState(
-            ModuleCatalog.Of(ScratchpadConfig.Descriptor.Id).Glyph,
+            ScratchpadModule.Glyph,
             _hintText,
             out _);
 
@@ -213,7 +214,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// last word on a drawing.
     /// </summary>
     private Flyout BuildClearConfirmation()
-        => ConfirmFlyout.Create(Str.WidgetsC_Scratchpad_ClearConfirm.Text(), Str.Common_Clear.Text(), ClearAll);
+        => ConfirmFlyout.Create(ScratchpadStr.WidgetsC_Scratchpad_ClearConfirm.Text(), Str.Common_Clear.Text(), ClearAll);
 
     // -----------------------------------------------------------------------------------------
     // Lifecycle
@@ -238,11 +239,11 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// <summary>[S-1110] Re-read the texts set once at construction; the drawing is untouched.</summary>
     private void OnLanguage(Locale locale)
     {
-        ToolTipService.SetToolTip(_undoButton, Str.WidgetsC_Scratchpad_Undo.Text());
-        ToolTipService.SetToolTip(_clearButton, Str.WidgetsC_Scratchpad_ClearDrawing.Text());
+        ToolTipService.SetToolTip(_undoButton, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text());
+        ToolTipService.SetToolTip(_clearButton, ScratchpadStr.WidgetsC_Scratchpad_ClearDrawing.Text());
         ToolTipService.SetToolTip(_fullButton, FullScreenTip());
         _clearButton.Flyout = BuildClearConfirmation();
-        _hintText.Text = Str.Scratchpad_DrawHere.Text();
+        _hintText.Text = ScratchpadStr.Scratchpad_DrawHere.Text();
         ApplyBarTips();
         UpdateCommands();
     }
@@ -683,7 +684,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     {
         _undoButton.IsEnabled = _undo.Count > 0;
         _clearButton.IsEnabled = _config.Strokes.Count > 0;
-        var eraserTip = _eraser.IsChecked == true ? Str.WidgetsC_Scratchpad_Draw.Text() : Str.WidgetsC_Scratchpad_EraseStrokes.Text();
+        var eraserTip = _eraser.IsChecked == true ? ScratchpadStr.WidgetsC_Scratchpad_Draw.Text() : ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text();
         ToolTipService.SetToolTip(_eraser, eraserTip);
         ToolTipService.SetToolTip(_barEraser, eraserTip);
         UpdateBar();

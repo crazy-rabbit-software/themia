@@ -1,31 +1,42 @@
-using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Scratchpad.Tests;
 
 /// <summary>
-/// The configs that carry a list the user built (a drawing) through the real state file; the quote
-/// list's are its module's.
-/// <para>
-/// Not a unit test of a property bag: it goes through <see cref="AppStateStore"/> and the
-/// source-generated serializer, because that is where a list with a populated default can quietly
-/// double on every load, and where a drawing would quietly be lost.
-/// </para>
+/// [S-1497] The scratchpad: the ink bar's presets, and a drawing through the real state file (where
+/// a drawing would quietly be lost). Moved with the widget from Core's DeskParityTests and
+/// DeskSketchConfigTests, unchanged in what they assert.
 /// </summary>
-public sealed class DeskSketchConfigTests
+public sealed class ScratchpadTests
 {
-    /// <summary>Put one widget of this kind with this config into a state file, and read it back.</summary>
-    private static Task<T> RoundTrip<T>(WidgetId kind, T config)
-        where T : WidgetConfig
-        => StateRoundTrip.Of(kind, config);
+    private static readonly WidgetId Id = new("scratchpad");
 
-    // -----------------------------------------------------------------------------------------
-    // Scratchpad
-    // -----------------------------------------------------------------------------------------
+    [Theory]
+    [InlineData(1, 2)]
+    [InlineData(3, 2)]
+    [InlineData(3.1, 4)]
+    [InlineData(6, 4)]
+    [InlineData(7, 8)]
+    [InlineData(24, 8)]
+    public void S1497_a_width_marks_the_nearest_nib(double width, double nib)
+        => Assert.Equal(nib, InkPalette.NearestWidth(width));
+
+    [Fact]
+    public void S1497_an_ink_matches_its_hex_however_it_was_written()
+    {
+        var blue = InkPalette.Inks[0];
+
+        Assert.True(InkPalette.Matches(blue, "#0078d4"));
+        Assert.True(InkPalette.Matches(blue, "0078D4"));
+        Assert.False(InkPalette.Matches(blue, "#F43F5E"));
+        Assert.False(InkPalette.Matches(blue, null));
+        Assert.Equal(InkPalette.Inks.Count, InkPalette.Inks.Select(ink => ink.Hex).Distinct().Count());
+    }
 
     [Fact]
     public async Task A_drawing_survives_the_state_file()
@@ -42,7 +53,7 @@ public sealed class DeskSketchConfigTests
             ],
         };
 
-        var reloaded = await RoundTrip(ScratchpadConfig.Descriptor.Id, config);
+        var reloaded = await StateRoundTrip.Of(Id, config);
 
         Assert.Equal("#F43F5E", reloaded.PenColor);
         Assert.Equal(6, reloaded.PenWidth);
@@ -63,7 +74,7 @@ public sealed class DeskSketchConfigTests
     [Fact]
     public async Task A_blank_pad_stays_blank()
     {
-        var reloaded = await RoundTrip(ScratchpadConfig.Descriptor.Id, new ScratchpadConfig());
+        var reloaded = await StateRoundTrip.Of(Id, new ScratchpadConfig());
 
         Assert.Empty(reloaded.Strokes);
     }

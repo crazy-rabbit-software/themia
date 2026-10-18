@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Widget.Scratchpad;
 
 namespace Themia.App.Shell.Config;
 
@@ -18,7 +19,7 @@ namespace Themia.App.Shell.Config;
 /// many.
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+internal static class ScratchpadSettings
 {
     /// <summary>
     /// The inks the pen offers first: six that read on the pad in either theme. The shared picker
@@ -27,22 +28,22 @@ internal static partial class WidgetSettings
     private static readonly ColorPreset[] PenColors =
         [.. InkPalette.Inks.Select(ink => new ColorPreset(ink.Hex, ink.Name.Local()))];
 
-    public static void Scratchpad(List<FrameworkElement> rows, ScratchpadConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, ScratchpadConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.Scratchpad_PenTab.Text()));
+        rows.Add(FluentLayout.Header(ScratchpadStr.Scratchpad_PenTab.Text()));
 
-        rows.Add(FluentLayout.ColorPickerRow(Glyphs.Palette, Str.Scratchpad_PenColorLabel.Text(), Str.Scratchpad_PenColorDesc.Text(),
+        rows.Add(FluentLayout.ColorPickerRow(Glyphs.Palette, ScratchpadStr.Scratchpad_PenColorLabel.Text(), ScratchpadStr.Scratchpad_PenColorDesc.Text(),
             config.EffectivePenColor,
             value => { config.PenColor = value; save(); },
-            new ColorChoiceOptions { Presets = PenColors, PresetsTitle = Str.WidgetsC_Scratchpad_Settings_Inks.Text() }));
+            new ColorChoiceOptions { Presets = PenColors, PresetsTitle = ScratchpadStr.WidgetsC_Scratchpad_Settings_Inks.Text() }));
 
         // The width is in pixels and stays in pixels however the widget is resized: a pen has a
         // nib, so a bigger pad shows more drawing rather than a fatter line.
-        rows.Add(FluentLayout.Row(Glyphs.Scratchpad, Str.Scratchpad_PenSizeLabel.Text(), Str.Scratchpad_PenSizeDesc.Text(),
+        rows.Add(FluentLayout.Row(ScratchpadModule.Glyph, ScratchpadStr.Scratchpad_PenSizeLabel.Text(), ScratchpadStr.Scratchpad_PenSizeDesc.Text(),
             FluentLayout.Slider(
                 config.EffectivePenWidth,
                 InkGeometry.MinWidth,
@@ -51,10 +52,10 @@ internal static partial class WidgetSettings
                 "px",
                 value => { config.PenWidth = value; save(); })));
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Scratchpad_Settings_Tools.Text()));
+        rows.Add(FluentLayout.Header(ScratchpadStr.WidgetsC_Scratchpad_Settings_Tools.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Edit, Str.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text(),
-            Str.WidgetsC_Scratchpad_Settings_ShowTools_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Edit, ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text(),
+            ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Desc.Text(),
             FluentLayout.Toggle(config.ShowTools, value => { config.ShowTools = value; save(); })));
     }
 }

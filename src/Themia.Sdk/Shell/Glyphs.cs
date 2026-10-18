@@ -174,7 +174,6 @@ public static class Glyphs
     public static readonly string Apps = From(0xE71D);
     public static readonly string Search = From(0xE721);
     public static readonly string Clipboard = From(0xE77F);
-    public static readonly string Scratchpad = From(0xE70F);
     public static readonly string Quote = From(0xE9B2); // [S-652] E9E5 is not in the font: an opening quote mark
     public static readonly string Gallery = From(0xE91B);
     public static readonly string Habit = From(0xE73E);

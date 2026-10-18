@@ -6,7 +6,7 @@ using Themia.Core.Widgets;
 
 namespace Themia.Core.Tests;
 
-/// <summary>Package PJ: Clock, Sun &amp; moon, Quote and Scratchpad parity (S-1480..S-1499).</summary>
+/// <summary>Package PJ: Clock and Sun &amp; moon parity (S-1480..S-1491; the quote's and the scratchpad's are their modules').</summary>
 public sealed class DeskParityTests
 {
     // ---------------------------------------------------------------------------------------------
@@ -294,31 +294,5 @@ public sealed class DeskParityTests
         var after = full.Name == MoonPhaseName.FullMoon ? MoonPhase.NextMajor(full.At) : MoonPhase.NextMajor(MoonPhase.NextMajor(full.At).At);
 
         Assert.True(after.At > full.At);
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // Scratchpad
-    // ---------------------------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(1, 2)]
-    [InlineData(3, 2)]
-    [InlineData(3.1, 4)]
-    [InlineData(6, 4)]
-    [InlineData(7, 8)]
-    [InlineData(24, 8)]
-    public void S1497_a_width_marks_the_nearest_nib(double width, double nib)
-        => Assert.Equal(nib, InkPalette.NearestWidth(width));
-
-    [Fact]
-    public void S1497_an_ink_matches_its_hex_however_it_was_written()
-    {
-        var blue = InkPalette.Inks[0];
-
-        Assert.True(InkPalette.Matches(blue, "#0078d4"));
-        Assert.True(InkPalette.Matches(blue, "0078D4"));
-        Assert.False(InkPalette.Matches(blue, "#F43F5E"));
-        Assert.False(InkPalette.Matches(blue, null));
-        Assert.Equal(InkPalette.Inks.Count, InkPalette.Inks.Select(ink => ink.Hex).Distinct().Count());
     }
 }

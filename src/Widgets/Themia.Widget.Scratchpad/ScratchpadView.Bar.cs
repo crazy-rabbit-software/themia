@@ -8,6 +8,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Scratchpad;
 
 namespace Themia.App.Widgets;
 
@@ -35,7 +36,7 @@ internal sealed partial class ScratchpadView
     private readonly StackPanel _inks = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
     private readonly StackPanel _nibs = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
     private readonly Border _nibGap = new() { Width = Fluent.Space2 };
-    private readonly ToggleButton _barEraser = ToggleCommand(Glyphs.EraseTool, Str.WidgetsC_Scratchpad_EraseStrokes.Text());
+    private readonly ToggleButton _barEraser = ToggleCommand(Glyphs.EraseTool, ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text());
     private readonly Grid _barRow = new();
     private readonly List<(Ink Ink, Ellipse Ring)> _inkRings = [];
     private readonly List<(double Width, Ellipse Ring)> _nibRings = [];
@@ -104,7 +105,7 @@ internal sealed partial class ScratchpadView
     }
 
     private static string NibTip(double width)
-        => Str.WidgetsC_Scratchpad_PenSizeTip.Format(("size", LocaleFormat.Number(width, 0)));
+        => ScratchpadStr.WidgetsC_Scratchpad_PenSizeTip.Format(("size", LocaleFormat.Number(width, 0)));
 
     /// <summary>[S-1110] The bar's tooltips again, in the language now current.</summary>
     private void ApplyBarTips()
@@ -129,7 +130,7 @@ internal sealed partial class ScratchpadView
 
         var dot = new Ellipse { Width = diameter, Height = diameter, Fill = fill };
 
-        var button = CommandButton(Glyphs.Scratchpad, tooltip);
+        var button = CommandButton(ScratchpadModule.Glyph, tooltip);
         button.Width = BarButton;
         button.Height = BarButton;
         button.Padding = new Thickness(0);

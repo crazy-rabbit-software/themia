@@ -1914,8 +1914,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - [S-649]: moved with the Sun widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Sun/`).
 - **[S-650]** Now playing stacks on a tall, narrow tile (art, lines, transport) and moves the
   transport under the lines when beside them it would leave the title under 120px.
-- **[S-651]** The scratchpad's header tools shed eraser, then clear; undo stays. A hidden eraser is
-  switched off.
+- [S-651]: moved with the Scratchpad widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Scratchpad/`).
 - **[S-652]** Glyph code points are checked against the font's cmap. The weather set, Quote and
   Wrap were not in Segoe Fluent Icons (or MDL2) and drew as boxes; the forecast folded rain, snow
   and thunder into its own thermometer icon because of it. Weather now and the forecast share one
@@ -5925,25 +5924,7 @@ Tests: `tests/Themia.Core.Tests/DeskParityTests.cs`.
   geocoder, resolved once at the pick); exact name/latitude/longitude stay editable and validated
   (S-171's refusal rule unchanged). This supersedes S-171's "no geocoding service" reason.
 - [S-1495], [S-1990], [S-1496], [S-6404], [S-6405]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
-- **[S-1497]** Scratchpad ink bar (original S-02 toolbar): six preset inks (`InkPalette`, shared
-  with the settings picker) and the original's three nibs 2/4/8 px at the foot of the pad from
-  Regular × Regular; nibs only when the width holds both; nothing more on a larger pad (the stroke
-  count at W ≥ Expanded is retired, concise widgets). Picking an
-  ink or a nib leaves the eraser. Header tools still shed per S-651. Not ported: export as PNG.
-- **[S-1498]** The eraser (user requirement: an erasing stylus) is a tool of the ink bar, after the
-  nibs, drawn with Windows' eraser glyph; it and the header's toggle are one tool, and one of them
-  is on screen: the bar's while the bar shows, else the header's where it fits (the header sheds
-  the eraser first, then clear, then full screen; undo stays). A hidden eraser never leaves the pad
-  erasing. It removes the whole strokes it touches, as before. A pen's eraser end erases whatever
-  tool is chosen, as in Windows Ink.
-- **[S-1499]** **Full screen** (user requirement; a header tool): the same pad moves into a windowed
-  popup over the whole display and back, so the drawing, the undo history and the gesture are the
-  pad's own, nothing copied. On the theme's base fill, a toolbar on the flyouts' chrome at the top
-  (the inks, the nibs and the eraser, then undo, clear and Exit full screen, always shown whatever
-  Show tools says), and under it the pad on a card at the tile's own shape (the strokes are in pad
-  units; another shape would stretch them), as large as the display holds. The tile's button
-  leaves it; so does the widget detaching (a view switch, a removal). Needs a live pass: pointer and
-  pen input in the popup, a top or side taskbar, mixed DPI.
+- [S-1497], [S-1498], [S-1499]: moved with the Scratchpad widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Scratchpad/`).
 - **[S-1500]** Clear asks first (user bug: the question was clipped to the tile), through the
   widgets' one confirmation `ConfirmFlyout` (also the folder's delete, [S-1330]): the question, the
   action (accent) and Cancel, beside the button. It is never constrained to the root: inside the

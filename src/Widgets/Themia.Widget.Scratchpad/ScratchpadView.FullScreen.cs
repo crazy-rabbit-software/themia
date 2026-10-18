@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
+using Themia.Widget.Scratchpad;
 
 namespace Themia.App.Widgets;
 
@@ -34,7 +35,7 @@ internal sealed partial class ScratchpadView
     private bool IsFullScreen => _full is not null;
 
     private string FullScreenTip()
-        => IsFullScreen ? Str.WidgetsC_Scratchpad_ExitFullScreen.Text() : Str.WidgetsC_Scratchpad_FullScreen.Text();
+        => IsFullScreen ? ScratchpadStr.WidgetsC_Scratchpad_ExitFullScreen.Text() : ScratchpadStr.WidgetsC_Scratchpad_FullScreen.Text();
 
     private void OnFullScreenClicked(object sender, RoutedEventArgs args)
     {

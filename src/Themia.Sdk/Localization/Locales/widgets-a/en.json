@@ -105,7 +105,6 @@
   "widgetsA.catalog.notes.description": "A note kept on this machine",
   "widgetsA.catalog.ping.description": "Round-trip time to a host",
   "widgetsA.catalog.pomodoro.description": "A focus and break timer",
-  "widgetsA.catalog.scratchpad.description": "A place to draw",
   "widgetsA.catalog.shortcuts.description": "Links, files and folders you keep to hand",
   "widgetsA.catalog.shortcuts.label": "Shortcuts",
   "widgetsA.catalog.stocks.description": "Tickers and crypto, with a sparkline",

@@ -1,7 +1,7 @@
 using Themia.Core.Widgets;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Scratchpad.Tests;
 
 /// <summary>
 /// The scratchpad's geometry. A drawing surface is the one thing in the app that cannot be tested

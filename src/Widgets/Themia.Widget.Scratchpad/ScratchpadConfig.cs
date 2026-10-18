@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -56,23 +55,6 @@ public sealed class ScratchpadConfig : WidgetConfig
     /// <summary>The pen a new pad starts with: the Fluent accent, which is also the app's own blue.</summary>
     public const string DefaultPenColor = "#0078D4";
 
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("scratchpad"),
-        ConfigType = typeof(ScratchpadConfig),
-        CreateDefault = () => new ScratchpadConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["draw", "sketch", "drawing", "canvas", "whiteboard", "doodle", "pen"],
-        Label = Str.Widget_Scratchpad_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Scratchpad_Description.Local(),
-        Glyph = Glyphs.Scratchpad,
-        DefaultWidth = 300,
-        DefaultHeight = 260,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Notes, 0, 1),
-    };
 
     /// <summary>The drawing, oldest stroke first. Drawing order is paint order.</summary>
     public List<InkStroke> Strokes { get; set; } = [];
