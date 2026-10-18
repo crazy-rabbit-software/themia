@@ -36,13 +36,16 @@ def changed(a, b):
 def grow(mask, px):
     if px <= 0 or not mask.any():
         return mask
-    out = mask.copy()
+    # a square dilation, separable: along x, then along y
     h, w = mask.shape
-    for dy in range(-px, px + 1):
-        for dx in range(-px, px + 1):
-            ys, yd = (slice(dy, h), slice(0, h - dy)) if dy >= 0 else (slice(0, h + dy), slice(-dy, h))
-            xs, xd = (slice(dx, w), slice(0, w - dx)) if dx >= 0 else (slice(0, w + dx), slice(-dx, w))
-            out[yd, xd] |= mask[ys, xs]
+    row = mask.copy()
+    for d in range(1, px + 1):
+        row[:, d:] |= mask[:, :w - d]
+        row[:, :w - d] |= mask[:, d:]
+    out = row.copy()
+    for d in range(1, px + 1):
+        out[d:, :] |= row[:h - d, :]
+        out[:h - d, :] |= row[d:, :]
     return out
 
 
