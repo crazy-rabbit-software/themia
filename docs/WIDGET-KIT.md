@@ -1667,11 +1667,72 @@ registration path: when a table becomes a descriptor member, the table is delete
   its renders of the night light toggle's Switch style, the microphone toggle off and the picker
   searched for "toggle" finish in 2 s, identical to the JIT renders. Manual passes owed: each toggle
   switching on a real desktop (never in a render or a test), as before.
-  - **Online** (WeatherNow, WeatherForecast, RainNextHour, AirQuality, ExchangeRates, Stocks, Rss):
-    `AppServices.WebSync`/`.Feeds` and `MarketService` need SDK contracts (the readings, quotes and
-    feeds a view subscribes to) on `IWidgetHost`; `OnlineParts`, `SparkBand` into the SDK;
-    `SyncInterests` (`IInterests` over Core's `InterestsBuilder`) needs an SDK form; RSS moves with
-    its kit migration.
+  *M4 part B, group 3 as built (2026-10-18): the online widgets but RSS.* Six widget projects, one per
+  commit (`Themia.Widget.RainNextHour`, `.AirQuality`, `.ExchangeRates`, `.WeatherNow`,
+  `.WeatherForecast`, `.Stocks`), each its config (styles and enums with it), descriptor (on its
+  module), view, preview, settings page (`<Name>Settings.Rows`; the weather family's place row with its
+  clear button, [S-2848], through the SDK's `WeatherPlaceRows`), its own ladder, words and rules, its
+  strings as `<Name>Str`, its glyph where only it drew one (air quality, exchange rates, the forecast),
+  its SPEC section and its tests. Into the SDK first, each its own commit: the answers and their
+  parsers the host's services produce and the views draw (`WeatherData`, `WeatherReport`, the air
+  reading and wire, `RainNowcast` with its rules, which the host's request reads, `ExchangeRates` with
+  `ExchangeRules`, which the ECB parser checks codes by, `TickerQuote`, `MarketQuote`, `ExchangeTime`,
+  `QuoteMarket`/`QuoteRange`) and the parts they draw with (`HeroLayout`, `PartMetrics`, `Sparkline`,
+  `GaugeLayout`); `IInterests` and `InterestsBuilder` with the online interests (`WeatherInterest`,
+  `QuoteInterest`, `AirInterest`, `RainInterest`, `RatesInterest`, `OnlineCadence`; the builder keeps one
+  typed list per interest kind, `Of<T>()`, so it names no source and Core's `SyncInterests.From` reads
+  back the kinds the host serves; the weather rule is `WeatherInterests.For`, the stock, air and rain
+  rules their configs' `Interest()`); the view parts (`HeroReadout`/`StatPart`/`WidgetParts`,
+  `OnlineParts` with `InlineAge`, `GaugeDial` with `MeterBrushes` and the glides: `Glides` into
+  `Themia.Sdk.WinUI`, `Glide`, `OkLab`, `SystemCadence`, `MeterPressure`, `FactStyle` into `Themia.Sdk`,
+  the user's Smooth switch staying the host's `GlideSwitch` behind `GlideMotion.InstallSmooth`),
+  `WeatherPlaceRows`, `WeatherSample` (the weather previews' one fixture), and later `WeatherGlyph`
+  (the condition's glyph both weather widgets draw), `ReadoutLayout` and `LocaleFormat.GroupSeparator`
+  (public, for the holding's parser). The shared online files were split per widget first
+  (`AirLayout`/`AirText`, `RainLayout`/`RainText`, `RatesLayout`/`RatesText`; the measures the three
+  share stay `OnlineLayouts` in the SDK). Contracts added: `IWidgetHost.Weather` (`IWeatherAnswers`:
+  the conditions, forecast, air and rain), `.Quotes` (`IQuoteAnswers`), `.Rates` (`IRateAnswers`),
+  each a `Fetched<T>` (now the SDK's) per want, the key it is synced under, `Show`/Refresh and
+  `Updated(key)`, shaped on what the views called on `WebSync`; the host's `HostWeatherAnswers`,
+  `HostQuoteAnswers`, `HostRateAnswers` delegate to `AppServices.WebSync`, or where it is not running
+  (a debug render) to the services' caches, as the views did; and the `SymbolLookup` seam (the Stocks
+  settings' search, the host's `MarketService.SearchAsync` installed in `App()`). `WebSync`,
+  `AnswerSync`, the services, their caches and the vault shelves stay host code. Strings were carried
+  by the group 1 script, the same count in all 30 languages each time: rain 13, air quality 43 (39 and
+  the four `$englishOnly` units), exchange rates 14, weather now 17, the forecast 13, stocks 35 (each
+  style area emptied went: `styles-air`, `-rates`, `-weathernow`, `-forecast`, `-stocks`); the source
+  line, the weather tooltips, the place header, the WMO conditions and the quote's phase, zone and
+  asset words stay the SDK's (shared, or read by SDK code). Tests: each widget's own into its
+  `Tests/`; the SDK rules' (wires, nowcast, cross rates, quotes) stay Core's under their root tags; the
+  side-by-side ones and the host rules a weather widget is the example of into the module test host
+  (`OnlineFamilyTests`, `OnlineStylesTests`, `OnlineHostTests`, `SyncHousekeepingTests`,
+  `ConfigSnapshotTests` whole); shared fixtures `OnlineReplies` and `StyleTiers` in `tests/Shared`; a new
+  fixture test (`OnlineStateFixtureTests`) reads a state of the six widgets configured (places, styles,
+  the index, the pair, the instrument with holding and colours, Fahrenheit), generated with the build
+  from before at `011bda01`, with no repair, the same values, and writes it back unchanged. One retag:
+  `S1100_the_readings_are_labelled_in_the_language_asked_for` is the weather module's `S722_` (a module
+  test may only name its own tags); other tests changed only the call shape (`WeatherInterests.For`,
+  `config.Interest()`, `new WidgetId("…")` for the descriptors that left Core, `AirLayout.Air` and the
+  like). The [S-1116] allow list lost `stocks.extendedHoursDesc` (no longer the host's): the module host
+  does not run that rule over module tables yet (left open). Core's test count 6043 (from 6376), the
+  module host's 1732 (from 1378).
+  Evidence: Debug build 0 warnings after every commit, both test projects built and green at the
+  interests commit, after the view parts and after every move, and at the end; each move's render set
+  compared at once against a "before" rendered at `011bda01` (0 differ each); the final pixel diff of
+  306 images (every tier in each preview state and the empty one, light, dark and German, the fill
+  sizes 120x80..1400x360, each style in each state in both themes and German, `--align`
+  left/center/right where offered, `--place-cleared` tiers, the settings page plain, `--place-chosen`
+  and `--place-cleared` in light, dark and German; picker plain, German and searched, menus, edit bar
+  in both themes, motion, Settings › Widgets and searches) against the "before" build, rendered back to
+  back, identical but for `Sides-60ms` and `card-desktop-no-settings`, which also differ between the
+  "before" build's own runs (as in groups 1 and 2). Release AOT publish 0 warnings (49.6 MB); Debug AOT
+  publish 0 warnings and its renders of weather now's tiers, a stock quote and the air quality page
+  with a place finish in 4 s, identical to the JIT renders. Manual passes owed: each widget against its
+  live service (a fetch, Refresh, offline with a restored shelf, a place in and outside Europe for the
+  air index, a rainy hour, an ECB publication day and a weekend, a listed symbol through a session and
+  its extended hours, a coin, the symbol search), and the region read in the packaged build.
+  - **Online, left:** RSS (`AppServices.Feeds`, `FeedSync`, the favicon cache) moves with its kit
+    migration (11.2); `SparkBand` and `SparkScroll` stay host code, the meters draw them.
   - **System** (meters x6, details x7, Gpu, Drive, RemovableDrives, Brightness, Mixer, Volume,
     Music, AudioVisualizer): `SystemHub`/`SystemData` (the samples), `Drives`, `Brightness`,
     `AudioFeed`/`CoreAudio`, `AudioLoopback` (the visualizer's capture),
