@@ -5526,7 +5526,9 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   from code through `LocaleFormat`, so Arabic and Persian draw it in their own digits. Names that
   merely contain digits stay Latin and are listed in the test's allow-list: ports (993, 65535), key
   names (F2), formats (MP4), heading levels (H1), chart ranges (1D, 5D); the shell's `%1` insert is
-  not prose. A Core test fails on any other Latin digit in the Arabic or Persian files.
+  not prose. A Core test fails on any other Latin digit in the Arabic or Persian files, and the
+  module test host runs the same rule over every module's own table, with the modules' share of the
+  allow-list (by widget and key) beside it.
 - **[S-1113]** Right to left: Arabic, Urdu and Persian (`TextDirection.IsRightToLeft`). The direction is set
   on the roots whose whole content is text-like UI — the settings window, each card, the edit bar,
   the view bar, the notices, the placement hint, the anchor menus on the bare surface open from —

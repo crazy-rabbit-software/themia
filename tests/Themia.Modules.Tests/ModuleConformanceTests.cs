@@ -129,6 +129,64 @@ public sealed partial class ModuleConformanceTests
         Assert.True(problems.Count == 0, $"{table.Name}:\n" + string.Join('\n', problems));
     }
 
+    /// <summary>
+    /// [S-1116] A module's texts whose Latin digits are not values but names (chart ranges, key names,
+    /// formats), by widget id and key: the module's share of Core's allow list, kept beside the rule
+    /// that runs over every module's table.
+    /// </summary>
+    private static readonly HashSet<(string Widget, string Key)> LatinDigitsAllowed =
+    [
+        ("stocks", "stocks.extendedHoursDesc"),   // the 1D and 5D chart ranges
+    ];
+
+    [Theory]
+    [MemberData(nameof(WidgetsOrNone))]
+    public void S1116_its_native_digit_prose_has_no_typed_latin_digits(string id)
+    {
+        if (id == "(none)")
+        {
+            return;
+        }
+
+        var table = Module(id).Descriptor.Label.Table!;
+        var found = new List<string>();
+        for (var key = 0; key < table.Count; key++)
+        {
+            if (LatinDigitsAllowed.Contains((id, table.Key(key))))
+            {
+                continue;
+            }
+
+            foreach (var locale in new[] { Locale.Ar, Locale.Fa })
+            {
+                var texts = table.RawForms(locale, key) is { } forms ? [.. forms.OfType<string>()] : table.Raw(locale, key) is { } one ? [one] : new List<string>();
+                foreach (var text in texts)
+                {
+                    // Placeholders are filled at run time through LocaleFormat, in the language's own digits.
+                    if (Regex.Replace(text, @"\{[^}]*\}", string.Empty).Any(char.IsAsciiDigit))
+                    {
+                        found.Add($"{table.Key(key)} ({locale}): {text}");
+                    }
+                }
+            }
+        }
+
+        Assert.True(found.Count == 0, $"{table.Name}:\n" + string.Join('\n', found));
+    }
+
+    [Fact]
+    public void S1116_the_modules_allow_list_names_keys_that_exist_and_still_need_it()
+    {
+        foreach (var (widget, key) in LatinDigitsAllowed)
+        {
+            Assert.Contains(widget, ModuleRegistry.WidgetIds);
+            var table = Module(widget).Descriptor.Label.Table!;
+            var at = Enumerable.Range(0, table.Count).Where(k => table.Key(k) == key).ToList();
+            Assert.True(at.Count == 1, $"{widget}: {key} is not in its table");
+            Assert.Contains(table.Raw(Locale.En, at[0])!, char.IsAsciiDigit);
+        }
+    }
+
     [Theory]
     [MemberData(nameof(WidgetsOrNone))]
     public void S6903_its_default_config_round_trips_through_the_state_under_its_id(string id)
