@@ -14,6 +14,7 @@
     <Project Path="src/Widgets/Themia.Widget.Quote/Themia.Widget.Quote.csproj" />
     <Project Path="src/Widgets/Themia.Widget.RecycleBin/Themia.Widget.RecycleBin.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Scratchpad/Themia.Widget.Scratchpad.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Shutdown/Themia.Widget.Shutdown.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stopwatch/Themia.Widget.Stopwatch.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Sun/Themia.Widget.Sun.csproj" />
     <Project Path="src/Widgets/Themia.Widget.YearProgress/Themia.Widget.YearProgress.csproj" />

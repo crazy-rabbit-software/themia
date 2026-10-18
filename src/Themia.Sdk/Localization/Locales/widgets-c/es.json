@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Saltar a la siguiente fase",
   "widgetsC.pomodoro.next": "Siguiente: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.shutdown": "Cierra todas las aplicaciones y apaga el equipo",
   "widgetsC.power.desc.restart": "Cierra todas las aplicaciones y vuelve a iniciar Windows",
   "widgetsC.power.desc.sleep": "Bajo consumo; vuelve al mismo escritorio",
   "widgetsC.power.desc.hibernate": "Guarda la sesión en el disco y apaga",

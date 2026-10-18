@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Chuyển sang giai đoạn tiếp theo",
   "widgetsC.pomodoro.next": "Tiếp theo: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " phút",
-  "widgetsC.power.desc.shutdown": "Đóng mọi ứng dụng và tắt PC",
   "widgetsC.power.desc.restart": "Đóng mọi ứng dụng và khởi động lại Windows",
   "widgetsC.power.desc.sleep": "Tiết kiệm điện; quay lại đúng màn hình nền cũ",
   "widgetsC.power.desc.hibernate": "Lưu phiên làm việc vào ổ đĩa và tắt nguồn",

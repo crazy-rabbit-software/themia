@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Lewati ke fase berikutnya",
   "widgetsC.pomodoro.next": "Berikutnya: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " mnt",
-  "widgetsC.power.desc.shutdown": "Menutup semua aplikasi dan mematikan PC",
   "widgetsC.power.desc.restart": "Menutup semua aplikasi dan memulai ulang Windows",
   "widgetsC.power.desc.sleep": "Daya rendah; kembali ke desktop yang sama",
   "widgetsC.power.desc.hibernate": "Menyimpan sesi ke disk lalu mematikan daya",

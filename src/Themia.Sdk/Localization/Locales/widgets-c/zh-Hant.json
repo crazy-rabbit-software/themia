@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "跳到下一個階段",
   "widgetsC.pomodoro.next": "下一個：{phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " 分鐘",
-  "widgetsC.power.desc.shutdown": "關閉所有應用程式並關閉電腦",
   "widgetsC.power.desc.restart": "關閉所有應用程式並重新啟動 Windows",
   "widgetsC.power.desc.sleep": "低耗電；喚醒後回到相同的桌面",
   "widgetsC.power.desc.hibernate": "將工作階段儲存到磁碟並關閉電源",

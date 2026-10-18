@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "다음 단계로 건너뛰기",
   "widgetsC.pomodoro.next": "다음: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": "분",
-  "widgetsC.power.desc.shutdown": "모든 앱을 닫고 PC를 끕니다",
   "widgetsC.power.desc.restart": "모든 앱을 닫고 Windows를 다시 시작합니다",
   "widgetsC.power.desc.sleep": "저전력 상태로 전환하며, 같은 바탕 화면으로 돌아옵니다",
   "widgetsC.power.desc.hibernate": "세션을 디스크에 저장하고 전원을 끕니다",

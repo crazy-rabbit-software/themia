@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "తదుపరి దశకు దాటవేయి",
   "widgetsC.pomodoro.next": "తదుపరి: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " నిమి",
-  "widgetsC.power.desc.shutdown": "ప్రతి యాప్‌ను మూసివేసి PCని ఆఫ్ చేస్తుంది",
   "widgetsC.power.desc.restart": "ప్రతి యాప్‌ను మూసివేసి Windowsను మళ్లీ ప్రారంభిస్తుంది",
   "widgetsC.power.desc.sleep": "తక్కువ పవర్; అదే డెస్క్‌టాప్‌కు తిరిగి వస్తుంది",
   "widgetsC.power.desc.hibernate": "సెషన్‌ను డిస్క్‌కు సేవ్ చేసి పవర్ ఆఫ్ చేస్తుంది",

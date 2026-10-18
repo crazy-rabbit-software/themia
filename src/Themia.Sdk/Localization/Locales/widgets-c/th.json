@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "ข้ามไปยังช่วงถัดไป",
   "widgetsC.pomodoro.next": "ถัดไป: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " นาที",
-  "widgetsC.power.desc.shutdown": "ปิดทุกแอปและปิดพีซี",
   "widgetsC.power.desc.restart": "ปิดทุกแอปและเริ่ม Windows ใหม่",
   "widgetsC.power.desc.sleep": "ใช้พลังงานต่ำ กลับมาที่เดสก์ท็อปเดิม",
   "widgetsC.power.desc.hibernate": "บันทึกเซสชันลงดิสก์และปิดเครื่อง",

@@ -38,7 +38,7 @@ public sealed class ToggleStylesTests
     [Fact]
     public void S1919_all_seven_power_widgets_share_tile_and_round_named_as_the_toggles_are()
     {
-        var power = WidgetStyles.For(ShutdownConfig.Descriptor.Id);
+        var power = WidgetStyles.For(new WidgetId("shutdown"));
         var toggles = WidgetStyles.For(WifiToggleConfig.Descriptor.Id);
         Assert.Equal(["tile", "round"], power.Select(s => s.Name));
 

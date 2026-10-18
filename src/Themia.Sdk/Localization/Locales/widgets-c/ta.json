@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "அடுத்த கட்டத்துக்குத் தாவு",
   "widgetsC.pomodoro.next": "அடுத்து: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " நிமி",
-  "widgetsC.power.desc.shutdown": "எல்லாப் பயன்பாடுகளையும் மூடி PC ஐ அணைக்கும்",
   "widgetsC.power.desc.restart": "எல்லாப் பயன்பாடுகளையும் மூடி Windows ஐ மீண்டும் தொடங்கும்",
   "widgetsC.power.desc.sleep": "குறைந்த மின்சக்தி; அதே டெஸ்க்டாப்புக்குத் திரும்பும்",
   "widgetsC.power.desc.hibernate": "அமர்வை வட்டில் சேமித்து அணைக்கும்",

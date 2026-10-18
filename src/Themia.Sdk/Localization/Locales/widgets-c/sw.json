@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Ruka hadi awamu inayofuata",
   "widgetsC.pomodoro.next": "Inayofuata: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " dak",
-  "widgetsC.power.desc.shutdown": "Hufunga kila programu na kuzima Kompyuta",
   "widgetsC.power.desc.restart": "Hufunga kila programu na kuanzisha Windows tena",
   "widgetsC.power.desc.sleep": "Nishati ya chini; hurudi kwenye eneo-kazi lilelile",
   "widgetsC.power.desc.hibernate": "Huhifadhi kipindi kwenye diski na kuzima",

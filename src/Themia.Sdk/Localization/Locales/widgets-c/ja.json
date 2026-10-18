@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "次のフェーズへスキップ",
   "widgetsC.pomodoro.next": "次: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " 分",
-  "widgetsC.power.desc.shutdown": "すべてのアプリを閉じて PC の電源を切ります",
   "widgetsC.power.desc.restart": "すべてのアプリを閉じて Windows を再起動します",
   "widgetsC.power.desc.sleep": "低電力状態。同じデスクトップに戻ります",
   "widgetsC.power.desc.hibernate": "セッションをディスクに保存して電源を切ります",

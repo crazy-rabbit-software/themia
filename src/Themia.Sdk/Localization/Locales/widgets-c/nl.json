@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Doorgaan naar de volgende fase",
   "widgetsC.pomodoro.next": "Volgende: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.shutdown": "Sluit alle apps en zet de pc uit",
   "widgetsC.power.desc.restart": "Sluit alle apps en start Windows opnieuw",
   "widgetsC.power.desc.sleep": "Weinig energie; je keert terug naar hetzelfde bureaublad",
   "widgetsC.power.desc.hibernate": "Slaat de sessie op schijf op en schakelt uit",

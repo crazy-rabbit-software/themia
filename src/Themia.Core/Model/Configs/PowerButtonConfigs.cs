@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-1910] Shut down.</summary>
-public sealed class ShutdownConfig : PowerButtonConfig
-{
-    /// <summary>The action it stands for.</summary>
-    [JsonIgnore]
-    public override PowerAction Action => PowerAction.Shutdown;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("shutdown"),
-        ConfigType = typeof(ShutdownConfig),
-        CreateDefault = () => new ShutdownConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["power", "shutdown", "power off", "turn off", "switch off"],
-        Label = Str.Power_Action_Shutdown.Local(),
-        Description = Str.WidgetsC_Power_Desc_Shutdown.Local(),
-        Glyph = Glyphs.Power,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
-        Add = new(AddFolderId.PowerButtons, 0, 0),
-    };
-
-    public override WidgetConfig Clone() => new ShutdownConfig { Style = Style };
-}
-
 /// <summary>[S-1910] Restart.</summary>
 public sealed class RestartConfig : PowerButtonConfig
 {

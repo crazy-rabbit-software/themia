@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "التخطي إلى المرحلة التالية",
   "widgetsC.pomodoro.next": "التالي: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " د",
-  "widgetsC.power.desc.shutdown": "يُغلق كل التطبيقات ويوقف تشغيل الكمبيوتر",
   "widgetsC.power.desc.restart": "يُغلق كل التطبيقات ويبدأ Windows من جديد",
   "widgetsC.power.desc.sleep": "طاقة منخفضة؛ يعود إلى سطح المكتب نفسه",
   "widgetsC.power.desc.hibernate": "يحفظ الجلسة على القرص ويوقف التشغيل",

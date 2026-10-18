@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "পরের ধাপে যান",
   "widgetsC.pomodoro.next": "পরবর্তী: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " মি",
-  "widgetsC.power.desc.shutdown": "সব অ্যাপ বন্ধ করে PC বন্ধ করে",
   "widgetsC.power.desc.restart": "সব অ্যাপ বন্ধ করে Windows আবার চালু করে",
   "widgetsC.power.desc.sleep": "কম পাওয়ার; একই ডেস্কটপে ফিরে আসে",
   "widgetsC.power.desc.hibernate": "সেশন ডিস্কে সংরক্ষণ করে বন্ধ হয়",

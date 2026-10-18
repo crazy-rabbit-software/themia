@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Lumaktaw sa susunod na yugto",
   "widgetsC.pomodoro.next": "Susunod: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.shutdown": "Isinasara ang bawat app at pinapatay ang PC",
   "widgetsC.power.desc.restart": "Isinasara ang bawat app at sinisimulan ulit ang Windows",
   "widgetsC.power.desc.sleep": "Mababang power; bumabalik sa parehong desktop",
   "widgetsC.power.desc.hibernate": "Sine-save ang session sa disk at pinapatay ang power",

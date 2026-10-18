@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "पुढच्या टप्प्यावर जा",
   "widgetsC.pomodoro.next": "पुढील: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " मि",
-  "widgetsC.power.desc.shutdown": "सर्व अ‍ॅप्स बंद करते आणि PC बंद करते",
   "widgetsC.power.desc.restart": "सर्व अ‍ॅप्स बंद करते आणि Windows पुन्हा सुरू करते",
   "widgetsC.power.desc.sleep": "कमी पॉवर; त्याच डेस्कटॉपवर परत येते",
   "widgetsC.power.desc.hibernate": "सत्र डिस्कवर जतन करते आणि पॉवर बंद करते",

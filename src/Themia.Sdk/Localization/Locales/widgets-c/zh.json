@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "跳到下一阶段",
   "widgetsC.pomodoro.next": "下一个：{phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " 分钟",
-  "widgetsC.power.desc.shutdown": "关闭所有应用并关闭电脑",
   "widgetsC.power.desc.restart": "关闭所有应用并重新启动 Windows",
   "widgetsC.power.desc.sleep": "低功耗；恢复后回到相同的桌面",
   "widgetsC.power.desc.hibernate": "将会话保存到磁盘并关机",
