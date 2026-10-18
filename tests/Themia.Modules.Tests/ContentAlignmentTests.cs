@@ -60,7 +60,7 @@ public sealed partial class ContentAlignmentTests
         WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("weatherNow"), new WidgetId("stocks"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRates")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
-        foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, new WidgetId("email"), new WidgetId("calendar"), new WidgetId("cpu"), new WidgetId("mixer"), new WidgetId("wifiToggle"), new WidgetId("shutdown"), new WidgetId("folder")])
+        foreach (var kind in (WidgetId[])[new WidgetId("tasks"), new WidgetId("email"), new WidgetId("calendar"), new WidgetId("cpu"), new WidgetId("mixer"), new WidgetId("wifiToggle"), new WidgetId("shutdown"), new WidgetId("folder")])
         {
             Assert.False(ContentAlignment.Offers(kind), $"{kind}");
             Assert.False(ContentAlignment.Applies(Widget(kind)), $"{kind}");
@@ -165,7 +165,7 @@ public sealed partial class ContentAlignmentTests
     {
         var quote = Widget(new WidgetId("quote"));
         quote.Align = ContentAlign.Right;
-        var (state, view, selection) = Selected(Widget(new WidgetId("clock")), quote, Widget(TasksConfig.Descriptor.Id), Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth));
+        var (state, view, selection) = Selected(Widget(new WidgetId("clock")), quote, Widget(new WidgetId("tasks")), Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth));
 
         var offer = QuickSet.For(state, selection, view.Id);
         Assert.True(offer.CanAlign);
@@ -181,7 +181,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6584_the_row_is_greyed_for_a_widget_with_nothing_to_align_and_says_why()
     {
-        var (state, view, selection) = Selected(Widget(TasksConfig.Descriptor.Id));
+        var (state, view, selection) = Selected(Widget(new WidgetId("tasks")));
         var tasks = QuickSet.For(state, selection, view.Id);
         Assert.False(tasks.CanAlign);
         Assert.False(tasks.AlignKind);
@@ -201,7 +201,7 @@ public sealed partial class ContentAlignmentTests
         Assert.NotNull(ContentAlignment.Repair(clock));
         Assert.Null(clock.Align);
 
-        var tasks = Widget(TasksConfig.Descriptor.Id);
+        var tasks = Widget(new WidgetId("tasks"));
         tasks.Align = ContentAlign.Right;
         Assert.NotNull(ContentAlignment.Repair(tasks));
         Assert.Null(tasks.Align);

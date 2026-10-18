@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Поиск календарей этой учетной записи…",
   "widgetsA.calendar.weekdayInitials": "Вс,Пн,Вт,Ср,Чт,Пт,Сб",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks или список на этом ПК",
-  "widgetsA.catalog.tasks.label": "Задачи",
   "widgetsA.clipboard.characters": {
     "one": "{count} символ",
     "few": "{count} символа",

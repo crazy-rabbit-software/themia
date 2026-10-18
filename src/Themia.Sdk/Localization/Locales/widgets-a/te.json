@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "ఈ ఖాతా క్యాలెండర్‌ల కోసం వెతుకుతోంది…",
   "widgetsA.calendar.weekdayInitials": "ఆ,సో,మం,బు,గు,శు,శ",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, లేదా ఈ PCలో ఒక జాబితా",
-  "widgetsA.catalog.tasks.label": "పనులు",
   "widgetsA.clipboard.characters": {
     "one": "{count} అక్షరం",
     "other": "{count} అక్షరాలు"

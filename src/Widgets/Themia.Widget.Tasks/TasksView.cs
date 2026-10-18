@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Tasks;
 
 namespace Themia.App.Widgets;
 
@@ -213,7 +214,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-1110] The fixed texts again, then the list redrawn from what is in hand (no fetch).</summary>
     private void OnLanguage(Locale locale)
     {
-        _addRow.Label = Str.WidgetsC_Tasks_AddTask.Text();
+        _addRow.Label = TasksStr.WidgetsC_Tasks_AddTask.Text();
         ApplyPickerTexts();
         PublishTitle();
         Render();
@@ -513,12 +514,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         {
             if (_local?.Find(_localListId) is { } list)
             {
-                title = string.IsNullOrWhiteSpace(list.Name) ? Str.WidgetsC_Tasks_UntitledList.Text() : list.Name;
+                title = string.IsNullOrWhiteSpace(list.Name) ? TasksStr.WidgetsC_Tasks_UntitledList.Text() : list.Name;
             }
         }
         else if (TaskRules.IsToday(_config.ListId))
         {
-            title = Str.Todo_TodayList.Text();
+            title = TasksStr.Todo_TodayList.Text();
         }
         else
         {
@@ -647,7 +648,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         var warning = IsLocal ? _local?.Problem
             : _feed?.WriteProblem
             ?? (_feed is { Loaded: true, Failure: { } failure }
-                ? Str.WidgetUi_RefreshFailedSince.Format(("reason", FetchState.Message(failure.ToFetchStatus())), ("time", FetchState.Freshness(_feed.FetchedAt ?? DateTimeOffset.Now, DateTimeOffset.Now)))
+                ? TasksStr.WidgetUi_RefreshFailedSince.Format(("reason", FetchState.Message(failure.ToFetchStatus())), ("time", FetchState.Freshness(_feed.FetchedAt ?? DateTimeOffset.Now, DateTimeOffset.Now)))
                 : null);
 
         _warning.Visibility = warning is null ? Visibility.Collapsed : Visibility.Visible;
@@ -660,15 +661,15 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         // [S-611] A filter that leaves nothing says so, rather than "all done".
         if (_config.Filter(today: false).Narrows)
         {
-            return Str.WidgetsC_Tasks_NoMatch.Text();
+            return TasksStr.WidgetsC_Tasks_NoMatch.Text();
         }
 
         if (_feed?.IsToday == true)
         {
-            return Str.WidgetsC_Tasks_NothingDueToday.Text();
+            return TasksStr.WidgetsC_Tasks_NothingDueToday.Text();
         }
 
-        return (_config.ShowCompleted ? Str.WidgetsC_Tasks_ListEmpty : Str.WidgetsC_Tasks_AllDone).Text();
+        return (_config.ShowCompleted ? TasksStr.WidgetsC_Tasks_ListEmpty : TasksStr.WidgetsC_Tasks_AllDone).Text();
     }
 
     /// <summary>Say what is actually true, because every one of these needs a different action ([S-181]).</summary>
@@ -688,7 +689,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         switch (screen)
         {
             case Screen.Starting:
-                ShowEmpty(Str.WidgetsC_OneDrive_Starting.Text(), null);
+                ShowEmpty(TasksStr.WidgetsC_OneDrive_Starting.Text(), null);
                 break;
 
             case Screen.NoAccount:
@@ -697,15 +698,15 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 break;
 
             case Screen.AccountGone:
-                ShowEmpty(Str.WidgetsC_OneDrive_AccountGone.Text(), EmptyAction.Accounts);
+                ShowEmpty(TasksStr.WidgetsC_OneDrive_AccountGone.Text(), EmptyAction.Accounts);
                 break;
 
             case Screen.NeedsSignIn:
-                ShowEmpty(who is null ? Str.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text() : Str.WidgetsC_OneDrive_AccountNeedsSignIn.Format(("account", who)), EmptyAction.Accounts);
+                ShowEmpty(who is null ? TasksStr.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text() : TasksStr.WidgetsC_OneDrive_AccountNeedsSignIn.Format(("account", who)), EmptyAction.Accounts);
                 break;
 
             case Screen.NoLists:
-                ShowEmpty(who is null ? Str.WidgetsC_Tasks_NoListsThisAccount.Text() : Str.WidgetsC_Tasks_NoLists.Format(("account", who)), null);
+                ShowEmpty(who is null ? TasksStr.WidgetsC_Tasks_NoListsThisAccount.Text() : TasksStr.WidgetsC_Tasks_NoLists.Format(("account", who)), null);
                 break;
 
             case Screen.ListsFailed:
@@ -713,11 +714,11 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 break;
 
             case Screen.NoLocalList:
-                ShowEmpty(Str.WidgetsC_Tasks_PickLocal.Text(), EmptyAction.StartLocalList);
+                ShowEmpty(TasksStr.WidgetsC_Tasks_PickLocal.Text(), EmptyAction.StartLocalList);
                 break;
 
             case Screen.Loading:
-                ShowEmpty(Str.WidgetsC_Tasks_Loading.Text(), null);
+                ShowEmpty(TasksStr.WidgetsC_Tasks_Loading.Text(), null);
                 break;
 
             case Screen.Failed:
@@ -733,12 +734,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>A failure in the user's words: the network state, else what the provider said.</summary>
     private static string Explain(AccountException? failure) => failure?.Error switch
     {
-        null => Str.WidgetsC_Tasks_ReadFailed.Text(),
-        AccountError.SignInRequired => Str.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text(),
-        AccountError.Forbidden => Str.WidgetsC_Tasks_Error_Forbidden.Text(),
-        AccountError.NotFound => Str.WidgetsC_Tasks_Error_NotFound.Text(),
-        AccountError.UnknownAccount => Str.WidgetsC_OneDrive_AccountGone.Text(),
-        _ => FetchState.Message(failure.ToFetchStatus()) is { Length: > 0 } message ? message : Str.WidgetsC_Tasks_ReadFailed.Text(),
+        null => TasksStr.WidgetsC_Tasks_ReadFailed.Text(),
+        AccountError.SignInRequired => TasksStr.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text(),
+        AccountError.Forbidden => TasksStr.WidgetsC_Tasks_Error_Forbidden.Text(),
+        AccountError.NotFound => TasksStr.WidgetsC_Tasks_Error_NotFound.Text(),
+        AccountError.UnknownAccount => TasksStr.WidgetsC_OneDrive_AccountGone.Text(),
+        _ => FetchState.Message(failure.ToFetchStatus()) is { Length: > 0 } message ? message : TasksStr.WidgetsC_Tasks_ReadFailed.Text(),
     };
 
     private enum EmptyAction
@@ -757,9 +758,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _emptyAction.Tag = action;
         _emptyAction.Content = action switch
         {
-            EmptyAction.Accounts => Str.WidgetsC_OneDrive_OpenAccounts.Text(),
-            EmptyAction.Retry => Str.Connect_TryAgain.Text(),
-            EmptyAction.StartLocalList => Str.WidgetsC_Tasks_StartList.Text(),
+            EmptyAction.Accounts => TasksStr.WidgetsC_OneDrive_OpenAccounts.Text(),
+            EmptyAction.Retry => TasksStr.Connect_TryAgain.Text(),
+            EmptyAction.StartLocalList => TasksStr.WidgetsC_Tasks_StartList.Text(),
             _ => null,
         };
 
@@ -785,7 +786,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
             case EmptyAction.StartLocalList when _service is not null:
                 // [S-604] The list it had if that still exists, else the first, else a new one.
                 _config.Source = TaskSource.Local;
-                _config.LocalListId = _service.Local.Ensure(_config.LocalListId, Str.Todo_LocalLists_DefaultName.Text());
+                _config.LocalListId = _service.Local.Ensure(_config.LocalListId, TasksStr.Todo_LocalLists_DefaultName.Text());
                 _surface?.RequestSave();
                 Resubscribe();
                 Rebind();

@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "이 계정의 캘린더를 찾는 중…",
   "widgetsA.calendar.weekdayInitials": "일,월,화,수,목,금,토",
   "widgetsA.calendar.yearTitle": "{year}년",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks 또는 이 PC의 목록",
-  "widgetsA.catalog.tasks.label": "작업",
   "widgetsA.clipboard.characters": {
     "other": "{count}자"
   },

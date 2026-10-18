@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "ਇਸ ਖਾਤੇ ਦੇ ਕੈਲੰਡਰ ਲੱਭੇ ਜਾ ਰਹੇ ਹਨ…",
   "widgetsA.calendar.weekdayInitials": "ਐਤ,ਸੋਮ,ਮੰਗ,ਬੁੱਧ,ਵੀਰ,ਸ਼ੁੱਕ,ਸ਼ਨੀ",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, ਜਾਂ ਇਸ PC ਉੱਤੇ ਇੱਕ ਸੂਚੀ",
-  "widgetsA.catalog.tasks.label": "ਕਾਰਜ",
   "widgetsA.clipboard.characters": {
     "one": "{count} ਅੱਖਰ",
     "other": "{count} ਅੱਖਰ"

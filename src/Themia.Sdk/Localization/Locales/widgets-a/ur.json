@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "اس اکاؤنٹ کے کیلنڈرز تلاش ہو رہے ہیں…",
   "widgetsA.calendar.weekdayInitials": "ات,پی,من,بد,جر,جم,ہف",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do، Google Tasks، یا اس PC پر کوئی فہرست",
-  "widgetsA.catalog.tasks.label": "کام",
   "widgetsA.clipboard.characters": {
     "one": "{count} حرف",
     "other": "{count} حروف"

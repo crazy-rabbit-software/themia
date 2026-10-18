@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Kalender dieses Kontos werden gesucht…",
   "widgetsA.calendar.weekdayInitials": "So,Mo,Di,Mi,Do,Fr,Sa",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks oder eine Liste auf diesem PC",
-  "widgetsA.catalog.tasks.label": "Aufgaben",
   "widgetsA.clipboard.characters": {
     "one": "{count} Zeichen",
     "other": "{count} Zeichen"

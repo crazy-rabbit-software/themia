@@ -930,7 +930,6 @@ public sealed class LocalizationTests
         "shell.accounts.portNumber",           // port 993
         "shell.accounts.portRange",            // ports 1 to 65535, 993
         "shell.net.imapTlsFailed",             // port 993
-        "widgetsC.tasks.rowHint",              // the F2 key
     ];
 
     [Theory]

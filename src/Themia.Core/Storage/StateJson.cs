@@ -55,6 +55,14 @@ public static class StateJson
 
                 var union = info.PolymorphismOptions
                     ?? throw new InvalidOperationException("WidgetConfig lost its [JsonPolymorphic] discriminator");
+                if (widgets.Count == 0)
+                {
+                    // [S-6903] A host with no widget installed holds no config: a union of none is
+                    // refused by the serializer, and the load drops every widget of an unknown kind first.
+                    info.PolymorphismOptions = null;
+                    return;
+                }
+
                 foreach (var widget in widgets)
                 {
                     union.DerivedTypes.Add(new JsonDerivedType(widget.ConfigType, widget.Id.Value));

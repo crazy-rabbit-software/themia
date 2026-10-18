@@ -13,7 +13,7 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// Settings rows for the three screen-time widgets (the GPU meter's and the mixer's are their modules').
 /// <para>
-/// Same shape as the rest of <see cref="WidgetSettings"/>: each control writes straight to the live
+/// Same shape as every widget page: each control writes straight to the live
 /// config and saves, because the widget is on the desktop behind the window and watching it change
 /// is the point. Each page has its own widget's rows, then the limits and hidden apps every
 /// screen-time widget shares ([S-3322]), which write through the tracker rather than the config.

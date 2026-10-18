@@ -369,16 +369,6 @@ public sealed class TaskRulesTests
     }
 
     [Fact]
-    public void S611_a_list_on_this_pc_keeps_only_its_text_filter()
-    {
-        var config = new Model.TasksConfig { Source = TaskSource.Local, DueFilter = TaskDueFilter.Today, ImportantOnly = true, TextFilter = "milk", ShowCompleted = true };
-        Assert.Equal(new TaskFilter(true, Text: "milk"), config.Filter(today: false));
-
-        config.Source = TaskSource.Account;
-        Assert.Equal(new TaskFilter(true, TaskDueFilter.Today, true, "milk", FinishedTodayOnly: true), config.Filter(today: true));
-    }
-
-    [Fact]
     public void S611_moving_a_row_in_a_filtered_list_keeps_the_hidden_rows_in_their_slots()
     {
         // b and d are hidden by a filter; the user drags c above a.

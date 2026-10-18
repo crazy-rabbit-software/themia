@@ -92,7 +92,7 @@ public static class AddTree
         new(AddFolderId.QuickSettings, Str.Toggles_Category, AddFolderId.Browse, 0, 9),
     ];
 
-    private static readonly Lazy<(AddShelf Popular, AddShelf Browse)> Tree = new(Build);
+    private static readonly Lazy<(AddShelf Popular, AddShelf Browse)> Tree = new(() => Build(ModuleCatalog.Widgets));
 
     /// <summary>
     /// [S-3511] The first column: what most people add first, each again where it is at home, in the
@@ -115,9 +115,9 @@ public static class AddTree
     /// <summary>The menu's top: its two columns, left to right.</summary>
     public static IReadOnlyList<AddShelf> Top => [Popular, Browse];
 
-    private static (AddShelf Popular, AddShelf Browse) Build()
+    /// <summary>The two columns over <paramref name="widgets"/>: the catalogue's, or a part of it in a test.</summary>
+    internal static (AddShelf Popular, AddShelf Browse) Build(IReadOnlyList<WidgetDescriptor> widgets)
     {
-        var widgets = ModuleCatalog.Widgets;
         AddLeaf[] popular = [.. widgets.Where(w => w.Add.Popular is not null).OrderBy(w => w.Add.Popular).Select(w => new AddLeaf(w.Id, Again: true))];
         return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular.Local(), popular[0].Kind, popular),
             Shelf(AddFolderId.Browse, Str.AddMenu_Browse, widgets) ?? throw new InvalidOperationException("a build with no widget in it"));

@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "در حال جستجوی تقویم‌های این حساب…",
   "widgetsA.calendar.weekdayInitials": "ی,د,س,چ,پ,ج,ش",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do، Google Tasks یا فهرستی روی این رایانه",
-  "widgetsA.catalog.tasks.label": "کارها",
   "widgetsA.clipboard.characters": {
     "one": "{count} نویسه",
     "other": "{count} نویسه"

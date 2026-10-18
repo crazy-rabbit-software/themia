@@ -8,6 +8,7 @@ using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Windows.System;
+using Themia.Widget.Tasks;
 
 namespace Themia.App.Widgets;
 
@@ -43,8 +44,8 @@ internal sealed partial class TasksView
 
     private void ApplyPickerTexts()
     {
-        ToolTipService.SetToolTip(_picker, Str.WidgetsC_Tasks_ChooseList.Text());
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_picker, Str.WidgetsC_Tasks_ChooseList.Text());
+        ToolTipService.SetToolTip(_picker, TasksStr.WidgetsC_Tasks_ChooseList.Text());
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_picker, TasksStr.WidgetsC_Tasks_ChooseList.Text());
     }
 
     /// <summary>
@@ -81,12 +82,12 @@ internal sealed partial class TasksView
             if (_local is { Writable: true } && _local.Find(_localListId) is { } shown)
             {
                 entries.Add(ItemMenuEntry.Separator);
-                entries.Add(new ItemMenuEntry(Glyphs.Rename, Str.WidgetsC_Tasks_RenameListEllipsis.Text(), () => RenameInFlyout(shown.Name)));
+                entries.Add(new ItemMenuEntry(Glyphs.Rename, TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text(), () => RenameInFlyout(shown.Name)));
             }
         }
         else if (_feed is { Lists: { } lists } feed)
         {
-            entries.Add(new ItemMenuEntry(null, Str.Todo_TodayList.Text(), () => PickAccountList(TaskRules.TodayListId, string.Empty), Checked: feed.IsToday));
+            entries.Add(new ItemMenuEntry(null, TasksStr.Todo_TodayList.Text(), () => PickAccountList(TaskRules.TodayListId, string.Empty), Checked: feed.IsToday));
 
             foreach (var list in lists)
             {
@@ -97,14 +98,14 @@ internal sealed partial class TasksView
             if (TaskRules.CanRename(ShownList()))
             {
                 entries.Add(ItemMenuEntry.Separator);
-                entries.Add(new ItemMenuEntry(Glyphs.Rename, Str.WidgetsC_Tasks_RenameListEllipsis.Text(), () => RenameInFlyout(ShownList()?.Name ?? string.Empty)));
+                entries.Add(new ItemMenuEntry(Glyphs.Rename, TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text(), () => RenameInFlyout(ShownList()?.Name ?? string.Empty)));
             }
         }
 
         ItemMenu.Open(_picker, entries);
     }
 
-    private static string Display(string name) => string.IsNullOrWhiteSpace(name) ? Str.WidgetsC_Tasks_UntitledList.Text() : name;
+    private static string Display(string name) => string.IsNullOrWhiteSpace(name) ? TasksStr.WidgetsC_Tasks_UntitledList.Text() : name;
 
     /// <summary>Show another account list here, as the settings' list box does: its own order starts empty.</summary>
     private void PickAccountList(string id, string name)
@@ -136,7 +137,7 @@ internal sealed partial class TasksView
     /// <summary>Rename the shown list in a small box under the picker: Enter or leaving it commits, Escape does not.</summary>
     private void RenameInFlyout(string current)
     {
-        var box = new TextBox { Text = current, MinWidth = 200, PlaceholderText = Str.Todo_LocalLists_NamePlaceholder.Text() };
+        var box = new TextBox { Text = current, MinWidth = 200, PlaceholderText = TasksStr.Todo_LocalLists_NamePlaceholder.Text() };
         // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
         var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
         var cancelled = false;

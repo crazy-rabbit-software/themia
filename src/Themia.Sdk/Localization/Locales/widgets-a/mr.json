@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "या खात्याची कॅलेंडर शोधत आहे…",
   "widgetsA.calendar.weekdayInitials": "र,सो,मं,बु,गु,शु,श",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks किंवा या PC वरील सूची",
-  "widgetsA.catalog.tasks.label": "कार्ये",
   "widgetsA.clipboard.characters": {
     "one": "{count} वर्ण",
     "other": "{count} वर्ण"

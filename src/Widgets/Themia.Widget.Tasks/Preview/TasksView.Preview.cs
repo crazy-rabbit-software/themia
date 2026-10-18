@@ -56,7 +56,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
         _config.Source = TaskSource.Local;
         _config.ShowCompleted = state == "done";
         _config.LocalListId = PreviewListId;
-        _local = new LocalTaskPool(null, [new LocalTaskList(PreviewListId, "Errands", tasks)]);
+        _local = new MemoryTaskLists([new LocalTaskList(PreviewListId, "Errands", tasks)]);
         _localListId = PreviewListId;
         PublishTitle();
         Render();

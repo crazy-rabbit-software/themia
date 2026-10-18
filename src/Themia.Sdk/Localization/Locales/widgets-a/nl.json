@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Agenda's van dit account zoeken…",
   "widgetsA.calendar.weekdayInitials": "Zo,Ma,Di,Wo,Do,Vr,Za",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks of een lijst op deze pc",
-  "widgetsA.catalog.tasks.label": "Taken",
   "widgetsA.clipboard.characters": {
     "one": "{count} teken",
     "other": "{count} tekens"

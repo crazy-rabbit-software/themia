@@ -768,22 +768,22 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   any widget (the app first thing in its constructor), once; a registry with a missing
   descriptor, an empty id, or an id or kind given twice is refused at that install, and so is a
   module whose descriptor's id is not the id its attribute declares. Every per-widget question the
-  host asks is answered from the catalogue, not from a table of its own. A widget in its own
-  project ([S-6911]) declares its descriptor on its module class. Until a widget moves there (M4),
-  its descriptor is declared on its config in Core and its module class in
-  `Themia.App/Widgets/Modules`; Core's tests install those descriptors and check that the app
-  declares exactly one module for each.
+  host asks is answered from the catalogue, not from a table of its own. Every widget is a module
+  project ([S-6911]) that declares its descriptor on its module class; Core and the app declare no
+  widget, no widget config and no widget page, and Core's tests run over a registry of none.
 - **[S-6903]** A state document is read and written with one set of options (`StateJson`): the
   host's own metadata, then each installed widget's source-generated resolver, and a contract
   modifier that adds every widget's config type to the `WidgetConfig` union with its id as the
   `kind` discriminator. No attribute or list in the host names a widget's config; the union holds
   exactly the registry's configs, and every widget's resolver uses the host's options (camelCase,
-  indented, nulls left out), so a module's config is written as a built-in one is.
+  indented, nulls left out), so a module's config is written as a built-in one is. A host with no
+  widget installed reads and writes a state with none (the load drops every widget of an unknown
+  kind first).
 - **[S-6904]** A widget's settings rows are its module's (`IWidgetModule.SettingsRows`), built only
   from `FluentLayout` into the host's `WidgetSettingsRows` (the rows, the save, and Settings ›
   Accounts as the one place a page may send the user); a module with none has no page ([S-1750]).
   The host still lays every page out the same way ([S-3705], [S-1752]). There is no dispatch over
-  config types: a page wired to no module, or a module naming a page that is not there, fails a test.
+  config types.
 - **[S-6905]** What a widget's card offers is stated by its descriptor's `Traits`, in full (the
   member is required, so no widget takes another's by omission): `HasItems` ([S-6570], checked
   against what its view paints), `CanHaveHeader` ([S-3711]) and `StartsHeaderless` ([S-700]; only
@@ -2163,11 +2163,11 @@ button, the scroll fade and the envelope icons are ported in [S-1281]..[S-1289].
 
 Ported from `widgets/office/todo` on `main` and its Graph / Google
 calls in `widgets/office/email/src/lib.rs`, off the earlier hub program and onto Themia's own accounts. Owning
-files: `Themia.Core/Tasks/*` (model, due dates, list rules, wire, optimistic edits, Today fan-out,
-local store), `Themia.Core/Model/Configs/TasksConfig.cs`,
-`Themia.App/Services/Tasks/*`,
-`Widgets/{TasksView,TasksView.Rows}.cs`, `Shell/Config/WidgetSettings.Tasks.cs`.
-Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
+files: `Themia.Core/Tasks/*` (wire, Today fan-out, local store), the SDK's `Tasks/*` (model, due
+dates, list rules, optimistic edits, the lists on this PC, the `IWidgetHost.Tasks` contract, the
+ladder and its keys), `Themia.App/Services/Tasks/*` (the service). The widget is the module
+`src/Widgets/Themia.Widget.Tasks` (its `SPEC.md`: the list picker, the styles, load repair, the
+important mark). Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
 
 - **[S-590]** A Tasks widget reads Microsoft To Do (Graph) or Google Tasks through an account
   with the Tasks feature, or a list kept on this PC (`TaskSource`, a closed set). An empty account
@@ -2184,9 +2184,6 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
   escaped into the path; completed tasks are filtered for Graph here and by Google's own
   `showCompleted`; Google's hidden and deleted tasks are dropped; every Graph status but `completed`
   is open work. Refresh is configurable, 30–600 s (default 60 s).
-- **[S-592]** The list picker offers the account's default list, Today, then its lists. The lists are
-  stored per account ([S-2650]) and read again with every sync (single-flight; a failure with nothing
-  stored is said).
 - **[S-593]** A due date is a calendar day: midnight of the intended day (Graph zoneless, Google UTC
   `Z`, a bare date, or midnight at any offset) is read verbatim; anything else is an instant —
   zoneless is UTC — resolved to the viewer's local day (the To Do mobile encoding, classic #101).
@@ -2224,11 +2221,6 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
   the title alone, its body written with a JSON writer so a quote cannot break out.
 - **[S-601]** A title wraps to "Title lines" (1–6, default 2; two at most on a compact row) and is
   then cut with an ellipsis; the tooltip carries the whole title, its state, due date and priority.
-- **[S-602]** Style ([S-6400]): List puts the due date under the title, Compact beside it (under it anyway in a
-  column under 240px wide). Rows are Fluent's fixed heights at minimum and grow only for a wrapped
-  title; an important task's title is semibold. The size ladder is [S-780].
-- **[S-6400]** Tasks' styles ([S-6000]), `TasksConfig.Style` (`TasksStyle`, `"style": "list"`):
-  **List** and **Compact** ([S-602]), what was its Layout setting; no other look option exists.
 - **[S-603]** Lists on this PC are one pool in `tasks.json` beside the state (`schemaVersion` 1),
   shared by every widget: renaming a list retitles each widget showing it, and deleting a widget keeps
   its tasks. Load validates every entry (a list needs a non-empty id and a name, a task an id and a
@@ -2241,9 +2233,6 @@ Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
   confirmation that names its task count. Switching to This PC lands on the list it had, else the
   first, else a new one — only the last creates anything. A deleted list leaves its widgets on "Pick
   or start a list", never on another list's tasks.
-- **[S-605]** Retired (the app is unreleased: no hearth-era config is read). Nulls a hand edit leaves in
-  a Tasks config's strings, an unknown source, layout or due filter, a text filter over 100
-  characters, and a broken row order are repaired on load.
 - **[S-610]** "New tasks at the top" (per widget, settings, off by default = [S-599]): a task added
   here goes first — a list on this PC inserts it at the head of its array; an account list pins it
   first in the widget's order — and tasks the widget's order has not seen (added on a phone, or a
@@ -2722,8 +2711,6 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
   more tasks, not counts of them. The header badge keeps the open count.)*
 - **[S-784]** Completed tasks (when shown) follow the open ones, each part in its own order, under a
   "Completed · n" heading from Expanded height.
-- **[S-785]** An open important task leads its title with a "!" in the critical colour (classic
-  S-11) where its column is at least 160px wide; the weight and the tooltip say it everywhere.
 - **[S-786]** Drag a row to reorder it (classic S-54): a press arms a drag after 5px (never on the
   marker, never while an editor is open); the lifted row follows the pointer and the rows it passes
   make way (into a slot over its middle half, within its own section); the list scrolls a little when

@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "جارٍ البحث عن تقويمات هذا الحساب…",
   "widgetsA.calendar.weekdayInitials": "ح,ن,ث,ر,خ,ج,س",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do أو Google Tasks أو قائمة على هذا الكمبيوتر",
-  "widgetsA.catalog.tasks.label": "المهام",
   "widgetsA.clipboard.characters": {
     "zero": "{count} حرف",
     "one": "{count} حرف",

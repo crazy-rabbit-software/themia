@@ -261,7 +261,7 @@ public sealed class WidgetSearchTests
         Assert.Contains(new WidgetId("email"), google);
         Assert.Contains(new WidgetId("calendar"), google);
         Assert.Contains(new WidgetId("contacts"), google);
-        Assert.Contains(TasksConfig.Descriptor.Id, google);
+        Assert.Contains(new WidgetId("tasks"), google);
     }
 
     [Theory]

@@ -78,6 +78,7 @@
     <Project Path="src/Widgets/Themia.Widget.Stocks/Themia.Widget.Stocks.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stopwatch/Themia.Widget.Stopwatch.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Sun/Themia.Widget.Sun.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Tasks/Themia.Widget.Tasks.csproj" />
     <Project Path="src/Widgets/Themia.Widget.TopProcesses/Themia.Widget.TopProcesses.csproj" />
     <Project Path="src/Widgets/Themia.Widget.VideoStream/Themia.Widget.VideoStream.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Volume/Themia.Widget.Volume.csproj" />

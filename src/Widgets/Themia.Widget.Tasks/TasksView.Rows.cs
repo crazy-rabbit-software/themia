@@ -11,6 +11,7 @@ using Themia.Sdk.WinUI;
 using Windows.System;
 using Windows.UI.Core;
 using Themia.Core.Shell;
+using Themia.Widget.Tasks;
 
 namespace Themia.App.Widgets;
 
@@ -84,7 +85,7 @@ internal sealed partial class TasksView
                 // heading earns its line.
                 if (task.Completed && plan.CompletedHeading && ReferenceEquals(task, rows.First(t => t.Completed)))
                 {
-                    _rowsPanel.Children.Add(Heading(Str.WidgetsC_Tasks_CompletedHeading.Format(("count", doneCount))));
+                    _rowsPanel.Children.Add(Heading(TasksStr.WidgetsC_Tasks_CompletedHeading.Format(("count", doneCount))));
                 }
 
                 _rowsPanel.Children.Add(BuildRow(task, today, plan));
@@ -293,7 +294,7 @@ internal sealed partial class TasksView
             };
         }
 
-        ToolTipService.SetToolTip(marker, (task.Completed ? Str.WidgetsC_Tasks_MarkNotDone : Str.WidgetsC_Tasks_MarkDone).Text());
+        ToolTipService.SetToolTip(marker, (task.Completed ? TasksStr.WidgetsC_Tasks_MarkNotDone.Text() : Str.WidgetsC_Tasks_MarkDone.Text()));
         marker.Tapped += OnMarkerTapped;
         marker.DoubleTapped += OnMarkerDoubleTapped;
         return marker;
@@ -301,19 +302,19 @@ internal sealed partial class TasksView
 
     private static string Tooltip(TaskItem task, Due? due)
     {
-        var lines = new List<string> { task.DisplayTitle, (task.Completed ? Str.WidgetsC_Tasks_StateCompleted : Str.WidgetsC_Tasks_StateOpen).Text() };
+        var lines = new List<string> { task.DisplayTitle, (task.Completed ? TasksStr.WidgetsC_Tasks_StateCompleted : TasksStr.WidgetsC_Tasks_StateOpen).Text() };
 
         if (due is { } resolved)
         {
-            lines.Add((resolved.IsPast && !task.Completed ? Str.WidgetsC_Tasks_DueOnOverdue : Str.WidgetsC_Tasks_DueOn).Format(("date", TaskDue.LongText(resolved))));
+            lines.Add((resolved.IsPast && !task.Completed ? TasksStr.WidgetsC_Tasks_DueOnOverdue : TasksStr.WidgetsC_Tasks_DueOn).Format(("date", TaskDue.LongText(resolved))));
         }
 
         if (task.Important)
         {
-            lines.Add(Str.WidgetsC_Tasks_HighPriority.Text());
+            lines.Add(TasksStr.WidgetsC_Tasks_HighPriority.Text());
         }
 
-        lines.Add(Str.WidgetsC_Tasks_RowHint.Text());
+        lines.Add(TasksStr.WidgetsC_Tasks_RowHint.Text());
         return string.Join(Environment.NewLine, lines);
     }
 
@@ -389,7 +390,7 @@ internal sealed partial class TasksView
         // [S-3802] No moves: a task is dragged, or moved with Alt+Shift+Up / Down.
         ItemMenu.Show(row, args,
         [
-            new(task.Completed ? Glyphs.Undo : Glyphs.Done, (task.Completed ? Str.WidgetsC_Tasks_MarkNotDone : Str.WidgetsC_Tasks_MarkDone).Text(),
+            new(task.Completed ? Glyphs.Undo : Glyphs.Done, (task.Completed ? TasksStr.WidgetsC_Tasks_MarkNotDone.Text() : Str.WidgetsC_Tasks_MarkDone.Text()),
                 () => SetCompleted(task, !task.Completed)),
             new(Glyphs.Rename, Str.Common_Rename.Text(), () => BeginRename(row, task), Quick: QuickCommand.Rename),
             ItemMenuEntry.Separator,
@@ -726,7 +727,7 @@ internal sealed partial class TasksView
     }
 
     /// <summary>[S-599]/[S-3850] The shared add footer, under the list.</summary>
-    private AddFooterRow BuildAddRow() => new(Str.WidgetsC_Tasks_AddTask.Text(), OpenAddEditor);
+    private AddFooterRow BuildAddRow() => new(TasksStr.WidgetsC_Tasks_AddTask.Text(), OpenAddEditor);
 
     private void OpenAddEditor()
     {
@@ -738,7 +739,7 @@ internal sealed partial class TasksView
         CancelEdit();
 
         var box = NewEditor(string.Empty);
-        box.PlaceholderText = Str.WidgetsC_Tasks_TaskName.Text();
+        box.PlaceholderText = TasksStr.WidgetsC_Tasks_TaskName.Text();
         _addRow.Open(box);
         _editor = (box, null);
         StartTyping(box);

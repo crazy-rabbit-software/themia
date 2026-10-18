@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "กำลังค้นหาปฏิทินของบัญชีนี้…",
   "widgetsA.calendar.weekdayInitials": "อา,จ,อ,พ,พฤ,ศ,ส",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks หรือรายการบนพีซีเครื่องนี้",
-  "widgetsA.catalog.tasks.label": "งาน",
   "widgetsA.clipboard.characters": {
     "other": "{count} อักขระ"
   },

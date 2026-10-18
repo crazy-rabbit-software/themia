@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Bu hesabın takvimleri aranıyor…",
   "widgetsA.calendar.weekdayInitials": "Pz,Pt,Sa,Ça,Pe,Cu,Ct",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks veya bu bilgisayardaki bir liste",
-  "widgetsA.catalog.tasks.label": "Görevler",
   "widgetsA.clipboard.characters": {
     "one": "{count} karakter",
     "other": "{count} karakter"

@@ -13,7 +13,7 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// Settings rows for the volume tile (the output-device row it shares with the mixer is the SDK's <see cref="AudioDeviceRow"/>).
 /// <para>
-/// Same shape as the rest of <see cref="WidgetSettings"/>: each control writes straight to the live
+/// Same shape as every widget page: each control writes straight to the live
 /// config and saves, because the widget is on the desktop behind the window and watching it change
 /// is the point.
 /// </para>

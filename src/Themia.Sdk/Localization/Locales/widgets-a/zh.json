@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "正在查找此帐户的日历…",
   "widgetsA.calendar.weekdayInitials": "日,一,二,三,四,五,六",
   "widgetsA.calendar.yearTitle": "{year}年",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks 或此电脑上的列表",
-  "widgetsA.catalog.tasks.label": "任务",
   "widgetsA.clipboard.characters": {
     "other": "{count} 个字符"
   },

@@ -15,7 +15,7 @@ public sealed class ItemKindsHostTests
     [Fact]
     public void S6570_lists_and_meters_have_items_and_a_plain_readout_does_not()
     {
-        Assert.True(ItemKinds.Has(TasksConfig.Descriptor.Id));
+        Assert.True(ItemKinds.Has(new WidgetId("tasks")));
         Assert.True(ItemKinds.Has(new WidgetId("cpu")));
         Assert.True(ItemKinds.Has(new WidgetId("clipboard")));
         Assert.False(ItemKinds.Has(new WidgetId("alarm")));
@@ -54,7 +54,7 @@ public sealed class ItemKindsHostTests
     [Fact]
     public void S6572_a_mixed_selection_offers_it_when_any_has_items_and_sets_only_those()
     {
-        var (state, view, selection) = Selected(new WidgetId("alarm"), TasksConfig.Descriptor.Id);
+        var (state, view, selection) = Selected(new WidgetId("alarm"), new WidgetId("tasks"));
         view.Widgets[0].ItemBackground = FillChoice.Of("#123456", 1);
 
         var offer = QuickSet.For(state, selection, view.Id);

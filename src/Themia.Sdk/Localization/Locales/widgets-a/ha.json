@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Ana neman kalandojin wannan asusu…",
   "widgetsA.calendar.weekdayInitials": "Lh,Li,Ta,Lr,Al,Ju,As",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, ko jeri a wannan kwamfuta",
-  "widgetsA.catalog.tasks.label": "Ayyuka",
   "widgetsA.clipboard.characters": {
     "one": "Harafi {count}",
     "other": "Haruffa {count}"

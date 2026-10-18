@@ -60,11 +60,11 @@ internal sealed partial class TaskRowsPanel : Panel
         return _order.IndexOf(Children.IndexOf(child));
     }
 
-    /// <summary>The children in the order they are laid out.</summary>
+    /// <summary>The children in the order they are laid out; read it at once (it follows the panel).</summary>
     public IEnumerable<UIElement> InSlotOrder()
     {
         EnsureOrder();
-        return _order.Select(i => Children[i]).ToList();
+        return _order.Select(i => Children[i]);
     }
 
     /// <summary>Back to the children's own order: after a rebuild, or a drag let go without a drop.</summary>

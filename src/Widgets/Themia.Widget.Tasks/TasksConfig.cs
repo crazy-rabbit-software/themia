@@ -2,11 +2,11 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Tasks;
 
 namespace Themia.Core.Model;
 
@@ -49,25 +49,6 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
 
     private List<string> _taskOrder = [];
 
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("tasks"),
-        ConfigType = typeof(TasksConfig),
-        CreateDefault = () => new TasksConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["todo", "to-do", "checklist", "reminders", "microsoft to do", "google tasks"],
-        Providers = [HostProviders.Microsoft, HostProviders.Google],
-        Label = Str.WidgetsA_Catalog_Tasks_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Tasks_Description.Local(),
-        Glyph = Glyphs.Task,
-        DefaultWidth = 320,
-        DefaultHeight = 320,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
-    };
-
     public TaskSource Source { get; set; } = TaskSource.Account;
 
     /// <summary>The account, or empty for the first account with tasks.</summary>
@@ -93,8 +74,8 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
 
     private static readonly StyleOption[] TasksStyles =
     [
-        StyleOption.Of(TasksStyle.List, Str.WidgetsC_Tasks_Settings_Layout_List.Local(), 0xE8FD),
-        StyleOption.Of(TasksStyle.Compact, Str.WidgetsC_Tasks_Settings_Layout_Compact.Local(), 0xEA37),
+        StyleOption.Of(TasksStyle.List, TasksStr.WidgetsC_Tasks_Settings_Layout_List.Local(), 0xE8FD),
+        StyleOption.Of(TasksStyle.Compact, TasksStr.WidgetsC_Tasks_Settings_Layout_Compact.Local(), 0xEA37),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => TasksStyles;

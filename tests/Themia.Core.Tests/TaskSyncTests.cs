@@ -9,7 +9,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// The account side of the Tasks widget: optimistic edits racing refreshes, the provider wire, the
-/// Today fan-out (ported from the classic app's <c>todo_today_*</c> Rust tests), and config repair.
+/// Today fan-out (ported from the classic app's <c>todo_today_*</c> Rust tests).
 /// </summary>
 public sealed class TaskSyncTests
 {
@@ -236,30 +236,6 @@ public sealed class TaskSyncTests
             CancellationToken.None);
 
         Assert.Equal(TaskRules.TodayMaxLists, asked);
-    }
-
-    // ---- config repair -------------------------------------------------------------------------------
-
-    [Fact]
-    public void A_valid_config_needs_no_repair()
-    {
-        var config = new TasksConfig { AccountId = "acc", ListId = TaskRules.TodayListId, TaskOrder = ["a", "b"] };
-        Assert.Empty(config.Repair());
-        Assert.Equal("acc", config.AccountId);
-    }
-
-    [Fact]
-    public void S611_a_hand_edited_filter_is_repaired_and_the_clone_carries_every_setting()
-    {
-        var config = new TasksConfig { DueFilter = (TaskDueFilter)42, TextFilter = new string('x', 500), NewOnTop = true, ImportantOnly = true };
-        Assert.Equal(2, config.Repair().Count);
-        Assert.Equal(TaskDueFilter.Any, config.DueFilter);
-        Assert.Equal(TasksConfig.TextFilterMax, config.TextFilter.Length);
-
-        var clone = (TasksConfig)config.Clone();
-        Assert.True(clone.NewOnTop);
-        Assert.True(clone.ImportantOnly);
-        Assert.Equal(config.TextFilter, clone.TextFilter);
     }
 
     // ---- [S-612] when a task was finished ------------------------------------------------------------

@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Procurando os calendários desta conta…",
   "widgetsA.calendar.weekdayInitials": "Do,Se,Te,Qa,Qi,Sx,Sá",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks ou uma lista neste PC",
-  "widgetsA.catalog.tasks.label": "Tarefas",
   "widgetsA.clipboard.characters": {
     "one": "{count} caractere",
     "other": "{count} caracteres"

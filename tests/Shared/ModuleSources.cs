@@ -6,17 +6,11 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-6902] What the widget modules declare, read from their source: the source-scanning tests ask
-/// which view a kind is built as. Both kinds of module: those still declared inside the app
-/// (<c>src/Themia.App/Widgets/Modules</c>, the descriptor on their config) and the module projects
-/// (<c>src/Widgets/Themia.Widget.*</c>, the descriptor on the module). Shared by both test projects.
+/// which view a kind is built as, from the module projects (<c>src/Widgets/Themia.Widget.*</c>).
+/// Shared by both test projects.
 /// </summary>
 internal static partial class ModuleSources
 {
-    public static string ModulesFolder => Path.Combine(RepoFiles.Root, "src", "Themia.App", "Widgets", "Modules");
-
-    [GeneratedRegex(@"WidgetDescriptor Descriptor => (\w+)\.Descriptor;")]
-    private static partial Regex DescriptorOf();
-
     [GeneratedRegex(@"Id = new\(""(\w+)""\)")]
     private static partial Regex IdOf();
 
@@ -26,17 +20,7 @@ internal static partial class ModuleSources
     /// <summary>The view class each kind is built as, read from its module's <c>CreateView</c>.</summary>
     public static Dictionary<WidgetId, string> Views()
     {
-        var kindOf = ModuleCatalog.Widgets.ToDictionary(d => d.ConfigType.Name, d => d.Id, StringComparer.Ordinal);
         var views = new Dictionary<WidgetId, string>();
-        foreach (var file in Directory.EnumerateFiles(ModulesFolder, "*.cs"))
-        {
-            var text = File.ReadAllText(file);
-            if (DescriptorOf().Match(text) is { Success: true } config && ViewOf().Match(text) is { Success: true } view)
-            {
-                views.Add(kindOf[config.Groups[1].Value], view.Groups[1].Value);
-            }
-        }
-
         foreach (var file in Directory.EnumerateDirectories(Path.Combine(RepoFiles.Root, "src", "Widgets"), "Themia.Widget.*")
             .SelectMany(d => Directory.EnumerateFiles(d, "*Module.cs")))
         {

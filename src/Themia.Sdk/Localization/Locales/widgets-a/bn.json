@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "এই অ্যাকাউন্টের ক্যালেন্ডার খোঁজা হচ্ছে…",
   "widgetsA.calendar.weekdayInitials": "র,সো,ম,বু,বৃ,শু,শ",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks বা এই PC-র একটি তালিকা",
-  "widgetsA.catalog.tasks.label": "কাজ",
   "widgetsA.clipboard.characters": {
     "one": "{count}টি অক্ষর",
     "other": "{count}টি অক্ষর"
