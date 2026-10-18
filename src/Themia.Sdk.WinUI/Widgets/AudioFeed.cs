@@ -1,20 +1,19 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// One audio widget's connection to <see cref="CoreAudio"/>: what it wants, the snapshots that come
+/// One audio widget's connection to the host's Core Audio (<see cref="IAudioOutputs"/>): what it wants, the snapshots that come
 /// back, and the writes it sends — the part the mixer and the volume tile share.
 /// <para>
 /// [S-1233] A preview card (a debug render) never writes: its sliders and buttons are inert, so
 /// rendering one can never move the machine's real volume.
 /// </para>
 /// </summary>
-internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot) : IDisposable
+public sealed class AudioFeed(IAudioOutputs audio, Action<AudioSnapshot> onSnapshot) : IDisposable
 {
     private IAudioSubscription? _subscription;
     private AudioWant? _want;
@@ -35,7 +34,7 @@ internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot) : IDisposable
 
         if (_subscription is null)
         {
-            _subscription = CoreAudio.Subscribe(want, onSnapshot);
+            _subscription = audio.Subscribe(want, onSnapshot);
         }
         else
         {
@@ -48,7 +47,7 @@ internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot) : IDisposable
     {
         if (!Preview && _want is { } want)
         {
-            CoreAudio.SetLevel(want.DeviceId, key, level);
+            audio.SetLevel(want.DeviceId, key, level);
         }
     }
 
@@ -57,7 +56,7 @@ internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot) : IDisposable
     {
         if (!Preview && _want is { } want)
         {
-            CoreAudio.SetMute(want.DeviceId, key, muted);
+            audio.SetMute(want.DeviceId, key, muted);
         }
     }
 
@@ -82,7 +81,7 @@ internal sealed class AudioFeed(Action<AudioSnapshot> onSnapshot) : IDisposable
 
         try
         {
-            return await AudioDefaultRules.PickAsync(Preview, picked, boundId, boundName, defaultId, CoreAudio.DefaultOutputSwitch.Instance);
+            return await AudioDefaultRules.PickAsync(Preview, picked, boundId, boundName, defaultId, audio.DefaultOutput);
         }
         finally
         {

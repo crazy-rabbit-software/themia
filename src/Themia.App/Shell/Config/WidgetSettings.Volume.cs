@@ -5,6 +5,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -82,7 +83,7 @@ internal static partial class WidgetSettings
         {
             try
             {
-                var devices = await CoreAudio.OutputDevicesAsync().ConfigureAwait(true);
+                var devices = await AudioDevices.OutputsAsync().ConfigureAwait(true);
 
                 filling = true;
                 box.Items.Clear();

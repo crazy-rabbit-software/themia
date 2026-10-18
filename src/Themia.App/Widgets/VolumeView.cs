@@ -74,9 +74,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
 
     private bool _detached;
 
-    public VolumeView()
+    public VolumeView(IWidgetHost host)
     {
-        _feed = new AudioFeed(OnSnapshot);
+        _feed = new AudioFeed(host.Audio, OnSnapshot);
 
         _muteIcon = Fluent.Icon(Glyphs.Volume3, "TextFillColorPrimaryBrush");
         _mute.Content = _muteIcon;

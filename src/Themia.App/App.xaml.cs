@@ -27,6 +27,7 @@ public partial class App : Application
         Shell.Config.PlaceSearch.InstallLookup(Services.Web.WeatherService.FindAsync);
         Themia.Sdk.SymbolLookup.Install(Services.Web.MarketService.SearchAsync);
         Themia.Sdk.DriveList.Install(() => Services.Drives.DriveService.Shared.Now());
+        Themia.Sdk.AudioDevices.Install(Services.CoreAudio.OutputDevicesAsync);
         Widgets.GlideMotion.InstallSmooth(windows => Themia.Core.Motion.GlideSwitch.Smooth(Shell.DesignApplier.Current, windows));
         Services.SoundCue.Install(new Services.HostCuePlayer());
 

@@ -5,6 +5,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -55,9 +56,9 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private bool _detached;
 
-    public MixerView()
+    public MixerView(IWidgetHost host)
     {
-        _feed = new AudioFeed(OnSnapshot);
+        _feed = new AudioFeed(host.Audio, OnSnapshot);
 
         _scroller = new ScrollViewer
         {

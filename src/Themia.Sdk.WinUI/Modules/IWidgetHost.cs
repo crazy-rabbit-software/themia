@@ -64,4 +64,7 @@ public interface IWidgetHost
 
     /// <summary>[S-4655] The drives: the host's one walk every drive widget shares.</summary>
     IDrives Drives { get; }
+
+    /// <summary>[S-440] [S-1220] The output devices, their levels and sessions: the host's one Core Audio worker.</summary>
+    IAudioOutputs Audio { get; }
 }

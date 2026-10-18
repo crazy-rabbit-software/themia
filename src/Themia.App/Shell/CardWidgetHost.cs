@@ -40,6 +40,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IDrives Drives => Services.Drives.DriveService.Shared;
 
+    public IAudioOutputs Audio => HostAudioOutputs.Instance;
+
     public bool ShowAccounts()
     {
         if (AppServices.ShowAccounts is not { } show)
