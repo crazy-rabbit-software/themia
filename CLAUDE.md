@@ -66,6 +66,7 @@ state store.
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
   Localization/ (+ Locales/*.json: the host's Str; StringTable, LocalText) Diagnostics/ (Log) Links/ Time/ (CalendarDays) Shell/ (Glyphs)
   Kit/ (the widget kit's pure parts: KitItem, KitAction/KitMenu, KitKeys, KitSpec/KitLadder, KitScreens, KitFreshness, IKitConfig, IKitSource)
+  Services/ (the service layer: ServiceDescriptor and its strategy sets, sign-in members, RateLimitRules, ServiceFailures, paging, GraphQL/form envelopes)
   Model/ (WidgetConfig, FillChoice, RefreshPreferences, ContentAlign; Configs/: the shared config bases QuickToggle-,
   PowerButton-, Weather-, SkyPlace-, Detail-, GaugeConfig and the config contracts ISetupRule, IPlaced, IContentAligned)
   SystemData/ (the hub's data: FeedKey, SourceId, Sources and their snapshots, MeterReading, series, SystemInterests
@@ -83,6 +84,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Geometry/ Model/ (state, Configs/* with each in-Core widget's descriptor) Storage/ (atomic store, load validation, StateJson)
   Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/ (NoteStore) Habits/ (HabitListStore)
   Settings/ Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
+  Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetSettingsRows, view
                    Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitRows: the kit's UI parts),
@@ -100,7 +102,8 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
 src/Themia.App/    WinUI 3 shell, native code, widget views
   Interop/         Win32 ([LibraryImport]), desktop layering, hotkey window
   Services/        AppHost*.cs (state, displays, placement, clipboard, keyboard lease, suspend, license),
-                   shared samplers and sync services (accounts, mail, tasks, files, web)
+                   shared samplers and sync services (accounts, mail, tasks, files, web);
+                   Kit/ServiceSync.cs (the one service sync, IWidgetHost.Services)
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
   Widgets/         Modules/<Name>Module.cs (each in-app widget's module: the account widgets) + their *View.cs
@@ -220,6 +223,19 @@ descriptor on their config in Core and their module in `Widgets/Modules/<Name>Mo
   builds no scroll viewer, row focus, menu entry, ring or empty state of its own, and the kit's
   shared code names no service, header or error code (`KitConformanceTests`). Something the kit lacks
   (a row look, page overflow, a lead) is a kit change first, in its own commit with tests.
+- **Online services are data plus rules** (SPEC "The service layer (SERVICES)", [S-9900]..[S-9931];
+  design docs/WIDGET-KIT.md 5.7 and 13, as built in 11.2). A service is a provider project
+  (`src/Providers/Themia.Provider.<Name>`) whose module returns a `ServiceDescriptor` (`Service`),
+  its sign-in members (`SignIn`: `OAuthPkceLoopback`, `OAuthDeviceCode`, `PastedToken`), a
+  `BuildSecret` key only when a browser member's secret is `BuildTime` (`THEMIA_CLIENT_SECRETS`), and
+  its cadence row; its rules are `IServiceQuery<TWire>`s (or a `ServiceReplica<,>` and its views) and an
+  `IServiceIdentity`, over its own source-generated wire types. Its widgets add a `ServiceInterest`
+  from their config's `IInterests` and read `IWidgetHost.Services.Open(interest)` as their kit
+  source. Nothing outside the provider names the service: no host branch, header name or error code
+  (the conformance checks). Failures are the one vocabulary (`FetchStatus`: `SignInRequired`,
+  `Forbidden`, `NotFound` included), reached only through `ServiceFailures.Classify`. Previews replay
+  the provider's `Fixtures/<state>.json` (scrubbed: [S-7070]). Kit services are read-only: a write is
+  an `OpenTo` web page.
 - **Keyboard lease** ([S-800..812]): outside edit mode the surface is `WS_EX_NOACTIVATE`, so no widget
   receives keys by default. A widget that navigates with keys implements `IWidgetKeys.HandleKey(WidgetKey)`
   and gets the lease on a click; a widget with a text box calls `IWidgetSurface.RequestTextInput`

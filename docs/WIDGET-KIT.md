@@ -16,9 +16,10 @@ contract from `Themia.Sdk` / `Themia.Sdk.WinUI`, and the app finds every module 
 changes nothing in the app, Core or the SDK. A spike proved the mechanism end to end under Native
 AOT (section 4.11).
 
-Status: the module architecture (M1..M4, section 11.1) and the kit's core and UI parts with their
-first widget, RSS (section 11.2 steps 1..3, 7 and 8, "as built" there), are built; the service layer
-(sections 5.7 and 6.5; steps 9..15) and the account widgets' migration are not. Where the build
+Status: the module architecture (M1..M4, section 11.1), the kit's core and UI parts with their
+first widget, RSS (section 11.2 steps 1..3, 7 and 8), and the service layer (sections 5.7 and 6.5;
+steps 9..12, "service layer as built" in 11.2) are built; the pilots (steps 13..15) and the account
+widgets' migration are not. Where the build
 differs from the design below, the "as built" paragraph of 11.2 says how and why, and it wins. The
 plan of commits is kept outside the repository; this file is the design an implementation must
 follow, and the guide new agents read afterwards.
@@ -2128,12 +2129,93 @@ off the kit; they already have their own frameworks or needs no shared list serv
   `stale2/`, `keys/`, `open/`). Release AOT publish 0 warnings (50.2 MB, before 50.1 MB);
   Debug AOT publish 0 warnings and its renders of RSS (sample and stale tiers, its page) and weather
   now stale finish in about 4 s, identical to the JIT renders.
-- **Left for the service-layer agent:** steps 9..12 (the failure vocabulary, `ServiceDescriptor` and
-  the strategies, `ServiceSignIn`, `ServiceSync`/`ServiceClient` with the `service` shelf) and the
-  pilots; the account widgets onto the kit (Mail needs the Table look, inline hover actions and a
-  compose header button; the agenda `Overflow = Page` and day groups; Tasks a Toggle lead, rename,
-  delete and its editor), each with its move into a project; `KitScreen.OffersGrant`; the fixture
-  replay (`FixtureSource`) once a provider records answers.
+- **Left then for the service-layer agent:** steps 9..12 and the account widgets (see below).
+
+*Service layer as built (2026-10-18): steps 9..12.* Tags `[S-9900]..[S-9931]`, root `SPEC.md`
+section "The service layer (SERVICES)"; tests `ServiceLayerTests`, `ServiceSignInTests`,
+`ServiceSyncTests`, `RateLimitRulesTests`, `AccountOAuthTests` (Core) and
+`DescriptorConformanceTests` (module host). A fresh tag block (`9900`..) because the kit's own
+(`7000`..`7099`) had 28 numbers left and `7400`..`9800` were the power buttons' and toggles'.
+
+- **Step 9, the one failure vocabulary.** `FetchStatus` gained `SignInRequired`, `Forbidden`,
+  `NotFound` (each a sentence in 30 languages, none retried on the cadence); `ToFetchStatus` folds
+  only server failures and bad bodies into "unexpected", a gone account into "not set up". A
+  throttle's `RetryAt` is used at last: `SyncSchedule.Failed(…, retryAt)` and
+  `AccountFailures.Failed(schedule, ex, now)` in mail, office and tasks. Mail says its own "sign in
+  again" for the new status (its sentence for the old folded one).
+- **Step 10, the core, no service** (`src/Themia.Sdk/Services/`, namespace `Themia.Sdk.Services`):
+  `ServiceDescriptor` (init-only data: provider, feature, cadence row, `TransportKind`,
+  `ApiRoot`/`ApiRootRule`, `ProviderSignIn`, `Identity` (an `IServiceIdentity` query), pinned
+  headers, `RateLimitScheme`, `ErrorScheme`, `FreshnessHints`, `AnonymousRule`, bounds, `WebHosts`,
+  `IdleFloor`); the auth set (`OAuthPkceLoopback` with `LoopbackRule`, `ClientSecretRule`,
+  `RefreshRule`, `AuthorizeExtras`, `ScopeOnToken`, `IdentityEndpoint`; `OAuthDeviceCode` with
+  `GrantPage`; `PastedToken` with `TokenShape`; `AnonymousAuth`; `TokenScheme`, `ScopeSeparator`);
+  `ServiceRequest`/`ServiceBody`/`ServiceReply`, `PageAt`, `KitChunk`, `KitPage`, `IServiceQuery`
+  (+ `IServiceQuery<TWire>` parsing through the service's context, naming the first path that
+  broke), `IServiceStep`; `PagingKind`, `LinkPaging`, `ServicePager` (count, bounds, empty page, end,
+  loop), `ServicePolling.NextPoll`; `ServiceFailures.Classify` to `ServiceVerdict`; `GraphQLEnvelope`
+  (request and answer, partial data by the list's path), `FormBody`; `ServiceInterest`;
+  `IServiceReplicaQuery`/`ReplicaMerge`/`IReplicaView` with the typed base
+  `ServiceReplica<TReplica, TWire>` (where it differs: the host holds a replica as the provider's own
+  JSON, so the host's sync never needs the provider's types); `KitMerge`; `ClientSecretRules`;
+  `OAuthRequests` (the members' requests from their data), `IdentityAnswers`, `DeviceGrant`,
+  `SignInKinds`, `ServiceRoots`. `RateLimitRules` moved into the SDK (namespace kept) and reads a
+  scheme: its GitHub constants became the test's GitHub-shaped scheme, its tests asserting what they
+  did; the host's providers read `RateLimitScheme.RetryAfterOnly` (a 429, or a 403 with
+  `Retry-After`: what they honoured, minus GitHub's budget headers). Tested on GitHub-, Linear- and
+  Todoist-shaped descriptors and replies.
+- **Step 11, sign-in by strategy.** Microsoft and Google are their browser members (data in
+  `OAuthClients`); `SignInWithBrowserAsync` is one path with no provider named (no ternaries), the
+  refresh request is built from the member that signed the account in, who signed in is the member's
+  `IdentityEndpoint` (the Graph and userinfo wire types went), the loopback takes a port list, and
+  `THEMIA_CLIENT_SECRETS` (`google=…;todoist=…`, validated whole by the build and parsed by
+  `ClientSecretRules` in the app) replaced `THEMIA_GOOGLE_CLIENT_SECRET` (CLAUDE.md, README,
+  docs/STORE.md; a build with a dummy value proved the semicolon reaches the constant verbatim). The
+  device code (`DeviceCodeSession`, `DevicePoll`, `DeviceStep` restored from `e09beef^` with their
+  tests and strings, 21 languages added) and the pasted token run in `AccountService`
+  (`SignInWithDeviceCodeAsync`, `AddPastedTokenAsync`) with the descriptor's identity request; an
+  account records the member kind that signed it in (`signIn` in `accounts.json`, absent for a
+  provider's only flow, so the accounts fixture writes back byte for byte), a pasted token is
+  `AccountAuth.Token` (never renewed), and its scheme (`Bearer` or `Raw`) comes from its member. The
+  Accounts page's Add menu lists every provider with sign-in members, a provider's first member's
+  panel shows with links to the others (the device code large with Copy and its page; the paste box
+  with its token page), and an account whose service grants per resource has a grant-page row.
+  Where it differs: there is no `ServiceSignIn` class of its own; its methods are the account
+  service's, which owns the store, the secrets and the single-flight refresh. A rotating refresh
+  token whose write fails is kept in memory and is what the next refresh sends (the store already did
+  this; now stated, [S-9914]). Microsoft and Google stay declared in Core (`HostProviders`): their
+  mail, calendar, contacts and tasks sources are host code that names them.
+- **Step 12, `ServiceSync` and `ServiceClient`.** The engine is in Core
+  (`src/Themia.Core/Services/`): `ServiceClient` (steps, conditional bodies, bucket blocks, the one
+  classifier, a 304 from the held body, GraphQL unwrapped, the one paging loop, replica syncs with a
+  refused token answered by a full read), `ServiceMemory` (bodies, blocks, steps; in memory only),
+  `ServiceEntries` (the pure sync state: entries per provider, account and query from the
+  interests, cadence and floors, Due/Complete/Force/Wake, `Read` to a `KitRead` with the accounts'
+  states and the grant page, the shelf) and `FixtureReplay` (recorded answers as a transport). The
+  app's `ServiceSync` (`src/Themia.App/Services/Kit/`) is the glue: interests, accounts, the ticker
+  at a minute, network wake, the sealed `service` shelf per account (`SyncKind.Service`, purged and
+  swept with the rest) and one `IServiceSource` per widget (`IWidgetHost.Services`); the transport is
+  `AccountService.SendServiceAsync` (pinned headers, the member's token scheme, an account's own
+  root, no throttle retries: `AccountHttp` gained `retryThrottles: false`, the typed `If-None-Match`).
+  Where it differs: the client and the entries are Core, not App, so the "Polling" rules are unit
+  tests over recorded replies rather than a manual pass; the network itself stays App code. A preview
+  card's sources replay the provider's `Fixtures/<state>.json` (`FixtureServices`, Debug only; the
+  provider props copy fixtures under `Fixtures/<Provider>/`), giving every kit widget the standard
+  state names. `KitScreen` gained `Grant` (`OffersGrant`) and a throttle's line says when it asks
+  again; `KitRead` gained the rules' empty sentence and the grant page; `KitStatePanel` draws the
+  grant link beside the Accounts link.
+- **Conformance added.** Descriptors over the registry ([S-9930]); Polling over source ([S-9931]:
+  the service path, the transport and the classifier each named only where they may be); the
+  generic-kit rule ([S-7071]) now covers the service layer in the SDK, Core and the app, and its
+  allow list of service headers outside providers lost `RateLimitRules.cs`.
+- **Evidence.** Debug build 0 warnings after every commit; Core 5227 and module tests 2823 green at
+  the end; the Accounts page rendered with the browser card (Google) and the two new panels in both
+  themes (`THEMIA_DEBUG_ACCOUNTS_FLOW=device|paste`); Release AOT publish 0 warnings (50.8 MB, before
+  50.2 MB). No sign-in, request or account was used: a live pass is owed (below).
+- **Owed, live:** Microsoft and Google sign-in and token renewal after the refactor (the requests
+  are proved equal field for field, the flow is not run); an official build with
+  `THEMIA_CLIENT_SECRETS` signing in to Google; each pilot's members once it exists (device flow
+  and grant page, PKCE loopback, pasted keys), rate limits on the wire.
 
 
 ## 12. Design decisions and open questions
