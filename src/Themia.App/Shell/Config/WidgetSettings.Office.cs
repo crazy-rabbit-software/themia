@@ -62,7 +62,7 @@ internal static partial class WidgetSettings
         var toggles = new Dictionary<ContactColumn, ToggleSwitch>();
         var quiet = false;
 
-        foreach (var column in ContactsConfig.AllColumns)
+        foreach (var column in ContactColumns.All)
         {
             var toggle = FluentLayout.Toggle(config.EffectiveColumns.Contains(column), on =>
             {

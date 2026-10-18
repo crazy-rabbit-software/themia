@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Office;
 using Themia.Core.Storage;
 using Themia.Sdk;
 using Xunit;
@@ -174,10 +175,10 @@ public sealed class OfficeConfigTests
         config.Style = CalendarStyle.Week;
         Assert.Equal(4, config.Period.Days);
         Assert.Equal(WeekFirstDay.Today, config.Period.WeekFrom);
-        Assert.Equal(CalendarWidgetConfig.AgendaDefaultDays, config.Period.AgendaLength);
+        Assert.Equal(CalendarPeriod.AgendaDefaultDays, config.Period.AgendaLength);
 
         config.Style = CalendarStyle.Agenda;
         Assert.Equal(2, config.Period.AgendaLength);
-        Assert.Equal(CalendarWidgetConfig.WeekDefaultDays, config.Period.Days);
+        Assert.Equal(CalendarPeriod.WeekDefaultDays, config.Period.Days);
     }
 }

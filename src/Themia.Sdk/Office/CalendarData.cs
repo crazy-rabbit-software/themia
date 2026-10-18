@@ -8,7 +8,7 @@ using Themia.Sdk;
 namespace Themia.App.Widgets;
 
 /// <summary>What a calendar fetch could say before it had anything to show.</summary>
-internal enum CalendarSliceState
+public enum CalendarSliceState
 {
     /// <summary>No account can feed a calendar.</summary>
     NoAccounts,
@@ -26,7 +26,7 @@ internal enum CalendarSliceState
 /// account's provider (for opening an event), and every problem met, by account, with when the
 /// stored copy it left on screen is from ([S-2664]; null when nothing was stored).
 /// </summary>
-internal sealed record CalendarSlice(
+public sealed record CalendarSlice(
     CalendarSliceState State,
     IReadOnlyList<CalendarEvent> Events,
     IReadOnlyList<Birthday> Birthdays,
@@ -46,7 +46,7 @@ internal sealed record CalendarSlice(
 /// offline store, a render's fixture) is a one-place swap. The view asks for exactly the range its
 /// layout draws ([S-568]).
 /// </summary>
-internal interface ICalendarData
+public interface ICalendarData
 {
     /// <summary>Raised on the UI thread when what a load would return may have changed (an account came or went).</summary>
     event Action? Changed;
@@ -56,7 +56,7 @@ internal interface ICalendarData
 }
 
 /// <summary>[S-2701] The live seam: Themia's own accounts through the shared <see cref="IOfficeSource"/> ([S-588]).</summary>
-internal sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
+public sealed class OfficeCalendarData(IOfficeSource source) : ICalendarData
 {
     public event Action? Changed
     {

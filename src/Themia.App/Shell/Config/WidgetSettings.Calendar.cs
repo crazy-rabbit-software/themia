@@ -104,9 +104,9 @@ internal static partial class WidgetSettings
                 // [S-3637] How many columns there are.
                 rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Calendar_Settings_Days_Label.Text(),
                     Str.WidgetsA_Calendar_Settings_WeekDays_Desc.Format(
-                        ("week", LocaleFormat.Integer(CalendarWidgetConfig.WeekDefaultDays)),
-                        ("workweek", LocaleFormat.Integer(CalendarWidgetConfig.WorkWeekDays))),
-                    FluentLayout.Slider(config.EffectiveWeekDays, CalendarWidgetConfig.WeekMinDays, CalendarWidgetConfig.WeekMaxDays, 1, string.Empty,
+                        ("week", LocaleFormat.Integer(CalendarPeriod.WeekDefaultDays)),
+                        ("workweek", LocaleFormat.Integer(CalendarPeriod.WorkWeekDays))),
+                    FluentLayout.Slider(config.EffectiveWeekDays, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays, 1, string.Empty,
                         value => { config.WeekDays = (int)Math.Round(value); save(); })));
                 break;
 
@@ -131,7 +131,7 @@ internal static partial class WidgetSettings
     {
         const int Custom = 0;
         var options = new List<(int Value, string Label)>();
-        foreach (var days in CalendarWidgetConfig.AgendaDayPresets)
+        foreach (var days in CalendarPeriod.AgendaDayPresets)
         {
             options.Add((days, days switch
             {
@@ -143,9 +143,9 @@ internal static partial class WidgetSettings
 
         options.Add((Custom, Str.WidgetsA_Calendar_Settings_AgendaRange_Custom.Text()));
 
-        var preset = CalendarWidgetConfig.AgendaDayPresets.Contains(agenda.EffectiveAgendaDays);
-        var stepper = FluentLayout.Stepper(agenda.EffectiveAgendaDays, CalendarWidgetConfig.AgendaMinDays, 1, value => { agenda.AgendaDays = value; save(); });
-        stepper.Maximum = CalendarWidgetConfig.AgendaMaxDays;
+        var preset = CalendarPeriod.AgendaDayPresets.Contains(agenda.EffectiveAgendaDays);
+        var stepper = FluentLayout.Stepper(agenda.EffectiveAgendaDays, CalendarPeriod.AgendaMinDays, 1, value => { agenda.AgendaDays = value; save(); });
+        stepper.Maximum = CalendarPeriod.AgendaMaxDays;
         var custom = FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Calendar_Settings_Days_Label.Text(), null, stepper);
         custom.Visibility = preset ? Visibility.Collapsed : Visibility.Visible;
 

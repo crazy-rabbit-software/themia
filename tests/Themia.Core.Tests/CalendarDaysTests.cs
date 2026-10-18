@@ -112,7 +112,7 @@ public sealed class CalendarDaysTests
         Assert.Equal(14, new CalendarPeriod(WeekStartDay.Monday, 40).Days);
         Assert.Equal(1, new CalendarPeriod(WeekStartDay.Monday, 0).Days);
         Assert.Equal(7, ((CalendarPeriod)WeekStartDay.Sunday).Days);
-        Assert.Equal(CalendarWidgetConfig.AgendaDefaultDays, ((CalendarPeriod)WeekStartDay.Sunday).AgendaLength);
+        Assert.Equal(CalendarPeriod.AgendaDefaultDays, ((CalendarPeriod)WeekStartDay.Sunday).AgendaLength);
         Assert.Equal(365, new CalendarPeriod(WeekStartDay.Monday, AgendaDays: 9999).AgendaLength);
     }
 
@@ -151,7 +151,7 @@ public sealed class CalendarDaysTests
         var agenda = new CalendarWidgetConfig { Style = CalendarStyle.Agenda };
         Assert.Equal(30, agenda.AgendaDays);
         Assert.Equal(30, agenda.Period.AgendaLength);
-        Assert.Equal([1, 2, 3, 7, 30], CalendarWidgetConfig.AgendaDayPresets);
+        Assert.Equal([1, 2, 3, 7, 30], CalendarPeriod.AgendaDayPresets);
 
         agenda.AgendaDays = 12;
         Assert.Equal(12, agenda.Period.AgendaLength);

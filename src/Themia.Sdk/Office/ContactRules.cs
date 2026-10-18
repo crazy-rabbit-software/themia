@@ -126,7 +126,7 @@ public static class ContactRules
         var next = current.Contains(column) ? current.Where(c => c != column).ToList() : [.. current, column];
         return next.Count == 0
             ? [.. current]
-            : ContactsConfig.AllColumns.Where(next.Contains).ToList();
+            : ContactColumns.All.Where(next.Contains).ToList();
     }
 
     /// <summary>

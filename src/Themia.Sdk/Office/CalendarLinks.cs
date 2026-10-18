@@ -30,7 +30,7 @@ public static class CalendarLinks
 
         if (provider == HostProviders.Microsoft && outlookInstalled && !string.IsNullOrWhiteSpace(item.Id))
         {
-            return EventsPrefix + MailWire.PercentEncode(item.Id.Trim());
+            return EventsPrefix + MailLinks.PercentEncode(item.Id.Trim());
         }
 
         return IsHttps(item.WebLink) ? item.WebLink!.Trim() : null;

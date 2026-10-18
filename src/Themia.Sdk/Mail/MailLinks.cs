@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using Themia.Core.Accounts;
 
 namespace Themia.Core.Mail;
@@ -29,7 +31,7 @@ public static class MailLinks
 
         if (message.Provider == HostProviders.Microsoft && outlookInstalled)
         {
-            return $"{OutlookScheme}://emails/{MailWire.PercentEncode(message.RawId)}";
+            return $"{OutlookScheme}://emails/{MailLinks.PercentEncode(message.RawId)}";
         }
 
         return IsHttps(message.WebLink) ? message.WebLink.Trim() : null;
@@ -42,7 +44,7 @@ public static class MailLinks
 
         if (message.Provider == HostProviders.Microsoft && outlookInstalled)
         {
-            return $"{OutlookScheme}://emails/{MailWire.PercentEncode(message.RawId)}/reply";
+            return $"{OutlookScheme}://emails/{MailLinks.PercentEncode(message.RawId)}/reply";
         }
 
         if (!IsAddress(message.FromAddress))
@@ -54,7 +56,7 @@ public static class MailLinks
             ? message.Subject
             : "Re: " + message.Subject;
 
-        return $"mailto:{message.FromAddress}?subject={MailWire.PercentEncode(subject)}";
+        return $"mailto:{message.FromAddress}?subject={MailLinks.PercentEncode(subject)}";
     }
 
     /// <summary>A bare <c>mailto:</c>: a new message in the default mail app, to nobody yet.</summary>
@@ -83,7 +85,7 @@ public static class MailLinks
         if (account.Provider == HostProviders.Google)
         {
             return IsAddress(account.Address)
-                ? $"https://mail.google.com/mail/?authuser={MailWire.PercentEncode(account.Address)}&view=cm&fs=1"
+                ? $"https://mail.google.com/mail/?authuser={MailLinks.PercentEncode(account.Address)}&view=cm&fs=1"
                 : "https://mail.google.com/mail/?view=cm&fs=1";
         }
 
@@ -193,4 +195,26 @@ public static class MailLinks
             && uri.Scheme == Uri.UriSchemeHttps
             && uri.Host.Length > 0
             && string.IsNullOrEmpty(uri.UserInfo);
+
+    /// <summary>Percent-encode every byte outside RFC 3986's unreserved set.</summary>
+    public static string PercentEncode(string value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+
+        var output = new StringBuilder(value.Length * 3);
+        foreach (var b in Encoding.UTF8.GetBytes(value))
+        {
+            if (b is (>= (byte)'A' and <= (byte)'Z') or (>= (byte)'a' and <= (byte)'z') or (>= (byte)'0' and <= (byte)'9')
+                or (byte)'-' or (byte)'_' or (byte)'.' or (byte)'~')
+            {
+                output.Append((char)b);
+            }
+            else
+            {
+                output.Append('%').Append(b.ToString("X2", CultureInfo.InvariantCulture));
+            }
+        }
+
+        return output.ToString();
+    }
 }

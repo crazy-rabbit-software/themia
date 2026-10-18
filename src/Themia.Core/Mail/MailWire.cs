@@ -259,26 +259,4 @@ public static class MailWire
 
     /// <summary>The JSON body of a Graph read/unread patch.</summary>
     public static string GraphReadBody(bool read) => read ? "{\"isRead\":true}" : "{\"isRead\":false}";
-
-    /// <summary>Percent-encode every byte outside RFC 3986's unreserved set.</summary>
-    public static string PercentEncode(string value)
-    {
-        ArgumentNullException.ThrowIfNull(value);
-
-        var output = new StringBuilder(value.Length * 3);
-        foreach (var b in Encoding.UTF8.GetBytes(value))
-        {
-            if (b is (>= (byte)'A' and <= (byte)'Z') or (>= (byte)'a' and <= (byte)'z') or (>= (byte)'0' and <= (byte)'9')
-                or (byte)'-' or (byte)'_' or (byte)'.' or (byte)'~')
-            {
-                output.Append((char)b);
-            }
-            else
-            {
-                output.Append('%').Append(b.ToString("X2", CultureInfo.InvariantCulture));
-            }
-        }
-
-        return output.ToString();
-    }
 }
