@@ -220,7 +220,7 @@ internal static partial class WidgetSettings
 
         // The same picker and the same commit the folder widget uses, so there is one way into this
         // setting rather than two that can disagree about what a valid path is.
-        browse.Click += (_, _) => _ = pickFile ? BrowsePictureAsync(box, Commit) : BrowseAsync(box, Commit);
+        browse.Click += (_, _) => _ = pickFile ? BrowsePictureAsync(box, Commit) : FolderBrowse.IntoAsync(box, Commit);
 
         var current = Current();
         ShowGalleryVerdict(verdict, current, current.Trim().Length == 0, FolderPath.Validate(current), pickFile, refusedType: false);

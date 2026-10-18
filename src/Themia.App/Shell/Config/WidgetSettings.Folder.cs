@@ -23,8 +23,6 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    private const string FolderScope = "folder-settings";
-
     public static void Folder(List<FrameworkElement> rows, FolderConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
@@ -77,7 +75,7 @@ internal static partial class WidgetSettings
             }
         };
 
-        browse.Click += (_, _) => _ = BrowseAsync(box, Commit);
+        browse.Click += (_, _) => _ = FolderBrowse.IntoAsync(box, Commit);
 
         ShowFolderVerdict(verdict, config, config.Path, FolderPath.Resolve(config.Path, string.Empty));
 
@@ -218,42 +216,4 @@ internal static partial class WidgetSettings
     /// </summary>
     private static string ProfilePlaceholder() =>
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-    /// <summary>
-    /// The shell's own folder picker, so nobody has to type a path they could point at.
-    /// <para>
-    /// The picker needs an owner window, and the click that opened it came from the settings
-    /// window, so the foreground window <i>is</i> that window at this instant. It writes into the
-    /// same box the user types into and goes through the same commit, so there is one path to the
-    /// setting rather than two.
-    /// </para>
-    /// </summary>
-    private static async Task BrowseAsync(TextBox box, Action commit)
-    {
-        try
-        {
-            var picker = new Windows.Storage.Pickers.FolderPicker();
-
-            // Required: PickSingleFolderAsync throws without at least one filter.
-            picker.FileTypeFilter.Add("*");
-
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, Win32.GetForegroundWindow());
-
-            var folder = await picker.PickSingleFolderAsync();
-
-            if (folder is null)
-            {
-                return; // ignore: the user cancelled the dialog.
-            }
-
-            box.Text = folder.Path;
-            commit();
-        }
-        catch (Exception ex)
-        {
-            // The dialog is a convenience over a box that still works. Losing it must not take the
-            // settings window down with it.
-            Log.Error(FolderScope, "the folder picker could not be shown", ex);
-        }
-    }
 }

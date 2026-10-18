@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using Themia.Core.Model;
 using Themia.Sdk;
@@ -65,4 +66,27 @@ public static class StateJson
     }
 
     private static JsonTypeInfo<T> Info<T>() => (JsonTypeInfo<T>)Options.GetTypeInfo(typeof(T));
+
+    /// <summary>
+    /// [S-893] <paramref name="fragment"/>'s properties over <paramref name="defaults"/>, as the state file would hold
+    /// them, read back and copied (every id inside new): how host code (the first-run desktop, a debug
+    /// scene) gives a widget it names only by id a config other than its default.
+    /// </summary>
+    public static WidgetConfig Merged(WidgetConfig defaults, string fragment)
+    {
+        var json = JsonNode.Parse(JsonSerializer.Serialize(defaults, WidgetConfig))?.AsObject()
+            ?? throw new InvalidOperationException("a default config serialised to nothing");
+        var over = JsonNode.Parse(fragment)?.AsObject()
+            ?? throw new InvalidOperationException($"a config fragment is not an object: {fragment}");
+
+        foreach (var (name, value) in over.ToList())
+        {
+            over.Remove(name);
+            json[name] = value;
+        }
+
+        var config = JsonSerializer.Deserialize(json.ToJsonString(), WidgetConfig)
+            ?? throw new InvalidOperationException("a merged config read back as nothing");
+        return config.Clone();
+    }
 }

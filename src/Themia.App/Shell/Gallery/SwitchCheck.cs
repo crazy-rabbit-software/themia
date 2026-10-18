@@ -1,5 +1,6 @@
 #if DEBUG
 using System.Diagnostics;
+using System.Text.Json;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -397,7 +398,7 @@ internal static class SwitchCheck
     private static (ViewState Galleries, ViewState Feeds) BusyViews(string pictures, string? stream)
     {
         var galleries = ViewState.Create("Busy galleries");
-        GalleryStyle[] styles = [GalleryStyle.Slideshow, GalleryStyle.Grid, GalleryStyle.Scatter, GalleryStyle.Mosaic, GalleryStyle.Slideshow, GalleryStyle.Grid, GalleryStyle.Mosaic];
+        string[] styles = ["slideshow", "grid", "scatter", "mosaic", "slideshow", "grid", "mosaic"];
         FracRect[] places =
         [
             new(0.02, 0.04, 0.30, 0.30), new(0.34, 0.04, 0.30, 0.45), new(0.66, 0.04, 0.32, 0.30),
@@ -407,8 +408,8 @@ internal static class SwitchCheck
 
         for (var i = 0; i < styles.Length; i++)
         {
-            var widget = WidgetInstance.Create(GalleryConfig.Descriptor.Id, places[i]);
-            widget.Config = new GalleryConfig { Path = pictures, Style = styles[i], SlideshowSeconds = 5 };
+            var widget = WidgetInstance.Create(new WidgetId("gallery"), places[i]);
+            widget.Config = StateJson.Merged(widget.Config, $$"""{"path":"{{JsonEncodedText.Encode(pictures)}}","style":"{{styles[i]}}","slideshowSeconds":5}""");
             galleries.Widgets.Add(widget);
         }
 

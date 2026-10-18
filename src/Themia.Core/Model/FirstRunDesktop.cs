@@ -101,7 +101,7 @@ internal static class FirstRunDesktop
         var widget = WidgetInstance.Create(id, seed.Rect);
         if (seed.Config is { } fragment)
         {
-            widget.Config = Merged(widget.Config, fragment);
+            widget.Config = StateJson.Merged(widget.Config, fragment);
         }
 
         if (seed.Bare)
@@ -111,25 +111,6 @@ internal static class FirstRunDesktop
         }
 
         return widget;
-    }
-
-    /// <summary><paramref name="fragment"/>'s properties over <paramref name="defaults"/>, as the state file would hold them.</summary>
-    private static WidgetConfig Merged(WidgetConfig defaults, string fragment)
-    {
-        var json = JsonNode.Parse(JsonSerializer.Serialize(defaults, StateJson.WidgetConfig))?.AsObject()
-            ?? throw new InvalidOperationException("a default config serialised to nothing");
-        var over = JsonNode.Parse(fragment)?.AsObject()
-            ?? throw new InvalidOperationException($"a first-run config fragment is not an object: {fragment}");
-
-        foreach (var (name, value) in over.ToList())
-        {
-            over.Remove(name);
-            json[name] = value;
-        }
-
-        var config = JsonSerializer.Deserialize(json.ToJsonString(), StateJson.WidgetConfig)
-            ?? throw new InvalidOperationException("a first-run config read back as nothing");
-        return config.Clone();
     }
 
     /// <summary>A rect on the 2560×1440 grid the first-run views were laid out on, as fractions.</summary>
