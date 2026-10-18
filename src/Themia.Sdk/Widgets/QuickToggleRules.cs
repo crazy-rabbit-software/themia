@@ -130,42 +130,6 @@ public static class QuickToggleRules
         _ => Str.Toggles_GameMode_Name,
     };
 
-    /// <summary>[S-3900] The picker's name: "Microphone on/off", so it never reads as another widget's ("Bluetooth").</summary>
-    public static Str PickerLabelId(QuickToggle toggle) => toggle switch
-    {
-        QuickToggle.Wifi => Str.Toggles_Wifi_Label,
-        QuickToggle.Bluetooth => Str.Toggles_Bluetooth_Label,
-        QuickToggle.AirplaneMode => Str.Toggles_AirplaneMode_Label,
-        QuickToggle.EnergySaver => Str.Toggles_EnergySaver_Label,
-        QuickToggle.NightLight => Str.Toggles_NightLight_Label,
-        QuickToggle.RotationLock => Str.Toggles_RotationLock_Label,
-        QuickToggle.DoNotDisturb => Str.Toggles_DoNotDisturb_Label,
-        QuickToggle.Sound => Str.Toggles_Sound_Label,
-        QuickToggle.Microphone => Str.Toggles_Microphone_Label,
-        QuickToggle.SpatialSound => Str.Toggles_SpatialSound_Label,
-        QuickToggle.MonoAudio => Str.Toggles_MonoAudio_Label,
-        QuickToggle.ColorFilters => Str.Toggles_ColorFilters_Label,
-        _ => Str.Toggles_GameMode_Label,
-    };
-
-    /// <summary>The picker's one line under the name.</summary>
-    public static Str DescriptionId(QuickToggle toggle) => toggle switch
-    {
-        QuickToggle.Wifi => Str.Toggles_Wifi_Desc,
-        QuickToggle.Bluetooth => Str.Toggles_Bluetooth_Desc,
-        QuickToggle.AirplaneMode => Str.Toggles_AirplaneMode_Desc,
-        QuickToggle.EnergySaver => Str.Toggles_EnergySaver_Desc,
-        QuickToggle.NightLight => Str.Toggles_NightLight_Desc,
-        QuickToggle.RotationLock => Str.Toggles_RotationLock_Desc,
-        QuickToggle.DoNotDisturb => Str.Toggles_DoNotDisturb_Desc,
-        QuickToggle.Sound => Str.Toggles_Sound_Desc,
-        QuickToggle.Microphone => Str.Toggles_Microphone_Desc,
-        QuickToggle.SpatialSound => Str.Toggles_SpatialSound_Desc,
-        QuickToggle.MonoAudio => Str.Toggles_MonoAudio_Desc,
-        QuickToggle.ColorFilters => Str.Toggles_ColorFilters_Desc,
-        _ => Str.Toggles_GameMode_Desc,
-    };
-
     public static string Name(QuickToggle toggle) => NameId(toggle).Text();
 
     public static string Name(Locale locale, QuickToggle toggle) => Strings.Get(locale, NameId(toggle));
