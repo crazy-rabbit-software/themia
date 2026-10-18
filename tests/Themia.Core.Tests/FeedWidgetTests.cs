@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Net;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -109,7 +110,6 @@ public sealed class FeedWidgetTests : IDisposable
             cap: 5);
 
         Assert.Equal(["b1", "a1", "b2", "a2", "a-undated"], merged.Entries.Select(e => e.Title));
-        Assert.Empty(merged.Failures);
     }
 
     [Fact]
@@ -133,15 +133,15 @@ public sealed class FeedWidgetTests : IDisposable
     {
         var a = new FeedDocument("Tech News", [Entry("a1", Now)]);
 
-        var merged = FeedAggregate.Merge(
-            [
-                new FeedPart("https://a.example/f", a, FetchStatus.Ok, null),
-                new FeedPart("https://www.broken.example/rss", null, FetchStatus.BadResponse, "HTTP 403 Forbidden"),
-            ],
-            cap: 20);
+        FeedPart[] parts =
+        [
+            new FeedPart("https://a.example/f", a, FetchStatus.Ok, null),
+            new FeedPart("https://www.broken.example/rss", null, FetchStatus.BadResponse, "HTTP 403 Forbidden"),
+        ];
+        var merged = FeedAggregate.Merge(parts, cap: 20);
 
         Assert.Single(merged.Entries);
-        Assert.Equal(["broken.example: HTTP 403 Forbidden"], merged.Failures);
+        Assert.Equal(["broken.example: HTTP 403 Forbidden"], KitScreens.Decide(Locale.En, null, [], FeedAggregate.Outcomes(parts), merged.Entries.Count, "none").HeaderProblems);
     }
 
     [Fact]
@@ -189,14 +189,14 @@ public sealed class FeedWidgetTests : IDisposable
     [InlineData(-86400 * 8, "Sep 26")]
     [InlineData(-86400 * 400, "Aug 30, 2025")]
     public void S1302_ItemAgeIsRelativeForAWeek_ThenADate(int seconds, string expected)
-        => Assert.Equal(expected, FeedAggregate.Age(Locale.En, Now.AddSeconds(seconds), Now));
+        => Assert.Equal(expected, KitText.Age(Locale.En, Now.AddSeconds(seconds), Now));
 
     [Fact]
     public void S1302_ItemAgeUnderAWeekIsTheSharedFreshnessAndDatesAreTheLanguages()
     {
-        Assert.Equal(FetchState.Freshness(Locale.En, Now.AddSeconds(-300), Now), FeedAggregate.Age(Locale.En, Now.AddSeconds(-300), Now));
-        Assert.Equal("26. Sept.", FeedAggregate.Age(Locale.De, Now.AddDays(-8), Now));
-        Assert.Equal("30.08.2025", FeedAggregate.Age(Locale.De, Now.AddDays(-400), Now));
+        Assert.Equal(FetchState.Freshness(Locale.En, Now.AddSeconds(-300), Now), KitText.Age(Locale.En, Now.AddSeconds(-300), Now));
+        Assert.Equal("26. Sept.", KitText.Age(Locale.De, Now.AddDays(-8), Now));
+        Assert.Equal("30.08.2025", KitText.Age(Locale.De, Now.AddDays(-400), Now));
     }
 
     // ---- [S-1304] site icons -----------------------------------------------------------------
@@ -243,53 +243,53 @@ public sealed class FeedWidgetTests : IDisposable
     [MemberData(nameof(Tiers))]
     public void S1305_OneWholeRowFitsAtEveryTier(string tier, double width, double height)
     {
-        var plan = FeedLayout.Plan(new WidgetArea(width, height), true, true, true);
+        var plan = KitLadder.Plan(new WidgetArea(width, height), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
-        Assert.True(FeedLayout.RowEstimate(plan) <= height - FeedLayout.ListInset + Disclosure.Tolerance, tier);
-        Assert.True(plan.HeadlineLines >= 1, tier);
+        Assert.True(KitLadder.RowEstimate(plan) <= height - KitLadder.ListInset + Disclosure.Tolerance, tier);
+        Assert.True(plan.TitleLines >= 1, tier);
     }
 
     [Fact]
     public void S1305_TheSmallestTileShowsTheHeadlineAndNoSource()
     {
-        var plan = FeedLayout.Plan(new WidgetArea(120, 76), true, true, true);
+        var plan = KitLadder.Plan(new WidgetArea(120, 76), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
-        Assert.Equal(FeedArrangement.List, plan.Arrangement);
-        Assert.False(plan.Favicon);
-        Assert.False(plan.Host);
+        Assert.Equal(1, plan.Columns);
+        Assert.False(plan.Lead);
+        Assert.False(plan.Subtitle);
         Assert.Equal(0, plan.PreviewLines);
     }
 
     [Fact]
     public void S1305_AStripAndALargeTileGoToColumns()
     {
-        var wide = FeedLayout.Plan(new WidgetArea(480, 116), true, true, true);
-        var large = FeedLayout.Plan(new WidgetArea(560, 376), true, true, true);
+        var wide = KitLadder.Plan(new WidgetArea(480, 116), RssSpec.Spec, RssSpec.Shows(true, true, true));
+        var large = KitLadder.Plan(new WidgetArea(560, 376), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
-        Assert.Equal(FeedArrangement.Columns, wide.Arrangement);
+        Assert.True(wide.Columns > 1);
         Assert.Equal(2, wide.Columns);
         Assert.Equal(2, large.Columns);
-        Assert.True(large.Host);
+        Assert.True(large.Subtitle);
         Assert.True(large.PreviewLines > 0);
     }
 
     [Fact]
     public void S1305_ATallColumnIsForHeadlines_IconWithoutName()
     {
-        var plan = FeedLayout.Plan(new WidgetArea(200, 356), true, true, true);
+        var plan = KitLadder.Plan(new WidgetArea(200, 356), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
         Assert.Equal(1, plan.Columns);
-        Assert.True(plan.Favicon);
-        Assert.False(plan.Host);
+        Assert.True(plan.Lead);
+        Assert.False(plan.Subtitle);
         Assert.Equal(0, plan.PreviewLines);
     }
 
     [Fact]
     public void S1305_TheMediumTileKeepsTwoHeadlinesRatherThanOnePreview()
     {
-        var plan = FeedLayout.Plan(new WidgetArea(320, 196), true, true, true);
+        var plan = KitLadder.Plan(new WidgetArea(320, 196), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
-        Assert.True(plan.Host);
+        Assert.True(plan.Subtitle);
         Assert.Equal(0, plan.PreviewLines);
     }
 
@@ -298,34 +298,42 @@ public sealed class FeedWidgetTests : IDisposable
     {
         // The feed is its headlines at every size: XL is three columns of them with their
         // summaries, never a list beside a pane reading one item (retired, concise widgets).
-        var plan = FeedLayout.Plan(new WidgetArea(800, 516), true, true, true);
+        var plan = KitLadder.Plan(new WidgetArea(800, 516), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
-        Assert.Equal(FeedArrangement.Columns, plan.Arrangement);
+        Assert.True(plan.Columns > 1);
         Assert.Equal(3, plan.Columns);
         Assert.True(plan.PreviewLines > 0);
     }
 
+    [Theory]
+    [InlineData(WidgetKey.Up, -1, true)]
+    [InlineData(WidgetKey.Left, -1, true)]
+    [InlineData(WidgetKey.Down, -1, false)]
+    [InlineData(WidgetKey.Up, 3, false)]
+    public void S1306_up_with_no_headline_focused_lands_on_the_last(WidgetKey key, int index, bool last)
+        => Assert.Equal(last, RssKeys.StartsAtTheEnd(key, index, 10));
+
     [Fact]
     public void S1306_AWideButShortStripStaysInColumns()
-        => Assert.Equal(FeedArrangement.Columns, FeedLayout.Plan(new WidgetArea(800, 116), true, true, true).Arrangement);
+        => Assert.True(KitLadder.Plan(new WidgetArea(800, 116), RssSpec.Spec, RssSpec.Shows(true, true, true)).Columns > 1);
 
     [Fact]
     public void S1305_SwitchedOffFieldsStayOff()
     {
-        var plan = FeedLayout.Plan(new WidgetArea(560, 376), showSource: false, showPreview: false, showDate: false);
+        var plan = KitLadder.Plan(new WidgetArea(560, 376), RssSpec.Spec, RssSpec.Shows(false, false, false));
 
-        Assert.False(plan.Favicon);
-        Assert.False(plan.Host);
-        Assert.False(plan.Date);
+        Assert.False(plan.Lead);
+        Assert.False(plan.Subtitle);
+        Assert.False(plan.When);
         Assert.Equal(0, plan.PreviewLines);
     }
 
     [Fact]
     public void S1305_WholeRowsOnly_AtLeastOne()
     {
-        Assert.Equal(2, FeedLayout.WholeRows([60, 60, 60], 150));
-        Assert.Equal(1, FeedLayout.WholeRows([200], 100));
-        Assert.Equal(0, FeedLayout.WholeRows([], 100));
+        Assert.Equal(2, KitLadder.WholeRows([60, 60, 60], 150));
+        Assert.Equal(1, KitLadder.WholeRows([200], 100));
+        Assert.Equal(0, KitLadder.WholeRows([], 100));
     }
 
     // ---- [S-1300] saved cache ----------------------------------------------------------------

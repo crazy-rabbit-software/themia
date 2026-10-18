@@ -6,6 +6,7 @@ using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Model;
 
@@ -30,7 +31,7 @@ public sealed class RssFeed
 /// link and summary that comes back is attacker-controlled text, displayed and never interpreted.
 /// </para>
 /// </summary>
-public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
+public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests
 {
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
@@ -41,8 +42,20 @@ public sealed class RssConfig : WidgetConfig, ISetupRule, IInterests
         }
     }
 
-    /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(FeatureSet signedIn) => ResolvedFeeds.Count == 0;
+    /// <summary>[S-7050] A web source: it reads no account.</summary>
+    [JsonIgnore]
+    public FeatureId? Needs => null;
+
+    /// <summary>[S-6906] [S-7050] It waits for setup until one address is listed (a refused one says why in the widget).</summary>
+    [JsonIgnore]
+    public bool Configured => ResolvedFeeds.Count > 0;
+
+    [JsonIgnore]
+    public IReadOnlyList<string> AccountIds => [];
+
+    /// <summary>[S-7030] The fields its settings turn on.</summary>
+    [JsonIgnore]
+    public KitShow Shows => RssSpec.Shows(ShowSource, ShowPreview, ShowDate);
 
     /// <summary>How many feeds one widget merges. Each is a request per refresh.</summary>
     public const int MaxFeeds = 12;

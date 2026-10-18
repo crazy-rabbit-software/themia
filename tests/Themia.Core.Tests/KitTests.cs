@@ -216,7 +216,7 @@ public sealed class KitTests
 
     // ---- [S-7030] [S-7031] the ladder -----------------------------------------------------------
 
-    private static readonly KitSpec Rich = new(KitRowLook.Rich, KitShow.All, () => "(untitled)", MaxColumns: 3);
+    private static readonly KitSpec Rich = new(KitRowLook.Rich, KitShow.All, () => "(untitled)", () => "No articles", MaxColumns: 3);
 
     public static TheoryData<string, double, double> Tiers => new()
     {
@@ -276,29 +276,6 @@ public sealed class KitTests
         Assert.Equal(2, KitLadder.WholeRows([60, 60, 60], 150));
         Assert.Equal(1, KitLadder.WholeRows([200], 100));
         Assert.Equal(0, KitLadder.WholeRows([], 100));
-    }
-
-    /// <summary>The kit's ladder is the feed widget's, generalised: for every size the two agree rung for rung.</summary>
-    [Fact]
-    public void S7031_the_rich_ladder_is_the_feed_ladder()
-    {
-        foreach (var width in new[] { 80.0, 120, 179, 180, 200, 239, 240, 320, 399, 400, 480, 560, 640, 719, 720, 800, 1000, 1400 })
-        {
-            foreach (var height in new[] { 30.0, 40, 76, 90, 106, 116, 150, 196, 240, 279, 280, 356, 376, 420, 516, 700 })
-            {
-                foreach (var (source, preview, date) in new[] { (true, true, true), (false, true, true), (true, false, true), (true, true, false), (false, false, false) })
-                {
-                    var area = new WidgetArea(width, height);
-                    var feed = FeedLayout.Plan(area, source, preview, date);
-                    var shows = (source ? KitShow.Lead | KitShow.Subtitle : KitShow.None) | (preview ? KitShow.Preview : KitShow.None) | (date ? KitShow.When : KitShow.None);
-                    var kit = KitLadder.Plan(area, Rich, shows);
-
-                    Assert.Equal((feed.Columns, feed.Favicon, feed.Host, feed.HeadlineLines, feed.PreviewLines, feed.Date),
-                        (kit.Columns, kit.Lead, kit.Subtitle, kit.TitleLines, kit.PreviewLines, kit.When));
-                    Assert.Equal(FeedLayout.RowEstimate(feed), KitLadder.RowEstimate(kit));
-                }
-            }
-        }
     }
 
     // ---- [S-7040] [S-7041] screens ------------------------------------------------------------

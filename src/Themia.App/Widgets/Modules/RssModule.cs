@@ -16,5 +16,5 @@ public sealed class RssModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Rss(rows.Rows, (RssConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new RssView();
+    public FrameworkElement CreateView(IWidgetHost host) => new RssView(host);
 }

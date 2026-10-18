@@ -67,42 +67,43 @@ internal sealed partial class RssView : IWidgetPreviewState
             => new(FetchStatus.Ok, doc, null, now.AddMinutes(-minutesAgo));
 
         var feeds = state == "single" || state == "empty" ? new[] { news } : new[] { news, blog, tech };
-        _config = new RssConfig { Feeds = [.. feeds.Select(url => new RssFeed { Url = url })] };
-        _applied = (RssConfig)_config.Clone();
-        _parts.Clear();
-        _cursor = null;
+        var config = new RssConfig { Feeds = [.. feeds.Select(url => new RssFeed { Url = url })] };
+        var parts = new Dictionary<string, Fetched<FeedDocument>>(StringComparer.Ordinal);
 
         switch (state)
         {
             case "sample":
-                _parts[news] = Ok(newsDoc, 4);
-                _parts[blog] = Ok(blogDoc, 4);
-                _parts[tech] = Ok(techDoc, 4);
+                parts[news] = Ok(newsDoc, 4);
+                parts[blog] = Ok(blogDoc, 4);
+                parts[tech] = Ok(techDoc, 4);
                 break;
 
             case "single":
-                _parts[news] = Ok(newsDoc, 2);
+                parts[news] = Ok(newsDoc, 2);
                 break;
 
             case "stale":
-                _parts[news] = Ok(newsDoc, 50);
-                _parts[blog] = Ok(blogDoc, 50).Stale(FetchStatus.Offline, null);
-                _parts[tech] = Fetched<FeedDocument>.Failed(FetchStatus.BadResponse, "HTTP 503 Service Unavailable", now);
+                parts[news] = Ok(newsDoc, 50);
+                parts[blog] = Ok(blogDoc, 50).Stale(FetchStatus.Offline, null);
+                parts[tech] = Fetched<FeedDocument>.Failed(FetchStatus.BadResponse, "HTTP 503 Service Unavailable", now);
                 break;
 
             case "failed":
-                _parts[news] = Fetched<FeedDocument>.Failed(FetchStatus.Unreachable, null, now);
-                _parts[blog] = Fetched<FeedDocument>.Failed(FetchStatus.BadResponse, "HTTP 404 Not Found", now);
-                _parts[tech] = Fetched<FeedDocument>.Failed(FetchStatus.TimedOut, null, now);
+                parts[news] = Fetched<FeedDocument>.Failed(FetchStatus.Unreachable, null, now);
+                parts[blog] = Fetched<FeedDocument>.Failed(FetchStatus.BadResponse, "HTTP 404 Not Found", now);
+                parts[tech] = Fetched<FeedDocument>.Failed(FetchStatus.TimedOut, null, now);
                 break;
 
             case "empty":
-                _parts[news] = Fetched<FeedDocument>.Failed(FetchStatus.Empty, "the feed has no items", now);
+                parts[news] = Fetched<FeedDocument>.Failed(FetchStatus.Empty, "the feed has no items", now);
                 break;
         }
 
-        PublishTitle();
-        Render();
+        _config = config;
+        _applied = (RssConfig)config.Clone();
+        _source.HoldForPreview(config, parts);
+        _binding.ReleaseCursor();
+        _binding.Apply(_source, _config, _config.TickInterval, show: false);
         return Task.CompletedTask;
     }
 }

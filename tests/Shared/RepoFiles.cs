@@ -44,11 +44,18 @@ internal static class RepoFiles
 
     /// <summary>
     /// Every source a widget view may be built from: the app's widgets, the SDK's widget parts
-    /// (<c>src/Themia.Sdk.WinUI/Widgets</c>; its settings rows are the settings window's) and every
-    /// widget module (views, their parts and their settings rows; previews included).
+    /// (<c>src/Themia.Sdk.WinUI/Widgets</c>; its settings rows are the settings window's), the kit's
+    /// UI parts (<c>src/Themia.Sdk.WinUI/Kit</c>) and every widget module (views, their parts and
+    /// their settings rows; previews included).
     /// </summary>
     public static IEnumerable<string> ViewSources()
-        => CSharp(AppWidgets).Concat(CSharp(Path.Combine(SdkWinUI, "Widgets"))).Concat(WidgetModules().SelectMany(CSharp));
+        => CSharp(AppWidgets)
+            .Concat(CSharp(Path.Combine(SdkWinUI, "Widgets")))
+            .Concat(CSharp(SdkKit))
+            .Concat(WidgetModules().SelectMany(CSharp));
+
+    /// <summary>The kit's UI parts (<c>src/Themia.Sdk.WinUI/Kit</c>).</summary>
+    public static string SdkKit => Path.Combine(SdkWinUI, "Kit");
 
     /// <summary>
     /// A module's settings page (<c>src/Widgets/Themia.Widget.&lt;Name&gt;/&lt;Name&gt;Settings.cs</c>): the settings

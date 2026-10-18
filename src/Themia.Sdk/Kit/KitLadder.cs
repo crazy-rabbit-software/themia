@@ -44,14 +44,16 @@ public enum KitOverflow
 
 /// <summary>
 /// [S-7030] A kit list widget's shape: which look its rows have, which optional fields exist, how
-/// many columns it may grow to, how its time is written and the sentence for an untitled item. The
-/// widget's own data, so its breakpoints live in one place, <see cref="KitLadder.Plan"/>.
+/// many columns it may grow to, how its time is written, and its sentences. The widget's own data,
+/// so its breakpoints live in one place, <see cref="KitLadder.Plan"/>.
 /// </summary>
 /// <param name="Untitled">The title of an item that has none, in the current language.</param>
+/// <param name="Empty">What the widget says when its sources answered with nothing ([S-7040]).</param>
 public sealed record KitSpec(
     KitRowLook Look,
     KitShow Optional,
     Func<string> Untitled,
+    Func<string> Empty,
     KitTime Time = KitTime.Age,
     KitOverflow Overflow = KitOverflow.Scroll,
     int MaxColumns = 1);

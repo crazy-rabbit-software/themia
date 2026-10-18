@@ -7,21 +7,21 @@ namespace Themia.Core.Widgets;
 /// <param name="Document">The parsed feed, or null when this feed failed and nothing was held for it.</param>
 /// <param name="Status">How the last attempt for this feed went.</param>
 /// <param name="Detail">The failure, for the tooltip ("HTTP 403 Forbidden"), or null.</param>
-public sealed record FeedPart(string Url, FeedDocument? Document, FetchStatus Status, string? Detail);
+/// <param name="HeldAt">When the held document was fetched, or null when none is held.</param>
+public sealed record FeedPart(string Url, FeedDocument? Document, FetchStatus Status, string? Detail, DateTimeOffset? HeldAt = null);
 
 /// <summary>The merged list a feed widget draws.</summary>
 /// <param name="Title">The header title the feeds themselves suggest, or empty for the catalogue name.</param>
 /// <param name="Entries">Every item, newest first, undated last, capped.</param>
-/// <param name="Failures">One line per feed that failed this refresh: "BBC News: HTTP 403 Forbidden".</param>
-public sealed record MergedFeed(string Title, IReadOnlyList<FeedEntry> Entries, IReadOnlyList<string> Failures);
+public sealed record MergedFeed(string Title, IReadOnlyList<FeedEntry> Entries);
 
 /// <summary>
 /// [S-1302] Several feeds into one list, as the original's <c>aggregateFeeds</c> (S-30/S-33/S-34).
 /// <para>
 /// Newest first across all feeds; an undated item sinks below every dated one (and undated items
 /// keep their feeds' own order); the combined list is capped. A feed that failed while others
-/// answered is a <i>partial</i> refresh: its reason is kept, named after the feed, so the header
-/// can say which one is broken instead of presenting a short list as complete.
+/// answered is a <i>partial</i> refresh: its outcome (<see cref="Outcomes"/>) is named after the
+/// feed, so the header can say which one is broken instead of presenting a short list as complete.
 /// </para>
 /// </summary>
 public static class FeedAggregate
@@ -30,17 +30,11 @@ public static class FeedAggregate
     {
         ArgumentNullException.ThrowIfNull(parts);
 
-        var failures = new List<string>();
         var merged = new List<(FeedEntry Entry, int Order)>();
         var order = 0;
 
         foreach (var part in parts)
         {
-            if (FetchState.IsFailure(part.Status))
-            {
-                failures.Add(KitScreens.Line(Strings.Current, new KitOutcome(Name(part), part.Status, part.Detail)));
-            }
-
             foreach (var entry in part.Document?.Entries ?? [])
             {
                 merged.Add((entry, order++));
@@ -62,17 +56,15 @@ public static class FeedAggregate
         });
 
         var entries = merged.Take(Math.Max(1, cap)).Select(pair => pair.Entry).ToList();
-        return new MergedFeed(Title(parts), entries, failures);
+        return new MergedFeed(Title(parts), entries);
     }
 
-    /// <summary>
-    /// When an item was published, as the original's list said it (S-06): "Just now", "5m ago",
-    /// "3h ago", "6d ago", then the date ("Mar 4", with the year once it is not this year's).
-    /// </summary>
-    public static string Age(DateTimeOffset published, DateTimeOffset now) => Age(Strings.Current, published, now);
-
-    /// <summary><see cref="Age(DateTimeOffset, DateTimeOffset)"/> in an explicit language.</summary>
-    public static string Age(Locale locale, DateTimeOffset published, DateTimeOffset now) => KitText.Age(locale, published, now);
+    /// <summary>[S-1302] [S-7040] How each feed last went, named after it, in the order the user listed them.</summary>
+    public static IReadOnlyList<KitOutcome> Outcomes(IReadOnlyList<FeedPart> parts)
+    {
+        ArgumentNullException.ThrowIfNull(parts);
+        return [.. parts.Select(part => new KitOutcome(Name(part), part.Status, part.Detail, part.Document is null ? null : part.HeldAt))];
+    }
 
     /// <summary>
     /// The title the feeds suggest (S-04): one feed's own <c>&lt;title&gt;</c>; several feeds'
