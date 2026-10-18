@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Gelecek saatte yağmur",
+  "online.rain.desc": "Yağmurun başlayacağı veya duracağı zaman, {minutes} dakikalık adımlarla",
+  "online.rain.startsIn": "{minutes} dk içinde yağmur",
+  "online.rain.stopsIn": "Yağmur {minutes} dk içinde duruyor",
+  "online.rain.continues": "Önümüzdeki 2 saat yağmurlu",
+  "online.rain.dry": "Önümüzdeki 2 saat yağmur yok",
+  "online.rain.outdated": "Gelecek saat için tahmin yok",
+  "online.rain.intensity.light": "Hafif yağmur",
+  "online.rain.intensity.moderate": "Orta yağmur",
+  "online.rain.intensity.heavy": "Şiddetli yağmur",
+  "online.rain.chance": "{percent} olasılık",
+  "online.rain.total": "2 saatte {amount} mm",
+  "online.rain.now": "Şimdi"
+}

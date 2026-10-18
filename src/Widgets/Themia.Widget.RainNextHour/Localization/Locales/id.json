@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Hujan sejam ke depan",
+  "online.rain.desc": "Kapan hujan mulai atau berhenti, per {minutes} menit",
+  "online.rain.startsIn": "Hujan dalam {minutes} mnt",
+  "online.rain.stopsIn": "Hujan berhenti dalam {minutes} mnt",
+  "online.rain.continues": "Hujan selama 2 jam ke depan",
+  "online.rain.dry": "Tidak hujan dalam 2 jam ke depan",
+  "online.rain.outdated": "Tidak ada prakiraan untuk sejam ke depan",
+  "online.rain.intensity.light": "Hujan ringan",
+  "online.rain.intensity.moderate": "Hujan sedang",
+  "online.rain.intensity.heavy": "Hujan lebat",
+  "online.rain.chance": "Peluang {percent}",
+  "online.rain.total": "{amount} mm dalam 2 jam",
+  "online.rain.now": "Sekarang"
+}

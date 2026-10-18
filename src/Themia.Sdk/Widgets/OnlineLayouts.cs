@@ -1,9 +1,8 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-5107] [S-5126] [S-5146] The measures the online widgets' ladders share (S-660..S-665): each
-/// widget's own ladder (<c>AirLayout</c>, <c>RainLayout</c>, <c>RatesLayout</c>) classifies on the
-/// area and spends the box these leave, deflated, through one <see cref="Disclosure"/>.
+/// [S-5160] The measures the online widgets' ladders share (S-660..S-665): each widget's own ladder
+/// classifies on the area and spends the box these leave, deflated, through one <see cref="Disclosure"/>.
 /// </summary>
 public static class OnlineLayouts
 {

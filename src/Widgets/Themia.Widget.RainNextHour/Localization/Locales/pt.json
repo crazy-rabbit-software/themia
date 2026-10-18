@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Chuva na próxima hora",
+  "online.rain.desc": "Quando a chuva começa ou para, em passos de {minutes} minutos",
+  "online.rain.startsIn": "Chuva em {minutes} min",
+  "online.rain.stopsIn": "A chuva para em {minutes} min",
+  "online.rain.continues": "Chuva nas próximas 2 horas",
+  "online.rain.dry": "Sem chuva nas próximas 2 horas",
+  "online.rain.outdated": "Sem previsão para a próxima hora",
+  "online.rain.intensity.light": "Chuva fraca",
+  "online.rain.intensity.moderate": "Chuva moderada",
+  "online.rain.intensity.heavy": "Chuva forte",
+  "online.rain.chance": "{percent} de probabilidade",
+  "online.rain.total": "{amount} mm em 2 horas",
+  "online.rain.now": "Agora"
+}

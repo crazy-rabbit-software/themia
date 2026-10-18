@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Regen komend uur",
+  "online.rain.desc": "Wanneer regen begint of stopt, per {minutes} minuten",
+  "online.rain.startsIn": "Regen over {minutes} min",
+  "online.rain.stopsIn": "Regen stopt over {minutes} min",
+  "online.rain.continues": "Regen de komende 2 uur",
+  "online.rain.dry": "Geen regen de komende 2 uur",
+  "online.rain.outdated": "Geen verwachting voor het komende uur",
+  "online.rain.intensity.light": "Lichte regen",
+  "online.rain.intensity.moderate": "Matige regen",
+  "online.rain.intensity.heavy": "Zware regen",
+  "online.rain.chance": "{percent} kans",
+  "online.rain.total": "{amount} mm in 2 uur",
+  "online.rain.now": "Nu"
+}

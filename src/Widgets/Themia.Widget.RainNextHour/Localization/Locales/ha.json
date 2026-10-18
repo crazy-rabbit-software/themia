@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Ruwan sama a awa mai zuwa",
+  "online.rain.desc": "Lokacin da ruwan sama zai fara ko tsaya, a matakan minti {minutes}",
+  "online.rain.startsIn": "Ruwan sama cikin minti {minutes}",
+  "online.rain.stopsIn": "Ruwan sama zai tsaya cikin minti {minutes}",
+  "online.rain.continues": "Ruwan sama na awa 2 masu zuwa",
+  "online.rain.dry": "Babu ruwan sama a awa 2 masu zuwa",
+  "online.rain.outdated": "Babu hasashe na awa mai zuwa",
+  "online.rain.intensity.light": "Ruwan sama kaɗan",
+  "online.rain.intensity.moderate": "Ruwan sama matsakaici",
+  "online.rain.intensity.heavy": "Ruwan sama mai ƙarfi",
+  "online.rain.chance": "Yiwuwar {percent}",
+  "online.rain.total": "{amount} mm cikin awa 2",
+  "online.rain.now": "Yanzu"
+}

@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "اگلے گھنٹے میں بارش",
+  "online.rain.desc": "بارش کب شروع یا بند ہوگی، {minutes} منٹ کے وقفوں میں",
+  "online.rain.startsIn": "{minutes} منٹ میں بارش",
+  "online.rain.stopsIn": "{minutes} منٹ میں بارش رکے گی",
+  "online.rain.continues": "اگلے 2 گھنٹے بارش",
+  "online.rain.dry": "اگلے 2 گھنٹے بارش نہیں",
+  "online.rain.outdated": "اگلے گھنٹے کی پیش گوئی نہیں",
+  "online.rain.intensity.light": "ہلکی بارش",
+  "online.rain.intensity.moderate": "درمیانی بارش",
+  "online.rain.intensity.heavy": "تیز بارش",
+  "online.rain.chance": "{percent} امکان",
+  "online.rain.total": "2 گھنٹوں میں {amount} mm",
+  "online.rain.now": "ابھی"
+}

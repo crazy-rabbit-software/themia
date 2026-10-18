@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Дождь в ближайший час",
+  "online.rain.desc": "Когда дождь начнётся или закончится, с шагом {minutes} минут",
+  "online.rain.startsIn": "Дождь через {minutes} мин",
+  "online.rain.stopsIn": "Дождь закончится через {minutes} мин",
+  "online.rain.continues": "Дождь ближайшие 2 часа",
+  "online.rain.dry": "Без дождя ближайшие 2 часа",
+  "online.rain.outdated": "Нет прогноза на ближайший час",
+  "online.rain.intensity.light": "Слабый дождь",
+  "online.rain.intensity.moderate": "Умеренный дождь",
+  "online.rain.intensity.heavy": "Сильный дождь",
+  "online.rain.chance": "Вероятность {percent}",
+  "online.rain.total": "{amount} мм за 2 часа",
+  "online.rain.now": "Сейчас"
+}

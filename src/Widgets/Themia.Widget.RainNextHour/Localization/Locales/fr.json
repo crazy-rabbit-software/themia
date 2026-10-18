@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Pluie dans l’heure",
+  "online.rain.desc": "Quand la pluie commence ou s’arrête, par pas de {minutes} minutes",
+  "online.rain.startsIn": "Pluie dans {minutes} min",
+  "online.rain.stopsIn": "Fin de la pluie dans {minutes} min",
+  "online.rain.continues": "Pluie pendant les 2 prochaines heures",
+  "online.rain.dry": "Pas de pluie dans les 2 prochaines heures",
+  "online.rain.outdated": "Pas de prévision pour l’heure qui vient",
+  "online.rain.intensity.light": "Pluie faible",
+  "online.rain.intensity.moderate": "Pluie modérée",
+  "online.rain.intensity.heavy": "Forte pluie",
+  "online.rain.chance": "{percent} de risque",
+  "online.rain.total": "{amount} mm en 2 heures",
+  "online.rain.now": "Maintenant"
+}

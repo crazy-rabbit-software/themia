@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "未来一小时降雨",
+  "online.rain.desc": "降雨何时开始或停止，每 {minutes} 分钟一档",
+  "online.rain.startsIn": "{minutes} 分钟后有雨",
+  "online.rain.stopsIn": "雨将在 {minutes} 分钟后停",
+  "online.rain.continues": "未来 2 小时有雨",
+  "online.rain.dry": "未来 2 小时无雨",
+  "online.rain.outdated": "没有未来一小时的预报",
+  "online.rain.intensity.light": "小雨",
+  "online.rain.intensity.moderate": "中雨",
+  "online.rain.intensity.heavy": "大雨",
+  "online.rain.chance": "降水概率 {percent}",
+  "online.rain.total": "2 小时 {amount} 毫米",
+  "online.rain.now": "现在"
+}

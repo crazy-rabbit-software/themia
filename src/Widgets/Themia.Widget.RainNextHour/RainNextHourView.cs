@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.RainNextHour;
 
 namespace Themia.App.Widgets;
 
@@ -238,7 +239,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
         if (outlook.Steps.Count > 0)
         {
             var start = outlook.Steps[0].Start.ToLocalTime();
-            _timeStart.Text = Str.Online_Rain_Now.Text();
+            _timeStart.Text = RainNextHourStr.Online_Rain_Now.Text();
             _timeMid.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(1).DateTime));
             _timeEnd.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime));
         }

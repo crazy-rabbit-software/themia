@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "આગલા કલાકમાં વરસાદ",
+  "online.rain.desc": "વરસાદ ક્યારે શરૂ થાય કે બંધ થાય, {minutes}-મિનિટનાં પગલાંમાં",
+  "online.rain.startsIn": "{minutes} મિનિટમાં વરસાદ",
+  "online.rain.stopsIn": "{minutes} મિનિટમાં વરસાદ બંધ",
+  "online.rain.continues": "આગલા 2 કલાક વરસાદ",
+  "online.rain.dry": "આગલા 2 કલાકમાં વરસાદ નથી",
+  "online.rain.outdated": "આગલા કલાક માટે કોઈ આગાહી નથી",
+  "online.rain.intensity.light": "હળવો વરસાદ",
+  "online.rain.intensity.moderate": "મધ્યમ વરસાદ",
+  "online.rain.intensity.heavy": "ભારે વરસાદ",
+  "online.rain.chance": "{percent} શક્યતા",
+  "online.rain.total": "2 કલાકમાં {amount} mm",
+  "online.rain.now": "હમણાં"
+}

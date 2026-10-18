@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "باران ساعت آینده",
+  "online.rain.desc": "زمان شروع یا قطع باران، در گام‌های {minutes} دقیقه‌ای",
+  "online.rain.startsIn": "باران تا {minutes} دقیقه دیگر",
+  "online.rain.stopsIn": "باران تا {minutes} دقیقه دیگر قطع می‌شود",
+  "online.rain.continues": "باران در دو ساعت آینده",
+  "online.rain.dry": "در دو ساعت آینده باران نمی‌بارد",
+  "online.rain.outdated": "پیش‌بینی برای ساعت آینده نیست",
+  "online.rain.intensity.light": "باران سبک",
+  "online.rain.intensity.moderate": "باران متوسط",
+  "online.rain.intensity.heavy": "باران شدید",
+  "online.rain.chance": "احتمال {percent}",
+  "online.rain.total": "{amount} میلی‌متر در دو ساعت",
+  "online.rain.now": "اکنون"
+}

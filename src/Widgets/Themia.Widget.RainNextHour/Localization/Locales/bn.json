@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "পরের ঘণ্টায় বৃষ্টি",
+  "online.rain.desc": "বৃষ্টি কখন শুরু বা থামবে, {minutes} মিনিটের ধাপে",
+  "online.rain.startsIn": "{minutes} মিনিটে বৃষ্টি",
+  "online.rain.stopsIn": "{minutes} মিনিটে বৃষ্টি থামবে",
+  "online.rain.continues": "আগামী ২ ঘণ্টা বৃষ্টি",
+  "online.rain.dry": "আগামী ২ ঘণ্টা বৃষ্টি নেই",
+  "online.rain.outdated": "পরের ঘণ্টার পূর্বাভাস নেই",
+  "online.rain.intensity.light": "হালকা বৃষ্টি",
+  "online.rain.intensity.moderate": "মাঝারি বৃষ্টি",
+  "online.rain.intensity.heavy": "ভারী বৃষ্টি",
+  "online.rain.chance": "{percent} সম্ভাবনা",
+  "online.rain.total": "২ ঘণ্টায় {amount} mm",
+  "online.rain.now": "এখন"
+}

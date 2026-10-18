@@ -7613,10 +7613,11 @@ Three online widgets on free, unauthenticated services, fetched only by the back
 ([S-2663]); a widget draws what the sync holds and never fetches. SDK: `Widgets/AirQuality.cs`,
 `Widgets/RainNowcast.cs`, `Widgets/ExchangeRates.cs` (wire parsers and rules), `Widgets/OnlineLayouts.cs`
 (the measures the ladders share), `Sync/WebInterests.cs`. Core: each widget's ladder and words
-(`AirLayout`/`AirText`, `RainLayout`/`RainText`, `RatesLayout`/`RatesText`), `Storage/OnlineCacheStore.cs`,
+(`AirLayout`/`AirText`, `RatesLayout`/`RatesText`), `Storage/OnlineCacheStore.cs`,
 `Model/Configs/OnlineConfigs.cs`. App: `Services/Web/OnlineService.cs`, `WebSync`, the views
-`AirQualityView`, `RainNextHourView`, `ExchangeRatesView` (+ `OnlineViews.Preview.cs`, `--state sample`),
-`WidgetSettings.Online.cs`. Strings in `Locales/online`. Tests `OnlineWidgetsTests` (`S51xx_`).
+`AirQualityView`, `ExchangeRatesView` (+ `OnlineViews.Preview.cs`, `--state sample`),
+`WidgetSettings.Online.cs`. Strings in `Locales/online`. Rain next hour is a module
+(`src/Widgets/Themia.Widget.RainNextHour/`). Tests `OnlineWidgetsTests` (`S51xx_`).
 
 Air quality (`AirQuality`, 128):
 
@@ -7667,10 +7668,7 @@ Air quality (`AirQuality`, 128):
 
 Rain next hour (`RainNextHour`, 129):
 
-- **[S-5120]** Rain in the next two hours at a place, a weather-family config like [S-5100], no
-  setting beyond the place and the location name.
-- **[S-5121]** `RainInterest`; the weather cadence ([S-3780]). The sentence is re-read from the held
-  nowcast every minute, so "in 30 min" counts down between fetches.
+- [S-5120], [S-5121], [S-5125], [S-5126], [S-5127]: moved with the Rain next hour widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.RainNextHour/`).
 - **[S-5122]** open-meteo's forecast API with `minutely_15=precipitation&past_minutely_15=1&forecast_minutely_15=9`
   and `hourly=precipitation_probability` for three hours, unix time. A 15-minute value is the sum of
   the quarter hour **ending** at its stamp. `RainWire.Parse`: no `minutely_15` block with `time` and
@@ -7686,13 +7684,6 @@ Rain next hour (`RainNextHour`, 129):
   quarter rounded to 15 and never below 15. Fewer than four quarters ahead (a nowcast kept too long
   offline) is "No forecast for the next hour", never "dry". The caption: the heaviest intensity and
   the window's total ("Moderate rain · 4.4 mm in 2 hours"), and the hour's chance.
-- **[S-5125]** The bars are on a fixed scale (heavy rain fills the chart), a wet quarter never thinner
-  than 8%, a dry one a hairline on the baseline; "Now", +1 h and +2 h under them, left to right in
-  every language.
-- **[S-5126]** Ladder (`RainLayout.Rain`): the sentence always, at the step its width allows
-  (BodyStrong to Title; two lines on a tile too narrow for one), then the caption, then the bars
-  where 32 DIP of them and their time line fit, taking the rest of the height.
-- **[S-5127]** Settings: Place, Location name, and the source line.
 
 Exchange rates (`ExchangeRates`, 130):
 

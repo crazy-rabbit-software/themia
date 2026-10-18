@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Widget.RainNextHour;
 
 namespace Themia.Core.Widgets;
 
@@ -12,19 +13,19 @@ public static class RainText
         var minutes = ("minutes", LocaleFormat.Integer(outlook.Minutes));
         return outlook.Headline switch
         {
-            RainHeadline.StartsIn => Str.Online_Rain_StartsIn.Format(minutes),
-            RainHeadline.StopsIn => Str.Online_Rain_StopsIn.Format(minutes),
-            RainHeadline.Continues => Str.Online_Rain_Continues.Text(),
-            RainHeadline.Dry => Str.Online_Rain_Dry.Text(),
-            _ => Str.Online_Rain_Outdated.Text(),
+            RainHeadline.StartsIn => RainNextHourStr.Online_Rain_StartsIn.Format(minutes),
+            RainHeadline.StopsIn => RainNextHourStr.Online_Rain_StopsIn.Format(minutes),
+            RainHeadline.Continues => RainNextHourStr.Online_Rain_Continues.Text(),
+            RainHeadline.Dry => RainNextHourStr.Online_Rain_Dry.Text(),
+            _ => RainNextHourStr.Online_Rain_Outdated.Text(),
         };
     }
 
     public static string Intensity(RainIntensity intensity) => (intensity switch
     {
-        RainIntensity.Heavy => Str.Online_Rain_Intensity_Heavy,
-        RainIntensity.Moderate => Str.Online_Rain_Intensity_Moderate,
-        _ => Str.Online_Rain_Intensity_Light,
+        RainIntensity.Heavy => RainNextHourStr.Online_Rain_Intensity_Heavy,
+        RainIntensity.Moderate => RainNextHourStr.Online_Rain_Intensity_Moderate,
+        _ => RainNextHourStr.Online_Rain_Intensity_Light,
     }).Text();
 
     /// <summary>
@@ -41,12 +42,12 @@ public static class RainText
         if (outlook.Headline != RainHeadline.Outdated && heaviest > RainIntensity.None)
         {
             parts.Add(Intensity(heaviest));
-            parts.Add(Str.Online_Rain_Total.Format(("amount", LocaleFormat.Number(outlook.Total, 1))));
+            parts.Add(RainNextHourStr.Online_Rain_Total.Format(("amount", LocaleFormat.Number(outlook.Total, 1))));
         }
 
         if (outlook.Chance is { } chance && (heaviest > RainIntensity.None || chance > 0))
         {
-            parts.Add(Str.Online_Rain_Chance.Format(("percent", LocaleFormat.Percent(Strings.Current, chance))));
+            parts.Add(RainNextHourStr.Online_Rain_Chance.Format(("percent", LocaleFormat.Percent(Strings.Current, chance))));
         }
 
         return string.Join(" · ", parts);

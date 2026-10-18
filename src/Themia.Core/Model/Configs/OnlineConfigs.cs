@@ -128,52 +128,6 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned, 
     }
 }
 
-/// <summary>[S-5120] Rain in the next two hours at a place. A weather-family widget, like air quality.</summary>
-public sealed class RainNextHourConfig : WeatherConfig, IInterests
-{
-    /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
-    public void AddInterests(InterestsBuilder interests)
-    {
-        if (Interest(OnlineCadence.Rain(interests.Refresh)) is { } wants)
-        {
-            interests.Of<RainInterest>().Add(wants);
-        }
-    }
-
-    /// <summary>[S-5121] What it asks for, or null without a place; the running app's cadence ([S-3780]).</summary>
-    public RainInterest? Interest() => Interest(OnlineCadence.Rain(UpdateCadence.Current));
-
-    /// <summary>[S-5121] <see cref="Interest()"/> at a given cadence.</summary>
-    public RainInterest? Interest(TimeSpan interval)
-        => WebInput.AreCoordinates(Latitude, Longitude) ? new RainInterest(Latitude!.Value, Longitude!.Value, interval) : null;
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("rainNextHour"),
-        ConfigType = typeof(RainNextHourConfig),
-        CreateDefault = () => new RainNextHourConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["rain", "precipitation", "shower", "umbrella", "radar", "nowcast", "drizzle", "weather"],
-        Label = Str.Online_Rain_Label.Local(),
-        Description = Str.Online_Rain_Desc.Local(),
-        Glyph = Glyphs.Rain,
-        DefaultWidth = 300,
-        DefaultHeight = 180,
-        DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Weather, 0, 2),
-    };
-
-    public override WidgetConfig Clone()
-    {
-        var copy = new RainNextHourConfig();
-        CopyTo(copy);
-        return copy;
-    }
-}
-
 /// <summary>
 /// [S-5140] The ECB's reference rate of one pair: what one unit of the base currency buys of the
 /// quote. Several pairs are several widgets.

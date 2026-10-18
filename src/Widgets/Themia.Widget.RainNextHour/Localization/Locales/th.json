@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "ฝนในชั่วโมงถัดไป",
+  "online.rain.desc": "ฝนจะเริ่มหรือหยุดเมื่อใด เป็นช่วงละ {minutes} นาที",
+  "online.rain.startsIn": "ฝนจะตกในอีก {minutes} นาที",
+  "online.rain.stopsIn": "ฝนจะหยุดในอีก {minutes} นาที",
+  "online.rain.continues": "ฝนตกต่อเนื่องใน 2 ชั่วโมงข้างหน้า",
+  "online.rain.dry": "ไม่มีฝนใน 2 ชั่วโมงข้างหน้า",
+  "online.rain.outdated": "ไม่มีพยากรณ์สำหรับชั่วโมงถัดไป",
+  "online.rain.intensity.light": "ฝนเล็กน้อย",
+  "online.rain.intensity.moderate": "ฝนปานกลาง",
+  "online.rain.intensity.heavy": "ฝนตกหนัก",
+  "online.rain.chance": "โอกาส {percent}",
+  "online.rain.total": "{amount} มม. ใน 2 ชั่วโมง",
+  "online.rain.now": "ตอนนี้"
+}

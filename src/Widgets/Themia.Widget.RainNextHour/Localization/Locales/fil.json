@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Ulan sa susunod na oras",
+  "online.rain.desc": "Kailan magsisimula o titigil ang ulan, kada {minutes} minuto",
+  "online.rain.startsIn": "Uulan sa loob ng {minutes} min",
+  "online.rain.stopsIn": "Titigil ang ulan sa {minutes} min",
+  "online.rain.continues": "Uulan sa susunod na 2 oras",
+  "online.rain.dry": "Walang ulan sa susunod na 2 oras",
+  "online.rain.outdated": "Walang forecast para sa susunod na oras",
+  "online.rain.intensity.light": "Mahinang ulan",
+  "online.rain.intensity.moderate": "Katamtamang ulan",
+  "online.rain.intensity.heavy": "Malakas na ulan",
+  "online.rain.chance": "{percent} na tsansa",
+  "online.rain.total": "{amount} mm sa 2 oras",
+  "online.rain.now": "Ngayon"
+}

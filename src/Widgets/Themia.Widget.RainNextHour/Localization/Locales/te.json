@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "తదుపరి గంటలో వర్షం",
+  "online.rain.desc": "వర్షం ఎప్పుడు మొదలవుతుంది లేదా ఆగుతుంది, {minutes} నిమిషాల దశలలో",
+  "online.rain.startsIn": "{minutes} నిమి.లో వర్షం",
+  "online.rain.stopsIn": "{minutes} నిమి.లో వర్షం ఆగుతుంది",
+  "online.rain.continues": "తదుపరి 2 గంటలు వర్షం",
+  "online.rain.dry": "తదుపరి 2 గంటల్లో వర్షం లేదు",
+  "online.rain.outdated": "తదుపరి గంటకు సూచన లేదు",
+  "online.rain.intensity.light": "తేలికపాటి వర్షం",
+  "online.rain.intensity.moderate": "మోస్తరు వర్షం",
+  "online.rain.intensity.heavy": "భారీ వర్షం",
+  "online.rain.chance": "{percent} అవకాశం",
+  "online.rain.total": "2 గంటల్లో {amount} mm",
+  "online.rain.now": "ఇప్పుడు"
+}

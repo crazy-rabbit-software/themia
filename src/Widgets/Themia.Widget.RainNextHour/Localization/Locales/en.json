@@ -1,0 +1,16 @@
+{
+  "$englishOnly": [],
+  "online.rain.label": "Rain next hour",
+  "online.rain.desc": "When rain starts or stops, in {minutes}-minute steps",
+  "online.rain.startsIn": "Rain in {minutes} min",
+  "online.rain.stopsIn": "Rain stops in {minutes} min",
+  "online.rain.continues": "Rain for the next 2 hours",
+  "online.rain.dry": "No rain in the next 2 hours",
+  "online.rain.outdated": "No forecast for the next hour",
+  "online.rain.intensity.light": "Light rain",
+  "online.rain.intensity.moderate": "Moderate rain",
+  "online.rain.intensity.heavy": "Heavy rain",
+  "online.rain.chance": "{percent} chance",
+  "online.rain.total": "{amount} mm in 2 hours",
+  "online.rain.now": "Now"
+}

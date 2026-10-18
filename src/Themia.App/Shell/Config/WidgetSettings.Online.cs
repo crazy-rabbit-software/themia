@@ -39,21 +39,6 @@ internal static partial class WidgetSettings
         rows.Add(FluentLayout.Note(Str.Online_Source.Format(("name", "Copernicus Atmosphere Monitoring Service (CAMS) · Open-Meteo"))));
     }
 
-    /// <summary>[S-5127] The place and the location name: rain has nothing else to choose.</summary>
-    public static void RainNextHour(List<FrameworkElement> rows, RainNextHourConfig config, Action save)
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(save);
-
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Weather_Settings_Place.Text()));
-        WeatherPlaceRows.AddPlacePicker(rows, config, save);
-
-        rows.Add(FluentLayout.Header(Str.Online_Rain_Label.Text()));
-        WeatherPlaceRows.AddWeatherDisplay(rows, config, save);
-        rows.Add(FluentLayout.Note(Str.Online_Source.Format(("name", "Open-Meteo"))));
-    }
-
     /// <summary>
     /// [S-5148] The pair: the base (the Windows region's currency first, naming it) and the currency
     /// priced in it (the default first, naming it), then the source line.

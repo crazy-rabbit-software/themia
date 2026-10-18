@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "ਅਗਲੇ ਘੰਟੇ ਮੀਂਹ",
+  "online.rain.desc": "ਮੀਂਹ ਕਦੋਂ ਸ਼ੁਰੂ ਜਾਂ ਬੰਦ ਹੁੰਦਾ ਹੈ, {minutes}-ਮਿੰਟ ਦੇ ਕਦਮਾਂ ਵਿੱਚ",
+  "online.rain.startsIn": "{minutes} ਮਿੰਟ ਵਿੱਚ ਮੀਂਹ",
+  "online.rain.stopsIn": "{minutes} ਮਿੰਟ ਵਿੱਚ ਮੀਂਹ ਰੁਕੇਗਾ",
+  "online.rain.continues": "ਅਗਲੇ 2 ਘੰਟੇ ਮੀਂਹ",
+  "online.rain.dry": "ਅਗਲੇ 2 ਘੰਟਿਆਂ ਵਿੱਚ ਮੀਂਹ ਨਹੀਂ",
+  "online.rain.outdated": "ਅਗਲੇ ਘੰਟੇ ਲਈ ਕੋਈ ਪੂਰਵ-ਅਨੁਮਾਨ ਨਹੀਂ",
+  "online.rain.intensity.light": "ਹਲਕਾ ਮੀਂਹ",
+  "online.rain.intensity.moderate": "ਦਰਮਿਆਨਾ ਮੀਂਹ",
+  "online.rain.intensity.heavy": "ਭਾਰੀ ਮੀਂਹ",
+  "online.rain.chance": "{percent} ਸੰਭਾਵਨਾ",
+  "online.rain.total": "2 ਘੰਟਿਆਂ ਵਿੱਚ {amount} mm",
+  "online.rain.now": "ਹੁਣ"
+}
