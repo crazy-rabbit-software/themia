@@ -5,14 +5,16 @@ across an account's lists, or a list kept on this PC. Its tags are this file's a
 `SPEC.md` holds what it shares with the host and the week planner, with their root tags: the task
 service and its offline store ([S-590], [S-591], [S-596], [S-597]), due dates and the list rules
 ([S-593]..[S-601], [S-610], [S-611]), the lists on this PC ([S-603], [S-604]), the ladder and the keys
-([S-780]..[S-789], [S-1981], the SDK's `TaskLayout`).
+([S-780]..[S-789], [S-1981]: the kit's check look, `KitChecks`, [S-7037], [S-7038]).
 
 Owning files: everything in this folder: `TasksModule.cs` (descriptor, view factory, JSON context),
-`TasksConfig.cs`, `TasksView*.cs` (the rows, the panel and its drag, the list picker, over
-`IWidgetHost.Tasks`), `TasksSettings.cs`, `Preview/` (Debug renders: `--state tasks|few|empty|done`,
+`TasksConfig.cs`, `TaskSpec.cs` (a task as a kit item, its actions, the check spec),
+`TaskFreshness.cs`, `TasksView*.cs` (over `IWidgetHost.Tasks`: the screens, the writes the kit's list
+hands back, the list picker), `TasksSettings.cs`, `Preview/` (Debug renders: `--state tasks|few|empty|done|stale`,
 the lists on this PC in memory), `Localization/Locales/` (its own `TasksStr`, 30 languages). Tests:
 the config's are the module host's (`TasksConfigTests`, [S-611]); the rules' are Core's
-(`TaskRulesTests`, `TaskSyncTests`, `LocalTaskListsTests`, `TaskLayoutTests`).
+(`TaskRulesTests`, `TaskSyncTests`, `LocalTaskListsTests`, `TaskLayoutTests` over the kit's check
+look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`.
 
 - **[S-592]** The list picker offers the account's default list, Today, then its lists. The lists are
   stored per account ([S-2650]) and read again with every sync (single-flight; a failure with nothing

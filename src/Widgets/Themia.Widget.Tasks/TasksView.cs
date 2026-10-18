@@ -45,9 +45,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
     /// <summary>The open tasks the badge counts, or null for none shown.</summary>
     private long? _openCount;
-    private readonly TaskRowsPanel _rowsPanel = new();
-    private readonly ScrollViewer _scroll;
-    private readonly TaskListHost _listHost;
+    /// <summary>[S-608] The rows: the kit's check look, with its add row.</summary>
+    private readonly KitList _list;
 
     /// <summary>[S-783] "7 open · 2 overdue · 1 due today" over the list on a panel.</summary>
     private readonly Grid _emptyHost = new();
@@ -99,10 +98,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     public TasksView(IWidgetHost host)
     {
         _widgetHost = host;
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
         // [S-607] A change the provider refused, or a refresh that failed with tasks still on screen:
         // the list stays, and the kit's problem glyph says it may be out of date and why.
         _header = new KitHeader(host);
@@ -115,16 +110,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
             Spacing = Fluent.Space2,
             VerticalAlignment = VerticalAlignment.Center,
             Children = { _header, _picker },
-        };
-
-        _scroll = new ScrollViewer
-        {
-            // Nothing either side, so a row and its hover reach both card edges.
-            Padding = Fluent.ListPadding,
-            Content = _rowsPanel,
-            HorizontalScrollMode = ScrollMode.Disabled,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
         };
 
         _empty = Fluent.EmptyState(Glyphs.Task, _emptyText, out _);
@@ -148,15 +133,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _emptyHost.Children.Add(_emptyAction);
         _emptyHost.Visibility = Visibility.Collapsed;
 
-        _addRow = BuildAddRow();
-        _listHost = new TaskListHost(_scroll, _rowsPanel);
-        Grid.SetRow(_listHost, 1);
+        _list = NewList();
         Grid.SetRow(_emptyHost, 1);
-        Grid.SetRow(_addRow.Element, 2);
+        Children.Add(_list);
 
-        Children.Add(_listHost);
-        Children.Add(_emptyHost);
-        Children.Add(_addRow.Element);
+        // The sentence over the list's own slot, above the add row.
+        _list.Overlay(_emptyHost);
     }
 
     /// <summary>What the widget is showing instead of, or as well as, a list.</summary>
@@ -188,6 +170,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        _list.Attach();
         _ticker = ticker;
         _service = _widgetHost.Tasks;
         _local = _service?.Local;
@@ -207,7 +190,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-1110] The fixed texts again, then the list redrawn from what is in hand (no fetch).</summary>
     private void OnLanguage(Locale locale)
     {
-        _addRow.Label = TasksStr.WidgetsC_Tasks_AddTask.Text();
+        _list.Relabel();
         ApplyPickerTexts();
         PublishTitle();
         Render();
@@ -586,7 +569,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _screen = Screen.Ready;
         _displayed = rows;
         var plan = Plan(rows.Count);
-        BuildRows(rows, today, plan);
+        _drawnPlan = plan;
+        _list.Show(Items(rows, today), plan, _area, DateTimeOffset.Now);
 
         var open = TaskRules.OpenCount(rows);
         _openCount = open > 0 ? open : null;
@@ -599,18 +583,20 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         else
         {
             _emptyHost.Visibility = Visibility.Collapsed;
-            _scroll.Visibility = Visibility.Visible;
         }
-
-        FitAddRow(plan);
     }
 
-    /// <summary>[S-780] The ladder for the slot the card gave this view, and the rows there are to show.</summary>
-    private TaskLayoutPlan Plan(int count) => TaskLayout.Plan(
+    /// <summary>[S-780] [S-7037] The kit's check ladder for the slot the card gave this view, and the rows there are to show.</summary>
+    private KitPlan Plan(int count) => KitLadder.Plan(
         _area,
-        new TaskLayoutInput(count, CanAdd, _feed?.IsToday == true, _config.ShowDueDate, _config.Style, _config.EffectiveTitleLines),
-        Fluent.RowHeight,
-        Fluent.RowHeightCompact);
+        TaskSpec.Spec,
+        new KitChoices((_feed?.IsToday == true && !IsLocal ? KitShow.Subtitle : KitShow.None) | (_config.ShowDueDate ? KitShow.When : KitShow.None))
+        {
+            Count = count,
+            CanAdd = CanAdd,
+            TitleLines = _config.EffectiveTitleLines,
+            WhenBeside = _config.Style == TasksStyle.Compact,
+        });
 
     /// <summary>[S-663] A new slot: re-lay the rows only when the ladder lands somewhere else.</summary>
     public void ApplySize(WidgetArea area)
@@ -628,7 +614,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         }
         else
         {
-            FitAddRow(Plan(0));
+            _list.Clear(Plan(0));
         }
     }
 
@@ -673,9 +659,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _screen = screen;
 
         // No list, so nothing to rename or add to.
-        CancelEdit();
-        ClearRows();
+        _list.Clear(Plan(0));
         _displayed = [];
+        _drawnPlan = null;
         _openCount = null;
         UpdateHeader();
 
@@ -722,8 +708,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                     : EmptyAction.Retry);
                 break;
         }
-
-        FitAddRow(Plan(0));
     }
 
     /// <summary>A failure in the user's words: the network state, else what the provider said.</summary>
@@ -748,7 +732,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     {
         _emptyText.Text = text;
         _emptyHost.Visibility = Visibility.Visible;
-        _scroll.Visibility = _displayed.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         _emptyAction.Tag = action;
         _emptyAction.Content = action switch
@@ -805,10 +788,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
             return;
         }
 
-        CancelDrag();
-        CancelEdit();
+        _list.Detach();
         DetachPicker();
-        _rowFocused = false;
         _detached = true;
         _bindGeneration++;
         Strings.Changed -= OnLanguage;
@@ -830,9 +811,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
         _local = null;
 
-        DetachAddRow();
         _ticker = null;
-        ClearRows();
         _surface?.RequestTextInput(false);
     }
 }

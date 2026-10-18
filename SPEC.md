@@ -2765,7 +2765,7 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 
 ## Tasks: using the whole tile, and the rest of the original
 
-- **[S-780]** Tasks ladder (`TaskLayout.Plan`, from the card's `WidgetArea`): one task always; the add
+- **[S-780]** Tasks ladder (the kit's check look, `KitChecks.Plan`, [S-7037], from the card's `WidgetArea`): one task always; the add
   footer ([S-3850]) from Regular height, and at any size under an empty list (never while a filter
   narrows the list, [S-611]); the list takes the rest (no summary strip, [S-783]). The header's list
   picker ([S-614]) from Regular width.
@@ -3809,7 +3809,7 @@ pass, before a `ScrollViewer` can take them ([S-860]).
 
 ## Widget keys (WIDGET-KEYS)
 
-Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCursor`, `TaskLayout`,
+Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCursor`, `KitKeys`,
 `HabitLayout`, `CalendarFit.Key`, `ContactRules.MoveSelection`, `AudioRules`, `ControlKeys`,
 `TypeAhead`; tests `WidgetKeyMapTests` and the per-widget suites); the views implement
 `IWidgetKeys` and only carry the answer out. Keys arrive through the lease ([S-800]..[S-812], [S-860]).

@@ -111,7 +111,7 @@ public sealed class HabitHostTests : IDisposable
             foreach (var count in new[] { 0, 3 })
             {
                 var habits = HabitLayout.Plan(area, new HabitLayoutInput(count, true, true, 7), 40, 32).AddRow;
-                var tasks = TaskLayout.Plan(area, new TaskLayoutInput(count, true, false, true, Themia.Core.Model.TasksStyle.List, 2), 40, 32).AddRow;
+                var tasks = Themia.Sdk.Kit.KitLadder.Plan(area, Themia.Widget.Tasks.TaskSpec.Spec, new Themia.Sdk.Kit.KitChoices(Themia.Sdk.Kit.KitShow.When) { Count = count, CanAdd = true }).AddRow;
                 Assert.Equal(habits, tasks);
             }
         }
