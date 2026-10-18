@@ -3,13 +3,15 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.App.Widgets;
 using Themia.Sdk.WinUI;
 
-namespace Themia.App.Widgets;
+namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-588] The calendar's and contacts' empty states: a glyph over a sentence, and — when the user
-/// is the one who can fix it — a link to Settings › Accounts beneath, centred together.
+/// [S-7060] [S-588] Every kit widget's empty and problem states (and the calendar's and contacts'):
+/// the widget's glyph over a sentence, and — when the user is the one who can fix it — a link to
+/// Settings › Accounts beneath, centred together.
 /// <para>
 /// "Account gone", "sign in again" and "access not granted" each need the Accounts page; a blank
 /// tile or a sentence with no way forward is the failure the original filed bugs about. Loading,
@@ -17,9 +19,9 @@ namespace Themia.App.Widgets;
 /// button instead ([S-1862]).
 /// </para>
 /// </summary>
-internal sealed partial class OfficeStatePanel : Grid
+public sealed partial class KitStatePanel : Grid
 {
-    private const string Scope = "office-widget";
+    private const string Scope = "kit";
 
     /// <summary>The link's line: body text in a hyperlink button's padding.</summary>
     private const double LinkHeight = 32;
@@ -30,7 +32,7 @@ internal sealed partial class OfficeStatePanel : Grid
 
     private readonly IWidgetHost _widgetHost;
 
-    public OfficeStatePanel(string glyph, IWidgetHost host)
+    public KitStatePanel(string glyph, IWidgetHost host)
     {
         _widgetHost = host;
         var empty = Fluent.EmptyState(glyph, _message, out _);
@@ -78,6 +80,13 @@ internal sealed partial class OfficeStatePanel : Grid
         _link.Visibility = offerAccounts ? Visibility.Visible : Visibility.Collapsed;
         Visibility = Visibility.Visible;
         Fit();
+    }
+
+    /// <summary>[S-7040] A kit screen's state: its sentence, with the Accounts link when it offers one.</summary>
+    public void Show(Themia.Sdk.Kit.KitScreen screen)
+    {
+        ArgumentNullException.ThrowIfNull(screen);
+        Show(screen.Sentence, screen.OffersAccounts);
     }
 
     public void Hide() => Visibility = Visibility.Collapsed;

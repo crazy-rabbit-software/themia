@@ -14,6 +14,7 @@ using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -40,7 +41,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     /// <summary>[S-4825] How far the event fades while another widget points at a different one.</summary>
     private const double DimOpacity = 0.35;
 
-    private readonly OfficeStatePanel _state;
+    private readonly KitStatePanel _state;
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
     private readonly Grid _content = new() { Margin = WidgetLayout.Inset, VerticalAlignment = VerticalAlignment.Center };

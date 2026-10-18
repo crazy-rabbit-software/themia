@@ -16,6 +16,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.ApplicationModel.DataTransfer;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -57,7 +58,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly TextBox _search = new();
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
-    private readonly OfficeStatePanel _state;
+    private readonly KitStatePanel _state;
     private readonly ProgressRing _busy = new();
     private readonly FontIcon _warning;
     private readonly Button _searchButton;

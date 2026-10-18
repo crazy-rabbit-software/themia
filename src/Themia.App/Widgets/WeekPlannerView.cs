@@ -18,6 +18,7 @@ using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -48,7 +49,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     /// <summary>The ring before a task, as the Tasks widget draws one ([S-597]), at a planner row's size.</summary>
     private const double RingSize = 14;
 
-    private readonly OfficeStatePanel _state;
+    private readonly KitStatePanel _state;
     private readonly Grid _content = new() { ColumnSpacing = WeekPlannerRules.ColumnGap };
     private readonly Dictionary<string, Brush> _colorBrushes = new(StringComparer.Ordinal);
     private readonly List<IDisposable> _hovers = [];

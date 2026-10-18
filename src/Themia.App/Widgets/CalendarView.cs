@@ -16,6 +16,7 @@ using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -47,7 +48,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private static readonly string GiftGlyph = char.ConvertFromUtf32(0xF133);
 
     private readonly Grid _content = new();
-    private readonly OfficeStatePanel _state;
+    private readonly KitStatePanel _state;
     private readonly ProgressRing _busy = new();
     private readonly FontIcon _warning;
     private readonly Button _back;
