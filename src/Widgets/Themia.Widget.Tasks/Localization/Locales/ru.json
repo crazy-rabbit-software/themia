@@ -10,7 +10,6 @@
   "widgetsA.catalog.tasks.label": "Задачи",
   "widgetsC.oneDrive.accountGone": "В учетную запись этого виджета больше не выполнен вход.",
   "widgetsC.oneDrive.accountNeedsSignIn": "{account}: нужно войти снова.",
-  "widgetsC.oneDrive.openAccounts": "Открыть параметры учетных записей",
   "widgetsC.oneDrive.settings.accountNeedsSignIn": "В одну из учетных записей нужно войти снова",
   "widgetsC.oneDrive.settings.accountSignInAgain": "{account} — войдите снова",
   "widgetsC.oneDrive.starting": "Themia еще запускается.",

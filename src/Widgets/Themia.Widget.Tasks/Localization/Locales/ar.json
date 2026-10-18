@@ -10,7 +10,6 @@
   "widgetsA.catalog.tasks.label": "المهام",
   "widgetsC.oneDrive.accountGone": "لم يعد الحساب الذي كانت تعرضه هذه الأداة مسجّل الدخول.",
   "widgetsC.oneDrive.accountNeedsSignIn": "يجب تسجيل الدخول إلى {account} مرة أخرى.",
-  "widgetsC.oneDrive.openAccounts": "فتح إعدادات الحسابات",
   "widgetsC.oneDrive.settings.accountNeedsSignIn": "يجب تسجيل الدخول إلى حساب مرة أخرى",
   "widgetsC.oneDrive.settings.accountSignInAgain": "{account} — سجّل الدخول مرة أخرى",
   "widgetsC.oneDrive.starting": "لا يزال Themia قيد البدء.",

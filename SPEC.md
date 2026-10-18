@@ -918,7 +918,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   disabled. The first copy, Rename and Delete are the icon row's ([S-1740], [S-1741]). A line whose
   key the list takes shows it ([S-1753]): Enter on Open, Ctrl+C on the first copy, F2, Delete. The
   primary action (double-click, Enter) is the item's Open when it can run; an item with no Open at all
-  opens for editing, its Rename (a task, [S-608]). A toggle whose label says what it does ("Mark as
+  opens for editing, its Rename (a task, [S-616]). A toggle whose label says what it does ("Mark as
   done") is a plain line, not a check.
 - **[S-7013]** A kit service is read-only; the host's account widgets (mail, tasks) keep the writes
   their own sources make: `Change` (mark read, archive, move to junk: several per item, in the item's
@@ -1026,6 +1026,9 @@ The shared parts a list widget is built from, and the rules they keep (design an
   sources is out), the count badge. The age is never drawn in a header. With none of the three to
   show the header is collapsed: it takes no room and no spacing beside the widget's own trailing
   text (the exchange rates' day stays at the edge, `KitHeaderParts`).
+- **[S-7039]** `KitStatePanel` may carry the widget's own way out of a state beside the Accounts link
+  (its words and what it does: Tasks' "Try again", "Start a list"), kept like the link while the
+  sentence sheds to fit.
 - **[S-7062]** One launcher: a kit item's address opens through the host's one launcher
   (`IWidgetHost.Launcher`, which classifies it again on the literal string it hands the shell), never
   a process of the widget's own; a preview opens nothing. Nothing in the source starts a process but
@@ -2793,7 +2796,7 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
   Redraws wait for the drop.
 - **[S-787]** Keyboard (classic S-33..S-37, S-50 F2): a click in the widget takes the shell's
   keyboard lease ([S-808]) and a click on a row focuses it; Up/Down/Home/End move without wrapping,
-  Enter renames (the kit's primary action, [S-608]), Space ticks, Delete deletes, F2 renames, Escape (and the lease ending) gives the keyboard back; the
+  Enter renames (the kit's primary action, [S-616]), Space ticks, Delete deletes, F2 renames, Escape (and the lease ending) gives the keyboard back; the
   focused row wears the kit's ring ([S-1288], laid over the row so it moves nothing; it was the
   system focus rect); a redraw keeps the focus on the same task, or the row now in its place.
 - **[S-1981]** Space ticks the focused task, and Page Up / Page Down jump ten rows (`KitKeys.Decide`,
@@ -6637,7 +6640,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   provider's id.
 - **[S-2612]** A stored copy the last sync could not improve on says when it is from: "Work: No
   network · updated Mon 10:42" (contacts; the calendar by the kit's rule, [S-2664]), and the kit's
-  one stale rule ([S-7042], [S-7064]) for Rss, Mail, Tasks ([S-607]) and the online widgets (weather now, the forecast,
+  one stale rule ([S-7042], [S-7064]) for Rss, Mail, Tasks ([S-615]) and the online widgets (weather now, the forecast,
   Stocks, exchange rates, air quality, rain): the header's problem glyph with one tooltip line per
   source and problem ("Work: No network · updated 10:42"), the age on the card menu's Refresh line
   ("Refresh · updated 4 min ago"), and no age drawn in the header (it was, in the caution colour

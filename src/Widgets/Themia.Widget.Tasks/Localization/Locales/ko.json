@@ -10,7 +10,6 @@
   "widgetsA.catalog.tasks.label": "작업",
   "widgetsC.oneDrive.accountGone": "이 위젯에 표시되던 계정이 더 이상 로그인되어 있지 않습니다.",
   "widgetsC.oneDrive.accountNeedsSignIn": "{account}에 다시 로그인해야 합니다.",
-  "widgetsC.oneDrive.openAccounts": "계정 설정 열기",
   "widgetsC.oneDrive.settings.accountNeedsSignIn": "다시 로그인해야 하는 계정이 있습니다",
   "widgetsC.oneDrive.settings.accountSignInAgain": "{account} — 다시 로그인",
   "widgetsC.oneDrive.starting": "Themia가 아직 시작 중입니다.",

@@ -6,13 +6,13 @@ using Xunit;
 
 namespace Themia.Widget.Tasks.Tests;
 
-/// <summary>[S-608] A task's menu and keys, as the kit builds every item menu and key map.</summary>
+/// <summary>[S-616] A task's menu and keys, as the kit builds every item menu and key map.</summary>
 public sealed class TaskSpecTests
 {
     private static readonly TaskItem Open = new("t1", "l1", "Water the plants", Completed: false);
 
     [Fact]
-    public void S608_a_tasks_menu_is_the_kits_one_order()
+    public void S616_a_tasks_menu_is_the_kits_one_order()
     {
         var lines = KitMenu.Lines(TaskSpec.Actions(Open, renamable: true));
 
@@ -23,7 +23,7 @@ public sealed class TaskSpecTests
     }
 
     [Fact]
-    public void S608_done_offers_undo_and_an_unconfirmed_task_cannot_be_renamed_yet()
+    public void S616_done_offers_undo_and_an_unconfirmed_task_cannot_be_renamed_yet()
     {
         var done = TaskSpec.Actions(Open with { Completed = true }, renamable: false);
 
@@ -33,7 +33,7 @@ public sealed class TaskSpecTests
     }
 
     [Fact]
-    public void S608_double_click_and_enter_rename_space_ticks_alt_shift_moves()
+    public void S616_double_click_and_enter_rename_space_ticks_alt_shift_moves()
     {
         Assert.Equal(TaskSpec.RenameId, KitMenu.Primary(TaskSpec.Actions(Open, renamable: true))?.Id);
         Assert.Equal(KitKeyCommand.Open, KitKeys.Decide(WidgetKey.Enter, 0, 3).Command);

@@ -10,7 +10,6 @@
   "widgetsA.catalog.tasks.label": "タスク",
   "widgetsC.oneDrive.accountGone": "このウィジェットのアカウントはサインインしていません。",
   "widgetsC.oneDrive.accountNeedsSignIn": "{account} に再度サインインする必要があります。",
-  "widgetsC.oneDrive.openAccounts": "アカウントの設定を開く",
   "widgetsC.oneDrive.settings.accountNeedsSignIn": "再度サインインが必要なアカウントがあります",
   "widgetsC.oneDrive.settings.accountSignInAgain": "{account} — 再度サインイン",
   "widgetsC.oneDrive.starting": "Themia はまだ起動中です。",

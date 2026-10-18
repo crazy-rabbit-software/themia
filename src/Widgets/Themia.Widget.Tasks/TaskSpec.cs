@@ -5,7 +5,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Widget.Tasks;
 
 /// <summary>
-/// [S-608] Tasks on the kit: a task's actions as the kit's one menu builder and key map read them
+/// [S-616] Tasks on the kit: a task's actions as the kit's one menu builder and key map read them
 /// ([S-7011], [S-7020]). Pure, so the menu's lines are tested here and not in a view.
 /// </summary>
 public static class TaskSpec
@@ -19,7 +19,7 @@ public static class TaskSpec
     /// <summary>The done group's key: the finished tasks, under their heading ([S-784]).</summary>
     public const string DoneGroup = "done";
 
-    /// <summary>[S-608] The kit's check look ([S-7037]), its add row's words ([S-3850]).</summary>
+    /// <summary>[S-616] The kit's check look ([S-7037]), its add row's words ([S-3850]).</summary>
     public static KitSpec Spec { get; } = new(KitRowLook.Check, KitShow.All, () => Str.WidgetsC_Tasks_UntitledTask.Text(), () => string.Empty, KitTime.None)
     {
         AddLabel = () => TasksStr.WidgetsC_Tasks_AddTask.Text(),
@@ -27,7 +27,7 @@ public static class TaskSpec
     };
 
     /// <summary>
-    /// [S-608] [S-780] A task as a row: its check (the ring in the critical tone while it is late and
+    /// [S-616] [S-780] A task as a row: its check (the ring in the critical tone while it is late and
     /// due dates show), its title, important as the strong title with the "!" mark ([S-785]), the list
     /// it is from ([S-789]), its due day in its words ([S-186]: a finished task that was due says its
     /// date), the critical tone while late, the done group under its heading, and its tooltip.

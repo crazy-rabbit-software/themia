@@ -5,7 +5,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Widget.Tasks;
 
 /// <summary>
-/// [S-607] Tasks' one stale rule ([S-7042]): an account list held from its last good refresh is a kit
+/// [S-615] Tasks' one stale rule ([S-7042]): an account list held from its last good refresh is a kit
 /// outcome — named by its account, its last refresh's status in the kit's vocabulary, stamped with
 /// when the tasks on screen are from — so the header's problem glyph says a failed refresh as every
 /// kit widget does and the Refresh line carries the age. A list on this PC has no refresh and no age.

@@ -30,6 +30,10 @@ public sealed partial class KitStatePanel : Grid
     private readonly HyperlinkButton _link;
     private readonly HyperlinkButton _grant;
     private Uri? _grantPage;
+
+    /// <summary>[S-7039] The widget's own way out of a state (try again, start a list on this PC), when it has one.</summary>
+    private readonly HyperlinkButton _action;
+    private Action? _run;
     private readonly StackPanel _empty;
 
     private readonly IWidgetHost _widgetHost;
@@ -58,15 +62,26 @@ public sealed partial class KitStatePanel : Grid
         };
         _grant.Click += OnGrantClicked;
 
+        _action = new HyperlinkButton
+        {
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
+            Visibility = Visibility.Collapsed,
+        };
+        _action.Click += OnActionClicked;
+
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         SetRow(empty, 1);
-        SetRow(_link, 2);
-        SetRow(_grant, 3);
+        SetRow(_action, 2);
+        SetRow(_link, 3);
+        SetRow(_grant, 4);
         Children.Add(empty);
+        Children.Add(_action);
         Children.Add(_link);
         Children.Add(_grant);
 
@@ -81,17 +96,23 @@ public sealed partial class KitStatePanel : Grid
     /// </summary>
     private void Fit()
     {
-        var link = (_link.Visibility == Visibility.Visible ? LinkHeight : 0) + (_grant.Visibility == Visibility.Visible ? LinkHeight : 0);
+        var link = (_link.Visibility == Visibility.Visible ? LinkHeight : 0) + (_grant.Visibility == Visibility.Visible ? LinkHeight : 0) + (_action.Visibility == Visibility.Visible ? LinkHeight : 0);
         _empty.MaxHeight = Math.Max(0, ActualHeight - link);
 
         // A narrow tile gets the short form, rather than a link cut off mid-word.
         _link.Content = (ActualWidth is > 0 and < 200 ? Str.WidgetUi_AccountsLabel : Str.WidgetsA_Office_OpenAccounts).Text();
     }
 
-    /// <summary>Show a sentence, with the Accounts link when <paramref name="offerAccounts"/>.</summary>
-    public void Show(string message, bool offerAccounts, Uri? grant = null)
+    /// <summary>
+    /// Show a sentence, with the Accounts link when <paramref name="offerAccounts"/>, the grant page's
+    /// when there is one, and the widget's own way out (<paramref name="action"/>: its words and what it does).
+    /// </summary>
+    public void Show(string message, bool offerAccounts, Uri? grant = null, (string Label, Action Run)? action = null)
     {
         _message.Text = message;
+        _run = action?.Run;
+        _action.Content = action?.Label;
+        _action.Visibility = action is null ? Visibility.Collapsed : Visibility.Visible;
         _link.Visibility = offerAccounts ? Visibility.Visible : Visibility.Collapsed;
         _grantPage = grant;
         _grant.Visibility = grant is null ? Visibility.Collapsed : Visibility.Visible;
@@ -112,6 +133,7 @@ public sealed partial class KitStatePanel : Grid
     {
         _link.Click -= OnLinkClicked;
         _grant.Click -= OnGrantClicked;
+        _action.Click -= OnActionClicked;
     }
 
     /// <summary>Open Settings on the Accounts page, the one place accounts are added and mended.</summary>
@@ -124,6 +146,8 @@ public sealed partial class KitStatePanel : Grid
     }
 
     private void OnLinkClicked(object sender, RoutedEventArgs args) => OpenAccounts();
+
+    private void OnActionClicked(object sender, RoutedEventArgs args) => _run?.Invoke();
 
     /// <summary>[S-9919] The grant page, through the host's one launcher; a preview opens nothing.</summary>
     private void OnGrantClicked(object sender, RoutedEventArgs args)

@@ -6,13 +6,13 @@ using Xunit;
 
 namespace Themia.Widget.Tasks.Tests;
 
-/// <summary>[S-607] Tasks' one stale rule: an account list's last refresh as the kit's outcome.</summary>
+/// <summary>[S-615] Tasks' one stale rule: an account list's last refresh as the kit's outcome.</summary>
 public sealed class TaskFreshnessTests
 {
     private static readonly DateTimeOffset Now = new(2026, 10, 14, 15, 0, 0, TimeSpan.FromHours(2));
 
     [Fact]
-    public void S607_a_list_whose_refresh_failed_is_the_headers_one_line_with_its_age_on_refresh()
+    public void S615_a_list_whose_refresh_failed_is_the_headers_one_line_with_its_age_on_refresh()
     {
         var at = Now.AddMinutes(-20);
         var outcomes = TaskFreshness.Outcomes("Work", loaded: true, new AccountException(AccountError.Offline, "no network"), at);
@@ -24,7 +24,7 @@ public sealed class TaskFreshnessTests
     }
 
     [Fact]
-    public void S607_a_list_that_refreshed_says_nothing_but_its_age_and_a_list_on_this_pc_has_none()
+    public void S615_a_list_that_refreshed_says_nothing_but_its_age_and_a_list_on_this_pc_has_none()
     {
         var at = Now.AddMinutes(-3);
         var ok = TaskFreshness.Outcomes("Work", loaded: true, failure: null, at);

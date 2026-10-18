@@ -29,18 +29,23 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
   characters, and a broken row order are repaired on load.
 - **[S-785]** An open important task leads its title with a "!" in the critical colour (classic
   S-11) where its column is at least 160px wide; the weight and the tooltip say it everywhere.
-- **[S-607]** Tasks' one stale rule ([S-7042]): the header is the kit's (`KitHeader`: the problem
+- **[S-615]** Tasks' one stale rule ([S-7042]): the header is the kit's (`KitHeader`: the problem
   glyph, the ring, the open count, before the list picker); a list on this PC that could not be
   saved and a change the provider refused are its notes; an account list whose last refresh failed
   with tasks on screen is one line in the kit's words, stamped with when they are from ("Work: No
   network · updated 10:42", `TaskFreshness`); the card menu's Refresh line says the age. The old
   "Last refresh failed: … Showing items from …" warning is gone.
-- **[S-608]** A task's menu and keys are the kit's ([S-7011], [S-7020]; `TaskSpec`): the menu is
+- **[S-616]** A task's menu and keys are the kit's ([S-7011], [S-7020]; `TaskSpec`): the menu is
   Mark as done (Mark as not done, with the undo glyph), then Rename, then Delete, Rename and Delete in
   its icon row with F2 and Delete shown; a task opens for editing, so a double-click and Enter rename
   it (Enter ticked it before); Space ticks; Left and Right step like Up and Down; Alt+Shift+Up / Down
   move it; Up with nothing focused lands on the first task. A task the provider has not confirmed
   yet shows Rename disabled.
+- **[S-617]** Every state that is not a list is the kit's state panel ([S-7060], `KitStatePanel`), over
+  the list's own slot above the add row: the glyph over the sentence, the Accounts link where only
+  the user can mend it, and Tasks' own way out ([S-7039]: "Try again" for lists or a list that could
+  not be read, "Start a list" for a list on this PC that is gone). The panel keeps its link at every
+  size and sheds the glyph, then lines, first ([S-642]); Tasks' own host dropped the link under 140px.
 
 Needs a live pass: a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on

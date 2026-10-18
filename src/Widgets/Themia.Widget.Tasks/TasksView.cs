@@ -36,23 +36,18 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 {
     private const string Scope = "tasks-widget";
 
-    /// <summary>Below this the link under an empty state is dropped; the sentence is worth more.</summary>
-    private const double LinkNeedsHeight = 140;
 
-    /// <summary>[S-607] The kit's header: the problem glyph, the ring and the open count, before the list picker.</summary>
+    /// <summary>[S-615] The kit's header: the problem glyph, the ring and the open count, before the list picker.</summary>
     private readonly KitHeader _header;
     private readonly StackPanel _trailing;
 
     /// <summary>The open tasks the badge counts, or null for none shown.</summary>
     private long? _openCount;
-    /// <summary>[S-608] The rows: the kit's check look, with its add row.</summary>
+    /// <summary>[S-616] The rows: the kit's check look, with its add row.</summary>
     private readonly KitList _list;
 
     /// <summary>[S-783] "7 open · 2 overdue · 1 due today" over the list on a panel.</summary>
-    private readonly Grid _emptyHost = new();
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
-    private readonly HyperlinkButton _emptyAction;
+    private readonly KitStatePanel _state;
 
     /// <summary>The second way out of the no-account state: a list on this PC needs no account.</summary>
 
@@ -98,7 +93,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     public TasksView(IWidgetHost host)
     {
         _widgetHost = host;
-        // [S-607] A change the provider refused, or a refresh that failed with tasks still on screen:
+        // [S-615] A change the provider refused, or a refresh that failed with tasks still on screen:
         // the list stays, and the kit's problem glyph says it may be out of date and why.
         _header = new KitHeader(host);
 
@@ -112,33 +107,13 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
             Children = { _header, _picker },
         };
 
-        _empty = Fluent.EmptyState(Glyphs.Task, _emptyText, out _);
-
-        _emptyAction = new HyperlinkButton
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
-            Visibility = Visibility.Collapsed,
-        };
-        _emptyAction.Click += OnEmptyActionClicked;
-
-        // The sentence and its link, centred together.
-        _emptyHost.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _emptyHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _emptyHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _emptyHost.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        Grid.SetRow(_empty, 1);
-        Grid.SetRow(_emptyAction, 2);
-        _emptyHost.Children.Add(_empty);
-        _emptyHost.Children.Add(_emptyAction);
-        _emptyHost.Visibility = Visibility.Collapsed;
-
+        // [S-617] Every state that is not a list is the kit's state panel, over the list's own slot
+        // (above the add row): the sentence, the Accounts link where only the user can mend it, and
+        // Tasks' own way out (try again, start a list on this PC).
+        _state = new KitStatePanel(Glyphs.Task, host) { Visibility = Visibility.Collapsed };
         _list = NewList();
-        Grid.SetRow(_emptyHost, 1);
         Children.Add(_list);
-
-        // The sentence over the list's own slot, above the add row.
-        _list.Overlay(_emptyHost);
+        _list.Overlay(_state);
     }
 
     /// <summary>What the widget is showing instead of, or as well as, a list.</summary>
@@ -582,7 +557,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         }
         else
         {
-            _emptyHost.Visibility = Visibility.Collapsed;
+            _state.Hide();
         }
     }
 
@@ -602,7 +577,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     public void ApplySize(WidgetArea area)
     {
         _area = area;
-        FitEmptyState();
         UpdatePicker();
 
         if (_screen == Screen.Ready)
@@ -623,7 +597,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     {
         var busy = _feed?.Busy == true || _screen == Screen.Loading;
 
-        // [S-607] The one stale rule ([S-7042]): the widget's own note (a list on this PC that could
+        // [S-615] The one stale rule ([S-7042]): the widget's own note (a list on this PC that could
         // not be saved, a change the provider refused), then the failed refresh with when the list is from.
         var note = IsLocal ? _local?.Problem : _feed?.WriteProblem;
         string[] notes = note is null ? [] : [note];
@@ -633,7 +607,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         UpdatePicker();
     }
 
-    /// <summary>[S-607] The account list's last refresh as the kit's outcome; none for a list on this PC.</summary>
+    /// <summary>[S-615] The account list's last refresh as the kit's outcome; none for a list on this PC.</summary>
     private IReadOnlyList<KitOutcome> Outcomes()
         => IsLocal || _feed is not { } feed ? [] : TaskFreshness.Outcomes(_account?.Label ?? string.Empty, feed.Loaded, feed.Failure, feed.FetchedAt);
 
@@ -675,7 +649,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
             case Screen.NoAccount:
                 // [S-1862] The card's Set up button covers this; its settings page offers a local list.
-                ShowEmpty(string.Empty, null);
+                _state.Hide();
                 break;
 
             case Screen.AccountGone:
@@ -728,57 +702,28 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         StartLocalList,
     }
 
+    /// <summary>[S-617] A state's sentence on the kit's panel, with its way out.</summary>
     private void ShowEmpty(string text, EmptyAction? action)
-    {
-        _emptyText.Text = text;
-        _emptyHost.Visibility = Visibility.Visible;
-
-        _emptyAction.Tag = action;
-        _emptyAction.Content = action switch
+        => _state.Show(text, action == EmptyAction.Accounts, action: action switch
         {
-            EmptyAction.Accounts => TasksStr.WidgetsC_OneDrive_OpenAccounts.Text(),
-            EmptyAction.Retry => TasksStr.Connect_TryAgain.Text(),
-            EmptyAction.StartLocalList => TasksStr.WidgetsC_Tasks_StartList.Text(),
+            EmptyAction.Retry => (TasksStr.Connect_TryAgain.Text(), Refresh),
+            EmptyAction.StartLocalList => (TasksStr.WidgetsC_Tasks_StartList.Text(), StartLocalList),
             _ => null,
-        };
+        });
 
-        FitEmptyState();
-    }
-
-    private void OnEmptyActionClicked(object sender, RoutedEventArgs args)
+    /// <summary>[S-604] Start a list on this PC: the one it had if that still exists, else the first, else a new one.</summary>
+    private void StartLocalList()
     {
-        switch ((sender as FrameworkElement)?.Tag)
+        if (_service is null)
         {
-            case EmptyAction.Accounts:
-                if (!_widgetHost.ShowAccounts())
-                {
-                    Log.Info(Scope, "no settings window here to show the Accounts page in");
-                }
-
-                break;
-
-            case EmptyAction.Retry:
-                Refresh();
-                break;
-
-            case EmptyAction.StartLocalList when _service is not null:
-                // [S-604] The list it had if that still exists, else the first, else a new one.
-                _config.Source = TaskSource.Local;
-                _config.LocalListId = _service.Local.Ensure(_config.LocalListId, TasksStr.Todo_LocalLists_DefaultName.Text());
-                _surface?.RequestSave();
-                Resubscribe();
-                Rebind();
-                break;
+            return;
         }
-    }
 
-    /// <summary>The link shows when there is one and room for it; the sentence gets the rest.</summary>
-    private void FitEmptyState()
-    {
-        var height = _area.IsMeasured ? _area.Height : 0;
-        var link = _emptyAction.Tag is EmptyAction && (height <= 0 || height >= LinkNeedsHeight);
-        _emptyAction.Visibility = link ? Visibility.Visible : Visibility.Collapsed;
-        _empty.MaxHeight = height > 0 ? Math.Max(0, height - (link ? 36 : 0)) : double.PositiveInfinity;
+        _config.Source = TaskSource.Local;
+        _config.LocalListId = _service.Local.Ensure(_config.LocalListId, TasksStr.Todo_LocalLists_DefaultName.Text());
+        _surface?.RequestSave();
+        Resubscribe();
+        Rebind();
     }
 
     public void Detach()
@@ -794,7 +739,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         _bindGeneration++;
         Strings.Changed -= OnLanguage;
 
-        _emptyAction.Click -= OnEmptyActionClicked;
+        _state.Detach();
 
         _subscription?.Dispose();
         _subscription = null;

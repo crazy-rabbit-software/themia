@@ -215,7 +215,7 @@ public sealed class TaskLayoutTests
     [Fact]
     public void S787_enter_opens_space_ticks_delete_deletes_f2_renames_escape_releases()
     {
-        // [S-608] The kit's one key map: Enter runs the primary action (a task's: rename), Space ticks.
+        // [S-616] The kit's one key map: Enter runs the primary action (a task's: rename), Space ticks.
         Assert.Equal(KitKeyCommand.Open, KitKeys.Decide(WidgetKey.Enter, 1, 3).Command);
         Assert.Equal(KitKeyCommand.Toggle, KitKeys.Decide(WidgetKey.Space, 1, 3).Command);
         Assert.Equal(KitKeyCommand.Delete, KitKeys.Decide(WidgetKey.Delete, 1, 3).Command);

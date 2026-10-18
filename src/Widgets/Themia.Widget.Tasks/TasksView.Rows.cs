@@ -8,7 +8,7 @@ using Themia.Widget.Tasks;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-608] The rows are the kit's check look ([S-7037], [S-7038]): this is what Tasks itself does with
+/// [S-616] The rows are the kit's check look ([S-7037], [S-7038]): this is what Tasks itself does with
 /// them — a task as a kit item, its actions, and the writes the list hands back (a tick, a rename, a
 /// new task, a delete, a new order).
 /// </summary>
@@ -28,7 +28,7 @@ internal sealed partial class TasksView
         TextInput = _ => UpdateKeyboard(),
     };
 
-    /// <summary>[S-608] The kit items for the rows, in order: the done ones under their heading, Today's with their lists.</summary>
+    /// <summary>[S-616] The kit items for the rows, in order: the done ones under their heading, Today's with their lists.</summary>
     private List<KitItem> Items(IReadOnlyList<TaskItem> rows, DateOnly today)
     {
         var done = rows.Count(t => t.Completed);
@@ -38,7 +38,7 @@ internal sealed partial class TasksView
 
     private TaskItem? TaskOf(KitItem item) => _displayed.FirstOrDefault(t => t.Id == item.Id);
 
-    /// <summary>[S-608] A row's actions, read fresh for every menu and key.</summary>
+    /// <summary>[S-616] A row's actions, read fresh for every menu and key.</summary>
     private IReadOnlyList<KitAction> ActionsOf(KitItem item)
         => TaskOf(item) is { } task ? TaskSpec.Actions(task, _feed?.Edits.IsUnconfirmedCreate(task.Id) != true) : [];
 
@@ -81,7 +81,7 @@ internal sealed partial class TasksView
     private void UpdateKeyboard() => _surface?.RequestTextInput(!_detached && (_list.Editing || _renamingList is not null));
 
     /// <summary>
-    /// [S-787] [S-808] A key from the shell's keyboard lease: the kit's list's one key map ([S-608]).
+    /// [S-787] [S-808] A key from the shell's keyboard lease: the kit's list's one key map ([S-616]).
     /// An open editor owns its own keys.
     /// </summary>
     public bool HandleKey(Themia.Core.Widgets.WidgetKey key) => !_detached && _list.HandleKey(key);

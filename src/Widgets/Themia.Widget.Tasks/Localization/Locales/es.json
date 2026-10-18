@@ -10,7 +10,6 @@
   "widgetsA.catalog.tasks.label": "Tareas",
   "widgetsC.oneDrive.accountGone": "La cuenta que mostraba este widget ya no tiene la sesión iniciada.",
   "widgetsC.oneDrive.accountNeedsSignIn": "{account} necesita que vuelvas a iniciar sesión.",
-  "widgetsC.oneDrive.openAccounts": "Abrir la configuración de cuentas",
   "widgetsC.oneDrive.settings.accountNeedsSignIn": "Una cuenta necesita que vuelvas a iniciar sesión",
   "widgetsC.oneDrive.settings.accountSignInAgain": "{account}: vuelve a iniciar sesión",
   "widgetsC.oneDrive.starting": "Themia todavía se está iniciando.",

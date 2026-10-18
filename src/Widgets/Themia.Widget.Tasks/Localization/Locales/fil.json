@@ -10,7 +10,6 @@
   "widgetsA.catalog.tasks.label": "Mga gawain",
   "widgetsC.oneDrive.accountGone": "Hindi na naka-sign in ang account na ipinapakita ng widget na ito.",
   "widgetsC.oneDrive.accountNeedsSignIn": "Kailangan mong mag-sign in ulit sa {account}.",
-  "widgetsC.oneDrive.openAccounts": "Buksan ang setting ng Mga Account",
   "widgetsC.oneDrive.settings.accountNeedsSignIn": "Kailangan mong mag-sign in ulit sa isang account",
   "widgetsC.oneDrive.settings.accountSignInAgain": "{account} — mag-sign in ulit",
   "widgetsC.oneDrive.starting": "Nagsisimula pa ang Themia.",
