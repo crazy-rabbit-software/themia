@@ -3,6 +3,7 @@ using Themia.App.Services.Files;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services;
 
@@ -21,7 +22,7 @@ namespace Themia.App.Services;
 /// </para>
 /// <para>UI thread only: reads run on the pool and come back to the dispatcher.</para>
 /// </summary>
-internal sealed class GalleryService : IDisposable
+internal sealed class GalleryService : IGalleries, IDisposable
 {
     private const string Scope = "gallery-service";
 
@@ -65,7 +66,7 @@ internal sealed class GalleryService : IDisposable
     /// Never calls back from inside this call. Dispose to let go.
     /// </summary>
     /// <param name="refresh">The widget's refresh interval ([S-772]); the shortest of a source's widgets wins.</param>
-    public GalleryWatch Watch(GallerySourceKey key, TimeSpan refresh, Action<GalleryRefresh> onUpdate)
+    public IGalleryWatch Watch(GallerySourceKey key, TimeSpan refresh, Action<GalleryRefresh> onUpdate)
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(onUpdate);
@@ -96,6 +97,10 @@ internal sealed class GalleryService : IDisposable
             Read(source, GalleryRefresh.Forced);
         }
     }
+
+    /// <inheritdoc />
+    public async Task<IGalleryPicture?> LoadPictureAsync(string path, double pixelWidth, CancellationToken token)
+        => await Pictures.LoadAsync(path, pixelWidth, token).ConfigureAwait(true);
 
     /// <summary>[S-3411] The desktop was suspended: decoded pictures nobody shows go now.</summary>
     public void Trim() => Pictures.Trim();
@@ -177,7 +182,7 @@ internal sealed class GalleryService : IDisposable
         source.Reading = true;
         source.Reads++;
         var token = source.Cancel.Token;
-        var freshFor = (source.Interval ?? GalleryConfig.RescanInterval) / 2;
+        var freshFor = (source.Interval ?? GallerySourceKey.RescanInterval) / 2;
 
         Task<GalleryScan> reading = key.Source switch
         {
@@ -373,7 +378,7 @@ internal sealed class GalleryService : IDisposable
 /// One widget's hold on a gallery source. <see cref="Scan"/> is what the source read last; updates
 /// arrive through the callback given to <see cref="GalleryService.Watch"/>. Dispose to let go, once.
 /// </summary>
-internal sealed class GalleryWatch : IDisposable
+internal sealed class GalleryWatch : IGalleryWatch
 {
     private readonly GalleryService _service;
     private readonly GalleryService.Source _source;

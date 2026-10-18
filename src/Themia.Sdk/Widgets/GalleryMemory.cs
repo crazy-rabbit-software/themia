@@ -15,6 +15,14 @@ public sealed record GallerySourceKey(GallerySource Source, string Path, bool Re
 {
     public static GallerySourceKey Bing { get; } = new(GallerySource.Bing, string.Empty, false);
 
+    /// <summary>
+    /// [S-772] How often the source is read again: hourly, for every gallery. A folder changes when
+    /// something writes to it, which no timer can know, so this is a slow backstop rather than the
+    /// refresh, and Bing's photo changes once a day. Not a setting ([S-3792]): "Refresh images" on
+    /// the widget's menu is the way to see a change now.
+    /// </summary>
+    public static readonly TimeSpan RescanInterval = TimeSpan.FromHours(1);
+
     /// <summary>The source a validated configuration reads.</summary>
     public static GallerySourceKey For(GallerySource source, string path, bool recursive)
         => source switch

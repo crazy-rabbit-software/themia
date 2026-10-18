@@ -362,7 +362,7 @@ public class GalleryLayoutTests
     public void S3792_every_gallery_rescans_hourly()
     {
         Assert.Equal(TimeSpan.FromHours(1), new GalleryConfig().TickInterval);
-        Assert.Equal(GalleryConfig.RescanInterval, new GalleryConfig { Source = GallerySource.Bing }.TickInterval);
+        Assert.Equal(GallerySourceKey.RescanInterval, new GalleryConfig { Source = GallerySource.Bing }.TickInterval);
     }
 
     [Fact]

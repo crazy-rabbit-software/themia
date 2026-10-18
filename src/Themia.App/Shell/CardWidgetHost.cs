@@ -62,6 +62,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IScreenTimeSource? ScreenTime => AppServices.ScreenTime;
 
+    public IGalleries? Gallery => AppServices.Gallery;
+
     public bool CopyText(string text) => ClipboardWatcher.SetText(text);
 
     public bool ShowAccounts()

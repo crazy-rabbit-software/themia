@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Storage;
 
 namespace Themia.App.Services;
@@ -9,7 +10,7 @@ namespace Themia.App.Services;
 /// A decoded picture a frame is showing. Holding it pins the picture in the shared cache
 /// ([S-3411]); disposing lets go, exactly once.
 /// </summary>
-internal sealed class PictureHandle : IDisposable
+internal sealed class PictureHandle : IGalleryPicture
 {
     private ImageLoader? _owner;
 

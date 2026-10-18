@@ -1,11 +1,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.System;
 
 namespace Themia.App.Shell.Config;
@@ -252,9 +252,8 @@ internal static partial class WidgetSettings
                 picker.FileTypeFilter.Add(extension);
             }
 
-            // The picker needs an owner window, and the click that opened it came from the settings
-            // window, so the foreground window is that window at this instant.
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, Win32.GetForegroundWindow());
+            // The picker needs an owner window: the settings window the click came from.
+            SettingsHost.OwnPicker(picker);
 
             var file = await picker.PickSingleFileAsync();
 

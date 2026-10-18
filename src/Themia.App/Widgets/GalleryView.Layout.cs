@@ -410,7 +410,7 @@ internal sealed partial class GalleryView
             }
 
             var scale = XamlRoot?.RasterizationScale ?? 1;
-            var handle = await service.Pictures.LoadAsync(path, logicalWidth * scale, cts.Token).ConfigureAwait(true);
+            var handle = await service.LoadPictureAsync(path, logicalWidth * scale, cts.Token).ConfigureAwait(true);
 
             if (handle is null)
             {
@@ -579,10 +579,10 @@ internal sealed partial class GalleryView
         }
 
         /// <summary>[S-3411] The picture on show, pinned in the shared cache while this frame holds it.</summary>
-        private PictureHandle? Handle { get; set; }
+        private IGalleryPicture? Handle { get; set; }
 
         /// <summary>Show a picture (or none), letting go of the one before.</summary>
-        public void Show(PictureHandle? handle)
+        public void Show(IGalleryPicture? handle)
         {
             var previous = Handle;
             Handle = handle;

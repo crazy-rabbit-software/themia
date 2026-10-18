@@ -29,20 +29,6 @@ public enum GalleryStyle
     Mosaic = 3,
 }
 
-/// <summary>[S-760] Where the pictures come from. A closed set.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<GallerySource>))]
-public enum GallerySource
-{
-    /// <summary>The pictures in a folder (and, optionally, the folders below it).</summary>
-    Folder = 0,
-
-    /// <summary>One picture file.</summary>
-    File = 1,
-
-    /// <summary>Bing's photo of the day. Needs no setup.</summary>
-    Bing = 2,
-}
-
 /// <summary>What a picture does with a frame that is not its shape.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<GalleryFit>))]
 public enum GalleryFit
@@ -105,15 +91,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     /// A folder can hold fifty thousand photographs; this is what stops the widget from trying.
     /// </summary>
     public const int MaxImageCount = 60;
-
-    /// <summary>
-    /// [S-772] How often the source is read again: hourly, for every gallery. A folder changes when
-    /// something writes to it, which no timer can know, so this is a slow backstop rather than the
-    /// refresh, and Bing's photo changes once a day. Not a setting ([S-3792]): "Refresh images" on
-    /// the widget's menu is the way to see a change now.
-    /// </summary>
-    public static readonly TimeSpan RescanInterval = TimeSpan.FromHours(1);
-
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
     public static WidgetDescriptor Descriptor { get; } = new()
@@ -277,9 +254,9 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     [JsonIgnore]
     public TimeSpan SlideInterval => TimeSpan.FromSeconds(EffectiveSlideshowSeconds);
 
-    /// <summary>The rescan cadence: <see cref="RescanInterval"/>, the same for every gallery.</summary>
+    /// <summary>The rescan cadence: <see cref="GallerySourceKey.RescanInterval"/>, the same for every gallery.</summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => RescanInterval;
+    public TimeSpan TickInterval => GallerySourceKey.RescanInterval;
 
     /// <summary>[S-762] File and Bing show one picture full-bleed; the layouts are a folder's.</summary>
     [JsonIgnore]

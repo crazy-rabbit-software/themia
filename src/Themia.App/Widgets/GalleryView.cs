@@ -15,7 +15,7 @@ namespace Themia.App.Widgets;
 /// Pictures from a folder on this PC, one picture file, or Bing's photo of the day. [S-300]
 /// <para>
 /// A thin subscriber ([S-3410]): the path is validated in Core before anything opens a handle, and
-/// then the shared <see cref="GalleryService"/> does the rest. It reads the source (on the pool, once
+/// then the host's one gallery service (<see cref="IWidgetHost.Gallery"/>) does the rest. It reads the source (on the pool, once
 /// however many widgets show it, kept current by a folder watcher and the refresh interval, never
 /// because this view was built again), decodes the pictures at the size they are drawn and keeps
 /// them ([S-3411]), and remembers this widget's slide, deal and pause by widget id ([S-3412]). So a
@@ -51,7 +51,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     /// <summary>The shared source this widget shows, or null for a configuration with none to read.</summary>
     private GallerySourceKey? _key;
 
-    private GalleryWatch? _watch;
+    private IGalleryWatch? _watch;
 
     /// <summary>What the source read: every picture found, or the state with none.</summary>
     private GalleryScan _scan = GalleryScan.Of(GalleryStatus.Loading);
@@ -106,7 +106,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     /// </summary>
     public FrameworkElement? HeaderTrailing => _counter;
 
-    private static GalleryService? Service => AppServices.Gallery;
+    private IGalleries? Service => _widgetHost.Gallery;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
