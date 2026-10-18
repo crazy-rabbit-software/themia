@@ -83,7 +83,7 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
   Widgets/         Modules/<Name>Module.cs (each in-app widget's module) + one *View.cs per widget
-src/Widgets/Themia.Widget.<Name>/     a widget module project (Year progress so far): module, config, view, Preview/,
+src/Widgets/Themia.Widget.<Name>/     a widget module project (19 so far: year progress and M4 part B group 1): module, config, view, Preview/,
                    Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum
@@ -104,9 +104,12 @@ references, the registry generator (THEMIAMOD001..004: the id is the folder's na
 and the module test host pick it up; nothing in the app, Core or the SDK is edited. A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
-`IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher and
-Settings › Accounts, never `ShellLauncher`; the shared data services (`AppServices.WebSync`, `.System`,
-...) are host types until each gets an SDK contract on `IWidgetHost` (part B). The widgets not moved yet (M4 part B, docs/WIDGET-KIT.md 11.1) keep their
+`IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
+Settings › Accounts, the Recycle Bin and the power backend, never `ShellLauncher`; a cue sounds through
+`SoundCue`; the other shared data services (`AppServices.WebSync`, `.System`, ...) are host types until
+each gets an SDK contract (part B). A host test that needs a real widget (the seed, placement, the
+add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
+Core's internals. The widgets not moved yet (M4 part B, docs/WIDGET-KIT.md 11.1) keep their
 descriptor on their config in Core and their module in `Widgets/Modules/<Name>Module.cs`. Settings pages register one line in `ConfigPages.AppPages`.
 
 ## Engineering principles (non-negotiable)

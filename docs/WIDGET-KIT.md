@@ -1581,14 +1581,48 @@ registration path: when a table becomes a descriptor member, the table is delete
   publish 0 warnings (49.3 MB); Debug AOT publish 0 warnings and its `--widget-png clock`,
   `--settings-png Widget:weatherNow`, `--picker-png --search google` finish in 2-3 s, identical to the
   JIT renders.
+  *M4 part B, group 1 as built (2026-10-18): the widgets with no host service.* Seventeen widget
+  projects, one per commit, each its config, descriptor (on its module now), view, preview, settings
+  page (`<Name>Settings.Rows`, the module's `SettingsRows`), rules, strings, glyph where only it drew
+  it, SPEC section and tests: Stopwatch, Quote, Moon, Sun, Scratchpad, Countdown, Recycle Bin,
+  Bluetooth, Shut down, Restart, Sleep, Hibernate, Lock, Sign out, Turn off display, Pomodoro and
+  Clock (its XAML view compiles in the module library, as the spike showed). Namespaces unchanged;
+  Core and the app name none of them but in the first-run seed (data, by id) and the Debug gallery
+  scenes (by id; the edit bar scene names styles by name). Into the SDK first, each its own commit:
+  `FlipCard` with `SystemMotion`; the sky library (`Core/Astronomy`) and `SkyParts`; `RoundButtonPart`
+  with `RoundButtonFace`; `ControlKey` (each widget's own key map moved with it: `StopwatchKeys`,
+  `QuoteKeys`, `PomodoroKeys`); `Glyphs` public; `SkyPlaceRows` (the Sun's and Moon's place rows);
+  `ChromeFrame` (the flyout chrome, out of `EditBar`); `ColorPreset` named by `LocalText`;
+  `RecycleBinState` with the bin's target and tooltip; the power rules (`PowerButton`,
+  `PowerActionRules`, `PowerFace`), `PowerButtonView` and `ButtonInset`; the ringtones
+  (`PomodoroSounds`, `SoundPlan`, `AlarmSound`, `PomodoroPhase`); `LocaleFormat.Am`/`.Pm`; the strings
+  generator's `Plural(locale, …)`. Contracts added: `IWidgetHost.RecycleBin` (`IRecycleBin`, the
+  host's one answer and Windows' own empty) and `IWidgetHost.Power` (`IPowerBackend`: the Win32
+  calls on a desktop card, inert on a preview), and the `SoundCue` seam the host installs in `App()`
+  (its `winmm` player). `Glides`, `HugRow`, `RotatedBox` and `WidgetParts` stayed: no group-1 widget
+  draws with them (the meters, the mixer, the gallery, the online readouts do; they move with those).
+  Strings were carried over by a script that copies each value verbatim (plural objects included)
+  from every one of the 30 host files into the module's file of the same language and then removes
+  it from the host (a key another host part still reads, or two widgets share, was copied instead);
+  every move printed the same count for all 30 languages. A behaviour fix the moves surfaced, with
+  its regression test: a folder no widget of the build is at home in is left out of the add menu's
+  tree (it threw once Core's catalogue held no power button). Tests: a host test that needs a real
+  widget (the seed, placement, the add menu, styles, setup, alignment, search, the place rows, the
+  power family) moved whole into `tests/Themia.Modules.Tests`, which Core now grants its internals;
+  `ConfigJson`, `StateRoundTrip` and `ModuleSources` (which reads module projects' views too) are in
+  `tests/Shared`. Tests that carried the original app's tag numbers (the pomodoro's S01..S04, which
+  are the root's geometry tags here) or no SPEC line at all (Bluetooth's S240..S244) got their tags
+  written down in their module's SPEC.md; each power button got one tag of its own ([S-7400] ..
+  [S-8000]) and a test. Evidence: Debug build 0 warnings after every commit (three intermediate SDK
+  commits also built in a scratch worktree); Core 6471 and module tests 1309 green; the pixel diff of
+  every moved widget against a "before" rendered at `11b9d8c` (every tier per state, light, dark and
+  German, each style, the settings page in light, dark and German, the picker, menus, edit bar,
+  motion; 342 images) identical but for one motion frame that also differs between two runs of the
+  "before" build (`Sides-60ms`, an animation caught mid-way).
+  *Deferred from group 1:* **AudioVisualizer**: its bars come from the host's WASAPI loopback capture
+  (`AudioLoopback`, COM), a host service with no SDK contract yet; it moves with the system group,
+  which brings the audio contracts (`AudioFeed`/`CoreAudio`) anyway.
   *Left for part B (one widget project per commit), by group:*
-  - **No host service** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Moon, Sun, Scratchpad,
-    AudioVisualizer, Bluetooth, RecycleBin, PowerButton x7): move config + descriptor out of Core
-    (with its rules in `Core/Widgets`), its strings into its own table, its `WidgetSettings.<Name>.cs`
-    into `SettingsRows`, its `Preview` partial, its tests and SPEC section; shared app parts it draws
-    with (`FlipPart`, `Glides`, `SkyParts`, `RoundButtonPart`, `HugRow`, `RotatedBox`, `WidgetParts`)
-    go into the SDK first. Clock carries XAML (proven in the spike). PowerButtonView needs the
-    power actions behind a host contract (`PowerActions`).
   - **Toggles** (13 kinds, one `QuickToggleView`): the base is in the SDK; the toggle drivers
     (`Services/Toggles`) need an `IWidgetHost` service contract; then one project per toggle kind
     sharing the view from the SDK.
@@ -1598,7 +1632,8 @@ registration path: when a table becomes a descriptor member, the table is delete
     `SyncInterests` (`IInterests` over Core's `InterestsBuilder`) needs an SDK form; RSS moves with
     its kit migration.
   - **System** (meters x6, details x7, Gpu, Drive, RemovableDrives, Brightness, Mixer, Volume,
-    Music): `SystemHub`/`SystemData` (the samples), `Drives`, `Brightness`, `AudioFeed`/`CoreAudio`,
+    Music, AudioVisualizer): `SystemHub`/`SystemData` (the samples), `Drives`, `Brightness`,
+    `AudioFeed`/`CoreAudio`, `AudioLoopback` (the visualizer's capture),
     `MediaSession` as SDK contracts; `GaugeConfig`/`MeterTiming` with `SystemCadence`/`SystemSource`
     into the SDK; `MeterPart`/`DetailPart`, `MeterLookParts`, `CoreGraphGrid`, `DriveParts` into the
     SDK.

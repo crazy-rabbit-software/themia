@@ -20,7 +20,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
+- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin and Year progress are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth and the seven power buttons, under System widgets.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -3015,9 +3015,11 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
 ## Power and Bluetooth
 
 Power: one widget per action (R7-POWER), replacing the port of `main`'s Power tile
-(`widgets/system/power`, [S-01]..[S-11]). Core: `PowerActionRules`, `PowerButton`, `PowerFace`; App:
-`PowerButtonView`, `Win32PowerActions`; tests `PowerActionTests`. Bluetooth is a module of its own
-(`src/Widgets/Themia.Widget.Bluetooth`, its SPEC.md).
+(`widgets/system/power`, [S-01]..[S-11]). The SDK: `PowerActionRules`, `PowerButton`, `PowerFace`,
+`PowerButtonView` (the one view of all seven) and the base `PowerButtonConfig`; App: `Win32PowerActions`
+and `InertPowerActions`, behind `IWidgetHost.Power`; tests `PowerActionTests` (the module test host).
+Each power button is a module of its own (`src/Widgets/Themia.Widget.Shutdown` … `.ScreenOff`, one
+tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.Bluetooth`).
 
 - **[S-1910]** Each power action is its own widget kind and picker entry, with its own glyph, name and
   description: **Shut down** (`Shutdown`), **Restart**, **Sleep**, **Hibernate**, **Lock**, **Sign
