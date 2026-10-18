@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    {
+      "id": "v00",
+      "name": "System",
+      "widgets": [
+        {
+          "id": "w00",
+          "x": 0.02,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "cpu",
+            "style": "coreGraphs",
+            "showGraph": true,
+            "graphSpanSeconds": 300
+          }
+        },
+        {
+          "id": "w01",
+          "x": 0.15,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "memory",
+            "style": "bar",
+            "showGraph": true,
+            "graphSpanSeconds": 900
+          }
+        },
+        {
+          "id": "w02",
+          "x": 0.28,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "battery",
+            "style": "ring",
+            "showGraph": true,
+            "graphSpanSeconds": 1800
+          }
+        },
+        {
+          "id": "w03",
+          "x": 0.41000000000000003,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "disk",
+            "style": "bars",
+            "scope": 0,
+            "drive": "D:\\",
+            "showGraph": true,
+            "graphSpanSeconds": 300
+          }
+        },
+        {
+          "id": "w04",
+          "x": 0.54,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "network",
+            "style": "numbers",
+            "showGraph": true,
+            "graphSpanSeconds": 3600
+          }
+        },
+        {
+          "id": "w05",
+          "x": 0.67,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "ping",
+            "style": "signal",
+            "host": "example.com",
+            "showGraph": true,
+            "graphSpanSeconds": 300
+          }
+        },
+        {
+          "id": "w06",
+          "x": 0.8,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gpu",
+            "adapter": 1,
+            "style": "engines",
+            "showGraph": true,
+            "graphSpanSeconds": 900
+          }
+        },
+        {
+          "id": "w07",
+          "x": 0.02,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "cpuDetails"
+          }
+        },
+        {
+          "id": "w08",
+          "x": 0.15,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "memoryDetails"
+          }
+        },
+        {
+          "id": "w09",
+          "x": 0.28,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "topProcesses",
+            "sortBy": "Memory",
+            "maxRows": 10,
+            "groupByName": false
+          }
+        },
+        {
+          "id": "w10",
+          "x": 0.41000000000000003,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "networkDetails",
+            "showPublicAddress": true
+          }
+        },
+        {
+          "id": "w11",
+          "x": 0.54,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "batteryDetails"
+          }
+        },
+        {
+          "id": "w12",
+          "x": 0.67,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "pingDetails",
+            "host": "9.9.9.9",
+            "window": 120
+          }
+        },
+        {
+          "id": "w13",
+          "x": 0.8,
+          "y": 0.35,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gpuDetails",
+            "adapter": 1
+          }
+        },
+        {
+          "id": "w14",
+          "x": 0.02,
+          "y": 0.65,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "drive",
+            "style": "ring",
+            "drive": "E:\\"
+          }
+        },
+        {
+          "id": "w15",
+          "x": 0.15,
+          "y": 0.65,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "removableDrives"
+          }
+        },
+        {
+          "id": "w16",
+          "x": 0.28,
+          "y": 0.65,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "brightness",
+            "screens": "ThisDisplay"
+          }
+        },
+        {
+          "id": "w17",
+          "x": 0.41000000000000003,
+          "y": 0.65,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "mixer",
+            "deviceId": "{0.0.0.00000000}.{mixer}",
+            "deviceName": "Headphones",
+            "groupByApp": false,
+            "showSystemSounds": true,
+            "onlyActive": true,
+            "showIcons": false
+          }
+        },
+        {
+          "id": "w18",
+          "x": 0.54,
+          "y": 0.65,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "volume",
+            "deviceId": "{0.0.0.00000000}.{volume}",
+            "deviceName": "Speakers",
+            "allowControl": false
+          }
+        },
+        {
+          "id": "w19",
+          "x": 0.67,
+          "y": 0.65,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "music",
+            "style": "text",
+            "showTransport": false,
+            "showProgress": false,
+            "hideWhenIdle": "notPlaying"
+          }
+        },
+        {
+          "id": "w20",
+          "x": 0.8,
+          "y": 0.65,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "audioVisualizer",
+            "style": "waveform"
+          }
+        }
+      ]
+    }
+  ],
+  "activeViewId": "v00",
+  "monitorViews": {},
+  "design": {
+    "theme": "System",
+    "uiScale": 1,
+    "fontFamily": "system",
+    "fontScale": 1,
+    "widgetGapPx": 8,
+    "gridSnap": true,
+    "cornerRadiusPx": 4,
+    "background": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemBackground": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemTextColor": "",
+    "primaryColor": "",
+    "borderStyle": "Solid",
+    "borderWidthPx": 1,
+    "borderColor": "",
+    "borderOpacity": 1,
+    "introAnimation": "Scale",
+    "introAnimationMs": 500,
+    "headerBackgroundColor": "",
+    "headerOpacity": 1,
+    "transitionAnimation": "Scale",
+    "transitionAnimationMs": 500,
+    "unlockAnimation": "Scale",
+    "unlockAnimationMs": 500,
+    "smoothValues": true,
+    "runAtStartup": false
+  },
+  "preferences": {
+    "language": "System",
+    "gameModeSuspend": false,
+    "desktopIconsVisible": true,
+    "region": {
+      "clock": "System",
+      "weekStart": "System",
+      "temperature": "System"
+    },
+    "refresh": {
+      "weather": 30,
+      "markets": 5,
+      "feeds": 30,
+      "accounts": 2
+    }
+  },
+  "disabledMonitors": [],
+  "monitorScales": {},
+  "viewBars": {}
+}
