@@ -84,7 +84,7 @@ internal sealed partial class ScratchpadView
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Top,
         };
-        EditBar.Frame(toolbar);
+        ChromeFrame.Apply(toolbar);
 
         _sheet = new Border
         {

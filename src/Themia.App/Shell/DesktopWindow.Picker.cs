@@ -94,7 +94,7 @@ internal sealed partial class DesktopWindow
             Visibility = Visibility.Collapsed,
         };
 
-        EditBar.Frame(hint);
+        ChromeFrame.Apply(hint);
         return hint;
     }
 

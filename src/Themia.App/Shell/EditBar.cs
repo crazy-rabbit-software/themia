@@ -52,9 +52,6 @@ internal sealed partial class EditBar : Grid
     /// <summary>[S-3500] The hairline between the arranging commands and the rest.</summary>
     private const double DividerHeight = 20;
 
-    /// <summary>The bar's lift: the depth Windows gives a flyout, which casts its shadow.</summary>
-    private const float Elevation = 32;
-
     private ToggleButton? _snap;
 
     /// <summary>[S-918] The View menu, and the most it may be tall (the work area below the bar).</summary>
@@ -64,7 +61,7 @@ internal sealed partial class EditBar : Grid
 
     public EditBar(EditBarCommands commands)
     {
-        Frame(_frame);
+        ChromeFrame.Apply(_frame);
         Children.Add(_frame);
 
         // A press on the bar's padding is the bar's: it must not reach the
@@ -73,22 +70,6 @@ internal sealed partial class EditBar : Grid
         HorizontalAlignment = HorizontalAlignment.Center;
         VerticalAlignment = VerticalAlignment.Top;
         Fill(commands);
-    }
-
-    /// <summary>
-    /// [S-3500] The look the bar and the placement line share: the flyouts' acrylic, their stroke,
-    /// the overlay radius and a flyout's shadow, so both read as one piece of Windows chrome.
-    /// </summary>
-    public static void Frame(Border border)
-    {
-        ArgumentNullException.ThrowIfNull(border);
-
-        border.CornerRadius = new CornerRadius(Fluent.OverlayRadius);
-        border.Background = ThemeBrush.Of("AcrylicBackgroundFillColorDefaultBrush", Colors.Black);
-        border.BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
-        border.BorderThickness = new Thickness(Fluent.Hairline);
-        border.Shadow = new ThemeShadow();
-        border.Translation = new Vector3(0, 0, Elevation);
     }
 
     /// <summary>

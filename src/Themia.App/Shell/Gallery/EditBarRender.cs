@@ -140,7 +140,7 @@ internal static class EditBarRender
                     Text = Str.Shell_Place_Hint.Format(("action", Str.Shell_Place_PlaceOne.Format(("name", Str.Widget_Clock_Label.Text())))),
                 };
                 var line = new Border { Child = hint, MinHeight = EditBar.ButtonSize + (2 * Fluent.Space1), Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0) };
-                EditBar.Frame(line);
+                ChromeFrame.Apply(line);
                 await Shot(screen, line, null, outDir, $"editbar-{theme}-placing.png").ConfigureAwait(true);
 
                 ticker = new Ticker(dispatcher);

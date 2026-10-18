@@ -299,7 +299,7 @@ internal sealed partial class WidgetPicker : Grid
             Width = spot.Box.Width,
             Height = spot.Box.Height,
         };
-        EditBar.Frame(card);
+        ChromeFrame.Apply(card);
 
         Popup? popup = null;
         if (RenderLayer is { } layer)
