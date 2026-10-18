@@ -70,4 +70,7 @@ public interface IWidgetHost
 
     /// <summary>[S-4441] Every display's brightness: the host's one worker.</summary>
     IBrightness Brightness { get; }
+
+    /// <summary>[S-6913] Windows' own media session: what is playing, its transport and position.</summary>
+    IMediaSessions Media { get; }
 }

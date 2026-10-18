@@ -67,7 +67,8 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private Ticker? _ticker;
     private MusicConfig _config = new();
-    private MediaSession? _session;
+    private readonly IMediaSessions _media;
+    private IMediaSession? _session;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
     private IWidgetSurface? _surface;
@@ -95,8 +96,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     private const bool _frozen = false;
 #endif
 
-    public MusicView()
+    public MusicView(IWidgetHost host)
     {
+        _media = host.Media;
         var definition = ModuleCatalog.Of(MusicConfig.Descriptor.Id);
 
         _artPlaceholder = Fluent.Icon(definition.Glyph, "TextFillColorTertiaryBrush", Fluent.Space6);
@@ -184,7 +186,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         // [S-6407] The scrim is built from the theme's own base fill, so it is redrawn with the theme.
         ActualThemeChanged += OnThemeChanged;
 
-        _session ??= new MediaSession(OnSessionChanged);
+        _session ??= _media.Open(OnSessionChanged);
 
         // Opening the manager is an async WinRT call; the first snapshot lands through the same
         // change notification as every later one, so there is one path into Present and not two.

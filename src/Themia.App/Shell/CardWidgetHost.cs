@@ -44,6 +44,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IBrightness Brightness => Services.Brightness.HostBrightness.Instance;
 
+    public IMediaSessions Media => HostMediaSessions.Instance;
+
     public bool ShowAccounts()
     {
         if (AppServices.ShowAccounts is not { } show)

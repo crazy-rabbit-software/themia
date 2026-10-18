@@ -16,5 +16,5 @@ public sealed class MusicModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Music(rows.Rows, (MusicConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new MusicView();
+    public FrameworkElement CreateView(IWidgetHost host) => new MusicView(host);
 }
