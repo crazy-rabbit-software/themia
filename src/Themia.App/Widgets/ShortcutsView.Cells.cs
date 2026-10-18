@@ -536,7 +536,7 @@ internal sealed partial class ShortcutsView
 
         cell.BadgeText.Text = badge ?? string.Empty;
         cell.Badge.Visibility = badge is null ? Visibility.Collapsed : Visibility.Visible;
-        ToolTipService.SetToolTip(cell.Root, ShortcutRules.BinTooltip(NameOf(cell.Item), state));
+        ToolTipService.SetToolTip(cell.Root, RecycleBinState.Tooltip(NameOf(cell.Item), state));
 
         var variant = state is not { } bin ? "unknown" : bin.IsEmpty ? "empty" : "full";
 

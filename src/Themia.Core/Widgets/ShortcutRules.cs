@@ -48,8 +48,6 @@ public enum TargetHealth
 /// </summary>
 public static class ShortcutRules
 {
-    /// <summary>The Recycle Bin's shell target, the one item that carries a live badge.</summary>
-    public static readonly string RecycleBin = LaunchTargets.ShellTarget("RecycleBinFolder");
 
     /// <summary>
     /// [S-1385] Whether an item stays visible under a search: its shown name or its target holds the
@@ -172,7 +170,7 @@ public static class ShortcutRules
     }
 
     /// <summary>[S-1389] Whether an item is the Recycle Bin.</summary>
-    public static bool IsRecycleBin(string? target) => LaunchTargets.SameTarget(target, RecycleBin);
+    public static bool IsRecycleBin(string? target) => LaunchTargets.SameTarget(target, RecycleBinState.Target);
 
     /// <summary>
     /// [S-1389] The badge on the Recycle Bin's icon (original S-75): its item count, capped at
@@ -186,26 +184,6 @@ public static class ShortcutRules
         }
 
         return bin.Items > 99 ? "99+" : bin.Items.ToString(CultureInfo.InvariantCulture);
-    }
-
-    /// <summary>[S-1389] The Recycle Bin's tooltip: "name — N items (size)", "name — empty", or the name when unknown.</summary>
-    public static string BinTooltip(string name, RecycleBinState? state) => BinTooltip(Strings.Current, name, state);
-
-    /// <inheritdoc cref="BinTooltip(string, RecycleBinState?)"/>
-    public static string BinTooltip(Locale locale, string name, RecycleBinState? state)
-    {
-        if (state is not { } bin)
-        {
-            return name;
-        }
-
-        if (bin.IsEmpty)
-        {
-            return Strings.Format(locale, Str.WidgetsC_Shortcuts_Bin_Empty, ("name", name));
-        }
-
-        return Strings.Plural(locale, Str.WidgetsC_Shortcuts_Bin_Items, bin.Items,
-            ("name", name), ("size", Formatting.Bytes(locale, bin.Bytes)));
     }
 
     /// <summary>

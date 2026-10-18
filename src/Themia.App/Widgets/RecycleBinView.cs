@@ -170,7 +170,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
 
         // Empty is offered only when there is something to empty, and not twice at once (process-wide).
         _empty.IsEnabled = RecycleBinState.CanEmpty(state, _widgetHost.RecycleBin.Emptying);
-        ToolTipService.SetToolTip(this, ShortcutRules.BinTooltip(locale, Str.WidgetsC_Location_RecycleBin.Text(), state));
+        ToolTipService.SetToolTip(this, RecycleBinState.Tooltip(locale, Str.WidgetsC_Location_RecycleBin.Text(), state));
     }
 
     private void OnEmptyClicked(object sender, RoutedEventArgs args) => _ = EmptyAsync();
@@ -193,7 +193,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     {
         if (_surface?.IsPreview != true)
         {
-            _widgetHost.Launcher.Open(ShortcutRules.RecycleBin);
+            _widgetHost.Launcher.Open(RecycleBinState.Target);
         }
     }
 

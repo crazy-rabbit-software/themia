@@ -296,19 +296,19 @@ public sealed class ShortcutsTests
     public void S1389_unknown_state_has_no_badge_and_the_plain_name()
     {
         Assert.Null(ShortcutRules.BadgeText(null));
-        Assert.Equal("Recycle Bin", ShortcutRules.BinTooltip(Locale.En, "Recycle Bin", null));
-        Assert.Equal("Recycle Bin — empty", ShortcutRules.BinTooltip(Locale.En, "Recycle Bin", new RecycleBinState(0, 0)));
-        Assert.StartsWith("Recycle Bin — 1 item (", ShortcutRules.BinTooltip(Locale.En, "Recycle Bin", new RecycleBinState(1, 2048)), StringComparison.Ordinal);
-        Assert.StartsWith("Recycle Bin — 3 items (", ShortcutRules.BinTooltip(Locale.En, "Recycle Bin", new RecycleBinState(3, 2048)), StringComparison.Ordinal);
+        Assert.Equal("Recycle Bin", RecycleBinState.Tooltip(Locale.En, "Recycle Bin", null));
+        Assert.Equal("Recycle Bin — empty", RecycleBinState.Tooltip(Locale.En, "Recycle Bin", new RecycleBinState(0, 0)));
+        Assert.StartsWith("Recycle Bin — 1 item (", RecycleBinState.Tooltip(Locale.En, "Recycle Bin", new RecycleBinState(1, 2048)), StringComparison.Ordinal);
+        Assert.StartsWith("Recycle Bin — 3 items (", RecycleBinState.Tooltip(Locale.En, "Recycle Bin", new RecycleBinState(3, 2048)), StringComparison.Ordinal);
     }
 
     [Fact]
     public void S1389_bin_tooltip_follows_the_language()
     {
-        Assert.Equal("Papierkorb — leer", ShortcutRules.BinTooltip(Locale.De, "Papierkorb", new RecycleBinState(0, 0)));
-        Assert.StartsWith("Papierkorb — 1 Element (", ShortcutRules.BinTooltip(Locale.De, "Papierkorb", new RecycleBinState(1, 2048)), StringComparison.Ordinal);
-        Assert.StartsWith("Papierkorb — 3 Elemente (", ShortcutRules.BinTooltip(Locale.De, "Papierkorb", new RecycleBinState(3, 2048)), StringComparison.Ordinal);
-        Assert.StartsWith("Kosz — 5 elementów (", ShortcutRules.BinTooltip(Locale.Pl, "Kosz", new RecycleBinState(5, 2048)), StringComparison.Ordinal);
+        Assert.Equal("Papierkorb — leer", RecycleBinState.Tooltip(Locale.De, "Papierkorb", new RecycleBinState(0, 0)));
+        Assert.StartsWith("Papierkorb — 1 Element (", RecycleBinState.Tooltip(Locale.De, "Papierkorb", new RecycleBinState(1, 2048)), StringComparison.Ordinal);
+        Assert.StartsWith("Papierkorb — 3 Elemente (", RecycleBinState.Tooltip(Locale.De, "Papierkorb", new RecycleBinState(3, 2048)), StringComparison.Ordinal);
+        Assert.StartsWith("Kosz — 5 elementów (", RecycleBinState.Tooltip(Locale.Pl, "Kosz", new RecycleBinState(5, 2048)), StringComparison.Ordinal);
     }
 
     [Theory]
