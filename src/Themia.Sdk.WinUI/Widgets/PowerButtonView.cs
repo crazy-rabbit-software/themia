@@ -37,7 +37,7 @@ namespace Themia.App.Widgets;
 /// and the click are one path.
 /// </para>
 /// </summary>
-internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
+public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
 {
     private const string Scope = "power";
 

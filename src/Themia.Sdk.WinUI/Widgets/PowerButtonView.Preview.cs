@@ -6,7 +6,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>Debug renders only: the states a render cannot click its way into ([S-1917]).</summary>
-internal sealed partial class PowerButtonView : IWidgetPreviewState
+public sealed partial class PowerButtonView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["hover", "pressed", "armed", "failed", "unavailable"];
 
