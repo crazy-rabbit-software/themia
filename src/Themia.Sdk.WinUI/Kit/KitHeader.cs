@@ -58,6 +58,7 @@ public sealed partial class KitHeader : StackPanel
         Children.Add(_problem);
         Children.Add(_ring);
         Children.Add(_badge);
+        Visibility = Visibility.Collapsed;
     }
 
     /// <summary>
@@ -69,21 +70,19 @@ public sealed partial class KitHeader : StackPanel
         ArgumentNullException.ThrowIfNull(problems);
 
         _offersAccounts = offersAccounts;
-        _problem.Visibility = problems.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        ToolTipService.SetToolTip(_problem, problems.Count > 0 ? string.Join("\n", problems) : null);
+        var parts = KitHeaderParts.Of(problems.Count, busy, count);
+        _problem.Visibility = parts.Problem ? Visibility.Visible : Visibility.Collapsed;
+        ToolTipService.SetToolTip(_problem, parts.Problem ? string.Join("\n", problems) : null);
 
         _ring.IsActive = busy;
-        _ring.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        _ring.Visibility = parts.Ring ? Visibility.Visible : Visibility.Collapsed;
 
-        if (count is { } n and > 0)
-        {
-            _countText.Text = KitText.Count(Strings.Current, n);
-            _badge.Visibility = Visibility.Visible;
-        }
-        else
-        {
-            _badge.Visibility = Visibility.Collapsed;
-        }
+        _countText.Text = parts.Badge ? KitText.Count(Strings.Current, count!.Value) : string.Empty;
+        _badge.Visibility = parts.Badge ? Visibility.Visible : Visibility.Collapsed;
+
+        // With nothing to show the header takes no room: a visible empty panel would still take the
+        // spacing of the panel it sits in (the exchange rates' day stood one gap in from the edge).
+        Visibility = parts.Any ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Nothing to say: every part hidden, the ring stopped.</summary>

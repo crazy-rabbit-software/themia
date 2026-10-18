@@ -125,12 +125,32 @@ public static class Fluent
             // [S-655] A label that only informs ("Just now", "by CPU") gives way to the title on a
             // narrow tile; see HeaderFit. Through MaxWidth, never Visibility, which several views
             // already set on their own label for their own reasons. Commands are left alone: a
-            // button is something the user needs, and the view sheds those itself.
-            if (trailing is TextBlock label)
+            // button is something the user needs, and the view sheds those itself. A label may sit
+            // in a panel beside the kit's header extras (the exchange rates' day): the same rule
+            // reaches the panel's own text, or the day crowded the title out of a small tile.
+            TextBlock[] labels = trailing switch
             {
-                label.TextTrimming = TextTrimming.CharacterEllipsis;
+                TextBlock one => [one],
+                Panel panel => [.. panel.Children.OfType<TextBlock>()],
+                _ => [],
+            };
+
+            if (labels.Length > 0)
+            {
                 var leading = IconSize + Space2;
-                grid.SizeChanged += (_, args) => label.MaxWidth = HeaderFit.TrailingLabelWidth(args.NewSize.Width, leading);
+                foreach (var label in labels)
+                {
+                    label.TextTrimming = TextTrimming.CharacterEllipsis;
+                }
+
+                grid.SizeChanged += (_, args) =>
+                {
+                    var max = HeaderFit.TrailingLabelWidth(args.NewSize.Width, leading);
+                    foreach (var label in labels)
+                    {
+                        label.MaxWidth = max;
+                    }
+                };
             }
         }
 

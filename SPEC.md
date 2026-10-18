@@ -951,7 +951,9 @@ The shared parts a list widget is built from, and the rules they keep (design an
   icon size, leading to trailing: the problem glyph (only while a copy is on screen that the last
   attempt of some source could not improve on, its tooltip `KitFreshness`' lines, a click opening
   Settings › Accounts where only the user can mend it), the busy ring (only while a fetch of its own
-  sources is out), the count badge. The age is never drawn in a header.
+  sources is out), the count badge. The age is never drawn in a header. With none of the three to
+  show the header is collapsed: it takes no room and no spacing beside the widget's own trailing
+  text (the exchange rates' day stays at the edge, `KitHeaderParts`).
 - **[S-7062]** One launcher: a kit item's address opens through the host's one launcher
   (`IWidgetHost.Launcher`, which classifies it again on the literal string it hands the shell), never
   a process of the widget's own; a preview opens nothing. Nothing in the source starts a process but
@@ -1859,7 +1861,9 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - [S-653]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
 - **[S-655]** An informational header label ("Just now", "by CPU") gives the title at least 64px and
   is not drawn when less than 40px would be left for it. Through `MaxWidth`, never `Visibility`.
-  Commands in the header are not touched; their views shed them.
+  The rule reaches a label that is the trailing element or a text child of a trailing panel (the
+  exchange rates' day beside the kit's header extras). Commands in the header are not touched; their
+  views shed them.
 - **[S-656]** The current-weather reading is sized against the tile less its detail line, not
   against its own height (which pinned the first step chosen); the condition icon goes first on a
   tile too narrow for it.
