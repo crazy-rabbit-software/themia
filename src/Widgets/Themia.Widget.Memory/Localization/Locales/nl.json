@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Balk",
+  "styles.memory.free": "{size} vrij",
+  "styles.memory.gauge": "Meter",
+  "styles.memory.graph": "Grafiek",
+  "styles.memory.used": "{size} in gebruik",
+  "widgetsA.catalog.memory.description": "Fysiek geheugen in gebruik",
+  "widgetsA.catalog.memory.label": "Geheugen"
+}

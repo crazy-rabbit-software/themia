@@ -59,8 +59,6 @@
   "widgetsA.catalog.habits.label": "Привычки",
   "widgetsA.catalog.mail.description": "Последние письма из Outlook, Gmail или любого почтового сервера",
   "widgetsA.catalog.mail.label": "Почта",
-  "widgetsA.catalog.memory.description": "Используемая физическая память",
-  "widgetsA.catalog.memory.label": "Память",
   "widgetsA.catalog.mixer.description": "Громкость каждого приложения, воспроизводящего звук",
   "widgetsA.catalog.mixer.label": "Микшер",
   "widgetsA.catalog.music.description": "Все, что воспроизводит Windows",

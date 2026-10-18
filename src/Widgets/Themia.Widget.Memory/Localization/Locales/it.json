@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Barra",
+  "styles.memory.free": "{size} liberi",
+  "styles.memory.gauge": "Indicatore",
+  "styles.memory.graph": "Grafico",
+  "styles.memory.used": "{size} in uso",
+  "widgetsA.catalog.memory.description": "Memoria fisica in uso",
+  "widgetsA.catalog.memory.label": "Memoria"
+}

@@ -109,7 +109,7 @@ public sealed class MultiSelectPlacementTests
         var view = View(
             At(new WidgetId("clock"), "a", 0.1, 0.1, 0.1, 0.1),
             At(new WidgetId("cpu"), "b", 0.5, 0.5, 0.1, 0.1),
-            At(MemoryConfig.Descriptor.Id, "c", 0.18, 0.3, 0.1, 0.1));
+            At(new WidgetId("memory"), "c", 0.18, 0.3, 0.1, 0.1));
 
         // Touches a (corner) and c (edge), not b.
         var hits = SelectionRules.Lasso(view, new FracRect(0.15, 0.15, 0.1, 0.2));
@@ -122,7 +122,7 @@ public sealed class MultiSelectPlacementTests
     {
         var view = View(
             At(new WidgetId("cpu"), "shown", 0.2, 0.2, 0.1, 0.1),
-            At(MemoryConfig.Descriptor.Id, "hidden", 0.05, 0.05, 0.05, 0.05));
+            At(new WidgetId("memory"), "hidden", 0.05, 0.05, 0.05, 0.05));
 
         var hits = SelectionRules.Lasso(view, new FracRect(0, 0, 0.45, 0.45), new HashSet<string> { "hidden" });
 
@@ -143,7 +143,7 @@ public sealed class MultiSelectPlacementTests
     {
         var view = View(
             At(new WidgetId("clock"), "t", 0.5, 0.5, 0.3, 0.3),
-            At(MemoryConfig.Descriptor.Id, "hidden", 0.1, 0.1, 0.1, 0.1),
+            At(new WidgetId("memory"), "hidden", 0.1, 0.1, 0.1, 0.1),
             At(new WidgetId("cpu"), "c", 0, 0, 0.1, 0.1));
 
         Assert.Equal(["t", "c"], SelectionRules.All(view, new HashSet<string> { "hidden" }));
@@ -155,7 +155,7 @@ public sealed class MultiSelectPlacementTests
         var view = View(
             At(new WidgetId("clock"), "a", 0, 0, 0.1, 0.1),
             At(new WidgetId("cpu"), "b", 0.3, 0.3, 0.1, 0.1),
-            At(MemoryConfig.Descriptor.Id, "c", 0.7, 0.7, 0.1, 0.1));
+            At(new WidgetId("memory"), "c", 0.7, 0.7, 0.1, 0.1));
 
         Assert.Equal(["a", "c"], SelectionRules.InView(view, ["c", "missing", "a"]));
     }
@@ -326,7 +326,7 @@ public sealed class MultiSelectPlacementTests
         var view = View(
             At(new WidgetId("cpu"), "g", 0, 0, 0.5, 0.5),
             At(new WidgetId("clock"), "m", 0.6, 0.1, 0.1, 0.1),
-            At(MemoryConfig.Descriptor.Id, "other", 0.7, 0.7, 0.1, 0.1));
+            At(new WidgetId("memory"), "other", 0.7, 0.7, 0.1, 0.1));
 
         var payload = PlacementPayload.FromView(view, ["m", "g"], PlacementMode.Copy)!;
 
@@ -372,7 +372,7 @@ public sealed class MultiSelectPlacementTests
         left.Widgets.Clear();
         var right = ViewState.Create("right");
         state.Views.Add(right);
-        left.Widgets.AddRange([At(new WidgetId("clock"), "a", 0.1, 0.1, 0.1, 0.1), At(new WidgetId("cpu"), "b", 0.3, 0.1, 0.1, 0.1), At(MemoryConfig.Descriptor.Id, "stay", 0.6, 0.6, 0.1, 0.1)]);
+        left.Widgets.AddRange([At(new WidgetId("clock"), "a", 0.1, 0.1, 0.1, 0.1), At(new WidgetId("cpu"), "b", 0.3, 0.1, 0.1, 0.1), At(new WidgetId("memory"), "stay", 0.6, 0.6, 0.1, 0.1)]);
 
         var plan = PlacementPayload.FromView(left, ["a", "b"], PlacementMode.Move)!.Plan(0.5, 0.5, Screen, snapEnabled: false);
         Assert.Equal(0, plan.NetAdded(state));

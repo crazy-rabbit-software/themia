@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "バー",
+  "styles.memory.free": "空き {size}",
+  "styles.memory.gauge": "ゲージ",
+  "styles.memory.graph": "グラフ",
+  "styles.memory.used": "使用中 {size}",
+  "widgetsA.catalog.memory.description": "使用中の物理メモリ",
+  "widgetsA.catalog.memory.label": "メモリ"
+}

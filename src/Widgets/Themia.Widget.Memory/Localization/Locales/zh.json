@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "条形",
+  "styles.memory.free": "可用 {size}",
+  "styles.memory.gauge": "仪表",
+  "styles.memory.graph": "图表",
+  "styles.memory.used": "已用 {size}",
+  "widgetsA.catalog.memory.description": "已用物理内存",
+  "widgetsA.catalog.memory.label": "内存"
+}

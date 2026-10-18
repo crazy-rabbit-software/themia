@@ -81,7 +81,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3702_several_widgets_offer_no_title()
     {
-        var (state, view, _) = State(Widget(new WidgetId("cpu"), "a"), Widget(MemoryConfig.Descriptor.Id, "b"));
+        var (state, view, _) = State(Widget(new WidgetId("cpu"), "a"), Widget(new WidgetId("memory"), "b"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "b"), view.Id);
 
@@ -94,7 +94,7 @@ public sealed class QuickSetTests
     public void S3703_a_mixed_selection_reads_as_no_value_and_a_shared_one_as_that_value()
     {
         var a = Widget(new WidgetId("cpu"), "a");
-        var b = Widget(MemoryConfig.Descriptor.Id, "b");
+        var b = Widget(new WidgetId("memory"), "b");
         a.Header = HeaderPlacement.Top;
         b.Header = HeaderPlacement.Hidden;
         a.Background = FillChoice.Transparent();
@@ -118,7 +118,7 @@ public sealed class QuickSetTests
     public void S3703_a_choice_reaches_every_selected_widget_of_the_view_and_no_other()
     {
         var a = Widget(new WidgetId("cpu"), "a");
-        var b = Widget(MemoryConfig.Descriptor.Id, "b");
+        var b = Widget(new WidgetId("memory"), "b");
         var c = Widget(NetworkConfig.Descriptor.Id, "c");
         b.Background = FillChoice.Transparent();
         var (_, view, other) = State(a, b, c);

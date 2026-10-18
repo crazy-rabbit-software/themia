@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "বার",
+  "styles.memory.free": "{size} খালি",
+  "styles.memory.gauge": "গেজ",
+  "styles.memory.graph": "গ্রাফ",
+  "styles.memory.used": "{size} ব্যবহৃত",
+  "widgetsA.catalog.memory.description": "ব্যবহৃত ফিজিক্যাল মেমরি",
+  "widgetsA.catalog.memory.label": "মেমরি"
+}

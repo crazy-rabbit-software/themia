@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "نوار",
+  "styles.memory.free": "{size} آزاد",
+  "styles.memory.gauge": "عقربه‌ای",
+  "styles.memory.graph": "نمودار",
+  "styles.memory.used": "{size} در حال استفاده",
+  "widgetsA.catalog.memory.description": "حافظه فیزیکی در حال استفاده",
+  "widgetsA.catalog.memory.label": "حافظه"
+}

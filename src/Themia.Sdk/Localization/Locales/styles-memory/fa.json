@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "نمودار",
-  "styles.memory.bar": "نوار",
-  "styles.memory.gauge": "عقربه‌ای",
-  "styles.memory.used": "{size} در حال استفاده",
-  "styles.memory.free": "{size} آزاد"
-}

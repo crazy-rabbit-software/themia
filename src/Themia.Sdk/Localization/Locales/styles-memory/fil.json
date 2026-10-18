@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "Graph",
-  "styles.memory.bar": "Bar",
-  "styles.memory.gauge": "Gauge",
-  "styles.memory.used": "{size} ginagamit",
-  "styles.memory.free": "{size} bakante"
-}

@@ -419,7 +419,7 @@ internal static class SwitchCheck
             (AudioVisualizerConfig.Descriptor.Id, new FracRect(0.44, 0.04, 0.30, 0.20)),
             (TopProcessesConfig.Descriptor.Id, new FracRect(0.76, 0.04, 0.22, 0.60)),
             (new WidgetId("cpu"), new FracRect(0.44, 0.26, 0.14, 0.18)),
-            (MemoryConfig.Descriptor.Id, new FracRect(0.60, 0.26, 0.14, 0.18)),
+            (new WidgetId("memory"), new FracRect(0.60, 0.26, 0.14, 0.18)),
             (NetworkConfig.Descriptor.Id, new FracRect(0.02, 0.48, 0.20, 0.18)),
             (CpuDetailsConfig.Descriptor.Id, new FracRect(0.24, 0.48, 0.24, 0.30)),
             (ScreenTimeChartConfig.Descriptor.Id, new FracRect(0.50, 0.48, 0.24, 0.30)),
@@ -448,7 +448,7 @@ internal static class SwitchCheck
         [
             (new WidgetId("clock"), new FracRect(0.02, 0.04, 0.18, 0.14)),
             (new WidgetId("cpu"), new FracRect(0.22, 0.04, 0.14, 0.16)),
-            (MemoryConfig.Descriptor.Id, new FracRect(0.38, 0.04, 0.14, 0.16)),
+            (new WidgetId("memory"), new FracRect(0.38, 0.04, 0.14, 0.16)),
             (FolderConfig.Descriptor.Id, new FracRect(0.02, 0.22, 0.24, 0.40)),
             (ShortcutsConfig.Descriptor.Id, new FracRect(0.28, 0.22, 0.18, 0.16)),
             (NotesConfig.Descriptor.Id, new FracRect(0.48, 0.22, 0.22, 0.30)),

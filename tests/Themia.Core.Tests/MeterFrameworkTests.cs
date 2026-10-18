@@ -93,15 +93,6 @@ public sealed class MeterFrameworkTests
     public void S1122_spans_read_as_words(int seconds, string expected)
         => Assert.Equal(expected, MeterTiming.SpanLabel(seconds));
 
-    [Fact]
-    public void S1120_clone_carries_the_shared_settings()
-    {
-        var memory = new MemoryConfig { GraphSpanSeconds = 1800, ShowGraph = false };
-        var copy = (MemoryConfig)memory.Clone();
-
-        Assert.Equal((1800, false), (copy.GraphSpanSeconds, copy.ShowGraph));
-    }
-
     // ---- S-1123: pressure ------------------------------------------------------------------------
 
     [Theory]

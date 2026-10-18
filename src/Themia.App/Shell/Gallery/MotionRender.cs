@@ -42,7 +42,7 @@ internal static class MotionRender
     [
         (new WidgetId("clock"), new FracRect(0.03, 0.05, 0.22, 0.28)),
         (new WidgetId("cpu"), new FracRect(0.27, 0.05, 0.2, 0.28)),
-        (MemoryConfig.Descriptor.Id, new FracRect(0.03, 0.36, 0.22, 0.3)),
+        (new WidgetId("memory"), new FracRect(0.03, 0.36, 0.22, 0.3)),
         (new WidgetId("pomodoro"), new FracRect(0.62, 0.08, 0.17, 0.5)),
         (new WidgetId("countdown"), new FracRect(0.8, 0.08, 0.17, 0.25)),
         (NotesConfig.Descriptor.Id, new FracRect(0.55, 0.62, 0.42, 0.3)),

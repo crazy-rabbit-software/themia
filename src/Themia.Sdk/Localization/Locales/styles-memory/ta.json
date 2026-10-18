@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "வரைபடம்",
-  "styles.memory.bar": "பட்டை",
-  "styles.memory.gauge": "அளவீடு",
-  "styles.memory.used": "{size} பயன்பாட்டில்",
-  "styles.memory.free": "{size} காலி"
-}

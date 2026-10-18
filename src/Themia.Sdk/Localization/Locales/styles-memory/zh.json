@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "图表",
-  "styles.memory.bar": "条形",
-  "styles.memory.gauge": "仪表",
-  "styles.memory.used": "已用 {size}",
-  "styles.memory.free": "可用 {size}"
-}

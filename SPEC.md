@@ -2798,7 +2798,7 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
 - **[S-1126]** The chart (`SparkBand`) draws one or two series: the first filled, the second a
   thinner line (upload, writes). The battery draws its history when Show history is on (the first
   port ignored the setting).
-- **[S-1130]** Memory: percent used, from `GlobalMemoryStatusEx` (total less available).
+- [S-1130], [S-6315], [S-6316]: moved with the Memory widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Memory/`).
 - **[S-1762]** **A system meter shows its label, its reading and its history — nothing else** (user
   requirement): the card's header is the label (a drive's or a host's name where the kind knows
   one), the reading is the number (the battery's glyph before it, [S-1187]), the history is the
@@ -2934,11 +2934,6 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
   tiles are the largest and squarest, unless one with tiles at least 80 % that size leaves fewer
   holes (16 cores as 4 × 4, not 6 + 6 + 4; `BarLayout.Tiles`), gaps 4, 2, 1, each shaded by its
   load ([S-6301]).
-- **[S-6315]** Memory styles, `MemoryConfig.Style` (`MemoryStyle`): **Graph** ([S-1762]), **Bar**
-  ([S-6316]), **Gauge** ([S-6302]).
-- **[S-6316]** **Bar**: one row ([S-6304]), the used share filled against the free: "9.6 GB used" as
-  its label and "6.4 GB free" as its value, from the snapshot the reading comes from
-  (`MemoryFigures`), so bar and number agree.
 - Not ported / different: the original's `visibleMetrics` multi-select and everything it switched
   (removed by [S-1762]). The audit's `MeterLadder` was not built: `MeterFace` and `Disclosure` are
   the ladders.

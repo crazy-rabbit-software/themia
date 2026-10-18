@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "पट्टी",
+  "styles.memory.free": "{size} मोकळी",
+  "styles.memory.gauge": "गेज",
+  "styles.memory.graph": "आलेख",
+  "styles.memory.used": "{size} वापरात",
+  "widgetsA.catalog.memory.description": "वापरातील भौतिक मेमरी",
+  "widgetsA.catalog.memory.label": "मेमरी"
+}

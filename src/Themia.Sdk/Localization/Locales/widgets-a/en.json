@@ -56,8 +56,6 @@
   "widgetsA.catalog.habits.label": "Habits",
   "widgetsA.catalog.mail.description": "Recent messages from Outlook, Gmail or any mail server",
   "widgetsA.catalog.mail.label": "Mail",
-  "widgetsA.catalog.memory.description": "Physical memory in use",
-  "widgetsA.catalog.memory.label": "Memory",
   "widgetsA.catalog.mixer.description": "Volume for each app that plays sound",
   "widgetsA.catalog.mixer.label": "Mixer",
   "widgetsA.catalog.music.description": "Whatever Windows is playing",

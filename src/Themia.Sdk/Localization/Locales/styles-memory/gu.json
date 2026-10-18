@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "ગ્રાફ",
-  "styles.memory.bar": "બાર",
-  "styles.memory.gauge": "ગેજ",
-  "styles.memory.used": "{size} વપરાયેલ",
-  "styles.memory.free": "{size} ખાલી"
-}

@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "బార్",
+  "styles.memory.free": "{size} ఖాళీ",
+  "styles.memory.gauge": "గేజ్",
+  "styles.memory.graph": "గ్రాఫ్",
+  "styles.memory.used": "{size} వాడుకలో",
+  "widgetsA.catalog.memory.description": "ఉపయోగంలో ఉన్న భౌతిక మెమరీ",
+  "widgetsA.catalog.memory.label": "మెమరీ"
+}

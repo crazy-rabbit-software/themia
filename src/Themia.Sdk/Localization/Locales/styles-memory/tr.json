@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "Grafik",
-  "styles.memory.bar": "Çubuk",
-  "styles.memory.gauge": "Gösterge",
-  "styles.memory.used": "{size} kullanımda",
-  "styles.memory.free": "{size} boş"
-}

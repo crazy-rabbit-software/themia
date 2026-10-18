@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Thanh",
+  "styles.memory.free": "Còn trống {size}",
+  "styles.memory.gauge": "Đồng hồ đo",
+  "styles.memory.graph": "Biểu đồ",
+  "styles.memory.used": "Đã dùng {size}",
+  "widgetsA.catalog.memory.description": "Bộ nhớ vật lý đang dùng",
+  "widgetsA.catalog.memory.label": "Bộ nhớ"
+}

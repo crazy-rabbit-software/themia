@@ -168,7 +168,7 @@ public sealed class SettingsTransferTests : IDisposable
         work.Widgets.RemoveAt(1);
         work.Widgets[0].X = 0.5;
         work.Widgets.Add(WidgetInstance.Create(NotesConfig.Descriptor.Id, new FracRect(0.1, 0.5, 0.2, 0.2)));
-        work.Widgets.Add(WidgetInstance.Create(MemoryConfig.Descriptor.Id, new FracRect(0.5, 0.5, 0.2, 0.2)));
+        work.Widgets.Add(WidgetInstance.Create(new WidgetId("memory"), new FracRect(0.5, 0.5, 0.2, 0.2)));
 
         var preview = SettingsTransfer.Compare(Locale.En, state, incoming, [], Displays);
 

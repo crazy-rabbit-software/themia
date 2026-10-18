@@ -56,8 +56,6 @@
   "widgetsA.catalog.habits.label": "习惯",
   "widgetsA.catalog.mail.description": "来自 Outlook、Gmail 或任意邮件服务器的最新邮件",
   "widgetsA.catalog.mail.label": "邮件",
-  "widgetsA.catalog.memory.description": "已用物理内存",
-  "widgetsA.catalog.memory.label": "内存",
   "widgetsA.catalog.mixer.description": "每个正在播放声音的应用的音量",
   "widgetsA.catalog.mixer.label": "音量合成器",
   "widgetsA.catalog.music.description": "Windows 正在播放的内容",

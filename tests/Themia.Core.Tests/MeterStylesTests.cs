@@ -13,10 +13,6 @@ public sealed class MeterStylesTests
     // ---- the styles themselves -----------------------------------------------------------------
 
     [Fact]
-    public void S6315_memory_offers_graph_bar_and_gauge()
-        => Assert.Equal(["graph", "bar", "gauge"], WidgetStyles.For(MemoryConfig.Descriptor.Id).Select(s => s.Name));
-
-    [Fact]
     public void S6320_the_gpu_offers_graph_engines_and_gauge_and_keeps_its_adapter_through_a_clone()
     {
         Assert.Equal(["graph", "engines", "gauge"], WidgetStyles.For(GpuConfig.Descriptor.Id).Select(s => s.Name));

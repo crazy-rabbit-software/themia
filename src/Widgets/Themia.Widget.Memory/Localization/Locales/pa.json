@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "ਬਾਰ",
+  "styles.memory.free": "{size} ਖਾਲੀ",
+  "styles.memory.gauge": "ਗੇਜ",
+  "styles.memory.graph": "ਗ੍ਰਾਫ਼",
+  "styles.memory.used": "{size} ਵਰਤੋਂ ਵਿੱਚ",
+  "widgetsA.catalog.memory.description": "ਵਰਤੋਂ ਵਿੱਚ ਭੌਤਿਕ ਮੈਮੋਰੀ",
+  "widgetsA.catalog.memory.label": "ਮੈਮੋਰੀ"
+}

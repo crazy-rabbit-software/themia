@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "رسم بياني",
-  "styles.memory.bar": "شريط",
-  "styles.memory.gauge": "مقياس",
-  "styles.memory.used": "المستخدم {size}",
-  "styles.memory.free": "المتاح {size}"
-}

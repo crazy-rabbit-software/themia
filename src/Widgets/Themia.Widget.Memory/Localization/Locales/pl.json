@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Pasek",
+  "styles.memory.free": "{size} wolne",
+  "styles.memory.gauge": "Wskaźnik",
+  "styles.memory.graph": "Wykres",
+  "styles.memory.used": "{size} w użyciu",
+  "widgetsA.catalog.memory.description": "Używana pamięć fizyczna",
+  "widgetsA.catalog.memory.label": "Pamięć"
+}

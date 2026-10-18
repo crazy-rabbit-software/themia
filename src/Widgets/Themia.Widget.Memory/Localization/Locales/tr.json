@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Çubuk",
+  "styles.memory.free": "{size} boş",
+  "styles.memory.gauge": "Gösterge",
+  "styles.memory.graph": "Grafik",
+  "styles.memory.used": "{size} kullanımda",
+  "widgetsA.catalog.memory.description": "Kullanımdaki fiziksel bellek",
+  "widgetsA.catalog.memory.label": "Bellek"
+}

@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Upau",
+  "styles.memory.free": "{size} wazi",
+  "styles.memory.gauge": "Kipimo",
+  "styles.memory.graph": "Grafu",
+  "styles.memory.used": "{size} inatumika",
+  "widgetsA.catalog.memory.description": "Kumbukumbu halisi inayotumika",
+  "widgetsA.catalog.memory.label": "Kumbukumbu"
+}

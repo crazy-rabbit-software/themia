@@ -57,8 +57,6 @@
   "widgetsA.catalog.habits.label": "Habitudes",
   "widgetsA.catalog.mail.description": "Messages récents d’Outlook, de Gmail ou de tout serveur de courrier",
   "widgetsA.catalog.mail.label": "Courrier",
-  "widgetsA.catalog.memory.description": "Mémoire physique utilisée",
-  "widgetsA.catalog.memory.label": "Mémoire",
   "widgetsA.catalog.mixer.description": "Volume de chaque application qui émet du son",
   "widgetsA.catalog.mixer.label": "Mélangeur",
   "widgetsA.catalog.music.description": "Ce que Windows est en train de lire",

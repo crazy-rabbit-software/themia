@@ -6,6 +6,7 @@ using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
+using Themia.Core.Localization;
 
 namespace Themia.Modules.Tests;
 
@@ -111,5 +112,21 @@ public sealed class MeterHostTests
         Assert.False(minute.SameAs(both));
         Assert.True(both.SameAs(SystemInterests.From(State(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 900 }), @"C:\")));
         Assert.Equal(0, SystemInterests.From(State(new CpuConfig { Style = CpuStyle.Grid }), @"C:\").CoreHistorySeconds);
+    }
+
+    [Fact]
+    public void S1120_clone_carries_the_shared_settings()
+    {
+        var memory = new MemoryConfig { GraphSpanSeconds = 1800, ShowGraph = false };
+        var copy = (MemoryConfig)memory.Clone();
+
+        Assert.Equal((1800, false), (copy.GraphSpanSeconds, copy.ShowGraph));
+    }
+
+    [Fact]
+    public void S700_the_disk_meter_starts_with_its_header_like_the_other_meters()
+    {
+        Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(DiskConfig.Descriptor.Id));
+        Assert.Equal(WidgetInstance.DefaultHeader(new WidgetId("memory")), WidgetInstance.DefaultHeader(DiskConfig.Descriptor.Id));
     }
 }

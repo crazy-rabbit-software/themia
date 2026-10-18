@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "แถบ",
+  "styles.memory.free": "ว่าง {size}",
+  "styles.memory.gauge": "มาตรวัด",
+  "styles.memory.graph": "กราฟ",
+  "styles.memory.used": "ใช้อยู่ {size}",
+  "widgetsA.catalog.memory.description": "หน่วยความจำกายภาพที่ใช้งานอยู่",
+  "widgetsA.catalog.memory.label": "หน่วยความจำ"
+}

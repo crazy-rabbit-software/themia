@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "막대",
+  "styles.memory.free": "{size} 사용 가능",
+  "styles.memory.gauge": "게이지",
+  "styles.memory.graph": "그래프",
+  "styles.memory.used": "{size} 사용 중",
+  "widgetsA.catalog.memory.description": "사용 중인 실제 메모리",
+  "widgetsA.catalog.memory.label": "메모리"
+}

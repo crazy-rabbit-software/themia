@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Balken",
+  "styles.memory.free": "{size} frei",
+  "styles.memory.gauge": "Tacho",
+  "styles.memory.graph": "Verlauf",
+  "styles.memory.used": "{size} belegt",
+  "widgetsA.catalog.memory.description": "Belegter Arbeitsspeicher",
+  "widgetsA.catalog.memory.label": "Arbeitsspeicher"
+}

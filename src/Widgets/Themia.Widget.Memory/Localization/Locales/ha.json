@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Sanda",
+  "styles.memory.free": "{size} babu komai",
+  "styles.memory.gauge": "Ma'auni",
+  "styles.memory.graph": "Jadawali",
+  "styles.memory.used": "{size} ana amfani",
+  "widgetsA.catalog.memory.description": "Ƙwaƙwalwar zahiri da ake amfani da ita",
+  "widgetsA.catalog.memory.label": "Ƙwaƙwalwa"
+}

@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Bar",
+  "styles.memory.free": "{size} bakante",
+  "styles.memory.gauge": "Gauge",
+  "styles.memory.graph": "Graph",
+  "styles.memory.used": "{size} ginagamit",
+  "widgetsA.catalog.memory.description": "Ginagamit na physical memory",
+  "widgetsA.catalog.memory.label": "Memory"
+}

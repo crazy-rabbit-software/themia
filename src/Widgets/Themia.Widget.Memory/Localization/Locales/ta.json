@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "பட்டை",
+  "styles.memory.free": "{size} காலி",
+  "styles.memory.gauge": "அளவீடு",
+  "styles.memory.graph": "வரைபடம்",
+  "styles.memory.used": "{size} பயன்பாட்டில்",
+  "widgetsA.catalog.memory.description": "பயன்பாட்டில் உள்ள இயற்பிய நினைவகம்",
+  "widgetsA.catalog.memory.label": "நினைவகம்"
+}

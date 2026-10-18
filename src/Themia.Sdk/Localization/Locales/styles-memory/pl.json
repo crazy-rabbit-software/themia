@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "Wykres",
-  "styles.memory.bar": "Pasek",
-  "styles.memory.gauge": "Wskaźnik",
-  "styles.memory.used": "{size} w użyciu",
-  "styles.memory.free": "{size} wolne"
-}

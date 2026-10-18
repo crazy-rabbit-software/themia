@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "График",
-  "styles.memory.bar": "Полоса",
-  "styles.memory.gauge": "Шкала",
-  "styles.memory.used": "Занято: {size}",
-  "styles.memory.free": "Свободно: {size}"
-}

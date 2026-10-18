@@ -1,7 +1,0 @@
-{
-  "styles.memory.graph": "Biểu đồ",
-  "styles.memory.bar": "Thanh",
-  "styles.memory.gauge": "Đồng hồ đo",
-  "styles.memory.used": "Đã dùng {size}",
-  "styles.memory.free": "Còn trống {size}"
-}

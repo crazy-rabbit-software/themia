@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "شريط",
+  "styles.memory.free": "المتاح {size}",
+  "styles.memory.gauge": "مقياس",
+  "styles.memory.graph": "رسم بياني",
+  "styles.memory.used": "المستخدم {size}",
+  "widgetsA.catalog.memory.description": "الذاكرة الفعلية المستخدمة",
+  "widgetsA.catalog.memory.label": "الذاكرة"
+}
