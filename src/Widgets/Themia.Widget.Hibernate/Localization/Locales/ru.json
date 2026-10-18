@@ -1,0 +1,4 @@
+{
+  "widgetsC.power.desc.hibernate": "Сохраняет сеанс на диск и выключает питание",
+  "power.action.hibernate": "Гибернация"
+}

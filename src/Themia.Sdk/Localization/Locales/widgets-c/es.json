@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Saltar a la siguiente fase",
   "widgetsC.pomodoro.next": "Siguiente: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.hibernate": "Guarda la sesión en el disco y apaga",
   "widgetsC.power.desc.lock": "Muestra la pantalla de bloqueo; las aplicaciones siguen abiertas",
   "widgetsC.power.desc.signOut": "Cierra tus aplicaciones y termina la sesión",
   "widgetsC.power.desc.screenOff": "Apaga las pantallas; cualquier entrada las activa",

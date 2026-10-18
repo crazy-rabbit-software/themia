@@ -1,0 +1,4 @@
+{
+  "widgetsC.power.desc.hibernate": "세션을 디스크에 저장하고 전원을 끕니다",
+  "power.action.hibernate": "최대 절전 모드"
+}

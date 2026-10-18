@@ -1,0 +1,4 @@
+{
+  "widgetsC.power.desc.hibernate": "セッションをディスクに保存して電源を切ります",
+  "power.action.hibernate": "休止状態"
+}

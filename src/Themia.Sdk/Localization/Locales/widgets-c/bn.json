@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "পরের ধাপে যান",
   "widgetsC.pomodoro.next": "পরবর্তী: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " মি",
-  "widgetsC.power.desc.hibernate": "সেশন ডিস্কে সংরক্ষণ করে বন্ধ হয়",
   "widgetsC.power.desc.lock": "লক স্ক্রিন দেখায়; অ্যাপ চলতে থাকে",
   "widgetsC.power.desc.signOut": "আপনার অ্যাপ বন্ধ করে সেশন শেষ করে",
   "widgetsC.power.desc.screenOff": "ডিসপ্লে বন্ধ করে; যেকোনো ইনপুটে চালু হয়",

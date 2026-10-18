@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "આગલા તબક્કા પર જાઓ",
   "widgetsC.pomodoro.next": "આગળ: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " મિનિટ",
-  "widgetsC.power.desc.hibernate": "સત્રને ડિસ્ક પર સાચવે છે અને પાવર બંધ કરે છે",
   "widgetsC.power.desc.lock": "લૉક સ્ક્રીન બતાવે છે; ઍપ્સ ચાલુ રહે છે",
   "widgetsC.power.desc.signOut": "તમારી ઍપ્સ બંધ કરે છે અને તમારું સત્ર સમાપ્ત કરે છે",
   "widgetsC.power.desc.screenOff": "ડિસ્પ્લે બંધ કરે છે; કોઈપણ ઇનપુટ તેમને જગાડે છે",

@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "widgetsC.power.desc.hibernate": "Saves the session to disk and powers off",
+  "power.action.hibernate": "Hibernate"
+}

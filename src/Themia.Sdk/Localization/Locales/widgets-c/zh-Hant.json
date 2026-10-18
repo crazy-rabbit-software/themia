@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "跳到下一個階段",
   "widgetsC.pomodoro.next": "下一個：{phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " 分鐘",
-  "widgetsC.power.desc.hibernate": "將工作階段儲存到磁碟並關閉電源",
   "widgetsC.power.desc.lock": "顯示鎖定畫面；應用程式繼續執行",
   "widgetsC.power.desc.signOut": "關閉您的應用程式並結束工作階段",
   "widgetsC.power.desc.screenOff": "關閉顯示器；任何輸入都能喚醒",

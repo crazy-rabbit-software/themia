@@ -1,0 +1,4 @@
+{
+  "widgetsC.power.desc.hibernate": "將工作階段儲存到磁碟並關閉電源",
+  "power.action.hibernate": "休眠"
+}

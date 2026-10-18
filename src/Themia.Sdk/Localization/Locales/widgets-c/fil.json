@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Lumaktaw sa susunod na yugto",
   "widgetsC.pomodoro.next": "Susunod: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.hibernate": "Sine-save ang session sa disk at pinapatay ang power",
   "widgetsC.power.desc.lock": "Ipinapakita ang lock screen; patuloy na tumatakbo ang mga app",
   "widgetsC.power.desc.signOut": "Isinasara ang iyong mga app at tinatapos ang iyong session",
   "widgetsC.power.desc.screenOff": "Pinapatay ang mga display; ginigising sila ng anumang input",
