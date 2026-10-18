@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "旋转锁定",
   "toggles.doNotDisturb.name": "请勿打扰",
   "toggles.sound.name": "声音",
-  "toggles.sound.label": "声音 开/关",
-  "toggles.sound.desc": "将默认输出静音或取消静音",
   "toggles.microphone.name": "麦克风",
   "toggles.microphone.label": "麦克风 开/关",
   "toggles.microphone.desc": "将默认麦克风静音或取消静音",

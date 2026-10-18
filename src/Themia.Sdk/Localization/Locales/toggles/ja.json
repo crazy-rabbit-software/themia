@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "回転ロック",
   "toggles.doNotDisturb.name": "応答不可",
   "toggles.sound.name": "サウンド",
-  "toggles.sound.label": "サウンド オン/オフ",
-  "toggles.sound.desc": "既定の出力をミュートまたはミュート解除します",
   "toggles.microphone.name": "マイク",
   "toggles.microphone.label": "マイク オン/オフ",
   "toggles.microphone.desc": "既定のマイクをミュートまたはミュート解除します",

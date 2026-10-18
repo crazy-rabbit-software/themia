@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Bloqueo de rotación",
   "toggles.doNotDisturb.name": "No molestar",
   "toggles.sound.name": "Sonido",
-  "toggles.sound.label": "Sonido activado/desactivado",
-  "toggles.sound.desc": "Silencia o reactiva la salida predeterminada",
   "toggles.microphone.name": "Micrófono",
   "toggles.microphone.label": "Micrófono activado/desactivado",
   "toggles.microphone.desc": "Silencia o reactiva el micrófono predeterminado",

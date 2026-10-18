@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "রোটেশন লক",
   "toggles.doNotDisturb.name": "বিরক্ত করবেন না",
   "toggles.sound.name": "শব্দ",
-  "toggles.sound.label": "শব্দ চালু/বন্ধ",
-  "toggles.sound.desc": "ডিফল্ট আউটপুট মিউট বা আনমিউট করে",
   "toggles.microphone.name": "মাইক্রোফোন",
   "toggles.microphone.label": "মাইক্রোফোন চালু/বন্ধ",
   "toggles.microphone.desc": "ডিফল্ট মাইক্রোফোন মিউট বা আনমিউট করে",

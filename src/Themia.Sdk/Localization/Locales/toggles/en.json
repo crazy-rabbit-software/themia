@@ -8,8 +8,6 @@
   "toggles.rotationLock.name": "Rotation lock",
   "toggles.doNotDisturb.name": "Do not disturb",
   "toggles.sound.name": "Sound",
-  "toggles.sound.label": "Sound on/off",
-  "toggles.sound.desc": "Mutes or unmutes the default output",
   "toggles.microphone.name": "Microphone",
   "toggles.microphone.label": "Microphone on/off",
   "toggles.microphone.desc": "Mutes or unmutes the default microphone",

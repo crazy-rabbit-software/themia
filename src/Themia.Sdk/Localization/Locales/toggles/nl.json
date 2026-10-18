@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Rotatievergrendeling",
   "toggles.doNotDisturb.name": "Niet storen",
   "toggles.sound.name": "Geluid",
-  "toggles.sound.label": "Geluid aan/uit",
-  "toggles.sound.desc": "Dempt de standaarduitvoer of heft het dempen op",
   "toggles.microphone.name": "Microfoon",
   "toggles.microphone.label": "Microfoon aan/uit",
   "toggles.microphone.desc": "Dempt de standaardmicrofoon of heft het dempen op",

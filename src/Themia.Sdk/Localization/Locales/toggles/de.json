@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Drehsperre",
   "toggles.doNotDisturb.name": "Nicht stören",
   "toggles.sound.name": "Ton",
-  "toggles.sound.label": "Ton ein/aus",
-  "toggles.sound.desc": "Schaltet die Standardausgabe stumm oder wieder laut",
   "toggles.microphone.name": "Mikrofon",
   "toggles.microphone.label": "Mikrofon ein/aus",
   "toggles.microphone.desc": "Schaltet das Standardmikrofon stumm oder wieder ein",

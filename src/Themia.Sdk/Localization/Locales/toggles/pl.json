@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Blokada obrotu",
   "toggles.doNotDisturb.name": "Nie przeszkadzać",
   "toggles.sound.name": "Dźwięk",
-  "toggles.sound.label": "Dźwięk wł./wył.",
-  "toggles.sound.desc": "Wycisza lub przywraca domyślne wyjście",
   "toggles.microphone.name": "Mikrofon",
   "toggles.microphone.label": "Mikrofon wł./wył.",
   "toggles.microphone.desc": "Wycisza lub przywraca domyślny mikrofon",

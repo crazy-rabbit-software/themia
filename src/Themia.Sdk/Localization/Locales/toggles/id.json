@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Kunci rotasi",
   "toggles.doNotDisturb.name": "Jangan ganggu",
   "toggles.sound.name": "Suara",
-  "toggles.sound.label": "Suara aktif/nonaktif",
-  "toggles.sound.desc": "Membisukan atau membunyikan output default",
   "toggles.microphone.name": "Mikrofon",
   "toggles.microphone.label": "Mikrofon aktif/nonaktif",
   "toggles.microphone.desc": "Membisukan atau membunyikan mikrofon default",

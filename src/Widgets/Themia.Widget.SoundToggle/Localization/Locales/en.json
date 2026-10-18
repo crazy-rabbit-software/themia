@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.sound.label": "Sound on/off",
+  "toggles.sound.desc": "Mutes or unmutes the default output"
+}

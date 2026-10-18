@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-3900] Sound (the default output's mute).</summary>
-public sealed class SoundToggleConfig : QuickToggleConfig
-{
-    /// <summary>The toggle it stands for.</summary>
-    [JsonIgnore]
-    public override QuickToggle Toggle => QuickToggle.Sound;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("soundToggle"),
-        ConfigType = typeof(SoundToggleConfig),
-        CreateDefault = () => new SoundToggleConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["quick settings", "toggle", "mute", "unmute", "speaker", "audio", "volume"],
-        Label = Str.Toggles_Sound_Label.Local(),
-        Description = Str.Toggles_Sound_Desc.Local(),
-        Glyph = Glyphs.Volume3,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
-        Add = new(AddFolderId.QuickSettings, 1, 0),
-    };
-
-    public override WidgetConfig Clone() => new SoundToggleConfig { Style = Style };
-}
-
 /// <summary>[S-3900] Microphone (the default microphone's mute).</summary>
 public sealed class MicrophoneToggleConfig : QuickToggleConfig
 {

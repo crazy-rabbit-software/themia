@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "ล็อกการหมุน",
   "toggles.doNotDisturb.name": "ห้ามรบกวน",
   "toggles.sound.name": "เสียง",
-  "toggles.sound.label": "เปิด/ปิดเสียง",
-  "toggles.sound.desc": "ปิดหรือเปิดเสียงของเอาต์พุตเริ่มต้น",
   "toggles.microphone.name": "ไมโครโฟน",
   "toggles.microphone.label": "เปิด/ปิดไมโครโฟน",
   "toggles.microphone.desc": "ปิดหรือเปิดเสียงของไมโครโฟนเริ่มต้น",

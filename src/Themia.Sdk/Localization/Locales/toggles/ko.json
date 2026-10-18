@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "회전 잠금",
   "toggles.doNotDisturb.name": "방해 금지",
   "toggles.sound.name": "소리",
-  "toggles.sound.label": "소리 켜기/끄기",
-  "toggles.sound.desc": "기본 출력 장치를 음소거하거나 음소거를 해제합니다",
   "toggles.microphone.name": "마이크",
   "toggles.microphone.label": "마이크 켜기/끄기",
   "toggles.microphone.desc": "기본 마이크를 음소거하거나 음소거를 해제합니다",

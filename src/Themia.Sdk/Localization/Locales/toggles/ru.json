@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Блокировка поворота",
   "toggles.doNotDisturb.name": "Не беспокоить",
   "toggles.sound.name": "Звук",
-  "toggles.sound.label": "Звук вкл./откл.",
-  "toggles.sound.desc": "Выключает или включает звук устройства вывода по умолчанию",
   "toggles.microphone.name": "Микрофон",
   "toggles.microphone.label": "Микрофон вкл./откл.",
   "toggles.microphone.desc": "Выключает или включает микрофон по умолчанию",

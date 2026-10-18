@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "சுழற்சிப் பூட்டு",
   "toggles.doNotDisturb.name": "தொந்தரவு செய்ய வேண்டாம்",
   "toggles.sound.name": "ஒலி",
-  "toggles.sound.label": "ஒலி இயக்கு/முடக்கு",
-  "toggles.sound.desc": "இயல்புநிலை வெளியீட்டை ஒலியடக்கும் அல்லது ஒலியடக்கத்தை நீக்கும்",
   "toggles.microphone.name": "மைக்ரோஃபோன்",
   "toggles.microphone.label": "மைக்ரோஃபோன் இயக்கு/முடக்கு",
   "toggles.microphone.desc": "இயல்புநிலை மைக்ரோஃபோனை ஒலியடக்கும் அல்லது ஒலியடக்கத்தை நீக்கும்",

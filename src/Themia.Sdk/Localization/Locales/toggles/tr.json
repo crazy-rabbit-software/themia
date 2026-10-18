@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Döndürme kilidi",
   "toggles.doNotDisturb.name": "Rahatsız etmeyin",
   "toggles.sound.name": "Ses",
-  "toggles.sound.label": "Ses aç/kapat",
-  "toggles.sound.desc": "Varsayılan çıkışın sesini kapatır veya açar",
   "toggles.microphone.name": "Mikrofon",
   "toggles.microphone.label": "Mikrofon aç/kapat",
   "toggles.microphone.desc": "Varsayılan mikrofonun sesini kapatır veya açar",

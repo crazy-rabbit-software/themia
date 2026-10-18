@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "قفل چرخش",
   "toggles.doNotDisturb.name": "مزاحم نشوید",
   "toggles.sound.name": "صدا",
-  "toggles.sound.label": "روشن/خاموش صدا",
-  "toggles.sound.desc": "خروجی پیش‌فرض را بی‌صدا یا باصدا می‌کند",
   "toggles.microphone.name": "میکروفون",
   "toggles.microphone.label": "روشن/خاموش میکروفون",
   "toggles.microphone.desc": "میکروفون پیش‌فرض را بی‌صدا یا باصدا می‌کند",

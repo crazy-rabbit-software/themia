@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "Rotation lock",
   "toggles.doNotDisturb.name": "Huwag istorbohin",
   "toggles.sound.name": "Tunog",
-  "toggles.sound.label": "I-on/i-off ang tunog",
-  "toggles.sound.desc": "Mina-mute o ina-unmute ang default na output",
   "toggles.microphone.name": "Mikropono",
   "toggles.microphone.label": "I-on/i-off ang mikropono",
   "toggles.microphone.desc": "Mina-mute o ina-unmute ang default na mikropono",

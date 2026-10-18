@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "భ్రమణ లాక్",
   "toggles.doNotDisturb.name": "అంతరాయం కలిగించవద్దు",
   "toggles.sound.name": "ధ్వని",
-  "toggles.sound.label": "ధ్వని ఆన్/ఆఫ్",
-  "toggles.sound.desc": "డిఫాల్ట్ అవుట్‌పుట్‌ను మ్యూట్ లేదా అన్‌మ్యూట్ చేస్తుంది",
   "toggles.microphone.name": "మైక్రోఫోన్",
   "toggles.microphone.label": "మైక్రోఫోన్ ఆన్/ఆఫ్",
   "toggles.microphone.desc": "డిఫాల్ట్ మైక్రోఫోన్‌ను మ్యూట్ లేదా అన్‌మ్యూట్ చేస్తుంది",

@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "تأمين التدوير",
   "toggles.doNotDisturb.name": "عدم الإزعاج",
   "toggles.sound.name": "الصوت",
-  "toggles.sound.label": "تشغيل/إيقاف الصوت",
-  "toggles.sound.desc": "كتم صوت الإخراج الافتراضي أو إلغاء كتمه",
   "toggles.microphone.name": "الميكروفون",
   "toggles.microphone.label": "تشغيل/إيقاف الميكروفون",
   "toggles.microphone.desc": "كتم الميكروفون الافتراضي أو إلغاء كتمه",

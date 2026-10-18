@@ -9,8 +9,6 @@
   "toggles.rotationLock.name": "रोटेशन लॉक",
   "toggles.doNotDisturb.name": "व्यत्यय आणू नका",
   "toggles.sound.name": "ध्वनी",
-  "toggles.sound.label": "ध्वनी चालू/बंद",
-  "toggles.sound.desc": "डीफॉल्ट आउटपुट म्यूट किंवा अनम्यूट करते",
   "toggles.microphone.name": "मायक्रोफोन",
   "toggles.microphone.label": "मायक्रोफोन चालू/बंद",
   "toggles.microphone.desc": "डीफॉल्ट मायक्रोफोन म्यूट किंवा अनम्यूट करते",
