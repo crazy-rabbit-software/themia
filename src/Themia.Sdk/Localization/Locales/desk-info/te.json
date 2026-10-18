@@ -7,10 +7,5 @@
   "meeting.nowEnds": "ఇప్పుడు · {time}కి ముగుస్తుంది",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "రాబోయేవి ఏవీ లేవు",
-  "recentFiles.label": "ఇటీవలి ఫైల్‌లు",
-  "recentFiles.desc": "మీరు చివరిగా తెరిచిన ఫైల్‌లు",
-  "recentFiles.empty": "ఇటీవల ఏదీ తెరవబడలేదు",
-  "recentFiles.unreadable": "Windows ఇటీవలి అంశాలను చదవడం సాధ్యం కాలేదు",
-  "recentFiles.remove": "జాబితా నుండి తీసివేయి",
   "recycleBin.emptyEllipsis": "రీసైకిల్ బిన్‌ను ఖాళీ చేయి…"
 }

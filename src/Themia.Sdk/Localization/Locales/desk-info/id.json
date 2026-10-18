@@ -6,10 +6,5 @@
   "meeting.nowEnds": "Sekarang · berakhir {time}",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "Tidak ada acara mendatang",
-  "recentFiles.label": "File terbaru",
-  "recentFiles.desc": "File yang terakhir Anda buka",
-  "recentFiles.empty": "Tidak ada yang dibuka baru-baru ini",
-  "recentFiles.unreadable": "Item terbaru Windows tidak dapat dibaca",
-  "recentFiles.remove": "Hapus dari daftar",
   "recycleBin.emptyEllipsis": "Kosongkan Recycle Bin…"
 }

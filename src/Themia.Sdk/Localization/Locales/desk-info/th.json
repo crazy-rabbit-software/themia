@@ -7,10 +7,5 @@
   "meeting.nowEnds": "ตอนนี้ · สิ้นสุด {time}",
   "meeting.dayTime": "{day} {time}",
   "meeting.none": "ไม่มีรายการที่กำลังจะมาถึง",
-  "recentFiles.label": "ไฟล์ล่าสุด",
-  "recentFiles.desc": "ไฟล์ที่คุณเปิดล่าสุด",
-  "recentFiles.empty": "ไม่มีรายการที่เปิดเมื่อเร็วๆ นี้",
-  "recentFiles.unreadable": "ไม่สามารถอ่านรายการล่าสุดของ Windows ได้",
-  "recentFiles.remove": "เอาออกจากรายการ",
   "recycleBin.emptyEllipsis": "ล้างถังรีไซเคิล…"
 }

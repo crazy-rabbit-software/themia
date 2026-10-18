@@ -1,0 +1,8 @@
+{
+  "$englishOnly": [],
+  "recentFiles.desc": "The files you opened last",
+  "recentFiles.empty": "Nothing opened recently",
+  "recentFiles.label": "Recent files",
+  "recentFiles.remove": "Remove from list",
+  "recentFiles.unreadable": "Windows' recent items could not be read"
+}

@@ -7,10 +7,5 @@
   "meeting.nowEnds": "இப்போது · {time} க்கு முடியும்",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "வரவிருப்பது எதுவும் இல்லை",
-  "recentFiles.label": "சமீபத்திய கோப்புகள்",
-  "recentFiles.desc": "நீங்கள் கடைசியாகத் திறந்த கோப்புகள்",
-  "recentFiles.empty": "சமீபத்தில் எதுவும் திறக்கப்படவில்லை",
-  "recentFiles.unreadable": "Windows இன் சமீபத்திய உருப்படிகளைப் படிக்க முடியவில்லை",
-  "recentFiles.remove": "பட்டியலிலிருந்து அகற்று",
   "recycleBin.emptyEllipsis": "மறுசுழற்சி தொட்டியைக் காலியாக்கு…"
 }

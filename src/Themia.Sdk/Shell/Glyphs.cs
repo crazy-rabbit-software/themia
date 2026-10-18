@@ -331,9 +331,6 @@ public static class Glyphs
     /// <summary>[S-4820] Next meeting and its Join button (Segoe "VideoChat").</summary>
     public static readonly string Meeting = From(0xE8AA);
 
-    /// <summary>[S-4840] Recent files (Segoe "History").</summary>
-    public static readonly string RecentFiles = From(0xE81C);
-
     /// <summary>[S-4860] The Recycle Bin (Segoe "Delete", the bin Windows draws).</summary>
     public static readonly string RecycleBin = From(0xE74D);
 

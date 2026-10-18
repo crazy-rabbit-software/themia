@@ -6,10 +6,5 @@
   "meeting.nowEnds": "Đang diễn ra · kết thúc lúc {time}",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "Không có sự kiện sắp tới",
-  "recentFiles.label": "Tệp gần đây",
-  "recentFiles.desc": "Các tệp bạn mở gần nhất",
-  "recentFiles.empty": "Gần đây chưa mở gì",
-  "recentFiles.unreadable": "Không đọc được các mục gần đây của Windows",
-  "recentFiles.remove": "Xóa khỏi danh sách",
   "recycleBin.emptyEllipsis": "Dọn sạch Thùng rác…"
 }

@@ -6,10 +6,5 @@
   "meeting.nowEnds": "進行中 · {time} に終了",
   "meeting.dayTime": "{day} {time}",
   "meeting.none": "予定はありません",
-  "recentFiles.label": "最近使ったファイル",
-  "recentFiles.desc": "最後に開いたファイル",
-  "recentFiles.empty": "最近開いたものはありません",
-  "recentFiles.unreadable": "Windows の最近使った項目を読み取れませんでした",
-  "recentFiles.remove": "一覧から削除",
   "recycleBin.emptyEllipsis": "ごみ箱を空にする…"
 }

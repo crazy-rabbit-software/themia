@@ -7,10 +7,5 @@
   "meeting.nowEnds": "Ngayon · matatapos {time}",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "Walang paparating",
-  "recentFiles.label": "Mga kamakailang file",
-  "recentFiles.desc": "Ang mga file na huli mong binuksan",
-  "recentFiles.empty": "Walang binuksan kamakailan",
-  "recentFiles.unreadable": "Hindi mabasa ang mga kamakailang item ng Windows",
-  "recentFiles.remove": "Alisin sa listahan",
   "recycleBin.emptyEllipsis": "Alisan ng laman ang Recycle Bin…"
 }

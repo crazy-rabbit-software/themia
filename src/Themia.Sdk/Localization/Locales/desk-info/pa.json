@@ -7,10 +7,5 @@
   "meeting.nowEnds": "ਹੁਣ · {time} ਵਜੇ ਖ਼ਤਮ",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "ਕੁਝ ਵੀ ਆਉਣ ਵਾਲਾ ਨਹੀਂ",
-  "recentFiles.label": "ਹਾਲੀਆ ਫ਼ਾਈਲਾਂ",
-  "recentFiles.desc": "ਤੁਹਾਡੇ ਵੱਲੋਂ ਆਖ਼ਰੀ ਵਾਰ ਖੋਲ੍ਹੀਆਂ ਫ਼ਾਈਲਾਂ",
-  "recentFiles.empty": "ਹਾਲ ਹੀ ਵਿੱਚ ਕੁਝ ਨਹੀਂ ਖੋਲ੍ਹਿਆ",
-  "recentFiles.unreadable": "Windows ਦੀਆਂ ਹਾਲੀਆ ਆਈਟਮਾਂ ਪੜ੍ਹੀਆਂ ਨਹੀਂ ਜਾ ਸਕੀਆਂ",
-  "recentFiles.remove": "ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾਓ",
   "recycleBin.emptyEllipsis": "ਰੀਸਾਈਕਲ ਬਿਨ ਖਾਲੀ ਕਰੋ…"
 }

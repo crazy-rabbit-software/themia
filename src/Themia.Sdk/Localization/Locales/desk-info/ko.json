@@ -6,10 +6,5 @@
   "meeting.nowEnds": "진행 중 · {time}에 종료",
   "meeting.dayTime": "{day} {time}",
   "meeting.none": "예정된 일정 없음",
-  "recentFiles.label": "최근 파일",
-  "recentFiles.desc": "마지막으로 연 파일",
-  "recentFiles.empty": "최근에 연 항목 없음",
-  "recentFiles.unreadable": "Windows 최근 항목을 읽을 수 없음",
-  "recentFiles.remove": "목록에서 제거",
   "recycleBin.emptyEllipsis": "휴지통 비우기…"
 }

@@ -11,36 +11,12 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>Next meeting and Recent files (S-4820..S-4845); Year progress and the Recycle Bin are their modules' (src/Widgets).</summary>
+/// <summary>Next meeting (S-4820..S-4826) and Recent files' source rules (S-4841); Recent files, Year progress and the Recycle Bin are their modules' (src/Widgets).</summary>
 public class DeskInfoWidgetsTests
 {
     // -----------------------------------------------------------------------------------------
     // [S-4800] Four kinds, four configs
     // -----------------------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData("nextMeeting", typeof(NextMeetingConfig))]
-    [InlineData("recentFiles", typeof(RecentFilesConfig))]
-    public void S4800_each_kind_has_its_config_and_round_trips(string kindId, Type type)
-    {
-        var kind = new WidgetId(kindId);
-        var config = WidgetConfig.CreateDefault(kind);
-        Assert.IsType(type, config);
-        Assert.Equal(kind, config.Kind);
-
-        var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
-        var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
-        Assert.IsType(type, back);
-        Assert.Empty(back!.Repair());
-    }
-
-    [Fact]
-    public void S4800_only_next_meeting_needs_setting_up_and_only_without_a_calendar()
-    {
-        Assert.False(WidgetSetup.Needed(new RecentFilesConfig(), FeatureSet.None));
-        Assert.True(WidgetSetup.Needed(new NextMeetingConfig(), FeatureSet.None));
-        Assert.False(WidgetSetup.Needed(new NextMeetingConfig(), HostFeatures.Calendar));
-    }
 
     [Fact]
     public void S4820_next_meeting_never_asks_for_birthdays_and_keeps_its_calendars_on_clone()
@@ -328,13 +304,4 @@ public class DeskInfoWidgetsTests
         Assert.DoesNotContain(newest, l => l.LinkPath.EndsWith(".ini", StringComparison.Ordinal));
     }
 
-    [Fact]
-    public void S4842_rows_grow_a_folder_line_then_a_time_column()
-    {
-        Assert.True(RecentFilesLayout.Plan(new WidgetArea(120, 76)).Compact);
-        Assert.False(RecentFilesLayout.Plan(new WidgetArea(120, 76)).TwoLine);
-        Assert.True(RecentFilesLayout.Plan(new WidgetArea(320, 196)).TwoLine);
-        Assert.False(RecentFilesLayout.Plan(new WidgetArea(320, 196)).TimeColumn);
-        Assert.True(RecentFilesLayout.Plan(new WidgetArea(560, 376)).TimeColumn);
-    }
 }

@@ -6,10 +6,5 @@
   "meeting.nowEnds": "Maintenant · se termine à {time}",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "Rien de prévu",
-  "recentFiles.label": "Fichiers récents",
-  "recentFiles.desc": "Les derniers fichiers que vous avez ouverts",
-  "recentFiles.empty": "Rien d’ouvert récemment",
-  "recentFiles.unreadable": "Impossible de lire les éléments récents de Windows",
-  "recentFiles.remove": "Supprimer de la liste",
   "recycleBin.emptyEllipsis": "Vider la Corbeille…"
 }

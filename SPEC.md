@@ -20,7 +20,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Year progress, Alarm, Notes, Clipboard, the Habit tracker and the Gallery are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
+- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Year progress, Alarm, Notes, Clipboard, the Habit tracker, the Gallery and Recent files are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates and Stocks are modules: their sections are their projects' `SPEC.md`; the sections named here keep what they share with the host.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -6914,10 +6914,11 @@ Needs a live pass: a signed-in Microsoft and Google account with a Teams, Zoom a
 
 ## Recent files (RECENT-FILES)
 
-Owning files: `Themia.Core/Widgets/RecentFileRules.cs`, `Themia.App/Services/Files/RecentItems.cs`,
-`Themia.App/Widgets/RecentFilesView*.cs`.
+The widget is a module of its own (`src/Widgets/Themia.Widget.RecentFiles`, its SPEC.md). Here: the
+host's one list it reads through `IWidgetHost.RecentFiles` (`Themia.App/Services/Files/RecentItems.cs`,
+`HostFileServices.cs`; `RecentFile` and `RecentFileRules` in the SDK).
 
-- **[S-4840]** `RecentFiles` (126): the files opened last, as Windows lists them. No settings.
+- [S-4840], [S-4842], [S-4844], [S-4845]: moved with the Recent files widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.RecentFiles/`).
 - **[S-4841]** The source is the Recent Items folder (`shell:Recent`, `FOLDERID_Recent`), the
   shortcuts Windows writes on every open and Explorer's Home "Recent" is built from. The newest
   120 shortcuts by last write are resolved (`IShellLinkW` through `ShellFileOps.ResolveShortcut`,
@@ -6925,22 +6926,10 @@ Owning files: `Themia.Core/Widgets/RecentFileRules.cs`, `Themia.App/Services/Fil
   out; a file reached by two shortcuts is listed once, newest first, at most 40. Each row: the
   shell's icon (the shared `FileIcons`, a file glyph until it comes), the name, the folder's name
   and when ("2h"). A debug render never reads the user's list.
-- **[S-4842]** The ladder (`RecentFilesLayout.Plan`): compact one-line rows on a Compact height; the
-  folder under the name from a Regular width and height; when, as a column at the end from an
-  Expanded width (else after the folder). The rest scrolls.
 - **[S-4843]** Live: one folder watch on Recent Items for every widget, started with the first and
   disposed with the last; a read is single-flight and runs once more for a change during it. A
   failed read keeps the last list; none at all says the list could not be read. A minute tick keeps
   "2h" honest.
-- **[S-4844]** A click opens the file (a gone one reads the list again). The row menu: Open, Open
-  file location (Explorer with it selected), Remove from list, which deletes its Recent Items
-  shortcut as Explorer's "Remove from Recent" does; the file is never touched, and nothing outside
-  the Recent Items folder is ever deleted.
-- **[S-4845]** Keys through the lease ([S-1288]): Up/Down, Page Up/Down, Home/End move, Enter opens,
-  Delete removes from the list, the Menu key opens the row's menu, Escape lets go.
-
-Needs a live pass: opening files from Explorer and Office (the list updating), Remove from list
-(and Explorer's Home agreeing), a file on a disconnected share.
 
 ## Recycle Bin (RECYCLE-BIN)
 

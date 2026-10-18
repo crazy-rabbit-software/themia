@@ -6,10 +6,5 @@
   "meeting.nowEnds": "الآن · ينتهي {time}",
   "meeting.dayTime": "{day}، {time}",
   "meeting.none": "لا شيء قادم",
-  "recentFiles.label": "الملفات الأخيرة",
-  "recentFiles.desc": "آخر الملفات التي فتحتها",
-  "recentFiles.empty": "لم يُفتح شيء مؤخرًا",
-  "recentFiles.unreadable": "تعذّرت قراءة العناصر الأخيرة في Windows",
-  "recentFiles.remove": "إزالة من القائمة",
   "recycleBin.emptyEllipsis": "إفراغ سلة المحذوفات…"
 }

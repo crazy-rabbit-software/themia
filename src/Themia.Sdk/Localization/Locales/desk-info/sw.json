@@ -7,10 +7,5 @@
   "meeting.nowEnds": "Sasa · unaisha {time}",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "Hakuna kinachokuja",
-  "recentFiles.label": "Faili za hivi karibuni",
-  "recentFiles.desc": "Faili ulizofungua mwisho",
-  "recentFiles.empty": "Hakuna kilichofunguliwa hivi karibuni",
-  "recentFiles.unreadable": "Vipengee vya hivi karibuni vya Windows havikuweza kusomwa",
-  "recentFiles.remove": "Ondoa kwenye orodha",
   "recycleBin.emptyEllipsis": "Safisha Pipa la Kuchakata…"
 }

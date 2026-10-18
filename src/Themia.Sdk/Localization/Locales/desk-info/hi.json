@@ -6,10 +6,5 @@
   "meeting.nowEnds": "अभी · {time} पर समाप्त",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "आगे कुछ नहीं है",
-  "recentFiles.label": "हाल की फ़ाइलें",
-  "recentFiles.desc": "आपके द्वारा हाल ही में खोली गई फ़ाइलें",
-  "recentFiles.empty": "हाल ही में कुछ नहीं खोला गया",
-  "recentFiles.unreadable": "Windows के हाल के आइटम पढ़े नहीं जा सके",
-  "recentFiles.remove": "सूची से हटाएँ",
   "recycleBin.emptyEllipsis": "रीसायकल बिन खाली करें…"
 }

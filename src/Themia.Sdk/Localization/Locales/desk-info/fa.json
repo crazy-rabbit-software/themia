@@ -7,10 +7,5 @@
   "meeting.nowEnds": "اکنون · پایان {time}",
   "meeting.dayTime": "{day}، {time}",
   "meeting.none": "چیزی در پیش نیست",
-  "recentFiles.label": "فایل‌های اخیر",
-  "recentFiles.desc": "فایل‌هایی که اخیراً باز کرده‌اید",
-  "recentFiles.empty": "اخیراً چیزی باز نشده",
-  "recentFiles.unreadable": "موارد اخیر Windows خوانده نشد",
-  "recentFiles.remove": "برداشتن از فهرست",
   "recycleBin.emptyEllipsis": "خالی کردن سطل بازیافت…"
 }

@@ -6,10 +6,5 @@
   "meeting.nowEnds": "Nu · eindigt om {time}",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "Niets gepland",
-  "recentFiles.label": "Recente bestanden",
-  "recentFiles.desc": "De bestanden die je het laatst hebt geopend",
-  "recentFiles.empty": "Onlangs niets geopend",
-  "recentFiles.unreadable": "De recente items van Windows konden niet worden gelezen",
-  "recentFiles.remove": "Uit lijst verwijderen",
   "recycleBin.emptyEllipsis": "Prullenbak leegmaken…"
 }

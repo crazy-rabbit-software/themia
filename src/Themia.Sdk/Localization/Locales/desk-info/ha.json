@@ -7,10 +7,5 @@
   "meeting.nowEnds": "Yanzu · zai ƙare {time}",
   "meeting.dayTime": "{day}, {time}",
   "meeting.none": "Babu abin da ke tafe",
-  "recentFiles.label": "Fayilolin kwanan nan",
-  "recentFiles.desc": "Fayilolin da ka buɗe na ƙarshe",
-  "recentFiles.empty": "Ba a buɗe komai kwanan nan ba",
-  "recentFiles.unreadable": "Ba a iya karanta abubuwan kwanan nan na Windows ba",
-  "recentFiles.remove": "Cire daga jeri",
   "recycleBin.emptyEllipsis": "Wofintar da Kwandon Shara…"
 }

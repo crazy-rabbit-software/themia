@@ -9,6 +9,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.RecentFiles;
 
 namespace Themia.App.Widgets;
 
@@ -56,7 +57,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
         };
         _fade = new ScrollFade(_scroll, _list);
-        _empty = Fluent.EmptyState(Glyphs.RecentFiles, _emptyText, out _);
+        _empty = Fluent.EmptyState(RecentFilesModule.Glyph, _emptyText, out _);
 
         Children.Add(_scroll);
         Children.Add(_empty);
@@ -137,7 +138,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
 
         if (_files.Count == 0)
         {
-            _emptyText.Text = (_unreadable ? Str.RecentFiles_Unreadable : Str.RecentFiles_Empty).Text();
+            _emptyText.Text = (_unreadable ? RecentFilesStr.RecentFiles_Unreadable : RecentFilesStr.RecentFiles_Empty).Text();
             _empty.Visibility = Visibility.Visible;
             _scroll.Visibility = Visibility.Collapsed;
             _cursor = -1;
@@ -257,7 +258,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
             new(Glyphs.Open, Str.Common_Open.Text(), () => Open(file)),
             new(Glyphs.Folder, Str.Shortcut_OpenFileLocation.Text(), () => Reveal(file)),
             ItemMenuEntry.Separator,
-            new(Glyphs.Clear, Str.RecentFiles_Remove.Text(), () => _widgetHost.RecentFiles.Remove(file)),
+            new(Glyphs.Clear, RecentFilesStr.RecentFiles_Remove.Text(), () => _widgetHost.RecentFiles.Remove(file)),
         ];
     }
 
@@ -293,7 +294,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
     {
         if (_surface?.IsPreview != true)
         {
-            ShellFileOps.ShowInExplorer([file.Path]);
+            _widgetHost.FileOps.ShowInExplorer([file.Path]);
         }
     }
 

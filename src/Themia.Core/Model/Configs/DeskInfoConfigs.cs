@@ -54,31 +54,3 @@ public sealed class NextMeetingConfig : CalendarConfig
 
     public override WidgetConfig Clone() => CopySharedTo(new NextMeetingConfig());
 }
-
-/// <summary>[S-4840] Recent files. Nothing to set: the list is Windows' own Recent Items.</summary>
-public sealed class RecentFilesConfig : WidgetConfig
-{
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("recentFiles"),
-        ConfigType = typeof(RecentFilesConfig),
-        CreateDefault = () => new RecentFilesConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["recent", "recently opened", "history", "documents", "files", "quick access", "last opened"],
-        Label = Str.RecentFiles_Label.Local(),
-        Description = Str.RecentFiles_Desc.Local(),
-        Glyph = Glyphs.RecentFiles,
-        DefaultWidth = 320,
-        DefaultHeight = 300,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Files, 0, 2),
-    };
-
-    /// <summary>[S-4843] Keeps "2h" honest; the list itself redraws from the folder watch.</summary>
-    [JsonIgnore]
-    public TimeSpan TickInterval => TimeSpan.FromMinutes(1);
-
-    public override WidgetConfig Clone() => new RecentFilesConfig();
-}

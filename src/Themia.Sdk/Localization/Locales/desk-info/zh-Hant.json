@@ -6,10 +6,5 @@
   "meeting.nowEnds": "進行中 · {time} 結束",
   "meeting.dayTime": "{day} {time}",
   "meeting.none": "近期沒有行程",
-  "recentFiles.label": "最近的檔案",
-  "recentFiles.desc": "您最近開啟的檔案",
-  "recentFiles.empty": "最近沒有開啟任何內容",
-  "recentFiles.unreadable": "無法讀取 Windows 的最近使用項目",
-  "recentFiles.remove": "從清單中移除",
   "recycleBin.emptyEllipsis": "清空資源回收筒…"
 }
