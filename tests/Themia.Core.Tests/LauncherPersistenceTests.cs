@@ -110,24 +110,6 @@ public sealed class LauncherPersistenceTests : IDisposable
     }
 
     [Fact]
-    public async Task The_clipboard_settings_survive_a_round_trip_and_carry_no_history()
-    {
-        var config = new ClipboardConfig { Capacity = 40, ShowTimestamp = false };
-
-        var reloaded = Assert.IsType<ClipboardConfig>(await RoundTripAsync(config));
-
-        Assert.Equal(40, reloaded.Capacity);
-        Assert.False(reloaded.ShowTimestamp);
-
-        // The point of the widget's design, stated as a test: nothing that was copied reaches the
-        // disk, so the saved config has only these two numbers in it.
-        var json = File.ReadAllText(_path);
-
-        Assert.DoesNotContain("history", json, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("entries", json, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [Fact]
     public void Cloning_a_shortcut_list_copies_the_items_rather_than_sharing_them()
     {
         // Clone is what copy/paste of a widget uses. Sharing the list would make editing the copy

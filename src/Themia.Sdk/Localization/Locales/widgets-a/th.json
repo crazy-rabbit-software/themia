@@ -43,8 +43,6 @@
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
   "widgetsA.calendar.weekdayInitials": "อา,จ,อ,พ,พฤ,ศ,ส",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.clipboard.description": "สิ่งที่คุณคัดลอกเมื่อเร็วๆ นี้",
-  "widgetsA.catalog.clipboard.label": "คลิปบอร์ด",
   "widgetsA.catalog.contacts.description": "บุคคลจากสมุดรายชื่อ Microsoft, Google และ CardDAV ของคุณ",
   "widgetsA.catalog.feed.description": "พาดหัวข่าวจากฟีดที่คุณเลือก",
   "widgetsA.catalog.feed.label": "ฟีด",
@@ -63,21 +61,9 @@
   "widgetsA.clipboard.characters": {
     "other": "{count} อักขระ"
   },
-  "widgetsA.clipboard.clearConfirm.body": "ทุกอย่างในรายการนี้จะถูกลืม การดำเนินการนี้ไม่สามารถเลิกทำได้ และไม่เปลี่ยนสิ่งที่อยู่ในคลิปบอร์ดตอนนี้",
-  "widgetsA.clipboard.clearConfirm.title": "ล้างประวัติคลิปบอร์ดหรือไม่",
-  "widgetsA.clipboard.clearEllipsis": "ล้างประวัติ…",
-  "widgetsA.clipboard.empty": "ยังไม่มีสิ่งที่คัดลอก คัดลอกบางอย่างแล้วจะปรากฏที่นี่",
   "widgetsA.clipboard.lines": {
     "other": "{count} บรรทัด"
   },
-  "widgetsA.clipboard.noListener": "Windows ไม่อนุญาตให้แอปนี้ติดตามคลิปบอร์ด",
-  "widgetsA.clipboard.remove": "เอาออกจากประวัติ",
-  "widgetsA.clipboard.settings.clear.desc": "ใช้ปุ่มถังขยะบนวิดเจ็ต ซึ่งจะถามก่อน",
-  "widgetsA.clipboard.settings.clear.where": "บนวิดเจ็ต",
-  "widgetsA.clipboard.settings.entries.desc": "{min} ถึง {max} การลดค่าจะลืมรายการที่เก่าที่สุด",
-  "widgetsA.clipboard.settings.entries.label": "รายการ",
-  "widgetsA.clipboard.settings.privacyNote": "ข้อความที่คัดลอกจะอยู่ในหน่วยความจำเท่านั้น ไม่มีการอ่านไฟล์และรูปภาพ",
-  "widgetsA.clipboard.settings.timestamp.label": "แสดงเวลาที่คัดลอก",
   "widgetsA.clock.date": "{weekday} {date}",
   "widgetsA.contacts.noAccount": "ยังไม่มีบัญชีผู้ติดต่อ",
   "widgetsA.contacts.none": "ไม่มีผู้ติดต่อ",

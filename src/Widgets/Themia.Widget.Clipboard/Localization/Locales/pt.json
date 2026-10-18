@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "Limpar histórico",
+  "widgetsA.catalog.clipboard.description": "O que você copiou recentemente",
+  "widgetsA.catalog.clipboard.label": "Área de transferência",
+  "widgetsA.clipboard.clearConfirm.body": "Tudo nesta lista será esquecido. Não é possível desfazer, e isso não altera o que está na área de transferência agora.",
+  "widgetsA.clipboard.clearConfirm.title": "Limpar o histórico da área de transferência?",
+  "widgetsA.clipboard.clearEllipsis": "Limpar histórico…",
+  "widgetsA.clipboard.empty": "Nada copiado ainda. Copie algo e aparecerá aqui.",
+  "widgetsA.clipboard.noListener": "O Windows não permitiu que este app monitorasse a área de transferência.",
+  "widgetsA.clipboard.remove": "Remover do histórico",
+  "widgetsA.clipboard.settings.clear.desc": "Use o botão de lixeira no próprio widget; ele pede confirmação",
+  "widgetsA.clipboard.settings.clear.where": "No widget",
+  "widgetsA.clipboard.settings.entries.desc": "De {min} a {max}; baixar esquece os mais antigos",
+  "widgetsA.clipboard.settings.entries.label": "Itens",
+  "widgetsA.clipboard.settings.privacyNote": "O texto copiado fica só na memória. Arquivos e imagens nunca são lidos.",
+  "widgetsA.clipboard.settings.timestamp.label": "Mostrar quando foi copiado"
+}

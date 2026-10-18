@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -23,24 +22,6 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory
 {
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("clipboard"),
-        ConfigType = typeof(ClipboardConfig),
-        CreateDefault = () => new ClipboardConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["copy", "paste", "history", "snippets"],
-        Label = Str.WidgetsA_Catalog_Clipboard_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Clipboard_Description.Local(),
-        Glyph = Glyphs.Clipboard,
-        DefaultWidth = 320,
-        DefaultHeight = 260,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Notes, 0, 2),
-    };
-
     /// <summary>[S-1440] How many entries to keep, 1 to 200 (default 50, as the original).</summary>
     public int Capacity { get; set; } = ClipboardHistory.DefaultCapacity;
 

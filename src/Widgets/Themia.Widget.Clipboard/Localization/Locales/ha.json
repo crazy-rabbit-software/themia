@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "Share tarihi",
+  "widgetsA.catalog.clipboard.description": "Abin da ka kwafa kwanan nan",
+  "widgetsA.catalog.clipboard.label": "Allon rubutu",
+  "widgetsA.clipboard.clearConfirm.body": "Za a manta duk abin da ke cikin wannan jeri. Ba za a iya sokewa ba, kuma ba ya canza abin da ke kan allon rubutu yanzu.",
+  "widgetsA.clipboard.clearConfirm.title": "Share tarihin allon rubutu?",
+  "widgetsA.clipboard.clearEllipsis": "Share tarihi…",
+  "widgetsA.clipboard.empty": "Ba a kwafi komai ba tukuna. Kwafi wani abu kuma zai bayyana a nan.",
+  "widgetsA.clipboard.noListener": "Windows ba ta bari wannan manhaja ta kalli allon rubutu ba.",
+  "widgetsA.clipboard.remove": "Cire daga tarihi",
+  "widgetsA.clipboard.settings.clear.desc": "Yi amfani da maɓallin kwandon shara a kan widget ɗin kansa; yana tambaya da farko",
+  "widgetsA.clipboard.settings.clear.where": "A kan widget ɗin",
+  "widgetsA.clipboard.settings.entries.desc": "{min} zuwa {max}; rage shi yana manta mafiya tsufa",
+  "widgetsA.clipboard.settings.entries.label": "Shigarwa",
+  "widgetsA.clipboard.settings.privacyNote": "Rubutun da aka kwafa yana zama a ƙwaƙwalwa kawai. Ba a taɓa karanta fayiloli da hotuna ba.",
+  "widgetsA.clipboard.settings.timestamp.label": "Nuna lokacin da aka kwafa"
+}

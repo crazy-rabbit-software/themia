@@ -43,8 +43,6 @@
   "widgetsA.calendar.spanWithLength": "{from}–{to}（{length}）",
   "widgetsA.calendar.weekdayInitials": "日,一,二,三,四,五,六",
   "widgetsA.calendar.yearTitle": "{year}年",
-  "widgetsA.catalog.clipboard.description": "你最近复制的内容",
-  "widgetsA.catalog.clipboard.label": "剪贴板",
   "widgetsA.catalog.contacts.description": "来自你的 Microsoft、Google 和 CardDAV 通讯录的联系人",
   "widgetsA.catalog.feed.description": "你所选订阅源的头条",
   "widgetsA.catalog.feed.label": "订阅源",
@@ -63,21 +61,9 @@
   "widgetsA.clipboard.characters": {
     "other": "{count} 个字符"
   },
-  "widgetsA.clipboard.clearConfirm.body": "此列表中的所有内容都将被清除。此操作无法撤消，也不会改变剪贴板当前的内容。",
-  "widgetsA.clipboard.clearConfirm.title": "清除剪贴板历史记录？",
-  "widgetsA.clipboard.clearEllipsis": "清除历史记录…",
-  "widgetsA.clipboard.empty": "尚未复制任何内容。复制内容后会显示在这里。",
   "widgetsA.clipboard.lines": {
     "other": "{count} 行"
   },
-  "widgetsA.clipboard.noListener": "Windows 不允许此应用监视剪贴板。",
-  "widgetsA.clipboard.remove": "从历史记录中删除",
-  "widgetsA.clipboard.settings.clear.desc": "使用小组件上的回收站按钮，会先询问确认",
-  "widgetsA.clipboard.settings.clear.where": "在小组件上",
-  "widgetsA.clipboard.settings.entries.desc": "{min} 到 {max}；调低会忘记最旧的",
-  "widgetsA.clipboard.settings.entries.label": "条目数",
-  "widgetsA.clipboard.settings.privacyNote": "复制的文本只保存在内存中。从不读取文件和图片。",
-  "widgetsA.clipboard.settings.timestamp.label": "显示复制时间",
   "widgetsA.clock.date": "{date} {weekday}",
   "widgetsA.contacts.noAccount": "还没有联系人帐户",
   "widgetsA.contacts.none": "没有联系人",

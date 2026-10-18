@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "مسح المحفوظات",
+  "widgetsA.catalog.clipboard.description": "ما نسخته مؤخرًا",
+  "widgetsA.catalog.clipboard.label": "الحافظة",
+  "widgetsA.clipboard.clearConfirm.body": "سيُنسى كل ما في هذه القائمة. لا يمكن التراجع عن ذلك، ولا يغيّر ما في الحافظة الآن.",
+  "widgetsA.clipboard.clearConfirm.title": "هل تريد مسح محفوظات الحافظة؟",
+  "widgetsA.clipboard.clearEllipsis": "مسح المحفوظات…",
+  "widgetsA.clipboard.empty": "لم يُنسخ شيء بعد. انسخ شيئًا وسيظهر هنا.",
+  "widgetsA.clipboard.noListener": "لم يسمح Windows لهذا التطبيق بمراقبة الحافظة.",
+  "widgetsA.clipboard.remove": "إزالة من المحفوظات",
+  "widgetsA.clipboard.settings.clear.desc": "استخدم زر سلة المحذوفات على الأداة نفسها؛ يطلب التأكيد أولًا",
+  "widgetsA.clipboard.settings.clear.where": "على الأداة",
+  "widgetsA.clipboard.settings.entries.desc": "من {min} إلى {max}؛ خفضه يُنسي الأقدم",
+  "widgetsA.clipboard.settings.entries.label": "الإدخالات",
+  "widgetsA.clipboard.settings.privacyNote": "يبقى النص المنسوخ في الذاكرة فقط. لا تُقرأ الملفات والصور أبدًا.",
+  "widgetsA.clipboard.settings.timestamp.label": "إظهار وقت النسخ"
+}

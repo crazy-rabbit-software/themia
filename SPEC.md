@@ -3385,29 +3385,16 @@ Not ported, deliberately: main's low-level keyboard hook for list focus (the lea
 
 ## Clipboard and Countdown: the whole tile
 
-Code: `Widgets/ClipboardView.cs`, `Widgets/ItemMenu.cs` (submenus),
-`Shell/Config/WidgetSettings.Clipboard.cs`, Core `Widgets/ClipboardLayout.cs`, `ClipboardHistory.cs`,
-`ItemCursor.cs`. Tests: `TrackersLayoutTests` (S1440..S1457). The countdown is a module of its own
-(`src/Widgets/Themia.Widget.Countdown`, its SPEC.md).
+Code: the SDK's `ItemMenu.cs` (submenus), `ClipboardHistory.cs` and `ItemCursor.cs`, Core's
+`ClipboardInterest.cs`, the host's `ClipboardHistoryService.cs`. Tests: `TrackersLayoutTests` (S1457),
+`ClipboardHistoryTests`, the module host's `ClipboardHostTests` (S1458). The clipboard and the countdown
+are modules of their own (`src/Widgets/Themia.Widget.Clipboard`, `.Countdown`, their SPEC.md).
 
-- **[S-1440]** Clipboard keeps 1–200 entries, default 50 (original `maxItems`); the slider steps by 1.
-- **[S-1441]** A row's preview is up to the plan's lines: the entry's own line breaks kept, blank
-  lines dropped, whitespace collapsed inside a line, " …" when more lines follow; wrapped and
-  trimmed by the row. One line is exactly the old single-line preview.
-- **[S-1442]** Each row is marked by what it looks like (`ClipboardLayout.Classify`): link (http/https/
-  ftp), address, number (leading digit/sign), colour (`#hex`, `rgb()`, `hsl()` → a swatch of it),
-  several lines, else text; the current entry keeps the accent tick. Display only, never opened.
-- **[S-1443]** Clipboard ladder (`ClipboardLayout.Plan`): XS/S one line, compact rows → M + time
-  column → Wide 2-line previews + time → Tall 2 lines + detail line ("4m · 32 characters")
-  → L/XL 3 lines + detail; no count footer (concise: the entries only). A preview card never
-  subscribes to the real clipboard.
-- **[S-1444]** Clipboard row menu (shared `ItemMenu`): Copy, Remove from history, Clear history…
-  (confirmed through `FluentLayout.ConfirmAsync`, like the header bin). `HandleKey`: Up/Down/Home/End
-  cursor, Enter copies, Escape drops it — through the shell's keyboard lease ([S-800]..[S-812]),
-  `ClipboardView : IWidgetKeys`; needs a live pass.
+- [S-1440], [S-1441], [S-1442], [S-1443], [S-1444]: moved with the Clipboard widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Clipboard/`).
 - **[S-1458]** The clipboard history is the app's, not the widget's (user requirement): one
-  `ClipboardHistoryService` (`AppServices.Clipboard`) listens while any view on any display holds a
-  Clipboard widget, on screen or not (`ClipboardInterest`), so a view switched to shows what was
+  `ClipboardHistoryService` (`AppServices.Clipboard`, a widget's `IWidgetHost.ClipboardHistory`)
+  listens while any view on any display holds a widget whose config asks for it
+  (`IKeepsClipboardHistory`, read by `ClipboardInterest`), on screen or not, so a view switched to shows what was
   copied while it was away. It keeps the longest capacity any of them asks for; each widget shows
   its newest entries up to its own. Remove and Clear history act on the one history, for every
   Clipboard widget. With no Clipboard widget left in the state the listener stops and the history
@@ -4741,9 +4728,7 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   `ListCommand.Menu`, the focused row's menu. Mail implements `IWidgetKeys` (no view
   `KeyDown`): Up/Down, Page Up/Down, Home/End, Enter opens, Delete deletes (Mail, where the account
   allows), Menu, Escape (also every lease end) clears the row focus.
-- **[S-1561]** Clipboard takes the lease: Up/Down/PgUp/PgDn/Home/End move a cursor, Enter copies the
-  entry back, Delete removes it from the history (cursor stays on the row that moved up), Menu opens
-  its menu, Escape drops the cursor.
+- [S-1561]: moved with the Clipboard widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Clipboard/`).
 - **[S-1563]** *(Retired: no note list, [S-1363]; Notes takes no lease keys. The editor and the
   picker's rename box still request the keyboard for typing.)*
 - **[S-1994]** *(Retired: no note list to type ahead in, [S-1363].)*

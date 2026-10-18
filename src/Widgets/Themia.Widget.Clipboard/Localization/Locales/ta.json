@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "வரலாற்றை அழி",
+  "widgetsA.catalog.clipboard.description": "நீங்கள் சமீபத்தில் நகலெடுத்தவை",
+  "widgetsA.catalog.clipboard.label": "கிளிப்போர்டு",
+  "widgetsA.clipboard.clearConfirm.body": "இந்தப் பட்டியலில் உள்ள அனைத்தும் மறக்கப்படும். இதைச் செயல்தவிர்க்க முடியாது, இப்போது கிளிப்போர்டில் உள்ளதை இது மாற்றாது.",
+  "widgetsA.clipboard.clearConfirm.title": "கிளிப்போர்டு வரலாற்றை அழிக்கவா?",
+  "widgetsA.clipboard.clearEllipsis": "வரலாற்றை அழி…",
+  "widgetsA.clipboard.empty": "இன்னும் எதுவும் நகலெடுக்கப்படவில்லை. எதையாவது நகலெடுத்தால் இங்கே தோன்றும்.",
+  "widgetsA.clipboard.noListener": "கிளிப்போர்டைக் கவனிக்க இந்தப் பயன்பாட்டை Windows அனுமதிக்கவில்லை.",
+  "widgetsA.clipboard.remove": "வரலாற்றிலிருந்து அகற்று",
+  "widgetsA.clipboard.settings.clear.desc": "விட்ஜெட்டிலேயே உள்ள குப்பைத்தொட்டி பொத்தானைப் பயன்படுத்தவும்; அது முதலில் கேட்கும்",
+  "widgetsA.clipboard.settings.clear.where": "விட்ஜெட்டில்",
+  "widgetsA.clipboard.settings.entries.desc": "{min} முதல் {max} வரை; குறைத்தால் பழையவை மறக்கப்படும்",
+  "widgetsA.clipboard.settings.entries.label": "பதிவுகள்",
+  "widgetsA.clipboard.settings.privacyNote": "நகலெடுத்த உரை நினைவகத்தில் மட்டுமே இருக்கும். கோப்புகளும் படங்களும் ஒருபோதும் படிக்கப்படுவதில்லை.",
+  "widgetsA.clipboard.settings.timestamp.label": "எப்போது நகலெடுத்தது என்பதைக் காட்டு"
+}

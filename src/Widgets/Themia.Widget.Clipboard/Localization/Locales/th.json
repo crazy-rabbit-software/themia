@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "ล้างประวัติ",
+  "widgetsA.catalog.clipboard.description": "สิ่งที่คุณคัดลอกเมื่อเร็วๆ นี้",
+  "widgetsA.catalog.clipboard.label": "คลิปบอร์ด",
+  "widgetsA.clipboard.clearConfirm.body": "ทุกอย่างในรายการนี้จะถูกลืม การดำเนินการนี้ไม่สามารถเลิกทำได้ และไม่เปลี่ยนสิ่งที่อยู่ในคลิปบอร์ดตอนนี้",
+  "widgetsA.clipboard.clearConfirm.title": "ล้างประวัติคลิปบอร์ดหรือไม่",
+  "widgetsA.clipboard.clearEllipsis": "ล้างประวัติ…",
+  "widgetsA.clipboard.empty": "ยังไม่มีสิ่งที่คัดลอก คัดลอกบางอย่างแล้วจะปรากฏที่นี่",
+  "widgetsA.clipboard.noListener": "Windows ไม่อนุญาตให้แอปนี้ติดตามคลิปบอร์ด",
+  "widgetsA.clipboard.remove": "เอาออกจากประวัติ",
+  "widgetsA.clipboard.settings.clear.desc": "ใช้ปุ่มถังขยะบนวิดเจ็ต ซึ่งจะถามก่อน",
+  "widgetsA.clipboard.settings.clear.where": "บนวิดเจ็ต",
+  "widgetsA.clipboard.settings.entries.desc": "{min} ถึง {max} การลดค่าจะลืมรายการที่เก่าที่สุด",
+  "widgetsA.clipboard.settings.entries.label": "รายการ",
+  "widgetsA.clipboard.settings.privacyNote": "ข้อความที่คัดลอกจะอยู่ในหน่วยความจำเท่านั้น ไม่มีการอ่านไฟล์และรูปภาพ",
+  "widgetsA.clipboard.settings.timestamp.label": "แสดงเวลาที่คัดลอก"
+}

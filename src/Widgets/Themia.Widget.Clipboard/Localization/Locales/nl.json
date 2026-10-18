@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "Geschiedenis wissen",
+  "widgetsA.catalog.clipboard.description": "Wat je onlangs hebt gekopieerd",
+  "widgetsA.catalog.clipboard.label": "Klembord",
+  "widgetsA.clipboard.clearConfirm.body": "Alles in deze lijst wordt vergeten. Dit kan niet ongedaan worden gemaakt en het verandert niets aan wat nu op het klembord staat.",
+  "widgetsA.clipboard.clearConfirm.title": "Klembordgeschiedenis wissen?",
+  "widgetsA.clipboard.clearEllipsis": "Geschiedenis wissen…",
+  "widgetsA.clipboard.empty": "Nog niets gekopieerd. Kopieer iets en het verschijnt hier.",
+  "widgetsA.clipboard.noListener": "Windows liet deze app het klembord niet volgen.",
+  "widgetsA.clipboard.remove": "Verwijderen uit geschiedenis",
+  "widgetsA.clipboard.settings.clear.desc": "Gebruik de prullenbakknop op de widget zelf; die vraagt het eerst",
+  "widgetsA.clipboard.settings.clear.where": "Op de widget",
+  "widgetsA.clipboard.settings.entries.desc": "{min} tot {max}; bij verlagen worden de oudste vergeten",
+  "widgetsA.clipboard.settings.entries.label": "Items",
+  "widgetsA.clipboard.settings.privacyNote": "Gekopieerde tekst blijft alleen in het geheugen. Bestanden en afbeeldingen worden nooit gelezen.",
+  "widgetsA.clipboard.settings.timestamp.label": "Tonen wanneer het is gekopieerd"
+}

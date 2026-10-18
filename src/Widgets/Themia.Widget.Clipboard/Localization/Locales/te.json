@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "చరిత్రను క్లియర్ చేయి",
+  "widgetsA.catalog.clipboard.description": "మీరు ఇటీవల కాపీ చేసినవి",
+  "widgetsA.catalog.clipboard.label": "క్లిప్‌బోర్డ్",
+  "widgetsA.clipboard.clearConfirm.body": "ఈ జాబితాలోని ప్రతిదీ మరచిపోబడుతుంది. దీన్ని రద్దు చేయడం సాధ్యం కాదు, మరియు ఇది ఇప్పుడు క్లిప్‌బోర్డ్‌లో ఉన్నదాన్ని మార్చదు.",
+  "widgetsA.clipboard.clearConfirm.title": "క్లిప్‌బోర్డ్ చరిత్రను క్లియర్ చేయాలా?",
+  "widgetsA.clipboard.clearEllipsis": "చరిత్రను క్లియర్ చేయి…",
+  "widgetsA.clipboard.empty": "ఇంకా ఏదీ కాపీ చేయబడలేదు. ఏదైనా కాపీ చేయండి, అది ఇక్కడ కనిపిస్తుంది.",
+  "widgetsA.clipboard.noListener": "క్లిప్‌బోర్డ్‌ను గమనించడానికి Windows ఈ యాప్‌ను అనుమతించలేదు.",
+  "widgetsA.clipboard.remove": "చరిత్ర నుండి తీసివేయి",
+  "widgetsA.clipboard.settings.clear.desc": "విడ్జెట్‌లోని బిన్ బటన్‌ను ఉపయోగించండి; అది ముందుగా అడుగుతుంది",
+  "widgetsA.clipboard.settings.clear.where": "విడ్జెట్‌పై",
+  "widgetsA.clipboard.settings.entries.desc": "{min} నుండి {max}; తగ్గిస్తే పాతవి మరచిపోబడతాయి",
+  "widgetsA.clipboard.settings.entries.label": "ఎంట్రీలు",
+  "widgetsA.clipboard.settings.privacyNote": "కాపీ చేసిన వచనం మెమరీలో మాత్రమే ఉంటుంది. ఫైల్‌లు మరియు చిత్రాలు ఎప్పుడూ చదవబడవు.",
+  "widgetsA.clipboard.settings.timestamp.label": "ఎప్పుడు కాపీ చేయబడిందో చూపించు"
+}

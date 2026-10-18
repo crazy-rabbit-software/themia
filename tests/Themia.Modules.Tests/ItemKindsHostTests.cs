@@ -17,7 +17,7 @@ public sealed class ItemKindsHostTests
     {
         Assert.True(ItemKinds.Has(TasksConfig.Descriptor.Id));
         Assert.True(ItemKinds.Has(new WidgetId("cpu")));
-        Assert.True(ItemKinds.Has(ClipboardConfig.Descriptor.Id));
+        Assert.True(ItemKinds.Has(new WidgetId("clipboard")));
         Assert.False(ItemKinds.Has(AlarmConfig.Descriptor.Id));
         Assert.False(ItemKinds.Has(GalleryConfig.Descriptor.Id));
     }

@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "履歴を消去",
+  "widgetsA.catalog.clipboard.description": "最近コピーした内容",
+  "widgetsA.catalog.clipboard.label": "クリップボード",
+  "widgetsA.clipboard.clearConfirm.body": "この一覧の内容はすべて消去されます。元に戻すことはできません。現在クリップボードにある内容は変わりません。",
+  "widgetsA.clipboard.clearConfirm.title": "クリップボードの履歴を消去しますか?",
+  "widgetsA.clipboard.clearEllipsis": "履歴を消去…",
+  "widgetsA.clipboard.empty": "まだ何もコピーされていません。コピーするとここに表示されます。",
+  "widgetsA.clipboard.noListener": "Windows がこのアプリによるクリップボードの監視を許可しませんでした。",
+  "widgetsA.clipboard.remove": "履歴から削除",
+  "widgetsA.clipboard.settings.clear.desc": "ウィジェット本体のごみ箱ボタンを使います。確認が表示されます",
+  "widgetsA.clipboard.settings.clear.where": "ウィジェット上",
+  "widgetsA.clipboard.settings.entries.desc": "{min}～{max}。減らすと古いものから消えます",
+  "widgetsA.clipboard.settings.entries.label": "項目数",
+  "widgetsA.clipboard.settings.privacyNote": "コピーしたテキストはメモリにのみ保持されます。ファイルや画像は読み取りません。",
+  "widgetsA.clipboard.settings.timestamp.label": "コピーした時刻を表示"
+}

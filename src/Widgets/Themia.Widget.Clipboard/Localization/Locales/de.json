@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "Verlauf löschen",
+  "widgetsA.catalog.clipboard.description": "Was du zuletzt kopiert hast",
+  "widgetsA.catalog.clipboard.label": "Zwischenablage",
+  "widgetsA.clipboard.clearConfirm.body": "Alles in dieser Liste wird vergessen. Das lässt sich nicht rückgängig machen und ändert nichts am aktuellen Inhalt der Zwischenablage.",
+  "widgetsA.clipboard.clearConfirm.title": "Zwischenablage-Verlauf löschen?",
+  "widgetsA.clipboard.clearEllipsis": "Verlauf löschen…",
+  "widgetsA.clipboard.empty": "Noch nichts kopiert. Kopiere etwas, dann erscheint es hier.",
+  "widgetsA.clipboard.noListener": "Windows hat dieser App nicht erlaubt, die Zwischenablage zu beobachten.",
+  "widgetsA.clipboard.remove": "Aus dem Verlauf entfernen",
+  "widgetsA.clipboard.settings.clear.desc": "Verwende den Papierkorb-Button direkt im Widget; er fragt vorher nach",
+  "widgetsA.clipboard.settings.clear.where": "Im Widget",
+  "widgetsA.clipboard.settings.entries.desc": "{min} bis {max}; weniger vergisst die ältesten",
+  "widgetsA.clipboard.settings.entries.label": "Einträge",
+  "widgetsA.clipboard.settings.privacyNote": "Kopierter Text bleibt nur im Arbeitsspeicher. Dateien und Bilder werden nie gelesen.",
+  "widgetsA.clipboard.settings.timestamp.label": "Kopierzeitpunkt anzeigen"
+}

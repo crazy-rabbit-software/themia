@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "I-clear ang history",
+  "widgetsA.catalog.clipboard.description": "Ang mga kinopya mo kamakailan",
+  "widgetsA.catalog.clipboard.label": "Clipboard",
+  "widgetsA.clipboard.clearConfirm.body": "Makakalimutan ang lahat sa listahang ito. Hindi na ito maa-undo, at hindi nito binabago ang kasalukuyang laman ng clipboard.",
+  "widgetsA.clipboard.clearConfirm.title": "I-clear ang history ng clipboard?",
+  "widgetsA.clipboard.clearEllipsis": "I-clear ang history…",
+  "widgetsA.clipboard.empty": "Wala pang kinopya. Kumopya ng kahit ano at lalabas ito rito.",
+  "widgetsA.clipboard.noListener": "Hindi pinayagan ng Windows ang app na ito na bantayan ang clipboard.",
+  "widgetsA.clipboard.remove": "Alisin sa history",
+  "widgetsA.clipboard.settings.clear.desc": "Gamitin ang bin button sa widget mismo; magtatanong muna ito",
+  "widgetsA.clipboard.settings.clear.where": "Sa widget",
+  "widgetsA.clipboard.settings.entries.desc": "{min} hanggang {max}; kapag ibinaba ay makakalimutan ang pinakaluma",
+  "widgetsA.clipboard.settings.entries.label": "Mga entry",
+  "widgetsA.clipboard.settings.privacyNote": "Nananatili lang sa memory ang kinopyang text. Hindi kailanman binabasa ang mga file at larawan.",
+  "widgetsA.clipboard.settings.timestamp.label": "Ipakita kung kailan ito kinopya"
+}

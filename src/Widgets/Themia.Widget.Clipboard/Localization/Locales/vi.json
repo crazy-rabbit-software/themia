@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "Xóa lịch sử",
+  "widgetsA.catalog.clipboard.description": "Những gì bạn vừa sao chép",
+  "widgetsA.catalog.clipboard.label": "Bảng tạm",
+  "widgetsA.clipboard.clearConfirm.body": "Mọi thứ trong danh sách này sẽ bị xóa. Không thể hoàn tác, và nội dung hiện có trên bảng tạm không thay đổi.",
+  "widgetsA.clipboard.clearConfirm.title": "Xóa lịch sử bảng tạm?",
+  "widgetsA.clipboard.clearEllipsis": "Xóa lịch sử…",
+  "widgetsA.clipboard.empty": "Chưa sao chép gì. Hãy sao chép một thứ và nó sẽ hiện ở đây.",
+  "widgetsA.clipboard.noListener": "Windows không cho ứng dụng này theo dõi bảng tạm.",
+  "widgetsA.clipboard.remove": "Gỡ khỏi lịch sử",
+  "widgetsA.clipboard.settings.clear.desc": "Dùng nút thùng rác trên chính tiện ích; nút này hỏi trước",
+  "widgetsA.clipboard.settings.clear.where": "Trên tiện ích",
+  "widgetsA.clipboard.settings.entries.desc": "{min} đến {max}; giảm xuống sẽ xóa mục cũ nhất",
+  "widgetsA.clipboard.settings.entries.label": "Số mục",
+  "widgetsA.clipboard.settings.privacyNote": "Văn bản đã sao chép chỉ nằm trong bộ nhớ. Tệp và hình ảnh không bao giờ được đọc.",
+  "widgetsA.clipboard.settings.timestamp.label": "Hiện thời điểm sao chép"
+}

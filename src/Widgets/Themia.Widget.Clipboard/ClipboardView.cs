@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Core.Shell;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Clipboard;
 
 namespace Themia.App.Widgets;
 
@@ -84,7 +85,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         };
 
         _clear.Click += OnClearClicked;
-        ToolTipService.SetToolTip(_clear, Str.Clipboard_ClearHistory.Text());
+        ToolTipService.SetToolTip(_clear, ClipboardStr.Clipboard_ClearHistory.Text());
 
         _scroll = new ScrollViewer
         {
@@ -95,7 +96,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
         };
 
-        _empty = Fluent.EmptyState(Glyphs.Clipboard, _emptyText, out _);
+        _empty = Fluent.EmptyState(ClipboardModule.Glyph, _emptyText, out _);
         SetRowSpan(_empty, 2);
 
         Children.Add(_scroll);
@@ -194,8 +195,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             // Each state says which it is. "Nothing copied yet" and "the listener never started"
             // need very different things from the reader.
             _emptyText.Text = _host.ClipboardHistory?.Listening == true || _surface?.IsPreview == true
-                ? Str.WidgetsA_Clipboard_Empty.Text()
-                : Str.WidgetsA_Clipboard_NoListener.Text();
+                ? ClipboardStr.WidgetsA_Clipboard_Empty.Text()
+                : ClipboardStr.WidgetsA_Clipboard_NoListener.Text();
 
             _empty.Visibility = Visibility.Visible;
             _scroll.Visibility = Visibility.Collapsed;
@@ -350,9 +351,9 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         return
         [
             new(Glyphs.Copy, Str.Common_Copy.Text(), () => CopyBack(text), Quick: QuickCommand.Copy),
-            new(Glyphs.Delete, Str.WidgetsA_Clipboard_Remove.Text(), () => Remove(text), Danger: true, Quick: QuickCommand.Delete),
+            new(Glyphs.Delete, ClipboardStr.WidgetsA_Clipboard_Remove.Text(), () => Remove(text), Danger: true, Quick: QuickCommand.Delete),
             ItemMenuEntry.Separator,
-            new(Glyphs.Clear, Str.WidgetsA_Clipboard_ClearEllipsis.Text(), () => _ = ConfirmClearAsync(), Danger: true),
+            new(Glyphs.Clear, ClipboardStr.WidgetsA_Clipboard_ClearEllipsis.Text(), () => _ = ConfirmClearAsync(), Danger: true),
         ];
     }
 
@@ -522,14 +523,14 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     /// </summary>
     private Task<bool> AskToClearAsync() => ConfirmFlyout.AskAsync(
         _clear.XamlRoot is not null && _clear.Visibility == Visibility.Visible && _clear.ActualWidth > 0 ? _clear : this,
-        Str.WidgetsA_Clipboard_ClearConfirm_Title.Text(),
+        ClipboardStr.WidgetsA_Clipboard_ClearConfirm_Title.Text(),
         Str.Common_Clear.Text(),
-        Str.WidgetsA_Clipboard_ClearConfirm_Body.Text());
+        ClipboardStr.WidgetsA_Clipboard_ClearConfirm_Body.Text());
 
     /// <summary>[S-1109] Rows and sizes are worded again in the new language.</summary>
     private void OnLanguage(Locale locale)
     {
-        ToolTipService.SetToolTip(_clear, Str.Clipboard_ClearHistory.Text());
+        ToolTipService.SetToolTip(_clear, ClipboardStr.Clipboard_ClearHistory.Text());
         Render();
     }
 

@@ -5,6 +5,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Clipboard;
 
 namespace Themia.App.Shell.Config;
 
@@ -18,27 +19,27 @@ namespace Themia.App.Shell.Config;
 /// is an offer to create a credentials file.
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+internal static class ClipboardSettings
 {
-    public static void Clipboard(List<FrameworkElement> rows, ClipboardConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, ClipboardConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.WidgetsA_Catalog_Clipboard_Label.Text()));
+        rows.Add(FluentLayout.Header(ClipboardStr.WidgetsA_Catalog_Clipboard_Label.Text()));
 
         rows.Add(FluentLayout.Note(
-            Str.WidgetsA_Clipboard_Settings_PrivacyNote.Text()));
+            ClipboardStr.WidgetsA_Clipboard_Settings_PrivacyNote.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Clock, Str.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Clock, ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(),
             null,
             FluentLayout.Toggle(config.ShowTimestamp, value => { config.ShowTimestamp = value; save(); })));
 
         // The one setting here that genuinely changes exposure, so it says so: fewer entries kept
         // is less sitting in memory.
-        rows.Add(FluentLayout.Row(Glyphs.Count, Str.WidgetsA_Clipboard_Settings_Entries_Label.Text(),
-            Str.WidgetsA_Clipboard_Settings_Entries_Desc.Format(("min", ClipboardHistory.MinCapacity), ("max", ClipboardHistory.MaxCapacity)),
+        rows.Add(FluentLayout.Row(Glyphs.Count, ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(),
+            ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Desc.Format(("min", ClipboardHistory.MinCapacity), ("max", ClipboardHistory.MaxCapacity)),
             FluentLayout.Slider(
                 config.EffectiveCapacity,
                 ClipboardHistory.MinCapacity,
@@ -51,11 +52,11 @@ internal static partial class WidgetSettings
         // confirmation every destructive action in the app uses, and two ways to destroy the same
         // thing is one too many. It is still marked as a danger row so it lands with the rest of
         // them at the bottom of the page, where somebody looking for it will look.
-        rows.Add(FluentLayout.DangerRow(Glyphs.Clear, Str.Clipboard_ClearHistory.Text(),
-            Str.WidgetsA_Clipboard_Settings_Clear_Desc.Text(),
+        rows.Add(FluentLayout.DangerRow(Glyphs.Clear, ClipboardStr.Clipboard_ClearHistory.Text(),
+            ClipboardStr.WidgetsA_Clipboard_Settings_Clear_Desc.Text(),
             new TextBlock
             {
-                Text = Str.WidgetsA_Clipboard_Settings_Clear_Where.Text(),
+                Text = ClipboardStr.WidgetsA_Clipboard_Settings_Clear_Where.Text(),
                 FontSize = 12,
                 Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
             }));

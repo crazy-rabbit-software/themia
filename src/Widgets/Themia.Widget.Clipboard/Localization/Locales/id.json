@@ -1,0 +1,17 @@
+{
+  "clipboard.clearHistory": "Hapus riwayat",
+  "widgetsA.catalog.clipboard.description": "Apa yang baru-baru ini Anda salin",
+  "widgetsA.catalog.clipboard.label": "Papan klip",
+  "widgetsA.clipboard.clearConfirm.body": "Semua yang ada di daftar ini dilupakan. Tindakan ini tidak dapat dibatalkan, dan tidak mengubah isi papan klip saat ini.",
+  "widgetsA.clipboard.clearConfirm.title": "Hapus riwayat papan klip?",
+  "widgetsA.clipboard.clearEllipsis": "Hapus riwayat…",
+  "widgetsA.clipboard.empty": "Belum ada yang disalin. Salin sesuatu dan itu muncul di sini.",
+  "widgetsA.clipboard.noListener": "Windows tidak mengizinkan aplikasi ini memantau papan klip.",
+  "widgetsA.clipboard.remove": "Hapus dari riwayat",
+  "widgetsA.clipboard.settings.clear.desc": "Gunakan tombol tempat sampah pada widget; ada konfirmasi dulu",
+  "widgetsA.clipboard.settings.clear.where": "Pada widget",
+  "widgetsA.clipboard.settings.entries.desc": "{min} hingga {max}; menurunkannya melupakan yang terlama",
+  "widgetsA.clipboard.settings.entries.label": "Entri",
+  "widgetsA.clipboard.settings.privacyNote": "Teks yang disalin hanya disimpan di memori. File dan gambar tidak pernah dibaca.",
+  "widgetsA.clipboard.settings.timestamp.label": "Tampilkan waktu disalin"
+}
