@@ -33,7 +33,7 @@ internal static partial class WidgetSettings
                 PingDetailRows(rows, ping, save);
                 break;
             case GpuDetailsConfig gpu:
-                AdapterRow(rows, gpu.Adapter, value => gpu.Adapter = value, save);
+                GpuAdapterRow.Add(rows, gpu.Adapter, value => gpu.Adapter = value, save);
                 break;
             default:
                 break;
@@ -68,7 +68,7 @@ internal static partial class WidgetSettings
     private static void PingDetailRows(List<FrameworkElement> rows, PingDetailsConfig config, Action save)
     {
         rows.Add(FluentLayout.Header(Str.Details_Catalog_Ping_Label.Text()));
-        AddHostRow(rows, () => config.Host, value => config.Host = value, save);
+        PingHostRow.Add(rows, () => config.Host, value => config.Host = value, save);
 
         int[] windows = [10, 30, 60, 120, 300];
         var current = windows.Contains(config.EffectiveWindow) ? config.EffectiveWindow : 60;

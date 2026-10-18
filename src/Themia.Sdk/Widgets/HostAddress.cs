@@ -17,6 +17,9 @@ namespace Themia.Core.Widgets;
 /// </summary>
 public static class HostAddress
 {
+    /// <summary>[S-109] What a ping widget probes with no host typed: a public resolver that answers.</summary>
+    public const string DefaultPingHost = "1.1.1.1";
+
     /// <summary>A DNS name cannot exceed 253 characters, and an IPv6 literal is far shorter.</summary>
     private const int MaxLength = 253;
 

@@ -4,7 +4,7 @@ using Glyphs = Themia.App.Shell.Glyphs;
 namespace Themia.App.Widgets;
 
 /// <summary>What the mixer's rows and the volume tile draw alike: the speaker glyph.</summary>
-internal static class AudioLook
+public static class AudioLook
 {
     /// <summary>The speaker glyph for an output level: Windows' four, or the crossed-out one when muted.</summary>
     public static string OutputGlyph(double level, bool muted) => VolumeRules.Level(level, muted) switch

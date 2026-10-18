@@ -16,30 +16,9 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(save);
 
         // [S-433] One adapter per widget, offered only when there is a choice to make.
-        AdapterRow(rows, config.Adapter, value => config.Adapter = value, save);
+        GpuAdapterRow.Add(rows, config.Adapter, value => config.Adapter = value, save);
 
         // [S-1200] The history toggle, its span and the refresh: the rows every meter ends with.
         MeterSettingsRows.Rows(rows, config, save);
-    }
-
-    /// <summary>
-    /// [S-433] [S-2431] Which adapter, by name, offered only with two or more: the GPU meter's and the
-    /// GPU details' one row. A chosen adapter that is gone shows as the first.
-    /// </summary>
-    private static void AdapterRow(List<FrameworkElement> rows, int adapter, Action<int> choose, Action save)
-    {
-        var adapters = GpuAdapters.List();
-
-        if (adapters.Count < 2)
-        {
-            return;
-        }
-
-        rows.Add(FluentLayout.Header(Str.WidgetsB_Settings_Gpu_Gpu.Text()));
-        var current = adapter >= 0 && adapter < adapters.Count ? adapter : 0;
-
-        rows.Add(FluentLayout.Row(Glyphs.Gpu, Str.Details_Settings_Gpu_Adapter_Label.Text(), Str.Details_Settings_Gpu_Adapter_Desc.Text(),
-            FluentLayout.Choice(adapters.Select(a => (a.Index, a.Name)).ToList(), current, value => { choose(value); save(); }),
-            "adapter", "graphics card"));
     }
 }

@@ -16,7 +16,7 @@ namespace Themia.App.Widgets;
 /// glyph until it is in and for a network drive, whose share is never asked for a picture (that is a
 /// question to the server). A mapped drive Windows cannot reach wears Explorer's red cross at its foot.
 /// </summary>
-internal sealed partial class DriveIcon : Grid
+public sealed partial class DriveIcon : Grid
 {
     private readonly FontIcon _glyph = new();
     private readonly Image _image = new() { Stretch = Stretch.Uniform };
@@ -105,7 +105,7 @@ internal sealed partial class DriveIcon : Grid
 }
 
 /// <summary>[S-4653] A drive's capacity bar: a slider-style track ([S-837]) filled in the load's colour.</summary>
-internal static class DriveBar
+public static class DriveBar
 {
     public static ProgressBar Create() => new() { Minimum = 0, Maximum = 1 };
 

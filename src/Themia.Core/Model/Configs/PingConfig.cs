@@ -23,7 +23,7 @@ public enum PingStyle
 public sealed class PingConfig : GaugeConfig, IStyled, IReadsSystem
 {
     /// <summary>A public resolver: reachable without configuration, and not a service this app talks to.</summary>
-    public const string DefaultHost = "1.1.1.1";
+    public const string DefaultHost = HostAddress.DefaultPingHost;
 
     private static readonly StyleOption[] PingStyles =
     [
