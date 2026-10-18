@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "スヌーズの長さ",
   "alarm.settings.snooze.desc": "スヌーズでアラームを延ばす時間",
   "alarm.settings.whileRunning": "アラームは Themia の実行中にのみ鳴ります。PC のスリープ中に時刻になったアラームは、5 分以内に復帰すればそのときに鳴ります。",
-  "drives.removable.label": "リムーバブル ドライブ",
-  "drives.removable.desc": "USB メモリ、カード、外付けディスクを取り出し付きで",
   "drives.label.cd": "CD ドライブ",
   "drives.label.network": "ネットワーク ドライブ",
   "drives.label.ram": "RAM ディスク",
@@ -39,7 +37,5 @@
   "drives.noMedia": "メディアなし",
   "drives.pending": "接続しています…",
   "drives.disconnected": "切断",
-  "drives.eject": "取り出し",
-  "drives.ejectNamed": "{name} の取り出し",
-  "drives.nothing": "何も接続されていません"
+  "drives.eject": "取り出し"
 }

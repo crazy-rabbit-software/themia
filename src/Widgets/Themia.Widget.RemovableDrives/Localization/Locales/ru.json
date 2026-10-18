@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "Извлечь {name}",
+  "drives.nothing": "Ничего не подключено",
+  "drives.removable.desc": "USB-накопители, карты и внешние диски, с извлечением",
+  "drives.removable.label": "Съемные диски"
+}

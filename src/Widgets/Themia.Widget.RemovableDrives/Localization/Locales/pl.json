@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "Wysuń: {name}",
+  "drives.nothing": "Nic nie podłączono",
+  "drives.removable.desc": "Pamięci USB, karty i dyski zewnętrzne, z opcją Wysuń",
+  "drives.removable.label": "Dyski wymienne"
+}

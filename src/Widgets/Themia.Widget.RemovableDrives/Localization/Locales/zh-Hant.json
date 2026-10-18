@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "退出 {name}",
+  "drives.nothing": "未插入任何裝置",
+  "drives.removable.desc": "USB 隨身碟、記憶卡和外接磁碟，可退出",
+  "drives.removable.label": "卸除式磁碟機"
+}

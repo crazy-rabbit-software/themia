@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "ਸਨੂਜ਼ ਦੀ ਮਿਆਦ",
   "alarm.settings.snooze.desc": "ਸਨੂਜ਼ ਅਲਾਰਮ ਨੂੰ ਕਿੰਨੀ ਦੇਰ ਲਈ ਟਾਲਦਾ ਹੈ",
   "alarm.settings.whileRunning": "ਅਲਾਰਮ ਸਿਰਫ਼ ਉਦੋਂ ਵੱਜਦੇ ਹਨ ਜਦੋਂ Themia ਚੱਲ ਰਿਹਾ ਹੋਵੇ। ਜੇ PC ਦੇ ਸਲੀਪ ਦੌਰਾਨ ਕਿਸੇ ਅਲਾਰਮ ਦਾ ਸਮਾਂ ਹੋ ਜਾਵੇ, ਤਾਂ ਉਹ ਜਾਗਣ ਉੱਤੇ ਵੱਜਦਾ ਹੈ, ਜੇ ਇਹ ਪੰਜ ਮਿੰਟਾਂ ਦੇ ਅੰਦਰ ਹੋਵੇ।",
-  "drives.removable.label": "ਹਟਾਉਣਯੋਗ ਡਰਾਈਵਾਂ",
-  "drives.removable.desc": "USB ਸਟਿੱਕਾਂ, ਕਾਰਡ ਅਤੇ ਬਾਹਰੀ ਡਿਸਕਾਂ, ਬਾਹਰ ਕੱਢੋ ਬਟਨ ਨਾਲ",
   "drives.label.cd": "CD ਡਰਾਈਵ",
   "drives.label.network": "ਨੈੱਟਵਰਕ ਡਰਾਈਵ",
   "drives.label.ram": "RAM ਡਿਸਕ",
@@ -39,7 +37,5 @@
   "drives.noMedia": "ਕੋਈ ਮੀਡੀਆ ਨਹੀਂ",
   "drives.pending": "ਕਨੈਕਟ ਹੋ ਰਿਹਾ ਹੈ…",
   "drives.disconnected": "ਡਿਸਕਨੈਕਟ ਹੈ",
-  "drives.eject": "ਬਾਹਰ ਕੱਢੋ",
-  "drives.ejectNamed": "{name} ਬਾਹਰ ਕੱਢੋ",
-  "drives.nothing": "ਕੁਝ ਵੀ ਲੱਗਿਆ ਨਹੀਂ"
+  "drives.eject": "ਬਾਹਰ ਕੱਢੋ"
 }

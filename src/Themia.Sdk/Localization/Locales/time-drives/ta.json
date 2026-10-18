@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "உறக்கநீட்டிப்பு நேரம்",
   "alarm.settings.snooze.desc": "உறக்கநீட்டி அலாரத்தை எவ்வளவு நேரம் தள்ளிவைக்கும்",
   "alarm.settings.whileRunning": "Themia இயங்கும்போது மட்டுமே அலாரங்கள் ஒலிக்கும். PC உறங்கும்போது நேரம் வரும் அலாரம், ஐந்து நிமிடங்களுக்குள் என்றால், அது விழித்ததும் ஒலிக்கும்.",
-  "drives.removable.label": "நீக்கக்கூடிய இயக்ககங்கள்",
-  "drives.removable.desc": "USB ஸ்டிக்குகள், கார்டுகள் மற்றும் வெளிப்புற வட்டுகள், வெளியேற்று பொத்தானுடன்",
   "drives.label.cd": "CD இயக்ககம்",
   "drives.label.network": "நெட்வொர்க் இயக்ககம்",
   "drives.label.ram": "RAM வட்டு",
@@ -39,7 +37,5 @@
   "drives.noMedia": "மீடியா இல்லை",
   "drives.pending": "இணைக்கிறது…",
   "drives.disconnected": "துண்டிக்கப்பட்டது",
-  "drives.eject": "வெளியேற்று",
-  "drives.ejectNamed": "{name} ஐ வெளியேற்று",
-  "drives.nothing": "எதுவும் இணைக்கப்படவில்லை"
+  "drives.eject": "வெளியேற்று"
 }

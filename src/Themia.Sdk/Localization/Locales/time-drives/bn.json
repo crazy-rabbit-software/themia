@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "স্নুজের সময়",
   "alarm.settings.snooze.desc": "স্নুজ অ্যালার্মকে কতক্ষণ পিছিয়ে দেয়",
   "alarm.settings.whileRunning": "Themia চালু থাকলেই কেবল অ্যালার্ম বাজে। PC স্লিপে থাকার সময় যে অ্যালার্মের সময় হয়, সেটি PC জাগলে বাজে, যদি তা পাঁচ মিনিটের মধ্যে হয়।",
-  "drives.removable.label": "অপসারণযোগ্য ড্রাইভ",
-  "drives.removable.desc": "USB স্টিক, কার্ড ও বাহ্যিক ডিস্ক, বের করার সুবিধাসহ",
   "drives.label.cd": "CD ড্রাইভ",
   "drives.label.network": "নেটওয়ার্ক ড্রাইভ",
   "drives.label.ram": "RAM ডিস্ক",
@@ -39,7 +37,5 @@
   "drives.noMedia": "কোনো মিডিয়া নেই",
   "drives.pending": "সংযোগ হচ্ছে…",
   "drives.disconnected": "সংযোগ বিচ্ছিন্ন",
-  "drives.eject": "বের করুন",
-  "drives.ejectNamed": "{name} বের করুন",
-  "drives.nothing": "কিছুই প্লাগ ইন করা নেই"
+  "drives.eject": "বের করুন"
 }

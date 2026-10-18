@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "เลื่อนปลุกเป็นเวลา",
   "alarm.settings.snooze.desc": "ระยะเวลาที่การเลื่อนปลุกจะเลื่อนการปลุกออกไป",
   "alarm.settings.whileRunning": "การปลุกจะดังเฉพาะเมื่อ Themia กำลังทำงานอยู่ การปลุกที่ถึงเวลาขณะพีซีอยู่ในโหมดสลีปจะดังเมื่อพีซีกลับมาทำงาน หากอยู่ภายในห้านาที",
-  "drives.removable.label": "ไดรฟ์แบบถอดได้",
-  "drives.removable.desc": "แฟลชไดรฟ์ USB การ์ด และดิสก์ภายนอก พร้อมปุ่มนำออก",
   "drives.label.cd": "ไดรฟ์ CD",
   "drives.label.network": "ไดรฟ์เครือข่าย",
   "drives.label.ram": "RAM ดิสก์",
@@ -39,7 +37,5 @@
   "drives.noMedia": "ไม่มีสื่อ",
   "drives.pending": "กำลังเชื่อมต่อ…",
   "drives.disconnected": "ตัดการเชื่อมต่อแล้ว",
-  "drives.eject": "นำออก",
-  "drives.ejectNamed": "นำ {name} ออก",
-  "drives.nothing": "ไม่มีอุปกรณ์เสียบอยู่"
+  "drives.eject": "นำออก"
 }

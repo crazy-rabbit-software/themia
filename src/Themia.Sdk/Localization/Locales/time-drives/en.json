@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Snooze for",
   "alarm.settings.snooze.desc": "How long Snooze puts the alarm off",
   "alarm.settings.whileRunning": "Alarms ring only while Themia is running. One that comes due while the PC sleeps rings when it wakes, if that is within five minutes.",
-  "drives.removable.label": "Removable drives",
-  "drives.removable.desc": "USB sticks, cards and external disks, with Eject",
   "drives.label.cd": "CD Drive",
   "drives.label.network": "Network Drive",
   "drives.label.ram": "RAM Disk",
@@ -39,7 +37,5 @@
   "drives.noMedia": "No media",
   "drives.pending": "Connecting…",
   "drives.disconnected": "Disconnected",
-  "drives.eject": "Eject",
-  "drives.ejectNamed": "Eject {name}",
-  "drives.nothing": "Nothing plugged in"
+  "drives.eject": "Eject"
 }

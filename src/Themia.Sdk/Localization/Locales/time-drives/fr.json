@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Répéter après",
   "alarm.settings.snooze.desc": "Combien de temps Répéter repousse l’alarme",
   "alarm.settings.whileRunning": "Les alarmes ne sonnent que si Themia est en cours d’exécution. Une alarme qui arrive à échéance pendant que le PC est en veille sonne à son réveil, si c’est dans les cinq minutes.",
-  "drives.removable.label": "Lecteurs amovibles",
-  "drives.removable.desc": "Clés USB, cartes et disques externes, avec Éjecter",
   "drives.label.cd": "Lecteur CD",
   "drives.label.network": "Lecteur réseau",
   "drives.label.ram": "Disque RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Aucun support",
   "drives.pending": "Connexion…",
   "drives.disconnected": "Déconnecté",
-  "drives.eject": "Éjecter",
-  "drives.ejectNamed": "Éjecter {name}",
-  "drives.nothing": "Rien de branché"
+  "drives.eject": "Éjecter"
 }

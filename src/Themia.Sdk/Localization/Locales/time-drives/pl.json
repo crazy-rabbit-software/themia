@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Drzemka na",
   "alarm.settings.snooze.desc": "Na jak długo Drzemka odkłada alarm",
   "alarm.settings.whileRunning": "Alarmy dzwonią tylko, gdy Themia jest uruchomiona. Alarm, którego czas nadejdzie podczas uśpienia komputera, zadzwoni po wybudzeniu, jeśli nastąpi to w ciągu pięciu minut.",
-  "drives.removable.label": "Dyski wymienne",
-  "drives.removable.desc": "Pamięci USB, karty i dyski zewnętrzne, z opcją Wysuń",
   "drives.label.cd": "Stacja dysków CD",
   "drives.label.network": "Dysk sieciowy",
   "drives.label.ram": "Dysk RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Brak nośnika",
   "drives.pending": "Łączenie…",
   "drives.disconnected": "Odłączono",
-  "drives.eject": "Wysuń",
-  "drives.ejectNamed": "Wysuń: {name}",
-  "drives.nothing": "Nic nie podłączono"
+  "drives.eject": "Wysuń"
 }

@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Sluimeren voor",
   "alarm.settings.snooze.desc": "Hoelang Sluimeren het alarm uitstelt",
   "alarm.settings.whileRunning": "Alarmen gaan alleen af terwijl Themia actief is. Een alarm dat afloopt terwijl de pc in slaapstand staat, gaat af wanneer de pc ontwaakt, als dat binnen vijf minuten is.",
-  "drives.removable.label": "Verwisselbare stations",
-  "drives.removable.desc": "USB-sticks, kaarten en externe schijven, met Uitwerpen",
   "drives.label.cd": "Cd-station",
   "drives.label.network": "Netwerkstation",
   "drives.label.ram": "RAM-schijf",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Geen medium",
   "drives.pending": "Verbinden…",
   "drives.disconnected": "Niet verbonden",
-  "drives.eject": "Uitwerpen",
-  "drives.ejectNamed": "{name} uitwerpen",
-  "drives.nothing": "Niets aangesloten"
+  "drives.eject": "Uitwerpen"
 }

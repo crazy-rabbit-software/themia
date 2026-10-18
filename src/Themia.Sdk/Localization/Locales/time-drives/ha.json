@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Jinkirta na",
   "alarm.settings.snooze.desc": "Tsawon lokacin da Jinkirta ke ɗage ƙararrawa",
   "alarm.settings.whileRunning": "Ƙararrawa na ƙara ne kawai yayin da Themia ke gudana. Wadda lokacinta ya yi yayin da kwamfuta ke barci za ta ƙara idan ta farka, idan hakan ya kasance cikin minti biyar.",
-  "drives.removable.label": "Faifai masu cirewa",
-  "drives.removable.desc": "Sandunan USB, katuna da faifai na waje, tare da Fitar",
   "drives.label.cd": "Faifan CD",
   "drives.label.network": "Faifan cibiyar sadarwa",
   "drives.label.ram": "Faifan RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Babu kafofi",
   "drives.pending": "Ana haɗawa…",
   "drives.disconnected": "An cire haɗi",
-  "drives.eject": "Fitar",
-  "drives.ejectNamed": "Fitar da {name}",
-  "drives.nothing": "Ba a haɗa komai ba"
+  "drives.eject": "Fitar"
 }

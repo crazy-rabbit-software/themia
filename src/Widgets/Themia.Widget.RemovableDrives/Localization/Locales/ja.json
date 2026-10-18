@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "{name} の取り出し",
+  "drives.nothing": "何も接続されていません",
+  "drives.removable.desc": "USB メモリ、カード、外付けディスクを取り出し付きで",
+  "drives.removable.label": "リムーバブル ドライブ"
+}

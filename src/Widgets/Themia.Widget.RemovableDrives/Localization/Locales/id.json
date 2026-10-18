@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "Keluarkan {name}",
+  "drives.nothing": "Tidak ada yang tercolok",
+  "drives.removable.desc": "Stik USB, kartu, dan disk eksternal, dengan Keluarkan",
+  "drives.removable.label": "Drive yang dapat dilepas"
+}

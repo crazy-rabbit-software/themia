@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "{name} 꺼내기",
+  "drives.nothing": "연결된 장치 없음",
+  "drives.removable.desc": "USB 메모리, 카드, 외장 디스크를 꺼내기와 함께",
+  "drives.removable.label": "이동식 드라이브"
+}

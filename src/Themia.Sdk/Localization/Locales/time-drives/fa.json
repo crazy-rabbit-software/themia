@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "مدت تعویق",
   "alarm.settings.snooze.desc": "تعویق، زنگ هشدار را چه مدت عقب می‌اندازد",
   "alarm.settings.whileRunning": "زنگ‌های هشدار فقط وقتی Themia در حال اجراست زنگ می‌زنند. زنگی که هنگام خواب رایانه سررسید شود، پس از بیدار شدن زنگ می‌زند، اگر کمتر از پنج دقیقه گذشته باشد.",
-  "drives.removable.label": "درایوهای جداشدنی",
-  "drives.removable.desc": "فلش‌های USB، کارت‌ها و دیسک‌های خارجی، با بیرون دادن",
   "drives.label.cd": "درایو CD",
   "drives.label.network": "درایو شبکه",
   "drives.label.ram": "دیسک RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "رسانه‌ای نیست",
   "drives.pending": "در حال اتصال…",
   "drives.disconnected": "قطع‌شده",
-  "drives.eject": "بیرون دادن",
-  "drives.ejectNamed": "بیرون دادن {name}",
-  "drives.nothing": "چیزی وصل نیست"
+  "drives.eject": "بیرون دادن"
 }

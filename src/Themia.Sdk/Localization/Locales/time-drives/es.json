@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Posponer durante",
   "alarm.settings.snooze.desc": "Cuánto tiempo retrasa la alarma Posponer",
   "alarm.settings.whileRunning": "Las alarmas solo suenan mientras Themia está en ejecución. Si una vence mientras el equipo está en suspensión, suena al reactivarse, siempre que sea dentro de cinco minutos.",
-  "drives.removable.label": "Unidades extraíbles",
-  "drives.removable.desc": "Memorias USB, tarjetas y discos externos, con Expulsar",
   "drives.label.cd": "Unidad de CD",
   "drives.label.network": "Unidad de red",
   "drives.label.ram": "Disco RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Sin medio",
   "drives.pending": "Conectando…",
   "drives.disconnected": "Desconectada",
-  "drives.eject": "Expulsar",
-  "drives.ejectNamed": "Expulsar {name}",
-  "drives.nothing": "Nada conectado"
+  "drives.eject": "Expulsar"
 }

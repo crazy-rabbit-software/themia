@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "આટલા સમય માટે સ્નૂઝ",
   "alarm.settings.snooze.desc": "સ્નૂઝ અલાર્મને કેટલો સમય મુલતવી રાખે",
   "alarm.settings.whileRunning": "અલાર્મ ફક્ત Themia ચાલુ હોય ત્યારે જ વાગે છે. PC સ્લીપમાં હોય ત્યારે બાકી થયેલો અલાર્મ તે જાગે ત્યારે વાગે છે, જો તે પાંચ મિનિટની અંદર હોય.",
-  "drives.removable.label": "રિમૂવેબલ ડ્રાઇવ",
-  "drives.removable.desc": "USB સ્ટિક, કાર્ડ અને બાહ્ય ડિસ્ક, બહાર કાઢો બટન સાથે",
   "drives.label.cd": "CD ડ્રાઇવ",
   "drives.label.network": "નેટવર્ક ડ્રાઇવ",
   "drives.label.ram": "RAM ડિસ્ક",
@@ -39,7 +37,5 @@
   "drives.noMedia": "કોઈ મીડિયા નથી",
   "drives.pending": "કનેક્ટ થઈ રહ્યું છે…",
   "drives.disconnected": "ડિસ્કનેક્ટ થયેલ",
-  "drives.eject": "બહાર કાઢો",
-  "drives.ejectNamed": "{name} બહાર કાઢો",
-  "drives.nothing": "કંઈ પ્લગ ઇન નથી"
+  "drives.eject": "બહાર કાઢો"
 }

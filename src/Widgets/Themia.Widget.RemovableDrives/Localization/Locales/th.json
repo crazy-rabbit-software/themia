@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "นำ {name} ออก",
+  "drives.nothing": "ไม่มีอุปกรณ์เสียบอยู่",
+  "drives.removable.desc": "แฟลชไดรฟ์ USB การ์ด และดิสก์ภายนอก พร้อมปุ่มนำออก",
+  "drives.removable.label": "ไดรฟ์แบบถอดได้"
+}

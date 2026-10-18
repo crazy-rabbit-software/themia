@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Отложить на",
   "alarm.settings.snooze.desc": "На сколько «Отложить» сдвигает будильник",
   "alarm.settings.whileRunning": "Будильники звонят, только пока Themia запущена. Будильник, время которого наступило, пока компьютер находится в спящем режиме, зазвонит при его пробуждении, если это произойдёт в течение пяти минут.",
-  "drives.removable.label": "Съемные диски",
-  "drives.removable.desc": "USB-накопители, карты и внешние диски, с извлечением",
   "drives.label.cd": "CD-дисковод",
   "drives.label.network": "Сетевой диск",
   "drives.label.ram": "RAM-диск",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Нет носителя",
   "drives.pending": "Подключение…",
   "drives.disconnected": "Отключен",
-  "drives.eject": "Извлечь",
-  "drives.ejectNamed": "Извлечь {name}",
-  "drives.nothing": "Ничего не подключено"
+  "drives.eject": "Извлечь"
 }

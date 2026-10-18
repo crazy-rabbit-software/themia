@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "I-snooze nang",
   "alarm.settings.snooze.desc": "Gaano katagal ipinagpapaliban ng Snooze ang alarm",
   "alarm.settings.whileRunning": "Tumutunog lang ang mga alarm habang tumatakbo ang Themia. Ang alarm na sumapit habang naka-sleep ang PC ay tutunog pagkagising nito, kung nasa loob iyon ng limang minuto.",
-  "drives.removable.label": "Mga natatanggal na drive",
-  "drives.removable.desc": "Mga USB stick, card at external disk, may I-eject",
   "drives.label.cd": "CD Drive",
   "drives.label.network": "Network Drive",
   "drives.label.ram": "RAM Disk",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Walang media",
   "drives.pending": "Kumokonekta…",
   "drives.disconnected": "Naka-disconnect",
-  "drives.eject": "I-eject",
-  "drives.ejectNamed": "I-eject ang {name}",
-  "drives.nothing": "Walang nakasaksak"
+  "drives.eject": "I-eject"
 }

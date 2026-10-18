@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "स्नूझ कालावधी",
   "alarm.settings.snooze.desc": "स्नूझ अलार्म किती वेळ पुढे ढकलतो",
   "alarm.settings.whileRunning": "Themia चालू असतानाच अलार्म वाजतात. PC स्लीपमध्ये असताना ज्या अलार्मची वेळ होते, तो PC जागा झाल्यावर वाजतो, जर ते पाच मिनिटांच्या आत असेल.",
-  "drives.removable.label": "काढता येण्याजोग्या ड्राइव्ह",
-  "drives.removable.desc": "USB स्टिक, कार्ड आणि बाह्य डिस्क, बाहेर काढा सह",
   "drives.label.cd": "CD ड्राइव्ह",
   "drives.label.network": "नेटवर्क ड्राइव्ह",
   "drives.label.ram": "RAM डिस्क",
@@ -39,7 +37,5 @@
   "drives.noMedia": "मीडिया नाही",
   "drives.pending": "कनेक्ट करत आहे…",
   "drives.disconnected": "डिस्कनेक्ट केले",
-  "drives.eject": "बाहेर काढा",
-  "drives.ejectNamed": "{name} बाहेर काढा",
-  "drives.nothing": "काहीही प्लग इन केलेले नाही"
+  "drives.eject": "बाहेर काढा"
 }

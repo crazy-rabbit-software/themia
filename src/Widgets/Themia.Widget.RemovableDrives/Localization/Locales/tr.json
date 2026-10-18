@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "{name} öğesini çıkar",
+  "drives.nothing": "Hiçbir şey takılı değil",
+  "drives.removable.desc": "USB bellekler, kartlar ve harici diskler, Çıkar ile",
+  "drives.removable.label": "Çıkarılabilir sürücüler"
+}

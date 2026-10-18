@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Schlummern für",
   "alarm.settings.snooze.desc": "Wie lange Schlummern den Wecker aufschiebt",
   "alarm.settings.whileRunning": "Wecker klingeln nur, während Themia läuft. Wird einer fällig, während sich der PC im Energiesparmodus befindet, klingelt er beim Aufwachen, sofern das innerhalb von fünf Minuten geschieht.",
-  "drives.removable.label": "Wechseldatenträger",
-  "drives.removable.desc": "USB-Sticks, Karten und externe Festplatten, mit Auswerfen",
   "drives.label.cd": "CD-Laufwerk",
   "drives.label.network": "Netzlaufwerk",
   "drives.label.ram": "RAM-Disk",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Kein Medium",
   "drives.pending": "Verbindung wird hergestellt…",
   "drives.disconnected": "Getrennt",
-  "drives.eject": "Auswerfen",
-  "drives.ejectNamed": "{name} auswerfen",
-  "drives.nothing": "Nichts angeschlossen"
+  "drives.eject": "Auswerfen"
 }

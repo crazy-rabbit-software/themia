@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Tunda selama",
   "alarm.settings.snooze.desc": "Berapa lama Tunda menangguhkan alarm",
   "alarm.settings.whileRunning": "Alarm hanya berbunyi saat Themia berjalan. Alarm yang jatuh tempo saat PC dalam mode tidur akan berbunyi saat PC aktif kembali, jika itu dalam lima menit.",
-  "drives.removable.label": "Drive yang dapat dilepas",
-  "drives.removable.desc": "Stik USB, kartu, dan disk eksternal, dengan Keluarkan",
   "drives.label.cd": "Drive CD",
   "drives.label.network": "Drive Jaringan",
   "drives.label.ram": "Disk RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Tidak ada media",
   "drives.pending": "Menghubungkan…",
   "drives.disconnected": "Terputus",
-  "drives.eject": "Keluarkan",
-  "drives.ejectNamed": "Keluarkan {name}",
-  "drives.nothing": "Tidak ada yang tercolok"
+  "drives.eject": "Keluarkan"
 }

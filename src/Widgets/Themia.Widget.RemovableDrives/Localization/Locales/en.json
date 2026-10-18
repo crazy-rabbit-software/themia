@@ -1,0 +1,7 @@
+{
+  "$englishOnly": [],
+  "drives.ejectNamed": "Eject {name}",
+  "drives.nothing": "Nothing plugged in",
+  "drives.removable.desc": "USB sticks, cards and external disks, with Eject",
+  "drives.removable.label": "Removable drives"
+}

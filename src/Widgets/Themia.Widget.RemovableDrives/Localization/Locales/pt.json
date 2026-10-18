@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "Ejetar {name}",
+  "drives.nothing": "Nada conectado",
+  "drives.removable.desc": "Pen drives, cartões e discos externos, com Ejetar",
+  "drives.removable.label": "Unidades removíveis"
+}

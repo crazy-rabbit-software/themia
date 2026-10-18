@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "Expulsar {name}",
+  "drives.nothing": "Nada conectado",
+  "drives.removable.desc": "Memorias USB, tarjetas y discos externos, con Expulsar",
+  "drives.removable.label": "Unidades extraíbles"
+}

@@ -2,12 +2,12 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
-using Themia.App.Services.Drives;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.RemovableDrives;
 
 namespace Themia.App.Widgets;
 
@@ -15,7 +15,7 @@ namespace Themia.App.Widgets;
 /// [S-4660]..[S-4664] What is plugged in (Karpo §91): a row per USB stick, card, disc or external disk
 /// with its picture, its name as This PC names it, what it holds, and Eject at the row's end — the
 /// shell's own eject, which says how it went in Windows' own notice. Live: a device plugged in or out
-/// shows at once (<see cref="DriveService"/> walks again on <c>WM_DEVICECHANGE</c>). Nothing plugged
+/// shows at once (the host's walk, <see cref="IDrives"/>, runs again on <c>WM_DEVICECHANGE</c>). Nothing plugged
 /// in says so, centred.
 /// </summary>
 internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
@@ -109,7 +109,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         var none = _devices.Count == 0;
         _empty.Visibility = none ? Visibility.Visible : Visibility.Collapsed;
         _scroll.Visibility = none ? Visibility.Collapsed : Visibility.Visible;
-        ((TextBlock)_empty.Children[1]).Text = Str.Drives_Nothing.Text();
+        ((TextBlock)_empty.Children[1]).Text = RemovableDrivesStr.Drives_Nothing.Text();
 
         while (_rows.Count < _devices.Count)
         {
@@ -329,7 +329,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             // "Eject", as Explorer says it; the stick's glyph where the word does not fit.
             _eject.Content = wide ? Str.Drives_Eject.Text() : new FontIcon { Glyph = Glyphs.Usb, FontSize = Fluent.IconSize };
             _eject.Padding = wide ? new Thickness(Fluent.Space3, Fluent.Space1, Fluent.Space3, Fluent.Space1) : new Thickness(Fluent.Space2);
-            ToolTipService.SetToolTip(_eject, Str.Drives_EjectNamed.Format(("name", name)));
+            ToolTipService.SetToolTip(_eject, RemovableDrivesStr.Drives_EjectNamed.Format(("name", name)));
             ToolTipService.SetToolTip(Root, $"{name} · {DriveRules.SpaceLine(locale, device)}");
         }
     }

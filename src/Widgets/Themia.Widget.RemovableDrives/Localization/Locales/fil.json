@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "I-eject ang {name}",
+  "drives.nothing": "Walang nakasaksak",
+  "drives.removable.desc": "Mga USB stick, card at external disk, may I-eject",
+  "drives.removable.label": "Mga natatanggal na drive"
+}

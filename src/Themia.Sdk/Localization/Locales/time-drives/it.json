@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Posticipa di",
   "alarm.settings.snooze.desc": "Di quanto Posticipa rimanda la sveglia",
   "alarm.settings.whileRunning": "Le sveglie suonano solo mentre Themia è in esecuzione. Una sveglia che scatta mentre il PC è in sospensione suona al risveglio, se avviene entro cinque minuti.",
-  "drives.removable.label": "Unità rimovibili",
-  "drives.removable.desc": "Chiavette USB, schede e dischi esterni, con Espelli",
   "drives.label.cd": "Unità CD",
   "drives.label.network": "Unità di rete",
   "drives.label.ram": "Disco RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Nessun supporto",
   "drives.pending": "Connessione…",
   "drives.disconnected": "Disconnessa",
-  "drives.eject": "Espelli",
-  "drives.ejectNamed": "Espelli {name}",
-  "drives.nothing": "Nulla collegato"
+  "drives.eject": "Espelli"
 }

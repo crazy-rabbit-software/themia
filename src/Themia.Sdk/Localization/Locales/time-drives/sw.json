@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Ahirisha kwa",
   "alarm.settings.snooze.desc": "Ahirisha husogeza kengele kwa muda gani",
   "alarm.settings.whileRunning": "Kengele hulia tu Themia ikiwa inaendeshwa. Kengele inayofika wakati Kompyuta imelala hulia inapoamka, ikiwa ni ndani ya dakika tano.",
-  "drives.removable.label": "Hifadhi zinazoondolewa",
-  "drives.removable.desc": "Vijiti vya USB, kadi na diski za nje, na Toa",
   "drives.label.cd": "Hifadhi ya CD",
   "drives.label.network": "Hifadhi ya Mtandao",
   "drives.label.ram": "Diski ya RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Hakuna midia",
   "drives.pending": "Inaunganisha…",
   "drives.disconnected": "Imetenganishwa",
-  "drives.eject": "Toa",
-  "drives.ejectNamed": "Toa {name}",
-  "drives.nothing": "Hakuna kilichochomekwa"
+  "drives.eject": "Toa"
 }

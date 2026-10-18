@@ -27,8 +27,6 @@
   "alarm.settings.snooze.label": "Báo lại sau",
   "alarm.settings.snooze.desc": "Báo lại hoãn báo thức bao lâu",
   "alarm.settings.whileRunning": "Báo thức chỉ đổ chuông khi Themia đang chạy. Báo thức đến giờ trong lúc PC đang ngủ sẽ đổ chuông khi PC thức dậy, nếu trong vòng năm phút.",
-  "drives.removable.label": "Ổ đĩa di động",
-  "drives.removable.desc": "USB, thẻ nhớ và ổ đĩa ngoài, kèm Đẩy ra",
   "drives.label.cd": "Ổ đĩa CD",
   "drives.label.network": "Ổ đĩa mạng",
   "drives.label.ram": "Đĩa RAM",
@@ -39,7 +37,5 @@
   "drives.noMedia": "Không có phương tiện",
   "drives.pending": "Đang kết nối…",
   "drives.disconnected": "Đã ngắt kết nối",
-  "drives.eject": "Đẩy ra",
-  "drives.ejectNamed": "Đẩy {name} ra",
-  "drives.nothing": "Chưa cắm gì"
+  "drives.eject": "Đẩy ra"
 }

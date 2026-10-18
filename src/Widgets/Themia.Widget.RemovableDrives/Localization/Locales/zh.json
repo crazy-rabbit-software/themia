@@ -1,0 +1,6 @@
+{
+  "drives.ejectNamed": "弹出 {name}",
+  "drives.nothing": "未插入任何设备",
+  "drives.removable.desc": "U 盘、存储卡和外部磁盘，可弹出",
+  "drives.removable.label": "可移动驱动器"
+}
