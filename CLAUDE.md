@@ -106,8 +106,9 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    Kit/ServiceSync.cs (the one service sync, IWidgetHost.Services)
   Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
                    CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
-  Widgets/         Modules/<Name>Module.cs (each in-app widget's module: the account widgets) + their *View.cs
-src/Widgets/Themia.Widget.<Name>/     a widget module project (73 so far: year progress, M4 part B groups 1-4, 6 and 7, RSS on the kit): module, config, view, Preview/,
+  Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
+                   of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
+src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 79): module, config, view, Preview/,
                    Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum
@@ -124,7 +125,7 @@ click-through surface clipped with `SetWindowRgn`. Geometry is stored as fractio
 Adding a widget or a provider is creating its folder: run `scripts/new-module.ps1` (it writes the
 project, the module class with its descriptor, the config, a view stub, the 30 locale files, the
 `SPEC.md` with the next free tag block, a first test, and one line in `Themia.slnx`). The glob
-references, the registry generator (THEMIAMOD001..004: the id is the folder's name in camelCase)
+references, the registry generator (THEMIAMOD001..005: the id is the folder's name in camelCase)
 and the module test host pick it up; nothing in the app, Core or the SDK is edited. A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
@@ -138,13 +139,15 @@ through `SoundCue`; a settings page has no host, so what it reads of one is inst
 lists (`DriveList`, `AudioDevices`, `GpuAdapters`, `SymbolLookup`) and `SettingsHost` (the notes, the
 habit lists, the screen-time history, the launcher, the picker's owner window); a config's sync wants go
 through the SDK's `IInterests`/`InterestsBuilder.Of<T>()`, its hub wants through `IReadsSystem`, an
-alarm through `IAlarm` and the clipboard history through `IKeepsClipboardHistory`; the other shared data
-services (the mail, office and task sources)
-are host types until each gets an SDK contract (part B). The stores' files (`notes/`, `habits.json`,
+alarm through `IAlarm` and the clipboard history through `IKeepsClipboardHistory`; the account
+widgets read `Office` (calendars, contacts, meetings), `Mail` and `Tasks` (`ITaskSource`, its feeds and
+`ILocalTaskLists`) and a kit widget `Services`, while the sync services behind them stay host code;
+their pages read `SettingsHost.Office`, `Tasks` and `AccountsWith(feature)` and choose accounts with
+`KitRows.Accounts` ([S-7063]). The stores' files (`notes/`, `habits.json`,
 `usage_stats.json`) stay host code with their validation; `LocalStoreFixtureTests` pins their shapes. A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
-Core's internals. The widgets not moved yet (M4 part B, docs/WIDGET-KIT.md 11.1) keep their
-descriptor on their config in Core and their module in `Widgets/Modules/<Name>Module.cs`. Settings pages register one line in `ConfigPages.AppPages`.
+Core's internals; Core's own tests run over a registry of no widget. App settings pages register one
+line in `ConfigPages.AppPages`.
 
 ## Engineering principles (non-negotiable)
 

@@ -18,8 +18,9 @@ AOT (section 4.11).
 
 Status: the module architecture (M1..M4, section 11.1), the kit's core and UI parts with their
 first widget, RSS (section 11.2 steps 1..3, 7 and 8), and the service layer (sections 5.7 and 6.5;
-steps 9..12, "service layer as built" in 11.2) are built; the pilots (steps 13..15) and the account
-widgets' migration are not. Where the build
+steps 9..12, "service layer as built" in 11.2) are built, and every widget is a module project
+(the account widgets as group 8 of 11.1); the pilots (steps 13..15) and the account widgets' kit
+migration are not. Where the build
 differs from the design below, the "as built" paragraph of 11.2 says how and why, and it wins. The
 plan of commits is kept outside the repository; this file is the design an implementation must
 follow, and the guide new agents read afterwards.
@@ -1973,21 +1974,61 @@ registration path: when a table becomes a descriptor member, the table is delete
   the Start menu, reorder, drag out, a layout launched and edited; a real MJPEG, snapshot, MP4 and HLS
   camera), never in a render or a test, which touch no real file.
 
-  - **Online, left:** RSS (`AppServices.Feeds`, `FeedSync`, the favicon cache) moves with its kit
-    migration (11.2).
-  - **Account widgets** (Email, Calendar, Contacts, NextMeeting, WeekPlanner, Tasks): mail, office
-    and task sources as contracts; `CalendarConfig` (`ISetupRule` + `IInterests`) and
-    `OfficeStatePanel`/`SetupPrompt` into the SDK; they move with their kit migration (11.2).
+  *M4 part B, group 8 as built (2026-10-18): the account widgets.* Six widget projects, one per
+  commit: `Themia.Widget.NextMeeting`, `.Contacts`, `.Calendar`, `.WeekPlanner`, `.Email` and `.Tasks`,
+  each its config, descriptor, view, preview, page, its strings as `<Name>Str` (the same count in all 30
+  languages: Next meeting 5, Contacts 22, Calendar 30, Week planner 8, Email 36 after the accounts row
+  below, Tasks 85; the `styles-calendar` and `styles-email` areas emptied went), its SPEC section and
+  its tests. Before them, each its own refactor commit: the shared data into the SDK (the office model
+  and rules, the mail model and links, the task model, due dates and rules, `SyncProblem`,
+  `SyncFreshness`, the account interests, `HostProviders`' ids, `AccountError`, `AccountInfo`,
+  `CalendarConfig` with its enums, later `TaskEdits`, `LocalTaskLists`, `AccountException`,
+  `TaskLayout` and `TasksStyle`), and the contracts, each an `IWidgetHost` member over the host's one
+  service, the sync services, IMAP, MIME, Graph and Google staying host code: `Office` (`IOfficeSource`:
+  calendars, contacts, meetings, `Synced`), `Mail` (`IMailSource` with its feed, `MailScreens`, the
+  snapshot; `MailLimits.PerFolder`), `Tasks` (`ITaskSource`, `ITaskFeed`, `ILocalTaskLists`), and on the
+  settings side `SettingsHost.Office`, `SettingsHost.Tasks`, `SettingsHost.AccountsWith(feature)` and
+  the SDK's `OfficeSettingsRows` (the accounts, each account's calendars and colours, birthdays). A
+  fixture test (`AccountStateFixtureTests`) reads a state of every account widget configured,
+  generated with the build from before (`e0d31a3f`), with no repair, and writes it back unchanged.
+  With Tasks the last widget left the app and Core: `WidgetConfigJsonContext`, the app's
+  `WidgetSettings` and `Widgets/Modules` went, Core's tests run over a registry of none (a host with
+  no widget reads and writes its state, [S-6903]; Core's registry checks over every widget moved to
+  the module host's `WidgetRegistryHostTests`), and the registry generator reads only the referenced
+  assemblies (THEMIAMOD005 for a module the host declares itself, [S-6901]). One kit decision applied
+  as a behaviour commit, test first: the mail page chooses its accounts with `KitRows.Accounts`
+  ([S-7063]), which changed four translated sentences in es, ja, pl and zh to the calendar pages'
+  words. Evidence: Debug build 0 warnings after every commit; both test projects green at each move
+  (Core 5161, module host 3361 at the end); each move's renders interleaved before / after / before
+  again against `e0d31a3f` (`pngdiff --noise`): Next meeting 0 of 18, Contacts 0 of 8, Calendar 17 of 78
+  and Email 20 of 69 by text antialias only, Week planner 1 of 13 by antialias, Tasks 2 of 47 by a
+  scroll fade that came and went under three parallel renders (both builds rendered alone twice:
+  identical); Release AOT publish 0 warnings (50.8 MB), Debug AOT publish (83.7 MB) and its renders of
+  the six widgets, the agenda style and the six pages finish.
+
+  *Kit migration of the account widgets: not done.* They moved with their views as they were; none
+  draws through `KitList` yet. What each needs, as found: Email the kit's row looks beyond `Rich` (a
+  compact two-line row and the Table look with its column header and user-ordered columns), inline
+  hover actions (mark read, delete) on a row, the compose button in `KitHeader`, and `MailScreens`
+  folded into `KitScreens` (its sentences are mail's own: a behaviour commit, test first); the
+  calendar's agenda `KitOverflow.Page` with day groups and two columns (`CalendarFit`'s agenda rules
+  into a `KitSpec`), `KitStatePanel` for the office states; Tasks a toggle lead, the inline rename
+  editor, drag reorder and the add footer in `KitList`, and `RowFocus` in place of XAML focus (likely
+  visible: the focus rectangle). Contacts, Next meeting and Week planner stay off the kit (not lists of
+  a source's items in the kit's sense). Each is a refactor with a zero pixel diff or a split behaviour
+  commit, as RSS was.
+
+  - **Online, left:** none (RSS moved with its kit migration, 11.2).
+  - **Account widgets:** done (group 8, above); their kit migration is open.
   - **Local stores:** done (group 6, above); each became a typed `IWidgetHost` member, no
     `IModuleService` was needed (every store is the host's one already, created at start).
   - **Files and launchers:** done (group 7, above); every host service they used is a typed
     `IWidgetHost` member, and the app-layout editor finds its item through `IHoldsAppLayouts`.
-  - **What remains:** RSS and the account widgets, which move with the kit (11.2).
+  - **What remains:** no widget is left in the app or Core; the account widgets' kit migration.
   - **Everywhere:** the Debug gallery scenes that name widgets (`EditBarRender`, `SwitchCheck`,
     `MotionRender`, `MenuRender`, `SettingsRender`) turn into ids and module `Preview/` states; the
     descriptor/config interim ends per widget; `ItemPalette` (the host's item engine) is reached only
-    through `ItemFill`; when the app declares no widget, the generator stops reading the app's own
-    attributes.
+    through `ItemFill`; the generator reads no attributes of the app's own (done, group 8).
 
 ### 11.2 The kit
 
