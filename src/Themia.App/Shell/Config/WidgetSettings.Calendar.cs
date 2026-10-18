@@ -271,7 +271,7 @@ internal static partial class WidgetSettings
         var presets = new List<ColorPreset>();
         for (var i = 0; i < CalendarRules.Palette.Count; i++)
         {
-            presets.Add(new ColorPreset(CalendarRules.Palette[i], CalendarRules.PaletteNames[i]));
+            presets.Add(new ColorPreset(CalendarRules.Palette[i], CalendarRules.PaletteNames[i].Local()));
         }
 
         var chosen = config.CalendarColors.TryGetValue(key, out var hex) && CalendarRules.IsHexColor(hex) ? hex : string.Empty;
