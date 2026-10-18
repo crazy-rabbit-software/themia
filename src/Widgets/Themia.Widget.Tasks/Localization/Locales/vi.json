@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Hiện tác vụ đã xong",
   "todo.titleLines.label": "Số dòng tiêu đề",
   "todo.todayList": "Hôm nay",
-  "widgetUi.refreshFailedSince": "Lần làm mới gần nhất thất bại: {reason}. Đang hiện mục từ {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, hoặc một danh sách trên PC này",
   "widgetsA.catalog.tasks.label": "Tác vụ",
   "widgetsC.oneDrive.accountGone": "Tài khoản mà tiện ích này hiển thị không còn đăng nhập.",

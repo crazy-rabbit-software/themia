@@ -27,6 +27,12 @@ the config's are the module host's (`TasksConfigTests`, [S-611]); the rules' are
   characters, and a broken row order are repaired on load.
 - **[S-785]** An open important task leads its title with a "!" in the critical colour (classic
   S-11) where its column is at least 160px wide; the weight and the tooltip say it everywhere.
+- **[S-607]** Tasks' one stale rule ([S-7042]): the header is the kit's (`KitHeader`: the problem
+  glyph, the ring, the open count, before the list picker); a list on this PC that could not be
+  saved and a change the provider refused are its notes; an account list whose last refresh failed
+  with tasks on screen is one line in the kit's words, stamped with when they are from ("Work: No
+  network · updated 10:42", `TaskFreshness`); the card menu's Refresh line says the age. The old
+  "Last refresh failed: … Showing items from …" warning is gone.
 
 Needs a live pass: a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on

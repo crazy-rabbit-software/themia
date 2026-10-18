@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "完了を表示",
   "todo.titleLines.label": "タイトルの行数",
   "todo.todayList": "今日",
-  "widgetUi.refreshFailedSince": "前回の更新に失敗しました: {reason}。{time}の項目を表示しています。",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks、またはこの PC 上のリスト",
   "widgetsA.catalog.tasks.label": "タスク",
   "widgetsC.oneDrive.accountGone": "このウィジェットのアカウントはサインインしていません。",

@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "แสดงรายการที่เสร็จแล้ว",
   "todo.titleLines.label": "บรรทัดชื่อเรื่อง",
   "todo.todayList": "วันนี้",
-  "widgetUi.refreshFailedSince": "รีเฟรชล่าสุดล้มเหลว: {reason} กำลังแสดงรายการจาก {time}",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks หรือรายการบนพีซีเครื่องนี้",
   "widgetsA.catalog.tasks.label": "งาน",
   "widgetsC.oneDrive.accountGone": "บัญชีที่วิดเจ็ตนี้แสดงไม่ได้ลงชื่อเข้าใช้อีกต่อไป",

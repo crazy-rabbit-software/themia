@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Tampilkan yang selesai",
   "todo.titleLines.label": "Baris judul",
   "todo.todayList": "Hari ini",
-  "widgetUi.refreshFailedSince": "Penyegaran terakhir gagal: {reason}. Menampilkan item dari {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, atau daftar di PC ini",
   "widgetsA.catalog.tasks.label": "Tugas",
   "widgetsC.oneDrive.accountGone": "Akun yang ditampilkan widget ini tidak lagi masuk.",

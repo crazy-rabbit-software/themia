@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Показывать выполненные",
   "todo.titleLines.label": "Строк названия",
   "todo.todayList": "Сегодня",
-  "widgetUi.refreshFailedSince": "Последнее обновление не удалось: {reason}. Показаны данные на {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks или список на этом ПК",
   "widgetsA.catalog.tasks.label": "Задачи",
   "widgetsC.oneDrive.accountGone": "В учетную запись этого виджета больше не выполнен вход.",

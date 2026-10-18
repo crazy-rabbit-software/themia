@@ -6613,9 +6613,8 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   is never folded while it is on the wire. A confirmed create re-addresses later changes to the
   provider's id.
 - **[S-2612]** A stored copy the last sync could not improve on says when it is from: "Work: No
-  network · updated Mon 10:42" (contacts; the calendar by the kit's rule, [S-2664]), "Last refresh failed: … Showing items
-  from …" (tasks), and the kit's one stale rule ([S-7042], [S-7064]) for Rss, Mail and the online
-  widgets (weather now, the forecast,
+  network · updated Mon 10:42" (contacts; the calendar by the kit's rule, [S-2664]), and the kit's
+  one stale rule ([S-7042], [S-7064]) for Rss, Mail, Tasks ([S-607]) and the online widgets (weather now, the forecast,
   Stocks, exchange rates, air quality, rain): the header's problem glyph with one tooltip line per
   source and problem ("Work: No network · updated 10:42"), the age on the card menu's Refresh line
   ("Refresh · updated 4 min ago"), and no age drawn in the header (it was, in the caution colour

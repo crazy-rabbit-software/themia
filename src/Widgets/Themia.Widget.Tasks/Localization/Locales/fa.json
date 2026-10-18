@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "نمایش کارهای انجام‌شده",
   "todo.titleLines.label": "خطوط عنوان",
   "todo.todayList": "امروز",
-  "widgetUi.refreshFailedSince": "آخرین تازه‌سازی ناموفق بود: {reason}. موارد مربوط به {time} نمایش داده می‌شوند.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do، Google Tasks یا فهرستی روی این رایانه",
   "widgetsA.catalog.tasks.label": "کارها",
   "widgetsC.oneDrive.accountGone": "دیگر به حسابی که این ویجت نشان می‌داد وارد نشده‌اید.",

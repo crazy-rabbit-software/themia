@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Tamamlananları göster",
   "todo.titleLines.label": "Başlık satırları",
   "todo.todayList": "Bugün",
-  "widgetUi.refreshFailedSince": "Son yenileme başarısız oldu: {reason}. {time} itibarıyla öğeler gösteriliyor.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks veya bu bilgisayardaki bir liste",
   "widgetsA.catalog.tasks.label": "Görevler",
   "widgetsC.oneDrive.accountGone": "Bu pencere öğesinin gösterdiği hesapta artık oturum açık değil.",

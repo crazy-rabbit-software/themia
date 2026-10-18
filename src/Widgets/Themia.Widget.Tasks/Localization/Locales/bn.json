@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "সম্পন্নগুলো দেখান",
   "todo.titleLines.label": "শিরোনামের লাইন",
   "todo.todayList": "আজ",
-  "widgetUi.refreshFailedSince": "শেষ রিফ্রেশ ব্যর্থ হয়েছে: {reason}। {time}-এর আইটেম দেখানো হচ্ছে।",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks বা এই PC-র একটি তালিকা",
   "widgetsA.catalog.tasks.label": "কাজ",
   "widgetsC.oneDrive.accountGone": "এই উইজেট যে অ্যাকাউন্ট দেখাত, তাতে আর সাইন ইন করা নেই।",

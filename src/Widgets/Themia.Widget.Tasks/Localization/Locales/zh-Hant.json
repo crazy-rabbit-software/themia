@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "顯示已完成",
   "todo.titleLines.label": "標題行數",
   "todo.todayList": "今天",
-  "widgetUi.refreshFailedSince": "上次重新整理失敗：{reason}。目前顯示的是 {time} 的內容。",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks 或此電腦上的清單",
   "widgetsA.catalog.tasks.label": "工作",
   "widgetsC.oneDrive.accountGone": "此小工具顯示的帳戶已不再登入。",

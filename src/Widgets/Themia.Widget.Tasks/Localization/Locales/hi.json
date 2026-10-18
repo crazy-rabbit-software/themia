@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "पूरे हुए दिखाएँ",
   "todo.titleLines.label": "शीर्षक पंक्तियाँ",
   "todo.todayList": "आज",
-  "widgetUi.refreshFailedSince": "पिछला रीफ़्रेश विफल: {reason}। {time} के आइटम दिख रहे हैं।",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, या इस PC पर एक सूची",
   "widgetsA.catalog.tasks.label": "कार्य",
   "widgetsC.oneDrive.accountGone": "यह विजेट जो खाता दिखाता था, वह अब साइन इन नहीं है।",

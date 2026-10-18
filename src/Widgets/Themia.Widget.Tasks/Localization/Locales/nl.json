@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Voltooide weergeven",
   "todo.titleLines.label": "Titelregels",
   "todo.todayList": "Vandaag",
-  "widgetUi.refreshFailedSince": "Laatste vernieuwing mislukt: {reason}. Items van {time} worden getoond.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks of een lijst op deze pc",
   "widgetsA.catalog.tasks.label": "Taken",
   "widgetsC.oneDrive.accountGone": "Het account dat deze widget toonde, is niet meer aangemeld.",

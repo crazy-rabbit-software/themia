@@ -10,7 +10,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Tasks;
 
 namespace Themia.App.Widgets;
@@ -37,11 +39,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>Below this the link under an empty state is dropped; the sentence is worth more.</summary>
     private const double LinkNeedsHeight = 140;
 
-    private readonly TextBlock _badge = new();
-    private readonly Border _badgeHost;
-    private readonly ProgressRing _busy = new();
-    private readonly FontIcon _warning;
+    /// <summary>[S-607] The kit's header: the problem glyph, the ring and the open count, before the list picker.</summary>
+    private readonly KitHeader _header;
     private readonly StackPanel _trailing;
+
+    /// <summary>The open tasks the badge counts, or null for none shown.</summary>
+    private long? _openCount;
     private readonly TaskRowsPanel _rowsPanel = new();
     private readonly ScrollViewer _scroll;
     private readonly TaskListHost _listHost;
@@ -100,19 +103,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        // The open count is Fluent's InfoBadge shape, which the design system owns.
-        _badgeHost = Fluent.Badge(_badge);
-        _badgeHost.Visibility = Visibility.Collapsed;
-
-        _busy.Width = Fluent.IconSize;
-        _busy.Height = Fluent.IconSize;
-        _busy.IsActive = false;
-        _busy.Visibility = Visibility.Collapsed;
-
-        // A change the provider refused, or a refresh that failed with tasks still on screen: the
-        // list stays, and this says it may be out of date and why.
-        _warning = Fluent.Icon(Glyphs.Warning, "SystemFillColorCautionBrush");
-        _warning.Visibility = Visibility.Collapsed;
+        // [S-607] A change the provider refused, or a refresh that failed with tasks still on screen:
+        // the list stays, and the kit's problem glyph says it may be out of date and why.
+        _header = new KitHeader(host);
 
         BuildPicker();
 
@@ -121,7 +114,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
             Orientation = Orientation.Horizontal,
             Spacing = Fluent.Space2,
             VerticalAlignment = VerticalAlignment.Center,
-            Children = { _warning, _busy, _badgeHost, _picker },
+            Children = { _header, _picker },
         };
 
         _scroll = new ScrollViewer
@@ -250,7 +243,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// widget looks: they are in its settings only.
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        !IsLocal && _feed is not null ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), Refresh)] : [];
+        !IsLocal && _feed is not null ? [new WidgetAction(Glyphs.Refresh, KitFreshness.RefreshLabel(Strings.Current, Outcomes(), DateTimeOffset.Now), Refresh)] : [];
 
     // ---- which list --------------------------------------------------------------------------------
 
@@ -595,8 +588,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         var plan = Plan(rows.Count);
         BuildRows(rows, today, plan);
 
-        _badge.Text = TaskRules.OpenCount(rows).ToString(CultureInfo.InvariantCulture);
-        _badgeHost.Visibility = TaskRules.OpenCount(rows) > 0 ? Visibility.Visible : Visibility.Collapsed;
+        var open = TaskRules.OpenCount(rows);
+        _openCount = open > 0 ? open : null;
+        UpdateHeader();
 
         if (rows.Count == 0)
         {
@@ -642,19 +636,20 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private void UpdateHeader()
     {
         var busy = _feed?.Busy == true || _screen == Screen.Loading;
-        _busy.IsActive = busy;
-        _busy.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
 
-        var warning = IsLocal ? _local?.Problem
-            : _feed?.WriteProblem
-            ?? (_feed is { Loaded: true, Failure: { } failure }
-                ? TasksStr.WidgetUi_RefreshFailedSince.Format(("reason", FetchState.Message(failure.ToFetchStatus())), ("time", FetchState.Freshness(_feed.FetchedAt ?? DateTimeOffset.Now, DateTimeOffset.Now)))
-                : null);
+        // [S-607] The one stale rule ([S-7042]): the widget's own note (a list on this PC that could
+        // not be saved, a change the provider refused), then the failed refresh with when the list is from.
+        var note = IsLocal ? _local?.Problem : _feed?.WriteProblem;
+        string[] notes = note is null ? [] : [note];
+        var lines = _screen == Screen.Ready ? [.. notes, .. KitFreshness.Lines(Strings.Current, Outcomes(), DateTimeOffset.Now)] : notes;
 
-        _warning.Visibility = warning is null ? Visibility.Collapsed : Visibility.Visible;
-        ToolTipService.SetToolTip(_warning, warning);
+        _header.Show(lines, busy, offersAccounts: false, count: _screen == Screen.Ready ? _openCount : null);
         UpdatePicker();
     }
+
+    /// <summary>[S-607] The account list's last refresh as the kit's outcome; none for a list on this PC.</summary>
+    private IReadOnlyList<KitOutcome> Outcomes()
+        => IsLocal || _feed is not { } feed ? [] : TaskFreshness.Outcomes(_account?.Label ?? string.Empty, feed.Loaded, feed.Failure, feed.FetchedAt);
 
     private string EmptyListText()
     {
@@ -681,7 +676,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         CancelEdit();
         ClearRows();
         _displayed = [];
-        _badgeHost.Visibility = Visibility.Collapsed;
+        _openCount = null;
         UpdateHeader();
 
         var who = _account?.Label;

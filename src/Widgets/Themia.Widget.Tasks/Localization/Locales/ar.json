@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "إظهار المكتملة",
   "todo.titleLines.label": "أسطر العنوان",
   "todo.todayList": "اليوم",
-  "widgetUi.refreshFailedSince": "فشل آخر تحديث: {reason}. عرض العناصر من {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do أو Google Tasks أو قائمة على هذا الكمبيوتر",
   "widgetsA.catalog.tasks.label": "المهام",
   "widgetsC.oneDrive.accountGone": "لم يعد الحساب الذي كانت تعرضه هذه الأداة مسجّل الدخول.",

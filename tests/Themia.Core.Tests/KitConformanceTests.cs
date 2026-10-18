@@ -90,7 +90,7 @@ public sealed partial class KitConformanceTests
     /// <summary>
     /// [S-7042] The one stale rule: no widget writes its data's age itself (in its header, in the
     /// caution colour); a problem is the kit header's glyph and the age is on the Refresh line
-    /// (<c>KitFreshness</c>). Tasks keeps its own until it moves onto the kit.
+    /// (<c>KitFreshness</c>).
     /// </summary>
     [Fact]
     public void S7042_no_widget_says_the_age_of_its_data_itself()
@@ -101,7 +101,7 @@ public sealed partial class KitConformanceTests
             .Order(StringComparer.Ordinal)
             .ToList();
 
-        Assert.Equal(["TasksView.cs"], offending);
+        Assert.Empty(offending);
     }
 
     /// <summary>

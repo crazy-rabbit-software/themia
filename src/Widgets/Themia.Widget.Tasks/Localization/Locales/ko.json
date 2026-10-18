@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "완료된 항목 표시",
   "todo.titleLines.label": "제목 줄 수",
   "todo.todayList": "오늘",
-  "widgetUi.refreshFailedSince": "마지막 새로 고침 실패: {reason}. {time}의 항목을 표시합니다.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks 또는 이 PC의 목록",
   "widgetsA.catalog.tasks.label": "작업",
   "widgetsC.oneDrive.accountGone": "이 위젯에 표시되던 계정이 더 이상 로그인되어 있지 않습니다.",

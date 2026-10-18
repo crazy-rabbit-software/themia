@@ -7,7 +7,6 @@
   "todo.showCompleted.label": "Show completed",
   "todo.titleLines.label": "Title lines",
   "todo.todayList": "Today",
-  "widgetUi.refreshFailedSince": "Last refresh failed: {reason}. Showing items from {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, or a list on this PC",
   "widgetsA.catalog.tasks.label": "Tasks",
   "widgetsC.oneDrive.accountGone": "The account this widget showed is no longer signed in.",

@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Pokaż wykonane",
   "todo.titleLines.label": "Wiersze tytułu",
   "todo.todayList": "Dzisiaj",
-  "widgetUi.refreshFailedSince": "Ostatnie odświeżanie nie powiodło się: {reason}. Wyświetlane są elementy z {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks lub lista na tym komputerze",
   "widgetsA.catalog.tasks.label": "Zadania",
   "widgetsC.oneDrive.accountGone": "Konto pokazywane przez ten widżet nie jest już zalogowane.",

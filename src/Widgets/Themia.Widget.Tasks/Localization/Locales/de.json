@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Erledigte anzeigen",
   "todo.titleLines.label": "Titelzeilen",
   "todo.todayList": "Heute",
-  "widgetUi.refreshFailedSince": "Letzte Aktualisierung fehlgeschlagen: {reason}. Angezeigt werden Einträge von {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks oder eine Liste auf diesem PC",
   "widgetsA.catalog.tasks.label": "Aufgaben",
   "widgetsC.oneDrive.accountGone": "Das Konto dieses Widgets ist nicht mehr angemeldet.",

@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "Mostrar completadas",
   "todo.titleLines.label": "Líneas del título",
   "todo.todayList": "Hoy",
-  "widgetUi.refreshFailedSince": "La última actualización falló: {reason}. Se muestran elementos de {time}.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks o una lista en este equipo",
   "widgetsA.catalog.tasks.label": "Tareas",
   "widgetsC.oneDrive.accountGone": "La cuenta que mostraba este widget ya no tiene la sesión iniciada.",

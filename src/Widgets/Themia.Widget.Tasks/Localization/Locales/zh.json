@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "显示已完成",
   "todo.titleLines.label": "标题行数",
   "todo.todayList": "今天",
-  "widgetUi.refreshFailedSince": "上次刷新失败：{reason}。显示的是 {time} 的内容。",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks 或此电脑上的列表",
   "widgetsA.catalog.tasks.label": "任务",
   "widgetsC.oneDrive.accountGone": "此小组件显示的帐户已不再登录。",

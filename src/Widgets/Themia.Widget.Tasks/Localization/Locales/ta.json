@@ -6,7 +6,6 @@
   "todo.showCompleted.label": "முடிந்தவற்றைக் காட்டு",
   "todo.titleLines.label": "தலைப்பு வரிகள்",
   "todo.todayList": "இன்று",
-  "widgetUi.refreshFailedSince": "கடைசிப் புதுப்பிப்பு தோல்வியடைந்தது: {reason}. {time} இன் உருப்படிகள் காட்டப்படுகின்றன.",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, அல்லது இந்த PC இல் ஒரு பட்டியல்",
   "widgetsA.catalog.tasks.label": "பணிகள்",
   "widgetsC.oneDrive.accountGone": "இந்த விட்ஜெட் காட்டிய கணக்கு இனி உள்நுழைந்திருக்கவில்லை.",
