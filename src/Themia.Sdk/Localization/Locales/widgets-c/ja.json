@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows は既にシャットダウン中です",
   "widgetsC.power.reason.refused": "Windows が拒否しました",
   "widgetsC.power.reason.windowsError": "Windows エラー {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(無題)",
   "widgetsC.rss.copyLink": "リンクをコピー",
   "widgetsC.rss.noArticles": "このフィードには記事がありません",

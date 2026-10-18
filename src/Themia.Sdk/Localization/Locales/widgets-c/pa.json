@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows ਪਹਿਲਾਂ ਹੀ ਬੰਦ ਹੋ ਰਿਹਾ ਹੈ",
   "widgetsC.power.reason.refused": "Windows ਨੇ ਇਨਕਾਰ ਕੀਤਾ",
   "widgetsC.power.reason.windowsError": "Windows ਗੜਬੜ {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(ਬਿਨਾਂ ਸਿਰਲੇਖ)",
   "widgetsC.rss.copyLink": "ਲਿੰਕ ਕਾਪੀ ਕਰੋ",
   "widgetsC.rss.noArticles": "ਇਸ ਫ਼ੀਡ ਵਿੱਚ ਕੋਈ ਲੇਖ ਨਹੀਂ",

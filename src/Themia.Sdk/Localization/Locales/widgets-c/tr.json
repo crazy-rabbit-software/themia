@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows zaten kapanıyor",
   "widgetsC.power.reason.refused": "Windows reddetti",
   "widgetsC.power.reason.windowsError": "Windows hatası {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(başlıksız)",
   "widgetsC.rss.copyLink": "Bağlantıyı kopyala",
   "widgetsC.rss.noArticles": "Bu akışta makale yok",

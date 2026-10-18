@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows در حال خاموش شدن است",
   "widgetsC.power.reason.refused": "Windows نپذیرفت",
   "widgetsC.power.reason.windowsError": "خطای Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(بدون عنوان)",
   "widgetsC.rss.copyLink": "کپی پیوند",
   "widgetsC.rss.noArticles": "این خوراک مطلبی ندارد",

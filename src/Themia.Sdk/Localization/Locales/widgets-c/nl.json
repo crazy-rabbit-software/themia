@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows wordt al afgesloten",
   "widgetsC.power.reason.refused": "Windows weigerde",
   "widgetsC.power.reason.windowsError": "Windows-fout {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(zonder titel)",
   "widgetsC.rss.copyLink": "Koppeling kopiëren",
   "widgetsC.rss.noArticles": "Deze feed heeft geen artikelen",

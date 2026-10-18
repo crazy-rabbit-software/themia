@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows پہلے ہی بند ہو رہا ہے",
   "widgetsC.power.reason.refused": "Windows نے انکار کیا",
   "widgetsC.power.reason.windowsError": "Windows خرابی {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(بلا عنوان)",
   "widgetsC.rss.copyLink": "لنک کاپی کریں",
   "widgetsC.rss.noArticles": "اس فیڈ میں کوئی مضمون نہیں",

@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows wird bereits heruntergefahren",
   "widgetsC.power.reason.refused": "Windows hat abgelehnt",
   "widgetsC.power.reason.windowsError": "Windows-Fehler {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(ohne Titel)",
   "widgetsC.rss.copyLink": "Link kopieren",
   "widgetsC.rss.noArticles": "Dieser Feed enthält keine Artikel",

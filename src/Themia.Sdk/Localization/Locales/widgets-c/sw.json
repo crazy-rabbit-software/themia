@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows tayari inazimika",
   "widgetsC.power.reason.refused": "Windows ilikataa",
   "widgetsC.power.reason.windowsError": "Hitilafu ya Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(bila kichwa)",
   "widgetsC.rss.copyLink": "Nakili kiungo",
   "widgetsC.rss.noArticles": "Mlisho huu hauna makala",

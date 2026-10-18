@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows ఇప్పటికే షట్ డౌన్ అవుతోంది",
   "widgetsC.power.reason.refused": "Windows నిరాకరించింది",
   "widgetsC.power.reason.windowsError": "Windows లోపం {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(శీర్షిక లేదు)",
   "widgetsC.rss.copyLink": "లింక్‌ను కాపీ చేయి",
   "widgetsC.rss.noArticles": "ఈ ఫీడ్‌లో వ్యాసాలు లేవు",

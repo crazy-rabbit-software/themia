@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "O Windows já está desligando",
   "widgetsC.power.reason.refused": "O Windows recusou",
   "widgetsC.power.reason.windowsError": "erro do Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(sem título)",
   "widgetsC.rss.copyLink": "Copiar link",
   "widgetsC.rss.noArticles": "Este feed não tem artigos",

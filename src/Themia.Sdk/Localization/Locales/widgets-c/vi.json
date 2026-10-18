@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows đang tắt máy",
   "widgetsC.power.reason.refused": "Windows từ chối",
   "widgetsC.power.reason.windowsError": "Lỗi Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(không có tiêu đề)",
   "widgetsC.rss.copyLink": "Sao chép liên kết",
   "widgetsC.rss.noArticles": "Nguồn tin này không có bài viết",

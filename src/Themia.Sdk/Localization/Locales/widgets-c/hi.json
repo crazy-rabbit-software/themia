@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows पहले से शट डाउन हो रहा है",
   "widgetsC.power.reason.refused": "Windows ने इनकार किया",
   "widgetsC.power.reason.windowsError": "Windows त्रुटि {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(बिना शीर्षक)",
   "widgetsC.rss.copyLink": "लिंक कॉपी करें",
   "widgetsC.rss.noArticles": "इस फ़ीड में कोई लेख नहीं",

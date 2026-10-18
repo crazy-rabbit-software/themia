@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 namespace Themia.Core.Widgets;
 
 /// <summary>One feed's part of a refresh: what it returned, or why it did not.</summary>
@@ -37,8 +38,7 @@ public static class FeedAggregate
         {
             if (FetchState.IsFailure(part.Status))
             {
-                var reason = string.IsNullOrWhiteSpace(part.Detail) ? FetchState.Message(part.Status) : part.Detail!;
-                failures.Add(Str.WidgetsC_Rss_Failure.Format(("name", Name(part)), ("reason", reason)));
+                failures.Add(KitScreens.Line(Strings.Current, new KitOutcome(Name(part), part.Status, part.Detail)));
             }
 
             foreach (var entry in part.Document?.Entries ?? [])
@@ -72,16 +72,7 @@ public static class FeedAggregate
     public static string Age(DateTimeOffset published, DateTimeOffset now) => Age(Strings.Current, published, now);
 
     /// <summary><see cref="Age(DateTimeOffset, DateTimeOffset)"/> in an explicit language.</summary>
-    public static string Age(Locale locale, DateTimeOffset published, DateTimeOffset now)
-    {
-        if (now - published < TimeSpan.FromDays(7))
-        {
-            return FetchState.Freshness(locale, published, now);
-        }
-
-        var local = published.ToOffset(now.Offset);
-        return LocaleFormat.Date(locale, DateOnly.FromDateTime(local.DateTime), local.Year == now.Year ? DateStyle.MonthDayShort : DateStyle.Medium);
-    }
+    public static string Age(Locale locale, DateTimeOffset published, DateTimeOffset now) => KitText.Age(locale, published, now);
 
     /// <summary>
     /// The title the feeds suggest (S-04): one feed's own <c>&lt;title&gt;</c>; several feeds'

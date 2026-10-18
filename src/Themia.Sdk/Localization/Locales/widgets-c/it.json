@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows si sta già arrestando",
   "widgetsC.power.reason.refused": "Windows ha rifiutato",
   "widgetsC.power.reason.windowsError": "errore di Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(senza titolo)",
   "widgetsC.rss.copyLink": "Copia collegamento",
   "widgetsC.rss.noArticles": "Questo feed non contiene articoli",

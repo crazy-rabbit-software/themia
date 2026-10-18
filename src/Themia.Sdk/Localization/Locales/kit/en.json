@@ -1,0 +1,15 @@
+{
+  "$comment": "[S-7040] [S-7042] The widget kit's own sentences: a source's problem, the Refresh line's age, the account screens.",
+  "$englishOnly": [
+    "kit.accountsGone",
+    "kit.signInAgain",
+    "kit.allSignInAgain",
+    "kit.forbidden"
+  ],
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "Refresh · updated {age}",
+  "kit.accountsGone": "The accounts this widget read are no longer signed in.",
+  "kit.signInAgain": "Sign in to {account} again to see it here.",
+  "kit.allSignInAgain": "Sign in to these accounts again to see them here.",
+  "kit.forbidden": "These accounts did not allow this widget to read this."
+}

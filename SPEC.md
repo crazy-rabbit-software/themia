@@ -15,7 +15,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 
 Sections, grouped by area (file order below; search for the heading).
 
-- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES).
+- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
@@ -888,6 +888,64 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
   shell icon, the OLE drag) stay host code behind a seam the host installs at start, as do the
   place lookup and the Stocks settings' symbol search (`SymbolLookup`, [S-1307]).
+
+## The widget kit (KIT)
+
+The shared parts a list widget is built from, and the rules they keep (design and recipe:
+`docs/WIDGET-KIT.md`). Pure parts in `src/Themia.Sdk/Kit/` (namespace `Themia.Sdk.Kit`), tested in
+`tests/Themia.Core.Tests/KitTests.cs`. The kit knows no service: a source hands it items and outcomes.
+
+- **[S-7000]** `KitItem`: one row's data (id, title, subtitle, preview, lead, when, tone, emphasis,
+  badges, link, group), plain text only. `KitLead` (none, icon, initials, the site's own icon, a
+  status dot), `KitBadge`, `KitTone` (neutral, accent, success, caution, critical; brushes in the
+  App), `KitGroup`, `KitSummary`, and `KitIcon`, the closed set of glyphs an item or action names.
+- **[S-7001]** `KitWhen` is an instant or a day, never both: a due day does not move with the zone.
+- **[S-7002]** Every item passes `KitItems.Clean` on its way to a list: no id, dropped; an id seen
+  before, dropped (the first wins); strings cut to `KitBounds` (never through a character); a link
+  kept only when it is an absolute web address without a user name or password (http or https for a
+  feed's links; https on the source's own hosts when it names them), else the row stays and opens
+  nothing; a summary's fraction clamped to 0..1, dropped when it is not a number.
+- **[S-7003]** `KitText`: a count as 999, 1.2k, 12k, 3.4M in the language's digits, never rounded up;
+  an item's time per the spec (`KitTime`): an age ([S-1302]: the shared freshness for a week, then
+  the date), a clock time or a date; a day is written as its date.
+- **[S-7010]** `KitAction`: what an item offers, a closed set (`KitActionKind`: Open, OpenTo,
+  CopyLink, CopyText, Toggle, Rename, Delete, Refresh). None changes how a widget looks ([S-1746])
+  and none writes to a service: a change the user wants made is an OpenTo to the service's page.
+- **[S-7011]** `KitMenu.Lines`: one order for every kit item menu: the item's group (Open, a check,
+  the web pages in the spec's order, the copies), then Rename, then Delete, then Refresh, each group
+  after a separator, an empty group left out. One Open, check, Rename, Delete and Refresh per item.
+  A line whose kind lacks what it needs (an Open without an address, a copy without text) is shown
+  disabled. The first copy, Rename and Delete are the icon row's ([S-1740], [S-1741]). The primary
+  action (double-click, Enter) is the item's Open when it can run.
+- **[S-7020]** `KitKeys.Decide`: one key map for every kit list over `ListKeys`, in reading order
+  (Left and Right step like Up and Down, across columns): with nothing focused a movement key lands
+  on the first item, End on the last ([S-812]); Page Up/Down jump ten; Enter opens, Space toggles, F2
+  renames, Delete deletes, the Menu key opens the menu, Escape lets go ([S-813]).
+- **[S-7030]** `KitSpec`: a kit widget's shape (its row look, the optional fields it offers
+  (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
+  sentence); the user's own fields are bounded by it.
+- **[S-7031]** `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]). The rich look
+  (the feed's, [S-1305]): rung 0 the newest title whole (two lines, one if even that does not fit);
+  its time; its lead from 180px of column width; the subtitle line from 240px; two columns from
+  400px wide, three from 720px, while a column keeps 200px, never more than the spec allows; a
+  preview where it costs no row, or where three rows still fit on a tile at least 280px high that
+  is not a tall column. Rows are measured and shown whole ([S-639]).
+- **[S-7040]** `KitScreens.Decide`: the one state machine. A widget that reads accounts: none at all
+  is the card's Set up; its accounts all gone, all needing a sign-in, or all refused, each its
+  sentence with the Accounts link. Then items held: the list, one header line per failed source
+  ("World News: HTTP 404 Not Found"); a source not answered yet: loading; every source answering
+  with nothing: the spec's empty sentence (a filter on: its no-match one); else every failed
+  source's line in the sources' order. A source's line uses its own words when it has them, else
+  the shared sentence ([S-62]).
+- **[S-7041]** The accounts a kit widget reads: every account offering its need when it names none,
+  else the named ones still signed in.
+- **[S-7042]** `KitFreshness`, the one stale rule's words: one line per source and problem, folded,
+  stamped with the oldest copy among them ("Work: No network · updated Mon 10:42", [S-2664]); the
+  Refresh line with the age of the oldest copy on screen ("Refresh · updated 4 min ago").
+- **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
+  web source), whether it is configured, the accounts it reads and the fields the user has on; its
+  setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no
+  signed-in account offers what it needs.
 
 ## Adding a widget
 

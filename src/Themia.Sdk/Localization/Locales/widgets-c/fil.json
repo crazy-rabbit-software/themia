@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "nagsa-shut down na ang Windows",
   "widgetsC.power.reason.refused": "tumanggi ang Windows",
   "widgetsC.power.reason.windowsError": "Error ng Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(walang pamagat)",
   "widgetsC.rss.copyLink": "Kopyahin ang link",
   "widgetsC.rss.noArticles": "Walang artikulo ang feed na ito",

@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows 已在關機中",
   "widgetsC.power.reason.refused": "Windows 拒絕了此操作",
   "widgetsC.power.reason.windowsError": "Windows 錯誤 {code}",
-  "widgetsC.rss.failure": "{name}：{reason}",
   "widgetsC.rss.untitled": "（無標題）",
   "widgetsC.rss.copyLink": "複製連結",
   "widgetsC.rss.noArticles": "此摘要沒有文章",

@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows est déjà en cours d’arrêt",
   "widgetsC.power.reason.refused": "Windows a refusé",
   "widgetsC.power.reason.windowsError": "erreur Windows {code}",
-  "widgetsC.rss.failure": "{name} : {reason}",
   "widgetsC.rss.untitled": "(sans titre)",
   "widgetsC.rss.copyLink": "Copier le lien",
   "widgetsC.rss.noArticles": "Ce flux ne contient aucun article",

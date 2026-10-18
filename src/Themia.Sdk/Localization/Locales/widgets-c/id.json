@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows sudah sedang dimatikan",
   "widgetsC.power.reason.refused": "Windows menolak",
   "widgetsC.power.reason.windowsError": "Galat Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(tanpa judul)",
   "widgetsC.rss.copyLink": "Salin tautan",
   "widgetsC.rss.noArticles": "Feed ini tidak memiliki artikel",

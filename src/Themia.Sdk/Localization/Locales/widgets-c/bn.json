@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows ইতিমধ্যে বন্ধ হচ্ছে",
   "widgetsC.power.reason.refused": "Windows অস্বীকার করেছে",
   "widgetsC.power.reason.windowsError": "Windows ত্রুটি {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(শিরোনামহীন)",
   "widgetsC.rss.copyLink": "লিঙ্ক কপি করুন",
   "widgetsC.rss.noArticles": "এই ফিডে কোনো নিবন্ধ নেই",

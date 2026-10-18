@@ -24,7 +24,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows is already shutting down",
   "widgetsC.power.reason.refused": "Windows refused",
   "widgetsC.power.reason.windowsError": "Windows error {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(untitled)",
   "widgetsC.rss.copyLink": "Copy link",
   "widgetsC.rss.noArticles": "This feed has no articles",

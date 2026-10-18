@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows قيد إيقاف التشغيل بالفعل",
   "widgetsC.power.reason.refused": "رفض Windows",
   "widgetsC.power.reason.windowsError": "خطأ Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(بلا عنوان)",
   "widgetsC.rss.copyLink": "نسخ الارتباط",
   "widgetsC.rss.noArticles": "لا توجد مقالات في هذا الموجز",

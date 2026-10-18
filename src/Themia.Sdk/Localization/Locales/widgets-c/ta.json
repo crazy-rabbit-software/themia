@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows ஏற்கனவே நிறுத்தப்படுகிறது",
   "widgetsC.power.reason.refused": "Windows மறுத்தது",
   "widgetsC.power.reason.windowsError": "Windows பிழை {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(தலைப்பில்லை)",
   "widgetsC.rss.copyLink": "இணைப்பை நகலெடு",
   "widgetsC.rss.noArticles": "இந்த ஊட்டத்தில் கட்டுரைகள் இல்லை",

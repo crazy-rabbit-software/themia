@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows กำลังปิดเครื่องอยู่แล้ว",
   "widgetsC.power.reason.refused": "Windows ปฏิเสธ",
   "widgetsC.power.reason.windowsError": "ข้อผิดพลาดของ Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(ไม่มีชื่อ)",
   "widgetsC.rss.copyLink": "คัดลอกลิงก์",
   "widgetsC.rss.noArticles": "ฟีดนี้ไม่มีบทความ",

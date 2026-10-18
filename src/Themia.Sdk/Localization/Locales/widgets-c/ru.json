@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows уже завершает работу",
   "widgetsC.power.reason.refused": "Windows отказала",
   "widgetsC.power.reason.windowsError": "Ошибка Windows {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(без названия)",
   "widgetsC.rss.copyLink": "Копировать ссылку",
   "widgetsC.rss.noArticles": "В этой ленте нет статей",

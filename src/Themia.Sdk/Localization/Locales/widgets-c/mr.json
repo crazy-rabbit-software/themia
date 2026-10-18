@@ -25,7 +25,6 @@
   "widgetsC.power.reason.shuttingDown": "Windows आधीच बंद होत आहे",
   "widgetsC.power.reason.refused": "Windows ने नाकारले",
   "widgetsC.power.reason.windowsError": "Windows त्रुटी {code}",
-  "widgetsC.rss.failure": "{name}: {reason}",
   "widgetsC.rss.untitled": "(शीर्षकहीन)",
   "widgetsC.rss.copyLink": "लिंक कॉपी करा",
   "widgetsC.rss.noArticles": "या फीडमध्ये लेख नाहीत",

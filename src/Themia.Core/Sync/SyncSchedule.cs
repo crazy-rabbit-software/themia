@@ -168,23 +168,5 @@ public static class SyncFreshness
     }
 
     /// <summary>The time part alone: a clock time today, weekday and time within six days, else a short date.</summary>
-    public static string When(Locale locale, DateTimeOffset at, DateTimeOffset now)
-    {
-        var local = at.ToOffset(now.Offset);
-        var today = DateOnly.FromDateTime(now.DateTime);
-        var day = DateOnly.FromDateTime(local.DateTime);
-        var time = LocaleFormat.Time(locale, local.DateTime);
-
-        if (day == today || day > today)
-        {
-            return time;
-        }
-
-        if (today.DayNumber - day.DayNumber < 7)
-        {
-            return $"{LocaleFormat.WeekdayName(locale, local.DayOfWeek, NameWidth.Short)} {time}";
-        }
-
-        return LocaleFormat.Date(locale, day, DateStyle.MonthDayShort);
-    }
+    public static string When(Locale locale, DateTimeOffset at, DateTimeOffset now) => Themia.Sdk.Kit.KitFreshness.When(locale, at, now);
 }
