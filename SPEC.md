@@ -7610,9 +7610,10 @@ but not reconnected at sign-in; a stopwatch running across a restart and a reboo
 ## Air quality, rain and exchange rates (ONLINE-2)
 
 Three online widgets on free, unauthenticated services, fetched only by the background web sync
-([S-2663]); a widget draws what the sync holds and never fetches. Core: `Widgets/AirQuality.cs`,
+([S-2663]); a widget draws what the sync holds and never fetches. SDK: `Widgets/AirQuality.cs`,
 `Widgets/RainNowcast.cs`, `Widgets/ExchangeRates.cs` (wire parsers and rules), `Widgets/OnlineLayouts.cs`
-(ladders), `Widgets/OnlineText.cs`, `Sync/OnlineInterests.cs`, `Storage/OnlineCacheStore.cs`,
+(the measures the ladders share), `Sync/WebInterests.cs`. Core: each widget's ladder and words
+(`AirLayout`/`AirText`, `RainLayout`/`RainText`, `RatesLayout`/`RatesText`), `Storage/OnlineCacheStore.cs`,
 `Model/Configs/OnlineConfigs.cs`. App: `Services/Web/OnlineService.cs`, `WebSync`, the views
 `AirQualityView`, `RainNextHourView`, `ExchangeRatesView` (+ `OnlineViews.Preview.cs`, `--state sample`),
 `WidgetSettings.Online.cs`. Strings in `Locales/online`. Tests `OnlineWidgetsTests` (`S51xx_`).
@@ -7645,7 +7646,7 @@ Air quality (`AirQuality`, 128):
 - **[S-5106]** Pollen (Europe, in season): the worst type and its level, "Grass · Moderate", or "None
   in the air"; levels from grains/m³ (low, moderate, high) at trees (alder, birch, olive) 1, 10, 100;
   grass and mugwort 1, 10, 50; ragweed 1, 5, 20. No pollen row where there is no pollen forecast.
-- **[S-5107]** Ladder (`OnlineLayouts.Air`): the index and its band are the hero (XS: number, unit,
+- **[S-5107]** Ladder (`AirLayout.Air`): the index and its band are the hero (XS: number, unit,
   band). The readings in priority order UV, PM2.5, pollen, PM10, ozone, then (the large tiles'
   rungs) the other agency's index and each pollen in the air with its level, as stat cells in two or
   three columns where two fit across (not on a tall column), one stat line each on a tall or narrow
@@ -7656,7 +7657,7 @@ Air quality (`AirQuality`, 128):
   as wide as the one before), the breakpoints under it in Caption.
 - **[S-6169]** The air widget's styles ([S-6000]), `AirQualityConfig.Style` (`AirQualityStyle`):
   **Number** ([S-5107], the default) and **Gauge**.
-- **[S-6170]** **Gauge** (`OnlineLayouts.AirGauge`): the meters' half-circle gauge ([S-6302],
+- **[S-6170]** **Gauge** (`AirLayout.AirGauge`): the meters' half-circle gauge ([S-6302],
   `GaugeDial`) filled to the index's place on the six equal bands (`AirQualityRules.ScalePosition`,
   the strip's own mapping, [S-5109]) in the band's status colour, the index in its bowl
   (`GaugeLayout.Reading`); then the band's words on a line under it; then the readings in the
@@ -7688,7 +7689,7 @@ Rain next hour (`RainNextHour`, 129):
 - **[S-5125]** The bars are on a fixed scale (heavy rain fills the chart), a wet quarter never thinner
   than 8%, a dry one a hairline on the baseline; "Now", +1 h and +2 h under them, left to right in
   every language.
-- **[S-5126]** Ladder (`OnlineLayouts.Rain`): the sentence always, at the step its width allows
+- **[S-5126]** Ladder (`RainLayout.Rain`): the sentence always, at the step its width allows
   (BodyStrong to Title; two lines on a tile too narrow for one), then the caption, then the bars
   where 32 DIP of them and their time line fit, taking the rest of the height.
 - **[S-5127]** Settings: Place, Location name, and the source line.
@@ -7714,7 +7715,7 @@ Exchange rates (`ExchangeRates`, 130):
 - **[S-5145]** Every pair is a cross rate through the euro (quote per euro ÷ base per euro); the change
   is against the newest earlier day holding both; a currency missing on the latest day is "Not
   published". Rates print four decimals under 10, three under 100, two above, locale digits.
-- **[S-5146]** **Number** (`OnlineLayouts.Rates`): the pair as the readout (rate, the quote's code,
+- **[S-5146]** **Number** (`RatesLayout.Rates`): the pair as the readout (rate, the quote's code,
   the day change beside it or under it, "per CHF") on the whole tile, from Subtitle as large as the
   tile allows (past Display, as a lone reading, [S-1762]); the Chart style's stops at the tier's step ([S-3860]). Up is the success colour, down critical. No table yet, or the latest day lacking
   either code: the empty state ("Not published"). The header is titled with the pair ("Exchange
@@ -7729,7 +7730,7 @@ Exchange rates (`ExchangeRates`, 130):
   rate shows with its graph) and **Number** ([S-5146]; what was **List** before one pair per widget,
   renamed since a list of one is a number). *(The list's rows and their
   small lines are retired with the list.)*
-- **[S-6168]** **Chart** (`OnlineLayouts.Rates`): the pair as the readout (as [S-5146]), and its 90
+- **[S-6168]** **Chart** (`RatesLayout.Rates`): the pair as the readout (as [S-5146]), and its 90
   days filled under the line in what the readout leaves (it takes 40 % of the spare height), edge to
   edge and down to the card's bottom; a strip (≥ 400 wide, 2:1) puts the readout in a column on the
   left (42 % of the width, 150..280) beside a chart of the strip's height. Where the chart would

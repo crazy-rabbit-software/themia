@@ -173,9 +173,9 @@ public sealed class OnlineWidgetsTests
     {
         var floor = FluentType.Subtitle.LineHeight + FluentType.Body.LineHeight;
 
-        Assert.False(OnlineLayouts.Air(new WidgetArea(320, 240), floor, 7).Strip);
-        Assert.True(OnlineLayouts.Air(new WidgetArea(560, 420), floor, 7).Strip);
-        Assert.True(OnlineLayouts.Air(new WidgetArea(800, 560), floor, 7).Strip);
+        Assert.False(AirLayout.Air(new WidgetArea(320, 240), floor, 7).Strip);
+        Assert.True(AirLayout.Air(new WidgetArea(560, 420), floor, 7).Strip);
+        Assert.True(AirLayout.Air(new WidgetArea(800, 560), floor, 7).Strip);
     }
 
     // ---- rain ----------------------------------------------------------------------------------
@@ -531,10 +531,10 @@ public sealed class OnlineWidgetsTests
     {
         var floor = FluentType.Subtitle.LineHeight + FluentType.Body.LineHeight;
 
-        var small = OnlineLayouts.Air(new WidgetArea(160, 100), floor, 5);
-        var medium = OnlineLayouts.Air(new WidgetArea(320, 260), floor, 5);
-        var tall = OnlineLayouts.Air(new WidgetArea(200, 460), floor, 5);
-        var strip = OnlineLayouts.Air(new WidgetArea(720, 140), floor, 5);
+        var small = AirLayout.Air(new WidgetArea(160, 100), floor, 5);
+        var medium = AirLayout.Air(new WidgetArea(320, 260), floor, 5);
+        var tall = AirLayout.Air(new WidgetArea(200, 460), floor, 5);
+        var strip = AirLayout.Air(new WidgetArea(720, 140), floor, 5);
 
         Assert.Equal(AirFacts.None, small.Facts);
         Assert.Equal(AirFacts.Cells, medium.Facts);
@@ -551,14 +551,14 @@ public sealed class OnlineWidgetsTests
     {
         var floor = FluentType.Subtitle.LineHeight;
 
-        var tiny = OnlineLayouts.Rain(new WidgetArea(160, 60), floor, true);
-        var small = OnlineLayouts.Rain(new WidgetArea(200, 80), floor, true);
-        var medium = OnlineLayouts.Rain(new WidgetArea(320, 200), floor, true);
+        var tiny = RainLayout.Rain(new WidgetArea(160, 60), floor, true);
+        var small = RainLayout.Rain(new WidgetArea(200, 80), floor, true);
+        var medium = RainLayout.Rain(new WidgetArea(320, 200), floor, true);
 
         Assert.Equal(0, tiny.ChartHeight);
         Assert.True(small.Caption);
         Assert.Equal(0, small.ChartHeight);
-        Assert.True(medium.ChartHeight >= OnlineLayouts.ChartMin + FluentType.Caption.LineHeight);
+        Assert.True(medium.ChartHeight >= RainLayout.ChartMin + FluentType.Caption.LineHeight);
     }
 
     [Fact]
@@ -568,7 +568,7 @@ public sealed class OnlineWidgetsTests
 
         foreach (var area in new[] { new WidgetArea(160, 120), new WidgetArea(440, 116), new WidgetArea(420, 420) })
         {
-            var plan = OnlineLayouts.Rates(area, ExchangeRatesStyle.Number, floor);
+            var plan = RatesLayout.Rates(area, ExchangeRatesStyle.Number, floor);
             Assert.Equal(area.Height - (2 * OnlineLayouts.VerticalInset), plan.HeroRoom);
             Assert.Equal(0, plan.ChartHeight);
             Assert.False(plan.Beside);

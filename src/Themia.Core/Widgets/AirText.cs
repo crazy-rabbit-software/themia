@@ -3,8 +3,8 @@ using Themia.Core.Model;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>[S-5104]..[S-5145] The words and figures the three online widgets print, in one place.</summary>
-public static class OnlineText
+/// <summary>[S-5104]..[S-5106] The words and figures the air widget prints.</summary>
+public static class AirText
 {
     /// <summary>[S-5104] A band's name on its scale.</summary>
     public static string Band(AirQualityScale scale, AirBand band) => (scale == AirQualityScale.Us
@@ -76,54 +76,4 @@ public static class OnlineText
             ? Str.Online_Air_PollenNone.Text()
             : $"{Pollen(pollen[0].Type)} · {Level(pollen[0].Level)}";
     }
-
-    /// <summary>[S-5124] The rain headline in words.</summary>
-    public static string Headline(RainOutlook outlook)
-    {
-        ArgumentNullException.ThrowIfNull(outlook);
-        var minutes = ("minutes", LocaleFormat.Integer(outlook.Minutes));
-        return outlook.Headline switch
-        {
-            RainHeadline.StartsIn => Str.Online_Rain_StartsIn.Format(minutes),
-            RainHeadline.StopsIn => Str.Online_Rain_StopsIn.Format(minutes),
-            RainHeadline.Continues => Str.Online_Rain_Continues.Text(),
-            RainHeadline.Dry => Str.Online_Rain_Dry.Text(),
-            _ => Str.Online_Rain_Outdated.Text(),
-        };
-    }
-
-    public static string Intensity(RainIntensity intensity) => (intensity switch
-    {
-        RainIntensity.Heavy => Str.Online_Rain_Intensity_Heavy,
-        RainIntensity.Moderate => Str.Online_Rain_Intensity_Moderate,
-        _ => Str.Online_Rain_Intensity_Light,
-    }).Text();
-
-    /// <summary>
-    /// [S-5124] The caption under the headline: the heaviest rain in the window and the total, or the
-    /// hour's chance when it stays dry; parts the window has nothing for are left out.
-    /// </summary>
-    public static string Caption(RainOutlook outlook)
-    {
-        ArgumentNullException.ThrowIfNull(outlook);
-
-        var parts = new List<string>(3);
-        var heaviest = outlook.Steps.Count == 0 ? RainIntensity.None : outlook.Steps.Max(s => RainRules.Intensity(s.Millimetres));
-
-        if (outlook.Headline != RainHeadline.Outdated && heaviest > RainIntensity.None)
-        {
-            parts.Add(Intensity(heaviest));
-            parts.Add(Str.Online_Rain_Total.Format(("amount", LocaleFormat.Number(outlook.Total, 1))));
-        }
-
-        if (outlook.Chance is { } chance && (heaviest > RainIntensity.None || chance > 0))
-        {
-            parts.Add(Str.Online_Rain_Chance.Format(("percent", LocaleFormat.Percent(Strings.Current, chance))));
-        }
-
-        return string.Join(" · ", parts);
-    }
-
-    /// <summary>[S-5145] A day change, "+0.21%" / "−0.08%", or empty when there is no earlier day.</summary>
-    public static string Change(double? percent) => percent is { } p ? MarketQuote.ChangePercent(p) : string.Empty;
 }

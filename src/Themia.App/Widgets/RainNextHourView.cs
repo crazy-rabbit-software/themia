@@ -228,8 +228,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
 
         _emptyState.Visibility = Visibility.Collapsed;
         _top.Visibility = Visibility.Visible;
-        _headline.Text = OnlineText.Headline(outlook);
-        _caption.Text = OnlineText.Caption(outlook);
+        _headline.Text = RainText.Headline(outlook);
+        _caption.Text = RainText.Caption(outlook);
 
         var wet = outlook.Headline is RainHeadline.StopsIn or RainHeadline.Continues or RainHeadline.StartsIn;
         _icon.Glyph = outlook.Headline == RainHeadline.Dry ? Glyphs.Cloudy : Glyphs.Rain;
@@ -266,7 +266,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
         _headline.TextWrapping = wraps ? TextWrapping.WrapWholeWords : TextWrapping.NoWrap;
         _headline.MaxLines = wraps ? 2 : 1;
         var floor = wanted.LineHeight * (wraps ? 2 : 1);
-        var plan = OnlineLayouts.Rain(_area, floor, hasCaption);
+        var plan = RainLayout.Rain(_area, floor, hasCaption);
 
         _caption.Visibility = plan.Caption ? Visibility.Visible : Visibility.Collapsed;
         var showChart = plan.ChartHeight > 0 && outlook.Headline != RainHeadline.Outdated;

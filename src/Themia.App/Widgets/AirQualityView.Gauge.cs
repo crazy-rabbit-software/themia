@@ -47,14 +47,14 @@ internal sealed partial class AirQualityView
     private void LayGauge(List<(string Glyph, string Label, string Value)> facts, AirQualityScale scale, double index, Brush tone)
     {
         var dial = Dial();
-        var plan = OnlineLayouts.AirGauge(_area, facts.Count);
+        var plan = AirLayout.AirGauge(_area, facts.Count);
         var geometry = GaugeLayout.Fit(plan.GaugeWidth, plan.GaugeHeight);
 
         _hero.Visibility = Visibility.Collapsed;
         _strip.Visibility = Visibility.Collapsed;
         _gauge.Visibility = Visibility.Visible;
 
-        _gaugeIndex.Text = OnlineText.Index(index);
+        _gaugeIndex.Text = AirText.Index(index);
         _gaugeBand.Text = _band.Text;
         _gaugeBand.Foreground = tone;
         _gaugeBand.Visibility = plan.Band ? Visibility.Visible : Visibility.Collapsed;

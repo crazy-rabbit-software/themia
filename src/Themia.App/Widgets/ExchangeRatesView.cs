@@ -216,7 +216,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         // allows, past Display as a lone reading does ([S-1762]); over a chart, to the tier's step ([S-3860]).
         var heroWidth = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
         var heroFloor = FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight;
-        var plan = OnlineLayouts.Rates(_area, _config.Style, heroFloor);
+        var plan = RatesLayout.Rates(_area, _config.Style, heroFloor);
 
         // [S-6168] A strip in the chart style: the readout a column on the left, the chart beside it.
         ColumnDefinitions[0].Width = plan.Beside ? new GridLength(plan.HeroWidth + (2 * OnlineLayouts.Inset)) : new GridLength(1, GridUnitType.Star);
@@ -275,7 +275,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         }
 
         // The change: after a space beside the rate, flush with the inset under it.
-        var change = OnlineText.Change(rate.ChangePercent);
+        var change = RatesText.Change(rate.ChangePercent);
         _hero.SetTrailing(change.Length > 0 ? [WidgetParts.Run((beside ? " " : string.Empty) + change, Direction(rate.ChangePercent))] : []);
         _hero.Lay(step, icon: false, trailingBeside: beside, linesBeside: false);
     }

@@ -235,7 +235,7 @@ public sealed class WeatherStylesTests
     // ---- exchange-rate chart [S-6168] --------------------------------------------------------
 
     private static RatesPlan RatesChart(WidgetArea area)
-        => OnlineLayouts.Rates(area, ExchangeRatesStyle.Chart, FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight);
+        => RatesLayout.Rates(area, ExchangeRatesStyle.Chart, FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight);
 
     [Fact]
     public void S6168_the_chart_style_is_the_rate_over_its_chart()
@@ -244,7 +244,7 @@ public sealed class WeatherStylesTests
         {
             var plan = RatesChart(tier);
             Assert.False(plan.Beside);
-            Assert.True(plan.ChartHeight >= OnlineLayouts.HeroChartMin, $"{tier}: chart {plan.ChartHeight}");
+            Assert.True(plan.ChartHeight >= RatesLayout.HeroChartMin, $"{tier}: chart {plan.ChartHeight}");
         }
     }
 
@@ -282,10 +282,10 @@ public sealed class WeatherStylesTests
     [Fact]
     public void S6170_the_gauge_takes_the_tile_and_the_readings_come_beside_on_a_strip_and_under_on_a_column()
     {
-        var small = OnlineLayouts.AirGauge(Xs, 7);
-        var medium = OnlineLayouts.AirGauge(M, 7);
-        var tall = OnlineLayouts.AirGauge(Tall, 7);
-        var strip = OnlineLayouts.AirGauge(new WidgetArea(720, 140), 7);
+        var small = AirLayout.AirGauge(Xs, 7);
+        var medium = AirLayout.AirGauge(M, 7);
+        var tall = AirLayout.AirGauge(Tall, 7);
+        var strip = AirLayout.AirGauge(new WidgetArea(720, 140), 7);
 
         Assert.Equal(AirFacts.None, small.Facts);
         Assert.NotNull(GaugeLayout.Fit(small.GaugeWidth, small.GaugeHeight));

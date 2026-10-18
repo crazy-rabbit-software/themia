@@ -226,40 +226,40 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
         if (air.Uv is { } uv)
         {
-            facts.Add((Glyphs.Sun, Str.Online_Air_Uv.Text(), OnlineText.UvReading(uv)));
+            facts.Add((Glyphs.Sun, Str.Online_Air_Uv.Text(), AirText.UvReading(uv)));
         }
 
         if (air.Pm25 is { } pm25)
         {
-            facts.Add((Glyphs.Fog, Str.Online_Air_Pm25.Text(), OnlineText.Concentration(pm25)));
+            facts.Add((Glyphs.Fog, Str.Online_Air_Pm25.Text(), AirText.Concentration(pm25)));
         }
 
         if (AirQualityRules.HasPollen(air))
         {
-            facts.Add((Glyphs.AirQuality, Str.Online_Air_Pollen.Text(), OnlineText.PollenSummary(AirQualityRules.Pollen(air))));
+            facts.Add((Glyphs.AirQuality, Str.Online_Air_Pollen.Text(), AirText.PollenSummary(AirQualityRules.Pollen(air))));
         }
 
         if (air.Pm10 is { } pm10)
         {
-            facts.Add((Glyphs.Fog, Str.Online_Air_Pm10.Text(), OnlineText.Concentration(pm10)));
+            facts.Add((Glyphs.Fog, Str.Online_Air_Pm10.Text(), AirText.Concentration(pm10)));
         }
 
         if (air.Ozone is { } ozone)
         {
-            facts.Add((Glyphs.Globe, Str.Online_Air_Ozone.Text(), OnlineText.Concentration(ozone)));
+            facts.Add((Glyphs.Globe, Str.Online_Air_Ozone.Text(), AirText.Concentration(ozone)));
         }
 
         // [S-5107] The large tiles' rungs: the other agency's index, then the other pollens in the air.
         var other = scale == AirQualityScale.Us ? AirQualityScale.European : AirQualityScale.Us;
         if (AirQualityRules.Index(air, other) is { } otherIndex)
         {
-            facts.Add((Glyphs.AirQuality, OnlineText.ScaleUnit(other),
-                OnlineText.Index(otherIndex)));
+            facts.Add((Glyphs.AirQuality, AirText.ScaleUnit(other),
+                AirText.Index(otherIndex)));
         }
 
         foreach (var (type, level) in AirQualityRules.Pollen(air).Skip(1))
         {
-            facts.Add((Glyphs.AirQuality, OnlineText.Pollen(type), OnlineText.Level(level)));
+            facts.Add((Glyphs.AirQuality, AirText.Pollen(type), AirText.Level(level)));
         }
 
         return facts;
@@ -289,9 +289,9 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
         var band = AirQualityRules.Band(scale, index);
         var tone = Tone(AirQualityRules.Tone(band));
-        _hero.SetValue(OnlineText.Index(index), OnlineText.ScaleUnit(scale), spaced: true);
+        _hero.SetValue(AirText.Index(index), AirText.ScaleUnit(scale), spaced: true);
         _hero.Icon.Foreground = tone;
-        _band.Text = OnlineText.Band(scale, band);
+        _band.Text = AirText.Band(scale, band);
         _band.Foreground = tone;
 
         OnlineParts.Stamp(_freshness, held, _subscribedInterval, note: Str.Online_Source.Format(("name", "CAMS · Open-Meteo")));
@@ -317,7 +317,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         var width = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
         var bandBeside = BandFitsBeside(width, FluentType.Subtitle);
         var floor = FluentType.Subtitle.LineHeight + (bandBeside ? 0 : FluentType.Body.LineHeight);
-        var plan = OnlineLayouts.Air(_area, floor, facts.Count);
+        var plan = AirLayout.Air(_area, floor, facts.Count);
 
         _facts.Children.Clear();
         _facts.ColumnDefinitions.Clear();
